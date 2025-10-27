@@ -72,7 +72,7 @@ void AiProviderConfig::save(const QString &url, const QString &apiKey, const QSt
     m_modelIds = modelIds;
 
     GroupScope group(m_providerName);
-    Core::ICore::settings()->setValue("url", m_url);
+    Core::ICore::settings()->setValue("url", m_url.toString());
     Core::ICore::settings()->setValue("apiKey", m_apiKey);
     Core::ICore::settings()->setValue("modelIds", m_modelIds);
 }

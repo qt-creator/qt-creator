@@ -18,7 +18,6 @@ public:
         EmptyChoices,
         InvalidMessage,
         EmptyMessage,
-        InvalidQmlBlock,
     };
 
     AiResponse(const QByteArray &response);

@@ -11,12 +11,16 @@ const QList<AiProviderData> AiProviderData::defaultProviders()
     static const QList<AiProviderData> providers{
         AiProviderData{
             .name = "Groq",
-            .defaultUrl = QUrl{"https://api.groq.com/openai/v1/chat/completions"},
+            .url = QUrl{"https://api.groq.com/openai/v1/chat/completions"},
             .models = {
-                "meta-llama/llama-4-maverick-17b-128e-instruct",
+                "llama-3.1-8b-instant",
+                "llama-3.3-70b-versatile",
                 "openai/gpt-oss-120b",
                 "openai/gpt-oss-20b",
-                "gpt-4o-mini",
+                "groq/compound",
+                "groq/compound-mini",
+                "moonshotai/kimi-k2-instruct-0905",
+                "qwen/qwen3-32b"
             },
         },
     };
