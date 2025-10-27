@@ -510,8 +510,8 @@ static CMakeBuildSystem::SnippetAndLocation generateSnippetForExistingTargetProp
     return result;
 }
 
-bool CMakeBuildSystem::setTargetProperty(
-    ProjectExplorer::Node *context, const QString &property, const QString &value, std::string condition)
+bool CMakeBuildSystem::addTargetProperty(ProjectExplorer::Node *context, const QString &property,
+                                         const QString &value, const std::string &condition)
 {
     if (!context)
         return false;
@@ -538,10 +538,9 @@ bool CMakeBuildSystem::setTargetProperty(
         }
     }
 
-    QString snippet;
     SnippetAndLocation insertLocation;
+    QString snippet = QStringLiteral("%1 \"%2\"").arg(property, value);
 
-    snippet = QString("%1 \"%2\"").arg(property, value);
     if (functions.empty()) {
         insertLocation = generateSnippetWithTargetPropertyBlock(targetName, snippet, *cmakeListFile);
     } else {

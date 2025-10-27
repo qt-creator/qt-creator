@@ -188,8 +188,8 @@ bool BuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *notAdd
     return false;
 }
 
-bool BuildSystem::setTargetProperty(ProjectExplorer::Node *context, const QString &property,
-                                    const QString &value, std::string condition)
+bool BuildSystem::addTargetProperty(ProjectExplorer::Node *context, const QString &property,
+                                    const QString &value, const std::string &condition)
 {
     Q_UNUSED(context);
     Q_UNUSED(property);

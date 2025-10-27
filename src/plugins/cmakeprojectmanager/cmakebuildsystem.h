@@ -66,8 +66,8 @@ public:
                                                               const QString &snippet,
                                                               const cmListFile &file);
 
-    bool setTargetProperty(ProjectExplorer::Node *context, const QString &property, const QString &value,
-                           std::string condition = "") final;
+    bool addTargetProperty(ProjectExplorer::Node *context, const QString &property, const QString &value,
+                           const std::string &condition = std::string{}) final;
 
 
     ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,

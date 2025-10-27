@@ -26,6 +26,8 @@ const char BUILD_SUBPROJECT_CONTEXT_MENU[] = "CMakeProject.BuildSubProjectContex
 const char CLEAN_SUBPROJECT_CONTEXT_MENU[] = "CMakeProject.CleanSubProjectContextMenu";
 const char REBUILD_SUBPROJECT_CONTEXT_MENU[] = "CMakeProject.RebuildSubProjectContextMenu";
 
+const char CMAKE_CURRENT_SOURCE_DIR[] = "${CMAKE_CURRENT_SOURCE_DIR}";
+
 const char CMAKEFORMATTER_SETTINGS_GROUP[] = "CMakeFormatter";
 const char CMAKEFORMATTER_GENERAL_GROUP[] = "General";
 const char CMAKEFORMATTER_ACTION_ID[] = "CMakeFormatter.Action";
