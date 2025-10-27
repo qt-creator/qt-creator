@@ -396,8 +396,7 @@ std::tuple<QString, QString> CMakeWriter::makeResourcesBlocksModule(const NodePt
         for (const QString &res : bigRes)
             resourceContent.append(QString("\n\t\t%1").arg(res));
 
-        const QString prefixPath = QString(node->uri).replace('.', '/');
-        const QString prefix = "/qt/qml/" + prefixPath;
+        const QString prefix = "/qt/qml/" + m_parent->nodeRelativeToRoot(node);
         const QString resourceName = node->name + "BigResource";
 
         bigResourcesOut = QString::fromUtf8(TEMPLATE_BIG_RESOURCES, -1)

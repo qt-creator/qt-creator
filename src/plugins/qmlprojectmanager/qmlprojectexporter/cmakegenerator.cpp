@@ -122,6 +122,17 @@ bool CMakeGenerator::hasChildModule(const NodePtr &node) const
     return false;
 }
 
+QString CMakeGenerator::nodeRelativeToRoot(const NodePtr &node) const
+{
+    const QString relPath = node->dir.relativePathFromDir(m_root->dir).toFSPathString();
+
+    // Same dir should be just empty path in our use case
+    if (relPath == ".")
+        return {};
+
+    return relPath;
+}
+
 void CMakeGenerator::updateModifiedFile(const QString &fileString)
 {
     if (!isEnabled() || !m_writer)
