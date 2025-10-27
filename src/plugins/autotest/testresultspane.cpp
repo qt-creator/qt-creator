@@ -32,6 +32,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/fileutils.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
@@ -338,6 +339,7 @@ QList<QWidget *> TestResultsPane::toolBarWidgets() const
 
 void TestResultsPane::clearContents()
 {
+    m_pendingRunner.reset();
     m_bufferTimer.stop();
     m_buffered.clear();
     m_lastCurrentMessage.reset();
@@ -814,7 +816,7 @@ void TestResultsPane::showTestResult(const QModelIndex &index)
 
 bool TestResultsPane::expandIntermediate() const
 {
-    return !m_handlingPending && m_expandCollapse->isChecked();
+    return !m_pendingRunner.isRunning() && m_expandCollapse->isChecked();
 }
 
 struct ExpandedRows
@@ -846,53 +848,75 @@ static void reexpand(TestResultFilterModel *model, ResultsTreeView *view,
     }
 }
 
+using CopyAndAddResult = Result<std::unique_ptr<TestResultItem>>;
+
+static void copyAndAddPending(QPromise<CopyAndAddResult> &promise,
+                              const QList<TestResult> &original,
+                              const QList<TestResult> &buffered)
+{
+    std::unique_ptr<TestResultItem> newRoot = std::make_unique<TestResultItem>(TestResult{});
+    for (const TestResult &result : original) {
+        if (promise.isCanceled())
+            return;
+        newRoot->addTestResult(result, false);
+    }
+    for (const TestResult &result : buffered) {
+        if (promise.isCanceled())
+            return;
+        newRoot->addTestResult(result, false);
+    }
+    promise.addResult(std::move(newRoot));
+}
+
 void TestResultsPane::handlePendingResultsSilently()
 {
-    m_handlingPending = true;
-    // create copy of the original
-    TestResultModel *copied = new TestResultModel(this);
-    const TestResultItem *origRoot = m_model->rootItem();
-    origRoot->forAllChildren([copied](TreeItem *it) {
-        copied->addTestResult(static_cast<TestResultItem *>(it)->testResult());
-    });
+    auto onSetup = [this](Async<CopyAndAddResult> &task) {
+        QList<TestResult> originalResults;
+        m_model->rootItem()->forAllChildren([&originalResults](TreeItem *it) {
+            originalResults.append(static_cast<TestResultItem *>(it)->testResult());
+        });
+        task.setConcurrentCallData(&copyAndAddPending, originalResults, m_buffered);
+        m_buffered.clear();
+        task.setFutureSynchronizer(nullptr);
+    };
+    auto onDone = [this](const Async<CopyAndAddResult> &async) {
+        if (!async.isResultAvailable()) // task was canceled, no result at all
+            return;
+        CopyAndAddResult newRoot = async.takeResult();
+        if (!newRoot) // no result? so keep whatever is present already
+            return;
 
-    // append buffered results
-    while (m_buffered.size())
-        copied->addTestResult(m_buffered.dequeue());
+        // collect current model's expansion, selection and position
+        const QList<ExpandedRows> origExpanded = collectExpanded(m_filterModel, m_treeView, {});
+        QList<int> selectedRows;
+        const QModelIndexList itemSelection = m_treeView->selectionModel()->selectedIndexes();
+        if (itemSelection.size() == 1) {
+            QModelIndex idx = itemSelection.first();
+            do {
+                selectedRows.prepend(idx.row());
+                idx = idx.parent();
+            } while (idx.isValid());
+        }
+        int value = -1;
+        if (auto sb = m_treeView->verticalScrollBar())
+            value = sb->value();
 
-    // collect current model's expansion, selection and position
-    const QList<ExpandedRows> origExpanded = collectExpanded(m_filterModel, m_treeView, {});
-    QList<int> selectedRows; // rows of the child items down to the selected one
-    const QModelIndexList itemSelection = m_treeView->selectionModel()->selectedIndexes();
-    if (itemSelection.size() == 1) {
-        QModelIndex idx = itemSelection.first();
-        do {
-            selectedRows.prepend(idx.row());
-            idx = idx.parent();
-        } while (idx.isValid());
-    }
-    int value = -1;
-    if (auto sb = m_treeView->verticalScrollBar())
-        value = sb->value();
+        // exchange root items
+        m_model->setRootItem(newRoot->release());
 
-    // exchange models + clean up
-    TestResultModel *old = m_model;
-    m_model = copied;
-    m_filterModel->setSourceModel(m_model);
-    delete old;
+        // restore expansion, selection and position, ignore expansion of items added silently
+        reexpand(m_filterModel, m_treeView, origExpanded, {});
+        if (!selectedRows.isEmpty()) {
+            QModelIndex idx;
+            for (int row : std::as_const(selectedRows))
+                idx = m_filterModel->index(row, 0, idx);
+            m_treeView->selectionModel()->select(idx, QItemSelectionModel::Select);
+        }
+        if (value != -1)
+            m_treeView->verticalScrollBar()->setValue(value);
+    };
 
-    // restore expansion, selection and position, ignore expansion of items added silently
-    reexpand(m_filterModel, m_treeView, origExpanded, {});
-    if (!selectedRows.isEmpty()) {
-        QModelIndex idx;
-        for (int row : selectedRows)
-            idx = m_filterModel->index(row, 0, idx);
-        m_treeView->selectionModel()->select(idx, QItemSelectionModel::Select);
-    }
-    if (value != -1)
-        m_treeView->verticalScrollBar()->setValue(value);
-
-    m_handlingPending = false;
+    m_pendingRunner.start({AsyncTask<CopyAndAddResult>{onSetup, onDone}});
 }
 
 } // namespace Autotest::Internal

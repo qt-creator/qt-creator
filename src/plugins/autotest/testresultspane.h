@@ -9,6 +9,8 @@
 
 #include <utils/itemviews.h>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 #include <QQueue>
 #include <QTimer>
 
@@ -134,11 +136,11 @@ private:
     bool m_autoScroll = false;
     bool m_atEnd = false;
     bool m_testRunning = false;
-    bool m_handlingPending = false;
     QList<TestEditorMark *> m_marks;
     QQueue<TestResult> m_buffered;
     std::optional<TestResult> m_lastCurrentMessage = std::nullopt;
     QTimer m_bufferTimer;
+    QSingleTaskTreeRunner m_pendingRunner;
 };
 
 } // namespace Internal

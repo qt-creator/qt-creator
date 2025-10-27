@@ -75,6 +75,8 @@ public:
     void raiseDisabledTests(int amount) { m_disabled += amount; }
     void raiseTestResultCount(const QString &id, ResultType type);
 
+    void setRootItem(TestResultItem *root);
+
 private:
     void addFileName(const QString &fileName);
     void recalculateMaxWidthOfFileName(const QFont &font);

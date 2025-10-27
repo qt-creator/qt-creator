@@ -393,6 +393,11 @@ TestResultModel::TestResultModel(QObject *parent)
     });
 }
 
+void TestResultModel::setRootItem(TestResultItem *root)
+{
+    BaseTreeModel::setRootItem(root);
+}
+
 void TestResultModel::raiseTestResultCount(const QString &id, ResultType type)
 {
     m_testResultCount[id][type]++;
