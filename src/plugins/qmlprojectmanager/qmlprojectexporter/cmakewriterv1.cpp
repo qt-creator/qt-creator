@@ -152,8 +152,16 @@ void CMakeWriterV1::writeModuleCMakeFile(const NodePtr &node, const NodePtr &) c
     postfix.append(bigResources);
 
     const QString fileTemplate = readTemplate(":/templates/cmakemodule_v1");
+
+    qsizetype prefixPathSize = node->uri.size();
+    QString relativePath = parent()->nodeRelativeToRoot(node);
+    if (relativePath.size() > prefixPathSize)
+        relativePath = '/' + relativePath.left(relativePath.size() - prefixPathSize - 1);
+    else
+        relativePath.clear();
+
     const QString fileContent = fileTemplate
-        .arg(node->name, node->uri, prefix, moduleContent, postfix);
+        .arg(node->name, node->uri, prefix, moduleContent, postfix, relativePath);
     writeFile(writeToFile, fileContent);
 }
 

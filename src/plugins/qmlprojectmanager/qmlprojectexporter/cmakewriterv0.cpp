@@ -11,7 +11,7 @@ const char TEMPLATE_ADD_QML_MODULE[] = R"(
 qt6_add_qml_module(%1
     URI "%2"
     VERSION 1.0
-    RESOURCE_PREFIX "/qt/qml"
+    RESOURCE_PREFIX "/qt/qml%4"
 %3))";
 
 CMakeWriterV0::CMakeWriterV0(CMakeGenerator *parent)
@@ -118,8 +118,15 @@ void CMakeWriterV0::writeModuleCMakeFile(const NodePtr &node, const NodePtr &roo
         const QString addLibraryTemplate("qt_add_library(%1 STATIC)");
         const QString addModuleTemplate(TEMPLATE_ADD_QML_MODULE);
 
+        qsizetype prefixPathSize = node->uri.size();
+        QString relativePath = parent()->nodeRelativeToRoot(node);
+        if (relativePath.size() > prefixPathSize)
+            relativePath = '/' + relativePath.left(relativePath.size() - prefixPathSize - 1);
+        else
+            relativePath.clear();
+
         content.append(addLibraryTemplate.arg(node->name));
-        content.append(addModuleTemplate.arg(node->name, node->uri, qmlModulesContent));
+        content.append(addModuleTemplate.arg(node->name, node->uri, qmlModulesContent, relativePath));
         content.append("\n\n");
     }
 

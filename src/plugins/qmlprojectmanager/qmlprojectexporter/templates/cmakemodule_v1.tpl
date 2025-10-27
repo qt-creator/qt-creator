@@ -7,7 +7,7 @@ qt_add_library(%1 STATIC)
 qt6_add_qml_module(%1
     URI "%2"
     VERSION 1.0
-    RESOURCE_PREFIX "/qt/qml"
+    RESOURCE_PREFIX "/qt/qml%6"
 %4)
 
 %5
