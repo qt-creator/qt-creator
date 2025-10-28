@@ -133,7 +133,7 @@ void ShellIntegration::onOsc(int cmd, std::string_view str, bool initial, bool f
         qCDebug(integrationLog) << "OSC 133:" << data;
     } else if (cmd == 633 && command.length() == 1) {
         if (command[0] == 'E') {
-            const CommandLine cmdLine = CommandLine::fromUserInput(data.toString());
+            const CommandLine cmdLine = CommandLine::fromUserInput(data.chopped(1).toString());
             emit commandChanged(cmdLine);
         } else if (command[0] == 'D') {
             emit commandChanged({});
