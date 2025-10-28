@@ -157,9 +157,11 @@ Item {
                             let hasTexture = ContentLibraryBackend.rootView
                                          .hasTexture(drag.formats[0], drag.urls)
                             let isValid2DNode = categoryTitle === "2D"
+                                         && drag.formats[0] === "application/vnd.qtdesignstudio.modelnode.list"
                                          && ContentLibraryBackend.rootView
                                          .has2DNode(drag.getDataAsArrayBuffer(drag.formats[0]))
                             let isValid3DNode = categoryTitle === "3D"
+                                         && drag.formats[0] === "application/vnd.qtdesignstudio.modelnode.list"
                                          && ContentLibraryBackend.rootView
                                          .has3DNode(drag.getDataAsArrayBuffer(drag.formats[0]))
 
