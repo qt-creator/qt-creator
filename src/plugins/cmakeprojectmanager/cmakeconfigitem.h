@@ -70,6 +70,8 @@ public:
 
     const QList<CMakeConfigItem> &toList() const { return *this; }
 
+    QStringList toArguments() const;
+
     static CMakeConfig fromArguments(const QStringList &list, QStringList &unknownOptions);
     static CMakeConfig fromFile(const Utils::FilePath &input, QString *errorMessage);
 

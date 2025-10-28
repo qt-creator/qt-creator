@@ -44,7 +44,6 @@ public:
     static void setToolset(ProjectExplorer::Kit *k, const QString &toolset);
     static void set(ProjectExplorer::Kit *k, const QString &generator,
                     const QString &platform, const QString &toolset);
-    static QStringList generatorArguments(const ProjectExplorer::Kit *k);
     static CMakeConfig generatorCMakeConfig(const ProjectExplorer::Kit *k);
     static bool isMultiConfigGenerator(const ProjectExplorer::Kit *k);
 

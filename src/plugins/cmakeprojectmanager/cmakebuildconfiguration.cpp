@@ -1200,7 +1200,7 @@ static CommandLine defaultInitialCMakeCommand(
     QTC_ASSERT(!cmakeExecutable.isEmpty(), return {});
 
     CommandLine cmd{cmakeExecutable};
-    cmd.addArgs(CMakeGeneratorKitAspect::generatorArguments(k));
+    cmd.addArgs(CMakeGeneratorKitAspect::generatorCMakeConfig(k).toArguments());
 
     // CMAKE_BUILD_TYPE:
     if (!buildType.isEmpty() && !CMakeGeneratorKitAspect::isMultiConfigGenerator(k))

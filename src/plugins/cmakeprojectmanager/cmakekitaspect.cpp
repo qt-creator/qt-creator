@@ -839,24 +839,6 @@ void CMakeGeneratorKitAspect::set(Kit *k,
     setGeneratorInfo(k, info);
 }
 
-QStringList CMakeGeneratorKitAspect::generatorArguments(const Kit *k)
-{
-    QStringList result;
-    GeneratorInfo info = generatorInfo(k);
-    if (info.generator.isEmpty())
-        return result;
-
-    result.append("-G" + info.generator);
-
-    if (!info.platform.isEmpty())
-        result.append("-A" + info.platform);
-
-    if (!info.toolset.isEmpty())
-        result.append("-T" + info.toolset);
-
-    return result;
-}
-
 CMakeConfig CMakeGeneratorKitAspect::generatorCMakeConfig(const Kit *k)
 {
     CMakeConfig config;

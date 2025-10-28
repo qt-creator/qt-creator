@@ -304,6 +304,16 @@ static CMakeConfigItem unsetItemFromString(const QString &input)
     return item;
 }
 
+QStringList CMakeConfig::toArguments() const
+{
+    QStringList args;
+    for (const CMakeConfigItem &item : *this) {
+        args << item.toArgument();
+    }
+    return args;
+}
+
+
 CMakeConfig CMakeConfig::fromArguments(const QStringList &list, QStringList &unknownOptions)
 {
     CMakeConfig result;
