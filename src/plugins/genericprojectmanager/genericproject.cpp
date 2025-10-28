@@ -638,8 +638,6 @@ Project::RestoreResult GenericProject::fromMap(const Store &map, QString *errorM
 
     // Sanity check: We need both a buildconfiguration and a runconfiguration!
     const QList<Target *> targetList = targets();
-    if (targetList.isEmpty())
-        return RestoreResult::Error;
 
     for (Target *t : targetList) {
         if (!t->activeBuildConfiguration()) {
