@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.16)
 project(%{ProjectName} VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+@if %{GenerateQmllsIniCondition} && %{GenerateQmllsIni}
+set(QT_QML_GENERATE_QMLLS_INI ON)
+@endif
 
 find_package(Qt6 REQUIRED COMPONENTS Quick)
 

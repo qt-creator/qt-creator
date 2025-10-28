@@ -21,8 +21,10 @@
 
         { "key": "ImportModuleName", "value": "%{ProjectName}" },
         { "key": "QtQuickControlsStyle", "value": "Material" },
-        { "key": "QtQuickControlsStyleTheme", "value": "Light" }
+        { "key": "QtQuickControlsStyleTheme", "value": "Light" },
+        { "key": "GenerateQmllsIniCondition", "value": "%{JS: value('MinimumSupportedQtVersion') != '6.10' }" }
     ],
+
 
     "pages":
     [
@@ -64,6 +66,17 @@
                             { "trKey": "Qt 6.10", "value": "6.10" }
                         ],
                         "index": 2
+                    }
+                },
+                {
+                    "name": "GenerateQmllsIni",
+                    "span": true,
+                    "trDisplayName": "Set QT_QML_GENERATE_QMLLS_INI to ON in CMake",
+                    "type": "CheckBox",
+                    "enabled": "%{GenerateQmllsIniCondition}",
+                    "data":
+                    {
+                        "checked": "%{GenerateQmllsIniCondition}"
                     }
                 }
             ]
