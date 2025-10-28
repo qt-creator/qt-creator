@@ -43,6 +43,25 @@ using namespace ProjectExplorer::Internal;
 
 namespace ProjectExplorer {
 
+static void configureEditor(IEditor *editor, const FilePath &filePath)
+{
+    // Global settings are the default.
+    if (const Project *project = ProjectManager::projectForFile(filePath))
+        project->editorConfiguration()->configureEditor(editor);
+}
+
+static void configureEditors(const Project *project)
+{
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *document : documents) {
+        if (project->isKnownFile(document->filePath())) {
+            const QList<IEditor *> editors = DocumentModel::editorsForDocument(document);
+            for (IEditor *editor : editors)
+                project->editorConfiguration()->configureEditor(editor);
+        }
+    }
+}
+
 class ProjectManagerPrivate
 {
 public:
@@ -91,7 +110,7 @@ ProjectManager::ProjectManager()
     d = new ProjectManagerPrivate;
 
     connect(EditorManager::instance(), &EditorManager::editorCreated,
-            this, &ProjectManager::configureEditor);
+            this, &configureEditor);
     connect(this, &ProjectManager::projectAdded,
             EditorManager::instance(), &EditorManager::updateWindowTitles);
     connect(this, &ProjectManager::projectRemoved,
@@ -553,25 +572,6 @@ bool ProjectManager::isKnownFile(const Utils::FilePath &filePath)
 bool ProjectManager::isAnyProjectParsing()
 {
     return Utils::anyOf(d->m_projects, &Project::isParsing);
-}
-
-void ProjectManager::configureEditor(IEditor *editor, const FilePath &filePath)
-{
-    // Global settings are the default.
-    if (Project *project = projectForFile(filePath))
-        project->editorConfiguration()->configureEditor(editor);
-}
-
-void ProjectManager::configureEditors(Project *project)
-{
-    const QList<IDocument *> documents = DocumentModel::openedDocuments();
-    for (IDocument *document : documents) {
-        if (project->isKnownFile(document->filePath())) {
-            const QList<IEditor *> editors = DocumentModel::editorsForDocument(document);
-            for (IEditor *editor : editors)
-                project->editorConfiguration()->configureEditor(editor);
-        }
-    }
 }
 
 void ProjectManager::removeProjects(const QList<Project *> &remove)

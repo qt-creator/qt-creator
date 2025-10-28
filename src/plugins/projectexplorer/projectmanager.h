@@ -9,8 +9,6 @@
 #include <QString>
 #include <QObject>
 
-namespace Core { class IEditor; }
-
 #include <functional>
 
 namespace Utils {
@@ -26,7 +24,6 @@ class BuildSystem;
 class QmlCodeModelInfo;
 class Kit;
 class Project;
-class RunConfiguration;
 class Target;
 
 class PROJECTEXPLORER_EXPORT ProjectManager : public QObject
@@ -135,9 +132,6 @@ signals:
     void requestCodeModelReset();
 
 private:
-    static void configureEditor(Core::IEditor *editor, const Utils::FilePath &filePath);
-    static void configureEditors(Project *project);
-
     static void registerProjectCreator(const QString &mimeType,
                                        const std::function<Project *(const Utils::FilePath &)> &,
                                        const IssuesGenerator &issuesGenerator);
