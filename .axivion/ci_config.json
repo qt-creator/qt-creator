@@ -1,0 +1,62 @@
+{
+    "Project": {
+        "AxivionLinker_modified": {
+            "_active": true,
+            "_copy_from": "AxivionLinker",
+            "input_files": [
+                "../build_qt-creator_axivion/bin/qtcreator"
+            ],
+            "ir": "../build_qt-creator_axivion/bin/qtcreator-linked.ir",
+            "plugin_files": [
+                "../build_qt-creator_axivion/lib/qtcreator/plugins/lib*.so"
+            ]
+        },
+        "BuildSystemIntegration": {
+            "child_order": [
+                "CMakeIntegration",
+                "AxivionLinker_modified"
+            ]
+        },
+        "CMakeIntegration": {
+            "_active": true,
+            "build_directory": "../build_qt-creator_axivion",
+            "build_options": "-j2",
+            "environment": {
+                "$(delta:+)": {},
+                "$(delta:-)": []
+            },
+            "generate_environment": {
+                "$(delta:+)": {},
+                "$(delta:-)": []
+            },
+            "generate_options": "--fresh -DCMAKE_PREFIX_PATH=\"$(QT_DIR);$(LLVM_INSTALL_DIR)\" -DWITH_QMLDESIGNER=ON",
+            "generator": "Ninja",
+            "toolname": "cmake"
+        },
+        "Git": {
+            "_active": true,
+            "sourceserver_gitdir": "/data/axivion/qt-creator.git"
+        },
+        "Project-GlobalOptions": {
+            "directory": "../",
+            "ir": "../build_qt-creator_axivion/bin/qtcreator-linked.ir",
+            "name": "qt-creator"
+        }
+    },
+    "Results": {
+        "Dashboard": {
+            "ci_mode": {
+                "check_integrity": true,
+                "directory": "/media/axivion_nfs"
+            },
+            "dashboard_url": "https://axivion-srv.ci.qt.io/axivion"
+        }
+    },
+    "_Format": "1.0",
+    "_VersionNum": [
+        7,
+        10,
+        5,
+        17704
+    ]
+}

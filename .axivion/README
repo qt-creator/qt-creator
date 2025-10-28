@@ -1,0 +1,19 @@
+axivion config used by CI to run analysis on Linux using gcc
+
+If you want to use this ensure that prerequisites are met:
+ * axivion needs to be installed $HOME/bauhaus-suite and correctly set up
+   (for different locations start_ci.sh needs to get adapted)
+ * axivion license needs to be present
+ * cmake and ninja need to be in PATH
+ * gcc/g++ needs to be in PATH
+ * QT_DIR must be set to a Qt to build QC with (e.g. "$HOME/Qt/6.9.2/gcc_64")
+ * LLVM_INSTALL_DIR must be set to a supported libclang installation
+ * additional requirements may apply - or may be disabled by respective environment variables
+   (please, refer to the official README.md inside the QC repostiory top level)
+
+Using start_ci.sh recreates the compiler_config.json automatically.
+
+If not using the start_ci.sh script you need to explicitly create the compiler_config.json
+yourself. To do so, set the BAUHAUS_CONFIG environment variable to this folder,
+source either bauhaus-kshrc or bauhaus-cshrc from the Axivion installation folder and run
+gccsetup afterwards.

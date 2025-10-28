@@ -1,0 +1,8 @@
+{
+    "#": "Note: Evaluation order is from bottom to top",
+    "_Layers": [
+        "ci_config.json",
+        "compiler_config.json",
+        "rule_config.json"
+    ]
+}
