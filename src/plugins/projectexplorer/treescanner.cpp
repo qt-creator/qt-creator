@@ -211,6 +211,7 @@ static TreeScanner::Result scanForFilesHelper(
                 else
                     firstLevelNodes << subdir;
             } else {
+                delete subdir;
                 promise.setProgressValue(future.progressValue() + progressIncrement);
             }
         }
