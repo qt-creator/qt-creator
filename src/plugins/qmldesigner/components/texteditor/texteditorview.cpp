@@ -72,10 +72,7 @@ public:
 
     void setTextEditor(Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor> textEditor);
 
-    TextEditor::BaseTextEditor *textEditor() const
-    {
-        return m_textEditor.get();
-    }
+    TextEditor::BaseTextEditor *textEditor() const { return m_textEditor.get(); }
 
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
     void jumpTextCursorToSelectedModelNode();
@@ -473,26 +470,6 @@ void TextEditorView::modelAboutToBeDetached(Model *model)
         m_widget->setTextEditor(nullptr);
 }
 
-void TextEditorView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)
-{
-}
-
-void TextEditorView::nodeAboutToBeRemoved(const ModelNode &/*removedNode*/)
-{
-}
-
-void TextEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
-{
-}
-
-void TextEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*propertyList*/)
-{
-}
-
-void TextEditorView::nodeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-}
-
 WidgetInfo TextEditorView::widgetInfo()
 {
     return createWidgetInfo(m_widget,
@@ -536,10 +513,6 @@ TextEditor::BaseTextEditor *TextEditorView::textEditor()
     return m_widget->textEditor();
 }
 
-void TextEditorView::nodeIdChanged(const ModelNode& /*node*/, const QString &/*newId*/, const QString &/*oldId*/)
-{
-}
-
 void TextEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/,
                                           const QList<ModelNode> &/*lastSelectedNodeList*/)
 {
@@ -565,66 +538,6 @@ void TextEditorView::documentMessagesChanged(const QList<DocumentMessage> &error
         m_widget->setStatusText(QString("%1 (Line: %2)").arg(error.description()).arg(error.line()));
         m_errorState = true;
     }
-}
-
-bool TextEditorView::changeToMoveTool()
-{
-    return true;
-}
-
-void TextEditorView::changeToDragTool()
-{
-}
-
-bool TextEditorView::changeToMoveTool(const QPointF &/*beginPoint*/)
-{
-    return true;
-}
-
-void TextEditorView::changeToSelectionTool()
-{
-}
-
-void TextEditorView::changeToResizeTool()
-{
-}
-
-void TextEditorView::changeToTransformTools()
-{
-}
-
-void TextEditorView::changeToCustomTool()
-{
-}
-
-void TextEditorView::auxiliaryDataChanged(const ModelNode & /*node*/,
-                                          AuxiliaryDataKeyView /*type*/,
-                                          const QVariant & /*data*/)
-{
-}
-
-void TextEditorView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
-{
-}
-
-void TextEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
-{
-}
-
-void TextEditorView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-}
-
-void TextEditorView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-}
-
-void TextEditorView::rewriterBeginTransaction()
-{
-}
-
-void TextEditorView::rewriterEndTransaction()
-{
 }
 
 void TextEditorView::gotoCursorPosition(int line, int column)
@@ -689,10 +602,6 @@ void TextEditorView::jumpToModelNode(const ModelNode &modelNode)
     m_widget->window()->windowHandle()->requestActivate();
     m_widget->textEditor()->widget()->setFocus();
     m_widget->textEditor()->editorWidget()->updateFoldingHighlight(QTextCursor());
-}
-
-void TextEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
-{
 }
 
 } // namespace QmlDesigner
