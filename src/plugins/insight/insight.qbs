@@ -1,4 +1,0 @@
-Product {
-    name: "Insight"
-    files: ["*", "**/*"]
-}
