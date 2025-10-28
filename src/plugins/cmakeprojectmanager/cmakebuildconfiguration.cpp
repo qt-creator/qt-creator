@@ -2293,7 +2293,6 @@ const QStringList InitialCMakeArgumentsAspect::allValues() const
 void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringList &additionalOptions)
 {
     QStringList arguments = values.split('\n', Qt::SkipEmptyParts);
-    QString cmakeGenerator;
     for (QString &arg: arguments) {
         if (arg.startsWith("-G"))
             arg.replace("-G", "-DCMAKE_GENERATOR:STRING=");
@@ -2302,8 +2301,6 @@ void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringLis
         if (arg.startsWith("-T"))
             arg.replace("-T", "-DCMAKE_GENERATOR_TOOLSET:STRING=");
     }
-    if (!cmakeGenerator.isEmpty())
-        arguments.append(cmakeGenerator);
 
     CMakeConfig config = CMakeConfig::fromArguments(arguments, additionalOptions);
     // Join CMAKE_CXX_FLAGS_INIT values if more entries are present, or skip the same
