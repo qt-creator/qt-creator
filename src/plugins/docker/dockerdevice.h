@@ -19,10 +19,10 @@ class DockerDevicePrivate;
 class DockerDeviceSetupWizard;
 class DockerDeviceWidget;
 
-class PortMappings : public Utils::AspectList
+class PortMappings final : public Utils::AspectList
 {
 public:
-    PortMappings(Utils::AspectContainer *container);
+    explicit PortMappings(Utils::AspectContainer *container);
 
     QStringList createArguments() const;
 };

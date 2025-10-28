@@ -99,28 +99,28 @@ const char DockerDeviceEnableLldbFlags[] = "DockerDeviceEnableLldbFlags";
 const char DockerDeviceExtraArgs[] = "DockerDeviceExtraCreateArguments";
 const char DockerDeviceEnvironment[] = "DockerDeviceEnvironment";
 
-class DockerDeviceFileAccess : public CmdBridge::FileAccess
+class DockerDeviceFileAccess final : public CmdBridge::FileAccess
 {
 public:
-    DockerDeviceFileAccess(DockerDevicePrivate *dev)
+    explicit DockerDeviceFileAccess(DockerDevicePrivate *dev)
         : m_dev(dev)
     {}
 
-    QString mapToDevicePath(const QString &hostPath) const override;
+    QString mapToDevicePath(const QString &hostPath) const final;
 
     DockerDevicePrivate *m_dev = nullptr;
 };
 
-class DockerFallbackFileAccess : public UnixDeviceFileAccess
+class DockerFallbackFileAccess final : public UnixDeviceFileAccess
 {
     const FilePath m_rootPath;
 
 public:
-    DockerFallbackFileAccess(const FilePath &rootPath)
+    explicit DockerFallbackFileAccess(const FilePath &rootPath)
         : m_rootPath(rootPath)
     {}
 
-    Result<RunResult> runInShellImpl(const CommandLine &cmdLine, const QByteArray &stdInData) const override
+    Result<RunResult> runInShellImpl(const CommandLine &cmdLine, const QByteArray &stdInData) const final
     {
         Process proc;
         proc.setWriteData(stdInData);
@@ -136,10 +136,10 @@ public:
     }
 };
 
-class DockerDevicePrivate : public QObject
+class DockerDevicePrivate final : public QObject
 {
 public:
-    DockerDevicePrivate(DockerDevice *parent)
+    explicit DockerDevicePrivate(DockerDevice *parent)
         : q(parent)
     {
         QObject::connect(q, &DockerDevice::applied, this, [this] { stopCurrentContainer(); });
@@ -154,7 +154,7 @@ public:
     void shutdown();
     Result<FilePath> localSource(const FilePath &other) const;
 
-    Result<QPair<Utils::OsType, Utils::OsArch>> osTypeAndArch() const;
+    Result<QPair<OsType, OsArch>> osTypeAndArch() const;
 
     Result<CommandLine> withDockerExecCmd(
         const QString &markerTemplate,
@@ -169,7 +169,7 @@ public:
     Tasks validateMounts() const;
 
     void stopCurrentContainer();
-    Utils::Result<Utils::Environment> fetchEnvironment() const;
+    Result<Environment> fetchEnvironment() const;
 
     Result<FilePath> getCmdBridgePath() const;
 
@@ -557,7 +557,7 @@ QStringList DockerDevicePrivate::createMountArgs() const
         mounts.append({m, m});
 
     if (q->mountCmdBridge()) {
-        const Utils::Result<Utils::FilePath> cmdBridgePath = getCmdBridgePath();
+        const Result<FilePath> cmdBridgePath = getCmdBridgePath();
         QTC_CHECK_RESULT(cmdBridgePath);
 
         if (cmdBridgePath && cmdBridgePath->isSameDevice(settings().dockerBinaryPath()))
@@ -848,7 +848,6 @@ public:
     QDialogButtonBox *m_buttons;
 
     Process *m_process = nullptr;
-    QString m_selectedId;
 };
 
 // Factory
@@ -885,7 +884,7 @@ void DockerDeviceFactory::shutdownExistingDevices()
     });
 }
 
-Result<QPair<Utils::OsType, Utils::OsArch>> DockerDevicePrivate::osTypeAndArch() const
+Result<QPair<OsType, OsArch>> DockerDevicePrivate::osTypeAndArch() const
 {
     Process proc;
     proc.setCommand(
@@ -950,15 +949,15 @@ bool DockerDevicePrivate::ensureReachable(const FilePath &other)
     return false;
 }
 
-class PortMapping : public Utils::AspectContainer
+class PortMapping : public AspectContainer
 {
 public:
     PortMapping();
 
-    Utils::StringAspect ip{this};
-    Utils::IntegerAspect hostPort{this};
-    Utils::IntegerAspect containerPort{this};
-    Utils::SelectionAspect protocol{this};
+    StringAspect ip{this};
+    IntegerAspect hostPort{this};
+    IntegerAspect containerPort{this};
+    SelectionAspect protocol{this};
 };
 
 PortMapping::PortMapping()
@@ -995,7 +994,7 @@ PortMapping::PortMapping()
     });
 }
 
-PortMappings::PortMappings(Utils::AspectContainer *container)
+PortMappings::PortMappings(AspectContainer *container)
     : AspectList(container)
 {
     setCreateItemFunction([this]() {
@@ -1350,13 +1349,13 @@ bool DockerDevice::prepareForBuild(const Target *target)
     return d->prepareForBuild(target);
 }
 
-bool DockerDevice::supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const
+bool DockerDevice::supportsQtTargetDeviceType(const QSet<Id> &targetDeviceTypes) const
 {
     return targetDeviceTypes.contains(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
            || IDevice::supportsQtTargetDeviceType(targetDeviceTypes);
 }
 
-bool DockerDevice::supportsBuildingProject(const Utils::FilePath &projectDir) const
+bool DockerDevice::supportsBuildingProject(const FilePath &projectDir) const
 {
     if (ensureReachable(projectDir))
         return true;
