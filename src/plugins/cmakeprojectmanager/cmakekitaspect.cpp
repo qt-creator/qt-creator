@@ -169,7 +169,7 @@ public:
 
 private:
     QVariant defaultValue(const Kit *k) const;
-    bool isNinjaPresent(const Kit *k, const CMakeTool *tool) const;
+    bool isNinjaPresent(const Kit *k) const;
 };
 
 class CMakeConfigurationKitAspectFactory : public KitAspectFactory
@@ -849,6 +849,15 @@ CMakeConfig CMakeGeneratorKitAspect::generatorCMakeConfig(const Kit *k)
 
     config.insert(CMakeConfigItem("CMAKE_GENERATOR", info.generator.toUtf8()));
 
+    if (info.generator.startsWith("Ninja", Qt::CaseInsensitive)) {
+        if (auto device = BuildDeviceKitAspect::device(k)) {
+            const FilePath ninjaPath = device->deviceToolPath(
+                ProjectExplorer::Constants::TOOL_TYPE_NINJA);
+            if (ninjaPath.isExecutableFile())
+                config.insert(CMakeConfigItem("CMAKE_MAKE_PROGRAM", ninjaPath.path().toUtf8()));
+        }
+    }
+
     if (!info.platform.isEmpty())
         config.insert(CMakeConfigItem("CMAKE_GENERATOR_PLATFORM", info.platform.toUtf8()));
 
@@ -882,7 +891,7 @@ QVariant CMakeGeneratorKitAspectFactory::defaultValue(const Kit *k) const
         return g.matches("Ninja");
     });
     if (it != known.constEnd()) {
-        if (isNinjaPresent(k, tool))
+        if (isNinjaPresent(k))
             return GeneratorInfo("Ninja").toVariant();
     }
 
@@ -932,29 +941,19 @@ QVariant CMakeGeneratorKitAspectFactory::defaultValue(const Kit *k) const
     return GeneratorInfo(it->name).toVariant();
 }
 
-bool CMakeGeneratorKitAspectFactory::isNinjaPresent(const Kit *k, const CMakeTool *tool) const
+bool CMakeGeneratorKitAspectFactory::isNinjaPresent(const Kit *k) const
 {
     const CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
     const FilePath makeProgram = config.filePathValueOf("CMAKE_MAKE_PROGRAM");
     if (makeProgram.baseName().startsWith("ninja", makeProgram.caseSensitivity()))
         return true;
 
-    const FilePath cmake = tool->filePath();
-    const FilePath ninja = cmake.withNewPath("ninja");
-    if (!ninja.searchInPath().isEmpty())
-        return true;
+    if (auto device = BuildDeviceKitAspect::device(k)) {
+        if (device->deviceToolPath(ProjectExplorer::Constants::TOOL_TYPE_NINJA).isExecutableFile())
+            return true;
+    }
 
-    // The Qt SDK setting and buildEnvironment is valid for local setups
-    if (!cmake.isLocal())
-        return false;
-
-    if (cmake.parentDir().pathAppended("ninja").exists())
-        return true;
-
-    if (Internal::settings(nullptr).ninjaPath().isEmpty())
-        return !k->buildEnvironment().searchInPath("ninja").isEmpty();
-
-    return true;
+    return false;
 }
 
 Tasks CMakeGeneratorKitAspectFactory::validate(const Kit *k) const
@@ -1015,7 +1014,7 @@ void CMakeGeneratorKitAspectFactory::fix(Kit *k)
                            [info](const CMakeTool::Generator &g) {
         return g.matches(info.generator);
     });
-    if (it == known.constEnd() || (info.generator == "Ninja" && !isNinjaPresent(k, tool))) {
+    if (it == known.constEnd() || (info.generator == "Ninja" && !isNinjaPresent(k))) {
         GeneratorInfo dv;
         dv.fromVariant(defaultValue(k));
         setGeneratorInfo(k, dv);
