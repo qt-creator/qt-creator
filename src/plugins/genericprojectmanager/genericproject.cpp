@@ -42,7 +42,6 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QDir>
 #include <QFileInfo>
 #include <QHash>
 #include <QMetaObject>
@@ -109,7 +108,7 @@ public:
     void refreshCppCodeModel();
     void updateDeploymentData();
 
-    bool setFiles(const QStringList &filePaths);
+    bool setFiles(const FilePaths &filePaths);
     void removeFiles(const FilePaths &filesToRemove);
 
 private:
@@ -368,12 +367,12 @@ RemovedFilesFromProject GenericBuildSystem::removeFiles(Node *, const FilePaths 
                                     : RemovedFilesFromProject::Error;
 }
 
-bool GenericBuildSystem::setFiles(const QStringList &filePaths)
+bool GenericBuildSystem::setFiles(const FilePaths &filePaths)
 {
     QStringList newList;
-    QDir baseDir(projectDirectory().toUrlishString());
-    for (const QString &filePath : filePaths)
-        newList.append(baseDir.relativeFilePath(filePath));
+    const FilePath projectDir = projectDirectory();
+    for (const FilePath &filePath : filePaths)
+        newList.append(filePath.relativePathFromDir(projectDir));
     Utils::sort(newList);
 
     return saveRawFileList(newList);
@@ -383,6 +382,7 @@ bool GenericBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, Fil
 {
     QStringList newList = m_rawFileList;
 
+    const FilePath projectDir = projectDirectory();
     bool success = true;
     for (const auto &[oldFilePath, newFilePath] : filesToRename) {
         const auto fail = [&, oldFilePath = oldFilePath] {
@@ -403,9 +403,8 @@ bool GenericBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, Fil
             continue;
         }
 
-        QDir baseDir(projectDirectory().toUrlishString());
         newList.removeAt(index);
-        Utils::insertSorted(&newList, baseDir.relativeFilePath(newFilePath.toUrlishString()));
+        Utils::insertSorted(&newList, newFilePath.relativePathFromDir(projectDir));
     }
 
     if (!saveRawFileList(newList)) {
@@ -692,7 +691,7 @@ void GenericProject::editFilesTriggered()
                                        ICore::dialogParent());
     if (sfd.exec() == QDialog::Accepted) {
         if (auto bs = static_cast<GenericBuildSystem *>(activeBuildSystem()))
-            bs->setFiles(transform(sfd.selectedFiles(), &FilePath::toUrlishString));
+            bs->setFiles(sfd.selectedFiles());
     }
 }
 
