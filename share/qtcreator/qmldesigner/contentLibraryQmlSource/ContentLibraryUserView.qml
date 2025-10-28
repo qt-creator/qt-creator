@@ -185,26 +185,20 @@ Item {
                             section.expandSection()
 
                             if (categoryTitle === "Textures") {
-                                if (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+                                if (ContentLibraryBackend.rootView.hasUrlList(drag.formats[0])) {
                                     ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls)
-                                else if (drag.formats[0] === "application/vnd.qtdesignstudio.texture")
+                                } else if (drag.formats[0] === "application/vnd.qtdesignstudio.texture") {
                                     ContentLibraryBackend.rootView.acceptTextureDrop(drag.getDataAsString(drag.formats[0]))
+                                }
                             } else if (categoryTitle === "Materials") {
                                 ContentLibraryBackend.rootView.acceptMaterialDrop(drag.getDataAsString(drag.formats[0]))
                             } else if (categoryTitle === "2D" || categoryTitle === "3D") {
                                 ContentLibraryBackend.rootView.acceptNodeDrop(drag.getDataAsArrayBuffer(drag.formats[0]))
                             } else { // custom bundle folder
-
-                                if (drag.formats[0] === "application/vnd.qtdesignstudio.assets") {
+                                if (ContentLibraryBackend.rootView.hasUrlList(drag.formats[0])) {
                                     ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls, categoryBundlePath)
                                 } else if (drag.formats[0] === "application/vnd.qtdesignstudio.texture") {
                                     ContentLibraryBackend.rootView.acceptTextureDrop(drag.getDataAsString(drag.formats[0]), categoryBundlePath)
-                                } else if (drag.formats[0] === "text/uri-list") {
-                                    let validExternalDrop = ContentLibraryBackend.rootView
-                                            .hasTexture(drag.formats[0], drag.urls)
-
-                                    if (validExternalDrop)
-                                        ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls, categoryBundlePath)
                                 }
                             }
                         }

@@ -82,6 +82,8 @@ inline constexpr char MATERIAL_LIB_ID[] = "__materialLibrary__";
 inline constexpr char MIME_TYPE_ITEM_LIBRARY_INFO[]
     = "application/vnd.qtdesignstudio.itemlibraryinfo";
 inline constexpr char MIME_TYPE_ASSETS[] = "application/vnd.qtdesignstudio.assets";
+inline constexpr char MIME_TYPE_SHELL_ID_LIST[] = "application/x-qt-windows-mime;value=\"Shell IDList Array\"";
+inline constexpr char MIME_TYPE_URI_LIST[] = "text/uri-list";
 inline constexpr char MIME_TYPE_MATERIAL[] = "application/vnd.qtdesignstudio.material";
 inline constexpr char MIME_TYPE_TEXTURE[] = "application/vnd.qtdesignstudio.texture";
 inline constexpr char MIME_TYPE_BUNDLE_ITEM_2D[] = "application/vnd.qtdesignstudio.bundleitem.2d";

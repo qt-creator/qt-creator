@@ -716,7 +716,7 @@ bool ContentLibraryWidget::hasTexture(const QString &format, const QVariant &dat
 {
     if (format == Constants::MIME_TYPE_TEXTURE) { // from material browser
         return true;
-    } else if (format == Constants::MIME_TYPE_ASSETS || format == "text/uri-list") {
+    } else if (hasUrlList(format)) {
         const QList<QVariant> urlList = data.toList();
 
         for (const QVariant &url : urlList) {
@@ -728,6 +728,13 @@ bool ContentLibraryWidget::hasTexture(const QString &format, const QVariant &dat
     }
 
     return false;
+}
+
+bool ContentLibraryWidget::hasUrlList(const QString &format) const
+{
+    return format == Constants::MIME_TYPE_ASSETS
+           || format == Constants::MIME_TYPE_SHELL_ID_LIST
+           || format == Constants::MIME_TYPE_URI_LIST;
 }
 
 void ContentLibraryWidget::addQtQuick3D()

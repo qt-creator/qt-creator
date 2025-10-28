@@ -111,6 +111,7 @@ public:
     Q_INVOKABLE bool has2DNode(const QByteArray &data) const;
     Q_INVOKABLE bool has3DNode(const QByteArray &data) const;
     Q_INVOKABLE bool hasTexture(const QString &format, const QVariant &data) const;
+    Q_INVOKABLE bool hasUrlList(const QString &format) const;
     Q_INVOKABLE void addQtQuick3D();
     Q_INVOKABLE void browseBundleFolder();
     Q_INVOKABLE void showInGraphicalShell(const QString &path);
