@@ -16,9 +16,11 @@
 #include <utils/detailsbutton.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
+#include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
+#include <utils/variablechooser.h>
 
 #include <QCheckBox>
 #include <QHBoxLayout>
@@ -160,6 +162,20 @@ void TargetSetupWidget::addBuildInfos(const QList<BuildInfo> &infos, bool isImpo
             store.pathChooser->setVisible(false);
         store.pathChooser->setHistoryCompleter("TargetSetup.BuildDir.History");
         store.pathChooser->setReadOnly(isImport);
+        store.expander = new MacroExpander;
+        BuildConfiguration::setupBuildDirMacroExpander(
+            *store.expander,
+            m_projectPath,
+            info.projectName,
+            m_kit,
+            info.displayName,
+            info.buildType,
+            info.buildSystemName,
+            false);
+        store.pathChooser->setMacroExpander(store.expander);
+        const auto varChooser = new VariableChooser(store.pathChooser);
+        varChooser->addMacroExpanderProvider({store.pathChooser, [e = store.expander] { return e; }});
+        varChooser->addSupportedWidget(store.pathChooser->lineEdit());
 
         store.issuesLabel = new QLabel;
         store.issuesLabel->setIndent(32);
@@ -410,6 +426,7 @@ TargetSetupWidget::BuildInfoStore::~BuildInfoStore()
     delete label;
     delete issuesLabel;
     delete pathChooser;
+    delete expander;
 }
 
 TargetSetupWidget::BuildInfoStore::BuildInfoStore(TargetSetupWidget::BuildInfoStore &&other)
@@ -425,6 +442,7 @@ TargetSetupWidget::BuildInfoStore &TargetSetupWidget::BuildInfoStore::operator=(
     std::swap(other.label, label);
     std::swap(other.issuesLabel, issuesLabel);
     std::swap(other.pathChooser, pathChooser);
+    std::swap(other.expander, expander);
     std::swap(other.isEnabled, isEnabled);
     std::swap(other.hasIssues, hasIssues);
     std::swap(other.isImported, isImported);

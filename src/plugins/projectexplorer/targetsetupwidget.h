@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "projectexplorer_export.h"
-
 #include "buildinfo.h"
 #include "kit.h"
 #include "task.h"
@@ -23,6 +21,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class DetailsWidget;
+class MacroExpander;
 class PathChooser;
 } // namespace Utils
 
@@ -93,6 +92,8 @@ private:
         QLabel *label = nullptr;
         QLabel *issuesLabel = nullptr;
         Utils::PathChooser *pathChooser = nullptr;
+        Utils::MacroExpander *expander = nullptr;
+
         bool isEnabled = false;
         bool hasIssues = false;
         bool customBuildDir = false;
