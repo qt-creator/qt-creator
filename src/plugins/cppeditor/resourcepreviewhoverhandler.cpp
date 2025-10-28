@@ -19,6 +19,7 @@
 #include <QXmlStreamReader>
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -61,9 +62,9 @@ static QString makeResourcePath(const QStringList &prefixList, const QString &fi
  *
  * note: resource name should not have any semi-colon in front of it
  */
-static QString findResourceInFile(const QString &resName, const QString &filePathName)
+static QString findResourceInFile(const QString &resName, const FilePath &qrcFile)
 {
-    const Result<QByteArray> res = FilePath::fromString(filePathName).fileContents();
+    const Result<QByteArray> res = qrcFile.fileContents();
     if (!res)
         return {};
 
@@ -121,14 +122,14 @@ static QString findResourceInProject(const QString &resName)
     else
         return QString();
 
-    if (auto *project = ProjectExplorer::ProjectTree::currentProject()) {
-        const Utils::FilePaths files = project->files(
-            [](const ProjectExplorer::Node *n) { return n->filePath().endsWith(".qrc"); });
-        for (const Utils::FilePath &file : files) {
+    if (const Project *project = ProjectTree::currentProject()) {
+        const FilePaths files = project->files(
+            [](const Node *n) { return n->filePath().endsWith(".qrc"); });
+        for (const FilePath &file : files) {
             const QFileInfo fi = file.toFileInfo();
             if (!fi.isReadable())
                 continue;
-            const QString fileName = findResourceInFile(s, file.toUrlishString());
+            const QString fileName = findResourceInFile(s, file);
             if (fileName.isEmpty())
                 continue;
 
