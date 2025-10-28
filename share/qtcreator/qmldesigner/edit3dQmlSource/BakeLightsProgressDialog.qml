@@ -15,7 +15,10 @@ Rectangle {
 
     Connections {
         target: rootView
-        function onProgress(msg) {
+
+        // TODO handle progress/time remaining properly in UI
+
+        function onMessage(msg) {
             progressText.text += progressText.text === "" ? msg : "\n" + msg
             scrollView.ensureVisible()
         }

@@ -100,6 +100,11 @@ void BakeLights::setManualMode(bool enabled)
     }
 }
 
+void BakeLights::setKitVersion(const QVersionNumber &version)
+{
+    m_kitVersion = version;
+}
+
 void BakeLights::bakeLights()
 {
     if (!m_view || !m_view->model())
@@ -135,7 +140,7 @@ void BakeLights::bakeLights()
 
     if (!m_rewriterView->errors().isEmpty()
             || (!m_rewriterView->rootModelNode().metaInfo().isGraphicalItem() && !is3DRoot)) {
-        emit progress(tr("Invalid root node, baking aborted."));
+        emit message(tr("Invalid root node, baking aborted."));
         emit finished();
         m_progressDialog->raise();
         return;
@@ -143,13 +148,9 @@ void BakeLights::bakeLights()
 
     m_nodeInstanceView->setTarget(ProjectExplorer::ProjectManager::startupTarget());
 
-    auto progressCallback = [this](const QString &msg) {
-        emit progress(msg);
-    };
-
-    auto finishedCallback = [this](const QString &msg) {
+    auto finishedCallback = [this](const QVariant &data) {
         m_progressDialog->raise();
-        emit progress(msg);
+        emit message(data.toString());
         emit finished();
 
         // QML Puppet reset is needed to update baking results to current views
@@ -158,10 +159,30 @@ void BakeLights::bakeLights()
 
     auto crashCallback = [this] {
         m_progressDialog->raise();
-        emit progress(tr("Baking process crashed, baking aborted."));
+        emit message(tr("Baking process crashed, baking aborted."));
         emit finished();
     };
 
+    BakeLightsConnectionManager::Callback progressCallback = nullptr;
+    if (m_kitVersion >= QVersionNumber(6, 10, 0)) {
+        progressCallback = [this](const QVariant &data) {
+            QVariantMap dataMap = data.toMap();
+            const QString msg = dataMap.value("message").toString();
+            const double prog = dataMap.value("progress", -1.).toDouble();
+            const qint64 timeRemaining = dataMap.value("timeRemaining", -1).toDouble();
+
+            if (!msg.isEmpty())
+                emit message(msg);
+            if (prog >= 0)
+                emit progressChanged(prog);
+            if (timeRemaining >= 0)
+                emit timeRemainingChanged(timeRemaining / 1000.);
+        };
+    } else {
+        progressCallback = [this](const QVariant &data) {
+            emit message(data.toString());
+        };
+    }
     m_connectionManager->setProgressCallback(std::move(progressCallback));
     m_connectionManager->setFinishedCallback(std::move(finishedCallback));
     m_nodeInstanceView->setCrashCallback(std::move(crashCallback));

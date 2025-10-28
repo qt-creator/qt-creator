@@ -17,6 +17,7 @@
 #include <QVariant>
 #include <QVector>
 #include <QVector3D>
+#include <QVersionNumber>
 
 #ifdef Q_OS_MACOS
 extern "C" bool AXIsProcessTrusted();
@@ -236,6 +237,7 @@ private:
     QTimer m_compressionTimer;
     QPointer<BakeLights> m_bakeLights;
     bool m_isBakingLightsSupported = false;
+    QVersionNumber m_kitVersion;
     QPointer<SnapConfiguration> m_snapConfiguration;
     QPointer<CameraSpeedConfiguration> m_cameraSpeedConfiguration;
     int m_activeViewport = 0;

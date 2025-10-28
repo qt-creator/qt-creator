@@ -10,7 +10,7 @@ namespace QmlDesigner {
 class BakeLightsConnectionManager : public ConnectionManager
 {
 public:
-    using Callback = std::function<void(const QString &)>;
+    using Callback = std::function<void(const QVariant &)>;
 
     BakeLightsConnectionManager();
 

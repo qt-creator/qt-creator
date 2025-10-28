@@ -39,10 +39,7 @@ Qt5BakeLightsNodeInstanceServer::~Qt5BakeLightsNodeInstanceServer()
 
 void Qt5BakeLightsNodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    nodeInstanceClient()->handlePuppetToCreatorCommand(
-        {PuppetToCreatorCommand::BakeLightsProgress,
-         tr("Initializing bake...")});
-    nodeInstanceClient()->flush();
+    progress(tr("Initializing bake..."));
 
     initializeView();
     registerFonts(command.resourceUrl);
@@ -127,22 +124,28 @@ void Qt5BakeLightsNodeInstanceServer::bakeLights()
         const QQuick3DLightmapBaker::BakingStatus status
             = static_cast<QQuick3DLightmapBaker::BakingStatus>(data[QStringLiteral("status")].toInt());
         QString msg = data.value("message").toString();
+        double prog = data.value("totalProgress", -1.).toDouble();
+        qint64 remaining = data.value("totalTimeRemaining", -1).toLongLong();
+        progress(msg, prog, remaining);
+
         switch (status) {
+        case QQuick3DLightmapBaker::BakingStatus::Info:
         case QQuick3DLightmapBaker::BakingStatus::Warning:
-        case QQuick3DLightmapBaker::BakingStatus::Error: {
-            nodeInstanceClient()->handlePuppetToCreatorCommand(
-                {PuppetToCreatorCommand::BakeLightsProgress, msg});
-            nodeInstanceClient()->flush();
-        } break;
+        case QQuick3DLightmapBaker::BakingStatus::Error:
+            break;
         case QQuick3DLightmapBaker::BakingStatus::Cancelled:
             abort(tr("Baking cancelled."));
             break;
+        case QQuick3DLightmapBaker::BakingStatus::Failed:
+            abort(tr("Baking Failed."));
+            break;
         case QQuick3DLightmapBaker::BakingStatus::Complete:
-            runDenoiser();
+            finish();
             break;
         default:
-            qWarning() << __FUNCTION__ << "Unexpected light baking status received:"
-                       << int(status) << msg;
+            // Stage changes send data containing just the stage. We are not interested in those.
+            if (data.size() != 1 || !data.contains("stage"))
+                qWarning() << __FUNCTION__ << "Unexpected light baking callback received:" << data;
             break;
         }
     };
@@ -157,11 +160,32 @@ void Qt5BakeLightsNodeInstanceServer::bakeLights()
 void Qt5BakeLightsNodeInstanceServer::cleanup()
 {
     m_workingDir.remove();
+#if QT_VERSION < QT_VERSION_CHECK(6, 10, 0)
     if (m_denoiser) {
         if (m_denoiser->state() == QProcess::Running)
             m_denoiser->terminate();
         m_denoiser->deleteLater();
     }
+#endif
+}
+
+void Qt5BakeLightsNodeInstanceServer::progress(const QString &msg,
+                                               double progress,
+                                               qint64 timeRemaining)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 10, 0)
+    QVariant data(msg);
+#else
+    QVariantMap dataMap;
+    dataMap["message"] = msg;
+    dataMap["progress"] = progress;
+    dataMap["timeRemaining"] = timeRemaining;
+    QVariant data(dataMap);
+#endif
+    nodeInstanceClient()->handlePuppetToCreatorCommand(
+        {PuppetToCreatorCommand::BakeLightsProgress, data});
+
+    nodeInstanceClient()->flush();
 }
 
 void Qt5BakeLightsNodeInstanceServer::abort(const QString &msg)
@@ -178,6 +202,7 @@ void Qt5BakeLightsNodeInstanceServer::finish()
                 {PuppetToCreatorCommand::BakeLightsFinished, {}});
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 10, 0)
 void Qt5BakeLightsNodeInstanceServer::runDenoiser()
 {
     // Check if denoiser exists (as it is third party app)
@@ -230,6 +255,7 @@ void Qt5BakeLightsNodeInstanceServer::runDenoiser()
     m_denoiser->start(binPath, {"qlm_list.txt"});
 
 }
+#endif
 
 void Qt5BakeLightsNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
@@ -257,11 +283,13 @@ void Qt5BakeLightsNodeInstanceServer::render()
     } else {
         rootNodeInstance().updateDirtyNodeRecursive();
         renderWindow();
+#if QT_VERSION < QT_VERSION_CHECK(6, 10, 0)
         if (m_bakingStarted) {
             slowDownRenderTimer(); // No more renders needed
             if (!m_callbackReceived)
                 abort(tr("No bakeable models detected."));
         }
+#endif
     }
 }
 #endif

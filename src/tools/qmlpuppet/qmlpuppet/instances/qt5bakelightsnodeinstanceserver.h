@@ -39,15 +39,20 @@ protected:
 
 private:
     void abort(const QString &msg);
+#if QT_VERSION < QT_VERSION_CHECK(6, 10, 0)
     void runDenoiser();
+#endif
     void finish();
     void cleanup();
+    void progress(const QString &msg, double progress = -1, qint64 timeRemaining = -1);
 
     QQuick3DViewport *m_view3D = nullptr;
     bool m_bakingStarted = false;
     bool m_callbackReceived = false;
     int m_renderCount = 0;
+#if QT_VERSION < QT_VERSION_CHECK(6, 10, 0)
     QProcess *m_denoiser = nullptr;
+#endif
     QTemporaryDir m_workingDir;
 #else
 protected:

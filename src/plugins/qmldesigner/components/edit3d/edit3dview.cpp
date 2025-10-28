@@ -327,10 +327,15 @@ void Edit3DView::modelAttached(Model *model)
     edit3DWidget()->canvas()->busyIndicator()->show();
 
     m_isBakingLightsSupported = false;
+    m_kitVersion = {};
     ProjectExplorer::Target *target = QmlDesignerPlugin::instance()->currentDesignDocument()->currentTarget();
     if (target && target->kit()) {
-        if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit()))
+        if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit())) {
             m_isBakingLightsSupported = qtVer->qtVersion() >= QVersionNumber(6, 5, 0);
+            m_kitVersion = qtVer->qtVersion();
+            if (m_bakeLights)
+                m_bakeLights->setKitVersion(m_kitVersion);
+        }
     }
 
     onEntriesChanged();
@@ -1219,10 +1224,12 @@ void Edit3DView::createEdit3DActions()
             return;
 
         // BakeLights cleans itself up when its dialog is closed
-        if (!m_bakeLights)
+        if (!m_bakeLights) {
             m_bakeLights = new BakeLights(this, m_modulesStorage);
-        else
+            m_bakeLights->setKitVersion(m_kitVersion);
+        } else {
             m_bakeLights->raiseDialog();
+        }
     };
 
     m_particleViewModeAction = std::make_unique<Edit3DAction>(

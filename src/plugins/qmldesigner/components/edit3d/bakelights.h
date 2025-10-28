@@ -8,6 +8,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QTimer>
+#include <QVersionNumber>
 
 QT_BEGIN_NAMESPACE
 class QQuickView;
@@ -41,10 +42,13 @@ public:
 
     bool manualMode() const;
     void setManualMode(bool enabled);
+    void setKitVersion(const QVersionNumber &version);
 
 signals:
     void finished();
-    void progress(const QString &msg);
+    void progressChanged(double prog);
+    void timeRemainingChanged(double seconds);
+    void message(const QString &msg);
     void manualModeChanged();
 
 protected:
@@ -70,6 +74,7 @@ private:
     ModelPointer m_model;
     QString m_view3dId;
     bool m_manualMode = false;
+    QVersionNumber m_kitVersion;
     QTimer m_pendingRebakeTimer;
     ModelNode m_pendingRebakeCheckNode;
     int m_pendingRebakeTimerCount = 0;
