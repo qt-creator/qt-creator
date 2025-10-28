@@ -398,12 +398,10 @@ void TerminalWidget::surfaceChanged()
 QString TerminalWidget::title() const
 {
     const FilePath dir = cwd();
-    QString title = m_title;
-    if (title.isEmpty())
-        title = currentCommand().isEmpty() ? shellName() : currentCommand().executable().fileName();
-    if (dir.isEmpty())
-        return title;
-    return title + " - " + dir.fileName();
+    QString currentExecutable = currentCommand().isEmpty()
+                                    ? shellName()
+                                    : currentCommand().executable().fileName();
+    return Utils::joinStrings({currentExecutable, cwd().fileName()}, " - ");
 }
 
 void TerminalWidget::updateCopyState()
