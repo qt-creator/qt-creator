@@ -1122,50 +1122,6 @@ void DebuggerItemManager::deregisterDebugger(const QVariant &id)
     });
 }
 
-void DebuggerItemManager::autoDetectDebuggersForDevice(const FilePaths &searchPaths,
-                                                       const QString &detectionSource,
-                                                       QString *logMessage)
-{
-    itemModel().autoDetectGdbOrLldbDebuggers(searchPaths, detectionSource, logMessage);
-}
-
-void DebuggerItemManager::removeDetectedDebuggers(const QString &detectionSource,
-                                                  QString *logMessage)
-{
-    QStringList logMessages{Tr::tr("Removing debugger entries...")};
-    QList<DebuggerTreeItem *> toBeRemoved;
-
-    itemModel().forItemsAtLevel<2>([detectionSource, &toBeRemoved](DebuggerTreeItem *titem) {
-        if (titem->m_item.detectionSource().id == detectionSource) {
-            toBeRemoved.append(titem);
-            return;
-        }
-        // FIXME: These items appeared in early docker development. Ok to remove for Creator 7.0.
-        FilePath filePath = titem->m_item.command();
-        if (filePath.scheme() + ':' + filePath.host() == detectionSource)
-            toBeRemoved.append(titem);
-    });
-    for (DebuggerTreeItem *current : toBeRemoved) {
-        logMessages.append(Tr::tr("Removed \"%1\".").arg(current->m_item.displayName()));
-        itemModel().destroyItem(current);
-    }
-
-    if (logMessage)
-        *logMessage = logMessages.join('\n');
-}
-
-void DebuggerItemManager::listDetectedDebuggers(const QString &detectionSource, QString *logMessage)
-{
-    QTC_ASSERT(logMessage, return);
-    QStringList logMessages{Tr::tr("Debuggers:")};
-    itemModel().forItemsAtLevel<2>([detectionSource, &logMessages](DebuggerTreeItem *titem) {
-        if (titem->m_item.detectionSource().id == detectionSource)
-            logMessages.append(titem->m_item.displayName());
-    });
-    *logMessage = logMessages.join('\n');
-}
-
-
 // DebuggerSettingsPageWidget
 
 class DebuggerSettingsPageWidget : public IOptionsPageWidget

@@ -28,12 +28,6 @@ DEBUGGER_EXPORT const QList<DebuggerItem> debuggers();
 DEBUGGER_EXPORT QVariant registerDebugger(const DebuggerItem &item);
 DEBUGGER_EXPORT void deregisterDebugger(const QVariant &id);
 
-DEBUGGER_EXPORT void autoDetectDebuggersForDevice(const Utils::FilePaths &searchPaths,
-                                         const QString &detectionSource,
-                                         QString *logMessage);
-DEBUGGER_EXPORT void removeDetectedDebuggers(const QString &detectionSource, QString *logMessage);
-DEBUGGER_EXPORT void listDetectedDebuggers(const QString &detectionSource, QString *logMessage);
-
 DEBUGGER_EXPORT const DebuggerItem *findByCommand(const Utils::FilePath &command);
 DEBUGGER_EXPORT const DebuggerItem *findById(const QVariant &id);
 DEBUGGER_EXPORT const DebuggerItem *findByEngineType(DebuggerEngineType engineType);

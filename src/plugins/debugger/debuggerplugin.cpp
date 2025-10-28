@@ -2075,13 +2075,6 @@ private:
     // Called from GammaRayIntegration
     Q_SLOT void getEnginesState(QByteArray *json) const;
 
-    // Called from DockerDevice
-    Q_SLOT void autoDetectDebuggersForDevice(const Utils::FilePaths &searchPaths,
-                                             const QString &detectionId,
-                                             QString *logMessage);
-    Q_SLOT void removeDetectedDebuggers(const QString &detectionId, QString *logMessage);
-    Q_SLOT void listDetectedDebuggers(const QString &detectionId, QString *logMessage);
-
     Q_SLOT void attachToProcess(const qint64 processId, const Utils::FilePath &executable);
 };
 
@@ -2357,23 +2350,6 @@ void DebuggerPlugin::getEnginesState(QByteArray *json) const
         result["states"] = states;
 
     *json = QJsonDocument(QJsonObject::fromVariantMap(result)).toJson();
-}
-
-void DebuggerPlugin::autoDetectDebuggersForDevice(const FilePaths &searchPaths,
-                                                  const QString &detectionSource,
-                                                  QString *logMessage)
-{
-    DebuggerItemManager::autoDetectDebuggersForDevice(searchPaths, detectionSource, logMessage);
-}
-
-void DebuggerPlugin::removeDetectedDebuggers(const QString &detectionSource, QString *logMessage)
-{
-    DebuggerItemManager::removeDetectedDebuggers(detectionSource, logMessage);
-}
-
-void DebuggerPlugin::listDetectedDebuggers(const QString &detectionSource, QString *logMessage)
-{
-    DebuggerItemManager::listDetectedDebuggers(detectionSource, logMessage);
 }
 
 } // Internal
