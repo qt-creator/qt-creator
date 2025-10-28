@@ -445,13 +445,13 @@ void GenericBuildSystem::parse(RefreshOptions options)
             else
                 normalPaths << rawPath;
         }
-        const auto expandedPaths = [this](const QStringList &paths) {
-            return Utils::transform(processEntries(paths), [](const auto &pair) {
-                return pair.first;
+        const auto expandedPaths = [this](const QStringList &paths, HeaderPathType type) {
+            return Utils::transform(processEntries(paths), [type](const auto &pair) {
+                return HeaderPath(pair.first, type);
             });
         };
-        m_projectIncludePaths = toHeaderPaths(expandedPaths(normalPaths), HeaderPathType::User)
-                + toHeaderPaths(expandedPaths(frameworkPaths), HeaderPathType::Framework);
+        m_projectIncludePaths = expandedPaths(normalPaths, HeaderPathType::User)
+                              + expandedPaths(frameworkPaths, HeaderPathType::Framework);
         m_cxxflags = readFlags(m_cxxflagsFilePath);
         m_cflags = readFlags(m_cflagsFilePath);
     }
