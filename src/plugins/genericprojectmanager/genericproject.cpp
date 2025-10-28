@@ -103,7 +103,7 @@ public:
     using SourceFile = QPair<FilePath, QStringList>;
     using SourceFiles = QList<SourceFile>;
     SourceFiles processEntries(const QStringList &paths,
-                               QHash<QString, QString> *map = nullptr) const;
+                               QHash<FilePath, QString> *map = nullptr) const;
 
     FilePath findCommonSourceRoot();
     void refreshCppCodeModel();
@@ -120,7 +120,7 @@ private:
     FilePath m_cflagsFilePath;
     QStringList m_rawFileList;
     SourceFiles m_files;
-    QHash<QString, QString> m_rawListEntries;
+    QHash<FilePath, QString> m_rawListEntries;
     QStringList m_rawProjectIncludePaths;
     HeaderPaths m_projectIncludePaths;
     QStringList m_cxxflags;
@@ -319,41 +319,33 @@ bool GenericBuildSystem::saveRawList(const QStringList &rawList, const FilePath 
     return result.has_value();
 }
 
-bool GenericBuildSystem::addFiles(Node *, const FilePaths &filePaths_, FilePaths *)
+bool GenericBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
-    const QStringList filePaths = Utils::transform(filePaths_, &FilePath::toUrlishString);
-    const QDir baseDir(projectDirectory().toUrlishString());
+    const FilePath projectDir = projectDirectory();
     QStringList newList = m_rawFileList;
     if (filePaths.size() > m_rawFileList.size()) {
-        newList += transform(filePaths, [&baseDir](const QString &p) {
-            return baseDir.relativeFilePath(p);
+        newList += transform(filePaths, [projectDir](const FilePath &p) {
+            return p.relativePathFromDir(projectDir);
         });
         sort(newList);
         newList.erase(std::unique(newList.begin(), newList.end()), newList.end());
     } else {
-        for (const QString &filePath : filePaths)
-            Utils::insertSorted(&newList, baseDir.relativeFilePath(filePath));
+        for (const FilePath &filePath : filePaths)
+            Utils::insertSorted(&newList, filePath.relativePathFromDir(projectDir));
     }
 
-    const auto includes = transform<QSet<QString>>(m_projectIncludePaths,
-                                                   [](const HeaderPath &hp) { return hp.path.path(); });
-    QSet<QString> toAdd;
+    const auto includes = transform<QSet<FilePath>>(m_projectIncludePaths, &HeaderPath::path);
+    QSet<FilePath> toAdd;
 
-    for (const QString &filePath : filePaths) {
-        const QFileInfo fi(filePath);
-        const QString directory = fi.absolutePath();
-        if (fi.fileName() == "include" && !includes.contains(directory))
+    for (const FilePath &filePath : filePaths) {
+        const FilePath directory = filePath.parentDir();
+        if (directory.fileName() == "include" && !includes.contains(directory))
             toAdd << directory;
     }
 
-    const QDir dir(projectDirectory().toUrlishString());
-    const auto candidates = toAdd;
-    for (const QString &path : candidates) {
-        QString relative = dir.relativeFilePath(path);
-        if (relative.isEmpty())
-            relative = '.';
-        m_rawProjectIncludePaths.append(relative);
-    }
+    const QSet<FilePath> candidates = toAdd;
+    for (const FilePath &path : candidates)
+        m_rawProjectIncludePaths.append(path.relativePathFromDir(projectDir));
 
     bool result = saveRawList(newList, m_filesFilePath);
     result &= saveRawList(m_rawProjectIncludePaths, m_includesFilePath);
@@ -367,7 +359,7 @@ RemovedFilesFromProject GenericBuildSystem::removeFiles(Node *, const FilePaths 
     QStringList newList = m_rawFileList;
 
     for (const FilePath &filePath : filePaths) {
-        QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath.toUrlishString());
+        QHash<FilePath, QString>::iterator i = m_rawListEntries.find(filePath);
         if (i != m_rawListEntries.end())
             newList.removeOne(i.value());
     }
@@ -399,7 +391,7 @@ bool GenericBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, Fil
                 *notRenamed << oldFilePath;
         };
 
-        const auto i = m_rawListEntries.find(oldFilePath.toUrlishString());
+        const auto i = m_rawListEntries.find(oldFilePath);
         if (i == m_rawListEntries.end()) {
             fail();
             continue;
@@ -539,14 +531,13 @@ void GenericBuildSystem::refresh(RefreshOptions options)
  * absolute paths back to their original \a entries.
  */
 GenericBuildSystem::SourceFiles GenericBuildSystem::processEntries(
-        const QStringList &paths, QHash<QString, QString> *map) const
+        const QStringList &paths, QHash<FilePath, QString> *map) const
 {
     const Environment buildEnv = buildConfiguration()->environment();
     const MacroExpander *expander = buildConfiguration()->macroExpander();
 
-    const QDir projectDir(projectDirectory().toUrlishString());
+    const FilePath projectDir = projectDirectory();
 
-    QFileInfo fileInfo;
     SourceFiles sourceFiles;
     std::set<QString> seenFiles;
     for (const QString &path : paths) {
@@ -570,10 +561,9 @@ GenericBuildSystem::SourceFiles GenericBuildSystem::processEntries(
         if (!seenFiles.insert(trimmedPath).second)
             continue;
 
-        fileInfo.setFile(projectDir, trimmedPath);
-        if (fileInfo.exists()) {
-            const QString absPath = fileInfo.absoluteFilePath();
-            sourceFiles.append({FilePath::fromString(absPath), tagsForFile});
+        const FilePath absPath = projectDir / trimmedPath;
+        if (absPath.exists()) {
+            sourceFiles.append({absPath, tagsForFile});
             if (map)
                 map->insert(absPath, trimmedPath);
         }

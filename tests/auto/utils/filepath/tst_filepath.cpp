@@ -435,6 +435,9 @@ void tst_filepath::relativePathFromDir_data()
     QTest::addColumn<QString>("anchor");
     QTest::addColumn<QString>("result");
 
+    QTest::newRow("samedir") << "a/b/c/d"
+                             << "a/b/c/d"
+                             << ".";
     QTest::newRow("samedir_but_file") << "a/b/c/d/file1.txt"
                                       << "a/b/c/d"
                                       << "file1.txt";
