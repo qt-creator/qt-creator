@@ -20,7 +20,18 @@ const QList<AiProviderData> AiProviderData::defaultProviders()
                 "groq/compound",
                 "groq/compound-mini",
                 "moonshotai/kimi-k2-instruct-0905",
-                "qwen/qwen3-32b"
+                "qwen/qwen3-32b",
+            },
+        },
+        AiProviderData{
+            .name = "Gemini",
+            .url = QUrl{"https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"},
+            .models = {
+                "gemini-2.0-flash",
+                "gemini-2.0-flash-lite",
+                "gemini-2.5-pro",
+                "gemini-2.5-flash",
+                "gemini-2.5-flash-lite",
             },
         },
     };
