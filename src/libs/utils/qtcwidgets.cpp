@@ -92,10 +92,12 @@ static const TextFormat &buttonTF(QtcButton::Role role, WidgetState state)
     case QtcButton::LargePrimary: return largePrimaryTF;
     case QtcButton::LargeSecondary:
     case QtcButton::LargeTertiary:
+    case QtcButton::LargeGhost:
         return largeSecondaryTF;
     case QtcButton::SmallPrimary: return smallPrimaryTF;
     case QtcButton::SmallSecondary:
     case QtcButton::SmallTertiary:
+    case QtcButton::SmallGhost:
         return smallSecondaryTF;
     case QtcButton::SmallList: return (state == WidgetStateDefault) ? smallListDefaultTF
                                              : smallListCheckedTF;
@@ -207,6 +209,15 @@ void QtcButton::paintEvent(QPaintEvent *event)
         StyleHelper::drawCardBg(&p, bgR, creatorColor(bg), creatorColor(border), brRectRounding);
         break;
     }
+    case LargeGhost:
+    case SmallGhost: {
+        if (isDown() || hovered) {
+            const Theme::Color bg = isDown() ? Theme::Token_Foreground_Default
+                                             : Theme::Token_Foreground_Muted;
+            StyleHelper::drawCardBg(&p, bgR, creatorColor(bg), Qt::NoPen, brRectRounding);
+        }
+        break;
+    }
     case SmallList: {
         const bool filled = hovered || isDown() || isChecked();
         if (filled) {
@@ -265,7 +276,7 @@ void QtcButton::updateMargins()
         return;
     }
     const bool tokenSizeS = m_role == LargePrimary || m_role == LargeSecondary
-                            || m_role == SmallList || m_role == SmallLink;
+                            || m_role == LargeGhost || m_role == SmallList || m_role == SmallLink;
     const int hPaddingR = tokenSizeS ? PaddingHXl : PaddingHM;
     const int hPaddingL = m_pixmap.isNull() ? hPaddingR
                                             : (m_role == SmallLink ? 0 : PaddingHM)

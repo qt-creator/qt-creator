@@ -56,6 +56,10 @@ QWidget *widgets()
                         new QtcButton("LargeTertiary", QtcButton::LargeTertiary),
                         new QtcButton("SmallTertiary", QtcButton::SmallTertiary),
                     },
+                    Column {
+                        new QtcButton("LargeGhost", QtcButton::LargeGhost),
+                        new QtcButton("SmallGhost", QtcButton::SmallGhost),
+                    },
                 },
                 Row {
                     new QtcButton("SmallList", QtcButton::SmallList),
