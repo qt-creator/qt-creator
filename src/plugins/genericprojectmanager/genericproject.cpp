@@ -24,7 +24,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/selectablefilesmodel.h>
@@ -42,9 +41,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QFileInfo>
 #include <QHash>
-#include <QMetaObject>
 #include <QPair>
 #include <QSet>
 #include <QStringList>
@@ -463,20 +460,11 @@ FilePath GenericBuildSystem::findCommonSourceRoot()
     if (m_files.isEmpty())
         return m_filesFilePath;
 
-    QString root = m_files.front().first.toUrlishString();
-    for (const SourceFile &sourceFile : std::as_const(m_files)) {
-        const QString item = sourceFile.first.toUrlishString();
-        if (root.length() > item.length())
-            root.truncate(item.length());
-
-        for (int i = 0; i < root.length(); ++i) {
-            if (root[i] != item[i]) {
-                root.truncate(i);
-                break;
-            }
-        }
-    }
-    return FilePath::fromString(QFileInfo(root).absolutePath());
+    const FilePaths filePaths = transform(m_files, [](const SourceFile &sourceFile) {
+        const FilePath &filePath = sourceFile.first;
+        return filePath.isDir() ? filePath : filePath.parentDir();
+    });
+    return filePaths.commonPath();
 }
 
 void GenericBuildSystem::refresh(RefreshOptions options)
