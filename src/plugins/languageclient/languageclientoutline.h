@@ -33,7 +33,7 @@ public:
         return m_range.contains(pos);
     }
 
-    bool valid() const { return m_client; }
+    bool valid() const { return m_range.isValid(); }
 
 protected:
     // TreeItem interface
@@ -45,7 +45,6 @@ protected:
     int type() const { return m_type; }
 
 private:
-    Client * const m_client = nullptr;
     QString m_name;
     QString m_detail;
     LanguageServerProtocol::Range m_range;
