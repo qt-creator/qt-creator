@@ -488,7 +488,6 @@ extend_qtc_plugin(QmlDesigner
     texteditor.qrc
     texteditorstatusbar.cpp texteditorstatusbar.h
     texteditorview.cpp texteditorview.h
-    texteditorwidget.cpp texteditorwidget.h
 )
 
 extend_qtc_plugin(QmlDesigner

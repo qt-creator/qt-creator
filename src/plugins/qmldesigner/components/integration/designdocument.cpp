@@ -35,11 +35,10 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
-#include <texteditor/texteditorwidget.h>
-#include <utils/algorithm.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>

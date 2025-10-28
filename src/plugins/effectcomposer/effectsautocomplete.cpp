@@ -4,7 +4,7 @@
 #include "effectsautocomplete.h"
 
 #include <texteditor/codeassist/genericproposal.h>
-#include <texteditor/texteditorwidget.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/qtcassert.h>
