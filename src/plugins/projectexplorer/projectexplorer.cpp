@@ -490,6 +490,18 @@ public:
     }
 };
 
+class NinjaToolAspectFactory : public DeviceToolAspectFactory
+{
+public:
+    NinjaToolAspectFactory()
+    {
+        setToolId(Constants::TOOL_TYPE_NINJA);
+        setToolType(DeviceToolAspect::BuildTool);
+        setFilePattern({"ninja"});
+        setLabelText(Tr::tr("Ninja executable:"));
+    }
+};
+
 struct PluginProjectMimeType
 {
     PluginProjectMimeType() = default;
@@ -726,6 +738,7 @@ public:
     ProcessRunnerFactory m_customExecutableRunWorkerFactory{{Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID}};
 
     SshToolFactory m_sshToolFactory;
+    NinjaToolAspectFactory m_ninjaToolFactory;
 
     ProjectFileWizardExtension m_projectFileWizardExtension;
 

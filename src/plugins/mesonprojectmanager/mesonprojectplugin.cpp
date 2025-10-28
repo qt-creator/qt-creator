@@ -37,22 +37,9 @@ public:
     }
 };
 
-class NinjaToolAspectFactory : public DeviceToolAspectFactory
-{
-public:
-    NinjaToolAspectFactory()
-    {
-        setToolId(Constants::ToolsSettings::TOOL_TYPE_NINJA);
-        setToolType(DeviceToolAspect::BuildTool);
-        setFilePattern({"ninja"});
-        setLabelText(Tr::tr("Ninja executable:"));
-    }
-};
-
 void setupMesonTools()
 {
     static MesonToolAspectFactory theMesonToolAspectFactory;
-    static NinjaToolAspectFactory theNinjaToolAspectFactory;
 }
 
 class MesonProjectPlugin final : public ExtensionSystem::IPlugin

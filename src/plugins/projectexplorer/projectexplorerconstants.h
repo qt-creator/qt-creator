@@ -238,6 +238,9 @@ const char SUPPORTS_SFTP[] = "RemoteLinux.SupportsSftp";
 const char RSYNC_TOOL_ID[] = "RsyncExecutable";
 const char SSH_TOOL_ID[] = "SshExecutable";
 
+// Ninja tool
+const char TOOL_TYPE_NINJA[] = "ninja";
+
 // SDKs related ids:
 const char SDK_SETTINGS_CATEGORY[] = "AN.SDKs";
 const char WINDOWS_SETTINGS_ID[] = "Windows Configurations";
