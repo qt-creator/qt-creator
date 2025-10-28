@@ -562,7 +562,8 @@ QTCREATOR_UTILS_EXPORT QByteArray normalizeNewlines(const QByteArray &text)
     Joins all the not empty string list's \a strings into a single string with each element
     separated by the given \a separator (which can be an empty string).
 */
-QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar separator)
+template<typename SEPARATOR>
+QString joinStrings(const QStringList &strings, SEPARATOR separator)
 {
     QString result;
     for (const QString &string : strings) {
@@ -574,6 +575,13 @@ QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar sep
     }
     return result;
 }
+
+template QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, char separator);
+template QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar separator);
+template QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, const QString &separator);
+template QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QStringView separator);
+template QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QLatin1StringView separator);
+template QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, const char *separator);
 
 /*!
     Returns a copy of \a string that has \a ch characters removed from the start.

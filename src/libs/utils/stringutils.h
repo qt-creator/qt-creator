@@ -102,7 +102,9 @@ QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QStringView &text);
 QTCREATOR_UTILS_EXPORT QByteArray normalizeNewlines(const QByteArray &text);
 
 // Skips empty parts - see QTBUG-110900
-QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar separator);
+template<typename SEPARATOR>
+QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, SEPARATOR separator);
+
 QTCREATOR_UTILS_EXPORT QString trimFront(const QString &string, QChar ch);
 QTCREATOR_UTILS_EXPORT QString trimBack(const QString &string, QChar ch);
 QTCREATOR_UTILS_EXPORT QString trim(const QString &string, QChar ch);
