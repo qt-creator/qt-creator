@@ -719,11 +719,15 @@ Task Project::checkBuildDevice(const Kit *k, const Utils::FilePath &projectFile)
     IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(k);
     if (!buildDevice)
         return createTask(Task::TaskType::Error, ::PE::Tr::tr("Kit has no build device."));
-    if (!buildDevice->supportsBuildingProject(projectFile.parentDir())) {
+    const Utils::Result<> supportsBuilding = buildDevice->supportsBuildingProject(
+        projectFile.parentDir());
+    if (!supportsBuilding) {
         return createTask(
             Task::TaskType::Error,
             ::PE::Tr::tr("Build device \"%2\" cannot handle project file \"%1\".")
-                .arg(projectFile.toUserOutput(), buildDevice->displayName()));
+                    .arg(projectFile.toUserOutput())
+                    .arg(buildDevice->displayName())
+                + QString(" ") + supportsBuilding.error());
     }
     return {};
 }

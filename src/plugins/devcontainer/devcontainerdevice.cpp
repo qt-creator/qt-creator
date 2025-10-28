@@ -64,12 +64,12 @@ IDeviceWidget *Device::createWidget()
     return nullptr;
 }
 
-bool Device::handlesFile(const FilePath &filePath) const
+Result<> Device::handlesFile(const FilePath &filePath) const
 {
     const FilePath root = rootPath();
     if (filePath.scheme() == root.scheme() && filePath.host() == root.host())
-        return true;
-    return false;
+        return ResultOk;
+    return IDevice::handlesFile(filePath);
 }
 
 class ProgressPromise : public QPromise<void>
@@ -648,16 +648,18 @@ Result<Environment> Device::systemEnvironmentWithError() const
     return *m_systemEnvironment;
 }
 
-bool Device::ensureReachable(const FilePath &other) const
+Result<> Device::ensureReachable(const FilePath &other) const
 {
     if (other == m_instanceConfig.workspaceFolder)
-        return true;
+        return ResultOk;
     if (other.isChildOf(m_instanceConfig.workspaceFolder))
-        return true;
+        return ResultOk;
     if (other.isSameDevice(rootPath()))
-        return true;
+        return ResultOk;
 
-    return false;
+    // TODO: Check additional mounts!
+    return ResultError(
+        Tr::tr("Cannot reach \"%1\" from \"%2\".").arg(other.toUserOutput()).arg(displayName()));
 }
 
 Result<FilePath> Device::localSource(const FilePath &other) const
@@ -682,9 +684,15 @@ bool Device::supportsQtTargetDeviceType(const QSet<Id> &targetDeviceTypes) const
            || IDevice::supportsQtTargetDeviceType(targetDeviceTypes);
 }
 
-bool Device::supportsBuildingProject(const FilePath &projectDir) const
+Result<> Device::supportsBuildingProject(const FilePath &projectDir) const
 {
-    return projectDir == m_instanceConfig.workspaceFolder;
+    if (projectDir == m_instanceConfig.workspaceFolder)
+        return ResultOk;
+    return ResultError(
+        Tr::tr(
+            "The project directory \"%1\" is not inside the development container workspace folder \"%2\".")
+            .arg(projectDir.toUserOutput())
+            .arg(m_instanceConfig.workspaceFolder.toUserOutput()));
 }
 
 void Device::toMap(Store &map) const

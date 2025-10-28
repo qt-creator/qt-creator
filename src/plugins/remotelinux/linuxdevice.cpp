@@ -1288,13 +1288,11 @@ FilePath LinuxDevice::rootPath() const
     return FilePath::fromParts(u"ssh", userAtHostAndPort(), u"/");
 }
 
-bool LinuxDevice::handlesFile(const FilePath &filePath) const
+Result<> LinuxDevice::handlesFile(const FilePath &filePath) const
 {
-    if (filePath.scheme() == u"device" && filePath.host() == id().toString())
-        return true;
     if (filePath.scheme() == u"ssh" && filePath.host() == userAtHostAndPort())
-        return true;
-    return false;
+        return ResultOk;
+    return IDevice::handlesFile(filePath);
 }
 
 ProcessInterface *LinuxDevice::createProcessInterface() const

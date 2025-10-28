@@ -57,7 +57,7 @@ public:
 
     Utils::FilePath rootPath() const override;
 
-    bool handlesFile(const Utils::FilePath &filePath) const override;
+    Utils::Result<> handlesFile(const Utils::FilePath &filePath) const override;
 
     Utils::ProcessInterface *createProcessInterface() const override;
     ProjectExplorer::FileTransferInterface *createFileTransferInterface(

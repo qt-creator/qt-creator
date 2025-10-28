@@ -404,12 +404,12 @@ DeviceManager::DeviceManager()
         IDevice::ConstPtr device = DeviceManager::deviceForPath(filePath);
         if (!device) {
             return make_unexpected(
-                Tr::tr("No device found for path \"%1\"").arg(filePath.toUserOutput()));
+                Tr::tr("No device found for path \"%1\".").arg(filePath.toUserOutput()));
         }
         DeviceFileAccess *fileAccess = device->fileAccess();
         if (!fileAccess) {
             return make_unexpected(
-                Tr::tr("No file access for device \"%1\"").arg(device->displayName()));
+                Tr::tr("No file access for device \"%1\".").arg(device->displayName()));
         }
         return fileAccess;
     };
@@ -418,7 +418,7 @@ DeviceManager::DeviceManager()
         auto device = DeviceManager::deviceForPath(filePath);
         if (!device) {
             return make_unexpected(
-                Tr::tr("No device found for path \"%1\"").arg(filePath.toUserOutput()));
+                Tr::tr("No device found for path \"%1\".").arg(filePath.toUserOutput()));
         }
         return device->systemEnvironmentWithError();
     };
@@ -430,9 +430,12 @@ DeviceManager::DeviceManager()
         return filePath.host().toString();
     };
 
-    deviceHooks.ensureReachable = [](const FilePath &filePath, const FilePath &other) {
+    deviceHooks.ensureReachable = [](const FilePath &filePath, const FilePath &other) -> Result<> {
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
+        QTC_ASSERT(
+            device,
+            return ResultError(
+                Tr::tr("No device found for path \"%1\".").arg(filePath.toUserOutput())));
         return device->ensureReachable(other);
     };
 

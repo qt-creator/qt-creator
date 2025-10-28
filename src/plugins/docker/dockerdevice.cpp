@@ -150,7 +150,7 @@ public:
     CommandLine createCommandLine();
 
     Result<QString> updateContainerAccess();
-    bool ensureReachable(const FilePath &other);
+    Result<> ensureReachable(const FilePath &other);
     void shutdown();
     Result<FilePath> localSource(const FilePath &other) const;
 
@@ -930,23 +930,28 @@ Result<FilePath> DockerDevicePrivate::localSource(const FilePath &other) const
         Tr::tr("localSource: No mount point found for %1").arg(other.toUserOutput()));
 }
 
-bool DockerDevicePrivate::ensureReachable(const FilePath &other)
+Result<> DockerDevicePrivate::ensureReachable(const FilePath &other)
 {
     if (other.isSameDevice(q->rootPath()))
-        return true;
+        return ResultOk;
+
+    if (!other.isLocal()) {
+        return ResultError(
+            Tr::tr("Cannot reach \"%1\" from \"%2\".").arg(other.toUserOutput()).arg(q->displayName()));
+    }
 
     for (const FilePath &mount : q->mounts()) {
         if (other.isChildOf(mount))
-            return true;
+            return ResultOk;
 
         if (mount == other)
-            return true;
+            return ResultOk;
     }
 
-    if (q->filePath(other.path()).exists())
-        return false;
-
-    return false;
+    return ResultError(
+        Tr::tr("The path \"%1\" is not mounted in the Docker device \"%2\".")
+            .arg(other.toUserOutput())
+            .arg(q->displayName()));
 }
 
 class PortMapping : public AspectContainer
@@ -1287,35 +1292,32 @@ DeviceTester *DockerDevice::createDeviceTester()
     return nullptr;
 }
 
-bool DockerDevice::handlesFile(const FilePath &filePath) const
+Utils::Result<> DockerDevice::handlesFile(const FilePath &filePath) const
 {
-    if (filePath.scheme() == u"device" && filePath.host() == id().toString())
-        return true;
-
     const bool isDockerScheme = filePath.scheme() == Constants::DOCKER_DEVICE_SCHEME;
 
     if (isDockerScheme && filePath.host() == imageId())
-        return true;
+        return ResultOk;
 
     if (isDockerScheme && filePath.host() == repoAndTagEncoded())
-        return true;
+        return ResultOk;
 
     if (isDockerScheme && filePath.host() == repoAndTag())
-        return true;
+        return ResultOk;
 
-    return false;
+    return IDevice::handlesFile(filePath);
 }
 
-bool DockerDevice::ensureReachable(const FilePath &other) const
+Result<> DockerDevice::ensureReachable(const FilePath &other) const
 {
     if (other.isEmpty())
-        return false;
+        return ResultError(Tr::tr("Path is empty."));
 
     if (other.isSameDevice(rootPath()))
-        return true;
+        return ResultOk;
 
     if (!other.isLocal())
-        return false;
+        return ResultError(Tr::tr("Cannot reach remote path \"%1\".").arg(other.toUserOutput()));
 
     if (other.isDir())
         return d->ensureReachable(other);
@@ -1355,11 +1357,11 @@ bool DockerDevice::supportsQtTargetDeviceType(const QSet<Id> &targetDeviceTypes)
            || IDevice::supportsQtTargetDeviceType(targetDeviceTypes);
 }
 
-bool DockerDevice::supportsBuildingProject(const FilePath &projectDir) const
+Result<> DockerDevice::supportsBuildingProject(const FilePath &projectDir) const
 {
-    if (ensureReachable(projectDir))
-        return true;
-    return handlesFile(projectDir);
+    return handlesFile(projectDir).or_else([this, projectDir](const QString &) {
+        return ensureReachable(projectDir);
+    });
 }
 
 QString DockerDevice::deviceStateToString() const

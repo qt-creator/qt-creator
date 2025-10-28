@@ -27,7 +27,7 @@ public:
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
 
-    bool handlesFile(const Utils::FilePath &filePath) const override;
+    Utils::Result<> handlesFile(const Utils::FilePath &filePath) const override;
     Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;
 
     Utils::FilePath rootPath() const override;

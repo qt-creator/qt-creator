@@ -62,9 +62,9 @@ public:
 
     bool supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const override;
 
-    bool supportsBuildingProject(const Utils::FilePath &projectDir) const override;
-    bool handlesFile(const Utils::FilePath &filePath) const override;
-    bool ensureReachable(const Utils::FilePath &other) const override;
+    Utils::Result<> supportsBuildingProject(const Utils::FilePath &projectDir) const override;
+    Utils::Result<> handlesFile(const Utils::FilePath &filePath) const override;
+    Utils::Result<> ensureReachable(const Utils::FilePath &other) const override;
     Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
 
     Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;

@@ -537,11 +537,14 @@ FilePath IDevice::filePath(const QString &pathOnDevice) const
     return rootPath().withNewPath(pathOnDevice);
 }
 
-bool IDevice::handlesFile(const FilePath &filePath) const
+Result<> IDevice::handlesFile(const FilePath &filePath) const
 {
     if (filePath.scheme() == u"device" && filePath.host() == id().toString())
-        return true;
-    return false;
+        return ResultOk;
+    return ResultError(
+        Tr::tr("The file \"%1\" cannot be handled by the device \"%2\".")
+            .arg(filePath.toUserOutput())
+            .arg(displayName()));
 }
 
 FilePath IDevice::searchExecutableInPath(const QString &fileName) const
@@ -1081,7 +1084,7 @@ QString IDevice::defaultPublicKeyFilePath()
     return defaultPrivateKeyFilePath() + QLatin1String(".pub");
 }
 
-bool IDevice::ensureReachable(const FilePath &other) const
+Utils::Result<> IDevice::ensureReachable(const FilePath &other) const
 {
     return handlesFile(other); // Some first approximation.
 }
@@ -1280,7 +1283,7 @@ FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
     return paths;
 }
 
-bool IDevice::supportsBuildingProject(const FilePath &projectDir) const
+Result<> IDevice::supportsBuildingProject(const FilePath &projectDir) const
 {
     return handlesFile(projectDir);
 }

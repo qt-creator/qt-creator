@@ -286,7 +286,7 @@ public:
     [[nodiscard]] static const QString &specialDeviceRootName();
     [[nodiscard]] static const QString &specialDeviceRootPath();
 
-    [[nodiscard]] bool ensureReachable(const FilePath &other) const;
+    [[nodiscard]] Result<> ensureReachable(const FilePath &other) const;
 
     [[nodiscard]] QString toFSPathString() const;
 
@@ -353,7 +353,7 @@ class QTCREATOR_UTILS_EXPORT DeviceFileHooks
 public:
     std::function<Result<DeviceFileAccess *>(const FilePath &)> fileAccess;
     std::function<QString(const FilePath &)> deviceDisplayName;
-    std::function<bool(const FilePath &, const FilePath &)> ensureReachable;
+    std::function<Result<>(const FilePath &, const FilePath &)> ensureReachable;
     std::function<Result<Environment>(const FilePath &)> environment;
     std::function<bool(const FilePath &left, const FilePath &right)> isSameDevice;
     std::function<Result<FilePath>(const FilePath &)> localSource;

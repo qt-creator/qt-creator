@@ -270,7 +270,7 @@ public:
     Utils::DeviceFileAccess *fileAccess() const;
     bool supportsFileAccess() const;
     virtual void tryToConnect(const Utils::Continuation<> &cont) const;
-    virtual bool handlesFile(const Utils::FilePath &filePath) const;
+    virtual Utils::Result<> handlesFile(const Utils::FilePath &filePath) const;
 
     virtual Utils::FilePath searchExecutableInPath(const QString &fileName) const;
     virtual Utils::FilePath searchExecutable(const QString &fileName,
@@ -286,7 +286,7 @@ public:
 
     virtual void aboutToBeRemoved() const {}
 
-    virtual bool ensureReachable(const Utils::FilePath &other) const;
+    virtual Utils::Result<> ensureReachable(const Utils::FilePath &other) const;
     virtual Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const;
 
     virtual bool prepareForBuild(const Target *target);
@@ -299,7 +299,7 @@ public:
 
     void autoDetectDeviceTools();
 
-    virtual bool supportsBuildingProject(const Utils::FilePath &projectDir) const;
+    virtual Utils::Result<> supportsBuildingProject(const Utils::FilePath &projectDir) const;
 
 public:
     Utils::BoolAspect allowEmptyCommand{this};

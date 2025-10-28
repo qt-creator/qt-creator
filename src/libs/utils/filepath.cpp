@@ -861,13 +861,17 @@ Result<QByteArray> FilePath::fileContents(qint64 maxSize, qint64 offset) const
     return fileAccess()->fileContents(*this, maxSize, offset);
 }
 
-bool FilePath::ensureReachable(const FilePath &other) const
+Result<> FilePath::ensureReachable(const FilePath &other) const
 {
     if (!isLocal()) {
-        QTC_ASSERT(deviceFileHooks().ensureReachable, return false);
+        QTC_ASSERT(
+            deviceFileHooks().ensureReachable, return ResultError(Tr::tr("No device hook set.")));
         return deviceFileHooks().ensureReachable(*this, other);
     }
-    return other.isLocal();
+    if (other.isLocal())
+        return ResultOk;
+
+    return ResultError(Tr::tr("Cannot reach remote path \"%1\".").arg(other.toUserOutput()));
 }
 
 Result<qint64> FilePath::writeFileContents(const QByteArray &data) const

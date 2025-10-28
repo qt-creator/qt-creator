@@ -219,9 +219,11 @@ QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
     return url;
 }
 
-bool DesktopDevice::handlesFile(const FilePath &filePath) const
+Result<> DesktopDevice::handlesFile(const FilePath &filePath) const
 {
-    return filePath.isLocal();
+    if (!filePath.isLocal())
+        return ResultError(Tr::tr("\"%1\" can only handle local files.").arg(displayName()));
+    return ResultOk;
 }
 
 FilePath DesktopDevice::filePath(const QString &pathOnDevice) const
