@@ -14,7 +14,7 @@ using namespace Utils;
 
 namespace Cppcheck::Internal {
 
-FilePathItem::FilePathItem(const QString &filePath)
+FilePathItem::FilePathItem(const FilePath &filePath)
     : m_filePath(filePath)
 {}
 
@@ -23,11 +23,11 @@ QVariant FilePathItem::data(int column, int role) const
     if (column == DiagnosticsModel::DiagnosticColumn) {
         switch (role) {
         case Qt::DisplayRole:
-            return m_filePath;
+            return m_filePath.toUrlishString();
         case Qt::DecorationRole:
-            return Utils::FileIconProvider::icon(Utils::FilePath::fromString(m_filePath));
+            return FileIconProvider::icon(m_filePath);
         case Debugger::DetailedErrorView::FullTextRole:
-            return m_filePath;
+            return m_filePath.toUrlishString();
         default:
             return QVariant();
         }
@@ -101,7 +101,7 @@ void DiagnosticsModel::add(const Diagnostic &diagnostic)
     if (m_diagnostics.size() == 1)
         emit hasDataChanged(true);
 
-    const QString filePath = diagnostic.fileName.toUrlishString();
+    const FilePath filePath = diagnostic.fileName;
     FilePathItem *&filePathItem = m_filePathToItem[filePath];
     if (!filePathItem) {
         filePathItem = new FilePathItem(filePath);

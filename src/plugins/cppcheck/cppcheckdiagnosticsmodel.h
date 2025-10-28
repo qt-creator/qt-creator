@@ -17,11 +17,11 @@ class DiagnosticsModel;
 class FilePathItem : public Utils::TreeItem
 {
 public:
-    explicit FilePathItem(const QString &filePath);
+    explicit FilePathItem(const Utils::FilePath &filePath);
     QVariant data(int column, int role) const override;
 
 private:
-    const QString m_filePath;
+    const Utils::FilePath m_filePath;
 };
 
 class DiagnosticItem : public Utils::TreeItem
@@ -50,7 +50,7 @@ signals:
     void hasDataChanged(bool hasData);
 
 private:
-    QHash<QString, FilePathItem *> m_filePathToItem;
+    QHash<Utils::FilePath, FilePathItem *> m_filePathToItem;
     QSet<Diagnostic> m_diagnostics;
 };
 
