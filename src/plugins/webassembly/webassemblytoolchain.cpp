@@ -165,6 +165,10 @@ void registerToolChains()
             continue;
         kit->fix();
     }
+
+    DeviceManager::setDeviceState(
+        Constants::WEBASSEMBLY_DEVICE_DEVICE_ID,
+        areToolChainsRegistered() ? IDevice::DeviceReadyToUse : IDevice::DeviceDisconnected);
 }
 
 bool areToolChainsRegistered()

@@ -5,6 +5,7 @@
 
 #include "webassemblyconstants.h"
 #include "webassemblyqtversion.h"
+#include "webassemblysettings.h"
 #include "webassemblytoolchain.h"
 #include "webassemblytr.h"
 
@@ -40,6 +41,7 @@ public:
         setMachineType(IDevice::Hardware);
         setOsType(OsTypeOther);
         setFileAccess(nullptr);
+        setDeviceState(IDevice::DeviceStateUnknown);
     }
 
     bool canCreateProcessModel() const override
@@ -98,6 +100,9 @@ void setupWebAssemblyDevice()
     QObject::connect(KitManager::instance(), &KitManager::kitsLoaded, [] {
         DeviceManager::addDevice(createWebAssemblyDevice());
         askUserAboutEmSdkSetup();
+        DeviceManager::setDeviceState(
+            Constants::WEBASSEMBLY_DEVICE_DEVICE_ID,
+            areToolChainsRegistered() ? IDevice::DeviceReadyToUse : IDevice::DeviceDisconnected);
     });
 }
 
