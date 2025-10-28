@@ -43,6 +43,7 @@ Rectangle {
 
             onCurrentTextChanged: {
                 var supportsImageInput = /llama-4-(maverick|scout)/.test(currentText)
+                                         || currentText.startsWith("gemini")
 
                 promptTextBox.enableAttachImage = supportsImageInput
                 if (!supportsImageInput)
