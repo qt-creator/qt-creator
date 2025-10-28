@@ -3,7 +3,10 @@
 
 #include "aimodelsmodel.h"
 
+#include "aiassistantconstants.h"
 #include "settings/aiprovidersettings.h"
+
+#include <coreplugin/icore.h>
 
 namespace QmlDesigner {
 
@@ -49,13 +52,25 @@ QHash<int, QByteArray> AiModelsModel::roleNames() const
 void AiModelsModel::update()
 {
     const AiModelInfo oldSelectedInfo = selectedInfo();
+    QString selectedProvider;
+    QString selectedModelId;
+    if (oldSelectedInfo.isValid()) {
+        selectedProvider = oldSelectedInfo.providerName;
+        selectedModelId = oldSelectedInfo.modelId;
+    } else {
+        auto settings = Core::ICore::settings();
+        settings->beginGroup(Constants::aiAssistantSelectedModelKey);
+        selectedProvider = settings->value("providerName").toString();
+        selectedModelId = settings->value("modelId").toString();
+        settings->endGroup();
+    }
 
     beginResetModel();
     m_data = AiProviderSettings::allValidModels();
     endResetModel();
 
-    if (oldSelectedInfo.isValid()) {
-        const int newIdx = findIndex(oldSelectedInfo.providerName, oldSelectedInfo.modelId);
+    if (!selectedProvider.isEmpty() && !selectedModelId.isEmpty()) {
+        const int newIdx = findIndex(selectedProvider, selectedModelId);
         if (newIdx > -1)
             setSelectedIndex(newIdx);
     }
@@ -81,6 +96,16 @@ void AiModelsModel::setSelectedIndex(int idx)
         return;
     m_selectedIndex = idx;
     emit selectedIndexChanged();
+
+    const AiModelInfo selectedInfo = this->selectedInfo();
+    if (!selectedInfo.isValid())
+        return;
+
+    auto settings = Core::ICore::settings();
+    settings->beginGroup(Constants::aiAssistantSelectedModelKey);
+    settings->setValue("providerName", selectedInfo.providerName);
+    settings->setValue("modelId", selectedInfo.modelId);
+    settings->endGroup();
 }
 
 AiModelInfo AiModelsModel::at(int idx) const
