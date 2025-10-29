@@ -2,6 +2,7 @@ set(ALL_CMDBRIDGE_PLATFORMS "")
 
 env_with_default("QTC_BUILD_EXECUTABLE_CMDBRIDGE" ENV_BUILD_EXECUTABLE_CMDBRIDGE ON)
 option(BUILD_EXECUTABLE_CMDBRIDGE "Build the cmdbridge executable, required for fast container and remote device support" "${ENV_BUILD_EXECUTABLE_CMDBRIDGE}")
+option(CMDBRIDGE_BUILD_VENDOR_MODE "Build the cmdbridge in vendor mode" OFF)
 
 if(NOT BUILD_EXECUTABLE_CMDBRIDGE)
     add_feature_info("Executable CmdBridge" NO "")
@@ -20,10 +21,15 @@ function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
                 string(APPEND OUTPUT ".exe")
             endif()
 
+            set(VENDOR_MODE_OPTION "")
+            if (CMDBRIDGE_BUILD_VENDOR_MODE)
+                set(VENDOR_MODE_OPTION "-mod=vendor")
+            endif()
+
             if ((${PLATFORM} STREQUAL "linux" OR (${PLATFORM} STREQUAL "windows" AND ${ARCHITECTURE} STREQUAL "amd64")) AND NOT UPX_BIN STREQUAL "UPX_BIN-NOTFOUND")
                 add_custom_command(
                     OUTPUT "${OUTPUT}"
-                    COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} CGO_ENABLED=0 ${GO_BIN} build -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
+                    COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} CGO_ENABLED=0 ${GO_BIN} build ${VENDOR_MODE_OPTION} -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
                     COMMAND ${UPX_BIN} -9 ${OUTPUT}
                     DEPENDS ${SOURCES}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -34,7 +40,7 @@ function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
             else()
                 add_custom_command(
                     OUTPUT "${OUTPUT}"
-                    COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} CGO_ENABLED=0 ${GO_BIN} build -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
+                    COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} CGO_ENABLED=0 ${GO_BIN} build ${VENDOR_MODE_OPTION} -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
                     DEPENDS ${SOURCES}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                     COMMENT "Building ${TARGET_NAME}"

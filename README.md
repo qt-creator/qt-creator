@@ -386,6 +386,21 @@ On Windows, run
 
 Alternatively, the Go compiler can be obtained from https://go.dev/dl
 
+#### Vendor mode
+
+Normally go will download dependencies from the internet while building the CmdBridge.
+
+To build without access to the internet, you can use vendor mode.
+
+To build the CmdBridge in vendor mode, make sure to have the `CMDBRIDGE_BUILD_VENDOR_MODE`
+CMake option set to `ON`. You will also need to have the Go modules vendored
+in the `src/libs/gocmdbridge/server/vendor` directory. To vendor the Go modules,
+run the following commands in the `src/libs/gocmdbridge/server` directory:
+
+```
+go mod vendor
+```
+
 # Licenses and Attributions
 
 Qt Creator is available under commercial licenses from The Qt Company,
