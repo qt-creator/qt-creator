@@ -399,7 +399,7 @@ public:
                 st,
                 QtcWidgets::Button {
                     text(Tr::tr("Show All")),
-                    role(QtcButton::LargeTertiary),
+                    role(QtcButton::LargeGhost),
                     onClicked(this, [] {
                         QDesktopServices::openUrl(QUrl::fromUserInput("https://www.qt.io/blog"));
                     }),
