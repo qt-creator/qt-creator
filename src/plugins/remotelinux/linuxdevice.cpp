@@ -331,12 +331,14 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         autoDetectButton->setEnabled(true);
     });
 
-    connect(autoDetectButton, &QPushButton::clicked, this, [linuxDevice, autoDetectButton] {
-        autoDetectButton->setEnabled(false);
-        linuxDevice->tryToConnect({linuxDevice.get(), [linuxDevice, autoDetectButton](const Result<> &res) {
+    connect(autoDetectButton, &QPushButton::clicked, this, [linuxDevice, button = QPointer(autoDetectButton)] {
+        QTC_ASSERT(button, return);
+        button->setEnabled(false);
+        linuxDevice->tryToConnect({linuxDevice.get(), [linuxDevice, button](const Result<> &res) {
             if (res)
                 linuxDevice->autoDetectDeviceTools();
-            autoDetectButton->setEnabled(true);
+            if (button)
+                button->setEnabled(true);
         }});
     });
 
