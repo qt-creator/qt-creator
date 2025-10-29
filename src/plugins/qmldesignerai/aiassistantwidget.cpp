@@ -179,7 +179,7 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     , m_termsAccepted(Core::ICore::settings()->value(Constants::aiAssistantTermsAcceptedKey, false)
                           .toBool())
 {
-    setWindowTitle(tr("AI Assistant", "Title of Ai Assistant widget"));
+    setWindowTitle(tr("AI Assistant", "Title of AI Assistant widget"));
     setMinimumWidth(220);
     setMinimumHeight(82);
 
