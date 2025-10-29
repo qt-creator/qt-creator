@@ -138,6 +138,8 @@ void TypePrettyPrinter::visit(NamedType *type)
     prependCv(_fullySpecifiedType);
     if (_fullySpecifiedType.isAuto() && _overview->combineAutoAndName)
         _text.append(" auto"); // Constrained function parameters.
+    else if (_overview->language == Utils::Language::C)
+        _text.prepend("struct ");
 }
 
 void TypePrettyPrinter::visit(Namespace *type)
@@ -483,6 +485,7 @@ void TypePrettyPrinter::visit(Function *type)
     argOverview.showArgumentNames = false;
     argOverview.showFunctionSignatures = true;
     argOverview.showTemplateParameters = true;
+    argOverview.language = _overview->language;
     const Overview retOverview = argOverview;
     argOverview.combineAutoAndName = true;
 

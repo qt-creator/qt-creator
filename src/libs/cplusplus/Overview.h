@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
+#include <utils/cpplanguage_details.h>
 
 #include <QList>
 #include <QString>
@@ -31,6 +32,7 @@ public:
     Q_DECLARE_FLAGS(StarBindFlags, StarBindFlag)
 
     StarBindFlags starBindFlags;
+    Utils::Language language = Utils::Language::Cxx;
     bool showArgumentNames: 1;
     bool showReturnTypes: 1;
     bool showFunctionSignatures: 1;

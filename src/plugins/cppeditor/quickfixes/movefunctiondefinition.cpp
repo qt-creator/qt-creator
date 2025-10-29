@@ -97,6 +97,8 @@ static QString definitionSignature(
     oo.showArgumentNames = true;
     oo.showEnclosingTemplate = true;
     oo.showTemplateParameters = true;
+    if (!targetFile->cppDocument()->languageFeatures().cxxEnabled)
+        oo.language = Language::C;
     oo.trailingReturnType = functionDefinitionAST->declarator
                             && functionDefinitionAST->declarator->postfix_declarator_list
                             && functionDefinitionAST->declarator->postfix_declarator_list->value

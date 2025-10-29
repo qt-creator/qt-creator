@@ -109,6 +109,8 @@ public:
         oo.showArgumentNames = true;
         oo.showEnclosingTemplate = true;
         oo.showTemplateParameters = true;
+        if (!targetFile->cppDocument()->languageFeatures().cxxEnabled)
+            oo.language = Language::C;
 
         // TODO: Record this with the function instead? Then it would also work
         // for e.g. function pointer parameters with different syntax.
@@ -2832,6 +2834,38 @@ foo::foo2::MyType<int> foo::foo2::bar()
             "template<typename T>\nvoid N::Bar<T>::foo() {}";
         testDocuments << CppTestDocument::create("file.cpp", original, ""); // TODO
 
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(testDocuments, &factory);
+    }
+
+    void testRequiredStructKeyword()
+    {
+        const QByteArray header = "struct S {};\n"
+                                  "void h@andle(struct S *s);\n";
+        const QByteArray originalSource = "#include \"s.h\"\n";
+        const QByteArray expectedSource = "#include \"s.h\"\n\n"
+                                          "void handle(struct S *s)\n"
+                                          "{\n\n"
+                                          "}\n";
+        const QList<TestDocumentPtr> testDocuments{
+            CppTestDocument::create("s.h", header, header),
+            CppTestDocument::create("s.c", originalSource, expectedSource)};
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(testDocuments, &factory);
+    }
+
+    void testNonRequiredStructKeyword()
+    {
+        const QByteArray header = "struct S {};\n"
+                                  "void h@andle(struct S *s);\n";
+        const QByteArray originalSource = "#include \"s.h\"\n";
+        const QByteArray expectedSource = "#include \"s.h\"\n\n"
+                                          "void handle(S *s)\n"
+                                          "{\n\n"
+                                          "}\n";
+        const QList<TestDocumentPtr> testDocuments{
+                                                   CppTestDocument::create("s.h", header, header),
+                                                   CppTestDocument::create("s.cpp", originalSource, expectedSource)};
         InsertDefFromDecl factory;
         QuickFixOperationTest(testDocuments, &factory);
     }
