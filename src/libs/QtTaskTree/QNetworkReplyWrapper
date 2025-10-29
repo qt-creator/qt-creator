@@ -1,0 +1,1 @@
+#include <QtTaskTree/qnetworkreplywrappertask.h> // IWYU pragma: export

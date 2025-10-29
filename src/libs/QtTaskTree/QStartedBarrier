@@ -1,0 +1,1 @@
+#include <QtTaskTree/qbarriertask.h> // IWYU pragma: export

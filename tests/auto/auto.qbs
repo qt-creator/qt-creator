@@ -21,6 +21,7 @@ Project {
         "pointeralgorithm/pointeralgorithm.qbs",
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
+        "qttasktree/qttasktree.qbs",
         "sdktool/sdktool.qbs",
         "solutions/solutions.qbs",
         "texteditor/texteditor.qbs",

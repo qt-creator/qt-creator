@@ -1,0 +1,21 @@
+add_qtc_library(QtTaskTree
+  PUBLIC_DEPENDS Qt::Concurrent Qt::Core Qt::CorePrivate Qt::Network
+  SOURCES
+    qbarriertask.cpp
+    qbarriertask.h
+    qconcurrentcalltask.cpp
+    qconcurrentcalltask.h
+    qconditional.cpp
+    qconditional.h
+    qnetworkreplywrappertask.cpp
+    qnetworkreplywrappertask.h
+    qprocesstask.cpp
+    qprocesstask.h
+    qtasktree.cpp
+    qtasktree.h
+    qtasktreerunner.cpp
+    qtasktreerunner.h
+    qtcpsocketwrappertask.cpp
+    qtcpsocketwrappertask.h
+    qttasktreeglobal.h
+)

@@ -1,0 +1,52 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+include($QT_INSTALL_DOCS/config/exampleurl-qttasktree.qdocconf)
+
+project                 = QtTaskTree
+description             = Qt TaskTree Reference Documentation
+version                 = $QT_VERSION
+
+qhp.projects            = QtTaskTree
+
+qhp.QtTaskTree.file                = qttasktree.qhp
+qhp.QtTaskTree.namespace           = org.qt-project.qttasktree.$QT_VERSION_TAG
+qhp.QtTaskTree.virtualFolder       = qttasktree
+qhp.QtTaskTree.indexTitle          = Qt TaskTree
+qhp.QtTaskTree.indexRoot           =
+
+qhp.QtTaskTree.subprojects = examples classes
+
+qhp.QtTaskTree.subprojects.classes.title = C++ Classes
+qhp.QtTaskTree.subprojects.classes.indexTitle = Qt TaskTree C++ Classes
+qhp.QtTaskTree.subprojects.classes.selectors = class fake:headerfile
+qhp.QtTaskTree.subprojects.classes.sortPages = true
+
+qhp.QtTaskTree.subprojects.examples.title              = Examples
+qhp.QtTaskTree.subprojects.examples.indexTitle         = Qt TaskTree Examples
+qhp.QtTaskTree.subprojects.examples.selectors          = example
+qhp.QtTaskTree.subprojects.examples.sortPages          = true
+
+
+depends += qtcore \
+           qtdoc \
+           qmake \
+           qtcmake \
+           qtconcurrent
+
+headerdirs  += ..
+
+sourcedirs  += ..
+
+exampledirs += ../../../examples
+
+examplesinstallpath = tasktree
+
+# Path to the root of qttasktree (for automatic linking to source code)
+url.sources.rootdir     = ../../..
+
+imagedirs   += images
+
+navigation.landingpage = "Qt TaskTree"
+navigation.cppclassespage = "Qt TaskTree C++ Classes"
+
+# Fail the documentation build if there are more warnings than the limit
+warninglimit = 0
