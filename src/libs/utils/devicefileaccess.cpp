@@ -1704,7 +1704,7 @@ Result<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &filePath,
 
     Process p;
     p.setCommand({dd, args, OsType::OsTypeLinux});
-    p.runBlocking(0s); // Run forever
+    p.runBlocking(60min); // Run "forever"
     if (p.exitCode() != 0) {
         return ResultError(Tr::tr("Failed reading file \"%1\": %2")
                                    .arg(filePath.toUserOutput(), p.readAllStandardError()));
@@ -1992,11 +1992,19 @@ Result<> UnixDeviceFileAccess::iterateWithFind(
 
     const QString statFormat = filePath.osType() == OsTypeMac ? QLatin1String("-f \"%p %m %z\"")
                                                               : QLatin1String("-c \"%f %Y %s\"");
-
-    if (callBack.index() == 1)
-        cmdLine.addArgs(QString(R"(-exec echo -n \"{}\"" " \; -exec stat -L %1 "{}" \;)")
-                            .arg(statFormat),
-                        CommandLine::Raw);
+    // Some versions of 'find' fail to substitute {} if it doesn't stand for itself,
+    // so we keep some spacing around it.
+    static const QString startQuoteIn = "\\\" ";
+    static const QString endQuoteIn = " \\\"";
+    static const QString startQuoteOut = "\" ";
+    static const QString endQuoteOut = " \"";
+    static const int quoteOutSize = 2;
+    const bool includeStats = callBack.index() == 1;
+    if (includeStats)
+        cmdLine.addArgs(
+            QString(R"(-exec echo -n %1{}%2" " \; -exec stat -L %3 "{}" \;)")
+                .arg(startQuoteIn, endQuoteIn, statFormat),
+            CommandLine::Raw);
 
     const Result<RunResult> res = runInShellImpl(cmdLine);
     if (!res)
@@ -2004,8 +2012,8 @@ Result<> UnixDeviceFileAccess::iterateWithFind(
     const QString out = QString::fromUtf8(res->stdOut);
     if (res->exitCode != 0) {
         // Find returns non-zero exit code for any error it encounters, even if it finds some files.
-
-        if (!out.startsWith('"' + filePath.path())) {
+        const QString expectedPrefix = (includeStats ? startQuoteOut : QString()) + filePath.path();
+        if (!out.startsWith(expectedPrefix)) {
             if (!filePath.exists()) // File does not exist, so no files to find.
                 return ResultOk;
 
@@ -2025,8 +2033,9 @@ Result<> UnixDeviceFileAccess::iterateWithFind(
         if (callBack.index() == 0)
             return std::get<0>(callBack)(filePath.withNewPath(entry));
 
-        const QString fileName = entry.mid(1, entry.lastIndexOf('\"') - 1);
-        const QString infos = entry.mid(fileName.length() + 3);
+        const QString fileName
+            = entry.mid(quoteOutSize, entry.lastIndexOf(endQuoteOut) - quoteOutSize);
+        const QString infos = entry.mid(fileName.length() + quoteOutSize * 2 + 1);
 
         const FilePathInfo fi = FileUtils::filePathInfoFromTriple(infos, modeBase);
         if (!fi.fileFlags)
@@ -2055,11 +2064,13 @@ Result<> UnixDeviceFileAccess::iterateWithFind(
 Result<> UnixDeviceFileAccess::findUsingLs(
     const QString &current, const FileFilter &filter, QStringList *found, const QString &start) const
 {
-    const Result<QByteArray> res = runInShell(
+    const Result<RunResult> res = runInShellImpl(
         {"ls", {"-1", "-a", "-p", "--", current}, OsType::OsTypeLinux});
     if (!res)
         return ResultError(res.error());
-    const QStringList entries = QString::fromUtf8(*res).split('\n', Qt::SkipEmptyParts);
+    // 'ls' returns non-zero exit code for any error it encounters, even if it finds some files,
+    // so ignore the exit code
+    const QStringList entries = QString::fromUtf8(res->stdOut).split('\n', Qt::SkipEmptyParts);
     for (QString entry : entries) {
         const QChar last = entry.back();
         if (last == '/') {

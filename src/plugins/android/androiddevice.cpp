@@ -25,9 +25,11 @@
 
 #include <solutions/tasking/conditional.h>
 
+#include <utils/devicefileaccess.h>
 #include <utils/fileutils.h>
 #include <utils/guard.h>
 #include <utils/port.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/shutdownguard.h>
@@ -88,11 +90,56 @@ static SdkToolResult runAdbCommand(const QStringList &args)
     return result;
 }
 
+class AndroidFileAccess : public UnixDeviceFileAccess
+{
+public:
+    AndroidFileAccess(AndroidDevice *device);
+
+protected:
+    Utils::Result<RunResult> runInShellImpl(
+        const CommandLine &cmdLine, const QByteArray &inputData) const final;
+
+private:
+    AndroidDevice *m_device = nullptr;
+};
+
+AndroidFileAccess::AndroidFileAccess(AndroidDevice *device)
+    : m_device(device)
+{}
+
+Utils::Result<RunResult> AndroidFileAccess::runInShellImpl(
+    const CommandLine &cmdLine, const QByteArray &inputData) const
+{
+    CommandLine cmd(AndroidConfig::adbToolPath());
+    cmd.addArgs({"-s", m_device->serialNumber(), "shell"});
+    cmd.addCommandLineAsSingleArg(cmdLine);
+    Process proc;
+    proc.setWriteData(inputData);
+    proc.setCommand(cmd);
+    proc.runBlocking();
+
+    const RunResult result{
+        proc.resultData().m_exitCode,
+        proc.readAllRawStandardOutput(),
+        proc.readAllRawStandardError(),
+    };
+    if (androidDeviceLog().isDebugEnabled()) {
+        qCDebug(androidDeviceLog) << "Ran command for device file access:";
+        qCDebug(androidDeviceLog) << qPrintable(cmd.toUserOutput());
+        qCDebug(androidDeviceLog) << "exitcode:" << result.exitCode;
+        qCDebug(androidDeviceLog) << "out:" << result.stdOut;
+        qCDebug(androidDeviceLog) << "err:" << result.stdErr;
+    }
+    return result;
+}
+
 class AndroidDevicePrivate final
 {
 public:
     std::unique_ptr<QSettings> m_avdSettings;
     Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    std::unique_ptr<AndroidFileAccess> m_deviceAccess;
+    UnavailableDeviceFileAccess m_disconnectedAccess;
 };
 
 class AndroidDeviceManagerInstance : public QObject
@@ -396,6 +443,7 @@ AndroidDevice::AndroidDevice()
     addDeviceAction({Tr::tr("Refresh"), [](const IDevice::Ptr &device) {
         updateDeviceState(device);
     }});
+    setFileAccess(&d->m_disconnectedAccess);
 }
 
 AndroidDevice::~AndroidDevice()
@@ -680,6 +728,31 @@ QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
     return url;
 }
 
+ProcessInterface *AndroidDevice::createProcessInterface() const
+{
+    // Just "more or less" so that the generic things in UnixDeviceFileAccess work
+    const auto wrapCommandLine =
+        [serial = serialNumber()](const ProcessSetupData &setupData, const QString &pidMarker)
+        -> Result<CommandLine> {
+        CommandLine cmd(AndroidConfig::adbToolPath());
+        cmd.addArgs({"-s", serial, "shell"});
+        CommandLine inner("echo", {pidMarker.arg("1234")}); // dummy PID
+        if (!setupData.m_workingDirectory.isEmpty())
+            inner.addCommandLineWithAnd({"cd", {setupData.m_workingDirectory.path()}});
+        inner.addCommandLineWithAnd(setupData.m_commandLine);
+        cmd.addCommandLineAsSingleArg(inner);
+        return cmd;
+    };
+
+    const auto controlSignal = [](ControlSignal, qint64) {
+        // we don't have a separate process on the device, nothing to do here
+    };
+
+    auto *processInterface = new WrappedProcessInterface(wrapCommandLine, controlSignal);
+
+    return processInterface;
+}
+
 QSettings *AndroidDevice::avdSettings() const
 {
     return d->m_avdSettings.get();
@@ -689,6 +762,20 @@ void AndroidDevice::initAvdSettings()
 {
     const FilePath configPath = avdPath().resolvePath(QStringLiteral("config.ini"));
     d->m_avdSettings.reset(new QSettings(configPath.toUserOutput(), QSettings::IniFormat));
+}
+
+void AndroidDevice::updateDeviceFileAccess()
+{
+    DeviceState state = deviceState();
+    if (state == IDevice::DeviceReadyToUse) {
+        if (!d->m_deviceAccess) {
+            d->m_deviceAccess = std::make_unique<AndroidFileAccess>(this);
+            setFileAccess(d->m_deviceAccess.get());
+        }
+    } else {
+        setFileAccess(&d->m_disconnectedAccess);
+        d->m_deviceAccess.reset();
+    }
 }
 
 static void handleDevicesListChange(const QString &serialNumber)
@@ -734,11 +821,11 @@ static void handleDevicesListChange(const QString &serialNumber)
         if (ipRegex.match(serial).hasMatch())
             displayName += QLatin1String(" (WiFi)");
 
-        if (IDevice::ConstPtr dev = DeviceManager::find(id)) {
+        if (IDevice::Ptr dev = DeviceManager::find(id)) {
             // DeviceManager doens't seem to have a way to directly update the name, if the name
             // of the device has changed, remove it and register it again with the new name.
             if (dev->displayName() == displayName)
-                DeviceManager::setDeviceState(id, state);
+                dev->setDeviceState(state);
             else
                 DeviceManager::removeDevice(id);
         } else {
@@ -755,6 +842,11 @@ static void handleDevicesListChange(const QString &serialNumber)
             qCDebug(androidDeviceLog, "Registering new Android device id \"%s\".",
                     newDev->id().toString().toUtf8().data());
             DeviceManager::addDevice(IDevice::Ptr(newDev));
+        }
+        if (IDevice::Ptr dev = DeviceManager::find(id)) {
+            auto androidDevice = qobject_cast<AndroidDevice *>(dev.get());
+            if (QTC_GUARD(androidDevice))
+                androidDevice->updateDeviceFileAccess();
         }
     }
 }

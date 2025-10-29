@@ -17,6 +17,8 @@ namespace Android::Internal {
 
 class AndroidDevice final : public ProjectExplorer::IDevice
 {
+    Q_OBJECT
+
 public:
     using Ptr = std::shared_ptr<AndroidDevice>;
 
@@ -52,6 +54,8 @@ public:
 
     void startAvd();
 
+    void updateDeviceFileAccess();
+
 protected:
     void fromMap(const Utils::Store &map) final;
 
@@ -63,6 +67,7 @@ private:
     QUrl toolControlChannel(const ControlChannelHint &) const override;
     Tasking::ExecutableItem portsGatheringRecipe(
         const Tasking::Storage<Utils::PortsOutputData> &output) const override;
+    Utils::ProcessInterface *createProcessInterface() const final;
 
     QSettings *avdSettings() const;
     void initAvdSettings();
