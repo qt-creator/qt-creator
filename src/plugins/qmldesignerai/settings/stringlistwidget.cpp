@@ -63,10 +63,26 @@ StringListWidget::StringListWidget(QWidget *parent)
     onRowChanged(currentRow());
 
     connect(m_addButton.get(), &QToolButton::clicked, this, [this] {
-        addItem({});
-        const int newRow = count() - 1;
-        setCurrentRow(newRow);
-        editItem(item(newRow));
+        const int rowCount = count();
+
+        // Check if there's already an empty item, use that one
+        int newRowIdx = -1;
+        for (int i = 0; i < rowCount; ++i) {
+            const QString itemText = item(i)->text().trimmed();
+            if (itemText.isEmpty()) {
+                newRowIdx = i;
+                break;
+            }
+        }
+
+        // Otherwise add a new item
+        if (newRowIdx < 0) {
+            addItem({});
+            newRowIdx = rowCount;
+        }
+
+        setCurrentRow(newRowIdx);
+        editItem(item(newRowIdx));
     });
 
     connect(m_removeButton.get(), &QToolButton::clicked, this, [this] {
