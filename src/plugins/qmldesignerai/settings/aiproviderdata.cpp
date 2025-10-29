@@ -6,11 +6,10 @@
 namespace QmlDesigner {
 
 // TODO: move to a json file
-const QList<AiProviderData> AiProviderData::defaultProviders()
+const QMap<QString, AiProviderData> AiProviderData::defaultProviders()
 {
-    static const QList<AiProviderData> providers{
-        AiProviderData{
-            .name = "Groq",
+    static const QMap<QString, AiProviderData> providers{
+        {"Groq", AiProviderData{
             .url = QUrl{"https://api.groq.com/openai/v1/chat/completions"},
             .models = {
                 "llama-3.1-8b-instant",
@@ -21,10 +20,9 @@ const QList<AiProviderData> AiProviderData::defaultProviders()
                 "groq/compound-mini",
                 "moonshotai/kimi-k2-instruct-0905",
                 "qwen/qwen3-32b",
-            },
-        },
-        AiProviderData{
-            .name = "Gemini",
+            }
+        }},
+        {"Gemini", AiProviderData{
             .url = QUrl{"https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"},
             .models = {
                 "gemini-2.0-flash",
@@ -32,20 +30,10 @@ const QList<AiProviderData> AiProviderData::defaultProviders()
                 "gemini-2.5-pro",
                 "gemini-2.5-flash",
                 "gemini-2.5-flash-lite",
-            },
-        },
+            }
+        }},
     };
     return providers;
-}
-
-const AiProviderData AiProviderData::findProvider(const QString &providerName)
-{
-    const QList<AiProviderData> &providers = defaultProviders();
-    if (auto itr = std::ranges::find(providers, providerName, &AiProviderData::name);
-        itr != providers.end()) {
-        return *itr;
-    }
-    return {};
 }
 
 } // namespace QmlDesigner

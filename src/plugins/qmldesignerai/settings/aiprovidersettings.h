@@ -13,7 +13,6 @@ class StudioQuickWidget;
 
 namespace QmlDesigner {
 class AiProviderSettingsWidget;
-class AiProviderConfig;
 class AiAssistantView;
 
 class AiProviderSettings : public Core::IOptionsPage
