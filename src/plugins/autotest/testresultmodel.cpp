@@ -192,16 +192,10 @@ TestResultItem *TestResultItem::createAndAddIntermediateFor(const TestResultItem
     result.setResult(ResultType::TestStart);
     TestResultItem *intermediate = new TestResultItem(result);
     appendChild(intermediate);
-    // FIXME: make the expand button's state easier accessible
-    auto widgets = TestResultsPane::instance()->toolBarWidgets();
-    if (!widgets.empty()) {
-        if (QToolButton *expand = qobject_cast<QToolButton *>(widgets.at(0))) {
-            if (expand->isChecked()) {
-                QMetaObject::invokeMethod(TestResultsPane::instance(),
-                                          [intermediate] { intermediate->expand(); },
-                                          Qt::QueuedConnection);
-            }
-        }
+    if (TestResultsPane::instance()->expandIntermediate()) {
+        QMetaObject::invokeMethod(TestResultsPane::instance(),
+                                  [intermediate] { intermediate->expand(); },
+                                  Qt::QueuedConnection);
     }
     return intermediate;
 }

@@ -77,6 +77,9 @@ public:
     void scheduleTestResult(const TestResult &result);
     void addOutputLine(const QByteArray &outputLine, OutputChannel channel);
     void showTestResult(const QModelIndex &index);
+
+    bool expandIntermediate() const;
+
 private:
     void addTestResult(const TestResult &result);
     void handleNextBuffered();
