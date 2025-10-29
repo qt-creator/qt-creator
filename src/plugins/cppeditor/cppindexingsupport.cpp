@@ -98,23 +98,27 @@ private:
     int m_processedDiagnostics = 0;
 };
 
-static void classifyFiles(const QSet<FilePath> &files, FilePaths *headers, FilePaths *sources)
+static void classifyFiles(const QSet<FilePath> &files, ProjectFiles *headers, ProjectFiles *sources)
 {
     for (const FilePath &file : files) {
-        if (ProjectFile::isSource(ProjectFile::classify(file)))
-            sources->append(file);
+        const ProjectFile projectFile(file, ProjectFile::classify(file));
+        if (projectFile.isSource())
+            sources->append(projectFile);
         else
-            headers->append(file);
+            headers->append(projectFile);
     }
 }
 
 static void indexFindErrors(QPromise<void> &promise, const ParseParams params)
 {
-    FilePaths sources, headers;
+    ProjectFiles sources, headers;
     classifyFiles(params.sourceFiles, &headers, &sources);
-    sources.sort();
-    headers.sort();
-    FilePaths files = sources + headers;
+    static const auto cmp = [](const ProjectFile &pf1, const ProjectFile &pf2) {
+        return pf1.path < pf2.path;
+    };
+    Utils::sort(sources, cmp);
+    Utils::sort(headers, cmp);
+    ProjectFiles files = sources + headers;
 
     WriteTaskFileForDiagnostics taskFileWriter;
     QElapsedTimer timer;
@@ -124,7 +128,7 @@ static void indexFindErrors(QPromise<void> &promise, const ParseParams params)
         if (promise.isCanceled())
             break;
 
-        const FilePath file = files.at(i);
+        const FilePath file = files.at(i).path;
         qDebug("FindErrorsIndexing: \"%s\"", qPrintable(file.toUserOutput()));
 
         // Parse the file as precisely as possible
@@ -156,15 +160,15 @@ static void index(QPromise<void> &promise, const ParseParams params)
     sourceProcessor->setHeaderPaths(params.headerPaths);
     sourceProcessor->setWorkingCopy(params.workingCopy);
 
-    FilePaths sources;
-    FilePaths headers;
+    ProjectFiles sources;
+    ProjectFiles headers;
     classifyFiles(params.sourceFiles, &headers, &sources);
 
     for (const FilePath &file : std::as_const(params.sourceFiles))
         sourceProcessor->removeFromCache(file);
 
     const int sourceCount = sources.size();
-    FilePaths files = sources + headers;
+    ProjectFiles files = sources + headers;
 
     sourceProcessor->setTodo(params.sourceFiles);
 
@@ -174,17 +178,19 @@ static void index(QPromise<void> &promise, const ParseParams params)
     const ProjectExplorer::HeaderPaths fallbackHeaderPaths = CppModelManager::headerPaths();
     const CPlusPlus::LanguageFeatures defaultFeatures =
         CPlusPlus::LanguageFeatures::defaultFeatures();
+    const CPlusPlus::LanguageFeatures cFeatures = CPlusPlus::LanguageFeatures::cFeatures();
 
     qCDebug(indexerLog) << "About to index" << files.size() << "files.";
     for (int i = 0; i < files.size(); ++i) {
         if (promise.isCanceled())
             break;
 
-        const FilePath filePath = files.at(i);
+        const ProjectFile &projectFile = files.at(i);
+        const FilePath &filePath = projectFile.path;
         const QList<ProjectPart::ConstPtr> parts = CppModelManager::projectPart(filePath);
         const CPlusPlus::LanguageFeatures languageFeatures = parts.isEmpty()
-                                                                 ? defaultFeatures
-                                                                 : parts.first()->languageFeatures;
+            ? projectFile.isC() ? cFeatures : defaultFeatures
+            : parts.first()->languageFeatures;
         sourceProcessor->setLanguageFeatures(languageFeatures);
 
         const bool isSourceFile = i < sourceCount;

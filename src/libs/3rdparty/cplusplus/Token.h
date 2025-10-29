@@ -441,6 +441,13 @@ struct LanguageFeatures
         return features;
     }
 
+    static LanguageFeatures cFeatures()
+    {
+        LanguageFeatures features;
+        features.c99Enabled = true;
+        return features;
+    }
+
     bool operator==(const LanguageFeatures &other) const
     {
         return flags == other.flags;
