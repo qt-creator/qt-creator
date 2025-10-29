@@ -582,7 +582,7 @@ void ModelManagerTest::testExtraeditorsupportUiFiles()
     QStringList fileNamesInWorkinCopy;
     const WorkingCopy::Table &elements = workingCopy.elements();
     for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it)
-        fileNamesInWorkinCopy << Utils::FilePath::fromString(it.key().toUrlishString()).fileName();
+        fileNamesInWorkinCopy << it.key().fileName();
 
     fileNamesInWorkinCopy.sort();
     const QString expectedUiHeaderFileName = _("ui_mainwindow.h");
