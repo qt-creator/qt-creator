@@ -5,7 +5,6 @@
 
 #include "aiassistantconstants.h"
 #include "aiassistantview.h"
-#include "aiproviderconfig.h"
 #include "aiproviderdata.h"
 #include "aiprovidersettingswidget.h"
 
@@ -67,8 +66,7 @@ AiProviderSettingsTab::AiProviderSettingsTab(AiAssistantView *view)
 
     using namespace Layouting;
     Column providersCol;
-    const QStringList providers
-        = Utils::transform(AiProviderData::defaultProviders(), &AiProviderData::name);
+    const QStringList providers = AiProviderData::defaultProviders().keys();
     for (const QString &providerName : providers)
         providersCol.addItem(createProviderWidget(providerName));
     providersCol.addItem(Stretch(1));

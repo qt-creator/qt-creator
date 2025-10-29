@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <QList>
+#include <QMap>
 #include <QString>
 #include <QUrl>
 
@@ -11,14 +11,10 @@ namespace QmlDesigner {
 
 struct AiProviderData
 {
-    QString name;
     QUrl url;
+    QStringList models; // TODO: add AiModelTraits{modelName, modelId, supportsJsonSchema}
 
-    // TODO: provide it with AiModelTraits{modelName, modelId, supportsJsonSchema}
-    QList<QString> models;
-
-    static const QList<AiProviderData> defaultProviders();
-    static const AiProviderData findProvider(const QString &providerName);
+    static const QMap<QString, AiProviderData> defaultProviders();
 };
 
 } // namespace QmlDesigner

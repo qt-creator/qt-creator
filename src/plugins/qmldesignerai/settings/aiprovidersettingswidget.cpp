@@ -28,7 +28,7 @@ AiProviderSettingsWidget::AiProviderSettingsWidget(const QString &providerName, 
 void AiProviderSettingsWidget::load()
 {
     m_apiKey->setText(m_config.apiKey());
-    const auto providerData = AiProviderData::findProvider(m_config.providerName());
+    const auto providerData = AiProviderData::defaultProviders().value(m_config.providerName());
 
     QUrl url = m_config.url();
     if (url.isEmpty())
