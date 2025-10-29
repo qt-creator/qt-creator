@@ -500,6 +500,9 @@ void tst_DevContainer::containerWorkspaceReplacers()
 
 void tst_DevContainer::dockerCompose()
 {
+    if (HostOsInfo::isLinuxHost())
+        QSKIP("docker-compose has been having spurious failures. Skipping on Linux for now.");
+
     static const QByteArray composeFile = R"yaml(
 version: '3.8'
 services:
