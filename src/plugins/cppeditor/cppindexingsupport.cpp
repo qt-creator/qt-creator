@@ -166,7 +166,7 @@ static void index(QPromise<void> &promise, const ParseParams params)
     const int sourceCount = sources.size();
     FilePaths files = sources + headers;
 
-    sourceProcessor->setTodo(Utils::toSet(files));
+    sourceProcessor->setTodo(params.sourceFiles);
 
     const FilePath &conf = CppModelManager::configurationFileName();
     bool processingHeaders = false;
