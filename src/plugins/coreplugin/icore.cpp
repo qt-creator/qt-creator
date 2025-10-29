@@ -1313,7 +1313,7 @@ QString ICore::aboutInformationHtml()
     buildInfo
         //: Based on Qt <version> (<compiler>, <arch>)
         = Tr::tr("Based on Qt %1 (%2, %3)")
-              .arg(qVersion(), Utils::compilerString(), QSysInfo::buildCpuArchitecture());
+              .arg(QLatin1String(qVersion()), Utils::compilerString(), QSysInfo::buildCpuArchitecture());
 #endif
 
     static const QString br = QLatin1String("<br/>");
