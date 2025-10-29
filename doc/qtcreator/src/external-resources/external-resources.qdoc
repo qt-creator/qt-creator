@@ -258,6 +258,10 @@
     \title cmake-format
 */
 /*!
+    \externalpage https://cmake.org/cmake/help/v3.25/manual/cmake-presets.7.html#test-preset
+    \title CMake: Test Preset
+*/
+/*!
     \externalpage https://microsoft.github.io/language-server-protocol/
     \title Language Server Protocol
 */

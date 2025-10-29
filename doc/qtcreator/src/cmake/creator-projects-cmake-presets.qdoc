@@ -19,10 +19,9 @@
     {cmake-presets(7)} and store them in the project's root directory.
     You can then see them in the \l {Projects} view.
 
-    \QC supports \e configure and \e build presets up to version 5
+    \QC supports \e configure, \e build, and \e test presets up to version 5
     (introduced in CMake 3.24), but does not enforce version checking.
     It reads and uses all the fields from version 5 if present.
-    It does not support \e test presets.
 
     You can import the presets the first time you \l {Open projects}
     {open a project}, when no \c CMakeLists.txt.user file exists or you have
@@ -299,6 +298,26 @@
           }
         }
       ]
+    }
+    \endcode
+
+    \section1 Test Presets
+
+    The following test presets instruct CMake to stop test execution and
+    print output from the test program upon failure, as well as display an
+    error if the test cannot be found.
+
+    \badcode
+    {
+      "version": 3,
+      "testPresets": [
+      {
+        "name": "default",
+        "configurePreset": "default",
+        "output": {"outputOnFailure": true},
+        "execution": {"noTestsAction": "error", "stopOnFailure": true}
+        }
+      ],
     }
     \endcode
 
