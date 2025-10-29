@@ -140,8 +140,12 @@ Result<> FileAccess::deployAndInit(
             QString("Could not read cmdbridge file: %1").arg(cmdBridgeFileData.error()));
     }
 
-    const auto tmpFile = run(
-        {remoteRootPath.withNewPath("mktemp"), {"-t", "cmdbridge.XXXXXXXXXX"}});
+    const QString xdgRuntimeDir = environment.value("XDG_RUNTIME_DIR");
+    QStringList tmpFileArgs = {"-t", "cmdbridge.XXXXXXXXXX"};
+    if (!xdgRuntimeDir.isEmpty())
+        tmpFileArgs << QStringList{"-p", xdgRuntimeDir};
+
+    const auto tmpFile = run({remoteRootPath.withNewPath("mktemp"), tmpFileArgs});
 
     if (!tmpFile) {
         return ResultError(
