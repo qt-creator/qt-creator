@@ -462,6 +462,9 @@ QString projectDirectory(::ProjectExplorer::Target *target)
 {
     ::QmlProjectManager::QmlBuildSystem *buildSystem = getQmlBuildSystem(target);
 
+    if (not buildSystem)
+        return {};
+
     return buildSystem->canonicalProjectDir().cleanPath().path();
 }
 
