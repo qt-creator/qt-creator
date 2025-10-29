@@ -25,7 +25,7 @@ Utils::Result<> QmlDesignerAiPlugin::initialize(const QStringList &arguments)
     using namespace Core;
     IOptionsPage::registerCategory(
         Constants::aiAssistantSettingsPageCategory,
-        tr("Ai Assistant"),
+        tr("AI Assistant"),
         ":/AiAssistant/images/aiKitIcon.png");
     m_settings = std::make_unique<AiProviderSettings>();
     return ExtensionSystem::IPlugin::initialize(arguments);

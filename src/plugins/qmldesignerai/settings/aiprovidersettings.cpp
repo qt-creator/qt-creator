@@ -34,7 +34,7 @@ static QList<AiProviderConfig> allProviderConfigs()
 AiProviderSettings::AiProviderSettings()
 {
     setId(Constants::aiAssistantSettingsPageId);
-    setDisplayName(Tr::tr("Ai Provider Settings"));
+    setDisplayName(Tr::tr("AI Provider Settings"));
     setCategory(Constants::aiAssistantSettingsPageCategory);
     setWidgetCreator([this] { return new AiProviderSettingsTab(m_view); });
 }
