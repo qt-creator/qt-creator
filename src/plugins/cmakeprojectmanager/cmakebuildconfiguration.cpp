@@ -1612,13 +1612,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 cmd.addArg(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
         }
 
-        if (info.buildDirectory.isEmpty()) {
-            setBuildDirectory(shadowBuildDirectory(project()->projectFilePath(),
-                                                   k,
-                                                   info.displayName,
-                                                   info.buildType));
-        }
-
         if (extraInfoMap.contains(Constants::CMAKE_HOME_DIR))
             sourceDirectory.setValue(FilePath::fromVariant(extraInfoMap.value(Constants::CMAKE_HOME_DIR)));
 
@@ -2051,6 +2044,7 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
 
         for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
             BuildInfo info = createBuildInfo(BuildType(type));
+            info.projectName = CMakeProject::projectDisplayName(projectPath);
             if (forSetup) {
                 info.buildDirectory = CMakeBuildConfiguration::shadowBuildDirectory(projectPath,
                                 k,
@@ -2093,6 +2087,7 @@ BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBu
 BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
 {
     BuildInfo info;
+    info.buildSystemName = "cmake";
 
     switch (buildType) {
     case BuildTypeNone:

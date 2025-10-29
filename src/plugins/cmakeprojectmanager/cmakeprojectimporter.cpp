@@ -1425,6 +1425,7 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
         info.typeName = info.displayName = QString::fromUtf8(data->cmakeBuildType);
 
     info.buildDirectory = data->buildDirectory;
+    info.buildSystemName = "cmake";
 
     QVariantMap config = info.extraInfo.toMap(); // new empty, or existing one from createBuildInfo
     config.insert(Constants::CMAKE_HOME_DIR, data->cmakeHomeDirectory.toVariant());

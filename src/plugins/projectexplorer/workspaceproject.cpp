@@ -525,9 +525,11 @@ public:
             QList<BuildInfo> result = parseBuildConfigurations(projectPath, forSetup);
             if (!forSetup || result.isEmpty()) {
                 BuildInfo info;
+                info.buildSystemName = "Workspace";
                 info.factory = this;
                 info.typeName = msgBuildConfigurationBuild();
-                info.buildDirectory = projectPath.parentDir().parentDir().pathAppended("build");
+                info.projectDirectory = projectPath.parentDir().parentDir();
+                info.buildDirectory = info.projectDirectory.pathAppended("build");
                 info.displayName = msgBuildConfigurationDefault();
                 result << info;
             }

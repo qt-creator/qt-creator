@@ -128,6 +128,8 @@ public:
                                                       const QString &bcName,
                                                       BuildType buildType,
                                                       const QString &buildSystem);
+    static BuildInfo fixupBuildInfo(
+        const BuildInfo &info, const Kit *kit, const Utils::FilePath &projectPath);
 
     bool isActive() const;
     QString activeBuildKey() const; // Build key of active run configuration

@@ -246,6 +246,7 @@ const QList<BuildInfo> TestQtProjectImporter::buildInfoList(void *directoryData)
     assert(static_cast<const DirectoryData *>(directoryData)->importPath == m_path);
 
     BuildInfo info;
+    info.buildSystemName = "QtImporterTest";
     info.displayName = "Test Build info";
     info.typeName = "Debug";
     info.buildDirectory = m_path;

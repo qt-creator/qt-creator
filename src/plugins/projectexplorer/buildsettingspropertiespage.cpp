@@ -236,6 +236,8 @@ void BuildSettingsWidget::createConfiguration(const BuildInfo &info_)
         if (!ok || info.displayName.isEmpty())
             return;
     }
+    info = BuildConfiguration::fixupBuildInfo(
+        info, m_target->kit(), m_target->project()->projectFilePath());
 
     BuildConfiguration *bc = info.factory->create(m_target, info);
     if (!bc)

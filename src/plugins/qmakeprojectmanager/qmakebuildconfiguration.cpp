@@ -114,15 +114,6 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
 
         setQMakeBuildConfiguration(config);
 
-        FilePath directory = info.buildDirectory;
-        if (directory.isEmpty()) {
-            directory = shadowBuildDirectory(project()->projectFilePath(),
-                                             kit(), info.displayName,
-                                             info.buildType);
-        }
-
-        setBuildDirectory(directory);
-
         if (RunDeviceTypeKitAspect::deviceTypeId(kit())
                         == Android::Constants::ANDROID_DEVICE_TYPE) {
             buildSteps()->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALL_STEP_ID);
@@ -692,6 +683,7 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
     QtVersion *version = QtKitAspect::qtVersion(k);
     QmakeExtraBuildInfo extraInfo;
     BuildInfo info;
+    info.buildSystemName = "qmake";
     QString suffix;
     info.enabledByDefault = type == BuildConfiguration::Debug;
 
@@ -741,9 +733,6 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
         QString absoluteBuildPath = QDir::cleanPath(qtBuildDir + QLatin1Char('/') + relativeProjectPath);
 
         info.buildDirectory = FilePath::fromString(absoluteBuildPath);
-    } else {
-        info.buildDirectory =
-                QmakeBuildConfiguration::shadowBuildDirectory(projectPath, k, suffix, type);
     }
     info.buildType = type;
     info.extraInfo = QVariant::fromValue(extraInfo);

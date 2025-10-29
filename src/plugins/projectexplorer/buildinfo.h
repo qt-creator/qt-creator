@@ -20,7 +20,10 @@ public:
 
     QString displayName;
     QString typeName;
-    Utils::FilePath buildDirectory;
+    Utils::FilePath projectDirectory; // Leave empty to derive from project path.
+    QString projectName;              // Leave empty to derive from project file name.
+    QString buildSystemName;
+    Utils::FilePath buildDirectory;   // Leave empty to derive from template.
     bool showBuildConfigs = true;
     bool showBuildDirConfigWidget = true;
     bool enabledByDefault = true;

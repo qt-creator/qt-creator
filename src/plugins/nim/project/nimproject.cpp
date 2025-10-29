@@ -260,16 +260,6 @@ bool NimBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, FilePat
     return success;
 }
 
-static FilePath defaultBuildDirectory(const Kit *k,
-                                      const FilePath &projectFilePath,
-                                      const QString &bc,
-                                      BuildConfiguration::BuildType buildType)
-{
-    return BuildConfiguration::buildDirectoryFromTemplate(
-        projectFilePath.parentDir(), projectFilePath, projectFilePath.baseName(),
-        k, bc, buildType, "nim");
-}
-
 NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
     : BuildConfiguration(target, id)
 {
@@ -281,12 +271,6 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
     appendInitialCleanStep(Constants::C_NIMCOMPILERCLEANSTEP_ID);
 
     setInitializer([this](const BuildInfo &info) {
-        // Create the build configuration and initialize it from build info
-        setBuildDirectory(defaultBuildDirectory(kit(),
-                                                project()->projectFilePath(),
-                                                displayName(),
-                                                buildType()));
-
         auto nimCompilerBuildStep = buildSteps()->firstOfType<NimCompilerBuildStep>();
         QTC_ASSERT(nimCompilerBuildStep, return);
         nimCompilerBuildStep->setBuildType(info.buildType);
@@ -316,15 +300,14 @@ public:
         setSupportedProjectType(Constants::C_NIMPROJECT_ID);
         setSupportedProjectMimeTypeName(Constants::C_NIM_PROJECT_MIMETYPE);
 
-        setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
+        setBuildGenerator([](const Kit *, const FilePath &, bool forSetup) {
             const auto oneBuild = [&](BuildConfiguration::BuildType buildType, const QString &typeName) {
                 BuildInfo info;
+                info.buildSystemName = "nim";
                 info.buildType = buildType;
                 info.typeName = typeName;
-                if (forSetup) {
+                if (forSetup)
                     info.displayName = info.typeName;
-                    info.buildDirectory = defaultBuildDirectory(k, projectPath, info.typeName, buildType);
-                }
                 info.enabledByDefault = buildType == BuildConfiguration::Debug;
                 return info;
             };

@@ -228,6 +228,7 @@ public:
             BuildInfo info;
             info.typeName = msgBuildConfigurationBuild();
             info.buildDirectory = forSetup ? projectPath.parentDir() : projectPath;
+            info.buildSystemName = "autotools";
             if (forSetup) {
                 //: The name of the build configuration created by default for a autotools project.
                 info.displayName = msgBuildConfigurationDefault();

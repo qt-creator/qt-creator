@@ -38,15 +38,6 @@ using namespace Utils;
 namespace QbsProjectManager {
 namespace Internal {
 
-static FilePath defaultBuildDirectory(const FilePath &projectFilePath, const Kit *k,
-                                      const QString &bcName,
-                                      BuildConfiguration::BuildType buildType)
-{
-    const QString projectName = projectFilePath.completeBaseName();
-    return BuildConfiguration::buildDirectoryFromTemplate(
-        projectFilePath.absolutePath(), projectFilePath, projectName, k, bcName, buildType, "qbs");
-}
-
 // ---------------------------------------------------------------------------
 // QbsBuildConfiguration:
 // ---------------------------------------------------------------------------
@@ -72,12 +63,6 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
             return Constants::QBS_VARIANT_DEBUG;
         }(info.buildType);
         configData.insert(Constants::QBS_CONFIG_VARIANT_KEY, buildVariant);
-        FilePath buildDir = info.buildDirectory;
-        if (buildDir.isEmpty())
-            buildDir = defaultBuildDirectory(project()->projectFilePath(),
-                                             kit(), info.displayName,
-                                             buildType());
-        setBuildDirectory(buildDir);
 
         // Add the build configuration.
         Store bd = configData;
@@ -282,7 +267,7 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
         return version ? version->reportIssues(projectPath, buildDir) : Tasks();
     });
 
-    setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
+    setBuildGenerator([](const Kit *, const FilePath &, bool forSetup) {
         QList<BuildInfo> result;
         for (const auto &[type, name, configName] :
              {std::make_tuple(BuildConfiguration::Debug, msgBuildConfigurationDebug(), "Debug"),
@@ -290,12 +275,11 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
               std::make_tuple(
                   BuildConfiguration::Profile, msgBuildConfigurationProfile(), "Profile")}) {
             BuildInfo info;
+            info.buildSystemName = "qbs";
             info.buildType = type;
             info.typeName = name;
-            if (forSetup) {
+            if (forSetup)
                 info.displayName = name;
-                info.buildDirectory = defaultBuildDirectory(projectPath, k, name, type);
-            }
             info.enabledByDefault = type == BuildConfiguration::Debug;
             QVariantMap config;
             config.insert("configName", configName);

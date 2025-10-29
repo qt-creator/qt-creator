@@ -1837,6 +1837,7 @@ public:
         setSupportedProjectType(TEST_PROJECT_ID);
         setBuildGenerator([](const Kit *, const FilePath &projectFilePath, bool) {
             BuildInfo bi;
+            bi.buildSystemName = "test";
             bi.buildDirectory = projectFilePath.parentDir();
             bi.displayName = "default";
             return QList<BuildInfo>{bi};

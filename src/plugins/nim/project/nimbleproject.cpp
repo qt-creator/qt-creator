@@ -323,6 +323,7 @@ public:
         setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
             const auto oneBuild = [&](BuildConfiguration::BuildType buildType, const QString &typeName) {
                 BuildInfo info;
+                info.buildSystemName = "meson";
                 info.buildType = buildType;
                 info.typeName = typeName;
                 if (forSetup) {

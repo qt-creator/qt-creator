@@ -169,6 +169,7 @@ public:
 
         setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
             BuildInfo info;
+            info.buildSystemName = "generic";
             info.typeName = msgBuildConfigurationBuild();
             info.buildDirectory = forSetup ? projectPath.absolutePath() : projectPath;
 
@@ -659,6 +660,7 @@ void GenericProject::configureAsExampleProject(Kit *kit)
         if (auto factory = BuildConfigurationFactory::find(k, projectFilePath())) {
             for (int i = 0; i < 5; ++i) {
                 BuildInfo buildInfo;
+                buildInfo.buildSystemName = "generic";
                 buildInfo.displayName = Tr::tr("Build %1").arg(i + 1);
                 buildInfo.factory = factory;
                 buildInfo.kitId = k->id();

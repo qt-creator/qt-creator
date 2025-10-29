@@ -535,6 +535,7 @@ public:
             info.displayName = name;
             info.buildType = BuildConfiguration::Release;
             info.buildDirectory = projectPath.parentDir();
+            info.buildSystemName = "compilationdb";
             return QList<BuildInfo>{info};
         });
     }

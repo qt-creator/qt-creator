@@ -52,20 +52,6 @@ static MesonBuildType mesonBuildType(const QString &typeName)
     return buildTypesByName.value(typeName, MesonBuildType::custom);
 }
 
-static FilePath shadowBuildDirectory(const FilePath &projectFilePath,
-                                     const Kit *k,
-                                     const QString &bcName,
-                                     BuildConfiguration::BuildType buildType)
-{
-    if (projectFilePath.isEmpty())
-        return {};
-
-    const QString projectName = projectFilePath.parentDir().fileName();
-    return MesonBuildConfiguration::buildDirectoryFromTemplate(
-        projectFilePath.absolutePath(), projectFilePath,
-        projectName, k, bcName, buildType, "meson");
-}
-
 MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target, Id id)
     : BuildConfiguration(target, id)
 {
@@ -74,13 +60,6 @@ MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target
     appendInitialCleanStep(Constants::MESON_BUILD_STEP_ID);
     setInitializer([this](const ProjectExplorer::BuildInfo &info) {
         m_buildType = mesonBuildType(info.typeName);
-        auto k = kit();
-        if (info.buildDirectory.isEmpty()) {
-            setBuildDirectory(shadowBuildDirectory(project()->projectFilePath(),
-                                                   k,
-                                                   info.displayName,
-                                                   info.buildType));
-        }
     });
 }
 
@@ -332,6 +311,7 @@ static QString mesonBuildTypeDisplayName(MesonBuildType type)
 BuildInfo createBuildInfo(MesonBuildType type)
 {
     BuildInfo bInfo;
+    bInfo.buildSystemName = "meson";
     bInfo.typeName = mesonBuildTypeName(type);
     bInfo.displayName = mesonBuildTypeDisplayName(type);
     bInfo.buildType = buildType(type);
@@ -349,18 +329,16 @@ public:
         setSupportedProjectType(Constants::Project::ID);
         setSupportedProjectMimeTypeName(Constants::Project::MIMETYPE);
         setBuildGenerator(
-            [](const Kit *k, const FilePath &projectPath, bool forSetup) {
+            [](const Kit *, const FilePath &projectPath, bool forSetup) {
                 QList<BuildInfo> result;
                 for (const MesonBuildType bType : {MesonBuildType::debug,
                                                    MesonBuildType::release,
                                                    MesonBuildType::debugoptimized,
                                                    MesonBuildType::minsize}) {
                     BuildInfo bInfo = createBuildInfo(bType);
+
                     if (forSetup)
-                        bInfo.buildDirectory = shadowBuildDirectory(projectPath,
-                                                                    k,
-                                                                    bInfo.typeName,
-                                                                    bInfo.buildType);
+                        bInfo.projectName = projectPath.parentDir().fileName();
                     bInfo.enabledByDefault = bType == MesonBuildType::debug;
                     result << bInfo;
                 }

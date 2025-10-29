@@ -325,8 +325,12 @@ QList<QWidget *> BuildConfiguration::createSubConfigWidgets()
     };
 }
 
-void BuildConfiguration::doInitialize(const BuildInfo &info)
+void BuildConfiguration::doInitialize(const BuildInfo &_info)
 {
+    BuildInfo info = _info;
+    if (QTC_UNEXPECTED(info.buildDirectory.isEmpty()))
+        info.buildDirectory = project()->projectDirectory() / "build";
+
     updateCacheAndEmitEnvironmentChanged();
 
     setDisplayName(info.displayName);
@@ -1202,6 +1206,29 @@ void BuildConfiguration::setupBuildDirMacroExpander(
         exp.registerSubProvider({qApp, [kit] { return kit->macroExpander(); }}); // FIXME: Find a better guard.
 }
 
+BuildInfo BuildConfiguration::fixupBuildInfo(
+    const BuildInfo &info, const Kit *kit, const FilePath &projectPath)
+{
+    BuildInfo fullInfo = info;
+
+    if (info.projectDirectory.isEmpty())
+        fullInfo.projectDirectory = projectPath.absolutePath();
+    if (info.projectName.isEmpty())
+        fullInfo.projectName = projectPath.completeBaseName();
+    if (info.buildDirectory.isEmpty()) {
+        fullInfo.buildDirectory = BuildConfiguration::buildDirectoryFromTemplate(
+            fullInfo.projectDirectory,
+            projectPath,
+            fullInfo.projectName,
+            kit,
+            info.displayName,
+            info.buildType,
+            info.buildSystemName);
+    }
+
+    return fullInfo;
+}
+
 FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectDir,
                                                         const FilePath &mainFilePath,
                                                         const QString &projectName,
@@ -1327,6 +1354,8 @@ QList<BuildInfo> BuildConfigurationFactory::buildListHelper(const Kit *kit,
     for (BuildInfo &info : list) {
         info.factory = this;
         info.kitId = kit->id();
+        if (forSetup)
+            info = BuildConfiguration::fixupBuildInfo(info, kit, projectPath);
     }
     return list;
 }

@@ -206,6 +206,7 @@ const QList<BuildInfo> QbsProjectImporter::buildInfoList(void *directoryData) co
 {
     const auto * const bgData = static_cast<BuildGraphData *>(directoryData);
     BuildInfo info;
+    info.buildSystemName = "qbs";
     info.displayName = bgData->bgFilePath.completeBaseName();
     info.buildType = bgData->buildVariant == QbsConstants::QBS_VARIANT_PROFILING
             ? BuildConfiguration::Profile : bgData->buildVariant == QbsConstants::QBS_VARIANT_RELEASE

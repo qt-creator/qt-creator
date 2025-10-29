@@ -414,6 +414,7 @@ public:
         setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
             if (std::optional<Interpreter> python = PythonKitAspect::python(k)) {
                 BuildInfo base;
+                base.buildSystemName = "python";
                 base.buildDirectory = projectPath.parentDir();
                 base.displayName = python->name;
                 base.typeName = Tr::tr("Global Python");
