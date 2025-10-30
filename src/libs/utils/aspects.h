@@ -220,6 +220,9 @@ signals:
     void labelLinkActivated(const QString &link);
     void checkedChanged();
     void enabledChanged();
+    void readOnlyChanged(bool);
+    void visibleChanged(bool);
+    void tooltipChanged(const QString &tooltip);
     void labelTextChanged();
     void labelPixmapChanged();
 
@@ -269,7 +272,6 @@ protected:
     }
 
     void registerSubWidget(QWidget *widget);
-    void forEachSubWidget(const std::function<void(QWidget *)> &func);
 
     void saveToMap(Store &data, const QVariant &value,
                    const QVariant &defaultValue, const Key &key) const;
@@ -915,6 +917,9 @@ public:
     void removeValue(const FilePath &path);
     void appendValues(const FilePaths &values, bool allowDuplicates = true);
     void removeValues(const FilePaths &values);
+
+signals:
+    void placeHolderTextChanged(const QString &placeHolderText);
 
 private:
     std::unique_ptr<Internal::FilePathListAspectPrivate> d;

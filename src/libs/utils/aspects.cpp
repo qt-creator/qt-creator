@@ -102,7 +102,6 @@ public:
     int m_spanX = 1;
     int m_spanY = 1;
     BaseAspect::ConfigWidgetCreator m_configWidgetCreator;
-    QList<QPointer<QWidget>> m_subWidgets;
 
     BaseAspect::DataCreator m_dataCreator;
     BaseAspect::DataCloner m_dataCloner;
@@ -168,7 +167,6 @@ BaseAspect::BaseAspect(AspectContainer *container)
 BaseAspect::~BaseAspect()
 {
     delete d->m_action;
-    qDeleteAll(d->m_subWidgets);
 }
 
 Id BaseAspect::id() const
@@ -263,15 +261,11 @@ bool BaseAspect::isVisible() const
  */
 void BaseAspect::setVisible(bool visible)
 {
+    if (visible == d->m_visible)
+        return;
+
     d->m_visible = visible;
-    for (QWidget *w : std::as_const(d->m_subWidgets)) {
-        QTC_ASSERT(w, continue);
-        // This may happen during layout building. Explicit setting visibility here
-        // may create a show a toplevel widget for a moment until it is parented
-        // to some non-shown widget.
-        if (!visible || w->parentWidget())
-            w->setVisible(visible);
-    }
+    emit visibleChanged(visible);
 }
 
 QLabel *BaseAspect::createLabel()
@@ -368,11 +362,11 @@ QString BaseAspect::toolTip() const
  */
 void BaseAspect::setToolTip(const QString &tooltip)
 {
+    if (tooltip == d->m_tooltip)
+        return;
+
     d->m_tooltip = tooltip;
-    for (QWidget *w : std::as_const(d->m_subWidgets)) {
-        QTC_ASSERT(w, continue);
-        w->setToolTip(tooltip);
-    }
+    emit tooltipChanged(tooltip);
 }
 
 void BaseAspect::setUndoStack(QUndoStack *undoStack)
@@ -394,11 +388,6 @@ bool BaseAspect::isEnabled() const
 
 void BaseAspect::setEnabled(bool enabled)
 {
-    for (QWidget *w : std::as_const(d->m_subWidgets)) {
-        QTC_ASSERT(w, continue);
-        w->setEnabled(enabled);
-    }
-
     if (enabled == d->m_enabled)
         return;
 
@@ -431,16 +420,11 @@ bool BaseAspect::isReadOnly() const
 
 void BaseAspect::setReadOnly(bool readOnly)
 {
+    if (readOnly == d->m_readOnly)
+        return;
+
     d->m_readOnly = readOnly;
-    for (QWidget *w : std::as_const(d->m_subWidgets)) {
-        QTC_ASSERT(w, continue);
-        if (auto lineEdit = qobject_cast<QLineEdit *>(w))
-            lineEdit->setReadOnly(readOnly);
-        else if (auto textEdit = qobject_cast<QTextEdit *>(w))
-            textEdit->setReadOnly(readOnly);
-        else if (auto pathChooser = qobject_cast<PathChooser *>(w))
-            pathChooser->setReadOnly(readOnly);
-    }
+    emit readOnlyChanged(readOnly);
 }
 
 void BaseAspect::setSpan(int x, int y)
@@ -616,8 +600,6 @@ void BaseAspect::cancel()
 
 void BaseAspect::finish()
 {
-    qDeleteAll(d->m_subWidgets);
-    d->m_subWidgets.clear();
 }
 
 bool BaseAspect::hasAction() const
@@ -647,8 +629,6 @@ bool BaseAspect::isDirty()
 
 void BaseAspect::registerSubWidget(QWidget *widget)
 {
-    d->m_subWidgets.append(widget);
-
     widget->setEnabled(isEnabled());
     widget->setToolTip(d->m_tooltip);
 
@@ -656,12 +636,21 @@ void BaseAspect::registerSubWidget(QWidget *widget)
     // it up when the parent is not set yet, the normal case.
     if (!d->m_visible)
         widget->setVisible(d->m_visible);
-}
 
-void BaseAspect::forEachSubWidget(const std::function<void(QWidget *)> &func)
-{
-    for (const QPointer<QWidget> &w : std::as_const(d->m_subWidgets))
-        func(w);
+    connect(this, &BaseAspect::enabledChanged, widget, [this, widget] {
+        widget->setEnabled(d->m_enabled);
+    });
+    connect(this, &BaseAspect::visibleChanged, widget, &QWidget::setVisible);
+    connect(this, &BaseAspect::tooltipChanged, widget, &QWidget::setToolTip);
+
+    if (auto lineEdit = qobject_cast<QLineEdit *>(widget))
+        connect(this, &BaseAspect::readOnlyChanged, lineEdit, &QLineEdit::setReadOnly);
+    else if (auto textEdit = qobject_cast<QTextEdit *>(widget))
+        connect(this, &BaseAspect::readOnlyChanged, textEdit, &QTextEdit::setReadOnly);
+    else if (auto pathChooser = qobject_cast<PathChooser *>(widget))
+        connect(this, &BaseAspect::readOnlyChanged, pathChooser, &PathChooser::setReadOnly);
+
+    connect(this, &BaseAspect::destroyed, widget, &QObject::deleteLater);
 }
 
 void BaseAspect::setContainer(AspectContainer *container)
@@ -3053,18 +3042,19 @@ void FilePathListAspect::addToLayoutImpl(Layout &parent)
 
     registerSubWidget(editor);
 
+    connect(this, &FilePathListAspect::placeHolderTextChanged,
+            editor, &PathListEditor::setPlaceholderText);
+
     parent.addItem(editor);
 }
 
 void FilePathListAspect::setPlaceHolderText(const QString &placeHolderText)
 {
-    d->placeHolderText = placeHolderText;
+    if (placeHolderText == d->placeHolderText)
+        return;
 
-    forEachSubWidget([placeHolderText](QWidget *widget) {
-        if (auto pathListEditor = qobject_cast<PathListEditor *>(widget)) {
-            pathListEditor->setPlaceholderText(placeHolderText);
-        }
-    });
+    d->placeHolderText = placeHolderText;
+    emit placeHolderTextChanged(placeHolderText);
 }
 
 void FilePathListAspect::appendValue(const FilePath &path, bool allowDuplicates)
