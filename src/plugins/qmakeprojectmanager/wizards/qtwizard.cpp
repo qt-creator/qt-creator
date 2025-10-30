@@ -127,21 +127,6 @@ BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(
             this, &BaseQmakeProjectWizardDialog::generateProfileName);
 }
 
-BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(
-    const Core::BaseFileWizardFactory *factory,
-    Utils::ProjectIntroPage *introPage,
-    int introId,
-    const Core::WizardDialogParameters &parameters)
-    : ProjectExplorer::BaseProjectWizardDialog(factory, introPage, introId, parameters)
-{
-    m_profileIds = Utils::transform(parameters.extraValues()
-                                        .value(ProjectExplorer::Constants::PROJECT_KIT_IDS)
-                                        .toStringList(),
-                                    &Utils::Id::fromString);
-    connect(this, &BaseProjectWizardDialog::projectParametersChanged,
-            this, &BaseQmakeProjectWizardDialog::generateProfileName);
-}
-
 BaseQmakeProjectWizardDialog::~BaseQmakeProjectWizardDialog()
 {
     if (m_targetSetupPage && !m_targetSetupPage->parent())

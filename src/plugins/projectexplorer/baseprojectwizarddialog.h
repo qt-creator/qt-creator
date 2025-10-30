@@ -23,11 +23,6 @@ class PROJECTEXPLORER_EXPORT BaseProjectWizardDialog : public Core::BaseFileWiza
 {
     Q_OBJECT
 
-protected:
-    explicit BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
-                                     Utils::ProjectIntroPage *introPage, int introId,
-                                     const Core::WizardDialogParameters &parameters);
-
 public:
     explicit BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
                                      const Core::WizardDialogParameters &parameters);
@@ -57,7 +52,6 @@ protected:
     void setRequiredFeatures(const QSet<Utils::Id> &featureSet);
 
 private:
-    void init();
     void slotAccepted();
     bool validateCurrentPage() override;
 

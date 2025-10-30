@@ -71,11 +71,6 @@ class BaseQmakeProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDi
 {
     Q_OBJECT // needed for qobject_cast
 
-protected:
-    explicit BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
-                                          Utils::ProjectIntroPage *introPage,
-                                          int introId,
-                                          const Core::WizardDialogParameters &parameters);
 public:
     explicit BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
                                           const Core::WizardDialogParameters &parameters);

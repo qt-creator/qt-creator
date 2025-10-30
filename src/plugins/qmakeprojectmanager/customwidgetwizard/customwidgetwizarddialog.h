@@ -5,8 +5,7 @@
 
 #include "../wizards/qtwizard.h"
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 class CustomWidgetWidgetsWizardPage;
 class CustomWidgetPluginWizardPage;
@@ -34,5 +33,4 @@ private:
     int m_pluginPageId;
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

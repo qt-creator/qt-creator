@@ -37,7 +37,6 @@ struct BaseProjectWizardDialogPrivate
     QSet<Id> requiredFeatureSet;
 };
 
-
 BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
                                                  const Core::WizardDialogParameters &parameters) :
     Core::BaseFileWizard(factory, parameters.extraValues()),
@@ -46,23 +45,7 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFacto
     setFilePath(parameters.defaultPath());
     setSelectedPlatform(parameters.selectedPlatform());
     setRequiredFeatures(parameters.requiredFeatures());
-    init();
-}
 
-BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
-                                                 ProjectIntroPage *introPage, int introId,
-                                                 const Core::WizardDialogParameters &parameters) :
-    Core::BaseFileWizard(factory, parameters.extraValues()),
-    d(std::make_unique<BaseProjectWizardDialogPrivate>(introPage, introId))
-{
-    setFilePath(parameters.defaultPath());
-    setSelectedPlatform(parameters.selectedPlatform());
-    setRequiredFeatures(parameters.requiredFeatures());
-    init();
-}
-
-void BaseProjectWizardDialog::init()
-{
     if (d->introPageId == -1) {
         d->introPageId = addPage(d->introPage);
     } else {

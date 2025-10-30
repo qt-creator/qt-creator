@@ -12,8 +12,7 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 enum { IntroPageId = 0};
 
@@ -63,5 +62,4 @@ std::shared_ptr<PluginOptions> CustomWidgetWizardDialog::pluginOptions() const
     return rc;
 }
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal
