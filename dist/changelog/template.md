@@ -13,14 +13,38 @@ the public Git repository or view online at
 New plugins
 -----------
 
+### Plugin 1
+
+Description of the plugin.
+
+([Documentation](<URL>))
+
 General
 -------
+
+Added
+
+Changed
+
+Fixed
 
 Help
 ----
 
+Added
+
+Changed
+
+Fixed
+
 Editing
 -------
+
+Added
+
+Changed
+
+Fixed
 
 ### C++
 
@@ -57,6 +81,12 @@ Editing
 Projects
 --------
 
+Added
+
+Changed
+
+Fixed
+
 ### CMake
 
 * vcpkg
@@ -80,6 +110,12 @@ Projects
 Debugging
 ---------
 
+Added
+
+Changed
+
+Fixed
+
 ### C++
 
 ### QML
@@ -88,6 +124,12 @@ Debugging
 
 Analyzer
 --------
+
+Added
+
+Changed
+
+Fixed
 
 ### Clang
 
@@ -108,8 +150,20 @@ Analyzer
 Terminal
 --------
 
+Added
+
+Changed
+
+Fixed
+
 Version Control Systems
 -----------------------
+
+Added
+
+Changed
+
+Fixed
 
 ### Git
 
@@ -117,6 +171,12 @@ Version Control Systems
 
 Test Integration
 ----------------
+
+Added
+
+Changed
+
+Fixed
 
 ### Qt Test
 
@@ -130,6 +190,12 @@ Test Integration
 
 Platforms
 ---------
+
+Added
+
+Changed
+
+Fixed
 
 ### Windows
 
