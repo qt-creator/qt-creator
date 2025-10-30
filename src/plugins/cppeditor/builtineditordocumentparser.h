@@ -7,6 +7,7 @@
 #include "cppeditor_global.h"
 
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/Token.h>
 
 namespace CppEditor {
 
@@ -53,6 +54,7 @@ private:
     ExtraState extraState() const;
     void setExtraState(const ExtraState &extraState);
 
+    const CPlusPlus::LanguageFeatures m_defaultFeatures;
     bool m_releaseSourceAndAST = true;
     ExtraState m_extraState;
 

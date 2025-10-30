@@ -39,6 +39,9 @@ static QByteArray overwrittenToolchainDefines(const ProjectPart &projectPart)
 BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const FilePath &filePath,
                                                          int fileSizeLimitInMb)
     : BaseEditorDocumentParser(filePath)
+    , m_defaultFeatures(ProjectFile::isC(ProjectFile::classify(filePath))
+                            ? LanguageFeatures::cFeatures()
+                            : LanguageFeatures::defaultFeatures())
     , m_fileSizeLimitInMb(fileSizeLimitInMb)
 {
     qRegisterMetaType<CPlusPlus::Snapshot>("CPlusPlus::Snapshot");
@@ -64,7 +67,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
     FilePaths includedFiles;
     FilePaths precompiledHeaders;
     FilePath projectConfigFile;
-    LanguageFeatures features = LanguageFeatures::defaultFeatures();
+    LanguageFeatures features = m_defaultFeatures;
 
     baseState.projectPartInfo = determineProjectPart(filePath(),
                                                      baseConfig.preferredProjectPartId,
@@ -90,7 +93,8 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
         includedFiles = part->includedFiles;
         if (baseConfig.usePrecompiledHeaders)
             precompiledHeaders = part->precompiledHeaders;
-        features = part->languageFeatures;
+        if (part->hasProject())
+            features = part->languageFeatures;
     }
 
     if (configFile != state.configFile) {
