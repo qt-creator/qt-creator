@@ -244,16 +244,22 @@ QtcButton.Role = {
     LargePrimary = 0,
     LargeSecondary = 0,
     LargeTertiary = 0,
+    LargeGhost = 0,
+    MediumPrimary = 0,
+    MediumSecondary = 0,
+    MediumTertiary = 0,
+    MediumGhost = 0,
     SmallPrimary = 0,
     SmallSecondary = 0,
     SmallTertiary = 0,
+    SmallGhost = 0,
     SmallList = 0,
     SmallLink = 0,
     Tag = 0,
 }
 
 ---@class QtcButtonOptions : BaseWidgetOptions
----@field role? QtcButton.Role The role of the button. (default: "LargePrimary")
+---@field role? QtcButton.Role The role of the button. (default: "MediumPrimary")
 ---@field text? string The text of the button.
 ---@field icon? IconFilePathOrString The icon of the button.
 

@@ -4,15 +4,31 @@
 #include "../common/themeselector.h"
 
 #include <QApplication>
+#include <QMetaEnum>
 #include <QTimer>
 
+#include <utils/icon.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcwidgets.h>
 
+using namespace Utils;
+
+static QWidget *button(QtcButton::Role role, bool withPixmap = false)
+{
+    static const int roleEnumIndex = QtcButton::staticMetaObject.indexOfEnumerator("Role");
+    static const QMetaEnum roleEnum = QtcButton::staticMetaObject.enumerator(roleEnumIndex);
+    auto button = new QtcButton(roleEnum.key(role), role);
+    button->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+    if (withPixmap) {
+        static const QPixmap pixmap =
+            Icon({{":/utils/images/zoom.png", Theme::Token_Text_On_Accent}}, Icon::Tint).pixmap();
+        button->setPixmap(pixmap);
+    }
+    return button;
+}
+
 QWidget *widgets()
 {
-    using namespace Utils;
-
     auto widget = new QWidget;
 
     auto comboBox = new QtcComboBox;
@@ -45,26 +61,41 @@ QWidget *widgets()
             Column {
                 Row {
                     Column {
-                        new QtcButton("LargePrimary", QtcButton::LargePrimary),
-                        new QtcButton("SmallPrimary", QtcButton::SmallPrimary),
+                        button(QtcButton::LargePrimary),
+                        button(QtcButton::MediumPrimary),
+                        button(QtcButton::SmallPrimary),
                     },
                     Column {
-                        new QtcButton("LargeSecondary", QtcButton::LargeSecondary),
-                        new QtcButton("SmallSecondary", QtcButton::SmallSecondary),
+                        button(QtcButton::LargeSecondary),
+                        button(QtcButton::MediumSecondary),
+                        button(QtcButton::SmallSecondary),
                     },
                     Column {
-                        new QtcButton("LargeTertiary", QtcButton::LargeTertiary),
-                        new QtcButton("SmallTertiary", QtcButton::SmallTertiary),
+                        button(QtcButton::LargeTertiary),
+                        button(QtcButton::MediumTertiary),
+                        button(QtcButton::SmallTertiary),
                     },
                     Column {
-                        new QtcButton("LargeGhost", QtcButton::LargeGhost),
-                        new QtcButton("SmallGhost", QtcButton::SmallGhost),
+                        button(QtcButton::LargeGhost),
+                        button(QtcButton::MediumGhost),
+                        button(QtcButton::SmallGhost),
                     },
+                    st,
                 },
-                Row {
-                    new QtcButton("SmallList", QtcButton::SmallList),
-                    new QtcButton("SmallLink", QtcButton::SmallLink),
-                    new QtcButton("Tag", QtcButton::Tag),
+                Flow {
+                    button(QtcButton::SmallList),
+                    button(QtcButton::SmallLink),
+                    button(QtcButton::Tag),
+                },
+            },
+        },
+        Group {
+            title("Button with Pixmap"),
+            Column {
+                Flow {
+                    button(QtcButton::LargePrimary, true),
+                    button(QtcButton::MediumPrimary, true),
+                    button(QtcButton::SmallPrimary, true),
                 },
             },
         },

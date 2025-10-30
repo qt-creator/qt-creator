@@ -63,42 +63,83 @@ enum WidgetState {
 
 static const TextFormat &buttonTF(QtcButton::Role role, WidgetState state)
 {
-    static const TextFormat largePrimaryTF
-        {Theme::Token_Text_On_Accent, StyleHelper::UiElement::UiElementButtonMedium,
-         Qt::AlignCenter | Qt::TextDontClip | Qt::TextShowMnemonic};
-    static const TextFormat largeSecondaryTF
-        {Theme::Token_Text_Default, largePrimaryTF.uiElement, largePrimaryTF.drawTextFlags};
-    static const TextFormat smallPrimaryTF
-        {largePrimaryTF.themeColor, StyleHelper::UiElement::UiElementButtonSmall,
-         largePrimaryTF.drawTextFlags};
-    static const TextFormat smallSecondaryTF
-        {largeSecondaryTF.themeColor, smallPrimaryTF.uiElement, smallPrimaryTF.drawTextFlags};
-    static const TextFormat smallListDefaultTF
-        {Theme::Token_Text_Default, StyleHelper::UiElement::UiElementIconStandard,
-         Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip | Qt::TextShowMnemonic};
+    static const TextFormat largePrimaryTF {
+        .themeColor = Theme::Token_Text_On_Accent,
+        .uiElement = StyleHelper::UiElement::UiElementH5,
+        .drawTextFlags = Qt::AlignCenter | Qt::TextDontClip | Qt::TextShowMnemonic,
+    };
+    static const TextFormat largeSecondaryTF {
+        .themeColor = Theme::Token_Text_Default,
+        .uiElement = largePrimaryTF.uiElement,
+        .drawTextFlags = largePrimaryTF.drawTextFlags,
+    };
+    static const TextFormat mediumPrimaryTF {
+        .themeColor = largePrimaryTF.themeColor,
+        .uiElement = StyleHelper::UiElement::UiElementButtonMedium,
+        .drawTextFlags = largePrimaryTF.drawTextFlags,
+    };
+    static const TextFormat mediumSecondaryTF {
+        .themeColor = largeSecondaryTF.themeColor,
+        .uiElement = mediumPrimaryTF.uiElement,
+        .drawTextFlags = mediumPrimaryTF.drawTextFlags,
+    };
+    static const TextFormat smallPrimaryTF {
+        .themeColor = largePrimaryTF.themeColor,
+        .uiElement = StyleHelper::UiElement::UiElementButtonSmall,
+        .drawTextFlags = largePrimaryTF.drawTextFlags,
+    };
+    static const TextFormat smallSecondaryTF {
+        .themeColor = largeSecondaryTF.themeColor,
+        .uiElement = smallPrimaryTF.uiElement,
+        .drawTextFlags = smallPrimaryTF.drawTextFlags,
+    };
+    static const TextFormat smallListDefaultTF {
+        .themeColor = Theme::Token_Text_Default,
+        .uiElement = StyleHelper::UiElement::UiElementIconStandard,
+        .drawTextFlags = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip | Qt::TextShowMnemonic,
+    };
     static const TextFormat smallListCheckedTF = smallListDefaultTF;
-    static const TextFormat smallLinkDefaultTF
-        {Theme::Token_Text_Default, StyleHelper::UiElement::UiElementIconStandard,
-         smallListDefaultTF.drawTextFlags};
-    static const TextFormat smallLinkHoveredTF
-        {Theme::Token_Text_Accent, smallLinkDefaultTF.uiElement,
-         smallLinkDefaultTF.drawTextFlags};
-    static const TextFormat tagDefaultTF
-        {Theme::Token_Text_Muted, StyleHelper::UiElement::UiElementLabelMedium};
-    static const TextFormat tagHoverTF
-        {Theme::Token_Text_Default, tagDefaultTF.uiElement};
+    static const TextFormat smallLinkDefaultTF {
+        .themeColor = Theme::Token_Text_Default,
+        .uiElement = StyleHelper::UiElement::UiElementIconStandard,
+        .drawTextFlags = smallListDefaultTF.drawTextFlags,
+    };
+    static const TextFormat smallLinkHoveredTF {
+        .themeColor = Theme::Token_Text_Accent,
+        .uiElement = smallLinkDefaultTF.uiElement,
+        .drawTextFlags = smallLinkDefaultTF.drawTextFlags,
+    };
+    static const TextFormat tagDefaultTF {
+        .themeColor = Theme::Token_Text_Muted,
+        .uiElement = StyleHelper::UiElement::UiElementLabelMedium,
+    };
+    static const TextFormat tagHoverTF {
+        .themeColor = Theme::Token_Text_Default,
+        .uiElement = tagDefaultTF.uiElement,
+    };
 
     switch (role) {
-    case QtcButton::LargePrimary: return largePrimaryTF;
+    case QtcButton::LargePrimary:
+        return largePrimaryTF;
     case QtcButton::LargeSecondary:
     case QtcButton::LargeTertiary:
     case QtcButton::LargeGhost:
         return largeSecondaryTF;
-    case QtcButton::SmallPrimary: return smallPrimaryTF;
+
+    case QtcButton::MediumPrimary:
+        return mediumPrimaryTF;
+    case QtcButton::MediumSecondary:
+    case QtcButton::MediumTertiary:
+    case QtcButton::MediumGhost:
+        return mediumSecondaryTF;
+
+    case QtcButton::SmallPrimary:
+        return smallPrimaryTF;
     case QtcButton::SmallSecondary:
     case QtcButton::SmallTertiary:
     case QtcButton::SmallGhost:
         return smallSecondaryTF;
+
     case QtcButton::SmallList: return (state == WidgetStateDefault) ? smallListDefaultTF
                                              : smallListCheckedTF;
     case QtcButton::SmallLink: return (state == WidgetStateDefault) ? smallLinkDefaultTF
@@ -106,7 +147,7 @@ static const TextFormat &buttonTF(QtcButton::Role role, WidgetState state)
     case QtcButton::Tag: return (state == WidgetStateDefault) ? tagDefaultTF
                                              : tagHoverTF;
     }
-    return largePrimaryTF;
+    return mediumPrimaryTF;
 }
 
 QtcButton::QtcButton(const QString &text, Role role, QWidget *parent)
@@ -136,6 +177,30 @@ QSize QtcButton::minimumSizeHint() const
     const QMargins margins = contentsMargins();
     return {margins.left() + maxTextWidth + margins.right(),
             margins.top() + tf.lineHeight() + margins.bottom()};
+}
+
+static int iconLabelGap(QtcButton::Role role)
+{
+    switch (role) {
+    case QtcButton::LargePrimary:
+    case QtcButton::LargeSecondary:
+    case QtcButton::LargeTertiary:
+    case QtcButton::LargeGhost:
+        return GapHM;
+    case QtcButton::MediumPrimary:
+    case QtcButton::MediumSecondary:
+    case QtcButton::MediumTertiary:
+    case QtcButton::MediumGhost:
+    case QtcButton::SmallList:
+    case QtcButton::SmallLink:
+        return GapHXs;
+    case QtcButton::SmallPrimary:
+    case QtcButton::SmallSecondary:
+    case QtcButton::SmallTertiary:
+    case QtcButton::SmallGhost:
+    case QtcButton::Tag:
+        return GapHXs;
+    }
 }
 
 void QtcButton::paintEvent(QPaintEvent *event)
@@ -179,6 +244,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
     const qreal brRectRounding = 3.75;
     switch (m_role) {
     case LargePrimary:
+    case MediumPrimary:
     case SmallPrimary: {
         const Theme::Color color = isEnabled() ? (isDown()
                                                   ? Theme::Token_Accent_Subtle
@@ -190,15 +256,19 @@ void QtcButton::paintEvent(QPaintEvent *event)
         break;
     }
     case LargeSecondary:
+    case MediumSecondary:
     case SmallSecondary: {
-        const Theme::Color color = isEnabled() ? Theme::Token_Stroke_Strong
-                                               : Theme::Token_Stroke_Subtle;
+        const Theme::Color outlineColor = isEnabled() ? Theme::Token_Stroke_Strong
+                                                      : Theme::Token_Stroke_Subtle;
         const qreal width = hovered ? 2.0 : 1.0;
-        const QPen outline(creatorColor(color), width);
-        StyleHelper::drawCardBg(&p, bgR, QBrush(Qt::NoBrush), outline, brRectRounding);
+        const QPen outline(creatorColor(outlineColor), width);
+        const QBrush fillColor = isDown() ? creatorColor(Theme::Token_Foreground_Subtle)
+                                          : QBrush(Qt::NoBrush);
+        StyleHelper::drawCardBg(&p, bgR, fillColor, outline, brRectRounding);
         break;
     }
     case LargeTertiary:
+    case MediumTertiary:
     case SmallTertiary: {
         const Theme::Color border = isDown() ? Theme::Token_Stroke_Muted
                                              : Theme::Token_Stroke_Subtle;
@@ -210,6 +280,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
         break;
     }
     case LargeGhost:
+    case MediumGhost:
     case SmallGhost: {
         if (isDown() || hovered) {
             const Theme::Color bg = isDown() ? Theme::Token_Foreground_Default
@@ -241,7 +312,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
 
     if (!m_pixmap.isNull()) {
         const QSizeF pixmapS = m_pixmap.deviceIndependentSize();
-        const int pixmapX = m_role == SmallLink ? 0 : PaddingHM;
+        const int pixmapX = margins.left() - iconLabelGap(m_role) - pixmapS.width();
         const int pixmapY = (bgR.height() - pixmapS.height()) / 2;
         p.drawPixmap(pixmapX, pixmapY, m_pixmap);
     }
@@ -271,18 +342,45 @@ void QtcButton::setRole(Role role)
 
 void QtcButton::updateMargins()
 {
-    if (m_role == Tag) {
-        setContentsMargins(PaddingHM, PaddingVXs, PaddingHM, PaddingVXs);
-        return;
+    int hPaddingR = -1;
+    int vPadding = -1;
+
+    switch (m_role) {
+    case MediumPrimary:
+    case MediumSecondary:
+    case MediumTertiary:
+    case MediumGhost:
+    case SmallList:
+    case SmallLink:
+        hPaddingR = PaddingHL;
+        vPadding = PaddingVM;
+        break;
+    case LargePrimary:
+    case LargeSecondary:
+    case LargeTertiary:
+    case LargeGhost:
+        hPaddingR = PaddingHXl;
+        vPadding = PaddingVL;
+        break;
+    case SmallPrimary:
+    case SmallSecondary:
+    case SmallTertiary:
+    case SmallGhost:
+        hPaddingR = PaddingHM;
+        vPadding = PaddingVS;
+        break;
+    case Tag:
+        hPaddingR = PaddingHM;
+        vPadding = PaddingVXs;
+        break;
     }
-    const bool tokenSizeS = m_role == LargePrimary || m_role == LargeSecondary
-                            || m_role == LargeGhost || m_role == SmallList || m_role == SmallLink;
-    const int hPaddingR = tokenSizeS ? PaddingHXl : PaddingHM;
+
     const int hPaddingL = m_pixmap.isNull() ? hPaddingR
-                                            : (m_role == SmallLink ? 0 : PaddingHM)
+                                            : hPaddingR
                                                   + int(m_pixmap.deviceIndependentSize().width())
-                                                  + (tokenSizeS ? GapHS : GapHXs);
-    setContentsMargins(hPaddingL, PaddingVM, hPaddingR, PaddingVM);
+                                                  + iconLabelGap(m_role);
+
+    setContentsMargins(hPaddingL, vPadding, hPaddingR, vPadding);
 }
 
 QtcLabel::QtcLabel(const QString &text, Role role, QWidget *parent)
@@ -948,12 +1046,12 @@ namespace QtcWidgets {
 
 Button::Button()
 {
-    ptr = new Implementation({}, QtcButton::LargePrimary, nullptr);
+    ptr = new Implementation({}, QtcButton::MediumPrimary, nullptr);
 }
 
 Button::Button(std::initializer_list<I> ps)
+    : Utils::QtcWidgets::Button()
 {
-    ptr = new Implementation({}, QtcButton::LargePrimary, nullptr);
     Layouting::Tools::apply(this, ps);
 }
 
@@ -983,8 +1081,8 @@ IconButton::IconButton()
 }
 
 IconButton::IconButton(std::initializer_list<I> ps)
+    : IconButton()
 {
-    ptr = new Implementation(nullptr);
     Layouting::Tools::apply(this, ps);
 }
 
@@ -1004,8 +1102,8 @@ Switch::Switch()
 }
 
 Switch::Switch(std::initializer_list<I> ps)
+    : Switch()
 {
-    ptr = new Implementation({});
     Layouting::Tools::apply(this, ps);
 }
 
@@ -1030,8 +1128,8 @@ Label::Label()
 }
 
 Label::Label(std::initializer_list<I> ps)
+    : Label()
 {
-    ptr = new Implementation("", QtcLabel::Primary, nullptr);
     Layouting::Tools::apply(this, ps);
 }
 
@@ -1051,8 +1149,8 @@ SearchBox::SearchBox()
 }
 
 SearchBox::SearchBox(std::initializer_list<I> ps)
+    : SearchBox()
 {
-    ptr = new Implementation();
     Layouting::Tools::apply(this, ps);
 }
 

@@ -112,7 +112,7 @@ private:
 
 QWidget *createOnboardingWizard(QWidget *parent)
 {
-    auto closeButton = new QtcButton(Tr::tr("Close"), QtcButton::LargePrimary);
+    auto closeButton = new QtcButton(Tr::tr("Close"), QtcButton::MediumPrimary);
 
     auto widget = new OverlayWidget(parent);
     widget->setAttribute(Qt::WA_TransparentForMouseEvents, false);

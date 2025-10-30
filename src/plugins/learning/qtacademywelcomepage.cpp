@@ -371,7 +371,7 @@ static Grid createDetailWidget(const CourseItem *course)
             },
             Row {
                 QtcWidgets::Button {
-                    role(QtcButton::Role::LargePrimary),
+                    role(QtcButton::Role::MediumPrimary),
                     text(Tr::tr("Start Course")),
                     onClicked(qApp, [course]() {
                         const QUrl url(courseUrl(course));

@@ -43,6 +43,10 @@ public:
         LargeSecondary,
         LargeTertiary,
         LargeGhost,
+        MediumPrimary,
+        MediumSecondary,
+        MediumTertiary,
+        MediumGhost,
         SmallPrimary,
         SmallSecondary,
         SmallTertiary,
@@ -64,7 +68,7 @@ protected:
 private:
     void updateMargins();
 
-    Role m_role = LargePrimary;
+    Role m_role = MediumPrimary;
     QPixmap m_pixmap;
 };
 

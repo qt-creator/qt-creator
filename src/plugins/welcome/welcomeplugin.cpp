@@ -66,8 +66,8 @@ public:
         m_pluginButtons->setSpacing(GapVM);
         m_pluginButtons->setContentsMargins({});
 
-        auto newButton = new QtcButton(Tr::tr("Create Project..."), QtcButton::LargePrimary);
-        auto openButton = new QtcButton(Tr::tr("Open Project..."), QtcButton::LargeSecondary);
+        auto newButton = new QtcButton(Tr::tr("Create Project..."), QtcButton::MediumPrimary);
+        auto openButton = new QtcButton(Tr::tr("Open Project..."), QtcButton::MediumSecondary);
 
         using namespace Layouting;
         Column {

@@ -239,7 +239,7 @@ public:
         m_dlCount->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
         m_details = new ElidingLabel;
         applyTf(m_details, detailsTF);
-        installButton = new QtcButton(Tr::tr("Install..."), QtcButton::LargePrimary);
+        installButton = new QtcButton(Tr::tr("Install..."), QtcButton::MediumPrimary);
         installButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         installButton->hide();
         connect(
@@ -256,7 +256,7 @@ public:
             requestRestart();
         });
 
-        updateButton = new QtcButton(Tr::tr("Update..."), QtcButton::LargePrimary);
+        updateButton = new QtcButton(Tr::tr("Update..."), QtcButton::MediumPrimary);
         updateButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         updateButton->hide();
         connect(updateButton, &QAbstractButton::pressed, this, &HeadingWidget::pluginUpdateRequested);

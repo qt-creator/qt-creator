@@ -764,7 +764,7 @@ public:
         {
             auto sessionsLabel = new QtcLabel(Tr::tr("Sessions"), QtcLabel::Primary);
             auto manageSessionsButton = new QtcButton(Tr::tr("Manage..."),
-                                                      QtcButton::LargeSecondary);
+                                                      QtcButton::MediumSecondary);
             m_sessionList = new TreeView(this, "Sessions");
             m_sessionList->setModel(m_projectWelcomePage->m_sessionModel);
             m_sessionList->header()->setSectionHidden(1, true); // The "last modified" column.

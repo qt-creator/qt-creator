@@ -399,7 +399,7 @@ public:
                 st,
                 QtcWidgets::Button {
                     text(Tr::tr("Show All")),
-                    role(QtcButton::LargeGhost),
+                    role(QtcButton::MediumGhost),
                     onClicked(this, [] {
                         QDesktopServices::openUrl(QUrl::fromUserInput("https://www.qt.io/blog"));
                     }),
@@ -651,7 +651,7 @@ public:
         : QWidget(parent)
     {
         QStackedWidget *stackView;
-        auto newButton = new QtcButton(Tr::tr("Create Project..."), QtcButton::LargePrimary);
+        auto newButton = new QtcButton(Tr::tr("Create Project..."), QtcButton::MediumPrimary);
 
         using namespace Layouting;
         Column list{
