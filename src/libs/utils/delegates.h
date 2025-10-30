@@ -60,26 +60,4 @@ private:
     Key m_historyKey;
 };
 
-class QTCREATOR_UTILS_EXPORT CompleterDelegate : public QStyledItemDelegate
-{
-    Q_DISABLE_COPY_MOVE(CompleterDelegate)
-
-public:
-    CompleterDelegate(const QStringList &candidates, QObject *parent = nullptr);
-    CompleterDelegate(QAbstractItemModel *model, QObject *parent = nullptr);
-    CompleterDelegate(QCompleter *completer, QObject *parent = nullptr);
-    ~CompleterDelegate() override;
-
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const override;
-    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
-    void setModelData(QWidget *editor, QAbstractItemModel *model,
-                      const QModelIndex &index) const override;
-    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const
-                              QModelIndex &index) const override;
-
-private:
-    QCompleter *m_completer = nullptr;
-};
-
 } // Utils
