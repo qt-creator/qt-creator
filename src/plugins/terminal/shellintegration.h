@@ -34,6 +34,7 @@ signals:
 
 private:
     std::unique_ptr<Utils::TemporaryFilePath> m_tempDir;
+    Utils::FilePath m_shell;
     QByteArray m_oscBuffer;
 };
 

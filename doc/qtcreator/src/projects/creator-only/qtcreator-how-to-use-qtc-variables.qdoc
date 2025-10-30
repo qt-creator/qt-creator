@@ -82,15 +82,17 @@
 
     \section2 Kit and build configuration variables
 
-    The \c {%{ProjectName}} variable expands to the project name, \c {%{Kit}}
-    expands to information about a build and run kit, and \c {%{BuildConfig}}
-    expands to the build configuration.
+    The \c {%{Project:DirName}} variable expands to the name of the project
+    folder, \c {%{Kit:FileSystemName}} expands to information about a build
+    and run kit, and \c {%{BuildConfig:Name}} expands to the name of the build
+    configuration.
 
-    You can combine them to set the default build configuration in \preferences >
-    \uicontrol {Build & Run} > \uicontrol {Default Build Properties}:
+    You can combine them to set the \uicontrol {Default build directory}
+    in \preferences > \uicontrol {Build & Run} >
+    \uicontrol {Default Build Properties}:
 
     \badcode
-    "build-%{ProjectName}-%{Kit:FileSystemName}-%{BuildConfig:Name}"
+    ../build-%{Project:DirName}-%{Kit:FileSystemName}-%{BuildConfig:Name}
     \endcode
 
     \image {qtcreator-build-settings-default.webp} {Default Build Properties tab in Build & Run preferences}

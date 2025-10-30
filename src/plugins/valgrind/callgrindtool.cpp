@@ -918,13 +918,17 @@ ExecutableItem CallgrindTool::parseRecipe()
     const Storage<FilePath> storage; // host output path
 
     const auto onTransferSetup = [this, storage](FileStreamer &streamer) {
-        TemporaryFile dataFile("callgrind.out");
-        if (!dataFile.open()) {
-            Debugger::showPermanentStatusMessage(Tr::tr("Failed opening temp file..."));
-            return;
+        FilePath hostOutputFile = FilePath::fromString(m_lastFileName);
+        if (hostOutputFile.isEmpty()) {
+            TemporaryFile dataFile("callgrind.out");
+            if (!dataFile.open()) {
+                Debugger::showPermanentStatusMessage(Tr::tr("Failed opening temp file..."));
+                return;
+            }
+            hostOutputFile = dataFile.filePath();
+            QTC_ASSERT(!hostOutputFile.isEmpty(), return);
+            *storage = hostOutputFile;
         }
-        const FilePath hostOutputFile = dataFile.filePath();
-        *storage = hostOutputFile;
         streamer.setSource(m_remoteOutputFile);
         streamer.setDestination(hostOutputFile);
     };
@@ -937,17 +941,10 @@ ExecutableItem CallgrindTool::parseRecipe()
         setParserData(async.result());
     };
 
-    const auto onDone = [storage] {
-        const FilePath hostOutputFile = *storage;
-        if (!hostOutputFile.isEmpty() && hostOutputFile.exists())
-            hostOutputFile.removeFile();
-    };
-
     return Group {
         storage,
         FileStreamerTask(onTransferSetup),
         AsyncTask<ParseDataPtr>(onParserSetup, onParserDone, CallDone::OnSuccess),
-        onGroupDone(onDone)
     };
 }
 

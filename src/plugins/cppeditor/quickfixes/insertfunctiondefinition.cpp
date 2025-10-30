@@ -3008,16 +3008,15 @@ public:
 
 void C::func1 (int const &i)
 {
-
 }
 
 void C::func2 (double const d)
 {
-
 }
 )";
 
         const QByteArray clangFormatSettings = R"(
+AllowShortFunctionsOnASingleLine: None
 BreakBeforeBraces: Allman
 QualifierAlignment: Right
 SpaceBeforeParens: Always

@@ -42,8 +42,7 @@ function(qtc_modify_default_install_prefix)
   # then set the "/tmp" better value for CMAKE_INSTALL_PREFIX
   if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND
       CMAKE_INSTALL_PREFIX STREQUAL "${original_cmake_install_prefix}")
-    string(RANDOM LENGTH 8 RANDOM_NUMBER)
-    set_property(CACHE CMAKE_INSTALL_PREFIX PROPERTY VALUE "/tmp/Qt-Creator-staging-${RANDOM_NUMBER}")
+    set_property(CACHE CMAKE_INSTALL_PREFIX PROPERTY VALUE "/tmp")
   endif()
 endfunction()
 if (CMAKE_VERSION GREATER_EQUAL "3.19")

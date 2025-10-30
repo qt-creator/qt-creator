@@ -165,7 +165,7 @@ void CocoSettings::tryPath(const QString &path)
     if (m_isValid)
         return;
 
-    const auto fpath = Utils::FilePath::fromString(path);
+    const auto fpath = FilePath::fromUserInput(path);
     const QString nativePath = fpath.nativePath();
     if (isCocoDirectory(fpath)) {
         logSilently(Tr::tr("Found Coco directory \"%1\".").arg(nativePath));

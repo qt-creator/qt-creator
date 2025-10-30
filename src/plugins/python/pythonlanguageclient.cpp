@@ -249,6 +249,7 @@ void PyLSClient::buildConfigurationClosed(BuildConfiguration *bc)
 void PyLSClient::updateExtraCompilers(const QList<PySideUicExtraCompiler *> &extraCompilers)
 {
     auto oldCompilers = m_extraCompilers;
+    m_extraCompilers.clear();
     for (PySideUicExtraCompiler *extraCompiler : extraCompilers) {
         QTC_ASSERT(extraCompiler->targets().size() == 1 , continue);
         int index = oldCompilers.indexOf(extraCompiler);

@@ -28,7 +28,7 @@
     Supported platforms are:
     \list
         \li (K)Ubuntu Linux 22.04 (x86_64) or later
-        \li (K)Ubuntu Linux 24.04 (arm64) or later
+        \li (K)Ubuntu Linux 24.04 (Arm64) or later
     \endlist
 
     To build Qt applications using \QC on Linux, you usually need the
@@ -62,7 +62,7 @@
     Supported platforms are:
     \list
         \li Windows 10 (x86_64) or later
-        \li Windows 11 (ARM64) or later
+        \li Windows 11 (Arm64) or later
     \endlist
 
     \note Some \QC plugins rely on Direct3D (part of DirectX). You might

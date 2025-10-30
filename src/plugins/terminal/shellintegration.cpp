@@ -121,13 +121,13 @@ void ShellIntegration::onOsc(int cmd, std::string_view str, bool initial, bool f
     if (cmd == 1337) {
         const auto [key, value] = Utils::splitAtFirst(command, '=');
         if (key == QStringView(u"CurrentDir")) {
-            const FilePath cwd = m_tempDir->filePath().withNewPath(value.toString());
+            const FilePath cwd = m_shell.withNewPath(value.toString());
             emit currentDirChanged(cwd);
         }
 
     } else if (cmd == 7) {
         const QString decoded = QUrl::fromPercentEncoding(d.toUtf8());
-        const FilePath cwd = m_tempDir->filePath().withNewPath(decoded);
+        const FilePath cwd = m_shell.withNewPath(decoded);
         emit currentDirChanged(cwd);
     } else if (cmd == 133) {
         qCDebug(integrationLog) << "OSC 133:" << data;
@@ -140,7 +140,7 @@ void ShellIntegration::onOsc(int cmd, std::string_view str, bool initial, bool f
         } else if (command[0] == 'P') {
             const auto [key, value] = Utils::splitAtFirst(data, '=');
             if (key == QStringView(u"Cwd")) {
-                const FilePath cwd = m_tempDir->filePath().withNewPath(unescape(value.toString()));
+                const FilePath cwd = m_shell.withNewPath(unescape(value.toString()));
                 emit currentDirChanged(cwd);
             }
         }
@@ -163,6 +163,8 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
     Environment env = process.environment().hasChanges() ? process.environment()
                                                          : Environment::systemEnvironment();
     CommandLine cmd = process.commandLine();
+
+    m_shell = cmd.executable();
 
     const Result<FilePath> tmpDir = cmd.executable().tmpDir();
     QTC_CHECK_RESULT(tmpDir);

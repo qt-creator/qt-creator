@@ -32,7 +32,7 @@
             The root node displays the project name. All project files are
             listed below it and you can open them from the list.
 
-            \image {qtcreator-autotools-buildrun.png} {An autotools project open in the Projects and File System sidebar views and in the editor}
+            \image {qtcreator-autotools-buildrun.webp} {An autotools project open in the Projects and File System sidebar views and in the editor}
 
         \li Select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run) to
             execute the predefined build steps (\c autogen.sh or \c autoreconf,
@@ -46,7 +46,7 @@
 
             You can add parameters to the predefined autotools build steps.
 
-            \image {qtcreator-autotools-buildsettings.png} {Autotools build settings}
+            \image {qtcreator-autotools-buildsettings.webp} {Autotools build settings}
     \endlist
 
     \sa {Enable and disable plugins}

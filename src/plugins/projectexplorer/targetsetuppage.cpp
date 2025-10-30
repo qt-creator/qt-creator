@@ -38,16 +38,6 @@ using namespace Utils;
 namespace ProjectExplorer {
 namespace Internal {
 
-static FilePath importDirectory(const FilePath &projectPath)
-{
-    // Setup import widget:
-    auto path = projectPath;
-    path = path.parentDir(); // base dir
-    path = path.parentDir(); // parent dir
-
-    return path;
-}
-
 static TasksGenerator defaultTasksGenerator(const TasksGenerator &childGenerator)
 {
     return [childGenerator](const Kit *k) -> Tasks {
@@ -194,7 +184,7 @@ void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
     addAdditionalWidgets();
 
     // Setup import widget:
-    importWidget->setCurrentDirectory(Internal::importDirectory(projectPath));
+    importWidget->setCurrentDirectory(projectPath.parentDir());
 
     kitSelectionChanged();
     updateVisibility();

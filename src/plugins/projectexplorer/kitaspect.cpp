@@ -542,6 +542,11 @@ Group kitDetectionRecipe(
                 KitManager::deregisterKit(*kit);
                 return;
             }
+
+            // The kit registered in "setup" needs to update the kit aspects
+            // found by "setupDetectorTree"
+            (*kit)->fix();
+
             logCallback(Tr::tr("Found kit: %1.").arg((*kit)->displayName()));
         }),
     };

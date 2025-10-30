@@ -2016,27 +2016,33 @@ void tst_filepath::pathComponents_data()
 
 void tst_filepath::symLinks()
 {
-    if (HostOsInfo::isWindowsHost())
-        QSKIP("Creating symbolic links requires special privileges on Windows");
     const FilePath orig = FilePath::fromString(rootPath).pathAppended("x/y/fileToCopy.txt");
     QVERIFY(orig.exists());
     const FilePath link = FilePath::fromString(rootPath).pathAppended("x/fileToCopySymLink.txt");
     const Result<> res = orig.createSymLink(link);
-    QVERIFY_RESULT(res);
+    if (HostOsInfo::isWindowsHost() && !res) {
+        QSKIP("Creating symbolic links requires special privileges on Windows: "
+              "Local group policy editor (gpedit.msc) "
+              "computer configuration > Windows settings > security settings "
+              "> local policy > user rights > creating symbolic links");
+    }
     QVERIFY(link.isSymLink());
     QCOMPARE(link.symLinkTarget(), orig);
 }
 
 void tst_filepath::resolveSymLinks()
 {
-    if (HostOsInfo::isWindowsHost())
-        QSKIP("Creating symbolic links requires special privileges on Windows");
-
     // relative link chain to existing file
     const FilePath orig1 = FilePath::fromString(rootPath).pathAppended("a/file3.txt");
     QVERIFY(orig1.exists());
     const FilePath link1 = FilePath::fromString(rootPath).pathAppended("x/linktest1.txt");
     const Result<> res1 = FilePath::fromString("../a/file3.txt").createSymLink(link1);
+    if (HostOsInfo::isWindowsHost() && !res1) {
+        QSKIP("Creating symbolic links requires special privileges on Windows: "
+              "Local group policy editor (gpedit.msc) "
+              "computer configuration > Windows settings > security settings "
+              "> local policy > user rights > creating symbolic links");
+    }
     QVERIFY_RESULT(res1);
     QVERIFY(link1.isSymLink());
     QCOMPARE(link1.symLinkTarget(), orig1);

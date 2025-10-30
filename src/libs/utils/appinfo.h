@@ -43,6 +43,7 @@ public:
 };
 
 QTCREATOR_UTILS_EXPORT const AppInfo &appInfo();
+QTCREATOR_UTILS_EXPORT QString compilerString();
 
 namespace Internal {
 QTCREATOR_UTILS_EXPORT void setAppInfo(const AppInfo &info);

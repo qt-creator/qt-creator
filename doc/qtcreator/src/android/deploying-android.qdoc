@@ -38,8 +38,6 @@
             \l{Deploying an Application on Android}.
     \endlist
 
-    \note Since \QC 4.12, Ministro is not supported.
-
     To \l{Specifying Settings for Packages}{specify settings} for application
     packages, go to \uicontrol Projects > \uicontrol {Build Settings} >
     \uicontrol {Build Android APK} and select \uicontrol Details.

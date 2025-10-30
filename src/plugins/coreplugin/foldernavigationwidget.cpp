@@ -343,6 +343,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_toggleRootSync->setCheckable(true);
     m_toggleRootSync->setToolTip(Tr::tr("Synchronize Root Directory with Editor"));
 
+    m_rootSelector->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+
     using namespace Layouting;
     Row {
         m_rootSelector,

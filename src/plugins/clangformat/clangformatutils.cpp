@@ -109,7 +109,11 @@ clang::format::FormatStyle calculateQtcStyle()
 #endif
     style.ConstructorInitializerIndentWidth = 4;
     style.ContinuationIndentWidth = 4;
+#if LLVM_VERSION_MAJOR >= 22
+    style.Cpp11BracedListStyle = FormatStyle::BLS_FunctionCall;
+#else
     style.Cpp11BracedListStyle = true;
+#endif
     style.DerivePointerAlignment = false;
     style.DisableFormat = false;
     style.ExperimentalAutoDetectBinPacking = false;

@@ -220,17 +220,15 @@ ElfReader::Result ElfReader::readIt()
         return Corrupt;
     }
 
-    quint64 soff = e_shoff + e_shentsize * e_shtrndx;
-
-//    if ((soff + e_shentsize) > fdlen || soff % 4 || soff == 0) {
-//        m_errorString = QLibrary::Tr::tr("\"%1\" is an invalid ELF object (%2)")
-//           .arg(m_binary)
-//           .arg(QLatin1String("shstrtab section header seems to be at %1"))
-//           .arg(QString::number(soff, 16));
-//        return Corrupt;
-//    }
-
     if (e_shoff) {
+        const quint64 soff = e_shoff + e_shentsize * e_shtrndx;
+        if ((soff + 40) > fdlen || soff % 4 || soff == 0) {
+            m_errorString = msgInvalidElfObject(m_binary,
+                QString("shstrtab section header seems to be at %1")
+                .arg(QString::number(soff, 16)));
+            return Corrupt;
+        }
+
         ElfSectionHeader strtab;
         parseSectionHeader(mapper.ustart + soff, &strtab, m_elfData);
         const quint64 stringTableFileOffset = strtab.offset;

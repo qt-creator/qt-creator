@@ -79,7 +79,7 @@ Result<> ImageViewerFile::openImpl(const FilePath &filePath)
     if (!filePath.isReadableFile())
         return ResultError(Tr::tr("File not readable."));
 
-    const QString &fileName = filePath.toUrlishString();
+    const QString &fileName = filePath.toFSPathString();
     QByteArray format = QImageReader::imageFormat(fileName);
     // if it is impossible to recognize a file format - file will not be open correctly
     if (format.isEmpty())
@@ -163,7 +163,7 @@ QGraphicsItem *ImageViewerFile::createGraphicsItem() const
             val = m_tempSvgItem;
             m_tempSvgItem = nullptr;
         } else {
-            val = new QGraphicsSvgItem(filePath().toUrlishString());
+            val = new QGraphicsSvgItem(filePath().toFSPathString());
         }
 #endif
         break;

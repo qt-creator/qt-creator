@@ -226,8 +226,8 @@ def main():
                 test.compare(str(editor.plainText).rstrip(), pastedText.rstrip(),
                              "Verify that pasted and fetched texts have the same content")
             else:
-                if protocol in (NAME_DPCOM) and pastedText.endswith("\n"):
-                    pastedText = pastedText[:-1]
+                # if protocol in (NAME_DPCOM) and pastedText.endswith("\n"):
+                #     pastedText = pastedText[:-1]
                 test.compare(editor.plainText, pastedText,
                              "Verify that pasted and fetched texts are the same")
 

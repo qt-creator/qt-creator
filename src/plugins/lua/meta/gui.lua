@@ -129,7 +129,7 @@ function gui.ScrollArea(options) end
 function gui.Stack(options) end
 
 ---A Tab widget.
----@class Tab : Widget
+---@class Tab
 local tab = {}
 
 ---@param name string

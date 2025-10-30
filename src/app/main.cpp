@@ -43,6 +43,7 @@
 #include <QTextStream>
 #include <QThreadPool>
 #include <QTranslator>
+#include <QtVersion>
 
 #include <iterator>
 #include <optional>
@@ -535,6 +536,11 @@ void configureSentry(const AppInfo &appInfo, bool crashReportingEnabled)
     sentry_options_set_release(options, release.toUtf8().constData());
     sentry_options_set_debug(options, sentryLog().isDebugEnabled() ? 1 : 0);
     sentry_init(options);
+    sentry_set_tag("qt.version", qVersion());
+    sentry_set_tag("qt.architecture", QSysInfo::buildCpuArchitecture().toUtf8().constData());
+    sentry_set_tag("qtcreator.compiler", Utils::compilerString().toUtf8().constData());
+    if (!Utils::appInfo().revision.isEmpty())
+        sentry_set_tag("qtcreator.revision", Utils::appInfo().revision.toUtf8().constData());
 }
 #endif
 

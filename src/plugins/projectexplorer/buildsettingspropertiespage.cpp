@@ -229,7 +229,7 @@ void BuildSettingsWidget::createConfiguration(const BuildInfo &info_)
                                    Tr::tr("New Configuration"),
                                    Tr::tr("New configuration name:"),
                                    QLineEdit::Normal,
-                                   QString(),
+                                   info.typeName,
                                    &ok),
                                false)
                                .trimmed();

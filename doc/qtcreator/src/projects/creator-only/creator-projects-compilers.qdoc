@@ -118,13 +118,13 @@
         \li \l{https://www.iar.com/iar-embedded-workbench/}{IAREW}
         \li A group of C and C++ bare-metal compilers from the various
             IAR Embedded Workbench development environments.
-            Currently supported architectures are \c 8051, \c AVR, \c ARM,
+            Currently supported architectures are \c 8051, \c AVR, \tm Arm,
             \c STM8, and \c MSP430.
     \row
         \li \l{https://www.keil.com}{KEIL}
         \li A group of C and C++ bare-metal compilers from the various KEIL
             development environments.
-            Currently supported architectures are \c 8051 and \c ARM.
+            Currently supported architectures are \c 8051 and \tm Arm.
     \row
         \li \l{http://sdcc.sourceforge.net}{SDCC}
         \li An optimizing C bare-metal compiler for various architectures.

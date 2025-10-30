@@ -139,14 +139,11 @@
     \section1 PDB Versions
 
     \l{https://docs.python.org/3/library/pdb.html}{PDB} is a source code debugger
-    for Python applications. You can use it to debug projects that have a
-    \l {Tutorial: Qt Widgets and Python}{\c pyproject.toml}
+    for Python applications. You can use the PDB version installed with Python to
+    debug projects that have a \l {Tutorial: Qt Widgets and Python}{\c pyproject.toml}
     configuration file.
 
-    To install Python and set the interpreter to use, go to \uicontrol Projects
-    > \uicontrol {Run Settings}.
-
-    \image {qtcreator-run-settings-python.webp} {Run settings for a Python project}
+    For more information, see \l {Set up PySide6}.
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Kits}
 */
