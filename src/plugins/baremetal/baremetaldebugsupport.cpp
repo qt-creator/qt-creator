@@ -23,7 +23,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
-#include <solutions/tasking/barrier.h>
+#include <QtTaskTree/QBarrier>
 
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>
@@ -31,7 +31,7 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace BareMetal::Internal {

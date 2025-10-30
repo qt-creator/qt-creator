@@ -23,7 +23,7 @@
 
 #include <qtsupport/qtkitaspect.h>
 
-#include <solutions/tasking/barrier.h>
+#include <QtTaskTree/QBarrier>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -40,7 +40,7 @@ static Q_LOGGING_CATEGORY(androidDebugSupportLog, "qtc.android.run.androiddebugs
 
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Android::Internal {
@@ -170,7 +170,7 @@ public:
     {
         setId("AndroidDebugWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
-            const auto kicker = [runControl](const StoredBarrier &barrier) {
+            const auto kicker = [runControl](const QStoredBarrier &barrier) {
                 return androidKicker(barrier, runControl);
             };
             return When (kicker) >> Do {

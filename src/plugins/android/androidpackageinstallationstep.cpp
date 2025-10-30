@@ -46,7 +46,7 @@ public:
 private:
     bool init() final;
     void setupOutputFormatter(OutputFormatter *formatter) final;
-    Tasking::GroupItem runRecipe() final;
+    QtTaskTree::GroupItem runRecipe() final;
 
     void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
 
@@ -120,9 +120,9 @@ void AndroidPackageInstallationStep::setupOutputFormatter(OutputFormatter *forma
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-Tasking::GroupItem AndroidPackageInstallationStep::runRecipe()
+QtTaskTree::GroupItem AndroidPackageInstallationStep::runRecipe()
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const auto onSetup = [this] {
         if (skipInstallationAndPackageSteps(buildConfiguration())) {

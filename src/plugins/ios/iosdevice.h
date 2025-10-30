@@ -7,7 +7,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QMappedTaskTreeRunner>
 
 #include <QMessageBox>
 #include <QPointer>
@@ -52,8 +52,8 @@ private:
     void fromMap(const Utils::Store &map) final;
     void toMap(Utils::Store &map) const final;
 
-    Tasking::ExecutableItem portsGatheringRecipe(
-        const Tasking::Storage<Utils::PortsOutputData> &output) const override;
+    QtTaskTree::ExecutableItem portsGatheringRecipe(
+        const QtTaskTree::Storage<Utils::PortsOutputData> &output) const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
 
     friend class IosDeviceFactory;
@@ -93,7 +93,7 @@ public:
 private:
     void updateUserModeDevices();
     IosDeviceManager(QObject *parent = nullptr);
-    Tasking::MappedTaskTreeRunner<QString> m_updatesRunner; // deviceid->task
+    QMappedTaskTreeRunner<QString> m_updatesRunner; // deviceid->task
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
     QPointer<QMessageBox> m_devModeDialog;

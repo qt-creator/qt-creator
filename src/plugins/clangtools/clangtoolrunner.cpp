@@ -29,7 +29,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)
 
 using namespace CppEditor;
 using namespace Utils;
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace ClangTools {
 namespace Internal {
@@ -80,7 +80,7 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
         FilePath outputFilePath;
     };
     const Storage<ClangToolStorage> storage;
-    const LoopList iterator(units);
+    const ListIterator iterator(units);
 
     const auto mainToolArguments = [input, iterator, compilationDbDir](const ClangToolStorage &data) {
         QStringList result;
@@ -181,7 +181,7 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
     };
 
     return For (iterator) >> Do {
-        parallelLimit(qMax(1, input.runSettings.parallelJobs())),
+        ParallelLimit(qMax(1, input.runSettings.parallelJobs())),
         finishAllAndSuccess,
         Group {
             storage,

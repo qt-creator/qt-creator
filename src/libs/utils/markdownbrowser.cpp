@@ -15,9 +15,8 @@
 #include "utilsicons.h"
 #include "utilstr.h"
 
-#include <solutions/tasking/networkquery.h>
-#include <solutions/tasking/tasktree.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QBuffer>
 #include <QCache>
@@ -456,7 +455,7 @@ public:
 
             m_needsToRestartLoading = false;
 
-            using namespace Tasking;
+            using namespace QtTaskTree;
 
             const bool isBaseHttp = m_basePath.scheme() == QStringLiteral("http")
                                     || m_basePath.scheme() == QStringLiteral("https");
@@ -491,11 +490,11 @@ public:
 
             const Storage<QByteArray> remoteData;
 
-            const LoopList remoteIterator(Utils::toList(remoteUrls));
-            const LoopList localIterator(Utils::toList(localUrls));
+            const ListIterator remoteIterator(Utils::toList(remoteUrls));
+            const ListIterator localIterator(Utils::toList(localUrls));
 
             auto onQuerySetup =
-                [this, remoteIterator, base = m_basePath.toUrl()](NetworkQuery &query) {
+                [this, remoteIterator, base = m_basePath.toUrl()](QNetworkReplyWrapper &query) {
                     QUrl url = *remoteIterator;
                     if (url.isRelative())
                         url = base.resolved(url);
@@ -508,7 +507,7 @@ public:
                     query.setNetworkAccessManager(m_networkAccessManager);
                 };
 
-            auto onQueryDone = [this, remoteIterator, remoteData](const NetworkQuery &query, DoneWith result) {
+            auto onQueryDone = [this, remoteIterator, remoteData](const QNetworkReplyWrapper &query, DoneWith result) {
                 if (result == DoneWith::Cancel)
                     return;
                 m_urlsToLoad.remove(query.reply()->url());
@@ -585,7 +584,7 @@ public:
                 For (remoteIterator) >> Do {
                     Group {
                         remoteData,
-                        NetworkQueryTask{onQuerySetup, onQueryDone},
+                        QNetworkReplyWrapperTask{onQuerySetup, onQueryDone},
                         AsyncTask<EntryPointer>(onMakeEntrySetup, onMakeEntryDone)
                     } || successItem
                 },
@@ -617,7 +616,7 @@ private:
     QSet<QUrl> m_urlsToLoad;
     bool m_needsToRestartLoading = false;
     bool m_loadRemoteImages = false;
-    Tasking::SingleTaskTreeRunner m_imageLoaderTree;
+    QSingleTaskTreeRunner m_imageLoaderTree;
     FilePath m_basePath;
     std::function<void(QNetworkRequest *)> m_requestHook;
     QNetworkAccessManager *m_networkAccessManager = NetworkAccessManager::instance();

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QDialog>
 
@@ -42,7 +42,7 @@ private:
     Utils::PathChooser *m_pathChooser = nullptr;
     Utils::FancyLineEdit *m_directoryLE = nullptr;
     Utils::InfoLabel *m_infoLabel = nullptr;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace GitLab

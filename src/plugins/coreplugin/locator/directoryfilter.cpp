@@ -79,7 +79,7 @@ DirectoryFilter::DirectoryFilter(Id id)
                           "or \":<number>\" to jump to the given line number. Append another "
                           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
 
-    using namespace Tasking;
+    using namespace QtTaskTree;
     const auto groupSetup = [this] {
         if (!m_directories.isEmpty())
             return SetupResult::Continue; // Async task will run

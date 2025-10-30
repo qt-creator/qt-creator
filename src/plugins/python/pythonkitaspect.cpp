@@ -166,7 +166,7 @@ public:
                                    });
     }
 
-    std::optional<Tasking::ExecutableItem> autoDetect(
+    std::optional<QtTaskTree::ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const DetectionSource &detectionSource,
@@ -175,10 +175,10 @@ public:
         return PythonSettings::autoDetect(kit, searchPaths, detectionSource, logCallback);
     }
 
-    std::optional<Tasking::ExecutableItem> removeAutoDetected(
+    std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override
     {
-        return Tasking::Sync([detectionSource, logCallback]() {
+        return QSyncTask([detectionSource, logCallback]() {
             PythonSettings::removeDetectedPython(detectionSource, logCallback);
         });
     }

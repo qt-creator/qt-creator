@@ -123,7 +123,7 @@ protected:
     void fromMap(const Utils::Store &map) override;
 
 private:
-    Tasking::GroupItem runRecipe() final;
+    QtTaskTree::GroupItem runRecipe() final;
     // slots for handling buildconfiguration/step signals
     void qtVersionChanged();
     void qmakeBuildConfigChanged();

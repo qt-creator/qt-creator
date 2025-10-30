@@ -458,7 +458,7 @@ void FileSystemAccessTest::testFileStreamer()
     std::optional<QByteArray> remoteLocalData;
     std::optional<QByteArray> remoteRemoteData;
 
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const auto localWriter = [&] {
         const auto setup = [&](FileStreamer &streamer) {
@@ -537,7 +537,7 @@ void FileSystemAccessTest::testFileStreamer()
     };
 
     using namespace std::chrono_literals;
-    QCOMPARE(TaskTree::runBlocking(recipe.withTimeout(10000ms)), DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking(recipe.withTimeout(10000ms)), DoneWith::Success);
 
     QVERIFY(localData);
     QCOMPARE(*localData, data);

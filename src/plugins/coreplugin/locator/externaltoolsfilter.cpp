@@ -13,7 +13,7 @@
 
 #include <utils/qtcassert.h>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace Core::Internal {
 
@@ -79,7 +79,7 @@ LocatorMatcherTasks ExternalToolsFilter::matchers()
         storage.reportOutput(bestEntries + betterEntries + goodEntries
                              + LocatorFilterEntries{configEntry});
     };
-    return {Sync(onSetup)};
+    return {QSyncTask(onSetup)};
 }
 
 } // Core::Internal

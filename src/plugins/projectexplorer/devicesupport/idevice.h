@@ -7,7 +7,7 @@
 #include "filetransferinterface.h"
 #include "idevicefwd.h"
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/aspects.h>
 #include <utils/filepath.h>
@@ -203,8 +203,8 @@ public:
     void addDeviceAction(const DeviceAction &deviceAction);
     const QList<DeviceAction> deviceActions() const;
 
-    virtual Tasking::ExecutableItem portsGatheringRecipe(
-        const Tasking::Storage<Utils::PortsOutputData> &output) const;
+    virtual QtTaskTree::ExecutableItem portsGatheringRecipe(
+        const QtTaskTree::Storage<Utils::PortsOutputData> &output) const;
     virtual bool canCreateProcessModel() const { return false; }
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester();
@@ -405,7 +405,7 @@ public:
     Utils::Result<> result() const { return m_result; }
 
 signals:
-    void done(Tasking::DoneResult result);
+    void done(QtTaskTree::DoneResult result);
 
 private:
     Utils::FilePath m_processPath;
@@ -413,6 +413,6 @@ private:
     Utils::Result<> m_result = Utils::ResultOk;
 };
 
-using DeviceProcessKillerTask = Tasking::CustomTask<DeviceProcessKiller>;
+using DeviceProcessKillerTask = QCustomTask<DeviceProcessKiller>;
 
 } // namespace ProjectExplorer

@@ -42,7 +42,7 @@ private:
     void fromMap(const Store &map) final;
     QWidget *createConfigWidget() final;
     bool init() final;
-    Tasking::GroupItem runRecipe() final;
+    QtTaskTree::GroupItem runRecipe() final;
     bool isJobCountSupported() const final { return false; }
 
     void updateCommandFromAspect();
@@ -189,9 +189,9 @@ bool MakeInstallStep::init()
     return true;
 }
 
-Tasking::GroupItem MakeInstallStep::runRecipe()
+QtTaskTree::GroupItem MakeInstallStep::runRecipe()
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const auto onDone = [this](DoneWith result) {
         if (result != DoneWith::Success) {

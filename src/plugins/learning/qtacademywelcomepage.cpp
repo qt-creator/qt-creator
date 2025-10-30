@@ -11,9 +11,9 @@
 #include <coreplugin/welcomepagehelper.h>
 
 #include <solutions/spinner/spinner.h>
-#include <solutions/tasking/networkquery.h>
-#include <solutions/tasking/tasktree.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QTaskTree>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
@@ -521,16 +521,16 @@ private:
         // setJson(FileUtils::fetchQrc(":/learning/testdata/courses.json").toUtf8(), m_model); return;
 #endif // WITH_TESTS
 
-        using namespace Tasking;
+        using namespace QtTaskTree;
 
-        const auto onQuerySetup = [this](NetworkQuery &query) {
+        const auto onQuerySetup = [this](QNetworkReplyWrapper &query) {
             const QString request = "https://www.qt.io/hubfs/Academy/courses.json";
             query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
             query.setNetworkAccessManager(NetworkAccessManager::instance());
             qCDebug(qtAcademyLog).noquote() << "Sending JSON request:" << request;
             m_spinner->show();
         };
-        const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
+        const auto onQueryDone = [this](const QNetworkReplyWrapper &query, DoneWith result) {
             const QByteArray response = query.reply()->readAll();
             qCDebug(qtAcademyLog).noquote() << "Got JSON QNetworkReply:" << query.reply()->error();
             if (result == DoneWith::Success) {
@@ -544,7 +544,7 @@ private:
             m_spinner->hide();
         };
 
-        taskTreeRunner.start({NetworkQueryTask(onQuerySetup, onQueryDone)});
+        taskTreeRunner.start({QNetworkReplyWrapperTask(onQuerySetup, onQueryDone)});
     }
 
     void queueImageForDownload(const QString &url)
@@ -666,7 +666,7 @@ private:
     bool m_dataFetched = false;
     QSet<QString> m_pendingImages;
     bool m_isDownloadingImage = false;
-    Tasking::SingleTaskTreeRunner taskTreeRunner;
+    QSingleTaskTreeRunner taskTreeRunner;
     SpinnerSolution::Spinner *m_spinner;
     const CourseItem *m_selectedCourse = nullptr;
 };

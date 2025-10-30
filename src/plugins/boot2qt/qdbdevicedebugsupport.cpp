@@ -16,7 +16,7 @@
 
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
-#include <solutions/tasking/barrier.h>
+#include <QtTaskTree/QBarrier>
 
 #include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
@@ -24,7 +24,7 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Qdb::Internal {
@@ -55,7 +55,7 @@ static ProcessTask qdbDeviceInferiorProcess(RunControl *runControl,
             if (lowerPort + 1 != upperPort) {
                 runControl->postMessage("Need adjacent free ports for combined C++/QML debugging",
                                         ErrorMessageFormat);
-                return Tasking::SetupResult::StopWithError;
+                return SetupResult::StopWithError;
             }
         }
         if (runControl->usesPerfChannel()) {
@@ -82,7 +82,7 @@ static ProcessTask qdbDeviceInferiorProcess(RunControl *runControl,
         process.setCommand(cmd);
         process.setWorkingDirectory(runControl->workingDirectory());
         process.setEnvironment(runControl->environment());
-        return Tasking::SetupResult::Continue;
+        return SetupResult::Continue;
     };
     return runControl->processTaskWithModifier(modifier, config);
 }

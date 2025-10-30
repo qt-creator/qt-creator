@@ -59,7 +59,7 @@ public:
     }
 
 private:
-    Tasking::GroupItem runRecipe() final;
+    QtTaskTree::GroupItem runRecipe() final;
 
     CommandLine getCommandLine(const QString &arguments)
     {
@@ -70,9 +70,9 @@ private:
     StringAspect arguments{this};
 };
 
-Tasking::GroupItem ConfigureStep::runRecipe()
+QtTaskTree::GroupItem ConfigureStep::runRecipe()
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const auto onSetup = [this] {
         // Check whether we need to run configure

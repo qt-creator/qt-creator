@@ -13,7 +13,7 @@
 #include <utils/qtcassert.h>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace DiffEditor {
@@ -25,11 +25,11 @@ DiffEditorController::DiffEditorController(IDocument *document)
 {
     QTC_ASSERT(m_document, return);
     m_document->setController(this);
-    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
+    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::aboutToStart, this, [this](QTaskTree *taskTree) {
         auto progress = new TaskProgress(taskTree);
         progress->setDisplayName(m_displayName);
     });
-    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [this](DoneWith result) {
+    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [this](DoneWith result) {
         m_document->endReload(result == DoneWith::Success);
     });
 }

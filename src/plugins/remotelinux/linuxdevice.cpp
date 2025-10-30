@@ -27,7 +27,7 @@
 #include <projectexplorer/devicesupport/sshsettings.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -294,7 +294,7 @@ private:
     void createNewKey();
     void updateDeviceFromUi() override {}
 
-    Tasking::SingleTaskTreeRunner m_detectionRunner;
+    QSingleTaskTreeRunner m_detectionRunner;
 };
 
 LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
@@ -324,10 +324,10 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
 
     auto autoDetectButton = new QPushButton(Tr::tr("Run Auto-Detection Now"));
 
-    connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::aboutToStart, [=] {
+    connect(&m_detectionRunner, &QSingleTaskTreeRunner::aboutToStart, [=] {
         autoDetectButton->setEnabled(false);
     });
-    connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::done, [=] {
+    connect(&m_detectionRunner, &QSingleTaskTreeRunner::done, [=] {
         autoDetectButton->setEnabled(true);
     });
 

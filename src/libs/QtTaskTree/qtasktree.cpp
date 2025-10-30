@@ -1268,7 +1268,7 @@ namespace QtTaskTree {
     When the DoneResult is returned by the group's done handler,
     the group's workflow policy is ignored.
 
-    This enum is also used inside the TaskInterface::done() signal and
+    This enum is also used inside the QTaskInterface::done() signal and
     it indicates whether the task finished with success or an error.
 
     \value Success

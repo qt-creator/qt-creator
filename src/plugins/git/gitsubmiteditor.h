@@ -5,7 +5,7 @@
 
 #include "commitdata.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/filepath.h>
 
@@ -54,7 +54,7 @@ private:
     QString m_amenHash;
     Utils::FilePath m_workingDirectory;
     bool m_firstUpdate = true;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // Git::Internal

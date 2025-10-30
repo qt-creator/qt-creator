@@ -18,7 +18,7 @@
 #include <QListWidget>
 #include <QPushButton>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Core {
@@ -182,7 +182,7 @@ LocatorMatcherTasks UrlLocatorFilter::matchers()
         }
         storage.reportOutput(entries);
     };
-    return {Sync(onSetup)};
+    return {QSyncTask(onSetup)};
 }
 
 const char kDisplayNameKey[] = "displayName";

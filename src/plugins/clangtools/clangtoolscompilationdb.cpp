@@ -16,7 +16,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/async.h>
 #include <utils/futuresynchronizer.h>
@@ -28,7 +28,7 @@
 
 using namespace CppEditor;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ClangTools::Internal {
@@ -49,7 +49,7 @@ public:
     TemporaryDirectory dir{toolName() + "XXXXXX"};
     bool readyAndUpToDate = false;
     FutureSynchronizer generatorSynchronizer;
-    SingleTaskTreeRunner taskTreeRunner;
+    QSingleTaskTreeRunner taskTreeRunner;
 };
 
 ClangToolsCompilationDb::ClangToolsCompilationDb(ClangToolType toolType, BuildConfiguration *bc)

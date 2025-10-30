@@ -7,7 +7,7 @@
 
 #include <utils/qtcprocess.h>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace std::chrono_literals;
 

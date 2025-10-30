@@ -27,12 +27,12 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <tasking/conditional.h>
+#include <QtTaskTree/qconditional.h>
 
 #include <utils/algorithm.h>
 #include <utils/infobar.h>
 
-#include <tasking/conditional.h>
+#include <QtTaskTree/qconditional.h>
 
 #include <QLoggingCategory>
 #include <QMessageBox>
@@ -41,7 +41,7 @@
 Q_LOGGING_CATEGORY(devContainerDeviceLog, "qtc.devcontainer.device", QtWarningMsg)
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace DevContainer {
@@ -85,19 +85,19 @@ public:
         }
     };
 
-    ProgressPromise(TaskTree &tree, const QString title, Id id)
+    ProgressPromise(QTaskTree &tree, const QString title, Id id)
     {
         Core::FutureProgress *futureProgress = Core::ProgressManager::addTask(future(), title, id);
-        QObject::connect(futureProgress, &Core::FutureProgress::canceled, &tree, &TaskTree::cancel);
+        QObject::connect(futureProgress, &Core::FutureProgress::canceled, &tree, &QTaskTree::cancel);
         QObject::connect(futureProgress, &Core::FutureProgress::clicked, &Core::MessageManager::popup);
 
         addSource(tree);
         start();
     }
 
-    void addSource(TaskTree &taskTree)
+    void addSource(QTaskTree &taskTree)
     {
-        sources = [tt = QPointer<TaskTree>(&taskTree),
+        sources = [tt = QPointer<QTaskTree>(&taskTree),
                    max = taskTree.progressMaximum(),
                    lastSource = sources]() -> Progress {
             Progress last = lastSource();
@@ -106,7 +106,7 @@ public:
             return last + Progress{max, max};
         };
         update();
-        QObject::connect(&taskTree, &TaskTree::progressValueChanged, &taskTree, [this] {
+        QObject::connect(&taskTree, &QTaskTree::progressValueChanged, &taskTree, [this] {
             update();
         });
     }
@@ -150,7 +150,7 @@ private:
 
 static auto setupProgress(const Storage<ProgressPtr> &progressStorage, const QString &title, Id id)
 {
-    return [progressStorage, title, id](TaskTree &taskTree) {
+    return [progressStorage, title, id](QTaskTree &taskTree) {
         taskTree.onStorageSetup(progressStorage, [&taskTree, title, id](ProgressPtr &promise) {
             promise.reset(new ProgressPromise(taskTree, title, id));
         });
@@ -384,7 +384,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
     };
 
     const auto startDeviceTree = [instance, instanceConfig, runningInstance, progressStorage](
-                                     TaskTree &taskTree) -> SetupResult {
+                                     QTaskTree &taskTree) -> SetupResult {
         const Result<Group> devcontainerRecipe = (*instance)->upRecipe(runningInstance);
         if (!devcontainerRecipe) {
             instanceConfig.logFunction(
@@ -417,7 +417,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         return DoneResult::Success;
     };
 
-    const auto setupManualKits = [this, instance, instanceConfig](TaskTree &tree) {
+    const auto setupManualKits = [this, instance, instanceConfig](QTaskTree &tree) {
         QJsonArray kits = customization((*instance)->config(), "qt-creator/kits").toArray();
 
         GroupItems steps;
@@ -504,16 +504,16 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
     // clang-format off
     return Group {
         instance, options,
-        Sync(init),
-        Sync(loadConfig),
-        TaskTreeTask(startDeviceTree, onDeviceStarted),
-        Sync(setupProcessInterfaceCreator),
-        Sync(setupCmdBridge),
-        TaskTreeTask(setupManualKits),
+        QSyncTask(init),
+        QSyncTask(loadConfig),
+        QTaskTreeTask(startDeviceTree, onDeviceStarted),
+        QSyncTask(setupProcessInterfaceCreator),
+        QSyncTask(setupCmdBridge),
+        QTaskTreeTask(setupManualKits),
         If (autoDetectKitsEnabled) >> Then {
             kitDetectionRecipe(shared_from_this(), DetectionSource::Temporary, instanceConfig.logFunction)
         },
-        Sync(restoreVanishedTargets)
+        QSyncTask(restoreVanishedTargets)
     };
     // clang-format on
 }
@@ -525,7 +525,7 @@ Group Device::downRecipe(bool forceDown)
 
     // clang-format off
     return Group {
-        Sync([this](){
+        QSyncTask([this](){
             m_processInterfaceCreator = nullptr;
             m_fileAccess.reset();
             m_systemEnvironment.reset();
@@ -575,7 +575,7 @@ Result<> Device::down()
     Group recipe{progressStorage, downRecipe(false)};
 
     if (ExtensionSystem::PluginManager::isShuttingDown()) {
-        TaskTree taskTree;
+        QTaskTree taskTree;
         setupProgress(
             progressStorage, Tr::tr("Stopping the development container"), "DevContainer.Shutdown")(
             taskTree);

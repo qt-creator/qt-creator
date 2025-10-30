@@ -8,8 +8,8 @@
 
 #include <qtkeychain/keychain.h>
 
-#include <tasking/tasktree.h>
-#include <tasking/tasktreerunner.h>
+#include <QtTaskTree/QTaskTree>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/guardedcallback.h>
 #include <utils/hostosinfo.h>
@@ -22,7 +22,7 @@
 #include <QPointer>
 
 using namespace QKeychain;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Core {
@@ -40,8 +40,8 @@ public:
     }
 
 public:
-    SingleTaskTreeRunner readRunner;
-    SingleTaskTreeRunner writeRunner;
+    QSingleTaskTreeRunner readRunner;
+    QSingleTaskTreeRunner writeRunner;
     bool wasFetchedFromSecretStorage = false;
     bool wasEdited = false;
     bool repeatWriting = false;
@@ -154,7 +154,7 @@ void SecretAspect::writeSettings() const
         return DoneResult::Success;
     };
 
-    const LoopUntil iterator([this](int) { return std::exchange(d->repeatWriting, false); });
+    const UntilIterator iterator([this](int) { return std::exchange(d->repeatWriting, false); });
 
     // clang-format off
     d->writeRunner.start(

@@ -53,7 +53,7 @@
 #endif
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
 using namespace std::placeholders;
@@ -212,7 +212,7 @@ public:
 
     QString vcsOpenText() const final;
 
-    Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const final;
+    ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     ///
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);

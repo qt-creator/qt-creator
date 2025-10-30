@@ -13,7 +13,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ProjectExplorer {

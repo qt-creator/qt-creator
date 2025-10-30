@@ -14,6 +14,8 @@
 
 #include <unordered_map>
 
+using namespace QtTaskTree;
+
 namespace Utils::FileStreamerManager {
 
 // TODO: destruct the instance before destructing ProjectExplorer::DeviceManager (?)
@@ -122,7 +124,7 @@ FileStreamHandle copy(const Continuation<> &cont,
     };
 
     const auto onDone = [=](FileStreamer *streamer) {
-        if (streamer->result() == Tasking::DoneResult::Success)
+        if (streamer->result() == DoneResult::Success)
             cont({});
         else
             cont(ResultError(Tr::tr("Failed copying file.")));
@@ -139,7 +141,7 @@ FileStreamHandle read(const Continuation<QByteArray> &cont,
     };
 
     const auto onDone = [=](FileStreamer *streamer) {
-        if (streamer->result() == Tasking::DoneResult::Success)
+        if (streamer->result() == DoneResult::Success)
             cont(streamer->readData());
         else
             cont(ResultError(Tr::tr("Failed reading file.")));
@@ -159,7 +161,7 @@ FileStreamHandle write(const Continuation<qint64> &cont,
     };
 
     const auto onDone = [=](FileStreamer *streamer) {
-        if (streamer->result() == Tasking::DoneResult::Success)
+        if (streamer->result() == DoneResult::Success)
             cont(0); // TODO: return write count?
         else
             cont(ResultError(Tr::tr("Failed writing file.")));

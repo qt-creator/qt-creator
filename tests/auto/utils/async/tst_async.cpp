@@ -471,7 +471,7 @@ void multiplyBy2(QPromise<int> &promise, int input) { promise.addResult(input * 
 
 void tst_Async::taskTree()
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     int value = 1;
 
@@ -489,7 +489,7 @@ void tst_Async::taskTree()
         AsyncTask<int>(setupIntAsync, handleIntAsync, CallDone::OnSuccess),
     };
 
-    QCOMPARE(TaskTree::runBlocking(recipe.withTimeout(1000ms)), DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking(recipe.withTimeout(1000ms)), DoneWith::Success);
     QCOMPARE(value, 16);
 }
 
@@ -508,7 +508,7 @@ static QList<double> s_results;
 
 void tst_Async::mapReduce_data()
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     QTest::addColumn<Group>("recipe");
     QTest::addColumn<double>("sum");
@@ -542,7 +542,7 @@ void tst_Async::mapReduce_data()
         s_results.append(s_sum);
     };
 
-    using namespace Tasking;
+    using namespace QtTaskTree;
     using namespace std::placeholders;
 
     using SetupHandler = std::function<void(Async<int> &task, int input)>;
@@ -619,13 +619,13 @@ void tst_Async::mapReduce()
     s_sum = 0;
     s_results.clear();
 
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     QFETCH(Group, recipe);
     QFETCH(double, sum);
     QFETCH(QList<double>, results);
 
-    QCOMPARE(TaskTree::runBlocking(recipe.withTimeout(1000ms)), DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking(recipe.withTimeout(1000ms)), DoneWith::Success);
     QCOMPARE(s_results, results);
     QCOMPARE(s_sum, sum);
 }

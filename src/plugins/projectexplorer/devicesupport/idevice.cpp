@@ -87,7 +87,7 @@
  * Creates an identical copy of a device object.
  */
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ProjectExplorer {

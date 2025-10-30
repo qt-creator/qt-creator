@@ -9,7 +9,7 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -18,7 +18,7 @@
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Qnx::Internal {

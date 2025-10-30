@@ -2137,10 +2137,10 @@ void ProcessPrivate::storeEventLoopDebugInfo(const QVariant &value)
         setProperty(QTC_PROCESS_BLOCKING_TYPE, value);
 }
 
-void ProcessTaskAdapter::operator()(Process *task, Tasking::TaskInterface *iface)
+void ProcessTaskAdapter::operator()(Process *task, QTaskInterface *iface)
 {
     QObject::connect(task, &Process::done, iface, [iface, task] {
-        iface->reportDone(Tasking::toDoneResult(task->result() == ProcessResult::FinishedWithSuccess));
+        iface->reportDone(QtTaskTree::toDoneResult(task->result() == ProcessResult::FinishedWithSuccess));
     }, Qt::SingleShotConnection);
     task->start();
 }

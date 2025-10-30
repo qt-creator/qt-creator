@@ -10,7 +10,7 @@
 #include "suppression.h"
 #include "../valgrindtr.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/async.h>
 #include <utils/expected.h>
@@ -25,7 +25,7 @@
 #include <QWaitCondition>
 #include <QXmlStreamReader>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Valgrind::XmlProtocol {
@@ -742,7 +742,7 @@ public:
     std::unique_ptr<QAbstractSocket> m_socket;
     std::shared_ptr<ParserThread> m_thread;
     std::optional<QString> m_errorString;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 Parser::Parser(QObject *parent)

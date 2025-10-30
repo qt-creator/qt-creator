@@ -61,10 +61,10 @@ public:
     }
 
 private:
-    using GroupItem = Tasking::GroupItem; // trick lupdate, QTBUG-140636
+    using GroupItem = QtTaskTree::GroupItem; // trick lupdate, QTBUG-140636
     GroupItem runRecipe() final
     {
-        using namespace Tasking;
+        using namespace QtTaskTree;
 
         const auto onSetup = [this] {
             // Check whether we need to run autoreconf

@@ -47,7 +47,7 @@ using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 using namespace QMakeInternal;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace QmakeProjectManager {

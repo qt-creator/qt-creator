@@ -23,7 +23,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
@@ -104,7 +104,7 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
         storage.reportOutput(
             std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries()));
     };
-    return {Sync(onSetup)};
+    return {QSyncTask(onSetup)};
 }
 
 static void setupFilter(ILocatorFilter *filter)
@@ -271,7 +271,7 @@ private:
             storage.reportOutput(
                 std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries()));
         };
-        return {Sync(onSetup)};
+        return {QSyncTask(onSetup)};
     }
 };
 

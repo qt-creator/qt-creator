@@ -12,7 +12,7 @@
 #include <utils/result.h>
 #include <utils/treemodel.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QTimer>
 
@@ -58,7 +58,7 @@ public:
     qint64 ownPid = -1;
     const IDevice::ConstPtr device;
     State state = Inactive;
-    Tasking::SingleTaskTreeRunner m_taskTree;
+    QSingleTaskTreeRunner m_taskTree;
     TreeModel<TypedTreeItem<DeviceProcessTreeItem>, DeviceProcessTreeItem> model;
     DeviceProcessSignalOperation::Ptr signalOperation;
 };
@@ -85,7 +85,7 @@ void ProcessList::update()
         {0, {}, Tr::tr("Fetching process list. This might take a while.")}, Qt::NoItemFlags));
     d->state = Listing;
 
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     using ProcessListResult = Result<QList<ProcessInfo>>;
 

@@ -17,7 +17,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -52,7 +52,7 @@ using namespace Core;
 using namespace Debugger;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 static DebuggerItem makeAutoDetectedDebuggerItem(
@@ -134,7 +134,7 @@ private:
     QLabel *m_type;
 
     PathChooser *m_workingDirectoryChooser;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 // --------------------------------------------------------------------------
@@ -944,7 +944,7 @@ void DebuggerItemModel::saveDebuggers()
     // Do not save default debuggers as they are set by the SDK.
 }
 
-using ExecutableItem = Tasking::ExecutableItem; // trick lupdate, QTBUG-140636
+using ExecutableItem = QtTaskTree::ExecutableItem; // trick lupdate, QTBUG-140636
 
 ExecutableItem autoDetectDebuggerRecipe(
     ProjectExplorer::Kit *kit,
@@ -1016,7 +1016,7 @@ ExecutableItem autoDetectDebuggerRecipe(
 
 ExecutableItem removeAutoDetected(const QString &detectionSourceId, const LogCallback &logCallback)
 {
-    return Tasking::Sync([detectionSourceId, logCallback]() {
+    return QSyncTask([detectionSourceId, logCallback]() {
         const auto debuggers = filtered(
             DebuggerItemManager::debuggers(), [detectionSourceId](const DebuggerItem &item) {
                 return item.detectionSource().id == detectionSourceId;
@@ -1029,7 +1029,7 @@ ExecutableItem removeAutoDetected(const QString &detectionSourceId, const LogCal
     });
 }
 
-Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+Utils::Result<ExecutableItem> createAspectFromJson(
     const DetectionSource &detectionSource,
     const Utils::FilePath &rootPath,
     ProjectExplorer::Kit *kit,

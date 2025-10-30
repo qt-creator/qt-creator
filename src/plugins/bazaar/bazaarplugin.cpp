@@ -55,7 +55,7 @@
 #endif
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
 using namespace std::placeholders;
@@ -149,7 +149,7 @@ public:
     }
     void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source, id); }
 
-    Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const final;
+    ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     void updateActions(VcsBase::VersionControlBase::ActionState) final;
     bool activateCommit() final;

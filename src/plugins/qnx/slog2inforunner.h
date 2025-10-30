@@ -3,11 +3,16 @@
 
 #pragma once
 
+#include <QtCore/qglobal.h>
+
 namespace ProjectExplorer { class RunControl; }
-namespace Tasking { class Group; }
+
+QT_BEGIN_NAMESPACE
+namespace QtTaskTree { class Group; }
+QT_END_NAMESPACE
 
 namespace Qnx::Internal {
 
-Tasking::Group slog2InfoRecipe(ProjectExplorer::RunControl *runControl);
+QtTaskTree::Group slog2InfoRecipe(ProjectExplorer::RunControl *runControl);
 
 } // Qnx::Internal

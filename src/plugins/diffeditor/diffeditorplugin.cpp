@@ -105,7 +105,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
     : DiffEditorController(document)
 {
     setDisplayName(Tr::tr("Diff"));
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     struct StorageStruct
     {
@@ -120,7 +120,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
         activeStorage->resultList.resize(activeStorage->inputList.size());
     };
 
-    const LoopUntil iterator([storage](int iteration) {
+    const UntilIterator iterator([storage](int iteration) {
         return iteration < storage->inputList.size();
     });
 

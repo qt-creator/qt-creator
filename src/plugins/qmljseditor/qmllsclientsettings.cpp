@@ -30,8 +30,8 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <tasking/networkquery.h>
-#include <tasking/tasktreerunner.h>
+#include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QCheckBox>
 #include <QJsonDocument>
@@ -46,7 +46,7 @@ using namespace QtSupport;
 using namespace Utils;
 using namespace ProjectExplorer;
 using namespace Qt::StringLiterals;
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace QmlJSEditor {
 
@@ -337,7 +337,7 @@ private:
     QRadioButton *m_overrideExecutable;
 
     Utils::PathChooser *m_executable;
-    SingleTaskTreeRunner m_qmllsDownloader;
+    QSingleTaskTreeRunner m_qmllsDownloader;
 };
 
 QWidget *QmllsClientSettings::createSettingsWidget(QWidget *parent) const
@@ -549,10 +549,10 @@ static GroupItem downloadGithubQmlls()
 
     const Storage<StorageStruct> storage;
 
-    auto setupNetworkQuery = [storage](NetworkQuery *query) {
+    auto setupNetworkQuery = [storage](QNetworkReplyWrapper *query) {
         QObject::connect(
             query,
-            &NetworkQuery::downloadProgress,
+            &QNetworkReplyWrapper::downloadProgress,
             storage->progressDialog.get(),
             [storage = storage.activeStorage()](qint64 received, qint64 max) {
                 storage->progressDialog->setRange(0, max);
@@ -561,7 +561,7 @@ static GroupItem downloadGithubQmlls()
 #if QT_CONFIG(ssl)
         QObject::connect(
             query,
-            &NetworkQuery::sslErrors,
+            &QNetworkReplyWrapper::sslErrors,
             storage->progressDialog.get(),
             [query, storage = storage.activeStorage()](const QList<QSslError> &sslErrors) {
                 for (const QSslError &error : sslErrors)
@@ -574,14 +574,14 @@ static GroupItem downloadGithubQmlls()
 #endif
     };
 
-    const auto onMetadataQuerySetup = [storage, setupNetworkQuery](NetworkQuery &query) {
+    const auto onMetadataQuerySetup = [storage, setupNetworkQuery](QNetworkReplyWrapper &query) {
         query.setRequest(QNetworkRequest(githubQmllsMetadataUrl()));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
         setupNetworkQuery(&query);
     };
 
     const auto onMetadataQueryDone =
-        [storage](const NetworkQuery &query, DoneWith result) -> DoneResult {
+        [storage](const QNetworkReplyWrapper &query, DoneWith result) -> DoneResult {
         if (result == DoneWith::Cancel)
             return DoneResult::Success;
 
@@ -630,7 +630,7 @@ static GroupItem downloadGithubQmlls()
         return DoneResult::Error;
     };
 
-    const auto onQuerySetup = [storage, setupNetworkQuery](NetworkQuery &query) {
+    const auto onQuerySetup = [storage, setupNetworkQuery](QNetworkReplyWrapper &query) {
         if (!storage->latestVersion || !storage->downloadUrl)
             return SetupResult::StopWithError;
 
@@ -652,7 +652,7 @@ static GroupItem downloadGithubQmlls()
         setupNetworkQuery(&query);
         return SetupResult::Continue;
     };
-    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith result) -> DoneResult {
+    const auto onQueryDone = [storage](const QNetworkReplyWrapper &query, DoneWith result) -> DoneResult {
         if (result == DoneWith::Cancel)
             return DoneResult::Success;
 
@@ -701,8 +701,8 @@ static GroupItem downloadGithubQmlls()
     // clang-format off
     return Group {
         storage,
-        NetworkQueryTask(onMetadataQuerySetup, onMetadataQueryDone),
-        NetworkQueryTask(onQuerySetup, onQueryDone),
+        QNetworkReplyWrapperTask(onMetadataQuerySetup, onMetadataQueryDone),
+        QNetworkReplyWrapperTask(onQuerySetup, onQueryDone),
         UnarchiverTask(onUnarchiveSetup, onUnarchiverDone),
     };
     // clang-format on
@@ -752,7 +752,7 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
         m_qmllsDownloader.start({downloadGithubQmlls()});
     });
 
-    QObject::connect(&m_qmllsDownloader, &SingleTaskTreeRunner::done, this, [this] {
+    QObject::connect(&m_qmllsDownloader, &QSingleTaskTreeRunner::done, this, [this] {
         if (const Utils::FilePath path = evaluateGithubQmlls().first; !path.isEmpty())
             m_executable->setFilePath(path);
     });

@@ -19,7 +19,7 @@
 
 using namespace Core;
 using namespace CPlusPlus;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace CppEditor {

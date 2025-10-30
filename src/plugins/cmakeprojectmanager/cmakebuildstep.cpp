@@ -47,7 +47,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
@@ -66,7 +66,7 @@ const char BUILD_PRESET_KEY[] = "CMakeProjectManager.MakeStep.BuildPreset";
 class ProjectParserTaskAdapter final
 {
 public:
-    void operator()(QPointer<BuildSystem> *task, TaskInterface *iface)
+    void operator()(QPointer<BuildSystem> *task, QTaskInterface *iface)
     {
         BuildSystem *bs = *task;
         if (!bs) {
@@ -79,7 +79,7 @@ public:
     }
 };
 
-using ProjectParserTask = CustomTask<QPointer<BuildSystem>, ProjectParserTaskAdapter>;
+using ProjectParserTask = QCustomTask<QPointer<BuildSystem>, ProjectParserTaskAdapter>;
 
 class CMakeProgressParser : public Utils::OutputLineParser
 {

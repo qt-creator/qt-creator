@@ -161,7 +161,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
     setDisplayName("Svn Diff");
     forceContextLineCount(3); // SVN cannot change that when using internal diff
 
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const Storage<QString> diffInputStorage;
 

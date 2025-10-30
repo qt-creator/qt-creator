@@ -12,7 +12,7 @@
 
 #include <QProcess>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -194,7 +194,7 @@ QString FileTransfer::transferMethodName(FileTransferMethod method)
     return {};
 }
 
-static void setupTransfer(FileTransfer *transfer, TaskInterface *iface)
+static void setupTransfer(FileTransfer *transfer, QTaskInterface *iface)
 {
     QObject::connect(transfer, &FileTransfer::done, iface, [iface](const ProcessResultData &result) {
         const bool success = result.m_exitStatus == QProcess::NormalExit
@@ -204,13 +204,13 @@ static void setupTransfer(FileTransfer *transfer, TaskInterface *iface)
     }, Qt::SingleShotConnection);
 }
 
-void FileTransferTaskAdapter::operator()(FileTransfer *task, TaskInterface *iface)
+void FileTransferTaskAdapter::operator()(FileTransfer *task, QTaskInterface *iface)
 {
     setupTransfer(task, iface);
     task->start();
 }
 
-void FileTransferTestTaskAdapter::operator()(FileTransfer *task, TaskInterface *iface)
+void FileTransferTestTaskAdapter::operator()(FileTransfer *task, QTaskInterface *iface)
 {
     setupTransfer(task, iface);
     task->test();

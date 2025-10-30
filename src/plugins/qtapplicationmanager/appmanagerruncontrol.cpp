@@ -28,7 +28,7 @@
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 
-#include <solutions/tasking/barrier.h>
+#include <QtTaskTree/QBarrier>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
@@ -38,7 +38,7 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace AppManager::Internal {

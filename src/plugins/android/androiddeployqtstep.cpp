@@ -28,7 +28,8 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
-#include <solutions/tasking/conditional.h>
+#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -45,7 +46,7 @@
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 using namespace std::chrono_literals;
@@ -126,7 +127,7 @@ private:
     FilePath m_workingDirectory;
     Environment m_environment;
     Task m_installApkError;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
@@ -312,7 +313,7 @@ GroupItem AndroidDeployQtStep::runRecipe()
     };
 
     return Group {
-        If (!Sync(isAvdNameEmpty)) >> Then {
+        If (!QSyncTask(isAvdNameEmpty)) >> Then {
             serialNumberStorage,
             startAvdRecipe(m_avdName, serialNumberStorage),
             onGroupDone(onSerialNumberDone)

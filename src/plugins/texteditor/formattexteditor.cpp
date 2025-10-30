@@ -22,7 +22,7 @@
 #include <QScrollBar>
 #include <QTextBlock>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 using namespace std::chrono_literals;
@@ -325,8 +325,8 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
         else
             checkAndApplyTask(editor, input, task.result());
     };
-    const auto onTreeSetup = [doc](TaskTree &taskTree) {
-        QObject::connect(doc, &TextDocument::contentsChanged, &taskTree, &TaskTree::cancel);
+    const auto onTreeSetup = [doc](QTaskTree &taskTree) {
+        QObject::connect(doc, &TextDocument::contentsChanged, &taskTree, &QTaskTree::cancel);
     };
     GlobalTaskTree::start({AsyncTask<FormatOutput>(onSetup, onDone)}, onTreeSetup);
 }

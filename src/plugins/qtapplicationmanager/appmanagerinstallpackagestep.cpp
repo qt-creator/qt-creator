@@ -26,7 +26,7 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace AppManager::Internal {
 

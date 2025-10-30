@@ -25,7 +25,7 @@
 #include <QtConcurrentMap>
 #include <QTextDocument>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 static const char lastTriggeredC[] = "LastTriggeredActions";

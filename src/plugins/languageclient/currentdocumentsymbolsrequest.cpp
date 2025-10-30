@@ -10,7 +10,7 @@
 
 using namespace Core;
 using namespace LanguageServerProtocol;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 

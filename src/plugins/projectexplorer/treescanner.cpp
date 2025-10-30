@@ -8,7 +8,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -219,8 +219,8 @@ static TreeScanner::Result scanForFilesHelper(
     addSubDirectories(result.subDirectories, nullptr, progressIncrement);
 
     while (!subDirectories.isEmpty()) {
-        using namespace Tasking;
-        const LoopList iterator(subDirectories);
+        using namespace QtTaskTree;
+        const ListIterator iterator(subDirectories);
         subDirectories.clear();
 
         auto onSetup = [&, iterator](Utils::Async<DirectoryScanResult> &task) {
@@ -255,10 +255,10 @@ static TreeScanner::Result scanForFilesHelper(
         };
 
         const Group recipe = For (iterator) >> Do {
-            Utils::HostOsInfo::isLinuxHost() ? parallelLimit(2) : parallelIdealThreadCountLimit,
+            Utils::HostOsInfo::isLinuxHost() ? ParallelLimit(2) : parallelIdealThreadCountLimit,
             Utils::AsyncTask<DirectoryScanResult>(onSetup, onDone)
         };
-        TaskTree::runBlocking(recipe);
+        QTaskTree::runBlocking(recipe);
     }
 
     Utils::sort(fileNodes, ProjectExplorer::Node::sortByPath);

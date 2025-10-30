@@ -31,7 +31,7 @@ public:
 
 signals:
     void started();
-    void done(Tasking::DoneResult result);
+    void done(QtTaskTree::DoneResult result);
     void progress(const FilePath &path);
 
 private:
@@ -41,6 +41,6 @@ private:
     FilePath m_destination;
 };
 
-using UnarchiverTask = Tasking::CustomTask<Unarchiver>;
+using UnarchiverTask = QCustomTask<Unarchiver>;
 
 } // namespace Utils

@@ -31,7 +31,7 @@
 #include <QRegularExpression>
 #include <QStyle>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Core::Internal {

@@ -5,7 +5,7 @@
 
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/filepath.h>
 #include <utils/wizardpage.h>
@@ -61,7 +61,7 @@ private:
     QString m_name;
     QString m_runMessage;
     QStringList m_arguments;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace VcsBase::Internal

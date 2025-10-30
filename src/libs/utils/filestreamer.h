@@ -7,7 +7,7 @@
 
 #include "filepath.h"
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <QObject>
 
@@ -36,18 +36,18 @@ public:
     // Only for Writer mode
     void setWriteData(const QByteArray &writeData);
 
-    Tasking::DoneResult result() const;
+    QtTaskTree::DoneResult result() const;
 
     void start();
     void stop();
 
 signals:
-    void done(Tasking::DoneResult result);
+    void done(QtTaskTree::DoneResult result);
 
 private:
     class FileStreamerPrivate *d = nullptr;
 };
 
-using FileStreamerTask = Tasking::CustomTask<FileStreamer>;
+using FileStreamerTask = QCustomTask<FileStreamer>;
 
 } // namespace Utils

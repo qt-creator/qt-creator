@@ -8,7 +8,7 @@
 
 #include <coreplugin/progressmanager/processprogress.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/filepath.h>
 #include <utils/processinterface.h>
@@ -64,11 +64,11 @@ public:
     Utils::TextChannelCallback stdErrHandler = {};
 };
 
-VCSBASE_EXPORT Tasking::ExecutableItem errorTask(const Utils::FilePath &workingDir,
+VCSBASE_EXPORT QtTaskTree::ExecutableItem errorTask(const Utils::FilePath &workingDir,
                                                  const QString &errorMessage);
 
 VCSBASE_EXPORT Utils::ProcessTask vcsProcessTask(const VcsProcessData &data,
-    const std::optional<Tasking::Storage<CommandResult>> &resultStorage = {});
+    const std::optional<QtTaskTree::Storage<CommandResult>> &resultStorage = {});
 
 // TODO: Avoid, migrate to asynchronous task tree recipes.
 VCSBASE_EXPORT CommandResult vcsRunBlocking(const VcsProcessData &data,

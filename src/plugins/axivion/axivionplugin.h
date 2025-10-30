@@ -13,22 +13,22 @@
 #include <QUrl>
 #include <QVersionNumber>
 
-QT_BEGIN_NAMESPACE
-class QIcon;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer { class Project; }
-
-namespace Tasking {
-class Group;
-template <typename StorageStruct>
-class Storage;
-}
 
 namespace Utils {
 class Environment;
 class FilePath;
 }
+
+QT_BEGIN_NAMESPACE
+class QIcon;
+
+namespace QtTaskTree {
+class Group;
+template <typename StorageStruct>
+class Storage;
+}
+QT_END_NAMESPACE
 
 namespace Axivion::Internal {
 
@@ -89,28 +89,28 @@ public:
 
 QUrl resolveDashboardInfoUrl(DashboardMode dashboardMode, const QUrl &url);
 
-Tasking::Group downloadDataRecipe(DashboardMode dashboardMode,
-                                  const Tasking::Storage<DownloadData> &storage);
+QtTaskTree::Group downloadDataRecipe(DashboardMode dashboardMode,
+                                  const QtTaskTree::Storage<DownloadData> &storage);
 
 using DashboardInfoHandler = std::function<void(const Utils::Result<DashboardInfo> &)>;
-Tasking::Group dashboardInfoRecipe(DashboardMode dashboardMode,
+QtTaskTree::Group dashboardInfoRecipe(DashboardMode dashboardMode,
                                    const DashboardInfoHandler &handler = {});
 
-Tasking::Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName);
+QtTaskTree::Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName);
 
 // TODO: Wrap into Result<>?
 using TableInfoHandler = std::function<void(const Dto::TableInfoDto &)>;
-Tasking::Group tableInfoRecipe(DashboardMode dashboardMode,
+QtTaskTree::Group tableInfoRecipe(DashboardMode dashboardMode,
                                const QString &prefix, const TableInfoHandler &handler);
 
 // TODO: Wrap into Result<>?
 using IssueTableHandler = std::function<void(const Dto::IssueTableDto &)>;
-Tasking::Group issueTableRecipe(DashboardMode dashboardMode,
+QtTaskTree::Group issueTableRecipe(DashboardMode dashboardMode,
                                 const IssueListSearch &search, const IssueTableHandler &handler);
 
 // TODO: Wrap into Result<>?
 using LineMarkerHandler = std::function<void(const Dto::FileViewDto &)>;
-Tasking::Group lineMarkerRecipe(DashboardMode dashboardMode,
+QtTaskTree::Group lineMarkerRecipe(DashboardMode dashboardMode,
                                 const Utils::FilePath &filePath, const LineMarkerHandler &handler);
 
 void fetchLocalDashboardInfo(const DashboardInfoHandler &handler, const QString &projectName);

@@ -13,7 +13,7 @@
 
 #include <projectexplorer/projectnodes.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/textfileformat.h>
 
@@ -379,7 +379,7 @@ private:
     // Async stuff
     QtSupport::ProFileReader *m_readerExact = nullptr;
     QtSupport::ProFileReader *m_readerCumulative = nullptr;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace QmakeProjectManager

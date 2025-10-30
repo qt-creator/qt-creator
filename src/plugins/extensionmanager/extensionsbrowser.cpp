@@ -24,10 +24,10 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <solutions/spinner/spinner.h>
-#include <solutions/tasking/conditional.h>
-#include <solutions/tasking/networkquery.h>
-#include <solutions/tasking/tasktree.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QTaskTree>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -508,7 +508,7 @@ public:
     QSortFilterProxyModel *searchProxyModel;
     SortFilterProxyModel *sortFilterProxyModel;
     int columnsCount = 2;
-    Tasking::SingleTaskTreeRunner taskTreeRunner;
+    QSingleTaskTreeRunner taskTreeRunner;
     SpinnerSolution::Spinner *m_spinner;
 };
 
@@ -752,7 +752,7 @@ public:
     void start()
     {
         if (!m_file || !m_file->isOpen()) {
-            emit done(Tasking::DoneResult::Error);
+            emit done(QtTaskTree::DoneResult::Error);
             return;
         }
 
@@ -764,7 +764,7 @@ public:
             if (m_file->write(data) != data.size()) {
                 m_file->close();
                 abort();
-                emit done(Tasking::DoneResult::Error);
+                emit done(QtTaskTree::DoneResult::Error);
             }
         });
 
@@ -775,9 +775,9 @@ public:
         connect(m_reply, &QNetworkReply::finished, this, [this] {
             m_file->close();
             if (m_reply->error() == QNetworkReply::NoError)
-                emit done(Tasking::DoneResult::Success);
+                emit done(QtTaskTree::DoneResult::Success);
             else
-                emit done(Tasking::DoneResult::Error);
+                emit done(QtTaskTree::DoneResult::Error);
         });
 
         if (m_reply->isRunning())
@@ -790,7 +790,7 @@ signals:
 #ifndef QT_NO_SSL
     void sslErrors(const QList<QSslError> &errors);
 #endif
-    void done(Tasking::DoneResult result);
+    void done(QtTaskTree::DoneResult result);
 
 private:
     QUrl m_url;
@@ -798,7 +798,7 @@ private:
     QNetworkReply *m_reply = nullptr;
 };
 
-using DownloadTask = Tasking::CustomTask<Downloader>;
+using DownloadTask = QCustomTask<Downloader>;
 
 void ExtensionsBrowser::fetchExtensions()
 {
@@ -814,7 +814,7 @@ void ExtensionsBrowser::fetchExtensions()
         return;
     }
 
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const FilePath unpackDestination = ICore::userResourcePath() / "extensionstore";
     if (unpackDestination.exists())
@@ -823,7 +823,7 @@ void ExtensionsBrowser::fetchExtensions()
     Storage<FilePaths> unpackedRepositories;
     Storage<QTemporaryFile> storage;
 
-    LoopList urlIterator(urls);
+    ListIterator urlIterator(urls);
 
     const auto setupDownloader = [storage, urlIterator](Downloader &downloader) {
         storage->setFileTemplate(
@@ -866,7 +866,7 @@ void ExtensionsBrowser::fetchExtensions()
     // clang-format off
     const Group recipe {
         unpackedRepositories,
-        Sync([this] { d->m_spinner->show(); }),
+        QSyncTask([this] { d->m_spinner->show(); }),
         For (urlIterator) >> Do {
             continueOnError,
             If (isRemoteUrl) >> Then {
@@ -874,9 +874,9 @@ void ExtensionsBrowser::fetchExtensions()
                 DownloadTask { setupDownloader },
                 UnarchiverTask { setupUnarchiver },
             } >> ElseIf(isDirectory) >> Then {
-                Sync { addDirectory }
+                QSyncTask(addDirectory)
             } >> Else {
-                Sync { warnInvalidUrl }
+                QSyncTask(warnInvalidUrl)
             }
         },
 

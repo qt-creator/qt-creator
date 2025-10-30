@@ -8,7 +8,7 @@
 #include "vcscommand.h"
 #include "vcsenums.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSequentialTaskTreeRunner>
 
 #include <utils/id.h>
 #include <utils/processenums.h>
@@ -88,8 +88,8 @@ public:
     void executeInEditor(const Utils::FilePath &workingDirectory,
                          const Utils::CommandLine &command,
                          VcsBaseEditorWidget *editor) const;
-    void enqueueTask(const Tasking::ExecutableItem &task);
-    Tasking::ExecutableItem commandTask(const VcsCommandData &data) const;
+    void enqueueTask(const QtTaskTree::ExecutableItem &task);
+    QtTaskTree::ExecutableItem commandTask(const VcsCommandData &data) const;
     void enqueueCommand(const VcsCommandData &data);
 
 protected:
@@ -101,7 +101,7 @@ private:
     void saveSettings();
 
     VcsBaseSettings *m_baseSettings = nullptr; // Aspect based.
-    Tasking::SequentialTaskTreeRunner m_taskTreeRunner;
+    QSequentialTaskTreeRunner m_taskTreeRunner;
 };
 
 class VCSBASE_EXPORT VcsBaseClient : public VcsBaseClientImpl

@@ -23,10 +23,10 @@
 
 #include <coreplugin/icore.h>
 
-#include <solutions/tasking/barrier.h>
-#include <solutions/tasking/conditional.h>
-#include <solutions/tasking/tasktree.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QBarrier>
+#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QTaskTree>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -45,7 +45,7 @@
 #endif
 
 using namespace ProjectExplorer::Internal;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -144,7 +144,7 @@ bool RunWorkerFactory::canCreate(
     return true;
 }
 
-Tasking::Group RunWorkerFactory::createRecipe(RunControl *runControl) const
+Group RunWorkerFactory::createRecipe(RunControl *runControl) const
 {
     return m_recipeCreator ? m_recipeCreator(runControl) : runControl->noRecipeTask();
 }
@@ -256,7 +256,7 @@ public:
     RunControl *q;
     RunControlPrivateData data;
     Id runMode;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // Internal
@@ -281,7 +281,7 @@ Group RunControl::noRecipeTask()
 Group RunControl::errorTask(const QString &message)
 {
     return {
-        Sync([this, message] {
+        QSyncTask([this, message] {
            postMessage(message, ErrorMessageFormat);
            return false;
         })
@@ -292,7 +292,7 @@ Group RunControl::processRecipe(const ProcessTask &processTask)
 {
     return {
         When (processTask, &Process::started) >> Do {
-            Sync([this] { reportStarted(); })
+            QSyncTask([this] { reportStarted(); })
         }
     };
 }

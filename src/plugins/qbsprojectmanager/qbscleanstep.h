@@ -16,7 +16,7 @@ public:
 
 private:
     bool init() override;
-    Tasking::GroupItem runRecipe() final;
+    QtTaskTree::GroupItem runRecipe() final;
 
     Utils::BoolAspect dryRun{this};
     Utils::BoolAspect keepGoing{this};

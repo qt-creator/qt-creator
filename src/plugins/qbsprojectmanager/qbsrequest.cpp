@@ -13,7 +13,7 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace QbsProjectManager::Internal {

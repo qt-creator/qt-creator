@@ -13,7 +13,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QAbstractTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
@@ -44,7 +44,7 @@
 
 #include <unordered_map>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Axivion::Internal {
@@ -110,12 +110,12 @@ private:
     void handleLocalBuildOutputFor(const QString &projectName, const QString &line);
 
     QHash<QString, LocalDashboard> m_startedDashboards;
-    MappedTaskTreeRunner<QString> m_startedDashboardsRunner;
+    QMappedTaskTreeRunner<QString> m_startedDashboardsRunner;
 
     QHash<QString, LocalBuildInfo> m_localBuildInfos;
-    MappedTaskTreeRunner<QString> m_localBuildInfosRunner;
+    QMappedTaskTreeRunner<QString> m_localBuildInfosRunner;
 
-    SingleTaskTreeRunner m_shutdownRunner;
+    QSingleTaskTreeRunner m_shutdownRunner;
     FilePath m_lastBauhausFromDB;
 };
 
@@ -176,7 +176,7 @@ bool LocalBuild::shutdownAll(const std::function<void()> &callback)
     if (m_startedDashboards.isEmpty())
         return false;
 
-    const LoopList iterator(m_startedDashboards.values());
+    const ListIterator iterator(m_startedDashboards.values());
 
     const auto onSetup = [iterator](Process &process) {
         process.setCommand(iterator->stopCommandLine);

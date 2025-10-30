@@ -8,7 +8,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QHash>
 #include <QList>
@@ -53,7 +53,7 @@ private:
     QHash<Utils::FilePath, ProjectExplorer::Tasks> m_docsWithTasks;
     QTimer m_updateDelay;
     bool m_updatingSemantic = false;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // QmlJSEditor::Internal

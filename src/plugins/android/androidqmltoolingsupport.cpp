@@ -10,7 +10,7 @@
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace Android::Internal {
 

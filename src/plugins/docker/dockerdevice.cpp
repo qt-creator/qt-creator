@@ -1339,7 +1339,7 @@ Result<Environment> DockerDevice::systemEnvironmentWithError() const
 
 void DockerDevice::aboutToBeRemoved() const
 {
-    Tasking::TaskTree tree(
+    QTaskTree tree(
         ProjectExplorer::removeDetectedKitsRecipe(shared_from_this(), [](const QString &msg) {
             MessageManager::writeSilently(msg);
         }));

@@ -14,7 +14,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -53,7 +53,7 @@ const char InstallUpdates[] = "UpdateInfo.InstallUpdates";
 const char M_MAINTENANCE_TOOL[] = "QtCreator.Menu.Tools.MaintenanceTool";
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace UpdateInfo {
@@ -72,7 +72,7 @@ class UpdateInfoPluginPrivate
 {
 public:
     FilePath m_maintenanceTool;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
     QPointer<TaskProgress> m_progress;
     QString m_updateOutput;
     QString m_packagesOutput;
@@ -173,7 +173,7 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
     }
     // clang-format on
 
-    SingleTaskTreeRunner runner;
+    QSingleTaskTreeRunner runner;
     QList<Package> packages;
     const auto startInstallation = [&dialog,
                                     stackWidget,
@@ -334,7 +334,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
 
     emit checkForUpdatesRunningChanged(true);
 
-    const auto onTreeSetup = [](TaskTree &taskTree) {
+    const auto onTreeSetup = [](QTaskTree &taskTree) {
         m_d->m_progress = new TaskProgress(&taskTree);
         using namespace std::chrono_literals;
         m_d->m_progress->setHalfLifeTimePerTask(30s);

@@ -8,7 +8,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
-#include <tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/pathchooser.h>
 #include <utils/pathlisteditor.h>
@@ -33,7 +33,7 @@ public:
 private:
     QLabel *m_daemonState;
     QToolButton *m_daemonReset;
-    Tasking::SingleTaskTreeRunner m_detectionRunner;
+    QSingleTaskTreeRunner m_detectionRunner;
 };
 
 } // Docker::Internal

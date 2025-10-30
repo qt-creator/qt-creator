@@ -16,7 +16,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
@@ -40,7 +40,7 @@
 #include <QVBoxLayout>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -231,7 +231,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     const bool isTag = m_model->isTag(index);
     const bool hasActions = m_model->isLeaf(index);
     const bool currentLocal = m_model->isLocal(currentBranch);
-    SingleTaskTreeRunner taskTreeRunner;
+    QSingleTaskTreeRunner taskTreeRunner;
     QAction *mergeAction = nullptr;
 
     SetInContext block(m_blockRefresh);
@@ -287,7 +287,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                 mergeAction->setText(Tr::tr("Merge \"%1\" into \"%2\" (No &Fast-Forward)")
                                          .arg(indexName, currentName));
             }));
-            connect(mergeAction, &QObject::destroyed, &taskTreeRunner, &SingleTaskTreeRunner::reset);
+            connect(mergeAction, &QObject::destroyed, &taskTreeRunner, &QSingleTaskTreeRunner::reset);
 
             contextMenu.addAction(Tr::tr("&Rebase \"%1\" on \"%2\"")
                                   .arg(currentName, indexName),

@@ -7,17 +7,15 @@
 #include "shutdownguard.h"
 #include "threadutils.h"
 
-using namespace Tasking;
-
 namespace Utils {
 
-static ParallelTaskTreeRunner *getRunner()
+static QParallelTaskTreeRunner *getRunner()
 {
-    static GuardedObject<ParallelTaskTreeRunner> theRunner;
+    static GuardedObject<QParallelTaskTreeRunner> theRunner;
     return theRunner.get();
 }
 
-ParallelTaskTreeRunner *GlobalTaskTree::taskTreeRunner()
+QParallelTaskTreeRunner *GlobalTaskTree::taskTreeRunner()
 {
     QTC_ASSERT(Utils::isMainThread(), return nullptr);
     return getRunner();

@@ -75,13 +75,13 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     auto undoAutoDetectButton = new QPushButton(Tr::tr("Remove Auto-Detected Kit Items"));
     auto listAutoDetectedButton = new QPushButton(Tr::tr("List Auto-Detected Kit Items"));
 
-    connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::aboutToStart, [=] {
+    connect(&m_detectionRunner, &QSingleTaskTreeRunner::aboutToStart, [=] {
         autoDetectButton->setEnabled(false);
         undoAutoDetectButton->setEnabled(false);
         listAutoDetectedButton->setEnabled(false);
         logView->append(Tr::tr("Starting auto-detection..."));
     });
-    connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::done, [=] {
+    connect(&m_detectionRunner, &QSingleTaskTreeRunner::done, [=] {
         autoDetectButton->setEnabled(true);
         undoAutoDetectButton->setEnabled(true);
         listAutoDetectedButton->setEnabled(true);
@@ -105,7 +105,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
                 const auto log = [logView](const QString &msg) { logView->append(msg); };
                 // clang-format off
-                const Tasking::Group recipe {
+                const QtTaskTree::Group recipe {
                     ProjectExplorer::removeDetectedKitsRecipe(dockerDevice, log),
                     ProjectExplorer::kitDetectionRecipe(dockerDevice, DetectionSource::FromSystem, log)
                 };

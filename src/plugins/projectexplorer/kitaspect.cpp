@@ -435,7 +435,7 @@ const QList<KitAspectFactory *> KitAspectFactory::kitAspectFactories()
     return kitAspectFactoriesStorage().kitAspectFactories();
 }
 
-std::optional<Tasking::ExecutableItem> KitAspectFactory::autoDetect(
+std::optional<QtTaskTree::ExecutableItem> KitAspectFactory::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
     const DetectionSource &detectionSource,
@@ -449,7 +449,7 @@ std::optional<Tasking::ExecutableItem> KitAspectFactory::autoDetect(
     return std::nullopt;
 }
 
-std::optional<Tasking::ExecutableItem> KitAspectFactory::removeAutoDetected(
+std::optional<QtTaskTree::ExecutableItem> KitAspectFactory::removeAutoDetected(
     const QString &detectionSourceId, const LogCallback &logCallback) const
 {
     Q_UNUSED(detectionSourceId);
@@ -464,7 +464,7 @@ void KitAspectFactory::listAutoDetected(
     Q_UNUSED(logCallback)
 }
 
-Result<Tasking::ExecutableItem> KitAspectFactory::createAspectFromJson(
+Result<QtTaskTree::ExecutableItem> KitAspectFactory::createAspectFromJson(
     const DetectionSource &detectionSource,
     const FilePath &rootPath,
     Kit *kit,
@@ -481,13 +481,13 @@ Result<Tasking::ExecutableItem> KitAspectFactory::createAspectFromJson(
             .arg(id().toString()));
 }
 
-using Group = Tasking::Group; // trick lupdate, QTBUG-140636
+using Group = QtTaskTree::Group; // trick lupdate, QTBUG-140636
 Group kitDetectionRecipe(
     const IDeviceConstPtr &device,
     DetectionSource::DetectionType detectionType,
     const LogCallback &logCallback)
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
     using namespace Utils;
 
     Storage<GroupItems> detectorItems;
@@ -528,16 +528,16 @@ Group kitDetectionRecipe(
         }
     };
 
-    const auto setupDetectorTree = [detectorItems](TaskTree &tree) {
+    const auto setupDetectorTree = [detectorItems](QTaskTree &tree) {
         tree.setRecipe(Group(*detectorItems));
     };
 
     // clang-format off
     return Group {
         kit, detectorItems,
-        Sync(setup),
-        TaskTreeTask(setupDetectorTree),
-        Sync([kit,logCallback] {
+        QSyncTask(setup),
+        QTaskTreeTask(setupDetectorTree),
+        QSyncTask([kit,logCallback] {
             if (!(*kit)->isValid()) {
                 KitManager::deregisterKit(*kit);
                 return;
@@ -555,7 +555,7 @@ Group kitDetectionRecipe(
 
 Group removeDetectedKitsRecipe(const IDeviceConstPtr &device, const LogCallback &logCallback)
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const auto root = device->rootPath();
     const QString detectionSource = device->id().toString();
@@ -582,7 +582,7 @@ Group removeDetectedKitsRecipe(const IDeviceConstPtr &device, const LogCallback 
 
     // clang-format off
     return Group {
-        Sync(removeKits),
+        QSyncTask(removeKits),
         Group {
             parallelIdealThreadCountLimit,
             removerItems,

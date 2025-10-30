@@ -23,8 +23,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <solutions/tasking/networkquery.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QAbstractTaskTreeRunner>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/textmark.h>
@@ -56,7 +56,7 @@ constexpr char s_axivionTextMarkId[] = "AxivionTextMark";
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -297,10 +297,10 @@ public:
     QList<Dto::NamedFilterInfoDto> m_globalNamedFilters;
     QList<Dto::NamedFilterInfoDto> m_userNamedFilters;
     bool m_runningQuery = false;
-    SingleTaskTreeRunner m_taskTreeRunner;
-    MappedTaskTreeRunner<IDocument *> m_docMarksRunner;
-    SingleTaskTreeRunner m_issueInfoRunner;
-    SingleTaskTreeRunner m_namedFilterRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
+    QMappedTaskTreeRunner<IDocument *> m_docMarksRunner;
+    QSingleTaskTreeRunner m_issueInfoRunner;
+    QSingleTaskTreeRunner m_namedFilterRunner;
     QHash<FilePath, QSet<TextMark *>> m_allMarks;
     bool m_inlineIssuesEnabled = true;
     DashboardMode m_dashboardMode = DashboardMode::Global;
@@ -529,7 +529,7 @@ QUrl resolveDashboardInfoUrl(DashboardMode dashboardMode, const QUrl &resource)
 
 Group downloadDataRecipe(DashboardMode dashboardMode, const Storage<DownloadData> &storage)
 {
-    const auto onQuerySetup = [storage, dashboardMode](NetworkQuery &query) {
+    const auto onQuerySetup = [storage, dashboardMode](QNetworkReplyWrapper &query) {
         if (!isServerAccessEstablished(dashboardMode))
             return SetupResult::StopWithError; // TODO: start authorizationRecipe()?
 
@@ -548,7 +548,7 @@ Group downloadDataRecipe(DashboardMode dashboardMode, const Storage<DownloadData
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
         return SetupResult::Continue;
     };
-    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith doneWith) {
+    const auto onQueryDone = [storage](const QNetworkReplyWrapper &query, DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
@@ -564,7 +564,7 @@ Group downloadDataRecipe(DashboardMode dashboardMode, const Storage<DownloadData
         }
         return DoneResult::Error;
     };
-    return {NetworkQueryTask(onQuerySetup, onQueryDone)};
+    return {QNetworkReplyWrapperTask(onQuerySetup, onQueryDone)};
 }
 
 template <typename DtoType, template <typename> typename DtoStorageType>
@@ -572,7 +572,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
 {
     const Storage<std::optional<QByteArray>> storage;
 
-    const auto onNetworkQuerySetup = [dtoStorage](NetworkQuery &query) {
+    const auto onNetworkQuerySetup = [dtoStorage](QNetworkReplyWrapper &query) {
         QNetworkRequest request(dtoStorage->url);
         request.setRawHeader("Accept", s_jsonContentType);
         if (dtoStorage->credential) // Unauthorized access otherwise
@@ -584,7 +584,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
         if constexpr (std::is_same_v<DtoStorageType<DtoType>, PostDtoStorage<DtoType>>) {
             request.setRawHeader("Content-Type", "application/json");
             request.setRawHeader("AX-CSRF-Token", dtoStorage->csrfToken);
-            query.setWriteData(dtoStorage->writeData);
+            query.setData(dtoStorage->writeData);
             query.setOperation(QNetworkAccessManager::PostOperation);
         }
 
@@ -592,7 +592,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
     };
 
-    const auto onNetworkQueryDone = [storage, dtoStorage](const NetworkQuery &query,
+    const auto onNetworkQueryDone = [storage, dtoStorage](const QNetworkReplyWrapper &query,
                                                           DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const QNetworkReply::NetworkError error = reply->error();
@@ -710,7 +710,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
 
     return {
         storage,
-        NetworkQueryTask(onNetworkQuerySetup, onNetworkQueryDone),
+        QNetworkReplyWrapperTask(onNetworkQuerySetup, onNetworkQueryDone),
         AsyncTask<Result<DtoType>>(onDeserializeSetup, onDeserializeDone)
     };
 }
@@ -915,12 +915,12 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
             unauthorizedDashboardStorage,
             onGroupSetup(onUnauthorizedGroupSetup),
             dtoRecipe(unauthorizedDashboardStorage),
-            Sync(onUnauthorizedDashboard),
+            QSyncTask(onUnauthorizedDashboard),
             onGroupDone([serverUrlStorage, unauthorizedDashboardStorage] {
                 *serverUrlStorage = unauthorizedDashboardStorage->url;
             }),
         },
-        For (LoopUntil(onCredentialLoopCondition)) >> Do {
+        For (UntilIterator(onCredentialLoopCondition)) >> Do {
             CredentialQueryTask(onGetCredentialSetup, onGetCredentialDone),
             Group {
                 passwordStorage,
@@ -1028,7 +1028,7 @@ Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
         dd->m_analysisVersion = {};
     };
 
-    const auto onTaskTreeSetup = [dashboardMode, projectName](TaskTree &taskTree) {
+    const auto onTaskTreeSetup = [dashboardMode, projectName](QTaskTree &taskTree) {
         const bool globalFail = dashboardMode == DashboardMode::Global && !dd->m_dashboardInfo;
         const bool localFail = dashboardMode == DashboardMode::Local && !dd->m_localDashboardInfo;
         if (globalFail || localFail) {
@@ -1083,7 +1083,7 @@ Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
 
     return {
         onGroupSetup(onSetup),
-        TaskTreeTask(onTaskTreeSetup)
+        QTaskTreeTask(onTaskTreeSetup)
     };
 }
 

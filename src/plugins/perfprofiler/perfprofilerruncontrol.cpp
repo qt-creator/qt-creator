@@ -18,7 +18,7 @@
 
 #include <remotelinux/remotelinux_constants.h>
 
-#include <solutions/tasking/barrier.h>
+#include <QtTaskTree/QBarrier>
 
 #include <utils/qtcprocess.h>
 
@@ -27,7 +27,7 @@
 #include <QTcpServer>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace PerfProfiler::Internal {
@@ -36,7 +36,7 @@ static Group perfParserRecipe(RunControl *runControl)
 {
     const Storage<PerfDataReader> storage;
 
-    const auto onSetup = [storage, runControl](Barrier &barrier) {
+    const auto onSetup = [storage, runControl](QBarrier &barrier) {
         PerfDataReader *reader = storage.activeStorage();
         auto tool = PerfProfilerTool::instance();
 
@@ -55,7 +55,7 @@ static Group perfParserRecipe(RunControl *runControl)
         });
         QObject::connect(reader, &PerfDataReader::finished, tool, &PerfProfilerTool::onReaderFinished);
         QObject::connect(reader, &PerfDataReader::processStarted, runControl, &RunControl::reportStarted);
-        QObject::connect(reader, &PerfDataReader::processFinished, &barrier, &Barrier::advance);
+        QObject::connect(reader, &PerfDataReader::processFinished, &barrier, &QBarrier::advance);
         QObject::connect(reader, &PerfDataReader::processFailed, &barrier, [barrier = &barrier] {
             barrier->stopWithResult(DoneResult::Error);
         });
@@ -85,7 +85,7 @@ static Group perfParserRecipe(RunControl *runControl)
 
     return {
         storage,
-        BarrierTask(onSetup)
+        QBarrierTask(onSetup)
     };
 }
 

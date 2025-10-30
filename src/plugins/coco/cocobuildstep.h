@@ -39,7 +39,7 @@ protected:
 
 private:
     void updateDisplay();
-    Tasking::GroupItem runRecipe() override;
+    QtTaskTree::GroupItem runRecipe() override;
 
     QPointer<BuildSettings> m_buildSettings;
     bool m_valid;

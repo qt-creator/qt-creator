@@ -7,7 +7,7 @@
 
 #include "autotestconstants.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QList>
 #include <QTimer>
@@ -67,7 +67,7 @@ private:
     bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
     void onBuildSystemUpdated();
 
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 
     QList<ITestConfiguration *> m_selectedTests;
     TestRunMode m_runMode = TestRunMode::None;

@@ -31,8 +31,8 @@
 #include <utils/url.h>
 #include <utils/utilsicons.h>
 
-#include <solutions/tasking/barrier.h>
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QBarrier>
+#include <QtTaskTree/QTaskTree>
 
 #include <QDateTime>
 #include <QDir>
@@ -56,7 +56,7 @@
 using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace Ios::Internal {
 
@@ -126,7 +126,7 @@ static GroupItem initSetup(RunControl *runControl, const Storage<AppInfo> &appIn
         appInfo->arguments = ProcessArgs::splitArgs(runControl->commandLine().arguments(), OsTypeMac);
         return true;
     };
-    return Sync(onSetup);
+    return QSyncTask(onSetup);
 }
 
 static GroupItem findApp(RunControl *runControl, const Storage<AppInfo> &appInfo)
@@ -219,11 +219,11 @@ static GroupItem killProcess(const Storage<AppInfo> &appInfo)
     return ProcessTask(onSetup, DoneResult::Success); // we tried our best and don't care at this point
 }
 
-static Group deviceCtlKicker(const StoredBarrier &barrier, RunControl *runControl,
+static Group deviceCtlKicker(const QStoredBarrier &barrier, RunControl *runControl,
                              const Storage<AppInfo> &appInfo,
                              const Storage<TemporaryFile> tempFileStorage, bool startStopped)
 {
-    const auto launchApp = [runControl, appInfo, tempFileStorage, startStopped](const StoredBarrier &barrier) {
+    const auto launchApp = [runControl, appInfo, tempFileStorage, startStopped](const QStoredBarrier &barrier) {
         const auto onSetup = [runControl, appInfo, tempFileStorage, startStopped, barrier](Process &process) {
             const QStringList startStoppedArg = startStopped ? QStringList("--start-stopped")
                                                              : QStringList();
@@ -241,7 +241,7 @@ static Group deviceCtlKicker(const StoredBarrier &barrier, RunControl *runContro
                                      + QStringList({"--console", appInfo->bundleIdentifier})
                                      + appInfo->arguments;
             process.setCommand({FilePath::fromString("/usr/bin/xcrun"), args});
-            QObject::connect(&process, &Process::started, barrier.activeStorage(), &Barrier::advance);
+            QObject::connect(&process, &Process::started, barrier.activeStorage(), &QBarrier::advance);
 
             QObject::connect(&process, &Process::readyReadStandardError, runControl,
                              [runControl, process = &process] {
@@ -302,7 +302,7 @@ static Group killApp(RunControl *runControl, const Storage<AppInfo> &appInfo)
     };
 }
 
-static Group deviceCtlKicker(const StoredBarrier &barrier, RunControl *runControl, bool startStopped)
+static Group deviceCtlKicker(const QStoredBarrier &barrier, RunControl *runControl, bool startStopped)
 {
     const Storage<AppInfo> appInfo;
     const Storage<TemporaryFile> tempFileStorage{QString("devicectl")};
@@ -326,7 +326,7 @@ static Group deviceCtlKicker(const StoredBarrier &barrier, RunControl *runContro
         tempFileStorage,
         Group {
             initSetup(runControl, appInfo),
-            Sync(onSetup),
+            QSyncTask(onSetup),
             killApp(runControl, appInfo),
         }.withCancel(runControl->canceler()),
         deviceCtlKicker(barrier, runControl, appInfo, tempFileStorage, startStopped)
@@ -335,11 +335,11 @@ static Group deviceCtlKicker(const StoredBarrier &barrier, RunControl *runContro
 
 static Group deviceCtlRecipe(RunControl *runControl, bool startStopped)
 {
-    const auto kicker = [runControl, startStopped](const StoredBarrier &barrier) {
+    const auto kicker = [runControl, startStopped](const QStoredBarrier &barrier) {
         return deviceCtlKicker(barrier, runControl, startStopped);
     };
     return When (kicker) >> Do {
-        Sync([runControl] { runControl->reportStarted(); })
+        QSyncTask([runControl] { runControl->reportStarted(); })
     };
 }
 
@@ -474,7 +474,7 @@ static Group deviceCtlPollingRecipe(RunControl *runControl)
         appInfo,
         Group {
             initSetup(runControl, appInfo),
-            Sync(onSetup),
+            QSyncTask(onSetup),
             killApp(runControl, appInfo),
         }.withCancel(runControl->canceler()),
         deviceCtlPollingTask(runControl, appInfo)
@@ -505,7 +505,7 @@ static void handleIosToolErrorMessage(RunControl *runControl, const QString &mes
 }
 
 static void handleIosToolStartedOnDevice(
-    Barrier *barrier,
+    QBarrier *barrier,
     RunControl *runControl,
     const DebugInfo &debugInfo,
     IosToolHandler *handler,
@@ -554,7 +554,7 @@ static void handleIosToolStartedOnDevice(
 }
 
 static void handleIosToolStartedOnSimulator(
-    Barrier *barrier,
+    QBarrier *barrier,
     RunControl *runControl,
     const DebugInfo &debugInfo,
     IosToolHandler *handler,
@@ -576,7 +576,7 @@ static void handleIosToolStartedOnSimulator(
     barrier->advance();
 }
 
-static Group iosToolKicker(const StoredBarrier &barrier, RunControl *runControl,
+static Group iosToolKicker(const QStoredBarrier &barrier, RunControl *runControl,
                            const DebugInfo &debugInfo, bool setupCanceler = true)
 {
     stopRunningRunControl(runControl);
@@ -670,13 +670,13 @@ static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = 
                            const std::optional<ExecutableItem> &afterStartedRecipe = {})
 {
     const bool setupCanceler = !afterStartedRecipe;
-    const auto kicker = [runControl, debugInfo, setupCanceler](const StoredBarrier &barrier) {
+    const auto kicker = [runControl, debugInfo, setupCanceler](const QStoredBarrier &barrier) {
         return iosToolKicker(barrier, runControl, debugInfo, setupCanceler);
     };
     const WorkflowPolicy policy = afterStartedRecipe ? WorkflowPolicy::StopOnSuccessOrError
                                                      : WorkflowPolicy::StopOnError;
     return When (kicker, policy) >> Do {
-        afterStartedRecipe ? *afterStartedRecipe : Sync([runControl] { runControl->reportStarted(); })
+        afterStartedRecipe ? *afterStartedRecipe : QSyncTask([runControl] { runControl->reportStarted(); })
     };
 }
 
@@ -817,7 +817,7 @@ static Group debugRecipe(RunControl *runControl)
     if (isIosRunner) {
         const DebugInfo debugInfo{rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices,
                                   rp.isCppDebugging()};
-        kicker = [runControl, debugInfo](const StoredBarrier &barrier) {
+        kicker = [runControl, debugInfo](const QStoredBarrier &barrier) {
             return iosToolKicker(barrier, runControl, debugInfo);
         };
     } else {
@@ -825,7 +825,7 @@ static Group debugRecipe(RunControl *runControl)
             rp.setInferiorExecutable(data->localExecutable);
         const bool warnAboutQml = rp.isQmlDebugging();
         rp.setQmlDebugging(false);
-        kicker = [runControl, warnAboutDebug = rp.isCppDebugging(), warnAboutQml](const StoredBarrier &barrier) {
+        kicker = [runControl, warnAboutDebug = rp.isCppDebugging(), warnAboutQml](const QStoredBarrier &barrier) {
             const auto onSetup = [runControl, warnAboutDebug, warnAboutQml] {
                 QTC_ASSERT(warnAboutDebug,
                            runControl->postMessage(msgOnlyCppDebuggingSupported(), ErrorMessageFormat);

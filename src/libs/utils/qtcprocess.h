@@ -8,7 +8,7 @@
 #include "commandline.h"
 #include "processenums.h"
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <QDeadlineTimer>
 #include <QProcess>
@@ -230,9 +230,9 @@ public:
 class ProcessTaskAdapter final
 {
 public:
-    QTCREATOR_UTILS_EXPORT void operator()(Process *task, Tasking::TaskInterface *iface);
+    QTCREATOR_UTILS_EXPORT void operator()(Process *task, QTaskInterface *iface);
 };
 
-using ProcessTask = Tasking::CustomTask<Process, ProcessTaskAdapter>;
+using ProcessTask = QCustomTask<Process, ProcessTaskAdapter>;
 
 } // namespace Utils

@@ -29,8 +29,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <solutions/tasking/tasktree.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QTaskTree>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
@@ -58,7 +58,7 @@
 #include <utility>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -156,7 +156,7 @@ private:
 class ParserAwaiterTaskAdapter final
 {
 public:
-    void operator()(QSet<BuildSystem *> *task, TaskInterface *iface) {
+    void operator()(QSet<BuildSystem *> *task, QTaskInterface *iface) {
         m_buildSystems = *task;
         m_iface = iface;
         checkParsing();
@@ -176,10 +176,10 @@ private:
     }
 
     QSet<BuildSystem *> m_buildSystems;
-    TaskInterface *m_iface = nullptr;
+    QTaskInterface *m_iface = nullptr;
 };
 
-using ParserAwaiterTask = CustomTask<QSet<BuildSystem *>, ParserAwaiterTaskAdapter>;
+using ParserAwaiterTask = QCustomTask<QSet<BuildSystem *>, ParserAwaiterTaskAdapter>;
 
 static QString msgProgress(int progress, int total)
 {
@@ -408,7 +408,7 @@ public:
     QFutureWatcher<void> m_progressWatcher;
     QPointer<FutureProgress> m_futureProgress;
 
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
     QElapsedTimer m_elapsed;
 };
 
@@ -442,7 +442,7 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
     connect(&d->m_progressWatcher, &QFutureWatcherBase::finished,
             this, &BuildManager::finish);
 
-    connect(&d->m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [](DoneWith result) {
+    connect(&d->m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [](DoneWith result) {
         const bool success = result == DoneWith::Success;
 
         if (!success && d->m_progressFutureInterface)
@@ -783,7 +783,7 @@ void BuildManager::startBuildQueue()
 
         Project *project = buildStep->project();
         if (lastProject != project) {
-            targetTasks.append(Sync([projectName = buildStep->project()->displayName()] {
+            targetTasks.append(QSyncTask([projectName = buildStep->project()->displayName()] {
                 addToOutputWindow(Tr::tr("Running steps for project %1...")
                                       .arg(projectName), BuildStep::OutputFormat::NormalMessage);
             }));
@@ -791,7 +791,7 @@ void BuildManager::startBuildQueue()
         }
 
         if (!item.enabled) {
-            targetTasks.append(Sync([name = buildStep->displayName()] {
+            targetTasks.append(QSyncTask([name = buildStep->displayName()] {
                 addToOutputWindow(Tr::tr("Skipping disabled step %1.")
                                       .arg(name), BuildStep::OutputFormat::NormalMessage);
             }));

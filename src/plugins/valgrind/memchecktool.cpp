@@ -47,7 +47,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
-#include <solutions/tasking/barrier.h>
+#include <QtTaskTree/QBarrier>
 
 #include <remotelinux/remotelinux_constants.h>
 
@@ -87,7 +87,7 @@
 using namespace Core;
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 

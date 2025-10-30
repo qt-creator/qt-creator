@@ -14,7 +14,7 @@
 #include <projectexplorer/devicesupport/sshsettings.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -365,7 +365,7 @@ static void copyFile(QPromise<Result<>> &promise, const FileToTransfer &file)
 
 class GenericTransferImpl : public FileTransferInterface
 {
-    Tasking::SingleTaskTreeRunner m_taskTree;
+    QSingleTaskTreeRunner m_taskTree;
 
 public:
     GenericTransferImpl(const FileTransferSetupData &setup)
@@ -375,14 +375,14 @@ public:
 private:
     void start() final
     {
-        using namespace Tasking;
+        using namespace QtTaskTree;
 
         const QSet<FilePath> allParentDirs
             = Utils::transform<QSet>(m_setup.m_files, [](const FileToTransfer &f) {
                   return f.m_target.parentDir();
               });
 
-        const LoopList iteratorParentDirs(QList(allParentDirs.cbegin(), allParentDirs.cend()));
+        const ListIterator iteratorParentDirs(QList(allParentDirs.cbegin(), allParentDirs.cend()));
 
         const auto onCreateDirSetup = [iteratorParentDirs](Async<Result<>> &async) {
             async.setConcurrentCallData(createDir, *iteratorParentDirs);
@@ -399,7 +399,7 @@ private:
                 emit progress(result.error());
         };
 
-        const LoopList iterator(m_setup.m_files);
+        const ListIterator iterator(m_setup.m_files);
         const Storage<int> counterStorage;
 
         const auto onCopySetup = [iterator](Async<Result<>> &async) {
@@ -430,7 +430,7 @@ private:
                 AsyncTask<Result<>>(onCreateDirSetup, onCreateDirDone),
             },
             For (iterator) >> Do {
-                parallelLimit(2),
+                ParallelLimit(2),
                 counterStorage,
                 AsyncTask<Result<>>(onCopySetup, onCopyDone),
             },

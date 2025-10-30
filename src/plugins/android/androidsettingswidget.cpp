@@ -15,7 +15,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/async.h>
 #include <utils/detailswidget.h>
@@ -80,7 +80,7 @@ private:
     bool isDefaultNdkSelected() const;
     void validateOpenSsl();
 
-    Tasking::SingleTaskTreeRunner m_sdkDownloader;
+    QSingleTaskTreeRunner m_sdkDownloader;
     bool m_isInitialReloadDone = false;
 
     SummaryWidget *m_androidSummary = nullptr;
@@ -376,8 +376,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     connect(sdkManagerToolButton, &QAbstractButton::clicked, this, &executeAndroidSdkManagerDialog);
     connect(sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
-    connect(&m_sdkDownloader, &Tasking::SingleTaskTreeRunner::done, this, [this](Tasking::DoneWith result) {
-        if (result != Tasking::DoneWith::Success)
+    connect(&m_sdkDownloader, &QSingleTaskTreeRunner::done, this, [this](QtTaskTree::DoneWith result) {
+        if (result != QtTaskTree::DoneWith::Success)
             return;
         // Make sure the sdk path is created before installing packages
         const FilePath sdkPath = AndroidConfig::sdkLocation();

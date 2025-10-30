@@ -21,7 +21,7 @@
 #include <utils/url.h>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace QmlPreview {
@@ -104,7 +104,7 @@ QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory()
         return Group {
             parallel,
             qmlPreviewRecipe(runControl),
-            Sync([runControl] { runControl->reportStarted(); })
+            QSyncTask([runControl] { runControl->reportStarted(); })
         };
     });
     addSupportedRunMode(Constants::QML_PREVIEW_RUNNER);

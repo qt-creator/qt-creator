@@ -6,9 +6,9 @@
 #include "valgrindtr.h"
 #include "xmlprotocol/parser.h"
 
-#include <solutions/tasking/barrier.h>
-#include <solutions/tasking/conditional.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QBarrier>
+#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
@@ -19,7 +19,7 @@
 #include <QTcpSocket>
 #include <QTimer>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 
@@ -67,7 +67,7 @@ public:
     ValgrindProcessPrivate(ValgrindProcess *owner)
         : q(owner)
     {
-        connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [this](DoneWith result) {
+        connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [this](DoneWith result) {
             emit q->done(toDoneResult(result == DoneWith::Success));
         });
     }
@@ -84,7 +84,7 @@ public:
     QHostAddress m_localServerAddress;
     bool m_useTerminal = false;
 
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 
 signals:
     void stopRequested();
@@ -100,13 +100,13 @@ Group ValgrindProcessPrivate::runRecipe() const
     };
 
     Storage<ValgrindStorage> storage;
-    StoredBarrier xmlBarrier;
+    QStoredBarrier xmlBarrier;
 
     const auto isSetupValid = [this, storage, xmlBarrier] {
         ValgrindStorage *storagePtr = storage.activeStorage();
         storagePtr->m_valgrindCommand.setExecutable(m_valgrindCommand.executable());
         if (!m_localServerAddress.isNull()) {
-            Barrier *barrier = xmlBarrier.activeStorage();
+            QBarrier *barrier = xmlBarrier.activeStorage();
             const QString ip = m_localServerAddress.toString();
 
             QTcpServer *xmlServer = new QTcpServer;
@@ -207,7 +207,7 @@ Group ValgrindProcessPrivate::runRecipe() const
             parallel,
             ProcessTask(onProcessSetup, onProcessDone),
             If (isAddressValid) >> Then {
-                waitForBarrierTask(xmlBarrier),
+                barrierAwaiterTask(xmlBarrier),
                 ParserTask(onParserSetup, onParserDone)
             }
         } >> Else {

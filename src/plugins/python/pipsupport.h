@@ -9,7 +9,9 @@
 #include <QTimer>
 #include <QUrl>
 
-namespace Tasking { class Group; }
+QT_BEGIN_NAMESPACE
+namespace QtTaskTree { class Group; }
+QT_END_NAMESPACE
 
 namespace Python::Internal {
 
@@ -60,6 +62,6 @@ public:
     bool silent = false;
 };
 
-Tasking::Group pipInstallerTask(const PipInstallerData &data);
+QtTaskTree::Group pipInstallerTask(const PipInstallerData &data);
 
 } // Python::Internal

@@ -41,7 +41,7 @@ void QnxDeviceTester::testDevice()
 
     setExtraCommandsToTest(commandsToTest);
 
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     auto onSetup = [device = device(), this](Process &process) {
         emit progressMessage(Tr::tr("Checking that files can be created in %1...")

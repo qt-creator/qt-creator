@@ -34,7 +34,7 @@
 #include <QVarLengthArray>
 
 using namespace CPlusPlus;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 

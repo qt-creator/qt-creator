@@ -3,13 +3,18 @@
 
 #pragma once
 
+#include <QtCore/qglobal.h>
+
 namespace ProjectExplorer { class RunControl; }
-namespace Tasking { class Group; }
+
+QT_BEGIN_NAMESPACE
+namespace QtTaskTree { class Group; }
+QT_END_NAMESPACE
 
 namespace QmlProfiler::Internal {
 
-Tasking::Group qmlProfilerRecipe(ProjectExplorer::RunControl *runControl);
-Tasking::Group localQmlProfilerRecipe(ProjectExplorer::RunControl *runControl);
+QtTaskTree::Group qmlProfilerRecipe(ProjectExplorer::RunControl *runControl);
+QtTaskTree::Group localQmlProfilerRecipe(ProjectExplorer::RunControl *runControl);
 
 void setupQmlProfilerRunning();
 

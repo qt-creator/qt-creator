@@ -20,7 +20,7 @@ CurrentProjectFilter::CurrentProjectFilter()
                           "or \":<number>\" to jump to the given line number. Append another "
                           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("p");
-    setRefreshRecipe(Tasking::Sync([this] { invalidate(); }));
+    setRefreshRecipe(QSyncTask([this] { invalidate(); }));
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFilter::currentProjectChanged);

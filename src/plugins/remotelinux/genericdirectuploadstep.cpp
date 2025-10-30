@@ -24,7 +24,7 @@
 #include <QDateTime>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace RemoteLinux::Internal {
@@ -151,17 +151,17 @@ GroupItem GenericDirectUploadStep::statTask(UploadStorage *storage,
 GroupItem GenericDirectUploadStep::statTree(const Storage<UploadStorage> &storage,
                                             FilesToStat filesToStat, StatEndHandler statEndHandler)
 {
-    const auto onSetup = [this, storage, filesToStat, statEndHandler](TaskTree &tree) {
+    const auto onSetup = [this, storage, filesToStat, statEndHandler](QTaskTree &tree) {
         UploadStorage *storagePtr = storage.activeStorage();
         const QList<DeployableFile> files = filesToStat(storagePtr);
-        GroupItems statList{finishAllAndSuccess, parallelLimit(MaxConcurrentStatCalls)};
+        GroupItems statList{finishAllAndSuccess, ParallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(files)) {
             QTC_ASSERT(file.isValid(), continue);
             statList.append(statTask(storagePtr, file, statEndHandler));
         }
         tree.setRecipe({statList});
     };
-    return TaskTreeTask(onSetup);
+    return QTaskTreeTask(onSetup);
 }
 
 GroupItem GenericDirectUploadStep::uploadTask(const Storage<UploadStorage> &storage)

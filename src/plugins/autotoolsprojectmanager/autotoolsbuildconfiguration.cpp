@@ -21,13 +21,13 @@
 
 #include <qtsupport/qtcppkitinfo.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/async.h>
 #include <utils/mimeconstants.h>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace AutotoolsProjectManager::Internal {
@@ -53,7 +53,7 @@ private:
     FilePaths m_files;
 
     /// Responsible for parsing the makefiles asynchronously in a thread
-    Tasking::SingleTaskTreeRunner m_parserRunner;
+    QSingleTaskTreeRunner m_parserRunner;
 
     std::unique_ptr<ProjectUpdater> m_cppCodeModelUpdater;
 };

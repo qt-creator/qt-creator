@@ -32,12 +32,12 @@ static Q_LOGGING_CATEGORY(androidRunnerLog, "qtc.android.run.androidrunner", QtW
 }
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Android::Internal {
 
-Group androidKicker(const StoredBarrier &barrier, RunControl *runControl)
+Group androidKicker(const QStoredBarrier &barrier, RunControl *runControl)
 {
     BuildConfiguration *bc = runControl->buildConfiguration();
     QTC_ASSERT(bc, return {});
@@ -107,7 +107,7 @@ Group androidKicker(const StoredBarrier &barrier, RunControl *runControl)
         }
 
         QObject::connect(runControl, &RunControl::canceled, glue, &RunnerInterface::cancel);
-        QObject::connect(glue, &RunnerInterface::started, barrier.activeStorage(), &Barrier::advance,
+        QObject::connect(glue, &RunnerInterface::started, barrier.activeStorage(), &QBarrier::advance,
                          Qt::QueuedConnection);
         QObject::connect(glue, &RunnerInterface::finished, runControl, [runControl](const QString &errorString) {
             runControl->postMessage(errorString, Utils::NormalMessageFormat);
@@ -126,11 +126,11 @@ Group androidKicker(const StoredBarrier &barrier, RunControl *runControl)
 
 Group androidRecipe(RunControl *runControl)
 {
-    const auto kicker = [runControl](const StoredBarrier &barrier) {
+    const auto kicker = [runControl](const QStoredBarrier &barrier) {
         return androidKicker(barrier, runControl);
     };
     return When (kicker) >> Do {
-        Sync([runControl] { runControl->reportStarted(); })
+        QSyncTask([runControl] { runControl->reportStarted(); })
     };
 }
 

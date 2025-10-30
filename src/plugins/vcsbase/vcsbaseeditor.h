@@ -13,13 +13,13 @@
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;
-QT_END_NAMESPACE
 
-namespace Tasking {
+namespace QtTaskTree {
 class ExecutableItem;
 template <typename StorageStruct>
 class Storage;
 }
+QT_END_NAMESPACE
 
 namespace VcsBase {
 
@@ -195,8 +195,8 @@ public:
     void setEditorConfig(VcsBaseEditorConfig *config);
     VcsBaseEditorConfig *editorConfig() const;
 
-    void executeTask(const Tasking::ExecutableItem &task,
-                     const Tasking::Storage<CommandResult> &resultStorage);
+    void executeTask(const QtTaskTree::ExecutableItem &task,
+                     const QtTaskTree::Storage<CommandResult> &resultStorage);
 
     void setDefaultLineNumber(int line);
     void gotoDefaultLine();

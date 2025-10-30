@@ -12,7 +12,7 @@
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -36,7 +36,7 @@
 
 using namespace Core;
 using namespace Utils;
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace Axivion::Internal {
 
@@ -376,7 +376,7 @@ bool AxivionSettings::updateDashboardServers(const QList<AxivionServer> &other,
     m_allServers = other;
     emit serversChanged(); // should we be more detailed? (id)
 
-    const LoopList iterator(keysToRemove);
+    const ListIterator iterator(keysToRemove);
 
     const auto onDeleteKeySetup = [iterator](CredentialQuery &query) {
         MessageManager::writeSilently(Tr::tr("Axivion: Deleting API token for %1 as respective "

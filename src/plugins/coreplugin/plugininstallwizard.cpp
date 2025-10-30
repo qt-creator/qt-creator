@@ -10,7 +10,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
@@ -42,7 +42,7 @@
 #include <memory>
 
 using namespace ExtensionSystem;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 struct Data
@@ -319,7 +319,7 @@ public:
     }
 
     std::unique_ptr<QTemporaryDir> m_tempDir;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
     InfoLabel *m_label = nullptr;
     QPushButton *m_cancelButton = nullptr;
     QTextEdit *m_output = nullptr;

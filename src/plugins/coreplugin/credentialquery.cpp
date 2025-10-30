@@ -6,13 +6,13 @@
 #include <qtkeychain/keychain.h>
 
 using namespace QKeychain;
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace Core {
 
 CredentialQueryTaskAdapter::~CredentialQueryTaskAdapter() = default;
 
-void CredentialQueryTaskAdapter::operator()(CredentialQuery *task, TaskInterface *iface)
+void CredentialQueryTaskAdapter::operator()(CredentialQuery *task, QTaskInterface *iface)
 {
     Job *job = nullptr;
     ReadPasswordJob *reader = nullptr;

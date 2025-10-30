@@ -55,7 +55,7 @@
 #endif
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
 using namespace std::placeholders;
@@ -96,7 +96,7 @@ public:
         fossilClient().log(topLevel, {relativeDirectory.path()}, options);
     }
 
-    Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const final;
+    ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     void updateActions(VersionControlBase::ActionState) override;
     bool activateCommit() override;

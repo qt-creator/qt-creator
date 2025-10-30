@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 
@@ -56,6 +56,6 @@ private:
     ProjectExplorer::QmlDebugServicesPreset m_qmlDebugServices = ProjectExplorer::NoQmlDebugServices;
 };
 
-Tasking::ExecutableItem runnerRecipe(const Tasking::Storage<RunnerInterface> &storage);
+QtTaskTree::ExecutableItem runnerRecipe(const QtTaskTree::Storage<RunnerInterface> &storage);
 
 } // namespace Android::Internal

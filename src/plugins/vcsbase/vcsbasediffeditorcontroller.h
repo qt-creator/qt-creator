@@ -26,7 +26,7 @@ public:
     void setVcsBinary(const Utils::FilePath &path);
 
 protected:
-    Tasking::GroupItem postProcessTask(const Tasking::Storage<QString> &inputStorage);
+    QtTaskTree::GroupItem postProcessTask(const QtTaskTree::Storage<QString> &inputStorage);
 
     void setupCommand(Utils::Process &process, const QStringList &args) const;
 

@@ -50,7 +50,7 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/taskhub.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <remotelinux/remotelinux_constants.h>
 
@@ -80,7 +80,7 @@
 using namespace Core;
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 using namespace Valgrind::Callgrind;
@@ -246,7 +246,7 @@ public:
     void updateRunActions();
 
     qint64 m_pid = 0;
-    SingleTaskTreeRunner m_controllerRunner;
+    QSingleTaskTreeRunner m_controllerRunner;
     bool m_markAsPaused = false;
     RunControl *m_runControl = nullptr;
     FilePath m_remoteOutputFile; // On the device that runs valgrind

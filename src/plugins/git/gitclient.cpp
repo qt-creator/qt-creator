@@ -23,7 +23,7 @@
 
 #include <diffeditor/diffeditorconstants.h>
 
-#include <solutions/tasking/conditional.h>
+#include <QtTaskTree/qconditional.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
@@ -79,7 +79,7 @@ const char allBranchesOption[] = "--all";
 
 using namespace Core;
 using namespace DiffEditor;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -512,7 +512,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         updateDescription(*data);
     };
 
-    const auto onFollowsSetup = [this, storage, updateDescription](TaskTree &taskTree) {
+    const auto onFollowsSetup = [this, storage, updateDescription](QTaskTree &taskTree) {
         ReloadStorage *data = storage.activeStorage();
         QStringList parents;
         QString errorMessage;
@@ -522,7 +522,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         data->m_follows = {busyMessage};
         data->m_follows.resize(parents.size());
 
-        const LoopList iterator(parents);
+        const ListIterator iterator(parents);
         const auto onFollowSetup = [this, iterator](Process &process) {
             setupCommand(process, {"describe", "--tags", "--abbrev=0", *iterator});
         };
@@ -570,7 +570,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
                 onGroupSetup(desciptionDetailsSetup),
                 ProcessTask(onBranchesSetup, onBranchesDone),
                 ProcessTask(onPrecedesSetup, onPrecedesDone),
-                TaskTreeTask(onFollowsSetup)
+                QTaskTreeTask(onFollowsSetup)
             }
         },
         Group {

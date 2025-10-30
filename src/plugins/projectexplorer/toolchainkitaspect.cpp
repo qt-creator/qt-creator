@@ -163,19 +163,19 @@ private:
     void toolChainUpdated(Toolchain *tc);
     void toolChainsDeregistered();
 
-    std::optional<Tasking::ExecutableItem> autoDetect(
+    std::optional<QtTaskTree::ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const DetectionSource &detectionSource,
         const LogCallback &logCallback) const override;
 
-    std::optional<Tasking::ExecutableItem> removeAutoDetected(
+    std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
     void listAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
-    Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+    Utils::Result<QtTaskTree::ExecutableItem> createAspectFromJson(
         const DetectionSource &detectionSource,
         const Utils::FilePath &rootPath,
         Kit *kit,
@@ -462,7 +462,7 @@ void ToolchainKitAspectFactory::toolChainsDeregistered()
         fix(k);
 }
 
-std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
+std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
     Kit *kit,
     const FilePaths &searchPaths,
     const DetectionSource &detectionSource,
@@ -509,10 +509,10 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
     return AsyncTask<Toolchain *>(searchToolchains, toolchainsDone);
 }
 
-std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::removeAutoDetected(
+std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::removeAutoDetected(
     const QString &detectionSource, const LogCallback &logCallback) const
 {
-    return Tasking::Sync([=]() {
+    return QSyncTask([=] {
         const auto toolchains
             = filtered(ToolchainManager::toolchains(), [detectionSource](Toolchain *tc) {
                   return tc->detectionSource().id == detectionSource;
@@ -534,7 +534,7 @@ void ToolchainKitAspectFactory::listAutoDetected(
     }
 }
 
-Result<Tasking::ExecutableItem> ToolchainKitAspectFactory::createAspectFromJson(
+Result<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::createAspectFromJson(
     const DetectionSource &detectionSource,
     const Utils::FilePath &rootPath,
     Kit *kit,

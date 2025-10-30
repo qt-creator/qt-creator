@@ -23,9 +23,9 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginview.h>
 
-#include <solutions/tasking/networkquery.h>
-#include <solutions/tasking/tasktree.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QTaskTree>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
@@ -198,7 +198,7 @@ signals:
 private:
     std::vector<std::unique_ptr<RemoteSpec>> m_versions;
     QComboBox *m_versionSelector;
-    Tasking::SingleTaskTreeRunner m_fetchVersionsRunner;
+    QSingleTaskTreeRunner m_fetchVersionsRunner;
 };
 
 class HeadingWidget : public QWidget
@@ -563,7 +563,7 @@ private:
     PluginStatusWidget *m_pluginStatus;
     QString m_currentDownloadUrl;
     QString m_currentId;
-    Tasking::SingleTaskTreeRunner m_dlTaskTreeRunner;
+    QSingleTaskTreeRunner m_dlTaskTreeRunner;
 };
 
 static QWidget *descriptionPlaceHolder()
@@ -842,7 +842,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
 
 void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update, const QString &sha)
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     struct StorageStruct
     {
@@ -858,13 +858,13 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
     };
     Storage<StorageStruct> storage;
 
-    const auto onQuerySetup = [url, storage, sha](NetworkQuery &query) {
+    const auto onQuerySetup = [url, storage, sha](QNetworkReplyWrapper &query) {
         storage->url = url;
         storage->sha = sha;
         query.setRequest(QNetworkRequest(url));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
     };
-    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith result) -> DoneResult {
+    const auto onQueryDone = [storage](const QNetworkReplyWrapper &query, DoneWith result) -> DoneResult {
         storage->progressDialog->close();
 
         if (result != DoneWith::Success) {
@@ -960,14 +960,14 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
     /*
     // TODO: Implement download completion notification
 
-    const auto onDownloadSetup = [id](NetworkQuery &query) {
+    const auto onDownloadSetup = [id](QNetworkReplyWrapper &query) {
         query.setOperation(NetworkOperation::Post);
         query.setRequest(QNetworkRequest(
             QUrl(settings().externalRepoUrl() + "/api/v1/downloads/completed/" + id)));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
     };
 
-    const auto onDownloadDone = [id](const NetworkQuery &query, DoneWith result) {
+    const auto onDownloadDone = [id](const QNetworkReplyWrapper &query, DoneWith result) {
         if (result != DoneWith::Success) {
             qCWarning(widgetLog) << "Failed to notify download completion for" << id;
             qCWarning(widgetLog) << query.reply()->errorString();
@@ -981,10 +981,10 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
 
     const Group recipe {
         storage,
-        NetworkQueryTask{onQuerySetup, onQueryDone},
-        Sync{onPluginInstallation},
-        Sync{[this] { updateView(m_extensionBrowser->currentIndex()); }},
-        //NetworkQueryTask{onDownloadSetup, onDownloadDone},
+        QNetworkReplyWrapperTask{onQuerySetup, onQueryDone},
+        QSyncTask{onPluginInstallation},
+        QSyncTask{[this] { updateView(m_extensionBrowser->currentIndex()); }},
+        //QNetworkReplyWrapperTask{onDownloadSetup, onDownloadDone},
     };
 
     m_dlTaskTreeRunner.start(recipe);

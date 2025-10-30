@@ -12,14 +12,14 @@
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <solutions/tasking/barrier.h>
+#include <QtTaskTree/QBarrier>
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace QmlProfiler::Internal {
@@ -28,13 +28,13 @@ Group qmlProfilerRecipe(RunControl *runControl)
 {
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
 
-    const auto onSetup = [runControl](Barrier &barrier) {
+    const auto onSetup = [runControl](QBarrier &barrier) {
         QmlProfilerTool::instance()->finalizeRunControl(runControl);
         QmlProfilerClientManager *clientManager = QmlProfilerTool::instance()->clientManager();
         QObject::connect(clientManager, &QmlProfilerClientManager::connectionFailed,
                          &barrier, [barrier = &barrier] { barrier->stopWithResult(DoneResult::Error); });
         QObject::connect(clientManager, &QmlProfilerClientManager::connectionClosed,
-                         &barrier, &Barrier::advance);
+                         &barrier, &QBarrier::advance);
         QObject::connect(runControl, &RunControl::canceled, &barrier, [barrier = &barrier] {
             if (QmlProfilerTool::instance() == nullptr) {
                 barrier->stopWithResult(DoneResult::Error);
@@ -65,7 +65,7 @@ Group qmlProfilerRecipe(RunControl *runControl)
         if (stateManager && stateManager->currentState() == QmlProfilerStateManager::AppRunning)
             stateManager->setCurrentState(QmlProfilerStateManager::AppStopRequested);
     };
-    return { BarrierTask(onSetup, onDone) };
+    return { QBarrierTask(onSetup, onDone) };
 }
 
 Group localQmlProfilerRecipe(RunControl *runControl)

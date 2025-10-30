@@ -30,7 +30,7 @@
 #include <QTimer>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -374,7 +374,7 @@ void GitSubmitEditor::updateFileModel()
         }
         w->setUpdateInProgress(false);
     };
-    const auto onTreeSetup = [](TaskTree &taskTree) {
+    const auto onTreeSetup = [](QTaskTree &taskTree) {
         auto progress = new TaskProgress(&taskTree);
         progress->setDisplayName(Tr::tr("Refreshing Commit Data"));
         progress->setId(TASK_UPDATE_COMMIT);

@@ -11,7 +11,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/async.h>
 #include <utils/guard.h>
@@ -25,7 +25,7 @@
 #include <QTimer>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -45,7 +45,7 @@ public:
     Guard lock;
     bool dirty = false;
     QTimer timer;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,

@@ -14,7 +14,7 @@
 using namespace Core;
 using namespace Macros;
 using namespace Macros::Internal;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 MacroLocatorFilter::MacroLocatorFilter()
@@ -69,5 +69,5 @@ LocatorMatcherTasks MacroLocatorFilter::matchers()
         }
         storage.reportOutput(betterEntries + goodEntries);
     };
-    return {Sync(onSetup)};
+    return {QSyncTask(onSetup)};
 }

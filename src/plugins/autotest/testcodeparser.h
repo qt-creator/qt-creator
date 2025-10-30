@@ -7,7 +7,7 @@
 
 #include <qmljs/qmljsdocument.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/futuresynchronizer.h>
 #include <utils/id.h>
@@ -98,7 +98,7 @@ private:
     QTimer m_reparseTimer;
     QSet<ITestParser *> m_updateParsers;
     Utils::FutureSynchronizer m_futureSynchronizer;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
     bool m_withTaskProgress = false;
     QHash<Utils::FilePath, int> m_qmlEditorRev;
 

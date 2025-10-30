@@ -68,7 +68,7 @@ signals:
 private:
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    Tasking::GroupItem runRecipe() final;
+    QtTaskTree::GroupItem runRecipe() final;
     QWidget *createConfigWidget() override;
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;

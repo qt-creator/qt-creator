@@ -13,10 +13,10 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Autotest::Internal {
@@ -64,7 +64,7 @@ static LocatorMatcherTasks dataTagMatchers(const LinkAcceptor &acceptor)
         });
         storage.reportOutput(entries);
     };
-    return {Sync(onSetup)};
+    return {QSyncTask(onSetup)};
 }
 
 DataTagLocatorFilter::DataTagLocatorFilter()

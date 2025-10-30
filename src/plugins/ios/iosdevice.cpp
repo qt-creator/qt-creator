@@ -24,7 +24,7 @@
 #include <utils/shutdownguard.h>
 #include <utils/url.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -49,7 +49,7 @@
 #include <exception>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace {

@@ -5,19 +5,19 @@
 
 #include "utils_global.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT GlobalTaskTree final
 {
 public:
-    template <typename SetupHandler = Tasking::AbstractTaskTreeRunner::TreeSetupHandler,
-              typename DoneHandler = Tasking::AbstractTaskTreeRunner::TreeDoneHandler>
-    static void start(const Tasking::Group &recipe,
+    template <typename SetupHandler = QAbstractTaskTreeRunner::TreeSetupHandler,
+              typename DoneHandler = QAbstractTaskTreeRunner::TreeDoneHandler>
+    static void start(const QtTaskTree::Group &recipe,
                       SetupHandler &&setupHandler = {},
                       DoneHandler &&doneHandler = {},
-                      Tasking::CallDoneFlags callDone = Tasking::CallDone::Always)
+                      QtTaskTree::CallDoneFlags callDone = QtTaskTree::CallDone::Always)
     {
         if (auto runner = taskTreeRunner())
             runner->start(recipe, setupHandler, doneHandler, callDone);
@@ -25,7 +25,7 @@ public:
 
 private:
     GlobalTaskTree() = delete;
-    static Tasking::ParallelTaskTreeRunner *taskTreeRunner();
+    static QParallelTaskTreeRunner *taskTreeRunner();
 };
 
 } // namespace Utils

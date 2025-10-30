@@ -48,7 +48,7 @@
 using namespace Core;
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Autotest::Internal {
@@ -90,7 +90,7 @@ TestRunner::TestRunner()
     connect(this, &TestRunner::requestStopTestRun, this, [this] { cancelCurrent(UserCanceled); });
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &TestRunner::onBuildQueueFinished);
-    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
+    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::aboutToStart, this, [this](QTaskTree *taskTree) {
         auto progress = new TaskProgress(taskTree);
         progress->setDisplayName(Tr::tr("Running Tests"));
         progress->setAutoStopOnCancel(false);
@@ -106,7 +106,7 @@ TestRunner::TestRunner()
         if (testSettings().popupOnStart())
             popupResultsPane();
     });
-    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, &TestRunner::onFinished);
+    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, &TestRunner::onFinished);
 }
 
 TestRunner::~TestRunner()
@@ -379,7 +379,7 @@ void TestRunner::runTestsHelper()
         std::unique_ptr<TestOutputReader> m_outputReader;
     };
 
-    const LoopList iterator(m_selectedTests);
+    const ListIterator iterator(m_selectedTests);
     const Storage<TestStorage> storage;
 
     const auto onSetup = [this, iterator, storage](Process &process) {

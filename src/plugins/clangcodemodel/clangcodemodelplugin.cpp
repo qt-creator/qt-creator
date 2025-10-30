@@ -32,7 +32,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <texteditor/textmark.h>
 
@@ -43,7 +43,7 @@
 using namespace Core;
 using namespace CppEditor;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ClangCodeModel::Internal {
@@ -63,7 +63,7 @@ private:
 
     Utils::Action *m_generateCompilationDBAction = nullptr;
     Task m_generateCompilationDBError;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 void ClangCodeModelPlugin::initialize()
@@ -143,7 +143,7 @@ void ClangCodeModelPlugin::generateCompilationDB()
         m_generateCompilationDBAction->setEnabled(true);
     };
 
-    const auto onTreeSetup = [](TaskTree &taskTree) {
+    const auto onTreeSetup = [](QTaskTree &taskTree) {
         auto progress = new TaskProgress(&taskTree);
         progress->setDisplayName(Tr::tr("Generating Compilation DB"));
         progress->setId("generate compilation db");

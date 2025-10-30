@@ -23,8 +23,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <solutions/tasking/conditional.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <texteditor/textdocument.h>
 
@@ -65,7 +65,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Axivion::Internal {
@@ -363,7 +363,7 @@ private:
     int m_totalRowCount = 0;
     QStringList m_userNames;
     QStringList m_versionDates;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
     OverlayWidget *m_overlay = nullptr;
     bool m_dashboardListUninitialized = true;
 
@@ -1407,7 +1407,7 @@ public:
     }
 private:
     Group recipe() {
-        const LoopUntil iterator([this](int) { return !m_loadingQueue.isEmpty(); });
+        const UntilIterator iterator([this](int) { return !m_loadingQueue.isEmpty(); });
 
         const Storage<DownloadData> storage;
 
@@ -1447,7 +1447,7 @@ private:
     }
 
     QList<QUrl> m_loadingQueue;
-    SingleTaskTreeRunner m_loaderTaskTree;
+    QSingleTaskTreeRunner m_loaderTaskTree;
     QString m_projectName;
     unsigned int m_cachedImagesSize = 0;
 };

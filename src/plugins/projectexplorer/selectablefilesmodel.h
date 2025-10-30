@@ -5,7 +5,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/filepath.h>
 #include <utils/storekey.h>
@@ -159,7 +159,7 @@ signals:
     void parsingProgress(const QString &progress);
 
 private:
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 class PROJECTEXPLORER_EXPORT SelectableFilesWidget : public QWidget

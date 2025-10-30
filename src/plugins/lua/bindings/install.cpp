@@ -10,8 +10,8 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
-#include <solutions/tasking/networkquery.h>
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -28,7 +28,7 @@
 #include <QTemporaryFile>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace std::string_view_literals;
 
@@ -124,7 +124,7 @@ static Group installRecipe(
 {
     Storage<QFile> storage;
 
-    const LoopList<InstallOptions> installOptionsIt(installOptions);
+    const ListIterator<InstallOptions> installOptionsIt(installOptions);
 
     const auto emitResult = [callback](const QString &error = QString()) {
         if (error.isEmpty()) {
@@ -135,13 +135,13 @@ static Group installRecipe(
         return DoneResult::Error;
     };
 
-    const auto onDownloadSetup = [installOptionsIt](NetworkQuery &query) {
+    const auto onDownloadSetup = [installOptionsIt](QNetworkReplyWrapper &query) {
         query.setRequest(QNetworkRequest(installOptionsIt->url));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
         return SetupResult::Continue;
     };
 
-    const auto onDownloadDone = [emitResult, storage](const NetworkQuery &query, DoneWith result) {
+    const auto onDownloadDone = [emitResult, storage](const QNetworkReplyWrapper &query, DoneWith result) {
         if (result == DoneWith::Error)
             return emitResult(query.reply()->errorString());
         if (result == DoneWith::Cancel)
@@ -216,7 +216,7 @@ static Group installRecipe(
                 }
                 return SetupResult::Continue;
             }),
-            NetworkQueryTask(onDownloadSetup, onDownloadDone),
+            QNetworkReplyWrapperTask(onDownloadSetup, onDownloadDone),
             UnarchiverTask(onUnarchiveSetup, onUnarchiverDone, CallDone::OnSuccess | CallDone::OnError),
             onGroupDone([storage] { storage->remove(); }),
         },
@@ -243,16 +243,16 @@ void setupInstallModule()
                 delete tree;
         }
 
-        TaskTree *createTree()
+        QTaskTree *createTree()
         {
-            auto tree = new TaskTree();
+            auto tree = new QTaskTree();
             m_trees.append(tree);
-            QObject::connect(tree, &TaskTree::done, tree, &QObject::deleteLater);
+            QObject::connect(tree, &QTaskTree::done, tree, &QObject::deleteLater);
             return tree;
         };
 
     private:
-        QList<QPointer<TaskTree>> m_trees;
+        QList<QPointer<QTaskTree>> m_trees;
     };
 
     registerProvider(

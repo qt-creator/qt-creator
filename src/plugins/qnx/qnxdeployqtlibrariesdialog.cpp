@@ -13,7 +13,7 @@
 
 #include <qtsupport/qtversionmanager.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -33,7 +33,7 @@
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Qnx::Internal {
@@ -97,7 +97,7 @@ private:
     enum class CheckResult { RemoveDir, SkipRemoveDir, Abort };
     CheckResult m_checkResult = CheckResult::Abort;
     mutable QList<DeployableFile> m_deployableFiles;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
@@ -323,7 +323,7 @@ QnxDeployQtLibrariesDialogPrivate::QnxDeployQtLibrariesDialogPrivate(
             this, &QnxDeployQtLibrariesDialogPrivate::start);
     connect(m_closeButton, &QAbstractButton::clicked,
             q, &QWidget::close);
-    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done,
+    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done,
             this, &QnxDeployQtLibrariesDialogPrivate::handleUploadFinished);
 }
 

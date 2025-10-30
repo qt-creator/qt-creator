@@ -30,7 +30,7 @@
 using namespace Core;
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace QmlJSTools::Internal {

@@ -8,7 +8,7 @@
 #include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/lsptypes.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 namespace LanguageClient {
 
@@ -30,7 +30,7 @@ public:
     CurrentDocumentSymbolsData currentDocumentSymbolsData() const { return m_currentDocumentSymbolsData; }
 
 signals:
-    void done(Tasking::DoneResult result);
+    void done(QtTaskTree::DoneResult result);
 
 private:
     void clearConnections();
@@ -39,6 +39,6 @@ private:
     QList<QMetaObject::Connection> m_connections;
 };
 
-using CurrentDocumentSymbolsRequestTask = Tasking::CustomTask<CurrentDocumentSymbolsRequest>;
+using CurrentDocumentSymbolsRequestTask = QCustomTask<CurrentDocumentSymbolsRequest>;
 
 } // namespace LanguageClient

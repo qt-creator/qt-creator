@@ -5,7 +5,7 @@
 
 #include "../core_global.h"
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/filepath.h>
 #include <utils/id.h>
@@ -130,7 +130,7 @@ public:
     QString input() const;
     void reportOutput(const LocatorFilterEntries &outputData) const;
     // Only use it from inside the bodies of Task handlers.
-    static Tasking::Storage<LocatorStorage> &storage();
+    static QtTaskTree::Storage<LocatorStorage> &storage();
 
 private:
     friend class LocatorMatcher;
@@ -139,7 +139,7 @@ private:
     std::shared_ptr<LocatorStoragePrivate> d;
 };
 
-using LocatorMatcherTasks = QList<Tasking::ExecutableItem>;
+using LocatorMatcherTasks = QList<QtTaskTree::ExecutableItem>;
 using LocatorMatcherTaskCreator = std::function<LocatorMatcherTasks()>;
 class LocatorMatcherPrivate;
 
@@ -263,8 +263,8 @@ protected:
     virtual void saveState(QJsonObject &object) const;
     virtual void restoreState(const QJsonObject &object);
 
-    void setRefreshRecipe(const std::optional<Tasking::GroupItem> &recipe);
-    std::optional<Tasking::GroupItem> refreshRecipe() const;
+    void setRefreshRecipe(const std::optional<QtTaskTree::GroupItem> &recipe);
+    std::optional<QtTaskTree::GroupItem> refreshRecipe() const;
 
 private:
     virtual LocatorMatcherTasks matchers() = 0;
@@ -280,7 +280,7 @@ private:
     QString m_description;
     QString m_defaultShortcut;
     std::optional<QString> m_defaultSearchText;
-    std::optional<Tasking::GroupItem> m_refreshRecipe;
+    std::optional<QtTaskTree::GroupItem> m_refreshRecipe;
     QKeySequence m_defaultKeySequence;
     bool m_defaultIncludedByDefault = false;
     bool m_includedByDefault = m_defaultIncludedByDefault;
@@ -309,7 +309,7 @@ public:
     std::optional<Utils::FilePaths> filePaths() const;
 
     static FilePathsGenerator filePathsGenerator(const Utils::FilePaths &filePaths);
-    Tasking::ExecutableItem matcher() const;
+    QtTaskTree::ExecutableItem matcher() const;
 
     using MatchedEntries = std::array<LocatorFilterEntries, int(ILocatorFilter::MatchLevel::Count)>;
     static Utils::FilePaths processFilePaths(const QFuture<void> &future,

@@ -15,9 +15,9 @@ class QModelIndex;
 class QPoint;
 class QToolButton;
 class QTreeView;
-QT_END_NAMESPACE;
 
-namespace Tasking { class Group; }
+namespace QtTaskTree { class Group; }
+QT_END_NAMESPACE
 
 namespace Utils {
 class ElidingLabel;
@@ -56,7 +56,7 @@ private:
     bool remove();
     bool rename();
     void reset(const QByteArray &resetType);
-    Tasking::Group fastForwardMergeRecipe(const std::function<void()> &callback);
+    QtTaskTree::Group fastForwardMergeRecipe(const std::function<void()> &callback);
     bool merge(bool allowFastForward);
     void rebase();
     bool cherryPick();

@@ -49,8 +49,8 @@ public:
     ProjectExplorer::IDeviceWidget *createWidget() override;
 
 private:
-    Tasking::ExecutableItem portsGatheringRecipe(
-        const Tasking::Storage<Utils::PortsOutputData> &output) const override;
+    QtTaskTree::ExecutableItem portsGatheringRecipe(
+        const QtTaskTree::Storage<Utils::PortsOutputData> &output) const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
 
     friend class IosSimulatorFactory;

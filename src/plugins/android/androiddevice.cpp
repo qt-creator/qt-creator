@@ -23,7 +23,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <solutions/tasking/conditional.h>
+#include <QtTaskTree/qconditional.h>
 
 #include <utils/devicefileaccess.h>
 #include <utils/fileutils.h>
@@ -46,7 +46,7 @@
 #include <QTimer>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 using namespace std::chrono_literals;
@@ -137,7 +137,7 @@ class AndroidDevicePrivate final
 {
 public:
     std::unique_ptr<QSettings> m_avdSettings;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
     std::unique_ptr<AndroidFileAccess> m_deviceAccess;
     UnavailableDeviceFileAccess m_disconnectedAccess;
 };
@@ -156,8 +156,8 @@ public:
     void eraseAvd(const IDevice::Ptr &device);
 
     Group m_avdListRecipe{};
-    SingleTaskTreeRunner m_avdListRunner;
-    SingleTaskTreeRunner m_avdDeviceWatcherRunner;
+    QSingleTaskTreeRunner m_avdListRunner;
+    QSingleTaskTreeRunner m_avdDeviceWatcherRunner;
     std::unique_ptr<Process> m_removeAvdProcess;
     QFileSystemWatcher m_avdFileSystemWatcher;
     Guard m_avdPathGuard;
@@ -705,10 +705,10 @@ ExecutableItem AndroidDevice::portsGatheringRecipe(const Storage<PortsOutputData
     return Group {
         serialNumberStorage,
         input,
-        If (!Sync(hasSerialNumber)) >> Then {
+        If (!QSyncTask(hasSerialNumber)) >> Then {
             serialNumberRecipe(avdName(), serialNumberStorage),
         },
-        Sync(onSerialNumberSetup),
+        QSyncTask(onSerialNumberSetup),
         portsFromProcessRecipe(input, output)
     };
 }
@@ -953,7 +953,7 @@ AndroidDeviceManagerInstance::AndroidDeviceManagerInstance()
 
     const Storage<FilePaths> storage;
 
-    const LoopUntil iterator([storage](int iteration) {
+    const UntilIterator iterator([storage](int iteration) {
         return iteration == 0 || storage->count() > 0;
     });
 

@@ -5,7 +5,7 @@
 
 #include "core_global.h"
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 namespace Core {
 
@@ -36,12 +36,12 @@ class CredentialQueryTaskAdapter final
 {
 public:
     CORE_EXPORT ~CredentialQueryTaskAdapter();
-    CORE_EXPORT void operator()(CredentialQuery *task, Tasking::TaskInterface *iface);
+    CORE_EXPORT void operator()(CredentialQuery *task, QTaskInterface *iface);
 
 private:
     std::unique_ptr<QObject> m_guard;
 };
 
-using CredentialQueryTask = Tasking::CustomTask<CredentialQuery, CredentialQueryTaskAdapter>;
+using CredentialQueryTask = QCustomTask<CredentialQuery, CredentialQueryTaskAdapter>;
 
 } // Core

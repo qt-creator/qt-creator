@@ -22,7 +22,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -37,7 +37,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.cftr", QtWarningMsg)
 using namespace Core;
 using namespace CppEditor;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ClangTools {
@@ -69,7 +69,7 @@ DocumentClangToolRunner::DocumentClangToolRunner(IDocument *document)
     });
 
     connect(&m_runTimer, &QTimer::timeout, this, &DocumentClangToolRunner::run);
-    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, &DocumentClangToolRunner::finalize);
+    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, &DocumentClangToolRunner::finalize);
     run();
 }
 

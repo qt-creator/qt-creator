@@ -31,7 +31,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Debugger::Internal {
@@ -78,7 +78,7 @@ private:
     ProgressIndicator *m_progressIndicator;
     QLabel *m_progressLabel;
 
-    TaskTree m_taskTree;
+    QTaskTree m_taskTree;
     Result<FilePath> m_coreFileResult;
     Result<FilePath> m_symbolFileResult;
 
@@ -186,7 +186,7 @@ int AttachCoreDialog::exec()
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &AttachCoreDialog::accepted);
     changed();
 
-    connect(&m_taskTree, &TaskTree::done, this, [this] {
+    connect(&m_taskTree, &QTaskTree::done, this, [this] {
         setEnabled(true);
         m_progressIndicator->setVisible(false);
         m_progressLabel->setVisible(false);
@@ -209,7 +209,7 @@ int AttachCoreDialog::exec()
 
         accept();
     });
-    connect(&m_taskTree, &TaskTree::progressValueChanged, this, [this](int value) {
+    connect(&m_taskTree, &QTaskTree::progressValueChanged, this, [this](int value) {
         const QString text = Tr::tr("Copying files to device... %1/%2")
                                  .arg(value)
                                  .arg(m_taskTree.progressMaximum());

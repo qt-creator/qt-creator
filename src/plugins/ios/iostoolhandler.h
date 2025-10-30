@@ -8,7 +8,7 @@
 #include <utils/filepath.h>
 #include <utils/port.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <QObject>
 #include <QMap>
@@ -71,7 +71,7 @@ private:
     Ios::Internal::IosToolHandlerPrivate *d;
 };
 
-// for Tasking:
+// for QtTaskTree:
 
 class IosToolRunner final
 {
@@ -92,9 +92,9 @@ private:
 class IosToolTaskAdapter final
 {
 public:
-    void operator()(IosToolRunner *task, Tasking::TaskInterface *iface);
+    void operator()(IosToolRunner *task, QTaskInterface *iface);
 };
 
-using IosToolTask = Tasking::CustomTask<IosToolRunner, IosToolTaskAdapter>;
+using IosToolTask = QCustomTask<IosToolRunner, IosToolTaskAdapter>;
 
 } // namespace Ios

@@ -7,14 +7,14 @@
 #include "stringutils.h"
 #include "utilstr.h"
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <QPair>
 #include <QString>
 
 #include <cctype>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace Utils {
 namespace Internal {

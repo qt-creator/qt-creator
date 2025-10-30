@@ -46,8 +46,8 @@ protected:
     void addSkipDeploymentMessage();
 
 private:
-    virtual Tasking::GroupItem deployRecipe() = 0;
-    Tasking::GroupItem runRecipe() final;
+    virtual QtTaskTree::GroupItem deployRecipe() = 0;
+    QtTaskTree::GroupItem runRecipe() final;
 
     Internal::AbstractRemoteLinuxDeployStepPrivate *d;
 };

@@ -7,7 +7,7 @@
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsprojectsettings.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/filepath.h>
 #include <utils/temporarydirectory.h>
@@ -55,7 +55,7 @@ private:
     QList<QPointer<TextEditor::TextEditorWidget>> m_editorsWithMarkers;
     SuppressedDiagnosticsList m_suppressed;
     Utils::FilePath m_lastProjectDirectory;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Internal

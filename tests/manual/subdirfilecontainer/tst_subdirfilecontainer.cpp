@@ -16,7 +16,7 @@
 
 #include <unordered_set>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 static const int s_topLevelSubDirsCount = 128;
@@ -136,7 +136,7 @@ private slots:
         QVERIFY(parentDir.mkdir(sourceDirName));
         QVERIFY(generateOriginal(parentDir.filePath(sourceDirName), templateFile, s_treeDepth));
 
-        const LoopRepeat iterator(s_topLevelSubDirsCount - 1);
+        const RepeatIterator iterator(s_topLevelSubDirsCount - 1);
 
         const auto onCopySetup = [iterator, parentDir, sourceDirName](Async<void> &async) {
             const QString destDirName = dirName(iterator.iteration() + 1);
@@ -149,14 +149,14 @@ private slots:
             parallelIdealThreadCountLimit, // Parallelize tree generation
             AsyncTask<void>(onCopySetup)
         };
-        QCOMPARE(TaskTree::runBlocking(recipe), DoneWith::Success);
+        QCOMPARE(QTaskTree::runBlocking(recipe), DoneWith::Success);
     }
 
     void cleanupTestCase()
     {
         QTC_SCOPED_TIMER("CLEANING UP");
 
-        const LoopRepeat iterator(s_topLevelSubDirsCount - 1);
+        const RepeatIterator iterator(s_topLevelSubDirsCount - 1);
 
         const QDir parentDir(m_tempDir->path());
         const auto onSetup = [iterator, parentDir](Async<void> &async) {
@@ -169,7 +169,7 @@ private slots:
             AsyncTask<void>(onSetup)
         };
 
-        QCOMPARE(TaskTree::runBlocking(recipe), DoneWith::Success);
+        QCOMPARE(QTaskTree::runBlocking(recipe), DoneWith::Success);
 
         m_tempDir.reset();
         ProcessReaper::deleteAll();

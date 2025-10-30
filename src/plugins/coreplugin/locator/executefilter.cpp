@@ -18,7 +18,7 @@
 #include <QJsonObject>
 #include <QMessageBox>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Core::Internal {
@@ -69,7 +69,7 @@ LocatorMatcherTasks ExecuteFilter::matchers()
         }
         storage.reportOutput(entries + others);
     };
-    return {Sync(onSetup)};
+    return {QSyncTask(onSetup)};
 }
 
 void ExecuteFilter::acceptCommand(const QString &cmd)

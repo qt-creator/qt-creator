@@ -4356,7 +4356,7 @@ static RunConfiguration *runConfigurationForDisplayName(const QString &displayNa
     });
 }
 
-using namespace Tasking;
+using namespace QtTaskTree;
 
 static LocatorMatcherTasks runConfigurationMatchers(const RunAcceptor &acceptor)
 {
@@ -4384,7 +4384,7 @@ static LocatorMatcherTasks runConfigurationMatchers(const RunAcceptor &acceptor)
         }
         storage.reportOutput(entries);
     };
-    return {Sync(onSetup)};
+    return {QSyncTask(onSetup)};
 }
 
 static void runAcceptor(RunConfiguration *config)

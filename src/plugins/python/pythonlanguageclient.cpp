@@ -27,7 +27,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QAbstractTaskTreeRunner>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -41,7 +41,7 @@
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -313,8 +313,8 @@ public:
     void openDocument(const FilePath &python, TextDocument *document);
 
     QHash<FilePath, QList<TextDocument *>> m_infoBarEntries;
-    MappedTaskTreeRunner<TextDocument *> m_documentRunner;
-    SingleTaskTreeRunner m_pipInstallerRunner;
+    QMappedTaskTreeRunner<TextDocument *> m_documentRunner;
+    QSingleTaskTreeRunner m_pipInstallerRunner;
 };
 
 void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,

@@ -8,7 +8,7 @@
 #include <coreplugin/find/ifindfilter.h>
 #include <coreplugin/find/searchresultwindow.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 
 #include <QCheckBox>
 #include <QPointer>
@@ -63,7 +63,7 @@ private:
     QPointer<Core::SearchResult> m_currentSearch;
     SymbolTypes m_symbolsToSearch;
     SearchScope m_scope;
-    Tasking::ParallelTaskTreeRunner m_taskTreeRunner;
+    QParallelTaskTreeRunner m_taskTreeRunner;
 };
 
 class SymbolsFindFilterConfigWidget : public QWidget

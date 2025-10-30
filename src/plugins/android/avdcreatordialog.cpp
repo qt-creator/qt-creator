@@ -13,7 +13,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <solutions/spinner/spinner.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/infolabel.h>
@@ -41,7 +41,7 @@
 
 using namespace ProjectExplorer;
 using namespace SpinnerSolution;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Android::Internal {
@@ -106,7 +106,7 @@ private:
     QComboBox *m_deviceDefinitionTypeComboBox;
     QCheckBox *m_overwriteCheckBox;
     QDialogButtonBox *m_buttonBox;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 AvdDialog::AvdDialog()

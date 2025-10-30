@@ -18,7 +18,9 @@ class MacroExpander;
 class OutputFormatter;
 } // Utils
 
-namespace Tasking { class GroupItem; }
+QT_BEGIN_NAMESPACE
+namespace QtTaskTree { class GroupItem; }
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
@@ -110,7 +112,7 @@ protected:
 
 private:
     friend class BuildManager;
-    virtual Tasking::GroupItem runRecipe() = 0;
+    virtual QtTaskTree::GroupItem runRecipe() = 0;
     ProjectConfiguration *projectConfiguration() const;
 
     BuildStepList * const m_stepList;

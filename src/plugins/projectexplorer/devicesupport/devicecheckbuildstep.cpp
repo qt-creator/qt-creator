@@ -11,7 +11,7 @@
 #include "devicemanager.h"
 #include "idevicefactory.h"
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <QMessageBox>
 
@@ -60,7 +60,7 @@ public:
     }
 
 private:
-    Tasking::GroupItem runRecipe() final { return Tasking::Group{}; }
+    QtTaskTree::GroupItem runRecipe() final { return QtTaskTree::Group{}; }
 };
 
 // Factory

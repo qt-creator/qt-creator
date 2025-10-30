@@ -9,7 +9,7 @@
 #include <utils/aspects.h>
 #include <utils/filestreamer.h>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ProjectExplorer::Internal {

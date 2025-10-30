@@ -14,12 +14,6 @@ class Target;
 
 namespace QtSupport { class QtVersion; }
 
-namespace Tasking {
-class ExecutableItem;
-template <typename StorageStruct>
-class Storage;
-}
-
 namespace Utils {
 class FilePath;
 class Process;
@@ -27,6 +21,12 @@ class Process;
 
 QT_BEGIN_NAMESPACE
 class QJsonObject;
+
+namespace QtTaskTree {
+class ExecutableItem;
+template <typename StorageStruct>
+class Storage;
+}
 QT_END_NAMESPACE
 
 namespace Android::Internal {
@@ -68,9 +68,9 @@ bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);
 
 QStringList adbSelector(const QString &serialNumber);
 
-Tasking::ExecutableItem serialNumberRecipe(const QString &avdName,
-                                           const Tasking::Storage<QString> &serialNumberStorage);
-Tasking::ExecutableItem startAvdRecipe(
-    const QString &avdName, const Tasking::Storage<QString> &serialNumberStorage);
+QtTaskTree::ExecutableItem serialNumberRecipe(const QString &avdName,
+                                           const QtTaskTree::Storage<QString> &serialNumberStorage);
+QtTaskTree::ExecutableItem startAvdRecipe(
+    const QString &avdName, const QtTaskTree::Storage<QString> &serialNumberStorage);
 
 } // namespace Android::Internal

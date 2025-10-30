@@ -9,7 +9,7 @@
 #include "qtcassert.h"
 #include "threadutils.h"
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <QFutureWatcher>
 #include <QtConcurrentRun>
@@ -218,15 +218,15 @@ template <typename ResultType>
 class AsyncTaskAdapter final
 {
 public:
-    void operator()(Async<ResultType> *task, Tasking::TaskInterface *iface) {
+    void operator()(Async<ResultType> *task, QTaskInterface *iface) {
         QObject::connect(task, &AsyncBase::done, iface, [iface, task] {
-            iface->reportDone(Tasking::toDoneResult(!task->isCanceled()));
+            iface->reportDone(QtTaskTree::toDoneResult(!task->isCanceled()));
         }, Qt::SingleShotConnection);
         task->start();
     }
 };
 
 template <typename T>
-using AsyncTask = Tasking::CustomTask<Async<T>, AsyncTaskAdapter<T>>;
+using AsyncTask = QCustomTask<Async<T>, AsyncTaskAdapter<T>>;
 
 } // namespace Utils

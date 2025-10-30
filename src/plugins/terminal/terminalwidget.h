@@ -12,7 +12,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/terminal/searchableterminal.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/link.h>
 #include <utils/qtcprocess.h>
@@ -113,7 +113,7 @@ private:
 
     Internal::ShortcutMap m_shortcutMap;
 
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Terminal

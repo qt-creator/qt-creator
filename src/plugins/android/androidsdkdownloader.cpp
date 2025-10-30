@@ -8,8 +8,8 @@
 
 #include <coreplugin/icore.h>
 
-#include <solutions/tasking/barrier.h>
-#include <solutions/tasking/networkquery.h>
+#include <QtTaskTree/QBarrier>
+#include <QtTaskTree/QNetworkReplyWrapper>
 
 #include <utils/async.h>
 #include <utils/filepath.h>
@@ -22,7 +22,7 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace { Q_LOGGING_CATEGORY(sdkDownloaderLog, "qtc.android.sdkDownloader", QtWarningMsg) }
@@ -109,17 +109,17 @@ GroupItem downloadSdkRecipe()
         return SetupResult::Continue;
     };
 
-    const auto onQuerySetup = [storage](NetworkQuery &query) {
+    const auto onQuerySetup = [storage](QNetworkReplyWrapper &query) {
         query.setRequest(QNetworkRequest(AndroidConfig::sdkToolsUrl()));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
         QProgressDialog *progressDialog = storage->progressDialog.get();
-        QObject::connect(&query, &NetworkQuery::downloadProgress,
+        QObject::connect(&query, &QNetworkReplyWrapper::downloadProgress,
                          progressDialog, [progressDialog](qint64 received, qint64 max) {
             progressDialog->setRange(0, max);
             progressDialog->setValue(received);
         });
 #if QT_CONFIG(ssl)
-        QObject::connect(&query, &NetworkQuery::sslErrors,
+        QObject::connect(&query, &QNetworkReplyWrapper::sslErrors,
                          &query, [queryPtr = &query](const QList<QSslError> &sslErrors) {
             for (const QSslError &error : sslErrors)
                 qCDebug(sdkDownloaderLog, "SSL error: %s\n", qPrintable(error.errorString()));
@@ -128,7 +128,7 @@ GroupItem downloadSdkRecipe()
         });
 #endif
     };
-    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith result) {
+    const auto onQueryDone = [storage](const QNetworkReplyWrapper &query, DoneWith result) {
         if (result == DoneWith::Cancel)
             return;
 
@@ -192,7 +192,7 @@ GroupItem downloadSdkRecipe()
         storage,
         Group {
             onGroupSetup(onSetup),
-            NetworkQueryTask(onQuerySetup, onQueryDone),
+            QNetworkReplyWrapperTask(onQuerySetup, onQueryDone),
             AsyncTask<void>(onValidationSetup, onValidationDone),
             UnarchiverTask(onUnarchiveSetup, onUnarchiverDone, CallDone::OnSuccess | CallDone::OnError)
         }.withCancel(onCancelSetup)

@@ -21,8 +21,8 @@
 
 #include <qtsupport/baseqtversion.h>
 
-#include <solutions/tasking/barrier.h>
-#include <solutions/tasking/conditional.h>
+#include <QtTaskTree/QBarrier>
+#include <QtTaskTree/qconditional.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -35,7 +35,7 @@
 
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 enum { debug = 0 };
@@ -173,7 +173,7 @@ ExecutableItem coreFileRecipe(const Storage<DebuggerData> &storage)
     };
 }
 
-ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const StoredBarrier &barrier)
+ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const QStoredBarrier &barrier)
 {
     const auto onSetup = [storage, barrier] {
         DebuggerRunParameters &runParameters = storage->runParameters;
@@ -213,12 +213,12 @@ ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const Stored
         process->start();
     };
 
-    return Sync(onSetup);
+    return QSyncTask(onSetup);
 }
 
 ExecutableItem fixupParamsRecipe(const Storage<DebuggerData> &storage)
 {
-    return Sync([storage] {
+    return QSyncTask([storage] {
         RunControl *runControl = storage->runControl;
         DebuggerRunParameters &runParameters = storage->runParameters;
         TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
@@ -426,8 +426,8 @@ ProcessTask debugServerTask(const Storage<DebuggerData> &storage)
 
 static ExecutableItem doneAwaiter(const Storage<DebuggerData> &storage)
 {
-    return BarrierTask([storage](Barrier &barrier) {
-        QObject::connect(&storage->enginesDriver, &EnginesDriver::done, &barrier, &Barrier::stopWithResult,
+    return QBarrierTask([storage](QBarrier &barrier) {
+        QObject::connect(&storage->enginesDriver, &EnginesDriver::done, &barrier, &QBarrier::stopWithResult,
                          static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
     });
 }
@@ -474,8 +474,8 @@ ExecutableItem startEnginesRecipe(const Storage<DebuggerData> &storage)
 
 static ExecutableItem terminalAwaiter(const Storage<DebuggerData> &storage)
 {
-    return BarrierTask([storage](Barrier &barrier) {
-        QObject::connect(storage->terminalProcess.get(), &Process::done, &barrier, &Barrier::advance,
+    return QBarrierTask([storage](QBarrier &barrier) {
+        QObject::connect(storage->terminalProcess.get(), &Process::done, &barrier, &QBarrier::advance,
                          static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
     });
 }
@@ -490,7 +490,7 @@ ExecutableItem finalizeRecipe(const Storage<DebuggerData> &storage)
     return Group {
         continueOnError,
         If (isRunning) >> Then {
-            Sync([storage] { storage->enginesDriver.stop(); }),
+            QSyncTask([storage] { storage->enginesDriver.stop(); }),
             doneAwaiter(storage)
         },
         If (isTerminalRunning) >> Then {
@@ -711,7 +711,7 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
             parametersModifier(storage->runParameters);
     };
 
-    const auto terminalKicker = [storage](const StoredBarrier &barrier) {
+    const auto terminalKicker = [storage](const QStoredBarrier &barrier) {
         return terminalRecipe(storage, barrier);
     };
 

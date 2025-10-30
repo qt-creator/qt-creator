@@ -9,7 +9,7 @@
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -19,7 +19,7 @@
 #include <utils/stringutils.h>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace RemoteLinux {
@@ -42,7 +42,7 @@ public:
 
     GenericLinuxDeviceTester *q = nullptr;
     LinuxDevice::Ptr m_device;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
     QStringList m_extraCommands;
     GroupItems m_extraTests;
 };
@@ -98,7 +98,7 @@ public:
 class ConnectionTaskAdapter final
 {
 public:
-    void operator()(ConnectionData *data, Tasking::TaskInterface *iface)
+    void operator()(ConnectionData *data, QTaskInterface *iface)
     {
         data->device->closeConnection(true);
         data->device->tryToConnect(Continuation<>(data->guard, [data, iface](const Result<> &res) {
@@ -110,7 +110,7 @@ public:
     }
 };
 
-using ConnectionTask = Tasking::CustomTask<ConnectionData, ConnectionTaskAdapter>;
+using ConnectionTask = QCustomTask<ConnectionData, ConnectionTaskAdapter>;
 
 GroupItem GenericLinuxDeviceTesterPrivate::connectionTask() const
 {
@@ -286,7 +286,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 
 GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const
 {
-    const LoopList iterator(commandsToTest());
+    const ListIterator iterator(commandsToTest());
 
     const auto onSetup = [this, iterator](Process &process) {
         const QString &commandName = *iterator;
@@ -324,7 +324,7 @@ using namespace Internal;
 GenericLinuxDeviceTester::GenericLinuxDeviceTester(const IDevice::Ptr &device, QObject *parent)
     : DeviceTester(device, parent), d(new GenericLinuxDeviceTesterPrivate(this))
 {
-    connect(&d->m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [this](DoneWith result) {
+    connect(&d->m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [this](DoneWith result) {
         emit finished(result == DoneWith::Success ? TestSuccess : TestFailure);
     });
 }

@@ -7,7 +7,7 @@
 #include "gitconstants.h"
 #include "gittr.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
@@ -23,7 +23,7 @@
 
 #include <set>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -294,7 +294,7 @@ public:
     QString currentHash;
     QDateTime currentDateTime;
     QStringList obsoleteLocalBranches;
-    SingleTaskTreeRunner taskTreeRunner;
+    QSingleTaskTreeRunner taskTreeRunner;
     bool oldBranchesIncluded = false;
 
     struct OldEntry
@@ -321,7 +321,7 @@ BranchModel::BranchModel(QObject *parent) :
     // Abuse the hash field for ref prefix
     d->rootNode->append(new BranchNode(Tr::tr("Local Branches"), "refs/heads"));
     d->rootNode->append(new BranchNode(Tr::tr("Remote Branches"), "refs/remotes"));
-    connect(&d->taskTreeRunner, &SingleTaskTreeRunner::done, this, &BranchModel::endResetModel);
+    connect(&d->taskTreeRunner, &QSingleTaskTreeRunner::done, this, &BranchModel::endResetModel);
 }
 
 BranchModel::~BranchModel()

@@ -6,7 +6,7 @@
 #include "devicesupport/idevicefwd.h"
 #include "runconfiguration.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
@@ -40,7 +40,7 @@ class RunWorkerConflictTest;
 class PROJECTEXPLORER_EXPORT RunWorkerFactory
 {
 public:
-    using RecipeCreator = std::function<Tasking::Group(RunControl *)>;
+    using RecipeCreator = std::function<QtTaskTree::Group(RunControl *)>;
 
     RunWorkerFactory();
     ~RunWorkerFactory();
@@ -67,7 +67,7 @@ private:
         Utils::Id deviceType,
         Utils::Id runConfigId,
         Utils::Id executionType) const;
-    Tasking::Group createRecipe(RunControl *runControl) const;
+    QtTaskTree::Group createRecipe(RunControl *runControl) const;
 
     RecipeCreator m_recipeCreator;
     QList<Utils::Id> m_supportedRunModes;
@@ -102,13 +102,13 @@ public:
     explicit RunControl(Utils::Id mode);
     ~RunControl() final;
 
-    Tasking::Group noRecipeTask();
-    Tasking::Group errorTask(const QString &message);
+    QtTaskTree::Group noRecipeTask();
+    QtTaskTree::Group errorTask(const QString &message);
 
     // The returned recipe sends RunControl::started() signal.
-    Tasking::Group processRecipe(const Utils::ProcessTask &processTask);
+    QtTaskTree::Group processRecipe(const Utils::ProcessTask &processTask);
     template <typename Modifier>
-    Tasking::Group processRecipe(const Modifier &startModifier = {},
+    QtTaskTree::Group processRecipe(const Modifier &startModifier = {},
                                  const ProcessSetupConfig &config = {})
     {
         return processRecipe(processTaskWithModifier(startModifier, config));
@@ -119,7 +119,7 @@ public:
                                                const ProcessSetupConfig &config = {})
     {
         // R, V stands for: Setup[R]esult, [V]oid
-        static constexpr bool isR = isModifierInvocable<Tasking::SetupResult, Modifier, Utils::Process &>();
+        static constexpr bool isR = isModifierInvocable<QtTaskTree::SetupResult, Modifier, Utils::Process &>();
         static constexpr bool isV = isModifierInvocable<void, Modifier, Utils::Process &>();
         static_assert(isR || isV,
                       "Process modifier needs to take (Process &) as an argument and has to return void or "
@@ -129,14 +129,14 @@ public:
         } else {
             const auto modifier = [startModifier](Utils::Process &process) {
                 startModifier(process);
-                return Tasking::SetupResult::Continue;
+                return QtTaskTree::SetupResult::Continue;
             };
             return processTask(modifier, config);
         }
     }
 
     Utils::ProcessTask processTask(
-        const std::function<Tasking::SetupResult(Utils::Process &)> &startModifier = {},
+        const std::function<QtTaskTree::SetupResult(Utils::Process &)> &startModifier = {},
         const ProcessSetupConfig &config = {});
 
     void start();
@@ -148,7 +148,7 @@ public:
     void copyDataFromRunConfiguration(RunConfiguration *runConfig);
     void copyDataFromRunControl(RunControl *runControl);
 
-    void setRunRecipe(const Tasking::Group &group);
+    void setRunRecipe(const QtTaskTree::Group &group);
 
     void initiateStart();
     void initiateStop();
@@ -217,7 +217,7 @@ public:
 
     static void provideAskPassEntry(Utils::Environment &env);
 
-    Tasking::Group createRecipe(Utils::Id runMode);
+    QtTaskTree::Group createRecipe(Utils::Id runMode);
 
     bool createMainRecipe();
     static bool canRun(

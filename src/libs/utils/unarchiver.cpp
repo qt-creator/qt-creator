@@ -11,7 +11,7 @@
 #include <archive.h>
 #include <archive_entry.h>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace Utils {
 

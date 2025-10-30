@@ -17,9 +17,10 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+
+namespace QtTaskTree { class ExecutableItem; }
 QT_END_NAMESPACE
 
-namespace Tasking { class ExecutableItem; }
 namespace Utils { class Environment; }
 
 namespace Core {
@@ -135,7 +136,7 @@ public:
      *
      * \a extraArgs are passed on to the command being run.
      */
-    virtual Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const;
+    virtual QtTaskTree::ExecutableItem cloneTask(const CloneTaskData &data) const;
 
     // Display name of the commit action
     virtual QString commitDisplayName() const;

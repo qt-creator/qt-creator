@@ -29,7 +29,7 @@
 
 #include <solutions/spinner/spinner.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
@@ -81,7 +81,7 @@
 
 using namespace Core;
 using namespace SpinnerSolution;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -569,7 +569,7 @@ public:
     bool m_fileLogAnnotateEnabled = false;
     bool m_mouseDragging = false;
 
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 
 private:
     QComboBox *m_entriesComboBox = nullptr;

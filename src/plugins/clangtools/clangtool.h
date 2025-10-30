@@ -13,11 +13,12 @@
 
 QT_BEGIN_NAMESPACE
 class QToolButton;
+
+namespace QtTaskTree { class Group; }
 QT_END_NAMESPACE
 
 namespace CppEditor { class ClangDiagnosticConfig; }
 namespace ProjectExplorer { class RunControl; }
-namespace Tasking { class Group; }
 namespace Utils { class FilePath; }
 
 namespace ClangTools::Internal {
@@ -70,7 +71,7 @@ protected:
     ClangTool(const QString &name, Utils::Id id, CppEditor::ClangToolType type);
 
 private:
-    Tasking::Group runRecipe(const RunSettings &runSettings,
+    QtTaskTree::Group runRecipe(const RunSettings &runSettings,
                              const CppEditor::ClangDiagnosticConfig &diagnosticConfig,
                              const FileInfos &fileInfos, bool buildBeforeAnalysis);
 

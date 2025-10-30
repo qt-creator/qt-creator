@@ -1,8 +1,19 @@
+if(Qt6_VERSION VERSION_LESS 6.11.0)
+  set(TaskTree QtTaskTree)
+else()
+  set(TaskTree Qt::TaskTree)
+endif()
+
 add_qtc_library(Utils
   DEPENDS Qt::Qml Qt::Xml Spinner QtCLibArchive
   PUBLIC_DEPENDS
-    Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets Qt::PrintSupport
-    Tasking
+    Qt::Concurrent
+    Qt::Core
+    Qt::Gui
+    Qt::Network
+    Qt::PrintSupport
+    Qt::Widgets
+    ${TaskTree}
     $<$<BOOL:${QTC_STATIC_BUILD}>:Spinner>
   SOURCES
     ../3rdparty/span/span.hpp

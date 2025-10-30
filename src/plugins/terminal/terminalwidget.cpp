@@ -47,7 +47,7 @@
 #include <QToolTip>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace Utils::Terminal;
 

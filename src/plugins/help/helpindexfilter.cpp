@@ -20,7 +20,7 @@
 using namespace Core;
 using namespace Help;
 using namespace Help::Internal;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 HelpIndexFilter::HelpIndexFilter()
@@ -29,7 +29,7 @@ HelpIndexFilter::HelpIndexFilter()
     setDisplayName(Tr::tr("Help Index"));
     setDescription(Tr::tr("Locates help topics, for example in the Qt documentation."));
     setDefaultShortcutString("?");
-    setRefreshRecipe(Sync([this] { invalidateCache(); }));
+    setRefreshRecipe(QSyncTask([this] { invalidateCache(); }));
 
     m_icon = Utils::Icons::BOOKMARK.icon();
     connect(Core::HelpManager::Signals::instance(), &Core::HelpManager::Signals::setupFinished,

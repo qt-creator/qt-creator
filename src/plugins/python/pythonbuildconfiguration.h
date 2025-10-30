@@ -5,7 +5,7 @@
 
 #include "pythonbuildsystem.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -36,10 +36,10 @@ private:
                                  const Utils::FilePath &python,
                                  const QString &requestedPackageName);
 
-    Tasking::GroupItem runRecipe() final;
+    QtTaskTree::GroupItem runRecipe() final;
     void updateExtraCompilers();
 
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 
     Utils::FilePathAspect m_pysideProject{this};
     Utils::FilePathAspect m_pysideUic{this};

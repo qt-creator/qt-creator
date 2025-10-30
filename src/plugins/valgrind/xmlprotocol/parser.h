@@ -5,7 +5,7 @@
 
 #include <utils/result.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <QObject>
 
@@ -56,15 +56,15 @@ private:
 class ParserTaskAdapter final
 {
 public:
-    void operator()(Parser *task, Tasking::TaskInterface *iface)
+    void operator()(Parser *task, QTaskInterface *iface)
     {
         QObject::connect(task, &Parser::done, iface, [iface](const Utils::Result<> &result) {
-            iface->reportDone(Tasking::toDoneResult(result == Utils::ResultOk));
+            iface->reportDone(QtTaskTree::toDoneResult(result == Utils::ResultOk));
         }, Qt::SingleShotConnection);
         task->start();
     }
 };
 
-using ParserTask = Tasking::CustomTask<Parser, ParserTaskAdapter>;
+using ParserTask = QCustomTask<Parser, ParserTaskAdapter>;
 
 } // Valgrind::XmlProtocol

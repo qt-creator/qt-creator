@@ -9,14 +9,14 @@
 #include "commandline.h"
 #include "port.h"
 
-namespace Tasking {
+QT_BEGIN_NAMESPACE
+class QString;
+
+namespace QtTaskTree {
 class ExecutableItem;
 template <typename StorageStruct>
 class Storage;
-}
-
-QT_BEGIN_NAMESPACE
-class QString;
+} // namespace QtTaskTree
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -56,8 +56,8 @@ public:
 
 using PortsOutputData = Result<QList<Port>>;
 
-QTCREATOR_UTILS_EXPORT Tasking::ExecutableItem portsFromProcessRecipe(
-    const Tasking::Storage<PortsInputData> &input, const Tasking::Storage<PortsOutputData> &output);
+QTCREATOR_UTILS_EXPORT QtTaskTree::ExecutableItem portsFromProcessRecipe(
+    const QtTaskTree::Storage<PortsInputData> &input, const QtTaskTree::Storage<PortsOutputData> &output);
 
 class QTCREATOR_UTILS_EXPORT PortListAspect : public Utils::StringAspect
 {

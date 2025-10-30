@@ -12,7 +12,7 @@
 #include <utils/algorithm.h>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace TextEditor::Internal {
@@ -41,7 +41,7 @@ LocatorMatcherTasks BookmarkFilter::matchers()
         const LocatorStorage &storage = *LocatorStorage::storage();
         storage.reportOutput(match(storage.input()));
     };
-    return {Sync(onSetup)};
+    return {QSyncTask(onSetup)};
 }
 
 LocatorFilterEntries BookmarkFilter::match(const QString &input) const

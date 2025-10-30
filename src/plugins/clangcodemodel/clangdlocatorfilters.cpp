@@ -23,7 +23,7 @@ using namespace Core;
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 

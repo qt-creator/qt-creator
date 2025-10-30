@@ -10,8 +10,8 @@
 #include <projectexplorer/projecttree.h>
 
 #include <solutions/spinner/spinner.h>
-#include <solutions/tasking/tasktree.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QTaskTree>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -75,7 +75,7 @@ private:
     InfoLabel *m_infoLabel;
     QDialogButtonBox *m_buttonBox;
     SpinnerSolution::Spinner *m_spinner;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexistingPackages,
@@ -202,7 +202,7 @@ void VcpkgPackageSearchDialog::updateStatus()
 
 void VcpkgPackageSearchDialog::updatePackages()
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const Group recipe {
         onGroupSetup([this] { m_spinner->show(); }),

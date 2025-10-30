@@ -9,7 +9,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/aspects.h>
 #include <utils/qtcassert.h>
@@ -18,7 +18,7 @@
 #include <QDateTime>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Nim {
@@ -77,7 +77,7 @@ GroupItem NimCompilerCleanStep::runRecipe()
         emit addOutput(Tr::tr("Clean step completed successfully."), OutputFormat::NormalMessage);
         return DoneResult::Success;
     };
-    return Sync(onSetup);
+    return QSyncTask(onSetup);
 }
 
 bool NimCompilerCleanStep::removeCacheDirectory()

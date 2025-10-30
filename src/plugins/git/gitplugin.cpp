@@ -82,7 +82,7 @@
 Q_DECLARE_METATYPE(Git::Internal::FileStates)
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 using namespace VcsBase;
@@ -175,7 +175,7 @@ public:
     void vcsDescribe(const FilePath &source, const QString &id) final { gitClient().show(source, id); }
     QString vcsTopic(const FilePath &directory) final;
 
-    Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const final;
+    ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     void fillLinkContextMenu(QMenu *menu,
                              const FilePath &workingDirectory,

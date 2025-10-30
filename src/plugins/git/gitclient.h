@@ -20,9 +20,9 @@
 
 QT_BEGIN_NAMESPACE
 class QMenu;
-QT_END_NAMESPACE
 
-namespace Tasking { class GroupItem; }
+namespace QtTaskTree { class GroupItem; }
+QT_END_NAMESPACE
 
 namespace VcsBase { class SubmitFileModel; }
 
@@ -273,7 +273,7 @@ public:
     QString synchronousTopic(const Utils::FilePath &workingDirectory) const;
     bool synchronousRevParseCmd(const Utils::FilePath &workingDirectory, const QString &ref,
                                 QString *output, QString *errorMessage = nullptr) const;
-    Tasking::GroupItem topRevision(const Utils::FilePath &workingDirectory,
+    QtTaskTree::GroupItem topRevision(const Utils::FilePath &workingDirectory,
         const std::function<void(const QString &, const QDateTime &)> &callback);
     bool isRemoteCommit(const Utils::FilePath &workingDirectory, const QString &commit);
 
@@ -330,8 +330,8 @@ public:
     StatusResult gitStatus(const Utils::FilePath &workingDirectory, StatusMode mode,
                            QString *output = nullptr, QString *errorMessage = nullptr) const;
 
-    Tasking::ExecutableItem statusTask(const Utils::FilePath &workingDirectory, StatusMode mode,
-                                       const Tasking::Storage<StatusResultData> &resultStorage) const;
+    QtTaskTree::ExecutableItem statusTask(const Utils::FilePath &workingDirectory, StatusMode mode,
+                                       const QtTaskTree::Storage<StatusResultData> &resultStorage) const;
 
     CommandInProgress checkCommandInProgress(const Utils::FilePath &workingDirectory) const;
     QString commandInProgressDescription(const Utils::FilePath &workingDirectory) const;

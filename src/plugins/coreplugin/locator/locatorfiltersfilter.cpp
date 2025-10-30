@@ -9,7 +9,7 @@
 
 #include <utils/utilsicons.h>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Core::Internal {
@@ -61,7 +61,7 @@ LocatorMatcherTasks LocatorFiltersFilter::matchers()
         }
         storage.reportOutput(entries);
     };
-    return {Sync(onSetup)};
+    return {QSyncTask(onSetup)};
 }
 
 } // Core::Internal

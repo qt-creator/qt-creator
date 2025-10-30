@@ -29,7 +29,7 @@
 #include <QVariant>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 /*!

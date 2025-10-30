@@ -5,7 +5,7 @@
 
 #include <projectexplorer/buildstep.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <QJsonObject>
 
@@ -32,7 +32,7 @@ public:
     void start();
 
 signals:
-    void done(Tasking::DoneResult result);
+    void done(QtTaskTree::DoneResult result);
     void progressChanged(int progress, const QString &info); // progress in %
     void outputAdded(const QString &output, ProjectExplorer::BuildStep::OutputFormat format);
     void taskAdded(const ProjectExplorer::Task &task);
@@ -44,6 +44,6 @@ private:
     QbsRequestObject *m_requestObject = nullptr;
 };
 
-using QbsRequestTask = Tasking::CustomTask<QbsRequest>;
+using QbsRequestTask = QCustomTask<QbsRequest>;
 
 } // namespace QbsProjectManager::Internal

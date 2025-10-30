@@ -12,7 +12,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 #include <utils/layoutbuilder.h>
 
 #include <QPushButton>
@@ -131,9 +131,9 @@ void CocoBuildStep::display(BuildConfiguration *buildConfig)
     updateDisplay();
 }
 
-Tasking::GroupItem CocoBuildStep::runRecipe()
+QtTaskTree::GroupItem CocoBuildStep::runRecipe()
 {
-    return Tasking::GroupItem({});
+    return QtTaskTree::GroupItem({});
 }
 
 // Factories

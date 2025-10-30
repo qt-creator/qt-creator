@@ -8,7 +8,7 @@
 
 #include <coreplugin/icore.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/environment.h>
 #include <utils/globalfilechangeblocker.h>
@@ -17,7 +17,7 @@
 #include <utils/threadutils.h>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 using namespace std::chrono;
@@ -41,7 +41,7 @@ CommandResult::CommandResult(const Process &process, ProcessResult result)
 
 ExecutableItem errorTask(const FilePath &workingDir, const QString &errorMessage)
 {
-    return Sync([workingDir, errorMessage] {
+    return QSyncTask([workingDir, errorMessage] {
         VcsOutputWindow::appendError(workingDir, errorMessage);
         return false;
     });
@@ -178,7 +178,7 @@ CommandResult vcsRunBlocking(const VcsProcessData &data, const seconds timeout,
         onGroupDone(onDone)
     };
 
-    SingleTaskTreeRunner taskTreeRunner;
+    QSingleTaskTreeRunner taskTreeRunner;
     taskTreeRunner.start(recipe);
     QTC_CHECK(!taskTreeRunner.isRunning());
     return result;

@@ -5,11 +5,13 @@
 
 #include <QString>
 
-namespace Tasking { class GroupItem; }
+QT_BEGIN_NAMESPACE
+namespace QtTaskTree { class GroupItem; }
+QT_END_NAMESPACE
 
 namespace Android::Internal {
 
-Tasking::GroupItem downloadSdkRecipe();
+QtTaskTree::GroupItem downloadSdkRecipe();
 QString dialogTitle();
 
 } // namespace Android::Internal

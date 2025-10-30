@@ -7,7 +7,7 @@
 #include "projectexplorer_export.h"
 #include "task.h"
 
-#include <tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/aspects.h>
 
@@ -84,12 +84,12 @@ private:
     PROJECTEXPLORER_EXPORT friend QDebug operator<<(QDebug dbg, const DetectionSource &source);
 };
 
-PROJECTEXPLORER_EXPORT Tasking::Group kitDetectionRecipe(
+PROJECTEXPLORER_EXPORT QtTaskTree::Group kitDetectionRecipe(
     const IDeviceConstPtr &device,
     DetectionSource::DetectionType detectionType,
     const LogCallback &logCallback);
 
-PROJECTEXPLORER_EXPORT Tasking::Group removeDetectedKitsRecipe(
+PROJECTEXPLORER_EXPORT QtTaskTree::Group removeDetectedKitsRecipe(
     const IDeviceConstPtr &device, const LogCallback &logCallback);
 
 PROJECTEXPLORER_EXPORT void listAutoDetected(
@@ -152,19 +152,19 @@ public:
     static void handleKitsLoaded();
     static const QList<KitAspectFactory *> kitAspectFactories();
 
-    virtual std::optional<Tasking::ExecutableItem> autoDetect(
+    virtual std::optional<QtTaskTree::ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const DetectionSource &detectionSource,
         const LogCallback &logCallback) const;
 
-    virtual std::optional<Tasking::ExecutableItem> removeAutoDetected(
+    virtual std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSourceId, const LogCallback &logCallback) const;
 
     virtual void listAutoDetected(
         const QString &detectionSourceId, const LogCallback &logCallback) const;
 
-    virtual Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+    virtual Utils::Result<QtTaskTree::ExecutableItem> createAspectFromJson(
         const DetectionSource &detectionSource,
         const Utils::FilePath &rootPath,
         Kit *kit,

@@ -8,7 +8,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace TextEditor::Internal {
@@ -66,7 +66,7 @@ private:
                 storage.reportOutput({entry});
             }
         };
-        return {Sync(onSetup)};
+        return {QSyncTask(onSetup)};
     }
 };
 

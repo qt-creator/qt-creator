@@ -15,7 +15,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
-#include <tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/environment.h>
 #include <utils/guard.h>
@@ -440,7 +440,7 @@ public:
         return {{Tr::tr("Debugger"), DebuggerKitAspect::displayString(k)}};
     }
 
-    std::optional<Tasking::ExecutableItem> autoDetect(
+    std::optional<QtTaskTree::ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const DetectionSource &detectionSource,
@@ -449,7 +449,7 @@ public:
         return Internal::autoDetectDebuggerRecipe(kit, searchPaths, detectionSource, logCallback);
     }
 
-    std::optional<Tasking::ExecutableItem> removeAutoDetected(
+    std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override
     {
         return Internal::removeAutoDetected(detectionSource, logCallback);
@@ -465,7 +465,7 @@ public:
         }
     }
 
-    Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+    Utils::Result<QtTaskTree::ExecutableItem> createAspectFromJson(
         const DetectionSource &detectionSource,
         const Utils::FilePath &rootPath,
         Kit *kit,

@@ -19,7 +19,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
@@ -30,7 +30,7 @@
 #include <QSettings>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Ios::Internal {
@@ -92,7 +92,7 @@ private:
     std::unique_ptr<IosToolHandler> m_toolHandler;
 };
 
-using IosTransferTask = CustomTask<IosTransfer>;
+using IosTransferTask = QCustomTask<IosTransfer>;
 
 GroupItem createDeviceCtlDeployTask(
     const IosDevice::ConstPtr &device,

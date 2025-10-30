@@ -5,7 +5,7 @@
 
 #include "../coreplugintr.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -24,7 +24,7 @@
 
 #include <unordered_set>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 /*!
@@ -123,7 +123,7 @@ public:
 
     void reportOutput(int index, const LocatorFilterEntries &outputData)
     // Called directly by running filters. The calls may come from main thread in case of
-    // e.g. Sync task or directly from other threads when AsyncTask was used.
+    // e.g. QSyncTask or directly from other threads when AsyncTask was used.
     {
         QTC_ASSERT(index >= 0, return);
 
@@ -311,7 +311,7 @@ public:
     QString m_input;
     LocatorFilterEntries m_output;
     int m_parallelLimit = 0;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 LocatorMatcher::LocatorMatcher()
@@ -354,7 +354,7 @@ void LocatorMatcher::start()
     };
 
     const Storage<ResultsCollector> collectorStorage;
-    const LoopList iterator(d->m_tasks);
+    const ListIterator iterator(d->m_tasks);
 
     const auto onCollectorSetup = [this, filterCount, collectorStorage](
                                       Async<LocatorFilterEntries> &async) {
@@ -371,7 +371,7 @@ void LocatorMatcher::start()
     };
     const auto onCollectorDone = [collectorStorage] { collectorStorage->m_deduplicator->cancel(); };
 
-    const auto onTaskTreeSetup = [iterator, input = d->m_input, collectorStorage](TaskTree &taskTree) {
+    const auto onTaskTreeSetup = [iterator, input = d->m_input, collectorStorage](QTaskTree &taskTree) {
         const std::shared_ptr<ResultsDeduplicator> deduplicator = collectorStorage->m_deduplicator;
         const auto onSetup = [input, index = iterator.iteration(), deduplicator] {
             *LocatorStorage::storage()
@@ -391,8 +391,8 @@ void LocatorMatcher::start()
         collectorStorage,
         AsyncTask<LocatorFilterEntries>(onCollectorSetup, onCollectorDone),
         For (iterator) >> Do {
-            parallelLimit(d->m_parallelLimit),
-            TaskTreeTask(onTaskTreeSetup)
+            ParallelLimit(d->m_parallelLimit),
+            QTaskTreeTask(onTaskTreeSetup)
         }
     };
     d->m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {

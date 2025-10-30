@@ -8,7 +8,7 @@
 
 #include <QtGlobal>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 QT_BEGIN_NAMESPACE
 class QJsonObject;
@@ -91,7 +91,7 @@ private:
     std::optional<AxivionVersionInfo> m_versionInfo = std::nullopt;
     Utils::StringAspect m_defaultServerId{this};
     QList<AxivionServer> m_allServers;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 AxivionSettings &settings();

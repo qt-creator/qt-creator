@@ -10,7 +10,7 @@
 
 #include <qmldebug/qmldebugconnectionmanager.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/fileinprojectfinder.h>
 #include <utils/filesystemwatcher.h>
@@ -69,14 +69,14 @@ public:
         if (m_task)
             m_task->disconnectFromServer();
     }
-    void operator()(QmlPreviewConnectionManager *task, Tasking::TaskInterface *iface)
+    void operator()(QmlPreviewConnectionManager *task, QTaskInterface *iface)
     {
         m_task = task;
         QObject::connect(task, &QmlPreviewConnectionManager::connectionClosed, iface, [iface] {
-            iface->reportDone(Tasking::DoneResult::Success);
+            iface->reportDone(QtTaskTree::DoneResult::Success);
         }, Qt::SingleShotConnection);
         QObject::connect(task, &QmlPreviewConnectionManager::connectionFailed, iface, [iface] {
-            iface->reportDone(Tasking::DoneResult::Error);
+            iface->reportDone(QtTaskTree::DoneResult::Error);
         }, Qt::SingleShotConnection);
         task->connectToServer();
     }
@@ -86,6 +86,6 @@ private:
 };
 
 using QmlPreviewConnectionManagerTask
-    = Tasking::CustomTask<QmlPreviewConnectionManager, QmlPreviewConnectionManagerTaskAdapter>;
+    = QCustomTask<QmlPreviewConnectionManager, QmlPreviewConnectionManagerTaskAdapter>;
 
 } // namespace QmlPreview

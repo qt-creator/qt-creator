@@ -21,7 +21,7 @@ public:
 
 private:
     bool init() override;
-    Tasking::GroupItem runRecipe() final;
+    QtTaskTree::GroupItem runRecipe() final;
     QWidget *createConfigWidget() override;
 
     const QbsBuildConfiguration *buildConfig() const;

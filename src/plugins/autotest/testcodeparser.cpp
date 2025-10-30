@@ -26,7 +26,7 @@
 #include <QLoggingCategory>
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Autotest {
@@ -59,7 +59,7 @@ TestCodeParser::TestCodeParser()
     m_reparseTimer.setSingleShot(true);
     m_reparseTimer.setInterval(1000);
     connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
-    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
+    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::aboutToStart, this, [this](QTaskTree *taskTree) {
         if (m_withTaskProgress) {
             auto progress = new TaskProgress(taskTree);
             progress->setDisplayName(Tr::tr("Scanning for Tests"));
@@ -67,7 +67,7 @@ TestCodeParser::TestCodeParser()
         }
         emit parsingStarted();
     });
-    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [this](DoneWith result) {
+    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [this](DoneWith result) {
         onFinished(result == DoneWith::Success);
     });
 }
@@ -417,8 +417,8 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
         if (!results.isEmpty())
             emit testParseResultsReady(results);
     };
-    const Group recipe = For (LoopRepeat(filteredFiles.size())) >> Do {
-        parallelLimit(limit),
+    const Group recipe = For (RepeatIterator(filteredFiles.size())) >> Do {
+        ParallelLimit(limit),
         storage,
         onGroupSetup([storage, filteredFiles] { *storage = filteredFiles.cbegin(); }),
         AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDone::OnSuccess)

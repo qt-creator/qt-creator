@@ -45,7 +45,7 @@
 #include <QTest>
 #endif
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
 using namespace std::placeholders;
@@ -104,7 +104,7 @@ public:
         mercurialClient().view(source, id);
     }
 
-    Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const final;
+    ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
 private:
     void updateActions(VcsBase::VersionControlBase::ActionState) final;

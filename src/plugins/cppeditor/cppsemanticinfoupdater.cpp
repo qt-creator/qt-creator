@@ -9,7 +9,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/async.h>
 #include <utils/qtcassert.h>
@@ -19,7 +19,7 @@
 enum { debug = 0 };
 
 using namespace CPlusPlus;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 static Q_LOGGING_CATEGORY(log, "qtc.cppeditor.semanticinfoupdater", QtWarningMsg)
@@ -30,7 +30,7 @@ class SemanticInfoUpdaterPrivate
 {
 public:
     SemanticInfo m_semanticInfo;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 class FuturizedTopLevelDeclarationProcessor: public TopLevelDeclarationProcessor

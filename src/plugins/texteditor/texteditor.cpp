@@ -50,7 +50,7 @@
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/navigationwidget.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -140,7 +140,7 @@
 */
 
 using namespace Core;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace TextEditor {
@@ -1127,8 +1127,8 @@ public:
     QList<QAction *> m_suggestionActions;
     bool m_updatePasteActionScheduled = false;
 
-    SingleTaskTreeRunner m_searchRunner;
-    SingleTaskTreeRunner m_selectionHighlightRunner;
+    QSingleTaskTreeRunner m_searchRunner;
+    QSingleTaskTreeRunner m_selectionHighlightRunner;
 };
 
 class TextEditorWidgetFind : public BaseTextFind<TextEditorWidget>
@@ -1148,7 +1148,7 @@ public:
 
 private:
     TextEditorWidget * const m_editor;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 static QTextCursor selectRange(QTextDocument *textDocument, const Text::Range &range,

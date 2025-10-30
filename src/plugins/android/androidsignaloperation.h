@@ -5,7 +5,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 namespace Android::Internal {
 
@@ -22,7 +22,7 @@ protected:
 private:
     void signalOperationViaADB(qint64 pid, int signal);
 
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 
     friend class AndroidDevice;
 };

@@ -42,7 +42,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/baseqtversion.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <texteditor/texteditor.h>
 
@@ -58,7 +58,7 @@
 #include <QToolBar>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace QmlPreview {
 
@@ -121,7 +121,7 @@ public:
     QmlPreviewRunnerSetting m_settings;
     QmlPreviewRunWorkerFactory runWorkerFactory;
 
-    SingleTaskTreeRunner m_parseRunner;
+    QSingleTaskTreeRunner m_parseRunner;
 };
 
 QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)

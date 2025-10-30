@@ -6,8 +6,8 @@
 #include "devcontainertr.h"
 #include "substitute.h"
 
-#include <tasking/barrier.h>
-#include <tasking/conditional.h>
+#include <QtTaskTree/QBarrier>
+#include <QtTaskTree/qconditional.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -21,7 +21,7 @@
 Q_LOGGING_CATEGORY(devcontainerlog, "devcontainer", QtWarningMsg)
 
 using namespace Utils;
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace DevContainer {
 
@@ -29,7 +29,7 @@ struct InstancePrivate
 {
     Config config;
     InstanceConfig instanceConfig;
-    TaskTree taskTree;
+    QTaskTree taskTree;
 };
 
 using DynamicString = std::variant<QString, Storage<QString>, std::function<QString()>>;
@@ -1074,7 +1074,7 @@ static ExecutableItem lifecycleHookRecipe(
     if (!command)
         return Group{};
 
-    auto logExecution = Sync([instanceConfig, hookName] {
+    auto logExecution = QSyncTask([instanceConfig, hookName] {
         instanceConfig.logFunction(QString("Executing the %1 hook from %2")
                                        .arg(hookName)
                                        .arg(instanceConfig.configFilePath.fileName()));
@@ -1272,13 +1272,13 @@ static ExecutableItem startContainerRecipe(const InstanceConfig &instanceConfig)
     // clang-format on
 }
 
-static Sync fillRunningInstance(
+static QSyncTask fillRunningInstance(
     const RunningInstance &runningInstance,
     const Storage<RunningContainerDetails> &runningDetails,
     const Storage<ImageDetails> &imageDetails,
     const DynamicString &containerId)
 {
-    return Sync([containerId, runningInstance, runningDetails, imageDetails]() {
+    return QSyncTask([containerId, runningInstance, runningDetails, imageDetails]() {
         runningInstance->remoteEnvironment = runningDetails->probedUserEnvironment;
 
         runningInstance->osType = osTypeFromString(imageDetails->Os).value_or(OsType::OsTypeOther);
@@ -1649,7 +1649,7 @@ Result<> Instance::up(const RunningInstance &runningInstance)
     if (!d->config.containerConfig)
         return ResultOk;
 
-    const Utils::Result<Tasking::Group> recipeResult = upRecipe(runningInstance);
+    const Utils::Result<Group> recipeResult = upRecipe(runningInstance);
     if (!recipeResult)
         return ResultError(recipeResult.error());
 
@@ -1664,7 +1664,7 @@ Result<> Instance::down()
     if (!d->config.containerConfig)
         return ResultOk;
 
-    const Utils::Result<Tasking::Group> recipeResult = downRecipe(false);
+    const Utils::Result<Group> recipeResult = downRecipe(false);
     if (!recipeResult)
         return ResultError(recipeResult.error());
     d->taskTree.setRecipe(std::move(*recipeResult));
@@ -1673,7 +1673,7 @@ Result<> Instance::down()
     return ResultOk;
 }
 
-Result<Tasking::Group> Instance::upRecipe(const RunningInstance &runningInstance) const
+Result<Group> Instance::upRecipe(const RunningInstance &runningInstance) const
 {
     if (!runningInstance)
         return ResultError(Tr::tr("Running instance cannot be null."));
@@ -1681,7 +1681,7 @@ Result<Tasking::Group> Instance::upRecipe(const RunningInstance &runningInstance
     return prepareRecipe(d->config, d->instanceConfig, runningInstance);
 }
 
-Result<Tasking::Group> Instance::downRecipe(bool forceDown) const
+Result<Group> Instance::downRecipe(bool forceDown) const
 {
     return ::DevContainer::downRecipe(d->config, d->instanceConfig, forceDown);
 }

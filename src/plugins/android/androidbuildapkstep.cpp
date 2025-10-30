@@ -897,9 +897,9 @@ static bool copyFileIfNewer(const FilePath &sourceFilePath, const FilePath &dest
     return true;
 }
 
-Tasking::GroupItem AndroidBuildApkStep::runRecipe()
+QtTaskTree::GroupItem AndroidBuildApkStep::runRecipe()
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const auto setupHelper = [this] {
         QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());

@@ -12,7 +12,7 @@
 
 #include <coreplugin/fileutils.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/async.h>
 #include <utils/devicefileaccess.h>
@@ -40,7 +40,7 @@
 #endif
 
 using namespace ProjectExplorer::Constants;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -58,10 +58,10 @@ public:
 
         auto autoDetectButton = new QPushButton(Tr::tr("Run Auto-Detection Now"));
 
-        connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::aboutToStart, [=] {
+        connect(&m_detectionRunner, &QSingleTaskTreeRunner::aboutToStart, [=] {
             autoDetectButton->setEnabled(false);
         });
-        connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::done, [=] {
+        connect(&m_detectionRunner, &QSingleTaskTreeRunner::done, [=] {
             autoDetectButton->setEnabled(true);
         });
 
@@ -109,13 +109,13 @@ private:
 
     QLineEdit *m_freePortsLineEdit;
     QLabel *m_portsWarningLabel;
-    Tasking::SingleTaskTreeRunner m_detectionRunner;
+    QSingleTaskTreeRunner m_detectionRunner;
 };
 
 class DesktopDevicePrivate
 {
 public:
-    SingleTaskTreeRunner taskTreeRunner;
+    QSingleTaskTreeRunner taskTreeRunner;
 };
 
 DesktopDevice::DesktopDevice()

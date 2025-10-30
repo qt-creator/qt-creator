@@ -61,7 +61,7 @@ public:
 
 private:
     bool init() final;
-    Tasking::GroupItem runRecipe() final;
+    QtTaskTree::GroupItem runRecipe() final;
     void fromMap(const Store &map) final;
     void toMap(Store &map) const final;
     QVariant data(Id id) const final;
@@ -129,9 +129,9 @@ bool TarPackageCreationStep::init()
     return true;
 }
 
-Tasking::GroupItem TarPackageCreationStep::runRecipe()
+QtTaskTree::GroupItem TarPackageCreationStep::runRecipe()
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
     const auto onSetup = [this](Async<void> &async) {
         const QList<DeployableFile> &files = buildSystem()->deploymentData().allFiles();
         if (m_incrementalDeployment()) {

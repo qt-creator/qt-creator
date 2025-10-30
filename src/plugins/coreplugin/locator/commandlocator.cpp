@@ -10,7 +10,7 @@
 #include <QAction>
 #include <QPointer>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Core {
@@ -63,7 +63,7 @@ LocatorMatcherTasks CommandLocator::matchers()
         }
         storage.reportOutput(betterEntries + goodEntries);
     };
-    return {Sync(onSetup)};
+    return {QSyncTask(onSetup)};
 }
 
 }  // namespace Core

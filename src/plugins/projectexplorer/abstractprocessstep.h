@@ -40,12 +40,12 @@ protected:
     void setLowPriority();
     void setDisplayedParameters(ProcessParameters *params);
 
-    Tasking::GroupItem defaultProcessTask();
+    QtTaskTree::GroupItem defaultProcessTask();
     bool setupProcess(Utils::Process &process);
     void handleProcessDone(const Utils::Process &process);
 
 private:
-    Tasking::GroupItem runRecipe() override;
+    QtTaskTree::GroupItem runRecipe() override;
 
     class Private;
     Private *d;

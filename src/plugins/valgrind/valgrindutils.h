@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 namespace ProjectExplorer { class RunControl; }
 namespace Utils { class CommandLine; }
@@ -13,7 +13,7 @@ namespace Valgrind::Internal {
 class ValgrindProcess;
 class ValgrindSettings;
 
-Tasking::ExecutableItem initValgrindRecipe(const Tasking::Storage<ValgrindSettings> &storage,
+QtTaskTree::ExecutableItem initValgrindRecipe(const QtTaskTree::Storage<ValgrindSettings> &storage,
                                            ProjectExplorer::RunControl *runControl);
 void setupValgrindProcess(ValgrindProcess *process, ProjectExplorer::RunControl *runControl,
                           const Utils::CommandLine &valgrindCommand);

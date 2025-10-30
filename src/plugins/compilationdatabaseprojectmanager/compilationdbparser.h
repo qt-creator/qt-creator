@@ -7,7 +7,7 @@
 
 #include <projectexplorer/buildsystem.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QObject>
 
@@ -54,7 +54,7 @@ private:
     QByteArray m_projectFileHash;
 
     ProjectExplorer::BuildSystem::ParseGuard m_guard;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace CompilationDatabaseProjectManager::Internal

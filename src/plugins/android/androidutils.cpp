@@ -26,8 +26,8 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
-#include <solutions/tasking/conditional.h>
-#include <solutions/tasking/tcpsocket.h>
+#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QTcpSocketWrapper>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -39,11 +39,12 @@
 #include <QJsonObject>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QTcpSocket>
 #include <QVersionNumber>
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 using namespace std::chrono_literals;
@@ -628,9 +629,10 @@ ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<QString>
 {
     const Storage<QStringList> outputStorage;
     const Storage<QString> currentSerialNumberStorage;
-    const LoopUntil iterator([outputStorage](int iteration) { return iteration < outputStorage->size(); });
+    const UntilIterator iterator([outputStorage](int iteration) { return iteration < outputStorage->size(); });
 
-    const auto onSocketSetup = [iterator, outputStorage, currentSerialNumberStorage](TcpSocket &socket) {
+    const auto onSocketSetup = [iterator, outputStorage, currentSerialNumberStorage](
+                                   QTcpSocketWrapper &socket) {
         const QString line = outputStorage->at(iterator.iteration());
         if (line.startsWith("* daemon"))
             return SetupResult::StopWithError;
@@ -652,10 +654,11 @@ ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<QString>
 
         socket.setAddress(QHostAddress(QHostAddress::LocalHost));
         socket.setPort(port);
-        socket.setWriteData("avd name\nexit\n");
+        socket.setData("avd name\nexit\n");
         return SetupResult::Continue;
     };
-    const auto onSocketDone = [avdName, currentSerialNumberStorage, serialNumberStorage](const TcpSocket &socket) {
+    const auto onSocketDone = [avdName, currentSerialNumberStorage, serialNumberStorage](
+                                  const QTcpSocketWrapper &socket) {
         const QByteArrayList response = socket.socket()->readAll().split('\n');
         // The input "avd name" might not be echoed as-is, but contain ASCII control sequences.
         for (int i = response.size() - 1; i > 1; --i) {
@@ -680,7 +683,7 @@ ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<QString>
             stopOnSuccess,
             Group {
                 currentSerialNumberStorage,
-                TcpSocketTask(onSocketSetup, onSocketDone)
+                QTcpSocketWrapperTask(onSocketSetup, onSocketDone)
             }
         }
     };

@@ -24,7 +24,7 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Core::Internal {

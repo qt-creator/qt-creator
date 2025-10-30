@@ -40,7 +40,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
 

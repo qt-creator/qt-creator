@@ -22,8 +22,8 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
-#include <solutions/tasking/barrier.h>
-#include <solutions/tasking/conditional.h>
+#include <QtTaskTree/QBarrier>
+#include <QtTaskTree/qconditional.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/port.h>
@@ -43,7 +43,7 @@ static const int GdbTempFileMaxCounter = 20;
 
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 using namespace std;
@@ -230,7 +230,7 @@ static ExecutableItem forceStopRecipe(const Storage<RunnerStorage> &storage)
         process.setCommand(storage->adbCommand({"shell", "am", "force-stop", storage->m_packageName}));
     };
 
-    const auto pidCheckSync = Sync([storage] { return storage->m_processPID != -1; });
+    const auto pidCheckSync = QSyncTask([storage] { return storage->m_processPID != -1; });
 
     const auto onPidOfSetup = [storage](Process &process) {
         process.setCommand(storage->adbCommand({"shell", "pidof", storage->m_packageName}));
@@ -301,14 +301,14 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
 // The startBarrier is passed when logcat process received "Sending WAIT chunk" message.
 // The settledBarrier is passed when logcat process received "debugger has settled" message.
 static ExecutableItem jdbRecipe(const Storage<RunnerStorage> &storage,
-                                const StoredBarrier &startBarrier,
-                                const StoredBarrier &settledBarrier)
+                                const QStoredBarrier &startBarrier,
+                                const QStoredBarrier &settledBarrier)
 {
     const auto onSetup = [storage] {
         return storage->m_useCppDebugger ? SetupResult::Continue : SetupResult::StopWithSuccess;
     };
 
-    const auto onTaskTreeSetup = [storage](TaskTree &taskTree) {
+    const auto onTaskTreeSetup = [storage](QTaskTree &taskTree) {
         taskTree.setRecipe({removeForwardPortRecipe(storage.activeStorage(),
                             "tcp:" + s_localJdbServerPort.toString(),
                             "jdwp:" + QString::number(storage->m_processPID), "JDB")
@@ -324,7 +324,7 @@ static ExecutableItem jdbRecipe(const Storage<RunnerStorage> &storage,
         process.setProcessMode(ProcessMode::Writer);
         process.setProcessChannelMode(QProcess::MergedChannels);
         process.setReaperTimeout(s_jdbTimeout);
-        QObject::connect(settledBarrier.activeStorage(), &Barrier::done, &process, [processPtr = &process] {
+        QObject::connect(settledBarrier.activeStorage(), &QBarrier::done, &process, [processPtr = &process] {
             processPtr->write("ignore uncaught java.lang.Throwable\n"
                               "threads\n"
                               "cont\n"
@@ -339,8 +339,8 @@ static ExecutableItem jdbRecipe(const Storage<RunnerStorage> &storage,
 
     return Group {
         onGroupSetup(onSetup),
-        waitForBarrierTask(startBarrier),
-        TaskTreeTask(onTaskTreeSetup),
+        barrierAwaiterTask(startBarrier),
+        QTaskTreeTask(onTaskTreeSetup),
         ProcessTask(onJdbSetup, onJdbDone).withTimeout(60s)
     };
 }
@@ -354,8 +354,8 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
     };
 
     const Storage<Buffer> bufferStorage;
-    const StoredBarrier startJdbBarrier;   // When logcat received "Sending WAIT chunk".
-    const StoredBarrier settledJdbBarrier; // When logcat received "debugger has settled".
+    const QStoredBarrier startJdbBarrier;   // When logcat received "Sending WAIT chunk".
+    const QStoredBarrier settledJdbBarrier; // When logcat received "debugger has settled".
 
     const auto onTimeSetup = [storage](Process &process) {
         process.setCommand(storage->adbCommand({"shell", "date", "+%s"}));
@@ -463,7 +463,7 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
 static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
 {
     const Storage<CommandLine> cmdStorage;
-    const LoopUntil iterator([storage](int iteration) {
+    const UntilIterator iterator([storage](int iteration) {
         return iteration < storage->m_beforeStartAdbCommands.size();
     });
 
@@ -484,7 +484,7 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
     const auto isQmlDebug = [storage] {
         return storage->m_qmlDebugServices != NoQmlDebugServices;
     };
-    const auto onTaskTreeSetup = [storage](TaskTree &taskTree) {
+    const auto onTaskTreeSetup = [storage](QTaskTree &taskTree) {
         const QString port = "tcp:" + QString::number(storage->m_qmlPort);
         taskTree.setRecipe({removeForwardPortRecipe(storage.activeStorage(), port, port, "QML")});
     };
@@ -529,8 +529,8 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
             ProcessTask(onPreCommandSetup, onPreCommandDone, CallDone::OnError)
         },
         If (isQmlDebug) >> Then {
-            TaskTreeTask(onTaskTreeSetup),
-            Sync(onQmlDebugSync)
+            QTaskTreeTask(onTaskTreeSetup),
+            QSyncTask(onQmlDebugSync)
         },
         ProcessTask(onActivitySetup, onActivityDone, CallDone::OnError)
     };
@@ -538,7 +538,7 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
 
 static ExecutableItem postDoneRecipe(const Storage<RunnerStorage> &storage)
 {
-    const LoopUntil iterator([storage](int iteration) {
+    const UntilIterator iterator([storage](int iteration) {
         return iteration < storage->m_afterFinishAdbCommands.size();
     });
 
@@ -576,7 +576,7 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
                                               const QString &debugServerFileName)
 {
     const Storage<QString> tempDebugServerPathStorage;
-    const LoopUntil iterator([tempDebugServerPathStorage](int iteration) {
+    const UntilIterator iterator([tempDebugServerPathStorage](int iteration) {
         return tempDebugServerPathStorage->isEmpty() && iteration <= GdbTempFileMaxCounter;
     });
     const auto onDeviceFileExistsSetup = [storage, iterator](Process &process) {
@@ -627,21 +627,21 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
         For (iterator) >> Do {
             ProcessTask(onDeviceFileExistsSetup, onDeviceFileExistsDone)
         },
-        Sync(onTempDebugServerPath),
+        QSyncTask(onTempDebugServerPath),
         If (!ProcessTask(onServerUploadSetup)) >> Then {
-            Sync([] { qCDebug(androidRunWorkerLog) << "Debug server upload to temp directory failed"; }),
+            QSyncTask([] { qCDebug(androidRunWorkerLog) << "Debug server upload to temp directory failed"; }),
             ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) && errorItem
         },
         If (!ProcessTask(onServerCopySetup)) >> Then {
-            Sync([] { qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed"; }),
+            QSyncTask([] { qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed"; }),
             ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) && errorItem
         },
         If (!ProcessTask(onServerChmodSetup)) >> Then {
-            Sync([] { qCDebug(androidRunWorkerLog) << "Debug server chmod failed"; }),
+            QSyncTask([] { qCDebug(androidRunWorkerLog) << "Debug server chmod failed"; }),
             ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) && errorItem
         },
         ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) || successItem,
-        Sync(onDebugSetupFinished)
+        QSyncTask(onDebugSetupFinished)
     };
 }
 
@@ -685,9 +685,9 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
 
     const auto uploadDebugServer = [storage, debugServerFileStorage](const QString &debugServerFileName) {
         return If (uploadDebugServerRecipe(storage, debugServerFileName)) >> Then {
-            Sync([debugServerFileStorage, debugServerFileName] { *debugServerFileStorage = debugServerFileName; })
+            QSyncTask([debugServerFileStorage, debugServerFileName] { *debugServerFileStorage = debugServerFileName; })
         } >> Else {
-            Sync([storage] {
+            QSyncTask([storage] {
                 emit storage->m_glue->finished(Tr::tr("Cannot copy C++ debug server."));
                 return false;
             })
@@ -711,7 +711,7 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
         onGroupSetup(onSetup),
         ProcessTask(onAppDirSetup, onAppDirDone),
         ProcessTask(onChmodSetup) || successItem,
-        Sync(onServerPathCheck),
+        QSyncTask(onServerPathCheck),
         killAll("lldb-server"),
         uploadDebugServer("./lldb-server"),
         ProcessTask(onRemoveDebugSocketSetup) || successItem,

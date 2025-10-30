@@ -10,8 +10,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
-#include <solutions/tasking/networkquery.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/async.h>
 #include <utils/detailswidget.h>
@@ -46,7 +46,7 @@
 #include <QVBoxLayout>
 
 using namespace Utils;
-using namespace Tasking;
+using namespace QtTaskTree;
 
 namespace ProjectExplorer::Internal {
 
@@ -124,7 +124,7 @@ private:
     PathChooser *m_nugetPathChooser;
     PathChooser *m_winAppSdkPathChooser;
     QNetworkAccessManager manager;
-    Tasking::SingleTaskTreeRunner m_nugetDownloader;
+    QSingleTaskTreeRunner m_nugetDownloader;
 };
 
 enum WindowsAppSdkValidation {
@@ -230,9 +230,9 @@ WindowsSettingsWidget::WindowsSettingsWidget()
             this, &WindowsSettingsWidget::downloadNuget);
     connect(downloadWindowsAppSdk, &QAbstractButton::clicked,
             this, &WindowsSettingsWidget::downloadWindowsAppSdk);
-    connect(&m_nugetDownloader, &Tasking::SingleTaskTreeRunner::done, this,
-        [this](Tasking::DoneWith result) {
-            if (result != Tasking::DoneWith::Success)
+    connect(&m_nugetDownloader, &QSingleTaskTreeRunner::done, this,
+        [this](DoneWith result) {
+            if (result != DoneWith::Success)
                 return;
 
             validateNuget();
@@ -330,17 +330,17 @@ GroupItem WindowsSettingsWidget::downloadNugetRecipe()
         return SetupResult::Continue;
     };
 
-    const auto onQuerySetup = [storage, nugetUrl, failDialog](NetworkQuery &query) {
+    const auto onQuerySetup = [storage, nugetUrl, failDialog](QNetworkReplyWrapper &query) {
         query.setRequest(QNetworkRequest(QUrl(nugetUrl)));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
         QProgressDialog *progressDialog = storage->progressDialog.get();
-        QObject::connect(&query, &NetworkQuery::downloadProgress,
+        QObject::connect(&query, &QNetworkReplyWrapper::downloadProgress,
                          progressDialog, [progressDialog](qint64 received, qint64 max) {
                              progressDialog->setRange(0, max);
                              progressDialog->setValue(received);
                          });
 #if QT_CONFIG(ssl)
-        QObject::connect(&query, &NetworkQuery::sslErrors,
+        QObject::connect(&query, &QNetworkReplyWrapper::sslErrors,
                          &query, [queryPtr = &query, failDialog](const QList<QSslError> &sslErrs) {
                              for (const QSslError &error : sslErrs)
                                  qCDebug(windowssettingswidget, "SSL error: %s\n",
@@ -353,7 +353,7 @@ GroupItem WindowsSettingsWidget::downloadNugetRecipe()
     const auto onQueryDone = [this,
                               storage,
                               failDialog,
-                              downloadPath](const NetworkQuery &query, DoneWith result) {
+                              downloadPath](const QNetworkReplyWrapper &query, DoneWith result) {
         if (result == DoneWith::Cancel)
             return;
 
@@ -387,7 +387,7 @@ GroupItem WindowsSettingsWidget::downloadNugetRecipe()
         storage,
         Group {
             onGroupSetup(onSetup),
-            NetworkQueryTask(onQuerySetup, onQueryDone),
+            QNetworkReplyWrapperTask(onQuerySetup, onQueryDone),
         }.withCancel(onCancelSetup)
     };
 }

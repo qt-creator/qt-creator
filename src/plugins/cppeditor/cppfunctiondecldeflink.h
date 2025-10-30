@@ -5,7 +5,7 @@
 
 #include "cpprefactoringchanges.h"
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QString>
 #include <QTextCursor>
@@ -34,7 +34,7 @@ signals:
 private:
     QTextCursor m_scannedSelection;
     QTextCursor m_nameSelection;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 class FunctionDeclDefLink

@@ -6,7 +6,7 @@
 #include <cppeditor/cppmodelmanagersupport.h>
 #include <cppeditor/projectinfo.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 
 #include <utils/filepath.h>
 #include <utils/futuresynchronizer.h>
@@ -103,7 +103,7 @@ private:
     QTimer * const m_clientRestartTimer;
     QHash<Utils::FilePath, QString> m_potentialShadowDocuments;
     Utils::FutureSynchronizer m_generatorSynchronizer; // Sync after task tree.
-    Tasking::ParallelTaskTreeRunner m_taskTreeRunner;
+    QParallelTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Internal

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QAbstractTaskTreeRunner>
 
 #include <utils/filepath.h>
 
@@ -49,8 +49,8 @@ private:
     static QString usedPySide(const QString &text, const QString &mimeType);
 
     QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
-    Tasking::MappedTaskTreeRunner<TextEditor::TextDocument *> m_taskTreeRunner;
-    Tasking::SingleTaskTreeRunner m_pipInstallerRunner;
+    QMappedTaskTreeRunner<TextEditor::TextDocument *> m_taskTreeRunner;
+    QSingleTaskTreeRunner m_pipInstallerRunner;
 };
 
 } // Python::Internal

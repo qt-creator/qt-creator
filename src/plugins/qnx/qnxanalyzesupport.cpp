@@ -11,12 +11,12 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 
-#include <solutions/tasking/barrier.h>
+#include <QtTaskTree/QBarrier>
 
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Qnx::Internal {

@@ -39,7 +39,7 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <texteditor/textdocument.h>
 
@@ -66,7 +66,7 @@ using namespace Core;
 using namespace CppEditor;
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runcontrol", QtWarningMsg)
@@ -76,7 +76,7 @@ namespace ClangTools::Internal {
 class ProjectBuilderTaskAdapter final
 {
 public:
-    void operator()(QPointer<RunControl> *task, TaskInterface *iface)
+    void operator()(QPointer<RunControl> *task, QTaskInterface *iface)
     {
         RunControl *runControl = *task;
         QTC_ASSERT(runControl, iface->reportDone(DoneResult::Error); return);
@@ -93,7 +93,7 @@ public:
     }
 };
 
-using ProjectBuilderTask = CustomTask<QPointer<RunControl>, ProjectBuilderTaskAdapter>;
+using ProjectBuilderTask = QCustomTask<QPointer<RunControl>, ProjectBuilderTaskAdapter>;
 
 static QDebug operator<<(QDebug debug, const Environment &environment)
 {
@@ -675,7 +675,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         = CppModelManager::projectInfo(buildConfiguration->project());
 
     const auto onTreeSetup = [this, storage, runSettings, diagnosticConfig, fileInfos, tempDir,
-                              environment, projectInfoBeforeBuild](TaskTree &taskTree) {
+                              environment, projectInfoBeforeBuild](QTaskTree &taskTree) {
         storage->m_elapsedHandler = [this](qint64 elapsedTime) {
             m_runControl->postMessage(Utils::formatElapsedTime(elapsedTime), NormalMessageFormat);
         };
@@ -799,7 +799,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
 
     topTasks.append(Group {
         storage,
-        TaskTreeTask(onTreeSetup, onTreeDone, CallDone::OnSuccess)
+        QTaskTreeTask(onTreeSetup, onTreeDone, CallDone::OnSuccess)
     });
     return {topTasks};
 }

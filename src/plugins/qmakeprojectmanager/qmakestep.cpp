@@ -261,9 +261,9 @@ void QMakeStep::setupOutputFormatter(OutputFormatter *formatter)
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-Tasking::GroupItem QMakeStep::runRecipe()
+QtTaskTree::GroupItem QMakeStep::runRecipe()
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const auto onSetup = [this] {
         if (m_scriptTemplate)

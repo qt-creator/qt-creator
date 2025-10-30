@@ -15,7 +15,7 @@
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/rawprojectpart.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -23,7 +23,7 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace CppEditor::Internal {
@@ -37,7 +37,7 @@ public:
 
 private:
     FutureSynchronizer m_futureSynchronizer;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
@@ -99,7 +99,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         Group(tasks),
         onGroupDone(onDone, CallDone::OnSuccess)
     };
-    m_taskTreeRunner.start(recipe, [](TaskTree &taskTree) {
+    m_taskTreeRunner.start(recipe, [](QTaskTree &taskTree) {
         auto progress = new Core::TaskProgress(&taskTree);
         progress->setDisplayName(Tr::tr("Preparing C++ Code Model"));
     });

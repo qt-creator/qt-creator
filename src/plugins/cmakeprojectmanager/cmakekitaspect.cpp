@@ -134,19 +134,19 @@ public:
 
     QSet<Utils::Id> availableFeatures(const Kit *k) const final;
 
-    std::optional<Tasking::ExecutableItem> autoDetect(
+    std::optional<QtTaskTree::ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const DetectionSource &detectionSource,
         const LogCallback &logCallback) const override;
 
-    std::optional<Tasking::ExecutableItem> removeAutoDetected(
+    std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
     void listAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
-    Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+    Utils::Result<QtTaskTree::ExecutableItem> createAspectFromJson(
         const DetectionSource &detectionSource,
         const FilePath &rootPath,
         Kit *kit,
@@ -379,13 +379,13 @@ QSet<Id> CMakeKitAspectFactory::availableFeatures(const Kit *k) const
     return {};
 }
 
-std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
+std::optional<QtTaskTree::ExecutableItem> CMakeKitAspectFactory::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
     const DetectionSource &detectionSource,
     const LogCallback &logCallback) const
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     using ResultType = std::vector<std::unique_ptr<CMakeTool>>;
 
@@ -430,12 +430,12 @@ std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
     return AsyncTask<ResultType>(setup, onDone);
 }
 
-std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::removeAutoDetected(
+std::optional<QtTaskTree::ExecutableItem> CMakeKitAspectFactory::removeAutoDetected(
     const QString &detectionSource, const LogCallback &logCallback) const
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
-    return Sync([detectionSource, logCallback]() {
+    return QSyncTask([detectionSource, logCallback]() {
         CMakeToolManager::instance()->removeDetectedCMake(detectionSource, logCallback);
     });
 }
@@ -450,7 +450,7 @@ void CMakeKitAspectFactory::listAutoDetected(
     }
 }
 
-Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJson(
+Utils::Result<QtTaskTree::ExecutableItem> CMakeKitAspectFactory::createAspectFromJson(
     const DetectionSource &detectionSource,
     const Utils::FilePath &rootPath,
     Kit *kit,

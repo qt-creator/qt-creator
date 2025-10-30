@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/outputformat.h>
 #include <utils/processenums.h>
@@ -51,7 +51,7 @@ signals:
     void logMessageReceived(const QByteArray &);
     void processErrorReceived(const QString &errorString, Utils::ProcessResult result);
     void valgrindStarted(qint64 pid);
-    void done(Tasking::DoneResult result);
+    void done(QtTaskTree::DoneResult result);
 
     // Parser's signals
     void status(const Valgrind::XmlProtocol::Status &status);
@@ -62,6 +62,6 @@ private:
     std::unique_ptr<ValgrindProcessPrivate> d;
 };
 
-using ValgrindProcessTask = Tasking::CustomTask<ValgrindProcess>;
+using ValgrindProcessTask = QCustomTask<ValgrindProcess>;
 
 } // namespace Valgrind::Internal

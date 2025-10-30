@@ -9,8 +9,8 @@
 #include <coreplugin/icore.h>
 
 #include <solutions/spinner/spinner.h>
-#include <solutions/tasking/conditional.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
@@ -32,7 +32,7 @@ Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
 }
 
 using namespace SpinnerSolution;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 using namespace std::chrono;
@@ -273,7 +273,7 @@ static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
     };
 
     const int total = change.count();
-    const LoopList uninstallIterator(change.toUninstall);
+    const ListIterator uninstallIterator(change.toUninstall);
     const auto onUninstallSetup = [dialogStorage, uninstallIterator, total](Process &process) {
         const QStringList args = {"--uninstall", *uninstallIterator, sdkRootArg()};
         QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
@@ -283,7 +283,7 @@ static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
         dialog->setProgress(uninstallIterator.iteration() * 100.0 / total);
     };
 
-    const LoopList installIterator(change.toInstall);
+    const ListIterator installIterator(change.toInstall);
     const int offset = change.toUninstall.count();
     const auto onInstallSetup = [dialogStorage, installIterator, offset, total](Process &process) {
         const QStringList args = {*installIterator, sdkRootArg()};
@@ -355,7 +355,7 @@ public:
     AndroidSdkPackageList m_allPackages;
     FilePath lastSdkManagerPath;
     bool m_packageListingSuccessful = false;
-    SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 AndroidSdkManager::AndroidSdkManager() : m_d(new AndroidSdkManagerPrivate(*this)) {}
@@ -573,10 +573,10 @@ void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dia
         Group {
             If (!Group {
                 licensesRecipe,
-                Sync([dialogStorage] { dialogStorage->m_dialog->setQuestionVisible(false); }),
+                QSyncTask([dialogStorage] { dialogStorage->m_dialog->setQuestionVisible(false); }),
                 continuationRecipe
             }) >> Then {
-                Sync(onError).withAccept(onAcceptSetup)
+                QSyncTask(onError).withAccept(onAcceptSetup)
             }
         }.withCancel(onCancelSetup)
     };

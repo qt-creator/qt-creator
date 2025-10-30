@@ -38,7 +38,7 @@
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Python::Internal {
@@ -167,9 +167,9 @@ void PySideBuildStep::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
     m_pysideUic.setValue(tools.pySideUicPath.toUserOutput());
 }
 
-Tasking::GroupItem PySideBuildStep::runRecipe()
+QtTaskTree::GroupItem PySideBuildStep::runRecipe()
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const auto onSetup = [this] {
         if (!processParameters()->effectiveCommand().isExecutableFile())

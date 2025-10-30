@@ -9,7 +9,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <QSettings>
 
@@ -65,8 +65,8 @@ private:
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
-    Tasking::ExecutableItem portsGatheringRecipe(
-        const Tasking::Storage<Utils::PortsOutputData> &output) const override;
+    QtTaskTree::ExecutableItem portsGatheringRecipe(
+        const QtTaskTree::Storage<Utils::PortsOutputData> &output) const override;
     Utils::ProcessInterface *createProcessInterface() const final;
 
     QSettings *avdSettings() const;
@@ -77,7 +77,7 @@ private:
 
 void setupDevicesWatcher();
 void updateAvdList();
-Tasking::Group createAvdRecipe(const Tasking::Storage<std::optional<QString>> &errorStorage,
+QtTaskTree::Group createAvdRecipe(const QtTaskTree::Storage<std::optional<QString>> &errorStorage,
                                const CreateAvdInfo &info, bool force);
 
 void setupAndroidDevice();

@@ -12,7 +12,7 @@
 
 #include <debugger/debuggerconstants.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 
 #include <utils/async.h>
 #include <utils/futuresynchronizer.h>
@@ -29,7 +29,7 @@
 
 static Q_LOGGING_CATEGORY(toolHandlerLog, "qtc.ios.toolhandler", QtWarningMsg)
 
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Ios {
@@ -252,7 +252,7 @@ private:
 private:
     qint64 m_pid = -1;
     FutureSynchronizer futureSynchronizer;
-    ParallelTaskTreeRunner taskTreeRunner;
+    QParallelTaskTreeRunner taskTreeRunner;
 };
 
 IosToolHandlerPrivate::IosToolHandlerPrivate(const IosDeviceType &devType,
@@ -985,12 +985,12 @@ void IosToolRunner::setDeviceType(const Internal::IosDeviceType &type)
     m_deviceType = type;
 }
 
-void IosToolTaskAdapter::operator()(IosToolRunner *task, Tasking::TaskInterface *iface)
+void IosToolTaskAdapter::operator()(IosToolRunner *task, QTaskInterface *iface)
 {
     task->m_iosToolHandler.reset(new IosToolHandler(Internal::IosDeviceType(task->m_deviceType)));
     QObject::connect(task->m_iosToolHandler.get(), &IosToolHandler::finished, iface, [iface, task] {
-        const Tasking::DoneResult result = task->m_iosToolHandler->exitCode() == 0
-            ? Tasking::DoneResult::Success : Tasking::DoneResult::Error;
+        const DoneResult result = task->m_iosToolHandler->exitCode() == 0
+            ? DoneResult::Success : DoneResult::Error;
         task->m_iosToolHandler.release()->deleteLater();
         iface->reportDone(result);
     }, Qt::SingleShotConnection);

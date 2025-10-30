@@ -10,7 +10,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
 
-#include <tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/filepath.h>
 #include <utils/treemodel.h>
@@ -51,16 +51,16 @@ public:
     bool m_removed = false;
 };
 
-Tasking::ExecutableItem autoDetectDebuggerRecipe(
+QtTaskTree::ExecutableItem autoDetectDebuggerRecipe(
     ProjectExplorer::Kit *kit,
     const Utils::FilePaths &searchPaths,
     const ProjectExplorer::DetectionSource &detectionSource,
     const ProjectExplorer::LogCallback &logCallback);
 
-Tasking::ExecutableItem removeAutoDetected(
+QtTaskTree::ExecutableItem removeAutoDetected(
     const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
 
-Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+Utils::Result<QtTaskTree::ExecutableItem> createAspectFromJson(
     const ProjectExplorer::DetectionSource &detectionSource,
     const Utils::FilePath &rootPath,
     ProjectExplorer::Kit *kit,

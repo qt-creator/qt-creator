@@ -5,7 +5,7 @@
 
 #include <devcontainer/devcontainer.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 
 #include <utils/qtcprocess.h>
 
@@ -56,18 +56,18 @@ public: // FilePath stuff
 
 private:
     void onConfigChanged();
-    Tasking::Group upRecipe(
-        InstanceConfig instanceConfig, Tasking::Storage<ProgressPtr> progressStorage);
-    Tasking::Group downRecipe(bool forceDown);
+    QtTaskTree::Group upRecipe(
+        InstanceConfig instanceConfig, QtTaskTree::Storage<ProgressPtr> progressStorage);
+    QtTaskTree::Group downRecipe(bool forceDown);
 
 private:
     Utils::Process::ProcessInterfaceCreator m_processInterfaceCreator;
     InstanceConfig m_instanceConfig;
     std::unique_ptr<CmdBridge::FileAccess> m_fileAccess;
     std::optional<Utils::Environment> m_systemEnvironment;
-    std::optional<Tasking::ExecutableItem> m_downRecipe;
-    std::optional<Tasking::ExecutableItem> m_forceDownRecipe;
-    Tasking::ParallelTaskTreeRunner m_taskTreeRunner;
+    std::optional<QtTaskTree::ExecutableItem> m_downRecipe;
+    std::optional<QtTaskTree::ExecutableItem> m_forceDownRecipe;
+    QParallelTaskTreeRunner m_taskTreeRunner;
 
     std::unique_ptr<Utils::FilePathWatcher> m_devContainerJsonWatcher;
     std::unique_ptr<Utils::FilePathWatcher> m_dockerFileWatcher;

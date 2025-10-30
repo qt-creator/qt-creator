@@ -5,14 +5,14 @@
 
 #include <projectexplorer/runcontrol.h>
 
-#include <solutions/tasking/barrier.h>
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QBarrier>
+#include <QtTaskTree/QTaskTree>
 
 namespace Android::Internal {
 
-Tasking::Group androidKicker(const Tasking::StoredBarrier &barrier,
-                             ProjectExplorer::RunControl *runControl);
-Tasking::Group androidRecipe(ProjectExplorer::RunControl *runControl);
+QtTaskTree::Group androidKicker(const QStoredBarrier &barrier,
+                                ProjectExplorer::RunControl *runControl);
+QtTaskTree::Group androidRecipe(ProjectExplorer::RunControl *runControl);
 void setupAndroidRunWorker();
 
 } // namespace Android::Internal

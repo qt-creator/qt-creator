@@ -22,7 +22,7 @@
 
 using namespace Core;
 using namespace Core::Internal;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 using namespace std::chrono;
@@ -344,7 +344,7 @@ private:
     JavaScriptOutput m_output;
 };
 
-using JavaScriptRequestTask = CustomTask<JavaScriptRequest>;
+using JavaScriptRequestTask = QCustomTask<JavaScriptRequest>;
 
 namespace Core::Internal {
 

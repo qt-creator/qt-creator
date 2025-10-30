@@ -50,7 +50,7 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
 {
     setDisplayName("Hg Diff");
 
-    using namespace Tasking;
+    using namespace QtTaskTree;
 
     const Storage<QString> diffInputStorage;
 

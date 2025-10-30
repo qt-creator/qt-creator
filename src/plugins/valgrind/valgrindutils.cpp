@@ -17,7 +17,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Valgrind::Internal {
@@ -46,7 +46,7 @@ ExecutableItem initValgrindRecipe(const Storage<ValgrindSettings> &storage, RunC
             .arg(storage->valgrindExecutable().toUserOutput()), ErrorMessageFormat);
         return DoneResult::Error;
     };
-    return Sync(onSetup);
+    return QSyncTask(onSetup);
 }
 
 void setupValgrindProcess(ValgrindProcess *process, RunControl *runControl,

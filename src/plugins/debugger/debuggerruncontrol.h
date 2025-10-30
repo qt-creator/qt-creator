@@ -12,7 +12,7 @@
 
 namespace Debugger {
 
-DEBUGGER_EXPORT Tasking::Group debuggerRecipe(
+DEBUGGER_EXPORT QtTaskTree::Group debuggerRecipe(
     ProjectExplorer::RunControl *runControl,
     const DebuggerRunParameters &initialParameters,
     const std::function<void(DebuggerRunParameters &)> &parametersModifier = {});

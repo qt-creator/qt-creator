@@ -6,7 +6,7 @@
 #include "futureprogress.h"
 #include "progressmanager.h"
 
-#include <solutions/tasking/tasktree.h>
+#include <QtTaskTree/QTaskTree>
 
 #include <utils/mathutils.h>
 #include <utils/qtcassert.h>
@@ -16,7 +16,7 @@
 #include <QTimer>
 
 using namespace Utils;
-using namespace Tasking;
+using namespace QtTaskTree;
 
 using namespace std::chrono;
 
@@ -28,7 +28,7 @@ static const milliseconds TimerInterval{20}; // 20 ms = 50 Hz
 class TaskProgressPrivate : public QObject
 {
 public:
-    explicit TaskProgressPrivate(TaskProgress *progress, TaskTree *taskTree);
+    explicit TaskProgressPrivate(TaskProgress *progress, QTaskTree *taskTree);
     ~TaskProgressPrivate();
 
     void advanceTick();
@@ -37,9 +37,9 @@ public:
 
     int m_currentTick = 0;
 
-    int m_currentProgress = 0; // from TaskTree (max value = task count)
+    int m_currentProgress = 0; // from QTaskTree (max value = task count)
 
-    TaskTree *m_taskTree = nullptr;
+    QTaskTree *m_taskTree = nullptr;
     QTimer m_timer;
     QFutureWatcher<void> m_watcher;
     QFutureInterface<void> m_futureInterface;
@@ -53,7 +53,7 @@ public:
     QString m_subtitle;
 };
 
-TaskProgressPrivate::TaskProgressPrivate(TaskProgress *progress, TaskTree *taskTree)
+TaskProgressPrivate::TaskProgressPrivate(TaskProgress *progress, QTaskTree *taskTree)
     : QObject(progress)
     , m_taskTree(taskTree)
     , m_timer(progress)
@@ -100,10 +100,10 @@ void TaskProgressPrivate::updateProgress()
     \brief The TaskProgress class is responsible for showing progress of the running task tree.
 
     It's possible to cancel the running task tree automatically after pressing a small 'x'
-    indicator on progress panel. In this case TaskTree::stop() method is being called.
+    indicator on progress panel. In this case QTaskTree::stop() method is being called.
 */
 
-TaskProgress::TaskProgress(TaskTree *taskTree)
+TaskProgress::TaskProgress(QTaskTree *taskTree)
     : QObject(taskTree)
     , d(new TaskProgressPrivate(this, taskTree))
 {
@@ -112,7 +112,7 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
         if (d->m_isAutoStopOnCancel)
             d->m_taskTree->cancel();
     });
-    connect(d->m_taskTree, &TaskTree::started, this, [this] {
+    connect(d->m_taskTree, &QTaskTree::started, this, [this] {
         d->m_futureInterface = QFutureInterface<void>();
         d->m_futureInterface.setProgressRange(
                     0, d->m_taskTree->progressMaximum() * ProgressResolution);
@@ -128,10 +128,10 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
         d->m_futureProgress->setSubtitle(d->m_subtitle);
         d->m_timer.start();
     });
-    connect(d->m_taskTree, &TaskTree::progressValueChanged, this, [this](int value) {
+    connect(d->m_taskTree, &QTaskTree::progressValueChanged, this, [this](int value) {
         d->advanceProgress(value);
     });
-    connect(d->m_taskTree, &TaskTree::done, this, [this](DoneWith result) {
+    connect(d->m_taskTree, &QTaskTree::done, this, [this](DoneWith result) {
         d->m_timer.stop();
         if (result != DoneWith::Success)
             d->m_futureInterface.reportCanceled();

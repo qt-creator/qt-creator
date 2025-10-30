@@ -377,9 +377,9 @@ QbsBuildSystem *QbsBuildStep::qbsBuildSystem() const
     return static_cast<QbsBuildSystem *>(buildSystem());
 }
 
-Tasking::GroupItem QbsBuildStep::runRecipe()
+QtTaskTree::GroupItem QbsBuildStep::runRecipe()
 {
-    using namespace Tasking;
+    using namespace QtTaskTree;
     const auto onPreParserSetup = [this](QbsRequest &request) {
         request.setParseData({qbsBuildSystem(), {}});
     };
@@ -430,7 +430,7 @@ Tasking::GroupItem QbsBuildStep::runRecipe()
             continueOnError,
             QbsRequestTask(onBuildSetup),
             // Building can uncover additional target artifacts.
-            Sync([this] { qbsBuildSystem()->updateAfterBuild(); }),
+            QSyncTask([this] { qbsBuildSystem()->updateAfterBuild(); }),
         }
     };
 

@@ -75,7 +75,7 @@ Suggested NDK and Debugger version per Qt version:
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
-using namespace Tasking;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace {

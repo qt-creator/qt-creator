@@ -6,7 +6,7 @@
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/filepath.h>
 #include <utils/listmodel.h>
@@ -55,7 +55,7 @@ public:
     static void removeKitsForInterpreter(const Interpreter &interpreter);
     static bool interpreterIsValid(const Interpreter &interpreter);
 
-    static std::optional<Tasking::ExecutableItem> autoDetect(
+    static std::optional<QtTaskTree::ExecutableItem> autoDetect(
         ProjectExplorer::Kit *kit,
         const Utils::FilePaths &searchPaths,
         const ProjectExplorer::DetectionSource &detectionSource,
@@ -82,7 +82,7 @@ private:
     QString m_defaultInterpreterId;
     bool m_pylsEnabled = true;
     QString m_pylsConfiguration;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 
     static void saveSettings();
 };
