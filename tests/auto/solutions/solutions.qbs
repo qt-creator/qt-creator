@@ -5,6 +5,5 @@ Project {
     references: [
         "concurrentcall/concurrentcall.qbs",
         "qprocesstask/qprocesstask.qbs",
-        "tasking/tasking.qbs",
     ]
 }
