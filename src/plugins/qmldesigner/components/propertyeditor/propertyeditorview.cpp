@@ -965,10 +965,18 @@ void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     const ModelNodes &allRemovedNodes = removedNode.allSubModelNodesAndThisNode();
 
     using SL = ModelTracing::SourceLocation;
-    if (Utils::contains(allRemovedNodes,
-                        model()->qtQuick3DTextureMetaInfo(),
-                        bind_back(&ModelNode::metaInfo, SL{})))
-        m_textureAboutToBeRemoved = true;
+
+    NodeMetaInfo qtQuick3DMaterialMetaInfo = model()->qtQuick3DMaterialMetaInfo();
+    NodeMetaInfo qtQuick3DTextureMetaInfo = model()->qtQuick3DTextureMetaInfo();
+
+    for (const ModelNode &selectedNode : allRemovedNodes) {
+        const NodeMetaInfo &nodeMetaInfo = selectedNode.metaInfo();
+        if (nodeMetaInfo.isBasedOn(qtQuick3DMaterialMetaInfo,
+                                   qtQuick3DTextureMetaInfo)) {
+            m_texOrMatAboutToBeRemoved = true;
+            break;
+        }
+    }
 
     if (m_qmlBackEndForCurrentType) {
         if (Utils::contains(allRemovedNodes,
@@ -982,10 +990,10 @@ void PropertyEditorView::nodeRemoved(const ModelNode &, const NodeAbstractProper
 {
     NanotraceHR::Tracer tracer{"property editor view node removed", category()};
 
-    if (m_qmlBackEndForCurrentType && m_textureAboutToBeRemoved)
+    if (m_qmlBackEndForCurrentType && m_texOrMatAboutToBeRemoved)
         m_qmlBackEndForCurrentType->refreshBackendModel();
 
-    m_textureAboutToBeRemoved = false;
+    m_texOrMatAboutToBeRemoved = false;
 }
 
 void PropertyEditorView::modelAttached(Model *model)
@@ -1302,8 +1310,10 @@ void PropertyEditorView::nodeIdChanged(const ModelNode &node, const QString &new
 
         if (node == activeNode())
             setValue(node, "id", newId);
-        if (node.metaInfo().isQtQuick3DTexture())
+        if (node.metaInfo().isBasedOn(model()->qtQuick3DTextureMetaInfo(),
+                                      model()->qtQuick3DMaterialMetaInfo())) {
             m_qmlBackEndForCurrentType->refreshBackendModel();
+        }
     }
 }
 
@@ -1471,22 +1481,31 @@ void PropertyEditorView::nodeReparented(const ModelNode &node,
 {
     NanotraceHR::Tracer tracer{"property editor view node reparented", category()};
 
+    if (!m_qmlBackEndForCurrentType)
+        return;
+
     if (node == activeNode())
         m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(activeNode()));
 
     using SL = const ModelTracing::SourceLocation;
     const ModelNodes &allNodes = node.allSubModelNodesAndThisNode();
-    if (Utils::contains(allNodes,
-                        model()->qtQuick3DTextureMetaInfo(),
-                        bind_back(&ModelNode::metaInfo, SL{})))
-        m_qmlBackEndForCurrentType->refreshBackendModel();
 
-    if (m_qmlBackEndForCurrentType) {
-        if (Utils::contains(allNodes,
-                            QLatin1String{Constants::MATERIAL_LIB_ID},
-                            bind_back(&ModelNode::id, SL{})))
-            m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(true);
+    NodeMetaInfo qtQuick3DMaterialMetaInfo = model()->qtQuick3DMaterialMetaInfo();
+    NodeMetaInfo qtQuick3DTextureMetaInfo = model()->qtQuick3DTextureMetaInfo();
+
+    for (const ModelNode &selectedNode : allNodes) {
+        const NodeMetaInfo &nodeMetaInfo = selectedNode.metaInfo();
+        if (nodeMetaInfo.isBasedOn(qtQuick3DMaterialMetaInfo,
+                                   qtQuick3DTextureMetaInfo)) {
+            m_qmlBackEndForCurrentType->refreshBackendModel();
+            break;
+        }
     }
+
+    if (Utils::contains(allNodes,
+                        QLatin1String{Constants::MATERIAL_LIB_ID},
+                        bind_back(&ModelNode::id, SL{})))
+        m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(true);
 }
 
 void PropertyEditorView::importsChanged(const Imports &addedImports, const Imports &removedImports)

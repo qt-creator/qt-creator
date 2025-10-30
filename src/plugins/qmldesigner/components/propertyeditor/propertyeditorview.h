@@ -201,7 +201,7 @@ private: //variables
     PropertyComponentGenerator m_propertyComponentGenerator;
     PropertyEditorComponentGenerator m_propertyEditorComponentGenerator{m_propertyComponentGenerator};
     bool m_locked;
-    bool m_textureAboutToBeRemoved = false;
+    bool m_texOrMatAboutToBeRemoved = false;
     bool m_isSelectionLocked = false;
     int m_instancesCount = 0;
     QString m_parentWidgetId = "";
