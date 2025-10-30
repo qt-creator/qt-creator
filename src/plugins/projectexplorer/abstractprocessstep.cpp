@@ -242,15 +242,17 @@ bool AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
         d->m_environmentModifier(env);
     params->setEnvironment(env);
 
-    if (d->m_commandLineProvider)
-        params->setCommandLine(d->m_commandLineProvider());
-
     FilePath workingDirectory;
     if (d->m_workingDirectoryProvider)
         workingDirectory = d->m_workingDirectoryProvider();
     else
         workingDirectory = buildDirectory();
+    params->setWorkingDirectory(workingDirectory);
 
+    // The command line needs to be set after the working directory since the working directory
+    // is used to search for relative executables.
+    if (d->m_commandLineProvider)
+        params->setCommandLine(d->m_commandLineProvider());
     const FilePath executable = params->effectiveCommand();
 
     // E.g. the QMakeStep doesn't have set up anything when this is called
@@ -258,7 +260,6 @@ bool AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
     const bool looksGood = executable.isEmpty() || executable.ensureReachable(workingDirectory);
     QTC_ASSERT(looksGood, return false);
 
-    params->setWorkingDirectory(executable.withNewPath(workingDirectory.path()));
 
     return true;
 }
