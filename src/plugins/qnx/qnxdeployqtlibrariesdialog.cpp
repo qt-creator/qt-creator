@@ -82,12 +82,6 @@ public:
         m_deployLogWindow->appendPlainText(msg);
     }
 
-    void emitWarningMessage(const QString &message)
-    {
-        if (!message.contains("stat:"))
-            m_deployLogWindow->appendPlainText(message);
-    }
-
 private:
     Group deployRecipe();
     GroupItem checkDirTask();
@@ -330,15 +324,6 @@ QnxDeployQtLibrariesDialogPrivate::QnxDeployQtLibrariesDialogPrivate(
 QnxDeployQtLibrariesDialog::~QnxDeployQtLibrariesDialog()
 {
     delete d;
-}
-
-int QnxDeployQtLibrariesDialog::execAndDeploy(int qtVersionId, const QString &remoteDirectory)
-{
-    d->m_remoteDirectory->setText(remoteDirectory);
-    d->m_qtLibraryCombo->setCurrentIndex(d->m_qtLibraryCombo->findData(qtVersionId));
-
-    d->start();
-    return exec();
 }
 
 void QnxDeployQtLibrariesDialog::closeEvent(QCloseEvent *event)

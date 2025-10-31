@@ -16,8 +16,6 @@ public:
                                         QWidget *parent = nullptr);
     ~QnxDeployQtLibrariesDialog() override;
 
-    int execAndDeploy(int qtVersionId, const QString &remoteDirectory);
-
 private:
     void closeEvent(QCloseEvent *event) override;
 
