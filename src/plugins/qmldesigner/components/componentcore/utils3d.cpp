@@ -88,6 +88,8 @@ void ensureMaterialLibraryNode(AbstractView *view)
         return;
     }
 
+    bool resetPuppet = false;
+
     view->executeInTransaction(__FUNCTION__, [&] {
     // Create material library node
         TypeName nodeTypeName = view->rootModelNode().metaInfo().isQtQuick3DNode() ? "Node" : "Item";
@@ -106,6 +108,7 @@ void ensureMaterialLibraryNode(AbstractView *view)
         });
 
         if (!materialsAndTextures.isEmpty()) {
+            resetPuppet = true;
             // Move all matching nodes to under material library node
             for (const ModelNode &node : materialsAndTextures) {
                 // If node has no name, set name to id
@@ -119,6 +122,11 @@ void ensureMaterialLibraryNode(AbstractView *view)
             }
         }
     });
+
+    // Reparenting multiple materials/textures at once can cause rendering issues in
+    // quick3d, so reset puppet
+    if (resetPuppet)
+        view->resetPuppet();
 }
 
 bool isPartOfMaterialLibrary(const ModelNode &node)
