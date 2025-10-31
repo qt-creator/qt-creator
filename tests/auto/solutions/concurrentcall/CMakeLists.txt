@@ -5,6 +5,6 @@ else()
 endif()
 
 add_qtc_test(tst_concurrentcall
-  DEPENDS Qt::Concurrent Qt::Network TaskTree
+  DEPENDS Qt::Concurrent Qt::Network ${TaskTree}
   SOURCES tst_concurrentcall.cpp
 )

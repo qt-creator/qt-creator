@@ -5,6 +5,6 @@ else()
 endif()
 
 add_qtc_test(tst_devcontainer
-  DEPENDS DevContainer TaskTree
+  DEPENDS DevContainer ${TaskTree}
   SOURCES tst_devcontainer.cpp
 )
