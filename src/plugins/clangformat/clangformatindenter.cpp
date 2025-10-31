@@ -66,6 +66,10 @@ bool ClangFormatIndenter::formatCodeInsteadOfIndent() const
 
 std::optional<TabSettings> ClangFormatIndenter::tabSettings() const
 {
+    // FIXME: Why don't we have a valid file path from the beginning?
+    if (m_fileName.isEmpty())
+        return {};
+
     FormatStyle style = styleForFile();
     TabSettings tabSettings;
 

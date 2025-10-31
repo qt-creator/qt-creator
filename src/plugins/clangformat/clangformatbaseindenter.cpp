@@ -990,6 +990,8 @@ const llvm::Expected<clang::format::FormatStyle> getStyleFromProjectFolder(
 
 const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile() const
 {
+    QTC_ASSERT(!m_fileName->isEmpty(), return m_cachedStyle.style);
+
     static const milliseconds cacheTimeout = getCacheTimeout();
 
     if (!(m_overriddenStyle == clang::format::getNoStyle()))
