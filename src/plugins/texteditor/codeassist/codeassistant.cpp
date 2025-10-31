@@ -47,7 +47,6 @@ public:
     void displayProposal(IAssistProposal *newProposal, AssistReason reason);
     bool isDisplayingProposal() const;
     bool isWaitingForProposal() const;
-    QString proposalPrefix() const;
 
     void notifyChange();
     bool hasContext() const;
@@ -354,14 +353,6 @@ bool CodeAssistantPrivate::isDisplayingProposal() const
 bool CodeAssistantPrivate::isWaitingForProposal() const
 {
     return m_processor != nullptr;
-}
-
-QString CodeAssistantPrivate::proposalPrefix() const
-{
-    if (!isDisplayingProposal())
-        return {};
-    return m_editorWidget->textAt(m_proposalWidget->basePosition(),
-                                  m_editorWidget->position() - m_proposalWidget->basePosition());
 }
 
 void CodeAssistantPrivate::invalidateCurrentRequestData()
