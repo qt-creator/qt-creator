@@ -209,7 +209,6 @@ public:
     bool m_mkspecReadUpToDate = false;
     bool m_defaultConfigIsDebug = true;
     bool m_defaultConfigIsDebugAndRelease = true;
-    bool m_frameworkBuild = false;
     bool m_qmakeIsExecutable = true;
 
     QSet<Utils::Id> m_overrideFeatures;
@@ -628,28 +627,6 @@ QString QtVersion::qtNamespace() const
 {
     ensureMkSpecParsed();
     return d->m_mkspecValues.value(MKSPEC_VALUE_NAMESPACE);
-}
-
-QString QtVersion::qtLibInfix() const
-{
-    ensureMkSpecParsed();
-    return d->m_mkspecValues.value(MKSPEC_VALUE_LIBINFIX);
-}
-
-bool QtVersion::isFrameworkBuild() const
-{
-    ensureMkSpecParsed();
-    return d->m_frameworkBuild;
-}
-
-bool QtVersion::hasDebugBuild() const
-{
-    return d->m_defaultConfigIsDebug || d->m_defaultConfigIsDebugAndRelease;
-}
-
-bool QtVersion::hasReleaseBuild() const
-{
-    return !d->m_defaultConfigIsDebug || d->m_defaultConfigIsDebugAndRelease;
 }
 
 void QtVersion::fromMap(const Store &map, const FilePath &filePath)
@@ -1176,7 +1153,6 @@ void QtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
     const QStringList configValues = evaluator->values("CONFIG");
     d->m_defaultConfigIsDebugAndRelease = false;
-    d->m_frameworkBuild = false;
     for (const QString &value : configValues) {
         if (value == "debug")
             d->m_defaultConfigIsDebug = true;
@@ -1184,8 +1160,6 @@ void QtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
             d->m_defaultConfigIsDebug = false;
         else if (value == "build_all")
             d->m_defaultConfigIsDebugAndRelease = true;
-        else if (value == "qt_framework")
-            d->m_frameworkBuild = true;
     }
     const QString libinfix = MKSPEC_VALUE_LIBINFIX;
     const QString ns = MKSPEC_VALUE_NAMESPACE;

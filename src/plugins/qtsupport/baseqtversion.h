@@ -180,11 +180,6 @@ public:
     QString moduleForHeader(const QString &className) const; // Format is "Qt.Core"
 
     QString qtNamespace() const;
-    QString qtLibInfix() const;
-    bool isFrameworkBuild() const;
-    // Note: A Qt version can have both a debug and a release built at the same time!
-    bool hasDebugBuild() const;
-    bool hasReleaseBuild() const;
 
     Utils::MacroExpander *macroExpander() const; // owned by the Qt version
     static std::unique_ptr<Utils::MacroExpander>
