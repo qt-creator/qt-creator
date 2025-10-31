@@ -81,6 +81,25 @@ const char ANDROID_GUI_EDITOR_ENABLED_KEY[] = "Android/GuiEditorEnabled";
 constexpr char MANIFEST_GUIDE_BASE[] = "https://developer.android.com/guide/topics/manifest/";
 } // namespace
 
+namespace {
+inline const QSet<QString> manifestSectionKeywords = {
+    QStringLiteral("action"),
+    QStringLiteral("application"),
+    QStringLiteral("activity"),
+    QStringLiteral("category"),
+    QStringLiteral("data"),
+    QStringLiteral("intent-filter"),
+    QStringLiteral("manifest"),
+    QStringLiteral("meta-data"),
+    QStringLiteral("provider"),
+    QStringLiteral("receiver"),
+    QStringLiteral("service"),
+    QStringLiteral("uses-permission"),
+    QStringLiteral("uses-sdk"),
+    QStringLiteral("uses-feature"),
+};
+} // namespace
+
 namespace Android::Internal {
 
 static FilePath manifestDir(TextEditorWidget *textEditorWidget)
@@ -1958,25 +1977,6 @@ private:
 
     AndroidManifestEditorWidget *m_editorWidget;
 };
-
-namespace {
-const QStringList manifestSectionKeywords = {
-    "action",
-    "application",
-    "activity",
-    "category",
-    "data",
-    "intent-filter",
-    "manifest",
-    "meta-data",
-    "provider",
-    "receiver",
-    "service",
-    "uses-permission",
-    "uses-sdk",
-    "uses-feature",
-};
-} // namespace
 
 class AndroidManifestHoverHandler final : public TextEditor::BaseHoverHandler
 {
