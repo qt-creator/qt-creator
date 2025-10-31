@@ -30,6 +30,7 @@ public:
     bool isComposedEffectPath(const QString &path) const;
     bool isBundlePath(const QString &path) const;
     bool isGeneratedPath(const QString &path) const;
+    bool isGeneratedModuleName(const QString &url) const;
 
     QString generatedComponentTypePrefix() const;
     QString import3dTypePrefix() const;
