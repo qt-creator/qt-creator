@@ -224,6 +224,24 @@ bool GeneratedComponentUtils::isGeneratedPath(const QString &path) const
     return path.startsWith(generatedComponentsPath().toFSPathString());
 }
 
+bool GeneratedComponentUtils::isGeneratedModuleName(const QString &url) const
+{
+    const QString generatedPrefix = generatedComponentTypePrefix();
+    if (generatedPrefix.isEmpty()) {
+        // We have to check each prefix separately in projects using old structure,
+        // as it doesn't have generic prefix we can use
+        if (url.startsWith(import3dTypePrefix() + "."))
+            return true;
+        if (url.startsWith(componentBundlesTypePrefix() + "."))
+            return true;
+        if (url.startsWith(composedEffectsTypePrefix() + "."))
+            return true;
+    } else {
+        return url.startsWith(generatedPrefix + ".");
+    }
+    return false;
+}
+
 QString GeneratedComponentUtils::generatedComponentTypePrefix() const
 {
     Utils::FilePath basePath = generatedComponentsPath();
