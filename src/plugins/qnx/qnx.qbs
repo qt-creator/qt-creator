@@ -31,8 +31,6 @@ QtcPlugin {
         "qnxsettingspage.cpp",
         "qnxsettingspage.h",
         "qnxtr.h",
-        "qnxversionnumber.cpp",
-        "qnxversionnumber.h",
         "qnxplugin.cpp",
         "qnxqtversion.cpp",
         "qnxqtversion.h",

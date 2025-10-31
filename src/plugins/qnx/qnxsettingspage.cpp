@@ -8,7 +8,6 @@
 #include "qnxtoolchain.h"
 #include "qnxtr.h"
 #include "qnxutils.h"
-#include "qnxversionnumber.h"
 
 #include <coreplugin/icore.h>
 
@@ -86,7 +85,7 @@ public:
         if (envFilePath.isEmpty())
             envFilePath = data.value(SdpEnvFileKey).toString();
 
-        m_version = QnxVersionNumber(data.value(QNXVersionKey).toString());
+        m_version = data.value(QNXVersionKey).toString();
         m_envFile = FilePath::fromString(envFilePath);
     }
 
@@ -94,7 +93,7 @@ public:
     {
         Store data;
         data.insert(QNXEnvFileKey, m_envFile.toUrlishString());
-        data.insert(QNXVersionKey, m_version.toString());
+        data.insert(QNXVersionKey, m_version);
         return data;
     }
 
@@ -143,7 +142,7 @@ public:
     FilePath m_qnxHost;
     FilePath m_qccCompiler;
     EnvironmentItems m_qnxEnv;
-    QnxVersionNumber m_version;
+    QString m_version;
 
     QList<QnxTarget> m_targets;
 };
@@ -396,8 +395,7 @@ void QnxConfiguration::mutableEnsureContents()
             return IterationPolicy::Continue;
 
         m_configName = childElt.firstChildElement(QLatin1String("name")).text();
-        QString version = childElt.firstChildElement(QLatin1String("version")).text();
-        m_version = QnxVersionNumber(version);
+        m_version = childElt.firstChildElement(QLatin1String("version")).text();
         return IterationPolicy::Stop;
     }, {{"*.xml"}, QDir::Files});
 }
@@ -654,7 +652,7 @@ void QnxSettingsWidget::updateInformation()
     if (QnxConfiguration *config = configurationFromEnvFile(envFile)) {
         config->ensureContents();
         m_configName->setText(config->m_configName);
-        m_configVersion->setText(config->m_version.toString());
+        m_configVersion->setText(config->m_version);
         m_configHost->setText(config->m_qnxHost.toUrlishString());
         m_configTarget->setText(config->m_qnxTarget.toUrlishString());
         m_compiler->setText(config->m_qccCompiler.toUserOutput());
