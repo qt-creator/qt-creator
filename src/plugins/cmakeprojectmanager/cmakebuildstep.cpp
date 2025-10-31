@@ -226,12 +226,26 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
     toolArguments.setDisplayStyle(StringAspect::LineEditDisplay);
 
     useStaging.setSettingsKey(USE_STAGING_KEY);
-    useStaging.setLabel(Tr::tr("Stage for installation"), BoolAspect::LabelPlacement::AtCheckBox);
+    useStaging
+        .setLabel(Tr::tr("Install into staging directory:"), BoolAspect::LabelPlacement::AtCheckBox);
     useStaging.setDefaultValue(supportsStageForInstallation(kit()) && !isCleanStep());
     useStaging.setEnabled(!isCleanStep());
+    useStaging.setToolTip(
+        "<p>"
+        //: %1 = the "install" CMake target, %2 = the DESTDIR environment variable
+        + Tr::tr(
+              "Implies the %1 target, but sets the %2 variable to install into the specified "
+              "directory instead of into the default system directories. This does not affect the "
+              "target location for deployment configurations.")
+              .arg("<code>install</code>", "<code>DESTDIR</code>")
+        + "</p><p>"
+        + Tr::tr(
+            "Use this option for example if you develop for a remote target device and do not "
+            "want to install into the system directories of the build device, or to use "
+            "separate installation directories on the build device for different build "
+            "configurations."));
 
     stagingDir.setSettingsKey(STAGING_DIR_KEY);
-    stagingDir.setLabelText(Tr::tr("Staging directory:"));
     stagingDir.setDefaultValue(initialStagingDir(kit()));
     stagingDir.setExpectedKind(PathChooser::Kind::Directory);
 
@@ -637,7 +651,7 @@ QWidget *CMakeBuildStep::createConfigWidget()
     builder.addRow({cmakeArguments});
     builder.addRow({toolArguments});
     builder.addRow({useStaging});
-    builder.addRow({stagingDir});
+    builder.addRow({Layouting::empty, stagingDir});
     builder.addRow({useiOSAutomaticProvisioningUpdates});
 
     builder.addRow({new QLabel(Tr::tr("Targets:")), frame});

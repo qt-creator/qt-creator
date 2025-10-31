@@ -238,11 +238,15 @@
     \note While the other CMake generators are installed together with Qt,
     you usually need to install Ninja yourself.
 
-    To install the application to a staging directory when cross-compiling,
-    select \uicontrol {Stage for installation} and specify
-    the path to a directory in the \uicontrol {Staging directory} field.
-    The packaging tool constructs the package from the contents of the
-    directory.
+    To install the application to a staging directory,
+    select \uicontrol {Install into staging directory} and specify
+    the path to the staging directory.
+    The option runs the \c install target of CMake with \c DESTDIR set to the
+    specified directory. The target location for deployment configurations is not affected.
+    Use this option for example if you develop for a remote target device and do not
+    want to install into the system directories of the build device, or to use
+    separate installation directories on the build device for different build
+    configurations.
 
     \section1 Using Ninja as a CMake Generator
 
