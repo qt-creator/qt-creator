@@ -1,5 +1,6 @@
 add_qtc_library(QtTaskTree
-  PUBLIC_DEPENDS Qt::Concurrent Qt::Core Qt::CorePrivate Qt::Network
+  PUBLIC_DEPENDS Qt::Concurrent Qt::Core Qt::Network
+  DEPENDS Qt::CorePrivate
   SOURCES
     qbarriertask.cpp
     qbarriertask.h
