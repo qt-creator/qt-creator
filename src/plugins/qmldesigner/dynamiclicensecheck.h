@@ -130,8 +130,7 @@ inline FoundLicense checkLicense()
         else
             return professional;
     }
-    if (checkEnterpriseLicense())
-        return enterprise;
+
     return community;
 }
 
