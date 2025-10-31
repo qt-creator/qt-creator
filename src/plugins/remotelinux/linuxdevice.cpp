@@ -399,8 +399,6 @@ public:
     void attachToSharedConnection(SshConnectionHandle *connectionHandle,
                                   const SshParameters &sshParameters);
 
-    bool isRunning(const SshParameters &sshParams) const;
-
     LinuxDevicePrivate *m_devicePrivate = nullptr;
     ShellThreadHandler *m_handler = nullptr;
 
@@ -1127,17 +1125,6 @@ public:
         return {};
     }
 
-    // Call me with shell mutex locked, called from other thread
-    bool isRunning(const SshParameters &sshParameters) const
-    {
-        if (!m_shell)
-           return false;
-        QMutexLocker locker(&m_mutex);
-        if (m_displaylessSshParameters != displayless(sshParameters))
-           return false;
-        return true;
-    }
-
 signals:
     void threadHandlerStarted(const Result<> &res);
 
@@ -1527,11 +1514,6 @@ void LinuxDeviceAccess::attachToSharedConnection(SshConnectionHandle *connection
 
     if (!socketFilePath.isEmpty())
         emit connectionHandle->connected(socketFilePath);
-}
-
-bool LinuxDeviceAccess::isRunning(const SshParameters &sshParams) const
-{
-    return m_handler && m_handler->isRunning(sshParams);
 }
 
 FileTransferInterface *LinuxDevice::createFileTransferInterface(
