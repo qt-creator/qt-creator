@@ -117,7 +117,6 @@ signals:
 private:
     void emitConnected();
     void emitError(QProcess::ProcessError processError, const QString &errorString);
-    void emitDisconnected();
     QString fullProcessError() const;
     QStringList connectionArgs(const FilePath &binary) const;
 
@@ -257,12 +256,6 @@ void SshSharedConnection::emitError(QProcess::ProcessError error, const QString 
     resultData.m_error = error;
     resultData.m_errorString = errorString;
     emit disconnected(resultData);
-}
-
-void SshSharedConnection::emitDisconnected()
-{
-    m_state = QProcess::NotRunning;
-    emit disconnected(m_masterProcess->resultData());
 }
 
 QString SshSharedConnection::fullProcessError() const
