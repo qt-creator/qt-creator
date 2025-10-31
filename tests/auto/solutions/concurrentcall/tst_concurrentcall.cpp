@@ -1,11 +1,11 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <tasking/concurrentcall.h>
+#include <QtTaskTree/QConcurrentCall>
 
 #include <QTest>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -138,16 +138,16 @@ TestData createTestData(const QList<ResultType> &expectedResults, Function &&fun
 {
     Storage<bool> storage;
 
-    const auto onSetup = [=](ConcurrentCall<ResultType> &task) {
+    const auto onSetup = [=](QConcurrentCall<ResultType> &task) {
         task.setConcurrentCallData(function, args...);
     };
-    const auto onDone = [storage, expectedResults](const ConcurrentCall<ResultType> &task) {
+    const auto onDone = [storage, expectedResults](const QConcurrentCall<ResultType> &task) {
         *storage = task.results() == expectedResults;
     };
 
     const Group root {
         storage,
-        ConcurrentCallTask<ResultType>(onSetup, onDone)
+        QConcurrentCallTask<ResultType>(onSetup, onDone)
     };
 
     return TestData{storage, root};
@@ -200,10 +200,10 @@ void tst_ConcurrentCall::taskTree_data()
         Storage<bool> storage;
         Storage<int> internalStorage;
 
-        const auto onSetup = [internalStorage](ConcurrentCall<int> &task) {
+        const auto onSetup = [internalStorage](QConcurrentCall<int> &task) {
             task.setConcurrentCallData(multiplyBy2, *internalStorage);
         };
-        const auto onDone = [internalStorage](const ConcurrentCall<int> &task) {
+        const auto onDone = [internalStorage](const QConcurrentCall<int> &task) {
             *internalStorage = task.result();
         };
 
@@ -211,10 +211,10 @@ void tst_ConcurrentCall::taskTree_data()
             storage,
             internalStorage,
             onGroupSetup([internalStorage] { *internalStorage = 1; }),
-            ConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
-            ConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
-            ConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
-            ConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
+            QConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
+            QConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
+            QConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
+            QConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
             onGroupDone([storage, internalStorage] { *storage = *internalStorage == 16; })
         };
 
@@ -226,7 +226,7 @@ void tst_ConcurrentCall::taskTree()
 {
     QFETCH(TestData, testData);
 
-    TaskTree taskTree({testData.root.withTimeout(1000ms)});
+    QTaskTree taskTree({testData.root.withTimeout(1000ms)});
     bool actualResult = false;
     const auto collectResult = [&actualResult](const bool &storage) {
         actualResult = storage;

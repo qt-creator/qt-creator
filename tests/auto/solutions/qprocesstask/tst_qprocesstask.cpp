@@ -1,11 +1,11 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <tasking/qprocesstask.h>
+#include <QtTaskTree/qprocesstask.h>
 
 #include <QTest>
 
-using namespace Tasking;
+using namespace QtTaskTree;
 
 class tst_QProcessTask : public QObject
 {
@@ -22,11 +22,11 @@ void tst_QProcessTask::qProcessTask()
     };
 
     {
-        TaskTree taskTree({QProcessTask(setupProcess)});
+        QTaskTree taskTree({QProcessTask(setupProcess)});
         taskTree.start();
         QTRY_VERIFY(taskTree.isRunning());
     }
-    QProcessTaskDeleter::deleteAll();
+    QProcessDeleter::syncAll();
 }
 
 QTEST_GUILESS_MAIN(tst_QProcessTask)

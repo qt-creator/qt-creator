@@ -25,7 +25,7 @@ public:
 
 class QProcessTaskAdapter final
 {
-private:
+public:
     Q_TASKTREE_EXPORT void operator()(QProcess *task, QTaskInterface *iface);
 };
 

@@ -16,6 +16,7 @@
 #endif
 
 using namespace Utils;
+using namespace QtTaskTree;
 
 constexpr auto recipeTimeout = std::chrono::minutes(60); // std::chrono::seconds(5);
 
@@ -207,7 +208,7 @@ void tst_DevContainer::readConfig()
         .mounts = {},
         .logFunction = logFunction};
 
-    Utils::Result<DevContainer::Config> devContainer
+    const Result<DevContainer::Config> devContainer
         = DevContainer::Config::fromJson(jsonData, [instanceConfig](const QJsonValue &value) {
               return instanceConfig.jsonToString(value);
           });
@@ -231,7 +232,7 @@ void tst_DevContainer::testCommands()
         }
     })";
 
-    Utils::Result<DevContainer::Config> devContainer
+    const Result<DevContainer::Config> devContainer
         = DevContainer::Config::fromJson(jsonData, [](const QJsonValue &value) {
               return value.toString();
           });
@@ -289,15 +290,13 @@ FROM alpine:latest AS test
 
     DevContainer::RunningInstance runningInstance
         = std::make_shared<DevContainer::RunningInstanceData>();
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe(runningInstance);
+    const Result<Group> recipe = instance->upRecipe(runningInstance);
     QVERIFY_RESULT(recipe);
-    QCOMPARE(
-        Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
-        Tasking::DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)), DoneWith::Success);
 
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(false);
+    const Result<Group> downRecipe = instance->downRecipe(false);
     QVERIFY_RESULT(downRecipe);
-    QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking(*downRecipe), DoneWith::Success);
 }
 
 void tst_DevContainer::upImage()
@@ -321,15 +320,13 @@ void tst_DevContainer::upImage()
 
     DevContainer::RunningInstance runningInstance
         = std::make_shared<DevContainer::RunningInstanceData>();
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe(runningInstance);
+    const Result<Group> recipe = instance->upRecipe(runningInstance);
     QVERIFY_RESULT(recipe);
-    QCOMPARE(
-        Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
-        Tasking::DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)), DoneWith::Success);
 
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(false);
+    const Result<Group> downRecipe = instance->downRecipe(false);
     QVERIFY_RESULT(downRecipe);
-    QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking(*downRecipe), DoneWith::Success);
 }
 
 void tst_DevContainer::upWithHooks()
@@ -367,15 +364,13 @@ void tst_DevContainer::upWithHooks()
 
     DevContainer::RunningInstance runningInstance
         = std::make_shared<DevContainer::RunningInstanceData>();
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe(runningInstance);
+    const Result<Group> recipe = instance->upRecipe(runningInstance);
     QVERIFY_RESULT(recipe);
-    QCOMPARE(
-        Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
-        Tasking::DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)), DoneWith::Success);
 
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(false);
+    const Result<Group> downRecipe = instance->downRecipe(false);
     QVERIFY_RESULT(downRecipe);
-    QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking(*downRecipe), DoneWith::Success);
 }
 
 void tst_DevContainer::processInterface()
@@ -414,11 +409,9 @@ void tst_DevContainer::processInterface()
 
     DevContainer::RunningInstance runningInstance
         = std::make_shared<DevContainer::RunningInstanceData>();
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe(runningInstance);
+    const Result<Group> recipe = instance->upRecipe(runningInstance);
     QVERIFY_RESULT(recipe);
-    QCOMPARE(
-        Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
-        Tasking::DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)), DoneWith::Success);
 
     Process process;
 
@@ -457,9 +450,9 @@ void tst_DevContainer::processInterface()
     sleepProc.kill();
     QVERIFY(sleepProc.waitForFinished());
 
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(false);
+    const Result<Group> downRecipe = instance->downRecipe(false);
     QVERIFY_RESULT(downRecipe);
-    QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking(*downRecipe), DoneWith::Success);
 }
 
 void tst_DevContainer::containerWorkspaceReplacers()
@@ -484,7 +477,7 @@ void tst_DevContainer::containerWorkspaceReplacers()
         .mounts = {},
         .logFunction = logFunction};
 
-    Utils::Result<DevContainer::Config> config
+    const Result<DevContainer::Config> config
         = DevContainer::Config::fromJson(jsonData, [instanceConfig](const QJsonValue &value) {
               return instanceConfig.jsonToString(value);
           });
@@ -549,7 +542,7 @@ volumes:
         .mounts = {},
         .logFunction = logFunction};
 
-    const Utils::Result<DevContainer::Config> config
+    const Result<DevContainer::Config> config
         = DevContainer::Config::fromJson(devcontainerJson, [instanceConfig](const QJsonValue &value) {
               return instanceConfig.jsonToString(value);
           });
@@ -561,11 +554,9 @@ volumes:
 
     DevContainer::RunningInstance runningInstance
         = std::make_shared<DevContainer::RunningInstanceData>();
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe(runningInstance);
+    const Result<Group> recipe = instance->upRecipe(runningInstance);
     QVERIFY_RESULT(recipe);
-    QCOMPARE(
-        Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
-        Tasking::DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)), DoneWith::Success);
 
     Process process;
     process.setProcessInterfaceCreator(
@@ -580,11 +571,9 @@ volumes:
     QVERIFY(process.exitCode() == 0);
 
     // Shutdown
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(false);
+    const Result<Group> downRecipe = instance->downRecipe(false);
     QVERIFY_RESULT(downRecipe);
-    QCOMPARE(
-        Tasking::TaskTree::runBlocking((*downRecipe).withTimeout(recipeTimeout)),
-        Tasking::DoneWith::Success);
+    QCOMPARE(QTaskTree::runBlocking((*downRecipe).withTimeout(recipeTimeout)), DoneWith::Success);
 }
 
 QTEST_GUILESS_MAIN(tst_DevContainer)
