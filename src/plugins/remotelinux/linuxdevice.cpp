@@ -201,6 +201,7 @@ void SshSharedConnection::connectToHost()
     // TODO: in case of refused connection we are getting the following on stdErr:
     // ssh: connect to host 127.0.0.1 port 22: Connection refused\r\n
     connect(m_masterProcess.get(), &Process::done, this, [this] {
+        m_state = QProcess::NotRunning;
         const ProcessResult result = m_masterProcess->result();
         const ProcessResultData resultData = m_masterProcess->resultData();
         if (result == ProcessResult::StartFailed) {
@@ -228,6 +229,7 @@ void SshSharedConnection::connectToHost()
         m_masterProcess->setEnvironment(env);
     }
     m_masterProcess->setCommand(CommandLine(sshBinary, args));
+    m_state = QProcess::Starting;
     m_masterProcess->start();
 }
 
