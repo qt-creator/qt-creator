@@ -26,7 +26,7 @@ public:
     class Part {
     public:
         Part() = default;
-        explicit Part(const QString &text) : text(text) {}
+
         QString text;
         int variableIndex = -1; // if variable index is >= 0 the text is interpreted as a variable
         NameMangler *mangler = nullptr;
