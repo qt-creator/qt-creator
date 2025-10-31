@@ -191,11 +191,6 @@ public:
 
     QList<QModelIndex> nonExistingFiles() const;
 
-protected:
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
-
-public:
     Utils::FilePath filePath() const { return m_resource_file.filePath(); }
     void setFilePath(const Utils::FilePath &filePath) { m_resource_file.setFilePath(filePath); }
     void getItem(const QModelIndex &index, QString &prefix, QString &file) const;
@@ -221,11 +216,6 @@ public:
     QString relativePath(const Utils::FilePath &path) const
         { return m_resource_file.relativePath(path); }
 
-private:
-    QString lastResourceOpenDirectory() const;
-    bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &newFileName);
-
-public:
     virtual Utils::Result<> reload();
     virtual bool save();
     QString contents() const { return m_resource_file.contents(); }
@@ -237,20 +227,24 @@ public:
 
     void orderList();
 
-private:
-    QMimeData *mimeData (const QModelIndexList & indexes) const override;
-
-    static bool hasIconFileExtension(const QString &path);
-    static QString resourcePath(const QString &prefix, const QString &file);
-
 signals:
     void dirtyChanged(bool b);
     void contentsChanged();
 
+protected:
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+
 private:
+    QMimeData *mimeData (const QModelIndexList & indexes) const override;
+
+    bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &newFileName);
+
+    static bool hasIconFileExtension(const QString &path);
+    static QString resourcePath(const QString &prefix, const QString &file);
+
     ResourceFile m_resource_file;
     bool m_dirty = false;
-    QString m_lastResourceDir;
     QIcon m_prefixIcon;
 };
 

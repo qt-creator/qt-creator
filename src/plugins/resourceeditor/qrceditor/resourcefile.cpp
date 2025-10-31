@@ -11,21 +11,17 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/removefiledialog.h>
 #include <utils/theme/theme.h>
 
-#include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QDomDocument>
-#include <QFile>
 #include <QIcon>
 #include <QImageReader>
 #include <QMimeData>
 #include <QTextStream>
-#include <QtAlgorithms>
 
 using namespace Utils;
 
@@ -947,9 +943,6 @@ void ResourceModel::addFiles(int prefixIndex, const QStringList &fileNames, int 
     for (const QString &file : unique_list)
         m_resource_file.addFile(prefixIndex, file);
 
-    const QFileInfo fi(unique_list.last());
-    m_lastResourceDir = fi.absolutePath();
-
     endInsertRows();
     setDirty(true);
 
@@ -1079,13 +1072,6 @@ bool ResourceModel::save()
     if (result)
         setDirty(false);
     return result;
-}
-
-QString ResourceModel::lastResourceOpenDirectory() const
-{
-    if (m_lastResourceDir.isEmpty())
-        return m_resource_file.filePath().toFSPathString();
-    return m_lastResourceDir;
 }
 
 // Create a resource path 'prefix:/file'
