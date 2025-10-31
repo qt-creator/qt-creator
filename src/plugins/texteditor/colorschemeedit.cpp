@@ -569,39 +569,6 @@ void ColorSchemeEdit::changeRelativeBackColor()
     }
 }
 
-void ColorSchemeEdit::eraseRelativeForeColor()
-{
-    if (m_curItem == -1)
-        return;
-
-    m_foregroundSaturationSpinBox->setValue(0.0);
-    m_foregroundLightnessSpinBox->setValue(0.0);
-
-    for (const QModelIndex &index : m_itemList->selectionModel()->selectedRows()) {
-        const TextStyle category = m_descriptions[index.row()].id();
-        m_scheme.formatFor(category).setRelativeForegroundSaturation(0.0);
-        m_scheme.formatFor(category).setRelativeForegroundLightness(0.0);
-        m_formatsModel->emitDataChanged(index);
-    }
-}
-
-void ColorSchemeEdit::eraseRelativeBackColor()
-{
-    if (m_curItem == -1)
-        return;
-
-    m_backgroundSaturationSpinBox->setValue(0.0);
-    m_backgroundLightnessSpinBox->setValue(0.0);
-
-    const QList<QModelIndex> indexes = m_itemList->selectionModel()->selectedRows();
-    for (const QModelIndex &index : indexes) {
-        const TextStyle category = m_descriptions[index.row()].id();
-        m_scheme.formatFor(category).setRelativeBackgroundSaturation(0.0);
-        m_scheme.formatFor(category).setRelativeBackgroundLightness(0.0);
-        m_formatsModel->emitDataChanged(index);
-    }
-}
-
 void ColorSchemeEdit::checkCheckBoxes()
 {
     if (m_curItem == -1)

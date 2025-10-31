@@ -17,7 +17,6 @@ using namespace Utils;
 namespace TextEditor {
 
 const char trueString[] = "true";
-const char falseString[] = "false";
 
 // Format
 
@@ -87,28 +86,21 @@ QTextCharFormat::UnderlineStyle Format::underlineStyle() const
     return m_underlineStyle;
 }
 
-static QColor stringToColor(const QString &string)
-{
-    if (string == QLatin1String("invalid"))
-        return QColor();
-    return QColor(string);
-}
-
 static QTextCharFormat::UnderlineStyle stringToUnderlineStyle(const QString &string)
 {
     if (string.isEmpty() || string == QStringLiteral("NoUnderline"))
         return QTextCharFormat::NoUnderline;
-    else if (string == QStringLiteral("SingleUnderline"))
+    if (string == QStringLiteral("SingleUnderline"))
         return QTextCharFormat::SingleUnderline;
-    else if (string == QStringLiteral("DashUnderline"))
+    if (string == QStringLiteral("DashUnderline"))
         return QTextCharFormat::DashUnderline;
-    else if (string == QStringLiteral("DotLine"))
+    if (string == QStringLiteral("DotLine"))
         return QTextCharFormat::DotLine;
-    else if (string == QStringLiteral("DashDotLine"))
+    if (string == QStringLiteral("DashDotLine"))
         return QTextCharFormat::DashDotLine;
-    else if (string == QStringLiteral("DashDotDotLine"))
+    if (string == QStringLiteral("DashDotDotLine"))
         return QTextCharFormat::DashDotDotLine;
-    else if (string == QStringLiteral("WaveUnderline"))
+    if (string == QStringLiteral("WaveUnderline"))
         return QTextCharFormat::WaveUnderline;
 
     return QTextCharFormat::NoUnderline;
@@ -141,53 +133,8 @@ bool Format::equals(const Format &other) const
         && qFuzzyCompare(m_relativeForegroundSaturation, other.m_relativeForegroundSaturation)
         && qFuzzyCompare(m_relativeForegroundLightness, other.m_relativeForegroundLightness)
         && qFuzzyCompare(m_relativeBackgroundSaturation, other.m_relativeBackgroundSaturation)
-        && qFuzzyCompare(m_relativeBackgroundLightness, other.m_relativeBackgroundLightness)
-
-            ;
+        && qFuzzyCompare(m_relativeBackgroundLightness, other.m_relativeBackgroundLightness);
 }
-
-QString Format::toString() const
-{
-    QStringList text({m_foreground.name(),
-                      m_background.name(),
-                      m_bold ? QLatin1String(trueString) : QLatin1String(falseString),
-                      m_italic ? QLatin1String(trueString) : QLatin1String(falseString),
-                      m_underlineColor.name(),
-                      underlineStyleToString(m_underlineStyle),
-                      QString::number(m_relativeForegroundSaturation),
-                      QString::number(m_relativeForegroundLightness),
-                      QString::number(m_relativeBackgroundSaturation),
-                      QString::number(m_relativeBackgroundLightness)});
-
-    return text.join(QLatin1Char(';'));
-}
-
-bool Format::fromString(const QString &str)
-{
-    *this = Format();
-
-    const QStringList lst = str.split(QLatin1Char(';'));
-    if (lst.size() != 4 && lst.size() != 6 && lst.size() != 10)
-        return false;
-
-    m_foreground = stringToColor(lst.at(0));
-    m_background = stringToColor(lst.at(1));
-    m_bold = lst.at(2) == QLatin1String(trueString);
-    m_italic = lst.at(3) == QLatin1String(trueString);
-    if (lst.size() > 4) {
-        m_underlineColor = stringToColor(lst.at(4));
-        m_underlineStyle = stringToUnderlineStyle(lst.at(5));
-    }
-    if (lst.size() > 6) {
-        m_relativeForegroundSaturation = lst.at(6).toDouble();
-        m_relativeForegroundLightness = lst.at(7).toDouble();
-        m_relativeBackgroundSaturation = lst.at(8).toDouble();
-        m_relativeBackgroundLightness = lst.at(9).toDouble();
-    }
-
-    return true;
-}
-
 
 // ColorScheme
 
@@ -295,7 +242,7 @@ bool ColorSchemeReader::read(const FilePath &filePath, ColorScheme *scheme)
     if (m_scheme)
         m_scheme->clear();
 
-    QFile file(filePath.toUrlishString());
+    QFile file(filePath.toFSPathString());
     if (!file.open(QFile::ReadOnly | QFile::Text))
         return false;
 

@@ -55,8 +55,6 @@ private:
     void eraseBackColor();
     void changeRelativeForeColor();
     void changeRelativeBackColor();
-    void eraseRelativeForeColor();
-    void eraseRelativeBackColor();
     void checkCheckBoxes();
     void changeUnderlineColor();
     void eraseUnderlineColor();

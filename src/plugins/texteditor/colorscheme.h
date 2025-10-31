@@ -58,9 +58,6 @@ public:
 
     bool equals(const Format &f) const;
 
-    QString toString() const;
-    bool fromString(const QString &str);
-
     friend bool operator==(const Format &f1, const Format &f2) { return f1.equals(f2); }
     friend bool operator!=(const Format &f1, const Format &f2) { return !f1.equals(f2); }
 
