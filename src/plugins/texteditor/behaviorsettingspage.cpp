@@ -173,25 +173,4 @@ CodeStylePool *BehaviorSettingsPage::codeStylePool() const
     return d->m_defaultCodeStylePool;
 }
 
-const TypingSettings &BehaviorSettingsPage::typingSettings() const
-{
-    return globalTypingSettings();
-}
-
-const StorageSettings &BehaviorSettingsPage::storageSettings() const
-{
-    return globalStorageSettings();
-}
-
-const BehaviorSettings &BehaviorSettingsPage::behaviorSettings() const
-{
-    return globalBehaviorSettings();
-}
-
-const ExtraEncodingSettings &BehaviorSettingsPage::extraEncodingSettings() const
-{
-    return globalExtraEncodingSettings();
-}
-
-
 } // namespace TextEditor

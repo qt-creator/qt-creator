@@ -7,11 +7,6 @@
 
 namespace TextEditor {
 
-class TabSettings;
-class TypingSettings;
-class StorageSettings;
-class BehaviorSettings;
-class ExtraEncodingSettings;
 class ICodeStylePreferences;
 class CodeStylePool;
 
@@ -23,10 +18,6 @@ public:
 
     ICodeStylePreferences *codeStyle() const;
     CodeStylePool *codeStylePool() const;
-    const TypingSettings &typingSettings() const;
-    const StorageSettings &storageSettings() const;
-    const BehaviorSettings &behaviorSettings() const;
-    const ExtraEncodingSettings &extraEncodingSettings() const;
 
 private:
     class BehaviorSettingsPagePrivate *d;
