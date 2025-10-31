@@ -470,7 +470,7 @@ QString PluginManager::systemInformation()
         result += QLatin1String(spec->isEffectivelyEnabled() ? "+ " : "  ") + filled(spec->id(), size) +
                   " " + spec->version() + "\n";
     }
-    QString settingspath = QFileInfo(settings()->fileName()).path();
+    QString settingspath = QFileInfo(userSettings().fileName()).path();
     if (settingspath.startsWith(QDir::homePath()))
         settingspath.replace(QDir::homePath(), "~");
     result += "\nUsed settingspath: " + settingspath + "\n";
@@ -522,23 +522,6 @@ QString PluginManager::pluginIID()
 void PluginManager::setPluginIID(const QString &iid)
 {
     d->pluginIID = iid;
-}
-
-/*!
-    Returns the user specific settings used for information about enabled and
-    disabled plugins.
-*/
-QtcSettings *PluginManager::settings()
-{
-    return &Utils::userSettings();
-}
-
-/*!
-    Returns the global (user-independent) settings used for information about default disabled plugins.
-*/
-QtcSettings *PluginManager::globalSettings()
-{
-    return &Utils::installSettings();
 }
 
 void PluginManager::writeSettings()

@@ -100,8 +100,6 @@ public:
         QWidget *dialogParent, const QSet<PluginSpec *> &plugins, bool enable);
 
     // Settings
-    static Utils::QtcSettings *settings();
-    static Utils::QtcSettings *globalSettings();
     static void writeSettings();
 
     // command line arguments

@@ -1183,7 +1183,7 @@ void ICore::saveSettings(SaveSettingsReason reason)
 {
     emit m_core->saveSettingsRequested(reason);
 
-    QtcSettings *settings = PluginManager::settings();
+    QtcSettings *settings = &Utils::userSettings();
     settings->withGroup(settingsGroup, [](QtcSettings *settings) {
         if (!(s_overrideColor.isValid() && StyleHelper::baseColor() == s_overrideColor))
             settings->setValueWithDefault(
@@ -1389,7 +1389,7 @@ void ICorePrivate::init()
 
     (void) new DocumentManager(this);
 
-    HistoryCompleter::setSettings(PluginManager::settings());
+    HistoryCompleter::setSettings(&userSettings());
 
     if (HostOsInfo::isLinuxHost())
         QApplication::setWindowIcon(Icons::QTCREATORLOGO_BIG.icon());
@@ -2388,7 +2388,7 @@ void ICorePrivate::updateContextObject(const QList<IContext *> &context)
 
 void ICorePrivate::readSettings()
 {
-    QtcSettings *settings = PluginManager::settings();
+    QtcSettings *settings = &userSettings();
     settings->withGroup(settingsGroup, [this](QtcSettings *settings) {
         if (s_overrideColor.isValid()) {
             StyleHelper::setBaseColor(s_overrideColor);
@@ -2439,7 +2439,7 @@ void ICorePrivate::readSettings()
 
 void ICorePrivate::saveWindowSettings()
 {
-    QtcSettings *settings = PluginManager::settings();
+    QtcSettings *settings = &userSettings();
     settings->beginGroup(settingsGroup);
 
     // On OS X applications usually do not restore their full screen state.
@@ -2659,12 +2659,13 @@ void ICorePrivate::contact()
 void ICorePrivate::restoreWindowState()
 {
     NANOTRACE_SCOPE("Core", "MainWindow::restoreWindowState");
-    QtcSettings *settings = PluginManager::settings();
+    QtcSettings *settings = &userSettings();
     settings->beginGroup(settingsGroup);
     if (!m_mainwindow->restoreGeometry(settings->value(windowGeometryKey).toByteArray()))
         m_mainwindow->resize(1260, 700); // size without window decoration
     m_mainwindow->restoreState(settings->value(windowStateKey).toByteArray());
     settings->endGroup();
+
     m_mainwindow->show();
     StatusBarManager::restoreSettings();
 }

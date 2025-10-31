@@ -3,19 +3,18 @@
 
 #include "settingsdatabase.h"
 
-#include <extensionsystem/pluginmanager.h>
+#include <utils/qtcsettings.h>
 
+#include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QMap>
-#include <QString>
-#include <QStringList>
-#include <QVariant>
-
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QDebug>
-#include <QCoreApplication>
+#include <QString>
+#include <QStringList>
+#include <QVariant>
 
 /*!
     \namespace Core::SettingsDatabase
@@ -35,12 +34,9 @@
     \sa settings()
 */
 
-using namespace Core;
-using namespace ExtensionSystem;
+namespace Core::SettingsDatabase {
 
 enum { debug_settings = 0 };
-
-namespace Core::SettingsDatabase {
 
 using SettingsMap = QMap<QString, QVariant>;
 
@@ -78,7 +74,7 @@ void ensureImpl()
 
     d = new SettingsDatabaseImpl;
 
-    const QString path = QFileInfo(PluginManager::settings()->fileName()).path();
+    const QString path = QFileInfo(Utils::userSettings().fileName()).path();
     const QString application =  QCoreApplication::applicationName();
     const QLatin1Char slash('/');
 

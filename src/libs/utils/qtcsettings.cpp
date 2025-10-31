@@ -84,6 +84,10 @@ KeyList QtcSettings::childKeys() const
 QtcSettings *theUserSettings = nullptr;
 QtcSettings *theInstallSettings = nullptr;
 
+/*!
+    Returns the user specific settings used for information about enabled and
+    disabled plugins.
+*/
 QtcSettings &userSettings()
 {
     static QtcSettings fallback;
@@ -91,6 +95,9 @@ QtcSettings &userSettings()
     return *theUserSettings;
 }
 
+/*!
+    Returns the global (user-independent) settings used for information about default disabled plugins.
+*/
 QtcSettings &installSettings()
 {
     static QtcSettings fallback;
