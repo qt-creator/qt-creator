@@ -11,7 +11,9 @@
 #include "gittr.h"
 
 #include <coreplugin/icore.h>
+
 #include <texteditor/textdocument.h>
+
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -19,13 +21,12 @@
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
 
-#include <QDir>
-#include <QFileInfo>
 #include <QMenu>
 #include <QRegularExpression>
 #include <QSet>
 #include <QTextBlock>
 #include <QTextCursor>
+#include <QToolBar>
 
 #define CHANGE_PATTERN "\\b[a-f0-9]{7,40}\\b"
 

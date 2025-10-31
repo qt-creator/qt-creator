@@ -12,6 +12,7 @@
 #include <QComboBox>
 #include <QDebug>
 #include <QStringList>
+#include <QToolBar>
 
 using namespace Utils;
 
@@ -24,24 +25,12 @@ public:
     enum Type
     {
         Invalid,
-        Bool,
-        String,
-        Int,
         AspectBool,
         AspectString,
         AspectInt
     };
 
-    SettingMappingData() : boolSetting(nullptr)
-    { }
-
-    SettingMappingData(bool *setting) : boolSetting(setting), m_type(Bool)
-    { }
-
-    SettingMappingData(QString *setting) : stringSetting(setting), m_type(String)
-    { }
-
-    SettingMappingData(int *setting) : intSetting(setting), m_type(Int)
+    SettingMappingData() : boolAspectSetting(nullptr)
     { }
 
     SettingMappingData(BoolAspect *setting) : boolAspectSetting(setting), m_type(AspectBool)
@@ -59,9 +48,6 @@ public:
     }
 
     union {
-        bool *boolSetting;
-        QString *stringSetting;
-        int *intSetting;
         BoolAspect *boolAspectSetting;
         StringAspect *stringAspectSetting;
         IntegerAspect *intAspectSetting;
@@ -180,17 +166,6 @@ QComboBox *VcsBaseEditorConfig::addChoices(const QString &title,
     return cb;
 }
 
-void VcsBaseEditorConfig::mapSetting(QAction *button, bool *setting)
-{
-    if (!d->m_settingMapping.contains(button) && button) {
-        d->m_settingMapping.insert(button, Internal::SettingMappingData(setting));
-        if (setting) {
-            QSignalBlocker blocker(button);
-            button->setChecked(*setting);
-        }
-    }
-}
-
 void VcsBaseEditorConfig::mapSetting(QAction *button, BoolAspect *setting)
 {
     if (!d->m_settingMapping.contains(button) && button) {
@@ -198,19 +173,6 @@ void VcsBaseEditorConfig::mapSetting(QAction *button, BoolAspect *setting)
         if (setting) {
             QSignalBlocker blocker(button);
             button->setChecked(setting->value());
-        }
-    }
-}
-
-void VcsBaseEditorConfig::mapSetting(QComboBox *comboBox, QString *setting)
-{
-    if (!d->m_settingMapping.contains(comboBox) && comboBox) {
-        d->m_settingMapping.insert(comboBox, Internal::SettingMappingData(setting));
-        if (setting) {
-            QSignalBlocker blocker(comboBox);
-            const int itemIndex = comboBox->findData(*setting);
-            if (itemIndex != -1)
-                comboBox->setCurrentIndex(itemIndex);
         }
     }
 }
@@ -226,20 +188,6 @@ void VcsBaseEditorConfig::mapSetting(QComboBox *comboBox, StringAspect *setting)
                 comboBox->setCurrentIndex(itemIndex);
         }
     }
-}
-
-void VcsBaseEditorConfig::mapSetting(QComboBox *comboBox, int *setting)
-{
-    if (d->m_settingMapping.contains(comboBox) || !comboBox)
-        return;
-
-    d->m_settingMapping.insert(comboBox, Internal::SettingMappingData(setting));
-
-    if (!setting || *setting < 0 || *setting >= comboBox->count())
-        return;
-
-    QSignalBlocker blocker(comboBox);
-    comboBox->setCurrentIndex(*setting);
 }
 
 void VcsBaseEditorConfig::mapSetting(QComboBox *comboBox, IntegerAspect *setting)
@@ -306,23 +254,10 @@ void VcsBaseEditorConfig::updateMappedSettings()
         if (d->m_settingMapping.contains(optMapping.object)) {
             Internal::SettingMappingData& settingData = d->m_settingMapping[optMapping.object];
             switch (settingData.type()) {
-            case Internal::SettingMappingData::Bool :
-            {
-                if (auto action = qobject_cast<const QAction *>(optMapping.object))
-                    *settingData.boolSetting = action->isChecked();
-                break;
-            }
             case Internal::SettingMappingData::AspectBool :
             {
                 if (auto action = qobject_cast<const QAction *>(optMapping.object))
                     settingData.boolAspectSetting->setValue(action->isChecked());
-                break;
-            }
-            case Internal::SettingMappingData::String :
-            {
-                auto cb = qobject_cast<const QComboBox *>(optMapping.object);
-                if (cb && cb->currentIndex() != -1)
-                    *settingData.stringSetting = cb->itemData(cb->currentIndex()).toString();
                 break;
             }
             case Internal::SettingMappingData::AspectString :
@@ -330,13 +265,6 @@ void VcsBaseEditorConfig::updateMappedSettings()
                 auto cb = qobject_cast<const QComboBox *>(optMapping.object);
                 if (cb && cb->currentIndex() != -1)
                     settingData.stringAspectSetting->setValue(cb->itemData(cb->currentIndex()).toString());
-                break;
-            }
-            case Internal::SettingMappingData::Int:
-            {
-                auto cb = qobject_cast<const QComboBox *>(optMapping.object);
-                if (cb && cb->currentIndex() != -1)
-                    *settingData.intSetting = cb->currentIndex();
                 break;
             }
             case Internal::SettingMappingData::AspectInt:
