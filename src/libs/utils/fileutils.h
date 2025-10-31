@@ -88,12 +88,6 @@ QTCREATOR_UTILS_EXPORT FilePath getOpenFilePath(
         bool fromDeviceIfShiftIsPressed = false,
         bool forceNonNativeDialog = false);
 
-// !!! Best effort, on Windows only files are supported !!!
-QTCREATOR_UTILS_EXPORT FilePath getOpenFileOrDir(
-    const QString &caption,
-    const FilePath &dir = {},
-    const QString &filter = {});
-
 QTCREATOR_UTILS_EXPORT FilePath getSaveFilePath(
         const QString &caption,
         const FilePath &dir = {},
