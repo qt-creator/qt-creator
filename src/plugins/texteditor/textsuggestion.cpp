@@ -207,33 +207,6 @@ private:
             m_suggestions, m_editor->document(), m_currentSuggestion));
     }
 
-    void apply()
-    {
-        if (TextSuggestion *suggestion = m_editor->currentSuggestion()) {
-            if (!suggestion->apply())
-                return;
-        }
-        ToolTip::hide();
-    }
-
-    void applyWord()
-    {
-        if (TextSuggestion *suggestion = m_editor->currentSuggestion()) {
-            if (!suggestion->applyWord(m_editor))
-                return;
-        }
-        ToolTip::hide();
-    }
-
-    void applyLine()
-    {
-        if (TextSuggestion *suggestion = m_editor->currentSuggestion()) {
-            if (!suggestion->applyLine(m_editor))
-                return;
-        }
-        ToolTip::hide();
-    }
-
     QLabel *m_numberLabel = nullptr;
     QAction *m_prev = nullptr;
     QAction *m_next = nullptr;
