@@ -6,6 +6,8 @@
 
 #include "keyword.h"
 
+#include <QMetaType>
+
 namespace Todo::Internal {
 
 enum ScanningScope {

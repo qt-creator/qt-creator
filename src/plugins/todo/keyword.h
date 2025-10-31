@@ -9,10 +9,8 @@
 #include <QColor>
 #include <QString>
 #include <QList>
-#include <QMetaType>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 class Keyword
 {
@@ -23,12 +21,11 @@ public:
     IconType iconType = IconType::Info;
     QColor color;
     bool equals(const Keyword &other) const;
+
+    friend bool operator ==(const Keyword &k1, const Keyword &k2);
+    friend bool operator !=(const Keyword &k1, const Keyword &k2);
 };
 
 using KeywordList = QList<Keyword>;
 
-bool operator ==(const Keyword &k1, const Keyword &k2);
-bool operator !=(const Keyword &k1, const Keyword &k2);
-
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal

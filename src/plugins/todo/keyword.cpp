@@ -5,18 +5,15 @@
 #include "keyword.h"
 #include <utils/theme/theme.h>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
-Keyword::Keyword() : color(Utils::creatorColor(Utils::Theme::TextColorNormal))
-{
-}
+Keyword::Keyword()
+    : color(Utils::creatorColor(Utils::Theme::TextColorNormal))
+{}
 
 bool Keyword::equals(const Keyword &other) const
 {
-    return (this->name == other.name)
-        && (this->iconType == other.iconType)
-        && (this->color == other.color);
+    return name == other.name && iconType == other.iconType && color == other.color;
 }
 
 bool operator ==(const Keyword &k1, const Keyword &k2)
@@ -29,5 +26,4 @@ bool operator !=(const Keyword &k1, const Keyword &k2)
     return !k1.equals(k2);
 }
 
-} // namespace Internal
-} // namespace Todo
+} // namespace Todo::Internal
