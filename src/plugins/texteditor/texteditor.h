@@ -268,9 +268,6 @@ public:
     void setScrollWheelZoomingEnabled(bool b);
     bool scrollWheelZoomingEnabled() const;
 
-    void setConstrainTooltips(bool b);
-    bool constrainTooltips() const;
-
     void setCamelCaseNavigationEnabled(bool b);
     bool camelCaseNavigationEnabled() const;
 

@@ -4899,16 +4899,6 @@ bool TextEditorWidget::scrollWheelZoomingEnabled() const
     return d->m_behaviorSettings.m_scrollWheelZooming;
 }
 
-void TextEditorWidget::setConstrainTooltips(bool b)
-{
-    d->m_behaviorSettings.m_constrainHoverTooltips = b;
-}
-
-bool TextEditorWidget::constrainTooltips() const
-{
-    return d->m_behaviorSettings.m_constrainHoverTooltips;
-}
-
 void TextEditorWidget::setCamelCaseNavigationEnabled(bool b)
 {
     d->m_behaviorSettings.m_camelCaseNavigation = b;
