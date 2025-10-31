@@ -8,8 +8,6 @@
 #include "qnxdevicetester.h"
 #include "qnxtr.h"
 
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/devicesupport/idevicefactory.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 
@@ -18,11 +16,7 @@
 #include <remotelinux/remotelinuxsignaloperation.h>
 #include <remotelinux/sshdevicewizard.h>
 
-#include <utils/port.h>
-#include <utils/portlist.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
-#include <utils/wizard.h>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
@@ -71,8 +65,7 @@ public:
         sourceProfile.setDefaultValue(true);
 
         addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device) {
-            QnxDeployQtLibrariesDialog dialog(device, Core::ICore::dialogParent());
-            dialog.exec();
+                             executeQnxDeployQtLibrariesDialog(device);
         }});
     }
 

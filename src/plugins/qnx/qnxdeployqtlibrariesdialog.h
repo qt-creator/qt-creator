@@ -3,23 +3,10 @@
 
 #pragma once
 
-#include <QDialog>
-
 #include <projectexplorer/devicesupport/idevicefwd.h>
 
 namespace Qnx::Internal {
 
-class QnxDeployQtLibrariesDialog : public QDialog
-{
-public:
-    explicit QnxDeployQtLibrariesDialog(const ProjectExplorer::IDeviceConstPtr &device,
-                                        QWidget *parent = nullptr);
-    ~QnxDeployQtLibrariesDialog() override;
-
-private:
-    void closeEvent(QCloseEvent *event) override;
-
-    class QnxDeployQtLibrariesDialogPrivate *d = nullptr;
-};
+void executeQnxDeployQtLibrariesDialog(const ProjectExplorer::IDeviceConstPtr &device);
 
 } // Qnx::Internal
