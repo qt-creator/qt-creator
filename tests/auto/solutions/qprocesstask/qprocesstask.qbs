@@ -5,7 +5,7 @@ Project  {
         name: "QProcessTask autotest"
 
         Depends { name: "Qt"; submodules: ["network"] }
-        Depends { name: "Tasking" }
+        Depends { name: "QtTaskTree" }
 
         files: [
             "tst_qprocesstask.cpp",

@@ -1,7 +1,7 @@
 QtcLibrary {
     name: "DevContainer"
     Depends { name: "Utils" }
-    Depends { name: "Tasking" }
+    Depends { name: "QtTaskTree" }
     Depends { name: "Qt.core" }
 
     cpp.defines: base.concat([

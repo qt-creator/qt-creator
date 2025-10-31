@@ -39,7 +39,7 @@ QtcLibrary {
     Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "printsupport", "qml", "widgets", "xml"] }
     Depends { name: "Qt.macextras"; condition: Qt.core.versionMajor < 6 && qbs.targetOS.contains("macos") }
     Depends { name: "Spinner" }
-    Depends { name: "Tasking" }
+    Depends { name: "QtTaskTree" }
     Depends { name: "ptyqt" }
     Depends { name: "qtcLibArchive" }
 
@@ -512,7 +512,7 @@ QtcLibrary {
 
     Export {
         Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
-        Depends { name: "Tasking" }
+        Depends { name: "QtTaskTree" }
         cpp.includePaths: exportingProduct.sourceDirectory + "/mimetypes2"
     }
 }
