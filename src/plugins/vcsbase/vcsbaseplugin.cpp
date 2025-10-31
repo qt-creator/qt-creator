@@ -74,7 +74,6 @@ public:
     void clearFile();
     void clearPatchFile();
     void clearProject();
-    inline void clear();
 
     bool equals(const State &rhs) const;
 
@@ -114,13 +113,6 @@ void State::clearProject()
     currentProjectPath.clear();
     currentProjectName.clear();
     currentProjectTopLevel.clear();
-}
-
-void State::clear()
-{
-    clearFile();
-    clearPatchFile();
-    clearProject();
 }
 
 bool State::equals(const State &rhs) const
@@ -430,16 +422,6 @@ FilePath VcsBasePluginState::topLevel() const
 bool VcsBasePluginState::equals(const Internal::State &rhs) const
 {
     return data->m_state.equals(rhs);
-}
-
-bool VcsBasePluginState::equals(const VcsBasePluginState &rhs) const
-{
-    return equals(rhs.data->m_state);
-}
-
-void VcsBasePluginState::clear()
-{
-    data->m_state.clear();
 }
 
 void VcsBasePluginState::setState(const Internal::State &s)

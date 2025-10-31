@@ -46,8 +46,6 @@ public:
     VcsBasePluginState &operator=(const VcsBasePluginState &);
     ~VcsBasePluginState();
 
-    void clear();
-
     bool isEmpty() const;
     bool hasFile() const;
     bool hasPatchFile() const;
@@ -80,14 +78,7 @@ public:
     // the file one.
     Utils::FilePath topLevel() const;
 
-    bool equals(const VcsBasePluginState &rhs) const;
-
     friend VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state);
-
-    friend bool operator==(const VcsBasePluginState &s1, const VcsBasePluginState &s2)
-    { return s1.equals(s2); }
-    friend bool operator!=(const VcsBasePluginState &s1, const VcsBasePluginState &s2)
-    { return !s1.equals(s2); }
 
 private:
     friend class VersionControlBase;
