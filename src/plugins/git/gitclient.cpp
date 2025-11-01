@@ -814,7 +814,7 @@ GitClient::GitClient()
             m_timer.start();
         } else {
             m_timer.stop();
-            for (auto fp : std::as_const(m_modifInfos)) {
+            for (const auto &fp : std::as_const(m_modifInfos)) {
                 m_modifInfos[fp.rootPath].modifiedFiles.clear();
                 emitClearFileStatus(fp.rootPath);
             }
