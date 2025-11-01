@@ -16,6 +16,7 @@
 
 #include <QQueue>
 #include <QStringList>
+#include <QTimer>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -429,14 +430,13 @@ private:
                                     QString msgBoxText, const QString &buttonName,
                                     const QString &gitCommand, ContinueCommandMode continueMode);
 
-    void setupTimer();
     mutable QMap<Utils::FilePath, Utils::FilePath> m_gitExecutableCache;
 
     QString m_gitQtcEditor;
     QMap<Utils::FilePath, StashInfo> m_stashInfo;
     QHash<Utils::FilePath, ModificationInfo> m_modifInfos;
     QQueue<Utils::FilePath> m_statusUpdateQueue;
-    std::unique_ptr<QTimer> m_timer;
+    QTimer m_timer;
     QString m_diffCommit;
     Utils::FilePaths m_updatedSubmodules;
     bool m_disableEditor = false;

@@ -64,7 +64,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
-#include <QTimer>
 
 const char HEAD[] = "HEAD";
 const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
@@ -800,16 +799,21 @@ GitClient::GitClient()
             .arg(QCoreApplication::applicationFilePath())
             .arg(QCoreApplication::applicationPid());
 
+    connect(&m_timer, &QTimer::timeout, this, &GitClient::updateModificationInfos);
+    using namespace std::chrono_literals;
+    m_timer.setInterval(10s);
+    m_timer.setSingleShot(true);
+
     if (VcsBase::Internal::commonSettings().vcsShowStatus())
-        setupTimer();
+        m_timer.start();
+
     connect(&VcsBase::Internal::commonSettings().vcsShowStatus, &Utils::BaseAspect::changed,
             this, [this] {
         bool enable = VcsBase::Internal::commonSettings().vcsShowStatus();
-        QTC_CHECK(enable == bool(!m_timer));
         if (enable) {
-            setupTimer();
+            m_timer.start();
         } else {
-            m_timer.reset();
+            m_timer.stop();
             for (auto fp : std::as_const(m_modifInfos)) {
                 m_modifInfos[fp.rootPath].modifiedFiles.clear();
                 emitClearFileStatus(fp.rootPath);
@@ -901,8 +905,8 @@ void GitClient::stopMonitoring(const Utils::FilePath &path)
     for (const FilePath &subModule : subPaths)
         m_modifInfos.remove(subModule);
     m_modifInfos.remove(directory);
-    if (m_modifInfos.isEmpty() && m_timer)
-        m_timer->stop();
+    if (m_modifInfos.isEmpty())
+        m_timer.stop();
 }
 
 void GitClient::monitorDirectory(const Utils::FilePath &path)
@@ -916,7 +920,7 @@ void GitClient::monitorDirectory(const Utils::FilePath &path)
     for (const FilePath &subModule : subPaths)
         m_modifInfos.insert(subModule, {subModule, {}});
 
-    if (!m_timer)
+    if (!VcsBase::Internal::commonSettings().vcsShowStatus())
         return;
 
     updateModificationInfos();
@@ -939,7 +943,7 @@ void GitClient::updateNextModificationInfo()
         return;
 
     if (m_statusUpdateQueue.isEmpty()) {
-        m_timer->start();
+        m_timer.start();
         return;
     }
 
@@ -4033,17 +4037,6 @@ ColorNames GitClient::colorNames()
     result.subject = styleColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
     result.body = styleColorName(TextEditor::C_TEXT);
     return result;
-}
-
-void GitClient::setupTimer()
-{
-    QTC_ASSERT(!m_timer, return);
-    m_timer.reset(new QTimer);
-    connect(m_timer.get(), &QTimer::timeout, this, &GitClient::updateModificationInfos);
-    using namespace std::chrono_literals;
-    m_timer->setInterval(10s);
-    m_timer->setSingleShot(true);
-    m_timer->start();
 }
 
 } // Git::Internal
