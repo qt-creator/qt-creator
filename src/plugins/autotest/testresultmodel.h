@@ -35,6 +35,8 @@ public:
         { return !(*this == other); }
     };
 
+    void addTestResult(const TestResult &testResult, bool autoExpand);
+
     void updateResult(bool &changed, ResultType addedChildType,
                       const std::optional<SummaryEvaluation> &summary,
                       const std::optional<QString> duration);
@@ -74,11 +76,9 @@ public:
     void raiseTestResultCount(const QString &id, ResultType type);
 
 private:
-    void recalculateMaxWidthOfFileName(const QFont &font);
     void addFileName(const QString &fileName);
-    TestResultItem *findParentItemFor(const TestResultItem *item,
-                                      const TestResultItem *startItem = nullptr) const;
-    void updateParent(const TestResultItem *item);
+    void recalculateMaxWidthOfFileName(const QFont &font);
+
     QHash<QString, QMap<ResultType, int>> m_testResultCount;
     QHash<QString, QHash<ResultType, int>> m_reportedSummary;
     std::optional<int> m_reportedDurations = std::nullopt;
