@@ -11,6 +11,8 @@
 
 #include <QDebug>
 
+#include <memory>
+
 namespace TextEditor {
 
 CodeFormatterData::~CodeFormatterData() = default;
@@ -984,16 +986,16 @@ private slots:
 
 void TextDocumentLayoutTest::testDeletingMarkOnReload()
 {
-    auto doc = new TextDocument();
+    auto doc = std::make_unique<TextDocument>();
     doc->setFilePath(Utils::TemporaryDirectory::masterDirectoryFilePath() / "TestMarkDoc.txt");
     doc->setPlainText("asd");
     auto documentLayout = qobject_cast<TextDocumentLayout *>(doc->document()->documentLayout());
     QVERIFY(documentLayout);
-    auto mark = new TextMark(doc, 1, TextMarkCategory{"testMark","testMark"});
+    auto mark = new TextMark(doc.get(), 1, TextMarkCategory{"testMark","testMark"});
     QVERIFY(doc->marks().contains(mark));
-    documentLayout->documentAboutToReload(doc); // removes text marks non-permanently
+    documentLayout->documentAboutToReload(doc.get()); // removes text marks non-permanently
     delete mark;
-    documentLayout->documentReloaded(doc); // re-adds text marks
+    documentLayout->documentReloaded(doc.get()); // re-adds text marks
     QVERIFY(!doc->marks().contains(mark));
 }
 
