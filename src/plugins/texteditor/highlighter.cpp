@@ -42,28 +42,28 @@ TextStyle categoryForTextStyle(int style)
     case KSyntaxHighlighting::Theme::BuiltIn: return C_PRIMITIVE_TYPE;
     case KSyntaxHighlighting::Theme::Extension: return C_GLOBAL;
     case KSyntaxHighlighting::Theme::Preprocessor: return C_PREPROCESSOR;
-    case KSyntaxHighlighting::Theme::Attribute: return C_LOCAL;
+    case KSyntaxHighlighting::Theme::Attribute: return C_ATTRIBUTE;
     case KSyntaxHighlighting::Theme::Char: return C_STRING;
     case KSyntaxHighlighting::Theme::SpecialChar: return C_STRING;
     case KSyntaxHighlighting::Theme::String: return C_STRING;
     case KSyntaxHighlighting::Theme::VerbatimString: return C_STRING;
     case KSyntaxHighlighting::Theme::SpecialString: return C_STRING;
-    case KSyntaxHighlighting::Theme::Import: return C_PREPROCESSOR;
+    case KSyntaxHighlighting::Theme::Import: return C_MACRO;
     case KSyntaxHighlighting::Theme::DataType: return C_TYPE;
     case KSyntaxHighlighting::Theme::DecVal: return C_NUMBER;
     case KSyntaxHighlighting::Theme::BaseN: return C_NUMBER;
     case KSyntaxHighlighting::Theme::Float: return C_NUMBER;
-    case KSyntaxHighlighting::Theme::Constant: return C_KEYWORD;
+    case KSyntaxHighlighting::Theme::Constant: return C_ENUMERATION;
     case KSyntaxHighlighting::Theme::Comment: return C_COMMENT;
     case KSyntaxHighlighting::Theme::Documentation: return C_DOXYGEN_COMMENT;
     case KSyntaxHighlighting::Theme::Annotation: return C_DOXYGEN_TAG;
     case KSyntaxHighlighting::Theme::CommentVar: return C_DOXYGEN_TAG;
     case KSyntaxHighlighting::Theme::RegionMarker: return C_PREPROCESSOR;
-    case KSyntaxHighlighting::Theme::Information: return C_WARNING;
+    case KSyntaxHighlighting::Theme::Information: return C_INFO;
     case KSyntaxHighlighting::Theme::Warning: return C_WARNING;
-    case KSyntaxHighlighting::Theme::Alert: return C_ERROR;
+    case KSyntaxHighlighting::Theme::Alert: return C_ERROR_CONTEXT;
     case KSyntaxHighlighting::Theme::Error: return C_ERROR;
-    case KSyntaxHighlighting::Theme::Others: return C_TEXT;
+    case KSyntaxHighlighting::Theme::Others: return C_INFO_CONTEXT;
     }
     return C_TEXT;
 }
