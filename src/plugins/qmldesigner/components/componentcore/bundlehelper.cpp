@@ -724,10 +724,11 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
     QSet<AssetPath> depList;
     AssetPath compAssetPath = {mainCompDir, filePath.relativePathFromDir(mainCompDir).toFSPathString()};
 
-    ModelPointer model = m_view->model()->createModel({"Item"});
-
     const Utils::Result<QByteArray> res = filePath.fileContents();
     QTC_ASSERT(res, return {});
+
+    ModelPointer model = m_view->model()->createModel({"Item"});
+    model->setFileUrl(QUrl::fromUserInput(filePath.toFSPathString()));
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(QString::fromUtf8(*res));
