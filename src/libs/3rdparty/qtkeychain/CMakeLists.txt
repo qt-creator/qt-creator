@@ -37,7 +37,7 @@ extend_qtc_library(qtkeychain
   DEPENDS ${FWFoundation} ${FWSecurity}
 )
 
-if (UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     find_package(Qt6 COMPONENTS DBus)
 
     option(LIBSECRET_SUPPORT "Build with libsecret support if available" ON)
