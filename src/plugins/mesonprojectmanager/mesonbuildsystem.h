@@ -23,6 +23,7 @@ public:
     MesonBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~MesonBuildSystem() final;
 
+    static QString name() { return "meson"; }
     void triggerParsing() final;
 
     inline const BuildOptionsList &buildOptions() const { return m_parser.buildOptions(); }

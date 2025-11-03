@@ -149,6 +149,8 @@ public:
     explicit NimBuildSystem(BuildConfiguration *bc);
     ~NimBuildSystem();
 
+    static QString name() { return "nim"; }
+
     bool supportsAction(Node *, ProjectAction action, const Node *node) const final;
     bool addFiles(Node *node, const FilePaths &filePaths, FilePaths *) final;
     RemovedFilesFromProject removeFiles(Node *node,
@@ -303,7 +305,7 @@ public:
         setBuildGenerator([](const Kit *, const FilePath &, bool forSetup) {
             const auto oneBuild = [&](BuildConfiguration::BuildType buildType, const QString &typeName) {
                 BuildInfo info;
-                info.buildSystemName = "nim";
+                info.buildSystemName = NimBuildSystem::name();
                 info.buildType = buildType;
                 info.typeName = typeName;
                 if (forSetup)
@@ -340,7 +342,7 @@ NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIME
     setDisplayName(filePath.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setBuildSystemCreator<NimBuildSystem>("nim");
+    setBuildSystemCreator<NimBuildSystem>();
 }
 
 void NimProject::toMap(Store &map) const

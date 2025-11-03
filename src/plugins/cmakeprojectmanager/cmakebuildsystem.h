@@ -45,6 +45,7 @@ public:
     explicit CMakeBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~CMakeBuildSystem() final;
 
+    static QString name() { return "cmake"; }
     void triggerParsing() final;
     void requestDebugging() final;
 

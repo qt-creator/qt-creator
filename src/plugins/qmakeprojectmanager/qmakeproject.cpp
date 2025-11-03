@@ -160,7 +160,7 @@ QmakeProject::QmakeProject(const FilePath &fileName) :
     setDisplayName(fileName.completeBaseName());
     setCanBuildProducts();
     setHasMakeInstallEquivalent(true);
-    setBuildSystemCreator<QmakeBuildSystem>("qmake");
+    setBuildSystemCreator<QmakeBuildSystem>();
 }
 
 QmakeProject::~QmakeProject()

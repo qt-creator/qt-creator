@@ -304,6 +304,8 @@ public:
     explicit CompilationDatabaseBuildSystem(BuildConfiguration *bc);
     ~CompilationDatabaseBuildSystem();
 
+    static QString name() { return "compilationdb"; }
+
     void triggerParsing() final;
 
     void reparseProject();
@@ -407,7 +409,7 @@ CompilationDatabaseProject::CompilationDatabaseProject(const FilePath &projectFi
     setType(Constants::COMPILATIONDATABASEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
-    setBuildSystemCreator<CompilationDatabaseBuildSystem>("compilationdb");
+    setBuildSystemCreator<CompilationDatabaseBuildSystem>();
     setExtraProjectFiles(
         {projectFile.stringAppended(Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX)});
 }
@@ -535,7 +537,7 @@ public:
             info.displayName = name;
             info.buildType = BuildConfiguration::Release;
             info.buildDirectory = projectPath.parentDir();
-            info.buildSystemName = "compilationdb";
+            info.buildSystemName = CompilationDatabaseBuildSystem::name();
             return QList<BuildInfo>{info};
         });
     }

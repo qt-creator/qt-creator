@@ -517,6 +517,9 @@ class UserFileAccesorTestBuildSystem : public BuildSystem
 {
 public:
     using BuildSystem::BuildSystem;
+
+    static QString name() { return "UserFileAccessorTest"; }
+
 private:
     void triggerParsing() override {}
 };
@@ -527,7 +530,7 @@ public:
     UserFileAccessorTestProject() : Project("x-test/testproject", "/test/project")
     {
         setDisplayName("Test Project");
-        setBuildSystemCreator<UserFileAccesorTestBuildSystem>("UserFileAccessorTest");
+        setBuildSystemCreator<UserFileAccesorTestBuildSystem>();
     }
 
     bool needsConfiguration() const final { return false; }

@@ -67,6 +67,8 @@ public:
     WorkspaceBuildSystem(BuildConfiguration *bc);
     ~WorkspaceBuildSystem();
 
+    static QString name() { return "Workspace"; }
+
     void reparse(bool force);
     void triggerParsing() final;
 
@@ -525,7 +527,7 @@ public:
             QList<BuildInfo> result = parseBuildConfigurations(projectPath, forSetup);
             if (!forSetup || result.isEmpty()) {
                 BuildInfo info;
-                info.buildSystemName = "Workspace";
+                info.buildSystemName = WorkspaceBuildSystem::name();
                 info.factory = this;
                 info.typeName = msgBuildConfigurationBuild();
                 info.projectDirectory = projectPath.parentDir().parentDir();
@@ -595,7 +597,7 @@ public:
 
         setType(WORKSPACE_PROJECT_ID);
         setDisplayName(projectDirectory().fileName());
-        setBuildSystemCreator<WorkspaceBuildSystem>("Workspace");
+        setBuildSystemCreator<WorkspaceBuildSystem>();
 
         connect(this, &Project::projectFileIsDirty, this, &WorkspaceProject::updateBuildConfigurations);
     }

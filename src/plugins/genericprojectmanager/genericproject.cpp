@@ -70,6 +70,7 @@ public:
     explicit GenericBuildSystem(BuildConfiguration *bc);
     ~GenericBuildSystem();
 
+    static QString name() { return "generic"; }
     void triggerParsing() final;
 
     bool supportsAction(Node *, ProjectAction action, const Node *) const final
@@ -169,7 +170,7 @@ public:
 
         setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
             BuildInfo info;
-            info.buildSystemName = "generic";
+            info.buildSystemName = GenericBuildSystem::name();
             info.typeName = msgBuildConfigurationBuild();
             info.buildDirectory = forSetup ? projectPath.absolutePath() : projectPath;
 
@@ -205,7 +206,7 @@ public:
         setType(Constants::GENERICPROJECT_ID);
         setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(filePath.completeBaseName());
-        setBuildSystemCreator<GenericBuildSystem>("generic");
+        setBuildSystemCreator<GenericBuildSystem>();
     }
 
     void editFilesTriggered();

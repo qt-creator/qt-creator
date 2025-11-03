@@ -189,7 +189,7 @@ const QList<BuildInfo> QmakeProjectImporter::buildInfoList(void *directoryData) 
 
     // create info:
     BuildInfo info;
-    info.buildSystemName = "qmake";
+    info.buildSystemName = QmakeBuildSystem::name();
     if (data->buildConfig & QtVersion::DebugBuild) {
         info.buildType = BuildConfiguration::Debug;
         info.displayName = msgBuildConfigurationDebug();

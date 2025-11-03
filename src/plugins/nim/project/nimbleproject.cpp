@@ -323,7 +323,7 @@ public:
         setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
             const auto oneBuild = [&](BuildConfiguration::BuildType buildType, const QString &typeName) {
                 BuildInfo info;
-                info.buildSystemName = "meson";
+                info.buildSystemName = NimbleBuildSystem::name();
                 info.buildType = buildType;
                 info.typeName = typeName;
                 if (forSetup) {
@@ -347,7 +347,7 @@ NimbleProject::NimbleProject(const FilePath &fileName)
     setDisplayName(fileName.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setBuildSystemCreator<NimbleBuildSystem>("nimble");
+    setBuildSystemCreator<NimbleBuildSystem>();
 }
 
 void NimbleProject::toMap(Store &map) const

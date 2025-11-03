@@ -45,7 +45,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
 
     setSupportsBuilding(false);
     setIsEditModePreferred(true);
-    setBuildSystemCreator<QmlBuildSystem>("qml");
+    setBuildSystemCreator<QmlBuildSystem>();
 
     if (fileName.endsWith(Constants::fakeProjectName)) {
         auto uiFile = fileName.toUrlishString();

@@ -2087,7 +2087,7 @@ BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBu
 BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
 {
     BuildInfo info;
-    info.buildSystemName = "cmake";
+    info.buildSystemName = CMakeBuildSystem::name();
 
     switch (buildType) {
     case BuildTypeNone:

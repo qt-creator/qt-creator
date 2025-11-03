@@ -1763,6 +1763,8 @@ class TestBuildSystem : public BuildSystem
 {
 public:
     using BuildSystem::BuildSystem;
+
+    static QString name() { return "test"; }
     void triggerParsing() final {}
 
     bool canRenameFile(Node *, const FilePath &, const FilePath &) override
@@ -1784,6 +1786,7 @@ class RejectingAllRenameBuildSystem : public TestBuildSystem
 {
 public:
     using TestBuildSystem::TestBuildSystem;
+    static QString name() { return "RejectingAll"; }
     bool renameFiles(Node *, const FilePairs &, FilePaths *) override
     {
         ++renameFilesCount;
@@ -1795,6 +1798,7 @@ class PartiallyRejectingRenameBuildSystem : public TestBuildSystem
 {
 public:
     using TestBuildSystem::TestBuildSystem;
+    static QString name() { return "RejectingSome"; }
     static inline FilePaths pathsToReject;
     bool renameFiles(Node *, const FilePairs &filePairs, FilePaths *notRenamed) override
     {
@@ -1811,6 +1815,7 @@ class ReparsingBuildSystem : public TestBuildSystem
 {
 public:
     using TestBuildSystem::TestBuildSystem;
+    static QString name() { return "Reparsing"; }
     static inline QPointer<Project> projectToReparse;
     bool renameFiles(Node *originNode, const FilePairs &filePairs, FilePaths *notRenamed) override
     {
@@ -1837,7 +1842,7 @@ public:
         setSupportedProjectType(TEST_PROJECT_ID);
         setBuildGenerator([](const Kit *, const FilePath &projectFilePath, bool) {
             BuildInfo bi;
-            bi.buildSystemName = "test";
+            bi.buildSystemName = TestBuildSystem::name();
             bi.buildDirectory = projectFilePath.parentDir();
             bi.displayName = "default";
             return QList<BuildInfo>{bi};
@@ -1853,7 +1858,7 @@ public:
     {
         setType(TEST_PROJECT_ID);
         setDisplayName(TEST_PROJECT_DISPLAYNAME);
-        setBuildSystemCreator<TestBuildSystem>("test");
+        setBuildSystemCreator<TestBuildSystem>();
         target = addTargetForKit(&testKit);
     }
 
@@ -1878,7 +1883,7 @@ public:
     template<typename BS>
     void initialize()
     {
-        setBuildSystemCreator<BS>("RenameTestBuildSystem");
+        setBuildSystemCreator<BS>();
         target = addTargetForKit(&kit);
         createNodes();
         Q_ASSERT(dynamic_cast<BS *>(target->buildSystem()));

@@ -275,7 +275,7 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
               std::make_tuple(
                   BuildConfiguration::Profile, msgBuildConfigurationProfile(), "Profile")}) {
             BuildInfo info;
-            info.buildSystemName = "qbs";
+            info.buildSystemName = QbsBuildSystem::name();
             info.buildType = type;
             info.typeName = name;
             if (forSetup)

@@ -668,7 +668,7 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
     QtVersion *version = QtKitAspect::qtVersion(k);
     QmakeExtraBuildInfo extraInfo;
     BuildInfo info;
-    info.buildSystemName = "qmake";
+    info.buildSystemName = QmakeBuildSystem::name();
     QString suffix;
     info.enabledByDefault = type == BuildConfiguration::Debug;
 

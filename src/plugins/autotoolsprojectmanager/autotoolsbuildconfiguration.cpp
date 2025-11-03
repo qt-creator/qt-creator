@@ -37,6 +37,7 @@ class AutotoolsBuildSystem final : public BuildSystem
 {
 public:
     explicit AutotoolsBuildSystem(BuildConfiguration *bc);
+    static QString name() { return "autotools"; }
 
 private:
     void triggerParsing() final;
@@ -228,7 +229,7 @@ public:
             BuildInfo info;
             info.typeName = msgBuildConfigurationBuild();
             info.buildDirectory = forSetup ? projectPath.parentDir() : projectPath;
-            info.buildSystemName = "autotools";
+            info.buildSystemName = AutotoolsBuildSystem::name();
             if (forSetup) {
                 //: The name of the build configuration created by default for a autotools project.
                 info.displayName = msgBuildConfigurationDefault();
@@ -256,7 +257,7 @@ public:
         setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(projectDirectory().fileName());
         setHasMakeInstallEquivalent(true);
-        setBuildSystemCreator<AutotoolsBuildSystem>("autotools");
+        setBuildSystemCreator<AutotoolsBuildSystem>();
     }
 };
 

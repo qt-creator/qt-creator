@@ -11,7 +11,6 @@
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchainconfigwidget.h>
 #include <utils/algorithm.h>
 
 #include <QTest>
@@ -26,6 +25,7 @@ class TestBuildSystem : public BuildSystem
 {
 public:
     using BuildSystem::BuildSystem;
+    static QString name() { return "ProjectPartTest"; }
 private:
     void triggerParsing() override {}
 };
@@ -34,7 +34,7 @@ class TestProject : public Project
 public:
     TestProject(const Utils::FilePath &projectFilePath) : Project({}, projectFilePath)
     {
-        setBuildSystemCreator<TestBuildSystem>("ProjectPartTest");
+        setBuildSystemCreator<TestBuildSystem>();
     }
 };
 

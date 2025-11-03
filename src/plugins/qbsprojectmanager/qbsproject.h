@@ -59,6 +59,7 @@ public:
     explicit QbsBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~QbsBuildSystem() final;
 
+    static QString name() { return "qbs"; }
     void triggerParsing() final;
     bool supportsAction(ProjectExplorer::Node *context,
                         ProjectExplorer::ProjectAction action,

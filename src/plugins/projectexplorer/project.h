@@ -275,8 +275,8 @@ protected:
     void setSupportsBuilding(bool value);
 
     template <typename BuildSystemImpl>
-    void setBuildSystemCreator(const QString &name) {
-        setBuildSystemName(name);
+    void setBuildSystemCreator() {
+        setBuildSystemName(BuildSystemImpl::name());
         setBuildSystemCreator([](BuildConfiguration *bc) { return new BuildSystemImpl(bc); });
     }
 

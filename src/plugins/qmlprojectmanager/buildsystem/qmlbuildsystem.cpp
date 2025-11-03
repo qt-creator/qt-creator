@@ -795,7 +795,7 @@ public:
         setBuildGenerator(
             [](const Kit *, const FilePath &projectPath, bool /* forSetup */) -> QList<BuildInfo> {
                 BuildInfo bi;
-                bi.buildSystemName = "qml";
+                bi.buildSystemName = QmlBuildSystem::name();
                 bi.buildDirectory = projectPath;
                 bi.displayName = bi.typeName = msgBuildConfigurationDefault();
                 bi.showBuildConfigs = bi.showBuildDirConfigWidget = false;

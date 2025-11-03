@@ -13,6 +13,8 @@ class PythonBuildSystem final : public ProjectExplorer::BuildSystem
 public:
     explicit PythonBuildSystem(ProjectExplorer::BuildConfiguration *buildConfig);
 
+    static QString name() { return "python"; }
+
     bool supportsAction(ProjectExplorer::Node *context,
                         ProjectExplorer::ProjectAction action,
                         const ProjectExplorer::Node *node) const override;

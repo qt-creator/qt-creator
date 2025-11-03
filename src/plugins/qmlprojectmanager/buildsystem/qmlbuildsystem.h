@@ -26,6 +26,8 @@ public:
     explicit QmlBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~QmlBuildSystem() = default;
 
+    static QString name() { return "qml"; }
+
     void triggerParsing() final;
 
     bool supportsAction(ProjectExplorer::Node *context,

@@ -28,6 +28,8 @@ public:
     NimbleBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~NimbleBuildSystem();
 
+    static QString name() { return "nimble"; }
+
     std::vector<NimbleTask> tasks() const;
 
 signals:
