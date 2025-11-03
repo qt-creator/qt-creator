@@ -60,7 +60,6 @@ QTcpSocketWrapper::~QTcpSocketWrapper()
         d->m_socket->disconnect();
         d->m_socket->abort();
     }
-    delete d;
 }
 
 /*!
