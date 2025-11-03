@@ -19,9 +19,11 @@
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+
+#include <gocmdbridge/client/bridgedfileaccess.h>
 
 #include <QtTaskTree/qconditional.h>
 
@@ -146,7 +148,8 @@ class AndroidDevicePrivate final
 public:
     std::unique_ptr<QSettings> m_avdSettings;
     QSingleTaskTreeRunner m_taskTreeRunner;
-    std::shared_ptr<AndroidFileAccess> m_deviceAccess;
+    std::shared_ptr<CmdBridge::FileAccess> m_fileAccess;
+    std::shared_ptr<AndroidFileAccess> m_fallbackFileAccess;
     std::shared_ptr<UnavailableDeviceFileAccess> m_disconnectedAccess
         = std::make_shared<UnavailableDeviceFileAccess>();
 
@@ -810,13 +813,22 @@ void AndroidDevice::updateDeviceFileAccess()
 {
     DeviceState state = deviceState();
     if (state == IDevice::DeviceReadyToUse) {
-        if (!d->m_deviceAccess) {
-            d->m_deviceAccess = std::make_shared<AndroidFileAccess>(d->m_accessData);
-            setFileAccess(d->m_deviceAccess);
+        if (!d->m_fallbackFileAccess && !d->m_fileAccess) {
+            d->m_fileAccess = std::make_shared<CmdBridge::FileAccess>();
+            Result<> initResult
+                = d->m_fileAccess->deployAndInit(Core::ICore::libexecPath(), rootPath(), {});
+            if (initResult) {
+                setFileAccess(d->m_fileAccess);
+            } else {
+                d->m_fileAccess.reset();
+                d->m_fallbackFileAccess = std::make_shared<AndroidFileAccess>(d->m_accessData);
+                setFileAccess(d->m_fallbackFileAccess);
+            }
         }
     } else {
         setFileAccess(d->m_disconnectedAccess);
-        d->m_deviceAccess.reset();
+        d->m_fallbackFileAccess.reset();
+        d->m_fileAccess.reset();
     }
 }
 
