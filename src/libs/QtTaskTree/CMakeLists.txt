@@ -20,3 +20,8 @@ add_qtc_library(QtTaskTree
     qtcpsocketwrappertask.h
     qttasktreeglobal.h
 )
+
+if(TARGET QtTaskTree)
+  add_library(Qt::TaskTree ALIAS QtTaskTree)
+endif()
+
