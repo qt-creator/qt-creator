@@ -38,7 +38,11 @@ clang::format::FormatStyle calculateQtcStyle()
     clang::format::FormatStyle style = getLLVMStyle();
     style.Language = FormatStyle::LK_Cpp;
     style.AccessModifierOffset = -4;
+#if LLVM_VERSION_MAJOR >= 22
+    style.AlignAfterOpenBracket = true;
+#else
     style.AlignAfterOpenBracket = FormatStyle::BAS_Align;
+#endif
 #if LLVM_VERSION_MAJOR >= 20
     style.AlignConsecutiveAssignments = {false, false, false, false, false, false, false};
     style.AlignConsecutiveDeclarations = {false, false, false, false, false, false, false};
