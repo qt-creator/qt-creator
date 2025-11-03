@@ -1089,21 +1089,15 @@ void CMakeGeneratorKitAspectFactory::addToBuildEnvironment(const Kit *k, Environ
 {
     GeneratorInfo info = generatorInfo(k);
     if (info.generator == "NMake Makefiles JOM") {
-        if (env.searchInPath("jom.exe").exists())
-            return;
         env.appendOrSetPath(Core::ICore::libexecPath());
         env.appendOrSetPath(Core::ICore::libexecPath("jom"));
     }
 
     if (info.generator.contains("Ninja")) {
-        if (env.searchInPath("ninja").exists())
-            return;
-
         CMakeTool *tool = cmakeTool(k);
         if (tool) {
             const FilePath cmakeBinDir = tool->filePath().parentDir();
-            if (cmakeBinDir.pathAppended("ninja").exists())
-                env.appendOrSetPath(cmakeBinDir);
+            env.appendOrSetPath(cmakeBinDir);
         }
     }
 }
