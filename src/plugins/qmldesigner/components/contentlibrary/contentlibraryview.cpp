@@ -454,7 +454,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         const QList<ModelNode> selectedNodes = selectedModelNodes();
 
         for (const ModelNode &node : selectedNodes) {
-            if (!node.metaInfo().isQtQuick3DMaterial() && m_bundleHelper->isProjectComponent(node))
+            if (m_bundleHelper->isProjectComponent(node))
                 addLibComponent(node);
             else
                 addLibItem(node);
@@ -576,12 +576,18 @@ void ContentLibraryView::addLibAssets(const QStringList &paths, const QString &b
 void ContentLibraryView::addLibComponent(const ModelNode &node)
 {
     bool is3DComponent = node.metaInfo().isQtQuick3DNode();
+    bool isMaterial = node.metaInfo().isQtQuick3DMaterial();
     auto bundlePath = is3DComponent
                     ? Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/")
-                    : Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/2d/");
+                    : isMaterial
+                          ? Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials/")
+                          : Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/2d/");
 
-    m_bundleId = is3DComponent ? m_compUtils.user3DBundleId()
-                               : m_compUtils.user2DBundleId();
+    m_bundleId = is3DComponent
+                     ? m_compUtils.user3DBundleId()
+                     : isMaterial
+                           ? m_compUtils.userMaterialsBundleId()
+                           : m_compUtils.user2DBundleId();
 
     Utils::FilePath compFilePath = Utils::FilePath::fromString(ModelUtils::componentFilePath(node));
     Utils::FilePath compDir = compFilePath.parentDir();
