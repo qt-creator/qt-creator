@@ -732,9 +732,11 @@ bool TextDocument::shouldAutoSave() const
 
 void TextDocument::setFilePath(const Utils::FilePath &newName)
 {
-    if (newName == filePath())
-        return;
-    IDocument::setFilePath(newName.absoluteFilePath().cleanPath());
+    if (const FilePath newPath = newName.absoluteFilePath().cleanPath(); newPath != filePath()) {
+        if (d->m_indenter)
+            d->m_indenter->setFileName(newPath);
+        IDocument::setFilePath(newPath);
+    }
 }
 
 IDocument::ReloadBehavior TextDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const

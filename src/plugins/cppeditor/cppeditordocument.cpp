@@ -394,7 +394,6 @@ void CppEditorDocument::Private::onFilePathChanged(const FilePath &oldPath, cons
     Q_UNUSED(oldPath)
 
     if (!newPath.isEmpty()) {
-        q->indenter()->setFileName(newPath);
         q->setMimeType(mimeTypeForFile(newPath).name());
 
         connect(q, &Core::IDocument::contentsChanged,
