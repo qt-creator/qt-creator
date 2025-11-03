@@ -216,6 +216,7 @@ static void overrideTabSettings(QPointer<QmlJSEditorDocument> document)
         tabSettings.m_tabPolicy = settings.value("UseTabs").toBool()
                                       ? TextEditor::TabSettings::TabPolicy::TabsOnlyTabPolicy
                                       : TextEditor::TabSettings::TabPolicy::SpacesOnlyTabPolicy;
+    tabSettings.m_autoDetect = false; // setTabSettings ignores changes when this is true
     document->setTabSettings(tabSettings);
 }
 
