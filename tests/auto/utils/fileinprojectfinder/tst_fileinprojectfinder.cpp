@@ -23,7 +23,8 @@ private:
     {
         makePath(filePath.parentDir());
         QFile file(filePath.path());
-        file.open(QIODevice::WriteOnly);
+        if (!file.open(QIODevice::WriteOnly))
+            return {};
         file.close();
         return filePath;
     }
@@ -52,6 +53,7 @@ private slots:
     void find_existing_file_in_project_directory()
     {
         FilePath testFile = makeFile(tempPath.pathAppended("testfile.txt"));
+        QVERIFY(!testFile.isEmpty());
         finder.setProjectDirectory(tempPath);
         finder.setProjectFiles({testFile});
         QUrl testFileUrl = testFile.toUrl();
@@ -66,6 +68,7 @@ private slots:
     void find_file_in_sysroot_when_not_in_project()
     {
         FilePath sysrootPath = makePath(tempPath.pathAppended("sysroot"));
+        QVERIFY(!sysrootPath.isEmpty());
         FilePath fileInSysroot = makeFile(sysrootPath.pathAppended("file.txt"));
         finder.setProjectDirectory(tempPath);
         finder.setProjectFiles({fileInSysroot});
@@ -84,6 +87,7 @@ private slots:
         FilePath projectFilePath = tempPath.pathAppended("qml");
         FilePath originalFilePath = makeFile(projectFilePath.pathAppended("main.qml"));
         FilePath shadowBuildFilePath = makeFile(tempPath.pathAppended("shadow-build/qml/main.qml"));
+        QVERIFY(!shadowBuildFilePath.isEmpty());
         finder.setProjectDirectory(projectFilePath);
         finder.setProjectFiles({originalFilePath});
         QUrl shadowBuildMainQmlUrl = shadowBuildFilePath.toUrl();
@@ -98,6 +102,7 @@ private slots:
     void find_file_when_project_directory_is_empty()
     {
         FilePath projectFile = makeFile(tempPath.pathAppended("file.txt"));
+        QVERIFY(!projectFile.isEmpty());
         finder.setProjectDirectory({});
         finder.setProjectFiles({projectFile});
         QUrl projectUrl = projectFile.toUrl();
@@ -113,6 +118,7 @@ private slots:
     {
         FilePath additionalSearchPath = makePath(tempPath.pathAppended("extra/search/path"));
         FilePath fileInSearchPath = makeFile(additionalSearchPath.pathAppended("file.txt"));
+        QVERIFY(!fileInSearchPath.isEmpty());
         finder.setAdditionalSearchDirectories({additionalSearchPath});
         QUrl searchPathUrl = fileInSearchPath.toUrl();
         bool success = false;
@@ -126,6 +132,7 @@ private slots:
     void find_file_using_relative_path()
     {
         FilePath relativeFilePath = makeFile(tempPath.pathAppended("subdir/file.txt"));
+        QVERIFY(!relativeFilePath.isEmpty());
         finder.setProjectDirectory(tempPath);
         finder.setProjectFiles({relativeFilePath});
         QUrl relativeUrl = QUrl::fromLocalFile("subdir/file.txt");
@@ -140,7 +147,9 @@ private slots:
     void prioritize_project_files_over_sysroot()
     {
         FilePath projectFile = makeFile(tempPath.pathAppended("project/testfile.txt"));
+        QVERIFY(!projectFile.isEmpty());
         FilePath sysrootFile = makeFile(tempPath.pathAppended("sysroot/testfile.txt"));
+        QVERIFY(!sysrootFile.isEmpty());
         finder.setProjectDirectory(tempPath.pathAppended("project"));
         finder.setProjectFiles({projectFile});
         finder.setSysroot(tempPath.pathAppended("sysroot"));
@@ -158,6 +167,7 @@ private slots:
         FilePath additionalSearchPath = makePath(tempPath.pathAppended("extra/search"));
         FilePath fileInSearchPath = makeFile(
             additionalSearchPath.pathAppended("relative/testfile.txt"));
+        QVERIFY(!fileInSearchPath.isEmpty());
         finder.setAdditionalSearchDirectories({additionalSearchPath});
         QUrl relativeUrl = QUrl::fromLocalFile("relative/testfile.txt");
         bool success = false;
@@ -171,6 +181,7 @@ private slots:
     void resolve_nested_mapped_paths()
     {
         FilePath localFile = makeFile(tempPath.pathAppended("local/nested/path/file.qml"));
+        QVERIFY(!localFile.isEmpty());
         finder.addMappedPath(localFile, "remote/nested/path/file.qml");
         QUrl remoteUrl("remote/nested/path/file.qml");
         bool success = false;
@@ -185,6 +196,7 @@ private slots:
     void find_file_using_single_mapped_path()
     {
         FilePath localFile = makeFile(tempPath.pathAppended("local/testfile.txt"));
+        QVERIFY(!localFile.isEmpty());
         finder.addMappedPath(localFile, "remote/testfile.txt");
         QUrl testFileUrl("remote/testfile.txt");
         bool success = false;
@@ -198,7 +210,9 @@ private slots:
     void find_file_in_nested_mapped_paths()
     {
         FilePath mappedFile1 = makeFile(tempPath.pathAppended("local/path1/deep/file.qml"));
+        QVERIFY(!mappedFile1.isEmpty());
         FilePath mappedFile2 = makeFile(tempPath.pathAppended("local/path2/deeper/file.qml"));
+        QVERIFY(!mappedFile2.isEmpty());
         finder.addMappedPath(mappedFile1, "remote/path1/file.qml");
         finder.addMappedPath(mappedFile2, "remote/path2/file.qml");
         QUrl remoteUrl("remote/path2/file.qml");
@@ -213,8 +227,11 @@ private slots:
     void prioritize_project_files_over_search_and_sysroot()
     {
         FilePath projectFile = makeFile(tempPath.pathAppended("project/file.qml"));
+        QVERIFY(!projectFile.isEmpty());
         FilePath sysrootFile = makeFile(tempPath.pathAppended("sysroot/file.qml"));
+        QVERIFY(!sysrootFile.isEmpty());
         FilePath deploymentFile = makeFile(tempPath.pathAppended("deployment/file.qml"));
+        QVERIFY(!deploymentFile.isEmpty());
         finder.setProjectDirectory(tempPath.pathAppended("project"));
         finder.setProjectFiles({projectFile});
         finder.setSysroot(tempPath.pathAppended("sysroot"));
@@ -231,7 +248,9 @@ private slots:
     void select_file_with_most_matching_path_segments()
     {
         FilePath file1 = makeFile(tempPath.pathAppended("qml/1/view.qml"));
+        QVERIFY(!file1.isEmpty());
         FilePath file2 = makeFile(tempPath.pathAppended("qml/2/view.qml"));
+        QVERIFY(!file2.isEmpty());
         FilePath searchPath = FilePath::fromString("/somewhere/else/qml/2/view.qml");
         finder.setProjectDirectory(tempPath);
         finder.setProjectFiles({file1, file2});
@@ -247,7 +266,9 @@ private slots:
     void avoid_speculative_qmldir_file_matches()
     {
         FilePath exactQmldir = makeFile(tempPath.pathAppended("qml/2/qmldir"));
+        QVERIFY(!exactQmldir.isEmpty());
         FilePath speculativeQmldir = makeFile(tempPath.pathAppended("resources/qml/1/qmldir"));
+        QVERIFY(!speculativeQmldir.isEmpty());
 
         finder.setProjectDirectory(tempPath);
         finder.setProjectFiles({exactQmldir, speculativeQmldir});
@@ -264,6 +285,7 @@ private slots:
     void map_qrc_url_to_project_file()
     {
         FilePath qrcFilePath = makeFile(tempPath.pathAppended("qml/main.qml"));
+        QVERIFY(!qrcFilePath.isEmpty());
         finder.setProjectDirectory(tempPath);
         finder.setProjectFiles({qrcFilePath});
         QUrl qrcUrl("qrc:/qml/main.qml");
@@ -316,6 +338,7 @@ private slots:
     {
         FilePath projectPath = makePath(tempPath.pathAppended("project"));
         FilePath appBundleFile = makeFile(projectPath.pathAppended(".build/MyApp.app/Contents/Resources/qml/ignored.qml"));
+        QVERIFY(!appBundleFile.isEmpty());
         finder.setProjectDirectory(projectPath);
         QUrl appBundleUrl = appBundleFile.toUrl();
         bool success = false;
@@ -336,7 +359,9 @@ private slots:
     {
         FilePath projectPath = makePath(tempPath.pathAppended("project"));
         FilePath appBundleFile = makeFile(projectPath.pathAppended("MyApp.app/Contents/Resources/qml/same.qml"));
+        QVERIFY(!appBundleFile.isEmpty());
         FilePath deeperFile = makeFile(projectPath.pathAppended("subdir/subdir/subdir/subdir/subdir/subdir/same.qml"));
+        QVERIFY(!deeperFile.isEmpty());
         finder.setProjectDirectory(projectPath);
         finder.setProjectFiles({deeperFile});
         QUrl appBundleUrl = appBundleFile.toUrl();
@@ -360,6 +385,7 @@ private slots:
     {
         FilePath deploymentPath = makePath(tempPath.pathAppended("deployment/data"));
         FilePath deployedFile = makeFile(deploymentPath.pathAppended("deployed.qml"));
+        QVERIFY(!deployedFile.isEmpty());
         finder.setAdditionalSearchDirectories({deploymentPath});
         QUrl deploymentUrl = deployedFile.toUrl();
         bool success = false;
@@ -374,6 +400,7 @@ private slots:
     {
         FilePath projectDir = makePath(tempPath.pathAppended("project"));
         FilePath deepFile = makeFile(projectDir.pathAppended("nested/subdir/file.qml"));
+        QVERIFY(!deepFile.isEmpty());
         finder.setProjectDirectory(projectDir);
         finder.setProjectFiles({deepFile});
         QUrl searchUrl = QUrl::fromLocalFile("subdir/file.qml");
@@ -389,6 +416,7 @@ private slots:
     {
         FilePath projectDir = makePath(tempPath.pathAppended("project"));
         FilePath filePath = makeFile(projectDir.pathAppended("file.qml"));
+        QVERIFY(!filePath.isEmpty());
 
         finder.setProjectDirectory(projectDir);
         finder.setProjectFiles({filePath});
@@ -409,7 +437,7 @@ private slots:
     {
         FilePath projectDir = makePath(tempPath.pathAppended("project"));
         FilePath directoryPath = makePath(projectDir.pathAppended("subdir"));
-        makeFile(directoryPath.pathAppended("file.qml"));
+        QVERIFY(!makeFile(directoryPath.pathAppended("file.qml")).isEmpty());
 
         finder.setProjectDirectory(projectDir);
 
@@ -445,7 +473,9 @@ private slots:
     void return_multiple_candidates_for_relative_path()
     {
         FilePath file1 = makeFile(tempPath.pathAppended("dir1/shared_file.qml"));
+        QVERIFY(!file1.isEmpty());
         FilePath file2 = makeFile(tempPath.pathAppended("dir2/shared_file.qml"));
+        QVERIFY(!file2.isEmpty());
         finder.setProjectDirectory(tempPath);
         finder.setProjectFiles({file1, file2});
         QUrl relativeUrl("shared_file.qml");
@@ -462,8 +492,10 @@ private slots:
     void qrc_single_match()
     {
         FilePath qrcFile = makeFile(tempPath.pathAppended("test_single.qrc"));
+        QVERIFY(!qrcFile.isEmpty());
         qrcFile.writeFileContents(R"(<RCC><qresource prefix="/"><file>qml/single.qml</file></qresource></RCC>)");
         FilePath qmlFile = makeFile(tempPath.pathAppended("qml/single.qml"));
+        QVERIFY(!qmlFile.isEmpty());
         finder.setProjectFiles({qrcFile});
         QUrl qrcUrl("qrc:/qml/single.qml");
         bool success = false;
@@ -478,6 +510,7 @@ private slots:
     void qrc_no_match()
     {
         FilePath qrcFile = makeFile(tempPath.pathAppended("test_none.qrc"));
+        QVERIFY(!qrcFile.isEmpty());
         qrcFile.writeFileContents(R"(<RCC><qresource prefix="/"><file>qml/empty.qml</file></qresource></RCC>)");
         finder.setProjectFiles({qrcFile});
         QUrl notExistingInQrcUrl("qrc:/qml/missing.qml");
@@ -494,8 +527,10 @@ private slots:
     void multiple_qrc()
     {
         FilePath qrcFile1 = makeFile(tempPath.pathAppended("test_multi1.qrc"));
+        QVERIFY(!qrcFile1.isEmpty());
         qrcFile1.writeFileContents(R"(<RCC><qresource prefix="/"><file>qml/first.qml</file></qresource></RCC>)");
         FilePath qrcFile2 = makeFile(tempPath.pathAppended("test_multi2.qrc"));
+        QVERIFY(!qrcFile2.isEmpty());
         qrcFile2.writeFileContents(R"(<RCC><qresource prefix="/"><file>qml/second.qml</file></qresource></RCC>)");
         FilePath second = tempPath.pathAppended("qml/second.qml");
         finder.setProjectFiles({qrcFile1, qrcFile2});
@@ -528,6 +563,7 @@ private slots:
     void use_cached_result_for_second_search()
     {
         FilePath existing = makeFile(tempPath.pathAppended("cached_item.txt"));
+        QVERIFY(!existing.isEmpty());
         finder.setProjectDirectory(tempPath);
         finder.setProjectFiles({existing});
         QUrl url = existing.toUrl();
@@ -550,6 +586,7 @@ private slots:
         // Make sure it doesn't find it in the project or search paths, but finds it in sysroot.
         FilePath sysRoot = makePath(tempPath.pathAppended("mySysroot"));
         FilePath inSysroot = makeFile(sysRoot.pathAppended("sysroot_only.qml"));
+        QVERIFY(!inSysroot.isEmpty());
         FilePath projectDir = makePath(tempPath.pathAppended("fakeProject"));
         finder.setProjectDirectory(projectDir);
         finder.setProjectFiles({});
@@ -589,8 +626,8 @@ private slots:
         FilePath projectDir = makePath(tempPath.pathAppended("projectSegments"));
         FilePath c1 = makePath(projectDir.pathAppended("some/commonDir"));
         FilePath c2 = makePath(projectDir.pathAppended("another/commonDir"));
-        makeFile(c1.pathAppended("fileA.txt"));
-        makeFile(c2.pathAppended("fileB.txt"));
+        QVERIFY(!makeFile(c1.pathAppended("fileA.txt")).isEmpty());
+        QVERIFY(!makeFile(c2.pathAppended("fileB.txt")).isEmpty());
         finder.setProjectDirectory(projectDir);
         finder.setProjectFiles({c1.pathAppended("fileA.txt"), c2.pathAppended("fileB.txt")});
         int dirCount = 0;
@@ -611,8 +648,10 @@ private slots:
     void qrcUrlFinder_cache_hit()
     {
         FilePath qrcFile = makeFile(tempPath.pathAppended("cache_hit.qrc"));
+        QVERIFY(!qrcFile.isEmpty());
         qrcFile.writeFileContents(R"(<RCC><qresource prefix="/"><file>qml/cached.qml</file></qresource></RCC>)");
         FilePath qmlFile = makeFile(tempPath.pathAppended("qml/cached.qml"));
+        QVERIFY(!qmlFile.isEmpty());
         finder.setProjectFiles({qrcFile});
         // create cache entry
         QUrl qrcUrl("qrc:/qml/cached.qml");
@@ -634,7 +673,9 @@ private slots:
     {
         FilePath projectDir = makePath(tempPath.pathAppended("ProjectForInvalidation"));
         FilePath fileA = makeFile(projectDir.pathAppended("subdirA/multi.qml"));
+        QVERIFY(!fileA.isEmpty());
         FilePath fileB = makeFile(projectDir.pathAppended("subdirB/multi.qml"));
+        QVERIFY(!fileB.isEmpty());
         finder.setProjectDirectory(projectDir);
         finder.setProjectFiles({fileA, fileB});
         QUrl searchUrl("multi.qml");

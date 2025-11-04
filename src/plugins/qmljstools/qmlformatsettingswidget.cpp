@@ -261,7 +261,7 @@ QString QmlFormatOptionsModel::writeGlobalQmlFormatIniFile() const
     settings.sync();
 
     QFile file(QmlFormatSettings::instance().globalQmlFormatIniFile().toFSPathString());
-    file.open(QIODevice::ReadOnly);
+    QTC_CHECK(file.open(QIODevice::ReadOnly));
     return QString::fromUtf8(file.readAll());
 }
 

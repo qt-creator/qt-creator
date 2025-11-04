@@ -46,7 +46,7 @@ public:
     TestFile()
         : TemporaryFile(QString("testfile%1").arg(++fileCount))
     {
-        open();
+        QVERIFY(open());
     }
 
     ~TestFile()
