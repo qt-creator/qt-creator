@@ -2,7 +2,7 @@ add_qtc_plugin(QmlProjectManager
   CONDITION TARGET Qt::QuickWidgets
   PLUGIN_CLASS QmlProjectPlugin
   DEPENDS QmlJS Qt::QuickWidgets Utils
-  PLUGIN_DEPENDS Core ProjectExplorer QtSupport QmlDesignerBase QmlJSEditor
+  PLUGIN_DEPENDS Core ProjectExplorer QtSupport QmlJSEditor
   SOURCES
     qmlprojectgen/qmlprojectgenerator.cpp qmlprojectgen/qmlprojectgenerator.h
     qmlprojectgen/templates.qrc

@@ -24,9 +24,6 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <qmldesignerbase/qmldesignerbaseplugin.h>
-#include <qmldesignerbase/utils/qmlpuppetpaths.h>
-
 #include <qmljstools/qmljstoolsconstants.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -200,16 +197,6 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     // The Qt version might know, but we need to make sure
     // that the device can reach it.
     if (QtVersion *version = QtKitAspect::qtVersion(kit())) {
-        // look for QML Puppet as qmlruntime only in QtStudio Qt versions
-        if (version->features().contains("QtStudio") && version->qtVersion().majorVersion() > 5
-            && dev && dev->rootPath().isLocal()) {
-            auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
-                        kit(), QmlDesigner::QmlDesignerBasePlugin::settings());
-            if (!puppetPath.isEmpty()) {
-                usePuppetAsQmlRuntime = true;
-                return puppetPath;
-            }
-        }
         const FilePath qmlRuntime = version->qmlRuntimeFilePath();
         if (!qmlRuntime.isEmpty() && (!dev || dev->ensureReachable(qmlRuntime)))
             return qmlRuntime;
