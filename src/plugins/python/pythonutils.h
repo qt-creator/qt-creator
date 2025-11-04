@@ -16,10 +16,6 @@ QString pythonName(const Utils::FilePath &pythonPath);
 class PythonProject;
 PythonProject *pythonProjectForFile(const Utils::FilePath &pythonFile);
 
-void createVenv(const Utils::FilePath &python,
-                const Utils::FilePath &venvPath,
-                const std::function<void(bool)> &callback);
-
 bool isVenvPython(const Utils::FilePath &python);
 bool venvIsUsable(const Utils::FilePath &python);
 bool pipIsUsable(const Utils::FilePath &python);

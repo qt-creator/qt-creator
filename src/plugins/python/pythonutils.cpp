@@ -167,26 +167,6 @@ PythonProject *pythonProjectForFile(const FilePath &file)
     return nullptr;
 }
 
-void createVenv(const FilePath &python,
-                const FilePath &venvPath,
-                const std::function<void(bool)> &callback)
-{
-    QTC_ASSERT(python.isExecutableFile(), callback(false); return);
-    QTC_ASSERT(!venvPath.exists() || venvPath.isDir(), callback(false); return);
-
-    const CommandLine command(python, QStringList{"-m", "venv", venvPath.toUserOutput()});
-
-    auto process = new Process;
-    auto progress = new Core::ProcessProgress(process);
-    progress->setDisplayName(Tr::tr("Create Python venv"));
-    QObject::connect(process, &Process::done, [process, callback](){
-        callback(process->result() == ProcessResult::FinishedWithSuccess);
-        process->deleteLater();
-    });
-    process->setCommand(command);
-    process->start();
-}
-
 bool isVenvPython(const FilePath &python)
 {
     return python.parentDir().parentDir().pathAppended("pyvenv.cfg").exists();
