@@ -16,6 +16,7 @@ headerdirs              = . \
                           ../src \
                           ../../../src/libs/aggregation \
                           ../../../src/libs/extensionsystem \
+                          ../../../src/libs/QtTaskTree \
                           ../../../src/libs/solutions \
                           ../../../src/libs/utils \
                           ../../../src/plugins/coreplugin
@@ -24,6 +25,7 @@ sourcedirs              = . \
                           ../src \
                           ../../../src/libs/aggregation \
                           ../../../src/libs/extensionsystem \
+                          ../../../src/libs/QtTaskTree \
                           ../../../src/libs/solutions \
                           ../../../src/libs/utils \
                           ../../../src/plugins/coreplugin
@@ -46,7 +48,8 @@ imagedirs = ../images \
             ../../../src/libs/solutions
 exampledirs = ../examples
 
-depends +=    qtwidgets \
+depends +=    qtconcurrent \
+              qtwidgets \
               qtcore \
               qtcore5compat \
               qtqml \

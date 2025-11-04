@@ -25,18 +25,6 @@
     \li \b {Iterators} - Support for loops and repetitive task execution.
     \endlist
 
-    \section1 Using the Module
-
-    \include {module-use.qdocinc} {using the c++ api}
-
-    \section2 Building with CMake
-
-    \include {module-use.qdocinc} {building with cmake} {TaskTree}
-
-    \section2 Building with qmake
-
-    \include {module-use.qdocinc} {building_with_qmake} {tasktree}
-
     \section1 Task adapters
 
     The module includes several built-in task adapters for common operations:

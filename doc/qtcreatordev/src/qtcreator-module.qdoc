@@ -34,9 +34,10 @@
                 object pool.
 
         \row
-            \li \l{Tasking}
-            \li A solution containing a TaskTree and other classes for writing
-                declarative trees of asynchronous task flows.
+            \li \l{QtTaskTree}
+            \li Provides a declarative way to compose and execute asynchronous
+                task workflows with proper error handling and execution policies.
+                For more information, see \l {Qt TaskTree}.
 
         \row
             \li \l{Utils}
@@ -123,11 +124,6 @@
             \li \l{Spinner Solution}{Spinner}
             \li Renders a circular, endlessly animated progress indicator,
                 which may be attached to any widget as an overlay.
-
-        \row
-            \li \l{Tasking Solution}{Tasking}
-            \li Enables you to build extensible, declarative task tree structures
-                that contain possibly asynchronous tasks.
     \endtable
 
     \section1 Reference
