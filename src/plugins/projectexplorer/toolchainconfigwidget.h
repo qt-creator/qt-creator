@@ -22,10 +22,6 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
-// --------------------------------------------------------------------------
-// ToolChainConfigWidget
-// --------------------------------------------------------------------------
-
 class PROJECTEXPLORER_EXPORT ToolchainConfigWidget : public QScrollArea
 {
     Q_OBJECT
@@ -36,8 +32,6 @@ public:
     ToolchainBundle bundle() const { return m_bundle; }
 
     void apply();
-    void discard();
-    bool isDirty() const;
     void makeReadOnly();
 
 signals:
@@ -49,8 +43,6 @@ protected:
     void clearErrorMessage();
 
     virtual void applyImpl() = 0;
-    virtual void discardImpl() = 0;
-    virtual bool isDirtyImpl() const = 0;
     virtual void makeReadOnlyImpl() = 0;
 
     void addErrorLabel();

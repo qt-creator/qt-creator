@@ -395,8 +395,6 @@ private:
     void errorParserChanged(int index = -1);
 
     void applyImpl() override;
-    void discardImpl() override { setFromToolchain(); }
-    bool isDirtyImpl() const override;
     void makeReadOnlyImpl() override;
 
     void setFromToolchain();
@@ -521,20 +519,6 @@ void CustomToolchainConfigWidget::setFromToolchain()
     const int index = m_errorParserComboBox->findData(
         bundle().get(&CustomToolchain::outputParserId).toSetting());
     m_errorParserComboBox->setCurrentIndex(index);
-}
-
-bool CustomToolchainConfigWidget::isDirtyImpl() const
-{
-    return m_makeCommand->filePath() != bundle().makeCommand({})
-           || m_abiWidget->currentAbi() != bundle().targetAbi()
-           || Macro::toMacros(m_predefinedDetails->text().toUtf8())
-                  != bundle().get(&CustomToolchain::rawPredefinedMacros)
-           || m_headerDetails->entries() != bundle().get(&CustomToolchain::headerPathsList)
-           || m_cxx11Flags->text().split(QLatin1Char(','))
-                  != bundle().get(&CustomToolchain::cxx11Flags)
-           || m_mkspecs->text() != bundle().get(&CustomToolchain::mkspecs)
-           || Id::fromSetting(m_errorParserComboBox->currentData())
-                  == bundle().get(&CustomToolchain::outputParserId);
 }
 
 void CustomToolchainConfigWidget::makeReadOnlyImpl()

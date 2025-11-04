@@ -183,8 +183,6 @@ public:
 
 private:
     void applyImpl() final;
-    void discardImpl() final { setFromToolchain(); }
-    bool isDirtyImpl() const final;
     void makeReadOnlyImpl() final;
 
     void setFromToolchain();
@@ -472,11 +470,6 @@ void SdccToolchainConfigWidget::applyImpl()
         tc.predefinedMacrosCache()->insert({}, {m_macros, languageVersion});
     });
     setFromToolchain();
-}
-
-bool SdccToolchainConfigWidget::isDirtyImpl() const
-{
-    return m_abiWidget->currentAbi() != bundle().targetAbi();
 }
 
 void SdccToolchainConfigWidget::makeReadOnlyImpl()

@@ -145,8 +145,6 @@ public:
 
 protected:
     void applyImpl() final;
-    void discardImpl() final;
-    bool isDirtyImpl() const final;
     void makeReadOnlyImpl() final;
 
 private:
@@ -157,12 +155,6 @@ private:
 
 void NimToolchainConfigWidget::applyImpl() {}
 
-void NimToolchainConfigWidget::discardImpl()
-{
-    fillUI();
-}
-
-bool NimToolchainConfigWidget::isDirtyImpl() const { return false; }
 void NimToolchainConfigWidget::makeReadOnlyImpl() {}
 
 void NimToolchainConfigWidget::fillUI()

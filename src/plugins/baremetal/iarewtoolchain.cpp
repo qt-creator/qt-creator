@@ -258,8 +258,6 @@ public:
 
 private:
     void applyImpl() final;
-    void discardImpl() final { setFromToolchain(); }
-    bool isDirtyImpl() const final;
     void makeReadOnlyImpl() final;
 
     void setFromToolchain();
@@ -600,13 +598,6 @@ void IarToolchainConfigWidget::applyImpl()
     });
 
     setFromToolchain();
-}
-
-bool IarToolchainConfigWidget::isDirtyImpl() const
-{
-    return m_platformCodeGenFlagsLineEdit->text()
-               != ProcessArgs::joinArgs(bundle().extraCodeModelFlags())
-           || m_abiWidget->currentAbi() != bundle().targetAbi();
 }
 
 void IarToolchainConfigWidget::makeReadOnlyImpl()

@@ -31,8 +31,6 @@ public:
 
 private:
     void applyImpl() override;
-    void discardImpl() override;
-    bool isDirtyImpl() const override;
     void makeReadOnlyImpl() override { }
 
     void handleSdpPathChange();
@@ -202,22 +200,6 @@ void QnxToolchainConfigWidget::applyImpl()
         tc.sdpPath.setValue(m_sdpPath->filePath());
         tc.resetToolchain(compilerCommand(tc.language()));
     });
-}
-
-void QnxToolchainConfigWidget::discardImpl()
-{
-    // subwidgets are not yet connected!
-    QSignalBlocker blocker(this);
-    m_sdpPath->setFilePath(bundle().get(&QnxToolchain::sdpPath)());
-    m_abiWidget->setAbis(bundle().supportedAbis(), bundle().targetAbi());
-    if (hasAnyCompiler())
-        m_abiWidget->setEnabled(true);
-}
-
-bool QnxToolchainConfigWidget::isDirtyImpl() const
-{
-    return m_sdpPath->filePath() != bundle().get(&QnxToolchain::sdpPath)()
-           || m_abiWidget->currentAbi() != bundle().targetAbi();
 }
 
 void QnxToolchainConfigWidget::handleSdpPathChange()

@@ -64,23 +64,6 @@ void ToolchainConfigWidget::apply()
     applyImpl();
 }
 
-void ToolchainConfigWidget::discard()
-{
-    m_nameLineEdit->setText(m_bundle.displayName());
-    for (const auto &[tc, pathChooser] : std::as_const(m_commands))
-        pathChooser->setFilePath(bundle().compilerCommand(tc->language()));
-    discardImpl();
-}
-
-bool ToolchainConfigWidget::isDirty() const
-{
-    for (const auto &[tc, pathChooser] : std::as_const(m_commands)) {
-        if (pathChooser->filePath() != bundle().compilerCommand(tc->language()))
-            return true;
-    }
-    return m_nameLineEdit->text() != m_bundle.displayName() || isDirtyImpl();
-}
-
 void ToolchainConfigWidget::makeReadOnly()
 {
     m_nameLineEdit->setEnabled(false);

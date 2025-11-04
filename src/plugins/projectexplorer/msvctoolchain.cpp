@@ -1349,8 +1349,6 @@ public:
 
 protected:
     void applyImpl() override {}
-    void discardImpl() override { setFromMsvcToolChain(); }
-    bool isDirtyImpl() const override { return false; }
     void makeReadOnlyImpl() override {}
 
     void setFromMsvcToolChain()
@@ -1428,8 +1426,6 @@ public:
 
 private:
     void applyImpl() final;
-    void discardImpl() final;
-    bool isDirtyImpl() const final;
     void makeReadOnlyImpl() final;
 
     void setFromMsvcToolchain();
@@ -1451,19 +1447,6 @@ void MsvcToolchainConfigWidget::applyImpl()
     const QString vcVars = QDir::fromNativeSeparators(m_varsBatPathCombo->currentText());
     bundle().set(&MsvcToolchain::setupVarsBat, m_abiWidget->currentAbi(), vcVars, vcVarsArguments());
     setFromMsvcToolchain();
-}
-
-void MsvcToolchainConfigWidget::discardImpl()
-{
-    setFromMsvcToolchain();
-}
-
-bool MsvcToolchainConfigWidget::isDirtyImpl() const
-{
-    return bundle().get(&MsvcToolchain::varsBat)
-               != QDir::fromNativeSeparators(m_varsBatPathCombo->currentText())
-           || bundle().get(&MsvcToolchain::varsBatArg) != vcVarsArguments()
-           || bundle().get(&MsvcToolchain::targetAbi) != m_abiWidget->currentAbi();
 }
 
 void MsvcToolchainConfigWidget::makeReadOnlyImpl()
@@ -1585,8 +1568,6 @@ public:
 
 protected:
     void applyImpl() final;
-    void discardImpl() final;
-    bool isDirtyImpl() const override { return false; }
     void makeReadOnlyImpl() final;
 
 private:
@@ -1724,11 +1705,6 @@ void ClangClToolchainConfigWidget::applyImpl()
             b.get(&MsvcToolchain::varsBatArg));
     }
     qDeleteAll(results);
-    setFromClangClToolchain();
-}
-
-void ClangClToolchainConfigWidget::discardImpl()
-{
     setFromClangClToolchain();
 }
 

@@ -392,8 +392,6 @@ public:
 
 private:
     void applyImpl() final;
-    void discardImpl() final { setFromToolchain(); }
-    bool isDirtyImpl() const final;
     void makeReadOnlyImpl() final;
 
     void setFromToolchain();
@@ -751,13 +749,6 @@ void KeilToolchainConfigWidget::applyImpl()
     });
 
     setFromToolchain();
-}
-
-bool KeilToolchainConfigWidget::isDirtyImpl() const
-{
-    return m_platformCodeGenFlagsLineEdit->text()
-               != ProcessArgs::joinArgs(bundle().extraCodeModelFlags())
-           || m_abiWidget->currentAbi() != bundle().targetAbi();
 }
 
 void KeilToolchainConfigWidget::makeReadOnlyImpl()

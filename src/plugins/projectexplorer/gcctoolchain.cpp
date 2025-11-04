@@ -119,8 +119,6 @@ private:
     void handlePlatformLinkerFlagsChange();
 
     void applyImpl() override;
-    void discardImpl() override { setFromToolchain(); }
-    bool isDirtyImpl() const override;
     void makeReadOnlyImpl() override;
 
     void setFromToolchain();
@@ -1972,25 +1970,6 @@ void GccToolchainConfigWidget::setFromToolchain()
 
     if (m_parentToolchainCombo)
         updateParentToolchainComboBox();
-}
-
-bool GccToolchainConfigWidget::isDirtyImpl() const
-{
-    if (m_platformCodeGenFlagsLineEdit->text() != ProcessArgs::joinArgs(bundle().get(&GccToolchain::platformCodeGenFlags))
-        || m_platformLinkerFlagsLineEdit->text() != ProcessArgs::joinArgs(bundle().get(&GccToolchain::platformLinkerFlags))
-        || m_targetTripleWidget->explicitCodeModelTargetTriple()
-               != bundle().get(&GccToolchain::explicitCodeModelTargetTriple)
-        || (m_abiWidget && m_abiWidget->currentAbi() != bundle().targetAbi())) {
-        return true;
-    }
-
-    if (!m_parentToolchainCombo)
-        return false;
-
-    const GccToolchain *parentTC = mingwToolchainFromId(
-        bundle().get(&GccToolchain::parentToolchainId));
-    const Id parentBundleId = parentTC ? parentTC->bundleId() : Id();
-    return parentBundleId.toSetting() != m_parentToolchainCombo->currentData();
 }
 
 void GccToolchainConfigWidget::makeReadOnlyImpl()
