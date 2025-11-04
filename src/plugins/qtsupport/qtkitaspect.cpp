@@ -121,8 +121,6 @@ private:
 
     KitAspect *createKitAspect(Kit *k) const override;
 
-    QString displayNamePostfix(const Kit *k) const override;
-
     ItemList toUserOutput(const Kit *k) const override;
 
     void addToBuildEnvironment(const Kit *k, Environment &env) const override;
@@ -316,12 +314,6 @@ KitAspect *QtKitAspectFactory::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new Internal::QtKitAspectImpl(k, this);
-}
-
-QString QtKitAspectFactory::displayNamePostfix(const Kit *k) const
-{
-    QtVersion *version = QtKitAspect::qtVersion(k);
-    return version ? version->displayName() : QString();
 }
 
 KitAspectFactory::ItemList QtKitAspectFactory::toUserOutput(const Kit *k) const

@@ -231,13 +231,6 @@ private:
         return new DeviceKitAspectImpl<TypeAspect, DeviceAspect>(k, this);
     }
 
-    QString displayNamePostfix(const Kit *k) const override
-    {
-        if (const IDevice::ConstPtr dev = DeviceAspect::device(k))
-            return dev->displayName();
-        return {};
-    }
-
     ItemList toUserOutput(const Kit *k) const override
     {
         const IDevice::ConstPtr dev = DeviceAspect::device(k);

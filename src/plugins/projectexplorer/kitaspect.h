@@ -138,8 +138,6 @@ public:
 
     virtual QList<Utils::OutputLineParser *> createOutputParsers(const Kit *k) const;
 
-    virtual QString displayNamePostfix(const Kit *k) const;
-
     virtual QSet<Utils::Id> supportedPlatforms(const Kit *k) const;
     virtual QSet<Utils::Id> availableFeatures(const Kit *k) const;
 

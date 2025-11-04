@@ -147,8 +147,6 @@ private:
 
     KitAspect *createKitAspect(Kit *k) const override;
 
-    QString displayNamePostfix(const Kit *k) const override;
-
     ItemList toUserOutput(const Kit *k) const override;
 
     void addToBuildEnvironment(const Kit *k, Environment &env) const override;
@@ -366,12 +364,6 @@ KitAspect *ToolchainKitAspectFactory::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new ToolchainKitAspectImpl(k, this);
-}
-
-QString ToolchainKitAspectFactory::displayNamePostfix(const Kit *k) const
-{
-    Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);
-    return tc ? tc->displayName() : QString();
 }
 
 KitAspectFactory::ItemList ToolchainKitAspectFactory::toUserOutput(const Kit *k) const

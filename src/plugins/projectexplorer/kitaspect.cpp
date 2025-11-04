@@ -395,12 +395,6 @@ QList<OutputLineParser *> KitAspectFactory::createOutputParsers(const Kit *k) co
     return {};
 }
 
-QString KitAspectFactory::displayNamePostfix(const Kit *k) const
-{
-    Q_UNUSED(k)
-    return {};
-}
-
 QSet<Id> KitAspectFactory::supportedPlatforms(const Kit *k) const
 {
     Q_UNUSED(k)
