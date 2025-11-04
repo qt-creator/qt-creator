@@ -343,7 +343,7 @@ MetaInfo {
         Hints {
             visibleNonDefaultProperties: "animations"
             visibleInLibrary: false
-            visibleInNavigator: true
+            visibleInNavigator: false
         }
         ItemLibraryEntry {
             name: "Timeline"
