@@ -7,11 +7,7 @@
 #include "qmlprojectmanager_global.h"
 #include <projectexplorer/project.h>
 
-#include <QPointer>
-
 namespace QmlProjectManager {
-
-class QmlProject;
 
 class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
 {
@@ -21,25 +17,11 @@ public:
 
     static bool isMCUs();
 
-    struct Version
-    {
-        int major = -1;
-        int minor = -1;
-    };
-    static Version qtQuickVersion();
-
 protected:
     RestoreResult fromMap(const Utils::Store &map, QString *errorMessage) override;
 
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
-    Utils::FilePaths collectUiQmlFilesForFolder(const Utils::FilePath &folder) const;
-    Utils::FilePaths collectQmlFiles() const;
-
-    bool setKitWithVersion(const int qtMajorVersion, const QList<ProjectExplorer::Kit *> kits);
-
-    bool allowOnlySingleProject();
-    int preferedQtTarget(ProjectExplorer::Target *target);
 
 private slots:
     void parsingFinished(bool success);

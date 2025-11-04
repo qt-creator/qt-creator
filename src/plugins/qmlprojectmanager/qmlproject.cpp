@@ -115,71 +115,9 @@ Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessa
     return RestoreResult::Ok;
 }
 
-bool QmlProject::setKitWithVersion(const int qtMajorVersion, const QList<Kit *> kits)
-{
-    const QList<Kit *> qtVersionkits = Utils::filtered(kits, [qtMajorVersion](const Kit *k) {
-        if (!k->detectionSource().isAutoDetected())
-            return false;
-
-        if (k->isReplacementKit())
-            return false;
-
-        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-        return (version && version->qtVersion().majorVersion() == qtMajorVersion);
-    });
-
-
-    Target *target = nullptr;
-
-    if (!qtVersionkits.isEmpty()) {
-        if (qtVersionkits.contains(KitManager::defaultKit()))
-            target = addTargetForDefaultKit();
-        else
-            target = addTargetForKit(qtVersionkits.first());
-    }
-
-    if (target)
-        target->project()->setActiveTarget(target, SetActive::NoCascade);
-
-    return true;
-}
-
-Utils::FilePaths QmlProject::collectUiQmlFilesForFolder(const Utils::FilePath &folder) const
-{
-    const Utils::FilePaths uiFiles = files([&](const Node *node) {
-        return node->filePath().completeSuffix() == "ui.qml"
-               && node->filePath().parentDir() == folder;
-    });
-    return uiFiles;
-}
-
-Utils::FilePaths QmlProject::collectQmlFiles() const
-{
-    const Utils::FilePaths qmlFiles = files([&](const Node *node) {
-        return node->filePath().completeSuffix() == "qml";
-    });
-    return qmlFiles;
-}
-
 DeploymentKnowledge QmlProject::deploymentKnowledge() const
 {
     return DeploymentKnowledge::Perfect;
-}
-
-int QmlProject::preferedQtTarget(Target *target)
-{
-    if (!target)
-        return -1;
-
-    auto buildSystem = qobject_cast<QmlBuildSystem *>(target->buildSystem());
-    return (buildSystem && buildSystem->qt6Project()) ? 6 : 5;
-}
-
-bool QmlProject::allowOnlySingleProject()
-{
-    QtcSettings *settings = Core::ICore::settings();
-    const Key key = "QML/Designer/AllowMultipleProjects";
-    return !settings->value(key, false).toBool();
 }
 
 bool QmlProject::isMCUs()
@@ -187,26 +125,6 @@ bool QmlProject::isMCUs()
     const QmlProjectManager::QmlBuildSystem *buildSystem
         = qobject_cast<QmlProjectManager::QmlBuildSystem *>(activeBuildSystemForActiveProject());
     return buildSystem && buildSystem->qtForMCUs();
-}
-
-QmlProject::Version QmlProject::qtQuickVersion()
-{
-    const QmlProjectManager::QmlBuildSystem *buildSystem
-        = qobject_cast<QmlProjectManager::QmlBuildSystem *>(activeBuildSystemForActiveProject());
-
-    if (buildSystem) {
-        const QStringList versions = buildSystem->versionQtQuick().split('.');
-        if (versions.size() >= 2) {
-            const QString majorVersion = versions[0];
-            const QString minorVersion = versions[1];
-            Version version {
-                majorVersion.isEmpty() ? -1 : majorVersion.toInt(),
-                minorVersion.isEmpty() ? -1 : minorVersion.toInt()
-            };
-            return version;
-        }
-    }
-    return {};
 }
 
 } // namespace QmlProjectManager
