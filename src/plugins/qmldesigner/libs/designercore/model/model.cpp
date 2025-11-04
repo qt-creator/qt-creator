@@ -696,8 +696,13 @@ void ModelPrivate::notifyNodeInstanceViewLast(const std::invocable<AbstractView 
         call(m_nodeInstanceView);
     }
 
-    if (resetModel)
-        resetModelByRewriter(description);
+    if (resetModel) {
+        try {
+            resetModelByRewriter(description);
+        } catch (const RewritingException &e) {
+            e.showException();
+        }
+    }
 }
 
 void ModelPrivate::notifyNormalViewsLast(const std::invocable<AbstractView *> auto &call)
