@@ -43,7 +43,6 @@ Q_LOGGING_CATEGORY(wsp, "qtc.projectexplorer.workspace.project", QtWarningMsg);
 
 const QLatin1StringView FOLDER_MIMETYPE{"inode/directory"};
 const QLatin1StringView WORKSPACE_MIMETYPE{"text/x-workspace-project"};
-const QLatin1StringView CARGO_TOML_MIMETYPE{"text/x-cargo-toml"};
 const char WORKSPACE_PROJECT_ID[] = "ProjectExplorer.WorkspaceProject";
 const char WORKSPACE_PROJECT_RUNCONFIG_ID[] = "WorkspaceProject.RunConfiguration:";
 
@@ -580,166 +579,123 @@ public:
 
 WorkspaceBuildConfigurationFactory *WorkspaceBuildConfigurationFactory::m_instance = nullptr;
 
-class WorkspaceProject : public Project
-{
-    Q_OBJECT
-public:
-    WorkspaceProject(const FilePath file, const QJsonObject defaultConfiguration = QJsonObject())
+WorkspaceProject::WorkspaceProject(const FilePath &file, const QJsonObject &defaultConfiguration)
     : Project(FOLDER_MIMETYPE, file.isDir() ? file / ".qtcreator" / "project.json" : file)
-    {
-        QTC_CHECK(projectFilePath().absolutePath().ensureWritableDir());
-        if (!projectFilePath().exists() && QTC_GUARD(projectFilePath().ensureExistingFile())) {
-            QJsonObject projectJson = defaultConfiguration;
-            projectJson.insert("$schema", "https://download.qt.io/official_releases/qtcreator/latest/installer_source/jsonschemas/project.json");
-            projectJson.insert(FILES_EXCLUDE_KEY, QJsonArray{QJsonValue(".qtcreator/project.json.user")});
-            projectFilePath().writeFileContents(QJsonDocument(projectJson).toJson());
-        }
-
-        setType(WORKSPACE_PROJECT_ID);
-        setDisplayName(projectDirectory().fileName());
-        setBuildSystemCreator<WorkspaceBuildSystem>();
-
-        connect(this, &Project::projectFileIsDirty, this, &WorkspaceProject::updateBuildConfigurations);
-    }
-
-    void updateBuildConfigurations()
-    {
-        qCDebug(wsp) << "Updating build configurations for" << displayName();
-        const QList<BuildInfo> buildInfos
-            = WorkspaceBuildConfigurationFactory::parseBuildConfigurations(projectFilePath(), true);
-        for (Target *target : targets()) {
-            qCDebug(wsp) << "Updating build configurations for target" << target->displayName();
-            QList<BuildInfo> toAdd = buildInfos;
-            QString removedActiveBuildConfiguration;
-            for (BuildConfiguration *bc : target->buildConfigurations()) {
-                auto *wbc = qobject_cast<WorkspaceBuildConfiguration *>(bc);
-                if (!wbc)
-                    continue;
-                if (std::optional<QVariantMap> extraInfo = wbc->originalExtraInfo) {
-                    // remove the buildConfiguration if it is unchanged from the project file
-                    auto equalExtraInfo = [&extraInfo](const BuildInfo &info) {
-                        return info.extraInfo == *extraInfo;
-                    };
-                    if (toAdd.removeIf(equalExtraInfo) == 0) {
-                        qCDebug(wsp) << " Removing build configuration" << wbc->displayName();
-                        if (target->activeBuildConfiguration() == wbc)
-                            removedActiveBuildConfiguration = wbc->displayName();
-                        target->removeBuildConfiguration(bc);
-                    }
-                }
-            }
-            for (const BuildInfo &buildInfo : toAdd) {
-                if (BuildConfiguration *bc = buildInfo.factory->create(target, buildInfo)) {
-                    qCDebug(wsp) << " Adding build configuration" << bc->displayName();
-                    target->addBuildConfiguration(bc);
-                    if (!removedActiveBuildConfiguration.isEmpty()
-                        && (bc->displayName() == removedActiveBuildConfiguration
-                            || toAdd.size() == 1)) {
-                        target->setActiveBuildConfiguration(bc, SetActive::NoCascade);
-                    }
-                }
-            }
-        }
-    }
-
-    FilePath projectDirectory() const override
-    {
-        return Project::projectDirectory().parentDir();
-    }
-
-    RestoreResult fromMap(const Store &map, QString *errorMessage) override
-    {
-        if (const RestoreResult res = Project::fromMap(map, errorMessage); res != RestoreResult::Ok)
-            return res;
-
-        if (!activeTarget()) {
-            addTargetForDefaultKit();
-        } else {
-            // For projects created with Qt Creator < 17.
-            for (Target *const t : targets()) {
-                if (t->buildConfigurations().isEmpty())
-                    t->updateDefaultBuildConfigurations();
-                QTC_CHECK(!t->buildConfigurations().isEmpty());
-            }
-        }
-        return RestoreResult::Ok;
-    }
-
-    void saveProjectDefinition(const QJsonObject &json)
-    {
-        Utils::FileSaver saver(projectFilePath());
-        saver.write(QJsonDocument(json).toJson());
-        saver.finalize();
-    }
-
-    void excludePath(const FilePath &path)
-    {
-        QTC_ASSERT(projectFilePath().exists(), return);
-        if (Result<QJsonObject> json = projectDefinition(projectFilePath())) {
-            QJsonArray excludes = (*json)[FILES_EXCLUDE_KEY].toArray();
-            const QString relative = path.relativePathFromDir(projectDirectory());
-            if (excludes.contains(relative))
-                return;
-            excludes << relative;
-            json->insert(FILES_EXCLUDE_KEY, excludes);
-            saveProjectDefinition(*json);
-        }
-    }
-
-    void excludeNode(Node *node)
-    {
-        node->setEnabled(false);
-        if (auto fileNode = node->asFileNode()) {
-            excludePath(fileNode->path());
-        } else if (auto folderNode = node->asFolderNode()) {
-            folderNode->forEachNode([](Node *node) { node->setEnabled(false); });
-            excludePath(folderNode->path());
-        }
-    }
-};
-
-static QJsonObject defaultCargoJson()
 {
-    static QJsonObject result = QJsonDocument::fromJson(R"(
-    {
-        "build.configuration": [
-            {
-                "name": "cargo build",
-                    "steps": [
-                        {
-                            "executable": "cargo",
-                            "arguments": ["build"],
-                            "workingDirectory": "%{ActiveProject:ProjectDirectory}"
-                        }
-                    ]
-            }
-        ],
-        "targets": [
-            {
-                "name": "cargo run",
-                "executable": "cargo",
-                "arguments": ["run"],
-                "workingDirectory": "%{ActiveProject:ProjectDirectory}"
-            }
-        ]
-    })").object();
-    return result;
+    QTC_CHECK(projectFilePath().absolutePath().ensureWritableDir());
+    if (!projectFilePath().exists() && QTC_GUARD(projectFilePath().ensureExistingFile())) {
+        QJsonObject projectJson = defaultConfiguration;
+        projectJson.insert("$schema", "https://download.qt.io/official_releases/qtcreator/latest/installer_source/jsonschemas/project.json");
+        projectJson.insert(FILES_EXCLUDE_KEY, QJsonArray{QJsonValue(".qtcreator/project.json.user")});
+        projectFilePath().writeFileContents(QJsonDocument(projectJson).toJson());
+    }
+
+    setType(WORKSPACE_PROJECT_ID);
+    setDisplayName(projectDirectory().fileName());
+    setBuildSystemCreator<WorkspaceBuildSystem>();
+
+    connect(this, &Project::projectFileIsDirty, this, &WorkspaceProject::updateBuildConfigurations);
 }
 
-class CargoProject : public WorkspaceProject
+FilePath WorkspaceProject::projectDirectory() const
 {
-public:
-    CargoProject(const FilePath &file)
-        : WorkspaceProject(file.parentDir(), defaultCargoJson())
-    {
+    return Project::projectDirectory().parentDir();
+}
+
+Project::RestoreResult WorkspaceProject::fromMap(const Store &map, QString *errorMessage)
+{
+    if (const RestoreResult res = Project::fromMap(map, errorMessage); res != RestoreResult::Ok)
+        return res;
+
+    if (!activeTarget()) {
+        addTargetForDefaultKit();
+    } else {
+        // For projects created with Qt Creator < 17.
+        for (Target *const t : targets()) {
+            if (t->buildConfigurations().isEmpty())
+                t->updateDefaultBuildConfigurations();
+            QTC_CHECK(!t->buildConfigurations().isEmpty());
+        }
     }
-};
+    return RestoreResult::Ok;
+}
+
+void WorkspaceProject::updateBuildConfigurations()
+{
+    qCDebug(wsp) << "Updating build configurations for" << displayName();
+    const QList<BuildInfo> buildInfos
+        = WorkspaceBuildConfigurationFactory::parseBuildConfigurations(projectFilePath(), true);
+    for (Target *target : targets()) {
+        qCDebug(wsp) << "Updating build configurations for target" << target->displayName();
+        QList<BuildInfo> toAdd = buildInfos;
+        QString removedActiveBuildConfiguration;
+        for (BuildConfiguration *bc : target->buildConfigurations()) {
+            auto *wbc = qobject_cast<WorkspaceBuildConfiguration *>(bc);
+            if (!wbc)
+                continue;
+            if (std::optional<QVariantMap> extraInfo = wbc->originalExtraInfo) {
+                // remove the buildConfiguration if it is unchanged from the project file
+                auto equalExtraInfo = [&extraInfo](const BuildInfo &info) {
+                    return info.extraInfo == *extraInfo;
+                };
+                if (toAdd.removeIf(equalExtraInfo) == 0) {
+                    qCDebug(wsp) << " Removing build configuration" << wbc->displayName();
+                    if (target->activeBuildConfiguration() == wbc)
+                        removedActiveBuildConfiguration = wbc->displayName();
+                    target->removeBuildConfiguration(bc);
+                }
+            }
+        }
+        for (const BuildInfo &buildInfo : toAdd) {
+            if (BuildConfiguration *bc = buildInfo.factory->create(target, buildInfo)) {
+                qCDebug(wsp) << " Adding build configuration" << bc->displayName();
+                target->addBuildConfiguration(bc);
+                if (!removedActiveBuildConfiguration.isEmpty()
+                    && (bc->displayName() == removedActiveBuildConfiguration
+                        || toAdd.size() == 1)) {
+                    target->setActiveBuildConfiguration(bc, SetActive::NoCascade);
+                }
+            }
+        }
+    }
+}
+
+void WorkspaceProject::saveProjectDefinition(const QJsonObject &json)
+{
+    Utils::FileSaver saver(projectFilePath());
+    saver.write(QJsonDocument(json).toJson());
+    saver.finalize();
+}
+
+void WorkspaceProject::excludePath(const FilePath &path)
+{
+    QTC_ASSERT(projectFilePath().exists(), return);
+    if (Result<QJsonObject> json = projectDefinition(projectFilePath())) {
+        QJsonArray excludes = (*json)[FILES_EXCLUDE_KEY].toArray();
+        const QString relative = path.relativePathFromDir(projectDirectory());
+        if (excludes.contains(relative))
+            return;
+        excludes << relative;
+        json->insert(FILES_EXCLUDE_KEY, excludes);
+        saveProjectDefinition(*json);
+    }
+}
+
+void WorkspaceProject::excludeNode(Node *node)
+{
+    node->setEnabled(false);
+    if (auto fileNode = node->asFileNode()) {
+        excludePath(fileNode->path());
+    } else if (auto folderNode = node->asFolderNode()) {
+        folderNode->forEachNode([](Node *node) { node->setEnabled(false); });
+        excludePath(folderNode->path());
+    }
+}
 
 void setupWorkspaceProject(QObject *guard)
 {
     ProjectManager::registerProjectType<WorkspaceProject>(FOLDER_MIMETYPE);
     ProjectManager::registerProjectType<WorkspaceProject>(WORKSPACE_MIMETYPE);
-    ProjectManager::registerProjectType<CargoProject>(CARGO_TOML_MIMETYPE);
 
     QAction *excludeAction = nullptr;
     ActionBuilder(guard, EXCLUDE_ACTION_ID)

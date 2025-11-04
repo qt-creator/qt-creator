@@ -1,9 +1,10 @@
 {
-    "Id" : "projectexplorer",
-    "DisplayName" : "Project Explorer",
-    "Name" : "ProjectExplorer",
+    "Id" : "cargo",
+    "DisplayName" : "Cargo",
+    "Name" : "Cargo",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "DisabledByDefault" : true,
     "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
     "Copyright" : "${IDE_COPYRIGHT}",
@@ -15,39 +16,18 @@
                   "",
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
-    "Category" : "Core",
-    "Description" : "ProjectExplorer framework that can be extended with different kind of project types.",
+    "Description" : "Supports the cargo project type",
     "Url" : "https://www.qt.io",
-    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-tos.html#manage-projects",
-    "Arguments" : [
-        {
-            "Name" : "-customwizard-verbose",
-            "Description" : "Verbose loading of custom wizards"
-        },
-        {
-            "Name" : "-ensure-kit-for-binary",
-            "Parameter" : "file path",
-            "Description" : "Create kit with architecture matching a given application or library"
-        }
-    ],
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
         "<?xml version='1.0' encoding='UTF-8'?>",
         "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
-        "    <mime-type type='text/x-tasklist'>",
-        "        <sub-class-of type='text/plain'/>",
-        "        <comment>Qt Creator task list file</comment>",
-        "        <glob pattern='*.tasks'/>",
-        "        <glob pattern='*.tasks.txt'/>",
+        "    <mime-type type='text/x-cargo-toml'>",
+        "        <sub-class-of type='application/toml'/>",
+        "        <comment>Cargo TOML project file</comment>",
+        "        <glob pattern='Cargo.toml'/>",
         "    </mime-type>",
-
-        "    <mime-type type='text/x-workspace-project'>",
-        "        <sub-class-of type='application/json'/>",
-        "        <comment>Workspace Qt Creator Project file</comment>",
-        "        <glob pattern='project.json' weight='100'/>",
-        "    </mime-type>",
-
         "</mime-info>"
     ]
 }

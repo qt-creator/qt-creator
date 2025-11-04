@@ -14,6 +14,7 @@ Project {
         "beautifier/beautifier.qbs",
         "bineditor/bineditor.qbs",
         "boot2qt/boot2qt.qbs",
+        "cargo/cargo.qbs",
         "clangcodemodel/clangcodemodel.qbs",
         "clangformat/clangformat.qbs",
         "clangtools/clangtools.qbs",
