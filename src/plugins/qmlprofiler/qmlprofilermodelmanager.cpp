@@ -81,11 +81,6 @@ public:
     Internal::QmlProfilerDetailsRewriter *detailsRewriter = nullptr;
 
     bool isRestrictedToRange = false;
-
-    void addEventType(const QmlEventType &eventType);
-    void handleError(const QString &message);
-
-    int resolveStackTop();
 };
 
 QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent)
@@ -231,12 +226,6 @@ static QString getInitialDetails(const QmlEventType &event)
     }
 
     return details;
-}
-
-void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::handleError(const QString &message)
-{
-    // What to do here?
-    qWarning() << message;
 }
 
 const char *QmlProfilerModelManager::featureName(ProfileFeature feature)
