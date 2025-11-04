@@ -600,8 +600,13 @@ void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
     if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())
         call(nodeInstanceView());
 
-    if (resetModel)
-        resetModelByRewriter(description);
+    if (resetModel) {
+        try {
+            resetModelByRewriter(description);
+        } catch (const RewritingException &e) {
+            e.showException();
+        }
+    }
 }
 
 template<typename Callable>
