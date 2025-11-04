@@ -52,6 +52,7 @@ StudioControls.ComboBox {
             model: control.model
             section.property: "provider"
             section.criteria: ViewSection.FullString
+            boundsBehavior: Flickable.StopAtBounds
 
             QQC.ScrollBar.vertical: StudioControls.TransientScrollBar {
                 id: verticalScrollBar
