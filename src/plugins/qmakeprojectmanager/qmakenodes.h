@@ -57,7 +57,6 @@ public:
 
     bool isDebugAndRelease() const;
     bool isObjectParallelToSource() const;
-    bool isQtcRunnable() const;
     bool includedInExactParse() const;
 
     bool showInSimpleTree() const override;

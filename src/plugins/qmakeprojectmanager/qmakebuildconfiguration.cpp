@@ -376,21 +376,6 @@ bool QmakeBuildConfiguration::isBuildDirAtSafeLocation() const
     return isBuildDirAtSafeLocation(project()->projectDirectory(), buildDirectory());
 }
 
-void QmakeBuildConfiguration::forceSeparateDebugInfo(bool sepDebugInfo)
-{
-    separateDebugInfo.setValue(sepDebugInfo ? TriState::Enabled : TriState::Disabled);
-}
-
-void QmakeBuildConfiguration::forceQmlDebugging(bool enable)
-{
-    qmlDebugging.setValue(enable ? TriState::Enabled : TriState::Disabled);
-}
-
-void QmakeBuildConfiguration::forceQtQuickCompiler(bool enable)
-{
-    useQtQuickCompiler.setValue(enable ? TriState::Enabled : TriState::Disabled);
-}
-
 bool QmakeBuildConfiguration::runQmakeSystemFunctions() const
 {
     const int sel = runSystemFunctions();

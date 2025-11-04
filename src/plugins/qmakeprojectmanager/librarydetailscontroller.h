@@ -36,7 +36,6 @@ protected:
     Utils::OsType libraryPlatformType() const;
     QString libraryPlatformFilter() const;
     Utils::FilePath proFile() const;
-    bool isIncludePathChanged() const;
 
     void updateGui();
     virtual AddLibraryWizard::LinkageType suggestedLinkageType() const = 0;

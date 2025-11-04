@@ -191,11 +191,6 @@ FilePath LibraryDetailsController::proFile() const
     return m_proFile;
 }
 
-bool LibraryDetailsController::isIncludePathChanged() const
-{
-    return m_includePathChanged;
-}
-
 void LibraryDetailsController::showLinkageType(
         AddLibraryWizard::LinkageType linkageType)
 {

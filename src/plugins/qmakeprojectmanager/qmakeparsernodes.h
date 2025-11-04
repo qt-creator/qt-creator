@@ -130,7 +130,6 @@ public:
     const QList<QmakePriFile *> children() const;
 
     QmakePriFile *findPriFile(const Utils::FilePath &fileName);
-    const QmakePriFile *findPriFile(const Utils::FilePath &fileName) const;
 
     bool knowsFile(const Utils::FilePath &filePath) const;
 
@@ -236,41 +235,31 @@ private:
 class QMAKEPROJECTMANAGER_EXPORT TargetInformation
 {
 public:
+    TargetInformation() = default;
+
     bool valid = false;
     QString target;
     Utils::FilePath destDir;
     Utils::FilePath buildDir;
     QString buildTarget;
-    bool operator==(const TargetInformation &other) const
-    {
-        return target == other.target
-                && valid == other.valid
-                && destDir == other.destDir
-                && buildDir == other.buildDir
-                && buildTarget == other.buildTarget;
-    }
-    bool operator!=(const TargetInformation &other) const
-    {
-        return !(*this == other);
-    }
-
-    TargetInformation() = default;
 };
 
-class QMAKEPROJECTMANAGER_EXPORT InstallsItem {
+class QMAKEPROJECTMANAGER_EXPORT InstallsItem
+{
 public:
     InstallsItem() = default;
     InstallsItem(QString p, QList<ProFileEvaluator::SourceFile> f, bool a, bool e)
         : path(p), files(f), active(a), executable(e) {}
+
     QString path;
     QList<ProFileEvaluator::SourceFile> files;
     bool active = false;
     bool executable = false;
 };
 
-class QMAKEPROJECTMANAGER_EXPORT InstallsList {
+class QMAKEPROJECTMANAGER_EXPORT InstallsList
+{
 public:
-    void clear() { targetPath.clear(); items.clear(); }
     QString targetPath;
     QList<InstallsItem> items;
 };
@@ -287,8 +276,6 @@ public:
     QString displayName() const final;
 
     QList<QmakeProFile *> allProFiles();
-    QmakeProFile *findProFile(const Utils::FilePath &fileName);
-    const QmakeProFile *findProFile(const Utils::FilePath &fileName) const;
 
     ProjectType projectType() const;
 

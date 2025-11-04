@@ -82,10 +82,6 @@ public:
                                          const Utils::FilePath &buildDir);
     bool isBuildDirAtSafeLocation() const;
 
-    void forceSeparateDebugInfo(bool sepDebugInfo);
-    void forceQmlDebugging(bool enable);
-    void forceQtQuickCompiler(bool enable);
-
     ProjectExplorer::SeparateDebugInfoAspect separateDebugInfo{this};
     QtSupport::QmlDebuggingAspect qmlDebugging{this};
     QtSupport::QtQuickCompilerAspect useQtQuickCompiler{this};

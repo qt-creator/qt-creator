@@ -463,12 +463,6 @@ bool QmakeProFileNode::isObjectParallelToSource() const
     return variableValue(Variable::Config).contains("object_parallel_to_source");
 }
 
-bool QmakeProFileNode::isQtcRunnable() const
-{
-    const QStringList configValues = variableValue(Variable::Config);
-    return configValues.contains(QLatin1String("qtc_runnable"));
-}
-
 bool QmakeProFileNode::includedInExactParse() const
 {
     const QmakeProFile *pro = proFile();

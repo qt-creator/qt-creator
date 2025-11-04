@@ -54,9 +54,6 @@ namespace QmakeProjectManager {
 
 static Q_LOGGING_CATEGORY(qmakeParse, "qtc.qmake.parsing", QtWarningMsg);
 
-size_t qHash(Variable key, uint seed) { return ::qHash(static_cast<int>(key), seed); }
-size_t qHash(FileOrigin fo) { return ::qHash(int(fo)); }
-
 namespace Internal {
 
 Q_LOGGING_CATEGORY(qmakeNodesLog, "qtc.qmake.nodes", QtWarningMsg)
@@ -177,17 +174,6 @@ QmakePriFile *QmakePriFile::findPriFile(const FilePath &fileName)
         return this;
     for (QmakePriFile *n : std::as_const(m_children)) {
         if (QmakePriFile *result = n->findPriFile(fileName))
-            return result;
-    }
-    return nullptr;
-}
-
-const QmakePriFile *QmakePriFile::findPriFile(const FilePath &fileName) const
-{
-    if (fileName == filePath())
-        return this;
-    for (const QmakePriFile *n : std::as_const(m_children)) {
-        if (const QmakePriFile *result = n->findPriFile(fileName))
             return result;
     }
     return nullptr;
@@ -1100,16 +1086,6 @@ static ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateTy
     }
 }
 
-QmakeProFile *QmakeProFile::findProFile(const FilePath &fileName)
-{
-    return static_cast<QmakeProFile *>(findPriFile(fileName));
-}
-
-const QmakeProFile *QmakeProFile::findProFile(const FilePath &fileName) const
-{
-    return static_cast<const QmakeProFile *>(findPriFile(fileName));
-}
-
 QByteArray QmakeProFile::cxxDefines() const
 {
     QByteArray result;
@@ -1659,11 +1635,6 @@ void QmakeProFile::evaluate(QPromise<QmakeEvalResultPtr> &promise, const QmakeEv
     if (promise.isCanceled())
         return;
     promise.addResult(result);
-}
-
-bool sortByParserNodes(Node *a, Node *b)
-{
-    return a->filePath() < b->filePath();
 }
 
 void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
