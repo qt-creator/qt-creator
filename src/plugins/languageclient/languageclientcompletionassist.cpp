@@ -414,6 +414,7 @@ static QString assistReasonString(AssistReason reason)
 IAssistProposal *LanguageClientCompletionAssistProcessor::perform()
 {
     QTC_ASSERT(m_client, return nullptr);
+    QTC_ASSERT(!running(), cancel());
     m_pos = interface()->position();
     m_basePos = m_pos;
     auto isIdentifierChar = [](const QChar &c) { return c.isLetterOrNumber() || c == '_'; };
