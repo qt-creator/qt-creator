@@ -7,9 +7,10 @@ import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import AssetsLibraryBackend
 
-Item {
+Rectangle {
     id: root
 
+    color: StudioTheme.Values.themeToolbarBackground
     property var assetsModel: AssetsLibraryBackend.assetsModel
     property var rootView: AssetsLibraryBackend.rootView
 

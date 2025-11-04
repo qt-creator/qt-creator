@@ -44,9 +44,10 @@ itemLibraryModel [
     ... more imports
 ]
 */
-Item {
+Rectangle {
     id: itemsView
 
+    color: StudioTheme.Values.themeToolbarBackground
     property bool adsFocus: false
     // objectName is used by the dock widget to find this particular ScrollView
     // and set the ads focus on it.
