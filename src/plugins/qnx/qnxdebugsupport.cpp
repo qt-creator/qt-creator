@@ -89,7 +89,6 @@ public:
         mainLayout->insertLayout(mainLayout->count() - 2, formLayout);
     }
 
-    QString projectSource() const { return m_projectSource->filePath().toUrlishString(); }
     FilePath localExecutable() const { return m_localExecutable->filePath(); }
 
 private:
