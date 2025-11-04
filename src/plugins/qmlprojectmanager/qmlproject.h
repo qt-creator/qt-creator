@@ -19,8 +19,6 @@ class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
 public:
     explicit QmlProject(const Utils::FilePath &filename);
 
-    static bool isQtDesignStudioStartedFromQtC();
-
     static bool isMCUs();
 
     struct Version

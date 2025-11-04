@@ -161,11 +161,6 @@ Utils::FilePaths QmlProject::collectQmlFiles() const
     return qmlFiles;
 }
 
-bool QmlProject::isQtDesignStudioStartedFromQtC()
-{
-    return qEnvironmentVariableIsSet(Constants::enviromentLaunchedQDS);
-}
-
 DeploymentKnowledge QmlProject::deploymentKnowledge() const
 {
     return DeploymentKnowledge::Perfect;

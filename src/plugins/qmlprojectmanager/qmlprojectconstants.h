@@ -15,8 +15,6 @@ const char customQt6Project[] = "CustomQt6Project";
 const char mainFilePath[] = "MainFilePath";
 const char canonicalProjectDir[] ="CanonicalProjectDir";
 
-const char enviromentLaunchedQDS[] = "QTC_LAUNCHED_QDS";
-
 const char ALWAYS_OPEN_UI_MODE[] = "J.QtQuick/QmlJSEditor.openUiQmlMode";
 const char QML_RESOURCE_PATH[] = "qmldesigner/propertyEditorQmlSources/imports";
 const char LANDING_PAGE_PATH[] = "qmldesigner/landingpage";

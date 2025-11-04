@@ -98,7 +98,9 @@ static void openQds(const FilePath &fileName, QdsMode mode)
 {
     const FilePath qdsPath = qdsSettings().qdsCommand();
     bool qdsStarted = false;
-    qputenv(Constants::enviromentLaunchedQDS, "true");
+
+    qputenv("QTC_LAUNCHED_QDS", "true");
+
     const QStringList modeArgument = mode == QdsMode::Lite ? QStringList("-qml-lite-designer")
                                                            : QStringList();
     qdsStarted = Process::startDetached(
