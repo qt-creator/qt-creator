@@ -52,15 +52,15 @@ public:
         bool hidden = false;
 
         bool isBool() const {
-            return hint == QMetaType::fromType<bool>().name();
+            return hint == QString::fromUtf8(QMetaType::fromType<bool>().name());
         }
 
         bool isInt() const {
-            return hint == QMetaType::fromType<int>().name();
+            return hint == QString::fromUtf8(QMetaType::fromType<int>().name());
         }
 
         bool isString() const {
-            return hint == QMetaType::fromType<QString>().name();
+            return hint == QString::fromUtf8(QMetaType::fromType<QString>().name());
         }
 
         bool isStringList() const {
@@ -231,7 +231,7 @@ void QmlFormatOptionsModel::setOptionsFromJson(const QJsonDocument &doc)
     }
 
     QJsonObject rootObj = doc.object();
-    QJsonArray optionsArray = rootObj["options"].toArray();
+    const QJsonArray optionsArray = rootObj["options"].toArray();
 
     for (const QJsonValue &optionValue : optionsArray) {
         if (!optionValue.isObject())
