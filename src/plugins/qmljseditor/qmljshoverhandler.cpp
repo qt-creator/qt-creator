@@ -372,8 +372,10 @@ void QmlJSHoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport
                     msg += Tr::tr("Read typeinfo files successfully.");
                 }
                 setToolTip(msg);
+                setPriority(1); // don't overwrite qmlls's hover message on imports
             } else {
                 setToolTip(import.info.path());
+                setPriority(1); // don't overwrite qmlls's hover message on imports
             }
             break;
         }
