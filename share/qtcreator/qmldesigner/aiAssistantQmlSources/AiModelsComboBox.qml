@@ -17,6 +17,7 @@ StudioControls.ComboBox {
     model: AiAssistantBackend.rootView.modelsModel
     textRole: "modelId"
     actionIndicatorVisible: false
+    enabled: control.count > 0
 
     Binding on currentIndex {
         value: control.model.selectedIndex
@@ -46,7 +47,7 @@ StudioControls.ComboBox {
             id: listView
 
             implicitWidth: control.width
-            implicitHeight: 200
+            implicitHeight: listView.contentHeight
             clip: true
 
             model: control.model
