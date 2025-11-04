@@ -27,26 +27,4 @@ private slots:
     void parsingFinished(bool success);
 };
 
-class FilesUpdateBlocker
-{
-public:
-    FilesUpdateBlocker(QmlBuildSystem *bs)
-        : m_bs(bs)
-    {
-        if (m_bs)
-            m_bs->m_blockFilesUpdate = true;
-    }
-
-    ~FilesUpdateBlocker()
-    {
-        if (m_bs) {
-            m_bs->m_blockFilesUpdate = false;
-            m_bs->refresh(QmlBuildSystem::RefreshOptions::Project);
-        }
-    }
-
-private:
-    QPointer<QmlBuildSystem> m_bs;
-};
-
 } // namespace QmlProjectManager
