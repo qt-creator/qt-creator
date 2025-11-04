@@ -591,9 +591,12 @@ bool AndroidDevice::canHandleDeployments() const
 QString AndroidDevice::serialNumber() const
 {
     const QString serialNumber = extraData(Constants::AndroidSerialNumber).toString();
-    if (machineType() == Hardware)
+    if (!serialNumber.isEmpty() || machineType() == Hardware)
         return serialNumber;
-    return getRunningAvdsSerialNumber(avdName());
+    const QString avdSerial = getRunningAvdsSerialNumber(avdName());
+    auto that = const_cast<AndroidDevice *>(this);
+    that->setExtraData(Constants::AndroidSerialNumber, avdSerial);
+    return avdSerial;
 }
 
 QString AndroidDevice::avdName() const
@@ -692,9 +695,8 @@ ExecutableItem AndroidDevice::portsGatheringRecipe(const Storage<PortsOutputData
     const Storage<PortsInputData> input;
 
     const auto hasSerialNumber = [this, serialNumberStorage] {
-        if (machineType() == Hardware)
-            *serialNumberStorage = extraData(Constants::AndroidSerialNumber).toString();
-        return machineType() == Hardware;
+        *serialNumberStorage = extraData(Constants::AndroidSerialNumber).toString();
+        return !serialNumberStorage->isEmpty();
     };
 
     const auto onSerialNumberSetup = [this, input, serialNumberStorage] {
@@ -813,6 +815,8 @@ static void handleDevicesListChange(const QString &serialNumber)
         const QString avdName = emulatorName(serial);
         const Id avdId = Id(Constants::ANDROID_DEVICE_ID).withSuffix(':').withSuffix(avdName);
         DeviceManager::setDeviceState(avdId, state);
+        if (IDevice::Ptr dev = DeviceManager::find(avdId))
+            dev->setExtraData(Constants::AndroidSerialNumber, serial);
     } else {
         const Id id = Id(Constants::ANDROID_DEVICE_ID).withSuffix(':').withSuffix(serial);
         QString displayName = AndroidConfig::getProductModel(serial);
@@ -892,49 +896,55 @@ static void handleAvdListChange(const AndroidDeviceInfoList &avdList)
     for (const AndroidDeviceInfo &item : avdList) {
         const Id deviceId = AndroidDevice::idFromDeviceInfo(item);
         const QString displayName = displayNameFromInfo(item);
-        IDevice::ConstPtr dev = DeviceManager::find(deviceId);
+        IDevice::Ptr dev = DeviceManager::find(deviceId);
         if (dev) {
             const auto androidDev = static_cast<const AndroidDevice *>(dev.get());
-            // DeviceManager doens't seem to have a way to directly update the name, if the name
+            // DeviceManager doesn't seem to have a way to directly update the name, if the name
             // of the device has changed, remove it and register it again with the new name.
             // Also account for the case of an AVD registered through old QC which might have
             // invalid data by checking if the avdPath is not empty.
             if (dev->displayName() != displayName || androidDev->avdPath().isEmpty()) {
                 DeviceManager::removeDevice(dev->id());
-            } else {
-                // Find the state of the AVD retrieved from the AVD watcher
-                const QString serial = getRunningAvdsSerialNumber(item.avdName);
-                if (!serial.isEmpty()) {
-                    const IDevice::DeviceState state = getDeviceState(serial, IDevice::Emulator);
-                    if (dev->deviceState() != state) {
-                        DeviceManager::setDeviceState(dev->id(), state);
-                        qCDebug(androidDeviceLog, "Device id \"%s\" changed its state.",
-                                dev->id().toString().toUtf8().data());
-                    }
-                } else {
-                    DeviceManager::setDeviceState(dev->id(), IDevice::DeviceConnected);
-                }
-                connectedDevs.append(dev->id());
-                continue;
+                dev = nullptr;
             }
         }
+        if (!dev) {
+            AndroidDevice::Ptr newDev = std::make_shared<AndroidDevice>();
+            newDev->setupId(IDevice::AutoDetected, deviceId);
+            newDev->setDisplayName(displayName);
+            newDev->setMachineType(item.type);
+            newDev->setDeviceState(item.state);
 
-        AndroidDevice::Ptr newDev = std::make_shared<AndroidDevice>();
-        newDev->setupId(IDevice::AutoDetected, deviceId);
-        newDev->setDisplayName(displayName);
-        newDev->setMachineType(item.type);
-        newDev->setDeviceState(item.state);
+            newDev->setExtraData(Constants::AndroidAvdName, item.avdName);
+            newDev->setExtraData(Constants::AndroidSerialNumber, item.serialNumber);
+            newDev->setExtraData(Constants::AndroidCpuAbi, item.cpuAbi);
+            newDev->setExtraData(Constants::AndroidSdk, item.sdk);
+            newDev->setAvdPath(item.avdPath);
 
-        newDev->setExtraData(Constants::AndroidAvdName, item.avdName);
-        newDev->setExtraData(Constants::AndroidSerialNumber, item.serialNumber);
-        newDev->setExtraData(Constants::AndroidCpuAbi, item.cpuAbi);
-        newDev->setExtraData(Constants::AndroidSdk, item.sdk);
-        newDev->setAvdPath(item.avdPath);
-
-        qCDebug(androidDeviceLog, "Registering new Android device id \"%s\".",
+            qCDebug(
+                androidDeviceLog,
+                "Registering new Android device id \"%s\".",
                 newDev->id().toString().toUtf8().data());
-        DeviceManager::addDevice(newDev);
-        connectedDevs.append(newDev->id());
+            DeviceManager::addDevice(newDev);
+            dev = newDev;
+        }
+        connectedDevs.append(dev->id());
+        // Find the state of the AVD retrieved from the AVD watcher
+        auto androidDevice = qobject_cast<AndroidDevice *>(dev.get());
+        QTC_ASSERT(androidDevice, continue);
+        const QString serial = androidDevice->serialNumber();
+        if (!serial.isEmpty()) {
+            const IDevice::DeviceState state = getDeviceState(serial, IDevice::Emulator);
+            if (dev->deviceState() != state) {
+                dev->setDeviceState(state);
+                qCDebug(
+                    androidDeviceLog,
+                    "Device id \"%s\" changed its state.",
+                    dev->id().toString().toUtf8().data());
+            }
+        } else {
+            DeviceManager::setDeviceState(dev->id(), IDevice::DeviceConnected);
+        }
     }
 
     // Set devices no longer connected to disconnected state.
