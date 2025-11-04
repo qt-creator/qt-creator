@@ -25,3 +25,28 @@ if(TARGET QtTaskTree)
   add_library(Qt::TaskTree ALIAS QtTaskTree)
 endif()
 
+set(other_headers
+  QAbstractTaskTreeRunner
+  QBarrier
+  QConcurrentCall
+  QConcurrentCallBase
+  QCustomTask
+  QDefaultTaskAdapter
+  QMappedTaskTreeRunner
+  QNetworkReplyWrapper
+  QParallelTaskTreeRunner
+  QProcessDeleter
+  QProcessTaskAdapter
+  QSequentialTaskTreeRunner
+  QSingleTaskTreeRunner
+  QStartedBarrier
+  QSyncTask
+  QTaskInterface
+  QTaskTree
+  QTaskTreeTaskAdapter
+  QTcpSocketWrapper
+  QTimeoutTaskAdapter
+)
+foreach(header IN LISTS other_headers)
+  qtc_add_public_header(${header})
+endforeach()
