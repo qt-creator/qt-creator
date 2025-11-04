@@ -59,12 +59,9 @@ QVariant MaterialBrowserTexturesModel::data(const QModelIndex &index, int role) 
         QString source = QmlObjectNode(texNode).modelValue("source").toString();
         if (source.isEmpty()) {
             // Source might be bound to another property, so resolve that
-            AbstractProperty sourceProp = texNode.property("source");
-            if (sourceProp.isBindingProperty()) {
-                AbstractProperty resolvedProp = sourceProp.toBindingProperty().resolveToProperty();
-                if (resolvedProp.isVariantProperty())
-                    source = resolvedProp.toVariantProperty().value().toString();
-            }
+            AbstractProperty resolvedProp = resolveBoundSourceProperty(texNode);
+            if (resolvedProp.isVariantProperty())
+                source = resolvedProp.toVariantProperty().value().toString();
         }
         if (source.isEmpty())
             return {};
@@ -128,6 +125,22 @@ void MaterialBrowserTexturesModel::setOnlyMaterialsSelected(bool value)
 
     m_onlyMaterialsSelected = value;
     emit onlyMaterialsSelectedChanged();
+}
+
+AbstractProperty MaterialBrowserTexturesModel::resolveBoundSourceProperty(const ModelNode &node) const
+{
+    const PropertyName sourceName("source");
+    if (node.hasBindingProperty(sourceName)) {
+        AbstractProperty origProp = node.property(sourceName);
+        AbstractProperty checkProp = origProp;
+        do {
+            checkProp = checkProp.toBindingProperty().resolveToProperty();
+            if (checkProp == origProp)
+                return {}; // Circular binding
+        } while (checkProp.isBindingProperty());
+        return checkProp;
+    }
+    return {};
 }
 
 QHash<int, QByteArray> MaterialBrowserTexturesModel::roleNames() const
@@ -241,6 +254,14 @@ void MaterialBrowserTexturesModel::updateTextureSource(const ModelNode &texture)
     int idx = textureIndex(texture);
     if (idx != -1)
         emit dataChanged(index(idx, 0), index(idx, 0), {RoleTexSource, RoleTexToolTip});
+
+    for (const ModelNode &node : std::as_const(m_textureList)) {
+        if (resolveBoundSourceProperty(node).parentModelNode() == texture) {
+            idx = textureIndex(node);
+            if (idx != -1)
+                emit dataChanged(index(idx, 0), index(idx, 0), {RoleTexSource, RoleTexToolTip});
+        }
+    }
 }
 
 void MaterialBrowserTexturesModel::updateTextureId(const ModelNode &texture)

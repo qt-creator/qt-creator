@@ -83,6 +83,7 @@ signals:
 private:
     bool isValidIndex(int idx) const;
     void setOnlyMaterialsSelected(bool value);
+    AbstractProperty resolveBoundSourceProperty(const ModelNode &node) const;
 
     QString m_searchText;
     QList<ModelNode> m_textureList;
