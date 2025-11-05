@@ -245,22 +245,20 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
                 item.type = CMakeConfigItem::typeStringToType(
                     cacheVariableObj.value("type").toString().toUtf8());
                 item.value = cacheVariableObj.value("value").toString().toUtf8();
-                preset.cacheVariables.value() << item;
+                preset.cacheVariables.value().insert(item);
 
             } else {
                 if (cacheValue.isBool()) {
-                    preset.cacheVariables.value()
-                        << CMakeConfigItem(cacheKey.toUtf8(),
-                                           CMakeConfigItem::BOOL,
-                                           cacheValue.toBool() ? "ON" : "OFF");
+                    preset.cacheVariables.value().insert(CMakeConfigItem(
+                        cacheKey.toUtf8(),
+                        CMakeConfigItem::BOOL,
+                        cacheValue.toBool() ? "ON" : "OFF"));
                 } else if (CMakeConfigItem::toBool(cacheValue.toString()).has_value()) {
-                    preset.cacheVariables.value()
-                        << CMakeConfigItem(cacheKey.toUtf8(),
-                                           CMakeConfigItem::BOOL,
-                                           cacheValue.toString().toUtf8());
+                    preset.cacheVariables.value().insert(CMakeConfigItem(
+                        cacheKey.toUtf8(), CMakeConfigItem::BOOL, cacheValue.toString().toUtf8()));
                 } else {
-                    preset.cacheVariables.value()
-                        << CMakeConfigItem(cacheKey.toUtf8(), cacheValue.toString().toUtf8());
+                    preset.cacheVariables.value().insert(
+                        CMakeConfigItem(cacheKey.toUtf8(), cacheValue.toString().toUtf8()));
                 }
             }
         }
@@ -793,11 +791,7 @@ static QVariantMap merge(const QVariantMap &first, const QVariantMap &second)
 
 static CMakeConfig merge(const CMakeConfig &first, const CMakeConfig &second)
 {
-    return Utils::setUnionMerge<CMakeConfig>(
-        first,
-        second,
-        [](const auto & /*left*/, const auto &right) { return right; },
-        &CMakeConfigItem::less);
+    return first + second;
 }
 
 static QStringList merge(const QStringList &first, const QStringList &second)

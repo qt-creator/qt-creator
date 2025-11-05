@@ -847,13 +847,13 @@ CMakeConfig CMakeGeneratorKitAspect::generatorCMakeConfig(const Kit *k)
     if (info.generator.isEmpty())
         return config;
 
-    config << CMakeConfigItem("CMAKE_GENERATOR", info.generator.toUtf8());
+    config.insert(CMakeConfigItem("CMAKE_GENERATOR", info.generator.toUtf8()));
 
     if (!info.platform.isEmpty())
-        config << CMakeConfigItem("CMAKE_GENERATOR_PLATFORM", info.platform.toUtf8());
+        config.insert(CMakeConfigItem("CMAKE_GENERATOR_PLATFORM", info.platform.toUtf8()));
 
     if (!info.toolset.isEmpty())
-        config << CMakeConfigItem("CMAKE_GENERATOR_TOOLSET", info.toolset.toUtf8());
+        config.insert(CMakeConfigItem("CMAKE_GENERATOR_TOOLSET", info.toolset.toUtf8()));
 
     return config;
 }
@@ -1306,7 +1306,7 @@ void CMakeConfigurationKitAspect::fromStringList(Kit *k, const QStringList &in)
     for (const QString &s : in) {
         const CMakeConfigItem item = CMakeConfigItem::fromString(s);
         if (!item.key.isEmpty())
-            result << item;
+            result.insert(item);
     }
     setConfiguration(k, result);
 }
@@ -1326,12 +1326,16 @@ CMakeConfig CMakeConfigurationKitAspect::defaultConfiguration(const Kit *k)
     Q_UNUSED(k)
     CMakeConfig config;
     // Qt4:
-    config << CMakeConfigItem(CMAKE_QMAKE_KEY, CMakeConfigItem::FILEPATH, "%{Qt:qmakeExecutable}");
+    config.insert(
+        CMakeConfigItem(CMAKE_QMAKE_KEY, CMakeConfigItem::FILEPATH, "%{Qt:qmakeExecutable}"));
     // Qt5:
-    config << CMakeConfigItem(CMAKE_PREFIX_PATH_KEY, CMakeConfigItem::PATH, "%{Qt:QT_INSTALL_PREFIX}");
+    config.insert(
+        CMakeConfigItem(CMAKE_PREFIX_PATH_KEY, CMakeConfigItem::PATH, "%{Qt:QT_INSTALL_PREFIX}"));
 
-    config << CMakeConfigItem(CMAKE_C_TOOLCHAIN_KEY, CMakeConfigItem::FILEPATH, "%{Compiler:Executable:C}");
-    config << CMakeConfigItem(CMAKE_CXX_TOOLCHAIN_KEY, CMakeConfigItem::FILEPATH, "%{Compiler:Executable:Cxx}");
+    config.insert(
+        CMakeConfigItem(CMAKE_C_TOOLCHAIN_KEY, CMakeConfigItem::FILEPATH, "%{Compiler:Executable:C}"));
+    config.insert(CMakeConfigItem(
+        CMAKE_CXX_TOOLCHAIN_KEY, CMakeConfigItem::FILEPATH, "%{Compiler:Executable:Cxx}"));
 
     return config;
 }
@@ -1339,7 +1343,7 @@ CMakeConfig CMakeConfigurationKitAspect::defaultConfiguration(const Kit *k)
 void CMakeConfigurationKitAspect::setCMakePreset(Kit *k, const QString &presetName)
 {
     CMakeConfig config = configuration(k);
-    config.prepend(
+    config.insert(
         CMakeConfigItem(QTC_CMAKE_PRESET_KEY, CMakeConfigItem::INTERNAL, presetName.toUtf8()));
 
     setConfiguration(k, config);
@@ -1348,9 +1352,7 @@ void CMakeConfigurationKitAspect::setCMakePreset(Kit *k, const QString &presetNa
 CMakeConfigItem CMakeConfigurationKitAspect::cmakePresetConfigItem(const Kit *k)
 {
     const CMakeConfig config = configuration(k);
-    return Utils::findOrDefault(config, [](const CMakeConfigItem &item) {
-        return item.key == QTC_CMAKE_PRESET_KEY;
-    });
+    return config.value(QTC_CMAKE_PRESET_KEY);
 }
 
 QVariant CMakeConfigurationKitAspectFactory::defaultValue(const Kit *k) const

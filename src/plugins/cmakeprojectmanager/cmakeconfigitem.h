@@ -8,6 +8,7 @@
 #include <QByteArray>
 #include <QObject>
 #include <QStringList>
+#include <QMap>
 
 #include <optional>
 
@@ -61,14 +62,23 @@ public:
     QStringList values;
 };
 
-class CMAKE_EXPORT CMakeConfig : public QList<CMakeConfigItem>
+class CMAKE_EXPORT CMakeConfig : public QMap<QByteArray, CMakeConfigItem>
 {
 public:
     CMakeConfig() = default;
-    CMakeConfig(const QList<CMakeConfigItem> &items) : QList<CMakeConfigItem>(items) {}
-    CMakeConfig(std::initializer_list<CMakeConfigItem> items) : QList<CMakeConfigItem>(items) {}
+    CMakeConfig(const QList<CMakeConfigItem> &items);
+    CMakeConfig(std::initializer_list<CMakeConfigItem> items);
 
-    const QList<CMakeConfigItem> &toList() const { return *this; }
+    QList<CMakeConfigItem> toList() const;
+
+    using QMap<QByteArray, CMakeConfigItem>::insert;
+    void insert(const CMakeConfigItem &item);
+    friend CMakeConfig operator+(const CMakeConfig &first, const CMakeConfig &second)
+    {
+        CMakeConfig result(first);
+        result.insert(second);
+        return result;
+    }
 
     QStringList toArguments() const;
 

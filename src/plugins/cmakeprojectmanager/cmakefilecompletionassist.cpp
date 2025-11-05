@@ -215,7 +215,7 @@ static QList<AssistProposalItemInterface *> generateList(
 
     QList<AssistProposalItemInterface *> list;
     for (auto it = cache.cbegin(); it != cache.cend(); ++it) {
-        if (it->isAdvanced || it->isUnset || it->type == CMakeConfig::Type::INTERNAL)
+        if (it->isAdvanced || it->isUnset || it->type == CMakeConfigItem::Type::INTERNAL)
             continue;
 
         QString text = QString::fromUtf8(it->key);
@@ -326,14 +326,12 @@ static void updateCMakeConfigurationWithLocalData(CMakeConfig &cmakeCache,
     };
 
     auto insertOrAppendListValue = [&cmakeCache](const QByteArray &key, const QByteArray &value) {
-        auto it = std::find_if(cmakeCache.begin(), cmakeCache.end(), [key](const auto &item) {
-            return item.key == key;
-        });
-        if (it == cmakeCache.end()) {
-            cmakeCache << CMakeConfigItem(key, value);
+        if (cmakeCache.contains(key)) {
+            CMakeConfigItem &item = cmakeCache[key];
+            item.value.append(";");
+            item.value.append(value);
         } else {
-            it->value.append(";");
-            it->value.append(value);
+            cmakeCache.insert(CMakeConfigItem(key, value));
         }
     };
 

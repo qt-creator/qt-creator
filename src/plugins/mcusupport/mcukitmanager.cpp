@@ -56,11 +56,9 @@ namespace McuSupport::Internal {
 // Utils for managing CMake Configurations
 static QMap<QByteArray, QByteArray> cMakeConfigToMap(const CMakeConfig &config)
 {
-    QMap<QByteArray, QByteArray> map;
-    for (const auto &configItem : std::as_const(config.toList())) {
-        map.insert(configItem.key, configItem.value);
-    }
-    return map;
+    return Utils::transform<QMap<QByteArray, QByteArray>>(config, [](const CMakeConfigItem &i) {
+        return std::make_pair(i.key, i.value);
+    });
 }
 
 static CMakeConfig mapToCMakeConfig(const QMap<QByteArray, QByteArray> &map)

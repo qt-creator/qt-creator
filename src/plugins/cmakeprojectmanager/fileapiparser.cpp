@@ -204,7 +204,7 @@ static CMakeConfig readCacheFile(const FilePath &cacheFile, QString &errorMessag
                 }
             }
         }
-        result.append(item);
+        result.insert(item);
     }
     return result;
 }

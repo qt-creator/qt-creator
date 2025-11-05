@@ -104,6 +104,10 @@ const char CMAKE_CXX_FLAGS[] = "CMAKE_CXX_FLAGS";
 const char CMAKE_CXX_FLAGS_DEBUG[] = "CMAKE_CXX_FLAGS_DEBUG";
 const char CMAKE_CXX_FLAGS_RELWITHDEBINFO[] = "CMAKE_CXX_FLAGS_RELWITHDEBINFO";
 
+const char CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM[] = "CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM";
+const char CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER[]
+    = "CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER";
+
 namespace Internal {
 
 class CMakeBuildSettingsWidget : public QWidget
@@ -208,8 +212,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_buildConfig->buildTypeAspect.addOnChanged(this, [this] {
         if (!m_buildConfig->cmakeBuildSystem()->isMultiConfig()) {
             CMakeConfig config;
-            config << CMakeConfigItem("CMAKE_BUILD_TYPE",
-                                      m_buildConfig->buildTypeAspect().toUtf8());
+            config.insert(
+                CMakeConfigItem("CMAKE_BUILD_TYPE", m_buildConfig->buildTypeAspect().toUtf8()));
 
             m_configModel->setBatchEditConfiguration(config);
         }
@@ -636,15 +640,12 @@ void CMakeBuildSettingsWidget::updatePackageManagerAutoSetup(CMakeConfig &initia
         = settings(m_buildConfig->project()).packageManagerAutoSetup();
 
     const auto autoSetupParameter = getPackageManagerAutoSetupParameter();
-    auto it
-        = std::find_if(initialList.begin(), initialList.end(), [&autoSetupParameter](const CMakeConfigItem &item) {
-              return item.key == autoSetupParameter.key;
-          });
-    if (it != initialList.end()) {
-        if (!usePackageManagerAutoSetup && it->value == autoSetupParameter.value)
-            initialList.erase(it);
+    if (initialList.contains(autoSetupParameter.key)) {
+        const CMakeConfigItem item = initialList.value(autoSetupParameter.key);
+        if (!usePackageManagerAutoSetup && item.value == autoSetupParameter.value)
+            initialList.remove(item.key);
     } else if (usePackageManagerAutoSetup) {
-        initialList.push_back(autoSetupParameter);
+        initialList.insert(autoSetupParameter);
     }
 }
 
@@ -673,40 +674,26 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments(bool fromReconfigure)
 
     // set QT_QML_GENERATE_QMLLS_INI if it is enabled via the settings checkbox and if its not part
     // of the initial CMake arguments yet
-    if (isGenerateQmllsSettingsEnabled()) {
-        if (std::none_of(
-                initialList.constBegin(), initialList.constEnd(), [](const CMakeConfigItem &item) {
-                    return item.key == "QT_QML_GENERATE_QMLLS_INI";
-                })) {
-            initialList.append(
-                CMakeConfigItem("QT_QML_GENERATE_QMLLS_INI", CMakeConfigItem::BOOL, "ON"));
-        }
+    if (isGenerateQmllsSettingsEnabled() && !initialList.contains("QT_QML_GENERATE_QMLLS_INI")) {
+        initialList.insert(
+            CMakeConfigItem("QT_QML_GENERATE_QMLLS_INI", CMakeConfigItem::BOOL, "ON"));
     }
 
     const QVariant maintananceTool = Core::ICore::settings()->value("Updater/MaintenanceTool");
-    if (maintananceTool.isValid()
-        && std::none_of(
-            initialList.constBegin(), initialList.constEnd(), [](const CMakeConfigItem &item) {
-                return item.key == "QT_MAINTENANCE_TOOL";
-            })) {
-        initialList.append(CMakeConfigItem(
+    if (maintananceTool.isValid() && !initialList.contains("QT_MAINTENANCE_TOOL")) {
+        initialList.insert(CMakeConfigItem(
             "QT_MAINTENANCE_TOOL", CMakeConfigItem::FILEPATH, maintananceTool.toString().toUtf8()));
     }
 
     for (const CMakeConfigItem &ci : m_buildConfig->cmakeBuildSystem()->configurationChanges()) {
         if (!ci.isInitial)
             continue;
-        auto it = std::find_if(initialList.begin(),
-                               initialList.end(),
-                               [ci](const CMakeConfigItem &item) {
-                                   return item.key == ci.key;
-                               });
-        if (it != initialList.end()) {
-            *it = ci;
+        if (initialList.contains(ci.key)) {
+            initialList[ci.key] = ci;
             if (ci.isUnset)
-                initialList.erase(it);
+                initialList.remove(ci.key);
         } else if (!ci.key.isEmpty()) {
-            initialList.push_back(ci);
+            initialList.insert(ci);
         }
     }
 
@@ -886,7 +873,7 @@ void CMakeBuildSettingsWidget::updateFromKit()
     const Kit *k = m_buildConfig->kit();
     CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
 
-    config.append(CMakeGeneratorKitAspect::generatorCMakeConfig(k));
+    config.insert(CMakeGeneratorKitAspect::generatorCMakeConfig(k));
 
     // First the key value parameters
     ConfigModel::KitConfiguration configHash;
@@ -955,7 +942,7 @@ CMakeConfig CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
                 CMakeConfigItem it(item);
                 if (!it.value.contains(qmlDebug)) {
                     it.value = it.value.append(' ').append(qmlDebug).trimmed();
-                    changedConfig.append(it);
+                    changedConfig.insert(it);
                 }
             }
         }
@@ -970,7 +957,7 @@ CMakeConfig CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
             if (index != -1) {
                 it.value.remove(index, qmlDebug.length());
                 it.value = it.value.trimmed();
-                changedConfig.append(it);
+                changedConfig.insert(it);
             }
         }
     }
@@ -989,12 +976,10 @@ CMakeConfig CMakeBuildSettingsWidget::getSigningFlagsChanges()
     }
     CMakeConfig changedConfig;
     for (const CMakeConfigItem &signingFlag : flags) {
-        const CMakeConfigItem existingFlag = Utils::findOrDefault(configList,
-                                                                  Utils::equal(&CMakeConfigItem::key,
-                                                                               signingFlag.key));
+        const CMakeConfigItem existingFlag = configList.value(signingFlag.key);
         const bool notInConfig = existingFlag.key.isEmpty();
         if (notInConfig != signingFlag.isUnset || existingFlag.value != signingFlag.value)
-            changedConfig.append(signingFlag);
+            changedConfig.insert(signingFlag);
     }
     return changedConfig;
 }
@@ -1490,23 +1475,20 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     additionalCMakeOptions.setLabelText(Tr::tr("Additional CMake <a href=\"options\">options</a>:"));
     additionalCMakeOptions.setDisplayStyle(StringAspect::LineEditDisplay);
 
-    macroExpander()->registerVariable(DEVELOPMENT_TEAM_FLAG,
-                                      Tr::tr("The CMake flag for the development team"),
-                                      [this] {
-                                          const CMakeConfig flags = signingFlags();
-                                          if (!flags.isEmpty())
-                                              return flags.first().toArgument();
-                                          return QString();
-                                      });
-    macroExpander()->registerVariable(PROVISIONING_PROFILE_FLAG,
-                                      Tr::tr("The CMake flag for the provisioning profile"),
-                                      [this] {
-                                          const CMakeConfig flags = signingFlags();
-                                          if (flags.size() > 1 && !flags.at(1).isUnset) {
-                                              return flags.at(1).toArgument();
-                                          }
-                                          return QString();
-                                      });
+    macroExpander()->registerVariable(
+        DEVELOPMENT_TEAM_FLAG, Tr::tr("The CMake flag for the development team"), [this] {
+            const CMakeConfig flags = signingFlags();
+            if (flags.contains(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM))
+                return flags.value(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM).toArgument();
+            return QString();
+        });
+    macroExpander()->registerVariable(
+        PROVISIONING_PROFILE_FLAG, Tr::tr("The CMake flag for the provisioning profile"), [this] {
+            const CMakeConfig flags = signingFlags();
+            if (flags.contains(CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER))
+                return flags.value(CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER).toArgument();
+            return QString();
+        });
 
     macroExpander()->registerVariable(
         CMAKE_OSX_ARCHITECTURES_FLAG, Tr::tr("The CMake flag for the architecture on macOS"), [] {
@@ -1750,10 +1732,10 @@ CMakeConfig CMakeBuildSystem::configurationChanges() const
 
 QStringList CMakeBuildSystem::configurationChangesArguments(bool initialParameters) const
 {
-    const QList<CMakeConfigItem> filteredInitials
-        = Utils::filtered(m_configurationChanges, [initialParameters](const CMakeConfigItem &ci) {
-              return initialParameters ? ci.isInitial : !ci.isInitial;
-          });
+    const QList<CMakeConfigItem> filteredInitials = Utils::filtered(
+        m_configurationChanges.toList(), [initialParameters](const CMakeConfigItem &ci) {
+            return initialParameters ? ci.isInitial : !ci.isInitial;
+        });
     return Utils::transform(filteredInitials, &CMakeConfigItem::toArgument);
 }
 
@@ -2221,11 +2203,11 @@ Environment CMakeBuildConfiguration::configureEnvironment() const
 QString CMakeBuildSystem::cmakeBuildType() const
 {
     auto setBuildTypeFromConfig = [this](const CMakeConfig &config) {
-        auto it = std::find_if(config.begin(), config.end(), [](const CMakeConfigItem &item) {
-            return item.key == "CMAKE_BUILD_TYPE" && !item.isInitial;
-        });
-        if (it != config.end())
-            cmakeBuildConfiguration()->setCMakeBuildType(QString::fromUtf8(it->value));
+        if (config.contains("CMAKE_BUILD_TYPE")) {
+            const CMakeConfigItem item = config.value("CMAKE_BUILD_TYPE");
+            if (!item.isInitial)
+                cmakeBuildConfiguration()->setCMakeBuildType(QString::fromUtf8(item.value));
+        }
     };
 
     if (!isMultiConfig())

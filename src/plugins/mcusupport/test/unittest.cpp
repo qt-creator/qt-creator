@@ -938,11 +938,7 @@ void McuSupportTest::test_addNewKit()
 
     const auto config = CMakeConfigurationKitAspect::configuration(newKit);
     QVERIFY(!config.empty());
-    QVERIFY(indexOf(config.toVector(),
-                    [&cmakeVar](const CMakeProjectManager::CMakeConfigItem &item) {
-                        return item.key == cmakeVar.toUtf8();
-                    })
-            != -1);
+    QVERIFY(config.contains(cmakeVar.toUtf8()));
 }
 
 void McuSupportTest::test_getFullToolchainFilePathFromTarget()

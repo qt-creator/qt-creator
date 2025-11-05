@@ -250,16 +250,8 @@ void updateToolchainFile(
     // toolchainFile takes precedence to CMAKE_TOOLCHAIN_FILE
     CMakeConfig cache = configurePreset.cacheVariables ? configurePreset.cacheVariables.value()
                                                        : CMakeConfig();
-
-    auto it = std::find_if(cache.begin(), cache.end(), [](const CMakeConfigItem &item) {
-        return item.key == "CMAKE_TOOLCHAIN_FILE";
-    });
-    if (it != cache.end())
-        it->value = toolchainFileString.toUtf8();
-    else
-        cache << CMakeConfigItem("CMAKE_TOOLCHAIN_FILE",
-                                 CMakeConfigItem::FILEPATH,
-                                 toolchainFileString.toUtf8());
+    cache.insert(CMakeConfigItem(
+        "CMAKE_TOOLCHAIN_FILE", CMakeConfigItem::FILEPATH, toolchainFileString.toUtf8()));
 
     configurePreset.cacheVariables = cache;
 }
@@ -287,16 +279,8 @@ void updateInstallDir(PresetsDetails::ConfigurePreset &configurePreset,
     // installDir takes precedence to CMAKE_INSTALL_PREFIX
     CMakeConfig cache = configurePreset.cacheVariables ? configurePreset.cacheVariables.value()
                                                        : CMakeConfig();
-
-    auto it = std::find_if(cache.begin(), cache.end(), [](const CMakeConfigItem &item) {
-        return item.key == "CMAKE_INSTALL_PREFIX";
-    });
-    if (it != cache.end())
-        it->value = installDirString.toUtf8();
-    else
-        cache << CMakeConfigItem("CMAKE_INSTALL_PREFIX",
-                                 CMakeConfigItem::PATH,
-                                 installDirString.toUtf8());
+    cache.insert(
+        CMakeConfigItem("CMAKE_INSTALL_PREFIX", CMakeConfigItem::PATH, installDirString.toUtf8()));
 
     configurePreset.cacheVariables = cache;
 }

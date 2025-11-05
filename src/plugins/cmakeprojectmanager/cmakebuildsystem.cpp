@@ -1691,7 +1691,7 @@ void CMakeBuildSystem::updateProjectData()
             CMakeConfigItem paths;
             paths.key = Android::Constants::ANDROID_SO_LIBS_PATHS;
             paths.values = Utils::toList(res);
-            patchedConfig.append(paths);
+            patchedConfig.insert(paths);
         }
 
         apps.sort();
@@ -1699,7 +1699,7 @@ void CMakeBuildSystem::updateProjectData()
             CMakeConfigItem appsPaths;
             appsPaths.key = "TARGETS_BUILD_PATH";
             appsPaths.values = apps;
-            patchedConfig.append(appsPaths);
+            patchedConfig.insert(appsPaths);
         }
     }
 
@@ -1884,7 +1884,7 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
                 return i.key == ci.key;
             });
             if (!haveConfigItem)
-                cmakeConfig.append(ci);
+                cmakeConfig.insert(ci);
         }
     }
 
@@ -2712,7 +2712,7 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
                 CMakeConfigItem item(*it);
                 item.value = initialValue;
 
-                config << item;
+                config.insert(item);
             }
         }
     }
@@ -2743,7 +2743,7 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
                     item.value.append(";");
                     item.value.append(it->value);
 
-                    config << item;
+                    config.insert(item);
                 }
             }
         }
@@ -2759,20 +2759,20 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
             const QString linkerFileName = linker.fileName() != "CMAKE_LINKER-NOTFOUND"
                                                ? linker.fileName()
                                                : "link.exe";
-            config << CMakeConfigItem(
+            config.insert(CMakeConfigItem(
                 "CMAKE_LINKER",
                 CMakeConfigItem::FILEPATH,
-                cxxCompiler.parentDir().pathAppended(linkerFileName).path().toUtf8());
+                cxxCompiler.parentDir().pathAppended(linkerFileName).path().toUtf8()));
         }
         const FilePath librarian = cm.filePathValueOf("CMAKE_AR");
         if (!librarian.exists()) {
             const QString librarianFileName = librarian.fileName() != "CMAKE_AR-NOTFOUND"
                                                   ? librarian.fileName()
                                                   : "lib.exe";
-            config << CMakeConfigItem(
+            config.insert(CMakeConfigItem(
                 "CMAKE_AR",
                 CMakeConfigItem::FILEPATH,
-                cxxCompiler.parentDir().pathAppended(librarianFileName).path().toUtf8());
+                cxxCompiler.parentDir().pathAppended(librarianFileName).path().toUtf8()));
         }
     }
 

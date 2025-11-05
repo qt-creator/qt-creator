@@ -883,30 +883,28 @@ void updateCompilerPaths(CMakeConfig &config, const Environment &env)
 void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<DirectoryData> &data)
 {
     auto updateCompilerValue = [&config, &data](const QByteArray &key, const Utils::Id &language) {
-        auto it = std::find_if(config.begin(), config.end(), [&key](const CMakeConfigItem &ci) {
-            return ci.key == key;
+        auto tcd = Utils::findOrDefault(data->toolchains, [&language](const ToolchainDescription &t) {
+            return t.language == language;
         });
 
-        auto tcd = Utils::findOrDefault(data->toolchains,
-                                        [&language](const ToolchainDescription &t) {
-                                            return t.language == language;
-                                        });
-
-        if (it != config.end() && it->value.isEmpty())
-            it->value = tcd.compilerPath.path().toUtf8();
-        else
-            config << CMakeConfigItem(
-                key, CMakeConfigItem::FILEPATH, tcd.compilerPath.path().toUtf8());
+        if (config.contains(key)) {
+            CMakeConfigItem &item = config[key];
+            if (item.value.isEmpty())
+                item.value = tcd.compilerPath.path().toUtf8();
+        } else {
+            config.insert(
+                CMakeConfigItem(key, CMakeConfigItem::FILEPATH, tcd.compilerPath.path().toUtf8()));
+        }
     };
 
     updateCompilerValue("CMAKE_C_COMPILER", ProjectExplorer::Constants::C_LANGUAGE_ID);
     updateCompilerValue("CMAKE_CXX_COMPILER", ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (data->qt.qt)
-        config << CMakeConfigItem(
+        config.insert(CMakeConfigItem(
             "QT_QMAKE_EXECUTABLE",
             CMakeConfigItem::FILEPATH,
-            data->qt.qt->qmakeFilePath().path().toUtf8());
+            data->qt.qt->qmakeFilePath().path().toUtf8()));
 }
 
 Toolchain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
@@ -1101,13 +1099,15 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         } else {
             config = cache;
             updateCompilerPaths(config, env);
-            config << CMakeConfigItem("CMAKE_COMMAND",
-                                      CMakeConfigItem::PATH,
-                                      configurePreset.cmakeExecutable.value().path().toUtf8());
+            config.insert(CMakeConfigItem(
+                "CMAKE_COMMAND",
+                CMakeConfigItem::PATH,
+                configurePreset.cmakeExecutable.value().path().toUtf8()));
             if (configurePreset.generator)
-                config << CMakeConfigItem("CMAKE_GENERATOR",
-                                          CMakeConfigItem::STRING,
-                                          configurePreset.generator.value().toUtf8());
+                config.insert(CMakeConfigItem(
+                    "CMAKE_GENERATOR",
+                    CMakeConfigItem::STRING,
+                    configurePreset.generator.value().toUtf8()));
         }
 
         data->sysroot = config.filePathValueOf("CMAKE_SYSROOT");
@@ -1119,9 +1119,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             data->qt = findOrCreateQtVersion(qmake);
 
         if (!cmakePrefixPath.isEmpty() && config.valueOf("CMAKE_PREFIX_PATH").isEmpty())
-            config << CMakeConfigItem("CMAKE_PREFIX_PATH",
-                                      CMakeConfigItem::PATH,
-                                      cmakePrefixPath.toUtf8());
+            config.insert(
+                CMakeConfigItem("CMAKE_PREFIX_PATH", CMakeConfigItem::PATH, cmakePrefixPath.toUtf8()));
 
         // Toolchains:
         data->toolchains = extractToolchainsFromCache(config);
@@ -1495,7 +1494,7 @@ void CMakeProjectImporterTest::testCMakeProjectImporterQt()
         Q_ASSERT(pos > 0);
         const QString key = c.left(pos);
         const QString value = c.mid(pos + 1);
-        config.append(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
+        config.insert(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
     }
 
     auto [realQmake, cmakePrefixPath] = qtInfoFromCMakeCache(config,
@@ -1554,7 +1553,7 @@ void CMakeProjectImporterTest::testCMakeProjectImporterToolchain()
         Q_ASSERT(pos > 0);
         const QString key = c.left(pos);
         const QString value = c.mid(pos + 1);
-        config.append(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
+        config.insert(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
     }
 
     const QList<ToolchainDescriptionEx> tcs = extractToolchainsFromCache(config);
