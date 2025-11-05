@@ -18,7 +18,7 @@ class Edit3DViewConfig
 public:
     static QColor loadColor(const char key[])
     {
-        QVariant var = QmlDesignerPlugin::settings().value(key);
+        QVariant var = designerSettings().value(key);
 
         if (!var.isValid())
             return {};
@@ -28,7 +28,7 @@ public:
 
     static QList<QColor> loadColors(const char key[])
     {
-        QVariant var = QmlDesignerPlugin::settings().value(key);
+        QVariant var = designerSettings().value(key);
 
         if (!var.isValid())
             return {};
@@ -40,12 +40,12 @@ public:
 
     static QVariant load(const QByteArray &key, const QVariant &defaultValue = {})
     {
-        return QmlDesignerPlugin::settings().value(key, defaultValue);
+        return designerSettings().value(key, defaultValue);
     }
 
     static void save(const QByteArray &key, const QVariant &value)
     {
-        QmlDesignerPlugin::settings().insert(key, value);
+        designerSettings().insert(key, value);
     }
 
     static void setColors(AbstractView *view, const AuxiliaryDataKeyView &auxProp, const QList<QColor> &colorConfig)

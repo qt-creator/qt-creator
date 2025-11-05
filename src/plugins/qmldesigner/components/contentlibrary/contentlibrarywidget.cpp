@@ -151,7 +151,7 @@ ContentLibraryWidget::ContentLibraryWidget()
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
 
-    m_textureBundleUrl = QmlDesignerPlugin::settings()
+    m_textureBundleUrl = designerSettings()
                     .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL).toString() + "/textures";
 
     m_bundlePath = Paths::bundlesPathSetting();
@@ -412,7 +412,7 @@ void ContentLibraryWidget::fetchNewTextureIcons(const QVariantMap &existingFiles
 
 QStringList ContentLibraryWidget::saveNewTextures(const QDir &bundleDir, const QStringList &newFiles)
 {
-    int newFileExpirationDays = QmlDesignerPlugin::settings()
+    int newFileExpirationDays = designerSettings()
                                     .value(DesignerSettingsKey::CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS)
                                     .toInt();
 

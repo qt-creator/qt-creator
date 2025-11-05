@@ -229,10 +229,8 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->materialBrowserView,
                                   &d->statesEditorView,
                                   &d->designerActionManagerView};
-    if (QmlDesignerPlugin::instance()
-            ->settings()
-            .value(DesignerSettingsKey::ENABLE_DEBUGVIEW)
-            .toBool())
+
+    if (designerSettings().value(DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool())
         list.append(&d->debugView);
 
     if (checkEnterpriseLicense())
@@ -375,8 +373,7 @@ void ViewManager::detachComponentView()
 
 void ViewManager::attachViewsExceptRewriterAndComponetView()
 {
-    if (QmlDesignerPlugin::instance()->settings().value(
-            DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool())
+    if (designerSettings().value(DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool())
         currentModel()->attachView(&d->debugView);
 
     attachNodeInstanceView();

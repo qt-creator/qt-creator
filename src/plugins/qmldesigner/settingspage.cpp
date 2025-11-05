@@ -55,7 +55,7 @@ public:
     void apply() final;
 
     QHash<QByteArray, QVariant> newSettings() const;
-    void setSettings(const DesignerSettings &settings);
+    void readSettings();
 
 private:
     QSpinBox *m_spinItemSpacing;
@@ -301,7 +301,7 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
     m_forwardPuppetOutputComboBox->addItems(puppetModes());
     m_debugPuppetComboBox->addItems(puppetModes());
 
-    setSettings(QmlDesignerPlugin::instance()->settings());
+    readSettings();
 }
 
 QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
@@ -390,8 +390,9 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
     return settings;
 }
 
-void SettingsPageWidget::setSettings(const DesignerSettings &settings)
+void SettingsPageWidget::readSettings()
 {
+    const DesignerSettings &settings = designerSettings();
     m_spinItemSpacing->setValue(settings.value(DesignerSettingsKey::ITEMSPACING).toInt());
     m_spinSnapMargin->setValue(settings.value(
         DesignerSettingsKey::CONTAINERPADDING).toInt());
@@ -487,7 +488,7 @@ void SettingsPageWidget::apply()
                                        DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE};
 
     for (const char * const key : restartNecessaryKeys) {
-        if (QmlDesignerPlugin::settings().value(key) != settings.value(key)) {
+        if (designerSettings().value(key) != settings.value(key)) {
             QMessageBox::information(Core::ICore::dialogParent(),
                                      Tr::tr("Restart Required"),
                                      Tr::tr("The made changes will take effect after a "
@@ -497,7 +498,7 @@ void SettingsPageWidget::apply()
         }
     }
 
-    QmlDesignerPlugin::settings().insert(settings);
+    designerSettings().insert(settings);
 }
 
 SettingsPage::SettingsPage(ExternalDependencies &externalDependencies)

@@ -74,12 +74,12 @@ FormEditorItem* FormEditorScene::itemForQmlItemNode(const QmlItemNode &qmlItemNo
 
 double FormEditorScene::canvasWidth() const
 {
-    return QmlDesignerPlugin::settings().value(DesignerSettingsKey::CANVASWIDTH).toDouble();
+    return designerSettings().value(DesignerSettingsKey::CANVASWIDTH).toDouble();
 }
 
 double FormEditorScene::canvasHeight() const
 {
-    return QmlDesignerPlugin::settings().value(DesignerSettingsKey::CANVASHEIGHT).toDouble();
+    return designerSettings().value(DesignerSettingsKey::CANVASHEIGHT).toDouble();
 }
 
 QList<FormEditorItem*> FormEditorScene::itemsForQmlItemNodes(Utils::span<const QmlItemNode> nodeList) const

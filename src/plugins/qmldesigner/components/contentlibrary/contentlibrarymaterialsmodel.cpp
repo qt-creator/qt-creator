@@ -36,7 +36,7 @@ ContentLibraryMaterialsModel::ContentLibraryMaterialsModel(ContentLibraryWidget 
 {
     m_bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/Materials");
 
-    m_baseUrl = QmlDesignerPlugin::settings()
+    m_baseUrl = designerSettings()
                     .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL)
                     .toString() + "/materials/v1";
 

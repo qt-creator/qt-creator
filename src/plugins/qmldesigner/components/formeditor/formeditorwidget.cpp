@@ -503,12 +503,12 @@ ToolBox *FormEditorWidget::toolBox() const
 
 double FormEditorWidget::spacing() const
 {
-    return QmlDesignerPlugin::settings().value(DesignerSettingsKey::ITEMSPACING).toDouble();
+    return designerSettings().value(DesignerSettingsKey::ITEMSPACING).toDouble();
 }
 
 double FormEditorWidget::containerPadding() const
 {
-    return QmlDesignerPlugin::settings().value(DesignerSettingsKey::CONTAINERPADDING).toDouble();
+    return designerSettings().value(DesignerSettingsKey::CONTAINERPADDING).toDouble();
 }
 
 void FormEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

@@ -116,8 +116,8 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
     , m_dummyPropertyEditorValue(std::make_unique<PropertyEditorValue>())
 {
     m_contextObject->setQuickWidget(m_view.get());
-    m_view->engine()->setOutputWarningsToStandardError(QmlDesignerPlugin::instance()
-        ->settings().value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
+    m_view->engine()->setOutputWarningsToStandardError(
+        designerSettings().value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
 
     m_view->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_view->engine()->addImportPath(scriptsEditorResourcesPath() + "/imports");

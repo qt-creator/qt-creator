@@ -88,7 +88,7 @@ struct Palette
 
     bool read()
     {
-        QStringList data = QmlDesignerPlugin::settings().value(m_settingsKey).toStringList();
+        QStringList data = designerSettings().value(m_settingsKey).toStringList();
         if (data.isEmpty())
             return false;
 
@@ -100,7 +100,7 @@ struct Palette
 
     void write() const
     {
-        QmlDesignerPlugin::settings().insert(m_settingsKey, m_colors);
+        designerSettings().insert(m_settingsKey, m_colors);
     }
 
     QByteArray m_settingsKey;

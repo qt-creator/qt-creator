@@ -3,7 +3,6 @@
 
 #include "openuiqmlfiledialog.h"
 
-#include "qmldesignerplugin.h"
 #include "settings/designersettings.h"
 
 #include <utils/layoutbuilder.h>
@@ -57,7 +56,7 @@ OpenUiQmlFileDialog::OpenUiQmlFileDialog(QWidget *parent) :
         close();
     });
     connect(checkBox, &QCheckBox::toggled, this, [](bool b){
-        QmlDesignerPlugin::settings().insert(
+        designerSettings().insert(
             DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES, !b);
     });
 }

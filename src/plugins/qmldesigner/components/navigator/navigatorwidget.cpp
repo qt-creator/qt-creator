@@ -137,7 +137,7 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     button = new QToolButton();
     button->setIcon(vIcon);
     button->setCheckable(true);
-    bool visibleFlag = QmlDesignerPlugin::settings()
+    bool visibleFlag = designerSettings()
                            .value(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS)
                            .toBool();
     button->setChecked(visibleFlag);
@@ -156,7 +156,7 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     button = new QToolButton();
     button->setIcon(rIcon);
     button->setCheckable(true);
-    bool reverseFlag = QmlDesignerPlugin::settings()
+    bool reverseFlag = designerSettings()
                            .value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER)
                            .toBool();
     button->setChecked(reverseFlag);

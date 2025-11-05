@@ -65,7 +65,6 @@ public:
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;
 
-    static DesignerSettings &settings();
     static ExternalDependenciesInterface &externalDependenciesForPluginInitializationOnly(); // if you use it your code smells
 
     static bool experimentalFeaturesEnabled();

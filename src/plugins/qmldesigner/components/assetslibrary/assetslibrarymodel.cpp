@@ -104,7 +104,7 @@ QString AssetsLibraryModel::contentDirPath() const
 
 bool AssetsLibraryModel::requestDeleteFiles(const QStringList &filePaths)
 {
-    bool askBeforeDelete = QmlDesignerPlugin::settings()
+    bool askBeforeDelete = designerSettings()
                                .value(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET)
                                .toBool();
 
@@ -118,7 +118,7 @@ bool AssetsLibraryModel::requestDeleteFiles(const QStringList &filePaths)
 void AssetsLibraryModel::deleteFiles(const QStringList &filePaths, bool dontAskAgain)
 {
     if (dontAskAgain)
-        QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, false);
+        designerSettings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, false);
 
     QHash<QString, Utils::FilePath> deletedAssets;
     const GeneratedComponentUtils &compUtils = QmlDesignerPlugin::instance()->documentManager()
