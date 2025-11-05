@@ -201,6 +201,7 @@ static int iconLabelGap(QtcButton::Role role)
     case QtcButton::Tag:
         return GapHXs;
     }
+    Q_UNREACHABLE_RETURN(-1);
 }
 
 void QtcButton::paintEvent(QPaintEvent *event)
