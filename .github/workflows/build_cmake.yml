@@ -78,6 +78,18 @@ jobs:
       run: |
         brew update
         brew install upx
+
+    - name: Install Python SBOM dependencies
+      shell: cmake -P {0}
+      run: |
+        execute_process(
+          COMMAND pip install "spdx-tools>=0.8.0 ; python_version >= '3.9'"
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR "Failed to install Python SBOM dependencies")
+        endif()
+
     - name: Download Ninja and CMake
       shell: cmake -P {0}
       run: |
