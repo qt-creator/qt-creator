@@ -56,16 +56,7 @@ public:
 
     static Utils::FilePath mappedFilePath(ProjectExplorer::Project *project, const Utils::FilePath &path);
 
-    QList<Utils::Id> autoDetectCMakeForDevice(
-        const Utils::FilePaths &searchPaths,
-        const QString &detectionSource,
-        const ProjectExplorer::LogCallback &logCallback);
-
-    Utils::Id registerCMakeByPath(const Utils::FilePath &cmakePath, const QString &detectionSource);
-
     void removeDetectedCMake(
-        const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
-    void listDetectedCMake(
         const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
 
 signals:

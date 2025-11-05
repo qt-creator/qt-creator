@@ -489,41 +489,6 @@ FilePath CMakeToolManager::mappedFilePath(Project *project, const FilePath &path
     return fullHashPath.exists() ? fullHashPath : path;
 }
 
-QList<Id> CMakeToolManager::autoDetectCMakeForDevice(
-    const FilePaths &searchPaths, const QString &detectionSource, const LogCallback &logCallback)
-{
-    QList<Id> result;
-    for (const FilePath &path : searchPaths) {
-        const FilePath cmake = path.pathAppended("cmake").withExecutableSuffix();
-        if (cmake.isExecutableFile()) {
-            const Id currentId = registerCMakeByPath(cmake, detectionSource);
-            if (currentId.isValid())
-                result.push_back(currentId);
-            logCallback(Tr::tr("Found \"%1\".").arg(cmake.toUserOutput()));
-        }
-    }
-    return result;
-}
-
-
-Id CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath, const QString &detectionSourceId)
-{
-    Id id = Id::fromString(cmakePath.toUserOutput());
-
-    CMakeTool *cmakeTool = findById(id);
-    if (cmakeTool)
-        return cmakeTool->id();
-
-    const DetectionSource detectionSource{DetectionSource::Manual, detectionSourceId};
-    auto newTool = std::make_unique<CMakeTool>(detectionSource, id);
-    newTool->setFilePath(cmakePath);
-    newTool->setDisplayName(cmakePath.toUserOutput());
-    id = newTool->id();
-    registerCMakeTool(std::move(newTool));
-
-    return id;
-}
-
 void CMakeToolManager::removeDetectedCMake(
     const QString &detectionSource, const LogCallback &logCallback)
 {
@@ -540,16 +505,6 @@ void CMakeToolManager::removeDetectedCMake(
 
     ensureDefaultCMakeToolIsValid();
     updateDocumentation();
-}
-
-void CMakeToolManager::listDetectedCMake(
-    const QString &detectionSource, const LogCallback &logCallback)
-{
-    for (const auto &tool : std::as_const(d->m_cmakeTools)) {
-        if (tool->detectionSource().id == detectionSource
-            && tool->detectionSource().isAutoDetected())
-            logCallback(tool->displayName());
-    }
 }
 
 void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)
