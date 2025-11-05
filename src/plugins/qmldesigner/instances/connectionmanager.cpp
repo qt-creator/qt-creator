@@ -10,8 +10,8 @@
 #include <qmldesigner/qmldesignerplugin.h>
 #include <qmlprojectmanager/qmlproject.h>
 
-#include <externaldependenciesinterface.h>
 #include <abstractview.h>
+#include <externaldependenciesinterface.h>
 
 #include <projectexplorer/target.h>
 
@@ -51,7 +51,7 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
 
     QStringList mcuArgs;
     using QmlBuildSystem = QmlProjectManager::QmlBuildSystem;
-    if (auto* qmlBuildSystem = qobject_cast<QmlBuildSystem *>(target->buildSystem())) {
+    if (auto *qmlBuildSystem = qobject_cast<QmlBuildSystem *>(target->buildSystem())) {
         if (qmlBuildSystem->qtForMCUs()) {
             mcuArgs.append({"--mcu-font-engine", qmlBuildSystem->fontEngine()});
             mcuArgs.append({"--mcu-default-font", qmlBuildSystem->defaultFontFamily()});
@@ -64,7 +64,6 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
 
     QString qmlPuppetPath;
     for (Connection &connection : m_connections) {
-
         QString socketToken(QUuid::createUuid().toString());
         connection.localServer = std::make_unique<QLocalServer>(nullptr);
         connection.localServer->listen(socketToken);
@@ -89,7 +88,8 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
     for (Connection &connection : m_connections) {
         int waitConstant = 5 * second;
 
-        if (!connection.localServer->hasPendingConnections() && !connection.localServer->waitForNewConnection(waitConstant)) {
+        if (!connection.localServer->hasPendingConnections()
+            && !connection.localServer->waitForNewConnection(waitConstant)) {
             closeSocketsAndKillProcesses();
             showCannotConnectToPuppetWarningAndSwitchToEditMode(qmlPuppetPath);
             return;
@@ -128,7 +128,9 @@ quint32 ConnectionManager::writeCounter() const
     return m_writeCommandCounter;
 }
 
-void ConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitStatus, const QString &connectionName)
+void ConnectionManager::processFinished(int exitCode,
+                                        QProcess::ExitStatus exitStatus,
+                                        const QString &connectionName)
 {
     NanotraceHR::Tracer tracer{"connection manager process finished",
                                category(),

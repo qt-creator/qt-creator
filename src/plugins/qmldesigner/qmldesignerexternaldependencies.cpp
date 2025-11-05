@@ -3,6 +3,7 @@
 
 #include "qmldesignerexternaldependencies.h"
 
+#include "designersettings.h"
 #include "qmldesignerplugin.h"
 
 #include <edit3d/edit3dviewconfig.h>
@@ -11,10 +12,10 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <puppetenvironmentbuilder.h>
+#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 #include <qmlpuppetpaths.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
-#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 
 #include <coreplugin/icore.h>
 
@@ -139,7 +140,10 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
 
     data.puppetPath = puppetPath.toUrlishString();
     data.workingDirectoryPath = workingDirectory.toUrlishString();
-    data.environment = PuppetEnvironmentBuilder::createEnvironment(buildSystem, m_designerSettings, model, qmlPuppetPath());
+    data.environment = PuppetEnvironmentBuilder::createEnvironment(buildSystem,
+                                                                   m_designerSettings,
+                                                                   model,
+                                                                   qmlPuppetPath());
     data.debugPuppet = m_designerSettings.value(DesignerSettingsKey::DEBUG_PUPPET).toString();
     data.freeTypeOption = createFreeTypeOption(buildSystem);
     data.forwardOutput = m_designerSettings.value(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString();
@@ -238,11 +242,12 @@ bool ExternalDependencies::isQtForMcusProject() const
     // QmlBuildSystem
     auto [project, target, qmlBuildSystem] = activeProjectEntries();
     if (qmlBuildSystem)
-        return  qmlBuildSystem->qtForMCUs();
+        return qmlBuildSystem->qtForMCUs();
 
     // CMakeBuildSystem
     ProjectExplorer::Target *activeTarget = ProjectExplorer::ProjectManager::startupTarget();
-    return activeTarget && activeTarget->kit() && activeTarget->kit()->hasValue("McuSupport.McuTargetKitVersion");
+    return activeTarget && activeTarget->kit()
+           && activeTarget->kit()->hasValue("McuSupport.McuTargetKitVersion");
 }
 
 QString ExternalDependencies::qtQuickVersion() const

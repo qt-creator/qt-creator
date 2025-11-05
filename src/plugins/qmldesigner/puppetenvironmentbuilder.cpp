@@ -26,7 +26,7 @@
 namespace QmlDesigner {
 
 namespace {
-Q_LOGGING_CATEGORY(puppetEnvirmentBuild, "qtc.puppet.environmentBuild", QtWarningMsg)
+Q_LOGGING_CATEGORY(puppetEnvironmentBuild, "qtc.puppet.environmentBuild", QtWarningMsg)
 
 void filterOutQtBaseImportPath(QStringList *stringList)
 {
@@ -40,7 +40,7 @@ void filterOutQtBaseImportPath(QStringList *stringList)
 
 QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
 {
-    qCInfo(puppetEnvirmentBuild) << Q_FUNC_INFO;
+    qCInfo(puppetEnvironmentBuild) << Q_FUNC_INFO;
     m_availablePuppetType = determinePuppetType();
     initEnvironment();
     addKit();
@@ -57,16 +57,15 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
     addResolveUrlsOnAssignment();
     addMcuItems();
 
-    qCInfo(puppetEnvirmentBuild) << "Puppet environment:" << m_environment.toStringList();
+    qCInfo(puppetEnvironmentBuild) << "Puppet environment:" << m_environment.toStringList();
 
     return m_environment.toProcessEnvironment();
 }
 
-QProcessEnvironment PuppetEnvironmentBuilder::createEnvironment(
-    ProjectExplorer::BuildSystem *buildSystem,
-    const DesignerSettings &designerSettings,
-    const Model &model,
-    const Utils::FilePath &qmlPuppetPath)
+QProcessEnvironment PuppetEnvironmentBuilder::createEnvironment(ProjectExplorer::BuildSystem *buildSystem,
+                                                                const DesignerSettings &designerSettings,
+                                                                const Model &model,
+                                                                const Utils::FilePath &qmlPuppetPath)
 {
     PuppetEnvironmentBuilder builder{buildSystem, designerSettings, model, qmlPuppetPath};
     return builder.processEnvironment();
@@ -130,6 +129,7 @@ void PuppetEnvironmentBuilder::addKit() const
         }
     }
 }
+
 void PuppetEnvironmentBuilder::addRendering() const
 {
     m_environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
@@ -232,7 +232,7 @@ void PuppetEnvironmentBuilder::addImportPaths() const
     constexpr auto pathSep = Utils::HostOsInfo::pathListSeparator();
     m_environment.appendOrSet("QML2_IMPORT_PATH", importPaths.join(pathSep));
 
-    qCInfo(puppetEnvirmentBuild) << "Puppet import paths:" << importPaths;
+    qCInfo(puppetEnvironmentBuild) << "Puppet import paths:" << importPaths;
 }
 
 void PuppetEnvironmentBuilder::addCustomFileSelectors() const
@@ -247,7 +247,7 @@ void PuppetEnvironmentBuilder::addCustomFileSelectors() const
     if (!customFileSelectors.isEmpty())
         m_environment.set("QML_FILE_SELECTORS", customFileSelectors.join(","));
 
-    qCInfo(puppetEnvirmentBuild) << "Puppet selectors:" << customFileSelectors;
+    qCInfo(puppetEnvironmentBuild) << "Puppet selectors:" << customFileSelectors;
 }
 
 void PuppetEnvironmentBuilder::addDisableDeferredProperties() const
@@ -263,7 +263,6 @@ void PuppetEnvironmentBuilder::addResolveUrlsOnAssignment() const
 void PuppetEnvironmentBuilder::addMcuItems() const
 {
     if (QmlDesigner::DesignerMcuManager::instance().isMCUProject()) {
-
         const Utils::FilePath projectRoot = ProjectExplorer::ProjectManager::startupProject()
                                                 ->projectFilePath()
                                                 .parentDir();

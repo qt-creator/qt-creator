@@ -53,12 +53,6 @@ using RewriterTracing::category;
 constexpr QStringView annotationsStart{u"/*##^##"};
 constexpr QStringView annotationsEnd{u"##^##*/"};
 
-bool debugQmlPuppet(const DesignerSettings &settings)
-{
-    const QString debugPuppet = settings.value(DesignerSettingsKey::DEBUG_PUPPET).toString();
-    return !debugPuppet.isEmpty();
-}
-
 RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
                            ModulesStorage &modulesStorage,
                            DifferenceHandling differenceHandling,

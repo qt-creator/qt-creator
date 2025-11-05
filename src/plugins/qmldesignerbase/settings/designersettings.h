@@ -5,12 +5,14 @@
 
 #include "qmldesignersettings_global.h"
 
-#include <QHash>
-#include <QVariant>
 #include <QByteArray>
+#include <QHash>
 #include <QMutex>
+#include <QVariant>
 
-namespace Utils { class QtcSettings; }
+namespace Utils {
+class QtcSettings;
+}
 
 namespace QmlDesigner {
 
@@ -67,7 +69,8 @@ inline constexpr char SMOOTH_RENDERING[] = "SmoothRendering";
 inline constexpr char EDITOR_ZOOM_FACTOR[] = "EditorZoomFactor";
 inline constexpr char ACTIONS_MERGE_TEMPLATE_ENABLED[] = "ActionsMergeTemplateEnabled";
 inline constexpr char DOWNLOADABLE_BUNDLES_URL[] = "DownloadableBundlesLocation";
-inline constexpr char CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS[] = "ContentLibraryNewFlagExpirationInDays";
+inline constexpr char CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS[]
+    = "ContentLibraryNewFlagExpirationInDays";
 } // namespace DesignerSettingsKey
 
 class QMLDESIGNERSETTINGS_EXPORT DesignerSettings
@@ -83,7 +86,9 @@ private:
     void fromSettings(Utils::QtcSettings *);
     void toSettings(Utils::QtcSettings *) const;
 
-    void restoreValue(Utils::QtcSettings *settings, const QByteArray &key,
+    void restoreValue(
+        Utils::QtcSettings *settings,
+        const QByteArray &key,
         const QVariant &defaultValue = QVariant());
     void storeValue(Utils::QtcSettings *settings, const QByteArray &key, const QVariant &value) const;
 
