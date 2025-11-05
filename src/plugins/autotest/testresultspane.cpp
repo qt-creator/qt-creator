@@ -351,6 +351,7 @@ void TestResultsPane::clearContents()
     m_autoScroll = testSettings().autoScroll();
     connect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &TestResultsPane::onScrollBarRangeChanged, Qt::UniqueConnection);
+    m_textOutput->reset();
     m_textOutput->clear();
     clearMarks();
 }
