@@ -5,8 +5,7 @@
 
 #include <QString>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class StringInputStream
 {
@@ -35,9 +34,7 @@ public:
     StringInputStream &operator<<(ModifierFunc mf) { mf(*this); return *this; }
 
     void setHexPrefix(bool hp) { m_hexPrefix = hp; }
-    bool hexPrefix() const     { return  m_hexPrefix; }
     void setIntegerBase(int b) { m_integerBase = b; }
-    int integerBase() const    { return m_integerBase; }
     // Append a separator if required (target does not end with it)
     void appendSeparator(char c = ' ');
 
@@ -74,10 +71,4 @@ void hex(StringInputStream &bs);
 void dec(StringInputStream &bs);
 void blankSeparator(StringInputStream &bs);
 
-// Bytearray parse helpers
-QByteArray trimFront(QByteArray in);
-QByteArray trimBack(QByteArray in);
-QByteArray simplify(const QByteArray &inIn);
-
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal
