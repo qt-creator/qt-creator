@@ -25,7 +25,6 @@ public:
     void switchToCurrentSession();
 
     QString currentSession();
-    SessionModel* sessionModel();
     void selectActiveSession();
     void selectSession(const QString &sessionName);
 

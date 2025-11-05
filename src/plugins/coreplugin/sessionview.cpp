@@ -12,15 +12,15 @@
 #include <QStringList>
 #include <QStyledItemDelegate>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 // custom item delegate class
 class RemoveItemFocusDelegate : public QStyledItemDelegate
 {
 public:
-    RemoveItemFocusDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {
-    }
+    RemoveItemFocusDelegate(QObject *parent = nullptr)
+        : QStyledItemDelegate(parent)
+    {}
 
 protected:
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
@@ -100,11 +100,6 @@ QString SessionView::currentSession()
     return m_sessionModel.sessionAt(selectionModel()->currentIndex().row());
 }
 
-SessionModel *SessionView::sessionModel()
-{
-    return &m_sessionModel;
-}
-
 void SessionView::selectActiveSession()
 {
     selectSession(SessionManager::activeSession());
@@ -144,5 +139,4 @@ QStringList SessionView::selectedSessions() const
     });
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal
