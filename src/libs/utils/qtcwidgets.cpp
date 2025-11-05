@@ -271,13 +271,12 @@ void QtcButton::paintEvent(QPaintEvent *event)
     case LargeTertiary:
     case MediumTertiary:
     case SmallTertiary: {
-        const Theme::Color border = isDown() ? Theme::Token_Stroke_Muted
-                                             : Theme::Token_Stroke_Subtle;
+        const QPen border = isDown() ? QPen(Qt::NoPen) : creatorColor(Theme::Token_Stroke_Subtle);
         const Theme::Color bg = isEnabled() ? (isDown() ? Theme::Token_Foreground_Default
                                                         : (hovered ? Theme::Token_Foreground_Muted
                                                                    : Theme::Token_Foreground_Subtle))
                                             : Theme::Token_Foreground_Subtle;
-        StyleHelper::drawCardBg(&p, bgR, creatorColor(bg), creatorColor(border), brRectRounding);
+        StyleHelper::drawCardBg(&p, bgR, creatorColor(bg), border, brRectRounding);
         break;
     }
     case LargeGhost:
