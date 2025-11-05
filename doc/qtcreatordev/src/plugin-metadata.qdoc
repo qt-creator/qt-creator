@@ -371,6 +371,12 @@
                 can enable this plugin or extension to enable specific support for that version
                 control system.
         \row
+            \li core > ProjectFileMimeTypes
+            \li Array of strings
+            \li A list of mime type names. If a file with that mime type is opened by the user,
+                and this plugin or extension is disabled, the user is informed that they
+                can enable this plugin or extension to enable specific support for that project type.
+        \row
             \li languageclient > WorkspaceConfig
             \li Object
             \li Merges the given JSON object into the data sent to language servers for

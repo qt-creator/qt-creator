@@ -38,6 +38,7 @@ public:
 
 public:
     static bool canOpenProjectForMimeType(const Utils::MimeType &mt);
+    static bool ensurePluginForProjectIsLoaded(const Utils::MimeType &mt);
     static Project *openProject(const Utils::MimeType &mt, const Utils::FilePath &fileName);
 
     using IssuesGenerator = std::function<Tasks(const Kit *)>;

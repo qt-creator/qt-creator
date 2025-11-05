@@ -5,6 +5,7 @@
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "DisabledByDefault" : true,
+    "SoftLoadable" : true,
     "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
     "Copyright" : "${IDE_COPYRIGHT}",
@@ -18,6 +19,9 @@
     ],
     "Description" : "Supports the cargo project type",
     "Url" : "https://www.qt.io",
+    "core" : {
+        "ProjectFileMimeTypes" : [ "text/x-cargo-toml" ]
+    },
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

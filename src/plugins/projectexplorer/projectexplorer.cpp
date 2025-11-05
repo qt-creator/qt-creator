@@ -122,6 +122,7 @@
 #include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
@@ -143,6 +144,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QInputDialog>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QMenu>
 #include <QMessageBox>
@@ -487,6 +489,12 @@ public:
     }
 };
 
+struct PluginProjectMimeType
+{
+    QString pluginId;
+    QString mimeType;
+};
+
 class ProjectExplorerPluginPrivate : public QObject
 {
 public:
@@ -566,7 +574,12 @@ public:
 
     void extendFolderNavigationWidgetFactory();
 
-    QString projectFilterString() const;
+    QString projectFilterString();
+
+    void updateDocumentOpenerMimeTypes();
+    QStringList projectMimeTypes();
+    void resetUnloadedPluginProjectMimeTypes();
+    QList<PluginProjectMimeType> unloadedPluginProjectMimeTypes();
 
 public:
     QMenu *m_openWithMenu;
@@ -645,7 +658,6 @@ public:
 
     ProjectWindow *m_proWindow = nullptr;
 
-    QStringList m_profileMimeTypes;
     int m_activeRunControlCount = 0;
     int m_shutdownWatchDogId = -1;
 
@@ -723,6 +735,7 @@ public:
     StopMonitoringHandler closeTaskFile;
 
     Task m_openTerminalError;
+    std::optional<QList<PluginProjectMimeType>> m_unloadedPluginProjectMimeTypes;
 };
 
 static ProjectExplorerPlugin *m_instance = nullptr;
@@ -898,10 +911,11 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     setupJsonWizardFileGenerator();
     setupJsonWizardScannerGenerator();
     // new plugins might add new paths via the plugin spec
-    connect(
-        PluginManager::instance(),
-        &PluginManager::pluginsChanged,
-        &JsonWizardFactory::resetSearchPaths);
+    connect(PluginManager::instance(), &PluginManager::pluginsChanged, [] {
+        JsonWizardFactory::resetSearchPaths();
+        dd->resetUnloadedPluginProjectMimeTypes();
+        dd->updateDocumentOpenerMimeTypes();
+    });
 
     dd->extendFolderNavigationWidgetFactory();
 
@@ -2038,7 +2052,7 @@ void ProjectExplorerPluginPrivate::loadAction()
     // the current file
     if (const IDocument *document = EditorManager::currentDocument()) {
         const FilePath fn = document->filePath();
-        const bool isProject = m_profileMimeTypes.contains(document->mimeType());
+        const bool isProject = projectMimeTypes().contains(document->mimeType());
         dir = isProject ? fn : fn.absolutePath();
     }
 
@@ -2065,7 +2079,7 @@ void ProjectExplorerPluginPrivate::openWorkspaceAction()
     // the current file
     if (const IDocument *document = EditorManager::currentDocument()) {
         const FilePath fn = document->filePath();
-        const bool isProject = dd->m_profileMimeTypes.contains(document->mimeType());
+        const bool isProject = projectMimeTypes().contains(document->mimeType());
         dir = isProject ? fn : fn.absolutePath();
     }
 
@@ -2166,13 +2180,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
             showOpenProjectError(result);
         return nullptr;
     });
-
-    dd->m_documentFactory.addMimeType(QStringLiteral("inode/directory"));
-    for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
-        const QString &mimeType = it.key();
-        dd->m_documentFactory.addMimeType(mimeType);
-        dd->m_profileMimeTypes += mimeType;
-    }
+    dd->updateDocumentOpenerMimeTypes();
 
     dd->m_taskFileFactory.addMimeType("text/x-tasklist");
     dd->m_taskFileFactory.setOpener([](const FilePath &filePath) {
@@ -2423,20 +2431,29 @@ OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths
         }
 
         MimeType mt = Utils::mimeTypeForFile(filePath);
+
         if (ProjectManager::canOpenProjectForMimeType(mt)) {
-            if (Project *pro = ProjectManager::openProject(mt, filePath)) {
-                QString restoreError;
-                Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
-                if (restoreResult == Project::RestoreResult::Ok) {
-                    connect(pro, &Project::fileListChanged,
-                            m_instance, &ProjectExplorerPlugin::fileListChanged);
-                    ProjectManager::addProject(pro);
-                    openedPro += pro;
-                } else {
-                    if (restoreResult == Project::RestoreResult::Error)
-                        appendError(errorString, restoreError);
-                    delete pro;
+            if (ProjectManager::ensurePluginForProjectIsLoaded(mt) ) {
+                if (Project *pro = ProjectManager::openProject(mt, filePath)) {
+                    QString restoreError;
+                    Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
+                    if (restoreResult == Project::RestoreResult::Ok) {
+                        connect(
+                            pro,
+                            &Project::fileListChanged,
+                            m_instance,
+                            &ProjectExplorerPlugin::fileListChanged);
+                        ProjectManager::addProject(pro);
+                        openedPro += pro;
+                    } else {
+                        if (restoreResult == Project::RestoreResult::Error)
+                            appendError(errorString, restoreError);
+                        delete pro;
+                    }
                 }
+            } else {
+                appendError(errorString, Tr::tr("Cannot open project \"%1\": Plugin is not loaded.")
+                                .arg(filePath.toUserOutput()));
             }
         } else {
             appendError(errorString, Tr::tr("Failed opening project \"%1\": No plugin can open project type \"%2\".")
@@ -2490,10 +2507,9 @@ void ProjectExplorerPluginPrivate::currentModeChanged(Id mode, Id oldMode)
 QStringList ProjectExplorerPlugin::projectFileGlobs()
 {
     QStringList result;
-    for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
-        MimeType mimeType = Utils::mimeTypeForName(it.key());
-        if (mimeType.isValid()) {
-            const QStringList patterns = mimeType.globPatterns();
+    for (const QString &mimeType : dd->projectMimeTypes()) {
+        if (MimeType mime = Utils::mimeTypeForName(mimeType); mime.isValid()) {
+            const QStringList patterns = mime.globPatterns();
             if (!patterns.isEmpty())
                 result.append(patterns.front());
         }
@@ -3013,22 +3029,65 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
             });
 }
 
-QString ProjectExplorerPluginPrivate::projectFilterString() const
+QString ProjectExplorerPluginPrivate::projectFilterString()
 {
     const QString filterSeparator = QLatin1String(";;");
+
     QStringList filterStrings;
     QStringList allGlobPatterns;
-    for (auto it = m_projectCreators.cbegin(); it != m_projectCreators.cend(); ++it) {
-        const QString &mimeType = it.key();
+
+    for (const QString &mimeType : projectMimeTypes()) {
         MimeType mime = Utils::mimeTypeForName(mimeType);
+        if (!mime.isValid())
+            continue;
         allGlobPatterns.append(mime.globPatterns());
         filterStrings.append(mime.filterString());
     }
+
     QString allProjectsFilter = Tr::tr("All Projects");
     allProjectsFilter += QLatin1String(" (") + allGlobPatterns.join(QLatin1Char(' '))
                          + QLatin1Char(')');
     filterStrings.prepend(allProjectsFilter);
     return filterStrings.join(filterSeparator);
+}
+
+void ProjectExplorerPluginPrivate::updateDocumentOpenerMimeTypes()
+{
+    QStringList mimeTypes = projectMimeTypes();
+    mimeTypes.append("inode/directory");
+    m_documentFactory.setMimeTypes(mimeTypes);
+}
+
+QStringList ProjectExplorerPluginPrivate::projectMimeTypes()
+{
+    auto projectMimeTypes = Utils::toSet(dd->m_projectCreators.keys());
+    for (auto pluginMimeTypes : dd->unloadedPluginProjectMimeTypes())
+        projectMimeTypes.insert(pluginMimeTypes.mimeType);
+    return Utils::toList(projectMimeTypes);
+}
+
+void ProjectExplorerPluginPrivate::resetUnloadedPluginProjectMimeTypes()
+{
+    m_unloadedPluginProjectMimeTypes.reset();
+}
+
+QList<PluginProjectMimeType> ProjectExplorerPluginPrivate::unloadedPluginProjectMimeTypes()
+{
+    if (!m_unloadedPluginProjectMimeTypes) {
+        m_unloadedPluginProjectMimeTypes.emplace();
+        for (ExtensionSystem::PluginSpec *plugin : PluginManager::plugins()) {
+            if (plugin->isEffectivelyEnabled())
+                continue;
+            const QJsonObject metaData = plugin->metaData();
+            const QJsonArray filesArray
+                = metaData.value("core").toObject().value("ProjectFileMimeTypes").toArray();
+            for (const QJsonValue &v : filesArray) {
+                if (const QString mimeType = v.toString(); !mimeType.isEmpty())
+                    m_unloadedPluginProjectMimeTypes->emplaceBack(plugin->id(), mimeType);
+            }
+        }
+    }
+    return *m_unloadedPluginProjectMimeTypes;
 }
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu(RunConfiguration *rc)
@@ -4140,10 +4199,9 @@ const QList<CustomParserSettings> ProjectExplorerPlugin::customParsers()
 QStringList ProjectExplorerPlugin::projectFilePatterns()
 {
     QStringList patterns;
-    for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
-        MimeType mt = Utils::mimeTypeForName(it.key());
-        if (mt.isValid())
-            patterns.append(mt.globPatterns());
+    for (const QString &mimeType : dd->projectMimeTypes()) {
+        if (MimeType mime = Utils::mimeTypeForName(mimeType); mime.isValid())
+            patterns.append(mime.globPatterns());
     }
     return patterns;
 }
@@ -4151,11 +4209,9 @@ QStringList ProjectExplorerPlugin::projectFilePatterns()
 bool ProjectExplorerPlugin::isProjectFile(const FilePath &filePath)
 {
     MimeType mt = Utils::mimeTypeForFile(filePath);
-    for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
-        if (mt.inherits(it.key()))
-            return true;
-    }
-    return false;
+    return Utils::anyOf(dd->projectMimeTypes(), [&mt](const QString &mimeType) {
+        return mt.inherits(mimeType);
+    });
 }
 
 void ProjectExplorerPlugin::openOpenProjectDialog()
@@ -4283,10 +4339,45 @@ Project *ProjectManager::openProject(const MimeType &mt, const FilePath &fileNam
 
 bool ProjectManager::canOpenProjectForMimeType(const MimeType &mt)
 {
-    if (mt.isValid()) {
-        for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
-            if (mt.matchesName(it.key()))
-                return true;
+    if (!mt.isValid())
+        return false;
+
+    return Utils::anyOf(dd->projectMimeTypes(), [&mt](const QString &mimeType) {
+        return mt.matchesName(mimeType);
+    });
+}
+
+bool ProjectManager::ensurePluginForProjectIsLoaded(const MimeType &mt)
+{
+    if (!mt.isValid())
+        return false;
+
+    const bool alreadyLoaded
+        = Utils::anyOf(dd->m_projectCreators.keys(), [&mt](const QString &mimeType) {
+              return mt.matchesName(mimeType);
+          });
+
+    if (alreadyLoaded)
+        return true;
+
+    for (const PluginProjectMimeType &pluginMimeType : dd->unloadedPluginProjectMimeTypes()) {
+        if (mt.matchesName(pluginMimeType.mimeType)) {
+            ExtensionSystem::PluginSpec *plugin = PluginManager::specById(pluginMimeType.pluginId);
+            QTC_ASSERT(plugin, continue);
+            const QString title = Tr::tr("Enable %1 Plugin").arg(plugin->displayName());
+            const QString message = Tr::tr(
+                                        "The plugin \"%1\" is required to open projects of type "
+                                        "\"%2\" Do you want to enable it now?")
+                                        .arg(plugin->displayName(), mt.name());
+            QMessageBox::StandardButton loadPlugin = CheckableMessageBox::question(
+                title, message, {}, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+            if (loadPlugin == QMessageBox::No)
+                continue;
+
+            if (ICore::enablePlugins({plugin}))
+                return plugin->state() == ExtensionSystem::PluginSpec::Running;
+            return false;
         }
     }
     return false;
