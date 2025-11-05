@@ -331,18 +331,6 @@ void CMakeTool::setDisplayName(const QString &displayName)
     CMakeToolManager::notifyAboutUpdate(this);
 }
 
-void CMakeTool::setPathMapper(const CMakeTool::PathMapper &pathMapper)
-{
-    m_pathMapper = pathMapper;
-}
-
-CMakeTool::PathMapper CMakeTool::pathMapper() const
-{
-    if (m_pathMapper)
-        return m_pathMapper;
-    return [](const FilePath &fn) { return fn; };
-}
-
 FilePath CMakeTool::searchQchFile(const FilePath &executable)
 {
     if (executable.isEmpty() || !executable.isLocal()) // do not register docs from devices

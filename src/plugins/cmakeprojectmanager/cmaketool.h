@@ -63,8 +63,6 @@ public:
         bool matches(const QString &n) const;
     };
 
-    using PathMapper = std::function<Utils::FilePath (const Utils::FilePath &)>;
-
     explicit CMakeTool(const Utils::Store &map, bool fromSdk);
     explicit CMakeTool(const ProjectExplorer::DetectionSource &d, const Utils::Id &id);
 
@@ -94,9 +92,6 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 
-    void setPathMapper(const PathMapper &includePathMapper);
-    PathMapper pathMapper() const;
-
     static Utils::FilePath searchQchFile(const Utils::FilePath &executable);
 
     // Note: the earlier returned QString is the same as DetectionSource::id now
@@ -125,8 +120,6 @@ private:
     bool m_autoCreateBuildDirectory = false;
 
     std::unique_ptr<Internal::IntrospectionData> m_introspection;
-
-    PathMapper m_pathMapper;
 };
 
 } // namespace CMakeProjectManager
