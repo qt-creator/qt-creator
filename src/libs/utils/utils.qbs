@@ -296,8 +296,6 @@ QtcLibrary {
         "set_algorithm.h",
         "settingsaccessor.cpp",
         "settingsaccessor.h",
-        "settingsselector.cpp",
-        "settingsselector.h",
         "sizedarray.h",
         "smallstring.h",
         "smallstringiterator.h",

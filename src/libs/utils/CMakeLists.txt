@@ -156,7 +156,6 @@ add_qtc_library(Utils
     searchresultitem.cpp searchresultitem.h
     set_algorithm.h
     settingsaccessor.cpp settingsaccessor.h
-    settingsselector.cpp settingsselector.h
     shutdownguard.cpp shutdownguard.h
     sizedarray.h
     smallstring.h
