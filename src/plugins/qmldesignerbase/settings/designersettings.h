@@ -47,6 +47,7 @@ inline constexpr char SHOW_PROPERTYEDITOR_WARNINGS[] = "ShowPropertyEditorWarnin
 inline constexpr char ENABLE_MODEL_EXCEPTION_OUTPUT[] = "WarnException";
 inline constexpr char PUPPET_KILL_TIMEOUT[] = "PuppetKillTimeout";
 inline constexpr char DEBUG_PUPPET[] = "DebugPuppet";
+inline constexpr char DUMP_PUPPET_INIT_INFORMATION[] = "DumpPuppetInitInformation";
 inline constexpr char FORWARD_PUPPET_OUTPUT[] = "ForwardPuppetOutput";
 inline constexpr char NAVIGATOR_SHOW_REFERENCE_NODES[] = "NavigatorShowReferenceNodes";
 inline constexpr char NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS[] = "NavigatorShowOnlyVisibleItems";
