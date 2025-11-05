@@ -508,6 +508,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
             }
 
             parentNode.nodeAbstractProperty(propertyName).reparentHere(newQmlObjectNode);
+            QmlItemNode(newQmlObjectNode).handleStackLayoutParent();
         }
 
         if (!newQmlObjectNode.isValid())

@@ -1502,6 +1502,20 @@ bool NodeMetaInfo::isQtQuickTemplatesSwipeView(SL sl) const
     return isBasedOnCommonType<QtQuick_Templates, SwipeView>(m_projectStorage, m_typeId);
 }
 
+bool NodeMetaInfo::isQtQuickLayoutStackLayout(SL sl) const
+{
+    if (!isValid())
+        return false;
+
+    NanotraceHR::Tracer tracer{"node meta info is QtQuick.Layouts.StackLayout",
+                               category(),
+                               keyValue("type id", m_typeId),
+                               keyValue("caller location", sl)};
+
+    using namespace Storage::Info;
+    return isBasedOnCommonType<QtQuick_Layouts, StackLayout>(m_projectStorage, m_typeId);
+}
+
 bool NodeMetaInfo::isQtQuick3DCamera(SL sl) const
 {
     if (!isValid())

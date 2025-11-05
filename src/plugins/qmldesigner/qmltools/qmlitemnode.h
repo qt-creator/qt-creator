@@ -145,6 +145,8 @@ public:
 
     bool isInStackedContainer(SL sl = {}) const;
 
+    void handleStackLayoutParent();
+
     ModelNode rootModelNode(SL sl = {}) const;
 
     bool isEffectItem(SL sl = {}) const;
