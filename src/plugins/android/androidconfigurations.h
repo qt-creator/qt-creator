@@ -134,6 +134,8 @@ public:
 signals:
     void aboutToUpdate();
 
+    void sdkLocationChanged();
+
 private:
     friend void setupAndroidConfigurations();
     AndroidConfigurations();

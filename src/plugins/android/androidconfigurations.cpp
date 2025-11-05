@@ -793,6 +793,7 @@ FilePath sdkLocation()
 void setSdkLocation(const FilePath &sdkLocation)
 {
     config().m_sdkLocation = sdkLocation;
+    emit AndroidConfigurations::instance()->sdkLocationChanged();
 }
 
 static FilePath sdkToolsVersionPath()

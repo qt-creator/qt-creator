@@ -56,6 +56,7 @@ public:
 
     void updateDeviceFileAccess();
     void addActionsIfNotFound();
+    void updateSerialNumber(const QString &serial);
 
 protected:
     void fromMap(const Utils::Store &map) final;
