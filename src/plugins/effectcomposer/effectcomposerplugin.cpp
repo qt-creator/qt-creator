@@ -23,6 +23,16 @@ public:
     {
         EffectComposerView::registerDeclarativeTypes();
     }
+
+    bool delayedInitialize() override
+    {
+        auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
+        auto &viewManager = designerPlugin->viewManager();
+
+        viewManager.registerView(std::make_unique<EffectComposerView>(
+            QmlDesigner::QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
+        return true;
+    }
 };
 
 } // namespace EffectComposer
