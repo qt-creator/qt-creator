@@ -28,7 +28,6 @@ class FindToolWindow : public QWidget
 public:
     explicit FindToolWindow(QWidget *parent = nullptr);
     ~FindToolWindow() override;
-    static FindToolWindow *instance();
 
     void setFindFilters(const QList<IFindFilter *> &filters);
     QList<IFindFilter *> findFilters() const;

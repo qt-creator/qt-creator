@@ -28,8 +28,6 @@ using namespace Utils;
 
 namespace Core::Internal {
 
-static FindToolWindow *m_instance = nullptr;
-
 static Result<> validateRegExp(const QString &text)
 {
     if (text.isEmpty())
@@ -85,8 +83,6 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     , m_currentFilter(nullptr)
     , m_configWidget(nullptr)
 {
-    m_instance = this;
-
     m_searchButton = new QPushButton;
     m_searchButton->setText(Tr::tr("&Search", nullptr));
     m_searchButton->setDefault(true);
@@ -191,11 +187,6 @@ FindToolWindow::FindToolWindow(QWidget *parent)
 FindToolWindow::~FindToolWindow()
 {
     qDeleteAll(m_configWidgets);
-}
-
-FindToolWindow *FindToolWindow::instance()
-{
-    return m_instance;
 }
 
 bool FindToolWindow::event(QEvent *event)
