@@ -1229,6 +1229,49 @@ BuildInfo BuildConfiguration::fixupBuildInfo(
     return fullInfo;
 }
 
+FilePath BuildConfiguration::expandedBuildDirectory(
+    const FilePath &rawBuildDir, const FilePath &projectDir, MacroExpander &exp)
+{
+    qCDebug(bcLog) << Q_FUNC_INFO << rawBuildDir;
+
+    FilePath buildDir = exp.expand(rawBuildDir);
+    qCDebug(bcLog) << "expanded build dir:" << buildDir.toUserOutput();
+
+    if (buildDir.isAbsolutePath())
+        return buildDir;
+    return projectDir.resolvePath(buildDir);
+}
+
+FilePath BuildConfiguration::rawBuildDirectoryFromTemplate(
+    const Kit *kit, const FilePath &projectFilePath)
+{
+    qCDebug(bcLog) << Q_FUNC_INFO;
+
+    auto environment = Environment::systemEnvironment();
+    if (const Project * const project = ProjectManager::projectWithProjectFilePath(projectFilePath)) {
+        // This adds the environment variables from the <project>.shared file
+        environment.modify(project->additionalEnvironment());
+    }
+
+    // Retrieve the template from setting or evironment.
+    FilePath buildDir = FilePath::fromUserInput(environment.value_or(
+        Constants::QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE,
+        buildPropertiesSettings().buildDirectoryTemplate()));
+    qCDebug(bcLog) << "build dir template:" << buildDir.toUserOutput();
+
+    // FIXME: Should we really do this unconditionally?
+    buildDir = buildDir.withNewPath(buildDir.path().replace(" ", "-"));
+
+    // If it's a relative path, we are done.
+    if (buildDir.isRelativePath() && !buildDir.path().startsWith('%'))
+        return buildDir;
+
+    // Otherwise we need to inject the device scheme.
+    if (const IDevice::ConstPtr buildDevice = BuildDeviceKitAspect::device(kit))
+        return buildDevice->rootPath().withNewMappedPath(buildDir);
+    return buildDir;
+}
+
 FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectDir,
                                                         const FilePath &mainFilePath,
                                                         const QString &projectName,
@@ -1243,30 +1286,9 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
     setupBuildDirMacroExpander(
         exp, mainFilePath, projectName, kit, bcName, buildType, buildSystem, false);
 
-    auto project = ProjectManager::projectWithProjectFilePath(mainFilePath);
-    auto environment = Environment::systemEnvironment();
-    // This adds the environment variables from the <project>.shared file
-    if (project)
-        environment.modify(project->additionalEnvironment());
-
-    FilePath buildDir = FilePath::fromUserInput(environment.value_or(
-        Constants::QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE,
-        buildPropertiesSettings().buildDirectoryTemplate()));
-    qCDebug(bcLog) << "build dir template:" << buildDir.toUserOutput();
-    buildDir = exp.expand(buildDir);
-    qCDebug(bcLog) << "expanded build:" << buildDir.toUserOutput();
-    buildDir = buildDir.withNewPath(buildDir.path().replace(" ", "-"));
-
-    auto buildDevice = BuildDeviceKitAspect::device(kit);
-    if (!buildDevice)
-        return buildDir;
-
-    if (buildDir.isAbsolutePath())
-        return buildDevice->rootPath().withNewMappedPath(buildDir);
-
-    const FilePath baseDir = buildDevice->rootPath().withNewMappedPath(projectDir);
-    return baseDir.resolvePath(buildDir);
+    return expandedBuildDirectory(rawBuildDirectoryFromTemplate(kit, mainFilePath), projectDir, exp);
 }
+
 ///
 // IBuildConfigurationFactory
 ///

@@ -121,6 +121,12 @@ public:
         BuildType buildType,
         const QString &buildSystem,
         bool documentationOnly);
+    static Utils::FilePath expandedBuildDirectory(
+        const Utils::FilePath &rawBuildDir,
+        const Utils::FilePath &projectDir,
+        Utils::MacroExpander &exp);
+    static Utils::FilePath rawBuildDirectoryFromTemplate(
+        const Kit *kit, const Utils::FilePath &projectFilePath);
     static Utils::FilePath buildDirectoryFromTemplate(const Utils::FilePath &projectDir,
                                                       const Utils::FilePath &mainFilePath,
                                                       const QString &projectName,
