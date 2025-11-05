@@ -78,9 +78,6 @@ public:
     static CppCodeStyleSettings getProjectCodeStyle(ProjectExplorer::Project *project);
     static CppCodeStyleSettings currentProjectCodeStyle();
     static CppCodeStyleSettings currentGlobalCodeStyle();
-    static TextEditor::TabSettings getProjectTabSettings(ProjectExplorer::Project *project);
-    static TextEditor::TabSettings currentProjectTabSettings();
-    static TextEditor::TabSettings currentGlobalTabSettings();
 
     /*! Returns an Overview configured by the current project's code style.
 
