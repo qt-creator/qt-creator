@@ -187,6 +187,7 @@ static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty
                     parentProperty.reparentHere(modelNode);
                 }
             }
+            QmlItemNode(modelNode).handleStackLayoutParent();
         }
     }  catch (const RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
         exception.showException();
@@ -962,6 +963,7 @@ bool QmlDesigner::NavigatorTreeModel::moveNodeToParent(const NodeAbstractPropert
     if (parentProp.isValid()) {
         ModelNode targetModel = parentProp.parentModelNode();
         parentProp.reparentHere(node);
+        QmlItemNode(node).handleStackLayoutParent();
         return true;
     }
     return false;

@@ -224,6 +224,7 @@ public:
     bool isQtQuickBorderImage(SL sl = {}) const;
     bool isQtQuickTemplatesLabel(SL sl = {}) const;
     bool isQtQuickTemplatesSwipeView(SL sl = {}) const;
+    bool isQtQuickLayoutStackLayout(SL sl = {}) const;
     bool isQtQuickTemplatesTabBar(SL sl = {}) const;
     bool isQtQuickGradient(SL sl = {}) const;
     bool isQtQuickImage(SL sl = {}) const;

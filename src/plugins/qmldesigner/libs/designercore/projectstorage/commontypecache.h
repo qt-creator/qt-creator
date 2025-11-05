@@ -49,6 +49,7 @@ inline constexpr StaticString FloatType = {"float"};
 inline constexpr StaticString Flow = {"Flow"};
 inline constexpr StaticString Gradient = {"Gradient"};
 inline constexpr StaticString GridLayout = {"GridLayout"};
+inline constexpr StaticString StackLayout = {"StackLayout"};
 inline constexpr StaticString GridView = {"GridView"};
 inline constexpr StaticString Grid = {"Grid"};
 inline constexpr StaticString GroupItem = {"GroupItem"};
@@ -245,6 +246,7 @@ class CommonTypeCache
         CacheType<QtQuick_Dialogs, ModuleKind::CppLibrary, QQuickAbstractDialog>,
         CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, ColumnLayout>,
         CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, GridLayout>,
+        CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, StackLayout>,
         CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, Layout>,
         CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, RowLayout>,
         CacheType<QtQuick_Shapes, ModuleKind::QmlLibrary, Shape>,
