@@ -118,7 +118,6 @@ QtcLibrary {
             "findcdbbreakpoint.cpp", "findcdbbreakpoint.h",
             "pp-cctype.h",
             "pp-engine.cpp", "pp-engine.h",
-            "pp-scanner.cpp", "pp-scanner.h",
             "pp.h",
         ]
     }

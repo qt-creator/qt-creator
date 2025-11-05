@@ -34,9 +34,8 @@ add_qtc_library(CPlusPlus
     cppmodelmanagerbase.cpp cppmodelmanagerbase.h
     declarationcomments.cpp declarationcomments.h
     findcdbbreakpoint.cpp findcdbbreakpoint.h
-    pp-cctype.h pp-engine.cpp
-    pp-engine.h pp-scanner.cpp
-    pp-scanner.h
+    pp-cctype.h
+    pp-engine.cpp pp-engine.h
     pp.h
   SKIP_PCH
 )

@@ -26,5 +26,4 @@
 #include "Macro.h"
 #include "PreprocessorClient.h"
 #include "PreprocessorEnvironment.h"
-#include "pp-scanner.h"
 #include "pp-engine.h"
