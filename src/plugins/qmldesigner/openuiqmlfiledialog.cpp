@@ -3,9 +3,8 @@
 
 #include "openuiqmlfiledialog.h"
 
-#include <qmldesignerplugin.h>
-
-#include <qmldesignerbase/settings/designersettings.h>
+#include "qmldesignerplugin.h"
+#include "settings/designersettings.h"
 
 #include <utils/layoutbuilder.h>
 

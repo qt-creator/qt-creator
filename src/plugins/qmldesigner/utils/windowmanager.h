@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../qmldesignerbase_global.h"
+#include "../qmldesigner_global.h"
 
 #include <QObject>
 #include <QPoint>
@@ -13,7 +13,7 @@ QT_FORWARD_DECLARE_CLASS(QWindow)
 
 namespace QmlDesigner {
 
-class QMLDESIGNERBASE_EXPORT WindowManager : public QObject
+class QMLDESIGNER_EXPORT WindowManager : public QObject
 {
     Q_OBJECT
 

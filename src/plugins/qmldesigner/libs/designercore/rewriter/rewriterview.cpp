@@ -6,10 +6,10 @@
 #include "model_p.h"
 #include "modeltotextmerger.h"
 #include "texttomodelmerger.h"
+#include "../../../settings/designersettings.h"
 
 #include <bindingproperty.h>
 #include <customnotifications.h>
-#include <designersettings.h>
 #include <externaldependenciesinterface.h>
 #include <filemanager/astobjecttextextractor.h>
 #include <filemanager/firstdefinitionfinder.h>

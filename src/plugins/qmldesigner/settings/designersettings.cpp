@@ -14,10 +14,10 @@ namespace DesignerSettingsGroupKey {
     const char QML_DESIGNER_SETTINGS_GROUP[] = "Designer";
 }
 
-DesignerSettings::DesignerSettings(QtcSettings *settings) :
-    m_settings(settings)
+DesignerSettings::DesignerSettings()
+    : m_settings(&userSettings())
 {
-    fromSettings(settings);
+    fromSettings(m_settings);
 }
 
 void DesignerSettings::insert(const QByteArray &key, const QVariant &value)
@@ -126,6 +126,12 @@ void DesignerSettings::toSettings(QtcSettings *settings) const
 
     settings->endGroup();
     settings->endGroup();
+}
+
+DesignerSettings &designerSettings()
+{
+    static DesignerSettings theDesignerSettings;
+    return theDesignerSettings;
 }
 
 } // namespace QmlDesigner

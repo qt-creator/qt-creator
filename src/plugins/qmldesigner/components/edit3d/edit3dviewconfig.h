@@ -6,7 +6,7 @@
 #include <auxiliarydata.h>
 #include <qmldesignerplugin.h>
 
-#include <qmldesignerbase/settings/designersettings.h>
+#include <qmldesigner/settings/designersettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

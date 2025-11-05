@@ -75,7 +75,6 @@ Project {
         "qmlprojectmanager/qmlprojectmanager.qbs",
         "qnx/qnx.qbs",
         "qmakeprojectmanager/qmakeprojectmanager.qbs",
-        "qmldesignerbase/qmldesignerbase.qbs",
         "qtapplicationmanager/qtapplicationmanager.qbs",
         "qtsupport/qtsupport.qbs",
         "remotelinux/remotelinux.qbs",

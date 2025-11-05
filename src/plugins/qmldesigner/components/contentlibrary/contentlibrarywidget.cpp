@@ -20,7 +20,7 @@
 #include <studioquickwidget.h>
 #include <theme.h>
 
-#include <qmldesignerbase/settings/designersettings.h>
+#include <qmldesigner/settings/designersettings.h>
 #include <qmldesignerutils/asset.h>
 #include <qmldesignerutils/filedownloader.h>
 #include <qmldesignerutils/fileextractor.h>

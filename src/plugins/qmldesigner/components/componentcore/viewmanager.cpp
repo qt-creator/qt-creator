@@ -29,7 +29,7 @@
 #include <stateseditorview.h>
 #include <texteditorview.h>
 
-#include <qmldesignerbase/settings/designersettings.h>
+#include <qmldesigner/settings/designersettings.h>
 
 #include <coreplugin/icore.h>
 

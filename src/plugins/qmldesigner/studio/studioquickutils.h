@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../qmldesignerbase_global.h"
+#include "../qmldesigner_global.h"
 
 #include <QtQml/qqml.h>
 
@@ -11,7 +11,7 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERBASE_EXPORT StudioQuickUtils : public QObject
+class QMLDESIGNER_EXPORT StudioQuickUtils : public QObject
 {
     Q_OBJECT
 

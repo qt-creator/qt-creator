@@ -63,7 +63,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
-#include <qmldesignerbase/qmldesignerbaseplugin.h>
+#include <qmldesigner/qmldesignerplugin.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <sqlite/sqlitelibraryinitializer.h>
 
@@ -72,8 +72,17 @@
 #include <utils/hostosinfo.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 #include <utils/uniqueobjectptr.h>
 
+#include <designersettings.h>
+#include <studioquickutils.h>
+#include <studiovalidator.h>
+#include <windowmanager.h>
+
+#include <coreplugin/icore.h>
+#include <utils/appinfo.h>
+#include <utils/uniqueobjectptr.h>
 #include <qplugin.h>
 #include <QAction>
 #include <QApplication>
@@ -93,6 +102,8 @@ using namespace Core;
 using namespace QmlDesigner::Internal;
 
 namespace QmlDesigner {
+
+const char experimentalFeatures[] = "QML/Designer/UseExperimentalFeatures";
 
 namespace Internal {
 
@@ -170,7 +181,7 @@ struct TraceIdentifierData
 class QmlDesignerPluginPrivate
 {
 public:
-    ExternalDependencies externalDependencies{QmlDesignerBasePlugin::settings()};
+    ExternalDependencies externalDependencies;
     QmlDesignerProjectManager projectManager{externalDependencies};
     ViewManager viewManager{projectManager.asynchronousImageCache(), externalDependencies};
     DocumentManager documentManager{projectManager, externalDependencies};
@@ -188,6 +199,19 @@ public:
 };
 
 QmlDesignerPlugin *QmlDesignerPlugin::m_instance = nullptr;
+
+bool QmlDesignerPlugin::experimentalFeaturesEnabled()
+{
+    return Core::ICore::settings()->value(experimentalFeaturesSettingsKey(), false).toBool();
+}
+
+QByteArray QmlDesignerPlugin::experimentalFeaturesSettingsKey()
+{
+    QString version = Utils::appInfo().displayVersion;
+    version.remove('.');
+
+    return QByteArray(experimentalFeatures) + version.toLatin1();
+}
 
 static bool isInDesignerMode()
 {
@@ -250,13 +274,13 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
     m_instance = nullptr;
 }
 
-////////////////////////////////////////////////////
-//
-// INHERITED FROM ExtensionSystem::Plugin
-//
-////////////////////////////////////////////////////
 Utils::Result<> QmlDesignerPlugin::initialize(const QStringList &)
 {
+    WindowManager::registerDeclarativeType();
+    StudioQuickUtils::registerDeclarativeType();
+    StudioIntValidator::registerDeclarativeType();
+    StudioDoubleValidator::registerDeclarativeType();
+
 #ifdef QDS_USE_PROJECTSTORAGE
     auto specialSnapshotName = QGuiApplication::applicationDisplayName() + "(PROJECTSTORAGE)";
     QGuiApplication::setApplicationDisplayName(specialSnapshotName);
@@ -634,7 +658,7 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
         std::make_unique<TransitionEditorView>(d->externalDependencies));
     transitionEditorView->registerActions();
 
-    if (QmlDesignerBasePlugin::experimentalFeaturesEnabled())
+    if (experimentalFeaturesEnabled())
         d->viewManager.registerView(std::make_unique<DesignSystemView>(d->externalDependencies));
 
     d->viewManager.registerFormEditorTool(std::make_unique<SourceTool>());
@@ -830,7 +854,7 @@ ExternalDependenciesInterface &QmlDesignerPlugin::externalDependenciesForPluginI
 
 DesignerSettings &QmlDesignerPlugin::settings()
 {
-    return QmlDesignerBasePlugin::settings();
+    return designerSettings();
 }
 
 } // namespace QmlDesigner

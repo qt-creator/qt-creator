@@ -19,7 +19,7 @@
 #include <componentcore/theme.h>
 
 #include <qmldesigner/qmldesignerplugin.h>
-#include <qmldesignerbase/studio/studioquickwidget.h>
+#include <qmldesigner/studio/studioquickwidget.h>
 
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditordocument.h>

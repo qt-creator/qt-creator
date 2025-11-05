@@ -63,9 +63,6 @@ add_subdirectory(qmljstools)
 add_subdirectory(scxmleditor)
 add_subdirectory(subversion)
 add_subdirectory(compilationdatabaseprojectmanager)
-if (WITH_QMLDESIGNER)
-  add_subdirectory(qmldesignerbase)
-endif()
 add_subdirectory(webassembly)
 
 # Level 6:

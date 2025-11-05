@@ -6,7 +6,7 @@
 #include "contentlibrarytexturescategory.h"
 
 #include <designerpaths.h>
-#include <qmldesignerbase/qmldesignerbaseplugin.h>
+#include <qmldesigner/qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

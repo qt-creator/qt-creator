@@ -42,7 +42,6 @@ set(DESIGNSTUDIO_PLUGINS
     ProjectExplorer
     QmakeProjectManager
     QmlDesigner
-    QmlDesignerBase
     QmlJSEditor
     QmlJSTools
     QmlPreview

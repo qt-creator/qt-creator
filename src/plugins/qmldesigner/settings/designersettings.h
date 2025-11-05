@@ -73,7 +73,7 @@ inline constexpr char CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS[] = "ContentLibra
 class QMLDESIGNERSETTINGS_EXPORT DesignerSettings
 {
 public:
-    DesignerSettings(Utils::QtcSettings *settings);
+    DesignerSettings();
 
     void insert(const QByteArray &key, const QVariant &value);
     void insert(const QHash<QByteArray, QVariant> &settingsHash);
@@ -91,5 +91,7 @@ private:
     QHash<QByteArray, QVariant> m_cache;
     mutable QMutex m_mutex;
 };
+
+QMLDESIGNERSETTINGS_EXPORT DesignerSettings &designerSettings();
 
 } // namespace QmlDesigner

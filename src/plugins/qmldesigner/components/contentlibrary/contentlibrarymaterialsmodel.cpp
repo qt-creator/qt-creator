@@ -15,7 +15,7 @@
 #include <bundleimporter.h>
 #include <qmldesignerplugin.h>
 
-#include <qmldesignerbase/settings/designersettings.h>
+#include <qmldesigner/settings/designersettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>

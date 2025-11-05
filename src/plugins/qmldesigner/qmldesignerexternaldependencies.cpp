@@ -34,7 +34,7 @@ QString ExternalDependencies::defaultPuppetFallbackDirectory() const
 
 QString ExternalDependencies::qmlPuppetFallbackDirectory() const
 {
-    QString puppetFallbackDirectory = m_designerSettings
+    QString puppetFallbackDirectory = designerSettings()
                                           .value(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY)
                                           .toString();
     if (puppetFallbackDirectory.isEmpty() || !QFileInfo::exists(puppetFallbackDirectory))
@@ -76,7 +76,7 @@ void ExternalDependencies::parseItemLibraryDescriptions() {}
 
 const DesignerSettings &ExternalDependencies::designerSettings() const
 {
-    return m_designerSettings;
+    return QmlDesigner::designerSettings();
 }
 
 void ExternalDependencies::undoOnCurrentDesignDocument()
@@ -155,14 +155,14 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
     auto buildSystem = ProjectExplorer::activeBuildSystemForActiveProject();
     if (!buildSystem)
         return data;
-    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(buildSystem->kit(), m_designerSettings);
+    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(buildSystem->kit(), designerSettings());
 
     data.puppetPath = puppetPath.toUrlishString();
     data.workingDirectoryPath = workingDirectory.toUrlishString();
-    data.environment = PuppetEnvironmentBuilder::createEnvironment(buildSystem, m_designerSettings, model, qmlPuppetPath());
-    data.debugPuppet = m_designerSettings.value(DesignerSettingsKey::DEBUG_PUPPET).toString();
+    data.environment = PuppetEnvironmentBuilder::createEnvironment(buildSystem, designerSettings(), model, qmlPuppetPath());
+    data.debugPuppet = designerSettings().value(DesignerSettingsKey::DEBUG_PUPPET).toString();
     data.freeTypeOption = createFreeTypeOption(buildSystem);
-    data.forwardOutput = m_designerSettings.value(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString();
+    data.forwardOutput = designerSettings().value(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString();
 
     return data;
 }
@@ -175,7 +175,7 @@ bool ExternalDependencies::instantQmlTextUpdate() const
 Utils::FilePath ExternalDependencies::qmlPuppetPath() const
 {
     auto target = ProjectExplorer::ProjectManager::startupTarget();
-    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target->kit(), m_designerSettings);
+    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target->kit(), designerSettings());
     return puppetPath;
 }
 

@@ -37,23 +37,31 @@ add_subdirectory(libs)
 
 find_package(Qt6 QUIET COMPONENTS WebSockets WebEngineWidgets)
 
+add_qtc_library(QmlDesignerSettings STATIC
+  DEPENDS Utils
+  PUBLIC_INCLUDES settings
+  SOURCES_PREFIX settings
+  SOURCES
+    qmldesignersettings_global.h
+    designersettings.cpp designersettings.h
+)
+
 add_qtc_plugin(QmlDesigner
   PLUGIN_RECOMMENDS QmlPreview
   CONDITION TARGET QmlDesignerCore AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
   PLUGIN_DEPENDS
     Core
     ProjectExplorer
-    QmlDesignerBase
     QmlJSEditor
     QmakeProjectManager
     QmlProjectManager
     QtSupport
     TextEditor
-    QmlDesignerBase
   PLUGIN_MANUAL_DEPENDS LicenseChecker ${IDE_VERSION} optional
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
     Qt::QuickWidgets Qt::CorePrivate Qt::Xml Qt::Svg Sqlite Qt::GuiPrivate
+    Qt::Core Qt::GuiPrivate
   PUBLIC_DEPENDS
     QmlDesignerUtils QmlPuppetCommunication QmlDesignerCore DesignSystem
   DEFINES
@@ -82,6 +90,7 @@ add_qtc_plugin(QmlDesigner
   PUBLIC_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/components
+    ${CMAKE_CURRENT_LIST_DIR}/settings
   SOURCES
     designmodewidget.cpp designmodewidget.h
     documentmanager.cpp documentmanager.h
@@ -832,6 +841,38 @@ extend_qtc_plugin(qtquickplugin
       qtquickplugin.cpp qtquickplugin.h
       qtquickplugin.qrc
 )
+
+extend_qtc_plugin(QmlDesigner
+  PUBLIC_INCLUDES utils
+  SOURCES_PREFIX utils
+  SOURCES
+    designerpaths.cpp designerpaths.h
+    qmlpuppetpaths.cpp qmlpuppetpaths.h
+    windowmanager.cpp windowmanager.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  PUBLIC_INCLUDES studio
+  SOURCES_PREFIX studio
+  SOURCES
+    studioquickutils.cpp studioquickutils.h
+    studioquickwidget.cpp studioquickwidget.h
+    studiovalidator.cpp studiovalidator.h
+)
+
+## from cmake 3.24 $<LINK_LIBRARY:WHOLE_ARCHIVE,QmlDesignerSettings> is supported which can be added to DEPENDS
+#if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+#  target_link_libraries(QmlDesignerBase PRIVATE $<LINK_LIBRARY:WHOLE_ARCHIVE,QmlDesignerSettings>)
+#else ()
+#  if (MSVC)
+#    qtc_output_binary_dir(_output_binary_dir)
+#    set_target_properties(QmlDesignerBase PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:${_output_binary_dir}/${IDE_BIN_PATH}/QmlDesignerSettings.lib")
+#  elseif (APPLE)
+#    target_link_libraries(QmlDesignerBase PRIVATE -Wl,-force_load $<TARGET_LINKER_FILE:QmlDesignerSettings>)
+#  else ()
+#    target_link_libraries(QmlDesignerBase PRIVATE -Wl,--whole-archive $<TARGET_LINKER_FILE:QmlDesignerSettings> -Wl,--no-whole-archive)
+#  endif ()
+#endif ()
 
 if (BUILD_DESIGNSTUDIO)
     configure_file(

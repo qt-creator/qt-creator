@@ -6,7 +6,7 @@
 
 #include <qmldesignerplugin.h>
 
-#include <qmldesignerbase/settings/designersettings.h>
+#include <qmldesigner/settings/designersettings.h>
 
 #include <bindingproperty.h>
 #include <modelutils.h>

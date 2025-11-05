@@ -20,8 +20,8 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/modemanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
-#include <qmldesignerbase/qmldesignerbaseplugin.h>
-#include <qmldesignerbase/settings/designersettings.h>
+#include <qmldesigner/qmldesignerplugin.h>
+#include <qmldesigner/settings/designersettings.h>
 
 #include <coreplugin/outputpane.h>
 #include <coreplugin/modemanager.h>
@@ -208,7 +208,7 @@ void DesignModeWidget::setup()
     ADS::DockManager::setConfigFlag(ADS::DockManager::RetainTabSizeWhenCloseButtonHidden, true);
     //ADS::DockManager::setAutoHideConfigFlags(ADS::DockManager::DefaultAutoHideConfig);
 
-    auto designerSettings = DesignerSettings(settings);
+    auto designerSettings = DesignerSettings();
     if (designerSettings.value(DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE).toBool())
         m_minimumSizeHintMode = ADS::DockWidget::MinimumSizeHintFromContentMinimumSize;
 

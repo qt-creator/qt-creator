@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../qmldesignerbase_global.h"
+#include "../qmldesigner_global.h"
 
 #include <utils/filepath.h>
 
@@ -14,7 +14,7 @@ namespace QmlDesigner {
 class DesignerSettings;
 
 namespace QmlPuppetPaths {
-QMLDESIGNERBASE_EXPORT std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(
+QMLDESIGNER_EXPORT std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(
     ProjectExplorer::Kit *kit, const DesignerSettings &settings);
 }
 } // namespace QmlDesigner

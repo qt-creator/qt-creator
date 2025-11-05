@@ -7,7 +7,7 @@
 #include <designermcumanager.h>
 #include <utils/algorithm.h>
 
-#include <qmldesignerbase/qmldesignerbaseplugin.h>
+#include <qmldesigner/qmldesignerplugin.h>
 
 #include <QDebug>
 #include <QVariant>

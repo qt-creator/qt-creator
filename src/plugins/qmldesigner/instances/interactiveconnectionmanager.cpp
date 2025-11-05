@@ -7,7 +7,7 @@
 
 #include <qmldesignerplugin.h>
 
-#include <qmldesignerbase/settings/designersettings.h>
+#include <qmldesigner/settings/designersettings.h>
 
 #include <coreplugin/messagebox.h>
 

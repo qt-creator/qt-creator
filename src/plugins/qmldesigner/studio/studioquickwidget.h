@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include "../qmldesignerbase_global.h"
+#include "../qmldesigner_global.h"
 
 #include <QObject>
 #include <QQmlPropertyMap>
 #include <QtQuickWidgets/QQuickWidget>
 
-class QMLDESIGNERBASE_EXPORT StudioQmlColorBackend : public QObject
+class QMLDESIGNER_EXPORT StudioQmlColorBackend : public QObject
 {
     Q_OBJECT
 
@@ -48,7 +48,7 @@ private:
     QColor m_color = Qt::red;
 };
 
-class QMLDESIGNERBASE_EXPORT StudioQmlTextBackend : public QObject
+class QMLDESIGNER_EXPORT StudioQmlTextBackend : public QObject
 {
     Q_OBJECT
 
@@ -85,7 +85,7 @@ private:
     QString m_text;
 };
 
-class QMLDESIGNERBASE_EXPORT StudioQmlComboBoxBackend : public QObject
+class QMLDESIGNER_EXPORT StudioQmlComboBoxBackend : public QObject
 {
     Q_OBJECT
 
@@ -169,7 +169,7 @@ private:
     QStringList m_model;
 };
 
-class QMLDESIGNERBASE_EXPORT StudioPropertyMap : public QQmlPropertyMap
+class QMLDESIGNER_EXPORT StudioPropertyMap : public QQmlPropertyMap
 {
 public:
     struct PropertyPair
@@ -183,7 +183,7 @@ public:
     void setProperties(const QList<PropertyPair> &properties);
 };
 
-class QMLDESIGNERBASE_EXPORT StudioQuickWidget : public QWidget
+class QMLDESIGNER_EXPORT StudioQuickWidget : public QWidget
 {
     Q_OBJECT
 

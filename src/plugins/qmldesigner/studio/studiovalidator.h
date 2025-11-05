@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../qmldesignerbase_global.h"
+#include "../qmldesigner_global.h"
 
 #include <QtQml/qqml.h>
 
@@ -12,7 +12,7 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERBASE_EXPORT StudioIntValidator : public QIntValidator
+class QMLDESIGNER_EXPORT StudioIntValidator : public QIntValidator
 {
     Q_OBJECT
     Q_PROPERTY(QLocale locale READ locale WRITE setLocale NOTIFY localeChanged FINAL)
@@ -29,7 +29,7 @@ signals:
     void localeChanged();
 };
 
-class QMLDESIGNERBASE_EXPORT StudioDoubleValidator : public QDoubleValidator
+class QMLDESIGNER_EXPORT StudioDoubleValidator : public QDoubleValidator
 {
     Q_OBJECT
     Q_PROPERTY(QLocale locale READ locale WRITE setLocale NOTIFY localeChanged FINAL)

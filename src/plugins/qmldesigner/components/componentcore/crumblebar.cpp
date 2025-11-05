@@ -8,7 +8,7 @@
 #include <nodeabstractproperty.h>
 #include <toolbar.h>
 
-#include <qmldesignerbase/settings/designersettings.h>
+#include <qmldesigner/settings/designersettings.h>
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/idocument.h>

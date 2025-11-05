@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../qmldesignerbase_global.h"
+#include "../qmldesigner_global.h"
 
 #include <utils/filepath.h>
 
@@ -12,9 +12,9 @@ namespace QmlDesigner::Paths {
 constexpr char exampleDownloadPath[] = "StudioConfig/ExamplesDownloadPath";
 constexpr char bundlesDownloadPath[] = "StudioConfig/BundlesDownloadPath";
 
-QMLDESIGNERBASE_EXPORT Utils::FilePath defaultExamplesPath();
-QMLDESIGNERBASE_EXPORT Utils::FilePath defaultBundlesPath();
-QMLDESIGNERBASE_EXPORT QString examplesPathSetting();
-QMLDESIGNERBASE_EXPORT QString bundlesPathSetting();
+QMLDESIGNER_EXPORT Utils::FilePath defaultExamplesPath();
+QMLDESIGNER_EXPORT Utils::FilePath defaultBundlesPath();
+QMLDESIGNER_EXPORT QString examplesPathSetting();
+QMLDESIGNER_EXPORT QString bundlesPathSetting();
 
 } // namespace QmlDesigner::Paths

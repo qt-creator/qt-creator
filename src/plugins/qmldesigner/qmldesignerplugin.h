@@ -11,12 +11,15 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <qmldesignerbase/qmldesignerbaseplugin.h>
+#include <qmldesigner/qmldesignerplugin.h>
 
 #include <QElapsedTimer>
 
-QT_FORWARD_DECLARE_CLASS(QQmlEngine)
-QT_FORWARD_DECLARE_CLASS(QQuickWidget)
+QT_BEGIN_NAMESPACE
+class QStyle;
+class QQmlEngine;
+class QQuickWidget;
+QT_END_NAMESPACE
 
 namespace Core {
     class IEditor;
@@ -34,6 +37,7 @@ class ExternalDependenciesInterface;
 class RunManager;
 
 namespace Internal { class DesignModeWidget; }
+
 
 class QMLDESIGNER_EXPORT QmlDesignerPlugin final : public ExtensionSystem::IPlugin
 {
@@ -63,6 +67,9 @@ public:
 
     static DesignerSettings &settings();
     static ExternalDependenciesInterface &externalDependenciesForPluginInitializationOnly(); // if you use it your code smells
+
+    static bool experimentalFeaturesEnabled();
+    static QByteArray experimentalFeaturesSettingsKey();
 
     DesignDocument *currentDesignDocument() const;
     Internal::DesignModeWidget *mainWidget() const;

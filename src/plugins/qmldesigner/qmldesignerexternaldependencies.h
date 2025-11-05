@@ -12,9 +12,7 @@ namespace QmlDesigner {
 class ExternalDependencies : public ExternalDependenciesInterface
 {
 public:
-    ExternalDependencies(const DesignerSettings &designerSettings)
-        : m_designerSettings(designerSettings)
-    {}
+    ExternalDependencies() = default;
 
     double formEditorDevicePixelRatio() const override;
     QString defaultPuppetFallbackDirectory() const override;
@@ -43,9 +41,6 @@ public:
     Utils::FilePath resourcePath(const QString &relativePath) const override;
     QString userResourcePath(QStringView relativePath) const override;
     QWidget *mainWindow() const override;
-
-private:
-    const DesignerSettings &m_designerSettings;
 };
 
 } // namespace QmlDesigner

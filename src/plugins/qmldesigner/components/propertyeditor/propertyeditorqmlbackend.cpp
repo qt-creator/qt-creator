@@ -24,7 +24,7 @@
 
 #include <theme.h>
 
-#include <qmldesignerbase/settings/designersettings.h>
+#include <qmldesigner/settings/designersettings.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
