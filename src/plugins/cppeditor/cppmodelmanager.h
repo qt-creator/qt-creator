@@ -232,13 +232,6 @@ public:
     static void setSymbolsFindFilter(std::unique_ptr<Core::IFindFilter> &&filter);
     static void setCurrentDocumentFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
 
-    static Core::ILocatorFilter *locatorFilter();
-    static Core::ILocatorFilter *classesFilter();
-    static Core::ILocatorFilter *includesFilter();
-    static Core::ILocatorFilter *functionsFilter();
-    static Core::IFindFilter *symbolsFindFilter();
-    static Core::ILocatorFilter *currentDocumentFilter();
-
     /*
      * try to find build system target that depends on the given file - if the file is no header
      * try to find the corresponding header and use this instead to find the respective target

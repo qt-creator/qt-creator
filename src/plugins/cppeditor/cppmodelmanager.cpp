@@ -883,36 +883,6 @@ void CppModelManager::setCurrentDocumentFilter(std::unique_ptr<ILocatorFilter> &
     setFilter(d->m_currentDocumentFilter, std::move(filter));
 }
 
-ILocatorFilter *CppModelManager::locatorFilter()
-{
-    return d->m_locatorFilter.get();
-}
-
-ILocatorFilter *CppModelManager::classesFilter()
-{
-    return d->m_classesFilter.get();
-}
-
-ILocatorFilter *CppModelManager::includesFilter()
-{
-    return d->m_includesFilter.get();
-}
-
-ILocatorFilter *CppModelManager::functionsFilter()
-{
-    return d->m_functionsFilter.get();
-}
-
-IFindFilter *CppModelManager::symbolsFindFilter()
-{
-    return d->m_symbolsFindFilter.get();
-}
-
-ILocatorFilter *CppModelManager::currentDocumentFilter()
-{
-    return d->m_currentDocumentFilter.get();
-}
-
 const FilePath &CppModelManager::configurationFileName()
 {
     return Preprocessor::configurationFileName();
