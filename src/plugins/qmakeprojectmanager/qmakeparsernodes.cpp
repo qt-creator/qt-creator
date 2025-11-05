@@ -54,6 +54,16 @@ namespace QmakeProjectManager {
 
 static Q_LOGGING_CATEGORY(qmakeParse, "qtc.qmake.parsing", QtWarningMsg);
 
+size_t qHash(Variable key, uint seed)
+{
+    return QT_PREPEND_NAMESPACE(qHash)(static_cast<int>(key), seed);
+}
+
+size_t qHash(FileOrigin fo)
+{
+    return QT_PREPEND_NAMESPACE(qHash)(int(fo));
+}
+
 namespace Internal {
 
 Q_LOGGING_CATEGORY(qmakeNodesLog, "qtc.qmake.nodes", QtWarningMsg)
