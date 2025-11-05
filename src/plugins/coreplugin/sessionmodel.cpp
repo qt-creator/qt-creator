@@ -80,16 +80,6 @@ int SessionModel::rowCount(const QModelIndex &) const
     return m_sortedSessions.count();
 }
 
-QStringList pathsToBaseNames(const FilePaths &paths)
-{
-    return Utils::transform(paths, &FilePath::completeBaseName);
-}
-
-QStringList pathsWithTildeHomePath(const FilePaths &paths)
-{
-    return Utils::transform(paths, &FilePath::withTildeHomePath);
-}
-
 QVariant SessionModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid()) {
