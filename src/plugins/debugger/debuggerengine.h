@@ -530,7 +530,6 @@ public:
 
     virtual void setRegisterValue(const QString &name, const QString &value);
     virtual void setPeripheralRegisterValue(quint64 address, quint64 value);
-    virtual void addOptionPages(QList<Core::IOptionsPage*> *) const;
     virtual bool hasCapability(unsigned cap) const = 0;
     virtual void debugLastCommand() {}
 
