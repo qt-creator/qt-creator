@@ -56,6 +56,7 @@ public:
 
     QHash<QByteArray, QVariant> newSettings() const;
     void setSettings(const DesignerSettings &settings);
+    bool eventFilter(QObject *obj, QEvent *ev) override;
 
 private:
     QSpinBox *m_spinItemSpacing;
@@ -87,6 +88,9 @@ private:
     QCheckBox *m_designerEnableDebuggerCheckBox;
     QCheckBox *m_showWarnExceptionsCheckBox;
     QComboBox *m_debugPuppetComboBox;
+
+    int m_clickCountForDebugSettings = 0;
+    QTimer *m_clickResetTimer;
 };
 
 SettingsPageWidget::SettingsPageWidget()
@@ -250,6 +254,13 @@ SettingsPageWidget::SettingsPageWidget()
     m_debugPuppetComboBox->addItems(puppetModes());
 
     setSettings(QmlDesignerPlugin::instance()->settings());
+
+    installEventFilter(this);
+
+    m_clickResetTimer = new QTimer(this);
+    m_clickResetTimer->setSingleShot(true);
+    m_clickResetTimer->setInterval(2000);
+    connect(m_clickResetTimer, &QTimer::timeout, this, [this] { m_clickCountForDebugSettings = 0; });
 }
 
 QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
@@ -373,9 +384,17 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     m_askBeforeDeletingContentLibFileCheckBox->setChecked(
         settings.value(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE).toBool());
 
-    const auto showDebugSettings = settings.value(DesignerSettingsKey::SHOW_DEBUG_SETTINGS).toBool()
-                                   || Utils::qtcEnvironmentVariableIsSet(
-                                       "QTC_SHOW_QTQUICKDESIGNER_DEVELOPER_UI");
+    const auto isEnvEnabled = [](const QString &name) {
+        const QString value = Utils::qtcEnvironmentVariable(name);
+        return !value.isEmpty() && value.compare("OFF", Qt::CaseInsensitive) != 0
+               && value.compare("0") != 0;
+    };
+
+    const bool requestedQtQuickDesignerDeveloperUI = isEnvEnabled(
+        "QTC_SHOW_QTQUICKDESIGNER_DEVELOPER_UI");
+
+    const bool showDebugSettings = settings.value(DesignerSettingsKey::SHOW_DEBUG_SETTINGS).toBool()
+                                   || requestedQtQuickDesignerDeveloperUI;
 
     const bool showAdvancedFeatures = !Core::ICore::isQtDesignStudio() || showDebugSettings;
     m_debugGroupBox->setVisible(showAdvancedFeatures);
@@ -410,6 +429,26 @@ void SettingsPageWidget::apply()
     }
 
     QmlDesignerPlugin::settings().insert(settings);
+}
+
+bool SettingsPageWidget::eventFilter(QObject *obj, QEvent *ev)
+{
+    if (obj == this && ev->type() == QEvent::MouseButtonRelease) {
+        auto *me = static_cast<QMouseEvent *>(ev);
+
+        if (childAt(me->pos()) == nullptr) {
+            ++m_clickCountForDebugSettings;
+            m_clickResetTimer->start();
+
+            if (m_clickCountForDebugSettings >= 4) {
+                m_clickCountForDebugSettings = 0;
+                m_clickResetTimer->stop();
+                m_debugGroupBox->setVisible(true);
+            }
+            return true;
+        }
+    }
+    return Core::IOptionsPageWidget::eventFilter(obj, ev);
 }
 
 SettingsPage::SettingsPage()
