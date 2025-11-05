@@ -1180,6 +1180,7 @@ public:
             if (const auto androidDev = static_cast<AndroidDevice *>(dev.get())) {
                 qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
                         qPrintable(androidDev->avdName()));
+                androidDev->addActionsIfNotFound();
                 return dev;
             }
             AndroidDeviceWidget::criticalDialog(

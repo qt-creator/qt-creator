@@ -55,12 +55,12 @@ public:
     void startAvd();
 
     void updateDeviceFileAccess();
+    void addActionsIfNotFound();
 
 protected:
     void fromMap(const Utils::Store &map) final;
 
 private:
-    void addActionsIfNotFound();
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
