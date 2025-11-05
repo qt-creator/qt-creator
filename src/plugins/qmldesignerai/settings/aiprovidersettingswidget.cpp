@@ -6,10 +6,12 @@
 #include "aiproviderdata.h"
 #include "stringlistwidget.h"
 
+#include <componentcore/theme.h>
 #include <utils/layoutbuilder.h>
 
 #include <QLabel>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QToolBar>
 
 namespace QmlDesigner {
@@ -67,11 +69,24 @@ void AiProviderSettingsWidget::setupUi()
         return label;
     };
 
+    const int iconSize = 24;
+    QPushButton *resetUrlButton = new QPushButton(this);
+    resetUrlButton->setIcon(Theme::iconFromName(Theme::resetView_small).pixmap(iconSize));
+    resetUrlButton->setToolTip(tr("Reset Url"));
+    resetUrlButton->setFixedSize({iconSize, iconSize});
+    connect(resetUrlButton, &QAbstractButton::clicked, this, [this] {
+        const auto providerData = AiProviderData::defaultProviders().value(m_config.providerName());
+        m_url->setText(providerData.url.toString());
+    });
+
     using namespace Layouting;
     Column{
         Column{
             createLabel(tr("Url:")),
-            m_url.get(),
+            Row{
+                m_url.get(),
+                resetUrlButton,
+            },
             spacing(3),
         },
         Column{
