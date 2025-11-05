@@ -83,8 +83,6 @@ private:
 
     void createFullBacktrace();
 
-    void handleDoInterruptInferior(const QString &errorMessage);
-
     typedef QPair<QString, QString> SourcePathMapping;
     struct NormalizedSourceFileName // Struct for caching mapped/normalized source files.
     {

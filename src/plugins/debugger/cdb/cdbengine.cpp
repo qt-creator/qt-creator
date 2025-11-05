@@ -749,16 +749,6 @@ void CdbEngine::interruptInferior()
     doInterruptInferior();
 }
 
-void CdbEngine::handleDoInterruptInferior(const QString &errorMessage)
-{
-    if (errorMessage.isEmpty()) {
-        showMessage("Interrupted " + QString::number(inferiorPid()));
-    } else {
-        showMessage(errorMessage, LogError);
-        notifyInferiorStopFailed();
-    }
-}
-
 void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
 {
     const bool requestInterrupt = m_stopMode == NoStopRequested;
