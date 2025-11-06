@@ -1630,8 +1630,6 @@ QmlCodeModelInfo Project::gatherQmlCodeModelInfo(Kit *kit, BuildConfiguration *b
 {
     QmlCodeModelInfo projectInfo;
 
-    projectInfo.qmlDumpEnvironment = Environment::systemEnvironment();
-
     using namespace Utils::Constants;
     projectInfo.sourceFiles = files([](const Node *n) {
         static const QSet<QString> qmlTypeNames = {
@@ -1648,6 +1646,11 @@ QmlCodeModelInfo Project::gatherQmlCodeModelInfo(Kit *kit, BuildConfiguration *b
                 && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath(),
                                                                 MimeMatchMode::MatchExtension).name());
     });
+
+    if (projectInfo.sourceFiles.isEmpty())
+        return projectInfo;
+
+    projectInfo.qmlDumpEnvironment = Environment::systemEnvironment();
 
     projectInfo.tryQmlDump = false;
 
