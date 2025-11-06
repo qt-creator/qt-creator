@@ -2218,7 +2218,8 @@ TypeId ProjectStorage::basedOn(TypeId typeId,
                                TypeId id8,
                                TypeId id9,
                                TypeId id10,
-                               TypeId id11,TypeId id12) const
+                               TypeId id11,
+                               TypeId id12) const
 {
     return basedOn_(typeId, id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12);
 }

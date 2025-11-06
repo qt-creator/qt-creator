@@ -264,7 +264,7 @@ public:
                    TypeId id9,
                    TypeId id10,
                    TypeId id11,
-                   TypeId d12) const override;
+                   TypeId id12) const override;
 
     TypeId fetchTypeIdByExportedName(Utils::SmallStringView name) const;
 
