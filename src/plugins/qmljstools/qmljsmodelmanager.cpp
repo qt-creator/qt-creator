@@ -224,16 +224,15 @@ static ModelManagerInterface::ProjectInfo defaultProjectInfoForProject(Project *
     return fromQmlCodeModelInfo(project, kit, info);
 }
 
-void ModelManager::updateDefaultProjectInfo()
+void ModelManager::updateDefaultProjectInfo(Project *project)
 {
     // needs to be performed in the ui thread
-    Project *currentProject = ProjectManager::startupProject();
-    if (!currentProject)
+    if (!project)
         return;
-    setDefaultProject(containsProject(currentProject)
-                            ? projectInfo(currentProject)
-                            : defaultProjectInfoForProject(currentProject),
-                      currentProject);
+    setDefaultProject(containsProject(project)
+                            ? projectInfo(project)
+                            : defaultProjectInfoForProject(project),
+                      project);
 }
 
 void ModelManager::updateFromBuildConfig(BuildConfiguration *bc, const QmlCodeModelInfo &info)
