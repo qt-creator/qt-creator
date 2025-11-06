@@ -300,14 +300,18 @@ void IDevice::autoDetectDeviceTools()
 {
     const FilePaths searchPaths = d->autoDetectionPaths();
 
-    for (DeviceToolAspectFactory *factory : theDeviceToolFactories) {
+    for (DeviceToolAspectFactory *factory : std::as_const(theDeviceToolFactories)) {
         FilePaths candidates;
 
         for (const QString &filePattern : factory->filePattern()) {
             const FilePaths toolPaths = filePath(filePattern).searchAllInDirectories(searchPaths);
             for (const FilePath &toolPath : toolPaths) {
-                if (factory->check(shared_from_this(), toolPath))
-                    candidates.append(toolPath);
+                if (factory->check(shared_from_this(), toolPath)) {
+                    if (toolPath.isChildOf(rootPath()))
+                        candidates.append(FilePath::fromPathPart(toolPath.path()));
+                    else
+                        candidates.append(toolPath);
+                }
             }
         }
 
@@ -342,6 +346,7 @@ DeviceToolAspect *DeviceToolAspectFactory::createAspect(const DeviceConstRef &de
 
     toolAspect->setAllowPathFromDevice(true);
     toolAspect->setExpectedKind(PathChooser::ExistingCommand);
+    toolAspect->setBaseDirectory(device.lock()->rootPath());
     toolAspect->setToolType(m_toolType);
     return toolAspect;
 }
