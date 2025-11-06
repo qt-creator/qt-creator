@@ -1086,6 +1086,7 @@ bool NodeMetaInfo::isLayoutable(SL sl) const
     auto gridLayoutId = m_projectStorage->commonTypeId<QtQuick_Layouts, GridLayout>();
     auto rowLayoutId = m_projectStorage->commonTypeId<QtQuick_Layouts, RowLayout>();
     auto splitViewId = m_projectStorage->commonTypeId<QtQuick_Templates, SplitView>();
+    auto swipeViewId = m_projectStorage->commonTypeId<QtQuick_Templates, SwipeView>();
 
     return bool(m_projectStorage->basedOn(m_typeId,
                                           positionerId,
@@ -1098,7 +1099,8 @@ bool NodeMetaInfo::isLayoutable(SL sl) const
                                           columnLayoutId,
                                           gridLayoutId,
                                           rowLayoutId,
-                                          splitViewId));
+                                          splitViewId,
+                                          swipeViewId));
 }
 
 bool NodeMetaInfo::isQtQuickLayoutsLayout(SL sl) const
@@ -1500,20 +1502,6 @@ bool NodeMetaInfo::isQtQuickTemplatesSwipeView(SL sl) const
 
     using namespace Storage::Info;
     return isBasedOnCommonType<QtQuick_Templates, SwipeView>(m_projectStorage, m_typeId);
-}
-
-bool NodeMetaInfo::isQtQuickLayoutStackLayout(SL sl) const
-{
-    if (!isValid())
-        return false;
-
-    NanotraceHR::Tracer tracer{"node meta info is QtQuick.Layouts.StackLayout",
-                               category(),
-                               keyValue("type id", m_typeId),
-                               keyValue("caller location", sl)};
-
-    using namespace Storage::Info;
-    return isBasedOnCommonType<QtQuick_Layouts, StackLayout>(m_projectStorage, m_typeId);
 }
 
 bool NodeMetaInfo::isQtQuick3DCamera(SL sl) const

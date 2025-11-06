@@ -373,6 +373,22 @@ public:
                  QmlDesigner::TypeId,
                  QmlDesigner::TypeId),
                 (const, override));
+    MOCK_METHOD(QmlDesigner::TypeId,
+                basedOn,
+                (QmlDesigner::TypeId,
+                 QmlDesigner::TypeId,
+                 QmlDesigner::TypeId,
+                 QmlDesigner::TypeId,
+                 QmlDesigner::TypeId,
+                 QmlDesigner::TypeId,
+                 QmlDesigner::TypeId,
+                 QmlDesigner::TypeId,
+                 QmlDesigner::TypeId,
+                 QmlDesigner::TypeId,
+                 QmlDesigner::TypeId,
+                 QmlDesigner::TypeId,
+                 QmlDesigner::TypeId),
+                (const, override));
 
     MOCK_METHOD(const QmlDesigner::Storage::Info::CommonTypeCache<QmlDesigner::ProjectStorageInterface> &,
                 commonTypeCache,

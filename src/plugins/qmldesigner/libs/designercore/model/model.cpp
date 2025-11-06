@@ -2803,6 +2803,12 @@ NodeMetaInfo Model::qtQuickShapesShapeMetaInfo() const
     return createNodeMetaInfo<QtQuick_Shapes, Shape>();
 }
 
+NodeMetaInfo Model::qtQuickStackLayoutMetaInfo() const
+{
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick_Layouts, StackLayout>();
+}
+
 NodeMetaInfo Model::qtQuickGradientMetaInfo() const
 {
     using namespace Storage::Info;
@@ -3005,6 +3011,12 @@ NodeMetaInfo Model::qtQuickStateGroupMetaInfo() const
 {
     using namespace Storage::Info;
     return createNodeMetaInfo<QtQuick, StateGroup>();
+}
+
+NodeMetaInfo Model::qtQuickSwipeViewMetaInfo() const
+{
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick_Templates, SwipeView>();
 }
 
 NodeMetaInfo Model::vector2dMetaInfo() const

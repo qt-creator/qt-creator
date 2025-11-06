@@ -250,6 +250,20 @@ public:
                    TypeId id10,
                    TypeId id11) const override;
 
+    TypeId basedOn(TypeId typeId,
+                   TypeId id1,
+                   TypeId id2,
+                   TypeId id3,
+                   TypeId id4,
+                   TypeId id5,
+                   TypeId id6,
+                   TypeId id7,
+                   TypeId id8,
+                   TypeId id9,
+                   TypeId id10,
+                   TypeId id11,
+                   TypeId d12) const override;
+
     TypeId fetchTypeIdByExportedName(Utils::SmallStringView name) const;
 
     TypeId fetchTypeIdByModuleIdsAndExportedName(ModuleIds moduleIds,

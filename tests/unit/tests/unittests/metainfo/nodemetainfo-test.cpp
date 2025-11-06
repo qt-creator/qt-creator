@@ -1178,6 +1178,15 @@ TEST_F(NodeMetaInfo, QtQuick_Controls_SplitView_is_layoutable)
     ASSERT_THAT(isType, IsTrue());
 }
 
+TEST_F(NodeMetaInfo, QtQuick_Controls_SwipeView_is_layoutable)
+{
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Templates", ModuleKind::QmlLibrary, "SwipeView");
+
+    bool isType = metaInfo.isLayoutable();
+
+    ASSERT_THAT(isType, IsTrue());
+}
+
 TEST_F(NodeMetaInfo, default_is_not_layoutable)
 {
     QmlDesigner::NodeMetaInfo metaInfo;
