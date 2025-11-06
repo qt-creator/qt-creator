@@ -731,7 +731,9 @@ void IssuesWidget::updateLocalBuildState(const QString &projectName, int percent
     if (percent != 100 || projectName != m_currentProject)
         return;
     m_localBuild->setEnabled(true);
-    checkForLocalBuildAndUpdate();
+    // we can get called from onDone where the respective check would fail, so schedule it
+    QMetaObject::invokeMethod(this, &IssuesWidget::checkForLocalBuildAndUpdate,
+                              Qt::QueuedConnection);
 }
 
 void IssuesWidget::initDashboardList(const QString &preferredProject)
