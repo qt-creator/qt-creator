@@ -923,8 +923,9 @@ bool QmlItemNode::isInStackedContainer(SL sl) const
 
 void QmlItemNode::handleStackLayoutParent()
 {
-    auto metaInfo = modelParentItem().metaInfo();
-    if (metaInfo.isQtQuickLayoutStackLayout()) {
+    bool doesLayoutChildren = NodeHints::fromModelNode(modelParentItem()).doesLayoutChildren();
+
+    if (doesLayoutChildren) {
         removeProperty("width");
         removeProperty("height");
         anchors().removeAnchors();

@@ -28,12 +28,12 @@
 
 namespace QmlDesigner {
 
-static bool isSwipeView(const ModelNode &node)
+static bool isStackLayoutOrSwipeView(const ModelNode &node)
 {
-    if (node.metaInfo().isQtQuickTemplatesSwipeView())
-        return true;
-
-    return false;
+    Model *model = node.model();
+    return (model
+            && node.metaInfo().isBasedOn(model->qtQuickSwipeViewMetaInfo(),
+                                         model->qtQuickStackLayoutMetaInfo()));
 }
 
 namespace Internal {
@@ -107,7 +107,7 @@ bool NodeHints::forceClip() const
     if (!isValid())
         return false;
 
-    if (isSwipeView(modelNode()))
+    if (modelNode().metaInfo().isQtQuickTemplatesSwipeView())
         return true;
 
     auto flagIs = m_metaInfo.forceClip();
@@ -123,7 +123,7 @@ bool NodeHints::doesLayoutChildren() const
     if (!isValid())
         return false;
 
-    if (isSwipeView(modelNode()))
+    if (isStackLayoutOrSwipeView(modelNode()))
         return true;
 
     auto flagIs = m_metaInfo.doesLayoutChildren();
@@ -208,7 +208,7 @@ bool NodeHints::isStackedContainer() const
     if (!isValid())
         return false;
 
-    if (isSwipeView(modelNode()))
+    if (modelNode().metaInfo().isQtQuickTemplatesSwipeView())
         return true;
 
     auto flagIs = m_metaInfo.isStackedContainer();

@@ -2207,6 +2207,22 @@ TypeId ProjectStorage::basedOn(TypeId typeId,
     return basedOn_(typeId, id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11);
 }
 
+TypeId ProjectStorage::basedOn(TypeId typeId,
+                               TypeId id1,
+                               TypeId id2,
+                               TypeId id3,
+                               TypeId id4,
+                               TypeId id5,
+                               TypeId id6,
+                               TypeId id7,
+                               TypeId id8,
+                               TypeId id9,
+                               TypeId id10,
+                               TypeId id11,TypeId id12) const
+{
+    return basedOn_(typeId, id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12);
+}
+
 TypeId ProjectStorage::fetchTypeIdByExportedName(Utils::SmallStringView name) const
 {
     NanotraceHR::Tracer tracer{"is based on", category(), keyValue("exported type name", name)};

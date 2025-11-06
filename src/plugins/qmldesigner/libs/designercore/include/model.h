@@ -165,7 +165,9 @@ public:
     NodeMetaInfo qtQuickPropertyChangesMetaInfo() const;
     NodeMetaInfo qtQuickRectangleMetaInfo() const;
     NodeMetaInfo qtQuickShapesShapeMetaInfo() const;
+    NodeMetaInfo qtQuickStackLayoutMetaInfo() const;
     NodeMetaInfo qtQuickStateGroupMetaInfo() const;
+    NodeMetaInfo qtQuickSwipeViewMetaInfo() const;
     NodeMetaInfo qtQuickTextEditMetaInfo() const;
     NodeMetaInfo qtQuickTextMetaInfo() const;
     NodeMetaInfo qtQuickTimelineKeyframeGroupMetaInfo() const;
