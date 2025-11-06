@@ -442,27 +442,6 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX components/contentlibrary
-  SOURCES
-    contentlibraryview.cpp contentlibraryview.h
-    contentlibrarywidget.cpp contentlibrarywidget.h
-    contentlibrarytexturesmodel.cpp contentlibrarytexturesmodel.h
-    contentlibrarytexturescategory.cpp contentlibrarytexturescategory.h
-    contentlibrarytexture.cpp contentlibrarytexture.h
-    contentlibrarymaterialsmodel.cpp contentlibrarymaterialsmodel.h
-    contentlibrarymaterialscategory.cpp contentlibrarymaterialscategory.h
-    contentlibrarymaterial.cpp contentlibrarymaterial.h
-    contentlibraryiconprovider.cpp contentlibraryiconprovider.h
-    contentlibraryitem.cpp contentlibraryitem.h
-    contentlibraryeffectscategory.cpp contentlibraryeffectscategory.h
-    contentlibraryeffectsmodel.cpp contentlibraryeffectsmodel.h
-    contentlibraryusermodel.cpp contentlibraryusermodel.h
-    usercategory.cpp usercategory.h
-    useritemcategory.cpp useritemcategory.h
-    usertexturecategory.cpp usertexturecategory.h
-)
-
-extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/materialbrowser
   SOURCES
     materialbrowserview.cpp materialbrowserview.h

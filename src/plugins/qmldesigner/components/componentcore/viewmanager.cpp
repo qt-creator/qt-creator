@@ -9,7 +9,6 @@
 #include <capturingconnectionmanager.h>
 #include <componentaction.h>
 #include <componentview.h>
-#include <contentlibraryview.h>
 #include <crumblebar.h>
 #include <debugview.h>
 #include <designeractionmanagerview.h>
@@ -59,7 +58,6 @@ public:
                                : connectionManager,
                            externalDependencies,
                            true)
-        , contentLibraryView{imageCache, externalDependencies}
         , componentView{externalDependencies}
 #ifndef QTC_USE_QML_DESIGNER_LITE
         , edit3DView{externalDependencies}
@@ -87,7 +85,6 @@ public:
     AuxiliaryPropertyStorageView auxiliaryDataKeyView;
     DesignerActionManagerView designerActionManagerView;
     NodeInstanceView nodeInstanceView;
-    ContentLibraryView contentLibraryView;
     ComponentView componentView;
 #ifndef QTC_USE_QML_DESIGNER_LITE
     Edit3DView edit3DView;
@@ -232,9 +229,6 @@ QList<AbstractView *> ViewManager::standardViews() const
 
     if (designerSettings().value(DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool())
         list.append(&d->debugView);
-
-    if (checkEnterpriseLicense())
-        list.append(&d->contentLibraryView);
 
     return list;
 }
