@@ -704,7 +704,9 @@ void Import3dImporter::finalizeQuick3DImport()
                         for (const ParseData &pd : std::as_const(m_parseData)) {
                             if (!pd.overwrittenImports.isEmpty()) {
                                 model->rewriterView()->resetPuppet();
-                                model->rewriterView()->emitCustomNotification("asset_import_update");
+                                QString asset = pd.assetName;
+                                model->rewriterView()->emitCustomNotification(
+                                    "asset_import_update", {}, {asset});
                                 break;
                             }
                         }

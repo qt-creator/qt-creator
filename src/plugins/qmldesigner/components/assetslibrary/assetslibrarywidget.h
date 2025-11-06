@@ -104,6 +104,8 @@ public:
     bool hasMaterialLibrary() const;
     bool canCreateEffects() const;
 
+    void reloadThumbnail(const QString &filePath);
+
 signals:
     void itemActivated(const QString &itemName);
     void extFilesDrop(const QList<QUrl> &simpleFilePaths,

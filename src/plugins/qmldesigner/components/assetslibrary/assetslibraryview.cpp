@@ -79,10 +79,19 @@ WidgetInfo AssetsLibraryView::widgetInfo()
 void AssetsLibraryView::customNotification(const AbstractView * /*view*/,
                                            const QString &identifier,
                                            const QList<ModelNode> & /*nodeList*/,
-                                           const QList<QVariant> & /*data*/)
+                                           const QList<QVariant> &data)
 {
     if (identifier == "delete_selected_assets") {
         m_widget->deleteSelectedAssets();
+    } else if (identifier == "asset_import_update") {
+        if (!data.isEmpty()) {
+            QString asset = data[0].toString();
+            Utils::FilePath resPath = DocumentManager::currentResourcePath();
+            QHash<QString, Utils::FilePath> files = collectFiles(resPath, "q3d");
+            QString q3dFile = files.value(asset).toFSPathString();
+            if (!q3dFile.isEmpty())
+                m_widget->reloadThumbnail(q3dFile);
+        }
     }
 }
 
