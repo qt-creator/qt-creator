@@ -1,51 +1,51 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<QtAdvancedDockingSystem containers="1" displayName="Advanced 2D" mcusEnabled="true" userVersion="0" version="1">
+<?xml version="1.0" encoding="UTF-8"?>
+<QtAdvancedDockingSystem version="1" userVersion="0" containers="1" displayName="Advanced 2D">
   <container floating="false">
-    <splitter count="3" orientation="Horizontal">
-      <splitter count="3" orientation="Vertical">
-        <area current="Navigator" tabs="3">
-          <widget closed="false" name="Navigator"/>
-          <widget closed="false" name="Projects"/>
-          <widget closed="false" name="FileSystem"/>
+    <splitter orientation="Horizontal" count="3">
+      <splitter orientation="Vertical" count="3">
+        <area tabs="3" current="Navigator">
+          <widget name="Navigator" closed="false"/>
+          <widget name="Projects" closed="false"/>
+          <widget name="FileSystem" closed="false"/>
         </area>
-        <area current="Components" tabs="3">
-          <widget closed="false" name="Components"/>
-          <widget closed="false" name="Assets"/>
-          <widget closed="true" name="DebugView"/>
+        <area tabs="3" current="Components">
+          <widget name="Components" closed="false"/>
+          <widget name="Assets" closed="false"/>
+          <widget name="DebugView" closed="true"/>
         </area>
-        <area current="OpenDocuments" tabs="1">
-          <widget closed="true" name="OpenDocuments"/>
+        <area tabs="1" current="OpenDocuments">
+          <widget name="OpenDocuments" closed="true"/>
         </area>
         <sizes>668 627 0</sizes>
       </splitter>
-      <splitter count="3" orientation="Vertical">
-        <splitter count="2" orientation="Horizontal">
-          <area current="FormEditor" tabs="1">
-            <widget closed="false" name="FormEditor"/>
+      <splitter orientation="Vertical" count="3">
+        <splitter orientation="Horizontal" count="2">
+          <area tabs="1" current="FormEditor">
+            <widget name="FormEditor" closed="false"/>
           </area>
-          <area current="TextEditor" tabs="1">
-            <widget closed="false" name="TextEditor"/>
+          <area tabs="1" current="TextEditor">
+            <widget name="TextEditor" closed="false"/>
           </area>
           <sizes>865 730</sizes>
         </splitter>
-        <area current="StatesEditor" tabs="4">
-          <widget closed="false" name="StatesEditor"/>
-          <widget closed="false" name="Timelines"/>
-          <widget closed="false" name="CurveEditorId"/>
-          <widget closed="false" name="TransitionEditor"/>
+        <area tabs="4" current="StatesEditor">
+          <widget name="StatesEditor" closed="false"/>
+          <widget name="Timelines" closed="false"/>
+          <widget name="CurveEditorId" closed="false"/>
+          <widget name="TransitionEditor" closed="false"/>
         </area>
-        <area current="OutputPane" tabs="1">
-          <widget closed="true" name="OutputPane"/>
+        <area tabs="1" current="OutputPane">
+          <widget name="OutputPane" closed="true"/>
         </area>
         <sizes>1011 284 0</sizes>
       </splitter>
-      <splitter count="2" orientation="Vertical">
-        <area current="Properties" tabs="1">
-          <widget closed="false" name="Properties"/>
+      <splitter orientation="Vertical" count="2">
+        <area tabs="1" current="Properties">
+          <widget name="Properties" closed="false"/>
         </area>
-        <area current="ConnectionView" tabs="2">
-          <widget closed="false" name="ConnectionView"/>
-          <widget closed="false" name="EffectComposer"/>
+        <area tabs="2" current="ConnectionView">
+          <widget name="ConnectionView" closed="false"/>
+          <widget name="EffectComposer" closed="false"/>
         </area>
         <sizes>870 425</sizes>
       </splitter>
