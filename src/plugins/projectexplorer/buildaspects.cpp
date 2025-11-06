@@ -165,7 +165,7 @@ FilePath BuildDirectoryAspect::fixupDir(const FilePath &dir)
 {
     if (!dir.isLocal())
         return {};
-    if (HostOsInfo::isWindowsHost() && !dir.startsWithDriveLetter())
+    if (!HostOsInfo::isWindowsHost() || !dir.startsWithDriveLetter())
         return {};
     const QString dirString = dir.toUrlishString().toLower();
     const QStringList drives = Utils::transform(QDir::drives(), [](const QFileInfo &fi) {
