@@ -46,7 +46,7 @@ public:
 
         connect(fetchButton, &QPushButton::clicked, this, [aspect] {
             if (IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->kit())) {
-                DeviceFileAccess *access = device->fileAccess();
+                DeviceFileAccessPtr access = device->fileAccess();
                 QTC_ASSERT(access, return);
                 Result<Environment> res = access->deviceEnvironment();
                 QTC_ASSERT_RESULT(res, return);
@@ -128,4 +128,3 @@ void RemoteLinuxEnvironmentAspect::toMap(Store &map) const
 }
 
 } // namespace RemoteLinux
-

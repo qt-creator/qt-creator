@@ -267,7 +267,7 @@ public:
     bool isMacDevice() const { return osType() == Utils::OsTypeMac; }
     bool isAnyUnixDevice() const;
 
-    Utils::DeviceFileAccess *fileAccess() const;
+    Utils::DeviceFileAccessPtr fileAccess() const;
     bool supportsFileAccess() const;
     virtual void tryToConnect(const Utils::Continuation<> &cont) const;
     virtual Utils::Result<> handlesFile(const Utils::FilePath &filePath) const;
@@ -320,8 +320,8 @@ protected:
     void setOpenTerminal(const OpenTerminal &openTerminal);
     void setDisplayType(const QString &type);
     void setOsType(Utils::OsType osType);
-    void setFileAccess(Utils::DeviceFileAccess *fileAccess);
-    void setFileAccessFactory(std::function<Utils::DeviceFileAccess *()> fileAccessFactory);
+    void setFileAccess(Utils::DeviceFileAccessPtr fileAccess);
+    void setFileAccessFactory(std::function<Utils::DeviceFileAccessPtr()> fileAccessFactory);
 
 private:
     IDevice(const IDevice &) = delete;

@@ -36,6 +36,8 @@ class Environment;
 enum class FileStreamHandle : int {};
 class TextEncoding;
 
+using DeviceFileAccessPtr = std::shared_ptr<DeviceFileAccess>;
+
 class QTCREATOR_UTILS_EXPORT FileFilter
 {
 public:
@@ -337,7 +339,7 @@ private:
     friend class ::tst_fileutils;
     void setPath(QStringView path);
     void setFromString(QStringView filepath);
-    DeviceFileAccess *fileAccess() const;
+    DeviceFileAccessPtr fileAccess() const;
 
     [[nodiscard]] QString encodedHost() const;
 
@@ -351,7 +353,7 @@ private:
 class QTCREATOR_UTILS_EXPORT DeviceFileHooks
 {
 public:
-    std::function<Result<DeviceFileAccess *>(const FilePath &)> fileAccess;
+    std::function<Result<DeviceFileAccessPtr>(const FilePath &)> fileAccess;
     std::function<QString(const FilePath &)> deviceDisplayName;
     std::function<Result<>(const FilePath &, const FilePath &)> ensureReachable;
     std::function<Result<Environment>(const FilePath &)> environment;

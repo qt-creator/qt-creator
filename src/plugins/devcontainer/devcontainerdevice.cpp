@@ -54,7 +54,7 @@ Device::Device(Project *project)
     setupId(IDevice::AutoDetected, Id::generate());
     setType(Constants::DEVCONTAINER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
-    setFileAccessFactory([this] { return m_fileAccess.get(); });
+    setFileAccessFactory([this] { return m_fileAccess; });
 }
 
 Device::~Device() {} // Necessary for forward declared unique_ptr
@@ -664,7 +664,8 @@ Result<> Device::ensureReachable(const FilePath &other) const
 
 Result<FilePath> Device::localSource(const FilePath &other) const
 {
-    auto fileAccess = static_cast<FileAccess *>(this->fileAccess());
+    std::shared_ptr<FileAccess> fileAccess = std::static_pointer_cast<FileAccess>(
+        this->fileAccess());
     if (!fileAccess)
         return ResultError(Tr::tr("File access is not available for this device."));
 

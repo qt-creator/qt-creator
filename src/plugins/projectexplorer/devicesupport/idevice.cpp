@@ -186,8 +186,8 @@ public:
     Id id;
     IDevice::MachineType machineType = IDevice::Hardware;
     OsType osType = OsTypeOther;
-    DeviceFileAccess *fileAccess = nullptr;
-    std::function<DeviceFileAccess *()> fileAccessFactory;
+    SynchronizedValue<DeviceFileAccessPtr> fileAccess;
+    std::function<DeviceFileAccessPtr()> fileAccessFactory;
     int version = 0; // This is used by devices that have been added by the SDK.
 
     SynchronizedValue<SshParameters> sshParameters;
@@ -514,17 +514,17 @@ bool IDevice::isAnyUnixDevice() const
     return d->osType == OsTypeLinux || d->osType == OsTypeMac || d->osType == OsTypeOtherUnix;
 }
 
-DeviceFileAccess *IDevice::fileAccess() const
+DeviceFileAccessPtr IDevice::fileAccess() const
 {
     if (d->fileAccessFactory)
         return d->fileAccessFactory();
 
-    return d->fileAccess;
+    return *d->fileAccess.readLocked();
 }
 
 bool IDevice::supportsFileAccess() const
 {
-    return d->fileAccessFactory || d->fileAccess;
+    return d->fileAccessFactory || *d->fileAccess.readLocked();
 }
 
 void IDevice::tryToConnect(const Continuation<> &cont) const
@@ -591,7 +591,7 @@ Environment IDevice::systemEnvironment() const
 
 Result<Environment> IDevice::systemEnvironmentWithError() const
 {
-    DeviceFileAccess *access = fileAccess();
+    DeviceFileAccessPtr access = fileAccess();
     QTC_ASSERT(access, return Environment::systemEnvironment());
     return access->deviceEnvironment();
 }
@@ -611,12 +611,12 @@ void IDevice::setOsType(OsType osType)
     d->osType = osType;
 }
 
-void IDevice::setFileAccess(DeviceFileAccess *fileAccess)
+void IDevice::setFileAccess(DeviceFileAccessPtr fileAccess)
 {
-    d->fileAccess = fileAccess;
+    d->fileAccess.writeLocked()->swap(fileAccess);
 }
 
-void IDevice::setFileAccessFactory(std::function<DeviceFileAccess *()> fileAccessFactory)
+void IDevice::setFileAccessFactory(std::function<DeviceFileAccessPtr()> fileAccessFactory)
 {
     d->fileAccessFactory = fileAccessFactory;
 }

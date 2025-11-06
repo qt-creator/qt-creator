@@ -18,6 +18,7 @@ class TextEncoding;
 
 // Base class including dummy implementation usable as fallback.
 class QTCREATOR_UTILS_EXPORT DeviceFileAccess
+    : public std::enable_shared_from_this<DeviceFileAccess>
 {
 public:
     DeviceFileAccess();
@@ -161,7 +162,7 @@ public:
     DesktopDeviceFileAccess();
     ~DesktopDeviceFileAccess() override;
 
-    static DesktopDeviceFileAccess *instance();
+    static DeviceFileAccessPtr instance();
 
 protected:
     Result<bool> isExecutableFile(const FilePath &filePath) const override;

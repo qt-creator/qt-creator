@@ -926,10 +926,10 @@ DesktopDeviceFileAccess::DesktopDeviceFileAccess()
 
 DesktopDeviceFileAccess::~DesktopDeviceFileAccess() = default;
 
-DesktopDeviceFileAccess *DesktopDeviceFileAccess::instance()
+DeviceFileAccessPtr DesktopDeviceFileAccess::instance()
 {
-    static DesktopDeviceFileAccess theInstance;
-    return &theInstance;
+    static auto theInstance = std::make_shared<DesktopDeviceFileAccess>();
+    return theInstance;
 }
 
 Result<bool> DesktopDeviceFileAccess::isExecutableFile(const FilePath &filePath) const

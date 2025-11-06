@@ -177,8 +177,8 @@ public:
 
     bool isImageAvailable() const;
 
-    Result<std::unique_ptr<DeviceFileAccess>> createBridgeFileAccess(
-        SynchronizedValue<std::unique_ptr<DeviceFileAccess>>::unique_lock &fileAccess)
+    Result<DeviceFileAccessPtr> createBridgeFileAccess(
+        SynchronizedValue<DeviceFileAccessPtr>::unique_lock &fileAccess)
     {
         Result<FilePath> cmdBridgePath = getCmdBridgePath();
 
@@ -215,31 +215,30 @@ public:
         return fAccess;
     }
 
-    DeviceFileAccess *createFileAccess()
+    DeviceFileAccessPtr createFileAccess()
     {
-        if (DeviceFileAccess *fileAccess = m_fileAccess.readLocked()->get())
+        if (DeviceFileAccessPtr fileAccess = *m_fileAccess.readLocked())
             return fileAccess;
 
         if (!DockerApi::instance()->imageExists(q->repoAndTag()))
             return nullptr;
 
-        SynchronizedValue<std::unique_ptr<DeviceFileAccess>>::unique_lock fileAccess
-            = m_fileAccess.writeLocked();
+        SynchronizedValue<DeviceFileAccessPtr>::unique_lock fileAccess = m_fileAccess.writeLocked();
         if (*fileAccess)
-            return fileAccess->get();
+            return *fileAccess;
 
-        Result<std::unique_ptr<DeviceFileAccess>> fAccess = createBridgeFileAccess(fileAccess);
+        Result<DeviceFileAccessPtr> fAccess = createBridgeFileAccess(fileAccess);
 
         if (fAccess) {
             *fileAccess = std::move(*fAccess);
-            return fileAccess->get();
+            return *fileAccess;
         }
 
         qCWarning(dockerDeviceLog).noquote() << "Failed to start CmdBridge:" << fAccess.error()
                                              << ", falling back to slow direct access";
 
-        *fileAccess = std::make_unique<DockerFallbackFileAccess>(q->rootPath());
-        return fileAccess->get();
+        *fileAccess = std::make_shared<DockerFallbackFileAccess>(q->rootPath());
+        return *fileAccess;
     }
 
     DockerDevice *const q;
@@ -251,7 +250,7 @@ public:
     };
 
     bool m_isShutdown = false;
-    SynchronizedValue<std::unique_ptr<DeviceFileAccess>> m_fileAccess;
+    SynchronizedValue<DeviceFileAccessPtr> m_fileAccess;
     SynchronizedValue<std::unique_ptr<DockerContainerThread>> m_deviceThread;
 };
 
@@ -291,7 +290,7 @@ static WrappedProcessInterface *makeProcessInterface(
             if (!device)
                 return;
 
-            auto dfa = dynamic_cast<DockerDeviceFileAccess *>(device->fileAccess());
+            auto dfa = std::dynamic_pointer_cast<DockerDeviceFileAccess>(device->fileAccess());
             if (dfa) {
                 dfa->signalProcess(remotePid, controlSignal);
             } else {
@@ -1185,11 +1184,11 @@ DockerDevice::DockerDevice()
     setType(Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
 
-    setFileAccessFactory([this]() -> DeviceFileAccess * {
-        if (auto fA = d->m_fileAccess.readLocked()->get())
+    setFileAccessFactory([this]() -> DeviceFileAccessPtr {
+        if (auto fA = *d->m_fileAccess.readLocked())
             return fA;
 
-        if (DeviceFileAccess *fileAccess = d->createFileAccess()) {
+        if (DeviceFileAccessPtr fileAccess = d->createFileAccess()) {
             setDeviceState(ProjectExplorer::IDevice::DeviceReadyToUse);
             return fileAccess;
         }

@@ -63,7 +63,7 @@ private:
 private:
     Utils::Process::ProcessInterfaceCreator m_processInterfaceCreator;
     InstanceConfig m_instanceConfig;
-    std::unique_ptr<CmdBridge::FileAccess> m_fileAccess;
+    std::shared_ptr<CmdBridge::FileAccess> m_fileAccess;
     std::optional<Utils::Environment> m_systemEnvironment;
     std::optional<QtTaskTree::ExecutableItem> m_downRecipe;
     std::optional<QtTaskTree::ExecutableItem> m_forceDownRecipe;

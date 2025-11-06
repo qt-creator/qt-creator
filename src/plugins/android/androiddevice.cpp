@@ -138,8 +138,9 @@ class AndroidDevicePrivate final
 public:
     std::unique_ptr<QSettings> m_avdSettings;
     QSingleTaskTreeRunner m_taskTreeRunner;
-    std::unique_ptr<AndroidFileAccess> m_deviceAccess;
-    UnavailableDeviceFileAccess m_disconnectedAccess;
+    std::shared_ptr<AndroidFileAccess> m_deviceAccess;
+    std::shared_ptr<UnavailableDeviceFileAccess> m_disconnectedAccess
+        = std::make_shared<UnavailableDeviceFileAccess>();
 };
 
 class AndroidDeviceManagerInstance : public QObject
@@ -443,7 +444,7 @@ AndroidDevice::AndroidDevice()
     addDeviceAction({Tr::tr("Refresh"), [](const IDevice::Ptr &device) {
         updateDeviceState(device);
     }});
-    setFileAccess(&d->m_disconnectedAccess);
+    setFileAccess(d->m_disconnectedAccess);
 }
 
 AndroidDevice::~AndroidDevice()
@@ -769,11 +770,11 @@ void AndroidDevice::updateDeviceFileAccess()
     DeviceState state = deviceState();
     if (state == IDevice::DeviceReadyToUse) {
         if (!d->m_deviceAccess) {
-            d->m_deviceAccess = std::make_unique<AndroidFileAccess>(this);
-            setFileAccess(d->m_deviceAccess.get());
+            d->m_deviceAccess = std::make_shared<AndroidFileAccess>(this);
+            setFileAccess(d->m_deviceAccess);
         }
     } else {
-        setFileAccess(&d->m_disconnectedAccess);
+        setFileAccess(d->m_disconnectedAccess);
         d->m_deviceAccess.reset();
     }
 }

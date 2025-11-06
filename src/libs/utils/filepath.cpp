@@ -388,7 +388,7 @@ std::vector<Result<std::unique_ptr<FilePathWatcher>>> FilePath::watch(const File
     WatchResult allResults;
     allResults.reserve(paths.size());
     // Sort into device file access instances, so we can call watch() in bulk on them
-    std::unordered_map<DeviceFileAccess *, FilePaths> access;
+    std::unordered_map<DeviceFileAccessPtr, FilePaths> access;
     for (const FilePath &path : paths)
         access[path.fileAccess()].append(path);
     for (const auto &fileAccess : access) {
@@ -1453,7 +1453,7 @@ void FilePath::setFromString(QStringView fileNameView)
     setParts({}, {}, fileNameView);
 }
 
-static Result<DeviceFileAccess *> getFileAccess(const FilePath &filePath)
+static Result<DeviceFileAccessPtr> getFileAccess(const FilePath &filePath)
 {
     if (filePath.isLocal())
         return DesktopDeviceFileAccess::instance();
@@ -1467,23 +1467,23 @@ static Result<DeviceFileAccess *> getFileAccess(const FilePath &filePath)
     return deviceFileHooks().fileAccess(filePath);
 }
 
-DeviceFileAccess *FilePath::fileAccess() const
+DeviceFileAccessPtr FilePath::fileAccess() const
 {
-    static DeviceFileAccess dummy;
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
-    QTC_ASSERT_RESULT(access, return &dummy);
+    static DeviceFileAccessPtr dummy = std::make_shared<DeviceFileAccess>();
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    QTC_ASSERT_RESULT(access, return dummy);
     return *access;
 }
 
 bool FilePath::hasFileAccess() const
 {
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
     return access.has_value();
 }
 
 FilePathInfo FilePath::filePathInfo() const
 {
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
     if (!access)
         return {};
 
@@ -1503,7 +1503,7 @@ bool FilePath::exists() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1523,7 +1523,7 @@ bool FilePath::isExecutableFile() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1543,7 +1543,7 @@ bool FilePath::isWritableDir() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1563,7 +1563,7 @@ bool FilePath::isWritableFile() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1580,7 +1580,7 @@ bool FilePath::isReadableFile() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1597,7 +1597,7 @@ bool FilePath::isReadableDir() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1614,7 +1614,7 @@ bool FilePath::isFile() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1631,7 +1631,7 @@ bool FilePath::isDir() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1648,7 +1648,7 @@ bool FilePath::isSymLink() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
     if (!access)
         return false;
 

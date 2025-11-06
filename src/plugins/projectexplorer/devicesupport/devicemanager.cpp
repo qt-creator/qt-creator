@@ -398,15 +398,15 @@ DeviceManager::DeviceManager()
         return device->localSource(file);
     };
 
-    deviceHooks.fileAccess = [](const FilePath &filePath) -> Result<DeviceFileAccess *> {
+    deviceHooks.fileAccess = [](const FilePath &filePath) -> Result<DeviceFileAccessPtr> {
         if (filePath.isLocal())
-            return DesktopDeviceFileAccess::instance();
+            return DesktopDeviceFileAccess::instance()->shared_from_this();
         IDevice::ConstPtr device = DeviceManager::deviceForPath(filePath);
         if (!device) {
             return make_unexpected(
                 Tr::tr("No device found for path \"%1\".").arg(filePath.toUserOutput()));
         }
-        DeviceFileAccess *fileAccess = device->fileAccess();
+        DeviceFileAccessPtr fileAccess = device->fileAccess();
         if (!fileAccess) {
             return make_unexpected(
                 Tr::tr("No file access for device \"%1\".").arg(device->displayName()));

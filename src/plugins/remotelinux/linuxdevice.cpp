@@ -406,8 +406,9 @@ class LinuxDevicePrivate
 public:
     explicit LinuxDevicePrivate(LinuxDevice *parent)
         : q(parent)
+        , m_disconnectedAccess(std::make_shared<UnavailableDeviceFileAccess>())
     {
-        q->setFileAccess(&m_disconnectedAccess);
+        q->setFileAccess(m_disconnectedAccess);
     }
 
     void setOsType(OsType osType)
@@ -438,16 +439,16 @@ public:
     {
         QMutexLocker locker(&m_shellMutex);
         DeviceManager::setDeviceState(q->id(), IDevice::DeviceDisconnected, announce);
-        q->setFileAccess(&m_disconnectedAccess);
+        q->setFileAccess(m_disconnectedAccess);
         m_cmdBridgeAccess.reset();
         m_scriptAccess.reset();
     }
 
     LinuxDevice *q = nullptr;
 
-    UnavailableDeviceFileAccess m_disconnectedAccess;
-    std::unique_ptr<LinuxDeviceAccess> m_scriptAccess;
-    std::unique_ptr<CmdBridge::FileAccess> m_cmdBridgeAccess;
+    std::shared_ptr<UnavailableDeviceFileAccess> m_disconnectedAccess;
+    std::shared_ptr<LinuxDeviceAccess> m_scriptAccess;
+    std::shared_ptr<CmdBridge::FileAccess> m_cmdBridgeAccess;
 
     QRecursiveMutex m_shellMutex;
     QReadWriteLock m_environmentCacheLock;
@@ -1331,7 +1332,7 @@ void LinuxDevicePrivate::setupShell(const SshParameters &sshParameters,
     // Remove previous access first.
     closeConnection(true);
 
-    m_scriptAccess = std::make_unique<LinuxDeviceAccess>(this);
+    m_scriptAccess = std::make_shared<LinuxDeviceAccess>(this);
 
     m_shellMutex.lock();
 
@@ -1355,7 +1356,7 @@ void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
 {
     if (result) {
         // Shell setup is ok.
-        q->setFileAccess(m_scriptAccess.get());
+        q->setFileAccess(m_scriptAccess);
         q->setDeviceState(IDevice::DeviceConnected);
 
         setOsTypeFromUnameResult(m_scriptAccess->m_handler->runInShell(unameCommand()));
@@ -1371,7 +1372,7 @@ void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
                   ->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), getEnvironment());
         if (initResult) {
             DEBUG("Bridge ok to use");
-            q->setFileAccess(m_cmdBridgeAccess.get());
+            q->setFileAccess(m_cmdBridgeAccess);
             q->setDeviceState(IDevice::DeviceReadyToUse);
         } else {
             DEBUG("Failed to start CmdBridge:" << initResult.error()
@@ -1379,7 +1380,7 @@ void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
         }
     } else {
         DEBUG("Failed to setup state");
-        q->setFileAccess(&m_disconnectedAccess);
+        q->setFileAccess(m_disconnectedAccess);
         q->setDeviceState(IDevice::DeviceDisconnected);
     }
 
@@ -1469,8 +1470,8 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
     if (q->deviceState() != IDevice::DeviceDisconnected)
         return false;
 
-    InfoBar *infoBar = Core::ICore::popupInfoBar();
-    QMetaObject::invokeMethod(infoBar, [id = q->id(), name = q->displayName(), infoBar] {
+    QMetaObject::invokeMethod(qApp, [id = q->id(), name = q->displayName()] {
+        InfoBar *infoBar = Core::ICore::popupInfoBar();
         const Id errorId = id.withPrefix("error_");
         if (!infoBar->canInfoBeAdded(errorId))
             return;
