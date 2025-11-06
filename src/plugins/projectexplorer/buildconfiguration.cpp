@@ -292,8 +292,10 @@ FilePath BuildConfiguration::buildDirectory() const
 
 void BuildConfiguration::setBuildDirectory(const FilePath &dir)
 {
-    if (dir == d->m_buildDirectoryAspect())
+    if (expandedBuildDirectory(dir, project()->projectDirectory(), *macroExpander())
+        == d->m_buildDirectoryAspect()) {
         return;
+    }
     d->m_buildDirectoryAspect.setValue(dir);
     const FilePath fixedDir = BuildDirectoryAspect::fixupDir(buildDirectory());
     if (!fixedDir.isEmpty())
