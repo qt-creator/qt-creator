@@ -1975,7 +1975,7 @@ static bool issueListContextMenuEvent(const ItemViewEvent &ev)
     const QModelIndex first = selectedIndices.isEmpty() ? QModelIndex() : selectedIndices.first();
     if (!first.isValid())
         return false;
-    const QString issue = first.data().toString();
+    const QString issue = first.data(ListItemIdRole).toString();
     return axivionPerspective()->handleContextMenu(true, issue, ev);
 }
 
