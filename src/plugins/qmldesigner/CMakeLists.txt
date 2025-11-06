@@ -57,7 +57,6 @@ add_qtc_plugin(QmlDesigner
     QmlProjectManager
     QtSupport
     TextEditor
-  PLUGIN_MANUAL_DEPENDS LicenseChecker ${IDE_VERSION} optional
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
     Qt::QuickWidgets Qt::CorePrivate Qt::Xml Qt::Svg Sqlite Qt::GuiPrivate
@@ -95,7 +94,6 @@ add_qtc_plugin(QmlDesigner
     designmodewidget.cpp designmodewidget.h
     documentmanager.cpp documentmanager.h
     documentwarningwidget.cpp documentwarningwidget.h
-    dynamiclicensecheck.h
     openuiqmlfiledialog.cpp openuiqmlfiledialog.h
     puppetenvironmentbuilder.cpp puppetenvironmentbuilder.h
     qmldesigner_global.h

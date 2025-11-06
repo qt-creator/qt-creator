@@ -10,7 +10,6 @@
 #include <crumblebar.h>
 #include <designeractionmanager.h>
 #include <designmodewidget.h>
-#include <dynamiclicensecheck.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmleditormenu.h>

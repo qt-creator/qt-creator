@@ -13,7 +13,6 @@
 #include <debugview.h>
 #include <designeractionmanagerview.h>
 #include <designmodewidget.h>
-#include <dynamiclicensecheck.h>
 #include <edit3dview.h>
 #include <formeditorview.h>
 #include <itemlibraryview.h>

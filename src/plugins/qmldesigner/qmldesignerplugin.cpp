@@ -6,7 +6,6 @@
 
 #include "coreplugin/iwizardfactory.h"
 #include "designmodewidget.h"
-#include "dynamiclicensecheck.h"
 #include "exception.h"
 #include "openuiqmlfiledialog.h"
 #include "qmldesignerconstants.h"
@@ -113,21 +112,11 @@ public:
     QSet<Utils::Id> availableFeatures(Utils::Id) const override
     {
         return {"QmlDesigner.Wizards.FullQDS"};
+        // Previously used by DS "QmlDesigner.Wizards.Enterprise";
     }
 
     QSet<Utils::Id> availablePlatforms() const override { return {}; }
 
-    QString displayNameForPlatform(Utils::Id) const override { return {}; }
-};
-
-class EnterpriseFeatureProvider : public Core::IFeatureProvider
-{
-public:
-    QSet<Utils::Id> availableFeatures(Utils::Id) const override
-    {
-        return {"QmlDesigner.Wizards.Enterprise"};
-    }
-    QSet<Utils::Id> availablePlatforms() const override { return {}; }
     QString displayNameForPlatform(Utils::Id) const override { return {}; }
 };
 
@@ -338,9 +327,6 @@ void QmlDesignerPlugin::extensionsInitialized()
     registerCombinedTracedPoints(Constants::EVENT_STATE_ADDED,
                                  Constants::EVENT_STATE_CLONED,
                                  Constants::EVENT_STATE_ADDED_AND_CLONED);
-
-    if (checkEnterpriseLicense())
-        Core::IWizardFactory::registerFeatureProvider(new EnterpriseFeatureProvider);
 
     Core::IWizardFactory::registerFeatureProvider(new FullQDSFeatureProvider);
 }
