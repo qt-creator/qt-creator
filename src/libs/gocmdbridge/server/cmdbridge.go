@@ -453,19 +453,7 @@ func processSignal(cmd command, out chan<- []byte) {
 	out <- data
 }
 
-func exit(exitCode int, deleteOnExit bool) {
-	if deleteOnExit {
-		executable, err := os.Executable()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error getting executable path:", err)
-			os.Exit(1)
-		}
-		os.Remove(executable)
-	}
-	os.Exit(0)
-}
-
-func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte, deleteOnExit bool) {
+func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte) {
 	defer globalWaitGroup.Done()
 
 	switch cmd.Type {
@@ -531,14 +519,14 @@ func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte, del
 		})
 		out <- result
 	case "exit":
-		exit(0, deleteOnExit)
+		os.Exit(0)
 	}
 }
 
-func executor(watcher *WatcherHandler, commands <-chan command, out chan<- []byte, deleteOnExit bool) {
+func executor(watcher *WatcherHandler, commands <-chan command, out chan<- []byte) {
 	for cmd := range commands {
 		globalWaitGroup.Add(1)
-		go processCommand(watcher, cmd, out, deleteOnExit)
+		go processCommand(watcher, cmd, out)
 	}
 }
 
@@ -608,7 +596,7 @@ func writeMain(out *bufio.Writer) {
 	out.Flush()
 }
 
-func watchDogLoop(channel chan bool, deleteOnExit bool) {
+func watchDogLoop(channel chan bool) {
 	watchDogTimeOut := 60 * time.Second
 	timer := time.NewTimer(watchDogTimeOut)
 
@@ -623,17 +611,17 @@ func watchDogLoop(channel chan bool, deleteOnExit bool) {
 		case <-timer.C:
 			// If we don't get a signal for one minute, we assume that the connection is dead.
 			fmt.Println("Watchdog timeout, exiting.")
-			exit(100, deleteOnExit)
+			os.Exit(100)
 		}
 	}
 }
 
-func readMain(test bool, deleteOnExit bool) {
+func readMain(test bool) {
 	commandChannel := make(chan command)
 	outputChannel := make(chan []byte)
 
 	watchDogChannel := make(chan bool)
-	go watchDogLoop(watchDogChannel, deleteOnExit)
+	go watchDogLoop(watchDogChannel)
 
 	watcher := NewWatcherHandler()
 
@@ -651,7 +639,7 @@ func readMain(test bool, deleteOnExit bool) {
 	globalWaitGroup.Add(1)
 	go func() {
 		defer globalWaitGroup.Done()
-		executor(watcher, commandChannel, outputChannel, deleteOnExit)
+		executor(watcher, commandChannel, outputChannel)
 	}()
 
 	globalWaitGroup.Add(1)
@@ -704,13 +692,25 @@ func readMain(test bool, deleteOnExit bool) {
 func main() {
 	test := flag.Bool("test", false, "test instead of read from stdin")
 	write := flag.Bool("write", false, "write instead of read data")
-	deleteOnExit := flag.Bool("deleteOnExit", false, "delete application on exit")
+	deleteOnStart := flag.Bool("deleteOnStart", false, "delete cmdbridge directly on startup")
 
 	flag.Parse()
 
-	if *write {
+	if *deleteOnStart {
+		executable, err := os.Executable()
+		if err == nil {
+			err := os.Remove(executable)
+			if (err != nil) {
+				fmt.Fprintln(os.Stderr, "deleteOnStart: Error deleting executable:", err)
+			}
+		} else {
+			fmt.Fprintln(os.Stderr, "deleteOnStart: Error getting executable path:", err)
+		}
+	}
+
+    if *write {
 		writeMain(bufio.NewWriter(os.Stdout))
 	} else {
-		readMain(*test, *deleteOnExit)
+		readMain(*test)
 	}
 }

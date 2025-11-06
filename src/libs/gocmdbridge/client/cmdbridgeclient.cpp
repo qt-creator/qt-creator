@@ -281,7 +281,7 @@ Result<> Client::start(bool deleteOnExit)
         d->process,
         [this, deleteOnExit]() -> Result<> {
             if (deleteOnExit)
-                d->process->setCommand({d->remoteCmdBridgePath, {"-deleteOnExit"}});
+                d->process->setCommand({d->remoteCmdBridgePath, {"-deleteOnStart"}});
             else
                 d->process->setCommand({d->remoteCmdBridgePath, {}});
             d->process->setEnvironment(d->environment);
