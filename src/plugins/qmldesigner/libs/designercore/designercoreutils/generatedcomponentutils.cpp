@@ -66,8 +66,6 @@ Utils::FilePath GeneratedComponentUtils::generatedComponentsPath() const
         return assetImportsPath;
 
     Utils::FilePath componentsPath = projectPath.resolvePath(generatedComponentsFolder);
-    if (!componentsPath.exists())
-        componentsPath.createDir();
 
     return componentsPath;
 }

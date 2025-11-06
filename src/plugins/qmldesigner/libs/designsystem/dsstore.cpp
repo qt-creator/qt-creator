@@ -27,7 +27,7 @@ constexpr char DesignModuleName[] = "DesignSystem";
 std::optional<Utils::FilePath> dsModuleDir(QmlDesigner::ExternalDependenciesInterface &ed)
 {
     auto componentsPath = QmlDesigner::GeneratedComponentUtils(ed).generatedComponentsPath();
-    if (componentsPath.exists())
+    if (!componentsPath.isEmpty())
         return componentsPath.pathAppended(DesignModuleName);
 
     return {};
