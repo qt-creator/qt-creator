@@ -7,6 +7,9 @@
 #include "icon.h"
 #include "networkaccessmanager.h"
 
+#include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 #include <QCache>
 #include <QEvent>
 #include <QGuiApplication>
@@ -757,13 +760,17 @@ public:
                 QPixmapCache::insert(pixmapCacheKey, px);
             }
         } else {
-            QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(
-                QNetworkRequest(url));
-            connect(reply, &QNetworkReply::finished, this, [this, reply, pixmapCacheKey]() {
-                reply->deleteLater();
+            using namespace QtTaskTree;
 
-                if (reply->error() == QNetworkReply::NoError) {
-                    const QByteArray data = reply->readAll();
+            const auto onSetup = [url](QNetworkReplyWrapper &task) {
+                task.setNetworkAccessManager(Utils::NetworkAccessManager::instance());
+                task.setRequest(QNetworkRequest(url));
+            };
+
+            const auto onDone = [this, pixmapCacheKey](const QNetworkReplyWrapper &task,
+                                                       DoneWith result) {
+                if (result == DoneWith::Success) {
+                    const QByteArray data = task.reply()->readAll();
                     if (px.loadFromData(data)) {
                         QPixmapCache::insert(pixmapCacheKey, px);
                         emit imageReady();
@@ -771,7 +778,10 @@ public:
                     }
                 }
                 emit imageError();
-            });
+            };
+
+            QSingleTaskTreeRunner *taskTreeRunner = new QSingleTaskTreeRunner(this);
+            taskTreeRunner->start({ QNetworkReplyWrapperTask(onSetup, onDone) });
         }
     }
     QPixmap pixmap() const { return px; }
