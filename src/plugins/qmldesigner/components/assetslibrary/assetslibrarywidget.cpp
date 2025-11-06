@@ -856,4 +856,11 @@ bool AssetsLibraryWidget::canCreateEffects() const
     return m_canCreateEffects;
 }
 
+void AssetsLibraryWidget::reloadThumbnail(const QString &filePath)
+{
+    m_assetsIconProvider->invalidateThumbnail(filePath);
+    m_assetsIconProvider->invalidatePixmap(filePath);
+    emit m_assetsModel->fileChanged(filePath);
+}
+
 } // namespace QmlDesigner

@@ -75,8 +75,6 @@ public:
     void dragStarted(QMimeData *mimeData) override;
     void dragEnded() override;
 
-    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
-
     void handleChangedExport(const ModelNode &modelNode, bool exported);
     bool isNodeInvisible(const ModelNode &modelNode) const;
 

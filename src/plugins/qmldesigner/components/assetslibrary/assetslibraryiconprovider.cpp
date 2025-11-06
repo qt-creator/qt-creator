@@ -11,6 +11,13 @@
 
 namespace QmlDesigner {
 
+static QString assetToPixmapId(const Asset &asset)
+{
+    QString pixmapId = asset.id().mid(asset.id().lastIndexOf('/') + 1);
+    pixmapId.chop(asset.suffix().size() - 1);
+    return pixmapId;
+}
+
 AssetsLibraryIconProvider::AssetsLibraryIconProvider(SynchronousImageCache &fontImageCache)
     : QQuickImageProvider(QQuickImageProvider::Pixmap)
     , m_fontImageCache(fontImageCache)
@@ -103,13 +110,12 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
     } else if (asset.isImported3D()) {
         static QPixmap defaultPreview = QPixmap::fromImage(QImage(":/AssetsLibrary/images/asset_imported3d.png"));
         QPixmap pixmap{requestedSize};
-        QString assetId = id.mid(id.lastIndexOf('/') + 1);
-        assetId.chop(asset.suffix().size() - 1); // Remove suffix
-        if (m_pixmaps.contains(assetId)) {
-            pixmap = m_pixmaps.value(assetId);
+        QString pixmapId = assetToPixmapId(asset);
+        if (m_pixmaps.contains(pixmapId)) {
+            pixmap = m_pixmaps.value(pixmapId);
         } else {
             pixmap = defaultPreview;
-            emit asyncAssetPreviewRequested(assetId, id);
+            emit asyncAssetPreviewRequested(pixmapId, id);
         }
         return {pixmap, 0};
     } else {
@@ -144,6 +150,11 @@ void AssetsLibraryIconProvider::clearCache()
 void AssetsLibraryIconProvider::invalidateThumbnail(const QString &id)
 {
     m_thumbnails.remove(id);
+}
+
+void AssetsLibraryIconProvider::invalidatePixmap(const QString &id)
+{
+    m_pixmaps.remove(assetToPixmapId(Asset(id)));
 }
 
 QSize AssetsLibraryIconProvider::imageSize(const QString &id)

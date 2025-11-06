@@ -27,6 +27,7 @@ public:
     QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override;
     void clearCache();
     void invalidateThumbnail(const QString &id);
+    void invalidatePixmap(const QString &id);
     QSize imageSize(const QString &id);
     qint64 fileSize(const QString &id);
     QString setPixmap(const QString &id, const QPixmap &pixmap, const QString &suffix);

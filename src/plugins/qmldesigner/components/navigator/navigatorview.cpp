@@ -380,17 +380,6 @@ void NavigatorView::dragEnded()
     m_widget->update();
 }
 
-void NavigatorView::customNotification([[maybe_unused]] const AbstractView *view,
-                                       const QString &identifier,
-                                       [[maybe_unused]] const QList<ModelNode> &nodeList,
-                                       [[maybe_unused]] const QList<QVariant> &data)
-{
-    NanotraceHR::Tracer tracer{"navigator view custom notification", category()};
-
-    if (identifier == "asset_import_update")
-        m_currentModelInterface->notifyIconsChanged();
-}
-
 void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exported)
 {
     NanotraceHR::Tracer tracer{"navigator view handle changed export", category()};
