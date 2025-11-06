@@ -144,8 +144,7 @@
     print(MyCppExtension.myFunction(1, 2))
     \endcode
 
-    For more information on how to register C++ functionality, see
-    \l {https://sol2.readthedocs.io/en/latest/index.html} {sol2}.
+    For more information on how to register C++ functionality, see \l {sol2}.
 
     \section1 Examples
 

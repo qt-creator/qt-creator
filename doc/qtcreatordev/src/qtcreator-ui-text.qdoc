@@ -222,9 +222,8 @@
 
     \section3 Checking Book Style Capitalization
 
-    If necessary, use an online \l{https://titlecaseconverter.com/}
-    {Title Case Converter} to check book style capitalization
-    of UI text or headings in documentation.
+    If necessary, use an online \l{Title Case Converter} to check book style
+    capitalization of UI text or headings in documentation.
 
     Or, use the to-title-case.js script in the \c{\doc\titlecase} folder:
 

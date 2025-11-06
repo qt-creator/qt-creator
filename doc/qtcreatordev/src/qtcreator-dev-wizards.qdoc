@@ -8,7 +8,7 @@
     \section1 Introduction
 
     If the functionality provided by template-based
-    \l{http://doc.qt.io/qtcreator/creator-project-wizards.html}{custom wizards}
+    \l{\QC: Custom Wizards}{custom wizards}
     is not sufficient for your case, you can write wizards in code.
 
     A wizard in \QC is an instance of a class implementing

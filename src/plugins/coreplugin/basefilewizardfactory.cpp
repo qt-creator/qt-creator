@@ -89,7 +89,7 @@ Wizard *BaseFileWizardFactory::runWizardImpl(const FilePath &path, Id platform,
     postGenerateFiles(), which is called after generating the files.
 
     \note Instead of using this class, we recommend that you create JSON-based
-    wizards, as instructed in \l{Add wizards} and \l {Custom wizards}.
+    wizards, as instructed in \l{\QC: Add wizards} and \l {\QC: Custom wizards}.
 
     \sa Core::GeneratedFile, Core::WizardDialogParameters, Core::BaseFileWizard
 */

@@ -46,7 +46,7 @@
     \section1 Configuring Documentation Projects
 
     Use QDoc to write \QC documentation. For more information about using
-    QDoc, see the \l{https://doc.qt.io/qt/qdoc-index.html}{QDoc Manual}.
+    QDoc, see the \l{QDoc Manual}.
 
     QDoc finds the new topics automatically, when you place them as \c {.qdoc}
     files in a doc source folder. However, to make the topics accessible to
@@ -179,9 +179,8 @@
     \section3 Hiding Text from HTML Files
 
     The \c qtcreator define is specified as a value of the
-    \l{ https://doc.qt.io/qt-6/22-qdoc-configuration-generalvariables.html#defines}
-    {\c defines} variable in the \QC QDoc configuration file,
-    \c {\doc\qtcreator\config\qtcreator-project.qdocconf}.
+    \l{QDoc: defines variable}{\c defines} variable in the \QC QDoc configuration
+    file, \c {\doc\qtcreator\config\qtcreator-project.qdocconf}.
     Use it as a value of the
     \l{https://doc.qt.io/qt-6/12-0-qdoc-commands-miscellaneous.html#if-command}
     {\c {\if}} command in the \QC Manual sources to hide \QC specific information
@@ -282,8 +281,7 @@
 
     \section1 Writing Text
 
-    Follow the guidelines for
-    \l{http://wiki.qt.io/Writing_Qt_Documentation}{writing Qt documentation}.
+    Follow the guidelines in \l{Writing Qt Documentation}.
 
     The documentation must be grammatically correct English and use the standard
     form of written language. Do not use dialect or slang words. Use idiomatic
@@ -304,15 +302,14 @@
     You can illustrate documentation by using screen shots, diagrams, and
     animated images, for example.
 
-    Follow the guidelines set in \l{https://contribute.qt-project.org/quips/21}
-    {QUIP 21 | Using images in Qt documentation}.
+    Follow the guidelines in \l{QUIP 21 | Using images in Qt documentation}.
 
     The following sections contain some \QC and \QDS specific guidelines and
     examples.
 
     \section2 Icons
 
-    The \l{https://doc.qt.io/}{Qt Documentation} published online can be viewed
+    The \l{Qt Documentation} published online can be viewed
     in dark and light modes. To make the icons used in the docs visible in both
     modes, save icon files as gray-scale images with a transparent background in
     the following locations, depending on whether they are used in both manuals
@@ -389,15 +386,13 @@
 
     \note If the styles look wrong to you when reading help files in \QC or \QA,
     you might be using the QTextBrowser as the help engine backend instead of
-    litehtml. For more information, see
-    \l {https://doc.qt.io/qtcreator/creator-how-to-get-help.html#select-help-viewer-backend}
-    {Select help viewer backend}.
+    litehtml. For more information, see \l {\QC: Select help viewer backend}.
 
     To build documentation for the sources from the \c qtcreator master branch,
     use build scripts defined in the doc.pri file. You can build the docs
     using either the offline or online style. The offline style is used for
     generating HTML files included in help files (.qch), whereas the online
-    style is used at \l{https://doc.qt.io/qtcreator/index.html}{doc.qt.io}.
+    style is used at \l{\QC Documentation}{doc.qt.io}.
 
     \section3 Using CMake
 
@@ -485,8 +480,7 @@
     You can view the HTML files in a browser and the help files in
     the \QC \uicontrol Help mode. For more information about adding
     the help files to \QC, see
-    \l{https://doc.qt.io/qtcreator/creator-how-to-add-external-documentation.html}
-    {Add external documentation}.
+    \l{\QC: Add external documentation}.
 
     \section2 Additional Build Commands
 

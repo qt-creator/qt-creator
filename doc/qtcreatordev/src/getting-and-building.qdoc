@@ -21,15 +21,11 @@
     See the exact Qt version that a \QC package was built with in its
     \uicontrol {About \QC} dialog.
 
-    The minimum requirement for building \QC is stated in the
-    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/about/README.md}
-    {README.md} and near the top of the
-    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/cmake/QtCreatorAPI.cmake}
-    {cmake/QtCreatorAPI.cmake} file in the sources.
+    The minimum requirements for building \QC are stated in the \l{README.md} and
+    near the top of the \l{cmake/QtCreatorAPI.cmake} file in the sources.
 
-    You can get prebuilt Qt packages from
-    \l{https://download.qt.io}{Qt Downloads}. If you want to use Qt as provided
-    by your Linux distribution, you need to make sure that all Qt development
+    You can get prebuilt Qt packages from \l{Qt Downloads}. If you want to use Qt
+    as provided by your Linux distribution, you need to make sure that all Qt development
     packages and private header packages are also installed.
 
     \section1 Getting \QC
@@ -44,25 +40,18 @@
     When developing your plugin, point the \c {CMAKE_PREFIX_PATH} to the
     installation location of \QC, or the \QC app on macOS.
 
-    Get prebuilt packages either from
-    \l{https://download.qt.io/official_releases/online_installers/}
-    {\QOI}, or a standalone \QC installer either for a
-    \l{https://download.qt.io/official_releases/qtcreator/}
-    {released \QC version} or a \l{https://download.qt.io/snapshots/qtcreator/}
+    Get prebuilt packages either from \l{\QOI}, or a standalone \QC installer
+    either for a \l{\QC Releases}{released \QC version} or a \l{\QC Snapshots}
     {development snapshot}.
 
     \section2 Building \QC
 
     You can get the \QC sources for a specific version either by using one of
     the released source bundles or by cloning the sources from the Git repository
-    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git}. If you intend to
-    contribute to \QC itself, you should use the repository from our Gerrit
-    review tool as described in:
-    \l{https://wiki.qt.io/Setting_up_Gerrit}{Setting up Gerrit}.
+    \l{qt-creator.git}. If you intend to contribute to \QC itself, use the
+    repository from our Gerrit review tool, as described in \l{Setting up Gerrit}.
 
-    Refer to the
-    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/about/README.md}
-    {README.md} included in the sources for details on building \QC.
+    See the \l{README.md} included in the sources for details on building \QC.
 
     When developing your plugin, point the \c {CMAKE_PREFIX_PATH} to the
     build location of \QC.

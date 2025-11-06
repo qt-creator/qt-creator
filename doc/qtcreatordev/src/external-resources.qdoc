@@ -1,14 +1,17 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
-
+/*!
+    \externalpage https://doc.qt.io/qtcreator/index.html
+    \title \QC Documentation
+*/
 /*!
     \externalpage https://doc.qt.io/qtcreator/creator-how-to-add-wizards.html
-    \title Add wizards
+    \title \QC: Add wizards
 */
 /*!
     \externalpage https://doc.qt.io/qtcreator/creator-project-wizards.html
-    \title Custom Wizards
+    \title \QC: Custom Wizards
 */
 /*!
     \externalpage https://github.com/qt-creator/extension-registry
@@ -19,6 +22,134 @@
     \title \QC: Install extensions
 */
 /*!
+    \externalpage https://doc.qt.io/qtcreator/creator-how-to-use-qtc-variables.html
+    \title \QC: Use \QC variables
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-how-to-add-code-snippets.html
+    \title \QC: Add code snippets to the auto-complete menu
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-mime-types.html
+    \title \QC: Edit MIME types
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-highlighting.html
+    \title \QC: Download highlight definitions
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-editor-external.html
+    \title \QC: Use external tools
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-task-lists.html
+    \title \QC: Show task list files in issues
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-how-to-get-help.html#select-help-viewer-backend
+    \title \QC: Select help viewer backend
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-how-to-add-external-documentation.html
+    \title \QC: Add external documentation
+*/
+/*!
+    \externalpage https://doc.qt.io/
+    \title Qt Documentation
+*/
+/*!
+    \externalpage https://doc.qt.io/qt/qdoc-index.html
+    \title QDoc Manual
+*/
+/*!
+    \externalpage https://doc.qt.io/qt-6/22-qdoc-configuration-generalvariables.html#defines
+    \title QDoc: defines variable
+*/
+/*!
+    \externalpage https://contribute.qt-project.org/quips/21
+    \title QUIP 21 | Using images in Qt documentation
+*/
+/*!
     \externalpage https://github.com/qt-creator/qt-creator/tree/master/dist/api-changelog
     \title API change log
+*/
+/*!
+    \externalpage https://docs.github.com/en/actions
+    \title GitHub Actions
+*/
+/*!
+    \externalpage https://code.qt.io/cgit/qt-creator/qt-creator.git
+    \title qt-creator.git
+*/
+/*!
+    \externalpage https://code.qt.io/cgit/qt-creator/qt-creator.git/about/
+    \title README.md
+*/
+/*!
+    \externalpage https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/cmake/QtCreatorAPI.cmake
+    \title cmake/QtCreatorAPI.cmake
+*/
+/*!
+    \externalpage https://wiki.qt.io/Setting_up_Gerrit
+    \title Setting up Gerrit
+*/
+/*!
+    \externalpage https://wiki.qt.io/Qt_Contribution_Guidelines
+    \title Qt Contribution Guidelines
+*/
+/*!
+    \externalpage https://wiki.qt.io/Qt_In_Namespace
+    \title Qt In Namespace
+*/
+/*!
+    \externalpage https://wiki.qt.io/Binary_Compatibility_Workarounds
+    \title Binary Compatibility Workarounds
+*/
+/*!
+    \externalpage https://wiki.qt.io/Writing_Qt_Documentation
+    \title Writing Qt Documentation
+*/
+/*!
+    \externalpage https://download.qt.io
+    \title Qt Downloads
+*/
+/*!
+    \externalpage https://download.qt.io/official_releases/online_installers/
+    \title \QOI
+*/
+/*!
+    \externalpage https://download.qt.io/official_releases/qtcreator/
+    \title \QC Releases
+*/
+/*!
+    \externalpage https://download.qt.io/snapshots/qtcreator/
+    \title \QC Snapshots
+*/
+/*!
+    \externalpage https://bugreports.qt.io/browse/QTBUG-45582
+    \title QTBUG-45582
+*/
+/*!
+    \externalpage https://specifications.freedesktop.org/shared-mime-info/latest/
+    \title Shared MIME-info Database
+*/
+/*!
+    \externalpage https://docs.kde.org/stable5/en/kate/katepart/highlight.html
+    \title Working with Syntax Highlighting
+*/
+/*!
+    \externalpage https://community.kde.org/Policies/Binary_Compatibility_Issues_With_C%2B%2B
+    \title Binary Compatibility Issues With C++
+*/
+/*!
+    \externalpage https://sol2.readthedocs.io/en/latest/index.html
+    \title sol2
+*/
+/*!
+    \externalpage https://titlecaseconverter.com/
+    \title Title Case Converter
+*/
+/*!
+    \externalpage https://en.wikipedia.org/wiki/CamelCase
+    \title camel case
 */

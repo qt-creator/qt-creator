@@ -139,7 +139,7 @@
             \li Url
             \li String
             \li Link to further information about the plugin, like
-                \c{http://www.mycompany-online.com/products/greatplugin}.
+                \c{https://www.mycompany-online.com/products/greatplugin}.
         \row
             \li DocumentationUrl
             \li String
@@ -331,7 +331,7 @@
             "This plugin is just a test.",
             "It demonstrates the great use of the plugin meta data."
         ],
-        "Url" : "http://www.mycompany-online.com/products/greatplugin",
+        "Url" : "https://www.mycompany-online.com/products/greatplugin",
         "DocumentationUrl" : "https://www.mycompany-online.com/docs/greatplugin/manual.html",
         "Arguments" : [
             {
@@ -360,9 +360,8 @@
         \row
             \li Mimetypes
             \li String or array of strings
-            \li Possibly multiple lines of
-                \l{https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/}{XML MIME-info}
-                used for registering additional or adapting built-in MIME types.
+            \li Possibly multiple lines of \l{Shared MIME-info Database}{XML MIME-info}
+                used for registering additional MIME types or adapting built-in ones.
         \row
             \li core > VcsDetectionFiles
             \li Array of strings
@@ -381,7 +380,7 @@
             \li Array of strings
             \li A list of paths relative to the plugin location or paths to the
                 \l{The Qt Resource System}{Qt resource system} that are searched for
-                \l{http://doc.qt.io/qtcreator/creator-project-wizards.html}{template-based wizards}.
+                \l{\QC: Custom Wizards}{template-based wizards}.
     \endtable
 
     \section2 A Note on Plugin Versions

@@ -43,8 +43,7 @@
                 and project templates. We recommend that you create
                 JSON-based wizards instead of implementing new
                 wizards in C++ code.
-            \li \l{https://doc.qt.io/qtcreator/creator-project-wizards.html}
-                {Adding New Custom Wizards}
+            \li \l{\QC: Add wizards}
 
                 \l{Core::IWizardFactory}, \l{Core::BaseFileWizardFactory},
                 \l{Core::BaseFileWizard}, \l{Core::WizardDialogParameters}

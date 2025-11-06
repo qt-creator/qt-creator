@@ -39,18 +39,15 @@
         \li \macos
     \endlist
 
-    See the toplevel
-    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md}
-    {README.md} file in Qt Creator's sources for a more detailed list.
+    See the toplevel \l{README.md} file in Qt Creator's sources for a more
+    detailed list.
 
     The \uicontrol {Qt Creator Plugin} wizard already creates a template for
-    \l{https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-github-actions}{GitHub
-    Actions} which can be used to create binaries if you host your plugin
-    sources on GitHub. See the
-    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/share/qtcreator/templates/wizards/qtcreatorplugin/github_workflow_README.md}
-    {README.md} that is created at the same location for details.
+    \l{GitHub Actions} which can be used to create binaries if you host your
+    plugin sources on GitHub. See the \c {README.md} that is created at the
+    same location for details.
 
-    You can also use the provided GitHub Actions recipe as inspiration for
+    You can also use the provided GitHub Actions workflow as inspiration for
     another build service of your choice.
 
     \section1 Packaging
@@ -73,10 +70,8 @@
     with \l{The Qt Resource System}. This imposes some limitations because you
     cannot depend on additional binaries, nor extend some parts of Qt Creator
     that rely on external files, like the generic highlighter. You can still
-    add \l{https://doc.qt.io/qtcreator/creator-project-wizards.html}{wizard
-    templates} this way, by adding the
-    \l{https://doc.qt.io/qt/resources.html#using-resources-in-the-application}
-    {path to the resource directory} into your QRC file with
+    \l{\QC: Add wizards}{add wizard templates} this way, by adding the
+    path to the resource directory into your QRC file with
     ProjectExplorer::JsonWizardFactory::addWizardPath(). Registering
     documentation and translations can be done in similar ways.
 

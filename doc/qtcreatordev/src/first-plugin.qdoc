@@ -163,9 +163,8 @@
     \row
         \li \c{build_cmake.yml}
 
-        \li Adds a
-            \l {https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-github-actions}
-            {GitHub action} and workflow that builds your plugin anytime you
+        \li Adds a \l {GitHub Actions}{GitHub action} and workflow that builds
+            your plugin anytime you
             push commits to GitHub on Windows, Linux, and macOS. For more
             information, see \c {.github\workflow\README.md}.
     \endtable

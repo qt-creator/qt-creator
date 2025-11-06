@@ -43,8 +43,7 @@
     To submit code to Qt Creator, you must understand the tools and mechanics as well as
     the philosophy behind Qt development. For more information about how to set up
     the development environment for working on Qt Creator and how to submit code
-    and documentation for inclusion, see
-    \l{https://wiki.qt.io/Qt_Contribution_Guidelines}{Qt Contribution Guidelines}.
+    and documentation for inclusion, see \l{Qt Contribution Guidelines}.
 
     \section1 Binary and Source Compatibility
 
@@ -93,13 +92,12 @@
             public/protected/private member functions).
         \li Do not reimplement functions (not even inlines,
             nor protected or private functions).
-        \li Check
-            \l {https://wiki.qt.io/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
+        \li Check \l {Binary Compatibility Workarounds}
             for ways to preserve binary compatibility.
     \endlist
 
     For more information on binary compatibility, see
-    \l{http://techbase.kde.org/Policies/Binary_Compatibility_Issues_With_C++}{Binary Compatibility Issues With C++}.
+    \l{Binary Compatibility Issues With C++}.
 
     From the viewpoint of \l{Plugin Meta Data}{plugin metadata} this means that:
     \list
@@ -186,7 +184,7 @@
 
     \section2 Capitalizing Identifiers
 
-    Use \l{http://en.wikipedia.org/wiki/CamelCase}{camel case} in identifiers.
+    Use \l{camel case} in identifiers.
 
     Capitalize the first word in an identifier as follows:
 
@@ -595,8 +593,8 @@
     \target coding-rules-namespacing
     \section2 Namespacing
 
-    Read \l{https://wiki.qt.io/Qt_In_Namespace}{Qt In Namespace}
-    and keep in mind that all of Qt Creator is \e{namespace aware} code.
+    Read \l{Qt In Namespace} and keep in mind that all of Qt Creator is
+    \e{namespace aware} code.
 
     The namespacing policy within Qt Creator is as follows:
     \list
@@ -1206,8 +1204,7 @@
             \endcode
 
         \li Do not inline virtual destructors in exported classes. This leads to duplicated vtables
-            in dependent plugins and this can also break RTTI. See
-            \l {https://bugreports.qt.io/browse/QTBUG-45582}{QTBUG-45582}.
+            in dependent plugins and this can also break RTTI. See \l{QTBUG-45582}.
     \endlist
 
     \section2 Esthetics

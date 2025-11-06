@@ -121,9 +121,8 @@
     \endtable
 
     The \c executable tag allows the following subtags. You must specify at least
-    one \c path. All subtags can contain special
-    \l{https://doc.qt.io/qtcreator/creator-build-settings.html#using-qt-creator-variables}
-    {Qt Creator variables}.
+    one \c path. All subtags can contain special \l{\QC: Use \QC variables}
+    {\QC variables}.
 
     \table
     \header
