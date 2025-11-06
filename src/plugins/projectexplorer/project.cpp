@@ -761,11 +761,8 @@ bool Project::copySteps(Target *sourceTarget, Kit *targetKit)
             continue;
         }
         newBc->setDisplayName(sourceBc->displayName());
-        newBc->setBuildDirectory(BuildConfiguration::buildDirectoryFromTemplate(
-                    projectDirectory(), projectFilePath(),
-                    displayName(), targetKit,
-                    sourceBc->displayName(), sourceBc->buildType(),
-                    sourceBc->buildSystem()->name()));
+        newBc->setBuildDirectory(
+            BuildConfiguration::rawBuildDirectoryFromTemplate(targetKit, projectFilePath()));
         newTarget->addBuildConfiguration(newBc);
         if (sourceTarget->activeBuildConfiguration() == sourceBc)
             newTarget->setActiveBuildConfiguration(newBc, SetActive::NoCascade);

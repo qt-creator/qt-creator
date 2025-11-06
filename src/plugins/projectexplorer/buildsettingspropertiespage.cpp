@@ -308,23 +308,21 @@ void BuildSettingsWidget::cloneConfiguration()
         return;
 
     bc->setDisplayName(name);
-    const FilePath buildDirectory = BuildConfiguration::buildDirectoryFromTemplate(
-        bc->project()->projectDirectory(),
-        bc->project()->projectFilePath(),
-        bc->project()->displayName(),
-        bc->kit(),
-        name,
-        bc->buildType(),
-        bc->project()->buildSystemName());
-    bc->setBuildDirectory(buildDirectory);
-    if (buildDirectory != bc->project()->projectDirectory()) {
-        const FilePathPredicate isBuildDirOk = [this](const FilePath &candidate) {
-            if (candidate.exists())
+    const FilePath rawBuildDir = BuildConfiguration::rawBuildDirectoryFromTemplate(bc->kit(),
+        bc->project()->projectFilePath());
+    bc->setBuildDirectory(rawBuildDir);
+    if (bc->buildDirectory() != bc->project()->projectDirectory()) {
+        const FilePathPredicate isBuildDirOk = [this, bc](const FilePath &rawCandidate) {
+            const FilePath expandedCandidate = BuildConfiguration::expandedBuildDirectory(
+                rawCandidate, bc->project()->projectDirectory(), *bc->macroExpander());
+            if (expandedCandidate.exists())
                 return false;
-            return !anyOf(m_target->buildConfigurations(), [&candidate](const BuildConfiguration *bc) {
-                return bc->buildDirectory() == candidate; });
+            return !anyOf(
+                m_target->buildConfigurations(), [&expandedCandidate](const BuildConfiguration *bc) {
+                    return bc->buildDirectory() == expandedCandidate;
+                });
         };
-        bc->setBuildDirectory(makeUniquelyNumbered(buildDirectory, isBuildDirOk));
+        bc->setBuildDirectory(makeUniquelyNumbered(rawBuildDir, isBuildDirOk));
     }
     m_target->addBuildConfiguration(bc);
     m_target->setActiveBuildConfiguration(bc, SetActive::Cascade);
