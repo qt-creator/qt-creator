@@ -279,7 +279,7 @@ BuildConfiguration::~BuildConfiguration()
 
 FilePath BuildConfiguration::buildDirectory() const
 {
-    return d->m_buildDirectoryAspect();
+    return project()->projectDirectory().resolvePath(d->m_buildDirectoryAspect());
 }
 
 void BuildConfiguration::setBuildDirectory(const FilePath &dir)
