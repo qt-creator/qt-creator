@@ -70,7 +70,8 @@ def get_arguments():
                         action='store_true', default=False)
     parser.add_argument('--with-cpack', help='Create packages with cpack',
                         action='store_true', default=False)
-    parser.add_argument('--with-sdk-tool', help='Builds a internal sdk-tool (not standalone) which is used in Qt Design Studio builds',
+    parser.add_argument('--with-sdk-tool', help='Includes the sdktool in the Qt Creator build. '
+                        'If you want a independent, standalone, static build of sdktool, use build_sdktool.py instead.',
                         action='store_true', default=False)
     parser.add_argument('--add-path', help='Prepends a CMAKE_PREFIX_PATH to the build',
                         action='append', dest='prefix_paths', default=[])
