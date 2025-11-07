@@ -13,7 +13,6 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
-class QNetworkAccessManager;
 class QNetworkReply;
 class QTextEdit;
 class QToolButton;
@@ -27,6 +26,7 @@ namespace QmlDesigner {
 class AiAssistantView;
 class AiModelsModel;
 class AiResponse;
+class AiApiManager;
 
 class AiAssistantWidget : public QFrame
 {
@@ -82,6 +82,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private: // functions
+    void connectApiManager();
     void reloadQmlSource();
     void setIsGenerating(bool val);
     void setHasValidModel(bool val);
@@ -89,7 +90,7 @@ private: // functions
     bool isValidQmlCode(const QString &qmlCode) const;
 
 private: // variables
-    Utils::UniqueObjectPtr<QNetworkAccessManager> m_manager;
+    Utils::UniqueObjectPtr<AiApiManager> m_apiManager;
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
     Utils::UniqueObjectPtr<AiModelsModel> m_modelsModel;
 

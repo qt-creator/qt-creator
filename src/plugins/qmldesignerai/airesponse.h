@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QJsonObject>
+#include <QMetaType>
 
 namespace QmlDesigner {
 
@@ -38,3 +39,5 @@ private: // variables
 };
 
 } // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::AiResponse);

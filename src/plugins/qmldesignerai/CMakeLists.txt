@@ -27,3 +27,12 @@ extend_qtc_plugin(QmlDesignerAi
     aiprovidersettingswidget.cpp aiprovidersettingswidget.h
     stringlistwidget.cpp stringlistwidget.h
 )
+
+extend_qtc_plugin(QmlDesignerAi
+  PUBLIC_INCLUDES api
+  SOURCES_PREFIX api
+  SOURCES
+    abstractaiapi.h
+    aiapimanager.cpp aiapimanager.h
+    openaicompletionsapi.cpp openaicompletionsapi.h
+)

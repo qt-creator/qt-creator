@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QMetaType>
 #include <QUrl>
 
 namespace QmlDesigner {
@@ -41,3 +42,5 @@ private:
 };
 
 }; // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::AiModelInfo);
