@@ -180,8 +180,8 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
                           .toBool())
 {
     setWindowTitle(tr("AI Assistant", "Title of AI Assistant widget"));
-    setMinimumWidth(220);
-    setMinimumHeight(82);
+    setMinimumWidth(240);
+    setMinimumHeight(200);
 
     auto vLayout = new QVBoxLayout(this);
     vLayout->setContentsMargins(5, 5, 5, 5);
