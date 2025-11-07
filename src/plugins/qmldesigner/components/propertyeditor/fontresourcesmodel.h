@@ -32,6 +32,7 @@ public:
     Q_INVOKABLE void openFileDialog(const QString &customPath = {});
     [[nodiscard]] Q_INVOKABLE QString resolve(const QString &relative) const;
     [[nodiscard]] Q_INVOKABLE bool isLocal(const QString &path) const;
+    [[nodiscard]] Q_INVOKABLE bool checkFamilyName(const QString &familyName) const;
 
 signals:
     void fileNameChanged(const QUrl &fileName);

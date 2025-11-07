@@ -5,14 +5,17 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 StudioControls.ComboBox {
     id: root
 
     property variant backendValue
-    property color textColor: colorLogic.textColor
+    property color textColor: root.fontExists ? colorLogic.textColor : StudioTheme.Values.themeWarning
     property string fontFilter: "*.ttf *.otf"
     property bool showExtendedFunctionButton: true
+
+    property bool fontExists: true
 
     hasActiveDrag: activeDragSuffix !== "" && root.fontFilter.includes(activeDragSuffix)
     labelColor: colorLogic.textColor
@@ -60,7 +63,9 @@ StudioControls.ComboBox {
     function setupModel() {
         root.model = fileModel.model
         if (root.enabled) {
-            root.currentIndex = root.find(root.backendValue.value)
+            let familyName = root.backendValue.value
+            root.currentIndex = root.find(familyName)
+            root.fontExists = fileModel.checkFamilyName(familyName)
         } else {
             root.editText = model[0]
             root.textColor = StudioTheme.Values.themeTextColorDisabled
@@ -77,6 +82,10 @@ StudioControls.ComboBox {
     }
 
     onModelChanged: root.editText = root.backendValue.valueToString
+
+    onEditTextChanged: {
+        root.fontExists = fileModel.checkFamilyName(root.editText)
+    }
 
     ExtendedFunctionLogic {
         id: extFuncLogic

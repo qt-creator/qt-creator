@@ -21,6 +21,7 @@
 #include <utils/filepath.h>
 #include <utils/id.h>
 
+#include <QApplication>
 #include <QFontDatabase>
 #include <QLatin1String>
 #include <QObject>
@@ -120,6 +121,8 @@ QSet<QString> systemFonts()
         return *fonts;
     }
 
+    defaultFonts.insert(QApplication::font().family());
+
     return defaultFonts;
 }
 
@@ -205,4 +208,9 @@ bool FontResourcesModel::isLocal(const QString &path) const
     NanotraceHR::Tracer tracer{"file resources model is local", category()};
 
     return m_resourceModel->isLocal(path);
+}
+
+bool FontResourcesModel::checkFamilyName(const QString &familyName) const
+{
+    return model().contains(familyName);
 }
