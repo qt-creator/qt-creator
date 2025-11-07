@@ -3,6 +3,7 @@
 
 #include "aiassistantwidget.h"
 
+#include "aiapimanager.h"
 #include "aiassistantconstants.h"
 #include "aiassistanttermsdialog.h"
 #include "aiassistantview.h"
@@ -58,51 +59,6 @@ QString qmlSourcesPath()
         return QLatin1String(SHARE_QML_PATH) + "/aiAssistantQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/aiAssistantQmlSources").toUrlishString();
-}
-
-QString toBase64Image(const Utils::FilePath &imagePath)
-{
-    using namespace Qt::StringLiterals;
-    QImage image(imagePath.toFSPathString());
-    QByteArray byteArray;
-    QBuffer buffer(&byteArray);
-
-    image.save(&buffer, imagePath.suffix().toLatin1());
-
-    return "data:image/%1;base64,%2"_L1.arg(imagePath.suffix(), byteArray.toBase64());
-}
-
-QJsonObject getUserJson(const QUrl &imageUrl, const QString &currentQml, const QString &prompt)
-{
-    using namespace Qt::StringLiterals;
-    using Utils::FilePath;
-
-    QJsonArray jsonContent;
-
-    jsonContent << QJsonObject {
-        {"type", "text"},
-        {"text", "Current Qml:\n```qml\n%1\n```"_L1.arg(currentQml)},
-    };
-
-    jsonContent << QJsonObject {
-        {"type", "text"},
-        {"text", "Request: %1"_L1.arg(prompt)},
-    };
-
-    if (!imageUrl.isEmpty()) {
-        FilePath imagePath = FilePath::fromUrl(imageUrl);
-        if (imagePath.exists()) {
-            jsonContent << QJsonObject {
-                {"type", "image_url"},
-                {"image_url", QJsonObject{{"url", toBase64Image(imagePath)}}},
-            };
-        }
-    }
-
-    return {
-        {"role", "user"},
-        {"content", jsonContent},
-    };
 }
 
 DesignDocument *currentDesignDocument()
@@ -172,12 +128,12 @@ bool AiAssistantWidget::eventFilter(QObject *obj, QEvent *event)
 }
 
 AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
-    : m_manager(Utils::makeUniqueObjectPtr<QNetworkAccessManager>())
+    : m_apiManager(Utils::makeUniqueObjectPtr<AiApiManager>())
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
     , m_modelsModel(Utils::makeUniqueObjectPtr<AiModelsModel>())
     , m_view(view)
-    , m_termsAccepted(Core::ICore::settings()->value(Constants::aiAssistantTermsAcceptedKey, false)
-                          .toBool())
+    , m_termsAccepted(
+          Core::ICore::settings()->value(Constants::aiAssistantTermsAcceptedKey, false).toBool())
 {
     setWindowTitle(tr("AI Assistant", "Title of AI Assistant widget"));
     setMinimumWidth(240);
@@ -200,6 +156,7 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
 
     vLayout->addWidget(m_quickWidget.get());
 
+    connectApiManager();
     reloadQmlSource();
     updateModelConfig();
 }
@@ -271,6 +228,9 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
         qWarning() << __FUNCTION__ << "Manifest has no rules";
         return;
     }
+    m_manifest.setTagsMap({
+        {"image_assets", getImageAssetsPaths().join('\n')},
+    });
 
     m_inputHistory.append(prompt);
     m_historyIndex = m_inputHistory.size();
@@ -281,37 +241,14 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
         return; // TODO: Notify error
     }
 
-    QNetworkRequest request(modelInfo.url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("Authorization", QByteArray("Bearer ").append(modelInfo.apiKey.toUtf8()));
-
-    const Utils::FilePath qmlFile = currentDesignDocument()->fileName();
-    const QString imagePaths = getImageAssetsPaths().join('\n');
-    m_manifest.setTagsMap({
-        {"image_assets", imagePaths},
-    });
-
-    QJsonObject userJson = getUserJson(fullImageUrl(attachedImageSource()), currentQmlText(), prompt);
-
-    QJsonObject json;
-    json["model"] = modelInfo.modelId;
-    json["messages"] = QJsonArray {
-        QJsonObject{{"role", "system"}, {"content", m_manifest.toString()}},
-        userJson,
-    };
-
-    QNetworkReply *reply = m_manager->post(request, QJsonDocument(json).toJson());
-    setIsGenerating(true);
-
-    connect(reply, &QNetworkReply::finished, this, [reply, this] {
-        setIsGenerating(false);
-        if (reply->error() != QNetworkReply::NoError)
-            emit notifyAIResponseError(reply->errorString());
-        else
-            handleAiResponse(reply->readAll());
-
-        reply->deleteLater();
-    });
+    m_apiManager->request(
+        {
+            .manifest = m_manifest.toString(),
+            .qml = currentQmlText(),
+            .userPrompt = prompt,
+            .attachedImage = fullImageUrl(attachedImageSource()),
+        },
+        modelInfo);
 }
 
 QString AiAssistantWidget::getPreviousCommand()
@@ -376,6 +313,39 @@ void AiAssistantWidget::openTermsDialog()
         m_termsAccepted = true;
         emit termsAcceptedChanged();
     }
+}
+
+void AiAssistantWidget::connectApiManager()
+{
+    AiApiManager *apiManager = m_apiManager.get();
+
+    connect(
+        apiManager,
+        &AiApiManager::started,
+        this,
+        std::bind_front(&AiAssistantWidget::setIsGenerating, this, true));
+
+    connect(
+        apiManager,
+        &AiApiManager::finished,
+        this,
+        std::bind_front(&AiAssistantWidget::setIsGenerating, this, false));
+
+    connect(
+        apiManager,
+        &AiApiManager::responseError,
+        this,
+        [this](const auto &, const auto &, const QString &error) {
+            emit notifyAIResponseError(error);
+        });
+
+    connect(
+        apiManager,
+        &AiApiManager::responseReady,
+        this,
+        [this](const auto &, const auto &, const AiResponse &response) {
+            handleAiResponse(response);
+        });
 }
 
 void AiAssistantWidget::reloadQmlSource()
