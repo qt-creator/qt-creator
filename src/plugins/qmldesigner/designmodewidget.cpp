@@ -134,31 +134,6 @@ DesignModeWidget::~DesignModeWidget()
     delete m_dockManager;
 }
 
-QWidget *DesignModeWidget::createProjectExplorerWidget(QWidget *parent)
-{
-    const QList<Core::INavigationWidgetFactory *> factories =
-            Core::INavigationWidgetFactory::allNavigationFactories();
-
-    Core::NavigationView navigationView;
-    navigationView.widget = nullptr;
-
-    for (Core::INavigationWidgetFactory *factory : factories) {
-        if (factory->id() == "Project") {
-            navigationView = factory->createWidget();
-            hideToolButtons(navigationView.dockToolBarWidgets);
-        }
-    }
-
-    if (navigationView.widget) {
-        QString sheet = Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css");
-        sheet += "QLabel { background-color: #4f4f4f; }";
-        navigationView.widget->setStyleSheet(Theme::replaceCssColors(sheet));
-        navigationView.widget->setParent(parent);
-    }
-
-    return navigationView.widget;
-}
-
 void DesignModeWidget::readSettings() // readPerspectives
 {
     return;

@@ -666,16 +666,6 @@ Internal::DesignModeWidget *QmlDesignerPlugin::mainWidget() const
     return d ? &d->mainWidget : nullptr;
 }
 
-QmlDesignerProjectManager &QmlDesignerPlugin::projectManagerForPluginInitializationOnly()
-{
-    return m_instance->d->projectManager;
-}
-
-QWidget *QmlDesignerPlugin::createProjectExplorerWidget(QWidget *parent) const
-{
-    return Internal::DesignModeWidget::createProjectExplorerWidget(parent);
-}
-
 void QmlDesignerPlugin::switchToTextModeDeferred()
 {
     QTimer::singleShot(0, this, [] {
