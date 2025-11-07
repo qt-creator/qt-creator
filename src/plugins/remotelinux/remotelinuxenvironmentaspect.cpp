@@ -11,7 +11,6 @@
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/environmentaspectwidget.h>
 #include <projectexplorer/environmentwidget.h>
-#include <projectexplorer/kitmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/devicefileaccess.h>
@@ -37,12 +36,6 @@ public:
     {
         auto fetchButton = new QPushButton(Tr::tr("Fetch Device Environment"));
         addWidget(fetchButton);
-
-        // FIXME: Belongs into the aspect itself?
-        connect(KitManager::instance(), &KitManager::kitUpdated, aspect, [aspect](Kit *k) {
-            if (k == aspect->kit())
-                aspect->setRemoteEnvironment({});
-        });
 
         connect(fetchButton, &QPushButton::clicked, this, [aspect] {
             if (IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->kit())) {
@@ -125,6 +118,23 @@ void RemoteLinuxEnvironmentAspect::toMap(Store &map) const
 {
     ProjectExplorer::EnvironmentAspect::toMap(map);
     map.insert(VERSION_KEY, ENVIRONMENTASPECT_VERSION);
+}
+
+void RemoteLinuxEnvironmentAspect::handleKitUpdate()
+{
+    IDevice::ConstPtr device;
+    switch (deviceSelector()) {
+    case BuildDevice:
+        device = BuildDeviceKitAspect::device(kit());
+        break;
+    case RunDevice:
+        device = RunDeviceKitAspect::device(kit());
+        break;
+    case HostDevice:
+        QTC_CHECK(false);
+        break;
+    }
+    setRemoteEnvironment(Environment(device ? device->osType() : OsTypeLinux));
 }
 
 } // namespace RemoteLinux

@@ -53,6 +53,7 @@ public:
     bool isLocal() const { return m_isLocal; }
 
     Kit *kit() const { return m_kit; }
+    DeviceSelector deviceSelector() const { return m_selector; }
 
     bool isPrintOnRunAllowed() const { return m_allowPrintOnRun; }
     bool isPrintOnRunEnabled() const { return m_printOnRun; }
@@ -82,6 +83,8 @@ protected:
     static constexpr char CHANGES_KEY[] = "PE.EnvironmentAspect.Changes";
 
 private:
+    virtual void handleKitUpdate() {}
+
     // One possible choice in the Environment aspect.
     struct BaseEnvironment {
         Utils::Environment unmodifiedBaseEnvironment() const;
