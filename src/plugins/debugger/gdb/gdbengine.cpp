@@ -748,9 +748,6 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
             showMessage("UNSAFE STATE FOR QUEUED COMMAND. EXECUTING IMMEDIATELY");
     }
 
-    if (!(cmd.flags & Discardable))
-        ++m_nonDiscardableCount;
-
     bool isPythonCommand = true;
     if ((cmd.flags & NativeCommand) || cmd.function.contains('-') || cmd.function.contains(' '))
         isPythonCommand = false;
@@ -966,9 +963,6 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
             showMessage(rsp);
         }
     }
-
-    if (!(flags & Discardable))
-        --m_nonDiscardableCount;
 
     m_inUpdateLocals = (flags & InUpdateLocals);
 
@@ -2050,7 +2044,6 @@ void GdbEngine::handleExecuteReturn(const DebuggerResponse &response)
 */
 void GdbEngine::setTokenBarrier()
 {
-    //QTC_ASSERT(m_nonDiscardableCount == 0, /**/);
     bool good = true;
     for (auto it = m_commandForToken.cbegin(), end = m_commandForToken.cend(); it != end; ++it) {
         if (!(m_flagsForToken.value(it.key()) & Discardable)) {

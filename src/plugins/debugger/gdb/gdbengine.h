@@ -118,7 +118,6 @@ private: ////////// General Interface //////////
     // of evaluation. Responses with older tokens are considers
     // out of date and discarded.
     int m_oldestAcceptableToken = -1;
-    int m_nonDiscardableCount = 0;
 
     bool m_rerunPending = false;
     bool m_ignoreNextTrap = false;
