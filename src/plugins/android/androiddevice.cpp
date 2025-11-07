@@ -150,8 +150,6 @@ public:
     QSingleTaskTreeRunner m_taskTreeRunner;
     std::shared_ptr<CmdBridge::FileAccess> m_fileAccess;
     std::shared_ptr<AndroidFileAccess> m_fallbackFileAccess;
-    std::shared_ptr<UnavailableDeviceFileAccess> m_disconnectedAccess
-        = std::make_shared<UnavailableDeviceFileAccess>();
 
     std::shared_ptr<AccessData> m_accessData;
 };
@@ -473,8 +471,6 @@ AndroidDevice::AndroidDevice()
         AndroidConfigurations::instance(), &AndroidConfigurations::sdkLocationChanged, this, [this] {
             *d->m_accessData->adbToolPath.writeLocked() = AndroidConfig::adbToolPath();
         });
-
-    setFileAccess(d->m_disconnectedAccess);
 }
 
 AndroidDevice::~AndroidDevice()
@@ -893,7 +889,7 @@ void AndroidDevice::updateDeviceFileAccess()
             }
         }
     } else {
-        setFileAccess(d->m_disconnectedAccess);
+        setFileAccess(nullptr);
         d->m_fallbackFileAccess.reset();
         d->m_fileAccess.reset();
     }

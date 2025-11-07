@@ -381,17 +381,25 @@ std::vector<Result<std::unique_ptr<FilePathWatcher>>> FilePath::watch(const File
 {
     if (paths.isEmpty())
         return {};
-    if (paths.size() == 1) {
-        return paths.at(0).fileAccess()->watch({paths.at(0)});
-    }
+
     using WatchResult = std::vector<Result<std::unique_ptr<FilePathWatcher>>>;
+    if (paths.size() == 1) {
+        const Result<DeviceFileAccessPtr> access = paths.front().fileAccess();
+        if (access)
+            return {(*access)->watch(paths)};
+        return {};
+    }
+
     WatchResult allResults;
     allResults.reserve(paths.size());
     // Sort into device file access instances, so we can call watch() in bulk on them
-    std::unordered_map<DeviceFileAccessPtr, FilePaths> access;
-    for (const FilePath &path : paths)
-        access[path.fileAccess()].append(path);
-    for (const auto &fileAccess : access) {
+    std::unordered_map<DeviceFileAccessPtr, FilePaths> accesses;
+    for (const FilePath &path : paths) {
+        const Result<DeviceFileAccessPtr> access = path.fileAccess();
+        if (access)
+            accesses[*access].append(path);
+    }
+    for (const auto &fileAccess : accesses) {
         WatchResult results = fileAccess.first->watch(fileAccess.second);
         for (auto &result : results)
             allResults.push_back(std::move(result));
@@ -683,12 +691,20 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
 */
 Result<> FilePath::ensureWritableDir() const
 {
-    return fileAccess()->ensureWritableDirectory(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    return (*access)->ensureWritableDirectory(*this);
 }
 
 bool FilePath::ensureExistingFile() const
 {
-    const Result<> res = fileAccess()->ensureExistingFile(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return false;
+
+    const Result<> res = (*access)->ensureExistingFile(*this);
     if (!res) {
         logError("ensureExistingFile", res.error());
         return false;
@@ -706,7 +722,11 @@ bool FilePath::ensureExistingFile() const
 */
 std::optional<FilePath> FilePath::refersToExecutableFile(MatchScope matchScope) const
 {
-    const auto res = fileAccess()->refersToExecutableFile(*this,  matchScope);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    const auto res = (*access)->refersToExecutableFile(*this,  matchScope);
     if (!res) {
         logError("refersToExecutableFile", res.error());
         return {};
@@ -748,7 +768,11 @@ Result<FilePath> FilePath::createTempFile() const
         return ResultError(Tr::tr("Could not create temporary file: %1").arg(file.errorString()));
     }
 
-    return fileAccess()->createTempFile(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    return (*access)->createTempFile(*this);
 }
 
 Result<FilePath> FilePath::createTempDir() const
@@ -763,12 +787,20 @@ Result<FilePath> FilePath::createTempDir() const
             Tr::tr("Could not create temporary directory: %1").arg(dir.errorString()));
     }
 
-    return fileAccess()->createTempDir(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    return (*access)->createTempDir(*this);
 }
 
 bool FilePath::hasHardLinks() const
 {
-    const Result<bool> res = fileAccess()->hasHardLinks(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return false;
+
+    const Result<bool> res = (*access)->hasHardLinks(*this);
     if (!res)
         logError("hasHardlinks", res.error());
     return res.has_value() ? res.value() : false;
@@ -784,7 +816,11 @@ bool FilePath::hasHardLinks() const
 */
 bool FilePath::createDir() const
 {
-    const Result<> res = fileAccess()->createDirectory(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return false;
+
+    const Result<> res = (*access)->createDirectory(*this);
     return res.has_value();
 }
 
@@ -845,7 +881,11 @@ FilePaths FilePath::dirEntries(QDir::Filters filters) const
 
 void FilePath::iterateDirectory(const IterateDirCallback &callBack, const FileFilter &filter) const
 {
-    fileAccess()->iterateDirectory(*this, callBack, filter);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return;
+
+    (*access)->iterateDirectory(*this, callBack, filter);
 }
 
 void FilePath::iterateDirectories(const FilePaths &dirs,
@@ -858,7 +898,11 @@ void FilePath::iterateDirectories(const FilePaths &dirs,
 
 Result<QByteArray> FilePath::fileContents(qint64 maxSize, qint64 offset) const
 {
-    return fileAccess()->fileContents(*this, maxSize, offset);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    return (*access)->fileContents(*this, maxSize, offset);
 }
 
 Result<> FilePath::ensureReachable(const FilePath &other) const
@@ -876,7 +920,11 @@ Result<> FilePath::ensureReachable(const FilePath &other) const
 
 Result<qint64> FilePath::writeFileContents(const QByteArray &data) const
 {
-    return fileAccess()->writeFileContents(*this, data);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    return (*access)->writeFileContents(*this, data);
 }
 
 FileStreamHandle FilePath::asyncCopy(const Continuation<> &cont, const FilePath &target) const
@@ -918,12 +966,16 @@ bool FilePath::isSameFile(const FilePath &other) const
     if (!isSameDevice(other))
         return false;
 
-    const Result<QByteArray> fileId = fileAccess()->fileId(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return false;
+
+    const Result<QByteArray> fileId = (*access)->fileId(*this);
     if (!fileId) {
         logError("isSameFile", fileId.error());
         return false;
     }
-    const Result<QByteArray> otherFileId = fileAccess()->fileId(other);
+    const Result<QByteArray> otherFileId = (*access)->fileId(other);
     if (!otherFileId) {
         logError("isSameFile", otherFileId.error());
         return false;
@@ -994,7 +1046,11 @@ bool FilePath::isSameExecutable(const FilePath &other) const
 */
 FilePath FilePath::symLinkTarget() const
 {
-    const Result<FilePath> res = fileAccess()->symLinkTarget(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    const Result<FilePath> res = (*access)->symLinkTarget(*this);
     if (!res) {
         logError("symLinkTarget", res.error());
         return {};
@@ -1453,9 +1509,9 @@ void FilePath::setFromString(QStringView fileNameView)
     setParts({}, {}, fileNameView);
 }
 
-static Result<DeviceFileAccessPtr> getFileAccess(const FilePath &filePath)
+Result<DeviceFileAccessPtr> FilePath::fileAccess() const
 {
-    if (filePath.isLocal())
+    if (isLocal())
         return DesktopDeviceFileAccess::instance();
 
     if (!deviceFileHooks().fileAccess) {
@@ -1464,26 +1520,18 @@ static Result<DeviceFileAccessPtr> getFileAccess(const FilePath &filePath)
         return DesktopDeviceFileAccess::instance();
     }
 
-    return deviceFileHooks().fileAccess(filePath);
-}
-
-DeviceFileAccessPtr FilePath::fileAccess() const
-{
-    static DeviceFileAccessPtr dummy = std::make_shared<DeviceFileAccess>();
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
-    QTC_ASSERT_RESULT(access, return dummy);
-    return *access;
+    return deviceFileHooks().fileAccess(*this);
 }
 
 bool FilePath::hasFileAccess() const
 {
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = fileAccess();
     return access.has_value();
 }
 
 FilePathInfo FilePath::filePathInfo() const
 {
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return {};
 
@@ -1503,7 +1551,7 @@ bool FilePath::exists() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return false;
 
@@ -1523,7 +1571,7 @@ bool FilePath::isExecutableFile() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return false;
 
@@ -1543,7 +1591,7 @@ bool FilePath::isWritableDir() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return false;
 
@@ -1563,7 +1611,7 @@ bool FilePath::isWritableFile() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return false;
 
@@ -1580,7 +1628,7 @@ bool FilePath::isReadableFile() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return false;
 
@@ -1597,7 +1645,7 @@ bool FilePath::isReadableDir() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return false;
 
@@ -1614,7 +1662,7 @@ bool FilePath::isFile() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return false;
 
@@ -1631,7 +1679,7 @@ bool FilePath::isDir() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return false;
 
@@ -1648,7 +1696,7 @@ bool FilePath::isSymLink() const
     if (isEmpty())
         return false;
 
-    const Result<DeviceFileAccessPtr> access = getFileAccess(*this);
+    const Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
         return false;
 
@@ -1952,8 +2000,12 @@ QString FilePath::relativeNativePathFromDir(const FilePath &anchorDir) const
 */
 FilePath FilePath::withNewMappedPath(const FilePath &newPath) const
 {
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
     FilePath res;
-    res.setParts(scheme(), host(), fileAccess()->mapToDevicePath(newPath.path()));
+    res.setParts(scheme(), host(), (*access)->mapToDevicePath(newPath.path()));
     return res;
 }
 
@@ -2271,7 +2323,11 @@ std::optional<FilePath> FilePath::prefixRemoved(const QString &str) const
 
 QDateTime FilePath::lastModified() const
 {
-    const Result<QDateTime> res = fileAccess()->lastModified(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    const Result<QDateTime> res = (*access)->lastModified(*this);
     if (!res) {
         logError("lastModified", res.error());
         return {};
@@ -2281,7 +2337,11 @@ QDateTime FilePath::lastModified() const
 
 QFile::Permissions FilePath::permissions() const
 {
-    const Result<QFile::Permissions> res = fileAccess()->permissions(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    const Result<QFile::Permissions> res = (*access)->permissions(*this);
     if (!res) {
         logError("permissions", res.error());
         return {};
@@ -2291,7 +2351,11 @@ QFile::Permissions FilePath::permissions() const
 
 Result<> FilePath::setPermissions(QFile::Permissions permissions) const
 {
-    const Result<> res = fileAccess()->setPermissions(*this, permissions);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    const Result<> res = (*access)->setPermissions(*this, permissions);
     if (!res)
         logError("setPermissions", res.error());
     return res;
@@ -2313,7 +2377,11 @@ OsType FilePath::osType() const
 
 Result<> FilePath::removeFile() const
 {
-    return fileAccess()->removeFile(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    return (*access)->removeFile(*this);
 }
 
 /*!
@@ -2321,12 +2389,20 @@ Result<> FilePath::removeFile() const
 */
 Result<> FilePath::removeRecursively() const
 {
-    return fileAccess()->removeRecursively(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    return (*access)->removeRecursively(*this);
 }
 
 Result<> FilePath::copyRecursively(const FilePath &target) const
 {
-    return fileAccess()->copyRecursively(*this, target);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    return (*access)->copyRecursively(*this, target);
 }
 
 Result<> FilePath::copyFile(const FilePath &target) const
@@ -2353,7 +2429,12 @@ Result<> FilePath::copyFile(const FilePath &target) const
 
         return ResultOk;
     }
-    return fileAccess()->copyFile(*this, target);
+
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    return (*access)->copyFile(*this, target);
 }
 
 /*!
@@ -2370,13 +2451,23 @@ Result<> FilePath::createSymLink(const FilePath &symLink) const
                 "Cannot create symbolic link to \"%1\" at \"%2\": Paths do not refer to the "
                 "same device.").arg(toUserOutput(), symLink.toUserOutput()));
     }
-    return fileAccess()->createSymLink(*this, symLink);
+
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    return (*access)->createSymLink(*this, symLink);
 }
 
 Result<> FilePath::renameFile(const FilePath &target) const
 {
-    if (isSameDevice(target))
-        return fileAccess()->renameFile(*this, target);
+    if (isSameDevice(target)) {
+        Result<DeviceFileAccessPtr> access = fileAccess();
+        if (!access)
+            return ResultError(access.error());
+
+        return (*access)->renameFile(*this, target);
+    }
 
     const Result<> copyResult = copyFile(target);
     if (!copyResult)
@@ -2392,14 +2483,16 @@ Result<> FilePath::renameFile(const FilePath &target) const
     QTC_CHECK_RESULT(rmResult);
     return ResultError(
         Tr::tr("Failed to move %1 to %2. Removing the source file failed: %3")
-            .arg(toUserOutput())
-            .arg(target.toUserOutput())
-            .arg(rmResult.error()));
+            .arg(toUserOutput(), target.toUserOutput(), rmResult.error()));
 }
 
 qint64 FilePath::fileSize() const
 {
-    const Result<qint64> res = fileAccess()->fileSize(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    const Result<qint64> res = (*access)->fileSize(*this);
     if (!res) {
         logError("fileSize", res.error());
         return {};
@@ -2409,7 +2502,11 @@ qint64 FilePath::fileSize() const
 
 QString FilePath::owner() const
 {
-    const Result<QString> res = fileAccess()->owner(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    const Result<QString> res = (*access)->owner(*this);
     if (!res) {
         logError("owner", res.error());
         return {};
@@ -2419,7 +2516,11 @@ QString FilePath::owner() const
 
 uint FilePath::ownerId() const
 {
-    const Result<uint> res = fileAccess()->ownerId(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    const Result<uint> res = (*access)->ownerId(*this);
     if (!res) {
         logError("ownerId", res.error());
         return {};
@@ -2429,7 +2530,11 @@ uint FilePath::ownerId() const
 
 QString FilePath::group() const
 {
-    const Result<QString> res = fileAccess()->group(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    const Result<QString> res = (*access)->group(*this);
     if (!res) {
         logError("group", res.error());
         return {};
@@ -2439,7 +2544,11 @@ QString FilePath::group() const
 
 uint FilePath::groupId() const
 {
-    const Result<uint> res = fileAccess()->groupId(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    const Result<uint> res = (*access)->groupId(*this);
     if (!res) {
         logError("groupId", res.error());
         return {};
@@ -2449,7 +2558,11 @@ uint FilePath::groupId() const
 
 qint64 FilePath::bytesAvailable() const
 {
-    const Result<qint64> res = fileAccess()->bytesAvailable(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    const Result<qint64> res = (*access)->bytesAvailable(*this);
     if (!res) {
         logError("bytesAvailable", res.error());
         return {};
@@ -2523,12 +2636,20 @@ QChar FilePath::pathListSeparator() const
 
 TextEncoding FilePath::processStdOutEncoding() const
 {
-    return fileAccess()->processStdOutEncoding(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    return (*access)->processStdOutEncoding(*this);
 }
 
 TextEncoding FilePath::processStdErrEncoding() const
 {
-    return fileAccess()->processStdErrEncoding(*this);
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return {};
+
+    return (*access)->processStdErrEncoding(*this);
 }
 
 /*!

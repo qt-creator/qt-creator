@@ -339,7 +339,7 @@ private:
     friend class ::tst_fileutils;
     void setPath(QStringView path);
     void setFromString(QStringView filepath);
-    DeviceFileAccessPtr fileAccess() const;
+    Utils::Result<DeviceFileAccessPtr> fileAccess() const;
 
     [[nodiscard]] QString encodedHost() const;
 
