@@ -36,7 +36,8 @@ bool isAssetFile(const Utils::FilePath &path)
 {
     static const QStringList suffixes = {
         "js", "ts", "json", "hints", "mesh", "qad", "qsb", "frag",
-        "frag.qsb", "vert", "vert.qsb", "mng", "wav"
+        "frag.qsb", "vert", "vert.qsb", "mng", "wav", "mp3", "mp4",
+        "glsl", "glslv", "glslf", "vsh", "fsh"
     };
     return suffixes.contains(path.suffix(), Qt::CaseInsensitive) || isImageFile(path);
 }

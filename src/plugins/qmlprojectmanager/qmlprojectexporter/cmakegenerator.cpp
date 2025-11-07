@@ -458,7 +458,7 @@ void CMakeGenerator::insertFile(NodePtr &node, const FilePath &path) const
         node->sources.push_back(path);
     } else if (isQmlFile(path)) {
         node->files.push_back(path);
-    } else if (isAssetFile(path)) {
+    } else if (isAssetFile(path) || isFontFile(path)) {
         node->assets.push_back(path);
     }
 }
