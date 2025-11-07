@@ -19,9 +19,9 @@ namespace QmlDesigner {
 AiProviderSettingsWidget::AiProviderSettingsWidget(const QString &providerName, QWidget *parent)
     : QGroupBox(parent)
     , m_config(providerName)
-    , m_url(Utils::makeUniqueObjectPtr<QLineEdit>())
-    , m_apiKey(Utils::makeUniqueObjectPtr<QLineEdit>())
-    , m_models(Utils::makeUniqueObjectPtr<StringListWidget>())
+    , m_urlLineEdit(Utils::makeUniqueObjectPtr<QLineEdit>())
+    , m_apiKeyLineEdit(Utils::makeUniqueObjectPtr<QLineEdit>())
+    , m_modelsListWidget(Utils::makeUniqueObjectPtr<StringListWidget>())
 {
     setupUi();
     load();
@@ -29,25 +29,29 @@ AiProviderSettingsWidget::AiProviderSettingsWidget(const QString &providerName, 
 
 void AiProviderSettingsWidget::load()
 {
-    m_apiKey->setText(m_config.apiKey());
+    setChecked(m_config.isChecked());
+    m_apiKeyLineEdit->setText(m_config.apiKey());
+
     const auto providerData = AiProviderData::defaultProviders().value(m_config.providerName());
 
     QUrl url = m_config.url();
     if (url.isEmpty())
         url = providerData.url;
-    m_url->setText(url.toString());
+    m_urlLineEdit->setText(url.toString());
 
-    m_models->setItems(m_config.modelIds(), providerData.models);
+    m_modelsListWidget->setItems(m_config.modelIds(), providerData.models);
 }
 
 bool AiProviderSettingsWidget::save()
 {
-    bool changed = m_config.apiKey() != m_apiKey->text() || m_config.url() != m_url->text()
-                   || m_config.modelIds() != m_models->items();
+    bool changed = m_config.isChecked() != isChecked()
+                || m_config.apiKey() != m_apiKeyLineEdit->text()
+                || m_config.url() != m_urlLineEdit->text()
+                || m_config.modelIds() != m_modelsListWidget->items();
     if (!changed)
         return false;
 
-    m_config.save(m_url->text(), m_apiKey->text(), m_models->items());
+    m_config.save(isChecked(), m_urlLineEdit->text(), m_apiKeyLineEdit->text(), m_modelsListWidget->items());
     return true;
 }
 
@@ -59,6 +63,7 @@ const AiProviderConfig AiProviderSettingsWidget::config() const
 void AiProviderSettingsWidget::setupUi()
 {
     setTitle(m_config.providerName());
+    setCheckable(true);
 
     using namespace Qt::StringLiterals;
     auto createLabel = [this](const QString &txt) -> QLabel * {
@@ -76,7 +81,7 @@ void AiProviderSettingsWidget::setupUi()
     resetUrlButton->setFixedSize({iconSize, iconSize});
     connect(resetUrlButton, &QAbstractButton::clicked, this, [this] {
         const auto providerData = AiProviderData::defaultProviders().value(m_config.providerName());
-        m_url->setText(providerData.url.toString());
+        m_urlLineEdit->setText(providerData.url.toString());
     });
 
     using namespace Layouting;
@@ -84,22 +89,22 @@ void AiProviderSettingsWidget::setupUi()
         Column{
             createLabel(tr("Url:")),
             Row{
-                m_url.get(),
+                m_urlLineEdit.get(),
                 resetUrlButton,
             },
             spacing(3),
         },
         Column{
             createLabel(tr("API key:")),
-            m_apiKey.get(),
+            m_apiKeyLineEdit.get(),
             spacing(3),
         },
         Column{
             Row{
                 createLabel(tr("Models:")),
-                m_models->toolBar(),
+                m_modelsListWidget->toolBar(),
             },
-            m_models.get(),
+            m_modelsListWidget.get(),
             spacing(3),
         },
         spacing(10),

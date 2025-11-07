@@ -44,8 +44,10 @@ QList<AiModelInfo> AiProviderSettings::allValidModels()
 {
     QList<AiModelInfo> validModel;
     const QList<AiProviderConfig> allProviders = allProviderConfigs();
-    for (const AiProviderConfig &provider : allProviders)
-        validModel.append(provider.allValidModels());
+    for (const AiProviderConfig &provider : allProviders) {
+        if (provider.isChecked())
+            validModel.append(provider.allValidModels());
+    }
     return validModel;
 }
 

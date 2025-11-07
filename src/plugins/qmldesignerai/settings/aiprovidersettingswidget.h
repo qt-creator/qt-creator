@@ -9,8 +9,10 @@
 
 #include <QGroupBox>
 
-Q_FORWARD_DECLARE_OBJC_CLASS(QLineEdit);
-Q_FORWARD_DECLARE_OBJC_CLASS(QPushButton);
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
@@ -31,9 +33,9 @@ private:
     void setupUi();
 
     AiProviderConfig m_config;
-    Utils::UniqueObjectPtr<QLineEdit> m_url;
-    Utils::UniqueObjectPtr<QLineEdit> m_apiKey;
-    Utils::UniqueObjectPtr<StringListWidget> m_models;
+    Utils::UniqueObjectPtr<QLineEdit> m_urlLineEdit;
+    Utils::UniqueObjectPtr<QLineEdit> m_apiKeyLineEdit;
+    Utils::UniqueObjectPtr<StringListWidget> m_modelsListWidget;
 };
 
 } // namespace QmlDesigner

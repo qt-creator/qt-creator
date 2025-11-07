@@ -23,16 +23,18 @@ public:
     AiProviderConfig(const QString &providerName = {});
 
     QString providerName() const { return m_providerName; }
+    bool isChecked() const { return m_isChecked; }
     QUrl url() const { return m_url; };
     QString apiKey() const { return m_apiKey; };
     QStringList modelIds() const { return m_modelIds; };
     bool isValid() const;
     QList<AiModelInfo> allValidModels() const;
 
-    void save(const QString &url, const QString &apiKey, const QStringList &modelIds);
+    void save(bool checked, const QString &url, const QString &apiKey, const QStringList &modelIds);
 
 private:
     QString m_providerName;
+    bool m_isChecked = true;
     QUrl m_url;
     QStringList m_modelIds;
     QString m_apiKey;
