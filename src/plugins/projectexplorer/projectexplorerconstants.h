@@ -98,6 +98,7 @@ const char DEVICE_SETTINGS_PAGE_ID[] = "AA.Device Settings";
 const char TASK_CATEGORY_COMPILE[] = "Task.Category.Compile";
 const char TASK_CATEGORY_BUILDSYSTEM[] = "Task.Category.Buildsystem";
 const char TASK_CATEGORY_DEPLOYMENT[] = "Task.Category.Deploy";
+const char TASK_CATEGORY_RUN[] = "Task.Category.Run";
 const char TASK_CATEGORY_AUTOTEST[] = "Task.Category.Autotest";
 const char TASK_CATEGORY_SANITIZER[] = "Task.Category.Analyzer";
 const char TASK_CATEGORY_TASKLIST_ID[] = "Task.Category.TaskListId";

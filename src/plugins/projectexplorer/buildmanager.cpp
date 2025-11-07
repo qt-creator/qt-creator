@@ -124,14 +124,16 @@ private:
             return;
         int errors = m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
                      + m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_COMPILE)
-                     + m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_DEPLOYMENT);
+                     + m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_DEPLOYMENT)
+                     + m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_RUN);
         bool haveErrors = (errors > 0);
         m_errorIcon->setEnabled(haveErrors);
         m_errorLabel->setEnabled(haveErrors);
         m_errorLabel->setText(QString::number(errors));
         int warnings = m_taskWindow->warningTaskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
                        + m_taskWindow->warningTaskCount(Constants::TASK_CATEGORY_COMPILE)
-                       + m_taskWindow->warningTaskCount(Constants::TASK_CATEGORY_DEPLOYMENT);
+                       + m_taskWindow->warningTaskCount(Constants::TASK_CATEGORY_DEPLOYMENT)
+                       + m_taskWindow->warningTaskCount(Constants::TASK_CATEGORY_RUN);
         bool haveWarnings = (warnings > 0);
         m_warningIcon->setEnabled(haveWarnings);
         m_warningLabel->setEnabled(haveWarnings);

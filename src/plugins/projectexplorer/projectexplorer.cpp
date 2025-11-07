@@ -2681,9 +2681,46 @@ bool ProjectExplorerPlugin::renameFile(const Utils::FilePath &source, const Util
 }
 #endif // WITH_TESTS
 
+namespace {
+void clearRunTasks()
+{
+    TaskHub::clearTasks(Constants::TASK_CATEGORY_RUN);
+}
+void addRunErrorTask(const QString &message)
+{
+    QRegularExpression fileLineProblemLocationRegularExpression(R"(file:[^\s:]+:(\d+):(\d+):)");
+    QRegularExpressionMatchIterator it = fileLineProblemLocationRegularExpression.globalMatch(
+        message);
+    QRegularExpressionMatch lastMatch;
+    while (it.hasNext())
+        lastMatch = it.next();
+
+    Utils::FilePath filePath;
+    int lineNumber = -1;
+
+    if (lastMatch.hasMatch()) {
+        const QString fullFileLineProblemLocation = lastMatch.captured(0);
+        const QString urlPart = fullFileLineProblemLocation.left(
+            fullFileLineProblemLocation.lastIndexOf(':', fullFileLineProblemLocation.length() - 2));
+        const int firstColon = urlPart.indexOf(':', QString("file://").length());
+        const QString fileUrl = urlPart.left(firstColon);
+        lineNumber = lastMatch.captured(1).toInt();
+
+        Utils::FilePath parsedFilePath = Utils::FilePath::fromUserInput(fileUrl);
+        if (parsedFilePath.exists())
+            filePath = parsedFilePath;
+    }
+
+    Task task(Task::Error, message, filePath, lineNumber, Constants::TASK_CATEGORY_RUN);
+    TaskHub::addTask(task);
+    TaskHub::requestPopup();
+}
+} // namespace
+
 void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
 {
     appOutputPane().prepareRunControlStart(runControl);
+    clearRunTasks();
     connect(runControl, &QObject::destroyed, this, &ProjectExplorerPluginPrivate::checkForShutdown,
             Qt::QueuedConnection);
     ++m_activeRunControlCount;
@@ -2691,6 +2728,10 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
     doUpdateRunActions();
     connect(runControl, &RunControl::started, m_instance, [runControl] {
         emit m_instance->runControlStarted(runControl);
+        connect(runControl, &RunControl::appendMessage, [](const QString &out, OutputFormat format) {
+            if (format == Utils::StdErrFormat)
+                addRunErrorTask(out);
+        });
     });
     connect(runControl, &RunControl::stopped, m_instance, [runControl] {
         emit m_instance->runControlStoped(runControl);
