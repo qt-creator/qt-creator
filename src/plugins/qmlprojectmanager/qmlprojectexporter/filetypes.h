@@ -13,6 +13,7 @@ QMLPROJECTMANAGER_EXPORT QStringList imageFiles(
 QMLPROJECTMANAGER_EXPORT bool isQmlFile(const Utils::FilePath &path);
 QMLPROJECTMANAGER_EXPORT bool isImageFile(const Utils::FilePath &path);
 QMLPROJECTMANAGER_EXPORT bool isAssetFile(const Utils::FilePath &path);
+QMLPROJECTMANAGER_EXPORT bool isFontFile(const Utils::FilePath &path);
 QMLPROJECTMANAGER_EXPORT bool isResource(const Utils::FilePath &path);
 
 } // namespace QmlProjectManager.
