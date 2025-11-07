@@ -121,7 +121,32 @@ Section {
                 width: implicitWidth
             }
 
-            ExpandingSpacer {}
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+
+            Item {
+                visible: !fontComboBox.fontExists
+
+                implicitWidth: StudioTheme.Values.iconAreaWidth // TODO dedicated value
+                implicitHeight: StudioTheme.Values.height // TODO dedicated value
+
+                T.Label {
+                    anchors.fill: parent
+                    text: StudioTheme.Constants.warning_medium
+                    color: StudioTheme.Values.themeWarning
+                    font.family: StudioTheme.Constants.iconFont.family
+                    font.pixelSize: StudioTheme.Values.myIconFontSize + 4 // TODO
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    ToolTipArea {
+                        id: toolTipArea
+                        anchors.fill: parent
+                        tooltip: qsTr("The font %1 is not part of the project and cannot be displayed correctly." +
+                                      "Please install the font into the project.").arg(fontComboBox.editText)
+
+                    }
+
+                }
+            }
         }
 
         PropertyLabel {
