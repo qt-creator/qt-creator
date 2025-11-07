@@ -107,9 +107,6 @@ private: ////////// General Interface //////////
     void commandTimeout();
     void setTokenBarrier();
 
-    // Sets up an "unexpected result" for the following commeand.
-    void scheduleTestResponse(int testCase, const QString &response);
-
     QHash<int, DebuggerCommand> m_commandForToken;
     QHash<int, int> m_flagsForToken;
     QTimer m_commandTimer;
@@ -339,9 +336,6 @@ private: ////////// General Interface //////////
     bool usesTargetAsync() const;
 
     DebuggerCommandSequence m_onStop;
-
-    QHash<int, QString> m_scheduledTestResponses;
-    QSet<int> m_testCases;
 
     bool m_systemDumpersLoaded = false;
 

@@ -770,35 +770,22 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
 
     showMessage(cmd.function.left(100), LogInput);
 
-    if (m_scheduledTestResponses.contains(token)) {
-        // Fake response for test cases.
-        QString buffer = m_scheduledTestResponses.value(token);
-        buffer.replace("@TOKEN@", QString::number(token));
-        m_scheduledTestResponses.remove(token);
-        showMessage(QString("FAKING TEST RESPONSE (TOKEN: %2, RESPONSE: %3)")
-                    .arg(token).arg(buffer));
-        QMetaObject::invokeMethod(this, [this, buffer] { handleResponse(buffer); });
-    } else {
-        m_gdbProc.write(cmd.function + "\r\n");
-        if (command.flags & NeedsFlush) {
-            // We don't need the response or result here, just want to flush
-            // anything that's still on the gdb side.
-            m_gdbProc.write({"p 0\n"});
-        }
-
-        // Start Watchdog.
-        const int watchDogMilliSecs = settings().gdbWatchdogTimeout() * 1000;
-        m_commandTimer.setInterval(watchDogMilliSecs);
-        // The process can die for external reason between the "-gdb-exit" was
-        // sent and a response could be retrieved. We don't want the watchdog
-        // to bark in that case since the only possible outcome is a dead
-        // process anyway.
-        if (!cmd.function.endsWith("-gdb-exit"))
-            m_commandTimer.start();
-
-        //if (cmd.flags & LosesChild)
-        //    notifyInferiorIll();
+    m_gdbProc.write(cmd.function + "\r\n");
+    if (command.flags & NeedsFlush) {
+        // We don't need the response or result here, just want to flush
+        // anything that's still on the gdb side.
+        m_gdbProc.write({"p 0\n"});
     }
+
+    // Start Watchdog.
+    const int watchDogMilliSecs = settings().gdbWatchdogTimeout() * 1000;
+    m_commandTimer.setInterval(watchDogMilliSecs);
+    // The process can die for external reason between the "-gdb-exit" was
+    // sent and a response could be retrieved. We don't want the watchdog
+    // to bark in that case since the only possible outcome is a dead
+    // process anyway.
+    if (!cmd.function.endsWith("-gdb-exit"))
+        m_commandTimer.start();
 }
 
 void GdbEngine::commandTimeout()
@@ -3863,12 +3850,6 @@ void GdbEngine::setupEngine()
         gdbCommand.addArg("--tty=" + m_outputCollector.serverName());
     }
 
-    const QStringList testList = qtcEnvironmentVariable("QTC_DEBUGGER_TESTS").split(',');
-    for (const QString &test : testList)
-        m_testCases.insert(test.toInt());
-    for (int test : std::as_const(m_testCases))
-        showMessage("ENABLING TEST CASE: " + QString::number(test));
-
     m_expectTerminalTrap = usesTerminal();
 
     if (rp.debugger().command.isEmpty()) {
@@ -4287,17 +4268,6 @@ bool GdbEngine::usesExecInterrupt() const
 bool GdbEngine::usesTargetAsync() const
 {
     return runParameters().useTargetAsync() || settings().targetAsync();
-}
-
-void GdbEngine::scheduleTestResponse(int testCase, const QString &response)
-{
-    if (!m_testCases.contains(testCase) && runParameters().testCase() != testCase)
-        return;
-
-    int token = currentToken() + 1;
-    showMessage(QString("SCHEDULING TEST RESPONSE (CASE: %1, TOKEN: %2, RESPONSE: %3)")
-        .arg(testCase).arg(token).arg(response));
-    m_scheduledTestResponses[token] = response;
 }
 
 QString GdbEngine::msgGdbStopFailed(const QString &why)
