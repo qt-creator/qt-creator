@@ -1619,7 +1619,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                                   cmakeProject,
                                                   k,
                                                   configureEnvironment(),
-                                                  info.buildDirectory);
+                                                  buildDirectory());
         setInitialCMakeArguments(initialCMakeArguments);
         setCMakeBuildType(buildType);
 
@@ -1629,21 +1629,31 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration() = default;
 
-FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFilePath,
-                                                       const Kit *k,
-                                                       const QString &bcName,
-                                                       BuildConfiguration::BuildType buildType)
+FilePath CMakeBuildConfiguration::shadowBuildDirectory(
+    const FilePath &projectFilePath,
+    const Kit *k,
+    const QString &bcName,
+    BuildConfiguration::BuildType buildType,
+    bool expand)
 {
     if (projectFilePath.isEmpty())
         return {};
 
     const QString projectName = CMakeProject::projectDisplayName(projectFilePath);
-    FilePath buildPath = buildDirectoryFromTemplate(
-        projectFilePath.absolutePath(), projectFilePath, projectName, k, bcName, buildType, "cmake");
+    FilePath buildPath = expand ? buildDirectoryFromTemplate(
+                                      projectFilePath.absolutePath(),
+                                      projectFilePath,
+                                      projectName,
+                                      k,
+                                      bcName,
+                                      buildType,
+                                      "cmake")
+                                : rawBuildDirectoryFromTemplate(k, projectFilePath);
 
     if (CMakeGeneratorKitAspect::isMultiConfigGenerator(k)) {
         const QString path = buildPath.path();
-        buildPath = buildPath.withNewPath(path.left(path.lastIndexOf(QString("-%1").arg(bcName))));
+        buildPath = buildPath.withNewPath(path.left(
+            path.lastIndexOf(QString("-%1").arg(expand ? bcName : "%{BuildConfig:Name}"))));
     }
 
     return buildPath;
@@ -2031,7 +2041,8 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
                 info.buildDirectory = CMakeBuildConfiguration::shadowBuildDirectory(projectPath,
                                 k,
                                 info.typeName,
-                                info.buildType);
+                                info.buildType,
+                                false);
             } else {
                 info.displayName.clear(); // ask for a name
                 info.buildDirectory.clear(); // This depends on the displayName

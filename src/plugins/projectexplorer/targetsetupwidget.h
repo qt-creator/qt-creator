@@ -56,29 +56,6 @@ signals:
     void validToggled() const;
 
 private:
-    static const QList<BuildInfo> buildInfoList(const Kit *k, const Utils::FilePath &projectPath);
-
-    bool hasSelectableBuildConfigurations() const;
-
-    void setValid(bool valid);
-    void checkBoxToggled(QCheckBox *checkBox, bool b);
-    void pathChanged(Utils::PathChooser *pathChooser);
-    void targetCheckBoxToggled(bool b);
-    void manageKit();
-
-    void reportIssues(int index);
-    QPair<Task::TaskType, QString> findIssues(const BuildInfo &info);
-    void clear();
-    void updateDefaultBuildDirectories();
-
-    bool m_isValid = false;
-    Kit *m_kit;
-    Utils::FilePath m_projectPath;
-    bool m_haveImported = false;
-    Utils::DetailsWidget *m_detailsWidget;
-    QPushButton *m_manageButton;
-    QGridLayout *m_newBuildsLayout;
-
     struct BuildInfoStore {
         ~BuildInfoStore();
         BuildInfoStore() = default;
@@ -86,6 +63,8 @@ private:
         BuildInfoStore(BuildInfoStore &&other);
         BuildInfoStore &operator=(const BuildInfoStore &other) = delete;
         BuildInfoStore &operator=(BuildInfoStore &&other);
+
+        Utils::FilePath expandedBuildDir() const;
 
         BuildInfo buildInfo;
         QCheckBox *checkbox = nullptr;
@@ -99,6 +78,30 @@ private:
         bool customBuildDir = false;
         bool isImported = false;
     };
+
+    static const QList<BuildInfo> buildInfoList(const Kit *k, const Utils::FilePath &projectPath);
+
+    bool hasSelectableBuildConfigurations() const;
+
+    void setValid(bool valid);
+    void checkBoxToggled(QCheckBox *checkBox, bool b);
+    void pathChanged(Utils::PathChooser *pathChooser);
+    void targetCheckBoxToggled(bool b);
+    void manageKit();
+
+    void reportIssues(int index);
+    QPair<Task::TaskType, QString> findIssues(const BuildInfoStore &store);
+    void clear();
+    void updateDefaultBuildDirectories();
+
+    bool m_isValid = false;
+    Kit *m_kit;
+    Utils::FilePath m_projectPath;
+    bool m_haveImported = false;
+    Utils::DetailsWidget *m_detailsWidget;
+    QPushButton *m_manageButton;
+    QGridLayout *m_newBuildsLayout;
+
     std::vector<BuildInfoStore> m_infoStore;
 
     Utils::Guard m_ignoreChanges;

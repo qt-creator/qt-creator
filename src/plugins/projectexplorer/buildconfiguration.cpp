@@ -1210,14 +1210,8 @@ BuildInfo BuildConfiguration::fixupBuildInfo(
     if (info.projectName.isEmpty())
         fullInfo.projectName = projectPath.completeBaseName();
     if (info.buildDirectory.isEmpty()) {
-        fullInfo.buildDirectory = BuildConfiguration::buildDirectoryFromTemplate(
-            fullInfo.projectDirectory,
-            projectPath,
-            fullInfo.projectName,
-            kit,
-            info.displayName,
-            info.buildType,
-            info.buildSystemName);
+        fullInfo.buildDirectory
+            = BuildConfiguration::rawBuildDirectoryFromTemplate(kit, projectPath);
     }
 
     return fullInfo;

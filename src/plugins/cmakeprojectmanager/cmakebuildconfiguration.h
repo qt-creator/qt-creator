@@ -57,9 +57,12 @@ public:
     CMakeBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
     ~CMakeBuildConfiguration() override;
 
-    static Utils::FilePath
-    shadowBuildDirectory(const Utils::FilePath &projectFilePath, const ProjectExplorer::Kit *k,
-                         const QString &bcName, BuildConfiguration::BuildType buildType);
+    static Utils::FilePath shadowBuildDirectory(
+        const Utils::FilePath &projectFilePath,
+        const ProjectExplorer::Kit *k,
+        const QString &bcName,
+        BuildConfiguration::BuildType buildType,
+        bool expand);
     static bool isIos(const ProjectExplorer::Kit *k);
     static bool hasQmlDebugging(const CMakeConfig &config);
 

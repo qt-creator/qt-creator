@@ -315,7 +315,7 @@ static FilePaths importCandidatesFromKits(const FilePath &projectFilePath, const
     for (Kit *k : kits) {
         QString shadowBuildDirectory
             = CMakeBuildConfiguration::shadowBuildDirectory(
-                  projectFilePath, k, "<__bcname__>", BuildConfiguration::Unknown)
+                  projectFilePath, k, "<__bcname__>", BuildConfiguration::Unknown, true)
                   .toUrlishString();
 
         shadowBuildDirectory = escapeWildcards(shadowBuildDirectory).replace("<__bcname__>", "*");
@@ -1246,7 +1246,8 @@ void CMakeProjectImporter::ensureBuildDirectory(DirectoryData &data, const Kit *
     data.buildDirectory = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
                                                                         k,
                                                                         buildInfo.typeName,
-                                                                        buildInfo.buildType);
+                                                                        buildInfo.buildType,
+                                                                        true);
 }
 
 bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const

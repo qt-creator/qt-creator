@@ -131,25 +131,6 @@ void TargetSetupWidget::addBuildInfos(const QList<BuildInfo> &infos, bool isImpo
         store.isEnabled = info.enabledByDefault;
         store.hasIssues = false;
         store.isImported = isImport;
-
-        // imported configurations may overwrite pre-existing configurations,
-        // but nothing else overwrites anything
-        const auto findConfigIndexToOverwrite = [this, &insertedOrReplacedPositions, &info] {
-            for (auto it = m_infoStore.begin(); it != m_infoStore.end(); ++it) {
-                if (!insertedOrReplacedPositions.contains(std::distance(m_infoStore.begin(), it))
-                    && it->buildInfo.buildDirectory == info.buildDirectory) {
-                    return it;
-                }
-            }
-            return m_infoStore.end();
-        };
-        const auto it = isImport ? findConfigIndexToOverwrite() : m_infoStore.end();
-        const int pos = std::distance(m_infoStore.begin(), it);
-        insertedOrReplacedPositions << pos;
-        const bool replace = pos != int(m_infoStore.size());
-        if (!replace || (isImport && m_selected == 0))
-            ++m_selected;
-
         store.checkbox = new QCheckBox;
         store.checkbox->setText(info.displayName);
         store.checkbox->setChecked(store.isEnabled);
@@ -157,11 +138,11 @@ void TargetSetupWidget::addBuildInfos(const QList<BuildInfo> &infos, bool isImpo
 
         store.pathChooser = new PathChooser();
         store.pathChooser->setExpectedKind(PathChooser::Directory);
-        store.pathChooser->setFilePath(info.buildDirectory);
         if (!info.showBuildDirConfigWidget)
             store.pathChooser->setVisible(false);
         store.pathChooser->setHistoryCompleter("TargetSetup.BuildDir.History");
         store.pathChooser->setReadOnly(isImport);
+        store.pathChooser->setBaseDirectory(info.projectDirectory);
         store.expander = new MacroExpander;
         BuildConfiguration::setupBuildDirMacroExpander(
             *store.expander,
@@ -173,6 +154,7 @@ void TargetSetupWidget::addBuildInfos(const QList<BuildInfo> &infos, bool isImpo
             info.buildSystemName,
             false);
         store.pathChooser->setMacroExpander(store.expander);
+        store.pathChooser->setFilePath(info.buildDirectory);
         const auto varChooser = new VariableChooser(store.pathChooser);
         varChooser->addMacroExpanderProvider({store.pathChooser, [e = store.expander] { return e; }});
         varChooser->addSupportedWidget(store.pathChooser->lineEdit());
@@ -180,6 +162,24 @@ void TargetSetupWidget::addBuildInfos(const QList<BuildInfo> &infos, bool isImpo
         store.issuesLabel = new QLabel;
         store.issuesLabel->setIndent(32);
         store.issuesLabel->setVisible(false);
+
+        // imported configurations may overwrite pre-existing configurations,
+        // but nothing else overwrites anything
+        const auto findConfigIndexToOverwrite = [this, &insertedOrReplacedPositions, &store] {
+            for (auto it = m_infoStore.begin(); it != m_infoStore.end(); ++it) {
+                if (!insertedOrReplacedPositions.contains(std::distance(m_infoStore.begin(), it))
+                    && it->expandedBuildDir() == store.expandedBuildDir()) {
+                    return it;
+                }
+            }
+            return m_infoStore.end();
+        };
+        const auto it = isImport ? findConfigIndexToOverwrite() : m_infoStore.end();
+        const int pos = std::distance(m_infoStore.begin(), it);
+        insertedOrReplacedPositions << pos;
+        const bool replace = pos != int(m_infoStore.size());
+        if (!replace || (isImport && m_selected == 0))
+            ++m_selected;
 
         connect(
             store.checkbox,
@@ -372,7 +372,7 @@ void TargetSetupWidget::pathChanged(PathChooser *pathChooser)
         return store.pathChooser == pathChooser;
     });
     QTC_ASSERT(it != m_infoStore.end(), return);
-    it->buildInfo.buildDirectory = pathChooser->filePath();
+    it->buildInfo.buildDirectory = pathChooser->unexpandedFilePath();
     it->customBuildDir = true;
     reportIssues(static_cast<int>(std::distance(m_infoStore.begin(), it)));
 }
@@ -384,20 +384,21 @@ void TargetSetupWidget::reportIssues(int index)
 
     BuildInfoStore &store = m_infoStore[static_cast<size_t>(index)];
     if (store.issuesLabel) {
-        QPair<Task::TaskType, QString> issues = findIssues(store.buildInfo);
+        QPair<Task::TaskType, QString> issues = findIssues(store);
         store.issuesLabel->setText(issues.second);
         store.hasIssues = issues.first != Task::Unknown;
         store.issuesLabel->setVisible(store.hasIssues);
     }
 }
 
-QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &info)
+QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfoStore &store)
 {
-    QTC_ASSERT(info.factory, return std::make_pair(Task::Unknown, QString()));
+    QTC_ASSERT(store.buildInfo.factory, return std::make_pair(Task::Unknown, QString()));
     if (m_projectPath.isEmpty())
         return {Task::Unknown, {}};
 
-    const Tasks issues = info.factory->reportIssues(m_kit, m_projectPath, info.buildDirectory);
+    const Tasks issues
+        = store.buildInfo.factory->reportIssues(m_kit, m_projectPath, store.expandedBuildDir());
     QString text;
     Task::TaskType highestType = Task::Unknown;
     for (const Task &t : issues) {
@@ -447,6 +448,12 @@ TargetSetupWidget::BuildInfoStore &TargetSetupWidget::BuildInfoStore::operator=(
     std::swap(other.hasIssues, hasIssues);
     std::swap(other.isImported, isImported);
     return *this;
+}
+
+FilePath TargetSetupWidget::BuildInfoStore::expandedBuildDir() const
+{
+    return BuildConfiguration::expandedBuildDirectory(
+        buildInfo.buildDirectory, buildInfo.projectDirectory, *expander);
 }
 
 } // namespace Internal
