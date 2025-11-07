@@ -125,9 +125,7 @@ bool ExternalDependencies::hasStartupTarget() const
     return false;
 }
 
-namespace {
-
-bool isForcingFreeType(ProjectExplorer::BuildSystem *buildSystem)
+static bool isForcingFreeType(ProjectExplorer::BuildSystem *buildSystem)
 {
     if (Utils::HostOsInfo::isWindowsHost() && buildSystem) {
         const QVariant customData = buildSystem->additionalData("CustomForceFreeType");
@@ -139,15 +137,13 @@ bool isForcingFreeType(ProjectExplorer::BuildSystem *buildSystem)
     return false;
 }
 
-QString createFreeTypeOption(ProjectExplorer::BuildSystem *buildSystem)
+static QString createFreeTypeOption(ProjectExplorer::BuildSystem *buildSystem)
 {
     if (isForcingFreeType(buildSystem))
         return "-platform windows:fontengine=freetype";
 
     return {};
 }
-
-} // namespace
 
 PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
 {
@@ -157,8 +153,8 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
         return data;
     auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(buildSystem->kit(), designerSettings());
 
-    data.puppetPath = puppetPath.toUrlishString();
-    data.workingDirectoryPath = workingDirectory.toUrlishString();
+    data.puppetPath = puppetPath;
+    data.workingDirectoryPath = workingDirectory;
     data.environment = PuppetEnvironmentBuilder::createEnvironment(buildSystem, designerSettings(), model, qmlPuppetPath());
     data.debugPuppet = designerSettings().value(DesignerSettingsKey::DEBUG_PUPPET).toString();
     data.freeTypeOption = createFreeTypeOption(buildSystem);
@@ -179,9 +175,7 @@ Utils::FilePath ExternalDependencies::qmlPuppetPath() const
     return puppetPath;
 }
 
-namespace {
-
-QString qmlPath(ProjectExplorer::Target *target)
+static QString qmlPath(ProjectExplorer::Target *target)
 {
     auto kit = target->kit();
 
@@ -195,7 +189,7 @@ QString qmlPath(ProjectExplorer::Target *target)
     return qtVersion->qmlPath().toUrlishString();
 }
 
-std::tuple<ProjectExplorer::Project *, ProjectExplorer::Target *, QmlProjectManager::QmlBuildSystem *>
+static std::tuple<ProjectExplorer::Project *, ProjectExplorer::Target *, QmlProjectManager::QmlBuildSystem *>
 activeProjectEntries()
 {
     auto project = ProjectExplorer::ProjectManager::startupProject();
@@ -216,7 +210,6 @@ activeProjectEntries()
 
     return {};
 }
-} // namespace
 
 QStringList ExternalDependencies::modulePaths() const
 {

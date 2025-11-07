@@ -5,14 +5,7 @@
 
 #include "qprocessuniqueptr.h"
 
-#include <puppetstartdata.h>
-
-#include <utils/id.h>
-
-#include <QString>
-#include <QProcessEnvironment>
-
-#include <designersettings.h>
+namespace QmlDesigner { class PuppetStartData; }
 
 namespace QmlDesigner::PuppetStarter {
 

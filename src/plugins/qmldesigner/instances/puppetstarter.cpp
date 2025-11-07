@@ -4,25 +4,29 @@
 #include "puppetstarter.h"
 
 #include <qmldesignertr.h>
+#include <puppetstartdata.h>
+
+#include <utils/filepath.h>
 
 #include <QCoreApplication>
 #include <QMessageBox>
 #include <QProcess>
 
+using namespace Utils;
+
 namespace QmlDesigner::PuppetStarter {
 
-namespace {
-QProcessUniquePointer puppetProcess(const QString &puppetPath,
-                                    const QString &workingDirectory,
-                                    const QString &forwardOutput,
-                                    const QString &freeTypeOption,
-                                    const QString &debugPuppet,
-                                    const QProcessEnvironment &processEnvironment,
-                                    const QString &puppetMode,
-                                    const QString &socketToken,
-                                    std::function<void()> processOutputCallback,
-                                    std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
-                                    const QStringList &customOptions)
+static QProcessUniquePointer puppetProcess(const FilePath &puppetPath,
+                                           const FilePath &workingDirectory,
+                                           const QString &forwardOutput,
+                                           const QString &freeTypeOption,
+                                           const QString &debugPuppet,
+                                           const QProcessEnvironment &processEnvironment,
+                                           const QString &puppetMode,
+                                           const QString &socketToken,
+                                           std::function<void()> processOutputCallback,
+                                           std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
+                                           const QStringList &customOptions)
 {
     QProcessUniquePointer puppetProcess{new QProcess};
     puppetProcess->setObjectName(puppetMode);
@@ -40,7 +44,7 @@ QProcessUniquePointer puppetProcess(const QString &puppetPath,
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
         QObject::connect(puppetProcess.get(), &QProcess::readyRead, processOutputCallback);
     }
-    puppetProcess->setWorkingDirectory(workingDirectory);
+    puppetProcess->setWorkingDirectory(workingDirectory.toFSPathString());
 
     QStringList processArguments;
     if (puppetMode == "custom")
@@ -50,7 +54,7 @@ QProcessUniquePointer puppetProcess(const QString &puppetPath,
 
     processArguments.push_back(freeTypeOption);
 
-    puppetProcess->start(puppetPath, processArguments);
+    puppetProcess->start(puppetPath.toFSPathString(), processArguments);
 
     if (debugPuppet == puppetMode || debugPuppet == "all") {
         QMessageBox::information(
@@ -62,8 +66,6 @@ QProcessUniquePointer puppetProcess(const QString &puppetPath,
 
     return puppetProcess;
 }
-
-} // namespace
 
 QProcessUniquePointer createPuppetProcess(const PuppetStartData &data,
                                           const QString &puppetMode,

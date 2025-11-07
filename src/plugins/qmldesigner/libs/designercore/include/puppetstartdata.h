@@ -3,19 +3,21 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QProcessEnvironment>
-#include <QString>
 
 namespace QmlDesigner {
 
 class PuppetStartData
 {
 public:
-    QString puppetPath;
-    QString workingDirectoryPath;
+    Utils::FilePath puppetPath;
+    Utils::FilePath workingDirectoryPath;
     QString forwardOutput;
     QString freeTypeOption;
     QString debugPuppet;
     QProcessEnvironment environment;
 };
+
 } // namespace QmlDesigner
