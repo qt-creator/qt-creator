@@ -4220,6 +4220,7 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
 
         pState->height = h;
 
+        emit documentLayout->blockSizeChanged(block);
         documentLayout->scheduleUpdate();
     };
 
