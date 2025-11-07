@@ -9,14 +9,14 @@
     \title User Interface Text Guidelines
 
     Follow the guidelines in this section to make sure that your extensions
-    are consistent with the Qt Creator UI and that they can be easily
+    are consistent with the \QC UI and that they can be easily
     localized into different languages.
 
     When you write UI text, make sure that it is:
 
     \list
 
-        \li  Consistent with existing Qt Creator UI terms
+        \li  Consistent with existing \QC UI terms
 
         \li  Short and concise
 
@@ -267,7 +267,7 @@
 
     \section1 Preparing for Localization
 
-    Qt Creator is localized into several languages. Consistency and conciseness
+    \QC is localized into several languages. Consistency and conciseness
     make UI text easier to translate.
 
     \section2 Marking UI Text for Translation
@@ -390,9 +390,9 @@
                 \c {tr("%1 failed").arg(someCondition ? "the operation" : "opening a file")}
     \endtable
 
-    \section1 Common Qt Creator Terms
+    \section1 Common \QC Terms
 
-    This section summarizes the terminology used for common Qt Creator UI
+    This section summarizes the terminology used for common \QC UI
     components. It also describes the conventions for naming different types of
     UI components.
 
@@ -465,7 +465,7 @@
             \li  Dialog that provides feedback to users, in the form of status
                  information, a warning, or an error message.
                  \image qtcreator-error-message.png {Message box}
-                 Output from Qt Creator should be displayed in output views,
+                 Output from \QC should be displayed in output views,
                  instead.
             \li  Use the event as the title and provide a solution in the
                  message box.
@@ -479,7 +479,7 @@
                  \uicontrol {Mode selector}.
         \row
             \li  Output
-            \li  Views to display output from Qt Creator.
+            \li  Views to display output from \QC.
                  \image qtcreator-application-output.webp {Application Output}
             \li  Use descriptive names for output views.
         \row

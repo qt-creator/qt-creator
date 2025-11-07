@@ -45,7 +45,7 @@ const QList<SnippetProvider> &SnippetProvider::snippetProviders()
     \endlist
 
     All XML configuration files found in the directory mentioned above are parsed by
-    Qt Creator. However, only the ones which are associated with known groups (specified
+    \QC. However, only the ones which are associated with known groups (specified
     by a provider) are taken into consideration.
 */
 

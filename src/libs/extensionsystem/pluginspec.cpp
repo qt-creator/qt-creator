@@ -817,7 +817,7 @@ namespace {
 
 /*!
     \internal
-    Returns false if the file does not represent a Qt Creator plugin.
+    Returns false if the file does not represent a \QC plugin.
 */
 Result<std::unique_ptr<PluginSpec>> readCppPluginSpec(const FilePath &fileName)
 {

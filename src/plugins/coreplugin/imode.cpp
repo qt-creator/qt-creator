@@ -47,7 +47,7 @@ public:
     mode selector on the left side of \QC's main window.
 
     Modes are used to show a different UI for different development tasks.
-    Therefore modes control the layout of most of Qt Creator's main window,
+    Therefore modes control the layout of most of \QC's main window,
     except for the tool bar on the left side and the status bar. For example
     Edit mode, the most commonly used mode for coding, shows the code editor
     and various navigation and output panes. Debug mode enhances that view with

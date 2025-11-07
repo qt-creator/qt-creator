@@ -112,8 +112,8 @@
             Defaults to \c ShowInPane. Optional.
     \row
         \li modifiesdocument
-        \li Specifies whether Qt Creator should expect changes to the current
-            document. If this flag is set, Qt Creator prompts users to save
+        \li Specifies whether \QC should expect changes to the current
+            document. If this flag is set, \QC prompts users to save
             changes to the current document before running the tool,
             and silently reloads the current document after the tool has finished.
             Possible values are: \c "yes" or \c "no" (defaults to \c "no").
@@ -131,9 +131,9 @@
     \row
         \li path
         \li File path to the executable to run, including filename. If you
-            specify the executable name without a path, Qt creator checks the
+            specify the executable name without a path, \QC checks the
             system PATH environment variable for a path to the executable. You
-            can specify the path multiple times. Qt Creator tries to resolve the
+            can specify the path multiple times. \QC tries to resolve the
             references in the given order and runs the first executable that it
             finds. Required.
     \row

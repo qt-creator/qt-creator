@@ -26,7 +26,7 @@ enum { debug = 0 };
 
   Provides a find() function based on inames ("locals.this.i1.data") and
   dump() functions used for GDBMI-format dumping and debug helpers.
-  Qt Creator's WatchModel is fed from this class. It basically represents the
+  \QC's WatchModel is fed from this class. It basically represents the
   symbol group tree with some additional node types (Reference and Map Node
   types.
   \ingroup qtcreatorcdbext

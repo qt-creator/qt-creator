@@ -3,7 +3,7 @@
 
 /*!
     \page getting-and-building.html
-    \title Getting Qt and Qt Creator
+    \title Getting Qt and \QC
 
     To create and build a \QC plugin, you need a compatible version of Qt,
     and either a \QC package (released or snapshot) or your own \QC build.

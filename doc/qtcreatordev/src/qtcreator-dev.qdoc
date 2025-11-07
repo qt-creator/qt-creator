@@ -3,7 +3,7 @@
 
 /*!
     \page index.html
-    \title Extending Qt Creator Manual
+    \title Extending \QC Manual
 
     \QC is a cross-platform integrated development environment (IDE) tailored to
     the needs of Qt developers.
@@ -60,7 +60,7 @@
 
     \list
         \li \l{Creating Extensions and Plugins}
-        \li \l{Qt Creator Coding Rules}
+        \li \l{\QC Coding Rules}
         \li \l{Creating Wizards in Code}
         \li \l{User Interface Text Guidelines}
     \endlist
@@ -108,7 +108,7 @@
 
     \list
         \li \l{Creating Extensions and Plugins}
-        \li \l{Qt Creator Coding Rules}
+        \li \l{\QC Coding Rules}
         \omit
         \li Text Editors
         \li \l{CodeAssist}{Providing Code Assist}
@@ -122,7 +122,7 @@
 
     \list
         \li \l{Creating Extensions and Plugins}
-        \li \l{Qt Creator Coding Rules}
+        \li \l{\QC Coding Rules}
         \omit
         \li \l{Editors}
         \endomit
@@ -176,7 +176,7 @@
         \li \l{\QC: Use external tools}
         \li \l{External Tool Specification Files}
         \li \l{Creating Extensions and Plugins}
-        \li \l{Qt Creator Coding Rules}
+        \li \l{\QC Coding Rules}
         \omit
         \li \l{Menus and Menu Items}
         \li \l{Options Pages}
@@ -200,7 +200,7 @@
     \list
         \li \l{\QC: Show task list files in issues}
         \li \l{Creating Extensions and Plugins}
-        \li \l{Qt Creator Coding Rules}
+        \li \l{\QC Coding Rules}
         \omit
         \li \l{Menus and Menu Items}
         \li \l{Options Pages}
@@ -220,7 +220,7 @@
     \section1 All Topics
 
     \list
-        \li Developing Qt Creator Plugins
+        \li Developing \QC Plugins
             \list
                 \li \l{Creating Extensions and Plugins}
                 \omit
@@ -241,7 +241,7 @@
                 \li \l{\QC: Use \QC Variables}
                 \li \l{User Interface Text Guidelines}
                 \li \l{Writing Documentation}
-                \li \l{Qt Creator Coding Rules}
+                \li \l{\QC Coding Rules}
                 \li \l{C++ API Reference}
             \endlist
     \endlist

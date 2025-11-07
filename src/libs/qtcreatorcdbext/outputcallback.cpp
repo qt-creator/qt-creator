@@ -10,7 +10,7 @@
 /* \class OutputCallback
 
     OutputCallback catches DEBUG_OUTPUT_DEBUGGEE and reports it
-    hex-encoded back to Qt Creator.
+    hex-encoded back to \QC.
     \ingroup qtcreatorcdbext
  */
 

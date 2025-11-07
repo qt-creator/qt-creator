@@ -15,7 +15,7 @@
 
     \section2 Core Libraries
 
-    There are a few core libraries used by many parts of Qt Creator.
+    There are a few core libraries used by many parts of \QC.
 
     \table
         \header
@@ -40,7 +40,7 @@
 
         \row
             \li \l{Utils}
-            \li Useful classes that are reused in a lot of places in Qt Creator code.
+            \li Useful classes that are reused in a lot of places in \QC code.
     \omit
         \row
             \li \l{QmlJS}
@@ -133,27 +133,27 @@
     \section1 Reference
 
     \list
-        \li \l {Qt Creator C++ Classes}
-        \li \l {Qt Creator Namespaces}
-        \li \l {Qt Creator Functions}
+        \li \l {\QC C++ Classes}
+        \li \l {\QC Namespaces}
+        \li \l {\QC Functions}
         \li \l {Solutions}
     \endlist
 */
 
 /*!
     \module QtCreator
-    \title Qt Creator C++ Classes
+    \title \QC C++ Classes
 
-    This topic lists the documented Qt Creator C++ classes. For information
+    This topic lists the documented \QC C++ classes. For information
     about the classes that have not been documented, please inspect the source
     code.
 */
 
 /*!
     \page namespaces.html
-    \title Qt Creator Namespaces
+    \title \QC Namespaces
 
-    This topic lists the documented Qt Creator namespaces. For information
+    This topic lists the documented \QC namespaces. For information
     about the namespaces that have not been documented, please inspect the
     source code.
 
@@ -162,18 +162,18 @@
 
 /*!
     \page mainclasses.html
-    \title Qt Creator Main Classes
+    \title \QC Main Classes
 
-    This topic lists the most important Qt Creator C++ classes.
+    This topic lists the most important \QC C++ classes.
 
     \generatelist mainclasses
 */
 
 /*!
     \page functions.html
-    \title Qt Creator Functions
+    \title \QC Functions
 
-    This topic lists the documented Qt Creator functions. For information
+    This topic lists the documented \QC functions. For information
     about the functions that have not been documented, please inspect the
     source code.
 

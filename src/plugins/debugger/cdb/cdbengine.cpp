@@ -76,7 +76,7 @@ constexpr bool debugBreakpoints = false;
     \class Debugger::Internal::CdbEngine
 
     Cdb engine version 2: Run the CDB process on pipes and parse its output.
-    The engine relies on a CDB extension Qt Creator provides as an extension
+    The engine relies on a CDB extension \QC provides as an extension
     library (32/64bit), which is loaded into cdb.exe. It serves to:
 
     \list

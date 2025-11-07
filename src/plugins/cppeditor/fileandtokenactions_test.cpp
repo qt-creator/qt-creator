@@ -38,11 +38,11 @@
             e.g. "Trigger and perform all Quick Fixes"
 
     Purpose:
-        Detect corner cases for which Qt Creator crashes or outputs QTC_ASSERTS.
+        Detect corner cases for which \QC crashes or outputs QTC_ASSERTS.
         Correct behavior is *not* tested.
 
     Prerequisites:
-        These tests depend on the projects that are loaded on startup of Qt Creator.
+        These tests depend on the projects that are loaded on startup of \QC.
         Make sure to load the test projects via command line or the session manager.
         The test projects must be properly configured for a Kit.
  */

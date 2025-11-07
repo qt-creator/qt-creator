@@ -22,9 +22,9 @@
 
 /*!
     \group qtcreatorcdbext
-    \title Qt Creator CDB Extensions
+    \title \QC CDB Extensions
 
-    Qt Creator CDB extensions are loaded into CDB.exe (see cdbengine.cpp).
+    \QC CDB extensions are loaded into CDB.exe (see cdbengine.cpp).
     They provide the following features:
 
     \list

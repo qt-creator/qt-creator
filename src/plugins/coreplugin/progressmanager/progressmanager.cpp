@@ -345,11 +345,11 @@ private:
     \ingroup mainclasses
 
     \brief The ProgressManager class is used to show a user interface
-    for running tasks in Qt Creator.
+    for running tasks in \QC.
 
     The progress manager tracks the progress of a task that it is told
     about, and shows a progress indicator in the lower right corner
-    of Qt Creator's main window to the user.
+    of \QC's main window to the user.
     The progress indicator also allows the user to cancel the task.
 
     You get the single instance of this class via the
@@ -404,7 +404,7 @@ private:
     The first option is to directly use QtConcurrent to actually
     start a task concurrently in a different thread.
     QtConcurrent has several different functions to run e.g.
-    a class function in a different thread. Qt Creator itself
+    a class function in a different thread. \QC itself
     adds a few more in \c{src/libs/utils/async.h}.
     The QtConcurrent functions to run a concurrent task return a
     \c QFuture object. This is what you want to give the

@@ -73,7 +73,7 @@ Q_APPLICATION_STATIC(FutureSynchronizer, s_futureSynchronizer);
 /*!
     Returns a global FutureSynchronizer.
     The application should cancel and wait for the tasks in this synchronizer before actually
-    unloading any libraries. This is for example done by the plugin manager in Qt Creator.
+    unloading any libraries. This is for example done by the plugin manager in \QC.
     May only be accessed by the main thread.
 */
 FutureSynchronizer *futureSynchronizer()
