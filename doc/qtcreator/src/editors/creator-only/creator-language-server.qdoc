@@ -143,7 +143,7 @@
         \li In the \uicontrol Name field, enter a name for the language server.
             Select \inlineimage {icons/replace.png} {Variables}
             (\uicontrol {Variables}) to use a variable for the server
-            name. For more information, see \l{Use Qt Creator variables}.
+            name. For more information, see \l{Use \QC variables}.
         \li In \uicontrol {Language}, select
             \uicontrol {Set MIME Types} to select the MIME types of the files to
             send to the language server. In the field below, you can enter file
@@ -194,7 +194,7 @@
     \endlist
 
     \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Use Qt Creator variables}, {Language Servers}
+    {Use \QC variables}, {Language Servers}
 */
 
 /*!

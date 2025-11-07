@@ -18,7 +18,7 @@
 
     The IncrediBuild plugin is delivered with \QC. For more information, see
     \l{https://incredibuild.atlassian.net/wiki/spaces/IUM/pages/19202836/IncrediBuild+for+Qt+Creator}
-    {IncrediBuild for Qt Creator}.
+    {IncrediBuild for \QC}.
 
     To use IncrediBuild, install IncrediBuild Agent on the development
     host. Then specify IncrediBuild build steps for your project.

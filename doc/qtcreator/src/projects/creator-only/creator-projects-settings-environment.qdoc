@@ -113,7 +113,7 @@
     Usually, it does not make sense to edit the device environment.
 
     \sa {Edit environment settings}, {Configure projects for building},
-    {Configure projects for running}, {Use Qt Creator variables}
+    {Configure projects for running}, {Use \QC variables}
 */
 
 /*!
@@ -172,5 +172,5 @@
     characters (##).
 
     \sa {Specify the environment for projects}, {Configure projects for building},
-    {Configure projects for running}, {Use Qt Creator variables}, {Kits}
+    {Configure projects for running}, {Use \QC variables}, {Kits}
 */

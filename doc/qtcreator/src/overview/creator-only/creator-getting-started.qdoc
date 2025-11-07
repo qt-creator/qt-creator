@@ -26,13 +26,13 @@
 
                 If you have not used \QC before, and want to become familiar
                 with the parts of the user interface, go to \l{User interface}.
-            \li \b {\l{Configuring Qt Creator}}
+            \li \b {\l{Configuring \QC}}
 
                 To make \QC behave more like your favorite code editor or IDE,
                 you can change the settings for keyboard shortcuts, color
                 schemes, generic highlighting, code snippets, and version
                 control systems. For an overview of the options you have, go to
-                \l{Configuring Qt Creator}.
+                \l{Configuring \QC}.
         \row
             \li \inlineimage {icons/platform-and-toolchain.png} {}
             \li \inlineimage {icons/tutorials.png} {}

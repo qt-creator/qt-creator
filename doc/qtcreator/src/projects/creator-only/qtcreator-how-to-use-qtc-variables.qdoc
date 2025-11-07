@@ -7,7 +7,7 @@
 
     \ingroup creator-how-to-projects
 
-    \title Use Qt Creator variables
+    \title Use \QC variables
 
     You can use \QC variables in \uicontrol Preferences,
     \uicontrol {Build Settings}, and \uicontrol {Run Settings}, in fields that

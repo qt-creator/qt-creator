@@ -93,7 +93,7 @@
     tested or grouping commands, are not supported because the value of the
     \uicontrol Executable field is always placed first when constructing the command.
 
-    You can \l {Use Qt Creator variables}{use \QC variables} in arguments,
+    You can \l {Use \QC variables}{use \QC variables} in arguments,
     executable paths, and working directories. That is, in all fields where you
     see the \inlineimage {icons/replace.png} {Variables} (\uicontrol {Variables})
     button.

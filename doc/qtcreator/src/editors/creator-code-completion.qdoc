@@ -322,7 +322,7 @@
     lose all your own snippets.
 
     \if defined(qtcreator)
-    \sa {Complete CMake code}, {Document code}, {Use Qt Creator variables},
+    \sa {Complete CMake code}, {Document code}, {Use \QC variables},
     {Nim}
     \endif
 
@@ -356,7 +356,7 @@
             Also specify a text string or C++ or QML code construct
             in the snippet editor, depending on the snippet category.
 
-            You can use \l{Use Qt Creator variables}{predefined variables} in
+            You can use \l{Use \QC variables}{predefined variables} in
             snippets.
             \else
             Also specify a text string or QML code in the snippet editor, depending on
@@ -365,7 +365,7 @@
     \endlist
 
     \if defined(qtcreator)
-    \sa {Complete CMake code}, {Complete code}, {Use Qt Creator variables},
+    \sa {Complete CMake code}, {Complete code}, {Use \QC variables},
     {Nim}
     \endif
     \sa {Completion}, {Snippets}

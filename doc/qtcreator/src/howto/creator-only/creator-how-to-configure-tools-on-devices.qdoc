@@ -41,6 +41,6 @@
 
     \endlist
 
-    \sa {Use Qt Creator variables}, {Build and Run}{How To: Build and Run},
+    \sa {Use \QC variables}, {Build and Run}{How To: Build and Run},
     {Docker}{How To: Develop for Docker}, {Remote Linux}{How To: Develop for remote Linux}
 */

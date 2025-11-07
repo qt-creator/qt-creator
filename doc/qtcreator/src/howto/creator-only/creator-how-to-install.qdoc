@@ -93,7 +93,7 @@
     you can build it from sources. For more information, see
     \l{https://github.com/qt-creator/qt-creator/#compiling-qt-creator}
     {Compiling \QC} and \l{https://wiki.qt.io/Building_Qt_Creator_from_Git}
-    {Building Qt Creator from Git}.
+    {Building \QC from Git}.
 
     \sa {Manage Kits}{How To: Manage Kits}, {Register installed Qt versions},
     {Install plugins}, {Licenses and acknowledgments}

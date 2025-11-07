@@ -264,7 +264,7 @@
     Python interpreter to debug the C++ implementation of the corresponding
     Python code. For more information, see
     \l{https://doc.qt.io/qtforpython-6/tutorials/debugging/qtcreator/qtcreator.html}
-    {Debugging PySide with Qt Creator (Linux)}.
+    {Debugging PySide with \QC (Linux)}.
 
     \section1 Debug console applications
 

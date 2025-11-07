@@ -122,7 +122,7 @@
 
     \if defined(qtcreator)
     \sa {Edit environment settings}, {Specify the environment for projects},
-    {Use Qt Creator variables}
+    {Use \QC variables}
     \endif
 */
 

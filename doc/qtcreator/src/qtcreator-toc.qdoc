@@ -18,7 +18,7 @@
             \list
                 \li \l{Overview}
                 \li \l{User interface}
-                \li \l{Configuring Qt Creator}
+                \li \l{Configuring \QC}
             \endlist
         \li \l{Creating Projects}
         \li \l{Configuring Projects}

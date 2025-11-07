@@ -227,5 +227,5 @@
     You can also switch to a dark theme to customize the appearance of widgets,
     colors, and icons without using stylesheets.
 
-    \sa {Run Qt Creator from the command line}, {Manage sessions}
+    \sa {Run \QC from the command line}, {Manage sessions}
 */

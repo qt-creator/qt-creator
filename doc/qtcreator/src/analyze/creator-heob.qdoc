@@ -105,7 +105,7 @@
     the application crashes. This works only if you register \QC is as a
     post-mortem debugger by selecting \preferences >
     \uicontrol Debugger > \uicontrol General >
-    \uicontrol {Use Qt Creator for post-mortem debugging}.
+    \uicontrol {Use \QC for post-mortem debugging}.
 
     Select \uicontrol On to use the Heob exception handler that checks the
     reason and location of the crash and detects whether it occurred because of

@@ -12,7 +12,7 @@
     \page creator-configuring.html
     \nextpage creator-build-example-application.html
 
-    \title Configuring Qt Creator
+    \title Configuring \QC
 
     If you install \QC as part of a Qt installation, you should be able to use
     it out-of-the-box, with the default settings and configuration options.

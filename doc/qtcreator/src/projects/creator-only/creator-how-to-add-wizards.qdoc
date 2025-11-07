@@ -45,5 +45,5 @@
             to specify the position of the wizard. For example, \c B.MyClass.
     \endlist
 
-    \sa {Run Qt Creator from the command line}, {Custom Wizards}
+    \sa {Run \QC from the command line}, {Custom Wizards}
 */

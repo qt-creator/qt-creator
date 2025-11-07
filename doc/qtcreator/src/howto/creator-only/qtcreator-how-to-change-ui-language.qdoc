@@ -34,5 +34,5 @@
     \l {https://www.iso.org/iso-639-language-codes.html}
     {ISO 639 language code}, such as \e de, \e en, or \e fr.
 
-    \sa {Run Qt Creator from the command line}
+    \sa {Run \QC from the command line}
 */
