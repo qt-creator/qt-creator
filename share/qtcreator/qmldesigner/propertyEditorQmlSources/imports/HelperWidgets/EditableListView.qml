@@ -77,6 +77,13 @@ Item {
                 width: delegateComboBox.implicitWidth
                 textElidable: true
 
+                Connections {
+                    target: itemFilterModel
+                    function onModelNodeBackendChanged() {
+                        delegateComboBox.resetInitialIndex()
+                    }
+                }
+
                 onFocusChanged: {
                     if (delegateComboBox.focus) {
                         myColumn.currentIndex = index
