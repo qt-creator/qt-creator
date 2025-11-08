@@ -71,6 +71,54 @@ static bool cursorsOverlap(const QTextCursor &c1, const QTextCursor &c2)
     return c1 == c2;
 };
 
+bool MultiTextCursor::containsCursor(const QTextCursor &cursor) const
+{
+    QTC_ASSERT(!cursor.isNull(), return false);
+
+    if (m_cursorMap.empty())
+        return false;
+
+    const int pos = cursor.selectionStart();
+
+    auto found = m_cursorMap.lower_bound(pos);
+    if (found != m_cursorMap.begin())
+        --found;
+
+    while (found != m_cursorMap.end()
+           && found->second->selectionStart() <= cursor.selectionEnd()) {
+        const QTextCursor &c2 = *found->second;
+        if (cursorsOverlap(cursor, c2))
+            return true;
+        ++found;
+    }
+
+    return false;
+}
+
+void MultiTextCursor::removeCursor(const QTextCursor &cursor)
+{
+    QTC_ASSERT(!cursor.isNull(), return);
+
+    if (m_cursorMap.empty())
+        return;
+
+    const int pos = cursor.selectionStart();
+
+    auto found = m_cursorMap.lower_bound(pos);
+    if (found != m_cursorMap.begin())
+        --found;
+
+    while (found != m_cursorMap.end() && found->second->selectionStart() <= cursor.selectionEnd()) {
+        const QTextCursor &c2 = *found->second;
+        if (cursorsOverlap(cursor, c2)) {
+            m_cursorList.erase(found->second);
+            found = m_cursorMap.erase(found);
+            continue;
+        }
+        ++found;
+    }
+}
+
 static void mergeCursors(QTextCursor &c1, const QTextCursor &c2)
 {
     if (c1.position() == c2.position() && c1.anchor() == c2.anchor())

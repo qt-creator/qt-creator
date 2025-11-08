@@ -41,6 +41,8 @@ public:
     /// Returns the number of cursors handled by this cursor.
     int cursorCount() const;
 
+    bool containsCursor(const QTextCursor &cursor) const;
+    void removeCursor(const QTextCursor &cursor);
     /// the \param cursor that is appended by added by \brief addCursor
     /// will be interpreted as the new main cursor
     void addCursor(const QTextCursor &cursor);

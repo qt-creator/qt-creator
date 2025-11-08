@@ -7326,9 +7326,13 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
                 multiCursor.addCursors(d->generateCursorsForBlockSelection(blockSelection));
                 setMultiTextCursor(multiCursor);
             } else {
-                multiCursor.addCursor(cursor);
+                if (multiCursor.containsCursor(cursor))
+                    multiCursor.removeCursor(cursor);
+                else
+                    multiCursor.addCursor(cursor);
             }
-            setMultiTextCursor(multiCursor);
+            if (multiCursor.cursorCount() > 0) // prevents removing the only cursor
+                setMultiTextCursor(multiCursor);
             return;
         } else {
             if (multiCursor.hasMultipleCursors())
