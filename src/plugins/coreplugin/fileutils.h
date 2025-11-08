@@ -33,5 +33,6 @@ CORE_EXPORT bool renameFile(const Utils::FilePath &from, const Utils::FilePath &
 CORE_EXPORT void updateHeaderFileGuardIfApplicable(const Utils::FilePath &oldFilePath,
                                                    const Utils::FilePath &newFilePath,
                                                    HandleIncludeGuards handleGuards);
+
 } // namespace FileUtils
 } // namespace Core

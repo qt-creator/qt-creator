@@ -1,3 +1,5 @@
+find_package(Qt6 COMPONENTS DBus QUIET)
+
 add_qtc_plugin(Core
   DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate TerminalLib qtkeychain
   PLUGIN_TEST_DEPENDS TextEditor
@@ -314,6 +316,13 @@ extend_qtc_plugin(Core
 extend_qtc_plugin(Core
   CONDITION (NOT WIN32) AND (NOT APPLE)
   SOURCES progressmanager/progressmanager_x11.cpp
+)
+
+extend_qtc_plugin(Core
+  FEATURE_INFO "Freedesktop file manager support"
+  CONDITION UNIX AND NOT APPLE AND TARGET Qt::DBus
+  DEFINES QTC_SUPPORT_DBUSFILEMANAGER
+  DEPENDS Qt::DBus
 )
 
 extend_qtc_plugin(Core

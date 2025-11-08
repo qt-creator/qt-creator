@@ -17,6 +17,7 @@ class CORE_TEST_EXPORT SystemSettings final : public Utils::AspectContainer
 public:
     SystemSettings();
 
+    Utils::BoolAspect useDbusFileManagers{this};
     Utils::FilePathAspect patchCommand{this};
 
     Utils::BoolAspect autoSaveModifiedFiles{this};

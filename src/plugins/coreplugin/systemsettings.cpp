@@ -74,6 +74,17 @@ SystemSettings::SystemSettings()
 
     setAutoApply(false);
 
+    useDbusFileManagers.setSettingsKey("General/SupportDbusFileManagers");
+    useDbusFileManagers.setDefaultValue(true);
+    useDbusFileManagers.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    useDbusFileManagers.setLabelText(Tr::tr("Use freedesktop.org file manager D-Bus interface"));
+    useDbusFileManagers.setToolTip(
+        Tr::tr(
+            "Uses the <a href=\"%1\">freedesktop.org D-Bus interface</a> for <i>Open in File "
+            "Manager</i>, if available. Otherwise falls back onto the \"External file browser\" "
+            "above.")
+            .arg("https://freedesktop.org/wiki/Specifications/file-manager-interface"));
+
     patchCommand.setSettingsKey("General/PatchCommand");
     patchCommand.setDefaultValue("patch");
     patchCommand.setExpectedKind(PathChooser::ExistingCommand);
@@ -232,6 +243,9 @@ public:
                          resetFileBrowserButton,
                          helpExternalFileBrowserButton});
         }
+#ifdef QTC_SUPPORT_DBUSFILEMANAGER
+        grid.addRow({s.useDbusFileManagers});
+#endif
         grid.addRow({Span(4, s.patchCommand)});
         if (HostOsInfo::isMacHost()) {
             auto fileSystemCaseSensitivityLabel = new QLabel(Tr::tr("File system case sensitivity:"));

@@ -40,9 +40,50 @@
 #include <shlobj.h>
 #endif
 
+#ifdef QTC_SUPPORT_DBUSFILEMANAGER
+#include "systemsettings.h"
+#include <QDBusInterface>
+
+static Q_LOGGING_CATEGORY(fileutilsLog, "qtc.core.fileutils", QtWarningMsg)
+#endif
+
+
 using namespace Utils;
 
 namespace Core::FileUtils {
+
+static bool openFreedesktopFileManager(const FilePath &path)
+{
+#ifdef QTC_SUPPORT_DBUSFILEMANAGER
+    if (!Core::Internal::systemSettings().useDbusFileManagers())
+        return false;
+    if (!QDBusConnection::sessionBus().isConnected()) {
+        qCDebug(fileutilsLog) << "Could not connect to session DBus";
+        return false;
+    }
+    const QLatin1String serviceName = QLatin1String("org.freedesktop.FileManager1");
+    const QLatin1String objectPath = QLatin1String("/org/freedesktop/FileManager1");
+    const QLatin1String interfaceName = QLatin1String("org.freedesktop.FileManager1");
+    QStringList uriList = {QUrl::fromLocalFile(path.canonicalPath().toFSPathString()).toString()};
+    QString startupId;
+    QDBusInterface iface(serviceName, objectPath, interfaceName, QDBusConnection::sessionBus());
+    if (!iface.isValid()) {
+        qCDebug(fileutilsLog) << "Could not find DBus" << serviceName
+                              << "service:" << iface.lastError().message();
+        return false;
+    }
+    QDBusMessage reply = iface.call(QLatin1String("ShowItems"), uriList, startupId);
+    if (reply.type() == QDBusMessage::ErrorMessage) {
+        qCDebug(fileutilsLog) << "Received DBus error:" << reply.errorName()
+                              << reply.errorMessage();
+        return false;
+    }
+    return true;
+#else
+    Q_UNUSED(path)
+    return false;
+#endif
+}
 
 static FilePath windowsDirectory()
 {
@@ -71,6 +112,9 @@ static void showGraphicalShellError(const QString &app, const QString &error)
 
 void showInGraphicalShell(const FilePath &pathIn)
 {
+    if (openFreedesktopFileManager(pathIn))
+        return;
+
     const QFileInfo fileInfo = pathIn.toFileInfo();
     // Mac, Windows support folder or file.
     if (HostOsInfo::isWindowsHost()) {
@@ -132,7 +176,11 @@ QString msgGraphicalShellAction()
         return Tr::tr("Show in Explorer");
     if (HostOsInfo::isMacHost())
         return Tr::tr("Show in Finder");
+#ifdef QTC_SUPPORT_DBUSFILEMANAGER
+    return Tr::tr("Show in File Manager");
+#else
     return Tr::tr("Show Containing Folder");
+#endif
 }
 
 QString msgTerminalHereAction()
