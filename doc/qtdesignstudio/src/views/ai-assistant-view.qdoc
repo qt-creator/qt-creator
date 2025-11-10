@@ -1,0 +1,18 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page studio-ai-assistant-view.html
+    \previouspage studio-3d-editor.html
+    \nextpage quick-assets.html
+    \sa {AI assistant}
+
+    \ingroup studio-views
+
+    \title AI Assistant view
+
+    The AI Assistant view lets you use a LLM to protoype user interfaces.
+
+    \image ai-assistant-view.webp
+
+*/

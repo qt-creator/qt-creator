@@ -1,0 +1,277 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage studio-terms.html
+    \page ai-assistant.html
+    \nextpage best-practices-glow.html
+    \sa {AI Assistant view}
+    \title AI assistant
+
+    The AI assistant is an AI-powered user interface prototyping assistant. When connected to a
+    Large Language Model (LLM), it helps you speed up user interface prototyping.
+
+    Because the output depends on the underlying AI model and your input, results will vary.
+    Prototyping is an experimental process that often requires multiple iterations.
+    Provide clear and detailed prompts for the best results.
+
+    \image ai-assistant.webp
+
+    \section1 AI models
+
+    The tables below list the models that are available in \QDS by default. To add more models than
+    the default ones, see the link to the provider's full list of models below each table.
+
+    \note The AI assistant in \QDS does not support text-to-speech (TTS) or image generation models.
+
+    \section2 Choosing a model
+
+    When choosing which AI model to use, consider the following:
+
+    \list
+      \li The \c llama-3.3-70b-versatile model from Groq is the recommended model. It has shown
+          better QML generation quality compared to other models.
+      \li Higher-parameter models (for example, \c {70b}) generally deliver better QML code quality
+          compared to smaller ones (for example, \c {8b}).
+      \li Access considerations:
+        \list
+          \li \e Groq offers generous
+              \l {https://console.groq.com/docs/rate-limits}{free tier rate limits}, making it a
+              cost-effective option for experimentation.
+          \li \e Gemini provides
+              \l {https://ai.google.dev/gemini-api/docs/pricing}{free tier rate limits}, though
+              they are more limited than Groq.
+          \li \e OpenAI and \e Claude do not offer any free plans. The pricing depends on the
+              model. See \l{https://openai.com/api/pricing/}{OpenAI pricing} and
+              \l{https://www.claude.com/pricing#api}{Claude pricing}.
+        \endlist
+    \endlist
+
+    \section2 Groq
+
+    \table
+      \header
+        \li Model
+        \li Model ID
+        \li Image input
+      \row
+        \li \l {https://console.groq.com/docs/model/llama-3.3-70b-versatile}{Llama 3.3 70B}
+        \li \c llama-3.3-70b-versatile
+        \li No
+      \row
+        \li \l {https://console.groq.com/docs/model/llama-3.1-8b-instant}{Llama 3.1 8B}
+        \li \c llama-3.1-8b-instant
+        \li No
+      \row
+        \li \l{https://console.groq.com/docs/model/openai/gpt-oss-120b}{GPT OSS 120B}
+        \li \c openai/gpt-oss-120b
+        \li No
+      \row
+        \li \l{https://console.groq.com/docs/model/openai/gpt-oss-20b}{GPT OSS 20B}
+        \li \c openai/gpt-oss-20b
+        \li No
+      \row
+        \li \l{https://console.groq.com/docs/compound/systems/compound}{Compound}
+        \li \c groq/compound
+        \li No
+      \row
+        \li \l{https://console.groq.com/docs/compound/systems/compound-mini}{Compound Mini}
+        \li \c groq/compound-mini
+        \li No
+      \row
+        \li \l{https://console.groq.com/docs/model/moonshotai/kimi-k2-instruct-0905}{Kimi K2 0905}
+        \li \c moonshotai/kimi-k2-instruct-0905
+        \li No
+      \row
+        \li \l{https://console.groq.com/docs/model/qwen/qwen3-32b}{Qwen3-32B}
+        \li \c qwen/qwen3-32b
+        \li No
+    \endtable
+
+    For a full list of models, see \l {https://console.groq.com/docs/models}.
+
+    \section2 Gemini
+
+    \table
+      \header
+        \li Model
+        \li Model ID
+        \li Image input
+      \row
+        \li \l{https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro}{Gemini 2.5 Pro}
+        \li \c gemini-2.5-pro
+        \li Yes
+      \row
+        \li \l{https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash}{Gemini 2.5 Flash}
+        \li \c gemini-2.5-flash
+        \li Yes
+      \row
+        \li \l{https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-lite}{Gemini 2.5 Flash-Lite}
+        \li \c gemini-2.5-flash-lite
+        \li Yes
+      \row
+        \li \l{https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash}{Gemini 2.0 Flash}
+        \li \c gemini-2.0-flash
+        \li Yes
+      \row
+        \li \l{https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite}{Gemini 2.0 Flash-Lite}
+        \li \c gemini-2.0-flash-lite
+        \li Yes
+    \endtable
+
+    For a full list of models, see \l {https://ai.google.dev/gemini-api/docs/models}.
+
+    \section2 OpenAI
+
+    \table
+      \header
+        \li Model
+        \li Model ID
+        \li Image input
+      \row
+        \li \l{https://platform.openai.com/docs/models/gpt-5}{GPT-5}
+        \li \c gpt-5-2025-08-07
+        \li Yes
+      \row
+        \li \l{https://platform.openai.com/docs/models/gpt-5-mini}{GPT-5 mini}
+        \li \c gpt-5-mini-2025-08-07
+        \li Yes
+      \row
+        \li \l{https://platform.openai.com/docs/models/gpt-5-nano}{GPT-5 nano}
+        \li \c gpt-5-nano-2025-08-07
+        \li Yes
+      \row
+        \li \l{https://platform.openai.com/docs/models/gpt-4.1}{GPT-4.1}
+        \li \c gpt-4.1-2025-04-14
+        \li Yes
+      \row
+        \li \l{https://platform.openai.com/docs/models/gpt-4.1-mini}{GPT-4.1 mini}
+        \li \c gpt-4.1-mini-2025-04-14
+        \li Yes
+      \row
+        \li \l{https://platform.openai.com/docs/models/gpt-4.1-nano}{GPT-4.1 nano}
+        \li \c gpt-4.1-nano-2025-04-14
+        \li Yes
+    \endtable
+
+    For a full list of models, see \l{https://platform.openai.com/docs/models}.
+
+    \section2 Claude
+
+    \table
+      \header
+        \li Model
+        \li Model ID
+        \li Image input
+      \row
+        \li \l{https://docs.claude.com/en/docs/about-claude/models/overview#latest-models-comparison}{Claude Sonnet 4.5}
+        \li \c claude-sonnet-4-5-20250929
+        \li Yes
+      \row
+        \li \l{https://docs.claude.com/en/docs/about-claude/models/overview#legacy-models}{Claude Sonnet 4}
+        \li \c claude-sonnet-4-20250514
+        \li Yes
+      \row
+        \li \l{https://docs.claude.com/en/docs/about-claude/models/overview#latest-models-comparison}{Claude Haiku 4.5}
+        \li \c claude-haiku-4-5-20251001
+        \li Yes
+      \row
+        \li \l{https://docs.claude.com/en/docs/about-claude/models/overview#legacy-models}{Claude Haiku 3.5}
+        \li \c claude-3-5-haiku-20241022
+        \li Yes
+      \row
+        \li \l{https://docs.claude.com/en/docs/about-claude/models/overview#legacy-models}{Opus 4}
+        \li \c claude-opus-4-20250514
+        \li Yes
+      \row
+        \li \l{https://docs.claude.com/en/docs/about-claude/models/overview#latest-models-comparison}{Opus 4.1}
+        \li \c claude-opus-4-1-20250805
+        \li Yes
+    \endtable
+
+    For a full list of models, see \l{https://docs.claude.com/en/docs/about-claude/models/overview}.
+
+    \section1 Setting up the AI assistant
+
+    \section2 Before you start
+
+    To use the AI assistant in \QDS, you need an API key to Groq, Gemini, OpenAI, or Claude.
+
+    \section2 Configuring the AI assistant
+
+    To configure the AI assistant:
+
+    \list 1
+      \li In the \uicontrol {AI Assistant} view, select \imagesettings.
+      \li Enter the API key for your AI provider.
+          \image ai-assistant-settings.webp
+    \endlist
+
+    In the \uicontrol {AI Assistant view}, you can now use the models under the providers for
+    which you set API keys.
+
+    You can also:
+
+    \list
+      \li Remove the provider and its models from
+          selectable models in the \uicontrol {AI Assistant} view by clearing the checkbox next to
+          the provider name.
+      \li Reset the provider Url by selecting \imagereset next to the \uicontrol Url field.
+    \endlist
+
+    \section3 Adding, removing, and reorganizing models
+
+    In the AI assistant settings dialog:
+
+    \list
+      \li To add another model, select \imageplus and enter the model ID for the model you want to
+          add. See \l{AI models}.
+      \li To remove a model, select the model and then, select \imageminus.
+      \li To reset the model list to default models, select \imagereset.
+      \li To move a model up or down, select it and use \imagenavigatorarrowup and
+          \imagenavigatorarrowdown.
+    \endlist
+
+    \section1 Using the AI assistant
+
+    Note the following:
+
+    \list
+      \li The AI assistant is aware of images (by their names only) in the project assets and is
+          instructed to use them whenever it seem to fit. For example, if you have an image named
+          \c {banana.jpg} in your project assets, the AI assistant likely uses this image if you
+          ask it to add a banana to the UI.
+      \li The AI assistant is aware of \c {.ui} files and instructed to not generate code in them.
+    \endlist
+
+    \section2 Using a prompt to generate content
+
+    To generate content with the AI assistant:
+
+    \list 1
+      \li In the \uicontrol {AI Assistant} view, select the model that you want to use from the
+      drop-down menu.
+      \li Enter your prompt in the prompt field. If the selected model supports image input, you
+      can also use \imageattach to attach an image to your prompt. These models can interpret the
+      content of the image such as layout and visual hierarchy and use that understanding during
+      generation. For example, you can attach an image of a UI layout and ask the AI assistant to
+      \e {build a UI based on the attached image}.
+      \note If you attach an image to the AI assistant, it remains in use and effects results of
+      your next generations until you remove it.
+      \li Select \imagesend to run the prompt.
+      \image ai-assistant-view.webp
+    \endlist
+
+    After a successful generation, rate the output with thumbs up or thumbs down. This helps
+    improve the \QDS AI assistant.
+
+    \image rate-generation.webp
+
+    If the generation is not succesful, there are two types of messages:
+
+    \list
+      \li A \e Warning is displayed if there are any issues with the generated QML code.
+      \li An \e Error is displayed if there are any issues with the API request.
+    \endlist
+
+*/
