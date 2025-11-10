@@ -1026,7 +1026,7 @@ void CMakeGeneratorKitAspectFactory::fix(Kit *k)
     const CMakeTool *tool = cmakeTool(k);
     const GeneratorInfo info = generatorInfo(k);
 
-    if (!tool)
+    if (!tool || !tool->isValid())
         return;
     QList<CMakeTool::Generator> known = tool->supportedGenerators();
     auto it = std::find_if(known.constBegin(), known.constEnd(),
