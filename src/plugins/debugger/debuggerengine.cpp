@@ -2401,12 +2401,6 @@ void DebuggerEngine::watchPoint(const QPoint &pnt)
     // runCommand(cmd);
 }
 
-void DebuggerEngine::runCommand(const DebuggerCommand &)
-{
-    // Overridden in the engines that use the interface.
-    QTC_CHECK(false);
-}
-
 void DebuggerEngine::fetchDisassembler(DisassemblerAgent *)
 {
 }

@@ -63,7 +63,7 @@ private:
     bool supportsThreads() const { return true; }
     void updateItem(const QString &iname) override;
 
-    void runCommand(const DebuggerCommand &cmd) override;
+    void runCommand(const DebuggerCommand &cmd);
     void postDirectCommand(const QString &command);
 
     void refreshLocation(const GdbMi &reportedLocation);

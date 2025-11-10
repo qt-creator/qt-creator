@@ -102,7 +102,7 @@ private: ////////// General Interface //////////
 
     ////////// Gdb Command Management //////////
 
-    void runCommand(const DebuggerCommand &command) final;
+    void runCommand(const DebuggerCommand &command);
 
     void commandTimeout();
     void setTokenBarrier();

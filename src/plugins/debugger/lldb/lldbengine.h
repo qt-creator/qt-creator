@@ -103,7 +103,7 @@ private:
     void updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, bool added);
     void fetchStack(int limit, bool alsoQml = false);
 
-    void runCommand(const DebuggerCommand &cmd) override;
+    void runCommand(const DebuggerCommand &cmd);
     void debugLastCommand() override;
     void handleAttachedToCore();
     void executeCommand(const QString &command);

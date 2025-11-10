@@ -504,7 +504,6 @@ public:
     virtual void abortDebuggerProcess() {} // second attempt
 
     virtual void watchPoint(const QPoint &pnt);
-    virtual void runCommand(const DebuggerCommand &cmd);
     virtual void openMemoryView(const MemoryViewSetupData &data);
     virtual void fetchMemory(MemoryAgent *, quint64 addr, quint64 length);
     virtual void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data);

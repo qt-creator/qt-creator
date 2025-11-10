@@ -78,7 +78,7 @@ public:
 private:
     void processStarted();
     void processDone();
-    void runCommand(const DebuggerCommand &cmd) override;
+    void runCommand(const DebuggerCommand &cmd);
     void adjustOperateByInstruction(bool);
 
     void createFullBacktrace();
