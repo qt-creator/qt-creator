@@ -271,25 +271,20 @@ void QtcButton::paintEvent(QPaintEvent *event)
         StyleHelper::drawCardBg(&p, bgR, fillColor, outline, brRectRounding);
         break;
     }
+    case LargeGhost:
+    case MediumGhost:
+    case SmallGhost:
+        if (!hovered && !isDown())
+            break;
+        [[fallthrough]];
     case LargeTertiary:
     case MediumTertiary:
     case SmallTertiary: {
-        const QPen border = isDown() ? QPen(Qt::NoPen) : creatorColor(Theme::Token_Stroke_Subtle);
         const Theme::Color bg = isEnabled() ? (isDown() ? Theme::Token_Foreground_Default
                                                         : (hovered ? Theme::Token_Foreground_Muted
                                                                    : Theme::Token_Foreground_Subtle))
                                             : Theme::Token_Foreground_Subtle;
-        StyleHelper::drawCardBg(&p, bgR, creatorColor(bg), border, brRectRounding);
-        break;
-    }
-    case LargeGhost:
-    case MediumGhost:
-    case SmallGhost: {
-        if (isDown() || hovered) {
-            const Theme::Color bg = isDown() ? Theme::Token_Foreground_Default
-                                             : Theme::Token_Foreground_Muted;
-            StyleHelper::drawCardBg(&p, bgR, creatorColor(bg), Qt::NoPen, brRectRounding);
-        }
+        StyleHelper::drawCardBg(&p, bgR, creatorColor(bg), QPen(Qt::NoPen), brRectRounding);
         break;
     }
     case SmallList: {
