@@ -352,6 +352,11 @@ void VcsOutputWindow::appendSilently(const FilePath &workingDirectory, const QSt
     append(workingDirectory, text, None, true);
 }
 
+void VcsOutputWindow::appendText(const Utils::FilePath &workingDirectory, const QString &text)
+{
+    append(workingDirectory, text, None, false);
+}
+
 void VcsOutputWindow::appendMessage(const FilePath &workingDirectory, const QString &text)
 {
     append(workingDirectory, text, Message, true);

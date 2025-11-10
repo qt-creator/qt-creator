@@ -127,7 +127,7 @@ static ProcessTask vcsProcessTaskHelper(
                              [flags = data.flags, workingDir = process.workingDirectory(),
                               handler = data.stdOutHandler](const QString &text) {
                 if (flags & RunFlags::ShowStdOut)
-                    VcsOutputWindow::appendSilently(workingDir, text);
+                    VcsOutputWindow::appendText(workingDir, text);
                 if (handler)
                     handler(text);
             });

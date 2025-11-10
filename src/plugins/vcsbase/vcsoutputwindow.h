@@ -60,6 +60,9 @@ public slots:
     // Silently append text, do not pop up.
     static void appendSilently(const Utils::FilePath &workingDirectory, const QString &text);
 
+    // Append text and pop up.
+    static void appendText(const Utils::FilePath &workingDirectory, const QString &text);
+
     // Append a blue message text and pop up.
     static void appendMessage(const Utils::FilePath &workingDirectory, const QString &text);
 
