@@ -956,6 +956,20 @@ void PropertyEditorView::setSelectionUnlockedIfNodeRemoved(const ModelNode &remo
     }
 }
 
+bool PropertyEditorView::hasMaterialOrTexture(const QList<ModelNode> &nodes)
+{
+    NodeMetaInfo qtQuick3DMaterialMetaInfo = model()->qtQuick3DMaterialMetaInfo();
+    NodeMetaInfo qtQuick3DTextureMetaInfo = model()->qtQuick3DTextureMetaInfo();
+
+    for (const ModelNode &selectedNode : nodes) {
+        const NodeMetaInfo &nodeMetaInfo = selectedNode.metaInfo();
+        if (nodeMetaInfo.isBasedOn(qtQuick3DMaterialMetaInfo, qtQuick3DTextureMetaInfo))
+            return true;
+    }
+
+    return false;
+}
+
 void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     NanotraceHR::Tracer tracer{"property editor view node about to be removed", category()};
@@ -966,17 +980,7 @@ void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
     using SL = ModelTracing::SourceLocation;
 
-    NodeMetaInfo qtQuick3DMaterialMetaInfo = model()->qtQuick3DMaterialMetaInfo();
-    NodeMetaInfo qtQuick3DTextureMetaInfo = model()->qtQuick3DTextureMetaInfo();
-
-    for (const ModelNode &selectedNode : allRemovedNodes) {
-        const NodeMetaInfo &nodeMetaInfo = selectedNode.metaInfo();
-        if (nodeMetaInfo.isBasedOn(qtQuick3DMaterialMetaInfo,
-                                   qtQuick3DTextureMetaInfo)) {
-            m_texOrMatAboutToBeRemoved = true;
-            break;
-        }
-    }
+    m_texOrMatAboutToBeRemoved = hasMaterialOrTexture(allRemovedNodes);
 
     if (m_qmlBackEndForCurrentType) {
         if (Utils::contains(allRemovedNodes,
@@ -1490,17 +1494,8 @@ void PropertyEditorView::nodeReparented(const ModelNode &node,
     using SL = const ModelTracing::SourceLocation;
     const ModelNodes &allNodes = node.allSubModelNodesAndThisNode();
 
-    NodeMetaInfo qtQuick3DMaterialMetaInfo = model()->qtQuick3DMaterialMetaInfo();
-    NodeMetaInfo qtQuick3DTextureMetaInfo = model()->qtQuick3DTextureMetaInfo();
-
-    for (const ModelNode &selectedNode : allNodes) {
-        const NodeMetaInfo &nodeMetaInfo = selectedNode.metaInfo();
-        if (nodeMetaInfo.isBasedOn(qtQuick3DMaterialMetaInfo,
-                                   qtQuick3DTextureMetaInfo)) {
-            m_qmlBackEndForCurrentType->refreshBackendModel();
-            break;
-        }
-    }
+    if (hasMaterialOrTexture(allNodes))
+        m_qmlBackEndForCurrentType->refreshBackendModel();
 
     if (Utils::contains(allNodes,
                         QLatin1String{Constants::MATERIAL_LIB_ID},

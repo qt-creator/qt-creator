@@ -186,6 +186,7 @@ private: //functions
     AuxiliaryDataKey activeNodeAuxKey() const;
 
     void showAsExtraWidget();
+    bool hasMaterialOrTexture(const QList<ModelNode> &nodes);
 
 private: //variables
     enum class ManageCustomNotifications { No, Yes };
