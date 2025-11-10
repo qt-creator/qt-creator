@@ -35,7 +35,9 @@ TextSuggestion::~TextSuggestion() = default;
 bool TextSuggestion::apply()
 {
     QTextCursor c = m_suggestion.range.begin.toTextCursor(sourceDocument());
+    c.movePosition(QTextCursor::StartOfBlock);
     c.setPosition(currentPosition(), QTextCursor::KeepAnchor);
+    c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     c.insertText(m_suggestion.text);
     return true;
 }
