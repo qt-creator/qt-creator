@@ -352,9 +352,11 @@ void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter,
         QStyleOption tweakedOption(*option);
         tweakedOption.state = QStyle::State_Enabled;
 
-        auto drawCommonStyleArrow = [&tweakedOption, element, &painter](const QRect &rect, const QColor &color) -> void
-        {
-            static const QCommonStyle* const style = qobject_cast<QCommonStyle*>(QApplication::style());
+        const QCommonStyle *const style = qobject_cast<QCommonStyle *>(QApplication::style());
+        auto drawCommonStyleArrow = [&tweakedOption,
+                                     element,
+                                     &painter,
+                                     style](const QRect &rect, const QColor &color) -> void {
             if (!style)
                 return;
 
