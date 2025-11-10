@@ -23,7 +23,9 @@
     complexity of code. Other integrated tools provide code coverage and
     visualize trace events.
 
+    \details {How to analyze code}
     \generatelist creator-how-to-analyze
+    \enddetails
 
     \section1 Build and Run
 
@@ -32,28 +34,47 @@
     debuggers, or Qt versions. Deploy applications to the target platforms
     and run them there.
 
+    \details {How to build and run applications}
     \generatelist creator-how-to-build
+    \enddetails
 
     \section2 Build with CMake
 
     CMake controls the software compilation process by using simple configuration
     files, called \c CMakeLists.txt files.
 
+    \details {How to build with CMake}
     \generatelist creator-how-to-build-with-cmake
+    \enddetails
 
     \section2 Build with qmake
 
     qmake automates the generation of Makefiles based on the information in a
     project file that has the extension \c .pro.
 
+    \details {How to build with qmake}
     \generatelist creator-how-to-build-with-qmake
+    \enddetails
+
+    \section2 Manage Kits
+
+    \QC groups build and run specific settings as kits to make cross-platform
+    development easier. Each kit consists of a set of values that define one
+    environment, such as a device, toolchain, Qt version, and debugger command
+    to use.
+
+    \details {How to manage kits}
+    \generatelist creator-how-to-manage-kits
+    \enddetails
 
     \section2 Run applications
 
     Run applications on local and remote desktop systems, as well as on
     embedded and mobile devices that you connect to the computer.
 
+    \details {How to run applications}
     \generatelist creator-how-to-run
+    \enddetails
 
     \section1 Create Models and Diagrams
 
@@ -62,13 +83,17 @@
     file wizard to create State Chart XML (SCXML) files with boilerplate code
     and edit them with an SCXML editor.
 
+    \details {How to create models and diagrams}
     \generatelist creator-how-to-models
+    \enddetails
 
     \section1 Debug
 
     Use debuggers to inspect the state of your application while it is running.
 
+    \details {How to debug applications}
     \generatelist creator-how-to-debug
+    \enddetails
 
     \section1 Design UIs
 
@@ -77,7 +102,9 @@
     in the \uicontrol Design mode. For Qt Quick UIs, use a separate visual
     editor, \l{\QDS Manual}{\QDS}, or the \uicontrol Edit mode.
 
+    \details {How to design UIs}
     \generatelist creator-how-to-design
+    \enddetails
 
     \section1 Develop for Devices
 
@@ -93,72 +120,94 @@
     Install \l {Qt for Android} and Android tools, and connect Android devices to
     the computer.
 
+    \details {How to to develop for Android}
     \generatelist creator-how-to-android
+    \enddetails
 
     \section2 Bare Metal
 
     Run and debug applications on small Linux devices that are not supported
     by the remote Linux device plugin by using GDB or a hardware debugger.
 
+    \details {How to develop for bare metal devices}
     \generatelist creator-how-to-bare-metal
+    \enddetails
 
     \section2 \B2Q
 
     Run, debug, and analyze applications on \l{\B2Q: Documentation}{\B2Q}
     devices.
 
+    \details {How to develop for \B2Q devices}
     \generatelist creator-how-to-b2qt
+    \enddetails
 
     \section2 Docker
 
     Create \e {Docker devices} from \e {Docker images} and use them to build,
     run, and debug applications.
 
+    \details {How to develop for Docker devices}
     \generatelist creator-how-to-docker
+    \enddetails
 
     \section2 iOS
 
     Install \l {Qt for iOS} and Xcode, and connect iOS devices to the computer.
 
+    \details {How to develop for iOS devices}
     \generatelist creator-how-to-ios
+    \enddetails
 
     \section2 MCUs
 
     Install \l {Qt for MCUs}, and connect microcontrollers to the computer.
 
+    \details {How to develop for microcontrollers}
     \generatelist creator-how-to-mcu
+    \enddetails
 
     \section2 QNX Neutrino
 
     Install \l {Qt for QNX}, and connect QNX Neutrino devices to the computer.
 
+    \details {How to develop for QNX Neutrino devices}
     \generatelist creator-how-to-qnx
+    \enddetails
 
     \section2 Remote Linux
 
     Add kits for toolchains for building applications for generic Linux
     devices, and connect the devices to the computer.
 
+    \details {How to develop for remote Linux devices}
     \generatelist creator-how-to-remote-linux
+    \enddetails
 
     \section2 SDKs
 
     Manage SDKs for application development for different platforms.
 
+    \details {How to manage SDKs}
     \generatelist creator-how-to-sdks
+    \enddetails
 
     \section2 VxWorks
 
     Build \l {Qt for VxWorks}, and create VxWorks build and run kits.
 
+    \details {How to build application for VxWorks}
     \generatelist creator-how-to-vxworks
+    \enddetails
 
     \section2 WebAssembly
 
     Install \l{Qt for WebAssembly} to build applications for the web and run them
     in a web browser.
 
+    \details {How to build application for the web}
     \generatelist creator-how-to-webassembly
+    \enddetails
 
     \section1 Edit Code
 
@@ -168,20 +217,26 @@
     as Python, for which a \e {language server} is available that provides
     information about the code to IDEs.
 
+    \details {How to edit code}
     \generatelist creator-how-to-edit
+    \enddetails
 
     \section2 Configure Editors
 
     Configure the code and text editor to suit your specific needs by
     changing the fonts, colors, highlighting, and indentation.
 
+    \details {How to configure editors}
     \generatelist creator-how-to-configure-editors
+    \enddetails
 
     \section2 Manage Language Servers
 
     Configure language servers that \QC adds by default or add more of them.
 
+    \details {How to manage language servers}
     \generatelist creator-how-to-lsp
+    \enddetails
 
     \section2 Search
 
@@ -189,50 +244,53 @@
     or files on the file system or use the locator to browse through projects,
     files, classes, functions, documentation, and file systems.
 
+    \details {How to search}
     \generatelist creator-how-to-search
-
-    \section1 Manage Kits
-
-    \QC groups build and run specific settings as kits to make cross-platform
-    development easier. Each kit consists of a set of values that define one
-    environment, such as a device, toolchain, Qt version, and debugger command
-    to use.
-
-    \generatelist creator-how-to-manage-kits
+    \enddetails
 
     \section1 Manage Projects
 
     Create projects for developing applications and libraries. Then configure
     the projects for building and running the applications on target platforms.
 
+    \details {How to manage projects}
     \generatelist creator-how-to-projects
+    \enddetails
 
     \section2 Create Projects
 
     Use preset wizards to create projects or add custom wizards. You can also
     import projects from version control systems.
 
+    \details {How to create projects}
     \generatelist creator-how-to-projects-create
+    \enddetails
 
     \section2 Add Files
 
     Add files to projects.
 
+    \details {How to add files to projects}
     \generatelist creator-how-to-projects-files
+    \enddetails
 
     \section2 Configure Projects
 
     Change the default configurations that installation programs and project
     wizards create.
 
+    \details {How to configure projects}
     \generatelist creator-how-to-projects-configure
+    \enddetails
 
     \section1 Read Documentation
 
     \QC integrates the reference documentation for the Qt versions that you
     install. You can add documentation from other sources.
 
+    \details {How to read documentation}
     \generatelist creator-how-to-get-help
+    \enddetails
 
     \section1 Test
 
@@ -244,7 +302,9 @@
     build system and uses it or even the build system as such to execute the
     respective tests.
 
+    \details {How to test applications}
     \generatelist creator-how-to-test
+    \enddetails
 
     \section1 Use Git
 
@@ -252,40 +312,56 @@
     that is available for Windows, Linux, and \macos. You can use the
     \l {Gerrit Code Review} tool for projects that use Git.
 
+    \details {How to use Git}
     \generatelist creator-how-to-git
+    \enddetails
 
     \section2 Current file
 
+    \details {How to handle changes in the current file}
     \generatelist creator-how-to-git-current-file
+    \enddetails
 
     \section2 Current project
 
+    \details {How to handle changes in the current project}
     \generatelist creator-how-to-git-current-project
+    \enddetails
 
     \section2 Local repositories
 
+    \details {How to manage local repositories}
     \generatelist creator-how-to-git-local-repository
+    \enddetails
 
     \section2 Commits
 
+    \details {How to handle commits}
     \generatelist creator-how-to-git-commits
+    \enddetails
 
     \section2 Remote repositories
 
+    \details {How to manage remote repositories}
     \generatelist creator-how-to-git-remote-repository
+    \enddetails
 
     \section1 Use \QC
 
     Use basic \QC features and preinstalled plugins. Install more plugins and
     configure external tools for use.
 
+    \details {How to use \QC}
     \generatelist creator-how-to-use
+    \enddetails
 
     \section1 Use the UI
 
     Navigate the UI or change its appearance and behavior.
 
+    \details {How to use the UI}
     \generatelist creator-how-to-ui
+    \enddetails
 */
 
 /*!
