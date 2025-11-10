@@ -3,11 +3,12 @@
 
 #pragma once
 
+#include <projectexplorer/projectexplorer_export.h>
 #include <texteditor/basehoverhandler.h>
 
-namespace CppEditor::Internal {
+namespace ProjectExplorer {
 
-class ResourcePreviewHoverHandler : public TextEditor::BaseHoverHandler
+class PROJECTEXPLORER_EXPORT ResourcePreviewHoverHandler : public TextEditor::BaseHoverHandler
 {
 private:
     void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
@@ -18,7 +19,7 @@ private:
 private:
     QString makeTooltip() const;
 
-    QString m_resPath;
+    QString m_path;
 };
 
-} // namespace CppEditor::Internal
+} // namespace ProjectExplorer

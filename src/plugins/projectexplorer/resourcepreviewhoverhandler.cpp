@@ -19,18 +19,15 @@
 #include <QXmlStreamReader>
 
 using namespace Core;
-using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace CppEditor::Internal {
+namespace ProjectExplorer {
 
 /*
  * finds a quoted sub-string around the pos in the given string
- *
- * note: the returned string includes the quotes.
  */
-static QString extractQuotedString(const QString &s, int pos)
+static QString extractString(const QString &s, int pos)
 {
     if (s.size() < 2 || pos < 0 || pos >= s.size())
         return QString();
@@ -39,7 +36,7 @@ static QString extractQuotedString(const QString &s, int pos)
     if (firstQuote >= 0) {
         int endQuote = s.indexOf('"', firstQuote + 1);
         if (endQuote > firstQuote)
-            return s.mid(firstQuote, endQuote - firstQuote);
+            return s.mid(firstQuote + 1, endQuote - firstQuote - 1);
     }
 
     return QString();
@@ -77,9 +74,14 @@ static QString findResourceInFile(const QString &resName, const FilePath &qrcFil
         if (token == QXmlStreamReader::StartElement) {
             if (xmlr.name() == QLatin1String("qresource")) {
                 const QXmlStreamAttributes sa = xmlr.attributes();
-                const QString prefixName = sa.value("prefix").toString();
-                if (!prefixName.isEmpty())
+                QString prefixName = sa.value("prefix").toString();
+                if (!prefixName.isEmpty()) {
+                    // non-root prefixes will get a '/' when joined in makeResourcePath
+                    // it avoids "//" which make comparisons below return false
+                    if (prefixName != "/" && prefixName.back() == '/')
+                        prefixName.chop(1);
                     prefixStack.push_back(prefixName);
+                }
             } else if (xmlr.name() == QLatin1String("file")) {
                 const QXmlStreamAttributes sa = xmlr.attributes();
                 const QString aliasName = sa.value("alias").toString();
@@ -113,7 +115,6 @@ static QString findResourceInFile(const QString &resName, const FilePath &qrcFil
 static QString findResourceInProject(const QString &resName)
 {
     QString s = resName;
-    s.remove('"');
 
     if (s.startsWith(":/"))
         s.remove(0, 1);
@@ -132,6 +133,9 @@ static QString findResourceInProject(const QString &resName)
             const QString fileName = findResourceInFile(s, file);
             if (fileName.isEmpty())
                 continue;
+
+            if (QFileInfo::exists(fileName))
+                return fileName;
 
             QString ret = fi.absolutePath();
             if (!ret.endsWith('/'))
@@ -155,10 +159,19 @@ void ResourcePreviewHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
         const int tbpos = pos - tb.position();
         const QString tbtext = tb.text();
 
-        const QString resPath = extractQuotedString(tbtext, tbpos);
-        m_resPath = findResourceInProject(resPath);
+        const QString str = extractString(tbtext, tbpos);
 
-        setPriority(m_resPath.isEmpty() ? Priority_None : Priority_Diagnostic + 1);
+        m_path = findResourceInProject(str);
+
+        // If resource does not exit, try to fallback to local files
+        if (m_path.isEmpty()) {
+            if (QFileInfo::exists(str))
+                m_path = str;
+            else if (QUrl(str).isLocalFile())
+                m_path = str;
+        }
+
+        setPriority(m_path.isEmpty() ? Priority_None : Priority_Diagnostic + 1);
     }
 }
 
@@ -173,16 +186,15 @@ void ResourcePreviewHoverHandler::operateTooltip(TextEditorWidget *editorWidget,
 
 QString ResourcePreviewHoverHandler::makeTooltip() const
 {
-    if (m_resPath.isEmpty())
+    if (m_path.isEmpty())
         return QString();
 
     QString ret;
-
-    const Utils::MimeType mimeType = Utils::mimeTypeForFile(m_resPath);
+    const Utils::MimeType mimeType = Utils::mimeTypeForFile(m_path);
     if (mimeType.name().startsWith("image", Qt::CaseInsensitive))
-        ret += QString("![image](%1)  \n").arg(m_resPath);
-    ret += QString("[%1](%2)").arg(QDir::toNativeSeparators(m_resPath), m_resPath);
+        ret += QString("![image](%1)  \n").arg(m_path);
+    ret += QString("[%1](%2)").arg(QDir::toNativeSeparators(m_path), m_path);
     return ret;
 }
 
-} // namespace CppEditor::Internal
+} // namespace ProjectExplorer

@@ -23,7 +23,6 @@
 #include "quickfixes/cppquickfix.h"
 #include "quickfixes/cppquickfixprojectsettingswidget.h"
 #include "quickfixes/cppquickfixsettingspage.h"
-#include "resourcepreviewhoverhandler.h"
 
 #ifdef WITH_TESTS
 #include "compileroptionsbuilder_test.h"
@@ -70,6 +69,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/rawprojectpart.h>
+#include <projectexplorer/resourcepreviewhoverhandler.h>
 
 #include <texteditor/colorpreviewhoverhandler.h>
 #include <texteditor/snippets/snippetprovider.h>

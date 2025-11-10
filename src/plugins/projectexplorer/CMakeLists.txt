@@ -142,6 +142,7 @@ add_qtc_plugin(ProjectExplorer
     projectwizardpage.cpp projectwizardpage.h
     qmldebugcommandlinearguments.cpp qmldebugcommandlinearguments.h
     rawprojectpart.cpp rawprojectpart.h
+    resourcepreviewhoverhandler.cpp resourcepreviewhoverhandler.h
     runconfiguration.cpp runconfiguration.h
     runconfigurationaspects.cpp runconfigurationaspects.h
     runcontrol.cpp runcontrol.h

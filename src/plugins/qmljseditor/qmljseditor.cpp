@@ -31,6 +31,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/resourcepreviewhoverhandler.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -1203,6 +1204,7 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
 
     addHoverHandler(new QmlJSHoverHandler);
     addHoverHandler(new ColorPreviewHoverHandler);
+    addHoverHandler(new ProjectExplorer::ResourcePreviewHoverHandler);
     setCompletionAssistProvider(new QmlJSCompletionAssistProvider);
 
     setOptionalActionMask(OptionalActions::Format

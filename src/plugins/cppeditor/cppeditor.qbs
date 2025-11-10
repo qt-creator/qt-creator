@@ -200,8 +200,6 @@ QtcPlugin {
         "projectinfo.h",
         "projectpart.cpp",
         "projectpart.h",
-        "resourcepreviewhoverhandler.cpp",
-        "resourcepreviewhoverhandler.h",
         "searchsymbols.cpp",
         "searchsymbols.h",
         "semantichighlighter.cpp",

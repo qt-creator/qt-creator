@@ -118,6 +118,7 @@ QtcPlugin {
             "projectwizardpage.cpp", "projectwizardpage.h",
             "qmldebugcommandlinearguments.cpp", "qmldebugcommandlinearguments.h",
             "rawprojectpart.cpp", "rawprojectpart.h",
+            "resourcepreviewhoverhandler.cpp", "resourcepreviewhoverhandler.h",
             "runconfigdialogs.cpp", "runconfigdialogs.h",
             "runconfiguration.cpp", "runconfiguration.h",
             "runcontrol.cpp", "runcontrol.h",
