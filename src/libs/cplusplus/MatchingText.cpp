@@ -434,7 +434,8 @@ bool MatchingText::contextAllowsAutoParentheses(const QTextCursor &cursor,
 
 bool MatchingText::contextAllowsAutoQuotes(const QTextCursor &cursor, const QString &textToInsert)
 {
-    return !textToInsert.isEmpty() && !isInCommentHelper(cursor);
+    return !textToInsert.isEmpty() && !isInCommentHelper(cursor)
+           && stringKindAtCursor(cursor) == T_EOF_SYMBOL;
 }
 
 bool MatchingText::contextAllowsElectricCharacters(const QTextCursor &cursor)
