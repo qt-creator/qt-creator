@@ -2385,7 +2385,7 @@ void DebuggerEngine::selectWatchData(const QString &)
 {
 }
 
-void DebuggerEngine::watchPoint(const QPoint &pnt)
+void DebuggerEngine::watchPoint(const QPoint &/*pnt*/)
 {
     // DebuggerCommand cmd("watchPoint", NeedsFullStop);
     // cmd.arg("x", pnt.x());
