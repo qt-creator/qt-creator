@@ -34,5 +34,6 @@ extend_qtc_plugin(QmlDesignerAi
   SOURCES
     abstractaiapi.h
     aiapimanager.cpp aiapimanager.h
+    aiapiutils.cpp aiapiutils.h
     openaicompletionsapi.cpp openaicompletionsapi.h
 )

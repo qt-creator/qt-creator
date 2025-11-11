@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <QJsonObject>
 #include <QMetaType>
+#include <QStringList>
 
 namespace QmlDesigner {
 
@@ -21,21 +21,22 @@ public:
         EmptyMessage,
     };
 
-    AiResponse(const QByteArray &response);
+    AiResponse();
+    AiResponse(Error error);
 
-    QString content() const;
+    QString qml() const;
     Error error() const;
     QString errorString() const;
     QStringList selectedIds() const;
 
-private: // functions
     void setError(Error error);
-    void parseContent();
+    void setQml(const QString &qml);
+    void setSelectedIds(const QStringList &ids);
 
-private: // variables
+private:
     Error m_error = Error::NoError;
-    QJsonObject m_rootObject;
-    QString m_content;
+    QString m_qml;
+    QStringList m_selectedIds;
 };
 
 } // namespace QmlDesigner

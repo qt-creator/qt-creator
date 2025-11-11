@@ -414,7 +414,7 @@ void AiAssistantWidget::handleAiResponse(const AiResponse &response)
     if (!selectedIds.isEmpty()) {
         selectIds(selectedIds);
     } else {
-        const QString newQml = reformatQml(response.content());
+        const QString newQml = reformatQml(response.qml());
         const QString currentQml = currentQmlText();
 
         if (!newQml.isEmpty() && currentQml != newQml) {
