@@ -307,7 +307,7 @@ public:
     static bool questionDialog(const QString &question);
 };
 
-static void setupWifiForDevice(const IDevice::Ptr &device, QWidget *parent)
+static void setupWifiForDevice(const IDevice::Ptr &device)
 {
     if (device->deviceState() != IDevice::DeviceReadyToUse) {
         AndroidDeviceWidget::infoDialog(
@@ -327,7 +327,7 @@ static void setupWifiForDevice(const IDevice::Ptr &device, QWidget *parent)
         return;
     }
 
-    QTimer::singleShot(2000, parent, [adbSelector] {
+    QTimer::singleShot(2000, Core::ICore::dialogParent(), [adbSelector] {
         // Get device IP address
         QStringList args = adbSelector;
         args.append({"shell", "ip", "route"});
@@ -526,7 +526,7 @@ void AndroidDevice::addActionsIfNotFound()
     } else if (machineType() == Hardware && !ipRegex.match(id().toString()).hasMatch()) {
         if (!hasSetupWifi) {
             addDeviceAction({setupWifi, [](const IDevice::Ptr &device) {
-                setupWifiForDevice(device, Core::ICore::dialogParent());
+                setupWifiForDevice(device);
             }});
         }
     }
