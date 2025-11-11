@@ -420,12 +420,15 @@ void Import3dImporter::postParseQuick3DAsset(ParseData &pd)
                             if (rootItem == "Node" || rootItem == "Model") { // a 3D object
                                 // create hints file with proper hints
                                 QFile file(outDir.path() + '/' + fi.baseName() + ".hints");
-                                file.open(QIODevice::WriteOnly | QIODevice::Text);
-                                QTextStream out(&file);
-                                out << "visibleInNavigator: true" << Qt::endl;
-                                out << "canBeDroppedInFormEditor: false" << Qt::endl;
-                                out << "canBeDroppedInView3D: true" << Qt::endl;
-                                file.close();
+                                if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                                    QTextStream out(&file);
+                                    out << "visibleInNavigator: true" << Qt::endl;
+                                    out << "canBeDroppedInFormEditor: false" << Qt::endl;
+                                    out << "canBeDroppedInView3D: true" << Qt::endl;
+                                    file.close();
+                                } else {
+                                    addError(tr("Failed to create hints file for asset: \"%1\".").arg(pd.assetName));
+                                }
 
                                 // Assume that all assets import the same QtQuick3D version,
                                 // since they are being imported with same kit
