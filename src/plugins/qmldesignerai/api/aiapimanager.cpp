@@ -4,6 +4,7 @@
 #include "aiapimanager.h"
 
 #include "airesponse.h"
+#include "claudemessagesapi.h"
 #include "openaicompletionsapi.h"
 
 #include <QNetworkReply>
@@ -13,7 +14,8 @@ namespace QmlDesigner {
 AiApiManager::AiApiManager()
     : m_networkManager(Utils::makeUniqueObjectPtr<QNetworkAccessManager>())
 {
-    m_registeredApis.append(new OpenAiCompletionsApi());
+    m_registeredApis.append(new OpenAiCompletionsApi()); // The first one is the default one
+    m_registeredApis.append(new ClaudeMessagesApi());
 }
 
 AiApiManager::~AiApiManager()
@@ -52,6 +54,10 @@ AbstractAiApi *AiApiManager::findApi(const AiModelInfo &info) const
         if (api->accepts(info))
             return api;
     }
+
+    if (m_registeredApis.size())
+        return m_registeredApis.first();
+
     return nullptr;
 }
 

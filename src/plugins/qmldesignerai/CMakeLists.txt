@@ -35,5 +35,6 @@ extend_qtc_plugin(QmlDesignerAi
     abstractaiapi.h
     aiapimanager.cpp aiapimanager.h
     aiapiutils.cpp aiapiutils.h
+    claudemessagesapi.cpp claudemessagesapi.h
     openaicompletionsapi.cpp openaicompletionsapi.h
 )

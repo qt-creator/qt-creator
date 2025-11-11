@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "openaicompletionsapi.h"
+#include "claudemessagesapi.h"
 
 #include "aiapiutils.h"
 #include "airesponse.h"
@@ -20,17 +20,16 @@ namespace {
 
 QJsonObject toJsonImage(const Utils::FilePath &imagePath)
 {
-    using namespace Qt::StringLiterals;
     QImage image(imagePath.toFSPathString());
     const QByteArray imageFormat = imagePath.suffix().toLatin1();
     return {
-        {"type", "image_url"},
+        {"type", "image"},
         {
-            "image_url",
+            "source",
             QJsonObject{
-                {"url",
-                 "data:image/%1;base64,%2"_L1
-                     .arg(imageFormat, AiApiUtils::toBase64Image(image, imageFormat))},
+                {"type", "base64"},
+                {"media_type", QString("image/%1").arg(imageFormat)},
+                {"data", AiApiUtils::toBase64Image(image, imageFormat)},
             },
         },
     };
@@ -64,15 +63,15 @@ QJsonArray getUserJson(const QUrl &imageUrl, const QString &currentQml, const QS
 
 } // namespace
 
-void OpenAiCompletionsApi::setRequestHeader(
+void ClaudeMessagesApi::setRequestHeader(
     QNetworkRequest *networkRequest, const AiModelInfo &modelInfo)
 {
     networkRequest->setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    networkRequest
-        ->setRawHeader("Authorization", QByteArray("Bearer ").append(modelInfo.apiKey.toUtf8()));
+    networkRequest->setRawHeader("x-api-key", modelInfo.apiKey.toUtf8());
+    networkRequest->setRawHeader("anthropic-version", "2023-06-01");
 }
 
-QByteArray OpenAiCompletionsApi::createContent(const Data &data, const AiModelInfo &modelInfo)
+QByteArray ClaudeMessagesApi::createContent(const Data &data, const AiModelInfo &modelInfo)
 {
     QJsonArray userJson = getUserJson(data.attachedImage, data.qml, data.userPrompt);
 
@@ -86,45 +85,46 @@ QByteArray OpenAiCompletionsApi::createContent(const Data &data, const AiModelIn
     return QJsonDocument(json).toJson();
 }
 
-AiResponse OpenAiCompletionsApi::interpretResponse(const QByteArray &response)
+AiResponse ClaudeMessagesApi::interpretResponse(const QByteArray &jsonData)
 {
     using Error = AiResponse::Error;
 
-    if (response.isEmpty())
-        return Error::EmptyResponse;
-
     QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData, &parseError);
+
     if (parseError.error != QJsonParseError::NoError)
         return Error::JsonParseError;
 
-    QJsonObject rootObject = doc.object();
+    QJsonObject root = doc.object();
 
-    if (rootObject.isEmpty())
-        return Error::EmptyResponse;
+    if (root.contains("error"))
+        return AiResponse::requestError(root.value("error").toObject().value("message").toString());
 
-    if (!rootObject.contains("choices") || !rootObject["choices"].isArray())
-        return Error::InvalidChoices;
+    QString contentStr;
+    if (root.contains("content")) {
+        const QJsonArray content = root["content"].toArray();
+        for (const QJsonValue &value : content) {
+            QJsonObject contentObj = value.toObject();
+            QString contentType = contentObj["type"].toString();
 
-    QJsonArray choicesArray = rootObject["choices"].toArray();
-    if (choicesArray.isEmpty())
-        return Error::EmptyChoices;
+            if (contentType == "text") {
+                QString text = contentObj["text"].toString();
+                contentStr.append(text);
+            }
+        }
+    }
 
-    QJsonObject firstChoice = choicesArray.first().toObject();
-    if (!firstChoice.contains("message") || !firstChoice["message"].isObject())
-        return Error::InvalidMessage;
-
-    QJsonObject messageObject = firstChoice["message"].toObject();
-    QString content = messageObject.value("content").toString();
-    if (content.isEmpty())
-        return Error::EmptyMessage;
-
-    return AiApiUtils::aiResponseFromContent(content);
+    return AiApiUtils::aiResponseFromContent(contentStr);
 }
 
-bool OpenAiCompletionsApi::accepts(const AiModelInfo &info)
+bool ClaudeMessagesApi::accepts(const AiModelInfo &info)
 {
-    return info.isValid() && info.url.toString().contains("/chat/completions", Qt::CaseInsensitive);
+    if (!info.isValid())
+        return false;
+
+    const QString url = info.url.toString();
+    return url.contains("anthropic", Qt::CaseInsensitive)
+           && url.contains("/messages", Qt::CaseInsensitive);
 }
 
 } // namespace QmlDesigner
