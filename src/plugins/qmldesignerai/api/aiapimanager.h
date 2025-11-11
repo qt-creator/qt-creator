@@ -20,6 +20,7 @@ class AiResponse;
 class AiApiManager : public QObject
 {
     Q_OBJECT
+
 public:
     using Data = AbstractAiApi::Data;
 

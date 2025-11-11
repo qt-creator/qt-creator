@@ -33,6 +33,8 @@ QString AiResponse::errorString() const
         return Tr::tr("Missing or invalid `message` object in first `choice`");
     case Error::EmptyMessage:
         return Tr::tr("Missing or invalid `content` string in `message`");
+    case Error::RequestError:
+        return m_requestErrorString;
     }
 
     const int errorNo = static_cast<int>(error());
@@ -63,6 +65,14 @@ void AiResponse::setQml(const QString &qml)
 void AiResponse::setSelectedIds(const QStringList &ids)
 {
     m_selectedIds = ids;
+}
+
+AiResponse AiResponse::requestError(const QString &error)
+{
+    AiResponse response;
+    response.setError(Error::RequestError);
+    response.m_requestErrorString = error;
+    return response;
 }
 
 QString AiResponse::qml() const

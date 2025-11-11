@@ -19,6 +19,7 @@ public:
         EmptyChoices,
         InvalidMessage,
         EmptyMessage,
+        RequestError,
     };
 
     AiResponse();
@@ -33,10 +34,13 @@ public:
     void setQml(const QString &qml);
     void setSelectedIds(const QStringList &ids);
 
+    static AiResponse requestError(const QString &error);
+
 private:
     Error m_error = Error::NoError;
     QString m_qml;
     QStringList m_selectedIds;
+    QString m_requestErrorString;
 };
 
 } // namespace QmlDesigner
