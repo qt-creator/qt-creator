@@ -115,6 +115,24 @@ static FilePaths deviceRoots()
     return devices;
 }
 
+static std::pair<FilePaths, FilePaths> dirEntries(const FilePath &dir, const FileFilter &filter)
+{
+    FilePaths dirs;
+    FilePaths files;
+    dir.iterateDirectory(
+        [&dirs, &files](const FilePath &item, const FilePathInfo &info) {
+            if (info.fileFlags & FilePathInfo::DirectoryType)
+                dirs.append(item);
+            else if (info.fileFlags & FilePathInfo::FileType)
+                files.append(item);
+            return IterationPolicy::Continue;
+        },
+        filter);
+    dirs.sort();
+    files.sort();
+    return {FilePaths({dir / ".."}) + dirs, files};
+}
+
 FileSystemFilter::FileSystemFilter()
 {
     setId("Files in file system");
@@ -152,25 +170,16 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
     const FilePath directory = isDir ? absoluteEntryPath : absoluteEntryPath.parentDir();
     const QString entryFileName = isDir ? QString() : absoluteEntryPath.fileName();
 
-    QDir::Filters dirFilter = QDir::Dirs | QDir::Drives | QDir::NoDot | QDir::NoDotDot;
-    QDir::Filters fileFilter = QDir::Files;
+    QDir::Filters fileFilter = QDir::Dirs | QDir::Drives | QDir::NoDot | QDir::NoDotDot
+                               | QDir::Files;
     if (includeHidden) {
-        dirFilter |= QDir::Hidden;
         fileFilter |= QDir::Hidden;
     }
     // use only 'name' for case sensitivity decision, because we need to make the path
     // match the case on the file system for case-sensitive file systems
     const Qt::CaseSensitivity caseSensitivity = ILocatorFilter::caseSensitivity(entryFileName);
-    const FilePaths dirs = isPartOfDeviceRoot
-                               ? FilePaths()
-                               : FilePaths({directory / ".."})
-                                     + directory.dirEntries({{}, dirFilter},
-                                                            QDir::Name | QDir::IgnoreCase
-                                                                | QDir::LocaleAware);
-    const FilePaths files = isPartOfDeviceRoot ? FilePaths()
-                                               : directory.dirEntries({{}, fileFilter},
-                                                                      QDir::Name | QDir::IgnoreCase
-                                                                          | QDir::LocaleAware);
+    const auto [dirs, files] = isPartOfDeviceRoot ? std::pair(FilePaths(), FilePaths())
+                                                  : dirEntries(directory, {{}, fileFilter});
 
     // directories
     QRegularExpression regExp = ILocatorFilter::createRegExp(entryFileName, caseSensitivity);
