@@ -385,7 +385,19 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
                             continue;
                         if (!project->isKnownFile(filePath))
                             continue;
-                        Client *client = startClient(setting, bc);
+                        // Note: we might already have started the client in a previous iteration of
+                        // the openedDocuments-loop. In that case, use the existing one.
+                        Client *client = Utils::findOrDefault(
+                            clientsForSetting(setting), [bc](Client *candidate) {
+                                if (candidate->buildConfiguration() != bc)
+                                    return false;
+                                const auto state = candidate->state();
+                                return state == Client::Uninitialized
+                                       || state == Client::Initialized
+                                       || state == Client::InitializeRequested;
+                            });
+                        if (!client)
+                            client = startClient(setting, bc);
                         if (!client)
                             continue;
                         if (targetIsActive && target->activeBuildConfiguration() == bc

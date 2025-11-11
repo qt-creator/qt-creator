@@ -216,24 +216,23 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
     return workingCopy;
 }
 
-static ModelManagerInterface::ProjectInfo defaultProjectInfoForProject(Project *project)
-{
-    Kit *activeKit = ProjectExplorer::activeKit(project);
-    Kit *kit = activeKit ? activeKit : KitManager::defaultKit();
-    QmlCodeModelInfo info = project->gatherQmlCodeModelInfo(kit, project->activeBuildConfiguration());
-    return fromQmlCodeModelInfo(project, kit, info);
-}
-
-void ModelManager::updateDefaultProjectInfo()
+void ModelManager::updateDefaultProjectInfo(Project *project)
 {
     // needs to be performed in the ui thread
-    Project *currentProject = ProjectManager::startupProject();
-    if (!currentProject)
+    if (!project)
         return;
-    setDefaultProject(containsProject(currentProject)
-                            ? projectInfo(currentProject)
-                            : defaultProjectInfoForProject(currentProject),
-                      currentProject);
+
+    if (containsProject(project)) {
+        setDefaultProject(projectInfo(project), project);
+    } else {
+        Kit *activeKit = ProjectExplorer::activeKit(project);
+        Kit *kit = activeKit ? activeKit : KitManager::defaultKit();
+        QmlCodeModelInfo info = project->gatherQmlCodeModelInfo(kit, project->activeBuildConfiguration());
+        if (info.isValid())
+            setDefaultProject(fromQmlCodeModelInfo(project, kit, info), project);
+        else
+            setDefaultProject(ModelManager::ProjectInfo(), project);
+    }
 }
 
 void ModelManager::updateFromBuildConfig(BuildConfiguration *bc, const QmlCodeModelInfo &info)
