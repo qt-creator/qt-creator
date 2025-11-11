@@ -35,6 +35,7 @@
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/fsengine/fsengine.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
@@ -1190,6 +1191,7 @@ DockerDevice::DockerDevice()
 
         if (DeviceFileAccessPtr fileAccess = d->createFileAccess()) {
             setDeviceState(ProjectExplorer::IDevice::DeviceReadyToUse);
+            FSEngine::invalidateFileInfoCache();
             return fileAccess;
         }
         return nullptr;

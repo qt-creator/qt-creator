@@ -5,6 +5,8 @@
 
 #include <QtCore/private/qabstractfileengine_p.h>
 
+#include "../filepath.h"
+
 namespace Utils::Internal {
 
 class FSEngineHandler : public QAbstractFileEngineHandler
@@ -16,5 +18,7 @@ public:
     QAbstractFileEngine *create(const QString &fileName) const override;
 #endif
 };
+
+void invalidateFileInfoCache(const Utils::FilePath &path);
 
 } // Utils::Internal

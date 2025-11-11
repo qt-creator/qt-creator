@@ -106,6 +106,11 @@ FilePathInfoCache::CachedData createCacheData(const FilePath &filePath) {
     return data;
 };
 
+void invalidateFileInfoCache(const Utils::FilePath &path)
+{
+    g_filePathInfoCache.invalidate(path);
+}
+
 FSEngineImpl::FSEngineImpl(FilePath filePath)
     : m_filePath(std::move(filePath))
 {}

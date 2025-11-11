@@ -92,4 +92,9 @@ QStringList FSEngine::registeredDeviceSchemes()
     return *deviceSchemes();
 }
 
+void FSEngine::invalidateFileInfoCache(const Utils::FilePath &path)
+{
+    Internal::invalidateFileInfoCache(path);
+}
+
 } // namespace Utils

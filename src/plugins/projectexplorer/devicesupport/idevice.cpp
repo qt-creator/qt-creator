@@ -26,6 +26,7 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronizedvalue.h>
 #include <utils/url.h>
+#include <utils/fsengine/fsengine.h>
 
 #include <QCoreApplication>
 #include <QStandardPaths>
@@ -614,6 +615,7 @@ void IDevice::setOsType(OsType osType)
 void IDevice::setFileAccess(DeviceFileAccessPtr fileAccess)
 {
     d->fileAccess.writeLocked()->swap(fileAccess);
+    Utils::FSEngine::invalidateFileInfoCache();
 }
 
 void IDevice::setFileAccessFactory(std::function<DeviceFileAccessPtr()> fileAccessFactory)

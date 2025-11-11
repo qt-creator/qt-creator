@@ -33,6 +33,8 @@ public:
     static void unregisterDeviceScheme(const QStringView scheme);
     static QStringList registeredDeviceSchemes();
 
+    static void invalidateFileInfoCache(const Utils::FilePath &path = {});
+
 private:
     std::unique_ptr<Internal::FSEngineHandler> m_engineHandler;
 };

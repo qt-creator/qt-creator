@@ -30,6 +30,7 @@
 #include <QtTaskTree/qconditional.h>
 
 #include <utils/algorithm.h>
+#include <utils/fsengine/fsengine.h>
 #include <utils/infobar.h>
 
 #include <QtTaskTree/qconditional.h>
@@ -373,6 +374,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
                 return initResult;
 
             m_fileAccess = std::move(fileAccess);
+            FSEngine::invalidateFileInfoCache();
             return ResultOk;
         }();
 

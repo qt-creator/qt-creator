@@ -69,6 +69,11 @@ public:
     void invalidate(const FilePath &path)
     {
         QMutexLocker lk(&m_mutex);
+        if (path.isEmpty()) {
+            m_cache.clear();
+            return;
+        }
+
         m_cache.remove(path);
     }
 
