@@ -26,9 +26,11 @@ add_qtc_plugin(Android
     androidsdkpackage.cpp androidsdkpackage.h
     androidsettingswidget.cpp androidsettingswidget.h
     androidtoolchain.cpp androidtoolchain.h
+    androidtoolmenu.cpp androidtoolmenu.h
     androidutils.cpp androidutils.h
     avdcreatordialog.cpp avdcreatordialog.h
     avdmanageroutputparser.cpp avdmanageroutputparser.h
+    iconcontainerwidget.cpp iconcontainerwidget.h
     javaeditor.cpp javaeditor.h
     javalanguageserver.cpp javalanguageserver.h
     javaparser.cpp javaparser.h

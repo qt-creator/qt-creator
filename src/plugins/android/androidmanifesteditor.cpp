@@ -11,14 +11,10 @@
 #include <coreplugin/icore.h>
 
 #include <texteditor/basehoverhandler.h>
-#include <texteditor/textdocument.h>
-#include <texteditor/texteditor.h>
 
 #include <utils/infobar.h>
 #include <utils/tooltip/tooltip.h>
 
-#include <QDomDocument>
-#include <QTimer>
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -142,35 +138,6 @@ public:
 
 private:
     bool isSaveAsAllowed() const override { return false; }
-};
-
-// AndroidManifestEditorWidget
-
-class AndroidManifestEditorWidget : public QWidget
-{
-public:
-    explicit AndroidManifestEditorWidget();
-    TextEditorWidget *textEditorWidget() const;
-
-private:
-    void updateInfoBar();
-    void startParseCheck();
-    void delayedParseCheck();
-
-    void updateAfterFileLoad();
-
-    bool checkDocument(const QDomDocument &doc, QString *errorMessage,
-                       int *errorLine, int *errorColumn);
-
-    void updateInfoBar(const QString &errorMessage, int line, int column);
-    void hideInfoBar();
-
-    int m_errorLine;
-    int m_errorColumn;
-
-    QTimer m_timerParseCheck;
-    TextEditorWidget *m_textEditorWidget;
-    Core::IContext *m_context;
 };
 
 AndroidManifestEditorWidget::AndroidManifestEditorWidget()

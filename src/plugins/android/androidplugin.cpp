@@ -1,7 +1,6 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "androidconfigurations.h"
 #include "androidbuildapkstep.h"
 #include "androidconstants.h"
 #include "androiddebugsupport.h"
@@ -15,6 +14,7 @@
 #include "androidrunner.h"
 #include "androidsettingswidget.h"
 #include "androidtoolchain.h"
+#include "androidtoolmenu.h"
 #include "androidtr.h"
 
 #ifdef WITH_TESTS
@@ -101,6 +101,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
 
         setupJavaEditor();
         setupAndroidManifestEditor();
+        setupAndroidToolsMenu();
 
         connect(KitManager::instance(), &KitManager::kitsLoaded, this, &AndroidPlugin::kitsRestored,
                 Qt::SingleShotConnection);
