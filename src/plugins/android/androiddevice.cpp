@@ -81,7 +81,7 @@ static SdkToolResult runAdbCommand(const QStringList &args)
     const CommandLine command{AndroidConfig::adbToolPath(), args};
     qCDebug(androidDeviceLog) << "Running command (sync):" << command.toUserOutput();
     process.setCommand(command);
-    process.runBlocking(30s, EventLoopMode::On);
+    process.runBlocking(30s);
     const bool success = process.result() == ProcessResult::FinishedWithSuccess;
     const SdkToolResult result = {success,
                                   process.cleanedStdOut().trimmed(),
