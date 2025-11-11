@@ -37,6 +37,15 @@ function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
                     VERBATIM
 
                 )
+            elseif(${PLATFORM} STREQUAL "linux" AND ${ARCHITECTURE} STREQUAL "arm")
+                add_custom_command(
+                    OUTPUT "${OUTPUT}"
+                    COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOARM=5 GOOS=${PLATFORM} CGO_ENABLED=0 ${GO_BIN} build ${VENDOR_MODE_OPTION} -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
+                    DEPENDS ${SOURCES}
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    COMMENT "Building ${TARGET_NAME}"
+                    VERBATIM
+                )
             else()
                 add_custom_command(
                     OUTPUT "${OUTPUT}"
@@ -84,6 +93,7 @@ set(SOURCE_FILES
 )
 
 go_build(cmdbridge "${SOURCE_FILES}" "linux;darwin;windows" "amd64;arm64" "-X main.MagicPacketMarker=${GOBRIDGE_MAGIC_PACKET_MARKER}")
+go_build(cmdbridge "${SOURCE_FILES}" "linux" "arm" "-X main.MagicPacketMarker=${GOBRIDGE_MAGIC_PACKET_MARKER}")
 
 add_custom_target(CmdBridge
   DEPENDS
