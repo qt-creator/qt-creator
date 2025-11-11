@@ -790,8 +790,7 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
         if (unauthorizedDashboardStorage->dtoData) {
             const Dto::DashboardInfoDto &dashboardInfo = *unauthorizedDashboardStorage->dtoData;
             const QString &username = settings().serverForId(serverId).username;
-            if (username.isEmpty()
-                || (dashboardInfo.username && *dashboardInfo.username == username)) {
+            if (username == "anon_auth" || dashboardInfo.username.value_or("") == username) {
                 dd->m_serverAccess = ServerAccess::NoAuthorization;
                 dd->m_dashboardInfo = toDashboardInfo(*unauthorizedDashboardStorage);
                 return;
@@ -1479,11 +1478,15 @@ void updateEnvironmentForLocalBuild(Environment *env)
     QTC_ASSERT(env, return);
     QTC_ASSERT(dd, return);
     QTC_ASSERT(dd->m_dashboardInfo && dd->m_currentProjectInfo, return);
-    if (!dd->m_apiToken)
-        return;
+    QTC_ASSERT((dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken)
+               || (dd->m_serverAccess == ServerAccess::NoAuthorization && !dd->m_apiToken), return);
 
     QJsonObject json;
-    json.insert("apiToken", QString::fromUtf8(*dd->m_apiToken));
+    if (dd->m_apiToken)
+        json.insert("apiToken", QString::fromUtf8(*dd->m_apiToken));
+    else
+        json.insert("password", QString("pw"));
+
     const QJsonDocument doc(json);
     QByteArray bytes = doc.toJson(QJsonDocument::Compact);
     if (bytes.size() < 256)

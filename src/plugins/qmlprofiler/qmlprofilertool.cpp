@@ -558,8 +558,11 @@ RunControl *QmlProfilerTool::attachToWaitingApplication()
     d->m_viewContainer->perspective()->select();
 
     auto runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    if (RunConfiguration *runConfig = activeRunConfigForActiveProject())
-        runControl->copyDataFromRunConfiguration(runConfig);
+    RunConfiguration *activeRunConfig = activeRunConfigForActiveProject();
+    if (activeRunConfig && activeRunConfig->kit() == kit)
+        runControl->copyDataFromRunConfiguration(activeRunConfig);
+    else
+        runControl->setKit(kit);
     runControl->setQmlChannel(serverUrl);
     runControl->setRunRecipe(qmlProfilerRecipe(runControl));
 

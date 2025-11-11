@@ -34,7 +34,7 @@ private:
     void addTaskInternal(const QFuture<void> &result, const QString &msg,
                          const Utils::Id taskId) const override;
 
-    void updateDefaultProjectInfo();
+    void updateDefaultProjectInfo(ProjectExplorer::Project *project);
 
     void updateFromBuildConfig(ProjectExplorer::BuildConfiguration *bc,
                                const ProjectExplorer::QmlCodeModelInfo &extra);

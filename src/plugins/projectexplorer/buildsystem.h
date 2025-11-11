@@ -40,6 +40,8 @@ struct TestCaseEnvironment
 class QmlCodeModelInfo
 {
 public:
+    bool isValid() const { return !sourceFiles.isEmpty(); }
+
     Utils::FilePaths sourceFiles;
     Utils::FilePaths qmlImportPaths;
     Utils::FilePaths activeResourceFiles;
