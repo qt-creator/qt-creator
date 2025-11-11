@@ -64,6 +64,7 @@ inline constexpr StaticString Keyframe = {"Keyframe"};
 inline constexpr StaticString Label = {"Label"};
 inline constexpr StaticString Layout = {"Layout"};
 inline constexpr StaticString Light = {"Light"};
+inline constexpr StaticString Lightmapper = {"Lightmapper"};
 inline constexpr StaticString ListElement = {"ListElement"};
 inline constexpr StaticString ListModel = {"ListModel"};
 inline constexpr StaticString ListView = {"ListView"};
@@ -220,6 +221,7 @@ class CommonTypeCache
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, InstanceList>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, InstanceListEntry>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Light>,
+        CacheType<QtQuick3D, ModuleKind::QmlLibrary, Lightmapper>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Material>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Model>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Node>,

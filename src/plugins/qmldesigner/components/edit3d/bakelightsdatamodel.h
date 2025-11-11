@@ -8,6 +8,7 @@
 #include <QAbstractListModel>
 #include <QObject>
 #include <QPointer>
+#include <QVersionNumber>
 
 namespace QmlDesigner {
 
@@ -18,15 +19,26 @@ class BakeLightsDataModel : public QAbstractListModel
     Q_OBJECT
 
 public:
+
+    enum class NodeType {
+        Unknown,
+        Model,
+        Light,
+        Lightmapper
+    };
+    Q_ENUM(NodeType)
+
     struct BakeData {
         QString id;               // node id. Also used as BakedLightmap.key
         PropertyName aliasProp;   // property id for component exposed models/lights
-        bool isModel = false;     // false means light
+        NodeType nodeType = NodeType::Unknown;
         bool enabled = false;
         bool inUse = false;
         bool isTitle = false;     // if true, indicates a title row in UI
         bool isUnexposed = false; // if true, indicates a component with unexposed models/lights
         int resolution = 1024;
+        double texelsPerUnit = 1.; // 1 is default for Lightmapper, Models default to 0
+        double denoiseSigma = 8.;
         QString bakeMode;
     };
 
@@ -42,6 +54,7 @@ public:
     void apply();
 
     ModelNode view3dNode() const { return m_view3dNode; }
+    void setKitVersion(const QVersionNumber &version);
 
 private:
     QString commonPrefix();
@@ -49,6 +62,8 @@ private:
     QPointer<AbstractView> m_view;
     QList<BakeData> m_dataList;
     ModelNode m_view3dNode;
+    ModelNode m_sceneEnvNode;
+    QVersionNumber m_kitVersion;
 };
 
 QDebug operator<<(QDebug debug, const BakeLightsDataModel::BakeData &data);

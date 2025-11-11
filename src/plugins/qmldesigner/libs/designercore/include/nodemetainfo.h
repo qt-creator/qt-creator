@@ -199,6 +199,7 @@ public:
     bool isQtQuick3DInstanceList(SL sl = {}) const;
     bool isQtQuick3DInstanceListEntry(SL sl = {}) const;
     bool isQtQuick3DLight(SL sl = {}) const;
+    bool isQtQuick3DLightmapper(SL sl = {}) const;
     bool isQtQuickListModel(SL sl = {}) const;
     bool isQtQuickListView(SL sl = {}) const;
     bool isQtQuickGridView(SL sl = {}) const;

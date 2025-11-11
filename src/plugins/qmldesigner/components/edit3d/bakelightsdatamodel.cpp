@@ -47,13 +47,17 @@ QHash<int, QByteArray> BakeLightsDataModel::roleNames() const
     static const QHash<int, QByteArray> roles {
         {Qt::UserRole + 1, "displayId"},
         {Qt::UserRole + 2, "nodeId"},
-        {Qt::UserRole + 3, "isModel"},
-        {Qt::UserRole + 4, "isEnabled"},
-        {Qt::UserRole + 5, "inUse"},
-        {Qt::UserRole + 6, "isTitle"},
-        {Qt::UserRole + 7, "isUnexposed"},
-        {Qt::UserRole + 8, "resolution"},
-        {Qt::UserRole + 9, "bakeMode"}
+        {Qt::UserRole + 3, "isEnabled"},
+        {Qt::UserRole + 4, "inUse"},
+        {Qt::UserRole + 5, "isTitle"},
+        {Qt::UserRole + 6, "isUnexposed"},
+        {Qt::UserRole + 7, "resolution"},
+        {Qt::UserRole + 8, "bakeMode"},
+        {Qt::UserRole + 9, "texelsPerUnit"},
+        {Qt::UserRole + 10, "denoiseSigma"},
+        {Qt::UserRole + 11, "isModel"},
+        {Qt::UserRole + 12, "isLight"},
+        {Qt::UserRole + 13, "isLightmapper"}
     };
     return roles;
 }
@@ -79,9 +83,6 @@ QVariant BakeLightsDataModel::data(const QModelIndex &index, int role) const
     if (roleName == "nodeId")
         return bakeData.id;
 
-    if (roleName == "isModel")
-        return bakeData.isModel;
-
     if (roleName == "isEnabled")
         return bakeData.enabled;
 
@@ -100,6 +101,21 @@ QVariant BakeLightsDataModel::data(const QModelIndex &index, int role) const
     if (roleName == "bakeMode")
         return bakeData.bakeMode;
 
+    if (roleName == "texelsPerUnit")
+        return bakeData.texelsPerUnit;
+
+    if (roleName == "denoiseSigma")
+        return bakeData.denoiseSigma;
+
+    if (roleName == "isModel")
+        return bakeData.nodeType == NodeType::Model;
+
+    if (roleName == "isLight")
+        return bakeData.nodeType == NodeType::Light;
+
+    if (roleName == "isLightmapper")
+        return bakeData.nodeType == NodeType::Lightmapper;
+
     return {};
 }
 
@@ -114,17 +130,29 @@ bool BakeLightsDataModel::setData(const QModelIndex &index, const QVariant &valu
     bool changed = false;
 
     if (roleName == "isEnabled") {
-        changed = bakeData.enabled != value.toBool();
-        bakeData.enabled = value.toBool();
+        const bool boolValue = value.toBool();
+        changed = bakeData.enabled != boolValue;
+        bakeData.enabled = boolValue;
     } else if (roleName == "inUse") {
-        changed = bakeData.inUse != value.toBool();
-        bakeData.inUse = value.toBool();
+        const bool boolValue = value.toBool();
+        changed = bakeData.inUse != boolValue;
+        bakeData.inUse = boolValue;
     } else if (roleName == "resolution") {
-        changed = bakeData.resolution != value.toInt();
-        bakeData.resolution = value.toInt();
+        const int intValue = value.toInt();
+        changed = bakeData.resolution != intValue;
+        bakeData.resolution = intValue;
     } else if (roleName == "bakeMode") {
-        changed = bakeData.bakeMode != value.toString();
-        bakeData.bakeMode = value.toString();
+        const QString strValue = value.toString();
+        changed = bakeData.bakeMode != strValue;
+        bakeData.bakeMode = strValue;
+    } else if (roleName == "texelsPerUnit") {
+        const double doubleValue = value.toDouble();
+        changed = bakeData.texelsPerUnit != doubleValue;
+        bakeData.texelsPerUnit = doubleValue;
+    } else if (roleName == "denoiseSigma") {
+        const double doubleValue = value.toDouble();
+        changed = bakeData.denoiseSigma != doubleValue;
+        bakeData.denoiseSigma = doubleValue;
     }
 
     if (changed)
@@ -172,7 +200,8 @@ bool BakeLightsDataModel::reset()
             continue; // Skip nodes without id
 
         if (node.metaInfo().isQtQuick3DModel()) {
-            data.isModel = true;
+            data.nodeType = NodeType::Model;
+            data.texelsPerUnit = 0.;
             if (node.hasBindingProperty("bakedLightmap")) {
                 ModelNode blm = node.bindingProperty("bakedLightmap").resolveToModelNode();
                 if (blm.isValid()) {
@@ -187,10 +216,18 @@ bool BakeLightsDataModel::reset()
             } else if (node.hasProperty("bakedLightmap")) {
                 forceManualMode = true;
             }
-            if (node.hasVariantProperty("lightmapBaseResolution"))
-                data.resolution = node.variantProperty("lightmapBaseResolution").value().toInt();
-            else if (node.hasProperty("lightmapBaseResolution"))
-                forceManualMode = true;
+
+            if (m_kitVersion >= QVersionNumber(6, 10, 0)) {
+                if (node.hasVariantProperty("texelsPerUnit"))
+                    data.texelsPerUnit = node.variantProperty("texelsPerUnit").value().toDouble();
+                else if (node.hasProperty("texelsPerUnit"))
+                    forceManualMode = true;
+            } else {
+                if (node.hasVariantProperty("lightmapBaseResolution"))
+                    data.resolution = node.variantProperty("lightmapBaseResolution").value().toInt();
+                else if (node.hasProperty("lightmapBaseResolution"))
+                    forceManualMode = true;
+            }
 
             if (node.hasVariantProperty("usedInBakedLighting"))
                 data.inUse = node.variantProperty("usedInBakedLighting").value().toBool();
@@ -199,6 +236,7 @@ bool BakeLightsDataModel::reset()
 
             modelList.append(data);
         } else if (node.metaInfo().isQtQuick3DLight()) {
+            data.nodeType = NodeType::Light;
             if (node.hasVariantProperty("bakeMode")) {
                 // Enum properties that have binding can still resolve as variant property,
                 // so check if the value is actually valid enum
@@ -229,7 +267,8 @@ bool BakeLightsDataModel::reset()
                     propData.aliasProp = mi.name();
                     if (mi.propertyType().isQtQuick3DModel()) {
                         hasExposedProps = true;
-                        propData.isModel = true;
+                        propData.nodeType = NodeType::Model;
+                        propData.texelsPerUnit = 0.;
                         PropertyName dotName = mi.name() + '.';
                         for (const AbstractProperty &prop : props) {
                             if (prop.name().startsWith(dotName)) {
@@ -248,11 +287,20 @@ bool BakeLightsDataModel::reset()
                                         forceManualMode = true;
                                     }
                                 }
-                                if (subName == "lightmapBaseResolution") {
-                                    if (prop.isVariantProperty())
-                                        propData.resolution = prop.toVariantProperty().value().toInt();
-                                    else
-                                        forceManualMode = true;
+                                if (m_kitVersion >= QVersionNumber(6, 10, 0)) {
+                                    if (subName == "texelsPerUnit") {
+                                        if (prop.isVariantProperty())
+                                            propData.texelsPerUnit = prop.toVariantProperty().value().toDouble();
+                                        else
+                                            forceManualMode = true;
+                                    }
+                                } else {
+                                    if (subName == "lightmapBaseResolution") {
+                                        if (prop.isVariantProperty())
+                                            propData.resolution = prop.toVariantProperty().value().toInt();
+                                        else
+                                            forceManualMode = true;
+                                    }
                                 }
                                 if (subName == "usedInBakedLighting") {
                                     if (prop.isVariantProperty())
@@ -265,6 +313,7 @@ bool BakeLightsDataModel::reset()
                         compModelList.append(propData);
                     } else if (mi.propertyType().isQtQuick3DLight()) {
                         hasExposedProps = true;
+                        propData.nodeType = NodeType::Light;
                         PropertyName dotName = mi.name() + '.';
                         for (const AbstractProperty &prop : props) {
                             if (prop.name().startsWith(dotName)) {
@@ -323,6 +372,40 @@ bool BakeLightsDataModel::reset()
 
     BakeData titleData;
     titleData.isTitle = true;
+
+    if (m_kitVersion >= QVersionNumber(6, 10, 0)) {
+        BakeData mapperData;
+        mapperData.nodeType = NodeType::Lightmapper;
+
+        m_sceneEnvNode = m_view3dNode.property("environment").toBindingProperty()
+                                  .resolveToModelNode();
+        ModelNode mapperNode;
+
+        if (m_sceneEnvNode.metaInfo().isQtQuick3DSceneEnvironment()) {
+            mapperNode = m_sceneEnvNode.property("lightmapper").toBindingProperty()
+                             .resolveToModelNode();
+        } else {
+            forceManualMode = true;
+        }
+
+        if (mapperNode.metaInfo().isQtQuick3DLightmapper()) {
+            mapperData.id = mapperNode.id();
+            if (mapperNode.hasVariantProperty("texelsPerUnit"))
+                mapperData.texelsPerUnit = mapperNode.variantProperty("texelsPerUnit").value().toDouble();
+            else if (mapperNode.hasProperty("texelsPerUnit"))
+                forceManualMode = true;
+            if (mapperNode.hasVariantProperty("denoiseSigma"))
+                mapperData.denoiseSigma = mapperNode.variantProperty("denoiseSigma").value().toDouble();
+            else if (mapperNode.hasProperty("denoiseSigma"))
+                forceManualMode = true;
+        } else {
+            mapperData.id = m_view->model()->generateNewId("lightmapper");
+        }
+        titleData.id = tr("Light Mapper");
+        m_dataList.append(titleData);
+        m_dataList.append(mapperData);
+    }
+
     titleData.id = tr("Lights");
     m_dataList.append(titleData);
     m_dataList.append(lightList);
@@ -370,11 +453,13 @@ void BakeLightsDataModel::apply()
         }
         if (blmNode.isValid()) {
             VariantProperty enabledProp = blmNode.variantProperty("enabled");
-            VariantProperty prefixProp = blmNode.variantProperty("loadPrefix");
             VariantProperty keyProp = blmNode.variantProperty("key");
             enabledProp.setValue(data.enabled);
-            prefixProp.setValue(commonPrefix());
             keyProp.setValue(blmNode.id());
+            if (m_kitVersion < QVersionNumber(6, 10, 0)) {
+                VariantProperty prefixProp = blmNode.variantProperty("loadPrefix");
+                prefixProp.setValue(commonPrefix());
+            }
         }
     };
 
@@ -396,17 +481,44 @@ void BakeLightsDataModel::apply()
             if (data.isTitle || data.isUnexposed)
                 continue;
             ModelNode node = m_view->modelNodeForId(data.id);
-            if (data.isModel) {
+            if (data.nodeType == NodeType::Model) {
                 setBakedLightmap(node, data);
-                setVariantProp(node, "lightmapBaseResolution", data.aliasProp, data.resolution, 1024);
+                if (m_kitVersion >= QVersionNumber(6, 10, 0))
+                    setVariantProp(node, "texelsPerUnit", data.aliasProp, data.texelsPerUnit, 0);
+                else
+                    setVariantProp(node, "lightmapBaseResolution", data.aliasProp, data.resolution, 1024);
                 setVariantProp(node, "usedInBakedLighting", data.aliasProp, data.inUse, false);
-            } else {
+            } else if (data.nodeType == NodeType::Light) {
                 setVariantProp(node, "bakeMode", data.aliasProp,
                                QVariant::fromValue(QmlDesigner::Enumeration(data.bakeMode)),
                                QVariant::fromValue(QmlDesigner::Enumeration("Light", "BakeModeDisabled")));
+            } else { // Lightmapper
+                if (m_kitVersion < QVersionNumber(6, 10, 0))
+                    continue;
+                if (!node.isValid() && m_sceneEnvNode.metaInfo().isQtQuick3DSceneEnvironment()) {
+                    node = m_view->createModelNode("Lightmapper");
+                    node.setIdWithoutRefactoring(data.id);
+                    m_sceneEnvNode.defaultNodeListProperty().reparentHere(node);
+                    m_sceneEnvNode.bindingProperty("lightmapper").setExpression(data.id);
+                }
+                if (node.isValid()) {
+                    setVariantProp(node, "texelsPerUnit", {}, data.texelsPerUnit, 1);
+                    setVariantProp(node, "denoiseSigma", {}, data.denoiseSigma, 8);
+                    if (!node.hasProperty("source")) {
+                        setVariantProp(node, "source", {},
+                                       QUrl(QStringLiteral("lightmaps/lightmap_%1.bin").arg(
+                                           m_view3dNode.id())),
+                                       QUrl());
+                    }
+                }
             }
         }
     });
+}
+
+void BakeLightsDataModel::setKitVersion(const QVersionNumber &version)
+{
+    m_kitVersion = version;
 }
 
 QString BakeLightsDataModel::commonPrefix()
@@ -421,10 +533,11 @@ QDebug operator<<(QDebug debug, const BakeLightsDataModel::BakeData &data)
     debug.space() << "("
                   << "id:" << data.id
                   << "aliasProp:" << data.aliasProp
-                  << "isModel:" << data.isModel
+                  << "nodeType:" << data.nodeType
                   << "enabled:" << data.enabled
                   << "inUse:" << data.inUse
                   << "resolution:" << data.resolution
+                  << "texelsPerUnit:" << data.texelsPerUnit
                   << "bakeMode:" << data.bakeMode
                   << "isTitle:" << data.isTitle
                   << ")";

@@ -1574,6 +1574,20 @@ bool NodeMetaInfo::isQtQuick3DLight(SL sl) const
     return isBasedOnCommonType<QtQuick3D, Light>(m_projectStorage, m_typeId);
 }
 
+bool NodeMetaInfo::isQtQuick3DLightmapper(SL sl) const
+{
+    if (!isValid())
+        return false;
+
+    NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Lightmapper",
+                               category(),
+                               keyValue("type id", m_typeId),
+                               keyValue("caller location", sl)};
+
+    using namespace Storage::Info;
+    return isBasedOnCommonType<QtQuick3D, Lightmapper>(m_projectStorage, m_typeId);
+}
+
 bool NodeMetaInfo::isQtQmlModelsListElement(SL sl) const
 {
     if (!isValid())

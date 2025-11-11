@@ -27,9 +27,10 @@ class BakeLights : public QObject
     Q_OBJECT
 
     Q_PROPERTY(bool manualMode READ manualMode WRITE setManualMode NOTIFY manualModeChanged)
+    Q_PROPERTY(int kitVersion READ kitVersionForQml NOTIFY kitVersionChanged)
 
 public:
-    BakeLights(AbstractView *view, ModulesStorage &modulesStorage);
+    BakeLights(AbstractView *view, ModulesStorage &modulesStorage, const QVersionNumber &kitVersion);
     ~BakeLights();
 
     Q_INVOKABLE void cancel();
@@ -42,6 +43,7 @@ public:
 
     bool manualMode() const;
     void setManualMode(bool enabled);
+    int kitVersionForQml() const;
     void setKitVersion(const QVersionNumber &version);
 
 signals:
@@ -50,6 +52,7 @@ signals:
     void timeRemainingChanged(double seconds);
     void message(const QString &msg);
     void manualModeChanged();
+    void kitVersionChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

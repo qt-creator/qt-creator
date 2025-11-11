@@ -56,10 +56,12 @@ static QString qmlSourcesPath()
     return Core::ICore::resourcePath("qmldesigner/edit3dQmlSource").toUrlishString();
 }
 
-BakeLights::BakeLights(AbstractView *view, ModulesStorage &modulesStorage)
+BakeLights::BakeLights(AbstractView *view, ModulesStorage &modulesStorage,
+                       const QVersionNumber &kitVersion)
     : QObject(view)
     , m_view(view)
     , m_modulesStorage{modulesStorage}
+    , m_kitVersion(kitVersion)
 {
     m_view3dId = Utils3D::activeView3dId(view);
 
@@ -100,9 +102,17 @@ void BakeLights::setManualMode(bool enabled)
     }
 }
 
+int BakeLights::kitVersionForQml() const
+{
+    return (m_kitVersion.majorVersion() * 100) + m_kitVersion.minorVersion();
+}
+
 void BakeLights::setKitVersion(const QVersionNumber &version)
 {
-    m_kitVersion = version;
+    if (m_kitVersion != version) {
+        m_kitVersion = version;
+        emit kitVersionChanged();
+    }
 }
 
 void BakeLights::bakeLights()
@@ -203,25 +213,27 @@ void BakeLights::apply()
     if (!m_manualMode)
         m_dataModel->apply();
 
-    // Create folders for lightmaps if they do not exist
-    PropertyName loadPrefixPropName{"loadPrefix"};
-    const QList<ModelNode> bakedLightmapNodes = m_view->allModelNodesOfType(
-        m_view->model()->qtQuick3DBakedLightmapMetaInfo());
-    Utils::FilePath currentPath = DocumentManager::currentFilePath().absolutePath();
-    QSet<Utils::FilePath> pathSet;
-    for (const ModelNode &node : bakedLightmapNodes) {
-        if (node.hasVariantProperty(loadPrefixPropName)) {
-            QString prefix = node.variantProperty(loadPrefixPropName).value().toString();
-            Utils::FilePath fp = Utils::FilePath::fromString(prefix);
-            if (fp.isRelativePath()) {
-                fp = currentPath.pathAppended(prefix);
-                if (!fp.exists())
-                    pathSet.insert(fp);
+    if (m_kitVersion < QVersionNumber(6, 10, 0)) {
+        // Create folders for lightmaps if they do not exist
+        PropertyName loadPrefixPropName{"loadPrefix"};
+        const QList<ModelNode> bakedLightmapNodes = m_view->allModelNodesOfType(
+            m_view->model()->qtQuick3DBakedLightmapMetaInfo());
+        Utils::FilePath currentPath = DocumentManager::currentFilePath().absolutePath();
+        QSet<Utils::FilePath> pathSet;
+        for (const ModelNode &node : bakedLightmapNodes) {
+            if (node.hasVariantProperty(loadPrefixPropName)) {
+                QString prefix = node.variantProperty(loadPrefixPropName).value().toString();
+                Utils::FilePath fp = Utils::FilePath::fromString(prefix);
+                if (fp.isRelativePath()) {
+                    fp = currentPath.pathAppended(prefix);
+                    if (!fp.exists())
+                        pathSet.insert(fp);
+                }
             }
         }
+        for (const Utils::FilePath &fp : std::as_const(pathSet))
+            fp.createDir();
     }
-    for (const Utils::FilePath &fp : std::as_const(pathSet))
-        fp.createDir();
 }
 
 void BakeLights::rebake()
@@ -316,6 +328,8 @@ void BakeLights::showSetupDialog()
     if (!m_dataModel)
         m_dataModel = new BakeLightsDataModel(m_view);
 
+    m_dataModel->setKitVersion(m_kitVersion);
+
     if (!m_dataModel->reset()) {
         m_manualMode = true;
     } else {
@@ -331,8 +345,9 @@ void BakeLights::showSetupDialog()
         m_setupDialog = new QQuickView;
         m_setupDialog->setTitle(tr("Lights Baking Setup"));
         m_setupDialog->setResizeMode(QQuickView::SizeRootObjectToView);
-        m_setupDialog->setMinimumSize({550, 200});
-        m_setupDialog->setWidth(550);
+        const int dlgWidth = m_kitVersion >= QVersionNumber(6, 10, 0) ? 750 : 550;
+        m_setupDialog->setMinimumSize({dlgWidth, 200});
+        m_setupDialog->setWidth(dlgWidth);
         m_setupDialog->setHeight(400);
         m_setupDialog->setFlags(Qt::Dialog);
         m_setupDialog->setModality(Qt::ApplicationModal);

@@ -1224,12 +1224,10 @@ void Edit3DView::createEdit3DActions()
             return;
 
         // BakeLights cleans itself up when its dialog is closed
-        if (!m_bakeLights) {
-            m_bakeLights = new BakeLights(this, m_modulesStorage);
-            m_bakeLights->setKitVersion(m_kitVersion);
-        } else {
+        if (!m_bakeLights)
+            m_bakeLights = new BakeLights(this, m_modulesStorage, m_kitVersion);
+        else
             m_bakeLights->raiseDialog();
-        }
     };
 
     m_particleViewModeAction = std::make_unique<Edit3DAction>(

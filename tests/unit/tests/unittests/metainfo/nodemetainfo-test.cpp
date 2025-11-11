@@ -1446,6 +1446,24 @@ TEST_F(NodeMetaInfo, default_is_not_QtQuick3D_Light)
     ASSERT_THAT(isType, IsFalse());
 }
 
+TEST_F(NodeMetaInfo, is_QtQuick3D_Lightmapper)
+{
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick3D", ModuleKind::QmlLibrary, "Lightmapper");
+
+    bool isType = metaInfo.isQtQuick3DLightmapper();
+
+    ASSERT_THAT(isType, IsTrue());
+}
+
+TEST_F(NodeMetaInfo, default_is_not_QtQuick3D_Lightmapper)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    bool isType = metaInfo.isQtQuick3DLightmapper();
+
+    ASSERT_THAT(isType, IsFalse());
+}
+
 TEST_F(NodeMetaInfo, is_QtQuick3D_Material)
 {
     auto metaInfo = createDerivedDummyMetaInfo("QtQuick3D", ModuleKind::QmlLibrary, "Material");

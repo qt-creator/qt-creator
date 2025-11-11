@@ -55,7 +55,8 @@ Rectangle {
                     Text {
                         text: displayId
                         color: StudioTheme.Values.themeTextColor
-                        width: isTitle ? listView.width : listView.width - 320
+                        width: isTitle ? listView.width : listView.width
+                                         - (rootView.kitVersion >= 610 ? 360 : 320)
 
                         clip: true
                         font.bold: isTitle
@@ -90,7 +91,7 @@ Rectangle {
                             ListElement { text: qsTr("Bake All"); value: "Light.BakeModeAll" }
                         }
 
-                        visible: !isModel && !isTitle && !isUnexposed
+                        visible: isLight && !isTitle && !isUnexposed
                         textRole: "text"
                         valueRole: "value"
                         currentIndex: bakeMode === "Light.BakeModeAll"
@@ -136,7 +137,7 @@ Rectangle {
                     Row {
                         width: resolutionLabel.width + resolutionValue.width + StudioTheme.Values.sectionRowSpacing
                         spacing: StudioTheme.Values.sectionRowSpacing
-                        visible: isModel && !isTitle && !isUnexposed
+                        visible: isModel && !isTitle && !isUnexposed && rootView.kitVersion < 610
                         Text {
                             id: resolutionLabel
                             text: qsTr("Resolution:")
@@ -162,6 +163,73 @@ Rectangle {
                             ToolTip.delay: root.toolTipDelay
 
                             onRealValueChanged: resolution = realValue
+                        }
+                    }
+
+                    Row {
+                        width: denoiseSigmaLabel.width + denoiseSigmaValue.width + StudioTheme.Values.sectionRowSpacing
+                        spacing: StudioTheme.Values.sectionRowSpacing
+                        visible: isLightmapper && !isTitle && !isUnexposed && rootView.kitVersion >= 610
+                        Text {
+                            id: denoiseSigmaLabel
+                            text: qsTr("Denoise Sigma:")
+                            color: enabled ? StudioTheme.Values.themeTextColor
+                                           : StudioTheme.Values.themeTextColorDisabled
+                            verticalAlignment: Qt.AlignVCenter
+                            horizontalAlignment: Qt.AlignRight
+                            height: denoiseSigmaValue.height
+                        }
+
+                        StudioControls.RealSpinBox {
+                            id: denoiseSigmaValue
+                            realFrom: 0
+                            realTo: 10000
+                            realValue: denoiseSigma
+                            realStepSize: 0.1
+                            decimals: 2
+                            width: 80
+                            actionIndicatorVisible: false
+
+                            hoverEnabled: true
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("The sigma value of the non-local means-based denoiser.\nThe higher the value, the stronger the blurring.")
+                            ToolTip.delay: root.toolTipDelay
+
+                            onRealValueChanged: denoiseSigma = realValue
+                        }
+                    }
+
+                    Row {
+                        width: texelsPerUnitLabel.width + texelsPerUnitValue.width + StudioTheme.Values.sectionRowSpacing
+                        spacing: StudioTheme.Values.sectionRowSpacing
+                        visible: (isModel || isLightmapper) && !isTitle && !isUnexposed && rootView.kitVersion >= 610
+                        Text {
+                            id: texelsPerUnitLabel
+                            text: qsTr("Texels per Unit:")
+                            color: enabled ? StudioTheme.Values.themeTextColor
+                                           : StudioTheme.Values.themeTextColorDisabled
+                            verticalAlignment: Qt.AlignVCenter
+                            horizontalAlignment: Qt.AlignRight
+                            height: texelsPerUnitValue.height
+                        }
+
+                        StudioControls.RealSpinBox {
+                            id: texelsPerUnitValue
+                            realFrom: 0
+                            realTo: 10000
+                            realValue: texelsPerUnit
+                            realStepSize: 0.1
+                            decimals: 2
+                            width: 80
+                            actionIndicatorVisible: false
+
+                            hoverEnabled: true
+                            ToolTip.visible: hovered
+                            ToolTip.text: isModel ? qsTr("Generated lightmap texels per unit for this model.\nSet to zero to use default value set in Lightmapper.")
+                                                  : qsTr("Default generated lightmap texels per unit for the scene.")
+                            ToolTip.delay: root.toolTipDelay
+
+                            onRealValueChanged: texelsPerUnit = realValue
                         }
                     }
                 }
