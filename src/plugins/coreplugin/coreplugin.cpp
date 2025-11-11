@@ -360,6 +360,9 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     expander->registerVariable("HostOs:ExecutableSuffix",
                                Tr::tr("The platform executable suffix."),
                                [] { return QString(Utils::HostOsInfo::withExecutableSuffix("")); });
+    expander->registerVariable("HostOs:BatchFileSuffix",
+                               Tr::tr(".bat on windows, empty on all other platforms."),
+                               [] { return HostOsInfo::isWindowsHost() ? QStringLiteral(".bat") : QStringLiteral(""); });
     expander->registerFileVariables("IDE:Executable",
                                Tr::tr("The path to the running %1 itself.").arg(QGuiApplication::applicationDisplayName()),
                                []() { return FilePath::fromUserInput(QCoreApplication::applicationFilePath()); });
