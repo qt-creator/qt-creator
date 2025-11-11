@@ -116,6 +116,31 @@ public:
 signals:
     void collapseChanged();
 
+protected:
+    bool event(QEvent *event)
+    {
+        switch (event->type()) {
+        case QEvent::MouseButtonDblClick:
+        {
+            auto mouseEvent = static_cast<QMouseEvent *>(event);
+            if (mouseEvent->button() == Qt::LeftButton
+                && titleBarWidget()->geometry().contains(mouseEvent->position().toPoint())) {
+                if (!isFloating())
+                    setFloating(true);
+                else if (isMaximized())
+                    showNormal();
+                else
+                    showMaximized();
+                return true;
+            }
+            break;
+        }
+        default:
+            break;
+        }
+        return QDockWidget::event(event);
+    }
+
 private:
     QList<QDockWidget *> docksInArea();
     void setInnerWidgetShown(bool visible);
