@@ -17,13 +17,13 @@ use strict;
 use warnings;
 
 my $lastDiagnostic;
+my $count = 0;
 
 while (my $line = <STDIN>) {
     chomp($line);
     # --- extract file name based matching:
-    # Qt 5.10: D:/.../qaxbase.cpp:3231: warning: Cannot tie this documentation to anything
-    # Qt 5.11: D:/.../qaxbase.cpp:3231: (qdoc) warning: Cannot tie this documentation to anything
-    if ($line =~ /^(..[^:]*):(\d+): (?:\(qdoc\) )?warning: (.*)$/) {
+    # /.../..../localizedclock-switchlang.qdoc:107: [QtLinguist] (qdoc) warning: Can't link to 'QLocale::setDefault()'
+    if ($line =~ /^(..[^:]*):(\d+):.*\(qdoc\) warning: (.*)$/) {
         if (defined($lastDiagnostic)) {
             print $lastDiagnostic, "\n";
             $lastDiagnostic = undef;
@@ -36,6 +36,7 @@ while (my $line = <STDIN>) {
             $lastDiagnostic = $message;
         } else {
             print $message, "\n";
+            ++$count;
         }
     } elsif (defined($lastDiagnostic) && $line =~ /^    /) {
         $line =~ s/^\s+//;
@@ -45,3 +46,5 @@ while (my $line = <STDIN>) {
 }
 
 print $lastDiagnostic, "\n" if defined($lastDiagnostic);
+
+print STDERR $count, " issue(s) found.\n" if $count;
