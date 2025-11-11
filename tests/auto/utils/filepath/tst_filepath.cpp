@@ -5,10 +5,11 @@
 #include <QTest>
 
 #include <utils/algorithm.h>
+#include <utils/co_result.h>
 #include <utils/filepath.h>
-#include <utils/temporaryfile.h>
 #include <utils/hostosinfo.h>
 #include <utils/link.h>
+#include <utils/temporaryfile.h>
 
 #include <QSignalSpy>
 
@@ -159,6 +160,8 @@ private slots:
     void isNewerThan();
     void watch();
 
+    void coroTest();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -247,6 +250,32 @@ void tst_filepath::isEmpty_data()
     QTest::newRow("scheme://host/") << "scheme://host/" << false;
     QTest::newRow("scheme://host/a") << "scheme://host/a" << false;
     QTest::newRow("scheme://host/.") << "scheme://host/." << false;
+}
+
+void tst_filepath::coroTest()
+{
+    Result<> res = [this]() -> Result<> {
+        const FilePath dir = FilePath::fromUserInput(tempDir.path()) / "coro_test_dir";
+        co_await dir.ensureWritableDir();
+
+        const FilePath file = dir / "coro_test_file.txt";
+        const QByteArray data = "Hello, coroutine!";
+        co_await file.writeFileContents(data);
+
+        QByteArray readData = co_await file.fileContents();
+        if (readData != data) // Unlikely to happen
+            co_return ResultError("Data read does not match data written");
+
+        // We want it to fail to have an example of error handling
+        const FilePath nonExistentFile = dir / "non_existent_file.txt";
+        readData = co_await nonExistentFile.fileContents();
+
+        qDebug() << "This line should not be reached, as the previous co_await should fail";
+        co_return ResultOk;
+    }();
+
+    QEXPECT_FAIL("", "Expected failure reading non-existent file", Continue);
+    QVERIFY_RESULT(res);
 }
 
 void tst_filepath::isEmpty()
