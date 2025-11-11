@@ -5,28 +5,15 @@
 
 #include <qmldesignertr.h>
 
-#include <QJsonArray>
-#include <QJsonDocument>
+#include <QDebug>
 
 namespace QmlDesigner {
 
-AiResponse::AiResponse(const QByteArray &response)
+AiResponse::AiResponse() = default;
+
+AiResponse::AiResponse(Error error)
 {
-    if (response.isEmpty()) {
-        setError(Error::EmptyResponse);
-        return;
-    }
-
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
-    if (parseError.error != QJsonParseError::NoError) {
-        setError(Error::JsonParseError);
-        return;
-    }
-
-    m_rootObject = doc.object();
-
-    parseContent();
+    setError(error);
 }
 
 QString AiResponse::errorString() const
@@ -55,20 +42,7 @@ QString AiResponse::errorString() const
 
 QStringList AiResponse::selectedIds() const
 {
-    QStringList result;
-
-    if (m_content.startsWith("$$")) {
-        QString inner = m_content.mid(2);
-
-        if (inner.endsWith("$$"))
-            inner.chop(2);
-
-        result = inner.split(",", Qt::SkipEmptyParts);
-        for (QString &id : result)
-            id = id.trimmed();
-    }
-
-    return result;
+    return m_selectedIds;
 }
 
 AiResponse::Error AiResponse::error() const
@@ -81,57 +55,19 @@ void AiResponse::setError(Error error)
     m_error = error;
 }
 
-QString AiResponse::content() const
+void AiResponse::setQml(const QString &qml)
 {
-    return m_content;
+    m_qml = qml;
 }
 
-void AiResponse::parseContent()
+void AiResponse::setSelectedIds(const QStringList &ids)
 {
-    if (m_rootObject.isEmpty()) {
-        setError(Error::EmptyResponse);
-        return;
-    }
+    m_selectedIds = ids;
+}
 
-    if (!m_rootObject.contains("choices") || !m_rootObject["choices"].isArray()) {
-        setError(Error::InvalidChoices);
-        return;
-    }
-
-    QJsonArray choicesArray = m_rootObject["choices"].toArray();
-    if (choicesArray.isEmpty()) {
-        setError(Error::EmptyChoices);
-        return;
-    }
-
-    QJsonObject firstChoice = choicesArray.first().toObject();
-    if (!firstChoice.contains("message") || !firstChoice["message"].isObject()) {
-        setError(Error::InvalidMessage);
-        return;
-    }
-
-    QJsonObject messageObject = firstChoice["message"].toObject();
-    m_content = messageObject.value("content").toString();
-    if (m_content.isEmpty()) {
-        setError(Error::EmptyMessage);
-        return;
-    }
-
-    // remove <think> block if exists
-    if (m_content.startsWith("<think>")) {
-        int endPos = m_content.indexOf("</think>");
-        if (endPos != -1)
-            m_content.remove(0, endPos + 8);
-        else                            // If no closing tag, remove the opening tag only
-            m_content.remove(0, 7); // 7 is length of "<think>"
-    }
-    m_content = m_content.trimmed();
-
-    // remove the wrapper "```qml" and "```" if exists
-    if (m_content.startsWith("```qml", Qt::CaseInsensitive) && m_content.endsWith("```")) {
-        m_content.remove(0, 6);
-        m_content.chop(3);
-    }
+QString AiResponse::qml() const
+{
+    return m_qml;
 }
 
 } // namespace QmlDesigner

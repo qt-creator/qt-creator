@@ -3,6 +3,7 @@
 
 #include "openaicompletionsapi.h"
 
+#include "aiapiutils.h"
 #include "airesponse.h"
 
 #include <utils/filepath.h>
@@ -18,16 +19,22 @@ namespace QmlDesigner {
 
 namespace {
 
-QString toBase64Image(const Utils::FilePath &imagePath)
+QJsonObject toJsonImage(const Utils::FilePath &imagePath)
 {
     using namespace Qt::StringLiterals;
     QImage image(imagePath.toFSPathString());
-    QByteArray byteArray;
-    QBuffer buffer(&byteArray);
-
-    image.save(&buffer, imagePath.suffix().toLatin1());
-
-    return "data:image/%1;base64,%2"_L1.arg(imagePath.suffix(), byteArray.toBase64());
+    const QByteArray imageFormat = imagePath.suffix().toLatin1();
+    return {
+        {"type", "image_url"},
+        {
+            "image_url",
+            QJsonObject{
+                {"url",
+                 "data:image/%1;base64,%2"_L1
+                     .arg(imageFormat, AiApiUtils::toBase64Image(image, imageFormat))},
+            },
+        },
+    };
 }
 
 QJsonArray getUserJson(const QUrl &imageUrl, const QString &currentQml, const QString &prompt)
@@ -49,12 +56,8 @@ QJsonArray getUserJson(const QUrl &imageUrl, const QString &currentQml, const QS
 
     if (!imageUrl.isEmpty()) {
         FilePath imagePath = FilePath::fromUrl(imageUrl);
-        if (imagePath.exists()) {
-            jsonContent << QJsonObject{
-                {"type", "image_url"},
-                {"image_url", QJsonObject{{"url", toBase64Image(imagePath)}}},
-            };
-        }
+        if (imagePath.exists())
+            jsonContent << toJsonImage(imagePath);
     }
 
     return jsonContent;
@@ -86,7 +89,38 @@ QByteArray OpenAiCompletionsApi::createContent(const Data &data, const AiModelIn
 
 AiResponse OpenAiCompletionsApi::interpretResponse(const QByteArray &response)
 {
-    return AiResponse(response);
+    using Error = AiResponse::Error;
+
+    if (response.isEmpty())
+        return Error::EmptyResponse;
+
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
+    if (parseError.error != QJsonParseError::NoError)
+        return Error::JsonParseError;
+
+    QJsonObject rootObject = doc.object();
+
+    if (rootObject.isEmpty())
+        return Error::EmptyResponse;
+
+    if (!rootObject.contains("choices") || !rootObject["choices"].isArray())
+        return Error::InvalidChoices;
+
+    QJsonArray choicesArray = rootObject["choices"].toArray();
+    if (choicesArray.isEmpty())
+        return Error::EmptyChoices;
+
+    QJsonObject firstChoice = choicesArray.first().toObject();
+    if (!firstChoice.contains("message") || !firstChoice["message"].isObject())
+        return Error::InvalidMessage;
+
+    QJsonObject messageObject = firstChoice["message"].toObject();
+    QString content = messageObject.value("content").toString();
+    if (content.isEmpty())
+        return Error::EmptyMessage;
+
+    return AiApiUtils::aiResponseFromContent(content);
 }
 
 bool OpenAiCompletionsApi::accepts(const AiModelInfo &info)
