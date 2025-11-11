@@ -998,7 +998,7 @@ void LocatorWidget::completeEntry(int row)
     const LocatorFilterEntry entry
         = m_locatorModel->data(index, LocatorEntryRole).value<LocatorFilterEntry>();
     const auto defaultCompleter = [this, &entry] {
-        const auto [_1, _2, prefix] = filtersFor(currentText());
+        const QString prefix = filtersFor(currentText()).prefix;
         const QString text = prefix.isEmpty() ? entry.displayName
                                               : (prefix + " " + entry.displayName);
         return AcceptResult{text, int(text.size())};
