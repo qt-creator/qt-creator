@@ -53,7 +53,7 @@ static TestData testData(const QString &path)
 {
     QFile file(path);
     Utils::FilePath pathPath = Utils::FilePath::fromString(path);
-    file.open(QFile::ReadOnly | QFile::Text);
+    QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
     const QString content = QString::fromUtf8(file.readAll());
     file.close();
 
