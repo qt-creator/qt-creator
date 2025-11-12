@@ -2,13 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "msvcparser.h"
-#include "projectexplorerconstants.h"
 #include "buildmanager.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
-
-#include <numeric>
 
 #ifdef WITH_TESTS
 #include "outputparser_test.h"
