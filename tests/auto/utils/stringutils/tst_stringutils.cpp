@@ -33,7 +33,9 @@ private slots:
     void testAsciify_data();
     void testAsciify();
     void testNormalizeNewlinesInString();
+    void testNormalizeNewlinesInString_data();
     void testNormalizeNewlinesInByteArray();
+    void testNormalizeNewlinesInByteArray_data();
     void testRemoveCommentsFromJson();
     void testRemoveCommentsFromJson_data();
     void testRemoveExtraCommasFromJson();
@@ -563,20 +565,40 @@ void tst_StringUtils::testAsciify()
     QCOMPARE(asciified, expected);
 }
 
+void tst_StringUtils::testNormalizeNewlinesInString_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("none") << QString("asd\nfoo\r\nbar\nfoo\r") << QString("asd\nfoo\nbar\nfoo\r");
+    QTest::newRow("one") << QString("asd\nfoo\r\r\nbar\nfoo\r") << QString("asd\nfoo\nbar\nfoo\r");
+    QTest::newRow("more") << QString("asd\nfoo\r\r\n\r\nbar\nfoo\r") << QString("asd\nfoo\n\nbar\nfoo\r");
+}
+
 void tst_StringUtils::testNormalizeNewlinesInString()
 {
-    const QString input = "asd\r\r\nfoo\r\nbar\nfoo\r";
-    const QString expected = "asd\nfoo\nbar\nfoo\r";
+    QFETCH(QString, input);
+    QFETCH(QString, expected);
 
     const QString normalized = Utils::normalizeNewlines(input);
 
     QCOMPARE(normalized, expected);
 }
 
+void tst_StringUtils::testNormalizeNewlinesInByteArray_data()
+{
+    QTest::addColumn<QByteArray>("input");
+    QTest::addColumn<QByteArray>("expected");
+
+    QTest::newRow("none") << QByteArray("asd\nfoo\r\nbar\nfoo\r") << QByteArray("asd\nfoo\nbar\nfoo\r");
+    QTest::newRow("one") << QByteArray("asd\nfoo\r\r\nbar\nfoo\r") << QByteArray("asd\nfoo\nbar\nfoo\r");
+    QTest::newRow("more") << QByteArray("asd\nfoo\r\r\r\n\r\nbar\nfoo\r") << QByteArray("asd\nfoo\n\nbar\nfoo\r");
+}
+
 void tst_StringUtils::testNormalizeNewlinesInByteArray()
 {
-    const QByteArray input = "asd\r\r\nfoo\r\nbar\nfoo\r";
-    const QByteArray expected = "asd\nfoo\nbar\nfoo\r";
+    QFETCH(QByteArray, input);
+    QFETCH(QByteArray, expected);
 
     const QByteArray normalized = Utils::normalizeNewlines(input);
 
