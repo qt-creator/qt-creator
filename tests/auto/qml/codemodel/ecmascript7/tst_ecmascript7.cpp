@@ -154,7 +154,7 @@ void tst_Ecmascript::test()
         lPaths.maybeInsert(Utils::FilePath::fromString(p), Dialect::Qml);
     ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), lPaths,
                                       ModelManagerInterface::instance(), false);
-
+    ModelManagerInterface::instance()->test_joinAllThreads();
     TestData data = testData(filename);
     Document::MutablePtr doc = data.doc;
     int nExpectedSemanticMessages = data.semanticMessages;
