@@ -42,8 +42,7 @@ static QPair<FilePath, int> parseFileName(const QString &input)
             }
         }
     }
-    const QString normalized = FileUtils::normalizedPathName(fileName);
-    return {FilePath::fromUserInput(normalized), linenumber};
+    return {FilePath::fromUserInput(fileName), linenumber};
 }
 
 // nmake/jom messages.
