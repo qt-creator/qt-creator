@@ -208,7 +208,17 @@ QStringList AiAssistantWidget::getImageAssetsPaths() const
     Utils::FilePath resourePath = DocumentManager::currentResourcePath();
 
     QStringList imagePaths;
-    QStringList filters = Asset::supportedImageSuffixes();
+    const QStringList filters = {
+        "*.jpg",
+        "*.jpeg",
+        "*.jfif",
+        "*.png",
+        "*.webp",
+        "*.gif",
+        "*.bmp",
+        "*.tif",
+        "*.tiff",
+    };
 
     QDirIterator it(resourePath.toFSPathString(), filters, QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext())
