@@ -288,6 +288,8 @@ void DeviceManager::removeDevice(Id id)
 
 void DeviceManager::setDeviceState(Id deviceId, IDevice::DeviceState deviceState)
 {
+    if (!d || !m_instance)
+        return;
     const int pos = d->indexForId(deviceId);
     if (pos < 0)
         return;

@@ -61,13 +61,13 @@
 #include <QHostAddress>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QMetaObject>
 #include <QNetworkInterface>
 #include <QPushButton>
 #include <QRandomGenerator>
 #include <QRegularExpression>
 #include <QStandardItem>
 #include <QTextBrowser>
-#include <QTimer>
 #include <QThread>
 #include <QToolButton>
 
@@ -528,7 +528,19 @@ DockerDevice::DockerDevice()
     setType(Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
 
-    setFileAccessFactory([this] { return d->createFileAccess(); });
+    setFileAccessFactory([this]() -> DeviceFileAccess * {
+        if (auto fA = d->m_fileAccess.readLocked()->get())
+            return fA;
+
+        if (DeviceFileAccess *access = d->createFileAccess()) {
+            QMetaObject::invokeMethod(
+                this,
+                [this] { DeviceManager::setDeviceState(id(), IDevice::DeviceReadyToUse); },
+                Qt::QueuedConnection);
+            return access;
+        }
+        return nullptr;
+    });
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir, const Continuation<> &cont) {
         Result<QString> result = d->updateContainerAccess();
@@ -664,6 +676,8 @@ void DockerDevicePrivate::stopCurrentContainer()
 
     auto locked = m_deviceThread.writeLocked();
     locked->reset();
+
+    DeviceManager::setDeviceState(q->id(), IDevice::DeviceDisconnected);
 }
 
 bool DockerDevicePrivate::prepareForBuild(const Target *target)
@@ -857,9 +871,10 @@ Result<QString> DockerDevicePrivate::updateContainerAccess()
 
     QString containerStatus = result ? Tr::tr("Running") : result.error().trimmed();
 
-    QTimer::singleShot(0, this, [this, containerStatus] {
-        q->containerStatus.setText(containerStatus);
-    });
+    QMetaObject::invokeMethod(
+        this,
+        [this, containerStatus] { q->containerStatus.setText(containerStatus); },
+        Qt::QueuedConnection);
 
     if (!result)
         return make_unexpected(result.error());
