@@ -2,6 +2,7 @@ QtcPlugin {
     name: "Android"
 
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
+    Depends { name: "CmdBridgeClient" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "LanguageClient" }
