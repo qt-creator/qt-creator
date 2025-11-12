@@ -28,11 +28,10 @@ struct OverlaySelection
     bool m_dropShadow = false;
 };
 
-class TextEditorOverlay : public QObject
+class TextEditorOverlay
 {
-    Q_OBJECT
 public:
-    TextEditorOverlay(TextEditorWidget *editor);
+    explicit TextEditorOverlay(TextEditorWidget *editor);
 
     QRect rect() const;
     void paint(QPainter *painter, const QRect &clip);

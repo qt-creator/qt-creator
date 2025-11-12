@@ -953,10 +953,10 @@ public:
     int extraAreaHighlightFoldedBlockNumber = -1;
     int extraAreaPreviousMarkTooltipRequestedLine = -1;
 
-    TextEditorOverlay *m_overlay = nullptr;
-    SnippetOverlay *m_snippetOverlay = nullptr;
-    TextEditorOverlay *m_searchResultOverlay = nullptr;
-    TextEditorOverlay *m_selectionHighlightOverlay = nullptr;
+    mutable TextEditorOverlay m_overlay;
+    mutable SnippetOverlay m_snippetOverlay;
+    mutable TextEditorOverlay m_searchResultOverlay;
+    mutable TextEditorOverlay m_selectionHighlightOverlay;
     bool snippetCheckCursor(const QTextCursor &cursor);
     void snippetTabOrBacktab(bool forward);
     QSet<int> m_foldedBlockCache;
@@ -1205,10 +1205,10 @@ void TextEditorWidgetFind::cancelCurrentSelectAll()
 TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     : q(parent)
     , m_suggestionBlocker((void *) this, [](void *) {})
-    , m_overlay(new TextEditorOverlay(q))
-    , m_snippetOverlay(new SnippetOverlay(q))
-    , m_searchResultOverlay(new TextEditorOverlay(q))
-    , m_selectionHighlightOverlay(new TextEditorOverlay(q))
+    , m_overlay(q)
+    , m_snippetOverlay(q)
+    , m_searchResultOverlay(q)
+    , m_selectionHighlightOverlay(q)
     , m_refactorOverlay(q)
     , m_marksVisible(false)
     , m_codeFoldingVisible(false)
@@ -1224,7 +1224,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     , m_autoCompleter(new AutoCompleter)
     , m_editorContext(Id::generate())
 {
-    m_selectionHighlightOverlay->show();
+    m_selectionHighlightOverlay.show();
     m_find = new TextEditorWidgetFind(q);
     connect(
         m_find,
@@ -2281,7 +2281,7 @@ void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemove
         }
     }
 
-    if (m_snippetOverlay->isVisible()) {
+    if (m_snippetOverlay.isVisible()) {
         QTextCursor cursor = q->textCursor();
         cursor.setPosition(position);
         snippetCheckCursor(cursor);
@@ -3038,9 +3038,9 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                 e->accept();
                 return;
             }
-            if (d->m_snippetOverlay->isVisible()) {
+            if (d->m_snippetOverlay.isVisible()) {
                 e->accept();
-                d->m_snippetOverlay->accept();
+                d->m_snippetOverlay.accept();
                 QTextCursor cursor = textCursor();
                 cursor.clearSelection();
                 setTextCursor(cursor);
@@ -3062,9 +3062,9 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     if (!ro
         && (e == QKeySequence::InsertParagraphSeparator
             || (!d->m_lineSeparatorsAllowed && e == QKeySequence::InsertLineSeparator))) {
-        if (d->m_snippetOverlay->isVisible()) {
+        if (d->m_snippetOverlay.isVisible()) {
             e->accept();
-            d->m_snippetOverlay->accept();
+            d->m_snippetOverlay.accept();
             QTextCursor cursor = textCursor();
             cursor.movePosition(QTextCursor::EndOfBlock);
             setTextCursor(cursor);
@@ -3171,7 +3171,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Tab:
     case Qt::Key_Backtab: {
         if (ro) break;
-        if (d->m_snippetOverlay->isVisible() && !d->m_snippetOverlay->isEmpty()) {
+        if (d->m_snippetOverlay.isVisible() && !d->m_snippetOverlay.isEmpty()) {
             d->snippetTabOrBacktab(e->key() == Qt::Key_Tab);
             e->accept();
             return;
@@ -3296,7 +3296,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         } else if (!d->cursorMoveKeyEvent(e)) {
             QTextCursor cursor = textCursor();
             bool cursorWithinSnippet = false;
-            if (d->m_snippetOverlay->isVisible()
+            if (d->m_snippetOverlay.isVisible()
                 && (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace)) {
                 cursorWithinSnippet = d->snippetCheckCursor(cursor);
             }
@@ -3307,7 +3307,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
 
             if (cursorWithinSnippet) {
                 cursor.endEditBlock();
-                d->m_snippetOverlay->updateEquivalentSelections(textCursor());
+                d->m_snippetOverlay.updateEquivalentSelections(textCursor());
             }
         }
     } else if (hasMultipleCursors) {
@@ -3396,7 +3396,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         setTextCursor(cursor);
 
         if (doEditBlock && cursorWithinSnippet)
-            d->m_snippetOverlay->updateEquivalentSelections(textCursor());
+            d->m_snippetOverlay.updateEquivalentSelections(textCursor());
     }
 
     if (!ro && e->key() == Qt::Key_Delete && d->m_parenthesesMatchingEnabled)
@@ -3446,7 +3446,7 @@ void TextEditorWidget::insertCodeSnippet(int basePosition,
     cursor.removeSelectedText();
     const int startCursorPosition = cursor.position();
 
-    d->m_snippetOverlay->accept();
+    d->m_snippetOverlay.accept();
 
     QList<PositionedPart> positionedParts;
     for (const ParsedSnippet::Part &part : std::as_const(data.parts)) {
@@ -3478,22 +3478,22 @@ void TextEditorWidget::insertCodeSnippet(int basePosition,
     for (const CursorPart &part : cursorParts) {
         const QColor &color = part.cursor.hasSelection() ? occurrencesColor : renameColor;
         if (part.finalPart) {
-            d->m_snippetOverlay->setFinalSelection(part.cursor, color);
+            d->m_snippetOverlay.setFinalSelection(part.cursor, color);
         } else {
-            d->m_snippetOverlay->addSnippetSelection(part.cursor,
+            d->m_snippetOverlay.addSnippetSelection(part.cursor,
                                                      color,
                                                      part.mangler,
                                                      part.variableIndex);
         }
     }
 
-    cursor = d->m_snippetOverlay->firstSelectionCursor();
+    cursor = d->m_snippetOverlay.firstSelectionCursor();
     if (!cursor.isNull()) {
         setTextCursor(cursor);
-        if (d->m_snippetOverlay->isFinalSelection(cursor))
-            d->m_snippetOverlay->accept();
+        if (d->m_snippetOverlay.isFinalSelection(cursor))
+            d->m_snippetOverlay.accept();
         else
-            d->m_snippetOverlay->setVisible(true);
+            d->m_snippetOverlay.setVisible(true);
     }
 }
 
@@ -3676,7 +3676,7 @@ bool TextEditorWidget::event(QEvent *e)
     case QEvent::ShortcutOverride: {
         auto ke = static_cast<QKeyEvent *>(e);
         if (ke->key() == Qt::Key_Escape
-            && (d->m_snippetOverlay->isVisible()
+            && (d->m_snippetOverlay.isVisible()
                 || multiTextCursor().hasMultipleCursors()
                 || d->m_suggestionBlock.isValid()
                 || d->m_numEmbeddedWidgets > 0)) {
@@ -3731,10 +3731,10 @@ void TextEditorWidgetPrivate::documentAboutToBeReloaded()
     q->PlainTextEdit::setExtraSelections(QList<QTextEdit::ExtraSelection>());
 
     // clear all overlays
-    m_overlay->clear();
-    m_snippetOverlay->clear();
-    m_searchResultOverlay->clear();
-    m_selectionHighlightOverlay->clear();
+    m_overlay.clear();
+    m_snippetOverlay.clear();
+    m_searchResultOverlay.clear();
+    m_selectionHighlightOverlay.clear();
     m_refactorOverlay.clear();
 
     // clear search results
@@ -4948,17 +4948,17 @@ AutoCompleter *TextEditorWidget::autoCompleter() const
 
 bool TextEditorWidgetPrivate::snippetCheckCursor(const QTextCursor &cursor)
 {
-    if (!m_snippetOverlay->isVisible() || m_snippetOverlay->isEmpty())
+    if (!m_snippetOverlay.isVisible() || m_snippetOverlay.isEmpty())
         return false;
 
     QTextCursor start = cursor;
     start.setPosition(cursor.selectionStart());
     QTextCursor end = cursor;
     end.setPosition(cursor.selectionEnd());
-    if (!m_snippetOverlay->hasCursorInSelection(start)
-        || !m_snippetOverlay->hasCursorInSelection(end)
-        || m_snippetOverlay->hasFirstSelectionBeginMoved()) {
-        m_snippetOverlay->accept();
+    if (!m_snippetOverlay.hasCursorInSelection(start)
+        || !m_snippetOverlay.hasCursorInSelection(end)
+        || m_snippetOverlay.hasFirstSelectionBeginMoved()) {
+        m_snippetOverlay.accept();
         return false;
     }
     return true;
@@ -4966,13 +4966,13 @@ bool TextEditorWidgetPrivate::snippetCheckCursor(const QTextCursor &cursor)
 
 void TextEditorWidgetPrivate::snippetTabOrBacktab(bool forward)
 {
-    if (!m_snippetOverlay->isVisible() || m_snippetOverlay->isEmpty())
+    if (!m_snippetOverlay.isVisible() || m_snippetOverlay.isEmpty())
         return;
-    QTextCursor cursor = forward ? m_snippetOverlay->nextSelectionCursor(q->textCursor())
-                                 : m_snippetOverlay->previousSelectionCursor(q->textCursor());
+    QTextCursor cursor = forward ? m_snippetOverlay.nextSelectionCursor(q->textCursor())
+                                 : m_snippetOverlay.previousSelectionCursor(q->textCursor());
     q->setTextCursor(cursor);
-    if (m_snippetOverlay->isFinalSelection(cursor))
-        m_snippetOverlay->accept();
+    if (m_snippetOverlay.isFinalSelection(cursor))
+        m_snippetOverlay.accept();
 }
 
 // Calculate global position for a tooltip considering the left extra area.
@@ -5234,7 +5234,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
         const uint flag = (idx == cursor.selectionStart() - blockPosition
                            && idx + l == cursor.selectionEnd() - blockPosition) ?
                     TextEditorOverlay::DropShadow : 0;
-        m_searchResultOverlay->addOverlaySelection(start, end, searchResultColor, QColor(), flag);
+        m_searchResultOverlay.addOverlaySelection(start, end, searchResultColor, QColor(), flag);
     }
 }
 
@@ -5294,12 +5294,12 @@ void TextEditorWidgetPrivate::highlightSelection(const QTextBlock &block, const 
             }
         }
 
-        if (!Utils::contains(m_selectionHighlightOverlay->selections(),
+        if (!Utils::contains(m_selectionHighlightOverlay.selections(),
                              [&](const OverlaySelection &selection) {
                                  return selection.m_cursor_begin.position() == start
                                         && selection.m_cursor_end.position() == end;
                              })) {
-            m_selectionHighlightOverlay->addOverlaySelection(start, end, {}, {});
+            m_selectionHighlightOverlay.addOverlaySelection(start, end, {}, {});
         }
     }
 }
@@ -5343,7 +5343,7 @@ void TextEditorWidgetPrivate::updateCursorSelections()
     }
     q->setExtraSelections(TextEditorWidget::CursorSelection, selections);
 
-    m_selectionHighlightOverlay->clear();
+    m_selectionHighlightOverlay.clear();
     m_selectionHighlightRunner.reset();
     m_selectionResults.clear();
     if (!m_highlightScrollBarController)
@@ -5720,7 +5720,7 @@ void TextEditorWidgetPrivate::paintBlockHighlight(const PaintEventData &data,
 void TextEditorWidgetPrivate::paintSearchResultOverlay(const PaintEventData &data,
                                                        QPainter &painter) const
 {
-    m_searchResultOverlay->clear();
+    m_searchResultOverlay.clear();
     if (m_searchExpr.pattern().isEmpty() || !m_searchExpr.isValid())
         return;
 
@@ -5742,9 +5742,9 @@ void TextEditorWidgetPrivate::paintSearchResultOverlay(const PaintEventData &dat
         block = nextVisibleBlock(block);
     }
 
-    m_searchResultOverlay->fill(&painter,
-                                data.searchResultFormat.background().color(),
-                                data.eventRect);
+    m_searchResultOverlay.fill(&painter,
+                               data.searchResultFormat.background().color(),
+                               data.eventRect);
 }
 
 void TextEditorWidgetPrivate::paintSelectionOverlay(const PaintEventData &data,
@@ -5772,7 +5772,7 @@ void TextEditorWidgetPrivate::paintSelectionOverlay(const PaintEventData &data,
     const QColor text = m_document->fontSettings().toTextCharFormat(C_TEXT).background().color();
     selection.setAlphaF(StyleHelper::luminance(text) > 0.5 ? 0.25 : 0.5);
 
-    m_selectionHighlightOverlay->fill(&painter, selection, data.eventRect);
+    m_selectionHighlightOverlay.fill(&painter, selection, data.eventRect);
 }
 
 void TextEditorWidgetPrivate::paintIfDefedOutBlocks(const PaintEventData &data,
@@ -5806,17 +5806,17 @@ void TextEditorWidgetPrivate::paintFindScope(const PaintEventData &data, QPainte
 {
     if (m_findScope.isNull())
         return;
-    auto overlay = new TextEditorOverlay(q);
+
+    TextEditorOverlay overlay(q);
     for (const QTextCursor &c : m_findScope) {
-        overlay->addOverlaySelection(c.selectionStart(),
-                                     c.selectionEnd(),
-                                     data.searchScopeFormat.foreground().color(),
-                                     data.searchScopeFormat.background().color(),
-                                     TextEditorOverlay::ExpandBegin);
+        overlay.addOverlaySelection(c.selectionStart(),
+                                    c.selectionEnd(),
+                                    data.searchScopeFormat.foreground().color(),
+                                    data.searchScopeFormat.background().color(),
+                                    TextEditorOverlay::ExpandBegin);
     }
-    overlay->setAlpha(false);
-    overlay->paint(&painter, data.eventRect);
-    delete overlay;
+    overlay.setAlpha(false);
+    overlay.paint(&painter, data.eventRect);
 }
 
 void TextEditorWidgetPrivate::paintLineHighlight(const PaintEventData &data, QPainter &painter) const
@@ -6150,19 +6150,19 @@ void TextEditorWidgetPrivate::paintOverlays(const PaintEventData &data, QPainter
     // draw the overlays, but only if we do not have a find scope, otherwise the
     // view becomes too noisy.
     if (m_findScope.isNull()) {
-        if (m_overlay->isVisible())
-            m_overlay->paint(&painter, data.eventRect);
+        if (m_overlay.isVisible())
+            m_overlay.paint(&painter, data.eventRect);
 
-        if (m_snippetOverlay->isVisible())
-            m_snippetOverlay->paint(&painter, data.eventRect);
+        if (m_snippetOverlay.isVisible())
+            m_snippetOverlay.paint(&painter, data.eventRect);
 
         if (!m_refactorOverlay.isEmpty())
             m_refactorOverlay.paint(&painter, data.eventRect);
     }
 
-    if (!m_searchResultOverlay->isEmpty()) {
-        m_searchResultOverlay->paint(&painter, data.eventRect);
-        m_searchResultOverlay->clear();
+    if (!m_searchResultOverlay.isEmpty()) {
+        m_searchResultOverlay.paint(&painter, data.eventRect);
+        m_searchResultOverlay.clear();
     }
 }
 
@@ -6973,7 +6973,7 @@ void TextEditorWidgetPrivate::slotUpdateRequest(const QRect &r, int /*dy*/)
     if (r.width() > 4) { // wider than cursor width, not just cursor blinking
         m_extraArea->update(0, r.y(), m_extraArea->width(), r.height());
         if (!m_searchExpr.pattern().isEmpty()) {
-            const int m = m_searchResultOverlay->dropShadowWidth();
+            const int m = m_searchResultOverlay.dropShadowWidth();
             q->viewport()->update(r.adjusted(-m, -m, m, m));
         }
     }
@@ -7127,7 +7127,7 @@ void TextEditorWidgetPrivate::slotUpdateBlockNotify(const QTextBlock &block)
     if (blockRecursion)
         return;
     blockRecursion = true;
-    if (m_overlay->isVisible()) {
+    if (m_overlay.isVisible()) {
         /* an overlay might draw outside the block bounderies, force
            complete viewport update */
         q->viewport()->update();
@@ -7972,7 +7972,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
             continue;
 
         bool cursorWithinSnippet = false;
-        if (m_snippetOverlay->isVisible()) {
+        if (m_snippetOverlay.isVisible()) {
             QTextCursor snippetCursor = c;
             snippetCursor.movePosition(QTextCursor::Left);
             cursorWithinSnippet = snippetCheckCursor(snippetCursor);
@@ -8002,7 +8002,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
                 handled = true;
             } else {
                 if (cursorWithinSnippet)
-                    m_snippetOverlay->accept();
+                    m_snippetOverlay.accept();
                 cursorWithinSnippet = false;
                 int previousIndent = 0;
                 const int indent = tabSettings.columnAt(blockText, positionInBlock);
@@ -8033,7 +8033,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
                 c.deletePreviousChar();
             } else {
                 if (cursorWithinSnippet)
-                    m_snippetOverlay->accept();
+                    m_snippetOverlay.accept();
                 cursorWithinSnippet = false;
                 c = m_document->unindent(MultiTextCursor({c})).mainCursor();
             }
@@ -8048,7 +8048,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
 
         if (cursorWithinSnippet) {
             c.endEditBlock();
-            m_snippetOverlay->updateEquivalentSelections(c);
+            m_snippetOverlay.updateEquivalentSelections(c);
         }
     }
     cursor.endEditBlock();
@@ -9039,14 +9039,14 @@ void TextEditorWidgetPrivate::setExtraSelections(Id kind, const QList<QTextEdit:
     m_extraSelections[kind] = selections;
 
     if (kind == TextEditorWidget::CodeSemanticsSelection) {
-        m_overlay->clear();
+        m_overlay.clear();
         for (const QTextEdit::ExtraSelection &selection : selections) {
-            m_overlay->addOverlaySelection(selection.cursor,
+            m_overlay.addOverlaySelection(selection.cursor,
                                               selection.format.background().color(),
                                               selection.format.background().color(),
                                               TextEditorOverlay::LockSize);
         }
-        m_overlay->setVisible(!m_overlay->isEmpty());
+        m_overlay.setVisible(!m_overlay.isEmpty());
     } else {
         QList<QTextEdit::ExtraSelection> all = m_extraSelections.value(
             TextEditorWidget::OtherSelection);
@@ -9241,9 +9241,9 @@ void TextEditorWidget::autoFormat()
 
 void TextEditorWidget::encourageApply()
 {
-    if (!d->m_snippetOverlay->isVisible() || d->m_snippetOverlay->isEmpty())
+    if (!d->m_snippetOverlay.isVisible() || d->m_snippetOverlay.isEmpty())
         return;
-    d->m_snippetOverlay->updateEquivalentSelections(textCursor());
+    d->m_snippetOverlay.updateEquivalentSelections(textCursor());
 }
 
 void TextEditorWidget::showEvent(QShowEvent* e)
@@ -9729,8 +9729,8 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
     if (d->m_codeAssistant.hasContext())
         d->m_codeAssistant.destroyContext();
 
-    if (d->m_snippetOverlay->isVisible() && (text.contains('\n') || text.contains('\t')))
-        d->m_snippetOverlay->accept();
+    if (d->m_snippetOverlay.isVisible() && (text.contains('\n') || text.contains('\t')))
+        d->m_snippetOverlay.accept();
 
     const bool selectInsertedText = source->property(dropProperty).toBool();
     const TypingSettings &tps = d->m_document->typingSettings();
@@ -10432,7 +10432,7 @@ void TextEditorWidgetPrivate::transformSelection(TransformationMethod method)
 
 void TextEditorWidget::inSnippetMode(bool *active)
 {
-    *active = d->m_snippetOverlay->isVisible();
+    *active = d->m_snippetOverlay.isVisible();
 }
 
 QTextBlock TextEditorWidget::blockForVisibleRow(int row) const
@@ -10470,8 +10470,8 @@ void TextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
     if (multiTextCursor().hasMultipleCursors())
         return;
 
-    if (kind == QuickFix && d->m_snippetOverlay->isVisible())
-        d->m_snippetOverlay->accept();
+    if (kind == QuickFix && d->m_snippetOverlay.isVisible())
+        d->m_snippetOverlay.accept();
 
     bool previousMode = overwriteMode();
     setOverwriteMode(false);

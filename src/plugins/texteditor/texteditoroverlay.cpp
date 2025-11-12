@@ -4,23 +4,21 @@
 #include "texteditoroverlay.h"
 #include "texteditor.h"
 
-#include <QDebug>
 #include <QMap>
 #include <QPainter>
 #include <QPainterPath>
 #include <QTextBlock>
 
-#include <algorithm>
 #include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/qtcassert.h>
 
-using namespace TextEditor;
-using namespace TextEditor::Internal;
+#include <algorithm>
+
+namespace TextEditor::Internal {
 
 constexpr int borderWidth = 1;
 
 TextEditorOverlay::TextEditorOverlay(TextEditorWidget *editor) :
-    QObject(editor),
     m_visible(false),
     m_alpha(true),
     m_dropShadowWidth(2),
@@ -35,7 +33,6 @@ void TextEditorOverlay::update()
     if (m_visible)
         m_viewport->update();
 }
-
 
 void TextEditorOverlay::setVisible(bool b)
 {
@@ -425,3 +422,5 @@ bool TextEditorOverlay::hasFirstSelectionBeginMoved() const
         return false;
     return m_selections.at(0).m_cursor_begin.position() != m_firstSelectionOriginalBegin;
 }
+
+} // namespace TextEditor::Internal
