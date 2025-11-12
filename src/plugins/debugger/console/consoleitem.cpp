@@ -7,7 +7,7 @@ namespace Debugger::Internal {
 
 static QString addZeroWidthSpace(QString text)
 {
-    for (int i = 0; i < text.length(); ++i) {
+    for (int i = 0; i < text.size(); ++i) {
         if (text.at(i).isPunct())
             text.insert(++i, QChar(0x200b)); // ZERO WIDTH SPACE
     }

@@ -41,7 +41,7 @@ Utils::OutputLineParser::Result LldParser::handleLine(const QString &line, Utils
         if (filePathOffset != -1)
             ++filePathOffset;
         else
-            filePathOffset = prefix.length();
+            filePathOffset = prefix.size();
         const int filePathLen = locOffset == -1 ? -1 : locOffset - filePathOffset;
         const auto file = absoluteFilePath(Utils::FilePath::fromUserInput(
                 trimmedLine.mid(filePathOffset, filePathLen).trimmed()));

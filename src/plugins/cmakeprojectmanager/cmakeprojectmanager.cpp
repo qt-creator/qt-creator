@@ -119,7 +119,7 @@ void CMakeManager::openCMakeUrl(const QUrl &url)
     const QString address = url.toString();
     const QString doc("/doc");
     QDesktopServices::openUrl(
-        QUrl(urlPrefix + address.mid(address.lastIndexOf(doc) + doc.length())));
+        QUrl(urlPrefix + address.mid(address.lastIndexOf(doc) + doc.size())));
 }
 
 CMakeManager::CMakeManager()

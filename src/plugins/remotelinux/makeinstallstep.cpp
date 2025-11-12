@@ -206,7 +206,7 @@ QtTaskTree::GroupItem MakeInstallStep::runRecipe()
         m_deploymentData = DeploymentData();
         m_deploymentData.setLocalInstallRoot(rootDir);
 
-        const int startPos = rootDir.path().length();
+        const int startPos = rootDir.path().size();
 
         const auto appFileNames = transform<QSet<QString>>(buildSystem()->applicationTargets(),
             [](const BuildTargetInfo &appTarget) { return appTarget.targetFilePath.fileName(); });

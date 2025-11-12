@@ -935,7 +935,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
     QString fullCmd;
     if (dbgCmd.flags == NoFlags) {
         fullCmd = cmd + '\n';
-        if (fullCmd.length() > maxCommandLength) {
+        if (fullCmd.size() > maxCommandLength) {
             showMessage("Command is longer than 4096 characters execution will likely fail.",
                         LogWarning);
         }
@@ -949,7 +949,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
             str << ".echo \"" << m_tokenPrefix << token << "<\"\n"
                 << cmd << "\n"
                 << ".echo \"" << m_tokenPrefix << token << ">\"" << '\n';
-            if (fullCmd.length() > maxCommandLength) {
+            if (fullCmd.size() > maxCommandLength) {
                 showMessage("Command is longer than 4096 characters execution will likely fail.",
                             LogWarning);
             }
@@ -963,7 +963,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
                 cmd = prefix + ' ' + arguments;
                 int argumentSplitPos = 0;
                 QList<QStringView> splittedArguments;
-                int maxArgumentSize = maxCommandLength - prefix.length() - maxTokenLength;
+                int maxArgumentSize = maxCommandLength - prefix.size() - maxTokenLength;
                 while (argumentSplitPos < arguments.size()) {
                     splittedArguments << QStringView(arguments).mid(argumentSplitPos, maxArgumentSize);
                     argumentSplitPos += splittedArguments.last().length();

@@ -361,7 +361,7 @@ QVariantMap Quick3DModel::locationFromEvent(int index) const
                 return ret;
             lineIdx += 4;
             file = data.mid(nameIdx + 1, lineIdx - nameIdx - 1);
-            line = data.right(data.length() - lineIdx - 1);
+            line = data.right(data.size() - lineIdx - 1);
             QUrl url(file);
             ret.insert(QStringLiteral("file"), url.fileName());
             ret.insert(QStringLiteral("line"), line.toInt());

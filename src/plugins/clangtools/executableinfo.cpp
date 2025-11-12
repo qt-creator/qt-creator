@@ -142,7 +142,7 @@ ClazyStandaloneInfo::ClazyStandaloneInfo(const FilePath &executablePath)
             const QString line = stream.readLine().simplified();
             for (const QString &prefix : versionPrefixes) {
                 if (line.startsWith(prefix))
-                    return QVersionNumber::fromString(line.mid(prefix.length()));
+                    return QVersionNumber::fromString(line.mid(prefix.size()));
             }
         }
         return {};
@@ -191,7 +191,7 @@ QString queryVersion(const FilePath &clangToolPath, QueryFailMode failMode)
             for (const QString &prefix : versionPrefixes) {
                 auto idx = line.indexOf(prefix);
                 if (idx >= 0)
-                    return line.mid(idx + prefix.length());
+                    return line.mid(idx + prefix.size());
             }
         }
         return {};

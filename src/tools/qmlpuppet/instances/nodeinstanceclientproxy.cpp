@@ -367,7 +367,7 @@ void NodeInstanceClientProxy::startNanotrace(const StartNanotraceCommand &comman
     std::string fullFilePath =
         directory + std::string("/nanotrace_qmlpuppet_") + processName + std::string(".json");
 
-    for (int i=0; i<name.length(); ++i) {
+    for (int i=0; i<name.size(); ++i) {
         if (i==0 || name[i]=='m')
             name[i] = name.at(i).toUpper();
     }

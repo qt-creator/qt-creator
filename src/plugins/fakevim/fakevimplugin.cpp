@@ -200,7 +200,7 @@ private:
         const int cursorPos = m_edit->cursorPosition();
         int anchorPos = m_edit->selectionStart();
         if (anchorPos == cursorPos)
-            anchorPos = cursorPos + m_edit->selectedText().length();
+            anchorPos = cursorPos + m_edit->selectedText().size();
         emit edited(m_edit->text(), cursorPos, anchorPos);
     }
 
@@ -1591,7 +1591,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         QTextBlock block = startBlock;
 
         for (int i = beginBlock; i <= endBlock; ++i) {
-            lineLengths[i - beginBlock] = block.text().length();
+            lineLengths[i - beginBlock] = block.text().size();
             if (typedChar.unicode() == 0 && block.text().simplified().isEmpty()) {
                 // clear empty lines
                 QTextCursor cursor(block);

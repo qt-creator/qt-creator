@@ -72,14 +72,14 @@ TextEditor::TabSettings ComponentTextModifier::tabSettings() const
 void ComponentTextModifier::startGroup()
 {
     m_originalModifier->startGroup();
-    m_startLength = m_originalModifier->text().length();
+    m_startLength = m_originalModifier->text().size();
 }
 
 void ComponentTextModifier::flushGroup()
 {
     m_originalModifier->flushGroup();
 
-    int textLength = m_originalModifier->text().length();
+    int textLength = m_originalModifier->text().size();
     m_componentEndOffset += (textLength - m_startLength);
     m_startLength = textLength;
 
@@ -90,7 +90,7 @@ void ComponentTextModifier::commitGroup()
     m_originalModifier->commitGroup();
 
     m_originalText = m_originalModifier->text();
-    int textLength = m_originalText.length();
+    int textLength = m_originalText.size();
     m_componentEndOffset += (textLength - m_startLength);
     m_startLength = textLength;
 }

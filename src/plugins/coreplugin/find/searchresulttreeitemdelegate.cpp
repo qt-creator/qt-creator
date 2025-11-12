@@ -197,7 +197,7 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
 
     const int searchTermStart = index.model()->data(index, ItemDataRoles::ResultBeginColumnNumberRole).toInt();
     int searchTermLength = index.model()->data(index, ItemDataRoles::SearchTermLengthRole).toInt();
-    if (searchTermStart < 0 || searchTermStart >= text.length() || searchTermLength < 1) {
+    if (searchTermStart < 0 || searchTermStart >= text.size() || searchTermLength < 1) {
         QItemDelegate::drawDisplay(painter,
                                    option,
                                    rect,
@@ -206,7 +206,7 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
     }
 
     // clip searchTermLength to end of line
-    searchTermLength = qMin(searchTermLength, text.length() - searchTermStart);
+    searchTermLength = qMin(searchTermLength, text.size() - searchTermStart);
     const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     const QString textBefore = text.left(searchTermStart).replace(QLatin1Char('\t'), m_tabString);
     const QString textHighlight = text.mid(searchTermStart, searchTermLength).replace(QLatin1Char('\t'), m_tabString);

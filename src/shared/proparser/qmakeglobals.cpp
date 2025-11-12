@@ -214,8 +214,8 @@ void QMakeGlobals::setDirectories(const QString &input_dir, const QString &outpu
         QString dstpath = output_dir;
         if (!dstpath.endsWith(QLatin1Char('/')))
             dstpath += QLatin1Char('/');
-        int srcLen = srcpath.length();
-        int dstLen = dstpath.length();
+        int srcLen = srcpath.size();
+        int dstLen = dstpath.size();
         int lastSl = -1;
         while (++lastSl, --srcLen, --dstLen,
                srcLen && dstLen && srcpath.at(srcLen) == dstpath.at(dstLen))
@@ -231,9 +231,9 @@ QString QMakeGlobals::shadowedPath(const QString &fileName) const
     if (source_root.isEmpty())
         return fileName;
     if (fileName.startsWith(source_root)
-        && (fileName.length() == source_root.length()
-            || fileName.at(source_root.length()) == QLatin1Char('/'))) {
-        return build_root + fileName.mid(source_root.length());
+        && (fileName.size() == source_root.size()
+            || fileName.at(source_root.size()) == QLatin1Char('/'))) {
+        return build_root + fileName.mid(source_root.size());
     }
     return QString();
 }
@@ -273,7 +273,7 @@ QString QMakeGlobals::expandEnvVars(const QString &str) const
         startIndex = string.indexOf(QLatin1Char('$'), startIndex);
         if (startIndex < 0)
             break;
-        if (string.length() < startIndex + 3)
+        if (string.size() < startIndex + 3)
             break;
         if (string.at(startIndex + 1) != QLatin1Char('(')) {
             startIndex++;
@@ -284,7 +284,7 @@ QString QMakeGlobals::expandEnvVars(const QString &str) const
             break;
         QString value = getEnv(string.mid(startIndex + 2, endIndex - startIndex - 2));
         string.replace(startIndex, endIndex - startIndex + 1, value);
-        startIndex += value.length();
+        startIndex += value.size();
     }
     return string;
 }

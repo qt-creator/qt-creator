@@ -70,7 +70,7 @@ static std::optional<QString> extractLldbVersion(const QString &fromOutput)
     // Linux typically, or some Windows builds
     const QString nonMacOSPrefix = "lldb version ";
     if (line.contains(nonMacOSPrefix)) {
-        const qsizetype pos1 = line.indexOf(nonMacOSPrefix) + nonMacOSPrefix.length();
+        const qsizetype pos1 = line.indexOf(nonMacOSPrefix) + nonMacOSPrefix.size();
         const qsizetype pos2 = line.indexOf(' ', pos1);
         return line.mid(pos1, pos2 - pos1);
     }
@@ -78,7 +78,7 @@ static std::optional<QString> extractLldbVersion(const QString &fromOutput)
     // Mac typically
     const QString macOSPrefix = "lldb-";
     if (line.startsWith(macOSPrefix, Qt::CaseInsensitive)) {
-        return line.mid(macOSPrefix.length());
+        return line.mid(macOSPrefix.size());
     }
 
     return {};

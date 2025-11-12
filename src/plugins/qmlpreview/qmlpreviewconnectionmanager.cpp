@@ -155,7 +155,7 @@ void QmlPreviewConnectionManager::createPreviewClient()
                 const bool found = m_projectFileFinder.findFileOrDirectory(
                     Utils::FilePath::fromString(path),
                     [&](const Utils::FilePath &filename, int confidence) {
-                        if (m_fileLoader && confidence == path.length()) {
+                        if (m_fileLoader && confidence == path.size()) {
                             bool success = false;
                             QByteArray contents = m_fileLoader(filename.toFSPathString(), &success);
                             if (success) {
@@ -173,7 +173,7 @@ void QmlPreviewConnectionManager::createPreviewClient()
                         }
                     },
                     [&](const QStringList &entries, int confidence) {
-                        if (confidence == path.length())
+                        if (confidence == path.size())
                             m_qmlPreviewClient->announceDirectory(path, entries);
                         else
                             m_qmlPreviewClient->announceError(path);

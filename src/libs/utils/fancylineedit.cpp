@@ -562,7 +562,7 @@ void FancyLineEdit::handleValidationResult(AsyncValidationResult result, const Q
         const int cursorPos = cursorPosition();
         QSignalBlocker blocker(this);
         setText(fixedString);
-        setCursorPosition(qMin(cursorPos, fixedString.length()));
+        setCursorPosition(qMin(cursorPos, fixedString.size()));
     }
 
     // Check buttons.

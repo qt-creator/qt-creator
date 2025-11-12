@@ -89,7 +89,7 @@ void NimIndenter::indentBlock(const QTextBlock &block,
 
 bool NimIndenter::startsBlock(const QString &line, int state) const
 {
-    NimLexer lexer(line.constData(), line.length(), static_cast<NimLexer::State>(state));
+    NimLexer lexer(line.constData(), line.size(), static_cast<NimLexer::State>(state));
 
     // Read until end of line and save the last token
     NimLexer::Token previous;
@@ -127,7 +127,7 @@ bool NimIndenter::startsBlock(const QString &line, int state) const
 
 bool NimIndenter::endsBlock(const QString &line, int state) const
 {
-    NimLexer lexer(line.constData(), line.length(), static_cast<NimLexer::State>(state));
+    NimLexer lexer(line.constData(), line.size(), static_cast<NimLexer::State>(state));
 
     // Read until end of line and save the last tokens
     NimLexer::Token previous;

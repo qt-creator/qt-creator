@@ -66,11 +66,11 @@ bool FancyToolButton::event(QEvent *e)
 
 static int findSplitPos(const QString &text, const QFontMetrics &fontMetrics, qreal availableWidth)
 {
-    if (text.length() == 0)
+    if (text.size() == 0)
         return -1;
     int splitPos = -1;
     int lastWhiteSpace;
-    int firstWhiteSpace = text.length();
+    int firstWhiteSpace = text.size();
     do {
         // search backwards for ranges of whitespaces
         // search first whitespace (backwards)
@@ -114,10 +114,10 @@ static QVector<QString> splitInTwoLines(const QString &text,
     if (splitPos < 0) {
         splitLines[0] = fontMetrics.elidedText(text, Qt::ElideRight, int(availableWidth));
         QString common = Utils::commonPrefix(QStringList({splitLines[0], text}));
-        splitLines[1] = text.mid(common.length());
+        splitLines[1] = text.mid(common.size());
         // elide the second line even if it fits, since it is cut off in mid-word
         while (fontMetrics.horizontalAdvance(QChar(0x2026) /*'...'*/ + splitLines[1]) > availableWidth
-               && splitLines[1].length() > 3
+               && splitLines[1].size() > 3
                /*keep at least three original characters (should not happen)*/) {
             splitLines[1].remove(0, 1);
         }

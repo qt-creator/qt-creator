@@ -81,10 +81,10 @@ QEasingCurve EasingGraph::easingCurve() const
 QString EasingGraph::easingShape() const
 {
     QString name = easingName();
-    if (name.left(5)==QLatin1String("InOut")) return name.right(name.length()-5);
-    if (name.left(5)==QLatin1String("OutIn")) return name.right(name.length()-5);
-    if (name.left(3)==QLatin1String("Out")) return name.right(name.length()-3);
-    if (name.left(2)==QLatin1String("In")) return name.right(name.length()-2);
+    if (name.left(5)==QLatin1String("InOut")) return name.right(name.size()-5);
+    if (name.left(5)==QLatin1String("OutIn")) return name.right(name.size()-5);
+    if (name.left(3)==QLatin1String("Out")) return name.right(name.size()-3);
+    if (name.left(2)==QLatin1String("In")) return name.right(name.size()-2);
     return name;
 }
 

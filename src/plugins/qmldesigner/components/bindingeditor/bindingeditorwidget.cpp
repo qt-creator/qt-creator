@@ -107,7 +107,7 @@ void BindingEditorWidget::setEditorTextWithIndentation(const QString &text)
         return;
 
     auto modifier = std::make_unique<IndentingTextEditModifier>(doc);
-    modifier->indent(0, text.length()-1);
+    modifier->indent(0, text.size()-1);
 }
 
 BindingDocument::BindingDocument()

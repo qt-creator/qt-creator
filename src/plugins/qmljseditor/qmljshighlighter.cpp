@@ -169,7 +169,7 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
         previousTokenEnd = token.end();
     }
 
-    setFormat(previousTokenEnd, text.length() - previousTokenEnd, formatForCategory(C_VISUAL_WHITESPACE));
+    setFormat(previousTokenEnd, text.size() - previousTokenEnd, formatForCategory(C_VISUAL_WHITESPACE));
 
     onBlockEnd(m_scanner.state());
 }

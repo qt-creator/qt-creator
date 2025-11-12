@@ -160,7 +160,7 @@ public:
 
         QString replaceable = content;
         int replacedLength = 0;
-        for (int i = 0; i < replaceable.length(); ++i) {
+        for (int i = 0; i < replaceable.size(); ++i) {
             const QChar a = replaceable.at(i);
             const QChar b = textEditorWidget->characterAt(currentPosition() + i);
             if (a == b)

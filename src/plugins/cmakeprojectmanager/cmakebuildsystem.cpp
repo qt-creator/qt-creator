@@ -1040,7 +1040,7 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
             if (filePos->argumentPosition.Delim == cmListFileArgument::Quoted)
                 extraChars = 2;
 
-            editor->replace(filePos->relativeFileName.length() + extraChars, "");
+            editor->replace(filePos->relativeFileName.size() + extraChars, "");
 
             editor->editorWidget()->autoIndent();
             if (!Core::DocumentManager::saveDocument(editor->document())) {
@@ -1145,7 +1145,7 @@ bool CMakeBuildSystem::renameFile(
             if (fileToRename->argumentPosition.Delim == cmListFileArgument::Quoted)
                 editor->setCursorPosition(editor->position() + 1);
 
-            editor->replace(fileToRename->relativeFileName.length(), newRelPathName);
+            editor->replace(fileToRename->relativeFileName.size(), newRelPathName);
             editor->editorWidget()->autoIndent();
             if (!Core::DocumentManager::saveDocument(editor->document())) {
                 qCCritical(cmakeBuildSystemLog).noquote()
@@ -1323,7 +1323,7 @@ private slots:
         QVERIFY(!expectedDocuments.isEmpty());
         for (const FilePath &expected : expectedDocuments) {
             const FilePath actual = expected.parentDir().pathAppended(
-                expected.fileName().chopped(suffix.length()) + ".cmake");
+                expected.fileName().chopped(suffix.size()) + ".cmake");
             QVERIFY(actual.exists());
             const auto actualContents = actual.fileContents();
             QVERIFY(actualContents);

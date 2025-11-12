@@ -237,11 +237,11 @@ void CMakeOutputParser::flush()
             // newline and "  "
             offset += 3;
             specs.append(LinkSpec{offset,
-                                  int(fileAndLine.length()),
+                                  int(fileAndLine.size()),
                                   createLinkTarget(line.file, line.line, -1)});
 
             t.addToDetails(completeLine);
-            offset += completeLine.length() - 2;
+            offset += completeLine.size() - 2;
             ++m_lines;
         });
 

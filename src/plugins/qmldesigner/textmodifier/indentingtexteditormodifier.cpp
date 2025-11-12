@@ -16,7 +16,7 @@ IndentingTextEditModifier::IndentingTextEditModifier(QTextDocument *document)
 
 void IndentingTextEditModifier::indent(int offset, int length)
 {
-    if (length == 0 || offset < 0 || offset + length >= text().length())
+    if (length == 0 || offset < 0 || offset + length >= text().size())
         return;
 
     int startLine = getLineInDocument(textDocument(), offset);

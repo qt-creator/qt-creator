@@ -57,7 +57,7 @@ template<>
 QChar charUnderCursor(QLineEdit *edit)
 {
     const int pos = edit->cursorPosition();
-    if (pos < 0 || pos >= edit->text().length())
+    if (pos < 0 || pos >= edit->text().size())
         return QChar::Null;
 
     return edit->text().at(pos);

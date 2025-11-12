@@ -244,7 +244,7 @@ QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
                                            bool skipChars,
                                            int *skippedChars) const
 {
-    if (text.length() != 1)
+    if (text.size() != 1)
         return QString();
 
     if (! shouldInsertMatchingText(cursor))

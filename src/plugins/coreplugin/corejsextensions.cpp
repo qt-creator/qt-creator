@@ -160,7 +160,7 @@ QString UtilsJsExtension::qtQuickVersion(const QString &filePath) const
         const int importIndex = data.indexOf(importString);
         if (importIndex == -1)
             continue;
-        const int versionIndex = importIndex + importString.length();
+        const int versionIndex = importIndex + importString.size();
         const int newLineIndex = data.indexOf('\n', versionIndex);
         if (newLineIndex == -1)
             continue;

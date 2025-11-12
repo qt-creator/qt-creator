@@ -17,7 +17,7 @@ bool StereotypesController::isParsable(const QString &stereotypes)
     const QStringList list = stereotypes.split(QLatin1Char(','));
     for (const QString &part : list) {
         QString stereotype = part.trimmed();
-        if (stereotype.length() == 0)
+        if (stereotype.size() == 0)
             return false;
     }
     return true;
@@ -42,7 +42,7 @@ QStringList StereotypesController::fromString(const QString &stereotypes)
     const QStringList list = stereotypes.split(QLatin1Char(','));
     for (const QString &part : list) {
         QString stereotype = part.trimmed();
-        if (stereotype.length() > 0)
+        if (stereotype.size() > 0)
             result.append(stereotype);
     }
     return result;

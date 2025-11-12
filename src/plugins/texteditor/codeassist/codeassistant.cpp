@@ -382,7 +382,7 @@ QList<CompletionAssistProvider *> CodeAssistantPrivate::identifyActivationSequen
         // case of typing the very first characters in the document for providers that request a
         // length greater than 1 (currently only C++, which specifies 3), the sequence needs to
         // be prepended so it has the expected length.
-        const int lengthDiff = length - sequence.length();
+        const int lengthDiff = length - sequence.size();
         for (int j = 0; j < lengthDiff; ++j)
             sequence.prepend(m_null);
         return provider->isActivationCharSequence(sequence);

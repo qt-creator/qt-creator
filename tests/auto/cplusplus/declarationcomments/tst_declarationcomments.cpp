@@ -165,7 +165,7 @@ void TestDeclarationComments::commentsForDecl()
     const int firstCommentPos = m_cppDoc->translationUnit()->getTokenPositionInDocument(
         commentTokens.first(), &m_textDoc);
     const QString actualCommentPrefix = m_textDoc.toPlainText().mid(firstCommentPos,
-                                                                    expectedCommentPrefix.length());
+                                                                    expectedCommentPrefix.size());
     QCOMPARE(actualCommentPrefix, expectedCommentPrefix);
 }
 

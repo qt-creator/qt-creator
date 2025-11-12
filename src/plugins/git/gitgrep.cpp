@@ -77,7 +77,7 @@ static void processLine(QStringView line, SearchResultItems *resultList,
     const int lineSeparator = line.indexOf(QChar::Null);
     QStringView filePath = line.left(lineSeparator);
     if (!ref.isEmpty() && filePath.startsWith(ref))
-        filePath = filePath.mid(ref.length());
+        filePath = filePath.mid(ref.size());
     result.setFilePath(directory.pathAppended(filePath.toString()));
     const int textSeparator = line.indexOf(QChar::Null, lineSeparator + 1);
     const int lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();

@@ -81,7 +81,7 @@ void CppCompletionAssistProcessor::startOfOperator(QTextDocument *textDocument,
             QTextCursor s = tc;
             s.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
             QString sel = s.selectedText();
-            if (sel.indexOf(QLatin1Char('"')) < sel.length() - 1) {
+            if (sel.indexOf(QLatin1Char('"')) < sel.size() - 1) {
                 *kind = T_EOF_SYMBOL;
                 start = positionInDocument;
             }

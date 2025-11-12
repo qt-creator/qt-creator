@@ -146,10 +146,10 @@ void SyntaxHighlighterPrivate::applyFormatChanges()
         if (!preeditText.isEmpty()) {
             const int preeditPosition = currentBlock.layout()->preeditAreaPosition();
             if (r.start >= preeditPosition) {
-                r.start += preeditText.length();
+                r.start += preeditText.size();
             } else if (r.start + r.length > preeditPosition) {
                 QTextLayout::FormatRange beforePreeditRange = r;
-                r.start = preeditPosition + preeditText.length();
+                r.start = preeditPosition + preeditText.size();
                 r.length = r.length - (r.start - preeditPosition);
                 beforePreeditRange.length = preeditPosition - beforePreeditRange.start;
                 newRanges << beforePreeditRange;
@@ -567,7 +567,7 @@ void SyntaxHighlighter::setFormat(int start, int count, const QFont &font)
 void SyntaxHighlighter::formatSpaces(const QString &text, int start, int count)
 {
     int offset = start;
-    const int end = std::min(start + count, int(text.length()));
+    const int end = std::min(start + count, int(text.size()));
     while (offset < end) {
         if (text.at(offset).isSpace()) {
             int start = offset++;
@@ -593,7 +593,7 @@ void SyntaxHighlighter::setFormatWithSpaces(const QString &text, int start, int 
 {
     const QTextCharFormat visualSpaceFormat = whitespacified(format);
 
-    const int end = std::min(start + count, int(text.length()));
+    const int end = std::min(start + count, int(text.size()));
     int index = start;
 
     while (index != end) {
@@ -750,10 +750,10 @@ void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
         const int preeditPosition = block.layout()->preeditAreaPosition();
         for (QTextLayout::FormatRange &r : formatsCopy) {
             if (r.start >= preeditPosition) {
-                r.start += preeditText.length();
+                r.start += preeditText.size();
             } else if (r.start + r.length > preeditPosition) {
                 QTextLayout::FormatRange afterPreeditRange = r;
-                afterPreeditRange.start = preeditPosition + preeditText.length();
+                afterPreeditRange.start = preeditPosition + preeditText.size();
                 afterPreeditRange.length = r.length - (preeditPosition - r.start);
                 additionalRanges << afterPreeditRange;
                 r.length = preeditPosition - r.start;

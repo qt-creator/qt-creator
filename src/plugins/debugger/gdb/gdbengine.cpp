@@ -2411,7 +2411,7 @@ void GdbEngine::updateTracepointCaptures(const Breakpoint &bp)
                  static_cast<int>(match.capturedStart(2)),
                  static_cast<int>(match.capturedEnd(2))});
         } else {
-            QString expression = t.mid(1, t.length() - 2);
+            QString expression = t.mid(1, t.size() - 2);
             caps << QVariant::fromValue<TracepointCaptureData>(
                 {TracepointCaptureType::Expression,
                  expression,
@@ -2487,7 +2487,7 @@ void GdbEngine::handleTracepointHit(const GdbMi &data)
                    if (expression.isValid()) {
                        QString s = expression.toString();
                        // remove '<key>='
-                       s = s.right(s.length() - key.length() - 1);
+                       s = s.right(s.size() - key.size() - 1);
                        message.replace(cap.start, cap.end - cap.start, s);
                    } else {
                        QTC_CHECK(false);

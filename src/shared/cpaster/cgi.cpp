@@ -368,7 +368,7 @@ inline const char *unicodeToHTML(ushort unicode_char)
 QString CGI::encodeHTML(const QString &rawText, int conversionFlags)
 {
     QString enc;
-    enc.reserve(rawText.length()); // at least
+    enc.reserve(rawText.size()); // at least
 
     QString::const_iterator it = rawText.constBegin();
     while (it != rawText.constEnd()) {

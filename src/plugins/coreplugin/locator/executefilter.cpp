@@ -61,7 +61,7 @@ LocatorMatcherTasks ExecuteFilter::matchers()
             entry.acceptor = [this, cmd] { acceptCommand(cmd); return AcceptResult(); };
             const int index = cmd.indexOf(input, 0, entryCaseSensitivity);
             if (index >= 0) {
-                entry.highlightInfo = {index, int(input.length())};
+                entry.highlightInfo = {index, int(input.size())};
                 entries.append(entry);
             } else {
                 others.append(entry);

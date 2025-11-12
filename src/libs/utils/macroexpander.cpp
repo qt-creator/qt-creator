@@ -44,7 +44,7 @@ public:
         bool replaceAll = false;
 
         int i = *pos;
-        int strLen = str.length();
+        int strLen = str.size();
         varName.reserve(strLen - i);
         for (; i < strLen; prev = c) {
             c = str.at(i++);
@@ -351,7 +351,7 @@ static void expandMacros(QString *str, MacroExpanderPrivate *mx)
 
     for (int pos = 0; int len = mx->findMacro(*str, &pos, &rsts);) {
         str->replace(pos, len, rsts);
-        pos += rsts.length();
+        pos += rsts.size();
     }
 }
 

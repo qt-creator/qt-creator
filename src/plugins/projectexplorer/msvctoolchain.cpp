@@ -650,12 +650,12 @@ Macros MsvcToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
     QStringList toProcess;
     for (auto arg = cxxflags.begin(); arg != cxxflags.end(); ++arg) {
         if (arg->startsWith("/D") || arg->startsWith("-D")) {
-            if (arg->length() > 2)
+            if (arg->size() > 2)
                 predefinedMacros.append(Macro::fromKeyValue(arg->mid(2)));
             else if (std::next(arg) != cxxflags.end())
                 predefinedMacros.append(Macro::fromKeyValue(*++arg));
         } else if (arg->startsWith("/U") || arg->startsWith("-U")) {
-            if (arg->length() > 2) {
+            if (arg->size() > 2) {
                 predefinedMacros.append({arg->mid(2).toLocal8Bit(),
                                          MacroType::Undefine});
             } else if (std::next(arg) != cxxflags.end()) {
@@ -2323,7 +2323,7 @@ ClangClInfo ClangClInfo::getInfo(const FilePath &filePath)
         const QString targetKey = "Target:";
         int startOffset = stdOut.indexOf(targetKey);
         if (startOffset != -1) {
-            startOffset += targetKey.length();
+            startOffset += targetKey.size();
             const int endOffset = stdOut.indexOf('\n', startOffset);
             if (endOffset != -1) {
                 const Abi detectedAbi = Abi::abiFromTargetTriplet(

@@ -202,7 +202,7 @@ KeystoreData AndroidCreateKeystoreCertificate::keystoreData() const
 
 AndroidCreateKeystoreCertificate::PasswordStatus AndroidCreateKeystoreCertificate::checkKeystorePassword()
 {
-    if (m_keystorePassLineEdit->text().length() < 6) {
+    if (m_keystorePassLineEdit->text().size() < 6) {
         m_infoLabel->show();
         m_infoLabel->setText(Tr::tr("Keystore password is too short."));
         return Invalid;
@@ -222,7 +222,7 @@ AndroidCreateKeystoreCertificate::PasswordStatus AndroidCreateKeystoreCertificat
     if (m_samePasswordCheckBox->checkState() == Qt::Checked)
         return Match;
 
-    if (m_certificatePassLineEdit->text().length() < 6) {
+    if (m_certificatePassLineEdit->text().size() < 6) {
         m_infoLabel->show();
         m_infoLabel->setText(Tr::tr("Certificate password is too short."));
         return Invalid;
@@ -239,7 +239,7 @@ AndroidCreateKeystoreCertificate::PasswordStatus AndroidCreateKeystoreCertificat
 
 bool AndroidCreateKeystoreCertificate::checkCertificateAlias()
 {
-    if (m_certificateAliasLineEdit->text().length() == 0) {
+    if (m_certificateAliasLineEdit->text().size() == 0) {
         m_infoLabel->show();
         m_infoLabel->setText(Tr::tr("Certificate alias is missing."));
         return false;

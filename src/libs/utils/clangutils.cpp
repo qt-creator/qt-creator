@@ -23,7 +23,7 @@ static QVersionNumber getClangdVersion(const FilePath &clangdFilePath)
     const int prefixOffset = output.indexOf(versionPrefix);
     if (prefixOffset == -1)
         return {};
-    return QVersionNumber::fromString(output.mid(prefixOffset + versionPrefix.length()));
+    return QVersionNumber::fromString(output.mid(prefixOffset + versionPrefix.size()));
 }
 
 QVersionNumber clangdVersion(const FilePath &clangd)

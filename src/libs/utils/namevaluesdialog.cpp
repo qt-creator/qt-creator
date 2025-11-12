@@ -109,13 +109,13 @@ bool NameValueItemsWidget::editVariable(const QString &name, Selection selection
         const QString &line = b.text();
         qsizetype offset = 0;
         const auto skipWhiteSpace = [&] {
-            for (; offset < line.length(); ++offset) {
+            for (; offset < line.size(); ++offset) {
                 if (!line.at(offset).isSpace())
                     return;
             }
         };
         skipWhiteSpace();
-        if (offset < line.length() && line.at(offset) == '#') {
+        if (offset < line.size() && line.at(offset) == '#') {
             ++offset;
             skipWhiteSpace();
         }
@@ -137,15 +137,15 @@ bool NameValueItemsWidget::editVariable(const QString &name, Selection selection
         }
 
         skipWhiteSpace();
-        if (offset < line.length()) {
+        if (offset < line.size()) {
             QChar nextChar = line.at(offset);
             if (nextChar.isLetterOrNumber() || nextChar == '_')
                 continue;
             if (nextChar == '=') {
-                if (++offset < line.length() && line.at(offset) == '+')
+                if (++offset < line.size() && line.at(offset) == '+')
                     ++offset;
             } else if (nextChar == '+') {
-                if (++offset < line.length() && line.at(offset) == '=')
+                if (++offset < line.size() && line.at(offset) == '=')
                     ++offset;
             }
         }

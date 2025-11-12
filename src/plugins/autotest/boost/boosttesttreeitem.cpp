@@ -136,7 +136,7 @@ QString BoostTestTreeItem::prependWithParentsSuitePaths(const QString &testName)
     QString prepend = type() == TestSuite ? m_fullName.left(m_fullName.lastIndexOf('/'))
                                           : m_fullName.left(m_fullName.indexOf("::"));
     if (prepend.startsWith(BoostTest::Constants::BOOST_MASTER_SUITE))
-        prepend = prepend.mid(QString(BoostTest::Constants::BOOST_MASTER_SUITE).length());
+        prepend = prepend.mid(QString(BoostTest::Constants::BOOST_MASTER_SUITE).size());
 
     return prepend + '/' + testName;
 }

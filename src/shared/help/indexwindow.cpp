@@ -311,7 +311,7 @@ QModelIndex IndexFilterModel::filter(const QString &filter, const QString &wildc
                 if (perfectMatch == -1 && index.startsWith(filter, Qt::CaseInsensitive)) {
                     if (goodMatch == -1)
                         goodMatch = m_toSource.size() - 1;
-                    if (filter.length() == index.length()){
+                    if (filter.size() == index.size()){
                         perfectMatch = m_toSource.size() - 1;
                     }
                 } else if (perfectMatch > -1 && index == filter) {

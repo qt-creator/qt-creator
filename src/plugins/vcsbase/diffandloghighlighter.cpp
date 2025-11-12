@@ -138,7 +138,7 @@ DiffAndLogHighlighter::~DiffAndLogHighlighter()
 // Check trailing spaces
 static inline int trimmedLength(const QString &in)
 {
-    for (int pos = in.length() - 1; pos >= 0; pos--)
+    for (int pos = in.size() - 1; pos >= 0; pos--)
         if (!in.at(pos).isSpace())
             return pos + 1;
     return 0;
@@ -155,7 +155,7 @@ void DiffAndLogHighlighter::highlightBlock(const QString &text)
     if (text.isEmpty())
         return;
 
-    const int length = text.length();
+    const int length = text.size();
     const TextEditor::TextStyle format = d->analyzeLine(text);
 
     if (d->m_enabled) {

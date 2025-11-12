@@ -48,7 +48,7 @@ void printHelp(const Operation *op)
 const QString tabular(const std::unique_ptr<Operation> &o)
 {
     const QString name = o->name();
-    return name + QString(16 - name.length(), QChar::Space) + o->helpText();
+    return name + QString(16 - name.size(), QChar::Space) + o->helpText();
 }
 
 void printHelp(const std::vector<std::unique_ptr<Operation>> &operations)

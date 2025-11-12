@@ -1089,11 +1089,11 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
 
         // Chop off last part, and break if there's nothing to chop off
         //
-        if (dir.length() < 2)
+        if (dir.size() < 2)
             break;
 
         // We start before the last slash
-        const int index = dir.lastIndexOf(slash, dir.length() - 2);
+        const int index = dir.lastIndexOf(slash, dir.size() - 2);
         if (index == -1)
             break;
         dir.truncate(index + 1);

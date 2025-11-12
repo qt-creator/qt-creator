@@ -102,10 +102,10 @@ private:
                 // Returns the index of the first character of actual comment content,
                 // as opposed to visual stuff like slashes, stars or whitespace.
                 const auto indexOfActualContent = [&] {
-                    const int offset = block == firstBlock ? firstColumn + newCommentStart.length()
+                    const int offset = block == firstBlock ? firstColumn + newCommentStart.size()
                                                            : firstColumn;
 
-                    for (int i = offset, lastFillChar = -1; i < blockText.length(); ++i) {
+                    for (int i = offset, lastFillChar = -1; i < blockText.size(); ++i) {
                         if (blockText.at(i) == oldFillChar) {
                             lastFillChar = i;
                             continue;
@@ -159,7 +159,7 @@ private:
                 }
 
                 if (block == firstBlock) {
-                    changeSet.replace(startPos, startPos + newCommentStart.length(),
+                    changeSet.replace(startPos, startPos + newCommentStart.size(),
                                       newCommentStart);
                 } else {
                     // If the line starts with enough whitespace, replace it with the
@@ -167,7 +167,7 @@ private:
                     // unnecessarily. Otherwise, insert the comment start characters.
                     if (blockText.startsWith(QString(newCommentStart.size() + removed + 1, ' '))) {
                         changeSet.replace(block.position(),
-                                          block.position() + newCommentStart.length(),
+                                          block.position() + newCommentStart.size(),
                                           newCommentStart);
                     } else {
                         changeSet.insert(block.position(), newCommentStart);

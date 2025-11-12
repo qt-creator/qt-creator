@@ -117,7 +117,7 @@ void CppcheckRunner::checkQueued()
     FilePaths files = m_queue.begin().value();
     commandLine.addArgs(m_queue.begin().key(), CommandLine::Raw);
     m_currentFiles.clear();
-    int argumentsLength = commandLine.arguments().length();
+    int argumentsLength = commandLine.arguments().size();
     while (!files.isEmpty()) {
         argumentsLength += files.first().toUrlishString().size() + 3; // +1 for separator +2 for quotes
         if (argumentsLength >= m_maxArgumentsLength)

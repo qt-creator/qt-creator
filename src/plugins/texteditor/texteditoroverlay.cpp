@@ -169,7 +169,7 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
             QTextLayout *beginLayout = layout(begin.block());
             const QString preeditAreaText = beginLayout->preeditAreaText();
             if (!preeditAreaText.isEmpty() && beginChar >= beginLayout->preeditAreaPosition())
-                beginChar += preeditAreaText.length();
+                beginChar += preeditAreaText.size();
             QTextLine line = blockLayout->lineForTextPosition(beginChar);
             QTC_ASSERT(line.isValid(), return {});
             firstLine = line.lineNumber();
@@ -185,7 +185,7 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
             QTextLayout *endLayout = layout(end.block());
             const QString preeditAreaText = endLayout->preeditAreaText();
             if (!preeditAreaText.isEmpty() && endChar >= endLayout->preeditAreaPosition())
-                endChar += preeditAreaText.length();
+                endChar += preeditAreaText.size();
             QTextLine line = blockLayout->lineForTextPosition(endChar);
             QTC_ASSERT(line.isValid(), return {});
             lastLine = line.lineNumber();

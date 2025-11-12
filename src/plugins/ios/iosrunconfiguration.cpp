@@ -161,7 +161,7 @@ FilePath IosRunConfiguration::bundleDirectory() const
                     else
                         after = "-iphonesimulator";
 
-                    pathStr.replace(idx, before.length(), after);
+                    pathStr.replace(idx, before.size(), after);
                 }
             }
 

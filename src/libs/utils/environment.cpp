@@ -304,13 +304,13 @@ QString Environment::expandVariables(const QString &input) const
     QString result = input;
 
     if (osType() == OsTypeWindows) {
-        for (int vStart = -1, i = 0; i < result.length(); ) {
+        for (int vStart = -1, i = 0; i < result.size(); ) {
             if (result.at(i++) == '%') {
                 if (vStart > 0) {
                     const auto it = dict.findKey(result.mid(vStart, i - vStart - 1));
                     if (it != dict.m_values.constEnd()) {
                         result.replace(vStart - 1, i - vStart + 1, it->first);
-                        i = vStart - 1 + it->first.length();
+                        i = vStart - 1 + it->first.size();
                         vStart = -1;
                     } else {
                         vStart = i;
@@ -324,7 +324,7 @@ QString Environment::expandVariables(const QString &input) const
         enum { BASE, OPTIONALVARIABLEBRACE, VARIABLE, BRACEDVARIABLE } state = BASE;
         int vStart = -1;
 
-        for (int i = 0; i < result.length();) {
+        for (int i = 0; i < result.size();) {
             QChar c = result.at(i++);
             if (state == BASE) {
                 if (c == '$')
@@ -345,7 +345,7 @@ QString Environment::expandVariables(const QString &input) const
                     const Environment::FindResult res = find(key);
                     if (res) {
                         result.replace(vStart - 2, i - vStart + 2, res->value);
-                        i = vStart - 2 + res->value.length();
+                        i = vStart - 2 + res->value.size();
                     }
                     state = BASE;
                 }
@@ -355,7 +355,7 @@ QString Environment::expandVariables(const QString &input) const
                     const Environment::FindResult res = find(key);
                     if (res) {
                         result.replace(vStart - 1, i - vStart, res->value);
-                        i = vStart - 1 + res->value.length();
+                        i = vStart - 1 + res->value.size();
                     }
                     state = BASE;
                 }
@@ -364,7 +364,7 @@ QString Environment::expandVariables(const QString &input) const
         if (state == VARIABLE) {
             const Environment::FindResult res = find(result.mid(vStart));
             if (res)
-                result.replace(vStart - 1, result.length() - vStart + 1, res->value);
+                result.replace(vStart - 1, result.size() - vStart + 1, res->value);
         }
     }
     return result;

@@ -406,7 +406,7 @@ QByteArray tst_Preprocessor::simplified(const QByteArray &buf)
     }
 
     out = out.simplified();
-    for (int i = 1; i < out.length() - 1; ) {
+    for (int i = 1; i < out.size() - 1; ) {
         if (out.at(i).isSpace()
                 && !(out.at(i-1).isLetterOrNumber()
                 && out.at(i+1).isLetterOrNumber()))

@@ -758,7 +758,7 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
         const FilePath filePath = macro.filePath();
         item.setFilePath(filePath);
         item.setLineText(line);
-        item.setMainRange(macro.line(), column, macro.nameToQString().length());
+        item.setMainRange(macro.line(), column, macro.nameToQString().size());
         item.setUseTextEditorFont(true);
         if (search->supportsReplace())
             item.setSelectForReplacement(ProjectManager::projectForFile(filePath));

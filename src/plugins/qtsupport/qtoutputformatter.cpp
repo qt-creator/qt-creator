@@ -112,7 +112,7 @@ OutputLineParser::LinkSpec QtOutputLineParser::matchLine(const QString &line) co
 
         lr.target = match.captured(1);
         lr.startPos = match.capturedStart(1);
-        lr.length = lr.target.length();
+        lr.length = lr.target.size();
         return true;
     };
 

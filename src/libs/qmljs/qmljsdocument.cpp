@@ -618,11 +618,11 @@ LibraryInfo Snapshot::libraryInfo(const Utils::FilePath &path) const
 
 void ModuleApiInfo::addToHash(QCryptographicHash &hash) const
 {
-    int len = uri.length();
+    int len = uri.size();
     hash.addData(QByteArrayView(reinterpret_cast<const char *>(&len), sizeof(len)));
     hash.addData(QByteArrayView(reinterpret_cast<const char *>(uri.constData()), len * sizeofQChar));
     version.addToHash(hash);
-    len = cppName.length();
+    len = cppName.size();
     hash.addData(QByteArrayView(reinterpret_cast<const char *>(&len), sizeof(len)));
     hash.addData(QByteArrayView(reinterpret_cast<const char *>(cppName.constData()), len * sizeofQChar));
 }

@@ -2436,7 +2436,7 @@ QList<NodeInstance> NodeInstanceView::loadInstancesFromCache(const QList<ModelNo
 
 static bool isCapitalized(const QString &string)
 {
-    if (string.length() == 0)
+    if (string.size() == 0)
         return false;
 
     return string.at(0).isUpper();

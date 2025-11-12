@@ -141,7 +141,7 @@ void filteredFlags(const FilePath &filePath,
             return flag.startsWith(opt) && flag != opt;
         });
         if (!includeOpt.isEmpty()) {
-            const FilePath path = workingDir.resolvePath(flag.mid(includeOpt.length()));
+            const FilePath path = workingDir.resolvePath(flag.mid(includeOpt.size()));
             headerPaths.append({path, userIncludeFlags.contains(includeOpt)
                                 ? HeaderPathType::User : HeaderPathType::System});
             continue;

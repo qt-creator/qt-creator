@@ -196,7 +196,7 @@ void TestResultDelegate::limitTextOutput(QString &output) const
         }
     }
 
-    if (testSettings().limitResultOutput() && output.length() > outputLimit) {
+    if (testSettings().limitResultOutput() && output.size() > outputLimit) {
         output = output.left(outputLimit);
         limited = true;
     }

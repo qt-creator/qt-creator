@@ -154,7 +154,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
                     return QString();
             }
             QString value = it.value();
-            if (role == Qt::ToolTipRole && value.length() > 80) {
+            if (role == Qt::ToolTipRole && value.size() > 80) {
                 if (currentEntryIsPathList(index)) {
                     // For path lists, display one entry per line without separator
                     const QChar sep = Utils::HostOsInfo::pathListSeparator();

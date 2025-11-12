@@ -168,8 +168,8 @@ static QString &removeTrailingWhitespace(QString &input)
     input.resize(0);
     for (int i = 0, total = lines.size(); i < total; ++i) {
         QString line = lines.at(i);
-        while (line.length() > 0) {
-            QChar lastChar = line[line.length() - 1];
+        while (line.size() > 0) {
+            QChar lastChar = line[line.size() - 1];
             if (lastChar == QLatin1Char(' ') || lastChar == QLatin1Char('\t'))
                 line.chop(1);
             else

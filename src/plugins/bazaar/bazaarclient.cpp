@@ -226,7 +226,7 @@ BazaarClient::StatusItem BazaarClient::parseStatusLine(const QString &line) cons
         else if (flagVersion == QLatin1Char('P'))
             item.flags = QLatin1String("PendingMerge");
 
-        const int lineLength = line.length();
+        const int lineLength = line.size();
         if (lineLength >= 2) {
             const QChar flagContents = line[1];
             if (flagContents == QLatin1Char('N'))

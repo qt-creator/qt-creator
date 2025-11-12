@@ -93,7 +93,7 @@ static void simplifyAllocator(
     const bool isLibCpp,
     QString &type)
 {
-    const int allocatorTemplateHeadLength = allocatorTemplateHead.length();
+    const int allocatorTemplateHeadLength = allocatorTemplateHead.size();
     int start = type.indexOf(allocatorTemplateHead);
     if (start != -1) {
         // search for matching '>'

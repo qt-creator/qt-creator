@@ -80,7 +80,7 @@ QTextCursor unCommentSelection(const QTextCursor &cursorIn,
 
         QString startText = startBlock.text();
         int startPos = start - startBlock.position();
-        const int multiLineStartLength = definition.multiLineStart.length();
+        const int multiLineStartLength = definition.multiLineStart.size();
         bool hasLeadingCharacters = !startText.left(startPos).trimmed().isEmpty();
 
         if (startPos >= multiLineStartLength
@@ -91,17 +91,17 @@ QTextCursor unCommentSelection(const QTextCursor &cursorIn,
             start -= multiLineStartLength;
         }
 
-        bool hasSelStart = startPos <= startText.length() - multiLineStartLength
+        bool hasSelStart = startPos <= startText.size() - multiLineStartLength
             && isComment(startText, startPos, definition.multiLineStart);
 
         QString endText = endBlock.text();
         int endPos = end - endBlock.position();
-        const int multiLineEndLength = definition.multiLineEnd.length();
+        const int multiLineEndLength = definition.multiLineEnd.size();
         bool hasTrailingCharacters =
                 !endText.left(endPos).remove(definition.singleLine).trimmed().isEmpty()
                 && !endText.mid(endPos).trimmed().isEmpty();
 
-        if (endPos <= endText.length() - multiLineEndLength
+        if (endPos <= endText.size() - multiLineEndLength
             && isComment(endText, endPos, definition.multiLineEnd)) {
             endPos += multiLineEndLength;
             end += multiLineEndLength;
@@ -129,7 +129,7 @@ QTextCursor unCommentSelection(const QTextCursor &cursorIn,
         if (doMultiLineStyleUncomment) {
             int offset = 0;
             text = startBlock.text();
-            const int length = text.length();
+            const int length = text.size();
             while (offset < length && text.at(offset).isSpace())
                 ++offset;
             start += offset;
@@ -140,12 +140,12 @@ QTextCursor unCommentSelection(const QTextCursor &cursorIn,
         cursor.setPosition(end);
         cursor.movePosition(QTextCursor::PreviousCharacter,
                             QTextCursor::KeepAnchor,
-                            definition.multiLineEnd.length());
+                            definition.multiLineEnd.size());
         cursor.removeSelectedText();
         cursor.setPosition(start);
         cursor.movePosition(QTextCursor::NextCharacter,
                             QTextCursor::KeepAnchor,
-                            definition.multiLineStart.length());
+                            definition.multiLineStart.size());
         cursor.removeSelectedText();
     } else if (doMultiLineStyleComment) {
         cursor.setPosition(end);
@@ -163,7 +163,7 @@ QTextCursor unCommentSelection(const QTextCursor &cursorIn,
             }
         }
 
-        const int singleLineLength = definition.singleLine.length();
+        const int singleLineLength = definition.singleLine.size();
         int minTab = INT_MAX;
         if (definition.isAfterWhitespace && !doSingleLineStyleUncomment) {
             for (QTextBlock block = startBlock; block != endBlock && minTab != 0; block = block.next()) {

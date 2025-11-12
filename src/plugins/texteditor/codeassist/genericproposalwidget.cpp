@@ -505,7 +505,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
         }
         if (d->m_model->supportsPrefixExpansion()) {
             const QString &proposalPrefix = d->m_model->proposalPrefix();
-            if (proposalPrefix.length() > prefix.length())
+            if (proposalPrefix.size() > prefix.size())
                 emit prefixExpanded(proposalPrefix);
         }
     }
@@ -647,7 +647,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
             break;
         }
 
-        if (ke->text().length() == 1
+        if (ke->text().size() == 1
                 && d->m_completionListView->currentIndex().isValid()
                 && QApplication::focusWidget() == o) {
             const QChar &typedChar = ke->text().at(0);

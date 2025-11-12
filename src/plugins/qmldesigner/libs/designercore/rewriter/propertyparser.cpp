@@ -44,7 +44,7 @@ uchar fromHex(const QString &s, int idx)
 
 QColor colorFromString(const QString &s, bool *ok)
 {
-    if (s.length() == 9 && s.startsWith(QLatin1Char('#'))) {
+    if (s.size() == 9 && s.startsWith(QLatin1Char('#'))) {
         uchar a = fromHex(s, 1);
         uchar r = fromHex(s, 3);
         uchar g = fromHex(s, 5);

@@ -406,7 +406,7 @@ static void expandEnvironmentVariables(const Environment &env, QString &string)
         const QString value = env.value(match.captured(1));
 
         string.replace(index, match.capturedLength(), value);
-        index += value.length();
+        index += value.size();
 
         index = string.indexOf(candidate, index, &match);
     }

@@ -198,7 +198,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                     const QString value
                         = shortcutString + ' '
                           + dir.absoluteFilePath().cleanPath().pathAppended("/").toUserOutput();
-                    return AcceptResult{value, int(value.length())};
+                    return AcceptResult{value, int(value.size())};
                 };
                 filterEntry.completer = filterEntry.acceptor;
                 filterEntry.filePath = dir;
@@ -230,7 +230,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                 filterEntry.completer = [shortcutString, file] {
                     const QString value = shortcutString + ' '
                                           + file.absoluteFilePath().cleanPath().toUserOutput();
-                    return AcceptResult{value, int(value.length())};
+                    return AcceptResult{value, int(value.size())};
                 };
                 entries[int(level)].append(filterEntry);
             }
@@ -254,7 +254,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                     const QString value
                         = shortcutString + ' '
                           + root.absoluteFilePath().cleanPath().pathAppended("/").toUserOutput();
-                    return AcceptResult{value, int(value.length())};
+                    return AcceptResult{value, int(value.size())};
                 };
                 filterEntry.completer = filterEntry.acceptor;
                 filterEntry.filePath = root;
@@ -303,7 +303,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                                                         .cleanPath()
                                                         .pathAppended("/")
                                                         .toUserOutput();
-                            LocatorManager::show(value, value.length());
+                            LocatorManager::show(value, value.size());
                         }
                     },
                     Qt::QueuedConnection);

@@ -131,7 +131,7 @@ void ConfigurationEditor::keyPressEvent(QKeyEvent *event)
     const QTextCursor cursor = cursorForTextUnderCursor();
     const QString prefix = cursor.selectedText();
 
-    if (!isShortcut && (prefix.length() < 2 || cursorPosition != cursor.position())) {
+    if (!isShortcut && (prefix.size() < 2 || cursorPosition != cursor.position())) {
         m_completer->popup()->hide();
         return;
     }
@@ -178,7 +178,7 @@ void ConfigurationEditor::insertCompleterText(const QString &text)
     QTextCursor tc = textCursor();
     // Replace entire word to get case sensitivity right.
     tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor,
-                    m_completer->completionPrefix().length());
+                    m_completer->completionPrefix().size());
     tc.insertText(text);
     setTextCursor(tc);
 }

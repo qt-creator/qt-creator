@@ -1034,13 +1034,13 @@ QString FunctionDeclDefLink::normalizedInitialName() const
         return n;
     if (index > 0 && n.at(index - 1).isLetterOrNumber())
         return n;
-    index += op.length();
-    if (index == n.length())
+    index += op.size();
+    if (index == n.size())
         return n;
     if (n.at(index).isLetterOrNumber())
         return n;
     n.insert(index++, ' ');
-    while (index < n.length() && n.at(index) == ' ')
+    while (index < n.size() && n.at(index) == ' ')
         n.remove(index, 1);
     return n;
 }

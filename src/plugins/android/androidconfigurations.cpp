@@ -253,7 +253,7 @@ static FilePath ndkSubPath(const SdkForQtVersions &packages)
     const QString ndkPrefix = ndkPackageMarker();
     for (const QString &package : packages.essentialPackages)
         if (package.startsWith(ndkPrefix))
-            return FilePath::fromString(NdksSubDir) / package.sliced(ndkPrefix.length());
+            return FilePath::fromString(NdksSubDir) / package.sliced(ndkPrefix.size());
 
     return {};
 }

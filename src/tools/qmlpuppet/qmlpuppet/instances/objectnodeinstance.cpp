@@ -864,7 +864,7 @@ inline static QString fixComponentPathForIncompatibleQt(const QString &component
 
     if (componentPath.contains(importString)) {
         int index = componentPath.indexOf(importString) + 8;
-        const QString relativeImportPath = componentPath.right(componentPath.length() - index);
+        const QString relativeImportPath = componentPath.right(componentPath.size() - index);
         QString fixedComponentPath = QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath) + relativeImportPath;
         fixedComponentPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
         if (QFileInfo::exists(fixedComponentPath))

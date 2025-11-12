@@ -389,7 +389,7 @@ QStringList CMakeTool::parseSyntaxHighlightingXml()
             if (reader.name() == u"list") {
                 const auto name = reader.attributes().value("name").toString();
                 if (name.endsWith(u"_sargs") || name.endsWith(u"_nargs")) {
-                    const auto functionName = name.left(name.length() - 6);
+                    const auto functionName = name.left(name.size() - 6);
                     QStringList arguments = readItemList(reader);
 
                     if (m_introspection->m_keywords.functionArgs.contains(functionName))

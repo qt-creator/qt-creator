@@ -573,7 +573,7 @@ QString RewriterView::auxiliaryDataAsQML() const
                 str += "\n";
                 columnCount = 0;
             }
-            const int startLen = str.length();
+            const int startLen = str.size();
             str += "D{";
             str += "i:";
 
@@ -618,7 +618,7 @@ QString RewriterView::auxiliaryDataAsQML() const
                 str.chop(1);
 
             str += "}";
-            columnCount += str.length() - startLen;
+            columnCount += str.size() - startLen;
         }
     }
 
@@ -860,7 +860,7 @@ ModelNode RewriterView::nodeAtTextCursorPositionHelper(const ModelNode &root, in
     for (const myPair &pair : data) {
         ModelNode node = pair.first;
 
-        const int textLength = m_textModifier->text().length();
+        const int textLength = m_textModifier->text().size();
         const int nodeTextOffset = std::min(nodeOffset(node), textLength);
 
         const int nodeTextLength = findEvenClosingBrace(m_textModifier->text().sliced(nodeTextOffset))
@@ -1236,7 +1236,7 @@ void RewriterView::writeAuxiliaryData()
     if (replace)
         m_textModifier->replace(startIndex, endIndex - startIndex + annotationsEnd.length(), auxData);
     else
-        m_textModifier->replace(oldText.length(), 0, auxData);
+        m_textModifier->replace(oldText.size(), 0, auxData);
 }
 
 static void checkNode(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view);

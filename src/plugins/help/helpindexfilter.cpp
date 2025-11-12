@@ -73,7 +73,7 @@ static void matches(QPromise<QStringList> &promise, const LocatorStorage &storag
             return AcceptResult();
         };
         filterEntry.displayIcon = icon;
-        filterEntry.highlightInfo = {index, int(input.length())};
+        filterEntry.highlightInfo = {index, int(input.size())};
         entries.append(filterEntry);
     }
     storage.reportOutput(entries);

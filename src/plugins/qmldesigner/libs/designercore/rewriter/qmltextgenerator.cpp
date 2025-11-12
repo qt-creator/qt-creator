@@ -47,9 +47,9 @@ static QString doubleToString(PropertyNameView propertyName, double d)
 
     QString string = QString::number(d, 'f', precision);
     if (string.contains('.'_L1)) {
-        while (string.at(string.length() - 1) == '0'_L1)
+        while (string.at(string.size() - 1) == '0'_L1)
             string.chop(1);
-        if (string.at(string.length() - 1) == '.'_L1)
+        if (string.at(string.size() - 1) == '.'_L1)
             string.chop(1);
     }
     return string;

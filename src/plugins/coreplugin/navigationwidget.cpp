@@ -527,7 +527,7 @@ void NavigationWidget::restoreSettings(QtcSettings *settings)
             continue;
 
         int position = settings->value(keyFromString(key)).toInt();
-        Id factoryId = Id::fromString(key.mid(activationKey.length()));
+        Id factoryId = Id::fromString(key.mid(activationKey.size()));
         addActivationInfo(factoryId, {d->m_side, position});
     }
     settings->endGroup();

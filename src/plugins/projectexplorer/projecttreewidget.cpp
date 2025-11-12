@@ -479,7 +479,7 @@ void ProjectTreeWidget::editCurrentItem()
     if (!editor)
         return;
 
-    const int dotIndex = FilePath::fromString(editor->text()).completeBaseName().length();
+    const int dotIndex = FilePath::fromString(editor->text()).completeBaseName().size();
     if (dotIndex > 0)
         editor->setSelection(0, dotIndex);
 }

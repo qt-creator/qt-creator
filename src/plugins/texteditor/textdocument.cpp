@@ -956,7 +956,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
         if (cleanIndentation && !currentTabSettings.isIndentationClean(block, indent)) {
             cursor.setPosition(block.position());
             const int firstNonSpace = TabSettings::firstNonSpace(blockText);
-            if (firstNonSpace == blockText.length()) {
+            if (firstNonSpace == blockText.size()) {
                 cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
                 cursor.removeSelectedText();
             } else {

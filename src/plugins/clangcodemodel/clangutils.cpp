@@ -67,7 +67,7 @@ QString diagnosticCategoryPrefixRemoved(const QString &text)
 
     for (const QString &fullPrefix : categoryPrefixes) {
         if (theText.startsWith(fullPrefix)) {
-            theText.remove(0, fullPrefix.length());
+            theText.remove(0, fullPrefix.size());
             return theText;
         }
     }
@@ -110,7 +110,7 @@ DiagnosticTextInfo::DiagnosticTextInfo(const QString &text)
 int DiagnosticTextInfo::getSquareBracketStartIndex() const
 {
     const int offset = m_text.lastIndexOf('[');
-    if (offset < m_text.length() - 1 && m_text.at(offset + 1) == ']')
+    if (offset < m_text.size() - 1 && m_text.at(offset + 1) == ']')
         return -1;
     return offset;
 }

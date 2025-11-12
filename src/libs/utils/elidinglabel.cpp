@@ -68,7 +68,7 @@ void ElidingLabel::paintEvent(QPaintEvent *)
     QRect contents = contentsRect().adjusted(m, m, -m, -m);
     QFontMetrics fm = fontMetrics();
     QString txt = text();
-    if (txt.length() > 4 && fm.horizontalAdvance(txt) > contents.width()) {
+    if (txt.size() > 4 && fm.horizontalAdvance(txt) > contents.width()) {
         updateToolTip(txt);
         txt = fm.elidedText(txt, m_elideMode, contents.width());
     } else {

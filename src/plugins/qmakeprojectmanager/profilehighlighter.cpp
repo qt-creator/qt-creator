@@ -53,14 +53,14 @@ void ProFileHighlighter::highlightBlock(const QString &text)
         } else {
             if (c.isLetter() || c == QLatin1Char('_') || c == QLatin1Char('.') || c.isDigit()) {
                 buf += c;
-                setFormat(i - buf.length()+1, buf.length(), emptyFormat);
+                setFormat(i - buf.size()+1, buf.size(), emptyFormat);
                 if (!buf.isEmpty() && m_keywords.isFunction(buf))
-                    setFormat(i - buf.length()+1, buf.length(), formatForCategory(ProfileFunctionFormat));
+                    setFormat(i - buf.size()+1, buf.size(), formatForCategory(ProfileFunctionFormat));
                 else if (!buf.isEmpty() && m_keywords.isVariable(buf))
-                    setFormat(i - buf.length()+1, buf.length(), formatForCategory(ProfileVariableFormat));
+                    setFormat(i - buf.size()+1, buf.size(), formatForCategory(ProfileVariableFormat));
             } else if (c == QLatin1Char('(')) {
                 if (!buf.isEmpty() && m_keywords.isFunction(buf))
-                    setFormat(i - buf.length(), buf.length(), formatForCategory(ProfileFunctionFormat));
+                    setFormat(i - buf.size(), buf.size(), formatForCategory(ProfileFunctionFormat));
                 buf.clear();
             } else if (c == QLatin1Char('#')) {
                 inCommentMode = true;
@@ -68,12 +68,12 @@ void ProFileHighlighter::highlightBlock(const QString &text)
                 buf.clear();
             } else {
                 if (!buf.isEmpty() && m_keywords.isVariable(buf))
-                    setFormat(i - buf.length(), buf.length(), formatForCategory(ProfileVariableFormat));
+                    setFormat(i - buf.size(), buf.size(), formatForCategory(ProfileVariableFormat));
                 buf.clear();
             }
         }
         i++;
-        if (i >= text.length())
+        if (i >= text.size())
             break;
     }
 

@@ -1366,7 +1366,7 @@ void GitPluginPrivate::gitkForCurrentFolder()
     } else {
         QString folderName = dir.absolutePath();
         dir.cdUp();
-        folderName = folderName.remove(0, dir.absolutePath().length() + 1);
+        folderName = folderName.remove(0, dir.absolutePath().size() + 1);
         gitClient().launchGitK(FilePath::fromString(dir.absolutePath()), folderName);
     }
 }

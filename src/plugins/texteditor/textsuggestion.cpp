@@ -85,7 +85,7 @@ bool TextSuggestion::applyPart(Part part, TextEditorWidget *widget)
         const QString newCompletionText = text.mid(startPos + seperatorPos + 1);
         if (!newCompletionText.isEmpty()) {
             const Text::Position newStart{int(range.begin.line + subText.count('\n')), 0};
-            const Text::Position newEnd{newStart.line, int(subText.length() - seperatorPos - 1)};
+            const Text::Position newEnd{newStart.line, int(subText.size() - seperatorPos - 1)};
             const Text::Range newRange{newStart, newEnd};
             const QList<Data> newSuggestion{{newRange, newEnd, newCompletionText}};
             widget->insertSuggestion(

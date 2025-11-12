@@ -69,7 +69,7 @@ void GlslHighlighter::highlightBlock(const QString &text)
         setCurrentBlockState(previousState);
         TextBlockUserData::clearParentheses(currentBlock());
         if (!text.isEmpty()) // the empty line can still contain whitespace
-            setFormat(0, text.length(), formatForCategory(C_VISUAL_WHITESPACE));
+            setFormat(0, text.size(), formatForCategory(C_VISUAL_WHITESPACE));
         TextBlockUserData::setFoldingIndent(currentBlock(), foldingIndent);
         return;
     }
@@ -174,8 +174,8 @@ void GlslHighlighter::highlightBlock(const QString &text)
     {
         const GLSL::Token tk = tokens.last();
         const int lastTokenEnd = tk.begin() + tk.length;
-        if (text.length() > lastTokenEnd)
-            highlightLine(text, lastTokenEnd, text.length() - lastTokenEnd, QTextCharFormat());
+        if (text.size() > lastTokenEnd)
+            highlightLine(text, lastTokenEnd, text.size() - lastTokenEnd, QTextCharFormat());
     }
 
     if (! initialState && state && ! tokens.isEmpty()) {

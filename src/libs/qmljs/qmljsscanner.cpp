@@ -109,14 +109,14 @@ static int findRegExpEnd(const QString &text, int start)
 
     // find the second /
     int index = start + 1;
-    for (; index < text.length(); ++index) {
+    for (; index < text.size(); ++index) {
         const QChar ch = text.at(index);
 
         if (ch == QLatin1Char('\\')) {
             ++index;
         } else if (ch == QLatin1Char('[')) {
             // find closing ]
-            for (; index < text.length(); ++index) {
+            for (; index < text.size(); ++index) {
                 const QChar ch2 = text.at(index);
                 if (ch2 == QLatin1Char('\\')) {
                     ++index;
@@ -189,12 +189,12 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
     auto scanTemplateString = [&index, &text, &tokens, this](int startShift = 0){
         const QChar quote = QLatin1Char('`');
         const int start = index + startShift;
-        while (index < text.length()) {
+        while (index < text.size()) {
             const QChar ch = text.at(index);
 
             if (ch == quote)
                 break;
-            else if (ch == QLatin1Char('$') && index + 1 < text.length() && text.at(index + 1) == QLatin1Char('{')) {
+            else if (ch == QLatin1Char('$') && index + 1 < text.size() && text.at(index + 1) == QLatin1Char('{')) {
                 tokens.append(Token(start, index - start, Token::String));
                 tokens.append(Token(index, 2, Token::Delimiter));
                 index += 2;
@@ -207,13 +207,13 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
                     _state |= 1 << (4 + depth * 7);
                 }
                 return;
-            } else if (ch == QLatin1Char('\\') && index + 1 < text.length())
+            } else if (ch == QLatin1Char('\\') && index + 1 < text.size())
                 index += 2;
             else
                 ++index;
         }
 
-        if (index < text.length()) {
+        if (index < text.size()) {
             setMultiLineState(&_state, Normal);
             ++index;
             // good one
@@ -227,14 +227,14 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
 
     if (multiLineState(_state) == MultiLineComment) {
         int start = -1;
-        while (index < text.length()) {
+        while (index < text.size()) {
             const QChar ch = text.at(index);
 
             if (start == -1 && !ch.isSpace())
                 start = index;
 
             QChar la;
-            if (index + 1 < text.length())
+            if (index + 1 < text.size())
                 la = text.at(index + 1);
 
             if (ch == QLatin1Char('*') && la == QLatin1Char('/')) {
@@ -251,17 +251,17 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
     } else if (multiLineState(_state) == MultiLineStringDQuote || multiLineState(_state) == MultiLineStringSQuote) {
         const QChar quote = (_state == MultiLineStringDQuote ? QLatin1Char('"') : QLatin1Char('\''));
         const int start = index;
-        while (index < text.length()) {
+        while (index < text.size()) {
             const QChar ch = text.at(index);
 
             if (ch == quote)
                 break;
-            else if (index + 1 < text.length() && ch == QLatin1Char('\\'))
+            else if (index + 1 < text.size() && ch == QLatin1Char('\\'))
                 index += 2;
             else
                 ++index;
         }
-        if (index < text.length()) {
+        if (index < text.size()) {
             ++index;
             setMultiLineState(&_state, Normal);
         }
@@ -276,33 +276,33 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
         return FlagsBits + (templateDepth - 1) * BraceCounterBits;
     };
 
-    while (index < text.length()) {
+    while (index < text.size()) {
         const QChar ch = text.at(index);
 
         QChar la; // lookahead char
-        if (index + 1 < text.length())
+        if (index + 1 < text.size())
             la = text.at(index + 1);
 
         switch (ch.unicode()) {
         case '#':
             if (_scanComments)
-                tokens.append(Token(index, text.length() - index, Token::Comment));
-            index = text.length();
+                tokens.append(Token(index, text.size() - index, Token::Comment));
+            index = text.size();
             break;
 
         case '/':
             if (la == QLatin1Char('/')) {
                 if (_scanComments)
-                    tokens.append(Token(index, text.length() - index, Token::Comment));
-                index = text.length();
+                    tokens.append(Token(index, text.size() - index, Token::Comment));
+                index = text.size();
             } else if (la == QLatin1Char('*')) {
                 const int start = index;
                 index += 2;
                 setMultiLineState(&_state, MultiLineComment);
-                while (index < text.length()) {
+                while (index < text.size()) {
                     const QChar ch = text.at(index);
                     QChar la;
-                    if (index + 1 < text.length())
+                    if (index + 1 < text.size())
                         la = text.at(index + 1);
 
                     if (ch == QLatin1Char('*') && la == QLatin1Char('/')) {
@@ -334,18 +334,18 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
             const QChar quote = ch;
             const int start = index;
             ++index;
-            while (index < text.length()) {
+            while (index < text.size()) {
                 const QChar ch = text.at(index);
 
                 if (ch == quote)
                     break;
-                else if (index + 1 < text.length() && ch == QLatin1Char('\\'))
+                else if (index + 1 < text.size() && ch == QLatin1Char('\\'))
                     index += 2;
                 else
                     ++index;
             }
 
-            if (index < text.length()) {
+            if (index < text.size()) {
                 ++index;
                 // good one
             } else {
@@ -369,7 +369,7 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
                 const int start = index;
                 do {
                     ++index;
-                } while (index < text.length() && isNumberChar(text.at(index)));
+                } while (index < text.size() && isNumberChar(text.at(index)));
                 tokens.append(Token(start, index - start, Token::Number));
                 break;
             }
@@ -458,7 +458,7 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
             break;
 
         case '>':
-            if (la == ch && index + 2 < text.length() && text.at(index + 2) == ch) {
+            if (la == ch && index + 2 < text.size() && text.at(index + 2) == ch) {
                 tokens.append(Token(index, 2, Token::Delimiter));
                 index += 3;
             } else if (la == ch || la == QLatin1Char('=')) {
@@ -500,19 +500,19 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
             if (ch.isSpace()) {
                 do {
                     ++index;
-                } while (index < text.length() && text.at(index).isSpace());
+                } while (index < text.size() && text.at(index).isSpace());
             } else if (ch.isNumber()) {
                 const int start = index;
                 do {
                     ++index;
-                } while (index < text.length() && isNumberChar(text.at(index)));
+                } while (index < text.size() && isNumberChar(text.at(index)));
                 tokens.append(Token(start, index - start, Token::Number));
                 setRegexpMayFollow(&_state, false);
             } else if (ch.isLetter() || ch == QLatin1Char('_') || ch == QLatin1Char('$')) {
                 const int start = index;
                 do {
                     ++index;
-                } while (index < text.length() && isIdentifierChar(text.at(index)));
+                } while (index < text.size() && isIdentifierChar(text.at(index)));
 
                 if (isKeyword(text.mid(start, index - start)))
                     tokens.append(Token(start, index - start, Token::Keyword)); // ### fixme

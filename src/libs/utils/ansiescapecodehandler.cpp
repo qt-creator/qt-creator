@@ -90,7 +90,7 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
             }
             m_waitingForTerminator = false;
             m_alternateTerminator.clear();
-            strippedText.remove(0, terminatorPos + terminator.length());
+            strippedText.remove(0, terminatorPos + terminator.size());
             if (strippedText.isEmpty())
                 break;
         }
@@ -135,8 +135,8 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                 }
                 break;
             }
-            m_pendingText += strippedText.mid(0, s_escape.length());
-            strippedText.remove(0, s_escape.length());
+            m_pendingText += strippedText.mid(0, s_escape.size());
+            strippedText.remove(0, s_escape.size());
 
             // \e[K is not supported. Just strip it.
             if (strippedText.startsWith(eraseToEol)) {

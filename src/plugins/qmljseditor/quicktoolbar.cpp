@@ -296,7 +296,7 @@ void QuickToolBar::setProperty(const QString &propertyName, const QVariant &valu
         int column;
 
         int changeSetPos = changeSet.operationList().constLast().pos1;
-        int changeSetLength = changeSet.operationList().constLast().text().length();
+        int changeSetLength = changeSet.operationList().constLast().text().size();
         QTextCursor tc = m_editorWidget->textCursor();
         tc.beginEditBlock();
         changeSet.apply(&tc);

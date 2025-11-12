@@ -25,7 +25,7 @@ namespace TextEditor {
  */
 static QString extractColorString(const QString &s, int pos)
 {
-    if (s.length() < 3 || pos < 0 || pos >= s.length())
+    if (s.size() < 3 || pos < 0 || pos >= s.size())
         return QString();
 
     int firstPos = pos;
@@ -56,14 +56,14 @@ static QString extractColorString(const QString &s, int pos)
         return QString();
 
     int lastPos = firstPos + 1;
-    if (lastPos >= s.length())
+    if (lastPos >= s.size())
         return QString();
     do {
         QChar c = s[lastPos];
         if (!(c.isLetterOrNumber() || c == QLatin1Char(':')))
             break;
         lastPos++;
-    } while (lastPos < s.length());
+    } while (lastPos < s.size());
 
     return s.mid(firstPos, lastPos - firstPos);
 }
@@ -119,9 +119,9 @@ static QColor checkColorText(const QString &str)
 // looks backwards through a string for the opening brace of a function
 static int findOpeningBrace(const QString &s, int startIndex)
 {
-    QTC_ASSERT(startIndex >= 0 && startIndex <= s.length(), return -1);
+    QTC_ASSERT(startIndex >= 0 && startIndex <= s.size(), return -1);
 
-    int index = startIndex == s.length() ? startIndex - 1 : startIndex;
+    int index = startIndex == s.size() ? startIndex - 1 : startIndex;
     while (index > 0) {
         const QChar c = s[index];
         if (c == QLatin1Char('(') || c == QLatin1Char('{'))
@@ -135,10 +135,10 @@ static int findOpeningBrace(const QString &s, int startIndex)
 
 static int findClosingBrace(const QString &s, int startIndex)
 {
-    QTC_ASSERT(startIndex >= 0 && startIndex <= s.length(), return -1);
+    QTC_ASSERT(startIndex >= 0 && startIndex <= s.size(), return -1);
 
-    int index = startIndex == s.length() ? startIndex - 1 : startIndex;
-    const int len = s.length();
+    int index = startIndex == s.size() ? startIndex - 1 : startIndex;
+    const int len = s.size();
     while (index < len) {
         const QChar c = s[index];
         if (c == QLatin1Char(')') || c == QLatin1Char('}'))
@@ -153,9 +153,9 @@ static int findClosingBrace(const QString &s, int startIndex)
 // returns the index of the first character of the func, or negative if not valid
 static int findFuncStart(const QString &s, int startIndex)
 {
-    QTC_ASSERT(startIndex >= 0 && startIndex <= s.length(), return -1);
+    QTC_ASSERT(startIndex >= 0 && startIndex <= s.size(), return -1);
 
-    int index = startIndex == s.length() ? startIndex - 1 : startIndex;
+    int index = startIndex == s.size() ? startIndex - 1 : startIndex;
     while (index >= 0) {
         const QChar c = s[index];
         if (!c.isLetterOrNumber()) {

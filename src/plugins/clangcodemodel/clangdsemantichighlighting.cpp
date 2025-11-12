@@ -220,7 +220,7 @@ void ExtraHighlightingResultsCollector::collect()
             const HighlightingResult nextRes = m_results.at(i + 1);
             endPos = Utils::Text::positionInText(m_doc, nextRes.line, nextRes.column - 1);
         } else {
-            endPos = m_docContent.length();
+            endPos = m_docContent.size();
         }
         const QString qPropertyString = m_docContent.mid(pos, endPos - pos);
         QPropertyHighlighter propHighlighter(m_doc, qPropertyString, pos);

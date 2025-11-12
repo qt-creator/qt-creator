@@ -91,12 +91,12 @@ bool IoUtils::isRelativePath(const QString &device, const QString &path)
     if (isWindows(device)) {
         // Unlike QFileInfo, this considers only paths with both a drive prefix and
         // a subsequent (back-)slash absolute:
-        if (path.length() >= 3 && path.at(1) == QLatin1Char(':') && path.at(0).isLetter()
+        if (path.size() >= 3 && path.at(1) == QLatin1Char(':') && path.at(0).isLetter()
             && (path.at(2) == QLatin1Char('/') || path.at(2) == QLatin1Char('\\'))) {
             return false;
         }
         // ... unless, of course, they're UNC:
-        if (path.length() >= 2
+        if (path.size() >= 2
             && (path.at(0).unicode() == '\\' || path.at(0).unicode() == '/')
             && path.at(1) == path.at(0)) {
                 return false;
@@ -153,7 +153,7 @@ bool isSpecialChar(ushort c, const uchar (&iqm)[16])
 inline static
 bool hasSpecialChars(const QString &arg, const uchar (&iqm)[16])
 {
-    for (int x = arg.length() - 1; x >= 0; --x) {
+    for (int x = arg.size() - 1; x >= 0; --x) {
         if (isSpecialChar(arg.unicode()[x].unicode(), iqm))
             return true;
     }
@@ -212,7 +212,7 @@ QString IoUtils::shellQuoteWin(const QString &arg)
         // to the called process verbatim. In the unquoted state, the circumflex escapes
         // meta chars (including itself and quotes), and is removed from the command.
         bool quoted = true;
-        for (int i = 0; i < ret.length(); i++) {
+        for (int i = 0; i < ret.size(); i++) {
             QChar c = ret.unicode()[i];
             if (c.unicode() == '"')
                 quoted = !quoted;

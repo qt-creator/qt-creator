@@ -91,9 +91,9 @@ private:
                 QTextCharFormat format;
                 format.setAnchor(true);
                 format.setAnchorHref(link);
-                const int offset = exception.summary().length() + detail.indexOf("%1") + 1;
+                const int offset = exception.summary().size() + detail.indexOf("%1") + 1;
                 exception.setFormats(
-                    {QTextLayout::FormatRange{offset, int(pySide6Text.length()), format}});
+                    {QTextLayout::FormatRange{offset, int(pySide6Text.size()), format}});
                 TaskHub::addTask(exception);
                 for (auto rit = m_tasks.crbegin(), rend = m_tasks.crend(); rit != rend; ++rit)
                     TaskHub::addTask(*rit);

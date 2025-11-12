@@ -95,11 +95,11 @@ void CppHighlighter::highlightBlock(const QString &text)
         TextBlockUserData::clearParentheses(currentBlock());
         if (!text.isEmpty())  {// the empty line can still contain whitespace
             if (initialLexerState == T_COMMENT)
-                setFormatWithSpaces(text, 0, text.length(), formatForCategory(C_COMMENT));
+                setFormatWithSpaces(text, 0, text.size(), formatForCategory(C_COMMENT));
             else if (initialLexerState == T_DOXY_COMMENT)
-                setFormatWithSpaces(text, 0, text.length(), formatForCategory(C_DOXYGEN_COMMENT));
+                setFormatWithSpaces(text, 0, text.size(), formatForCategory(C_DOXYGEN_COMMENT));
             else
-                setFormat(0, text.length(), formatForCategory(C_VISUAL_WHITESPACE));
+                setFormat(0, text.size(), formatForCategory(C_VISUAL_WHITESPACE));
         }
         TextBlockUserData::setFoldingIndent(currentBlock(), foldingIndent);
         TextBlockUserData::setExpectedRawStringSuffix(currentBlock(), inheritedRawStringSuffix);
@@ -310,8 +310,8 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     // mark the trailing white spaces
     const int lastTokenEnd = tokens.last().utf16charsEnd();
-    if (text.length() > lastTokenEnd)
-        formatSpaces(text, lastTokenEnd, text.length() - lastTokenEnd);
+    if (text.size() > lastTokenEnd)
+        formatSpaces(text, lastTokenEnd, text.size() - lastTokenEnd);
 
     if (!initialLexerState && lexerStateWithoutNewLineExpectedBit(lexerState)
         && !tokens.isEmpty()) {

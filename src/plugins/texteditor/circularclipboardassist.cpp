@@ -30,7 +30,7 @@ public:
         : m_mimeData(mimeData)
     {
         QString text = mimeData->text().simplified();
-        if (text.length() > maxLen) {
+        if (text.size() > maxLen) {
             text.truncate(maxLen);
             text.append(QLatin1String("..."));
         }

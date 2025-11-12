@@ -1142,7 +1142,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 // Macros aren't locatable via the AST, so parse the formatted string.
                 static const QString magicMacroPrefix = "### macro `";
                 if (markupString.startsWith(magicMacroPrefix)) {
-                    const int nameStart = magicMacroPrefix.length();
+                    const int nameStart = magicMacroPrefix.size();
                     const int closingQuoteIndex = markupString.indexOf('`', nameStart);
                     if (closingQuoteIndex != -1) {
                         const QString macroName = markupString.mid(nameStart,
@@ -1162,7 +1162,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 for (const QString &line : lines) {
                     const QString possibleFilePath = line.simplified();
                     const auto looksLikeFilePath = [&] {
-                        if (possibleFilePath.length() < 4)
+                        if (possibleFilePath.size() < 4)
                             return false;
                         if (osType() == OsTypeWindows) {
                             if (possibleFilePath.startsWith(R"(\\\\)"))

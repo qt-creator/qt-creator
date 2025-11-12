@@ -585,7 +585,7 @@ static QStringList filteredFlags(const QStringList &allFlags, bool considerSysro
                    || a.startsWith("-D") || a.startsWith("-U")
                    || a.startsWith("-stdlib=") || a.startsWith("-B")
                    || a.startsWith("--target=")
-                   || (a.startsWith("-isystem") && a.length() > 8)
+                   || (a.startsWith("-isystem") && a.size() > 8)
                    || a == "-Wno-deprecated"
                    || a == "-nostdinc" || a == "-nostdinc++") {
             filtered << a;

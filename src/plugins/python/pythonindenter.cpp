@@ -91,7 +91,7 @@ bool PythonIndenter::isElectricLine(const QString &line) const
         return false;
 
     // trim spaces in 'if True:  '
-    int index = line.length() - 1;
+    int index = line.size() - 1;
     while (index > 0 && line[index].isSpace())
         --index;
 
@@ -105,7 +105,7 @@ int PythonIndenter::getIndentDiff(const QString &previousLine,
     static const QStringList jumpKeywords = {
         "return", "yield", "break", "continue", "raise", "pass" };
 
-    Internal::Scanner sc(previousLine.constData(), previousLine.length());
+    Internal::Scanner sc(previousLine.constData(), previousLine.size());
     forever {
         Internal::FormatToken tk = sc.read();
         if (tk.format() == Internal::Format_Keyword && jumpKeywords.contains(sc.value(tk)))

@@ -68,7 +68,7 @@ QString HtmlDocExtractor::getFunctionDescription(const QString &html,
         if (mainOverload) {
             startMark.append(QLatin1String("[overload1]"));
         } else {
-            QString complement = mark.right(mark.length() - parenthesis);
+            QString complement = mark.right(mark.size() - parenthesis);
             static const QRegularExpression regex("[\\(\\), ]");
             complement.remove(regex);
             startMark.append(complement);

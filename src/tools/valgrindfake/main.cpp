@@ -50,7 +50,7 @@ int main(int argc, char** argv)
         const QString& arg = args.at(i);
         if (arg.startsWith(QLatin1String("--xml-socket="))) {
             arg_server = arg.mid(13, arg.indexOf(QLatin1Char(':')) - 13);
-            arg_port = arg.mid(13 + arg_server.length() + 1);
+            arg_port = arg.mid(13 + arg_server.size() + 1);
         } else if (args.size() > i + 1
                     && (args.at(i) == QLatin1String("-i")
                         || args.at(i) == QLatin1String("--xml-input"))) {

@@ -599,7 +599,7 @@ void SubmitEditorWidget::verifyDescription()
     const QString warning = fontColor(Utils::Theme::TextColorError);
 
     const QChar newLine = '\n';
-    const int descriptionLength = d->m_description.length();
+    const int descriptionLength = d->m_description.size();
     int subjectLength = d->m_description.indexOf(newLine);
     int secondLineLength = 0;
     if (subjectLength >= 0) {
@@ -646,7 +646,7 @@ void SubmitEditorWidget::descriptionTextChanged()
     if (d->m_description.isEmpty()) {
         d->m_delayedVerifyDescriptionInterval = 2000;
         clearDescriptionHint();
-    } else if (d->m_description.length() > MinSubjectLength || d->m_description.contains("\n")) {
+    } else if (d->m_description.size() > MinSubjectLength || d->m_description.contains("\n")) {
         d->m_delayedVerifyDescriptionInterval = 100;
     } else {
         d->m_delayedVerifyDescriptionInterval = 2000;

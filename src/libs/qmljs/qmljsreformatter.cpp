@@ -105,7 +105,7 @@ public:
         // emit directives
         if (_doc->bind()->isJsLibrary()) {
             const QString pragmaLine(".pragma library");
-            out(pragmaLine, SourceLocation(source.indexOf(".pragma"), pragmaLine.length()));
+            out(pragmaLine, SourceLocation(source.indexOf(".pragma"), pragmaLine.size()));
             newLine();
         }
         const QList<SourceLocation> &directives = _doc->jsDirectives();
@@ -116,7 +116,7 @@ public:
                 i = source.indexOf(QChar('\n'), i + 1);
             quint32 offset = static_cast<quint32>(i) + d.startColumn;
             int endline = source.indexOf('\n', static_cast<int>(offset) + 1);
-            int end = endline == -1 ? source.length() : endline;
+            int end = endline == -1 ? source.size() : endline;
             quint32 length = static_cast<quint32>(end) - offset + 1;
             out(SourceLocation(offset, length, d.startLine, d.startColumn));
         }

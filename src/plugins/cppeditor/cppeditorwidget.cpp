@@ -261,7 +261,7 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
         // Ok, so the line started with an '*' or '/*'
         int followinPos = blockPos;
         // Now search for the first non-whitespace character to align to:
-        for (; followinPos < currentLine.length(); ++followinPos) {
+        for (; followinPos < currentLine.size(); ++followinPos) {
             if (!currentLine.at(followinPos).isSpace())
                 break;
         }
@@ -270,7 +270,7 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
         c.movePosition(QTextCursor::StartOfBlock);
         c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, offset);
         newLine.append(c.selectedText());
-        const bool isAtAsterisk = followinPos < currentLine.length()
+        const bool isAtAsterisk = followinPos < currentLine.size()
                                   && currentLine.at(followinPos) == '*';
         if (currentLine.at(offset) == QLatin1Char('/')) {
             if (leadingAsterisks) {
@@ -992,7 +992,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
         if (link.targetFilePath == filePath && linkPos >= start && linkPos < end) {
             const QString fileName = filePath.fileName();
             if (fileName.startsWith("ui_") && fileName.endsWith(".h")) {
-                const QString uiFileName = fileName.mid(3, fileName.length() - 4) + "ui";
+                const QString uiFileName = fileName.mid(3, fileName.size() - 4) + "ui";
                 for (const Project * const project : ProjectManager::projects()) {
                     const auto nodeMatcher = [uiFileName](Node *n) {
                         return n->filePath().fileName() == uiFileName;

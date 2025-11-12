@@ -58,12 +58,12 @@ void ProFileHoverHandler::identifyQMakeKeyword(const QString &text, int pos)
 
     QString buf;
 
-    for (int i = 0; i < text.length(); ++i) {
+    for (int i = 0; i < text.size(); ++i) {
         const QChar c = text.at(i);
         bool checkBuffer = false;
         if (c.isLetter() || c == QLatin1Char('_') || c == QLatin1Char('.') || c.isDigit()) {
             buf += c;
-            if (i == text.length() - 1)
+            if (i == text.size() - 1)
                 checkBuffer = true;
         } else {
             checkBuffer = true;

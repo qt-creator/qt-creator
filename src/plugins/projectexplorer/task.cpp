@@ -261,8 +261,8 @@ void Task::addLinkDetail(const QString &link)
     QTextCharFormat format;
     format.setAnchor(true);
     format.setAnchorHref(link);
-    const int offset = m_summary.length() + 1;
-    m_formats << QTextLayout::FormatRange{offset, int(link.length()), format};
+    const int offset = m_summary.size() + 1;
+    m_formats << QTextLayout::FormatRange{offset, int(link.size()), format};
 }
 
 //

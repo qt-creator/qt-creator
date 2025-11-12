@@ -45,9 +45,9 @@ bool QStringParser::Parser::scan(int *i, int *index)
 {
     *i = 0;
     int sign = 1;
-    while (*index < m_source.length() && m_source.at(*index).isSpace())
+    while (*index < m_source.size() && m_source.at(*index).isSpace())
         ++(*index);
-    if (*index >= m_source.length())
+    if (*index >= m_source.size())
         return false;
     if (m_source.at(*index) == QLatin1Char('+')) {
         ++(*index);
@@ -55,9 +55,9 @@ bool QStringParser::Parser::scan(int *i, int *index)
         sign = -1;
         ++(*index);
     }
-    if (*index >= m_source.length() || !m_source.at(*index).isDigit())
+    if (*index >= m_source.size() || !m_source.at(*index).isDigit())
         return false;
-    while (*index < m_source.length() && m_source.at(*index).isDigit()) {
+    while (*index < m_source.size() && m_source.at(*index).isDigit()) {
         *i = *i * 10 + m_source.at(*index).digitValue();
         ++(*index);
     }
@@ -69,9 +69,9 @@ bool QStringParser::Parser::scan(double *d, int *index)
 {
     int startIndex = *index;
     // skip whitespaces
-    while (*index < m_source.length() && m_source.at(*index).isSpace())
+    while (*index < m_source.size() && m_source.at(*index).isSpace())
         ++(*index);
-    if (*index >= m_source.length())
+    if (*index >= m_source.size())
         return false;
     // sign
     if (m_source.at(*index) == QLatin1Char('+'))
@@ -79,18 +79,18 @@ bool QStringParser::Parser::scan(double *d, int *index)
     else if (m_source.at(*index) == QLatin1Char('-'))
         ++(*index);
     // int
-    while (*index < m_source.length() && m_source.at(*index).isDigit())
+    while (*index < m_source.size() && m_source.at(*index).isDigit())
         ++(*index);
     // point
-    if (*index < m_source.length() && m_source.at(*index) == QLatin1Char('.'))
+    if (*index < m_source.size() && m_source.at(*index) == QLatin1Char('.'))
         ++(*index);
     // int
-    while (*index < m_source.length() && m_source.at(*index).isDigit())
+    while (*index < m_source.size() && m_source.at(*index).isDigit())
         ++(*index);
     // exponent
-    if (*index < m_source.length() && m_source.at(*index).toLower() == QLatin1Char('e')) {
+    if (*index < m_source.size() && m_source.at(*index).toLower() == QLatin1Char('e')) {
         ++(*index);
-        if (*index >= m_source.length())
+        if (*index >= m_source.size())
             return false;
         // sign
         if (m_source.at(*index) == QLatin1Char('+'))
@@ -98,7 +98,7 @@ bool QStringParser::Parser::scan(double *d, int *index)
         else if (m_source.at(*index) == QLatin1Char('-'))
             ++(*index);
         // int
-        while (*index < m_source.length() && m_source.at(*index).isDigit())
+        while (*index < m_source.size() && m_source.at(*index).isDigit())
             ++(*index);
     }
     bool ok = false;
@@ -114,11 +114,11 @@ void QStringParser::Parser::evaluate()
 
         int p = 0;
         int i = 0;
-        while (p < m_pattern.length()) {
+        while (p < m_pattern.size()) {
             if (m_pattern.at(p) == QLatin1Char('%')) {
                 ++p;
                 // a % must be followed by a another char.
-                if (p >= m_pattern.length()) {
+                if (p >= m_pattern.size()) {
                     // syntax error in pattern
                     m_evaluationFailed = true;
                     return;
@@ -126,7 +126,7 @@ void QStringParser::Parser::evaluate()
                 if (m_pattern.at(p) == QLatin1Char('%')) {
                     // two %% are handled like a simple % in m_source
                     ++p;
-                    if (i >= m_source.length() || m_source.at(i) != QLatin1Char('%')) {
+                    if (i >= m_source.size() || m_source.at(i) != QLatin1Char('%')) {
                         m_evaluationFailed = true;
                         return;
                     }
@@ -134,7 +134,7 @@ void QStringParser::Parser::evaluate()
                 } else if (m_pattern.at(p).isDigit()) {
                     // now extract a value matching the Nth node type
                     int N = 0;
-                    while (p < m_pattern.length() && m_pattern.at(p).isDigit()) {
+                    while (p < m_pattern.size() && m_pattern.at(p).isDigit()) {
                         N = N * 10 + m_pattern.at(p).digitValue();
                         ++p;
                     }
@@ -156,18 +156,18 @@ void QStringParser::Parser::evaluate()
                 if (m_pattern.at(p).isSpace()) {
                     ++p;
                     // m_source must end or have at least one space
-                    if (i < m_source.length() && !m_source.at(i).isSpace()) {
+                    if (i < m_source.size() && !m_source.at(i).isSpace()) {
                         m_evaluationFailed = true;
                         return;
                     }
                     // skip spaces in m_pattern
-                    while (p < m_pattern.length() && m_pattern.at(p).isSpace())
+                    while (p < m_pattern.size() && m_pattern.at(p).isSpace())
                         ++p;
 
                     // skip spaces in m_source
-                    while (i < m_source.length() && m_source.at(i).isSpace())
+                    while (i < m_source.size() && m_source.at(i).isSpace())
                         ++i;
-                } else if (i >= m_source.length() || m_source.at(i) != m_pattern.at(p)) {
+                } else if (i >= m_source.size() || m_source.at(i) != m_pattern.at(p)) {
                     m_evaluationFailed = true;
                     return;
                 } else {
@@ -177,7 +177,7 @@ void QStringParser::Parser::evaluate()
             }
         }
         // m_source and m_pattern must both be scanned completely
-        if (i < m_source.length() || p < m_pattern.length()) {
+        if (i < m_source.size() || p < m_pattern.size()) {
             m_evaluationFailed = true;
             return;
         }

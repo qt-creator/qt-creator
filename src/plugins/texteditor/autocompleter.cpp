@@ -187,7 +187,7 @@ QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToIn
         autoText = insertMatchingBrace(cursor, textToInsert, lookAhead, skipChars, &skippedChars);
 
         if (checkBlockEnd && textToInsert.at(0) == QLatin1Char('}')) {
-            if (textToInsert.length() > 1)
+            if (textToInsert.size() > 1)
                 qWarning() << "*** handle event compression";
 
             int startPos = cursor.selectionEnd(), pos = startPos;

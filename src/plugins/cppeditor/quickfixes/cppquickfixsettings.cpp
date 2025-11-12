@@ -256,7 +256,7 @@ QString CppQuickFixSettings::memberBaseName(
     // If no leading/trailing "_": remove "m_" and "m" prefix
     if (baseName.startsWith(QLatin1String("m_"))) {
         baseName.remove(0, 2);
-    } else if (baseName.startsWith(QLatin1Char('m')) && baseName.length() > 1
+    } else if (baseName.startsWith(QLatin1Char('m')) && baseName.size() > 1
                && baseName.at(1).isUpper()) {
         baseName.remove(0, 1);
         baseName[0] = baseName.at(0).toLower();
@@ -293,7 +293,7 @@ auto removeAndExtractTemplate(QString type)
     int counter = 0;
     int start = 0;
     int templateStart = 0;
-    for (int i = 0; i < type.length(); ++i) {
+    for (int i = 0; i < type.size(); ++i) {
         auto c = type[i];
         if (c == '<') {
             if (counter == 0) {
@@ -311,7 +311,7 @@ auto removeAndExtractTemplate(QString type)
             }
         }
     }
-    if (start < type.length()) // add last block if there is one
+    if (start < type.size()) // add last block if there is one
         realType += type.mid(start);
 
     struct _

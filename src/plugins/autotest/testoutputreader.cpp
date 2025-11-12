@@ -92,7 +92,7 @@ QString TestOutputReader::removeCommandlineColors(const QString &original)
     while (!result.isEmpty()) {
         QRegularExpressionMatch match = pattern.match(result);
         if (match.hasMatch())
-            result.remove(match.capturedStart(), match.captured().length());
+            result.remove(match.capturedStart(), match.captured().size());
         else
             break;
     }

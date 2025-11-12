@@ -133,7 +133,7 @@ private slots:
         for (const FilePath &expected : expectedDocuments) {
             static const QString suffix = "_expected";
             const FilePath actual = expected.parentDir()
-                                        .pathAppended(expected.fileName().chopped(suffix.length()));
+                                        .pathAppended(expected.fileName().chopped(suffix.size()));
             QVERIFY(actual.exists());
             const auto actualContents = actual.fileContents();
             QVERIFY(actualContents);

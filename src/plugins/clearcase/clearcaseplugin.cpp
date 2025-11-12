@@ -1259,7 +1259,7 @@ void ClearCasePluginPrivate::diffActivity()
     QString result;
     // map from fileName to (first, latest) pair
     QMap<QString, QStringPair> filever;
-    int topLevelLen = topLevel.path().length();
+    int topLevelLen = topLevel.path().size();
     for (const QString &version : versions) {
         QString shortver = version.mid(topLevelLen + 1);
         int atatpos = shortver.indexOf(QLatin1String("@@"));
@@ -1275,7 +1275,7 @@ void ClearCasePluginPrivate::diffActivity()
                 int vernum = shortver.mid(verpos).toInt();
                 if (vernum)
                     --vernum;
-                shortver.replace(verpos, shortver.length() - verpos, QString::number(vernum));
+                shortver.replace(verpos, shortver.size() - verpos, QString::number(vernum));
                 // first version
                 filever[file].first = shortver;
             }
@@ -1355,7 +1355,7 @@ void ClearCasePluginPrivate::startCheckInActivity()
         return;
 
     FilePath topLevel = state.topLevel();
-    int topLevelLen = topLevel.path().length();
+    int topLevelLen = topLevel.path().size();
     const QStringList versions = ccGetActivityVersions(topLevel, actSelector->activity());
     QStringList files;
     QString last;

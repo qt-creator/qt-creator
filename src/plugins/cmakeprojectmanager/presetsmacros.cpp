@@ -100,7 +100,7 @@ static QString expandMacroEnv(const QString &macroPrefix,
             if (openPos < 0)
                 return 0;
 
-            qsizetype varPos = openPos + startToken.length();
+            qsizetype varPos = openPos + startToken.size();
             qsizetype endPos = str.indexOf(endToken, varPos + 1);
             if (endPos < 0)
                 return 0;
@@ -108,7 +108,7 @@ static QString expandMacroEnv(const QString &macroPrefix,
             *ret = str.mid(varPos, endPos - varPos);
             *pos = openPos;
 
-            return endPos - openPos + endToken.length();
+            return endPos - openPos + endToken.size();
         }
     };
 
@@ -122,7 +122,7 @@ static QString expandMacroEnv(const QString &macroPrefix,
             const QString replacement = op(macroName);
             // Prevent recursion by not allowing the same value to be reused
             result.replace(pos, len, replacement != value ? replacement : "");
-            pos += macroName.length();
+            pos += macroName.size();
             done = false;
         }
     } while (!done);

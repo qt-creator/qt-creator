@@ -466,15 +466,15 @@ void Locator::showFilter(ILocatorFilter *filter, LocatorWidget *widget)
             const QList<ILocatorFilter *> allFilters = Locator::filters();
             for (ILocatorFilter *otherfilter : allFilters) {
                 if (searchText->startsWith(otherfilter->shortcutString() + ' ')) {
-                    searchText = searchText->mid(otherfilter->shortcutString().length() + 1);
+                    searchText = searchText->mid(otherfilter->shortcutString().size() + 1);
                     break;
                 }
             }
         }
     }
     widget->showText(filter->shortcutString() + ' ' + *searchText,
-                     filter->shortcutString().length() + 1,
-                     searchText->length());
+                     filter->shortcutString().size() + 1,
+                     searchText->size());
 }
 
 } // namespace Internal

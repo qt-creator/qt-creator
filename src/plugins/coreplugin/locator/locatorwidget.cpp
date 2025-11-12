@@ -751,7 +751,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             || keyEvent->matches(QKeySequence::MoveToStartOfLine)
             || keyEvent->matches(QKeySequence::SelectStartOfLine)) {
             const int filterEndIndex = currentText().indexOf(' ');
-            if (filterEndIndex > 0 && filterEndIndex < currentText().length() - 1) {
+            if (filterEndIndex > 0 && filterEndIndex < currentText().size() - 1) {
                 const bool startsWithShortcutString
                     = Utils::anyOf(Locator::filters(),
                                    [shortcutString = currentText().left(filterEndIndex)](

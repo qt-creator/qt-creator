@@ -1242,7 +1242,7 @@ QString ScriptEditorBackend::indentedSource() const
     QTextDocument doc(m_source);
     IndentingTextEditModifier mod(&doc);
 
-    mod.indent(0, m_source.length() - 1);
+    mod.indent(0, m_source.size() - 1);
     return mod.text();
 }
 

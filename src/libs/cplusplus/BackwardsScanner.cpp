@@ -55,7 +55,7 @@ const Token &BackwardsScanner::fetchToken(int tokenIndex)
             _text.prepend(QLatin1Char('\n'));
             _text.prepend(blockText);
 
-            const int offset = blockText.length() + 1;
+            const int offset = blockText.size() + 1;
             const Tokens adaptedTokens = Utils::transform(_tokens, [offset](Token token) {
                 token.utf16charOffset += unsigned(offset);
                 return token;

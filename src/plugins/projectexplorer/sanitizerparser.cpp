@@ -97,7 +97,7 @@ OutputLineParser::Result SanitizerParser::handleContinuation(const QString &line
                 addLinkSpecs(linkSpecs);
             }
         } else {
-            m_task.setSummary(line.mid(summaryPrefix.length()));
+            m_task.setSummary(line.mid(summaryPrefix.size()));
         }
         flush();
         return {Status::Done, linkSpecs};
@@ -118,7 +118,7 @@ void SanitizerParser::addLinkSpecs(const LinkSpecs &linkSpecs)
 {
     LinkSpecs adaptedLinkSpecs = linkSpecs;
     const int offset = std::accumulate(m_task.details().cbegin(), m_task.details().cend() - 1,
-            0, [](int total, const QString &line) { return total + line.length() + 1;});
+            0, [](int total, const QString &line) { return total + line.size() + 1;});
     for (LinkSpec &ls : adaptedLinkSpecs)
         ls.startPos += offset;
     m_linkSpecs << adaptedLinkSpecs;

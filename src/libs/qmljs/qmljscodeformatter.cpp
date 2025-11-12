@@ -843,8 +843,8 @@ const Token &CodeFormatter::tokenAt(int idx) const
 int CodeFormatter::column(int index) const
 {
     int col = 0;
-    if (index > m_currentLine.length())
-        index = m_currentLine.length();
+    if (index > m_currentLine.size())
+        index = m_currentLine.size();
 
     const QChar tab = QLatin1Char('\t');
 

@@ -363,7 +363,7 @@ static void paintTextInPlaceHolderForInvisbleItem(QPainter *painter,
 
         QFontMetrics fm(font);
         painter->rotate(90);
-        if (fm.horizontalAdvance(displayText) > (boundingRect.height() - 32) && displayText.length() > 4) {
+        if (fm.horizontalAdvance(displayText) > (boundingRect.height() - 32) && displayText.size() > 4) {
 
             displayText = fm.elidedText(displayText, Qt::ElideRight, boundingRect.height() - 32, Qt::TextShowMnemonic);
         }

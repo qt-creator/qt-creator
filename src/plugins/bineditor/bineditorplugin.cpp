@@ -1628,7 +1628,7 @@ void BinEditorWidget::keyPressEvent(QKeyEvent *e)
         if (m_readOnly)
             break;
         QString text = e->text();
-        for (int i = 0; i < text.length(); ++i) {
+        for (int i = 0; i < text.size(); ++i) {
             QChar c = text.at(i);
             if (m_hexCursor) {
                 c = c.toLower();

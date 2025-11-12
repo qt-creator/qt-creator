@@ -209,12 +209,12 @@ QString CppToolsJsExtension::includeStatement(
     const QString className = parts(fullyQualifiedClassName).constLast();
     if (className.isEmpty() || specialClasses.contains(className))
         return {};
-    if (className.startsWith('Q') && className.length() > 2 && className.at(1).isUpper())
+    if (className.startsWith('Q') && className.size() > 2 && className.at(1).isUpper())
         return "#include <" + className + ">\n";
     const auto withUnderScores = [&className] {
         QString baseName = className;
         baseName[0] = baseName[0].toLower();
-        for (int i = 1; i < baseName.length(); ++i) {
+        for (int i = 1; i < baseName.size(); ++i) {
             if (baseName[i].isUpper()) {
                 baseName.insert(i, '_');
                 baseName[i + 1] = baseName[i + 1].toLower();
@@ -226,7 +226,7 @@ QString CppToolsJsExtension::includeStatement(
     QStringList candidates{className + '.' + suffix};
     bool hasUpperCase = false;
     bool hasLowerCase = false;
-    for (int i = 0; i < className.length() && (!hasUpperCase || !hasLowerCase); ++i) {
+    for (int i = 0; i < className.size() && (!hasUpperCase || !hasLowerCase); ++i) {
         if (className.at(i).isUpper())
             hasUpperCase = true;
         if (className.at(i).isLower())

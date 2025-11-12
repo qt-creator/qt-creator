@@ -200,7 +200,7 @@ void EasingContextPane::setProperties(QmlJS::PropertyReader *propertyReader)
     if (propertyReader->hasProperty(QLatin1String("easing.type"))) {
         newEasingType = propertyReader->readProperty(QLatin1String("easing.type")).toString();
         if (newEasingType.contains(QLatin1Char('.')))
-            newEasingType = newEasingType.right(newEasingType.length() - newEasingType.indexOf(QLatin1Char('.')) - 1);
+            newEasingType = newEasingType.right(newEasingType.size() - newEasingType.indexOf(QLatin1Char('.')) - 1);
     }
 
     m_easingGraph->setEasingName(newEasingType);

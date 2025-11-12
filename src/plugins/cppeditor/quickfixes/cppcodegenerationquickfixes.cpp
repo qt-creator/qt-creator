@@ -1331,7 +1331,7 @@ private:
                                 constructorBody += "/* insert value */";
                             constructorBody += ", ";
                         }
-                        constructorBody.resize(constructorBody.length() - 2);
+                        constructorBody.resize(constructorBody.size() - 2);
                         constructorBody += "),\n";
                     }
                 }
@@ -1344,11 +1344,11 @@ private:
                     constructorBody += member->memberVariableName + '(' + param + "),\n";
                 }
                 if (!members.empty()) {
-                    inClassDeclaration.resize(inClassDeclaration.length() - 2);
-                    constructorBody.remove(constructorBody.length() - 2, 1); // ..),\n => ..)\n
+                    inClassDeclaration.resize(inClassDeclaration.size() - 2);
+                    constructorBody.remove(constructorBody.size() - 2, 1); // ..),\n => ..)\n
                     constructorBody += "{}";
                     if (!implCode.isEmpty())
-                        implCode.resize(implCode.length() - 2);
+                        implCode.resize(implCode.size() - 2);
                 }
                 implCode += constructorBody;
 

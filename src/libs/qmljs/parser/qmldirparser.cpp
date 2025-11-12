@@ -35,7 +35,7 @@ static bool parseVersion(const QString &str, int *major, int *minor)
         bool ok = false;
         *major = parseInt(QStringView(str.constData(), dotIndex), &ok);
         if (ok)
-            *minor = parseInt(QStringView(str.constData() + dotIndex + 1, str.length() - dotIndex - 1),
+            *minor = parseInt(QStringView(str.constData() + dotIndex + 1, str.size() - dotIndex - 1),
                               &ok);
         return ok;
     }
@@ -51,8 +51,8 @@ static ComponentVersion parseImportVersion(const QString &str)
     if (dotIndex != -1 && str.indexOf(QLatin1Char('.'), dotIndex + 1) == -1) {
         major = parseInt(QStringView(str.constData(), dotIndex), &ok);
         if (ok) {
-            if (str.length() > dotIndex + 1) {
-                minor = parseInt(QStringView(str.constData() + dotIndex + 1, str.length() - dotIndex - 1),
+            if (str.size() > dotIndex + 1) {
+                minor = parseInt(QStringView(str.constData() + dotIndex + 1, str.size() - dotIndex - 1),
                                  &ok);
                 if (!ok)
                     minor = ComponentVersion::NoVersion;
@@ -60,9 +60,9 @@ static ComponentVersion parseImportVersion(const QString &str)
                 minor = ComponentVersion::MaxVersion;
             }
         }
-    } else if (str.length() > 0) {
+    } else if (str.size() > 0) {
         QTC_ASSERT(str != QLatin1String("auto"), return ComponentVersion(-1, -1));
-        major = parseInt(QStringView(str.constData(), str.length()),
+        major = parseInt(QStringView(str.constData(), str.size()),
                          &ok);
         minor = ComponentVersion::MaxVersion;
     }

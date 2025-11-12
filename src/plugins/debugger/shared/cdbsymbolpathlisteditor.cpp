@@ -193,7 +193,7 @@ bool CdbSymbolPathListEditor::isSymbolServerPath(const QString &path, QString *c
     if (cacheDir) {
         static const unsigned prefixLength = unsigned(qstrlen(symbolServerPrefixC));
         static const unsigned postfixLength = unsigned(qstrlen(symbolServerPostfixC));
-        if (unsigned(path.length()) == prefixLength + postfixLength)
+        if (unsigned(path.size()) == prefixLength + postfixLength)
             return true;
         // Split apart symbol server post/prefixes
         *cacheDir = path.mid(prefixLength, path.size() - prefixLength - qstrlen(symbolServerPostfixC) + 1);

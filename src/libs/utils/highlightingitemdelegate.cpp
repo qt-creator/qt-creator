@@ -145,12 +145,12 @@ void HighlightingItemDelegate::drawText(QPainter *painter,
         = index.model()->data(index, int(HighlightingItemRole::DisplayExtra)).toString();
     if (!extraText.isEmpty()) {
         if (!option.state.testFlag(QStyle::State_Selected)) {
-            int start = text.length();
+            int start = text.size();
             auto dataType = int(HighlightingItemRole::DisplayExtraForeground);
             const QColor highlightForeground = index.model()->data(index, dataType).value<QColor>();
             QTextCharFormat extraFormat;
             extraFormat.setForeground(highlightForeground);
-            formats.append({start, int(extraText.length()), extraFormat});
+            formats.append({start, int(extraText.size()), extraFormat});
         }
         text.append(extraText);
     }
@@ -162,7 +162,7 @@ void HighlightingItemDelegate::drawText(QPainter *painter,
 
     // replace tabs with searchTerm bookkeeping
     const int tabDiff = m_tabString.size() - 1;
-    for (int i = 0; i < text.length(); i++) {
+    for (int i = 0; i < text.size(); i++) {
         if (text.at(i) != '\t')
             continue;
 

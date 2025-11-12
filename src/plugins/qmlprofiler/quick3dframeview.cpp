@@ -144,7 +144,7 @@ Quick3DMainView::Quick3DMainView(Quick3DFrameModel *model, bool compareView, QWi
                 return;
             lineIdx += 4;
             file = location.mid(nameIdx + 1, lineIdx - nameIdx - 1);
-            line = location.right(location.length() - lineIdx - 1);
+            line = location.right(location.size() - lineIdx - 1);
             QUrl url(file);
             emit gotoSourceLocation(url.fileName(), line.toInt(), 0);
         }

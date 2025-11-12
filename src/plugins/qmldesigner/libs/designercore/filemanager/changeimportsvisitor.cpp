@@ -24,7 +24,7 @@ bool ChangeImportsVisitor::add(QmlJS::AST::UiProgram *ast, const Import &import)
         if (ast->members && ast->members->member)
             insertionPoint = ast->members->member->firstSourceLocation().begin();
         else
-            insertionPoint = m_source.length();
+            insertionPoint = m_source.size();
         while (insertionPoint > 0) {
             --insertionPoint;
             const QChar c = m_source.at(insertionPoint);

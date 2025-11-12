@@ -423,7 +423,7 @@ bool Rewriter::includeSurroundingWhitespace(const QString &source, int &start, i
                 paragraphFound = true;
                 paragraphSkipped = true;
                 break;
-            } else if (end == source.length()) {
+            } else if (end == source.size()) {
                 break;
             }
 

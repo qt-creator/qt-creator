@@ -397,7 +397,7 @@ protected:
         const QString className = oo.prettyName(klass->name());
 
         *out << "    if (" << className << " *_other = pattern->as"
-             << className.left(className.length() - 3) << "())" << Qt::endl;
+             << className.left(className.size() - 3) << "())" << Qt::endl;
 
         *out << "        return matcher->match(this, _other);" << Qt::endl;
 
@@ -883,7 +883,7 @@ protected:
         Function *fun = ast->symbol;
         const QString functionName = oo.prettyName(fun->name());
 
-        if (functionName.length() > 3 && functionName.startsWith(QLatin1String("as"))
+        if (functionName.size() > 3 && functionName.startsWith(QLatin1String("as"))
             && functionName.at(2).isUpper()) {
 
             QTextCursor tc = createCursor(translationUnit(), ast, document);
@@ -1321,7 +1321,7 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
     for (ClassSpecifierAST *classAST : std::as_const(astNodes.deriveds)) {
         cursors[classAST] = removeCastMethods(classAST);
         const QString className = oo.prettyName(classAST->symbol->name());
-        const QString methodName = QLatin1String("as") + className.mid(0, className.length() - 3);
+        const QString methodName = QLatin1String("as") + className.mid(0, className.size() - 3);
         replacementCastMethods[classAST]
                 = QString::fromLatin1("    virtual %1 *%2() { return this; }\n")
                     .arg(className, methodName);
@@ -1403,7 +1403,7 @@ protected:
             if (tokenKind(e->classkey_token) == T_CLASS && !ast->declarator_list) {
                 QString className = oo.prettyName(e->name->name);
 
-                if (className.length() > 3 && className.endsWith(QLatin1String("AST"))) {
+                if (className.size() > 3 && className.endsWith(QLatin1String("AST"))) {
                     QTextCursor tc = createCursor(translationUnit(), ast, document);
                     _cursors.append(tc);
                 }
@@ -1504,7 +1504,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
         if (! className.endsWith(QLatin1String("AST")))
             continue;
 
-        const QString methodName = className.left(className.length() - 3);
+        const QString methodName = className.left(className.size() - 3);
 
         out
                 << "    " << className << " *" << methodName << "(";
@@ -1549,8 +1549,8 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
     QStringList classesList = Utils::toList(classesSet);
     Utils::sort(classesList);
     for (const QString &className : std::as_const(classesList)) {
-        const QString methodName = className.left(className.length() - 3);
-        const QString elementName = className.left(className.length() - 7) + QLatin1String("AST");
+        const QString methodName = className.left(className.size() - 3);
+        const QString elementName = className.left(className.size() - 7) + QLatin1String("AST");
         out << "    " << className << " *" << methodName << "(" << elementName << " *value, "
             << className << " *next = nullptr)" << Qt::endl
             << "    {" << Qt::endl

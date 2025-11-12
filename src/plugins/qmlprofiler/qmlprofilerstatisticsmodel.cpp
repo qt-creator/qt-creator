@@ -117,7 +117,7 @@ QStringList QmlProfilerStatisticsModel::details(int typeIndex) const
         const int maxColumnWidth = 32;
 
         data = type.data();
-        if (data.length() > maxColumnWidth)
+        if (data.size() > maxColumnWidth)
             data = data.left(maxColumnWidth - 1) + ellipsisChar;
     }
 

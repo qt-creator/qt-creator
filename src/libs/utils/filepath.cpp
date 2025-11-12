@@ -557,7 +557,7 @@ QString FilePath::completeBaseName() const
 {
     const QString &name = fileName();
     if (name.endsWith(".ui.qml"))
-        return name.left(name.length() - QString(".ui.qml").length());
+        return name.left(name.size() - QString(".ui.qml").size());
     return name.left(name.lastIndexOf('.'));
 }
 
@@ -1083,7 +1083,7 @@ int FilePath::schemeAndHostLength(const QStringView path)
 
 static QString normalizePathSegmentHelper(const QString &name)
 {
-    const int len = name.length();
+    const int len = name.size();
 
     if (len == 0 || name.contains("%{"))
         return name;
@@ -1717,7 +1717,7 @@ FilePath FilePath::fromSettings(const QVariant &variant)
     // The installer sometimes fails and adds "docker:/..." instead of "docker://...
     // So we fix these paths here in those cases.
     QString data = variant.toString();
-    if (data.length() > 8 && data.startsWith("docker:/") && data[8] != '/') {
+    if (data.size() > 8 && data.startsWith("docker:/") && data[8] != '/') {
         qWarning() << "Broken path in settings:" << data << ", applying workaround.";
         data.insert(8, '/');
     }

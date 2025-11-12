@@ -96,11 +96,11 @@ LocatorFilterEntries BookmarkFilter::match(const QString &input) const
             entry.extraInfo = bookmark->filePath().toUrlishString();
         int highlightIndex = entry.displayName.indexOf(input, 0, Qt::CaseInsensitive);
         if (highlightIndex >= 0) {
-            entry.highlightInfo = {highlightIndex, int(input.length())};
+            entry.highlightInfo = {highlightIndex, int(input.size())};
         } else  {
             highlightIndex = entry.extraInfo.indexOf(input, 0, Qt::CaseInsensitive);
             if (highlightIndex >= 0) {
-                entry.highlightInfo = {highlightIndex, int(input.length()),
+                entry.highlightInfo = {highlightIndex, int(input.size()),
                                        LocatorFilterEntry::HighlightInfo::ExtraInfo};
             } else if (colonIndex >= 0) {
                 const QString fileName = input.left(colonIndex);
@@ -108,12 +108,12 @@ LocatorFilterEntries BookmarkFilter::match(const QString &input) const
                 highlightIndex = entry.displayName.indexOf(fileName, 0,
                                                            Qt::CaseInsensitive);
                 if (highlightIndex >= 0) {
-                    entry.highlightInfo = {highlightIndex, int(fileName.length())};
+                    entry.highlightInfo = {highlightIndex, int(fileName.size())};
                     highlightIndex = entry.displayName.indexOf(
                         lineNumber, highlightIndex, Qt::CaseInsensitive);
                     if (highlightIndex >= 0) {
                         entry.highlightInfo.startsDisplay += highlightIndex;
-                        entry.highlightInfo.lengthsDisplay += lineNumber.length();
+                        entry.highlightInfo.lengthsDisplay += lineNumber.size();
                     }
                 }
             }

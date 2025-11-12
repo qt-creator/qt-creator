@@ -53,7 +53,7 @@ bool OutputLineParser::isLinkTarget(const QString &target)
 
 Link OutputLineParser::parseLinkTarget(const QString &target)
 {
-    const QStringList parts = target.mid(linkPrefix()->length()).split(*linkSep());
+    const QStringList parts = target.mid(linkPrefix()->size()).split(*linkSep());
     if (parts.isEmpty())
         return {};
     return Link(FilePath::fromString(parts.first()),
@@ -187,7 +187,7 @@ bool Utils::OutputLineParser::fileExists(const FilePath &fp) const
 
 QString OutputLineParser::rightTrimmed(const QString &in)
 {
-    int pos = in.length();
+    int pos = in.size();
     for (; pos > 0; --pos) {
         if (!in.at(pos - 1).isSpace())
             break;
@@ -429,7 +429,7 @@ const QList<FormattedText> OutputFormatter::linkifiedText(
         for (int nextLocalTextPos = 0; nextLocalTextPos < t.text.size(); ) {
             const auto copyRestOfSegmentAsIs = [&] {
                 linkified << FormattedText(t.text.mid(nextLocalTextPos), t.format);
-                totalTextLengthSoFar += t.text.length() - nextLocalTextPos;
+                totalTextLengthSoFar += t.text.size() - nextLocalTextPos;
             };
 
             // We are out of links.
@@ -451,7 +451,7 @@ const QList<FormattedText> OutputFormatter::linkifiedText(
 
             // We ignore links that would cross format boundaries.
             if (localLinkStartPos < nextLocalTextPos
-                    || localLinkStartPos + linkSpec.length > t.text.length()) {
+                    || localLinkStartPos + linkSpec.length > t.text.size()) {
                 copyRestOfSegmentAsIs();
                 break;
             }

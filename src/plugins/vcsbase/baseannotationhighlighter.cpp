@@ -148,7 +148,7 @@ void BaseAnnotationHighlighter::highlightBlock(const QString &text)
     const QString change = changeNumber(text);
     const ChangeNumberFormatMap::const_iterator it = d->m_changeNumberMap.constFind(change);
     if (it != d->m_changeNumberMap.constEnd())
-        setFormatWithSpaces(text, 0, text.length(), it.value());
+        setFormatWithSpaces(text, 0, text.size(), it.value());
 }
 
 void BaseAnnotationHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)

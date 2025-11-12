@@ -54,7 +54,7 @@ LocatorMatcherTasks CommandLocator::matchers()
                     }
                     return AcceptResult();
                 };
-                entry.highlightInfo = {index, int(input.length())};
+                entry.highlightInfo = {index, int(input.size())};
                 if (index == 0)
                     betterEntries.append(entry);
                 else

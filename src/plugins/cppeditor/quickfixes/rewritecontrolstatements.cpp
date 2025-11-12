@@ -421,10 +421,10 @@ public:
         if (m_expression) {
             QString varName = QLatin1String("total");
 
-            if (file->textOf(m_forAst->initializer).length() == 1) {
+            if (file->textOf(m_forAst->initializer).size() == 1) {
                 Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
                 const QString typeAndName = oo.prettyType(m_type, varName);
-                renamePos = file->endOf(m_forAst->initializer) - 1 + typeAndName.length();
+                renamePos = file->endOf(m_forAst->initializer) - 1 + typeAndName.size();
                 change.insert(file->endOf(m_forAst->initializer) - 1, // "-1" because of ";"
                               typeAndName + QLatin1String(" = ") + file->textOf(m_expression));
             } else {

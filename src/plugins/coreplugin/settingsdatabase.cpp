@@ -209,8 +209,8 @@ void remove(const QString &key)
         // Either it's an exact match, or it matches up to a /
         const QString k = it.key();
         if (k.startsWith(effectiveKey)
-            && (k.length() == effectiveKey.length()
-                || k.at(effectiveKey.length()) == QLatin1Char('/'))) {
+            && (k.size() == effectiveKey.size()
+                || k.at(effectiveKey.size()) == QLatin1Char('/'))) {
             it = d->m_settings.erase(it);
         } else {
             ++it;
@@ -254,8 +254,8 @@ QStringList childKeys()
     const QString g = group();
     for (auto i = d->m_settings.cbegin(), end = d->m_settings.cend(); i != end; ++i) {
         const QString &key = i.key();
-        if (key.startsWith(g) && key.indexOf(QLatin1Char('/'), g.length() + 1) == -1)
-            children.append(key.mid(g.length() + 1));
+        if (key.startsWith(g) && key.indexOf(QLatin1Char('/'), g.size() + 1) == -1)
+            children.append(key.mid(g.size() + 1));
     }
 
     return children;

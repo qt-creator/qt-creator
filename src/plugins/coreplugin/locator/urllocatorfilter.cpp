@@ -177,7 +177,7 @@ LocatorMatcherTasks UrlLocatorFilter::matchers()
                     QDesktopServices::openUrl(name);
                 return AcceptResult();
             };
-            entry.highlightInfo = {int(name.lastIndexOf(input)), int(input.length())};
+            entry.highlightInfo = {int(name.lastIndexOf(input)), int(input.size())};
             entries.append(entry);
         }
         storage.reportOutput(entries);

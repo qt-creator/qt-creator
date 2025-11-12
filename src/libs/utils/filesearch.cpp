@@ -24,7 +24,7 @@ const int MAX_LINE_SIZE = 400;
 
 static QString clippedText(const QString &text, int maxLength)
 {
-    if (text.length() > maxLength)
+    if (text.size() > maxLength)
         return text.left(maxLength) + QChar(0x2026); // '...'
     return text;
 }
@@ -49,7 +49,7 @@ static SearchResultItems searchWithoutRegExp(const QFuture<void> &future, const 
     const bool wholeWord = (flags & QTextDocument::FindWholeWords);
     const QString searchTermLower = searchTerm.toLower();
     const QString searchTermUpper = searchTerm.toUpper();
-    const int termMaxIndex = searchTerm.length() - 1;
+    const int termMaxIndex = searchTerm.size() - 1;
     const QChar *termData = searchTerm.constData();
     const QChar *termDataLower = searchTermLower.constData();
     const QChar *termDataUpper = searchTermUpper.constData();
@@ -62,7 +62,7 @@ static SearchResultItems searchWithoutRegExp(const QFuture<void> &future, const 
     while (!stream.atEnd()) {
         ++lineNr;
         const QString chunk = stream.readLine();
-        const int chunkLength = chunk.length();
+        const int chunkLength = chunk.size();
         const QChar *chunkPtr = chunk.constData();
         const QChar *chunkEnd = chunkPtr + chunkLength - 1;
         for (const QChar *regionPtr = chunkPtr; regionPtr + termMaxIndex <= chunkEnd; ++regionPtr) {
@@ -372,7 +372,7 @@ QString expandRegExpReplacement(const QString &replaceText, const QStringList &c
     // handles \1 \\ \& \t \n $1 $$ $&
     QString result;
     const int numCaptures = capturedTexts.size() - 1;
-    const int replaceLength = replaceText.length();
+    const int replaceLength = replaceText.size();
     for (int i = 0; i < replaceLength; ++i) {
         QChar c = replaceText.at(i);
         if (c == QLatin1Char('\\') && i < replaceLength - 1) {
@@ -427,7 +427,7 @@ static QString matchCaseReplacementHelper(const QString &originalText, const QSt
     bool restIsLowerCase = true; // to be verified
     bool restIsUpperCase = true; // to be verified
 
-    for (int i = 1; i < originalText.length(); ++i) {
+    for (int i = 1; i < originalText.size(); ++i) {
         if (originalText.at(i).isUpper())
             restIsLowerCase = false;
         else if (originalText.at(i).isLower())
@@ -524,8 +524,8 @@ QString matchCaseReplacement(const QString &originalText, const QString &replace
         return replaceText;
 
     //Find common prefix & suffix: these will be unaffected
-    const int replaceTextLen = replaceText.length();
-    const int originalTextLen = originalText.length();
+    const int replaceTextLen = replaceText.size();
+    const int originalTextLen = originalText.size();
 
     int prefixLen = 0;
     for (; prefixLen < replaceTextLen && prefixLen < originalTextLen; ++prefixLen)

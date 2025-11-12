@@ -519,7 +519,7 @@ void QrcParserPrivate::collectResourceFilesForSourceFile(const FilePath &sourceF
 QrcParser::MatchResult QrcParserPrivate::longestReverseMatches(const QString &reversePath) const
 {
     QrcParser::MatchResult res;
-    if (reversePath.length() == 1)
+    if (reversePath.size() == 1)
         return res;
     auto lastMatch = m_reverseResources.end();
     qsizetype matchedUntil = 0;

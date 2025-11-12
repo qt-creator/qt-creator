@@ -32,7 +32,7 @@ namespace CppEditor::Internal {
  */
 static QString extractQuotedString(const QString &s, int pos)
 {
-    if (s.length() < 2 || pos < 0 || pos >= s.length())
+    if (s.size() < 2 || pos < 0 || pos >= s.size())
         return QString();
 
     const int firstQuote = s.lastIndexOf('"', pos);

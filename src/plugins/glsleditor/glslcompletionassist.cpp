@@ -512,7 +512,7 @@ bool GlslCompletionAssistProcessor::acceptsIdleEditor() const
         ++pos;
 
         const QString word = interface()->textAt(pos, cursorPosition - pos);
-        if (word.length() >= TextEditorSettings::completionSettings().m_characterThreshold
+        if (word.size() >= TextEditorSettings::completionSettings().m_characterThreshold
                 && checkStartOfIdentifier(word)) {
             for (auto character : word) {
                 if (!isIdentifierChar(character))

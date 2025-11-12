@@ -158,7 +158,7 @@ bool isValidIdentifierChar(const QChar &ch)
 
 bool isValidIdentifier(const QString &s)
 {
-    const int length = s.length();
+    const int length = s.size();
     for (int i = 0; i < length; ++i) {
         const QChar &c = s.at(i);
         if (i == 0) {
@@ -512,18 +512,18 @@ QList<Text::Range> symbolOccurrencesInText(const QTextDocument &doc, QStringView
                 return true;
             const QChar c = text.at(i);
             if (c.isLetterOrNumber() || c == '_') {
-                index += symbolName.length();
+                index += symbolName.size();
                 return false;
             }
             return true;
         };
         if (!checkAdjacent(index - 1))
             continue;
-        if (!checkAdjacent(index + symbolName.length()))
+        if (!checkAdjacent(index + symbolName.size()))
             continue;
 
         const Text::Position startPos = Text::Position::fromPositionInDocument(&doc, offset + index);
-        index += symbolName.length();
+        index += symbolName.size();
         const Text::Position endPos = Text::Position::fromPositionInDocument(&doc, offset + index);
         ranges << Text::Range{startPos, endPos};
     }

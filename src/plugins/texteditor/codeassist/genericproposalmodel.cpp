@@ -135,7 +135,7 @@ static QString cleanText(const QString &original)
 {
     QString clean = original;
     int ignore = 0;
-    for (int i = clean.length() - 1; i >= 0; --i, ++ignore) {
+    for (int i = clean.size() - 1; i >= 0; --i, ++ignore) {
         const QChar &c = clean.at(i);
         if (c.isLetterOrNumber() || c == '_'
                 || c.isHighSurrogate() || c.isLowSurrogate()) {
@@ -289,7 +289,7 @@ void GenericProposalModel::filter(const QString &prefix)
         // Direct match?
         if (text.startsWith(prefix)) {
             m_currentItems.append(item);
-            item->setProposalMatch(text.length() == prefix.length()
+            item->setProposalMatch(text.size() == prefix.size()
                                    ? AssistProposalItemInterface::ProposalMatch::Full
                                    : AssistProposalItemInterface::ProposalMatch::Exact);
             continue;
@@ -404,7 +404,7 @@ QString GenericProposalModel::proposalPrefix() const
     QString commonPrefix = m_currentItems.first()->text();
     for (int i = 1, ei = m_currentItems.size(); i < ei; ++i) {
         QString nextItem = m_currentItems.at(i)->text();
-        const int length = qMin(commonPrefix.length(), nextItem.length());
+        const int length = qMin(commonPrefix.size(), nextItem.size());
         commonPrefix.truncate(length);
         nextItem.truncate(length);
 

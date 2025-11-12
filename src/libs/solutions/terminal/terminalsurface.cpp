@@ -572,7 +572,7 @@ void TerminalSurface::sendKey(QKeyEvent *event)
             mod = VTERM_MOD_NONE;
 
         vterm_keyboard_key(d->m_vterm.get(), key, mod);
-    } else if (event->text().length() == 1) {
+    } else if (event->text().size() == 1) {
         // event->text() already contains the correct unicode character based on the modifiers
         // used, so we can simply convert it to Ucs4 and send it to the terminal.
         vterm_keyboard_unichar(d->m_vterm.get(), event->text().toUcs4()[0], VTERM_MOD_NONE);

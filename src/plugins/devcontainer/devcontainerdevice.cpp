@@ -135,7 +135,7 @@ public:
     QString mapToDevicePath(const QString &hostPath) const override
     {
         if (hostPath.startsWith(m_workspaceFolder.path())) {
-            return (m_workspaceFolderMountPoint / hostPath.mid(m_workspaceFolder.path().length()))
+            return (m_workspaceFolderMountPoint / hostPath.mid(m_workspaceFolder.path().size()))
                 .path();
         }
         return hostPath;
@@ -675,7 +675,7 @@ Result<FilePath> Device::localSource(const FilePath &other) const
     const FilePath workspaceFolder = fileAccess->workspaceFolder();
 
     if (other.startsWith(workspaceFolderMountPoint.path()))
-        return workspaceFolder / other.path().mid(workspaceFolderMountPoint.path().length());
+        return workspaceFolder / other.path().mid(workspaceFolderMountPoint.path().size());
 
     return ResultError(
         Tr::tr("No mapping available for %1 on %2.").arg(other.path(), displayName()));

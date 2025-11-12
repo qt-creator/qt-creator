@@ -3316,7 +3316,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             for (QTextCursor &c : cursor) {
                 QTextBlock block = c.block();
                 int eolPos = block.position() + block.length() - 1;
-                int selEndPos = qMin(c.position() + eventText.length(), eolPos);
+                int selEndPos = qMin(c.position() + eventText.size(), eolPos);
                 c.setPosition(selEndPos, QTextCursor::KeepAnchor);
                 c.insertText(eventText);
             }
@@ -3369,7 +3369,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                 cursor.beginEditBlock();
             QTextBlock block = cursor.block();
             int eolPos = block.position() + block.length() - 1;
-            int selEndPos = qMin(cursor.position() + eventText.length(), eolPos);
+            int selEndPos = qMin(cursor.position() + eventText.size(), eolPos);
             cursor.setPosition(selEndPos, QTextCursor::KeepAnchor);
             cursor.insertText(eventText);
             if (!doEditBlock)
@@ -5174,7 +5174,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
     const QColor &searchResultColor = m_document->fontSettings()
             .toTextCharFormat(C_SEARCH_RESULT).background().color().darker(120);
 
-    while (idx < text.length()) {
+    while (idx < text.size()) {
         const QRegularExpressionMatch match = m_searchExpr.match(text, idx + l + 1);
         if (!match.hasMatch())
             break;
@@ -5186,7 +5186,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
             auto posAtWordSeparator = [](const QString &text, int idx) {
                 if (idx < 0)
                     return QTC_GUARD(idx == -1);
-                int textLength = text.length();
+                int textLength = text.size();
                 if (idx >= textLength)
                     return QTC_GUARD(idx == textLength);
                 const QChar c = text.at(idx);
@@ -5254,7 +5254,7 @@ void TextEditorWidgetPrivate::highlightSelection(const QTextBlock &block, const 
 
     QString text = block.text();
     text.replace(QChar::Nbsp, QLatin1Char(' '));
-    const int l = selection.length();
+    const int l = selection.size();
 
     const int left = data.viewportRect.left() - int(data.mainLayoutOffset.x());
     const int right = data.viewportRect.right() - int(data.mainLayoutOffset.x());
@@ -9138,7 +9138,7 @@ void TextEditorWidget::rewrapParagraph()
     if (nextBlock.movePosition(QTextCursor::NextBlock))
     {
          QString nText = nextBlock.block().text();
-         int maxLength = qMin(text.length(), nText.length());
+         int maxLength = qMin(text.size(), nText.size());
 
          const auto hasDoxygenPrefix = [&] {
              static const QRegularExpression pattern(doxygenPrefix);
@@ -9185,7 +9185,7 @@ void TextEditorWidget::rewrapParagraph()
 
     // Remove existing instances of any common prefix from paragraph to
     // reflow.
-    selectedText.remove(0, commonPrefix.length());
+    selectedText.remove(0, commonPrefix.size());
     commonPrefix.prepend(QChar::ParagraphSeparator);
     selectedText.replace(commonPrefix, QLatin1String("\n"));
 
@@ -9196,10 +9196,10 @@ void TextEditorWidget::rewrapParagraph()
     for (const QChar &ch : std::as_const(selectedText)) {
         if (ch.isSpace() && ch != QChar::Nbsp) {
             if (!currentWord.isEmpty()) {
-                currentLength += currentWord.length() + 1;
+                currentLength += currentWord.size() + 1;
 
                 if (currentLength > paragraphWidth) {
-                    currentLength = currentWord.length() + 1 + indentLevel;
+                    currentLength = currentWord.size() + 1 + indentLevel;
                     result.chop(1); // remove trailing space
                     result.append(QChar::ParagraphSeparator);
                     result.append(spacing);
@@ -10173,7 +10173,7 @@ void TextEditorWidget::replace(int length, const QString &string)
 
 void TextEditorWidget::replace(int pos, int length, const QString &string)
 {
-    if (length == string.length()) {
+    if (length == string.size()) {
         bool different = false;
         for (int i = 0; !different && i < length; ++i)
             different = document()->characterAt(pos + i) != string.at(i);

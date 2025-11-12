@@ -1985,7 +1985,7 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
             }
             if (replaceStart > -1 && oldString != newString) {
                 changeSet.replace(block.position() + replaceStart,
-                                  block.position() + replaceStart + oldString.length(),
+                                  block.position() + replaceStart + oldString.size(),
                                   newString);
             }
         }

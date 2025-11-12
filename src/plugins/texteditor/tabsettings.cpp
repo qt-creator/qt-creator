@@ -429,7 +429,7 @@ void TabSettings::indentLine(const QTextBlock &block, int newIndent, int padding
 
     const QString indentString = indentationString(0, newIndent, padding);
 
-    if (oldBlockLength == indentString.length() && text == indentString)
+    if (oldBlockLength == indentString.size() && text == indentString)
         return;
 
     QTextCursor cursor(block);
@@ -458,7 +458,7 @@ void TabSettings::reindentLine(QTextBlock block, int delta) const
         padding = qMin(maximumPadding(text), newIndent);
     const QString indentString = indentationString(0, newIndent, padding);
 
-    if (oldBlockLength == indentString.length() && text == indentString)
+    if (oldBlockLength == indentString.size() && text == indentString)
         return;
 
     QTextCursor cursor(block);

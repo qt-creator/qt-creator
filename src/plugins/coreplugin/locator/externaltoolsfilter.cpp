@@ -56,7 +56,7 @@ LocatorMatcherTasks ExternalToolsFilter::matchers()
                     return AcceptResult();
                 };
                 filterEntry.extraInfo = tool->description();
-                filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, input.length(), hDataType);
+                filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, input.size(), hDataType);
 
                 if (filterEntry.displayName.startsWith(input, entryCaseSensitivity))
                     bestEntries.append(filterEntry);

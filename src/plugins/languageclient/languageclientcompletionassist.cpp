@@ -208,7 +208,7 @@ bool LanguageClientCompletionItem::isPerfectMatch(int pos, QTextDocument *doc) c
         return text == edit->newText();
     }
     const QString textToInsert(m_item.insertText().value_or(text()));
-    const int length = textToInsert.length();
+    const int length = textToInsert.size();
     return textToInsert == textAt(doc, pos - length, length);
 }
 
@@ -561,8 +561,8 @@ void LanguageClientCompletionAssistProvider::setTriggerCharacters(
     m_activationCharSequenceLength = 0;
     m_triggerChars = triggerChars.value_or(QStringList());
     for (const QString &trigger : std::as_const(m_triggerChars)) {
-        if (trigger.length() > m_activationCharSequenceLength)
-            m_activationCharSequenceLength = trigger.length();
+        if (trigger.size() > m_activationCharSequenceLength)
+            m_activationCharSequenceLength = trigger.size();
     }
 }
 

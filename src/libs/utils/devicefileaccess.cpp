@@ -2035,7 +2035,7 @@ Result<> UnixDeviceFileAccess::iterateWithFind(
 
         const QString fileName
             = entry.mid(quoteOutSize, entry.lastIndexOf(endQuoteOut) - quoteOutSize);
-        const QString infos = entry.mid(fileName.length() + quoteOutSize * 2 + 1);
+        const QString infos = entry.mid(fileName.size() + quoteOutSize * 2 + 1);
 
         const FilePathInfo fi = FileUtils::filePathInfoFromTriple(infos, modeBase);
         if (!fi.fileFlags)

@@ -21,8 +21,8 @@ void ModelNodePositionRecalculator::moved(const TextModifier::MoveInfo &moveInfo
     const int from = moveInfo.objectStart;
     const int to = moveInfo.destination;
     const int length = moveInfo.objectEnd - moveInfo.objectStart;
-    const int prefixLength = moveInfo.prefixToInsert.length();
-    const int suffixLength = moveInfo.suffixToInsert.length();
+    const int prefixLength = moveInfo.prefixToInsert.size();
+    const int suffixLength = moveInfo.suffixToInsert.size();
 
     for (const ModelNode &node : std::as_const(m_nodesToTrack)) {
         const int nodeLocation = m_positionStore->nodeOffset(node);

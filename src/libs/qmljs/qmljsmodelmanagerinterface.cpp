@@ -1308,7 +1308,7 @@ static FilePaths minimalPrefixPaths(const FilePaths &paths)
     for (FilePath path : std::as_const(paths)) {
         if (!path.endsWith("/"))
             path = path.withNewPath(path.path() + "/");
-        if (path.path().length() > 1)
+        if (path.path().size() > 1)
             sortedPaths.append(path);
     }
     std::sort(sortedPaths.begin(), sortedPaths.end());

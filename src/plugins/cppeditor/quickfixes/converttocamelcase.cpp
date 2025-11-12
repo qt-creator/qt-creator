@@ -42,11 +42,11 @@ private:
     void perform() override
     {
         QString newName = m_isAllUpper ? m_name.toLower() : m_name;
-        for (int i = 1; i < newName.length(); ++i) {
+        for (int i = 1; i < newName.size(); ++i) {
             const QChar c = newName.at(i);
             if (c.isUpper() && m_isAllUpper) {
                 newName[i] = c.toLower();
-            } else if (i < newName.length() - 1 && isConvertibleUnderscore(newName, i)) {
+            } else if (i < newName.size() - 1 && isConvertibleUnderscore(newName, i)) {
                 newName.remove(i, 1);
                 newName[i] = newName.at(i).toUpper();
             }
@@ -95,9 +95,9 @@ class ConvertToCamelCase : public CppQuickFixFactory
             return;
 
         QString nameString = QString::fromUtf8(name->identifier()->chars());
-        if (nameString.length() < 3)
+        if (nameString.size() < 3)
             return;
-        for (int i = 1; i < nameString.length() - 1; ++i) {
+        for (int i = 1; i < nameString.size() - 1; ++i) {
             if (ConvertToCamelCaseOp::isConvertibleUnderscore(nameString, i)) {
                 result << new ConvertToCamelCaseOp(interface, nameString, astForName, testMode());
                 return;

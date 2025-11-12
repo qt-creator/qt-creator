@@ -1327,7 +1327,7 @@ private:
 
 static Input parseVimKeyName(const QString &keyName)
 {
-    if (keyName.length() == 1)
+    if (keyName.size() == 1)
         return Input(keyName.at(0));
 
     const QStringList keys = keyName.split('-');
@@ -1349,7 +1349,7 @@ static Input parseVimKeyName(const QString &keyName)
 
     if (!keys.isEmpty()) {
         const QString key = keys.last();
-        if (key.length() == 1) {
+        if (key.size() == 1) {
             // simple character
             QChar c = key.at(0).toUpper();
             return Input(c.unicode(), mods);
@@ -7655,7 +7655,7 @@ void FakeVimHandler::Private::invertCase(const Range &range)
     transformText(range,
         [] (const QString &text) -> QString {
             QString result = text;
-            for (int i = 0; i < result.length(); ++i) {
+            for (int i = 0; i < result.size(); ++i) {
                 const QChar c = result[i];
                 result[i] = c.isUpper() ? c.toLower() : c.toUpper();
             }
@@ -9039,7 +9039,7 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count)
     int pos = match.capturedStart();
     int len = match.capturedLength();
     QString prefix = match.captured(1) + match.captured(3);
-    bool hex = prefix.length() >= 2 && (prefix[1].toLower() == 'x');
+    bool hex = prefix.size() >= 2 && (prefix[1].toLower() == 'x');
     bool octal = !hex && !prefix.isEmpty();
     const QString num = hex ? match.captured(2) : octal ? match.captured(4) : match.captured(5);
 

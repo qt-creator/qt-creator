@@ -257,7 +257,7 @@ bool FileInProjectFinder::checkProjectDirectory(const FilePath &originalPath,
             if (originalPath.contains(appResourcePath)) {
                 // the path is inside the project, but most probably as a resource of an insource build
                 // so ignore that path
-                prefixToIgnore = origFsPath.indexOf(appResourcePath) + appResourcePath.length();
+                prefixToIgnore = origFsPath.indexOf(appResourcePath) + appResourcePath.size();
             }
         }
         if (prefixToIgnore == -1
@@ -348,7 +348,7 @@ bool FileInProjectFinder::checkSysroot(const FilePath &originalPath,
     if (m_sysroot.isEmpty())
         return false;
 
-    const int origLength = originalPath.toFSPathString().length();
+    const int origLength = originalPath.toFSPathString().size();
     const FilePath sysrootPath = m_sysroot.pathAppended(originalPath.toUrlishString());
 
     if (!checkPath(sysrootPath, origLength, fileHandler, directoryHandler))
@@ -410,7 +410,7 @@ FileInProjectFinder::CacheEntry FileInProjectFinder::findInSearchPath(
     while (!s.isEmpty()) {
         CacheEntry result;
         result.paths << searchPath / s;
-        result.matchLength = s.length() + 1;
+        result.matchLength = s.size() + 1;
         qCDebug(finderLog) << "FileInProjectFinder: trying" << result.paths.first();
 
         if (checkPath(result.paths.first(), result.matchLength, fileHandler, directoryHandler))

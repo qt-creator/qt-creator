@@ -18,7 +18,7 @@ QString unqualifyName(const QString &qualifiedName)
     const int index = qualifiedName.lastIndexOf(QLatin1String("::"));
     if (index == -1)
         return qualifiedName;
-    return qualifiedName.right(qualifiedName.length() - index - 2);
+    return qualifiedName.right(qualifiedName.size() - index - 2);
 }
 
 class DerivedHierarchyVisitor : public SymbolVisitor

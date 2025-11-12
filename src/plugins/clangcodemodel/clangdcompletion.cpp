@@ -67,7 +67,7 @@ static bool matchPreviousWord(TextEditor::TextEditorWidget *editorWidget, QTextC
 
     pattern = pattern.simplified();
     while (!pattern.isEmpty() && pattern.endsWith(toMatch)) {
-        pattern.chop(toMatch.length());
+        pattern.chop(toMatch.size());
         if (pattern.endsWith(' '))
             pattern.chop(1);
         if (!pattern.isEmpty()) {
@@ -211,7 +211,7 @@ private:
 
         const QString &parameterText = parameters.at(m_currentArg);
         const int start = label.indexOf(parameterText);
-        const int end = start + parameterText.length();
+        const int end = start + parameterText.size();
         return label.mid(0, start).toHtmlEscaped() + "<b>" + parameterText.toHtmlEscaped() + "</b>"
                + label.mid(end).toHtmlEscaped();
     }
@@ -459,7 +459,7 @@ void ClangdCompletionItem::apply(TextEditorWidget *editorWidget,
             && textToBeInserted.indexOf(textAfterCursor, currentPos - rangeStart) >= 0) {
         currentPos = cursor.position();
     }
-    for (int i = 0; i < extraCharacters.length(); ++i) {
+    for (int i = 0; i < extraCharacters.size(); ++i) {
         const QChar a = extraCharacters.at(i);
         const QChar b = editorWidget->characterAt(currentPos + i);
         if (a == b)
@@ -472,7 +472,7 @@ void ClangdCompletionItem::apply(TextEditorWidget *editorWidget,
     const int length = currentPos - rangeStart + extraLength;
     const int oldRevision = editorWidget->document()->revision();
     editorWidget->replace(rangeStart, length, textToBeInserted);
-    editorWidget->setCursorPosition(rangeStart + textToBeInserted.length());
+    editorWidget->setCursorPosition(rangeStart + textToBeInserted.size());
     if (editorWidget->document()->revision() != oldRevision) {
         if (cursorOffset)
             editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
@@ -609,7 +609,7 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeInclude(
             completionOperator = T_STRING_LITERAL;
         }
         if (startCharPos != -1)
-            directoryPrefix = sel.mid(startCharPos + 1, sel.length() - 1);
+            directoryPrefix = sel.mid(startCharPos + 1, sel.size() - 1);
     }
 
     // Make completion for all relevant includes
@@ -667,7 +667,7 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeIncludePath(
         const QFileInfo fileInfo = i.fileInfo();
         const QString suffix = fileInfo.suffix();
         if (suffix.isEmpty() || suffixes.contains(suffix)) {
-            QString text = fileName.mid(realPath.length() + 1);
+            QString text = fileName.mid(realPath.size() + 1);
             if (fileInfo.isDir())
                 text += QLatin1Char('/');
 

@@ -926,7 +926,7 @@ void Internal::CorePlugin::testOutputFormatter()
 
     // Stress-test the implementation by providing the input in chunks, splitting at all possible
     // offsets.
-    for (int i = 0; i < input.length(); ++i) {
+    for (int i = 0; i < input.size(); ++i) {
         OutputFormatter formatter;
         QPlainTextEdit textEdit;
         formatter.setPlainTextEdit(&textEdit);

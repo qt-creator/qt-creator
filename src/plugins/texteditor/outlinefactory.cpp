@@ -183,7 +183,7 @@ void OutlineWidgetStack::restoreSettings(Utils::QtcSettings *settings, int posit
         if (!longKey.startsWith(baseKeyString))
             continue;
 
-        const QString key = longKey.mid(baseKeyString.length());
+        const QString key = longKey.mid(baseKeyString.size());
 
         if (key == QLatin1String("SyncWithEditor")) {
             m_syncWithEditor = settings->value(keyFromString(longKey)).toBool();

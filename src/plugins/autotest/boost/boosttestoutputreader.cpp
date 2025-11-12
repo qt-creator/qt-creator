@@ -36,7 +36,7 @@ BoostTestOutputReader::BoostTestOutputReader(Process *testApplication,
 // content of "error:..." / "info:..." / ... messages
 static QString caseFromContent(const QString &content)
 {
-    const int length = content.length();
+    const int length = content.size();
     if (content.startsWith("last checkpoint:")) {
         int index = content.indexOf('"');
         if (index != 17 || length <= 18) {

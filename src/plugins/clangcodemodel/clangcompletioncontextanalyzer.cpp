@@ -154,7 +154,7 @@ void ClangCompletionContextAnalyzer::handleFunctionCall(int afterOperatorPositio
         const QString expression = expressionUnderCursor(textCursor);
         const QString trimmedExpression = expression.trimmed();
         const QChar lastExprChar = trimmedExpression.isEmpty()
-                ? QChar() : trimmedExpression.at(trimmedExpression.length() - 1);
+                ? QChar() : trimmedExpression.at(trimmedExpression.size() - 1);
         const bool mightBeConstructorCall = lastExprChar != ')';
 
         if (expression.endsWith(QLatin1String("SIGNAL"))) {

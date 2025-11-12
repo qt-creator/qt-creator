@@ -265,7 +265,7 @@ void ClangdAstNode::print(int indent) const
 
 QStringView subViewLen(const QString &s, qsizetype start, qsizetype length)
 {
-    if (start < 0 || length < 0 || start + length > s.length())
+    if (start < 0 || length < 0 || start + length > s.size())
         return {};
     return QStringView(s).mid(start, length);
 }

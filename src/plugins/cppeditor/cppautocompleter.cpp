@@ -223,7 +223,7 @@ void AutoCompleterTest::testAutoComplete_data()
     QTest::addColumn<int>("expectedSkippedChars");
 
     const QString charsToInsert(QLatin1String("'\"(){}[]"));
-    for (int i = 0; i < charsToInsert.length(); ++i) {
+    for (int i = 0; i < charsToInsert.size(); ++i) {
         for (int fc = EmptyFile; fc < NumberOfItems; ++fc) {
             const QChar c = charsToInsert.at(i);
             const QString testName = QLatin1String("Insert ") + charTestName(c)
@@ -300,7 +300,7 @@ void AutoCompleterTest::testSurroundWithSelection_data()
     const QString charsToInsert(QLatin1String("'\"(){}[]"));
     const QString selection(QLatin1String("arg;"));
     const QString text(QLatin1String("L|%1|;"));
-    for (int i = 0; i < charsToInsert.length(); ++i) {
+    for (int i = 0; i < charsToInsert.size(); ++i) {
         const QChar c = charsToInsert.at(i);
         QTest::newRow(charTestName(c).toLatin1().data())
                 << text.arg(selection)
@@ -357,7 +357,7 @@ void AutoCompleterTest::testAutoBackspace_data()
     QTest::addColumn<bool>("expectedStopHandling");
 
     const QString charsToInsert(QLatin1String("'\"({["));
-    for (int i = 0; i < charsToInsert.length(); ++i) {
+    for (int i = 0; i < charsToInsert.size(); ++i) {
         const QChar c = charsToInsert.at(i);
 
         QTest::newRow((QLatin1String("Inside ") + charGroupTestName(c)).toLatin1().data())

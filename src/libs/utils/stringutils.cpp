@@ -715,7 +715,7 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
         if (fmt.property(QTextFormat::HeadingLevel) == 2) {
             QTextCharFormat charFmt = currentBlock().charFormat();
             charFmt.setBaselineOffset(15);
-            setFormat(0, text.length(), charFmt);
+            setFormat(0, text.size(), charFmt);
 
             if (h2Brush.style() == Qt::NoBrush) {
                 const int height = QFontMetrics(charFmt.font()).height();

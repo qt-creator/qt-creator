@@ -35,7 +35,7 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
     const QString namespaces = enclosingNamespaces(ast->symbol);
     if (!namespaces.isEmpty()) {
         QTC_CHECK(prettyName.startsWith(namespaces));
-        prettyName = prettyName.mid(namespaces.length());
+        prettyName = prettyName.mid(namespaces.size());
     }
 
     if (!GTestUtils::isGTestMacro(prettyName))

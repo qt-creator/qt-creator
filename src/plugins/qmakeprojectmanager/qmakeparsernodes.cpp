@@ -449,7 +449,7 @@ bool QmakePriFile::deploysFolder(const FilePath &folder) const
     for (const QString &wf : std::as_const(m_watchedFolders)) {
         if (f.startsWith(wf)
             && (wf.endsWith(slash)
-                || (wf.length() < f.length() && f.at(wf.length()) == slash)))
+                || (wf.size() < f.size() && f.at(wf.size()) == slash)))
             return true;
     }
     return false;
@@ -622,7 +622,7 @@ bool QmakePriFile::addDependencies(const QStringList &dependencies)
         return false;
 
     QStringList qtDependencies = filtered(dependencies, [](const QString &dep) {
-        return dep.length() > 3 && dep.startsWith("Qt.");
+        return dep.size() > 3 && dep.startsWith("Qt.");
     });
     qtDependencies = transform(qtDependencies, [](const QString &dep) {
         return dep.mid(3).toLower();
@@ -2038,7 +2038,7 @@ InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, 
             // Projects which implement their own install path policy must
             // parametrize their INSTALLS themselves depending on the intended
             // installation/deployment mode.
-            itemPath.replace(0, prefixValuePair.first.length(), prefixValuePair.second);
+            itemPath.replace(0, prefixValuePair.first.size(), prefixValuePair.second);
             break;
         }
         if (item == QLatin1String("target")) {

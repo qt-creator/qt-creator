@@ -528,7 +528,7 @@ const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(int utf16ch
     for (const Document::UndefinedMacroUse &use : std::as_const(_undefinedMacroUses)) {
         if (use.containsUtf16charOffset(utf16charsOffset)
                 && (utf16charsOffset < use.utf16charsBegin()
-                    + QString::fromUtf8(use.name(), use.name().size()).length()))
+                    + QString::fromUtf8(use.name(), use.name().size()).size()))
             return &use;
     }
     return nullptr;

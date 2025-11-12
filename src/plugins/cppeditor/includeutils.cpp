@@ -263,7 +263,7 @@ int LineForNewIncludeDirective::run(const QString &newIncludeFileName,
     if (newLinesToAppend)
         *newLinesToAppend = false;
 
-    const QString pureIncludeFileName = newIncludeFileName.mid(1, newIncludeFileName.length() - 2);
+    const QString pureIncludeFileName = newIncludeFileName.mid(1, newIncludeFileName.size() - 2);
     const Client::IncludeType newIncludeType =
         newIncludeFileName.startsWith(QLatin1Char('"')) ? Client::IncludeLocal
                                                         : Client::IncludeGlobal;
@@ -346,7 +346,7 @@ int LineForNewIncludeDirective::run(const QString &newIncludeFileName,
         // The group with the longest common matching prefix is the best group
         int longestPrefixSoFar = 0;
         for (const IncludeGroup &group : std::as_const(groupsMatchingIncludeDir)) {
-            const int groupPrefixLength = group.commonPrefix().length();
+            const int groupPrefixLength = group.commonPrefix().size();
             if (groupPrefixLength >= longestPrefixSoFar) {
                 bestGroup = group;
                 longestPrefixSoFar = groupPrefixLength;

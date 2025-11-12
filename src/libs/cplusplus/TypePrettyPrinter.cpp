@@ -523,7 +523,7 @@ void TypePrettyPrinter::visit(Function *type)
 
             if (Argument *arg = type->argumentAt(index)->asArgument()) {
                 if (index + 1 == _overview->markedArgument)
-                    const_cast<Overview*>(_overview)->markedArgumentBegin = _text.length();
+                    const_cast<Overview*>(_overview)->markedArgumentBegin = _text.size();
 
                 const Name *name = nullptr;
 
@@ -546,7 +546,7 @@ void TypePrettyPrinter::visit(Function *type)
                 }
 
                 if (index + 1 == _overview->markedArgument)
-                    const_cast<Overview*>(_overview)->markedArgumentEnd = _text.length();
+                    const_cast<Overview*>(_overview)->markedArgumentEnd = _text.size();
             }
         }
 
@@ -596,7 +596,7 @@ void TypePrettyPrinter::appendSpace()
     if (_text.isEmpty())
         return;
 
-    const QChar ch = _text.at(_text.length() - 1);
+    const QChar ch = _text.at(_text.size() - 1);
 
     if (ch.isLetterOrNumber() || ch == QLatin1Char('_') || ch == QLatin1Char(')')
             || ch == QLatin1Char('>'))

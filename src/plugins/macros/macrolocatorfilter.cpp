@@ -59,7 +59,7 @@ LocatorMatcherTasks MacroLocatorFilter::matchers()
                 };
                 filterEntry.displayIcon = icon;
                 filterEntry.extraInfo = description;
-                filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, input.length(),
+                filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, input.size(),
                                                                               hDataType);
                 if (index == 0)
                     betterEntries.append(filterEntry);

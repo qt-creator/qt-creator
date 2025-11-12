@@ -326,12 +326,12 @@ static QStringList extractFunctionInformation(const QString &testClassName,
     if (match.hasMatch()) {
         QString fullQualifiedFunc = match.captured(1);
         QTC_ASSERT(fullQualifiedFunc.startsWith(testClassName + "::"), return result);
-        fullQualifiedFunc = fullQualifiedFunc.mid(testClassName.length() + 2);
+        fullQualifiedFunc = fullQualifiedFunc.mid(testClassName.size() + 2);
         result.append(fullQualifiedFunc);
         if (resultType == ResultType::Benchmark) { // tag is displayed differently
             QString possiblyTag = match.captured(3);
             if (!possiblyTag.isEmpty())
-                possiblyTag = possiblyTag.mid(2, possiblyTag.length() - 4);
+                possiblyTag = possiblyTag.mid(2, possiblyTag.size() - 4);
             result.append(possiblyTag);
             result.append(QString());
         } else {

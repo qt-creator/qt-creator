@@ -551,7 +551,7 @@ CMakeToolManagerPrivate::CMakeToolManagerPrivate()
         QStringList locations = QStandardPaths::standardLocations(
             QStandardPaths::GenericConfigLocation);
         Utils::sort(locations, [](const QString &lhs, const QString &rhs) {
-            return lhs.length() < rhs.length();
+            return lhs.size() < rhs.size();
         });
         m_junctionsDir = FilePath::fromString(locations.first()).pathAppended("QtCreator/Links");
 

@@ -257,7 +257,7 @@ QString documentationUrl(const QString &checkName)
     const QString clazyPrefix = "clazy-";
     const QString clangStaticAnalyzerPrefix = "clang-analyzer-core.";
     if (name.startsWith(clazyPrefix)) {
-        name = checkName.mid(clazyPrefix.length());
+        name = checkName.mid(clazyPrefix.size());
         url = clazyDocUrl(name);
     } else if (name.startsWith(clangStaticAnalyzerPrefix)) {
         url = CppEditor::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;

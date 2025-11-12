@@ -218,7 +218,7 @@ static std::optional<QString> extractValueIfMatches(const QString &arg, const QS
 {
     for (const auto &flag : candidates) {
         if (arg.startsWith(flag))
-            return arg.mid(flag.length());
+            return arg.mid(flag.size());
     }
     return std::nullopt;
 }

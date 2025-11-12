@@ -92,7 +92,7 @@ static bool insertQuote(const QChar ch, const BackwardsScanner &tk)
 static int countSkippedChars(const QString &blockText, const QString &textToProcess)
 {
     int skippedChars = 0;
-    const int length = qMin(blockText.length(), textToProcess.length());
+    const int length = qMin(blockText.size(), textToProcess.size());
     for (int i = 0; i < length; ++i) {
         const QChar ch1 = blockText.at(i);
         const QChar ch2 = textToProcess.at(i);
@@ -589,7 +589,7 @@ QString MatchingText::insertMatchingQuote(const QTextCursor &cursor, const QStri
         const QChar ch = text.at(0);
         if (!isQuote(ch))
             return QString();
-        if (text.length() != 1)
+        if (text.size() != 1)
             qWarning() << Q_FUNC_INFO << "handle event compression";
 
         BackwardsScanner tk(tc, LanguageFeatures::defaultFeatures(), MAX_NUM_LINES,

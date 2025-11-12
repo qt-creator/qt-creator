@@ -13,7 +13,7 @@ inline QString escape(const QString &value)
 {
     QString result = value;
 
-    if (value.length() == 6 && value.startsWith("\\u")) //Do not double escape unicode chars
+    if (value.size() == 6 && value.startsWith("\\u")) //Do not double escape unicode chars
         return value;
 
     result.replace("\\"_L1, "\\\\"_L1);
@@ -29,7 +29,7 @@ inline QString deescape(const QString &value)
 {
     QString result = value;
 
-    if (value.length() == 6 && value.startsWith("\\u")) //Ignore unicode chars
+    if (value.size() == 6 && value.startsWith("\\u")) //Ignore unicode chars
         return value;
 
     result.replace("\\\\"_L1, "\\"_L1);

@@ -316,7 +316,7 @@ void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const
 void ModelToTextMerger::reindentAll() const
 {
     TextModifier *textModifier = m_rewriterView->textModifier();
-    textModifier->indent(0, textModifier->text().length() - 1);
+    textModifier->indent(0, textModifier->text().size() - 1);
 }
 
 void ModelToTextMerger::schedule(RewriteAction *action)

@@ -70,7 +70,7 @@ static void envExpandWin(QString &args, const Environment *env, const QString &p
                                     ? QDir::toNativeSeparators(pwd) : env->expandedValueForKey(var);
             if (!val.isEmpty()) { // Empty values are impossible, so this is an existence check
                 args.replace(prev, that - prev + 1, val);
-                off = prev + val.length();
+                off = prev + val.size();
                 goto next;
             }
         }
@@ -95,13 +95,13 @@ static QString prepareArgsWin(const QString &_args, ProcessArgs::SplitError *err
     if (!args.isEmpty() && args.unicode()[0].unicode() == '@')
         args.remove(0, 1);
 
-    for (int p = 0; p < args.length(); p++) {
+    for (int p = 0; p < args.size(); p++) {
         ushort c = args.unicode()[p].unicode();
         if (c == '^') {
             args.remove(p, 1);
         } else if (c == '"') {
             do {
-                if (++p == args.length())
+                if (++p == args.size())
                     break; // For cmd, this is no error.
             } while (args.unicode()[p].unicode() != '"');
         } else if (isMetaCharWin(c)) {
@@ -129,7 +129,7 @@ static QStringList doSplitArgsWin(const QString &args, ProcessArgs::SplitError *
         *err = ProcessArgs::SplitOk;
 
     int p = 0;
-    const int length = args.length();
+    const int length = args.size();
     forever {
         forever {
             if (p == length)
@@ -297,14 +297,14 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
     for (int pos = 0; ; ) {
         QChar c;
         do {
-            if (pos >= args.length())
+            if (pos >= args.size())
                 goto okret;
             c = args.unicode()[pos++];
         } while (c.isSpace());
         QString cret;
         bool hadWord = false;
         if (c == QLatin1Char('~')) {
-            if (pos >= args.length()
+            if (pos >= args.size()
                 || args.unicode()[pos].isSpace() || args.unicode()[pos] == QLatin1Char('/')) {
                 cret = QDir::homePath();
                 hadWord = true;
@@ -317,7 +317,7 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
             if (c == QLatin1Char('\'')) {
                 int spos = pos;
                 do {
-                    if (pos >= args.length())
+                    if (pos >= args.size())
                         goto quoteerr;
                     c = args.unicode()[pos++];
                 } while (c != QLatin1Char('\''));
@@ -325,14 +325,14 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                 hadWord = true;
             } else if (c == QLatin1Char('"')) {
                 for (;;) {
-                    if (pos >= args.length())
+                    if (pos >= args.size())
                         goto quoteerr;
                     c = args.unicode()[pos++];
                   nextq:
                     if (c == QLatin1Char('"'))
                         break;
                     if (c == QLatin1Char('\\')) {
-                        if (pos >= args.length())
+                        if (pos >= args.size())
                             goto quoteerr;
                         c = args.unicode()[pos++];
                         if (c != QLatin1Char('"') &&
@@ -342,12 +342,12 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                                c == QLatin1Char('`'))))
                             cret += QLatin1Char('\\');
                     } else if (c == QLatin1Char('$') && env) {
-                        if (pos >= args.length())
+                        if (pos >= args.size())
                             goto quoteerr;
                         c = args.unicode()[pos++];
                         bool braced = false;
                         if (c == QLatin1Char('{')) {
-                            if (pos >= args.length())
+                            if (pos >= args.size())
                                 goto quoteerr;
                             c = args.unicode()[pos++];
                             braced = true;
@@ -355,7 +355,7 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                         QString var;
                         while (c.isLetterOrNumber() || c == QLatin1Char('_')) {
                             var += c;
-                            if (pos >= args.length())
+                            if (pos >= args.size())
                                 goto quoteerr;
                             c = args.unicode()[pos++];
                         }
@@ -387,12 +387,12 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                 }
                 hadWord = true;
             } else if (c == QLatin1Char('$') && env) {
-                if (pos >= args.length())
+                if (pos >= args.size())
                     goto quoteerr; // Bash just takes it verbatim, but whatever
                 c = args.unicode()[pos++];
                 bool braced = false;
                 if (c == QLatin1Char('{')) {
-                    if (pos >= args.length())
+                    if (pos >= args.size())
                         goto quoteerr;
                     c = args.unicode()[pos++];
                     braced = true;
@@ -400,7 +400,7 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                 QString var;
                 while (c.isLetterOrNumber() || c == QLatin1Char('_')) {
                     var += c;
-                    if (pos >= args.length()) {
+                    if (pos >= args.size()) {
                         if (braced)
                             goto quoteerr;
                         c = QLatin1Char(' ');
@@ -420,7 +420,7 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                         val = env->expandedValueForKey(res->key);
                     }
                 }
-                for (int i = 0; i < val.length(); i++) {
+                for (int i = 0; i < val.size(); i++) {
                     const QChar cc = val.unicode()[i];
                     if (cc.unicode() == 9 || cc.unicode() == 10 || cc.unicode() == 32) {
                         if (hadWord) {
@@ -442,7 +442,7 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                 }
             } else {
                 if (c == QLatin1Char('\\')) {
-                    if (pos >= args.length())
+                    if (pos >= args.size())
                         goto quoteerr;
                     c = args.unicode()[pos++];
                 } else if (abortOnMeta && isMetaUnix(c)) {
@@ -452,7 +452,7 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                 hadWord = true;
             }
           getc:
-            if (pos >= args.length())
+            if (pos >= args.size())
                 break;
             c = args.unicode()[pos++];
           nextc: ;
@@ -490,7 +490,7 @@ inline static bool isSpecialCharUnix(ushort c)
 
 inline static bool hasSpecialCharsUnix(const QString &arg)
 {
-    for (int x = arg.length() - 1; x >= 0; --x)
+    for (int x = arg.size() - 1; x >= 0; --x)
         if (isSpecialCharUnix(arg.unicode()[x].unicode()))
             return true;
     return false;
@@ -539,7 +539,7 @@ static bool isSpecialCharWin(ushort c)
 
 static bool hasSpecialCharsWin(const QString &arg)
 {
-    for (int x = arg.length() - 1; x >= 0; --x)
+    for (int x = arg.size() - 1; x >= 0; --x)
         if (isSpecialCharWin(arg.unicode()[x].unicode()))
             return true;
     return false;
@@ -563,7 +563,7 @@ static QString quoteArgWin(const QString &arg)
         // The argument must not end with a \ since this would be interpreted
         // as escaping the quote -- rather put the \ behind the quote: e.g.
         // rather use "foo"\ than "foo\"
-        int i = ret.length();
+        int i = ret.size();
         while (i > 0 && ret.at(i - 1) == QLatin1Char('\\'))
             --i;
         ret.insert(i, QLatin1Char('"'));
@@ -681,7 +681,7 @@ static int quoteArgInternalWin(QString &ret, int bslashes)
     // It's impossible to escape anything inside a quoted string on cmd
     // level, so the outer quoting must be "suspended".
     const QChar bs(QLatin1Char('\\')), dq(QLatin1Char('"'));
-    for (int p = 0; p < ret.length(); p++) {
+    for (int p = 0; p < ret.size(); p++) {
         if (ret.at(p) == bs) {
             bslashes++;
         } else {
@@ -860,7 +860,7 @@ bool ProcessArgs::expandMacros(QString *cmd, const FindMacro &findMacro, OsType 
                     rbslashes = quoteArgInternalWin(rsts, rbslashes);
                 }
                 str.replace(pos, varLen, rsts);
-                pos += rsts.length();
+                pos += rsts.size();
                 varPos = pos;
                 if (!(varLen = findMacro(str, &varPos, &rsts))) {
                     // Don't leave immediately, as we may be in CrtNeedWord state which could
@@ -957,7 +957,7 @@ bool ProcessArgs::expandMacros(QString *cmd, const FindMacro &findMacro, OsType 
         QStack<MxState> sstack;
         QStack<MxSave> ostack;
 
-        while (pos < str.length()) {
+        while (pos < str.size()) {
             if (pos == varPos) {
                 // Our expansion rules trigger in any context
                 if (state.dquote) {
@@ -976,7 +976,7 @@ bool ProcessArgs::expandMacros(QString *cmd, const FindMacro &findMacro, OsType 
                     rsts.append(QLatin1Char('\''));
                 } // Else just use the string verbatim.
                 str.replace(pos, varLen, rsts);
-                pos += rsts.length();
+                pos += rsts.size();
                 varPos = pos;
                 if (!(varLen = findMacro(str, &varPos, &rsts)))
                     break;
@@ -1025,7 +1025,7 @@ bool ProcessArgs::expandMacros(QString *cmd, const FindMacro &findMacro, OsType 
                 varPos += 2;
                 int pos2 = pos += 3;
                 forever {
-                    if (pos2 >= str.length())
+                    if (pos2 >= str.size())
                         return false; // Syntax error - unterminated backtick expression.
                     cc = str.unicode()[pos2].unicode();
                     if (cc == '`')
@@ -1139,7 +1139,7 @@ bool ProcessArgs::ArgIterator::next()
         int bslashes = 0; // number of preceding backslashes
 
         for (;; m_pos++) {
-            ushort cc = m_pos < m_str->length() ? m_str->unicode()[m_pos].unicode() : 0;
+            ushort cc = m_pos < m_str->size() ? m_str->unicode()[m_pos].unicode() : 0;
             if (shellState == ShellBasic && cc == '^') {
                 varState = NoVar;
                 shellState = ShellEscaped;
@@ -1228,7 +1228,7 @@ bool ProcessArgs::ArgIterator::next()
         QStack<int> ostack;
         bool hadWord = false;
 
-        for (; m_pos < m_str->length(); m_pos++) {
+        for (; m_pos < m_str->size(); m_pos++) {
             ushort cc = m_str->unicode()[m_pos].unicode();
             if (state.current == MxSingleQuote) {
                 if (cc == '\'') {
@@ -1236,18 +1236,18 @@ bool ProcessArgs::ArgIterator::next()
                     continue;
                 }
             } else if (cc == '\\') {
-                if (++m_pos >= m_str->length())
+                if (++m_pos >= m_str->size())
                     break;
                 cc = m_str->unicode()[m_pos].unicode();
                 if (state.dquote && cc != '"' && cc != '\\' && cc != '$' && cc != '`')
                     m_value += QLatin1Char('\\');
             } else if (cc == '$') {
-                if (++m_pos >= m_str->length())
+                if (++m_pos >= m_str->size())
                     break;
                 cc = m_str->unicode()[m_pos].unicode();
                 if (cc == '(') {
                     sstack.push(state);
-                    if (++m_pos >= m_str->length())
+                    if (++m_pos >= m_str->size())
                         break;
                     if (m_str->unicode()[m_pos].unicode() == '(') {
                         ostack.push(m_pos);
@@ -1268,7 +1268,7 @@ bool ProcessArgs::ArgIterator::next()
                 continue;
             } else if (cc == '`') {
                 forever {
-                    if (++m_pos >= m_str->length()) {
+                    if (++m_pos >= m_str->size()) {
                         m_simple = false;
                         m_prev = prev;
                         return true;
@@ -1308,7 +1308,7 @@ bool ProcessArgs::ArgIterator::next()
                 continue; // Not simple anyway
             } else if (cc == ')') {
                 if (state.current == MxMath) {
-                    if (++m_pos >= m_str->length())
+                    if (++m_pos >= m_str->size())
                         break;
                     if (m_str->unicode()[m_pos].unicode() == ')') {
                         ostack.pop();
@@ -1375,7 +1375,7 @@ bool ProcessArgs::ArgIterator::next()
 void ProcessArgs::ArgIterator::deleteArg()
 {
     if (!m_prev)
-        while (m_pos < m_str->length() && m_str->at(m_pos).isSpace())
+        while (m_pos < m_str->size() && m_str->at(m_pos).isSpace())
             m_pos++;
     m_str->remove(m_prev, m_pos - m_prev);
     m_pos = m_prev;
@@ -1388,7 +1388,7 @@ void ProcessArgs::ArgIterator::appendArg(const QString &str)
         m_str->insert(0, qstr + QLatin1Char(' '));
     else
         m_str->insert(m_pos, QLatin1Char(' ') + qstr);
-    m_pos += qstr.length() + 1;
+    m_pos += qstr.size() + 1;
 }
 
 /*!

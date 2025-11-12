@@ -60,7 +60,7 @@ float PixmapCacheModel::relativeHeight(int index) const
 QString getFilenameOnly(QString absUrl)
 {
     int characterPos = absUrl.lastIndexOf(QLatin1Char('/'))+1;
-    if (characterPos < absUrl.length())
+    if (characterPos < absUrl.size())
         absUrl = absUrl.mid(characterPos);
     return absUrl;
 }

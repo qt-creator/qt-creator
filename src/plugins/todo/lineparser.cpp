@@ -43,7 +43,7 @@ LineParser::KeywordEntryCandidates LineParser::findKeywordEntryCandidates(const 
             if (index == -1)
                 break; // 'forever' loop exit condition
 
-            searchFrom = index - line.length() - 1;
+            searchFrom = index - line.size() - 1;
 
             if (isKeywordAt(index, line, m_keywords.at(i).name))
                 entryCandidates.insert(index, i);
@@ -58,7 +58,7 @@ bool LineParser::isKeywordAt(int index, const QString &line, const QString &keyw
     if (!isFirstCharOfTheWord(index, line))
         return false;
 
-    if (!isLastCharOfTheWord(index + keyword.length() - 1, line))
+    if (!isLastCharOfTheWord(index + keyword.size() - 1, line))
         return false;
 
     return true;
@@ -71,7 +71,7 @@ bool LineParser::isFirstCharOfTheWord(int index, const QString &line)
 
 bool LineParser::isLastCharOfTheWord(int index, const QString &line)
 {
-    return (index == line.length() - 1) || isKeywordSeparator(line.at(index + 1));
+    return (index == line.size() - 1) || isKeywordSeparator(line.at(index + 1));
 }
 
 QList<LineParser::KeywordEntry> LineParser::keywordEntriesFromCandidates(
@@ -90,7 +90,7 @@ QList<LineParser::KeywordEntry> LineParser::keywordEntriesFromCandidates(
     for (auto it = tmp.crbegin(), end = tmp.crend(); it != end; ++it) {
         KeywordEntry entry = *it;
 
-        int keywordLength = m_keywords.at(entry.keywordIndex).name.length();
+        int keywordLength = m_keywords.at(entry.keywordIndex).name.size();
 
         int entryTextLength = -1;
         if (!entries.empty())
@@ -114,10 +114,10 @@ QString LineParser::trimSeparators(const QString &string)
     QString result = string.trimmed();
 
     while (startsWithSeparator(result))
-        result = result.right(result.length() - 1);
+        result = result.right(result.size() - 1);
 
     while (endsWithSeparator(result))
-        result = result.left(result.length() - 1);
+        result = result.left(result.size() - 1);
 
     return result;
 }
@@ -129,7 +129,7 @@ bool LineParser::startsWithSeparator(const QString &string)
 
 bool LineParser::endsWithSeparator(const QString &string)
 {
-    return !string.isEmpty() && isKeywordSeparator(string.at(string.length() - 1));
+    return !string.isEmpty() && isKeywordSeparator(string.at(string.size() - 1));
 }
 
 QList<TodoItem> LineParser::todoItemsFromKeywordEntries(const QList<KeywordEntry> &entries)

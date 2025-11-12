@@ -75,7 +75,7 @@ void NamePrettyPrinter::visit(const TemplateNameId *name)
         else
             _name += arg;
     }
-    if (! _name.isEmpty() && _name.at(_name.length() - 1) == QLatin1Char('>'))
+    if (! _name.isEmpty() && _name.at(_name.size() - 1) == QLatin1Char('>'))
         _name += QLatin1Char(' ');
     _name += QLatin1Char('>');
 }

@@ -195,7 +195,7 @@ const QStringList splitVersion(const QString &version)
 {
     // Successively removing minor and major version numbers.
     QStringList result;
-    int versionEnd = version.length();
+    int versionEnd = version.size();
     while (versionEnd > 0) {
         result.append(version.left(versionEnd));
         // remove numbers and then potential . at the end

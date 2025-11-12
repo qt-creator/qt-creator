@@ -334,7 +334,7 @@ QString PluginGenerator::processTemplate(const QString &tmpl,
         const QString keyword = cont.mid(start + 1, end - start - 1);
         const QString replacement = substMap.value(keyword);
         cont.replace(start, end - start + 1, replacement);
-        offset = start + replacement.length();
+        offset = start + replacement.size();
     }
     return cont;
 }

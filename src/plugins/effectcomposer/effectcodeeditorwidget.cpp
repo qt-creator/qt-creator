@@ -93,7 +93,7 @@ void EffectCodeEditorWidget::setEditorTextWithIndentation(const QString &text)
         return;
 
     auto modifier = std::make_unique<QmlDesigner::IndentingTextEditModifier>(doc);
-    modifier->indent(0, text.length()-1);
+    modifier->indent(0, text.size()-1);
 }
 
 std::unique_ptr<TextEditor::AssistInterface> EffectCodeEditorWidget::createAssistInterface(

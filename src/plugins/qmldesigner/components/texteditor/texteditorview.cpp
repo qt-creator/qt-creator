@@ -584,7 +584,7 @@ void TextEditorView::reformatFile()
         int pos = m_widget->textEditor()->textCursor().position();
 
         Utils::ChangeSet changeSet;
-        changeSet.replace(0, document->plainText().length(), newText);
+        changeSet.replace(0, document->plainText().size(), newText);
 
         tc.beginEditBlock();
         changeSet.apply(&tc);

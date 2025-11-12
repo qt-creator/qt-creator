@@ -307,7 +307,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidge
         currentPosition = cursor.position();
     }
 
-    for (int i = 0; i < extraChars.length(); ++i) {
+    for (int i = 0; i < extraChars.size(); ++i) {
         const QChar a = extraChars.at(i);
         const QChar b = editorWidget->characterAt(currentPosition + i);
         if (a == b)
@@ -321,7 +321,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidge
     // Insert the remainder of the name
     const int length = currentPosition - basePosition + extraLength;
     editorWidget->replace(basePosition, length, toInsert);
-    editorWidget->setCursorPosition(basePosition + toInsert.length());
+    editorWidget->setCursorPosition(basePosition + toInsert.size());
     if (cursorOffset)
         editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
     if (setAutoCompleteSkipPos)
@@ -652,7 +652,7 @@ private:
         const QString expression = expressionUnderCursor(cursor);
         if (expression.isEmpty())
             return false;
-        m_position = m_position - expression.length();
+        m_position = m_position - expression.size();
         return true;
     }
 
@@ -666,7 +666,7 @@ private:
 
         maybeEatWhitespace();
 
-        const int stringLength = string.length();
+        const int stringLength = string.size();
         const int stringStart = m_position - (stringLength - 1);
 
         if (stringStart < 0)
@@ -997,7 +997,7 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
 
     if (m_model->m_completionOperator) {
         expression = expressionUnderCursor(tc);
-        startOfExpression = endOfExpression - expression.length();
+        startOfExpression = endOfExpression - expression.size();
 
         if (m_model->m_completionOperator == T_AMPER) {
             // We expect 'expression' to be either "sender" or "receiver" in
@@ -1206,7 +1206,7 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
             m_model->m_completionOperator = T_STRING_LITERAL;
         }
         if (startCharPos != -1)
-            directoryPrefix = sel.mid(startCharPos + 1, sel.length() - 1);
+            directoryPrefix = sel.mid(startCharPos + 1, sel.size() - 1);
     }
 
     // Make completion for all relevant includes

@@ -380,7 +380,7 @@ void QmlJSAssistProposalItem::applyContextualContent(TextEditorWidget *editorWid
 
     QString replaceable = content;
     int replacedLength = 0;
-    for (int i = 0; i < replaceable.length(); ++i) {
+    for (int i = 0; i < replaceable.size(); ++i) {
         const QChar a = replaceable.at(i);
         const QChar b = editorWidget->characterAt(editorWidget->position() + i);
         if (a == b)
@@ -867,9 +867,9 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
             ++startPos;
 
             const QString &word = interface()->textAt(startPos, cursorPos - startPos);
-            if (word.length() >= TextEditorSettings::completionSettings().m_characterThreshold
+            if (word.size() >= TextEditorSettings::completionSettings().m_characterThreshold
                     && isIdentifierChar(word.at(0), true)) {
-                for (int i = 1; i < word.length(); ++i) {
+                for (int i = 1; i < word.size(); ++i) {
                     if (!isIdentifierChar(word.at(i)))
                         return false;
                 }

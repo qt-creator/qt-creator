@@ -168,7 +168,7 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
             QString absDir = d->m_tmp1.setRawData(absEl.constData(), nameOff);
             if (IoUtils::exists(d->deviceRoot(), absDir)) {
                 QString wildcard = d->m_tmp2.setRawData(absEl.constData() + nameOff + 1,
-                                                        absEl.length() - nameOff - 1);
+                                                        absEl.size() - nameOff - 1);
                 if (wildcard.contains(QLatin1Char('*')) || wildcard.contains(QLatin1Char('?'))) {
                     wildcard.detach(); // Keep m_tmp out of QRegExp's cache
                     QDir theDir(absDir);

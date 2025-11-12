@@ -353,7 +353,7 @@ static inline QStringList parseLists(QIODevice *io, QString *errorMessage)
     while (it.hasNext()) {
         const QRegularExpressionMatch match = it.next();
 
-        bool startElement = match.captured(4).length() == 0 && match.captured(1).length() == 0;
+        bool startElement = match.captured(4).size() == 0 && match.captured(1).size() == 0;
         if (startElement) {
             state = nextOpeningState(state, match.capturedView(2), match.capturedView(3));
             switch (state) {

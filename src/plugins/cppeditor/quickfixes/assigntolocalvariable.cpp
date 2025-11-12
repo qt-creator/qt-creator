@@ -47,15 +47,15 @@ private:
         QString type = deduceType();
         if (type.isEmpty())
             return;
-        const int origNameLength = m_originalName.length();
+        const int origNameLength = m_originalName.size();
         const QString varName = constructVarName();
-        const QString insertString = type.replace(type.length() - origNameLength, origNameLength,
+        const QString insertString = type.replace(type.size() - origNameLength, origNameLength,
                                                   varName + QLatin1String(" = "));
         m_file->apply(ChangeSet::makeInsert(m_insertPos, insertString));
 
         // move cursor to new variable name
         QTextCursor c = m_file->cursor();
-        c.setPosition(m_insertPos + insertString.length() - varName.length() - 3);
+        c.setPosition(m_insertPos + insertString.size() - varName.size() - 3);
         c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
         editor()->setTextCursor(c);
     }
@@ -95,12 +95,12 @@ private:
     {
         QString newName = m_originalName;
         if (newName.startsWith(QLatin1String("get"), Qt::CaseInsensitive)
-            && newName.length() > 3
+            && newName.size() > 3
             && newName.at(3).isUpper()) {
             newName.remove(0, 3);
             newName.replace(0, 1, newName.at(0).toLower());
         } else if (newName.startsWith(QLatin1String("to"), Qt::CaseInsensitive)
-                   && newName.length() > 2
+                   && newName.size() > 2
                    && newName.at(2).isUpper()) {
             newName.remove(0, 2);
             newName.replace(0, 1, newName.at(0).toLower());

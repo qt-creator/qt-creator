@@ -154,7 +154,7 @@ QString stripQuotes(const QString &str)
 {
     if ((str.startsWith(QLatin1Char('"')) && str.endsWith(QLatin1Char('"')))
             || (str.startsWith(QLatin1Char('\'')) && str.endsWith(QLatin1Char('\''))))
-        return str.mid(1, str.length() - 2);
+        return str.mid(1, str.size() - 2);
 
     return str;
 }
@@ -218,7 +218,7 @@ bool isSignalPropertyName(const QString &signalName)
     QStringList list = signalName.split(QLatin1String("."));
 
     const QString &pureSignalName = list.constLast();
-    return pureSignalName.length() >= 3 && pureSignalName.startsWith(u"on")
+    return pureSignalName.size() >= 3 && pureSignalName.startsWith(u"on")
            && pureSignalName.at(2).isLetter();
 }
 
@@ -1322,7 +1322,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
             astValue = astValue.trimmed();
             if (astValue.endsWith(QLatin1Char(';')))
-                astValue = astValue.left(astValue.length() - 1);
+                astValue = astValue.left(astValue.size() - 1);
             astValue = astValue.trimmed();
 
             const TypeName &astType = property->memberType->name.toUtf8();
@@ -1448,7 +1448,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
                           script->statement->lastSourceLocation());
         astValue = astValue.trimmed();
         if (astValue.endsWith(QLatin1Char(';')))
-            astValue = astValue.left(astValue.length() - 1);
+            astValue = astValue.left(astValue.size() - 1);
         astValue = astValue.trimmed();
     }
 

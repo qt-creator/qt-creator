@@ -58,13 +58,13 @@ void ClangPreprocessorAssistProposalItem::apply(TextEditor::TextEditorWidget *ed
     int existLength = 0;
     if (!existingText.isEmpty()) {
         // Calculate the exist length in front of the extra chars
-        existLength = textToBeInserted.length() - (editorWidget->position() - basePosition);
+        existLength = textToBeInserted.size() - (editorWidget->position() - basePosition);
         while (!existingText.startsWith(textToBeInserted.right(existLength))) {
             if (--existLength == 0)
                 break;
         }
     }
-    for (int i = 0; i < extraCharacters.length(); ++i) {
+    for (int i = 0; i < extraCharacters.size(); ++i) {
         const QChar a = extraCharacters.at(i);
         const QChar b = editorWidget->characterAt(editorWidget->position() + i + existLength);
         if (a == b)

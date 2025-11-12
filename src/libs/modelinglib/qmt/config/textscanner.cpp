@@ -68,8 +68,8 @@ void TextScanner::setOperators(const QList<QPair<QString, int>> &operators)
     for (const DefTuple &tuple : operators) {
         const QString op = tuple.first;
         d->m_operatorToSubtypeMap.insert(op, tuple.second);
-        if (op.length() > d->m_maxOperatorLength)
-            d->m_maxOperatorLength = op.length();
+        if (op.size() > d->m_maxOperatorLength)
+            d->m_maxOperatorLength = op.size();
         d->m_operatorFirstCharsSet.insert(op.at(0));
         for (const QChar ch : op)
             d->m_operatorCharsSet.insert(ch);
@@ -261,14 +261,14 @@ Token TextScanner::scanOperator(const SourceChar &firstChar)
     for (;;) {
         if (d->m_operatorToSubtypeMap.contains(text)) {
             haveOperator = true;
-            operatorLength = text.length();
+            operatorLength = text.size();
             subtype = d->m_operatorToSubtypeMap.value(text);
             op = text;
         }
         sourceChar = readChar();
-        if (text.length() >= d->m_maxOperatorLength || !d->m_operatorCharsSet.contains(sourceChar.ch)) {
+        if (text.size() >= d->m_maxOperatorLength || !d->m_operatorCharsSet.contains(sourceChar.ch)) {
             unreadChar(sourceChar);
-            int i = text.length();
+            int i = text.size();
             while (i > operatorLength) {
                 --i;
                 unreadChar(extraChars.pop());

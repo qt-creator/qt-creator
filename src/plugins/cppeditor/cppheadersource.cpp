@@ -131,7 +131,7 @@ static QStringList baseDirWithAllDirectories(const QDir &baseDir, const QStringL
 
 static int commonFilePathLength(const QString &s1, const QString &s2)
 {
-    int length = qMin(s1.length(), s2.length());
+    int length = qMin(s1.size(), s2.size());
     for (int i = 0; i < length; ++i)
         if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseSensitive) {
             if (s1[i] != s2[i])

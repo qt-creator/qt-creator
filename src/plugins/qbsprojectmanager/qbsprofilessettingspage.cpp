@@ -77,7 +77,7 @@ public:
             });
             for (QString line : output) {
                 line = line.trimmed();
-                line = line.mid(QString("profiles.").length());
+                line = line.mid(QString("profiles.").size());
                 const int colonIndex = line.indexOf(':');
                 if (colonIndex == -1)
                     continue;

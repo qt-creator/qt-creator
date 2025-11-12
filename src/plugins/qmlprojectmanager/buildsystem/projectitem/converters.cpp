@@ -95,7 +95,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         for (const QString &value : vals)
             finalString.append("\"").append(value).append("\"").append(",");
 
-        finalString.remove(finalString.length() - 1, 1);
+        finalString.remove(finalString.size() - 1, 1);
         finalString.prepend("[ ").append(" ]");
         appendItem(key, finalString, false);
     };

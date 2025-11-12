@@ -1321,7 +1321,7 @@ bool QMakeParser::resolveVariable(ushort *xprPtr, int tlen, int needSep, ushort 
         // The string is typically longer than the variable reference, so we need
         // to ensure that there is enough space in the output buffer - as unlikely
         // as an overflow is to actually happen in practice.
-        int need = (in.length() - (cur - (const ushort *)in.constData()) + 2) * 5 + out.length();
+        int need = (in.length() - (cur - (const ushort *)in.constData()) + 2) * 5 + out.size();
         int tused = *tokPtr - (ushort *)tokBuff->constData();
         int xused;
         int total;
@@ -1352,9 +1352,9 @@ bool QMakeParser::resolveVariable(ushort *xprPtr, int tlen, int needSep, ushort 
     }
     xprPtr -= 2; // Was set up for variable reference
     xprPtr[-2] = TokLiteral | needSep;
-    xprPtr[-1] = out.length();
-    memcpy(xprPtr, out.constData(), out.length() * 2);
-    *ptr = xprPtr + out.length();
+    xprPtr[-1] = out.size();
+    memcpy(xprPtr, out.constData(), out.size() * 2);
+    *ptr = xprPtr + out.size();
     return true;
 }
 

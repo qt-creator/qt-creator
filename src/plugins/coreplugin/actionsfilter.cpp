@@ -148,8 +148,8 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                 = FuzzyMatcher::highlightingPositions(allTextMatch);
             const int positionsCount = positions.starts.count();
             QTC_ASSERT(positionsCount == positions.lengths.count(), return {});
-            const int border = first == Highlight::DisplayName ? filterEntry.displayName.length()
-                                                               : filterEntry.extraInfo.length();
+            const int border = first == Highlight::DisplayName ? filterEntry.displayName.size()
+                                                               : filterEntry.extraInfo.size();
             for (int i = 0; i < positionsCount; ++i) {
                 int start = positions.starts.at(i);
                 const int length = positions.lengths.at(i);

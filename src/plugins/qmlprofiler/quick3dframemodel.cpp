@@ -475,7 +475,7 @@ void Quick3DFrameModel::setFilterFrame(const QString &frame)
         m_filterFrame = -1;
     } else {
         QString title = Tr::tr("Frame");
-        QString number = frame.right(frame.length() - title.length());
+        QString number = frame.right(frame.size() - title.size());
         m_filterFrame = number.toInt();
     }
 }

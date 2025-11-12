@@ -179,7 +179,7 @@ void TimelineNotesModel::removeTimelineModel(const TimelineModel *timelineModel)
 
 void TimelineNotesModel::setText(int noteId, const QString &text)
 {
-    if (text.length() > 0)
+    if (text.size() > 0)
         update(noteId, text);
     else
         remove(noteId);
@@ -189,7 +189,7 @@ void TimelineNotesModel::setText(int modelId, int index, const QString &text)
 {
     int noteId = get(modelId, index);
     if (noteId == -1) {
-        if (text.length() > 0)
+        if (text.size() > 0)
             add(modelId, index, text);
     } else {
         setText(noteId, text);

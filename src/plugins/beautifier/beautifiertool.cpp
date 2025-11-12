@@ -434,7 +434,7 @@ void AbstractSettings::readStyles()
 
         if (auto contents = filePath.fileContents()) {
             const QString filename = filePath.fileName();
-            m_styles.insert(filename.left(filename.length() - m_ending.length()),
+            m_styles.insert(filename.left(filename.size() - m_ending.size()),
                             QString::fromLocal8Bit(*contents));
         }
     }

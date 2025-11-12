@@ -31,7 +31,7 @@ static inline QString stripQuotes(const QString &str)
 {
     if ((str.startsWith(QLatin1Char('"')) && str.endsWith(QLatin1Char('"')))
             || (str.startsWith(QLatin1Char('\'')) && str.endsWith(QLatin1Char('\''))))
-        return str.mid(1, str.length() - 2);
+        return str.mid(1, str.size() - 2);
 
     return str;
 }

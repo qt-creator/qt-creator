@@ -87,7 +87,7 @@ void CompletingTextEditPrivate::insertCompletion(const QString &completion)
         break;
     }
     case CompletingTextEdit::CompletionBehavior::OnKeyPress: {
-        int extra = completion.length() - m_completer->completionPrefix().length();
+        int extra = completion.size() - m_completer->completionPrefix().size();
         tc.movePosition(QTextCursor::Left);
         tc.movePosition(QTextCursor::EndOfWord);
         tc.insertText(completion.right(extra));
@@ -108,7 +108,7 @@ QString CompletingTextEditPrivate::textUnderCursor() const
 
 bool CompletingTextEditPrivate::acceptsCompletionPrefix(const QString &prefix) const
 {
-    return prefix.length() >= m_completionLengthThreshold;
+    return prefix.size() >= m_completionLengthThreshold;
 }
 
 CompletingTextEdit::CompletingTextEdit(QWidget *parent)

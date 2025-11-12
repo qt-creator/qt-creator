@@ -238,14 +238,14 @@ struct LineInfo
 static LineInfo lineInfo(const QString &line)
 {
     LineInfo li;
-    li.continuationPos = line.length();
+    li.continuationPos = line.size();
     const int idx = line.indexOf('#');
     li.hasComment = idx >= 0;
     if (li.hasComment)
         li.continuationPos = idx;
     for (int i = idx - 1; i >= 0 && (line.at(i) == ' ' || line.at(i) == '\t'); --i)
         --li.continuationPos;
-    for (int i = 0; i < line.length() && (line.at(i) == ' ' || line.at(i) == '\t'); ++i)
+    for (int i = 0; i < line.size() && (line.at(i) == ' ' || line.at(i) == '\t'); ++i)
         li.indent += line.at(i);
     return li;
 }
@@ -351,7 +351,7 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
                 const QRegularExpressionMatch match(rx.match(lines->at(scopeStart)));
                 if (match.hasMatch()) {
                     qCDebug(prowriterLog) << 3 << "old line value:" << (*lines)[scopeStart];
-                    (*lines)[scopeStart].replace(0, match.captured(1).length(),
+                    (*lines)[scopeStart].replace(0, match.captured(1).size(),
                                                  scope + " {\n" + continuationIndent);
                     qCDebug(prowriterLog) << "new line value:" << (*lines)[scopeStart];
                     contInfo = skipContLines(lines, scopeStart, false);
@@ -473,7 +473,7 @@ QList<int> ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
        };
        while (lineNo < nextSegmentStart()) {
            QString &line = (*lines)[lineNo];
-           int lineLen = line.length();
+           int lineLen = line.size();
            bool killed = false;
            bool saved = false;
            int idx = line.indexOf('#');
@@ -548,7 +548,7 @@ QList<int> ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
                        for (const ContPos &pos : std::as_const(contPos)) {
                            QString &bline = (*lines)[pos.first];
                            bline.remove(pos.second, 1);
-                           if (pos.second == bline.length())
+                           if (pos.second == bline.size())
                                while (bline.endsWith(' ') || bline.endsWith('\t'))
                                    bline.chop(1);
                        }

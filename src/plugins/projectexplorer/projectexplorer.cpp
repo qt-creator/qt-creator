@@ -4089,7 +4089,7 @@ void ProjectExplorerPluginPrivate::duplicateFile()
     const QString baseName = filePath.baseName();
 
     QString newFileName = filePath.fileName();
-    int copyTokenIndex = newFileName.lastIndexOf(baseName) + baseName.length();
+    int copyTokenIndex = newFileName.lastIndexOf(baseName) + baseName.size();
     newFileName.insert(copyTokenIndex, Tr::tr("_copy"));
 
     bool okPressed;

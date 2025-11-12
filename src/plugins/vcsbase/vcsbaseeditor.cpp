@@ -425,10 +425,10 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
                 const QRegularExpressionMatch match = i.next();
                 const int urlMatchIndex = match.capturedStart(r.matchNumber);
                 const QString url = match.captured(r.matchNumber);
-                if (urlMatchIndex <= cursorCol && cursorCol <= urlMatchIndex + url.length()) {
+                if (urlMatchIndex <= cursorCol && cursorCol <= urlMatchIndex + url.size()) {
                     m_urlData.startColumn = urlMatchIndex;
                     m_urlData.url = r.urlPrefix + url;
-                    m_urlData.urlLength = url.length();
+                    m_urlData.urlLength = url.size();
                     break;
                 }
             }
@@ -898,7 +898,7 @@ void VcsBaseEditorWidget::slotPopulateLogBrowser()
             QString entry = match.captured(1);
             QString subject = revisionSubject(it);
             if (!subject.isEmpty()) {
-                if (subject.length() > 100) {
+                if (subject.size() > 100) {
                     subject.truncate(97);
                     subject.append(QLatin1String("..."));
                 }
@@ -1462,7 +1462,7 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
     //    filename contains spaces. Since the diff commend does use \t all of a sudden,
     //    too, when seeing spaces in a filename, I expect the same behavior in other VCS.
     if (f.endsWith(QLatin1Char('\t')))
-        return findDiffFile(f.left(f.length() - 1));
+        return findDiffFile(f.left(f.size() - 1));
 
     return {};
 }

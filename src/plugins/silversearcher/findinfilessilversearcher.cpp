@@ -81,7 +81,7 @@ static void runSilverSeacher(QPromise<SearchResultItems> &promise,
         QString nameFiltersAsRegExp;
         for (const QString &filter : std::as_const(parameters.nameFilters))
             nameFiltersAsRegExp += QString("(%1)|").arg(convertWildcardToRegex(filter));
-        nameFiltersAsRegExp.remove(nameFiltersAsRegExp.length() - 1, 1);
+        nameFiltersAsRegExp.remove(nameFiltersAsRegExp.size() - 1, 1);
 
         arguments << "-G" << nameFiltersAsRegExp;
 

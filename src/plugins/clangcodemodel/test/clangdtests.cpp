@@ -643,7 +643,7 @@ void ClangdTestLocalReferences::test()
     QList<Range> actualRanges;
     const auto handler = [&actualRanges, &loop](const QString &symbol, const Links &links, int) {
         for (const Link &link : links)
-            actualRanges << Range(link.target.line, link.target.column, symbol.length());
+            actualRanges << Range(link.target.line, link.target.column, symbol.size());
         loop.quit();
     };
 
@@ -2073,7 +2073,7 @@ void ClangdTestCompletion::getProposal(const QString &fileName,
         m_documentsWithHighlighting.remove(doc->filePath());
         editor->insert(insertString);
         if (cursorPos)
-            *cursorPos += insertString.length();
+            *cursorPos += insertString.size();
     }
 
     // Once clangd has sent highlighting information for a file, we know it is also

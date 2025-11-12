@@ -36,7 +36,7 @@ SourceChar StringTextSource::readNextChar()
     QMT_ASSERT(m_lineNumber >= 0, return SourceChar());
     QMT_ASSERT(m_columnNumber >= 0, return SourceChar());
 
-    if (m_index >= m_text.length())
+    if (m_index >= m_text.size())
         return SourceChar(QChar(), SourcePos(m_sourceId, m_lineNumber, m_columnNumber));
 
     SourcePos pos(m_sourceId, m_lineNumber, m_columnNumber);

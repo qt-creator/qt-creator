@@ -1292,7 +1292,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
                 auto &prev = queue.last();
                 const int prevStart = prev.range()->start()
                         .toPositionInDocument(document->document());
-                if (prevStart + prev.text().length() == position) {
+                if (prevStart + prev.text().size() == position) {
                     prev.setText(prev.text() + text);
                     append = false;
                 }
@@ -1356,7 +1356,7 @@ TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation 
     const Position &start = info.location().range().start();
     return TextEditor::HighlightingResult(start.line() + 1,
                                           start.character() + 1,
-                                          info.name().length(),
+                                          info.name().size(),
                                           info.kind());
 }
 

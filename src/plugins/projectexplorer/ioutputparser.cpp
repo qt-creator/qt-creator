@@ -94,10 +94,10 @@ void OutputTaskParser::setDetailsFormat(Task &task, const LinkSpecs &linkSpecs)
     const QList<Utils::FormattedText> linkifiedText =
             Utils::OutputFormatter::linkifiedText({monospacedText}, linkSpecs);
     QList<QTextLayout::FormatRange> formats;
-    int offset = task.summary().length() + 1;
+    int offset = task.summary().size() + 1;
     for (const Utils::FormattedText &ft : linkifiedText) {
-        formats << QTextLayout::FormatRange{offset, int(ft.text.length()), ft.format};
-        offset += ft.text.length();
+        formats << QTextLayout::FormatRange{offset, int(ft.text.size()), ft.format};
+        offset += ft.text.size();
     }
     task.setFormats(formats);
 }
@@ -153,7 +153,7 @@ void OutputTaskParser::createOrAmendTask(
         d->currentTask.details().cbegin(),
         d->currentTask.details().cend(),
         0,
-        [](int total, const QString &line) { return total + line.length() + 1; });
+        [](int total, const QString &line) { return total + line.size() + 1; });
     for (LinkSpec &ls : adaptedLinkSpecs)
         ls.startPos += offset;
     d->linkSpecs << adaptedLinkSpecs;

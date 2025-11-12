@@ -308,8 +308,8 @@ void GdbMi::dumpChildren(QString * str, bool multiline, int indent) const
 QString GdbMi::escapeCString(const QString &ba)
 {
     QString ret;
-    ret.reserve(ba.length() * 2);
-    for (int i = 0; i < ba.length(); ++i) {
+    ret.reserve(ba.size() * 2);
+    for (int i = 0; i < ba.size(); ++i) {
         const ushort c = ba.at(i).unicode();
         switch (c) {
             case '\\': ret += "\\\\"; break;

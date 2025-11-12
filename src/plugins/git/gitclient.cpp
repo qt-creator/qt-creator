@@ -459,7 +459,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         if (result == DoneWith::Success) {
             const QString remotePrefix = "remotes/";
             const QString localPrefix = "<Local>";
-            const int prefixLength = remotePrefix.length();
+            const int prefixLength = remotePrefix.size();
             QStringList branches;
             QString previousRemote = localPrefix;
             bool first = true;
@@ -1456,7 +1456,7 @@ QStringList GitClient::setupCheckoutArguments(const FilePath &workingDirectory,
         if (singleRef.startsWith(refSha)) {
             // branch name might be origin/foo/HEAD
             if (!singleRef.endsWith(head) || singleRef.count('/') > 1) {
-                remoteBranch = singleRef.mid(refSha.length() + 1);
+                remoteBranch = singleRef.mid(refSha.size() + 1);
                 if (remoteBranch == ref)
                     break;
             }
@@ -1805,7 +1805,7 @@ QString GitClient::synchronousShortDescription(const FilePath &workingDirectory,
     QString output = synchronousShortDescription(workingDirectory, revision, defaultShortLogFormat);
     output.replace(quoteReplacement, "\"");
     if (output != revision) {
-        if (output.length() > maxShortLogLength) {
+        if (output.size() > maxShortLogLength) {
             output.truncate(maxShortLogLength);
             output.append("...");
         }
@@ -2125,7 +2125,7 @@ QMap<QString,QString> GitClient::synchronousRemotesList(const FilePath &workingD
         const int tabIndex = remote.indexOf('\t');
         if (tabIndex == -1)
             continue;
-        const QString url = remote.mid(tabIndex + 1, remote.length() - tabIndex - 8);
+        const QString url = remote.mid(tabIndex + 1, remote.size() - tabIndex - 8);
         result.insert(remote.left(tabIndex), url);
     }
     return result;
@@ -2328,7 +2328,7 @@ void GitClient::endStashScope(const FilePath &workingDirectory)
 
 bool GitClient::isValidRevision(const QString &revision) const
 {
-    if (revision.length() < 1)
+    if (revision.size() < 1)
         return false;
     for (const auto i : revision)
         if (i != '0')

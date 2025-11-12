@@ -501,7 +501,7 @@ public:
         for (QString &check : checksList) {
             Qt::CheckState state;
             if (check.startsWith("-")) {
-                check = check.right(check.length() - 1);
+                check = check.right(check.size() - 1);
                 state = Qt::Unchecked;
             } else {
                 state = Qt::Checked;
@@ -533,7 +533,7 @@ private:
                 if (!nodeName.contains("Level"))
                     return {};
             } else {
-                remainingName = name.mid(nodeName.length());
+                remainingName = name.mid(nodeName.size());
             }
         }
         const int childCount = rowCount(current);
@@ -630,7 +630,7 @@ private:
 
             auto *node = static_cast<Tree *>(index.internalPointer());
             const QString nodeName = node->fullPath.toUrlishString();
-            if ((check.endsWith("*") && nodeName.startsWith(check.left(check.length() - 1)))
+            if ((check.endsWith("*") && nodeName.startsWith(check.left(check.size() - 1)))
                     || (!node->isDir && nodeName == check)) {
                 result = index;
                 return false;
@@ -1264,7 +1264,7 @@ QString removeClazyCheck(const QString &checks, const QString &check)
     const ClazyStandaloneInfo clazyInfo = ClazyStandaloneInfo(toolExecutable(ClangToolType::Clazy));
     ClazyChecksTreeModel model(clazyInfo.supportedChecks);
     model.enableChecks(checks.split(',', Qt::SkipEmptyParts));
-    const QModelIndex index = model.indexForName(check.mid(QString("clazy-").length()));
+    const QModelIndex index = model.indexForName(check.mid(QString("clazy-").size()));
     if (!index.isValid())
         return checks;
     model.setData(index, false, Qt::CheckStateRole);

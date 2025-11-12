@@ -326,12 +326,12 @@ static int forceIndentWithExtraText(QByteArray &buffer,
     int firstNonWhitespace = Utils::indexOf(blockText,
                                             [](const QChar &ch) { return !ch.isSpace(); });
     int utf8Offset = Text::utf8NthLineOffset(block.document(), buffer, block.blockNumber() + 1);
-    int utf8EndOfLineOffset = utf8Offset + blockText.length();
+    int utf8EndOfLineOffset = utf8Offset + blockText.size();
 
     if (firstNonWhitespace >= 0)
         utf8Offset += firstNonWhitespace;
     else
-        utf8Offset += blockText.length();
+        utf8Offset += blockText.size();
 
     const bool closingParenBlock = firstNonWhitespace >= 0
                                    && blockText.at(firstNonWhitespace) == ')';
@@ -391,8 +391,8 @@ static int forceIndentWithExtraText(QByteArray &buffer,
 static bool isInsideDummyTextInLine(const QString &originalLine, const QString &modifiedLine, int column)
 {
     // Detect the cases when we have inserted extra text into the line to get the indentation.
-    return originalLine.length() < modifiedLine.length() && column != modifiedLine.length() + 1
-           && (column > originalLine.length() || originalLine.trimmed().isEmpty()
+    return originalLine.size() < modifiedLine.size() && column != modifiedLine.size() + 1
+           && (column > originalLine.size() || originalLine.trimmed().isEmpty()
                || !modifiedLine.startsWith(originalLine));
 }
 
@@ -404,7 +404,7 @@ static Text::Position utf16LineColumn(const QByteArray &utf8Buffer, int utf8Offs
     const int startOfLineOffset = utf8Offset ? (utf8Buffer.lastIndexOf('\n', utf8Offset - 1) + 1)
                                              : 0;
     position.column = QString::fromUtf8(utf8Buffer.mid(startOfLineOffset,
-                                                       utf8Offset - startOfLineOffset)).length();
+                                                       utf8Offset - startOfLineOffset)).size();
     return position;
 }
 
@@ -427,7 +427,7 @@ static ChangeSet convertReplacements(const QTextDocument *doc,
         if (isInsideDummyTextInLine(lineText, bufferLineText, lineColUtf16.column + 1))
             continue;
 
-        lineColUtf16.column = std::min(lineColUtf16.column, int(lineText.length()));
+        lineColUtf16.column = std::min(lineColUtf16.column, int(lineText.size()));
         int utf16Offset = Text::positionInText(doc, lineColUtf16.line, lineColUtf16.column);
         int utf16Length = QString::fromUtf8(
                               utf8Buffer.mid(static_cast<int>(replacement.getOffset()),

@@ -39,7 +39,7 @@ QString FunctionHintProposalModel::text(int index) const
 
     const QString &parameterText = parameters.at(parametersIndex);
     const int start = label.indexOf(parameterText);
-    const int end = start + parameterText.length();
+    const int end = start + parameterText.size();
     return label.mid(0, start).toHtmlEscaped() + "<b>" + parameterText.toHtmlEscaped() + "</b>"
            + label.mid(end).toHtmlEscaped();
 }
@@ -134,8 +134,8 @@ void FunctionHintAssistProvider::setTriggerCharacters(
 {
     m_triggerChars = triggerChars.value_or(QStringList());
     for (const QString &trigger : std::as_const(m_triggerChars)) {
-        if (trigger.length() > m_activationCharSequenceLength)
-            m_activationCharSequenceLength = trigger.length();
+        if (trigger.size() > m_activationCharSequenceLength)
+            m_activationCharSequenceLength = trigger.size();
     }
 }
 

@@ -146,7 +146,7 @@ static Result<> testJavaC(const FilePath &jdkPath)
         return ResultError(Tr::tr("Unexpected output from \"%1\": %2")
                                    .arg(cmd.toUserOutput(), stdOut));
 
-    jdkVersion = QVersionNumber::fromString(stdOut.mid(outputPrefix.length()).split('\n').first());
+    jdkVersion = QVersionNumber::fromString(stdOut.mid(outputPrefix.size()).split('\n').first());
 
     if (jdkVersion.isNull() /* || jdkVersion.majorVersion() != requiredJavaMajorVersion */ ) {
         return ResultError(Tr::tr("Unsupported JDK version (needs to be %1): %2 (parsed: %3)")

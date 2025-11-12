@@ -44,7 +44,7 @@ static inline QColor properColor(const QString &str)
     int lalpha = 255;
     QString lcolorStr = str;
     const QChar hash = QLatin1Char('#');
-    if (lcolorStr.at(0) == hash && lcolorStr.length() == 9) {
+    if (lcolorStr.at(0) == hash && lcolorStr.size() == 9) {
         QString alphaStr = lcolorStr;
         alphaStr.truncate(3);
         lcolorStr.remove(0, 3);

@@ -34,7 +34,7 @@ void PlainTextEditModifier::replace(int offset, int length, const QString &repla
     Q_ASSERT(offset >= 0);
     Q_ASSERT(length >= 0);
 
-    const int replacementLength = replacement.length();
+    const int replacementLength = replacement.size();
 
     if (m_changeSet) {
         m_changeSet->replace(offset, offset + length, replacement);

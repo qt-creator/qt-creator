@@ -96,7 +96,7 @@ private:
         return Port(port);
     }
 
-    bool atEnd() const { return m_pos == m_portsSpec.length(); }
+    bool atEnd() const { return m_pos == m_portsSpec.size(); }
     char nextChar() const { return m_portsSpec.at(m_pos).toLatin1(); }
 
     PortList m_portList;
@@ -196,7 +196,7 @@ QString PortList::toString() const
         stringRep += QLatin1Char(',');
     }
     if (!stringRep.isEmpty())
-        stringRep.remove(stringRep.length() - 1, 1); // Trailing comma.
+        stringRep.remove(stringRep.size() - 1, 1); // Trailing comma.
     return stringRep;
 }
 

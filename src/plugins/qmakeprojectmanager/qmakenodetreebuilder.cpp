@@ -212,7 +212,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
             targetFileType = FileType::Lib;
             const FilePaths libs = Utils::sorted(buildSystem->allLibraryTargetFiles(proFile),
                                                  [](const FilePath &fp1, const FilePath &fp2) {
-                return fp1.fileName().length() < fp2.fileName().length(); });
+                return fp1.fileName().size() < fp2.fileName().size(); });
             if (!libs.isEmpty())
                 targetBinary = libs.last(); // Longest file name is the one that's not a symlink.
         }

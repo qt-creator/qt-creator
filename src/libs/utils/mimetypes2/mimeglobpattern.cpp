@@ -243,7 +243,7 @@ void MimeAllGlobPatterns::matchingGlobs(const QString &fileName, MimeGlobMatchRe
     // (which is most of them, so this optimization is definitely worth it)
     const qsizetype lastDot = fileName.lastIndexOf(u'.');
     if (lastDot != -1) { // if no '.', skip the extension lookup
-        const qsizetype ext_len = fileName.length() - lastDot - 1;
+        const qsizetype ext_len = fileName.size() - lastDot - 1;
         const QString simpleExtension = fileName.right(ext_len).toLower();
         // (toLower because fast patterns are always case-insensitive and saved as lowercase)
 

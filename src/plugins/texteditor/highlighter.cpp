@@ -171,7 +171,7 @@ void Highlighter::applyFolding(int offset,
     QTextBlock block = currentBlock();
     const QString &text = block.text();
     const bool fromStart = TabSettings::firstNonSpace(text) == offset;
-    const bool toEnd = (offset + length) == (text.length() - TabSettings::trailingWhitespaces(text));
+    const bool toEnd = (offset + length) == (text.size() - TabSettings::trailingWhitespaces(text));
     if (region.type() == KSyntaxHighlighting::FoldingRegion::Begin) {
         const int newBraceDepth = TextBlockUserData::braceDepth(block) + 1;
         TextBlockUserData::setBraceDepth(block, newBraceDepth);
