@@ -190,11 +190,11 @@ void AiAssistantWidget::updateModelConfig()
 
 void AiAssistantWidget::removeMissingAttachedImage()
 {
-    const QString imagePath = attachedImageSource();
-    if (imagePath.isEmpty())
+    const QUrl imageUrl = fullImageUrl(attachedImageSource());
+    if (imageUrl.isEmpty())
         return;
 
-    if (Utils::FilePath file = Utils::FilePath::fromString(imagePath); !file.exists())
+    if (Utils::FilePath file = Utils::FilePath::fromUrl(imageUrl); !file.exists())
         setAttachedImageSource({});
 }
 
