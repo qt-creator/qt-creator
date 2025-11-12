@@ -8,5 +8,6 @@
 namespace Android::Internal {
 
 void setupAndroidToolsMenu();
+Utils::FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget);
 
 } // namespace Android::Internal

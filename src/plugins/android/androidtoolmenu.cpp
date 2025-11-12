@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "androidtoolmenu.h"
 
-#include "androidmanifesteditor.h"
 #include "androidconstants.h"
+#include "androidmanifesteditor.h"
 #include "androidtr.h"
 #include "iconcontainerwidget.h"
+#include "splashscreencontainerwidget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -16,9 +17,10 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
-#include <QMenu>
 #include <QAction>
 #include <QCoreApplication>
+#include <QMenu>
+#include <QScrollArea>
 
 #include <texteditor/texteditor.h>
 
@@ -27,6 +29,31 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace Android::Internal {
+
+FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
+{
+    const FilePath docPath = textEditorWidget->textDocument()->filePath().absolutePath();
+
+    Project *project = ProjectManager::projectForFile(docPath);
+    if (!project && !ProjectManager::projects().isEmpty()) {
+        project = ProjectManager::startupProject();
+        if (!project)
+            project = ProjectManager::projects().first();
+    }
+
+    if (project) {
+        const FilePath projDir = project->projectDirectory();
+        const QString androidSubdir = QLatin1String("android");
+
+        FilePath searchDir = projDir.pathAppended(androidSubdir);
+        FilePath manifestPath = searchDir.pathAppended(QLatin1String("AndroidManifest.xml"));
+
+        if (manifestPath.exists())
+            return searchDir;
+    }
+    // TODO: this will trigger path choosing/apk template dialogue in the future
+    return FilePath();
+}
 
 const char ANDROID_TOOLS_MENU_ID[] = "Android.Tools.Menu";
 const char ANDROID_GRAPHICAL_EDITOR_ID[] = "Android.Tools.Graphical.Editor.ID";
@@ -49,12 +76,14 @@ private:
     QTabWidget *m_tabWidget;
 };
 
-void AndroidIconSplashEditorWidget::setActiveTab(TabIndex index) {
+void AndroidIconSplashEditorWidget::setActiveTab(TabIndex index)
+{
     if (m_tabWidget)
         m_tabWidget->setCurrentIndex(index);
 }
 
-AndroidIconSplashEditorWidget::AndroidIconSplashEditorWidget(QWidget *parent) : QWidget(parent)
+AndroidIconSplashEditorWidget::AndroidIconSplashEditorWidget(QWidget *parent)
+    : QWidget(parent)
 {
     auto parentLayout = new QVBoxLayout(this);
     m_tabWidget = new QTabWidget(this);
@@ -71,12 +100,20 @@ AndroidIconSplashEditorWidget::AndroidIconSplashEditorWidget(QWidget *parent) : 
         fallbackPath = Utils::FilePath::fromString(QDir::currentPath());
     manifestTextEditor->textDocument()->setFilePath(fallbackPath);
 
-    auto iconContainer = new QWidget(this);
+    auto iconContainer = new IconContainerWidget(this);
+    iconContainer->initialize(manifestTextEditor);
+
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setWidget(iconContainer);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
     auto splashContainer = new QWidget(this);
     auto permissionsContainer = new QWidget(this);
 
     m_tabWidget->addTab(splashContainer, Tr::tr("Splash Screen Editor"));
-    m_tabWidget->addTab(iconContainer, Tr::tr("Icon Editor"));
+    m_tabWidget->addTab(scrollArea, Tr::tr("Icon Editor"));
 
     permissionsContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     parentLayout->addWidget(permissionsContainer, 1);
@@ -149,7 +186,6 @@ void setupAndroidToolsMenu()
         }).addToContainer(ANDROID_TOOLS_MENU_ID);
 }
 
-} //Android::Internal
+} // namespace Android::Internal
 
 #include "androidtoolmenu.moc"
-
