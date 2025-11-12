@@ -689,6 +689,7 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
 
     // Forward all complete lines to the specialized formatting code, and handle a
     // potential trailing incomplete line the same way as above.
+    d->cursor.beginEditBlock();
     for (int startPos = 0; ;) {
         const int eolPos = out.indexOf('\n', startPos);
         if (eolPos == -1) {
@@ -698,6 +699,7 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
         doAppendMessage(out.mid(startPos, eolPos - startPos), format, LineStatus::Complete);
         startPos = eolPos + 1;
     }
+    d->cursor.endEditBlock();
 }
 
 } // namespace Utils
