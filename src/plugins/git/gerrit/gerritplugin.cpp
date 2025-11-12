@@ -206,7 +206,6 @@ void GerritPlugin::addToLocator(CommandLocator *locator)
 
 void GerritPlugin::push(const FilePath &topLevel)
 {
-    // QScopedPointer is required to delete the dialog when leaving the function
     GerritPushDialog dialog(topLevel, m_reviewers, ICore::dialogParent());
 
     const QString initErrorMessage = dialog.initErrorMessage();
