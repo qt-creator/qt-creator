@@ -11,7 +11,9 @@ function gui.Object:isValid() end
 
 ---The base class of all gui layout classes.
 ---@class Layout : Object
-gui.layout = {}
+gui.Layout = {}
+
+function gui.Layout:show() end
 
 ---The base class of all widget classes, an empty widget itself.
 ---@class Widget : Object

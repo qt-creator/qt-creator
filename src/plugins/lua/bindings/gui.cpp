@@ -6,6 +6,8 @@
 #include "inheritance.h"
 #include "utils.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/aspects.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
@@ -544,6 +546,19 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
     return item;
 }
 
+template<class T>
+void showWidget(QObject *guard, T &component)
+{
+    QWidget *wdgt = component.emerge();
+    if (!wdgt->parentWidget()) {
+        wdgt->setAttribute(Qt::WA_DeleteOnClose, true);
+        QObject::connect(guard, &QObject::destroyed, wdgt, &QObject::deleteLater);
+        QObject::connect(
+            Core::ICore::instance(), &Core::ICore::coreAboutToClose, wdgt, &QObject::deleteLater);
+    }
+    wdgt->show();
+}
+
 void setupGuiModule()
 {
     registerProvider("Gui", [](sol::state_view l) -> sol::object {
@@ -571,7 +586,7 @@ void setupGuiModule()
             sol::call_constructor,
             sol::factories(&construct<Layout>),
             "show",
-            &Layout::show,
+            [guard](Layout &l) { showWidget(guard, l); },
             sol::base_classes,
             sol::bases<Object>());
 
@@ -685,7 +700,7 @@ void setupGuiModule()
                 return constructWidgetType<Label>(children, guard);
             }),
             "text",
-            sol::property(&Label::text),
+            sol::property(&Label::text, &Label::setText),
             sol::base_classes,
             sol::bases<Widget, Object>());
 
@@ -708,7 +723,7 @@ void setupGuiModule()
                 return constructWidgetType<Widget>(children, guard);
             }),
             "show",
-            &Widget::show,
+            [guard](Widget &w) { showWidget(guard, w); },
             "activateWindow",
             &Widget::activateWindow,
             "close",

@@ -521,14 +521,20 @@ public:
 
     static void runScript(const FilePath &script)
     {
+        static std::map<FilePath, std::unique_ptr<Utils::LuaState>> scriptStates;
+        scriptStates.erase(script);
+
         Result<QByteArray> content = script.fileContents();
         if (content) {
-            Lua::runScript(QString::fromUtf8(*content), script.fileName());
-        } else {
-            MessageManager::writeFlashing(Tr::tr("Failed to read script \"%1\": %2")
-                                              .arg(script.toUserOutput())
-                                              .arg(content.error()));
+            auto state = Lua::runScript(QString::fromUtf8(*content), script.fileName());
+            scriptStates[script] = std::move(state);
+            return;
         }
+
+        MessageManager::writeFlashing(
+            Tr::tr("Failed to read script \"%1\": %2")
+                .arg(script.toUserOutput())
+                .arg(content.error()));
     }
 };
 
