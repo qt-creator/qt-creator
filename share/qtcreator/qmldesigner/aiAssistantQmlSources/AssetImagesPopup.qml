@@ -26,7 +26,7 @@ StudioControls.PopupPanel {
     implicitHeight: scrollView.heightNeeded
     implicitWidth: scrollView.widthNeeded
 
-    minimumWidth: 200
+    minimumWidth: 50
     minimumHeight: 50
 
     maximumWidth: 600
@@ -55,6 +55,8 @@ StudioControls.PopupPanel {
         anchors.fill: parent
         anchors.margins: scrollView.padding
         clip: true
+
+        contentWidth: scrollView.visibleContentItem.implicitWidth
 
         GridLayout {
             id: gridLayout
