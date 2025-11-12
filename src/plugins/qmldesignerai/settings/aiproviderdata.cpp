@@ -47,7 +47,18 @@ const QMap<QString, AiProviderData> AiProviderData::defaultProviders()
                 // "gpt-4o",
                 // "gpt-4o-mini",
             }
-       }},
+        }},
+        {"Claude", AiProviderData{
+            .url = QUrl{"https://api.anthropic.com/v1/messages"},
+            .models = {
+                "claude-sonnet-4-5",
+                "claude-sonnet-4",
+                "claude-haiku-4-5",
+                "claude-haiku-3-5",
+                "claude-opus-4-1",
+                "claude-opus-4",
+            }
+        }},
     };
     return providers;
 }
