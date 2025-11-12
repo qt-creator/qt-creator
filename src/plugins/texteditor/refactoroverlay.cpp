@@ -10,19 +10,14 @@
 
 #include <QPainter>
 
-#include <QDebug>
-
 namespace TextEditor {
 
-RefactorOverlay::RefactorOverlay(TextEditor::TextEditorWidget *editor) :
-    QObject(editor),
-    m_editor(editor),
-    m_maxWidth(0),
-    m_icon(Utils::Icons::CODEMODEL_FIXIT.icon())
+RefactorOverlay::RefactorOverlay(TextEditorWidget *editor)
+    : m_editor(editor), m_icon(Utils::Icons::CODEMODEL_FIXIT.icon())
 {
 }
 
-void RefactorOverlay::paint(QPainter *painter, const QRect &clip)
+void RefactorOverlay::paint(QPainter *painter, const QRect &clip) const
 {
     const auto firstBlock = m_editor->blockForVerticalOffset(clip.top());
     const int firstBlockNumber = firstBlock.isValid() ? firstBlock.blockNumber() : 0;
@@ -46,14 +41,14 @@ void RefactorOverlay::paint(QPainter *painter, const QRect &clip)
 
 RefactorMarker RefactorOverlay::markerAt(const QPoint &pos) const
 {
-    for (const auto &marker : m_markers) {
+    for (const RefactorMarker &marker : m_markers) {
         if (marker.rect.contains(pos))
             return marker;
     }
     return RefactorMarker();
 }
 
-void RefactorOverlay::paintMarker(const RefactorMarker& marker, QPainter *painter, const QRect &clip)
+void RefactorOverlay::paintMarker(const RefactorMarker& marker, QPainter *painter, const QRect &clip) const
 {
     if (!marker.cursor.block().isVisible())
         return; // block containing marker not visible
@@ -81,13 +76,6 @@ void RefactorOverlay::paintMarker(const RefactorMarker& marker, QPainter *painte
 
     icon.paint(painter, marker.rect);
     m_maxWidth = qMax(m_maxWidth, x + actualIconSize.width() - int(offset.x()));
-}
-
-RefactorMarkers RefactorMarker::filterOutType(const RefactorMarkers &markers, const Utils::Id &type)
-{
-    return Utils::filtered(markers, [type](const RefactorMarker &marker) {
-        return marker.type != type;
-    });
 }
 
 } // namespace TextEditor

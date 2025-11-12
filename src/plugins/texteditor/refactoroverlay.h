@@ -13,11 +13,10 @@
 namespace TextEditor {
 class TextEditorWidget;
 
-struct TEXTEDITOR_EXPORT RefactorMarker;
-using RefactorMarkers = QList<RefactorMarker>;
+struct TEXTEDITOR_EXPORT RefactorMarker
+{
+    bool isValid() const { return !cursor.isNull(); }
 
-struct TEXTEDITOR_EXPORT RefactorMarker {
-    inline bool isValid() const { return !cursor.isNull(); }
     QTextCursor cursor;
     QString tooltip;
     QIcon icon;
@@ -25,19 +24,17 @@ struct TEXTEDITOR_EXPORT RefactorMarker {
     std::function<void(TextEditor::TextEditorWidget *)> callback;
     Utils::Id type;
     QVariant data;
-
-    static RefactorMarkers filterOutType(const RefactorMarkers &markers, const Utils::Id &type);
 };
 
+using RefactorMarkers = QList<RefactorMarker>;
 
-class  TEXTEDITOR_EXPORT RefactorOverlay : public QObject
+class TEXTEDITOR_EXPORT RefactorOverlay final
 {
-    Q_OBJECT
 public:
     explicit RefactorOverlay(TextEditor::TextEditorWidget *editor);
 
     bool isEmpty() const { return m_markers.isEmpty(); }
-    void paint(QPainter *painter, const QRect &clip);
+    void paint(QPainter *painter, const QRect &clip) const;
 
     void setMarkers(const RefactorMarkers &markers) { m_markers = markers; }
     RefactorMarkers markers() const { return m_markers; }
@@ -47,10 +44,11 @@ public:
     RefactorMarker markerAt(const QPoint &pos) const;
 
 private:
-    void paintMarker(const RefactorMarker& marker, QPainter *painter, const QRect &clip);
+    void paintMarker(const RefactorMarker& marker, QPainter *painter, const QRect &clip) const;
+
     RefactorMarkers m_markers;
     TextEditorWidget *m_editor;
-    int m_maxWidth;
+    mutable int m_maxWidth = 0;
     const QIcon m_icon;
 };
 

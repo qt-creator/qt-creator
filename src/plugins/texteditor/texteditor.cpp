@@ -972,7 +972,7 @@ public:
     QMap<int, QList<AnnotationRect>> m_annotationRects;
     QRectF getLastLineLineRect(const QTextBlock &block);
 
-    RefactorOverlay *m_refactorOverlay = nullptr;
+    RefactorOverlay m_refactorOverlay;
     HelpItem m_contextHelpItem;
 
     QBasicTimer foldedBlockTimer;
@@ -1209,7 +1209,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     , m_snippetOverlay(new SnippetOverlay(q))
     , m_searchResultOverlay(new TextEditorOverlay(q))
     , m_selectionHighlightOverlay(new TextEditorOverlay(q))
-    , m_refactorOverlay(new RefactorOverlay(q))
+    , m_refactorOverlay(q)
     , m_marksVisible(false)
     , m_codeFoldingVisible(false)
     , m_codeFoldingSupported(false)
@@ -2872,7 +2872,7 @@ void TextEditorWidgetPrivate::moveLineUpDown(bool up)
     RefactorMarkers nonAffectedMarkers;
     QList<int> markerOffsets;
 
-    const QList<RefactorMarker> markers = m_refactorOverlay->markers();
+    const QList<RefactorMarker> markers = m_refactorOverlay.markers();
     for (const RefactorMarker &marker : markers) {
         //test if marker is part of the selection to be moved
         if ((move.selectionStart() <= marker.cursor.position())
@@ -2921,7 +2921,7 @@ void TextEditorWidgetPrivate::moveLineUpDown(bool up)
         int newPosition = start + markerOffsets.at(i);
         affectedMarkers[i].cursor.setPosition(newPosition);
     }
-    m_refactorOverlay->setMarkers(nonAffectedMarkers + affectedMarkers);
+    m_refactorOverlay.setMarkers(nonAffectedMarkers + affectedMarkers);
 
     bool shouldReindent = true;
     if (m_commentDefinition.isValid()) {
@@ -3735,7 +3735,7 @@ void TextEditorWidgetPrivate::documentAboutToBeReloaded()
     m_snippetOverlay->clear();
     m_searchResultOverlay->clear();
     m_selectionHighlightOverlay->clear();
-    m_refactorOverlay->clear();
+    m_refactorOverlay.clear();
 
     // clear search results
     m_searchResults.clear();
@@ -5036,7 +5036,7 @@ bool TextEditorWidget::viewportEvent(QEvent *event)
         const QHelpEvent *he = static_cast<QHelpEvent*>(event);
         const QPoint &pos = he->pos();
 
-        RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(pos);
+        RefactorMarker refactorMarker = d->m_refactorOverlay.markerAt(pos);
         if (refactorMarker.isValid() && !refactorMarker.tooltip.isEmpty()) {
             ToolTip::show(he->globalPos(), refactorMarker.tooltip,
                           viewport(), {}, refactorMarker.rect);
@@ -6156,8 +6156,8 @@ void TextEditorWidgetPrivate::paintOverlays(const PaintEventData &data, QPainter
         if (m_snippetOverlay->isVisible())
             m_snippetOverlay->paint(&painter, data.eventRect);
 
-        if (!m_refactorOverlay->isEmpty())
-            m_refactorOverlay->paint(&painter, data.eventRect);
+        if (!m_refactorOverlay.isEmpty())
+            m_refactorOverlay.paint(&painter, data.eventRect);
     }
 
     if (!m_searchResultOverlay->isEmpty()) {
@@ -7263,7 +7263,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
                 d->foldedBlockTimer.start(40, this);
             }
 
-            const RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(e->pos());
+            const RefactorMarker refactorMarker = d->m_refactorOverlay.markerAt(e->pos());
 
             // Update the mouse cursor
             if ((collapsedBlock.isValid() || refactorMarker.isValid())
@@ -7344,7 +7344,7 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
                 viewport()->setCursor(Qt::IBeamCursor);
             }
 
-            RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(e->pos());
+            RefactorMarker refactorMarker = d->m_refactorOverlay.markerAt(e->pos());
             if (refactorMarker.isValid()) {
                 if (refactorMarker.callback) {
                     refactorMarker.callback(this);
@@ -7394,7 +7394,7 @@ void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
         return;
 
     // If the refactor marker was pressed then don't propagate release event to editor
-    RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(e->pos());
+    RefactorMarker refactorMarker = d->m_refactorOverlay.markerAt(e->pos());
     if (refactorMarker.isValid()) {
         if (refactorMarker.callback) {
             e->accept();
@@ -10272,22 +10272,22 @@ void TextEditorWidget::setContextHelpItem(const HelpItem &item)
 
 RefactorMarkers TextEditorWidget::refactorMarkers() const
 {
-    return d->m_refactorOverlay->markers();
+    return d->m_refactorOverlay.markers();
 }
 
 void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &markers)
 {
-    const QList<RefactorMarker> oldMarkers = d->m_refactorOverlay->markers();
+    const QList<RefactorMarker> oldMarkers = d->m_refactorOverlay.markers();
     for (const RefactorMarker &marker : oldMarkers)
         emit requestBlockUpdate(marker.cursor.block());
-    d->m_refactorOverlay->setMarkers(markers);
+    d->m_refactorOverlay.setMarkers(markers);
     for (const RefactorMarker &marker : markers)
         emit requestBlockUpdate(marker.cursor.block());
 }
 
-void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &newMarkers, const Utils::Id &type)
+void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &newMarkers, const Id &type)
 {
-    RefactorMarkers markers = d->m_refactorOverlay->markers();
+    RefactorMarkers markers = d->m_refactorOverlay.markers();
     auto first = std::partition(markers.begin(),
                                 markers.end(),
                                 [type](const RefactorMarker &marker) {
@@ -10298,14 +10298,14 @@ void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &newMarkers, con
         emit requestBlockUpdate(it->cursor.block());
     markers.erase(markers.begin(), first);
     markers.append(newMarkers);
-    d->m_refactorOverlay->setMarkers(markers);
+    d->m_refactorOverlay.setMarkers(markers);
     for (const RefactorMarker &marker : newMarkers)
         emit requestBlockUpdate(marker.cursor.block());
 }
 
-void TextEditorWidget::clearRefactorMarkers(const Utils::Id &type)
+void TextEditorWidget::clearRefactorMarkers(const Id &type)
 {
-    RefactorMarkers markers = d->m_refactorOverlay->markers();
+    RefactorMarkers markers = d->m_refactorOverlay.markers();
     for (auto it = markers.begin(); it != markers.end();) {
         if (it->type == type) {
             emit requestBlockUpdate(it->cursor.block());
@@ -10314,7 +10314,7 @@ void TextEditorWidget::clearRefactorMarkers(const Utils::Id &type)
             ++it;
         }
     }
-    d->m_refactorOverlay->setMarkers(markers);
+    d->m_refactorOverlay.setMarkers(markers);
 }
 
 bool TextEditorWidget::inFindScope(const QTextCursor &cursor) const
