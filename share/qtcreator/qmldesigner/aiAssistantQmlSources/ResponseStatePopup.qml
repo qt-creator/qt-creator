@@ -105,11 +105,11 @@ Rectangle {
             visible: false
             spacing: 2
 
-            HelperWidgets.IconButton {
+            AiIconButton {
                 id: thumbsUpButton
                 objectName: "ThumbsUpButton"
 
-                icon: StudioTheme.Constants.thumbs_up_medium
+                buttonIcon: StudioTheme.Constants.thumbs_up_medium
 
                 tooltip: qsTr("Like")
 
@@ -119,11 +119,11 @@ Rectangle {
                 }
             }
 
-            HelperWidgets.IconButton {
+            AiIconButton {
                 id: thumbsDownButton
                 objectName: "ThumbsDownButton"
 
-                icon: StudioTheme.Constants.thumbs_down_medium
+                buttonIcon: StudioTheme.Constants.thumbs_down_medium
 
                 tooltip: qsTr("Dislike")
 
@@ -133,11 +133,11 @@ Rectangle {
                 }
             }
 
-            HelperWidgets.IconButton {
+            AiIconButton {
                 id: closeFeedbackButton
                 objectName: "CloseFeedbackButton"
 
-                icon: StudioTheme.Constants.adsClose
+                buttonIcon: StudioTheme.Constants.adsClose
 
                 tooltip: qsTr("Close")
 

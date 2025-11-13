@@ -9,12 +9,10 @@ import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
 import AiAssistantBackend
 
-Rectangle {
+Item {
     id: root
 
     property var rootView: AiAssistantBackend.rootView
-
-    color: StudioTheme.Values.themeBackgroundColorNormal
 
     ColumnLayout {
         anchors.fill: parent
@@ -86,14 +84,11 @@ Rectangle {
                 visible: !responseStatePopup.visible
             }
 
-            HelperWidgets.IconButton {
+            AiIconButton {
                 id: settingsButton
                 objectName: "SettingsButton"
 
-                icon: StudioTheme.Constants.settings_medium
-
-                iconColor: settingsButton.enabled ? StudioTheme.Values.controlStyle.text.idle
-                                                  : StudioTheme.Values.controlStyle.text.disabled
+                buttonIcon: StudioTheme.Constants.settings_medium
 
                 tooltip: qsTr("Open AI assistant settings.")
                 enabled: root.rootView.termsAccepted && !root.rootView.isGenerating
