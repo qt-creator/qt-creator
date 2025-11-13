@@ -628,7 +628,8 @@
             "_active": true,
             "pre_excludes": {
                 "$(delta:+)": [
-                    "*/glsl.g"
+                    "*/glsl.g",
+                    "*/qmljs.g"
                 ]
             }
         },
