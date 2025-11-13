@@ -33,7 +33,7 @@ class KitAspect;
 
 using LogCallback = std::function<void(const QString &message)>;
 
-class DetectionSource
+class PROJECTEXPLORER_EXPORT DetectionSource
 {
 public:
     enum DetectionType {
@@ -76,6 +76,8 @@ public:
 
     void fromMap(const Utils::Store &);
     void toMap(Utils::Store &) const;
+
+    static std::optional<DetectionSource> createFromMap(const Utils::Store &);
 
     DetectionType type = Uninitialized;
     QString id;

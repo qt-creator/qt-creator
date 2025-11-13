@@ -26,18 +26,31 @@
 
 using namespace Utils;
 
+static const char DETECTIONSOURCETYPE[] = "DetectionSource.type";
+static const char DETECTIONSOURCEID[] = "DetectionSource.id";
+
 namespace ProjectExplorer {
 
 void ProjectExplorer::DetectionSource::fromMap(const Utils::Store &store)
 {
-    type = static_cast<DetectionType>(store.value("DetectionSource.type").toInt());
-    id = store.value("DetectionSource.id").toString();
+    type = static_cast<DetectionType>(store.value(DETECTIONSOURCETYPE).toInt());
+    id = store.value(DETECTIONSOURCEID).toString();
 }
 
 void DetectionSource::toMap(Utils::Store &store) const
 {
-    store.insert("DetectionSource.type", static_cast<int>(type));
-    store.insert("DetectionSource.id", id);
+    store.insert(DETECTIONSOURCETYPE, static_cast<int>(type));
+    store.insert(DETECTIONSOURCEID, id);
+}
+
+std::optional<DetectionSource> DetectionSource::createFromMap(const Utils::Store &store)
+{
+    if (store.contains(DETECTIONSOURCETYPE) && store.contains(DETECTIONSOURCEID)) {
+        DetectionSource ds;
+        ds.fromMap(store);
+        return ds;
+    }
+    return {};
 }
 
 namespace {

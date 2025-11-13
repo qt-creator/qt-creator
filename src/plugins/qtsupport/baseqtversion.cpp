@@ -635,10 +635,17 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath)
     if (d->m_id == -1) // this happens on adding from installer, see updateFromInstaller => get a new unique id
         d->m_id = QtVersionManager::getUniqueId();
     d->m_unexpandedDisplayName.fromMap(map, Constants::QTVERSIONNAME);
-    const bool isAutodetected = map.value(QTVERSIONAUTODETECTED).toBool();
-    const QString detectionSource = map.value(QTVERSIONDETECTIONSOURCE).toString();
-    d->m_detectionSource
-        = {isAutodetected ? DetectionSource::FromSystem : DetectionSource::Manual, detectionSource};
+    const std::optional<DetectionSource> detectionSource = DetectionSource::createFromMap(map);
+    if (detectionSource) {
+        d->m_detectionSource = *detectionSource;
+    } else {
+        // TODO deprecated since QtC 19
+        const bool isAutodetected = map.value(QTVERSIONAUTODETECTED).toBool();
+        const QString detectionSource = map.value(QTVERSIONDETECTIONSOURCE).toString();
+        d->m_detectionSource
+            = {isAutodetected ? DetectionSource::FromSystem : DetectionSource::Manual,
+               detectionSource};
+    }
 
     d->m_overrideFeatures = Utils::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
     d->m_qmakeCommand = FilePath::fromSettings(map.value(QTVERSIONQMAKEPATH));
@@ -683,8 +690,12 @@ Store QtVersion::toMap() const
     result.insert(Constants::QTVERSIONID, uniqueId());
     d->m_unexpandedDisplayName.toMap(result, Constants::QTVERSIONNAME);
 
+    // TODO deprecated since QtC 19
     result.insert(QTVERSIONAUTODETECTED, detectionSource().isAutoDetected());
     result.insert(QTVERSIONDETECTIONSOURCE, detectionSource().id);
+
+    detectionSource().toMap(result);
+
     if (!d->m_overrideFeatures.isEmpty())
         result.insert(QTVERSION_OVERRIDE_FEATURES, Utils::Id::toStringList(d->m_overrideFeatures));
 
