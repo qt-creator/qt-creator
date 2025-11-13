@@ -54,6 +54,7 @@ public:
         setDefaultSshParameters(sshParams);
         setFreePorts(PortList::fromString("10000-10100"));
         sourceProfile.setDefaultValue(true);
+        setKillCommandForPathFunction(killCommandForPath);
 
         addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device) {
                              executeQnxDeployQtLibrariesDialog(device);

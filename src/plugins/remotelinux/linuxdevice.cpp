@@ -79,6 +79,8 @@ using namespace Utils;
 
 using namespace RemoteLinux::Internal;
 
+using namespace QtTaskTree;
+
 namespace RemoteLinux {
 
 const QByteArray s_pidMarker = "__qtc";
@@ -484,6 +486,7 @@ public:
     QRecursiveMutex m_shellMutex;
     QReadWriteLock m_environmentCacheLock;
     std::optional<Environment> m_environmentCache;
+    KillCommandForPathFunction m_killCommandForPathFunction;
 };
 
 void LinuxDevicePrivate::invalidateEnvironmentCache()
@@ -1177,6 +1180,7 @@ LinuxDevice::LinuxDevice()
     SshParameters sshParams;
     sshParams.setTimeout(10);
     setDefaultSshParameters(sshParams);
+    setKillCommandForPathFunction(killCommandForPath);
 
     sourceProfile.setSettingsKey("SourceProfile");
     sourceProfile.setDefaultValue(true);
@@ -1267,6 +1271,11 @@ LinuxDevice::LinuxDevice()
      }});
 }
 
+void LinuxDevice::setKillCommandForPathFunction(const std::function<QString(const FilePath &)> &handler)
+{
+    d->m_killCommandForPathFunction = handler;
+}
+
 LinuxDevice::~LinuxDevice()
 {
     delete d;
@@ -1288,6 +1297,56 @@ DeviceProcessSignalOperation::Ptr LinuxDevice::signalOperation() const
                                                                             killCommandForPath));
 }
 
+static QString signalProcessGroupByPidCommandLine(qint64 pid, int signal)
+{
+    return QString::fromLatin1("kill -%1 -%2").arg(signal).arg(pid);
+}
+
+static QString commandForData(const SignalOperationData &data,
+                              const KillCommandForPathFunction &handler)
+{
+    switch (data.mode) {
+    case SignalOperationMode::KillByPid:
+        return QString::fromLatin1("%1 && %2")
+            .arg(signalProcessGroupByPidCommandLine(data.pid, 15),
+                 signalProcessGroupByPidCommandLine(data.pid, 9));
+    case ProjectExplorer::SignalOperationMode::InterruptByPid:
+        return signalProcessGroupByPidCommandLine(data.pid, 2);
+    case ProjectExplorer::SignalOperationMode::KillByPath:
+        return handler(data.filePath);
+    };
+    return {};
+}
+
+ExecutableItem LinuxDevice::signalOperationRecipe(const SignalOperationData &data,
+                                                  const Storage<Result<>> &resultStorage) const
+{
+    const auto onSetup = [data, resultStorage] {
+        const auto validResult = data.isValid();
+        if (validResult)
+            return SetupResult::Continue;
+
+        *resultStorage = validResult;
+        return SetupResult::StopWithError;
+    };
+
+    const auto onProcessSetup = [device = shared_from_this(), data, resultStorage,
+                                 handler = d->m_killCommandForPathFunction](Process &process) {
+        const QString command = commandForData(data, handler);
+        process.setCommand({device->filePath("/bin/sh"), {"-c", command}});
+    };
+    const auto onProcessDone = [resultStorage](const Process &process, DoneWith result) {
+        if (result == DoneWith::Error)
+            *resultStorage = ResultError(process.exitMessage());
+        else if (result == DoneWith::Cancel)
+            *resultStorage = ResultError(Tr::tr("Signal operation canceled."));
+    };
+
+    return Group {
+        onGroupSetup(onSetup),
+        ProcessTask(onProcessSetup, onProcessDone)
+    };
+}
 QString LinuxDevice::userAtHost() const
 {
     return sshParameters().userAtHost();
