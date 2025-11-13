@@ -369,8 +369,7 @@ static ProcessTask inspectContainerTask(
     const InstanceConfig &instanceConfig,
     const DynamicString &identifier)
 {
-    const auto setupInspectContainer = [containerDetails, identifier, instanceConfig](
-                                           Process &process) {
+    const auto setupInspectContainer = [identifier, instanceConfig](Process &process) {
         CommandLine inspectCmdLine{
             instanceConfig.dockerCli,
             {"inspect", {"--type", "container"}, dynamicStringToString(identifier)}};
