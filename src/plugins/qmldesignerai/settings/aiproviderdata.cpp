@@ -32,7 +32,7 @@ const QMap<QString, AiProviderData> AiProviderData::defaultProviders()
                 "gemini-2.5-flash-lite",
             }
         }},
-        {"Open AI", AiProviderData{
+        {"OpenAI", AiProviderData{
             .url = QUrl{"https://api.openai.com/v1/chat/completions"},
             .models = {
                 // TODO: commented out models require Responses API which will be implemented soon
