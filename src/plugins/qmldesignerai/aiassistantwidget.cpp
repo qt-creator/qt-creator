@@ -20,21 +20,11 @@
 #include <studioquickwidget.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
-#include <studioquickwidget.h>
 
 #include <coreplugin/icore.h>
 #include <utils/filepath.h>
 
 #include <QApplication>
-#include <QBuffer>
-#include <QComboBox>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QPlainTextEdit>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QVBoxLayout>

@@ -25,6 +25,7 @@ public:
         QUrl attachedImage;
     };
 
+    virtual ~AbstractAiApi() = default;
     virtual void setRequestHeader(QNetworkRequest *networkRequest, const AiModelInfo &modelInfo) = 0;
     virtual QByteArray createContent(const Data &data, const AiModelInfo &modelInfo) = 0;
     virtual AiResponse interpretResponse(const QByteArray &response) = 0;
