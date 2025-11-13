@@ -491,6 +491,11 @@ public:
 
 struct PluginProjectMimeType
 {
+    PluginProjectMimeType() = default;
+    PluginProjectMimeType(const QString &pluginId, const QString &mimeType)
+        : pluginId(pluginId)
+        , mimeType(mimeType)
+    {}
     QString pluginId;
     QString mimeType;
 };
