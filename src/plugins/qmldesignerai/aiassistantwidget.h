@@ -11,14 +11,6 @@
 #include <QFrame>
 #include <QPointer>
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QNetworkReply;
-class QTextEdit;
-class QToolButton;
-class QComboBox;
-QT_END_NAMESPACE
-
 class StudioQuickWidget;
 
 namespace QmlDesigner {
