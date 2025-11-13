@@ -364,6 +364,30 @@ static ProcessTask findContainerId(
     return ProcessTask(setup, done);
 }
 
+static ExecutableItem testBuildKit(const InstanceConfig &instanceConfig, Storage<bool> useBuildKit)
+{
+    return ProcessTask(
+        [instanceConfig](Process &process) {
+            connectProcessToLog(process, instanceConfig, "Fetch BuildKit Info");
+            process.setCommand({instanceConfig.dockerCli, {"buildx", "version"}});
+        },
+        [instanceConfig, useBuildKit](const Process &process, DoneWith doneWith) -> DoneResult {
+            if (doneWith == DoneWith::Error) {
+                // We end up here if buildx is not available.
+                return DoneResult::Success;
+            }
+
+            // Parse the output and store it in buildKitInfo
+            const QString output = process.cleanedStdOut().trimmed();
+            const QRegularExpression versionRegex(R"(([0-9]+)\.([0-9]+)\.([0-9]+))");
+            const QRegularExpressionMatch match = versionRegex.match(output);
+            if (match.hasMatch())
+                *useBuildKit = true;
+
+            return DoneResult::Success;
+        });
+}
+
 static ProcessTask inspectContainerTask(
     Storage<ContainerDetails> containerDetails,
     const InstanceConfig &instanceConfig,
@@ -1363,6 +1387,7 @@ static Result<Group> prepareContainerRecipe(
     Storage<ImageDetails> imageDetails;
     Storage<ContainerDetails> containerDetails;
     Storage<RunningContainerDetails> runningDetails;
+    Storage<bool> useBuildKit(false);
 
     // clang-format off
     return Group {
@@ -1370,6 +1395,7 @@ static Result<Group> prepareContainerRecipe(
         runningDetails,
         containerDetails,
         checkDocker(instanceConfig),
+        testBuildKit(instanceConfig, useBuildKit),
         ProcessTask(setupBuildImage),
         inspectImageTask(imageDetails, instanceConfig, imageName(instanceConfig)),
         createContainerRecipe(
@@ -1430,13 +1456,16 @@ static Result<Group> prepareContainerRecipe(
     Storage<ImageDetails> imageDetails;
     Storage<ContainerDetails> containerDetails;
     Storage<RunningContainerDetails> runningDetails;
+    Storage<bool> useBuildKit(false);
 
     // clang-format off
     return Group {
         imageDetails,
         containerDetails,
         runningDetails,
+        useBuildKit,
         checkDocker(instanceConfig),
+        testBuildKit(instanceConfig, useBuildKit),
         prepareDockerImageRecipe(imageDetails, imageConfig, instanceConfig),
         createContainerRecipe(imageDetails, imageConfig, commonConfig, instanceConfig),
         inspectContainerTask(containerDetails, instanceConfig),
@@ -1497,6 +1526,7 @@ static Result<Group> prepareContainerRecipe(
     Storage<RunningContainerDetails> runningDetails;
     Storage<QString> containerId;
     Storage<ImageDetails> imageDetails;
+    Storage<bool> useBuildKit(false);
 
     DynamicString getImage = (std::function<QString()>) [containerDetails]
     {
@@ -1507,6 +1537,7 @@ static Result<Group> prepareContainerRecipe(
     return Group {
         containerId, containerDetails, runningDetails, imageDetails,
         checkDocker(instanceConfig),
+        testBuildKit(instanceConfig, useBuildKit),
         ProcessTask(setupComposeUp),
         findContainerId(containerId, config, instanceConfig),
         inspectContainerTask(containerDetails, instanceConfig, containerId),
