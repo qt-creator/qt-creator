@@ -730,7 +730,7 @@ Result<PortAttributes> PortAttributes::fromJson(
 
 Result<Config> Config::fromJson(const QByteArray &data, const JsonStringToString &jsonStringToString)
 {
-    const QByteArray cleanedInput = removeCommentsFromJson(data);
+    const QByteArray cleanedInput = cleanJson(data);
 
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(cleanedInput, &error);
