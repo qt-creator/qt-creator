@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "puppetstarter.h"
-#include "nodeinstancetracing.h"
 
 #include <qmldesignertr.h>
 
@@ -12,9 +11,6 @@
 
 namespace QmlDesigner::PuppetStarter {
 
-using NanotraceHR::keyValue;
-using NodeInstanceTracing::category;
-
 QProcessUniquePointer createPuppetProcess(const PuppetStartData &data,
                                           const QString &puppetMode,
                                           const QString &socketToken,
@@ -22,17 +18,6 @@ QProcessUniquePointer createPuppetProcess(const PuppetStartData &data,
                                           std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
                                           const QStringList &customOptions)
 {
-    NanotraceHR::Tracer tracer{"puppet starter create puppet process",
-                               category(),
-                               keyValue("path", data.puppetPath),
-                               keyValue("working directory", data.workingDirectoryPath),
-                               keyValue("forward output", data.forwardOutput),
-                               keyValue("dump environment", data.dumpInitInformation),
-                               keyValue("free type option", data.freeTypeOption),
-                               keyValue("debug puppet", data.debugPuppet),
-                               keyValue("puppet mode", puppetMode),
-                               keyValue("socket token", socketToken)};
-
     QProcessUniquePointer puppetProcess{new QProcess};
     puppetProcess->setObjectName(puppetMode);
     puppetProcess->setProcessEnvironment(data.environment);
