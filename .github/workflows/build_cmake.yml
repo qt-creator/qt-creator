@@ -50,7 +50,7 @@ jobs:
       id: git
       shell: cmake -P {0}
       run: |
-        execute_process(COMMAND git submodule set-url -- perfparser https://code.qt.io/qt-creator/perfparser.git)
+        execute_process(COMMAND git submodule set-url -- src/libs/qlitehtml https://codereview.qt-project.org/playground/qlitehtml.git)
         execute_process(COMMAND git submodule update --init --recursive)
         file(MAKE_DIRECTORY release)
         if (${{github.ref}} MATCHES "tags/v(([0-9.]+).*)")

@@ -7,11 +7,11 @@
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/icore.h>
-
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
 #include <QJsonDocument>
@@ -444,21 +444,30 @@ QStringList CMakeTool::parseSyntaxHighlightingXml()
 
 void CMakeTool::fetchFromCapabilities() const
 {
-    Process cmake;
-    runCMake(cmake, {"-E", "capabilities"});
+    IDevice::ConstPtr device = DeviceManager::deviceForPath(cmakeExecutable());
+    if (device
+        && (device->deviceState() == IDevice::DeviceReadyToUse
+            || device->deviceState() == IDevice::DeviceConnected)) {
+        Process cmake;
+        runCMake(cmake, {"-E", "capabilities"});
 
-    if (cmake.result() == ProcessResult::FinishedWithSuccess) {
-        m_introspection->m_haveCapabilitites = true;
-        parseFromCapabilities(cmake.cleanedStdOut());
+        if (cmake.result() == ProcessResult::FinishedWithSuccess) {
+            m_introspection->m_haveCapabilitites = true;
+            parseFromCapabilities(cmake.cleanedStdOut());
+            return;
+        } else {
+            qCCritical(cmakeToolLog)
+                << "Fetching capabilities failed: " << cmake.verboseExitMessage();
+        }
     } else {
-        qCCritical(cmakeToolLog) << "Fetching capabilities failed: "
-                                 << cmake.verboseExitMessage();
-        m_introspection->m_haveCapabilitites = false;
-
-        // In the rare case when "cmake -E capabilities" crashes / fails to run
-        // allow to try again
-        m_introspection->m_didAttemptToRun = false;
+        qCDebug(cmakeToolLog) << "Device for" << cmakeExecutable().toUserOutput()
+                              << "is not connected";
     }
+    m_introspection->m_haveCapabilitites = false;
+
+    // In the rare case when "cmake -E capabilities" crashes / fails to run,
+    // or if the device is not connected, allow to try again
+    m_introspection->m_didAttemptToRun = false;
 }
 
 static int getVersion(const QVariantMap &obj, const QString &value)
