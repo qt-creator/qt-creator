@@ -14,6 +14,8 @@ QtcLibrary {
         "devcontainer.h",
         "devcontainerconfig.cpp",
         "devcontainerconfig.h",
+        "devcontainerfeature.cpp",
+        "devcontainerfeature.h",
         "devcontainertr.h",
         "substitute.cpp",
         "substitute.h"
@@ -21,6 +23,9 @@ QtcLibrary {
 
     Group {
         name: "JSON schema"
-        files: [ "devcontainer.schema.json" ]
+        files: [
+            "devcontainer.schema.json",
+            "devContainerFeature.schema.json",
+        ]
     }
 }
