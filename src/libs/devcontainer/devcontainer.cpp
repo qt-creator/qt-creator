@@ -1133,6 +1133,11 @@ static ExecutableItem containerDoesNotExistTask(const InstanceConfig &instanceCo
 {
     return ProcessTask(
         [instanceConfig](Process &process) {
+            instanceConfig.logFunction(QString(Tr::tr("Checking if container exists: %1"))
+                                           .arg(containerName(instanceConfig)));
+
+            connectProcessToLog(process, instanceConfig, "Check Container Existence");
+
             CommandLine cmdLine{
                 instanceConfig.dockerCli,
                 {"container",
@@ -1153,9 +1158,13 @@ static ExecutableItem containerDoesNotExistTask(const InstanceConfig &instanceCo
             }
             const QString output = process.cleanedStdOut().trimmed();
             if (output == containerName(instanceConfig)) {
-                qCWarning(devcontainerlog) << "Container already exists:" << output;
+                instanceConfig.logFunction(
+                    QString(Tr::tr("Container already exists: %1")).arg(output));
                 return DoneResult::Error;
             }
+
+            instanceConfig.logFunction(
+                QString(Tr::tr("Container does not exist, proceeding to create: %1")).arg(output));
 
             return DoneResult::Success;
         });
