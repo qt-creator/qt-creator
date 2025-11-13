@@ -118,6 +118,24 @@ private:
     DeviceToolAspect::ToolType m_toolType = DeviceToolAspect::AllTools;
 };
 
+enum class SignalOperationMode
+{
+    KillByPath,
+    KillByPid,
+    InterruptByPid
+};
+
+class SignalOperationData
+{
+public:
+    SignalOperationMode mode = SignalOperationMode::KillByPath;
+    Utils::FilePath filePath = {};
+    qint64 pid = 0;
+    Utils::FilePath debuggerPath = {}; // Used only for Win / Desktop.
+
+    Utils::Result<> isValid() const;
+};
+
 class PROJECTEXPLORER_EXPORT DeviceProcessSignalOperation : public QObject
 {
     Q_OBJECT
@@ -214,6 +232,9 @@ public:
     virtual bool canMount(const Utils::FilePath &filePath) const;
 
     virtual DeviceProcessSignalOperation::Ptr signalOperation() const;
+    virtual QtTaskTree::ExecutableItem signalOperationRecipe(
+        const SignalOperationData &data,
+        const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;
