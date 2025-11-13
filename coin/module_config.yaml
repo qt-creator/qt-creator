@@ -1,5 +1,10 @@
 version: 2
 
+accept_configuration:
+  condition: property
+  property: features
+  not_contains_value: "QtC18AndEarlier"
+
 machine_type:
   Build:
     cores: 8
