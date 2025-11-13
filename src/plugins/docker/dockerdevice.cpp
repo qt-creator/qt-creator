@@ -671,11 +671,13 @@ Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
 
 void DockerDevicePrivate::stopCurrentContainer()
 {
-    auto fileAccess = m_fileAccess.writeLocked();
-    fileAccess->reset();
+    { // scope, so they are unlocked before setDeviceState
+        auto fileAccess = m_fileAccess.writeLocked();
+        fileAccess->reset();
 
-    auto locked = m_deviceThread.writeLocked();
-    locked->reset();
+        auto locked = m_deviceThread.writeLocked();
+        locked->reset();
+    }
 
     DeviceManager::setDeviceState(q->id(), IDevice::DeviceDisconnected);
 }
