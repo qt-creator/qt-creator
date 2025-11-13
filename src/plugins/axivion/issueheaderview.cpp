@@ -163,10 +163,10 @@ static QIcon iconForSorted(std::optional<Qt::SortOrder> order)
 static QIcon iconForFilter(bool isActive)
 {
     static const Utils::Icon INACTIVE(
-                {{":/utils/images/filtericon.png", Utils::Theme::IconsDisabledColor}},
+                {{":/axivion/images/filtericon.png", Utils::Theme::IconsDisabledColor}},
                 Utils::Icon::MenuTintedStyle);
     static const Utils::Icon ACTIVE(
-                {{":/utils/images/filtericon.png", Utils::Theme::PaletteText}},
+                {{":/axivion/images/filtericon.png", Utils::Theme::PaletteText}},
                 Utils::Icon::MenuTintedStyle);
     static const QIcon inactive = INACTIVE.icon();
     static const QIcon active = ACTIVE.icon();
