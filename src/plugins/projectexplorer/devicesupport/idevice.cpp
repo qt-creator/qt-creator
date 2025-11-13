@@ -1147,7 +1147,7 @@ void DeviceProcessKiller::start()
         emit done(toDoneResult(result.has_value()));
     });
 
-    m_signalOperation->killProcess(m_processPath.path());
+    m_signalOperation->killProcess(m_processPath);
 }
 
 // DeviceConstRef

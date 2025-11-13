@@ -38,7 +38,7 @@ void RemoteLinuxSignalOperation::run(const QString &command)
     m_process->start();
 }
 
-QString RemoteLinuxSignalOperation::killProcessByNameCommandLine(const QString &filePath) const
+QString RemoteLinuxSignalOperation::killProcessByNameCommandLine(const FilePath &filePath) const
 {
     return QString::fromLatin1(R"(
         pid=
@@ -65,7 +65,7 @@ QString RemoteLinuxSignalOperation::killProcessByNameCommandLine(const QString &
           true
         else
           false
-        fi)").arg(filePath).arg(globalProjectExplorerSettings().reaperTimeoutInSeconds());
+        fi)").arg(filePath.path()).arg(globalProjectExplorerSettings().reaperTimeoutInSeconds());
 }
 
 void RemoteLinuxSignalOperation::killProcess(qint64 pid)
@@ -75,7 +75,7 @@ void RemoteLinuxSignalOperation::killProcess(qint64 pid)
              signalProcessGroupByPidCommandLine(pid, 9)));
 }
 
-void RemoteLinuxSignalOperation::killProcess(const QString &filePath)
+void RemoteLinuxSignalOperation::killProcess(const FilePath &filePath)
 {
     run(killProcessByNameCommandLine(filePath));
 }

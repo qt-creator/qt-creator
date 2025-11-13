@@ -75,7 +75,7 @@ void AndroidSignalOperation::killProcess(qint64 pid)
     signalOperationViaADB(pid, 9);
 }
 
-void AndroidSignalOperation::killProcess(const QString &filePath)
+void AndroidSignalOperation::killProcess(const FilePath &filePath)
 {
     Q_UNUSED(filePath)
     emit finished(ResultError("The android signal operation does not support killing by filepath."));

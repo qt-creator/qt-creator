@@ -40,10 +40,10 @@ public:
         : RemoteLinuxSignalOperation(device)
     {}
 
-    QString killProcessByNameCommandLine(const QString &filePath) const override
+    QString killProcessByNameCommandLine(const FilePath &filePath) const override
     {
-        return QString::fromLatin1("%1; %2").arg(signalProcessByNameQnxCommandLine(filePath, 15),
-                                                 signalProcessByNameQnxCommandLine(filePath, 9));
+        return QString::fromLatin1("%1; %2").arg(signalProcessByNameQnxCommandLine(filePath.path(), 15),
+                                                 signalProcessByNameQnxCommandLine(filePath.path(), 9));
     }
 };
 

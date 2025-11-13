@@ -125,7 +125,7 @@ public:
     using Ptr = std::shared_ptr<DeviceProcessSignalOperation>;
 
     virtual void killProcess(qint64 pid) = 0;
-    virtual void killProcess(const QString &filePath) = 0;
+    virtual void killProcess(const Utils::FilePath &filePath) = 0;
     virtual void interruptProcess(qint64 pid) = 0;
 
     void setDebuggerCommand(const Utils::FilePath &cmd);

@@ -13,7 +13,7 @@ class AndroidSignalOperation : public ProjectExplorer::DeviceProcessSignalOperat
 {
 public:
     void killProcess(qint64 pid) override;
-    void killProcess(const QString &filePath) override;
+    void killProcess(const Utils::FilePath &filePath) override;
     void interruptProcess(qint64 pid) override;
 
 protected:

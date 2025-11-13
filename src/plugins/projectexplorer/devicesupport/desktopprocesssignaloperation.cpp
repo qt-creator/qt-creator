@@ -32,13 +32,13 @@ void DesktopProcessSignalOperation::killProcess(qint64 pid)
     emit finished(killProcessSilently(pid));
 }
 
-void DesktopProcessSignalOperation::killProcess(const QString &filePath)
+void DesktopProcessSignalOperation::killProcess(const FilePath &filePath)
 {
     Result<> result = ResultOk;
     const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList().value_or(
         QList<ProcessInfo>());
     for (const ProcessInfo &processInfo : processInfoList) {
-        if (processInfo.commandLine == filePath)
+        if (processInfo.commandLine == filePath.path())
             result = killProcessSilently(processInfo.processId);
     }
     emit finished(result);
