@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "msvctoolchain.h"
+#include "toolchainmanager.h"
 
 #include "abiwidget.h"
 #include "devicesupport/idevice.h"
@@ -2288,10 +2289,15 @@ Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector
     if (!clangClPath.isEmpty())
         results.append(detectClangClToolChainInPath(clangClPath, known, ""));
 
-    for (const FilePaths fromVswhere = detectClangClFromVswhere();
-         const FilePath &clangCl : fromVswhere) {
-        results.append(detectClangClToolChainInPath(clangCl, known, ""));
-    }
+    QFuture<FilePaths> future = Utils::asyncRun(detectClangClFromVswhere);
+    Utils::onResultReady(future, ProjectExplorerPlugin::instance(), [](const FilePaths &fromVswhere) {
+        Toolchains newResults;
+        Toolchains known = ToolchainManager::toolchains();
+        for (const FilePath &clangCl : fromVswhere)
+            newResults.append(detectClangClToolChainInPath(clangCl, known, ""));
+        ToolchainManager::registerToolchains(newResults);
+    });
+    Utils::futureSynchronizer()->addFuture(future);
 
     return results;
 }
