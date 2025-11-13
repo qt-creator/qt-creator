@@ -87,12 +87,28 @@ static Utils::FilePath getMainUiFile()
     return qmlBuildSystem->mainUiFilePath();
 }
 
-static void openUiFile()
+static void openLastQmlFile()
 {
-    const Utils::FilePath mainUiFile = getMainUiFile();
+    Utils::FilePath fileToOpen;
+    Utils::FilePath lastQml;
 
-    if (mainUiFile.completeSuffix() == "ui.qml" && mainUiFile.exists())
-        Core::EditorManager::openEditor(mainUiFile, Utils::Id());
+    if (QmlDesignerPlugin::instance())
+        lastQml = QmlDesignerPlugin::instance()->documentManager().lastQmlDocumentFilePath();
+
+    if (lastQml.exists()) {
+        auto project = ProjectExplorer::ProjectManager::startupProject();
+        if (project && lastQml.isChildOf(project->projectDirectory()))
+            fileToOpen = lastQml;
+    }
+    if (fileToOpen.isEmpty()) {
+        const Utils::FilePath mainUiFile = getMainUiFile();
+        if (mainUiFile.fileName().endsWith(".qml") && mainUiFile.exists())
+            fileToOpen = mainUiFile;
+    }
+    if (!fileToOpen.isEmpty()) {
+        Core::EditorManager::openEditor(fileToOpen, Utils::Id());
+        Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
+    }
 }
 
 CrumbleBarModel::CrumbleBarModel(QObject *)
@@ -557,9 +573,9 @@ void ToolBarBackend::triggerModeChange()
         else if (qmlFileOpen)
             Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
         else if (Core::ModeManager::currentModeId() == Core::Constants::MODE_WELCOME)
-            openUiFile();
+            openLastQmlFile();
         else if (Core::ModeManager::currentModeId() == Core::Constants::MODE_EDIT)
-            openUiFile();
+            openLastQmlFile();
         else
             Core::ModeManager::activateMode(Core::Constants::MODE_WELCOME);
     });
