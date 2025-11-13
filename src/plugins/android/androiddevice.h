@@ -65,6 +65,9 @@ private:
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
+    QtTaskTree::ExecutableItem signalOperationRecipe(
+        const ProjectExplorer::SignalOperationData &data,
+        const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const final;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
     QtTaskTree::ExecutableItem portsGatheringRecipe(
         const QtTaskTree::Storage<Utils::PortsOutputData> &output) const override;

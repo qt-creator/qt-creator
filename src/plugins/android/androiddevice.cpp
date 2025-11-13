@@ -723,6 +723,73 @@ DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
     return DeviceProcessSignalOperation::Ptr(new AndroidSignalOperation());
 }
 
+ExecutableItem AndroidDevice::signalOperationRecipe(const SignalOperationData &data,
+                                                    const Storage<Result<>> &resultStorage) const
+{
+    struct InternalStorage {
+        FilePath adbPath = AndroidConfig::adbToolPath();
+        QString runAs = {};
+    };
+
+    const Storage<InternalStorage> storage;
+
+    const auto onSetup = [data, resultStorage] {
+        const auto validResult = data.isValid();
+        if (!validResult) {
+            *resultStorage = validResult;
+            return SetupResult::StopWithError;
+        }
+        if (data.mode == SignalOperationMode::KillByPath) {
+            *resultStorage = ResultError(
+                "The android signal operation does not support killing by filepath.");
+            return SetupResult::StopWithError;
+        }
+        return SetupResult::Continue;
+    };
+
+    const auto onCatSetup = [storage, data](Process &process) {
+        process.setCommand({storage->adbPath, {"shell", "cat", QString("/proc/%1/cmdline").arg(data.pid)}});
+    };
+    const auto onCatDone = [storage, resultStorage, data](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
+            storage->runAs = process.stdOut();
+            if (!storage->runAs.isEmpty())
+                return true;
+            *resultStorage = ResultError("Cannot find User for process: " + QString::number(data.pid));
+        } else if (result == DoneWith::Error) {
+            QString result = " adb process exit code: " + QString::number(process.exitCode());
+            const QString adbError = process.errorString();
+            if (!adbError.isEmpty())
+                result += " adb process error: " + adbError;
+            *resultStorage = ResultError(result);
+        } else {
+            *resultStorage = ResultError("adb process timed out");
+        }
+        return false;
+    };
+
+    const auto onKillSetup = [storage, data](Process &process) {
+        const int signal = data.mode == SignalOperationMode::KillByPid ? 9 : 2;
+        process.setCommand({storage->adbPath, {"shell", "run-as", storage->runAs, "kill",
+                                               QString("-%1").arg(signal), QString::number(data.pid)}});
+    };
+    const auto onKillDone = [storage, resultStorage, data](const Process &process, DoneWith result) {
+        if (result == DoneWith::Error) {
+            *resultStorage = ResultError("Cannot kill process: " + QString::number(data.pid)
+                                         + process.stdErr());
+        } else if (result == DoneWith::Cancel) {
+            *resultStorage = ResultError("adb process timed out");
+        }
+    };
+
+    return Group {
+        storage,
+        onGroupSetup(onSetup),
+        ProcessTask(onCatSetup, onCatDone).withTimeout(5s),
+        ProcessTask(onKillSetup, onKillDone).withTimeout(5s)
+    };
+}
+
 ExecutableItem AndroidDevice::portsGatheringRecipe(const Storage<PortsOutputData> &output) const
 {
     const Storage<QString> serialNumberStorage;
