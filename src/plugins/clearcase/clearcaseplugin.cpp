@@ -1633,8 +1633,7 @@ CommandResult ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
             Environment::systemEnvironment()},
         .flags = flags,
         .encoding = encoding},
-        std::chrono::seconds(m_settings.timeOutS * timeoutMultiplier),
-        flags & RunFlags::UseEventLoop ? EventLoopMode::On : EventLoopMode::Off);
+        std::chrono::seconds(m_settings.timeOutS * timeoutMultiplier));
 }
 
 IEditor *ClearCasePluginPrivate::showOutputInEditor(const QString& title, const QString &output,
