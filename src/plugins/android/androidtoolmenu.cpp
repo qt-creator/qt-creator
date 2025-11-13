@@ -6,12 +6,14 @@
 #include "androidmanifesteditor.h"
 #include "androidtr.h"
 #include "iconcontainerwidget.h"
+#include "manifestwizard.h"
 #include "splashscreencontainerwidget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -19,7 +21,11 @@
 
 #include <QAction>
 #include <QCoreApplication>
+#include <QDialogButtonBox>
+#include <QFileDialog>
 #include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
 #include <QScrollArea>
 
 #include <texteditor/texteditor.h>
@@ -30,29 +36,86 @@ using namespace Utils;
 
 namespace Android::Internal {
 
+static FilePath selectManifestDirectory(QWidget *parent, const FilePath &initialPath)
+{
+    QFileDialog dialog(parent, QObject::tr("Select Android Manifest Directory"));
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setOption(QFileDialog::ShowDirsOnly, true);
+    dialog.setOption(QFileDialog::DontResolveSymlinks, true);
+    dialog.setDirectory(initialPath.toFSPathString());
+
+    if (dialog.exec() == QDialog::Accepted && !dialog.selectedFiles().isEmpty())
+        return FilePath::fromString(dialog.selectedFiles().at(0));
+
+    return FilePath();
+}
+
+static FilePath getManifestDirWithWizardOption(QWidget *parent, const FilePath &initialPath)
+{
+        QMessageBox msgBox(parent);
+        msgBox.setWindowTitle(QObject::tr("Select Android Manifest Directory"));
+        msgBox.setText(QObject::tr("The Android manifest directory was not found automatically.\n"
+                                   "Please select it manually or create it using the wizard."));
+        msgBox.setIcon(QMessageBox::Question);
+
+        QPushButton *selectBtn = msgBox.addButton(QObject::tr("Select Directory..."), QMessageBox::AcceptRole);
+        QPushButton *wizardBtn = msgBox.addButton(QObject::tr("Create Android Templates..."), QMessageBox::ActionRole);
+        msgBox.addButton(QMessageBox::Cancel);
+
+        msgBox.exec();
+
+        if (msgBox.clickedButton() == wizardBtn) {
+            if (Project *project = ProjectManager::startupProject()) {
+                if (BuildSystem *buildSys = project->activeTarget() ? project->activeTarget()->buildSystem() : nullptr) {
+                    executeManifestWizard(buildSys);
+
+                    FilePath androidDir = project->projectDirectory().pathAppended("android");
+                    if (androidDir.pathAppended("AndroidManifest.xml").exists())
+                        return androidDir;
+                }
+            }
+            return FilePath();
+        }
+
+        if (msgBox.clickedButton() == selectBtn)
+            return selectManifestDirectory(parent, initialPath);
+
+        return FilePath();
+}
+
+static Project* getRelevantProject(const FilePath &docPath)
+{
+    if (Project *project = ProjectManager::projectForFile(docPath))
+        return project;
+
+    if (Project *startup = ProjectManager::startupProject())
+        return startup;
+
+    if (!ProjectManager::projects().isEmpty())
+        return ProjectManager::projects().first();
+
+    return nullptr;
+}
+
 FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
 {
     const FilePath docPath = textEditorWidget->textDocument()->filePath().absolutePath();
+    Project *project = getRelevantProject(docPath);
 
-    Project *project = ProjectManager::projectForFile(docPath);
-    if (!project && !ProjectManager::projects().isEmpty()) {
-        project = ProjectManager::startupProject();
-        if (!project)
-            project = ProjectManager::projects().first();
+    if (!project) {
+        QMessageBox::warning(
+            textEditorWidget,
+            QObject::tr("Operation Failed"),
+            QObject::tr("This operation requires a project to be open. Please open your project file first.")
+            );
+        return FilePath();
     }
 
-    if (project) {
-        const FilePath projDir = project->projectDirectory();
-        const QString androidSubdir = QLatin1String("android");
+    FilePath androidDir = project->projectDirectory().pathAppended("android");
+    if (androidDir.pathAppended("AndroidManifest.xml").exists())
+        return androidDir;
 
-        FilePath searchDir = projDir.pathAppended(androidSubdir);
-        FilePath manifestPath = searchDir.pathAppended(QLatin1String("AndroidManifest.xml"));
-
-        if (manifestPath.exists())
-            return searchDir;
-    }
-    // TODO: this will trigger path choosing/apk template dialogue in the future
-    return FilePath();
+    return getManifestDirWithWizardOption(textEditorWidget, project->projectDirectory());
 }
 
 const char ANDROID_TOOLS_MENU_ID[] = "Android.Tools.Menu";
@@ -101,7 +164,8 @@ AndroidIconSplashEditorWidget::AndroidIconSplashEditorWidget(QWidget *parent)
     manifestTextEditor->textDocument()->setFilePath(fallbackPath);
 
     auto iconContainer = new IconContainerWidget(this);
-    iconContainer->initialize(manifestTextEditor);
+    if (!iconContainer->initialize(manifestTextEditor))
+        iconContainer->setEnabled(false);
 
     QScrollArea *scrollArea = new QScrollArea(this);
     scrollArea->setWidget(iconContainer);

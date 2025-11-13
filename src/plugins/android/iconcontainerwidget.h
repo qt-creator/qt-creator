@@ -48,7 +48,7 @@ class IconContainerWidget : public QWidget
 
 public:
     explicit IconContainerWidget(QWidget *parent);
-    void initialize(TextEditor::TextEditorWidget *textEditorWidget);
+    bool initialize(TextEditor::TextEditorWidget *textEditorWidget);
 
 signals:
     void iconsModified();
@@ -68,6 +68,7 @@ private:
     QPointer<TextEditor::TextEditorWidget> m_textEditor = nullptr;
     QString m_iconFileName = QLatin1String("icon");
     bool m_hasIcons = false;
+    Utils::FilePath m_manifestDir;
 };
 
 } // namespace Android::Internal

@@ -28,7 +28,7 @@ class IconWidget : public QLabel {
 public:
     IconWidget(QWidget *parent = nullptr) : IconWidget(parent, {}, {}, {}, {}, nullptr, {}, {}) {};
 
-    Utils::FilePath getTargetPath() const;
+    Utils::FilePath getTargetPath(const FilePath &manifestDir) const;
 
     IconWidget(QWidget *parent, const QSize &displaySize, const QSize &pixmapSize, const QString &title,
                const QString &tooltip, TextEditor::TextEditorWidget *textEditorWidget,
@@ -36,8 +36,8 @@ public:
 
     void setIcon(const QIcon &icon);
     void setTargetIconFileName(const QString &name) { m_targetFileName = name; }
-    Result<void> saveIcon();
-    void loadIcon();
+    Result<void> saveIcon(const FilePath &manifestDir);
+    void loadIcon(const FilePath &manifestDir);
     bool hasIcon() const { return m_hasIcon; }
 
 signals:
@@ -92,9 +92,6 @@ void IconWidget::mousePressEvent(QMouseEvent *ev)
     setPixmap(m_pixmap.scaled(m_displaySize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     m_hasIcon = true;
 
-    if (!saveIcon())
-        qWarning() << "Failed to save icon immediately after loading";
-
     emit iconSelected();
 };
 
@@ -142,25 +139,19 @@ void IconWidget::setIconFromPath()
     emit iconSelected();
 }
 
-Utils::FilePath IconWidget::getTargetPath() const
+Utils::FilePath IconWidget::getTargetPath(const FilePath &manifestDir) const
 {
     if (m_pathPrefix.isEmpty() || m_targetFileName.isEmpty() || !m_textEditor) {
         qWarning() << "Cannot determine target path - missing required parameters";
         return {};
     }
 
-    const Utils::FilePath baseDir = manifestDir(m_textEditor.data());
-    if (baseDir.isEmpty()) {
-        qWarning() << "Base directory path is empty";
+    if (!manifestDir.exists()) {
+        qWarning() << "Base directory does not exist:" << manifestDir.toUserOutput();
         return {};
     }
 
-    if (!baseDir.exists()) {
-        qWarning() << "Base directory does not exist:" << baseDir.toUserOutput();
-        return {};
-    }
-
-    return baseDir / m_pathPrefix / m_targetFileName;
+    return manifestDir / m_pathPrefix / m_targetFileName;
 }
 
 void IconWidget::setIcon(const QIcon &icon)
@@ -182,16 +173,12 @@ void IconWidget::removeIcon()
     emit iconRemoved();
 }
 
-void IconWidget::loadIcon()
+void IconWidget::loadIcon(const FilePath &manifestDir)
 {
     if (m_pathPrefix.isEmpty() || m_targetFileName.isEmpty() || !m_textEditor)
         return;
 
-    const Utils::FilePath baseDir = manifestDir(m_textEditor.data());
-    if (baseDir.isEmpty())
-        return;
-
-    const Utils::FilePath targetPath = getTargetPath();
+    const Utils::FilePath targetPath = getTargetPath(manifestDir);
 
     const QString p = targetPath.toUrlishString();
     if (QFile::exists(p)) {
@@ -204,12 +191,12 @@ void IconWidget::loadIcon()
     }
 }
 
-Result<void> IconWidget::saveIcon()
+Result<void> IconWidget::saveIcon(const FilePath &manifestDir)
 {
     if (!m_hasIcon)
         return Utils::ResultError("Icon data not available for saving.");
 
-    const Utils::FilePath targetPath = getTargetPath();
+    const Utils::FilePath targetPath = getTargetPath(manifestDir);
     const QString targetFileName = targetPath.toUrlishString();
     QFileInfo fi(targetFileName);
 
@@ -283,13 +270,20 @@ static const IconConfig iconConfigs[] = {
     {extraExtraExtraHighDpiIconSize, "XXXHDPI icon", "Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi).", extraExtraExtraHighDpiIconPath},
     };
 
-void Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWidget *textEditorWidget)
+bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWidget *textEditorWidget)
 {
-    QTC_ASSERT(textEditorWidget, return);
+    QTC_ASSERT(textEditorWidget, return false);
     m_textEditor = textEditorWidget;
 
     const QString iconFileName = m_iconFileName + imageSuffix;
     m_iconLayout->addStretch(1);
+
+    m_manifestDir = manifestDir(textEditorWidget);
+
+    if (m_manifestDir.isEmpty() || !m_manifestDir.exists()) {
+        qWarning() << "Failed to resolve manifest directory";
+        return false;
+    }
 
     for (const auto &config : iconConfigs) {
         auto iconButton = new IconWidget(this, config.size, config.size,
@@ -319,31 +313,30 @@ void Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
     if (m_masterIconButton) {
         connect(m_masterIconButton, &QAbstractButton::clicked, this, [this, handleIconModification]() {
             const auto iconFile = IconContainerWidget::iconFile(lowDpiIconPath);
-
             if (iconFile.isEmpty())
-                return;
+                return false;
 
             const QString filePath = iconFile.toUrlishString();
             QPixmap basePix(filePath);
             if (basePix.isNull()) {
                 qWarning() << "Selected master icon could not be loaded:" << filePath;
-                return;
+                return false;
             }
 
             for (auto &&iconButton : m_iconButtons) {
                 iconButton->setIcon(QIcon(basePix));
-                auto result = iconButton->saveIcon();
+                auto result = iconButton->saveIcon(m_manifestDir);
                 if (!result) {
                     if (!result)
                         qWarning() << "Failed to save scaled icon for one of the DPI variants:" << result.error();
                 }
             }
-
             handleIconModification();
+            return true;
         });
     }
-
     loadIcons();
+    return true;
 }
 
 Utils::FilePath IconContainerWidget::iconFile(const Utils::FilePath &path)
@@ -360,7 +353,7 @@ void IconContainerWidget::loadIcons()
 {
     for (auto &&iconButton : m_iconButtons) {
         iconButton->setTargetIconFileName(m_iconFileName + imageSuffix);
-        iconButton->loadIcon();
+        iconButton->loadIcon(m_manifestDir);
     }
     m_hasIcons = hasIcons();
 }
@@ -405,7 +398,7 @@ Result<void> IconContainerWidget::saveIcons()
 
     for (auto &&iconButton : m_iconButtons) {
         if (iconButton->hasIcon()) {
-            auto result = iconButton->saveIcon();
+            auto result = iconButton->saveIcon(m_manifestDir);
             if (!result)
                 return result;
         }
