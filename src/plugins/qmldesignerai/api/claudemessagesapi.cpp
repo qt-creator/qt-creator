@@ -75,11 +75,19 @@ QByteArray ClaudeMessagesApi::createContent(const Data &data, const AiModelInfo 
 {
     QJsonArray userJson = getUserJson(data.attachedImage, data.qml, data.userPrompt);
 
-    QJsonObject json;
-    json["model"] = modelInfo.modelId;
-    json["messages"] = QJsonArray{
-        QJsonObject{{"role", "system"}, {"content", data.manifest}},
-        QJsonObject{{"role", "user"}, {"content", userJson}},
+    QJsonObject json = {
+        {"model", modelInfo.modelId},
+        {"system", data.manifest},
+        {"max_tokens", 4096}, // TODO: Add a user setting for this parameter
+        {
+            "messages",
+            QJsonArray{
+                QJsonObject{
+                    {"role", "user"},
+                    {"content", userJson},
+                },
+            },
+        },
     };
 
     return QJsonDocument(json).toJson();
