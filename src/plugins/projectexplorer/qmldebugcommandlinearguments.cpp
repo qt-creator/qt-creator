@@ -13,11 +13,11 @@ QString qmlDebugServices(QmlDebugServicesPreset preset)
     case NoQmlDebugServices:
         return QString();
     case QmlDebuggerServices:
-        return QStringLiteral("DebugMessages,QmlDebugger,V8Debugger,QmlInspector,DebugTranslation");
+        return QStringLiteral("DebugMessages,QmlDebugger,V8Debugger,QmlInspector");
     case QmlProfilerServices:
-        return QStringLiteral("CanvasFrameRate,EngineControl,DebugMessages,DebugTranslation");
+        return QStringLiteral("CanvasFrameRate,EngineControl,DebugMessages");
     case QmlNativeDebuggerServices:
-        return QStringLiteral("NativeQmlDebugger,DebugTranslation");
+        return QStringLiteral("NativeQmlDebugger");
     case QmlPreviewServices:
         return QStringLiteral("QmlPreview,DebugTranslation");
     default:
