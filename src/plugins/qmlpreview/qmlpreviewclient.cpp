@@ -62,6 +62,13 @@ void QmlPreviewClient::clearCache()
     sendMessage(packet.data());
 }
 
+void QmlPreviewClient::setAnimationSpeed(float factor)
+{
+    QmlDebug::QPacket packet(dataStreamVersion());
+    packet << static_cast<qint8>(AnimationSpeed) << factor;
+    sendMessage(packet.data());
+}
+
 void QmlPreviewClient::messageReceived(const QByteArray &data)
 {
     QmlDebug::QPacket packet(dataStreamVersion(), data);

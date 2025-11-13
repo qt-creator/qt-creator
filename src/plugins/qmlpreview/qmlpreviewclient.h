@@ -21,7 +21,8 @@ public:
         Directory,
         ClearCache,
         Zoom,
-        Fps
+        Fps,
+        AnimationSpeed,
     };
 
     struct FpsInfo {
@@ -45,6 +46,7 @@ public:
     void announceDirectory(const QString &path, const QStringList &entries);
     void announceError(const QString &path);
     void clearCache();
+    void setAnimationSpeed(float factor);
 
     void messageReceived(const QByteArray &message) override;
     void stateChanged(State state) override;
