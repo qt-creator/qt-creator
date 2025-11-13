@@ -5,6 +5,7 @@
 
 #include <projectexplorer/projectmanager.h>
 
+#include <QJsonDocument>
 #include <QTextEdit>
 #include <QVBoxLayout>
 
