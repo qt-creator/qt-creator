@@ -39,6 +39,7 @@ public:
     void setCurrentDesignDocument(Core::IEditor *editor);
     DesignDocument *currentDesignDocument() const;
     bool hasCurrentDesignDocument() const;
+    Utils::FilePath lastQmlDocumentFilePath() const;
 
     void removeEditors(const QList<Core::IEditor *> &editors);
 
@@ -72,6 +73,7 @@ private:
     QmlDesignerProjectManager &m_projectManager;
     ExternalDependenciesInterface &m_externalDependencies;
     GeneratedComponentUtils m_generatedComponentUtils;
+    Utils::FilePath m_lastQmlDocumentFilePath;
 };
 
 } // namespace QmlDesigner

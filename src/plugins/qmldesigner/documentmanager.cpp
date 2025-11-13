@@ -243,6 +243,11 @@ void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
         } else {
             m_currentDesignDocument = found->second.get();
         }
+        if (m_currentDesignDocument) {
+            const Utils::FilePath currentPath = m_currentDesignDocument->fileName();
+            if (currentPath.fileName().endsWith(".qml"))
+                m_lastQmlDocumentFilePath = currentPath;
+        }
     } else if (m_currentDesignDocument) {
         m_currentDesignDocument->resetToDocumentModel();
         m_currentDesignDocument.clear();
@@ -257,6 +262,11 @@ DesignDocument *DocumentManager::currentDesignDocument() const
 bool DocumentManager::hasCurrentDesignDocument() const
 {
     return !m_currentDesignDocument.isNull();
+}
+
+FilePath DocumentManager::lastQmlDocumentFilePath() const
+{
+    return m_lastQmlDocumentFilePath;
 }
 
 void DocumentManager::removeEditors(const QList<Core::IEditor *> &editors)
