@@ -14,10 +14,10 @@
 
 #include <qmlprojectmanager/qmlproject.h>
 
+#include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/environment.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -26,7 +26,6 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
@@ -40,8 +39,8 @@ namespace Internal {
 
 static QStringList puppetModes()
 {
-    static QStringList puppetModeList{"", "all", "editormode", "rendermode", "previewmode",
-                                      "bakelightsmode", "import3dmode"};
+    static QStringList puppetModeList{
+        "", "all", "editormode", "rendermode", "previewmode", "bakelightsmode", "import3dmode"};
     return puppetModeList;
 }
 
@@ -128,7 +127,7 @@ SettingsPageWidget::SettingsPageWidget()
     auto resetStyle = new QPushButton(Tr::tr("Reset Style"));
 
     m_controls2StyleComboBox = new QComboBox;
-    m_controls2StyleComboBox->addItems({ "Default", "Material", "Universal" });
+    m_controls2StyleComboBox->addItems({"Default", "Material", "Universal"});
 
     m_alwaysSaveSubcomponentsCheckBox = new QCheckBox(
         Tr::tr("Always save when leaving subcomponent in bread crumb"));
@@ -240,12 +239,10 @@ SettingsPageWidget::SettingsPageWidget()
         .attachTo(this);
 
     connect(m_designerEnableDebuggerCheckBox, &QCheckBox::toggled, [this](bool checked) {
-        if (checked && ! m_designerShowDebuggerCheckBox->isChecked())
+        if (checked && !m_designerShowDebuggerCheckBox->isChecked())
             m_designerShowDebuggerCheckBox->setChecked(true);
-        }
-    );
-    connect(resetStyle, &QPushButton::clicked,
-        m_styleLineEdit, &QLineEdit::clear);
+    });
+    connect(resetStyle, &QPushButton::clicked, m_styleLineEdit, &QLineEdit::clear);
     connect(m_controls2StyleComboBox, &QComboBox::currentTextChanged, [this] {
         m_styleLineEdit->setText(m_controls2StyleComboBox->currentText());
     });
@@ -278,11 +275,10 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
                     m_designerWarningsUiQmlfiles->isChecked());
 
     settings.insert(DesignerSettingsKey::WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR,
-        m_designerWarningsInEditorCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::SHOW_DEBUGVIEW,
-        m_designerShowDebuggerCheckBox->isChecked());
+                    m_designerWarningsInEditorCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::SHOW_DEBUGVIEW, m_designerShowDebuggerCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ENABLE_DEBUGVIEW,
-        m_designerEnableDebuggerCheckBox->isChecked());
+                    m_designerEnableDebuggerCheckBox->isChecked());
 
     int typeOfQsTrFunction;
 
@@ -298,16 +294,14 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
     settings.insert(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION, typeOfQsTrFunction);
     settings.insert(DesignerSettingsKey::CONTROLS_STYLE, m_styleLineEdit->text());
     settings.insert(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
-        m_forwardPuppetOutputComboBox->currentText());
-    settings.insert(DesignerSettingsKey::DEBUG_PUPPET,
-        m_debugPuppetComboBox->currentText());
-
+                    m_forwardPuppetOutputComboBox->currentText());
+    settings.insert(DesignerSettingsKey::DEBUG_PUPPET, m_debugPuppetComboBox->currentText());
     settings.insert(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR,
-        m_alwaysSaveSubcomponentsCheckBox->isChecked());
+                    m_alwaysSaveSubcomponentsCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS,
-        m_showPropertyEditorWarningsCheckBox->isChecked());
+                    m_showPropertyEditorWarningsCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
-        m_showWarnExceptionsCheckBox->isChecked());
+                    m_showWarnExceptionsCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ENABLE_TIMELINEVIEW,
                     m_featureTimelineEditorCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE,
@@ -329,53 +323,48 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
 void SettingsPageWidget::setSettings(const DesignerSettings &settings)
 {
     m_spinItemSpacing->setValue(settings.value(DesignerSettingsKey::ITEMSPACING).toInt());
-    m_spinSnapMargin->setValue(settings.value(
-        DesignerSettingsKey::CONTAINERPADDING).toInt());
-    m_spinCanvasWidth->setValue(settings.value(
-        DesignerSettingsKey::CANVASWIDTH).toInt());
-    m_spinCanvasHeight->setValue(settings.value(
-        DesignerSettingsKey::CANVASHEIGHT).toInt());
-    m_spinRootItemInitWidth->setValue(settings.value(
-        DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH).toInt());
-    m_spinRootItemInitHeight->setValue(settings.value(
-        DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT).toInt());
-    m_designerWarningsCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool());
-    m_designerWarningsUiQmlfiles->setChecked(settings.value(
-        DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool());
-    m_designerWarningsInEditorCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR).toBool());
-    m_designerShowDebuggerCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::SHOW_DEBUGVIEW).toBool());
-    m_designerEnableDebuggerCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool());
-    m_useQsTrFunctionRadioButton->setChecked(settings.value(
-        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 0);
-    m_useQsTrIdFunctionRadioButton->setChecked(settings.value(
-        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 1);
-    m_useQsTranslateFunctionRadioButton->setChecked(settings.value(
-        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 2);
-    m_styleLineEdit->setText(settings.value(
-        DesignerSettingsKey::CONTROLS_STYLE).toString());
+    m_spinSnapMargin->setValue(settings.value(DesignerSettingsKey::CONTAINERPADDING).toInt());
+    m_spinCanvasWidth->setValue(settings.value(DesignerSettingsKey::CANVASWIDTH).toInt());
+    m_spinCanvasHeight->setValue(settings.value(DesignerSettingsKey::CANVASHEIGHT).toInt());
+    m_spinRootItemInitWidth->setValue(
+        settings.value(DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH).toInt());
+    m_spinRootItemInitHeight->setValue(
+        settings.value(DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT).toInt());
+    m_designerWarningsCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool());
+    m_designerWarningsUiQmlfiles->setChecked(
+        settings.value(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool());
+    m_designerWarningsInEditorCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR).toBool());
+    m_designerShowDebuggerCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::SHOW_DEBUGVIEW).toBool());
+    m_designerEnableDebuggerCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool());
+    m_useQsTrFunctionRadioButton->setChecked(
+        settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 0);
+    m_useQsTrIdFunctionRadioButton->setChecked(
+        settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 1);
+    m_useQsTranslateFunctionRadioButton->setChecked(
+        settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 2);
+    m_styleLineEdit->setText(settings.value(DesignerSettingsKey::CONTROLS_STYLE).toString());
 
-    m_forwardPuppetOutputComboBox->setCurrentText(settings.value(
-        DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString());
-    m_debugPuppetComboBox->setCurrentText(settings.value(
-        DesignerSettingsKey::DEBUG_PUPPET).toString());
+    m_forwardPuppetOutputComboBox->setCurrentText(
+        settings.value(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString());
+    m_debugPuppetComboBox->setCurrentText(settings.value(DesignerSettingsKey::DEBUG_PUPPET).toString());
 
-    m_alwaysSaveSubcomponentsCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR).toBool());
-    m_showPropertyEditorWarningsCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
-    m_showWarnExceptionsCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT).toBool());
+    m_alwaysSaveSubcomponentsCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR).toBool());
+    m_showPropertyEditorWarningsCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
+    m_showWarnExceptionsCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT).toBool());
 
     m_controls2StyleComboBox->setCurrentText(m_styleLineEdit->text());
 
-    m_designerAlwaysDesignModeCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::ALWAYS_DESIGN_MODE).toBool());
-    m_featureTimelineEditorCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool());
+    m_designerAlwaysDesignModeCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::ALWAYS_DESIGN_MODE).toBool());
+    m_featureTimelineEditorCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool());
     m_featureDockWidgetContentMinSize->setChecked(
         settings.value(DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE).toBool());
 
@@ -417,7 +406,7 @@ void SettingsPageWidget::apply()
                                        DesignerSettingsKey::ENABLE_TIMELINEVIEW,
                                        DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE};
 
-    for (const char * const key : restartNecessaryKeys) {
+    for (const char *const key : restartNecessaryKeys) {
         if (QmlDesignerPlugin::settings().value(key) != settings.value(key)) {
             QMessageBox::information(Core::ICore::dialogParent(),
                                      Tr::tr("Restart Required"),
@@ -459,5 +448,5 @@ SettingsPage::SettingsPage()
     setWidgetCreator([&] { return new SettingsPageWidget(); });
 }
 
-} // Internal
-} // QmlDesigner
+} // namespace Internal
+} // namespace QmlDesigner
