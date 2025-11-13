@@ -195,7 +195,10 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
     if (json.contains("features") && json["features"].isObject()) {
         QJsonObject featuresObj = json["features"].toObject();
         for (auto it = featuresObj.begin(); it != featuresObj.end(); ++it) {
-            common.features[it.key()] = it.value();
+            const auto dep = FeatureDependency::fromJson(it.key(), it.value().toObject());
+            if (!dep)
+                return ResultError(dep.error());
+            common.features.push_back(*dep);
         }
     }
 
@@ -792,10 +795,10 @@ QDebug operator<<(QDebug debug, const DevContainer::DevContainerCommon &value)
     if (!value.features.empty()) {
         debug << "  features={";
         bool first = true;
-        for (const auto &[key, val] : value.features) {
+        for (const auto &dep : value.features) {
             if (!first)
                 debug << ", ";
-            debug << key;
+            debug << dep;
             first = false;
         }
         debug << "}\n";

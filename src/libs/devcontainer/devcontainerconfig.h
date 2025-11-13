@@ -206,7 +206,7 @@ struct DEVCONTAINER_EXPORT DevContainerCommon
 {
     std::optional<QString> schema;
     std::optional<QString> name;
-    std::map<QString, QJsonValue> features;
+    QList<FeatureDependency> features;
     std::optional<QStringList> overrideFeatureInstallOrder;
     std::map<QString, SecretMetadata> secrets;
     std::optional<QList<std::variant<int, QString>>> forwardPorts;
@@ -282,5 +282,6 @@ DEVCONTAINER_EXPORT QDebug operator<<(QDebug debug, const DevContainer::NonCompo
 DEVCONTAINER_EXPORT QDebug operator<<(QDebug debug, const DevContainer::Command &cmd);
 DEVCONTAINER_EXPORT QDebug operator<<(QDebug debug, const DevContainer::DevContainerCommon &value);
 DEVCONTAINER_EXPORT QDebug operator<<(QDebug debug, const DevContainer::Config &value);
+DEVCONTAINER_EXPORT QDebug operator<<(QDebug debug, const DevContainer::FeatureDependency &value);
 
 } // namespace DevContainer
