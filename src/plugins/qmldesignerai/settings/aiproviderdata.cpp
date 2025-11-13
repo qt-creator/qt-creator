@@ -51,12 +51,12 @@ const QMap<QString, AiProviderData> AiProviderData::defaultProviders()
         {"Claude", AiProviderData{
             .url = QUrl{"https://api.anthropic.com/v1/messages"},
             .models = {
-                "claude-sonnet-4-5",
-                "claude-sonnet-4",
-                "claude-haiku-4-5",
-                "claude-haiku-3-5",
-                "claude-opus-4-1",
-                "claude-opus-4",
+                "claude-sonnet-4-5-20250929",
+                "claude-sonnet-4-20250514",
+                "claude-haiku-4-5-20251001",
+                "claude-3-5-haiku-20241022",
+                "claude-opus-4-20250514",
+                "claude-opus-4-1-20250514", // Premium model
             }
         }},
     };
