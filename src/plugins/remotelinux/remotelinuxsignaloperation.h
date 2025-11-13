@@ -9,8 +9,10 @@
 
 namespace RemoteLinux {
 
+using KillCommandForPathFunction = std::function<QString(const Utils::FilePath &)>;
+
 class REMOTELINUX_EXPORT RemoteLinuxSignalOperation
-        : public ProjectExplorer::DeviceProcessSignalOperation
+    : public ProjectExplorer::DeviceProcessSignalOperation
 {
     Q_OBJECT
 public:
@@ -20,19 +22,16 @@ public:
     void killProcess(const Utils::FilePath &filePath) override;
     void interruptProcess(qint64 pid) override;
 
-protected:
-    RemoteLinuxSignalOperation(const ProjectExplorer::IDeviceConstPtr &device);
+    RemoteLinuxSignalOperation(const ProjectExplorer::IDeviceConstPtr &device,
+                               const KillCommandForPathFunction &handler);
 
 private:
-    virtual QString killProcessByNameCommandLine(const Utils::FilePath &filePath) const;
-
     void runnerDone();
     void run(const QString &command);
 
     const ProjectExplorer::IDeviceConstPtr m_device;
     std::unique_ptr<Utils::Process> m_process;
-
-    friend class LinuxDevice;
+    KillCommandForPathFunction m_killCommandForPathFunction;
 };
 
 }

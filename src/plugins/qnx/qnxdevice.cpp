@@ -33,20 +33,11 @@ static QString signalProcessByNameQnxCommandLine(const QString &filePath, int si
         "done").arg(executable.replace(QLatin1String("/"), QLatin1String("\\/"))).arg(sig);
 }
 
-class QnxDeviceProcessSignalOperation : public RemoteLinuxSignalOperation
+static QString killCommandForPath(const FilePath &filePath)
 {
-public:
-    explicit QnxDeviceProcessSignalOperation(const IDeviceConstPtr &device)
-        : RemoteLinuxSignalOperation(device)
-    {}
-
-    QString killProcessByNameCommandLine(const FilePath &filePath) const override
-    {
-        return QString::fromLatin1("%1; %2").arg(signalProcessByNameQnxCommandLine(filePath.path(), 15),
-                                                 signalProcessByNameQnxCommandLine(filePath.path(), 9));
-    }
-};
-
+    return QString::fromLatin1("%1; %2").arg(signalProcessByNameQnxCommandLine(filePath.path(), 15),
+                                             signalProcessByNameQnxCommandLine(filePath.path(), 9));
+}
 class QnxDevice final : public LinuxDevice
 {
 public:
@@ -71,7 +62,8 @@ public:
 
     DeviceProcessSignalOperation::Ptr signalOperation() const final
     {
-        return DeviceProcessSignalOperation::Ptr(new QnxDeviceProcessSignalOperation(shared_from_this()));
+        return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(shared_from_this(),
+                                                                                killCommandForPath));
     }
 
     DeviceTester *createDeviceTester() final { return new QnxDeviceTester(shared_from_this()); }

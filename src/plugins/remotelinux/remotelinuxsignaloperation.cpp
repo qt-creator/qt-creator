@@ -5,7 +5,6 @@
 
 #include "remotelinuxtr.h"
 
-#include <projectexplorer/projectexplorersettings.h>
 #include <utils/commandline.h>
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
@@ -16,9 +15,10 @@ using namespace Utils;
 
 namespace RemoteLinux {
 
-RemoteLinuxSignalOperation::RemoteLinuxSignalOperation(
-        const IDeviceConstPtr &device)
+RemoteLinuxSignalOperation::RemoteLinuxSignalOperation(const IDeviceConstPtr &device,
+                                                       const KillCommandForPathFunction &handler)
     : m_device(device)
+    , m_killCommandForPathFunction(handler)
 {}
 
 RemoteLinuxSignalOperation::~RemoteLinuxSignalOperation() = default;
@@ -38,36 +38,6 @@ void RemoteLinuxSignalOperation::run(const QString &command)
     m_process->start();
 }
 
-QString RemoteLinuxSignalOperation::killProcessByNameCommandLine(const FilePath &filePath) const
-{
-    return QString::fromLatin1(R"(
-        pid=
-        cd /proc
-        for p in `ls -d [0123456789]*`
-        do
-          if [ "`readlink /proc/$p/exe`" = "%1" ]
-          then
-            pid=$p
-            break
-          fi
-        done
-        if [ -n "$pid" ]
-        then
-          kill -15 -$pid $pid
-          i=0
-          while ps -p $pid
-          do
-            sleep 1
-            test $i -lt %2 || break
-            i=$((i+1))
-          done
-          ps -p $pid && kill -9 -$pid $pid
-          true
-        else
-          false
-        fi)").arg(filePath.path()).arg(globalProjectExplorerSettings().reaperTimeoutInSeconds());
-}
-
 void RemoteLinuxSignalOperation::killProcess(qint64 pid)
 {
     run(QString::fromLatin1("%1 && %2")
@@ -77,7 +47,7 @@ void RemoteLinuxSignalOperation::killProcess(qint64 pid)
 
 void RemoteLinuxSignalOperation::killProcess(const FilePath &filePath)
 {
-    run(killProcessByNameCommandLine(filePath));
+    run(m_killCommandForPathFunction(filePath));
 }
 
 void RemoteLinuxSignalOperation::interruptProcess(qint64 pid)

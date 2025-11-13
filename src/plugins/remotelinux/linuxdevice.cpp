@@ -26,6 +26,7 @@
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorersettings.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -84,6 +85,36 @@ const QByteArray s_pidMarker = "__qtc";
 
 static Q_LOGGING_CATEGORY(linuxDeviceLog, "qtc.remotelinux.device", QtWarningMsg);
 #define DEBUG(x) qCDebug(linuxDeviceLog) << x << '\n'
+
+static QString killCommandForPath(const FilePath &filePath)
+{
+    return QString::fromLatin1(R"(
+        pid=
+        cd /proc
+        for p in `ls -d [0123456789]*`
+        do
+          if [ "`readlink /proc/$p/exe`" = "%1" ]
+          then
+            pid=$p
+            break
+          fi
+        done
+        if [ -n "$pid" ]
+        then
+          kill -15 -$pid $pid
+          i=0
+          while ps -p $pid
+          do
+            sleep 1
+            test $i -lt %2 || break
+            i=$((i+1))
+          done
+          ps -p $pid && kill -9 -$pid $pid
+          true
+        else
+          false
+        fi)").arg(filePath.path()).arg(globalProjectExplorerSettings().reaperTimeoutInSeconds());
+}
 
 class SshSharedConnection : public QObject
 {
@@ -659,7 +690,7 @@ void SshProcessInterfacePrivate::handleStarted()
 
     // Don't emit started() when terminal is off,
     // it's being done later inside handleReadyReadStandardOutput().
-    if (q->m_setup.m_terminalMode == TerminalMode::Off && !q->m_setup.m_ptyData)
+    if (q->m_setup.m_terminalMode == Utils::TerminalMode::Off && !q->m_setup.m_ptyData)
         return;
 
     m_pidParsed = true;
@@ -771,7 +802,7 @@ void SshProcessInterfacePrivate::start()
         }
         cmd.addArg(m_sshParameters.host());
 
-        const bool useTerminal = q->m_setup.m_terminalMode != TerminalMode::Off
+        const bool useTerminal = q->m_setup.m_terminalMode != Utils::TerminalMode::Off
                                  || q->m_setup.m_ptyData;
         if (useTerminal)
             cmd.addArg("-tt");
@@ -885,7 +916,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
     QTC_ASSERT(linuxDevice, return {});
 
     const FilePath sshBinary = sshSettings().sshFilePath();
-    const bool useTerminal = q->m_setup.m_terminalMode != TerminalMode::Off || q->m_setup.m_ptyData;
+    const bool useTerminal = q->m_setup.m_terminalMode != Utils::TerminalMode::Off || q->m_setup.m_ptyData;
     const bool usePidMarker = !useTerminal;
     const bool sourceProfile = linuxDevice->sourceProfile();
     const bool useX = !m_sshParameters.x11DisplayName().isEmpty();
@@ -1208,7 +1239,7 @@ LinuxDevice::LinuxDevice()
         const QString shell = env.hasChanges() ? env.value_or("SHELL", "/bin/sh") : QString();
 
         proc->setCommand(CommandLine{filePath(shell)});
-        proc->setTerminalMode(TerminalMode::Run);
+        proc->setTerminalMode(Utils::TerminalMode::Run);
         proc->setEnvironment(env);
         proc->setWorkingDirectory(workingDir);
         proc->start();
@@ -1253,7 +1284,8 @@ DeviceTester *LinuxDevice::createDeviceTester()
 
 DeviceProcessSignalOperation::Ptr LinuxDevice::signalOperation() const
 {
-    return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(shared_from_this()));
+    return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(shared_from_this(),
+                                                                            killCommandForPath));
 }
 
 QString LinuxDevice::userAtHost() const
