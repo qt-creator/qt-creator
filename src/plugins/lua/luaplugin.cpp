@@ -509,7 +509,8 @@ public:
     void onEditorOpened(Core::IEditor *editor)
     {
         const FilePath path = editor->document()->filePath();
-        if (path.isChildOf(Core::ICore::userResourcePath("scripts"))) {
+        if (path.isChildOf(Core::ICore::userResourcePath("scripts"))
+            || path.isChildOf(Core::ICore::resourcePath("lua/scripts"))) {
             auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
             TextEditor::TextEditorWidget *editorWidget = textEditor->editorWidget();
             editorWidget->toolBar()
