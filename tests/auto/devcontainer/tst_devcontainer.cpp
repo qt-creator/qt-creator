@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "devcontainer/devcontainerfeature.h"
 #include <devcontainer/devcontainer.h>
 #include <devcontainer/devcontainerconfig.h>
 
@@ -99,6 +100,7 @@ int main() {
     void upImage();
     void upDockerfile();
     void containerWorkspaceReplacers();
+    void readLocalFeature();
 };
 
 void tst_DevContainer::instanceConfigToString_data()
@@ -574,6 +576,81 @@ volumes:
     const Result<Group> downRecipe = instance->downRecipe(false);
     QVERIFY_RESULT(downRecipe);
     QCOMPARE(QTaskTree::runBlocking((*downRecipe).withTimeout(recipeTimeout)), DoneWith::Success);
+}
+
+void tst_DevContainer::readLocalFeature()
+{
+    static const QByteArray devcontainer_feature_json = R"json(
+{
+    "id": "test-feature",
+    "version": "1.0.0",
+    "name": "Test Feature",
+    "options": {
+        "optionA": {
+            "type": "string",
+            "default": "Hello World",
+            "description": "An example option for the test feature."
+        },
+        "optionB": {
+            "type": "boolean",
+            "default": true,
+            "description": "A boolean option."
+        },
+        "optionC": {
+            "type": "string",
+            "description": "An enum option.",
+            "enum": ["value1", "value2", "value3"],
+            "default": "value2"
+        },
+        "optionD": {
+            "type": "string",
+            "description": "An option with proposals",
+            "proposals": ["proposal1", "proposal2"],
+            "default": "proposal1"
+        }
+    },
+    "init": true,
+    "containerEnv": {
+        "feature-container-env": "Hello Feature"
+    },
+}
+)json";
+
+    const auto toString = [](const QJsonValue &value) { return value.toString(); };
+
+    Result<DevContainer::Feature> feature
+        = DevContainer::Feature::fromJson(devcontainer_feature_json, toString);
+
+    QVERIFY_RESULT(feature);
+    QCOMPARE(feature->id, "test-feature");
+    QCOMPARE(feature->version, "1.0.0");
+    QCOMPARE(feature->name, "Test Feature");
+    QCOMPARE(feature->options.size(), 4);
+    QCOMPARE(feature->options.value("optionA").type, "string");
+    QCOMPARE(feature->options.value("optionA").defaultValue, "Hello World");
+    QCOMPARE(feature->options.value("optionA").description, "An example option for the test feature.");
+    QCOMPARE(feature->options.value("optionB").type, "boolean");
+    QCOMPARE(feature->options.value("optionB").defaultValue, true);
+    QCOMPARE(feature->options.value("optionB").description, "A boolean option.");
+    QCOMPARE(feature->options.value("optionC").type, "string");
+    QCOMPARE(feature->options.value("optionC").defaultValue, "value2");
+    QCOMPARE(feature->options.value("optionC").description, "An enum option.");
+    QCOMPARE(
+        feature->options.value("optionC").enumValues,
+        QStringList() << "value1"
+                      << "value2"
+                      << "value3");
+    QCOMPARE(feature->options.value("optionD").type, "string");
+    QCOMPARE(feature->options.value("optionD").defaultValue, "proposal1");
+    QCOMPARE(feature->options.value("optionD").description, "An option with proposals");
+    QCOMPARE(
+        feature->options.value("optionD").proposals,
+        QStringList() << "proposal1"
+                      << "proposal2");
+
+    QCOMPARE(feature->init, true);
+    QCOMPARE(feature->containerEnv.size(), 1);
+    QCOMPARE(feature->containerEnv.at("feature-container-env"), "Hello Feature");
 }
 
 QTEST_GUILESS_MAIN(tst_DevContainer)

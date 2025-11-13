@@ -1246,6 +1246,25 @@ QDebug operator<<(QDebug debug, const DevContainer::NonComposeBase &value)
     return debug;
 }
 
+QDebug operator<<(QDebug debug, const DevContainer::FeatureDependency &value)
+{
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "FeatureDependency(id=" << value.id << ":" << value.version;
+    if (!value.options.empty()) {
+        debug << ", options={";
+        bool first = true;
+        for (const auto &[key, val] : value.options) {
+            if (!first)
+                debug << ", ";
+            debug << key << ": " << val;
+            first = false;
+        }
+        debug << "}";
+    }
+    debug << ")";
+    return debug;
+}
+
 FilePath Config::workspaceFolder(const Config &config)
 {
     if (!config.containerConfig)
@@ -1288,6 +1307,28 @@ bool Config::isValidConfigPath(
         return true;
 
     return false;
+}
+
+Utils::Result<FeatureDependency> FeatureDependency::fromJson(
+    const QString &key, const QJsonObject &obj)
+{
+    FeatureDependency dep;
+
+    if (key.isEmpty())
+        return ResultError(Tr::tr("Feature dependency key cannot be empty"));
+
+    auto [id, version] = Utils::splitAtFirst(key, ':');
+    if (id.isEmpty())
+        return ResultError(Tr::tr("Feature dependency key must contain an ID"));
+
+    dep.id = id.toString();
+    if (!version.isEmpty())
+        dep.version = version.toString();
+
+    for (auto it = obj.begin(); it != obj.end(); ++it)
+        dep.options[it.key()] = it.value();
+
+    return dep;
 }
 
 } // namespace DevContainer
