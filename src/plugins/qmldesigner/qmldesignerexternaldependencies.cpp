@@ -147,6 +147,9 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
     data.debugPuppet = m_designerSettings.value(DesignerSettingsKey::DEBUG_PUPPET).toString();
     data.freeTypeOption = createFreeTypeOption(buildSystem);
     data.forwardOutput = m_designerSettings.value(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString();
+    data.dumpInitInformation = m_designerSettings
+                                   .value(DesignerSettingsKey::DUMP_PUPPET_INIT_INFORMATION)
+                                   .toBool();
 
     return data;
 }

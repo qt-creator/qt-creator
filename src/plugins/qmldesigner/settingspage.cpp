@@ -87,6 +87,7 @@ private:
     QCheckBox *m_designerEnableDebuggerCheckBox;
     QCheckBox *m_showWarnExceptionsCheckBox;
     QComboBox *m_debugPuppetComboBox;
+    QCheckBox *m_dumpPuppetInitInformationCheckBox;
 
     int m_clickCountForDebugSettings = 0;
     QTimer *m_clickResetTimer;
@@ -175,16 +176,24 @@ SettingsPageWidget::SettingsPageWidget()
     m_showWarnExceptionsCheckBox = new QCheckBox(Tr::tr("Show warn exceptions"));
 
     m_debugPuppetComboBox = new QComboBox;
+    m_dumpPuppetInitInformationCheckBox = new QCheckBox(
+        Tr::tr("Dump QML Puppet environment and arguments."));
 
     using namespace Layouting;
 
-    Grid{m_designerShowDebuggerCheckBox,
-         m_showPropertyEditorWarningsCheckBox,
-         Form{Tr::tr("Forward QML Puppet output:"), m_forwardPuppetOutputComboBox},
-         br,
-         m_designerEnableDebuggerCheckBox,
-         m_showWarnExceptionsCheckBox,
-         Form{Tr::tr("Debug QML Puppet:"), m_debugPuppetComboBox}}
+    Column{Flow{m_designerShowDebuggerCheckBox,
+                m_showPropertyEditorWarningsCheckBox,
+                m_designerEnableDebuggerCheckBox,
+                m_showWarnExceptionsCheckBox},
+           br,
+           Form{Tr::tr("Forward QML Puppet output:"),
+                m_forwardPuppetOutputComboBox,
+                m_dumpPuppetInitInformationCheckBox,
+                st,
+                br,
+                Tr::tr("Debug QML Puppet:"),
+                m_debugPuppetComboBox,
+                st}}
         .attachTo(m_debugGroupBox);
 
     Column{Row{Group{title(Tr::tr("Snapping")),
@@ -296,6 +305,8 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
     settings.insert(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
                     m_forwardPuppetOutputComboBox->currentText());
     settings.insert(DesignerSettingsKey::DEBUG_PUPPET, m_debugPuppetComboBox->currentText());
+    settings.insert(DesignerSettingsKey::DUMP_PUPPET_INIT_INFORMATION,
+                    m_dumpPuppetInitInformationCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR,
                     m_alwaysSaveSubcomponentsCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS,
@@ -351,6 +362,8 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     m_forwardPuppetOutputComboBox->setCurrentText(
         settings.value(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString());
     m_debugPuppetComboBox->setCurrentText(settings.value(DesignerSettingsKey::DEBUG_PUPPET).toString());
+    m_dumpPuppetInitInformationCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::DUMP_PUPPET_INIT_INFORMATION).toBool());
 
     m_alwaysSaveSubcomponentsCheckBox->setChecked(
         settings.value(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR).toBool());
@@ -402,6 +415,7 @@ void SettingsPageWidget::apply()
     const auto restartNecessaryKeys = {DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
                                        DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
                                        DesignerSettingsKey::DEBUG_PUPPET,
+                                       DesignerSettingsKey::DUMP_PUPPET_INIT_INFORMATION,
                                        DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
                                        DesignerSettingsKey::ENABLE_TIMELINEVIEW,
                                        DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE};

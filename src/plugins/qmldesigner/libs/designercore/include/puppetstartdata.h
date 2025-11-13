@@ -14,6 +14,7 @@ public:
     QString puppetPath;
     QString workingDirectoryPath;
     QString forwardOutput;
+    bool dumpInitInformation = false;
     QString freeTypeOption;
     QString debugPuppet;
     QProcessEnvironment environment;
