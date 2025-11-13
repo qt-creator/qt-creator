@@ -18,6 +18,7 @@
 #include <asset.h>
 #include <designersettings.h>
 #include <studioquickwidget.h>
+#include <theme.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
@@ -138,6 +139,7 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     m_quickWidget->setMinimumHeight(minimumHeight() - 5);
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->quickWidget()->installEventFilter(this);
+    m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
 
     auto map = m_quickWidget->registerPropertyMap("AiAssistantBackend");
     map->setProperties({

@@ -91,30 +91,22 @@ Rectangle {
             Layout.alignment: Qt.AlignRight
             Layout.margins: StudioTheme.Values.marginTopBottom
 
-            HelperWidgets.IconButton {
+            AiIconButton {
                 id: attachImageButton
                 objectName: "AttachImageButton"
 
-                icon: StudioTheme.Constants.link_medium
-
-                iconColor: attachImageButton.enabled ? root.style.text.idle
-                                                     : root.style.text.disabled
-
+                buttonIcon: StudioTheme.Constants.link_medium
                 tooltip: qsTr("Attach an image.\nThe attached image will be included in the prompt for the AI to analyze and use its content in the response generation.")
                 enabled: !root.rootView.isGenerating && root.rootView.hasValidModel && root.rootView.termsAccepted
 
                 onClicked: assetImagesView.showWindow()
             }
 
-            HelperWidgets.IconButton {
+            AiIconButton {
                 id: sendButton
                 objectName: "SendButton"
 
-                icon: StudioTheme.Constants.send_medium
-
-                iconColor: sendButton.enabled ? root.style.text.idle
-                                              : root.style.text.disabled
-
+                buttonIcon: StudioTheme.Constants.send_medium
                 tooltip: qsTr("Send")
                 enabled: textEdit.text !== "" && !root.rootView.isGenerating
 
