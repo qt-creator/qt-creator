@@ -3087,8 +3087,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
             arguments << "--signoff";
     }
 
-    const CommandResult result = vcsSynchronousExec(repositoryDirectory, arguments,
-                                                    RunFlags::UseEventLoop);
+    const CommandResult result = vcsSynchronousExec(repositoryDirectory, arguments);
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         VcsOutputWindow::appendMessage(repositoryDirectory, msgCommitted(amendHash, commitCount));
         updateCurrentBranch();

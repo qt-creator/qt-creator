@@ -66,8 +66,7 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
          << QLatin1String("--file")
          << commitMessageFile
          << escapeFiles(files);
-    const CommandResult result = vcsSynchronousExec(repositoryRoot, args,
-                                 RunFlags::ShowStdOut | RunFlags::UseEventLoop);
+    const CommandResult result = vcsSynchronousExec(repositoryRoot, args, RunFlags::ShowStdOut);
     return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
