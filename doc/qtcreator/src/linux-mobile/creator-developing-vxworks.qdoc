@@ -11,9 +11,7 @@
 
     To develop Qt applications for VxWorks, build \l {Qt for VxWorks} and create
     a VxWorks \l {Kits}{kit}. Currently, you can develop applications with Qt 6.8
-    and build them for VxWorks 24.03 devices. You cannot connect the devices to
-    \QC yet, so you must deploy the built packages to the devices and run them
-    there manually.
+    and build them for VxWorks 24.03 devices.
 
     \note Enable the VxWorks plugin to use it.
 
@@ -22,17 +20,20 @@
     \list 1
         \li Go to \preferences > \uicontrol Devices > \uicontrol VxWorks.
             \image {qtcreator-preferences-devices-vxworks.webp} {VxWorks tab in Devices preferences}
-        \li In \uicontrol {VxWorks installation folder}, select the directory
-            where the WindRiver installer installed VxWorks.
+        \li In \uicontrol {VxWorks installation folder}, enter the path to the
+            directory where WindRiver installer installed VxWorks.
+        \li In \uicontrol {NFS export directory for VxWorks devices}, enter the
+            path to an NFS directory shared with the device.
         \li Select \uicontrol {Add Kit}.
         \li In \uicontrol {Kit name}, enter a name for the kit.
             \image {qtcreator-create-new-kit-vxworks.webp} {Create New Kit dialog}
-        \li In \uicontrol {Qt version}, select the folder that contains qmake for
+        \li In \uicontrol {Path}, select the folder that contains qmake for
             the Qt VxWorks build.
-        \li In \uicontrol {VBS path}, enter the path to the VxWorks source build
+        \li In \uicontrol {VSB path}, enter the path to the VxWorks source build
             (VSB) directory.
-        \li In \uicontrol {Host name}, enter the host name or IP address of the
+        \li In \uicontrol {Hostname}, enter the host name or IP address of the
             device.
+        \li In \uicontrol {Username}, enter the user name to access the device.
         \li Select \uicontrol OK to create a VxWorks kit.
         \li Go to \uicontrol Projects > \uicontrol {Build & Run} to activate the
             kit for your project.
@@ -42,9 +43,8 @@
     configuration of the project that copies the built binary of your project to
     a NFS directory shared with the device.
 
-    \sa {Enable and disable plugins}, {Activate kits for a project},
-    {Debug C++ applications on VxWorks devices},
-    {Remote Linux Deploy Configuration}, {Qt for VxWorks}
+    \sa {Enable and disable plugins}, {how-to-vxworks}{How to: VxWorks},
+    {Qt for VxWorks}
 */
 
 /*!
@@ -97,6 +97,73 @@
     To start debugging, select \key {F5} or go to \uicontrol Debug >
     \uicontrol {Start Debugging} > \uicontrol {Start Debugging of Startup Project}.
 
-    \sa {Activate kits for a project}, {Create kits for VxWorks devices},
+    \sa {Activate kits for a project}, {Enable and disable plugins},
+    {how-to-vxworks}{How to: VxWorks}, {Debugging}, {Qt for VxWorks}
+*/
+
+/*!
+    \page creator-how-to-connect-vxworks-ssh.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-vxworks
+
+    \title Create SSH connections to VxWorks devices
+
+    To run an SSH server on the VxWorks device, you need to configure it, as
+    described in the following sections.
+
+    \note Enable the VxWorks plugin to use it.
+
+    \section1 Configure the VxWorks source build
+
+    Set the following keys in the VxWorks Source Build (VSB):
+
+    \badcode
+    "USER_MANAGEMENT"
+    "USER_MANAGEMENT_USER_PRIVILEGES"
+    \endcode
+
+    \section1 Configure the VxWorks kernel
+
+    Add the following includes to the VxWorks Kernel configuration (VIP):
+
+    \badcode
+    "INCLUDE_IPSSH_CLIENT_CMD"
+    "INCLUDE_SHELL_SECURITY"
+    "INCLUDE_USER_DATABASE"
+    "INCLUDE_USER_IDENTIFICATION"
+    "INCLUDE_USER_PRIVILEGES"
+    "INCLUDE_USER_MGT_SHELL_CMD"
+    "INCLUDE_SEC_KEY_STORE_CMD"
+    "INCLUDE_SHELL"
+    "INCLUDE_SSH"
+    "INCLUDE_IPD_CMD"
+    \endcode
+
+    \section1 Create a startup script
+
+    In the startup script, set up user management and starting the SSH server.
+
+    An example startup script:
+
+    \badcode
+    cp "/romfs/ssh/keys/WindRiver.pk2","/ram"
+    cmd keyStore import default_rsa /romfs/ssh/keys/default_rsa.pem
+    cmd keyStore import default_dsa /romfs/ssh/keys/default_dsa.pem
+    cmd ipd start ipssh
+    udbReset
+    userAdd "WindRiver","vxTarget"
+    \endcode
+
+    \section1 Test the connection
+
+    To test the connection from the terminal, specify the key algorithms for it
+    (because VxWorks uses old keys):
+
+    \badcode
+    ssh -oHostKeyAlgorithms=+ssh-rsa -lWindRiver 192.168.0.3
+    \endcode
+
+    \sa {Enable and disable plugins}, {how-to-vxworks}{How to: VxWorks},
     {Debugging}, {Qt for VxWorks}
 */
