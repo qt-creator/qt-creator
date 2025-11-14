@@ -17,6 +17,26 @@ namespace Autotest::Internal {
 
 constexpr int outputLimit = 100000;
 
+enum class FontType
+{
+    App,
+    Mono
+};
+
+static const QFont &fontForType(FontType type)
+{
+    static QFont appFont; // default initialized app font
+    static QFont monoFont("Source Code Pro", appFont.pointSize() - 1);
+    return type == FontType::Mono ? monoFont : appFont;
+}
+
+static const QFontMetricsF &fontMetrics(FontType type)
+{
+    static QFontMetricsF appFontMetrics(fontForType(FontType::App));
+    static QFontMetricsF monoFontMetrics(fontForType(FontType::Mono));
+    return type == FontType::Mono ? monoFontMetrics : appFontMetrics;
+}
+
 TestResultDelegate::TestResultDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
@@ -27,7 +47,6 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
 
-    const QFontMetrics fm(opt.font);
     QBrush background;
     QColor foreground;
 
@@ -63,14 +82,20 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QTC_ASSERT(item, painter->restore(); return);
     const QString typeStr = item->resultString();
     if (selected) {
-        painter->drawText(positions.typeAreaLeft(), positions.top() + fm.ascent(), typeStr);
+        painter->drawText(
+            positions.typeAreaLeft(),
+            positions.top() + fontMetrics(FontType::App).ascent(),
+            typeStr);
     } else {
         QPen tmp = painter->pen();
         if (testResult.result() == ResultType::TestStart)
             painter->setPen(opt.palette.mid().color());
         else
             painter->setPen(TestResult::colorForType(testResult.result()));
-        painter->drawText(positions.typeAreaLeft(), positions.top() + fm.ascent(), typeStr);
+        painter->drawText(
+            positions.typeAreaLeft(),
+            positions.top() + fontMetrics(FontType::App).ascent(),
+            typeStr);
         painter->setPen(tmp);
     }
 
@@ -80,15 +105,18 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         limitTextOutput(output);
         output.replace('\n', QChar::LineSeparator);
         recalculateTextLayouts(index, item->testResult().result(),
-                               output, painter->font(), positions.textAreaWidth());
+                               output, positions.textAreaWidth());
 
         m_lastCalculatedLayout.draw(painter, QPoint(positions.textAreaLeft(), positions.top()));
         m_lastCalculatedMSLayout.draw(painter, QPoint(positions.textAreaLeft(), positions.top()));
     } else {
         painter->setClipRect(positions.textArea());
         // cut output before generating elided text as this takes quite long for exhaustive output
-        painter->drawText(positions.textAreaLeft(), positions.top() + fm.ascent(),
-                          fm.elidedText(output.left(2000), Qt::ElideRight, positions.textAreaWidth()));
+        painter->drawText(
+            positions.textAreaLeft(),
+            positions.top() + fontMetrics(FontType::App).ascent(),
+            fontMetrics(FontType::App)
+                .elidedText(output.left(2000), Qt::ElideRight, positions.textAreaWidth()));
     }
 
     if (testResult.result() == ResultType::TestStart && m_showDuration && testResult.duration()) {
@@ -103,12 +131,14 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     const QString file = testResult.fileName().fileName();
     painter->setClipRect(positions.fileArea());
-    painter->drawText(positions.fileAreaLeft(), positions.top() + fm.ascent(), file);
+    painter->drawText(
+        positions.fileAreaLeft(), positions.top() + fontMetrics(FontType::App).ascent(), file);
 
     if (testResult.line()) {
         QString line = QString::number(testResult.line());
         painter->setClipRect(positions.lineArea());
-        painter->drawText(positions.lineAreaLeft(), positions.top() + fm.ascent(), line);
+        painter->drawText(
+            positions.lineAreaLeft(), positions.top() + fontMetrics(FontType::App).ascent(), line);
     }
 
     painter->setClipping(false);
@@ -145,13 +175,11 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
         limitTextOutput(output);
         output.replace('\n', QChar::LineSeparator);
         recalculateTextLayouts(index, testResult.result(),
-                               output, opt.font, positions.textAreaWidth() - indentation);
+                               output, positions.textAreaWidth() - indentation);
 
         s.setHeight(m_lastCalculatedHeight + 3);
     } else {
-        const QFontMetrics fm(opt.font);
-        int fontHeight = fm.height();
-        s.setHeight(fontHeight + 3);
+        s.setHeight(fontMetrics(FontType::App).height() + 3);
     }
 
     if (s.height() < LayoutPositions::minimumHeight())
@@ -169,7 +197,6 @@ void TestResultDelegate::currentChanged(const QModelIndex &current, const QModel
 void TestResultDelegate::clearCache()
 {
     m_lastProcessedIndex = QModelIndex();
-    m_lastProcessedFont = QFont();
     m_lastWidth = -1;
 }
 
@@ -206,27 +233,24 @@ void TestResultDelegate::limitTextOutput(QString &output) const
 }
 
 void TestResultDelegate::recalculateTextLayouts(const QModelIndex &index, ResultType type,
-                                                const QString &output,
-                                                const QFont &font, int width) const
+                                                const QString &output, int width) const
 {
-    if (m_lastWidth == width && m_lastProcessedIndex == index && m_lastProcessedFont == font)
+    if (m_lastWidth == width && m_lastProcessedIndex == index)
         return;
-
-    const QFontMetrics fm(font);
-    const int leading = fm.leading();
-    const int fontHeight = fm.height();
 
     m_lastWidth = width;
     m_lastProcessedIndex = index;
-    m_lastProcessedFont = font;
     m_lastCalculatedHeight = 0;
     m_lastCalculatedLayout.clearLayout();
+
+    const int leading = fontMetrics(FontType::App).leading();
+    const int fontHeight = fontMetrics(FontType::App).height();
 
     const int firstNL = type == ResultType::MessageInternal ? -1
                                                             : output.indexOf(QChar::LineSeparator);
     m_lastCalculatedLayout.setText(output.left(firstNL));
 
-    m_lastCalculatedLayout.setFont(font);
+    m_lastCalculatedLayout.setFont(fontForType(FontType::App));
     QTextOption txtOption;
     txtOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     m_lastCalculatedLayout.setTextOption(txtOption);
@@ -251,15 +275,10 @@ void TestResultDelegate::recalculateTextLayouts(const QModelIndex &index, Result
     if (firstNL == -1)
         return;
 
-    QFont monospaced(font);
-    monospaced.setFamily("Source Code Pro");
-    if (int pointSize = font.pointSize(); pointSize > 1)
-        monospaced.setPointSize(pointSize - 1);
-    const QFontMetrics monoFm(monospaced);
-    const int monoLeading = monoFm.leading();
-    const int monoFontHeight = monoFm.height();
+    const int monoLeading = fontMetrics(FontType::Mono).leading();
+    const int monoFontHeight = fontMetrics(FontType::Mono).height();
     m_lastCalculatedMSLayout.setText(output.mid(firstNL + 1));
-    m_lastCalculatedMSLayout.setFont(monospaced);
+    m_lastCalculatedMSLayout.setFont(fontForType(FontType::Mono));
     m_lastCalculatedMSLayout.beginLayout();
     doLayout(&m_lastCalculatedMSLayout, width, monoLeading, monoFontHeight);
     m_lastCalculatedMSLayout.endLayout();

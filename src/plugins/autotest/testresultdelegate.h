@@ -25,10 +25,9 @@ public:
 private:
     void limitTextOutput(QString &output) const;
     void recalculateTextLayouts(const QModelIndex &index, ResultType type,
-                                const QString &output, const QFont &font, int width) const;
+                                const QString &output, int width) const;
 
     mutable QModelIndex m_lastProcessedIndex;
-    mutable QFont m_lastProcessedFont;
     mutable QTextLayout m_lastCalculatedLayout;   // first line(s)
     mutable QTextLayout m_lastCalculatedMSLayout; // secondary lines (mono spaced)
     mutable int m_lastCalculatedHeight = 0;
