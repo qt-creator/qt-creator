@@ -425,7 +425,7 @@ void tst_DevContainer::processInterface()
     process.setProcessInterfaceCreator(
         [&]() { return instance->createProcessInterface(runningInstance); });
     process.setCommand({"printenv", {}});
-    process.runBlocking(std::chrono::seconds(10), EventLoopMode::On);
+    process.runBlocking(std::chrono::seconds(10));
     const QString output = process.cleanedStdOut().trimmed();
 
     logFunction("Process output:" + output);
@@ -564,7 +564,7 @@ volumes:
     process.setProcessInterfaceCreator(
         [&]() { return instance->createProcessInterface(runningInstance); });
     process.setCommand({"ls", {"-lach"}});
-    process.runBlocking(std::chrono::seconds(10), EventLoopMode::On);
+    process.runBlocking(std::chrono::seconds(10));
 
     logFunction("Process output: " + process.cleanedStdOut().trimmed());
     logFunction("Process error: " + process.cleanedStdErr().trimmed());
