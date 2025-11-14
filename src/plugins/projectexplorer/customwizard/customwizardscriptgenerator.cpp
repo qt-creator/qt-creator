@@ -93,7 +93,7 @@ static Result<>
                qPrintable(cmd.toUserOutput()));
     process.setCommand(cmd);
     using namespace std::chrono_literals;
-    process.runBlocking(30s, EventLoopMode::On);
+    process.runBlocking(30s);
     if (process.result() != Utils::ProcessResult::FinishedWithSuccess) {
         QString errorMessage = QString("Generator script failed: %1")
                                    .arg(process.exitMessage(
