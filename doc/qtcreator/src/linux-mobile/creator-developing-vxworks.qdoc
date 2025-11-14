@@ -2,6 +2,30 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
+    \page creator-vxworks.html
+    \previouspage creator-how-tos.html
+
+    \title Developing for VxWorks
+
+    You can use \l{Qt for VxWorks} to develop Qt applications for \l{VxWorks}
+    embedded systems.
+
+    \note Enable the VxWorks plugin to use it.
+
+    Run and debug applications on VxWorks devices. Currently, you can develop
+    applications with Qt 6.8 and build them for VxWorks 24.03 devices.
+
+    Create a connection between \QC and a VxWorks device. Then add the device to
+    a VxWorks kit.
+
+    For more information about how to configure the device and Qt, as well as how
+    to develop applications, see \l {Qt for VxWorks}.
+
+    \sa {Enable and disable plugins}, {how-to-vxworks}{How to: VxWorks},
+    {Qt for VxWorks}
+*/
+
+/*!
     \page creator-how-to-create-vxworks-kits.html
     \previouspage creator-how-tos.html
 
@@ -10,8 +34,7 @@
     \title Create kits for VxWorks devices
 
     To develop Qt applications for VxWorks, build \l {Qt for VxWorks} and create
-    a VxWorks \l {Kits}{kit}. Currently, you can develop applications with Qt 6.8
-    and build them for VxWorks 24.03 devices.
+    a VxWorks \l {Kits}{kit}.
 
     \note Enable the VxWorks plugin to use it.
 
@@ -44,7 +67,7 @@
     a NFS directory shared with the device.
 
     \sa {Enable and disable plugins}, {how-to-vxworks}{How to: VxWorks},
-    {Qt for VxWorks}
+    {Developing for VxWorks}, {Qt for VxWorks}
 */
 
 /*!
@@ -98,7 +121,8 @@
     \uicontrol {Start Debugging} > \uicontrol {Start Debugging of Startup Project}.
 
     \sa {Activate kits for a project}, {Enable and disable plugins},
-    {how-to-vxworks}{How to: VxWorks}, {Debugging}, {Qt for VxWorks}
+    {how-to-vxworks}{How to: VxWorks}, {Debugging}, {Developing for VxWorks},
+    {Qt for VxWorks}
 */
 
 /*!
@@ -165,5 +189,5 @@
     \endcode
 
     \sa {Enable and disable plugins}, {how-to-vxworks}{How to: VxWorks},
-    {Debugging}, {Qt for VxWorks}
+    {Debugging}, {Developing for VxWorks}, {Qt for VxWorks}
 */

@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
+    \externalpage https://www.windriver.com/products/vxworks
+    \title VxWorks
+*/
+/*!
     \externalpage https://doc.qt.io/QtInterfaceFramework/interfaceframework-index.html
     \title \QIF
 */
