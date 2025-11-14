@@ -125,7 +125,7 @@ enum class SignalOperationMode
     InterruptByPid
 };
 
-class SignalOperationData
+class PROJECTEXPLORER_EXPORT SignalOperationData
 {
 public:
     SignalOperationMode mode = SignalOperationMode::KillByPath;
