@@ -192,6 +192,7 @@
     \generatelist creator-how-to-sdks
     \enddetails
 
+    \target how-to-vxworks
     \section2 VxWorks
 
     Build \l {Qt for VxWorks}, and create VxWorks build and run kits.

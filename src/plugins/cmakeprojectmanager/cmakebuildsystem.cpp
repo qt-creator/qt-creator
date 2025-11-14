@@ -1255,9 +1255,22 @@ bool CMakeBuildSystem::addDependencies(
         if (!cmakeFile)
             return false;
 
+        QStringList dependenciesToAdd = dependencies;
+
         QString qtMajorVersion = "6";
         if (auto qt = m_findPackagesFilesHash.value("Qt5Core"); qt.hasValidTarget())
             qtMajorVersion = "5";
+
+        // Skip existing components
+        Utils::erase(dependenciesToAdd, [this, qtMajorVersion](const QString &dependency) {
+            // Dependency is given as for example Qt.<Component>
+            QTC_ASSERT(dependency.size() > 3, return true);
+            return m_findPackagesFilesHash.contains(
+                QString("Qt%1%2").arg(qtMajorVersion).arg(dependency.mid(3)));
+        });
+
+        if (dependenciesToAdd.isEmpty())
+            return true;
 
         // Special case for Qt5 and Qt6 wizard code resulted from:
         // `find_package(QT NAMES Qt6 Qt5 ...)`
@@ -1268,7 +1281,7 @@ bool CMakeBuildSystem::addDependencies(
             targetName,
             cmakeFile->targetFilePath,
             cmakeFile->target.line,
-            dependencies,
+            dependenciesToAdd,
             qtMajorVersion);
         if (!inserted) {
             qCCritical(cmakeBuildSystemLog) << inserted.error();
