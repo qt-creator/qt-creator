@@ -25,6 +25,9 @@ public:
     IDeviceWidget *createWidget() override;
     bool canCreateProcessModel() const override;
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
+    QtTaskTree::ExecutableItem signalOperationRecipe(
+        const ProjectExplorer::SignalOperationData &data,
+        const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const final;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
 
     Utils::Result<> handlesFile(const Utils::FilePath &filePath) const override;
