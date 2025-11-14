@@ -1147,36 +1147,6 @@ void DeviceProcessSignalOperation::setDebuggerCommand(const FilePath &cmd)
 
 DeviceProcessSignalOperation::DeviceProcessSignalOperation() = default;
 
-void DeviceProcessKiller::start()
-{
-    m_signalOperation.reset();
-    m_result = ResultOk;
-
-    const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_processPath);
-    if (!device) {
-        m_result = ResultError(Tr::tr("No device for the path: \"%1\".")
-                                     .arg(m_processPath.toUserOutput()));
-        emit done(DoneResult::Error);
-        return;
-    }
-
-    m_signalOperation = device->signalOperation();
-    if (!m_signalOperation) {
-        m_result = ResultError(Tr::tr("Device for the path \"%1\" does not support killing processes.")
-                                     .arg(m_processPath.toUserOutput()));
-        emit done(DoneResult::Error);
-        return;
-    }
-
-    connect(m_signalOperation.get(), &DeviceProcessSignalOperation::finished,
-            this, [this](const Result<> &result) {
-        m_result = result;
-        emit done(toDoneResult(result.has_value()));
-    });
-
-    m_signalOperation->killProcess(m_processPath);
-}
-
 // DeviceConstRef
 
 DeviceConstRef::DeviceConstRef(const IDevice::ConstPtr &device)

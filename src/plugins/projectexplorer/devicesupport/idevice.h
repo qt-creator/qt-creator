@@ -416,24 +416,4 @@ private:
     const IDevice::Ptr m_device;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceProcessKiller : public QObject
-{
-    Q_OBJECT
-
-public:
-    void setProcessPath(const Utils::FilePath &path) { m_processPath = path; }
-    void start();
-    Utils::Result<> result() const { return m_result; }
-
-signals:
-    void done(QtTaskTree::DoneResult result);
-
-private:
-    Utils::FilePath m_processPath;
-    DeviceProcessSignalOperation::Ptr m_signalOperation;
-    Utils::Result<> m_result = Utils::ResultOk;
-};
-
-using DeviceProcessKillerTask = QCustomTask<DeviceProcessKiller>;
-
 } // namespace ProjectExplorer
