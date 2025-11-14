@@ -6,7 +6,6 @@
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidsignaloperation.h"
 #include "androidtr.h"
 #include "androidutils.h"
 #include "avdcreatordialog.h"
@@ -26,6 +25,7 @@
 #include <gocmdbridge/client/bridgedfileaccess.h>
 
 #include <QtTaskTree/qconditional.h>
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/devicefileaccess.h>
 #include <utils/fileutils.h>
@@ -712,11 +712,6 @@ IDevice::DeviceInfo AndroidDevice::deviceInformation() const
 IDeviceWidget *AndroidDevice::createWidget()
 {
     return new AndroidDeviceWidget(shared_from_this());
-}
-
-DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr(new AndroidSignalOperation());
 }
 
 ExecutableItem AndroidDevice::signalOperationRecipe(const SignalOperationData &data,

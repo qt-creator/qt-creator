@@ -49,8 +49,6 @@ QtcPlugin {
         "remotelinuxplugin.cpp",
         "remotelinuxrunconfiguration.cpp",
         "remotelinuxrunconfiguration.h",
-        "remotelinuxsignaloperation.cpp",
-        "remotelinuxsignaloperation.h",
         "remotelinuxtr.h",
         "sshdevicewizard.cpp",
         "sshdevicewizard.h",

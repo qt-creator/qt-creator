@@ -826,11 +826,6 @@ OsType IDevice::osType() const
     return d->osType;
 }
 
-DeviceProcessSignalOperation::Ptr IDevice::signalOperation() const
-{
-    return {};
-}
-
 ExecutableItem IDevice::signalOperationRecipe(
     const SignalOperationData &data,
     const Storage<Utils::Result<>> &resultStorage) const
@@ -1220,13 +1215,6 @@ Result<> SignalOperationData::isValid() const
     }
     return ResultOk;
 }
-
-void DeviceProcessSignalOperation::setDebuggerCommand(const FilePath &cmd)
-{
-    m_debuggerCommand = cmd;
-}
-
-DeviceProcessSignalOperation::DeviceProcessSignalOperation() = default;
 
 // DeviceConstRef
 

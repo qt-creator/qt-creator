@@ -136,28 +136,6 @@ public:
     Utils::Result<> isValid() const;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceProcessSignalOperation : public QObject
-{
-    Q_OBJECT
-public:
-    using Ptr = std::shared_ptr<DeviceProcessSignalOperation>;
-
-    virtual void killProcess(qint64 pid) = 0;
-    virtual void killProcess(const Utils::FilePath &filePath) = 0;
-    virtual void interruptProcess(qint64 pid) = 0;
-
-    void setDebuggerCommand(const Utils::FilePath &cmd);
-
-signals:
-    // If the error message is empty the operation was successful
-    void finished(const Utils::Result<> &result);
-
-protected:
-    explicit DeviceProcessSignalOperation();
-
-    Utils::FilePath m_debuggerCommand;
-};
-
 // See cpp file for documentation.
 class PROJECTEXPLORER_EXPORT IDevice
         : public Utils::AspectContainer, public std::enable_shared_from_this<IDevice>
@@ -231,7 +209,6 @@ public:
 
     virtual bool canMount(const Utils::FilePath &filePath) const;
 
-    virtual DeviceProcessSignalOperation::Ptr signalOperation() const;
     virtual QtTaskTree::ExecutableItem signalOperationRecipe(
         const SignalOperationData &data,
         const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const;

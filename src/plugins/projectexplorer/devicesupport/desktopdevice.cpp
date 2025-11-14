@@ -5,7 +5,6 @@
 
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
-#include "desktopprocesssignaloperation.h"
 #include "devicemanager.h"
 #include "idevice.h"
 #include "idevicewidget.h"
@@ -376,11 +375,6 @@ IDeviceWidget *DesktopDevice::createWidget()
 bool DesktopDevice::canCreateProcessModel() const
 {
     return true;
-}
-
-DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr(new DesktopProcessSignalOperation());
 }
 
 ExecutableItem DesktopDevice::signalOperationRecipe(const SignalOperationData &data,

@@ -8,7 +8,6 @@
 #include "publickeydeploymentdialog.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxfiletransfer.h"
-#include "remotelinuxsignaloperation.h"
 #include "remotelinuxtr.h"
 #include "sshdevicewizard.h"
 #include "sshkeycreationdialog.h"
@@ -1267,7 +1266,7 @@ LinuxDevice::LinuxDevice()
      }});
 }
 
-void LinuxDevice::setKillCommandForPathFunction(const std::function<QString(const FilePath &)> &handler)
+void LinuxDevice::setKillCommandForPathFunction(const KillCommandForPathFunction &handler)
 {
     d->m_killCommandForPathFunction = handler;
 }
@@ -1285,12 +1284,6 @@ IDeviceWidget *LinuxDevice::createWidget()
 DeviceTester *LinuxDevice::createDeviceTester()
 {
     return new GenericLinuxDeviceTester(shared_from_this());
-}
-
-DeviceProcessSignalOperation::Ptr LinuxDevice::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(shared_from_this(),
-                                                                            killCommandForPath));
 }
 
 static QString signalProcessGroupByPidCommandLine(qint64 pid, int signal)

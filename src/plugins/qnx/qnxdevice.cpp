@@ -13,7 +13,6 @@
 
 #include <remotelinux/linuxdevice.h>
 #include <remotelinux/remotelinux_constants.h>
-#include <remotelinux/remotelinuxsignaloperation.h>
 #include <remotelinux/sshdevicewizard.h>
 
 #include <utils/qtcassert.h>
@@ -59,12 +58,6 @@ public:
         addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device) {
                              executeQnxDeployQtLibrariesDialog(device);
         }});
-    }
-
-    DeviceProcessSignalOperation::Ptr signalOperation() const final
-    {
-        return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(shared_from_this(),
-                                                                                killCommandForPath));
     }
 
     DeviceTester *createDeviceTester() final { return new QnxDeviceTester(shared_from_this()); }

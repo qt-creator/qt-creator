@@ -35,6 +35,8 @@ private:
 
 } // Internal
 
+using KillCommandForPathFunction = std::function<QString(const Utils::FilePath &)>;
+
 class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
 {
 public:
@@ -50,7 +52,6 @@ public:
     bool canCreateProcessModel() const override { return true; }
     bool hasDeviceTester() const override { return true; }
     ProjectExplorer::DeviceTester *createDeviceTester() override;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QtTaskTree::ExecutableItem signalOperationRecipe(
         const ProjectExplorer::SignalOperationData &data,
         const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const final;
@@ -87,8 +88,7 @@ public:
 
 protected:
     LinuxDevice();
-    // TODO: Replace with KillCommandForPathFunction after RemoteLinuxSignalOperation is gone.
-    void setKillCommandForPathFunction(const std::function<QString(const Utils::FilePath &)> &handler);
+    void setKillCommandForPathFunction(const KillCommandForPathFunction &handler);
 
     class LinuxDevicePrivate *d;
     friend class LinuxDevicePrivate;

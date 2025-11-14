@@ -55,8 +55,6 @@ QtcPlugin {
         "androidsdkpackage.h",
         "androidsettingswidget.cpp",
         "androidsettingswidget.h",
-        "androidsignaloperation.cpp",
-        "androidsignaloperation.h",
         "androidtoolchain.cpp",
         "androidtoolchain.h",
         "androidutils.cpp",
