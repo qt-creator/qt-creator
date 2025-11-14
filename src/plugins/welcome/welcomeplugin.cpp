@@ -191,6 +191,10 @@ public:
             onClicked();
             pageButton->setChecked(true);
         }
+
+        connect(page, &IWelcomePage::requestedBeingCurrent, this, [pageButton] {
+            pageButton->click();
+        });
     }
 
     QStackedWidget *m_pageStack;

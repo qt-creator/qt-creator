@@ -32,6 +32,9 @@ public:
     virtual QWidget *createWidget() const = 0;
 
     static const QList<IWelcomePage *> allWelcomePages();
+
+signals:
+    void requestedBeingCurrent();
 };
 
 } // Core
