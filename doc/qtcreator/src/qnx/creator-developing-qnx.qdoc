@@ -4,24 +4,44 @@
 
 /*!
     \page creator-developing-qnx.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-devices
+
+    \title Developing for QNX Neutrino devices
+
+    \summary {Run, debug, and analyze applications on QNX Neutrino devices.}
+
+    Create a connection between \QC and a QNX Neutrino device. Then add the
+    device to a Qt for QNX kit.
+
+    The QNX Neutrino RTOS has additional command-line tools and services, as
+    described in \l {Qt for QNX}.
+
+    \image {qtcreator-devices-qnx.webp} {QNX device in the Devices tab in Devices preferences}
+    \caption QNX device preferences
+
+    \sa {QNX Neutrino}{How to: Develop for QNX},
+    {Remote Linux}{How to: Develop for remote Linux},
+    {Manage Kits}{How to: Manage Kits}
+*/
+
+/*!
+    \page creator-how-to-add-qnx-devices.html
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-qnx
 
     \title Add a QNX Neutrino device
 
-    Create a connection between \QC and a QNX Neutrino device to run, debug, and
-    analyze applications on the device. The QNX Neutrino RTOS has additional
-    command-line tools and services, as described in \l {Qt for QNX}.
-
-    \image {qtcreator-devices-qnx.webp} {QNX device in the Devices tab in Devices preferences}
-    \caption QNX device preferences
+    You can use a wizard to add a QNX Neutrino device, or add one manually.
 
     \include qtcreator-add-linux-device.qdocinc {add linux device} {QNX Device}
 
-    \sa {QNX Neutrino}{How To: Develop for QNX},
-    {Remote Linux}{How To: Develop for remote Linux},
-    {Manage Kits}{How To: Manage Kits}
+    \sa {Developing for QNX Neutrino devices},
+    {QNX Neutrino}{How to: Develop for QNX},
+    {Remote Linux}{How to: Develop for remote Linux},
+    {Manage Kits}{How to: Manage Kits}
 */
 
 /*!
@@ -49,5 +69,6 @@
         \li Activate the kit for your project.
     \endlist
 
-    \sa {QNX Neutrino}{How To: Develop for QNX}, {Activate kits for a project}
+    \sa {Developing for QNX Neutrino devices},
+    {QNX Neutrino}{How to: Develop for QNX}, {Activate kits for a project}
 */

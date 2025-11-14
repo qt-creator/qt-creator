@@ -6,6 +6,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-qnx
+    \ingroup creator-how-to-run
 
     \title Run on QNX devices
 
@@ -50,6 +51,7 @@
     \c printf, \c ps, \c read, \c sed, \c sleep, \c uname, \c slog2info, and
     \c cat.
 
-    \sa {QNX Neutrino}{How To: Develop for QNX}, {Run on many platforms},
+    \sa {QNX Neutrino}{How to: Develop for QNX},
+    {Developing for QNX Neutrino devices}, {Running applications},
     {Compilers}, {kit-preferences}{Kits}
 */
