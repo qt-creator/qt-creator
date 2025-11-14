@@ -55,6 +55,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Debugger::Internal {
@@ -679,20 +680,29 @@ void GdbEngine::interruptInferior()
         if (HostOsInfo::isWindowsHost() && !m_isQnxGdb) {
             IDevice::ConstPtr dev = device();
             QTC_ASSERT(dev, notifyInferiorStopFailed(); return);
-            DeviceProcessSignalOperation::Ptr signalOperation = dev->signalOperation();
-            QTC_ASSERT(signalOperation, notifyInferiorStopFailed(); return);
-            connect(signalOperation.get(), &DeviceProcessSignalOperation::finished,
-                    this, [this, signalOperation](const Result<> &result) {
-                        if (result) {
-                            showMessage("Interrupted " + QString::number(inferiorPid()));
-                            notifyInferiorStopOk();
-                        } else {
-                            showMessage(result.error(), LogError);
-                            notifyInferiorStopFailed();
-                        }
-                    });
-            signalOperation->setDebuggerCommand(runParameters().debugger().command.executable());
-            signalOperation->interruptProcess(inferiorPid());
+
+            const SignalOperationData data{.mode = SignalOperationMode::InterruptByPid,
+                                           .pid = inferiorPid(),
+                                           .debuggerPath = runParameters().debugger().command.executable()};
+            const Storage<Utils::Result<>> resultStorage;
+
+            const auto onDone = [this, resultStorage] {
+                if (*resultStorage) {
+                    showMessage("Interrupted " + QString::number(inferiorPid()));
+                    notifyInferiorStopOk();
+                } else {
+                    showMessage(resultStorage->error(), LogError);
+                    notifyInferiorStopFailed();
+                }
+            };
+
+            const Group recipe {
+                resultStorage,
+                dev->signalOperationRecipe(data, resultStorage),
+                onGroupDone(onDone)
+            };
+
+            m_signalOperationRunner.start(recipe);
         } else {
             interruptInferior2();
         }

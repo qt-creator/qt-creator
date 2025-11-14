@@ -18,6 +18,8 @@
 #include <utils/qtcprocess.h>
 #include <utils/textcodec.h>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 #include <QTimer>
 
 namespace Debugger::Internal {
@@ -397,6 +399,7 @@ private: ////////// General Interface //////////
     Utils::Process m_gdbProc;
     OutputCollector m_outputCollector;
     QString m_errorString;
+    QSingleTaskTreeRunner m_signalOperationRunner;
 };
 
 } // Debugger::Internal
