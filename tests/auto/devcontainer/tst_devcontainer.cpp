@@ -273,8 +273,7 @@ FROM alpine:latest AS test
         .buildOptions = DevContainer::BuildOptions{
             .target = "test",
             .args = {{"arg1", "value1"}, {"arg2", "value2"}},
-            .cacheFrom = QStringList{"cache1", "cache2"},
-            .options = QStringList{"--annotation=testkey=testvalue"},
+            .cacheFrom = QStringList{"cache1", "cache2"}
         },
     };
     config.containerConfig = dockerFileConfig;
