@@ -22,19 +22,22 @@ class AiApiManager : public QObject
     Q_OBJECT
 
 public:
-    using Data = AbstractAiApi::Data;
-
     explicit AiApiManager();
     ~AiApiManager();
 
-    void request(const Data &requestData, const AiModelInfo &modelInfo);
+    void request(const AbstractAiApi::Data &requestData, const AiModelInfo &modelInfo);
 
 signals:
-    void started(const Data &requestData, const AiModelInfo &modelInfo);
-    void finished(const Data &requestData, const AiModelInfo &modelInfo);
-    void responseError(const Data &requestData, const AiModelInfo &modelInfo, const QString &error);
-    void responseReady(
-        const Data &requestData, const AiModelInfo &modelInfo, const AiResponse &response);
+    void started(const QmlDesigner::AbstractAiApi::Data &requestData,
+                 const QmlDesigner::AiModelInfo &modelInfo);
+    void finished(const QmlDesigner::AbstractAiApi::Data &requestData,
+                  const QmlDesigner::AiModelInfo &modelInfo);
+    void responseError(const QmlDesigner::AbstractAiApi::Data &requestData,
+                       const QmlDesigner::AiModelInfo &modelInfo,
+                       const QString &error);
+    void responseReady(const QmlDesigner::AbstractAiApi::Data &requestData,
+                       const QmlDesigner::AiModelInfo &modelInfo,
+                       const QmlDesigner::AiResponse &response);
 
 private: // functions
     AbstractAiApi *findApi(const AiModelInfo &info) const;

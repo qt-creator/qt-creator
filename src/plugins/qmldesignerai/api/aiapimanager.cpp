@@ -7,6 +7,8 @@
 #include "claudemessagesapi.h"
 #include "openaicompletionsapi.h"
 
+#include <utils/qtcassert.h>
+
 #include <QNetworkReply>
 
 namespace QmlDesigner {
@@ -23,29 +25,26 @@ AiApiManager::~AiApiManager()
     qDeleteAll(m_registeredApis);
 }
 
-void AiApiManager::request(const Data &requestData, const AiModelInfo &modelInfo)
+void AiApiManager::request(const AbstractAiApi::Data &requestData, const AiModelInfo &modelInfo)
 {
     AbstractAiApi *api = findApi(modelInfo);
-    if (!api) {
-        qWarning() << Q_FUNC_INFO << "No valid api found";
-        return;
-    }
+    QTC_ASSERT(api, return);
 
     QNetworkRequest networkRequest(modelInfo.url);
     api->setRequestHeader(&networkRequest, modelInfo);
     const QByteArray content = api->createContent(requestData, modelInfo);
     QNetworkReply *reply = m_networkManager->post(networkRequest, content);
     emit started(requestData, modelInfo);
-    QObject::connect(
-        reply, &QNetworkReply::finished, reply, [reply, api = api, requestData, modelInfo, this] {
-            if (reply->error() != QNetworkReply::NoError)
-                emit responseError(requestData, modelInfo, reply->errorString());
-            else
-                emit responseReady(requestData, modelInfo, api->interpretResponse(reply->readAll()));
+    QObject::connect(reply, &QNetworkReply::finished, reply,
+                     [reply, api = api, requestData, modelInfo, this] {
+        if (reply->error() != QNetworkReply::NoError)
+            emit responseError(requestData, modelInfo, reply->errorString());
+        else
+            emit responseReady(requestData, modelInfo, api->interpretResponse(reply->readAll()));
 
-            emit finished(requestData, modelInfo);
-            reply->deleteLater();
-        });
+        emit finished(requestData, modelInfo);
+        reply->deleteLater();
+    });
 }
 
 AbstractAiApi *AiApiManager::findApi(const AiModelInfo &info) const
@@ -55,7 +54,7 @@ AbstractAiApi *AiApiManager::findApi(const AiModelInfo &info) const
             return api;
     }
 
-    if (m_registeredApis.size())
+    if (!m_registeredApis.isEmpty())
         return m_registeredApis.first();
 
     return nullptr;

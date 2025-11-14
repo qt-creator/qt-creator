@@ -5,7 +5,6 @@
 
 #include "aiproviderconfig.h"
 
-#include <QMetaType>
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QNetworkRequest)
@@ -33,5 +32,3 @@ public:
 };
 
 } // namespace QmlDesigner
-
-Q_DECLARE_METATYPE(QmlDesigner::AbstractAiApi::Data);
