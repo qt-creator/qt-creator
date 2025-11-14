@@ -1604,13 +1604,16 @@ void EffectComposerModel::saveResources(const QString &name)
 
     if (m_shaderFeatures.enabled(ShaderFeatures::BlurSources)) {
         QString blurHelperFilename("BlurHelper.qml");
+        QString blurItemFilename("BlurItem.qml");
         QString blurFsFilename("bluritems.frag.qsb");
         QString blurVsFilename("bluritems.vert.qsb");
         QString blurHelperPath(EffectUtils::nodesSourcesPath() + "/common/");
         sources.append(blurHelperPath + blurHelperFilename);
+        sources.append(blurHelperPath + blurItemFilename);
         sources.append(blurHelperPath + blurFsFilename);
         sources.append(blurHelperPath + blurVsFilename);
         dests.append(blurHelperFilename);
+        dests.append(blurItemFilename);
         dests.append(blurFsFilename);
         dests.append(blurVsFilename);
     }
