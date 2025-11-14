@@ -22,6 +22,7 @@
 #include <windows.h>
 #endif
 
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -60,7 +61,7 @@ public:
     State state = Inactive;
     QSingleTaskTreeRunner m_taskTree;
     TreeModel<TypedTreeItem<DeviceProcessTreeItem>, DeviceProcessTreeItem> model;
-    DeviceProcessSignalOperation::Ptr signalOperation;
+    QSingleTaskTreeRunner m_signalOperationRunner;
 };
 
 } // namespace Internal
@@ -84,8 +85,6 @@ void ProcessList::update()
     d->model.rootItem()->appendChild(new DeviceProcessTreeItem(
         {0, {}, Tr::tr("Fetching process list. This might take a while.")}, Qt::NoItemFlags));
     d->state = Listing;
-
-    using namespace QtTaskTree;
 
     using ProcessListResult = Result<QList<ProcessInfo>>;
 
@@ -131,22 +130,29 @@ void ProcessList::killProcess(int row)
 
     d->state = Killing;
 
-    const ProcessInfo processInfo = at(row);
-    d->signalOperation = d->device->signalOperation();
-    connect(d->signalOperation.get(), &DeviceProcessSignalOperation::finished,
-            this, [this](const Result<> &result) {
-        if (result) {
+    const SignalOperationData data{.mode = SignalOperationMode::KillByPid,
+                                   .pid = at(row).processId};
+    const Storage<Utils::Result<>> resultStorage;
+
+    const auto onDone = [this, resultStorage] {
+        if (*resultStorage) {
             QTC_CHECK(d->state == Killing);
             setFinished();
             emit processKilled();
         } else {
             QTC_CHECK(d->state != Inactive);
             setFinished();
-            emit error(result.error());
+            emit error(resultStorage->error());
         }
-        d->signalOperation.reset();
-    });
-    d->signalOperation->killProcess(processInfo.processId);
+    };
+
+    const Group recipe {
+        resultStorage,
+        d->device->signalOperationRecipe(data, resultStorage),
+        onGroupDone(onDone)
+    };
+
+    d->m_signalOperationRunner.start(recipe);
 }
 
 ProcessInfo ProcessList::at(int row) const
