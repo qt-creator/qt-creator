@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <QMetaType>
 #include <QStringList>
 
 namespace QmlDesigner {
@@ -44,5 +43,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-Q_DECLARE_METATYPE(QmlDesigner::AiResponse);
