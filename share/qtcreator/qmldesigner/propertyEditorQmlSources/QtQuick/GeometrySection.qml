@@ -34,7 +34,7 @@ Section {
     }
 
     function sizeDisabled() {
-        return anchorBackend.isFilled
+        return anchorBackend.isFilled || anchorBackend.sizeIsControlledByLayout
     }
 
     function widthDisabled() {

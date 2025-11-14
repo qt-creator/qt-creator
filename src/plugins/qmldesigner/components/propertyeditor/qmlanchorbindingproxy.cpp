@@ -10,6 +10,7 @@
 #include <modelnodeoperations.h>
 #include <modelnodeutils.h>
 #include <nodeabstractproperty.h>
+#include <nodehints.h>
 #include <qmlanchors.h>
 #include <utils/qtcassert.h>
 #include <utils/smallstring.h>
@@ -312,6 +313,15 @@ bool QmlAnchorBindingProxy::isInLayout() const
     NanotraceHR::Tracer tracer{"qml anchor binding proxy is in layout", category()};
 
     return m_qmlItemNode.isInLayout();
+}
+
+bool QmlAnchorBindingProxy::sizeIsControlledByLayout() const
+{
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy is in sizeIsControlledByLayout", category()};
+
+    bool doesLayoutChildren = NodeHints::fromModelNode(m_qmlItemNode.modelParentItem())
+                                  .doesLayoutChildren();
+    return doesLayoutChildren;
 }
 
 bool QmlAnchorBindingProxy::isFilled() const

@@ -23,6 +23,7 @@ class QMLDESIGNER_EXPORT QmlAnchorBindingProxy : public QObject
     Q_PROPERTY(bool rightAnchored READ rightAnchored WRITE setRightAnchor NOTIFY rightAnchorChanged)
     Q_PROPERTY(bool hasParent READ hasParent NOTIFY parentChanged)
     Q_PROPERTY(bool isInLayout READ isInLayout NOTIFY parentChanged)
+    Q_PROPERTY(bool sizeIsControlledByLayout READ sizeIsControlledByLayout NOTIFY parentChanged)
 
     Q_PROPERTY(QString topTarget READ topTarget WRITE setTopTarget NOTIFY topTargetChanged)
     Q_PROPERTY(QString bottomTarget READ bottomTarget WRITE setBottomTarget NOTIFY bottomTargetChanged)
@@ -75,6 +76,8 @@ public:
     bool isFilled() const;
 
     bool isInLayout() const;
+
+    bool sizeIsControlledByLayout() const;
 
     void removeTopAnchor();
     void removeBottomAnchor();
