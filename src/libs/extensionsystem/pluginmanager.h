@@ -116,28 +116,6 @@ public:
 
     static bool testRunRequested();
 
-#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
-    static bool registerScenario(const QString &scenarioId, std::function<bool()> scenarioStarter);
-    static bool isScenarioRequested();
-    static bool runScenario();
-    static bool isScenarioRunning(const QString &scenarioId);
-    // static void triggerScenarioPoint(const QVariant pointData); // ?? called from scenario point
-    static bool finishScenario();
-    static void waitForScenarioFullyInitialized();
-    // signals:
-    // void scenarioPointTriggered(const QVariant pointData); // ?? e.g. in StringTable::GC() -> post a call to quit into main thread and sleep for 5 seconds in the GC thread
-#endif
-
-    struct ProcessData {
-        QString m_executable;
-        QStringList m_args;
-        QString m_workingPath;
-        QString m_settingsPath;
-    };
-
-    static void setCreatorProcessData(const ProcessData &data);
-    static ProcessData creatorProcessData();
-
     static QString platformName();
 
     static bool isInitializationDone();
@@ -158,7 +136,6 @@ signals:
     void pluginsChanged();
     void initializationDone();
     void testsFinished(int failedTests);
-    void scenarioFinished(int exitCode);
 
     friend class Internal::PluginManagerPrivate;
 };

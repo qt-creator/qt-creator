@@ -387,12 +387,6 @@ ICore::ICore()
             QCoreApplication::exit(failedTests);
         }
     });
-    connect(PluginManager::instance(), &PluginManager::scenarioFinished,
-            this, [this](int exitCode) {
-        EditorManager::closeAllEditors(false);
-        emit coreAboutToClose();
-        QCoreApplication::exit(exitCode);
-    });
 
     Utils::setDialogParentGetter(&ICore::dialogParent);
 

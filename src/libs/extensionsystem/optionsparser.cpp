@@ -18,7 +18,6 @@ const char *OptionsParser::NO_LOAD_OPTION = "-noload";
 const char *OptionsParser::LOAD_OPTION = "-load";
 const char *OptionsParser::TEST_OPTION = "-test";
 const char *OptionsParser::NOTEST_OPTION = "-notest";
-const char *OptionsParser::SCENARIO_OPTION = "-scenario";
 const char *OptionsParser::PROFILE_OPTION = "-profile";
 const char *OptionsParser::TRACE_OPTION = "-trace";
 const char *OptionsParser::NO_CRASHCHECK_OPTION = "-no-crashcheck";
@@ -61,8 +60,6 @@ Result<> OptionsParser::parse()
             continue;
 #ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
         if (checkForTestOptions())
-            continue;
-        if (checkForScenarioOption())
             continue;
 #endif
         if (checkForAppOption())
@@ -134,25 +131,6 @@ bool OptionsParser::checkForTestOptions()
         return true;
     }
 
-    return false;
-}
-
-bool OptionsParser::checkForScenarioOption()
-{
-    if (m_currentArg == QLatin1String(SCENARIO_OPTION)) {
-        if (nextToken(RequiredToken)) {
-            if (!m_pmPrivate->m_requestedScenario.isEmpty()) {
-                m_result = ResultError(Tr::tr(
-                        "Cannot request scenario \"%1\" as it was already requested.")
-                        .arg(m_currentArg, m_pmPrivate->m_requestedScenario));
-            } else {
-                // It's called before we register scenarios, so we don't check if the requested
-                // scenario was already registered yet.
-                m_pmPrivate->m_requestedScenario = m_currentArg;
-            }
-        }
-        return true;
-    }
     return false;
 }
 

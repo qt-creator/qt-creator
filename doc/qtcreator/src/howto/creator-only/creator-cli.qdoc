@@ -122,10 +122,6 @@
             \li For \QC plugin developers: exclude all of the plugin's
                 tests from the test run.
 
-       \row
-            \li \c -scenario \e <scenarioname>
-            \li For \QC plugin developers: run the specified scenario.
-
         \row
             \li \c -color \e <color>
             \li Core plugin: override the selected UI color.

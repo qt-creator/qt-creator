@@ -38,7 +38,6 @@ private:
     bool checkForLoadOption();
     bool checkForNoLoadOption();
     bool checkForTestOptions();
-    bool checkForScenarioOption();
     bool checkForAppOption();
     bool checkForPluginOption();
     bool checkForProfilingOption();
