@@ -110,10 +110,13 @@ QString PuppetEnvironmentBuilder::getStyleConfigFileName() const
 
 void PuppetEnvironmentBuilder::initEnvironment() const
 {
-    if (m_availablePuppetType == PuppetType::Fallback)
+    if (m_availablePuppetType == PuppetType::Fallback) {
         m_environment = Utils::Environment::originalSystemEnvironment();
-    else
+        // remove RHI override only present in original env, systemEnvironment is already clean
+        m_environment.unset("QSG_RHI_BACKEND");
+    } else {
         m_environment = Utils::Environment::systemEnvironment();
+    }
 }
 
 void PuppetEnvironmentBuilder::addKit() const
