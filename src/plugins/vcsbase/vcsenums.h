@@ -10,17 +10,15 @@ namespace VcsBase {
 enum class RunFlags {
     None                   = 0,         // Empty.
     // Process related
-    MergeOutputChannels    = (1 <<  0), // See QProcess::ProcessChannelMode::MergedChannels.
-    ForceCLocale           = (1 <<  1), // Force C-locale, sets LANG and LANGUAGE env vars to "C".
-    UseEventLoop           = (1 <<  2), // Use event loop when executed in UI thread with
-                                        // runBlocking().
+    MergeOutputChannels    = (1 << 0), // See QProcess::ProcessChannelMode::MergedChannels.
+    ForceCLocale           = (1 << 1), // Force C-locale, sets LANG and LANGUAGE env vars to "C".
     // Decorator related
-    SuppressStdErr         = (1 <<  3), // Suppress standard error output.
-    SuppressFailMessage    = (1 <<  4), // No message about command failure.
-    SuppressCommandLogging = (1 <<  5), // No starting command log entry.
-    ShowSuccessMessage     = (1 <<  6), // Show message about successful completion of command.
-    ShowStdOut             = (1 <<  7), // Show standard output.
-    ExpectRepoChanges      = (1 <<  8), // Expect changes in repository by the command.
+    SuppressStdErr         = (1 << 2), // Suppress standard error output.
+    SuppressFailMessage    = (1 << 3), // No message about command failure.
+    SuppressCommandLogging = (1 << 4), // No starting command log entry.
+    ShowSuccessMessage     = (1 << 5), // Show message about successful completion of command.
+    ShowStdOut             = (1 << 6), // Show standard output.
+    ExpectRepoChanges      = (1 << 7), // Expect changes in repository by the command.
     NoOutput               = SuppressStdErr | SuppressFailMessage | SuppressCommandLogging
 };
 

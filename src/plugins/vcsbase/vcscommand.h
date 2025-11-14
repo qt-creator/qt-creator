@@ -72,7 +72,6 @@ VCSBASE_EXPORT Utils::ProcessTask vcsProcessTask(const VcsProcessData &data,
 
 // TODO: Avoid, migrate to asynchronous task tree recipes.
 VCSBASE_EXPORT CommandResult vcsRunBlocking(const VcsProcessData &data,
-    const std::chrono::seconds timeout = std::chrono::seconds(10),
-    const Utils::EventLoopMode eventLoopMode = Utils::EventLoopMode::Off);
+    const std::chrono::seconds timeout = std::chrono::seconds(10));
 
 } // namespace Utils

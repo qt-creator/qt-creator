@@ -47,11 +47,13 @@ ExecutableItem errorTask(const FilePath &workingDir, const QString &errorMessage
     });
 }
 
+enum class RunMode { Asynchronous, Blocking };
+
 static ProcessTask vcsProcessTaskHelper(
     const VcsProcessData &data,
     const std::optional<Storage<CommandResult>> &resultStorage = {},
     const seconds timeout = seconds(10),
-    const std::optional<EventLoopMode> eventLoopMode = {})
+    RunMode runMode = RunMode::Asynchronous)
 {
     const auto onDone = [data, resultStorage](const Process &process, DoneWith doneWith) {
         if (data.flags & RunFlags::ExpectRepoChanges)
@@ -82,7 +84,7 @@ static ProcessTask vcsProcessTaskHelper(
         return result == ProcessResult::FinishedWithSuccess;
     };
 
-    const auto onSetup = [data, onDone, timeout, eventLoopMode](Process &process) {
+    const auto onSetup = [data, onDone, timeout, runMode](Process &process) {
         Environment environment = data.runData.environment;
         VcsBase::setProcessEnvironment(&environment);
         if (data.flags & RunFlags::ForceCLocale) {
@@ -139,12 +141,8 @@ static ProcessTask vcsProcessTaskHelper(
                 progress->setProgressParser(data.progressParser);
         }
 
-        if (eventLoopMode) {
-            // Can't run EventLoopMode::On in non-GUI thread.
-            QTC_ASSERT(*eventLoopMode == EventLoopMode::Off || isMainThread(),
-                       return SetupResult::StopWithError);
-            process.setTimeOutMessageBoxEnabled(*eventLoopMode == EventLoopMode::On);
-            process.runBlocking(timeout, *eventLoopMode);
+        if (runMode == RunMode::Blocking) {
+            process.runBlocking(timeout);
             DoneWith doneWith = DoneWith::Error;
             if (process.result() == ProcessResult::FinishedWithSuccess)
                 doneWith = DoneWith::Success;
@@ -164,8 +162,7 @@ ProcessTask vcsProcessTask(const VcsProcessData &data,
     return vcsProcessTaskHelper(data, resultStorage);
 }
 
-CommandResult vcsRunBlocking(const VcsProcessData &data, const seconds timeout,
-                             const EventLoopMode eventLoopMode)
+CommandResult vcsRunBlocking(const VcsProcessData &data, const seconds timeout)
 {
     CommandResult result;
     const Storage<CommandResult> resultStorage;
@@ -174,7 +171,7 @@ CommandResult vcsRunBlocking(const VcsProcessData &data, const seconds timeout,
 
     const Group recipe {
         resultStorage,
-        vcsProcessTaskHelper(data, resultStorage, timeout, eventLoopMode),
+        vcsProcessTaskHelper(data, resultStorage, timeout, RunMode::Blocking),
         onGroupDone(onDone)
     };
 
