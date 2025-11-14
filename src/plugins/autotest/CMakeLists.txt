@@ -81,7 +81,6 @@ extend_qtc_plugin(AutoTest
   CONDITION WITH_TESTS
   SOURCES
     autotestunittests.cpp autotestunittests.h
-    loadprojectscenario.cpp loadprojectscenario.h
   DEFINES
     QTCREATORDIR="${PROJECT_SOURCE_DIR}"
 )

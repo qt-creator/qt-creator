@@ -1073,17 +1073,6 @@ void ModelManagerInterface::parseLoop(QSet<FilePath> &scannedPaths,
         doc->setSource(contents);
         doc->parse();
 
-#ifdef WITH_TESTS
-        if (ExtensionSystem::PluginManager::instance() // we might run as an auto-test
-            && ExtensionSystem::PluginManager::isScenarioRunning("TestModelManagerInterface")) {
-            ExtensionSystem::PluginManager::waitForScenarioFullyInitialized();
-            if (ExtensionSystem::PluginManager::finishScenario()) {
-                qDebug() << "Point 1: Shutdown triggered";
-                QThread::sleep(2);
-                qDebug() << "Point 3: If Point 2 was already reached, expect a crash now";
-            }
-        }
-#endif
         // get list of referenced files not yet in snapshot or in directories already scanned
         FilePaths importedFiles;
 

@@ -1487,12 +1487,6 @@ void PluginManagerPrivate::shutdown()
         shutdownEventLoop->exec();
     }
     deleteAll();
-#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
-    if (PluginManager::isScenarioRunning("TestModelManagerInterface")) {
-        qDebug() << "Point 2: Expect the next call to Point 3 triggers a crash";
-        QThread::sleep(5);
-    }
-#endif
     if (!allObjects.isEmpty()) {
         qDebug() << "There are" << allObjects.size() << "objects left in the plugin manager pool.";
         // Intentionally split debug info here, since in case the list contains

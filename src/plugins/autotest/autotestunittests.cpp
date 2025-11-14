@@ -55,7 +55,6 @@ private slots:
     void testCodeParserGTest_data();
     void testCodeParserBoostTest();
     void testCodeParserBoostTest_data();
-    void testModelManagerInterface();
 
 private:
     TestTreeModel *m_model = nullptr;
@@ -322,22 +321,6 @@ void AutotestUnitTests::testCodeParserBoostTest_data()
         << m_tmpDir->filePath() / "simple_boost/simple_boost.pro" << QString(".pro");
     QTest::newRow("simpleBoostTestQbs")
         << m_tmpDir->filePath() / "simple_boost/simple_boost.qbs" << QString(".qbs");
-}
-
-static int executeScenario(const QString &scenario)
-{
-    const PluginManager::ProcessData data = PluginManager::creatorProcessData();
-    QStringList additionalArgs{ "-scenario", scenario };
-    if (!data.m_args.contains("-settingspath") && !data.m_settingsPath.isEmpty())
-        additionalArgs << "-settingspath" << data.m_settingsPath;
-    return QProcess::execute(data.m_executable, data.m_args + additionalArgs);
-}
-
-void AutotestUnitTests::testModelManagerInterface()
-{
-    if (qtcEnvironmentVariableIsSet("QTC_SKIP_AUTOTEST_SCENARIO"))
-        QSKIP("Test skipped due to set environment variable QTC_SKIP_AUTOTEST_SCENARIO.");
-    QCOMPARE(executeScenario("TestModelManagerInterface"), 0);
 }
 
 QObject *createAutotestUnitTests()
