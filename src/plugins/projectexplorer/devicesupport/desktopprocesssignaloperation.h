@@ -17,10 +17,6 @@ public:
     void killProcess(const Utils::FilePath &filePath) override;
     void interruptProcess(qint64 pid) override;
 
-private:
-    Utils::Result<> killProcessSilently(qint64 pid);
-    Utils::Result<> interruptProcessSilently(qint64 pid);
-
 protected:
     DesktopProcessSignalOperation() = default;
 

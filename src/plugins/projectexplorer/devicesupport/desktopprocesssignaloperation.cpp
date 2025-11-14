@@ -27,28 +27,6 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-void DesktopProcessSignalOperation::killProcess(qint64 pid)
-{
-    emit finished(killProcessSilently(pid));
-}
-
-void DesktopProcessSignalOperation::killProcess(const FilePath &filePath)
-{
-    Result<> result = ResultOk;
-    const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList().value_or(
-        QList<ProcessInfo>());
-    for (const ProcessInfo &processInfo : processInfoList) {
-        if (processInfo.commandLine == filePath.path())
-            result = killProcessSilently(processInfo.processId);
-    }
-    emit finished(result);
-}
-
-void DesktopProcessSignalOperation::interruptProcess(qint64 pid)
-{
-    emit finished(interruptProcessSilently(pid));
-}
-
 static Result<> cannotKillError(qint64 pid, const QString &why)
 {
     return ResultError(Tr::tr("Cannot kill process with pid %1: %2").arg(pid).arg(why));
@@ -63,7 +41,7 @@ static Result<> appendCannotInterruptError(qint64 pid, const QString &why,
     return ResultError(error);
 }
 
-Result<> DesktopProcessSignalOperation::killProcessSilently(qint64 pid)
+static Result<> killProcessSilently(qint64 pid)
 {
 #ifdef Q_OS_WIN
     const DWORD rights = PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION
@@ -86,16 +64,16 @@ Result<> DesktopProcessSignalOperation::killProcessSilently(qint64 pid)
 #endif // Q_OS_WIN
 }
 
-Result<> DesktopProcessSignalOperation::interruptProcessSilently(qint64 pid)
+static Result<> interruptProcessSilently(qint64 pid, const Utils::FilePath &debuggerCommand)
 {
-    Result<> result = ResultOk;
 #ifdef Q_OS_WIN
+    Result<> result = ResultOk;
     enum SpecialInterrupt { NoSpecialInterrupt, Win32Interrupt, Win64Interrupt };
 
     bool is64BitSystem = is64BitWindowsSystem();
     SpecialInterrupt si = NoSpecialInterrupt;
     if (is64BitSystem)
-        si = is64BitWindowsBinary(m_debuggerCommand) ? Win64Interrupt : Win32Interrupt;
+        si = is64BitWindowsBinary(debuggerCommand) ? Win64Interrupt : Win32Interrupt;
     /*
     Windows 64 bit has a 32 bit subsystem (WOW64) which makes it possible to run a
     32 bit application inside a 64 bit environment.
@@ -177,12 +155,35 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
         CloseHandle(inferior);
     return result;
 #else
+    Q_UNUSED(debuggerCommand)
     if (pid <= 0)
         return appendCannotInterruptError(pid, Tr::tr("Invalid process id."));
     else if (kill(pid, SIGINT))
         return appendCannotInterruptError(pid, QString::fromLocal8Bit(strerror(errno)));
     return ResultOk;
 #endif // Q_OS_WIN
+}
+
+void DesktopProcessSignalOperation::killProcess(qint64 pid)
+{
+    emit finished(killProcessSilently(pid));
+}
+
+void DesktopProcessSignalOperation::killProcess(const FilePath &filePath)
+{
+    Result<> result = ResultOk;
+    const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList().value_or(
+        QList<ProcessInfo>());
+    for (const ProcessInfo &processInfo : processInfoList) {
+        if (processInfo.commandLine == filePath.path())
+            result = killProcessSilently(processInfo.processId);
+    }
+    emit finished(result);
+}
+
+void DesktopProcessSignalOperation::interruptProcess(qint64 pid)
+{
+    emit finished(interruptProcessSilently(pid, m_debuggerCommand));
 }
 
 } // namespace ProjectExplorer
