@@ -7,6 +7,7 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
@@ -45,23 +46,38 @@ private:
 
 GroupItem KillAppStep::deployRecipe()
 {
-    const auto onSetup = [this](DeviceProcessKiller &killer) {
-        if (m_remoteExecutable.isEmpty()) {
-            addSkipDeploymentMessage();
-            return SetupResult::StopWithSuccess;
-        }
-        killer.setProcessPath(m_remoteExecutable);
+    if (m_remoteExecutable.isEmpty())
+        return QSyncTask([this] { addSkipDeploymentMessage(); });
+
+    const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_remoteExecutable);
+    if (!device) {
+        return QSyncTask([this] {
+            addProgressMessage(Tr::tr("No device for the path: \"%1\".")
+                               .arg(m_remoteExecutable.toUserOutput()));
+        });
+    }
+
+    const SignalOperationData data{.mode = SignalOperationMode::KillByPath,
+                                   .filePath = m_remoteExecutable};
+    const Storage<Utils::Result<>> resultStorage;
+
+    const auto onSetup = [this] {
         addProgressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
-                                  .arg(m_remoteExecutable.path()));
-        return SetupResult::Continue;
+                               .arg(m_remoteExecutable.path()));
     };
-    const auto onDone = [this](DoneWith result) {
-        const QString message = result == DoneWith::Success ? Tr::tr("Remote application killed.")
-            : Tr::tr("Failed to kill remote application. Assuming it was not running.");
+    const auto onDone = [this, resultStorage] {
+        const QString message = *resultStorage ? Tr::tr("Remote application killed.")
+            : resultStorage->error();
         addProgressMessage(message);
         return DoneResult::Success;
     };
-    return DeviceProcessKillerTask(onSetup, onDone);
+
+    return Group {
+        resultStorage,
+        onGroupSetup(onSetup),
+        device->signalOperationRecipe(data, resultStorage),
+        onGroupDone(onDone)
+    };
 }
 
 class KillAppStepFactory final : public BuildStepFactory
