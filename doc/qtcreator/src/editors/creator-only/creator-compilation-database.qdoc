@@ -42,5 +42,5 @@
     database projects in the \uicontrol Projects mode.
 
     \sa {Enable and disable plugins}, {Add custom build steps},
-    {Configure projects for running}, {Code Model}, {Configuring Projects}
+    {Configure projects for running}, {Code Model}, {Building and running projects}
 */

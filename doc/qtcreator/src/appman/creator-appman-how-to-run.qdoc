@@ -152,9 +152,9 @@
     application.
 
     \sa {Activate kits for a project}, {Enable and disable plugins},
-    {\B2Q}{How To: Develop for \B2Q},
-    {Remote Linux}{How To: Develop for remote Linux},
-    {Run on many platforms}, {Debugging}, {Debuggers}, {Debugger},
+    {\B2Q}{How to: Develop for \B2Q},
+    {Remote Linux}{How to: Develop for remote Linux},
+    {Running applications}, {Debugging}, {Debuggers}, {Debugger},
     {Developing for \B2Q Devices}, {Developing for Remote Linux Devices},
-    {Profiling QML applications}, {Kits}
+    {Profiling QML applications}, {Managing kits}
 */

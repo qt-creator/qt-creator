@@ -64,7 +64,8 @@
     \endlist
 
     \sa {Keyboard Shortcuts}, {Find keyboard shortcuts},
-        {Import and export keyboard shortcuts}
+        {Import and export keyboard shortcuts},
+        {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}
 */
 
 /*!
@@ -97,7 +98,8 @@
     You can change the existing keyboard shortcuts or import and export them.
 
     \sa {Keyboard Shortcuts}, {Assign keyboard shortcuts},
-        {Import and export keyboard shortcuts}
+        {Import and export keyboard shortcuts},
+        {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}
 */
 
 /*!
@@ -109,6 +111,8 @@
     \previouspage creator-how-tos.html
 
     \endif
+
+    \ingroup creator-how-to-ui
 
     \title Import and export keyboard shortcuts
 
@@ -133,5 +137,6 @@
     \endlist
 
     \sa {Keyboard Shortcuts}, {Assign keyboard shortcuts},
-        {Find keyboard shortcuts}
+        {Find keyboard shortcuts},
+        {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}
 */

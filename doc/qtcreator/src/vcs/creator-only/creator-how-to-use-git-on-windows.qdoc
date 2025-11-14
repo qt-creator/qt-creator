@@ -6,6 +6,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-git
+    \ingroup creator-how-to-git-general
 
     \title Use Git for Windows
 
@@ -25,6 +26,6 @@
 
     \image {qtcreator-preferences-vcs-git.webp} {Git tab in Version Control preferences}
 
-    \sa {Use Git}{How To: Use Git}, {Compare files},
+    \sa {Use Git}{How to: Use Git}, {Compare files},
     {Set up version control systems}, {Version Control Systems}
 */

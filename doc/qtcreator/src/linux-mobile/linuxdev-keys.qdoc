@@ -43,7 +43,7 @@
             path to the directory where the ssh-keygen executable is installed.
     \endlist
 
-    \sa {Remote Linux}{How To: Develop for remote Linux},
+    \sa {Remote Linux}{How to: Develop for remote Linux},
     {Developing for Remote Linux Devices}
 */
 
@@ -77,6 +77,6 @@
             keys at the specified locations.
     \endlist
 
-    \sa {Remote Linux}{How To: Develop for remote Linux},
+    \sa {Remote Linux}{How to: Develop for remote Linux},
     {Developing for remote Linux devices}
 */

@@ -28,7 +28,7 @@
         \li Go to \uicontrol Edit, and then select \uicontrol {Go to Line}.
 
         \li Select the line and column indicator on the
-            \l{Edit Mode}{editor toolbar}.
+            \l{Editing code}{editor toolbar}.
 
     \endlist
 
@@ -127,7 +127,7 @@
 
     To create a directory, select \uicontrol {Create Directory}.
 
-    \sa {Search}{How To: Search}, {Manage sessions}, {Perform calculations},
+    \sa {Search}{How to: Search}, {Manage sessions}, {Perform calculations},
     {Locator}
 
 */
@@ -276,6 +276,6 @@
             show relative paths.
     \endlist
 
-    \sa {Navigate with locator}, {Search}{How To: Search}, {Perform calculations},
+    \sa {Navigate with locator}, {Search}{How to: Search}, {Perform calculations},
     {Locator}
 */

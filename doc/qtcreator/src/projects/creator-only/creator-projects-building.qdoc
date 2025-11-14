@@ -16,7 +16,7 @@
     \title Build for many platforms
 
     You can build applications for many target platforms, or using different
-    compilers, debuggers or Qt versions. \l{Kits}
+    compilers, debuggers or Qt versions. \l{Managing kits}
     define the tools, \l{glossary-device}{device} type, and other settings to use.
 
     By default, when you run the application, you
@@ -106,7 +106,7 @@
     \uicontrol {Clean Without Dependencies} options in the context menu in the
     \uicontrol Projects view.
 
-    \sa {Configure projects for building}, {Build and Run}{How To: Build and Run},
+    \sa {Configure projects for building}, {Build and Run}{How to: Build and Run},
     {Add Docker devices}, {Specifying Build Settings}
 */
 
@@ -124,5 +124,5 @@
 
     \image {qtcreator-preferences-build-run-qmake.png} {Qmake tab in Build & Run preferences}
 
-    \sa {Build and Run}{How To: Build and Run}, {qmake Build Configuration}
+    \sa {Build and Run}{How to: Build and Run}, {Building projects with qmake}
 */

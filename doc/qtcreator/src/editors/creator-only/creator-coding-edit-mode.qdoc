@@ -7,7 +7,11 @@
 
     \ingroup creator-reference-editors
 
-    \title Edit Mode
+    \title Editing code
+
+    \quotation
+    \l {Edit code}{How to: Edit code}
+    \endquotation
 
     \brief Edit and navigate code and other resources in your projects.
 
@@ -15,7 +19,7 @@
 
     \image {qtcreator-spliteditorview.png} {Code editor}
 
-    \section1 Editing Code
+    \section1 Writing code
 
     The \QC code editor offers code editing services, such as:
 
@@ -46,7 +50,7 @@
             Nim (experimental) code and for other text files.
     \endlist
 
-    \section1 Navigating Code
+    \section1 Navigating code
 
     Split the editor view to work on several files simultaneously and move
     between files and symbols in the following ways:
@@ -60,7 +64,7 @@
         \li Select buttons on the editor toolbar.
     \endlist
 
-    \section2 Using Tabbed Editors
+    \section2 Using tabbed editors
 
     \image {qtcreator-tabs-in-editor.webp} {Tabs in the Edit mode}
 
@@ -75,7 +79,7 @@
     (\key {Ctrl+Alt+Right}) or \uicontrol {Next Tab}
     (\key {Ctrl+Alt+Left}).
 
-    \section1 Editor Toolbar
+    \section1 Editor toolbar
 
     The editor toolbar is context sensitive and shows items relevant to the file
     currently open in the editor.
@@ -123,7 +127,7 @@
             another one, \l{Inspect language clients}{inspect the communication}
             between \QC and language servers, view server capabilities, and set
             language server preferences.
-        \li \l {Language Servers}
+        \li \l {Managing language servers}
     \row
         \li \uicontrol {QDS}
         \li Open \l {UI files} (\c .ui.qml) in \QDS.
@@ -150,7 +154,7 @@
 
     \endtable
 
-    \section2 Hiding Options
+    \section2 Hiding options
 
     To show or hide the file encoding, line ending, and tab size fields
     on the editor toolbar, go to \preferences > \uicontrol {Text Editor} >
@@ -158,13 +162,13 @@
 
     \image {qtcreator-preferences-text-editor-display.webp} {Display tab in Text Editor preferences}
 
-    \section1 Adding Space Around Toolbar Items
+    \section1 Adding space around toolbar items
 
     To add more space around the toolbar items, go to \preferences >
     \uicontrol Environment > \uicontrol Interface, and
     then select \uicontrol Relaxed in the \uicontrol {Toolbar style} field.
 
-    \section1 Resizing Views
+    \section1 Resizing views
 
     To resize the editor views and splits, move the cursor to the edge of the
     view or split. When the cursor changes, drag the edge of the view or split
@@ -173,7 +177,7 @@
     If the cursor does not change, go to \preferences > \uicontrol Environment >
     \uicontrol Interface and select \uicontrol {Override cursors for views}.
 
-    \section1 Copying File Information
+    \section1 Copying file information
 
     To open a context menu that has commands for managing open files, right-click
     the file name or icon on the toolbar (1). It has the same commands as the
@@ -182,7 +186,7 @@
     currently located to the clipboard: \uicontrol {Copy Full Path},
     \uicontrol {Copy File Name}, and \uicontrol {Copy Path and Line Number}.
 
-    \section1 Editing Selected Lines
+    \section1 Editing selected lines
 
     In the \uicontrol Edit mode, go to \uicontrol Edit > \uicontrol Advanced
     to edit lines of text that you select in the editor:
@@ -202,8 +206,8 @@
             editing, go to \uicontrol {Add Next Occurrence to Selection} or select \key {Ctrl+D}
     \endlist
 
-    \sa {Edit Code}{How To: Edit Code},
-    {Manage Language Servers}{How To: Manage Language Servers},
+    \sa {Edit code}{How to: Edit code},
+    {Manage language servers}{How to: Manage language servers},
     {Navigate with locator}, {Keyboard Shortcuts}, {Sidebar Views}
 */
 
@@ -290,7 +294,7 @@
             back to your original location in that file.
     \endlist
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode},
+    \sa {Edit code}{How to: Edit code}, {Editing code},
     {Navigate with locator}, {File System}, {Projects}
 */
 
@@ -410,7 +414,7 @@
 
     \image {qtcreator-add-resource.png} {Resource Browser}
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Editor Shortcuts},
+    \sa {Edit code}{How to: Edit code}, {Editing code}, {Editor Shortcuts},
     {Navigate with locator}
 */
 
@@ -464,7 +468,7 @@
     can set other encoding options as the default encoding. Select the
     \uicontrol System option to use the file encoding used by your system.
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Behavior}
+    \sa {Edit code}{How to: Edit code}, {Editing code}, {Behavior}
 */
 
 /*!
@@ -497,7 +501,7 @@
 
     \image {qtcreator-editor-settings.webp} {Editor settings for a project}
 
-    \sa {Edit Code}{How To: Edit Code}, {Specify editor settings}, {Edit Mode}
+    \sa {Edit code}{How to: Edit code}, {Specify editor settings}, {Editing code}
 */
 
 /*!
@@ -528,7 +532,7 @@
         \li Select \key Esc to remove all the cursors and selections.
     \endlist
 
-    \sa {Edit Code}{How To: Edit Code}, {Editing Selected Lines}, {Edit Mode}
+    \sa {Edit code}{How to: Edit code}, {Editing Selected Lines}, {Editing code}
 */
 
 /*!
@@ -598,7 +602,7 @@
         \li Select \key {Ctrl+E, 1}.
     \endlist
 
-    \sa {Edit Code}{How To: Edit Code}, {Detach views}, {Edit Mode}
+    \sa {Edit code}{How to: Edit code}, {Detach views}, {Editing code}
 */
 
 /*!
@@ -673,7 +677,7 @@
     To list bookmarks alphabetically by the name of the file where you set them,
     select \uicontrol {Sort by Filenames}.
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
+    \sa {Edit code}{How to: Edit code}, {Editing code}
 */
 
 /*!
@@ -714,7 +718,7 @@
     \uicontrol {C++} > \uicontrol {Reparse Externally Changed Files} to update
     the code model.
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Clang Code Model},
+    \sa {Edit code}{How to: Edit code}, {Editing code}, {Clang Code Model},
     {Code Model}
 */
 
@@ -745,6 +749,6 @@
     resolved or that are resolved to the wrong file,
     go to \uicontrol {Project Parts} > \uicontrol {Header Paths}.
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Clang Code Model},
+    \sa {Edit code}{How to: Edit code}, {Editing code}, {Clang Code Model},
     {Code Model}
 */

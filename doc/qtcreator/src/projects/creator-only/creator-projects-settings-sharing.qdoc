@@ -108,5 +108,5 @@
     For more information about the settings, see
     \l {Override CMake settings for a project}.
 
-    \sa {Configuring Projects}, {CMake Presets}
+    \sa {Building and running projects}, {CMake Presets}
 */

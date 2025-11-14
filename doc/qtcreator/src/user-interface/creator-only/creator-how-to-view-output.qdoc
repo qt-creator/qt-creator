@@ -72,5 +72,6 @@
     To copy output to a temporary file, select
     \uicontrol {Copy Contents to Scratch Buffer}.
 
-    \sa {Output Views}, {Write down notes}
+    \sa {Adapt the UI}{How to: Adapt the UI}, {Write down notes},
+    {Adapting the UI}, {Output Views}
 */

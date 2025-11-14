@@ -1026,5 +1026,5 @@
     then select \uicontrol {Delete Custom Settings File}.
 
     \sa {Apply quick fixes}, {Find symbols}, {Rename symbols},
-    {C++ Quick Fixes}, {QML Quick Fixes}, {Quick Fixes}, {Configuring Projects}
+    {C++ Quick Fixes}, {QML Quick Fixes}, {Quick Fixes}, {Building and running projects}
 */

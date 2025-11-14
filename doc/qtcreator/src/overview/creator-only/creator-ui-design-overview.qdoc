@@ -1,0 +1,36 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage creator-getting-started.html
+    \page creator-reference-ui-design.html
+    \nextpage creator-quick-tour.html
+
+    \ingroup creator-how-to-design
+
+    \title Designing UIs
+
+    \quotation
+    \l {Design UIs}{How to: Design UIs}
+    \endquotation
+
+    \image {heartgame-start.webp} {Heart Rate Game}
+
+    To create intuitive, modern-looking, fluid user interfaces (UI), use
+    \l{Qt Quick} and \l{\QDS documentation}{\QDS}.
+
+    \annotatedlist creator-reference-ui-design-quick
+
+    Use the QML live preview to preview a QML file or an entire Qt Quick
+    application on the desktop, as well as on Android and embedded Linux
+    devices. The changes you make to the UI are instantly visible to you
+    in the preview.
+
+    If you need a traditional user interface that has a clear structure and
+    enforces a platform look and feel, use \l{Qt Widgets} and the integrated
+    \l{\QD}.
+
+    \annotatedlist creator-reference-ui-design-widgets
+
+    \sa {Design UIs}{How to: Design UIs}
+*/

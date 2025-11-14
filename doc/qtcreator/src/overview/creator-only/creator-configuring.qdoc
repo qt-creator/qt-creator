@@ -14,13 +14,17 @@
 
     \title Configuring \QC
 
+    \quotation
+    \l {Configure \QC}{How to: Configure \QC}
+    \endquotation
+
     If you install \QC as part of a Qt installation, you should be able to use
     it out-of-the-box, with the default settings and configuration options.
 
     However, if you install the stand-alone \QC package, build \QC from sources,
     or install several Qt versions, you may need to tell \QC where to find the
     Qt versions and compilers by adding the paths to them and by creating
-    \l{Kits}{kits} that use them.
+    \l{Managing kits}{kits} that use them.
 
     To make \QC behave more like your favorite code editor or IDE, change the
     preferences for generic highlighting, code snippets, and version control
@@ -33,7 +37,7 @@
     detailed information to help you specify any required settings and to make
     using \QC a better experience for you.
 
-    \section1 Checking Build and Run Settings
+    \section1 Checking build and run settings
 
     \QC is an integrated development environment (IDE) for creating
     applications. While you can use \QOI to install \QC,
@@ -68,10 +72,10 @@
     To add devices, go to \preferences > \uicontrol Devices >
     \uicontrol Devices and select \uicontrol Add.
 
-    For more information, see \l{Manage Kits}{How To: Manage Kits} and
-    \l{Develop for Devices}{How To: Develop for Devices}.
+    For more information, see \l{Manage kits}{How to: Manage kits} and
+    \l{Develop for devices}{How to: Develop for devices}.
 
-    \section1 Adding Your Own Code Snippets
+    \section1 Adding your own code snippets
 
     As you write code, \QC suggests properties, IDs, and code snippets to
     complete the code. It lists context-sensitive suggestions for
@@ -83,7 +87,7 @@
 
     For more information, see \l{Snippets}.
 
-    \section1 Configuring Version Control Systems
+    \section1 Configuring version control systems
 
     \QC supports several version control systems. In most cases, you do not need
     to configure the version control in any special way to make it work with
@@ -95,7 +99,7 @@
     For more information about the supported functions, see
     \l{Version Control Systems}.
 
-    \section1 Managing Plugins and Extensions
+    \section1 Managing plugins and extensions
 
     \QC comes with a set of plugins, some of which are disabled by default.
     You can \l{Enable and disable plugins}{enable} disabled plugins if you
@@ -120,7 +124,7 @@
     zoom levels and change colors to improve the visibility of the text. Also,
     \QC supports screen readers.
 
-    \section2 Changing Keyboard Shortcuts
+    \section2 Changing keyboard shortcuts
 
     You can use \QC with your favorite keyboard shortcuts.
 
@@ -128,12 +132,12 @@
     \uicontrol Environment > \uicontrol Keyboard. For more information, see
     \l{Keyboard Shortcuts}.
 
-    \section2 Navigating with the Keyboard
+    \section2 Navigating with the keyboard
 
     To move between UI controls, select the \key Tab key or the \key Left,
     \key Right, \key Up, and \key Down arrow keys.
 
-    \section2 Setting Zoom Levels
+    \section2 Setting zoom levels
 
     To set editor font and colors, select \preferences >
     \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
@@ -144,7 +148,7 @@
 
     To improve the readability of text in the editor, adjust the line spacing.
 
-    For more information, see \l{Font & Colors}.
+    For more information, see \l{Configuring editors}.
 
     The system configuration determines the font sizes in other parts of \QC.
 
@@ -154,7 +158,7 @@
 
     For more information, see \l{View output}.
 
-    \section2 Changing Color Schemes
+    \section2 Changing color schemes
 
     Themes set the appearance of the \QC UI: widgets, colors, and icons.
 
@@ -181,5 +185,6 @@
 
     For more information, see \l{Download highlight definitions}.
 
-    \sa {Installation}, {Reset \QC settings}, {Preferences}, {Get and Install Qt}
+    \sa {Installation}, {Configure \QC}{How to: Configure \QC},
+    {Preferences}, {Get and Install Qt}
 */

@@ -26,7 +26,7 @@
     \uicontrol {Add Deploy Step} > \uicontrol {Change default application}
     > \uicontrol {Set this application to start by default}.
 
-    \sa {Build and Run}{How To: Build and Run},
-    {\B2Q}{How To: Develop for \B2Q}, {\B2Q Run Settings},
+    \sa {Build and Run}{How to: Build and Run},
+    {\B2Q}{How to: Develop for \B2Q}, {\B2Q Run Settings},
     {Developing for \B2Q Devices}
 */

@@ -5,7 +5,7 @@
     \page creator-python-development.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-create
 
     \title Develop Qt for Python applications
 
@@ -69,10 +69,10 @@
 
     \section1 Select the Python version
 
-    The \l{Kits}{kits} you select for the project in \uicontrol Projects >
+    The \l{Managing kits}{kits} you select for the project in \uicontrol Projects >
     \uicontrol {Build & Run} set the Python version to use.
 
-    The \l {Edit Mode}{Edit mode} toolbar shows the current Python version.
+    The \l {Editing code}{Editing code} toolbar shows the current Python version.
 
     \image {qtcreator-python-interpreter-edit-mode.webp} {Python version on the Edit mode toolbar}
 

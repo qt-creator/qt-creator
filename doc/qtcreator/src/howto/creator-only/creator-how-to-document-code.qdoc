@@ -23,5 +23,5 @@
     To set global preferences, select \preferences >
     \uicontrol {Text Editor} > \uicontrol {Documentation Comments}.
 
-    \sa {Configuring Projects}
+    \sa {Building and running projects}
 */

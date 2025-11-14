@@ -5,7 +5,7 @@
     \page creator-how-set-project-environment.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-configure
 
     \title Specify the environment for projects
 
@@ -22,7 +22,7 @@
     The final environment is specified separately for each kit. With
     project-specific environment settings you can change the environment for
     all kits that you use to build, deploy, and run the project simultaneously,
-    rather than having to change it separately for each \l{Kits}{kit}.
+    rather than having to change it separately for each \l{Managing kits}{kit}.
 
     The changes are stored in the local project-specific \c{CMakeLists.txt.user}
     or \c{.pro.user} file, depending on the build system you use, such as CMake
@@ -120,7 +120,7 @@
     \page creator-how-to-edit-environment-settings.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-configure
 
     \title Edit environment settings
 
@@ -172,5 +172,5 @@
     characters (##).
 
     \sa {Specify the environment for projects}, {Configure projects for building},
-    {Configure projects for running}, {Use \QC variables}, {Kits}
+    {Configure projects for running}, {Use \QC variables}, {Managing kits}
 */

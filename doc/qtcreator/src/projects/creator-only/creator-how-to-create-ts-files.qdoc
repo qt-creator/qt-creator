@@ -9,7 +9,7 @@
 
     \title Add translation files
 
-    When you \l{Creating Projects}{create a new project}, you can automatically
+    When you \l{Creating projects}{create a new project}, you can automatically
     generate a translation source file (TS) for one language. To add other
     languages later, use a file wizard.
 
@@ -25,6 +25,6 @@
 
     You can see the file name in \uicontrol {Translation file}.
 
-    \sa {Create files}, {Use project wizards}, {Use Qt Linguist},
+    \sa {Adding files}, {Use project wizards}, {Use Qt Linguist},
     {Internationalization with Qt}, {Qt Linguist Manual}
 */

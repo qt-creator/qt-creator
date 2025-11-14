@@ -40,7 +40,7 @@
     You can use the project tree in the following ways:
 
     \list
-        \li To open files that belong to a \l{Creating Projects}{project},
+        \li To open files that belong to a \l{Creating projects}{project},
             double-click them in the project tree. Files open in the
             appropriate editor, according to the file type. For example, code
             source files open in the code editor.
@@ -79,7 +79,7 @@
         \li Set a project as the active project.
         \li Execute \uicontrol Build menu commands.
         \li Create new files. For more information, see
-            \l{Create files}.
+            \l{Adding files}.
         \li Create a corresponding source or header file for a C++ header or
             source file.
         \li Rename existing files. If you change the base name of a

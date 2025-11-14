@@ -21,7 +21,7 @@
 
     \QC automatically detects the Meson executables specified in the
     \c PATH. You can add paths to other Meson executables and use them
-    in different build and run \l{Kits}{kits}.
+    in different build and run \l{Managing kits}{kits}.
 
     \note Enable the Meson plugin to use it.
 
@@ -53,7 +53,7 @@
 
     \image {qtcreator-kits-meson.png} {Setting the Meson executable in the Kits tab in Kits preferences}
 
-    For more information, see \l {Kits}.
+    For more information, see \l {Managing kits}.
 
     \section1 Editing Meson Build Descriptions
 

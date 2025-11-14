@@ -9,20 +9,18 @@
 
 /*!
     \page creator-vcs-git.html
-    \if defined(qtdesignstudio)
-    \previouspage studio-finding-the-qt-runtime-version.html
-    \nextpage creator-editor-external.html
-
-    \title Using Git
-    \else
     \previouspage creator-reference.html
+    \nextpage
 
     \ingroup creator-reference-vcs
 
-    \title Git
+    \title Using Git
 
-    \brief Additional Git functions.
-    \endif
+    \quotation
+    \l {Use Git}{How to: Use Git}
+    \endquotation
+
+    \summary {Additional Git functions.}
 
     \l{Git Downloads}{Git} is a fast decentralized version control system.
     Git is available for Windows, Linux, and \macos.
@@ -31,11 +29,7 @@
 
     \section1 Getting started with Git
 
-    \if defined(qtdesignstudio)
-    \generatelist studio-how-to-git-gs
-    \else
-    \generatelist creator-how-to-git
-    \endif
+    \generatelist creator-how-to-git-general
 
     \section1 Working with the current file
 
@@ -97,7 +91,7 @@
     \endtable
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Compare files},
+    \sa {Use Git}{How to: Use Git}, {Compare files},
     {Set up version control systems}, {Version Control Systems}
     \endif
 */
@@ -111,6 +105,7 @@
     \endif
 
     \ingroup creator-how-to-git
+    \ingroup creator-how-to-git-general
 
     \ingroup studio-how-to-git-gs
 
@@ -173,7 +168,7 @@
     \endlist
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -186,6 +181,7 @@
     \endif
 
     \ingroup creator-how-to-git
+    \ingroup creator-how-to-git-general
 
     \ingroup studio-how-to-git-gs
 
@@ -202,7 +198,7 @@
     create an initial commit to start tracking the project files.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -214,6 +210,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
     \ingroup creator-how-to-git-current-project
     \ingroup creator-how-to-git-local-repository
@@ -302,7 +299,7 @@
     \endlist
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -314,6 +311,8 @@
     \previouspage creator-how-tos.html
     \endif
 
+
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
     \ingroup creator-how-to-git-current-project
     \ingroup creator-how-to-git-local-repository
@@ -484,7 +483,7 @@
     \image {qtcreator-vcs-show.png} {Commit description in Git Show}
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -496,6 +495,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
     \ingroup studio-how-to-git
 
@@ -559,7 +559,7 @@
     of it.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -571,6 +571,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
     \ingroup creator-how-to-git-current-project
 
@@ -595,7 +596,7 @@
     \l{git diff}{Git Diff} view.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -607,6 +608,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
     \ingroup creator-how-to-git-local-repository
 
@@ -663,7 +665,7 @@
     You are asked to confirm the reversion.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -675,6 +677,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-project
     \ingroup creator-how-to-git-local-repository
 
@@ -705,7 +708,7 @@
     \endlist
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -717,6 +720,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
 
     \ingroup studio-how-to-git
@@ -729,7 +733,7 @@
     \uicontrol Reflog.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -741,6 +745,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
 
     \ingroup studio-how-to-git
@@ -755,7 +760,7 @@
     \uicontrol {Status (Including All Untracked)}.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -767,6 +772,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
 
     \ingroup studio-how-to-git
@@ -825,7 +831,7 @@
     \endlist
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -837,6 +843,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
 
     \ingroup studio-how-to-git
@@ -868,7 +875,7 @@
     rebase. In case of conflicts, a merge tool is suggested.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -880,6 +887,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
 
     \ingroup studio-how-to-git
@@ -902,7 +910,7 @@
     menu.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -914,6 +922,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
 
     \ingroup studio-how-to-git
@@ -1033,7 +1042,7 @@
     \endtable
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -1045,6 +1054,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
 
     \ingroup studio-how-to-git
@@ -1075,7 +1085,7 @@
     \endcode
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -1087,6 +1097,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
 
     \ingroup studio-how-to-git
@@ -1117,7 +1128,7 @@
     To apply a patch from the clipboard, select \uicontrol {Apply from Clipboard}.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -1129,6 +1140,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
 
     \ingroup studio-how-to-git
@@ -1169,7 +1181,7 @@
     \uicontrol {Stash Pop}.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -1181,6 +1193,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-commits
 
     \ingroup studio-how-to-git
@@ -1218,7 +1231,7 @@
     \endtable
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -1230,6 +1243,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-remote-repository
 
     \ingroup studio-how-to-git
@@ -1241,7 +1255,7 @@
     select \uicontrol Fetch.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -1253,6 +1267,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-remote-repository
 
     \ingroup studio-how-to-git
@@ -1304,7 +1319,7 @@
     pulling.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -1316,6 +1331,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-remote-repository
 
     \ingroup studio-how-to-git
@@ -1329,7 +1345,7 @@
     repository, \QC prompts you to create it and set it as upstream.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -1341,6 +1357,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
 
     \ingroup studio-how-to-git
@@ -1391,7 +1408,7 @@
     \note Most of these actions have no meaning for uncommmited changes.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -1404,6 +1421,7 @@
     \endif
 
     \ingroup creator-how-to-git
+    \ingroup creator-how-to-git-general
 
     \ingroup studio-how-to-git-gs
 
@@ -1426,7 +1444,7 @@
     depending on whether or not there is a diff between Subversion and head.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -1438,6 +1456,7 @@
     \previouspage creator-how-tos.html
     \endif
 
+    \ingroup creator-how-to-git
     \ingroup creator-how-to-git-remote-repository
 
     \ingroup studio-how-to-git
@@ -1500,7 +1519,7 @@
     \image {qtcreator-preferences-vcs-gerrit.webp} {Gerrit tab in Version Control preferences}
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */
 
@@ -1513,6 +1532,7 @@
     \endif
 
     \ingroup creator-how-to-git
+    \ingroup creator-how-to-git-general
 
     \ingroup studio-how-to-git-gs
 
@@ -1563,6 +1583,6 @@
     visible only when you have merge conflicts to resolve.
 
     \if defined(qtcreator)
-    \sa {Use Git}{How To: Use Git}, {Git}
+    \sa {Use Git}{How to: Use Git}, {Using Git}
     \endif
 */

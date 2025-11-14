@@ -321,7 +321,7 @@
     }
     \endcode
 
-    \sa {CMake Build Configuration}, {CMake}, {CMake Qt Vendor Presets},
+    \sa {Building projects with CMake}, {CMake}, {CMake Qt Vendor Presets},
     {SDK Tool}
 */
 
@@ -456,5 +456,5 @@
     }
     \endcode
 
-    \sa {CMake Build Configuration}, {CMake}, {CMake Presets}, {SDK Tool}
+    \sa {Building projects with CMake}, {CMake}, {CMake Presets}, {SDK Tool}
 */

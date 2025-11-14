@@ -77,7 +77,7 @@
 
             \image {qtcreator-new-project-kit-selection.webp} {Kit Selection dialog}
 
-        \li Select build and run \l{Kits}{kits} for your
+        \li Select build and run \l{Managing kits}{kits} for your
             project.
 
         \li Select \uicontrol Next or \uicontrol Continue to open the

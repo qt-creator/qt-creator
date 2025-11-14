@@ -22,4 +22,6 @@
             \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}
         \li Select \uicontrol {Prefer banner style info bars over pop-ups}.
     \endlist
+
+    \sa {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}
 */

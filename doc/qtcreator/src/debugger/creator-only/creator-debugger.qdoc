@@ -8,11 +8,19 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-configuring-projects.html
+    \previouspage creator-running-targets.html
     \page creator-debugging.html
     \nextpage creator-debugger-engines.html
 
+    \ingroup creator-reference-debugger
+
     \title Debugging
+
+    \quotation
+    \l {Debug}{How to: Debug}
+    \endquotation
+
+    \brief Inspect the state of your application while it is running.
 
     You can use debuggers to:
 
@@ -25,10 +33,10 @@
         \li Debug Python source code - PDB.
     \endlist
 
-    \section1 Setting Up the Debugger
+    \section1 Setting up the debugger
 
     \QC automatically selects a suitable debugger for
-    each \l{Kits}{kit} from the ones found on your system. You can select
+    each \l{Managing kits}{kit} from the ones found on your system. You can select
     another kit. To specify the debugger and compiler to use for each kit, go to
     \preferences > \uicontrol Kits.
 
@@ -59,7 +67,7 @@
 
     For more information, see \l{Supported Debuggers} and \l{CDB Paths}.
 
-    \section1 Launching the Debugger
+    \section1 Launching the debugger
 
     The debuggers run in various operating modes
     depending on where and how you start and run the debugged process. Some of
@@ -90,7 +98,7 @@
     options from the \uicontrol Debug > \uicontrol {Start Debugging} menu to
     select other modes of operation.
 
-    \section2 GDB Run Modes
+    \section2 GDB run modes
 
     The GDB debugger runs in different modes to cope with the variety of
     supported platforms and environments:
@@ -105,7 +113,7 @@
         \li \e{Remote mode} interacts with the GDB server running on Linux.
     \endlist
 
-    \section1 Stopping Applications
+    \section1 Stopping applications
 
     You can interrupt a running application before it terminates
     or to find out why the application does not work correctly.
@@ -141,7 +149,7 @@
     You can examine and change variables, set or remove breakpoints, and then
     continue running the application.
 
-    \section1 Examining Data
+    \section1 Examining data
 
     When the application stops, you can examine certain data in the debugger. The
     availability of data depends on the compiler settings when compiling the
@@ -161,7 +169,7 @@
 
     \youtube EhJ1eV_6RH8
 
-    \section1 Remote Debugging
+    \section1 Remote debugging
 
     \QC makes remote debugging easy. In the common case where the remote machine
     already has a debug server like GDBserver installed and remote execution
@@ -177,7 +185,7 @@
     of remote debugging is not possible, \QC offers semi-automatic solutions,
     see \l{Debug remotely with GDB} and \l{Debug remotely with CDB}.
 
-    \section1 Using Debugging Helpers
+    \section1 Using debugging helpers
 
     To show complex structures, such as \c QObjects or associative containers,
     in a clear and concise manner, \QC uses Python scripts that are called
@@ -201,8 +209,8 @@
     For more information, see \l{Debugging Qt Quick projects} and
     \l{Tutorial: Qt Quick debugging}.
 
-    \sa {Tutorial: C++ debugging}, {Debug}{How To: Debug}, {Debuggers},
-    {Debugger}, {Kits}
+    \sa {Tutorial: C++ debugging}, {Debug}{How to: Debug}, {Debuggers},
+    {Debugger}, {Managing kits}
 */
 
 /*!
@@ -280,7 +288,7 @@
     override the console set in the Windows system environment variables.
     Note that the native console does not prompt on application exit.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -292,7 +300,7 @@
     \title Start and debug an external application
 
     To debug any executable on your local or on a remote
-    machine without using a project, specify a build and run \l{Kits}{kit} that
+    machine without using a project, specify a build and run \l{Managing kits}{kit} that
     identifies the device to debug the application on.
 
     While the \e{start external} debugger mode does not strictly require a
@@ -333,7 +341,7 @@
             configuration to use.
     \endlist
 
-    \sa {Activate kits for a project}, {Debug}{How To: Debug}, {Debugging},
+    \sa {Activate kits for a project}, {Debug}{How to: Debug}, {Debugging},
     {Debuggers}, {Debugger}
 */
 
@@ -368,7 +376,7 @@
     You can specify breakpoints before or after attaching the debugger to the
     application. For more information, see \l{Setting breakpoints}.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -398,7 +406,7 @@
             process to start.
     \endlist
 
-    \sa {Activate kits for a project}, {Debug}{How To: Debug}, {Debugging},
+    \sa {Activate kits for a project}, {Debug}{How to: Debug}, {Debugging},
     {Debuggers}, {Debugger}
 */
 
@@ -461,7 +469,7 @@
     To attach to the latest core file, go to \uicontrol Debug >
     \uicontrol {Start Debugging}, and then select \uicontrol {Load Last Core File}.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Kits}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Managing kits}
 */
 
 /*!
@@ -485,7 +493,7 @@
 
     \image {qtcreator-preferences-debugger-general.webp} {General tab in Debugger preferences}
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -514,7 +522,7 @@
 
     \endlist
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
     {Command-Line Options}
 */
 
@@ -649,8 +657,8 @@
         \li Select \uicontrol Apply.
     \endlist
 
-    \sa {Debug}{How To: Debug}, {Remote Linux}{How To: Develop for remote Linux},
-    {GDB}, {Debugging}, {Debuggers}, {Debugger}, {Kits}
+    \sa {Debug}{How to: Debug}, {Remote Linux}{How to: Develop for remote Linux},
+    {GDB}, {Debugging}, {Debuggers}, {Debugger}, {Managing kits}
 */
 
 /*!
@@ -732,7 +740,7 @@
     To specify settings for managing the CDB process, go to \preferences >
     \uicontrol Debugger > \uicontrol CDB.
 
-    \sa {Debug}{How To: Debug}, {CDB}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {CDB}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 
@@ -844,7 +852,7 @@
      \row
         \li Editor
         \li Open the current source file in the text editor for changing it.
-        \li \l {Edit Mode}
+        \li \l {Editing code}
     \endtable
 
     \note The \uicontrol Views menu shows some views only while you are
@@ -888,7 +896,7 @@
             interrupted.
     \endlist
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
     {Debugger Views}
 */
 
@@ -916,7 +924,7 @@
     \uicontrol Debugger > \uicontrol General >
     \uicontrol {Use tooltips in main editor when debugging}.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
     {Debugger Views}
 */
 
@@ -970,11 +978,10 @@
     classes in a useful way.
 
     To change the number of array elements that are
-    requested when expanding entries, go to \preferences > \uicontrol {Debugging}
+    requested when expanding entries, go to \preferences > \uicontrol {Debugger}
     > \uicontrol {Locals & Expressions} > \uicontrol {Default array size}.
 
-
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
     {Debugger Views}
 */
 
@@ -1061,7 +1068,7 @@
     \uicontrol {Use debug versions of Frameworks} option in the project run
     settings.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
     {Debugger Views}
 */
 
@@ -1170,7 +1177,7 @@
 
     \endomit
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -1202,7 +1209,7 @@
     The \l {Viewing call stack trace}{Stack} view adjusts its contents
     accordingly.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -1270,7 +1277,7 @@
 
     For more information, see \l{CDB}.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -1312,7 +1319,7 @@
 
     For more information, see \l{Source Paths Mapping}.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -1379,7 +1386,7 @@
         \li Jump to the selected address in the current data view or a new one.
     \endlist
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -1418,7 +1425,7 @@
     By default, the \uicontrol {Peripheral Registers} view is hidden. To show it,
     select it in \uicontrol Views on the debugger toolbar.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -1469,7 +1476,7 @@
     \c print command from the command line, you can evaluate an expression in
     the \l {Evaluating expressions}{Expressions} view.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -1515,7 +1522,7 @@
 
     \image {qcreator-debugger-select-start-address.webp} {Select Start Address dialog}
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -2118,7 +2125,7 @@
             d.putSubItem("value", value)
     \endcode
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 
@@ -2171,7 +2178,7 @@
         \li Make sure you use at least \QC 3.0.1
 
         \li Select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run) to
-            check that the \l {Run on many platforms}{build and run kit selector}
+            check that the \l {Running applications}{build and run kit selector}
             picked a runnable target and you can run the application.
 
         \li Make sure the debugger is \l{Supported Debuggers}{set up properly}.
@@ -2272,5 +2279,5 @@
     calls \c{prctl(0x59616d61, getppid(), 0, 0, 0);}, such as the one in
     \c{$QTCREATORDIR/lib/libptracepreload.so} to the LD_PRELOAD environment.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */

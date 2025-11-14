@@ -12,11 +12,22 @@
     \page creator-configuring-projects.html
     \nextpage creator-project-managing-sessions.html
 
-    \title Configuring Projects
+    \ingroup creator-reference-build-systems
+
+    \title Building and running projects
+
+    \quotation
+    \l {Build and run}{How to: Build and run}
+    \endquotation
+
+    \brief Use integrated cross-platform systems for build automation to compile
+    your source code for different target platforms or with different compilers,
+    debuggers, or Qt versions. Deploy applications to the target platforms
+    and run them there.
 
     When you install Qt for a development or target platform, such as Linux,
     \macos, Windows, Android or QNX, \l{https://www.qt.io/download-qt-installer}
-    {\QOI} creates \l{Kits}{kits} for the development targets.
+    {\QOI} creates \l{Managing kits}{kits} for the development targets.
 
     Select the kits to use for a project in the \uicontrol {Configure Projects}
     view when you open the project for the first time. At least one kit must be
@@ -31,7 +42,7 @@
     \uicontrol {Build Settings}, \uicontrol {Deploy Settings}, or
     \uicontrol {Run Settings}.
 
-    \section1 Specifying Build Settings
+    \section1 Specifying build settings
 
     \image {qtcreator-settings-build.webp} {Build Settings in the Projects mode}
 
@@ -67,14 +78,14 @@
     of the binary package as small as possible, even if this makes the
     application slower.
 
-    \section1 Specifying Deploy Settings
+    \section1 Specifying deploy settings
 
     Deploy configurations handle the packaging and copying of the necessary files
     to a location you want to run the executable at, such as the file system of a
     device.
 
     The deploy settings to specify depend on the type of the project and on the
-    \l{Kits}{Run device} that you select for the kit.
+    \l{Managing kits}{Run device} that you select for the kit.
 
     \QC automatically creates deploy configurations for each build configuration.
     You can specify deploy steps, such as copying files to devices, separately
@@ -82,10 +93,10 @@
 
     \image {qtcreator-settings-deploy.webp} {Deploy Settings in the Projects mode}
 
-    \section1 Specifying Run Settings
+    \section1 Specifying run settings
 
     The run settings to specify depend on the type of the project and on the
-    \l{Kits}{Run device} that you select for the kit.
+    \l{Managing kits}{Run device} that you select for the kit.
 
     \QC automatically creates run configurations for each build configuration.
     You can specify run settings, such as command line arguments or environments,
@@ -101,37 +112,55 @@
     \uicontrol {Build & Run} > \uicontrol General, and select an option in
     \uicontrol {Keep run configurations in sync}.
 
-    \section1 Overriding Global Preferences
+    \sa {Build and run}{How to: Build and run}, {Configuring projects locally},
+    {Activate kits for a project}, {Configure projects for building},
+    {Configure projects for running}, {Open projects},
+    {Activate custom output parsers}, {Get and Install Qt}
+*/
 
-    In \uicontrol {Project Settings}, you can override global preferences for
-    the project:
+/*!
+    \page creator-configuring-projects-locally.html
+    \previouspage creator-configuring-projects.html
+    \nextpage creator-project-managing-sessions.html
 
-            \list
-                \li \l{Specify build and run settings}{Building and Running}
-                \li \l{Specify Clang tools settings}{Clang Tools}
-                \li \l{Specify clangd settings}{Clangd}
-                \li \l{Override CMake settings for a project}{CMake}
-                \li \l{Specify code style}{Code Style}
-                \li \l{Turn suggestions on or off for a project}{Copilot}
-                \li \l{Configure C++ code model}{C++ Code Model}
-                \li \l{Set C++ file naming preferences}{C++ File Naming}
-                \li \l{Specify dependencies}{Dependencies}
-                \li \l{Document code}{Documentation Comments}
-                \li \l{Specify editor settings}{Editor}
-                \li \l{Link projects with GitLab}{GitLab}
-                \li \l{Configure language servers for projects}{Language Server}
-                \li \l{Specify the environment for projects}{Project Environment}
-                \li \l{Specify settings for quick fixes}{Quick Fixes}
-                \li \l{Apply filters before scanning for tests}{Testing}
-                \li \l{Exclude files from to-do lists}{To-Do} (experimental)
-            \endlist
+    \title Configuring projects locally
+
+    \quotation
+    \l {Configure projects}{How to: Configure projects}
+    \endquotation
+
+    You can change the default configurations that installers and project
+    wizards create and override global preferences for a particular project.
+
+    To override global preferences for the currently active project, go to
+    \uicontrol Projects > \uicontrol {Project Settings}, and then select:
+
+    \list
+        \li \l{Specify build and run settings}{Building and Running}
+        \li \l{Specify Clang tools settings}{Clang Tools}
+        \li \l{Specify clangd settings}{Clangd}
+        \li \l{Override CMake settings for a project}{CMake}
+        \li \l{Specify code style}{Code Style}
+        \li \l{Turn suggestions on or off for a project}{Copilot}
+        \li \l{Configure C++ code model}{C++ Code Model}
+        \li \l{Set C++ file naming preferences}{C++ File Naming}
+        \li \l{Specify dependencies}{Dependencies}
+        \li \l{Document code}{Documentation Comments}
+        \li \l{Specify editor settings}{Editor}
+        \li \l{Link projects with GitLab}{GitLab}
+        \li \l{Configure language servers for projects}{Language Server}
+        \li \l{Specify the environment for projects}{Project Environment}
+        \li \l{Specify settings for quick fixes}{Quick Fixes}
+        \li \l{Apply filters before scanning for tests}{Testing}
+        \li \l{Exclude files from to-do lists}{To-Do} (experimental)
+    \endlist
 
     If you have multiple projects open in \QC, select the project to configure
     in \uicontrol {Active Project}.
 
-    \sa {Activate kits for a project}, {Configure projects for building},
-    {Configure projects for running}, {Open projects},
-    {Activate custom output parsers}, {Get and Install Qt}
+    \sa {Configure projects}{How to: Configure projects},
+    {Configure projects for building}, {Configure projects for running},
+    {Open projects}
 */
 
 /*!
@@ -158,7 +187,7 @@
     To show them again, select \uicontrol {Show Only Suitable Kits} or
     \uicontrol {Show All Kits}.
 
-    \section1 Manage kits
+    \section1 Change and add kits
 
     To modify kit configuration or to \l{Add kits}{add kits} to the list or to
     remove them from it, select \uicontrol {Manage Kits}.
@@ -208,5 +237,5 @@
     might still see them listed for existing projects. You can copy the build,
     deploy, and run steps from them to other kits.
 
-    \sa {Manage Kits}{How To: Manage Kits}, {Configuring Projects}, {Kits}
+    \sa {Manage kits}{How to: Manage kits}, {Building and running projects}, {Managing kits}
 */

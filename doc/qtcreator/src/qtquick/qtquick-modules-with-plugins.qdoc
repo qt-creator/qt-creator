@@ -17,6 +17,7 @@
     \endif
 
     \ingroup creator-reference-ui-design
+    \ingroup creator-reference-ui-design-quick
 
     \title Using QML modules with plugins
 

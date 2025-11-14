@@ -154,6 +154,6 @@
 
     \image {qtcreator-edit-cmake-configuration-self-built-qt.webp} {Setting the path to a self-built Qt}
 
-    \sa {Manage Kits}{How To: Manage Kits}, {kits-tab}{Kits}
+    \sa {Manage kits}{How to: Manage kits}, {Managing kits}
 */
 

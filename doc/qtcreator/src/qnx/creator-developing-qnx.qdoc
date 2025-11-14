@@ -10,6 +10,10 @@
 
     \title Developing for QNX Neutrino devices
 
+    \quotation
+    \l {QNX Neutrino}{How to: Develop for QNX}
+    \endquotation
+
     \summary {Run, debug, and analyze applications on QNX Neutrino devices.}
 
     Create a connection between \QC and a QNX Neutrino device. Then add the
@@ -23,7 +27,7 @@
 
     \sa {QNX Neutrino}{How to: Develop for QNX},
     {Remote Linux}{How to: Develop for remote Linux},
-    {Manage Kits}{How to: Manage Kits}
+    {Manage kits}{How to: Manage kits}
 */
 
 /*!
@@ -41,7 +45,7 @@
     \sa {Developing for QNX Neutrino devices},
     {QNX Neutrino}{How to: Develop for QNX},
     {Remote Linux}{How to: Develop for remote Linux},
-    {Manage Kits}{How to: Manage Kits}
+    {Manage kits}{How to: Manage kits}
 */
 
 /*!
@@ -54,7 +58,7 @@
 
     \title Create kits for QNX Neutrino devices
 
-    To generate a build and run \l {Kits}{kit} for QNX Neutrino devices:
+    To generate a build and run \l {Managing kits}{kit} for QNX Neutrino devices:
 
     \list 1
         \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.

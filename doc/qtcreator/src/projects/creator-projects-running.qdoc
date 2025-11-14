@@ -10,17 +10,21 @@
 /*!
     \page creator-running-targets.html
     \previouspage creator-how-tos.html
+    \nextpage creator-debugging.html
 
-    \ingroup creator-how-to-run
+    \title Running applications
 
-    \title Run on many platforms
+    \quotation
+    \l {Run projects}{How to: Run projects}
+    \endquotation
+
+    Run applications on local and remote desktop systems, as well as on
+    embedded and mobile devices that you connect to the computer.
 
     By default, running an application also builds it and deploys it to a
     location from where it can run on the desktop, on a device emulator or
     simulator, or on a \l{glossary-device}{device} that is connected to
     the computer.
-
-    \section1 Run applications
 
     To run applications:
 
@@ -28,7 +32,7 @@
 
         \li Select the \uicontrol {Build and Run Kit Selector} icon or go to
             \uicontrol Build > \uicontrol {Open Build and Run Kit Selector} to select the
-            build and run \l{Kits}{kit}.
+            build and run \l{Managing kits}{kit}.
 
             \image {qtcreator-kit-selector.webp} {Kit selector}
 
@@ -36,7 +40,7 @@
 
     \endlist
 
-    \section1 Run on mobile and embedded devices
+    \section1 Running on mobile and embedded devices
 
     If you have connected \l{Mobile Platforms}{mobile devices} or
     \l{Embedded Platforms}{embedded devices} to the computer
@@ -46,14 +50,14 @@
     Select \uicontrol Manage to manage device settings. For example, you can add
     AVDs or manually start disconnected AVDs.
 
-    \section1 Select run targets
+    \section1 Selecting run targets
 
     If your project has several run targets defined, such as
     \l{Build and run tests}{tests}, you can select them in the kit selector.
 
     \image {qtcreator-kit-selector-run-targets.png} {Run targets in the kit selector}
 
-    \section1 Run without deploying
+    \section1 Running without deploying
 
     To run executable files without deploying them first, go to \uicontrol Build
     and select \uicontrol {Run Without Deployment}.
@@ -62,7 +66,7 @@
     \uicontrol {Build & Run} > \uicontrol General, and clear
     \uicontrol {Always deploy project before running it}.
 
-    \section1 Run without building
+    \section1 Running without building
 
     \l {Application Output} displays the status of the application while it is
     running.
@@ -78,7 +82,6 @@
     the application has large image files that would need to be bundled
     into the resource file before running the application.
 
-    \sa {Configure projects for running}, {Customize the build process},
-    {Run on QNX devices}, {Run on remote Linux devices},
-    {Run Python applications}, {Supported Platforms}
+    \sa {Run projects}{How to: Run projects}, {Configure projects for running},
+    {Customize the build process}, {Supported Platforms}
 */

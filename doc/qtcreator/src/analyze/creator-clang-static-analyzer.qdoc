@@ -134,7 +134,7 @@
     using the \c {-export fixes} option.
 
     \sa {Check code syntax}, {Configure Clang Diagnostics},
-    {Analyze}{How To: Analyze}, {Specify Clang tools settings}, {Analyzers},
+    {Analyze}{How to: Analyze}, {Specify Clang tools settings}, {Analyzers},
     {Clang Tools}
 */
 

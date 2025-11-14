@@ -10,10 +10,11 @@
 /*!
     \page creator-scxml.html
     \previouspage creator-reference.html
+    \nextpage creator-how-to-create-state-charts.html
 
     \ingroup creator-reference-editors
 
-    \title SCXML Editor
+    \title Editing SCXML state charts
 
     \brief Edit state chart (.scxml) files.
 
@@ -43,7 +44,7 @@
     and specify attributes for the selected state or transition in the
     \uicontrol Attributes view (6).
 
-    \section1 Navigating State Charts
+    \section1 Navigating state charts
 
     Use the toolbar buttons to execute functions such as editing,
     zooming, magnifying, navigating, and panning state charts, as well as
@@ -160,7 +161,7 @@
     To create transitions between states, select
     \inlineimage {icons/transition.png} {Transition}.
 
-    \section1 Adding States
+    \section1 Adding states
 
     You can add new states to the state chart in the following ways:
 
@@ -182,7 +183,7 @@
     drag child states out of their parent state. To move child states
     within their parent, select and hold \key Ctrl while dragging them.
 
-    \section1 Aligning and Editing States
+    \section1 Aligning and editing states
 
     Use the toolbar buttons to align states in the state editor, to adjust
     their size, color, and fonts, and to change the default color scheme.
@@ -191,7 +192,7 @@
 
     Overlapping states are marked in red color.
 
-    \section1 Viewing State Tree Structure
+    \section1 Viewing state tree structure
 
     To expand or collapse the state tree structure in the \uicontrol Structure
     view, double-click a state.
@@ -217,7 +218,7 @@
     </state>
     \endcode
 
-    \section1 Managing Transitions
+    \section1 Managing transitions
 
     Transitions define how a state reacts to \e events that either the state
     machine or external entities generate. When events occur, the state
@@ -247,7 +248,7 @@
     To remove the selected transition, select \uicontrol Remove in the context
     menu.
 
-    \section1 Adding Executable Content
+    \section1 Adding executable content
 
     Add \e {executable content} to a state chart to enable the state
     machine to change its data model and to interact with external entities.
@@ -282,7 +283,7 @@
     \page creator-how-to-create-state-charts.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-models
+    \ingroup creator-how-to-scxml
 
     \title Create state charts
 
@@ -322,5 +323,5 @@
 
     \endlist
 
-    \sa {SCXML Editor}
+    \sa {Editing SCXML state charts}
 */

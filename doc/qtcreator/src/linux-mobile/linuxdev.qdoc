@@ -7,13 +7,17 @@
 
     \ingroup creator-reference-devices
 
-    \title Developing for Remote Linux Devices
+    \title Developing for remote Linux devices
+
+    \quotation
+    \l {Remote Linux}{How to: Develop for remote Linux}
+    \endquotation
 
     \brief Connect generic Linux devices to the computer to run,
     debug, and analyze applications built for them from \QC.
 
     If you have a toolchain for building applications for embedded Linux
-    devices installed on the computer, add it to a \l{Kits}{kit}
+    devices installed on the computer, add it to a \l{Managing kits}{kit}
     with the device type \uicontrol {Remote Linux Device} to
     build applications for and run them on the devices.
 
@@ -26,7 +30,7 @@
     \uicontrol {Auto-connect on startup}.
 
     //! [openssh]
-    \section1 Protecting Device Connections
+    \section1 Protecting device connections
 
     To protect the connections between \QC and a device, use \l{OpenSSH} for
     remote login over the SSH protocol. The OpenSSH suite is not delivered with
@@ -52,7 +56,7 @@
     \image {qtcreator-ssh-options.png} {SSH tab in Devices preferences}
     //! [openssh]
 
-    \sa {Add Docker devices}, {Remote Linux}{How To: Develop for remote Linux},
+    \sa {Add Docker devices}, {Remote Linux}{How to: Develop for remote Linux},
     {Run in Qt Application Manager}, {Remote Linux Deploy Configuration},
     {Remote Linux Run Settings}
 */
@@ -119,8 +123,8 @@
 
     \endlist
 
-    \sa {Remote Linux}{How To: Develop for remote Linux},
-    {Manage Kits}{How To: Manage Kits}, {Developing for Remote Linux Devices},
+    \sa {Remote Linux}{How to: Develop for remote Linux},
+    {Manage kits}{How to: Manage kits}, {Developing for Remote Linux Devices},
     {Remote Linux Deploy Configuration}, {Remote Linux Run Settings}
 */
 
@@ -140,8 +144,8 @@
 
     \include qtcreator-add-linux-device.qdocinc {add linux device} {Remote Linux Device}
 
-    \sa {Remote Linux}{How To: Develop for remote Linux},
-    {Remote Debugging}, {Developing for Remote Linux Devices},
+    \sa {Remote Linux}{How to: Develop for remote Linux},
+    {Debug remotely with GDB}, {Developing for Remote Linux Devices},
     {Remote Linux Deploy Configuration}
 */
 
@@ -158,7 +162,7 @@
 
     \include creator-how-to-build-on-remote-devices.qdocinc {build on remote devices} {remote Linux device}
 
-    \sa {Add CMake tools}, {Remote Linux}{How To: Develop for remote Linux},
-    {Manage Kits}{How To: Manage Kits}, {Developing for Remote Linux Devices},
+    \sa {Add CMake tools}, {Remote Linux}{How to: Develop for remote Linux},
+    {Manage kits}{How to: Manage kits}, {Developing for Remote Linux Devices},
     {Remote Linux Deploy Configuration}, {Remote Linux Run Settings}
 */

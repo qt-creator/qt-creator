@@ -1,0 +1,86 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \previouspage creator-getting-started.html
+    \page creator-reference-devices.html
+    \nextpage creator-quick-tour.html
+
+    \title Developing for devices
+
+    \quotation
+    \l {Develop for devices}{How to: Develop for devices}
+    \endquotation
+
+    Build applications for, deploy them to, and run them on the desktop
+    environment or a device. With kits, as well as build, deploy, and run
+    configurations, you can quickly switch between different setups and
+    target platforms.
+
+    \section1 Embedded platforms
+
+    You can develop applications for the following embedded platforms:
+
+    \list
+        \li \l {Developing for Bare Metal devices}{Bare Metal}
+        \li \l {Developing for \B2Q devices}{\B2Q}
+        \li \l {Developing for MCUs}{MCUs}
+        \li \l {Developing for QNX Neutrino devices}{QNX Neutrino}
+        \li \l {Developing for Remote Linux devices}{Remote Linux}
+        \li \l {Developing for VxWorks}{VxWorks}
+    \endlist
+
+    Install the toolchain for building applications for the targeted embedded
+    platform on the computer, and then use \l{Get and Install Qt}{\QOI} to install
+    Qt libraries that are built for the platform. Add a kit with the toolchain and
+    the Qt version for the device's architecture. When possible, \QOI creates
+    suitable kits for you.
+
+    You can connect embedded devices to the computer and select the appropriate
+    kit to run, debug, and analyze applications built for them from \QC.
+
+    \e {Deploy configurations} handle the packaging and copying of the necessary
+    files to a location you want to run the executable at, such as the file
+    system of a device.
+
+    \section1 Mobile platforms
+
+    You can develop applications for the following mobile platforms:
+
+    \list
+        \li \l {Developing for Android}{Android}
+        \li \l {Developing for iOS}{iOS}
+    \endlist
+
+    Install the toolchain for building applications for the targeted mobile
+    platform on the computer, and then use \QOI to install Qt libraries that are
+    built for the platform. Add a kit with the toolchain and the Qt version for
+    the device's architecture. When possible, \QOI creates suitable kits for you.
+
+    You can connect mobile devices to the computer and select the
+    appropriate kit to build, run, debug, and analyze applications from \QC.
+
+    Before starting application development, analyze and define the requirements,
+    scope, and functionality of the application to ensure efficient functionality
+    and a smooth user experience on mobile devices.
+
+    \section1 Other platforms
+
+    In addition, you can develop applications for:
+
+    \list
+        \li \l{Developing for Docker}{Docker}
+        \li \l{Building applications for the web}{WebAssembly}
+        \li \l{Developing for the Windows desktop}{Windows desktop}
+    \endlist
+
+    \sa {Develop for devices}{How to: Develop for devices},
+    {Optimizing Applications for Mobile Devices}, {Supported Platforms},
+    {Deploy Configurations}, {Devices}
+*/

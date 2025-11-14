@@ -7,7 +7,11 @@
 
     \ingroup creator-reference-editors
 
-    \title Language Servers
+    \title Managing language servers
+
+    \quotation
+    \l {Manage language servers}{How to: Manage language servers}
+    \endquotation
 
     \brief Get code completion, highlighting of the symbol under cursor, and
     jumping to the symbol definition in the editor for other programming
@@ -34,7 +38,7 @@
             {moving to the symbol definition}
         \li Inspecting code by viewing the document outline in the
             \l{Outline} view or in the \uicontrol Symbols list on the
-            \l{Edit Mode}{editor toolbar}
+            \l{Editing code}{editor toolbar}
         \li \l{Call Hierarchy}{Viewing the callers and callees of a function}
         \li \l{Type Hierarchy}{Viewing the base classes and derived classes of a class}
         \li \l{Find references to a symbol}{Finding references to symbols}
@@ -49,7 +53,7 @@
     However, the client does not support language servers that require special
     handling.
 
-    \section1 Adding MIME Types for Language Servers
+    \section1 Adding MIME types for language servers
 
     \QC uses the \l{https://www.iana.org/assignments/media-types/media-types.xhtml}
     {MIME type} of the file to determine which language server to request
@@ -61,7 +65,7 @@
     more information about how \QC uses MIME types, see
     \l {Edit MIME types}.
 
-    \section1 Adding Language Servers
+    \section1 Adding language servers
 
     \QC adds a \l{Configure Python language servers}{Python language server} by
     default.
@@ -87,7 +91,7 @@
 
     To remove language servers from the list, select \uicontrol Delete.
 
-    \section1 Updating Python Language Server
+    \section1 Updating Python language server
 
     \QC offers to update the Python language server when you open a Python
     file in the editor.
@@ -100,7 +104,7 @@
     To skip updating and hide the message for future updates, select
     \uicontrol Never.
 
-    \section1 Supported Locator Filters
+    \section1 Supported locator filters
 
     The locator enables you to browse not only files, but any items defined by
     \e {locator filters}. The language client plugin supports the following
@@ -113,7 +117,7 @@
                 definitions in your project
     \endlist
 
-    \section1 Reporting Issues
+    \section1 Reporting issues
 
     The language server client has been mostly tested with Python and C++.
     If problems arise when you try them or some other language, please select
@@ -122,7 +126,7 @@
     should include \QC console output with the environment
     variable \c {QT_LOGGING_RULES=qtc.languageclient.*=true} set.
 
-    \sa {Manage Language Servers}{How To: Manage Language Servers}, {Behavior}
+    \sa {Manage language servers}{How to: Manage language servers}, {Behavior}
 */
 
 /*!
@@ -163,8 +167,8 @@
             arguments.
     \endlist
 
-    \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Language Servers}
+    \sa {Manage language servers}{How to: Manage language servers},
+    {Managing language servers}
 */
 
 /*!
@@ -193,8 +197,8 @@
             {Eclipse Downloads}.
     \endlist
 
-    \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Use \QC variables}, {Language Servers}
+    \sa {Manage language servers}{How to: Manage language servers},
+    {Use \QC variables}, {Managing language servers}
 */
 
 /*!
@@ -223,8 +227,8 @@
     To disable the Python language server, clear
     \uicontrol {Use Python Language Server}.
 
-    \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Develop Qt for Python applications}, {Language Servers}
+    \sa {Manage language servers}{How to: Manage language servers},
+    {Develop Qt for Python applications}, {Managing language servers}
 */
 
 /*!
@@ -261,7 +265,7 @@
 
     \section1 Select \QMLLS version
 
-    To use \QMLLS shipped with the Qt version in your current \l{Kits}{kit},
+    To use \QMLLS shipped with the Qt version in your current \l{Managing kits}{kit},
     select \uicontrol {Use qmlls from project Qt kit}. This is the default
     option.
 
@@ -280,9 +284,9 @@
     To automatically configure new CMake projects, select
     \uicontrol {Create .qmlls.ini files for new projects}.
 
-    \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Enabling and Disabling Messages}, {CMake Build Configuration}, {Kits},
-    {Language Servers}
+    \sa {Manage language servers}{How to: Manage language servers},
+    {Enabling and Disabling Messages}, {Building projects with CMake}, {Managing kits},
+    {Managing language servers}
 */
 
 /*!
@@ -293,7 +297,7 @@
 
     \title Inspect language clients
 
-    \QC sends messages (\e requests) to a \l{Language Servers}{language server} and
+    \QC sends messages (\e requests) to a \l{Managing language servers}{language server} and
     receives responses that have the requested information if the language server is
     capable of handling the requests. To inspect the communication between \QC
     and language servers and to view server capabilities, select \uicontrol Tools
@@ -308,7 +312,7 @@
     field in the \l{Add generic language servers}{language server preferences}
     determines when the server is started. To restart language servers, select
     \inlineimage {icons/languageclient.png} {Language Client menu} on the
-    \l{Edit Mode} {editor toolbar}, and then select \uicontrol {Restart}.
+    \l{Editing code} {editor toolbar}, and then select \uicontrol {Restart}.
 
     \uicontrol Log displays additional information about the selected log entry.
     You can see the \uicontrol {Content length} and \uicontrol {MIME type} of
@@ -338,8 +342,8 @@
 
     \image {qtcreator-language-client-inspector-memory-usage.webp} {Memory Usage tab in the Language Client Inspector dialog}
 
-    \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Language Servers}
+    \sa {Manage language servers}{How to: Manage language servers},
+    {Managing language servers}
 */
 
 /*!
@@ -376,6 +380,6 @@
     In \uicontrol {Workspace Configuration}, specify language server settings
     using valid JSON format.
 
-    \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Language Servers}, {Configuring Projects}
+    \sa {Manage language servers}{How to: Manage language servers},
+    {Managing language servers}, {Building and running projects}
 */

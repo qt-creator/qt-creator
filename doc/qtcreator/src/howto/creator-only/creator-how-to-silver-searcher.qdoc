@@ -48,6 +48,6 @@
             \image {qtcreator-edit-environment.webp} {Edit Environment dialog}
     \endlist
 
-    \sa {Enable and disable plugins}, {Search}{How To: Search},
+    \sa {Enable and disable plugins}, {Search}{How to: Search},
     {Edit environment settings}
 */

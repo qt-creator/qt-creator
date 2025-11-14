@@ -7,7 +7,11 @@
 
     \ingroup creator-reference-devices
 
-    \title Developing for Bare Metal Devices
+    \title Developing for Bare Metal devices
+
+    \quotation
+    \l {Bare Metal}{How to: Develop for Bare Metal}
+    \endquotation
 
     \summary {Create kits to use Bare Metal toolchains installed on the computer
     to build applications for and run and debug them on connected Bare Metal
@@ -51,7 +55,7 @@
     the device preferences. You can specify the commands to execute when connecting
     using a particular debug server provider.
 
-    \section1 Debug Server Providers
+    \section1 Debug server providers
 
     The following debug server providers are supported when using GDB:
 
@@ -72,7 +76,7 @@
     The available settings depend on the debug server provider.
 
     \sa {Add kits}, {Enable and disable plugins},
-    {Bare Metal}{How To: Develop for Bare Metal}
+    {Bare Metal}{How to: Develop for Bare Metal}
 */
 
 /*!
@@ -118,7 +122,7 @@
 
     \endlist
 
-    \sa {Bare Metal}{How To: Develop for Bare Metal},
+    \sa {Bare Metal}{How to: Develop for Bare Metal},
     {Developing for Bare Metal Devices}
 */
 
@@ -157,7 +161,7 @@
 
     \endlist
 
-    \sa {Bare Metal}{How To: Develop for Bare Metal},
+    \sa {Bare Metal}{How to: Develop for Bare Metal},
     {Developing for Bare Metal Devices}
 */
 
@@ -195,7 +199,7 @@
 
     \endlist
 
-    \sa {Bare Metal}{How To: Develop for Bare Metal},
+    \sa {Bare Metal}{How to: Develop for Bare Metal},
     {Developing for Bare Metal Devices}
 */
 
@@ -234,7 +238,7 @@
 
     \endlist
 
-    \sa {Bare Metal}{How To: Develop for Bare Metal},
+    \sa {Bare Metal}{How to: Develop for Bare Metal},
     {Developing for Bare Metal Devices}
 */
 
@@ -288,7 +292,7 @@
 
     \endlist
 
-    \sa {Bare Metal}{How To: Develop for Bare Metal},
+    \sa {Bare Metal}{How to: Develop for Bare Metal},
     {Developing for Bare Metal Devices}
 */
 
@@ -333,6 +337,6 @@
     in same way as for and on the desktop.
 
     \sa {Add kits}, {Build for many platforms},
-    {Bare Metal}{How To: Develop for Bare Metal}, {Run on many platforms},
+    {Bare Metal}{How to: Develop for Bare Metal}, {Running applications},
     {Developing for Bare Metal Devices}
 */

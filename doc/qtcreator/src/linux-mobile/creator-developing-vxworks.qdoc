@@ -5,14 +5,20 @@
     \page creator-vxworks.html
     \previouspage creator-how-tos.html
 
+    \ingroup creator-reference-devices
+
     \title Developing for VxWorks
 
-    You can use \l{Qt for VxWorks} to develop Qt applications for \l{VxWorks}
-    embedded systems.
+    \quotation
+    \l {how-to-vxworks}{How to: Develop for VxWorks}
+    \endquotation
+
+    \summary {Use Qt for VxWorks to develop Qt applications for VxWorks
+    embedded systems.}
 
     \note Enable the VxWorks plugin to use it.
 
-    Run and debug applications on VxWorks devices. Currently, you can develop
+    Run and debug applications on \l{VxWorks} devices. Currently, you can develop
     applications with Qt 6.8 and build them for VxWorks 24.03 devices.
 
     Create a connection between \QC and a VxWorks device. Then add the device to
@@ -34,7 +40,7 @@
     \title Create kits for VxWorks devices
 
     To develop Qt applications for VxWorks, build \l {Qt for VxWorks} and create
-    a VxWorks \l {Kits}{kit}.
+    a VxWorks \l {Managing kits}{kit}.
 
     \note Enable the VxWorks plugin to use it.
 

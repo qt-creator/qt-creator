@@ -35,7 +35,7 @@
         \li \l{Add a QNX Neutrino device}{QNX}
         \li \l{Developing for Remote Linux Devices}{Remote Linux}
         \li \l{Create kits for VxWorks devices}{VxWorks}
-        \li \l{Build applications for the web}{WebAssembly Runtime}
+        \li \l{Building applications for the web}{WebAssembly Runtime}
     \endlist
 
     To add kits:
@@ -46,7 +46,7 @@
         \li Select \uicontrol Add to start from an empty kit or \uicontrol Clone
             to clone the selected kit and edit its preferences.
             \image {qtcreator-preferences-kits.webp} {Kits preferences}
-        \li Set \l{Kits}{kit preferences} according to the build system and
+        \li Set \l{Managing kits}{kit preferences} according to the build system and
             device type.
 
         \li Select \uicontrol Apply to create the kit.
@@ -59,17 +59,19 @@
     choose the kit to use. To set the selected kit as the default kit,
     select \uicontrol {Make Default}.
 
-    \sa {Manage Kits}{How To: Manage Kits}, {Compilers}, {Kits}
+    \sa {Manage kits}{How to: Manage kits}, {Compilers}, {Managing kits}
 */
 
 /*!
     \page creator-preferences-kits.html
     \previouspage creator-reference.html
+    \nextpage creator-running-targets.html
 
-    \ingroup creator-reference-preferences-kits
+    \title Managing kits
 
-    \target kits-tab
-    \title Kits
+    \quotation
+    \l {Manage kits}{How to: Manage kits}
+    \endquotation
 
     \summary {Set kit preferences. A kit consists of a set of values that define
     one environment, such as a \e {device}, toolchain, Qt version, and debugger
@@ -83,7 +85,7 @@
 
     \image {qtcreator-preferences-kits.webp} {Kits preferences}
 
-    \section1 Filtering Kit Preferences
+    \section1 Filtering kit preferences
 
     To hide and show preferences in the \uicontrol Kits tab for the
     current kit, select \uicontrol {Settings Filter}.
@@ -91,7 +93,7 @@
     To view and modify the preferences displayed when you add a new kit, select
     \uicontrol {Default Settings Filter}.
 
-    \section1 Kit Preferences
+    \section1 Kit preferences
 
     The following table summarizes the available kit preferences.
 
@@ -218,6 +220,6 @@
             \uicontrol Manage to add installed Ninja tools to the list.
     \endtable
 
-    \sa {Manage Kits}{How To: Manage Kits}, {Add CMake Tools},
+    \sa {Manage kits}{How to: Manage kits}, {Add CMake Tools},
     {Edit Qbs profiles}
 */

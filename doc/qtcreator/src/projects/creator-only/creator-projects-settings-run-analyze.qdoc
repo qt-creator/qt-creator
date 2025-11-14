@@ -9,7 +9,7 @@
 
     \title Specify Valgrind settings for a project
 
-    To specify settings for running applications on the \l {Kits}{Run device} that
+    To specify settings for running applications on the \l {Managing kits}{Run device} that
     you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.
 
     With \l{Valgrind's Tool Suite}, you can detect memory leaks and profile
@@ -43,6 +43,6 @@
     \uicontrol Analyzer.
 
     \sa {Detect memory leaks with Memcheck}, {Profile function execution},
-    {Run Valgrind tools on external applications}, {Configuring Projects},
+    {Run Valgrind tools on external applications}, {Building and running projects},
     {Valgrind Callgrind}, {Valgrind Memcheck}
 */

@@ -70,6 +70,6 @@
     You can set these preferences as \l{Configure Presets}{CMake presets} or in
     a \l{Share project settings}{\c CMakeLists.txt.shared} file.
 
-    \sa {Build with CMake}{How To: Build with CMake}, {CMake},
-    {Configuring Projects}
+    \sa {Build with CMake}{How to: Build with CMake}, {CMake},
+    {Building and running projects}
 */

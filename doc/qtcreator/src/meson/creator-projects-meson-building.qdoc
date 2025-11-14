@@ -10,7 +10,7 @@
 
     \brief Settings for building applications with Meson.
 
-    To specify build settings for the selected \l{Kits}{kit}, go to
+    To specify build settings for the selected \l{Managing kits}{kit}, go to
     \uicontrol Projects > \uicontrol {Build Settings}.
 
     \image {qtcreator-meson-build-settings.png} {Meson build settings}
@@ -53,6 +53,6 @@
     The build errors and warnings are parsed and displayed in \uicontrol Issues.
 
     \sa {Activate kits for a project}, {Configure projects for building},
-    {Configure projects for running}, {Open projects}, {Configuring projects},
+    {Configure projects for running}, {Open projects}, {Building and running projects},
     {Meson}
 */

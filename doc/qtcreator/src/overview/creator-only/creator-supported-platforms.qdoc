@@ -63,7 +63,7 @@
             \li \image {ok.png} {The feature is supported on the platform}
             \li \image {ok.png} {The feature is supported on the platform}
         \row
-            \li \l{Build applications for the web}{WebAssembly}
+            \li \l{Building applications for the web}{WebAssembly}
             \li \image {ok.png} {The feature is supported on the platform}
             \li \image {ok.png} {The feature is supported on the platform}
             \li \image {ok.png} {The feature is supported on the platform}
@@ -74,6 +74,6 @@
     \QC automatically runs scheduled checks for updates based on the settings
     specified in \preferences > \uicontrol Environment > \uicontrol Update.
 
-    \sa {Develop for Devices}{How To: Develop for Devices}, {Desktop Platforms},
+    \sa {Develop for devices}{How to: Develop for devices}, {Desktop Platforms},
     {Devices}
 */

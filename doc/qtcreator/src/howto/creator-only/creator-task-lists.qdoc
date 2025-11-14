@@ -81,5 +81,6 @@
     If the file path is given as a relative path, it is based on the parent
     directory of the task list file.
 
-    \sa {Issues}, {View output}
+    \sa {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}, {Issues},
+    {View output}
 */

@@ -96,8 +96,9 @@
     line comments at the end of the line.
 
     \if defined(qtcreator)
-    \sa {Change text encoding}, {Find preferences}, {C++ Code Style}, {Nim}
+    \sa {Configure editors}{How to: Configure editors}, {Find preferences},
+    {C++ Code Style}, {Nim}
     \endif
 
-    \sa {Indent text or code}, {Specify Qt Quick code style}, {Font & Colors}
+    \sa {Indent text or code}, {Specify Qt Quick code style}, {Configuring editors}
 */

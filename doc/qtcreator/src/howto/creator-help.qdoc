@@ -10,9 +10,11 @@
     \previouspage creator-how-tos.html
     \endif
 
-    \ingroup creator-how-to-get-help
+    \title Getting help
 
-    \title Get help
+    \quotation
+    \l {Read documentation}{How to: Read documentation}
+    \endquotation
 
     \QC comes fully integrated with Qt documentation and examples using the Qt
     Help plugin.
@@ -99,7 +101,7 @@
 
     \generatelist creator-how-to-get-help
     \else
-    \sa {Read Documentation}{How To: Read Documentation}
+    \sa {Read documentation}{How to: Read documentation}
     \endif
 */
 
@@ -154,7 +156,7 @@
     \endlist
 
     \if defined(qtcreator)
-    \sa {Read Documentation}{How To: Read Documentation}, {Installation},
+    \sa {Read documentation}{How to: Read documentation}, {Installation},
     {Get and Install Qt}
     \endif
 */
@@ -197,7 +199,7 @@
     \uicontrol {Export Bookmarks}.
 
     \if defined(qtcreator)
-    \sa {Read Documentation}{How To: Read Documentation}
+    \sa {Read documentation}{How to: Read documentation}
     \endif
 */
 
@@ -256,7 +258,7 @@
     example, to find \c {Pastebin.Com}, enter the search term \c {Pastebin*}.
 
     \if defined(qtcreator)
-    \sa {Read Documentation}{How To: Read Documentation}
+    \sa {Read documentation}{How to: Read documentation}
     \endif
 */
 
@@ -290,7 +292,7 @@
     \endlist
 
     \if defined(qtcreator)
-    \sa {Read Documentation}{How To: Read Documentation}
+    \sa {Read documentation}{How to: Read documentation}
     \endif
 */
 
@@ -329,7 +331,7 @@
     \inlineimage {icons/linkicon.png} {Show Context Help menu}.
 
     \if defined(qtcreator)
-    \sa {Read Documentation}{How To: Read Documentation}
+    \sa {Read documentation}{How to: Read documentation}
     \endif
 */
 
@@ -366,7 +368,7 @@
     \endlist
 
     \if defined(qtcreator)
-    \sa {Read Documentation}{How To: Read Documentation}
+    \sa {Read documentation}{How to: Read documentation}
     \endif
 */
 
@@ -436,6 +438,6 @@
     {Remove Filter} (\uicontrol {Remove Filter}).
 
     \if defined(qtcreator)
-    \sa {Read Documentation}{How To: Read Documentation}
+    \sa {Read documentation}{How to: Read documentation}
     \endif
 */

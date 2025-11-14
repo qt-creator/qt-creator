@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -12,11 +12,27 @@
     \page creator-how-tos.html
     \nextpage creator-reference.html
 
-    \title How To
+    \title How to
 
     The following topics describe how to use \QC to perform a particular task.
 
+    \section1 Adapt the UI
+
+    \quotation
+    \l {Adapting the UI}
+    \endquotation
+
+    Navigate the \QC UI or change its appearance and behavior.
+
+    \details {How to adapt the UI}
+    \generatelist creator-how-to-ui
+    \enddetails
+
     \section1 Analyze
+
+    \quotation
+    \l {Analyzing code}
+    \endquotation
 
     Use integrated code analysis tools to detect memory leaks, profile
     function execution, analyze CPU use, and eliminate unnecessary
@@ -27,7 +43,11 @@
     \generatelist creator-how-to-analyze
     \enddetails
 
-    \section1 Build and Run
+    \section1 Build and run
+
+    \quotation
+    \l {Building and running projects}
+    \endquotation
 
     Use integrated cross-platform systems for build automation to compile your
     source code for different target platforms or with different compilers,
@@ -40,6 +60,10 @@
 
     \section2 Build with CMake
 
+    \quotation
+    \l {Building projects with CMake}
+    \endquotation
+
     CMake controls the software compilation process by using simple configuration
     files, called \c CMakeLists.txt files.
 
@@ -49,6 +73,10 @@
 
     \section2 Build with qmake
 
+    \quotation
+    \l {Building projects with qmake}
+    \endquotation
+
     qmake automates the generation of Makefiles based on the information in a
     project file that has the extension \c .pro.
 
@@ -56,7 +84,11 @@
     \generatelist creator-how-to-build-with-qmake
     \enddetails
 
-    \section2 Manage Kits
+    \section2 Manage kits
+
+    \quotation
+    \l {Managing kits}
+    \endquotation
 
     \QC groups build and run specific settings as kits to make cross-platform
     development easier. Each kit consists of a set of values that define one
@@ -67,7 +99,11 @@
     \generatelist creator-how-to-manage-kits
     \enddetails
 
-    \section2 Run applications
+    \section2 Run projects
+
+    \quotation
+    \l {Running applications}
+    \endquotation
 
     Run applications on local and remote desktop systems, as well as on
     embedded and mobile devices that you connect to the computer.
@@ -76,18 +112,63 @@
     \generatelist creator-how-to-run
     \enddetails
 
-    \section1 Create Models and Diagrams
+    \section1 Configure \QC
 
-    Create Universal Modeling Language (UML) style models with structured and
-    behavioral diagrams that offer different views to your system. Or, use a
-    file wizard to create State Chart XML (SCXML) files with boilerplate code
-    and edit them with an SCXML editor.
+    \quotation
+    \l {Configuring \QC}
+    \endquotation
 
-    \details {How to create models and diagrams}
-    \generatelist creator-how-to-models
+    Use basic \QC features and preinstalled extensions and plugins. Install more
+    extensions and plugins and configure external tools for use.
+
+    \details {How to configure \QC}
+    \generatelist creator-how-to-use
+    \enddetails
+
+    \section1 Create projects
+
+    \quotation
+    \l {Creating projects}
+    \endquotation
+
+    Create projects for developing applications and libraries using preset
+    wizards or your own wizards. Then configure the projects for building and
+    running the applications on target platforms.
+
+    \details {How to create projects}
+    \generatelist creator-how-to-projects-create
+    \enddetails
+
+    \section2 Add files
+
+    \quotation
+    \l {Adding files}
+    \endquotation
+
+    Add files to projects.
+
+    \details {How to add files to projects}
+    \generatelist creator-how-to-projects-files
+    \enddetails
+
+    \section2 Configure projects
+
+    \quotation
+    \l {Configuring projects locally}
+    \endquotation
+
+    Change the default configurations that installation programs and project
+    wizards create and override global preferences for a particular project.
+
+    \details {How to configure projects}
+    \generatelist creator-how-to-projects-configure
     \enddetails
 
     \section1 Debug
+
+    \quotation
+    \l {Debugging}
+    \endquotation
 
     Use debuggers to inspect the state of your application while it is running.
 
@@ -96,6 +177,10 @@
     \enddetails
 
     \section1 Design UIs
+
+    \quotation
+    \l {Designing UIs}
+    \endquotation
 
     Design UIs with either \l{User Interfaces}{Qt Quick or Qt Widgets}.
     \QC integrates a visual editor, \QD, for designing widget-based UIs
@@ -106,7 +191,11 @@
     \generatelist creator-how-to-design
     \enddetails
 
-    \section1 Develop for Devices
+    \section1 Develop for devices
+
+    \quotation
+    \l {Developing for devices}
+    \endquotation
 
     Install the toolchain for building applications for the targeted
     embedded or mobile platform on the computer, and use \QOI to
@@ -117,6 +206,10 @@
 
     \section2 Android
 
+    \quotation
+    \l {Developing for Android}
+    \endquotation
+
     Install \l {Qt for Android} and Android tools, and connect Android devices to
     the computer.
 
@@ -125,6 +218,10 @@
     \enddetails
 
     \section2 Bare Metal
+
+    \quotation
+    \l {Developing for Bare Metal devices}
+    \endquotation
 
     Run and debug applications on small Linux devices that are not supported
     by the remote Linux device plugin by using GDB or a hardware debugger.
@@ -135,6 +232,10 @@
 
     \section2 \B2Q
 
+    \quotation
+    \l {Developing for \B2Q devices}
+    \endquotation
+
     Run, debug, and analyze applications on \l{\B2Q: Documentation}{\B2Q}
     devices.
 
@@ -143,6 +244,10 @@
     \enddetails
 
     \section2 Docker
+
+    \quotation
+    \l {Developing for Docker}
+    \endquotation
 
     Create \e {Docker devices} from \e {Docker images} and use them to build,
     run, and debug applications.
@@ -153,6 +258,10 @@
 
     \section2 iOS
 
+    \quotation
+    \l {Developing for iOS}
+    \endquotation
+
     Install \l {Qt for iOS} and Xcode, and connect iOS devices to the computer.
 
     \details {How to develop for iOS devices}
@@ -160,6 +269,10 @@
     \enddetails
 
     \section2 MCUs
+
+    \quotation
+    \l {Developing for MCUs}
+    \endquotation
 
     Install \l {Qt for MCUs}, and connect microcontrollers to the computer.
 
@@ -169,6 +282,10 @@
 
     \section2 QNX Neutrino
 
+    \quotation
+    \l {Developing for QNX Neutrino devices}
+    \endquotation
+
     Install \l {Qt for QNX}, and connect QNX Neutrino devices to the computer.
 
     \details {How to develop for QNX Neutrino devices}
@@ -177,6 +294,10 @@
 
     \section2 Remote Linux
 
+    \quotation
+    \l {Developing for remote Linux devices}
+    \endquotation
+
     Add kits for toolchains for building applications for generic Linux
     devices, and connect the devices to the computer.
 
@@ -184,16 +305,12 @@
     \generatelist creator-how-to-remote-linux
     \enddetails
 
-    \section2 SDKs
-
-    Manage SDKs for application development for different platforms.
-
-    \details {How to manage SDKs}
-    \generatelist creator-how-to-sdks
-    \enddetails
-
     \target how-to-vxworks
     \section2 VxWorks
+
+    \quotation
+    \l {Developing for VxWorks}
+    \endquotation
 
     Build \l {Qt for VxWorks}, and create VxWorks build and run kits.
 
@@ -203,6 +320,10 @@
 
     \section2 WebAssembly
 
+    \quotation
+    \l {Building applications for the web}
+    \endquotation
+
     Install \l{Qt for WebAssembly} to build applications for the web and run them
     in a web browser.
 
@@ -210,7 +331,24 @@
     \generatelist creator-how-to-webassembly
     \enddetails
 
-    \section1 Edit Code
+    \section2 Windows desktop
+
+    \quotation
+    \l {Developing for the Windows desktop}
+    \endquotation
+
+    Develop applications using the components and tools of the
+    Windows App SDK.
+
+    \details {How to develop for Windows desktop}
+    \generatelist creator-how-to-winapp-sdks
+    \enddetails
+
+    \section1 Edit code
+
+    \quotation
+    \l {Editing code}
+    \endquotation
 
     The code editor offers useful features for editing C++ and QML code, such
     as semantic highlighting, checking code syntax, code completion, and quick
@@ -222,7 +360,11 @@
     \generatelist creator-how-to-edit
     \enddetails
 
-    \section2 Configure Editors
+    \section2 Configure editors
+
+    \quotation
+    \l {Configuring editors}
+    \endquotation
 
     Configure the code and text editor to suit your specific needs by
     changing the fonts, colors, highlighting, and indentation.
@@ -231,7 +373,11 @@
     \generatelist creator-how-to-configure-editors
     \enddetails
 
-    \section2 Manage Language Servers
+    \section2 Manage language servers
+
+    \quotation
+    \l {Managing language servers}
+    \endquotation
 
     Configure language servers that \QC adds by default or add more of them.
 
@@ -241,6 +387,10 @@
 
     \section2 Search
 
+    \quotation
+    \l {Searching}
+    \endquotation
+
     Use the incremental and advanced search to search in currently open projects
     or files on the file system or use the locator to browse through projects,
     files, classes, functions, documentation, and file systems.
@@ -249,51 +399,50 @@
     \generatelist creator-how-to-search
     \enddetails
 
-    \section1 Manage Projects
+    \section1 Edit state charts
 
-    Create projects for developing applications and libraries. Then configure
-    the projects for building and running the applications on target platforms.
+    \quotation
+    \l {Editing SCXML state charts}
+    \endquotation
 
-    \details {How to manage projects}
-    \generatelist creator-how-to-projects
+    Use a file wizard to create State Chart XML (SCXML) files with boilerplate
+    code and edit them with an SCXML editor.
+
+    \details {How to edit state charts}
+    \generatelist creator-how-to-scxml
     \enddetails
 
-    \section2 Create Projects
+    \section1 Edit UML-style models
 
-    Use preset wizards to create projects or add custom wizards. You can also
-    import projects from version control systems.
+    \quotation
+    \l {Editing UML-style models}
+    \endquotation
 
-    \details {How to create projects}
-    \generatelist creator-how-to-projects-create
+    Create Universal Modeling Language (UML) style models with structured and
+    behavioral diagrams that offer different views to your system.
+
+    \details {How to edit models and diagrams}
+    \generatelist creator-how-to-models
     \enddetails
 
-    \section2 Add Files
+    \section1 Read documentation
 
-    Add files to projects.
-
-    \details {How to add files to projects}
-    \generatelist creator-how-to-projects-files
-    \enddetails
-
-    \section2 Configure Projects
-
-    Change the default configurations that installation programs and project
-    wizards create.
-
-    \details {How to configure projects}
-    \generatelist creator-how-to-projects-configure
-    \enddetails
-
-    \section1 Read Documentation
+    \quotation
+    \l {Getting help}
+    \endquotation
 
     \QC integrates the reference documentation for the Qt versions that you
     install. You can add documentation from other sources.
 
-    \details {How to read documentation}
+    \details {How to get help}
     \generatelist creator-how-to-get-help
     \enddetails
 
     \section1 Test
+
+    \quotation
+    \l {Testing}
+    \endquotation
 
     Create and run \e {code based tests} and \e {build system based tests}.
     Code based testing offers special handling for particular testing
@@ -309,7 +458,11 @@
 
     \section1 Use Git
 
-    \l{Git} is a fast decentralized version control system
+    \quotation
+    \l {Using Git}
+    \endquotation
+
+    Git is a fast decentralized version control system
     that is available for Windows, Linux, and \macos. You can use the
     \l {Gerrit Code Review} tool for projects that use Git.
 
@@ -346,23 +499,6 @@
     \details {How to manage remote repositories}
     \generatelist creator-how-to-git-remote-repository
     \enddetails
-
-    \section1 Use \QC
-
-    Use basic \QC features and preinstalled plugins. Install more plugins and
-    configure external tools for use.
-
-    \details {How to use \QC}
-    \generatelist creator-how-to-use
-    \enddetails
-
-    \section1 Use the UI
-
-    Navigate the UI or change its appearance and behavior.
-
-    \details {How to use the UI}
-    \generatelist creator-how-to-ui
-    \enddetails
 */
 
 /*!
@@ -386,7 +522,7 @@
 
     \endlist
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
+    \sa {Edit code}{How to: Edit code}, {Editing code}
 */
 
 /*!
@@ -486,7 +622,7 @@
 
     \image {qtcreator-locator-customize.webp} {Locator tab in Environment preferences}
 
-    \sa {Creating Locator Filters}, {Edit Code}{How To: Edit Code}, {Edit Mode}
+    \sa {Creating Locator Filters}, {Edit code}{How to: Edit code}, {Editing code}
 */
 
 /*!
@@ -640,7 +776,7 @@
         \li Go to \uicontrol {Follow Symbol Under Cursor} in the context menu.
     \endlist
 
-    \sa {Edit Code}{How To: Edit Code}, {Clangd}, {Edit Mode},
+    \sa {Edit code}{How to: Edit code}, {Clangd}, {Editing code},
     {Navigate with locator}
 */
 
@@ -691,7 +827,7 @@
     history, select \key {Ctrl+Shift+V} until the clip appears.
     The number of clips in the history is fixed to 10.
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
+    \sa {Edit code}{How to: Edit code}, {Editing code}
 */
 
 /*!
@@ -723,7 +859,7 @@
     Also, \QC automatically inserts the closing character of a raw string literal
     prefix.
 
-    \sa {Completion}, {Edit Code}{How To: Edit Code}, {Edit Mode}
+    \sa {Completion}, {Edit code}{How to: Edit code}, {Editing code}
 */
 
 /*!
@@ -749,7 +885,7 @@
 
     \image {qtcreator-preferences-texteditor-behavior.webp} {Behavior tab in Text Editor preferences}
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
+    \sa {Edit code}{How to: Edit code}, {Editing code}
 */
 
 /*!
@@ -798,6 +934,8 @@
         \li In \uicontrol {Maximum number of entries in "Recent Files"}, set
             the number of files to show.
     \endlist
+
+    \sa {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}
 */
 
 /*!
@@ -840,5 +978,5 @@
     \li Select \uicontrol Replace to replace all instances of the text.
     \endlist
 
-    \sa {Edit Code}{How To: Edit Code}, {Search}{How To: Search}, {Edit Mode}
+    \sa {Edit code}{How to: Edit code}, {Search}{How to: Search}, {Editing code}
 */

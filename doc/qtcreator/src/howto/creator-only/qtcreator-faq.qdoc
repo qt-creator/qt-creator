@@ -14,7 +14,7 @@
     You might also find answers to your questions in the
     \l{Known Issues} and \l{How To} sections, or the Troubleshooting
     sections for a special area, such as
-    \l{Troubleshooting Debugger}{debugging}.
+    \l{Troubleshooting Debugger}{Debugging}.
 
     \section1 General Questions
 
@@ -64,7 +64,7 @@
     This also enables code completion of QML code and removes error messages.
 
     The following example illustrates how to specify the import path for qmake
-    projects so that it works when switching between build and run \l{Kits}{kits}
+    projects so that it works when switching between build and run \l{Managing kits}{kits}
     for different target platforms:
 
     \code

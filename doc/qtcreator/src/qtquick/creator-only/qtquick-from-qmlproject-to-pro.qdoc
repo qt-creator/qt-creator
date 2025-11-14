@@ -7,11 +7,12 @@
     \previouspage creator-reference.html
 
     \ingroup creator-reference-ui-design
+    \ingroup creator-reference-ui-design-quick
 
     \title Converting UI Projects to Applications
 
     \summary {Converting a project that has a .qmlproject file to one that has a
-    \c {.pro} file.}
+    .pro file.}
 
     \include qtquick-converting-ui-projects-to-applications.qdocinc {converting-ui-projects-to-applications} {Qt Quick UI Prototype}
 */

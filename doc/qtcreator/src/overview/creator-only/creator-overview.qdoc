@@ -27,7 +27,7 @@
     \image {qt-app-dev-flow.webp} {Application development life-cycle}
     \caption Application development life-cycle
 
-    \section1 Managing Projects
+    \section1 Managing projects
 
     First, you need a \e project. \QC relies on a separate build system, such as
     CMake, qmake, or Qbs for building the project. From the build system, \QC
@@ -40,7 +40,7 @@
     debugging.
 
     \list
-        \li \l{Creating Projects}
+        \li \l{Creating projects}
 
             To set up a project, you first have to decide what kind
             of an application you want to develop: do you want a user
@@ -54,63 +54,34 @@
             version control system. Store and edit only project
             source files and configuration files. Do not store
             generated files.
-        \li \l{Configuring Projects}
+        \li \l{Building and running projects}
 
             Installation programs and project wizards create default
             configurations for \QC and your projects. Change the
             configurations in the \uicontrol Projects mode.
     \endlist
 
-    For more information, see \l{Manage Projects}{How To: Manage Projects}.
+    For more information, see \l{Create projects}{How to: Create projects}.
 
-    \section1 Designing User Interfaces
-
-    \image {heartgame-start.webp} {Heart Rate Game}
+    \section1 Designing user interfaces
 
     To create intuitive, modern-looking, fluid user interfaces (UI), use
-    \l{Qt Quick} and \l{\QDS documentation}{\QDS}:
+    \l{Qt Quick} and \l{\QDS documentation}{\QDS}.
 
-    \list
-        \li \l {\QMLD}
-
-            Or, enable the \QMLD plugin to visually edit \l{UI files}
-            (\c .ui.qml).
-        \li \l {Converting UI Projects to Applications}
-
-            Qt Quick UI Prototype projects (\c .qmlproject) are useful
-            for creating user interfaces. To use them for application
-            development, you have to convert them to Qt Quick
-            Application projects that have project configuration
-            files (\c CMakeLists.txt or \c .pro), \c .cpp, and \c .qrc files.
-        \li \l {UI files}
-
-            If you switch between \QC and \QDS or cooperate with
-            designers on a project, you might encounter \c .ui.qml files.
-            They are intended to be edited in \QDS only, so you need
-            to be careful not to break the code. To visually edit the
-            files in \QC, enable the \QMLD plugin.
-        \li \l{Using QML modules with plugins}
-
-            Load C++ plugins for QML to simulate data.
-    \endlist
-
-    Use the QML live preview to preview a QML file or an entire Qt Quick
-    application on the desktop, as well as on Android and embedded Linux
-    devices. The changes you make to the UI are instantly visible to you
-    in the preview.
+    \image {heartgame-start.webp} {Heart Rate Game}
 
     If you need a traditional user interface that has a clear structure and
     enforces a platform look and feel, use \l{Qt Widgets} and the integrated
     \l{\QD}.
 
-    For more information, see \l{Design UIs}{How To: Design UIs} and
-    \l{UI Design}.
+    For more information, see \l{Designing UIs} and \l{Design UIs}
+    {How to: Design UIs}.
 
-    \section1 Editing Code
+    \section1 Writing code
 
     Writing, editing, and navigating in source code are core tasks in application
     development. Therefore, the code editor is one of the key components of \QC.
-    Use the code editor in the \l {Edit Mode}{Edit mode}.
+    Use the code editor in the \l {Editing code}{Editing code}.
 
     As an IDE, \QC differs from a text editor in that it knows how to build and
     run applications. It understands the C++ and QML languages as code, not just
@@ -121,7 +92,7 @@
     such as Python, for which a \e {language server} is available that provides
     information about the code to IDEs.
 
-    \section2 Semantic Highlighting
+    \section2 Semantic highlighting
 
     To help you write well formatted code, \QC highlights code elements and
     blocks. It understands the C++, QML, and JavaScript languages as code, not
@@ -151,7 +122,7 @@
     or files on the file system or use the locator to browse through projects,
     files, classes, functions, documentation, and file systems.
 
-    \section2 Refactoring Code
+    \section2 Refactoring code
 
     \e {Code refactoring} is the process of improving and simplifying code
     without modifying the existing functionality of an application. Find
@@ -166,7 +137,7 @@
         \li Simplify code structure
     \endlist
 
-    \section2 Configuring the Text Editor
+    \section2 Configuring the text editor
 
     Configure the text editor to suit your specific needs. Change the fonts,
     colors, highlighting, and indentation.
@@ -174,14 +145,14 @@
     If you are used to the Vim editor, run the main editor in the
     \l {FakeVim Modes and Commands}{FakeVim mode}.
 
-    For more information, see \l{Edit Code}{How To: Edit Code}, \l{Editors},
+    For more information, see \l{Edit code}{How to: Edit code}, \l{Editors},
     and \l{Text Editor}.
 
-    \section1 Building, Deploying, and Running Applications
+    \section1 Building, deploying, and running applications
 
     Run and deploy Qt applications that you build for different target
     platforms or with different compilers, debuggers, or Qt versions.
-    \l{Kits} define the tools, \l{glossary-device}
+    \l{Managing kits} define the tools, \l{glossary-device}
     {device} type and other settings to use when building and running your
     project.
 
@@ -195,64 +166,17 @@
     configurations, you can quickly switch between different setups and
     target platforms.
 
-    For more information, see \l{Build and Run}{How To: Build and Run},
-    \l{Build Systems}, \l{Build Configurations}, and \l{Run Configurations}.
+    For more information, see \l{Building and running projects},
+    \l{Build and run}{How to: Build and run}, \l{Build systems},
+    \l{Build configurations}, \l{Deploy configurations}, and
+    \l{Run configurations}.
 
-    \section2 Embedded Platforms
+    For more information about building applications for and on devices
+    and running them on devices, see \l{Developing for devices},
+    \l{Develop for devices}{How to: Develop for devices}, and
+    \l {Supported Platforms}.
 
-    You can develop applications for the following embedded platforms:
-
-    \list
-        \li \l {Bare Metal}
-        \li \l {\B2Q}
-        \li \l {MCUs}
-        \li \l {QNX Neutrino}
-        \li \l {Remote Linux}
-    \endlist
-
-    Install the toolchain for building applications for the targeted embedded
-    platform on the computer, and then use \l{Get and Install Qt}{\QOI} to install
-    Qt libraries that are built for the platform. Add a kit with the toolchain and
-    the Qt version for the device's architecture. When possible, \QOI creates
-    suitable kits for you.
-
-    You can connect embedded devices to the computer and select the appropriate
-    kit to run, debug, and analyze applications built for them from \QC.
-
-    \e {Deploy configurations} handle the packaging and copying of the necessary
-    files to a location you want to run the executable at, such as the file
-    system of a device.
-
-    For more information, see \l{Develop for Devices}{How To: Develop for Devices}
-    and \l{Devices}.
-
-    \section2 Mobile Platforms
-
-    You can develop applications for the following mobile platforms:
-
-    \list
-        \li \l Android
-        \li \l iOS
-    \endlist
-
-    Install the toolchain for building applications for the targeted mobile
-    platform on the computer, and then use \QOI to install Qt libraries that are
-    built for the platform. Add a kit with the toolchain and the Qt version for
-    the device's architecture. When possible, \QOI creates suitable kits for you.
-
-    You can connect mobile devices to the computer and select the
-    appropriate kit to build, run, debug, and analyze applications from \QC.
-
-    Before starting application development, analyze and define the requirements,
-    scope, and functionality of the application to ensure efficient functionality
-    and a smooth user experience on mobile devices.
-
-    For more information, see
-    \l{Develop for Devices}{How To: Develop for Devices},
-    \l{Optimizing Applications for Mobile Devices}, \l {Supported Platforms}, and
-    \l{Deploy Configurations}.
-
-    \section1 Debugging Applications
+    \section1 Debugging applications
 
     A debugger lets you see what happens \e inside an application while it runs
     or when it crashes. A debugger can do the following to help you find errors
@@ -278,9 +202,9 @@
 
     Connect devices to your computer to debug processes running on the devices.
 
-    For more information, see \l{Debugging} and \l{Debug}{How To: Debug}.
+    For more information, see \l{Debugging} and \l{Debug}{How to: Debug}.
 
-    \section1 Finding Issues in Source Code
+    \section1 Finding issues in source code
 
     Devices have limited memory and CPU power, so you should use them carefully.
     \QC integrates code analysis tools for detecting memory leaks, profiling
@@ -291,9 +215,9 @@
     \QC. Install and configure the other supported tools on the computer to use
     them from \QC.
 
-    For more information, see \l{Analyzing Code} and \l{Analyze}{How To: Analyze}.
+    For more information, see \l{Analyzing code} and \l{Analyze}{How to: Analyze}.
 
-    \section1 Running Tests
+    \section1 Running tests
 
     \QC supports both \e {code based tests} and \e {build system based tests}.
     Code based testing offers special handling for particular testing
@@ -348,9 +272,9 @@
     To use the plugin, you must download and install Squish, create a connection
     to the Squish Server, and specify the application under test (AUT) to run.
 
-    For more information, see \l{Test}{How To: Test}.
+    For more information, see \l{Test}{How to: Test}.
 
-    \section1 Publishing Applications
+    \section1 Publishing applications
 
     Create installation packages for mobile devices that you publish to
     application stores and other channels. You must make sure that the
@@ -358,7 +282,7 @@
 
     For more information, see \l{Publishing to Google Play}.
 
-    \section1 Qt Tools
+    \section1 Qt tools
 
     \QC is one of many Qt tools for designing and developing applications.
 

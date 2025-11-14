@@ -112,6 +112,6 @@
     The \uicontrol {Deploy tarball via SFTP upload} step specifies that \QC
     uploads the tarball to the device and extracts it.
 
-    \sa {Build and Run}{How To: Build and Run},
-    {Remote Linux}{How To: Develop for remote Linux}, {Remote Linux Run Settings}
+    \sa {Build and Run}{How to: Build and Run},
+    {Remote Linux}{How to: Develop for remote Linux}, {Remote Linux Run Settings}
 */

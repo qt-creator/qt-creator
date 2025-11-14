@@ -10,10 +10,15 @@
 /*!
     \page creator-modeling.html
     \previouspage creator-reference.html
+    \nextpage
 
     \ingroup creator-reference-editors
 
-    \title Model Editor
+    \title Editing UML-style models
+
+    \quotation
+    \l {Edit UML-style models}{How to: Edit UML-style models}
+    \endquotation
 
     \brief Create Universal Modeling Language (UML) style models with
     structured and behavioral diagrams.
@@ -53,7 +58,7 @@
             instances are activated and destroyed and where their lifeline ends.
     \endlist
 
-    \section1 Editing Models
+    \section1 Editing models
 
     You can create models that have several different structural or behavioral
     diagrams. Add elements to the diagrams and specify properties for them. Use
@@ -75,7 +80,7 @@
 
     \endlist
 
-    \section2 Grouping Elements
+    \section2 Grouping elements
 
     To group elements, surround them with a \e boundary. When you move
     the boundary, all elements within it move together.
@@ -93,14 +98,14 @@
 
     Use \e multiselection to group elements temporarily.
 
-    \section2 Aligning Elements
+    \section2 Aligning elements
 
     To align elements in the editor, select several elements and right-click to
     open a context menu. Select actions in \uicontrol {Align Objects} menu
     to align elements horizontally or vertically or to adjust their width and
     height.
 
-    \section2 Managing Elements
+    \section2 Managing elements
 
     Drag the mouse over elements to select them and apply actions such as
     changing their \e stereotype or color. A stereotype is a classifier for
@@ -120,12 +125,12 @@
     To keep the selections in the diagram and \uicontrol Structure view
     synchronized, select \uicontrol {Keep Synchronized}.
 
-    \section2 Linking from Element Names to Files
+    \section2 Linking from element names to files
 
     To link to a file from the name of an element, select the file in
     \uicontrol {Linked file}.
 
-    \section2 Zooming into Diagrams
+    \section2 Zooming into diagrams
 
     To zoom into diagrams:
 
@@ -150,7 +155,7 @@
         \li Select \key Ctrl+0.
     \endlist
 
-    \section2 Printing Diagrams
+    \section2 Printing diagrams
 
     To print diagrams, select \key Ctrl+C when no elements are selected in
     the editor to copy all elements to the clipboard by using 300 dpi. Then
@@ -159,13 +164,13 @@
     If you copy a selection of elements in the editor, only those elements and
     their relations will be copied to the clipboard as an image.
 
-    \section2 Exporting Diagrams as Images
+    \section2 Exporting diagrams as images
 
     To save diagrams as images, go to \uicontrol File, and then select
     \uicontrol {Export Diagram}. To save only the selected parts of a diagram,
     select \uicontrol {Export Selected Elements}.
 
-    \section1 Adding Custom Elements
+    \section1 Adding custom elements
 
     The model editor has the following built-in element types: package,
     component, class, and item.
@@ -176,7 +181,7 @@
     \image {qtcreator-model-editor-component-diagram.webp} {Component properties}
     \caption The Image field in Component properties.
 
-    \section2 Using Definition Files
+    \section2 Using definition files
 
     For package, component, and class elements, you can use definition files to
     specify custom icons.
@@ -227,8 +232,8 @@
     \c standard.def file or select the root element of a model and apply your
     \c .def file to the property \uicontrol {Config path}.
 
-    \sa {Create Models and Diagrams}{How To: Create Models and Diagrams},
-    {Create files}, {Sidebar Views}
+    \sa {Edit UML-style models}{How to: Edit UML-style models},
+    {Adding files}, {Sidebar Views}
 */
 
 /*!
@@ -366,8 +371,8 @@
     \uicontrol Modeling > \uicontrol {Scratch Model}, and then select
     \uicontrol Choose.
 
-    \sa {Create Models and Diagrams}{How To: Create Models and Diagrams},
-    {Model Editor}
+    \sa {Edit UML-style models}{How to: Edit UML-style models},
+    {Editing UML-style models}
 */
 
 /*!
@@ -397,8 +402,8 @@
     To update the include dependencies of the package, select
     \uicontrol {Update Include Dependencies}.
 
-    \sa {Create Models and Diagrams}{How To: Create Models and Diagrams},
-    {Model Editor}
+    \sa {Edit UML-style models}{How to: Edit UML-style models},
+    {Editing UML-style models}
 */
 
 /*!
@@ -551,8 +556,8 @@
 
     \endlist
 
-    \sa {Create Models and Diagrams}{How To: Create Models and Diagrams},
-    {Model Editor}
+    \sa {Edit UML-style models}{How to: Edit UML-style models},
+    {Edit UML-style models}
 */
 
 /*!
@@ -584,6 +589,6 @@
     the component in the editor or select \uicontrol {Show Definition} in the
     context menu.
 
-    \sa {Create Models and Diagrams}{How To: Create Models and Diagrams},
-    {Model Editor}
+    \sa {Edit UML-style models}{How to: Edit UML-style models},
+    {Edit UML-style models}
 */

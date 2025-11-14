@@ -9,6 +9,10 @@
 
     \title Developing for Android
 
+    \quotation
+    \l {Android}{How to: Develop for Android}
+    \endquotation
+
     \brief Set up the toolchain for building applications for Android devices.
 
     Install a Qt version targeting Android and the Android SDK and NDK to develop
@@ -43,7 +47,7 @@
             automatically download, install, and configure for you.
     \endlist
 
-    \sa {Android}{How To: Develop for Android}, {Get and Install Qt}
+    \sa {Android}{How to: Develop for Android}, {Get and Install Qt}
 */
 
 /*!
@@ -149,7 +153,7 @@
     building Qt from \c modules/Core.json and uses it instead of the version
     in \c sdk_definitions.json.
 
-    \sa {Android}{How To: Develop for Android}, {Developing for Android}, {Kits}
+    \sa {Android}{How to: Develop for Android}, {Developing for Android}, {Managing kits}
 */
 
 /*!
@@ -188,7 +192,7 @@
 
     You have to manually create a kit that uses the custom NDK.
 
-    \sa {Add kits}, {Android}{How To: Develop for Android},
+    \sa {Add kits}, {Android}{How to: Develop for Android},
     {Developing for Android}
 */
 
@@ -245,7 +249,7 @@
     \image {qtcreator-android-sdk-manager-arguments.png} {Android SDK Manager Arguments dialog}
     \endlist
 
-    \sa {Android}{How To: Develop for Android}, {Developing for Android}
+    \sa {Android}{How to: Develop for Android}, {Developing for Android}
 */
 
 /*!
@@ -294,7 +298,7 @@
     To remove an AVD from the list and the kit selector, select
     \uicontrol {Erase AVD}.
 
-    \sa {Android}{How To: Develop for Android}, {Developing for Android}
+    \sa {Android}{How to: Develop for Android}, {Developing for Android}
 */
 
 /*!
@@ -343,7 +347,7 @@
     For more advanced options for creating a new AVD, use the command-line tool
     \l{avdmanager} or the Android Studio's native AVD Manager UI.
 
-    \sa {Android}{How To: Develop for Android}, {Android Deploy Configuration},
+    \sa {Android}{How to: Develop for Android}, {Android Deploy Configuration},
     {Developing for Android}
 */
 
@@ -388,7 +392,7 @@
     Ignoring second debugger -accepting and dropping.
     \endcode
 
-    \sa {Android}{How To: Develop for Android}, {Developing for Android},
+    \sa {Android}{How to: Develop for Android}, {Developing for Android},
     {Configure on-device developer options}
 */
 

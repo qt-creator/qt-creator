@@ -81,10 +81,10 @@
     For more information about using Memcheck, see
     \l{Interpreting Memcheck's Output} in the Valgrind documentation.
 
-    \sa {Analyze}{How To: Analyze}, {Profile function execution},
+    \sa {Analyze}{How to: Analyze}, {Profile function execution},
     {Run Valgrind tools on external applications},
     {Specify Valgrind settings for a project}, {Analyzers}, {Valgrind Callgrind},
-    {Valgrind Memcheck}, {Analyzing Code}
+    {Valgrind Memcheck}, {Analyzing code}
 */
 
 /*!
@@ -392,11 +392,11 @@
             \image {qtcreator-valgrind-remote-settings.png} {Start Remote Analysis dialog}
 
         \li Select the application to run and analyze, as well as the
-            \l{Kits}{kit} to use.
+            \l{Managing kits}{kit} to use.
 
     \endlist
 
     \sa {Detect memory leaks with Memcheck}, {Profile function execution},
-    {Kits}, {Specify Valgrind settings for a project}, {Valgrind Callgrind},
+    {Managing kits}, {Specify Valgrind settings for a project}, {Valgrind Callgrind},
     {Valgrind Memcheck}
 */

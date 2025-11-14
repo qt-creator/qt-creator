@@ -12,7 +12,11 @@
     \previouspage creator-overview.html
     \nextpage creator-configuring-projects.html
 
-    \title Creating Projects
+    \title Creating projects
+
+    \quotation
+    \l {Create projects}{How to: Create projects}
+    \endquotation
 
     Create projects to:
 
@@ -63,12 +67,13 @@
 
     To test applications on \l{glossary-device}{devices}, you can install
     toolchains for mobile and embedded development as part of Qt distributions.
-    The installers create \l{Kits}{kits} and specify build
+    The installers create \l{Managing kits}{kits} and specify build
     and run settings for the installed device types. However, you might need to
     install and configure some additional software on the devices to be able to
     \l{Develop for Devices}{connect} to them from the computer.
 
-    \sa {Manage Projects}{How To: Manage Projects}, {Custom Wizards}
+    \sa {Create projects}{How to: Create projects}, {Add files}{How to: Add files},
+    {Custom Wizards}
 */
 
 /*!
@@ -81,7 +86,7 @@
 
     To create a new project, select \uicontrol File > \uicontrol{New Project} and
     select the type of your project. The contents of the wizard dialogs depend
-    on the project type and the \l{Kits}{kits} that you
+    on the project type and the \l{Managing kits}{kits} that you
     select in the \uicontrol {Kit Selection} dialog. Follow the instructions of
     the wizard.
 
@@ -168,8 +173,8 @@
     \uicontrol Impl there.
 
     \sa {Assign keyboard shortcuts}, {Activate kits for a project},
-    {Create files}, {Test}{How To: Test},
-    {Create Projects}{How To: Create Projects}, {Creating Projects}
+    {Adding files}, {Test}{How to: Test},
+    {Create projects}{How to: Create projects}, {Creating projects}
 */
 
 /*!
@@ -250,8 +255,7 @@
 
     \endcode
 
-    \sa {Creating Projects}, {Use project wizards}, {Projects}
-
+    \sa {Create projects}{How to: Create projects}, {Creating projects}, {Projects}
 */
 
 /*!
@@ -321,6 +325,6 @@
     To remove subprojects, right-click the project name in the \uicontrol Projects
     view, and select \uicontrol {Remove Subproject} in the context menu.
 
-    \sa {Creating Projects}, {Use project wizards},
-    {Add libraries to qmake projects}, {Add libraries to CMake projects}
+    \sa {Create projects}{How to: Create projects}, {Creating projects},
+    {Add libraries to CMake projects}
 */

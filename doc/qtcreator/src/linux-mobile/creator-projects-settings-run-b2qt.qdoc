@@ -11,7 +11,7 @@
 
     \brief Settings for running applications on \B2Q devices.
 
-    To specify settings for running applications on the \l {Kits}{Run device} that
+    To specify settings for running applications on the \l {Managing kits}{Run device} that
     you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.
 
     To run and debug an application on a \l{\B2Q: Documentation}{\B2Q} device
@@ -23,7 +23,7 @@
     The run settings display the path to the executable file on the development
     host and on the device.
 
-    \sa {\B2Q}{How To: Develop for \B2Q}, {Manage Kits}{How To: Manage Kits},
-    {Configure projects for running}, {Kits},
+    \sa {\B2Q}{How to: Develop for \B2Q}, {Manage kits}{How to: Manage kits},
+    {Configure projects for running}, {Managing kits},
     {\B2Q Deploy Configuration}
 */

@@ -47,7 +47,7 @@
     virtual functions of base classes, create getter and setter functions,
     and generate constructors. Specify settings for generating the
     functions either globally for all projects or separately for each project
-    in the \l{Configuring Projects}{build and run} settings of the project.
+    in the \l{Building and running projects}{build and run} settings of the project.
 
     \section2 Implement member functions
 

@@ -185,10 +185,11 @@
     skipped when you type, and removed when you select \key Backspace.
 
     \if defined(qtcreator)
-    \sa {Complete CMake code}, {Enclose code in brackets or quotes}, {Nim}
+    \sa {Configure editors}{How to: Configure editors}, {Complete CMake code},
+    {Enclose code in brackets or quotes}, {Nim}
     \endif
 
-    \sa {Complete code}, {Snippets}
+    \sa {Complete code}
 */
 
 /*!
@@ -327,7 +328,7 @@
     \endif
 
     \sa {Add code snippets to the auto-complete menu}, {Complete code},
-    {Completion}
+    {Completion}, {Configure editors}{How to: Configure editors}
 */
 
 /*!

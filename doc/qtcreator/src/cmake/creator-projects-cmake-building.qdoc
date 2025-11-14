@@ -4,20 +4,25 @@
 /*!
     \page creator-build-settings-cmake.html
     \previouspage creator-reference.html
+    \nextpage creator-build-settings-qmake.html
 
     \ingroup creator-reference-build-configurations
 
-    \title CMake Build Configuration
+    \title Building projects with CMake
+
+    \quotation
+    \l {Build with CMake}{How to: Build with CMake}
+    \endquotation
 
     \brief Settings for building applications with CMake.
 
-    To specify build settings for the selected \l{Kits}{kit}, go to
+    To specify build settings for the selected \l{Managing kits}{kit}, go to
     \uicontrol Projects > \uicontrol {Build Settings}.
 
     Configuring medium-sized to large CMake projects in \QC can be a
     challenge due to the number of variables that you need to pass to
     CMake to configure the project correctly. To make this easier,
-    \QC creates an initial configuration for you based on the \l{Kits}
+    \QC creates an initial configuration for you based on the \l{Managing kits}
     {kit preferences} and displays it in \uicontrol {Initial Configuration} in
     the \uicontrol {Build Settings} of the project.
     Or, you can use CMake presets to configure CMake.
@@ -39,7 +44,7 @@
     You can use \l{CMake Presets}{CMake presets} files to specify common
     configure, build, and test options and share them with others.
 
-    \section1 Initial Configuration
+    \section1 Initial configuration
 
     \image {qtcreator-build-settings-cmake-initial.webp} {Initial CMake configuration}
 
@@ -49,7 +54,7 @@
     initial configuration list of variables in a file \c CMakeLists.txt.user
     located in a directory \c .qtcreator under the project's source directory.
 
-    \section1 Current Configuration
+    \section1 Current configuration
 
     \image {qtcreator-build-settings-cmake-current.webp} {Current CMake configuration}
 
@@ -66,7 +71,7 @@
     \l{CMake: cmake-variables(7)}. For more information about Qt-specific
     variables, see \l{CMake Variable Reference}.
 
-    \section1 Multi-Config Support
+    \section1 Multi-config support
 
     \QC supports
     \l{https://cmake.org/cmake/help/latest/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html}
@@ -82,7 +87,7 @@
 
     When developing with Qt 6 for iOS, only the Xcode generator is supported.
 
-    \section1 Modifying Variable Values
+    \section1 Modifying variable values
 
     You can view and edit the actual values of the variables that
     are passed to CMake in \uicontrol {Initial Configuration} or
@@ -101,7 +106,7 @@
     While building, the button text changes to \uicontrol {Stop CMake}. Select
     the button to cancel the current build.
 
-    \section2 Adding Variables
+    \section2 Adding variables
 
     To add variables, select \uicontrol Add, and then select the type of
     the variable that you are adding: \uicontrol Boolean, \uicontrol String,
@@ -116,7 +121,7 @@
     To copy the name or value of the selected variable to the clipboard,
     select \uicontrol Copy in the context menu.
 
-    \section2 Changing Variable Values
+    \section2 Changing variable values
 
     To change the value of a variable, double-click it, or select it,
     and then select \uicontrol Edit. If the initial, current, and kit
@@ -135,12 +140,12 @@
     \uicontrol Build and select \uicontrol {Clear CMake Configuration}, which
     removes the \c CMakeCache.txt file. This enables you to do a full rebuild.
 
-    \section2 Removing Variables
+    \section2 Removing variables
 
     To remove the selected variables, select \uicontrol Unset. To undo
     the removal, select \uicontrol Set.
 
-    \section2 Viewing Advanced Variables
+    \section2 Viewing advanced variables
 
     To view all variables, select \uicontrol Advanced.
 
@@ -149,7 +154,7 @@
 
     \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
 
-    \section1 Re-configuring with Initial Variables
+    \section1 Re-configuring with initial variables
 
     To reset CMake variables to the initial ones, select
     \uicontrol {Re-configure with Initial Variables} in
@@ -162,7 +167,7 @@
     \uicontrol CMake > \uicontrol General and select
     \uicontrol {Ask before re-configuring with initial parameters}.
 
-    \section1 Viewing CMake Output
+    \section1 Viewing CMake output
 
     Output from CMake is displayed next to the \uicontrol {Build Settings},
     \uicontrol {Deploy Settings}, and \uicontrol {Run Settings} tabs in the
@@ -193,7 +198,7 @@
     \inlineimage {icons/rightsidebaricon.png} {Hide Right Sidebar}
     (\uicontrol {Hide Right Sidebar}) or \key {Alt+Shift+0}.
 
-    \section1 CLICOLOR_FORCE Environment Variable
+    \section1 CLICOLOR_FORCE environment variable
 
     \QC sets the environment variable \c CLICOLOR_FORCE to \e 1 to show
     ANSI-colored output for CMake. This might affect the process output.
@@ -203,7 +208,7 @@
 
     \image {qtcreator-build-configuration-set-clicolor-force.webp} {Build Environment with CLICOLOR_FORCE set}
 
-    \section1 Using Junction Points on Windows
+    \section1 Using junction points on Windows
 
     To overcome issues with long paths on Windows, create and use
     \l{https://learn.microsoft.com/en-us/sysinternals/downloads/junction}
@@ -223,7 +228,7 @@
     Set the \c QTC_CMAKE_JUNCTIONS_HASH_LENGTH environment variable to shorten
     the MD5 hash key length from the default length value of 32.
 
-    \section1 CMake Build Steps
+    \section1 CMake build steps
 
     \QC builds CMake projects by running \c {cmake . --build}, which then runs
     the CMake generator specified in the project configuration: \c make,
@@ -248,7 +253,7 @@
     separate installation directories on the build device for different build
     configurations.
 
-    \section1 Using Ninja as a CMake Generator
+    \section1 Using Ninja as a CMake generator
 
     To use \l {https://ninja-build.org/}{Ninja} with CMake, you must install it
     and select it as the CMake generator in the build and run kit:
@@ -275,7 +280,7 @@
     \uicontrol Build and select \uicontrol {Rebuild Project}. This cleans up the
     build directory and performs a new build.
 
-    \section1 Using CMake with Package Managers
+    \section1 Using CMake with package managers
 
     To automatically set up the \l {Conan Package Manager}{Conan} or
     \l {vcpkg Package Manager}{vcpkg} package manager for use with CMake:
@@ -290,14 +295,14 @@
             \uicontrol {Package manager auto setup}.
     \endlist
 
-    \section1 QTC_RUN Environment Variable
+    \section1 QTC_RUN environment variable
 
     \QC sets the environment variable \c QTC_RUN to \c 1 when executing
     the \c cmake process.
 
     This enables the CMake code to detect if it's being executed from \QC.
 
-    \section1 CMake Clean Steps
+    \section1 CMake clean steps
 
     When building with CMake, you can add arguments to pass to CMake and the
     generator and targets for the clean command in \uicontrol {Clean Steps}.
@@ -308,5 +313,5 @@
 
     \sa {Activate kits for a project}, {Add custom output parsers},
     {Configure projects for building}, {Configure projects for running},
-    {Build with CMake}{How To: Build with CMake}, {Open projects}, {CMake}
+    {Build with CMake}{How to: Build with CMake}, {Open projects}, {CMake}
 */

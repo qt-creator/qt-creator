@@ -64,8 +64,8 @@
 
     Connect devices to the computer to run, debug, and analyze applications
     built for them from \QC. When you install Qt for a target platform, such
-    as Android or QNX, the build and run configurations for the development
-    targets might be set up automatically in \QC.
+    as Android or QNX, the build, deploy, and run configurations for the
+    development targets might be set up automatically in \QC.
 
     \details {Reference topics}
     \annotatedlist creator-reference-devices

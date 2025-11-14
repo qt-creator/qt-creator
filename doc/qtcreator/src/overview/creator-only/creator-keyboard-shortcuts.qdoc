@@ -884,7 +884,7 @@
             \li Ctrl+Shift+B
             \li Cmd+Shift+B
         \row
-            \li Select the \l{Kits}{kit} to build and run your project with
+            \li Select the \l{Managing kits}{kit} to build and run your project with
             \li Ctrl+T
             \li Cmd+T
         \row

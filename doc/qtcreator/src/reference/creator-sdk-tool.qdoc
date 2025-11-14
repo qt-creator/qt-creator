@@ -13,7 +13,7 @@
     and kits from the command line.
 
     \l{Get and Install Qt}{\QOI} uses the SDK Tool (\c sdktool) to configure
-    CMake and set \l {Kits}{Kit}
+    CMake and set \l {Managing kits}{Kit}
     preferences, such as compilers, debuggers, devices, and Qt versions. You can
     use it from the command line to set Qt and \QC preferences automatically for
     all users of a computer, for example. For a single user, it is usually easier
@@ -522,7 +522,7 @@
             \li
     \endtable
 
-    For more information, see \l{Develop for Devices}{How To: Develop for Devices}.
+    For more information, see \l{Develop for devices}{How to: Develop for devices}.
 
     \section2 Linux Device Example
 
@@ -764,5 +764,5 @@
 
     Where \c <ID> is the ID of the item.
 
-    \sa {Manage Kits}{How To: Manage Kits}, {Installation}, {Kits}
+    \sa {Manage kits}{How to: Manage kits}, {Installation}, {Managing kits}
 */

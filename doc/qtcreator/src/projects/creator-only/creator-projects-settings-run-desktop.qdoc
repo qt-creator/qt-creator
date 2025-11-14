@@ -11,7 +11,7 @@
 
     \brief Settings for running applications on desktop device types.
 
-    To specify settings for running applications on the \l {Kits}{Run device} that
+    To specify settings for running applications on the \l {Managing kits}{Run device} that
     you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.
 
     \image {qtcreator-settings-run-desktop.webp} {Run Settings for desktop devices}

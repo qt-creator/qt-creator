@@ -103,8 +103,8 @@
         \li Select \uicontrol Yes to recompile the project.
     \endlist
 
-    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Performance Analyzer},
-    {Analyzing Code}
+    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Performance Analyzer},
+    {Analyzing code}
 */
 
 /*!
@@ -526,5 +526,5 @@
     The \l {Application Output} view shows some information even if the
     Performance Analyzer displays error messages.
 
-    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}, {Kits}
+    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code}, {Managing kits}
 */

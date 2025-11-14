@@ -50,7 +50,7 @@
     \l {Embedded Platforms}{embedded}, and \l{Mobile Platforms}{mobile device}
     platforms, such as \l Android and \l iOS. Also, you can build applications
     in web format and run them in web browsers with
-    \l{Build applications for the web}{Qt for WebAssembly}.
+    \l{Building applications for the web}{Qt for WebAssembly}.
 
     \b {HOW TO}
 
@@ -68,28 +68,27 @@
             \li \inlineimage {icons/build-32x32.png} {}
             \li \inlineimage {icons/settings-32x32.png} {}
         \row
-                \li Work with Code
+                \li Work with code
                     \list
-                        \li \l{Edit Code}
-                        \li \l{Debug}
-                        \li \l{Analyze}
-                        \li \l{Test}
+                        \li \l{Editing code}
+                        \li \l{Debugging}
+                        \li \l{Analyzing code}
+                        \li \l{Testing}
                     \endlist
-                \li Build and Run Applications
+                \li Build and run applications
                     \list
-                        \li \l{Manage Projects}
-                        \li \l{Manage Kits}
-                        \li \l{Build and Run}
-                        \li \l{Develop for Devices}
+                        \li \l{Creating projects}
+                        \li \l{Managing kits}
+                        \li \l{Building and running projects}
+                        \li \l{Developing for devices}
                     \endlist
-                \li Use Tools and Extensions
+                \li Use tools and extensions
                     \list
-                        \li \l{Use \QC}
-                        \li \l{Use the UI}
-                        \li \l{Use Git}
-                        \li \l{Design UIs}
-                        \li \l{Create Models and Diagrams}
-                        \li \l{Read Documentation}
+                        \li \l{Adapting the UI}
+                        \li \l{Configuring \QC}
+                        \li \l{Using Git}
+                        \li \l{Designing UIs}
+                        \li \l{Getting help}
                     \endlist
     \endtable
     \enddiv

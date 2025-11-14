@@ -315,7 +315,7 @@
     \l{https://gitlab.kitware.com/cmake/community/-/wikis/doc/ctest/Testing-With-CTest}
     {Testing with CTest}.
 
-    \sa {Test}{How To: Test}, {Select the build system}, {Testing},
+    \sa {Test}{How to: Test}, {Select the build system}, {Testing},
     {Test Results}
 */
 
@@ -346,7 +346,7 @@
     inside a single Qt test application, and it is better to create
     a separate test sub project for each test case.
 
-    \sa {Test}{How To: Test}, {Testing}, {Test Results}
+    \sa {Test}{How to: Test}, {Testing}, {Test Results}
 */
 
 /*!
@@ -469,19 +469,24 @@
         \li Enter \c qdt, followed by a space.
     \endlist
 
-    \sa {Test}{How To: Test}, {Select the build system}, {Testing},
+    \sa {Test}{How to: Test}, {Select the build system}, {Testing},
     {Test Results}
 */
 
 /*!
     \page creator-preferences-testing.html
     \previouspage creator-reference.html
+    \nextpage creator-vcs-git.html
 
     \ingroup creator-reference-preferences
 
     \title Testing
 
-    \brief Customize the handling of tests, test frameworks, and test tools.
+    \quotation
+    \l {Test}{How to: Test}
+    \endquotation
+
+    \summary {Customize the handling of tests, test frameworks, and test tools.}
 
     To set preferences for handling tests, go to
     \preferences > \uicontrol {Testing} > \uicontrol General.
@@ -799,7 +804,7 @@
             CPU load to pass the threshold set in \uicontrol {Threshold}.
     \endtable
 
-    \sa {Test}{How To: Test}, {Test Results}
+    \sa {Test}{How to: Test}, {Test Results}
 */
 
 /*!
@@ -921,5 +926,5 @@
 
     \endtable
 
-    \sa {Test}{How To: Test}
+    \sa {Test}{How to: Test}
 */

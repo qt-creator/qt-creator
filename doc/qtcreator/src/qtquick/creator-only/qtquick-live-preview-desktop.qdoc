@@ -13,10 +13,10 @@
 
     \list
         \li Select \inlineimage {icons/live-preview.png} {Live Preview}
-            (\uicontrol {Live Preview}) on the \l{Edit Mode}{editor} toolbar.
+            (\uicontrol {Live Preview}) on the \l{Editing code}{editor} toolbar.
             \image {qtcreator-live-preview.webp} {Application running on top of the editor view}
         \li Go to \uicontrol Build, and select \uicontrol {QML Preview}.
     \endlist
 
-    \sa {Design UIs}{How To: Design UIs}, {UI Design}
+    \sa {Design UIs}{How to: Design UIs}, {UI Design}
 */

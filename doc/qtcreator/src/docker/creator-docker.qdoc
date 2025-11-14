@@ -2,12 +2,19 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
     /*!
-    \page creator-adding-docker-devices.html
-    \previouspage creator-how-tos.html
+    \page creator-reference-docker.html
+    \previouspage creator-reference.html
 
-    \ingroup creator-how-to-docker
+    \ingroup creator-reference-devices
 
-    \title Add Docker devices
+    \title Developing for Docker
+
+    \quotation
+    \l {Docker}{How to: Develop for Docker}
+    \endquotation
+
+    \brief Create Docker devices from Docker images and use them to build, run,
+    and debug applications.
 
     Create Docker devices from \l{https://docs.docker.com/get-started/overview/}
     {Docker images} and use them to build, run, and debug applications. A Docker
@@ -19,7 +26,7 @@
 
     To build, run, and debug applications on Docker devices, install and
     configure \c docker-cli on the development host. \QC automatically detects
-    \l{kits-tab}{build and run kit} items, such \l{Add debuggers}
+    \l{Managing kits}{build and run kit} items, such as \l{Add debuggers}
     {debuggers} and \l{Add Qt versions}{Qt versions}, in the Docker container
     and creates kits for the devices.
 
@@ -31,7 +38,18 @@
     \l{https://docs.docker.com/engine/reference/commandline/pull/}{docker pull}
     command.
 
-    \section1 Add Docker images as devices
+    \sa {Enable and disable plugins}, {Docker}{How to: Develop for Docker}
+*/
+
+/*!
+    \page creator-adding-docker-devices.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-docker
+
+    \note Enable the Docker plugin to use it.
+
+    \title Add Docker devices
 
     To add a Docker image as a device:
 
@@ -66,8 +84,8 @@
     Go to \preferences > \uicontrol Kits to check
     that the automatically generated kits point to the appropriate kit items.
 
-    \sa {Enable and disable plugins}, {Docker}{How To: Develop for Docker},
-    {Manage Kits}{How To: Manage Kits}
+    \sa {Enable and disable plugins}, {Docker}{How to: Develop for Docker},
+    {Manage kits}{How to: Manage kits}
 */
 
 /*!
@@ -184,8 +202,8 @@
     \uicontrol {List Auto-Detected Kit Items}. To remove
     them, select \uicontrol {Remove Auto-Detected Kit Items}.
 
-    \sa {Enable and disable plugins}, {Docker}{How To: Develop for Docker},
-    {Manage Kits}{How To: Manage Kits}
+    \sa {Enable and disable plugins}, {Docker}{How to: Develop for Docker},
+    {Manage kits}{How to: Manage kits}
 */
 
 /*!
@@ -213,8 +231,8 @@
     Go to \uicontrol {Run Settings} to specify run settings. Usually, you can use
     the default settings.
 
-    \sa {Enable and disable plugins}, {Docker}{How To: Develop for Docker},
-    {Manage Kits}{How To: Manage Kits}
+    \sa {Enable and disable plugins}, {Docker}{How to: Develop for Docker},
+    {Manage kits}{How to: Manage kits}
 */
 
 /*!
@@ -236,5 +254,5 @@
     \include linux-mobile/creator-how-to-build-on-remote-devices.qdocinc {build on remote devices} {Docker device}
 
     \sa {Add CMake tools}, {Enable and disable plugins},
-    {Docker}{How To: Develop for Docker}, {Manage Kits}{How To: Manage Kits}
+    {Docker}{How to: Develop for Docker}, {Manage kits}{How to: Manage kits}
 */

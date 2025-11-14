@@ -82,6 +82,6 @@
     \sa {\B2Q: Documentation}, {Support Levels for Target Hardware}
 
     \if defined(qtcreator)
-    \sa {Design UIs}{How To: Design UIs}, {UI Design}
+    \sa {Design UIs}{How to: Design UIs}, {UI Design}
     \endif
 */

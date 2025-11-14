@@ -3,10 +3,14 @@
 
 /*!
     \page creator-quick-tour.html
-    \previouspage creator-overview.html
-    \nextpage creator-configuring.html
+    \previouspage creator-tutorials.html
+    \nextpage creator-analyze-mode.html
 
-    \title User interface
+    \title Adapting the UI
+
+    \quotation
+    \l {Adapt the UI}{How to: Adapt the UI}
+    \endquotation
 
     The first time you start \QC, it asks you about your level of experience as a
     developer and the platforms you develop applications for.
@@ -35,14 +39,14 @@
     \row
         \li \inlineimage {numbers/02.png} {2}
         \li Kit selector
-        \li Select the appropriate \l{Kits}{kit} for building
+        \li Select the appropriate \l{Managing kits}{kit} for building
             the project and running it on particular hardware.
         \li \l{Activate kits for a project}
     \row
         \li \inlineimage {numbers/03.png} {3}
         \li Run button
         \li Run the application on the selected target platform.
-        \li \l{Run on many platforms}
+        \li \l{Running applications}
     \row
         \li \inlineimage {numbers/04.png} {4}
         \li Debug button
@@ -81,5 +85,5 @@
     For information about new features and bug fixes in each \QC release,
     select \uicontrol Help > \uicontrol {Change Log}.
 
-    \sa {Use the UI}{How To: Use the UI}, {Reference}
+    \sa {Adapt the UI}{How to: Adapt the UI}, {Reference}
 */

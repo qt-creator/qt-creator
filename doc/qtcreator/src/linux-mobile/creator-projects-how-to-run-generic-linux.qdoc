@@ -6,6 +6,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-remote-linux
+    \ingroup creator-how-to-run
 
     \title Run on remote Linux devices
 
@@ -35,6 +36,6 @@
     it is compatible with the GDB on the host.
 
     \sa {Remote Linux}{How To: Develop for remote Linux},
-    {Remote Debugging}, {Run on many platforms}, {Compilers},
-    {Embedded Platforms}, {Kits}
+    {Debug remotely with GDB}, {Running applications}, {Compilers},
+    {Embedded Platforms}, {Managing kits}
 */

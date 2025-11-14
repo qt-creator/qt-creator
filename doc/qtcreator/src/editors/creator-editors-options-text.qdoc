@@ -15,20 +15,20 @@
     \previouspage creator-reference.html
     \endif
 
-    \ingroup creator-reference-preferences-text-editor
-    \ingroup studio-preferences-code
+    \title Configuring editors
 
-    \title Font & Colors
+    \quotation
+    \l {Configure editors}{How to: Configure editors}
+    \endquotation
 
-    \summary {Set the font preferences and apply color schemes for syntax
-    highlighting, diff editor, and code analysis results.}
+    \summary {Set editor preferences.}
 
     To set editor font and colors, select \preferences >
     \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
 
     \image {qtcreator-font-colors.png} {Font & Colors tab in Text Editor preferences}
 
-    \section1 Configuring Fonts
+    \section1 Configuring fonts
 
     You can select the font family and size. You can specify a zoom setting in
     percentage for viewing the text. You can also zoom in or out by selecting
@@ -44,7 +44,8 @@
     on the screen. Clear \uicontrol Antialias to turn off
     antialiasing.
 
-    \sa {Behavior}, {Change editor colors}
+    \sa {Configure editors}{How to: Configure editors},
+    {Text Editor}{Preferences: Text Editor}
 */
 
 /*!
@@ -112,5 +113,5 @@
     When you select \uicontrol OK, the color scheme is added to the list of
     color schemes in the \uicontrol {Font & Colors} tab.
 
-    \sa {Behavior}, {Font & Colors}
+    \sa {Configure editors}{How to: Configure editors}
 */

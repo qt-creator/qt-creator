@@ -93,7 +93,7 @@
 
     \sa {Tutorial: Use internal libraries with qmake},
     {Add subprojects to projects}, {Add libraries to CMake projects},
-    {Use project wizards}, {Creating Projects}
+    {Use project wizards}, {Creating projects}
 */
 
 /*!
@@ -193,5 +193,5 @@
 
     \sa {Add libraries to qmake projects}, {Add libraries to CMake projects},
     {Add subprojects to projects}, {Select the build system},
-    {Use project wizards}, {Creating Projects}
+    {Use project wizards}, {Creating projects}
 */

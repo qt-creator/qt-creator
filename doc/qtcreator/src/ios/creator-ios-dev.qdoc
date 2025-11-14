@@ -9,24 +9,28 @@
 
     \title Developing for iOS
 
+    \quotation
+    \l {iOS}{How to: Develop for iOS}
+    \endquotation
+
     \summary {Connect iOS devices to your local machine with a USB cable to
     run applications on them.}
 
     After you install Xcode, \QC automatically detects the toolchain and creates
-    the necessary \l{Kits}{kits} to build applications for and run them on
+    the necessary \l{Managing kits}{kits} to build applications for and run them on
     configured iOS devices.
 
     You only need Qt libraries that are built for iOS. You can install Qt for iOS
     with \l{Get and Install Qt}{\QOI}.
 
-    \section1 iOS 17 Devices
+    \section1 iOS 17 devices
 
     \QC detects iOS devices, and you can deploy and run applications on them.
 
     Only C++ debugging is supported for devices with iOS 17 and later, and it
     requires Xcode 16 or later.
 
-    \section1 Specifying Supported iOS Versions
+    \section1 Specifying supported iOS versions
 
     You can build applications for the latest iOS version and deploy them to
     previous versions. For the most part, this works automatically. However,
@@ -46,7 +50,7 @@
     actual build system code reflects the minimum iOS version that is actually
     required.
 
-    \sa {iOS}{How To: Develop for iOS}, {Expressing Supported iOS Versions}
+    \sa {iOS}{How to: Develop for iOS}, {Expressing Supported iOS Versions}
 */
 
 /*!
@@ -147,7 +151,7 @@
     If the current device state is \uicontrol Connected, (the traffic light icon is
     orange), you need to configure the device using Xcode.
 
-    \sa {Activate kits for a project}, {iOS}{How To: Develop for iOS},
+    \sa {Activate kits for a project}, {iOS}{How to: Develop for iOS},
     {Developing for iOS}
 */
 
@@ -180,5 +184,5 @@
     \l{https://developer.apple.com/documentation/xcode/running-your-app-in-simulator-or-on-a-device/#Configure-the-list-of-simulated-devices}
     {in Xcode}.
 
-    \sa {iOS}{How To: Develop for iOS}, {Developing for iOS}
+    \sa {iOS}{How to: Develop for iOS}, {Developing for iOS}
 */

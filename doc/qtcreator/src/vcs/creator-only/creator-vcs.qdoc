@@ -45,7 +45,7 @@
             \li \l{https://fossil-scm.org/index.html/doc/trunk/www/index.wiki}
             \li Enable the plugin to use it.
              \row
-            \li \l{Git}
+            \li \l{Using Git}
             \li \l{https://git-scm.com/}
             \li Git version 2.13.0, or later
 
@@ -73,7 +73,7 @@
     \endtable
 
     \sa {Create VCS repositories for new projects}, {Enable and disable plugins},
-    {Use Git}{How To: Use Git}, {Set up version control systems},
+    {Use Git}{How to: Use Git}, {Set up version control systems},
     {Use common VCS functions}
 */
 
@@ -82,8 +82,8 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-projects-create
-    \ingroup creator-how-to-projects-configure
     \ingroup creator-how-to-git
+    \ingroup creator-how-to-git-general
 
     \title Create VCS repositories for new projects
 
@@ -105,8 +105,8 @@
             to import the project.
     \endlist
 
-    \sa {Use Git}{How To: Use Git}, {Use project wizards}, {Creating Projects},
-    {Git}, {Version Control Systems}
+    \sa {Use Git}{How to: Use Git}, {Use project wizards}, {Creating projects},
+    {Using Git}, {Version Control Systems}
 */
 
 /*!
@@ -115,6 +115,7 @@
 
     \ingroup creator-how-to-use
     \ingroup creator-how-to-git
+    \ingroup creator-how-to-git-general
 
     \title Use common VCS functions
 
@@ -124,7 +125,7 @@
     functions and options available for a particular version control system
     are described in separate topics.
 
-    \sa {Bazaar and Breezy}, {ClearCase}, {CVS}, {Fossil}, {Git}, {GitLab}, {Mercurial},
+    \sa {Bazaar and Breezy}, {ClearCase}, {CVS}, {Fossil}, {Using Git}, {GitLab}, {Mercurial},
     {Perforce}, {Subversion}
 
     The \uicontrol{Version Control} view displays the commands that are
@@ -133,7 +134,7 @@
 
     \image {qtcreator-vcs-pane.webp} {Version Control view}
 
-    \section1 Add files
+    \section1 Track files
 
     When you create a new file or a new project, the wizard displays a page
     asking whether the files should be added to a version control system.
@@ -217,6 +218,6 @@
 
     You can select \uicontrol Delete to delete obsolete files from the repository.
 
-    \sa {Use Git}{How To: Use Git}, {Set up version control systems},
+    \sa {Use Git}{How to: Use Git}, {Set up version control systems},
     {Version Control Systems}
 */

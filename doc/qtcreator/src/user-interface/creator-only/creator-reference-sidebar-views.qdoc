@@ -63,12 +63,12 @@
     incoming calls.
 
     Select \inlineimage {icons/languageclient.png} {Language Client menu}
-    on the \l{Edit Mode}{editor toolbar}, and then select
+    on the \l{Editing code}{editor toolbar}, and then select
     \uicontrol {Restart} to collect call hierarchy information for the function.
 
     \image {qtcreator-call-hierarchy-view.webp} {Call Hierarchy view}
 
-    \sa {Language Servers}
+    \sa {Managing language servers}
 */
 
 /*!

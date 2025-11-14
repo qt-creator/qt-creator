@@ -11,7 +11,7 @@
     \page creator-project-generic.html
     \previouspage creator-reference.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-create
 
     \title Import an existing project
 
@@ -135,5 +135,5 @@
     \uicontrol Add > \uicontrol {Custom Executable}.
 
     \sa {Specify a custom executable to run},  {Use project wizards},
-    {Configuring Projects}
+    {Building and running projects}
 */

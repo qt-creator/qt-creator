@@ -9,6 +9,10 @@
 
     \title Developing for MCUs
 
+    \quotation
+    \l {MCUs}{How to: Develop for MCUs}
+    \endquotation
+
     \brief Connect MCU devices to the computer to run and debug applications on
     them.
 
@@ -116,7 +120,7 @@
         \li 1.0
     \endtable
 
-    \sa {Enable and disable plugins}, {MCUs}{How To: Develop for MCUs}, {\QMCU}
+    \sa {Enable and disable plugins}, {MCUs}{How to: Develop for MCUs}, {\QMCU}
 */
 
 /*!
@@ -183,7 +187,7 @@
         \li Select \uicontrol Apply to save the preferences.
     \endlist
 
-    \sa {Enable and disable plugins}, {MCUs}{How To: Develop for MCUs},
+    \sa {Enable and disable plugins}, {MCUs}{How to: Develop for MCUs},
     {Developing for MCUs}
 */
 
@@ -214,7 +218,7 @@
            \li Select \uicontrol Apply to add the device.
        \endlist
 
-    \sa {Enable and disable plugins}, {MCUs}{How To: Develop for MCUs},
+    \sa {Enable and disable plugins}, {MCUs}{How to: Develop for MCUs},
     {Developing for MCUs}
 */
 
@@ -256,8 +260,8 @@
     \uicontrol {MCU Dependencies} filter can be used to display paths to 3rd
     party software needed for MCU development with the selected kit.
 
-    \sa {Enable and disable plugins}, {MCUs}{How To: Develop for MCUs},
-    {Manage Kits}{How To: Manage Kits}, {Developing for MCUs}
+    \sa {Enable and disable plugins}, {MCUs}{How to: Develop for MCUs},
+    {Manage kits}{How to: Manage kits}, {Developing for MCUs}
 */
 
 /*!
@@ -294,6 +298,6 @@
     \endlist
 
     \sa {Configure projects for running}, {Enable and disable plugins},
-    {MCUs}{How To: Develop for MCUs}, {Use project wizards},
+    {MCUs}{How to: Develop for MCUs}, {Use project wizards},
     {Developing for MCUs}
 */

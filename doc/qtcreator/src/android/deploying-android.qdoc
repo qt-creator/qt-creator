@@ -491,7 +491,7 @@
 
     To add a permission, select it from the list, and then select \uicontrol Add.
 
-    \sa {Build and Run}{How To: Build and Run},
-    {Android}{How To: Develop for Android}, {Android Run Settings}, {Kits}
+    \sa {Build and Run}{How to: Build and Run},
+    {Android}{How to: Develop for Android}, {Android Run Settings}, {Managing kits}
 */
 

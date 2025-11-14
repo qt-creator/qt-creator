@@ -20,7 +20,7 @@
     debugger of the low level virtual machine (LLVM) project, LLDB.
 
     \QC automatically selects a suitable debugger for
-    each \l{Kits}{kit} from the ones found on your system.
+    each \l{Managing kits}{kit} from the ones found on your system.
     To override this choice, select \preferences > \uicontrol Kits.
 
     To add debuggers:

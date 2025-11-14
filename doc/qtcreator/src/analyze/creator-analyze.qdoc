@@ -8,11 +8,20 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-troubleshooting-debugging.html
     \page creator-analyze-mode.html
-    \nextpage creator-qml-performance-monitor.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-configuring-projects.html
 
-    \title Analyzing Code
+    \title Analyzing code
+
+    \quotation
+    \l {Analyze}{How to: Analyze}
+    \endquotation
+
+    Use integrated code analysis tools to detect memory leaks, profile
+    function execution, analyze CPU use, and eliminate unnecessary
+    complexity of code. Other integrated tools provide code coverage and
+    visualize trace events.
 
     To use a code analysis tool, select it in the \uicontrol Analyze menu or
     in the pull-down menu of the
@@ -29,20 +38,20 @@
     \uicontrol {Reset to Default Layout} to reset the views to their original
     sizes and positions.
 
-    \section1 Improving QML Performance
+    \section1 Improving QML performance
 
     \QC comes with the \l{Profiling QML applications}{QML Profiler} for
     inspecting binding evaluations and signal handling when running QML code.
     This is useful for identifying potential bottlenecks, especially in the
     evaluation of bindings.
 
-    \section1 Finding Issues in QML Code
+    \section1 Finding issues in QML code
 
     Run \l{JavaScript and QML Checks}{static checks} on the QML and JavaScript
     code in your project to find common problems, similarly to using
     \l{http://www.jslint.com}{JSLint}.
 
-    \section1 Finding Issues in C++ Code with Clang Tools
+    \section1 Finding issues in C++ code with Clang tools
 
     \QC comes with the following Clang tools for finding problems in C, C++, and
     Objective-C source code by using static analysis:
@@ -57,14 +66,14 @@
             API and has refactoring actions for fixing some of the issues.
     \endlist
 
-    \section1 Finding Issues in C++ Code with Cppcheck
+    \section1 Finding issues in C++ code with Cppcheck
 
     Install the \l{http://cppcheck.sourceforge.net/}{Cppcheck} static analysis
     tool to detect undefined behavior and dangerous coding constructs in
     C++ code. Cppcheck analyzes the source code without actually running the
     application.
 
-    \section1 Checking Code Coverage
+    \section1 Checking code coverage
 
     Install the \l{https://doc.qt.io/coco/}{Coco} code coverage toolchain for
     Tcl, QML, C# and C/C++ programs on \macOS, Linux, or Windows to analyze the
@@ -90,7 +99,7 @@
         \li Measure the execution time of applications and tests.
     \endlist
 
-    \section1 Preventing Code Erosion
+    \section1 Preventing code erosion
 
     Install \l{https://www.axivion.com/en/products/axivion-suite/}{Axivion Suite}
     to protect software from erosion. With static code analysis,
@@ -106,7 +115,7 @@
         \li Detect unreachable code.
     \endlist
 
-    \section1 Profiling with Valgrind Tools
+    \section1 Profiling with Valgrind tools
 
     Install Memcheck and Callgrind from \l{Valgrind's Tool Suite} to detect
     memory leaks and profile function execution.
@@ -132,12 +141,12 @@
     \uicontrol Analyzer > \uicontrol Valgrind. You can override the general
     settings for each project in the \uicontrol {Run Settings} for the project.
 
-    \section1 Detecting Memory Leaks with Heob
+    \section1 Detecting memory leaks with Heob
 
     On Windows, install the \l{https://github.com/ssbssa/heob}{Heob}
     heap observer to detect buffer overruns and memory leaks.
 
-    \section1 Analyzing CPU Usage
+    \section1 Analyzing CPU usage
 
     On Linux, use Perf to analyze the CPU and memory usage of an application
     on Linux desktop and embedded devices.
@@ -146,11 +155,11 @@
     take periodic snapshots of the call chain of an application and visualizes
     them in a timeline view or as a flame graph.
 
-    \section1 Visualizing Chrome Trace Events
+    \section1 Visualizing Chrome trace events
 
     Use the \l{Chrome Trace Format Visualizer} to view Chrome trace events. This
     is especially useful when viewing large trace files that are difficult to
     visualize using the built-in trace-viewer (\c{chrome://tracing}).
 
-    \sa {Activate kits for a project}, {Analyze}{How To: Analyze}, {Analyzers}
+    \sa {Activate kits for a project}, {Analyze}{How to: Analyze}, {Analyzers}
 */

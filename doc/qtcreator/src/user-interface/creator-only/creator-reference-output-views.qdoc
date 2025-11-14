@@ -199,7 +199,7 @@
             \uicontrol History.
     \endlist
 
-    \sa {View output}, {Search}{How To: Search}
+    \sa {View output}, {Search}{How to: Search}
 */
 
 /*!
@@ -289,5 +289,5 @@
             maximum amount of build output lines to display.
     \endlist
 
-    \sa {View output}, {Add custom output parsers}, {Parse build output}, {Kits}
+    \sa {View output}, {Add custom output parsers}, {Parse build output}, {Managing kits}
 */

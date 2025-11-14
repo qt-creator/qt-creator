@@ -1,21 +1,27 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
-    /*!
-    \page creator-setup-webassembly.html
+/*!
+    \page creator-webassembly.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-webassembly
+    \ingroup creator-reference-devices
 
-    \title Build applications for the Web
+    \title Building applications for the web
+
+    \quotation
+    \l {WebAssembly}{How to: Develop for WebAssembly}
+    \endquotation
+
+    \summary {Use Qt for WebAssembly to build your applications in WebAssembly
+    format and deploy and run them on the local web browser.}
+
+    Change the web browser in the project's \l{Run applications in a web browser}
+    {run settings}.
 
     WebAssembly is a binary format that allows sand-boxed executable code in
     web pages. This format is nearly as fast as native machine code. It is
     supported by all major web browsers.
-
-    Use \l {Qt for WebAssembly} to build your applications in WebAssembly format
-    and deploy and run them on the local web browser. Change the web browser in
-    the project's \l{Run applications in a web browser}{run settings}.
 
     \note Enable the WebAssembly plugin to use it.
 
@@ -23,7 +29,17 @@
     Qt for WebAssembly with \l{Get and Install Qt}{\QOI}. It automatically adds
     a build and run kit to \QC.
 
-    \section1 Set up WebAssembly development environment
+    \sa {WebAssembly}{How to: Develop for WebAssembly},
+    {Enable and disable plugins}, {Qt for WebAssembly}
+*/
+
+/*!
+    \page creator-setup-webassembly.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-webassembly
+
+    \title Set up WebAssembly development environment
 
     To set up the development environment for WebAssembly:
 
@@ -40,7 +56,8 @@
             \image {qtcreator-kit-webassembly.webp} {WebAssembly kit in the Kits tab in Kits preferences}
     \endlist
 
-    \sa {Run applications in a web browser}
+    \sa {Building applications for the Web},
+    {WebAssembly}{How to: Develop for WebAssembly}, {Enable and disable plugins}
 */
 
 /*!
@@ -65,7 +82,8 @@
 
     Build Qt applications in WebAssembly format and run them in
     a web browser as described in \l {Build for many platforms} and
-    \l{Run on many platforms}.
+    \l{Running applications}.
 
-    \sa {Build applications for the Web}, {Enable and disable plugins}
+    \sa {Building applications for the Web},
+    {WebAssembly}{How to: Develop for WebAssembly}, {Enable and disable plugins}
 */

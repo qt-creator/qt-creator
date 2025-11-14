@@ -60,6 +60,6 @@
     go to \preferences > \uicontrol Analyzer
     > \uicontrol Cppcheck.
 
-    \sa {Enable and disable plugins}, {Analyze}{How To: Analyze},
-    {Analyzing Code}, {Analyzers}
+    \sa {Enable and disable plugins}, {Analyze}{How to: Analyze},
+    {Analyzing code}, {Analyzers}
 */

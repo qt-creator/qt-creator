@@ -12,7 +12,7 @@
     \brief Additional GitLab functions.
 
     GitLab is a DevOps tool developed by GitLab. You can clone projects from
-    GitLab servers and use \l{Git} to manage your local and remote
+    GitLab servers and use \l{Using Git} to manage your local and remote
     repositories.
 
     To use GitLab, create a connection to the GitLab server and clone the
@@ -95,7 +95,7 @@
 
     \sa {Enable and disable plugins}, {Link projects with GitLab},
     {Set up version control systems}, {Use common VCS functions},
-    {Use project wizards}, {Version Control Systems}, {Git}
+    {Use project wizards}, {Version Control Systems}, {Using Git}
 */
 
 /*!
@@ -134,6 +134,6 @@
     \uicontrol {Unlink from GitLab}.
 
     \sa {Enable and disable plugins}, {Set up version control systems},
-    {Use common VCS functions}, {Configuring Projects}, {Version Control Systems},
-    {Git}, {GitLab}
+    {Use common VCS functions}, {Building and running projects}, {Version Control Systems},
+    {Using Git}, {GitLab}
 */

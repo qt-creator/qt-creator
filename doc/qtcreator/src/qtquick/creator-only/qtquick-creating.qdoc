@@ -65,12 +65,12 @@
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection}
             dialog.
 
-        \li Select \l{Kits}{kits} for the platforms that
+        \li Select \l{Managing kits}{kits} for the platforms that
             you want to build the application for.
 
             \note Kits are listed if they have been specified in \preferences >
             \uicontrol Kits.
-            For more information, see \l {Add kits} and \l {Kits}.
+            For more information, see \l {Add kits} and \l {Managing kits}.
 
         \li Select \uicontrol Next to open the \uicontrol {Project Management}
             dialog.
@@ -86,7 +86,7 @@
 
     \sa {Create Qt Quick UI Prototypes}, {Tutorial: Mobile application},
     {Tutorial: Qt Quick and Python},
-    {Tutorial: Qt Quick application}, {Creating Projects},
+    {Tutorial: Qt Quick application}, {Creating projects},
     {Developing Qt Quick Applications}
 */
 
@@ -146,7 +146,7 @@
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection}
             dialog.
 
-        \li Select \l{Kits}{kits} for the platforms that
+        \li Select \l{Managing kits}{kits} for the platforms that
             you want to build the application for.
 
             \note Kits are listed if they have been specified in \preferences >
@@ -182,6 +182,6 @@
     To use JavaScript and image files in the application, copy them to the
     project folder.
 
-    \sa {Create Qt Quick Applications}, {Manage Kits}{How To: Manage Kits},
-    {Creating Projects}
+    \sa {Create Qt Quick Applications}, {Manage kits}{How to: Manage kits},
+    {Creating projects}
 */

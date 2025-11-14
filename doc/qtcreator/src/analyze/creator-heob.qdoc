@@ -48,7 +48,7 @@
 
     \image {qtcreator-heob-output.png} {Results from Heob in the Memcheck view}
 
-    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Heob}, {Analyzing Code}
+    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Heob}, {Analyzing code}
 */
 
 /*!
@@ -189,6 +189,6 @@
     To start leak recording when Heob starts and still have the option to
     control the recording, select \uicontrol {On (Start Enabled)}.
 
-    \sa {Detect memory leaks with Heob}, {Analyze}{How To: Analyze}, {Analyzers},
-     {Analyzing Code}
+    \sa {Detect memory leaks with Heob}, {Analyze}{How to: Analyze}, {Analyzers},
+     {Analyzing code}
 */

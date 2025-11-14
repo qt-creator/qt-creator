@@ -222,5 +222,5 @@
     ctf2ctf -o trace.json path/to/lttng trace/
     \endcode
 
-    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}
+    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code}
 */

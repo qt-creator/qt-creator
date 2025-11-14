@@ -7,7 +7,11 @@
 
     \ingroup creator-reference-devices
 
-    \title Developing for \B2Q Devices
+    \title Developing for \B2Q devices
+
+    \quotation
+    \l {\B2Q}{How to: Develop for \B2Q}
+    \endquotation
 
     \summary {Connect \B2Q devices to the computer to run,
     debug, and analyze applications built for them from \QC.}
@@ -19,7 +23,7 @@
     \note Enable the \B2Q plugin to use it.
 
     If you have a toolchain for building applications for \B2Q devices
-    installed on the computer, add it to a \l{Kits}{kit} with the
+    installed on the computer, add it to a \l{Managing kits}{kit} with the
     \uicontrol \B2Q device type to build applications for and run them on
     the devices.
 
@@ -27,8 +31,8 @@
 
     \include linuxdev.qdoc openssh
 
-    \sa {\B2Q}{How To: Develop for \B2Q},
-    {Manage Kits}{How To: Manage Kits}, {Run in Qt Application Manager},
+    \sa {\B2Q}{How to: Develop for \B2Q},
+    {Manage kits}{How to: Manage kits}, {Run in Qt Application Manager},
     {\B2Q Deploy Configuration}, {\B2Q Run Settings},
     {\B2Q: Documentation}
 */
@@ -87,8 +91,8 @@
     \endlist
 
     \sa {Configure SSH connections}, {Generate SSH keys},
-    {Enable and disable plugins}, {\B2Q}{How To: Develop for \B2Q},
-    {Manage Kits}{How To: Manage Kits}, {\B2Q Deploy Configuration},
+    {Enable and disable plugins}, {\B2Q}{How to: Develop for \B2Q},
+    {Manage kits}{How to: Manage kits}, {\B2Q Deploy Configuration},
     {\B2Q Run Settings}, {Developing for \B2Q Devices}
 */
 

@@ -150,7 +150,7 @@
     Translation files contain all the user-visible text and keyboard shortcuts
     in an application and translations of that text.
 
-    When you \l{Creating Projects}{create a new project}, you can automatically
+    When you \l{Creating projects}{create a new project}, you can automatically
     generate a translation source file (TS) for one language. To add other
     languages, edit the project file or go to \uicontrol File >
     \uicontrol {New File}.
@@ -186,7 +186,7 @@
     \sa {Use external tools}
 
     \if defined(qtcreator)
-    \sa {Design UIs}{How To: Design UIs}, {UI Design}
+    \sa {Design UIs}{How to: Design UIs}, {UI Design}
     \endif
 */
 
@@ -209,7 +209,7 @@
             menu:
             \list
                 \if defined(qtcreator)
-                \li \l {Edit mode}
+                \li \l {Editing code}
                 \endif
                 \li \l {File System}
                 \li \l {Open Documents}

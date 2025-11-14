@@ -47,7 +47,8 @@
     file in the editor.
 
     \if defined(qtcreator)
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    {Setting breakpoints}
     \endif
 */
 
@@ -146,7 +147,7 @@
 
     \generatelist studio-how-to-debug
     \else
-    \sa {Add breakpoints}, {Debug}{How To: Debug}, {Debugging}, {Debuggers},
+    \sa {Add breakpoints}, {Debug}{How to: Debug}, {Debugging}, {Debuggers},
     {Debugger}
     \endif
 */
@@ -256,7 +257,8 @@
     \endtable
 
     \if defined(qtcreator)
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Setting breakpoints}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    {Setting breakpoints}
     \endif
 */
 
@@ -336,7 +338,8 @@
     debugged application is restarted.
 
     \if defined(qtcreator)
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Setting breakpoints}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    {Setting breakpoints}
     \endif
 */
 
@@ -384,7 +387,8 @@
     it manually.
 
     \if defined(qtcreator)
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Setting breakpoints}
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    {Setting breakpoints}
     \endif
 */
 
@@ -451,7 +455,7 @@
     might be slower.
 
     \if defined(qtcreator)
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
     \endif
 */
 
@@ -583,6 +587,6 @@
 
     \include creator-debug-views.qdoc 0
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
     \endif
 */

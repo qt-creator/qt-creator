@@ -145,7 +145,7 @@
 
     \sa {Axivion}{Axivion Preferences}, {Local analysis with Axivion}{Local Analysis},
     {Enable and disable plugins},{Analyze}{How To: Analyze}, {Analyzers},
-    {Analyzing Code}
+    {Analyzing code}
 */
 
 /*!
@@ -211,7 +211,7 @@
 
     \sa {Axivion}{Axivion Preferences}, {View Axivion static code analysis results},
     {Enable and disable plugins}, {Analyze}{How To: Analyze}, {Analyzers},
-    {Analyzing Code}
+    {Analyzing code}
 */
 
 /*!
@@ -288,5 +288,5 @@
     automatically save files opened inside the editor before starting an analysis.
 
     \sa {Enable and disable plugins}, {View Axivion static code analysis results},
-    {Local analysis with Axivion}{Local Analysis}
+    {Local analysis with Axivion}{Local Analysis}, {Analyzing code}
 */

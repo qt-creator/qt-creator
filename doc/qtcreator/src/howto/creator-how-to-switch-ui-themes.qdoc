@@ -25,4 +25,6 @@
             \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}
         \li In \uicontrol Theme, select a theme.
     \endlist
+
+    \sa {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}
 */

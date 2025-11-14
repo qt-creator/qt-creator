@@ -41,4 +41,6 @@
                 DPI up or down.
             \li Restart \QC to have the change take effect.
     \endlist
+
+    \sa {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}
 */

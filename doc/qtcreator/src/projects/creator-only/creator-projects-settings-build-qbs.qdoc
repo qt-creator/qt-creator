@@ -11,7 +11,7 @@
 
     \brief Settings for building applications with Qbs.
 
-    To specify build settings for the selected \l{Kits}{kit}, go to
+    To specify build settings for the selected \l{Managing kits}{kit}, go to
     \uicontrol Projects > \uicontrol {Build Settings}.
 
     \image {qtcreator-build-settings-qbs.webp} {Qbs build settings}

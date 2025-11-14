@@ -53,5 +53,5 @@
 
     \sa {QNX Neutrino}{How to: Develop for QNX},
     {Developing for QNX Neutrino devices}, {Running applications},
-    {Compilers}, {kit-preferences}{Kits}
+    {Compilers}, {Managing kits}
 */

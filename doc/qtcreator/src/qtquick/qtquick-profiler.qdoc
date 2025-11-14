@@ -37,7 +37,7 @@
         \li Set up QML debugging for the project. For more information, see
             \l{Setting Up QML Debugging}.
         \if defined(qtcreator)
-        \li In the \uicontrol Projects mode, select a \l{Kits}
+        \li In the \uicontrol Projects mode, select a \l{Managing kits}
             {kit} with Qt version 4.7.4 or later.
        \endif
             \note To profile applications on \l{glossary-device}{devices}, you
@@ -148,7 +148,7 @@
     \sa {Profiling QML applications}
 
     \if defined(qtcreator)
-    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}
+    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code}
     \endif
 */
 
@@ -649,6 +649,6 @@
     \sa {Profile QML applications}
 
     \if defined(qtcreator)
-    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}
+    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code}
     \endif
 */

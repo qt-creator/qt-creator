@@ -4,19 +4,24 @@
 /*!
     \page creator-build-settings-qmake.html
     \previouspage creator-reference.html
+    \nextpage creator-running-targets.html
 
     \ingroup creator-reference-build-configurations
 
-    \title qmake Build Configuration
+    \title Building projects with qmake
+
+    \quotation
+    \l {Build with qmake}{How to: Build with qmake}
+    \endquotation
 
     \brief Settings for building applications with qmake.
 
-    To specify build settings for the selected \l{Kits}{kit}, go to
+    To specify build settings for the selected \l{Managing kits}{kit}, go to
     \uicontrol Projects > \uicontrol {Build Settings}.
 
     \image {qtcreator-projectpane.webp} {qmake build settings}
 
-    \section1 Build Directory
+    \section1 Build directory
 
     By default, \QC builds qmake projects (that have \c .pro files) in a separate
     directory from the source directory, as \l{glossary-shadow-build}
@@ -36,7 +41,7 @@
         \li In \uicontrol {Default build directory}, enter a period (.)
     \endlist
 
-    \section1 Tooltips in Kit Selector
+    \section1 Tooltips in kit selector
 
     In \uicontrol {Tooltip in target selector}, enter text
     to show as a tooltip when you hover over the build
@@ -48,6 +53,7 @@
     run on.
 
 //! [qmake-qbs-common-settings]
+
     \section1 Separating Debug Info
 
     If debug info is being generated, you can have it placed into separate
@@ -69,7 +75,7 @@
     use default settings, select \uicontrol {Default}.
 //! [qmake-qbs-common-settings]
 
-    \section1 Parsing Project Contents
+    \section1 Parsing project contents
 
     In \uicontrol {qmake system() behavior when parsing},
     select whether processes are run via qmake's \c system() function or
@@ -77,7 +83,7 @@
     or closing projects takes too long, but it might produce inexact parsing
     results.
 
-    \section1 Global qmake Settings
+    \section1 Global qmake settings
 
     To specify settings for all qmake builds, go to \preferences >
     \uicontrol {Build & Run} > \uicontrol Qmake.
@@ -89,7 +95,7 @@
 
     \image {qtcreator-build-settings-default.webp} {Default Build Properties tab in Build & Run preferences}
 
-    \section1 qmake Build Steps
+    \section1 qmake build steps
 
     \QC builds qmake projects by running the \c make or \c nmake command from
     the Qt version defined for the current build configuration.
@@ -116,7 +122,8 @@
     Select \uicontrol {Add Build Step} > \uicontrol {Run Conan Install} to use
     the \l{Conan Build Configuration}{Conan} package manager with qmake
 
-    \sa {Activate kits for a project}, {Configure projects for building},
+    \sa {Build with qmake}{How to: Build with qmake},
+    {Activate kits for a project}, {Configure projects for building},
     {Configure projects for running}, {Open projects},
     {Set the default build and run directories}, {Setting Up QML Debugging}
 */

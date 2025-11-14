@@ -58,7 +58,7 @@
     \endtable
 
     \QC automatically selects a suitable debugger for
-    each \l{Kits}{kit} from the ones found on the computer. The automatic
+    each \l{Managing kits}{kit} from the ones found on the computer. The automatic
     setup fails if the debugger is not installed on the computer or
     if \QC does not support the installed version.
 
@@ -145,5 +145,5 @@
 
     For more information, see \l {Set up PySide6}.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Kits}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Managing kits}
 */

@@ -61,7 +61,7 @@
 
     \section1 Receive suggestions
 
-    When you write code in the \l {Edit Mode}{Edit} mode and
+    When you write code in the \l {Editing code}{Edit} mode and
     \uicontrol {Auto request} is enabled, Copilot automatically makes
     suggestions when you type.
 
@@ -107,5 +107,5 @@
         \li Select or clear \uicontrol {Enable Copilot}.
     \endlist
 
-    \sa {Enable and disable plugins}, {Edit Mode}
+    \sa {Enable and disable plugins}, {Editing code}
 */

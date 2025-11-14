@@ -10,7 +10,7 @@
 
     \brief Build and clean steps for Incredibuild.
 
-    To specify build settings for the selected \l{Kits}{kit}, go to
+    To specify build settings for the selected \l{Managing kits}{kit}, go to
     \uicontrol Projects > \uicontrol {Build Settings}.
 
     You can specify build steps and clean steps for IncrediBuild.
@@ -155,5 +155,5 @@
 
     \sa {Activate kits for a project}, {Add clean steps},
     {Configure projects for building}, {Configure projects for running},
-    {Open projects}, {Configuring projects}, {IncrediBuild}
+    {Open projects}, {Building and running projects}, {IncrediBuild}
 */

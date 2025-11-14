@@ -80,7 +80,7 @@
             of the source tree on the local machine.
     \endlist
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -209,7 +209,7 @@
         \li Keeps debugging all children after a fork.
     \endtable
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -283,7 +283,7 @@
             in \l Issues.
     \endtable
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
 
 /*!
@@ -318,5 +318,5 @@
     directly from version control or the web, enter the following string in
     \uicontrol {Source Paths}: \c srv*.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */

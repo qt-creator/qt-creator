@@ -87,7 +87,7 @@
     \sa {JavaScript and QML Checks}
 
     \if defined(qtcreator)
-    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}
+    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code}
     \endif
 */
 
@@ -779,7 +779,7 @@
     \sa {Check code syntax}, {Using QML modules with plugins}
 
     \if defined(qtcreator)
-    \sa {Analyzing Code}
+    \sa {Analyzing code}
     \endif
 */
 

@@ -52,7 +52,7 @@
             (4) to list examples that you can run on \B2Q devices.
 
         \li In \uicontrol {Configure Project}, select
-            \l{Kits}{kits} for building the example for the
+            \l{Managing kits}{kits} for building the example for the
             target platforms.
 
             \image {qtcreator-configure-project.webp} {Configure Project view}
@@ -86,7 +86,7 @@
 
     \endlist
 
-    \sa {Manage Kits}{How To: Manage Kits}, {Open projects},
+    \sa {Manage kits}{How to: Manage kits}, {Open projects},
     {Developing for Android}, {Developing for iOS},
     {Compile Output}, {\B2Q: Documentation}, {\QDS documentation}
 */

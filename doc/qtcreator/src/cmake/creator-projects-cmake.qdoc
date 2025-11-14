@@ -48,7 +48,7 @@
     \endlist
 
     \sa {Configure projects for building}, {Configure projects for running},
-    {Build with CMake}{How To: Build with CMake}, {CMake Build Configuration},
+    {Build with CMake}{How to: Build with CMake}, {Building projects with CMake},
     {Debug CMake project files}, {Remote Linux Deploy Configuration}, {Open projects},
     {Use compilation databases}
 */
@@ -99,7 +99,7 @@
     box. The change takes effect after you go to \uicontrol Build and select
     \uicontrol {Run CMake}.
 
-    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Open projects},
+    \sa {Build with CMake}{How to: Build with CMake}, {CMake}, {Open projects},
     {File System}, {Projects}
 */
 
@@ -128,8 +128,8 @@
     select \inlineimage {icons/online.png} {Open Online Documentation}
     (\uicontrol {Open Online Documentation}).
 
-    \sa {Build with CMake}{How To: Build with CMake},
-    {Read Documentation}{How To: Read Documentation}, {CMake}
+    \sa {Build with CMake}{How to: Build with CMake},
+    {Read documentation}{How to: Read documentation}, {CMake}
 */
 
 /*!
@@ -143,7 +143,7 @@
 
     \QC automatically detects the CMake executable that you specify in the
     \c PATH. You can add paths to other CMake executables and use them in
-    different build and run \l{Kits}{kits}.
+    different build and run \l{Managing kits}{kits}.
 
     To see the CMake installations that \QC automatically detects:
 
@@ -195,8 +195,8 @@
     \image {qtcreator-preferences-kits.webp} {Kits preferences}
 
     \sa {Build applications on remote Linux devices}, {Build on Docker devices},
-    {Build with CMake}{How To: Build with CMake},
-    {Manage Kits}{How To: Manage Kits}, {CMake}, {Kits}
+    {Build with CMake}{How to: Build with CMake},
+    {Manage kits}{How to: Manage kits}, {CMake}, {Managing kits}
 */
 
 /*!
@@ -286,7 +286,7 @@
     Select \key Tab or \key Enter to accept the selected suggestion and complete
     the code.
 
-    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
+    \sa {Build with CMake}{How to: Build with CMake}, {CMake}, {Completion},
     {Snippets}
 */
 
@@ -324,7 +324,7 @@
             current project.
     \endlist
 
-    \sa {Build with CMake}{How To: Build with CMake}, {Edit MIME types}, {CMake}
+    \sa {Build with CMake}{How to: Build with CMake}, {Edit MIME types}, {CMake}
 */
 
 /*!
@@ -335,7 +335,7 @@
 
     \title Manage files in CMake projects
 
-    When you \l{Create files}{add new or existing files} to
+    When you \l{Adding files}{add new or existing files} to
     a project, \QC automatically adds them to the \l {qt_add_executable},
     \l{CMake: add_executable command}{add_executable}, or \l {qt_add_library}
     function in the \c CMakeLists.txt file.
@@ -350,7 +350,7 @@
     When you rename or remove files in the \l {Projects} or \l {File System}
     view, \QC renames them in the \c CMakeLists.txt file or removes them from it.
 
-    \sa {Create files}, {Build with CMake}{How To: Build with CMake}, {CMake},
+    \sa {Adding files}, {Build with CMake}{How to: Build with CMake}, {CMake},
     {File System}, {Projects}
 */
 
@@ -358,7 +358,6 @@
     \page creator-how-to-add-external-libraries-to-cmake-projects.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
     \ingroup creator-how-to-build-with-cmake
 
     \title Add libraries to CMake projects
@@ -412,6 +411,6 @@
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
     \endcode
 
-    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
+    \sa {Build with CMake}{How to: Build with CMake}, {CMake}, {Completion},
     {Snippets}
 */

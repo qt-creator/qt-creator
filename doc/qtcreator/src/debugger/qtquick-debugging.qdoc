@@ -83,7 +83,7 @@
 
         \li To debug applications on \l{glossary-device}{devices}, check that
             Qt libraries are installed on the device and
-            \l{Run on many platforms}{select the corresponding kit for the device}
+            \l{Running applications}{select the corresponding kit for the device}
             before you start debugging.
 
     \endlist
@@ -107,8 +107,8 @@
 
     \uicontrol {Use Project Default} makes the values depend on the type of
     build configuration: \uicontrol Debug, \uicontrol Profile, or
-    \uicontrol Release. When you use \l {CMake Build Configuration}{CMake} or
-    \l {qmake Build Configuration}{qmake} as a build system, debug and profile
+    \uicontrol Release. When you use \l {Building projects with CMake}{CMake} or
+    \l {Building projects with qmake}{qmake} as a build system, debug and profile
     build configurations have QML debugging enabled. However, release build
     configurations do not include QML debugging because the debugging feature
     makes applications vulnerable.
@@ -281,6 +281,6 @@
     updated in the running application, but not in the source code.
 
     \if defined(qtcreator)
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Kits}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Managing kits}
     \endif
 */
