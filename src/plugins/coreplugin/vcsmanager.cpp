@@ -25,6 +25,7 @@
 #include <QMap>
 #include <QMessageBox>
 #include <QString>
+#include <QTimer>
 
 #include <optional>
 
@@ -44,6 +45,12 @@ const char TEST_PREFIX[] = "/8E3A9BA0-0B97-40DF-AEC1-2BDF9FC9EDBE/";
 class VcsManagerPrivate
 {
 public:
+    VcsManagerPrivate()
+    {
+        m_repoChangedTimer.setInterval(1000);
+        m_repoChangedTimer.setSingleShot(true);
+    }
+
     class VcsInfo {
     public:
         IVersionControl *versionControl = nullptr;
@@ -95,6 +102,8 @@ public:
 
     FilePaths m_cachedAdditionalToolsPaths;
     bool m_cachedAdditionalToolsPathsDirty = true;
+    QSet<FilePath> m_repoChangedSet;
+    QTimer m_repoChangedTimer;
 };
 
 static VcsManagerPrivate *d = nullptr;
@@ -105,6 +114,8 @@ VcsManager::VcsManager(QObject *parent) :
 {
     m_instance = this;
     d = new VcsManagerPrivate;
+    connect(&d->m_repoChangedTimer, &QTimer::timeout,
+            this, &VcsManager::delayedEmitRepositoryChanged);
 }
 
 // ---- VCSManager:
@@ -136,7 +147,7 @@ void VcsManager::extensionsInitialized()
             DocumentManager::notifyFilesChangedInternally(filePaths);
         });
         connect(vc, &IVersionControl::repositoryChanged,
-                m_instance, &VcsManager::repositoryChanged);
+                m_instance, &VcsManager::emitRepositoryChanged);
         connect(vc, &IVersionControl::configurationChanged, m_instance, [vc] {
             m_instance->handleConfigurationChanges(vc);
         });
@@ -160,7 +171,7 @@ void VcsManager::resetVersionControlForDirectory(const FilePath &inputDirectory)
 
     const FilePath directory = inputDirectory.absolutePath();
     d->resetCache(directory);
-    emit m_instance->repositoryChanged(directory);
+    emitRepositoryChanged(directory);
 }
 
 static FilePath fixedDir(const FilePath &directory)
@@ -499,7 +510,16 @@ void VcsManager::promptToAdd(const FilePath &directory, const FilePaths &filePat
 
 void VcsManager::emitRepositoryChanged(const FilePath &repository)
 {
-    emit m_instance->repositoryChanged(repository);
+    d->m_repoChangedSet.insert(repository);
+    d->m_repoChangedTimer.start();
+}
+
+void VcsManager::delayedEmitRepositoryChanged()
+{
+    for (const Utils::FilePath &repository : std::as_const(d->m_repoChangedSet))
+        emit m_instance->repositoryChanged(repository);
+
+    d->m_repoChangedSet.clear();
 }
 
 void VcsManager::clearVersionControlCache()
@@ -507,7 +527,7 @@ void VcsManager::clearVersionControlCache()
     const FilePaths repoList = d->m_cachedMatches.keys();
     d->clearCache();
     for (const FilePath &repo : repoList)
-        emit m_instance->repositoryChanged(repo);
+        emitRepositoryChanged(repo);
 }
 
 // Find top level for version controls like git/Mercurial that have

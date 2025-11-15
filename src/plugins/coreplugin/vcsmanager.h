@@ -61,6 +61,7 @@ public:
     static void promptToAdd(const Utils::FilePath &directory, const Utils::FilePaths &filePaths);
 
     static void emitRepositoryChanged(const Utils::FilePath &repository);
+    static void delayedEmitRepositoryChanged();
 
     // Utility messages for adding files
     static QString msgAddToVcsTitle();
