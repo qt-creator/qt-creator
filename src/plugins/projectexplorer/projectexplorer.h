@@ -159,7 +159,7 @@ public:
     static void removeFromRecentProjects(const Utils::FilePath &filePath);
 
     static void updateRunActions();
-    static void updateVcsActions(const QString &vcsDisplayName);
+    static void updateVcsActions(const QString &vcsDisplayName, const QString &pathName);
 
     static QWidget *createRecentProjectsView();
 

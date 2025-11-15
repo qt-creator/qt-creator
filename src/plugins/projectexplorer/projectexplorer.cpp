@@ -1216,10 +1216,11 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
-    // VCS log for directory action
-    dd->m_vcsLogAction = new QAction(Tr::tr("VCS Log for Directory"), this);
+    // VCS log for file/directory action
+    dd->m_vcsLogAction = new QAction(Tr::tr("VCS Log for File/Directory"), this);
     cmd = ActionManager::registerAction(dd->m_vcsLogAction, Constants::VCS_LOG_DIRECTORY, projectTreeContext);
     cmd->setAttribute(Command::CA_UpdateText);
+    mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_CONFIG);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
@@ -3952,7 +3953,7 @@ void ProjectExplorerPluginPrivate::vcsLogDirectory()
 {
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    const FilePath directory = currentNode->directory();
+    const FilePath directory = currentNode->path();
     FilePath topLevel;
     if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(directory, &topLevel)) {
         const FilePath relativeDirectory = directory.relativeChildPath(topLevel);
@@ -4250,10 +4251,10 @@ void ProjectExplorerPlugin::updateRunActions()
     dd->doUpdateRunActions();
 }
 
-void ProjectExplorerPlugin::updateVcsActions(const QString &vcsDisplayName)
+void ProjectExplorerPlugin::updateVcsActions(const QString &vcsDisplayName, const QString &pathName)
 {
-    //: %1 = version control name
-    dd->m_vcsLogAction->setText(Tr::tr("%1 Log for Directory").arg(vcsDisplayName));
+    //: %1 = version control name, %2 file or directory
+    dd->m_vcsLogAction->setText(Tr::tr("%1 Log for \"%2\"").arg(vcsDisplayName, pathName));
     dd->m_vcsLogAction->setVisible(!vcsDisplayName.isEmpty());
 }
 

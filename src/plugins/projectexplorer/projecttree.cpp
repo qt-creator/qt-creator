@@ -342,7 +342,7 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
     if (currentNode) {
         const FilePath directory = currentNode->directory();
         if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(directory))
-            ProjectExplorerPlugin::updateVcsActions(vc->displayName());
+            ProjectExplorerPlugin::updateVcsActions(vc->displayName(), currentNode->displayName());
     }
 
     if (!node) {
