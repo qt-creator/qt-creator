@@ -324,8 +324,16 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
         }
     } else if (state & DeletedFile) {
         addAction(Tr::tr("Recover \"%1\"").arg(filePath.toUserOutput()), FileRevertDeletion);
-    } else if (state == (StagedFile | AddedFile)) {
-        addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
+    } else if (state & AddedFile) {
+        if (state & StagedFile) {
+            addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
+        } else {
+            addAction(Tr::tr("Stage \"%1\"").arg(filePath.toUserOutput()), FileStage);
+            addAction(Tr::tr("Mark Untracked \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
+            addAction(Tr::tr("Remove \"%1\"...").arg(filePath.toUserOutput()), FileRemove,
+                      Tr::tr("<p>Permanently remove the file \"%1\"?</p>"
+                             "<p>Note: The deletion cannot be undone.</p>").arg(filePath.toUserOutput()));
+        }
     } else if (state == (StagedFile | ModifiedFile)) {
         addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
         menu->addSeparator();
