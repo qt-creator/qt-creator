@@ -94,6 +94,7 @@ protected:
 private:
     void updateCheckAllComboBox();
     void checkAllToggled();
+    void checkSelectedToggled();
 
     void triggerDiffSelected();
     void diffActivated(const QModelIndex &index);

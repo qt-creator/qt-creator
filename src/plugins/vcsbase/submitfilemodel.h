@@ -41,6 +41,7 @@ public:
     bool checked(int row) const;
     void setChecked(int row, bool check);
     void setAllChecked(bool check);
+    void setSelectedChecked(const QList<int> &rows, bool check);
     QVariant extraData(int row) const;
 
     bool hasCheckedFiles() const;

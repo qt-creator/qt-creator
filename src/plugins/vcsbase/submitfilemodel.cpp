@@ -168,6 +168,15 @@ void SubmitFileModel::setAllChecked(bool check)
     }
 }
 
+void SubmitFileModel::setSelectedChecked(const QList<int> &rows, bool check)
+{
+    for (int row : rows) {
+        QStandardItem *i = item(row);
+        if (i->isCheckable())
+            i->setCheckState(check ? Qt::Checked : Qt::Unchecked);
+    }
+}
+
 QVariant SubmitFileModel::extraData(int row) const
 {
     if (row < 0 || row >= rowCount())

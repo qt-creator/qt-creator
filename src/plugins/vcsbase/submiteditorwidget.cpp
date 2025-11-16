@@ -103,6 +103,7 @@ struct SubmitEditorWidgetPrivate
     QLabel *descriptionHint = nullptr;
     CompletingTextEdit *description = nullptr;
     QCheckBox *checkAllCheckBox = nullptr;
+    QCheckBox *checkSelectedCheckBox = nullptr;
     QTreeView *fileView = nullptr;
     QHBoxLayout *buttonLayout = nullptr;
     QLabel *error = nullptr;
@@ -165,6 +166,9 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->checkAllCheckBox = new QCheckBox(Tr::tr("Check a&ll"));
     d->checkAllCheckBox->setObjectName("checkAllCheckBox");
     d->checkAllCheckBox->setTristate(false);
+    d->checkSelectedCheckBox = new QCheckBox(Tr::tr("Check selected"));
+    d->checkSelectedCheckBox->setObjectName("checkSelectedCheckBox");
+    d->checkSelectedCheckBox->setTristate(false);
 
     d->fileView = new QTreeView(groupBox);
     d->fileView->setObjectName("fileView");
@@ -173,7 +177,11 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->fileView->setRootIsDecorated(false);
 
     auto verticalLayout_2 = new QVBoxLayout(groupBox);
-    verticalLayout_2->addWidget(d->checkAllCheckBox);
+    auto fileCheckBoxLayout = new QHBoxLayout();
+    fileCheckBoxLayout->addWidget(d->checkAllCheckBox);
+    fileCheckBoxLayout->addWidget(d->checkSelectedCheckBox);
+    fileCheckBoxLayout->addStretch();
+    verticalLayout_2->addLayout(fileCheckBoxLayout);
     verticalLayout_2->addWidget(d->fileView);
 
     d->splitter = new MiniSplitter(scrollAreaWidgetContents);
@@ -227,6 +235,8 @@ SubmitEditorWidget::SubmitEditorWidget() :
 
     connect(d->checkAllCheckBox, &QCheckBox::stateChanged,
             this, &SubmitEditorWidget::checkAllToggled);
+    connect(d->checkSelectedCheckBox, &QCheckBox::stateChanged,
+            this, &SubmitEditorWidget::checkSelectedToggled);
 
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(d->description);
@@ -769,10 +779,23 @@ void SubmitEditorWidget::checkAllToggled()
 {
     if (d->m_ignoreChanges.isLocked())
         return;
-    Qt::CheckState checkState = d->checkAllCheckBox->checkState();
-    fileModel()->setAllChecked(checkState == Qt::Checked || checkState == Qt::PartiallyChecked);
+    const Qt::CheckState checkState = d->checkAllCheckBox->checkState();
+    const bool check = checkState == Qt::Checked || checkState == Qt::PartiallyChecked;
+    fileModel()->setAllChecked(check);
+    d->checkSelectedCheckBox->setCheckState(check ? Qt::Checked : Qt::Unchecked);
     // Reset that again, so that the user can't do it
     d->checkAllCheckBox->setTristate(false);
+}
+
+void SubmitEditorWidget::checkSelectedToggled()
+{
+    if (d->m_ignoreChanges.isLocked())
+        return;
+    const Qt::CheckState checkState = d->checkSelectedCheckBox->checkState();
+    const bool check = checkState == Qt::Checked || checkState == Qt::PartiallyChecked;
+    fileModel()->setSelectedChecked(selectedRows(), check);
+    // Reset that again, so that the user can't do it
+    d->checkSelectedCheckBox->setTristate(false);
 }
 
 void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint &pos)
