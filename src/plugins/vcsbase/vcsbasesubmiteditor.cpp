@@ -209,6 +209,9 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
         if (state == Qt::ApplicationActive)
             updateFileModel();
     });
+    connect(d->m_widget, &SubmitEditorWidget::updateFileListRequested, this, [this] {
+        updateFileModel();
+    });
 
     Aggregation::aggregate({this, new BaseTextFind(descriptionEdit)});
 }

@@ -26,6 +26,7 @@
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QPointer>
+#include <QPushButton>
 #include <QScopedPointer>
 #include <QScrollArea>
 #include <QShortcut>
@@ -104,6 +105,7 @@ struct SubmitEditorWidgetPrivate
     CompletingTextEdit *description = nullptr;
     QCheckBox *checkAllCheckBox = nullptr;
     QCheckBox *checkSelectedCheckBox = nullptr;
+    QPushButton *refreshButton = nullptr;
     QTreeView *fileView = nullptr;
     QHBoxLayout *buttonLayout = nullptr;
     QLabel *error = nullptr;
@@ -169,6 +171,11 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->checkSelectedCheckBox = new QCheckBox(Tr::tr("Check selected"));
     d->checkSelectedCheckBox->setObjectName("checkSelectedCheckBox");
     d->checkSelectedCheckBox->setTristate(false);
+    d->refreshButton = new QPushButton();
+    d->refreshButton->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
+    d->refreshButton->setToolTip(Tr::tr("Refresh file list."));
+    connect(d->refreshButton, &QPushButton::clicked,
+            this, &SubmitEditorWidget::updateFileListRequested);
 
     d->fileView = new QTreeView(groupBox);
     d->fileView->setObjectName("fileView");
@@ -180,6 +187,7 @@ SubmitEditorWidget::SubmitEditorWidget() :
     auto fileCheckBoxLayout = new QHBoxLayout();
     fileCheckBoxLayout->addWidget(d->checkAllCheckBox);
     fileCheckBoxLayout->addWidget(d->checkSelectedCheckBox);
+    fileCheckBoxLayout->addWidget(d->refreshButton);
     fileCheckBoxLayout->addStretch();
     verticalLayout_2->addLayout(fileCheckBoxLayout);
     verticalLayout_2->addWidget(d->fileView);

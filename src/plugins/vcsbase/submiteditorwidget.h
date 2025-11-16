@@ -78,6 +78,7 @@ signals:
     void fileSelectionChanged(bool someFileSelected);
     void submitActionTextChanged(const QString &);
     void submitActionEnabledChanged(bool);
+    void updateFileListRequested();
 
 protected:
     void changeEvent(QEvent *event) override;
