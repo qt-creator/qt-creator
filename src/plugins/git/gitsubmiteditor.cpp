@@ -305,6 +305,12 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
         refresh = true;
         break;
 
+    case FileUnstageAdded:
+        gitClient().synchronousReset(m_workingDirectory, {filePath.toUrlishString()});
+        gitClient().synchronousAdd(m_workingDirectory, {filePath.toUrlishString()}, {"--intent-to-add"});
+        refresh = true;
+        break;
+
     case FileMergeTool:
         gitClient().merge(m_workingDirectory, {filePath.toUrlishString()});
         break;

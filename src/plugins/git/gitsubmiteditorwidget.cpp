@@ -326,7 +326,7 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
         addAction(Tr::tr("Recover \"%1\"").arg(filePath.toUserOutput()), FileRevertDeletion);
     } else if (state & AddedFile) {
         if (state & StagedFile) {
-            addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
+            addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstageAdded);
         } else {
             addAction(Tr::tr("Stage \"%1\"").arg(filePath.toUserOutput()), FileStage);
             addAction(Tr::tr("Mark Untracked \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
