@@ -27,6 +27,7 @@ enum FileAction {
     FileRevertDeletion,
     FileCopyClipboard,
     FileOpenEditor,
+    FileAdd,
     FileStage,
     FileUnstage,
     FileUnstageAdded,

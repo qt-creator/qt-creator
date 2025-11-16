@@ -295,6 +295,11 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
         EditorManager::openEditor(fullPath);
         break;
 
+    case FileAdd:
+        gitClient().synchronousAdd(m_workingDirectory, {filePath.toUrlishString()}, {"--intent-to-add"});
+        refresh = true;
+        break;
+
     case FileStage:
         gitClient().addFile(m_workingDirectory, filePath.toUrlishString());
         refresh = true;

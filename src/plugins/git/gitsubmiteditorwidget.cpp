@@ -351,6 +351,7 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
             Tr::tr("<p>Undo unstaged changes to the file \"%1\"?</p>"
                    "<p>Note: These changes will be lost.</p>").arg(fp));
     } else if (state == UntrackedFile) {
+        addAction(Tr::tr("Add \"%1\"").arg(fp), FileAdd);
         addAction(Tr::tr("Stage \"%1\"").arg(fp), FileStage);
         menu->addSeparator();
         addAction(Tr::tr("Remove \"%1\"...").arg(fp), FileRemove,
