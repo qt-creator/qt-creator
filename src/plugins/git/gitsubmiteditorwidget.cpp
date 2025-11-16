@@ -299,13 +299,13 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
                 emit fileActionRequested(filePath, action);
             });
         };
-    addAction(Tr::tr("Open \"%1\"").arg(filePath.toUserOutput()), FileOpenEditor);
+    const QString fp = filePath.toUserOutput();
+    addAction(Tr::tr("Open \"%1\"").arg(fp), FileOpenEditor);
     menu->addSeparator();
-    addAction(Tr::tr("Copy \"%1\"").arg(filePath.toUserOutput()), FileCopyClipboard);
+    addAction(Tr::tr("Copy \"%1\"").arg(fp), FileCopyClipboard);
     Core::EditorManager::addContextMenuActions(menu, fullFilePath);
     menu->addSeparator();
     if (state & (UnmergedFile | UnmergedThem | UnmergedUs)) {
-        const QString fp = filePath.toUserOutput();
         addAction(Tr::tr("Run Merge Tool for \"%1\"").arg(fp), FileMergeTool);
 
         if (state & DeletedFile) {
@@ -323,41 +323,39 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
                              "<p>Note: Our changes will be discarded.</p>").arg(fp));
         }
     } else if (state & DeletedFile) {
-        addAction(Tr::tr("Recover \"%1\"").arg(filePath.toUserOutput()), FileRevertDeletion);
+        addAction(Tr::tr("Recover \"%1\"").arg(fp), FileRevertDeletion);
     } else if (state & AddedFile) {
         if (state & StagedFile) {
-            addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstageAdded);
+            addAction(Tr::tr("Unstage \"%1\"").arg(fp), FileUnstageAdded);
         } else {
-            addAction(Tr::tr("Stage \"%1\"").arg(filePath.toUserOutput()), FileStage);
-            addAction(Tr::tr("Mark Untracked \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
-            addAction(Tr::tr("Remove \"%1\"...").arg(filePath.toUserOutput()), FileRemove,
+            addAction(Tr::tr("Stage \"%1\"").arg(fp), FileStage);
+            addAction(Tr::tr("Mark Untracked \"%1\"").arg(fp), FileUnstage);
+            addAction(Tr::tr("Remove \"%1\"...").arg(fp), FileRemove,
                       Tr::tr("<p>Permanently remove the file \"%1\"?</p>"
-                             "<p>Note: The deletion cannot be undone.</p>").arg(filePath.toUserOutput()));
+                             "<p>Note: The deletion cannot be undone.</p>").arg(fp));
         }
     } else if (state == (StagedFile | ModifiedFile)) {
-        addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
+        addAction(Tr::tr("Unstage \"%1\"").arg(fp), FileUnstage);
         menu->addSeparator();
         addAction(
-            Tr::tr("Revert All Changes to \"%1\"...").arg(filePath.toUserOutput()),
+            Tr::tr("Revert All Changes to \"%1\"...").arg(fp),
             FileRevertAll,
             Tr::tr("<p>Undo <b>all</b> changes to the file \"%1\"?</p>"
-                   "<p>Note: These changes will be lost.</p>")
-                .arg(filePath.toUserOutput()));
+                   "<p>Note: These changes will be lost.</p>").arg(fp));
     } else if (state == ModifiedFile) {
-        addAction(Tr::tr("Stage \"%1\"").arg(filePath.toUserOutput()), FileStage);
+        addAction(Tr::tr("Stage \"%1\"").arg(fp), FileStage);
         menu->addSeparator();
         addAction(
-            Tr::tr("Revert Unstaged Changes to \"%1\"...").arg(filePath.toUserOutput()),
+            Tr::tr("Revert Unstaged Changes to \"%1\"...").arg(fp),
             FileRevertUnstaged,
             Tr::tr("<p>Undo unstaged changes to the file \"%1\"?</p>"
-                   "<p>Note: These changes will be lost.</p>")
-                .arg(filePath.toUserOutput()));
+                   "<p>Note: These changes will be lost.</p>").arg(fp));
     } else if (state == UntrackedFile) {
-        addAction(Tr::tr("Stage \"%1\"").arg(filePath.toUserOutput()), FileStage);
+        addAction(Tr::tr("Stage \"%1\"").arg(fp), FileStage);
         menu->addSeparator();
-        addAction(Tr::tr("Remove \"%1\"...").arg(filePath.toUserOutput()), FileRemove,
+        addAction(Tr::tr("Remove \"%1\"...").arg(fp), FileRemove,
                   Tr::tr("<p>Permanently remove the file \"%1\"?</p>"
-                         "<p>Note: The deletion cannot be undone.</p>").arg(filePath.toUserOutput()));
+                         "<p>Note: The deletion cannot be undone.</p>").arg(fp));
         menu->addSeparator();
         const char message[] = "Add to gitignore \"%1\"";
         addAction(Tr::tr(message).arg("/" + filePath.path()), FileAddGitignore);
