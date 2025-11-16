@@ -162,7 +162,7 @@ SubmitEditorWidget::SubmitEditorWidget() :
     groupBox->setObjectName("groupBox");
     groupBox->setFlat(true);
 
-    d->checkAllCheckBox = new QCheckBox(Tr::tr("Select a&ll"));
+    d->checkAllCheckBox = new QCheckBox(Tr::tr("Check a&ll"));
     d->checkAllCheckBox->setObjectName("checkAllCheckBox");
     d->checkAllCheckBox->setTristate(false);
 
@@ -780,9 +780,9 @@ void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint &pos)
     // Execute menu offering to check/uncheck all
     QMenu menu;
     //: Check all for submit
-    QAction *checkAllAction = menu.addAction(Tr::tr("Select All"));
+    QAction *checkAllAction = menu.addAction(Tr::tr("Check All"));
     //: Uncheck all for submit
-    QAction *uncheckAllAction = menu.addAction(Tr::tr("Unselect All"));
+    QAction *uncheckAllAction = menu.addAction(Tr::tr("Uncheck All"));
 
     if (const QModelIndex index = d->fileView->indexAt(pos); index.isValid())
         addFileContextMenuActions(&menu, index);
