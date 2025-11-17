@@ -145,6 +145,7 @@ void AndroidIconSplashEditorWidget::setActiveTab(TabIndex index)
         m_tabWidget->setCurrentIndex(index);
 }
 
+
 AndroidIconSplashEditorWidget::AndroidIconSplashEditorWidget(QWidget *parent)
     : QWidget(parent)
 {
@@ -162,7 +163,6 @@ AndroidIconSplashEditorWidget::AndroidIconSplashEditorWidget(QWidget *parent)
     else
         fallbackPath = Utils::FilePath::fromString(QDir::currentPath());
     manifestTextEditor->textDocument()->setFilePath(fallbackPath);
-
     auto iconContainer = new IconContainerWidget(this);
     if (!iconContainer->initialize(manifestTextEditor))
         iconContainer->setEnabled(false);
@@ -173,13 +173,22 @@ AndroidIconSplashEditorWidget::AndroidIconSplashEditorWidget(QWidget *parent)
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    auto splashContainer = new QWidget(this);
-    auto permissionsContainer = new QWidget(this);
+    auto splashContainer = new SplashScreenContainerWidget(this);
+    if (!splashContainer->initialize(manifestTextEditor))
+        splashContainer->setEnabled(false);
 
-    m_tabWidget->addTab(splashContainer, Tr::tr("Splash Screen Editor"));
+    QScrollArea *scrollAreaSplash = new QScrollArea(this);
+    scrollAreaSplash->setWidget(splashContainer);
+    scrollAreaSplash->setWidgetResizable(true);
+    scrollAreaSplash->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollAreaSplash->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+    m_tabWidget->addTab(scrollAreaSplash, Tr::tr("Splash Screen Editor"));
     m_tabWidget->addTab(scrollArea, Tr::tr("Icon Editor"));
 
+    auto permissionsContainer = new QWidget(this);
     permissionsContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     parentLayout->addWidget(permissionsContainer, 1);
     parentLayout->addWidget(m_tabWidget, 1);
 }

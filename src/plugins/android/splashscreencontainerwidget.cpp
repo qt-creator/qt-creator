@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "splashscreencontainerwidget.h"
-
+#include "androidtoolmenu.h"
 #include "androidtr.h"
 
 #include <texteditor/textdocument.h>
@@ -11,9 +11,14 @@
 #include <utils/fileutils.h>
 #include <utils/utilsicons.h>
 
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
+
 #include <QCheckBox>
 #include <QColorDialog>
 #include <QComboBox>
+#include <QDomDocument>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
@@ -26,6 +31,7 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <QDirIterator>
 
 using namespace Utils;
 
@@ -61,11 +67,8 @@ const int highDpiScalingRatio = 6;
 const int mediumDpiScalingRatio = 4;
 const int lowDpiScalingRatio = 3;
 
-static FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
-{
-    // Get the manifest file's directory from its filepath.
-    return textEditorWidget->textDocument()->filePath().absolutePath();
-}
+using ProjectExplorer::Project;
+using ProjectExplorer::ProjectManager;
 
 static Q_LOGGING_CATEGORY(androidManifestEditorLog, "qtc.android.splashScreenWidget", QtWarningMsg);
 
@@ -77,16 +80,14 @@ class SplashScreenWidget : public QWidget
     {
     public:
         explicit SplashScreenButton(SplashScreenWidget *parent)
-            : QToolButton(parent),
-              m_parentWidget(parent)
-        {}
+            : QToolButton(parent), m_parentWidget(parent) {}
 
     private:
         void paintEvent(QPaintEvent *event) override
         {
             Q_UNUSED(event)
             QPainter painter(this);
-            painter.setPen(QPen(Qt::gray, 1));
+            painter.setPen(QPen(Qt::darkGray, 3));
             painter.setBrush(QBrush(m_parentWidget->m_backgroundColor));
             painter.drawRect(0, 0, width()-1, height()-1);
             if (!m_parentWidget->m_image.isNull())
@@ -113,6 +114,7 @@ public:
     void setImageFromPath(const FilePath &imagePath, bool resize = true);
     void setImageFileName(const QString &imageFileName);
     void loadImage();
+    FilePath getManifestDirectory();
 
 signals:
     void imageChanged();
@@ -137,27 +139,36 @@ private:
     bool m_showImageFullScreen = false;
 };
 
-SplashScreenWidget::SplashScreenWidget(
-        QWidget *parent,
-        const QSize &size, const QSize &screenSize,
-        const QString &title, const QString &tooltip,
-        const QString &imagePath,
-        int scalingRatio, int maxScalingRatio,
-        TextEditor::TextEditorWidget *textEditorWidget)
-    : QWidget(parent),
-      m_textEditorWidget(textEditorWidget),
-      m_scalingRatio(scalingRatio),
-      m_maxScalingRatio(maxScalingRatio),
-      m_imagePath(imagePath),
-      m_screenSize(screenSize)
+FilePath SplashScreenWidget::getManifestDirectory()
+{
+    const QWidget *parentWidget = this->parentWidget();
+
+    while (parentWidget) {
+        const auto *container = qobject_cast<const SplashScreenContainerWidget *>(parentWidget);
+        if (container)
+            return container->manifestDirectory();
+        parentWidget = parentWidget->parentWidget();
+    }
+       return FilePath();
+}
+
+SplashScreenWidget::SplashScreenWidget(QWidget *parent, const QSize &size, const QSize &screenSize,
+                                       const QString &title, const QString &tooltip,
+                                       const QString &imagePath, int scalingRatio, int maxScalingRatio,
+                                       TextEditor::TextEditorWidget *textEditorWidget):
+    QWidget(parent), m_textEditorWidget(textEditorWidget),
+    m_scalingRatio(scalingRatio), m_maxScalingRatio(maxScalingRatio),
+    m_imagePath(imagePath), m_screenSize(screenSize)
 {
     auto splashLayout = new QVBoxLayout(this);
     auto splashTitle = new QLabel(title, this);
     auto splashButtonLayout = new QGridLayout();
+    splashButtonLayout->setHorizontalSpacing(0);
     m_splashScreenButton = new SplashScreenButton(this);
     m_splashScreenButton->setMinimumSize(size);
     m_splashScreenButton->setMaximumSize(size);
     m_splashScreenButton->setToolTip(tooltip);
+
     QSize clearAndWarningSize(16, 16);
     QToolButton *clearButton = nullptr;
     if (textEditorWidget) {
@@ -174,24 +185,21 @@ SplashScreenWidget::SplashScreenWidget(
         m_scaleWarningLabel->setToolTip(Tr::tr("Icon scaled up."));
         m_scaleWarningLabel->setVisible(false);
     }
-    auto label = new QLabel(Tr::tr("Click to select..."), parent);
     splashLayout->addWidget(splashTitle);
     splashLayout->setAlignment(splashTitle, Qt::AlignHCenter);
-    splashButtonLayout->setColumnMinimumWidth(0, 16);
-    splashButtonLayout->addWidget(m_splashScreenButton, 0, 1, 1, 3);
+    splashButtonLayout->addWidget(m_splashScreenButton, 0, 0, 1, 1);
     splashButtonLayout->setAlignment(m_splashScreenButton, Qt::AlignVCenter);
     if (textEditorWidget) {
-        splashButtonLayout->addWidget(clearButton, 0, 4, 1, 1);
-        splashButtonLayout->setAlignment(clearButton, Qt::AlignTop);
+        splashButtonLayout->addWidget(clearButton, 0, 0, 1, 1);
+        splashButtonLayout->setAlignment(clearButton, Qt::AlignTop | Qt::AlignRight);
     }
     if (textEditorWidget) {
         splashButtonLayout->addWidget(m_scaleWarningLabel, 0, 0, 1, 1);
         splashButtonLayout->setAlignment(m_scaleWarningLabel, Qt::AlignTop);
     }
     splashLayout->addLayout(splashButtonLayout);
-    splashLayout->setAlignment(splashButtonLayout, Qt::AlignHCenter);
-    splashLayout->addWidget(label);
-    splashLayout->setAlignment(label, Qt::AlignHCenter);
+    splashLayout->setSpacing(0);
+    splashLayout->setAlignment(splashButtonLayout, Qt::AlignHCenter | Qt::AlignTop);
     this->setLayout(splashLayout);
     connect(m_splashScreenButton, &QAbstractButton::clicked,
             this, &SplashScreenWidget::selectImage);
@@ -220,6 +228,7 @@ void SplashScreenWidget::setImageFromPath(const FilePath &imagePath, bool resize
         return;
     const FilePath baseDir = manifestDir(m_textEditorWidget);
     const FilePath targetPath = baseDir / m_imagePath / m_imageFileName;
+
     if (targetPath.isEmpty()) {
         qCDebug(androidManifestEditorLog) << "Image target path is empty, cannot set image.";
         return;
@@ -265,7 +274,7 @@ void SplashScreenWidget::selectImage()
 
 void SplashScreenWidget::removeImage()
 {
-    const FilePath baseDir = manifestDir(m_textEditorWidget);
+    const FilePath baseDir = getManifestDirectory();
     const FilePath targetPath = baseDir / m_imagePath / m_imageFileName;
     if (targetPath.isEmpty()) {
         qCDebug(androidManifestEditorLog) << "Image target path empty, cannot remove image.";
@@ -289,7 +298,7 @@ void SplashScreenWidget::loadImage()
         qCDebug(androidManifestEditorLog) << "Image name not set, cannot load image.";
         return;
     }
-    const FilePath baseDir = manifestDir(m_textEditorWidget);
+    const FilePath baseDir = getManifestDirectory();
     const FilePath targetPath = baseDir / m_imagePath / m_imageFileName;
     if (targetPath.isEmpty()) {
         qCDebug(androidManifestEditorLog) << "Image target path empty, cannot load image.";
@@ -297,8 +306,7 @@ void SplashScreenWidget::loadImage()
     }
     QImage image = QImage(targetPath.toFSPathString());
     if (image.isNull()) {
-        qCDebug(androidManifestEditorLog).noquote()
-                << "Cannot load image." << targetPath.toUserOutput();
+        qCDebug(androidManifestEditorLog).noquote() << "Cannot load image." << targetPath.toUserOutput();
         return;
     }
     if (m_showImageFullScreen) {
@@ -340,15 +348,9 @@ static SplashScreenWidget *addWidgetToPage(QWidget *page,
                                            QHBoxLayout *pageLayout,
                                            QList<SplashScreenWidget *> &widgetContainer)
 {
-    auto splashScreenWidget = new SplashScreenWidget(page,
-                                                     size,
-                                                     screenSize,
-                                                     title,
-                                                     tooltip,
-                                                     splashScreenPath,
-                                                     scalingRatio,
-                                                     maxScalingRatio,
-                                                     textEditorWidget);
+    auto splashScreenWidget = new SplashScreenWidget(page, size, screenSize, title, tooltip,
+                                                     splashScreenPath, scalingRatio,
+                                                     maxScalingRatio, textEditorWidget);
     pageLayout->addWidget(splashScreenWidget);
     widgetContainer.push_back(splashScreenWidget);
     return splashScreenWidget;
@@ -358,11 +360,8 @@ static QWidget *createPage(TextEditor::TextEditorWidget *textEditorWidget,
                            QList<SplashScreenWidget *> &widgetContainer,
                            QList<SplashScreenWidget *> &portraitWidgetContainer,
                            QList<SplashScreenWidget *> &landscapeWidgetContainer,
-                           int scalingRatio,
-                           const QSize &size,
-                           const QSize &portraitSize,
-                           const QSize &landscapeSize,
-                           const QString &path)
+                           int scalingRatio, const QSize &size, const QSize &portraitSize,
+                           const QSize &landscapeSize, const QString &path)
 {
     auto sizeToStr = [](const QSize &size) { return QString(" (%1x%2)").arg(size.width()).arg(size.height()); };
     QWidget *page = new QWidget();
@@ -414,166 +413,123 @@ static QWidget *createPage(TextEditor::TextEditorWidget *textEditorWidget,
 }
 
 
-SplashScreenContainerWidget::SplashScreenContainerWidget(
-        QWidget *parent,
-        TextEditor::TextEditorWidget *textEditorWidget)
-    : QStackedWidget(parent),
-      m_textEditorWidget(textEditorWidget)
+SplashScreenContainerWidget::SplashScreenContainerWidget(QWidget *parent)
+    : QStackedWidget(parent), m_textEditorWidget(nullptr)
+{}
+
+bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textEditorWidget)
 {
-    auto noSplashscreenWidget = new QWidget(this);
-    auto splashscreenWidget = new QWidget(this);
-    auto layout = new QHBoxLayout(this);
-    auto settingsLayout = new QVBoxLayout(this);
-    auto noSplashscreenLayout = new QVBoxLayout(this);
-    auto formLayout = new QFormLayout(this);
-    QTabWidget *tab = new QTabWidget(this);
+    QTC_ASSERT(textEditorWidget, return false);
+    m_textEditorWidget = textEditorWidget;
+    m_manifestDirectory = manifestDir(textEditorWidget);
+
+    const QList<QStringList> imageShowModeMethodsMap = {
+        {"center", Tr::tr("Place the object in the center of the screen in both the vertical and horizontal axis,\n"
+                          "not changing its size.")},
+        {"fill", Tr::tr("Grow the horizontal and vertical size of the image if needed so it completely fills its screen.")}
+    };
 
     m_stickyCheck = new QCheckBox(this);
     m_stickyCheck->setToolTip(Tr::tr("A non-sticky splash screen is hidden automatically when an activity is drawn.\n"
                                      "To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen()."));
-    formLayout->addRow(Tr::tr("Sticky splash screen:"), m_stickyCheck);
 
     m_imageShowMode = new QComboBox(this);
-    formLayout->addRow(Tr::tr("Image show mode:"), m_imageShowMode);
-    const QList<QStringList> imageShowModeMethodsMap = {
-        {"center", "Place the object in the center of the screen in both the vertical and horizontal axis,\n"
-                   "not changing its size."},
-        {"fill", "Grow the horizontal and vertical size of the image if needed so it completely fills its screen."}};
+    m_imageShowMode->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     for (int i = 0; i < imageShowModeMethodsMap.size(); ++i) {
         m_imageShowMode->addItem(imageShowModeMethodsMap.at(i).first());
         m_imageShowMode->setItemData(i, imageShowModeMethodsMap.at(i).at(1), Qt::ToolTipRole);
     }
 
-    m_backgroundColor = new QToolButton(this);
-    m_backgroundColor->setToolTip(Tr::tr("Background color of the splash screen."));
-    formLayout->addRow(Tr::tr("Background color:"), m_backgroundColor);
-
     m_masterImage = new QToolButton(this);
     m_masterImage->setToolTip(Tr::tr("Select master image to use."));
-    m_masterImage->setIcon(Icon::fromTheme("document-open"));
-    formLayout->addRow(Tr::tr("Master image:"), m_masterImage);
+    m_masterImage->setIcon(Utils::Icon::fromTheme("document-open"));
 
     m_portraitMasterImage = new QToolButton(this);
     m_portraitMasterImage->setToolTip(Tr::tr("Select portrait master image to use."));
-    m_portraitMasterImage->setIcon(Icon::fromTheme("document-open"));
-    formLayout->addRow(Tr::tr("Portrait master image:"), m_portraitMasterImage);
+    m_portraitMasterImage->setIcon(Utils::Icon::fromTheme("document-open"));
 
     m_landscapeMasterImage = new QToolButton(this);
     m_landscapeMasterImage->setToolTip(Tr::tr("Select landscape master image to use."));
-    m_landscapeMasterImage->setIcon(Icon::fromTheme("document-open"));
-    formLayout->addRow(Tr::tr("Landscape master image:"), m_landscapeMasterImage);
+    m_landscapeMasterImage->setIcon(Utils::Icon::fromTheme("document-open"));
 
-    auto clearAllButton = new QToolButton(this);
+    m_backgroundColor = new QToolButton(this);
+
+    auto *clearAllButton = new QToolButton(this);
     clearAllButton->setText(Tr::tr("Clear All"));
 
-    auto ldpiPage = createPage(textEditorWidget,
-                               m_imageWidgets, m_portraitImageWidgets, m_landscapeImageWidgets,
-                               lowDpiScalingRatio,
-                               lowDpiImageSize,
-                               lowDpiImageSize,
-                               lowDpiImageSize.transposed(),
-                               lowDpiImagePath);
-    tab->addTab(ldpiPage, Tr::tr("LDPI"));
-    auto mdpiPage = createPage(textEditorWidget,
-                               m_imageWidgets, m_portraitImageWidgets, m_landscapeImageWidgets,
-                               mediumDpiScalingRatio,
-                               mediumDpiImageSize,
-                               mediumDpiImageSize,
-                               mediumDpiImageSize.transposed(),
-                               mediumDpiImagePath);
-    tab->addTab(mdpiPage, Tr::tr("MDPI"));
-    auto hdpiPage = createPage(textEditorWidget,
-                               m_imageWidgets, m_portraitImageWidgets, m_landscapeImageWidgets,
-                               highDpiScalingRatio,
-                               highDpiImageSize,
-                               highDpiImageSize,
-                               highDpiImageSize.transposed(),
-                               highDpiImagePath);
-    tab->addTab(hdpiPage, Tr::tr("HDPI"));
-    auto xHdpiPage = createPage(textEditorWidget,
-                                m_imageWidgets, m_portraitImageWidgets, m_landscapeImageWidgets,
-                                extraHighDpiScalingRatio,
-                                extraHighDpiImageSize,
-                                extraHighDpiImageSize,
-                                extraHighDpiImageSize.transposed(),
-                                extraHighDpiImagePath);
-    tab->addTab(xHdpiPage, Tr::tr("XHDPI"));
-    auto xxHdpiPage = createPage(textEditorWidget,
-                                 m_imageWidgets, m_portraitImageWidgets, m_landscapeImageWidgets,
-                                 extraExtraHighDpiScalingRatio,
-                                 extraExtraHighDpiImageSize,
-                                 extraExtraHighDpiImageSize,
-                                 extraExtraHighDpiImageSize.transposed(),
-                                 extraExtraHighDpiImagePath);
-    tab->addTab(xxHdpiPage, Tr::tr("XXHDPI"));
-    auto xxxHdpiPage = createPage(textEditorWidget,
-                                  m_imageWidgets, m_portraitImageWidgets, m_landscapeImageWidgets,
-                                  extraExtraExtraHighDpiScalingRatio,
-                                  extraExtraExtraHighDpiImageSize,
-                                  extraExtraExtraHighDpiImageSize,
-                                  extraExtraExtraHighDpiImageSize.transposed(),
-                                  extraExtraExtraHighDpiImagePath);
-    tab->addTab(xxxHdpiPage, Tr::tr("XXXHDPI"));
-    formLayout->setContentsMargins(10, 10, 10, 10);
-    formLayout->setSpacing(10);
-    settingsLayout->addLayout(formLayout);
-    settingsLayout->addWidget(clearAllButton);
-    settingsLayout->setAlignment(clearAllButton, Qt::AlignHCenter);
-    layout->addLayout(settingsLayout);
-    layout->addWidget(tab);
-    splashscreenWidget->setLayout(layout);
-    addWidget(splashscreenWidget);
-    setBackgroundColor(Qt::white);
-
-    auto warningLabel = new QLabel(this);
+    auto *warningLabel = new QLabel(this);
     warningLabel->setAlignment(Qt::AlignHCenter);
-    warningLabel->setText(
-        Tr::tr(
-            "An image is used for the splashscreen. Qt Creator manages "
-            "splashscreen by using a different method which requires changing "
-            "the manifest file by overriding your settings. Allow override?"));
     warningLabel->setWordWrap(true);
-    m_convertSplashscreen = new QToolButton(this);
-    m_convertSplashscreen->setText(Tr::tr("Convert"));
-    noSplashscreenLayout->addStretch();
-    noSplashscreenLayout->addWidget(warningLabel);
-    noSplashscreenLayout->addWidget(m_convertSplashscreen);
-    noSplashscreenLayout->addStretch();
-    noSplashscreenLayout->setSpacing(10);
-    noSplashscreenLayout->setAlignment(warningLabel, Qt::AlignHCenter);
-    noSplashscreenLayout->setAlignment(m_convertSplashscreen, Qt::AlignHCenter);
-    noSplashscreenWidget->setLayout(noSplashscreenLayout);
-    addWidget(noSplashscreenWidget);
+
+    // Create a container widget to hold the main layout
+    auto *containerWidget = new QWidget(this);
+    auto *mainLayout = new QHBoxLayout(containerWidget);
+
+    auto *formLayout = new QFormLayout();
+    formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    formLayout->setContentsMargins(10, 10, 10, 10);
+    formLayout->addRow(Tr::tr("Sticky splash screen:"), m_stickyCheck);
+    formLayout->addRow(Tr::tr("Image show mode:"), m_imageShowMode);
+    formLayout->addRow(Tr::tr("Master image:"), m_masterImage);
+    formLayout->addRow(Tr::tr("Portrait master image:"), m_portraitMasterImage);
+    formLayout->addRow(Tr::tr("Landscape master image:"), m_landscapeMasterImage);
+    formLayout->addRow(Tr::tr("Background Colour:"), m_backgroundColor);
+    formLayout->addRow(clearAllButton);
+
+    auto *leftWidget = new QWidget();
+    leftWidget->setLayout(formLayout);
+
+    QTabWidget *tab = new QTabWidget(this);
+    tab->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+
+    tab->addTab(createPage(textEditorWidget, m_imageWidgets, m_portraitImageWidgets,
+                           m_landscapeImageWidgets, lowDpiScalingRatio, lowDpiImageSize,
+                           lowDpiImageSize, lowDpiImageSize.transposed(), lowDpiImagePath), Tr::tr("LDPI"));
+    tab->addTab(createPage(textEditorWidget, m_imageWidgets, m_portraitImageWidgets,
+                           m_landscapeImageWidgets, mediumDpiScalingRatio, mediumDpiImageSize,
+                           mediumDpiImageSize, mediumDpiImageSize.transposed(), mediumDpiImagePath), Tr::tr("MDPI"));
+    tab->addTab(createPage(textEditorWidget, m_imageWidgets, m_portraitImageWidgets,
+                           m_landscapeImageWidgets, highDpiScalingRatio, highDpiImageSize,
+                           highDpiImageSize, highDpiImageSize.transposed(), highDpiImagePath), Tr::tr("HDPI"));
+    tab->addTab(createPage(textEditorWidget, m_imageWidgets, m_portraitImageWidgets,
+                           m_landscapeImageWidgets, extraHighDpiScalingRatio, extraHighDpiImageSize,
+                           extraHighDpiImageSize, extraHighDpiImageSize.transposed(), extraHighDpiImagePath),
+                           Tr::tr("XHDPI"));
+    tab->addTab(createPage(textEditorWidget, m_imageWidgets, m_portraitImageWidgets, m_landscapeImageWidgets,
+                           extraExtraHighDpiScalingRatio, extraExtraHighDpiImageSize, extraExtraHighDpiImageSize,
+                           extraExtraHighDpiImageSize.transposed(), extraExtraHighDpiImagePath), Tr::tr("XXHDPI"));
+    tab->addTab(createPage(textEditorWidget, m_imageWidgets, m_portraitImageWidgets, m_landscapeImageWidgets,
+                           extraExtraExtraHighDpiScalingRatio, extraExtraExtraHighDpiImageSize,
+                           extraExtraExtraHighDpiImageSize, extraExtraExtraHighDpiImageSize.transposed(),
+                           extraExtraExtraHighDpiImagePath),
+    Tr::tr("XXXHDPI"));
+
+    mainLayout->addWidget(leftWidget, 0);
+    mainLayout->addWidget(tab, 1);
+    containerWidget->setLayout(mainLayout);
+
+    addWidget(containerWidget);
+
+    setBackgroundColor(Qt::white);
 
     const auto splashFileName = QString(splashscreenFileName).append(imageSuffix);
     const auto portraitSplashFileName = QString(splashscreenPortraitFileName).append(imageSuffix);
     const auto landscapeSplashFileName = QString(splashscreenLandscapeFileName).append(imageSuffix);
 
-    for (auto &&imageWidget : m_imageWidgets)
-        imageWidget->setImageFileName(splashFileName);
-    for (auto &&imageWidget : m_portraitImageWidgets)
-        imageWidget->setImageFileName(portraitSplashFileName);
-    for (auto &&imageWidget : m_landscapeImageWidgets)
-        imageWidget->setImageFileName(landscapeSplashFileName);
+    auto processWidgets = [this](QList<SplashScreenWidget*> &widgetList, const QString &fileName) {
+        for (auto &&imageWidget : widgetList) {
+            imageWidget->setImageFileName(fileName);
+            connect(imageWidget, &SplashScreenWidget::imageChanged, this, [this] {
+                createSplashscreenThemes();
+                emit splashScreensModified();
+            });
+        }
+    };
 
-    for (auto &&imageWidget : m_imageWidgets) {
-        connect(imageWidget, &SplashScreenWidget::imageChanged, this, [this] {
-            createSplashscreenThemes();
-            emit splashScreensModified();
-        });
-    }
-    for (auto &&imageWidget : m_portraitImageWidgets) {
-        connect(imageWidget, &SplashScreenWidget::imageChanged, this, [this] {
-            createSplashscreenThemes();
-            emit splashScreensModified();
-        });
-    }
-    for (auto &&imageWidget : m_landscapeImageWidgets) {
-        connect(imageWidget, &SplashScreenWidget::imageChanged, this, [this] {
-            createSplashscreenThemes();
-            emit splashScreensModified();
-        });
-    }
+    processWidgets(m_imageWidgets, splashFileName);
+    processWidgets(m_portraitImageWidgets, portraitSplashFileName);
+    processWidgets(m_landscapeImageWidgets, landscapeSplashFileName);
+
     connect(m_stickyCheck, &QCheckBox::stateChanged, this, [this](int state) {
         bool old = m_splashScreenSticky;
         m_splashScreenSticky = (state == Qt::Checked);
@@ -591,8 +547,8 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
         }
     });
     connect(m_masterImage, &QToolButton::clicked, this, [this] {
-        const FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select master image"),
-                                                         FileUtils::homePath(), fileDialogImageFiles);
+        const Utils::FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select master image"),
+                                                                FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_imageWidgets)
                 imageWidget->setImageFromPath(file);
@@ -601,8 +557,8 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
         }
     });
     connect(m_portraitMasterImage, &QToolButton::clicked, this, [this] {
-        const FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select portrait master image"),
-                                                         FileUtils::homePath(), fileDialogImageFiles);
+        const Utils::FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select portrait master image"),
+                                                                FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_portraitImageWidgets)
                 imageWidget->setImageFromPath(file);
@@ -611,8 +567,8 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
         }
     });
     connect(m_landscapeMasterImage, &QToolButton::clicked, this, [this] {
-        const FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select landscape master image"),
-                                                         FileUtils::homePath(), fileDialogImageFiles);
+        const Utils::FilePath file = FileUtils::getOpenFilePath(Tr::tr("Select landscape master image"),
+                                                                FileUtils::homePath(), fileDialogImageFiles);
         if (!file.isEmpty()) {
             for (auto &&imageWidget : m_landscapeImageWidgets)
                 imageWidget->setImageFromPath(file);
@@ -634,6 +590,8 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
         setCurrentIndex(0);
         emit splashScreensModified();
     });
+
+    return true;
 }
 
 void SplashScreenContainerWidget::loadImages()
@@ -656,7 +614,7 @@ void SplashScreenContainerWidget::loadImages()
 
 void SplashScreenContainerWidget::loadSplashscreenDrawParams(const QString &name)
 {
-    const FilePath filePath = manifestDir(m_textEditorWidget).pathAppended("res/drawable/" + name + ".xml");
+    const FilePath filePath = m_manifestDirectory.pathAppended("res/drawable/" + name + ".xml");
     QFile file(filePath.toFSPathString());
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QXmlStreamReader reader(&file);
@@ -775,7 +733,6 @@ void SplashScreenContainerWidget::setImageShowMode(const QString &mode)
 
 void SplashScreenContainerWidget::createSplashscreenThemes()
 {
-    const FilePath baseDir = manifestDir(m_textEditorWidget);
     const QStringList splashscreenThemeFiles = {"res/values/splashscreentheme.xml",
                                                 "res/values-port/splashscreentheme.xml",
                                                 "res/values-land/splashscreentheme.xml"};
@@ -792,8 +749,8 @@ void SplashScreenContainerWidget::createSplashscreenThemes()
         splashscreens[2] << splashscreenLandscapeName << splashscreenLandscapeFileName;
 
     for (int i = 0; i < 3; i++) {
-        const FilePath splashscreenThemeFile = baseDir.pathAppended(splashscreenThemeFiles[i]);
-        const FilePath splashscreenDrawableFile = baseDir.pathAppended(splashscreenDrawableFiles[i]);
+        const FilePath splashscreenThemeFile = m_manifestDirectory.pathAppended(splashscreenThemeFiles[i]);
+        const FilePath splashscreenDrawableFile = m_manifestDirectory.pathAppended(splashscreenDrawableFiles[i]);
         if (!splashscreens[i].isEmpty()) {
             QDir dir;
             QFile themeFile(splashscreenThemeFile.toFSPathString());
@@ -844,12 +801,49 @@ void SplashScreenContainerWidget::createSplashscreenThemes()
             splashscreenDrawableFile.removeFile();
         }
     }
+
+    FilePath manifestFile = m_manifestDirectory.pathAppended(QLatin1String("AndroidManifest.xml"));
+    if (manifestFile.exists()) {
+        QFile mf(manifestFile.toFSPathString());
+        if (mf.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QDomDocument doc;
+            if (doc.setContent(&mf)) {
+                mf.close();
+                QDomElement root = doc.documentElement();
+                QDomElement application = root.firstChildElement(QLatin1String("application"));
+                if (!application.isNull()) {
+                    bool setTheme = false;
+                    for (int j = 0; j < 3; ++j) {
+                        if (!splashscreens[j].isEmpty()) {
+                            setTheme = true;
+                            break;
+                        }
+                    }
+                    if (setTheme)
+                        application.setAttribute(QLatin1String("android:theme"), QLatin1String("@style/splashScreenTheme"));
+                    else
+                        application.removeAttribute(QLatin1String("android:theme"));
+                    if (hasImages() || hasPortraitImages() || hasLandscapeImages())
+                        application.setAttribute(QLatin1String("android:icon"), QLatin1String("@drawable/icon"));
+                    if (mf.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+                        QTextStream out(&mf);
+                        doc.save(out, 2);
+                        mf.close();
+                    } else {
+                        qCDebug(androidManifestEditorLog) << "Failed to open manifest for writing:" << manifestFile.toUserOutput();
+                    }
+                }
+            } else {
+                mf.close();
+                qCDebug(androidManifestEditorLog) << "Failed to parse manifest:" << manifestFile.toUserOutput();
+            }
+        }
+    }
 }
 
 void SplashScreenContainerWidget::checkSplashscreenImage(const QString &name)
 {
     if (isSplashscreenEnabled()) {
-        const FilePath baseDir = manifestDir(m_textEditorWidget);
         const QString paths[] = {extraExtraExtraHighDpiImagePath,
                                  extraExtraHighDpiImagePath,
                                  extraHighDpiImagePath,
@@ -858,9 +852,9 @@ void SplashScreenContainerWidget::checkSplashscreenImage(const QString &name)
                                  lowDpiImagePath};
 
         for (const QString &path : paths) {
-            const FilePath filePath = baseDir.pathAppended(path + name);
+            const FilePath filePath = m_manifestDirectory.pathAppended(path + name);
             if (filePath.stringAppended(".png").exists() || filePath.stringAppended(".jpg").exists()
-                    || filePath.stringAppended(".jpeg").exists()) {
+                || filePath.stringAppended(".jpeg").exists()) {
                 setCurrentIndex(1);
                 break;
             }
@@ -887,6 +881,11 @@ QString SplashScreenContainerWidget::landscapeImageName() const
 {
     return splashscreenLandscapeName;
 }
+
+FilePath SplashScreenContainerWidget::manifestDirectory() const
+{
+        return m_manifestDirectory;
+};
 
 } // namespace Android::Internal
 

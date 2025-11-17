@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/fileutils.h>
+
 #include <QList>
 #include <QStackedWidget>
 
@@ -23,8 +25,8 @@ class SplashScreenContainerWidget : public QStackedWidget
 {
     Q_OBJECT
 public:
-    explicit SplashScreenContainerWidget(QWidget *parent,
-                                         TextEditor::TextEditorWidget *textEditorWidget);
+    explicit SplashScreenContainerWidget(QWidget *parent);
+    bool initialize(TextEditor::TextEditorWidget *textEditorWidget);
     void loadImages();
     bool hasImages() const;
     bool hasPortraitImages() const;
@@ -36,6 +38,8 @@ public:
     QString landscapeImageName() const;
     void checkSplashscreenImage(const QString &name);
     bool isSplashscreenEnabled();
+    Utils::FilePath manifestDirectory() const;
+
 signals:
     void splashScreensModified();
 
@@ -47,6 +51,7 @@ private:
     void clearAll();
 
     TextEditor::TextEditorWidget *m_textEditorWidget = nullptr;
+    Utils::FilePath m_manifestDirectory;
     QList<SplashScreenWidget *> m_imageWidgets;
     QList<SplashScreenWidget *> m_portraitImageWidgets;
     QList<SplashScreenWidget *> m_landscapeImageWidgets;
