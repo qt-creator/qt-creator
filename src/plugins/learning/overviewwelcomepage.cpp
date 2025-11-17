@@ -569,6 +569,7 @@ public:
         auto iconLabel = new QLabel;
         iconLabel->setPixmap(iconPixmap);
         iconLabel->setFixedWidth(iconPixmap.deviceIndependentSize().width());
+        iconLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
 
         static constexpr TextFormat labelTF {
             .themeColor = Theme::Token_Accent_Default,
@@ -577,6 +578,7 @@ public:
         };
         m_label = new ElidingLabel;
         m_label->setElideMode(Qt::ElideMiddle);
+        m_label->setAttribute(Qt::WA_TransparentForMouseEvents);
         applyTf(m_label, labelTF);
         // Hack: H5 line height is too low
         const int originalTextHeight = m_label->height();
