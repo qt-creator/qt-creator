@@ -66,7 +66,7 @@ private:
     bool m_readerIsActive;
     QString m_customId;
     Annotation m_annotation;
-    AnnotationEditorDialog *m_annotationEditor;
+    QPointer<AnnotationEditorDialog> m_annotationEditor;
 
     QString m_normalIconStr;
     QString m_activeIconStr;
