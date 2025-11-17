@@ -13,6 +13,10 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
 
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/project.h>
+
 #include <QAbstractItemView>
 #include <QAbstractTableModel>
 #include <QColor>
@@ -159,7 +163,7 @@ QVariant QmlFormatOptionsModel::data(const QModelIndex &index, int role) const
         // Show hidden options in gray
         return QColor(Qt::gray);
     } else if (role == Qt::ToolTipRole && option.hidden) {
-        return tr("This option was found in the INI file but is not a standard qmlformat option");
+        return Tr::tr("This option was found in the INI file but is not a standard qmlformat option");
     }
 
     return QVariant();
@@ -170,9 +174,9 @@ QVariant QmlFormatOptionsModel::headerData(int section, Qt::Orientation orientat
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
         case Column::Name:
-            return tr("Option");
+            return Tr::tr("Option");
         case Column::Value:
-            return tr("Value");
+            return Tr::tr("Value");
         }
     }
     return QVariant();
@@ -421,6 +425,7 @@ private:
     QTableView *m_optionsTableView;
     QmlFormatOptionsModel *m_optionsModel;
     QmlFormatOptionsDelegate *m_optionsDelegate;
+    QPushButton *m_deployIniButton;
     QPushButton *m_tableResetButton;
     FormatterSelectionWidget *m_formatterSelectionWidget = nullptr;
     QmlJSCodeStylePreferences *m_preferences = nullptr;
@@ -433,6 +438,7 @@ QmlFormatSettingsWidget::QmlFormatSettingsWidget(
     , m_optionsTableView(new QTableView())
     , m_optionsModel(new QmlFormatOptionsModel(this))
     , m_optionsDelegate(new QmlFormatOptionsDelegate(m_optionsModel, this))
+    , m_deployIniButton(new QPushButton(Tr::tr("Deploy INI file to current project")))
     , m_tableResetButton(new QPushButton(Tr::tr("Reset to Defaults")))
     , m_formatterSelectionWidget(selection)
 {
@@ -460,7 +466,12 @@ QmlFormatSettingsWidget::QmlFormatSettingsWidget(
                 m_optionsTableView,
                 Row {
                     st,
+                    m_deployIniButton,
                     m_tableResetButton,
+                },
+                Label {
+                    wordWrap(true),
+                    text("<i>" + Tr::tr("Global formatting options are ignored by projects having their own deployed .qmlformat.ini files.") + "</i>"),
                 },
             },
         },
@@ -481,6 +492,21 @@ QmlFormatSettingsWidget::QmlFormatSettingsWidget(
         &QPushButton::clicked,
         this,
         &QmlFormatSettingsWidget::resetOptions);
+
+    connect(
+        m_deployIniButton,
+        &QPushButton::clicked,
+        this,
+        [this](){
+            if (ProjectExplorer::Project * const p = ProjectExplorer::ProjectTree::currentProject())
+                p->projectDirectory().pathAppended(".qmlformat.ini").writeFileContents(m_optionsModel->writeGlobalQmlFormatIniFile().toUtf8());
+        });
+
+    m_deployIniButton->setEnabled(ProjectExplorer::ProjectTree::currentProject());
+    connect(ProjectExplorer::ProjectTree::instance(), &ProjectExplorer::ProjectTree::currentProjectChanged,
+            this, [=]() {
+                m_deployIniButton->setEnabled( ProjectExplorer::ProjectTree::currentProject());
+            });
 }
 
 void QmlFormatSettingsWidget::setCodeStyleSettings(const QmlJSCodeStyleSettings &s)
