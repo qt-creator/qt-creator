@@ -4,6 +4,7 @@
 #include "projectwelcomepage.h"
 
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 
@@ -162,7 +163,7 @@ ProjectWelcomePage::ProjectWelcomePage()
 
 Utils::Id ProjectWelcomePage::id() const
 {
-    return "Develop";
+    return Constants::PROJECT_WELCOMEPAGE_ID;
 }
 
 void ProjectWelcomePage::reloadWelcomeScreenData() const

@@ -243,6 +243,9 @@ const char SDK_SETTINGS_CATEGORY[] = "AN.SDKs";
 const char WINDOWS_SETTINGS_ID[] = "Windows Configurations";
 const char WINDOWS_WINAPPSDK_ROOT_ENV_KEY[] = "WIN_APP_SDK_ROOT";
 
+// Welcome page
+const char PROJECT_WELCOMEPAGE_ID[] = "Develop";
+
 // UI texts
 PROJECTEXPLORER_EXPORT QString msgAutoDetected();
 PROJECTEXPLORER_EXPORT QString msgAutoDetectedToolTip();

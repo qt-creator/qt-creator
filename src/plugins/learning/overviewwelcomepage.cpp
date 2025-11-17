@@ -19,11 +19,13 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/iwelcomepage.h>
 #include <coreplugin/welcomepagehelper.h>
 
 #include <extensionmanager/extensionmanagerlegalnotice.h>
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <qtsupport/qtversionmanager.h>
 
@@ -672,7 +674,14 @@ public:
                 Column {
                     list,
                     st,
-                    // TODO: Add "Show all" button
+                    Row {
+                        st,
+                        QtcWidgets::Button {
+                            text(Tr::tr("Show All")),
+                            role(QtcButton::MediumGhost),
+                            onClicked(this, showAll),
+                        },
+                    },
                     noMargin,
                 },
                 Grid {
@@ -713,8 +722,18 @@ private:
         }
     }
 
+    static void showAll()
+    {
+        IWelcomePage *projectsPage = Utils::findOr(IWelcomePage::allWelcomePages(), nullptr,
+                                                   [](IWelcomePage *page) {
+            return page->id() == Utils::Id(ProjectExplorer::Constants::PROJECT_WELCOMEPAGE_ID);
+        });
+        if (projectsPage)
+            emit projectsPage->requestedBeingCurrent();
+    }
+
     QList<RecentProjectItem *> m_items;
-    static const int m_maxProjects = 5;
+    static const int m_maxProjects = 4;
 };
 
 class OverviewWelcomePageWidget final : public QWidget
