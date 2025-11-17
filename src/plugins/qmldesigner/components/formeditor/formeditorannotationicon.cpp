@@ -32,7 +32,6 @@ FormEditorAnnotationIcon::FormEditorAnnotationIcon(const ModelNode &modelNode, Q
     , m_readerIsActive(false)
     , m_customId(modelNode.customId())
     , m_annotation(modelNode.annotation())
-    , m_annotationEditor(nullptr)
     , m_normalIconStr(":icon/layout/annotationsIcon.png")
     , m_activeIconStr(":icon/layout/annotationsIconActive.png")
     , m_iconW(40)
@@ -485,15 +484,13 @@ void FormEditorAnnotationIcon::createAnnotationEditor()
 {
     NanotraceHR::Tracer tracer{"formeditor annotation icon create annotation editor", category()};
 
-    if (m_annotationEditor) {
+    if (m_annotationEditor)
         m_annotationEditor->close();
-        m_annotationEditor->deleteLater();
-        m_annotationEditor = nullptr;
-    }
 
     m_annotationEditor = new AnnotationEditorDialog(Core::ICore::dialogParent(),
                                                     m_modelNode.displayName(),
                                                     m_modelNode.customId());
+    m_annotationEditor->setAttribute(Qt::WA_DeleteOnClose);
     m_annotationEditor->setAnnotation(m_modelNode.annotation());
 
     connect(m_annotationEditor, &AnnotationEditorDialog::acceptedDialog,
@@ -549,10 +546,7 @@ void FormEditorAnnotationIcon::annotationDialogAccepted()
         m_annotation = annotation;
 
         m_annotationEditor->close();
-        m_annotationEditor->deleteLater();
     }
-
-    m_annotationEditor = nullptr;
 
     if (m_readerIsActive)
         resetReader();
@@ -562,12 +556,8 @@ void FormEditorAnnotationIcon::annotationDialogRejected()
 {
     NanotraceHR::Tracer tracer{"formeditor annotation icon annotation dialog rejected", category()};
 
-    if (m_annotationEditor) {
+    if (m_annotationEditor)
         m_annotationEditor->close();
-        m_annotationEditor->deleteLater();
-    }
-
-    m_annotationEditor = nullptr;
 }
 
 } //QmlDesigner
