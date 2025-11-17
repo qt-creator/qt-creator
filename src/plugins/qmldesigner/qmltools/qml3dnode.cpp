@@ -12,6 +12,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QQuaternion>
+
 namespace QmlDesigner {
 
 using NanotraceHR::keyValue;
