@@ -18,22 +18,10 @@ Item {
         anchors.fill: parent
         anchors.margins: StudioTheme.Values.marginTopBottom
 
-        Flow {
-            spacing: 3
+        PresetPrompts {
             Layout.fillWidth: true
 
-            Repeater {
-                model: ["Add a rectangle", "Add a button", "Add a Text", "Create a sample UI", "Remove all objects"]
-
-                delegate: PromptButton {
-                    required property string modelData
-
-                    label: modelData
-                    enabled: !root.rootView.isGenerating && root.rootView.hasValidModel && root.rootView.termsAccepted
-
-                    onClicked: promptTextBox.text = modelData
-                }
-            }
+            onTriggered: (prompt) => promptTextBox.text = prompt
         }
 
         AiModelsComboBox {
@@ -90,7 +78,7 @@ Item {
 
                 buttonIcon: StudioTheme.Constants.settings_medium
 
-                tooltip: qsTr("Open AI assistant settings.")
+                tooltip: qsTr("Open AI Assistant settings.")
                 enabled: root.rootView.termsAccepted && !root.rootView.isGenerating
 
                 onClicked: root.rootView.openModelSettings()

@@ -14,8 +14,8 @@ Rectangle {
     property alias enabled: mouseArea.enabled
     property string tooltip: ""
 
-    width: labelText.width + 10
-    height: labelText.height + 10
+    width: labelText.width + 12
+    height: labelText.height + 8
     radius: StudioTheme.Values.smallRadius
 
     objectName: label // for Squish identification
