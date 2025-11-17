@@ -616,7 +616,8 @@ public:
             updateHovered();
             return true;
         case QEvent::MouseButtonPress:
-            ProjectExplorer::ProjectExplorerPlugin::openProject(m_recentProjectEntry.filePath);
+            ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(
+                 m_recentProjectEntry.filePath);
             return true;
         default:
             return QWidget::event(event);
