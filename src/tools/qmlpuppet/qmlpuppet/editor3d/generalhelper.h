@@ -39,6 +39,7 @@ class GeneralHelper : public QObject
     Q_PROPERTY(QVariant bgColor READ bgColor NOTIFY bgColorChanged FINAL)
     Q_PROPERTY(double minGridStep READ minGridStep NOTIFY minGridStepChanged FINAL)
     Q_PROPERTY(double cameraSpeed READ cameraSpeed NOTIFY cameraSpeedChanged FINAL)
+    Q_PROPERTY(int qtVersion READ qtVersionForQml CONSTANT)
 
     Q_PROPERTY(
         QQuick3DCamera *activeScenePreferredCamera
@@ -128,8 +129,11 @@ public:
     Q_INVOKABLE QColor sceneEnvironmentColor(const QString &sceneId) const;
     Q_INVOKABLE QQuick3DTexture *sceneEnvironmentLightProbe(const QString &sceneId) const;
     Q_INVOKABLE QQuick3DCubeMapTexture *sceneEnvironmentSkyBoxCubeMap(const QString &sceneId) const;
-    Q_INVOKABLE void updateSceneEnvToLast(QQuick3DSceneEnvironment *env, QQuick3DTexture *lightProbe,
-                                          QQuick3DCubeMapTexture *cubeMap);
+    Q_INVOKABLE QUrl sceneEnvironmentLightMapperSource(const QString &sceneId) const;
+    Q_INVOKABLE void updateSceneEnvToLast(QQuick3DSceneEnvironment *env,
+                                          QQuick3DTexture *lightProbe,
+                                          QQuick3DCubeMapTexture *cubeMap,
+                                          QQuick3DLightmapper *lightMapper);
     Q_INVOKABLE bool sceneHasLightProbe(const QString &sceneId);
 
     void clearSceneEnvironmentData();
@@ -179,6 +183,9 @@ public:
     QQuick3DCamera *activeScenePreferredCamera() const;
     void setActiveScenePreferredCamera(QQuick3DCamera *camera);
 
+    void setFileUrl(const QUrl &url);
+    int qtVersionForQml() const;
+
 signals:
     void overlayUpdateNeeded();
     void toolStateChanged(const QString &sceneId, const QString &tool, const QVariant &toolState);
@@ -224,6 +231,7 @@ private:
         QColor clearColor;
         QPointer<QQuick3DTexture> lightProbe;
         QPointer<QQuick3DCubeMapTexture> skyBoxCubeMap;
+        QUrl lightMapperSource;
     };
     QHash<QString, SceneEnvData> m_sceneEnvironmentData;
     QVariantMap m_lastSceneEnvData;
@@ -256,6 +264,7 @@ private:
 
     QVariant m_bgColor;
     QHash<QString, QTimer *> m_eventTimers;
+    QUrl m_qmlFileUrl;
 };
 
 }

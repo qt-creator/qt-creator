@@ -8,6 +8,11 @@
 
 #include <enumeration.h>
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+#include <QDir>
+#include <QFileInfo>
+#endif
+
 #include <QGuiApplication>
 #include <QtQuick3D/qquick3dobject.h>
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
@@ -55,6 +60,9 @@ const QString _sourceProp = QStringLiteral("source");
 const QString _cubeProp = QStringLiteral("skyBoxCubeMap");
 const QString _bgProp = QStringLiteral("backgroundMode");
 const QString _colorProp = QStringLiteral("clearColor");
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+const QString _lightMapperSourceProp = QStringLiteral("lightMapperSource");
+#endif
 
 static const float floatMin = std::numeric_limits<float>::lowest();
 static const float floatMax = std::numeric_limits<float>::max();
@@ -792,7 +800,27 @@ void GeneralHelper::setSceneEnvironmentData(const QString &sceneId,
         SceneEnvData &data = m_sceneEnvironmentData[sceneId];
         data.backgroundMode = env->backgroundMode();
         data.clearColor = env->clearColor();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+        if (env->lightmapper()) {
+            // Lightmapper source is usually relative path, but since puppet is executing from
+            // different path, we much convert it to absolute
+            const QUrl sourceUrl = env->lightmapper()->source();
+            QString lightMapperSource;
+            if (sourceUrl.isLocalFile())
+                lightMapperSource = sourceUrl.toLocalFile();
+            else
+                lightMapperSource = sourceUrl.toString();
 
+            if (!QFileInfo(lightMapperSource).isAbsolute()) {
+                QString qmlFilePath = m_qmlFileUrl.toLocalFile();
+                QDir qmlDir = QFileInfo(qmlFilePath).absoluteDir();
+                lightMapperSource = qmlDir.absoluteFilePath(lightMapperSource);
+            }
+            data.lightMapperSource = QUrl(lightMapperSource);
+        } else {
+            data.lightMapperSource.clear();
+        }
+#endif
         if (data.lightProbe)
             disconnect(data.lightProbe, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
         data.lightProbe = env->lightProbe();
@@ -835,8 +863,15 @@ QQuick3DCubeMapTexture *GeneralHelper::sceneEnvironmentSkyBoxCubeMap(const QStri
     return m_sceneEnvironmentData[sceneId].skyBoxCubeMap.data();
 }
 
-void GeneralHelper::updateSceneEnvToLast(QQuick3DSceneEnvironment *env, QQuick3DTexture *lightProbe,
-                                         QQuick3DCubeMapTexture *cubeMap)
+QUrl GeneralHelper::sceneEnvironmentLightMapperSource(const QString &sceneId) const
+{
+    return m_sceneEnvironmentData[sceneId].lightMapperSource;
+}
+
+void GeneralHelper::updateSceneEnvToLast(QQuick3DSceneEnvironment *env,
+                                         QQuick3DTexture *lightProbe,
+                                         QQuick3DCubeMapTexture *cubeMap,
+                                         [[maybe_unused]] QQuick3DLightmapper *lightMapper)
 {
     if (!env)
         return;
@@ -880,6 +915,18 @@ void GeneralHelper::updateSceneEnvToLast(QQuick3DSceneEnvironment *env, QQuick3D
             env->setSkyBoxCubeMap(nullptr);
         }
     }
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    if (lightMapper) {
+        if (m_lastSceneEnvData.contains(_lightMapperSourceProp)) {
+            lightMapper->setSource(m_lastSceneEnvData[_lightMapperSourceProp].toUrl());
+            env->setLightmapper(lightMapper);
+        } else {
+            env->setLightmapper(nullptr);
+            lightMapper->setSource({});
+        }
+    }
+#endif
 }
 
 bool GeneralHelper::sceneHasLightProbe(const QString &sceneId)
@@ -1616,7 +1663,18 @@ void GeneralHelper::setActiveScenePreferredCamera(QQuick3DCamera *camera)
         emit activeScenePreferredCameraChanged();
     }
 }
+
+void GeneralHelper::setFileUrl(const QUrl &url)
+{
+    m_qmlFileUrl = url;
 }
+
+int GeneralHelper::qtVersionForQml() const
+{
+    return (QT_VERSION_MAJOR * 100) + QT_VERSION_MINOR;
 }
+
+} // Internal
+} // QmlDesigner
 
 #endif // QUICK3D_MODULE

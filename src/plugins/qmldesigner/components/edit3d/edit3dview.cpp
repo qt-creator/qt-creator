@@ -935,7 +935,7 @@ void Edit3DView::storeCurrentSceneEnvironment()
     if (sceneEnvNode.isValid()) {
         QVariantMap lastSceneEnvData;
 
-        auto insertPropValue = [](const PropertyName prop, const QmlObjectNode &node,
+        auto insertPropValue = [](const PropertyName &prop, const QmlObjectNode &node,
                                   QVariantMap &map) {
             if (!node.hasProperty(prop))
                 return;
@@ -943,7 +943,7 @@ void Edit3DView::storeCurrentSceneEnvironment()
             map.insert(QString::fromUtf8(prop), node.modelValue(prop));
         };
 
-        auto insertTextureProps = [&](const PropertyName prop) {
+        auto insertTextureProps = [&](const PropertyName &prop) {
             // For now we just grab the absolute path of texture source for simplicity
             if (!sceneEnvNode.hasProperty(prop))
                 return;
@@ -968,10 +968,33 @@ void Edit3DView::storeCurrentSceneEnvironment()
             }
         };
 
+        auto insertLightMapperSource = [&](const PropertyName &prop) {
+            if (!sceneEnvNode.hasProperty(prop))
+                return;
+
+            QmlObjectNode bindNode = QmlItemNode(sceneEnvNode).bindingProperty(prop)
+                                         .resolveToModelNode();
+            if (bindNode.isValid()) {
+                const PropertyName sourceProp = "source";
+                if (bindNode.hasProperty(sourceProp)) {
+                    Utils::FilePath qmlPath = Utils::FilePath::fromUrl(
+                                                  model()->fileUrl()).absolutePath();
+                    Utils::FilePath sourcePath = Utils::FilePath::fromUrl(
+                        bindNode.modelValue(sourceProp).toUrl());
+
+                    sourcePath = qmlPath.resolvePath(sourcePath);
+                    lastSceneEnvData.insert("lightMapperSource",
+                                            sourcePath.absoluteFilePath().toUrl());
+                }
+            }
+        };
+
         insertPropValue("backgroundMode", sceneEnvNode, lastSceneEnvData);
         insertPropValue("clearColor", sceneEnvNode, lastSceneEnvData);
         insertTextureProps("lightProbe");
         insertTextureProps("skyBoxCubeMap");
+        if (m_kitVersion >= QVersionNumber(6, 10, 0))
+            insertLightMapperSource("lightmapper");
 
         emitView3DAction(View3DActionType::SetLastSceneEnvData, lastSceneEnvData);
     }

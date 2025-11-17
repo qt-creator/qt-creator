@@ -17,6 +17,7 @@ View3D {
     property alias sceneEnv: sceneEnv
     property alias defaultLightProbe: defaultLightProbe
     property alias defaultCubeMap: defaultCubeMap
+    property alias defaultLightMapper: defaultLightMapper
     property vector3d cameraLookAt
     property var selectionBoxes: []
     property Node selectedNode
@@ -70,6 +71,10 @@ View3D {
 
         CubeMapTexture {
             id: defaultCubeMap
+        }
+
+        Lightmapper {
+            id: defaultLightMapper
         }
     }
 

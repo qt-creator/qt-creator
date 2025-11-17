@@ -1997,6 +1997,7 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
     QString lastSceneId;
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
     if (helper) {
+        helper->setFileUrl(command.fileUrl);
         auto it = toolStates.constBegin();
         while (it != toolStates.constEnd()) {
             helper->initToolStates(it.key(), it.value());
@@ -2478,7 +2479,7 @@ void Qt5InformationNodeInstanceServer::updateSceneEnvToHelper()
 bool Qt5InformationNodeInstanceServer::isSceneEnvironmentBgProperty(const PropertyName &name) const
 {
     return name == "backgroundMode" || name == "clearColor"
-           || name == "lightProbe" || name == "skyBoxCubeMap";
+           || name == "lightProbe" || name == "skyBoxCubeMap" || name == "lightmapper";
 }
 
 void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)

@@ -335,16 +335,31 @@ Item {
                     editViews[i].sceneEnv.lightProbe = _generalHelper.sceneEnvironmentLightProbe(sceneId);
                     editViews[i].sceneEnv.skyBoxCubeMap = _generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId);
                     editViews[i].sceneEnv.clearColor = _generalHelper.sceneEnvironmentColor(sceneId);
+                    if (_generalHelper.qtVersion >= 610) {
+                        let sourceUrl = _generalHelper.sceneEnvironmentLightMapperSource(sceneId);
+                        if (sourceUrl !== Qt.url("")) {
+                            editViews[i].defaultLightMapper.source = sourceUrl;
+                            editViews[i].sceneEnv.lightmapper = editViews[i].defaultLightMapper;
+                        } else {
+                            editViews[i].sceneEnv.lightmapper = null;
+                            editViews[i].defaultLightMapper.source = "";
+                        }
+                    }
                 } else if (activeScene) {
                     _generalHelper.updateSceneEnvToLast(editViews[i].sceneEnv,
                                                         editViews[i].defaultLightProbe,
-                                                        editViews[i].defaultCubeMap);
+                                                        editViews[i].defaultCubeMap,
+                                                        editViews[i].defaultLightmapper);
                 }
             } else {
                 editViews[i].sceneEnv.backgroundMode = SceneEnvironment.Transparent;
                 editViews[i].sceneEnv.lightProbe = null;
                 editViews[i].sceneEnv.skyBoxCubeMap = null;
                 editViews[i].sceneEnv.clearColor = "transparent";
+                if (_generalHelper.qtVersion >= 610) {
+                    editViews[i].sceneEnv.lightmapper = null;
+                    editViews[i].defaultLightMapper.source = "";
+                }
             }
         }
     }
