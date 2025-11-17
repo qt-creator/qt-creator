@@ -12,6 +12,7 @@
 #include <utils/result.h>
 
 QT_BEGIN_NAMESPACE
+class QMenu;
 class QPoint;
 class QThreadPool;
 QT_END_NAMESPACE
@@ -160,6 +161,7 @@ public:
 
     static void updateRunActions();
     static void updateVcsActions(const QString &vcsDisplayName, const QString &pathName);
+    static QMenu *vcsFileContextMenu();
 
     static QWidget *createRecentProjectsView();
 

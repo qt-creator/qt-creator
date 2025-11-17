@@ -249,6 +249,7 @@ const char SEARCHONFILESYSTEM[]   = "ProjectExplorer.SearchOnFileSystem";
 const char VCS_LOG[]              = "ProjectExplorer.VcsLog";
 const char VCS_DIFF[]             = "ProjectExplorer.VcsDiff";
 const char VCS_ANNOTATE[]         = "ProjectExplorer.VcsAnnotate";
+const char VCS_FILE[]             = "ProjectExplorer.VcsFile";
 const char OPENTERMINALHERE[]     = "ProjectExplorer.OpenTerminalHere";
 const char SHOWINFILESYSTEMVIEW[] = "ProjectExplorer.OpenFileSystemView";
 const char DUPLICATEFILE[]        = "ProjectExplorer.DuplicateFile";
@@ -607,6 +608,7 @@ public:
 public:
     QMenu *m_openWithMenu;
     QMenu *m_openTerminalMenu;
+    QMenu *m_vcsFileMenu;
 
     QAction *m_newAction;
     QAction *m_loadAction;
@@ -1273,6 +1275,14 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     cmd = ActionManager::registerAction(dd->m_vcsAnnotateAction, Constants::VCS_ANNOTATE, projectTreeContext);
     cmd->setAttribute(Command::CA_UpdateText);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
+
+    // VCS file submenu
+    ActionContainer * const vcsFile =
+            ActionManager::createMenu(ProjectExplorer::Constants::M_VCSFILECONTEXT);
+    vcsFile->setOnAllDisabledBehavior(ActionContainer::Show);
+    dd->m_vcsFileMenu = vcsFile->menu();
+    dd->m_vcsFileMenu->setTitle("VCS File");
+    mfileContextMenu->addMenu(vcsFile, Constants::G_FILE_OTHER);
 
     dd->m_showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), this);
     cmd = ActionManager::registerAction(dd->m_showInGraphicalShell,
@@ -3715,6 +3725,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
             m_vcsLogAction->setVisible(false);
             m_vcsDiffAction->setVisible(false);
             m_vcsAnnotateAction->setVisible(false);
+            m_vcsFileMenu->setEnabled(false);
         }
 
         if (supports(HideFileActions)) {
@@ -4338,6 +4349,11 @@ void ProjectExplorerPlugin::updateVcsActions(const QString &vcsDisplayName, cons
     //: %1 = version control name, %2 file or directory
     dd->m_vcsAnnotateAction->setText(Tr::tr("%1 Annotate \"%2\"").arg(vcsDisplayName, pathName));
     dd->m_vcsAnnotateAction->setVisible(!vcsDisplayName.isEmpty());
+}
+
+QMenu *ProjectExplorerPlugin::vcsFileContextMenu()
+{
+    return dd->m_vcsFileMenu;
 }
 
 QWidget *ProjectExplorerPlugin::createRecentProjectsView()

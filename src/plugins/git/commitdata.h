@@ -21,28 +21,6 @@ public:
     QString branch;
 };
 
-enum FileAction {
-    FileRevertAll,
-    FileRevertUnstaged,
-    FileRevertDeletion,
-    FileCopyClipboard,
-    FileOpenEditor,
-    FileAdd,
-    FileStage,
-    FileUnstage,
-    FileUnstageAdded,
-    FileRevertRenaming,
-    FileRemove,
-    FileAddGitignore,
-    FileMergeTool,
-    FileMergeDiffIncoming,
-    FileMergeResolved,
-    FileMergeOurs,
-    FileMergeTheirs,
-    FileMergeRemove,
-    FileMergeRecover
-};
-
 enum PushAction {
     NoPush,
     NormalPush,

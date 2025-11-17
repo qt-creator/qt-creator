@@ -5,6 +5,7 @@
 
 #include "commitdata.h"
 
+#include <coreplugin/iversioncontrol.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <vcsbase/submiteditorwidget.h>
 #include <utils/filepath.h>
@@ -53,7 +54,7 @@ protected:
 signals:
     void showRequested(const QString &commit);
     void logRequested(const QStringList &range);
-    void fileActionRequested(const Utils::FilePath &filePath, FileAction action);
+    void fileActionRequested(const Utils::FilePath &filePath, Core::IVersionControl::FileAction action);
 
 private:
     void authorInformationChanged();

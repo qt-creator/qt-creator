@@ -271,6 +271,8 @@ QString GitSubmitEditorWidget::commitName() const
 
 void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelIndex &index)
 {
+    using namespace Core;
+
     // Do not add context menu actions when multiple files are selected
     if (selectedRows().size() > 1)
         return;
@@ -284,14 +286,14 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
     const auto addAction =
         [this,
          menu,
-         filePath](const QString &title, FileAction action, const QString &revertPrompt = {}) {
-            QAction *act = menu->addAction(title);
+         filePath](const QString &title, IVersionControl::FileAction action, const QString &revertPrompt = {}) {
+            QAction *act = menu->addAction(title.arg(filePath.toUserOutput()));
             connect(act, &QAction::triggered, this, [=, this] {
                 if (!revertPrompt.isEmpty()) {
                     const int result = QMessageBox::question(
                         this,
                         Tr::tr("Confirm File Changes"),
-                        revertPrompt,
+                        revertPrompt.arg(filePath.toUserOutput()),
                         QMessageBox::Yes | QMessageBox::No);
                     if (result != QMessageBox::Yes)
                         return;
@@ -299,71 +301,70 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
                 emit fileActionRequested(filePath, action);
             });
         };
-    const QString fp = filePath.toUserOutput();
-    addAction(Tr::tr("Open \"%1\"").arg(fp), FileOpenEditor);
+    addAction(Tr::tr("Open \"%1\""), IVersionControl::FileOpenEditor);
     menu->addSeparator();
-    addAction(Tr::tr("Copy \"%1\"").arg(fp), FileCopyClipboard);
+    addAction(Tr::tr("Copy \"%1\""), IVersionControl::FileCopyClipboard);
     Core::EditorManager::addContextMenuActions(menu, fullFilePath);
     menu->addSeparator();
     if (state & RenamedFile) {
-        addAction(Tr::tr("Revert Renaming \"%1\"").arg(fp), FileRevertRenaming);
+        addAction(Tr::tr("Revert Renaming \"%1\""), IVersionControl::FileRevertRenaming);
     }
     if (state & (UnmergedFile | UnmergedThem | UnmergedUs)) {
-        addAction(Tr::tr("Run Merge Tool for \"%1\"").arg(fp), FileMergeTool);
-        addAction(Tr::tr("Diff Incoming Changes for \"%1\"").arg(fp), FileMergeDiffIncoming);
+        addAction(Tr::tr("Run Merge Tool for \"%1\""), IVersionControl::FileMergeTool);
+        addAction(Tr::tr("Diff Incoming Changes for \"%1\""), IVersionControl::FileMergeDiffIncoming);
 
         if (state & DeletedFile) {
-            addAction(Tr::tr("Resolve by Recovering \"%1\"").arg(fp), FileMergeRecover);
-            addAction(Tr::tr("Resolve by Removing \"%1\"...").arg(fp), FileMergeRemove,
+            addAction(Tr::tr("Resolve by Recovering \"%1\""), IVersionControl::FileMergeRecover);
+            addAction(Tr::tr("Resolve by Removing \"%1\"..."), IVersionControl::FileMergeRemove,
                       Tr::tr("<p>Permanently remove file \"%1\"?</p>"
-                             "<p>Note: The changes will be discarded.</p>").arg(fp));
+                             "<p>Note: The changes will be discarded.</p>"));
         } else {
-            addAction(Tr::tr("Mark Conflicts Resolved for \"%1\"").arg(fp), FileMergeResolved);
-            addAction(Tr::tr("Resolve Conflicts in \"%1\" with Ours...").arg(fp), FileMergeOurs,
+            addAction(Tr::tr("Mark Conflicts Resolved for \"%1\""), IVersionControl::FileMergeResolved);
+            addAction(Tr::tr("Resolve Conflicts in \"%1\" with Ours..."), IVersionControl::FileMergeOurs,
                       Tr::tr("<p>Resolve all conflicts to the file \"%1\" with <b>our</b> version?</p>"
-                             "<p>Note: The other changes will be discarded.</p>").arg(fp));
-            addAction(Tr::tr("Resolve Conflicts in \"%1\" with Theirs...").arg(fp), FileMergeTheirs,
+                             "<p>Note: The other changes will be discarded.</p>"));
+            addAction(Tr::tr("Resolve Conflicts in \"%1\" with Theirs..."), IVersionControl::FileMergeTheirs,
                       Tr::tr("<p>Resolve all conflicts to the file \"%1\" with <b>their</b> version?</p>"
-                             "<p>Note: Our changes will be discarded.</p>").arg(fp));
+                             "<p>Note: Our changes will be discarded.</p>"));
         }
     } else if (state & DeletedFile) {
-        addAction(Tr::tr("Recover \"%1\"").arg(fp), FileRevertDeletion);
+        addAction(Tr::tr("Recover \"%1\""), IVersionControl::FileRevertDeletion);
     } else if (state & AddedFile) {
         if (state & StagedFile) {
-            addAction(Tr::tr("Unstage \"%1\"").arg(fp), FileUnstageAdded);
+            addAction(Tr::tr("Unstage \"%1\""), IVersionControl::FileUnstageAdded);
         } else {
-            addAction(Tr::tr("Stage \"%1\"").arg(fp), FileStage);
-            addAction(Tr::tr("Mark Untracked \"%1\"").arg(fp), FileUnstage);
-            addAction(Tr::tr("Remove \"%1\"...").arg(fp), FileRemove,
+            addAction(Tr::tr("Stage \"%1\""), IVersionControl::FileStage);
+            addAction(Tr::tr("Mark Untracked \"%1\""), IVersionControl::FileUnstage);
+            addAction(Tr::tr("Remove \"%1\"..."), IVersionControl::FileRemove,
                       Tr::tr("<p>Permanently remove the file \"%1\"?</p>"
-                             "<p>Note: The deletion cannot be undone.</p>").arg(fp));
+                             "<p>Note: The deletion cannot be undone.</p>"));
         }
     } else if (state == (StagedFile | ModifiedFile)) {
-        addAction(Tr::tr("Unstage \"%1\"").arg(fp), FileUnstage);
+        addAction(Tr::tr("Unstage \"%1\""), IVersionControl::FileUnstage);
         menu->addSeparator();
         addAction(
-            Tr::tr("Revert All Changes to \"%1\"...").arg(fp),
-            FileRevertAll,
+            Tr::tr("Revert All Changes to \"%1\"..."),
+            IVersionControl::FileRevertAll,
             Tr::tr("<p>Undo <b>all</b> changes to the file \"%1\"?</p>"
-                   "<p>Note: These changes will be lost.</p>").arg(fp));
+                   "<p>Note: These changes will be lost.</p>"));
     } else if (state == ModifiedFile) {
-        addAction(Tr::tr("Stage \"%1\"").arg(fp), FileStage);
+        addAction(Tr::tr("Stage \"%1\""), IVersionControl::FileStage);
         menu->addSeparator();
         addAction(
-            Tr::tr("Revert Unstaged Changes to \"%1\"...").arg(fp),
-            FileRevertUnstaged,
+            Tr::tr("Revert Unstaged Changes to \"%1\"..."),
+            IVersionControl::FileRevertUnstaged,
             Tr::tr("<p>Undo unstaged changes to the file \"%1\"?</p>"
-                   "<p>Note: These changes will be lost.</p>").arg(fp));
+                   "<p>Note: These changes will be lost.</p>"));
     } else if (state == UntrackedFile) {
-        addAction(Tr::tr("Add \"%1\"").arg(fp), FileAdd);
-        addAction(Tr::tr("Stage \"%1\"").arg(fp), FileStage);
+        addAction(Tr::tr("Add \"%1\""), IVersionControl::FileAdd);
+        addAction(Tr::tr("Stage \"%1\""), IVersionControl::FileStage);
         menu->addSeparator();
-        addAction(Tr::tr("Remove \"%1\"...").arg(fp), FileRemove,
+        addAction(Tr::tr("Remove \"%1\"..."), IVersionControl::FileRemove,
                   Tr::tr("<p>Permanently remove the file \"%1\"?</p>"
-                         "<p>Note: The deletion cannot be undone.</p>").arg(fp));
+                         "<p>Note: The deletion cannot be undone.</p>"));
         menu->addSeparator();
         const char message[] = "Add to gitignore \"%1\"";
-        addAction(Tr::tr(message).arg("/" + filePath.path()), FileAddGitignore);
+        addAction(Tr::tr(message).arg("/" + filePath.path()), IVersionControl::FileAddGitignore);
         const std::optional<Utils::FilePath> path = filePath.tailRemoved(filePath.fileName());
         if (!path.has_value())
             return;
@@ -376,12 +377,12 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
         const Utils::FilePath suffixMask = path->stringAppended("*." + suffix);
         QAction *act0 = menu->addAction(Tr::tr(message).arg("/" + suffixMask.path()));
         connect(act0, &QAction::triggered, this, [suffixMask, this] {
-            emit fileActionRequested(suffixMask, FileAddGitignore);
+            emit fileActionRequested(suffixMask, IVersionControl::FileAddGitignore);
         });
         const Utils::FilePath nameMask = path->stringAppended(baseName + ".*");
         QAction *act1 = menu->addAction(Tr::tr(message).arg("/" + nameMask.path()));
         connect(act1, &QAction::triggered, this, [nameMask, this] {
-            emit fileActionRequested(nameMask, FileAddGitignore);
+            emit fileActionRequested(nameMask, IVersionControl::FileAddGitignore);
         });
     }
 }

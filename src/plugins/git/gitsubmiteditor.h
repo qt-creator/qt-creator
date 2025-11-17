@@ -7,6 +7,8 @@
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
+#include <coreplugin/iversioncontrol.h>
+
 #include <utils/filepath.h>
 
 #include <vcsbase/vcsbasesubmiteditor.h>
@@ -42,7 +44,7 @@ private:
     void slotDiffSelected(const QList<int> &rows);
     void showCommit(const QString &commit);
     void showLog(const QStringList &range);
-    void performFileAction(const Utils::FilePath &filePath, FileAction action);
+    void performFileAction(const Utils::FilePath &filePath, Core::IVersionControl::FileAction action);
     void addToGitignore(const Utils::FilePath &relativePath);
 
     inline GitSubmitEditorWidget *submitEditorWidget();

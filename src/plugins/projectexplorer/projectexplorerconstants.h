@@ -48,6 +48,7 @@ const char M_FOLDERCONTEXT[]      = "Project.Menu.Folder";
 const char M_FILECONTEXT[]        = "Project.Menu.File";
 const char M_OPENFILEWITHCONTEXT[] = "Project.Menu.File.OpenWith";
 const char M_OPENTERMINALCONTEXT[] = "Project.Menu.File.OpenTerminal";
+const char M_VCSFILECONTEXT[]      = "Project.Menu.File.Vcs";
 
 // Context menu groups
 const char G_SESSION_BUILD[]      = "Session.Group.Build";

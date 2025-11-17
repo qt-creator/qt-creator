@@ -72,6 +72,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMenu>
+#include <QMessageBox>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -173,6 +174,13 @@ public:
     void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
         gitClient().diffPath(topLevel, relativePath.toUrlishString());
     }
+    void vcsFillFileActionMenu(QMenu *menu,
+                               const Utils::FilePath &topLevel,
+                               const Utils::FilePath &relativePath,
+                               VcsFileState vcsFileState) final;
+    bool vcsFileAction(const Utils::FilePath &topLevel,
+                       const Utils::FilePath &filePath,
+                       FileAction action) final;
     void vcsDescribe(const FilePath &source, const QString &id) final { gitClient().show(source, id); }
     QString vcsTopic(const FilePath &directory) final;
 
@@ -422,6 +430,12 @@ void GitPluginPrivate::cleanCommitMessageFile()
 bool GitPluginPrivate::isCommitEditorOpen() const
 {
     return !m_commitMessageFileName.isEmpty();
+}
+
+bool performFileAction(const FilePath &topLevel, const FilePath &relativePath,
+                       IVersionControl::FileAction action)
+{
+    return dd->vcsFileAction(topLevel, relativePath, action);
 }
 
 IVersionControl *versionControl()
@@ -1940,6 +1954,235 @@ bool GitPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 bool GitPluginPrivate::vcsCreateRepository(const FilePath &directory)
 {
     return gitClient().synchronousInit(directory);
+}
+
+static void addToGitignore(const FilePath &topLevel, const FilePath &relativePath)
+{
+    const FilePath fullPath = topLevel.resolvePath(relativePath);
+    const FilePath gitignorePath = gitClient().findGitignoreFor(fullPath);
+    const QString pattern = "/" + relativePath.path();
+
+    const TextEncoding fallbackEncoding = VcsBaseEditor::getEncoding(topLevel);
+    TextFileFormat format;
+    TextFileFormat::ReadResult readResult = format.readFile(gitignorePath, fallbackEncoding);
+
+    if (readResult.code != TextFileFormat::ReadSuccess) {
+        const QString message = Tr::tr("Cannot read \"%1\", reason %2.")
+        .arg(gitignorePath.toUserOutput(), readResult.error);
+        VcsOutputWindow::appendError(topLevel, message);
+        return;
+    }
+
+    QStringList lines = readResult.content.split('\n');
+    insertSorted(&lines, pattern);
+
+    const Result<> writeResult = format.writeFile(gitignorePath, lines.join('\n'));
+    if (!writeResult) {
+        const QString message = Tr::tr("Cannot write \"%1\", reason %2.")
+                .arg(gitignorePath.toUserOutput(), writeResult.error());
+        VcsOutputWindow::appendError(topLevel, message);
+    }
+}
+
+void GitPluginPrivate::vcsFillFileActionMenu(QMenu *menu,
+                                             const Utils::FilePath &topLevel,
+                                             const Utils::FilePath &relativePath,
+                                             VcsFileState vcsFileState)
+{
+    auto addAction = [&menu, topLevel, relativePath, this]
+        (const QString &title, IVersionControl::FileAction action, const QString &prompt = {}) {
+            const QString fileName = relativePath.fileName();
+            QAction *act = menu->addAction(title.arg(fileName));
+            connect(act, &QAction::triggered, this, [=, this] {
+                if (!prompt.isEmpty()) {
+                    const int result = QMessageBox::question(Core::ICore::dialogParent(),
+                        Tr::tr("Confirm File Changes"), prompt.arg(fileName),
+                        QMessageBox::Yes | QMessageBox::No);
+                    if (result != QMessageBox::Yes)
+                        return;
+                }
+                vcsFileAction(topLevel, relativePath, action);
+            });
+        };
+
+    switch (vcsFileState) {
+    case VcsFileState::Untracked: {
+        addAction(Tr::tr("Add \"%1\""), IVersionControl::FileAdd);
+        addAction(Tr::tr("Stage \"%1\""), IVersionControl::FileStage);
+        menu->addSeparator();
+        addAction(Tr::tr("Remove \"%1\"..."), IVersionControl::FileRemove,
+                  Tr::tr("<p>Permanently remove the file \"%1\"?</p>"
+                         "<p>Note: The deletion cannot be undone.</p>"));
+        menu->addSeparator();
+        const char message[] = "Add to gitignore \"%1\"";
+        addAction(Tr::tr(message).arg("/" + relativePath.path()), IVersionControl::FileAddGitignore);
+        const std::optional<Utils::FilePath> path = relativePath.tailRemoved(relativePath.fileName());
+        if (!path.has_value())
+            return;
+
+        const QString baseName = relativePath.completeBaseName();
+        const QString suffix = relativePath.suffix();
+        if (baseName.isEmpty() || suffix.isEmpty())
+            return;
+
+        const Utils::FilePath suffixMask = path->stringAppended("*." + suffix);
+        QAction *act0 = menu->addAction(Tr::tr(message).arg("/" + suffixMask.path()));
+        connect(act0, &QAction::triggered, this, [=, this] {
+            vcsFileAction(topLevel, relativePath, IVersionControl::FileAddGitignore);
+        });
+        const Utils::FilePath nameMask = path->stringAppended(baseName + ".*");
+        QAction *act1 = menu->addAction(Tr::tr(message).arg("/" + nameMask.path()));
+        connect(act1, &QAction::triggered, this, [=, this] {
+            vcsFileAction(topLevel, nameMask, IVersionControl::FileAddGitignore);
+        });
+        break;
+    }
+    case VcsFileState::Added:
+        addAction(Tr::tr("Stage \"%1\""), IVersionControl::FileStage);
+        addAction(Tr::tr("Unstage \"%1\""), IVersionControl::FileUnstageAdded);
+        break;
+    case VcsFileState::Modified:
+        addAction(Tr::tr("Stage \"%1\""), IVersionControl::FileStage);
+        addAction(Tr::tr("Unstage \"%1\""), IVersionControl::FileUnstage);
+        menu->addSeparator();
+        addAction(Tr::tr("Revert All Changes to \"%1\"..."), IVersionControl::FileRevertAll,
+                  Tr::tr("<p>Undo <b>all</b> changes to the file \"%1\"?</p>"
+                         "<p>Note: These changes will be lost.</p>"));
+        break;
+    case VcsFileState::Unmerged:
+        addAction(Tr::tr("Run Merge Tool for \"%1\""), IVersionControl::FileMergeTool);
+        addAction(Tr::tr("Diff Incoming Changes for \"%1\""), IVersionControl::FileMergeDiffIncoming);
+        addAction(Tr::tr("Mark Conflicts Resolved for \"%1\""), IVersionControl::FileMergeResolved);
+        addAction(Tr::tr("Resolve Conflicts in \"%1\" with Ours..."), IVersionControl::FileMergeOurs,
+                  Tr::tr("<p>Resolve all conflicts to the file \"%1\" with <b>our</b> version?</p>"
+                         "<p>Note: The other changes will be discarded.</p>"));
+        addAction(Tr::tr("Resolve Conflicts in \"%1\" with Theirs..."), IVersionControl::FileMergeTheirs,
+                  Tr::tr("<p>Resolve all conflicts to the file \"%1\" with <b>their</b> version?</p>"
+                         "<p>Note: Our changes will be discarded.</p>"));
+        break;
+    case VcsFileState::Renamed: // Requires the old file name which is not available here
+    case VcsFileState::Deleted: // Cannot happen for file nodes
+    case VcsFileState::Unknown: // Files with unknown state cannot be handled
+        // Needed because otherwise the project menu stays empty forever
+        menu->addAction(Tr::tr("<None>"));
+        break;
+    }
+}
+
+bool GitPluginPrivate::vcsFileAction(const FilePath &topLevel, const FilePath &filePath,
+                                     FileAction action)
+{
+    if (topLevel.isEmpty())
+        return false;
+
+    const FilePath fullPath = topLevel.pathAppended(filePath.toUrlishString());
+
+    auto markAsResolved = [topLevel](const Utils::FilePath &filePath) {
+        // Check if file still contains conflict markers
+        if (!gitClient().isConflictFree(topLevel, filePath))
+            return false;
+
+        // Otherwise mark as resolved
+        gitClient().addFile(topLevel, filePath.toUrlishString());
+        return true;
+    };
+
+    switch (action) {
+    case FileRevertAll:
+    case FileRevertUnstaged:
+    case FileRevertDeletion: {
+        const QStringList files = {filePath.toUrlishString()};
+        const bool revertStaging = action != FileRevertUnstaged;
+        const bool success = gitClient().synchronousCheckoutFiles(topLevel, files,
+                                                                  {}, nullptr, revertStaging);
+        if (success) {
+            const QString message = (action == FileRevertDeletion)
+                ? Tr::tr("File \"%1\" recovered.\n").arg(filePath.toUserOutput())
+                : Tr::tr("File \"%1\" reverted.\n").arg(filePath.toUserOutput());
+            VcsOutputWindow::appendMessage(topLevel, message);
+            return true;
+        }
+        break;
+    }
+
+    case FileRevertRenaming: {
+        const QStringList files = gitClient().splitRenamedFilePattern(filePath.toUrlishString());
+        QTC_ASSERT(files.size() == 2, return false);
+        const Utils::FilePath from = topLevel.pathAppended(files.at(1));
+        const Utils::FilePath to   = topLevel.pathAppended(files.at(0));
+        if (gitClient().synchronousMove(topLevel, from, to))
+            return true;
+        break;
+    }
+
+    case FileRemove: {
+        const Result<> success = fullPath.removeFile();
+        if (!success) {
+            const QString message = Tr::tr("Error removing file: \"%1\": %2")
+            .arg(filePath.toUserOutput(), success.error());
+            VcsOutputWindow::appendError(topLevel, message);
+        }
+        return true;
+    }
+
+    case FileAddGitignore:
+        addToGitignore(topLevel, filePath);
+        return true;
+
+    case FileCopyClipboard:
+        setClipboardAndSelection(filePath.toUserOutput());
+        return false;
+
+    case FileOpenEditor:
+        EditorManager::openEditor(fullPath);
+        return false;
+
+    case FileAdd:
+        gitClient().synchronousAdd(topLevel, {filePath.toUrlishString()}, {"--intent-to-add"});
+        return true;
+
+    case FileStage:
+        gitClient().addFile(topLevel, filePath.toUrlishString());
+        return true;
+
+    case FileUnstage:
+        gitClient().reset(topLevel, {filePath.toUrlishString()});
+        return true;
+
+    case FileUnstageAdded:
+        gitClient().synchronousReset(topLevel, {filePath.toUrlishString()});
+        gitClient().synchronousAdd(topLevel, {filePath.toUrlishString()}, {"--intent-to-add"});
+        return true;
+
+    case FileMergeTool:
+        gitClient().merge(topLevel, {filePath.toUrlishString()});
+        return false;
+
+    case FileMergeDiffIncoming:
+       gitClient().diffIncoming(topLevel, filePath.toUrlishString());
+       break;
+
+    case FileMergeResolved:
+        return markAsResolved(filePath);
+
+    case FileMergeOurs:
+        gitClient().synchronousCheckoutFiles(topLevel, {filePath.toUrlishString()}, "--ours");
+        return markAsResolved(filePath);
+
+    case FileMergeTheirs:
+        gitClient().synchronousCheckoutFiles(topLevel, {filePath.toUrlishString()}, "--theirs");
+        return markAsResolved(filePath);
+
+    case FileMergeRecover:
+        gitClient().addFile(topLevel, filePath.toUrlishString());
+        return true;
+
+    case FileMergeRemove:
+        gitClient().synchronousDelete(topLevel, false, {filePath.toUrlishString()});
+        return true;
+    }
+
+    return false;
 }
 
 QString GitPluginPrivate::vcsTopic(const FilePath &directory)

@@ -339,12 +339,31 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
     emit s_instance->aboutToShowContextMenu(node);
 
     if (node) {
+        QMenu *menu = ProjectExplorerPlugin::vcsFileContextMenu();
+        menu->clear();
+
         if (node->isVirtualFolderType()) {
             ProjectExplorerPlugin::updateVcsActions({}, node->displayName());
+            menu->setEnabled(false);
         } else {
             const FilePath directory = node->directory();
-            if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(directory))
+            FilePath topLevel;
+            Core::IVersionControl *vc =
+                    Core::VcsManager::findVersionControlForDirectory(directory, &topLevel);
+            if (vc) {
                 ProjectExplorerPlugin::updateVcsActions(vc->displayName(), node->displayName());
+
+                if (const FileNode *fileNode = node->asFileNode(); fileNode) {
+                    const Core::VcsFileState state = fileNode->modificationState();
+                    const FilePath relativePath = node->path().relativeChildPath(topLevel);
+                    vc->vcsFillFileActionMenu(menu, topLevel, relativePath, state);
+                    menu->setTitle(vc->displayName());
+                    menu->setEnabled(true);
+                }
+            } else {
+                ProjectExplorerPlugin::updateVcsActions({}, node->displayName());
+                menu->setEnabled(false);
+            }
         }
     }
 

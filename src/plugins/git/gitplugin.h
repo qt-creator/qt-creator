@@ -11,6 +11,8 @@ namespace VcsBase { class VcsBasePluginState; }
 
 namespace Git::Internal {
 
+bool performFileAction(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath,
+                       Core::IVersionControl::FileAction action);
 Core::IVersionControl *versionControl();
 const VcsBase::VcsBasePluginState &currentState();
 

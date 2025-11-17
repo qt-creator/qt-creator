@@ -160,6 +160,37 @@ public:
      */
     virtual void vcsAnnotate(const Utils::FilePath &file, int line) = 0;
 
+    enum FileAction {
+        FileRevertAll,
+        FileRevertUnstaged,
+        FileRevertDeletion,
+        FileCopyClipboard,
+        FileOpenEditor,
+        FileAdd,
+        FileStage,
+        FileUnstage,
+        FileUnstageAdded,
+        FileRevertRenaming,
+        FileRemove,
+        FileAddGitignore,
+        FileMergeTool,
+        FileMergeDiffIncoming,
+        FileMergeResolved,
+        FileMergeOurs,
+        FileMergeTheirs,
+        FileMergeRemove,
+        FileMergeRecover
+    };
+
+    virtual void vcsFillFileActionMenu(QMenu *menu,
+                                       const Utils::FilePath &topLevel,
+                                       const Utils::FilePath &relativePath,
+                                       VcsFileState vcsFileState);
+
+    virtual bool vcsFileAction(const Utils::FilePath &topLevel,
+                               const Utils::FilePath &relativePath,
+                               FileAction action);
+
     /*!
      * Shows the log for the \a relativePath within \a toplevel.
      */

@@ -772,7 +772,12 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
                 connect(vcsAnnotate, &QAction::triggered, this, [vc, filePath] {
                     vc->vcsAnnotate(filePath, 1);
                 });
+
+                const VcsFileState vcsFileState = VcsManager::fileState(filePath);
+                QMenu *subMenu = menu.addMenu(vc->displayName());
+                vc->vcsFillFileActionMenu(subMenu, topLevel, relativePath, vcsFileState);
             }
+            menu.addSeparator();
         }
 
         menu.addAction(ActionManager::command(ADDNEWFILE)->action());
