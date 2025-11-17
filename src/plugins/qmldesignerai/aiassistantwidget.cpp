@@ -131,9 +131,8 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     setMinimumHeight(200);
 
     auto vLayout = new QVBoxLayout(this);
-    vLayout->setContentsMargins(5, 5, 5, 5);
+    vLayout->setContentsMargins(0, 0, 0, 0);
 
-    m_quickWidget->setContentsMargins({0, 0, 0, 0});
     m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_AI_ASSISTANT);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_quickWidget->setMinimumHeight(minimumHeight() - 5);
