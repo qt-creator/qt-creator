@@ -489,13 +489,12 @@ protected:
             {Theme::Token_Basic_White, UiElement::UiElementLabelSmall};
         const QFont font = badgeTF.font();
         const int textWidth = QFontMetrics(font).horizontalAdvance(badgeText);
-        const int inset = 1;
-        const QRectF badgeR(inset, inset,
+        const QRectF badgeR(0, 0,
                             SpacingTokens::PaddingHS + textWidth + SpacingTokens::PaddingHS,
                             SpacingTokens::PaddingVXs + badgeTF.lineHeight()
                                 + SpacingTokens::PaddingVXs);
         drawCardBg(painter, badgeR, creatorColor(Theme::Token_Notification_Success_Muted),
-                   Qt::NoPen, SpacingTokens::RadiusS - 2 * inset);
+                   Qt::NoPen, SpacingTokens::RadiusS + 1);
         painter->setFont(font);
         painter->setPen(badgeTF.color());
         painter->drawText(badgeR, Qt::AlignCenter, badgeText);

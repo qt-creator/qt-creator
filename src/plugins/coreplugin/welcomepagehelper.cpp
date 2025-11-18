@@ -584,6 +584,10 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
                 m_blurredThumbnail = QPixmap::fromImage(
                     thumbnail.copy({filterMargin, filterMargin, bgR.width(), bgR.height()}));
+
+                // drawPixmapOverlay could touch or overlap the item border. Redraw the border.
+                QPainter thumbnailBorderPainter(&m_blurredThumbnail);
+                StyleHelper::drawCardBg(&thumbnailBorderPainter, bgR, Qt::NoBrush, pen);
             }
             const QPixmap thumbnailPortionPM = m_blurredThumbnail.copy(backgroundPortionR);
             painter->drawPixmap(backgroundPortionR.topLeft(), thumbnailPortionPM);
