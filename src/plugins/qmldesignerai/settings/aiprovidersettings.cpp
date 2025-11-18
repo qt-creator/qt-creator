@@ -68,9 +68,10 @@ AiProviderSettingsTab::AiProviderSettingsTab(AiAssistantView *view)
 
     using namespace Layouting;
     Column providersCol;
-    const QStringList providers = AiProviderData::defaultProviders().keys();
+    const QStringList providers = AiProviderData::defaultProvidersNames();
     for (const QString &providerName : providers)
         providersCol.addItem(createProviderWidget(providerName));
+
     providersCol.addItem(Stretch(1));
     providersCol.attachTo(this);
 }
