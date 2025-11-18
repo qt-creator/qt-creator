@@ -8,7 +8,9 @@
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QStandardPaths>
 #include <QTextEdit>
 #include <QVBoxLayout>
 
@@ -38,6 +40,13 @@ AiAssistantTermsDialog::AiAssistantTermsDialog(QWidget *parent)
     });
 
     auto *buttonLayout = new QHBoxLayout(this);
+
+    m_saveButton = new QPushButton(tr("Save Copy..."), this);
+    connect(m_saveButton, &QPushButton::clicked, this, &AiAssistantTermsDialog::saveTerms);
+    buttonLayout->addWidget(m_saveButton);
+
+    buttonLayout->addStretch();
+
     m_acceptButton = new QPushButton(tr("Accept"), this);
     m_rejectButton = new QPushButton(tr("Reject"), this);
 
@@ -50,6 +59,29 @@ AiAssistantTermsDialog::AiAssistantTermsDialog(QWidget *parent)
     buttonLayout->addWidget(m_acceptButton);
     buttonLayout->addWidget(m_rejectButton);
     static_cast<QVBoxLayout *>(layout())->addLayout(buttonLayout);
+}
+
+void AiAssistantTermsDialog::saveTerms()
+{
+    QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString defaultFilePath = QDir(defaultPath).filePath("QDS_AI_Assistant_Terms_and_Conditions.html");
+
+    QString savePath = QFileDialog::getSaveFileName(this, tr("Save Terms and Conditions As"),
+                                                    defaultFilePath,
+                                                    tr("HTML Files (*.html *.htm);;All Files (*)"));
+    if (savePath.isEmpty())
+        return;
+
+    if (!savePath.endsWith(".html", Qt::CaseInsensitive) && !savePath.endsWith(".htm", Qt::CaseInsensitive))
+        savePath += ".html";
+
+    Utils::FilePath filePath = Utils::FilePath::fromString(savePath);
+
+    QByteArray termsContent = Utils::FileUtils::fetchQrc(":/AiAssistant/termsandconditions.html").toUtf8();
+
+    auto saveResult = filePath.writeFileContents(termsContent);
+    if (!saveResult)
+        QMessageBox::warning(this,tr("Save Failed"), tr("Error saving file.\n%1").arg(saveResult.error()));
 }
 
 } // namespace QmlDesigner

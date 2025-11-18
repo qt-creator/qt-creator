@@ -22,8 +22,11 @@ public:
     explicit AiAssistantTermsDialog(QWidget *parent = nullptr);
 
 private:
+    void saveTerms();
+
     QPointer<QCheckBox> m_agreeCheckbox;
     QPointer<QTextEdit> m_termsText;
+    QPointer<QPushButton> m_saveButton;
     QPointer<QPushButton> m_acceptButton;
     QPointer<QPushButton> m_rejectButton;
 };
