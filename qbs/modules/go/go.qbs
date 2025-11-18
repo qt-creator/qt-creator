@@ -21,7 +21,7 @@ Module {
 
     validate: {
         found = goProbe.found
-         if (!goProbe.found)
+         if (!File.exists(goFilePath))
              throw ("The go executable '" + goFilePath + "' does not exist.");
          if (!upxProbe.found)
              console.warn("The upx executable '" + upxFilePath + "' does not exist.");
