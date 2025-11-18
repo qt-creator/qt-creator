@@ -61,6 +61,14 @@
         "      <sub-class-of type='text/plain'/>",
         "      <glob pattern='*.swift'/>",
         "    </mime-type>",
+        "    <mime-type type='text/zig'>",
+        "      <comment>Zig source file</comment>",
+        "      <sub-class-of type='text/plain'/>",
+        "      <glob pattern='*.zig'/>",
+        "      <glob pattern='*.zir'/>",
+        "      <glob pattern='*.zigr'/>",
+        "      <glob pattern='*.zon'/>",
+        "    </mime-type>",
         "</mime-info>"
     ]
 }
