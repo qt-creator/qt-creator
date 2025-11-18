@@ -1838,7 +1838,7 @@ void ProjectWindow::activateBuildSettings()
 
 void ProjectWindow::activateRunSettings()
 {
-    d->activateTargetTab(1);
+    d->activateTargetTab(2);
 }
 
 OutputWindow *ProjectWindow::buildSystemOutput() const
