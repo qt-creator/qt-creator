@@ -574,7 +574,7 @@ public:
         iconLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
 
         static constexpr TextFormat labelTF {
-            .themeColor = Theme::Token_Accent_Default,
+            .themeColor = Theme::Token_Text_Accent,
             .uiElement = UiElement::UiElementH5,
             .drawTextFlags = Qt::AlignVCenter,
         };
