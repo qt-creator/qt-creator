@@ -146,7 +146,7 @@ Rectangle {
         id: noValidModelWarning
 
         visible: !root.rootView.hasValidModel && root.rootView.termsAccepted
-        message: qsTr("No model configured. Please configure a model in the settings first.")
+        message: qsTr("No model configured. To use the AI assistant, add an API key in the AI Provider settings.")
         buttonLabel: qsTr("Configure now")
         onAction: root.rootView.openModelSettings()
     }

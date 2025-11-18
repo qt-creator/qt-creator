@@ -64,6 +64,8 @@ void AiProviderSettingsWidget::setupUi()
 {
     setTitle(m_config.providerName());
     setCheckable(true);
+    setToolTip(tr("Show or hide %1 models in the AI Assistant model selector drop down")
+                   .arg(m_config.providerName()));
 
     using namespace Qt::StringLiterals;
     auto createLabel = [this](const QString &txt) -> QLabel * {
@@ -73,6 +75,8 @@ void AiProviderSettingsWidget::setupUi()
         label->setAlignment(Qt::AlignLeading | Qt::AlignLeft | Qt::AlignVCenter);
         return label;
     };
+
+    m_apiKeyLineEdit->setPlaceholderText(tr("Enter %1 API key to use its models").arg(m_config.providerName()));
 
     const int iconSize = 24;
     QPushButton *resetUrlButton = new QPushButton(this);
