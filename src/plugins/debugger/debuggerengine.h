@@ -546,7 +546,6 @@ public:
     virtual void updateBreakpoint(const Breakpoint &bp) = 0;
     virtual void enableSubBreakpoint(const SubBreakpoint &sbp, bool enabled);
 
-    virtual bool acceptsDebuggerCommands() const { return true; }
     virtual void executeDebuggerCommand(const QString &command);
 
     virtual void assignValueInDebugger(WatchItem *item,

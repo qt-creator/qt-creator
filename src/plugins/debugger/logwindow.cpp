@@ -469,10 +469,7 @@ DebuggerEngine *LogWindow::engine() const
 
 void LogWindow::sendCommand()
 {
-    if (m_engine->acceptsDebuggerCommands())
-        m_engine->executeDebuggerCommand(m_commandEdit->text());
-    else
-        showOutput(LogError, Tr::tr("User commands are not accepted in the current state."));
+    m_engine->executeDebuggerCommand(m_commandEdit->text());
 }
 
 void LogWindow::showOutput(int channel, const QString &output)

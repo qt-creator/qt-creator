@@ -58,7 +58,6 @@ private: ////////// General Interface //////////
     void abortDebuggerProcess() final;
     void resetInferior() final;
 
-    bool acceptsDebuggerCommands() const final;
     void executeDebuggerCommand(const QString &command) final;
 
     ////////// General State //////////

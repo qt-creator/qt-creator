@@ -983,16 +983,8 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         m_commandTimer.stop();
 }
 
-bool GdbEngine::acceptsDebuggerCommands() const
-{
-    return true;
-//    return state() == InferiorStopOk
-//        || state() == InferiorUnrunnable;
-}
-
 void GdbEngine::executeDebuggerCommand(const QString &command)
 {
-    QTC_CHECK(acceptsDebuggerCommands());
     runCommand({command, NativeCommand});
 }
 
