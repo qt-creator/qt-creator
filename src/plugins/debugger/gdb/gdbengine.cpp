@@ -766,8 +766,6 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         cmd.function = "python theDumper." + cmd.function + "(" + cmd.argsToPython() + ")";
     }
 
-    QTC_ASSERT(m_gdbProc.isRunning(), return);
-
     cmd.postTime = QTime::currentTime().msecsSinceStartOfDay();
     m_commandForToken[token] = cmd;
     m_flagsForToken[token] = cmd.flags;
