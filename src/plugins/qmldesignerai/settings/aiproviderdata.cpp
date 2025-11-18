@@ -3,12 +3,19 @@
 
 #include "aiproviderdata.h"
 
+#include <QHash>
+
 namespace QmlDesigner {
 
-// TODO: move to a json file
-const QMap<QString, AiProviderData> AiProviderData::defaultProviders()
+const QStringList AiProviderData::defaultProvidersNames()
 {
-    static const QMap<QString, AiProviderData> providers{
+    static const QStringList names {"Groq", "Gemini", "OpenAI", "Claude"};
+    return names;
+}
+
+AiProviderData AiProviderData::defaultProviderData(const QString &providerName)
+{
+    static const QHash<QString, AiProviderData> providers{
         {"Groq", AiProviderData{
             .url = QUrl{"https://api.groq.com/openai/v1/chat/completions"},
             .models = {
@@ -25,11 +32,11 @@ const QMap<QString, AiProviderData> AiProviderData::defaultProviders()
         {"Gemini", AiProviderData{
             .url = QUrl{"https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"},
             .models = {
-                "gemini-2.0-flash",
-                "gemini-2.0-flash-lite",
                 "gemini-2.5-pro",
                 "gemini-2.5-flash",
                 "gemini-2.5-flash-lite",
+                "gemini-2.0-flash",
+                "gemini-2.0-flash-lite",
             }
         }},
         {"OpenAI", AiProviderData{
@@ -60,7 +67,8 @@ const QMap<QString, AiProviderData> AiProviderData::defaultProviders()
             }
         }},
     };
-    return providers;
+
+    return providers.value(providerName);
 }
 
 } // namespace QmlDesigner

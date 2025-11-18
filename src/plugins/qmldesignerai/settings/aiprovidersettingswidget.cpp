@@ -32,7 +32,7 @@ void AiProviderSettingsWidget::load()
     setChecked(m_config.isChecked());
     m_apiKeyLineEdit->setText(m_config.apiKey());
 
-    const auto providerData = AiProviderData::defaultProviders().value(m_config.providerName());
+    const AiProviderData providerData = AiProviderData::defaultProviderData(m_config.providerName());
 
     QUrl url = m_config.url();
     if (url.isEmpty())
@@ -80,7 +80,7 @@ void AiProviderSettingsWidget::setupUi()
     resetUrlButton->setToolTip(tr("Reset Url"));
     resetUrlButton->setFixedSize({iconSize, iconSize});
     connect(resetUrlButton, &QAbstractButton::clicked, this, [this] {
-        const auto providerData = AiProviderData::defaultProviders().value(m_config.providerName());
+        const AiProviderData providerData = AiProviderData::defaultProviderData(m_config.providerName());
         m_urlLineEdit->setText(providerData.url.toString());
     });
 
