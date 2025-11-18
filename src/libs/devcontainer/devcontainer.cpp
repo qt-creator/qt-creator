@@ -1380,6 +1380,7 @@ static Result<Group> prepareContainerRecipe(
         imageDetails,
         runningDetails,
         containerDetails,
+        useBuildKit,
         checkDocker(instanceConfig),
         testBuildKit(instanceConfig, useBuildKit),
         ProcessTask(setupBuildImage),
