@@ -87,7 +87,6 @@ protected:
     void loadSymbols(const Utils::FilePath &moduleName) override;
     void loadAllSymbols() override;
     void reloadModules() override;
-    void reloadRegisters() override {}
     void reloadSourceFiles() override {}
     void reloadFullStack() override;
 

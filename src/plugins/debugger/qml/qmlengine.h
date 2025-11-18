@@ -78,7 +78,6 @@ private:
     void loadAllSymbols() override;
     void requestModuleSymbols(const Utils::FilePath &moduleName) override;
     void reloadModules() override;
-    void reloadRegisters() override {}
     void reloadSourceFiles() override;
     void reloadFullStack() override {}
 

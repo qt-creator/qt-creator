@@ -499,9 +499,7 @@ public:
     void updateWatchData(const QString &iname); // FIXME: Merge with above.
     virtual void selectWatchData(const QString &iname);
 
-    virtual void validateRunParameters(DebuggerRunParameters &) {}
     virtual void prepareForRestart() {}
-    virtual void abortDebuggerProcess() {} // second attempt
 
     virtual void watchPoint(const QPoint &pnt);
     virtual void openMemoryView(const MemoryViewSetupData &data);
@@ -525,7 +523,6 @@ public:
     virtual void reloadSourceFiles();
     virtual void reloadFullStack();
     virtual void loadAdditionalQmlStack();
-    virtual void reloadDebuggingHelpers();
 
     virtual void setRegisterValue(const QString &name, const QString &value);
     virtual void setPeripheralRegisterValue(quint64 address, quint64 value);
@@ -757,6 +754,10 @@ protected:
     QList<DebuggerEngine *> companionEngines() const;
 
 private:
+    virtual void validateRunParameters(DebuggerRunParameters &) {}
+    virtual void abortDebuggerProcess() {} // second attempt
+    virtual void reloadDebuggingHelpers();
+
     friend class DebuggerPluginPrivate;
     friend class DebuggerEnginePrivate;
     friend class LocationMark;
@@ -770,7 +771,6 @@ public:
     CppDebuggerEngine() {}
     ~CppDebuggerEngine() override {}
 
-    void validateRunParameters(DebuggerRunParameters &rp) override;
     Core::Context languageContext() const override;
 
 protected:
@@ -785,6 +785,7 @@ protected:
         const ImportResponse &callback = {});
 
 private:
+    void validateRunParameters(DebuggerRunParameters &rp) override;
     Utils::Result<Utils::FilePath> copyDebuggerHelpers();
     Utils::Result<> pipeInDebuggerHelpers(
         const QString &bridgeModuleName,

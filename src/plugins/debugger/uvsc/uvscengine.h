@@ -46,12 +46,13 @@ public:
     void changeMemory(MemoryAgent *agent, quint64 address, const QByteArray &data) final;
     void fetchMemory(MemoryAgent *agent, quint64 address, quint64 length) final;
 
-    void reloadRegisters() final;
     void reloadPeripheralRegisters() final;
 
     void reloadFullStack() final;
 
 private:
+    void reloadRegisters() final;
+
     void handleProjectClosed();
     void handleUpdateLocation(quint64 address);
 

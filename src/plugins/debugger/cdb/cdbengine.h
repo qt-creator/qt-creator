@@ -30,7 +30,6 @@ public:
     void runEngine();
     void shutdownInferior() override;
     void shutdownEngine() override;
-    void abortDebuggerProcess() override;
     void detachDebugger() override;
     bool hasCapability(unsigned cap) const override;
     void watchPoint(const QPoint &) override;
@@ -76,6 +75,7 @@ public:
     static QString extensionLibraryName(bool is64Bit, bool isArm = false);
 
 private:
+    void abortDebuggerProcess() override;
     void processStarted();
     void processDone();
     void runCommand(const DebuggerCommand &cmd);
