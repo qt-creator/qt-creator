@@ -541,6 +541,9 @@ public:
         setupTestSettingsPage();
 
         dd = new AutotestPluginPrivate;
+#ifdef WITH_TESTS
+        addTestCreator(createAutotestUnitTests);
+#endif
     }
 
     void extensionsInitialized()
