@@ -128,7 +128,7 @@ QWidget *createOnboardingWizard(QWidget *parent)
     using namespace Layouting;
     QWidget *wizard = Column {
         QtcWidgets::Rectangle {
-            radius(SpacingTokens::PrimitiveL),
+            radius(SpacingTokens::RadiusL),
             fillBrush(creatorColor(Theme::Token_Background_Muted)),
             strokePen(creatorColor(Core::WelcomePageHelpers::cardDefaultStroke)),
             Column {

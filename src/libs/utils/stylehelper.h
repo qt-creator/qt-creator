@@ -24,7 +24,6 @@ namespace Utils::StyleHelper {
 const unsigned int DEFAULT_BASE_COLOR = 0x666666;
 const int progressFadeAnimationDuration = 600;
 const int defaultFadeAnimationDuration = 160;
-constexpr qreal defaultCardBgRounding = 3.75;
 
 constexpr char C_ALIGN_ARROW[] = "alignarrow";
 constexpr char C_DRAW_LEFT_BORDER[] = "drawleftborder";
@@ -89,6 +88,11 @@ namespace SpacingTokens {
     constexpr int GapHL = PrimitiveL;
     constexpr int GapHXl = PrimitiveXl;
     constexpr int GapHXxl = PrimitiveXxl;
+
+    // Corner radii for rounded rectangles
+    constexpr int RadiusS = PrimitiveXs;
+    constexpr int RadiusM = PrimitiveM;
+    constexpr int RadiusL = PrimitiveL;
 };
 
 constexpr int HighlightThickness = SpacingTokens::PrimitiveXxs;
@@ -162,7 +166,7 @@ QTCREATOR_UTILS_EXPORT void drawPanelBgRect(QPainter *painter, const QRectF &rec
                                             const QBrush &brush);
 QTCREATOR_UTILS_EXPORT void drawCardBg(QPainter *painter, const QRectF &rect, const QBrush &fill,
                                        const QPen &pen = QPen(Qt::NoPen),
-                                       qreal rounding = defaultCardBgRounding);
+                                       qreal rounding = SpacingTokens::RadiusS);
 
 // Gradients used for panels
 QTCREATOR_UTILS_EXPORT void horizontalGradient(QPainter *painter, const QRect &spanRect,

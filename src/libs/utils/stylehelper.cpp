@@ -486,14 +486,8 @@ void StyleHelper::drawPanelBgRect(QPainter *painter, const QRectF &rect, const Q
     if (toolbarStyle() == ToolbarStyle::Compact) {
         painter->fillRect(rect.toRect(), brush);
     } else {
-        constexpr int margin = 2;
-        constexpr int radius = 5;
-        QPainterPath path;
-        path.addRoundedRect(rect.adjusted(margin, margin, -margin, -margin), radius, radius);
-        painter->save();
-        painter->setRenderHint(QPainter::Antialiasing);
-        painter->fillPath(path, brush);
-        painter->restore();
+        constexpr int margin = SpacingTokens::PaddingVXxs;
+        drawCardBg(painter, rect.adjusted(margin, margin, -margin, -margin), brush);
     }
 }
 

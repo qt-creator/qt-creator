@@ -55,8 +55,6 @@ Q_LOGGING_CATEGORY(qtWelcomeOverviewLog, "qtc.welcomeoverview", QtWarningMsg)
 
 namespace Learning::Internal {
 
-const int radiusS = StyleHelper::SpacingTokens::PrimitiveXs;
-const int radiusL = StyleHelper::SpacingTokens::PrimitiveS;
 constexpr QSize blogThumbSize(450, 192);
 
 using OverviewItems = QList<class OverviewItem*>;
@@ -265,7 +263,7 @@ protected:
 
         const QColor bgFill = creatorColor(Theme::Token_Background_Muted);
         p.setOpacity(underMouse() ? 1 : 0.6);
-        drawCardBg(&p, rect(), bgFill, Qt::NoPen, radiusS);
+        drawCardBg(&p, rect(), bgFill);
         p.setOpacity(1);
 
         const QSizeF iconSize = m_icon.deviceIndependentSize();
@@ -358,7 +356,7 @@ protected:
 
         QPainter p(this);
         QPainterPath clipPath;
-        clipPath.addRoundedRect(rect(), radiusS, radiusS);
+        clipPath.addRoundedRect(rect(), SpacingTokens::RadiusS, SpacingTokens::RadiusS);
         p.setClipPath(clipPath);
         p.setRenderHint(QPainter::Antialiasing);
         if (!m_previousPixmap.isNull() && m_animation.state() == QAbstractAnimation::Running) {
@@ -491,11 +489,13 @@ protected:
             {Theme::Token_Basic_White, UiElement::UiElementLabelSmall};
         const QFont font = badgeTF.font();
         const int textWidth = QFontMetrics(font).horizontalAdvance(badgeText);
-        const QRectF badgeR(1, 1, SpacingTokens::PaddingHS + textWidth + SpacingTokens::PaddingHS,
+        const int inset = 1;
+        const QRectF badgeR(inset, inset,
+                            SpacingTokens::PaddingHS + textWidth + SpacingTokens::PaddingHS,
                             SpacingTokens::PaddingVXs + badgeTF.lineHeight()
                                 + SpacingTokens::PaddingVXs);
         drawCardBg(painter, badgeR, creatorColor(Theme::Token_Notification_Success_Muted),
-                   Qt::NoPen, radiusL);
+                   Qt::NoPen, SpacingTokens::RadiusS - 2 * inset);
         painter->setFont(font);
         painter->setPen(badgeTF.color());
         painter->drawText(badgeR, Qt::AlignCenter, badgeText);
@@ -594,7 +594,7 @@ public:
             QtcWidgets::Rectangle {
                 bindTo(&m_background),
                 strokePen(creatorColor(Theme::Token_Stroke_Subtle)),
-                radius(defaultCardBgRounding),
+                radius(SpacingTokens::RadiusS),
                 Row {
                     iconLabel,
                     m_label,
@@ -762,7 +762,7 @@ private:
     {
         using namespace Layouting;
         QWidget *panel = QtcWidgets::Rectangle {
-            radius(radiusL), fillBrush(rectFill()), strokePen(rectStroke()),
+            radius(SpacingTokens::RadiusS), fillBrush(rectFill()), strokePen(rectStroke()),
             customMargins(SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl,
             SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl),
             Column {
@@ -778,7 +778,7 @@ private:
     {
         using namespace Layouting;
         return QtcWidgets::Rectangle {
-            radius(radiusL), fillBrush(rectFill()), strokePen(rectStroke()),
+            radius(SpacingTokens::RadiusS), fillBrush(rectFill()), strokePen(rectStroke()),
             customMargins(SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl,
                           SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl),
             Column {

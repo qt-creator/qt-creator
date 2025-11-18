@@ -152,7 +152,7 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    int m_radius{10};
+    int m_radius{StyleHelper::SpacingTokens::RadiusM};
     QBrush m_fillBrush{Qt::black};
     QPen m_strokePen{Qt::NoPen};
 };

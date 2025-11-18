@@ -891,8 +891,6 @@ void ExtensionsBrowser::fetchExtensions()
     d->taskTreeRunner.start(recipe);
 }
 
-const int iconRectRounding = 4;
-
 QPixmap itemIcon(const QModelIndex &index, Size size)
 {
     const QSize iconBgS = size == SizeSmall ? iconBgSizeSmall : iconBgSizeBig;
@@ -927,7 +925,7 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
     gradient.setStops(gradientStops);
     if (!isEnabled)
         p.setOpacity(iconOpacityDisabled);
-    StyleHelper::drawCardBg(&p, iconBgR, gradient, Qt::NoPen, iconRectRounding);
+    StyleHelper::drawCardBg(&p, iconBgR, gradient);
     icon.paint(&p, iconBgR);
 
     return pixmap;
@@ -953,8 +951,7 @@ QPixmap itemBadge(const QModelIndex &index, [[maybe_unused]] Size size)
     pixmap.setDevicePixelRatio(dpr);
 
     QPainter p(&pixmap);
-    StyleHelper::drawCardBg(&p, badgeR, creatorColor(Theme::Token_Notification_Neutral_Default),
-                            Qt::NoPen, iconRectRounding);
+    StyleHelper::drawCardBg(&p, badgeR, creatorColor(Theme::Token_Notification_Neutral_Default));
     p.setFont(font);
     p.setPen(badgeTF.color());
     p.drawText(badgeR, Qt::AlignCenter, badgeText);

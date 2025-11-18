@@ -124,7 +124,7 @@ void PopupInfoBarDisplay::paintEvent(QPaintEvent *)
     const QRect r = rect().adjusted(0, layout()->contentsMargins().top(), 0, 0);
     StyleHelper::drawCardBg(&p, r, creatorColor(Theme::Token_Background_Muted),
                             creatorColor(Theme::Token_Stroke_Subtle),
-                            StyleHelper::SpacingTokens::PaddingHM);
+                            StyleHelper::SpacingTokens::RadiusM);
 }
 
 void PopupInfoBarDisplay::update()

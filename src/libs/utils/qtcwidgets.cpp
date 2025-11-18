@@ -245,7 +245,6 @@ void QtcButton::paintEvent(QPaintEvent *event)
 
     QPainter p(this);
 
-    const qreal brRectRounding = 3.75;
     switch (m_role) {
     case LargePrimary:
     case MediumPrimary:
@@ -256,7 +255,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
                                                              : Theme::Token_Accent_Default))
                                                : Theme::Token_Foreground_Subtle;
         const QBrush fill(creatorColor(color));
-        StyleHelper::drawCardBg(&p, bgR, fill, QPen(Qt::NoPen), brRectRounding);
+        StyleHelper::drawCardBg(&p, bgR, fill);
         break;
     }
     case LargeSecondary:
@@ -268,7 +267,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
         const QPen outline(creatorColor(outlineColor), width);
         const QBrush fillColor = isDown() ? creatorColor(Theme::Token_Foreground_Subtle)
                                           : QBrush(Qt::NoBrush);
-        StyleHelper::drawCardBg(&p, bgR, fillColor, outline, brRectRounding);
+        StyleHelper::drawCardBg(&p, bgR, fillColor, outline);
         break;
     }
     case LargeGhost:
@@ -284,7 +283,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
                                                         : (hovered ? Theme::Token_Foreground_Muted
                                                                    : Theme::Token_Foreground_Subtle))
                                             : Theme::Token_Foreground_Subtle;
-        StyleHelper::drawCardBg(&p, bgR, creatorColor(bg), QPen(Qt::NoPen), brRectRounding);
+        StyleHelper::drawCardBg(&p, bgR, creatorColor(bg));
         break;
     }
     case SmallList: {
@@ -292,7 +291,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
         if (filled) {
             const QBrush fill(creatorColor(isChecked() ? Theme::Token_Foreground_Muted
                                                        : Theme::Token_Foreground_Subtle));
-            StyleHelper::drawCardBg(&p, bgR, fill, QPen(Qt::NoPen), brRectRounding);
+            StyleHelper::drawCardBg(&p, bgR, fill);
         }
         break;
     }
@@ -303,7 +302,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
         const QBrush fill(filled ? creatorColor(Theme::Token_Foreground_Subtle)
                                  : QBrush(Qt::NoBrush));
         const QPen outline(hovered ? QPen(Qt::NoPen) : creatorColor(Theme::Token_Stroke_Subtle));
-        StyleHelper::drawCardBg(&p, bgR, fill, outline, brRectRounding);
+        StyleHelper::drawCardBg(&p, bgR, fill, outline);
         break;
     }
     }

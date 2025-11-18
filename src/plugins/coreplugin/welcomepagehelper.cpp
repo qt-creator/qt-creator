@@ -403,7 +403,6 @@ constexpr TextFormat tagsLabelTF {Theme::Token_Text_Muted, StyleHelper::UiElemen
 constexpr TextFormat tagsTF {Theme::Token_Text_Accent, tagsLabelTF.uiElement};
 
 constexpr qreal itemOutlineWidth = 1;
-constexpr qreal itemCornerRounding = 6;
 constexpr int thumbnailAreaBorderWidth = 1;
 constexpr QSize thumbnailAreaSize =
     WelcomeThumbnailSize.grownBy({thumbnailAreaBorderWidth, thumbnailAreaBorderWidth,
@@ -505,7 +504,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     const QColor fill(themeColor(hovered ? cardHoverBackground : cardDefaultBackground));
     const QPen pen(themeColor(hovered ? cardHoverStroke : cardDefaultStroke), itemOutlineWidth);
-    StyleHelper::drawCardBg(painter, bgR, fill, pen, itemCornerRounding);
+    StyleHelper::drawCardBg(painter, bgR, fill, pen);
 
     const int shiftY = thumbnailAreaR.bottom();
     int offset = 0;
@@ -577,9 +576,10 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
                 mask.fill(Qt::black);
                 QPainter maskPainter(&mask);
                 const QRect maskR = bgR.translated(filterMargin, filterMargin)
-                                        .adjusted(1, 1, -1, -1);
+                                        .adjusted(itemOutlineWidth, itemOutlineWidth,
+                                                  -itemOutlineWidth, -itemOutlineWidth);
                 StyleHelper::drawCardBg(&maskPainter, maskR, Qt::white, Qt::NoPen,
-                                        itemCornerRounding);
+                                        StyleHelper::SpacingTokens::RadiusS - 2 * itemOutlineWidth);
                 thumbnail.setAlphaChannel(mask);
 
                 m_blurredThumbnail = QPixmap::fromImage(

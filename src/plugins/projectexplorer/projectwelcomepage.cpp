@@ -235,7 +235,7 @@ static void drawBackgroundRect(QPainter *painter, const QRectF &rect, bool hover
     const QColor fill(creatorColor(hovered ? cardHoverBackground : cardDefaultBackground));
     const QPen pen(creatorColor(hovered ? cardHoverStroke : cardDefaultStroke));
 
-    StyleHelper::drawCardBg(painter, rect, fill, pen, StyleHelper::defaultCardBgRounding);
+    StyleHelper::drawCardBg(painter, rect, fill, pen);
 }
 
 class BaseDelegate : public QAbstractItemDelegate
@@ -293,8 +293,8 @@ public:
     void paintEvent([[maybe_unused]] QPaintEvent *event) override
     {
         QPainter painter(this);
-        const QRect bgR = rect().adjusted(-StyleHelper::defaultCardBgRounding, 0, 0,
-                                          isChecked() ? StyleHelper::defaultCardBgRounding : 0);
+        const QRect bgR = rect().adjusted(-StyleHelper::SpacingTokens::RadiusS, 0, 0,
+                                          isChecked() ? StyleHelper::SpacingTokens::RadiusS : 0);
         drawBackgroundRect(&painter, bgR, underMouse());
 
         static const QPixmap arrowDown =

@@ -325,7 +325,7 @@ static Grid createDetailWidget(const CourseItem *course)
     return Grid {
         Align(Qt::AlignLeft | Qt::AlignVCenter, QtcWidgets::Image {
                 url(course->imageUrl),
-                radius(10),
+                radius(StyleHelper::SpacingTokens::RadiusM),
                 minimumWidth(300),
                 maximumWidth(300),
             }
@@ -334,7 +334,6 @@ static Grid createDetailWidget(const CourseItem *course)
             nameLabel(course->name),
             Row {
                 QtcWidgets::Rectangle {
-                    radius(5),
                     fillBrush(Qt::gray),
                     Row {
                         customMargins(5, 0, 5, 0),
@@ -345,7 +344,6 @@ static Grid createDetailWidget(const CourseItem *course)
                     }
                 },
                 QtcWidgets::Rectangle {
-                    radius(5),
                     fillBrush(difficultyColor(course)),
                     Grid {
                         customMargins(5, 0, 5, 0),
