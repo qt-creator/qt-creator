@@ -751,6 +751,8 @@ public:
     void toMap(Utils::Store &map) const override;
     void volatileToMap(Utils::Store &map) const override;
 
+    void setFocusToInputField();
+
 signals:
     void validChanged(bool validState);
 

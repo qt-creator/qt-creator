@@ -249,6 +249,10 @@ const char WINDOWS_WINAPPSDK_ROOT_ENV_KEY[] = "WIN_APP_SDK_ROOT";
 // Welcome page
 const char PROJECT_WELCOMEPAGE_ID[] = "Develop";
 
+// URL handler
+const char URL_HANDLER_SCHEME[] = "QCProjectExplorer";
+const char ACTIVE_RUN_CONFIG_PATH[] = "activeRunConfiguration";
+
 // UI texts
 PROJECTEXPLORER_EXPORT QString msgAutoDetected();
 PROJECTEXPLORER_EXPORT QString msgAutoDetectedToolTip();

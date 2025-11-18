@@ -602,6 +602,11 @@ void ExecutableAspect::setReadOnly(bool readOnly)
     m_executable.setReadOnly(readOnly);
 }
 
+void ExecutableAspect::setFocusToInputField()
+{
+    m_executable.setFocusToInputField();
+}
+
 /*!
    Makes an auto-detected executable overridable by the user.
 

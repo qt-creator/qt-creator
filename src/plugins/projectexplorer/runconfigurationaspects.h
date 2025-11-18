@@ -206,6 +206,8 @@ public:
     void setEnvironment(const Utils::Environment &env);
     void setReadOnly(bool readOnly);
 
+    void setFocusToInputField();
+
     struct Data : BaseAspect::Data
     {
         Utils::FilePath executable;

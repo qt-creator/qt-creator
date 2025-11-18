@@ -56,8 +56,25 @@ Tasks CustomExecutableRunConfiguration::checkForIssues() const
 {
     Tasks tasks;
     if (executable().isEmpty()) {
-        tasks << createConfigurationIssue(Tr::tr("You need to set an executable in the custom run "
-                                             "configuration."));
+        const QString summary = Tr::tr(
+            "No executable configured in the custom run "
+            "configuration.");
+        const QString linkText = displayName();
+        //: %1 = display name of the run configuration
+        const QString detail = Tr::tr("Go to the %1 run configuration and set up an executable.");
+        const QString link = Constants::URL_HANDLER_SCHEME + QChar(':')
+                             + Constants::ACTIVE_RUN_CONFIG_PATH;
+
+        QTextCharFormat format;
+        format.setAnchor(true);
+        format.setAnchorHref(link);
+        const int offset = summary.length() + detail.indexOf("%1") + 1;
+        const QTextLayout::FormatRange formatRange{offset, int(linkText.size()), format};
+
+        Task task = createConfigurationIssue(summary);
+        task.addToDetails(detail.arg(linkText));
+        task.setFormats({formatRange});
+        tasks << task;
     }
     return tasks;
 }

@@ -141,6 +141,7 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QApplication>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -863,8 +864,21 @@ static void restoreRecentProjects(QtcSettings *s)
     dd->checkRecentProjectsAsync();
 }
 
+template <typename T>
+static void openActiveRunConfiguration()
+{
+    ModeManager::activateMode(Constants::MODE_SESSION);
+    dd->m_proWindow->activateRunSettings();
+    if (RunConfiguration * const activeRc = activeRunConfigForActiveProject()) {
+        if (const auto focusAspect = activeRc->aspect<T>())
+            focusAspect->setFocusToInputField();
+    }
+}
+
 Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 {
+    QDesktopServices::setUrlHandler(Constants::URL_HANDLER_SCHEME, this, "handleLink");
+
     IOptionsPage::registerCategory(
                 Constants::KITS_SETTINGS_CATEGORY,
                 Tr::tr("Kits"),
@@ -1804,14 +1818,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     ActionBuilder(this, "ProjectExplorer.EditActiveRunConfig")
         .setText(Tr::tr("Edit Active Run Configuration"))
         .setDefaultKeySequence(Tr::tr("Ctrl+E, Ctrl+R"))
-        .addOnTriggered(this, [] {
-            ModeManager::activateMode(Constants::MODE_SESSION);
-            dd->m_proWindow->activateRunSettings();
-            if (RunConfiguration * const activeRc = activeRunConfigForActiveProject()) {
-                if (const auto argsAspect = activeRc->aspect<ArgumentsAspect>())
-                    argsAspect->setFocusToInputField();
-            }
-        });
+        .addOnTriggered(this, &openActiveRunConfiguration<ArgumentsAspect>);
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             dd, &ProjectExplorerPluginPrivate::savePersistentSettings);
@@ -2276,6 +2283,8 @@ void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()
 
 IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
 {
+    QDesktopServices::unsetUrlHandler(Constants::URL_HANDLER_SCHEME);
+
     disconnect(ModeManager::instance(), &ModeManager::currentModeChanged,
                dd, &ProjectExplorerPluginPrivate::currentModeChanged);
     ProjectTree::aboutToShutDown();
@@ -4334,6 +4343,14 @@ void ProjectExplorerPlugin::updateVcsActions(const QString &vcsDisplayName, cons
 QWidget *ProjectExplorerPlugin::createRecentProjectsView()
 {
     return ProjectWelcomePage::createRecentProjectsView();
+}
+
+void ProjectExplorerPlugin::handleLink(const QUrl &url) const
+{
+    if (url.path() == Constants::ACTIVE_RUN_CONFIG_PATH)
+        openActiveRunConfiguration<ExecutableAspect>();
+    else
+        qWarning() << "ProjectExplorerPlugin::handleLink: Unknown link:" << url;
 }
 
 OutputWindow *ProjectExplorerPlugin::buildSystemOutput()

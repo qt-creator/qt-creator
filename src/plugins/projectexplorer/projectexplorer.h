@@ -165,6 +165,9 @@ public:
 
     static Core::OutputWindow *buildSystemOutput();
 
+public slots:
+    void handleLink(const QUrl &url) const;
+
 signals:
     // Is emitted when a project has been added/removed,
     // or the file list of a specific project has changed.

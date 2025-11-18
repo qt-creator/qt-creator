@@ -1778,6 +1778,12 @@ void FilePathAspect::volatileToMap(Store &map) const
     d->m_checkerImpl.volatileToMap(map);
 }
 
+void FilePathAspect::setFocusToInputField()
+{
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setFocus();
+}
+
 void FilePathAspect::setPromptDialogFilter(const QString &filter)
 {
     d->m_prompDialogFilter = filter;
