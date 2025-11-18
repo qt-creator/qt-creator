@@ -23,8 +23,8 @@
             \li ARM-based Mac
             \li Intel Mac
         \endlist
-        \li Linux Ubuntu 22.04 (latest LTS)
         \li Linux Ubuntu 20.04
+        \li Linux Ubuntu 24.04
     \endlist
 
     \note For a good user experience on Windows 10, we recommend the following
