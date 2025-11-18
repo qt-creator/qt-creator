@@ -12,6 +12,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
@@ -356,12 +357,24 @@ void UpdateInfoPlugin::startCheckForUpdates()
     const auto onUpdateSetup = [doSetup](Process &process) {
         doSetup(process, {"ch", "-g", "*=false,ifw.package.*=true"});
     };
-    const auto onUpdateDone = [](const Process &process) {
-        m_d->m_updateOutput = process.cleanedStdOut();
+
+    const auto onUpdateDone = [](QString &output) {
+        return [&output](const Process &process) {
+            const QString errorMessage = Tr::tr("Failed to get update information (%1): %2")
+                                             .arg(process.commandLine().toUserOutput());
+            if (process.error() != QProcess::UnknownError) {
+                MessageManager::writeFlashing(errorMessage.arg(process.errorString()));
+            } else if (process.exitCode() != 0) {
+                MessageManager::writeFlashing(errorMessage.arg(
+                    Tr::tr("Process finished with exit code %1.").arg(process.exitCode())));
+            } else {
+                output = process.cleanedStdOut();
+            }
+        };
     };
 
-    const Group recipe {
-        ProcessTask(onUpdateSetup, onUpdateDone, CallDone::OnSuccess),
+    const Group recipe{
+        ProcessTask(onUpdateSetup, onUpdateDone(m_d->m_updateOutput), CallDone::Always),
         m_d->m_settings.checkForQtVersions
             ? ProcessTask(
                   [doSetup](Process &process) {
@@ -369,10 +382,9 @@ void UpdateInfoPlugin::startCheckForUpdates()
                           process,
                           {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"});
                   },
-                  [](const Process &process) { m_d->m_packagesOutput = process.cleanedStdOut(); },
-                  CallDone::OnSuccess)
-            : nullItem
-    };
+                  onUpdateDone(m_d->m_packagesOutput),
+                  CallDone::Always)
+            : nullItem};
     m_d->m_taskTreeRunner.start(recipe, onTreeSetup, onTreeDone);
 }
 
