@@ -1530,6 +1530,9 @@ void tst_filepath::cleanPath_data()
     QTest::addColumn<QString>("path");
     QTest::addColumn<QString>("expected");
 
+    QTest::newRow("dot") << "."
+                         << ".";
+
     QTest::newRow("data0") << "/Users/sam/troll/qt4.0//.."
                            << "/Users/sam/troll";
     QTest::newRow("data1") << "/Users/sam////troll/qt4.0//.."
