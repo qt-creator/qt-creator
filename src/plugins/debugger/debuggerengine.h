@@ -554,18 +554,13 @@ public:
 
     virtual void executeRecordReverse(bool) {}
 
-    ModulesHandler *modulesHandler() const;
     RegisterHandler *registerHandler() const;
-    PeripheralRegisterHandler *peripheralRegisterHandler() const;
     StackHandler *stackHandler() const;
-    ThreadsHandler *threadsHandler() const;
     WatchHandler *watchHandler() const;
-    SourceFilesHandler *sourceFilesHandler() const;
     BreakHandler *breakHandler() const;
     LogWindow *logWindow() const;
     DisassemblerAgent *disassemblerAgent() const;
 
-    void progressPing();
     bool debuggerActionsEnabled() const;
     virtual bool companionPreventsActions() const;
 
@@ -620,6 +615,13 @@ signals:
     void kickoffTerminalProcessRequested();
 
 protected:
+    ModulesHandler *modulesHandler() const;
+    PeripheralRegisterHandler *peripheralRegisterHandler() const;
+    ThreadsHandler *threadsHandler() const;
+    SourceFilesHandler *sourceFilesHandler() const;
+
+    void progressPing();
+
     void notifyEngineSetupOk();
     void notifyEngineSetupFailed();
     void notifyEngineRunFailed();
