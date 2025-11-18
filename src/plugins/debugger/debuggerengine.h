@@ -553,7 +553,6 @@ public:
     virtual void selectThread(const Internal::Thread &thread) = 0;
 
     virtual void executeRecordReverse(bool) {}
-    virtual void executeReverse(bool) {}
 
     ModulesHandler *modulesHandler() const;
     RegisterHandler *registerHandler() const;
