@@ -77,6 +77,12 @@ Project {
         directory: "%{AssetDir}"
     }
 
+    /* Baked lightmaps */
+    Files {
+        filter: "*.bin;*.exr;*.mesh"
+        directory: "%{ContentDir}"
+    }
+
     Environment {
        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
        QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT: "1"
