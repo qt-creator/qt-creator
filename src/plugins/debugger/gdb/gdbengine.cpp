@@ -357,7 +357,7 @@ void GdbEngine::handleResponse(const QString &buff)
                 m_detectTargetIncompat = false;
                 m_ignoreNextTrap = true;
             } else if (data.contains("no attribute 'lru_cache'")) {
-                setProperty("lru_fail", true);
+                m_lruFailure = true;
             }
 
             m_pendingLogStreamOutput += data;
@@ -1498,7 +1498,7 @@ void GdbEngine::handleDumperSetup(const DebuggerResponse &response)
     CHECK_STATE(EngineSetupRequested);
     if (response.resultClass == ResultFail) {
         const QString msg = response.data["msg"].data();
-        if (property("lru_fail").toBool() && msg.contains("Error while executing Python code.")) {
+        if (m_lruFailure && msg.contains("Error while executing Python code.")) {
             AsynchronousMessageBox::critical(
                         Tr::tr("Cannot Execute Python Code"),
                         Tr::tr("Python 3.2 or later is required, so update GDB to a "
