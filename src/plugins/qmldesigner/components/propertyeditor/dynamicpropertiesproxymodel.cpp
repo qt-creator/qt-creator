@@ -492,11 +492,13 @@ void DynamicPropertyRow::handleDataChanged(const QModelIndex &topLeft, const QMo
 {
     NanotraceHR::Tracer tracer{"dynamic properties proxy model handle data changed", category()};
 
-    if (m_model->dynamicPropertiesModel()->isCallbackToModelBlocked())
-        return;
-
-    if (topLeft.row() == m_row)
+    if (topLeft.row() == m_row) {
+        if (m_model->dynamicPropertiesModel()->propertyForRow(m_row).dynamicTypeName() == "alias"
+            && m_model->dynamicPropertiesModel()->isCallbackToModelBlocked()) {
+            return;
+        }
         setupBackendValue();
+    }
 }
 
 void DynamicPropertyRow::resetValue()
