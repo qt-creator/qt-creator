@@ -1225,8 +1225,6 @@ FilePath BuildConfiguration::expandedBuildDirectory(
     FilePath buildDir = exp.expand(rawBuildDir);
     qCDebug(bcLog) << "expanded build dir:" << buildDir.toUserOutput();
 
-    if (buildDir.isAbsolutePath())
-        return buildDir;
     return projectDir.resolvePath(buildDir);
 }
 
