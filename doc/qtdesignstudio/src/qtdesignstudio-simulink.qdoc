@@ -10,11 +10,14 @@
 
     Use the Simulink connector to connect simulation to your UI. Simulink is a
     MATLAB-based graphical programming environment for modeling, simulating,
-    and analyzing multi-domain dynamic systems. On Windows, \QDS provides
+    and analyzing multi-domain dynamic systems. \QDS provides
     built-in support for connectivity to Simulink models, which allows them to
     send and receive data with applications developed using \QDS. Install
     Simulink on your computer and run it simultaneously with \QDS to enable
     communication between the applications.
+
+    \note \uicontrol SimulinkConnector is supported only on Windows.
+        Run \QDS and Simulink on the same Windows computer.
 
     The information given here is mainly focused on the integration of the
     Simulink connector in \QDS. For information on how to use the Simulink
