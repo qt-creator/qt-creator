@@ -120,6 +120,7 @@ compile_commands.json
 .rcc/
 .uic/
 .clangd/
+/.qtcreator/
 /*-debug/
 /*-release/
 /build*/
