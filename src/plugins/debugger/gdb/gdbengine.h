@@ -316,14 +316,6 @@ private: ////////// General Interface //////////
 
     bool m_systemDumpersLoaded = false;
 
-    static void showExecutionError(const QString &message);
-    static QString failedToStartMessage();
-    static QString msgGdbStopFailed(const QString &why);
-    static QString msgInferiorStopFailed(const QString &why);
-    static QString msgAttachedToStoppedInferior();
-    static QString msgInferiorSetupOk();
-    static QString msgConnectRemoteServerFailed(const QString &why);
-
     void debugLastCommand() final;
     DebuggerCommand m_lastDebuggableCommand;
 

@@ -93,6 +93,12 @@ static QMessageBox *showMessageBox(QMessageBox::Icon icon,
     return mb;
 }
 
+static void showExecutionError(const QString &message)
+{
+    AsynchronousMessageBox::critical(Tr::tr("Execution Error"),
+                                     Tr::tr("Cannot continue debugged process:") + '\n' + message);
+}
+
 enum class TracepointCaptureType
 {
     Address,
@@ -168,9 +174,34 @@ GdbEngine::~GdbEngine()
     disconnect();
 }
 
-QString GdbEngine::failedToStartMessage()
+static QString failedToStartMessage()
 {
     return Tr::tr("The gdb process failed to start.");
+}
+
+static QString msgGdbStopFailed(const QString &why)
+{
+    return Tr::tr("The gdb process could not be stopped:\n%1").arg(why);
+}
+
+static QString msgInferiorStopFailed(const QString &why)
+{
+    return Tr::tr("Application process could not be stopped:\n%1").arg(why);
+}
+
+static QString msgInferiorSetupOk()
+{
+    return Tr::tr("Application started.");
+}
+
+static QString msgAttachedToStoppedInferior()
+{
+    return Tr::tr("Attached to stopped application.");
+}
+
+static QString msgConnectRemoteServerFailed(const QString &why)
+{
+    return Tr::tr("Connecting to remote server failed:\n%1").arg(why);
 }
 
 // Parse "~:gdb: unknown target exception 0xc0000139 at 0x77bef04e\n"
@@ -1504,12 +1535,6 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
         }
         notifyEngineSetupFailed();
     }
-}
-
-void GdbEngine::showExecutionError(const QString &message)
-{
-    AsynchronousMessageBox::critical(Tr::tr("Execution Error"),
-       Tr::tr("Cannot continue debugged process:") + '\n' + message);
 }
 
 void GdbEngine::handleExecuteContinue(const DebuggerResponse &response)
@@ -4168,31 +4193,6 @@ bool GdbEngine::usesExecInterrupt() const
 bool GdbEngine::usesTargetAsync() const
 {
     return runParameters().useTargetAsync() || settings().targetAsync();
-}
-
-QString GdbEngine::msgGdbStopFailed(const QString &why)
-{
-    return Tr::tr("The gdb process could not be stopped:\n%1").arg(why);
-}
-
-QString GdbEngine::msgInferiorStopFailed(const QString &why)
-{
-    return Tr::tr("Application process could not be stopped:\n%1").arg(why);
-}
-
-QString GdbEngine::msgInferiorSetupOk()
-{
-    return Tr::tr("Application started.");
-}
-
-QString GdbEngine::msgAttachedToStoppedInferior()
-{
-    return Tr::tr("Attached to stopped application.");
-}
-
-QString GdbEngine::msgConnectRemoteServerFailed(const QString &why)
-{
-    return Tr::tr("Connecting to remote server failed:\n%1").arg(why);
 }
 
 void GdbEngine::interruptLocalInferior(qint64 pid)
