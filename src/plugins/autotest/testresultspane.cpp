@@ -360,11 +360,12 @@ void TestResultsPane::clearContents()
 
 void TestResultsPane::setFocus()
 {
+    m_outputWidget->setFocus();
 }
 
 bool TestResultsPane::hasFocus() const
 {
-    return m_treeView->hasFocus();
+    return m_outputWidget->hasFocus();
 }
 
 bool TestResultsPane::canFocus() const

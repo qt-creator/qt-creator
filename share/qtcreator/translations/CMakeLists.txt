@@ -56,7 +56,7 @@ add_translation_targets(qtcreator
 )
 
 qtc_add_sbom(CreatorTranslations
-  TYPE QT_TRANSLATIONS
+  SBOM_ENTITY_TYPE QT_TRANSLATIONS
   QT_LICENSE_ID "QT_COMMERCIAL_OR_BSD3"
 )
 

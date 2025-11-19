@@ -69,7 +69,6 @@
 
 #ifdef WITH_TESTS
 #include "autotestunittests.h"
-#include "loadprojectscenario.h"
 #endif
 
 using namespace Core;
@@ -101,9 +100,6 @@ public:
     TestRunner m_testRunner;
     DataTagLocatorFilter m_dataTagLocatorFilter;
     QMetaObject::Connection m_testTreeModelConnection;
-#ifdef WITH_TESTS
-    LoadProjectScenario m_loadProjectScenario{&m_testTreeModel};
-#endif
 };
 
 static AutotestPluginPrivate *dd = nullptr;
@@ -545,12 +541,9 @@ public:
         setupTestSettingsPage();
 
         dd = new AutotestPluginPrivate;
-    #ifdef WITH_TESTS
-        ExtensionSystem::PluginManager::registerScenario("TestModelManagerInterface",
-                       [] { return dd->m_loadProjectScenario(); });
-
+#ifdef WITH_TESTS
         addTestCreator(createAutotestUnitTests);
-    #endif
+#endif
     }
 
     void extensionsInitialized()

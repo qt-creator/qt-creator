@@ -304,6 +304,8 @@ private:
     {
         for (int i = 0; i < klass->memberCount(); ++i) {
             Symbol * const member = klass->memberAt(i);
+            if (member->isGenerated())
+                continue;
             if (member->asForwardClassDeclaration() || member->asTemplate()) {
                 lookupSymbol(member, state);
                 continue;

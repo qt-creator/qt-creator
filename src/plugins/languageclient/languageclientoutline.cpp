@@ -418,8 +418,7 @@ LanguageClientOutlineItem::LanguageClientOutlineItem(const SymbolInformation &in
 { }
 
 LanguageClientOutlineItem::LanguageClientOutlineItem(Client *client, const DocumentSymbol &info)
-    : m_client(client)
-    , m_name(info.name())
+    : m_name(info.name())
     , m_detail(info.detail().value_or(QString()))
     , m_range(info.range())
     , m_selectionRange(info.selectionRange())
@@ -428,7 +427,7 @@ LanguageClientOutlineItem::LanguageClientOutlineItem(Client *client, const Docum
     const QList<LanguageServerProtocol::DocumentSymbol> children = sortedSymbols(
         info.children().value_or(QList<DocumentSymbol>()));
     for (const DocumentSymbol &child : children)
-        appendChild(m_client->createOutlineItem(child));
+        appendChild(client->createOutlineItem(child));
 }
 
 QVariant LanguageClientOutlineItem::data(int column, int role) const

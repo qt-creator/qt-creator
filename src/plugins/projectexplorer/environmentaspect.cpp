@@ -7,6 +7,7 @@
 #include "environmentaspectwidget.h"
 #include "environmentkitaspect.h"
 #include "kit.h"
+#include "kitmanager.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "target.h"
@@ -41,8 +42,18 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
 
 void EnvironmentAspect::setDeviceSelector(Kit *kit, DeviceSelector selector)
 {
+    QTC_ASSERT(!m_kit, return);
+    QTC_ASSERT(kit, return);
+
     m_kit = kit;
     m_selector = selector;
+
+    handleKitUpdate();
+    connect(KitManager::instance(), &KitManager::kitUpdated, this, [this](Kit *k) {
+        if (k == this->kit()) {
+            handleKitUpdate();
+        }
+    });
 }
 
 int EnvironmentAspect::baseEnvironmentBase() const

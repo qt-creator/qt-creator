@@ -1197,6 +1197,15 @@ Toolchain::BuiltInHeaderPathsRunner MsvcToolchain::createBuiltInHeaderPathsRunne
     };
 }
 
+static void prependPathEnvironmentVariable(Utils::Environment &result, const Utils::Environment &env)
+{
+    QSet<FilePath> resultPathSet = Utils::toSet(result.path());
+    for (const FilePath &path : env.path()) {
+        if (Utils::insert(resultPathSet, path))
+            result.prependOrSetPath(path);
+    }
+}
+
 void MsvcToolchain::addToEnvironment(Utils::Environment &env) const
 {
     // We cache the full environment (incoming + modifications by setup script).
@@ -1206,6 +1215,10 @@ void MsvcToolchain::addToEnvironment(Utils::Environment &env) const
         m_resultEnvironment = readEnvironmentSetting(env);
     }
     env = m_resultEnvironment;
+
+    // readEnvironmentSetting will set the PATH environment
+    // make sure to prepend any PATH changes that we had before
+    prependPathEnvironmentVariable(env, m_lastEnvironment);
 }
 
 static FilePath wrappedMakeCommand(const FilePath &command)
