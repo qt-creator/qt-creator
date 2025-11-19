@@ -27,7 +27,8 @@
     automatically check out and build the Qt Quick Studio Components from
     \l{https://code.qt.io/cgit/qt-labs/qtquickdesigner-components.git/} {Qt Code Review},
     using CMake. To turn off this feature, use the option \e BUILD_QDS_COMPONENTS
-    in the CMake configuration.
+    in the CMake configuration. However, starting with \QDS 4.6 and later, the Qt Quick
+    Studio component files are copied into the project instead of being checked out.
 
     \if defined(qtcreator)
         For more information about using \QDS to create projects, see
