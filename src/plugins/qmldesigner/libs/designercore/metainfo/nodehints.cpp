@@ -107,9 +107,6 @@ bool NodeHints::forceClip() const
     if (!isValid())
         return false;
 
-    if (modelNode().metaInfo().isQtQuickTemplatesSwipeView())
-        return true;
-
     auto flagIs = m_metaInfo.forceClip();
 
     if (flagIs != FlagIs::Set)
