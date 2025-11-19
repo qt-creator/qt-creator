@@ -69,6 +69,7 @@ void DesignerSettings::fromSettings(QtcSettings *settings)
     restoreValue(settings, DesignerSettingsKey::PUPPET_KILL_TIMEOUT, 30000); // this has no ui at the moment
     restoreValue(settings, DesignerSettingsKey::DEBUG_PUPPET, QString());
     restoreValue(settings, DesignerSettingsKey::FORWARD_PUPPET_OUTPUT, QString());
+    restoreValue(settings, DesignerSettingsKey::DUMP_PUPPET_INIT_INFORMATION, false);
     restoreValue(settings, DesignerSettingsKey::REFORMAT_UI_QML_FILES, true);
     restoreValue(settings, DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO, false);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES, true);
