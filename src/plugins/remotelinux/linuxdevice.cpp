@@ -448,10 +448,6 @@ public:
 
     void setupShell(const SshParameters &sshParameters, const Continuation<> &cont);
     void setupShellPhase2(const Result<> &result, const Continuation<> &cont);
-    void setupShellPhase3(
-        const Result<DeviceFileAccessPtr> &res,
-        const Continuation<> &cont);
-    void setupShellFinalize(const Result<> &result, const Continuation<> &cont);
 
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
 
@@ -473,12 +469,14 @@ public:
         QMutexLocker locker(&m_shellMutex);
         DeviceManager::setDeviceState(q->id(), IDevice::DeviceDisconnected, announce);
         q->setFileAccess(nullptr);
+        m_cmdBridgeAccess.reset();
         m_scriptAccess.reset();
     }
 
     LinuxDevice *q = nullptr;
 
     std::shared_ptr<LinuxDeviceAccess> m_scriptAccess;
+    std::shared_ptr<CmdBridge::FileAccess> m_cmdBridgeAccess;
 
     QRecursiveMutex m_shellMutex;
     QReadWriteLock m_environmentCacheLock;
@@ -1436,57 +1434,36 @@ void LinuxDevicePrivate::setupShell(const SshParameters &sshParameters,
 void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
                                           const Continuation<> &cont)
 {
-    if (!result) {
+    if (result) {
+        // Shell setup is ok.
+        q->setFileAccess(m_scriptAccess);
+        q->setDeviceState(IDevice::DeviceConnected);
+
+        setOsTypeFromUnameResult(m_scriptAccess->m_handler->runInShell(unameCommand()));
+
+        // We have good shell access now, try to get bridge access, too:
+
+        m_cmdBridgeAccess = std::make_unique<CmdBridge::FileAccess>([this] {
+            QMetaObject::invokeMethod(
+                this->q, [this] { announceConnectionLoss(); }, Qt::QueuedConnection);
+        });
+        Result<> initResult
+            = m_cmdBridgeAccess
+                  ->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), getEnvironment());
+        if (initResult) {
+            DEBUG("Bridge ok to use");
+            q->setFileAccess(m_cmdBridgeAccess);
+            q->setDeviceState(IDevice::DeviceReadyToUse);
+        } else {
+            DEBUG("Failed to start CmdBridge:" << initResult.error()
+                   << ", falling back to slow shell access");
+        }
+    } else {
         DEBUG("Failed to setup state");
         q->setFileAccess(nullptr);
         q->setDeviceState(IDevice::DeviceDisconnected);
-        setupShellFinalize(result, cont);
-        return;
     }
 
-    // Shell setup is ok.
-    q->setFileAccess(m_scriptAccess);
-    q->setDeviceState(IDevice::DeviceConnected);
-
-    setOsTypeFromUnameResult(m_scriptAccess->m_handler->runInShell(unameCommand()));
-
-    // We have good shell access now, try to get bridge access, too:
-
-    QFuture<Result<DeviceFileAccessPtr>> future = Utils::asyncRun(
-        [this, env = getEnvironment(), rootPath = q->rootPath()]() -> Result<DeviceFileAccessPtr>{
-            auto fileAccess = std::make_unique<CmdBridge::FileAccess>([&] {
-                QMetaObject::invokeMethod(
-                    this->q, [this] { announceConnectionLoss(); }, Qt::QueuedConnection);
-            });
-            Result<> deployAndInitResult
-                = fileAccess->deployAndInit(Core::ICore::libexecPath(), rootPath, env);
-            if (deployAndInitResult)
-                return DeviceFileAccessPtr(std::move(fileAccess));
-            return ResultError(deployAndInitResult.error());
-        });
-    Utils::onResultReady(future, q, [this, cont](const Result<DeviceFileAccessPtr> &res) {
-        setupShellPhase3(res, cont);
-    });
-    Utils::futureSynchronizer()->addFuture(future);
-}
-
-void LinuxDevicePrivate::setupShellPhase3(
-    const Result<DeviceFileAccessPtr> &initResult, const Continuation<> &cont)
-{
-    if (initResult) {
-        DEBUG("Bridge ok to use");
-        q->setFileAccess(initResult.value());
-        q->setDeviceState(IDevice::DeviceReadyToUse);
-        setupShellFinalize(ResultOk, cont);
-    } else {
-        DEBUG("Failed to start CmdBridge:" << initResult.error()
-              << ", falling back to slow shell access");
-        setupShellFinalize(ResultError(initResult.error()), cont);
-    }
-}
-
-void LinuxDevicePrivate::setupShellFinalize(const Result<> &result, const Continuation<> &cont)
-{
     m_shellMutex.unlock();
 
     unannounceConnectionAttempt();
