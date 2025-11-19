@@ -40,6 +40,7 @@ Project {
         "devcontainer/devcontainer.qbs",
         "diffeditor/diffeditor.qbs",
         "docker/docker.qbs",
+        "dotnet/dotnet.qbs",
         "effectcomposer/effectcomposer.qbs",
         "extensionmanager/extensionmanager.qbs",
         "fakevim/fakevim.qbs",
