@@ -1521,7 +1521,7 @@ static Result<Group> prepareContainerRecipe(
 
     // clang-format off
     return Group {
-        containerId, containerDetails, runningDetails, imageDetails,
+        containerId, containerDetails, runningDetails, imageDetails, useBuildKit,
         checkDocker(instanceConfig),
         testBuildKit(instanceConfig, useBuildKit),
         ProcessTask(setupComposeUp),
