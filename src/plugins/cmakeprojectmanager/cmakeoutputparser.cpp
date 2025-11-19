@@ -5,6 +5,8 @@
 
 #include "cmakeprojectmanagertr.h"
 
+#include <extensionsystem/pluginmanager.h>
+#include <updateinfo/updateinfoservice.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -24,6 +26,16 @@ const char COMMON_WARNING_PATTERN[] = "^CMake Warning (\\(dev\\) )?at (.*?):([0-
 const char LOCATION_LINE_PATTERN[] = ":(\\d+?):(?:(\\d+?))?$";
 const char SOURCE_LINE_AND_FUNCTION_PATTERN[] = "  (.*?):([0-9]*?)( \\((.*?)\\))";
 
+const char QT_PACKAGE_ERROR[]
+    = R"raw(^\s*Qt packages are missing:\s*([0-9.]*),\s*(\S*),\s*(\S*))raw";
+
+static bool isUpdateInfoServiceAvailable()
+{
+    static const bool isAvailable = ExtensionSystem::PluginManager::getObject<UpdateInfo::Service>()
+                                    != nullptr;
+    return isAvailable;
+}
+
 CMakeOutputParser::CMakeOutputParser()
 {
     m_commonError.setPattern(QLatin1String(COMMON_ERROR_PATTERN));
@@ -40,6 +52,9 @@ CMakeOutputParser::CMakeOutputParser()
 
     m_sourceLineAndFunction.setPattern(QLatin1String(SOURCE_LINE_AND_FUNCTION_PATTERN));
     QTC_CHECK(m_sourceLineAndFunction.isValid());
+
+    m_qtPackageError.setPattern(QT_PACKAGE_ERROR);
+    QTC_CHECK(m_qtPackageError.isValid());
 }
 
 void CMakeOutputParser::setSourceDirectories(const FilePaths &sourceDirs)
@@ -130,7 +145,32 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
             m_errorOrWarningLine.function = match.captured(4);
 
             return {Status::InProgress, linkSpecs};
-        } else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
+        }
+        if (isUpdateInfoServiceAvailable()) {
+            QString packages;
+            if (m_nextLineIsPackageSpec) {
+                packages = trimmedLine.trimmed();
+                m_nextLineIsPackageSpec = false;
+            } else {
+                match = m_qtPackageError.match(trimmedLine);
+                if (match.hasMatch() && !m_lastTask.isNull()) {
+                    const QString version = match.captured(1);
+                    const QString platform = match.captured(2);
+                    packages = match.captured(3);
+                    if (packages.isEmpty()) // CMake wrapped to the next line...
+                        m_nextLineIsPackageSpec = true;
+                }
+            }
+            if (!packages.isEmpty()) {
+                m_lastTask.addToDetails(trimmedLine.trimmed());
+                m_lastTask.addToDetails({});
+                m_lastTask.addLinkDetail(
+                    UpdateInfo::SERVICE_URL + packages,
+                    "👉 Click here to install the missing component with the Qt Online Installer");
+                return {Status::InProgress};
+            }
+        }
+        if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
             if (m_callStackDetected) {
                 match = m_sourceLineAndFunction.match(trimmedLine);
                 if (match.hasMatch()) {
@@ -146,21 +186,26 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
                 m_lastTask.addToDetails(trimmedLine.mid(2));
             }
             return {Status::InProgress};
-        } else if (trimmedLine.endsWith(QLatin1String("in cmake code at"))) {
+        }
+        if (trimmedLine.endsWith(QLatin1String("in cmake code at"))) {
             m_expectTripleLineErrorData = LINE_LOCATION;
             flush();
-            const Task::TaskType type =
-                    trimmedLine.contains(QLatin1String("Error")) ? Task::Error : Task::Warning;
+            const Task::TaskType type = trimmedLine.contains(QLatin1String("Error"))
+                                            ? Task::Error
+                                            : Task::Warning;
             m_lastTask = CMakeTask(type, QString());
             return Status::InProgress;
-        } else if (trimmedLine.startsWith("CMake Error: ")) {
+        }
+        if (trimmedLine.startsWith("CMake Error: ")) {
             m_lastTask = CMakeTask(Task::Error, trimmedLine.mid(13));
             m_lines = 1;
             return Status::InProgress;
-        } else if (trimmedLine.startsWith("-- ") || trimmedLine.startsWith(" * ")) {
+        }
+        if (trimmedLine.startsWith("-- ") || trimmedLine.startsWith(" * ")) {
             // Do not pass on lines starting with "-- " or "* ". Those are typical CMake output
             return Status::InProgress;
-        } else if (trimmedLine.startsWith("Call Stack (most recent call first):")) {
+        }
+        if (trimmedLine.startsWith("Call Stack (most recent call first):")) {
             m_callStackDetected = true;
             return {Status::InProgress};
         }
@@ -245,7 +290,7 @@ void CMakeOutputParser::flush()
             ++m_lines;
         });
 
-        setDetailsFormat(t, specs);
+        addDetailsFormat(t, specs);
     }
 
     scheduleTask(t, m_lines, 1);
@@ -478,6 +523,6 @@ QObject *createCMakeOutputParserTest()
 
 #endif
 
-} // CMakeProjectManager::Internal
+} // namespace CMakeProjectManager::Internal
 
 #include "cmakeoutputparser.moc"

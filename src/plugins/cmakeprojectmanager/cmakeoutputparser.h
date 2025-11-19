@@ -18,8 +18,9 @@ public:
     explicit CMakeOutputParser();
     void setSourceDirectories(const Utils::FilePaths &sourceDirs);
 
-private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
+
+private:
     void flush() override;
 
     enum TripleLineError { NONE, LINE_LOCATION, LINE_DESCRIPTION, LINE_DESCRIPTION2 };
@@ -33,8 +34,10 @@ private:
     QRegularExpression m_commonWarning;
     QRegularExpression m_locationLine;
     QRegularExpression m_sourceLineAndFunction;
+    QRegularExpression m_qtPackageError;
     bool m_skippedFirstEmptyLine = false;
     int m_lines = 0;
+    bool m_nextLineIsPackageSpec = false;
 
     struct CallStackLine
     {

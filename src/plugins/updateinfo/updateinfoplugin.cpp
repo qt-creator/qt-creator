@@ -25,6 +25,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QDate>
+#include <QDesktopServices>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -135,6 +136,7 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
                     Column {
                         Label {
                             wordWrap(true),
+                            textInteractionFlags(Qt::TextBrowserInteraction),
                             text(Tr::tr("All packages matching \"%1\" are already installed.")
                                  .arg(filterRegex))
                         },
@@ -146,6 +148,7 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
                     Column {
                         Label {
                             wordWrap(true),
+                            textInteractionFlags(Qt::TextBrowserInteraction),
                             text(Tr::tr("No packages matching \"%1\" were found.").arg(filterRegex))
                         },
                         st
@@ -513,6 +516,17 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
     }
 }
 
+void UpdateInfoPlugin::installPackagesHandler(const QUrl &url)
+{
+    QTC_ASSERT(url.scheme() == SERVICE_SCHEME, return);
+    QTC_ASSERT(url.toString().startsWith(SERVICE_URL), return);
+    if (!url.hasQuery())
+        return;
+    const QString query = url.query();
+    const QString regex = "(" + query.split(';').join(")|(") + ")";
+    m_d->m_service->installPackages(regex);
+}
+
 bool UpdateInfoPlugin::isCheckForUpdatesRunning() const
 {
     return m_d->m_taskTreeRunner.isRunning();
@@ -569,6 +583,7 @@ Result<> UpdateInfoPlugin::initialize(const QStringList &)
     mmaintenanceTool->addAction(startMaintenanceToolCommand);
     m_d->m_service.reset(new ServiceImpl);
     ExtensionSystem::PluginManager::addObject(m_d->m_service.get());
+    QDesktopServices::setUrlHandler(SERVICE_SCHEME, this, "installPackagesHandler");
 
     return ResultOk;
 }

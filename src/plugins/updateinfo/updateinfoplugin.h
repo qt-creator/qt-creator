@@ -66,8 +66,9 @@ private:
     void startPackageManager() const;
     void stopCheckForUpdates();
     void checkForUpdatesStopped();
-
     void checkForUpdatesFinished();
+
+    Q_INVOKABLE void installPackagesHandler(const QUrl &url);
 
     void loadSettings() const;
     void saveSettings();

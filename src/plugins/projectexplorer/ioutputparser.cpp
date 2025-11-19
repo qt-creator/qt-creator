@@ -85,21 +85,27 @@ void OutputTaskParser::scheduleTask(const Task &task, int outputLines, int skipp
 
 void OutputTaskParser::setDetailsFormat(Task &task, const LinkSpecs &linkSpecs)
 {
+    task.setFormats({});
+    addDetailsFormat(task, linkSpecs);
+}
+
+void OutputTaskParser::addDetailsFormat(Task &task, const LinkSpecs &linkSpecs)
+{
     if (!task.hasDetails())
         return;
 
     Utils::FormattedText monospacedText(task.details().join('\n'));
     monospacedText.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
     monospacedText.format.setFontStyleHint(QFont::Monospace);
-    const QList<Utils::FormattedText> linkifiedText =
-            Utils::OutputFormatter::linkifiedText({monospacedText}, linkSpecs);
+    const QList<Utils::FormattedText> linkifiedText
+        = Utils::OutputFormatter::linkifiedText({monospacedText}, linkSpecs);
     QList<QTextLayout::FormatRange> formats;
     int offset = task.summary().size() + 1;
     for (const Utils::FormattedText &ft : linkifiedText) {
         formats << QTextLayout::FormatRange{offset, int(ft.text.size()), ft.format};
         offset += ft.text.size();
     }
-    task.setFormats(formats);
+    task.setFormats(task.formats() + formats);
 }
 
 void OutputTaskParser::fixTargetLink()

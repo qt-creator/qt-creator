@@ -90,30 +90,6 @@ function(qt_maintenance_tool_get_standalone_addons standalone_addons_list)
   )
 endfunction()
 
-function(qt_maintenance_tool_remove_installed_components components_list)
-  set(actual_components_list ${${components_list}})
-  execute_process(
-    COMMAND "${QT_MAINTENANCE_TOOL}" list
-    RESULT_VARIABLE result
-    OUTPUT_VARIABLE output
-    ERROR_VARIABLE output
-    TIMEOUT 600
-  )
-  if (NOT result EQUAL 0)
-    message(WARNING "Qt MaintenanceTool returned an error.\n${output}")
-    set(${components_list} "" PARENT_SCOPE)
-    return()
-  endif()
-
-  foreach(component_name IN LISTS actual_components_list)
-    string(FIND "${output}" "<package name=\"${component_name}\"" found_component)
-    if (NOT found_component EQUAL -1)
-      list(REMOVE_ITEM ${components_list} ${component_name})
-    endif()
-  endforeach()
-  set(${components_list} ${${components_list}} PARENT_SCOPE)
-endfunction()
-
 function(qt_maintenance_tool_install qt_major_version qt_package_list)
   if (QT_QMAKE_EXECUTABLE MATCHES ".*/(.*)/(.*)/bin/qmake")
     set(qt_version_number ${CMAKE_MATCH_1})
@@ -206,71 +182,10 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
       endif()
     endforeach()
 
-    qt_maintenance_tool_remove_installed_components(installer_component_list)
-    list(LENGTH installer_component_list installer_component_list_size)
-    if (installer_component_list_size EQUAL 0)
-      return()
-    endif()
-
-    list(TRANSFORM qt_package_list PREPEND "Qt${qt_major_version}")
-    list(JOIN qt_package_list " " qt_packages_as_string)
-    list(JOIN installer_component_list " " installer_components_as_string)
-
-    message(STATUS "Qt Creator: CMake could not find: ${qt_packages_as_string}. "
-                   "Now installing: ${installer_components_as_string} "
-                   "with the MaintenanceTool ...")
-
-    if (QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI)
-      message(STATUS "Qt Creator: Using MaintenanceTool in CLI Mode. "
-                     "Set QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI to OFF for GUI mode.")
-      execute_process(
-        COMMAND
-          "${QT_MAINTENANCE_TOOL}"
-          --accept-licenses
-          --default-answer
-          --confirm-command
-          install ${installer_component_list}
-        RESULT_VARIABLE result
-        OUTPUT_VARIABLE output
-        ERROR_VARIABLE output
-        ECHO_OUTPUT_VARIABLE ECHO_ERROR_VARIABLE
-        TIMEOUT 600
-      )
-      if (NOT result EQUAL 0)
-        message(WARNING "Qt MaintenanceTool returned an error.\n${output}")
-      endif()
-    else()
-      message(STATUS "Qt Creator: Using MaintenanceTool in GUI Mode. "
-                     "Set QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI to ON for CLI mode.")
-      set(ENV{QTC_MAINTENANCE_TOOL_COMPONENTS} "${installer_component_list}")
-      set(ENV{QTC_MAINTENANCE_TOOL_QT_PACKAGES} "${qt_package_list}")
-
-      if(CMAKE_HOST_WIN32)
-        # It's necessary to call actual test inside 'cmd.exe', because 'execute_process' uses
-        # SW_HIDE to avoid showing a console window, it affects other GUI as well.
-        # See https://gitlab.kitware.com/cmake/cmake/-/issues/17690 for details.
-        #
-        # Run the command using the proxy 'call' command to avoid issues related to invalid
-        # processing of quotes and spaces in cmd.exe arguments.
-        set(extra_runner cmd /d /c call)
-      endif()
-
-      execute_process(
-        COMMAND ${extra_runner}
-          "${QT_MAINTENANCE_TOOL}"
-          --script "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/maintenance_tool_provider.qs"
-          --verbose
-        RESULT_VARIABLE result
-        OUTPUT_VARIABLE output
-        ERROR_VARIABLE output
-        ECHO_OUTPUT_VARIABLE ECHO_ERROR_VARIABLE
-        TIMEOUT 600
-      )
-      if (NOT result EQUAL 0)
-        message(WARNING "Qt MaintenanceTool returned an error.\n${output}")
-      endif()
-
-    endif()
+    # THIS MESSAGE IS PARSED IN THE CMakeOutputParser
+    message(WARNING "Qt packages are missing: ${qt_version_number}, ${qt_build_flavor}, ${installer_component_list}\n"
+                    "If you are using the Qt Online Installer, check the Issues view in Qt Creator "
+                    "for a link that installs the missing component.")
   endif()
 endfunction()
 

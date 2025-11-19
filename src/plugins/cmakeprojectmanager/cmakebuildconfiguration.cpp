@@ -744,12 +744,6 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments(bool fromReconfigure)
             CMakeConfigItem("QT_QML_GENERATE_QMLLS_INI", CMakeConfigItem::BOOL, "ON"));
     }
 
-    const QVariant maintananceTool = Core::ICore::settings()->value("Updater/MaintenanceTool");
-    if (maintananceTool.isValid() && !initialList.contains("QT_MAINTENANCE_TOOL")) {
-        initialList.insert(CMakeConfigItem(
-            "QT_MAINTENANCE_TOOL", CMakeConfigItem::FILEPATH, maintananceTool.toString().toUtf8()));
-    }
-
     for (const CMakeConfigItem &ci : m_buildConfig->cmakeBuildSystem()->configurationChanges()) {
         if (!ci.isInitial)
             continue;
@@ -1315,11 +1309,6 @@ static CommandLine defaultInitialCMakeCommand(
 
     // CMake should output colors by default
     cmd.addArg("-DCMAKE_COLOR_DIAGNOSTICS:BOOL=ON");
-
-    // Add MaintenanceTool
-    const QVariant maintananceTool = Core::ICore::settings()->value("Updater/MaintenanceTool");
-    if (maintananceTool.isValid())
-        cmd.addArg("-DQT_MAINTENANCE_TOOL:FILEPATH=" + maintananceTool.toString());
 
     cmd.addArgs(CMakeConfigurationKitAspect::toArgumentsList(k));
     cmd.addArgs(CMakeConfigurationKitAspect::additionalConfiguration(k), CommandLine::Raw);

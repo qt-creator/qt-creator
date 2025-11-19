@@ -66,19 +66,12 @@ endif()
 # MaintenanceTool
 #
 if (QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER)
-  option(QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI
-        "Use CLI mode for Qt Creator's MaintenanceTool find_package provider" OFF)
-
   function(qtc_maintenance_provider_missing_variable_message variable)
     message(STATUS "Qt Creator: ${variable} was not set. "
                   "Qt MaintenanceTool cannot be used to install missing Qt modules that you specify in find_package(). "
                   "To disable this message set QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER to OFF.")
   endfunction()
 
-  if (NOT QT_MAINTENANCE_TOOL)
-    qtc_maintenance_provider_missing_variable_message(QT_MAINTENANCE_TOOL)
-    return()
-  endif()
   if (NOT QT_QMAKE_EXECUTABLE)
     qtc_maintenance_provider_missing_variable_message(QT_QMAKE_EXECUTABLE)
     return()

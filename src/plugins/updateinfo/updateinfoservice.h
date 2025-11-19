@@ -8,6 +8,9 @@
 
 namespace UpdateInfo {
 
+const char SERVICE_SCHEME[] = "updateinfo";
+const char SERVICE_URL[] = "updateinfo://install?";
+
 class Service
 {
 public:
