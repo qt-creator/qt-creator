@@ -740,8 +740,12 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments(bool fromReconfigure)
     // set QT_QML_GENERATE_QMLLS_INI if it is enabled via the settings checkbox and if its not part
     // of the initial CMake arguments yet
     if (isGenerateQmllsSettingsEnabled() && !initialList.contains("QT_QML_GENERATE_QMLLS_INI")) {
-        initialList.insert(
-            CMakeConfigItem("QT_QML_GENERATE_QMLLS_INI", CMakeConfigItem::BOOL, "ON"));
+        const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
+            m_buildConfig->kit());
+        if (qtVersion && qtVersion->qtVersion() < QVersionNumber(6, 10, 0)) {
+            initialList.insert(
+                CMakeConfigItem("QT_QML_GENERATE_QMLLS_INI", CMakeConfigItem::BOOL, "ON"));
+        }
     }
 
     for (const CMakeConfigItem &ci : m_buildConfig->cmakeBuildSystem()->configurationChanges()) {

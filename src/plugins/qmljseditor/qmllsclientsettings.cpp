@@ -714,7 +714,7 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     , m_disableBuiltinCodemodel(new QCheckBox(
           Tr::tr("Use advanced features (renaming, find usages, and so on) (experimental)"), this))
     , m_generateQmllsIniFiles(
-          new QCheckBox(Tr::tr("Create .qmlls.ini files for new projects"), this))
+          new QCheckBox(Tr::tr("Create .qmlls.ini files for new projects targeting Qt < 6.10"), this))
     , m_enableCMakeBuilds(new QCheckBox(Tr::tr("Enable qmlls's CMake integration"), this))
     , m_ignoreMinimumQmllsVersion(new QCheckBox(
           Tr::tr("Allow versions below Qt %1")
