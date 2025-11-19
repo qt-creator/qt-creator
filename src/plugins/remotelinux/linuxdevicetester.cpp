@@ -57,6 +57,7 @@ QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
                                                  "dd",
                                                  "df",
                                                  "echo",
+                                                 "env",
                                                  "eval",
                                                  "exit",
                                                  "kill",
