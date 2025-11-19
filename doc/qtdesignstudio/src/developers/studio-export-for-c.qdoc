@@ -33,6 +33,11 @@
                     deactivate the option.
 
             \image studio-project-export-cmake.webp {Exporting a Qt Design Studio project to CMake.}
+
+            \warning \QDS does not support QML modules in the \c ProjectNameContent
+                    folder. To use CMake generation, make sure the \c ProjectNameContent
+                    folder does not contain any QML module or a \c qmldir file.
+
         \endlist
 
     \section1 Opening the \QDS project in Qt Creator
