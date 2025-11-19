@@ -274,106 +274,78 @@ public:
     void populateQmlFileFinder(const ProjectExplorer::RunControl *runControl);
 
 private:
-    DebuggerStartMode m_startMode = NoStartMode;
-    DebuggerCloseMode m_closeMode = KillAtClose;
-
-    Utils::ProcessRunData m_inferior;
+    Utils::ProcessHandle m_attachPid;
+    Utils::ProcessHandle m_serverAttachPid;
+    QUrl m_qmlServer; // Used by Qml debugging.
+    QMap<QString, QString> m_sourcePathMap; // Used by Mer plugin (3rd party)
+    qint64 m_applicationPid = 0; // Terminal
+    qint64 m_applicationMainThreadId = 0; // Terminal
+    const Utils::MacroExpander *m_macroExpander = nullptr;
 
     QString m_displayName; // Used in the Snapshots view.
-
-    Utils::ProcessHandle m_attachPid;
-
-    Utils::FilePaths m_solibSearchPath;
-
-    QUrl m_qmlServer; // Used by Qml debugging.
-    bool m_isQmlDebugging = false;
-
     QString m_remoteChannel; // Used by general remote debugging.
-    bool m_useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
-    Utils::FilePath m_symbolFile;
-
-    QMap<QString, QString> m_sourcePathMap; // Used by Mer plugin (3rd party)
-
     QString m_commandsForReset; // Used by baremetal plugin. Commands used for resetting the inferior
-    bool m_useContinueInsteadOfRun = false; // If connected to a hw debugger run is not possible but continue is used
     QString m_commandsAfterConnect; // Additional commands to post after connection to debug target
+    QString m_lldbPlatform;
+    QString m_deviceSymbolsRoot;
+    QString m_deviceUuid; // iOS 17+
+    QString m_additionalStartupCommands; // Macro-expanded and passed to debugger startup
+    QString m_version;
+    QString m_runAsUser;
+    QString m_startMessage; // First status message shown.
+    QString m_crashParameter; // Used by AttachCrashedExternal.
+    QString m_qtNamespace;
 
     QStringList m_expectedSignals; // Used by Valgrind
+    QStringList m_debugSourceLocation; // Gdb "directory"
+    QStringList m_validationErrors;
 
-    bool m_useCtrlCStub = false; // For QNX debugging.
-
-    bool m_useTargetAsync = false;
-
-    Utils::FilePaths m_additionalSearchDirectories;
-
-    QString m_lldbPlatform;
-
-    QString m_deviceSymbolsRoot;
-    bool m_continueAfterAttach = false;
+    Utils::FilePath m_symbolFile;
     Utils::FilePath m_sysRoot;
-
-    QString m_deviceUuid; // iOS 17+
-
-    // Used by general core file debugging. Public access requested in QTCREATORBUG-17158.
     Utils::FilePath m_coreFile;
-    bool m_isSnapshot = false; // Set if created internally.
+    Utils::FilePath m_overrideStartScript; // Used in attach to core and remote debugging
+    Utils::FilePath m_debugInfoLocation; // Gdb "set-debug-file-directory".
+    Utils::FilePath m_qtSourceLocation;
+    Utils::FilePath m_projectSourceDirectory;
+    Utils::FilePath m_buildDirectory;
+    Utils::FilePath m_interpreter; // Used by Script debugging
+    Utils::FilePath m_mainScript; // Used by Script debugging
+    Utils::FilePath m_peripheralDescriptionFile; // Common debugger constant.
+    Utils::FilePath m_uVisionProjectFilePath; // UVSC-specific debugger constant.
+    Utils::FilePath m_uVisionOptionsFilePath; // UVSC-specific debugger constant.
 
-    // Macro-expanded and passed to debugger startup.
-    QString m_additionalStartupCommands;
+    Utils::FilePaths m_solibSearchPath;
+    Utils::FilePaths m_additionalSearchDirectories;
+    Utils::FilePaths m_projectSourceFiles;
 
+    ProjectExplorer::Abi m_toolChainAbi;
+    Utils::ProcessRunData m_inferior;
+    Utils::ProcessRunData m_debugger;
+    Utils::FileInProjectFinder m_qmlFileFinder;
+    DebuggerStartMode m_startMode = NoStartMode;
+    DebuggerCloseMode m_closeMode = KillAtClose;
     DebuggerEngineType m_cppEngineType = NoEngineType;
+    int m_testCase = 0; // For Debugger testing.
+    int m_qtVersion = 0;
+    std::optional<int> m_exitCode = {};
 
-    QString m_version;
-
+    bool m_isQmlDebugging = false;
+    bool m_useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
+    bool m_useContinueInsteadOfRun = false; // If connected to a hw debugger run is not possible but continue is used
+    bool m_useCtrlCStub = false; // For QNX debugging.
+    bool m_useTargetAsync = false;
+    bool m_continueAfterAttach = false;
+    bool m_isSnapshot = false; // Set if created internally.
     bool m_isPythonDebugging = false;
     bool m_breakOnMain = false;
     bool m_multiProcess = false; // Whether to set detach-on-fork off.
     bool m_useTerminal = false;
-    QString m_runAsUser;
-
-    Utils::ProcessRunData m_debugger;
-    Utils::FilePath m_overrideStartScript; // Used in attach to core and remote debugging
-
-    QString m_startMessage; // First status message shown.
-    Utils::FilePath m_debugInfoLocation; // Gdb "set-debug-file-directory".
-    QStringList m_debugSourceLocation; // Gdb "directory"
-    Utils::FilePath m_qtSourceLocation;
-    ProjectExplorer::Abi m_toolChainAbi;
-
-    Utils::FilePath m_projectSourceDirectory;
-    Utils::FilePaths m_projectSourceFiles;
-    Utils::FilePath m_buildDirectory;
-
-    qint64 m_applicationPid = 0; // Terminal
-    qint64 m_applicationMainThreadId = 0; // Terminal
-
-    Utils::FilePath m_interpreter; // Used by Script debugging
-    Utils::FilePath m_mainScript; // Used by Script debugging
-
-    QString m_crashParameter; // Used by AttachCrashedExternal.
     bool m_nativeMixedEnabled = false;
-
-    const Utils::MacroExpander *m_macroExpander = nullptr;
-    std::optional<int> m_exitCode = {};
-
-    int m_testCase = 0; // For Debugger testing.
-    QStringList m_validationErrors;
-
-    int m_qtVersion = 0;
-    QString m_qtNamespace;
-
-    Utils::FilePath m_peripheralDescriptionFile; // Common debugger constant.
-    Utils::FilePath m_uVisionProjectFilePath; // UVSC-specific debugger constant.
-    Utils::FilePath m_uVisionOptionsFilePath; // UVSC-specific debugger constant.
     bool m_uVisionSimulator = false;
-
-    Utils::ProcessHandle m_serverAttachPid;
     bool m_serverUseMulti = true;
     bool m_serverEssential = true;
     bool m_skipDebugServer = false;
     bool m_addQmlServerInferiorCmdArgIfNeeded = false;
-
-    Utils::FileInProjectFinder m_qmlFileFinder;
 };
 
 namespace Internal {
