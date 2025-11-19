@@ -795,16 +795,14 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
 void GdbEngine::commandTimeout()
 {
     const QList<int> keys = Utils::sorted(m_commandForToken.keys());
-    bool killIt = false;
     for (int key : keys) {
         const DebuggerCommand &cmd = m_commandForToken.value(key);
-        killIt = true;
         showMessage(QString::number(key) + ": " + cmd.function);
     }
     QStringList commands;
     for (const DebuggerCommand &cmd : std::as_const(m_commandForToken))
         commands << QString("\"%1\"").arg(cmd.function);
-    if (killIt) {
+    if (!keys.isEmpty()) {
         showMessage(QString("TIMED OUT WAITING FOR GDB REPLY. "
                       "COMMANDS STILL IN PROGRESS: ") + commands.join(", "));
         int timeOut = m_commandTimer.interval();
