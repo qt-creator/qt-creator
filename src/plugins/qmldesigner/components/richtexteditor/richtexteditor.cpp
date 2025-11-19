@@ -234,8 +234,10 @@ void RichTextEditor::cursorPositionChanged()
     tableChanged(m_textEdit->textCursor());
 }
 
-void RichTextEditor::onTextChanged() {
+void RichTextEditor::onTextChanged()
+{
     emit textChanged(richText());
+    cursorPositionChanged();
 }
 
 void RichTextEditor::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
@@ -740,9 +742,8 @@ void RichTextEditor::textStyle(QTextListFormat::Style style)
 
             cursor.createList(listFmt);
         } else {
-            QTextList* currentList = cursor.currentList();
-            QTextBlock currentBlock = cursor.block();
-            currentList->remove(currentBlock);
+            if (cursor.currentList())
+                cursor.currentList()->remove(cursor.block());
 
             QTextBlockFormat blockFormat = cursor.blockFormat();
             blockFormat.setIndent(0);
