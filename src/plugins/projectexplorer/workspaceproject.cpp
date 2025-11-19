@@ -586,7 +586,9 @@ WorkspaceProject::WorkspaceProject(const FilePath &file, const QJsonObject &defa
     if (!projectFilePath().exists() && QTC_GUARD(projectFilePath().ensureExistingFile())) {
         QJsonObject projectJson = defaultConfiguration;
         projectJson.insert("$schema", "https://download.qt.io/official_releases/qtcreator/latest/installer_source/jsonschemas/project.json");
-        projectJson.insert(FILES_EXCLUDE_KEY, QJsonArray{QJsonValue(".qtcreator/project.json.user")});
+        QJsonArray excludes = projectJson.value(FILES_EXCLUDE_KEY).toArray();
+        excludes.append(".qtcreator/project.json.user");
+        projectJson.insert(FILES_EXCLUDE_KEY, excludes);
         projectFilePath().writeFileContents(QJsonDocument(projectJson).toJson());
     }
 
