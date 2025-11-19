@@ -638,9 +638,7 @@ void RichTextEditor::setupTableActions()
     m_actionRemoveRow = m_tableBar->addAction(removeRowIcon, tr("Remove Row"), [this] {
         QTextCursor cursor = m_textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {
-            cursorEditBlock(cursor, [&] () {
-                currentTable->insertColumns(currentTable->cellAt(cursor).column()+1, 1);
-
+            cursorEditBlock(cursor, [&]() {
                 int firstRow = 0;
                 int numRows = 0;
                 int firstColumn = 0;
