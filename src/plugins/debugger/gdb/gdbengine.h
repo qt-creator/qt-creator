@@ -133,7 +133,6 @@ private: ////////// General Interface //////////
     void handleStop1(const GdbMi &data);
     void handleStop2(const GdbMi &data);
     void handleStop3();
-    void resetCommandQueue();
     void updateStateForStop();
 
     // Gdb initialization sequence
@@ -185,15 +184,12 @@ private: ////////// General Interface //////////
     //
     // Breakpoint specific stuff
     //
-    void handleBreakModifications(const GdbMi &bkpts);
     void handleBreakIgnore(const DebuggerResponse &response, const Breakpoint &bp);
     void handleBreakDisable(const DebuggerResponse &response, const Breakpoint &bp);
     void handleBreakEnable(const DebuggerResponse &response, const Breakpoint &bp);
     void handleBreakInsert1(const DebuggerResponse &response, const Breakpoint &bp);
     void handleBreakInsert2(const DebuggerResponse &response, const Breakpoint &bp);
     void handleBreakCondition(const DebuggerResponse &response, const Breakpoint &bp);
-    void handleBreakThreadSpec(const DebuggerResponse &response, const Breakpoint &bp);
-    void handleBreakLineNumber(const DebuggerResponse &response, const Breakpoint &bp);
     void handleTracepointInsert(const DebuggerResponse &response, const Breakpoint &bp);
     void handleTracepointHit(const GdbMi &data);
     void handleTracepointModified(const GdbMi &data);
@@ -235,7 +231,6 @@ private: ////////// General Interface //////////
     void reloadPeripheralRegisters() final;
     void setRegisterValue(const QString &name, const QString &value) final;
     void setPeripheralRegisterValue(quint64 address, quint64 value) final;
-    void handleRegisterListNames(const DebuggerResponse &response);
     void handleRegisterListing(const DebuggerResponse &response);
     void handleRegisterListValues(const DebuggerResponse &response);
     void handlePeripheralRegisterListValues(const DebuggerResponse &response);
@@ -256,10 +251,7 @@ private: ////////// General Interface //////////
     // Source file specific stuff
     //
     void reloadSourceFiles() final;
-    void reloadSourceFilesInternal();
-    void handleQuerySources(const DebuggerResponse &response);
 
-    Utils::FilePath fullName(const QString &fileName);
     Utils::FilePath cleanupFullName(const QString &fileName);
 
     // awful hack to keep track of used files
@@ -274,7 +266,6 @@ private: ////////// General Interface //////////
     //
     void updateAll() final;
     void handleStackListFrames(const DebuggerResponse &response, bool isFull);
-    void handleStackSelectThread(const DebuggerResponse &response);
     void handleThreadListIds(const DebuggerResponse &response);
     void handleThreadInfo(const DebuggerResponse &response);
     void handleThreadNames(const DebuggerResponse &response);
@@ -282,7 +273,6 @@ private: ////////// General Interface //////////
     void reloadStack();
     void reloadFullStack() final;
     void loadAdditionalQmlStack() final;
-    int currentFrame() const;
 
     //
     // Watch specific stuff
@@ -293,11 +283,8 @@ private: ////////// General Interface //////////
 
     void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length) final;
     void fetchMemoryHelper(const MemoryAgentCookie &cookie);
-    void handleChangeMemory(const DebuggerResponse &response);
     void changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data) final;
     void handleFetchMemory(const DebuggerResponse &response, MemoryAgentCookie ac);
-
-    void showToolTip();
 
     void handleVarAssign(const DebuggerResponse &response);
     void handleThreadGroupCreated(const GdbMi &result);
@@ -308,18 +295,10 @@ private: ////////// General Interface //////////
     void doUpdateLocals(const UpdateParameters &parameters) final;
     void handleFetchVariables(const DebuggerResponse &response);
 
-    void setLocals(const QList<GdbMi> &locals);
-
     //
     // Dumper Management
     //
     void reloadDebuggingHelpers() final;
-
-    //
-    // Convenience Functions
-    //
-    void showExecutionError(const QString &message);
-    QString failedToStartMessage();
 
     // For short-circuiting stack and thread list evaluation.
     bool m_stackNeeded = false;
@@ -337,11 +316,12 @@ private: ////////// General Interface //////////
 
     bool m_systemDumpersLoaded = false;
 
+    static void showExecutionError(const QString &message);
+    static QString failedToStartMessage();
     static QString msgGdbStopFailed(const QString &why);
     static QString msgInferiorStopFailed(const QString &why);
     static QString msgAttachedToStoppedInferior();
     static QString msgInferiorSetupOk();
-    static QString msgInferiorRunOk();
     static QString msgConnectRemoteServerFailed(const QString &why);
 
     void debugLastCommand() final;
@@ -385,7 +365,6 @@ private: ////////// General Interface //////////
     // Core
     void handleTargetCore(const DebuggerResponse &response);
     void handleCoreRoundTrip(const DebuggerResponse &response);
-    QString coreFileName() const;
 
     QString mainFunction() const;
     void setupInferior();

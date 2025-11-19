@@ -999,33 +999,6 @@ void GdbEngine::updateAll()
     updateLocals();
 }
 
-void GdbEngine::handleQuerySources(const DebuggerResponse &response)
-{
-    m_sourcesListUpdating = false;
-    if (response.resultClass == ResultDone) {
-        QMap<QString, FilePath> oldShortToFull = m_shortToFullName;
-        m_shortToFullName.clear();
-        m_fullToShortName.clear();
-        // "^done,files=[{file="../../../../bin/dumper/dumper.cpp",
-        // fullname="/data5/dev/ide/main/bin/dumper/dumper.cpp"},
-        for (const GdbMi &item : response.data["files"]) {
-            GdbMi fileName = item["file"];
-            if (fileName.data().endsWith("<built-in>"))
-                continue;
-            GdbMi fullName = item["fullname"];
-            QString file = fileName.data();
-            FilePath full;
-            if (fullName.isValid()) {
-                full = cleanupFullName(fullName.data());
-                m_fullToShortName[full] = file;
-            }
-            m_shortToFullName[file] = full;
-        }
-        if (m_shortToFullName != oldShortToFull)
-            sourceFilesHandler()->setSourceFiles(m_shortToFullName);
-    }
-}
-
 void GdbEngine::handleExecuteJumpToLine(const DebuggerResponse &response)
 {
     if (response.resultClass == ResultRunning) {
@@ -1572,14 +1545,6 @@ void GdbEngine::handleExecuteContinue(const DebuggerResponse &response)
         showExecutionError(msg);
         notifyInferiorIll();
     }
-}
-
-FilePath GdbEngine::fullName(const QString &fileName)
-{
-    if (fileName.isEmpty())
-        return {};
-    QTC_CHECK(!m_sourcesListUpdating);
-    return m_shortToFullName.value(fileName, {});
 }
 
 FilePath GdbEngine::cleanupFullName(const QString &fileName)
@@ -2302,24 +2267,6 @@ void GdbEngine::handleBreakEnable(const DebuggerResponse &response, const Breakp
         //bp->forFirstLevelChildren([&](const SubBreakpoint &l) { l->params.enabled = true; });
         updateBreakpoint(bp); // Maybe there's more to do.
     }
-}
-
-void GdbEngine::handleBreakThreadSpec(const DebuggerResponse &response, const Breakpoint &bp)
-{
-    QTC_CHECK(response.resultClass == ResultDone);
-    QTC_ASSERT(bp, return);
-    // Parsing is fragile. Assume we got what we asked for instead.
-    bp->setThreadSpec(bp->requestedParameters().threadSpec);
-    notifyBreakpointNeedsReinsertion(bp);
-    insertBreakpoint(bp);
-}
-
-void GdbEngine::handleBreakLineNumber(const DebuggerResponse &response, const Breakpoint &bp)
-{
-    QTC_CHECK(response.resultClass == ResultDone);
-    QTC_ASSERT(bp, return);
-    notifyBreakpointNeedsReinsertion(bp);
-    insertBreakpoint(bp);
 }
 
 void GdbEngine::handleBreakIgnore(const DebuggerResponse &response, const Breakpoint &bp)
@@ -3399,25 +3346,6 @@ void GdbEngine::setPeripheralRegisterValue(quint64 address, quint64 value)
     reloadPeripheralRegisters();
 }
 
-void GdbEngine::handleRegisterListNames(const DebuggerResponse &response)
-{
-    if (response.resultClass != ResultDone) {
-        m_registerNamesListed = false;
-        return;
-    }
-
-    m_registers.clear();
-    int gdbRegisterNumber = 0;
-    for (const GdbMi &item : response.data["register-names"]) {
-        if (!item.data().isEmpty()) {
-            Register reg;
-            reg.name = item.data();
-            m_registers[gdbRegisterNumber] = reg;
-        }
-        ++gdbRegisterNumber;
-    }
-}
-
 void GdbEngine::handleRegisterListing(const DebuggerResponse &response)
 {
     if (response.resultClass != ResultDone) {
@@ -4230,20 +4158,6 @@ void GdbEngine::createFullBacktrace()
     runCommand(cmd);
 }
 
-void GdbEngine::resetCommandQueue()
-{
-    m_commandTimer.stop();
-    if (!m_commandForToken.isEmpty()) {
-        QString msg;
-        QTextStream ts(&msg);
-        ts << "RESETING COMMAND QUEUE. LEFT OVER TOKENS: ";
-        for (const DebuggerCommand &cmd : std::as_const(m_commandForToken))
-            ts << "CMD:" << cmd.function;
-        m_commandForToken.clear();
-        showMessage(msg);
-    }
-}
-
 bool GdbEngine::usesExecInterrupt() const
 {
     const DebuggerStartMode mode = runParameters().startMode();
@@ -4269,11 +4183,6 @@ QString GdbEngine::msgInferiorStopFailed(const QString &why)
 QString GdbEngine::msgInferiorSetupOk()
 {
     return Tr::tr("Application started.");
-}
-
-QString GdbEngine::msgInferiorRunOk()
-{
-    return Tr::tr("Application running.");
 }
 
 QString GdbEngine::msgAttachedToStoppedInferior()
