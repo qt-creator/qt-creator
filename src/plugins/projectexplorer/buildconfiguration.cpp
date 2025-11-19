@@ -33,6 +33,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
+#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
@@ -279,7 +280,10 @@ BuildConfiguration::~BuildConfiguration()
 
 FilePath BuildConfiguration::buildDirectory() const
 {
-    return project()->projectDirectory().resolvePath(d->m_buildDirectoryAspect());
+    return expandedBuildDirectory(
+        FilePath::fromUserInput(d->m_buildDirectoryAspect.value()),
+        project()->projectDirectory(),
+        *macroExpander());
 }
 
 void BuildConfiguration::setBuildDirectory(const FilePath &dir)
@@ -1227,7 +1231,13 @@ FilePath BuildConfiguration::expandedBuildDirectory(
     FilePath buildDir = exp.expand(rawBuildDir);
     qCDebug(bcLog) << "expanded build dir:" << buildDir.toUserOutput();
 
-    return projectDir.resolvePath(buildDir);
+    buildDir = buildDir.withNewPath(FileUtils::qmakeFriendlyName(buildDir.path()));
+    qCDebug(bcLog) << "sanitized build dir:" << buildDir.toUserOutput();
+
+    buildDir = projectDir.resolvePath(buildDir);
+    qCDebug(bcLog) << "final build dir:" << buildDir.toUserOutput();
+
+    return buildDir;
 }
 
 FilePath BuildConfiguration::rawBuildDirectoryFromTemplate(
@@ -1246,9 +1256,6 @@ FilePath BuildConfiguration::rawBuildDirectoryFromTemplate(
         Constants::QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE,
         buildPropertiesSettings().buildDirectoryTemplate()));
     qCDebug(bcLog) << "build dir template:" << buildDir.toUserOutput();
-
-    // FIXME: Should we really do this unconditionally?
-    buildDir = buildDir.withNewPath(buildDir.path().replace(" ", "-"));
 
     // If it's a relative path, we are done.
     if (buildDir.isRelativePath() && !buildDir.path().startsWith('%'))
