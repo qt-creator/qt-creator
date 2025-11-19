@@ -89,6 +89,7 @@ private:
 
 void setupPythonSettings();
 
-Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(QObject *parent);
+Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(
+    QObject *parent, const std::function<bool(QString)> &isDefaultId = {});
 
 } // Python::Internal

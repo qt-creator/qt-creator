@@ -171,7 +171,7 @@ private:
 };
 
 InterpreterOptionsWidget::InterpreterOptionsWidget()
-    : m_model(createInterpreterModel(this))
+    : m_model(createInterpreterModel(this, [this](const QString &id) { return id == m_defaultId ; }))
     , m_detailsWidget(new InterpreterDetailsWidget(this))
     , m_defaultId(PythonSettings::defaultInterpreter().id)
 {
@@ -1233,10 +1233,11 @@ void setupPythonSettings()
     static GuardedObject thePythonSettings{new PythonSettings};
 }
 
-Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(QObject *parent)
+Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(
+    QObject *parent, const std::function<bool(QString)> &isDefaultId)
 {
     const auto model = new ListModel<Interpreter>(parent);
-    model->setDataAccessor([](const Interpreter &interpreter, int column, int role) -> QVariant {
+    model->setDataAccessor([isDefaultId](const Interpreter &interpreter, int column, int role) -> QVariant {
         if (interpreter.id == "none") {
             if (role == Qt::DisplayRole)
                 return Tr::tr("None", "No Python interpreter");
@@ -1249,7 +1250,10 @@ Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(QObject *
             return interpreter.name;
         case Qt::FontRole: {
             QFont f;
-            f.setBold(interpreter.id == PythonSettings::defaultInterpreter().id);
+            if (isDefaultId)
+                f.setBold(isDefaultId(interpreter.id));
+            else
+                f.setBold(interpreter.id == PythonSettings::defaultInterpreter().id);
             return f;
         }
         case Qt::ToolTipRole:
