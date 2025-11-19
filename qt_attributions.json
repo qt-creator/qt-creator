@@ -750,5 +750,18 @@
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/ui_watchdog/LICENSE.txt",
         "Copyright": "2018 Klarälvdalens Datakonsult AB, a KDAB Group company"
+    },
+    {
+        "Id": "davecotter-mcp",
+        "Name": "MCP Server",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used as a base for the MCP Server plugin",
+        "Path": "@SOURCE_DIR@/src/plugins/mcpserver",
+        "Description": "A plugin for Qt Creator that implements Model Context Protocol, allowing AI to talk to the IDE",
+        "Homepage": "https://github.com/davecotter/Qt-Creator-MCP-Plugin.git",
+        "License": "MIT License",
+        "LicenseFile": "@SOURCE_DIR@/src/plugins/mcpserver/LICENSE",
+        "Copyright": "Copyright (c) 2025 davecotter"
     }
 ]
