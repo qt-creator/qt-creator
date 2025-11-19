@@ -768,7 +768,6 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
 
     cmd.postTime = QTime::currentTime().msecsSinceStartOfDay();
     m_commandForToken[token] = cmd;
-    m_flagsForToken[token] = cmd.flags;
     if (cmd.flags & ConsoleCommand)
         cmd.function = "-interpreter-exec console \"" + cmd.function + '"';
     cmd.function = QString::number(token) + cmd.function;
@@ -928,8 +927,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         return;
     }
 
-    DebuggerCommand cmd = m_commandForToken.take(token);
-    const int flags = m_flagsForToken.take(token);
+    const DebuggerCommand cmd = m_commandForToken.take(token);
     if (settings().logTimeStamps()) {
         showMessage(QString("Response time: %1: %2 s")
             .arg(cmd.function)
@@ -937,15 +935,15 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
             LogTime);
     }
 
-    if (response->token < m_oldestAcceptableToken && (flags & Discardable)) {
+    if (response->token < m_oldestAcceptableToken && (cmd.flags & Discardable)) {
         //showMessage(_("### SKIPPING OLD RESULT") + response.toString());
         return;
     }
 
     bool isExpectedResult =
            (response->resultClass == ResultFail) // Can always happen.
-        || (response->resultClass == ResultRunning && (flags & RunRequest))
-        || (response->resultClass == ResultExit && (flags & ExitRequest))
+        || (response->resultClass == ResultRunning && (cmd.flags & RunRequest))
+        || (response->resultClass == ResultExit && (cmd.flags & ExitRequest))
         || (response->resultClass == ResultDone);
         // ResultDone can almost "always" happen. Known examples are:
         //  (response->resultClass == ResultDone && cmd.function == "continue")
@@ -972,7 +970,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         }
     }
 
-    m_inUpdateLocals = (flags & InUpdateLocals);
+    m_inUpdateLocals = (cmd.flags & InUpdateLocals);
 
     if (cmd.callback)
         cmd.callback(*response);
@@ -2046,7 +2044,7 @@ void GdbEngine::setTokenBarrier()
 {
     bool good = true;
     for (auto it = m_commandForToken.cbegin(), end = m_commandForToken.cend(); it != end; ++it) {
-        if (!(m_flagsForToken.value(it.key()) & Discardable)) {
+        if (it->flags & Discardable) {
             qDebug() << "TOKEN: " << it.key() << "CMD:" << it.value().function;
             good = false;
         }
@@ -4157,7 +4155,6 @@ void GdbEngine::prepareForRestart()
 {
     m_rerunPending = false;
     m_commandForToken.clear();
-    m_flagsForToken.clear();
 }
 
 void GdbEngine::handleInferiorPrepared()
@@ -4246,7 +4243,6 @@ void GdbEngine::resetCommandQueue()
         for (const DebuggerCommand &cmd : std::as_const(m_commandForToken))
             ts << "CMD:" << cmd.function;
         m_commandForToken.clear();
-        m_flagsForToken.clear();
         showMessage(msg);
     }
 }

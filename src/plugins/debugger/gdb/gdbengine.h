@@ -109,7 +109,6 @@ private: ////////// General Interface //////////
     void setTokenBarrier();
 
     QHash<int, DebuggerCommand> m_commandForToken;
-    QHash<int, int> m_flagsForToken;
     QTimer m_commandTimer;
 
     QString m_pendingConsoleStreamOutput;
