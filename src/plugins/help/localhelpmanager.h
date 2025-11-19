@@ -17,8 +17,7 @@ QT_END_NAMESPACE
 
 class BookmarkManager;
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class HelpViewer;
 
@@ -116,21 +115,8 @@ signals:
     void scrollWheelZoomingEnabledChanged(bool enabled);
     void contextHelpOptionChanged(Core::HelpManager::HelpViewerLocation option);
     void backendChanged();
-
-private:
-    static bool m_guiNeedsSetup;
-    static bool m_needsCollectionFile;
-
-    static QMutex m_guiMutex;
-    static QHelpEngine *m_guiEngine;
-
-    static QMutex m_bkmarkMutex;
-    static BookmarkManager *m_bookmarkManager;
-
-    static QList<Core::HelpManager::OnlineHelpHandler> m_onlineHelpHandlerList;
 };
 
-}   // Internal
-}   // Help
+} // namespace Help::Internal
 
 Q_DECLARE_METATYPE(Help::Internal::LocalHelpManager::HelpData)

@@ -40,20 +40,20 @@
 
 #include <optional>
 
-using namespace Help::Internal;
+namespace Help::Internal {
 
 static LocalHelpManager *m_instance = nullptr;
 
-bool LocalHelpManager::m_guiNeedsSetup = true;
-bool LocalHelpManager::m_needsCollectionFile = true;
+static bool m_guiNeedsSetup = true;
+static bool m_needsCollectionFile = true;
 
-QMutex LocalHelpManager::m_guiMutex;
-QHelpEngine* LocalHelpManager::m_guiEngine = nullptr;
+static QMutex m_guiMutex;
+static QHelpEngine *m_guiEngine = nullptr;
 
-QMutex LocalHelpManager::m_bkmarkMutex;
-BookmarkManager* LocalHelpManager::m_bookmarkManager = nullptr;
+static QMutex m_bkmarkMutex;
+static BookmarkManager *m_bookmarkManager = nullptr;
 
-QList<Core::HelpManager::OnlineHelpHandler> LocalHelpManager::m_onlineHelpHandlerList;
+QList<Core::HelpManager::OnlineHelpHandler> m_onlineHelpHandlerList;
 
 const char kHelpHomePageKey[] = "Help/HomePage";
 const char kFontFamilyKey[] = "Help/FallbackFontFamily";
@@ -539,12 +539,12 @@ void LocalHelpManager::openQtUrl(const QUrl &url)
     if (url.authority().startsWith(unversionedLocalDomainName)) {
         urlPrefix.append(Utils::appInfo().id);
     } else {
-        const auto host = url.host();
-        const auto dot = host.lastIndexOf('.');
+        const QString host = url.host();
+        const qsizetype dot = host.lastIndexOf('.');
         if (dot < 0) {
             urlPrefix.append("qt-5");
         } else {
-            const auto version = host.mid(dot + 1);
+            const QString version = host.mid(dot + 1);
             if (version.startsWith('6')) {
                 urlPrefix.append("qt-6");
             } else {
@@ -575,5 +575,7 @@ QMultiMap<QString, QUrl> LocalHelpManager::linksForKeyword(const QString &keywor
 
 void LocalHelpManager::addOnlineHelpHandler(const Core::HelpManager::OnlineHelpHandler &handler)
 {
-    LocalHelpManager::m_onlineHelpHandlerList.push_back(handler);
+    m_onlineHelpHandlerList.push_back(handler);
 }
+
+} // namespace Help::Internal
