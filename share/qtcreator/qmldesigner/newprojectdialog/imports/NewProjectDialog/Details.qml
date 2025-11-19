@@ -131,11 +131,12 @@ Item {
                             }
                         } // Project location RowLayout
 
-                        Item { width: parent.width; height: DialogValues.narrowSpacing(7) }
+                        Item { width: parent.width; height: DialogValues.narrowSpacing(20) }
 
                         RowLayout { // StatusMessage
                             width: parent.width
-                            spacing: 0
+                            spacing: DialogValues.styleListItemSpacing
+                            visible: BackendApi.statusMessage != ""
 
                             Image {
                                 id: statusIcon
@@ -152,7 +153,7 @@ Item {
                                 color: DialogValues.textColor
                                 wrapMode: Text.Wrap
                                 elide: Text.ElideRight
-                                maximumLineCount: 3
+                                maximumLineCount: 4
                                 Layout.fillWidth: true
 
                                 states: [
@@ -182,6 +183,11 @@ Item {
                                         }
                                     }
                                 ]
+
+                                StudioControls.ToolTipArea {
+                                    text: BackendApi.statusMessage
+                                    anchors.fill: parent
+                                }
                             } // Text
                         } // RowLayout
 
