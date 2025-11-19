@@ -4,6 +4,7 @@ QtcPlugin {
     name: "Dotnet"
 
     Depends { name: "Core" }
+    Depends { name: "LanguageClient" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "Qt"; submodules: ["widgets"] }
 
@@ -11,6 +12,7 @@ QtcPlugin {
         "dotnetplugin.cpp",
         "dotnetproject.cpp",
         "dotnetproject.h",
+        "dotnettr.h",
     ]
 }
 
