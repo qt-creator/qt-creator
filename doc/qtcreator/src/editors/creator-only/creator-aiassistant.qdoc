@@ -216,6 +216,72 @@
     Qt AI Assistant generates a test case in \l{Qt Test} format that you can copy
     and paste to your \l{Create Qt tests}{Qt test project}.
 
+    To run the generated \l{Qt Test} cases, configure your \c CMakeLists.txt files
+    and \c main.cpp file.
+
+    \section3 Configure the main project \c CMakeLists.txt
+
+    \list 1
+        \li Define your module as both a library and a QML module. The URI value
+        determines the import name used in TestCase scripts:
+        \code
+        qt_add_library({module_name} STATIC)
+        qt_add_qml_module({module_name}
+            URI {module_name}
+            VERSION 1.0
+            QML_FILES
+                    Main.qml
+        )
+        \endcode
+        \li Add the auto-generated plugin to your target's link libraries. The
+        plugin name follows the pattern \e <module_name>plugin:
+        \code
+        target_link_libraries({project}
+            PRIVATE Qt6::Quick {module_nameplugin}
+        )
+        \endcode
+        \li Add \c QML_IMPORT_PATH at the end of the file to ensure the QML engine
+        can locate your module:
+        \code
+        set(QML_IMPORT_PATH ${CMAKE_BINARY_DIR} CACHE STRING "" FORCE)
+        \endcode
+    \endlist
+
+    \section3 Configure the test project \c CMakeLists.txt
+
+    Link the plugin to your test target (\e test_directory):
+
+    \code
+    target_link_libraries({test_directory} PRIVATE Qt${QT_VERSION_MAJOR}::QuickTest {module_nameplugin})
+    \endcode
+
+    \section3 Configure the main project \c main.cpp
+
+    To load your QML component from the registered module, use \c loadFromModule():
+
+    \code
+    engine.loadFromModule("{module_name}", "Main");
+    \endcode
+
+    \section3 Configure external test projects
+
+    If the test project is outside the main project:
+
+    \list 1
+        \li Add the main project as a subdirectory in the test project \c CMakeLists.txt:
+        \code
+        add_subdirectory(../{main_project_directory} ${CMAKE_BINARY_DIR}/{main_project_directory})
+        \endcode
+        \li Set the QML import path so Qt can find the module:
+        \code
+        set_target_properties({test_directory} PROPERTIES
+            QT_QML_IMPORT_PATH "${CMAKE_BINARY_DIR}/{main_project_directory}"
+        )
+        \endcode
+    \endlist
+
+    Rebuild the projects.
+
     \section2 Request code documentation in Markdown format
 
     To create code documentation:
