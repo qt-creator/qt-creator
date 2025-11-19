@@ -328,8 +328,6 @@ private: ////////// General Interface //////////
     // while updating locals.
     bool m_inUpdateLocals = false;
 
-    // HACK:
-    QString m_currentThread;
     QString m_lastWinException;
     bool m_expectTerminalTrap = false;
     bool usesExecInterrupt() const;
@@ -397,7 +395,6 @@ private: ////////// General Interface //////////
 
     Utils::Process m_gdbProc;
     OutputCollector m_outputCollector;
-    QString m_errorString;
     QSingleTaskTreeRunner m_signalOperationRunner;
 };
 

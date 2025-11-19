@@ -1376,7 +1376,6 @@ void GdbEngine::handleStop2(const GdbMi &data)
             gNumber = data["number"];
         const QString rid = gNumber.data();
         const QString threadId = data["thread-id"].data();
-        m_currentThread = threadId;
         if (const Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid)) {
             showStatusMessage(bp->msgBreakpointTriggered(threadId));
             const QString commands = bp->command().trimmed();
