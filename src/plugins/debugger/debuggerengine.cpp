@@ -2546,6 +2546,7 @@ void DebuggerEngine::handleRecordReverse(bool record)
 
 void DebuggerEngine::handleReverseDirection(bool reverse)
 {
+    Q_UNUSED(reverse)
     updateMarkers();
     d->updateReverseActions();
 }
