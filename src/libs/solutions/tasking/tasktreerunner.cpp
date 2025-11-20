@@ -110,7 +110,7 @@ bool SequentialTaskTreeRunner::isRunning() const
 
 void SequentialTaskTreeRunner::cancel()
 {
-    m_treeDataQueue.empty();
+    m_treeDataQueue.clear();
     m_taskTreeRunner.cancel();
 }
 
@@ -121,7 +121,7 @@ void SequentialTaskTreeRunner::cancelCurrent()
 
 void SequentialTaskTreeRunner::reset()
 {
-    m_treeDataQueue.empty();
+    m_treeDataQueue.clear();
     m_taskTreeRunner.reset();
 }
 
