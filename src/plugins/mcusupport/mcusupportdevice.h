@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "mcusupporttr.h"
+
 #include <projectexplorer/devicesupport/desktopdevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
@@ -13,6 +15,8 @@ class McuSupportDevice final : public ProjectExplorer::DesktopDevice
 {
 public:
     static ProjectExplorer::IDevice::Ptr create();
+
+    Utils::Result<> handlesFile(const Utils::FilePath &filePath) const final;
 
 private:
     McuSupportDevice();

@@ -20,12 +20,18 @@ McuSupportDevice::McuSupportDevice()
     setDisplayType(displayNameAndType);
     setMachineType(IDevice::Hardware);
     setOsType(Utils::OsTypeOther);
+    setDeviceState(IDevice::DeviceStateUnknown);
 }
 
 ProjectExplorer::IDevice::Ptr McuSupportDevice::create()
 {
     auto device = new McuSupportDevice;
     return ProjectExplorer::IDevice::Ptr(device);
+}
+
+Utils::Result<> McuSupportDevice::handlesFile(const Utils::FilePath &) const
+{
+    return Utils::ResultError(Tr::tr("File handling is not supported."));
 }
 
 McuSupportDeviceFactory::McuSupportDeviceFactory()
