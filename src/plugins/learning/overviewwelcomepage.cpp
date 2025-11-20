@@ -639,16 +639,14 @@ private:
         }.emerge();
     }
 
-    static QWidget *recommendationsPanel(QWidget *parent)
+    QWidget *recommendationsPanel()
     {
         auto settingsToolButton = new QPushButton;
         settingsToolButton->setIcon(Icons::SETTINGS.icon());
         settingsToolButton->setFlat(true);
         settingsToolButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-
-        QWidget *optionsOverlay = createOnboardingWizard(parent);
-        optionsOverlay->setVisible(settings().showWizardOnStart());
-        connect(settingsToolButton, &QAbstractButton::clicked, optionsOverlay, &QWidget::show);
+        connect(settingsToolButton, &QAbstractButton::clicked,
+                this, &OverviewWelcomePageWidget::showOnboardingWizard);
 
         using namespace Layouting;
         return Column {
@@ -680,7 +678,7 @@ private:
             Widget {
                 Column {
                     projectsAndBlogPosts,
-                    recommendationsPanel(parentWidget()),
+                    recommendationsPanel(),
                     noMargin,
                     spacing(SpacingTokens::PaddingVXxl),
                 },
@@ -688,6 +686,16 @@ private:
             },
             customMargins(0, SpacingTokens::PaddingHXxl, 0, 0),
         }.attachTo(this);
+
+        if (settings().showWizardOnStart())
+            showOnboardingWizard();
+    }
+
+    void showOnboardingWizard()
+    {
+        if (!m_optionsOverlay)
+            m_optionsOverlay = createOnboardingWizard(this);
+        m_optionsOverlay->show();
     }
 
     static QBrush rectFill()
@@ -705,6 +713,7 @@ private:
         .uiElement = StyleHelper::UiElementH5,
     };
     bool m_uiInitialized = false;
+    QWidget *m_optionsOverlay = nullptr;
 };
 
 class OverviewWelcomePage final : public IWelcomePage
