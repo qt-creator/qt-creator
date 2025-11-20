@@ -481,7 +481,7 @@ public:
     virtual void activateFrame(int index);
 
     virtual void reloadModules();
-    virtual void examineModules();
+    bool isExamineModulesEnabled() const;
     virtual void loadSymbols(const Utils::FilePath &moduleName);
     virtual void loadSymbolsForStack();
     virtual void loadAllSymbols();
@@ -528,6 +528,7 @@ public:
     StackHandler *stackHandler() const;
     WatchHandler *watchHandler() const;
     BreakHandler *breakHandler() const;
+    ModulesHandler *modulesHandler() const;
     LogWindow *logWindow() const;
     DisassemblerAgent *disassemblerAgent() const;
 
@@ -585,7 +586,7 @@ signals:
     void kickoffTerminalProcessRequested();
 
 protected:
-    ModulesHandler *modulesHandler() const;
+    void setExamineModulesEnabled(bool on);
     PeripheralRegisterHandler *peripheralRegisterHandler() const;
     ThreadsHandler *threadsHandler() const;
     SourceFilesHandler *sourceFilesHandler() const;

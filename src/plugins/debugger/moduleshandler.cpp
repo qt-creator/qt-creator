@@ -183,8 +183,13 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
               [this] { engine->loadAllSymbols(); });
 
     addAction(this, menu, Tr::tr("Examine All Modules"),
-              enabled && canLoadSymbols,
-              [this] { engine->examineModules(); });
+              enabled && canLoadSymbols && engine->isExamineModulesEnabled(), [this] {
+        ModulesHandler *handler = engine->modulesHandler();
+        for (const Module &module : handler->modules()) {
+            if (module.elfData.symbolsType == UnknownSymbols)
+                handler->updateModule(module);
+        }
+    });
 
     addAction(this, menu, Tr::tr("Load Symbols for Module \"%1\"").arg(moduleName),
               Tr::tr("Load Symbols for Module"),

@@ -133,6 +133,7 @@ const char notCompatibleMessage[] = "is not compatible with target architecture"
 
 GdbEngine::GdbEngine()
 {
+    setExamineModulesEnabled(true);
     m_gdbProc.setProcessMode(ProcessMode::Writer);
 
     setObjectName("GdbEngine");
@@ -3012,15 +3013,6 @@ void GdbEngine::handleModulesList(const DebuggerResponse &response)
                 handler->updateModule(module);
             }
         }
-    }
-}
-
-void GdbEngine::examineModules()
-{
-    ModulesHandler *handler = modulesHandler();
-    for (const Module &module : handler->modules()) {
-        if (module.elfData.symbolsType == UnknownSymbols)
-            handler->updateModule(module);
     }
 }
 

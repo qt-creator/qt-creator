@@ -212,7 +212,6 @@ private: ////////// General Interface //////////
     void requestModuleSymbols(const Utils::FilePath &moduleName) final;
     void requestModuleSections(const Utils::FilePath &moduleName) final;
     void reloadModules() final;
-    void examineModules() final;
 
     void reloadModulesInternal();
     void handleModulesList(const DebuggerResponse &response);

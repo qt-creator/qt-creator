@@ -828,6 +828,7 @@ public:
 
     DebuggerToolTipManager m_toolTipManager;
     Context m_context;
+    bool m_isExamineModulesEnabled = false;
 };
 
 void DebuggerEnginePrivate::setupViews()
@@ -2413,8 +2414,14 @@ void DebuggerEngine::reloadModules()
 {
 }
 
-void DebuggerEngine::examineModules()
+bool DebuggerEngine::isExamineModulesEnabled() const
 {
+    return d->m_isExamineModulesEnabled;
+}
+
+void DebuggerEngine::setExamineModulesEnabled(bool on)
+{
+    d->m_isExamineModulesEnabled = on;
 }
 
 void DebuggerEngine::loadSymbols(const FilePath &)
