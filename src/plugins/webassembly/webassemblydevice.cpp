@@ -48,6 +48,11 @@ public:
     {
         return false;
     }
+
+    Utils::Result<> handlesFile(const Utils::FilePath &) const final
+    {
+        return Utils::ResultError(Tr::tr("File handling is not supported."));
+    }
 };
 
 static IDevicePtr createWebAssemblyDevice()
