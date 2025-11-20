@@ -234,7 +234,7 @@ def __getExpectedCompilers__():
     compilers = ["g++", "gcc"]
     if platform.system() in ('Linux', 'Darwin'):
         for c in ('clang++', 'clang', 'afl-clang',
-                  'clang-[0-9]', 'clang-[0-9].[0-9]', 'clang-1[0-9]', 'clang-1[0-9].[0-9]',
+                  'clang-[0-9]', 'clang-[0-9].[0-9]', 'clang-[12][0-9]', 'clang-[12][0-9].[0-9]',
                   '*g++*', '*gcc*'):
             filesInPath = set(findAllFilesInPATH(c))
             compilers.extend(filesInPath | set(map(os.path.realpath, filesInPath)))
