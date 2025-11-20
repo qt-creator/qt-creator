@@ -921,18 +921,18 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     // TODO: Also handle usePrecompiledHeaders?
     // TODO: Should we write the editor defines into the json file? It seems strange
     //       that they should affect the index only while the file is open in the editor.
-    const auto projectPart = !config.preferredProjectPartId.isEmpty()
-            ? CppEditor::CppModelManager::projectPartForId(config.preferredProjectPartId)
+    const auto projectPart = !config.effectivePreferredProjectPartId().isEmpty()
+            ? CppEditor::CppModelManager::projectPartForId(config.effectivePreferredProjectPartId())
             : projectPartForFile(filePath);
     if (!projectPart)
         return;
 
     CppEditor::BaseEditorDocumentParser::Configuration fullConfig = config;
-    fullConfig.preferredProjectPartId = projectPart->id();
+    fullConfig.setPreferredProjectPartId(projectPart->id());
     auto cachedConfig = d->parserConfigs.find(filePath);
     if (cachedConfig == d->parserConfigs.end()) {
         cachedConfig = d->parserConfigs.insert(filePath, fullConfig);
-        if (config.preferredProjectPartId.isEmpty() && config.editorDefines.isEmpty())
+        if (config.effectivePreferredProjectPartId().isEmpty() && config.editorDefines().isEmpty())
             return;
     } else if (cachedConfig.value() == fullConfig) {
         return;
@@ -943,7 +943,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     const Utils::FilePath includeDir = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
     CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                 *projectPart, warningsConfigForProject(project()), includeDir,
-                ProjectExplorer::Macro::toMacros(config.editorDefines));
+                ProjectExplorer::Macro::toMacros(config.editorDefines()));
     const CppEditor::ProjectFile file(filePath, CppEditor::ProjectFile::classify(filePath));
     const QJsonArray projectPartOptions = fullProjectPartOptions(
                 optionsBuilder, globalClangOptions());

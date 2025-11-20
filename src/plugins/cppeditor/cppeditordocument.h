@@ -13,6 +13,8 @@
 
 #include <QTextEdit>
 
+namespace ProjectExplorer { class Node; }
+
 namespace CppEditor {
 
 namespace Internal {
@@ -42,6 +44,7 @@ public:
     SemanticInfo recalculateSemanticInfo(); // TODO: Remove me
 
     void setPreferredParseContext(const QString &parseContextId);
+    void updateSoftPreferredParseContext(const ProjectExplorer::Node *currentNode);
     void setExtraPreprocessorDirectives(const QByteArray &directives);
 
     // the blocks list must be sorted

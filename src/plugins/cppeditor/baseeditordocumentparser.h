@@ -31,17 +31,54 @@ public:
     using Ptr = QSharedPointer<BaseEditorDocumentParser>;
     static Ptr get(const Utils::FilePath &filePath);
 
-    struct Configuration {
-        bool usePrecompiledHeaders = false;
-        QByteArray editorDefines;
-        QString preferredProjectPartId;
+    class Configuration {
+    public:
+        QString effectivePreferredProjectPartId() const
+        {
+            if (!m_preferredProjectPartId.isEmpty())
+                return m_preferredProjectPartId;
+            return m_softPreferredProjectPartId;
+        }
 
+        // "Preferred" means interactively set by the user.
+        bool setPreferredProjectPartId(const QString &id)
+        {
+            return set(m_preferredProjectPartId, id);
+        }
+
+        // "Soft preferred" means deduced from the current node in the project tree.
+        bool setSoftPreferredProjectPartId(const QString &id)
+        {
+            return set(m_softPreferredProjectPartId, id);
+        }
+
+        bool usePrecompiledHeaders() const  { return m_usePrecompiledHeaders; }
+        void setUsePrecompiledHeaders(bool use) { m_usePrecompiledHeaders = use; }
+
+        const QByteArray &editorDefines() const { return m_editorDefines; }
+        bool setEditorDefines(const QByteArray &defines) { return set(m_editorDefines, defines); }
+
+    private:
         friend bool operator==(const Configuration &left, const Configuration &right)
         {
-            return left.usePrecompiledHeaders == right.usePrecompiledHeaders
-                && left.editorDefines == right.editorDefines
-                && left.preferredProjectPartId == right.preferredProjectPartId;
+            return left.m_usePrecompiledHeaders == right.m_usePrecompiledHeaders
+                   && left.m_editorDefines == right.m_editorDefines
+                   && left.m_softPreferredProjectPartId == right.m_softPreferredProjectPartId
+                   && left.m_preferredProjectPartId == right.m_preferredProjectPartId;
         }
+
+        template<typename T> bool set(T &tgt, const T &src)
+        {
+            if (tgt == src)
+                return false;
+            tgt = src;
+            return true;
+        }
+
+        bool m_usePrecompiledHeaders = false;
+        QByteArray m_editorDefines;
+        QString m_preferredProjectPartId;
+        QString m_softPreferredProjectPartId;
     };
 
     struct UpdateParams {

@@ -26,6 +26,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectwizardpage.h>
 
 #include <texteditor/icodestylepreferencesfactory.h>
@@ -238,6 +239,8 @@ CppEditorDocument::CppEditorDocument()
     connect(ProjectManager::instance(), &ProjectManager::projectFinishedParsing, this, [this] {
         d->updateInfoBarEntryIfVisible();
     });
+    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
+            this, &CppEditorDocument::updateSoftPreferredParseContext);
 
     // See also onFilePathChanged() for more initialization
 }
@@ -471,10 +474,8 @@ void CppEditorDocument::setExtraPreprocessorDirectives(const QByteArray &directi
     QTC_ASSERT(parser, return);
 
     BaseEditorDocumentParser::Configuration config = parser->configuration();
-    if (config.editorDefines != directives) {
-        config.editorDefines = directives;
+    if (config.setEditorDefines(directives)) {
         d->processor()->setParserConfig(config);
-
         emit preprocessorSettingsChanged(!directives.trimmed().isEmpty());
     }
 }
@@ -549,9 +550,38 @@ void CppEditorDocument::setPreferredParseContext(const QString &parseContextId)
     QTC_ASSERT(parser, return);
 
     BaseEditorDocumentParser::Configuration config = parser->configuration();
-    if (config.preferredProjectPartId != parseContextId) {
-        config.preferredProjectPartId = parseContextId;
+    if (config.setPreferredProjectPartId(parseContextId))
         d->processor()->setParserConfig(config);
+}
+
+void CppEditorDocument::updateSoftPreferredParseContext(const Node *currentNode)
+{
+    if (!currentNode || filePath().isEmpty() || filePath() != currentNode->filePath())
+        return;
+
+    const BaseEditorDocumentParser::Ptr parser = d->processor()->parser();
+    QTC_ASSERT(parser, return);
+
+    const ProjectPartInfo projectPartInfo = parser->projectPartInfo();
+    if (projectPartInfo.projectParts.size() < 2)
+        return;
+
+    const ProjectNode *projectNode = nullptr;
+    for (projectNode = currentNode->parentProjectNode(); projectNode && !projectNode->isProduct();
+         projectNode = projectNode->parentProjectNode()) {
+        ;
+    }
+    if (!projectNode)
+        return;
+    QTC_ASSERT(projectNode->isProduct(), return);
+
+    for (const auto &pp : projectPartInfo.projectParts) {
+        if (!pp->buildSystemTarget.isEmpty() && pp->buildSystemTarget == projectNode->buildKey()) {
+            BaseEditorDocumentParser::Configuration config = parser->configuration();
+            if (config.setSoftPreferredProjectPartId(pp->id()))
+                d->processor()->setParserConfig(config);
+            break;
+        }
     }
 }
 

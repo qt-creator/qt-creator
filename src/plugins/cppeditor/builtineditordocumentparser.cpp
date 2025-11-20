@@ -70,7 +70,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
     LanguageFeatures features = m_defaultFeatures;
 
     baseState.projectPartInfo = determineProjectPart(filePath(),
-                                                     baseConfig.preferredProjectPartId,
+                                                     baseConfig.effectivePreferredProjectPartId(),
                                                      baseState.projectPartInfo,
                                                      updateParams.activeProject,
                                                      updateParams.languagePreference,
@@ -91,7 +91,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
         headerPaths = part->headerPaths;
         projectConfigFile = part->projectConfigFile;
         includedFiles = part->includedFiles;
-        if (baseConfig.usePrecompiledHeaders)
+        if (baseConfig.usePrecompiledHeaders())
             precompiledHeaders = part->precompiledHeaders;
         if (part->hasProject())
             features = part->languageFeatures;
@@ -103,8 +103,8 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
         invalidateConfig = true;
     }
 
-    if (baseConfig.editorDefines != baseState.editorDefines) {
-        baseState.editorDefines = baseConfig.editorDefines;
+    if (baseConfig.editorDefines() != baseState.editorDefines) {
+        baseState.editorDefines = baseConfig.editorDefines();
         invalidateSnapshot = true;
     }
 
@@ -194,14 +194,14 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
         sourceProcessor.setHeaderPaths(state.headerPaths);
         sourceProcessor.setLanguageFeatures(features);
         sourceProcessor.run(configurationFileName);
-        if (baseConfig.usePrecompiledHeaders) {
+        if (baseConfig.usePrecompiledHeaders()) {
             for (const FilePath &precompiledHeader : std::as_const(state.precompiledHeaders))
                 sourceProcessor.run(precompiledHeader);
         }
         if (!baseState.editorDefines.isEmpty())
             sourceProcessor.run(CppModelManager::editorConfigurationFileName());
         FilePaths includedFiles = state.includedFiles;
-        if (baseConfig.usePrecompiledHeaders)
+        if (baseConfig.usePrecompiledHeaders())
             includedFiles << state.precompiledHeaders;
         FilePath::removeDuplicates(includedFiles);
         sourceProcessor.run(filePath(), includedFiles);

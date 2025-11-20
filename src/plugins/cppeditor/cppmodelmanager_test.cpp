@@ -812,7 +812,7 @@ void ModelManagerTest::testPrecompiledHeaders()
         auto parser = BuiltinEditorDocumentParser::get(filePath);
         QVERIFY(parser);
         BaseEditorDocumentParser::Configuration config = parser->configuration();
-        config.usePrecompiledHeaders = true;
+        config.setUsePrecompiledHeaders(true);
         parser->setConfiguration(config);
         parser->update({CppModelManager::workingCopy(), nullptr,Utils::Language::Cxx, false});
 
@@ -883,7 +883,7 @@ void ModelManagerTest::testDefinesPerEditor()
         const FilePath filePath = editor->document()->filePath();
         const auto parser = BaseEditorDocumentParser::get(filePath);
         BaseEditorDocumentParser::Configuration config = parser->configuration();
-        config.editorDefines = editorDefines.toUtf8();
+        config.setEditorDefines(editorDefines.toUtf8());
         parser->setConfiguration(config);
         parser->update({CppModelManager::workingCopy(), nullptr, Utils::Language::Cxx, false});
 
