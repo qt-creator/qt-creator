@@ -1651,9 +1651,13 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(
                                 : rawBuildDirectoryFromTemplate(k, projectFilePath);
 
     if (CMakeGeneratorKitAspect::isMultiConfigGenerator(k)) {
-        const QString path = buildPath.path();
-        buildPath = buildPath.withNewPath(path.left(
-            path.lastIndexOf(QString("-%1").arg(expand ? bcName : "%{BuildConfig:Name}"))));
+        // remove build config name, or the placeholder for it, including a potential leading dash
+        // since for multiconfig generators the directory should best be the same for all configs
+        QString path = buildPath.path();
+        const QString toRemove = expand ? bcName : "%{BuildConfig:Name}";
+        path.remove("-" + toRemove);
+        path.remove(toRemove);
+        buildPath = buildPath.withNewPath(path);
     }
 
     return buildPath;
