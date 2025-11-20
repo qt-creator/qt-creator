@@ -346,7 +346,7 @@ bool QSequentialTaskTreeRunner::isRunning() const
 void QSequentialTaskTreeRunner::cancel()
 {
     Q_D(QSequentialTaskTreeRunner);
-    d->m_treeDataQueue.empty();
+    d->m_treeDataQueue.clear();
     d->m_taskTreeRunner.cancel();
 }
 
@@ -360,7 +360,7 @@ void QSequentialTaskTreeRunner::cancel()
 void QSequentialTaskTreeRunner::reset()
 {
     Q_D(QSequentialTaskTreeRunner);
-    d->m_treeDataQueue.empty();
+    d->m_treeDataQueue.clear();
     d->m_taskTreeRunner.reset();
 }
 
