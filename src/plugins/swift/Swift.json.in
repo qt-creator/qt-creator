@@ -1,0 +1,38 @@
+{
+    "Id" : "swift",
+    "DisplayName" : "Swift",
+    "Name" : "Swift",
+    "Version" : "${IDE_VERSION}",
+    "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "DisabledByDefault" : true,
+    "SoftLoadable" : true,
+    "VendorId" : "theqtcompany",
+    "Vendor" : "The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
+    "License" : [ "Commercial Usage",
+                  "",
+                  "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
+                  "",
+                  "GNU General Public License Usage",
+                  "",
+                  "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
+    ],
+    "Description" : "Supports the Swift project type",
+    "LongDescription" : "Adds simple, workspace based support for `Package.swift` project files, and automatic setup of the Swift language server.",
+    "Url" : "https://www.qt.io",
+    "core" : {
+        "ProjectFileMimeTypes" : [ "text/x-swift-manifest" ]
+    },
+    ${IDE_PLUGIN_DEPENDENCIES},
+
+    "Mimetypes" : [
+        "<?xml version='1.0' encoding='UTF-8'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='text/x-swift-manifest'>",
+        "        <sub-class-of type='text/x-swift'/>",
+        "        <comment>Swift manifest file</comment>",
+        "        <glob pattern='Package.swift'/>",
+        "    </mime-type>",
+        "</mime-info>"
+    ]
+}

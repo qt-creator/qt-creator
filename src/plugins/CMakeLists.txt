@@ -41,6 +41,7 @@ add_subdirectory(classview)
 add_subdirectory(glsleditor)
 add_subdirectory(modeleditor)
 add_subdirectory(qtsupport)
+add_subdirectory(swift)
 add_subdirectory(todo)
 add_subdirectory(vcsbase)
 
