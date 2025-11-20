@@ -5,34 +5,38 @@ import builtins
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    ALL_TARGETS = tuple(range(4))
+    ALL_TARGETS = tuple(range(5))
 
     if os.getenv("SYSTEST_NEW_SETTINGS") != "1":
         (DESKTOP_5_4_1_GCC,
          DESKTOP_5_10_1_DEFAULT,
          DESKTOP_5_14_1_DEFAULT,
-         DESKTOP_6_2_4) = ALL_TARGETS
+         DESKTOP_6_2_4,
+         DESKTOP_6_9_2) = ALL_TARGETS
 
         __TARGET_NAME_DICT__ = dict(zip(ALL_TARGETS,
                                         ["Desktop 5.4.1 GCC",
                                          "Desktop 5.10.1 default",
                                          "Desktop 5.14.1 default",
-                                         "Desktop 6.2.4"]))
+                                         "Desktop 6.2.4",
+                                         "Desktop 6.9.2"]))
     else:
         (DESKTOP_6_7_3_GCC,
          DESKTOP_5_10_1_DEFAULT,
          DESKTOP_5_14_1_DEFAULT,
-         DESKTOP_6_2_4) = ALL_TARGETS
+         DESKTOP_6_2_4,
+         DESKTOP_6_9_2) = ALL_TARGETS
 
         __TARGET_NAME_DICT__ = dict(zip(ALL_TARGETS,
                                         ["Desktop 6.7.3 GCC",
                                          "Desktop 5.10.1 default",
                                          "Desktop 5.14.1 default",
-                                         "Desktop 6.2.4"]))
+                                         "Desktop 6.2.4",
+                                         "Desktop 6.9.2"]))
 
     @staticmethod
     def isOnlineInstaller(target):
-        onlineInstallerTargets = [Targets.DESKTOP_6_2_4]
+        onlineInstallerTargets = [Targets.DESKTOP_6_2_4, Targets.DESKTOP_6_9_2]
         if os.getenv("SYSTEST_NEW_SETTINGS") == "1":
             onlineInstallerTargets.append(Targets.DESKTOP_6_7_3_GCC)
         return target in onlineInstallerTargets
@@ -101,7 +105,7 @@ class QtPath:
     @staticmethod
     def getPaths(pathSpec):
         qtTargets = [Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT,
-                     Targets.DESKTOP_6_2_4]
+                     Targets.DESKTOP_6_2_4, Targets.DESKTOP_6_9_2]
         if platform.system() in ('Windows', 'Microsoft'):
             if os.getenv("SYSTEST_NEW_SETTINGS") == "1":
                 qtTargets.append(Targets.DESKTOP_6_7_3_GCC)
