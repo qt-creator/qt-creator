@@ -21,6 +21,7 @@
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
 #include <utils/futuresynchronizer.h>
+#include <utils/patternvalidator.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
@@ -424,11 +425,13 @@ QList<QPair<QWidget *, QWidget *>> BaseFileFind::createPatternWidgets()
     QLabel *filterLabel = createLabel(msgFilePatternLabel());
     d->m_filterCombo = createCombo(&d->m_filterStrings);
     d->m_filterCombo->setToolTip(msgFilePatternToolTip());
+    d->m_filterCombo->lineEdit()->setValidator(new PatternValidator(',', {';', ' '}));
     filterLabel->setBuddy(d->m_filterCombo);
     syncComboWithSettings(d->m_filterCombo, d->m_filterSetting);
     QLabel *exclusionLabel = createLabel(msgExclusionPatternLabel());
     d->m_exclusionCombo = createCombo(&d->m_exclusionStrings);
     d->m_exclusionCombo->setToolTip(msgFilePatternToolTip(InclusionType::Excluded));
+    d->m_exclusionCombo->lineEdit()->setValidator(new PatternValidator(',', {';', ' '}));
     exclusionLabel->setBuddy(d->m_exclusionCombo);
     syncComboWithSettings(d->m_exclusionCombo, d->m_exclusionSetting);
     return {{filterLabel, d->m_filterCombo}, {exclusionLabel, d->m_exclusionCombo}};
