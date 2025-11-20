@@ -9,7 +9,6 @@
 
 namespace AppManager::Internal {
 
-QString getToolNameByDevice(const QString &baseName, const std::shared_ptr<const ProjectExplorer::IDevice> &device = nullptr);
 Utils::FilePath getToolFilePath(const QString &toolname, const ProjectExplorer::Kit *kit, const ProjectExplorer::IDevice::ConstPtr &device = nullptr);
 
 } // AppManager::Internal

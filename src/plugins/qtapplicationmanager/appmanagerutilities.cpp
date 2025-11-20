@@ -19,12 +19,17 @@ using namespace Utils;
 
 namespace AppManager::Internal {
 
+static QString getToolNameByDevice(const QString &baseName, const std::shared_ptr<const IDevice> &device)
+{
+    return OsSpecificAspects::withExecutableSuffix(device ? device->osType() : HostOsInfo::hostOs(), baseName);
+}
+
 static FilePath getToolPathByQtVersion(const QtVersion *qtVersion,
                                        const QString &toolname = QString(Constants::APPMAN_PACKAGER))
 {
     if (qtVersion) {
         const auto toolExistsInDir = [&toolname](const FilePath &dir) {
-            return dir.pathAppended(getToolNameByDevice(toolname)).isFile();
+            return dir.pathAppended(getToolNameByDevice(toolname, nullptr)).isFile();
         };
 
         const FilePath qtHostBinsDir = qtVersion->hostBinPath();
@@ -46,11 +51,6 @@ FilePath getToolFilePath(const QString &toolname, const Kit *kit, const IDevice:
     const QString name = getToolNameByDevice(toolname, device);
     const FilePath filePath = !path.isEmpty() ? path.pathAppended(name) : FilePath::fromString(name);
     return device ? device->filePath(filePath.path()) : filePath;
-}
-
-QString getToolNameByDevice(const QString &baseName, const std::shared_ptr<const IDevice> &device)
-{
-    return OsSpecificAspects::withExecutableSuffix(device ? device->osType() : HostOsInfo::hostOs(), baseName);
 }
 
 } // AppManager::Internal
