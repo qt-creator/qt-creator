@@ -283,3 +283,15 @@ if [[ -z "${bash_preexec_imported:-}" ]]; then
 		PROMPT_COMMAND=__vsc_prompt_cmd
 	fi
 fi
+
+if [ -n "$QT_CREATOR_EXECUTABLE_PATH" ] && [ -n "$QT_CREATOR_PID" ]; then
+	qtc() {
+		# If we lost either of these env vars, return an error
+		if [ -z "$QT_CREATOR_EXECUTABLE_PATH" ] || [ -z "$QT_CREATOR_PID" ]; then
+			echo "qtc: QT_CREATOR_EXECUTABLE_PATH or QT_CREATOR_PID not set" >&2
+			return 1
+		fi
+
+		"$QT_CREATOR_EXECUTABLE_PATH" -client -pid $QT_CREATOR_PID $@
+	}
+fi

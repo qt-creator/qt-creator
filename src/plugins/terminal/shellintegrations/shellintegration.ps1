@@ -191,3 +191,30 @@ function Send-Completions {
 if (Get-Module -Name PSReadLine) {
 	Set-MappedKeyHandlers
 }
+
+function qtc {
+    param(
+        [Parameter(ValueFromRemainingArguments = $true)]
+	[string[]] $Args
+    )
+
+    $exePath = $env:QT_CREATOR_EXECUTABLE_PATH
+    $qtcpid  = $env:QT_CREATOR_PID
+
+    if (-not $exePath) {
+        throw "Environment variable 'QT_CREATOR_EXECUTABLE_PATH' is not set."
+    }
+
+    if (-not (Test-Path $exePath)) {
+        throw "The executable path '$exePath' does not exist."
+    }
+
+    if (-not $qtcpid) {
+        throw "Environment variable 'QT_CREATOR_PID' is not set."
+    }
+
+    # Build argument list: mandatory args + user args
+    $finalArgs = @('-client', '-pid', $qtcpid) + $Args
+
+    & $exePath @finalArgs
+}

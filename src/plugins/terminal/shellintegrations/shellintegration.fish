@@ -176,4 +176,16 @@ function __init_vscode_shell_integration
 		end
 	end
 end
+
+if test -n "$QT_CREATOR_EXECUTABLE_PATH" -a -n "$QT_CREATOR_PID"
+	function qtc
+		# If we lost either of these env vars, return an error
+		if test -z "$QT_CREATOR_EXECUTABLE_PATH" -o -z "$QT_CREATOR_PID"
+			echo "qtc: QT_CREATOR_EXECUTABLE_PATH or QT_CREATOR_PID not set" >&2
+			return 1
+		end
+		$QT_CREATOR_EXECUTABLE_PATH -client -pid $QT_CREATOR_PID $argv
+	end
+end
+
 __preserve_fish_prompt

@@ -177,6 +177,11 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
     env.set("VSCODE_INJECTION", "1");
     env.set("TERM_PROGRAM", "vscode");
 
+    if (m_shell.isLocal()) {
+        env.set("QT_CREATOR_EXECUTABLE_PATH", QCoreApplication::applicationFilePath());
+        env.set("QT_CREATOR_PID", QString::number(QCoreApplication::applicationPid()));
+    }
+
     Result<std::unique_ptr<TemporaryFilePath>> tempDir
         = TemporaryFilePath::create(*tmpDir / "shellintegration-XXXXXXXX", true);
     QTC_CHECK_RESULT(tempDir);
@@ -225,6 +230,26 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
 
         env.set("CLINK_HISTORY_LABEL", "QtCreator");
         env.appendOrSet("CLINK_PATH", tmpRc.parentDir().nativePath());
+
+        if (cmd.executable().isLocal()) {
+            const FilePath binPath = (m_tempDir->filePath() / "bin");
+            if (binPath.ensureWritableDir()) {
+                env.appendOrSetPath(binPath);
+                const FilePath bat = binPath / "qtc.bat";
+
+                const QString batContents = QString("@echo off\r\n\"%1\" -client -pid %2 %*\r\n")
+                                                .arg(QCoreApplication::applicationFilePath())
+                                                .arg(QCoreApplication::applicationPid());
+                if (!bat.writeFileContents(batContents.toLocal8Bit())) {
+                    qCWarning(integrationLog)
+                        << "Failed to create qtc.bat file at" << bat.toUserOutput();
+                }
+            } else {
+                qCWarning(integrationLog)
+                    << "Failed to create Clink bin directory at" << binPath.toUserOutput();
+            }
+        }
+
     } else if (cmd.executable().baseName() == "fish") {
         FilePath xdgDir = m_tempDir->filePath() / "fish_xdg_data";
         FilePath subDir = xdgDir.resolvePath(QString("fish/vendor_conf.d"));
