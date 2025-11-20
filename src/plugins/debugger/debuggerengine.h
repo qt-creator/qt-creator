@@ -472,11 +472,11 @@ public:
     virtual void selectWatchData(const QString &iname);
 
     virtual void watchPoint(const QPoint &pnt);
-    virtual void openMemoryView(const MemoryViewSetupData &data);
+    void openMemoryView(const MemoryViewSetupData &data);
     virtual void fetchMemory(MemoryAgent *, quint64 addr, quint64 length);
     virtual void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data);
-    virtual void updateMemoryViews();
-    virtual void openDisassemblerView(const Internal::Location &location);
+    void updateMemoryViews();
+    void openDisassemblerView(const Internal::Location &location);
     virtual void fetchDisassembler(Internal::DisassemblerAgent *);
     virtual void activateFrame(int index);
 
