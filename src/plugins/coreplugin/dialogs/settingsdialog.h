@@ -5,7 +5,7 @@
 
 #include <utils/id.h>
 
-#include <imode.h>
+#include "../imode.h"
 
 namespace Core::Internal {
 

@@ -6,12 +6,12 @@
 #include "../coreplugintr.h"
 #include "../icore.h"
 #include "../iwizardfactory.h"
-#include "coreconstants.h"
-#include "coreicons.h"
+#include "../coreconstants.h"
+#include "../coreicons.h"
+#include "../modemanager.h"
 #include "ioptionspage.h"
-#include "modemanager.h"
 
-#include <projectexplorer/projectexplorerconstants.h> // Soft. For KITS_SETTINGS_PAGE_ID
+#include "../../projectexplorer/projectexplorerconstants.h" // Soft. For KITS_SETTINGS_PAGE_ID
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
