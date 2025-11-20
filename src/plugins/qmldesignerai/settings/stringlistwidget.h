@@ -36,6 +36,7 @@ private: // variables
     Utils::UniqueObjectPtr<QToolButton> m_resetButton;
     Utils::UniqueObjectPtr<QToolBar> m_toolBar;
     QStringList m_defaultItems;
+    int m_prevRow = -1;
 };
 
 } // namespace QmlDesigner
