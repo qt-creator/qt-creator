@@ -362,7 +362,7 @@ void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int e
     }
 }
 
-Node *ProjectTreeWidget::nodeForFile(const FilePath &fileName)
+Node *ProjectTreeWidget::nodeForFile(const FilePath &fileName, const Node *currentNode)
 {
     if (fileName.isEmpty())
         return nullptr;
@@ -373,8 +373,12 @@ Node *ProjectTreeWidget::nodeForFile(const FilePath &fileName)
     for (Project *project : ProjectManager::projects()) {
         if (ProjectNode *projectNode = project->rootProjectNode()) {
             projectNode->forEachGenericNode([&](Node *node) {
+                if (bestNode && bestNode == currentNode)
+                    return;
                 if (node->filePath() == fileName) {
-                    if (!bestNode || node->priority() < bestNode->priority()) {
+                    if (node == currentNode) {
+                        bestNode = node;
+                    } else if (!bestNode || node->priority() < bestNode->priority()) {
                         bestNode = node;
                         bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
                     } else if (node->priority() == bestNode->priority()) {

@@ -148,7 +148,7 @@ void ProjectTree::updateFromDocumentManager()
 {
     if (Core::IDocument *document = Core::EditorManager::currentDocument()) {
         const FilePath fileName = document->filePath();
-        updateFromNode(ProjectTreeWidget::nodeForFile(fileName));
+        updateFromNode(ProjectTreeWidget::nodeForFile(fileName, s_instance->m_currentNode));
     } else {
         updateFromNode(nullptr);
     }
