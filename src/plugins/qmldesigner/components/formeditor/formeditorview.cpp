@@ -281,17 +281,18 @@ void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& p
             const QList<ModelNode> modelNodes = nodeAbstractProperty.allSubNodes();
             for (const ModelNode &modelNode : modelNodes) {
                 const QmlItemNode qmlItemNode(modelNode);
-
-                if (qmlItemNode.isValid()){
-                    if (FormEditorItem *item = m_scene->itemForQmlItemNode(qmlItemNode)) {
+                if (qmlItemNode.isValid()) {
+                    if (FormEditorItem *item = m_scene->itemForQmlItemNode(qmlItemNode))
                         removedItems.append(item);
-                        delete item;
-                    }
                 }
             }
         }
     }
-    m_currentTool->itemsAboutToRemoved(removedItems);
+
+    if (!removedItems.isEmpty()) {
+        m_currentTool->itemsAboutToRemoved(removedItems);
+        deleteWithoutChildren(removedItems);
+    }
 }
 
 static inline bool hasNodeSourceOrNonItemParent(const ModelNode &node)
