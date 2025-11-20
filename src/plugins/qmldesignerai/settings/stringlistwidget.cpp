@@ -147,10 +147,15 @@ QToolBar *StringListWidget::toolBar() const
 
 void StringListWidget::onRowChanged(int row)
 {
+    // if currently selected item is empty, remove it
+    if (m_prevRow > -1 && item(m_prevRow)->text().trimmed().isEmpty())
+        delete takeItem(m_prevRow);
+
     bool hasRowSelection = row > -1;
     m_removeButton->setEnabled(hasRowSelection);
     m_moveUpButton->setEnabled(hasRowSelection && row != 0);
     m_moveDownButton->setEnabled(hasRowSelection && row != count() - 1);
+    m_prevRow = row;
 }
 
 void StringListWidget::setWidgetItems(const QStringList &items)
