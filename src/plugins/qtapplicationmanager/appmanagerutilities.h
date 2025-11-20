@@ -9,6 +9,7 @@
 
 namespace AppManager::Internal {
 
-Utils::FilePath getToolFilePath(const QString &toolname, const ProjectExplorer::Kit *kit, const ProjectExplorer::IDevice::ConstPtr &device = nullptr);
+Utils::FilePath getToolFilePath(const QString &toolname, const ProjectExplorer::Kit *kit,
+                                const ProjectExplorer::IDevice::ConstPtr &device);
 
 } // AppManager::Internal
