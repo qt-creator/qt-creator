@@ -637,7 +637,6 @@ void EnginesDriver::start()
         });
 
         connect(engine, &DebuggerEngine::engineFinished, this, [this, engine] {
-            engine->prepareForRestart();
             if (--m_runningEngines == 0) {
                 const QString cmd = engine->runParameters().inferior().command.toUserOutput();
                 const QString msg

@@ -471,8 +471,6 @@ public:
     void updateWatchData(const QString &iname); // FIXME: Merge with above.
     virtual void selectWatchData(const QString &iname);
 
-    virtual void prepareForRestart() {}
-
     virtual void watchPoint(const QPoint &pnt);
     virtual void openMemoryView(const MemoryViewSetupData &data);
     virtual void fetchMemory(MemoryAgent *, quint64 addr, quint64 length);

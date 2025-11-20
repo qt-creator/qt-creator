@@ -1015,6 +1015,15 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
     runCommand({command, NativeCommand});
 }
 
+void GdbEngine::setState(DebuggerState state, bool forced)
+{
+    CppDebuggerEngine::setState(state, forced);
+    if (state == DebuggerFinished) {
+        m_rerunPending = false;
+        m_commandForToken.clear();
+    }
+}
+
 // This is triggered when switching snapshots.
 void GdbEngine::updateAll()
 {
@@ -4099,12 +4108,6 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, Id settingsIdHint)
         ICore::showWarningWithOptions(title, msg, QString(), settingsIdHint);
     }
     notifyEngineSetupFailed();
-}
-
-void GdbEngine::prepareForRestart()
-{
-    m_rerunPending = false;
-    m_commandForToken.clear();
 }
 
 void GdbEngine::handleInferiorPrepared()

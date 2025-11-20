@@ -50,7 +50,6 @@ public:
 
 private: ////////// General Interface //////////
     void handleGdbStartFailed();
-    void prepareForRestart() final;
 
     bool hasCapability(unsigned) const final;
     void detachDebugger() final;
@@ -62,6 +61,7 @@ private: ////////// General Interface //////////
 
     ////////// General State //////////
 
+    void setState(DebuggerState state, bool forced = false) final;
     bool m_registerNamesListed = false;
 
     ////////// Gdb Process Management //////////
