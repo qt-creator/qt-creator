@@ -664,7 +664,7 @@ def addCPlusPlusFile(name, template, projectName, forceOverwrite=False, addToVCS
         return
     __createProjectOrFileSelectType__("  C/C++", template, isProject=False)
     window = "{type='ProjectExplorer::JsonWizard' unnamed='1' visible='1'}"
-    basePathEdit = waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
+    basePathEdit = waitForObject("{type='Utils::FancyLineEdit' name='LineEdit' visible='1' "
                                  "window=%s}" % window)
     if newBasePath:
         replaceEditorContent(basePathEdit, newBasePath)

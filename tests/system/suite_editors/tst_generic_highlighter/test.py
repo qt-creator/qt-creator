@@ -16,7 +16,7 @@ def createFile(folder, filename):
     __createProjectOrFileSelectType__("  General", "Empty File", isProject = False)
     replaceEditorContent(waitForObject("{name='nameLineEdit' visible='1' "
                                        "type='Utils::FileNameValidatingLineEdit'}"), filename)
-    replaceEditorContent(waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
+    replaceEditorContent(waitForObject("{type='Utils::FancyLineEdit' name='LineEdit' visible='1' "
                                        "window={type='ProjectExplorer::JsonWizard' unnamed='1' "
                                        "visible='1'}}"), folder)
     clickButton(waitForObject(":Next_QPushButton"))
