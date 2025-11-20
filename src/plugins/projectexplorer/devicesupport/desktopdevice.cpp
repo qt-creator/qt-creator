@@ -403,6 +403,10 @@ Result<> DesktopDevice::handlesFile(const FilePath &filePath) const
 {
     if (!filePath.isLocal())
         return ResultError(Tr::tr("\"%1\" can only handle local files.").arg(displayName()));
+
+    if (deviceState() != DeviceReadyToUse)
+        return ResultError(Tr::tr("Device \"%1\" is not ready to use.").arg(displayName()));
+
     return ResultOk;
 }
 
