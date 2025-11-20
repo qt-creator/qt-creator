@@ -67,7 +67,7 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
     durationL->setToolTip(tr("Length of the animation in milliseconds. If you set a shorter duration than the number of frames, frames are left out from the end of the animation."));
     m_duration = new QSpinBox;
     m_duration->setFixedWidth(spinBoxWidth);
-    m_duration->setRange(0, 100000);
+    m_duration->setRange(1, 100000);
 
     auto continuousL = new QLabel(tr("Continuous"));
     continuousL->setToolTip(tr("Sets the animation to loop indefinitely."));
