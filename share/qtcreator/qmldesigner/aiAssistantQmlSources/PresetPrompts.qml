@@ -14,7 +14,7 @@ import AiAssistantBackend
 RowLayout {
     id: root
 
-    readonly property var presetPrompts: ["Add a rectangle", "Add a button", "Add a Text", "Create a sample UI", "Remove all objects"]
+    readonly property var presetPrompts: ["Add a rectangle", "Add a button", "Add a text", "Create a sample UI", "Remove all objects"]
     property int splitIndex: presetPrompts.length
 
     property var rootView: AiAssistantBackend.rootView
