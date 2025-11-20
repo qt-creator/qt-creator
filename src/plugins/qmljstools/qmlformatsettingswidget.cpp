@@ -37,6 +37,8 @@
 
 using namespace std::chrono_literals;
 
+using namespace ProjectExplorer;
+
 namespace QmlJSTools {
 
 class QmlFormatOptionsModel : public QAbstractTableModel
@@ -497,15 +499,16 @@ QmlFormatSettingsWidget::QmlFormatSettingsWidget(
         m_deployIniButton,
         &QPushButton::clicked,
         this,
-        [this](){
-            if (ProjectExplorer::Project * const p = ProjectExplorer::ProjectTree::currentProject())
-                p->projectDirectory().pathAppended(".qmlformat.ini").writeFileContents(m_optionsModel->writeGlobalQmlFormatIniFile().toUtf8());
+        [this] {
+            if (Project * const p = ProjectTree::currentProject()) {
+                p->projectDirectory().pathAppended(".qmlformat.ini")
+                    .writeFileContents(m_optionsModel->writeGlobalQmlFormatIniFile().toUtf8());
+            }
         });
 
-    m_deployIniButton->setEnabled(ProjectExplorer::ProjectTree::currentProject());
-    connect(ProjectExplorer::ProjectTree::instance(), &ProjectExplorer::ProjectTree::currentProjectChanged,
-            this, [=]() {
-                m_deployIniButton->setEnabled( ProjectExplorer::ProjectTree::currentProject());
+    m_deployIniButton->setEnabled(ProjectTree::currentProject());
+    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged, this, [this] {
+                m_deployIniButton->setEnabled(ProjectTree::currentProject());
             });
 }
 
