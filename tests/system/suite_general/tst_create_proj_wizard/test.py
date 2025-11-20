@@ -52,9 +52,9 @@ def main():
         with TestSection("Testing project template %s -> %s" % (category, template)):
             displayedPlatforms = __createProject__(category, template)
             if template.startswith("Qt Quick Application"):
-                qtVersionsForQuick = ["6.2"]
+                qtVersionsForQuick = ["6.5"]
                 if "(compat)" in template:
-                    qtVersionsForQuick += ["5.14"]
+                    qtVersionsForQuick = ["6.2", "5.14"]
                 for counter, qtVersion in enumerate(qtVersionsForQuick):
 
                     def additionalFunc(displayedPlatforms, qtVersion):
