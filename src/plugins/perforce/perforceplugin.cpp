@@ -1183,7 +1183,6 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
             VcsOutputWindow::appendSilently(workingDir, lines);
         });
     }
-    process.setTimeOutMessageBoxEnabled(true);
     process.setCommand({settings().p4BinaryPath(), args});
     process.runBlocking(std::chrono::seconds(timeOutS));
 
