@@ -18,14 +18,11 @@ namespace QmlDesigner {
 
 static QList<AiProviderConfig> allProviderConfigs()
 {
-    Utils::QtcSettings *settings = Core::ICore::settings();
-    settings->beginGroup(Constants::aiAssistantProviderKey);
-    QStringList providerIds = settings->childGroups();
-    settings->endGroup();
+    const QStringList providerNames = AiProviderData::defaultProvidersNames();
 
     QList<AiProviderConfig> result;
-    for (const QString &providerId : std::as_const(providerIds))
-        result.append(AiProviderConfig{providerId});
+    for (const QString &providerName : providerNames)
+        result.append(AiProviderConfig{providerName});
 
     return result;
 }
