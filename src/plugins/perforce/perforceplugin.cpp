@@ -122,19 +122,18 @@ struct PerforceResponse
 };
 
 // Flags for runP4Cmd.
-enum RunFlags
+enum RunFlags // TODO: Reuse VcsBase::RunFlags
 {
-    CommandToWindow = 0x1,
-    StdOutToWindow = 0x2,
-    StdErrToWindow = 0x4,
-    ErrorToWindow = 0x8,
-    OverrideDiffEnvironment = 0x10,
-    // Run completely synchronously, no signals emitted
-    RunFullySynchronous = 0x20,
-    IgnoreExitCode = 0x40,
-    ShowBusyCursor = 0x80,
-    LongTimeOut = 0x100,
-    SilentStdOut = 0x200,
+    NoFlags                 = 0,
+    CommandToWindow         = 1 << 0,
+    StdOutToWindow          = 1 << 1,
+    StdErrToWindow          = 1 << 2,
+    ErrorToWindow           = 1 << 3,
+    OverrideDiffEnvironment = 1 << 4,
+    IgnoreExitCode          = 1 << 5,
+    ShowBusyCursor          = 1 << 6,
+    LongTimeOut             = 1 << 7,
+    SilentStdOut            = 1 << 8
 };
 
 struct PerforceDiffParameters
@@ -549,7 +548,7 @@ void PerforcePluginPrivate::revertCurrentFile()
     QStringList args;
     args << QLatin1String("diff") << QLatin1String("-sa") << state.relativeCurrentFile();
     PerforceResponse result = runP4Cmd(state.currentFileTopLevel(), args,
-                                       RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow,
+                                       CommandToWindow|StdErrToWindow|ErrorToWindow,
                                        {}, {}, encoding);
     if (result.error)
         return;
@@ -632,7 +631,7 @@ bool PerforcePluginPrivate::revertProject(const FilePath &workingDir, const QStr
         args.push_back(QLatin1String("-a"));
     args.append(pathArgs);
     const PerforceResponse resp = runP4Cmd(workingDir, args,
-                                           RunFullySynchronous|CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+                                           CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     return !resp.error;
 }
 
@@ -701,7 +700,7 @@ void PerforcePluginPrivate::startSubmitProject()
 
     args << QLatin1String("change") << QLatin1String("-o");
     PerforceResponse result = runP4Cmd(repository, args,
-                                       RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
+                                       CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (result.error) {
         cleanCommitMessageFile();
         return;
@@ -721,7 +720,7 @@ void PerforcePluginPrivate::startSubmitProject()
     args << QLatin1String("files");
     args.append(perforceRelativeProjectDirectory(state));
     PerforceResponse filesResult = runP4Cmd(repository, args,
-                                            RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
+                                            CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (filesResult.error) {
         cleanCommitMessageFile();
         return;
@@ -932,7 +931,7 @@ bool PerforcePluginPrivate::managesFile(const FilePath &workingDirectory, const 
 {
     QStringList args;
     args << QLatin1String("fstat") << QLatin1String("-m1") << fileName;
-    const PerforceResponse result = runP4Cmd(workingDirectory, args, RunFullySynchronous);
+    const PerforceResponse result = runP4Cmd(workingDirectory, args, NoFlags);
     return result.stdOut.contains(QLatin1String("depotFile"));
 }
 
@@ -966,8 +965,7 @@ bool PerforcePluginPrivate::managesDirectoryFstat(const FilePath &directory)
         // Is it actually managed by perforce?
         QStringList args;
         args << QLatin1String("fstat") << QLatin1String("-m1") << perforceRelativeFileArguments(relativeDirArgs);
-        const PerforceResponse result = runP4Cmd(settings().topLevel(), args,
-                                                 RunFullySynchronous);
+        const PerforceResponse result = runP4Cmd(settings().topLevel(), args, NoFlags);
 
         managed = result.stdOut.contains(QLatin1String("depotFile"))
                   || result.stdErr.contains(QLatin1String("... - no such file(s)"));
@@ -1033,13 +1031,13 @@ bool PerforcePluginPrivate::vcsMove(const FilePath &workingDir, const QString &f
     QStringList args;
     args << QLatin1String("edit") << from;
     const PerforceResponse editResult = runP4Cmd(workingDir, args,
-                                                 RunFullySynchronous|CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+                                                 CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     if (editResult.error)
         return false;
     args.clear();
     args << QLatin1String("move") << from << to;
     const PerforceResponse moveResult = runP4Cmd(workingDir, args,
-                                                 RunFullySynchronous|CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+                                                 CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     return !moveResult.error;
 }
 
@@ -1187,8 +1185,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     }
     process.setTimeOutMessageBoxEnabled(true);
     process.setCommand({settings().p4BinaryPath(), args});
-    process.runBlocking(std::chrono::seconds(timeOutS),
-                        flags & RunFullySynchronous ? EventLoopMode::Off : EventLoopMode::On);
+    process.runBlocking(std::chrono::seconds(timeOutS));
 
     const auto result = process.result();
     PerforceResponse response;
@@ -1426,7 +1423,7 @@ bool PerforcePluginPrivate::activateCommit()
     QStringList submitArgs;
     submitArgs << QLatin1String("submit") << QLatin1String("-i");
     const PerforceResponse submitResponse = runP4Cmd(workingDirectory, submitArgs,
-                                                     LongTimeOut|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
+                                                     LongTimeOut|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
                                                      {}, normalizeNewlines(contents.value()));
     if (submitResponse.error)
         return false;
@@ -1445,7 +1442,7 @@ QString PerforcePluginPrivate::pendingChangesData()
 
     QStringList args = QStringList(QLatin1String("info"));
     const PerforceResponse userResponse = runP4Cmd(settings().topLevelSymLinkTarget(), args,
-                                               RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
+                                                   CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (userResponse.error)
         return {};
 
@@ -1458,7 +1455,7 @@ QString PerforcePluginPrivate::pendingChangesData()
     args.clear();
     args << QLatin1String("changes") << QLatin1String("-s") << QLatin1String("pending") << QLatin1String("-u") << user;
     const PerforceResponse dataResponse = runP4Cmd(settings().topLevelSymLinkTarget(), args,
-                                                   RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
+                                                   CommandToWindow|StdErrToWindow|ErrorToWindow);
     return dataResponse.error ? QString() : dataResponse.stdOut;
 }
 
@@ -1471,7 +1468,7 @@ QString fileNameFromPerforceName(const QString &perforceName, bool quiet)
     // "where" remaps the file to client file tree
     QStringList args;
     args << QLatin1String("where") << perforceName;
-    unsigned flags = RunFullySynchronous;
+    unsigned flags = NoFlags;
     if (!quiet)
         flags |= CommandToWindow|StdErrToWindow|ErrorToWindow;
     const Utils::FilePath workingDirectory = settings().topLevelSymLinkTarget();
