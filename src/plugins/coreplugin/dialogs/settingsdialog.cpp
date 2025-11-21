@@ -443,7 +443,6 @@ public:
     SettingsDialog();
 
     void showPage(Id pageId);
-    bool execDialog();
 
 private:
     void apply();
@@ -502,6 +501,12 @@ SettingsDialog::SettingsDialog()
 
     connect(m_categoryList->selectionModel(), &QItemSelectionModel::currentRowChanged,
             this, &SettingsDialog::currentChanged);
+
+    connect(ICore::instance(), &ICore::saveSettingsRequested, this, [this] {
+        QtcSettings *settings = ICore::settings();
+        settings->setValue(pageKeyC, m_currentPage.toSetting());
+        settings->setValue(sortKeyC, m_sortCheckBox->isChecked());
+    });
 
     // The order of the slot connection matters here, the filter slot
     // opens the matching page after the model has filtered.
@@ -749,14 +754,18 @@ public:
     {
         connect(ModeManager::instance(), &ModeManager::currentModeChanged, this, [this](Id mode, Id oldMode) {
             QTC_ASSERT(mode != oldMode, return);
-            if (mode == Constants::MODE_SETTINGS)
-                open();
+            if (mode == Constants::MODE_SETTINGS) {
+                if (!inner)
+                    open({});
+            } else if (oldMode == Constants::MODE_SETTINGS) {
+                ICore::saveSettings(ICore::SettingsDialogDone);
+            }
         });
     }
 
     ~SettingsModeWidget() = default;
 
-    void open()
+    void open(Id targetPage)
     {
         // Make sure all wizards are there when the user might access the keyboard shortcuts:
         (void) IWizardFactory::allWizardFactories();
@@ -772,7 +781,6 @@ public:
         inner->showPage(targetPage);
     }
 
-    Id targetPage;
     SettingsDialog *inner = nullptr;
 };
 
@@ -804,8 +812,8 @@ SettingsMode::~SettingsMode()
 void SettingsMode::open(Id initialPage)
 {
     QTC_ASSERT(m_settingsModeWidget, return);
-    m_settingsModeWidget->targetPage = initialPage;
 
+    m_settingsModeWidget->open(initialPage);
     ModeManager::activateMode(Constants::MODE_SETTINGS);
 }
 
