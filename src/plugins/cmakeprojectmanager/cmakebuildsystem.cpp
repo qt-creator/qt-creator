@@ -1367,8 +1367,8 @@ bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirPara
     QPushButton *discard = buttonBox.button(QDialogButtonBox::Discard);
     discard->setAutoDefault(false);
 
-    QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &question, &QDialog::accept);
-    QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &question, &QDialog::reject);
+    QObject::connect(apply, &QPushButton::clicked, &question, &QDialog::accept);
+    QObject::connect(discard, &QPushButton::clicked, &question, &QDialog::reject);
 
     using namespace Layouting;
     // clang-format off
