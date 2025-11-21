@@ -48,6 +48,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectmanager.h>
@@ -176,6 +177,12 @@ static std::optional<Utils::FilePath> clangdExecutableFromBuildDevice(Kit *kit)
 {
     if (!kit)
         return std::nullopt;
+
+    // Desktop has dedicated settings.
+    if (BuildDeviceTypeKitAspect::deviceTypeId(kit)
+        == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        return std::nullopt;
+    }
 
     if (const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit)) {
         FilePath clangd = buildDevice->deviceToolPath(CppEditor::Constants::CLANGD_TOOL_ID);
