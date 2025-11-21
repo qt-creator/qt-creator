@@ -41,25 +41,25 @@ else()
     set(wrapperdir "${cocopath}/" )
 endif()
 
-get_filename_component(c_compiler ${CMAKE_C_COMPILER} NAME CACHE)
-find_program(code_coverage_c_compiler cs${c_compiler}
-    PATHS ${wrapperdir}
+get_filename_component(c_compiler "${CMAKE_C_COMPILER}" NAME CACHE)
+find_program(code_coverage_c_compiler "cs${c_compiler}"
+    PATHS "${wrapperdir}"
     REQUIRED NO_DEFAULT_PATH)
 set(CMAKE_C_COMPILER "${code_coverage_c_compiler}"
     CACHE FILEPATH "CoverageScanner wrapper for C compiler" FORCE)
 
 if(WIN32) # Windows cannot handle the filename g++.exe correctly.
     # As a result, we must give the wrapper the profile explicitly as an argument.
-    get_filename_component(cxx_compiler_wle ${CMAKE_CXX_COMPILER} NAME_WLE CACHE)
+    get_filename_component(cxx_compiler_wle "${CMAKE_CXX_COMPILER}" NAME_WLE CACHE)
     string(JOIN " " new_coverage_flags1
         --cs-profile="${wrapperdir}${cxx_compiler_wle}.cspro" "${coverage_flags}")
-    string(STRIP ${new_coverage_flags1} new_coverage_flags)
+    string(STRIP "${new_coverage_flags1}" new_coverage_flags)
     set(CMAKE_CXX_FLAGS_INIT "${new_coverage_flags}"
         CACHE STRING "Coverage flags for the C++ compiler." FORCE)
 endif()
-get_filename_component(cxx_compiler ${CMAKE_CXX_COMPILER} NAME)
-find_program(code_coverage_cxx_compiler cs${cxx_compiler}
-    PATHS ${wrapperdir}
+get_filename_component(cxx_compiler "${CMAKE_CXX_COMPILER}" NAME)
+find_program(code_coverage_cxx_compiler "cs${cxx_compiler}"
+    PATHS "${wrapperdir}"
     REQUIRED NO_DEFAULT_PATH)
 set(CMAKE_CXX_COMPILER "${code_coverage_cxx_compiler}"
     CACHE FILEPATH "CoverageScanner wrapper for C++ compiler" FORCE)
@@ -67,24 +67,24 @@ set(CMAKE_CXX_COMPILER "${code_coverage_cxx_compiler}"
 if(${c_compiler} MATCHES "(gcc|.*-gcc|.*-gcc-.*|clang|.*-clang|.*-clang-.*).exe")
     # Do nothing, CMake does not use a separate linker program; it uses the compiler.
 elseif(DEFINED CMAKE_LINKER)
-    get_filename_component(linker_prog ${CMAKE_LINKER} NAME)
-    find_program(code_coverage_linker cs${linker_prog}
-        PATHS ${wrapperdir}
+    get_filename_component(linker_prog "${CMAKE_LINKER}" NAME)
+    find_program(code_coverage_linker "cs${linker_prog}"
+        PATHS "${wrapperdir}"
         REQUIRED NO_DEFAULT_PATH)
     set(CMAKE_LINKER "${code_coverage_linker}"
         CACHE FILEPATH "CoverageScanner wrapper for linker" FORCE)
 elseif(${c_compiler} STREQUAL "cl.exe") # special case for Visual Studio
     find_program(code_coverage_linker "cslink.exe"
-        PATHS ${wrapperdir}
+        PATHS "${wrapperdir}"
         REQUIRED NO_DEFAULT_PATH)
     set(CMAKE_LINKER "${code_coverage_linker}"
         CACHE FILEPATH "CoverageScanner wrapper for linker" FORCE)
 endif()
 
 if(DEFINED CMAKE_AR)
-    get_filename_component(ar_prog ${CMAKE_AR} NAME)
-    find_program(code_coverage_ar cs${ar_prog}
-        PATHS ${wrapperdir}
+    get_filename_component(ar_prog "${CMAKE_AR}" NAME)
+    find_program(code_coverage_ar "cs${ar_prog}"
+        PATHS "${wrapperdir}"
         REQUIRED NO_DEFAULT_PATH)
     set(CMAKE_AR "${code_coverage_ar}"
         CACHE FILEPATH "CoverageScanner wrapper for ar" FORCE)
