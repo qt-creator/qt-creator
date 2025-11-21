@@ -1267,7 +1267,15 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
             ++m_need3DEditViewRender;
         }
 
-        if (m_need3DEditViewRender > 0) {
+        if (needsExtra3dUpdates()) {
+            clearExtra3dUpdates();
+            // Use separate variable from m_need3DEditViewRender for reflection probe updates,
+            // as we don't want block actual image updates since needed count is so high -
+            // otherwise dragging reflection probes won't work.
+            m_need3DEditViewUpdate = 10;
+        }
+
+        if (m_need3DEditViewRender > 0 || m_need3DEditViewUpdate > 0) {
             // We queue another render even if the requested render count was one, because another
             // render is needed to ensure gizmo geometries are properly updated.
             // Note that while in theory this seems that we shouldn't need to send the image to
@@ -1275,7 +1283,10 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
             // smooth operation when objects are moved via drag, which triggers new renders
             // continueously.
             m_render3DEditViewTimer.start(17); // 16.67ms = ~60fps, rounds up to 17
-            --m_need3DEditViewRender;
+            if (m_need3DEditViewRender > 0)
+                --m_need3DEditViewRender;
+            if (m_need3DEditViewUpdate > 0)
+                --m_need3DEditViewUpdate;
         }
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
         else {

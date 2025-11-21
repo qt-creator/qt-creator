@@ -197,6 +197,12 @@ public:
     void decrementNeedsExtraRender();
     void handleExtraRender();
 
+    bool needsExtra3dUpdates() const;
+    void requestExtra3dUpdates();
+    void clearExtra3dUpdates();
+    void incrementReflectionProbes();
+    void decrementReflectionProbes();
+
     void disableTimer();
 
     virtual void collectItemChangesAndSendChangeCommands() = 0;
@@ -326,6 +332,8 @@ private:
     QList<QQuickAbstractAnimation *> m_animations;
     QList<QVariant> m_defaultValues;
     bool m_isSpark = false;
+    int m_extra3dUpdatesNeeded = 0;
+    int m_reflectionProbeCount = 0;
 };
 
 }

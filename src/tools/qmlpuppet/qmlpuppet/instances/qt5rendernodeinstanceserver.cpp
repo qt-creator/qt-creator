@@ -137,6 +137,21 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
             resetAllItems();
 
+            if (needsExtra3dUpdates()) {
+                clearExtra3dUpdates();
+                m_extra3dUpdateCount = 10;
+            }
+
+            if (m_extra3dUpdateCount > 0) {
+                --m_extra3dUpdateCount;
+                const QList<ServerNodeInstance> view3Ds = allView3DInstances();
+                for (auto &view3D : view3Ds) {
+                    QQuickDesignerSupport::addDirty(view3D.rootQuickItem(),
+                                                    QQuickDesignerSupport::Content);
+                    view3D.rootQuickItem()->update();
+                }
+            }
+
             slowDownRenderTimer();
             nodeInstanceClient()->flush();
             nodeInstanceClient()->synchronizeWithClientProcess();

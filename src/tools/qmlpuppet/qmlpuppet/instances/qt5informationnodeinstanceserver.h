@@ -176,6 +176,7 @@ private:
     QList<InputEventCommand> m_pendingInputEventCommands;
     QObject *m_3dHelper = nullptr;
     int m_need3DEditViewRender = 0;
+    int m_need3DEditViewUpdate = 0;
     QSet<QObject *> m_dynamicObjectConstructors;
 
     // Current or previous camera selections for each scene

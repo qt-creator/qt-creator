@@ -19,6 +19,7 @@
 #include "quickitemnodeinstance.h"
 #include "quick3dmaterialnodeinstance.h"
 #include "quick3dnodeinstance.h"
+#include "quick3dreflectionprobenodeinstance.h"
 #include "quick3dtexturenodeinstance.h"
 
 #include "nodeinstanceserver.h"
@@ -215,6 +216,8 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
         instance = Internal::QuickItemNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuick3DTexture"))
         instance = Internal::Quick3DTextureNodeInstance::create(objectToBeWrapped);
+    else if (isSubclassOf(objectToBeWrapped, "QQuick3DReflectionProbe"))
+        instance = Internal::Quick3DReflectionProbeNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuick3DNode"))
         instance = Internal::Quick3DNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuick3DMaterial"))

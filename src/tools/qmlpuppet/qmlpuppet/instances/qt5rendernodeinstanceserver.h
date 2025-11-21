@@ -31,6 +31,7 @@ private:
     void makeDirtyRecursive(const ServerNodeInstance &instance);
 
     QSet<ServerNodeInstance> m_dirtyInstanceSet;
+    int m_extra3dUpdateCount = 0;
 };
 
 } // namespace QmlDesigner

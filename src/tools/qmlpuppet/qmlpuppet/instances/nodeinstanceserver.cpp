@@ -1523,6 +1523,37 @@ void NodeInstanceServer::handleExtraRender()
     }
 }
 
+bool NodeInstanceServer::needsExtra3dUpdates() const
+{
+    if (m_reflectionProbeCount > 0)
+        return m_extra3dUpdatesNeeded;
+    return 0;
+}
+
+void NodeInstanceServer::requestExtra3dUpdates()
+{
+    // If the scene has a reflection probe, View3Ds need several renders with content
+    // updates to fully resolve the reflections. Four seems to be enough extra renders for
+    // render puppet.
+    if (m_reflectionProbeCount > 0)
+        m_extra3dUpdatesNeeded = true;
+}
+
+void NodeInstanceServer::clearExtra3dUpdates()
+{
+    m_extra3dUpdatesNeeded = false;
+}
+
+void NodeInstanceServer::incrementReflectionProbes()
+{
+    ++m_reflectionProbeCount;
+}
+
+void NodeInstanceServer::decrementReflectionProbes()
+{
+    --m_reflectionProbeCount;
+}
+
 void NodeInstanceServer::disableTimer()
 {
     m_timerMode = TimerMode::DisableTimer;
@@ -1572,6 +1603,7 @@ void NodeInstanceServer::setupState(qint32 stateInstanceId)
         if (activeStateInstance().isValid())
             activeStateInstance().deactivateState();
     }
+    requestExtra3dUpdates();
 }
 
 void NodeInstanceServer::registerFonts(const QUrl &resourceUrl) const
