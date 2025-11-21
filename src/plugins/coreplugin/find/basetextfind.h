@@ -88,7 +88,7 @@ protected:
     QTextCursor textCursor() const override { return m_editor->textCursor(); }
     void setTextCursor(const QTextCursor &cursor) override { m_editor->setTextCursor(cursor); }
     QTextDocument *document() const override { return m_editor->document(); }
-    bool isReadOnly() const override { return m_editor->isReadOnly(); }
+    bool isReadOnly() const override { return !m_editor || m_editor->isReadOnly(); }
     QWidget *widget() const override { return m_editor; }
 
 private:
