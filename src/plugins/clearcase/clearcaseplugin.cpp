@@ -2272,7 +2272,7 @@ QString ClearCasePluginPrivate::runExtDiff(const FilePath &workingDir, const QSt
     process.setWorkingDirectory(workingDir);
     process.setEncoding(encoding.isValid() ? encoding : TextEncoding(QStringConverter::Utf8));
     process.setCommand({"diff", {m_settings.diffArgs.split(' ', Qt::SkipEmptyParts), arguments}});
-    process.runBlocking(seconds(timeOutS), EventLoopMode::On);
+    process.runBlocking(seconds(timeOutS));
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return {};
     return process.allOutput();
