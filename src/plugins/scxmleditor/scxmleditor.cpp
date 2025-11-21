@@ -221,7 +221,8 @@ void ScxmlEditorData::fullInit()
     scxmlContexts.add(Core::Constants::C_EDITORMANAGER);
     IContext::attach(m_modeWidget, scxmlContexts);
 
-    DesignMode::registerDesignWidget(m_modeWidget, QStringList(Utils::Constants::SCXML_MIMETYPE), m_contexts);
+    DesignMode::registerDesignWidget(
+        "ScxmlEditor", m_modeWidget, QStringList(Utils::Constants::SCXML_MIMETYPE), m_contexts);
 }
 
 IEditor *ScxmlEditorData::createEditor()

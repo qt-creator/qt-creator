@@ -21,14 +21,18 @@ public:
 
     static void setDesignModeIsRequired();
 
-    static void registerDesignWidget(QWidget *widget,
-                                     const QStringList &mimeTypes,
-                                     const Context &context,
-                                     Utils::FancyMainWindow *mainWindow = nullptr);
+    static void registerDesignWidget(
+        Utils::Id id,
+        QWidget *widget,
+        const QStringList &mimeTypes,
+        const Context &context,
+        Utils::FancyMainWindow *mainWindow = nullptr);
     static void unregisterDesignWidget(QWidget *widget);
 
     static void createModeIfRequired();
     static void destroyModeIfRequired();
+
+    static Utils::Id currentDesignWidget();
 
 signals:
     void actionsUpdated(Core::IEditor *editor);

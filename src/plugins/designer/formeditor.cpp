@@ -434,10 +434,12 @@ void FormEditorData::fullInit()
         callback(core->integration()->contextHelpId());
     });
 
-    DesignMode::registerDesignWidget(m_modeWidget,
-                                     QStringList(Utils::Constants::FORM_MIMETYPE),
-                                     m_contexts,
-                                     m_editorWidget);
+    DesignMode::registerDesignWidget(
+        "QtWidgetDesigner",
+        m_modeWidget,
+        QStringList(Utils::Constants::FORM_MIMETYPE),
+        m_contexts,
+        m_editorWidget);
 
     setupViewActions();
 

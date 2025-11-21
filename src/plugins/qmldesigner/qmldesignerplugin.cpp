@@ -383,7 +383,7 @@ void QmlDesignerPlugin::integrateIntoQtCreator(DesignModeWidget *modeWidget)
     const QStringList mimeTypes = { Utils::Constants::QML_MIMETYPE,
                                     Utils::Constants::QMLUI_MIMETYPE };
 
-    Core::DesignMode::registerDesignWidget(modeWidget, mimeTypes, context);
+    Core::DesignMode::registerDesignWidget("QmlDesigner", modeWidget, mimeTypes, context);
 
     connect(Core::DesignMode::instance(), &Core::DesignMode::actionsUpdated,
         &d->shortCutManager, &ShortCutManager::updateActions);

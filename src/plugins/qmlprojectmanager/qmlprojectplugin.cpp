@@ -346,7 +346,7 @@ void QmlProjectPlugin::initialize()
 
         const QStringList mimeTypes = {Utils::Constants::QMLUI_MIMETYPE};
 
-        DesignMode::registerDesignWidget(m_landingPageWidget, mimeTypes, {});
+        DesignMode::registerDesignWidget("QmlLandingPage", m_landingPageWidget, mimeTypes, {});
 
         connect(ModeManager::instance(), &ModeManager::currentModeChanged,
                 this, &QmlProjectPlugin::editorModeChanged);
