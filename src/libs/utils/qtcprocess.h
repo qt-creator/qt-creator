@@ -142,15 +142,11 @@ public:
                               qint64 *pid = nullptr);
 
     // Starts the command and waits for finish.
-    // User input processing is enabled when EventLoopMode::On was passed.
-    void runBlocking(std::chrono::seconds timeout = std::chrono::seconds(10),
-                     EventLoopMode eventLoopMode = EventLoopMode::Off);
+    void runBlocking(std::chrono::seconds timeout = std::chrono::seconds(10));
 
     void setEncoding(const TextEncoding &encoding); // for stdOut and stdErr
     void setUtf8Codec(); // for stdOut and stdErr
     void setUtf8StdOutCodec(); // for stdOut, stdErr uses executable.processStdErrCodec()
-
-    void setTimeOutMessageBoxEnabled(bool);
 
     void setStdOutCallback(const TextChannelCallback &callback);
     void setStdOutLineCallback(const TextChannelCallback &callback);

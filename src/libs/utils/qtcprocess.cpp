@@ -748,7 +748,6 @@ public:
 
     time_point<system_clock, nanoseconds> m_startTimestamp = {};
     time_point<system_clock, nanoseconds> m_doneTimestamp = {};
-    bool m_timeOutMessageBoxEnabled = false;
 
     Guard m_guard;
 };
@@ -1840,77 +1839,33 @@ void Process::setUtf8StdOutCodec()
     d->m_stdOutEncoding = QStringDecoder::Utf8;
 }
 
-void Process::setTimeOutMessageBoxEnabled(bool v)
-{
-    d->m_timeOutMessageBoxEnabled = v;
-}
-
 void Process::setWriteData(const QByteArray &writeData)
 {
     d->m_setup.m_writeData = writeData;
 }
 
-void Process::runBlocking(seconds timeout, EventLoopMode eventLoopMode)
+void Process::runBlocking(seconds timeout)
 {
     QDateTime startTime;
     static const int blockingThresholdMs = qtcEnvironmentVariableIntValue("QTC_PROCESS_THRESHOLD");
 
-    const auto handleStart = [this, eventLoopMode, &startTime] {
-        // Attach a dynamic property with info about blocking type
-        d->storeEventLoopDebugInfo(int(eventLoopMode));
+    // Attach a dynamic property with info about blocking type
+    d->storeEventLoopDebugInfo(true);
 
-        if (blockingThresholdMs > 0 && isMainThread())
-            startTime = QDateTime::currentDateTime();
-        start();
+    if (blockingThresholdMs > 0 && isMainThread())
+        startTime = QDateTime::currentDateTime();
+    start();
 
-        // Remove the dynamic property so that it's not reused in subseqent start()
-        d->storeEventLoopDebugInfo({});
-    };
+    // Remove the dynamic property so that it's not reused in subseqent start()
+    d->storeEventLoopDebugInfo({});
 
-    const auto handleTimeout = [this] {
-        if (state() == QProcess::NotRunning)
-            return;
+    if (state() != QProcess::NotRunning && !waitForFinished(timeout)) {
         stop();
         // TODO: This arbitrary 2s causes flakiness of:
         //       tst_Process::runBlockingStdOut:"Short timeout without end of line".
         QTC_CHECK(waitForFinished(2s));
-    };
-
-    if (eventLoopMode == EventLoopMode::On) {
-#ifdef QT_GUI_LIB
-        if (isGuiEnabled())
-            QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-#endif
-        QEventLoop eventLoop(this);
-
-        // Queue the call to start() so that it's executed after the nested event loop is started,
-        // otherwise it fails on Windows with QProcessImpl. See QTCREATORBUG-30066.
-        QMetaObject::invokeMethod(this, handleStart, Qt::QueuedConnection);
-
-        std::function<void(void)> timeoutHandler = {};
-        if (timeout > seconds::zero()) {
-            timeoutHandler = [this, &eventLoop, &timeoutHandler, &handleTimeout, timeout] {
-                if (!d->m_timeOutMessageBoxEnabled || askToKill(d->m_setup.m_commandLine)) {
-                    handleTimeout();
-                    return;
-                }
-                QTimer::singleShot(timeout, &eventLoop, timeoutHandler);
-            };
-            QTimer::singleShot(timeout, &eventLoop, timeoutHandler);
-        }
-
-        connect(this, &Process::done, &eventLoop, [&eventLoop] { eventLoop.quit(); });
-
-        eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
-#ifdef QT_GUI_LIB
-        if (isGuiEnabled())
-            QGuiApplication::restoreOverrideCursor();
-#endif
-    } else {
-        handleStart();
-        if (state() != QProcess::NotRunning && !waitForFinished(timeout))
-            handleTimeout();
     }
+
     if (blockingThresholdMs > 0) {
         const int timeDiff = startTime.msecsTo(QDateTime::currentDateTime());
         if (timeDiff > blockingThresholdMs && isMainThread()) {
@@ -2075,11 +2030,7 @@ void ProcessPrivate::handleDone(const ProcessResultData &data)
 
 static QString blockingMessage(const QVariant &variant)
 {
-    if (!variant.isValid())
-        return "non blocking";
-    if (variant.toInt() == int(EventLoopMode::On))
-        return "blocking with event loop";
-    return "blocking without event loop";
+    return variant.isValid() ? QString("blocking") : QString("non blocking");
 }
 
 void ProcessPrivate::setupDebugLog()

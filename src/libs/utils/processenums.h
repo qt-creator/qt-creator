@@ -24,11 +24,6 @@ enum class TerminalMode {
 
 // Miscellaneous, not process core
 
-enum class EventLoopMode {
-    Off,
-    On // Avoid
-};
-
 enum class Channel {
     Output,
     Error

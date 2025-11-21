@@ -142,8 +142,7 @@ private slots:
     void quitBlockingProcess();
     void tarPipe();
     void stdinToShell();
-    void eventLoopMode_data();
-    void eventLoopMode();
+    void runBlocking();
 
     void cleanupTestCase();
 
@@ -1279,23 +1278,13 @@ void tst_Process::stdinToShell()
     QCOMPARE(result, "hallo");
 }
 
-void tst_Process::eventLoopMode_data()
+void tst_Process::runBlocking()
 {
-    QTest::addColumn<EventLoopMode>("eventLoopMode");
-
-    QTest::newRow("EventLoopMode::On") << EventLoopMode::On;
-    QTest::newRow("EventLoopMode::Off") << EventLoopMode::Off;
-}
-
-void tst_Process::eventLoopMode()
-{
-    QFETCH(EventLoopMode, eventLoopMode);
-
     {
         SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
         Process process;
         subConfig.setupSubProcess(&process);
-        process.runBlocking(10s, eventLoopMode);
+        process.runBlocking(10s);
         QCOMPARE(process.result(), ProcessResult::FinishedWithSuccess);
     }
 
@@ -1303,7 +1292,7 @@ void tst_Process::eventLoopMode()
         Process process;
         process.setCommand(
             CommandLine{"there_is_a_big_chance_that_executable_with_that_name_does_not_exists"});
-        process.runBlocking(10s, eventLoopMode);
+        process.runBlocking(10s);
         QCOMPARE(process.result(), ProcessResult::StartFailed);
     }
 }
