@@ -140,14 +140,14 @@ qtc_add_resources(TextEditor "images"
 )
 
 # from cmake 3.24 $<LINK_LIBRARY:WHOLE_ARCHIVE,TextEditorSupport> is supported which can be added to DEPENDS
-if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0" AND NOT CMAKE_GENERATOR STREQUAL "FASTBuild")
   target_link_libraries(TextEditor PRIVATE $<LINK_LIBRARY:WHOLE_ARCHIVE,TextEditorSupport>)
 else ()
   if (MSVC)
     qtc_output_binary_dir(_output_binary_dir)
     set_target_properties(TextEditor PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:${_output_binary_dir}/${IDE_BIN_PATH}/TextEditorSupport.lib")
   elseif (APPLE)
-    target_link_libraries(TextEditor PRIVATE -Wl,-force_load $<TARGET_LINKER_FILE:TextEditorSupport>)
+    target_link_libraries(TextEditor PRIVATE -Wl,-force_load "$<TARGET_LINKER_FILE:TextEditorSupport>")
   else ()
     target_link_libraries(TextEditor PRIVATE -Wl,--whole-archive $<TARGET_LINKER_FILE:TextEditorSupport> -Wl,--no-whole-archive)
   endif ()
