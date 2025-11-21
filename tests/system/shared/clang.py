@@ -44,4 +44,4 @@ def checkCodeModelSettings(useClang):
     __openCodeModelOptions__()
     test.log("Verifying whether 'Ignore pre-compiled headers' is unchecked by default.")
     verifyChecked("{text='Ignore precompiled headers' type='QCheckBox' visible='1'}", False)
-    clickButton(waitForObject(":Options.OK_QPushButton"))
+    clickButton(waitForObject(":Options.Apply_QPushButton"))

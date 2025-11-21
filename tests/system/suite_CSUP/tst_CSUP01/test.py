@@ -39,6 +39,7 @@ def main():
             createNewQtQuickApplication(tempDir(), "SampleApp")
             checkCodeModelSettings(useClang)
             changeAutocompleteToManual(False)
+            switchViewTo(ViewConstants.EDIT)
 # Step 2: Open .cpp file in Edit mode.
             if not openDocument("SampleApp.appSampleApp.Source Files.main\\.cpp"):
                 test.fatal("Could not open main.cpp")
@@ -100,6 +101,7 @@ def main():
 # uncheck Autocomplete common prefix and press Apply and then Ok . Return to Edit mode.
             test.log("Step 5: Change Code Completion settings")
             changeAutocompleteToManual()
+            switchViewTo(ViewConstants.EDIT)
 # Step 6: Insert text "ret" and press Ctrl+Space.
             editorWidget = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
             resetLine(editorWidget)

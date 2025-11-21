@@ -271,7 +271,7 @@ def addHelpDocumentation(which):
     for qch in which:
         clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
         selectFromFileDialog(qch)
-    clickButton(waitForObject(":Options.OK_QPushButton"))
+    clickButton(waitForObject(":Options.Apply_QPushButton"))
     progressBarWait(10000)  # Wait for "Update Documentation"
 
 
@@ -300,7 +300,7 @@ def addCurrentCreatorDocumentation():
                                   "window=%s}" % windowStr))
     except:
         test.fail("Added Qt Creator's documentation explicitly.")
-    clickButton(waitForObject(":Options.OK_QPushButton"))
+    clickButton(waitForObject(":Options.Apply_QPushButton"))
     progressBarWait(10000)  # Wait for "Update Documentation"
 
 
@@ -444,7 +444,7 @@ def iterateKits(clickOkWhenDone, alreadyOnOptionsDialog,
                            (t.__name__, str(v)))
             additionalResult.append(currResult)
     if clickOkWhenDone:
-        clickButton(waitForObject(":Options.OK_QPushButton"))
+        clickButton(waitForObject(":Options.Apply_QPushButton"))
     return result, additionalResult
 
 # set a help viewer that will always be used, regardless of Creator's width
@@ -464,7 +464,7 @@ def setFixedHelpViewer(helpViewer):
     elif helpViewer == HelpViewer.EXTERNALWINDOW:
         mode += "in External Window"
     selectFromCombo(":Startup.contextHelpComboBox_QComboBox", mode)
-    clickButton(waitForObject(":Options.OK_QPushButton"))
+    clickButton(waitForObject(":Options.Apply_QPushButton"))
 
 
 # returns the indices from a QAbstractItemModel
@@ -635,4 +635,4 @@ def setReloadBehavior(to):
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "System")
     selectFromCombo("{type='QComboBox' unnamed='1' leftWidget={type='QLabel' "
                     "text='When files are externally modified:'}}", to)
-    clickButton(":Options.OK_QPushButton")
+    clickButton(":Options.Apply_QPushButton")

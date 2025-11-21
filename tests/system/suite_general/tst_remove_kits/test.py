@@ -38,5 +38,6 @@ def main():
     switchViewTo(ViewConstants.PROJECTS)
     verifyProjectsMode(Targets.getTargetsAsStrings(Targets.availableTargetClasses(True)))
     iterateKits(True, False, __removeKit__)
+    switchViewTo(ViewConstants.PROJECTS)
     verifyProjectsMode([])
     invokeMenuItem("File", "Exit")

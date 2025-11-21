@@ -21,7 +21,7 @@ def verifySaveBeforeBuildChecked(shouldBeChecked):
 def ensureSaveBeforeBuildChecked(shouldBeChecked):
     __openBuildAndRunSettings__()
     ensureChecked(":Build and Run.Save all files before build_QCheckBox", shouldBeChecked)
-    clickButton(waitForObject(":Options.OK_QPushButton"))
+    clickButton(waitForObject(":Options.Apply_QPushButton"))
 
 
 def main():
@@ -31,10 +31,12 @@ def main():
     verifySaveBeforeBuildChecked(False)
     projectName = "SampleApp_CMake"
     ensureSaveBeforeBuildChecked(False)
+    switchViewTo(ViewConstants.EDIT)
     # create qt quick application
     createNewQtQuickApplication(tempDir(), projectName)
     for expectDialog in [True, False]:
         verifySaveBeforeBuildChecked(not expectDialog)
+        switchViewTo(ViewConstants.EDIT)
         files = ["%s.CMakeLists\\.txt" % projectName,
                  "%s.app%s.Source Files.main\\.cpp" % (projectName, projectName),
                  "%s.app%s.Source Files.Main\\.qml" % (projectName, projectName)]

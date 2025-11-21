@@ -84,7 +84,7 @@ def setKeyboardShortcutForAboutQtC():
         replaceEditorContent(shortcut, expectedKeys)
     else:
         test.compare(foundShortcut, expectedKeys, "Expected key sequence is displayed?")
-    clickButton(waitForObject(":Options.OK_QPushButton"))
+    clickButton(waitForObject(":Options.Apply_QPushButton"))
 
 def main():
     expectedVersion = getQtCreatorVersionFromFile()

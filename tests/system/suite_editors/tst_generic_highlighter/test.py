@@ -57,7 +57,7 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
             if toBeAddedSet:
                 patterns += ";*" + ";*".join(toBeAddedSet)
                 replaceEditorContent(patternsLineEd, patterns)
-                clickButton(":Options.OK_QPushButton")
+                clickButton(":Options.Apply_QPushButton")
                 try:
                     mBox = waitForObject("{type='QMessageBox' unnamed='1' visible='1' "
                                          "text?='Conflicting pattern*'}", 2000)
@@ -98,9 +98,9 @@ def addHighlighterDefinition(*languages):
 
     test.log("Trying to download definitions...")
     clickButton("{text='Download Definitions' type='QPushButton' unnamed='1' visible='1'}")
-    updateStatus = "{name='updateStatus' type='QLabel' visible='1'}"
-    waitFor("object.exists(updateStatus)", 5000)
-    if waitFor('str(findObject(updateStatus).text) == "Download finished"', 20000):
+    # Download Definitions automatically switches to Edit and opens General Messages
+    generalMessages = waitForObject(":Qt Creator_Core::OutputWindow")
+    if waitFor(lambda: 'Highlighter updates: done' in str(generalMessages.plainText), 20000):
         test.log("Received definitions")
         test.verify(os.path.exists(syntaxDirectory),
                     "Directory for syntax highlighter files exists.")
@@ -109,11 +109,9 @@ def addHighlighterDefinition(*languages):
                     "(Found %d)" % len(xmlFiles))
         # should we check output (General Messages) as well?
         test.passes("Updated definitions")
-        clickButton(":Options.OK_QPushButton")
         return map(os.path.exists, toBeChecked)
     else:
         test.fail("Could not update highlighter definitions")
-        clickButton(":Options.Cancel_QPushButton")
         return map(os.path.exists, toBeChecked)
 
 def hasSuffix(fileName, suffixPatterns):

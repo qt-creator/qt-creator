@@ -56,6 +56,7 @@ def main():
         qchs.extend([os.path.join(p, "qtopengl.qch"), os.path.join(p, "qtwidgets.qch")])
     addHelpDocumentation(qchs)
     setFixedHelpViewer(HelpViewer.HELPMODE)
+    switchViewTo(ViewConstants.WELCOME)
 
     # select "Examples" topic
     switchToSubMode('Examples')

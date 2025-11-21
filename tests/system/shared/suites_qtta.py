@@ -53,8 +53,8 @@ def changeAutocompleteToManual(toManual=True):
     if toManual:
         activateCompletion = "Manually"
     selectFromCombo(":Activate completion:_QComboBox", activateCompletion)
-    verifyEnabled(":Options.OK_QPushButton")
-    clickButton(waitForObject(":Options.OK_QPushButton"))
+    verifyEnabled(":Options.Apply_QPushButton")
+    clickButton(waitForObject(":Options.Apply_QPushButton"))
 
 # wait and verify if object item exists/not exists
 def checkIfObjectItemExists(object, item, timeout = 3000):

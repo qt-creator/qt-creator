@@ -19,7 +19,7 @@ def main():
         natName = "%s (%s)" % (str(locale.nativeLanguageName()), str(locale.nativeTerritoryName()))
         comboLanguageName = natName + " - " + languageName
         selectFromCombo(":User Interface.languageBox_QComboBox", comboLanguageName)
-        clickButton(waitForObject(":Options.OK_QPushButton"))
+        clickButton(waitForObject(":Options.Apply_QPushButton"))
         clickButton(waitForObject(":Restart required.Later_QPushButton"))
         test.verify(waitFor("not object.exists(':Options_Core::Internal::SettingsDialog')", 5000),
                     "Options dialog disappeared")
