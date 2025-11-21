@@ -1231,7 +1231,7 @@ FilePath BuildConfiguration::expandedBuildDirectory(
     FilePath buildDir = exp.expand(rawBuildDir);
     qCDebug(bcLog) << "expanded build dir:" << buildDir.toUserOutput();
 
-    buildDir = buildDir.withNewPath(FileUtils::qmakeFriendlyName(buildDir.path()));
+    buildDir = buildDir.withNewPath(buildDir.path().replace(" ", "-"));
     qCDebug(bcLog) << "sanitized build dir:" << buildDir.toUserOutput();
 
     buildDir = projectDir.resolvePath(buildDir);
