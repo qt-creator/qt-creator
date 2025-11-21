@@ -251,7 +251,8 @@ ProcessReaperImpl::ProcessReaperImpl()
     m_private->moveToThread(&m_thread);
     QObject::connect(&m_thread, &QThread::finished, m_private, &QObject::deleteLater);
     m_thread.start();
-    m_thread.moveToThread(qApp->thread());
+    if (QCoreApplication *app = QCoreApplication::instance())
+        m_thread.moveToThread(app->thread());
 }
 
 ProcessReaperImpl::~ProcessReaperImpl()
