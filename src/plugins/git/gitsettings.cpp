@@ -41,6 +41,18 @@ GitSettings::GitSettings()
     pullRebase.setSettingsKey("PullRebase");
     pullRebase.setLabelText(Tr::tr("Pull with rebase"));
 
+    rebaseMerges.setSettingsKey("RebaseMerges");
+    rebaseMerges.setDefaultValue(false);
+    rebaseMerges.setLabelText(Tr::tr("Allow rebasing merges"));
+    rebaseMerges.setToolTip(
+        Tr::tr("Allow rebasing merges in interactive rebase.\nRequires Git %1.").arg("2.18"));
+
+    updateRefs.setSettingsKey("UpdateRefs");
+    updateRefs.setDefaultValue(false);
+    updateRefs.setLabelText(Tr::tr("Allow updating refs"));
+    updateRefs.setToolTip(
+        Tr::tr("Allow updating references in interactive rebase.\nRequires Git %1.").arg("2.38"));
+
     showTags.setSettingsKey("ShowTags");
 
     omitAnnotationDate.setSettingsKey("OmitAnnotationDate");
@@ -141,7 +153,7 @@ GitSettings::GitSettings()
                 title(Tr::tr("Miscellaneous")),
                 Column {
                     Row { logCount, timeout, st },
-                    pullRebase
+                    Row { pullRebase, rebaseMerges, updateRefs, st },
                 }
             },
 

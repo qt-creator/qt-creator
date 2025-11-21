@@ -24,6 +24,7 @@ enum Format {
     Format_Label,
     Format_Reset,
     Format_Merge,
+    Format_UpdateRef,
     Format_Count
 };
 

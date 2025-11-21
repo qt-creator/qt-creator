@@ -3568,6 +3568,10 @@ void GitClient::interactiveRebase(const FilePath &workingDirectory, const QStrin
     QStringList arguments = {"rebase", "-i"};
     if (fixup)
         arguments << "--autosquash";
+    if (settings().rebaseMerges.value())
+        arguments << "--rebase-merges";
+    if (settings().updateRefs.value())
+        arguments << "--update-refs";
     arguments << commit + '^';
     if (fixup)
         m_disableEditor = true;

@@ -21,6 +21,8 @@ public:
     GitSettings();
 
     Utils::BoolAspect pullRebase{this};
+    Utils::BoolAspect rebaseMerges{this};
+    Utils::BoolAspect updateRefs{this};
     Utils::BoolAspect showTags{this};
     Utils::BoolAspect omitAnnotationDate{this};
     Utils::BoolAspect ignoreSpaceChangesInDiff{this};

@@ -100,6 +100,7 @@ static TextEditor::TextStyle styleForFormat(int format)
     case Format_Label: return C_LABEL;
     case Format_Reset: return C_LABEL;
     case Format_Merge: return C_LABEL;
+    case Format_UpdateRef: return C_KEYWORD;
     case Format_Count:
         QTC_CHECK(false); // should never get here
         return C_TEXT;
@@ -126,6 +127,7 @@ GitRebaseHighlighter::GitRebaseHighlighter(QChar commentChar, QTextDocument *par
     m_actions << RebaseAction("^(l|label)\\b", Format_Label);
     m_actions << RebaseAction("^(t|reset)\\b", Format_Reset);
     m_actions << RebaseAction("^(m|merge)\\b", Format_Merge);
+    m_actions << RebaseAction("^(u|update-ref)\\b", Format_UpdateRef);
 }
 
 void GitRebaseHighlighter::highlightBlock(const QString &text)
