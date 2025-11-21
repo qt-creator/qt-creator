@@ -1049,6 +1049,11 @@ void QMakeEvaluator::loadDefaults()
         archStr = ProString("x86_64");
         break;
 # endif
+# ifdef PROCESSOR_ARCHITECTURE_ARM64
+    case PROCESSOR_ARCHITECTURE_ARM64:
+        archStr = ProString("arm64");
+        break;
+# endif
     case PROCESSOR_ARCHITECTURE_INTEL:
         archStr = ProString("x86");
         break;

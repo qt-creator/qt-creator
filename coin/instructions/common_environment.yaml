@@ -130,7 +130,7 @@ instructions:
             enable_if:
               condition: property
               property: host.osVersion
-              contains_value: "RHEL"
+              equals_value: "RHEL_8_10"
         enable_if:
           condition: and
           conditions:

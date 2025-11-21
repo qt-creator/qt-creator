@@ -43,13 +43,15 @@ static QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &fla
     return flags;
 }
 
-static FilePath jsonObjectFilePath(const QJsonObject &object)
+static FilePath jsonObjectFilePath(const FilePath &projectFile, const QJsonObject &object)
 {
-    const FilePath workingDir = FilePath::fromUserInput(object["directory"].toString());
+    const FilePath workingDir = projectFile.withNewMappedPath(
+        FilePath::fromUserInput(object["directory"].toString()));
     return workingDir.resolvePath(object["file"].toString());
 }
 
-static std::vector<DbEntry> readJsonObjects(const QByteArray &projectFileContents)
+static std::vector<DbEntry> readJsonObjects(
+    const FilePath &projectFile, const QByteArray &projectFileContents)
 {
     std::vector<DbEntry> result;
 
@@ -67,7 +69,7 @@ static std::vector<DbEntry> readJsonObjects(const QByteArray &projectFileContent
         }
 
         const QJsonObject object = document.object();
-        const FilePath filePath = jsonObjectFilePath(object);
+        const FilePath filePath = jsonObjectFilePath(projectFile, object);
         const QStringList flags = filterFromFileName(jsonObjectFlags(object, flagsCache),
                                                      filePath.fileName());
         result.push_back({flags, filePath, FilePath::fromUserInput(object["directory"].toString())});
@@ -100,7 +102,7 @@ static DbContents parseProject(const QByteArray &projectFileContents,
                                const FilePath &projectFilePath)
 {
     DbContents dbContents;
-    dbContents.entries = readJsonObjects(projectFileContents);
+    dbContents.entries = readJsonObjects(projectFilePath, projectFileContents);
     dbContents.extraFileName = projectFilePath.stringAppended(
         Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX);
     dbContents.extras = readExtraFiles(dbContents.extraFileName);
