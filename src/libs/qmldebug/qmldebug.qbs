@@ -41,5 +41,7 @@ QtcLibrary {
         "qmltypedevent.h",
         "qpacketprotocol.cpp",
         "qpacketprotocol.h",
+        "quickeventreplayclient.cpp",
+        "quickeventreplayclient.h",
     ]
 }

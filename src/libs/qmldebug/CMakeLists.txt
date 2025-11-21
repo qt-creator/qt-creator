@@ -20,4 +20,5 @@ add_qtc_library(QmlDebug
     qmltoolsclient.cpp qmltoolsclient.h
     qmltypedevent.cpp qmltypedevent.h
     qpacketprotocol.cpp qpacketprotocol.h
+    quickeventreplayclient.cpp quickeventreplayclient.h
 )
