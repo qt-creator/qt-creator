@@ -6,6 +6,7 @@
 #include "airesponse.h"
 #include "claudemessagesapi.h"
 #include "openaicompletionsapi.h"
+#include "openairesponsesapi.h"
 
 #include <utils/qtcassert.h>
 
@@ -17,6 +18,7 @@ AiApiManager::AiApiManager()
     : m_networkManager(Utils::makeUniqueObjectPtr<QNetworkAccessManager>())
 {
     m_registeredApis.append(new OpenAiCompletionsApi()); // The first one is the default one
+    m_registeredApis.append(new OpenAiResponsesApi());
     m_registeredApis.append(new ClaudeMessagesApi());
 }
 

@@ -34,7 +34,9 @@ QString AiResponse::errorString() const
     case Error::EmptyMessage:
         return Tr::tr("Missing or invalid `content` string in `message`");
     case Error::RequestError:
-        return m_requestErrorString;
+        return Tr::tr("Request error: %1").arg(m_errorString);
+    case Error::StructureError:
+        return Tr::tr("Structure error: %1").arg(m_errorString);
     }
 
     const int errorNo = static_cast<int>(error());
@@ -71,7 +73,15 @@ AiResponse AiResponse::requestError(const QString &error)
 {
     AiResponse response;
     response.setError(Error::RequestError);
-    response.m_requestErrorString = error;
+    response.m_errorString = error;
+    return response;
+}
+
+AiResponse AiResponse::structureError(const QString &error)
+{
+    AiResponse response;
+    response.setError(Error::StructureError);
+    response.m_errorString = error;
     return response;
 }
 
