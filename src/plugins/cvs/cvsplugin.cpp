@@ -209,6 +209,9 @@ public:
     void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
         filelog(topLevel, relativePath.path(), true);
     }
+    void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
+        m_client->diff(topLevel, {relativePath.path()});
+    }
 
     QString vcsOpenText() const final;
 

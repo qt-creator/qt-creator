@@ -147,6 +147,9 @@ public:
         const QStringList options = {"--limit=" + QString::number(settings().logCount())};
         m_client.log(topLevel, {relativePath.path()}, options);
     }
+    void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
+        m_client.diff(topLevel, {relativePath.path()});
+    }
     void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source, id); }
 
     ExecutableItem cloneTask(const CloneTaskData &data) const final;

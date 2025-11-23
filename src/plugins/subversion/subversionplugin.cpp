@@ -162,6 +162,9 @@ public:
     void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
         filelog(topLevel, relativePath.path());
     }
+    void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
+        subversionClient().showDiffEditor(topLevel, {relativePath.path()});
+    }
     void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 
     ExecutableItem cloneTask(const CloneTaskData &data) const final;

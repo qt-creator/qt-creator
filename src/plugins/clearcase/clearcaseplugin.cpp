@@ -136,6 +136,9 @@ public:
     void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
         history(topLevel, {relativePath.path()});
     }
+    void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
+        ccDiffWithPred(topLevel, {relativePath.path()});
+    }
     void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 
     QString vcsOpenText() const final;

@@ -96,6 +96,10 @@ public:
         fossilClient().log(topLevel, {relativePath.path()}, options);
     }
 
+    void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
+        fossilClient().diff(topLevel, {relativePath.path()});
+    }
+
     ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     void updateActions(VersionControlBase::ActionState) override;

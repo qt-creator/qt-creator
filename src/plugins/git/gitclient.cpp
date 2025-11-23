@@ -1091,20 +1091,32 @@ static QStringList diffModeArguments(GitClient::DiffMode diffMode, QStringList a
     return args;
 }
 
+void GitClient::diffPath(const FilePath &workingDirectory, const QString &relativePath,
+                         DiffMode diffMode, QString title) const
+{
+    if (title.isEmpty()) {
+        title = (diffMode == Staged)
+            ? Tr::tr("Git Diff Staged %1").arg(relativePath)
+            : Tr::tr("Git Diff %1").arg(relativePath);
+    }
+    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
+                               + QLatin1String(".DiffPath.")
+                               + workingDirectory.pathAppended(relativePath).toUrlishString();
+    const QStringList args = diffModeArguments(diffMode, {"--", relativePath});
+    requestReload(documentId,
+                  workingDirectory, title, workingDirectory,
+                  [&args](IDocument *doc) {
+                      return new GitDiffEditorController(doc, {}, {}, args);
+                  });
+}
+
 void GitClient::diffProject(const FilePath &workingDirectory, const QString &projectDirectory,
                             DiffMode diffMode) const
 {
     const QString title = (diffMode == Staged)
         ? Tr::tr("Git Diff Staged Project Changes")
         : Tr::tr("Git Diff Project");
-    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
-            + QLatin1String(".DiffProject.") + workingDirectory.toUrlishString();
-    const QStringList args = diffModeArguments(diffMode, {"--", projectDirectory});
-    requestReload(documentId,
-                  workingDirectory, title, workingDirectory,
-                  [&args](IDocument *doc) {
-                      return new GitDiffEditorController(doc, {}, {}, args);
-                  });
+    diffPath(workingDirectory, projectDirectory, diffMode, title);
 }
 
 void GitClient::diffRepository(const FilePath &workingDirectory,

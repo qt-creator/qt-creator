@@ -160,6 +160,8 @@ public:
     void diffFiles(const Utils::FilePath &workingDirectory,
                    const QStringList &unstagedFileNames,
                    const QStringList &stagedFileNames) const;
+    void diffPath(const Utils::FilePath &workingDirectory, const QString &relativePath,
+                  DiffMode diffMode = Unstaged, QString title = {}) const;
     void diffProject(const Utils::FilePath &workingDirectory,
                      const QString &projectDirectory, DiffMode diffMode = Unstaged) const;
     void diffUnstagedRepository(const Utils::FilePath &workingDirectory)

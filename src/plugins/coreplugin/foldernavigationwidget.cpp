@@ -753,10 +753,18 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         FilePath topLevel;
         if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
             //: %1 = version control name, %2 = file or directory name
+            const QString diffText = Tr::tr("%1 Diff for \"%2\"")
+                                         .arg(vc->displayName(), current.data().toString());
+            QAction *vcsDiff = menu.addAction(diffText);
+            const FilePath relativePath = filePath.relativeChildPath(topLevel);
+            connect(vcsDiff, &QAction::triggered, this, [vc, topLevel, relativePath] {
+                const FilePath path = relativePath.isEmpty() ? "." : relativePath;
+                vc->vcsDiff(topLevel, path);
+            });
+            //: %1 = version control name, %2 = file or directory name
             const QString logText = Tr::tr("%1 Log for \"%2\"")
                                         .arg(vc->displayName(), current.data().toString());
             QAction *vcsLog = menu.addAction(logText);
-            const FilePath relativePath = filePath.relativeChildPath(topLevel);
             connect(vcsLog, &QAction::triggered, this, [vc, topLevel, relativePath] {
                 vc->vcsLog(topLevel, relativePath);
             });

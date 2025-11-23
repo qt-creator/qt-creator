@@ -169,6 +169,9 @@ public:
     void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
         changelists(topLevel, relativePath.path());
     }
+    void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
+        p4Diff(topLevel, {relativePath.path()});
+    }
     void vcsDescribe(const Utils::FilePath &source, const QString &n) final;
     QString vcsOpenText() const final;
     QString vcsMakeWritableText() const final;

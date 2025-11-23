@@ -628,6 +628,7 @@ public:
     bool vcsCreateRepository(const FilePath &) final { return false; }
     void vcsAnnotate(const FilePath &, int) final {}
     void vcsLog(const Utils::FilePath &, const Utils::FilePath &) final {};
+    void vcsDiff(const Utils::FilePath &, const Utils::FilePath &) final {};
     void vcsDescribe(const FilePath &, const QString &) final {}
 
 private:

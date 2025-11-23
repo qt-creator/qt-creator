@@ -190,6 +190,12 @@ public:
                         const Utils::FilePath &relativePath) = 0;
 
     /*!
+     * Shows the diff for the \a relativePath within \a toplevel.
+     */
+    virtual void vcsDiff(const Utils::FilePath &topLevel,
+                         const Utils::FilePath &relativePath) = 0;
+
+    /*!
      * Display text for Open operation
      */
     virtual QString vcsOpenText() const;

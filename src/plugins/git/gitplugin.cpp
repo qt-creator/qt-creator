@@ -172,6 +172,9 @@ public:
     void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
         gitClient().log(topLevel, relativePath.toUrlishString(), true);
     }
+    void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
+        gitClient().diffPath(topLevel, relativePath.toUrlishString());
+    }
     void vcsDescribe(const FilePath &source, const QString &id) final { gitClient().show(source, id); }
     QString vcsTopic(const FilePath &directory) final;
 

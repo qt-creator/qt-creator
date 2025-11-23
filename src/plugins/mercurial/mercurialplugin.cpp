@@ -99,6 +99,9 @@ public:
     void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
         mercurialClient().log(topLevel, {relativePath.path()});
     }
+    void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
+        mercurialClient().diff(topLevel, {relativePath.path()});
+    }
     void vcsDescribe(const FilePath &source, const QString &id) final
     {
         mercurialClient().view(source, id);
