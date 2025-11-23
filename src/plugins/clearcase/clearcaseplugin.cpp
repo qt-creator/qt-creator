@@ -133,8 +133,8 @@ public:
     bool vcsCreateRepository(const FilePath &directory) final;
 
     void vcsAnnotate(const FilePath &file, int line) final;
-    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativeDirectory) final {
-        history(topLevel, {relativeDirectory.path()});
+    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
+        history(topLevel, {relativePath.path()});
     }
     void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 

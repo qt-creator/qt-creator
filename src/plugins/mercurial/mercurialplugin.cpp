@@ -96,8 +96,8 @@ public:
     bool vcsMove(const FilePath &from, const FilePath &to) final;
     bool vcsCreateRepository(const FilePath &directory) final;
     void vcsAnnotate(const FilePath &filePath, int line) final;
-    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativeDirectory) final {
-        mercurialClient().log(topLevel, {relativeDirectory.path()});
+    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
+        mercurialClient().log(topLevel, {relativePath.path()});
     }
     void vcsDescribe(const FilePath &source, const QString &id) final
     {

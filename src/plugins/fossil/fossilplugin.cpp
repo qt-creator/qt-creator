@@ -86,14 +86,14 @@ public:
 
     void vcsAnnotate(const FilePath &file, int line) final;
     void vcsDescribe(const FilePath &source, const QString &id) final;
-    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativeDirectory) final {
+    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
         FossilClient::SupportedFeatures features = fossilClient().supportedFeatures();
         QStringList options = {"-n", QString::number(fossilClient().settings().logCount())};
 
         if (features.testFlag(FossilClient::TimelineWidthFeature))
             options << "-W" << QString::number(fossilClient().settings().timelineWidth());
 
-        fossilClient().log(topLevel, {relativeDirectory.path()}, options);
+        fossilClient().log(topLevel, {relativePath.path()}, options);
     }
 
     ExecutableItem cloneTask(const CloneTaskData &data) const final;
