@@ -247,6 +247,7 @@ const char OPENFILE[]             = "ProjectExplorer.OpenFile";
 const char SEARCHONFILESYSTEM[]   = "ProjectExplorer.SearchOnFileSystem";
 const char VCS_LOG[]              = "ProjectExplorer.VcsLog";
 const char VCS_DIFF[]             = "ProjectExplorer.VcsDiff";
+const char VCS_ANNOTATE[]         = "ProjectExplorer.VcsAnnotate";
 const char OPENTERMINALHERE[]     = "ProjectExplorer.OpenTerminalHere";
 const char SHOWINFILESYSTEMVIEW[] = "ProjectExplorer.OpenFileSystemView";
 const char DUPLICATEFILE[]        = "ProjectExplorer.DuplicateFile";
@@ -556,6 +557,7 @@ public:
     void searchOnFileSystem();
     void vcsLog();
     void vcsDiff();
+    void vcsAnnotate();
     void showInGraphicalShell();
     void showInFileSystemPane();
     void removeFile();
@@ -666,6 +668,7 @@ public:
     QAction *m_searchOnFileSystem;
     QAction *m_vcsLogAction = nullptr;
     QAction *m_vcsDiffAction = nullptr;
+    QAction *m_vcsAnnotateAction = nullptr;
     QAction *m_showInGraphicalShell;
     QAction *m_showFileSystemPane;
     QAction *m_openTerminalHereSysEnv;
@@ -1250,6 +1253,12 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_CONFIG);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
+
+    // VCS annotate file action
+    dd->m_vcsAnnotateAction = new QAction(Tr::tr("VCS Annotate File"), this);
+    cmd = ActionManager::registerAction(dd->m_vcsAnnotateAction, Constants::VCS_ANNOTATE, projectTreeContext);
+    cmd->setAttribute(Command::CA_UpdateText);
+    mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     dd->m_showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), this);
     cmd = ActionManager::registerAction(dd->m_showInGraphicalShell,
@@ -1963,6 +1972,8 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
             &ProjectExplorerPluginPrivate::vcsLog);
     connect(dd->m_vcsDiffAction, &QAction::triggered, dd,
             &ProjectExplorerPluginPrivate::vcsDiff);
+    connect(dd->m_vcsAnnotateAction, &QAction::triggered, dd,
+            &ProjectExplorerPluginPrivate::vcsAnnotate);
     connect(dd->m_showInGraphicalShell, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::showInGraphicalShell);
     // the following can delete the projects view that triggered the action, so make sure we
@@ -3568,6 +3579,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_searchOnFileSystem->setVisible(true);
     m_vcsLogAction->setVisible(false);
     m_vcsDiffAction->setVisible(false);
+    m_vcsAnnotateAction->setVisible(false);
 
     ActionContainer *runMenu = ActionManager::actionContainer(Constants::RUNMENUCONTEXTMENU);
     runMenu->menu()->clear();
@@ -3693,6 +3705,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
             m_searchOnFileSystem->setVisible(false);
             m_vcsLogAction->setVisible(false);
             m_vcsDiffAction->setVisible(false);
+            m_vcsAnnotateAction->setVisible(false);
         }
 
         if (supports(HideFileActions)) {
@@ -4004,6 +4017,17 @@ void ProjectExplorerPluginPrivate::vcsDiff()
     }
 }
 
+void ProjectExplorerPluginPrivate::vcsAnnotate()
+{
+    const Node *currentNode = ProjectTree::currentNode();
+    QTC_ASSERT(currentNode, return);
+    const FilePath filePath = currentNode->path();
+    FilePath topLevel;
+    if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
+        vc->vcsAnnotate(filePath, 1);
+    }
+}
+
 void ProjectExplorerPluginPrivate::showInGraphicalShell()
 {
     Node *currentNode = ProjectTree::currentNode();
@@ -4302,6 +4326,9 @@ void ProjectExplorerPlugin::updateVcsActions(const QString &vcsDisplayName, cons
     //: %1 = version control name, %2 file or directory
     dd->m_vcsDiffAction->setText(Tr::tr("%1 Diff for \"%2\"").arg(vcsDisplayName, pathName));
     dd->m_vcsDiffAction->setVisible(!vcsDisplayName.isEmpty());
+    //: %1 = version control name, %2 file or directory
+    dd->m_vcsAnnotateAction->setText(Tr::tr("%1 Annotate \"%2\"").arg(vcsDisplayName, pathName));
+    dd->m_vcsAnnotateAction->setVisible(!vcsDisplayName.isEmpty());
 }
 
 QWidget *ProjectExplorerPlugin::createRecentProjectsView()

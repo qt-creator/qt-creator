@@ -768,6 +768,15 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
             connect(vcsLog, &QAction::triggered, this, [vc, topLevel, relativePath] {
                 vc->vcsLog(topLevel, relativePath);
             });
+            if (!isDir) {
+                //: %1 = version control name, %2 = filename
+                const QString annotateText = Tr::tr("%1 Annotate \"%2\"")
+                                             .arg(vc->displayName(), current.data().toString());
+                QAction *vcsAnnotate = menu.addAction(annotateText);
+                connect(vcsAnnotate, &QAction::triggered, this, [vc, filePath] {
+                    vc->vcsAnnotate(filePath, 1);
+                });
+            }
         }
 
         menu.addAction(ActionManager::command(ADDNEWFILE)->action());
