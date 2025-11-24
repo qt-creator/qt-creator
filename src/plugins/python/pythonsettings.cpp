@@ -12,6 +12,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/processprogress.h>
 
+#include <debugger/debuggerkitaspect.h>
+
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
@@ -772,7 +774,8 @@ static void setRelevantAspectsToKit(Kit *k)
 {
     QTC_ASSERT(k, return);
     QSet<Utils::Id> relevantAspects = k->relevantAspects();
-    relevantAspects.unite({PythonKitAspect::id(), EnvironmentKitAspect::id()});
+    relevantAspects.unite(
+        {PythonKitAspect::id(), EnvironmentKitAspect::id(), Debugger::DebuggerKitAspect::id()});
     k->setRelevantAspects(relevantAspects);
 }
 

@@ -1,5 +1,5 @@
 add_qtc_plugin(Python
-  PLUGIN_DEPENDS Core LanguageClient ProjectExplorer TextEditor QtSupport
+  PLUGIN_DEPENDS Core LanguageClient ProjectExplorer TextEditor QtSupport Debugger
   SOURCES
     ../../libs/3rdparty/toml11/toml.hpp
     pipsupport.cpp pipsupport.h

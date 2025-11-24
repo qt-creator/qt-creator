@@ -8,6 +8,7 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
+    Depends { name: "Debugger" }
     Depends { name: "LanguageClient" }
     Depends { name: "LanguageServerProtocol" }
     Depends { name: "ProjectExplorer" }
