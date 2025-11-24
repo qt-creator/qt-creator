@@ -27,7 +27,7 @@ public:
     QVariantMap details(int index) const override;
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
-    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
     void finalize() override;
     void clear() override;
     QVariantMap location(int index) const override;

@@ -7,6 +7,7 @@
 
 #include <QTest>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 MemoryUsageModelTest::MemoryUsageModelTest()

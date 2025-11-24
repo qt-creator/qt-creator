@@ -12,6 +12,7 @@
 #include <QSet>
 #include <QString>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 static inline quint64 supportedFeatures()

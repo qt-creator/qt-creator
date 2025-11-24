@@ -8,6 +8,7 @@
 
 #include <QTest>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 PixmapCacheModelTest::PixmapCacheModelTest()

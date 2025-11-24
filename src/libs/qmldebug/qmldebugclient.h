@@ -4,9 +4,9 @@
 #pragma once
 
 #include "qmldebug_global.h"
-#include <qtcpsocket.h>
 
 #include <QDataStream>
+#include <QTcpSocket>
 
 namespace QmlDebug {
 

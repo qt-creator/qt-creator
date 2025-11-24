@@ -13,15 +13,16 @@ class InputEventsModel : public QmlProfilerTimelineModel
 
 public:
     struct Item {
-        Item(InputEventType type = UndefinedInputEventType, int a = 0, int b = 0);
-        InputEventType type;
+        Item(QmlDebug::InputEventType type = QmlDebug::UndefinedInputEventType,
+             int a = 0, int b = 0);
+        QmlDebug::InputEventType type;
         int a;
         int b;
     };
 
     InputEventsModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
-    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
     void finalize() override;
     void clear() override;
 

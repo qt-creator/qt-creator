@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include "qmldebug_global.h"
 #include "qmlprofilereventtypes.h"
 
 #include <tracing/traceevent.h>
@@ -15,9 +16,9 @@
 #include <limits>
 #include <type_traits>
 
-namespace QmlProfiler {
+namespace QmlDebug {
 
-class QmlEvent : public Timeline::TraceEvent
+class QMLDEBUG_EXPORT QmlEvent : public Timeline::TraceEvent
 {
 public:
     static const qint32 staticClassId = 0x716d6c65; // 'qmle';
@@ -281,17 +282,29 @@ private:
             free(m_data.external);
     }
 
-    friend QDataStream &operator>>(QDataStream &stream, QmlEvent &event);
-    friend QDataStream &operator<<(QDataStream &stream, const QmlEvent &event);
+    friend QMLDEBUG_EXPORT QDataStream &operator>>(QDataStream &stream, QmlEvent &event);
+    friend QMLDEBUG_EXPORT QDataStream &operator<<(QDataStream &stream, const QmlEvent &event);
+
+    friend bool operator==(const QmlEvent &event1, const QmlEvent &event2)
+    {
+        if (event1.timestamp() != event2.timestamp() || event1.typeIndex() != event2.typeIndex())
+            return false;
+
+        // This is not particularly efficient, but we also don't need to do this very often.
+        return event1.numbers<QVarLengthArray<qint64>>()
+               == event2.numbers<QVarLengthArray<qint64>>();
+    }
+
+    friend bool operator!=(const QmlEvent &event1, const QmlEvent &event2)
+    {
+        return !(event1 == event2);
+    }
 };
 
-QDataStream &operator>>(QDataStream &stream, QmlEvent &event);
-QDataStream &operator<<(QDataStream &stream, const QmlEvent &event);
+} // namespace QmlDebug
 
-} // namespace QmlProfiler
-
-Q_DECLARE_METATYPE(QmlProfiler::QmlEvent)
+Q_DECLARE_METATYPE(QmlDebug::QmlEvent)
 
 QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(QmlProfiler::QmlEvent, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QmlDebug::QmlEvent, Q_MOVABLE_TYPE);
 QT_END_NAMESPACE

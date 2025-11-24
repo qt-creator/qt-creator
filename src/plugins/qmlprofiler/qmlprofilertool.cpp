@@ -74,6 +74,7 @@ using namespace Core;
 using namespace Core::Constants;
 using namespace Debugger;
 using namespace Debugger::Constants;
+using namespace QmlDebug;
 using namespace QmlProfiler::Constants;
 using namespace ProjectExplorer;
 using namespace Utils;

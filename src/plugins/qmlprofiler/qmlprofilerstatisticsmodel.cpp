@@ -11,6 +11,7 @@
 
 #include <functional>
 
+using namespace QmlDebug;
 namespace QmlProfiler {
 
 QString nameForType(RangeType typeNumber)

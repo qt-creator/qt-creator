@@ -1,16 +1,17 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmlprofilereventtypes.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilertr.h"
 #include "scenegraphtimelinemodel.h"
 
+#include <qmldebug/qmlprofilereventtypes.h>
 #include <tracing/timelineformattime.h>
 
 #include <QCoreApplication>
 #include <QDebug>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 static const char *ThreadLabels[] = {

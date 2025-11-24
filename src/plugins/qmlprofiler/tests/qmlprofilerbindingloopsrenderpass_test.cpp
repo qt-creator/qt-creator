@@ -10,6 +10,7 @@
 
 #include <QTest>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 class DummyModel : public QmlProfilerRangeModel

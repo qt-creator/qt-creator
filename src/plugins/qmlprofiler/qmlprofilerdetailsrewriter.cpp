@@ -18,6 +18,7 @@
 
 #include <QDebug>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal{
 
 class PropertyVisitor : protected QmlJS::AST::Visitor

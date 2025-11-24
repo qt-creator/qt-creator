@@ -50,7 +50,7 @@ void QmlProfilerTextMarkModel::clear()
     m_ids.clear();
 }
 
-void QmlProfilerTextMarkModel::addTextMarkId(int typeId, const QmlEventLocation &location)
+void QmlProfilerTextMarkModel::addTextMarkId(int typeId, const QmlDebug::QmlEventLocation &location)
 {
     m_ids.insert(location.filename(), {typeId, location.line(), location.column()});
 }

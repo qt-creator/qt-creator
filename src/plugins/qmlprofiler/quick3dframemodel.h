@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "qmlprofilereventtypes.h"
-#include "qmlevent.h"
-#include "qmleventtype.h"
+#include <qmldebug/qmlevent.h>
+#include <qmldebug/qmleventtype.h>
+#include <qmldebug/qmlprofilereventtypes.h>
 
 #include <utils/qtcassert.h>
 
@@ -129,7 +129,7 @@ public:
 
 private:
     QList<int> frameIndices(const QString &view3DFilter) const;
-    void loadEvent(const QmlEvent &event, const QmlEventType &type);
+    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type);
     Item *findParent(int child);
     const Item *findFrameGroup(const Item *item) const;
     void finalize();

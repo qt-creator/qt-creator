@@ -19,6 +19,7 @@
 
 #include <functional>
 
+using namespace QmlDebug;
 namespace QmlProfiler {
 
 static const char *ProfileFeatureNames[] = {

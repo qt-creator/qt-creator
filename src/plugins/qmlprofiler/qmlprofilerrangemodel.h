@@ -4,9 +4,10 @@
 #pragma once
 
 #include "qmlprofilertimelinemodel.h"
-#include "qmlprofilereventtypes.h"
-#include "qmleventlocation.h"
 #include "qmlprofilerconstants.h"
+
+#include <qmldebug/qmleventlocation.h>
+#include <qmldebug/qmlprofilereventtypes.h>
 
 #include <QVariantList>
 #include <QColor>
@@ -29,7 +30,7 @@ public:
         int bindingLoopHead = -1;
     };
 
-    QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range,
+    QmlProfilerRangeModel(QmlProfilerModelManager *manager, QmlDebug::RangeType range,
                           Timeline::TimelineModelAggregator *parent);
 
     Q_INVOKABLE int expandedRow(int index) const override;
@@ -46,7 +47,7 @@ public:
     QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const override;
 
 protected:
-    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
     void finalize() override;
     void clear() override;
 

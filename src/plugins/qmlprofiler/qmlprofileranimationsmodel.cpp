@@ -14,6 +14,7 @@
 #include <QString>
 #include <QStack>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *manager,

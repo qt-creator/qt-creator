@@ -17,6 +17,7 @@
 #include <QString>
 #include <QUrl>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 QmlProfilerRangeModel::QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range,

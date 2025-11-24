@@ -2,16 +2,17 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "inputeventsmodel.h"
-#include "qmlprofilereventtypes.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilertr.h"
 
+#include <qmldebug/qmlprofilereventtypes.h>
 #include <tracing/timelineformattime.h>
 
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QMetaEnum>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 InputEventsModel::InputEventsModel(QmlProfilerModelManager *manager,

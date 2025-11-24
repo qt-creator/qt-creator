@@ -4,8 +4,8 @@
 #pragma once
 
 #include "qmlprofilernotesmodel.h"
-#include "qmlprofilereventtypes.h"
 
+#include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
 
 #include <QHash>
@@ -127,7 +127,7 @@ public:
     static const int s_invalidTypeId = -1;
 
 private:
-    void loadEvent(const QmlEvent &event, const QmlEventType &type);
+    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type);
     void finalize();
 
     void typeDetailsChanged(int typeIndex);
@@ -144,11 +144,11 @@ private:
     QPointer<QmlProfilerStatisticsRelativesModel> m_callersModel;
     QPointer<QmlProfilerModelManager> m_modelManager;
 
-    QList<RangeType> m_acceptedTypes;
+    QList<QmlDebug::RangeType> m_acceptedTypes;
     QHash<int, QString> m_notes;
 
-    QStack<QmlEvent> m_callStack;
-    QStack<QmlEvent> m_compileStack;
+    QStack<QmlDebug::QmlEvent> m_callStack;
+    QStack<QmlDebug::QmlEvent> m_compileStack;
 
     qint64 m_rootDuration = 0;
 };
@@ -174,7 +174,7 @@ public:
                                         QmlProfilerStatisticsRelation relation);
 
     void clear();
-    void loadEvent(RangeType type, const QmlEvent &event, bool isRecursive);
+    void loadEvent(QmlDebug::RangeType type, const QmlDebug::QmlEvent &event, bool isRecursive);
 
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;

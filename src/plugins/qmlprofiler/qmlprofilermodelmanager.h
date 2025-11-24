@@ -4,11 +4,12 @@
 #pragma once
 
 #include "qmlprofiler_global.h"
-#include "qmlprofilereventtypes.h"
-#include "qmleventlocation.h"
-#include "qmlevent.h"
-#include "qmleventtype.h"
 #include "qmlprofilertextmark.h"
+
+#include <qmldebug/qmlevent.h>
+#include <qmldebug/qmleventlocation.h>
+#include <qmldebug/qmleventtype.h>
+#include <qmldebug/qmlprofilereventtypes.h>
 
 #include <utils/fileinprojectfinder.h>
 #include <tracing/timelinetracemanager.h>
@@ -28,7 +29,8 @@ class QMLPROFILER_EXPORT QmlProfilerModelManager : public Timeline::TimelineTrac
 {
     Q_OBJECT
 public:
-    using QmlEventLoader = std::function<void (const QmlEvent &, const QmlEventType &)>;
+    using QmlEventLoader
+        = std::function<void (const QmlDebug::QmlEvent &, const QmlDebug::QmlEventType &)>;
     using QmlEventFilter = std::function<QmlEventLoader (QmlEventLoader)>;
 
     explicit QmlProfilerModelManager(QObject *parent = nullptr);
@@ -40,7 +42,7 @@ public:
                           Initializer initializer = nullptr, Finalizer finalizer = nullptr,
                           Clearer clearer = nullptr);
 
-    const QmlEventType &eventType(int typeId) const;
+    const QmlDebug::QmlEventType &eventType(int typeId) const;
 
     void replayQmlEvents(QmlEventLoader loader, Initializer initializer, Finalizer finalizer,
                          ErrorHandler errorHandler, QFutureInterface<void> &future) const;
@@ -51,11 +53,11 @@ public:
     void populateFileFinder(const ProjectExplorer::BuildConfiguration *bc = nullptr);
     Utils::FilePath findLocalFile(const QString &remoteFile);
 
-    static const char *featureName(ProfileFeature feature);
+    static const char *featureName(QmlDebug::ProfileFeature feature);
 
-    int appendEventType(QmlEventType &&type);
-    void setEventType(int typeId, QmlEventType &&type);
-    void appendEvent(QmlEvent &&event);
+    int appendEventType(QmlDebug::QmlEventType &&type);
+    void setEventType(int typeId, QmlDebug::QmlEventType &&type);
+    void appendEvent(QmlDebug::QmlEvent &&event);
 
     void restrictToRange(qint64 start, qint64 end);
     bool isRestrictedToRange() const;

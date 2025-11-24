@@ -1,12 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
-#include "qmleventtype_test.h"
-#include <qmlprofiler/qmleventtype.h>
+#include "tst_qmleventtype.h"
+#include <qmldebug/qmleventtype.h>
 
 #include <QBuffer>
 #include <QTest>
 
-namespace QmlProfiler::Internal {
+using namespace QmlDebug;
 
 QmlEventTypeTest::QmlEventTypeTest() = default;
 
@@ -122,4 +122,4 @@ void QmlEventTypeTest::testStreamOps()
     QCOMPARE(type.location(), type2.location());
 }
 
-} // namespace QmlProfiler::Internal
+QTEST_GUILESS_MAIN(QmlEventTypeTest)

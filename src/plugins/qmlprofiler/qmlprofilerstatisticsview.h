@@ -6,7 +6,8 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatisticsmodel.h"
 #include "qmlprofilereventsview.h"
-#include "qmlprofilereventtypes.h"
+
+#include <qmldebug/qmlprofilereventtypes.h>
 
 #include <utils/itemviews.h>
 

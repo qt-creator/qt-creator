@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include "qmleventlocation.h"
-
+#include <qmldebug/qmleventlocation.h>
 #include <projectexplorer/runconfiguration.h>
 #include <qmljs/qmljsdocument.h>
 #include <utils/fileinprojectfinder.h>
@@ -21,7 +20,7 @@ public:
     explicit QmlProfilerDetailsRewriter(QObject *parent = nullptr);
 
     void clear();
-    void requestDetailsForLocation(int typeId, const QmlEventLocation &location);
+    void requestDetailsForLocation(int typeId, const QmlDebug::QmlEventLocation &location);
     Utils::FilePath getLocalFile(const QString &remoteFile);
     void reloadDocuments();
     void populateFileFinder(const ProjectExplorer::BuildConfiguration *bc);
@@ -32,7 +31,7 @@ signals:
 
 private:
     struct PendingEvent {
-        QmlEventLocation location;
+        QmlDebug::QmlEventLocation location;
         int typeId;
     };
 
@@ -40,7 +39,7 @@ private:
     Utils::FileInProjectFinder m_projectFinder;
 
     void rewriteDetailsForLocation(const QString &source, QmlJS::Document::Ptr doc, int typeId,
-                                   const QmlEventLocation &location);
+                                   const QmlDebug::QmlEventLocation &location);
     void connectQmlModel();
     void disconnectQmlModel();
     void documentReady(QmlJS::Document::Ptr doc);

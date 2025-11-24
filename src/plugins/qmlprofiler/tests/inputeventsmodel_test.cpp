@@ -9,6 +9,7 @@
 
 #include <QTest>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 static InputEventType inputType(int i)

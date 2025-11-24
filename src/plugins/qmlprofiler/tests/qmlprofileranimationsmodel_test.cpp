@@ -6,6 +6,7 @@
 #include <tracing/timelineformattime.h>
 #include <QTest>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 QmlProfilerAnimationsModelTest::QmlProfilerAnimationsModelTest()

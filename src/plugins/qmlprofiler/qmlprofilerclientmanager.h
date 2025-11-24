@@ -3,10 +3,9 @@
 
 #pragma once
 
-#include "qmlprofilertraceclient.h"
-
 #include <qmldebug/qmldebugclient.h>
 #include <qmldebug/qmldebugconnectionmanager.h>
+#include <qmldebug/qmlprofilertraceclient.h>
 
 #include <QPointer>
 #include <QTimer>
@@ -36,7 +35,7 @@ protected:
     void logState(const QString &message) override;
 
 private:
-    QPointer<QmlProfilerTraceClient> m_clientPlugin;
+    QPointer<QmlDebug::QmlProfilerTraceClient> m_clientPlugin;
     QPointer<QmlProfilerStateManager> m_profilerState;
     QPointer<QmlProfilerModelManager> m_modelManager;
     quint32 m_flushInterval = 0;

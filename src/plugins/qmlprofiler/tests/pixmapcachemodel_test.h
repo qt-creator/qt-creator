@@ -30,7 +30,7 @@ private:
     Timeline::TimelineModelAggregator aggregator;
     PixmapCacheModel model;
 
-    int eventTypeIndices[2 * MaximumPixmapEventType];
+    int eventTypeIndices[2 * QmlDebug::MaximumPixmapEventType];
 };
 
 } // namespace QmlProfiler::Internal

@@ -3,26 +3,16 @@
 
 #pragma once
 
-#include <qmlprofiler/qmlevent.h>
-
 #include <QObject>
 
-namespace QmlProfiler::Internal {
-
-class QmlEventTest : public QObject
+class QmlEventLocationTest : public QObject
 {
     Q_OBJECT
 
 public:
-    QmlEventTest();
+    QmlEventLocationTest();
 
 private slots:
-    void testCtors();
-    void testNumbers();
-    void testMaxSize();
+    void testCtor();
     void testStreamOps();
-
 };
-
-} // namespace QmlProfiler::Internal
-

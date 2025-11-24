@@ -3,21 +3,21 @@
 
 #pragma once
 
+#include <qmldebug/qmlevent.h>
+
 #include <QObject>
 
-namespace QmlProfiler::Internal {
-
-class QmlEventTypeTest : public QObject
+class QmlEventTest : public QObject
 {
     Q_OBJECT
 
 public:
-    QmlEventTypeTest();
+    QmlEventTest();
 
 private slots:
-    void testAccessors();
-    void testFeature();
+    void testCtors();
+    void testNumbers();
+    void testMaxSize();
     void testStreamOps();
 };
 
-} // namespace QmlProfiler::Internal

@@ -3,28 +3,30 @@
 
 #pragma once
 
-#include "qmlprofilereventtypes.h"
-#include "qmleventlocation.h"
-#include "qmlprofiler_global.h"
-#include "qmltypedevent.h"
+#include "qmldebug_global.h"
 
-#include <qmldebug/qmldebugclient.h>
+#include "qmldebugclient.h"
+#include "qmleventlocation.h"
+#include "qmlprofilereventtypes.h"
+#include "qmltypedevent.h"
 
 #include <QStack>
 #include <QStringList>
 
-namespace QmlProfiler {
+namespace QmlDebug {
 
-class QmlProfilerModelManager;
-class QmlProfilerTraceClient : public QmlDebug::QmlDebugClient
+class QMLDEBUG_EXPORT QmlProfilerTraceClient : public QmlDebugClient
 {
     Q_OBJECT
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
 
 public:
-    QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client,
-                           QmlProfilerModelManager *modelManager,
-                           quint64 features);
+    using EventTypeLoader = std::function<int(QmlEventType &&)>;
+    using EventLoader = std::function<void(QmlEvent &&)>;
+
+    QmlProfilerTraceClient(
+            QmlDebugConnection *client, const EventTypeLoader &eventTypeLoader,
+            const EventLoader &eventLoader, quint64 features);
     ~QmlProfilerTraceClient() override;
 
     bool isRecording() const;
@@ -53,4 +55,4 @@ private:
     class QmlProfilerTraceClientPrivate *d;
 };
 
-} // namespace QmlProfiler
+} // namespace QmlDebug

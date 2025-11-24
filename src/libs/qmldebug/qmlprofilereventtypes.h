@@ -5,7 +5,7 @@
 
 #include <QtGlobal>
 
-namespace QmlProfiler {
+namespace QmlDebug {
 
 enum Message {
     UndefinedMessage = 0xff,
@@ -185,4 +185,4 @@ const quint64 QML_JS_RANGE_FEATURES = (1 << ProfileCompiling) |
                                       (1 << ProfileJavaScript);
 } // namespace Constants
 
-} // namespace QmlProfiler
+} // namespace QmlDebug

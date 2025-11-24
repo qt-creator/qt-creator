@@ -20,6 +20,7 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace QmlDebug;
 
 namespace QmlProfiler::Internal {
 

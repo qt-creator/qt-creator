@@ -8,9 +8,6 @@ if(WITH_TESTS)
     tests/localqmlprofilerrunner_test.cpp tests/localqmlprofilerrunner_test.h
     tests/memoryusagemodel_test.cpp tests/memoryusagemodel_test.h
     tests/pixmapcachemodel_test.cpp tests/pixmapcachemodel_test.h
-    tests/qmlevent_test.cpp tests/qmlevent_test.h
-    tests/qmleventlocation_test.cpp tests/qmleventlocation_test.h
-    tests/qmleventtype_test.cpp tests/qmleventtype_test.h
     tests/qmlnote_test.cpp tests/qmlnote_test.h
     tests/qmlprofileranimationsmodel_test.cpp tests/qmlprofileranimationsmodel_test.h
     tests/qmlprofilerattachdialog_test.cpp tests/qmlprofilerattachdialog_test.h
@@ -18,7 +15,6 @@ if(WITH_TESTS)
     tests/qmlprofilerclientmanager_test.cpp tests/qmlprofilerclientmanager_test.h
     tests/qmlprofilerdetailsrewriter_test.cpp tests/qmlprofilerdetailsrewriter_test.h
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
-    tests/qmlprofilertraceclient_test.cpp tests/qmlprofilertraceclient_test.h
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
     tests/tests.qrc
   )
@@ -33,9 +29,6 @@ set(QMLPROFILER_CPP_SOURCES
   inputeventsmodel.cpp inputeventsmodel.h
   memoryusagemodel.cpp memoryusagemodel.h
   pixmapcachemodel.cpp pixmapcachemodel.h
-  qmlevent.cpp qmlevent.h
-  qmleventlocation.cpp qmleventlocation.h
-  qmleventtype.cpp qmleventtype.h
   qmlnote.cpp qmlnote.h
   qmlprofiler_global.h
   qmlprofilertr.h
@@ -46,7 +39,6 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilerconstants.h
   qmlprofilerdetailsrewriter.cpp qmlprofilerdetailsrewriter.h
   qmlprofilereventsview.h
-  qmlprofilereventtypes.h
   qmlprofilermodelmanager.cpp qmlprofilermodelmanager.h
   qmlprofilernotesmodel.cpp qmlprofilernotesmodel.h
   qmlprofilerplugin.cpp
@@ -61,11 +53,9 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilertextmark.cpp qmlprofilertextmark.h
   qmlprofilertimelinemodel.cpp qmlprofilertimelinemodel.h
   qmlprofilertool.cpp qmlprofilertool.h
-  qmlprofilertraceclient.cpp qmlprofilertraceclient.h
   qmlprofilertracefile.cpp qmlprofilertracefile.h
   qmlprofilertraceview.cpp qmlprofilertraceview.h
   qmlprofilerviewmanager.cpp qmlprofilerviewmanager.h
-  qmltypedevent.cpp qmltypedevent.h
   scenegraphtimelinemodel.cpp scenegraphtimelinemodel.h
   quick3dmodel.cpp quick3dmodel.h
   quick3dframeview.cpp quick3dframeview.h

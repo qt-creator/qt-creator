@@ -1,14 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmleventlocation_test.h"
+#include "tst_qmleventlocation.h"
 
-#include <qmlprofiler/qmleventlocation.h>
+#include <qmldebug/qmleventlocation.h>
 
 #include <QBuffer>
 #include <QTest>
 
-namespace QmlProfiler::Internal {
+using namespace QmlDebug;
 
 QmlEventLocationTest::QmlEventLocationTest() = default;
 
@@ -45,4 +45,4 @@ void QmlEventLocationTest::testStreamOps()
     QCOMPARE(location2, location);
 }
 
-} // namespace QmlProfiler::Internal
+QTEST_GUILESS_MAIN(QmlEventLocationTest)

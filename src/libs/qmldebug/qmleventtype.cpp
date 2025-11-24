@@ -5,7 +5,7 @@
 
 #include <QDataStream>
 
-namespace QmlProfiler {
+namespace QmlDebug {
 
 static ProfileFeature qmlFeatureFromType(Message message, RangeType rangeType, int detailType)
 {
@@ -74,4 +74,4 @@ QmlEventType::QmlEventType(Message message, RangeType rangeType, int detailType,
     setDisplayName(displayName);
 }
 
-} // namespace QmlProfiler
+} // namespace QmlDebug

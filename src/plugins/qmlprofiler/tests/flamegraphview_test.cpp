@@ -12,6 +12,7 @@
 #include <QTimer>
 #include <QWindow>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 FlameGraphViewTest::FlameGraphViewTest()

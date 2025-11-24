@@ -6,6 +6,7 @@
 #include "quick3dmodel.h"
 #include <tracing/timelineformattime.h>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 int Quick3DModel::eventDataId(int id)

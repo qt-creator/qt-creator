@@ -32,6 +32,7 @@
 
 #include <tracing/timelineformattime.h>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 Quick3DFrameModel::Quick3DFrameModel(QmlProfilerModelManager *modelManager, QObject *parent)

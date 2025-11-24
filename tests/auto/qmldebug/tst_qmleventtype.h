@@ -5,18 +5,15 @@
 
 #include <QObject>
 
-namespace QmlProfiler::Internal {
-
-class QmlEventLocationTest : public QObject
+class QmlEventTypeTest : public QObject
 {
     Q_OBJECT
 
 public:
-    QmlEventLocationTest();
+    QmlEventTypeTest();
 
 private slots:
-    void testCtor();
+    void testAccessors();
+    void testFeature();
     void testStreamOps();
 };
-
-} // namespace QmlProfiler::Internal

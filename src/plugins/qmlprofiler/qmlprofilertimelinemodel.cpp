@@ -4,6 +4,7 @@
 #include "qmlprofilertimelinemodel.h"
 #include "qmlprofilertr.h"
 
+using namespace QmlDebug;
 namespace QmlProfiler {
 
 QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager,

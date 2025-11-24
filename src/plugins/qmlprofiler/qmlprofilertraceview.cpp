@@ -50,6 +50,7 @@
 #include <QRegularExpression>
 #include <QTextCursor>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 class QmlProfilerTraceView::QmlProfilerTraceViewPrivate

@@ -5,7 +5,7 @@
 
 #include <QDataStream>
 
-namespace QmlProfiler {
+namespace QmlDebug {
 
 QDataStream &operator>>(QDataStream &stream, QmlEventLocation &location)
 {
@@ -17,4 +17,4 @@ QDataStream &operator<<(QDataStream &stream, const QmlEventLocation &location)
     return stream << location.m_filename << location.m_line << location.m_column;
 }
 
-} // namespace QmlProfiler
+} // namespace QmlDebug

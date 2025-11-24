@@ -6,7 +6,7 @@
 #include <QDataStream>
 #include <QDebug>
 
-namespace QmlProfiler {
+namespace QmlDebug {
 
 enum SerializationType {
     OneByte    = 0,
@@ -223,4 +223,4 @@ QDataStream &operator<<(QDataStream &stream, const QmlEvent &event)
     return stream;
 }
 
-} // namespace QmlProfiler
+} // namespace QmlDebug

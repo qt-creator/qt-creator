@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "memoryusagemodel.h"
-#include "qmlprofilereventtypes.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilertr.h"
 
+#include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager,

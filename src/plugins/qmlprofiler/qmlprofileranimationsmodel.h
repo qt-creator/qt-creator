@@ -4,8 +4,9 @@
 #pragma once
 
 #include "qmlprofilertimelinemodel.h"
-#include "qmlprofilereventtypes.h"
-#include "qmleventlocation.h"
+
+#include <qmldebug/qmleventlocation.h>
+#include <qmldebug/qmlprofilereventtypes.h>
 
 #include <QVariantList>
 #include <QColor>
@@ -43,7 +44,7 @@ public:
     QVariantList labels() const override;
     QVariantMap details(int index) const override;
 
-    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void loadEvent(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type) override;
     void finalize() override;
     void clear() override;
 

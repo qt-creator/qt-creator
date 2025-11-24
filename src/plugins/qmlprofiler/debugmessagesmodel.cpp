@@ -8,6 +8,7 @@
 
 #include <tracing/timelineformattime.h>
 
+using namespace QmlDebug;
 namespace QmlProfiler::Internal {
 
 DebugMessagesModel::DebugMessagesModel(QmlProfilerModelManager *manager,

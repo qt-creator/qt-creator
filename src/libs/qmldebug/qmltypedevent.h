@@ -7,7 +7,7 @@
 
 #include <QDataStream>
 
-namespace QmlProfiler {
+namespace QmlDebug {
 
 struct QmlTypedEvent
 {
@@ -18,11 +18,11 @@ struct QmlTypedEvent
 
 QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event);
 
-} // namespace QmlProfiler
+} // namespace QmlDebug
 
-Q_DECLARE_METATYPE(QmlProfiler::QmlTypedEvent)
+Q_DECLARE_METATYPE(QmlDebug::QmlTypedEvent)
 
 QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(QmlProfiler::QmlTypedEvent, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QmlDebug::QmlTypedEvent, Q_MOVABLE_TYPE);
 QT_END_NAMESPACE
 

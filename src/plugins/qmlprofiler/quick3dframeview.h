@@ -28,8 +28,8 @@
 #include "qmlprofilermodelmanager.h"
 #include "quick3dframemodel.h"
 #include "qmlprofilereventsview.h"
-#include "qmlprofilereventtypes.h"
 
+#include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/itemviews.h>
 
 #include <QPointer>

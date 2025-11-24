@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qmleventlocation.h"
+#include <qmldebug/qmleventlocation.h>
 #include <texteditor/textmark.h>
 
 namespace QmlProfiler::Internal {
@@ -31,7 +31,7 @@ public:
     ~QmlProfilerTextMarkModel() override;
 
     void clear();
-    void addTextMarkId(int typeId, const QmlEventLocation &location);
+    void addTextMarkId(int typeId, const QmlDebug::QmlEventLocation &location);
     void createMarks(QmlProfilerViewManager *viewManager, const QString &fileName);
 
     void showTextMarks();

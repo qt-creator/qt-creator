@@ -4,7 +4,7 @@
 #include "qmltypedevent.h"
 #include <QVarLengthArray>
 
-namespace QmlProfiler {
+namespace QmlDebug {
 
 QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
 {
@@ -191,4 +191,4 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
     return stream;
 }
 
-} // namespace QmlProfiler
+} // namespace QmlDebug

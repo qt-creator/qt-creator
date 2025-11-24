@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/qmlprofiler/tests">
+        <file>traces.dat</file>
+        <file>check.dat</file>
+    </qresource>
+</RCC>
