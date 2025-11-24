@@ -233,5 +233,7 @@ const char SETTINGS_MENU_HIDE_TOOLS[] = "Menu/HideTools";
 
 const char HELP_CATEGORY[] = "H.Help";
 
+const char QT_JIRA_URL[] = "https://qt-project.atlassian.net";
+
 } // namespace Constants
 } // namespace Core

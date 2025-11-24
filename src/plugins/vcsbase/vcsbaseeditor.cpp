@@ -11,6 +11,7 @@
 #include "vcscommand.h"
 #include "vcsoutputwindow.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icore.h>
@@ -418,7 +419,7 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
             QString urlPrefix;
         } const regexUrls[] = {
             {m_pattern, 0, ""},
-            {m_jiraPattern, 2, "https://bugreports.qt.io/browse/"},
+            {m_jiraPattern, 2, QString("%1/browse/").arg(Core::Constants::QT_JIRA_URL)},
             {m_gerritPattern, 1, "https://codereview.qt-project.org/r/"},
         };
         for (const auto &r : regexUrls) {

@@ -128,7 +128,9 @@ LocatorData::LocatorData()
 
     m_bugFilter.setDescription(Tr::tr("Triggers a search in the Qt bug tracker."));
     m_bugFilter.setDefaultShortcutString("bug");
-    m_bugFilter.addDefaultUrl("https://bugreports.qt.io/secure/QuickSearch.jspa?searchString=%1");
+    m_bugFilter.addDefaultUrl(
+        QString(Core::Constants::QT_JIRA_URL)
+        + "/issues/?jql=textfields ~ \"%1\"&wildcardFlag=true");
 }
 
 Locator::Locator()
