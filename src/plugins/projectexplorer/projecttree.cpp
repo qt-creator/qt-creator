@@ -338,11 +338,14 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
     QMenu *contextMenu = nullptr;
     emit s_instance->aboutToShowContextMenu(node);
 
-    const Node *currentNode = ProjectTree::currentNode();
-    if (currentNode) {
-        const FilePath directory = currentNode->directory();
-        if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(directory))
-            ProjectExplorerPlugin::updateVcsActions(vc->displayName(), currentNode->displayName());
+    if (node) {
+        if (node->isVirtualFolderType()) {
+            ProjectExplorerPlugin::updateVcsActions({}, node->displayName());
+        } else {
+            const FilePath directory = node->directory();
+            if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(directory))
+                ProjectExplorerPlugin::updateVcsActions(vc->displayName(), node->displayName());
+        }
     }
 
     if (!node) {
