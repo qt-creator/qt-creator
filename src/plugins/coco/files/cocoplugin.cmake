@@ -64,7 +64,7 @@ find_program(code_coverage_cxx_compiler "cs${cxx_compiler}"
 set(CMAKE_CXX_COMPILER "${code_coverage_cxx_compiler}"
     CACHE FILEPATH "CoverageScanner wrapper for C++ compiler" FORCE)
 
-if(${c_compiler} MATCHES "(gcc|.*-gcc|.*-gcc-.*|clang|.*-clang|.*-clang-.*).exe")
+if(${c_compiler} MATCHES "(gcc|.*-gcc|.*-gcc-.*|clang|.*-clang|.*-clang-.*)(\.exe)?")
     # Do nothing, CMake does not use a separate linker program; it uses the compiler.
 elseif(DEFINED CMAKE_LINKER)
     get_filename_component(linker_prog "${CMAKE_LINKER}" NAME)
@@ -83,6 +83,14 @@ endif()
 
 if(DEFINED CMAKE_AR)
     get_filename_component(ar_prog "${CMAKE_AR}" NAME)
+elseif(${c_compiler} MATCHES "(gcc|.*-gcc|.*-gcc-.*|clang|.*-clang|.*-clang-.*)(\.exe)?")
+    # In some GCC-like projects, ar is used but CMAKE_AR is not set. So we try to find it directly.
+    find_program(ar_prog_path NAMES "ar" "gcc-ar" NO_CACHE)
+    get_filename_component(ar_prog "${ar_prog_path}" NAME)
+else()
+    message(WARNING "The variable CMAKE_AR is not set by CMake. If it is needed, set it with \"-DCMAKE_AR=<path>\".")
+endif()
+if(DEFINED ar_prog)
     find_program(code_coverage_ar "cs${ar_prog}"
         PATHS "${wrapperdir}"
         REQUIRED NO_DEFAULT_PATH)
