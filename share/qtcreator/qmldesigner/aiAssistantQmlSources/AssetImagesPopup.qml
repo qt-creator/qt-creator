@@ -65,7 +65,7 @@ StudioControls.PopupPanel {
             readonly property int horizontalSpacingSum: (gridLayout.columns > 1)
                                                         ? (gridLayout.columns - 1) * gridLayout.columnSpacing
                                                         : 0
-            columns: Math.min(gridLayout.implicitColumns, repeater.count)
+            columns: Math.max(Math.min(gridLayout.implicitColumns, repeater.count), 1)
 
             columnSpacing: 5
             rowSpacing: 5
