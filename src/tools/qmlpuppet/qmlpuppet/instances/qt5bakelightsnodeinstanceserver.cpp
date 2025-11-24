@@ -170,8 +170,8 @@ void Qt5BakeLightsNodeInstanceServer::cleanup()
 }
 
 void Qt5BakeLightsNodeInstanceServer::progress(const QString &msg,
-                                               double progress,
-                                               qint64 timeRemaining)
+                                               [[maybe_unused]] double progress,
+                                               [[maybe_unused]] qint64 timeRemaining)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 10, 0)
     QVariant data(msg);
