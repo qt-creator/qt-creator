@@ -11,9 +11,9 @@ const highp int gl_MaxInputAttachments = 1;
 
 // subpass input functions.
 vec4 subpassLoad(subpassInput subpass);
-vec4 subpassLoad(subpassInputMS subpass, int sample);
+vec4 subpassLoad(subpassInputMS subpass, int _sample);
 ivec4 subpassLoad(isubpassInput subpass);
-ivec4 subpassLoad(isubpassInputMS subpass, int sample);
+ivec4 subpassLoad(isubpassInputMS subpass, int _sample);
 uvec4 subpassLoad(usubpassInput subpass);
-uvec4 subpassLoad(usubpassInputMS subpass, int sample);
+uvec4 subpassLoad(usubpassInputMS subpass, int _sample);
 
