@@ -365,8 +365,8 @@ void ModeManagerPrivate::ensureVisibleEnabledMode()
     IMode *mode = ModeManager::currentMode();
     if (!mode || !mode->isEnabled() || !mode->isVisible()) {
         // This assumes that there is always at least one enabled mode.
-        for (int i = 0; i < d->m_modes.count(); ++i) {
-            IMode *other = d->m_modes.at(i);
+        for (int i = 0; i < m_modes.count(); ++i) {
+            IMode *other = m_modes.at(i);
             if (other->isEnabled() && other->isVisible()) {
                 ModeManager::activateMode(other->id());
                 return;
@@ -378,18 +378,18 @@ void ModeManagerPrivate::ensureVisibleEnabledMode()
 
 void ModeManagerPrivate::enabledStateChanged(IMode *mode)
 {
-    int index = d->m_modes.indexOf(mode);
+    int index = m_modes.indexOf(mode);
     QTC_ASSERT(index >= 0, return);
-    d->m_modeStack->setTabEnabled(index, mode->isEnabled());
+    m_modeStack->setTabEnabled(index, mode->isEnabled());
 
     ensureVisibleEnabledMode();
 }
 
 void ModeManagerPrivate::visibleChanged(IMode *mode)
 {
-    int index = d->m_modes.indexOf(mode);
+    int index = m_modes.indexOf(mode);
     QTC_ASSERT(index >= 0, return);
-    d->m_modeStack->setTabVisible(index, mode->isVisible());
+    m_modeStack->setTabVisible(index, mode->isVisible());
 
     ensureVisibleEnabledMode();
 }
