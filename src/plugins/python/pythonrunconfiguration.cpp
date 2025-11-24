@@ -83,17 +83,11 @@ private:
             } else {
                 // The actual exception. This ends the traceback.
                 Task exception{Task::Error, text, {}, -1, category};
-                const QString detail = Tr::tr("Install %1 (requires pip)");
+                const QString detail = Tr::tr("👉 Click here to install %1 (requires pip)");
                 const QString pySide6Text = Tr::tr("PySide6");
                 const QString link = QString("pysideinstall:")
                                      + QUrl::toPercentEncoding(m_python.toFSPathString());
-                exception.addToDetails(detail.arg(pySide6Text));
-                QTextCharFormat format;
-                format.setAnchor(true);
-                format.setAnchorHref(link);
-                const int offset = exception.summary().size() + detail.indexOf("%1") + 1;
-                exception.setFormats(
-                    {QTextLayout::FormatRange{offset, int(pySide6Text.size()), format}});
+                exception.addLinkDetail(link, detail.arg(pySide6Text));
                 TaskHub::addTask(exception);
                 for (auto rit = m_tasks.crbegin(), rend = m_tasks.crend(); rit != rend; ++rit)
                     TaskHub::addTask(*rit);
