@@ -255,15 +255,20 @@ QString Task::formattedDescription(DescriptionTags tags, const QString &extraHea
         .arg(htmlExtraHeading, FontSettings::defaultFixedFontFamily(), text);
 }
 
-void Task::addLinkDetail(const QString &link, const QString &linkText)
+void Task::addLinkDetail(const QString &link, const QString &linkText, int linkPos, int linkLength)
 {
+    QTC_ASSERT(!link.isEmpty(), return);
     const QString text = linkText.isEmpty() ? link : linkText;
-    const int offset = m_summary.size() + m_details.join('\n').size() + 1;
+    QTC_ASSERT(linkPos >= 0, addToDetails(text); return);
+    QTC_ASSERT(linkLength == -1 || linkLength > 0, addToDetails(text); return);
+    const int length = linkLength < 1 ? text.size() - linkPos : linkLength;
+    QTC_ASSERT(linkPos + linkLength <= text.size(), addToDetails(text); return);
+    const int offset = m_summary.size() + m_details.join('\n').size() + 1 + linkPos;
     m_details.append(text);
     QTextCharFormat format;
     format.setAnchor(true);
     format.setAnchorHref(link);
-    m_formats << QTextLayout::FormatRange{offset, int(text.size()), format};
+    m_formats << QTextLayout::FormatRange{offset, length, format};
 }
 
 //

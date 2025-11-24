@@ -47,7 +47,8 @@ public:
     QString description(DescriptionTags tags = WithSummary) const;
     QString formattedDescription(DescriptionTags tags, const QString &extraHeading = {}) const;
 
-    void addLinkDetail(const QString &link, const QString &linkText = {});
+    void addLinkDetail(
+        const QString &link, const QString &linkText = {}, int linkPos = 0, int linkLength = -1);
 
     void setFile(const Utils::FilePath &file);
     bool hasFile() const { return !m_file.isEmpty(); }
