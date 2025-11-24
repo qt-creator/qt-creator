@@ -79,6 +79,13 @@ CorePlugin::CorePlugin()
 {
     QObject::connect(qApp, SIGNAL(fileOpenRequest(QString)), this, SLOT(fileOpenRequest(QString)));
 
+    Environment::setListSeparatorProvider([](const QString &varName) -> std::optional<QString> {
+        const NameValueDictionary seps = systemSettings().envVarSeparators();
+        if (const auto it = seps.find(varName); it != seps.end())
+            return it.value();
+        return {};
+    });
+
     // Trigger creation as early as possible before anyone else could
     // mess with the systemEnvironment before it is "backed up".
     (void) systemSettings();

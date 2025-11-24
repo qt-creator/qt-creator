@@ -52,6 +52,8 @@ public:
     Operation operation = Unset;
 
 private:
+    QString separator() const;
+
     void apply(NameValueDictionary *dictionary, Operation op) const;
 };
 

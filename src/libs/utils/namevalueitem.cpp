@@ -1,6 +1,7 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "environment.h"
 #include "namevalueitem.h"
 #include "algorithm.h"
 #include "namevaluedictionary.h"
@@ -98,6 +99,15 @@ QVariantList EnvironmentItem::toVariantList(const EnvironmentItem &item)
     return QVariantList() << item.name << item.operation << item.value;
 }
 
+QString EnvironmentItem::separator() const
+{
+    if (const Environment::ListSeparatorProvider &p = Environment::listSeparatorProvider()) {
+        if (const auto sep = p(name))
+            return *sep;
+    }
+    return HostOsInfo::pathListSeparator();
+}
+
 static QString expand(const NameValueDictionary *dictionary, QString value)
 {
     int replaceCount = 0;
@@ -140,16 +150,16 @@ void EnvironmentItem::apply(NameValueDictionary *dictionary, Operation op) const
         const NameValueDictionary::const_iterator it = dictionary->find(name);
         if (it != dictionary->end()) {
             QString v = it.value();
-            const QChar pathSep = HostOsInfo::pathListSeparator();
+            const QString listSep = separator();
             int sepCount = 0;
-            if (v.startsWith(pathSep))
+            if (v.startsWith(listSep))
                 ++sepCount;
-            if (value.endsWith(pathSep))
+            if (value.endsWith(listSep))
                 ++sepCount;
             if (sepCount == 2)
-                v.remove(0, 1);
+                v.remove(0, listSep.size());
             else if (sepCount == 0)
-                v.prepend(pathSep);
+                v.prepend(listSep);
             v.prepend(expand(dictionary, value));
             dictionary->set(name, v);
         } else {
@@ -160,16 +170,16 @@ void EnvironmentItem::apply(NameValueDictionary *dictionary, Operation op) const
         const NameValueDictionary::const_iterator it = dictionary->find(name);
         if (it != dictionary->end()) {
             QString v = it.value();
-            const QChar pathSep = HostOsInfo::pathListSeparator();
+            const QString listSep = separator();
             int sepCount = 0;
-            if (v.endsWith(pathSep))
+            if (v.endsWith(listSep))
                 ++sepCount;
-            if (value.startsWith(pathSep))
+            if (value.startsWith(listSep))
                 ++sepCount;
             if (sepCount == 2)
-                v.chop(1);
+                v.chop(listSep.size());
             else if (sepCount == 0)
-                v.append(pathSep);
+                v.append(listSep);
             v.append(expand(dictionary, value));
             dictionary->set(name, v);
         } else {

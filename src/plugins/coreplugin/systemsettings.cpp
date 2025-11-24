@@ -9,7 +9,6 @@
 #include "dialogs/ioptionspage.h"
 #include "fileutils.h"
 #include "icore.h"
-#include "iversioncontrol.h" // sic!
 #include "vcsmanager.h"
 
 #ifdef ENABLE_CRASHREPORTING
@@ -23,13 +22,17 @@
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
 #include <utils/hostosinfo.h>
+#include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/terminalcommand.h>
+#include <utils/treemodel.h>
 #include <utils/unixutils.h>
 
 #include <QComboBox>
 #include <QDesktopServices>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QGuiApplication>
 #include <QLineEdit>
 #include <QMenu>
@@ -71,6 +74,10 @@ SystemSettings::SystemSettings()
     const EnvironmentItems changes = EnvironmentItem::fromStringList(
         ICore::settings()->value(kEnvironmentChanges).toStringList());
     setEnvironmentChanges(changes);
+    m_envVarSeparators = NameValueDictionary(
+        ICore::settings()
+            ->value(kEnvVarSeparators, defaultEnvVarSeparators().toStringList())
+            .toStringList());
 
     setAutoApply(false);
 
@@ -179,6 +186,110 @@ SystemSettings::SystemSettings()
     autoSaveInterval.addOnChanged(this, &EditorManagerPrivate::updateAutoSave);
 }
 
+class EnvVarSeparatorItem : public TreeItem
+{
+public:
+    EnvVarSeparatorItem(const QString &var, const QString &sep) : m_var(var), m_sep(sep) {}
+
+    QString var() const { return m_var; }
+    QString sep() const { return m_sep; }
+
+private:
+    QVariant data(int column, int role) const override
+    {
+        if (role != Qt::DisplayRole && role != Qt::EditRole)
+            return {};
+        return column == 0 ? m_var : m_sep;
+    }
+
+    bool setData(int column, const QVariant &data, int) override
+    {
+        if (column == 0) {
+            m_var = data.toString();
+            return true;
+        }
+        if (column == 1) {
+            m_sep = data.toString();
+            return true;
+        }
+        return false;
+    }
+
+    Qt::ItemFlags flags(int column) const override
+    {
+        return TreeItem::flags(column) | Qt::ItemIsEditable;
+    }
+
+    QString m_var;
+    QString m_sep;
+};
+
+class EnvVarSeparatorsDialog : public QDialog
+{
+public:
+    EnvVarSeparatorsDialog(const NameValueDictionary &separators, QWidget *parent) : QDialog(parent)
+    {
+        const QString explanation = Tr::tr(
+            "For environment variables with list semantics that do not use the standard path list\n"
+            "separator, you need to configure the respective separators here if you plan to\n"
+            "aggregate them from several places (for instance from the Kit and from the project).");
+
+        m_model.setHeader({Tr::tr("Variable"), Tr::tr("Separator")});
+        for (auto it = separators.begin(); it != separators.end(); ++it)
+            m_model.rootItem()->appendChild(new EnvVarSeparatorItem(it.key(), it.value()));
+
+        const auto view = new TreeView(this);
+        view->setSelectionMode(QAbstractItemView::SingleSelection);
+        view->setSelectionBehavior(QAbstractItemView::SelectRows);
+        view->setModel(&m_model);
+
+        const auto addButton = new QPushButton("&Add");
+        connect(addButton, &QPushButton::clicked, this, [this] {
+            m_model.rootItem()->appendChild(new EnvVarSeparatorItem("CUSTOM_VAR", {}));
+        });
+        const auto removeButton = new QPushButton("&Remove");
+        connect(removeButton, &QPushButton::clicked, this, [this, view] {
+            const QModelIndexList selected = view->selectionModel()->selectedRows();
+            if (selected.size() == 1)
+                m_model.rootItem()->removeChildAt(selected.first().row());
+        });
+        const auto updateRemoveButtonState = [view, removeButton] {
+            removeButton->setEnabled(view->selectionModel()->hasSelection());
+        };
+        connect(view->selectionModel(), &QItemSelectionModel::selectionChanged,
+                this, updateRemoveButtonState);
+        updateRemoveButtonState();
+
+        const auto buttonBox
+            = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+        Column {
+            explanation,
+            Row {
+                Column { view },
+                Column { addButton, removeButton, st }
+            },
+            buttonBox
+        }.attachTo(this);
+    }
+
+    NameValueDictionary separators() const
+    {
+        NameValueDictionary seps;
+        const TreeItem * const root = m_model.rootItem();
+        for (int i = 0; i < root->childCount(); ++i) {
+            const auto item = static_cast<EnvVarSeparatorItem *>(root->childAt(i));
+            seps.set(item->var(), item->sep());
+        }
+        return seps;
+    }
+
+private:
+    TreeModel<TreeItem, EnvVarSeparatorItem> m_model;
+};
+
 class SystemSettingsWidget : public IOptionsPageWidget
 {
 public:
@@ -189,6 +300,7 @@ public:
         , m_terminalOpenArgs(new QLineEdit)
         , m_terminalExecuteArgs(new QLineEdit)
         , m_environmentChangesLabel(new Utils::ElidingLabel)
+        , m_envVarSeparatorsLabel(new QLabel)
 #ifdef CRASHREPORTING_USES_CRASHPAD
         , m_crashReportsMenuButton(new QPushButton(Tr::tr("Manage"), this))
         , m_crashReportsSizeText(new QLabel(this))
@@ -202,6 +314,7 @@ public:
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(5);
         m_environmentChangesLabel->setSizePolicy(sizePolicy);
+        m_envVarSeparatorsLabel->setSizePolicy(sizePolicy);
         QSizePolicy termSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
         termSizePolicy.setHorizontalStretch(3);
         m_terminalComboBox->setSizePolicy(termSizePolicy);
@@ -226,10 +339,14 @@ public:
         auto environmentButton = new QPushButton(Tr::tr("Change..."));
         environmentButton->setSizePolicy(QSizePolicy::Fixed,
                                          environmentButton->sizePolicy().verticalPolicy());
+        const auto envVarSeparatorsButton = new QPushButton(Tr::tr("Change..."));
+        envVarSeparatorsButton->setSizePolicy(environmentButton->sizePolicy());
 
         Grid grid;
         grid.addRow({Tr::tr("Environment:"),
                      Span(3, m_environmentChangesLabel), environmentButton});
+        grid.addRow({Tr::tr("Variable separators:"),
+                     Span(3, m_envVarSeparatorsLabel), envVarSeparatorsButton});
         if (HostOsInfo::isAnyUnixHost()) {
             grid.addRow({Tr::tr("Terminal:"),
                          m_terminalComboBox,
@@ -402,7 +519,9 @@ public:
 
         m_environmentChangesLabel->setElideMode(Qt::ElideRight);
         m_environmentChanges = systemSettings().environmentChanges();
+        m_envVarSeparators = systemSettings().envVarSeparators();
         updateEnvironmentChangesLabel();
+        updateEnvVarSeparatorsLabel();
         connect(environmentButton, &QPushButton::clicked, this, [this, environmentButton] {
             std::optional<EnvironmentItems> changes
                 = runEnvironmentItemsDialog(environmentButton, m_environmentChanges);
@@ -411,6 +530,13 @@ public:
             m_environmentChanges = *changes;
             updateEnvironmentChangesLabel();
             updatePath();
+        });
+        connect(envVarSeparatorsButton, &QPushButton::clicked, [this] {
+            EnvVarSeparatorsDialog dlg(m_envVarSeparators, this);
+            if (dlg.exec() == QDialog::Accepted) {
+                m_envVarSeparators = dlg.separators();
+                updateEnvVarSeparatorsLabel();
+            }
         });
 
         connect(VcsManager::instance(), &VcsManager::configurationChanged,
@@ -428,6 +554,7 @@ private:
     void updateTerminalUi(const Utils::TerminalCommand &term);
     void updatePath();
     void updateEnvironmentChangesLabel();
+    void updateEnvVarSeparatorsLabel();
     void showHelpDialog(const QString &title, const QString &helpText);
 
     QComboBox *m_fileSystemCaseSensitivityChooser;
@@ -436,12 +563,14 @@ private:
     QLineEdit *m_terminalOpenArgs;
     QLineEdit *m_terminalExecuteArgs;
     Utils::ElidingLabel *m_environmentChangesLabel;
+    QLabel * const m_envVarSeparatorsLabel;
 #ifdef CRASHREPORTING_USES_CRASHPAD
     QPushButton *m_crashReportsMenuButton;
     QLabel *m_crashReportsSizeText;
 #endif
     QPointer<QMessageBox> m_dialog;
     EnvironmentItems m_environmentChanges;
+    NameValueDictionary m_envVarSeparators;
 };
 
 void SystemSettingsWidget::apply()
@@ -474,6 +603,7 @@ void SystemSettingsWidget::apply()
     }
 
     systemSettings().setEnvironmentChanges(m_environmentChanges);
+    systemSettings().setEnvVarSeparators(m_envVarSeparators);
 }
 
 void SystemSettingsWidget::resetTerminal()
@@ -508,6 +638,14 @@ void SystemSettingsWidget::updateEnvironmentChangesLabel()
                                      .join("; ");
     m_environmentChangesLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.")
                                                               : shortSummary);
+}
+
+void SystemSettingsWidget::updateEnvVarSeparatorsLabel()
+{
+    const int count = m_envVarSeparators.size();
+    const QString summary = QCoreApplication::translate(
+        "QtC::Core", "%n custom separators configured", nullptr, count);
+    m_envVarSeparatorsLabel->setText(summary);
 }
 
 void SystemSettingsWidget::showHelpDialog(const QString &title, const QString &helpText)
@@ -552,6 +690,26 @@ void SystemSettings::setEnvironmentChanges(const EnvironmentItems &changes)
                                            EnvironmentItem::toStringList(changes));
     if (ICore::instance())
         emit ICore::instance()->systemEnvironmentChanged();
+}
+
+void SystemSettings::setEnvVarSeparators(const Utils::NameValueDictionary &separators)
+{
+    if (m_envVarSeparators == separators)
+        return;
+    m_envVarSeparators = separators;
+    ICore::settings()->setValueWithDefault(
+        kEnvVarSeparators,
+        m_envVarSeparators.toStringList(),
+        defaultEnvVarSeparators().toStringList());
+    if (ICore::instance())
+        emit ICore::instance()->systemEnvironmentChanged();
+}
+
+NameValueDictionary SystemSettings::defaultEnvVarSeparators()
+{
+    return NameValueDictionary(
+        NameValuePairs{std::make_pair<QString, QString>("CFLAGS", " "),
+                       std::make_pair<QString, QString>("CXXFLAGS", " ")});
 }
 
 // SystemSettingsPage

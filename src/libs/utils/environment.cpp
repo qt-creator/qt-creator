@@ -25,6 +25,7 @@ static QReadWriteLock s_envMutex;
 Q_GLOBAL_STATIC_WITH_ARGS(Environment, staticSystemEnvironment,
                           (QProcessEnvironment::systemEnvironment().toStringList()))
 Q_GLOBAL_STATIC(QList<EnvironmentProvider>, environmentProviders)
+Q_GLOBAL_STATIC(Environment::ListSeparatorProvider, listSepProvider);
 
 Environment::Environment()
     : m_dict(HostOsInfo::hostOs())
@@ -290,6 +291,18 @@ void Environment::setSystemEnvironment(const Environment &environment)
     *staticSystemEnvironment = environment;
 }
 
+Environment::ListSeparatorProvider Environment::listSeparatorProvider()
+{
+    QReadLocker lock(&s_envMutex);
+    return *listSepProvider;
+}
+
+void Environment::setListSeparatorProvider(const ListSeparatorProvider &provider)
+{
+    QWriteLocker lock(&s_envMutex);
+    *listSepProvider = provider;
+}
+
 /** Expand environment variables in a string.
  *
  * Environment variables are accepted in the following forms:
@@ -513,7 +526,7 @@ const NameValueDictionary &Environment::resolved() const
                     m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
                 } else {
                     // Prepend unless it is already there
-                    const QString toPrepend = value + pathListSeparator(sep);
+                    const QString toPrepend = value + listSeparator(key, sep);
                     if (!it.value().first.startsWith(toPrepend))
                         it.value().first.prepend(toPrepend);
                 }
@@ -529,8 +542,8 @@ const NameValueDictionary &Environment::resolved() const
                 if (it == m_dict.m_values.end()) {
                     m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
                 } else {
-                    // Prepend unless it is already there
-                    const QString toAppend = pathListSeparator(sep) + value;
+                    // Append unless it is already there
+                    const QString toAppend = listSeparator(key, sep) + value;
                     if (!it.value().first.endsWith(toAppend))
                         it.value().first.append(toAppend);
                 }
@@ -570,6 +583,16 @@ QChar Environment::pathListSeparator(PathSeparator sep) const
     else if (sep == PathSeparator::Colon)
         return QLatin1Char(':');
     return OsSpecificAspects::pathListSeparator(osType());
+}
+
+QString Environment::listSeparator(const QString &varName, PathSeparator sep) const
+{
+    QReadLocker lock(&s_envMutex);
+    if (listSepProvider && *listSepProvider) {
+        if (const auto s = (*listSepProvider)(varName))
+            return *s;
+    }
+    return pathListSeparator(sep);
 }
 
 /*!

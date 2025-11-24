@@ -11,6 +11,7 @@
 namespace Core::Internal {
 
 const char kEnvironmentChanges[] = "Core/EnvironmentChanges";
+const char kEnvVarSeparators[] = "Core/EnvVarSeparators";
 
 class CORE_TEST_EXPORT SystemSettings final : public Utils::AspectContainer
 {
@@ -44,8 +45,14 @@ public:
     Utils::EnvironmentItems environmentChanges() const;
     void setEnvironmentChanges(const Utils::EnvironmentItems &changes);
 
+    Utils::NameValueDictionary envVarSeparators() const { return m_envVarSeparators; }
+    void setEnvVarSeparators(const Utils::NameValueDictionary &separators);
+
 private:
+    static Utils::NameValueDictionary defaultEnvVarSeparators();
+
     Utils::EnvironmentItems m_environmentChanges;
+    Utils::NameValueDictionary m_envVarSeparators = defaultEnvVarSeparators();
     const Utils::Environment m_startupSystemEnvironment;
 };
 

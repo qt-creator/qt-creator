@@ -99,7 +99,12 @@ public:
     static void modifySystemEnvironment(const EnvironmentItems &list); // use with care!!!
     static void setSystemEnvironment(const Environment &environment);  // don't use at all!!!
 
+    using ListSeparatorProvider = std::function<std::optional<QString>(QString)>;
+    static ListSeparatorProvider listSeparatorProvider();
+    static void setListSeparatorProvider(const ListSeparatorProvider &provider);
+
     QChar pathListSeparator(PathSeparator sep) const;
+    QString listSeparator(const QString &varName, PathSeparator sep) const;
 
     enum Type {
         SetSystemEnvironment,
