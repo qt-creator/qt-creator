@@ -172,6 +172,8 @@ private:
     template<typename T, typename = typename std::enable_if<std::is_base_of<AbstractProperty , T>::value>::type>
     void maybeStoreCurrentSceneEnvironment(const QList<T> &propertyList);
 
+    void setKitToBakeLights();
+
     ModulesStorage &m_modulesStorage;
 
     QPointer<Edit3DWidget> m_edit3DWidget;

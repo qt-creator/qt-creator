@@ -34,8 +34,10 @@
 
 #include <qmldesignerutils/asset.h>
 
-#include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitaspect.h>
 
@@ -326,15 +328,14 @@ void Edit3DView::modelAttached(Model *model)
 
     edit3DWidget()->canvas()->busyIndicator()->show();
 
-    m_isBakingLightsSupported = false;
-    m_kitVersion = {};
-    ProjectExplorer::Target *target = QmlDesignerPlugin::instance()->currentDesignDocument()->currentTarget();
-    if (target && target->kit()) {
-        if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit())) {
-            m_isBakingLightsSupported = qtVer->qtVersion() >= QVersionNumber(6, 5, 0);
-            m_kitVersion = qtVer->qtVersion();
-            if (m_bakeLights)
-                m_bakeLights->setKitVersion(m_kitVersion);
+    setKitToBakeLights();
+    if (auto currentProject = ProjectExplorer::ProjectTree::currentProject()) {
+        QObject::connect(currentProject, &ProjectExplorer::Project::activeTargetChanged,
+                         this, &Edit3DView::setKitToBakeLights,
+                         Qt::UniqueConnection);
+        if (auto target = currentProject->activeTarget()) {
+            QObject::connect(target, &ProjectExplorer::Target::kitChanged,
+                             this, &Edit3DView::setKitToBakeLights, Qt::UniqueConnection);
         }
     }
 
@@ -784,6 +785,21 @@ QPoint Edit3DView::resolveToolbarPopupPos(Edit3DAction *action) const
         }
     }
     return pos;
+}
+
+void Edit3DView::setKitToBakeLights()
+{
+    m_isBakingLightsSupported = false;
+    m_kitVersion = {};
+    ProjectExplorer::Target *target = QmlDesignerPlugin::instance()->currentDesignDocument()->currentTarget();
+    if (target && target->kit()) {
+        if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit())) {
+            m_isBakingLightsSupported = qtVer->qtVersion() >= QVersionNumber(6, 5, 0);
+            m_kitVersion = qtVer->qtVersion();
+        }
+    }
+    if (m_bakeLights)
+        m_bakeLights->setKitVersion(m_kitVersion);
 }
 
 template<typename T, typename>
