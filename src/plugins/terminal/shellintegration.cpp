@@ -61,6 +61,9 @@ bool ShellIntegration::canIntegrate(const Utils::CommandLine &cmdLine)
     if (cmdLine.executable().baseName() == "zsh")
         return true;
 
+    if (cmdLine.executable().baseName() == "cmd")
+        return true;
+
     if (!cmdLine.arguments().isEmpty() && cmdLine.arguments() != "-l")
         return false;
 
@@ -71,9 +74,6 @@ bool ShellIntegration::canIntegrate(const Utils::CommandLine &cmdLine)
         || cmdLine.executable().baseName() == "powershell") {
         return true;
     }
-
-    if (cmdLine.executable().baseName() == "cmd")
-        return true;
 
     if (cmdLine.executable().baseName() == "fish")
         return true;
