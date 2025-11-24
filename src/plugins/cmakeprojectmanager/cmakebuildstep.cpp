@@ -85,6 +85,16 @@ class CMakeProgressParser : public Utils::OutputLineParser
 {
     Q_OBJECT
 
+public:
+    CMakeProgressParser(const QString &cmakeGenerator)
+    {
+        if (cmakeGenerator.startsWith("Ninja")) {
+            m_progressType = ProgressType::Ninja;
+        } else {
+            m_progressType = ProgressType::Make;
+        }
+    }
+
 signals:
     void progress(int percentage, const QString &message);
 
@@ -97,37 +107,38 @@ private:
         static const QRegularExpression percentProgress("(^\\[\\s*(\\d*)%\\])");
         static const QRegularExpression ninjaProgress("^(\\[\\s*(\\d*)/\\s*(\\d*).*\\])");
 
-        QRegularExpressionMatch match = percentProgress.match(line);
-        if (match.hasMatch()) {
-            bool ok = false;
-            const int percent = match.captured(2).toInt(&ok);
-            if (ok)
-                emit progress(percent, match.captured(1));
-            return Status::Done;
-        }
-        match = ninjaProgress.match(line);
-        if (match.hasMatch()) {
-            m_useNinja = true;
-            bool ok = false;
-            const int done = match.captured(2).toInt(&ok);
-            if (ok) {
-                const int all = match.captured(3).toInt(&ok);
-                if (ok && all != 0) {
-                    const int percent = static_cast<int>(100.0 * done / all);
+        QRegularExpressionMatch match;
+        if (m_progressType == ProgressType::Make) {
+            match = percentProgress.match(line);
+            if (match.hasMatch()) {
+                bool ok = false;
+                const int percent = match.captured(2).toInt(&ok);
+                if (ok)
                     emit progress(percent, match.captured(1));
-                }
+                return Status::Done;
             }
-            return Status::Done;
+        } else if (m_progressType == ProgressType::Ninja) {
+            match = ninjaProgress.match(line);
+            if (match.hasMatch()) {
+                bool ok = false;
+                const int done = match.captured(2).toInt(&ok);
+                if (ok) {
+                    const int all = match.captured(3).toInt(&ok);
+                    if (ok && all != 0) {
+                        const int percent = static_cast<int>(100.0 * done / all);
+                        emit progress(percent, match.captured(1));
+                    }
+                }
+                return Status::Done;
+            }
         }
         return Status::NotHandled;
     }
-    bool hasDetectedRedirection() const override { return m_useNinja; }
+    bool hasDetectedRedirection() const override { return m_progressType == ProgressType::Ninja; }
 
-    // TODO: Shouldn't we know the backend in advance? Then we could merge this class
-    //       with CmakeParser.
-    bool m_useNinja = false;
+    enum class ProgressType { Make, Ninja };
+    ProgressType m_progressType{ProgressType::Make};
 };
-
 
 // CmakeTargetItem
 
@@ -346,7 +357,8 @@ bool CMakeBuildStep::init()
 void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 {
     CMakeOutputParser *cmakeOutputParser = new CMakeOutputParser;
-    CMakeProgressParser * const progressParser = new CMakeProgressParser;
+    auto cbs = qobject_cast<CMakeBuildSystem *>(this->buildSystem());
+    CMakeProgressParser * const progressParser = new CMakeProgressParser(cbs->cmakeGenerator());
     connect(progressParser, &CMakeProgressParser::progress, this, &CMakeBuildStep::progress);
     formatter->addLineParser(progressParser);
     cmakeOutputParser->setSourceDirectories(
