@@ -41,6 +41,11 @@ extend_qtc_executable(qtcreator
     main_mac.mm
 )
 
+extend_qtc_executable(qtcreator
+  CONDITION SHOW_BUILD_DATE
+  DEFINES QTC_SHOW_BUILD_DATE
+)
+
 if (NOT TARGET qtcreator)
   return()
 endif()

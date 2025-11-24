@@ -7,6 +7,7 @@
 
 #include "filepath.h"
 
+#include <QDateTime>
 #include <QString>
 
 namespace Utils {
@@ -21,6 +22,7 @@ public:
     QString revision;
     QString revisionUrl;
     QString userFileExtension;
+    QDateTime buildTime; // can be invalid if compiled without time stamp
 
     FilePath plugins;
 

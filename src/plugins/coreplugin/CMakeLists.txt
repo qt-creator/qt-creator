@@ -291,11 +291,6 @@ add_qtc_plugin(Core
 )
 
 extend_qtc_plugin(Core
-  CONDITION SHOW_BUILD_DATE
-  DEFINES QTC_SHOW_BUILD_DATE
-)
-
-extend_qtc_plugin(Core
   CONDITION WITH_TESTS
   SOURCES
     editormanager/editormanager_test.cpp

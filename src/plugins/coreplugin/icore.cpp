@@ -1266,11 +1266,9 @@ QString ICore::aboutInformationCompact()
                            QLatin1String(qVersion()),
                            Utils::compilerString(),
                            QSysInfo::buildCpuArchitecture());
-#ifdef QTC_SHOW_BUILD_DATE
-    information += QString("Built on: %1 %2\n").arg(QLatin1String(__DATE__),
-                                                    QLatin1String(__TIME__));
-#endif
     const AppInfo &appInfo = Utils::appInfo();
+    if (appInfo.buildTime.isValid())
+        information += QString("Built on: %1\n").arg(appInfo.buildTime.toString());
     if (!appInfo.revision.isEmpty())
         information += QString("From revision: %1\n").arg(appInfo.revision.left(10));
 
@@ -1291,21 +1289,26 @@ QString ICore::aboutInformationHtml()
                               : QString::fromLatin1("<a href=\"%1\">%2</a>")
                                     .arg(appInfo.revisionUrl, appInfo.revision));
     QString buildInfo;
-#ifdef QTC_SHOW_BUILD_DATE
-    //: Built on <date> <time> based on Qt <version> (<compiler>, <arch>)
-    buildInfo = Tr::tr("Built on %1 %2 based on Qt %3 (%4, %5)")
-                    .arg(
-                        QLatin1String(__DATE__),
-                        QLatin1String(__TIME__),
-                        QLatin1String(qVersion()),
-                        Utils::compilerString(),
-                        QSysInfo::buildCpuArchitecture());
-#else
-    buildInfo
-        //: Based on Qt <version> (<compiler>, <arch>)
-        = Tr::tr("Based on Qt %1 (%2, %3)")
-              .arg(QLatin1String(qVersion()), Utils::compilerString(), QSysInfo::buildCpuArchitecture());
-#endif
+    if (appInfo.buildTime.isValid()) {
+        QLocale locale(ICore::userInterfaceLanguage());
+        //: Built on <date> <time> based on Qt <version> (<compiler>, <arch>)
+        buildInfo = Tr::tr("Built on %1 %2 based on Qt %3 (%4, %5)")
+                        .arg(
+                            locale.toString(
+                                appInfo.buildTime.date(), locale.dateFormat(QLocale::ShortFormat)),
+                            locale.toString(appInfo.buildTime.time(), QLocale::ShortFormat),
+                            QLatin1String(qVersion()),
+                            Utils::compilerString(),
+                            QSysInfo::buildCpuArchitecture());
+    } else {
+        buildInfo
+            //: Based on Qt <version> (<compiler>, <arch>)
+            = Tr::tr("Based on Qt %1 (%2, %3)")
+                  .arg(
+                      QLatin1String(qVersion()),
+                      Utils::compilerString(),
+                      QSysInfo::buildCpuArchitecture());
+    }
 
     static const QString br = QLatin1String("<br/>");
     const auto wrapBr = [](const QString &s) { return s.isEmpty() ? QString() : br + s + br; };

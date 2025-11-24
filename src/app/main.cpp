@@ -837,6 +837,13 @@ int main(int argc, char **argv)
     info.crashReports = info.userResources / "crashpad_reports";
     info.luaPlugins = info.resources / "lua-plugins";
     info.userLuaPlugins = info.userResources / "lua-plugins";
+#ifdef QTC_SHOW_BUILD_DATE
+    const auto dateTime = QLatin1String(__DATE__ " " __TIME__);
+    info.buildTime = QDateTime::fromString(dateTime, "MMM d yyyy hh:mm:ss");
+    if (!info.buildTime.isValid()) // single digit is prefixed with space
+        info.buildTime = QDateTime::fromString(dateTime, "MMM  d yyyy hh:mm:ss");
+    QTC_CHECK(info.buildTime.isValid());
+#endif
     Utils::Internal::setAppInfo(info);
 
     // Display a backtrace once a serious signal is delivered (Linux only).
