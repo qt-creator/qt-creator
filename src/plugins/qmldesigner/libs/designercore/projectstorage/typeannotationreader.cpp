@@ -37,12 +37,12 @@ Synchronization::TypeAnnotations TypeAnnotationReader::parseTypeAnnotation(
     m_parserState = ParsingDocument;
     if (!SimpleAbstractStreamReader::readFromSource(content)) {
         m_parserState = Error;
-        throw TypeAnnoationParsingError(errors());
+        throw TypeAnnotationParsingError(errors());
     }
 
     if (!errors().isEmpty()) {
         m_parserState = Error;
-        throw TypeAnnoationParsingError(errors());
+        throw TypeAnnotationParsingError(errors());
     }
 
     return takeTypeAnnotations();
@@ -166,7 +166,7 @@ void TypeAnnotationReader::propertyDefinition(const QString &name,
     }
 }
 
-TypeAnnotationReader::ParserSate TypeAnnotationReader::readDocument(const QString &name)
+TypeAnnotationReader::ParserState TypeAnnotationReader::readDocument(const QString &name)
 {
     if (name == rootElementName) {
         return ParsingMetaInfo;
@@ -176,7 +176,7 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readDocument(const QStrin
     }
 }
 
-TypeAnnotationReader::ParserSate TypeAnnotationReader::readMetaInfoRootElement(const QString &name)
+TypeAnnotationReader::ParserState TypeAnnotationReader::readMetaInfoRootElement(const QString &name)
 {
     if (name == typeElementName) {
         auto &annotation = m_typeAnnotations.emplace_back(m_sourceId, m_directoryId);
@@ -196,7 +196,7 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readMetaInfoRootElement(c
     }
 }
 
-TypeAnnotationReader::ParserSate TypeAnnotationReader::readTypeElement(const QString &name)
+TypeAnnotationReader::ParserState TypeAnnotationReader::readTypeElement(const QString &name)
 {
     if (name == itemLibraryEntryElementName) {
         m_itemLibraryEntries.push_back({});
@@ -210,7 +210,7 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readTypeElement(const QSt
     }
 }
 
-TypeAnnotationReader::ParserSate TypeAnnotationReader::readItemLibraryEntryElement(const QString &name)
+TypeAnnotationReader::ParserState TypeAnnotationReader::readItemLibraryEntryElement(const QString &name)
 {
     if (name == qmlSourceElementNamentName) {
         return ParsingQmlSource;
@@ -225,19 +225,19 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readItemLibraryEntryEleme
     }
 }
 
-TypeAnnotationReader::ParserSate TypeAnnotationReader::readPropertyElement(const QString &name)
+TypeAnnotationReader::ParserState TypeAnnotationReader::readPropertyElement(const QString &name)
 {
     addError(DesignerCore::Tr::tr("Invalid type %1.").arg(name), currentSourceLocation());
     return Error;
 }
 
-TypeAnnotationReader::ParserSate TypeAnnotationReader::readQmlSourceElement(const QString &name)
+TypeAnnotationReader::ParserState TypeAnnotationReader::readQmlSourceElement(const QString &name)
 {
     addError(DesignerCore::Tr::tr("Invalid type %1.").arg(name), currentSourceLocation());
     return Error;
 }
 
-TypeAnnotationReader::ParserSate TypeAnnotationReader::readExtraFileElement(const QString &name)
+TypeAnnotationReader::ParserState TypeAnnotationReader::readExtraFileElement(const QString &name)
 {
     addError(DesignerCore::Tr::tr("Invalid type %1.").arg(name), currentSourceLocation());
     return Error;
@@ -418,12 +418,12 @@ void TypeAnnotationReader::addHints()
     }
 }
 
-TypeAnnotationReader::ParserSate TypeAnnotationReader::parserState() const
+TypeAnnotationReader::ParserState TypeAnnotationReader::parserState() const
 {
     return m_parserState;
 }
 
-void TypeAnnotationReader::setParserState(ParserSate newParserState)
+void TypeAnnotationReader::setParserState(ParserState newParserState)
 {
     m_parserState = newParserState;
 }
@@ -437,7 +437,8 @@ using json = nlohmann::json;
     out.push_back(property.type);
     if (property.value.typeId() == QMetaType::QString)
         out.push_back(Utils::PathString{property.value.toString()});
-    else if (property.value.typeId() == QMetaType::Int || property.value.typeId() == QMetaType::LongLong)
+    else if (property.value.typeId() == QMetaType::Int
+             || property.value.typeId() == QMetaType::LongLong)
         out.push_back(property.value.toLongLong());
     else
         out.push_back(property.value.toDouble());
@@ -458,9 +459,9 @@ Utils::PathString TypeAnnotationReader::absoluteFilePathForDocument(Utils::PathS
     return Utils::PathString::join({m_directoryPath, "/", relativeFilePath});
 }
 
-const char *TypeAnnoationParsingError::what() const noexcept
+const char *TypeAnnotationParsingError::what() const noexcept
 {
-    return "TypeAnnoationParsingError";
+    return "TypeAnnotationParsingError";
 }
 
 } // namespace QmlDesigner::Storage

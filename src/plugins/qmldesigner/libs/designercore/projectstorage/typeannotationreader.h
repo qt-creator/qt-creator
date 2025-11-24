@@ -10,8 +10,8 @@
 #include <modelfwd.h>
 
 #include <3rdparty/json/json.hpp>
-#include <utils/smallstring.h>
 #include <qmljs/qmljssimplereader.h>
+#include <utils/smallstring.h>
 
 #include <QCoreApplication>
 #include <QString>
@@ -28,10 +28,10 @@ namespace QmlDesigner::Storage {
 
 class ItemLibraryEntry;
 
-class TypeAnnoationParsingError : public std::exception
+class TypeAnnotationParsingError : public std::exception
 {
 public:
-    TypeAnnoationParsingError(QStringList errors)
+    TypeAnnotationParsingError(QStringList errors)
         : errors{std::move(errors)}
     {}
 
@@ -78,7 +78,7 @@ protected:
                             const QmlJS::SourceLocation &valueLocation) override;
 
 private:
-    enum ParserSate {
+    enum ParserState {
         Error,
         Finished,
         Undefined,
@@ -92,14 +92,14 @@ private:
         ParsingExtraFile
     };
 
-    ParserSate readDocument(const QString &name);
+    ParserState readDocument(const QString &name);
 
-    ParserSate readMetaInfoRootElement(const QString &name);
-    ParserSate readTypeElement(const QString &name);
-    ParserSate readItemLibraryEntryElement(const QString &name);
-    ParserSate readPropertyElement(const QString &name);
-    ParserSate readQmlSourceElement(const QString &name);
-    ParserSate readExtraFileElement(const QString &name);
+    ParserState readMetaInfoRootElement(const QString &name);
+    ParserState readTypeElement(const QString &name);
+    ParserState readItemLibraryEntryElement(const QString &name);
+    ParserState readPropertyElement(const QString &name);
+    ParserState readQmlSourceElement(const QString &name);
+    ParserState readExtraFileElement(const QString &name);
 
     void readTypeProperty(QStringView name, const QVariant &value);
     void readItemLibraryEntryProperty(QStringView name, const QVariant &value);
@@ -109,8 +109,8 @@ private:
     void readHint(const QString &name, const QVariant &value);
     void addHints();
 
-    ParserSate parserState() const;
-    void setParserState(ParserSate newParserState);
+    ParserState parserState() const;
+    void setParserState(ParserState newParserState);
 
     void insertProperty();
 
@@ -121,7 +121,7 @@ private:
 private:
     ModulesStorage &m_modulesStorage;
     Utils::PathString m_directoryPath;
-    ParserSate m_parserState = Undefined;
+    ParserState m_parserState = Undefined;
     Synchronization::TypeAnnotations m_typeAnnotations;
     json m_hints;
     json m_itemLibraryEntries;
