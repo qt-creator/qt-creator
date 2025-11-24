@@ -250,11 +250,12 @@
     \section1 Install missing Qt packages
 
     If you add a Qt module in \c find_package that you did not install, \QC
-    asks whether you want to install it with \QOI.
+    creates an entry in the \c Issues view with the option to install the missing
+    component with \QOI.
 
     \image {qtcreator-install-packages.webp} {Installing missing Qt packages}
 
-    Select \uicontrol {Yes} to install the package with \QOI.
+    Click the link to install the package with \QOI.
 
     \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
     {Snippets}
