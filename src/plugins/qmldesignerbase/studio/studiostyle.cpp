@@ -298,6 +298,18 @@ void StudioStyle::drawPrimitive(
         painter->fillRect(colorRect, creatorColor(Theme::DStoolbarBackground));
     } break;
 
+    case PE_PanelItemViewItem: {
+        if (const QStyleOptionViewItem *vopt = qstyleoption_cast<const QStyleOptionViewItem *>(
+                option)) {
+            bool enabled = vopt->state & QStyle::State_Enabled;
+            if (!enabled)
+                painter->fillRect(vopt->rect, creatorColor(Theme::DScontrolBackgroundDisabled));
+            else
+                Super::drawPrimitive(element, option, painter, widget);
+        } else {
+            Super::drawPrimitive(element, option, painter, widget);
+        }
+    } break;
     default: {
         Super::drawPrimitive(element, option, painter, widget);
         break;

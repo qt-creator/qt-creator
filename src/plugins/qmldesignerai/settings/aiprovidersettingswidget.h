@@ -29,6 +29,10 @@ public:
 
     const AiProviderConfig config() const;
 
+protected:
+    bool event(QEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+
 private:
     void setupUi();
 
@@ -36,6 +40,7 @@ private:
     Utils::UniqueObjectPtr<QLineEdit> m_urlLineEdit;
     Utils::UniqueObjectPtr<QLineEdit> m_apiKeyLineEdit;
     Utils::UniqueObjectPtr<StringListWidget> m_modelsListWidget;
+    bool m_mouseOverCheckBox = false;
 };
 
 } // namespace QmlDesigner

@@ -11,10 +11,24 @@
 
 #include <QLabel>
 #include <QLineEdit>
+#include <QMouseEvent>
 #include <QPushButton>
 #include <QToolBar>
 
 namespace QmlDesigner {
+
+static constexpr QSize iconSize = {24, 24};
+
+static QIcon toolButtonIcon(Theme::Icon type)
+{
+    const QIcon normalIcon = Theme::iconFromName(type);
+    const QIcon disabledIcon
+        = Theme::iconFromName(type, Theme::getColor(Theme::Color::DStextSelectedTextColor));
+    QIcon icon;
+    icon.addPixmap(normalIcon.pixmap(iconSize), QIcon::Normal, QIcon::On);
+    icon.addPixmap(disabledIcon.pixmap(iconSize), QIcon::Disabled, QIcon::On);
+    return icon;
+}
 
 AiProviderSettingsWidget::AiProviderSettingsWidget(const QString &providerName, QWidget *parent)
     : QGroupBox(parent)
@@ -60,10 +74,41 @@ const AiProviderConfig AiProviderSettingsWidget::config() const
     return m_config;
 }
 
+bool AiProviderSettingsWidget::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::ToolTip: {
+        if (!m_mouseOverCheckBox)
+            event->ignore();
+        else
+            return QGroupBox::event(event);
+    } break;
+    default:
+        return QGroupBox::event(event);
+    }
+    return true;
+}
+
+void AiProviderSettingsWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    QStyleOptionGroupBox box;
+    initStyleOption(&box);
+    QStyle::SubControl mouseOverTest
+        = style()
+              ->hitTestComplexControl(QStyle::CC_GroupBox, &box, event->position().toPoint(), this);
+
+    m_mouseOverCheckBox
+        = (mouseOverTest == QStyle::SC_GroupBoxCheckBox
+           || mouseOverTest == QStyle::SC_GroupBoxLabel);
+
+    return QGroupBox::mouseMoveEvent(event);
+}
+
 void AiProviderSettingsWidget::setupUi()
 {
     setTitle(m_config.providerName());
     setCheckable(true);
+    setMouseTracking(true);
     setToolTip(tr("Show or hide %1 models in the AI Assistant model selector drop down")
                    .arg(m_config.providerName()));
 
@@ -78,11 +123,10 @@ void AiProviderSettingsWidget::setupUi()
 
     m_apiKeyLineEdit->setPlaceholderText(tr("Enter %1 API key to use its models").arg(m_config.providerName()));
 
-    const int iconSize = 24;
     QPushButton *resetUrlButton = new QPushButton(this);
-    resetUrlButton->setIcon(Theme::iconFromName(Theme::resetView_small).pixmap(iconSize));
+    resetUrlButton->setIcon(toolButtonIcon(Theme::resetView_small));
     resetUrlButton->setToolTip(tr("Reset Url"));
-    resetUrlButton->setFixedSize({iconSize, iconSize});
+    resetUrlButton->setFixedSize(iconSize);
     connect(resetUrlButton, &QAbstractButton::clicked, this, [this] {
         const AiProviderData providerData = AiProviderData::defaultProviderData(m_config.providerName());
         m_urlLineEdit->setText(providerData.url.toString());
