@@ -31,6 +31,7 @@ CommandResult::CommandResult(const Process &process)
     , m_cleanedStdOut(process.cleanedStdOut())
     , m_cleanedStdErr(process.cleanedStdErr())
     , m_rawStdOut(process.rawStdOut())
+    , m_workingDirectory(process.workingDirectory())
 {}
 
 CommandResult::CommandResult(const Process &process, ProcessResult result)

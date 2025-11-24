@@ -251,12 +251,17 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
     const auto onDiffDone = [diffInputStorage](const Process &process) {
-        *diffInputStorage = process.cleanedStdOut();
+        if (process.result() == ProcessResult::FinishedWithSuccess) {
+            *diffInputStorage = process.cleanedStdOut();
+        } else {
+            VcsOutputWindow::instance()->appendError(process.workingDirectory(),
+                                                     process.cleanedStdErr());
+        }
     };
 
     const Group root {
         diffInputStorage,
-        ProcessTask(onDiffSetup, onDiffDone, CallDone::OnSuccess),
+        ProcessTask(onDiffSetup, onDiffDone, CallDone::Always),
         postProcessTask(diffInputStorage)
     };
     setReloadRecipe(root);

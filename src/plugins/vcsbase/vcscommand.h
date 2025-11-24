@@ -41,6 +41,8 @@ public:
 
     QByteArray rawStdOut() const { return m_rawStdOut; }
 
+    Utils::FilePath workingDirectory() const { return m_workingDirectory; }
+
 private:
     Utils::ProcessResult m_result = Utils::ProcessResult::StartFailed;
     int m_exitCode = 0;
@@ -50,6 +52,8 @@ private:
     QString m_cleanedStdErr;
 
     QByteArray m_rawStdOut;
+
+    Utils::FilePath m_workingDirectory;
 };
 
 class VCSBASE_EXPORT VcsProcessData
