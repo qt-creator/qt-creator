@@ -186,7 +186,7 @@ void BakeLights::bakeLights()
             if (prog >= 0)
                 emit progressChanged(prog);
             if (timeRemaining >= 0)
-                emit timeRemainingChanged(timeRemaining / 1000.);
+                emit timeRemainingChanged(int(timeRemaining / 1000.));
         };
     } else {
         progressCallback = [this](const QVariant &data) {

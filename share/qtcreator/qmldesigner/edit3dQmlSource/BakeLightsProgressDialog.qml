@@ -16,15 +16,25 @@ Rectangle {
     Connections {
         target: rootView
 
-        // TODO handle progress/time remaining properly in UI
-
         function onMessage(msg) {
             progressText.text += progressText.text === "" ? msg : "\n" + msg
             scrollView.ensureVisible()
         }
 
+        function onProgressChanged(prog) {
+            progressBar.value = prog
+        }
+
+        function onTimeRemainingChanged(time) {
+            if (time >= 60)
+                timeRemainingLabel.text = qsTr("Remaining: %1m %2s").arg(Math.floor(time / 60)).arg(time % 60)
+            else
+                timeRemainingLabel.text = qsTr("Remaining: %1s").arg(time)
+        }
+
         function onFinished() {
             cancelButton.text = qsTr("Close")
+            timeRemainingLabel.text = qsTr("Finished")
         }
     }
 
@@ -85,9 +95,40 @@ Rectangle {
         }
 
         Row {
+            id: row
             spacing: StudioTheme.Values.dialogButtonSpacing
             height: cancelButton.height
             anchors.right: rect.right
+
+            Item {
+                width: rect.width - timeRemainingLabel.width - bakeAgainButton.width
+                       - cancelButton.width - (3 * row.spacing)
+                height: bakeAgainButton.height
+                visible: rootView.kitVersion >= 610
+                StudioControls.ProgressBar {
+                    id: progressBar
+                    width: parent.width
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+            }
+
+            Text {
+                id: timeRemainingLabel
+
+                text: qsTr("Estimating...")
+                font.bold: true
+                font.pixelSize: StudioTheme.Values.myFontSize
+                color: StudioTheme.Values.themeTextColor
+                width: 120
+                height: bakeAgainButton.height
+                visible: rootView.kitVersion >= 610
+                verticalAlignment: Text.AlignVCenter
+
+                ToolTipArea {
+                    anchors.fill: parent
+                    tooltip: qsTr("Estimated time remaining.")
+                }
+            }
 
             Button {
                 id: bakeAgainButton

@@ -49,7 +49,7 @@ public:
 signals:
     void finished();
     void progressChanged(double prog);
-    void timeRemainingChanged(double seconds);
+    void timeRemainingChanged(int seconds);
     void message(const QString &msg);
     void manualModeChanged();
     void kitVersionChanged();
