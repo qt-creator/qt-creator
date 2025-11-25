@@ -185,14 +185,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     if (!qmlViewer().isEmpty())
         return qmlViewer();
 
-    // We might not have a full Qt version for building, but the device
-    // might know what is good for running.
     IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
-    if (dev) {
-        const FilePath qmlRuntime = dev->deviceToolPath(QmlJSTools::Constants::QML_TOOL_ID);
-        if (!qmlRuntime.isEmpty())
-            return qmlRuntime;
-    }
 
     // The Qt version might know, but we need to make sure
     // that the device can reach it.
@@ -201,10 +194,17 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
         if (!qmlRuntime.isEmpty() && (!dev || dev->ensureReachable(qmlRuntime)))
             return qmlRuntime;
     }
-
-    // If not given explicitly by run device, nor Qt, try to pick
-    // it from $PATH on the run device.
-    return dev ? dev->filePath("qml").searchInPath() : "qml";
+    // We might not have a full Qt version for building, but the device
+    // might know what is good for running.
+    if (dev) {
+        const FilePath qmlRuntime = dev->deviceToolPath(QmlJSTools::Constants::QML_TOOL_ID);
+        if (!qmlRuntime.isEmpty())
+            return qmlRuntime;
+        // If not given explicitly by run device, nor Qt, try to pick
+        // it from $PATH on the run device.
+        return dev->filePath("qml").searchInPath();
+    }
+    return FilePath{"qml"};
 }
 
 bool QmlProjectRunConfiguration::isEnabled(Id) const
