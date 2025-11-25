@@ -298,6 +298,7 @@ UpdateInfoPlugin::UpdateInfoPlugin()
 
 UpdateInfoPlugin::~UpdateInfoPlugin()
 {
+    QDesktopServices::unsetUrlHandler(SERVICE_SCHEME);
     stopCheckForUpdates();
     if (!m_d->m_maintenanceTool.isEmpty())
         saveSettings();
