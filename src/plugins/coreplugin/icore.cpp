@@ -1553,6 +1553,8 @@ void ICore::aboutToShutdown()
     d->m_activeContext.clear();
     d->m_mainwindow->hide();
 
+    d->m_modeManager->aboutToShutdown();
+
     delete d->m_settingMode;
     d->m_settingMode = nullptr;
 }

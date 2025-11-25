@@ -76,8 +76,8 @@ struct ModeManagerPrivate
     Internal::FancyTabWidget *m_modeStack;
     Internal::FancyActionBar *m_actionBar;
     QHash<QAction *, int> m_actions;
-    QVector<IMode *> m_modes;
-    QVector<Command *> m_modeCommands;
+    QList<QPointer<IMode>> m_modes;
+    QList<QPointer<Command>> m_modeCommands;
     Context m_addedContexts;
     int m_oldCurrent;
     ModeManager::Style m_modeStyle = ModeManager::Style::IconsAndText;
@@ -449,6 +449,11 @@ void ModeManager::currentTabChanged(int index)
     d->m_oldCurrent = index;
     emit currentModeChanged(mode->id(), oldMode ? oldMode->id() : Id());
     emit currentMainWindowChanged();
+}
+
+void ModeManager::aboutToShutdown()
+{
+    disconnect(d->m_modeStack, nullptr, this, nullptr);
 }
 
 /*!

@@ -69,6 +69,8 @@ private:
     void currentTabAboutToChange(int index);
     void currentTabChanged(int index);
 
+    void aboutToShutdown();
+
     friend class ICore;
     friend class IMode;
     friend class Internal::ICorePrivate;
