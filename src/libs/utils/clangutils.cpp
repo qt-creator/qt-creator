@@ -16,8 +16,11 @@ static QVersionNumber getClangdVersion(const FilePath &clangdFilePath)
     Process clangdProc;
     clangdProc.setCommand({clangdFilePath, {"--version"}});
     clangdProc.runBlocking();
-    if (clangdProc.result() != ProcessResult::FinishedWithSuccess)
+    if (clangdProc.result() != ProcessResult::FinishedWithSuccess) {
+        if (clangdProc.stdErr().contains("Unknown command line argument")) // Intel oneAPI
+            return minimumClangdVersion();
         return {};
+    }
     const QString output = clangdProc.allOutput();
     static const QString versionPrefix = "clangd version ";
     const int prefixOffset = output.indexOf(versionPrefix);
