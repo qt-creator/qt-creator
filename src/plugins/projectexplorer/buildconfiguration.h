@@ -84,6 +84,7 @@ public:
     void addRunConfiguration(RunConfiguration *rc, NameHandling nameHandling);
     void removeRunConfiguration(RunConfiguration *rc);
     void removeAllRunConfigurations();
+    void removeRunConfigurations(const QList<RunConfiguration *> &runConfigs);
     RunConfiguration *activeRunConfiguration() const;
     void setActiveRunConfiguration(RunConfiguration *rc);
     ProjectConfigurationModel *runConfigurationModel() const;
@@ -187,6 +188,7 @@ private:
     bool addConfigurationsFromMap(const Utils::Store &map, bool setActiveConfigurations);
     void setExtraDataFromMap(const Utils::Store &map);
     void storeConfigurationsToMap(Utils::Store &map) const;
+    void removeRunConfigurationsHelper(const QList<QPointer<RunConfiguration>> &runConfigs);
 
     void emitBuildDirectoryChanged();
     Internal::BuildConfigurationPrivate *d = nullptr;

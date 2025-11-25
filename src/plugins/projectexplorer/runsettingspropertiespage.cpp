@@ -3,7 +3,6 @@
 
 #include "runsettingspropertiespage.h"
 
-#include "addrunconfigdialog.h"
 #include "buildmanager.h"
 #include "buildstepspage.h"
 #include "deployconfiguration.h"
@@ -13,6 +12,7 @@
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
+#include "runconfigdialogs.h"
 #include "runconfiguration.h"
 #include "target.h"
 
@@ -522,10 +522,12 @@ private:
     void cloneRunConfiguration();
     void cloneOtherRunConfiguration();
     void removeRunConfiguration();
+    void removeRunConfigurations();
     void removeAllRunConfigurations();
     void activeRunConfigurationChanged();
     void renameRunConfiguration();
     void initForActiveBuildConfig();
+    QList<BuildConfiguration *> affectedBuildConfigurations();
 
     void updateRemoveToolButtons();
 
@@ -544,6 +546,7 @@ private:
     QComboBox *m_runConfigurationCombo;
     QPushButton *m_addRunToolButton;
     QPushButton *m_removeRunToolButton;
+    QPushButton *m_removeRunConfigsButton;
     QPushButton *m_removeAllRunConfigsButton;
     QPushButton *m_renameRunButton;
     QPushButton *m_cloneRunButton;
@@ -567,6 +570,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
 
     m_addRunToolButton = new QPushButton(Tr::tr("Add..."), this);
     m_removeRunToolButton = new QPushButton(Tr::tr("Remove"), this);
+    m_removeRunConfigsButton = new QPushButton(Tr::tr("Bulk Remove..."), this);
     m_removeAllRunConfigsButton = new QPushButton(Tr::tr("Remove All"), this);
     m_renameRunButton = new QPushButton(Tr::tr("Rename..."), this);
     m_cloneRunButton = new QPushButton(Tr::tr("Clone..."), this);
@@ -584,11 +588,12 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_gridLayout->addWidget(m_runConfigurationCombo, 0, 1, 1, 1);
     m_gridLayout->addWidget(m_addRunToolButton, 0, 2, 1, 1);
     m_gridLayout->addWidget(m_removeRunToolButton, 0, 3, 1, 1);
-    m_gridLayout->addWidget(m_removeAllRunConfigsButton, 0, 4, 1, 1);
-    m_gridLayout->addWidget(m_renameRunButton, 0, 5, 1, 1);
-    m_gridLayout->addWidget(m_cloneRunButton, 0, 6, 1, 1);
-    m_gridLayout->addWidget(m_cloneIntoThisButton, 0, 7, 1, 1);
-    m_gridLayout->addItem(spacer1, 1, 8, 1, 1);
+    m_gridLayout->addWidget(m_removeRunConfigsButton, 0, 4, 1, 1);
+    m_gridLayout->addWidget(m_removeAllRunConfigsButton, 0, 5, 1, 1);
+    m_gridLayout->addWidget(m_renameRunButton, 0, 6, 1, 1);
+    m_gridLayout->addWidget(m_cloneRunButton, 0, 7, 1, 1);
+    m_gridLayout->addWidget(m_cloneIntoThisButton, 0, 8, 1, 1);
+    m_gridLayout->addItem(spacer1, 1, 9, 1, 1);
     m_gridLayout->addWidget(runWidget, 2, 0, 1, -1);
     m_gridLayout->addItem(spacer2, 3, 0, 1, 1);
 
@@ -608,6 +613,8 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
             this, &RunSettingsWidget::showAddRunConfigDialog);
     connect(m_removeRunToolButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::removeRunConfiguration);
+    connect(m_removeRunConfigsButton, &QAbstractButton::clicked,
+            this, &RunSettingsWidget::removeRunConfigurations);
     connect(m_removeAllRunConfigsButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::removeAllRunConfigurations);
     connect(m_renameRunButton, &QAbstractButton::clicked,
@@ -714,7 +721,22 @@ void RunSettingsWidget::removeRunConfiguration()
     m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
     m_cloneRunButton->setEnabled(m_target->activeRunConfiguration());
     m_cloneIntoThisButton->setEnabled(m_target->activeRunConfiguration());
+}
 
+void RunSettingsWidget::removeRunConfigurations()
+{
+    RemoveRunConfigsDialog dlg(m_target->activeBuildConfiguration(), this);
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    const QList<BuildConfiguration *> affectedBcs = affectedBuildConfigurations();
+    for (BuildConfiguration * const bc : affectedBcs)
+        bc->removeRunConfigurations(dlg.runConfigsToRemove());
+
+    updateRemoveToolButtons();
+    m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
+    m_cloneRunButton->setEnabled(m_target->activeRunConfiguration());
+    m_cloneIntoThisButton->setEnabled(m_target->activeRunConfiguration());
 }
 
 void RunSettingsWidget::removeAllRunConfigurations()
@@ -730,18 +752,8 @@ void RunSettingsWidget::removeAllRunConfigurations()
     if (msgBox.exec() == QMessageBox::Cancel)
         return;
 
-    QList<BuildConfiguration *> affectedBcs;
-    switch (ProjectExplorerSettings::get(m_target).syncRunConfigurations.value()) {
-    case SyncRunConfigs::Off:
-        affectedBcs << m_target->activeBuildConfiguration();
-        break;
-    case SyncRunConfigs::SameKit:
-        affectedBcs = m_target->buildConfigurations();
-        break;
-    case SyncRunConfigs::All:
-        affectedBcs = m_target->project()->allBuildConfigurations();
-    }
-    for (BuildConfiguration * const bc : std::as_const(affectedBcs))
+    const QList<BuildConfiguration *> affectedBcs = affectedBuildConfigurations();
+    for (BuildConfiguration * const bc : affectedBcs)
         bc->removeAllRunConfigurations();
 
     updateRemoveToolButtons();
@@ -828,6 +840,21 @@ void RunSettingsWidget::initForActiveBuildConfig()
     setConfigurationWidget(rc, false);
 }
 
+QList<BuildConfiguration *> RunSettingsWidget::affectedBuildConfigurations()
+{
+    switch (ProjectExplorerSettings::get(m_target).syncRunConfigurations.value()) {
+    case SyncRunConfigs::Off:
+        return {m_target->activeBuildConfiguration()};
+    case SyncRunConfigs::SameKit:
+        return m_target->buildConfigurations();
+    case SyncRunConfigs::All:
+        return m_target->project()->allBuildConfigurations();
+    }
+
+    QTC_CHECK(false);
+    return {};
+}
+
 void RunSettingsWidget::updateRemoveToolButtons()
 {
     const BuildConfiguration * const bc = m_target->activeBuildConfiguration();
@@ -835,6 +862,7 @@ void RunSettingsWidget::updateRemoveToolButtons()
     const bool hasRunConfigs = !bc->runConfigurations().isEmpty();
     m_removeRunToolButton->setEnabled(hasRunConfigs);
     m_removeAllRunConfigsButton->setEnabled(hasRunConfigs);
+    m_removeRunConfigsButton->setEnabled(hasRunConfigs);
 }
 
 void RunSettingsWidget::setConfigurationWidget(RunConfiguration *rc, bool force)

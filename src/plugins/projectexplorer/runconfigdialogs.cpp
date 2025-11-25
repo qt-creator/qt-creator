@@ -1,15 +1,17 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "addrunconfigdialog.h"
+#include "runconfigdialogs.h"
 
 #include "buildconfiguration.h"
 #include "project.h"
+#include "projectconfigurationmodel.h"
 #include "projectexplorertr.h"
 
 #include <utils/itemviews.h>
 #include <utils/fancylineedit.h>
 #include <utils/fuzzymatcher.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
@@ -20,6 +22,7 @@
 #include <QSortFilterProxyModel>
 #include <QVBoxLayout>
 
+using namespace Layouting;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -158,6 +161,57 @@ void AddRunConfigDialog::accept()
     QTC_ASSERT(item, return);
     m_creationInfo = static_cast<const CandidateTreeItem *>(item)->creationInfo();
     QTC_ASSERT(m_creationInfo.factory, return);
+    QDialog::accept();
+}
+
+
+RemoveRunConfigsDialog::RemoveRunConfigsDialog(BuildConfiguration *bc, QWidget *parent)
+    : QDialog(parent), m_view(new TreeView)
+{
+    setWindowTitle(Tr::tr("Remove Run Configurations"));
+    const auto sortModel = new SortModel(this);
+    sortModel->setSourceModel(bc->runConfigurationModel());
+    const auto filterEdit = new FancyLineEdit(this);
+    filterEdit->setFocus();
+    filterEdit->setFiltering(true);
+    filterEdit->setPlaceholderText(Tr::tr("Filter run configurations by name"));
+    m_view->setHeaderHidden(true);
+    m_view->setSelectionMode(TreeView::ExtendedSelection);
+    m_view->setSortingEnabled(true);
+    m_view->setModel(sortModel);
+    m_view->sortByColumn(0, Qt::AscendingOrder);
+    const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    buttonBox->button(QDialogButtonBox::Ok)->setText(Tr::tr("Remove selected"));
+
+    connect(filterEdit, &FancyLineEdit::textChanged, this, [sortModel](const QString &text) {
+        sortModel->setFilterRegularExpression(FuzzyMatcher::createRegExp(text));
+    });
+    const auto updateOkButton = [buttonBox, this] {
+        buttonBox->button(QDialogButtonBox::Ok)
+        ->setEnabled(m_view->selectionModel()->hasSelection());
+    };
+    connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, updateOkButton);
+    updateOkButton();
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    Column{filterEdit, m_view, buttonBox}.attachTo(this);
+}
+
+void RemoveRunConfigsDialog::accept()
+{
+    const QModelIndexList selected = m_view->selectionModel()->selectedRows();
+    QTC_ASSERT(!selected.isEmpty(), return);
+    const auto * const sortModel = static_cast<SortModel *>(m_view->model());
+    const auto * const model = static_cast<ProjectConfigurationModel *>(sortModel->sourceModel());
+    for (const QModelIndex &proxyIndex : selected) {
+        const QModelIndex idx = sortModel->mapToSource(proxyIndex);
+        if (QTC_UNEXPECTED(idx.row() >= model->rowCount())) {
+            m_runConfigs.clear();
+            break;
+        }
+        m_runConfigs << qobject_cast<RunConfiguration *>(model->projectConfigurationAt(idx.row()));
+    }
     QDialog::accept();
 }
 

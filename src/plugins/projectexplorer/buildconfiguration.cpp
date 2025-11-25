@@ -883,8 +883,29 @@ void BuildConfiguration::removeAllRunConfigurations()
     QList<QPointer<RunConfiguration>> runConfigs = d->m_runConfigurations;
     d->m_runConfigurations.clear();
     setActiveRunConfiguration(nullptr);
-    while (!runConfigs.isEmpty()) {
-        RunConfiguration * const rc = runConfigs.takeFirst();
+    removeRunConfigurationsHelper(runConfigs);
+}
+
+void BuildConfiguration::removeRunConfigurations(const QList<RunConfiguration *> &runConfigs)
+{
+    QList<QPointer<RunConfiguration>> toRemove;
+    for (auto it = d->m_runConfigurations.begin(); it != d->m_runConfigurations.end();) {
+        if (runConfigs.contains(it->get())) {
+            toRemove << it->get();
+            it = d->m_runConfigurations.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    setActiveRunConfiguration(
+        d->m_runConfigurations.isEmpty() ? nullptr : d->m_runConfigurations.first());
+    removeRunConfigurationsHelper(toRemove);
+}
+
+void BuildConfiguration::removeRunConfigurationsHelper(
+    const QList<QPointer<RunConfiguration>> &runConfigs)
+{
+    for (RunConfiguration * const rc : runConfigs) {
         QTC_CHECK(rc);
         emit removedRunConfiguration(rc);
         if (this == target()->activeBuildConfiguration())

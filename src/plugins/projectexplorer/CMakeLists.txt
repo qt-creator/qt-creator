@@ -6,7 +6,7 @@ add_qtc_plugin(ProjectExplorer
     abi.cpp abi.h
     abiwidget.cpp abiwidget.h
     abstractprocessstep.cpp abstractprocessstep.h
-    addrunconfigdialog.cpp addrunconfigdialog.h
+    runconfigdialogs.cpp runconfigdialogs.h
     allprojectsfilter.cpp allprojectsfilter.h
     allprojectsfind.cpp allprojectsfind.h
     appoutputpane.cpp appoutputpane.h
