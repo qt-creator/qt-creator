@@ -346,8 +346,12 @@ void tst_filepath::isChildOf_data()
                                    << "relative/path" << true;
     QTest::newRow("/tmpdir") << "/tmp"
                              << "/tmpdir" << false;
-    QTest::newRow("same") << "/tmp/dir"
-                          << "/tmp/dir" << false;
+    QTest::newRow("same-0") << "/tmp/dir"
+                            << "/tmp/dir" << false;
+    QTest::newRow("same-1") << "/tmp/dir/"
+                            << "/tmp/dir" << false;
+    QTest::newRow("same-2") << "/tmp/dir"
+                            << "/tmp/dir/" << false;
 
     // Windows stuff:
     QTest::newRow("C:/data") << "C:/"
@@ -1372,6 +1376,10 @@ void tst_filepath::relativeChildPath_data()
 
     QTest::newRow("not-0") << FilePath("/x") << FilePath("/a/b") << FilePath();
     QTest::newRow("not-1") << FilePath("/a/b/c") << FilePath("/a/b") << FilePath();
+
+    QTest::newRow("same-0") << FilePath("/a/b") << FilePath("/a/b") << FilePath();
+    QTest::newRow("same-1") << FilePath("/a/b/") << FilePath("/a/b") << FilePath();
+    QTest::newRow("same-2") << FilePath("/a/b") << FilePath("/a/b/") << FilePath();
 }
 
 void tst_filepath::relativeChildPath()

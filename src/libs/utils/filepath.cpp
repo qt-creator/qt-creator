@@ -1844,9 +1844,9 @@ bool FilePath::isChildOf(const FilePath &s) const
         return false;
     const QStringView p = pathView();
     const QStringView sp = s.pathView();
-    if (!p.startsWith(sp, caseSensitivity()))
-        return false;
     if (p.size() <= sp.size())
+        return false;
+    if (!p.startsWith(sp, caseSensitivity()))
         return false;
     // s is root, '/' was already tested in startsWith
     if (sp.endsWith(QLatin1Char('/')))
