@@ -9,6 +9,7 @@
 
 #include <QToolBar>
 #include <QToolButton>
+#include <QWheelEvent>
 
 namespace QmlDesigner {
 
@@ -143,6 +144,12 @@ void StringListWidget::addItem(const QString &itemText)
 QToolBar *StringListWidget::toolBar() const
 {
     return m_toolBar.get();
+}
+
+void StringListWidget::wheelEvent(QWheelEvent *event)
+{
+    QListWidget::wheelEvent(event);
+    event->accept(); // Accept the event to prevent handling it by the parent at bounds
 }
 
 void StringListWidget::onRowChanged(int row)

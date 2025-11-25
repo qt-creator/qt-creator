@@ -24,6 +24,9 @@ public:
 
     QToolBar *toolBar() const;
 
+protected:
+    void wheelEvent(QWheelEvent *event) override;
+
 private: // functions
     void onRowChanged(int row);
     void setWidgetItems(const QStringList &items);
