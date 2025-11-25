@@ -52,6 +52,7 @@ def main():
 
     setFixedHelpViewer(HelpViewer.HELPMODE)
     addCurrentCreatorDocumentation()
+    switchViewTo(ViewConstants.WELCOME)
 
     buttonsAndState = {'Projects':False, 'Examples':True, 'Tutorials':False}
     for button, state in buttonsAndState.items():
