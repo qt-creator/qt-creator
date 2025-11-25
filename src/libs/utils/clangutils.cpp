@@ -7,6 +7,7 @@
 #include "qtcprocess.h"
 #include "utilstr.h"
 
+#include <QMutex>
 #include <QVersionNumber>
 
 namespace Utils {
@@ -31,6 +32,8 @@ static QVersionNumber getClangdVersion(const FilePath &clangdFilePath)
 
 QVersionNumber clangdVersion(const FilePath &clangd)
 {
+    static QMutex versionCacheMutex;
+    QMutexLocker locker(&versionCacheMutex);
     static QHash<FilePath, QPair<QDateTime, QVersionNumber>> versionCache;
     const QDateTime timeStamp = clangd.lastModified();
     const auto it = versionCache.find(clangd);
