@@ -366,6 +366,8 @@ public:
     WorkspaceRunConfiguration(BuildConfiguration *bc, Id id)
         : RunConfiguration(bc, id)
     {
+        environment.setSupportForBuildEnvironment(bc);
+
         hint.setText(Tr::tr("Clone the configuration to change it. Or, make the changes in "
                             "the .qtcreator/project.json file."));
 
@@ -373,6 +375,10 @@ public:
         executable.setLabelText(Tr::tr("Executable:"));
         executable.setExecutable(bti.targetFilePath);
         executable.setSettingsKey("Workspace.RunConfiguration.Executable");
+        executable.setEnvironment(environment.environment());
+        connect(&environment, &EnvironmentAspect::environmentChanged, this, [this]  {
+            executable.setEnvironment(environment.environment());
+        });
 
         auto argumentsAsString = [this]() {
             return CommandLine{
@@ -388,6 +394,7 @@ public:
         if (!bti.workingDirectory.isEmpty())
             workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
         workingDirectory.setSettingsKey("Workspace.RunConfiguration.WorkingDirectory");
+        workingDirectory.setEnvironment(&environment);
 
         setUpdater([this, argumentsAsString] {
             if (enabled.value()) // skip the update for cloned run configurations
@@ -414,6 +421,7 @@ public:
     }
 
     TextDisplay hint{this};
+    EnvironmentAspect environment{this};
     ExecutableAspect executable{this};
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDirectory{this};
