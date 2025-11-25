@@ -2424,6 +2424,8 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
         if (CMakeBuildSystem::filteredOutTarget(ct))
             continue;
 
+        const FilePath projectFilePath = ct.sourceDirectory.cleanPath().pathAppended(
+            Constants::CMAKE_LISTS_TXT);
         if (ct.targetType == ExecutableType || (forAndroid && ct.targetType == DynamicLibraryType)) {
             const QString buildKey = ct.title;
 
@@ -2439,7 +2441,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
                 bti.launchers.append(Launcher(launcherInfo, ct.sourceDirectory));
             }
             bti.targetFilePath = ct.executable;
-            bti.projectFilePath = ct.sourceDirectory.cleanPath();
+            bti.projectFilePath = projectFilePath;
             bti.buildKey = buildKey;
             bti.usesTerminal = !ct.linksToQtGui;
             bti.isQtcRunnable = ct.qtcRunnable;
@@ -2480,7 +2482,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
                   }).workingDirectory;
 
             bti.targetFilePath = cmakeExecutable;
-            bti.projectFilePath = ct.sourceDirectory.cleanPath();
+            bti.projectFilePath = projectFilePath;
             bti.workingDirectory = workingDirectory;
             bti.buildKey = buildKey;
             bti.isQtcRunnable = ct.qtcRunnable;

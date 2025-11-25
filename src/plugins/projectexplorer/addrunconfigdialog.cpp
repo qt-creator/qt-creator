@@ -48,8 +48,8 @@ private:
         if (column == 1 && role == Qt::DisplayRole) {
             FilePath displayPath = m_creationInfo.projectFilePath.relativeChildPath(m_projectRoot);
             if (displayPath.isEmpty()) {
+                QTC_CHECK(m_creationInfo.projectFilePath.isEmpty());
                 displayPath = m_creationInfo.projectFilePath;
-                QTC_CHECK(displayPath.isEmpty());
             }
             return displayPath.isEmpty() ? Tr::tr("[none]") : displayPath.toUserOutput();
         }
