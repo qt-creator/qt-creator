@@ -152,16 +152,16 @@ public:
     static const QList<Utils::FormattedText> linkifiedText(const QList<FormattedText> &text,
             const OutputLineParser::LinkSpecs &linkSpecs);
 
-#ifdef WITH_TESTS
-    void overrideTextCharFormat(const QTextCharFormat &fmt);
-    QList<OutputLineParser *> lineParsers() const;
-#endif
-
 #ifndef WITH_TESTS
 private:
 #endif
     QTextCharFormat charFormat(OutputFormat format) const;
     static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
+
+#ifdef WITH_TESTS
+    void overrideTextCharFormat(const QTextCharFormat &fmt);
+    QList<OutputLineParser *> lineParsers() const;
+#endif
 
 signals:
     void openInEditorRequested(const Utils::Link &link);
@@ -185,6 +185,13 @@ private:
     class Private;
     Private * const d;
 };
+
+
+#ifdef WITH_TESTS
+
+QTCREATOR_UTILS_EXPORT QObject *createOutputFormatterTest();
+
+#endif
 
 
 } // namespace Utils

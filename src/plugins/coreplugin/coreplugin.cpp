@@ -19,6 +19,7 @@
 #include "idocument.h"
 #include "iwizardfactory.h"
 #include "locator/locator.h"
+#include "locator/locator_test.h"
 #include "loggingviewer.h"
 #include "modemanager.h"
 #include "session.h"
@@ -27,6 +28,7 @@
 #include "themechooser.h"
 #include "vcsmanager.h"
 
+#include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -42,6 +44,7 @@
 #include <utils/networkaccessmanager.h>
 #include <utils/passworddialog.h>
 #include <utils/pathchooser.h>
+#include <utils/outputformatter.h>
 #include <utils/savefile.h>
 #include <utils/store.h>
 #include <utils/stringutils.h>
@@ -74,6 +77,38 @@ namespace Core::Internal {
 static CorePlugin *m_instance = nullptr;
 
 const char kWarnCrashReportingSetting[] = "WarnCrashReporting";
+
+class CorePlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Core.json")
+
+public:
+    CorePlugin();
+    ~CorePlugin() final;
+
+    Utils::Result<> initialize(const QStringList &arguments) final;
+    void extensionsInitialized() final;
+    bool delayedInitialize() final;
+    ShutdownFlag aboutToShutdown() final;
+    QObject *remoteCommand(const QStringList & /* options */,
+                           const QString &workingDirectory,
+                           const QStringList &args) final;
+
+    static QString msgCrashpadInformation();
+
+public slots:
+    void fileOpenRequest(const QString &);
+
+private:
+    void checkSettings();
+    void warnAboutCrashReporing();
+
+    ICore *m_core = nullptr;
+    EditMode *m_editMode = nullptr;
+    Locator *m_locator = nullptr;
+    FolderNavigationWidgetFactory *m_folderNavigationWidgetFactory = nullptr;
+};
 
 CorePlugin::CorePlugin()
 {
@@ -116,11 +151,6 @@ CorePlugin::~CorePlugin()
     delete m_core;
     SettingsDatabase::destroy();
     setCreatorTheme(nullptr);
-}
-
-CorePlugin *CorePlugin::instance()
-{
-    return m_instance;
 }
 
 struct CoreArguments {
@@ -419,8 +449,10 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
 #endif
 
 #ifdef WITH_TESTS
+    addTestCreator(createLocatorTest);
     addTestCreator(createVcsManagerTest);
     addTestCreator(createTabbedEditorTest);
+    addTestCreator(createOutputFormatterTest);
 #endif
 
     return ResultOk;
@@ -637,4 +669,11 @@ ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
+ExtensionSystem::IPlugin *corePlugin()
+{
+    return m_instance;
+}
+
 } // Core::Internal
+
+#include "coreplugin.moc"

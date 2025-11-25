@@ -3,7 +3,6 @@
 
 #include "plugininstallwizard.h"
 
-#include "coreplugin.h"
 #include "coreplugintr.h"
 #include "icore.h"
 

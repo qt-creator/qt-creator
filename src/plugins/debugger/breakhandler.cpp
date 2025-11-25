@@ -14,7 +14,6 @@
 #include "simplifytype.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreplugin.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>

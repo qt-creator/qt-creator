@@ -276,7 +276,8 @@ QtcPlugin {
             "editormanager/editormanager_test.cpp",
             "locator/locatorfiltertest.cpp",
             "locator/locatorfiltertest.h",
-            "locator/locator_test.cpp"
+            "locator/locator_test.cpp",
+            "locator/locator_test.h"
         ]
 
         cpp.defines: outer.concat(['SRCDIR="' + path + '"'])

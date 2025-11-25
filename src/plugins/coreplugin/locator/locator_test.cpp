@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "../coreplugin.h"
 #include "locatorfiltertest.h"
 
 #include <utils/algorithm.h>
@@ -30,7 +29,18 @@ public:
 Q_DECLARE_METATYPE(ReferenceData)
 Q_DECLARE_METATYPE(QList<ReferenceData>)
 
-void Core::Internal::CorePlugin::test_basefilefilter()
+namespace Core::Internal {
+
+class LocatorTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test_basefilefilter();
+    void test_basefilefilter_data();
+};
+
+void LocatorTest::test_basefilefilter()
 {
     QFETCH(FilePaths, testFiles);
     QFETCH(QList<ReferenceData>, referenceDataList);
@@ -46,7 +56,7 @@ void Core::Internal::CorePlugin::test_basefilefilter()
     }
 }
 
-void Core::Internal::CorePlugin::test_basefilefilter_data()
+void LocatorTest::test_basefilefilter_data()
 {
     QTest::addColumn<FilePaths>("testFiles");
     QTest::addColumn<QList<ReferenceData> >("referenceDataList");
@@ -157,3 +167,12 @@ void Core::Internal::CorePlugin::test_basefilefilter_data()
                     << ResultData("zfile.cpp", sortingTestFilesShort.at(0))))
             );
 }
+
+QObject *createLocatorTest()
+{
+    return new LocatorTest;
+}
+
+} // Core::Internal
+
+#include "locator_test.moc"

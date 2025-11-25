@@ -70,7 +70,7 @@ LocatorMatcherTasks ExternalToolsFilter::matchers()
         configEntry.displayName = "Configure External Tool...";
         configEntry.extraInfo = "Opens External Tool settings";
         configEntry.acceptor = [] {
-            QMetaObject::invokeMethod(CorePlugin::instance(), [] {
+            QMetaObject::invokeMethod(Internal::corePlugin(), [] {
                 ICore::showOptionsDialog(Constants::SETTINGS_ID_TOOLS);
             }, Qt::QueuedConnection);
             return AcceptResult();

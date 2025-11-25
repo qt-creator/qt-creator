@@ -297,6 +297,7 @@ extend_qtc_plugin(Core
   SOURCES
     editormanager/editormanager_test.cpp
     locator/locator_test.cpp
+    locator/locator_test.h
     locator/locatorfiltertest.cpp
     locator/locatorfiltertest.h
 )

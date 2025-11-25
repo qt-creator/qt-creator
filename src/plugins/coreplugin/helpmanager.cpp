@@ -28,7 +28,7 @@ static bool checkInstance()
     static bool afterPluginCreation = false;
     if (!afterPluginCreation) {
         using namespace ExtensionSystem;
-        auto plugin = Internal::CorePlugin::instance();
+        IPlugin *plugin = Internal::corePlugin();
         // HelpManager API can only be used after the actual implementation has been created by the
         // Help plugin, so check that the plugins have all been created. That is the case
         // when the Core plugin is initialized.

@@ -390,7 +390,7 @@ static QString determineSessionToRestoreAtStartup()
 {
     // TODO (session) move argument to core
     // Process command line arguments first:
-    const bool lastSessionArg = PluginManager::specForPlugin(Internal::CorePlugin::instance())
+    const bool lastSessionArg = PluginManager::specForPlugin(Internal::corePlugin())
                                     ->arguments()
                                     .contains("-lastsession");
     if (lastSessionArg && !SessionManager::startupSession().isEmpty())
