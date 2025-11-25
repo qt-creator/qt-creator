@@ -35,6 +35,7 @@ const char DETECTION_SOURCE_KEY[] = "ProjectExplorer.ToolChain.DetectionSource";
 const char LANGUAGE_KEY_V1[] = "ProjectExplorer.ToolChain.Language"; // For QtCreator <= 4.2
 const char LANGUAGE_KEY_V2[] = "ProjectExplorer.ToolChain.LanguageV2"; // For QtCreator > 4.2
 const char CODE_MODEL_TRIPLE_KEY[] = "ExplicitCodeModelTargetTriple";
+const char MANUALLY_PROVIDED_CXX_KEY[] = "ManuallyProvidedCxxPath";
 
 QList<ToolchainFactory *> &toolchainFactories()
 {
@@ -82,6 +83,7 @@ public:
 
     std::optional<bool> m_isValid;
     bool m_hasError = false;
+    bool m_isManuallyProvidedCxxPath = false;
 };
 
 
@@ -296,6 +298,7 @@ void Toolchain::toMap(Store &result) const
     result.insert(AUTODETECT_KEY, d->m_detectionSource.isAutoDetected());
     result.insert(DETECTION_SOURCE_KEY, d->m_detectionSource.id);
     result.insert(CODE_MODEL_TRIPLE_KEY, d->m_explicitCodeModelTargetTriple);
+    result.insert(MANUALLY_PROVIDED_CXX_KEY, d->m_isManuallyProvidedCxxPath);
     // <Compatibility with QtC 4.2>
     int oldLanguageId = -1;
     if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
@@ -393,6 +396,16 @@ bool Toolchain::matchesCompilerCommand(const FilePath &command) const
     return compilerCommand().isSameExecutable(command);
 }
 
+void Toolchain::setIsManuallyProvidedCxxCompiler(bool manuallyProvided)
+{
+    d->m_isManuallyProvidedCxxPath = manuallyProvided;
+}
+
+bool Toolchain::isManuallyProvidedCxxCompiler() const
+{
+    return d->m_isManuallyProvidedCxxPath;
+}
+
 void Toolchain::setCompilerCommandKey(const Key &commandKey)
 {
     d->m_compilerCommandKey = commandKey;
@@ -440,6 +453,7 @@ void Toolchain::fromMap(const Store &data)
     d->m_detectionSource.id = data.value(DETECTION_SOURCE_KEY).toString();
 
     d->m_explicitCodeModelTargetTriple = data.value(CODE_MODEL_TRIPLE_KEY).toString();
+    d->m_isManuallyProvidedCxxPath = data.value(MANUALLY_PROVIDED_CXX_KEY).toBool();
 
     if (data.contains(LANGUAGE_KEY_V2)) {
         // remove hack to trim language id in 4.4: This is to fix up broken language
@@ -997,6 +1011,16 @@ void ToolchainBundle::setCompilerCommand(Utils::Id language, const Utils::FilePa
     for (Toolchain *const tc : std::as_const(m_toolchains)) {
         if (tc->language() == language) {
             tc->setCompilerCommand(cmd);
+            break;
+        }
+    }
+}
+
+void ToolchainBundle::setCxxCompilerIsManuallyProvided(bool manuallyProvided)
+{
+    for (Toolchain *const tc : std::as_const(m_toolchains)) {
+        if (tc->language() == Constants::CXX_LANGUAGE_ID) {
+            tc->setIsManuallyProvidedCxxCompiler(manuallyProvided);
             break;
         }
     }
