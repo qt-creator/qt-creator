@@ -56,25 +56,6 @@ private:
     VariableChooserPrivate *m_target;
 };
 
-class VariableSortFilterProxyModel : public QSortFilterProxyModel
-{
-public:
-    explicit VariableSortFilterProxyModel(QObject *parent) : QSortFilterProxyModel(parent) {}
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
-    {
-        const QModelIndex index = sourceModel()->index(sourceRow, filterKeyColumn(), sourceParent);
-        if (!index.isValid())
-            return false;
-
-        const QRegularExpression regexp = filterRegularExpression();
-        if (regexp.pattern().isEmpty() || sourceModel()->rowCount(index) > 0)
-            return true;
-
-        const QString displayText = index.data(Qt::DisplayRole).toString();
-        return displayText.contains(regexp);
-    }
-};
-
 class VariableChooserPrivate : public QObject
 {
 public:
