@@ -15,6 +15,8 @@
 #include <QTabWidget>
 #include <QToolButton>
 
+class QComboBox;
+
 namespace Terminal {
 
 class TerminalWidget;
@@ -78,6 +80,7 @@ private:
     QToolButton *m_openSettingsButton{nullptr};
     QToolButton *m_escSettingButton{nullptr};
     QToolButton *m_lockKeyboardButton{nullptr};
+    QComboBox *m_variablesComboBox{nullptr};
 
     QAction *m_newTerminalAction{nullptr};
     QAction *m_closeTerminalAction{nullptr};

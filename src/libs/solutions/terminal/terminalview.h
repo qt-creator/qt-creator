@@ -59,6 +59,7 @@ public:
 
     void copyToClipboard();
     void pasteFromClipboard();
+    void paste(const QString &text);
     void copyLinkToClipboard();
 
     struct Selection

@@ -324,6 +324,14 @@ void TerminalView::pasteFromClipboard()
     d->m_surface->pasteFromClipboard(clipboardText);
 }
 
+void TerminalView::paste(const QString &text)
+{
+    if (text.isEmpty())
+        return;
+
+    d->m_surface->pasteFromClipboard(text);
+}
+
 void TerminalView::copyLinkToClipboard()
 {
     if (d->m_linkSelection)

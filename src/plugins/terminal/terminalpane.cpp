@@ -15,17 +15,20 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/macroexpander.h>
 #include <utils/terminalhooks.h>
 #include <utils/utilsicons.h>
 
 #include <QFileIconProvider>
 #include <QGuiApplication>
 #include <QMenu>
+#include <QSortFilterProxyModel>
 #include <QStandardPaths>
 #include <QToolButton>
 
@@ -34,6 +37,12 @@ namespace Terminal {
 using namespace Utils;
 using namespace Utils::Terminal;
 using namespace Core;
+
+static QAbstractItemModel *macroModel();
+
+namespace {
+enum MacroModelRoles { IsPrefixRole = Qt::UserRole + 1, ValueRole = Qt::UserRole + 2 };
+}
 
 TerminalPane::TerminalPane(QObject *parent)
     : IOutputPane(parent)
@@ -89,6 +98,21 @@ TerminalPane::TerminalPane(QObject *parent)
 
     m_lockKeyboardButton = new QToolButton();
     m_lockKeyboardButton->setDefaultAction(m_toggleKeyboardLockAction);
+
+    m_variablesComboBox = new QComboBox();
+    m_variablesComboBox->setToolTip(Tr::tr("Insert Macro Variable"));
+    m_variablesComboBox->setModel(macroModel());
+
+    connect(m_variablesComboBox, &QComboBox::activated, this, [this](int idx) {
+        const QString varName = m_variablesComboBox->itemText(idx);
+        if (auto t = currentTerminal()) {
+            QString txt = m_variablesComboBox->currentData(MacroModelRoles::ValueRole).toString();
+            if (txt.contains(' '))
+                txt.prepend('"').append('"');
+            t->paste(txt);
+            t->setFocus();
+        }
+    });
 }
 
 TerminalPane::~TerminalPane() {}
@@ -336,7 +360,8 @@ QList<QWidget *> TerminalPane::toolBarWidgets() const
     widgets.prepend(m_newTerminalButton);
     widgets.prepend(m_closeTerminalButton);
 
-    return widgets << m_openSettingsButton << m_lockKeyboardButton << m_escSettingButton;
+    return widgets << m_openSettingsButton << m_lockKeyboardButton << m_escSettingButton
+                   << m_variablesComboBox;
 }
 
 void TerminalPane::clearContents()
@@ -454,6 +479,172 @@ void TabBar::mouseReleaseEvent(QMouseEvent *event)
         }
     }
     QTabBar::mouseReleaseEvent(event);
+}
+
+static QAbstractItemModel *macroModel()
+{
+    class MacroModel : public QAbstractItemModel
+    {
+        struct VarAndProvider
+        {
+            QByteArray variable;
+            std::optional<MacroExpanderProvider> provider;
+        };
+
+        QList<VarAndProvider> m_variables;
+
+    public:
+        MacroModel(QObject *parent = nullptr)
+            : QAbstractItemModel(parent)
+        {
+            const auto setupSubProviders = [this]() {
+                beginResetModel();
+                m_expander.clearSubProviders();
+                m_expander.registerSubProvider({this, globalMacroExpander()});
+                if (auto startupProject = ProjectExplorer::ProjectManager::startupProject()) {
+                    m_expander.registerSubProvider(
+                        {startupProject, startupProject->macroExpander()});
+
+                    if (auto bc = startupProject->activeBuildConfiguration()) {
+                        //   m_expander.registerSubProvider({bc, bc->macroExpander()});
+                        if (bc->kit())
+                            m_expander.registerSubProvider({bc, bc->kit()->macroExpander()});
+                    }
+                }
+
+                m_variables.clear();
+                for (const MacroExpanderProvider &provider : m_expander.subProviders()) {
+                    if (MacroExpander *exp = provider()) {
+                        for (const QByteArray &var : exp->visibleVariables())
+                            m_variables.append({var, provider});
+
+                        m_variables.append({"---", std::nullopt});
+                    }
+                }
+                if (!m_variables.isEmpty())
+                    m_variables.removeLast(); // remove last separator
+                endResetModel();
+            };
+
+            connect(
+                ProjectExplorer::ProjectManager::instance(),
+                &ProjectExplorer::ProjectManager::startupProjectChanged,
+                this,
+                setupSubProviders);
+
+            connect(
+                ProjectExplorer::ProjectManager::instance(),
+                &ProjectExplorer::ProjectManager::activeBuildConfigurationChanged,
+                this,
+                setupSubProviders);
+
+            setupSubProviders();
+        }
+
+        int rowCount(const QModelIndex &parent = QModelIndex()) const override
+        {
+            return parent.isValid() ? 0 : m_variables.size();
+        }
+        int columnCount(const QModelIndex &parent = QModelIndex()) const override
+        {
+            return parent.isValid() ? 0 : 1;
+        }
+        QModelIndex index(
+            int row, int column, const QModelIndex &parent = QModelIndex()) const override
+        {
+            if (parent.isValid() || row < 0 || column < 0 || column >= 1
+                || row >= m_variables.size())
+                return QModelIndex();
+            return createIndex(row, column);
+        }
+        QModelIndex parent(const QModelIndex &index) const override
+        {
+            Q_UNUSED(index)
+            return QModelIndex();
+        }
+
+        Qt::ItemFlags flags(const QModelIndex &index) const override
+        {
+            if (!index.isValid())
+                return Qt::NoItemFlags;
+
+            if (index.data(MacroModelRoles::ValueRole).toString().isEmpty())
+                return Qt::NoItemFlags;
+
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        }
+
+        QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
+        {
+            if (!index.isValid() || index.row() < 0 || index.column() < 0 || index.column() >= 1
+                || index.row() >= m_variables.size()) {
+                return QVariant();
+            }
+            const QByteArray varName = m_variables.at(index.row()).variable;
+            auto provider = m_variables.at(index.row()).provider;
+            if (!provider) {
+                if (role == Qt::AccessibleDescriptionRole && varName == "---")
+                    return "separator";
+                return QVariant();
+            }
+            MacroExpander *expander = (*provider)();
+            if (!expander)
+                return QVariant();
+
+            if (role == Qt::DisplayRole)
+                return QString::fromUtf8(varName);
+            if (role == Qt::ToolTipRole) {
+                if (!expander)
+                    return QVariant();
+
+                QString description = expander->variableDescription(varName);
+                const QByteArray exampleUsage = expander->variableExampleUsage(varName);
+                const QString value = expander->value(exampleUsage).toHtmlEscaped();
+                if (!value.isEmpty())
+                    description += QLatin1String("<p>")
+                                   + Tr::tr("Current Value of %{%1}: %2")
+                                         .arg(QString::fromUtf8(exampleUsage), value);
+                return description;
+            }
+            if (role == MacroModelRoles::IsPrefixRole) {
+                if (varName.endsWith("<value>"))
+                    return true;
+
+                return expander->isPrefixVariable(varName);
+            }
+            if (role == MacroModelRoles::ValueRole)
+                return expander->value(varName);
+
+            return QVariant();
+        }
+
+    private:
+        MacroExpander m_expander;
+    };
+
+    class FilterModel : public QSortFilterProxyModel
+    {
+    public:
+        FilterModel(QObject *parent = nullptr)
+            : QSortFilterProxyModel(parent)
+        {}
+
+    protected:
+        bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
+        {
+            QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+            if (index.data(Qt::AccessibleDescriptionRole).toString() == "separator")
+                return true;
+
+            QVariant v = index.data(MacroModelRoles::IsPrefixRole);
+            const bool accept = v.isValid() && v.typeId() == QMetaType::Bool && !v.toBool();
+            return accept;
+        }
+    };
+    auto model = new MacroModel;
+    auto filterModel = new FilterModel(model);
+    filterModel->setSourceModel(model);
+    return filterModel;
 }
 
 } // namespace Terminal
