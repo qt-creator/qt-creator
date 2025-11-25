@@ -8,7 +8,7 @@ except ImportError:
 
 ################ workarounds for issues tracked inside jira #################
 
-JIRA_URL='https://bugreports.qt.io/browse'
+JIRA_URL='https://qt-project.atlassian.net/si/jira.issueviews:issue-xml/'
 
 class JIRA:
     __instance__ = None
@@ -86,7 +86,7 @@ class JIRA:
                     proxy = ProxyHandler({'https': proxy})
                     opener = build_opener(proxy)
                     install_opener(opener)
-                bugReport = urlopen('%s/%s' % (JIRA_URL, bug))
+                bugReport = urlopen('%s/%s/%s.xml' % (JIRA_URL, bug, bug))
                 data = bugReport.read()
             except:
                 data = self.__tryExternalTools__(proxy)
@@ -101,16 +101,13 @@ class JIRA:
             else:
                 data = stringify(data)
                 data = data.replace("\r", "").replace("\n", "")
-                resPattern = re.compile('<span\s+id="resolution-val".*?>(?P<resolution>.*?)</span>')
+                resPattern = re.compile('<resolution id=".*?>(?P<resolution>.*?)</resolution>')
                 resolution = resPattern.search(data)
                 fixVersion = 'None'
-                fixPattern = re.compile('<span.*?id="fixfor-val".*?>(?P<fix>.*?)</span>')
+                fixPattern = re.compile('<fixVersion>(?P<fix>.*?)</fixVersion>')
                 fix = fixPattern.search(data)
-                titlePattern = re.compile('title="(?P<title>.*?)"')
                 if fix:
-                    fix = titlePattern.search(fix.group('fix').strip())
-                    if fix:
-                        fixVersion = fix.group('title').strip()
+                    fixVersion = fix.group('title').strip()
                 self._fix = fixVersion
                 if resolution:
                     self._resolution = resolution.group("resolution").strip()

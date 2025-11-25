@@ -69,25 +69,27 @@ def __checkKits__():
     if not test.compare(len(genericDebuggers), 2, "Verifying generic debugger count."):
         test.log(str(genericDebuggers))
     # check Qt versions
-    qmakePath = shutil.which("qmake")
-    if qmakePath and (not "Using Qt version" in
-                      getOutputFromCmdline([qmakePath, "--version"], acceptedError=1)):
-        # ignore dysfunctional qmake, e.g. incomplete qtchooser
-        qmakePath = None
-    if qmakePath:
-        qmakePath = os.path.dirname(qmakePath)
+    qmakePathsInPath = findAllFilesInPATH("qmake")
+    qmakePaths = filter(lambda qmakePath: (not "Using Qt version"
+                                           in getOutputFromCmdline([qmakePath, "--version"],
+                                                                   acceptedError=1)),
+                                           qmakePathsInPath)
+    qmakePaths = map(os.path.dirname, qmakePaths)
+    if platform.system() in ("Microsoft", "Windows"):
+        qmakePaths = map(qmakePaths, str.lower)
+    qmakePaths = list(qmakePaths)
     foundQt = []
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
-    __iterateTree__(":qtdirList_QTreeView", __qtFunc__, foundQt, qmakePath)
-    test.verify(not qmakePath or len(foundQt) == 1,
-                "Was qmake from %s autodetected? Found %s" % (qmakePath, foundQt))
+    __iterateTree__(":qtdirList_QTreeView", __qtFunc__, foundQt, qmakePaths)
+    test.verify(len(list(qmakePaths)) == len(foundQt),
+                "Was qmake from %s autodetected? Found %s" % (qmakePaths, foundQt))
     if foundQt:
         foundQt = foundQt[0]    # qmake from "which" should be used in kits
     # check kits
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
     __iterateTree__(":BuildAndRun_QTreeView", __kitFunc__, foundQt, foundCompilerNames)
     test.compare(glblDefaultKits, 1, "Was exactly one default kit found?")
-    return qmakePath != None
+    return len(qmakePaths) > 0
 
 def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
                         additionalFunc, *additionalParameters):
@@ -160,12 +162,17 @@ def __qtFunc__(it, foundQt, qmakePath):
     qtPath = str(waitForObject(":QtSupport__Internal__QtVersionManager.qmake_QLabel").text)
     if platform.system() in ('Microsoft', 'Windows'):
         qtPath = qtPath.lower()
-        qmakePath = qmakePath.lower()
     test.verify(os.path.isfile(qtPath) and os.access(qtPath, os.X_OK),
                 "Verifying found Qt (%s) is executable." % qtPath)
     # Two Qt versions will be found when using qtchooser: QTCREATORBUG-14697
     # Only add qmake from "which" to list
-    if qtPath.startswith(qmakePath):
+    expected = False
+    for candidate in qmakePath:
+        if qtPath.startswith(candidate):
+            expected = True
+            break
+
+    if expected:
         foundQt.append(it)
     try:
         errorLabel = findObject(":QtSupport__Internal__QtVersionManager.errorLabel.QLabel")
