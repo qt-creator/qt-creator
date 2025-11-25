@@ -5,10 +5,12 @@
 
 #include <debugger/analyzer/analyzerutils.h>
 
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <qmlprofiler/qmlprofilerruncontrol.h>
+#include <qmlprofiler/qmlprofilerstatemanager.h>
 #include <qmlprofiler/qmlprofilertool.h>
 
 #include <utils/url.h>
@@ -29,6 +31,14 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 
 void LocalQmlProfilerRunnerTest::testRunner()
 {
+    QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
+    QVERIFY(stateManager);
+
+    // Request some (invalid) feature so that old Qt versions don't run into interesting
+    // situations when starting and stopping profiler adapters.
+    if (!stateManager->requestedFeatures())
+        stateManager->setRequestedFeatures(1ull << 63);
+
     std::unique_ptr<RunControl> runControl;
 
     bool running = false;
@@ -38,6 +48,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     int stopCount = 0;
 
     runControl.reset(new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE));
+    runControl->setKit(KitManager::defaultKit());
     runControl->setCommandLine(CommandLine{"\\-/|\\-/"});
     runControl->setRunRecipe(localQmlProfilerRecipe(runControl.get()));
 
@@ -65,10 +76,6 @@ void LocalQmlProfilerRunnerTest::testRunner()
     };
 
     connectRunner();
-
-    QTest::ignoreMessage(
-                QtDebugMsg, "Invalid run control state transition from "
-                            "\"RunControlState::Starting\" to \"RunControlState::Stopped\"");
     runControl->initiateStart();
 
     QTRY_COMPARE_WITH_TIMEOUT(startCount, 1, 30000);
@@ -79,21 +86,22 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     // comma is used to specify a test function. In this case, an invalid one.
     runControl.reset(new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE));
-
+    runControl->setKit(KitManager::defaultKit());
     const FilePath app = FilePath::fromString(QCoreApplication::applicationFilePath());
     runControl->setCommandLine({app, {"-test", "QmlProfiler,"}});
     runControl->setRunRecipe(localQmlProfilerRecipe(runControl.get()));
     connectRunner();
     runControl->initiateStart();
 
-    QTRY_VERIFY_WITH_TIMEOUT(running, 30000);
-    QTRY_VERIFY_WITH_TIMEOUT(!running, 30000);
+    // initiateStart() may immediately stop, without giving us a chance to see running == true.
+    QTRY_COMPARE_WITH_TIMEOUT(stopCount, 2, 30000);
+    QVERIFY(!running);
     QCOMPARE(startCount, 2);
-    QCOMPARE(stopCount, 2);
     QCOMPARE(runCount, 1);
     QVERIFY(runControl->isStopped());
 
     runControl.reset(new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE));
+    runControl->setKit(KitManager::defaultKit());
     runControl->setCommandLine(CommandLine{app});
     runControl->setRunRecipe(localQmlProfilerRecipe(runControl.get()));
     connectRunner();
@@ -101,22 +109,23 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     QTRY_VERIFY_WITH_TIMEOUT(running, 30000);
     runControl->initiateStop();
-    QTRY_VERIFY_WITH_TIMEOUT(!running, 30000);
+    QTRY_COMPARE_WITH_TIMEOUT(stopCount, 3, 30000);
+    QVERIFY(!running);
     QCOMPARE(startCount, 3);
     QCOMPARE(stopCount, 3);
     QCOMPARE(runCount, 2);
     QVERIFY(runControl->isStopped());
 
     runControl.reset(new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE));
+    runControl->setKit(KitManager::defaultKit());
     runControl->setCommandLine({app, {"-test", "QmlProfiler,"}});
     runControl->setRunRecipe(localQmlProfilerRecipe(runControl.get()));
     connectRunner();
     runControl->initiateStart();
 
-    QTRY_VERIFY_WITH_TIMEOUT(running, 30000);
-    QTRY_VERIFY_WITH_TIMEOUT(!running, 30000);
+    QTRY_COMPARE_WITH_TIMEOUT(stopCount, 4, 30000);
+    QVERIFY(!running);
     QCOMPARE(startCount, 4);
-    QCOMPARE(stopCount, 4);
     QCOMPARE(runCount, 3);
     QVERIFY(runControl->isStopped());
 }

@@ -505,6 +505,8 @@ Group RunControlPrivate::portsGathererRecipe()
         return DoneResult::Success;
     };
 
+    QTC_ASSERT(data.device, return {});
+
     return {
         portsStorage,
         onGroupSetup(onSetup),
