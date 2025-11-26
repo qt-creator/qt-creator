@@ -244,8 +244,7 @@
 
     To add new kits, go to \preferences > \uicontrol SDKs > \uicontrol MCU,
     and select \uicontrol {Create Kit}. This adds the paths to the kit's toolkits
-    and SDKs, and keeps them synchronized when you select \uicontrol Apply or
-    \uicontrol OK.
+    and SDKs, and keeps them synchronized when you select \uicontrol Apply.
 
     \section1 Change or remove MCU kits
 

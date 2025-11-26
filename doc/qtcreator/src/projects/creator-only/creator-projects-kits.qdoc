@@ -49,7 +49,7 @@
         \li Set \l{Kits}{kit preferences} according to the build system and
             device type.
 
-        \li Select \uicontrol OK to create the kit.
+        \li Select \uicontrol Apply to create the kit.
 
     \endlist
 

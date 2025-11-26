@@ -125,7 +125,7 @@
     To revert the changes you made to the default editors, select
     \uicontrol {Reset Handlers}.
 
-    \note If you select \uicontrol OK or \uicontrol Apply after reverting
+    \note If you select \uicontrol Apply after reverting
     changes, you permanently lose all your own patterns and magic headers.
     They are removed the next time you start \QC.
 

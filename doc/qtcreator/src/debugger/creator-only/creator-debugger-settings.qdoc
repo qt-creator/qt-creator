@@ -308,7 +308,7 @@
         \li Select the directory where you want to store the cached information.
             Use a subfolder in a temporary directory, such as
             \c {C:\temp\symbolcache}.
-        \li Select \uicontrol OK.
+        \li Select \uicontrol Apply.
     \endlist
 
     \note Populating the cache might take a long time on a slow network

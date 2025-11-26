@@ -318,7 +318,7 @@
     To remove all added snippets and to restore all removed snippets, select
     \uicontrol {Reset All}.
 
-    \note If you now select \uicontrol OK or \uicontrol Apply, you permanently
+    \note If you now select \uicontrol Apply, you permanently
     lose all your own snippets.
 
     \if defined(qtcreator)

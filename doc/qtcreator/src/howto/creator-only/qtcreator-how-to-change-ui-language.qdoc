@@ -15,9 +15,9 @@
     To change the language:
 
     \list 1
-        \li Go to \preferences > \uicontrol Environment.
+        \li Go to \preferences > \uicontrol Environment \uicontrol Interface.
         \li In \uicontrol Language, select a language.
-        \li Select \uicontrol OK.
+        \li Select \uicontrol Apply.
         \li Select \uicontrol {Restart Now} to restart \QC and have the change
             take effect.
     \endlist

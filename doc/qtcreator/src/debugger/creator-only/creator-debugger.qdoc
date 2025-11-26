@@ -646,7 +646,7 @@
             \image {qtcreator-preferences-devices-remote-linux.webp} {Remote Linux device in Devices preferences}
         \li In \uicontrol Device, select \uicontrol {Remote Linux Device}.
         \li Select \uicontrol {Use SSH port forwarding for debugging}.
-        \li Select \uicontrol OK.
+        \li Select \uicontrol Apply.
     \endlist
 
     \sa {Debug}{How To: Debug}, {Remote Linux}{How To: Develop for remote Linux},
