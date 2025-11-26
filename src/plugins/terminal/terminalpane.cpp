@@ -38,7 +38,7 @@ using namespace Utils;
 using namespace Utils::Terminal;
 using namespace Core;
 
-static QAbstractItemModel *macroModel();
+static QAbstractItemModel *macroModel(QObject *parent);
 
 namespace {
 enum MacroModelRoles { IsPrefixRole = Qt::UserRole + 1, ValueRole = Qt::UserRole + 2 };
@@ -101,7 +101,7 @@ TerminalPane::TerminalPane(QObject *parent)
 
     m_variablesComboBox = new QComboBox();
     m_variablesComboBox->setToolTip(Tr::tr("Insert Macro Variable"));
-    m_variablesComboBox->setModel(macroModel());
+    m_variablesComboBox->setModel(macroModel(m_variablesComboBox));
 
     connect(m_variablesComboBox, &QComboBox::activated, this, [this](int idx) {
         const QString varName = m_variablesComboBox->itemText(idx);
@@ -481,7 +481,7 @@ void TabBar::mouseReleaseEvent(QMouseEvent *event)
     QTabBar::mouseReleaseEvent(event);
 }
 
-static QAbstractItemModel *macroModel()
+static QAbstractItemModel *macroModel(QObject *parent)
 {
     class MacroModel : public QAbstractItemModel
     {
@@ -641,7 +641,7 @@ static QAbstractItemModel *macroModel()
             return accept;
         }
     };
-    auto model = new MacroModel;
+    auto model = new MacroModel(parent);
     auto filterModel = new FilterModel(model);
     filterModel->setSourceModel(model);
     return filterModel;
