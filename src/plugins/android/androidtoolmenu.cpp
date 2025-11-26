@@ -7,6 +7,7 @@
 #include "androidtr.h"
 #include "iconcontainerwidget.h"
 #include "manifestwizard.h"
+#include "permissionscontainerwidget.h"
 #include "splashscreencontainerwidget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -128,8 +129,9 @@ public:
     explicit AndroidIconSplashEditorWidget(QWidget *parent = nullptr);
 
     enum TabIndex {
-        SplashTab = 0,
-        IconTab = 1
+        IconTab = 0,
+        PermissionsTab = 1,
+        SplashTab = 2
     };
 
     void setActiveTab(TabIndex index);
@@ -144,7 +146,6 @@ void AndroidIconSplashEditorWidget::setActiveTab(TabIndex index)
     if (m_tabWidget)
         m_tabWidget->setCurrentIndex(index);
 }
-
 
 AndroidIconSplashEditorWidget::AndroidIconSplashEditorWidget(QWidget *parent)
     : QWidget(parent)
@@ -163,33 +164,41 @@ AndroidIconSplashEditorWidget::AndroidIconSplashEditorWidget(QWidget *parent)
     else
         fallbackPath = Utils::FilePath::fromString(QDir::currentPath());
     manifestTextEditor->textDocument()->setFilePath(fallbackPath);
-    auto iconContainer = new IconContainerWidget(this);
-    if (!iconContainer->initialize(manifestTextEditor))
-        iconContainer->setEnabled(false);
 
-    QScrollArea *scrollArea = new QScrollArea(this);
-    scrollArea->setWidget(iconContainer);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    auto permissionsContainer = new PermissionsContainerWidget(this);
+    if (!permissionsContainer->initialize(manifestTextEditor))
+        permissionsContainer->setEnabled(false);
 
     auto splashContainer = new SplashScreenContainerWidget(this);
     if (!splashContainer->initialize(manifestTextEditor))
         splashContainer->setEnabled(false);
 
-    QScrollArea *scrollAreaSplash = new QScrollArea(this);
-    scrollAreaSplash->setWidget(splashContainer);
-    scrollAreaSplash->setWidgetResizable(true);
-    scrollAreaSplash->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scrollAreaSplash->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    auto iconContainer = new IconContainerWidget(this);
+    if (!iconContainer->initialize(manifestTextEditor))
+        iconContainer->setEnabled(false);
 
-    m_tabWidget->addTab(scrollAreaSplash, Tr::tr("Splash Screen Editor"));
-    m_tabWidget->addTab(scrollArea, Tr::tr("Icon Editor"));
+    QScrollArea *permissionsScrollArea = new QScrollArea(this);
+    permissionsScrollArea->setWidget(permissionsContainer);
+    permissionsScrollArea->setWidgetResizable(true);
+    permissionsScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    permissionsScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    auto permissionsContainer = new QWidget(this);
-    permissionsContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QScrollArea *splashScrollArea = new QScrollArea(this);
+    splashScrollArea->setWidget(splashContainer);
+    splashScrollArea->setWidgetResizable(true);
+    splashScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    splashScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    parentLayout->addWidget(permissionsContainer, 1);
+    QScrollArea *iconScrollArea = new QScrollArea(this);
+    iconScrollArea->setWidget(iconContainer);
+    iconScrollArea->setWidgetResizable(true);
+    iconScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    iconScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+    m_tabWidget->addTab(iconScrollArea, Tr::tr("Icon Editor"));
+    m_tabWidget->addTab(permissionsScrollArea, Tr::tr("Permission Editor"));
+    m_tabWidget->addTab(splashScrollArea, Tr::tr("Splash Screen Editor"));
+
     parentLayout->addWidget(m_tabWidget, 1);
 }
 
@@ -246,17 +255,18 @@ void setupAndroidToolsMenu()
             openEditorAtTab(AndroidIconSplashEditorWidget::IconTab);
         }).addToContainer(ANDROID_TOOLS_MENU_ID);
 
+    Core::ActionBuilder(nullptr, "Android.Tools.Permissions")
+        .setText(Android::Tr::tr("Permissions Editor"))
+        .addOnTriggered([openEditorAtTab]() {
+            openEditorAtTab(AndroidIconSplashEditorWidget::PermissionsTab);
+        }).addToContainer(ANDROID_TOOLS_MENU_ID);
+
     Core::ActionBuilder(nullptr, "Android.Tools.Splashscreen")
         .setText(Android::Tr::tr("Splashscreen Editor"))
         .addOnTriggered([openEditorAtTab]() {
             openEditorAtTab(AndroidIconSplashEditorWidget::SplashTab);
         }).addToContainer(ANDROID_TOOLS_MENU_ID);
 
-    Core::ActionBuilder(nullptr, "Android.Tools.Permissions")
-        .setText(Android::Tr::tr("Permissions Editor"))
-        .addOnTriggered([openEditorAtTab]() {
-            openEditorAtTab(AndroidIconSplashEditorWidget::SplashTab);
-        }).addToContainer(ANDROID_TOOLS_MENU_ID);
 }
 
 } // namespace Android::Internal

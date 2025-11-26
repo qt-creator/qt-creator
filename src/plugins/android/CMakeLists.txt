@@ -36,6 +36,7 @@ add_qtc_plugin(Android
     javaparser.cpp javaparser.h
     keystorecertificatedialog.cpp keystorecertificatedialog.h
     manifestwizard.cpp manifestwizard.h
+    permissionscontainerwidget.h permissionscontainerwidget.cpp
     splashscreencontainerwidget.cpp splashscreencontainerwidget.h
     sdkmanageroutputparser.cpp sdkmanageroutputparser.h
 )
