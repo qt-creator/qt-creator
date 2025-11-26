@@ -110,7 +110,7 @@ public:
         IndexRole,
     };
 
-    Quick3DFrameModel(QmlProfilerModelManager *manager);
+    Quick3DFrameModel(QmlProfilerModelManager *manager, QObject *parent = nullptr);
 
     void clear();
 

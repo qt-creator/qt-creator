@@ -34,8 +34,9 @@
 
 namespace QmlProfiler::Internal {
 
-Quick3DFrameModel::Quick3DFrameModel(QmlProfilerModelManager *modelManager)
-    : m_modelManager(modelManager)
+Quick3DFrameModel::Quick3DFrameModel(QmlProfilerModelManager *modelManager, QObject *parent)
+    : QAbstractItemModel(parent)
+    , m_modelManager(modelManager)
 {
     m_acceptedDetailTypes << RenderFrame << SynchronizeFrame << PrepareFrame << RenderCall << RenderPass << EventData << TextureLoad << MeshLoad << CustomMeshLoad;
     modelManager->registerFeatures(1ULL << ProfileQuick3D,

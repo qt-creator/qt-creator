@@ -44,7 +44,7 @@ Quick3DFrameView::Quick3DFrameView(QmlProfilerModelManager *profilerModelManager
     setObjectName(QLatin1String("QmlProfiler.Quick3DFrame.Dock"));
     setWindowTitle(Tr::tr("Quick3D Frame"));
 
-    auto model = new Quick3DFrameModel(profilerModelManager);
+    auto model = new Quick3DFrameModel(profilerModelManager, this);
     m_mainView.reset(new Quick3DMainView(model, false, this));
     connect(m_mainView.get(), &Quick3DMainView::gotoSourceLocation,
             this, &Quick3DFrameView::gotoSourceLocation);

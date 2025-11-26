@@ -62,6 +62,9 @@ static inline Number readNumber(QDataStream &stream, qint8 type)
 
 QDataStream &operator>>(QDataStream &stream, QmlEvent &event)
 {
+    if (event.m_dataType & QmlEvent::External)
+        free(std::exchange(event.m_data.external, nullptr));
+
     qint8 type;
     stream >> type;
 
