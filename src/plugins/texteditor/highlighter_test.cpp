@@ -75,6 +75,10 @@ QTextCharFormat toFormat(const TextStyle &style)
         format = QTextCharFormat();
         format.setFontWeight(QFont::Bold); // is explicitly set by the ksyntax format definition
     }
+    if (style == C_INFO_CONTEXT) {
+        format.setUnderlineStyle(QTextCharFormat::DotLine); // explicitly set by ksyntax format
+        format.setFontWeight(QFont::Bold);
+    }
     return format;
 };
 
@@ -120,7 +124,7 @@ void GenerigHighlighterTests::testHighlight_data()
                         {4, 10, toFormat(C_TYPE)},
                         {14, 1, toFormat(C_FUNCTION)},
                         {15, 1, toFormat(C_VISUAL_WHITESPACE)},
-                        {16, 1, toFormat(C_TEXT)}};
+                        {16, 1, toFormat(C_INFO_CONTEXT)}};
     QTest::addRow("6:        {")
         << 6
         << FormatRanges{{0, 8, toFormat(C_VISUAL_WHITESPACE)},
@@ -147,7 +151,7 @@ void GenerigHighlighterTests::testHighlight_data()
     QTest::addRow("10:    ]")
         << 10
         << FormatRanges{{0, 4, toFormat(C_VISUAL_WHITESPACE)},
-                        {4, 1, toFormat(C_TEXT)}};
+                        {4, 1, toFormat(C_INFO_CONTEXT)}};
     QTest::addRow("11:}")
         << 11
         << FormatRanges{{0, 1, toFormat(C_FUNCTION)}};
@@ -195,7 +199,7 @@ void GenerigHighlighterTests::testChange()
     QVERIFY(block.isValid());
 
     const FormatRanges formatRanges = {{0, 4, toFormat(C_VISUAL_WHITESPACE)},
-                                       {4, 1, toFormat(C_TEXT)}};
+                                       {4, 1, toFormat(C_INFO_CONTEXT)}};
     QTRY_COMPARE(block.layout()->formats().size(), formatRanges.size());
     const QList<QTextLayout::FormatRange> actualFormats = block.layout()->formats();
     // full hash calculation for QTextCharFormat fails so just check the important entries of format
