@@ -16,13 +16,27 @@
 
 #include <QHBoxLayout>
 #include <QMenu>
-#include <QResizeEvent>
 #include <QToolButton>
 
 using namespace Utils;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
+
+class NavComboBox final : public CommandComboBox
+{
+public:
+    explicit NavComboBox(NavigationSubWidget *navSubWidget)
+        : m_navSubWidget(navSubWidget)
+    {}
+
+private:
+    const Command *command(const QString &text) const final
+    {
+        return m_navSubWidget->command(text);
+    }
+
+    NavigationSubWidget *m_navSubWidget;
+};
 
 ////
 // NavigationSubWidget
@@ -226,5 +240,4 @@ bool CommandComboBox::event(QEvent *e)
     return QComboBox::event(e);
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

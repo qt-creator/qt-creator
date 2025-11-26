@@ -82,21 +82,5 @@ private:
     virtual const Command *command(const QString &text) const = 0;
 };
 
-
-class NavComboBox : public CommandComboBox
-{
-    Q_OBJECT
-
-public:
-    explicit NavComboBox(NavigationSubWidget *navSubWidget) :
-        m_navSubWidget(navSubWidget) {}
-
-private:
-    const Command *command(const QString &text) const override
-        { return m_navSubWidget->command(text); }
-
-    NavigationSubWidget *m_navSubWidget;
-};
-
 } // namespace Internal
 } // namespace Core
