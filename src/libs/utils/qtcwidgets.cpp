@@ -6,6 +6,7 @@
 #include "hostosinfo.h"
 #include "icon.h"
 #include "networkaccessmanager.h"
+#include "qtdesignsystemstyle.h"
 
 #include <QtTaskTree/QNetworkReplyWrapper>
 #include <QtTaskTree/QSingleTaskTreeRunner>
@@ -896,47 +897,11 @@ void QtcImage::setPixmap(const QPixmap &px)
     update();
 }
 
-constexpr TextFormat TabBarTf
-    {Theme::Token_Text_Muted, StyleHelper::UiElementH5};
-constexpr TextFormat TabBarTfActive
-    {Theme::Token_Text_Default, TabBarTf.uiElement};
-
 QtcTabBar::QtcTabBar(QWidget *parent)
     : QTabBar(parent)
 {
-    setExpanding(false);
-    setFont(TabBarTf.font());
+    setStyle(QtDesignSystemStyle::instance());
     setMouseTracking(true);
-}
-
-void QtcTabBar::paintEvent([[maybe_unused]] QPaintEvent *event)
-{
-    QPainter p(this);
-    const int padding = PaddingHXxs;
-    const QRectF borderR = rect().toRectF().adjusted(padding + 0.5, 0.5, -(padding + 0.5), -0.5);
-    p.setPen(creatorColor(isEnabled() ? Theme::Token_Stroke_Subtle
-                                      : Theme::Token_Foreground_Subtle));
-    p.drawLine(borderR.bottomLeft(), borderR.bottomRight());
-    p.setFont(TabBarTf.font());
-    for (int tabIndex = 0; tabIndex < count(); tabIndex++) {
-        QStyleOptionTab opt;
-        initStyleOption(&opt, tabIndex);
-        const bool selected = opt.state & QStyle::State_Selected;
-        const bool enabled = isEnabled();
-        const bool hovered = !selected && opt.rect.contains(mapFromGlobal(QCursor::pos()));
-        if (selected || (hovered && enabled)) {
-            QRect highLightRect = opt.rect.adjusted(padding, 0, -padding, 0);
-            highLightRect.moveTop(highLightRect.height() - StyleHelper::HighlightThickness);
-            const QColor color = creatorColor(enabled ? hovered ? Theme::Token_Text_Subtle
-                                                                : Theme::Token_Accent_Default
-                                                      : Theme::Token_Foreground_Subtle);
-            p.fillRect(highLightRect, color);
-        }
-        const QColor textColor = enabled ? (selected ? TabBarTfActive : TabBarTf).color()
-                                         : creatorColor(Theme::Token_Text_Subtle);
-        p.setPen(textColor);
-        p.drawText(opt.rect, Qt::AlignCenter, opt.text);
-    }
 }
 
 bool QtcTabBar::event(QEvent *event)

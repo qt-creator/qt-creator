@@ -177,7 +177,6 @@ public:
     QtcTabBar(QWidget *parent = nullptr);
 
 protected:
-    void paintEvent(QPaintEvent *event) override;
     bool event(QEvent *event) override;
 };
 

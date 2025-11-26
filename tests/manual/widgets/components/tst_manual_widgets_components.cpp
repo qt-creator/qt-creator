@@ -41,7 +41,10 @@ QWidget *widgets()
     switchOff->setLayoutDirection(Qt::LeftToRight);
 
     auto tabBar = new QtcTabBar;
-    tabBar->addTab("Tab number 1");
+    tabBar->setExpanding(false);
+    tabBar->setMovable(true);
+    tabBar->setTabsClosable(true);
+    tabBar->addTab("Tab 1");
     tabBar->addTab("2");
     tabBar->addTab("3");
 

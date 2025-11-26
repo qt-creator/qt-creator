@@ -278,6 +278,8 @@ QtcLibrary {
         "qtcsettings_p.h",
         "qtcwidgets.cpp",
         "qtcwidgets.h",
+        "qtdesignsystemstyle.cpp",
+        "qtdesignsystemstyle.h",
         "ranges.h",
         "reloadpromptutils.cpp",
         "reloadpromptutils.h",
