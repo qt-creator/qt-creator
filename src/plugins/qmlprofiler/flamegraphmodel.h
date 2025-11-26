@@ -14,18 +14,32 @@
 namespace QmlProfiler {
 namespace Internal {
 
-struct FlameGraphData {
+struct FlameGraphData
+{
+    Q_DISABLE_COPY_MOVE(FlameGraphData)
+
     FlameGraphData(FlameGraphData *parent = nullptr, int typeIndex = -1, qint64 duration = 0);
     ~FlameGraphData();
 
-    qint64 duration;
-    qint64 calls;
-    qint64 memory;
+    void clear()
+    {
+        duration = 0;
+        calls = 1;
+        memory = 0;
+        allocations = 0;
+        typeIndex = -1;
+        parent = nullptr;
+        qDeleteAll(std::exchange(children, {}));
+    }
 
-    int allocations;
-    int typeIndex;
+    qint64 duration = 0;
+    qint64 calls = 1;
+    qint64 memory = 0;
 
-    FlameGraphData *parent;
+    int allocations = 0;
+    int typeIndex = -1;
+
+    FlameGraphData *parent = nullptr;
     QList<FlameGraphData *> children;
 };
 

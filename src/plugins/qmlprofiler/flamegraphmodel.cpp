@@ -44,7 +44,7 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
 void FlameGraphModel::clear()
 {
     beginResetModel();
-    m_stackBottom = FlameGraphData(nullptr, -1, 0);
+    m_stackBottom.clear();
     m_callStack.clear();
     m_compileStack.clear();
     m_callStack.append(QmlEvent());
@@ -213,7 +213,7 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
 }
 
 FlameGraphData::FlameGraphData(FlameGraphData *parent, int typeIndex, qint64 duration) :
-    duration(duration), calls(1), memory(0), allocations(0), typeIndex(typeIndex), parent(parent) {}
+    duration(duration), typeIndex(typeIndex), parent(parent) {}
 
 FlameGraphData::~FlameGraphData()
 {
