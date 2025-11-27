@@ -60,6 +60,7 @@ Project {
         "learning/learning.qbs",
         "lua/lua.qbs",
         "macros/macros.qbs",
+        "mcpserver/mcpserver.qbs",
         "mcusupport/mcusupport.qbs",
         "mercurial/mercurial.qbs",
         "modeleditor/modeleditor.qbs",
