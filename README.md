@@ -401,6 +401,13 @@ run the following commands in the `src/libs/gocmdbridge/server` directory:
 go mod vendor
 ```
 
+### Instruments for macOS
+
+To run Qt Creator from the Instruments application, you need to sign Qt Creator with the
+necessary entitlements.
+
+`./scripts/common.py codesign -s - ./<path-to>/Qt\ Creator.app`
+
 # Licenses and Attributions
 
 Qt Creator is available under commercial licenses from The Qt Company,
