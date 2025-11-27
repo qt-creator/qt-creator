@@ -31,6 +31,7 @@
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
+#include <utils/treemodel.h>
 
 #include <QAbstractItemDelegate>
 #include <QAction>
@@ -89,7 +90,7 @@ static FilePaths pathsForSession(const QString &session, QString *title = nullpt
 class ProjectModel : public QAbstractListModel
 {
 public:
-    enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole, ShortcutRole };
+    enum { PrettyFilePathRole = FilePathRole + 1, ShortcutRole };
 
     ProjectModel(QObject *parent = nullptr);
     int rowCount(const QModelIndex &parent) const override;
@@ -184,7 +185,7 @@ void ProjectWelcomePage::openProjectAt(int index)
 {
     QTC_ASSERT(m_projectModel, return);
     const QVariant projectFile = m_projectModel->data(m_projectModel->index(index, 0),
-                                                      ProjectModel::FilePathRole);
+                                                      FilePathRole);
     ProjectExplorerPlugin::openProjectWelcomePage(FilePath::fromVariant(projectFile));
 }
 
@@ -608,8 +609,7 @@ public:
         const QString projectName = index.data(Qt::DisplayRole).toString();
         m_projectName->setText(projectName);
 
-        const FilePath projectPath =
-            FilePath::fromVariant(index.data(ProjectModel::FilePathRole));
+        const FilePath projectPath = FilePath::fromVariant(index.data(FilePathRole));
         const QString displayPath =
             projectPath.osType() == OsTypeWindows ? projectPath.displayName()
                                                   : projectPath.withTildeHomePath();
@@ -684,7 +684,7 @@ protected:
             const QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(ev);
             const Qt::MouseButtons button = mouseEvent->button();
             if (button == Qt::LeftButton) {
-                const QVariant projectFile = idx.data(ProjectModel::FilePathRole);
+                const QVariant projectFile = idx.data(FilePathRole);
                 ProjectExplorerPlugin::openProjectWelcomePage(FilePath::fromVariant(projectFile));
                 return true;
             }
@@ -695,7 +695,7 @@ protected:
                 QTC_ASSERT(projectModel, return false);
                 contextMenu.addAction(action);
                 connect(action, &QAction::triggered, this, [idx, projectModel] {
-                    const QVariant projectFile = idx.data(ProjectModel::FilePathRole);
+                    const QVariant projectFile = idx.data(FilePathRole);
                     ProjectExplorerPlugin::removeFromRecentProjects(FilePath::fromVariant(projectFile));
                     projectModel->resetProjects();
                 });

@@ -69,8 +69,6 @@ public:
     static QList<IEditor *> editorsForDocuments(const QList<IDocument *> &entries);
     static QList<IEditor *> editorsForOpenedDocuments();
 
-    static const int FilePathRole = Qt::UserRole + 23;
-
 private:
     DocumentModel();
 };

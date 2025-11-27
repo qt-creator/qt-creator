@@ -16,6 +16,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
 #include <QAbstractItemModel>
@@ -308,7 +309,7 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
         return QVariant();
     case Qt::ToolTipRole:
         return entry->document->toolTip();
-    case DocumentModel::FilePathRole:
+    case FilePathRole:
         return entry->filePath().toVariant();
     default:
         break;

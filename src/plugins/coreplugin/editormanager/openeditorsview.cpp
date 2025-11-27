@@ -13,6 +13,7 @@
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
 
 #include <QAbstractProxyModel>
 #include <QApplication>
@@ -250,7 +251,7 @@ QVariant ProxyModel::data(const QModelIndex &index, int role) const
         const QVariant sourceDecoration = QAbstractProxyModel::data(index, role);
         if (sourceDecoration.isValid())
             return sourceDecoration;
-        const QVariant filePath = QAbstractProxyModel::data(index, DocumentModel::FilePathRole);
+        const QVariant filePath = QAbstractProxyModel::data(index, FilePathRole);
         return FileIconProvider::icon(FilePath::fromVariant(filePath));
     }
 

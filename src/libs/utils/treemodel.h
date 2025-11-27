@@ -15,6 +15,8 @@
 
 namespace Utils {
 
+enum { FilePathRole = Qt::UserRole + 4711 };
+
 class BaseTreeModel;
 
 class QTCREATOR_UTILS_EXPORT TreeItem
