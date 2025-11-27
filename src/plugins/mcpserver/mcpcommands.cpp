@@ -4,7 +4,6 @@
 #include "mcpcommands.h"
 #include "issuesmanager.h"
 
-#include <app/app_version.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -225,7 +224,7 @@ QString MCPCommands::stopDebug()
 
 QString MCPCommands::getVersion()
 {
-    return Core::Constants::IDE_VERSION_LONG;
+    return QCoreApplication::applicationVersion();
 }
 
 QString MCPCommands::getBuildStatus()

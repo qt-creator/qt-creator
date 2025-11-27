@@ -12,8 +12,6 @@
 #include <QtNetwork>
 #include <QtTest/QtTest>
 
-#include <app/app_version.h>
-
 class MCPServerTest : public QObject
 {
     Q_OBJECT
@@ -500,7 +498,7 @@ private slots:
         QVERIFY2(
             name.contains("Qt Creator MCP Server"), qPrintable("Unexpected server name: " + name));
         QVERIFY2(
-            version.contains(Core::Constants::IDE_VERSION_LONG),
+            version.contains(QCoreApplication::applicationVersion()),
             qPrintable("Version does not contain expected substring: " + version));
     }
 };
