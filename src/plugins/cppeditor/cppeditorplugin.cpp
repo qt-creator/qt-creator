@@ -151,12 +151,6 @@ public:
 class CppEditorPluginPrivate : public QObject
 {
 public:
-    void onTaskStarted(Utils::Id type);
-    void onAllTasksFinished(Utils::Id type);
-
-    QAction *m_reparseExternallyChangedFiles = nullptr;
-    QAction *m_findRefsCategorizedAction = nullptr;
-
     CppEditorFactory m_cppEditorFactory;
 
     CppModelManager modelManager;
@@ -245,10 +239,6 @@ void CppEditorPlugin::initialize()
     SnippetProvider::registerGroup(Constants::CPP_SNIPPETS_GROUP_ID, Tr::tr("C++", "SnippetProvider"),
                                    &decorateCppEditor);
 
-    connect(ProgressManager::instance(), &ProgressManager::taskStarted,
-            d, &CppEditorPluginPrivate::onTaskStarted);
-    connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
-            d, &CppEditorPluginPrivate::onAllTasksFinished);
 
     auto oldHighlighter = Utils::Text::codeHighlighter();
     Utils::Text::setCodeHighlighter(
@@ -382,19 +372,6 @@ void CppEditorPlugin::addPerSymbolActions()
 
     addSymbolActionToMenus(TextEditor::Constants::FIND_USAGES);
 
-    ActionBuilder findRefsCategorized(this,  "CppEditor.FindRefsCategorized");
-    findRefsCategorized.setText(Tr::tr("Find References With Access Type"));
-    findRefsCategorized.setContext(context);
-    findRefsCategorized.bindContextAction(&d->m_findRefsCategorizedAction);
-    findRefsCategorized.addToContainers(menus, Constants::G_SYMBOL);
-    findRefsCategorized.addOnTriggered(this, [] {
-        if (const auto w = currentCppEditorWidget()) {
-            CppCodeModelSettings::setCategorizeFindReferences(true);
-            w->findUsages();
-            CppCodeModelSettings::setCategorizeFindReferences(false);
-        }
-    });
-
     addSymbolActionToMenus(TextEditor::Constants::RENAME_SYMBOL);
 
     setupCppTypeHierarchy();
@@ -501,13 +478,6 @@ void CppEditorPlugin::addGlobalActions()
         if (const Node *const node = ProjectTree::currentNode(); node && node->asFolderNode())
             CppModelManager::findUnusedFunctions(node->directory());
     });
-
-    ActionBuilder reparseChangedFiles(this,  Constants::UPDATE_CODEMODEL);
-    reparseChangedFiles.setText(Tr::tr("Reparse Externally Changed Files"));
-    reparseChangedFiles.bindContextAction(&d->m_reparseExternallyChangedFiles);
-    reparseChangedFiles.addToContainers(menus, Constants::G_GLOBAL);
-    reparseChangedFiles.addOnTriggered(CppModelManager::instance(),
-                                       &CppModelManager::updateModifiedSourceFiles);
 }
 
 void CppEditorPlugin::registerVariables()
@@ -556,24 +526,6 @@ void CppEditorPlugin::registerTests()
     addTest<Tests::GlobalRenamingTest>();
     addTest<Tests::SelectionsTest>();
 #endif
-}
-
-void CppEditorPluginPrivate::onTaskStarted(Id type)
-{
-    if (type == Constants::TASK_INDEX) {
-        ActionManager::command(TextEditor::Constants::FIND_USAGES)->action()->setEnabled(false);
-        ActionManager::command(TextEditor::Constants::RENAME_SYMBOL)->action()->setEnabled(false);
-        m_reparseExternallyChangedFiles->setEnabled(false);
-    }
-}
-
-void CppEditorPluginPrivate::onAllTasksFinished(Id type)
-{
-    if (type == Constants::TASK_INDEX) {
-        ActionManager::command(TextEditor::Constants::FIND_USAGES)->action()->setEnabled(true);
-        ActionManager::command(TextEditor::Constants::RENAME_SYMBOL)->action()->setEnabled(true);
-        m_reparseExternallyChangedFiles->setEnabled(true);
-    }
 }
 
 } // CppEditor::Internal
