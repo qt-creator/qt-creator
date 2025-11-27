@@ -2638,7 +2638,7 @@ TextEncoding FilePath::processStdOutEncoding() const
 {
     Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
-        return {};
+        return TextEncoding::Utf8; // Good default nowadays.
 
     return (*access)->processStdOutEncoding(*this);
 }
@@ -2647,7 +2647,7 @@ TextEncoding FilePath::processStdErrEncoding() const
 {
     Result<DeviceFileAccessPtr> access = fileAccess();
     if (!access)
-        return {};
+        return TextEncoding::Utf8; // Good default nowadays.
 
     return (*access)->processStdErrEncoding(*this);
 }

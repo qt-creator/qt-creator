@@ -79,7 +79,9 @@ WrappedProcessInterface::WrappedProcessInterface(
 
     connect(&d->m_process, &Process::readyReadStandardOutput, this, [this] {
         if (d->m_hasReceivedFirstOutput) {
-            emit readyRead(d->m_process.readAllRawStandardOutput(), {});
+            const QByteArray output = d->m_process.readAllRawStandardOutput();
+            qCDebug(wrappedProcessInterface) << "Received output:" << output;
+            emit readyRead(output, {});
             return;
         }
 
