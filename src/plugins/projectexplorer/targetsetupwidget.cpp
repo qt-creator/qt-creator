@@ -168,7 +168,7 @@ void TargetSetupWidget::addBuildInfos(const QList<BuildInfo> &infos, bool isImpo
         const auto findConfigIndexToOverwrite = [this, &insertedOrReplacedPositions, &store] {
             for (auto it = m_infoStore.begin(); it != m_infoStore.end(); ++it) {
                 if (!insertedOrReplacedPositions.contains(std::distance(m_infoStore.begin(), it))
-                    && it->expandedBuildDir() == store.expandedBuildDir()) {
+                    && it->expandedBuildDir(m_kit) == store.expandedBuildDir(m_kit)) {
                     return it;
                 }
             }
@@ -398,7 +398,7 @@ QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfoStor
         return {Task::Unknown, {}};
 
     const Tasks issues
-        = store.buildInfo.factory->reportIssues(m_kit, m_projectPath, store.expandedBuildDir());
+        = store.buildInfo.factory->reportIssues(m_kit, m_projectPath, store.expandedBuildDir(m_kit));
     QString text;
     Task::TaskType highestType = Task::Unknown;
     for (const Task &t : issues) {
@@ -450,10 +450,10 @@ TargetSetupWidget::BuildInfoStore &TargetSetupWidget::BuildInfoStore::operator=(
     return *this;
 }
 
-FilePath TargetSetupWidget::BuildInfoStore::expandedBuildDir() const
+FilePath TargetSetupWidget::BuildInfoStore::expandedBuildDir(const Kit *kit) const
 {
     return BuildConfiguration::expandedBuildDirectory(
-        buildInfo.buildDirectory, buildInfo.projectDirectory, *expander);
+        kit, buildInfo.buildDirectory, buildInfo.projectDirectory, *expander);
 }
 
 } // namespace Internal

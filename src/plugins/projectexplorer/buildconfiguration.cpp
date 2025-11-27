@@ -281,6 +281,7 @@ BuildConfiguration::~BuildConfiguration()
 FilePath BuildConfiguration::buildDirectory() const
 {
     return expandedBuildDirectory(
+        kit(),
         FilePath::fromUserInput(d->m_buildDirectoryAspect.value()),
         project()->projectDirectory(),
         *macroExpander());
@@ -289,8 +290,8 @@ FilePath BuildConfiguration::buildDirectory() const
 void BuildConfiguration::setBuildDirectory(const FilePath &dir)
 {
     if (!d->m_buildDirectoryAspect.value().isEmpty()
-        && expandedBuildDirectory(dir, project()->projectDirectory(), *macroExpander())
-                == buildDirectory()) {
+        && expandedBuildDirectory(kit(), dir, project()->projectDirectory(), *macroExpander())
+               == buildDirectory()) {
         return;
     }
 
@@ -1245,7 +1246,7 @@ BuildInfo BuildConfiguration::fixupBuildInfo(
 }
 
 FilePath BuildConfiguration::expandedBuildDirectory(
-    const FilePath &rawBuildDir, const FilePath &projectDir, MacroExpander &exp)
+    const Kit *kit, const FilePath &rawBuildDir, const FilePath &projectDir, MacroExpander &exp)
 {
     qCDebug(bcLog) << Q_FUNC_INFO << rawBuildDir;
 
@@ -1257,6 +1258,11 @@ FilePath BuildConfiguration::expandedBuildDirectory(
 
     buildDir = projectDir.resolvePath(buildDir);
     qCDebug(bcLog) << "final build dir:" << buildDir.toUserOutput();
+
+    if (IDeviceConstPtr device = BuildDeviceKitAspect::device(kit)) {
+        buildDir = device->rootPath().withNewMappedPath(buildDir);
+        qCDebug(bcLog) << "mapped build dir:" << buildDir.toUserOutput();
+    }
 
     return buildDir;
 }
@@ -1302,7 +1308,8 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
     setupBuildDirMacroExpander(
         exp, mainFilePath, projectName, kit, bcName, buildType, buildSystem, false);
 
-    return expandedBuildDirectory(rawBuildDirectoryFromTemplate(kit, mainFilePath), projectDir, exp);
+    return expandedBuildDirectory(
+        kit, rawBuildDirectoryFromTemplate(kit, mainFilePath), projectDir, exp);
 }
 
 ///

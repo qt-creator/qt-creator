@@ -314,6 +314,7 @@ void BuildSettingsWidget::cloneConfiguration()
     if (bc->buildDirectory() != bc->project()->projectDirectory()) {
         const FilePathPredicate isBuildDirOk = [this, bc](const FilePath &rawCandidate) {
             const FilePath expandedCandidate = BuildConfiguration::expandedBuildDirectory(
+                m_buildConfiguration->kit(),
                 rawCandidate, bc->project()->projectDirectory(), *bc->macroExpander());
             if (expandedCandidate.exists())
                 return false;

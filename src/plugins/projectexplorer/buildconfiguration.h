@@ -123,6 +123,7 @@ public:
         const QString &buildSystem,
         bool documentationOnly);
     static Utils::FilePath expandedBuildDirectory(
+        const Kit *kit,
         const Utils::FilePath &rawBuildDir,
         const Utils::FilePath &projectDir,
         Utils::MacroExpander &exp);

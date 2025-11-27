@@ -64,7 +64,7 @@ private:
         BuildInfoStore &operator=(const BuildInfoStore &other) = delete;
         BuildInfoStore &operator=(BuildInfoStore &&other);
 
-        Utils::FilePath expandedBuildDir() const;
+        Utils::FilePath expandedBuildDir(const Kit *kit) const;
 
         BuildInfo buildInfo;
         QCheckBox *checkbox = nullptr;
