@@ -149,6 +149,19 @@ Item {
                     }
                 }
             }
+
+            ToolbarButton {
+                id: mcuOutputButton
+                visible: popupPanel.mcuOutputModel.mcu
+                style: StudioTheme.Values.statusbarButtonStyle
+                buttonIcon: StudioTheme.Constants.import_medium
+                checkable: true
+                checkedInverted: true
+                checked: popupPanel.mcuOutputVisible
+                enabled: backend.projectOpened
+                tooltip: qsTr("Show mcu output.")
+                onClicked: popupPanel.toggleShowMcuPanel()
+            }
         }
     }
 

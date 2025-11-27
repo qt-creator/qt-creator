@@ -9,6 +9,7 @@ import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
 import ToolBar
+import OutputPane
 
 StudioControls.PopupDialog {
     id: root
@@ -20,12 +21,15 @@ StudioControls.PopupDialog {
     property alias errorCount: issuesPanel.errorCount
 
     property alias unreadOutput: outputPanel.unreadMessages
+    property alias mcuOutputModel: mcuOutputPanel.model
 
     readonly property bool issuesVisible: issuesPanel.visible && root.visible
     readonly property bool outputVisible: outputPanel.visible && root.visible
+    readonly property bool mcuOutputVisible: mcuOutputPanel.visible && root.visible
 
     function toggleShowIssuesPanel() {
         if (!root.visible) {
+            mcuOutputPanel.visible = false
             outputPanel.visible = false
             issuesPanel.visible = true
             root.show(root.targetItem)
@@ -33,6 +37,7 @@ StudioControls.PopupDialog {
             if (issuesPanel.visible) {
                 root.close()
             } else {
+                mcuOutputPanel.visible = false
                 outputPanel.visible = false
                 issuesPanel.visible = true
             }
@@ -41,6 +46,7 @@ StudioControls.PopupDialog {
 
     function toggleShowOutputPanel() {
         if (!root.visible) {
+            mcuOutputPanel.visible = false
             issuesPanel.visible = false
             outputPanel.visible = true
             root.show(root.targetItem)
@@ -48,15 +54,37 @@ StudioControls.PopupDialog {
             if (outputPanel.visible) {
                 root.close()
             } else {
+                mcuOutputPanel.visible = false
                 issuesPanel.visible = false
                 outputPanel.visible = true
             }
         }
     }
 
+    function toggleShowMcuPanel() {
+        if (!root.visible) {
+            issuesPanel.visible = false
+            outputPanel.visible = false
+            mcuOutputPanel.visible = true
+
+            root.show(root.targetItem)
+            mcuOutputPanel.scrollDown()
+        } else {
+            if (mcuOutputPanel.visible) {
+                root.close()
+            } else {
+                issuesPanel.visible = false
+                outputPanel.visible = false
+                mcuOutputPanel.visible = true
+            }
+        }
+    }
+
+
     onClosing: {
         issuesPanel.visible = false
         outputPanel.visible = false
+        mcuOutputPanel.visible = false
     }
 
     titleBar: RowLayout {
@@ -82,6 +110,7 @@ StudioControls.PopupDialog {
                 onClicked: {
                     if (!issuesPanel.visible) {
                         outputPanel.visible = false
+                        mcuOutputPanel.visible = false
                         issuesPanel.visible = true
                     }
                 }
@@ -97,7 +126,26 @@ StudioControls.PopupDialog {
                 onClicked: {
                     if (!outputPanel.visible) {
                         issuesPanel.visible = false
+                        mcuOutputPanel.visible = false
                         outputPanel.visible = true
+                    }
+                }
+            }
+
+            TabBarButton {
+                id: mcuButton
+                visible: mcuOutputPanel.model.mcu
+                enabled: mcuOutputPanel.model.mcu
+                style: StudioTheme.Values.statusbarButtonStyle
+                text: qsTr("Mcu Output")
+                checked: mcuOutputPanel.visible
+                checkedInverted: true
+
+                onClicked: {
+                    if (!mcuOutputPanel.visible) {
+                        outputPanel.visible = false
+                        issuesPanel.visible = false
+                        mcuOutputPanel.visible = true
                     }
                 }
             }
@@ -115,8 +163,10 @@ StudioControls.PopupDialog {
                 onClicked: {
                     if (issuesPanel.visible)
                         issuesPanel.clearIssues()
-                    else
+                    else if (outputPanel.visible)
                         outputPanel.clearOutput()
+                    else
+                        mcuOutputPanel.clearOutput()
                 }
             }
         }
@@ -131,10 +181,19 @@ StudioControls.PopupDialog {
             id: issuesPanel
             visible: false
             anchors.fill: panels
+            onOpenMcuOutput: {
+                toggleShowMcuPanel()
+            }
         }
 
         OutputPanel {
             id: outputPanel
+            visible: false
+            anchors.fill: panels
+        }
+
+        McuOutputPanel {
+            id: mcuOutputPanel
             visible: false
             anchors.fill: panels
         }

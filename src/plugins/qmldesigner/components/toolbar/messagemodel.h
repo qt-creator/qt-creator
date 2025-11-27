@@ -46,6 +46,7 @@ private:
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
     void clearTasks(const Utils::Id &categoryId);
+    QString description(const ProjectExplorer::Task &task) const;
 
     std::vector<ProjectExplorer::Task> m_tasks = {};
     QHash<Utils::Id, ProjectExplorer::TaskCategory> m_categories = {};

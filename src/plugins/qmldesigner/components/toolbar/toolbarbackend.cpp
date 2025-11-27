@@ -5,6 +5,7 @@
 
 #include "messagemodel.h"
 #include "appoutputmodel.h"
+#include "mcuoutputmodel.h"
 
 #include <changestyleaction.h>
 #include <crumblebar.h>
@@ -525,6 +526,7 @@ void ToolBarBackend::registerDeclarativeType()
     qmlRegisterType<RunManagerModel>("ToolBar", 1, 0, "RunManagerModel");
 
     qmlRegisterType<MessageModel>("OutputPane", 1, 0, "MessageModel");
+    qmlRegisterType<McuOutputModel>("OutputPane", 1, 0, "McuOutputModel");
     qmlRegisterType<AppOutputParentModel>("OutputPane", 1, 0, "AppOutputParentModel");
     qmlRegisterType<AppOutputChildModel>("OutputPane", 1, 0, "AppOutputChildModel");
 

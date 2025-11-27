@@ -14,6 +14,7 @@ ScrollView {
     id: root
 
     signal showCodeViewSignal
+    signal openMcuOutput
 
     property int warningCount: messageModel.warningCount
     property int errorCount: messageModel.errorCount
@@ -117,7 +118,11 @@ ScrollView {
                         Connections {
                             target: labelInfo
                             function onLinkActivated(link) {
-                                messageModel.openLink(link)
+                                if (link === "openMcuOutput") {
+                                    root.openMcuOutput()
+                                } else {
+                                    messageModel.openLink(link)
+                                }
                             }
                         }
                     }

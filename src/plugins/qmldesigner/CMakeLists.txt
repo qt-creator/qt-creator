@@ -748,6 +748,8 @@ extend_qtc_plugin(QmlDesigner
     appoutputmodel.h
     messagemodel.cpp
     messagemodel.h
+    mcuoutputmodel.cpp
+    mcuoutputmodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

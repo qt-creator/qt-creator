@@ -10,6 +10,8 @@
 #include <QDesktopServices>
 #include <QWindow>
 
+#include "qmlprojectmanager/qmlprojectmanagertr.h"
+
 MessageModel::MessageModel(QObject *parent)
     : QAbstractListModel(parent)
 {
@@ -96,7 +98,7 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
     if (index.isValid() && index.row() < rowCount()) {
         size_t row = static_cast<size_t>(index.row());
         if (role == MessageRole) {
-            return m_tasks.at(row).description();
+            return description(m_tasks.at(row));
         } else if (role == FileNameRole) {
             Utils::FilePath path = m_tasks.at(row).file;
             return path.fileName();
@@ -162,3 +164,16 @@ void MessageModel::clearTasks(const Utils::Id &categoryId)
     endResetModel();
     emit modelChanged();
 }
+
+QString MessageModel::description(const ProjectExplorer::Task &task) const
+{
+    auto description = task.description();
+    if (description.contains("The command") &&
+        description.contains("qmlprojectexporter") &&
+        description.contains("terminated with exit code 1")) {
+        return QmlProjectManager::Tr::tr(
+            "Failed to run qmlprojectexporter. See: <a href=\"openMcuOutput\"> Mcu Output </a>");
+    }
+    return description;
+}
+
