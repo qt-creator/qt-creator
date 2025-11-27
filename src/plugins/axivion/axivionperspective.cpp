@@ -31,6 +31,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/fancylineedit.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
@@ -352,7 +353,7 @@ private:
     QToolButton *m_localDashBoard = nullptr;
     QToolButton *m_showFilterHelp = nullptr;
     Guard m_signalBlocker;
-    QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
+    FancyLineEdit *m_pathGlobFilter = nullptr;
     QLabel *m_totalRows = nullptr;
     BaseTreeView *m_issuesView = nullptr;
     QStackedWidget *m_stack = nullptr;
@@ -514,9 +515,10 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         onSearchParameterChanged();
     });
 
-    m_pathGlobFilter = new QLineEdit(this);
+    m_pathGlobFilter = new FancyLineEdit(this);
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
-    connect(m_pathGlobFilter, &QLineEdit::textEdited, this, &IssuesWidget::onSearchParameterChanged);
+    m_pathGlobFilter->setFiltering(true);
+    connect(m_pathGlobFilter, &QLineEdit::textChanged, this, &IssuesWidget::onSearchParameterChanged);
 
     m_namedFilters = new QComboBox(this);
     m_namedFilters->setToolTip(Tr::tr("Named filters"));
