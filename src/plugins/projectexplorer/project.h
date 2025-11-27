@@ -54,9 +54,7 @@ class PROJECTEXPLORER_EXPORT Project : public QObject
 public:
     // Roles to be implemented by all models that are exported via model()
     enum ModelRoles {
-        // Absolute file path
-        FilePathRole = QFileSystemModel::FilePathRole,
-        isParsingRole,
+        isParsingRole = Qt::UserRole + 1,
         UseUnavailableMarkerRole,
     };
 

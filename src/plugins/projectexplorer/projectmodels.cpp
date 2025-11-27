@@ -253,8 +253,6 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         }
         return node->isEnabled() ? QVariant()
                                  : Utils::creatorColor(Utils::Theme::TextColorDisabled);
-    case Project::FilePathRole:
-        return node->filePath().toUrlishString();
     case Project::isParsingRole:
         return project && bs ? bs->isParsing() && !project->needsConfiguration() : false;
     case Project::UseUnavailableMarkerRole:
