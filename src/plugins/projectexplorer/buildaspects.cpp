@@ -48,21 +48,24 @@ BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
     setLabelText(Tr::tr("Build directory:"));
     setExpectedKind(Utils::PathChooser::Directory);
 
-    setValidationFunction([this](QString text) -> FancyLineEdit::AsyncValidationFuture {
+    setValidationFunction([this, bc](QString text) -> FancyLineEdit::AsyncValidationFuture {
         const FilePath fixedDir = fixupDir(FilePath::fromUserInput(text));
         if (!fixedDir.isEmpty())
             text = fixedDir.toUserOutput();
 
         const QString problem = updateProblemLabelsHelper(text);
         if (!problem.isEmpty())
-            return QtFuture::makeReadyFuture(Result<QString>(make_unexpected(problem)));
+            return QtFuture::makeReadyFuture(Result<QString>(ResultError(problem)));
 
         const FilePath newPath = FilePath::fromUserInput(text);
         const auto buildDevice = BuildDeviceKitAspect::device(buildConfiguration()->kit());
 
+        const FilePath expandedPath = BuildConfiguration::expandedBuildDirectory(
+            bc->kit(), newPath, bc->project()->projectDirectory(), *bc->macroExpander());
+
         if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
-            && !buildDevice->rootPath().ensureReachable(newPath)) {
-            return QtFuture::makeReadyFuture((Utils::Result<QString>(make_unexpected(
+            && !buildDevice->rootPath().ensureReachable(expandedPath)) {
+            return QtFuture::makeReadyFuture((Utils::Result<QString>(ResultError(
                 Tr::tr("The build directory is not reachable from the build device.")))));
         }
 
