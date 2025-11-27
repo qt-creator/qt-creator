@@ -6,7 +6,9 @@
 #include "../projectexplorer_export.h"
 #include "idevicefwd.h"
 
-#include <QAbstractListModel>
+#include <utils/filepath.h>
+
+#include <QSortFilterProxyModel>
 
 #include <memory>
 
@@ -42,6 +44,21 @@ private:
     bool matchesTypeFilter(const IDeviceConstPtr &dev) const;
 
     const std::unique_ptr<Internal::DeviceManagerModelPrivate> d;
+};
+
+// Use with source models that implement the Utils::FilePathRole to filter
+// the respective paths by the given device.
+class PROJECTEXPLORER_EXPORT DeviceFilterModel : public QSortFilterProxyModel
+{
+public:
+    using QSortFilterProxyModel::QSortFilterProxyModel;
+
+    void setDevice(const IDeviceConstPtr &device);
+
+private:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+
+    Utils::FilePath m_deviceRoot;
 };
 
 } // namespace ProjectExplorer

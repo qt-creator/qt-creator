@@ -8,6 +8,7 @@
 #include "../projectexplorertr.h"
 
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
 
 using namespace Utils;
 
@@ -168,6 +169,34 @@ int DeviceManagerModel::indexForId(Id id) const
     }
 
     return -1;
+}
+
+void DeviceFilterModel::setDevice(const IDeviceConstPtr &device)
+{
+    QTC_ASSERT(device, return);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+    m_deviceRoot = device->rootPath();
+    endFilterChange(Direction::Rows);
+#else
+    m_deviceRoot = device->rootPath();
+    invalidate();
+#endif
+}
+
+bool DeviceFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    QTC_ASSERT(sourceModel(), return false);
+
+    if (m_deviceRoot.isEmpty())
+        return true;
+
+    const QModelIndex idx = sourceModel()->index(source_row, 0, source_parent);
+    const FilePath path = FilePath::fromVariant(sourceModel()->data(idx, FilePathRole));
+    if (path.isEmpty())
+        return true;
+    return path.isSameDevice(m_deviceRoot);
 }
 
 } // namespace ProjectExplorer
