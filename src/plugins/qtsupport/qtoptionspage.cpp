@@ -13,6 +13,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <projectexplorer/devicesupport/devicemanagermodel.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -175,6 +176,9 @@ QVariant QtVersionItem::data(int column, int role) const
         return TreeItem::data(column, role);
     }
 
+    if (role == FilePathRole)
+        return version->qmakeFilePath().toVariant();
+
     if (role == Qt::DisplayRole) {
         if (column == 0)
             return version->displayName();
@@ -279,6 +283,9 @@ private:
     QtVersion *currentVersion() const;
     QtVersionItem *currentItem() const;
 
+    QModelIndex mapFromSource(const QModelIndex &idx) const;
+    QModelIndex mapToSource(const QModelIndex &idx) const;
+
     void updateQtVersions(const QList<int> &, const QList<int> &, const QList<int> &);
     void versionChanged(const QModelIndex &current, const QModelIndex &previous);
     void addQtDir();
@@ -306,7 +313,8 @@ private:
     void updateVersionItem(QtVersionItem *item);
 
     TreeModel<TreeItem, TreeItem, QtVersionItem> *m_model;
-    KitSettingsSortModel *m_filterModel;
+    DeviceFilterModel *m_filterModel;
+    KitSettingsSortModel *m_sortModel;
     TreeItem *m_autoItem;
     TreeItem *m_manualItem;
 
@@ -335,6 +343,10 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     , m_infoBrowser(new QTextBrowser)
     , m_configurationWidget(nullptr)
 {
+    const auto deviceManagerModel = new DeviceManagerModel(this);
+    const auto deviceComboBox = new QComboBox;
+    deviceComboBox->setModel(deviceManagerModel);
+
     m_qtdirList = new QTreeView(this);
     m_qtdirList->setObjectName("qtDirList");
     m_qtdirList->setUniformRowHeights(true);
@@ -379,6 +391,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     // clang-format off
     Row {
         Column {
+            Row { Tr::tr("Device:"), deviceComboBox, st },
             m_qtdirList,
             m_versionInfoWidget,
             m_infoWidget,
@@ -418,12 +431,15 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     m_model->rootItem()->appendChild(m_autoItem);
     m_model->rootItem()->appendChild(m_manualItem);
 
-    m_filterModel = new KitSettingsSortModel(this);
-    m_filterModel->setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
-                                        ProjectExplorer::Constants::msgManual()});
+    m_filterModel = new DeviceFilterModel(this);
     m_filterModel->setSourceModel(m_model);
 
-    m_qtdirList->setModel(m_filterModel);
+    m_sortModel = new KitSettingsSortModel(this);
+    m_sortModel->setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
+                                        ProjectExplorer::Constants::msgManual()});
+    m_sortModel->setSourceModel(m_filterModel);
+
+    m_qtdirList->setModel(m_sortModel);
     m_qtdirList->setSortingEnabled(true);
 
     m_qtdirList->setFirstColumnSpanned(0, QModelIndex(), true);
@@ -483,6 +499,13 @@ QtSettingsPageWidget::QtSettingsPageWidget()
         QtVersion *version = currentVersion();
         return version ? version->macroExpander() : nullptr;
     }});
+
+    connect(deviceComboBox, &QComboBox::currentIndexChanged, this,
+        [this, deviceManagerModel](int index) {
+            m_filterModel->setDevice(deviceManagerModel->device(index));
+        });
+    deviceComboBox->setCurrentIndex(
+        deviceManagerModel->indexForId(ProjectExplorer::Constants::DESKTOP_DEVICE_ID));
 }
 
 QtVersion *QtSettingsPageWidget::currentVersion() const
@@ -495,9 +518,20 @@ QtVersion *QtSettingsPageWidget::currentVersion() const
 
 QtVersionItem *QtSettingsPageWidget::currentItem() const
 {
-    QModelIndex idx = m_qtdirList->selectionModel()->currentIndex();
-    QModelIndex sourceIdx = m_filterModel->mapToSource(idx);
+    const QModelIndex sourceIdx = mapToSource(m_qtdirList->selectionModel()->currentIndex());
     return m_model->itemForIndexAtLevel<2>(sourceIdx);
+}
+
+QModelIndex QtSettingsPageWidget::mapFromSource(const QModelIndex &idx) const
+{
+    QTC_ASSERT(m_filterModel == m_sortModel->sourceModel(), return {});
+    return m_sortModel->mapFromSource(m_filterModel->mapFromSource(idx));
+}
+
+QModelIndex QtSettingsPageWidget::mapToSource(const QModelIndex &idx) const
+{
+    QTC_ASSERT(m_filterModel == m_sortModel->sourceModel(), return {});
+    return m_filterModel->mapToSource(m_sortModel->mapToSource(idx));
 }
 
 void QtSettingsPageWidget::cleanUpQtVersions()
@@ -727,8 +761,7 @@ void QtSettingsPageWidget::addQtDir()
         auto item = new QtVersionItem(version);
         item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
         m_manualItem->appendChild(item);
-        QModelIndex source = m_model->indexForItem(item);
-        m_qtdirList->setCurrentIndex(m_filterModel->mapFromSource(source)); // should update the rest of the ui
+        m_qtdirList->setCurrentIndex(mapFromSource(m_model->indexForItem(item))); // should update the rest of the ui
         m_nameEdit->setFocus();
         m_nameEdit->selectAll();
     } else {
