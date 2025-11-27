@@ -953,7 +953,7 @@ static void handleDevicesListChange(const QString &serialNumber)
             newDev->setMachineType(IDevice::Hardware);
             newDev->setDeviceState(state);
 
-            newDev->setExtraData(Constants::AndroidSerialNumber, serial);
+            newDev->updateSerialNumber(serial);
             newDev->setExtraData(Constants::AndroidCpuAbi, AndroidConfig::getAbis(serial));
             newDev->setExtraData(Constants::AndroidSdk, AndroidConfig::getSDKVersion(serial));
 
