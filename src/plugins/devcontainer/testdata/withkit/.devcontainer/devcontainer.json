@@ -14,7 +14,7 @@
                     "name": "DevKit1",
                     "QtSupport.QtInformation": "/6.7.0/gcc_64/bin/qmake6",
                     "PE.Profile.ToolChainsV3": {
-                        "Cxx": "/usr/bin/c++",
+                        "Cxx": "/usr/bin/g++",
                         "C": "/usr/bin/gcc"
                     },
                     "CMakeProjectManager.CMakeKitInformation": {
@@ -27,7 +27,7 @@
                     "name": "DevKit2",
                     "qt": "/6.7.0/gcc_64/bin/qmake6",
                     "compiler": {
-                        "Cxx": "/usr/bin/c++",
+                        "Cxx": "/usr/bin/g++",
                         "C": "/usr/bin/gcc"
                     },
                     "cmake": {
