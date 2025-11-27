@@ -30,7 +30,7 @@ def main():
     waitFor("len(str(editorArea.plainText).splitlines()) == numLinesExpected", 5000)
     # verify if refactoring was properly applied - each part on separate line
     verifyMessage = "Verifying split initializer functionality at element line."
-    for line in ["Item {", "x: 10;", "y: 20;", "width: 10", "}"]:
+    for line in ["Item {", "x: 10", "y: 20", "width: 10", "}"]:
         verifyCurrentLine(editorArea, line, verifyMessage)
         type(editorArea, "<Down>")
     invokeMenuItem("File", "Exit")
