@@ -234,8 +234,15 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
 
-    d->m_buildDirectoryAspect.setBaseDirectory(project()->projectDirectory());
+    if (IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit())) {
+        d->m_buildDirectoryAspect.setBaseDirectory(
+            buildDevice->rootPath().withNewMappedPath(project()->projectDirectory()));
+    } else {
+        d->m_buildDirectoryAspect.setBaseDirectory(project()->projectDirectory());
+    }
+
     d->m_buildDirectoryAspect.setEnvironment(environment());
+
     connect(&d->m_buildDirectoryAspect, &StringAspect::changed,
             this, &BuildConfiguration::emitBuildDirectoryChanged);
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
