@@ -30,7 +30,7 @@ def main():
         invokeMenuItem("File", "Save All")
         availableConfigs = iterateBuildConfigs("Debug")
         if not availableConfigs:
-            test.fatal("Haven't found a suitable Qt version (need Qt 6.2+) - leaving without profiling.")
+            test.fatal("Haven't found a suitable Qt version (need Qt 6.5+) - leaving without profiling.")
         else:
             performTest(workingDir, projectName, availableConfigs)
     invokeMenuItem("File", "Exit")
@@ -77,7 +77,7 @@ def performTest(workingDir, projectName, availableConfigs):
              colMean, colMedian, colLongest, colShortest) = range(2, 11)
             model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
                                   "Internal::QmlProfilerStatisticsMainView").model()
-            compareEventsTab(model, "events_qt6.2.4.tsv")
+            compareEventsTab(model, "events_qt6.9.2.tsv")
             test.compare(dumpItems(model, column=colPercent)[0], '100 %')
             # cannot run following test on colShortest (unstable)
             for i in [colMean, colMedian, colLongest]:
@@ -118,15 +118,23 @@ def compareEventsTab(model, file):
 
     test.compare(model.rowCount(), len(expectedTable),
                  "Checking number of rows in Events table")
-    if not test.verify(containsOnce(expectedTable, foundTable),
+    if not test.verify(matches(expectedTable, foundTable),
                        "Verifying that Events table matches expected values"):
         test.log("Events displayed by Creator: %s" % foundTable, str(expectedTable))
 
-def containsOnce(tuple, items):
+
+def matches(expectedItems, items):
+    expected = list(expectedItems)
     for item in items:
-        if tuple.count(item) != 1:
+        if item in expected:
+            expected.remove(item)
+        else:
+            test.log("Unexpected item: %s" % str(item))
             return False
-    return True
+    if len(expected) != 0:
+        test.log("Missing items: %s" % str(expected))
+    return len(expected) == 0
+
 
 def safeClickTab(tab):
     for bar in [":Qt Creator.Events_QTabBar",
