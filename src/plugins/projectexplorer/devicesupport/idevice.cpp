@@ -674,6 +674,7 @@ void IDevice::setFileAccess(DeviceFileAccessPtr fileAccess)
 {
     d->fileAccess.writeLocked()->swap(fileAccess);
     Utils::FSEngine::invalidateFileInfoCache();
+    emit DeviceManager::instance()->deviceUpdated(id());
 }
 
 void IDevice::setFileAccessFactory(std::function<DeviceFileAccessPtr()> fileAccessFactory)
