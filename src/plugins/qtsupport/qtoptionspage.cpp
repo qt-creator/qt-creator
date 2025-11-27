@@ -14,6 +14,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/devicesupport/devicemanagermodel.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -280,6 +281,7 @@ private:
     void userChangedCurrentVersion();
     void updateWidgets();
     void setupLinkWithQtButton();
+    IDeviceConstPtr currentDevice() const;
     QtVersion *currentVersion() const;
     QtVersionItem *currentItem() const;
 
@@ -320,6 +322,8 @@ private:
 
     const QString m_specifyNameString;
 
+    DeviceManagerModel m_deviceManagerModel;
+    QComboBox *m_deviceComboBox;
     QTreeView *m_qtdirList;
     DetailsWidget *m_versionInfoWidget;
     DetailsWidget *m_infoWidget;
@@ -343,9 +347,8 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     , m_infoBrowser(new QTextBrowser)
     , m_configurationWidget(nullptr)
 {
-    const auto deviceManagerModel = new DeviceManagerModel(this);
-    const auto deviceComboBox = new QComboBox;
-    deviceComboBox->setModel(deviceManagerModel);
+    m_deviceComboBox = new QComboBox;
+    m_deviceComboBox->setModel(&m_deviceManagerModel);
 
     m_qtdirList = new QTreeView(this);
     m_qtdirList->setObjectName("qtDirList");
@@ -391,7 +394,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     // clang-format off
     Row {
         Column {
-            Row { Tr::tr("Device:"), deviceComboBox, st },
+            Row { Tr::tr("Device:"), m_deviceComboBox, st },
             m_qtdirList,
             m_versionInfoWidget,
             m_infoWidget,
@@ -500,12 +503,12 @@ QtSettingsPageWidget::QtSettingsPageWidget()
         return version ? version->macroExpander() : nullptr;
     }});
 
-    connect(deviceComboBox, &QComboBox::currentIndexChanged, this,
-        [this, deviceManagerModel](int index) {
-            m_filterModel->setDevice(deviceManagerModel->device(index));
+    connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this,
+        [this](int index) {
+            m_filterModel->setDevice(m_deviceManagerModel.device(index));
         });
-    deviceComboBox->setCurrentIndex(
-        deviceManagerModel->indexForId(ProjectExplorer::Constants::DESKTOP_DEVICE_ID));
+    m_deviceComboBox->setCurrentIndex(
+        m_deviceManagerModel.indexForId(ProjectExplorer::Constants::DESKTOP_DEVICE_ID));
 }
 
 QtVersion *QtSettingsPageWidget::currentVersion() const
@@ -716,9 +719,13 @@ QtSettingsPageWidget::~QtSettingsPageWidget()
 
 void QtSettingsPageWidget::addQtDir()
 {
+    FilePath initialDir;
+    const IDeviceConstPtr dev = currentDevice();
+    if (QTC_GUARD(dev) && dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
+        initialDir = dev->rootPath();
     FilePath qtVersion
         = FileUtils::getOpenFilePath(Tr::tr("Select a qmake Executable"),
-                                     {},
+                                     initialDir,
                                      BuildableHelperLibrary::filterForQmakeFileDialog(),
                                      nullptr,
                                      QFileDialog::DontResolveSymlinks,
@@ -966,6 +973,11 @@ void QtSettingsPageWidget::setupLinkWithQtButton()
     m_linkWithQtButton->setEnabled(canLink);
     m_linkWithQtButton->setToolTip(tip);
     connect(m_linkWithQtButton, &QPushButton::clicked, this, &LinkWithQtSupport::linkWithQt);
+}
+
+IDeviceConstPtr QtSettingsPageWidget::currentDevice() const
+{
+    return m_deviceManagerModel.device(m_deviceComboBox->currentIndex());
 }
 
 void QtSettingsPageWidget::updateCurrentQtName()
