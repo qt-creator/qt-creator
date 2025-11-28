@@ -102,7 +102,6 @@
         \li Code Llama 13B QML (for Qt 6, running in a cloud deployment of your choice)
         \li Code Llama 13B (for Qt 5, running in a cloud deployment of your choice)
         \li Codestral (provided by Mistral)
-        \li Llama 3.3 70B (running in a cloud deployment of your choice)
         \li Claude 4.0 Sonnet (provided by Anthropic, remember that you
             need to have a token-based billing payment method configured for your
             Anthropic account: \l {https://console.anthropic.com/}{console.anthropic.com})
@@ -116,7 +115,6 @@
         \li Code Llama 13B QML through Ollama (running locally on your computer)
         \li Code Llama 7B QML through Ollama (running locally on your computer)
         \li Code Llama 7B through Ollama (running locally on your computer)
-        \li DeepSeek Coder V2 Lite through Ollama (running locally on your computer)
     \endlist
 
     To connect to an LLM:
