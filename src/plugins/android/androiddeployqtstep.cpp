@@ -40,6 +40,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QDateTime>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPushButton>
@@ -114,6 +115,8 @@ private:
 
     void reportWarningOrError(const QString &message, Task::TaskType type);
     void setInstallApkError(const QString &details);
+    bool needsPackageRegeneration();
+    void updateDeploymentTimestamp();
 
     QString m_serialNumber;
     QString m_avdName;
@@ -128,6 +131,7 @@ private:
     Environment m_environment;
     Task m_installApkError;
     QSingleTaskTreeRunner m_taskTreeRunner;
+    QDateTime m_lastDeploymentTime;
 };
 
 AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
@@ -294,6 +298,79 @@ bool AndroidDeployQtStep::init()
     return true;
 }
 
+bool AndroidDeployQtStep::needsPackageRegeneration()
+{
+    const FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(buildConfiguration());
+    if (!jsonFile.exists()) {
+        emit addOutput(Tr::tr("Deployment settings JSON file does not exist, regenerating package."),
+                       OutputFormat::NormalMessage);
+        return true;
+    }
+
+    const FilePath androidBuildDir = androidBuildDirectory(buildConfiguration());
+    const FilePath apkOutputDir = androidBuildDir / "build/outputs/apk";
+    if (!apkOutputDir.exists()) {
+        emit addOutput(Tr::tr("APK output directory does not exist, regenerating package."),
+                       OutputFormat::NormalMessage);
+        return true;
+    }
+
+    const FilePath timestampFile = androidBuildDir / "AndroidDeployTimestamp";
+    if (!m_lastDeploymentTime.isValid()) {
+        if (timestampFile.exists()) {
+            m_lastDeploymentTime = timestampFile.lastModified();
+        } else {
+            emit addOutput(Tr::tr("First deployment in session, regenerating package."),
+                           OutputFormat::NormalMessage);
+            return true;
+        }
+    }
+
+    const BuildSystem *bs = buildSystem();
+    const QString buildKey = buildConfiguration()->activeBuildKey();
+
+    if (jsonFile.lastModified() > m_lastDeploymentTime) {
+        emit addOutput(Tr::tr("Deployment settings changed since last deploy, regenerating package."),
+                       OutputFormat::NormalMessage);
+        return true;
+    }
+
+    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
+    if (node) {
+        const FilePath apk = FilePath::fromString(node->data(Constants::AndroidApk).toString());
+        if (!apk.isEmpty() && apk.exists() && apk.lastModified() > m_lastDeploymentTime) {
+            emit addOutput(Tr::tr("Application binary changed since last deploy, regenerating package."),
+                           OutputFormat::NormalMessage);
+            return true;
+        }
+    }
+
+    const QStringList androidAbis = bs->property(Constants::AndroidAbis).toStringList();
+    for (const QString &abi : androidAbis) {
+        const FilePath libsDir = androidBuildDir / "libs" / abi;
+        if (libsDir.exists()) {
+            const FilePaths files = libsDir.dirEntries(QDir::Files);
+            for (const FilePath &file : files) {
+                if (file.lastModified() > m_lastDeploymentTime) {
+                    emit addOutput(Tr::tr("Library %1 changed since last deploy, regenerating package.")
+                                       .arg(file.fileName()),
+                                   OutputFormat::NormalMessage);
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+void AndroidDeployQtStep::updateDeploymentTimestamp()
+{
+    m_lastDeploymentTime = QDateTime::currentDateTime();
+    const FilePath timestampFile = androidBuildDirectory(buildConfiguration()) / "AndroidDeployTimestamp";
+    timestampFile.writeFileContents(QByteArray());
+}
+
 GroupItem AndroidDeployQtStep::runRecipe()
 {
     const Storage<QString> serialNumberStorage;
@@ -357,6 +434,12 @@ Group AndroidDeployQtStep::deployRecipe()
     };
 
     const auto onInstallSetup = [this, storage](Process &process) {
+        if (!needsPackageRegeneration()) {
+            emit addOutput(Tr::tr("No changes detected, skipping package regeneration."),
+                           OutputFormat::NormalMessage);
+            return SetupResult::StopWithSuccess;
+        }
+
         CommandLine cmd(m_command);
         if (m_apkPath.isEmpty()) {
             cmd.addArgs(m_androiddeployqtArgs.arguments(), CommandLine::Raw);
@@ -397,6 +480,7 @@ Group AndroidDeployQtStep::deployRecipe()
         if (exitStatus == QProcess::NormalExit && exitCode == 0) {
             emit addOutput(Tr::tr("The process \"%1\" exited normally.").arg(m_command.toUserOutput()),
                            OutputFormat::NormalMessage);
+            updateDeploymentTimestamp();
         } else if (exitStatus == QProcess::NormalExit) {
             const QString error = Tr::tr("The process \"%1\" exited with code %2.")
             .arg(m_command.toUserOutput(), QString::number(exitCode));

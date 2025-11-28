@@ -65,6 +65,8 @@ private:
 
     void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
     void updateBuildToolsVersionInJsonFile();
+    bool needsApkRegeneration();
+    void updateBuildTimestamp();
 
     bool m_signPackage = false;
     bool m_openPackageLocationForRun = false;
@@ -81,6 +83,7 @@ private:
     ProjectExplorer::ProcessParameters m_concealedParams;
     bool m_skipBuilding = false;
     Utils::FilePath m_inputFile;
+    QDateTime m_lastBuildTime;
 };
 
 void setupAndroidBuildApkStep();

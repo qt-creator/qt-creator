@@ -1045,6 +1045,13 @@ QtTaskTree::GroupItem AndroidBuildApkStep::runRecipe()
                                  Task::Warning);
             return SetupResult::StopWithSuccess;
         }
+
+        if (!needsApkRegeneration()) {
+            emit addOutput(Tr::tr("No changes detected, skipping APK regeneration."),
+                           OutputFormat::NormalMessage);
+            return SetupResult::StopWithSuccess;
+        }
+
         if (setupHelper())
             return SetupResult::Continue;
         reportWarningOrError(Tr::tr("Cannot set up \"%1\", not building an APK.")
@@ -1052,6 +1059,7 @@ QtTaskTree::GroupItem AndroidBuildApkStep::runRecipe()
         return SetupResult::StopWithError;
     };
     const auto onDone = [this] {
+        updateBuildTimestamp();
         if (m_openPackageLocationForRun)
             QTimer::singleShot(0, this, &AndroidBuildApkStep::showInGraphicalShell);
     };
@@ -1062,6 +1070,72 @@ QtTaskTree::GroupItem AndroidBuildApkStep::runRecipe()
         defaultProcessTask()
     };
     return root;
+}
+
+bool AndroidBuildApkStep::needsApkRegeneration()
+{
+    const FilePath androidBuildDir = androidBuildDirectory(buildConfiguration());
+    const FilePath apkOutputDir = androidBuildDir / "build/outputs/apk";
+    if (!apkOutputDir.exists()) {
+        emit addOutput(Tr::tr("APK output directory does not exist, regenerating APK."),
+                       OutputFormat::NormalMessage);
+        return true;
+    }
+
+    const FilePath timestampFile = androidBuildDir / "AndroidBuildTimestamp";
+    if (!m_lastBuildTime.isValid()) {
+        if (timestampFile.exists()) {
+            m_lastBuildTime = timestampFile.lastModified();
+            qCDebug(buildapkstepLog) << "Loaded build timestamp from file:" << m_lastBuildTime;
+        } else {
+            emit addOutput(Tr::tr("First build in session, regenerating APK."),
+                           OutputFormat::NormalMessage);
+            return true;
+        }
+    }
+
+    if (m_inputFile.exists() && m_inputFile.lastModified() > m_lastBuildTime) {
+        emit addOutput(Tr::tr("Deployment settings changed since last build, regenerating APK."),
+                       OutputFormat::NormalMessage);
+        return true;
+    }
+
+    BuildSystem *bs = buildSystem();
+    const QStringList androidAbis = bs->property(Constants::AndroidAbis).toStringList();
+    for (const QString &abi : androidAbis) {
+        const FilePath libsDir = androidBuildDir / "libs" / abi;
+        if (libsDir.exists()) {
+            const FilePaths files = libsDir.dirEntries(QDir::Files);
+            for (const FilePath &file : files) {
+                if (file.lastModified() > m_lastBuildTime) {
+                    emit addOutput(Tr::tr("Library %1 changed since last build, regenerating APK.")
+                                       .arg(file.fileName()),
+                                   OutputFormat::NormalMessage);
+                    return true;
+                }
+            }
+        }
+    }
+
+    const QString buildKey = buildConfiguration()->activeBuildKey();
+    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
+    if (node) {
+        const FilePath apk = FilePath::fromString(node->data(Constants::AndroidApk).toString());
+        if (!apk.isEmpty() && apk.exists() && apk.lastModified() > m_lastBuildTime) {
+            emit addOutput(Tr::tr("Application binary changed since last build, regenerating APK."),
+                           OutputFormat::NormalMessage);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void AndroidBuildApkStep::updateBuildTimestamp()
+{
+    m_lastBuildTime = QDateTime::currentDateTime();
+    const FilePath timestampFile = androidBuildDirectory(buildConfiguration()) / "AndroidBuildTimestamp";
+    timestampFile.writeFileContents(QByteArray());
 }
 
 void AndroidBuildApkStep::reportWarningOrError(const QString &message, Task::TaskType type)
