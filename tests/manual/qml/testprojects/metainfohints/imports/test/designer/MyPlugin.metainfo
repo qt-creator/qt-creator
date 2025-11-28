@@ -1,7 +1,7 @@
 MetaInfo {
     Type {
         name: "test.TestComponent"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/ItemLibrary/images/item-icon16.png"
 
         Hints {
             canBeContainer: model.potentialChildIsSubclassOf("QtQuick.Text")
@@ -13,7 +13,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Test Component"
             category: "Test Plugin"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/ItemLibrary/images/item-icon.png"
             version: "1.0"
             requiredImport: "test"
 
@@ -27,7 +27,7 @@ MetaInfo {
 
     Type {
         name: "test.TestLayout"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/ItemLibrary/images/item-icon16.png"
 
         Hints {
             canBeContainer: true
@@ -37,7 +37,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Test Layout"
             category: "Test Plugin"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/ItemLibrary/images/item-icon.png"
             version: "1.0"
             requiredImport: "test"
 
@@ -57,7 +57,7 @@ MetaInfo {
 
      Type {
         name: "test.OnlyNavigator"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/ItemLibrary/images/item-icon16.png"
 
         Hints {
             canBeDroppedInFormEditor: false
@@ -66,7 +66,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Only Navigator"
             category: "Test Plugin"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/ItemLibrary/images/item-icon.png"
             version: "1.0"
             requiredImport: "test"
             Property {
@@ -85,7 +85,7 @@ MetaInfo {
 
     Type {
         name: "test.OnlyFormEditor"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/ItemLibrary/images/item-icon16.png"
 
         Hints {
             canBeDroppedInNavigator: false
@@ -94,7 +94,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Only Form Editor"
             category: "Test Plugin"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/ItemLibrary/images/item-icon.png"
             version: "1.0"
             requiredImport: "test"
             Property {
@@ -113,7 +113,7 @@ MetaInfo {
 
      Type {
         name: "test.ForceClip"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/ItemLibrary/images/item-icon16.png"
 
         Hints {
             forceClip: true
@@ -122,7 +122,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Force Clip"
             category: "Test Plugin"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/ItemLibrary/images/item-icon.png"
             version: "1.0"
             requiredImport: "test"
             Property {

@@ -1,12 +1,12 @@
 MetaInfo {
     Type {
         name: "MyPlugin.MyComponent"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/ItemLibrary/images/item-icon16.png"
 
         ItemLibraryEntry {
             name: "My Component"
             category: "My Test Plugin"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/ItemLibrary/images/item-icon.png"
             version: "1.0"
             requiredImport: "MyPlugin"
 
@@ -20,12 +20,12 @@ MetaInfo {
 
     Type {
         name: "MyPlugin.MyComponent2"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/ItemLibrary/images/item-icon16.png"
 
         ItemLibraryEntry {
             name: "My Component 2"
             category: "My Test Plugin"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/ItemLibrary/images/item-icon.png"
             version: "1.0"
             requiredImport: "MyPlugin"
 

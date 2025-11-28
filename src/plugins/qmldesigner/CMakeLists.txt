@@ -831,27 +831,6 @@ extend_qtc_plugin(qmlpreviewplugin
       qmlpreviewplugin.qrc
 )
 
-add_qtc_plugin(qtquickplugin
-  PLUGIN_CLASS QtQuickPlugin
-  CONDITION TARGET QmlDesigner
-  PLUGIN_DEPENDS Core QmlDesigner
-  DEPENDS Utils Qt::Qml
-  DEFINES QTQUICK_LIBRARY
-  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-)
-
-extend_qtc_plugin(qtquickplugin
-    CONDITION ENABLE_COMPILE_WARNING_AS_ERROR
-    PROPERTIES COMPILE_WARNING_AS_ERROR ON
-)
-
-extend_qtc_plugin(qtquickplugin
-    SOURCES_PREFIX qtquickplugin
-    SOURCES
-      qtquickplugin.cpp qtquickplugin.h
-      qtquickplugin.qrc
-)
-
 if (BUILD_DESIGNSTUDIO)
     configure_file(
         "${QtCreator_SOURCE_DIR}/dist/branding/qtdesignstudio/QtProject/QtDesignStudio.ini"

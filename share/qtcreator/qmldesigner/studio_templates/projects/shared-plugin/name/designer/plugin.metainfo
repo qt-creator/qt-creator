@@ -1,7 +1,7 @@
 MetaInfo {
     Type {
         name: "%{ProjectName}.EventListSimulator"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/ItemLibrary/images/item-icon16.png"
 
         Hints {
             visibleInNavigator: true

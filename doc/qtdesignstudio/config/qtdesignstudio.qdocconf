@@ -25,7 +25,6 @@ imagedirs = ../images \
             ../../../src/plugins/qmldesigner/components/componentcore/images \
             ../../../src/plugins/qmldesigner/components/edit3d/images \
             ../../../src/plugins/qmldesigner/componentsplugin/images \
-            ../../../src/plugins/qmldesigner/qtquickplugin/images \
 
 include(../../qtcreator/images/extraimages/qtdesignstudio-extraimages.qdocconf)
 

@@ -60,8 +60,7 @@ set(DESIGNSTUDIO_PLUGINS
     UpdateInfo
     VcsBase
     componentsplugin
-    qmlpreviewplugin
-    qtquickplugin)
+    qmlpreviewplugin)
 
 if(DESIGNSTUDIO_EXTRAPLUGINS)
   list(APPEND DESIGNSTUDIO_PLUGINS ${DESIGNSTUDIO_EXTRAPLUGINS})
