@@ -131,7 +131,9 @@ private:
     void getNodeAtPos(const QPointF &pos);
     void getNodeAtMainScenePos(const QPointF &pos, qint32 viewId);
 
+#ifndef SINGLE_WINDOW_RENDERING
     void createAuxiliaryQuickView(const QUrl &url, RenderViewData &viewData);
+#endif
 #ifdef QUICK3D_PARTICLES_MODULE
     void handleParticleSystemSelected(QQuick3DParticleSystem* targetParticleSystem);
     void resetParticleSystem();
@@ -142,9 +144,9 @@ private:
     void updateSceneEnvToHelper();
     bool isSceneEnvironmentBgProperty(const PropertyName &name) const;
 
-    RenderViewData m_editView3DData;
-    RenderViewData m_modelNode3DImageViewData;
-    RenderViewData m_modelNode2DImageViewData;
+    RenderViewData *m_editView3DData = {};
+    RenderViewData *m_modelNode3DImageViewData = {};
+    RenderViewData *m_modelNode2DImageViewData = {};
 
     bool m_editView3DSetupDone = false;
     QSet<RequestModelNodePreviewImageCommand> m_modelNodePreviewImageCommands;

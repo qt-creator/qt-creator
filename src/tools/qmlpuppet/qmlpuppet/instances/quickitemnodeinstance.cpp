@@ -853,6 +853,11 @@ QVariant QuickItemNodeInstance::property(const PropertyName &name) const
     if (name == "visible")
         return quickItem()->isVisible();
 
+#ifdef SINGLE_WINDOW_RENDERING
+    if (name == "enabled")
+        return quickItem()->isEnabled();
+#endif
+
     return ObjectNodeInstance::property(name);
 }
 

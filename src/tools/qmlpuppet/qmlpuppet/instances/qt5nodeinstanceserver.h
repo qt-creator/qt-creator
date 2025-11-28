@@ -61,8 +61,38 @@ protected:
     void savePipelineCacheData();
     void setPipelineCacheConfig(QQuickWindow *w);
 
+#ifdef SINGLE_WINDOW_RENDERING
+    void ensureWindowSize();
+
+    struct RenderWindowData {
+        QPointer<QQuickWindow> window;
+        bool bufferDirty = true;
+        QQuickRenderControl *renderControl = nullptr;
+        QRhi *rhi = nullptr;
+        QRhiTexture *texture = nullptr;
+        QRhiRenderBuffer *buffer = nullptr;
+        QRhiTextureRenderTarget *texTarget = nullptr;
+        QRhiRenderPassDescriptor *rpDesc = nullptr;
+    };
+
     struct RenderViewData {
-        QPointer<QQuickWindow> window = nullptr;
+        // Wrapper item wraps the root item. It is used to reposition the root item in the window
+        // as well as hide/show root item without affecting rootItem properties.
+        QQuickItem *wrapperItem = nullptr;
+        QQuickItem *rootItem = nullptr; // The root item of the QML doc from which view is created
+        QQuickItem *contentItem = nullptr; // Optional content container inside rootItem
+        QRect rect;
+    };
+
+    RenderWindowData m_windowData;
+    RenderViewData *m_mainViewData = {};
+
+    RenderViewData *createAuxiliaryView(const QUrl &url);
+
+    virtual bool initRhi();
+#else
+    struct RenderViewData {
+        QPointer<QQuickWindow> window;
         QQuickItem *rootItem = nullptr;
         QQuickItem *contentItem = nullptr;
         bool bufferDirty = true;
@@ -73,12 +103,17 @@ protected:
         QRhiTextureRenderTarget *texTarget = nullptr;
         QRhiRenderPassDescriptor *rpDesc = nullptr;
     };
-
     virtual bool initRhi(RenderViewData &viewData);
-    virtual QImage grabRenderControl(RenderViewData &viewData);
+#endif
+
+    virtual QImage grabRenderControl(RenderViewData *view);
 
 private:
+#ifdef SINGLE_WINDOW_RENDERING
+    QList<RenderViewData *> m_viewDatas;
+#else
     RenderViewData m_viewData;
+#endif
     QByteArray m_pipelineCacheData;
     QString m_pipelineCacheLocation;
     QString m_pipelineCacheFile;

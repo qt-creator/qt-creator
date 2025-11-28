@@ -71,7 +71,14 @@ Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeIn
 Qt5NodeInstanceServer::~Qt5NodeInstanceServer()
 {
     NodeInstanceServer::clearScene({});
+#ifdef SINGLE_WINDOW_RENDERING
+    delete m_windowData.window.data();
+
+    for (RenderViewData *view : std::as_const(m_viewDatas))
+        delete view;
+#else
     delete m_viewData.window.data();
+#endif
 }
 
 QQuickView *Qt5NodeInstanceServer::quickView() const
@@ -81,19 +88,40 @@ QQuickView *Qt5NodeInstanceServer::quickView() const
 
 QQuickWindow *Qt5NodeInstanceServer::quickWindow() const
 {
+#ifdef SINGLE_WINDOW_RENDERING
+    return m_windowData.window.data();
+#else
     return m_viewData.window.data();
+#endif
 }
 
 void Qt5NodeInstanceServer::initializeView()
 {
     Q_ASSERT(!quickWindow());
 
+#ifdef SINGLE_WINDOW_RENDERING
+    m_mainViewData = new RenderViewData;
+
+    m_windowData.renderControl = new QQuickRenderControl;
+    m_windowData.window = new QQuickWindow(m_windowData.renderControl);
+    m_windowData.window->setColor(Qt::transparent);
+
+    if (isInformationServer())
+        m_windowData.window->setDefaultAlphaBuffer(true);
+
+    setPipelineCacheConfig(m_windowData.window);
+    m_windowData.renderControl->initialize();
+    m_qmlEngine = new QQmlEngine;
+
+    m_viewDatas.append(m_mainViewData);
+#else
     m_viewData.renderControl = new QQuickRenderControl;
     m_viewData.window = new QQuickWindow(m_viewData.renderControl);
     m_viewData.window->setColor(Qt::transparent);
     setPipelineCacheConfig(m_viewData.window);
     m_viewData.renderControl->initialize();
     m_qmlEngine = new QQmlEngine;
+#endif
 
     if (qEnvironmentVariableIsSet("QML_FILE_SELECTORS")) {
         QQmlFileSelector *fileSelector = new QQmlFileSelector(engine(), engine());
@@ -111,11 +139,40 @@ QQmlView *Qt5NodeInstanceServer::declarativeView() const
 
 QQuickItem *Qt5NodeInstanceServer::rootItem() const
 {
+#ifdef SINGLE_WINDOW_RENDERING
+    if (m_viewDatas.isEmpty())
+        return {};
+    return m_mainViewData->rootItem;
+#else
     return m_viewData.rootItem;
+#endif
 }
 
 void Qt5NodeInstanceServer::setRootItem(QQuickItem *item)
 {
+#ifdef SINGLE_WINDOW_RENDERING
+    if (m_viewDatas.isEmpty()) {
+        qWarning() << __FUNCTION__ << "No view data created";
+        return;
+    }
+
+    m_mainViewData->rootItem = item;
+    m_mainViewData->rect = {0, 0, qRound(item->width()), qRound(item->height())};
+    ensureWindowSize();
+    // Insert an extra item above the root to adjust root item position to 0,0 to make entire
+    // item to be always rendered.
+    if (!m_mainViewData->wrapperItem) {
+        m_mainViewData->wrapperItem = new QQuickItem(m_windowData.window->contentItem());
+        m_mainViewData->wrapperItem->setAcceptHoverEvents(false);
+        m_mainViewData->wrapperItem->setAcceptTouchEvents(false);
+        m_mainViewData->wrapperItem->setAcceptedMouseButtons(Qt::NoButton);
+    }
+    m_mainViewData->wrapperItem->setPosition(-item->position());
+    item->setParentItem(m_mainViewData->wrapperItem);
+    // Put main scene is behind editor view to minimize possible interference
+    if (isInformationServer())
+        m_mainViewData->wrapperItem->setZ(-100);
+#else
     m_viewData.rootItem = item;
     quickWindow()->setGeometry(0, 0, item->width(), item->height());
     // Insert an extra item above the root to adjust root item position to 0,0 to make entire
@@ -124,6 +181,7 @@ void Qt5NodeInstanceServer::setRootItem(QQuickItem *item)
         m_viewData.contentItem = new QQuickItem(quickWindow()->contentItem());
     m_viewData.contentItem->setPosition(-item->position());
     item->setParentItem(m_viewData.contentItem);
+#endif
 }
 
 QQmlEngine *Qt5NodeInstanceServer::engine() const
@@ -133,10 +191,21 @@ QQmlEngine *Qt5NodeInstanceServer::engine() const
 
 void Qt5NodeInstanceServer::resizeCanvasToRootItem()
 {
+#ifdef SINGLE_WINDOW_RENDERING
+    if (m_viewDatas.isEmpty()) {
+        qWarning() << __FUNCTION__ << "View not created";
+        return;
+    }
+
+    m_mainViewData->rect = QRect{QPoint{0, 0}, rootNodeInstance().boundingRect().size().toSize()};
+    m_mainViewData->wrapperItem->setPosition(-m_mainViewData->rootItem->position());
+    ensureWindowSize();
+#else
     m_viewData.bufferDirty = true;
     if (m_viewData.contentItem)
         m_viewData.contentItem->setPosition(-m_viewData.rootItem->position());
     quickWindow()->resize(rootNodeInstance().boundingRect().size().toSize());
+#endif
     QQuickDesignerSupport::addDirty(rootNodeInstance().rootQuickItem(), QQuickDesignerSupport::Size);
 }
 
@@ -216,10 +285,15 @@ bool Qt5NodeInstanceServer::rootIsRenderable3DObject() const
 void Qt5NodeInstanceServer::savePipelineCacheData()
 {
 #ifdef USE_PIPELINE_CACHE
-    if (!m_viewData.rhi)
+#ifdef SINGLE_WINDOW_RENDERING
+    auto rhi = m_windowData.rhi;
+#else
+    auto rhi = m_viewData.rhi;
+#endif
+    if (!rhi)
         return;
 
-    QByteArray pipelineData = m_viewData.rhi->pipelineCacheData();
+    QByteArray pipelineData = rhi->pipelineCacheData();
 
     if (pipelineData.isEmpty())
         return;
@@ -248,7 +322,12 @@ void Qt5NodeInstanceServer::savePipelineCacheData()
                 cacheFile.write(m_pipelineCacheData);
 
 #ifdef USE_SHADER_CACHE
-            auto wa = QQuick3DSceneManager::getOrSetWindowAttachment(*m_viewData.window);
+#ifdef SINGLE_WINDOW_RENDERING
+            auto window = m_windowData.window;
+#else
+            auto window = m_viewData.window;
+#endif
+            auto wa = QQuick3DSceneManager::getOrSetWindowAttachment(*window);
             auto context = wa ? wa->rci().get() : nullptr;
             if (context && context->shaderCache()) {
                 if (count > maxCount) {
@@ -291,8 +370,56 @@ void Qt5NodeInstanceServer::setPipelineCacheConfig([[maybe_unused]] QQuickWindow
 #endif
 }
 
+#ifdef SINGLE_WINDOW_RENDERING
+void Qt5NodeInstanceServer::ensureWindowSize()
+{
+    int needWidth = 0;
+    int needHeight = 0;
+    for (const auto &view : std::as_const(m_viewDatas)) {
+        needWidth = qMax(needWidth, view->rect.width());
+        needHeight = qMax(needHeight, view->rect.height());
+    }
+    QSize size{needWidth, needHeight};
+
+    if (quickWindow()->size() != size) {
+        quickWindow()->setGeometry(0, 0, needWidth, needHeight);
+        quickWindow()->contentItem()->setSize(size);
+        m_windowData.bufferDirty = true;
+    }
+}
+
+Qt5NodeInstanceServer::RenderViewData *Qt5NodeInstanceServer::createAuxiliaryView(const QUrl &url)
+{
+    QQmlComponent component(engine());
+    component.loadUrl(url);
+    auto rootItem = qobject_cast<QQuickItem *>(component.create());
+
+    if (!rootItem) {
+        qWarning() << "Could not create view for: " << url.toString() << component.errors();
+    } else {
+        auto view = new RenderViewData;
+
+        view->rootItem = rootItem;
+        view->wrapperItem = new QQuickItem(m_windowData.window->contentItem());
+        view->rect = QRect{0, 0, qRound(view->rootItem->width()), qRound(view->rootItem->height())};
+
+        ensureWindowSize();
+
+        view->rootItem->setParentItem(view->wrapperItem);
+        m_viewDatas.append(view);
+
+        return view;
+    }
+    return {};
+}
+
+bool Qt5NodeInstanceServer::initRhi()
+{
+    RenderWindowData &viewData = m_windowData;
+#else
 bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
 {
+#endif
     if (!viewData.renderControl) {
         qWarning() << __FUNCTION__ << "Render control not created";
         return false;
@@ -376,18 +503,28 @@ bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
     return true;
 }
 
-QImage Qt5NodeInstanceServer::grabRenderControl([[maybe_unused]] RenderViewData &viewData)
+QImage Qt5NodeInstanceServer::grabRenderControl(RenderViewData *viewData)
 {
     NANOTRACE_SCOPE("Update", "GrabRenderControl");
 
     QImage renderImage;
-    if (viewData.bufferDirty && !initRhi(viewData))
+    if (!viewData)
         return renderImage;
 
-    viewData.renderControl->polishItems();
-    viewData.renderControl->beginFrame();
-    viewData.renderControl->sync();
-    viewData.renderControl->render();
+#ifdef SINGLE_WINDOW_RENDERING
+    RenderWindowData &windowData = m_windowData;
+    if (windowData.bufferDirty && !initRhi())
+        return renderImage;
+#else
+    RenderViewData &windowData = *viewData;
+    if (windowData.bufferDirty && !initRhi(*viewData))
+        return renderImage;
+#endif
+
+    windowData.renderControl->polishItems();
+    windowData.renderControl->beginFrame();
+    windowData.renderControl->sync();
+    windowData.renderControl->render();
 
     bool readCompleted = false;
     QRhiReadbackResult readResult;
@@ -398,18 +535,25 @@ QImage Qt5NodeInstanceServer::grabRenderControl([[maybe_unused]] RenderViewData 
             readResult.pixelSize.width(),
             readResult.pixelSize.height(),
             QImage::Format_RGBA8888_Premultiplied);
-        if (viewData.rhi->isYUpInFramebuffer())
+#ifdef SINGLE_WINDOW_RENDERING
+        if (windowData.rhi->isYUpInFramebuffer())
+            renderImage = wrapperImage.mirrored().copy(viewData->rect);
+        else
+            renderImage = wrapperImage.copy(viewData->rect);
+#else
+        if (windowData.rhi->isYUpInFramebuffer())
             renderImage = wrapperImage.mirrored();
         else
             renderImage = wrapperImage.copy();
+#endif
     };
-    QRhiResourceUpdateBatch *readbackBatch = viewData.rhi->nextResourceUpdateBatch();
-    readbackBatch->readBackTexture(viewData.texture, &readResult);
+    QRhiResourceUpdateBatch *readbackBatch = windowData.rhi->nextResourceUpdateBatch();
+    readbackBatch->readBackTexture(windowData.texture, &readResult);
 
-    QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(viewData.renderControl);
+    QQuickRenderControlPrivate *rd = QQuickRenderControlPrivate::get(windowData.renderControl);
     rd->cb->resourceUpdate(readbackBatch);
 
-    viewData.renderControl->endFrame();
+    windowData.renderControl->endFrame();
 
     return renderImage;
 }
@@ -417,21 +561,32 @@ QImage Qt5NodeInstanceServer::grabRenderControl([[maybe_unused]] RenderViewData 
 // This method simply renders the window without grabbing it
 bool Qt5NodeInstanceServer::renderWindow()
 {
+#ifdef SINGLE_WINDOW_RENDERING
+    if (m_viewDatas.isEmpty() || !m_mainViewData->rootItem || (m_windowData.bufferDirty && !initRhi()))
+        return false;
+    RenderWindowData &windowData = m_windowData;
+#else
     if (!m_viewData.rootItem || (m_viewData.bufferDirty && !initRhi(m_viewData)))
         return false;
-
-    m_viewData.renderControl->polishItems();
-    m_viewData.renderControl->beginFrame();
-    m_viewData.renderControl->sync();
-    m_viewData.renderControl->render();
-    m_viewData.renderControl->endFrame();
+    RenderViewData &windowData = m_viewData;
+#endif
+    windowData.renderControl->polishItems();
+    windowData.renderControl->beginFrame();
+    windowData.renderControl->sync();
+    windowData.renderControl->render();
+    windowData.renderControl->endFrame();
     return true;
 }
 
 QImage Qt5NodeInstanceServer::grabWindow()
 {
+#ifdef SINGLE_WINDOW_RENDERING
+    if (!m_viewDatas.isEmpty() && m_mainViewData->rootItem)
+        return grabRenderControl(m_mainViewData);
+#else
     if (m_viewData.rootItem)
-        return grabRenderControl(m_viewData);
+        return grabRenderControl(&m_viewData);
+#endif
     return  {};
 }
 
@@ -484,8 +639,15 @@ static bool isLayerEnabled(QQuickItemPrivate *item)
 QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
 {
     QImage renderImage;
+#ifdef SINGLE_WINDOW_RENDERING
+    if (m_viewDatas.isEmpty() || !m_mainViewData->rootItem || (m_windowData.bufferDirty && !initRhi()))
+        return {};
+    RenderWindowData &windowData = m_windowData;
+#else
     if (!m_viewData.rootItem || (m_viewData.bufferDirty && !initRhi(m_viewData)))
         return {};
+    RenderViewData &windowData = m_viewData;
+#endif
 
     QQuickItemPrivate *pItem = QQuickItemPrivate::get(item);
 
@@ -548,18 +710,18 @@ QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
         }
     }
 
-    m_viewData.renderControl->polishItems();
-    m_viewData.renderControl->beginFrame();
-    m_viewData.renderControl->sync();
+    windowData.renderControl->polishItems();
+    windowData.renderControl->beginFrame();
+    windowData.renderControl->sync();
 
     // Connection to afterRendering is necessary, as this needs to be done before
     // call to endNextRhiFrame which happens inside QQuickRenderControl::render()
-    QMetaObject::Connection connection = QObject::connect(m_viewData.window.data(),
+    QMetaObject::Connection connection = QObject::connect(windowData.window.data(),
                                                           &QQuickWindow::afterRendering,
                                                           this, [&]() {
         // To get only the single item, we need to make a layer out of it, which enables
         // us to render it to a texture that we can grab to an image.
-        QSGRenderContext *rc = QQuickWindowPrivate::get(m_viewData.window.data())->context;
+        QSGRenderContext *rc = QQuickWindowPrivate::get(windowData.window.data())->context;
         if (!rc) {
             qFatal(
                 "no render context (is the qmlpuppet using the correct Qt?) | "
@@ -593,11 +755,11 @@ QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
         renderImage.setDevicePixelRatio(scaleFactor);
     });
 
-    m_viewData.renderControl->render();
+    windowData.renderControl->render();
 
     QObject::disconnect(connection);
 
-    m_viewData.renderControl->endFrame();
+    windowData.renderControl->endFrame();
 
     if (instance.isValid()) { //Not valid for effect
         const auto childInstances = instance.childItems();

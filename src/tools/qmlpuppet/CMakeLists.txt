@@ -275,3 +275,11 @@ if (TARGET qmlpuppet AND NOT "${IDE_LOGO_PATH}" STREQUAL "")
       target_sources(qmlpuppet PRIVATE windows_application_icon/qmlpuppet.rc)
     endif()
 endif()
+
+if (Qt6_VERSION VERSION_GREATER_EQUAL 6.10.0)
+  extend_qtc_executable(qmlpuppet
+    # Render editor puppet content in single offscreen window instead of multiple separate windows,
+    # as sharing nodes between windows is not supported and can causes rendering artifacts.
+    DEFINES SINGLE_WINDOW_RENDERING
+  )
+endif()
