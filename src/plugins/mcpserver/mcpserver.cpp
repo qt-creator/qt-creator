@@ -4,7 +4,12 @@
 #include "mcpserver.h"
 
 #include <QHostAddress>
+#include <QHttpServer>
+#include <QHttpServerRequest>
+#include <QHttpServerResponse>
 #include <QLoggingCategory>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 // Define logging category for MCP server
 Q_LOGGING_CATEGORY(mcpServer, "qtc.mcpserver", QtWarningMsg)
@@ -12,108 +17,111 @@ Q_LOGGING_CATEGORY(mcpServer, "qtc.mcpserver", QtWarningMsg)
 namespace MCP {
 namespace Internal {
 
+static QHttpHeaders commonCorsHeaders()
+{
+    QHttpHeaders h;
+    h.append(QHttpHeaders::WellKnownHeader::ContentType, QByteArrayLiteral("application/json"));
+    h.append(QHttpHeaders::WellKnownHeader::AccessControlAllowOrigin, "*");
+    h.append(QHttpHeaders::WellKnownHeader::AccessControlAllowMethods, "GET, POST, OPTIONS");
+    h.append(QHttpHeaders::WellKnownHeader::AccessControlAllowHeaders, "Content-Type, Accept");
+    return h;
+}
+
+static QHttpServerResponse createCorsJsonResponse(
+    const QByteArray &json,
+    QHttpServerResponder::StatusCode httpStatus = QHttpServerResponder::StatusCode::Ok)
+{
+    QHttpServerResponse response(json, httpStatus);
+    response.setHeaders(commonCorsHeaders());
+    return response;
+}
+
+static QHttpServerResponse createCorsEmptyResponse(QHttpServerResponder::StatusCode httpStatus)
+{
+    QHttpServerResponse response(httpStatus);
+    response.setHeaders(commonCorsHeaders());
+    return response;
+}
+
 MCPServer::MCPServer(QObject *parent)
     : QObject(parent)
     , m_tcpServerP(new QTcpServer(this))
-    , m_httpParserP(new HttpParser(this))
+    , m_httpServerP(new QHttpServer(this))
     , m_commandsP(new MCPCommands(this))
     , m_port(3001)
 {
     // Set up TCP server connections
     connect(m_tcpServerP, &QTcpServer::newConnection, this, &MCPServer::handleNewConnection);
+
+    m_httpServerP->route("/", QHttpServerRequest::Method::Get, this, &MCPServer::onHttpGet);
+    m_httpServerP->route("/", QHttpServerRequest::Method::Post, this, &MCPServer::onHttpPost);
+    m_httpServerP->route("/", QHttpServerRequest::Method::Options, this, &MCPServer::onHttpOptions);
+
+    // Optional generic 404 for any other path
+    m_httpServerP
+        ->setMissingHandler(this, [](const QHttpServerRequest &, QHttpServerResponder &resp) {
+            resp.write(QHttpServerResponder::StatusCode::NotFound);
+        });
+}
+
+QHttpServerResponse MCPServer::onHttpGet(const QHttpServerRequest &req)
+{
+    Q_UNUSED(req);
+    // Simple GET request - return server info
+    QJsonObject serverInfo;
+    serverInfo["name"] = "Qt Creator MCP Server";
+    serverInfo["version"] = "1.0.0";
+    serverInfo["transport"] = "HTTP";
+    serverInfo["protocol"] = "MCP";
+
+    QJsonDocument doc(serverInfo);
+    return createCorsJsonResponse(doc.toJson());
+}
+
+QHttpServerResponse MCPServer::onHttpPost(const QHttpServerRequest &req)
+{
+    const QByteArrayView ct = req.headers().value("Content-Type");
+    if (!ct.startsWith("application/json")) {
+        return createErrorResponse(
+            int(QHttpServerResponder::StatusCode::BadRequest),
+            "Content-Type must be application/json");
+    }
+
+    // Handle MCP JSON-RPC requests
+    const QByteArray payload = req.body();
+    if (payload.isEmpty()) {
+        return createErrorResponse(
+            int(QHttpServerResponder::StatusCode::BadRequest), "Empty request body");
+    }
+
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(payload, &err);
+    if (err.error != QJsonParseError::NoError) {
+        return createErrorResponse(
+            int(QHttpServerResponder::StatusCode::BadRequest),
+            QStringLiteral("Invalid JSON: %1").arg(err.errorString()));
+    }
+    if (!doc.isObject()) {
+        return createErrorResponse(
+            int(QHttpServerResponder::StatusCode::BadRequest), "Invalid JSON‑RPC: not an object");
+    }
+
+    QJsonObject reply = processRequest(doc.object());
+
+    QJsonDocument replyDoc(reply);
+    return createCorsJsonResponse(replyDoc.toJson());
+}
+
+QHttpServerResponse MCPServer::onHttpOptions(const QHttpServerRequest &)
+{
+    // No body, just CORS headers and a 204 status
+    return createCorsEmptyResponse(QHttpServerResponder::StatusCode::NoContent);
 }
 
 MCPServer::~MCPServer()
 {
     stop();
     delete m_commandsP;
-}
-
-bool MCPServer::isHttpRequest(const QByteArray &data)
-{
-    return HttpParser::isHttpRequest(data);
-}
-
-void MCPServer::handleHttpRequest(QTcpSocket *client, const HttpParser::HttpRequest &request)
-{
-    qCDebug(mcpServer) << "Handling HTTP request:" << request.method << request.uri;
-
-    // Handle different HTTP methods
-    if (request.method == "GET") {
-        // Simple GET request - return server info
-        QJsonObject serverInfo;
-        serverInfo["name"] = "Qt Creator MCP Server";
-        serverInfo["version"] = "1.0.0";
-        serverInfo["transport"] = "HTTP";
-        serverInfo["protocol"] = "MCP";
-
-        QJsonDocument doc(serverInfo);
-        QByteArray response = HttpResponse::createCorsResponse(doc.toJson());
-        sendHttpResponse(client, response);
-        return;
-    }
-
-    if (request.method == "POST") {
-        // Handle MCP JSON-RPC requests
-        if (request.body.isEmpty()) {
-            QByteArray errorResponse
-                = HttpResponse::createErrorResponse(HttpResponse::BAD_REQUEST, "Empty request body");
-            sendHttpResponse(client, errorResponse);
-            return;
-        }
-
-        // Parse JSON-RPC request
-        QJsonParseError error;
-        QJsonDocument doc = QJsonDocument::fromJson(request.body, &error);
-
-        if (error.error != QJsonParseError::NoError) {
-            qCDebug(mcpServer) << "JSON parse error:" << error.errorString();
-            QByteArray errorResponse = HttpResponse::createErrorResponse(
-                HttpResponse::BAD_REQUEST, "Invalid JSON: " + error.errorString());
-            sendHttpResponse(client, errorResponse);
-            return;
-        }
-
-        if (!doc.isObject()) {
-            qCDebug(mcpServer) << "Invalid JSON-RPC message: not an object";
-            QByteArray errorResponse = HttpResponse::createErrorResponse(
-                HttpResponse::BAD_REQUEST, "Invalid JSON-RPC: not an object");
-            sendHttpResponse(client, errorResponse);
-            return;
-        }
-
-        // Process the MCP request
-        QJsonObject response = processRequest(doc.object());
-        QByteArray jsonResponse = HttpResponse::createCorsResponse(QJsonDocument(response).toJson());
-        sendHttpResponse(client, jsonResponse);
-        return;
-    }
-
-    if (request.method == "OPTIONS") {
-        // Handle CORS preflight requests
-        QByteArray response
-            = HttpResponse::createCorsResponse(QByteArray(), HttpResponse::NO_CONTENT);
-        sendHttpResponse(client, response);
-        return;
-    }
-
-    // Method not allowed
-    QByteArray errorResponse = HttpResponse::createErrorResponse(
-        HttpResponse::METHOD_NOT_ALLOWED, "Method not allowed: " + request.method);
-    sendHttpResponse(client, errorResponse);
-}
-
-void MCPServer::sendHttpResponse(QTcpSocket *client, const QByteArray &httpResponse)
-{
-    if (!client)
-        return;
-
-    qCDebug(mcpServer) << "Sending HTTP response, size:" << httpResponse.size();
-    client->write(httpResponse);
-    client->flush();
-
-    // Close connection after sending response (HTTP/1.1 behavior)
-    client->disconnectFromHost();
 }
 
 bool MCPServer::start(quint16 port)
@@ -152,10 +160,47 @@ bool MCPServer::start(quint16 port)
         }
     }
 
+    quint16 httpPort = m_port; // start with the same number
+    bool httpBound = false;
+
+    while (!httpBound && httpPort <= 3010) {
+        // Create a brand‑new QTcpServer that will be owned by the QHttpServer
+        // after a successful bind().
+        QTcpServer *httpTcp = new QTcpServer(this);
+        if (!httpTcp->listen(QHostAddress::LocalHost, httpPort)) {
+            delete httpTcp;
+            ++httpPort;
+            continue; // try next port
+        }
+
+        // Bind the listening socket to the QHttpServer.
+        // If bind() fails we destroy the socket and try the next port.
+        if (m_httpServerP->bind(httpTcp)) {
+            httpBound = true;
+            m_httpTcpServerP = httpTcp;
+            qCInfo(mcpServer) << "HTTP server bound to port" << httpPort;
+        } else {
+            delete httpTcp;
+            ++httpPort;
+        }
+    }
+
+    if (!httpBound) {
+        qCCritical(mcpServer) << "Failed to bind HTTP listener on any port 3001‑3010";
+        // Clean up the raw‑TCP listener we already opened
+        m_tcpServerP->close();
+        return false;
+    }
+
     qCDebug(mcpServer) << "MCP server startup complete - TCP listening:"
                        << m_tcpServerP->isListening();
+    qCDebug(mcpServer) << "MCP server startup complete - HTTP listening:"
+                       << m_httpTcpServerP->isListening();
 
-    qCInfo(mcpServer) << "MCP HTTP Server started successfully on port" << m_port;
+    qCInfo(mcpServer) << "MCP TCP Server started successfully on port"
+                      << m_tcpServerP->serverPort();
+    qCInfo(mcpServer) << "MCP HTTP Server started successfully on port"
+                      << m_httpTcpServerP->serverPort();
     return true;
 }
 
@@ -163,13 +208,18 @@ void MCPServer::stop()
 {
     if (m_tcpServerP && m_tcpServerP->isListening()) {
         m_tcpServerP->close();
+        qCDebug(mcpServer) << "MCP TCP Server stopped";
+    }
+    if (m_httpTcpServerP && m_httpTcpServerP->isListening()) {
+        m_tcpServerP->close();
         qCDebug(mcpServer) << "MCP HTTP Server stopped";
     }
 }
 
 bool MCPServer::isRunning() const
 {
-    return m_tcpServerP && m_tcpServerP->isListening();
+    return (m_tcpServerP && m_tcpServerP->isListening())
+           || (m_httpTcpServerP && m_httpTcpServerP->isListening());
 }
 
 quint16 MCPServer::getPort() const
@@ -795,25 +845,6 @@ void MCPServer::handleClientData()
 
     QByteArray data = client->readAll();
     qCDebug(mcpServer) << "Received data, size:" << data.size();
-
-    // Check if this is an HTTP request
-    if (isHttpRequest(data)) {
-        qCDebug(mcpServer) << "Detected HTTP request, parsing...";
-
-        // Parse HTTP request
-        HttpParser::HttpRequest httpRequest = m_httpParserP->parseRequest(data);
-        if (!httpRequest.isValid) {
-            qCDebug(mcpServer) << "Invalid HTTP request:" << httpRequest.errorMessage;
-            QByteArray errorResponse = HttpResponse::createErrorResponse(
-                HttpResponse::BAD_REQUEST, httpRequest.errorMessage);
-            sendHttpResponse(client, errorResponse);
-            return;
-        }
-
-        // Handle HTTP request
-        handleHttpRequest(client, httpRequest);
-        return;
-    }
 
     // Handle as TCP/JSON-RPC request (original behavior)
     qCDebug(mcpServer) << "Handling as TCP/JSON-RPC request";

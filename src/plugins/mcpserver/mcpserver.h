@@ -2,17 +2,19 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include <QHttpServerResponse>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QObject>
-#include <QTcpServer>
-#include <QTcpSocket>
 #include <QTimer>
 
-#include "httpparser.h"
-#include "httpresponse.h"
 #include "mcpcommands.h"
+
+class QHttpServer;
+class QHttpServerRequest;
+class QTcpServer;
+class QTcpSocket;
 
 namespace MCP::Internal {
 
@@ -37,6 +39,10 @@ private slots:
     void handleClientData();
     void handleClientDisconnected();
 
+    QHttpServerResponse onHttpGet(const QHttpServerRequest &req);
+    QHttpServerResponse onHttpPost(const QHttpServerRequest &req);
+    QHttpServerResponse onHttpOptions(const QHttpServerRequest &req);
+
 private:
     QJsonObject processRequest(const QJsonObject &request);
     QJsonObject createErrorResponse(
@@ -45,14 +51,10 @@ private:
         const QJsonValue &result, const QJsonValue &id = QJsonValue::Null);
     void sendResponse(QTcpSocket *client, const QJsonObject &response);
 
-    // HTTP handling methods
-    bool isHttpRequest(const QByteArray &data);
-    void handleHttpRequest(QTcpSocket *client, const HttpParser::HttpRequest &request);
-    void sendHttpResponse(QTcpSocket *client, const QByteArray &httpResponse);
-
 private:
     QTcpServer *m_tcpServerP;
-    HttpParser *m_httpParserP;
+    QTcpServer *m_httpTcpServerP;
+    QHttpServer *m_httpServerP;
     QList<QTcpSocket *> m_clients;
     MCPCommands *m_commandsP;
     quint16 m_port;
