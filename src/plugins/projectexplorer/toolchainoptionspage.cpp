@@ -254,8 +254,10 @@ public:
         connect(m_removeAllButton, &QAbstractButton::clicked, this,
                 [this] {
             QList<ExtendedToolchainTreeItem *> itemsToRemove;
-            m_model.forAllItems([&itemsToRemove](TreeItem *item) {
+            m_model.forAllItems([&itemsToRemove, this](TreeItem *item) {
                 if (item->level() != 3)
+                    return;
+                if (!mapFromSource(m_model.indexForItem(item)).isValid())
                     return;
                 const auto tcItem = static_cast<ExtendedToolchainTreeItem *>(item);
                 if (!tcItem->bundle->detectionSource().isSdkProvided())
@@ -339,6 +341,7 @@ public:
 
     QModelIndex mapFromSource(const QModelIndex &idx);
     QModelIndex mapToSource(const QModelIndex &idx);
+    IDeviceConstPtr currentDevice() const;
 
     void toolChainSelectionChanged();
     void updateState();
@@ -509,8 +512,10 @@ void ToolChainOptionsWidget::redetectToolchains()
     Toolchains knownTcs;
 
     // Step 1: All previously auto-detected items are candidates for removal.
-    m_model.forAllItems([&itemsToRemove, &knownTcs](TreeItem *item) {
+    m_model.forAllItems([&](TreeItem *item) {
         if (item->level() != 3)
+            return;
+        if (!mapFromSource(m_model.indexForItem(item)).isValid())
             return;
         const auto tcItem = static_cast<ExtendedToolchainTreeItem *>(item);
         if (tcItem->bundle->detectionSource().isSystemDetected())
@@ -524,7 +529,7 @@ void ToolChainOptionsWidget::redetectToolchains()
 
     // Step 2: Re-detect toolchains.
     for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
-        const ToolchainDetector detector(knownTcs, DeviceManager::defaultDesktopDevice(), {});  // FIXME: Pass search paths
+        const ToolchainDetector detector(knownTcs, currentDevice(), {});  // FIXME: Pass search paths
         for (Toolchain * const tc : f->autoDetect(detector)) {
             if (knownTcs.contains(tc))
                 continue;
@@ -578,13 +583,24 @@ QModelIndex ToolChainOptionsWidget::mapToSource(const QModelIndex &idx)
     return m_filterModel.mapToSource(m_sortModel.mapToSource(idx));
 }
 
+IDeviceConstPtr ToolChainOptionsWidget::currentDevice() const
+{
+    return m_deviceManagerModel.device(m_deviceComboBox->currentIndex());
+}
+
 void ToolChainOptionsWidget::toolChainSelectionChanged()
 {
     ExtendedToolchainTreeItem *item = currentTreeItem();
 
     QWidget *currentTcWidget = item ? item->widget() : nullptr;
-    if (currentTcWidget)
+    if (currentTcWidget) {
         m_widgetStack->setCurrentWidget(currentTcWidget);
+        const IDeviceConstPtr dev = currentDevice();
+        if (QTC_GUARD(dev)) {
+            qobject_cast<ToolchainConfigWidget *>(currentTcWidget)
+                ->setFallbackBrowsePath(dev->rootPath());
+        }
+    }
     m_container->setVisible(currentTcWidget);
     updateState();
 }

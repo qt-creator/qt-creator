@@ -72,6 +72,12 @@ void ToolchainConfigWidget::makeReadOnly()
     makeReadOnlyImpl();
 }
 
+void ToolchainConfigWidget::setFallbackBrowsePath(const Utils::FilePath &path)
+{
+    for (const ToolchainChooser &chooser : m_commands)
+        chooser.second->setInitialBrowsePathBackup(path);
+}
+
 void ToolchainConfigWidget::addErrorLabel()
 {
     if (!m_errorLabel) {

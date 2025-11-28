@@ -33,6 +33,7 @@ public:
 
     void apply();
     void makeReadOnly();
+    void setFallbackBrowsePath(const Utils::FilePath &path);
 
 signals:
     void compilerCommandChanged(Utils::Id language);
