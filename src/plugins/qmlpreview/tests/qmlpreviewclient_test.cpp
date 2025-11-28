@@ -22,6 +22,7 @@ private slots:
     void testAnnounceFile();
     void testZoom();
     void testMessageReceived();
+    void testHandleInput();
 };
 
 class QmlPreviewTestRig : public QObject
@@ -51,11 +52,11 @@ public:
 
     QmlPreviewClient *client() const { return m_client; }
 
-    QByteArray nextMessage(const QString &name)
+    QPacket nextMessage(const QString &name)
     {
         if (m_messages.first().name != name)
-            return {};
-        return m_messages.takeFirst().message;
+            return QPacket(m_connection->currentDataStreamVersion());
+        return QPacket(m_connection->currentDataStreamVersion(), m_messages.takeFirst().message);
     }
 
     qsizetype messageCount() const { return m_messages.size(); }
@@ -80,7 +81,7 @@ void QmlPreviewClientTest::testLoadFile()
     QUrl url("file:///some/file.qml");
     rig.client()->loadUrl(url);
     QCOMPARE(rig.messageCount(), 1);
-    QPacket packet(rig.client()->dataStreamVersion(), rig.nextMessage(rig.client()->name()));
+    QPacket packet = rig.nextMessage(rig.client()->name());
     qint8 command;
     QUrl sent;
     packet >> command >> sent;
@@ -96,7 +97,7 @@ void QmlPreviewClientTest::testAnnounceFile()
     QByteArray contents("tralala");
     rig.client()->announceFile(file, contents);
     QCOMPARE(rig.messageCount(), 1);
-    QPacket packet(rig.client()->dataStreamVersion(), rig.nextMessage(rig.client()->name()));
+    QPacket packet = rig.nextMessage(rig.client()->name());
     qint8 command;
     QString sentFile;
     QByteArray sentContents;
@@ -112,7 +113,7 @@ void QmlPreviewClientTest::testZoom()
     QmlPreviewTestRig rig;
     rig.client()->zoom(2.0f);
     QCOMPARE(rig.messageCount(), 1);
-    QPacket packet(rig.client()->dataStreamVersion(), rig.nextMessage(rig.client()->name()));
+    QPacket packet = rig.nextMessage(rig.client()->name());
     qint8 command;
     float zoomFactor;
     packet >> command >> zoomFactor;
@@ -168,6 +169,75 @@ void QmlPreviewClientTest::testMessageReceived()
         QCOMPARE(numErrors, 1);
         QCOMPARE(numFrames, frames);
     }
+}
+
+void QmlPreviewClientTest::testHandleInput()
+{
+    QmlPreviewTestRig rig;
+
+    const QmlEventType mouseType {Event, MaximumRangeType, Mouse};
+    const QList<QmlEvent> clickEvents {{
+        0ll, 0, QList<int>({InputMouseMove, 12, 13})
+    }, {
+        1ll, 0, QList<int>({InputMousePress, Qt::LeftButton, Qt::LeftButton})
+    }, {
+        2ll, 0, QList<int>({InputMouseRelease, Qt::LeftButton, Qt::NoButton})
+    }};
+
+    rig.client()->injectEvents({mouseType}, clickEvents);
+
+    const QUrl url("file://input.qml");
+    rig.client()->loadUrl(url);
+
+    QCOMPARE(rig.messageCount(), 5);
+
+    QPacket animationSpeedHigh = rig.nextMessage(rig.client()->name());
+    qint8 command;
+    float factor;
+    animationSpeedHigh >> command >> factor;
+    QCOMPARE(command, QmlPreviewClient::AnimationSpeed);
+    QCOMPARE(factor, 1000);
+
+    QPacket load = rig.nextMessage(rig.client()->name());
+    QUrl sent;
+    load >> command >> sent;
+    QCOMPARE(command, QmlPreviewClient::Load);
+    QCOMPARE(sent, url);
+
+    // Packets for the event replay service.
+    for (const QmlEvent &expected : std::as_const(clickEvents)) {
+        QPacket packet = rig.nextMessage("EventReplay");
+        qint64 timestamp;
+        packet >> timestamp;
+
+        QCOMPARE(timestamp, expected.timestamp());
+        Message message;
+        packet >> message;
+        QCOMPARE(message, mouseType.message());
+
+        int detailType;
+        packet >> detailType;
+        QCOMPARE(detailType, mouseType.detailType());
+
+        for (int i = 0; i < 3; ++i) {
+            int number;
+            packet >> number;
+            QCOMPARE(number, expected.number<int>(i));
+        }
+    }
+
+    QCOMPARE(rig.messageCount(), 0);
+
+    // Simulate the profiler service sending the events back ...
+    rig.client()->injectEvents({mouseType}, clickEvents);
+
+    // ... which makes the preview client stop the event replay and reset the animations.
+    QTRY_COMPARE(rig.messageCount(), 1);
+
+    QPacket animationSpeedLow = rig.nextMessage(rig.client()->name());
+    animationSpeedLow >> command >> factor;
+    QCOMPARE(command, QmlPreviewClient::AnimationSpeed);
+    QCOMPARE(factor, 1);
 }
 
 QObject *createQmlPreviewClientTest()

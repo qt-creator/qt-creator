@@ -4,7 +4,12 @@
 #pragma once
 
 #include "qmlpreview_global.h"
+
 #include <qmldebug/qmldebugclient.h>
+#include <qmldebug/qmlprofilertraceclient.h>
+#include <qmldebug/quickeventreplayclient.h>
+
+#include <QTimer>
 
 namespace QmlPreview {
 
@@ -51,11 +56,38 @@ public:
     void messageReceived(const QByteArray &message) override;
     void stateChanged(State state) override;
 
+#if WITH_TESTS
+    void injectEvents(
+        const QList<QmlDebug::QmlEventType> &types, const QList<QmlDebug::QmlEvent> events)
+    {
+        m_eventTypes = types;
+        m_events = events;
+    }
+#endif
+
 signals:
     void pathRequested(const QString &path);
     void errorReported(const QString &error);
     void fpsReported(const FpsInfo &fpsInfo);
     void debugServiceUnavailable();
+
+private:
+    int appendEventType(QmlDebug::QmlEventType &&type);
+    void appendEvent(QmlDebug::QmlEvent &&event);
+
+    // Use QScopedPointerDeleteLater here. The connection will call stateChanged() on all clients
+    // that are alive when it gets disconnected. One way to notice a disconnection is failing to
+    // send the plugin advertisement when a client unregisters. If one of the other clients is
+    // half-destructed at that point, we get invalid memory accesses. Therefore, we cannot nest the
+    // dtor calls.
+    std::unique_ptr<QmlDebug::QmlProfilerTraceClient, QScopedPointerDeleteLater> m_recordClient;
+    std::unique_ptr<QmlDebug::QuickEventReplayClient, QScopedPointerDeleteLater> m_replayClient;
+
+    QList<QmlDebug::QmlEventType> m_eventTypes;
+    QList<QmlDebug::QmlEvent> m_events;
+
+    QTimer m_replayTimer;
+    qsizetype m_numExpectedEvents = 0;
 };
 
 } // namespace QmlPreview

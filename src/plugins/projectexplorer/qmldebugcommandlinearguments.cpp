@@ -19,7 +19,7 @@ QString qmlDebugServices(QmlDebugServicesPreset preset)
     case QmlNativeDebuggerServices:
         return QStringLiteral("NativeQmlDebugger");
     case QmlPreviewServices:
-        return QStringLiteral("QmlPreview,DebugTranslation");
+        return QStringLiteral("QmlPreview,DebugTranslation,CanvasFrameRate,EventReplay");
     default:
         Q_ASSERT(false);
         return QString();

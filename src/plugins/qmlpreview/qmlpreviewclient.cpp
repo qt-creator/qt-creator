@@ -6,18 +6,49 @@
 
 #include <QUrl>
 
+using namespace QmlDebug;
 namespace QmlPreview {
 
-QmlPreviewClient::QmlPreviewClient(QmlDebug::QmlDebugConnection *connection) :
-    QmlDebug::QmlDebugClient(QLatin1String("QmlPreview"), connection)
+QmlPreviewClient::QmlPreviewClient(QmlDebug::QmlDebugConnection *connection)
+    : QmlDebug::QmlDebugClient(QLatin1String("QmlPreview"), connection)
+    , m_recordClient(new QmlProfilerTraceClient(
+          connection,
+          std::bind(&QmlPreviewClient::appendEventType, this, std::placeholders::_1),
+          std::bind(&QmlPreviewClient::appendEvent, this, std::placeholders::_1),
+          1ull << ProfileInputEvents))
+    , m_replayClient(new QuickEventReplayClient(connection))
 {
+    m_recordClient->setFlushInterval(1);
+    m_recordClient->setRecording(true);
+
+    m_replayTimer.setInterval(100);
+    connect(&m_replayTimer, &QTimer::timeout, this, [this]() {
+        if (m_events.size() < m_numExpectedEvents)
+            return;
+        setAnimationSpeed(1);
+        m_replayTimer.stop();
+    });
 }
 
 void QmlPreviewClient::loadUrl(const QUrl &url)
 {
-    QmlDebug::QPacket packet(dataStreamVersion());
-    packet << static_cast<qint8>(Load) << url;
-    sendMessage(packet.data());
+    const auto doLoad = [&]() {
+        QPacket packet(dataStreamVersion());
+        packet << static_cast<qint8>(Load) << url;
+        sendMessage(packet.data());
+    };
+
+    m_numExpectedEvents = m_events.size();
+    if (m_numExpectedEvents > 0) {
+        const QList<QmlEvent> recorded = std::exchange(m_events, {});
+        setAnimationSpeed(1000);
+        doLoad();
+        for (const QmlEvent &event : recorded)
+            m_replayClient->sendEvent(m_eventTypes[event.typeIndex()], event);
+        m_replayTimer.start();
+    } else {
+        doLoad();
+    }
 }
 
 void QmlPreviewClient::rerun()
@@ -104,6 +135,20 @@ void QmlPreviewClient::stateChanged(QmlDebug::QmlDebugClient::State state)
 {
     if (state == Unavailable)
         emit debugServiceUnavailable();
+}
+
+int QmlPreviewClient::appendEventType(QmlDebug::QmlEventType &&type)
+{
+    const int index = m_eventTypes.size();
+    m_eventTypes.append(std::move(type));
+    return index;
+}
+
+void QmlPreviewClient::appendEvent(QmlDebug::QmlEvent &&event)
+{
+    // Compress the time stamps so that the events are processed in quick succession.
+    event.setTimestamp(m_events.size());
+    m_events.append(std::move(event));
 }
 
 } // namespace QmlPreview
