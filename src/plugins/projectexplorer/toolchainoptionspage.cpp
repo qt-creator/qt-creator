@@ -5,6 +5,7 @@
 
 #include "abi.h"
 #include "devicesupport/devicemanager.h"
+#include "devicesupport/devicemanagermodel.h"
 #include "kitaspect.h"
 #include "kitoptionspage.h"
 #include "projectexplorerconstants.h"
@@ -90,6 +91,10 @@ QVariant ToolchainTreeItem::data(int column, int role) const
         return bundle ? bundle->typeDisplayName() : QString();
     case KitAspect::QualityRole:
         return bundle ? int(bundle->validity()) : -1;
+    case FilePathRole:
+        return bundle && bundle->validity() != ToolchainBundle::Valid::None
+            ? bundle->get(&Toolchain::compilerCommand).toVariant()
+            : QVariant();
     }
     return {};
 }
@@ -190,6 +195,9 @@ public:
         m_factories = Utils::filtered(ToolchainFactory::allToolchainFactories(),
                     [](ToolchainFactory *factory) { return factory->canCreate();});
 
+        m_deviceComboBox = new QComboBox;
+        m_deviceComboBox->setModel(&m_deviceManagerModel);
+
         m_model.setHeader({Tr::tr("Name"), Tr::tr("Type")});
         auto autoRoot = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
@@ -213,7 +221,8 @@ public:
         m_toolChainView->setUniformRowHeights(true);
         m_toolChainView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_toolChainView->setSelectionBehavior(QAbstractItemView::SelectRows);
-        m_sortModel.setSourceModel(&m_model);
+        m_filterModel.setSourceModel(&m_model);
+        m_sortModel.setSourceModel(&m_filterModel);
         m_sortModel.setSortedCategories({Constants::msgAutoDetected(), Constants::msgManual()});
         m_toolChainView->setModel(&m_sortModel);
         m_toolChainView->setSortingEnabled(true);
@@ -291,7 +300,13 @@ public:
         buttonLayout->addWidget(m_detectionSettingsButton);
         buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
+        const auto deviceLayout = new QHBoxLayout;
+        deviceLayout->addWidget(new QLabel("Device:"));
+        deviceLayout->addWidget(m_deviceComboBox);
+        deviceLayout->addStretch(1);
+
         auto verticalLayout = new QVBoxLayout;
+        verticalLayout->addLayout(deviceLayout);
         verticalLayout->addWidget(m_toolChainView);
         verticalLayout->addWidget(m_container);
 
@@ -314,8 +329,16 @@ public:
                 markForRemoval(item);
         });
 
+        m_filterModel.setDevice(DeviceManager::defaultDesktopDevice());
+        connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, [this](int idx) {
+            m_filterModel.setDevice(DeviceManager::deviceAt(idx));
+        });
+
         updateState();
     }
+
+    QModelIndex mapFromSource(const QModelIndex &idx);
+    QModelIndex mapToSource(const QModelIndex &idx);
 
     void toolChainSelectionChanged();
     void updateState();
@@ -344,9 +367,12 @@ public:
     void apply() final;
 
  private:
+    DeviceManagerModel m_deviceManagerModel;
     TreeModel<TreeItem, ExtendedToolchainTreeItem> m_model;
+    DeviceFilterModel m_filterModel;
     KitSettingsSortModel m_sortModel;
     QList<ToolchainFactory *> m_factories;
+    QComboBox *m_deviceComboBox;
     QTreeView *m_toolChainView;
     DetailsWidget *m_container;
     QStackedWidget *m_widgetStack;
@@ -538,6 +564,20 @@ void ToolChainOptionsWidget::redetectToolchains()
         m_toAddList << insertBundle(bundle, true);
 }
 
+QModelIndex ToolChainOptionsWidget::mapFromSource(const QModelIndex &idx)
+{
+    QTC_ASSERT(m_sortModel.sourceModel() == &m_filterModel, return {});
+
+    return m_sortModel.mapFromSource(m_filterModel.mapFromSource(idx));
+}
+
+QModelIndex ToolChainOptionsWidget::mapToSource(const QModelIndex &idx)
+{
+    QTC_ASSERT(m_sortModel.sourceModel() == &m_filterModel, return {});
+
+    return m_filterModel.mapToSource(m_sortModel.mapToSource(idx));
+}
+
 void ToolChainOptionsWidget::toolChainSelectionChanged()
 {
     ExtendedToolchainTreeItem *item = currentTreeItem();
@@ -625,7 +665,7 @@ void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const Q
     const ToolchainBundle bundle(toolchains, ToolchainBundle::HandleMissing::CreateOnly);
     ExtendedToolchainTreeItem * const item = insertBundle(bundle, true);
     m_toAddList << item;
-    m_toolChainView->setCurrentIndex(m_sortModel.mapFromSource(m_model.indexForItem(item)));
+    m_toolChainView->setCurrentIndex(mapFromSource(m_model.indexForItem(item)));
 }
 
 void ToolChainOptionsWidget::cloneToolchains()
@@ -640,7 +680,7 @@ void ToolChainOptionsWidget::cloneToolchains()
 
     ExtendedToolchainTreeItem * const item = insertBundle(bundle, true);
     m_toAddList << item;
-    m_toolChainView->setCurrentIndex(m_sortModel.mapFromSource(m_model.indexForItem(item)));
+    m_toolChainView->setCurrentIndex(mapFromSource(m_model.indexForItem(item)));
 }
 
 void ToolChainOptionsWidget::updateState()
@@ -658,7 +698,7 @@ void ToolChainOptionsWidget::updateState()
 
 ExtendedToolchainTreeItem *ToolChainOptionsWidget::currentTreeItem()
 {
-    TreeItem *item = m_model.itemForIndex(m_sortModel.mapToSource(m_toolChainView->currentIndex()));
+    TreeItem *item = m_model.itemForIndex(mapToSource(m_toolChainView->currentIndex()));
     return (item && item->level() == 3) ? static_cast<ExtendedToolchainTreeItem *>(item) : nullptr;
 }
 
