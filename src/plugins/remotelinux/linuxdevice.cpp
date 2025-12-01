@@ -363,6 +363,7 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         linuxDevice->tryToConnect(
             {linuxDevice.get(), [linuxDevice, autoDetectButton](const Result<> &res) {
                  if (res) {
+                     emit DeviceManager::instance()->toolDetectionRequested(linuxDevice->id());
                      GlobalTaskTree::start(
                          QtTaskTree::Group {
                              linuxDevice->autoDetectDeviceToolsRecipe(),

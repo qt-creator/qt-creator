@@ -57,6 +57,8 @@ signals:
     void deviceUpdated(Utils::Id id);
     void updated(); // Emitted for all of the above.
 
+    void toolDetectionRequested(Utils::Id id);
+
     void devicesLoaded(); // Emitted once load() is done
 
 private:

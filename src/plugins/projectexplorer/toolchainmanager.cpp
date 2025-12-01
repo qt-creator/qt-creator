@@ -4,6 +4,7 @@
 #include "toolchainmanager.h"
 
 #include "abi.h"
+#include "devicesupport/devicemanager.h"
 #include "msvctoolchain.h"
 #include "projectexplorertr.h"
 #include "toolchain.h"
@@ -112,6 +113,27 @@ void ToolchainManager::restoreToolchains()
 
     d->m_loaded = true;
     emit m_instance->toolchainsLoaded();
+
+    connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
+            m_instance, [](Id devId) {
+        const IDevice::ConstPtr device = DeviceManager::find(devId);
+        if (!device)
+            return;
+
+        // FIXME: ToolchainDetector needs extension to instruct downstream code to
+        // look at all possible combinations of PATH and explicit search paths,
+        // so that the settings from the device widget can be honored.
+        ToolchainDetector detector(m_instance->toolchains(), device, {});
+
+        Toolchains toRegister;
+        for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
+            for (Toolchain * const tc : f->autoDetect(detector)) {
+                if (!m_instance->toolchains().contains(tc))
+                    toRegister << tc;
+            }
+        }
+        registerToolchains(toRegister);
+    });
 }
 
 void ToolchainManager::saveToolchains()
