@@ -163,6 +163,9 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     setStyleSheet(Theme::replaceCssColors(
         ::Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css")));
 
+    setFocusProxy(m_itemsWidget->quickWidget());
+    QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_ITEMLIBRARY);
+
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F5), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &ItemLibraryWidget::reloadQmlSource);
 
@@ -170,8 +173,6 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
 
     m_itemsWidget->engine()->addImageProvider("itemlibrary_preview",
                                               new ItemLibraryIconImageProvider{m_imageCache});
-
-    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ITEMLIBRARY_TIME);
 
     // init the first load of the QML UI elements
 

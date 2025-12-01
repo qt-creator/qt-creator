@@ -89,15 +89,13 @@ void DesignSystemWidget::showEvent(QShowEvent *event)
 
 void DesignSystemWidget::focusOutEvent(QFocusEvent *focusEvent)
 {
-    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_DESIGNSYSTEM_TIME,
-                                               m_usageTimer.elapsed());
     StudioQuickWidget::focusOutEvent(focusEvent);
 }
 
 void DesignSystemWidget::focusInEvent(QFocusEvent *focusEvent)
 {
-    m_usageTimer.restart();
     StudioQuickWidget::focusInEvent(focusEvent);
+    QmlDesignerPlugin::emitViewChanged(Constants::EVENT_DESIGNSYSTEM);
 }
 
 void DesignSystemWidget::reloadQmlSource()

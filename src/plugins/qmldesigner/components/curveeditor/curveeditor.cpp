@@ -9,6 +9,8 @@
 #include "detail/treeview.h"
 
 #include <designermcumanager.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 #include <utils/fileutils.h>
 
 #include <QDoubleSpinBox>
@@ -56,6 +58,8 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     box->addWidget(area);
     box->addWidget(m_statusLine);
     setLayout(box);
+
+    QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_CURVEEDITOR);
 
     connect(m_toolbar, &CurveEditorToolBar::unifyClicked, [this] {
         m_view->toggleUnified();

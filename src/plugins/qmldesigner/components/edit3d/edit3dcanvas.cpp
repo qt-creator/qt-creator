@@ -267,9 +267,6 @@ void Edit3DCanvas::resizeEvent(QResizeEvent *e)
 
 void Edit3DCanvas::focusOutEvent(QFocusEvent *focusEvent)
 {
-    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_3DEDITOR_TIME,
-                                               m_usageTimer.elapsed());
-
     setFlyMode(false);
     if (auto model = m_parent->view()->model())
         model->emitView3DAction(View3DActionType::EditCameraStopAllMoves, {});
@@ -279,8 +276,8 @@ void Edit3DCanvas::focusOutEvent(QFocusEvent *focusEvent)
 
 void Edit3DCanvas::focusInEvent(QFocusEvent *focusEvent)
 {
-    m_usageTimer.restart();
     QWidget::focusInEvent(focusEvent);
+    QmlDesignerPlugin::emitViewChanged(Constants::EVENT_3DEDITOR);
 }
 
 void Edit3DCanvas::enterEvent(QEnterEvent *e)

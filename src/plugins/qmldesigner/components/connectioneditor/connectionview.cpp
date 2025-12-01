@@ -104,6 +104,8 @@ public:
 
         // init the first load of the QML UI elements
         reloadQmlSource();
+
+        QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_CONNECTIONEDITOR);
     }
     ~ConnectionViewQuickWidget() = default;
 

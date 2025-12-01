@@ -195,7 +195,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &mainImageCache,
             &AssetsLibraryWidget::handleExtFilesDrop,
             Qt::QueuedConnection);
 
-    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ASSETSLIBRARY_TIME);
+    QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_ASSETSLIBRARY);
 
     auto map = m_assetsWidget->registerPropertyMap("AssetsLibraryBackend");
 

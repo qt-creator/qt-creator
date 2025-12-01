@@ -100,7 +100,7 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     setStyleSheet(QmlDesigner::Theme::replaceCssColors(
         Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css")));
 
-    QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(this, QmlDesigner::Constants::EVENT_EFFECTCOMPOSER_TIME);
+    QmlDesigner::QmlDesignerPlugin::trackWidgetFocus(this, QmlDesigner::Constants::EVENT_EFFECTCOMPOSER);
 
     qmlRegisterSingletonInstance<QQmlPropertyMap>(
         "EffectComposerPropertyData", 1, 0, "GlobalPropertyData", g_propertyData());

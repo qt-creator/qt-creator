@@ -18,6 +18,7 @@
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
 
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlstate.h>
 #include <qmltimeline.h>
@@ -215,6 +216,8 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
 
     IContext::attach(this, Context(TransitionEditorConstants::C_QMLTRANSITIONS),
                      [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
+
+    QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_TRANSITIONEDITOR);
 }
 
 void TransitionEditorWidget::setTransitionActive(bool b)

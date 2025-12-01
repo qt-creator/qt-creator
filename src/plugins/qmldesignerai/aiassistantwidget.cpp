@@ -95,6 +95,9 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
 
     vLayout->addWidget(m_quickWidget.get());
 
+    setFocusProxy(m_quickWidget->quickWidget());
+    QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_AIASSISTANT);
+
     connectApiManager();
     reloadQmlSource();
     updateModelConfig();

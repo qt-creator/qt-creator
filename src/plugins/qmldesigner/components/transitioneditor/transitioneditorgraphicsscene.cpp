@@ -375,14 +375,11 @@ void TransitionEditorGraphicsScene::keyReleaseEvent(QKeyEvent *keyEvent)
 
 void TransitionEditorGraphicsScene::focusOutEvent(QFocusEvent *focusEvent)
 {
-    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_TRANSITIONEDITOR_TIME,
-                                               m_usageTimer.elapsed());
     QGraphicsScene::focusOutEvent(focusEvent);
 }
 
 void TransitionEditorGraphicsScene::focusInEvent(QFocusEvent *focusEvent)
 {
-    m_usageTimer.restart();
     QGraphicsScene::focusInEvent(focusEvent);
 }
 

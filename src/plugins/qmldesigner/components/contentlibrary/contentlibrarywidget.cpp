@@ -189,7 +189,8 @@ ContentLibraryWidget::ContentLibraryWidget(const GeneratedComponentUtils &compUt
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F11), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &ContentLibraryWidget::reloadQmlSource);
 
-    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_CONTENTLIBRARY_TIME);
+    setFocusProxy(m_quickWidget->quickWidget());
+    QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_CONTENTLIBRARY);
 
     auto map = m_quickWidget->registerPropertyMap("ContentLibraryBackend");
 

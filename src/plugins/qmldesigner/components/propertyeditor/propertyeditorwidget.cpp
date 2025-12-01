@@ -16,7 +16,7 @@ PropertyEditorWidget::PropertyEditorWidget(QWidget *parent) : QStackedWidget(par
 {
     NanotraceHR::Tracer tracer{"property editor widget constructor", category()};
 
-    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_PROPERTYEDITOR_TIME);
+    QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_PROPERTYEDITOR);
 }
 
 void PropertyEditorWidget::resizeEvent(QResizeEvent * event)

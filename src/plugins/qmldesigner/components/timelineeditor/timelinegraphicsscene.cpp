@@ -659,14 +659,11 @@ void TimelineGraphicsScene::keyReleaseEvent(QKeyEvent *keyEvent)
 
 void TimelineGraphicsScene::focusOutEvent(QFocusEvent *focusEvent)
 {
-    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_TIMELINE_TIME,
-                                               m_usageTimer.elapsed());
     QGraphicsScene::focusOutEvent(focusEvent);
 }
 
 void TimelineGraphicsScene::focusInEvent(QFocusEvent *focusEvent)
 {
-    m_usageTimer.restart();
     QGraphicsScene::focusInEvent(focusEvent);
 }
 

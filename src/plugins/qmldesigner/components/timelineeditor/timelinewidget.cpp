@@ -14,6 +14,7 @@
 
 #include <auxiliarydataproperties.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignerconstants.h>
 #include <qmlstate.h>
 #include <qmltimeline.h>
 
@@ -282,6 +283,8 @@ TimelineWidget::TimelineWidget(TimelineView *view, ModulesStorage &modulesStorag
 
     IContext::attach(this, Context(TimelineConstants::C_QMLTIMELINE),
                     [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
+
+    QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_TIMELINE);
 }
 
 void TimelineWidget::connectToolbar()

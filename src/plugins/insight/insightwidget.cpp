@@ -89,14 +89,13 @@ void InsightWidget::showEvent(QShowEvent *event)
 
 void InsightWidget::focusOutEvent(QFocusEvent *focusEvent)
 {
-    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_INSIGHT_TIME, m_usageTimer.elapsed());
     QQuickWidget::focusOutEvent(focusEvent);
 }
 
 void InsightWidget::focusInEvent(QFocusEvent *focusEvent)
 {
-    m_usageTimer.restart();
     QQuickWidget::focusInEvent(focusEvent);
+    QmlDesignerPlugin::emitViewChanged(Constants::EVENT_INSIGHT);
 }
 
 void InsightWidget::reloadQmlSource()

@@ -86,15 +86,13 @@ void DeviceManagerWidget::showEvent(QShowEvent *event)
 
 void DeviceManagerWidget::focusOutEvent(QFocusEvent *focusEvent)
 {
-    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_DEVICEMANAGER_TIME,
-                                               m_usageTimer.elapsed());
     StudioQuickWidget::focusOutEvent(focusEvent);
 }
 
 void DeviceManagerWidget::focusInEvent(QFocusEvent *focusEvent)
 {
-    m_usageTimer.restart();
     StudioQuickWidget::focusInEvent(focusEvent);
+    QmlDesignerPlugin::emitViewChanged(Constants::EVENT_DEVICEMANAGER);
 }
 
 void DeviceManagerWidget::reloadQmlSource()

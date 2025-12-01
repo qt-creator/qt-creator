@@ -875,22 +875,20 @@ void QmlDesignerPlugin::registerPreviewImageProvider(QQmlEngine *engine)
     m_instance->d->projectManager.registerPreviewImageProvider(engine);
 }
 
-void QmlDesignerPlugin::trackWidgetFocusTime(QWidget *widget, const QString &identifier)
+void QmlDesignerPlugin::trackWidgetFocus(QWidget *widget, const QString &identifier)
 {
     NanotraceHR::Tracer tracer{"qml designer plugin track widget focus time", category()};
 
-    connect(qApp, &QApplication::focusChanged, widget, [widget, identifier](QWidget *from, QWidget *to) {
-        static QElapsedTimer widgetUsageTimer;
+    connect(qApp, &QApplication::focusChanged, widget, [widget, identifier] (QWidget* from, QWidget* to) {
         static QString lastIdentifier;
-        if (widget->isAncestorOf(to)) {
-            if (!lastIdentifier.isEmpty())
-                emitUsageStatisticsTime(lastIdentifier, widgetUsageTimer.elapsed());
-            widgetUsageTimer.restart();
+        if (widget->isAncestorOf(to))
             lastIdentifier = identifier;
-        } else if (widget->isAncestorOf(from) && lastIdentifier == identifier) {
-            emitUsageStatisticsTime(identifier, widgetUsageTimer.elapsed());
+        else if (widget->isAncestorOf(from) && lastIdentifier == identifier)
             lastIdentifier.clear();
-        }
+        else
+            return;
+
+        emitViewChanged(identifier);
     });
 }
 
@@ -984,12 +982,12 @@ void QmlDesignerPlugin::closeFeedbackPopup()
     }
 }
 
-void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)
+void QmlDesignerPlugin::emitViewChanged(const QString &identifier)
 {
     NanotraceHR::Tracer tracer{"qml designer plugin emit usage statistics time", category()};
 
     QTC_ASSERT(instance(), return);
-    emit instance()->usageStatisticsUsageTimer(normalizeIdentifier(identifier), elapsed);
+    emit instance()->transitionToScreen(normalizeIdentifier(identifier));
 }
 
 void QmlDesignerPlugin::emitUsageStatisticsUsageDuration(const QString &identifier, int elapsed)

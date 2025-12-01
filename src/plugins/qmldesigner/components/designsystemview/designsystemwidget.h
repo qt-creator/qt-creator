@@ -42,7 +42,6 @@ private:
 private:
     QPointer<DesignSystemView> m_designSystemView;
     QShortcut *m_qmlSourceUpdateShortcut;
-    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner

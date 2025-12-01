@@ -71,7 +71,7 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
     QString sheet = Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css");
     setStyleSheet(Theme::replaceCssColors(sheet));
 
-    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_NAVIGATORVIEW_TIME);
+    QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_NAVIGATORVIEW);
 
     setFocusProxy(m_treeView);
 

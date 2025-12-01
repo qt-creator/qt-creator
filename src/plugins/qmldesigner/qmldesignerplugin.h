@@ -85,14 +85,14 @@ public:
 
     static void emitUsageStatistics(const QString &identifier);
     static void emitUsageStatisticsContextAction(const QString &identifier);
-    static void emitUsageStatisticsTime(const QString &identifier, int elapsed);
+    static void emitViewChanged(const QString &identifier);
     static void emitUsageStatisticsUsageDuration(const QString &identifier, int elapsed);
 
     static AsynchronousImageCache &imageCache();
 
     static void registerPreviewImageProvider(QQmlEngine *engine);
 
-    static void trackWidgetFocusTime(QWidget *widget, const QString &identifier);
+    static void trackWidgetFocus(QWidget *widget, const QString &identifier);
     static void registerCombinedTracedPoints(const QString &identifierFirst,
                                              const QString &identifierSecond,
                                              const QString &newIdentifier,
@@ -100,7 +100,7 @@ public:
 
 signals:
     void usageStatisticsNotifier(const QString &identifier);
-    void usageStatisticsUsageTimer(const QString &identifier, int elapsed);
+    void transitionToScreen(const QString &identifier);
     void usageStatisticsUsageDuration(const QString &identifier, int elapsed);
     void usageStatisticsInsertFeedback(const QString &identifier, const QString &feedback, int rating);
 

@@ -217,7 +217,7 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
             focusMaterialSection(true);
     });
 
-    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_MATERIALBROWSER_TIME);
+    QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_MATERIALBROWSER);
 
     auto map = m_quickWidget->registerPropertyMap("MaterialBrowserBackend");
 
