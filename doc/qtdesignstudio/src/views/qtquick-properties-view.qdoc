@@ -118,9 +118,12 @@
 
     \section1 Editing properties in multiple views
 
+    \note Editing properties in multiple views is only possible in 3D projects. See
+    \l {Creating Projects}.
+
     You can open multiple \uicontrol Properties views to edit the properties of multiple nodes
-    simultaneously. You can lock each of the \uicontrol Properties views to prevent the subject node from
-    changing by each selection.
+    simultaneously. You can lock each of the \uicontrol Properties views to prevent the subject node
+    from changing by each selection.
 
     To edit properties in multiple views, you first need to enable
     \uicontrol {Multi Property Editor}:
@@ -137,7 +140,8 @@
         \li In \uicontrol Properties, to open another \uicontrol Properties view for editing
             properties of another node:
           \list 1
-            \li Select \imagelockoff to prevent the subject node from changing.
+            \li Select \imagelockoff to prevent the subject node from changing in this
+            \uicontrol Properties view.
             \li In \uicontrol Navigator, select another node.
             \li In \uicontrol Properties, select \imageplus to edit its properties
                 in another \uicontrol Properties view.
