@@ -42,6 +42,7 @@
 #include <QPicture>
 #include <QString>
 #include <QTimer>
+#include <QtCore/qalgorithms.h>
 
 namespace QmlDesigner {
 
@@ -107,14 +108,12 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
     checkRootModelNode();
 }
 
-static void deleteWithoutChildren(const QList<FormEditorItem*> &items)
+static void deleteWithoutChildren(const QList<FormEditorItem *> &items)
 {
-    for (const FormEditorItem *item : items) {
-        for (QGraphicsItem *child : item->childItems()) {
-            child->setParentItem(item->scene()->rootFormEditorItem());
-        }
-        delete item;
-    }
+    for (FormEditorItem *item : items)
+        item->setParentItem(nullptr);
+
+    qDeleteAll(items);
 }
 
 void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
