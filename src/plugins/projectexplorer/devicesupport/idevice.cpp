@@ -670,11 +670,12 @@ void IDevice::setOsType(OsType osType)
     d->osType = osType;
 }
 
-void IDevice::setFileAccess(DeviceFileAccessPtr fileAccess)
+void IDevice::setFileAccess(DeviceFileAccessPtr fileAccess, bool announce)
 {
     d->fileAccess.writeLocked()->swap(fileAccess);
     Utils::FSEngine::invalidateFileInfoCache();
-    emit DeviceManager::instance()->deviceUpdated(id());
+    if (announce)
+        emit DeviceManager::instance()->deviceUpdated(id());
 }
 
 void IDevice::setFileAccessFactory(std::function<DeviceFileAccessPtr()> fileAccessFactory)

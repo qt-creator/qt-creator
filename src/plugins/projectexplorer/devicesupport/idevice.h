@@ -318,7 +318,7 @@ protected:
     void setOpenTerminal(const OpenTerminal &openTerminal);
     void setDisplayType(const QString &type);
     void setOsType(Utils::OsType osType);
-    void setFileAccess(Utils::DeviceFileAccessPtr fileAccess);
+    void setFileAccess(Utils::DeviceFileAccessPtr fileAccess, bool announce = true);
     void setFileAccessFactory(std::function<Utils::DeviceFileAccessPtr()> fileAccessFactory);
 
     virtual void initDeviceToolAspects();

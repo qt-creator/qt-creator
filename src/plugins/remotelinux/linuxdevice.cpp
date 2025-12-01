@@ -480,7 +480,7 @@ public:
     {
         QMutexLocker locker(&m_shellMutex);
         DeviceManager::setDeviceState(q->id(), IDevice::DeviceDisconnected, announce);
-        q->setFileAccess(nullptr);
+        q->setFileAccess(nullptr, announce);
         m_scriptAccess.reset();
     }
 
