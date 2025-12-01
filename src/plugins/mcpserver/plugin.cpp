@@ -40,7 +40,7 @@
 using namespace Core;
 
 // Define logging category for the plugin
-Q_LOGGING_CATEGORY(mcpPlugin, "qtcreator.mcpserver.plugin", QtWarningMsg)
+Q_LOGGING_CATEGORY(mcpPlugin, "qtc.mcpserver.plugin", QtWarningMsg)
 
 namespace MCP::Internal {
 

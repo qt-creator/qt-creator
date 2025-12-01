@@ -7,7 +7,7 @@
 #include <QLoggingCategory>
 
 // Define logging category for MCP server
-Q_LOGGING_CATEGORY(mcpServer, "qtcreator.mcpserver", QtWarningMsg)
+Q_LOGGING_CATEGORY(mcpServer, "qtc.mcpserver", QtWarningMsg)
 
 namespace MCP {
 namespace Internal {

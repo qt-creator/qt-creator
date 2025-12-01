@@ -16,7 +16,7 @@
 #include <QMetaMethod>
 #include <QMetaObject>
 
-Q_LOGGING_CATEGORY(mcpIssues, "qtcreator.mcpserver.issues", QtWarningMsg)
+Q_LOGGING_CATEGORY(mcpIssues, "qtc.mcpserver.issues", QtWarningMsg)
 
 namespace MCP {
 namespace Internal {

@@ -29,7 +29,7 @@
 #include <QProcess>
 #include <QThread>
 
-Q_LOGGING_CATEGORY(mcpCommands, "qtcreator.mcpserver.commands", QtWarningMsg)
+Q_LOGGING_CATEGORY(mcpCommands, "qtc.mcpserver.commands", QtWarningMsg)
 
 namespace MCP {
 namespace Internal {
