@@ -49,7 +49,13 @@ public:
     HierarchyItem(const Item &item, Client *client)
         : m_item(item)
         , m_client(client)
-    {}
+    {
+        if (client) {
+            const Position start = m_item.selectionRange().start();
+            const FilePath path = client->serverUriToHostPath(m_item.uri());
+            m_link = Link(path, start.line() + 1, start.character());
+        }
+    }
 
 protected:
     QVariant data(int column, int role) const override
@@ -65,13 +71,8 @@ protected:
             if (hasTag(SymbolTag::Deprecated))
                 return Tr::tr("Deprecated");
             return {};
-        case LinkRole: {
-            if (!m_client)
-                return QVariant();
-            const Position start = m_item.selectionRange().start();
-            return QVariant::fromValue(
-                Link(m_client->serverUriToHostPath(m_item.uri()), start.line() + 1, start.character()));
-        }
+        case LinkRole:
+            return QVariant::fromValue(m_link);
         case AnnotationRole: {
             QStringList result;
             if (const std::optional<QString> detail = m_item.detail())
@@ -135,6 +136,7 @@ private:
     const Item m_item;
     bool m_fetchedChildren = false;
     QPointer<Client> m_client;
+    Link m_link;
 };
 
 class CallHierarchyIncomingItem : public HierarchyItem<CallHierarchyItem,
@@ -184,8 +186,13 @@ template<class Item> class HierarchyRootItem : public TreeItem
 public:
     HierarchyRootItem(const Item &item, Client *client)
         : m_item(item)
-        , m_client(client)
-    {}
+    {
+        if (QTC_GUARD(client)) {
+            const Position start = m_item.selectionRange().start();
+            const FilePath path = client->serverUriToHostPath(m_item.uri());
+            m_link = Link(path, start.line() + 1, start.character());
+        }
+    }
 
 private:
     QVariant data(int column, int role) const override
@@ -197,20 +204,15 @@ private:
             return symbolIcon(int(m_item.symbolKind()));
         case Qt::DisplayRole:
             return m_item.name();
-        case LinkRole: {
-            if (!m_client)
-                return QVariant();
-            const Position start = m_item.selectionRange().start();
-            return QVariant::fromValue(
-                Link(m_client->serverUriToHostPath(m_item.uri()), start.line() + 1, start.character()));
-        }
+        case LinkRole:
+            return QVariant::fromValue(m_link);
         default:
             return TreeItem::data(column, role);
         }
     }
 
     const Item m_item;
-    QPointer<Client> m_client;
+    Link m_link;
 };
 
 
