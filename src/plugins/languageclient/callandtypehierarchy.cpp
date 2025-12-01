@@ -156,6 +156,8 @@ private:
             return Tr::tr("Incoming");
         if (role == Qt::DecorationRole)
             return {};
+        if (role == LinkRole)
+            return {};
         return HierarchyItem::data(column, role);
     }
 };
@@ -176,6 +178,8 @@ private:
         if (role == Qt::DisplayRole)
             return Tr::tr("Outgoing");
         if (role == Qt::DecorationRole)
+            return {};
+        if (role == LinkRole)
             return {};
         return HierarchyItem::data(column, role);
     }
@@ -244,6 +248,8 @@ private:
             return Tr::tr("Bases");
         if (role == Qt::DecorationRole)
             return {};
+        if (role == LinkRole)
+            return {};
         return HierarchyItem::data(column, role);
     }
 };
@@ -264,6 +270,8 @@ private:
         if (role == Qt::DisplayRole)
             return Tr::tr("Derived");
         if (role == Qt::DecorationRole)
+            return {};
+        if (role == LinkRole)
             return {};
         return HierarchyItem::data(column, role);
     }
