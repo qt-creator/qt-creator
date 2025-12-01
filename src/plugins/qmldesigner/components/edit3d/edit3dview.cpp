@@ -143,8 +143,10 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         setActiveViewport(sceneState[activeViewportKey].toInt());
         // If the sceneState contained just activeViewport key, then this is simply an active Viewport
         // change rather than entire active scene change, and we don't need to process further.
-        if (sceneState.size() == 1)
+        if (sceneState.size() == 1) {
+            m_cameraModeAction->action()->setChecked(m_viewportToolStates[m_activeViewport].isPerspective);
             return;
+        }
     } else {
         setActiveViewport(0);
     }
