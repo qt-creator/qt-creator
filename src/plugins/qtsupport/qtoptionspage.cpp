@@ -284,6 +284,7 @@ private:
     IDeviceConstPtr currentDevice() const;
     QtVersion *currentVersion() const;
     QtVersionItem *currentItem() const;
+    std::pair<bool, QString> checkAlreadyExists(TreeItem *parent, const FilePath &qtVersion);
 
     QModelIndex mapFromSource(const QModelIndex &idx) const;
     QModelIndex mapToSource(const QModelIndex &idx) const;
@@ -292,6 +293,7 @@ private:
     void versionChanged(const QModelIndex &current, const QModelIndex &previous);
     void addQtDir();
     void removeQtDir();
+    void redetect();
     void editPath();
     void updateCleanUpButton();
     void updateCurrentQtName();
@@ -362,6 +364,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
 
     auto addButton = new QPushButton(Tr::tr("Add..."));
     m_delButton = new QPushButton(Tr::tr("Remove"));
+    const auto redetectButton = new QPushButton(Tr::tr("Re-detect"));
     m_linkWithQtButton = new QPushButton(Tr::tr("Link with Qt..."));
     m_cleanUpButton = new QPushButton(Tr::tr("Clean Up"));
 
@@ -404,6 +407,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
         Column {
             addButton,
             m_delButton,
+            redetectButton,
             Space(20),
             m_linkWithQtButton,
             m_cleanUpButton,
@@ -481,6 +485,8 @@ QtSettingsPageWidget::QtSettingsPageWidget()
             this, &QtSettingsPageWidget::addQtDir);
     connect(m_delButton, &QAbstractButton::clicked,
             this, &QtSettingsPageWidget::removeQtDir);
+    connect(redetectButton, &QAbstractButton::clicked,
+            this, &QtSettingsPageWidget::redetect);
 
     connect(m_qtdirList->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &QtSettingsPageWidget::versionChanged);
@@ -503,12 +509,13 @@ QtSettingsPageWidget::QtSettingsPageWidget()
         return version ? version->macroExpander() : nullptr;
     }});
 
-    connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this,
-        [this](int index) {
-            m_filterModel->setDevice(m_deviceManagerModel.device(index));
-        });
+    const auto updateDevice = [this](int index) {
+        m_filterModel->setDevice(m_deviceManagerModel.device(index));
+    };
+    connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
     m_deviceComboBox->setCurrentIndex(
         m_deviceManagerModel.indexForId(ProjectExplorer::Constants::DESKTOP_DEVICE_ID));
+    updateDevice(m_deviceComboBox->currentIndex());
 }
 
 QtVersion *QtSettingsPageWidget::currentVersion() const
@@ -535,6 +542,18 @@ QModelIndex QtSettingsPageWidget::mapToSource(const QModelIndex &idx) const
 {
     QTC_ASSERT(m_filterModel == m_sortModel->sourceModel(), return {});
     return m_filterModel->mapToSource(m_sortModel->mapToSource(idx));
+}
+
+std::pair<bool, QString> QtSettingsPageWidget::checkAlreadyExists(
+    TreeItem *parent, const FilePath &qtVersion)
+{
+    for (int i = 0; i < parent->childCount(); ++i) {
+        auto item = static_cast<QtVersionItem *>(parent->childAt(i));
+        if (item->version()->qmakeFilePath() == qtVersion) {
+            return {true, item->version()->displayName()};
+        }
+    }
+    return {false, {}};
 }
 
 void QtSettingsPageWidget::cleanUpQtVersions()
@@ -738,21 +757,11 @@ void QtSettingsPageWidget::addQtDir()
     if (BuildableHelperLibrary::isQtChooser(qtVersion))
         qtVersion = BuildableHelperLibrary::qtChooserToQmakePath(qtVersion.symLinkTarget());
 
-    auto checkAlreadyExists = [qtVersion](TreeItem *parent) -> QPair<bool, QString> {
-        for (int i = 0; i < parent->childCount(); ++i) {
-            auto item = static_cast<QtVersionItem *>(parent->childAt(i));
-            if (item->version()->qmakeFilePath() == qtVersion) {
-                return {true, item->version()->displayName()};
-            }
-        }
-        return {false, {}};
-    };
-
     bool alreadyExists;
     QString otherName;
-    std::tie(alreadyExists, otherName) = checkAlreadyExists(m_autoItem);
+    std::tie(alreadyExists, otherName) = checkAlreadyExists(m_autoItem, qtVersion);
     if (!alreadyExists)
-        std::tie(alreadyExists, otherName) = checkAlreadyExists(m_manualItem);
+        std::tie(alreadyExists, otherName) = checkAlreadyExists(m_manualItem, qtVersion);
 
     if (alreadyExists) {
         // Already exist
@@ -786,6 +795,33 @@ void QtSettingsPageWidget::removeQtDir()
         return;
 
     m_model->destroyItem(item);
+
+    updateCleanUpButton();
+}
+
+void QtSettingsPageWidget::redetect()
+{
+    const IDeviceConstPtr dev = currentDevice();
+    if (!QTC_GUARD(dev))
+        return;
+
+    const FilePaths qMakes
+        = BuildableHelperLibrary::findQtsInEnvironment(dev->systemEnvironment(), dev->rootPath());
+    for (const FilePath &qmakePath : qMakes) {
+        if (BuildableHelperLibrary::isQtChooser(qmakePath))
+            continue;
+        if (checkAlreadyExists(m_autoItem, qmakePath).first)
+            continue;
+        if (checkAlreadyExists(m_manualItem, qmakePath).first)
+            continue;
+
+        if (QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(
+                qmakePath, {DetectionSource::Manual, "PATH"})) {
+            auto item = new QtVersionItem(version);
+            item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
+            m_manualItem->appendChild(item);
+        }
+    }
 
     updateCleanUpButton();
 }
