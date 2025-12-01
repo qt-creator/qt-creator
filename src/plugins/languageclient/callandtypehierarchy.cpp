@@ -182,8 +182,9 @@ private:
 template<class Item> class HierarchyRootItem : public TreeItem
 {
 public:
-    HierarchyRootItem(const Item &item)
+    HierarchyRootItem(const Item &item, Client *client)
         : m_item(item)
+        , m_client(client)
     {}
 
 private:
@@ -196,12 +197,20 @@ private:
             return symbolIcon(int(m_item.symbolKind()));
         case Qt::DisplayRole:
             return m_item.name();
+        case LinkRole: {
+            if (!m_client)
+                return QVariant();
+            const Position start = m_item.selectionRange().start();
+            return QVariant::fromValue(
+                Link(m_client->serverUriToHostPath(m_item.uri()), start.line() + 1, start.character()));
+        }
         default:
             return TreeItem::data(column, role);
         }
     }
 
     const Item m_item;
+    QPointer<Client> m_client;
 };
 
 
@@ -209,7 +218,7 @@ class CallHierarchyRootItem : public HierarchyRootItem<LanguageServerProtocol::C
 {
 public:
     CallHierarchyRootItem(const LanguageServerProtocol::CallHierarchyItem &item, Client *client)
-        : HierarchyRootItem(item)
+        : HierarchyRootItem(item, client)
     {
         appendChild(new CallHierarchyIncomingItem(item, client));
         appendChild(new CallHierarchyOutgoingItem(item, client));
@@ -262,7 +271,7 @@ class TypeHierarchyRootItem : public HierarchyRootItem<LanguageServerProtocol::T
 {
 public:
     TypeHierarchyRootItem(const LanguageServerProtocol::TypeHierarchyItem &item, Client *client)
-        : HierarchyRootItem(item)
+        : HierarchyRootItem(item, client)
     {
         appendChild(new TypeHierarchyBasesItem(item, client));
         appendChild(new TypeHierarchyDerivedItem(item, client));
