@@ -175,7 +175,7 @@ void DeviceFilterModel::setDevice(const IDeviceConstPtr &device)
 {
     QTC_ASSERT(device, return);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
     beginFilterChange();
     m_deviceRoot = device->rootPath();
     endFilterChange(Direction::Rows);
