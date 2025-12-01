@@ -4,7 +4,6 @@
 #include "stylehelper.h"
 
 #include "algorithm.h"
-#include "theme/theme.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
 
@@ -13,6 +12,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QIcon>
+#include <QLabel>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmapCache>
@@ -43,6 +43,36 @@ static StyleHelper::ToolbarStyle s_toolbarStyle = StyleHelper::ToolbarStyle::Com
 // Invalid by default, setBaseColor needs to be called at least once
 static QColor s_baseColor;
 static QColor s_requestedBaseColor;
+
+QColor StyleHelper::TextFormat::color() const
+{
+    return Utils::creatorColor(themeColor);
+}
+
+QFont StyleHelper::TextFormat::font(bool underlined) const
+{
+    QFont result = Utils::StyleHelper::uiFont(uiElement);
+    result.setUnderline(underlined);
+    return result;
+}
+
+int StyleHelper::TextFormat::lineHeight() const
+{
+    return Utils::StyleHelper::uiFontLineHeight(uiElement);
+}
+
+void StyleHelper::applyTf(QLabel *label, const StyleHelper::TextFormat &tf, bool singleLine)
+{
+    if (singleLine)
+        label->setFixedHeight(tf.lineHeight());
+    label->setFont(tf.font());
+    label->setAlignment(Qt::Alignment(tf.drawTextFlags));
+    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+    QPalette pal = label->palette();
+    pal.setColor(QPalette::WindowText, tf.color());
+    label->setPalette(pal);
+}
 
 QColor StyleHelper::mergedColors(const QColor &colorA, const QColor &colorB, int factor)
 {

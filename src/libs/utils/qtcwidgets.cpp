@@ -24,39 +24,10 @@
 
 namespace Utils {
 
+using namespace StyleHelper;
 using namespace StyleHelper::SpacingTokens;
 
 const qreal disabledIconOpacity = 0.3;
-
-QColor TextFormat::color() const
-{
-    return Utils::creatorColor(themeColor);
-}
-
-QFont TextFormat::font(bool underlined) const
-{
-    QFont result = Utils::StyleHelper::uiFont(uiElement);
-    result.setUnderline(underlined);
-    return result;
-}
-
-int TextFormat::lineHeight() const
-{
-    return Utils::StyleHelper::uiFontLineHeight(uiElement);
-}
-
-void applyTf(QLabel *label, const TextFormat &tf, bool singleLine)
-{
-    if (singleLine)
-        label->setFixedHeight(tf.lineHeight());
-    label->setFont(tf.font());
-    label->setAlignment(Qt::Alignment(tf.drawTextFlags));
-    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-
-    QPalette pal = label->palette();
-    pal.setColor(QPalette::WindowText, tf.color());
-    label->setPalette(pal);
-}
 
 enum WidgetState {
     WidgetStateDefault,

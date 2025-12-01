@@ -39,6 +39,7 @@ using namespace Utils;
 namespace Core {
 
 using namespace WelcomePageHelpers;
+using namespace StyleHelper;
 using namespace StyleHelper::SpacingTokens;
 
 static QColor themeColor(Theme::Color role)

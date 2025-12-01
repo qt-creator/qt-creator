@@ -48,6 +48,7 @@
 using namespace Core;
 using namespace Core::WelcomePageHelpers;
 using namespace Utils;
+using namespace Utils::StyleHelper;
 using namespace Utils::StyleHelper::SpacingTokens;
 
 const char PROJECT_BASE_ID[] = "Welcome.OpenRecentProject";

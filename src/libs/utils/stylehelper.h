@@ -3,14 +3,16 @@
 
 #pragma once
 
+#include "theme/theme.h"
 #include "utils_global.h"
 
 #include <QPen>
 #include <QStyle>
 
 QT_BEGIN_NAMESPACE
-class QPalette;
+class QLabel;
 class QPainter;
+class QPalette;
 class QRect;
 // Note, this is exported but in a private header as qtopengl depends on it.
 // We should consider adding this as a public helper function.
@@ -123,6 +125,22 @@ enum UiElement {
     UiElementIconStandard,
     UiElementIconActive,
 };
+
+class QTCREATOR_UTILS_EXPORT TextFormat
+{
+public:
+    QColor color() const;
+    QFont font(bool underlined = false) const;
+    int lineHeight() const;
+
+    const Theme::Color themeColor;
+    const StyleHelper::UiElement uiElement;
+    const int drawTextFlags = Qt::AlignLeft | Qt::AlignBottom | Qt::TextDontClip
+                              | Qt::TextShowMnemonic;
+};
+
+QTCREATOR_UTILS_EXPORT void applyTf(QLabel *label, const TextFormat &tf,
+                                    bool singleLine = true);
 
 // Height of the project explorer navigation bar
 QTCREATOR_UTILS_EXPORT int navigationWidgetHeight();

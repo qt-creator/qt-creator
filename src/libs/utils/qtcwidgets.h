@@ -18,21 +18,6 @@ QT_FORWARD_DECLARE_CLASS(QVariantAnimation)
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT TextFormat
-{
-public:
-    QColor color() const;
-    QFont font(bool underlined = false) const;
-    int lineHeight() const;
-
-    const Theme::Color themeColor;
-    const StyleHelper::UiElement uiElement;
-    const int drawTextFlags = Qt::AlignLeft | Qt::AlignBottom | Qt::TextDontClip
-                              | Qt::TextShowMnemonic;
-};
-
-QTCREATOR_UTILS_EXPORT void applyTf(QLabel *label, const TextFormat &tf, bool singleLine = true);
-
 class QTCREATOR_UTILS_EXPORT QtcButton : public QAbstractButton
 {
     Q_OBJECT // Needed for the Q_ENUM(Role) to work

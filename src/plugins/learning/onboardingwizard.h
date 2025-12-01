@@ -5,7 +5,7 @@
 
 #include <QWidget>
 
-namespace Utils {
+namespace Utils::StyleHelper {
 class TextFormat;
 }
 
@@ -13,6 +13,6 @@ namespace Learning::Internal {
 
 QWidget *createOnboardingWizard(QWidget *parent);
 
-QWidget *tfLabel(const QString &text, const Utils::TextFormat &format);
+QWidget *tfLabel(const QString &text, const Utils::StyleHelper::TextFormat &format);
 
 } // namespace Learning::Internal

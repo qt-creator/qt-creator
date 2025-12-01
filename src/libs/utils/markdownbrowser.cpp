@@ -39,35 +39,34 @@ namespace Utils {
 
 using namespace StyleHelper;
 
-using TextFormat = std::pair<Theme::Color, UiElement>;
-
-static constexpr TextFormat contentTF{Theme::Token_Text_Default, UiElement::UiElementBody2};
+static constexpr TextFormat contentTF{Theme::Token_Text_Default,
+                                      StyleHelper::UiElement::UiElementBody2};
 
 static constexpr std::array<TextFormat, 6> markdownHeadingFormats{
-    TextFormat{contentTF.first, UiElement::UiElementH4},
-    TextFormat{contentTF.first, UiElement::UiElementH5},
-    TextFormat{contentTF.first, UiElement::UiElementH6Capital},
-    TextFormat{contentTF.first, UiElement::UiElementH6Capital},
-    TextFormat{contentTF.first, UiElement::UiElementH6Capital},
-    TextFormat{contentTF.first, UiElement::UiElementH6Capital},
+    TextFormat{contentTF.themeColor, StyleHelper::UiElement::UiElementH4},
+    TextFormat{contentTF.themeColor, StyleHelper::UiElement::UiElementH5},
+    TextFormat{contentTF.themeColor, StyleHelper::UiElement::UiElementH6Capital},
+    TextFormat{contentTF.themeColor, StyleHelper::UiElement::UiElementH6Capital},
+    TextFormat{contentTF.themeColor, StyleHelper::UiElement::UiElementH6Capital},
+    TextFormat{contentTF.themeColor, StyleHelper::UiElement::UiElementH6Capital},
 };
 
 static constexpr int MinimumSizeBlocks = 5;
 
 static QFont font(TextFormat format, bool underlined = false)
 {
-    QFont result = Utils::StyleHelper::uiFont(format.second);
+    QFont result = Utils::StyleHelper::uiFont(format.uiElement);
     result.setUnderline(underlined);
     return result;
 }
 static int lineHeight(TextFormat format)
 {
-    return Utils::StyleHelper::uiFontLineHeight(format.second);
+    return Utils::StyleHelper::uiFontLineHeight(format.uiElement);
 }
 
 static QColor color(TextFormat format)
 {
-    return Utils::creatorColor(format.first);
+    return Utils::creatorColor(format.themeColor);
 }
 
 static QTextDocument *highlightText(const QString &code, const QString &language)
