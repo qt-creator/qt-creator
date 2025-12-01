@@ -59,7 +59,6 @@ set(DESIGNSTUDIO_PLUGINS
     Texteditor
     UpdateInfo
     VcsBase
-    componentsplugin
     qmlpreviewplugin)
 
 if(DESIGNSTUDIO_EXTRAPLUGINS)

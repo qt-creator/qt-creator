@@ -788,28 +788,6 @@ extend_qtc_plugin(QmlDesigner
     dvauthenticator.cpp dvauthenticator.h
 )
 
-add_qtc_plugin(componentsplugin
-  PLUGIN_CLASS ComponentsPlugin
-  CONDITION TARGET QmlDesigner
-  PLUGIN_DEPENDS Core QmlDesigner
-  DEPENDS Utils Qt::Qml
-  DEFINES COMPONENTS_LIBRARY
-
-  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-)
-
-extend_qtc_plugin(componentsplugin
-    CONDITION ENABLE_COMPILE_WARNING_AS_ERROR
-    PROPERTIES COMPILE_WARNING_AS_ERROR ON
-)
-
-extend_qtc_plugin(componentsplugin
-  SOURCES_PREFIX componentsplugin
-  SOURCES
-    componentsplugin.cpp componentsplugin.h
-    componentsplugin.qrc
-)
-
 add_qtc_plugin(qmlpreviewplugin
   PLUGIN_CLASS QmlPreviewWidgetPlugin
   CONDITION TARGET QmlDesigner
