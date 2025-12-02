@@ -1623,25 +1623,34 @@ void Project::resetQmlCodeModel()
     emit ProjectManager::instance()->requestCodeModelReset();
 }
 
+static QStringList getQmlExtensions()
+{
+    using namespace Utils::Constants;
+    static const QSet<QString> qmlTypeNames
+        = {QML_MIMETYPE, QBS_MIMETYPE, QMLPROJECT_MIMETYPE, QMLTYPES_MIMETYPE, QMLUI_MIMETYPE};
+    QStringList extensions;
+    for (const QString &mtn : qmlTypeNames) {
+        const MimeType mt = mimeTypeForName(mtn);
+        for (const QString &pattern : mt.globPatterns()) {
+            if (pattern.size() > 2 && pattern.at(0) == '*' && pattern.at(1) == '.')
+                extensions.append(pattern.mid(1));
+        }
+    }
+    return extensions;
+}
+
 QmlCodeModelInfo Project::gatherQmlCodeModelInfo(Kit *kit, BuildConfiguration *bc)
 {
     QmlCodeModelInfo projectInfo;
 
-    using namespace Utils::Constants;
-    projectInfo.sourceFiles = files([](const Node *n) {
-        static const QSet<QString> qmlTypeNames = {
-            QML_MIMETYPE ,
-            QBS_MIMETYPE,
-            QMLPROJECT_MIMETYPE,
-            QMLTYPES_MIMETYPE,
-            QMLUI_MIMETYPE
-        };
+    projectInfo.sourceFiles = files([extensions = getQmlExtensions()](const Node *n) {
         if (!Project::SourceFiles(n))
             return false;
         const FileNode *fn = n->asFileNode();
         return fn && fn->fileType() == FileType::QML
-                && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath(),
-                                                                MimeMatchMode::MatchExtension).name());
+               && Utils::anyOf(extensions, [fp = fn->filePath()](const QString &ext) {
+                      return fp.endsWith(ext);
+                  });
     });
 
     if (projectInfo.sourceFiles.isEmpty())
