@@ -4,6 +4,7 @@
 #include "splashscreencontainerwidget.h"
 #include "androidtoolmenu.h"
 #include "androidtr.h"
+#include "androidmanifestutils.h"
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -461,7 +462,6 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
     warningLabel->setAlignment(Qt::AlignHCenter);
     warningLabel->setWordWrap(true);
 
-    // Create a container widget to hold the main layout
     auto *containerWidget = new QWidget(this);
     auto *mainLayout = new QHBoxLayout(containerWidget);
 
@@ -591,6 +591,7 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
         emit splashScreensModified();
     });
 
+    loadImages();
     return true;
 }
 
@@ -804,40 +805,16 @@ void SplashScreenContainerWidget::createSplashscreenThemes()
 
     FilePath manifestFile = m_manifestDirectory.pathAppended(QLatin1String("AndroidManifest.xml"));
     if (manifestFile.exists()) {
-        QFile mf(manifestFile.toFSPathString());
-        if (mf.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QDomDocument doc;
-            if (doc.setContent(&mf)) {
-                mf.close();
-                QDomElement root = doc.documentElement();
-                QDomElement application = root.firstChildElement(QLatin1String("application"));
-                if (!application.isNull()) {
-                    bool setTheme = false;
-                    for (int j = 0; j < 3; ++j) {
-                        if (!splashscreens[j].isEmpty()) {
-                            setTheme = true;
-                            break;
-                        }
-                    }
-                    if (setTheme)
-                        application.setAttribute(QLatin1String("android:theme"), QLatin1String("@style/splashScreenTheme"));
-                    else
-                        application.removeAttribute(QLatin1String("android:theme"));
-                    if (hasImages() || hasPortraitImages() || hasLandscapeImages())
-                        application.setAttribute(QLatin1String("android:icon"), QLatin1String("@drawable/icon"));
-                    if (mf.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
-                        QTextStream out(&mf);
-                        doc.save(out, 2);
-                        mf.close();
-                    } else {
-                        qCDebug(androidManifestEditorLog) << "Failed to open manifest for writing:" << manifestFile.toUserOutput();
-                    }
-                }
-            } else {
-                mf.close();
-                qCDebug(androidManifestEditorLog) << "Failed to parse manifest:" << manifestFile.toUserOutput();
-            }
-        }
+        bool hasSplashScreens = !splashscreens[0].isEmpty()
+                                || !splashscreens[1].isEmpty()
+                                || !splashscreens[2].isEmpty();
+        const QString themeValue = hasSplashScreens ? QLatin1String("@style/splashScreenTheme")
+                                                     : QString();
+        auto result = updateManifestApplicationAttribute(manifestFile,
+                                                         QLatin1String("android:theme"),
+                                                         themeValue);
+        if (!result)
+            qCDebug(androidManifestEditorLog) << "Failed to update manifest theme:" << result.error();
     }
 }
 

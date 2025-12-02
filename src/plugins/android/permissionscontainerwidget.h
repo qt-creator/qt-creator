@@ -34,6 +34,8 @@ private:
     void removePermission();
     void updateAddRemovePermissionButtons();
     void defaultPermissionOrFeatureCheckBoxClicked();
+    void updateManifestPermissions();
+    void loadPermissionsFromManifest();
 
     TextEditor::TextEditorWidget *m_textEditorWidget = nullptr;
     Utils::FilePath m_manifestDirectory;

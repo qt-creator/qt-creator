@@ -59,6 +59,7 @@ private:
     bool hasIcons() const;
     void loadIcons();
     Utils::Result<void> saveIcons();
+    void updateManifestIcon();
     QString iconFileName() const { return m_iconFileName; }
     void setIconFileName(const QString &name) { m_iconFileName = name; }
 

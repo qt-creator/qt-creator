@@ -5,6 +5,7 @@
 #include "splashscreencontainerwidget.h"
 #include "androidtoolmenu.h"
 #include "androidtr.h"
+#include "androidmanifestutils.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -300,6 +301,7 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
             auto result = saveIcons();
             if (!result)
                 qWarning() << "Failed to save icons after modification:" << result.error();
+            updateManifestIcon();
             emit iconsModified();
         }
         m_hasIcons = iconsMaybeChanged;
@@ -409,6 +411,22 @@ Result<void> IconContainerWidget::saveIcons()
 IconWidget *IconEditor::ownWidget() const
 {
     return static_cast<IconWidget *>(m_widget);
+}
+
+void IconContainerWidget::updateManifestIcon()
+{
+    if (m_manifestDir.isEmpty())
+        return;
+
+    Utils::FilePath manifestPath = m_manifestDir / "AndroidManifest.xml";
+    if (!manifestPath.exists())
+        return;
+
+    const QString iconValue = hasIcons() ? (QLatin1String("@drawable/") + m_iconFileName)
+                                         : QString();
+    Android::Internal::updateManifestApplicationAttribute(manifestPath,
+                                                          QLatin1String("android:icon"),
+                                                          iconValue);
 }
 
 #include "iconcontainerwidget.moc"

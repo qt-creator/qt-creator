@@ -4,6 +4,7 @@
 #include "permissionscontainerwidget.h"
 #include "androidtoolmenu.h"
 #include "androidtr.h"
+#include "androidmanifestutils.h"
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -87,6 +88,9 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
 {
     if (!textEditorWidget)
         return false;
+
+    m_textEditorWidget = textEditorWidget;
+    m_manifestDirectory = manifestDir(textEditorWidget);
 
     auto mainLayout = new QVBoxLayout(this);
     auto permissionsGroupBox = new QGroupBox(this);
@@ -255,6 +259,9 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
     mainLayout->addWidget(permissionsGroupBox);
     setLayout(mainLayout);
 
+    updateAddRemovePermissionButtons();
+    loadPermissionsFromManifest();
+
     connect(m_defaultPermissonsCheckBox, &QCheckBox::stateChanged,
             this, &PermissionsContainerWidget::defaultPermissionOrFeatureCheckBoxClicked);
     connect(m_defaultFeaturesCheckBox, &QCheckBox::stateChanged,
@@ -265,8 +272,8 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
             this, &PermissionsContainerWidget::removePermission);
     connect(m_permissionsComboBox, &QComboBox::currentTextChanged,
             this, &PermissionsContainerWidget::updateAddRemovePermissionButtons);
-
-    updateAddRemovePermissionButtons();
+    connect(m_permissionsListView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &PermissionsContainerWidget::updateAddRemovePermissionButtons);
 
     return true;
 }
@@ -276,6 +283,7 @@ void PermissionsContainerWidget::addPermission()
     QString permission = m_permissionsComboBox->currentText().trimmed();
     if (!permission.isEmpty()) {
         m_permissionsModel->addPermission(permission);
+        updateManifestPermissions();
         emit permissionsModified();
     }
 }
@@ -285,6 +293,7 @@ void PermissionsContainerWidget::removePermission()
     QModelIndex index = m_permissionsListView->currentIndex();
     if (index.isValid()) {
         m_permissionsModel->removePermission(index.row());
+        updateManifestPermissions();
         emit permissionsModified();
     }
 }
@@ -297,7 +306,50 @@ void PermissionsContainerWidget::updateAddRemovePermissionButtons()
 
 void PermissionsContainerWidget::defaultPermissionOrFeatureCheckBoxClicked()
 {
+    updateManifestPermissions();
     emit permissionsModified();
+}
+
+void PermissionsContainerWidget::updateManifestPermissions()
+{
+    if (m_manifestDirectory.isEmpty())
+        return;
+
+    Utils::FilePath manifestPath = m_manifestDirectory / "AndroidManifest.xml";
+    if (!manifestPath.exists())
+        return;
+
+    bool includeDefaultPermissions = m_defaultPermissonsCheckBox->isChecked();
+    bool includeDefaultFeatures = m_defaultFeaturesCheckBox->isChecked();
+
+    Android::Internal::updateManifestPermissions(
+        manifestPath,
+        m_permissionsModel->permissions(),
+        includeDefaultPermissions,
+        includeDefaultFeatures);
+
+    if (m_textEditorWidget && m_textEditorWidget->textDocument())
+        m_textEditorWidget->textDocument()->reload();
+}
+
+void PermissionsContainerWidget::loadPermissionsFromManifest()
+{
+    if (m_manifestDirectory.isEmpty())
+        return;
+
+    Utils::FilePath manifestPath = m_manifestDirectory / "AndroidManifest.xml";
+    if (!manifestPath.exists())
+        return;
+
+    auto dataResult = AndroidManifestParser::readManifest(manifestPath);
+    if (!dataResult)
+        return;
+
+    const AndroidManifestParser::ManifestData &data = *dataResult;
+
+    m_defaultPermissonsCheckBox->setChecked(data.hasDefaultPermissionsComment);
+    m_defaultFeaturesCheckBox->setChecked(data.hasDefaultFeaturesComment);
+    m_permissionsModel->setPermissions(data.permissions);
 }
 
 } // namespace Android::Internal
