@@ -29,10 +29,3 @@ add_qtc_plugin(mcpserver
     ATTRIBUTION_IDS
       davecotter-mcp
 )
-
-# Generate the MCP discovery file with version substitution
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/mcp_discovery.json.in
-  ${CMAKE_CURRENT_BINARY_DIR}/mcp_discovery.json
-  @ONLY
-)

@@ -26,6 +26,4 @@ QtcPlugin {
         "pluginconstants.h",
         "plugintr.h",
     ]
-
-    // TODO handle mcp_discovery.json.in
 }
