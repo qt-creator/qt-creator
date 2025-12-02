@@ -61,7 +61,7 @@ public:
 
     static int firstNonSpace(const QString &text);
     static QString indentationString(const QString &text);
-    static inline bool onlySpace(const QString &text) { return firstNonSpace(text) == text.size(); }
+    static bool onlySpace(const QString &text) { return firstNonSpace(text) == text.size(); }
     static int spacesLeftFromPosition(const QString &text, int position);
     static bool cursorIsAtBeginningOfLine(const QTextCursor &cursor);
     static int trailingWhitespaces(const QString &text);
