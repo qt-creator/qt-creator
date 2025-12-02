@@ -26,4 +26,14 @@ QtcPlugin {
         "pluginconstants.h",
         "plugintr.h",
     ]
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "mcpicon.png",
+            "mcpicon@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
+    }
 }

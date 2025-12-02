@@ -13,8 +13,6 @@ add_qtc_plugin(mcpserver
    QtCreator::Utils
   SOURCES
     issuesmanager.cpp issuesmanager.h
-    mcp.webp
-    mcp.qrc
     mcpserver.cpp mcpserver.h
     mcpservertest.cpp mcpservertest.h
     mcpcommands.cpp mcpcommands.h
@@ -28,4 +26,12 @@ add_qtc_plugin(mcpserver
       "${QtCreator_SOURCE_DIR}/qt_attributions.json"
     ATTRIBUTION_IDS
       davecotter-mcp
+)
+
+qtc_add_resources(mcpserver "images"
+  PREFIX "/mcpserver"
+  BASE "."
+  FILES
+    images/mcpicon.png
+    images/mcpicon@2x.png
 )

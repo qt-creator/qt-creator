@@ -6,6 +6,8 @@
 #include "pluginconstants.h"
 #include "plugintr.h"
 
+#include <utils/icon.h>
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -63,9 +65,7 @@ public:
         QHBoxLayout *titleLayout = new QHBoxLayout();
 
         QLabel *iconLabel = new QLabel();
-        QIcon mcpIcon(":/icons/mcp.webp");
-        QPixmap iconPixmap = mcpIcon.pixmap(48, 48);
-        iconLabel->setPixmap(iconPixmap);
+        iconLabel->setPixmap(icon().pixmap());
         titleLayout->addWidget(iconLabel);
 
         QLabel *titleLabel = new QLabel(QString("QtCreator MCP Server"));
@@ -120,6 +120,14 @@ public:
         layout->addLayout(buttonLayout);
 
         updateStatus();
+    }
+
+    static const Utils::Icon &icon()
+    {
+        static const Utils::Icon mcpIcon(
+            {{":/mcpserver/images/mcpicon.png", Utils::Theme::PanelTextColorMid}},
+            Utils::Icon::MenuTintedStyle);
+        return mcpIcon;
     }
 
 private slots:
@@ -222,14 +230,10 @@ public:
                     .arg(m_serverP->getPort()));
         }
 
-        // Create the MCP icon from resource
-        // Note: Menu icons work on Windows but may not display on macOS due to Apple's HIG
-        QIcon mcpIcon(":/icons/mcp.webp");
-
         // Create the MCP Server menu
         ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
         menu->menu()->setTitle(Tr::tr("MCP Server"));
-        menu->menu()->setIcon(mcpIcon); // Add icon to the main menu
+        menu->menu()->setIcon(MCPServerStatusDialog::icon().icon()); // Add icon to the main menu
         ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
         // Add separator for About

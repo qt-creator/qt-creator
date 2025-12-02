@@ -4209,6 +4209,30 @@
          d="m 2542,571 h 10 v 1 l -4,4 v 6 l -2,-2 v -4 l -4,-4 v -1"
          id="path160" />
     </g>
+    <g
+       id="src/plugins/mcpserver/images/mcpicon">
+      <use
+         transform="translate(2573,132)"
+         height="100%"
+         width="100%"
+         id="use161"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0"
+         style="display:inline" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#mcplogo"
+         id="use162"
+         style="display:inline"
+         transform="rotate(45,2582.6066,582.58579)" />
+    </g>
+    <path
+       id="mcplogo"
+       style="fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round"
+       d="m 2563.5,587.5 v 5 c 0,2.66 4,2.66 4,0 v -5 m -6,7 v -7 c 0,-2.66 4,-2.66 4,0 v 5 -5 c 0,-2.66 4,-2.66 4,0 v 5 c 0,0.5 0.5,1 1,1 h 1"
+       sodipodi:nodetypes="ccccccccccccc" />
   </g>
   <g
      inkscape:groupmode="layer"
