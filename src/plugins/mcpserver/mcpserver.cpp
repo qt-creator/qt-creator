@@ -62,6 +62,422 @@ MCPServer::MCPServer(QObject *parent)
         ->setMissingHandler(this, [](const QHttpServerRequest &, QHttpServerResponder &resp) {
             resp.write(QHttpServerResponder::StatusCode::NotFound);
         });
+
+    auto addMethod = [&](const QString &name, MethodHandler handler) {
+        m_methods.insert(name, std::move(handler));
+    };
+
+    addMethod("initialize", [this](const QJsonObject &, const QJsonValue &id) {
+        QJsonObject capabilities;
+        QJsonObject toolsCapability;
+        toolsCapability["listChanged"] = false;
+        capabilities["tools"] = toolsCapability;
+
+        QJsonObject serverInfo;
+        serverInfo["name"] = "Qt Creator MCP Server";
+        serverInfo["version"] = m_commandsP->getVersion();
+
+        QJsonObject initResult;
+        initResult["protocolVersion"] = "2024-11-05";
+        initResult["capabilities"] = capabilities;
+        initResult["serverInfo"] = serverInfo;
+
+        return createSuccessResponse(initResult, id);
+    });
+
+    addMethod("tools/list", [this](const QJsonObject &, const QJsonValue &id) {
+        return createSuccessResponse(QJsonObject{{"tools", m_toolList}}, id);
+    });
+
+    addMethod("tools/call", [this](const QJsonObject &params, const QJsonValue &id) {
+        const QString toolName = params.value("name").toString();
+        const QJsonObject arguments = params.value("arguments").toObject();
+
+        auto it = m_toolHandlers.find(toolName);
+        if (it == m_toolHandlers.end())
+            return createErrorResponse(-32601, QStringLiteral("Unknown tool: %1").arg(toolName), id);
+
+        QJsonObject rawResult = it.value()(arguments);
+
+        // Build the CallToolResult payload as required by the spec.
+        QJsonObject result;
+        QJsonObject textBlock{
+            {"type", "text"},
+            {"text", QString::fromUtf8(QJsonDocument(rawResult).toJson(QJsonDocument::Compact))}};
+        result.insert("content", QJsonArray{textBlock});
+        result.insert("isError", false);
+
+        return createSuccessResponse(result, id);
+    });
+
+    auto addTool = [&](const QJsonObject &tool, ToolHandler handler) {
+        m_toolList.append(tool);
+        const QString name = tool.value("name").toString();
+        Q_ASSERT(!name.isEmpty());
+        m_toolHandlers.insert(name, std::move(handler));
+    };
+
+    addTool(
+        {{"name", "build"},
+         {"title", "Build the current project"},
+         {"description", "Compile the current Qt Creator project"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+              {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            bool ok = m_commandsP->build();
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "getBuildStatus"},
+         {"title", "Get current build status"},
+         {"description", "Get current build progress and status"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"result", QJsonObject{{"type", "string"}}}}},
+              {"required", QJsonArray{"result"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            QString status = m_commandsP->getBuildStatus();
+            return QJsonObject{{"result", status}};
+        });
+
+    addTool(
+        {{"name", "debug"},
+         {"title", "Start debugging the current project"},
+         {"description", "Start debugging the current project"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"result", QJsonObject{{"type", "string"}}}}},
+              {"required", QJsonArray{"result"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            QString result = m_commandsP->debug();
+            return QJsonObject{{"result", result}};
+        });
+
+    addTool(
+        {{"name", "openFile"},
+         {"title", "Open a file in Qt Creator"},
+         {"description", "Open a file in Qt Creator"},
+         {"inputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"path",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"format", "uri"},
+                        {"description", "Absolute path of the file to open"}}}}},
+              {"required", QJsonArray{"path"}}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+              {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            const QString path = p.value("path").toString();
+            bool ok = m_commandsP->openFile(path);
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "listProjects"},
+         {"title", "List all available projects"},
+         {"description", "List all available projects"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"projects",
+                    QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
+              {"required", QJsonArray{"projects"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            const QStringList projects = m_commandsP->listProjects();
+            QJsonArray arr;
+            for (const QString &pr : projects)
+                arr.append(pr);
+            return QJsonObject{{"projects", arr}};
+        });
+
+    addTool(
+        {{"name", "listBuildConfigs"},
+         {"title", "List available build configurations"},
+         {"description", "List available build configurations"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"buildConfigs",
+                    QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
+              {"required", QJsonArray{"buildConfigs"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            const QStringList configs = m_commandsP->listBuildConfigs();
+            QJsonArray arr;
+            for (const QString &c : configs)
+                arr.append(c);
+            return QJsonObject{{"buildConfigs", arr}};
+        });
+
+    addTool(
+        {{"name", "switchBuildConfig"},
+         {"title", "Switch to a specific build configuration"},
+         {"description", "Switch to a specific build configuration"},
+         {"inputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"name",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Name of the build configuration to switch to"}}}}},
+              {"required", QJsonArray{"name"}}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+              {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            const QString name = p.value("name").toString();
+            bool ok = m_commandsP->switchToBuildConfig(name);
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "runProject"},
+         {"title", "Run the current project"},
+         {"description", "Run the current project"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+              {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            bool ok = m_commandsP->runProject();
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "cleanProject"},
+         {"title", "Clean the current project"},
+         {"description", "Clean the current project"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+              {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            bool ok = m_commandsP->cleanProject();
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "listOpenFiles"},
+         {"title", "List currently open files"},
+         {"description", "List currently open files"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"openFiles",
+                    QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
+              {"required", QJsonArray{"openFiles"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            const QStringList files = m_commandsP->listOpenFiles();
+            QJsonArray arr;
+            for (const QString &f : files)
+                arr.append(f);
+            return QJsonObject{{"openFiles", arr}};
+        });
+
+    addTool(
+        {{"name", "listSessions"},
+         {"title", "List available sessions"},
+         {"description", "List available sessions"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"sessions",
+                    QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
+              {"required", QJsonArray{"sessions"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            const QStringList sessions = m_commandsP->listSessions();
+            QJsonArray arr;
+            for (const QString &s : sessions)
+                arr.append(s);
+            return QJsonObject{{"sessions", arr}};
+        });
+
+    addTool(
+        {{"name", "loadSession"},
+         {"title", "Load a specific session"},
+         {"description", "Load a specific session"},
+         {"inputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"sessionName",
+                    QJsonObject{{"type", "string"}, {"description", "Name of the session to load"}}}}},
+              {"required", QJsonArray{"sessionName"}}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+              {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            const QString name = p.value("sessionName").toString();
+            bool ok = m_commandsP->loadSession(name);
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "listIssues"},
+         {"title", "List current issues (warnings and errors)"},
+         {"description", "List current issues (warnings and errors)"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"issues",
+                    QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
+              {"required", QJsonArray{"issues"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            const QStringList issues = m_commandsP->listIssues();
+            QJsonArray arr;
+            for (const QString &i : issues)
+                arr.append(i);
+            return QJsonObject{{"issues", arr}};
+        });
+
+    addTool(
+        {{"name", "quit"},
+         {"title", "Quit Qt Creator"},
+         {"description", "Quit Qt Creator"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+              {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            bool ok = m_commandsP->quit();
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "getCurrentProject"},
+         {"title", "Get the currently active project"},
+         {"description", "Get the currently active project"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"project", QJsonObject{{"type", "string"}}}}},
+              {"required", QJsonArray{"project"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            QString proj = m_commandsP->getCurrentProject();
+            return QJsonObject{{"project", proj}};
+        });
+
+    addTool(
+        {{"name", "getCurrentBuildConfig"},
+         {"title", "Get the currently active build configuration"},
+         {"description", "Get the currently active build configuration"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"buildConfig", QJsonObject{{"type", "string"}}}}},
+              {"required", QJsonArray{"buildConfig"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            QString cfg = m_commandsP->getCurrentBuildConfig();
+            return QJsonObject{{"buildConfig", cfg}};
+        });
+
+    addTool(
+        {{"name", "getCurrentSession"},
+         {"title", "Get the currently active session"},
+         {"description", "Get the currently active session"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"session", QJsonObject{{"type", "string"}}}}},
+              {"required", QJsonArray{"session"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            QString sess = m_commandsP->getCurrentSession();
+            return QJsonObject{{"session", sess}};
+        });
+
+    addTool(
+        {{"name", "saveSession"},
+         {"title", "Save the current session"},
+         {"description", "Save the current session"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+              {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            Q_UNUSED(p);
+            bool ok = m_commandsP->saveSession();
+            return QJsonObject{{"success", ok}};
+        });
 }
 
 QHttpServerResponse MCPServer::onHttpGet(const QHttpServerRequest &req)
@@ -89,27 +505,28 @@ QHttpServerResponse MCPServer::onHttpPost(const QHttpServerRequest &req)
 
     // Handle MCP JSON-RPC requests
     const QByteArray payload = req.body();
-    if (payload.isEmpty()) {
-        return createErrorResponse(
-            int(QHttpServerResponder::StatusCode::BadRequest), "Empty request body");
-    }
+    if (payload.isEmpty())
+        return createErrorResponse(-32700, "Empty request body");
 
     QJsonParseError err;
     QJsonDocument doc = QJsonDocument::fromJson(payload, &err);
-    if (err.error != QJsonParseError::NoError) {
-        return createErrorResponse(
-            int(QHttpServerResponder::StatusCode::BadRequest),
-            QStringLiteral("Invalid JSON: %1").arg(err.errorString()));
-    }
-    if (!doc.isObject()) {
-        return createErrorResponse(
-            int(QHttpServerResponder::StatusCode::BadRequest), "Invalid JSON‑RPC: not an object");
-    }
+    if (err.error != QJsonParseError::NoError)
+        return createErrorResponse(-32600, QStringLiteral("Invalid JSON: %1").arg(err.errorString()));
 
-    QJsonObject reply = processRequest(doc.object());
+    if (!doc.isObject())
+        return createErrorResponse(-32600, "Invalid Request");
 
-    QJsonDocument replyDoc(reply);
-    return createCorsJsonResponse(replyDoc.toJson());
+    const QJsonObject obj = doc.object();
+    const QString method = obj.value("method").toString();
+    const QJsonValue id = obj.value("id");
+    const QJsonObject params = obj.value("params").toObject();
+
+    QString jsonrpc = obj.value("jsonrpc").toString();
+    if (jsonrpc != "2.0")
+        return createErrorResponse(-32600, "Invalid Request: jsonrpc must be '2.0'", id);
+
+    const QJsonObject reply = callMCPMethod(method, params, id);
+    return createCorsJsonResponse(QJsonDocument(reply).toJson());
 }
 
 QHttpServerResponse MCPServer::onHttpOptions(const QHttpServerRequest &)
@@ -211,7 +628,7 @@ void MCPServer::stop()
         qCDebug(mcpServer) << "MCP TCP Server stopped";
     }
     if (m_httpTcpServerP && m_httpTcpServerP->isListening()) {
-        m_tcpServerP->close();
+        m_httpTcpServerP->close();
         qCDebug(mcpServer) << "MCP HTTP Server stopped";
     }
 }
@@ -227,364 +644,26 @@ quint16 MCPServer::getPort() const
     return m_port;
 }
 
-QJsonObject MCPServer::processRequest(const QJsonObject &request)
+QJsonObject MCPServer::callMCPMethod(
+    const QString &method, const QJsonObject &params, const QJsonValue &id)
 {
-    // Extract method and parameters
-    QString method = request.value("method").toString();
-    QJsonValue params = request.value("params");
-    QJsonValue id = request.value("id");
-
-    // Validate JSON-RPC version
-    QString jsonrpc = request.value("jsonrpc").toString();
-    if (jsonrpc != "2.0") {
-        return createErrorResponse(-32600, "Invalid Request: jsonrpc must be '2.0'", id);
-    }
-
-    if (method.isEmpty()) {
+    if (method.isEmpty())
         return createErrorResponse(-32600, "Invalid Request: method is required", id);
-    }
 
-    qCDebug(mcpServer) << "Processing MCP request:" << method << "with id:" << id;
-
-    QJsonValue result;
-    QString errorMessage;
-
-    // Handle standard MCP protocol methods only
-    if (method == "initialize") {
-        QJsonObject capabilities;
-        QJsonObject toolsCapability;
-        toolsCapability["listChanged"] = false;
-        capabilities["tools"] = toolsCapability;
-
-        QJsonObject serverInfo;
-        serverInfo["name"] = "Qt Creator MCP Server";
-        serverInfo["version"] = m_commandsP->getVersion();
-
-        QJsonObject initResult;
-        initResult["protocolVersion"] = "2024-11-05";
-        initResult["capabilities"] = capabilities;
-        initResult["serverInfo"] = serverInfo;
-        result = initResult;
-    } else if (method == "tools/list") {
-        QJsonArray tools;
-
-        // Build tool
-        QJsonObject buildTool;
-        buildTool["name"] = "build";
-        buildTool["description"] = "Build the current Qt Creator project";
-        QJsonObject buildInputSchema;
-        buildInputSchema["type"] = "object";
-        buildInputSchema["properties"] = QJsonObject();
-        buildTool["inputSchema"] = buildInputSchema;
-        tools.append(buildTool);
-
-        // Get build status tool
-        QJsonObject getBuildStatusTool;
-        getBuildStatusTool["name"] = "getBuildStatus";
-        getBuildStatusTool["description"] = "Get current build progress and status";
-        QJsonObject getBuildStatusInputSchema;
-        getBuildStatusInputSchema["type"] = "object";
-        getBuildStatusInputSchema["properties"] = QJsonObject();
-        getBuildStatusTool["inputSchema"] = getBuildStatusInputSchema;
-        tools.append(getBuildStatusTool);
-
-        // Debug tool
-        QJsonObject debugTool;
-        debugTool["name"] = "debug";
-        debugTool["description"] = "Start debugging the current project";
-        QJsonObject debugInputSchema;
-        debugInputSchema["type"] = "object";
-        debugInputSchema["properties"] = QJsonObject();
-        debugTool["inputSchema"] = debugInputSchema;
-        tools.append(debugTool);
-
-        // Open file tool
-        QJsonObject openFileTool;
-        openFileTool["name"] = "openFile";
-        openFileTool["description"] = "Open a file in Qt Creator";
-        QJsonObject openFileInputSchema;
-        openFileInputSchema["type"] = "object";
-        QJsonObject openFileProperties;
-        openFileProperties["path"]
-            = QJsonObject{{"type", "string"}, {"description", "Path to the file to open"}};
-        openFileInputSchema["properties"] = openFileProperties;
-        openFileInputSchema["required"] = QJsonArray{"path"};
-        openFileTool["inputSchema"] = openFileInputSchema;
-        tools.append(openFileTool);
-
-        // List projects tool
-        QJsonObject listProjectsTool;
-        listProjectsTool["name"] = "listProjects";
-        listProjectsTool["description"] = "List all available projects";
-        QJsonObject listProjectsInputSchema;
-        listProjectsInputSchema["type"] = "object";
-        listProjectsInputSchema["properties"] = QJsonObject();
-        listProjectsTool["inputSchema"] = listProjectsInputSchema;
-        tools.append(listProjectsTool);
-
-        // List build configs tool
-        QJsonObject listBuildConfigsTool;
-        listBuildConfigsTool["name"] = "listBuildConfigs";
-        listBuildConfigsTool["description"] = "List available build configurations";
-        QJsonObject listBuildConfigsInputSchema;
-        listBuildConfigsInputSchema["type"] = "object";
-        listBuildConfigsInputSchema["properties"] = QJsonObject();
-        listBuildConfigsTool["inputSchema"] = listBuildConfigsInputSchema;
-        tools.append(listBuildConfigsTool);
-
-        // Switch build config tool
-        QJsonObject switchBuildConfigTool;
-        switchBuildConfigTool["name"] = "switchBuildConfig";
-        switchBuildConfigTool["description"] = "Switch to a specific build configuration";
-        QJsonObject switchBuildConfigInputSchema;
-        switchBuildConfigInputSchema["type"] = "object";
-        QJsonObject switchBuildConfigProperties;
-        switchBuildConfigProperties["name"] = QJsonObject{
-            {"type", "string"}, {"description", "Name of the build configuration to switch to"}};
-        switchBuildConfigInputSchema["properties"] = switchBuildConfigProperties;
-        switchBuildConfigInputSchema["required"] = QJsonArray{"name"};
-        switchBuildConfigTool["inputSchema"] = switchBuildConfigInputSchema;
-        tools.append(switchBuildConfigTool);
-
-        // Run project tool
-        QJsonObject runProjectTool;
-        runProjectTool["name"] = "runProject";
-        runProjectTool["description"] = "Run the current project";
-        QJsonObject runProjectInputSchema;
-        runProjectInputSchema["type"] = "object";
-        runProjectInputSchema["properties"] = QJsonObject();
-        runProjectTool["inputSchema"] = runProjectInputSchema;
-        tools.append(runProjectTool);
-
-        // Clean project tool
-        QJsonObject cleanProjectTool;
-        cleanProjectTool["name"] = "cleanProject";
-        cleanProjectTool["description"] = "Clean the current project";
-        QJsonObject cleanProjectInputSchema;
-        cleanProjectInputSchema["type"] = "object";
-        cleanProjectInputSchema["properties"] = QJsonObject();
-        cleanProjectTool["inputSchema"] = cleanProjectInputSchema;
-        tools.append(cleanProjectTool);
-
-        // List open files tool
-        QJsonObject listOpenFilesTool;
-        listOpenFilesTool["name"] = "listOpenFiles";
-        listOpenFilesTool["description"] = "List currently open files";
-        QJsonObject listOpenFilesInputSchema;
-        listOpenFilesInputSchema["type"] = "object";
-        listOpenFilesInputSchema["properties"] = QJsonObject();
-        listOpenFilesTool["inputSchema"] = listOpenFilesInputSchema;
-        tools.append(listOpenFilesTool);
-
-        // List sessions tool
-        QJsonObject listSessionsTool;
-        listSessionsTool["name"] = "listSessions";
-        listSessionsTool["description"] = "List available sessions";
-        QJsonObject listSessionsInputSchema;
-        listSessionsInputSchema["type"] = "object";
-        listSessionsInputSchema["properties"] = QJsonObject();
-        listSessionsTool["inputSchema"] = listSessionsInputSchema;
-        tools.append(listSessionsTool);
-
-        // Load session tool
-        QJsonObject loadSessionTool;
-        loadSessionTool["name"] = "loadSession";
-        loadSessionTool["description"] = "Load a specific session";
-        QJsonObject loadSessionInputSchema;
-        loadSessionInputSchema["type"] = "object";
-        QJsonObject loadSessionProperties;
-        loadSessionProperties["sessionName"]
-            = QJsonObject{{"type", "string"}, {"description", "Name of the session to load"}};
-        loadSessionInputSchema["properties"] = loadSessionProperties;
-        loadSessionInputSchema["required"] = QJsonArray{"sessionName"};
-        loadSessionTool["inputSchema"] = loadSessionInputSchema;
-        tools.append(loadSessionTool);
-
-        // List issues tool
-        QJsonObject listIssuesTool;
-        listIssuesTool["name"] = "listIssues";
-        listIssuesTool["description"] = "List current issues (warnings and errors)";
-        QJsonObject listIssuesInputSchema;
-        listIssuesInputSchema["type"] = "object";
-        listIssuesInputSchema["properties"] = QJsonObject();
-        listIssuesTool["inputSchema"] = listIssuesInputSchema;
-        tools.append(listIssuesTool);
-
-        // Quit tool
-        QJsonObject quitTool;
-        quitTool["name"] = "quit";
-        quitTool["description"] = "Quit Qt Creator";
-        QJsonObject quitInputSchema;
-        quitInputSchema["type"] = "object";
-        quitInputSchema["properties"] = QJsonObject();
-        quitTool["inputSchema"] = quitInputSchema;
-        tools.append(quitTool);
-
-        // Get current project tool
-        QJsonObject getCurrentProjectTool;
-        getCurrentProjectTool["name"] = "getCurrentProject";
-        getCurrentProjectTool["description"] = "Get the currently active project";
-        QJsonObject getCurrentProjectInputSchema;
-        getCurrentProjectInputSchema["type"] = "object";
-        getCurrentProjectInputSchema["properties"] = QJsonObject();
-        getCurrentProjectTool["inputSchema"] = getCurrentProjectInputSchema;
-        tools.append(getCurrentProjectTool);
-
-        // Get current build config tool
-        QJsonObject getCurrentBuildConfigTool;
-        getCurrentBuildConfigTool["name"] = "getCurrentBuildConfig";
-        getCurrentBuildConfigTool["description"] = "Get the currently active build configuration";
-        QJsonObject getCurrentBuildConfigInputSchema;
-        getCurrentBuildConfigInputSchema["type"] = "object";
-        getCurrentBuildConfigInputSchema["properties"] = QJsonObject();
-        getCurrentBuildConfigTool["inputSchema"] = getCurrentBuildConfigInputSchema;
-        tools.append(getCurrentBuildConfigTool);
-
-        // Get current session tool
-        QJsonObject getCurrentSessionTool;
-        getCurrentSessionTool["name"] = "getCurrentSession";
-        getCurrentSessionTool["description"] = "Get the currently active session";
-        QJsonObject getCurrentSessionInputSchema;
-        getCurrentSessionInputSchema["type"] = "object";
-        getCurrentSessionInputSchema["properties"] = QJsonObject();
-        getCurrentSessionTool["inputSchema"] = getCurrentSessionInputSchema;
-        tools.append(getCurrentSessionTool);
-
-        // Save session tool
-        QJsonObject saveSessionTool;
-        saveSessionTool["name"] = "saveSession";
-        saveSessionTool["description"] = "Save the current session";
-        QJsonObject saveSessionInputSchema;
-        saveSessionInputSchema["type"] = "object";
-        saveSessionInputSchema["properties"] = QJsonObject();
-        saveSessionTool["inputSchema"] = saveSessionInputSchema;
-        tools.append(saveSessionTool);
-
-        QJsonObject toolsResult;
-        toolsResult["tools"] = tools;
-        result = toolsResult;
-    } else if (method == "tools/call") {
-        if (!params.isObject()) {
-            errorMessage = "Invalid parameters for tools/call";
-        } else {
-            QJsonObject paramsObj = params.toObject();
-            QString toolName = paramsObj.value("name").toString();
-            QJsonValue arguments = paramsObj.value("arguments");
-
-            // Route to appropriate command based on tool name
-            if (toolName == "build") {
-                bool successB = m_commandsP->build();
-                result = QJsonObject{{"success", successB}};
-            } else if (toolName == "getBuildStatus") {
-                QString buildStatusResult = m_commandsP->getBuildStatus();
-                result = QJsonObject{{"result", buildStatusResult}};
-            } else if (toolName == "debug") {
-                QString debugResult = m_commandsP->debug();
-                result = QJsonObject{{"result", debugResult}};
-            } else if (toolName == "openFile") {
-                if (arguments.isObject()) {
-                    QString path = arguments.toObject().value("path").toString();
-                    bool successB = m_commandsP->openFile(path);
-                    result = QJsonObject{{"success", successB}};
-                } else {
-                    errorMessage = "Invalid arguments for openFile";
-                }
-            } else if (toolName == "listProjects") {
-                QStringList projects = m_commandsP->listProjects();
-                QJsonArray projectArray;
-                for (const QString &project : projects) {
-                    projectArray.append(project);
-                }
-                result = QJsonObject{{"projects", projectArray}};
-            } else if (toolName == "listBuildConfigs") {
-                QStringList configs = m_commandsP->listBuildConfigs();
-                QJsonArray configArray;
-                for (const QString &config : configs) {
-                    configArray.append(config);
-                }
-                result = QJsonObject{{"buildConfigs", configArray}};
-            } else if (toolName == "switchBuildConfig") {
-                if (arguments.isObject()) {
-                    QString name = arguments.toObject().value("name").toString();
-                    bool successB = m_commandsP->switchToBuildConfig(name);
-                    result = QJsonObject{{"success", successB}};
-                } else {
-                    errorMessage = "Invalid arguments for switchBuildConfig";
-                }
-            } else if (toolName == "runProject") {
-                bool successB = m_commandsP->runProject();
-                result = QJsonObject{{"success", successB}};
-            } else if (toolName == "cleanProject") {
-                bool successB = m_commandsP->cleanProject();
-                result = QJsonObject{{"success", successB}};
-            } else if (toolName == "listOpenFiles") {
-                QStringList files = m_commandsP->listOpenFiles();
-                QJsonArray fileArray;
-                for (const QString &file : files) {
-                    fileArray.append(file);
-                }
-                result = QJsonObject{{"openFiles", fileArray}};
-            } else if (toolName == "listSessions") {
-                QStringList sessions = m_commandsP->listSessions();
-                QJsonArray sessionArray;
-                for (const QString &session : sessions) {
-                    sessionArray.append(session);
-                }
-                result = QJsonObject{{"sessions", sessionArray}};
-            } else if (toolName == "loadSession") {
-                if (arguments.isObject()) {
-                    QString sessionName = arguments.toObject().value("sessionName").toString();
-                    bool successB = m_commandsP->loadSession(sessionName);
-                    result = QJsonObject{{"success", successB}};
-                } else {
-                    errorMessage = "Invalid arguments for loadSession";
-                }
-            } else if (toolName == "listIssues") {
-                QStringList issues = m_commandsP->listIssues();
-                QJsonArray issueArray;
-                for (const QString &issue : issues) {
-                    issueArray.append(issue);
-                }
-                result = QJsonObject{{"issues", issueArray}};
-            } else if (toolName == "quit") {
-                bool successB = m_commandsP->quit();
-                result = QJsonObject{{"success", successB}};
-            } else if (toolName == "getCurrentProject") {
-                QString project = m_commandsP->getCurrentProject();
-                result = QJsonObject{{"project", project}};
-            } else if (toolName == "getCurrentBuildConfig") {
-                QString config = m_commandsP->getCurrentBuildConfig();
-                result = QJsonObject{{"buildConfig", config}};
-            } else if (toolName == "getCurrentSession") {
-                QString session = m_commandsP->getCurrentSession();
-                result = QJsonObject{{"session", session}};
-            } else if (toolName == "saveSession") {
-                bool successB = m_commandsP->saveSession();
-                result = QJsonObject{{"success", successB}};
-            } else {
-                // Provide helpful suggestions for common typos
-                QString suggestion = "";
-                if (toolName == "setBuildConfiguration") {
-                    suggestion = " (did you mean 'switchBuildConfig'?)";
-                } else if (toolName == "setBuildConfig") {
-                    suggestion = " (did you mean 'switchBuildConfig'?)";
-                } else if (toolName == "switchBuildConfiguration") {
-                    suggestion = " (did you mean 'switchBuildConfig'?)";
-                } else if (toolName == "getVersion") {
-                    suggestion = " (use 'tools/list' to see available tools)";
-                }
-                errorMessage = "Unknown tool: " + toolName + suggestion;
-            }
+    // Find the handler
+    auto it = m_methods.find(method);
+    QJsonObject reply;
+    if (it == m_methods.end())
+        reply = createErrorResponse(-32601, QStringLiteral("Method not found: %1").arg(method), id);
+    else {
+        try {
+            reply = it.value()(params, id);
+        } catch (const std::exception &e) {
+            reply = createErrorResponse(-32603, QString::fromStdString(e.what()), id);
         }
-    } else {
-        errorMessage = QString("Unknown method: %1").arg(method);
     }
 
-    if (!errorMessage.isEmpty()) {
-        return createErrorResponse(-32601, errorMessage, id);
-    } else {
-        return createSuccessResponse(result, id);
-    }
+    return reply;
 }
 
 QJsonObject MCPServer::createErrorResponse(int code, const QString &message, const QJsonValue &id)
@@ -606,219 +685,6 @@ QJsonObject MCPServer::createSuccessResponse(const QJsonValue &result, const QJs
     QJsonObject response;
     response["jsonrpc"] = "2.0";
     response["id"] = id;
-    response["result"] = result;
-
-    return response;
-}
-
-QJsonObject MCPServer::callMCPMethod(const QString &method, const QJsonValue &params)
-{
-    // Create a fake request object to reuse the existing processRequest logic
-    QJsonObject request;
-    request["jsonrpc"] = "2.0";
-    request["method"] = method;
-    request["id"] = 1;
-
-    if (!params.isUndefined()) {
-        request["params"] = params;
-    }
-
-    // Create a fake response object to capture the result
-    QJsonObject response;
-    response["id"] = 1;
-
-    // Process the request (this will populate the response)
-    QString errorMessage;
-    QJsonValue result;
-
-    // Handle standard MCP protocol methods
-    if (method == "initialize") {
-        QJsonObject capabilities;
-        QJsonObject toolsCapability;
-        toolsCapability["listChanged"] = false;
-        capabilities["tools"] = toolsCapability;
-
-        QJsonObject serverInfo;
-        serverInfo["name"] = "Qt MCP Plugin";
-        serverInfo["version"] = m_commandsP->getVersion();
-
-        QJsonObject initResult;
-        initResult["protocolVersion"] = "2024-11-05";
-        initResult["capabilities"] = capabilities;
-        initResult["serverInfo"] = serverInfo;
-        result = initResult;
-    } else if (method == "tools/list") {
-        QJsonArray tools;
-
-        // Build tool
-        QJsonObject buildTool;
-        buildTool["name"] = "build";
-        buildTool["description"] = "Build the current Qt Creator project";
-        QJsonObject buildInputSchema;
-        buildInputSchema["type"] = "object";
-        buildInputSchema["properties"] = QJsonObject();
-        buildTool["inputSchema"] = buildInputSchema;
-        tools.append(buildTool);
-
-        // Get build status tool
-        QJsonObject getBuildStatusTool;
-        getBuildStatusTool["name"] = "getBuildStatus";
-        getBuildStatusTool["description"] = "Get current build progress and status";
-        QJsonObject getBuildStatusInputSchema;
-        getBuildStatusInputSchema["type"] = "object";
-        getBuildStatusInputSchema["properties"] = QJsonObject();
-        getBuildStatusTool["inputSchema"] = getBuildStatusInputSchema;
-        tools.append(getBuildStatusTool);
-
-        // Debug tool
-        QJsonObject debugTool;
-        debugTool["name"] = "debug";
-        debugTool["description"] = "Start debugging the current project";
-        QJsonObject debugInputSchema;
-        debugInputSchema["type"] = "object";
-        debugInputSchema["properties"] = QJsonObject();
-        debugTool["inputSchema"] = debugInputSchema;
-        tools.append(debugTool);
-
-        // Open file tool
-        QJsonObject openFileTool;
-        openFileTool["name"] = "openFile";
-        openFileTool["description"] = "Open a file in Qt Creator";
-        QJsonObject openFileInputSchema;
-        openFileInputSchema["type"] = "object";
-        QJsonObject openFileProperties;
-        openFileProperties["path"]
-            = QJsonObject{{"type", "string"}, {"description", "Path to the file to open"}};
-        openFileInputSchema["properties"] = openFileProperties;
-        openFileInputSchema["required"] = QJsonArray{"path"};
-        openFileTool["inputSchema"] = openFileInputSchema;
-        tools.append(openFileTool);
-
-        // List projects tool
-        QJsonObject listProjectsTool;
-        listProjectsTool["name"] = "listProjects";
-        listProjectsTool["description"] = "List all available projects";
-        QJsonObject listProjectsInputSchema;
-        listProjectsInputSchema["type"] = "object";
-        listProjectsInputSchema["properties"] = QJsonObject();
-        listProjectsTool["inputSchema"] = listProjectsInputSchema;
-        tools.append(listProjectsTool);
-
-        // List build configs tool
-        QJsonObject listBuildConfigsTool;
-        listBuildConfigsTool["name"] = "listBuildConfigs";
-        listBuildConfigsTool["description"] = "List available build configurations";
-        QJsonObject listBuildConfigsInputSchema;
-        listBuildConfigsInputSchema["type"] = "object";
-        listBuildConfigsInputSchema["properties"] = QJsonObject();
-        listBuildConfigsTool["inputSchema"] = listBuildConfigsInputSchema;
-        tools.append(listBuildConfigsTool);
-
-        // Switch build config tool
-        QJsonObject switchBuildConfigTool;
-        switchBuildConfigTool["name"] = "switchBuildConfig";
-        switchBuildConfigTool["description"] = "Switch to a specific build configuration";
-        QJsonObject switchBuildConfigInputSchema;
-        switchBuildConfigInputSchema["type"] = "object";
-        QJsonObject switchBuildConfigProperties;
-        switchBuildConfigProperties["name"] = QJsonObject{
-            {"type", "string"}, {"description", "Name of the build configuration to switch to"}};
-        switchBuildConfigInputSchema["properties"] = switchBuildConfigProperties;
-        switchBuildConfigInputSchema["required"] = QJsonArray{"name"};
-        switchBuildConfigTool["inputSchema"] = switchBuildConfigInputSchema;
-        tools.append(switchBuildConfigTool);
-
-        // Run project tool
-        QJsonObject runProjectTool;
-        runProjectTool["name"] = "runProject";
-        runProjectTool["description"] = "Run the current project";
-        QJsonObject runProjectInputSchema;
-        runProjectInputSchema["type"] = "object";
-        runProjectInputSchema["properties"] = QJsonObject();
-        runProjectTool["inputSchema"] = runProjectInputSchema;
-        tools.append(runProjectTool);
-
-        // Clean project tool
-        QJsonObject cleanProjectTool;
-        cleanProjectTool["name"] = "cleanProject";
-        cleanProjectTool["description"] = "Clean the current project";
-        QJsonObject cleanProjectInputSchema;
-        cleanProjectInputSchema["type"] = "object";
-        cleanProjectInputSchema["properties"] = QJsonObject();
-        cleanProjectTool["inputSchema"] = cleanProjectInputSchema;
-        tools.append(cleanProjectTool);
-
-        // List open files tool
-        QJsonObject listOpenFilesTool;
-        listOpenFilesTool["name"] = "listOpenFiles";
-        listOpenFilesTool["description"] = "List currently open files";
-        QJsonObject listOpenFilesInputSchema;
-        listOpenFilesInputSchema["type"] = "object";
-        listOpenFilesInputSchema["properties"] = QJsonObject();
-        listOpenFilesTool["inputSchema"] = listOpenFilesInputSchema;
-        tools.append(listOpenFilesTool);
-
-        // List sessions tool
-        QJsonObject listSessionsTool;
-        listSessionsTool["name"] = "listSessions";
-        listSessionsTool["description"] = "List available sessions";
-        QJsonObject listSessionsInputSchema;
-        listSessionsInputSchema["type"] = "object";
-        listSessionsInputSchema["properties"] = QJsonObject();
-        listSessionsTool["inputSchema"] = listSessionsInputSchema;
-        tools.append(listSessionsTool);
-
-        // Load session tool
-        QJsonObject loadSessionTool;
-        loadSessionTool["name"] = "loadSession";
-        loadSessionTool["description"] = "Load a specific session";
-        QJsonObject loadSessionInputSchema;
-        loadSessionInputSchema["type"] = "object";
-        QJsonObject loadSessionProperties;
-        loadSessionProperties["sessionName"]
-            = QJsonObject{{"type", "string"}, {"description", "Name of the session to load"}};
-        loadSessionInputSchema["properties"] = loadSessionProperties;
-        loadSessionInputSchema["required"] = QJsonArray{"sessionName"};
-        loadSessionTool["inputSchema"] = loadSessionInputSchema;
-        tools.append(loadSessionTool);
-
-        // List issues tool
-        QJsonObject listIssuesTool;
-        listIssuesTool["name"] = "listIssues";
-        listIssuesTool["description"] = "List current issues (warnings and errors)";
-        QJsonObject listIssuesInputSchema;
-        listIssuesInputSchema["type"] = "object";
-        listIssuesInputSchema["properties"] = QJsonObject();
-        listIssuesTool["inputSchema"] = listIssuesInputSchema;
-        tools.append(listIssuesTool);
-
-        // Quit tool
-        QJsonObject quitTool;
-        quitTool["name"] = "quit";
-        quitTool["description"] = "Quit Qt Creator";
-        QJsonObject quitInputSchema;
-        quitInputSchema["type"] = "object";
-        quitInputSchema["properties"] = QJsonObject();
-        quitTool["inputSchema"] = quitInputSchema;
-        tools.append(quitTool);
-
-        QJsonObject toolsResult;
-        toolsResult["tools"] = tools;
-        result = toolsResult;
-    } else {
-        // Unknown method
-        response["jsonrpc"] = "2.0";
-        response["id"] = 1;
-        QJsonObject error;
-        error["code"] = -32601;
-        error["message"] = QJsonValue(QString("Unknown method: ") + method);
-        response["error"] = error;
-        return response;
-    }
-
-    // Create success response
-    response["jsonrpc"] = "2.0";
-    response["id"] = 1;
     response["result"] = result;
 
     return response;
@@ -867,8 +733,23 @@ void MCPServer::handleClientData()
         return;
     }
 
-    // Process the MCP request
-    QJsonObject response = processRequest(doc.object());
+    const QJsonObject obj = doc.object();
+
+    // The JSON‑RPC 2.0 request
+    const QString method = obj.value("method").toString();
+    const QJsonValue id = obj.value("id");
+    const QJsonObject params = obj.value("params").toObject();
+
+    const QString jsonrpc = obj.value("jsonrpc").toString();
+    if (jsonrpc != "2.0") {
+        qCDebug(mcpServer) << "Invalid JSON-RPC version";
+        QJsonObject errorResponse
+            = createErrorResponse(-32600, "Invalid Request: jsonrpc must be '2.0'", id);
+        sendResponse(client, errorResponse);
+        return;
+    }
+
+    const QJsonObject response = callMCPMethod(method, params, id);
     sendResponse(client, response);
 }
 

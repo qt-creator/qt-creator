@@ -472,7 +472,7 @@ private:
         outputMessage(QString("MCP Tools List Request: %1").arg(requestJson));
 
         // Actually call the MCP server and get the real response
-        QJsonObject response = m_serverP->callMCPMethod("tools/list", QJsonValue());
+        QJsonObject response = m_serverP->callMCPMethod("tools/list");
 
         if (response.contains("error")) {
             outputMessage(

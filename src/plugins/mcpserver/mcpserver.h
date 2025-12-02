@@ -32,7 +32,8 @@ public:
     quint16 getPort() const;
 
     // Public method to call MCP methods directly
-    QJsonObject callMCPMethod(const QString &method, const QJsonValue &params = QJsonValue());
+    QJsonObject callMCPMethod(
+        const QString &method, const QJsonObject &params = {}, const QJsonValue &id = {});
 
 private slots:
     void handleNewConnection();
@@ -44,7 +45,6 @@ private slots:
     QHttpServerResponse onHttpOptions(const QHttpServerRequest &req);
 
 private:
-    QJsonObject processRequest(const QJsonObject &request);
     QJsonObject createErrorResponse(
         int code, const QString &message, const QJsonValue &id = QJsonValue::Null);
     QJsonObject createSuccessResponse(
@@ -52,6 +52,14 @@ private:
     void sendResponse(QTcpSocket *client, const QJsonObject &response);
 
 private:
+    using MethodHandler
+        = std::function<QJsonObject(const QJsonObject &params, const QJsonValue &id)>;
+    QHash<QString, MethodHandler> m_methods;
+
+    using ToolHandler = std::function<QJsonObject(const QJsonObject &params)>;
+    QHash<QString, ToolHandler> m_toolHandlers;
+    QJsonArray m_toolList;
+
     QTcpServer *m_tcpServerP;
     QTcpServer *m_httpTcpServerP;
     QHttpServer *m_httpServerP;
