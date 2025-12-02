@@ -156,7 +156,7 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
       # Is the package an addon?
       set(install_addon FALSE)
       foreach(addon IN LISTS __qt_addons additional_addons)
-        string(REGEX MATCH "${addon}" is_addon "qt${qt_package_name_lowercase}")
+        string(REGEX MATCH "^${addon}$" is_addon "qt${qt_package_name_lowercase}")
         if (is_addon)
           list(
             APPEND installer_component_list
@@ -170,7 +170,7 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
       if (NOT install_addon)
         set(install_extension FALSE)
         foreach(extension IN LISTS __qt_extensions)
-          string(REGEX MATCH "${extension}" is_extension "qt${qt_package_name_lowercase}")
+          string(REGEX MATCH "^${extension}$" is_extension "qt${qt_package_name_lowercase}")
           if (is_extension)
             list(
               APPEND installer_component_list
@@ -184,7 +184,7 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
         if (NOT install_extension)
           set(install_standalone_addon FALSE)
           foreach(standalone_addon IN LISTS __standalone_addons)
-            string(REGEX MATCH "${standalone_addon}" is_standalone_addon "qt${qt_package_name_lowercase}")
+            string(REGEX MATCH "^${standalone_addon}$" is_standalone_addon "qt${qt_package_name_lowercase}")
             if (is_standalone_addon)
               list(
                 APPEND installer_component_list
