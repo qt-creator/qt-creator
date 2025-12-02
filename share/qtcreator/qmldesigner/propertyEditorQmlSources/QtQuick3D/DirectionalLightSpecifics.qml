@@ -11,4 +11,8 @@ Column {
     AbstractLightSection {
         width: parent.width
     }
+
+    CascadesSection {
+        width: parent.width
+    }
 }

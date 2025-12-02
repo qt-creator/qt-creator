@@ -32,7 +32,7 @@ Column {
             }
 
             CheckBox {
-                text: backendValues.gridAxes ? qsTr("On") : qsTr("Off")
+                text: backendValues.gridAxes.valueToString
                 backendValue: backendValues.gridAxes
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                 + StudioTheme.Values.actionIndicatorWidth

@@ -262,5 +262,55 @@ Section {
 
             ExpandingSpacer {}
         }
+
+        PropertyLabel {
+            text: qsTr("Threads")
+            tooltip: qsTr("Sets the number of threads used for the physical simulation.")
+        }
+
+        SecondColumnLayout {
+            SpinBox {
+                minimumValue: -1
+                maximumValue: 999999
+                decimals: 0
+                backendValue: backendValues.numThreads
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Report Kinematic Collisions")
+            tooltip: qsTr("Sets if collisions between pairs of kinematic dynamic rigid bodies triggers a contact report.")
+        }
+
+        SecondColumnLayout {
+            CheckBox {
+                text: backendValues.reportKinematicKinematicCollisions.valueToString
+                backendValue: backendValues.reportKinematicKinematicCollisions
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Report Static Collisions")
+            tooltip: qsTr("Sets if collisions between a static rigid body and a kinematic dynamic rigid body triggers a contact report.")
+        }
+
+        SecondColumnLayout {
+            CheckBox {
+                text: backendValues.reportStaticKinematicCollisions.valueToString
+                backendValue: backendValues.reportStaticKinematicCollisions
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            ExpandingSpacer {}
+        }
     }
 }

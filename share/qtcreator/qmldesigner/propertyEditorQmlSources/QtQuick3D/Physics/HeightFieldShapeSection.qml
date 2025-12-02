@@ -94,5 +94,21 @@ Section {
 
             ExpandingSpacer {}
         }
+
+        PropertyLabel {
+            text: qsTr("Image")
+            tooltip: qsTr("Sets the image holding the heightMap.")
+        }
+
+        SecondColumnLayout {
+            ItemFilterComboBox {
+                typeFilter: "QtQuick.Image"
+                backendValue: backendValues.image
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            ExpandingSpacer {}
+        }
     }
 }

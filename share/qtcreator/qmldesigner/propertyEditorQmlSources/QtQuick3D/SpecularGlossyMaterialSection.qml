@@ -122,6 +122,41 @@ Column {
 
                 ExpandingSpacer {}
             }
+
+            PropertyLabel {
+                text: qsTr("Use Single Channel")
+                tooltip: qsTr("Use only a single channel from albedoMap.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    id: albedoSingleChannelCheckBox
+                    text: backendValues.albedoSingleChannelEnabled.valueToString
+                    backendValue: backendValues.albedoSingleChannelEnabled
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Channel")
+                tooltip: qsTr("Sets the texture channel used to read the albedo value from albedoMap.")
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    enabled: albedoSingleChannelCheckBox.checked
+                    scope: "Material"
+                    model: ["R", "G", "B", "A"]
+                    backendValue: backendValues.albedoChannel
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
         }
     }
 
@@ -151,6 +186,41 @@ Column {
                     backendValue: backendValues.specularMap
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                     + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Use Single Channel")
+                tooltip: qsTr("Use only a single channel from specularMap.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    id: specularSingleChannelCheckBox
+                    text: backendValues.specularSingleChannelEnabled.valueToString
+                    backendValue: backendValues.specularSingleChannelEnabled
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Channel")
+                tooltip: qsTr("Sets the texture channel used to read the specular value from specularMap.")
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    enabled: specularSingleChannelCheckBox.checked
+                    scope: "Material"
+                    model: ["R", "G", "B", "A"]
+                    backendValue: backendValues.specularChannel
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
                 ExpandingSpacer {}
@@ -378,6 +448,22 @@ Column {
 
                 ExpandingSpacer {}
             }
+
+            PropertyLabel {
+                text: qsTr("Invert Channel")
+                tooltip: qsTr("Invert the values of the opacity map.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    text: backendValues.invertOpacityMapValue.valueToString
+                    backendValue: backendValues.invertOpacityMapValue
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
         }
     }
 
@@ -472,6 +558,41 @@ Column {
                 ControlLabel {
                     text: "B"
                     color: StudioTheme.Values.theme3DAxisZColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Use Single Channel")
+                tooltip: qsTr("Use only a single channel from emissiveMap.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    id: emissiveSingleChannelCheckBox
+                    text: backendValues.emissiveSingleChannelEnabled.valueToString
+                    backendValue: backendValues.emissiveSingleChannelEnabled
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Channel")
+                tooltip: qsTr("Sets the texture channel used to read the emissive value from emissiveMap.")
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    enabled: emissiveSingleChannelCheckBox.checked
+                    scope: "Material"
+                    model: ["R", "G", "B", "A"]
+                    backendValue: backendValues.emissiveChannel
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
                 ExpandingSpacer {}
@@ -704,6 +825,102 @@ Column {
 
                 ExpandingSpacer {}
             }
+
+            PropertyLabel {
+                text: qsTr("Normal Strength")
+                tooltip: qsTr("Sets the normal strength of the clearcoat layer.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: 0
+                    maximumValue: 1
+                    decimals: 2
+                    stepSize: 0.1
+                    sliderIndicatorVisible: true
+                    backendValue: backendValues.clearcoatNormalStrength
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Fresnel Power")
+                tooltip: qsTr("Sets the fresnel power.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: 0
+                    maximumValue: 1000
+                    stepSize: 0.1
+                    decimals: 2
+
+                    backendValue: backendValues.clearcoatFresnelPower
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Enable scale and bias")
+                tooltip: qsTr("Sets whether fresnel scale and bias are enabled.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    text: backendValues.clearcoatFresnelScaleBiasEnabled.valueToString
+                    backendValue: backendValues.clearcoatFresnelScaleBiasEnabled
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Fresnel Scale")
+                tooltip: qsTr("Sets the fresnel scale.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: 0
+                    maximumValue: 5
+                    stepSize: 0.1
+                    decimals: 2
+
+                    backendValue: backendValues.clearcoatFresnelScale
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Fresnel Bias")
+                tooltip: qsTr("Sets the fresnel bias.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -1
+                    maximumValue: 1
+                    stepSize: 0.1
+                    decimals: 2
+
+                    backendValue: backendValues.clearcoatFresnelBias
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
         }
     }
 
@@ -848,18 +1065,101 @@ Column {
     }
 
     Section {
-        caption: qsTr("Advanced")
+        caption: qsTr("Fresnel")
         width: parent.width
 
         SectionLayout {
             PropertyLabel {
-                text: qsTr("Vertex Colors")
+                text: qsTr("Fresnel Power")
+                tooltip: qsTr("Sets the fresnel power.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: 0
+                    maximumValue: 1000
+                    stepSize: 0.1
+                    decimals: 2
+
+                    backendValue: backendValues.fresnelPower
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Enable scale and bias")
+                tooltip: qsTr("Sets whether fresnel scale and bias are enabled.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    text: backendValues.fresnelScaleBiasEnabled.valueToString
+                    backendValue: backendValues.fresnelScaleBiasEnabled
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Fresnel Scale")
+                tooltip: qsTr("Sets the fresnel scale.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: 0
+                    maximumValue: 5
+                    stepSize: 0.1
+                    decimals: 2
+
+                    backendValue: backendValues.fresnelScale
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Fresnel Bias")
+                tooltip: qsTr("Sets the fresnel bias.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -1
+                    maximumValue: 1
+                    stepSize: 0.1
+                    decimals: 2
+
+                    backendValue: backendValues.fresnelBias
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+        }
+    }
+
+    Section {
+        caption: qsTr("Vertex Color")
+        width: parent.width
+
+        SectionLayout {
+            PropertyLabel {
+                text: qsTr("Show Colors")
                 tooltip: qsTr("Sets whether vertex colors are used to modulate the base color.")
             }
 
             SecondColumnLayout {
                 CheckBox {
-                    text: backendValues.vertexColorsEnabled ? qsTr("Enabled") : qsTr("Disabled")
+                    text: backendValues.vertexColorsEnabled.valueToString
                     backendValue: backendValues.vertexColorsEnabled
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
@@ -867,6 +1167,147 @@ Column {
 
                 ExpandingSpacer {}
             }
+
+            PropertyLabel {
+                text: qsTr("Enable Masks")
+                tooltip: qsTr("Sets whether vertex colors mask are used.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    text: backendValues.vertexColorsMaskEnabled.valueToString
+                    backendValue: backendValues.vertexColorsMaskEnabled
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            ListModel {
+                id: colorMaskModel
+
+                ListElement {
+                    name: qsTr("Glossiness")
+                    flag: "GlossinessMask"
+                }
+                ListElement {
+                    name: qsTr("Normal Strength")
+                    flag: "NormalStrengthMask"
+                }
+                ListElement {
+                    name: qsTr("Clearcoat Amount")
+                    flag: "ClearcoatAmountMask"
+                }
+                ListElement {
+                    name: qsTr("Clearcoat Roughness Amount")
+                    flag: "ClearcoatRoughnessAmountMask"
+                }
+                ListElement {
+                    name: qsTr("Clearcoat Normal Strength")
+                    flag: "ClearcoatNormalStrengthMask"
+                }
+                ListElement {
+                    name: qsTr("Height Amount")
+                    flag: "HeightAmountMask"
+                }
+                ListElement {
+                    name: qsTr("Occlusion Amount")
+                    flag: "OcclusionAmountMask"
+                }
+                ListElement {
+                    name: qsTr("Thickness Factor")
+                    flag: "ThicknessFactorMask"
+                }
+                ListElement {
+                    name: qsTr("Transmission Factor")
+                    flag: "TransmissionFactorMask"
+                }
+            }
+
+            PropertyLabel {
+                text: qsTr("Mask R")
+                tooltip: qsTr("Sets the properties masked by the vertex color red channel.")
+            }
+
+            SecondColumnLayout {
+                FlagsComboBox {
+                    backendValue: backendValues.vertexColorRedMask
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+
+                    itemsModel: colorMaskModel
+                    scope: "SpecularGlossyMaterial"
+                    zeroFlag: "NoMask"
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Mask G")
+                tooltip: qsTr("Sets the properties masked by the vertex color green channel.")
+            }
+
+            SecondColumnLayout {
+                FlagsComboBox {
+                    backendValue: backendValues.vertexColorGreenMask
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+
+                    itemsModel: colorMaskModel
+                    scope: "SpecularGlossyMaterial"
+                    zeroFlag: "NoMask"
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Mask B")
+                tooltip: qsTr("Sets the properties masked by the vertex color blue channel.")
+            }
+
+            SecondColumnLayout {
+                FlagsComboBox {
+                    backendValue: backendValues.vertexColorBlueMask
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+
+                    itemsModel: colorMaskModel
+                    scope: "SpecularGlossyMaterial"
+                    zeroFlag: "NoMask"
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Mask A")
+                tooltip: qsTr("Sets the properties masked by the vertex color alpha channel.")
+            }
+
+            SecondColumnLayout {
+                FlagsComboBox {
+                    backendValue: backendValues.vertexColorAlphaMask
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+
+                    itemsModel: colorMaskModel
+                    scope: "SpecularGlossyMaterial"
+                    zeroFlag: "NoMask"
+                }
+
+                ExpandingSpacer {}
+            }
+        }
+    }
+
+    Section {
+        caption: qsTr("Advanced")
+        width: parent.width
+
+        SectionLayout {
 
             PropertyLabel {
                 text: qsTr("Point Size")

@@ -21,7 +21,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    text: qsTr("Enabled")
+                    text: backendValues.enableAxisLines.valueToString
                     backendValue: backendValues.enableAxisLines
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
@@ -37,7 +37,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    text: qsTr("Enabled")
+                    text: backendValues.enableXYGrid.valueToString
                     backendValue: backendValues.enableXYGrid
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
@@ -53,7 +53,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    text: qsTr("Enabled")
+                    text: backendValues.enableXZGrid.valueToString
                     backendValue: backendValues.enableXZGrid
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
@@ -70,7 +70,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    text: qsTr("Enabled")
+                    text: backendValues.enableYZGrid.valueToString
                     backendValue: backendValues.enableYZGrid
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth

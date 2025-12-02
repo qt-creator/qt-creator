@@ -105,7 +105,7 @@ Section {
         SecondColumnLayout {
             CheckBox {
                 id: flipVcheckBox
-                text: backendValues.flipV ? backendValues.flipV.valueToString : ""
+                text: backendValues.flipV.valueToString
                 backendValue: backendValues.flipV
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
@@ -122,7 +122,7 @@ Section {
         SecondColumnLayout {
             CheckBox {
                 id: flipUCheckBox
-                text: backendValues.flipU ? backendValues.flipU.valueToString : ""
+                text: backendValues.flipU.valueToString
                 backendValue: backendValues.flipU
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
@@ -139,7 +139,7 @@ Section {
         SecondColumnLayout {
             CheckBox {
                 id: autoOrientationCheckBox
-                text: backendValues.autoOrientation ? backendValues.autoOrientation.valueToString : ""
+                text: backendValues.autoOrientation.valueToString
                 backendValue: backendValues.autoOrientation
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
@@ -190,6 +190,23 @@ Section {
                 scope: "Texture"
                 model: ["ClampToEdge", "MirroredRepeat", "Repeat"]
                 backendValue: backendValues.tilingModeVertical
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Depth Tiling")
+            tooltip: qsTr("Sets how the texture is mapped when the Z scaling value is greater than 1.")
+        }
+
+        SecondColumnLayout {
+            ComboBox {
+                scope: "Texture"
+                model: ["ClampToEdge", "MirroredRepeat", "Repeat"]
+                backendValue: backendValues.tilingModeDepth
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
             }
@@ -329,7 +346,7 @@ Section {
         SecondColumnLayout {
             CheckBox {
                 id: generateMipmapscheckBox
-                text: backendValues.generateMipmaps ? backendValues.generateMipmaps.valueToString : ""
+                text: backendValues.generateMipmaps.valueToString
                 backendValue: backendValues.generateMipmaps
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth

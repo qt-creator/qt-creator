@@ -119,6 +119,48 @@ Section {
 
         PropertyLabel {
             visible: shadowCheckBox.checked
+            text: qsTr("Soft Shadow Quality")
+            tooltip: qsTr("Sets the quality of the soft shadows.")
+        }
+
+        SecondColumnLayout {
+            visible: shadowCheckBox.checked
+            ComboBox {
+                scope: "Light"
+                model: ["Hard", "PCF4", "PCF8", "PCF16", "PCF32", "PCF64"]
+                backendValue: backendValues.softShadowQuality
+                enabled: shadowCheckBox.backendValue.value === true
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            visible: shadowCheckBox.checked
+            text: qsTr("PCF Factor")
+            tooltip: qsTr("Sets the PCF (percentage-closer filtering) factor.")
+        }
+
+        SecondColumnLayout {
+            visible: shadowCheckBox.checked
+            SpinBox {
+                minimumValue: 0
+                maximumValue: 9999999
+                decimals: 1
+                stepSize: 0.1
+                backendValue: backendValues.pcfFactor
+                enabled: shadowCheckBox.backendValue.value === true
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            visible: shadowCheckBox.checked
             text: qsTr("Far Distance")
             tooltip: qsTr("Sets the maximum distance for the shadow map.")
         }

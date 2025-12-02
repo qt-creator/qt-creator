@@ -91,6 +91,40 @@ Section {
         }
 
         PropertyLabel {
+            text: qsTr("Source Alpha Blend")
+            tooltip: qsTr("Sets the source alpha blend factor.")
+        }
+
+        SecondColumnLayout {
+            ComboBox {
+                scope: "CustomMaterial"
+                model: ["NoBlend", "Zero", "One", "SrcColor", "OneMinusSrcColor", "DstColor", "OneMinusDstColor", "SrcAlpha", "OneMinusSrcAlpha", "DstAlpha", "OneMinusDstAlpha", "ConstantColor", "OneMinusConstantColor", "ConstantAlpha", "OneMinusConstantAlpha", "SrcAlphaSaturate"]
+                backendValue: backendValues.sourceAlphaBlend
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Destination Alpha Blend")
+            tooltip: qsTr("Sets the destination alpha blend factor.")
+        }
+
+        SecondColumnLayout {
+            ComboBox {
+                scope: "CustomMaterial"
+                model: ["NoBlend", "Zero", "One", "SrcColor", "OneMinusSrcColor", "DstColor", "OneMinusDstColor", "SrcAlpha", "OneMinusSrcAlpha", "DstAlpha", "OneMinusDstAlpha", "ConstantColor", "OneMinusConstantColor", "ConstantAlpha", "OneMinusConstantAlpha", "SrcAlphaSaturate"]
+                backendValue: backendValues.destinationAlphaBlend
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+                ExpandingSpacer {}
+        }
+
+        PropertyLabel {
             text: qsTr("Always Dirty")
             tooltip: qsTr("Sets the material to refresh every time it is used by QtQuick3D.")
         }

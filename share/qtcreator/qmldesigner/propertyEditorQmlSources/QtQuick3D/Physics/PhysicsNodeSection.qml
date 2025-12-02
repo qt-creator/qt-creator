@@ -98,6 +98,42 @@ Column {
 
                 ExpandingSpacer {}
             }
+
+            PropertyLabel {
+                text: qsTr("Filter Group")
+                tooltip: qsTr("Sets the filter group this body is part of.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: 0
+                    maximumValue: 32
+                    decimals: 0
+                    backendValue: backendValues.filterGroup
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Filter Ignore Groups")
+                tooltip: qsTr("Sets the filter groups this body should filter out collisions with. This number is interpreted as a bitmask.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: 0
+                    maximumValue: 2147483647
+                    decimals: 0
+                    backendValue: backendValues.filterIgnoreGroups
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
+            }
         }
     }
 }

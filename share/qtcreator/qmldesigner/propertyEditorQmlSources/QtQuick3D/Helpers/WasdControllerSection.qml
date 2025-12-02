@@ -37,7 +37,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    text: qsTr("Enabled")
+                    text: backendValues.xInvert.valueToString
                     backendValue: backendValues.xInvert
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
@@ -53,7 +53,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    text: qsTr("Enabled")
+                    text: backendValues.yInvert.valueToString
                     backendValue: backendValues.yInvert
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
@@ -69,7 +69,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    text: qsTr("Enabled")
+                    text: backendValues.mouseEnabled.valueToString
                     backendValue: backendValues.mouseEnabled
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
@@ -85,7 +85,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    text: qsTr("Enabled")
+                    text: backendValues.keysEnabled.valueToString
                     backendValue: backendValues.keysEnabled
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth

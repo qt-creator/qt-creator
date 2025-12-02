@@ -75,5 +75,41 @@ Section {
 
             ExpandingSpacer {}
         }
+
+        PropertyLabel {
+            text: qsTr("Texture Width")
+            tooltip: qsTr("Sets the explicit width of the backing texture in pixels.")
+        }
+
+        SecondColumnLayout {
+            SpinBox {
+                minimumValue: 0
+                maximumValue: 999999
+                decimals: 0
+                backendValue: backendValues.explicitTextureWidth
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Texture Height")
+            tooltip: qsTr("Sets the explicit height of the backing texture in pixels.")
+        }
+
+        SecondColumnLayout {
+            SpinBox {
+                minimumValue: 0
+                maximumValue: 999999
+                decimals: 0
+                backendValue: backendValues.explicitTextureHeight
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+            }
+
+            ExpandingSpacer {}
+        }
     }
 }
