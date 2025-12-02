@@ -73,6 +73,8 @@ def get_arguments():
     parser.add_argument('--with-sdk-tool', help='Includes the sdktool in the Qt Creator build. '
                         'If you want a independent, standalone, static build of sdktool, use build_sdktool.py instead.',
                         action='store_true', default=False)
+    parser.add_argument('--with-extra-cmdbridge', help='Creates a separate archive with the cmdbridge, in addition to '
+                        'including it in the Qt Creator package.', action='store_true', default=False)
     parser.add_argument('--add-path', help='Prepends a CMAKE_PREFIX_PATH to the build',
                         action='append', dest='prefix_paths', default=[])
     parser.add_argument('--add-module-path', help='Prepends a CMAKE_MODULE_PATH to the build',
@@ -302,6 +304,17 @@ def package_qtcreator(args, paths):
                                         + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-debug.7z'),
                                            '*'],
                                         paths.debug_install)
+            if args.with_extra_cmdbridge:
+                if common.is_linux_platform():
+                    cmdbridge_dir = os.path.join(paths.install, 'libexec', 'qtcreator')
+                elif common.is_windows_platform():
+                    cmdbridge_dir = os.path.join(paths.install, 'bin')
+                else:
+                    cmdbridge_dir = os.path.join(paths.install, 'Qt Creator.app', 'Contents', 'Resources', 'libexec')
+                common.check_print_call(zip
+                                        + [os.path.join(paths.result, 'cmdbridge' + args.zip_infix + '.7z'),
+                                           'cmdbridge-*'],
+                                        cmdbridge_dir)
         if common.is_windows_platform():
             common.check_print_call(zip
                                     + [os.path.join(paths.result, 'wininterrupt' + args.zip_infix + '.7z'),
