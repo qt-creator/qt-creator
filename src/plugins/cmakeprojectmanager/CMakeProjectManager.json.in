@@ -26,7 +26,21 @@
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-cmake.html",
     ${IDE_PLUGIN_DEPENDENCIES},
-
+    "languageclient": {
+        "WorkspaceConfig": {
+            "json": {
+                "schemas": [
+                    {
+                        "fileMatch": [
+                            "CMakePresets.json",
+                            "CMakeUserPresets.json"
+                        ],
+                        "url": "https://raw.githubusercontent.com/Kitware/CMake/refs/tags/v3.24.0/Help/manual/presets/schema.json"
+                    }
+                ]
+            }
+        }
+    },
     "Mimetypes" : [
         "<?xml version='1.0'?>",
         "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
