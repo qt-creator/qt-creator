@@ -20,7 +20,7 @@
 #include <QPointer>
 #include <QString>
 #include <QWidget>
-#include <QHBoxLayout>
+#include <QGridLayout>
 
 namespace Android::Internal {
 
@@ -30,7 +30,7 @@ class IconEditor : public Core::IEditor
 {
 
 public:
-    explicit IconEditor(QWidget *widget);
+    explicit IconEditor(QWidget *widget, Core::IDocument *document);
 
     Core::IDocument *document() const override;
     QWidget *toolBar() override;
@@ -39,7 +39,7 @@ private:
     QWidget *m_widget = nullptr;
     IconWidget *ownWidget() const;
     QToolBar *m_toolBar = nullptr;
-    std::unique_ptr<Core::IDocument> m_document;
+    Core::IDocument *m_document = nullptr;
 };
 
 class IconContainerWidget : public QWidget
@@ -65,11 +65,10 @@ private:
 
     QList<IconWidget *> m_iconButtons;
     QToolButton *m_masterIconButton = nullptr;
-    QHBoxLayout * m_iconLayout = nullptr;
+    QGridLayout * m_iconLayout = nullptr;
     QPointer<TextEditor::TextEditorWidget> m_textEditor = nullptr;
     QString m_iconFileName = QLatin1String("icon");
     bool m_hasIcons = false;
-    Utils::FilePath m_manifestDir;
 };
 
 } // namespace Android::Internal

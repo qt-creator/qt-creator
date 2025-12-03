@@ -73,6 +73,7 @@ static FilePath getManifestDirWithWizardOption(QWidget *parent, const FilePath &
                     FilePath androidDir = project->projectDirectory().pathAppended("android");
                     if (androidDir.pathAppended("AndroidManifest.xml").exists())
                         return androidDir;
+                    return FilePath();
                 }
             }
             return FilePath();
@@ -98,23 +99,28 @@ static Project* getRelevantProject(const FilePath &docPath)
     return nullptr;
 }
 
-FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
+FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget, bool showWarnings)
 {
     const FilePath docPath = textEditorWidget->textDocument()->filePath().absolutePath();
     Project *project = getRelevantProject(docPath);
 
     if (!project) {
-        QMessageBox::warning(
-            textEditorWidget,
-            QObject::tr("Operation Failed"),
-            QObject::tr("This operation requires a project to be open. Please open your project file first.")
-            );
+        if (showWarnings) {
+            QMessageBox::warning(
+                textEditorWidget,
+                QObject::tr("Operation Failed"),
+                QObject::tr("This operation requires a project to be open. Please open your project file first.")
+                );
+        }
         return FilePath();
     }
 
     FilePath androidDir = project->projectDirectory().pathAppended("android");
     if (androidDir.pathAppended("AndroidManifest.xml").exists())
         return androidDir;
+
+    if (!showWarnings)
+        return FilePath();
 
     return getManifestDirWithWizardOption(textEditorWidget, project->projectDirectory());
 }
@@ -129,41 +135,41 @@ public:
     explicit AndroidIconSplashEditorWidget(QWidget *parent = nullptr);
 
     enum TabIndex {
-        IconTab = 0,
-        PermissionsTab = 1,
-        SplashTab = 2
+        XMLSourceTab = 0,
+        IconTab = 1,
+        PermissionsTab = 2,
+        SplashTab = 3
     };
 
     void setActiveTab(TabIndex index);
+    AndroidManifestEditorWidget *manifestEditorWidget() const;
+    class AndroidManifestEditor *manifestEditor() const { return m_manifestEditor; }
 
 private:
-    TextEditorWidget *m_textEditorWidget;
-    QTabWidget *m_tabWidget;
+    class AndroidManifestEditor *m_manifestEditor;
+    QTabWidget *m_mainTabWidget;
 };
 
 void AndroidIconSplashEditorWidget::setActiveTab(TabIndex index)
 {
-    if (m_tabWidget)
-        m_tabWidget->setCurrentIndex(index);
+    if (m_mainTabWidget)
+        m_mainTabWidget->setCurrentIndex(index);
+}
+
+AndroidManifestEditorWidget *AndroidIconSplashEditorWidget::manifestEditorWidget() const
+{
+    return m_manifestEditor ? m_manifestEditor->ownWidget() : nullptr;
 }
 
 AndroidIconSplashEditorWidget::AndroidIconSplashEditorWidget(QWidget *parent)
     : QWidget(parent)
 {
     auto parentLayout = new QVBoxLayout(this);
-    m_tabWidget = new QTabWidget(this);
+    m_mainTabWidget = new QTabWidget(this);
+    auto *manifestEditorWidget = new AndroidManifestEditorWidget;
+    m_manifestEditor = new AndroidManifestEditor(manifestEditorWidget);
 
-    auto manifestEditor = new AndroidManifestEditorWidget;
-    TextEditor::TextEditorWidget *manifestTextEditor = manifestEditor->textEditorWidget();
-
-    Utils::FilePath fallbackPath;
-    if (Project *proj = ProjectManager::startupProject())
-        fallbackPath = proj->projectDirectory();
-    else if (!ProjectManager::projects().isEmpty())
-        fallbackPath = ProjectManager::projects().first()->projectDirectory();
-    else
-        fallbackPath = Utils::FilePath::fromString(QDir::currentPath());
-    manifestTextEditor->textDocument()->setFilePath(fallbackPath);
+    TextEditor::TextEditorWidget *manifestTextEditor = manifestEditorWidget->textEditorWidget();
 
     auto permissionsContainer = new PermissionsContainerWidget(this);
     if (!permissionsContainer->initialize(manifestTextEditor))
@@ -195,11 +201,12 @@ AndroidIconSplashEditorWidget::AndroidIconSplashEditorWidget(QWidget *parent)
     iconScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     iconScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    m_tabWidget->addTab(iconScrollArea, Tr::tr("Icon Editor"));
-    m_tabWidget->addTab(permissionsScrollArea, Tr::tr("Permission Editor"));
-    m_tabWidget->addTab(splashScrollArea, Tr::tr("Splash Screen Editor"));
+    m_mainTabWidget->addTab(manifestEditorWidget, Tr::tr("XML Source"));
+    m_mainTabWidget->addTab(iconScrollArea, Tr::tr("Icon"));
+    m_mainTabWidget->addTab(permissionsScrollArea, Tr::tr("Permissions"));
+    m_mainTabWidget->addTab(splashScrollArea, Tr::tr("Splash Screen"));
 
-    parentLayout->addWidget(m_tabWidget, 1);
+    parentLayout->addWidget(m_mainTabWidget, 1);
 }
 
 class AndroidSplashscreenIconEditorFactory final : public Core::IEditorFactory
@@ -212,7 +219,9 @@ public:
         addMimeType(Android::Constants::ANDROID_MANIFEST_MIME_TYPE);
         setEditorCreator([]() -> Core::IEditor * {
             auto combinedWidget = new AndroidIconSplashEditorWidget();
-            auto editor = new IconEditor(combinedWidget);
+            auto manifestEditor = combinedWidget->manifestEditorWidget();
+            auto document = manifestEditor->textEditorWidget()->textDocument();
+            auto editor = new IconEditor(combinedWidget, document);
             return editor;
         });
     }
@@ -226,42 +235,60 @@ void setupAndroidToolsMenu()
     devMenu.addToContainer(Core::Constants::M_TOOLS);
 
     static AndroidSplashscreenIconEditorFactory androidSplashscreenIconEditorFactoryInstance;
-    const Utils::Id targetId(ANDROID_GRAPHICAL_EDITOR_ID);
-    static QPointer<Core::IEditor> existingEditor;
 
-    auto openEditorAtTab = [targetId](AndroidIconSplashEditorWidget::TabIndex tabIndex) {
-        if (!existingEditor) {
-            Core::IEditorFactory *factory = Core::IEditorFactory::editorFactoryForId(targetId);
-            if (factory) {
-                Core::IEditor *newEditor = factory->createEditor();
-                if (newEditor) {
-                    Core::EditorManager::addEditor(newEditor);
-                    existingEditor = newEditor;
-                }
-            }
+    auto openEditorAtTab = [](AndroidIconSplashEditorWidget::TabIndex tabIndex) {
+        Project *project = ProjectManager::startupProject();
+        if (!project) {
+            if (!ProjectManager::projects().isEmpty())
+                project = ProjectManager::projects().first();
         }
 
-        if (existingEditor) {
-            Core::EditorManager::activateEditor(existingEditor);
-            auto *activeWidget = qobject_cast<AndroidIconSplashEditorWidget*>(existingEditor->widget());
-            if (activeWidget)
-                activeWidget->setActiveTab(tabIndex);
+        if (!project) {
+            QMessageBox::warning(
+                Core::ICore::dialogParent(),
+                Tr::tr("No Project"),
+                Tr::tr("Please open a project first."));
+            return;
+        }
+
+        FilePath androidDir = project->projectDirectory().pathAppended("android");
+        FilePath manifestPath = androidDir.pathAppended("AndroidManifest.xml");
+
+        if (!manifestPath.exists()) {
+            androidDir = getManifestDirWithWizardOption(Core::ICore::dialogParent(),
+                                                       project->projectDirectory());
+            if (androidDir.isEmpty())
+                return;
+            manifestPath = androidDir.pathAppended("AndroidManifest.xml");
+        }
+
+        Core::IEditor *editor = Core::EditorManager::openEditor(manifestPath);
+        if (editor) {
+            auto *widget = qobject_cast<AndroidIconSplashEditorWidget*>(editor->widget());
+            if (widget)
+                widget->setActiveTab(tabIndex);
         }
     };
 
-    Core::ActionBuilder(nullptr, "Android.Tools.Icon")
+    Core::ActionBuilder(Core::ActionManager::instance(), "Android.Tools.XMLSource")
+        .setText(Android::Tr::tr("Manifest XML Source"))
+        .addOnTriggered([openEditorAtTab]() {
+            openEditorAtTab(AndroidIconSplashEditorWidget::XMLSourceTab);
+        }).addToContainer(ANDROID_TOOLS_MENU_ID);
+
+    Core::ActionBuilder(Core::ActionManager::instance(), "Android.Tools.Icon")
         .setText(Android::Tr::tr("Icon Editor"))
         .addOnTriggered([openEditorAtTab]() {
             openEditorAtTab(AndroidIconSplashEditorWidget::IconTab);
         }).addToContainer(ANDROID_TOOLS_MENU_ID);
 
-    Core::ActionBuilder(nullptr, "Android.Tools.Permissions")
+    Core::ActionBuilder(Core::ActionManager::instance(), "Android.Tools.Permissions")
         .setText(Android::Tr::tr("Permissions Editor"))
         .addOnTriggered([openEditorAtTab]() {
             openEditorAtTab(AndroidIconSplashEditorWidget::PermissionsTab);
         }).addToContainer(ANDROID_TOOLS_MENU_ID);
 
-    Core::ActionBuilder(nullptr, "Android.Tools.Splashscreen")
+    Core::ActionBuilder(Core::ActionManager::instance(), "Android.Tools.Splashscreen")
         .setText(Android::Tr::tr("Splashscreen Editor"))
         .addOnTriggered([openEditorAtTab]() {
             openEditorAtTab(AndroidIconSplashEditorWidget::SplashTab);

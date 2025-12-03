@@ -7,6 +7,7 @@
 #include "androidtr.h"
 #include "androidutils.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -259,9 +260,21 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(m_buildSystem->kit());
     if (!version)
         return;
-    FileUtils::copyRecursively(version->prefix() / "src/android/templates",
-                               m_directory,
-                               copy());
+
+    FilePath templatesPath = version->prefix() / "src/android/templates";
+    if (!templatesPath.exists()) {
+        QMessageBox::critical(
+            this,
+            Tr::tr("Qt for Android Not Configured"),
+            Tr::tr("Cannot create Android templates because Qt for Android is not "
+                   "installed or configured.\n\n"
+                   "Please install Qt for Android (e.g., android_arm64_v8a) and "
+                   "configure your kit to use it.\n\n"
+                   "Expected templates at: %1").arg(templatesPath.toUserOutput()));
+        return;
+    }
+
+    FileUtils::copyRecursively(templatesPath, m_directory, copy());
 
     if (copyGradleTemplates()) {
         FilePath gradlePath = version->prefix() / "src/3rdparty/gradle";

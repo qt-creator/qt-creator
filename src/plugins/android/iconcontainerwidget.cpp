@@ -8,10 +8,12 @@
 #include "androidmanifestutils.h"
 
 #include <QDir>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QLabel>
 #include <QMenu>
 #include <QPointer>
+#include <QToolButton>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -116,10 +118,12 @@ IconWidget::IconWidget(QWidget *parent, const QSize &displaySize, const QSize &p
 void IconWidget::initDefaults()
 {
     setAlignment(Qt::AlignCenter);
-    setFrameStyle(QFrame::Panel | QFrame::Raised);
+    setFrameStyle(QFrame::Box | QFrame::Raised);
     setFrameShadow(QFrame::Raised);
+    setLineWidth(3);
     setAutoFillBackground(true);
-    setMinimumSize(64, 64);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    setCursor(Qt::PointingHandCursor);
     m_displaySize = m_displaySize.isEmpty() ? QSize(64, 64) : m_displaySize;
     m_pixmapSize = m_pixmapSize.isEmpty() ? m_displaySize : m_pixmapSize;
 }
@@ -237,25 +241,45 @@ const QSize highDpiIconSize{72, 72};
 const QSize extraHighDpiIconSize{96, 96};
 const QSize extraExtraHighDpiIconSize{144, 144};
 const QSize extraExtraExtraHighDpiIconSize{192, 192};
+const QSize lowDpiIconDisplaySize{38, 38};
+const QSize mediumDpiIconDisplaySize{58, 58};
+const QSize highDpiIconDisplaySize{86, 86};
+const QSize extraHighDpiIconDisplaySize{115, 115};
+const QSize extraExtraHighDpiIconDisplaySize{173, 173};
+const QSize extraExtraExtraHighDpiIconDisplaySize{230, 230};
 
 Android::Internal::IconContainerWidget::IconContainerWidget(QWidget *parent)
     : QWidget(parent), m_iconLayout(nullptr), m_textEditor(nullptr)
 {
-    m_iconLayout = new QHBoxLayout(this);
+    auto *mainLayout = new QVBoxLayout(this);
+    mainLayout->setAlignment(Qt::AlignTop);
+    mainLayout->setSpacing(25);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    m_iconLayout = new QGridLayout();
+    m_iconLayout->setAlignment(Qt::AlignCenter);
+    m_iconLayout->setHorizontalSpacing(20);
+    m_iconLayout->setVerticalSpacing(5);
+    mainLayout->addLayout(m_iconLayout);
+
     m_masterIconButton = new QToolButton(this);
 
     const QString masterButtonLabel = Tr::tr("Select master icon");
     m_masterIconButton->setText(masterButtonLabel);
     m_masterIconButton->setToolTip(Tr::tr("Select master icon."));
-    m_masterIconButton->setIconSize(lowDpiIconSize);
+    m_masterIconButton->setIconSize(QSize(24, 24));
     m_masterIconButton->setIcon(Icon::fromTheme("document-open"));
     m_masterIconButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    m_masterIconButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    m_masterIconButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    m_iconLayout->addWidget(m_masterIconButton);
+    auto *buttonLayout = new QHBoxLayout();
+    buttonLayout->setAlignment(Qt::AlignCenter);
+    buttonLayout->addWidget(m_masterIconButton);
+    mainLayout->addLayout(buttonLayout);
 }
 
 struct IconConfig {
+    QSize displaySize;
     QSize size;
     const char* title;
     const char* tooltip;
@@ -263,12 +287,12 @@ struct IconConfig {
 };
 
 static const IconConfig iconConfigs[] = {
-    {lowDpiIconSize, "LDPI icon", "Select an icon suitable for low-density (ldpi) screens (~120dpi).", lowDpiIconPath},
-    {mediumDpiIconSize, "MDPI icon", "Select an icon for medium-density (mdpi) screens (~160dpi).", mediumDpiIconPath},
-    {highDpiIconSize, "HDPI icon", "Select an icon for high-density (hdpi) screens (~240dpi).", highDpiIconPath},
-    {extraHighDpiIconSize, "XHDPI icon", "Select an icon for extra-high-density (xhdpi) screens (~320dpi).", extraHighDpiIconPath},
-    {extraExtraHighDpiIconSize, "XXHDPI icon", "Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi).", extraExtraHighDpiIconPath},
-    {extraExtraExtraHighDpiIconSize, "XXXHDPI icon", "Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi).", extraExtraExtraHighDpiIconPath},
+    {lowDpiIconDisplaySize, lowDpiIconSize, "LDPI", "Select an icon suitable for low-density (ldpi) screens (~120dpi).", lowDpiIconPath},
+    {mediumDpiIconDisplaySize, mediumDpiIconSize, "MDPI", "Select an icon for medium-density (mdpi) screens (~160dpi).", mediumDpiIconPath},
+    {highDpiIconDisplaySize, highDpiIconSize, "HDPI", "Select an icon for high-density (hdpi) screens (~240dpi).", highDpiIconPath},
+    {extraHighDpiIconDisplaySize, extraHighDpiIconSize, "XHDPI", "Select an icon for extra-high-density (xhdpi) screens (~320dpi).", extraHighDpiIconPath},
+    {extraExtraHighDpiIconDisplaySize, extraExtraHighDpiIconSize, "XXHDPI", "Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi).", extraExtraHighDpiIconPath},
+    {extraExtraExtraHighDpiIconDisplaySize, extraExtraExtraHighDpiIconSize, "XXXHDPI", "Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi).", extraExtraExtraHighDpiIconPath},
     };
 
 bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWidget *textEditorWidget)
@@ -277,22 +301,20 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
     m_textEditor = textEditorWidget;
 
     const QString iconFileName = m_iconFileName + imageSuffix;
-    m_iconLayout->addStretch(1);
 
-    m_manifestDir = manifestDir(textEditorWidget);
-
-    if (m_manifestDir.isEmpty() || !m_manifestDir.exists()) {
-        qWarning() << "Failed to resolve manifest directory";
-        return false;
-    }
-
+    int column = 0;
     for (const auto &config : iconConfigs) {
-        auto iconButton = new IconWidget(this, config.size, config.size,
+        auto iconButton = new IconWidget(this, config.displaySize, config.size,
                                          Tr::tr(config.title), Tr::tr(config.tooltip),
                                          textEditorWidget, config.path, iconFileName);
-        m_iconLayout->addWidget(iconButton);
-        m_iconLayout->addStretch(1);
+        m_iconLayout->addWidget(iconButton, 0, column, Qt::AlignBottom);
         m_iconButtons.push_back(iconButton);
+
+        auto *label = new QLabel(Tr::tr(config.title), this);
+        label->setAlignment(Qt::AlignCenter);
+        m_iconLayout->addWidget(label, 1, column, Qt::AlignCenter);
+
+        column++;
     }
 
     auto handleIconModification = [this] {
@@ -314,6 +336,10 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
 
     if (m_masterIconButton) {
         connect(m_masterIconButton, &QAbstractButton::clicked, this, [this, handleIconModification]() {
+            const FilePath currentManifestDir = manifestDir(m_textEditor, true);
+            if (currentManifestDir.isEmpty() || !currentManifestDir.exists())
+                return false;
+
             const auto iconFile = IconContainerWidget::iconFile(lowDpiIconPath);
             if (iconFile.isEmpty())
                 return false;
@@ -327,7 +353,7 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
 
             for (auto &&iconButton : m_iconButtons) {
                 iconButton->setIcon(QIcon(basePix));
-                auto result = iconButton->saveIcon(m_manifestDir);
+                auto result = iconButton->saveIcon(currentManifestDir);
                 if (!result) {
                     if (!result)
                         qWarning() << "Failed to save scaled icon for one of the DPI variants:" << result.error();
@@ -353,9 +379,11 @@ Utils::FilePath IconContainerWidget::iconFile(const Utils::FilePath &path)
 
 void IconContainerWidget::loadIcons()
 {
+    const FilePath currentManifestDir = manifestDir(m_textEditor, false);
     for (auto &&iconButton : m_iconButtons) {
         iconButton->setTargetIconFileName(m_iconFileName + imageSuffix);
-        iconButton->loadIcon(m_manifestDir);
+        if (!currentManifestDir.isEmpty() && currentManifestDir.exists())
+            iconButton->loadIcon(currentManifestDir);
     }
     m_hasIcons = hasIcons();
 }
@@ -371,15 +399,14 @@ bool IconContainerWidget::hasIcons() const
 
 Core::IDocument *IconEditor::document() const
 {
-    return m_document.get();
+    return m_document;
 }
 
-IconEditor::IconEditor(QWidget *widget)
+IconEditor::IconEditor(QWidget *widget, Core::IDocument *document)
     : m_widget(widget)
+    , m_document(document)
 {
     m_toolBar = new QToolBar(widget);
-    m_document = std::make_unique<Core::IDocument>();
-
     setWidget(widget);
 }
 
@@ -398,9 +425,13 @@ Result<void> IconContainerWidget::saveIcons()
     if (!m_textEditor)
         return Utils::ResultError("No text editor available");
 
+    const FilePath currentManifestDir = manifestDir(m_textEditor, false);
+    if (currentManifestDir.isEmpty() || !currentManifestDir.exists())
+        return Utils::ResultError("Manifest directory not available");
+
     for (auto &&iconButton : m_iconButtons) {
         if (iconButton->hasIcon()) {
-            auto result = iconButton->saveIcon(m_manifestDir);
+            auto result = iconButton->saveIcon(currentManifestDir);
             if (!result)
                 return result;
         }
@@ -415,10 +446,14 @@ IconWidget *IconEditor::ownWidget() const
 
 void IconContainerWidget::updateManifestIcon()
 {
-    if (m_manifestDir.isEmpty())
+    if (!m_textEditor)
         return;
 
-    Utils::FilePath manifestPath = m_manifestDir / "AndroidManifest.xml";
+    const FilePath currentManifestDir = manifestDir(m_textEditor, false);
+    if (currentManifestDir.isEmpty() || !currentManifestDir.exists())
+        return;
+
+    Utils::FilePath manifestPath = currentManifestDir / "AndroidManifest.xml";
     if (!manifestPath.exists())
         return;
 

@@ -10,8 +10,6 @@
 
 namespace Android::Internal {
 
-void setupAndroidManifestEditor();
-
 class AndroidManifestEditorWidget : public QWidget
 {
 public:
@@ -37,6 +35,25 @@ private:
     QTimer m_timerParseCheck;
     TextEditor::TextEditorWidget *m_textEditorWidget;
     Core::IContext *m_context;
+};
+
+class AndroidManifestEditor : public Core::IEditor
+{
+public:
+    explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
+
+    QWidget *toolBar() override;
+    Core::IDocument *document() const override;
+    TextEditor::TextEditorWidget *textEditor() const;
+
+    int currentLine() const override;
+    int currentColumn() const override;
+    void gotoLine(int line, int column = 0, bool centerLine = true) override;
+
+    AndroidManifestEditorWidget *ownWidget() const;
+
+private:
+    QToolBar *m_toolBar;
 };
 
 } // Android::Internal

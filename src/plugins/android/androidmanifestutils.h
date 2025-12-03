@@ -32,6 +32,10 @@ public:
         QSet<QString> permissionsToKeep;
         bool writeDefaultPermissionsComment = false;
         bool writeDefaultFeaturesComment = false;
+
+        bool shouldModifyActivityMetaData = false;
+        QString activityMetaDataName;
+        QString activityMetaDataValue;
     };
 
     static Utils::Result<ManifestData> readManifest(const Utils::FilePath &manifestPath);
@@ -47,5 +51,11 @@ Utils::Result<void> updateManifestPermissions(const Utils::FilePath &manifestPat
                                               const QStringList &permissions,
                                               bool includeDefaultPermissions,
                                               bool includeDefaultFeatures);
+
+Utils::Result<void> updateManifestActivityMetaData(const Utils::FilePath &manifestPath,
+                                                   const QString &metaDataName,
+                                                   const QString &metaDataValue);
+Utils::Result<QString> readManifestActivityMetaData(const Utils::FilePath &manifestPath,
+                                                    const QString &metaDataName);
 
 } // namespace Android::Internal

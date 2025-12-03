@@ -101,7 +101,6 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         setupAndroidQmlToolingSupport();
 
         setupJavaEditor();
-        setupAndroidManifestEditor();
         setupAndroidToolsMenu();
 
         connect(KitManager::instance(), &KitManager::kitsLoaded, this, &AndroidPlugin::kitsRestored,

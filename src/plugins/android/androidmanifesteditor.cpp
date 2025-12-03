@@ -279,24 +279,6 @@ void AndroidManifestEditorWidget::hideInfoBar()
 
 // AndroidManifestEditor
 
-class AndroidManifestEditor : public Core::IEditor
-{
-public:
-    explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
-
-    QWidget *toolBar() override;
-    Core::IDocument *document() const override;
-    TextEditorWidget *textEditor() const;
-
-    int currentLine() const override;
-    int currentColumn() const override;
-    void gotoLine(int line, int column = 0, bool centerLine = true)  override;
-
-private:
-    AndroidManifestEditorWidget *ownWidget() const;
-    QToolBar *m_toolBar;
-};
-
 AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget)
     : m_toolBar(nullptr)
 {
@@ -338,29 +320,6 @@ int AndroidManifestEditor::currentColumn() const
 void AndroidManifestEditor::gotoLine(int line, int column, bool centerLine)
 {
     textEditor()->gotoLine(line, column, centerLine);
-}
-
-// Factory
-
-class AndroidManifestEditorFactory final : public Core::IEditorFactory
-{
-public:
-    AndroidManifestEditorFactory()
-    {
-        setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
-        setDisplayName(Tr::tr("Android Manifest editor"));
-        addMimeType(Constants::ANDROID_MANIFEST_MIME_TYPE);
-        setEditorCreator([] {
-            auto widget = new AndroidManifestEditorWidget;
-            auto editor = new AndroidManifestEditor(widget);
-            return editor;
-        });
-    }
-};
-
-void setupAndroidManifestEditor()
-{
-    static AndroidManifestEditorFactory theAndroidManifestEditorFactory;
 }
 
 } // Android::Internal

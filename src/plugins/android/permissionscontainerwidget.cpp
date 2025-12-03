@@ -90,7 +90,7 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
         return false;
 
     m_textEditorWidget = textEditorWidget;
-    m_manifestDirectory = manifestDir(textEditorWidget);
+    m_manifestDirectory = manifestDir(textEditorWidget, false);
 
     auto mainLayout = new QVBoxLayout(this);
     auto permissionsGroupBox = new QGroupBox(this);
@@ -353,5 +353,3 @@ void PermissionsContainerWidget::loadPermissionsFromManifest()
 }
 
 } // namespace Android::Internal
-
-#include "permissionscontainerwidget.moc"
