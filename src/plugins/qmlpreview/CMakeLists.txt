@@ -19,6 +19,7 @@ add_qtc_plugin(QmlPreview
 extend_qtc_plugin(QmlPreview
   CONDITION WITH_TESTS
   SOURCES
+    tests/qiopipe.cpp tests/qiopipe.h
     tests/qmlpreviewclient_test.cpp tests/qmlpreviewclient_test.h
     tests/qmlpreviewplugin_test.cpp tests/qmlpreviewplugin_test.h
 )

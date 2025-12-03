@@ -402,4 +402,28 @@ QAbstractSocket::SocketState QmlDebugConnection::socketState() const
     return QAbstractSocket::UnconnectedState;
 }
 
+#ifdef WITH_TESTS
+
+void QmlDebugConnection::setDevice(QIODevice *device)
+{
+    Q_D(QmlDebugConnection);
+    delete d->device;
+    d->device = device;
+    delete d->protocol;
+    d->protocol = new QPacketProtocol(device, this);
+    QObject::connect(d->protocol, &QPacketProtocol::readyRead,
+                     this, &QmlDebugConnection::protocolReadyRead);
+}
+
+void QmlDebugConnection::assumeServerPlugins()
+{
+    Q_D(QmlDebugConnection);
+    d->gotHello = true;
+    d->currentDataStreamVersion = d->maximumDataStreamVersion;
+    for (auto it = d->plugins.keyBegin(), end = d->plugins.keyEnd(); it != end; ++it)
+        d->serverPlugins.insert(*it, 1.0);
+}
+
+#endif // WITH_TESTS
+
 } // namespace QmlDebug

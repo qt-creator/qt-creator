@@ -42,6 +42,8 @@ QtcPlugin {
     QtcTestFiles {
         prefix: "tests/"
         files: [
+            "qiopipe.cpp",
+            "qiopipe.h",
             "qmlpreviewclient_test.cpp",
             "qmlpreviewclient_test.h",
             "qmlpreviewplugin_test.cpp",

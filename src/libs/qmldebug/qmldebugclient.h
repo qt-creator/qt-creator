@@ -29,8 +29,8 @@ public:
     State state() const;
     QmlDebugConnection *connection() const;
     int dataStreamVersion() const;
+    void sendMessage(const QByteArray &);
 
-    virtual void sendMessage(const QByteArray &);
     virtual void stateChanged(State);
     virtual void messageReceived(const QByteArray &);
 
