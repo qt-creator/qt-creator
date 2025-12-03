@@ -58,8 +58,7 @@ set(DESIGNSTUDIO_PLUGINS
     StudioWelcome
     Texteditor
     UpdateInfo
-    VcsBase
-    qmlpreviewplugin)
+    VcsBase)
 
 if(DESIGNSTUDIO_EXTRAPLUGINS)
   list(APPEND DESIGNSTUDIO_PLUGINS ${DESIGNSTUDIO_EXTRAPLUGINS})

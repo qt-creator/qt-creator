@@ -36,7 +36,6 @@ add_subdirectory(libs)
 find_package(Qt6 QUIET COMPONENTS NetworkAuth WebSockets)
 
 add_qtc_plugin(QmlDesigner
-  PLUGIN_RECOMMENDS QmlPreview
   CONDITION TARGET QmlDesignerCore AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
   PLUGIN_DEPENDS
     Core
@@ -45,6 +44,7 @@ add_qtc_plugin(QmlDesigner
     QmlJSEditor
     QmakeProjectManager
     QmlProjectManager
+    QmlPreview
     QtSupport
     TextEditor
   PLUGIN_MANUAL_DEPENDS LicenseChecker ${IDE_VERSION} optional
@@ -225,6 +225,7 @@ extend_qtc_plugin(QmlDesigner
     qmldesignercomponents_global.h
     qmldesignericonprovider.cpp qmldesignericonprovider.h
     qmleditormenu.cpp qmleditormenu.h
+    qmlpreviewactions.cpp qmlpreviewactions.h
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h
     zoomaction.cpp zoomaction.h
@@ -786,27 +787,6 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     dvconnector.cpp dvconnector.h
     dvauthenticator.cpp dvauthenticator.h
-)
-
-add_qtc_plugin(qmlpreviewplugin
-  PLUGIN_CLASS QmlPreviewWidgetPlugin
-  CONDITION TARGET QmlDesigner
-  PLUGIN_DEPENDS Core ProjectExplorer QmlDesigner
-  DEPENDS Utils Qt::Qml
-  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-)
-
-extend_qtc_plugin(qmlpreviewplugin
-    CONDITION ENABLE_COMPILE_WARNING_AS_ERROR
-    PROPERTIES COMPILE_WARNING_AS_ERROR ON
-)
-
-extend_qtc_plugin(qmlpreviewplugin
-    SOURCES_PREFIX qmlpreviewplugin
-    SOURCES
-      qmlpreviewactions.cpp qmlpreviewactions.h
-      qmlpreviewplugin.cpp qmlpreviewplugin.h
-      qmlpreviewplugin.qrc
 )
 
 if (BUILD_DESIGNSTUDIO)

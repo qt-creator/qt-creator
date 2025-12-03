@@ -11,4 +11,8 @@
         <file>images/row.png</file>
         <file>images/row@2x.png</file>
     </qresource>
+    <qresource prefix="/componentcore">
+        <file>images/live_preview.png</file>
+        <file>images/live_preview@2x.png</file>
+    </qresource>
 </RCC>

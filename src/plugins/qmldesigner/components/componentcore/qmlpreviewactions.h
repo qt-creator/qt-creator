@@ -14,16 +14,10 @@
 QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QLabel)
 
-
-namespace QmlPreview {
-using QmlPreviewFpsHandler = void (*)(quint16 *);
-}
-
-namespace ProjectExplorer {
-class Project;
-}
-
 namespace QmlDesigner {
+
+void setupQmlPreviewActions();
+
 class ZoomAction;
 
 class QmlPreviewAction : public ModelNodeAction
@@ -36,20 +30,18 @@ public:
     Type type() const override;
 };
 
-class ZoomPreviewAction : public ActionInterface
+class ZoomPreviewAction : public AbstractAction
 {
 public:
     ZoomPreviewAction();
     ~ZoomPreviewAction() override;
-    QAction *action() const override;
     QByteArray category() const override;
     QByteArray menuId() const override;
     int priority() const override;
     Type type() const override;
-    void currentContextChanged(const SelectionContext &) override;
 
-private:
-    std::unique_ptr<ZoomAction> m_zoomAction;
+    bool isVisible(const SelectionContext &selectionState) const override;
+    bool isEnabled(const SelectionContext &selectionState) const override;
 };
 
 class FpsLabelAction : public QWidgetAction
@@ -109,4 +101,3 @@ private:
 };
 
 } // namespace QmlDesigner
-Q_DECLARE_METATYPE(QmlPreview::QmlPreviewFpsHandler);

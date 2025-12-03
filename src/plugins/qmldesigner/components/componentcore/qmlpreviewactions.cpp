@@ -1,23 +1,29 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmlpreviewplugin.h"
 #include "qmlpreviewactions.h"
 
 #include <designeractionmanager.h>
-#include <designersettings.h>
+#include <qmldesignertr.h>
 #include <zoomaction.h>
 
+#include <utils/id.h>
 #include <utils/utilsicons.h>
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/project.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <android/androidconstants.h>
+
+#include <qmlpreview/qmlpreviewplugin.h>
 
 #include <QLabel>
 #include <QComboBox>
@@ -25,8 +31,11 @@
 
 namespace QmlDesigner {
 
-const Utils::Icon previewIcon({
-        {":/qmlpreviewplugin/images/live_preview.png", Utils::Theme::IconsBaseColor}});
+using QmlPreview::QmlPreviewPlugin;
+using QmlPreview::QmlPreviewRunControlList;
+
+const Utils::Icon previewIcon({{":/componentcore/images/live_preview.png",
+                                Utils::Theme::IconsBaseColor}});
 const QByteArray livePreviewId = "LivePreview";
 
 static void handleAction(const SelectionContext &context)
@@ -53,31 +62,44 @@ static void handleAction(const SelectionContext &context)
             ProjectExplorer::ProjectExplorerPlugin::runStartupProject(
                 ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
         } else {
-            QmlPreviewWidgetPlugin::stopAllRunControls();
+            const auto runControls = QmlPreviewPlugin::instance()->runningPreviews();
+            for (ProjectExplorer::RunControl *runControl : runControls)
+                runControl->initiateStop();
         }
     }
 }
 
-QmlPreviewAction::QmlPreviewAction() : ModelNodeAction(livePreviewId,
-                                                       "Live Preview",
-                                                       previewIcon.icon(),
-                                                       QmlPreviewWidgetPlugin::tr("Show Live Preview"),
-                                                       ComponentCoreConstants::qmlPreviewCategory,
-                                                       QKeySequence("Alt+p"),
-                                                       1,
-                                                       &handleAction,
-                                                       &SelectionContextFunctors::always)
+QmlPreviewAction::QmlPreviewAction()
+    : ModelNodeAction(livePreviewId,
+                      "Live Preview",
+                      previewIcon.icon(),
+                      Tr::tr("Show Live Preview"),
+                      ComponentCoreConstants::qmlPreviewCategory,
+                      QKeySequence("Alt+p"),
+                      1,
+                      &handleAction)
 {
-    if (!QmlPreviewWidgetPlugin::getPreviewPlugin())
-        action()->setVisible(false);
-
     action()->setCheckable(true);
+
+    auto previewPlugin = QmlPreview::QmlPreviewPlugin::instance();
+    QTC_ASSERT(previewPlugin, return);
+
+    QObject::connect(previewPlugin,
+                     &QmlPreviewPlugin::runningPreviewsChanged,
+                     action(),
+                     [this](const QmlPreviewRunControlList &runControls) {
+                         action()->setChecked(!runControls.isEmpty());
+                     });
 }
 
 void QmlPreviewAction::updateContext()
 {
-    if (selectionContext().view()->isAttached())
-        QmlPreviewWidgetPlugin::setQmlFile();
+    if (selectionContext().view()->isAttached()) {
+        const Utils::FilePath qmlFileName = QmlDesignerPlugin::instance()
+                                                ->currentDesignDocument()
+                                                ->fileName();
+        QmlPreviewPlugin::instance()->setPreviewedFile(qmlFileName.toUrlishString());
+    }
 
     pureAction()->setSelectionContext(selectionContext());
 }
@@ -87,23 +109,34 @@ ActionInterface::Type QmlPreviewAction::type() const
     return ToolBarAction;
 }
 
+class ZoomPureAction : public PureActionInterface
+{
+    Q_DISABLE_COPY(ZoomPureAction)
+
+public:
+    ZoomPureAction()
+        : PureActionInterface(ZoomPureAction::createAction())
+    {}
+
+    void setSelectionContext(const SelectionContext &) override {};
+
+private:
+    static ZoomAction *createAction()
+    {
+        ZoomAction *zoomAction = new ZoomAction(nullptr);
+        QObject::connect(zoomAction,
+                         &ZoomAction::zoomLevelChanged,
+                         QmlPreviewPlugin::instance(),
+                         &QmlPreviewPlugin::setZoomFactor);
+        return zoomAction;
+    }
+};
+
 ZoomPreviewAction::ZoomPreviewAction()
-    : m_zoomAction(new ZoomAction(nullptr))
-{
-    QObject::connect(m_zoomAction.get(), &ZoomAction::zoomLevelChanged, [=](float d) {
-        QmlPreviewWidgetPlugin::setZoomFactor(d);
-    });
-    if (!QmlPreviewWidgetPlugin::getPreviewPlugin())
-        m_zoomAction->setVisible(false);
-}
+    : AbstractAction(new ZoomPureAction())
+{}
 
-ZoomPreviewAction::~ZoomPreviewAction()
-= default;
-
-QAction *ZoomPreviewAction::action() const
-{
-    return m_zoomAction.get();
-}
+ZoomPreviewAction::~ZoomPreviewAction() = default;
 
 QByteArray ZoomPreviewAction::category() const
 {
@@ -125,8 +158,15 @@ ActionInterface::Type ZoomPreviewAction::type() const
     return ToolBarAction;
 }
 
-void ZoomPreviewAction::currentContextChanged(const SelectionContext &)
-{}
+bool ZoomPreviewAction::isVisible(const SelectionContext &) const
+{
+    return true;
+}
+
+bool ZoomPreviewAction::isEnabled(const SelectionContext &) const
+{
+    return true;
+}
 
 quint16 FpsLabelAction::lastValidFrames = 0;
 QList<QPointer<QLabel>> FpsLabelAction::fpsHandlerLabelList;
@@ -134,6 +174,15 @@ QList<QPointer<QLabel>> FpsLabelAction::fpsHandlerLabelList;
 FpsLabelAction::FpsLabelAction(QObject *parent)
     : QWidgetAction(parent)
 {
+    auto previewPlugin = QmlPreview::QmlPreviewPlugin::instance();
+    QTC_ASSERT(previewPlugin, return);
+    connect(previewPlugin,
+            &QmlPreviewPlugin::runningPreviewsChanged,
+            this,
+            [](const QmlPreviewRunControlList &runControls) {
+                if (runControls.isEmpty())
+                    FpsLabelAction::cleanFpsCounter();
+            });
 }
 
 void FpsLabelAction::fpsHandler(quint16 fpsValues[8])
@@ -220,9 +269,9 @@ SwitchLanguageComboboxAction::SwitchLanguageComboboxAction(QObject *parent)
 QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
 {
     QPointer<QComboBox> comboBox = new QComboBox(parent);
-    const QString toolTip(tr("Switch the language used by preview."));
+    const QString toolTip(Tr::tr("Switch the language used by preview."));
     comboBox->setToolTip(toolTip);
-    comboBox->addItem(tr("Default"));
+    comboBox->addItem(Tr::tr("Default"));
 
     auto refreshComboBoxFunction = [this, comboBox, toolTip] (ProjectExplorer::Project *project) {
         if (comboBox && project) {
@@ -233,7 +282,7 @@ QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
                 comboBox->setToolTip(QString("%1<br/>(%2)").arg(toolTip, errorMessage));
             if (m_previousLocales != locales) {
                 comboBox->clear();
-                comboBox->addItem(tr("Default"));
+                comboBox->addItem(Tr::tr("Default"));
                 comboBox->addItems(locales);
                 m_previousLocales = locales;
                 comboBox->setEnabled(true);
@@ -260,8 +309,10 @@ QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
 SwitchLanguageAction::SwitchLanguageAction()
     : m_switchLanguageAction(new SwitchLanguageComboboxAction(nullptr))
 {
-    QObject::connect(m_switchLanguageAction.get(), &SwitchLanguageComboboxAction::currentLocaleChanged,
-                     &QmlPreviewWidgetPlugin::setLanguageLocale);
+    QObject::connect(m_switchLanguageAction.get(),
+                     &SwitchLanguageComboboxAction::currentLocaleChanged,
+                     QmlPreviewPlugin::instance(),
+                     &QmlPreviewPlugin::setLocaleIsoCode);
 }
 
 QAction *SwitchLanguageAction::action() const
@@ -292,5 +343,49 @@ ActionInterface::Type SwitchLanguageAction::type() const
 void SwitchLanguageAction::currentContextChanged(const SelectionContext &)
 {}
 
+void setupQmlPreviewActions()
+{
+    auto previewPlugin = QmlPreview::QmlPreviewPlugin::instance();
+    QTC_ASSERT(previewPlugin, return);
+
+    Core::Context globalContext;
+    auto registerCommand = [&globalContext](ActionInterface *action) {
+        using Utils::Id;
+        const Id id = Id("QmlPreview.").withSuffix(action->menuId());
+        Core::Command *cmd = Core::ActionManager::registerAction(action->action(), id, globalContext);
+
+        cmd->setDefaultKeySequence(action->action()->shortcut());
+        cmd->setDescription(action->action()->toolTip());
+
+        action->action()->setToolTip(cmd->action()->toolTip());
+        action->action()->setShortcut(cmd->action()->shortcut());
+    };
+
+    DesignerActionManager &designerActionManager = QmlDesignerPlugin::instance()->designerActionManager();
+    designerActionManager.addDesignerAction(
+        new ActionGroup(QString(),
+                        ComponentCoreConstants::qmlPreviewCategory,
+                        {},
+                        ComponentCoreConstants::Priorities::QmlPreviewCategory,
+                        &SelectionContextFunctors::always));
+
+    auto previewAction = new QmlPreviewAction();
+    designerActionManager.addDesignerAction(previewAction);
+    // Only register previewAction as others don't have keyboard shortcuts for them
+    registerCommand(previewAction);
+
+    auto zoomAction = new ZoomPreviewAction;
+    designerActionManager.addDesignerAction(zoomAction);
+
+    auto separator = new SeparatorDesignerAction(ComponentCoreConstants::qmlPreviewCategory, 0);
+    designerActionManager.addDesignerAction(separator);
+
+    auto fpsAction = new FpsAction;
+    designerActionManager.addDesignerAction(fpsAction);
+    previewPlugin->setFpsHandler(FpsLabelAction::fpsHandler);
+
+    auto switchLanguageAction = new SwitchLanguageAction;
+    designerActionManager.addDesignerAction(switchLanguageAction);
+}
 
 } // namespace QmlDesigner

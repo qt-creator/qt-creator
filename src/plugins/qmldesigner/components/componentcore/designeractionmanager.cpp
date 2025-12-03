@@ -17,6 +17,7 @@
 #include "propertytreemodel.h"
 #include "qmldesignerconstants.h"
 #include "qmleditormenu.h"
+#include "qmlpreviewactions.h"
 #include "rewritingexception.h"
 
 #include <bindingproperty.h>
@@ -2132,6 +2133,8 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &updateImported3DAsset,
                           &selectionIsImported3DAsset,
                           &selectionIsImported3DAsset));
+
+    QmlDesigner::setupQmlPreviewActions();
 }
 
 void DesignerActionManager::createDefaultAddResourceHandler()
