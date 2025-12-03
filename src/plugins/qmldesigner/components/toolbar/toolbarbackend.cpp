@@ -369,13 +369,6 @@ void ActionSubscriber::setupNotifier()
 
 ToolBarBackend::ToolBarBackend()
 {
-    ActionAddedInterface callback = [this](ActionInterface *interface) {
-        if (interface->menuId() == "PreviewZoom")
-            m_zoomAction = interface;
-    };
-
-    QmlDesignerPlugin::instance()->viewManager().designerActionManager().addAddActionCallback(callback);
-
     connect(designModeWidget(),
             &Internal::DesignModeWidget::navigationHistoryChanged,
             this,
@@ -656,10 +649,12 @@ void ToolBarBackend::editGlobalAnnoation()
 
 void ToolBarBackend::showZoomMenu(int x, int y)
 {
-    return; //temporary crash fix
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATUSBAR_SHOW_ZOOM);
-    ZoomAction *zoomAction = qobject_cast<ZoomAction *>(m_zoomAction->action());
+    auto previewZoom = QmlDesignerPlugin::instance()->viewManager().designerActionManager().actionByMenuId(
+        "PreviewZoom");
+    QTC_ASSERT(previewZoom, return);
 
+    ZoomAction *zoomAction = qobject_cast<ZoomAction *>(previewZoom->action());
     QTC_ASSERT(zoomAction, return );
 
     auto mainMenu = new QmlEditorMenu();
