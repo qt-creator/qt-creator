@@ -2,12 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "onedimensionalcluster.h"
+#include "formeditortracing.h"
 
 #include <utils/algorithm.h>
 
 #include <QDebug>
 
 namespace QmlDesigner {
+
+using FormEditorTracing::category;
 
 double sum(const QList<double> & list)
 {
@@ -23,10 +26,13 @@ double sum(const QList<double> & list)
 OneDimensionalCluster::OneDimensionalCluster(const QList<double> & coordinateList )
         : m_coordinateList(coordinateList)
 {
+    NanotraceHR::Tracer tracer{"one dimensional cluster constructor", category()};
 }
 
 double OneDimensionalCluster::mean() const
 {
+    NanotraceHR::Tracer tracer{"one dimensional cluster mean", category()};
+
     Q_ASSERT(!m_coordinateList.isEmpty());
 
     if (m_coordinateList.size() == 1)
@@ -39,6 +45,8 @@ double OneDimensionalCluster::mean() const
 
 double OneDimensionalCluster::constFirst() const
 {
+    NanotraceHR::Tracer tracer{"one dimensional cluster constFirst", category()};
+
     Q_ASSERT(!m_coordinateList.isEmpty());
 
     return m_coordinateList.constFirst();
@@ -46,6 +54,8 @@ double OneDimensionalCluster::constFirst() const
 
 QList<OneDimensionalCluster> OneDimensionalCluster::createOneDimensionalClusterList(const QList<double> & oneDimensionalCoordinateList)
 {
+    NanotraceHR::Tracer tracer{"one dimensional cluster create list", category()};
+
     QList<OneDimensionalCluster> oneDimensionalClusterList;
     for (double coordinate : oneDimensionalCoordinateList)
     {
@@ -60,6 +70,8 @@ QList<OneDimensionalCluster> OneDimensionalCluster::createOneDimensionalClusterL
 
 QList<OneDimensionalCluster> OneDimensionalCluster::reduceOneDimensionalClusterList(const QList<OneDimensionalCluster> & unreducedClusterList, double maximumDistance)
 {
+    NanotraceHR::Tracer tracer{"one dimensional cluster reduce list", category()};
+
     if (unreducedClusterList.size() < 2)
         return unreducedClusterList;
 
@@ -108,6 +120,8 @@ QList<OneDimensionalCluster> OneDimensionalCluster::reduceOneDimensionalClusterL
 
 QList<double> OneDimensionalCluster::reduceLines(const QList<double> & oneDimensionalCoordinateList, double maximumDistance)
 {
+    NanotraceHR::Tracer tracer{"one dimensional cluster reduce lines", category()};
+
     QList<OneDimensionalCluster>  clusterList(createOneDimensionalClusterList(oneDimensionalCoordinateList));
     clusterList = reduceOneDimensionalClusterList(clusterList, maximumDistance);
 

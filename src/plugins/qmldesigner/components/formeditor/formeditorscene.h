@@ -31,16 +31,7 @@ class QMLDESIGNERCOMPONENTS_EXPORT FormEditorScene : public QGraphicsScene
     friend FormEditorView;
 
 public:
-
-    enum ItemType {
-        Default,
-        Flow,
-        FlowAction,
-        FlowTransition,
-        FlowDecision,
-        FlowWildcard,
-        Preview3d
-    };
+    enum ItemType { Default, Preview3d };
 
     FormEditorScene(FormEditorWidget *widget, FormEditorView *editorView);
     ~FormEditorScene() override;
@@ -48,7 +39,7 @@ public:
 
     FormEditorItem* itemForQmlItemNode(const QmlItemNode &qmlItemNode) const;
 
-    QList<FormEditorItem*> itemsForQmlItemNodes(Utils::span<const QmlItemNode> nodeList) const;
+    QList<FormEditorItem *> itemsForQmlItemNodes(const Utils::span<const QmlItemNode> &nodeList) const;
     QList<FormEditorItem*> allFormEditorItems() const;
 
     void updateAllFormEditorItems();

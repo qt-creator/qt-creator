@@ -4,20 +4,27 @@
 #include "singleselectionmanipulator.h"
 
 #include "formeditorscene.h"
+#include "formeditortracing.h"
 #include "formeditorview.h"
+
 #include <QDebug>
 
 namespace QmlDesigner {
+
+using FormEditorTracing::category;
 
 SingleSelectionManipulator::SingleSelectionManipulator(FormEditorView *editorView)
     : m_editorView(editorView),
     m_isActive(false)
 {
+    NanotraceHR::Tracer tracer{"single selection manipulator constructor", category()};
 }
 
 
 void SingleSelectionManipulator::begin(const QPointF &beginPoint)
 {
+    NanotraceHR::Tracer tracer{"single selection manipulator begin", category()};
+
     m_beginPoint = beginPoint;
     m_isActive = true;
     m_oldSelectionList = toQmlItemNodeList(m_editorView->selectedModelNodes());
@@ -25,11 +32,15 @@ void SingleSelectionManipulator::begin(const QPointF &beginPoint)
 
 void SingleSelectionManipulator::update(const QPointF &/*updatePoint*/)
 {
+    NanotraceHR::Tracer tracer{"single selection manipulator update", category()};
+
     m_oldSelectionList.clear();
 }
 
 void SingleSelectionManipulator::clear()
 {
+    NanotraceHR::Tracer tracer{"single selection manipulator clear", category()};
+
     m_beginPoint = QPointF();
     m_oldSelectionList.clear();
 }
@@ -37,12 +48,16 @@ void SingleSelectionManipulator::clear()
 
 void SingleSelectionManipulator::end(const QPointF &/*updatePoint*/)
 {
+    NanotraceHR::Tracer tracer{"single selection manipulator end", category()};
+
     m_oldSelectionList.clear();
     m_isActive = false;
 }
 
 void SingleSelectionManipulator::select(SelectionType selectionType)
 {
+    NanotraceHR::Tracer tracer{"single selection manipulator select", category()};
+
     QList<QGraphicsItem*> itemList = m_editorView->scene()->items(m_beginPoint);
 
     QmlItemNode selectedNode;
@@ -50,9 +65,6 @@ void SingleSelectionManipulator::select(SelectionType selectionType)
     FormEditorItem *formEditorItem = m_editorView->currentTool()->nearestFormEditorItem(m_beginPoint, itemList);
 
     if (formEditorItem && formEditorItem->qmlItemNode().isValid())
-        selectedNode = formEditorItem->qmlItemNode();
-
-    if (formEditorItem && formEditorItem->qmlItemNode().isFlowTransition())
         selectedNode = formEditorItem->qmlItemNode();
 
     QList<QmlItemNode> nodeList;
@@ -87,11 +99,15 @@ void SingleSelectionManipulator::select(SelectionType selectionType)
 
 bool SingleSelectionManipulator::isActive() const
 {
+    NanotraceHR::Tracer tracer{"single selection manipulator isActive", category()};
+
     return m_isActive;
 }
 
 QPointF SingleSelectionManipulator::beginPoint() const
 {
+    NanotraceHR::Tracer tracer{"single selection manipulator beginPoint", category()};
+
     return m_beginPoint;
 }
 

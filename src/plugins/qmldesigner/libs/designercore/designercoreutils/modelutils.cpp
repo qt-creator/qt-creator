@@ -8,6 +8,9 @@
 #include <nodemetainfo.h>
 #include <sourcepathstorage/sourcepathcache.h>
 
+#include <astcheck/astutils.h>
+
+#include <utils/expected.h>
 #include <utils/ranges.h>
 #include <utils/result.h>
 
@@ -30,158 +33,6 @@ constexpr auto toSortedArray(const Entries &...entries)
     std::sort(std::begin(sortedArray), std::end(sortedArray));
 
     return sortedArray;
-}
-
-// alias, print, console are not part of qmljs
-constexpr auto qmlKeywords = toSortedArray<std::u16string_view>(u"abstract",
-                                                                u"alias",
-                                                                u"as",
-                                                                u"boolean",
-                                                                u"break",
-                                                                u"byte",
-                                                                u"case",
-                                                                u"catch",
-                                                                u"char",
-                                                                u"class",
-                                                                u"component",
-                                                                u"console",
-                                                                u"const",
-                                                                u"continue",
-                                                                u"debugger",
-                                                                u"default",
-                                                                u"delete",
-                                                                u"do",
-                                                                u"double",
-                                                                u"else",
-                                                                u"enum",
-                                                                u"export",
-                                                                u"extends",
-                                                                u"false",
-                                                                u"final",
-                                                                u"finally",
-                                                                u"float",
-                                                                u"for",
-                                                                u"from",
-                                                                u"function",
-                                                                u"get",
-                                                                u"goto",
-                                                                u"if",
-                                                                u"implements",
-                                                                u"import",
-                                                                u"in",
-                                                                u"instanceof",
-                                                                u"int",
-                                                                u"interface",
-                                                                u"let",
-                                                                u"long",
-                                                                u"native",
-                                                                u"new",
-                                                                u"null",
-                                                                u"of",
-                                                                u"on",
-                                                                u"package",
-                                                                u"pragma",
-                                                                u"print",
-                                                                u"private",
-                                                                u"property",
-                                                                u"protected",
-                                                                u"public",
-                                                                u"readonly",
-                                                                u"required",
-                                                                u"return",
-                                                                u"set",
-                                                                u"short",
-                                                                u"signal",
-                                                                u"static",
-                                                                u"super",
-                                                                u"switch",
-                                                                u"synchronized",
-                                                                u"this",
-                                                                u"throw",
-                                                                u"throws",
-                                                                u"transient",
-                                                                u"true",
-                                                                u"try",
-                                                                u"typeof",
-                                                                u"var",
-                                                                u"void",
-                                                                u"volatile",
-                                                                u"while",
-                                                                u"with",
-                                                                u"yield");
-
-constexpr auto qmlDiscouragedIds = toSortedArray<std::u16string_view>(u"action",
-                                                                      u"anchors",
-                                                                      u"baseState",
-                                                                      u"border",
-                                                                      u"bottom",
-                                                                      u"clip",
-                                                                      u"data",
-                                                                      u"enabled",
-                                                                      u"flow",
-                                                                      u"focus",
-                                                                      u"font",
-                                                                      u"height",
-                                                                      u"id",
-                                                                      u"item",
-                                                                      u"layer",
-                                                                      u"left",
-                                                                      u"margin",
-                                                                      u"opacity",
-                                                                      u"padding",
-                                                                      u"parent",
-                                                                      u"right",
-                                                                      u"scale",
-                                                                      u"shaderInfo",
-                                                                      u"source",
-                                                                      u"sprite",
-                                                                      u"spriteSequence",
-                                                                      u"state",
-                                                                      u"stateGroup",
-                                                                      u"text",
-                                                                      u"texture",
-                                                                      u"time",
-                                                                      u"top",
-                                                                      u"visible",
-                                                                      u"width",
-                                                                      u"x",
-                                                                      u"y",
-                                                                      u"z");
-
-constexpr auto qmlBuiltinTypes = toSortedArray<std::u16string_view>(u"bool",
-                                                                    u"color",
-                                                                    u"date",
-                                                                    u"double",
-                                                                    u"enumeration",
-                                                                    u"font",
-                                                                    u"int",
-                                                                    u"list",
-                                                                    u"matrix4x4",
-                                                                    u"point",
-                                                                    u"quaternion",
-                                                                    u"real",
-                                                                    u"rect",
-                                                                    u"size",
-                                                                    u"string",
-                                                                    u"url",
-                                                                    u"var",
-                                                                    u"variant",
-                                                                    u"vector",
-                                                                    u"vector2d",
-                                                                    u"vector3d",
-                                                                    u"vector4d");
-
-constexpr auto createBannedQmlIds()
-{
-    std::array<std::u16string_view, qmlKeywords.size() + qmlDiscouragedIds.size() + qmlBuiltinTypes.size()> ids;
-
-    auto idsEnd = std::copy(std::begin(qmlKeywords), std::end(qmlKeywords), ids.begin());
-    idsEnd = std::copy(std::begin(qmlDiscouragedIds), std::end(qmlDiscouragedIds), idsEnd);
-    std::copy(std::begin(qmlBuiltinTypes), std::end(qmlBuiltinTypes), idsEnd);
-
-    std::sort(ids.begin(), ids.end());
-
-    return ids;
 }
 
 ::Utils::expected<Import, ImportError> findImport(const QString &importName,
@@ -309,12 +160,12 @@ QList<ModelNode> pruneChildren(const QList<ModelNode> &nodes)
             container.append(node);
     };
 
-    for (const ModelNode &node : nodes | Utils::views::reverse) {
+    for (const ModelNode &node : nodes | std::views::reverse) {
         if (node)
             pushIfIsNotChild(forwardNodes, node);
     }
 
-    for (const ModelNode &node : forwardNodes | Utils::views::reverse)
+    for (const ModelNode &node : forwardNodes | std::views::reverse)
         pushIfIsNotChild(backNodes, node);
 
     return backNodes;
@@ -438,27 +289,22 @@ ModelNode lowestCommonAncestor(Utils::span<const ModelNode> nodes)
 
 bool isQmlKeyword(QStringView id)
 {
-    return std::binary_search(std::begin(qmlKeywords), std::end(qmlKeywords), toStdStringView(id));
+    return AstUtils::isQmlKeyword(id);
 }
 
 bool isDiscouragedQmlId(QStringView id)
 {
-    return std::binary_search(std::begin(qmlDiscouragedIds),
-                              std::end(qmlDiscouragedIds),
-                              toStdStringView(id));
+    return AstUtils::isDiscouragedQmlId(id);
 }
 
 bool isQmlBuiltinType(QStringView id)
 {
-    return std::binary_search(std::begin(qmlBuiltinTypes),
-                              std::end(qmlBuiltinTypes),
-                              toStdStringView(id));
+    return AstUtils::isQmlBuiltinType(id);
 }
 
 bool isBannedQmlId(QStringView id)
 {
-    static constexpr auto invalidIds = createBannedQmlIds();
-    return std::binary_search(invalidIds.begin(), invalidIds.end(), toStdStringView(id));
+    return AstUtils::isBannedQmlId(id);
 }
 
 bool isValidQmlIdentifier(QStringView id)

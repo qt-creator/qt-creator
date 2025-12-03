@@ -19,6 +19,7 @@
 #include <nanotrace/nanotracehr.h>
 #include <utils/span.h>
 
+#include <chrono>
 #include <cstdint>
 #include <exception>
 #include <functional>
@@ -58,6 +59,10 @@ public:
     int fetchIntValue(int column) const;
     long fetchLongValue(int column) const;
     long long fetchLongLongValue(int column) const;
+#ifdef Q_OS_UNIX
+    __int128_t fetchInt128Value(int column) const;
+#endif
+
     double fetchDoubleValue(int column) const;
     Utils::SmallStringView fetchSmallStringViewValue(int column) const;
     ValueView fetchValueView(int column) const;
@@ -69,6 +74,10 @@ public:
     void bind(int index, NullValue, const source_location &sourceLocation);
     void bind(int index, int value, const source_location &sourceLocation);
     void bind(int index, long long value, const source_location &sourceLocation);
+#ifdef Q_OS_UNIX
+    void bind(int index, __int128_t value, const source_location &sourceLocation);
+#endif
+
     void bind(int index, double value, const source_location &sourceLocation);
     void bind(int index, void *pointer, const source_location &sourceLocation);
     void bind(int index, Utils::span<const int> values, const source_location &sourceLocation);
@@ -103,6 +112,14 @@ public:
     void bind(int index, long value, const source_location &sourceLocation)
     {
         bind(index, static_cast<long long>(value), sourceLocation);
+    }
+
+    template<typename Clock, typename Duration>
+    void bind(int index,
+              std::chrono::time_point<Clock, Duration> value,
+              const source_location &sourceLocation)
+    {
+        bind(index, value.time_since_epoch().count(), sourceLocation);
     }
 
     void prepare(Utils::SmallStringView sqlStatement, const source_location &sourceLocation);
@@ -543,10 +560,10 @@ public:
         using TracerCategory = std::decay_t<decltype(sqliteHighLevelCategory())>;
         StatementImplementation &m_statement;
         const source_location &m_sourceLocation;
-        NanotraceHR::Tracer<TracerCategory, typename TracerCategory::IsActive> tracer{
-            "range",
-            sqliteHighLevelCategory(),
-            NanotraceHR::keyValue("sqlite statement", m_statement.handle())};
+        NanotraceHR::Tracer<TracerCategory> tracer{"range",
+                                                   sqliteHighLevelCategory(),
+                                                   NanotraceHR::keyValue("sqlite statement",
+                                                                         m_statement.handle())};
     };
 
     template<typename ResultType>
@@ -576,7 +593,7 @@ public:
                                          const source_location &sourceLocation,
                                          const QueryTypes &...queryValues)
             : BaseSqliteResultRange<ResultType>{statement, sourceLocation}
-            , m_transaction{statement.database(), sourceLocation}
+            , m_transaction{statement.database()}
             , resetter{&statement}
             , sourceLocation{sourceLocation}
         {
@@ -586,14 +603,10 @@ public:
         ~SqliteResultRangeWithTransaction()
         {
             resetter.reset();
-
-            if (!std::uncaught_exceptions()) {
-                m_transaction.commit(sourceLocation);
-            }
         }
 
     private:
-        DeferredTransaction<typename BaseStatement::Database> m_transaction;
+        ImplicitTransaction<typename BaseStatement::Database> m_transaction;
         Resetter resetter;
         source_location sourceLocation;
     };
@@ -653,6 +666,11 @@ private:
 
         operator long() const { return statement.fetchLongValue(column); }
 
+        operator unsigned int() const
+        {
+            return static_cast<unsigned int>(statement.fetchLongLongValue(column));
+        }
+
         operator long long() const { return statement.fetchLongLongValue(column); }
 
         operator double() const { return statement.fetchDoubleValue(column); }
@@ -682,6 +700,12 @@ private:
             return static_cast<Enumeration>(statement.fetchLongLongValue(column));
         }
 
+        template<typename Clock, typename Duration>
+        constexpr operator std::chrono::time_point<Clock, Duration>() const
+        {
+            return std::chrono::time_point<Clock, Duration>(
+                Duration{statement.template fetchValue<typename Duration::rep>(column)});
+        }
         StatementImplementation &statement;
         int column;
     };

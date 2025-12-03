@@ -1,35 +1,37 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page creator-project-managing-workspaces.html
     \previouspage studio-model-editor.html
     \nextpage creator-project-managing-sessions.html
+    \sa {Design Views}
 
-    \title Managing workspaces
+    \title Workspaces
 
-    In the \uicontrol Design mode, you can arrange a set of \QDS
-    views as a \e workspace on the screen.
+    \QDS provides a flexible UI, allowing you to arrange \l {Design Views}{views} freely and save
+    your setups as \e workspaces. You can also use one of the predefined workspaces.
 
-    To detach views:
+    To change the current workspace, go to \uicontrol View > \uicontrol Workspaces or select a
+    workspace from the dropdown menu in the top toolbar.
 
-    \list
+    \section1 Moving views in a workspace
+
+    To move a view to a different location in the workspace:
+
+    \list 1
         \li Toggle \imagelockon
         to \imagelockoff
         at the top toolbar.
-        \li Double-click the title bar of the view.
-        \li Start dragging the view to another position.
+        \li Drag the view from the title bar to its new position. You can either dock
+        the view in a dock area or detach the view from a dock area.
     \endlist
 
-    You can move detached views or groups of views anywhere on the screen.
+    \note You can also move view groups.
 
-    To attach views, drag them over the dock area markers until the dock area
-    where you want to attach the view is highlighted, and then drop them into
-    the dock area.
+    \image {qtcreator-workspace-attaching-views.webp} {Moving a view to a dock area.}
 
-    \image qtcreator-workspace-attaching-views.webp "Attaching views"
-
-    To close groups of views, select the \uicontrol {Close Group} button.
+    To close a group of views, right-click the group top bar and select \uicontrol {Close Group}.
 
     To open closed views, select \uicontrol View > \uicontrol Views.
 
@@ -38,39 +40,36 @@
         to \imagelockon
         at the top toolbar.
 
-    \section1 Saving workspaces
+    \section1 Managing workspaces
 
-    The changes you make to a workspace are saved when you exit \QDS.
-    Select \uicontrol View > \uicontrol Workspaces >
-    \uicontrol Manage > \uicontrol {Restore last workspace on startup}
+    To manage your workspaces, open \uicontrol {Workspace Manager} from \uicontrol View >
+    \uicontrol Workspaces > \uicontrol Manage.
+
+    \image {qtcreator-workspace-manager.png} {The Workspace Manager dialog.}
+
+    In \uicontrol {Workspace Manager}, you can, for example, create, rename, clone, delete, reset,
+    import, and export workspaces.
+
+    \section2 Restoring a workspace on startup
+
+    The changes you make to a workspace are saved when you close \QDS.
+    In \uicontrol {Workspace Manager}, select \uicontrol {Restore last workspace on startup}
     to restore the current workspace the next time you start \QDS.
 
-    \image qtcreator-workspace-manager.png "Workspace Manager"
+    \section2 Creating a custom workspace
 
-    To save a workspace under a new name, select \uicontrol Clone.
-
-    To revert the changes you made to a preset workspace, select
-    \uicontrol Reset.
-
-    To switch between workspaces, select \uicontrol {Switch To}.
-
-    To save a workspace after you've moved views around or opened and
-    closed them:
+    To save a workspace as a custom workspace after making changes in the workspace:
 
     \list 1
+        \li Go to \uicontrol View > \uicontrol Workspaces \uicontrol Manage to open
+        \uicontrol {Workspace Manager}.
         \li Select \uicontrol New.
-            \image qtcreator-workspace-new.png "New Workspace Name dialog"
-        \li In the \uicontrol {Enter the name of the workspace} field,
-            enter a name for the workspace.
+            \image {qtcreator-workspace-new.png} {The New Workspace Name dialog.}
+        \li Enter a name for the workspace.
         \li Select \uicontrol Create to create a new empty workspace or
-            \uicontrol {Create and Open} to create a workspace and to
+            \uicontrol {Create and Open} to create a workspace and
             switch to it.
     \endlist
 
-    To delete the selected workspace, select \uicontrol Delete in
-    \uicontrol {Workspace Manager}.
-
-    To export workspace settings into \e {.wrk} files select \uicontrol Export.
-    To import them to another computer, select \uicontrol Import, and then
-    locate the workspace settings file.
 */
+

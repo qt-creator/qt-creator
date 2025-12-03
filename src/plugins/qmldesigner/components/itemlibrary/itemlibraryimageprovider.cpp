@@ -3,19 +3,26 @@
 
 #include "itemlibraryimageprovider.h"
 
+#include "itemlibrarytracing.h"
+
 #include <utils/stylehelper.h>
 
 namespace QmlDesigner {
+
+using ItemLibraryTracing::category;
 
 namespace Internal {
 
 ItemLibraryImageProvider::ItemLibraryImageProvider() :
         QQuickImageProvider(QQuickImageProvider::Pixmap)
 {
+    NanotraceHR::Tracer tracer{"item library image provider constructor", category()};
 }
 
 QPixmap ItemLibraryImageProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
+    NanotraceHR::Tracer tracer{"item library image provider request pixmap", category()};
+
     QPixmap pixmap(Utils::StyleHelper::dpiSpecificImageFile(id));
     if (size) {
         size->setWidth(pixmap.width());

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "view3dtool.h"
+#include "formeditortracing.h"
 
 #include "designmodewidget.h"
 #include "formeditorview.h"
@@ -11,17 +12,23 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 View3DTool::View3DTool()
     : QObject(), AbstractCustomTool()
 {
+    NanotraceHR::Tracer tracer{"view 3d tool constructor", FormEditorTracing::category()};
 }
 
 View3DTool::~View3DTool()
 {
+    NanotraceHR::Tracer tracer{"view 3d tool destructor", FormEditorTracing::category()};
 }
 
 void View3DTool::clear()
 {
+    NanotraceHR::Tracer tracer{"view 3d tool clear", FormEditorTracing::category()};
+
     m_view3dNode = {};
     AbstractFormEditorTool::clear();
 }
@@ -53,6 +60,8 @@ void  View3DTool::dragMoveEvent(const QList<QGraphicsItem *> &, QGraphicsSceneDr
 void View3DTool::mouseReleaseEvent(const QList<QGraphicsItem *> &,
                                    QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"view 3d tool mouse release event", category()};
+
     if (m_view3dNode.isValid()) {
         Model *model = view()->model();
         qint32 id = m_view3dNode.internalId();
@@ -86,6 +95,8 @@ void View3DTool::formEditorItemsChanged(const QList<FormEditorItem *> &)
 
 int View3DTool::wantHandleItem(const ModelNode &modelNode) const
 {
+    NanotraceHR::Tracer tracer{"view 3d tool want handle item", category()};
+
     if (modelNode.metaInfo().isQtQuick3DView3D())
         return 30;
 
@@ -100,6 +111,8 @@ QString View3DTool::name() const
 
 void View3DTool::selectedItemsChanged(const QList<FormEditorItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"view 3d tool selected items changed", category()};
+
     if (itemList.size() == 1) {
         if (itemList[0]) {
             ModelNode node = itemList[0]->qmlItemNode().modelNode();

@@ -163,6 +163,21 @@ void BaseStatement::bind(int index, long long value, const source_location &sour
         Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
 }
 
+#ifdef Q_OS_UNIX
+void BaseStatement::bind(int index, __int128_t value, const source_location &sourceLocation)
+{
+    NanotraceHR::Tracer tracer{"bind int128",
+                               sqliteLowLevelCategory(),
+                               keyValue("sqlite statement", handle())};
+
+    char buffer[16] = {};
+    std::memcpy(buffer, &value, 16);
+    int resultCode = sqlite3_bind_blob(m_compiledStatement.get(), index, buffer, 16, SQLITE_TRANSIENT);
+    if (resultCode != SQLITE_OK)
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle(sourceLocation), sourceLocation);
+}
+#endif
+
 void BaseStatement::bind(int index, double value, const source_location &sourceLocation)
 {
     NanotraceHR::Tracer tracer{"bind double",
@@ -545,11 +560,39 @@ long long BaseStatement::fetchLongLongValue(int column) const
     return value;
 }
 
+#ifdef Q_OS_UNIX
+__int128_t BaseStatement::fetchInt128Value(int column) const
+{
+    NanotraceHR::Tracer tracer{"fetch int 128",
+                               sqliteLowLevelCategory(),
+                               keyValue("sqlite statement", handle()),
+                               keyValue("column", column)};
+
+    auto buffer = sqlite3_column_blob(m_compiledStatement.get(), column);
+    auto bufferSize = sqlite3_column_bytes(m_compiledStatement.get(), column);
+
+    __int128_t value = {};
+
+    if (bufferSize == 16)
+        std::memcpy(&value, buffer, 16);
+
+    return value;
+}
+#endif
+
 template<>
 long long BaseStatement::fetchValue<long long>(int column) const
 {
     return fetchLongLongValue(column);
 }
+
+#ifdef Q_OS_UNIX
+template<>
+__int128_t BaseStatement::fetchValue<__int128_t>(int column) const
+{
+    return fetchInt128Value(column);
+}
+#endif
 
 double BaseStatement::fetchDoubleValue(int column) const
 {

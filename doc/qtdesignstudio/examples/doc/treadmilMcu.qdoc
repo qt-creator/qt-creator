@@ -70,7 +70,7 @@
     components with connection, state, timeline animation, \c QML, and \c Javascript.
     Find a fully functional example in the Examples section on the Qt Design Studio homepage.
 
-    \section1 Running the MCU Treadmill example
+    \section1 Running the MCU Treadmill example in \QDS
 
     \list 1
         \li Open \QDS, then select \uicontrol Examples.
@@ -96,5 +96,100 @@
             \li \c TreadmillMcuDemo.qml
             \li Defines the logical functionalities of the MCU Treadmill example.
     \endtable
+
+    \section1 Running the MCU Treadmill example in Qt Creator or on MCUs
+
+    \note This instruction set should work on all MCUs. For this particular example
+        we are using an STM board.
+
+    To run the MCU Treadmill in Qt Creator, first you need to:
+    \list 1
+        \li Install Qt Creator.
+            \l {https://doc.qt.io/qtcreator/creator-how-to-install.html}{Learn to install Qt Creator}.
+        \li Install the latest \QMCU.
+            \l {https://doc.qt.io/QtForMCUs/qtul-installing-mcus.html} {Learn to install \QMCU}.
+        \li Install the board-specific files:
+            \list 1
+                \li Open \c {MaintenanceTool.exe} in the Qt installation folder.
+                    \image {qt-maintenance-tool.webp} {MaintenanceTool.exe in the Qt installation folder}
+
+                \li Log in with your Qt account and proceed.
+                \li Select \uicontrol {Add or remove components}, then select \uicontrol Next.
+                \li Select \imagerunsmall next to the \QMCU option to expand the list related to
+                    \QMCU.
+                \li Then select \imagerunsmall next to the \QMCU version you want to install.
+                \li Select \uicontrol {Common Files} and your STM board library.
+                    For this example, you can choose \uicontrol {STM32F769I Discovery} if that STM
+                    board is available to you.
+
+                    \image {qt-maintenance-tool-mcu-kits.webp} {MCU kits in Qt Maintenance tool}
+
+                \li Then, select \imagerunsmall next to the \uicontrol {Third-party Tools and SDKs}.
+                    From the list, matching your STM board, select the latest version of:
+                    \list
+                        \li \uicontrol {ARM GCC}
+                        \li \uicontrol {STM Cube Programmer}
+                        \li \uicontrol {STM32Cube}
+                    \endlist
+                    \image {qt-maintenance-tool-mcu-third-party-tools.webp} {Thrid party tools in Qt Maintenance tool}
+
+                \li Select \uicontrol Next, and then \uicontrol Update.
+                \li After the update, select \uicontrol Finish.
+            \endlist
+            Learn more about \l {https://doc.qt.io/QtForMCUs/qtul-supported-platforms.html} {supported target boards and development hosts}.
+    \endlist
+
+    When you have all the necessary STM board and MCU kit-related files installed
+    in Qt, you are ready to configure Qt Creator to run the \QDS application
+    on the STM board. To learn how to configure Qt Creator for your STM board, see
+    \l {Getting started on STM}.
+
+    After configuring Qt Creator for the STM board, you can run your \QDS application
+    from Qt Creator.
+
+    To run your \QDS application from Qt Creator:
+
+    \list 1
+        \li Open Qt Creator and select \uicontrol {Open Project...}.
+        \li Browse to your \QDS project folder, select \c CMakeLists.txt, then select
+            \uicontrol Open. This contains all the necessary code that
+            Qt Creator needs to build and run your project.
+            \image {creator-mcu-project-cmakefile.webp} {Opening CMakeLists file from Qt Creator}
+
+        \li After Qt Creator finishes loading your project, select \uicontrol Projects.
+            Under the \uicontrol {Build & Run} options, double-click the MCU kit you want
+            to use to run this application. To run it as a desktop application from Qt Creator,
+            select the desktop kit for MCU. To run it on your preferred
+            STM board, select the STM kit.
+            \image {creator-building-mcu-kits.webp} {Building MCU kits in Qt Creator}
+
+            \note Double-clicking starts to build the kit for Qt Creator. Later,
+                you can access these kits from the \uicontrol {Kit Selector} above
+                the \imagerunproject button. You can check the \uicontrol {General Messages}
+                at the bottom bar of Qt Creator to see if anything went wrong during the
+                build process.
+
+        \li If you have selected the desktop version of the MCU kit, select
+            \imagerunproject. If you have selected the STM board version of
+            the MCU kit, skip to the next step.
+
+        \li Connect the STM board to your computer.
+        \li Optional. Select \imagebuild to build your application. It helps
+            you to see if the project has any issues, and you can fix those before running the
+            application.
+        \li To run the application on your STM board, select \uicontrol Run.
+            This can take a while, depending on your project's size, the capability of the MCU,
+            and the transfer speed. You can open \uicontrol {Application Output}
+            from the bottom bar of Qt Creator to check the progress.
+
+            To learn more about running an application in Qt Creator,
+            see \l {https://doc.qt.io/qtcreator/creator-build-example-application.html} {here}.
+
+            \note Before running you can select \uicontrol {Kit Selector} above
+                the \imagerunproject button, then select the MCU kit for your STM board from
+                there, and select \uicontrol {Minimum Size Release}. This optimizes your
+                application's file sizes before pushing them to your STM board.
+                \br \inlineimage {creator-mcu-project-minimize-size-for-stm-board.webp} {Qt Creator debug with STM minimize size release option for MCU application}
+    \endlist
 
 */

@@ -6,27 +6,29 @@
 
 #include "projectstorage.h"
 #include "projectstorageexceptions.h"
+#include "projectstoragetracing.h"
 
 #include <sourcepathstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
 
-#include <tracing/qmldesignertracing.h>
 
 #ifdef QDS_BUILD_QMLPARSER
 #include <private/qqmldomtop_p.h>
 #endif
 
-#include <filesystem>
 #include <QDateTime>
+#include <QVarLengthArray>
+
+#include <filesystem>
 
 namespace QmlDesigner {
 
 #ifdef QDS_BUILD_QMLPARSER
 
-constexpr auto category = ProjectStorageTracing::projectStorageUpdaterCategory;
 using NanotraceHR::keyValue;
+using ProjectStorageTracing::category;
 using Storage::IsInsideProject;
-using Tracer = ProjectStorageTracing::Category::TracerType;
+using Tracer = NanotraceHR::Tracer<ProjectStorageTracing::Category>;
 
 namespace QmlDom = QQmlJS::Dom;
 namespace Synchronization = Storage::Synchronization;
@@ -35,17 +37,11 @@ using namespace Qt::StringLiterals;
 
 namespace {
 
-using QualifiedImports = std::map<QString, Storage::Import>;
-
-int convertVersionNumber(qint32 versionNumber)
-{
-    return versionNumber < 0 ? -1 : versionNumber;
-}
+using ImportAliases = QVarLengthArray<QString, 24>;
 
 Storage::Version convertVersion(QmlDom::Version version)
 {
-    return Storage::Version{convertVersionNumber(version.majorVersion),
-                                             convertVersionNumber(version.minorVersion)};
+    return Storage::Version::convertFromSignedInteger(version.majorVersion, version.minorVersion);
 }
 
 Utils::PathString createNormalizedPath(Utils::SmallStringView directoryPath,
@@ -67,7 +63,7 @@ Utils::PathString createNormalizedPath(Utils::SmallStringView directoryPath,
 Storage::Import createImport(const QmlDom::Import &qmlImport,
                              SourceId sourceId,
                              Utils::SmallStringView directoryPath,
-                             ProjectStorageType &storage)
+                             ModulesStorage &modulesStorage)
 {
     using Storage::ModuleKind;
     using QmlUriKind = QQmlJS::Dom::QmlUri::Kind;
@@ -77,18 +73,45 @@ Storage::Import createImport(const QmlDom::Import &qmlImport,
     switch (uri.kind()) {
     case QmlUriKind::AbsolutePath:
     case QmlUriKind::DirectoryUrl: {
-        auto moduleId = storage.moduleId(Utils::PathString{uri.toString()}, ModuleKind::PathLibrary);
-        return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
+        NanotraceHR::Tracer tracer{"qml document create directory import", category()};
+
+        auto moduleId = modulesStorage.moduleId(Utils::PathString{uri.toString()},
+                                                ModuleKind::PathLibrary);
+        auto import = Storage::Import(moduleId,
+                                      convertVersion(qmlImport.version),
+                                      sourceId,
+                                      sourceId,
+                                      qmlImport.importId);
+
+        tracer.end(keyValue("import", import));
+
+        return import;
     }
     case QmlUriKind::RelativePath: {
+        NanotraceHR::Tracer tracer{"qml document create relative path import", category()};
         auto path = createNormalizedPath(directoryPath, uri.localPath());
-        auto moduleId = storage.moduleId(createNormalizedPath(directoryPath, uri.localPath()),
-                                         ModuleKind::PathLibrary);
-        return Storage::Import(moduleId, Storage::Version{}, sourceId);
+        auto moduleId = modulesStorage.moduleId(createNormalizedPath(directoryPath, uri.localPath()),
+                                                ModuleKind::PathLibrary);
+        auto import = Storage::Import(moduleId, Storage::Version{}, sourceId, sourceId, qmlImport.importId);
+
+        tracer.end(keyValue("import", import));
+
+        return import;
     }
     case QmlUriKind::ModuleUri: {
-        auto moduleId = storage.moduleId(Utils::PathString{uri.moduleUri()}, ModuleKind::QmlLibrary);
-        return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
+        NanotraceHR::Tracer tracer{"qml document create module import", category()};
+
+        auto moduleId = modulesStorage.moduleId(Utils::PathString{uri.moduleUri()},
+                                                ModuleKind::QmlLibrary);
+        auto import = Storage::Import(moduleId,
+                                      convertVersion(qmlImport.version),
+                                      sourceId,
+                                      sourceId,
+                                      qmlImport.importId);
+
+        tracer.end(keyValue("import", import));
+
+        return import;
     }
     case QmlUriKind::Invalid:
         return Storage::Import{};
@@ -97,75 +120,67 @@ Storage::Import createImport(const QmlDom::Import &qmlImport,
     return Storage::Import{};
 }
 
-QualifiedImports createQualifiedImports(const QList<QmlDom::Import> &qmlImports,
-                                        SourceId sourceId,
-                                        Utils::SmallStringView directoryPath,
-                                        ProjectStorageType &storage)
+ImportAliases createImportAliases(const QList<QmlDom::Import> &qmlImports)
 {
-    NanotraceHR::Tracer tracer{"create qualified imports",
-                               category(),
-                               keyValue("sourceId", sourceId),
-                               keyValue("directoryPath", directoryPath)};
+    NanotraceHR::Tracer tracer{"create qualified imports", category()};
 
-    QualifiedImports qualifiedImports;
+    ImportAliases importAliases;
 
     for (const QmlDom::Import &qmlImport : qmlImports) {
         if (!qmlImport.importId.isEmpty() && !qmlImport.implicit)
-            qualifiedImports.try_emplace(qmlImport.importId,
-                                         createImport(qmlImport, sourceId, directoryPath, storage));
+            importAliases.push_back(qmlImport.importId);
     }
 
-    tracer.end(keyValue("qualified imports", qualifiedImports));
+    tracer.end(keyValue("qualified imports", importAliases));
 
-    return qualifiedImports;
+    return importAliases;
 }
 
 void addImports(Storage::Imports &imports,
                 const QList<QmlDom::Import> &qmlImports,
                 SourceId sourceId,
                 Utils::SmallStringView directoryPath,
-                ProjectStorageType &storage)
+                ModulesStorage &modulesStorage)
 {
     int importCount = 0;
     for (const QmlDom::Import &qmlImport : qmlImports) {
         if (!qmlImport.implicit) {
-            imports.push_back(createImport(qmlImport, sourceId, directoryPath, storage));
+            imports.push_back(createImport(qmlImport, sourceId, directoryPath, modulesStorage));
             ++importCount;
         }
     }
 
     using Storage::ModuleKind;
 
-    auto localDirectoryModuleId = storage.moduleId(directoryPath, ModuleKind::PathLibrary);
-    imports.emplace_back(localDirectoryModuleId, Storage::Version{}, sourceId);
+    auto localDirectoryModuleId = modulesStorage.moduleId(directoryPath, ModuleKind::PathLibrary);
+    imports.emplace_back(localDirectoryModuleId, Storage::Version{}, sourceId, sourceId);
     ++importCount;
 
-    auto qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
-    imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId);
+    auto qmlModuleId = modulesStorage.moduleId("QML", ModuleKind::QmlLibrary);
+    imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId, sourceId);
     ++importCount;
 
     auto end = imports.end();
-    auto begin = std::prev(end, importCount);
+    auto begin = std::ranges::prev(end, importCount);
 
-    std::sort(begin, end);
-    imports.erase(std::unique(begin, end), end);
+    std::ranges::sort(begin, end);
+    auto removed = std::ranges::unique(begin, end);
+    imports.erase(removed.begin(), removed.end());
 }
 
 Synchronization::ImportedTypeName createImportedTypeName(const QStringView rawtypeName,
-                                                         const QualifiedImports &qualifiedImports)
+                                                         const ImportAliases &importAliases)
 {
-    auto foundDot = std::find(rawtypeName.begin(), rawtypeName.end(), '.');
+    auto foundDot = std::ranges::find(rawtypeName, '.');
 
     QStringView alias(rawtypeName.begin(), foundDot);
 
-    auto foundImport = qualifiedImports.find(alias.toString());
-    if (foundImport == qualifiedImports.end())
-        return Synchronization::ImportedType{Utils::SmallString{rawtypeName}};
+    if (foundDot == rawtypeName.end() or not importAliases.contains(alias))
+        return Synchronization::ImportedType{rawtypeName};
 
     QStringView typeName(std::next(foundDot), rawtypeName.end());
 
-    return Storage::Synchronization::QualifiedImportedType{Utils::SmallString{typeName.toString()},
-                                                           foundImport->second};
+    return Storage::Synchronization::QualifiedImportedType{typeName, alias};
 }
 
 bool isListProperty(const QStringView rawtypeName)
@@ -195,14 +210,14 @@ struct TypeNameAndTraits
 };
 
 TypeNameAndTraits createImportedTypeNameAndTypeTraits(const QStringView rawtypeName,
-                                                      const QualifiedImports &qualifiedImports)
+                                                      const ImportAliases &importAliases)
 {
     auto [filteredTypeName, traits] = filteredListTypeName(rawtypeName);
 
     if (!filteredTypeName.contains('.'))
         return {Synchronization::ImportedType{Utils::SmallString{filteredTypeName}}, traits};
 
-    return {createImportedTypeName(filteredTypeName, qualifiedImports), traits};
+    return {createImportedTypeName(filteredTypeName, importAliases), traits};
 }
 
 std::pair<Utils::SmallString, Utils::SmallString> createAccessPaths(const QStringList &accessPath)
@@ -218,7 +233,7 @@ std::pair<Utils::SmallString, Utils::SmallString> createAccessPaths(const QStrin
 
 void addPropertyDeclarations(Storage::Synchronization::Type &type,
                              QmlDom::QmlObject &rootObject,
-                             const QualifiedImports &qualifiedImports,
+                             const ImportAliases &importAliases,
                              QmlDom::DomItem &fileItem)
 {
     for (const QmlDom::PropertyDefinition &propertyDeclaration : rootObject.propertyDefs()) {
@@ -230,22 +245,30 @@ void addPropertyDeclarations(Storage::Synchronization::Type &type,
                                 .field(QmlDom::Fields::value);
             auto resolvedAlias = rootObject.resolveAlias(rootObjectItem,
                                                          property.ownerAs<QmlDom::ScriptExpression>());
-            if (resolvedAlias.valid()) {
+            if (!resolvedAlias.valid())
+                continue;
+
+            auto [importedTypeName, traits] = createImportedTypeNameAndTypeTraits(resolvedAlias.typeName,
+                                                                                  importAliases);
+
+            if (resolvedAlias.accessedPath.empty()) {
+                type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
+                                                       std::move(importedTypeName),
+                                                       traits);
+            } else {
                 auto [aliasPropertyName, aliasPropertyNameTail] = createAccessPaths(
                     resolvedAlias.accessedPath);
-
-                auto [importedTypeName, traits] = createImportedTypeNameAndTypeTraits(
-                    resolvedAlias.typeName, qualifiedImports);
 
                 type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
                                                        std::move(importedTypeName),
                                                        traits,
+                                                       Synchronization::PropertyKind::Alias,
                                                        aliasPropertyName,
                                                        aliasPropertyNameTail);
             }
         } else {
             auto [importedTypeName, traits] = createImportedTypeNameAndTypeTraits(
-                propertyDeclaration.typeName, qualifiedImports);
+                propertyDeclaration.typeName, importAliases);
             type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
                                                    std::move(importedTypeName),
                                                    traits);
@@ -336,10 +359,12 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
     Storage::Synchronization::Type type;
 
     using Option = QmlDom::DomEnvironment::Option;
+    using DomCreationOption = QQmlJS::Dom::DomCreationOption;
 
     auto environment = QmlDom::DomEnvironment::create({},
                                                       Option::SingleThreaded | Option::NoDependencies
-                                                          | Option::WeakLoad);
+                                                          | Option::WeakLoad,
+                                                      DomCreationOption::Minimal);
 
     QmlDom::DomItem items;
 
@@ -371,17 +396,14 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
 
     const auto qmlImports = qmlFile->imports();
 
-    const auto qualifiedImports = createQualifiedImports(qmlImports,
-                                                         sourceId,
-                                                         directoryPath,
-                                                         m_storage);
+    const auto importAliases = createImportAliases(qmlImports);
 
     type.traits = createTypeTraits(qmlFile, isInsideProject);
-    type.prototype = createImportedTypeName(qmlObject.name(), qualifiedImports);
+    type.prototype = createImportedTypeName(qmlObject.name(), importAliases);
     type.defaultPropertyName = qmlObject.localDefaultPropertyName();
-    addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_storage);
+    addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_modulesStorage);
 
-    addPropertyDeclarations(type, qmlObject, qualifiedImports, file);
+    addPropertyDeclarations(type, qmlObject, importAliases, file);
     addFunctionAndSignalDeclarations(type, qmlObject);
     addEnumeraton(type, component);
 

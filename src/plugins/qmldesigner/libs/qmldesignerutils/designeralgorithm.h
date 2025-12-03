@@ -5,6 +5,7 @@
 
 #include <QtGlobal>
 
+#include <iterator>
 #include <ranges>
 
 namespace QmlDesigner::CoreUtils {
@@ -21,17 +22,44 @@ __forceinline
     return ((element == elements) || ...);
 }
 
+template<typename Container>
+concept has_reserve = requires(Container c) { c.reserve(0); };
+
 template<template<typename...> typename Container, std::ranges::view View>
-constexpr auto to(View &&view)
+constexpr auto to(View &&view, std::integral auto reserve)
 {
-    return Container<std::iter_value_t<std::ranges::iterator_t<View>>>(std::ranges::begin(view),
-                                                                       std::ranges::end(view));
+    using ContainerType = Container<std::iter_value_t<std::ranges::iterator_t<View>>>;
+    ContainerType container;
+
+    if constexpr (has_reserve<ContainerType>)
+        container.reserve(static_cast<std::ranges::range_size_t<ContainerType>>(reserve));
+
+    std::ranges::copy(view, std::back_inserter(container));
+
+    return container;
 }
 
 template<typename Container, std::ranges::view View>
-constexpr auto to(View &&view)
+constexpr auto to(View &&view, std::integral auto reserve)
 {
-    return Container(std::ranges::begin(view), std::ranges::end(view));
+    Container container;
+
+    if constexpr (has_reserve<Container>)
+        container.reserve(static_cast<std::ranges::range_size_t<Container>>(reserve));
+
+    std::ranges::copy(view, std::back_inserter(container));
+
+    return container;
+}
+
+template<typename Type, std::size_t size, std::ranges::view View>
+constexpr auto toDefaultInitializedArray(View &&view)
+{
+    std::array<Type, size> container{};
+
+    std::ranges::copy(view | std::views::take(size), container.begin());
+
+    return container;
 }
 
 } // namespace QmlDesigner::CoreUtils

@@ -39,7 +39,7 @@ Rectangle {
                 }
 
                 onActivated: (idx) => {
-                    editableCompositionsModel.openCodeEditor(idx)
+                    shaderEditor.switchToNodeIndex(editableCompositionsModel.sourceIndex(idx))
                 }
 
                 ModelModules.ListModelWidthCalculator {

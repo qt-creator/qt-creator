@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "selectiontool.h"
+#include "formeditorgraphicsview.h"
 #include "formeditorscene.h"
+#include "formeditortracing.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
-#include "formeditorgraphicsview.h"
 
 #include "resizehandleitem.h"
 #include "rotationhandleitem.h"
@@ -18,6 +19,8 @@
 #include <QDebug>
 
 namespace QmlDesigner {
+
+using FormEditorTracing::category;
 
 const int s_startDragDistance = 20;
 const int s_startDragTime = 50;
@@ -32,6 +35,8 @@ SelectionTool::SelectionTool(FormEditorView *editorView)
     , m_anchorIndicator(editorView->scene()->manipulatorLayerItem())
     , m_bindingIndicator(editorView->scene()->manipulatorLayerItem())
 {
+    NanotraceHR::Tracer tracer{"selection tool constructor", category()};
+
     m_selectionIndicator.setCursor(Qt::ArrowCursor);
 }
 
@@ -40,6 +45,8 @@ SelectionTool::~SelectionTool() = default;
 void SelectionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
                                     QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"selection tool mouse press event", category()};
+
     if (event->button() == Qt::LeftButton) {
         m_mousePressTimer.start();
         FormEditorItem* formEditorItem = nearestFormEditorItem(event->scenePos(), itemList);
@@ -80,6 +87,8 @@ void SelectionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
 void SelectionTool::mouseMoveEvent(const QList<QGraphicsItem*> &/*itemList*/,
                                    QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"selection tool mouse move event", category()};
+
     if (m_singleSelectionManipulator.isActive()) {
         QPointF mouseMovementVector = m_singleSelectionManipulator.beginPoint() - event->scenePos();
         if ((mouseMovementVector.toPoint().manhattanLength() > s_startDragDistance)
@@ -108,9 +117,10 @@ void SelectionTool::mouseMoveEvent(const QList<QGraphicsItem*> &/*itemList*/,
 void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
                         QGraphicsSceneMouseEvent * event)
 {
-    if (!itemList.isEmpty()) {
+    NanotraceHR::Tracer tracer{"selection tool hover move event", category()};
 
-        ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.constFirst());
+    if (!itemList.isEmpty()) {
+        ResizeHandleItem *resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.constFirst());
         if (resizeHandle) {
             view()->changeToResizeTool();
             return;
@@ -147,6 +157,8 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
 void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
                                       QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"selection tool mouse release event", category()};
+
     if (event->button() == Qt::LeftButton) {
         if (m_singleSelectionManipulator.isActive()) {
             if (event->modifiers().testFlag(Qt::ControlModifier))
@@ -190,19 +202,23 @@ void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
 
 void SelectionTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent * event)
 {
+    NanotraceHR::Tracer tracer{"selection tool mouse double click event", category()};
+
     AbstractFormEditorTool::mouseDoubleClickEvent(itemList, event);
 }
 
 void SelectionTool::keyPressEvent(QKeyEvent *event)
 {
+    NanotraceHR::Tracer tracer{"selection tool key press event", category()};
+
     switch (event->key()) {
-        case Qt::Key_Left:
-        case Qt::Key_Right:
-        case Qt::Key_Up:
-        case Qt::Key_Down:
-            if (view()->changeToMoveTool())
-                view()->currentTool()->keyPressEvent(event);
-            break;
+    case Qt::Key_Left:
+    case Qt::Key_Right:
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+        if (view()->changeToMoveTool())
+            view()->currentTool()->keyPressEvent(event);
+        break;
     }
 }
 
@@ -221,30 +237,25 @@ void SelectionTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGr
 
 void SelectionTool::itemsAboutToRemoved(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"selection tool items about to removed", category()};
+
     const QList<FormEditorItem *> current = items();
 
-    const auto allItems = scene()->items();
-    QList<FormEditorItem *> remaining = Utils::filtered(current,
-                                                        [&itemList, &allItems](FormEditorItem *item) {
-                                                            return !itemList.contains(item)
-                                                                   && allItems.contains(item);
-                                                        });
+    QList<FormEditorItem *> remaining = Utils::filtered(current, [&itemList](FormEditorItem *item) {
+        return !itemList.contains(item);
+    });
 
-    if (!remaining.isEmpty()) {
-        m_selectionIndicator.setItems(remaining);
-        m_resizeIndicator.setItems(remaining);
-        m_rotationIndicator.setItems(remaining);
-        m_anchorIndicator.setItems(remaining);
-        m_bindingIndicator.setItems(remaining);
-    } else {
+    if (!remaining.isEmpty())
+        setItems(remaining);
+    else
         clear();
-    }
 }
 
 void SelectionTool::clear()
 {
-    m_rubberbandSelectionManipulator.clear(),
-    m_singleSelectionManipulator.clear();
+    NanotraceHR::Tracer tracer{"selection tool clear", category()};
+
+    m_rubberbandSelectionManipulator.clear(), m_singleSelectionManipulator.clear();
     m_selectionIndicator.clear();
     m_resizeIndicator.clear();
     m_rotationIndicator.clear();
@@ -256,6 +267,8 @@ void SelectionTool::clear()
 
 void SelectionTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"selection tool selected items changed", category()};
+
     m_selectionIndicator.setItems(itemList);
     m_resizeIndicator.setItems(itemList);
     m_rotationIndicator.setItems(itemList);
@@ -265,6 +278,8 @@ void SelectionTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
 
 void SelectionTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"selection tool form editor items changed", category()};
+
     const QList<FormEditorItem*> selectedItemList = filterSelectedModelNodes(itemList);
 
     m_selectionIndicator.updateItems(selectedItemList);
@@ -289,6 +304,8 @@ void SelectionTool::instancePropertyChange(const QList<QPair<ModelNode, Property
 
 void SelectionTool::selectUnderPoint(QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"selection tool select under point", category()};
+
     m_singleSelectionManipulator.begin(event->scenePos());
 
     if (event->modifiers().testFlag(Qt::ControlModifier))

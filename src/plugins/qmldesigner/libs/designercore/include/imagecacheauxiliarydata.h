@@ -17,20 +17,27 @@ namespace QmlDesigner {
 
 namespace ImageCache {
 
-constexpr NanotraceHR::Tracing tracingStatus()
-{
 #ifdef ENABLE_IMAGE_CACHE_TRACING
-    return NanotraceHR::Tracing::IsEnabled;
+
+using Category = NanotraceHR::EnabledCategory;
+using TraceToken = NanotraceHR::EnabledFlowToken;
+using FlowToken = NanotraceHR::EnabledFlowToken;
+using Token = NanotraceHR::EnabledToken;
+[[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
+
 #else
-    return NanotraceHR::Tracing::IsDisabled;
-#endif
+
+using Category = NanotraceHR::DisabledCategory;
+using TraceToken = NanotraceHR::DisabledFlowToken;
+using FlowToken = NanotraceHR::DisabledFlowToken;
+using Token = NanotraceHR::DisabledToken;
+
+inline Category category()
+{
+    return {};
 }
 
-using Category = NanotraceHR::StringViewWithStringArgumentsCategory<tracingStatus()>;
-using TraceToken = Category::FlowTokenType;
-using FlowToken = Category::FlowTokenType;
-using Token = Category::TokenType;
-extern Category &category();
+#endif
 
 class FontCollectorSizeAuxiliaryData
 {

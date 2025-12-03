@@ -34,6 +34,7 @@ MenuItemWithIcon 1.0 MenuItemWithIcon.qml
 MenuSeparator 1.0 MenuSeparator.qml
 OpacitySlider 1.0 impl/OpacitySlider.qml
 PopupDialog 1.0 PopupDialog.qml
+PopupPanel 1.0 PopupPanel.qml
 ProgressBar 1.0 ProgressBar.qml
 RadioButton 1.0 RadioButton.qml
 RealSliderPopup 1.0 RealSliderPopup.qml

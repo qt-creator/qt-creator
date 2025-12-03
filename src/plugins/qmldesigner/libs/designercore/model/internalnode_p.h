@@ -56,11 +56,13 @@ public:
     using ManyNodes = QVarLengthArray<Pointer, 1024>;
 
     explicit InternalNode(TypeNameView typeName,
+                          std::string_view unqualifiedTypeName,
                           int majorVersion,
                           int minorVersion,
                           qint32 internalId,
-                          ModelTracing::Category::FlowTokenType flowTraceToken)
+                          ModelTracing::FlowToken flowTraceToken)
         : typeName(typeName.toByteArray())
+        , unqualifiedTypeName(unqualifiedTypeName)
         , majorVersion(majorVersion)
         , minorVersion(minorVersion)
         , isValid(true)
@@ -231,8 +233,21 @@ public:
 
     PropertyDict::const_iterator end() const { return m_nameProperties.end(); }
 
+    template<typename String>
+    friend void convertToString(String &string, const InternalNode &node)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("type name", node.typeName),
+                              keyValue("unqualified type name", node.unqualifiedTypeName),
+                              keyValue("exported type name", node.exportedTypeName));
+
+        convertToString(string, dict);
+    }
+
 public:
     TypeName typeName;
+    Utils::SmallString unqualifiedTypeName;
     QString id;
     int majorVersion = 0;
     int minorVersion = 0;
@@ -242,9 +257,8 @@ public:
     int nodeSourceType = 0;
     QString behaviorPropertyName;
     QStringList scriptFunctions;
-    ModuleId moduleId;
     ImportedTypeNameId importedTypeNameId;
-    TypeId typeId;
+    Storage::Info::ExportedTypeName exportedTypeName;
     NO_UNIQUE_ADDRESS ModelTracing::AsynchronousToken traceToken;
 
 private:

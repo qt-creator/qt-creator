@@ -2944,6 +2944,16 @@ void EditorManager::closeOtherDocuments()
     closeOtherDocuments(currentDocument());
 }
 
+void EditorManager::closeDocument(int idx)
+{
+    // Index 0 is reserved for <no document>. So, we increase the index by 1.
+    DocumentModel::Entry *entry = DocumentModel::entryAtRow(idx + 1);
+    if (!entry)
+        return;
+
+    closeDocuments({entry->document}, true);
+}
+
 static void assignAction(QAction *self, QAction *other)
 {
     self->setText(other->text());

@@ -11,7 +11,7 @@ namespace ProjectExplorer { class BuildSystem; }
 
 namespace QmlDesigner {
 
-enum class PuppetType { Fallback, UserSpace, Kit };
+enum class PuppetType { Fallback, Kit };
 
 class PuppetEnvironmentBuilder
 {
@@ -37,6 +37,7 @@ private:
     PuppetType determinePuppetType() const;
     bool usesVirtualKeyboard() const;
     QString getStyleConfigFileName() const;
+    void initEnvironment() const;
     void addKit() const;
     void addRendering() const;
     void addControls() const;
@@ -49,6 +50,8 @@ private:
     void addCustomFileSelectors() const;
     void addDisableDeferredProperties() const;
     void addResolveUrlsOnAssignment() const;
+    void addMcuItems() const;
+    void addMcuFonts() const;
 
 private:
     ProjectExplorer::BuildSystem *m_buildSystem = nullptr;

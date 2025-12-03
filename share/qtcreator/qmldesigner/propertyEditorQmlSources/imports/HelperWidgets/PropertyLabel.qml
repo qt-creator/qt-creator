@@ -9,8 +9,6 @@ import StudioTheme 1.0 as StudioTheme
 T.Label {
     id: label
 
-    readonly property bool __isPropertyLabel: true // used by property search logic
-
     property alias tooltip: toolTipArea.tooltip
 
     property bool blockedByContext: false

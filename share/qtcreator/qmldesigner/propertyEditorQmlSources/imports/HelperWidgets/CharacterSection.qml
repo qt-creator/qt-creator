@@ -156,7 +156,8 @@ Section {
             id: sizeWidget
             property bool selectionFlag: selectionChanged
 
-            property bool pixelSize: sizeType.currentText === "px"
+            property bool hasPointSize: root.getBackendValue("pointSize").isAvailable
+            property bool pixelSize: hasPointSize ? sizeType.currentText === "px" : true
             property bool isSetup
 
             function setPointPixelSize() {
@@ -202,16 +203,23 @@ Section {
             }
 
             Spacer {
-                implicitWidth: StudioTheme.Values.twoControlColumnGap
-                               + StudioTheme.Values.actionIndicatorWidth
+                implicitWidth: sizeWidget.hasPointSize
+                    ? StudioTheme.Values.twoControlColumnGap + StudioTheme.Values.actionIndicatorWidth
+                    : StudioTheme.Values.controlLabelGap
+            }
+
+            ControlLabel {
+                text: "px"
+                visible: !sizeWidget.hasPointSize
             }
 
             StudioControls.ComboBox {
                 id: sizeType
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                 width: implicitWidth
-                model: ["px", "pt"]
+                model: sizeWidget.hasPointSize ? ["px", "pt"] : ["px"]
                 actionIndicatorVisible: false
+                visible: sizeWidget.hasPointSize
 
                 onActivated: {
                     if (sizeWidget.isSetup)

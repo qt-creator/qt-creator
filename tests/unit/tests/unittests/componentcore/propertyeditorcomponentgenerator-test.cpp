@@ -18,6 +18,18 @@ using QmlDesigner::Storage::ModuleKind;
 class PropertyEditorComponentGenerator : public ::testing::Test
 {
 protected:
+    struct StaticData
+    {
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
+    };
+
+    static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
+
+    static void TearDownTestSuite() { staticData.reset(); }
+
+    ~PropertyEditorComponentGenerator() { modulesStorage.resetForTestsOnly(); }
+
     QmlDesigner::NodeMetaInfo createType(Utils::SmallStringView name,
                                          const QmlDesigner::SmallTypeIds<16> &baseTypeIds = {})
     {
@@ -83,8 +95,10 @@ protected:
     }
 
 protected:
+    inline static std::unique_ptr<StaticData> staticData;
+    QmlDesigner::ModulesStorage &modulesStorage{staticData->modulesStorage};
     QmlDesigner::SourceId sourceId = QmlDesigner::SourceId::create(10);
-    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{sourceId, "/path"};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{sourceId, "/path", modulesStorage};
     NiceMock<PropertyComponentGeneratorMock> propertyGeneratorMock;
     QmlDesigner::PropertyEditorComponentGenerator generator{propertyGeneratorMock};
     QmlDesigner::ModuleId qtQuickModuleId = projectStorageMock.createModule("QtQuick",

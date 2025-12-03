@@ -5,6 +5,7 @@
 
 #include "gradientpresetcustomlistmodel.h"
 #include "gradientpresetitem.h"
+#include "propertyeditortracing.h"
 #include "propertyeditorview.h"
 #include "qmlanchorbindingproxy.h"
 
@@ -22,6 +23,9 @@
 #include <QTimer>
 
 namespace {
+
+using QmlDesigner::PropertyEditorTracing::category;
+
 constexpr auto widthBinding = [](const QStringView nodeName) -> QString {
     return QString("%1.width").arg(nodeName);
 };
@@ -257,10 +261,13 @@ void prepareGradient(const T &array,
 GradientModel::GradientModel(QObject *parent) :
     QAbstractListModel(parent)
 {
+    NanotraceHR::Tracer tracer{"gradient model constructor", category()};
 }
 
 int GradientModel::rowCount(const QModelIndex & /*parent*/) const
 {
+    NanotraceHR::Tracer tracer{"gradient model row count", category()};
+
     if (m_itemNode.modelNode().hasNodeProperty(gradientPropertyName().toUtf8())) {
         QmlDesigner::ModelNode gradientNode = m_itemNode.modelNode()
                                                   .nodeProperty(gradientPropertyName().toUtf8())
@@ -275,20 +282,21 @@ int GradientModel::rowCount(const QModelIndex & /*parent*/) const
 
 QHash<int, QByteArray> GradientModel::roleNames() const
 {
-    static QHash<int, QByteArray> roleNames{
-        {Qt::UserRole + 1, "position"},
-        {Qt::UserRole + 2, "color"},
-        {Qt::UserRole + 3, "readOnly"},
-        {Qt::UserRole + 4, "index"}
-    };
+    NanotraceHR::Tracer tracer{"gradient model role names", category()};
+
+    static QHash<int, QByteArray> roleNames{{Qt::UserRole + 1, "position"},
+                                            {Qt::UserRole + 2, "color"},
+                                            {Qt::UserRole + 3, "readOnly"},
+                                            {Qt::UserRole + 4, "index"}};
 
     return roleNames;
 }
 
 QVariant GradientModel::data(const QModelIndex &index, int role) const
 {
-    if (index.isValid() && index.row() < rowCount()) {
+    NanotraceHR::Tracer tracer{"gradient model data", category()};
 
+    if (index.isValid() && index.row() < rowCount()) {
         if (role == Qt::UserRole + 3) {
             if (index.row() == 0 || index.row() == (rowCount() - 1))
                 return true;
@@ -312,6 +320,8 @@ QVariant GradientModel::data(const QModelIndex &index, int role) const
 
 int GradientModel::addStop(qreal position, const QColor &color)
 {
+    NanotraceHR::Tracer tracer{"gradient model add stop", category()};
+
     if (m_locked)
         return -1;
 
@@ -354,6 +364,8 @@ int GradientModel::addStop(qreal position, const QColor &color)
 
 void GradientModel::addGradient()
 {
+    NanotraceHR::Tracer tracer{"gradient model add gradient", category()};
+
     if (m_locked)
         return;
 
@@ -397,6 +409,8 @@ void GradientModel::addGradient()
 
 void GradientModel::setColor(int index, const QColor &color)
 {
+    NanotraceHR::Tracer tracer{"gradient model set color", category()};
+
     if (locked())
         return;
 
@@ -417,6 +431,8 @@ void GradientModel::setColor(int index, const QColor &color)
 
 void GradientModel::setPosition(int index, qreal positition)
 {
+    NanotraceHR::Tracer tracer{"gradient model set position", category()};
+
     if (locked())
         return;
 
@@ -431,6 +447,8 @@ void GradientModel::setPosition(int index, qreal positition)
 
 QColor GradientModel::getColor(int index) const
 {
+    NanotraceHR::Tracer tracer{"gradient model get color", category()};
+
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
         QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").at(index);
@@ -443,6 +461,8 @@ QColor GradientModel::getColor(int index) const
 
 qreal GradientModel::getPosition(int index) const
 {
+    NanotraceHR::Tracer tracer{"gradient model get position", category()};
+
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
         QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").at(index);
@@ -455,6 +475,8 @@ qreal GradientModel::getPosition(int index) const
 
 void GradientModel::removeStop(int index)
 {
+    NanotraceHR::Tracer tracer{"gradient model remove stop", category()};
+
     if (index < rowCount() - 1 && index != 0) {
         view()->executeInTransaction("GradientModel::removeStop", [this, index](){
             QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
@@ -476,6 +498,8 @@ void GradientModel::removeStop(int index)
 
 void GradientModel::deleteGradient()
 {
+    NanotraceHR::Tracer tracer{"gradient model delete gradient", category()};
+
     if (!m_itemNode.isValid())
         return;
 
@@ -490,21 +514,29 @@ void GradientModel::deleteGradient()
 
 void GradientModel::lock()
 {
+    NanotraceHR::Tracer tracer{"gradient model lock", category()};
+
     m_locked = true;
 }
 
 void GradientModel::unlock()
 {
+    NanotraceHR::Tracer tracer{"gradient model unlock", category()};
+
     m_locked = false;
 }
 
 void GradientModel::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"gradient model register declarative type", category()};
+
     qmlRegisterType<GradientModel>("HelperWidgets", 2, 0, "GradientModel");
 }
 
 qreal GradientModel::readGradientProperty(const QString &propertyName) const
 {
+    NanotraceHR::Tracer tracer{"gradient model read gradient property", category()};
+
     if (!m_itemNode.isValid())
         return 0;
 
@@ -520,11 +552,15 @@ qreal GradientModel::readGradientProperty(const QString &propertyName) const
 
 qreal GradientModel::readGradientPropertyPercentage(const QString &propertyName) const
 {
+    NanotraceHR::Tracer tracer{"gradient model read gradient property percentage", category()};
+
     return getPercentageGradientProperty(propertyName.toUtf8());
 }
 
 QString GradientModel::readGradientOrientation() const
 {
+    NanotraceHR::Tracer tracer{"gradient model read gradient orientation", category()};
+
     if (!m_itemNode.isValid())
         return QString();
 
@@ -541,6 +577,8 @@ QString GradientModel::readGradientOrientation() const
 GradientModel::GradientPropertyUnits GradientModel::readGradientPropertyUnits(
     const QString &propertyName) const
 {
+    NanotraceHR::Tracer tracer{"gradient model read gradient property units", category()};
+
     if (hasPercentageGradientProperty(propertyName))
         return GradientPropertyUnits::Percentage;
 
@@ -559,6 +597,8 @@ bool GradientModel::isPercentageSupportedByProperty(const QString &propertyName,
 
 void GradientModel::setupModel()
 {
+    NanotraceHR::Tracer tracer{"gradient model setup model", category()};
+
     m_locked = true;
     const QScopeGuard cleanup([&] { m_locked = false; });
 
@@ -568,7 +608,9 @@ void GradientModel::setupModel()
 
 void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
 {
-    auto anchorBackendObject = anchorBackend.value<QObject*>();
+    NanotraceHR::Tracer tracer{"gradient model set anchor backend", category()};
+
+    auto anchorBackendObject = anchorBackend.value<QObject *>();
 
     const auto backendCasted =
             qobject_cast<const QmlDesigner::QmlAnchorBindingProxy *>(anchorBackendObject);
@@ -592,32 +634,44 @@ void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
 
 QString GradientModel::gradientPropertyName() const
 {
+    NanotraceHR::Tracer tracer{"gradient model gradient property name", category()};
+
     return m_gradientPropertyName;
 }
 
 void GradientModel::setGradientPropertyName(const QString &name)
 {
+    NanotraceHR::Tracer tracer{"gradient model set gradient property name", category()};
+
     m_gradientPropertyName = name;
 }
 
 QString GradientModel::gradientTypeName() const
 {
+    NanotraceHR::Tracer tracer{"gradient model gradient type name", category()};
+
     return m_gradientTypeName;
 }
 
 void GradientModel::setGradientTypeName(const QString &name)
 {
+    NanotraceHR::Tracer tracer{"gradient model set gradient type name", category()};
+
     m_gradientTypeName = name;
 }
 
 bool GradientModel::hasGradient() const
 {
+    NanotraceHR::Tracer tracer{"gradient model has gradient", category()};
+
     return m_itemNode.isValid()
-            && m_itemNode.modelNode().hasProperty(gradientPropertyName().toUtf8());
+           && m_itemNode.modelNode().hasProperty(gradientPropertyName().toUtf8());
 }
 
 bool GradientModel::locked() const
 {
+    NanotraceHR::Tracer tracer{"gradient model locked", category()};
+
     if (m_locked)
         return true;
 
@@ -628,6 +682,8 @@ bool GradientModel::locked() const
 
 bool GradientModel::hasShapesImport() const
 {
+    NanotraceHR::Tracer tracer{"gradient model has shapes import", category()};
+
     if (m_itemNode.isValid()) {
         QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick.Shapes", "1.0");
         return model()->hasImport(import, true, true);
@@ -638,6 +694,8 @@ bool GradientModel::hasShapesImport() const
 
 void GradientModel::ensureShapesImport()
 {
+    NanotraceHR::Tracer tracer{"gradient model ensure shapes import", category()};
+
     if (!hasShapesImport()) {
         QmlDesigner::Import timelineImport = QmlDesigner::Import::createLibraryImport("QtQuick.Shapes", "1.0");
         try {
@@ -650,6 +708,8 @@ void GradientModel::ensureShapesImport()
 
 void GradientModel::setupGradientProperties(const QmlDesigner::ModelNode &gradient)
 {
+    NanotraceHR::Tracer tracer{"gradient model setup gradient properties", category()};
+
     QTC_ASSERT(m_itemNode.isValid(), return);
 
     QTC_ASSERT(gradient.isValid(), return);
@@ -676,23 +736,31 @@ void GradientModel::setupGradientProperties(const QmlDesigner::ModelNode &gradie
 
 QmlDesigner::Model *GradientModel::model() const
 {
+    NanotraceHR::Tracer tracer{"gradient model model", category()};
+
     QTC_ASSERT(m_itemNode.isValid(), return nullptr);
     return m_itemNode.view()->model();
 }
 
 QmlDesigner::AbstractView *GradientModel::view() const
 {
+    NanotraceHR::Tracer tracer{"gradient model view", category()};
+
     QTC_ASSERT(m_itemNode.isValid(), return nullptr);
     return m_itemNode.view();
 }
 
 void GradientModel::resetPuppet()
 {
+    NanotraceHR::Tracer tracer{"gradient model reset puppet", category()};
+
     QTimer::singleShot(1000, view(), &QmlDesigner::AbstractView::resetPuppet);
 }
 
 QmlDesigner::ModelNode GradientModel::createGradientNode()
 {
+    NanotraceHR::Tracer tracer{"gradient model create gradient node", category()};
+
 #ifdef QDS_USE_PROJECTSTORAGE
     QmlDesigner::TypeName typeName = m_gradientTypeName.toUtf8();
     auto gradientNode = view()->createModelNode(typeName);
@@ -719,6 +787,8 @@ QmlDesigner::ModelNode GradientModel::createGradientNode()
 
 QmlDesigner::ModelNode GradientModel::createGradientStopNode()
 {
+    NanotraceHR::Tracer tracer{"gradient model create gradient stop node", category()};
+
 #ifdef QDS_USE_PROJECTSTORAGE
     return view()->createModelNode("GradientStop");
 #else
@@ -734,6 +804,8 @@ QmlDesigner::ModelNode GradientModel::createGradientStopNode()
 
 void GradientModel::deleteGradientNode(bool saveTransaction)
 {
+    NanotraceHR::Tracer tracer{"gradient model delete gradient node", category()};
+
     QmlDesigner::ModelNode modelNode = m_itemNode.modelNode();
 
     if (m_itemNode.isInBaseState()) {
@@ -754,6 +826,8 @@ void GradientModel::deleteGradientNode(bool saveTransaction)
 
 bool GradientModel::hasPercentageGradientProperty(const QString &propertyName) const
 {
+    NanotraceHR::Tracer tracer{"gradient model has percentage gradient property", category()};
+
     bool result = false;
     getPercentageGradientProperty(propertyName.toUtf8(), &result);
     return result;
@@ -762,6 +836,8 @@ bool GradientModel::hasPercentageGradientProperty(const QString &propertyName) c
 qreal GradientModel::getPercentageGradientProperty(const QmlDesigner::PropertyNameView propertyName,
                                                    bool *ok) const
 {
+    NanotraceHR::Tracer tracer{"gradient model get percentage gradient property", category()};
+
     if (ok != nullptr)
         *ok = false;
 
@@ -809,6 +885,8 @@ qreal GradientModel::getPercentageGradientProperty(const QmlDesigner::PropertyNa
 
 QVariant GradientModel::getGradientPropertyVariant(const QString &propertyName) const
 {
+    NanotraceHR::Tracer tracer{"gradient model get gradient property variant", category()};
+
     if (!m_itemNode.isValid())
         return {};
 
@@ -825,6 +903,8 @@ QVariant GradientModel::getGradientPropertyVariant(const QString &propertyName) 
 ShapeGradientPropertyData GradientModel::getDefaultGradientPropertyData(
     const QmlDesigner::PropertyNameView propertyName, const QStringView &gradientType) const
 {
+    NanotraceHR::Tracer tracer{"gradient model get default gradient property data", category()};
+
     const auto *gradData = getDefaultGradientData(propertyName, gradientType);
     if (gradData != nullptr)
         return *gradData;
@@ -834,6 +914,8 @@ ShapeGradientPropertyData GradientModel::getDefaultGradientPropertyData(
 
 void GradientModel::setGradientProperty(const QString &propertyName, qreal value)
 {
+    NanotraceHR::Tracer tracer{"gradient model set gradient property", category()};
+
     QTC_ASSERT(m_itemNode.isValid(), return);
 
     QmlDesigner::QmlObjectNode gradient = m_itemNode.modelNode()
@@ -851,6 +933,8 @@ void GradientModel::setGradientProperty(const QString &propertyName, qreal value
 
 void GradientModel::setGradientPropertyPercentage(const QString &propertyName, qreal value)
 {
+    NanotraceHR::Tracer tracer{"gradient model set gradient property percentage", category()};
+
     QTC_ASSERT(m_itemNode.isValid(), return);
 
     QmlDesigner::QmlObjectNode gradient = m_itemNode.modelNode()
@@ -883,6 +967,8 @@ void GradientModel::setGradientPropertyPercentage(const QString &propertyName, q
 
 void GradientModel::setGradientOrientation(Qt::Orientation value)
 {
+    NanotraceHR::Tracer tracer{"gradient model set gradient orientation", category()};
+
     QTC_ASSERT(m_itemNode.isValid(), return);
 
     QmlDesigner::QmlObjectNode gradient = m_itemNode.modelNode()
@@ -903,6 +989,8 @@ void GradientModel::setGradientOrientation(Qt::Orientation value)
 void GradientModel::setGradientPropertyUnits(const QString &propertyName,
                                              GradientModel::GradientPropertyUnits value)
 {
+    NanotraceHR::Tracer tracer{"gradient model set gradient property units", category()};
+
     //translate from previous units to the new unit system
     const bool toPixels = (value == GradientPropertyUnits::Pixels);
     const bool toPercentage = (value == GradientPropertyUnits::Percentage);
@@ -952,6 +1040,8 @@ void GradientModel::setGradientPropertyUnits(const QString &propertyName,
 
 void GradientModel::setPresetByID(int presetID)
 {
+    NanotraceHR::Tracer tracer{"gradient model set preset by ID", category()};
+
     const QGradient gradient(GradientPresetItem::createGradientFromPreset(
         static_cast<GradientPresetItem::Preset>(presetID)));
     const QList<QGradientStop> gradientStops = gradient.stops();
@@ -971,6 +1061,8 @@ void GradientModel::setPresetByStops(const QList<qreal> &stopsPositions,
                                      int stopsCount,
                                      bool saveTransaction)
 {
+    NanotraceHR::Tracer tracer{"gradient model set preset by stops", category()};
+
     if (m_locked)
         return;
 
@@ -1017,6 +1109,8 @@ void GradientModel::setPresetByStops(const QList<qreal> &stopsPositions,
 
 void GradientModel::savePreset()
 {
+    NanotraceHR::Tracer tracer{"gradient model save preset", category()};
+
     //preparing qgradient:
     QGradient currentGradient;
     QGradientStops currentStops;
@@ -1040,6 +1134,8 @@ void GradientModel::savePreset()
 
 void GradientModel::updateGradient()
 {
+    NanotraceHR::Tracer tracer{"gradient model update gradient", category()};
+
     beginResetModel();
 
     QList<qreal> stops;

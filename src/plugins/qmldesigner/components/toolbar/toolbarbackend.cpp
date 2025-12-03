@@ -350,12 +350,7 @@ void ActionSubscriber::setupNotifier()
     emit tooltipChanged();
 }
 
-#ifdef DVCONNECTOR_ENABLED
-static std::unique_ptr<DesignViewer::DVConnector> s_designViewerConnector;
-#endif
-
-ToolBarBackend::ToolBarBackend(QObject *parent)
-    : QObject(parent)
+ToolBarBackend::ToolBarBackend()
 {
     ActionAddedInterface callback = [this](ActionInterface *interface) {
         if (interface->menuId() == "PreviewZoom")
@@ -606,9 +601,15 @@ void ToolBarBackend::openFileByIndex(int i)
     Core::EditorManager::openEditor(fileName, Utils::Id(), Core::EditorManager::DoNotMakeVisible);
 }
 
-void ToolBarBackend::closeCurrentDocument()
+void ToolBarBackend::closeDocument(int i)
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_CLOSE_DOCUMENT);
+    Core::EditorManager::closeDocument(i);
+}
+
+void ToolBarBackend::closeCurrentDocument()
+{
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_CLOSE_CURRENT_DOCUMENT);
     Core::EditorManager::slotCloseCurrentEditorOrDocument();
 }
 
@@ -943,10 +944,18 @@ QString ToolBarBackend::runManagerError() const
 #ifdef DVCONNECTOR_ENABLED
 DesignViewer::DVConnector *ToolBarBackend::designViewerConnector()
 {
-    if (!s_designViewerConnector)
-        s_designViewerConnector = std::make_unique<DesignViewer::DVConnector>();
+    if (!m_designViewerConnector) {
+        static constinit std::weak_ptr<DesignViewer::DVConnector> designViewerConnector;
 
-    return s_designViewerConnector.get();
+        if (designViewerConnector.use_count() > 0) {
+            m_designViewerConnector = designViewerConnector.lock();
+        } else {
+            m_designViewerConnector = std::make_shared<DesignViewer::DVConnector>();
+            designViewerConnector = m_designViewerConnector;
+        }
+    }
+
+    return m_designViewerConnector.get();
 }
 #endif
 

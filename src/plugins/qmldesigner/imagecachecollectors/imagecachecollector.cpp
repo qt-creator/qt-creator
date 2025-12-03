@@ -3,7 +3,6 @@
 
 #include "imagecachecollector.h"
 
-#include <externaldependenciesinterface.h>
 #include <qmlpuppetpaths.h>
 #include <qprocessuniqueptr.h>
 
@@ -24,11 +23,9 @@ namespace {
 
 ImageCacheCollector::ImageCacheCollector(QSize captureImageMinimumSize,
                                          QSize captureImageMaximumSize,
-                                         ExternalDependenciesInterface &externalDependencies,
                                          ImageCacheCollectorNullImageHandling nullImageHandling)
     : captureImageMinimumSize{captureImageMinimumSize}
     , captureImageMaximumSize{captureImageMaximumSize}
-    , m_externalDependencies{externalDependencies}
     , nullImageHandling{nullImageHandling}
 {}
 
@@ -151,7 +148,7 @@ bool ImageCacheCollector::runProcess(const QStringList &arguments) const
         return false;
 
     auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
-        target()->kit(), m_externalDependencies.designerSettings());
+        target()->kit());
     if (puppetPath.isEmpty())
         return false;
 

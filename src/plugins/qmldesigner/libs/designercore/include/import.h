@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <nanotrace/nanotracehr.h>
 #include <utils/set_algorithm.h>
 
 #include <QDebug>
@@ -41,6 +42,8 @@ public:
     const QString &alias() const { return m_alias; }
     const QStringList &importPaths() const { return m_importPathList; }
 
+    std::array<int, 2> versions() const;
+
     QString toString(bool skipAlias = false, bool skipVersion = false) const;
     QString toImportString() const;
 
@@ -68,6 +71,17 @@ public:
     {
         debug << import.toString();
         return debug;
+    }
+
+    template<typename String>
+    friend void convertToString(String &string, const Import &import)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("url", import.m_url),
+                              keyValue("version", import.m_version),
+                              keyValue("alias", import.m_alias));
+        convertToString(string, dict);
     }
 
 private:

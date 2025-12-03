@@ -5,6 +5,8 @@
 #include "endpuppetcommand.h"
 #include "puppetstarter.h"
 
+#include <qmldesigner/settings/designersettings.h>
+
 #include <externaldependenciesinterface.h>
 #include <abstractview.h>
 
@@ -49,32 +51,21 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
                 processFinished(exitCode, exitStatus, connection.name);
             });
     }
-
+    if (!m_connections.empty() && m_connections.at(0).qmlPuppetProcess)
+        qDebug() << "Start QMLPuppets from: " << m_connections.at(0).qmlPuppetProcess.get()->program();
     const int second = 1000;
     for (Connection &connection : m_connections) {
-        int waitConstant = 8 * second;
-        if (!connection.qmlPuppetProcess->waitForStarted(waitConstant)) {
+        int waitConstant = 5 * second;
+
+        if (!connection.localServer->hasPendingConnections() && !connection.localServer->waitForNewConnection(waitConstant)) {
             closeSocketsAndKillProcesses();
             showCannotConnectToPuppetWarningAndSwitchToEditMode();
             return;
         }
-
-        waitConstant /= 2;
-
-        bool connectedToPuppet = true;
-        if (!connection.localServer->hasPendingConnections())
-            connectedToPuppet = connection.localServer->waitForNewConnection(waitConstant);
-
-        if (connectedToPuppet) {
-            connection.socket.reset(connection.localServer->nextPendingConnection());
-            QObject::connect(connection.socket.get(), &QIODevice::readyRead, this, [&] {
-                readDataStream(connection);
-            });
-        } else {
-            closeSocketsAndKillProcesses();
-            showCannotConnectToPuppetWarningAndSwitchToEditMode();
-            return;
-        }
+        connection.socket.reset(connection.localServer->nextPendingConnection());
+        QObject::connect(connection.socket.get(), &QIODevice::readyRead, this, [&] {
+            readDataStream(connection);
+        });
         connection.localServer->close();
     }
 }
@@ -104,12 +95,14 @@ void ConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitS
     qWarning() << "Process" << connectionName <<(exitStatus == QProcess::CrashExit ? "crashed:" : "finished:")
                << "with exitCode:" << exitCode;
 
-    writeCommand(QVariant::fromValue(EndPuppetCommand()));
+    if (designerSettings().value(DesignerSettingsKey::DEBUG_PUPPET).toString().isEmpty()) {
+        writeCommand(QVariant::fromValue(EndPuppetCommand()));
 
-    closeSocketsAndKillProcesses();
+        closeSocketsAndKillProcesses();
 
-    if (exitStatus == QProcess::CrashExit)
-        callCrashCallback();
+        if (exitStatus == QProcess::CrashExit)
+            callCrashCallback();
+    }
 }
 
 void ConnectionManager::closeSocketsAndKillProcesses()

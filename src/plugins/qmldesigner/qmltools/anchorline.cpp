@@ -5,6 +5,8 @@
 
 namespace QmlDesigner {
 
+using ModelTracing::category;
+
 AnchorLine::AnchorLine()
     : m_qmlItemNode(QmlItemNode())
     , m_type(AnchorLineInvalid)
@@ -20,8 +22,11 @@ AnchorLineType AnchorLine::type() const
     return m_type;
 }
 
-bool AnchorLine::isValid() const
+bool AnchorLine::isValid(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"anchor line is valid", category(), keyValue("caller location", sl)};
+
     return m_type != AnchorLineInvalid && m_qmlItemNode.isValid();
 }
 

@@ -127,7 +127,7 @@ Section {
             visible: shadowCheckBox.checked
             SpinBox {
                 minimumValue: 0
-                maximumValue: Infinity
+                maximumValue: 9999999
                 decimals: 0
                 stepSize: 10
                 backendValue: backendValues.shadowMapFar

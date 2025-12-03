@@ -20,8 +20,9 @@
 
 namespace QmlDesigner {
 
-EventListDialog::EventListDialog(QWidget *parent)
+EventListDialog::EventListDialog(ModulesStorage &modulesStorage, QWidget *parent)
     : QDialog(parent)
+    , m_modulesStorage(modulesStorage)
     , m_delegate(new EventListDelegate)
     , m_modifier(nullptr)
     , m_rewriter(nullptr)
@@ -76,6 +77,7 @@ void EventListDialog::initialize(EventList &events)
         m_modifier->setParent(model);
 
         m_rewriter = new RewriterView(events.view()->externalDependencies(),
+                                      m_modulesStorage,
                                       QmlDesigner::RewriterView::Validate);
         m_rewriter->setParent(model);
         m_rewriter->setTextModifier(m_modifier);

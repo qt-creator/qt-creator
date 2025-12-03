@@ -16,6 +16,7 @@
 #include <QQmlComponent>
 #include <QQmlEngine>
 #include <QSettings>
+#include <QRandomGenerator>
 
 #if defined(Q_OS_WIN) && defined(QT_NO_DEBUG)
     #include <Windows.h>
@@ -48,6 +49,8 @@ void QmlPuppet::initCoreApp()
 #endif //QT_WIDGETS_LIB
         createCoreApp<QGuiApplication>();
 #endif //QT_GUI_LIB
+    if (qEnvironmentVariableIsSet("QML_PUPPET_CRASH_IN_RANDOM_SECONDS"))
+        setupRandomCrash();
 }
 
 int QmlPuppet::startTestMode()
@@ -90,6 +93,8 @@ QString crashReportsPath()
 
 void QmlPuppet::initQmlRunner()
 {
+    QmlBase::initQmlRunner();
+
     if (m_coreApp->arguments().count() < 2
         || (m_argParser.isSet("readcapturedstream") && m_coreApp->arguments().count() < 3)
         || (m_argParser.isSet("import3dAsset") && m_coreApp->arguments().count() < 6)
@@ -133,4 +138,20 @@ void QmlPuppet::initQmlRunner()
 
     if (m_argParser.isSet("readcapturedstream"))
         exit(0);
+}
+
+void QmlPuppet::setupRandomCrash()
+{
+    bool ok = false;
+    int maxSeconds = qEnvironmentVariableIntValue("QML_PUPPET_CRASH_IN_RANDOM_SECONDS", &ok);
+    if (ok && maxSeconds >= 0) {
+        int maxMilliseconds = maxSeconds * 1000;
+        int crashDelayMs = QRandomGenerator::global()->bounded(maxMilliseconds + 1);
+        QTimer::singleShot(crashDelayMs, QCoreApplication::instance(), [crashDelayMs]() {
+            qFatal(
+                "Planned crash after %d ms "
+                "(set via QML_PUPPET_CRASH_IN_RANDOM_SECONDS)",
+                crashDelayMs % 1000);
+        });
+    }
 }

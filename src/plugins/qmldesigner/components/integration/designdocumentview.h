@@ -16,7 +16,8 @@ class QMLDESIGNERCOMPONENTS_EXPORT DesignDocumentView : public AbstractView
 {
         Q_OBJECT
 public:
-    DesignDocumentView(ExternalDependenciesInterface &externalDependencies);
+    DesignDocumentView(ExternalDependenciesInterface &externalDependencies,
+                       ModulesStorage &modulesStorage);
     ~DesignDocumentView() override;
 
     ModelNode insertModel(const ModelNode &modelNode);
@@ -28,12 +29,14 @@ public:
     QString toText() const;
     void fromText(const QString &text);
 
-    static ModelPointer pasteToModel(ExternalDependenciesInterface &externalDependencies);
+    static ModelPointer pasteToModel(ExternalDependenciesInterface &externalDependencies,
+                                     ModulesStorage &modulesStorage);
     static void copyModelNodes(const QList<ModelNode> &nodesToCopy,
                                ExternalDependenciesInterface &externalDependencies);
 
 private:
     std::unique_ptr<ModelMerger> m_modelMerger;
+    ModulesStorage &m_modulesStorage;
 };
 
 }// namespace QmlDesigner

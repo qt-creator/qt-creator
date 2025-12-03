@@ -217,7 +217,7 @@ void ActionEditor::prepareConnections()
     const QmlJS::ScopeChain &scopeChain = semanticInfo.scopeChain(path);
 
     constexpr auto typeWhiteList = std::make_tuple(
-        "string", "real", "int", "double", "bool", "QColor", "color", "QtQuick.Item", "QQuickItem");
+        "string", "real", "int", "double", "bool", "QColor", "color", "Item", "QQuickItem");
 
     auto isSkippedType = [](auto &&type) {
         return !(type.isString() || type.isInteger() || type.isBool() || type.isColor()
@@ -323,7 +323,7 @@ void ActionEditor::prepareConnections()
                 }
 
                 if (!singelton.properties.isEmpty()) {
-                    singelton.item = metaInfo.displayName();
+                    singelton.item = model->exportedTypeNameForMetaInfo(metaInfo).name.toQString();
                     singletons.append(singelton);
                 }
             }

@@ -67,6 +67,7 @@ private slots:
     void handleObjectPropertyChange(const QVariant &objects, const QVariant &propNames);
     void handleActiveSceneChange();
     void handleActiveViewportChange(int index);
+    void handleMouseCursorChange(int cursor);
     void handleToolStateChanged(const QString &sceneId, const QString &tool,
                                 const QVariant &toolState);
     void handleView3DSizeChange();

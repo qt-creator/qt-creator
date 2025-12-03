@@ -5,7 +5,7 @@
     "category": "H.StudioQMLFiles",
     "trDescription": "Creates a list model that contains list elements.",
     "trDisplayName": "ListModel",
-    "trDisplayCategory": "QML Files",
+    "trDisplayCategory": "QML",
     "icon": "data_listmodel.png",
     "platformIndependent": true,
 

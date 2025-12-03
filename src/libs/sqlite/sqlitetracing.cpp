@@ -3,36 +3,39 @@
 
 #include "sqlitetracing.h"
 
+#include <nanotrace/tracefile.h>
+
 namespace Sqlite {
 
-TraceFile &traceFile()
-{
-    static TraceFile traceFile{"tracing.json"};
-
-    return traceFile;
-}
+#ifdef ENABLE_SQLITE_TRACING
 
 namespace {
 
-thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewWithStringArgumentsTraceEvent,
-                                     sqliteTracingStatus()>
-    eventQueue(traceFile());
+thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueue(NanotraceHR::traceFile());
+thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueueWithoutArguments(
+    NanotraceHR::traceFile());
 
 } // namespace
 
-NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteLowLevelCategory()
+NanotraceHR::EnabledCategory &sqliteLowLevelCategory()
 {
-    thread_local NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()>
-        sqliteLowLevelCategory_{"sqlite low level", eventQueue, sqliteLowLevelCategory};
+    thread_local NanotraceHR::EnabledCategory sqliteLowLevelCategory_{"sqlite low level",
+                                                                      eventQueue,
+                                                                      eventQueueWithoutArguments,
+                                                                      sqliteLowLevelCategory};
     return sqliteLowLevelCategory_;
 }
 
-NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteHighLevelCategory()
+NanotraceHR::EnabledCategory &sqliteHighLevelCategory()
 {
-    thread_local NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()>
-        sqliteHighLevelCategory_{"sqlite high level", eventQueue, sqliteHighLevelCategory};
+    thread_local NanotraceHR::EnabledCategory sqliteHighLevelCategory_{"sqlite high level",
+                                                                       eventQueue,
+                                                                       eventQueueWithoutArguments,
+                                                                       sqliteHighLevelCategory};
 
     return sqliteHighLevelCategory_;
 }
+
+#endif
 
 } // namespace Sqlite

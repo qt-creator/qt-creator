@@ -34,8 +34,6 @@ public:
     bool hasWidget() const override { return true; }
     WidgetInfo widgetInfo() override;
 
-    void qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const;
-
     TextEditor::BaseTextEditor *textEditor();
 
     void gotoCursorPosition(int line, int column);
@@ -45,7 +43,10 @@ public:
     void jumpToModelNode(const ModelNode &modelNode);
 
 private:
+    void createTextEditor();
+
     QPointer<TextEditorWidget> m_widget;
+    QMetaObject::Connection m_designDocumentConnection;
     bool m_errorState = false;
 };
 

@@ -20,12 +20,13 @@ class Target;
 
 namespace QmlDesigner {
 
-class DesignDocument;
 class AbstractCustomTool;
+class DesignDocument;
 class DesignerActionManager;
-class NodeInstanceView;
-class RewriterView;
 class Edit3DView;
+class NodeInstanceView;
+class PropertyEditorView;
+class RewriterView;
 class TextEditorView;
 
 namespace Internal { class DesignModeWidget; }
@@ -36,7 +37,8 @@ class QMLDESIGNERCOMPONENTS_EXPORT ViewManager : private WidgetRegistrationInter
 {
 public:
     ViewManager(class AsynchronousImageCache &imageCache,
-                class ExternalDependenciesInterface &externalDependencies);
+                class ExternalDependenciesInterface &externalDependencies,
+                ModulesStorage &modulesStorage);
     ~ViewManager();
     void attachRewriterView();
     void detachRewriterView();
@@ -64,13 +66,15 @@ public:
 
     void disableWidgets();
     void enableWidgets();
-
+    void removeExtraView(WidgetInfo info);
     void pushFileOnCrumbleBar(const ::Utils::FilePath &fileName);
     void pushInFileComponentOnCrumbleBar(const ModelNode &modelNode);
     void nextFileIsCalledInternally();
 
     const AbstractView *view() const;
     AbstractView *view();
+
+    PropertyEditorView *propertyEditorView() const;
     TextEditorView *textEditorView();
 
     void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList,
@@ -81,6 +85,7 @@ public:
     void reformatFileUsingTextEditorView();
 
     QWidgetAction *componentViewAction() const;
+    QAction *propertyEditorUnifiedAction() const;
 
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;
@@ -94,11 +99,12 @@ public:
     void enableStandardViews();
     void jumpToCodeInTextEditor(const ModelNode &modelNode);
     QList<AbstractView *> views() const;
+    AbstractView *findView(const QString &uniqueId);
 
     void hideView(AbstractView &view);
     void showView(AbstractView &view);
-    void registerWidgetInfo(WidgetInfo info) override;
-    void deregisterWidgetInfo(WidgetInfo info) override;
+    void removeView(AbstractView &view);
+    void hideSingleWidgetTitleBars(const QString &uniqueId);
     void initializeWidgetInfos();
 
 private: // functions
@@ -126,6 +132,12 @@ private: // functions
     void enableView(AbstractView &view);
 
     void disableView(AbstractView &view);
+
+    void registerWidgetInfo(WidgetInfo info) override;
+    void deregisterWidgetInfo(WidgetInfo info) override;
+    void showExtraWidget(WidgetInfo info) override;
+    void hideExtraWidget(WidgetInfo info) override;
+    void removeExtraWidget(WidgetInfo info) override;
 
 private: // variables
     std::unique_ptr<ViewManagerData> d;

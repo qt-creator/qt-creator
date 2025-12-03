@@ -42,8 +42,8 @@
     \section1 3D assets
 
     You can import files you created using 3D graphics applications and
-    stored in several widely-used formats, such as .blend, .dae, .fbx,
-    .glb, .gltf, .obj, .uia, or .uip.
+    stored in several widely-used formats, such as \c{.blend}, \c{.dae}, \c{.fbx},
+    \c{.glb}, \c{.gltf}, \c{.obj}, \c{.uia}, or \c{.uip}.
 
     For an overview, see \l{Exporting 3D assets}.
 

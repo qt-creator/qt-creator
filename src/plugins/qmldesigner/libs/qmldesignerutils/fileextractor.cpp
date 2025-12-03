@@ -258,6 +258,11 @@ void FileExtractor::extract()
     m_unarchiver->start();
 }
 
+void FileExtractor::probeTargetPath()
+{
+    emit targetFolderExistsChanged();
+}
+
 void QmlDesigner::FileExtractor::removeTempTargetPath()
 {
     if (m_isTempTargetPath && m_targetPath.exists()) {

@@ -28,14 +28,44 @@
 
 namespace QmlDesigner {
 
-bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
+using NanotraceHR::keyValue;
+
+using ModelTracing::category;
+
+bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml item node is item or window",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
     auto metaInfo = modelNode.metaInfo();
     auto model = modelNode.model();
+#ifdef QDS_USE_PROJECTSTORAGE
 
-    if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo(),
-                           model->flowViewFlowDecisionMetaInfo(),
-                           model->flowViewFlowWildcardMetaInfo())) {
+    auto qtQuickitem = model->qtQuickItemMetaInfo();
+    auto qtQuickWindowWindow = model->qtQuickWindowMetaInfo();
+    auto qtQuickDialogsDialog = model->qtQuickDialogsAbstractDialogMetaInfo();
+    auto qtQuickControlsPopup = model->qtQuickTemplatesPopupMetaInfo();
+
+    auto matched = metaInfo.basedOn(qtQuickitem,
+
+                                    qtQuickWindowWindow,
+                                    qtQuickDialogsDialog,
+                                    qtQuickControlsPopup);
+
+    if (!matched)
+        return false;
+
+    if (matched == qtQuickWindowWindow or matched == qtQuickDialogsDialog
+        or matched == qtQuickControlsPopup)
+        return modelNode.isRootNode();
+
+    return true;
+#else
+    auto qtQuickitem = model->qtQuickItemMetaInfo();
+
+    if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo())) {
         return true;
     }
 
@@ -43,32 +73,59 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
         return true;
 
     return false;
+#endif
 }
 
 QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view,
                                            const ItemLibraryEntry &itemLibraryEntry,
                                            const QPointF &position,
-                                           QmlItemNode parentQmlItemNode)
+                                           QmlItemNode parentQmlItemNode,
+                                           SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml item node create qml item node",
+                               category(),
+                               keyValue("caller location", sl)};
+
     return QmlItemNode(createQmlObjectNode(view, itemLibraryEntry, position, parentQmlItemNode));
 }
 
-QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, QmlItemNode parentQmlItemNode, bool executeInTransaction)
+QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view,
+                                                    const QString &imageName,
+                                                    const QPointF &position,
+                                                    QmlItemNode parentQmlItemNode,
+                                                    bool executeInTransaction,
+                                                    SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml item node create qml item node from image",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (!parentQmlItemNode.isValid())
         parentQmlItemNode = QmlItemNode(view->rootModelNode());
 
     NodeAbstractProperty parentProperty = parentQmlItemNode.defaultNodeAbstractProperty();
 
-    return QmlItemNode::createQmlItemNodeFromImage(view, imageName, position, parentProperty, executeInTransaction);
+    return QmlItemNode::createQmlItemNodeFromImage(view,
+                                                   imageName,
+                                                   position,
+                                                   parentProperty,
+                                                   executeInTransaction);
 }
 
-QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, NodeAbstractProperty parentproperty, bool executeInTransaction)
+QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view,
+                                                    const QString &imageName,
+                                                    const QPointF &position,
+                                                    NodeAbstractProperty parentproperty,
+                                                    bool executeInTransaction,
+                                                    SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml item node create qml item node from image",
+                               category(),
+                               keyValue("caller location", sl)};
+
     QmlItemNode newQmlItemNode;
 
     auto doCreateQmlItemNodeFromImage = [=, &newQmlItemNode, &parentproperty]() {
-        NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
         QList<QPair<PropertyName, QVariant> > propertyPairList;
         if (const int intX = qRound(position.x()))
             propertyPairList.emplace_back("x", intX);
@@ -98,6 +155,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
         if (reader.supportsAnimation())
             type = "QtQuick.AnimatedImage";
 
+        NodeMetaInfo metaInfo = view->model()->metaInfo(type, -1, -1);
         newQmlItemNode = QmlItemNode(view->createModelNode(type,
                                                            metaInfo.majorVersion(),
                                                            metaInfo.minorVersion(),
@@ -125,8 +183,13 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
                                                    const QString &fontFamily,
                                                    const QPointF &position,
                                                    QmlItemNode parentQmlItemNode,
-                                                   bool executeInTransaction)
+                                                   bool executeInTransaction,
+                                                   SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml item node create qml item node from font",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (!parentQmlItemNode.isValid())
         parentQmlItemNode = QmlItemNode(view->rootModelNode());
 
@@ -140,8 +203,13 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
                                                    const QString &fontFamily,
                                                    const QPointF &position,
                                                    NodeAbstractProperty parentproperty,
-                                                   bool executeInTransaction)
+                                                   bool executeInTransaction,
+                                                   SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml item node create qml item node from font",
+                               category(),
+                               keyValue("caller location", sl)};
+
     QmlItemNode newQmlItemNode;
 
     auto doCreateQmlItemNodeFromFont = [=, &newQmlItemNode, &parentproperty]() {
@@ -178,8 +246,13 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
 QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
                                                     QmlItemNode parentQmlItemNode,
                                                     const QString &effectPath,
-                                                    bool isLayerEffect)
+                                                    bool isLayerEffect,
+                                                    SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml item node create qml item node for effect",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (!parentQmlItemNode.isValid())
         parentQmlItemNode = QmlItemNode(view->rootModelNode());
 
@@ -193,8 +266,13 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
 QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
                                                     NodeAbstractProperty parentProperty,
                                                     const QString &effectPath,
-                                                    bool isLayerEffect)
+                                                    bool isLayerEffect,
+                                                    SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml item node create qml item node for effect",
+                               category(),
+                               keyValue("caller location", sl)};
+
     QmlItemNode newQmlItemNode;
 
     auto createEffectNode = [=, &newQmlItemNode, &parentProperty]() {
@@ -221,7 +299,15 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
     return newQmlItemNode;
 }
 
-void QmlItemNode::placeEffectNode(NodeAbstractProperty &parentProperty, const QmlItemNode &effectNode, bool isLayerEffect) {
+void QmlItemNode::placeEffectNode(NodeAbstractProperty &parentProperty,
+                                  const QmlItemNode &effectNode,
+                                  bool isLayerEffect,
+                                  SL sl)
+{
+    NanotraceHR::Tracer tracer{"qml item node place effect node",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (isLayerEffect && !parentProperty.isEmpty()) { // already contains a node
         ModelNode oldEffect = parentProperty.toNodeProperty().modelNode();
         QmlObjectNode(oldEffect).destroy();
@@ -247,18 +333,34 @@ void QmlItemNode::placeEffectNode(NodeAbstractProperty &parentProperty, const Qm
         effectNode.modelNode().variantProperty("timeRunning").setValue(true);
 }
 
-bool QmlItemNode::isValid() const
+bool QmlItemNode::isValid(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node is valid",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return isValidQmlItemNode(modelNode());
 }
 
-bool QmlItemNode::isValidQmlItemNode(const ModelNode &modelNode)
+bool QmlItemNode::isValidQmlItemNode(const ModelNode &modelNode, SL sl)
 {
-    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid() && (isItemOrWindow(modelNode));
+    NanotraceHR::Tracer tracer{"qml item node is valid qml item node",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
+    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid()
+           && (isItemOrWindow(modelNode));
 }
 
-QList<QmlItemNode> QmlItemNode::children() const
+QList<QmlItemNode> QmlItemNode::children(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node children",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QList<ModelNode> childrenList;
 
     if (isValid()) {
@@ -278,8 +380,13 @@ QList<QmlItemNode> QmlItemNode::children() const
     return toQmlItemNodeList(childrenList);
 }
 
-QList<QmlObjectNode> QmlItemNode::resources() const
+QList<QmlObjectNode> QmlItemNode::resources(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node resources",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QList<ModelNode> resourcesList;
 
     if (isValid()) {
@@ -299,88 +406,153 @@ QList<QmlObjectNode> QmlItemNode::resources() const
     return toQmlObjectNodeList(resourcesList);
 }
 
-QList<QmlObjectNode> QmlItemNode::allDirectSubNodes() const
+QList<QmlObjectNode> QmlItemNode::allDirectSubNodes(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node all direct sub nodes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return toQmlObjectNodeList(modelNode().directSubModelNodes());
 }
 
-QmlAnchors QmlItemNode::anchors() const
+QmlAnchors QmlItemNode::anchors(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node anchors",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return QmlAnchors(*this);
 }
 
-bool QmlItemNode::hasChildren() const
+bool QmlItemNode::hasChildren(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node has children",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().hasNodeListProperty("children"))
         return true;
 
     return !children().isEmpty();
 }
 
-bool QmlItemNode::hasResources() const
+bool QmlItemNode::hasResources(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node has resources",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().hasNodeListProperty("resources"))
         return true;
 
     return !resources().isEmpty();
 }
 
-bool QmlItemNode::instanceHasAnchor(AnchorLineType sourceAnchorLineType) const
+bool QmlItemNode::instanceHasAnchor(AnchorLineType sourceAnchorLineType, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance has anchor",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return anchors().instanceHasAnchor(sourceAnchorLineType);
 }
 
-bool QmlItemNode::instanceHasAnchors() const
+bool QmlItemNode::instanceHasAnchors(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance has anchors",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return anchors().instanceHasAnchors();
 }
 
-bool QmlItemNode::instanceHasShowContent() const
+bool QmlItemNode::instanceHasShowContent(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance has show content",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().hasContent();
 }
 
-bool QmlItemNode::instanceCanReparent() const
+bool QmlItemNode::instanceCanReparent(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance can reparent",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return isInBaseState() && !anchors().instanceHasAnchors() && !instanceIsAnchoredBySibling();
 }
 
-bool QmlItemNode::instanceIsAnchoredBySibling() const
+bool QmlItemNode::instanceIsAnchoredBySibling(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance is anchored by sibling",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().isAnchoredBySibling();
 }
 
-bool QmlItemNode::instanceIsAnchoredByChildren() const
+bool QmlItemNode::instanceIsAnchoredByChildren(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance is anchored by children",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().isAnchoredByChildren();
 }
 
-bool QmlItemNode::instanceIsMovable() const
+bool QmlItemNode::instanceIsMovable(SL sl) const
 {
-    auto metaInfo = modelNode().metaInfo();
-    auto m = model();
-    if (metaInfo.isBasedOn(m->flowViewFlowDecisionMetaInfo(), m->flowViewFlowWildcardMetaInfo()))
-        return true;
+    NanotraceHR::Tracer tracer{"qml item node instance is movable",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
 
     return nodeInstance().isMovable();
 }
 
-bool QmlItemNode::instanceIsResizable() const
+bool QmlItemNode::instanceIsResizable(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance is resizable",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().isResizable();
 }
 
-bool QmlItemNode::instanceIsInLayoutable() const
+bool QmlItemNode::instanceIsInLayoutable(SL sl) const
 {
-     return nodeInstance().isInLayoutable();
+    NanotraceHR::Tracer tracer{"qml item node instance is in layoutable",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    return nodeInstance().isInLayoutable();
 }
 
-bool QmlItemNode::instanceHasScaleOrRotationTransform() const
+bool QmlItemNode::instanceHasScaleOrRotationTransform(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance has scale or rotation transform",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().transform().type() > QTransform::TxTranslate;
 }
 
-bool itemIsMovable(const ModelNode &modelNode)
+static bool itemIsMovable(const ModelNode &modelNode)
 {
     if (!modelNode.hasParentProperty())
         return false;
@@ -391,29 +563,40 @@ bool itemIsMovable(const ModelNode &modelNode)
     return NodeHints::fromModelNode(modelNode).isMovable();
 }
 
-bool itemIsResizable(const ModelNode &modelNode)
+static bool itemIsResizable(const ModelNode &modelNode)
 {
     return NodeHints::fromModelNode(modelNode).isResizable();
 }
 
-bool QmlItemNode::modelIsMovable() const
+bool QmlItemNode::modelIsMovable(SL sl) const
 {
-    return !modelNode().hasBindingProperty("x")
-            && !modelNode().hasBindingProperty("y")
-            && itemIsMovable(modelNode())
-            && !modelIsInLayout();
+    NanotraceHR::Tracer tracer{"qml item node model is movable",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    return !modelNode().hasBindingProperty("x") && !modelNode().hasBindingProperty("y")
+           && itemIsMovable(modelNode()) && !modelIsInLayout();
 }
 
-bool QmlItemNode::modelIsResizable() const
+bool QmlItemNode::modelIsResizable(SL sl) const
 {
-    return !modelNode().hasBindingProperty("width")
-            && !modelNode().hasBindingProperty("height")
-            && itemIsResizable(modelNode())
-            && !modelIsInLayout();
+    NanotraceHR::Tracer tracer{"qml item node model is resizable",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    return !modelNode().hasBindingProperty("width") && !modelNode().hasBindingProperty("height")
+           && itemIsResizable(modelNode()) && !modelIsInLayout();
 }
 
-bool QmlItemNode::modelIsInLayout() const
+bool QmlItemNode::modelIsInLayout(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node model is in layout",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().hasParentProperty()) {
         ModelNode parentModelNode = modelNode().parentProperty().parentModelNode();
         if (QmlItemNode::isValidQmlItemNode(parentModelNode)
@@ -426,58 +609,113 @@ bool QmlItemNode::modelIsInLayout() const
     return false;
 }
 
-bool QmlItemNode::hasFormEditorItem() const
+bool QmlItemNode::hasFormEditorItem(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node has form editor item",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return NodeHints::fromModelNode(modelNode()).hasFormEditorItem();
 }
 
-QRectF  QmlItemNode::instanceBoundingRect() const
+QRectF QmlItemNode::instanceBoundingRect(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance bounding rect",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return QRectF(QPointF(0, 0), nodeInstance().size());
 }
 
-QRectF  QmlItemNode::instanceSceneBoundingRect() const
+QRectF QmlItemNode::instanceSceneBoundingRect(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance scene bounding rect",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return QRectF(instanceScenePosition(), nodeInstance().size());
 }
 
-QRectF QmlItemNode::instancePaintedBoundingRect() const
+QRectF QmlItemNode::instancePaintedBoundingRect(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance painted bounding rect",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().boundingRect();
 }
 
-QRectF QmlItemNode::instanceContentItemBoundingRect() const
+QRectF QmlItemNode::instanceContentItemBoundingRect(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance content item bounding rect",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().contentItemBoundingRect();
 }
 
-QTransform  QmlItemNode::instanceTransform() const
+QTransform QmlItemNode::instanceTransform(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance transform",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().transform();
 }
 
-QTransform QmlItemNode::instanceTransformWithContentTransform() const
+QTransform QmlItemNode::instanceTransformWithContentTransform(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance transform with content transform",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().transform() * nodeInstance().contentTransform();
 }
 
-QTransform QmlItemNode::instanceTransformWithContentItemTransform() const
+QTransform QmlItemNode::instanceTransformWithContentItemTransform(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance transform with content item transform",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().transform() * nodeInstance().contentItemTransform();
 }
 
-QTransform QmlItemNode::instanceSceneTransform() const
+QTransform QmlItemNode::instanceSceneTransform(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance scene transform",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().sceneTransform();
 }
 
-QTransform QmlItemNode::instanceSceneContentItemTransform() const
+QTransform QmlItemNode::instanceSceneContentItemTransform(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance scene content item transform",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().sceneTransform() * nodeInstance().contentItemTransform();
 }
 
-QPointF QmlItemNode::instanceScenePosition() const
+QPointF QmlItemNode::instanceScenePosition(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance scene position",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (hasInstanceParentItem())
         return instanceParentItem().instanceSceneTransform().map(nodeInstance().position());
      else if (modelNode().hasParentProperty() && QmlItemNode::isValidQmlItemNode(modelNode().parentProperty().parentModelNode()))
@@ -486,38 +724,73 @@ QPointF QmlItemNode::instanceScenePosition() const
     return {};
 }
 
-QPointF QmlItemNode::instancePosition() const
+QPointF QmlItemNode::instancePosition(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance position",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().position();
 }
 
-QSizeF QmlItemNode::instanceSize() const
+QSizeF QmlItemNode::instanceSize(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance size",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().size();
 }
 
-int QmlItemNode::instancePenWidth() const
+int QmlItemNode::instancePenWidth(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance pen width",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().penWidth();
 }
 
-bool QmlItemNode::instanceIsRenderPixmapNull() const
+bool QmlItemNode::instanceIsRenderPixmapNull(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance is render pixmap null",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().renderPixmap().isNull();
 }
 
-bool QmlItemNode::instanceIsVisible() const
+bool QmlItemNode::instanceIsVisible(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance is visible",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().property("visible").toBool();
 }
 
-QPixmap QmlItemNode::instanceRenderPixmap() const
+QPixmap QmlItemNode::instanceRenderPixmap(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance render pixmap",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().renderPixmap();
 }
 
-QPixmap QmlItemNode::instanceBlurredRenderPixmap() const
+QPixmap QmlItemNode::instanceBlurredRenderPixmap(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node instance blurred render pixmap",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().blurredRenderPixmap();
 }
 
@@ -554,26 +827,45 @@ QList<QmlItemNode> toQmlItemNodeListKeppInvalid(const QList<ModelNode> &modelNod
     return qmlItemNodeList;
 }
 
-const QList<QmlItemNode> QmlItemNode::allDirectSubModelNodes() const
+const QList<QmlItemNode> QmlItemNode::allDirectSubModelNodes(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node all direct sub model nodes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return toQmlItemNodeList(modelNode().directSubModelNodes());
 }
 
-const QList<QmlItemNode> QmlItemNode::allSubModelNodes() const
+const QList<QmlItemNode> QmlItemNode::allSubModelNodes(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node all sub model nodes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return toQmlItemNodeList(modelNode().allSubModelNodes());
 }
 
-bool QmlItemNode::hasAnySubModelNodes() const
+bool QmlItemNode::hasAnySubModelNodes(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node has any sub model nodes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().hasAnySubModelNodes();
 }
 
-void QmlItemNode::setPosition(const QPointF &position)
+void QmlItemNode::setPosition(const QPointF &position, SL sl)
 {
-    if (!hasBindingProperty("x")
-            && !anchors().instanceHasAnchor(AnchorLineLeft)
-            && !anchors().instanceHasAnchor(AnchorLineHorizontalCenter))
+    NanotraceHR::Tracer tracer{"qml item node set position",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    if (!hasBindingProperty("x") && !anchors().instanceHasAnchor(AnchorLineLeft)
+        && !anchors().instanceHasAnchor(AnchorLineHorizontalCenter))
         setVariantProperty("x", qRound(position.x()));
 
     if (!hasBindingProperty("y")
@@ -582,36 +874,25 @@ void QmlItemNode::setPosition(const QPointF &position)
         setVariantProperty("y", qRound(position.y()));
 }
 
-void QmlItemNode::setPostionInBaseState(const QPointF &position)
+void QmlItemNode::setPostionInBaseState(const QPointF &position, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml item node set position in base state",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     modelNode().variantProperty("x").setValue(qRound(position.x()));
     modelNode().variantProperty("y").setValue(qRound(position.y()));
 }
 
-namespace {
-constexpr AuxiliaryDataKeyView flowXProperty{AuxiliaryDataType::Document, "flowX"};
-constexpr AuxiliaryDataKeyView flowYProperty{AuxiliaryDataType::Document, "flowY"};
-} // namespace
-
-void QmlItemNode::setFlowItemPosition(const QPointF &position)
+bool QmlItemNode::isInLayout(SL sl) const
 {
-    modelNode().setAuxiliaryData(flowXProperty, position.x());
-    modelNode().setAuxiliaryData(flowYProperty, position.y());
-}
+    NanotraceHR::Tracer tracer{"qml item node is in layout",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
 
-QPointF QmlItemNode::flowPosition() const
-{
-    if (!isValid())
-        return QPointF();
-
-    return QPointF(modelNode().auxiliaryDataWithDefault(flowXProperty).toInt(),
-                   modelNode().auxiliaryDataWithDefault(flowYProperty).toInt());
-}
-
-bool QmlItemNode::isInLayout() const
-{
     if (isValid() && hasNodeParent()) {
-
         ModelNode parent = modelNode().parentProperty().parentModelNode();
 
         if (parent.isValid() && parent.metaInfo().isValid())
@@ -621,51 +902,64 @@ bool QmlItemNode::isInLayout() const
     return false;
 }
 
-bool QmlItemNode::canBereparentedTo(const ModelNode &potentialParent) const
+bool QmlItemNode::canBereparentedTo(const ModelNode &potentialParent, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node can be reparented to",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("potential parent", potentialParent),
+                               keyValue("caller location", sl)};
+
     if (!NodeHints::fromModelNode(potentialParent).canBeContainerFor(modelNode()))
         return false;
     return NodeHints::fromModelNode(modelNode()).canBeReparentedTo(potentialParent);
 }
 
-bool QmlItemNode::isInStackedContainer() const
+bool QmlItemNode::isInStackedContainer(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node is in stacked container",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (hasInstanceParent())
         return NodeHints::fromModelNode(instanceParent()).isStackedContainer();
     return false;
 }
 
-bool QmlItemNode::isFlowView() const
-{
-    return modelNode().isValid() && modelNode().metaInfo().isFlowViewFlowView();
-}
 
-bool QmlItemNode::isFlowItem() const
+ModelNode QmlItemNode::rootModelNode(SL sl) const
 {
-    return modelNode().isValid() && modelNode().metaInfo().isFlowViewFlowItem();
-}
+    NanotraceHR::Tracer tracer{"qml item node root model node",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
 
-bool QmlItemNode::isFlowActionArea() const
-{
-    return modelNode().isValid() && modelNode().metaInfo().isFlowViewFlowActionArea();
-}
-
-ModelNode QmlItemNode::rootModelNode() const
-{
     if (view())
         return view()->rootModelNode();
     return {};
 }
 
-bool QmlItemNode::isEffectItem() const
+bool QmlItemNode::isEffectItem(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node is effect item",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().metaInfo().hasProperty("_isEffectItem");
 }
 
-void QmlItemNode::setSize(const QSizeF &size)
+void QmlItemNode::setSize(const QSizeF &size, SL sl)
 {
-    if (!hasBindingProperty("width") && !(anchors().instanceHasAnchor(AnchorLineRight)
-                                          && anchors().instanceHasAnchor(AnchorLineLeft)))
+    NanotraceHR::Tracer tracer{"qml item node set size",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    if (!hasBindingProperty("width")
+        && !(anchors().instanceHasAnchor(AnchorLineRight)
+             && anchors().instanceHasAnchor(AnchorLineLeft)))
         setVariantProperty("width", qRound(size.width()));
 
     if (!hasBindingProperty("height") && !(anchors().instanceHasAnchor(AnchorLineBottom)
@@ -673,14 +967,24 @@ void QmlItemNode::setSize(const QSizeF &size)
         setVariantProperty("height", qRound(size.height()));
 }
 
-void QmlItemNode::setRotation(const qreal &angle)
+void QmlItemNode::setRotation(const qreal &angle, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml item node set rotation",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!hasBindingProperty("rotation"))
         setVariantProperty("rotation", angle);
 }
 
-qreal QmlItemNode::rotation() const
+qreal QmlItemNode::rotation(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml item node rotation",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (hasProperty("rotation") && !hasBindingProperty("rotation")) {
         return modelNode().variantProperty("rotation").value().toReal();
     }
@@ -688,400 +992,18 @@ qreal QmlItemNode::rotation() const
     return 0.0;
 }
 
-QVariant QmlItemNode::transformOrigin()
+QVariant QmlItemNode::transformOrigin(SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml item node transform origin",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (hasProperty("transformOrigin")) {
         return modelNode().variantProperty("transformOrigin").value();
     }
 
     return {};
-}
-
-bool QmlFlowItemNode::isValid() const
-{
-    return isValidQmlFlowItemNode(modelNode());
-}
-
-bool QmlFlowItemNode::isValidQmlFlowItemNode(const ModelNode &modelNode)
-{
-    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isFlowViewFlowItem();
-}
-
-QList<QmlFlowActionAreaNode> QmlFlowItemNode::flowActionAreas() const
-{
-    QList<QmlFlowActionAreaNode> list;
-    for (const ModelNode node : allDirectSubModelNodes())
-        if (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(node))
-            list.append(node);
-    return list;
-}
-
-QmlFlowViewNode QmlFlowItemNode::flowView() const
-{
-    if (modelNode().isValid() && modelNode().hasParentProperty())
-        return modelNode().parentProperty().parentModelNode();
-    return QmlFlowViewNode({});
-}
-
-bool QmlFlowActionAreaNode::isValid() const
-{
-     return isValidQmlFlowActionAreaNode(modelNode());
-}
-
-bool QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(const ModelNode &modelNode)
-{
-    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isFlowViewFlowActionArea();
-}
-
-ModelNode QmlFlowActionAreaNode::targetTransition() const
-{
-    if (!modelNode().hasBindingProperty("target"))
-        return {};
-
-    return modelNode().bindingProperty("target").resolveToModelNode();
-}
-
-void QmlFlowActionAreaNode::assignTargetFlowItem(const QmlFlowTargetNode &flowItem)
-{
-     QTC_ASSERT(isValid(), return);
-     QTC_ASSERT(flowItem.isValid(), return);
-
-     QmlFlowViewNode flowView = flowItem.flowView();
-
-     QTC_ASSERT(flowView.isValid(), return);
-
-     QmlFlowItemNode flowParent = flowItemParent();
-
-     QTC_ASSERT(flowParent.isValid(), return);
-
-     destroyTarget();
-
-     ModelNode transition = flowView.addTransition(flowParent.modelNode(),
-                                                   flowItem.modelNode());
-     modelNode().bindingProperty("target").setExpression(transition.validId());
-}
-
-QmlFlowItemNode QmlFlowActionAreaNode::flowItemParent() const
-{
-    QTC_ASSERT(modelNode().hasParentProperty(), return QmlFlowItemNode({}));
-    return modelNode().parentProperty().parentModelNode();
-}
-
-void QmlFlowActionAreaNode::destroyTarget()
-{
-    QTC_ASSERT(isValid(), return);
-
-    if (targetTransition().isValid()) {
-        QmlObjectNode(targetTransition()).destroy();
-        modelNode().removeProperty("target");
-    }
-}
-
-bool QmlFlowViewNode::isValid() const
-{
-    return isValidQmlFlowViewNode(modelNode());
-}
-
-bool QmlFlowViewNode::isValidQmlFlowViewNode(const ModelNode &modelNode)
-{
-    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid()
-           && modelNode.metaInfo().isFlowViewFlowView();
-}
-
-QList<QmlFlowItemNode> QmlFlowViewNode::flowItems() const
-{
-    QList<QmlFlowItemNode> list;
-    for (const ModelNode node : allDirectSubModelNodes())
-        if (QmlFlowItemNode::isValidQmlFlowItemNode(node)
-                || QmlVisualNode::isFlowDecision(node)
-                || QmlVisualNode::isFlowWildcard(node))
-            list.append(node);
-
-    return list;
-}
-
-ModelNode QmlFlowViewNode::addTransition(const QmlFlowTargetNode &from, const QmlFlowTargetNode &to)
-{
-    ModelNode transition = createTransition();
-
-    QmlFlowTargetNode f = from;
-    QmlFlowTargetNode t = to;
-
-    if (f.isValid())
-        transition.bindingProperty("from").setExpression(f.validId());
-    transition.bindingProperty("to").setExpression(t.validId());
-
-    return transition;
-}
-
-QList<ModelNode> QmlFlowViewNode::transitions() const
-{
-    if (modelNode().nodeListProperty("flowTransitions").isValid())
-        return modelNode().nodeListProperty("flowTransitions").toModelNodeList();
-
-    return {};
-}
-
-QList<ModelNode> QmlFlowViewNode::wildcards() const
-{
-    if (modelNode().nodeListProperty("flowWildcards").isValid())
-        return modelNode().nodeListProperty("flowWildcards").toModelNodeList();
-
-    return {};
-}
-
-QList<ModelNode> QmlFlowViewNode::decicions() const
-{
-    if (modelNode().nodeListProperty("flowDecisions").isValid())
-        return modelNode().nodeListProperty("flowDecisions").toModelNodeList();
-
-    return {};
-}
-
-QList<ModelNode> QmlFlowViewNode::transitionsForTarget(const ModelNode &modelNode)
-{
-    return transitionsForProperty("to", modelNode);
-}
-
-QList<ModelNode> QmlFlowViewNode::transitionsForSource(const ModelNode &modelNode)
-{
-    return transitionsForProperty("from", modelNode);
-}
-
-void QmlFlowViewNode::removeDanglingTransitions()
-{
-    for (const ModelNode &transition : transitions()) {
-        if (!transition.hasBindingProperty("to"))
-            QmlObjectNode(transition).destroy();
-    }
-}
-
-bool QmlFlowTargetNode::isValid() const
-{
-     return isFlowEditorTarget(modelNode());
-}
-
-void QmlFlowTargetNode::assignTargetItem(const QmlFlowTargetNode &node)
-{
-    if (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(modelNode())) {
-        QmlFlowActionAreaNode(modelNode()).assignTargetFlowItem(node);
-
-    } else if (isFlowItem()) {
-        flowView().addTransition(modelNode(), node);
-    } else if (isFlowWildcard()) {
-        destroyTargets();
-        ModelNode transition = flowView().addTransition(ModelNode(),
-                                                        node);
-        modelNode().bindingProperty("target").setExpression(transition.validId());
-    } else if (isFlowDecision()) {
-        ModelNode sourceNode = modelNode();
-
-        if (QmlVisualNode::isFlowDecision(sourceNode))
-            sourceNode = findSourceForDecisionNode();
-
-        if (sourceNode.isValid()) {
-            ModelNode transition = flowView().addTransition(sourceNode,
-                                                            node);
-            modelNode().bindingProperty("targets").addModelNodeToArray(transition);
-        }
-    }
-}
-
-void QmlFlowTargetNode::destroyTargets()
-{
-    QTC_ASSERT(isValid(), return);
-
-    if (targetTransition().isValid()) {
-        QmlObjectNode(targetTransition()).destroy();
-        modelNode().removeProperty("target");
-    }
-
-    if (hasBindingProperty("targets")) {
-        for (ModelNode &node : modelNode().bindingProperty("targets").resolveToModelNodeList()) {
-            QmlObjectNode(node).destroy();
-        }
-        modelNode().removeProperty("targets");
-    }
-
-}
-
-ModelNode QmlFlowTargetNode::targetTransition() const
-{
-    if (!modelNode().hasBindingProperty("target"))
-        return {};
-
-    return modelNode().bindingProperty("target").resolveToModelNode();
-}
-
-QmlFlowViewNode QmlFlowTargetNode::flowView() const
-{
-    return view()->rootModelNode();
-}
-
-ModelNode QmlFlowItemNode::decisionNodeForTransition(const ModelNode &transition)
-{
-    ModelNode target = transition;
-
-    if (target.isValid() && target.hasMetaInfo() && QmlVisualNode::isFlowTransition(target)) {
-
-        ModelNode finalTarget = target.bindingProperty("to").resolveToModelNode();
-
-        if (finalTarget.isValid() && finalTarget.hasMetaInfo() && QmlVisualNode::isFlowDecision(finalTarget)) {
-            if (finalTarget.hasBindingProperty("targets")
-                    && finalTarget.bindingProperty("targets").resolveToModelNodeList().contains(transition))
-                return finalTarget;
-        }
-        QmlFlowViewNode flowView(transition.view()->rootModelNode());
-        if (flowView.isValid()) {
-            for (const ModelNode &target : flowView.decicions()) {
-                if (target.hasBindingProperty("targets")
-                        && target.bindingProperty("targets").resolveToModelNodeList().contains(transition))
-                    return target;
-            }
-        }
-    }
-
-    return {};
-}
-
-ModelNode QmlFlowTargetNode::findSourceForDecisionNode() const
-{
-    if (!isFlowDecision())
-        return {};
-
-    for (const ModelNode &transition : flowView().transitionsForTarget(modelNode())) {
-        if (transition.hasBindingProperty("from")) {
-            const ModelNode source = transition.bindingProperty("from").resolveToModelNode();
-            if (source.isValid()) {
-                if (QmlVisualNode::isFlowDecision(source))
-                    return QmlFlowTargetNode(source).findSourceForDecisionNode();
-                else if (QmlItemNode(source).isFlowItem())
-                    return source;
-            }
-        }
-    }
-
-    return {};
-}
-
-bool QmlFlowTargetNode::isFlowEditorTarget(const ModelNode &modelNode)
-{
-    return QmlItemNode(modelNode).isFlowItem()
-            || QmlItemNode(modelNode).isFlowActionArea()
-            || QmlVisualNode::isFlowDecision(modelNode)
-            || QmlVisualNode::isFlowWildcard(modelNode);
-}
-
-void QmlFlowTargetNode::removeTransitions()
-{
-    if (!modelNode().hasId())
-        return;
-
-    for (const BindingProperty &property : BindingProperty::findAllReferencesTo(modelNode())) {
-        if (property.isValid() && QmlVisualNode::isFlowTransition(property.parentModelNode()))
-                QmlObjectNode(property.parentModelNode()).destroy();
-    }
-}
-
-void QmlFlowViewNode::removeAllTransitions()
-{
-    if (!isValid())
-        return;
-
-    if (hasProperty("flowTransitions"))
-        removeProperty("flowTransitions");
-}
-
-void QmlFlowViewNode::setStartFlowItem(const QmlFlowItemNode &flowItem)
-{
-    QTC_ASSERT(flowItem.isValid(), return);
-    QmlFlowItemNode item = flowItem;
-
-    ModelNode transition;
-
-    for (const ModelNode &node : transitionsForSource(modelNode()))
-        transition = node;
-    if (!transition.isValid())
-        transition = createTransition();
-
-    transition.bindingProperty("from").setExpression(modelNode().validId());
-    transition.bindingProperty("to").setExpression(item.validId());
-}
-
-ModelNode QmlFlowViewNode::createTransition()
-{
-    ModelNode transition = view()->createModelNode("FlowView.FlowTransition", 1, 0);
-    nodeListProperty("flowTransitions").reparentHere(transition);
-
-    return transition;
-}
-
-QList<ModelNode> QmlFlowViewNode::transitionsForProperty(PropertyNameView propertyName,
-                                                         const ModelNode &modelNode)
-{
-    QList<ModelNode> list;
-    for (const ModelNode &transition : transitions()) {
-        if (transition.hasBindingProperty(propertyName)
-                && transition.bindingProperty(propertyName).resolveToModelNode() == modelNode)
-            list.append(transition);
-    }
-    return list;
-}
-
-PropertyNameList QmlFlowViewNode::s_mouseSignals = []() {
-    PropertyNameList mouseSignals = {
-        "clicked", "doubleClicked", "pressAndHold", "pressed", "released", "wheel"};
-
-    Q_ASSERT(std::is_sorted(mouseSignals.begin(), mouseSignals.end()));
-
-    return mouseSignals;
-}();
-
-QList<QmlConnections> QmlFlowViewNode::getAssociatedConnections(const ModelNode &node)
-{
-    if (!node.isValid())
-        return {};
-
-    AbstractView *view = node.view();
-
-    auto filter = [&](const QmlConnections &connection) {
-        if (!connection.isValid())
-            return false;
-
-        const QList<SignalHandlerProperty> &signalProperties = connection.signalProperties();
-        for (const SignalHandlerProperty &property : signalProperties) {
-            auto signalWithoutPrefix = SignalHandlerProperty::prefixRemoved(property.name());
-            const QStringList sourceComponents = property.source().split(".");
-            QString sourceId;
-            QString sourceProperty;
-            if (sourceComponents.size() > 1) {
-                sourceId = sourceComponents[0];
-                sourceProperty = sourceComponents[1];
-            }
-
-            if (mouseSignals().contains(signalWithoutPrefix) && sourceId == node.id()
-                && sourceProperty == "trigger()")
-                return true;
-        }
-
-        return false;
-    };
-
-    auto convert = [](const ModelNode &n) { return QmlConnections(n); };
-
-    auto nodes = view->allModelNodes();
-
-    // std::views as dynamic container has a problem in span-lite - breaks arm GCC 10.2.1
-    // return CoreUtils::to<QList<QmlConnections>>(Utils::span{nodes} | std::views::transform(convert)
-    //                                             | std::views::filter(filter));
-    QList<QmlConnections> connections;
-    for (const auto &n : nodes) {
-        QmlConnections connection = convert(n);
-        if (filter(connection)) {
-            connections.append(connection);
-        }
-    }
-    return connections;
 }
 
 } //QmlDesigner

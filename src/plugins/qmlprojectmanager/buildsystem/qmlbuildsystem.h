@@ -122,6 +122,8 @@ public:
 
     void addQmlProjectModule(const Utils::FilePath &path);
 
+    void addFileFilter(const Utils::FilePath &path);
+
 signals:
     void projectChanged();
 
@@ -146,6 +148,9 @@ private:
 
     void registerMenuButtons();
     void updateDeploymentData();
+
+    [[nodiscard]] QString defaultFontFamilyMCU() const;
+
     friend class FilesUpdateBlocker;
 
     QmlProjectExporter::Exporter* m_fileGen;

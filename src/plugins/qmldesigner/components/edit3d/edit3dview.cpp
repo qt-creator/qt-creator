@@ -65,8 +65,10 @@ inline static QIcon toolbarIcon(const DesignerIcons::IconId &iconId)
     return DesignerActionManager::instance().toolbarIcon(iconId);
 };
 
-Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
+Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies,
+                       ModulesStorage &modulesStorage)
     : AbstractView{externalDependencies}
+    , m_modulesStorage(modulesStorage)
 {
     m_compressionTimer.setInterval(1000);
     m_compressionTimer.setSingleShot(true);
@@ -85,6 +87,14 @@ void Edit3DView::createEdit3DWidget()
 void Edit3DView::checkImports()
 {
     edit3DWidget()->showCanvas(model()->hasImport("QtQuick3D"));
+}
+
+void Edit3DView::setMouseCursor(int mouseCursor)
+{
+    if (mouseCursor < 0)
+        m_edit3DWidget->canvas()->unsetCursor();
+    else
+        m_edit3DWidget->canvas()->setCursor(QCursor(static_cast<Qt::CursorShape>(mouseCursor)));
 }
 
 WidgetInfo Edit3DView::widgetInfo()
@@ -120,6 +130,13 @@ void Edit3DView::renderImage3DChanged(const QImage &img)
 
 void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
 {
+    const QString mouseCursorKey = QStringLiteral("mouseCursor");
+    if (sceneState.contains(mouseCursorKey)) {
+        setMouseCursor(sceneState[mouseCursorKey].toInt());
+        // Mouse cursor state is always reported separately, as we never want to persist this state
+        return;
+    }
+
     const QString activeViewportKey = QStringLiteral("activeViewport");
     if (sceneState.contains(activeViewportKey)) {
         setActiveViewport(sceneState[activeViewportKey].toInt());
@@ -153,7 +170,6 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
         edit3DWidget()->canvas()->updateActiveScene(newActiveScene);
-        setActive3DSceneId(newActiveScene);
         updateAlignActionStates();
     }
 
@@ -179,11 +195,10 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         for (int i = 0; i < 4; ++i)
             m_viewportToolStates[i].isPerspective = i < showList.size() ? showList[i].toBool() : i == 0;
     } else {
-        for (int i = 0; i < 4; ++i) {
-            ViewportToolState &state = m_viewportToolStates[i];
-            state.isPerspective = i == 0;
-        }
+        for (int i = 0; i < 4; ++i)
+            m_viewportToolStates[i].isPerspective = i == 0;
     }
+    m_cameraModeAction->action()->setChecked(m_viewportToolStates[m_activeViewport].isPerspective);
 
     if (sceneState.contains(orientationKey))
         m_orientationModeAction->action()->setChecked(sceneState[orientationKey].toBool());
@@ -258,6 +273,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     else
         m_syncEnvBackgroundAction->action()->setChecked(false);
 
+    if (sceneState.contains(activePresetKey))
+        syncActivePresetCheckedState(static_cast<ViewPreset>(sceneState[activePresetKey].toInt()));
+    else
+        syncActivePresetCheckedState(ViewPreset::Single);
+
     // Selection context change updates visible and enabled states
     SelectionContext selectionContext(this);
     selectionContext.setUpdateMode(SelectionContext::UpdateMode::Fast);
@@ -272,7 +292,6 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
 void Edit3DView::setActiveViewport(int viewport)
 {
     m_activeViewport = viewport;
-    m_cameraModeAction->action()->setChecked(m_viewportToolStates[m_activeViewport].isPerspective);
 }
 
 void Edit3DView::modelAttached(Model *model)
@@ -287,6 +306,9 @@ void Edit3DView::modelAttached(Model *model)
         m_previousCameraMultiplier = -1.;
     }
 
+    edit3DWidget()->canvas()->updateActiveScene(Utils3D::active3DSceneId(model));
+
+    updateAlignActionStates();
     syncSnapAuxPropsToSettings();
 
     rootModelNode().setAuxiliaryData(edit3dGridColorProperty,
@@ -320,6 +342,9 @@ void Edit3DView::modelAttached(Model *model)
             &Edit3DView::onEntriesChanged,
             Qt::UniqueConnection);
 #endif
+
+    model->sendCustomNotificationToNodeInstanceView(
+        Request3DSceneToolStates{Utils3D::active3DSceneNode(this).id()});
 }
 
 void Edit3DView::onEntriesChanged()
@@ -404,7 +429,7 @@ void Edit3DView::updateAlignActionStates()
 
 void Edit3DView::setActive3DSceneId(qint32 sceneId)
 {
-    rootModelNode().setAuxiliaryData(Utils3D::active3dSceneProperty, sceneId);
+    rootModelNode().setAuxiliaryData(active3dSceneProperty, sceneId);
 }
 
 void Edit3DView::emitView3DAction(View3DActionType type, const QVariant &value)
@@ -454,10 +479,10 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
             self->m_nodeAtPosReqType = NodeAtPosReqType::MainScenePick;
             self->m_pickView3dNode = self->modelNodeForInternalId(qint32(data[1].toInt()));
         });
+#ifndef QDS_USE_PROJECTSTORAGE
     } else if (identifier == "asset_import_finished" || identifier == "assets_deleted") {
-        // TODO: These custom notifications should be removed once QDS-15163 is fixed and
-        //       exportedTypeNamesChanged notification is reliable
         onEntriesChanged();
+#endif
     }
 }
 
@@ -707,15 +732,16 @@ void Edit3DView::createSyncEnvBackgroundAction()
 void Edit3DView::createViewportPresetActions()
 {
     auto createViewportPresetAction = [this](std::unique_ptr<Edit3DAction> &targetAction,
-                                     const QByteArray &id,
-                                     const QString &label,
-                                     bool isChecked) {
-        auto operation = [this, &targetAction, label](const SelectionContext &) {
-            for (Edit3DAction *action : std::as_const(m_viewportPresetActions)) {
-                if (action->menuId() != targetAction->menuId())
-                    action->action()->setChecked(false);
-            }
-            emitView3DAction(View3DActionType::ViewportPreset, label);
+                                             const QByteArray &id,
+                                             const QString &label,
+                                             const ViewPreset &opCode,
+                                             const QIcon &icon,
+                                             bool isChecked) {
+        auto operation = [this, &targetAction, opCode](const SelectionContext &) {
+            for (Edit3DAction *action : std::as_const(m_viewportPresetActions))
+                action->action()->setChecked(action->menuId() == targetAction->menuId());
+
+            emitView3DAction(View3DActionType::ViewportPreset, int(opCode));
         };
 
         targetAction = std::make_unique<Edit3DAction>(
@@ -725,16 +751,21 @@ void Edit3DView::createViewportPresetActions()
             QKeySequence(),
             true,
             isChecked,
-            QIcon(),
+            icon,
             this,
             operation);
     };
 
-    createViewportPresetAction(m_viewportPresetSingleAction, Constants::EDIT3D_PRESET_SINGLE, "Single", true);
-    createViewportPresetAction(m_viewportPresetQuadAction, Constants::EDIT3D_PRESET_QUAD, "Quad", false);
-    createViewportPresetAction(m_viewportPreset3Left1RightAction, Constants::EDIT3D_PRESET_3LEFT1RIGHT, "3Left1Right", false);
-    createViewportPresetAction(m_viewportPreset2HorizontalAction, Constants::EDIT3D_PRESET_2HORIZONTAL, "2Horizontal", false);
-    createViewportPresetAction(m_viewportPreset2VerticalAction, Constants::EDIT3D_PRESET_2VERTICAL, "2Vertical", false);
+    createViewportPresetAction(m_viewportPresetSingleAction, Constants::EDIT3D_PRESET_SINGLE,
+                               Tr::tr("Single"), ViewPreset::Single, contextIcon(DesignerIcons::MultiViewPort1Icon), true);
+    createViewportPresetAction(m_viewportPresetQuadAction, Constants::EDIT3D_PRESET_QUAD,
+                               Tr::tr("Quad"), ViewPreset::Quad, contextIcon(DesignerIcons::MultiViewPort2x2Icon), false);
+    createViewportPresetAction(m_viewportPreset3Left1RightAction, Constants::EDIT3D_PRESET_3LEFT1RIGHT,
+                               Tr::tr("3 Left 1 Right"), ViewPreset::ThreeLeftOneRight, contextIcon(DesignerIcons::MultiViewPort3plus1Icon), false);
+    createViewportPresetAction(m_viewportPreset2HorizontalAction, Constants::EDIT3D_PRESET_2HORIZONTAL,
+                               Tr::tr("2 Horizontal"), ViewPreset::TwoHorizontal, contextIcon(DesignerIcons::MultiViewPort2hlIcon), false);
+    createViewportPresetAction(m_viewportPreset2VerticalAction, Constants::EDIT3D_PRESET_2VERTICAL,
+                               Tr::tr("2 Vertical"), ViewPreset::TwoVertical, contextIcon(DesignerIcons::MultiViewPort2vlIcon), false);
 
     m_viewportPresetActions << m_viewportPresetSingleAction.get();
     m_viewportPresetActions << m_viewportPresetQuadAction.get();
@@ -893,6 +924,15 @@ void Edit3DView::syncCameraSpeedToNewView()
     }
 
     setCameraSpeedAuxData(speed, multiplier);
+}
+
+void Edit3DView::syncActivePresetCheckedState(ViewPreset preset)
+{
+    m_viewportPresetSingleAction->action()->setChecked(preset == ViewPreset::Single);
+    m_viewportPresetQuadAction->action()->setChecked(preset == ViewPreset::Quad);
+    m_viewportPreset3Left1RightAction->action()->setChecked(preset == ViewPreset::ThreeLeftOneRight);
+    m_viewportPreset2HorizontalAction->action()->setChecked(preset == ViewPreset::TwoHorizontal);
+    m_viewportPreset2VerticalAction->action()->setChecked(preset == ViewPreset::TwoVertical);
 }
 
 QmlObjectNode Edit3DView::currentSceneEnv()
@@ -1212,7 +1252,7 @@ void Edit3DView::createEdit3DActions()
 
         // BakeLights cleans itself up when its dialog is closed
         if (!m_bakeLights)
-            m_bakeLights = new BakeLights(this);
+            m_bakeLights = new BakeLights(this, m_modulesStorage);
         else
             m_bakeLights->raiseDialog();
     };
@@ -1364,7 +1404,7 @@ void Edit3DView::createEdit3DActions()
                                                        QKeySequence(),
                                                        false,
                                                        false,
-                                                       toolbarIcon(DesignerIcons::SplitViewIcon),
+                                                       toolbarIcon(DesignerIcons::MultiViewPortIcon),
                                                        this,
                                                        viewportPresetsActionTrigger);
 

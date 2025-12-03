@@ -7,8 +7,10 @@
 #include <QObject>
 
 #ifdef DVCONNECTOR_ENABLED
-#include <designviewer/dvconnector.h>
+#  include <designviewer/dvconnector.h>
 #endif
+
+#include <memory>
 
 namespace QmlDesigner {
 
@@ -135,7 +137,7 @@ class ToolBarBackend : public QObject
 #endif
 
 public:
-    ToolBarBackend(QObject *parent  = nullptr);
+    ToolBarBackend();
     static void registerDeclarativeType();
 
     Q_INVOKABLE void triggerModeChange();
@@ -144,6 +146,7 @@ public:
     Q_INVOKABLE void goForward();
     Q_INVOKABLE void goBackward();
     Q_INVOKABLE void openFileByIndex(int i);
+    Q_INVOKABLE void closeDocument(int i);
     Q_INVOKABLE void closeCurrentDocument();
     Q_INVOKABLE void shareApplicationOnline();
     Q_INVOKABLE void setCurrentWorkspace(const QString &workspace);
@@ -232,6 +235,9 @@ private:
     QStringList m_openDocuments;
     QMetaObject::Connection m_kitConnection;
     QMetaObject::Connection m_documentConnection;
+#ifdef DVCONNECTOR_ENABLED
+    std::shared_ptr<DesignViewer::DVConnector> m_designViewerConnector;
+#endif
 };
 
 } // namespace QmlDesigner

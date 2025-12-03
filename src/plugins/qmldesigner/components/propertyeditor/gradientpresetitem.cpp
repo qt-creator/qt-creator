@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gradientpresetitem.h"
+#include "propertyeditortracing.h"
 
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
@@ -14,28 +15,36 @@
 
 #include <algorithm>
 
+using QmlDesigner::PropertyEditorTracing::category;
+
 GradientPresetItem::GradientPresetItem()
     : m_gradientVal(QGradient())
     , m_gradientID(Preset(0))
     , m_presetName(QString())
-{}
+{
+    NanotraceHR::Tracer tracer{"gradient preset item default constructor", category()};
+}
 
 GradientPresetItem::GradientPresetItem(const QGradient &value, const QString &name)
     : m_gradientVal(value)
     , m_gradientID(Preset(0))
     , m_presetName(name)
-{}
+{
+    NanotraceHR::Tracer tracer{"gradient preset item constructor with gradient and name", category()};
+}
 
 GradientPresetItem::GradientPresetItem(const Preset value)
     : m_gradientVal(createGradientFromPreset(value))
     , m_gradientID(value)
     , m_presetName(getNameByPreset(value))
-{}
-
-GradientPresetItem::~GradientPresetItem() = default;
+{
+    NanotraceHR::Tracer tracer{"gradient preset item constructor with preset", category()};
+}
 
 QVariant GradientPresetItem::getProperty(GradientPresetItem::Property id) const
 {
+    NanotraceHR::Tracer tracer{"gradient preset item get property", category()};
+
     QVariant out;
 
     switch (id) {
@@ -67,11 +76,15 @@ QVariant GradientPresetItem::getProperty(GradientPresetItem::Property id) const
 
 QGradient GradientPresetItem::gradientVal() const
 {
+    NanotraceHR::Tracer tracer{"gradient preset item gradient value", category()};
+
     return m_gradientVal;
 }
 
 void GradientPresetItem::setGradient(const QGradient &value)
 {
+    NanotraceHR::Tracer tracer{"gradient preset item set gradient", category()};
+
     m_gradientVal = value;
     m_gradientID = Preset(0);
     m_presetName = QString();
@@ -79,6 +92,8 @@ void GradientPresetItem::setGradient(const QGradient &value)
 
 void GradientPresetItem::setGradient(const Preset value)
 {
+    NanotraceHR::Tracer tracer{"gradient preset item set gradient by preset", category()};
+
     m_gradientID = value;
     m_gradientVal = createGradientFromPreset(value);
     m_presetName = getNameByPreset(value);
@@ -86,6 +101,8 @@ void GradientPresetItem::setGradient(const Preset value)
 
 QList<qreal> GradientPresetItem::stopsPosList() const
 {
+    NanotraceHR::Tracer tracer{"gradient preset item stops position list", category()};
+
     const QList<QPair<qreal, QColor>> subres = m_gradientVal.stops();
     const QList<qreal> result = Utils::transform<QList<qreal>>(subres,
                                                                [](const QPair<qreal, QColor> &item) {
@@ -96,6 +113,8 @@ QList<qreal> GradientPresetItem::stopsPosList() const
 
 QStringList GradientPresetItem::stopsColorList() const
 {
+    NanotraceHR::Tracer tracer{"gradient preset item stops color list", category()};
+
     const QList<QPair<qreal, QColor>> subres = m_gradientVal.stops();
     const QStringList result
         = Utils::transform<QStringList>(subres, [](const QPair<qreal, QColor> &item) {
@@ -106,26 +125,36 @@ QStringList GradientPresetItem::stopsColorList() const
 
 int GradientPresetItem::stopListSize() const
 {
+    NanotraceHR::Tracer tracer{"gradient preset item stop list size", category()};
+
     return m_gradientVal.stops().size();
 }
 
 void GradientPresetItem::setPresetName(const QString &value)
 {
+    NanotraceHR::Tracer tracer{"gradient preset item set preset name", category()};
+
     m_presetName = value;
 }
 
 QString GradientPresetItem::presetName() const
 {
+    NanotraceHR::Tracer tracer{"gradient preset item preset name", category()};
+
     return m_presetName;
 }
 
 int GradientPresetItem::presetID() const
 {
+    NanotraceHR::Tracer tracer{"gradient preset item preset ID", category()};
+
     return static_cast<int>(m_gradientID);
 }
 
 QString GradientPresetItem::getNameByPreset(Preset value)
 {
+    NanotraceHR::Tracer tracer{"gradient preset item get name by preset", category()};
+
     const QMetaObject &metaObj = QGradient::staticMetaObject;
     const QMetaEnum metaEnum = metaObj.enumerator(metaObj.indexOfEnumerator("Preset"));
 
@@ -145,6 +174,8 @@ QString GradientPresetItem::getNameByPreset(Preset value)
 
 QGradient GradientPresetItem::createGradientFromPreset(Preset value)
 {
+    NanotraceHR::Tracer tracer{"gradient preset item create gradient from preset", category()};
+
     return QGradient(value);
 }
 
@@ -158,6 +189,7 @@ QDebug &operator<<(QDebug &stream, const GradientPresetItem &gradient)
 
 QDataStream &operator<<(QDataStream &stream, const GradientPresetItem &gradient)
 {
+    NanotraceHR::Tracer tracer{"gradient preset item operator <<", category()};
     stream << gradient.m_gradientVal.stops();
 
     stream << static_cast<int>(gradient.m_gradientID);
@@ -167,6 +199,8 @@ QDataStream &operator<<(QDataStream &stream, const GradientPresetItem &gradient)
 
 QDataStream &operator>>(QDataStream &stream, GradientPresetItem &gradient)
 {
+    NanotraceHR::Tracer tracer{"gradient preset item operator >>", category()};
+
     QGradientStops stops;
     stream >> stops;
     gradient.m_gradientVal.setStops(stops);

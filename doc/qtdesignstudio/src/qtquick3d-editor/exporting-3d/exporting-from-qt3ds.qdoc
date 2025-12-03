@@ -35,18 +35,18 @@
     \section1 Importing assets
 
     \section2 Custom materials
-    Custom materials (\e something.shader files in \Q3DS) are not imported
+    Custom materials (\c something.shader files in \Q3DS) are not imported
     correctly and have to be fixed manually:
     \list
     \li They are imported as \c {CustomMaterial { id: something; source:
     "something" }} that neither works nor does anything.
     \li Remove the \e {source: "something"} altogether.
-    \li Vertex shader part from the \e something.shader needs to be copied to
+    \li Vertex shader part from the \c something.shader needs to be copied to
         \c {Shader { stage: Shader.Vertex; shader: "vertex shader code here" }}
         inside the \c CustomMaterial. Fragment shader part needs to be copied
         to \c {Shader { stage: Shader.Fragment; shader: "fragment shader code
         here" }}.
-    \li Properties in \e Metadata of the \e something.shader need to be
+    \li Properties in \c Metadata of the \c something.shader need to be
         introduced manually as QML properties of the same name and correct type
         inside the \c CustomMaterial element.
     \li Add \c {import QtQuick3D.Materials 1.15} import statement to files that
@@ -193,7 +193,7 @@
 
     \list 1
     \li Drag subpresentation_ADAS from \uicontrol Components
-        > {My 3D Components} into layer folder in \uicontrol Navigator.
+        > \uicontrol {My 3D Components} into \c layer folder in \uicontrol Navigator.
         \image exporting-from-qt3ds/20-drag-subpresentation-adas-into-layer.png "Drag into layer"
 
     \li To delete the old subpresentation rectangle, right-click on the file

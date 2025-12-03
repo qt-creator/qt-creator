@@ -51,7 +51,7 @@ void PathItem::writeLinePath(const ModelNode &pathNode, const CubicSegment &cubi
     propertyList.append(PropertyPair("x", cubicSegment.fourthControlX()));
     propertyList.append(PropertyPair("y", cubicSegment.fourthControlY()));
 
-    ModelNode lineNode = pathNode.view()->createModelNode("QtQuick.PathLine", pathNode.majorVersion(), pathNode.minorVersion(), propertyList);
+    ModelNode lineNode = pathNode.view()->createModelNode("PathLine", -1, -1, propertyList);
     pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
 }
 
@@ -63,7 +63,7 @@ void PathItem::writeQuadPath(const ModelNode &pathNode, const CubicSegment &cubi
     propertyList.append(PropertyPair("x", cubicSegment.fourthControlX()));
     propertyList.append(PropertyPair("y", cubicSegment.fourthControlY()));
 
-    ModelNode lineNode = pathNode.view()->createModelNode("QtQuick.PathQuad", pathNode.majorVersion(), pathNode.minorVersion(), propertyList);
+    ModelNode lineNode = pathNode.view()->createModelNode("PathQuad", -1, -1, propertyList);
     pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
 }
 
@@ -77,7 +77,7 @@ void PathItem::writeCubicPath(const ModelNode &pathNode, const CubicSegment &cub
     propertyList.append(PropertyPair("x", cubicSegment.fourthControlX()));
     propertyList.append(PropertyPair("y", cubicSegment.fourthControlY()));
 
-    ModelNode lineNode = pathNode.view()->createModelNode("QtQuick.PathCubic", pathNode.majorVersion(), pathNode.minorVersion(), propertyList);
+    ModelNode lineNode = pathNode.view()->createModelNode("PathCubic", -1, -1, propertyList);
     pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
 }
 
@@ -90,7 +90,7 @@ void PathItem::writePathAttributes(const ModelNode &pathNode, const QMap<QString
         propertyList.append(PropertyPair("name", attributesIterator.key()));
         propertyList.append(PropertyPair("value", attributesIterator.value()));
 
-        ModelNode lineNode = pathNode.view()->createModelNode("QtQuick.PathAttribute", pathNode.majorVersion(), pathNode.minorVersion(), propertyList);
+        ModelNode lineNode = pathNode.view()->createModelNode("PathAttribute", -1, -1, propertyList);
         pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
     }
 }
@@ -101,7 +101,7 @@ void PathItem::writePathPercent(const ModelNode& pathNode, double percent)
         QList<QPair<PropertyName, QVariant> > propertyList;
         propertyList.append(PropertyPair("value", percent));
 
-        ModelNode lineNode = pathNode.view()->createModelNode("QtQuick.PathPercent", pathNode.majorVersion(), pathNode.minorVersion(), propertyList);
+        ModelNode lineNode = pathNode.view()->createModelNode("PathPercent", -1, -1, propertyList);
         pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
     }
 }
@@ -488,18 +488,18 @@ void PathItem::readControlPoints()
         const QList<ModelNode> childNodes = pathNode.nodeListProperty("pathElements").toModelNodeList();
         for (const ModelNode &childNode : childNodes) {
 
-            if (childNode.type() == "QtQuick.PathAttribute") {
+            if (childNode.type() == "PathAttribute") {
                 actualAttributes.insert(childNode.variantProperty("name").value().toString(), childNode.variantProperty("value").value());
-            } else if (childNode.type() == "QtQuick.PathPercent") {
+            } else if (childNode.type() == "PathPercent") {
                 percent = childNode.variantProperty("value").value().toDouble();
             } else {
                 CubicSegment newCubicSegement;
 
-                if (childNode.type() == "QtQuick.PathLine")
+                if (childNode.type() == "PathLine")
                     newCubicSegement = createCubicSegmentForLine(childNode, firstControlPoint);
-                else if (childNode.type() == "QtQuick.PathQuad")
+                else if (childNode.type() == "PathQuad")
                     newCubicSegement = createCubicSegmentForQuad(childNode, firstControlPoint);
-                else if (childNode.type() == "QtQuick.PathCubic")
+                else if (childNode.type() == "PathCubic")
                     newCubicSegement = createCubicSegmentForCubic(childNode, firstControlPoint);
                 else
                     continue;
@@ -683,8 +683,7 @@ const QList<ControlPoint> PathItem::controlPoints() const
 bool hasLineOrQuadPathElements(const QList<ModelNode> &modelNodes)
 {
     for (const ModelNode &modelNode : modelNodes) {
-        if (modelNode.type() == "QtQuick.PathLine"
-                || modelNode.type() == "QtQuick.PathQuad")
+        if (modelNode.type() == "PathLine" || modelNode.type() == "PathQuad")
             return true;
     }
 

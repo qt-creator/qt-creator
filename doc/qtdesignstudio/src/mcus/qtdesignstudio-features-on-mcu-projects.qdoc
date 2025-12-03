@@ -34,12 +34,12 @@
         \li Yes
         \li The \uicontrol 3D view is not a part of \QUL or \QMCU.
     \row
-        \li \l {Material Editor and Browser}
+        \li \l {Material Browser}
         \li \e {Not applicable}
         \li \e {Not applicable}
         \li Yes
-        \li The \uicontrol {Material Editor} and \uicontrol {Material Browser} views
-        are not a part of \QUL or \QMCU.
+        \li The \uicontrol {Material Browser} view
+        is not a part of \QUL or \QMCU.
     \row
         \li \l {Components}
         \li Yes
@@ -124,12 +124,6 @@
         \li \e {Not applicable}
         \li Yes
         \li The \uicontrol {Content Library} view is not a part of \QUL or \QMCU.
-    \row
-        \li \l {Texture Editor}
-        \li \e {Not applicable}
-        \li \e {Not applicable}
-        \li Yes
-        \li The \uicontrol {Texture Editor} view is not a part of \QUL or \QMCU.
     \endtable
 
 */

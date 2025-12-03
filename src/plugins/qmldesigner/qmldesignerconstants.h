@@ -84,7 +84,8 @@ inline constexpr char MIME_TYPE_ITEM_LIBRARY_INFO[]
 inline constexpr char MIME_TYPE_ASSETS[] = "application/vnd.qtdesignstudio.assets";
 inline constexpr char MIME_TYPE_MATERIAL[] = "application/vnd.qtdesignstudio.material";
 inline constexpr char MIME_TYPE_TEXTURE[] = "application/vnd.qtdesignstudio.texture";
-inline constexpr char MIME_TYPE_BUNDLE_ITEM[] = "application/vnd.qtdesignstudio.bundleitem";
+inline constexpr char MIME_TYPE_BUNDLE_ITEM_2D[] = "application/vnd.qtdesignstudio.bundleitem.2d";
+inline constexpr char MIME_TYPE_BUNDLE_ITEM_3D[] = "application/vnd.qtdesignstudio.bundleitem.3d";
 inline constexpr char MIME_TYPE_BUNDLE_MATERIAL[] = "application/vnd.qtdesignstudio.bundlematerial";
 inline constexpr char MIME_TYPE_BUNDLE_TEXTURE[] = "application/vnd.qtdesignstudio.bundletexture";
 inline constexpr char MIME_TYPE_ASSET_IMAGE[] = "application/vnd.qtdesignstudio.asset.image";
@@ -143,7 +144,8 @@ inline constexpr char EVENT_TOOLBAR_RUN_PROJECT[] = "ToolBarRunProject";
 inline constexpr char EVENT_TOOLBAR_GO_FORWARD[] = "ToolBarGoForward";
 inline constexpr char EVENT_TOOLBAR_GO_BACKWARD[] = "ToolBarGoBackward";
 inline constexpr char EVENT_TOOLBAR_OPEN_FILE[] = "ToolBarOpenFile";
-inline constexpr char EVENT_TOOLBAR_CLOSE_DOCUMENT[] = "ToolBarCloseCurrentDocument";
+inline constexpr char EVENT_TOOLBAR_CLOSE_DOCUMENT[] = "ToolBarCloseDocument";
+inline constexpr char EVENT_TOOLBAR_CLOSE_CURRENT_DOCUMENT[] = "ToolBarCloseCurrentDocument";
 inline constexpr char EVENT_TOOLBAR_SHARE_APPLICATION[] = "ToolBarShareApplication";
 inline constexpr char EVENT_TOOLBAR_SET_CURRENT_WORKSPACE[] = "ToolBarSetCurrentWorkspace";
 inline constexpr char EVENT_TOOLBAR_EDIT_GLOBAL_ANNOTATION[] = "ToolBarEditGlobalAnnotation";
@@ -194,6 +196,7 @@ inline constexpr char OBJECT_NAME_SPLASH_SCREEN[] = "QQuickWidgetSplashScreen";
 inline constexpr char OBJECT_NAME_WELCOME_PAGE[] = "QQuickWidgetQDSWelcomePage";
 inline constexpr char OBJECT_NAME_CONNECTION_EDITOR[] = "QQuickWidgetConnectionEditor";
 inline constexpr char OBJECT_NAME_DEVICE_MANAGER[] = "QQuickWidgetDeviceManager";
+inline constexpr char OBJECT_NAME_AI_ASSISTANT[] = "QQuickWidgetAiAssistant";
 
 inline constexpr char ENVIRONMENT_SHOW_QML_ERRORS[] = "QMLDESIGNER_SHOW_QML_ERRORS";
 

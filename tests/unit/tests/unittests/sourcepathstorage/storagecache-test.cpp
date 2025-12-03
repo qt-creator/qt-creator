@@ -58,7 +58,18 @@ template<typename Cache>
 class StorageCache : public testing::Test
 {
 protected:
-    void SetUp()
+    struct StaticData
+    {
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
+    };
+
+    static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
+
+    static void TearDownTestSuite() { staticData.reset(); }
+
+protected:
+    StorageCache()
     {
         std::sort(filePaths.begin(), filePaths.end(), [](auto &f, auto &l) {
             return compare(f, l) < 0;
@@ -81,7 +92,9 @@ protected:
     }
 
 protected:
-    NiceMock<ProjectStorageMock> mockStorage;
+    inline static std::unique_ptr<StaticData> staticData;
+    QmlDesigner::ModulesStorage &modulesStorage = staticData->modulesStorage;
+    NiceMock<ProjectStorageMock> mockStorage{modulesStorage};
     StorageAdapter storageAdapter{mockStorage};
     Cache cache{storageAdapter};
     typename Cache::MutexType &mockMutex = cache.mutex();

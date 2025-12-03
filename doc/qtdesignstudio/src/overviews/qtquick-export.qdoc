@@ -12,7 +12,7 @@
     visible by default. To toggle the visibility of advanced menu items, see
     \l{Customizing the Menu Bar}.
 
-    \l{glossary-component}{Components} contained in \l{UI files} (.ui.qml)
+    \l{glossary-component}{Components} contained in \l{UI files} (\c{.ui.qml})
     can be exported to JSON metadata format and PNG assets.
 
     To export the UI files from the current project, select \uicontrol Build >
@@ -36,7 +36,7 @@
     \section1 Configuring the QML export
 
     You can configure the export in the \uicontrol {Export Components} dialog,
-    which lists the UI files (.ui.qml) of the current project.
+    which lists the UI files (\c{}.ui.qml}) of the current project.
 
     \image qtquick-qml-export-dialog.png "Export Components dialog"
 
@@ -49,7 +49,7 @@
             exporting assets and only generate the metadata file.
         \li Select \uicontrol {Export components separately} to
             generate separate metadata files for each component.
-        \li In the file list, select the .ui.qml files to be exported.
+        \li In the file list, select the \c{.ui.qml} files to be exported.
         \li Select \uicontrol {Export} export to start the export process.
     \endlist
 */

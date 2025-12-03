@@ -31,7 +31,7 @@ public:
     void flush() {}
     void ping() {}
     bool isValid() {return true;}
-    QAbstractSocket::SocketState state() {return QAbstractSocket::ConnectedState;}
+    QAbstractSocket::SocketState state() {return QAbstractSocket::UnconnectedState;}
     void sendTextMessage(const QString &){}
     void sendBinaryMessage(const QByteArray &){}
 

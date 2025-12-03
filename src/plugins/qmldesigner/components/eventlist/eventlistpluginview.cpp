@@ -32,8 +32,10 @@ SignalHandlerProperty signalPropertyFromAction(ActionInterface *interface)
     return SignalHandlerProperty();
 }
 
-EventListPluginView::EventListPluginView(ExternalDependenciesInterface &externalDepoendencies)
+EventListPluginView::EventListPluginView(ExternalDependenciesInterface &externalDepoendencies,
+                                         ModulesStorage &modulesStorage)
     : AbstractView{externalDepoendencies}
+    , m_modulesStorage(modulesStorage)
     , m_eventlist()
     , m_eventListDialog(nullptr)
     , m_assigner(nullptr)
@@ -42,6 +44,7 @@ EventListPluginView::EventListPluginView(ExternalDependenciesInterface &external
 
 void EventListPluginView::registerActions()
 {
+    return;
     DesignerActionManager &designerActionManager = QmlDesignerPlugin::instance()->designerActionManager();
 
     designerActionManager.addDesignerAction(new ActionGroup(tr("Event List"),
@@ -53,7 +56,7 @@ void EventListPluginView::registerActions()
     auto eventListAction = new EventListAction();
     connect(eventListAction->action(), &QAction::triggered, [this] {
         if (!m_eventListDialog)
-            m_eventListDialog = new EventListDialog(Core::ICore::dialogParent());
+            m_eventListDialog = new EventListDialog(m_modulesStorage, Core::ICore::dialogParent());
 
         m_eventlist.initialize(this);
         m_eventListDialog->initialize(m_eventlist);
@@ -66,7 +69,7 @@ void EventListPluginView::registerActions()
         if (!m_assigner)
             m_assigner = new AssignEventDialog(Core::ICore::dialogParent());
         if (!m_eventListDialog)
-            m_eventListDialog = new EventListDialog(Core::ICore::dialogParent());
+            m_eventListDialog = new EventListDialog(m_modulesStorage, Core::ICore::dialogParent());
 
         m_eventlist.initialize(this);
         m_eventListDialog->initialize(m_eventlist);
@@ -83,7 +86,7 @@ void EventListPluginView::registerActions()
             m_signalConnector = new ConnectSignalDialog(Core::ICore::dialogParent());
 
         if (!m_eventListDialog)
-            m_eventListDialog = new EventListDialog(Core::ICore::dialogParent());
+            m_eventListDialog = new EventListDialog(m_modulesStorage, Core::ICore::dialogParent());
 
         m_eventlist.initialize(this);
         m_eventListDialog->initialize(m_eventlist);

@@ -69,6 +69,10 @@ void CameraGeometry::setCamera(QQuick3DCamera *camera)
                          this, &CameraGeometry::handleCameraPropertyChange);
         QObject::connect(orthoCamera, &QQuick3DOrthographicCamera::clipFarChanged,
                          this, &CameraGeometry::handleCameraPropertyChange);
+        QObject::connect(orthoCamera, &QQuick3DOrthographicCamera::horizontalMagnificationChanged,
+                         this, &CameraGeometry::handleCameraPropertyChange);
+        QObject::connect(orthoCamera, &QQuick3DOrthographicCamera::verticalMagnificationChanged,
+                         this, &CameraGeometry::handleCameraPropertyChange);
     } else if (auto customCamera = qobject_cast<QQuick3DCustomCamera *>(m_camera)) {
         QObject::connect(customCamera, &QQuick3DCustomCamera::projectionChanged,
                          this, &CameraGeometry::handleCameraPropertyChange);

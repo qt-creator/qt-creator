@@ -3,6 +3,8 @@
 
 #include "colorpalettebackend.h"
 
+#include "propertyeditortracing.h"
+
 #include <coreplugin/icore.h>
 
 #include <QApplication>
@@ -21,6 +23,8 @@ namespace QmlDesigner {
 
 QPointer<ColorPaletteBackend> ColorPaletteBackend::m_instance = nullptr;
 
+using PropertyEditorTracing::category;
+
 ColorPaletteBackend::ColorPaletteBackend()
     : m_currentPalette()
     , m_data()
@@ -29,6 +33,8 @@ ColorPaletteBackend::ColorPaletteBackend()
     , updateTimer(0)
 #endif
 {
+    NanotraceHR::Tracer tracer{"color palette backend constructor", category()};
+
     m_data.insert(g_recent, Palette(QmlDesigner::DesignerSettingsKey::COLOR_PALETTE_RECENT));
     m_data.insert(g_favorite, Palette(QmlDesigner::DesignerSettingsKey::COLOR_PALETTE_FAVORITE));
 
@@ -47,6 +53,8 @@ ColorPaletteBackend::ColorPaletteBackend()
 
 ColorPaletteBackend::~ColorPaletteBackend()
 {
+    NanotraceHR::Tracer tracer{"color palette backend destructor", category()};
+
     //writePalettes(); // TODO crash on QtDS close
     if (m_eyeDropperActive)
         eyeDropperLeave(QCursor::pos(), EyeDropperEventFilter::LeaveReason::Default);
@@ -54,31 +62,35 @@ ColorPaletteBackend::~ColorPaletteBackend()
 
 void ColorPaletteBackend::readPalettes()
 {
-    QHash<QString, Palette>::iterator i = m_data.begin();
-    while (i != m_data.end()) {
-        i.value().read();
-        ++i;
-    }
+    NanotraceHR::Tracer tracer{"color palette backend read palettes", category()};
+
+    for (auto &palette : m_data)
+        palette.read();
 }
 
 void ColorPaletteBackend::writePalettes()
 {
-    QHash<QString, Palette>::iterator i = m_data.begin();
-    while (i != m_data.end()) {
-        i.value().write();
-        ++i;
-    }
+    NanotraceHR::Tracer tracer{"color palette backend write palettes", category()};
+
+    for (auto &palette : m_data)
+        palette.write();
 }
 
-void ColorPaletteBackend::addColor(const QString &color, const QString &palette)
+void ColorPaletteBackend::addColor(const QString &color, const QString &paletteName)
 {
-    if (!m_data.contains(palette)) {
-        qWarning() << Q_FUNC_INFO << "Unknown palette: " << palette;
+    NanotraceHR::Tracer tracer{"color palette backend add color", category()};
+
+    auto found = m_data.find(paletteName);
+
+    if (found == m_data.end()) {
+        qWarning() << Q_FUNC_INFO << "Unknown palette: " << paletteName;
         return;
     }
 
+    auto palette = *found;
+
     // If palette is currently active palette also add it to the local color list
-    if (palette == m_currentPalette) {
+    if (paletteName == m_currentPalette) {
         if (m_currentPaletteColors.size() + 1 > g_maxPaletteSize)
             m_currentPaletteColors.removeLast();
 
@@ -86,27 +98,32 @@ void ColorPaletteBackend::addColor(const QString &color, const QString &palette)
         emit currentPaletteColorsChanged();
     }
 
-    if (m_data[palette].m_colors.size() + 1 > g_maxPaletteSize)
-        m_data[palette].m_colors.removeLast();
+    if (palette.m_colors.size() + 1 > g_maxPaletteSize)
+        palette.m_colors.removeLast();
 
-    m_data[palette].m_colors.prepend(color);
-    m_data[palette].write();
+    palette.m_colors.prepend(color);
+    palette.write();
 }
 
-void ColorPaletteBackend::removeColor(int id, const QString &palette)
+void ColorPaletteBackend::removeColor(int id, const QString &paletteName)
 {
-    if (!m_data.contains(palette)) {
-        qWarning() << Q_FUNC_INFO << "Unknown palette: " << palette;
+    NanotraceHR::Tracer tracer{"color palette backend remove color", category()};
+
+    auto found = m_data.find(paletteName);
+
+    if (found == m_data.end()) {
+        qWarning() << Q_FUNC_INFO << "Unknown palette: " << paletteName;
         return;
     }
+    auto palette = *found;
 
-    if (id >= m_data[palette].m_colors.size()) {
-        qWarning() << Q_FUNC_INFO << "Id(" << id << ") is out of bounds for palette " << palette;
+    if (id >= palette.m_colors.size()) {
+        qWarning() << Q_FUNC_INFO << "Id(" << id << ") is out of bounds for palette " << paletteName;
         return;
     }
 
     // If palette is currently active palette also add it to the local color list
-    if (palette == m_currentPalette) {
+    if (paletteName == m_currentPalette) {
         m_currentPaletteColors.removeAt(id);
 
         // Fill up with empty strings
@@ -116,12 +133,14 @@ void ColorPaletteBackend::removeColor(int id, const QString &palette)
         emit currentPaletteColorsChanged();
     }
 
-    m_data[palette].m_colors.removeAt(id);
-    m_data[palette].write();
+    palette.m_colors.removeAt(id);
+    palette.write();
 }
 
 void ColorPaletteBackend::addRecentColor(const QString &item)
 {
+    NanotraceHR::Tracer tracer{"color palette backend add recent color", category()};
+
     if (m_data[g_recent].m_colors.isEmpty()) {
         addColor(item, g_recent);
         return;
@@ -134,26 +153,36 @@ void ColorPaletteBackend::addRecentColor(const QString &item)
 
 void ColorPaletteBackend::addFavoriteColor(const QString &item)
 {
+    NanotraceHR::Tracer tracer{"color palette backend add favorite color", category()};
+
     addColor(item, g_favorite);
 }
 
 void ColorPaletteBackend::removeFavoriteColor(int id)
 {
+    NanotraceHR::Tracer tracer{"color palette backend  remove favorite color", category()};
+
     removeColor(id, g_favorite);
 }
 
 QStringList ColorPaletteBackend::palettes() const
 {
+    NanotraceHR::Tracer tracer{"color palette backend get palettes", category()};
+
     return m_data.keys();
 }
 
 const QString &ColorPaletteBackend::currentPalette() const
 {
+    NanotraceHR::Tracer tracer{"color palette backend get current palette", category()};
+
     return m_currentPalette;
 }
 
 void ColorPaletteBackend::setCurrentPalette(const QString &palette)
 {
+    NanotraceHR::Tracer tracer{"color palette backend set current palette", category()};
+
     if (!m_data.contains(palette)) {
         qWarning() << Q_FUNC_INFO << "Unknown palette: " << palette;
         return;
@@ -186,11 +215,15 @@ void ColorPaletteBackend::setCurrentPalette(const QString &palette)
 
 const QStringList &ColorPaletteBackend::currentPaletteColors() const
 {
+    NanotraceHR::Tracer tracer{"color palette backend get current palette colors", category()};
+
     return m_currentPaletteColors;
 }
 
 void ColorPaletteBackend::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"color palette backend register declarative type", category()};
+
     [[maybe_unused]] static const int typeIndex = qmlRegisterSingletonType<ColorPaletteBackend>(
         "QtQuickDesignerColorPalette", 1, 0, "ColorPaletteBackend", [](QQmlEngine *, QJSEngine *) {
             return new ColorPaletteBackend();
@@ -199,6 +232,8 @@ void ColorPaletteBackend::registerDeclarativeType()
 
 void ColorPaletteBackend::showDialog(QColor color)
 {
+    NanotraceHR::Tracer tracer{"color palette backend show dialog", category()};
+
     auto colorDialog = new QColorDialog(Core::ICore::dialogParent());
     colorDialog->setCurrentColor(color);
     colorDialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -213,11 +248,15 @@ void ColorPaletteBackend::showDialog(QColor color)
 
 void ColorPaletteBackend::invokeEyeDropper()
 {
+    NanotraceHR::Tracer tracer{"color palette backend invoke eye dropper", category()};
+
     eyeDropperEnter();
 }
 
 void ColorPaletteBackend::eyeDropperEnter()
 {
+    NanotraceHR::Tracer tracer{"color palette backend eye dropper enter", category()};
+
     if (m_eyeDropperActive)
         return;
 
@@ -278,6 +317,8 @@ void ColorPaletteBackend::eyeDropperEnter()
 void ColorPaletteBackend::eyeDropperLeave(const QPoint &pos,
                                           EyeDropperEventFilter::LeaveReason actionOnLeave)
 {
+    NanotraceHR::Tracer tracer{"color palette backend eye dropper leave", category()};
+
     if (!m_eyeDropperActive)
         return;
 
@@ -306,6 +347,8 @@ void ColorPaletteBackend::eyeDropperLeave(const QPoint &pos,
 
 void ColorPaletteBackend::eyeDropperPointerMoved(const QPoint &pos)
 {
+    NanotraceHR::Tracer tracer{"color palette backend eye dropper pointer moved", category()};
+
     m_eyeDropperCurrentColor = grabScreenColor(pos);
     updateEyeDropperPosition(pos);
 }
@@ -318,11 +361,15 @@ const QSize g_halfPreviewSize = g_previewSize / 2;
 
 QColor ColorPaletteBackend::grabScreenColor(const QPoint &p)
 {
+    NanotraceHR::Tracer tracer{"color palette backend grab screen color", category()};
+
     return grabScreenRect(QRect(p, QSize(1, 1))).pixel(0, 0);
 }
 
 QImage ColorPaletteBackend::grabScreenRect(const QRect &r)
 {
+    NanotraceHR::Tracer tracer{"color palette backend grab screen rect", category()};
+
     QScreen *screen = QGuiApplication::screenAt(r.topLeft());
     if (!screen)
         screen = QGuiApplication::primaryScreen();
@@ -339,6 +386,8 @@ QImage ColorPaletteBackend::grabScreenRect(const QRect &r)
 
 void ColorPaletteBackend::updateEyeDropper()
 {
+    NanotraceHR::Tracer tracer{"color palette backend update eye dropper", category()};
+
 #ifndef QT_NO_CURSOR
     static QPoint lastGlobalPos;
     const QPoint newGlobalPos = QCursor::pos();
@@ -356,6 +405,8 @@ void ColorPaletteBackend::updateEyeDropper()
 
 void ColorPaletteBackend::updateEyeDropperPosition(const QPoint &globalPos)
 {
+    NanotraceHR::Tracer tracer{"color palette backend update eye dropper position", category()};
+
 #if QT_CONFIG(cursor)
     QPoint topLeft = globalPos - QPoint(g_halfCursorSize.width(), g_halfCursorSize.height());
     updateCursor(grabScreenRect(QRect(topLeft, g_cursorSize)));
@@ -364,6 +415,8 @@ void ColorPaletteBackend::updateEyeDropperPosition(const QPoint &globalPos)
 
 void ColorPaletteBackend::updateCursor(const QImage &image)
 {
+    NanotraceHR::Tracer tracer{"color palette backend update cursor", category()};
+
     QWindow *window = Core::ICore::mainWindow()->windowHandle();
     if (!window)
         return;
@@ -422,6 +475,7 @@ void ColorPaletteBackend::updateCursor(const QImage &image)
 
 bool ColorPaletteBackend::eyeDropperActive() const
 {
+    NanotraceHR::Tracer tracer{"color palette backend eye dropper active", category()};
     return m_eyeDropperActive;
 }
 

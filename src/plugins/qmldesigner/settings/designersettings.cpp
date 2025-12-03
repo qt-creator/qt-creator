@@ -62,10 +62,7 @@ void DesignerSettings::fromSettings(QtcSettings *settings)
     restoreValue(settings, DesignerSettingsKey::SHOW_DEBUGVIEW, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_DEBUGVIEW, false);
     restoreValue(settings, DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR, false);
-    restoreValue(settings, DesignerSettingsKey::USE_DEFAULT_PUPPET, true);
     restoreValue(settings, DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION, 0);
-    restoreValue(settings, DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY);
-    restoreValue(settings, DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY);
     restoreValue(settings, DesignerSettingsKey::CONTROLS_STYLE);
     restoreValue(settings, DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT, false);
@@ -74,8 +71,10 @@ void DesignerSettings::fromSettings(QtcSettings *settings)
     restoreValue(settings, DesignerSettingsKey::FORWARD_PUPPET_OUTPUT, QString());
     restoreValue(settings, DesignerSettingsKey::REFORMAT_UI_QML_FILES, true);
     restoreValue(settings, DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO, false);
+    restoreValue(settings, DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES, true);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, true);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, false);
+    restoreValue(settings, DesignerSettingsKey::NAVIGATOR_COLORIZE_ICONS, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_TIMELINEVIEW, true);
     restoreValue(settings, DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE, true);
     restoreValue(settings, DesignerSettingsKey::COLOR_PALETTE_RECENT, QStringList());
@@ -83,6 +82,7 @@ void DesignerSettings::fromSettings(QtcSettings *settings)
     restoreValue(settings, DesignerSettingsKey::ALWAYS_DESIGN_MODE, true);
     restoreValue(settings, DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER, false);
     restoreValue(settings, DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, true);
+    restoreValue(settings, DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE, true);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
                  QStringList{"#222222", "#999999"});
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, "#cccccc");
@@ -101,6 +101,7 @@ void DesignerSettings::fromSettings(QtcSettings *settings)
     restoreValue(settings, DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL,
                  "https://cdn.qt.io/designstudio/bundles");
     restoreValue(settings, DesignerSettingsKey::CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS, 3);
+    restoreValue(settings, DesignerSettingsKey::GROQ_API_KEY, "");
 
     settings->endGroup();
     settings->endGroup();

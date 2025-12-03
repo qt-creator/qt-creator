@@ -10,9 +10,14 @@
 
 #include <QtGlobal>
 
+#include <filesystem>
 #include <iosfwd>
 #include <optional>
 #include <variant>
+
+namespace std::filesystem {
+std::ostream &operator<<(std::ostream &out, const file_time_type &entry);
+}
 
 namespace Sqlite {
 class Value;
@@ -102,6 +107,7 @@ void PrintTo(const std::optional<Type> &optional, ::std::ostream *os)
 
 void PrintTo(Utils::SmallStringView text, ::std::ostream *os);
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os);
+void PrintTo(const Utils::BasicSmallString<64> &text, ::std::ostream *os);
 void PrintTo(const Utils::BasicSmallString<96> &text, ::std::ostream *os);
 void PrintTo(const Utils::PathString &text, ::std::ostream *os);
 
@@ -140,6 +146,7 @@ enum class FlagIs : unsigned int;
 template<typename NameType>
 class BasicAuxiliaryDataKey;
 class SourceId;
+class ItemLibraryEntry;
 
 void PrintTo(const ThemeProperty &prop, std::ostream *os);
 std::ostream &operator<<(std::ostream &out, const ThemeProperty &prop);
@@ -164,6 +171,7 @@ std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::S
 std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::SmallString> &key);
 std::ostream &operator<<(std::ostream &out, AuxiliaryDataType type);
 std::ostream &operator<<(std::ostream &out, SourceId sourceId);
+std::ostream &operator<<(std::ostream &out, const ItemLibraryEntry &entry);
 
 namespace Cache {
 class DirectoryPath;
@@ -201,14 +209,14 @@ std::ostream &operator<<(std::ostream &out, Version version);
 } // namespace Storage
 
 namespace Storage::Info {
-class ProjectDeclaration;
+class PropertyDeclaration;
 class Type;
 class ExportedTypeName;
 struct TypeHint;
 struct ItemLibraryProperty;
 struct ItemLibraryEntry;
 
-std::ostream &operator<<(std::ostream &out, const ProjectDeclaration &declaration);
+std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &declaration);
 std::ostream &operator<<(std::ostream &out, const Type &type);
 std::ostream &operator<<(std::ostream &out, const ExportedTypeName &name);
 std::ostream &operator<<(std::ostream &out, const TypeHint &hint);
@@ -231,7 +239,7 @@ class EnumeratorDeclaration;
 enum class ImportKind : char;
 enum class IsAutoVersion : char;
 enum class IsQualified : int;
-class DirectoryInfo;
+class ProjectEntryInfo;
 class SynchronizationPackage;
 enum class FileType : char;
 enum class ChangeLevel : char;
@@ -251,7 +259,7 @@ std::ostream &operator<<(std::ostream &out, const EnumerationDeclaration &enumer
 std::ostream &operator<<(std::ostream &out, const EnumeratorDeclaration &enumeratorDeclaration);
 std::ostream &operator<<(std::ostream &out, const ImportKind &importKind);
 std::ostream &operator<<(std::ostream &out, IsQualified isQualified);
-std::ostream &operator<<(std::ostream &out, const DirectoryInfo &data);
+std::ostream &operator<<(std::ostream &out, const ProjectEntryInfo &data);
 std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &package);
 std::ostream &operator<<(std::ostream &out, FileType fileType);
 std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel);

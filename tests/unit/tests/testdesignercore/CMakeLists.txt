@@ -5,15 +5,16 @@ add_qtc_library(TestDesignerCore OBJECT
   PROPERTIES SKIP_AUTOGEN ON
   DEPENDS
     Utils
-    Qt::Widgets
     Qt::Qml
     Qt::QmlPrivate
     Qt6::QmlDomPrivate
     Qt6::QmlCompilerPrivate
     QmlJS
+    AstCheck
   PUBLIC_DEPENDS
     Threads::Threads
     Qt::Quick
+    Qt::Widgets
     QmlPuppetCommunication
     QmlDesignerUtils
     Sqlite
@@ -209,7 +210,6 @@ extend_qtc_library(TestDesignerCore
     rewritingexception.h
     signalhandlerproperty.h
     sourcepathids.h
-    stringutils.h
     synchronousimagecache.h
     variantproperty.h
 )
@@ -301,6 +301,16 @@ extend_qtc_library(TestDesignerCore
     widgetpluginmanager.h
     widgetpluginpath.cpp
     widgetpluginpath.h
+)
+
+extend_qtc_library(TestDesignerCore
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/modulesstorage
+  PUBLIC_INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/modulesstorage
+  SOURCES_PROPERTIES SKIP_AUTOGEN ON
+  SOURCES
+    modulesstorage.cpp
+    modulesstorage.h
+    modulesstorageinterface.h
 )
 
 extend_qtc_library(TestDesignerCore

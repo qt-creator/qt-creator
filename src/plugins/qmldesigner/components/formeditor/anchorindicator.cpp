@@ -3,27 +3,36 @@
 
 #include "anchorindicator.h"
 
-#include "qmlanchors.h"
 #include "anchorindicatorgraphicsitem.h"
-#include <QGraphicsScene>
+#include "formeditortracing.h"
+#include "qmlanchors.h"
+
 #include <QGraphicsPathItem>
+#include <QGraphicsScene>
 
 namespace QmlDesigner {
+
+using FormEditorTracing::category;
 
 AnchorIndicator::AnchorIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)
 {
+    NanotraceHR::Tracer tracer{"anchor indicator constructor", category()};
 }
 
 AnchorIndicator::AnchorIndicator() = default;
 
 AnchorIndicator::~AnchorIndicator()
 {
+    NanotraceHR::Tracer tracer{"anchor indicator destructor", category()};
+
     clear();
 }
 
 void AnchorIndicator::show()
 {
+    NanotraceHR::Tracer tracer{"anchor indicator show", category()};
+
     if (m_indicatorTopShape)
         m_indicatorTopShape->show();
 
@@ -39,6 +48,8 @@ void AnchorIndicator::show()
 
 void AnchorIndicator::hide()
 {
+    NanotraceHR::Tracer tracer{"anchor indicator hide", category()};
+
     if (m_indicatorTopShape)
         m_indicatorTopShape->hide();
 
@@ -54,14 +65,18 @@ void AnchorIndicator::hide()
 
 void AnchorIndicator::clear()
 {
-  delete m_indicatorTopShape;
-  delete m_indicatorBottomShape;
-  delete m_indicatorLeftShape;
-  delete m_indicatorRightShape;
+    NanotraceHR::Tracer tracer{"anchor indicator clear", category()};
+
+    delete m_indicatorTopShape;
+    delete m_indicatorBottomShape;
+    delete m_indicatorLeftShape;
+    delete m_indicatorRightShape;
 }
 
 void AnchorIndicator::setItems(const QList<FormEditorItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"anchor indicator set items", category()};
+
     clear();
 
     if (itemList.size() == 1) {
@@ -99,6 +114,8 @@ void AnchorIndicator::setItems(const QList<FormEditorItem *> &itemList)
 
 void AnchorIndicator::updateItems(const QList<FormEditorItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"anchor indicator update items", category()};
+
     for (FormEditorItem *formEditorItem : itemList) {
         if (formEditorItem == m_formEditorItem) {
             QmlItemNode sourceQmlItemNode = m_formEditorItem->qmlItemNode();

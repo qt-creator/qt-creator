@@ -16,7 +16,7 @@
     The complexity of a shader depends on a combination of the properties that
     are set on it, and the context of the scene itself.
 
-    It is recommended that you use the \l {Material Editor and Browser} when
+    It is recommended that you use \l {Material Browser} when
     working with materials, but you can also add materials using the components
     library.
 
@@ -43,7 +43,7 @@
     more information, see \l {Textures}.
 
     You can create and modify materials in
-    \uicontrol {Material Editor} and \uicontrol {Material Browser}. The availability
+    \uicontrol {Material Editor} and \uicontrol {Properties}. The availability
     of the properties depends on the material type.
 
     \image studio-qtquick-3d-default-material.webp "DefaultMaterial properties"

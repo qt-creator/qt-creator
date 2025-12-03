@@ -8,6 +8,7 @@
 #include "childrenchangeeventfilter.h"
 
 #include "dummycontextobject.h"
+#include "qmlpuppet/qmlbase.h"
 
 #include <propertyabstractcontainer.h>
 #include <propertybindingcontainer.h>
@@ -1576,11 +1577,7 @@ void NodeInstanceServer::registerFonts(const QUrl &resourceUrl) const
     if (!resourceUrl.isValid())
         return;
 
-    // Autoregister all fonts found inside the project
-    QDirIterator it {QFileInfo(resourceUrl.toLocalFile()).absoluteFilePath(),
-                     {"*.ttf", "*.otf"}, QDir::Files, QDirIterator::Subdirectories};
-    while (it.hasNext())
-        QFontDatabase::addApplicationFont(it.next());
+    QmlBase::registerFonts(resourceUrl.toLocalFile());
 }
 
 bool NodeInstanceServer::isInformationServer() const

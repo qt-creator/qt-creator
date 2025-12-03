@@ -10,14 +10,14 @@
 
     \title Navigator
 
-    \brief View the composition of the current component file as a tree structure.
+    \brief View the current QML file in a tree format.
 
     The \uicontrol Navigator view displays the components in the current
     component file and their relationships. \l{glossary-component}{Components}
     (1) are listed in a tree structure, below their parent (2). You can preview
     components by hovering the mouse over them (3).
 
-    \image qmldesigner-navigator.png "Navigator with component preview"
+    \image {qmldesigner-navigator.webp} {Navigator with component preview.}
 
     You can select components in the \uicontrol Navigator view to edit their
     properties in the \l Properties view. Components can access the
@@ -40,7 +40,40 @@
     you can change the source of an Image component by selecting
     \uicontrol {Change Source URL} in the context menu.
 
-    \section1 Showing and hiding components
+    \section1 Colorizing component icons
+
+    Colorize component icons to visually distinguish between different types
+    of components in \uicontrol Navigator.
+
+    To toggle colorizing the component icons listed in \uicontrol Navigator,
+    select \image3dbackgroundcolor (Colorize Component Icons). The
+    colorizing feature uses the following colors:
+        \list
+            \li Green for 2D components.
+            \li Yellow for 3D components.
+            \li Blue for materials and textures.
+            \li Gray for other types of components.
+        \endlist
+
+    \section1 Showing and hiding components in Navigator
+
+    Use the following methods to show and hide components in \uicontrol Navigator.
+
+    \section2 Showing and hiding reference nodes
+
+    You can choose to show or hide reference nodes in \uicontrol Navigator.
+    Click on a reference node to select the referenced node.
+
+    A component in \uicontrol Navigator may have nodes that are bound to one or more of its
+    properties, which are referred to as \e {reference nodes}. Toggle on the
+    visibility of reference nodes to show them as child nodes of each component.
+    The referenced nodes appear nested under the current node, making it easier
+    to trace bindings and inter-node dependencies.
+
+    To toggle the visibility of reference nodes, select \imagereferencenode
+    (Show reference nodes).
+
+    \section2 Showing and hiding other components
 
     To show and hide components in the \uicontrol {2D} view when focusing on
     specific parts of the application, select \imageeyeopen and
@@ -60,6 +93,29 @@
     To show and hide invisible components in \uicontrol Navigator, select
     \imagevisibilityon.
 
+    \section2 Isolating nodes
+
+    You can isolate selected 2D or 3D nodes in \uicontrol Navigator to only show
+    the nodes you need. Isolating nodes is useful when you have many nodes in
+    \uicontrol Navigator you wish to hide, and do not wish to select and hide
+    them one by one.
+
+    To isolate nodes:
+
+    \list 1
+        \li Select the nodes you wish to hide in \uicontrol Navigator.
+        \li Right-click on the selected nodes to access the context menu and
+            select \uicontrol {Isolate Selection}, or select \key Shift + \key B.
+    \endlist
+
+    \note You can only use the \uicontrol {Isolate Selection} command if all the
+          selected nodes are either 2D or 3D. You cannot use the command with
+          a mixed selection of 2D and 3D nodes.
+
+    To show all nodes in \uicontrol Navigator, right-click on the selected nodes to access
+    the context menu and select \uicontrol {Show All Nodes}, or select
+    \key Alt/Option + \key B.
+
     \section1 Locking components
 
     When designing complex applications, it is easy to accidentally modify
@@ -74,7 +130,7 @@
     in \uicontrol Navigator. Locked components cannot be handled in any \QDS
     views. You can unlock the components when you want to edit them again.
 
-    \image qtquick-designer-navigator-lock.gif "Locking components in Navigator"
+    \image {qtquick-designer-navigator-lock.gif} {Locking components in Navigator.}
 
     You cannot select locked components in the \uicontrol {2D} view or
     the \l {3D} view nor access their properties in
@@ -109,14 +165,14 @@
     To reverse the order of the selected components in the \uicontrol Navigator and
     \uicontrol {Code} views, select \uicontrol Arrange > \uicontrol Reverse.
 
-    \image qtquick-designer-navigator-arrange.gif "Reversing component order"
+    \image {qtquick-designer-navigator-arrange.gif } {Reversing component order in Navigator.}
 
     You can also drag the component to another position in the tree or use the
     \imagenavigatorarrowup and \imagenavigatorarrowdown
     buttons to move the component in the tree. You can use the \imagearrowleft
     and \imagearrowright buttons to change the parent of the component.
 
-    \image qmldesigner-navigator-arrows.png "Navigator buttons"
+    \image {qmldesigner-navigator-arrows.png} {The Navigator buttons.}
 
     When you drag instances of components to the \uicontrol {2D} view,
     the new component is added as a child of the component
@@ -187,6 +243,6 @@
     to easily navigate back to the top level when you are done editing the
     component.
 
-    \image qmldesigner-breadcrumbs.png "Component hierarchy"
+    \image {qmldesigner-breadcrumbs.png} {Component hierarchy as breadcrumbs.}
 
 */

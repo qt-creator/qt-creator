@@ -38,6 +38,7 @@ class AbstractProperty;
 class RewriterView;
 class NodeInstanceView;
 class NodeMetaInfoPrivate;
+class ModulesStorage;
 
 namespace Internal {
 
@@ -137,12 +138,9 @@ public:
     void detachView(AbstractView *view, bool notifyView);
     void detachAllViews();
 
-    template<typename Callable>
-    void notifyNodeInstanceViewLast(Callable call);
-    template<typename Callable>
-    void notifyNormalViewsLast(Callable call);
-    template<typename Callable>
-    void notifyInstanceChanges(Callable call);
+    void notifyNodeInstanceViewLast(const std::invocable<AbstractView *> auto &call);
+    void notifyNormalViewsLast(const std::invocable<AbstractView *> auto &call);
+    void notifyInstanceChanges(const std::invocable<AbstractView *> auto &call);
 
     void notifyNodeCreated(const InternalNodePointer &newNode);
     void notifyNodeAboutToBeReparent(const InternalNodePointer &node,
@@ -234,7 +232,8 @@ public:
     const FewNodes &selectedNodes() const;
     void selectNode(const InternalNodePointer &node);
     void deselectNode(const InternalNodePointer &node);
-    void changeSelectedNodes(const FewNodes &newSelectedNodeList, const FewNodes &oldSelectedNodeList);
+    void notifySelectedNodesChanged(const FewNodes &newSelectedNodeList,
+                                    const FewNodes &oldSelectedNodeList);
 
     void setAuxiliaryData(const InternalNodePointer &node,
                           const AuxiliaryDataKeyView &key,
@@ -245,6 +244,7 @@ public:
     // Imports:
     const Imports &imports() const { return m_imports; }
     void changeImports(Imports importsToBeAdded, Imports importToBeRemoved);
+    void setImports(Imports imports);
     void notifyImportsChanged(const Imports &addedImports, const Imports &removedImports);
     void notifyPossibleImportsChanged(const Imports &possibleImports);
     void notifyUsedImportsChanged(const Imports &usedImportsChanged);
@@ -292,8 +292,8 @@ public:
     void setScriptFunctions(const InternalNodePointer &node, const QStringList &scriptFunctionList);
     void setNodeSource(const InternalNodePointer &node, const QString &nodeSource);
 
-    InternalNodePointer nodeForId(const QString &id) const;
-    bool hasId(const QString &id) const;
+    InternalNodePointer nodeForId(QStringView id) const;
+    bool hasId(QStringView id) const;
 
     InternalNodePointer nodeForInternalId(qint32 internalId) const;
     bool hasNodeForInternalId(qint32 internalId) const;
@@ -321,11 +321,12 @@ public:
         return m_nodeMetaInfoCache;
     }
 
-    void updateModelNodeTypeIds(const TypeIds &removedTypeIds);
+    void updateModelNodeTypeIds(const ExportedTypeNames &addedExportedTypeNames,
+                                const ExportedTypeNames &removedExportedTypeNames);
+    void updateModelNodeTypeIds(const Imports &removedImports);
 
 protected:
     void removedTypeIds(const TypeIds &removedTypeIds) override;
-    void exportedTypesChanged() override;
     void exportedTypeNamesChanged(const ExportedTypeNames &added,
                                   const ExportedTypeNames &removed) override;
     void removeNode(const InternalNodePointer &node);
@@ -341,14 +342,20 @@ private:
     static QList<std::tuple<QmlDesigner::Internal::InternalBindingProperty *, QString>>
     toInternalBindingProperties(const ModelResourceSet::SetExpressions &setExpressions);
     ImportedTypeNameId importedTypeNameId(Utils::SmallStringView typeName);
-    void setTypeId(InternalNode *node, Utils::SmallStringView typeName);
-    void refreshTypeId(InternalNode *node);
+    ImportedTypeNameId importedTypeNameId(Utils::SmallStringView moduleName,
+                                          Utils::SmallStringView unqualifiedTypeName);
+    void setTypeId(InternalNode *node,
+                   Utils::SmallStringView moduleName,
+                   Utils::SmallStringView unqualifiedTypeName);
+    bool refreshExportedTypeName(InternalNode *node);
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
     NotNullPointer<PathCacheType> pathCache = nullptr;
+    NotNullPointer<ModulesStorage> modulesStorage = nullptr;
     NotNullPointer<ProjectStorageTriggerUpdateInterface> projectStorageTriggerUpdate = nullptr;
-    ModelTracing::AsynchronousToken traceToken = ModelTracing::category().beginAsynchronous("Model");
+    ModelTracing::AsynchronousToken traceToken = ModelTracing::category().beginAsynchronous(
+        "Model");
 
 private:
     Model *m_model = nullptr;

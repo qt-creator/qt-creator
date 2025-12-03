@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "bindingindicator.h"
+#include "formeditortracing.h"
 
 #include "bindingindicatorgraphicsitem.h"
 
@@ -9,20 +10,27 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 BindingIndicator::BindingIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)
 {
+    NanotraceHR::Tracer tracer{"binding indicator constructor", category()};
 }
 
 BindingIndicator::BindingIndicator() = default;
 
 BindingIndicator::~BindingIndicator()
 {
+    NanotraceHR::Tracer tracer{"binding indicator destructor", category()};
+
     clear();
 }
 
 void BindingIndicator::show()
 {
+    NanotraceHR::Tracer tracer{"binding indicator show", category()};
+
     if (m_indicatorTopShape)
         m_indicatorTopShape->show();
 
@@ -38,6 +46,8 @@ void BindingIndicator::show()
 
 void BindingIndicator::hide()
 {
+    NanotraceHR::Tracer tracer{"binding indicator hide", category()};
+
     if (m_indicatorTopShape)
         m_indicatorTopShape->hide();
 
@@ -53,10 +63,12 @@ void BindingIndicator::hide()
 
 void BindingIndicator::clear()
 {
-  delete m_indicatorTopShape;
-  delete m_indicatorBottomShape;
-  delete m_indicatorLeftShape;
-  delete m_indicatorRightShape;
+    NanotraceHR::Tracer tracer{"binding indicator clear", category()};
+
+    delete m_indicatorTopShape;
+    delete m_indicatorBottomShape;
+    delete m_indicatorLeftShape;
+    delete m_indicatorRightShape;
 }
 
 QLineF topLine(const QmlItemNode &qmlItemNode)
@@ -89,6 +101,8 @@ QLineF rightLine(const QmlItemNode &qmlItemNode)
 
 void BindingIndicator::setItems(const QList<FormEditorItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"binding indicator set items", category()};
+
     clear();
 
     if (itemList.size() == 1) {
@@ -122,11 +136,13 @@ void BindingIndicator::setItems(const QList<FormEditorItem *> &itemList)
 
 void BindingIndicator::updateItems(const QList<FormEditorItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"binding indicator update items", category()};
+
     for (FormEditorItem *formEditorItem : itemList) {
         if (formEditorItem == m_formEditorItem) {
             const QmlItemNode qmlItemNode = m_formEditorItem->qmlItemNode();
 
-            if (!qmlItemNode.isValid())
+            if (!qmlItemNode.modelNode().isValid())
                 continue;
 
             if (qmlItemNode.hasBindingProperty("x")) {

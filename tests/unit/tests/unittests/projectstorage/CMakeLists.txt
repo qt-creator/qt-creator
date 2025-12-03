@@ -4,6 +4,7 @@ extend_qtc_test(unittest
     directorypathcompressor-test.cpp
     filestatuscache-test.cpp
     modulescanner-test.cpp
+    modulesstorage-test.cpp
     projectstorage-test.cpp
     projectstoragepathwatcher-test.cpp
     projectstorageupdater-test.cpp

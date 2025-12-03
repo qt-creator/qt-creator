@@ -5,14 +5,21 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QDir>
+#include <QFont>
 #include <QQmlApplicationEngine>
-
-#include <iostream>
 
 class QmlBase : public QObject
 {
     Q_OBJECT
 public:
+    // These constants should be kept in sync with their counterparts in qmlprojectconstants.h
+    static constexpr char QMLPUPPET_ENV_MCU_FONTS_DIR[] = "QMLPUPPET_MCU_FONTS_DIR";
+    static constexpr char QMLPUPPET_ENV_DEFAULT_FONT_FAMILY[] = "QMLPUPPET_DEFAULT_FONT_FAMILY";
+    static constexpr char QMLPUPPET_ENV_PROJECT_ROOT[] = "QMLPUPPET_PROJECT_ROOT";
+
+    static void registerFonts(const QDir &dir);
+
     struct AppArgs
     {
     public:
@@ -20,46 +27,17 @@ public:
         char **argv;
     };
 
-    QmlBase(int &argc, char **argv, QObject *parent = nullptr)
-        : QObject{parent}
-        , m_args({argc, argv})
-    {
-        m_argParser.setApplicationDescription("QML Runtime Provider for QDS");
-        m_argParser.addOption({"qml-puppet", "Run QML Puppet (default)"});
-        m_argParser.addOption({"qml-renderer", "Run QML Renderer"});
-#ifdef ENABLE_INTERNAL_QML_RUNTIME
-        m_argParser.addOption({"qml-runtime", "Run QML Runtime"});
-#endif
-        m_argParser.addOption({"test", "Run test mode"});
-    }
+    QmlBase(int &argc, char **argv, QObject *parent = nullptr);
 
-    int run()
-    {
-        populateParser();
-        initCoreApp();
-
-        if (!m_coreApp) { //default to QGuiApplication
-            createCoreApp<QGuiApplication>();
-            qWarning() << "CoreApp is not initialized! Falling back to QGuiApplication!";
-        }
-
-        initParser();
-        initQmlRunner();
-        return m_coreApp->exec();
-    }
+    int run();
 
     QSharedPointer<QCoreApplication> coreApp() const { return m_coreApp; }
 
 protected:
     virtual void initCoreApp() = 0;
     virtual void populateParser() = 0;
-    virtual void initQmlRunner() = 0;
-
-    virtual int startTestMode()
-    {
-        qDebug() << "Test mode is not implemented for this type of runner";
-        return 0;
-    }
+    virtual void initQmlRunner();
+    virtual int startTestMode();
 
     template<typename T>
     void createCoreApp()
@@ -74,23 +52,5 @@ protected:
     AppArgs m_args;
 
 private:
-    void initParser()
-    {
-        QCommandLineOption optHelp = m_argParser.addHelpOption();
-
-        if (!m_argParser.parse(m_coreApp->arguments())) {
-            std::cout << "Error: " << m_argParser.errorText().toStdString() << std::endl;
-            if (m_argParser.errorText().contains("qml-runtime")) {
-                std::cout << "Note: --qml-runtime is only availabe when Qt is 6.4.x or higher"
-                          << std::endl;
-            }
-            std::cout << std::endl;
-
-            m_argParser.showHelp(1);
-        } else if (m_argParser.isSet(optHelp)) {
-            m_argParser.showHelp(0);
-        } else if (m_argParser.isSet("test")) {
-            exit(startTestMode());
-        }
-    }
+    void initParser();
 };

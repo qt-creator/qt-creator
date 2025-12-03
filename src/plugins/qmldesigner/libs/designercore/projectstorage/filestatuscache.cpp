@@ -3,6 +3,7 @@
 
 #include "filestatuscache.h"
 #include "filesystem.h"
+#include "projectstoragetracing.h"
 
 #include <utils/algorithm.h>
 #include <utils/set_algorithm.h>
@@ -12,36 +13,53 @@
 
 namespace QmlDesigner {
 
-long long FileStatusCache::lastModifiedTime(SourceId sourceId) const
+using NanotraceHR::keyValue;
+using ProjectStorageTracing::category;
+
+void FileStatusCache::remove(const DirectoryPathIds &directoryPathIds)
 {
-    return find(sourceId).lastModified;
+    NanotraceHR::Tracer tracer{"file status cache remove by directory path ids", category()};
+
+    if (directoryPathIds.empty())
+        return;
+
+    FileStatuses notRemovedFileStatuses;
+    notRemovedFileStatuses.reserve(m_cacheEntries.size());
+
+    auto append = [&](const FileStatus &fileStatus) { notRemovedFileStatuses.push_back(fileStatus); };
+
+    Utils::set_greedy_difference(m_cacheEntries,
+                                 directoryPathIds,
+                                 append,
+                                 {},
+                                 [](const FileStatus &fileStatus) {
+                                     return fileStatus.sourceId.directoryPathId();
+                                 });
+
+    m_cacheEntries = std::move(notRemovedFileStatuses);
 }
 
-long long FileStatusCache::fileSize(SourceId sourceId) const
+void FileStatusCache::remove(const SourceIds &sourceIds)
 {
-    return find(sourceId).size;
-}
+    NanotraceHR::Tracer tracer{"file status cache remove by source ids", category()};
 
-void FileStatusCache::update(SourceId sourceId)
-{
-    auto found = std::ranges::lower_bound(m_cacheEntries, sourceId, {}, &FileStatus::sourceId);
+    if (sourceIds.empty())
+        return;
 
-    if (found != m_cacheEntries.end() && found->sourceId == sourceId)
-        *found = m_fileSystem.fileStatus(sourceId);
-}
+    FileStatuses notRemovedFileStatuses;
+    notRemovedFileStatuses.reserve(m_cacheEntries.size());
 
-void FileStatusCache::update(SourceIds sourceIds)
-{
-    Utils::set_greedy_intersection(
-        m_cacheEntries,
-        sourceIds,
-        [&](auto &entry) { entry = m_fileSystem.fileStatus(entry.sourceId); },
-        {},
-        &FileStatus::sourceId);
+    auto append = [&](const FileStatus &fileStatus) { notRemovedFileStatuses.push_back(fileStatus); };
+
+    Utils::set_greedy_difference(m_cacheEntries, sourceIds, append, {}, &FileStatus::sourceId);
+
+    m_cacheEntries = std::move(notRemovedFileStatuses);
 }
 
 SourceIds FileStatusCache::modified(SourceIds sourceIds) const
 {
+    NanotraceHR::Tracer tracer{"file status cache modified", category()};
+
     SourceIds modifiedSourceIds;
     modifiedSourceIds.reserve(sourceIds.size());
 
@@ -53,6 +71,7 @@ SourceIds FileStatusCache::modified(SourceIds sourceIds) const
             if (fileStatus != entry) {
                 modifiedSourceIds.push_back(entry.sourceId);
                 entry = fileStatus;
+                tracer.tick("update entry", keyValue("entry", entry));
             }
         },
         {},
@@ -65,8 +84,9 @@ SourceIds FileStatusCache::modified(SourceIds sourceIds) const
         sourceIds,
         m_cacheEntries,
         [&](SourceId newSourceId) {
-            newEntries.push_back(m_fileSystem.fileStatus(newSourceId));
+            const auto &entry = newEntries.emplace_back(m_fileSystem.fileStatus(newSourceId));
             modifiedSourceIds.push_back(newSourceId);
+            tracer.tick("new entry", keyValue("entry", entry));
         },
         {},
         {},
@@ -88,19 +108,55 @@ SourceIds FileStatusCache::modified(SourceIds sourceIds) const
 
 FileStatusCache::size_type FileStatusCache::size() const
 {
+    NanotraceHR::Tracer tracer{"file status cache size", category()};
+
     return m_cacheEntries.size();
 }
 
 const FileStatus &FileStatusCache::find(SourceId sourceId) const
 {
+    NanotraceHR::Tracer tracer{"file status cache find", category(), keyValue("source id", sourceId)};
+
     auto found = std::ranges::lower_bound(m_cacheEntries, sourceId, {}, &FileStatus::sourceId);
 
-    if (found != m_cacheEntries.end() && found->sourceId == sourceId)
-        return *found;
+    if (found != m_cacheEntries.end() && found->sourceId == sourceId) {
+        const auto &entry = *found;
+
+        tracer.tick("found entry", keyValue("entry", entry));
+
+        return entry;
+    }
 
     auto inserted = m_cacheEntries.insert(found, m_fileSystem.fileStatus(sourceId));
+    const auto &entry = *inserted;
 
-    return *inserted;
+    tracer.tick("inserted entry", keyValue("entry", entry));
+
+    return entry;
+}
+
+const FileStatus &FileStatusCache::updateAndFind(SourceId sourceId) const
+{
+    NanotraceHR::Tracer tracer{"file status cache update and find",
+                               category(),
+                               keyValue("source id", sourceId)};
+
+    auto found = std::ranges::lower_bound(m_cacheEntries, sourceId, {}, &FileStatus::sourceId);
+
+    if (found != m_cacheEntries.end() && found->sourceId == sourceId) {
+        const FileStatus &entry = *found = m_fileSystem.fileStatus(sourceId);
+
+        tracer.tick("found entry", keyValue("entry", entry));
+
+        return entry;
+    }
+
+    auto inserted = m_cacheEntries.insert(found, m_fileSystem.fileStatus(sourceId));
+    const auto &entry = *inserted;
+
+    tracer.tick("inserted entry", keyValue("entry", entry));
+
+    return entry;
 }
 
 } // namespace QmlDesigner

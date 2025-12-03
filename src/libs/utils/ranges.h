@@ -3,9 +3,12 @@
 
 #pragma once
 
+#include <ranges>
+
 #include <QMetaEnum>
 
 namespace Utils {
+
 namespace ranges {
 
 template<typename ENUMTYPE>
@@ -68,93 +71,312 @@ struct MetaEnum
 
 } // namespace Utils
 
-#if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 201911L
-#include <ranges>
-
-namespace Utils {
-
-namespace ranges {
-using std::ranges::reverse_view;
-}
+#if defined(__cpp_lib_ranges_cache_latest) && __cpp_lib_ranges >= 202411L
+#  include <ranges>
 
 namespace views {
-using std::views::reverse;
+using std::views::cache_latest_view;
 }
 
 } // namespace Utils
 #else
-#include <stdexcept>
 
-namespace Utils {
+namespace Utils::ranges {
 
-namespace ranges {
+namespace Internal {
+template<typename Type>
+constexpr Type &as_lvalue(Type &&type)
+{
+    return static_cast<Type &>(type);
+}
 
-template <typename Container>
-class reverse_view
+template<class Type>
+    requires(std::is_object_v<Type>)
+class non_propagating_cache : public std::optional<Type>
 {
 public:
-    using value_type = typename Container::value_type;
-    using size_type = typename Container::size_type;
-    using Type = value_type;
-    using pointer = Type *;
-    using const_pointer = const Type *;
-    using reference = Type &;
-    using const_reference = const Type &;
+    using std::optional<Type>::operator=;
+    non_propagating_cache() = default;
 
-    using reverse_iterator = typename Container::iterator;
-    using iterator = std::reverse_iterator<reverse_iterator>;
+    constexpr non_propagating_cache(std::nullopt_t) noexcept
+        : std::optional<Type>{}
+    {}
 
-    using const_reverse_iterator = typename Container::const_iterator;
-    using const_iterator = std::reverse_iterator<const_reverse_iterator>;
+    constexpr non_propagating_cache(const non_propagating_cache &) noexcept
+        : std::optional<Type>{}
+    {}
 
-    using Iterator = iterator;
-    using ConstIterator = const_iterator;
-
-    reverse_view(const Container &k) : d(&k) {}
-
-    const_reverse_iterator rbegin() const noexcept { return d->begin(); }
-    const_reverse_iterator rend() const noexcept { return d->end(); }
-    const_reverse_iterator crbegin() const noexcept { return d->begin(); }
-    const_reverse_iterator crend() const noexcept { return d->end(); }
-
-    const_iterator begin() const noexcept { return const_iterator(rend()); }
-    const_iterator end() const noexcept { return const_iterator(rbegin()); }
-    const_iterator cbegin() const noexcept { return const_iterator(rend()); }
-    const_iterator cend() const noexcept { return const_iterator(rbegin()); }
-    const_iterator constBegin() const noexcept { return const_iterator(rend()); }
-    const_iterator constEnd() const noexcept { return const_iterator(rbegin()); }
-
-    const_reference front() const noexcept { return *cbegin(); }
-    const_reference back() const noexcept { return *crbegin(); }
-
-    [[nodiscard]] size_type size() const noexcept { return d->size(); }
-    [[nodiscard]] bool empty() const noexcept { return d->size() == 0; }
-    explicit operator bool() const { return d->size(); }
-
-    const_reference operator[](size_type idx) const
+    constexpr non_propagating_cache(non_propagating_cache &&other) noexcept
+        : std::optional<Type>{}
     {
-        if (idx < size())
-            return *(begin() + idx);
-
-        throw std::out_of_range("bad index in reverse side");
+        other.reset();
     }
 
-private:
-    const Container *d;
+    constexpr non_propagating_cache &operator=(const non_propagating_cache &other) noexcept
+    {
+        if (std::addressof(other) != this)
+            this->reset();
+        return *this;
+    }
+
+    constexpr non_propagating_cache &operator=(non_propagating_cache &&other) noexcept
+    {
+        this->reset();
+        other.reset();
+        return *this;
+    }
+
+    template<class Iterator>
+    constexpr Type &emplace_deref(const Iterator &i)
+    {
+        return this->emplace(*i);
+    }
 };
-} // namespace ranges
+} // namespace Internal
+
+template<std::ranges::input_range Range>
+    requires std::ranges::view<Range>
+class cache_latest_view : public std::ranges::view_interface<cache_latest_view<Range>>
+{
+    using cache_t = std::conditional_t<std::is_reference_v<std::ranges::range_reference_t<Range>>,
+                                       std::add_pointer_t<std::ranges::range_reference_t<Range>>,
+                                       std::ranges::range_reference_t<Range>>;
+
+    Range m_base = Range{};
+
+    Internal::non_propagating_cache<cache_t> m_cache;
+
+public:
+    class Sentinel;
+
+    class Iterator
+    {
+        cache_latest_view *m_view = nullptr;
+
+        constexpr explicit Iterator(cache_latest_view &view)
+            : m_view(std::addressof(view))
+            , m_current(std::ranges::begin(view.m_base))
+        {}
+
+        friend cache_latest_view;
+        friend Sentinel;
+
+    public:
+        using difference_type = std::ranges::range_difference_t<Range>;
+        using value_type = std::ranges::range_value_t<Range>;
+        using iterator_concept = std::input_iterator_tag;
+
+        std::ranges::iterator_t<Range> m_current; // needs to be public because otherwise old compiler complain
+
+        Iterator(Iterator &&) = default;
+
+        Iterator &operator=(Iterator &&) = default;
+
+        constexpr std::ranges::iterator_t<Range> base() && { return std::move(m_current); }
+
+        constexpr const std::ranges::iterator_t<Range> &base() const & noexcept
+        {
+            return m_current;
+        }
+
+        constexpr Iterator &operator++()
+        {
+            m_view->m_cache.reset();
+            ++m_current;
+            return *this;
+        }
+
+        constexpr void operator++(int) { ++*this; }
+
+        constexpr std::ranges::range_reference_t<Range> &operator*() const
+        {
+            if constexpr (std::is_reference_v<std::ranges::range_reference_t<Range>>) {
+                if (!m_view->m_cache)
+                    m_view->m_cache = std::addressof(Internal::as_lvalue(*m_current));
+                return **m_view->m_cache;
+            } else {
+                if (!m_view->m_cache)
+                    m_view->m_cache.emplace_deref(m_current);
+                return *m_view->m_cache;
+            }
+        }
+
+        friend constexpr std::ranges::range_rvalue_reference_t<Range> iter_move(
+            const Iterator &iterator) noexcept(noexcept(std::ranges::iter_move(iterator.m_current)))
+        {
+            return std::ranges::iter_move(iterator.m_current);
+        }
+
+        friend constexpr void iter_swap(const Iterator &first, const Iterator &second) noexcept(
+            noexcept(std::ranges::iter_swap(first.m_current, second.m_current)))
+            requires std::indirectly_swappable<std::ranges::iterator_t<Range>>
+        {
+            std::ranges::iter_swap(first.m_current, second.m_current);
+        }
+    };
+
+    class Sentinel
+    {
+        std::ranges::sentinel_t<Range> m_end = std::ranges::sentinel_t<Range>();
+
+        constexpr explicit Sentinel(cache_latest_view &view)
+            : m_end(std::ranges::end(view.m_base))
+        {}
+
+        friend cache_latest_view;
+
+    public:
+        Sentinel() = default;
+
+        constexpr std::ranges::sentinel_t<Range> base() const { return m_end; }
+
+        friend constexpr bool operator==(const Iterator &first, const Sentinel &second)
+        {
+            return first.m_current == second.m_end;
+        }
+
+        friend constexpr std::ranges::range_difference_t<Range> operator-(const Iterator &first,
+                                                                          const Sentinel &second)
+            requires std::sized_sentinel_for<std::ranges::sentinel_t<Range>, std::ranges::iterator_t<Range>>
+        {
+            return first.m_current - second.m_end;
+        }
+
+        friend constexpr std::ranges::range_difference_t<Range> operator-(const Sentinel &first,
+                                                                          const Iterator &second)
+            requires std::sized_sentinel_for<std::ranges::sentinel_t<Range>, std::ranges::iterator_t<Range>>
+        {
+            return first.m_end - second.m_current;
+        }
+    };
+
+    cache_latest_view()
+        requires std::default_initializable<Range>
+    = default;
+
+    constexpr explicit cache_latest_view(Range base)
+        : m_base(std::move(base))
+    {}
+
+    constexpr Range base() const &
+        requires std::copy_constructible<Range>
+    {
+        return m_base;
+    }
+
+    constexpr Range base() && { return std::move(m_base); }
+
+    constexpr auto begin() { return Iterator(*this); }
+
+    constexpr auto end() { return Sentinel(*this); }
+
+    constexpr auto size()
+        requires std::ranges::sized_range<Range>
+    {
+        return std::ranges::size(m_base);
+    }
+
+    constexpr auto size() const
+        requires std::ranges::sized_range<const Range>
+    {
+        return std::ranges::size(m_base);
+    }
+};
+
+template<typename Range>
+cache_latest_view(Range &&) -> cache_latest_view<std::views::all_t<Range>>;
+
+template<typename Type>
+concept can_cache_latest = requires { cache_latest_view(std::declval<Type>()); };
+
+template<class Type>
+    requires std::is_class_v<Type> && std::same_as<Type, std::remove_cv_t<Type>>
+struct range_adaptor_closure
+{};
+
+namespace Internal {
+template<class Function>
+struct pipeable : Function,
+                  range_adaptor_closure<pipeable<Function>>
+{
+    constexpr explicit pipeable(Function &&function)
+        : Function(std::move(function))
+    {}
+};
+
+template<class Function, class... Functions>
+constexpr auto compose(Function &&arg, Functions &&...args)
+{
+    return [function = std::forward<Function>(arg),
+            ... functions = std::forward<Functions>(args)]<class... Arguments>(
+               Arguments &&...arguments) mutable
+        requires std::invocable<Function, Arguments...>
+    {
+        if constexpr (sizeof...(Functions)) {
+            return compose(std::forward<Functions>(functions)...)(
+                std::invoke(std::forward<Function>(function), std::forward<Arguments>(arguments)...));
+        } else {
+            return std::invoke(std::forward<Function>(function),
+                               std::forward<Arguments>(arguments)...);
+        }
+    };
+}
+} // namespace Internal
+template<class Type>
+Type derived_from_range_adaptor_closure(range_adaptor_closure<Type> *);
+
+template<class Type>
+concept RangeAdaptorClosure = !std::ranges::range<std::remove_cvref_t<Type>> && requires {
+    {
+        derived_from_range_adaptor_closure(static_cast<std::remove_cvref_t<Type> *>(nullptr))
+    } -> std::same_as<std::remove_cvref_t<Type>>;
+};
+
+template<std::ranges::range Range, RangeAdaptorClosure Closure>
+    requires std::invocable<Closure, Range>
+[[nodiscard]] constexpr decltype(auto) operator|(Range &&range, Closure &&closure) noexcept(
+    std::is_nothrow_invocable_v<Closure, Range>)
+{
+    return std::invoke(std::forward<Closure>(closure), std::forward<Range>(range));
+}
+
+template<RangeAdaptorClosure FirstClosure, RangeAdaptorClosure SecondClosure>
+    requires std::constructible_from<std::decay_t<FirstClosure>, FirstClosure>
+             && std::constructible_from<std::decay_t<SecondClosure>, SecondClosure>
+[[nodiscard]] constexpr auto operator|(FirstClosure &&first, SecondClosure &&second) noexcept(
+    std::is_nothrow_constructible_v<std::decay_t<FirstClosure>, FirstClosure>
+    && std::is_nothrow_constructible_v<std::decay_t<SecondClosure>, SecondClosure>)
+{
+    return Internal::pipeable(
+        Internal::compose(std::forward<FirstClosure>(second), std::forward<SecondClosure>(first)));
+}
 
 namespace views {
 
-constexpr struct {} reverse;
-
-template <typename T>
-inline ranges::reverse_view<T> operator|(const T &container, const decltype(reverse)&)
+struct CacheLatestFunctor : range_adaptor_closure<CacheLatestFunctor>
 {
-    return ranges::reverse_view(container);
-}
+#  if defined(__GNUC__) && !defined(__clang__) && __GNUC__ == 10 && __GNUC_MINOR__ < 5
+    template<std::ranges::viewable_range Range>
+    constexpr auto operator() [[nodiscard]] (Range &&range) const
+    {
+        return std::forward<Range>(range);
+    }
+#  else
+    template<std::ranges::viewable_range Range>
+        requires can_cache_latest<Range>
+    constexpr auto operator() [[nodiscard]] (Range &&range) const
+    {
+        return cache_latest_view(std::forward<Range>(range));
+    }
+#  endif
+};
 
-} // namsepace views
-} // namespace Utils
+inline constexpr CacheLatestFunctor cache_latest;
+} // namespace views
+} // namespace Utils::ranges
+
+namespace Utils::views {
+using namespace Utils::ranges::views;
+} // namespace Utils::views
 
 #endif

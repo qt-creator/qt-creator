@@ -4,6 +4,7 @@
 #pragma once
 
 #include "nonlockingmutex.h"
+#include "sourcepathstoragetracing.h"
 #include "storagecacheentry.h"
 #include "storagecachefwd.h"
 
@@ -97,6 +98,8 @@ public:
     StorageCache(Storage storage, std::size_t reserveSize = 1024)
         : m_storage{std::move(storage)}
     {
+        NanotraceHR::Tracer tracer{"storage cache constructor", SourcePathStorageTracing::category()};
+
         m_entries.reserve(reserveSize);
         m_indices.reserve(reserveSize);
     }
@@ -104,11 +107,16 @@ public:
     StorageCache(const StorageCache &other)
         : m_entries(other.m_entries)
         , m_indices(other.m_indices)
-    {}
+    {
+        NanotraceHR::Tracer tracer{"storage cache copy constructor",
+                                   SourcePathStorageTracing::category()};
+    }
 
     template<typename Cache>
     Cache clone()
     {
+        NanotraceHR::Tracer tracer{"storage cache clone", SourcePathStorageTracing::category()};
+
         Cache cache;
         cache.m_entries = m_entries;
         cache.m_indices = m_indices;
@@ -119,10 +127,16 @@ public:
     StorageCache(StorageCache &&other) noexcept
         : m_entries(std::move(other.m_entries))
         , m_indices(std::move(other.m_indices))
-    {}
+    {
+        NanotraceHR::Tracer tracer{"storage cache move constructor",
+                                   SourcePathStorageTracing::category()};
+    }
 
     StorageCache &operator=(StorageCache &&other) noexcept
     {
+        NanotraceHR::Tracer tracer{"storage cache move assignment",
+                                   SourcePathStorageTracing::category()};
+
         m_entries = std::move(other.m_entries);
         m_indices = std::move(other.m_indices);
 
@@ -131,6 +145,8 @@ public:
 
     void populate()
     {
+        NanotraceHR::Tracer tracer{"storage cache populate", SourcePathStorageTracing::category()};
+
         uncheckedPopulate();
 
         checkEntries();
@@ -138,6 +154,9 @@ public:
 
     void uncheckedPopulate()
     {
+        NanotraceHR::Tracer tracer{"storage cache unchecked populate",
+                                   SourcePathStorageTracing::category()};
+
         m_entries = m_storage.fetchAll();
 
         std::ranges::sort(m_entries, Compare{});
@@ -156,6 +175,8 @@ public:
 
     void add(std::vector<ViewType> &&views)
     {
+        NanotraceHR::Tracer tracer{"storage cache add", SourcePathStorageTracing::category()};
+
         std::ranges::sort(views, Compare{});
 
         auto removed = std::ranges::unique(views.begin(), views.end());
@@ -199,6 +220,8 @@ public:
 
     IndexType id(ViewType view)
     {
+        NanotraceHR::Tracer tracer{"storage cache id", SourcePathStorageTracing::category()};
+
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
         auto [iter, found] = find(view);
@@ -220,6 +243,8 @@ public:
     template<typename ValueType = ViewType>
     std::vector<IndexType> ids(Utils::span<const ValueType> values)
     {
+        NanotraceHR::Tracer tracer{"storage cache ids", SourcePathStorageTracing::category()};
+
         std::vector<IndexType> ids;
         ids.reserve(values.size());
 
@@ -238,6 +263,8 @@ public:
              typename Value = projected_value_t<std::ranges::iterator_t<CacheEntries>, Projection>>
     QVarLengthArray<IndexType, size> ids(Value value, Projection projection)
     {
+        NanotraceHR::Tracer tracer{"storage cache ids", SourcePathStorageTracing::category()};
+
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
         auto range = std::ranges::equal_range(m_entries, value, Compare{}, projection);
@@ -249,6 +276,8 @@ public:
 
     ResultType value(IndexType id)
     {
+        NanotraceHR::Tracer tracer{"storage cache value", SourcePathStorageTracing::category()};
+
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
         if (IndexType::create(static_cast<IndexDatabaseType>(m_indices.size()) + 1) > id) {
@@ -269,6 +298,8 @@ public:
 
     std::vector<ResultType> values(const std::vector<IndexType> &ids) const
     {
+        NanotraceHR::Tracer tracer{"storage cache values", SourcePathStorageTracing::category()};
+
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
         std::vector<ResultType> values;
@@ -281,7 +312,12 @@ public:
         return values;
     }
 
-    bool isEmpty() const { return m_entries.empty() && m_indices.empty(); }
+    bool isEmpty() const
+    {
+        NanotraceHR::Tracer tracer{"storage cache is empty", SourcePathStorageTracing::category()};
+
+        return m_entries.empty() && m_indices.empty();
+    }
 
     Mutex &mutex() const { return m_mutex; }
 
@@ -294,6 +330,9 @@ public:
 private:
     void updateIndices()
     {
+        NanotraceHR::Tracer tracer{"storage cache update indices",
+                                   SourcePathStorageTracing::category()};
+
         auto begin = m_entries.cbegin();
         for (auto current = begin; current != m_entries.cend(); ++current) {
             if (current->id)
@@ -304,6 +343,8 @@ private:
     template<typename Entries>
     static std::tuple<std::ranges::iterator_t<Entries>, bool> find(Entries &&entries, ViewType view)
     {
+        NanotraceHR::Tracer tracer{"storage cache find", SourcePathStorageTracing::category()};
+
         auto found = std::ranges::lower_bound(entries, view, Compare{});
 
         return {found, found != entries.end() && *found == view};
@@ -341,6 +382,9 @@ private:
 
     void incrementLargerOrEqualIndicesByOne(StorageCacheIndex newIndirectionIndex)
     {
+        NanotraceHR::Tracer tracer{"storage cache increment larger indices",
+                                   SourcePathStorageTracing::category()};
+
         std::transform(m_indices.begin(), m_indices.end(), m_indices.begin(), [&](StorageCacheIndex index) {
             return index >= newIndirectionIndex ? index + 1 : index;
         });
@@ -354,6 +398,8 @@ private:
 
     auto insertEntry(const_iterator beforeIterator, ViewType view, IndexType id)
     {
+        NanotraceHR::Tracer tracer{"storage cache insert entry", SourcePathStorageTracing::category()};
+
         auto inserted = m_entries.emplace(beforeIterator, view, id);
 
         StorageCacheIndex newIndirectionIndex{std::distance(m_entries.begin(), inserted)};
@@ -369,6 +415,9 @@ private:
 
     void checkEntries() const
     {
+        NanotraceHR::Tracer tracer{"storage cache check entries",
+                                   SourcePathStorageTracing::category()};
+
         for (const auto &entry : m_entries) {
             if (entry.value != value(entry.id) || entry.id != id(entry.value))
                 throw StorageCacheException();

@@ -4,10 +4,10 @@
 #pragma once
 
 #include "nanotraceglobals.h"
+#include "nanotracehrfwd.h"
 
 #include "staticstring.h"
 
-#include <sqlite/sourcelocation.h>
 #include <utils/smallstring.h>
 #include <utils/span.h>
 #include <utils/utility.h>
@@ -22,13 +22,19 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <exception>
 #include <fstream>
-#include <future>
 #include <mutex>
+#if defined(__cpp_lib_semaphore) and __cpp_lib_semaphore >= 201907L
+#  include <semaphore>
+#endif
+#include <filesystem>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <tuple>
+#include <variant>
 
 namespace NanotraceHR {
 using Clock = std::chrono::steady_clock;
@@ -39,7 +45,6 @@ static_assert(Clock::is_steady, "clock should be steady");
 static_assert(std::is_same_v<Clock::duration, std::chrono::nanoseconds>,
               "the steady clock should have nano second resolution");
 
-enum class Tracing { IsDisabled, IsEnabled };
 
 #if __cplusplus >= 202002L && __has_cpp_attribute(msvc::no_unique_address)
 #  define NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
@@ -49,12 +54,16 @@ enum class Tracing { IsDisabled, IsEnabled };
 #  define NO_UNIQUE_ADDRESS
 #endif
 
-using ArgumentsString = StaticString<3700>;
+using ArgumentsString = StaticString;
 
 namespace Literals {
 struct TracerLiteral
 {
     consteval TracerLiteral(std::string_view text)
+        : text{text}
+    {}
+
+    consteval TracerLiteral(const char *text)
         : text{text}
     {}
 
@@ -69,6 +78,8 @@ struct TracerLiteral
     operator std::string() const { return std::string{text}; }
 
     operator Utils::SmallString() const { return text; }
+
+    std::string_view view() const { return text; }
 
 private:
     std::string_view text;
@@ -92,9 +103,7 @@ template<std::size_t size, typename Tuple>
 concept HasTupleSize = requires { std::tuple_size_v<Tuple> == size; };
 
 template<typename Entry>
-concept CanConvert = requires(Entry entry, StaticString<1000> string) {
-    convertToString(string, entry);
-};
+concept CanConvert = requires(Entry entry, StaticString string) { convertToString(string, entry); };
 
 namespace Internal {
 template<typename Type>
@@ -150,6 +159,12 @@ void convertToString(String &string, bool isTrue)
         string.append("true");
     else
         string.append("false");
+}
+
+template<typename String>
+void convertToString(String &string, std::filesystem::file_time_type time)
+{
+    string.append(time.time_since_epoch().count());
 }
 
 template<typename String, typename Callable, typename std::enable_if_t<std::is_invocable_v<Callable>, bool> = true>
@@ -212,6 +227,19 @@ template<typename String, typename... Arguments>
 void convertToString(String &string, const std::tuple<IsArray, Arguments...> &list)
 {
     std::apply([&](auto &&...entries) { convertArrayToString(string, entries...); }, list);
+}
+
+template<typename String, typename Type>
+void convertToString(String &string, const QList<Type> &list)
+{
+    string.append('[');
+    for (const Type &entry : list) {
+        convertToString(string, entry);
+        string.append(",");
+    }
+    if (list.size())
+        string.pop_back();
+    string.append(']');
 }
 
 template<typename String, typename Key, typename Value>
@@ -342,8 +370,8 @@ void setArguments(String &eventArguments, TracerLiteral arguments)
     eventArguments = arguments;
 }
 
-template<typename String, typename... Arguments>
-[[maybe_unused]] void setArguments(String &eventArguments, Arguments &&...arguments)
+template<typename String>
+[[maybe_unused]] void setArguments(String &eventArguments, KeyValue auto &&...arguments)
 {
     static_assert(
         !std::is_same_v<String, std::string_view>,
@@ -353,7 +381,7 @@ template<typename String, typename... Arguments>
         eventArguments = {};
     else
         eventArguments.clear();
-    Internal::toArguments(eventArguments, std::forward<Arguments>(arguments)...);
+    Internal::toArguments(eventArguments, std::forward<decltype(arguments)>(arguments)...);
 }
 
 } // namespace Internal
@@ -388,34 +416,110 @@ inline bool operator&(IsFlow first, IsFlow second)
            & static_cast<std::underlying_type_t<IsFlow>>(second);
 }
 
-template<typename String, typename ArgumentsString>
-struct alignas(4096) TraceEvent
+struct TraceEventWithoutArguments;
+struct TraceEventWithArguments;
+
+class SemaphoreLock
 {
-    using StringType = String;
-    using ArgumentType = std::conditional_t<std::is_same_v<String, std::string_view>, TracerLiteral, String>;
-    using ArgumentsStringType = ArgumentsString;
+public:
+    void lock()
+    {
+#if defined(__cpp_lib_semaphore) and __cpp_lib_semaphore >= 201907L
+        semaphore.acquire();
+#else
+        while (flag.test_and_set(std::memory_order_acquire)) {
+        }
+#endif
+    }
 
-    TraceEvent() = default;
-    TraceEvent(const TraceEvent &) = delete;
-    TraceEvent(TraceEvent &&) = delete;
-    TraceEvent &operator=(const TraceEvent &) = delete;
-    TraceEvent &operator=(TraceEvent &&) = delete;
-    ~TraceEvent() = default;
+    void unlock()
+    {
+#if defined(__cpp_lib_semaphore) and __cpp_lib_semaphore >= 201907L
+        semaphore.release();
+#else
+        flag.clear(std::memory_order_release);
+#endif
+    }
 
-    String name;
-    String category;
+private:
+#if defined(__cpp_lib_semaphore) and __cpp_lib_semaphore >= 201907L
+    std::binary_semaphore semaphore{1};
+#else
+    std::atomic_flag flag;
+#endif
+};
+
+struct TaskWithArguments
+{
+    TaskWithArguments(std::unique_lock<SemaphoreLock> lock,
+                      Utils::span<TraceEventWithArguments> data,
+                      std::thread::id threadId)
+        : lock{std::move(lock)}
+        , data{data}
+        , threadId{threadId}
+    {}
+
+    std::unique_lock<SemaphoreLock> lock;
+    Utils::span<TraceEventWithArguments> data;
+    std::thread::id threadId;
+};
+
+struct TaskWithoutArguments
+{
+    TaskWithoutArguments(std::unique_lock<SemaphoreLock> lock,
+                         Utils::span<TraceEventWithoutArguments> data,
+                         std::thread::id threadId)
+        : lock{std::move(lock)}
+        , data{data}
+        , threadId{threadId}
+    {}
+
+    std::unique_lock<SemaphoreLock> lock;
+    Utils::span<TraceEventWithoutArguments> data;
+    std::thread::id threadId;
+};
+
+struct MetaData
+{
+    MetaData(std::unique_lock<SemaphoreLock> lock, std::string key, std::string value)
+        : lock{std::move(lock)}
+        , key{std::move(key)}
+        , value{std::move(value)}
+    {}
+
+    std::unique_lock<SemaphoreLock> lock;
+    std::string key;
+    std::string value;
+};
+
+struct TraceEventWithoutArguments
+{
+    using Task = TaskWithoutArguments;
+
+    TraceEventWithoutArguments() = default;
+    TraceEventWithoutArguments(const TraceEventWithoutArguments &) = delete;
+    TraceEventWithoutArguments(TraceEventWithoutArguments &&) = delete;
+    TraceEventWithoutArguments &operator=(const TraceEventWithoutArguments &) = delete;
+    TraceEventWithoutArguments &operator=(TraceEventWithoutArguments &&) = delete;
+    ~TraceEventWithoutArguments() = default;
+
+    std::string_view name;
+    std::string_view category;
     TimePoint time;
     Duration duration;
     std::size_t id = 0;
     std::size_t bindId = 0;
     IsFlow flow = IsFlow::No;
     char type = ' ';
+};
+
+struct alignas(4096) TraceEventWithArguments : public TraceEventWithoutArguments
+{
+    using Task = TaskWithArguments;
+
     ArgumentsString arguments;
 };
 
-using StringViewTraceEvent = TraceEvent<std::string_view, std::string_view>;
-using StringViewWithStringArgumentsTraceEvent = TraceEvent<std::string_view, ArgumentsString>;
-using StringTraceEvent = TraceEvent<Utils::SmallString, ArgumentsString>;
 
 enum class IsEnabled { No, Yes };
 
@@ -425,33 +529,18 @@ class EventQueue;
 template<typename TraceEvent>
 using EnabledEventQueue = EventQueue<TraceEvent, Tracing::IsEnabled>;
 
-template<typename TraceEvent>
-void flushEvents(const Utils::span<TraceEvent> events,
-                 std::thread::id threadId,
-                 EnabledEventQueue<TraceEvent> &eventQueue);
-extern template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringViewTraceEvent> events,
-                                                  std::thread::id threadId,
-                                                  EnabledEventQueue<StringViewTraceEvent> &eventQueue);
-extern template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringTraceEvent> events,
-                                                  std::thread::id threadId,
-                                                  EnabledEventQueue<StringTraceEvent> &eventQueue);
-extern template NANOTRACE_EXPORT void flushEvents(
-    const Utils::span<StringViewWithStringArgumentsTraceEvent> events,
-    std::thread::id threadId,
-    EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
+using EnabledEventQueueWithArguments = EnabledEventQueue<TraceEventWithArguments>;
+
+using EnabledEventQueueWithoutArguments = EnabledEventQueue<TraceEventWithoutArguments>;
+
 template<typename TraceEvent>
 void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue);
-extern template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringViewTraceEvent> &eventQueue);
-extern template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringTraceEvent> &eventQueue);
+extern template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<TraceEventWithArguments> &eventQueue);
 extern template NANOTRACE_EXPORT void flushInThread(
-    EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
-
-template<Tracing isEnabled>
-class TraceFile;
-
-using EnabledTraceFile = TraceFile<Tracing::IsEnabled>;
+    EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
 
 NANOTRACE_EXPORT void openFile(EnabledTraceFile &file);
+NANOTRACE_EXPORT void startDispatcher(EnabledTraceFile &file);
 NANOTRACE_EXPORT void finalizeFile(EnabledTraceFile &file);
 
 template<Tracing isEnabled>
@@ -469,10 +558,13 @@ class TraceFile<Tracing::IsEnabled>
 public:
     using IsActive = std::true_type;
 
+    using Task = std::variant<TaskWithArguments, TaskWithoutArguments, MetaData>;
+
     TraceFile([[maybe_unused]] std::string_view filePath)
         : filePath{filePath}
     {
         openFile(*this);
+        startDispatcher(*this);
     }
 
     TraceFile(const TraceFile &) = delete;
@@ -483,8 +575,12 @@ public:
     ~TraceFile() { finalizeFile(*this); }
 
     std::string filePath;
-    std::mutex fileMutex;
-    std::future<void> processing;
+    std::mutex tasksMutex;
+    std::mutex flushMutex;
+    std::condition_variable condition;
+    bool isRunning = true;
+    std::thread thread;
+    QVarLengthArray<Task, 1024> tasks;
     std::ofstream out;
 };
 
@@ -494,7 +590,9 @@ class EventQueue
 public:
     using IsActive = std::false_type;
 
-    template<typename TraceFile> EventQueue(TraceFile &) {}
+    template<typename TraceFile>
+    EventQueue(std::shared_ptr<TraceFile>)
+    {}
 };
 
 namespace Internal {
@@ -517,13 +615,7 @@ public:
     EventQueueTracker &operator=(const EventQueueTracker &) = delete;
     EventQueueTracker &operator=(EventQueueTracker &&) = delete;
 
-    ~EventQueueTracker()
-    {
-        std::lock_guard lock{mutex};
-
-        for (auto queue : queues)
-            queue->flush();
-    }
+    ~EventQueueTracker() = default;
 
     void addQueue(Queue *queue)
     {
@@ -537,20 +629,7 @@ public:
         queues.erase(std::remove(queues.begin(), queues.end(), queue), queues.end());
     }
 
-    static EventQueueTracker &get()
-    {
-        static EventQueueTracker tracker;
-
-        return tracker;
-    }
-
-private:
-    void terminate()
-    {
-        flushAll();
-        if (terminateHandler)
-            terminateHandler();
-    }
+    static EventQueueTracker &get();
 
     void flushAll()
     {
@@ -561,10 +640,23 @@ private:
     }
 
 private:
+    void terminate()
+    {
+        flushAll();
+        if (terminateHandler)
+            terminateHandler();
+    }
+
+private:
     std::mutex mutex;
     std::vector<Queue *> queues;
     std::terminate_handler terminateHandler = nullptr;
 };
+
+extern template NANOTRACE_EXPORT_TEMPLATE EventQueueTracker<TraceEventWithArguments> &
+EventQueueTracker<TraceEventWithArguments>::get();
+extern template NANOTRACE_EXPORT_TEMPLATE EventQueueTracker<TraceEventWithoutArguments> &
+EventQueueTracker<TraceEventWithoutArguments>::get();
 } // namespace Internal
 
 template<typename TraceEvent>
@@ -589,6 +681,7 @@ public:
     EventQueue &operator=(const EventQueue &) = delete;
     EventQueue &operator=(EventQueue &&) = delete;
 
+    bool isFlushed = false;
     EnabledTraceFile &file;
     std::unique_ptr<TraceEvents> eventArrayOne = std::make_unique<TraceEvents>();
     std::unique_ptr<TraceEvents> eventArrayTwo = std::make_unique<TraceEvents>();
@@ -597,21 +690,19 @@ public:
     TraceEventsSpan currentEvents;
     std::size_t eventsIndex = 0;
     IsEnabled isEnabled = IsEnabled::Yes;
-    std::mutex mutex;
+    SemaphoreLock mutex;
     std::thread::id threadId;
 };
 
 template<Tracing isEnabled>
-using StringViewEventQueue = EventQueue<StringViewTraceEvent, isEnabled>;
+using EventQueueWithArguments = EventQueue<TraceEventWithArguments, isEnabled>;
 template<Tracing isEnabled>
-using StringViewWithStringArgumentsEventQueue = EventQueue<StringViewWithStringArgumentsTraceEvent, isEnabled>;
-template<Tracing isEnabled>
-using StringEventQueue = EventQueue<StringTraceEvent, isEnabled>;
+using EventQueueWithoutArguments = EventQueue<TraceEventWithoutArguments, isEnabled>;
+using EnabledEventQueueWithoutArguments = EventQueueWithoutArguments<Tracing::IsEnabled>;
 
-extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
-extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringTraceEvent, Tracing::IsEnabled>;
+extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<TraceEventWithArguments, Tracing::IsEnabled>;
 extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE
-    EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
+    EventQueue<TraceEventWithoutArguments, Tracing::IsEnabled>;
 
 template<typename TraceEvent>
 TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
@@ -627,7 +718,7 @@ class BasicDisabledToken
 public:
     using IsActive = std::false_type;
 
-    BasicDisabledToken() {}
+    BasicDisabledToken() = default;
 
     BasicDisabledToken(const BasicDisabledToken &) = default;
     BasicDisabledToken &operator=(const BasicDisabledToken &) = default;
@@ -646,165 +737,524 @@ class BasicEnabledToken
 public:
     using IsActive = std::true_type;
 
-    BasicEnabledToken() {}
+    BasicEnabledToken() = default;
 
     BasicEnabledToken(const BasicEnabledToken &) = default;
     BasicEnabledToken &operator=(const BasicEnabledToken &) = default;
     BasicEnabledToken(BasicEnabledToken &&other) noexcept = default;
     BasicEnabledToken &operator=(BasicEnabledToken &&other) noexcept = default;
 
-    ~BasicEnabledToken() {}
+    ~BasicEnabledToken() = default;
 
     constexpr explicit operator bool() const { return false; }
 
     static constexpr bool isActive() { return false; }
 };
 
-template<typename Category, typename IsActive>
+template<typename Category>
+class AsynchronousToken;
+
+template<typename Category>
+class FlowToken;
+
+template<typename Category>
 class Tracer;
 
-template<typename Category, Tracing isEnabled>
-class Token : public BasicDisabledToken
+template<typename Category>
+class Token;
+
+class DisabledCategory;
+class EnabledCategory;
+
+using EnabledTracer = Tracer<EnabledCategory>;
+using DisabledTracer = Tracer<DisabledCategory>;
+
+using EnabledToken = Token<EnabledCategory>;
+using DisabledToken = Token<DisabledCategory>;
+
+using EnabledAsynchronousToken = AsynchronousToken<EnabledCategory>;
+using DisabledAsynchronousToken = AsynchronousToken<DisabledCategory>;
+
+using EnabledFlowToken = FlowToken<EnabledCategory>;
+using DisabledFlowToken = FlowToken<DisabledCategory>;
+
+class DisabledCategory
 {
 public:
-    using ArgumentType = typename Category::ArgumentType;
-    using FlowTokenType = typename Category::FlowTokenType;
-    using AsynchronousTokenType = typename Category::AsynchronousTokenType;
-    using TracerType = typename Category::TracerType;
-
-    Token() {}
-
-    ~Token() {}
-
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType, KeyValue auto &&...)
+    class SourceLocation
     {
-        return {};
+    public:
+        template<typename String>
+        friend void convertToString(String &, SourceLocation)
+        {}
+    };
+
+    using CategoryFunctionPointer = DisabledCategory &(*) ();
+
+    DisabledCategory() = default;
+
+    DisabledCategory(TracerLiteral,
+                     EventQueueWithArguments<Tracing::IsDisabled> &,
+                     EventQueueWithoutArguments<Tracing::IsDisabled> &,
+                     CategoryFunctionPointer)
+    {}
+
+    DisabledCategory(TracerLiteral,
+                     EventQueueWithArguments<Tracing::IsEnabled> &,
+                     EventQueueWithoutArguments<Tracing::IsEnabled> &,
+                     CategoryFunctionPointer)
+    {}
+
+    [[nodiscard]] DisabledAsynchronousToken beginAsynchronous(TracerLiteral, KeyValue auto &&...);
+
+    [[nodiscard]] std::pair<DisabledAsynchronousToken, DisabledFlowToken> beginAsynchronousWithFlow(
+        TracerLiteral, KeyValue auto &&...);
+
+    [[nodiscard]] DisabledTracer beginDuration(TracerLiteral, KeyValue auto &&...);
+
+    [[nodiscard]] std::pair<DisabledTracer, DisabledFlowToken> beginDurationWithFlow(
+        TracerLiteral, KeyValue auto &&...);
+
+    void threadEvent(TracerLiteral, KeyValue auto &&...) {}
+
+    static constexpr bool isActive() { return false; }
+};
+
+class EnabledCategory
+{
+    class PrivateTag
+    {};
+
+public:
+    struct SourceLocation
+    {
+    public:
+        consteval SourceLocation(const char *fileName = __builtin_FILE(),
+                                 const char *functionName = __builtin_FUNCTION(),
+                                 const uint_least32_t line = __builtin_LINE())
+            : m_fileName{fileName}
+            , m_functionName{functionName}
+            , m_line{line}
+        {}
+
+        constexpr std::uint_least32_t line() const noexcept { return m_line; }
+
+        constexpr const char *file_name() const noexcept { return m_fileName; }
+
+        constexpr const char *function_name() const noexcept { return m_functionName; }
+
+        template<typename String>
+        friend void convertToString(String &string, SourceLocation sourceLocation)
+        {
+            using NanotraceHR::dictonary;
+            using NanotraceHR::keyValue;
+            auto dict = dictonary(keyValue("file", sourceLocation.m_fileName),
+                                  keyValue("function", sourceLocation.m_functionName),
+                                  keyValue("line", sourceLocation.m_line));
+            convertToString(string, dict);
+
+            string.append(',');
+            convertToString(string, "id");
+            string.append(':');
+            string.append('\"');
+            string.append(sourceLocation.m_functionName);
+            string.append(':');
+            string.append(sourceLocation.m_line);
+            string.append('\"');
+        }
+
+    private:
+        const char *m_fileName = "";
+        const char *m_functionName = "";
+        std::uint_least32_t m_line = 0;
+    };
+
+    using CategoryFunctionPointer = EnabledCategory &(*) ();
+
+    friend EnabledAsynchronousToken;
+    friend EnabledToken;
+    friend EnabledFlowToken;
+    friend EnabledTracer;
+
+    template<typename EventQueue>
+    EnabledCategory(TracerLiteral name,
+                    EventQueue &queue,
+                    EnabledEventQueueWithoutArguments &eventQueueWithoutArguments,
+                    CategoryFunctionPointer self)
+        : m_name{std::move(name)}
+        , m_eventQueue{queue}
+        , m_eventQueueWithoutArguments{eventQueueWithoutArguments}
+        , m_self{self}
+    {
+        static_assert(std::is_same_v<typename EventQueue::IsActive, std::true_type>,
+                      "A active category is not possible with an inactive event queue!");
+        m_idCounter = m_globalIdCounter += 1ULL << 32;
+        m_bindIdCounter = m_globalBindIdCounter += 1ULL << 32;
     }
 
-    [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
-        ArgumentType, KeyValue auto &&...)
+    EnabledCategory(const EnabledCategory &) = delete;
+    EnabledCategory &operator=(const EnabledCategory &) = delete;
+
+    [[nodiscard]] EnabledAsynchronousToken beginAsynchronous(TracerLiteral traceName,
+                                                             KeyValue auto &&...arguments);
+
+    [[nodiscard]] std::pair<EnabledAsynchronousToken, EnabledFlowToken> beginAsynchronousWithFlow(
+        TracerLiteral traceName, KeyValue auto &&...arguments);
+
+    [[nodiscard]] EnabledTracer beginDuration(TracerLiteral traceName, KeyValue auto &&...arguments);
+
+    [[nodiscard]] std::pair<EnabledTracer, EnabledFlowToken> beginDurationWithFlow(
+        TracerLiteral traceName, KeyValue auto &&...arguments);
+
+    void threadEvent(TracerLiteral traceName, KeyValue auto &&...arguments)
     {
-        return {};
+        if (isEnabled == IsEnabled::No)
+            return;
+
+        auto &traceEvent = getTraceEvent(eventQueue(std::forward<decltype(arguments)>(arguments)...));
+
+        traceEvent.time = Clock::now();
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = traceName;
+        traceEvent.type = 'i';
+        traceEvent.id = 0;
+        traceEvent.bindId = 0;
+        traceEvent.flow = IsFlow::No;
+        if constexpr (sizeof...(arguments))
+            Internal::setArguments(traceEvent.arguments,
+                                   std::forward<decltype(arguments)>(arguments)...);
     }
 
-    [[nodiscard]] TracerType beginDuration(ArgumentType, KeyValue auto &&...) { return {}; }
+    EnabledEventQueueWithoutArguments &eventQueue() const { return m_eventQueueWithoutArguments; }
 
-    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(ArgumentType,
-                                                                             KeyValue auto &&...)
+    EnabledEventQueueWithArguments &eventQueue(const KeyValue auto &...) const
     {
-        return {};
+        return m_eventQueue;
     }
 
-    void tick(ArgumentType, KeyValue auto &&...) {}
+    std::string_view name() const { return m_name; }
+
+    static constexpr bool isActive() { return true; }
+
+    std::size_t createBindId() { return ++m_bindIdCounter; }
+
+    std::size_t createId() { return ++m_idCounter; }
+
+public:
+    IsEnabled isEnabled = IsEnabled::Yes;
+
+private:
+    void begin(char type,
+               std::size_t id,
+               std::string_view traceName,
+               std::size_t bindId,
+               IsFlow flow,
+               KeyValue auto &&...arguments)
+    {
+        if (isEnabled == IsEnabled::No)
+            return;
+
+        auto &traceEvent = getTraceEvent(eventQueue(std::forward<decltype(arguments)>(arguments)...));
+
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = m_name;
+        traceEvent.type = type;
+        traceEvent.id = id;
+        traceEvent.bindId = bindId;
+        traceEvent.flow = flow;
+        if constexpr (sizeof...(arguments))
+            Internal::setArguments(traceEvent.arguments,
+                                   std::forward<decltype(arguments)>(arguments)...);
+        traceEvent.time = Clock::now();
+    }
+
+    void tick(char type,
+              std::size_t id,
+              std::string_view traceName,
+              std::size_t bindId,
+              IsFlow flow,
+              KeyValue auto &&...arguments)
+    {
+        if (isEnabled == IsEnabled::No)
+            return;
+
+        auto time = Clock::now();
+
+        auto &traceEvent = getTraceEvent(eventQueue(std::forward<decltype(arguments)>(arguments)...));
+
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = m_name;
+        traceEvent.time = time;
+        traceEvent.type = type;
+        traceEvent.id = id;
+        traceEvent.bindId = bindId;
+        traceEvent.flow = flow;
+        if constexpr (sizeof...(arguments))
+            Internal::setArguments(traceEvent.arguments,
+                                   std::forward<decltype(arguments)>(arguments)...);
+    }
+
+    void end(char type, std::size_t id, std::string_view traceName, KeyValue auto &&...arguments)
+    {
+        if (isEnabled == IsEnabled::No)
+            return;
+
+        auto time = Clock::now();
+
+        auto &traceEvent = getTraceEvent(eventQueue(std::forward<decltype(arguments)>(arguments)...));
+
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = m_name;
+        traceEvent.time = time;
+        traceEvent.type = type;
+        traceEvent.id = id;
+        traceEvent.bindId = 0;
+        traceEvent.flow = IsFlow::No;
+        if constexpr (sizeof...(arguments))
+            Internal::setArguments(traceEvent.arguments,
+                                   std::forward<decltype(arguments)>(arguments)...);
+    }
+
+    CategoryFunctionPointer self() { return m_self; }
+
+private:
+    std::string_view m_name;
+    EnabledEventQueueWithArguments &m_eventQueue;
+    EnabledEventQueueWithoutArguments &m_eventQueueWithoutArguments;
+    inline static std::atomic<std::size_t> m_globalIdCounter;
+    std::size_t m_idCounter;
+    inline static std::atomic<std::size_t> m_globalBindIdCounter;
+    std::size_t m_bindIdCounter;
+    CategoryFunctionPointer m_self;
 };
 
 template<typename Category>
-class Token<Category, Tracing::IsEnabled> : public BasicEnabledToken
+class Token : public BasicDisabledToken
+{
+public:
+    Token() = default;
+
+    ~Token() = default;
+
+    [[nodiscard]] DisabledAsynchronousToken beginAsynchronous(TracerLiteral, KeyValue auto &&...);
+
+    [[nodiscard]] std::pair<DisabledAsynchronousToken, DisabledFlowToken> beginAsynchronousWithFlow(
+        TracerLiteral, KeyValue auto &&...);
+
+    [[nodiscard]] DisabledTracer beginDuration(TracerLiteral, KeyValue auto &&...);
+
+    [[nodiscard]] std::pair<DisabledTracer, DisabledFlowToken> beginDurationWithFlow(
+        TracerLiteral, KeyValue auto &&...);
+
+    void tick(TracerLiteral, KeyValue auto &&...) {}
+};
+
+template<>
+class Token<EnabledCategory> : public BasicEnabledToken
 
 {
-    using CategoryFunctionPointer = typename Category::CategoryFunctionPointer;
+    using CategoryFunctionPointer = typename EnabledCategory::CategoryFunctionPointer;
 
     Token(std::size_t id, CategoryFunctionPointer category)
         : m_id{id}
         , m_category{category}
     {}
 
-    using PrivateTag = typename Category::PrivateTag;
+    using PrivateTag = typename EnabledCategory::PrivateTag;
 
 public:
-    using ArgumentType = typename Category::ArgumentType;
-    using FlowTokenType = typename Category::FlowTokenType;
-    using AsynchronousTokenType = typename Category::AsynchronousTokenType;
-    using TracerType = typename Category::TracerType;
-
     Token(PrivateTag, std::size_t id, CategoryFunctionPointer category)
         : Token{id, category}
     {}
 
-    friend TracerType;
-    friend AsynchronousTokenType;
+    friend EnabledTracer;
+    friend EnabledAsynchronousToken;
 
     ~Token() {}
 
-    template<KeyValue... Arguments>
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType name, Arguments &&...arguments)
+    [[nodiscard]] EnabledAsynchronousToken beginAsynchronous(TracerLiteral name,
+                                                             KeyValue auto &&...arguments);
+
+    [[nodiscard]] std::pair<EnabledAsynchronousToken, EnabledFlowToken> beginAsynchronousWithFlow(
+        TracerLiteral name, KeyValue auto &&...arguments);
+
+    [[nodiscard]] EnabledTracer beginDuration(TracerLiteral traceName, KeyValue auto &&...arguments);
+
+    [[nodiscard]] std::pair<EnabledTracer, EnabledFlowToken> beginDurationWithFlow(
+        TracerLiteral traceName, KeyValue auto &&...arguments);
+
+    void tick(TracerLiteral name, KeyValue auto &&...arguments)
     {
-        if (m_id)
-            m_category().begin('b', m_id, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
-
-        return {std::move(name), m_id, m_category};
-    }
-
-    template<KeyValue... Arguments>
-    [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
-        ArgumentType name, Arguments &&...arguments)
-    {
-        std::size_t bindId = 0;
-
-        if (m_id) {
-            auto &category = m_category();
-            bindId = category.createBindId();
-            category.begin('b', m_id, name, bindId, IsFlow::Out, std::forward<Arguments>(arguments)...);
-        }
-
-        return {std::piecewise_construct,
-                std::forward_as_tuple(std::move(name), m_id, m_category),
-                std::forward_as_tuple(std::move(name), bindId, m_category)};
-    }
-
-    template<KeyValue... Arguments>
-    [[nodiscard]] TracerType beginDuration(ArgumentType traceName, Arguments &&...arguments)
-    {
-        return {traceName, m_category, std::forward<Arguments>(arguments)...};
-    }
-
-    template<KeyValue... Arguments>
-    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(ArgumentType traceName,
-                                                                             Arguments &&...arguments)
-    {
-        std::size_t bindId = m_category().createBindId();
-
-        return {std::piecewise_construct,
-                std::forward_as_tuple(PrivateTag{},
-                                      bindId,
-                                      IsFlow::Out,
-                                      traceName,
-                                      m_category,
-                                      std::forward<Arguments>(arguments)...),
-                std::forward_as_tuple(PrivateTag{}, traceName, bindId, m_category)};
-    }
-
-    template<KeyValue... Arguments>
-    void tick(ArgumentType name, Arguments &&...arguments)
-    {
-        m_category().begin('i', 0, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
+        m_category().begin('i', 0, name, 0, IsFlow::No, std::forward<decltype(arguments)>(arguments)...);
     }
 
 private:
     std::size_t m_id = 0;
     CategoryFunctionPointer m_category = nullptr;
 };
-template<typename TraceEvent, Tracing isEnabled>
-class Category;
 
-template<Tracing isEnabled>
-using StringViewCategory = Category<StringViewTraceEvent, isEnabled>;
-template<Tracing isEnabled>
-using StringCategory = Category<StringTraceEvent, isEnabled>;
-template<Tracing isEnabled>
-using StringViewWithStringArgumentsCategory = Category<StringViewWithStringArgumentsTraceEvent, isEnabled>;
+template<typename Category>
+class Tracer
+{
+public:
+    Tracer() = default;
 
-using DisabledToken = Token<StringViewCategory<Tracing::IsDisabled>, Tracing::IsDisabled>;
+    friend DisabledToken;
+    friend DisabledFlowToken;
+    friend Category;
 
-template<typename Category, Tracing isEnabled>
+    [[nodiscard]] Tracer(TracerLiteral, const Category &, KeyValue auto &&...) {}
+
+    Tracer(const Tracer &) = delete;
+    Tracer &operator=(const Tracer &) = delete;
+    Tracer(Tracer &&other) noexcept = default;
+    Tracer &operator=(Tracer &&other) noexcept = delete;
+
+    DisabledToken createToken() { return {}; }
+
+    Tracer beginDuration(TracerLiteral, KeyValue auto &&...) { return {}; }
+
+    void tick(TracerLiteral, KeyValue auto &&...) {}
+
+    void end(KeyValue auto &&...) {}
+
+    ~Tracer() {}
+};
+
+template<>
+class Tracer<EnabledCategory>
+{
+    using PrivateTag = typename EnabledCategory::PrivateTag;
+    using CategoryFunctionPointer = typename EnabledCategory::CategoryFunctionPointer;
+
+    friend EnabledFlowToken;
+    friend EnabledToken;
+    friend EnabledCategory;
+
+    [[nodiscard]] Tracer(std::size_t bindId,
+                         IsFlow flow,
+                         TracerLiteral name,
+                         CategoryFunctionPointer category,
+                         KeyValue auto &&...arguments)
+        : m_name{name}
+        , m_bindId{bindId}
+        , flow{flow}
+        , m_category{category()}
+    {
+        if (category().isEnabled == IsEnabled::Yes)
+            sendBeginTrace(std::forward<decltype(arguments)>(arguments)...);
+    }
+
+public:
+    [[nodiscard]] Tracer(PrivateTag,
+                         std::size_t bindId,
+                         IsFlow flow,
+                         TracerLiteral name,
+                         CategoryFunctionPointer category,
+                         KeyValue auto &&...arguments)
+        : Tracer{bindId, flow, std::move(name), category, std::forward<decltype(arguments)>(arguments)...}
+    {}
+
+    [[nodiscard]] Tracer(TracerLiteral name, EnabledCategory &category, KeyValue auto &&...arguments)
+        : m_name{name}
+        , m_category{category}
+    {
+        if (m_category.isEnabled == IsEnabled::Yes)
+            sendBeginTrace(std::forward<decltype(arguments)>(arguments)...);
+    }
+
+    [[nodiscard]] Tracer(TracerLiteral name,
+                         CategoryFunctionPointer category,
+                         KeyValue auto &&...arguments)
+        : Tracer{name, category(), std::forward<decltype(arguments)>(arguments)...}
+    {}
+
+    Tracer(const Tracer &) = delete;
+    Tracer &operator=(const Tracer &) = delete;
+    Tracer(Tracer &&other) noexcept = delete;
+    Tracer &operator=(Tracer &&other) noexcept = delete;
+
+    EnabledToken createToken() { return {0, m_category.self()}; }
+
+    ~Tracer() { sendEndTrace(); }
+
+    Tracer beginDuration(TracerLiteral name, KeyValue auto &&...arguments)
+    {
+        return {std::move(name), m_category, std::forward<decltype(arguments)>(arguments)...};
+    }
+
+    void tick(TracerLiteral name, KeyValue auto &&...arguments)
+    {
+        m_category.begin('i', 0, name, 0, IsFlow::No, std::forward<decltype(arguments)>(arguments)...);
+    }
+
+    void end(KeyValue auto &&...arguments)
+    {
+        sendEndTrace(std::forward<decltype(arguments)>(arguments)...);
+        m_name = {};
+    }
+
+private:
+    void sendBeginTrace(KeyValue auto &&...arguments)
+    {
+        if (m_category.isEnabled == IsEnabled::Yes) {
+            auto &traceEvent = getTraceEvent(
+                m_category.eventQueue(std::forward<decltype(arguments)>(arguments)...));
+            traceEvent.name = m_name;
+            traceEvent.category = m_category.name();
+            traceEvent.bindId = m_bindId;
+            traceEvent.flow = flow;
+            traceEvent.type = 'B';
+            if constexpr (sizeof...(arguments)) {
+                Internal::setArguments<ArgumentsString>(traceEvent.arguments,
+                                                        std::forward<decltype(arguments)>(arguments)...);
+            }
+            traceEvent.time = Clock::now();
+        }
+    }
+
+    void sendEndTrace(KeyValue auto &&...arguments)
+    {
+        if (m_name.size()) {
+            if (m_category.isEnabled == IsEnabled::Yes) {
+                auto end = Clock::now();
+                auto &traceEvent = getTraceEvent(
+                    m_category.eventQueue(std::forward<decltype(arguments)>(arguments)...));
+                traceEvent.name = std::move(m_name);
+                traceEvent.category = m_category.name();
+                traceEvent.time = end;
+                traceEvent.bindId = m_bindId;
+                traceEvent.flow = flow;
+                traceEvent.type = 'E';
+                if constexpr (sizeof...(arguments)) {
+                    Internal::setArguments<ArgumentsString>(traceEvent.arguments,
+                                                            std::forward<decltype(arguments)>(
+                                                                arguments)...);
+                }
+            }
+        }
+    }
+
+private:
+    std::string_view m_name;
+    std::size_t m_bindId = 0;
+    IsFlow flow = IsFlow::No;
+    EnabledCategory &m_category;
+};
+
+template<typename Category, KeyValue... Arguments>
+Tracer(TracerLiteral name, Category &category, Arguments &&...) -> Tracer<Category>;
+
+template<typename Category, KeyValue... Arguments>
+Tracer(TracerLiteral name, const Category &category, Arguments &&...) -> Tracer<Category>;
+
+template<typename Category>
 class AsynchronousToken : public BasicDisabledToken
 {
 public:
-    using ArgumentType = typename Category::ArgumentType;
-    using FlowTokenType = typename Category::FlowTokenType;
-    using TokenType = typename Category::TokenType;
+    using TokenType = Token<DisabledCategory>;
 
-    AsynchronousToken() {}
+    AsynchronousToken() = default;
 
     AsynchronousToken(const AsynchronousToken &) = delete;
     AsynchronousToken &operator=(const AsynchronousToken &) = delete;
@@ -815,40 +1265,34 @@ public:
 
     [[nodiscard]] TokenType createToken() { return {}; }
 
-    [[nodiscard]] AsynchronousToken begin(ArgumentType, KeyValue auto &&...) { return {}; }
+    [[nodiscard]] AsynchronousToken begin(TracerLiteral, KeyValue auto &&...) { return {}; }
 
-    [[nodiscard]] AsynchronousToken begin(const FlowTokenType &, ArgumentType, KeyValue auto &&...)
+    [[nodiscard]] AsynchronousToken begin(const DisabledFlowToken &, TracerLiteral, KeyValue auto &&...)
     {
         return {};
     }
 
-    [[nodiscard]] std::pair<AsynchronousToken, FlowTokenType> beginWithFlow(ArgumentType,
-                                                                            KeyValue auto &&...)
+    [[nodiscard]] std::pair<AsynchronousToken, DisabledFlowToken> beginWithFlow(TracerLiteral,
+                                                                                KeyValue auto &&...)
     {
         return {};
     }
 
-    void tick(ArgumentType, KeyValue auto &&...) {}
+    void tick(TracerLiteral, KeyValue auto &&...) {}
 
-    void tick(const FlowTokenType &, ArgumentType, KeyValue auto &&...) {}
+    void tick(const DisabledFlowToken &, TracerLiteral, KeyValue auto &&...) {}
 
-    FlowTokenType tickWithFlow(ArgumentType, KeyValue auto &&...) { return {}; }
+    DisabledFlowToken tickWithFlow(TracerLiteral, KeyValue auto &&...);
 
     void end(KeyValue auto &&...) {}
 
     static constexpr bool categoryIsActive() { return Category::isActive(); }
 };
 
-using DisabledAsynchronousToken = AsynchronousToken<StringViewCategory<Tracing::IsDisabled>,
-                                                    Tracing::IsDisabled>;
-
-template<typename Category, Tracing isEnabled>
-class FlowToken;
-
-template<typename Category>
-class AsynchronousToken<Category, Tracing::IsEnabled> : public BasicEnabledToken
+template<>
+class AsynchronousToken<EnabledCategory> : public BasicEnabledToken
 {
-    using CategoryFunctionPointer = typename Category::CategoryFunctionPointer;
+    using CategoryFunctionPointer = typename EnabledCategory::CategoryFunctionPointer;
 
     AsynchronousToken(std::string_view name, std::size_t id, CategoryFunctionPointer category)
         : m_name{name}
@@ -856,23 +1300,16 @@ class AsynchronousToken<Category, Tracing::IsEnabled> : public BasicEnabledToken
         , m_category{category}
     {}
 
-    using PrivateTag = typename Category::PrivateTag;
+    using PrivateTag = typename EnabledCategory::PrivateTag;
 
 public:
-    using StringType = typename Category::StringType;
-    using ArgumentType = typename Category::ArgumentType;
-    using FlowTokenType = typename Category::FlowTokenType;
-    using TokenType = typename Category::TokenType;
-
-    friend Category;
-    friend FlowTokenType;
-    friend TokenType;
+    friend EnabledCategory;
+    friend EnabledFlowToken;
+    friend EnabledToken;
 
     AsynchronousToken(PrivateTag, std::string_view name, std::size_t id, CategoryFunctionPointer category)
         : AsynchronousToken{name, id, category}
     {}
-
-    AsynchronousToken() {}
 
     AsynchronousToken(const AsynchronousToken &) = delete;
     AsynchronousToken &operator=(const AsynchronousToken &) = delete;
@@ -896,117 +1333,64 @@ public:
 
     ~AsynchronousToken() { end(); }
 
-    [[nodiscard]] TokenType createToken() { return {m_id, m_category}; }
+    [[nodiscard]] EnabledToken createToken();
 
-    template<KeyValue... Arguments>
-    [[nodiscard]] AsynchronousToken begin(ArgumentType name, Arguments &&...arguments)
+    [[nodiscard]] AsynchronousToken begin(TracerLiteral name, KeyValue auto &&...arguments)
     {
         if (m_id)
-            m_category().begin('b', m_id, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
+            m_category().begin(
+                'b', m_id, name, 0, IsFlow::No, std::forward<decltype(arguments)>(arguments)...);
 
         return AsynchronousToken{std::move(name), m_id, m_category};
     }
 
-    template<KeyValue... Arguments>
-    [[nodiscard]] AsynchronousToken begin(const FlowTokenType &flowToken,
-                                          ArgumentType name,
-                                          Arguments &&...arguments)
-    {
-        if (m_id)
-            m_category().begin('b',
-                               m_id,
-                               name,
-                               flowToken.bindId(),
-                               IsFlow::In,
-                               std::forward<Arguments>(arguments)...);
+    [[nodiscard]] AsynchronousToken begin(const EnabledFlowToken &flowToken,
+                                          TracerLiteral name,
+                                          KeyValue auto &&...arguments);
 
-        return AsynchronousToken{std::move(name), m_id, m_category};
-    }
+    [[nodiscard]] std::pair<AsynchronousToken, EnabledFlowToken> beginWithFlow(
+        TracerLiteral name, KeyValue auto &&...arguments);
 
-    template<KeyValue... Arguments>
-    [[nodiscard]] std::pair<AsynchronousToken, FlowTokenType> beginWithFlow(ArgumentType name,
-                                                                            Arguments &&...arguments)
-    {
-        std::size_t bindId = 0;
-
-        if (m_id) {
-            auto &category = m_category();
-            bindId = category.createBindId();
-            category.begin('b', m_id, name, bindId, IsFlow::Out, std::forward<Arguments>(arguments)...);
-        }
-
-        return {std::piecewise_construct,
-                std::forward_as_tuple(PrivateTag{}, std::move(name), m_id, m_category),
-                std::forward_as_tuple(PrivateTag{}, std::move(name), bindId, m_category)};
-    }
-
-    template<KeyValue... Arguments>
-    void tick(ArgumentType name, Arguments &&...arguments)
-    {
-        if (m_id) {
-            m_category().tick(
-                'n', m_id, std::move(name), 0, IsFlow::No, std::forward<Arguments>(arguments)...);
-        }
-    }
-
-    template<KeyValue... Arguments>
-    void tick(const FlowTokenType &flowToken, ArgumentType name, Arguments &&...arguments)
+    void tick(TracerLiteral name, KeyValue auto &&...arguments)
     {
         if (m_id) {
             m_category().tick('n',
                               m_id,
                               std::move(name),
-                              flowToken.bindId(),
-                              IsFlow::In,
-                              std::forward<Arguments>(arguments)...);
+                              0,
+                              IsFlow::No,
+                              std::forward<decltype(arguments)>(arguments)...);
         }
     }
 
-    template<KeyValue... Arguments>
-    FlowTokenType tickWithFlow(ArgumentType name, Arguments &&...arguments)
-    {
-        std::size_t bindId = 0;
+    void tick(const EnabledFlowToken &flowToken, TracerLiteral name, KeyValue auto &&...arguments);
 
-        if (m_id) {
-            auto &category = m_category();
-            bindId = category.createBindId();
-            category.tick('n', m_id, name, bindId, IsFlow::Out, std::forward<Arguments>(arguments)...);
-        }
+    EnabledFlowToken tickWithFlow(TracerLiteral name, KeyValue auto &&...arguments);
 
-        return {PrivateTag{}, std::move(name), bindId, m_category};
-    }
-
-    template<KeyValue... Arguments>
-    void end(Arguments &&...arguments)
+    void end(KeyValue auto &&...arguments)
     {
         if (m_id && m_name.size())
-            m_category().end('e', m_id, std::move(m_name), std::forward<Arguments>(arguments)...);
+            m_category().end('e',
+                             m_id,
+                             std::move(m_name),
+                             std::forward<decltype(arguments)>(arguments)...);
 
         m_id = 0;
     }
 
-    static constexpr bool categoryIsActive() { return Category::isActive(); }
+    static constexpr bool categoryIsActive() { return EnabledCategory::isActive(); }
 
 private:
-    StringType m_name;
+    std::string_view m_name;
     std::size_t m_id = 0;
     CategoryFunctionPointer m_category = nullptr;
 };
 
-template<typename Category, Tracing isEnabled>
+template<typename Category>
 class FlowToken : public BasicDisabledToken
 {
 public:
     FlowToken() = default;
-    using AsynchronousTokenType = typename Category::AsynchronousTokenType;
-    using ArgumentType = typename Category::ArgumentType;
-    using TracerType = typename Category::TracerType;
-    using TokenType = typename Category::TokenType;
-
-    friend TracerType;
-    friend AsynchronousTokenType;
-    friend TokenType;
-    friend Category;
 
     FlowToken(const FlowToken &) = default;
     FlowToken &operator=(const FlowToken &) = default;
@@ -1015,55 +1399,47 @@ public:
 
     ~FlowToken() {}
 
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType, KeyValue auto &&...)
+    [[nodiscard]] DisabledAsynchronousToken beginAsynchronous(TracerLiteral, KeyValue auto &&...)
     {
         return {};
     }
 
-    [[nodiscard]] std::pair<AsynchronousTokenType, FlowToken> beginAsynchronousWithFlow(
-        ArgumentType, KeyValue auto &&...)
+    [[nodiscard]] std::pair<DisabledAsynchronousToken, FlowToken> beginAsynchronousWithFlow(
+        TracerLiteral, KeyValue auto &&...)
     {
         return {};
     }
 
-    void connectTo(const AsynchronousTokenType &, KeyValue auto &&...) {}
+    void connectTo(const DisabledAsynchronousToken &, KeyValue auto &&...) {}
 
-    [[nodiscard]] TracerType beginDuration(ArgumentType, KeyValue auto &&...) { return {}; }
+    [[nodiscard]] DisabledTracer beginDuration(TracerLiteral, KeyValue auto &&...) { return {}; }
 
-    [[nodiscard]] std::pair<TracerType, FlowToken> beginDurationWithFlow(ArgumentType,
-                                                                         KeyValue auto &&...)
+    [[nodiscard]] std::pair<DisabledTracer, FlowToken> beginDurationWithFlow(TracerLiteral,
+                                                                             KeyValue auto &&...)
     {
-        return std::pair<TracerType, FlowToken>();
+        return std::pair<DisabledTracer, FlowToken>();
     }
 
-    void tick(ArgumentType, KeyValue auto &&...) {}
+    void tick(TracerLiteral, KeyValue auto &&...) {}
 };
 
-template<typename Category>
-class FlowToken<Category, Tracing::IsEnabled> : public BasicDisabledToken
+template<>
+class FlowToken<EnabledCategory> : public BasicDisabledToken
 {
-    using PrivateTag = typename Category::PrivateTag;
-    using CategoryFunctionPointer = typename Category::CategoryFunctionPointer;
+    using PrivateTag = typename EnabledCategory::PrivateTag;
+    using CategoryFunctionPointer = typename EnabledCategory::CategoryFunctionPointer;
 
 public:
-    FlowToken() = default;
-
     FlowToken(PrivateTag, std::string_view name, std::size_t bindId, CategoryFunctionPointer category)
         : m_name{name}
         , m_bindId{bindId}
         , m_category{category}
     {}
 
-    using StringType = typename Category::StringType;
-    using AsynchronousTokenType = typename Category::AsynchronousTokenType;
-    using ArgumentType = typename Category::ArgumentType;
-    using TracerType = typename Category::TracerType;
-    using TokenType = typename Category::TokenType;
-
-    friend AsynchronousTokenType;
-    friend TokenType;
-    friend TracerType;
-    friend Category;
+    friend EnabledAsynchronousToken;
+    friend EnabledToken;
+    friend EnabledTracer;
+    friend EnabledCategory;
 
     FlowToken(const FlowToken &) = default;
     FlowToken &operator=(const FlowToken &) = default;
@@ -1073,22 +1449,27 @@ public:
     ~FlowToken() {}
 
     template<KeyValue... Arguments>
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType name, Arguments &&...arguments)
+    [[nodiscard]] EnabledAsynchronousToken beginAsynchronous(TracerLiteral name,
+                                                             KeyValue auto &&...arguments)
     {
         std::size_t id = 0;
 
         if (m_bindId) {
             auto &category = m_category();
             id = category.createId();
-            category.begin('b', id, name, m_bindId, IsFlow::In, std::forward<Arguments>(arguments)...);
+            category.begin('b',
+                           id,
+                           name,
+                           m_bindId,
+                           IsFlow::In,
+                           std::forward<decltype(arguments)>(arguments)...);
         }
 
         return {std::move(name), id, m_category};
     }
 
-    template<KeyValue... Arguments>
-    [[nodiscard]] std::pair<AsynchronousTokenType, FlowToken> beginAsynchronousWithFlow(
-        ArgumentType name, Arguments &&...arguments)
+    [[nodiscard]] std::pair<EnabledAsynchronousToken, FlowToken> beginAsynchronousWithFlow(
+        TracerLiteral name, KeyValue auto &&...arguments)
     {
         std::size_t id = 0;
         std::size_t bindId = 0;
@@ -1097,7 +1478,12 @@ public:
             auto &category = m_category();
             id = category.createId();
             bindId = category.createBindId();
-            category.begin('b', id, name, bindId, IsFlow::InOut, std::forward<Arguments>(arguments)...);
+            category.begin('b',
+                           id,
+                           name,
+                           bindId,
+                           IsFlow::InOut,
+                           std::forward<decltype(arguments)>(arguments)...);
         }
 
         return {std::piecewise_construct,
@@ -1105,8 +1491,7 @@ public:
                 std::forward_as_tuple(PrivateTag{}, std::move(name), bindId, m_category)};
     }
 
-    template<KeyValue... Arguments>
-    void connectTo(const AsynchronousTokenType &token, Arguments &&...arguments)
+    void connectTo(const EnabledAsynchronousToken &token, KeyValue auto &&...arguments)
     {
         if (m_bindId && token.m_id) {
             m_category().begin('b',
@@ -1114,19 +1499,21 @@ public:
                                token.m_name,
                                m_bindId,
                                IsFlow::In,
-                               std::forward<Arguments>(arguments)...);
+                               std::forward<decltype(arguments)>(arguments)...);
         }
     }
 
-    template<KeyValue... Arguments>
-    [[nodiscard]] TracerType beginDuration(ArgumentType traceName, Arguments &&...arguments)
+    [[nodiscard]] EnabledTracer beginDuration(TracerLiteral traceName, KeyValue auto &&...arguments)
     {
-        return {m_bindId, IsFlow::In, traceName, m_category, std::forward<Arguments>(arguments)...};
+        return {m_bindId,
+                IsFlow::In,
+                traceName,
+                m_category,
+                std::forward<decltype(arguments)>(arguments)...};
     }
 
-    template<KeyValue... Arguments>
-    [[nodiscard]] std::pair<TracerType, FlowToken> beginDurationWithFlow(ArgumentType traceName,
-                                                                         Arguments &&...arguments)
+    [[nodiscard]] std::pair<EnabledTracer, FlowToken> beginDurationWithFlow(TracerLiteral traceName,
+                                                                            KeyValue auto &&...arguments)
     {
         return {std::piecewise_construct,
                 std::forward_as_tuple(PrivateTag{},
@@ -1134,478 +1521,221 @@ public:
                                       IsFlow::InOut,
                                       traceName,
                                       m_category,
-                                      std::forward<Arguments>(arguments)...),
+                                      std::forward<decltype(arguments)>(arguments)...),
                 std::forward_as_tuple(PrivateTag{}, traceName, m_bindId, m_category)};
     }
 
-    template<KeyValue... Arguments>
-    void tick(ArgumentType name, Arguments &&...arguments)
+    void tick(TracerLiteral name, KeyValue auto &&...arguments)
     {
-        m_category().tick('i', 0, name, m_bindId, IsFlow::In, std::forward<Arguments>(arguments)...);
+        m_category().tick(
+            'i', 0, name, m_bindId, IsFlow::In, std::forward<decltype(arguments)>(arguments)...);
     }
 
     std::size_t bindId() const { return m_bindId; }
 
 private:
-    StringType m_name;
+    std::string_view m_name;
     std::size_t m_bindId = 0;
     CategoryFunctionPointer m_category = nullptr;
 };
 
-template<typename TraceEvent, Tracing isEnabled>
-class Category
+inline DisabledAsynchronousToken DisabledCategory::beginAsynchronous(TracerLiteral, KeyValue auto &&...)
 {
-public:
-    class SourceLocation
-    {
-    public:
-        template<typename String>
-        friend void convertToString(String &, SourceLocation)
-        {}
-    };
+    return {};
+}
 
-    using IsActive = std::false_type;
-    using ArgumentType = typename TraceEvent::ArgumentType;
-    using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;
-    using AsynchronousTokenType = AsynchronousToken<Category, Tracing::IsDisabled>;
-    using FlowTokenType = FlowToken<Category, Tracing::IsDisabled>;
-    using TracerType = Tracer<Category, std::false_type>;
-    using TokenType = Token<Category, Tracing::IsDisabled>;
-    using CategoryFunctionPointer = Category &(*) ();
-
-    Category(ArgumentType, EventQueue<TraceEvent, Tracing::IsDisabled> &, CategoryFunctionPointer)
-    {}
-
-    Category(ArgumentType, EventQueue<TraceEvent, Tracing::IsEnabled> &, CategoryFunctionPointer) {}
-
-    template<typename... Arguments>
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType, Arguments &&...)
-    {
-        return {};
-    }
-
-    template<typename... Arguments>
-    [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
-        ArgumentType, Arguments &&...)
-    {}
-
-    template<typename... Arguments>
-    [[nodiscard]] TracerType beginDuration(ArgumentType, Arguments &&...)
-    {
-        return {};
-    }
-
-    template<typename... Arguments>
-    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(ArgumentType,
-                                                                             Arguments &&...)
-    {
-        return std::pair<TracerType, FlowTokenType>();
-    }
-
-    template<typename... Arguments>
-    void threadEvent(ArgumentType, Arguments &&...)
-    {}
-
-    static constexpr bool isActive() { return false; }
-};
-
-template<typename TraceEvent>
-class Category<TraceEvent, Tracing::IsEnabled>
+inline std::pair<DisabledAsynchronousToken, DisabledFlowToken> DisabledCategory::beginAsynchronousWithFlow(
+    TracerLiteral, KeyValue auto &&...)
 {
-    class PrivateTag
-    {};
+    return {};
+}
 
-public:
-    class SourceLocation : public Sqlite::source_location
-    {
-    public:
-        consteval SourceLocation(
-            const char *fileName = __builtin_FILE(),
-            const char *functionName = __builtin_FUNCTION(),
-            const uint_least32_t line = __builtin_LINE())
-            : Sqlite::source_location(Sqlite::source_location::current(fileName, functionName, line))
-        {}
-
-        template<typename String>
-        friend void convertToString(String &string, SourceLocation sourceLocation)
-        {
-            using NanotraceHR::dictonary;
-            using NanotraceHR::keyValue;
-            auto dict = dictonary(
-                keyValue("file", sourceLocation.file_name()),
-                keyValue("function", sourceLocation.function_name()),
-                keyValue("line", sourceLocation.line()));
-            convertToString(string, dict);
-
-            string.append(',');
-            convertToString(string, "id");
-            string.append(':');
-            string.append('\"');
-            string.append(sourceLocation.file_name());
-            string.append(':');
-            string.append(sourceLocation.line());
-            string.append('\"');
-        }
-    };
-
-    using IsActive = std::true_type;
-    using ArgumentType = typename TraceEvent::ArgumentType;
-    using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;
-    using StringType = typename TraceEvent::StringType;
-    using AsynchronousTokenType = AsynchronousToken<Category, Tracing::IsEnabled>;
-    using FlowTokenType = FlowToken<Category, Tracing::IsEnabled>;
-    using TracerType = Tracer<Category, std::true_type>;
-    using TokenType = Token<Category, Tracing::IsEnabled>;
-    using CategoryFunctionPointer = Category &(*) ();
-
-    friend AsynchronousTokenType;
-    friend TokenType;
-    friend FlowTokenType;
-    friend TracerType;
-
-    template<typename EventQueue>
-    Category(ArgumentType name, EventQueue &queue, CategoryFunctionPointer self)
-        : m_name{std::move(name)}
-        , m_eventQueue{queue}
-        , m_self{self}
-    {
-        static_assert(std::is_same_v<typename EventQueue::IsActive, std::true_type>,
-                      "A active category is not possible with an inactive event queue!");
-        m_idCounter = m_globalIdCounter += 1ULL << 32;
-        m_bindIdCounter = m_globalBindIdCounter += 1ULL << 32;
-    }
-
-    Category(const Category &) = delete;
-    Category &operator=(const Category &) = delete;
-
-    template<typename... Arguments>
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType traceName,
-                                                          Arguments &&...arguments)
-    {
-        std::size_t id = createId();
-
-        begin('b', id, std::move(traceName), 0, IsFlow::No, std::forward<Arguments>(arguments)...);
-
-        return {traceName, id, m_self};
-    }
-
-    template<typename... Arguments>
-    [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
-        ArgumentType traceName, Arguments &&...arguments)
-    {
-        std::size_t id = createId();
-        std::size_t bindId = createBindId();
-
-        begin('b', id, std::move(traceName), bindId, IsFlow::Out, std::forward<Arguments>(arguments)...);
-
-        return {std::piecewise_construct,
-                std::forward_as_tuple(PrivateTag{}, traceName, id, m_self),
-                std::forward_as_tuple(PrivateTag{}, traceName, bindId, m_self)};
-    }
-
-    template<typename... Arguments>
-    [[nodiscard]] TracerType beginDuration(ArgumentType traceName, Arguments &&...arguments)
-    {
-        return {traceName, m_self, std::forward<Arguments>(arguments)...};
-    }
-
-    template<typename... Arguments>
-    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(ArgumentType traceName,
-                                                                             Arguments &&...arguments)
-    {
-        std::size_t bindId = createBindId();
-
-        return {std::piecewise_construct,
-                std::forward_as_tuple(PrivateTag{},
-                                      bindId,
-                                      IsFlow::Out,
-                                      traceName,
-                                      m_self,
-                                      std::forward<Arguments>(arguments)...),
-                std::forward_as_tuple(PrivateTag{}, traceName, bindId, m_self)};
-    }
-
-    template<typename... Arguments>
-    void threadEvent(ArgumentType traceName, Arguments &&...arguments)
-    {
-        if (isEnabled == IsEnabled::No)
-            return;
-
-        auto &traceEvent = getTraceEvent(m_eventQueue);
-
-        traceEvent.time = Clock::now();
-        traceEvent.name = std::move(traceName);
-        traceEvent.category = traceName;
-        traceEvent.type = 'i';
-        traceEvent.id = 0;
-        traceEvent.bindId = 0;
-        traceEvent.flow = IsFlow::No;
-        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
-    }
-
-    EnabledEventQueue<TraceEvent> &eventQueue() const { return m_eventQueue; }
-
-    std::string_view name() const { return m_name; }
-
-    static constexpr bool isActive() { return true; }
-
-    std::size_t createBindId() { return ++m_bindIdCounter; }
-
-    std::size_t createId() { return ++m_idCounter; }
-
-public:
-    IsEnabled isEnabled = IsEnabled::Yes;
-
-private:
-    template<typename... Arguments>
-    void begin(char type,
-               std::size_t id,
-               StringType traceName,
-               std::size_t bindId,
-               IsFlow flow,
-               Arguments &&...arguments)
-    {
-        if (isEnabled == IsEnabled::No)
-            return;
-
-        auto &traceEvent = getTraceEvent(m_eventQueue);
-
-        traceEvent.name = std::move(traceName);
-        traceEvent.category = m_name;
-        traceEvent.type = type;
-        traceEvent.id = id;
-        traceEvent.bindId = bindId;
-        traceEvent.flow = flow;
-        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
-        traceEvent.time = Clock::now();
-    }
-
-    template<typename... Arguments>
-    void tick(char type,
-              std::size_t id,
-              StringType traceName,
-              std::size_t bindId,
-              IsFlow flow,
-              Arguments &&...arguments)
-    {
-        if (isEnabled == IsEnabled::No)
-            return;
-
-        auto time = Clock::now();
-
-        auto &traceEvent = getTraceEvent(m_eventQueue);
-
-        traceEvent.name = std::move(traceName);
-        traceEvent.category = m_name;
-        traceEvent.time = time;
-        traceEvent.type = type;
-        traceEvent.id = id;
-        traceEvent.bindId = bindId;
-        traceEvent.flow = flow;
-        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
-    }
-
-    template<typename... Arguments>
-    void end(char type, std::size_t id, StringType traceName, Arguments &&...arguments)
-    {
-        if (isEnabled == IsEnabled::No)
-            return;
-
-        auto time = Clock::now();
-
-        auto &traceEvent = getTraceEvent(m_eventQueue);
-
-        traceEvent.name = std::move(traceName);
-        traceEvent.category = m_name;
-        traceEvent.time = time;
-        traceEvent.type = type;
-        traceEvent.id = id;
-        traceEvent.bindId = 0;
-        traceEvent.flow = IsFlow::No;
-        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
-    }
-
-    CategoryFunctionPointer self() { return m_self; }
-
-private:
-    StringType m_name;
-    EnabledEventQueue<TraceEvent> &m_eventQueue;
-    inline static std::atomic<std::size_t> m_globalIdCounter;
-    std::size_t m_idCounter;
-    inline static std::atomic<std::size_t> m_globalBindIdCounter;
-    std::size_t m_bindIdCounter;
-    CategoryFunctionPointer m_self;
-};
-
-template<Tracing isEnabled>
-using StringViewCategory = Category<StringViewTraceEvent, isEnabled>;
-template<Tracing isEnabled>
-using StringCategory = Category<StringTraceEvent, isEnabled>;
-template<Tracing isEnabled>
-using StringViewWithStringArgumentsCategory = Category<StringViewWithStringArgumentsTraceEvent, isEnabled>;
-
-template<typename Category, typename IsActive>
-class Tracer
+inline DisabledTracer DisabledCategory::beginDuration(TracerLiteral, KeyValue auto &&...)
 {
-public:
-    Tracer() = default;
-    using ArgumentType = typename Category::ArgumentType;
-    using TokenType = typename Category::TokenType;
-    using FlowTokenType = typename Category::FlowTokenType;
+    return {};
+}
 
-    friend TokenType;
-    friend FlowTokenType;
-    friend Category;
+inline std::pair<DisabledTracer, DisabledFlowToken> DisabledCategory::beginDurationWithFlow(
+    TracerLiteral, KeyValue auto &&...)
+{
+    return {};
+}
 
-    [[nodiscard]] Tracer(ArgumentType, Category &, KeyValue auto &&...) {}
+inline EnabledAsynchronousToken EnabledCategory::beginAsynchronous(TracerLiteral traceName,
+                                                                   KeyValue auto &&...arguments)
+{
+    std::size_t id = createId();
 
-    Tracer(const Tracer &) = delete;
-    Tracer &operator=(const Tracer &) = delete;
-    Tracer(Tracer &&other) noexcept = default;
-    Tracer &operator=(Tracer &&other) noexcept = delete;
+    begin('b', id, std::move(traceName), 0, IsFlow::No, std::forward<decltype(arguments)>(arguments)...);
 
-    TokenType createToken() { return {}; }
+    return {traceName, id, m_self};
+}
 
-    Tracer beginDuration(ArgumentType, KeyValue auto &&...) { return {}; }
+inline std::pair<EnabledAsynchronousToken, EnabledFlowToken> EnabledCategory::beginAsynchronousWithFlow(
+    TracerLiteral traceName, KeyValue auto &&...arguments)
+{
+    std::size_t id = createId();
+    std::size_t bindId = createBindId();
 
-    void tick(ArgumentType, KeyValue auto &&...) {}
+    begin('b',
+          id,
+          std::move(traceName),
+          bindId,
+          IsFlow::Out,
+          std::forward<decltype(arguments)>(arguments)...);
 
-    void end(KeyValue auto &&...) {}
+    return {std::piecewise_construct,
+            std::forward_as_tuple(PrivateTag{}, traceName, id, m_self),
+            std::forward_as_tuple(PrivateTag{}, traceName, bindId, m_self)};
+}
 
-    ~Tracer() {}
-};
+inline EnabledTracer EnabledCategory::beginDuration(TracerLiteral traceName,
+                                                    KeyValue auto &&...arguments)
+{
+    return {traceName, m_self, std::forward<decltype(arguments)>(arguments)...};
+}
+
+inline EnabledAsynchronousToken EnabledToken::beginAsynchronous(TracerLiteral name,
+                                                                KeyValue auto &&...arguments)
+{
+    if (m_id)
+        m_category().begin('b', m_id, name, 0, IsFlow::No, std::forward<decltype(arguments)>(arguments)...);
+
+    return {std::move(name), m_id, m_category};
+}
+
+inline std::pair<EnabledAsynchronousToken, EnabledFlowToken> EnabledToken::beginAsynchronousWithFlow(
+    TracerLiteral name, KeyValue auto &&...arguments)
+{
+    std::size_t bindId = 0;
+
+    if (m_id) {
+        auto &category = m_category();
+        bindId = category.createBindId();
+        category.begin(
+            'b', m_id, name, bindId, IsFlow::Out, std::forward<decltype(arguments)>(arguments)...);
+    }
+
+    return {std::piecewise_construct,
+            std::forward_as_tuple(PrivateTag{}, std::move(name), m_id, m_category),
+            std::forward_as_tuple(PrivateTag{}, std::move(name), bindId, m_category)};
+}
+
+inline EnabledTracer EnabledToken::beginDuration(TracerLiteral traceName, KeyValue auto &&...arguments)
+{
+    return {traceName, m_category, std::forward<decltype(arguments)>(arguments)...};
+}
+
+std::pair<EnabledTracer, EnabledFlowToken> EnabledToken::beginDurationWithFlow(
+    TracerLiteral traceName, KeyValue auto &&...arguments)
+{
+    std::size_t bindId = m_category().createBindId();
+
+    return {std::piecewise_construct,
+            std::forward_as_tuple(PrivateTag{},
+                                  bindId,
+                                  IsFlow::Out,
+                                  traceName,
+                                  m_category,
+                                  std::forward<decltype(arguments)>(arguments)...),
+            std::forward_as_tuple(PrivateTag{}, traceName, bindId, m_category)};
+}
 
 template<typename Category>
-class Tracer<Category, std::true_type>
+inline DisabledAsynchronousToken Token<Category>::beginAsynchronous(TracerLiteral, KeyValue auto &&...)
 {
-    using ArgumentType = typename Category::ArgumentType;
-    using StringType = typename Category::StringType;
-    using ArgumentsStringType = typename Category::ArgumentsStringType;
-    using TokenType = typename Category::TokenType;
-    using FlowTokenType = typename Category::FlowTokenType;
-    using PrivateTag = typename Category::PrivateTag;
-    using CategoryFunctionPointer = typename Category::CategoryFunctionPointer;
+    return {};
+}
 
-    friend FlowTokenType;
-    friend TokenType;
-    friend Category;
+template<typename Category>
+inline std::pair<DisabledAsynchronousToken, DisabledFlowToken> Token<Category>::beginAsynchronousWithFlow(
+    TracerLiteral, KeyValue auto &&...)
+{
+    return {};
+}
 
-    template<KeyValue... Arguments>
-    [[nodiscard]] Tracer(std::size_t bindId,
-                         IsFlow flow,
-                         ArgumentType name,
-                         CategoryFunctionPointer category,
-                         Arguments &&...arguments)
-        : m_name{name}
-        , m_bindId{bindId}
-        , flow{flow}
-        , m_category{category}
-    {
-        if (category().isEnabled == IsEnabled::Yes)
-            sendBeginTrace(std::forward<Arguments>(arguments)...);
-    }
+template<typename Category>
+inline DisabledTracer Token<Category>::beginDuration(TracerLiteral, KeyValue auto &&...)
+{
+    return {};
+}
 
-public:
-    template<KeyValue... Arguments>
-    [[nodiscard]] Tracer(PrivateTag,
-                         std::size_t bindId,
-                         IsFlow flow,
-                         ArgumentType name,
-                         CategoryFunctionPointer category,
-                         Arguments &&...arguments)
-        : Tracer{bindId, flow, std::move(name), category, std::forward<Arguments>(arguments)...}
-    {}
+template<typename Category>
+inline std::pair<DisabledTracer, DisabledFlowToken> Token<Category>::beginDurationWithFlow(
+    TracerLiteral, KeyValue auto &&...)
+{
+    return {};
+}
 
-    template<KeyValue... Arguments>
-    [[nodiscard]] Tracer(ArgumentType name, CategoryFunctionPointer category, Arguments &&...arguments)
-        : m_name{name}
-        , m_category{category}
-    {
-        if (category().isEnabled == IsEnabled::Yes)
-            sendBeginTrace(std::forward<Arguments>(arguments)...);
-    }
+inline EnabledAsynchronousToken AsynchronousToken<EnabledCategory>::begin(
+    const EnabledFlowToken &flowToken, TracerLiteral name, KeyValue auto &&...arguments)
+{
+    if (m_id)
+        m_category().begin('b',
+                           m_id,
+                           name,
+                           flowToken.bindId(),
+                           IsFlow::In,
+                           std::forward<decltype(arguments)>(arguments)...);
 
-    template<KeyValue... Arguments>
-    [[nodiscard]] Tracer(ArgumentType name, Category &category, Arguments &&...arguments)
-        : Tracer(std::move(name), category.self(), std::forward<Arguments>(arguments)...)
-    {}
+    return {std::move(name), m_id, m_category};
+}
 
-    Tracer(const Tracer &) = delete;
-    Tracer &operator=(const Tracer &) = delete;
-    Tracer(Tracer &&other) noexcept = delete;
-    Tracer &operator=(Tracer &&other) noexcept = delete;
+inline EnabledToken EnabledAsynchronousToken::createToken()
+{
+    return {m_id, m_category};
+}
 
-    TokenType createToken() { return {0, m_category}; }
+std::pair<EnabledAsynchronousToken, EnabledFlowToken> EnabledAsynchronousToken::beginWithFlow(
+    TracerLiteral name, KeyValue auto &&...arguments)
+{
+    std::size_t bindId = 0;
 
-    ~Tracer() { sendEndTrace(); }
-
-    template<KeyValue... Arguments>
-    Tracer beginDuration(ArgumentType name, Arguments &&...arguments)
-    {
-        return {std::move(name), m_category, std::forward<Arguments>(arguments)...};
-    }
-
-    template<KeyValue... Arguments>
-    void tick(ArgumentType name, Arguments &&...arguments)
-    {
-        m_category().begin('i', 0, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
-    }
-
-    template<KeyValue... Arguments>
-    void end(Arguments &&...arguments)
-    {
-        sendEndTrace(std::forward<Arguments>(arguments)...);
-        m_name = {};
-    }
-
-private:
-    template<KeyValue... Arguments>
-    void sendBeginTrace(Arguments &&...arguments)
-    {
+    if (m_id) {
         auto &category = m_category();
-        if (category.isEnabled == IsEnabled::Yes) {
-            auto &traceEvent = getTraceEvent(category.eventQueue());
-            traceEvent.name = m_name;
-            traceEvent.category = category.name();
-            traceEvent.bindId = m_bindId;
-            traceEvent.flow = flow;
-            traceEvent.type = 'B';
-            Internal::setArguments<ArgumentsStringType>(traceEvent.arguments,
-                                                        std::forward<Arguments>(arguments)...);
-            traceEvent.time = Clock::now();
-        }
+        bindId = category.createBindId();
+        category.begin(
+            'b', m_id, name, bindId, IsFlow::Out, std::forward<decltype(arguments)>(arguments)...);
     }
 
-    template<KeyValue... Arguments>
-    void sendEndTrace(Arguments &&...arguments)
-    {
-        if (m_name.size()) {
-            auto &category = m_category();
-            if (category.isEnabled == IsEnabled::Yes) {
-                auto end = Clock::now();
-                auto &traceEvent = getTraceEvent(category.eventQueue());
-                traceEvent.name = std::move(m_name);
-                traceEvent.category = category.name();
-                traceEvent.time = end;
-                traceEvent.bindId = m_bindId;
-                traceEvent.flow = flow;
-                traceEvent.type = 'E';
-                Internal::setArguments<ArgumentsStringType>(traceEvent.arguments,
-                                                            std::forward<Arguments>(arguments)...);
-            }
-        }
+    return {std::piecewise_construct,
+            std::forward_as_tuple(PrivateTag{}, std::move(name), m_id, m_category),
+            std::forward_as_tuple(PrivateTag{}, std::move(name), bindId, m_category)};
+}
+
+void EnabledAsynchronousToken::tick(const EnabledFlowToken &flowToken,
+                                    TracerLiteral name,
+                                    KeyValue auto &&...arguments)
+{
+    if (m_id) {
+        m_category().tick('n',
+                          m_id,
+                          std::move(name),
+                          flowToken.bindId(),
+                          IsFlow::In,
+                          std::forward<decltype(arguments)>(arguments)...);
+    }
+}
+
+EnabledFlowToken EnabledAsynchronousToken::tickWithFlow(TracerLiteral name,
+                                                        KeyValue auto &&...arguments)
+{
+    std::size_t bindId = 0;
+
+    if (m_id) {
+        auto &category = m_category();
+        bindId = category.createBindId();
+        category.tick(
+            'n', m_id, name, bindId, IsFlow::Out, std::forward<decltype(arguments)>(arguments)...);
     }
 
-private:
-    StringType m_name;
-    std::size_t m_bindId = 0;
-    IsFlow flow = IsFlow::No;
-    CategoryFunctionPointer m_category;
-};
+    return {PrivateTag{}, std::move(name), bindId, m_category};
+}
 
-template<typename Category, KeyValue... Arguments>
-Tracer(typename Category::ArgumentType name,
-       Category &category,
-       Arguments &&...) -> Tracer<Category, typename Category::IsActive>;
+template<typename Category>
+DisabledFlowToken AsynchronousToken<Category>::tickWithFlow(TracerLiteral, KeyValue auto &&...)
+{
+    return {};
+}
 
 } // namespace NanotraceHR

@@ -5,32 +5,45 @@
 
 #include <qmath.h>
 
-#include "navigatorview.h"
-#include "navigatortreeview.h"
+#include "navigatortracing.h"
 #include "navigatortreemodel.h"
-#include "qproxystyle.h"
+#include "navigatortreeview.h"
+#include "navigatorview.h"
 
 #include <theme.h>
 
 #include <utils/qtcassert.h>
 
+#include <qproxystyle.h>
 #include <QLineEdit>
-#include <QPen>
-#include <QPixmapCache>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPen>
+#include <QPixmapCache>
 
 namespace QmlDesigner {
+
+using NavigatorTracing::category;
 
 IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent, const QIcon &icon)
     : QStyledItemDelegate(parent),
       m_icon(icon)
-{}
+{
+    NanotraceHR::Tracer tracer{"icon checkbox item delegate constructor", category()};
+}
 
 QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/,
                                          const QModelIndex & /*modelIndex*/) const
 {
+    NanotraceHR::Tracer tracer{"icon checkbox item delegate size hint", category()};
+
     return {15, 20};
+}
+
+static bool isReference(const QModelIndex &modelIndex)
+{
+    // Internal ids < 0 are reserved for references nodes in NavigatorTreeModel
+    return static_cast<qint32>(modelIndex.internalId()) < 0;
 }
 
 static bool isChecked(const QModelIndex &modelIndex)
@@ -57,6 +70,11 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
                                      const QStyleOptionViewItem &styleOption,
                                      const QModelIndex &modelIndex) const
 {
+    NanotraceHR::Tracer tracer{"icon checkbox item delegate paint", category()};
+
+    if (isReference(modelIndex))
+        return; // Do not paint hover selection and icons for reference nodes
+
     QIcon::Mode mode = QIcon::Mode::Normal;
 
     if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex)) {
@@ -100,12 +118,13 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
     painter->restore();
 }
 
-
 bool IconCheckboxItemDelegate::editorEvent(QEvent *event,
                                            QAbstractItemModel *model,
                                            const QStyleOptionViewItem &option,
                                            const QModelIndex &index)
 {
+    NanotraceHR::Tracer tracer{"icon checkbox item delegate editor event", category()};
+
     Q_ASSERT(event);
     Q_ASSERT(model);
 
@@ -121,10 +140,9 @@ bool IconCheckboxItemDelegate::editorEvent(QEvent *event,
         return false;
 
     // make sure that we have the right event type
-    if ((event->type() == QEvent::MouseButtonRelease)
-        || (event->type() == QEvent::MouseButtonDblClick)
+    if ((event->type() == QEvent::MouseButtonRelease) || (event->type() == QEvent::MouseButtonDblClick)
         || (event->type() == QEvent::MouseButtonPress)) {
-        QMouseEvent *me = static_cast<QMouseEvent*>(event);
+        QMouseEvent *me = static_cast<QMouseEvent *>(event);
         if (me->button() != Qt::LeftButton || !option.rect.contains(me->pos()))
             return false;
 
@@ -133,8 +151,8 @@ bool IconCheckboxItemDelegate::editorEvent(QEvent *event,
             return true;
 
     } else if (event->type() == QEvent::KeyPress) {
-        if (static_cast<QKeyEvent*>(event)->key() != Qt::Key_Space
-         && static_cast<QKeyEvent*>(event)->key() != Qt::Key_Select)
+        if (static_cast<QKeyEvent *>(event)->key() != Qt::Key_Space
+            && static_cast<QKeyEvent *>(event)->key() != Qt::Key_Select)
             return false;
     } else {
         return false;
@@ -142,7 +160,7 @@ bool IconCheckboxItemDelegate::editorEvent(QEvent *event,
 
     Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
     if (flags & Qt::ItemIsUserTristate)
-        state = ((Qt::CheckState)((state + 1) % 3));
+        state = ((Qt::CheckState) ((state + 1) % 3));
     else
         state = (state == Qt::Checked) ? Qt::Unchecked : Qt::Checked;
     return model->setData(index, state, Qt::CheckStateRole);

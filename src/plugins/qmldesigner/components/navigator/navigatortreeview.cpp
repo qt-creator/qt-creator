@@ -3,12 +3,14 @@
 
 #include "navigatortreeview.h"
 
+#include "navigatortracing.h"
+#include "navigatortreemodel.h"
+#include "navigatorview.h"
+#include "previewtooltip.h"
+
 #include <qmath.h>
 
-#include "navigatorview.h"
-#include "navigatortreemodel.h"
-#include "qproxystyle.h"
-#include "previewtooltip.h"
+#include <modelnode.h>
 
 
 #include <theme.h>
@@ -16,18 +18,21 @@
 #include <utils/icon.h>
 #include <utils/utilsicons.h>
 
-#include <QLineEdit>
-#include <QPen>
-#include <QPixmapCache>
-#include <QMouseEvent>
-#include <QPainter>
-#include <QStyleFactory>
+#include <qproxystyle.h>
 #include <QEvent>
 #include <QImage>
+#include <QLineEdit>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QPen>
+#include <QPixmapCache>
+#include <QStyleFactory>
 
 namespace QmlDesigner {
 
 namespace {
+
+using NavigatorTracing::category;
 
 // This style basically allows us to span the entire row
 // including the arrow indicators which would otherwise not be
@@ -39,6 +44,8 @@ public:
         // : QProxyStyle(new StudioStyle("fusion"))
         : QProxyStyle("fusion")
     {
+        NanotraceHR::Tracer tracer{"table view style constructor", category()};
+
         setParent(parent);
         baseStyle()->setParent(parent);
     }
@@ -48,6 +55,8 @@ public:
                        QPainter *painter,
                        const QWidget *widget = nullptr) const override
     {
+        NanotraceHR::Tracer tracer{"table view style draw primitive", category()};
+
         static QRect mouseOverStateSavedFrameRectangle;
         if (element == QStyle::PE_PanelItemViewRow) {
             if (option->state & QStyle::State_MouseOver)
@@ -135,6 +144,8 @@ public:
                   const QWidget *widget = nullptr,
                   QStyleHintReturn *returnData = nullptr) const override
     {
+        NanotraceHR::Tracer tracer{"table view style style hint", category()};
+
         if (hint == SH_ItemView_ShowDecorationSelected)
             return 0;
         else
@@ -144,12 +155,16 @@ public:
 private: // functions
     QColor highlightBrushColor() const
     {
+        NanotraceHR::Tracer tracer{"table view style highlight brush color", category()};
+
         QColor color = Theme::getColor(Theme::Color::DSnavigatorDropIndicatorBackground);
         color.setAlphaF(0.7f);
         return color;
     }
     QColor highlightLineColor() const
     {
+        NanotraceHR::Tracer tracer{"table view style highlight line color", category()};
+
         QColor color = Theme::getColor(Theme::Color::DSnavigatorDropIndicatorOutline);
         color.setAlphaF(0.7f);
         return color;
@@ -157,6 +172,8 @@ private: // functions
 
     void drawHighlightFrame(const QRect &frameRectangle, QPainter *painter) const
     {
+        NanotraceHR::Tracer tracer{"table view style draw highlight frame", category()};
+
         painter->setPen(QPen(highlightLineColor(), 2));
         painter->setBrush(highlightBrushColor());
         painter->drawRect(frameRectangle);
@@ -164,12 +181,16 @@ private: // functions
 
     void drawIndicatorLine(const QPoint &leftPoint, const QPoint &rightPoint, QPainter *painter) const
     {
+        NanotraceHR::Tracer tracer{"table view style draw indicator line", category()};
+
         painter->setPen(QPen(highlightLineColor(), 3));
         painter->drawLine(leftPoint, rightPoint);
     }
 
     QRect adjustedRectangleToWidgetWidth(const QRect &originalRectangle, const QWidget *widget) const
     {
+        NanotraceHR::Tracer tracer{"table view style adjusted rectangle to widget width", category()};
+
         QRect adjustesRectangle = originalRectangle;
         adjustesRectangle.setLeft(0);
         adjustesRectangle.setWidth(widget->rect().width());
@@ -184,6 +205,8 @@ private: // variables
 NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     : QTreeView(parent)
 {
+    NanotraceHR::Tracer tracer{"navigator tree view constructor", category()};
+
     setStyle(new TableViewStyle(this));
     setMinimumWidth(240);
     setRootIsDecorated(false);
@@ -193,6 +216,8 @@ NavigatorTreeView::NavigatorTreeView(QWidget *parent)
 
 void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleOption &option)
 {
+    NanotraceHR::Tracer tracer{"navigator tree view draw selection background", category()};
+
     painter->save();
     painter->fillRect(option.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
                       Theme::getColor(Theme::Color::DSnavigatorItemBackgroundSelected));
@@ -201,6 +226,8 @@ void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleO
 
 bool NavigatorTreeView::viewportEvent(QEvent *event)
 {
+    NanotraceHR::Tracer tracer{"navigator tree view viewport event", category()};
+
     const QPoint offset(10, 5);
 
     if (event->type() == QEvent::ToolTip) {
@@ -259,16 +286,51 @@ bool NavigatorTreeView::viewportEvent(QEvent *event)
 
 void NavigatorTreeView::mousePressEvent(QMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"navigator tree view mouse press event", category()};
+
+    m_clickedIndex = indexAt(event->pos());
+    if (auto navModel = qobject_cast<NavigatorTreeModel *>(model())) {
+        if (navModel->isReference(m_clickedIndex)) {
+            m_dragAllowed = false;
+            event->accept();
+            return;
+        }
+    }
+
     // Block drag from starting if press was on an item that is not draggable.
     // This is necessary as it is the selected items that are dragged and the pressed item may not
     // be a selected item, e.g. when pressing on locked item, leading to unexpected drags.
-    m_dragAllowed = model()->flags(indexAt(event->pos())) & Qt::ItemIsDragEnabled;
+    m_dragAllowed = model()->flags(m_clickedIndex) & Qt::ItemIsDragEnabled;
 
     QTreeView::mousePressEvent(event);
 }
 
+void NavigatorTreeView::mouseReleaseEvent(QMouseEvent *event)
+{
+    NanotraceHR::Tracer tracer{"navigator tree view mouse release event", category()};
+
+    const QModelIndex modelIndex = indexAt(event->pos());
+    if (m_clickedIndex == modelIndex) {
+        if (auto navModel = qobject_cast<NavigatorTreeModel *>(model())) {
+            if (navModel->isReference(modelIndex)) {
+                ModelNode referencedNode = navModel->modelNodeForIndex(modelIndex);
+                if (referencedNode && !referencedNode.locked()) {
+                    referencedNode.selectNode();
+                    event->accept();
+                    return;
+                }
+            }
+        }
+    }
+    m_clickedIndex = {};
+
+    QTreeView::mouseReleaseEvent(event);
+}
+
 void NavigatorTreeView::startDrag(Qt::DropActions supportedActions)
 {
+    NanotraceHR::Tracer tracer{"navigator tree view start drag", category()};
+
     if (m_dragAllowed) {
         if (m_previewToolTip) {
             // Workaround to ensure tooltip doesn't linger during drag, as drag grabs all mouse

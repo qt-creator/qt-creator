@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fileresourcesmodel.h"
+#include "propertyeditortracing.h"
 
 #include <coreplugin/icore.h>
 
@@ -19,10 +20,14 @@
 
 static QString s_lastBrowserPath;
 
+using QmlDesigner::PropertyEditorTracing::category;
+
 FileResourcesModel::FileResourcesModel(QObject *parent)
     : QObject(parent)
     , m_filter(QLatin1String("(*.*)"))
 {
+    NanotraceHR::Tracer tracer{"file resources model consstructor", category()};
+
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
         QmlDesigner::DocumentManager::currentFilePath());
 
@@ -36,6 +41,8 @@ FileResourcesModel::FileResourcesModel(QObject *parent)
 
 void FileResourcesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 {
+    NanotraceHR::Tracer tracer{"file resources model set model node backend", category()};
+
     auto modelNodeBackendObject = modelNodeBackend.value<QObject *>();
 
     const auto backendObjectCasted = qobject_cast<const QmlDesigner::QmlModelNodeProxy *>(
@@ -57,11 +64,15 @@ void FileResourcesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 
 QString FileResourcesModel::fileName() const
 {
+    NanotraceHR::Tracer tracer{"file resources model file name", category()};
+
     return m_fileName.toString();
 }
 
 void FileResourcesModel::setFileNameStr(const QString &fileName)
 {
+    NanotraceHR::Tracer tracer{"file resources model set file name", category()};
+
     setFileName(QUrl(fileName));
 }
 
@@ -77,6 +88,8 @@ void FileResourcesModel::setFileName(const QUrl &fileName)
 
 void FileResourcesModel::setPath(const QUrl &url)
 {
+    NanotraceHR::Tracer tracer{"file resources model set path", category()};
+
     m_path = url;
     refreshModel();
 
@@ -85,16 +98,22 @@ void FileResourcesModel::setPath(const QUrl &url)
 
 QUrl FileResourcesModel::path() const
 {
+    NanotraceHR::Tracer tracer{"file resources model path", category()};
+
     return m_path;
 }
 
 QUrl FileResourcesModel::docPath() const
 {
+    NanotraceHR::Tracer tracer{"file resources model doc path", category()};
+
     return QUrl::fromLocalFile(m_docPath.path());
 }
 
 void FileResourcesModel::setFilter(const QString &filter)
 {
+    NanotraceHR::Tracer tracer{"file resources model set filter", category()};
+
     if (m_filter == filter)
         return;
 
@@ -106,16 +125,22 @@ void FileResourcesModel::setFilter(const QString &filter)
 
 QString FileResourcesModel::filter() const
 {
+    NanotraceHR::Tracer tracer{"file resources model filter", category()};
+
     return m_filter;
 }
 
 QList<FileResourcesItem> FileResourcesModel::model() const
 {
+    NanotraceHR::Tracer tracer{"file resources model model", category()};
+
     return m_model;
 }
 
 void FileResourcesModel::openFileDialog(const QString &customPath)
 {
+    NanotraceHR::Tracer tracer{"file resources model open file dialog", category()};
+
     QString resourcePath = customPath.isEmpty() ? m_path.toLocalFile() : customPath;
     bool resourcePathChanged = m_lastResourcePath != resourcePath;
     m_lastResourcePath = resourcePath;
@@ -149,6 +174,8 @@ void FileResourcesModel::openFileDialog(const QString &customPath)
 
 QString FileResourcesModel::resolve(const QString &relative) const
 {
+    NanotraceHR::Tracer tracer{"file resources model resolve", category()};
+
     if (relative.startsWith('#'))
         return relative;
 
@@ -170,20 +197,42 @@ QString FileResourcesModel::resolve(const QString &relative) const
 
 bool FileResourcesModel::isLocal(const QString &path) const
 {
+    NanotraceHR::Tracer tracer{"file resources model is local", category()};
+
     return QUrl::fromUserInput(path, m_docPath.path()).isLocalFile();
 }
 
 void FileResourcesModel::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"file resources model register declarative type", category()};
+
     qmlRegisterType<FileResourcesModel>("HelperWidgets", 2, 0, "FileResourcesModel");
 }
 
 QVariant FileResourcesModel::modelNodeBackend() const
 {
+    NanotraceHR::Tracer tracer{"file resources model model node backend", category()};
+
     return QVariant();
 }
 
-bool filterMetaIcons(const QString &fileName)
+static bool checkIgnoreFile(const QString &fileName)
+{
+    QFileInfo info(fileName);
+
+    QDir currentDir = info.dir();
+
+    while (!currentDir.isRoot() && currentDir.path().contains("Dependencies")) {
+        if (QFileInfo(currentDir.absoluteFilePath("ignore-in-qds")).exists())
+            return true;
+
+        currentDir.cdUp();
+    }
+
+    return false;
+}
+
+static bool filterMetaIcons(const QString &fileName)
 {
     QFileInfo info(fileName);
 
@@ -210,6 +259,8 @@ bool filterMetaIcons(const QString &fileName)
 
 void FileResourcesModel::refreshModel()
 {
+    NanotraceHR::Tracer tracer{"file resources model refresh model", category()};
+
     m_model.clear();
 
     if (m_path.isValid()) {
@@ -219,6 +270,10 @@ void FileResourcesModel::refreshModel()
         QDirIterator it(dirPath.absolutePath(), filterList, QDir::Files, QDirIterator::Subdirectories);
         while (it.hasNext()) {
             const QString absolutePath = it.next();
+
+            if (checkIgnoreFile(absolutePath))
+                continue;
+
             if (filterMetaIcons(absolutePath)) {
                 const QString relativeFilePath = m_docPath.relativeFilePath(absolutePath);
                 m_model.append(

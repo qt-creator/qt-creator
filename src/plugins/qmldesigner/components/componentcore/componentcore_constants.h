@@ -21,9 +21,6 @@ inline constexpr char positionerCategory[] = "Position";
 inline constexpr char groupCategory[] = "Group";
 inline constexpr char snappingCategory[] = "Snapping";
 inline constexpr char layoutCategory[] = "Layout";
-inline constexpr char flowCategory[] = "Flow";
-inline constexpr char flowEffectCategory[] = "FlowEffect";
-inline constexpr char flowConnectionCategory[] = "FlowConnection";
 inline constexpr char stackedContainerCategory[] = "StackedContainer";
 inline constexpr char genericToolBarCategory[] = "GenericToolBar";
 inline constexpr char eventListCategory[] = "QmlEventList";
@@ -54,9 +51,6 @@ inline constexpr char anchorParentVerticalCenterCommandId[] = "AnchorParentVerti
 inline constexpr char anchorParentHorizontalCenterCommandId[] = "AnchorParentHorizontalCenter";
 
 inline constexpr char removePositionerCommandId[] = "RemovePositioner";
-inline constexpr char createFlowActionAreaCommandId[] = "CreateFlowActionArea";
-inline constexpr char setFlowStartCommandId[] = "SetFlowStart";
-inline constexpr char selectFlowEffectCommandId[] = "SelectFlowEffect";
 inline constexpr char layoutRowPositionerCommandId[] = "LayoutRowPositioner";
 inline constexpr char layoutColumnPositionerCommandId[] = "LayoutColumnPositioner";
 inline constexpr char layoutGridPositionerCommandId[] = "LayoutGridPositioner";
@@ -83,8 +77,6 @@ inline constexpr char increaseIndexOfStackedContainerCommandId[]
     = "IncreaseIndexOfStackedContainer";
 inline constexpr char decreaseIndexOfStackedContainerCommandId[]
     = "DecreaseIndexOfStackedContainer";
-inline constexpr char flowAssignEffectCommandId[] = "AssignFlowEffect";
-inline constexpr char flowAssignCustomEffectCommandId[] = "AssignFlowCustomEffect";
 inline constexpr char addToGroupItemCommandId[] = "AddToGroupItem";
 inline constexpr char fitRootToScreenCommandId[] = "FitRootToScreen";
 inline constexpr char fitSelectionToScreenCommandId[] = "FitSelectionToScreen";
@@ -100,8 +92,6 @@ inline constexpr char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDes
                                                                          "Selection");
 inline constexpr char connectionsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                            "Connections");
-inline constexpr char flowConnectionCategoryDisplayName[] = QT_TRANSLATE_NOOP(
-    "QmlDesignerContextMenu", "Connect");
 inline constexpr char selectEffectDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                     "Select Effect");
 inline constexpr char arrangeCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
@@ -117,9 +107,7 @@ inline constexpr char snappingCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesi
                                                                         "Snapping");
 inline constexpr char layoutCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                       "Layout");
-inline constexpr char flowCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Flow");
-inline constexpr char flowEffectCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                          "Flow Effects");
+
 inline constexpr char stackedContainerCategoryDisplayName[] = QT_TRANSLATE_NOOP(
     "QmlDesignerContextMenu", "Stacked Container");
 
@@ -231,10 +219,6 @@ inline constexpr char layoutFlowPositionerDisplayName[] = QT_TRANSLATE_NOOP(
     "QmlDesignerContextMenu", "Flow Positioner");
 inline constexpr char removePositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                         "Remove Positioner");
-inline constexpr char createFlowActionAreaDisplayName[] = QT_TRANSLATE_NOOP(
-    "QmlDesignerContextMenu", "Create Flow Action");
-inline constexpr char setFlowStartDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                    "Set Flow Start");
 inline constexpr char removeLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                     "Remove Layout");
 
@@ -263,10 +247,6 @@ inline constexpr char layoutFillWidthDisplayName[] = QT_TRANSLATE_NOOP("QmlDesig
                                                                        "Fill Width");
 inline constexpr char layoutFillHeightDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                         "Fill Height");
-
-inline constexpr char flowAssignEffectDisplayName[] = "Assign FlowEffect ";
-inline constexpr char flowAssignCustomEffectDisplayName[] = "Assign Custom FlowEffect ";
-
 inline constexpr char raiseToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                          "Raise selected component.");
 inline constexpr char lowerToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
@@ -303,15 +283,12 @@ inline constexpr char decreaseIndexOfStackedContainerToolTip[] = QT_TRANSLATE_NO
     "QmlDesignerContextMenu", "Decrease index of stacked container.");
 inline constexpr char addItemToStackedContainerToolTip[] = QT_TRANSLATE_NOOP(
     "QmlDesignerContextMenu", "Add component to stacked container.");
-inline constexpr char addFlowActionToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                 "Add flow action.");
 
 inline constexpr char editListModelDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                      "Edit List Model...");
 namespace Priorities {
 enum PrioritiesEnum : int {
     Top = 0,
-    FlowCategory,
     ComponentActions,
     /******** Section *****************************/
     ModifySection = 1000,

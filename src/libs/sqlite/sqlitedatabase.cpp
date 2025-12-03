@@ -58,7 +58,7 @@ Database::Database(Utils::PathString databaseFilePath,
     std::lock_guard lock{*this};
 
     setJournalMode(journalMode);
-    open(std::move(databaseFilePath), lockingMode);
+    open(std::move(databaseFilePath), journalMode, lockingMode);
 
 #ifdef SQLITE_REVERSE
     if (std::rand() % 2)
@@ -80,18 +80,25 @@ void Database::open(LockingMode lockingMode, const source_location &sourceLocati
         m_databaseBackend.setBusyTimeout(m_busyTimeout);
     else
         m_databaseBackend.registerBusyHandler(sourceLocation);
-    m_databaseBackend.setLockingMode(lockingMode, sourceLocation);
+    if (m_journalMode != JournalMode::Memory)
+        m_databaseBackend.setLockingMode(lockingMode, sourceLocation);
     m_databaseBackend.setJournalMode(m_journalMode, sourceLocation);
     registerTransactionStatements(sourceLocation);
     m_isOpen = true;
 }
 
 void Database::open(Utils::PathString &&databaseFilePath,
+                    JournalMode journalMode,
                     LockingMode lockingMode,
                     const source_location &sourceLocation)
 {
-    m_isInitialized = QFileInfo::exists(QString(databaseFilePath));
-    setDatabaseFilePath(std::move(databaseFilePath));
+    if (journalMode != JournalMode::Memory) {
+        m_isInitialized = QFileInfo::exists(QString(databaseFilePath));
+        setDatabaseFilePath(std::move(databaseFilePath));
+    } else {
+        setDatabaseFilePath(":memory:");
+    }
+
     open(lockingMode, sourceLocation);
 }
 

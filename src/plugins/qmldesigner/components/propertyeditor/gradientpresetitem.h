@@ -23,7 +23,6 @@ public:
     explicit GradientPresetItem();
     explicit GradientPresetItem(const QGradient &value, const QString &name = QString());
     explicit GradientPresetItem(const Preset number);
-    ~GradientPresetItem();
 
     enum Property {
         objectNameRole = 0,

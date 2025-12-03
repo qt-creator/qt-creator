@@ -68,11 +68,13 @@ void BundleHelper::createImporter()
         m_importer.get(),
         &BundleImporter::importFinished,
         m_view,
-        [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
+        [&](const QmlDesigner::TypeName &typeName, const QString &bundleId, bool typeAdded) {
             QTC_ASSERT(typeName.size(), return);
             if (isMaterialBundle(bundleId)) {
                 m_view->executeInTransaction("BundleHelper::createImporter", [&] {
                     Utils3D::createMaterial(m_view, typeName);
+                    if (typeAdded)
+                        m_view->resetPuppet();
                 });
             } else if (isItemBundle(bundleId)) {
                 ModelNode target = Utils3D::active3DSceneNode(m_view);
@@ -87,17 +89,20 @@ void BundleHelper::createImporter()
                         newNode.simplifiedTypeName(), "node"));
                     m_view->clearSelectedModelNodes();
                     m_view->selectModelNode(newNode);
-                    m_view->resetPuppet();
+                    if (typeAdded)
+                        m_view->resetPuppet();
                 });
             }
         });
 #else
     QObject::connect(m_importer.get(), &BundleImporter::importFinished, m_view,
-        [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
+        [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId, bool typeAdded) {
             QTC_ASSERT(metaInfo.isValid(), return);
             if (isMaterialBundle(bundleId)) {
                 m_view->executeInTransaction("BundleHelper::createImporter", [&] {
                     Utils3D::createMaterial(m_view, metaInfo);
+                    if (typeAdded)
+                        m_view->resetPuppet();
                 });
             } else if (isItemBundle(bundleId)) {
 
@@ -115,7 +120,8 @@ void BundleHelper::createImporter()
                         newNode.simplifiedTypeName(), "node"));
                     m_view->clearSelectedModelNodes();
                     m_view->selectModelNode(newNode);
-                    m_view->resetPuppet();
+                    if (typeAdded)
+                        m_view->resetPuppet();
                 });
             }
         });
@@ -245,7 +251,7 @@ void BundleHelper::exportBundle(const QList<ModelNode> &nodes, const QPixmap &ic
     m_remainingFiles = nodesToExport.size() + 1;
 
     for (const ModelNode &node : std::as_const(nodesToExport)) {
-        if (node.isComponent())
+        if (isProjectComponent(node))
             itemsArr.append(exportComponent(node));
         else
             itemsArr.append(exportNode(node, iconPixmap));
@@ -371,6 +377,93 @@ void BundleHelper::maybeCloseZip()
         m_zipWriter->close();
 }
 
+static QString nodeModuleName(const ModelNode &node, Model *model)
+{
+    using Storage::Info::ExportedTypeName;
+    using Storage::Module;
+
+    ExportedTypeName exportedName = node.exportedTypeName();
+    if (exportedName.moduleId) {
+        Module moduleStorageModule = model->projectStorageDependencies().modulesStorage.module(
+            exportedName.moduleId);
+        return moduleStorageModule.name.toQString();
+    }
+
+    return QString::fromUtf8(node.type()).left(node.type().lastIndexOf('.'));
+}
+
+static Storage::Info::ExportedTypeNames getTypeNamesForNode(const ModelNode &node)
+{
+    using Storage::Info::ExportedTypeName;
+    using Storage::Info::ExportedTypeNames;
+
+    const ModelNodes &allNodes = node.allSubModelNodesAndThisNode();
+    ExportedTypeNames typeNames;
+    typeNames.reserve(Utils::usize(allNodes));
+
+    for (const ModelNode &node : allNodes) {
+        ExportedTypeName exportedName = node.exportedTypeName();
+        if (exportedName.moduleId)
+            typeNames.push_back(exportedName);
+    }
+
+    std::sort(typeNames.begin(), typeNames.end());
+    typeNames.erase(std::unique(typeNames.begin(), typeNames.end()), typeNames.end());
+
+    return typeNames;
+}
+
+static QString getRelativePath(const std::string_view path, const Model *model)
+{
+    std::filesystem::path filePath{path};
+    std::filesystem::path modelPath(std::u16string_view(model->fileUrl().toLocalFile()));
+    return QString{filePath.lexically_relative(modelPath).generic_u16string()};
+}
+
+static Imports getRequiredImports(const ModelNode &node,
+                                  const ModulesStorage &modulesStorage,
+                                  Model *model)
+{
+    using Storage::Info::ExportedTypeName;
+    using Storage::Info::ExportedTypeNames;
+    using Storage::Module;
+    using Storage::ModuleKind;
+
+    auto createImport = [model](const Module &module) -> Import {
+        switch (module.kind) {
+        case ModuleKind::QmlLibrary:
+            return Import::createLibraryImport(module.name.toQString());
+        case ModuleKind::PathLibrary:
+            return Import::createFileImport(getRelativePath(module.name, model));
+        default:
+            return {};
+        };
+    };
+
+    ExportedTypeNames typeNames = getTypeNamesForNode(node);
+    std::ranges::sort(typeNames, {}, &ExportedTypeName::moduleId);
+    auto removedRanges = std::ranges::unique(typeNames, {}, &ExportedTypeName::moduleId);
+    typeNames.erase(removedRanges.begin(), removedRanges.end());
+
+    QVarLengthArray<Module, 32> modules;
+    for (const ExportedTypeName &typeName : typeNames) {
+        const Module &module = modulesStorage.module(typeName.moduleId);
+        if (module.kind == ModuleKind::QmlLibrary || module.kind == ModuleKind::PathLibrary)
+            modules.push_back(module);
+    }
+
+    std::ranges::sort(modules, {}, &Module::name);
+
+    Imports imports;
+    imports.reserve(typeNames.size());
+    for (const Module &module : modules) {
+        if (const Import &import = createImport(module); !import.isEmpty())
+            imports.append(import);
+    }
+
+    return imports;
+}
+
 QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNode &node, int depth)
 {
     static QStringList depListIds;
@@ -378,8 +471,38 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
     QString qml;
     QSet<AssetPath> assets;
 
+    if (node.metaInfo().isQtQmlConnections())
+        return {qml, assets};
+
     if (depth == 0) {
-        qml.append("import QtQuick\nimport QtQuick3D\n\n");
+        // add imports
+        Model *model = m_view->model();
+        ModulesStorage &modulesStorage = model->projectStorageDependencies().modulesStorage;
+
+        Imports imports = getRequiredImports(node, modulesStorage, model);
+        auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+        const QString materialsBundleType = compUtils.materialsBundleType();
+
+        // For the exported components we should move Bundles.Materials dependencies to Bundles.UserMaterials
+        // In order to make them portable. So we need to change the imports here as well.
+        for (Import &import : imports) {
+            if (!import.isLibraryImport())
+                continue;
+
+            if (QString importUrl = import.url(); importUrl == materialsBundleType) {
+                importUrl.replace(materialsBundleType, compUtils.userMaterialsBundleType());
+                import = Import::createLibraryImport(importUrl,
+                                                     import.version(),
+                                                     import.alias(),
+                                                     import.importPaths());
+            }
+        }
+
+        QString importsStr = Utils::transform(imports, &Import::toImportString).join(QChar::LineFeed);
+        if (!importsStr.isEmpty())
+            importsStr.append(QString(2, QChar::LineFeed));
+
+        qml.append(importsStr);
         depListIds.clear();
     }
 
@@ -389,7 +512,10 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
 
     indent = QString(" ").repeated((depth + 1) * 4);
 
-    qml += indent + "id: " + (depth == 0 ? "root" : node.id()) + " \n\n";
+    if (!node.id().isEmpty()) {
+        depListIds.append(node.id());
+        qml += indent + "id: " + node.id() + " \n\n";
+    }
 
     const QList<PropertyName> excludedProps = {"x", "y", "z", "eulerRotation.x", "eulerRotation.y",
                                                "eulerRotation.z", "scale.x", "scale.y", "scale.z",
@@ -438,7 +564,6 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
                 QTC_ASSERT(depNode.isValid(), continue);
 
                 if (depNode && !depListIds.contains(depNode.id())) {
-                    depListIds.append(depNode.id());
                     auto [depQml, depAssets] = modelNodeToQmlString(depNode, depth + 1);
                     qml += "\n" + depQml + "\n";
                     assets.unite(depAssets);
@@ -451,7 +576,6 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
     const ModelNodes nodeChildren = node.directSubModelNodes();
     for (const ModelNode &childNode : nodeChildren) {
         if (childNode && !depListIds.contains(childNode.id())) {
-            depListIds.append(childNode.id());
             auto [depQml, depAssets] = modelNodeToQmlString(childNode, depth + 1);
             qml += "\n" + depQml + "\n";
             assets.unite(depAssets);
@@ -462,9 +586,10 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
 
     qml += indent + "}\n";
 
-    if (node.isComponent()) {
+    if (isProjectComponent(node)) {
         auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-        bool isBundle = node.type().startsWith(compUtils.componentBundlesTypePrefix().toLatin1());
+        bool isBundle = nodeModuleName(node, node.model())
+                            .startsWith(compUtils.componentBundlesTypePrefix() + ".");
 
         if (depth > 0) {
             // add component file to the dependency assets
@@ -472,9 +597,11 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
             assets.insert({compFilePath.parentDir(), compFilePath.fileName()});
         }
 
-        // TODO: use getComponentDependencies() and remove getBundleComponentDependencies()
-        if (isBundle)
-            assets.unite(getBundleComponentDependencies(node));
+        if (isBundle) {
+            Utils::FilePath compFilePath = componentPath(node);
+            Utils::FilePath compDir = compFilePath.parentDir();
+            assets.unite(getComponentDependencies(compFilePath, compDir));
+        }
     }
 
     return {qml, assets};
@@ -540,7 +667,7 @@ void BundleHelper::getImageFromCache(const QString &qmlPath,
     QmlDesignerPlugin::imageCache().requestSmallImage(
         Utils::PathString{qmlPath},
         successCallback,
-        [&](ImageCache::AbortReason abortReason) {
+        [qmlPath](ImageCache::AbortReason abortReason) {
             if (abortReason == ImageCache::AbortReason::Abort) {
                 qWarning() << QLatin1String("ContentLibraryView::getImageFromCache(): icon generation "
                                             "failed for path %1, reason: Abort").arg(qmlPath);
@@ -689,7 +816,9 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
     textEdit.setPlainText(QString::fromUtf8(*res));
     NotIndentingTextEditModifier modifier(textEdit.document());
     modifier.setParent(model.get());
-    RewriterView rewriterView(m_view->externalDependencies(), RewriterView::Validate);
+    RewriterView rewriterView(m_view->externalDependencies(),
+                              model->projectStorageDependencies().modulesStorage,
+                              RewriterView::Validate);
     rewriterView.setCheckSemanticErrors(false);
     rewriterView.setTextModifier(&modifier);
     model->attachView(&rewriterView);
@@ -699,12 +828,27 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 
     std::function<void(const ModelNode &node)> parseNode;
     parseNode = [&](const ModelNode &node) {
+#ifdef QDS_USE_PROJECTSTORAGE
+        if (isProjectComponent(node)) {
+            Utils::FilePath compFilePath = Utils::FilePath::fromString(ModelUtils::componentFilePath(node));
+            if (!compFilePath.isEmpty()) {
+                Utils::FilePath compDir = compFilePath.isChildOf(mainCompDir)
+                                              ? mainCompDir : compFilePath.parentDir();
+                depList.unite(getComponentDependencies(compFilePath, compDir));
+
+                // for sub components, mark their imports to be removed from their parent component
+                // as they will be moved to the same folder as the parent
+                QString import = nodeModuleName(node, node.model());
+                if (model->hasImport(import))
+                    compAssetPath.importsToRemove.append(import);
+
+                return;
+            }
+        }
+#else
         // workaround node.isComponent() as it is not working here
         QString nodeType = QString::fromLatin1(node.type());
 
-#ifdef QDS_USE_PROJECTSTORAGE
-    // TODO
-#else
         if (!nodeType.startsWith("QtQuick")) {
             Utils::FilePath compFilPath = getComponentFilePath(nodeType, mainCompDir);
             if (!compFilPath.isEmpty()) {
@@ -778,5 +922,15 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 
     return depList;
 }
+
+bool BundleHelper::isProjectComponent(const ModelNode &node) const
+{
+    if (node.isComponent()) {
+        const QString projPath = m_view->externalDependencies().currentProjectDirPath();
+        const QString compFilePath = ModelUtils::componentFilePath(node);
+        return compFilePath.startsWith(projPath);
+    }
+    return false;
+};
 
 } // namespace QmlDesigner

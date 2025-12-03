@@ -32,6 +32,8 @@ public:
     void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void exportedTypeNamesChanged(const ExportedTypeNames &added,
+                                  const ExportedTypeNames &removed) override;
 
 protected:
     void updateImports();

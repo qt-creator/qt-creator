@@ -17,7 +17,7 @@
     translations from a JSON file.
 
     You need to download the starting project for this tutorial from
-    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/multi-language%20tutorial/Loginui2}{here}
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui2}{here}
     before you start.
 
     This project consists of a login page with a couple of text elements.
@@ -27,7 +27,7 @@
 
     \include run-tutorial-project.qdocinc
 
-    \section1 The JSON translation file
+    \section1 JSON translation file
 
     The JSON translation file you are using in this project has the following
     structure:
@@ -142,7 +142,7 @@
     \list 1
       \li Go to \uicontrol View > \uicontrol Views and select \uicontrol
       Translations to open the \uicontrol Translations view. You can
-      drag it to a \l {Managing workspaces}{workspace} to dock it.
+      drag it to a \l {Workspaces}{workspace} to dock it.
       \li In \uicontrol Translations, select \imageselectlanguages.
       \li Select the languages that you want to support in your project.
       For this tutorial, select \uicontrol{English - American English} and

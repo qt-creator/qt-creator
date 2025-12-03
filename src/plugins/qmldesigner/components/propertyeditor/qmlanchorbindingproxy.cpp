@@ -3,6 +3,8 @@
 
 #include "qmlanchorbindingproxy.h"
 
+#include "propertyeditortracing.h"
+
 #include <abstractview.h>
 #include <exception.h>
 #include <modelnodeoperations.h>
@@ -22,6 +24,9 @@ class ModelNode;
 class NodeState;
 
 namespace {
+
+using QmlDesigner::PropertyEditorTracing::category;
+
 const Utils::SmallString auxDataString("anchors_");
 
 Utils::SmallString auxPropertyString(Utils::SmallStringView name)
@@ -47,12 +52,18 @@ QmlAnchorBindingProxy::QmlAnchorBindingProxy(QObject *parent) :
     m_relativeVerticalTarget(Center), m_relativeHorizontalTarget(Center),
     m_locked(false), m_ignoreQml(false)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy constructor", category()};
 }
 
-QmlAnchorBindingProxy::~QmlAnchorBindingProxy() = default;
+QmlAnchorBindingProxy::~QmlAnchorBindingProxy()
+{
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy destructor", category()};
+}
 
 void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy setup", category()};
+
     m_qmlItemNode = fxItemNode;
 
     m_ignoreQml = true;
@@ -80,6 +91,8 @@ void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
 
 void QmlAnchorBindingProxy::invalidate(const QmlItemNode &fxItemNode)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy invalidate", category()};
+
     if (m_locked)
         return;
 
@@ -92,13 +105,8 @@ void QmlAnchorBindingProxy::invalidate(const QmlItemNode &fxItemNode)
         return node.modelNode().parentProperty().parentModelNode();
     };
 
-    m_verticalTarget =
-            m_horizontalTarget =
-            m_topTarget =
-            m_bottomTarget =
-            m_leftTarget =
-            m_rightTarget =
-            parentModelNode(m_qmlItemNode);
+    m_verticalTarget = m_horizontalTarget = m_topTarget = m_bottomTarget = m_leftTarget = m_rightTarget = parentModelNode(
+        m_qmlItemNode);
 
     setupAnchorTargets();
 
@@ -121,6 +129,8 @@ void QmlAnchorBindingProxy::invalidate(const QmlItemNode &fxItemNode)
 
 void QmlAnchorBindingProxy::setupAnchorTargets()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy setup anchor targets", category()};
+
     if (m_qmlItemNode.modelNode().hasParentProperty())
         setDefaultAnchorTarget(m_qmlItemNode.modelNode().parentProperty().parentModelNode());
     else
@@ -209,7 +219,9 @@ void QmlAnchorBindingProxy::setupAnchorTargets()
     }
 
     if (horizontalCentered()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineHorizontalCenter).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors()
+                                   .instanceAnchor(AnchorLineHorizontalCenter)
+                                   .qmlItemNode();
         if (targetNode.isValid())
             m_horizontalTarget = targetNode;
     }
@@ -217,6 +229,8 @@ void QmlAnchorBindingProxy::setupAnchorTargets()
 
 void QmlAnchorBindingProxy::emitAnchorSignals()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy emit anchor signals", category()};
+
     emit topAnchorChanged();
     emit bottomAnchorChanged();
     emit leftAnchorChanged();
@@ -233,6 +247,8 @@ void QmlAnchorBindingProxy::emitAnchorSignals()
 
 void QmlAnchorBindingProxy::setDefaultRelativeTopTarget()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set default relative top target", category()};
+
     if (m_topTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
         m_relativeTopTarget = SameEdge;
     } else {
@@ -242,6 +258,9 @@ void QmlAnchorBindingProxy::setDefaultRelativeTopTarget()
 
 void QmlAnchorBindingProxy::setDefaultRelativeBottomTarget()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set default relative bottom target",
+                               category()};
+
     if (m_bottomTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
         m_relativeBottomTarget = SameEdge;
     } else {
@@ -251,6 +270,9 @@ void QmlAnchorBindingProxy::setDefaultRelativeBottomTarget()
 
 void QmlAnchorBindingProxy::setDefaultRelativeLeftTarget()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set default relative left target",
+                               category()};
+
     if (m_leftTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
         m_relativeLeftTarget = SameEdge;
     } else {
@@ -260,6 +282,9 @@ void QmlAnchorBindingProxy::setDefaultRelativeLeftTarget()
 
 void QmlAnchorBindingProxy::setDefaultRelativeRightTarget()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set default relative right target",
+                               category()};
+
     if (m_rightTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
         m_relativeRightTarget = SameEdge;
     } else {
@@ -267,63 +292,77 @@ void QmlAnchorBindingProxy::setDefaultRelativeRightTarget()
     }
 }
 
-bool QmlAnchorBindingProxy::executeInTransaction(const QByteArray &identifier, const AbstractView::OperationBlock &lambda)
+bool QmlAnchorBindingProxy::executeInTransaction(const QByteArray &identifier,
+                                                 const AbstractView::OperationBlock &lambda)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy execute in transaction", category()};
+
     return m_qmlItemNode.modelNode().view()->executeInTransaction(identifier, lambda);
 }
 
 bool QmlAnchorBindingProxy::hasParent() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.hasNodeParent();
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy has parent", category()};
+
+    return m_qmlItemNode.hasNodeParent();
 }
 
 bool QmlAnchorBindingProxy::isInLayout() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy is in layout", category()};
+
     return m_qmlItemNode.isInLayout();
 }
 
 bool QmlAnchorBindingProxy::isFilled() const
 {
-    return m_qmlItemNode.isValid()
-            && hasAnchors()
-            && topAnchored()
-            && bottomAnchored()
-            && leftAnchored()
-            && rightAnchored()
-            && (m_qmlItemNode.instanceValue("anchors.topMargin").toInt() == 0)
-            && (m_qmlItemNode.instanceValue("anchors.bottomMargin").toInt() == 0)
-            && (m_qmlItemNode.instanceValue("anchors.leftMargin").toInt() == 0)
-            && (m_qmlItemNode.instanceValue("anchors.rightMargin").toInt() == 0);
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy is filled", category()};
+
+    return hasAnchors() && topAnchored() && bottomAnchored() && leftAnchored() && rightAnchored()
+           && (m_qmlItemNode.instanceValue("anchors.topMargin").toInt() == 0)
+           && (m_qmlItemNode.instanceValue("anchors.bottomMargin").toInt() == 0)
+           && (m_qmlItemNode.instanceValue("anchors.leftMargin").toInt() == 0)
+           && (m_qmlItemNode.instanceValue("anchors.rightMargin").toInt() == 0);
 }
 
 bool QmlAnchorBindingProxy::topAnchored() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineTop);
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy top anchored", category()};
+
+    return m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineTop);
 }
 
 bool QmlAnchorBindingProxy::bottomAnchored() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineBottom);
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy bottom anchored", category()};
+
+    return m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineBottom);
 }
 
 bool QmlAnchorBindingProxy::leftAnchored() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineLeft);
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy left anchored", category()};
+
+    return m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineLeft);
 }
 
 bool QmlAnchorBindingProxy::rightAnchored() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineRight);
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy right anchored", category()};
+
+    return m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineRight);
 }
 
 bool QmlAnchorBindingProxy::hasAnchors() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchors();
-}
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy has anchors", category()};
 
+    return m_qmlItemNode.anchors().instanceHasAnchors();
+}
 
 void QmlAnchorBindingProxy::setTopTarget(const QString &target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set top target", category()};
 
     if (m_ignoreQml)
         return;
@@ -336,7 +375,7 @@ void QmlAnchorBindingProxy::setTopTarget(const QString &target)
     if (!newTarget.isValid())
         return;
 
-    executeInTransaction("QmlAnchorBindingProxy::setTopTarget", [this, newTarget](){
+    executeInTransaction("QmlAnchorBindingProxy::setTopTarget", [this, newTarget]() {
         m_topTarget = newTarget;
         setDefaultRelativeTopTarget();
         anchorTop();
@@ -345,9 +384,10 @@ void QmlAnchorBindingProxy::setTopTarget(const QString &target)
     emit topTargetChanged();
 }
 
-
 void QmlAnchorBindingProxy::setBottomTarget(const QString &target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set bottom target", category()};
+
     if (m_ignoreQml)
         return;
 
@@ -359,11 +399,10 @@ void QmlAnchorBindingProxy::setBottomTarget(const QString &target)
     if (!newTarget.isValid())
         return;
 
-    executeInTransaction("QmlAnchorBindingProxy::setBottomTarget", [this, newTarget](){
+    executeInTransaction("QmlAnchorBindingProxy::setBottomTarget", [this, newTarget]() {
         m_bottomTarget = newTarget;
         setDefaultRelativeBottomTarget();
         anchorBottom();
-
     });
 
     emit bottomTargetChanged();
@@ -371,6 +410,8 @@ void QmlAnchorBindingProxy::setBottomTarget(const QString &target)
 
 void QmlAnchorBindingProxy::setLeftTarget(const QString &target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set left target", category()};
+
     if (m_ignoreQml)
         return;
 
@@ -382,7 +423,7 @@ void QmlAnchorBindingProxy::setLeftTarget(const QString &target)
     if (!newTarget.isValid())
         return;
 
-    executeInTransaction("QmlAnchorBindingProxy::setLeftTarget", [this, newTarget](){
+    executeInTransaction("QmlAnchorBindingProxy::setLeftTarget", [this, newTarget]() {
         m_leftTarget = newTarget;
         setDefaultRelativeLeftTarget();
         anchorLeft();
@@ -393,6 +434,8 @@ void QmlAnchorBindingProxy::setLeftTarget(const QString &target)
 
 void QmlAnchorBindingProxy::setRightTarget(const QString &target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set right target", category()};
+
     if (m_ignoreQml)
         return;
 
@@ -404,7 +447,7 @@ void QmlAnchorBindingProxy::setRightTarget(const QString &target)
     if (!newTarget.isValid())
         return;
 
-    executeInTransaction("QmlAnchorBindingProxy::setRightTarget", [this, newTarget](){
+    executeInTransaction("QmlAnchorBindingProxy::setRightTarget", [this, newTarget]() {
         m_rightTarget = newTarget;
         setDefaultRelativeRightTarget();
         anchorRight();
@@ -415,6 +458,8 @@ void QmlAnchorBindingProxy::setRightTarget(const QString &target)
 
 void QmlAnchorBindingProxy::setVerticalTarget(const QString &target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set vertical target", category()};
+
     if (m_ignoreQml)
         return;
 
@@ -426,7 +471,7 @@ void QmlAnchorBindingProxy::setVerticalTarget(const QString &target)
     if (!newTarget.isValid())
         return;
 
-    executeInTransaction("QmlAnchorBindingProxy::setVerticalTarget", [this, newTarget](){
+    executeInTransaction("QmlAnchorBindingProxy::setVerticalTarget", [this, newTarget]() {
         m_verticalTarget = newTarget;
         anchorVertical();
     });
@@ -436,6 +481,8 @@ void QmlAnchorBindingProxy::setVerticalTarget(const QString &target)
 
 void QmlAnchorBindingProxy::setHorizontalTarget(const QString &target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set horizontal target", category()};
+
     if (m_ignoreQml)
         return;
 
@@ -447,7 +494,7 @@ void QmlAnchorBindingProxy::setHorizontalTarget(const QString &target)
     if (!newTarget.isValid())
         return;
 
-    executeInTransaction("QmlAnchorBindingProxy::setHorizontalTarget", [this, newTarget](){
+    executeInTransaction("QmlAnchorBindingProxy::setHorizontalTarget", [this, newTarget]() {
         m_horizontalTarget = newTarget;
         anchorHorizontal();
     });
@@ -457,13 +504,15 @@ void QmlAnchorBindingProxy::setHorizontalTarget(const QString &target)
 
 void QmlAnchorBindingProxy::setRelativeAnchorTargetTop(QmlAnchorBindingProxy::RelativeAnchorTarget target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set relative anchor target top", category()};
+
     if (m_ignoreQml)
         return;
 
     if (target == m_relativeTopTarget)
         return;
 
-    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetTop", [this, target](){
+    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetTop", [this, target]() {
         m_relativeTopTarget = target;
         anchorTop();
     });
@@ -473,13 +522,16 @@ void QmlAnchorBindingProxy::setRelativeAnchorTargetTop(QmlAnchorBindingProxy::Re
 
 void QmlAnchorBindingProxy::setRelativeAnchorTargetBottom(QmlAnchorBindingProxy::RelativeAnchorTarget target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set relative anchor target bottom",
+                               category()};
+
     if (m_ignoreQml)
         return;
 
     if (target == m_relativeBottomTarget)
         return;
 
-    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetBottom", [this, target](){
+    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetBottom", [this, target]() {
         m_relativeBottomTarget = target;
         anchorBottom();
     });
@@ -489,16 +541,17 @@ void QmlAnchorBindingProxy::setRelativeAnchorTargetBottom(QmlAnchorBindingProxy:
 
 void QmlAnchorBindingProxy::setRelativeAnchorTargetLeft(QmlAnchorBindingProxy::RelativeAnchorTarget target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set relative anchor target left", category()};
+
     if (m_ignoreQml)
         return;
 
     if (target == m_relativeLeftTarget)
         return;
 
-    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetLeft", [this, target](){
+    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetLeft", [this, target]() {
         m_relativeLeftTarget = target;
         anchorLeft();
-
     });
 
     emit relativeAnchorTargetLeftChanged();
@@ -506,31 +559,36 @@ void QmlAnchorBindingProxy::setRelativeAnchorTargetLeft(QmlAnchorBindingProxy::R
 
 void QmlAnchorBindingProxy::setRelativeAnchorTargetRight(QmlAnchorBindingProxy::RelativeAnchorTarget target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set relative anchor target right",
+                               category()};
+
     if (m_ignoreQml)
         return;
 
     if (target == m_relativeRightTarget)
         return;
 
-    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetRight", [this, target](){
+    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetRight", [this, target]() {
         m_relativeRightTarget = target;
         anchorRight();
     });
 
     emit relativeAnchorTargetRightChanged();
-
 }
 
-void QmlAnchorBindingProxy::setRelativeAnchorTargetVertical(QmlAnchorBindingProxy::RelativeAnchorTarget target)
+void QmlAnchorBindingProxy::setRelativeAnchorTargetVertical(
+    QmlAnchorBindingProxy::RelativeAnchorTarget target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set relative anchor target vertical",
+                               category()};
+
     if (m_ignoreQml)
         return;
 
     if (target == m_relativeVerticalTarget)
         return;
 
-
-    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetVertical", [this, target](){
+    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetVertical", [this, target]() {
         m_relativeVerticalTarget = target;
         anchorVertical();
     });
@@ -538,15 +596,19 @@ void QmlAnchorBindingProxy::setRelativeAnchorTargetVertical(QmlAnchorBindingProx
     emit relativeAnchorTargetVerticalChanged();
 }
 
-void QmlAnchorBindingProxy::setRelativeAnchorTargetHorizontal(QmlAnchorBindingProxy::RelativeAnchorTarget target)
+void QmlAnchorBindingProxy::setRelativeAnchorTargetHorizontal(
+    QmlAnchorBindingProxy::RelativeAnchorTarget target)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set relative anchor target horizontal",
+                               category()};
+
     if (m_ignoreQml)
         return;
 
     if (target == m_relativeHorizontalTarget)
         return;
 
-    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetHorizontal", [this, target](){
+    executeInTransaction("QmlAnchorBindingProxy::setRelativeAnchorTargetHorizontal", [this, target]() {
         m_relativeHorizontalTarget = target;
         anchorHorizontal();
     });
@@ -556,6 +618,8 @@ void QmlAnchorBindingProxy::setRelativeAnchorTargetHorizontal(QmlAnchorBindingPr
 
 QStringList QmlAnchorBindingProxy::possibleTargetItems() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy possible target items", category()};
+
     QStringList stringList;
     if (!m_qmlItemNode.isValid())
         return stringList;
@@ -568,7 +632,8 @@ QStringList QmlAnchorBindingProxy::possibleTargetItems() const
     //We currently have no instanceChildren().
     //So we double check here if the instanceParents are equal.
     for (const QmlItemNode &node : std::as_const(itemList))
-        if (node.isValid() && (node.instanceParent().modelNode() != m_qmlItemNode.instanceParent().modelNode()))
+        if (node.isValid()
+            && (node.instanceParent().modelNode() != m_qmlItemNode.instanceParent().modelNode()))
             itemList.removeAll(node);
 
     for (const QmlItemNode &itemNode : std::as_const(itemList)) {
@@ -586,7 +651,9 @@ QStringList QmlAnchorBindingProxy::possibleTargetItems() const
 
 void QmlAnchorBindingProxy::registerDeclarativeType()
 {
-    qmlRegisterType<QmlAnchorBindingProxy>("HelperWidgets",2,0,"AnchorBindingProxy");
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy register declarative type", category()};
+
+    qmlRegisterType<QmlAnchorBindingProxy>("HelperWidgets", 2, 0, "AnchorBindingProxy");
 }
 
 int QmlAnchorBindingProxy::indexOfPossibleTargetItem(const QString &targetName) const
@@ -596,8 +663,9 @@ int QmlAnchorBindingProxy::indexOfPossibleTargetItem(const QString &targetName) 
 
 void QmlAnchorBindingProxy::resetLayout()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy reset layout", category()};
 
-    executeInTransaction("QmlAnchorBindingProxy::resetLayout", [this](){
+    executeInTransaction("QmlAnchorBindingProxy::resetLayout", [this]() {
         m_qmlItemNode.anchors().removeAnchors();
         m_qmlItemNode.anchors().removeMargins();
 
@@ -607,15 +675,17 @@ void QmlAnchorBindingProxy::resetLayout()
         restoreProperty(modelNode(), "height");
     });
 
-        emit topAnchorChanged();
-        emit bottomAnchorChanged();
-        emit leftAnchorChanged();
-        emit rightAnchorChanged();
-        emit anchorsChanged();
-    }
+    emit topAnchorChanged();
+    emit bottomAnchorChanged();
+    emit leftAnchorChanged();
+    emit rightAnchorChanged();
+    emit anchorsChanged();
+}
 
 void QmlAnchorBindingProxy::setBottomAnchor(bool anchor)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set bottom anchor", category()};
+
     if (!m_qmlItemNode.hasNodeParent())
         return;
 
@@ -644,6 +714,8 @@ void QmlAnchorBindingProxy::setBottomAnchor(bool anchor)
 
 void QmlAnchorBindingProxy::setLeftAnchor(bool anchor)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set left anchor", category()};
+
     if (!m_qmlItemNode.hasNodeParent())
         return;
 
@@ -673,6 +745,8 @@ void QmlAnchorBindingProxy::setLeftAnchor(bool anchor)
 
 void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set right anchor", category()};
+
     if (!m_qmlItemNode.hasNodeParent())
         return;
 
@@ -701,6 +775,8 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
 }
  QRectF QmlAnchorBindingProxy::parentBoundingBox()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy parent bounding box", category()};
+
     if (m_qmlItemNode.hasInstanceParent()) {
         if (m_qmlItemNode.instanceParentItem().instanceContentItemBoundingRect().isValid())
             return m_qmlItemNode.instanceParentItem().instanceContentItemBoundingRect();
@@ -712,6 +788,8 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
 
 QRectF QmlAnchorBindingProxy::boundingBox(const QmlItemNode &node)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy bounding box", category()};
+
     if (node.isValid())
         return node.instanceTransformWithContentTransform().mapRect(node.instanceBoundingRect());
 
@@ -720,11 +798,16 @@ QRectF QmlAnchorBindingProxy::boundingBox(const QmlItemNode &node)
 
 QRectF QmlAnchorBindingProxy::transformedBoundingBox()
 {
-    return m_qmlItemNode.instanceTransformWithContentTransform().mapRect(m_qmlItemNode.instanceBoundingRect());
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy transformed bounding box", category()};
+
+    return m_qmlItemNode.instanceTransformWithContentTransform().mapRect(
+        m_qmlItemNode.instanceBoundingRect());
 }
 
 void QmlAnchorBindingProxy::anchorTop()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy anchor top", category()};
+
     m_locked = true;
 
     bool topTargetIsParent = m_topTarget == m_qmlItemNode.instanceParentItem();
@@ -751,6 +834,8 @@ void QmlAnchorBindingProxy::anchorTop()
 
 void QmlAnchorBindingProxy::anchorBottom()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy anchor bottom", category()};
+
     m_locked = true;
 
     bool bottomTargetIsParent = m_bottomTarget == m_qmlItemNode.instanceParentItem();
@@ -777,6 +862,8 @@ void QmlAnchorBindingProxy::anchorBottom()
 
 void QmlAnchorBindingProxy::anchorLeft()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy anchor left", category()};
+
     m_locked = true;
 
     bool leftTargetIsParent = m_leftTarget == m_qmlItemNode.instanceParentItem();
@@ -803,6 +890,8 @@ void QmlAnchorBindingProxy::anchorLeft()
 
 void QmlAnchorBindingProxy::anchorRight()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy anchor right", category()};
+
     m_locked = true;
 
     bool rightTargetIsParent = m_rightTarget == m_qmlItemNode.instanceParentItem();
@@ -829,6 +918,8 @@ void QmlAnchorBindingProxy::anchorRight()
 
 void QmlAnchorBindingProxy::anchorVertical()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy anchor vertical", category()};
+
     m_locked = true;
     if (m_relativeVerticalTarget == SameEdge) {
         m_qmlItemNode.anchors().setAnchor(AnchorLineVerticalCenter, m_verticalTarget, AnchorLineRight);
@@ -844,6 +935,8 @@ void QmlAnchorBindingProxy::anchorVertical()
 
 void QmlAnchorBindingProxy::anchorHorizontal()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy anchor horizontal", category()};
+
     m_locked = true;
     if (m_relativeHorizontalTarget == SameEdge) {
         m_qmlItemNode.anchors().setAnchor(AnchorLineHorizontalCenter, m_horizontalTarget, AnchorLineRight);
@@ -858,6 +951,8 @@ void QmlAnchorBindingProxy::anchorHorizontal()
 
 QmlItemNode QmlAnchorBindingProxy::targetIdToNode(const QString &id) const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy target id to node", category()};
+
     QmlItemNode itemNode;
 
     if (m_qmlItemNode.isValid() && m_qmlItemNode.view()) {
@@ -873,6 +968,8 @@ QmlItemNode QmlAnchorBindingProxy::targetIdToNode(const QString &id) const
 
 QString QmlAnchorBindingProxy::idForNode(const QmlItemNode &qmlItemNode) const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy id for node", category()};
+
     if (!qmlItemNode.modelNode().isValid())
         return {};
 
@@ -887,11 +984,15 @@ QString QmlAnchorBindingProxy::idForNode(const QmlItemNode &qmlItemNode) const
 
 ModelNode QmlAnchorBindingProxy::modelNode() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy model node", category()};
+
     return m_qmlItemNode.modelNode();
 }
 
 void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set top anchor", category()};
+
     if (!m_qmlItemNode.hasNodeParent())
         return ;
 
@@ -918,7 +1019,9 @@ void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
 }
 
 void QmlAnchorBindingProxy::removeTopAnchor() {
-    executeInTransaction("QmlAnchorBindingProxy::removeTopAnchor", [this](){
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy remove top anchor", category()};
+
+    executeInTransaction("QmlAnchorBindingProxy::removeTopAnchor", [this]() {
         m_qmlItemNode.anchors().removeAnchor(AnchorLineTop);
         m_qmlItemNode.anchors().removeMargin(AnchorLineTop);
 
@@ -930,7 +1033,9 @@ void QmlAnchorBindingProxy::removeTopAnchor() {
 
 void QmlAnchorBindingProxy::removeBottomAnchor()
 {
-    executeInTransaction("QmlAnchorBindingProxy::removeBottomAnchor", [this](){
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy remove bottom anchor", category()};
+
+    executeInTransaction("QmlAnchorBindingProxy::removeBottomAnchor", [this]() {
         m_qmlItemNode.anchors().removeAnchor(AnchorLineBottom);
         m_qmlItemNode.anchors().removeMargin(AnchorLineBottom);
 
@@ -942,7 +1047,9 @@ void QmlAnchorBindingProxy::removeBottomAnchor()
 
 void QmlAnchorBindingProxy::removeLeftAnchor()
 {
-    executeInTransaction("QmlAnchorBindingProxy::removeLeftAnchor", [this](){
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy remove left anchor", category()};
+
+    executeInTransaction("QmlAnchorBindingProxy::removeLeftAnchor", [this]() {
         m_qmlItemNode.anchors().removeAnchor(AnchorLineLeft);
         m_qmlItemNode.anchors().removeMargin(AnchorLineLeft);
 
@@ -954,7 +1061,9 @@ void QmlAnchorBindingProxy::removeLeftAnchor()
 
 void QmlAnchorBindingProxy::removeRightAnchor()
 {
-    executeInTransaction("QmlAnchorBindingProxy::removeRightAnchor", [this](){
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy remove right anchor", category()};
+
+    executeInTransaction("QmlAnchorBindingProxy::removeRightAnchor", [this]() {
         m_qmlItemNode.anchors().removeAnchor(AnchorLineRight);
         m_qmlItemNode.anchors().removeMargin(AnchorLineRight);
 
@@ -966,6 +1075,8 @@ void QmlAnchorBindingProxy::removeRightAnchor()
 
 void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set vertical centered", category()};
+
     if (!m_qmlItemNode.hasNodeParent())
         return ;
 
@@ -1000,6 +1111,8 @@ void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
 
 void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set horizontal centered", category()};
+
     if (!m_qmlItemNode.hasNodeParent())
         return ;
 
@@ -1033,46 +1146,65 @@ void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
 
 bool QmlAnchorBindingProxy::verticalCentered()
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineVerticalCenter);
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy vertical centered", category()};
+
+    return m_qmlItemNode.isValid()
+           && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineVerticalCenter);
 }
 
 QString QmlAnchorBindingProxy::topTarget() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy top target", category()};
+
     return idForNode(m_topTarget);
 }
 
 QString QmlAnchorBindingProxy::bottomTarget() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy bottom target", category()};
+
     return idForNode(m_bottomTarget);
 }
 
 QString QmlAnchorBindingProxy::leftTarget() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy left target", category()};
+
     return idForNode(m_leftTarget);
 }
 
 QString QmlAnchorBindingProxy::rightTarget() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy right target", category()};
+
     return idForNode(m_rightTarget);
 }
 
 QmlAnchorBindingProxy::RelativeAnchorTarget QmlAnchorBindingProxy::relativeAnchorTargetTop() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy relative anchor target top", category()};
+
     return m_relativeTopTarget;
 }
 
 QmlAnchorBindingProxy::RelativeAnchorTarget QmlAnchorBindingProxy::relativeAnchorTargetBottom() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy relative anchor target bottom", category()};
+
     return m_relativeBottomTarget;
 }
 
 QmlAnchorBindingProxy::RelativeAnchorTarget QmlAnchorBindingProxy::relativeAnchorTargetLeft() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy relative anchor target left", category()};
+
     return m_relativeLeftTarget;
 }
 
 QmlAnchorBindingProxy::RelativeAnchorTarget QmlAnchorBindingProxy::relativeAnchorTargetRight() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy relative anchor target right", category()};
+
     return m_relativeRightTarget;
 }
 
@@ -1083,16 +1215,23 @@ QmlAnchorBindingProxy::RelativeAnchorTarget QmlAnchorBindingProxy::relativeAncho
 
 QmlAnchorBindingProxy::RelativeAnchorTarget QmlAnchorBindingProxy::relativeAnchorTargetHorizontal() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy relative anchor target horizontal",
+                               category()};
+
     return m_relativeHorizontalTarget;
 }
 
 QString QmlAnchorBindingProxy::verticalTarget() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy vertical target", category()};
+
     return idForNode(m_verticalTarget);
 }
 
 QString QmlAnchorBindingProxy::horizontalTarget() const
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy horizontal target", category()};
+
     return idForNode(m_horizontalTarget);
 }
 
@@ -1103,6 +1242,8 @@ bool QmlAnchorBindingProxy::horizontalCentered()
 
 void QmlAnchorBindingProxy::fill()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy fill", category()};
+
     executeInTransaction("QmlAnchorBindingProxy::fill", [this](){
         backupPropertyAndRemove(modelNode(), "x");
         backupPropertyAndRemove(modelNode(), "y");
@@ -1127,6 +1268,8 @@ void QmlAnchorBindingProxy::fill()
 
 void QmlAnchorBindingProxy::centerIn()
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy center in", category()};
+
     executeInTransaction("QmlAnchorBindingProxy::centerIn", [this]() {
         backupPropertyAndRemove(modelNode(), "x");
         backupPropertyAndRemove(modelNode(), "y");
@@ -1144,6 +1287,8 @@ void QmlAnchorBindingProxy::centerIn()
 
 void QmlAnchorBindingProxy::setDefaultAnchorTarget(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"qml anchor binding proxy set default anchor target", category()};
+
     m_verticalTarget = modelNode;
     m_horizontalTarget = modelNode;
     m_topTarget = modelNode;

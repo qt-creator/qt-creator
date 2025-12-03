@@ -4,6 +4,7 @@
 #include "rotationtool.h"
 
 #include "formeditorscene.h"
+#include "formeditortracing.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
 
@@ -15,6 +16,8 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 RotationTool::RotationTool(FormEditorView *editorView)
     : AbstractFormEditorTool(editorView)
     , m_selectionIndicator(editorView->scene()->manipulatorLayerItem())
@@ -22,6 +25,7 @@ RotationTool::RotationTool(FormEditorView *editorView)
     , m_anchorIndicator(editorView->scene()->manipulatorLayerItem())
     , m_rotationManipulator(editorView->scene()->manipulatorLayerItem(), editorView)
 {
+    NanotraceHR::Tracer tracer{"resize tool constructor", category()};
 }
 
 RotationTool::~RotationTool() = default;
@@ -30,6 +34,8 @@ RotationTool::~RotationTool() = default;
 void RotationTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
                                             QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"rotation tool mouse press event", category()};
+
     if (event->button() == Qt::LeftButton) {
         if (itemList.isEmpty())
             return;
@@ -49,6 +55,8 @@ void RotationTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
 void RotationTool::mouseMoveEvent(const QList<QGraphicsItem*> &,
                                            QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"rotation tool mouse move event", category()};
+
     if (m_rotationManipulator.isActive())
         m_rotationManipulator.update(event->scenePos(), event->modifiers());
 }
@@ -56,9 +64,11 @@ void RotationTool::mouseMoveEvent(const QList<QGraphicsItem*> &,
 void RotationTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
                         QGraphicsSceneMouseEvent * /*event*/)
 {
+    NanotraceHR::Tracer tracer{"rotation tool hover move event", category()};
+
     if (itemList.isEmpty()) {
-       view()->changeToSelectionTool();
-       return;
+        view()->changeToSelectionTool();
+        return;
     }
 
     RotationHandleItem* rotationHandle = RotationHandleItem::fromGraphicsItem(itemList.constFirst());
@@ -84,6 +94,8 @@ void RotationTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGra
 void RotationTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
                                               QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"rotation tool mouse release event", category()};
+
     if (m_rotationManipulator.isActive()) {
         if (itemList.isEmpty())
             return;
@@ -104,25 +116,29 @@ void RotationTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> & /*itemLis
 
 void RotationTool::keyPressEvent(QKeyEvent * event)
 {
+    NanotraceHR::Tracer tracer{"rotation tool key press event", category()};
+
     switch (event->key()) {
-        case Qt::Key_Shift:
-        case Qt::Key_Alt:
-        case Qt::Key_Control:
-        case Qt::Key_AltGr:
-            event->setAccepted(false);
-            return;
+    case Qt::Key_Shift:
+    case Qt::Key_Alt:
+    case Qt::Key_Control:
+    case Qt::Key_AltGr:
+        event->setAccepted(false);
+        return;
     }
 }
 
 void RotationTool::keyReleaseEvent(QKeyEvent * keyEvent)
 {
-     switch (keyEvent->key()) {
-        case Qt::Key_Shift:
-        case Qt::Key_Alt:
-        case Qt::Key_Control:
-        case Qt::Key_AltGr:
-            keyEvent->setAccepted(false);
-            return;
+    NanotraceHR::Tracer tracer{"rotation tool mouse release event", category()};
+
+    switch (keyEvent->key()) {
+    case Qt::Key_Shift:
+    case Qt::Key_Alt:
+    case Qt::Key_Control:
+    case Qt::Key_AltGr:
+        keyEvent->setAccepted(false);
+        return;
     }
 }
 
@@ -133,6 +149,8 @@ void RotationTool::itemsAboutToRemoved(const QList<FormEditorItem*> & /*itemList
 
 void RotationTool::selectedItemsChanged(const QList<FormEditorItem*> & /*itemList*/)
 {
+    NanotraceHR::Tracer tracer{"rotation tool selected items changed", category()};
+
     m_selectionIndicator.setItems(items());
     m_rotationIndicator.setItems(items());
     m_anchorIndicator.setItems(items());
@@ -140,6 +158,8 @@ void RotationTool::selectedItemsChanged(const QList<FormEditorItem*> & /*itemLis
 
 void RotationTool::clear()
 {
+    NanotraceHR::Tracer tracer{"rotation tool clear", category()};
+
     m_selectionIndicator.clear();
     m_rotationIndicator.clear();
     m_anchorIndicator.clear();
@@ -148,6 +168,8 @@ void RotationTool::clear()
 
 void RotationTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"rotation tool form editor items changed", category()};
+
     const QList<FormEditorItem*> selectedItemList = filterSelectedModelNodes(itemList);
 
     m_selectionIndicator.updateItems(selectedItemList);

@@ -11,75 +11,133 @@
 
 namespace QmlDesigner {
 
-ModelNode QmlModelStateOperation::target() const
+using NanotraceHR::keyValue;
+
+using ModelTracing::category;
+
+ModelNode QmlModelStateOperation::target(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state operation target",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().property("target").isBindingProperty())
         return modelNode().bindingProperty("target").resolveToModelNode();
     else
         return ModelNode(); //exception?
 }
 
-void QmlModelStateOperation::setTarget(const ModelNode &target)
+void QmlModelStateOperation::setTarget(const ModelNode &target, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state operation set target",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target", target),
+                               keyValue("caller location", sl)};
+
     modelNode().bindingProperty("target").setExpression(target.id());
 }
 
-bool QmlModelStateOperation::explicitValue() const
+bool QmlModelStateOperation::explicitValue(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state operation explicit value",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().property("explicit").isVariantProperty())
         return modelNode().variantProperty("explicit").value().toBool();
 
     return false;
 }
 
-void QmlModelStateOperation::setExplicitValue(bool value)
+void QmlModelStateOperation::setExplicitValue(bool value, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state operation set explicit value",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("value", value),
+                               keyValue("caller location", sl)};
+
     modelNode().variantProperty("explicit").setValue(value);
 }
 
-bool QmlModelStateOperation::restoreEntryValues() const
+bool QmlModelStateOperation::restoreEntryValues(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state operation restore entry values",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().property("restoreEntryValues").isVariantProperty())
         return modelNode().variantProperty("restoreEntryValues").value().toBool();
 
     return false;
 }
 
-void QmlModelStateOperation::setRestoreEntryValues(bool value)
+void QmlModelStateOperation::setRestoreEntryValues(bool value, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state operation set restore entry values",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("value", value),
+                               keyValue("caller location", sl)};
+
     modelNode().variantProperty("restoreEntryValues").setValue(value);
 }
 
-QList<AbstractProperty> QmlModelStateOperation::targetProperties() const
+QList<AbstractProperty> QmlModelStateOperation::targetProperties(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state operation target properties",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return Utils::filtered(modelNode().properties(), [](const AbstractProperty &property) {
         const QList<PropertyName> ignore = {"target", "explicit", "restoreEntryValues"};
         return !ignore.contains(property.name());
     });
 }
 
-bool QmlPropertyChanges::isValid() const
+bool QmlPropertyChanges::isValid(SL sl) const
 {
-    return isValidQmlPropertyChanges(modelNode());
+    return isValidQmlPropertyChanges(modelNode(), sl);
 }
 
-bool QmlPropertyChanges::isValidQmlPropertyChanges(const ModelNode &modelNode)
+bool QmlPropertyChanges::isValidQmlPropertyChanges(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"is valid qml property changes",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
     return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isQtQuickPropertyChanges();
 }
 
-bool QmlModelStateOperation::isValid() const
+bool QmlModelStateOperation::isValid(SL sl) const
 {
-    return isValidQmlModelStateOperation(modelNode());
+    return isValidQmlModelStateOperation(modelNode(), sl);
 }
 
-bool QmlModelStateOperation::isValidQmlModelStateOperation(const ModelNode &modelNode)
+bool QmlModelStateOperation::isValidQmlModelStateOperation(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"is valid qml model state operation",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
     return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isQtQuickStateOperation();
 }
 
-void QmlPropertyChanges::removeProperty(PropertyNameView name)
+void QmlPropertyChanges::removeProperty(PropertyNameView name, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml property changes remove property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("property name", name),
+                               keyValue("caller location", sl)};
+
     RewriterTransaction transaction(view()->beginRewriterTransaction(QByteArrayLiteral("QmlPropertyChanges::removeProperty")));
     if (name == "name")
         return;

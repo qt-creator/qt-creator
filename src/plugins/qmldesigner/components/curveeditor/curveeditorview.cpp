@@ -71,9 +71,9 @@ void CurveEditorView::modelAboutToBeDetached(Model *model)
 
 bool dirtyfiesView(const ModelNode &node)
 {
-    return (node.type() == "QtQuick.Timeline.Keyframe" && node.hasParentProperty())
-        || QmlTimeline::isValidQmlTimeline(node)
-        || QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(node);
+    return (node.metaInfo().isQtQuickTimelineKeyframe() && node.hasParentProperty())
+           || QmlTimeline::isValidQmlTimeline(node)
+           || QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(node);
 }
 
 void CurveEditorView::nodeRemoved([[maybe_unused]] const ModelNode &removedNode,
@@ -188,13 +188,11 @@ QmlTimeline CurveEditorView::activeTimeline() const
 
     for (const ModelNode &node : allModelNodesOfType(model()->qtQuickTimelineTimelineMetaInfo())) {
         if (QmlTimeline::isValidQmlTimeline(node) && state.affectsModelNode(node)) {
-            QmlPropertyChanges propertyChanges(state.propertyChanges(node));
-            if (!propertyChanges.isValid())
-                continue;
-
-            if (propertyChanges.modelNode().hasProperty("enabled") &&
-                propertyChanges.modelNode().variantProperty("enabled").value().toBool())
+            if (QmlPropertyChanges propertyChanges = state.propertyChangesForTarget(node)) {
+                if (propertyChanges.modelNode().hasProperty("enabled")
+                    && propertyChanges.modelNode().variantProperty("enabled").value().toBool())
                     return QmlTimeline(node);
+            }
         }
     }
     return {};

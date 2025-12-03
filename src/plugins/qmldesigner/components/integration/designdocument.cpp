@@ -22,6 +22,9 @@
 #include <utils3d.h>
 #include <variantproperty.h>
 #include <viewmanager.h>
+#include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
+#include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -56,6 +59,8 @@ enum {
 
 namespace QmlDesigner {
 
+using ProjectManagingTracing::category;
+
 /**
   \class QmlDesigner::DesignDocument
 
@@ -64,33 +69,48 @@ namespace QmlDesigner {
   */
 DesignDocument::DesignDocument([[maybe_unused]] const QUrl &filePath,
                                ProjectStorageDependencies projectStorageDependencies,
-                               ExternalDependenciesInterface &externalDependencies)
-#ifdef QDS_USE_PROJECTSTORAGE
-    : m_documentModel(Model::create(projectStorageDependencies,
-                                    "Item",
-                                    {Import::createLibraryImport("QtQuick")},
-                                    filePath,
-                                    std::make_unique<ModelResourceManagement>()))
-#else
-    : m_documentModel(
-        Model::create("QtQuick.Item", 1, 0, nullptr, std::make_unique<ModelResourceManagement>()))
-    , m_subComponentManager(new SubComponentManager(m_documentModel.get(), externalDependencies))
-#endif
-    , m_rewriterView(new RewriterView(externalDependencies, RewriterView::Amend))
-    , m_documentLoaded(false)
+                               ExternalDependenciesInterface &externalDependencies,
+                               ModulesStorage &modulesStorage)
+    : m_documentLoaded(false)
     , m_currentTarget(nullptr)
     , m_projectStorageDependencies(projectStorageDependencies)
     , m_externalDependencies{externalDependencies}
+    , m_modulesStorage{modulesStorage}
 {
+    NanotraceHR::Tracer tracer{"design document constructor", category()};
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    m_documentModel = Model::create(projectStorageDependencies,
+                                    "Item",
+                                    {Import::createLibraryImport("QtQuick")},
+                                    filePath,
+                                    std::make_unique<ModelResourceManagement>());
+#else
+    m_documentModel = Model::create("QtQuick.Item",
+                                    1,
+                                    0,
+                                    nullptr,
+                                    std::make_unique<ModelResourceManagement>());
+    m_subComponentManager.reset(new SubComponentManager(m_documentModel.get(), externalDependencies));
+#endif
+    m_rewriterView = std::make_unique<RewriterView>(externalDependencies,
+                                                    modulesStorage,
+                                                    RewriterView::Amend);
+
 #ifndef QDS_USE_PROJECTSTORAGE
     m_rewriterView->setIsDocumentRewriterView(true);
 #endif
 }
 
-DesignDocument::~DesignDocument() = default;
+DesignDocument::~DesignDocument()
+{
+    NanotraceHR::Tracer tracer{"design document destructor", category()};
+}
 
 Model *DesignDocument::currentModel() const
 {
+    NanotraceHR::Tracer tracer{"design document current model", category()};
+
     if (m_inFileComponentModel) {
         return m_inFileComponentModel.get();
     }
@@ -100,21 +120,29 @@ Model *DesignDocument::currentModel() const
 
 Model *DesignDocument::documentModel() const
 {
+    NanotraceHR::Tracer tracer{"design document document model", category()};
+
     return m_documentModel.get();
 }
 
 QWidget *DesignDocument::centralWidget() const
 {
-    return qobject_cast<QWidget*>(parent());
+    NanotraceHR::Tracer tracer{"design document central widget", category()};
+
+    return qobject_cast<QWidget *>(parent());
 }
 
 const ViewManager &DesignDocument::viewManager() const
 {
+    NanotraceHR::Tracer tracer{"design document view manager", category()};
+
     return QmlDesignerPlugin::instance()->viewManager();
 }
 
 ViewManager &DesignDocument::viewManager()
 {
+    NanotraceHR::Tracer tracer{"design document view manager", category()};
+
     return QmlDesignerPlugin::instance()->viewManager();
 }
 
@@ -145,6 +173,8 @@ static ComponentTextModifier *createComponentTextModifier(TextModifier *original
 
 bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
 {
+    NanotraceHR::Tracer tracer{"design document load in file component", category()};
+
     QString componentText = rewriterView()->extractText({componentNode}).value(componentNode);
 
     if (componentText.isEmpty())
@@ -163,11 +193,15 @@ bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
 
 const AbstractView *DesignDocument::view() const
 {
+    NanotraceHR::Tracer tracer{"design document view", category()};
+
     return viewManager().view();
 }
 
 ModelPointer DesignDocument::createInFileComponentModel()
 {
+    NanotraceHR::Tracer tracer{"design document create in file component model", category()};
+
 #ifdef QDS_USE_PROJECTSTORAGE
     auto model = m_documentModel->createModel("Item", std::make_unique<ModelResourceManagement>());
 #else
@@ -185,6 +219,8 @@ ModelPointer DesignDocument::createInFileComponentModel()
 
 bool DesignDocument::pasteSVG()
 {
+    NanotraceHR::Tracer tracer{"design document paste SVG", category()};
+
     SVGPasteAction svgPasteAction;
 
     if (!svgPasteAction.containsSVG(QApplication::clipboard()->text()))
@@ -220,11 +256,13 @@ bool DesignDocument::pasteSVG()
 
 void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const std::optional<QVector3D> &position)
 {
+    NanotraceHR::Tracer tracer{"design document move nodes to position", category()};
+
     if (!nodes.size())
         return;
 
     QList<ModelNode> movingNodes = nodes;
-    DesignDocumentView view{m_externalDependencies};
+    DesignDocumentView view{m_externalDependencies, m_modulesStorage};
     currentModel()->attachView(&view);
 
     ModelNode targetNode; // the node that new nodes should be placed in
@@ -300,36 +338,50 @@ void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const st
 
 bool DesignDocument::inFileComponentModelActive() const
 {
+    NanotraceHR::Tracer tracer{"design document in file component model active", category()};
+
     return bool(m_inFileComponentModel);
 }
 
 QList<DocumentMessage> DesignDocument::qmlParseWarnings() const
 {
+    NanotraceHR::Tracer tracer{"design document qml parse warnings", category()};
+
     return m_rewriterView->warnings();
 }
 
 bool DesignDocument::hasQmlParseWarnings() const
 {
+    NanotraceHR::Tracer tracer{"design document has qml parse warnings", category()};
+
     return !m_rewriterView->warnings().isEmpty();
 }
 
 QList<DocumentMessage> DesignDocument::qmlParseErrors() const
 {
+    NanotraceHR::Tracer tracer{"design document qml parse errors", category()};
+
     return m_rewriterView->errors();
 }
 
 bool DesignDocument::hasQmlParseErrors() const
 {
+    NanotraceHR::Tracer tracer{"design document has qml parse errors", category()};
+
     return !m_rewriterView->errors().isEmpty();
 }
 
 QString DesignDocument::displayName() const
 {
-    return fileName().toUrlishString();
+    NanotraceHR::Tracer tracer{"design document display name", category()};
+
+    return fileName().path();
 }
 
 QString DesignDocument::simplfiedDisplayName() const
 {
+    NanotraceHR::Tracer tracer{"design document simplified display name", category()};
+
     if (rootModelNode().id().isEmpty())
         return rootModelNode().id();
     else
@@ -338,6 +390,8 @@ QString DesignDocument::simplfiedDisplayName() const
 
 void DesignDocument::updateFileName(const Utils::FilePath & /*oldFileName*/, const Utils::FilePath &newFileName)
 {
+    NanotraceHR::Tracer tracer{"design document update file name", category()};
+
     if (m_documentModel)
         m_documentModel->setFileUrl(QUrl::fromLocalFile(newFileName.toUrlishString()));
 
@@ -349,22 +403,30 @@ void DesignDocument::updateFileName(const Utils::FilePath & /*oldFileName*/, con
 
 Utils::FilePath DesignDocument::fileName() const
 {
+    NanotraceHR::Tracer tracer{"design document file name", category()};
+
     return editor() ? editor()->document()->filePath() : Utils::FilePath();
 }
 
 ProjectExplorer::Target *DesignDocument::currentTarget() const
 {
+    NanotraceHR::Tracer tracer{"design document current target", category()};
+
     return m_currentTarget;
 }
 
 bool DesignDocument::isDocumentLoaded() const
 {
+    NanotraceHR::Tracer tracer{"design document is document loaded", category()};
+
     return m_documentLoaded;
 }
 
 void DesignDocument::resetToDocumentModel()
 {
-    const TextEditor::TextEditorWidget *edit = textEditorWidget();
+    NanotraceHR::Tracer tracer{"design document reset to document model", category()};
+
+    const Utils::PlainTextEdit *edit = textEditorWidget();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
@@ -373,6 +435,8 @@ void DesignDocument::resetToDocumentModel()
 
 void DesignDocument::loadDocument(TextEditor::TextEditorWidget *edit)
 {
+    NanotraceHR::Tracer tracer{"design document load document", category()};
+
     Q_CHECK_PTR(edit);
 
     connect(edit, &TextEditor::TextEditorWidget::undoAvailable, this, &DesignDocument::undoAvailable);
@@ -402,6 +466,8 @@ void DesignDocument::loadDocument(TextEditor::TextEditorWidget *edit)
 
 void DesignDocument::changeToDocumentModel()
 {
+    NanotraceHR::Tracer tracer{"design document change to document model", category()};
+
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
@@ -420,15 +486,32 @@ void DesignDocument::changeToDocumentModel()
 
 bool DesignDocument::isQtForMCUsProject() const
 {
+    NanotraceHR::Tracer tracer{"design document is Qt for MCUs project", category()};
+
     if (m_currentTarget && m_currentTarget->buildSystem())
         return m_currentTarget->buildSystem()->additionalData("CustomQtForMCUs").toBool();
 
     return false;
 }
 
+QString DesignDocument::defaultFontFamilyMCU() const
+{
+    NanotraceHR::Tracer tracer{"design document default font family MCU", category()};
+
+    if (!m_currentTarget || !m_currentTarget->buildSystem())
+        return QmlProjectManager::Constants::FALLBACK_MCU_FONT_FAMILY;
+
+    return m_currentTarget->buildSystem()
+        ->additionalData(QmlProjectManager::Constants::customDefaultFontFamilyMCU)
+        .toString();
+}
+
 Utils::FilePath DesignDocument::projectFolder() const
 {
-    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(fileName());
+    NanotraceHR::Tracer tracer{"design document project folder", category()};
+
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(
+        fileName());
 
     if (currentProject)
         return currentProject->projectDirectory();
@@ -437,17 +520,23 @@ Utils::FilePath DesignDocument::projectFolder() const
 
 bool DesignDocument::hasProject() const
 {
+    NanotraceHR::Tracer tracer{"design document has project", category()};
+
     return !DocumentManager::currentProjectDirPath().isEmpty();
 }
 
 void DesignDocument::setModified()
 {
+    NanotraceHR::Tracer tracer{"design document set modified", category()};
+
     if (m_documentTextModifier)
         m_documentTextModifier->textDocument()->setModified(true);
 }
 
 void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textModifer)
 {
+    NanotraceHR::Tracer tracer{"design document change to in file component model", category()};
+
     m_inFileComponentTextModifier.reset(textModifer);
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
@@ -466,7 +555,10 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
 
 void DesignDocument::updateQrcFiles()
 {
-    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(fileName());
+    NanotraceHR::Tracer tracer{"design document update QRC files", category()};
+
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(
+        fileName());
 
     if (currentProject) {
         const auto srcFiles = currentProject->files(ProjectExplorer::Project::SourceFiles);
@@ -479,6 +571,8 @@ void DesignDocument::updateQrcFiles()
 
 void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
 {
+    NanotraceHR::Tracer tracer{"design document change to sub component", category()};
+
     if (QmlDesignerPlugin::instance()->currentDesignDocument() != this)
         return;
 
@@ -496,6 +590,8 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
 
 void DesignDocument::changeToMaster()
 {
+    NanotraceHR::Tracer tracer{"design document change to master", category()};
+
     if (QmlDesignerPlugin::instance()->currentDesignDocument() != this)
         return;
 
@@ -508,6 +604,8 @@ void DesignDocument::changeToMaster()
 
 void DesignDocument::attachRewriterToModel()
 {
+    NanotraceHR::Tracer tracer{"design document attach rewriter to model", category()};
+
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     Q_ASSERT(m_documentModel);
 
@@ -519,6 +617,8 @@ void DesignDocument::attachRewriterToModel()
 
 bool DesignDocument::isUndoAvailable() const
 {
+    NanotraceHR::Tracer tracer{"design document is undo available", category()};
+
     if (textEditorWidget())
         return textEditorWidget()->document()->isUndoAvailable();
 
@@ -527,6 +627,8 @@ bool DesignDocument::isUndoAvailable() const
 
 bool DesignDocument::isRedoAvailable() const
 {
+    NanotraceHR::Tracer tracer{"design document is redo available", category()};
+
     if (textEditorWidget())
         return textEditorWidget()->document()->isRedoAvailable();
 
@@ -535,6 +637,8 @@ bool DesignDocument::isRedoAvailable() const
 
 void DesignDocument::clearUndoRedoStacks() const
 {
+    NanotraceHR::Tracer tracer{"design document clear undo redo stacks", category()};
+
     const TextEditor::TextEditorWidget *edit = textEditorWidget();
     if (edit)
         edit->document()->clearUndoRedoStacks();
@@ -542,6 +646,8 @@ void DesignDocument::clearUndoRedoStacks() const
 
 void DesignDocument::close()
 {
+    NanotraceHR::Tracer tracer{"design document close", category()};
+
     m_documentLoaded = false;
     emit designDocumentClosed();
 }
@@ -562,6 +668,7 @@ void DesignDocument::addSubcomponentManagerImport(const Import &import)
 
 void DesignDocument::deleteSelected()
 {
+    NanotraceHR::Tracer tracer{"design document delete selected", category()};
     if (!currentModel())
         return;
 
@@ -607,7 +714,9 @@ void DesignDocument::deleteSelected()
 
 void DesignDocument::copySelected()
 {
-    DesignDocumentView view{m_externalDependencies};
+    NanotraceHR::Tracer tracer{"design document copy selected", category()};
+
+    DesignDocumentView view{m_externalDependencies, m_modulesStorage};
 
     currentModel()->attachView(&view);
 
@@ -616,13 +725,17 @@ void DesignDocument::copySelected()
 
 void DesignDocument::cutSelected()
 {
+    NanotraceHR::Tracer tracer{"design document cut selected", category()};
+
     copySelected();
     deleteSelected();
 }
 
 void DesignDocument::duplicateSelected()
 {
-    DesignDocumentView view{m_externalDependencies};
+    NanotraceHR::Tracer tracer{"design document duplicate selected", category()};
+
+    DesignDocumentView view{m_externalDependencies, m_modulesStorage};
     currentModel()->attachView(&view);
     const QList<ModelNode> selectedNodes = view.selectedModelNodes();
     currentModel()->detachView(&view);
@@ -634,23 +747,27 @@ void DesignDocument::duplicateSelected()
 
 void DesignDocument::paste()
 {
+    NanotraceHR::Tracer tracer{"design document paste", category()};
+
     pasteToPosition({});
 }
 
 void DesignDocument::pasteToPosition(const std::optional<QVector3D> &position)
 {
+    NanotraceHR::Tracer tracer{"design document paste to position", category()};
+
     if (pasteSVG())
         return;
 
     if (TimelineActions::clipboardContainsKeyframes()) // pasting keyframes is handled in TimelineView
         return;
 
-    auto pasteModel = DesignDocumentView::pasteToModel(m_externalDependencies);
+    auto pasteModel = DesignDocumentView::pasteToModel(m_externalDependencies, m_modulesStorage);
 
     if (!pasteModel)
         return;
 
-    DesignDocumentView view{m_externalDependencies};
+    DesignDocumentView view{m_externalDependencies, m_modulesStorage};
     pasteModel->attachView(&view);
     ModelNode rootNode(view.rootModelNode());
 
@@ -672,10 +789,12 @@ void DesignDocument::pasteToPosition(const std::optional<QVector3D> &position)
 
 void DesignDocument::selectAll()
 {
+    NanotraceHR::Tracer tracer{"design document select all", category()};
+
     if (!currentModel())
         return;
 
-    DesignDocumentView view{m_externalDependencies};
+    DesignDocumentView view{m_externalDependencies, m_modulesStorage};
     currentModel()->attachView(&view);
 
     QList<ModelNode> allNodesExceptRootNode(view.allModelNodes());
@@ -685,6 +804,8 @@ void DesignDocument::selectAll()
 
 RewriterView *DesignDocument::rewriterView() const
 {
+    NanotraceHR::Tracer tracer{"design document rewriter view", category()};
+
     return m_rewriterView.get();
 }
 
@@ -739,6 +860,8 @@ static void removeUnusedImports(RewriterView *rewriter)
 
 void DesignDocument::setEditor(Core::IEditor *editor)
 {
+    NanotraceHR::Tracer tracer{"design document set editor", category()};
+
     m_textEditor = editor;
     // if the user closed the file explicit we do not want to do anything with it anymore
 
@@ -771,16 +894,22 @@ void DesignDocument::setEditor(Core::IEditor *editor)
 
 Core::IEditor *DesignDocument::editor() const
 {
+    NanotraceHR::Tracer tracer{"design document editor", category()};
+
     return m_textEditor.data();
 }
 
 TextEditor::BaseTextEditor *DesignDocument::textEditor() const
 {
-    return qobject_cast<TextEditor::BaseTextEditor*>(editor());
+    NanotraceHR::Tracer tracer{"design document text editor", category()};
+
+    return qobject_cast<TextEditor::BaseTextEditor *>(editor());
 }
 
 TextEditor::TextEditorWidget *DesignDocument::textEditorWidget() const
 {
+    NanotraceHR::Tracer tracer{"design document plain text edit", category()};
+
     if (TextEditor::BaseTextEditor *editor = textEditor())
         return editor->editorWidget();
     return nullptr;
@@ -788,11 +917,15 @@ TextEditor::TextEditorWidget *DesignDocument::textEditorWidget() const
 
 ModelNode DesignDocument::rootModelNode() const
 {
+    NanotraceHR::Tracer tracer{"design document root model node", category()};
+
     return rewriterView()->rootModelNode();
 }
 
 void DesignDocument::undo()
 {
+    NanotraceHR::Tracer tracer{"design document undo", category()};
+
     if (rewriterView() && !rewriterView()->modificationGroupActive()) {
         textEditorWidget()->undo();
         rewriterView()->forceAmend();
@@ -803,6 +936,8 @@ void DesignDocument::undo()
 
 void DesignDocument::redo()
 {
+    NanotraceHR::Tracer tracer{"design document redo", category()};
+
     if (rewriterView() && !rewriterView()->modificationGroupActive()) {
         textEditorWidget()->redo();
         rewriterView()->forceAmend();
@@ -849,12 +984,16 @@ static ProjectExplorer::Target *getActiveTarget(DesignDocument *designDocument)
 
 void DesignDocument::updateActiveTarget()
 {
+    NanotraceHR::Tracer tracer{"design document update active target", category()};
+
     m_currentTarget = getActiveTarget(this);
     viewManager().setNodeInstanceViewTarget(m_currentTarget);
 }
 
 void DesignDocument::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
+    NanotraceHR::Tracer tracer{"design document context help", category()};
+
     if (auto v = view())
         QmlDesignerPlugin::contextHelp(callback, v->contextHelpId());
     else

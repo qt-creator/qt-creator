@@ -16,7 +16,10 @@ T.ComboBox {
     property bool edit: false
     property bool open: window.visible
     property bool openUpwards: false
+    property bool closeButtonVisible: false
     property alias suffix: comboBoxInput.suffix
+
+    signal closeRequest(var idx)
 
     editable: false
     width: control.style.controlSize.width
@@ -175,22 +178,66 @@ T.ComboBox {
             padding: 0
             enabled: itemDelegate.model["enabled"] === undefined ? true : itemDelegate.model["enabled"]
 
-            contentItem: Text {
-                leftPadding: 8
-                rightPadding: verticalScrollBar.style.scrollBarThicknessHover
-                text: itemDelegate.model[control.textRole]
-                color: {
-                    if (!itemDelegate.enabled)
-                        return control.style.text.disabled
+            contentItem: Item {
+                Text {
+                    leftPadding: 8
+                    rightPadding: verticalScrollBar.style.scrollBarThicknessHover
+                    height: parent.height
+                    text: itemDelegate.model[control.textRole]
+                    color: {
+                        if (!itemDelegate.enabled)
+                            return control.style.text.disabled
 
-                    if (control.currentIndex === index)
-                        return control.style.text.selectedText
+                        if (control.currentIndex === index)
+                            return control.style.text.selectedText
 
-                    return control.style.text.idle
+                        return control.style.text.idle
+                    }
+                    font: control.font
+                    elide: Text.ElideRight
+                    verticalAlignment: Text.AlignVCenter
                 }
-                font: control.font
-                elide: Text.ElideRight
-                verticalAlignment: Text.AlignVCenter
+
+                AbstractButton {
+                    id: itemCloseButton
+                    objectName: "btnItemClose"
+
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.rightMargin: verticalScrollBar.style.scrollBarThicknessHover
+
+                    iconSize: control.style.mediumIconFontSize
+                    visible: control.closeButtonVisible && itemDelegate.hovered
+                    style: StudioTheme.Values.viewBarButtonStyle
+                    buttonIcon: StudioTheme.Constants.close_small
+                    onClicked: control.closeRequest(itemDelegate.index)
+                    globalHover: itemDelegate.hovered
+
+                    background: Rectangle {
+                        id: buttonBackground
+
+                        color: {
+                            if (!itemDelegate.enabled)
+                                return itemCloseButton.style.background.disabled
+
+                            if (control.currentIndex === index)
+                                return itemCloseButton.style.background.interaction
+
+                            if (itemCloseButton.hovered)
+                                return itemCloseButton.style.background.idle
+
+                            if (itemCloseButton.globalHover)
+                                return itemCloseButton.style.background.globalHover
+
+                            return itemCloseButton.style.background.idle
+                        }
+
+                        border.width: 0
+                        radius: itemCloseButton.style.radius
+                        visible: itemCloseButton.hovered
+                        opacity: 0.5
+                    }
+                }
             }
 
             background: Rectangle {

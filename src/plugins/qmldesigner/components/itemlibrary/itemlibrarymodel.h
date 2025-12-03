@@ -43,7 +43,6 @@ public:
     std::unique_ptr<QMimeData> getMimeData(const ItemLibraryEntry &itemLibraryEntry);
 
     void setSearchText(const QString &searchText);
-    void setFlowMode(bool);
 
     bool isAnyCategoryHidden() const;
     void setIsAnyCategoryHidden(bool state);
@@ -92,7 +91,6 @@ private:
     QHash<int, QByteArray> m_roleNames;
 
     QString m_searchText;
-    bool m_flowMode = false;
     bool m_isAnyCategoryHidden = false;
     bool m_importUnimportedSelected = false;
     QString m_selectedImportUrl;

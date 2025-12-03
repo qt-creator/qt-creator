@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "shadereditordata.h"
 #include "shaderfeatures.h"
 
 #include <utils/filepath.h>
@@ -27,10 +28,11 @@ class Process;
 
 namespace EffectComposer {
 
+constexpr int INVALID_CODE_EDITOR_INDEX = -1;
+constexpr int MAIN_CODE_EDITOR_INDEX = -2;
+
 class CompositionNode;
 class EffectComposerNodesModel;
-class EffectShadersCodeEditor;
-struct ShaderEditorData;
 class Uniform;
 
 struct EffectError {
@@ -51,7 +53,7 @@ class EffectComposerModel : public QAbstractListModel
 
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
-    Q_PROPERTY(int codeEditorIndex MEMBER m_codeEditorIndex NOTIFY codeEditorIndexChanged)
+    Q_PROPERTY(int codeEditorIndex READ codeEditorIndex NOTIFY codeEditorIndexChanged)
     Q_PROPERTY(bool hasUnsavedChanges MEMBER m_hasUnsavedChanges WRITE setHasUnsavedChanges NOTIFY hasUnsavedChangesChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
@@ -61,7 +63,6 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(QUrl currentPreviewImage READ currentPreviewImage WRITE setCurrentPreviewImage NOTIFY currentPreviewImageChanged)
     Q_PROPERTY(QList<QUrl> previewImages READ previewImages NOTIFY previewImagesChanged)
     Q_PROPERTY(int customPreviewImageCount READ customPreviewImageCount NOTIFY customPreviewImageCountChanged)
-    Q_PROPERTY(int mainCodeEditorIndex READ mainCodeEditorIndex CONSTANT)
     Q_PROPERTY(QString effectErrors READ effectErrors NOTIFY effectErrorsChanged)
     Q_PROPERTY(bool advancedMode MEMBER m_advancedMode NOTIFY advancedModeChanged)
 
@@ -83,6 +84,7 @@ public:
     void addNode(const QString &nodeQenPath);
 
     CompositionNode *findNodeById(const QString &id) const;
+    CompositionNode *nodeAt(int index) const;
 
     Q_INVOKABLE void moveNode(int fromIdx, int toIdx);
     Q_INVOKABLE void removeNode(int idx);
@@ -118,6 +120,8 @@ public:
     void setRootVertexShader(const QString &shader);
     void resetRootVertexShader();
 
+    void startRebakeTimer();
+
     Q_INVOKABLE QString qmlComponentString() const;
 
     Q_INVOKABLE void updateQmlComponent();
@@ -128,9 +132,6 @@ public:
     QString effectErrors() const;
 
     Q_INVOKABLE void saveComposition(const QString &name);
-
-    Q_INVOKABLE void openCodeEditor(int idx);
-    Q_INVOKABLE void openMainCodeEditor();
 
     Q_INVOKABLE bool canAddNodeToLibrary(int idx);
     Q_INVOKABLE bool nodeExists(int idx);
@@ -149,13 +150,15 @@ public:
     QUrl currentPreviewImage() const;
     void setCurrentPreviewImage(const QUrl &path);
     int customPreviewImageCount() const;
-    int mainCodeEditorIndex() const;
+    int codeEditorIndex() const { return m_codeEditorIndex; }
+    void updateCodeEditorIndex(const ShaderEditorData *editorData);
 
     Utils::FilePath compositionPath() const;
     void setCompositionPath(const Utils::FilePath &newCompositionPath);
 
     bool hasUnsavedChanges() const;
     void setHasUnsavedChanges(bool val);
+    void setLiveUpdateMode(bool val);
 
     Q_INVOKABLE QStringList uniformNames() const;
     const QStringList nodeNames() const;
@@ -163,6 +166,8 @@ public:
                                             const QString &oldName) const;
 
     Q_INVOKABLE bool isDependencyNode(int index) const;
+
+    ShaderEditorData *editorData(ShaderEditorData::Creator creatorCallBack);
 
     bool hasCustomNode() const;
 
@@ -184,7 +189,6 @@ signals:
     void hasValidTargetChanged();
     void shadersBaked();
     void currentCompositionChanged();
-    void nodesChanged();
     void resourcesSaved(const QByteArray &type, const Utils::FilePath &path);
     void hasUnsavedChangesChanged();
     void assignToSelectedTriggered(const QString &effectPath);
@@ -238,14 +242,11 @@ private:
     QString stripFileFromURL(const QString &urlString) const;
     QString getQmlEffectString();
 
-    void connectCodeEditor();
-    void createCodeEditorData();
     void updateCustomUniforms();
     void initShaderDir();
     void bakeShaders();
     void writeComposition(const QString &name);
     void saveResources(const QString &name);
-    void openNearestAvailableCodeEditor(int idx);
 
     QString getQmlImagesString(bool localFiles, QString &outImageFixerStr);
     QString getQmlComponentString(bool localFiles);
@@ -254,16 +255,15 @@ private:
 
     void connectCompositionNode(CompositionNode *node);
     void updateExtraMargin();
-    void startRebakeTimer();
     void rebakeIfLiveUpdateMode();
     QSet<QByteArray> getExposedProperties(const QByteArray &qmlContent);
 
-    void setCodeEditorIndex(int index);
     Utils::FilePath customPreviewImagesPath() const;
     QList<QUrl> defaultPreviewImages() const;
     QUrl defaultPreviewImage() const;
 
     bool writeToFile(const QByteArray &buf, const QString &filename);
+    void setCodeEditorIndex(int index);
 
     QList<CompositionNode *> m_nodes;
     QPointer<EffectComposerNodesModel> m_effectComposerNodesModel;
@@ -274,6 +274,7 @@ private:
     bool m_hasUnsavedChanges = false;
     // True when shaders haven't changed since last baking
     bool m_shadersUpToDate = true;
+    bool m_liveUpdateMode = false;
     int m_remainingQsbTargets = 0;
     QMap<int, QList<EffectError>> m_effectErrors;
     ShaderFeatures m_shaderFeatures;

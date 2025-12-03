@@ -89,9 +89,9 @@ public:
         return tryName;
     }
 
-    void performChanges(QmlJSRefactoringFilePtr currentFile,
-                        const QmlJSRefactoringChanges &,
-                        const QString &) override
+    QString performChanges(QmlJSRefactoringFilePtr currentFile,
+                           const QmlJSRefactoringChanges &,
+                           const QString &) override
     {
         UiScriptBinding *idBinding;
         const QString id = idOfObject(m_objDef, &idBinding);
@@ -147,6 +147,7 @@ public:
                                                       "    sourceComponent: %1\n"
                                                       "}\n").arg(componentId, loaderId));
         currentFile->apply(changes);
+        return {};
     }
 };
 

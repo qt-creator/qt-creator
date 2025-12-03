@@ -129,10 +129,12 @@ namespace QmlDesigner {
 */
 NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager,
                                    ExternalDependenciesInterface &externalDependencies,
+                                   ModulesStorage &modulesStorage,
                                    bool qsbEnabled)
     : AbstractView{externalDependencies}
     , m_connectionManager(connectionManager)
     , m_externalDependencies(externalDependencies)
+    , m_modulesStorage{modulesStorage}
     , m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32)
     , m_restartProcessTimerId(0)
     , m_fileSystemWatcher(new QFileSystemWatcher(this))
@@ -238,7 +240,8 @@ static bool parentTakesOverRendering(const ModelNode &modelNode)
 
 static QString crashErrorMessage()
 {
-    return Tr::tr("Internal process (QML Puppet) crashed.");
+    return Tr::tr(
+        "QML Puppet, the process used to emulate the QML runtime, has stopped unexpectedly.");
 }
 
 /*!
@@ -356,7 +359,7 @@ void NodeInstanceView::restartProcess()
     clearErrors();
     emitInstanceErrorChange({});
     if (isAttached())
-        model()->emitDocumentMessage({}, {});
+        model()->emitDocumentMessage(QList<DocumentMessage>(), {});
 
     if (m_restartProcessTimerId)
         killTimer(m_restartProcessTimerId);
@@ -721,6 +724,10 @@ void NodeInstanceView::customNotification(const CustomNotificationPackage &packa
                                        preview->renderNode,
                                        preview->size,
                                        preview->requestId);
+    } else if (auto request = std::get_if<Request3DSceneToolStates>(&package)) {
+        const auto sceneStates = m_edit3DToolStates.value(model()->fileUrl()).value(request->sceneId);
+        if (!sceneStates.isEmpty())
+            model()->emitUpdateActiveScene3D(this, sceneStates);
     }
 }
 
@@ -777,12 +784,21 @@ QList<NodeInstance> NodeInstanceView::instances() const
 
     \sa NodeInstance
 */
-NodeInstance NodeInstanceView::instanceForModelNode(const ModelNode &node) const
+const NodeInstance &NodeInstanceView::instanceForModelNode(const ModelNode &node) const
+{
+    return const_cast<NodeInstanceView &>(*this).instanceForModelNode(node);
+}
+
+NodeInstance &NodeInstanceView::instanceForModelNode(const ModelNode &node)
 {
     Q_ASSERT(node.isValid());
     Q_ASSERT(m_nodeInstanceHash.contains(node));
     Q_ASSERT(m_nodeInstanceHash.value(node).modelNode() == node);
-    return m_nodeInstanceHash.value(node);
+    auto found = m_nodeInstanceHash.find(node);
+    if (found != m_nodeInstanceHash.end())
+        return *found;
+
+    return NodeInstance::null();
 }
 
 bool NodeInstanceView::hasInstanceForModelNode(const ModelNode &node) const
@@ -1037,18 +1053,16 @@ bool parentIsBehavior(ModelNode node)
     return false;
 }
 
-TypeName createQualifiedTypeName(const ModelNode &node)
+TypeName createQualifiedTypeName(const ModelNode &node, ModulesStorage &modulesStorage)
 {
     if (!node)
         return {};
 
 #ifdef QDS_USE_PROJECTSTORAGE
-    auto model = node.model();
-    auto exportedTypes = node.metaInfo().exportedTypeNamesForSourceId(model->fileUrlSourceId());
-    if (exportedTypes.size()) {
-        const auto &exportedType = exportedTypes.front();
+    auto exportedType = node.exportedTypeName();
+    if (exportedType.name.size()) {
         using Storage::ModuleKind;
-        auto module = model->projectStorage()->module(exportedType.moduleId);
+        auto module = modulesStorage.module(exportedType.moduleId);
         Utils::PathString typeName;
         switch (module.kind) {
         case ModuleKind::QmlLibrary:
@@ -1131,7 +1145,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         const auto modelNode = instance.modelNode();
 
         InstanceContainer container(instance.instanceId(),
-                                    createQualifiedTypeName(modelNode),
+                                    createQualifiedTypeName(modelNode, m_modulesStorage),
                                     modelNode.majorVersion(),
                                     modelNode.minorVersion(),
                                     ModelUtils::componentFilePath(modelNode),
@@ -1216,7 +1230,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
             const TypeName typeName = cppTypeData.typeName.toUtf8();
             const QString uri = cppTypeData.importUrl;
 
-            NodeMetaInfo metaInfo = model()->metaInfo(uri.toUtf8() + "." + typeName);
+            NodeMetaInfo metaInfo = model()->metaInfo(QByteArray(uri.toUtf8() + "." + typeName));
 
             if (metaInfo.isValid())
                 isItem = metaInfo.isGraphicalItem();
@@ -1310,7 +1324,7 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
 
         const auto modelNode = instance.modelNode();
         InstanceContainer container(instance.instanceId(),
-                                    createQualifiedTypeName(modelNode),
+                                    createQualifiedTypeName(modelNode, m_modulesStorage),
                                     modelNode.majorVersion(),
                                     modelNode.minorVersion(),
                                     ModelUtils::componentFilePath(modelNode),
@@ -1750,7 +1764,12 @@ void NodeInstanceView::token(const TokenCommand &command)
 
 void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
 {
-    DocumentMessage error(crashErrorMessage());
+    if (m_restartProcessTimerId) {
+        // Debug output/errors from puppet are likely invalid if puppet reset has been requested,
+        // so ignore them to avoid unnecessary warnings showing in UI
+        return;
+    }
+
     if (command.instanceIds().isEmpty() && isAttached()) {
         model()->emitDocumentMessage(command.text());
     } else {
@@ -1808,13 +1827,24 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
         if (!container.image().isNull() && isAttached())
             model()->emitRenderImage3DChanged(this, container.image());
     } else if (command.type() == PuppetToCreatorCommand::ActiveSceneChanged) {
-        const auto sceneState = qvariant_cast<QVariantMap>(command.data());
-        if (isAttached())
+        if (isAttached()) {
+            const auto sceneState = qvariant_cast<QVariantMap>(command.data());
+            const QString sceneKey = "sceneInstanceId";
+            if (sceneState.contains(sceneKey)) {
+                qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
+                rootModelNode().setAuxiliaryData(active3dSceneProperty, newActiveScene);
+            }
             model()->emitUpdateActiveScene3D(this, sceneState);
+        }
     } else if (command.type() == PuppetToCreatorCommand::ActiveViewportChanged) {
         // Active viewport change is a special case of active scene change
         QVariantMap viewportState;
         viewportState.insert("activeViewport", command.data());
+        if (isAttached())
+            model()->emitUpdateActiveScene3D(this, viewportState);
+    } else if (command.type() == PuppetToCreatorCommand::Edit3DMouseCursor) {
+        QVariantMap viewportState;
+        viewportState.insert("mouseCursor", command.data());
         if (isAttached())
             model()->emitUpdateActiveScene3D(this, viewportState);
     } else if (command.type() == PuppetToCreatorCommand::RenderModelNodePreviewImage) {
@@ -1996,7 +2026,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
 
     ModelNodePreviewImageData imageData;
     imageData.id = modelNode.id();
-    imageData.type = QString::fromUtf8(createQualifiedTypeName(modelNode));
+    imageData.type = QString::fromUtf8(createQualifiedTypeName(modelNode, m_modulesStorage));
     const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
 
     if (imageSource.isEmpty() && modelNode.metaInfo().isQtQuick3DTexture()) {
@@ -2105,7 +2135,7 @@ QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &model
     if (m_imageDataMap.contains(id)) {
         imageData = m_imageDataMap[id];
     } else {
-        imageData.type = QString::fromLatin1(createQualifiedTypeName(modelNode));
+        imageData.type = QString::fromLatin1(createQualifiedTypeName(modelNode, m_modulesStorage));
         imageData.id = id;
 
         // There might be multiple requests for different preview pixmap sizes.

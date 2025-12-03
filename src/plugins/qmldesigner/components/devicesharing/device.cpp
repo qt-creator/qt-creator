@@ -78,11 +78,7 @@ Device::Device(const QString designStudioId,
     reconnect();
 }
 
-Device::~Device()
-{
-    m_socket->close();
-    m_socket.reset();
-}
+Device::~Device() = default;
 
 void Device::initPingPong()
 {

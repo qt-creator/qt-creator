@@ -29,12 +29,44 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
+using ModelTracing::category;
+
 static char imagePlaceHolder[] = "qrc:/qtquickplugin/images/template_image.png";
 
-bool QmlVisualNode::isItemOr3DNode(const ModelNode &modelNode)
+bool QmlVisualNode::isItemOr3DNode(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml visual node is item or 3D node",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
     auto metaInfo = modelNode.metaInfo();
     auto model = modelNode.model();
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto qtQuickItem = model->qtQuickItemMetaInfo();
+    auto qtQuick3dnode = model->qtQuick3DNodeMetaInfo();
+    auto qtQuickWindowWindow = model->qtQuickWindowMetaInfo();
+    auto qtQuickDialogsDialog = model->qtQuickDialogsAbstractDialogMetaInfo();
+    auto qtQuickControlsPopup = model->qtQuickTemplatesPopupMetaInfo();
+
+    auto matched = metaInfo.basedOn(qtQuickItem,
+                                    qtQuick3dnode,
+                                    qtQuickWindowWindow,
+                                    qtQuickDialogsDialog,
+                                    qtQuickControlsPopup);
+
+    if (!matched)
+        return false;
+
+    if (matched == qtQuickWindowWindow or matched == qtQuickDialogsDialog
+        or matched == qtQuickControlsPopup) {
+        return modelNode.isRootNode();
+    }
+    return true;
+#else
 
     if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo(), model->qtQuick3DNodeMetaInfo()))
         return true;
@@ -43,33 +75,44 @@ bool QmlVisualNode::isItemOr3DNode(const ModelNode &modelNode)
         return true;
 
     return false;
+#endif
 }
 
-bool QmlVisualNode::isValid() const
+bool QmlVisualNode::isValid(SL sl) const
 {
-    return isValidQmlVisualNode(modelNode());
+    return isValidQmlVisualNode(modelNode(), sl);
 }
 
-bool QmlVisualNode::isValidQmlVisualNode(const ModelNode &modelNode)
+bool QmlVisualNode::isValidQmlVisualNode(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml visual node is valid",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
     if (!isValidQmlObjectNode(modelNode))
         return false;
 
-    auto metaInfo = modelNode.metaInfo();
-    auto model = modelNode.model();
-
-    return isItemOr3DNode(modelNode) || metaInfo.isBasedOn(model->flowViewFlowTransitionMetaInfo(),
-                              model->flowViewFlowDecisionMetaInfo(),
-                              model->flowViewFlowWildcardMetaInfo());
+    return isItemOr3DNode(modelNode);
 }
 
-bool QmlVisualNode::isRootNode() const
+bool QmlVisualNode::isRootNode(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml visual node is root node",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().isValid() && modelNode().isRootNode();
 }
 
-QList<QmlVisualNode> QmlVisualNode::children() const
+QList<QmlVisualNode> QmlVisualNode::children(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml visual node children",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QList<ModelNode> childrenList;
 
     if (isValid()) {
@@ -88,8 +131,13 @@ QList<QmlVisualNode> QmlVisualNode::children() const
     return toQmlVisualNodeList(childrenList);
 }
 
-QList<QmlObjectNode> QmlVisualNode::resources() const
+QList<QmlObjectNode> QmlVisualNode::resources(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml visual node resources",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QList<ModelNode> resourcesList;
 
     if (isValid()) {
@@ -108,59 +156,106 @@ QList<QmlObjectNode> QmlVisualNode::resources() const
     return toQmlObjectNodeList(resourcesList);
 }
 
-QList<QmlObjectNode> QmlVisualNode::allDirectSubNodes() const
+QList<QmlObjectNode> QmlVisualNode::allDirectSubNodes(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml visual node all direct sub nodes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return toQmlObjectNodeList(modelNode().directSubModelNodes());
 }
 
-bool QmlVisualNode::hasChildren() const
+bool QmlVisualNode::hasChildren(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml visual node has children",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().hasNodeListProperty("children"))
         return true;
 
     return !children().isEmpty();
 }
 
-bool QmlVisualNode::hasResources() const
+bool QmlVisualNode::hasResources(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml visual node has resources",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().hasNodeListProperty("resources"))
         return true;
 
     return !resources().isEmpty();
 }
 
-const QList<QmlVisualNode> QmlVisualNode::allDirectSubModelNodes() const
+const QList<QmlVisualNode> QmlVisualNode::allDirectSubModelNodes(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml visual node all direct sub model nodes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return toQmlVisualNodeList(modelNode().directSubModelNodes());
 }
 
-const QList<QmlVisualNode> QmlVisualNode::allSubModelNodes() const
+const QList<QmlVisualNode> QmlVisualNode::allSubModelNodes(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml visual node all sub model nodes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return toQmlVisualNodeList(modelNode().allSubModelNodes());
 }
 
-bool QmlVisualNode::hasAnySubModelNodes() const
+bool QmlVisualNode::hasAnySubModelNodes(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml visual node has any sub model nodes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().hasAnySubModelNodes();
 }
 
-void QmlVisualNode::setVisibilityOverride(bool visible)
+void QmlVisualNode::setVisibilityOverride(bool visible, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml visual node set visibility override",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (visible)
         modelNode().setAuxiliaryData(invisibleProperty, true);
     else
         modelNode().removeAuxiliaryData(invisibleProperty);
 }
 
-bool QmlVisualNode::visibilityOverride() const
+bool QmlVisualNode::visibilityOverride(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml visual node visibility override",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (isValid())
         return modelNode().auxiliaryDataWithDefault(invisibleProperty).toBool();
     return false;
 }
 
-void QmlVisualNode::scatter(const ModelNode &targetNode, const std::optional<int> &offset)
+void QmlVisualNode::scatter(const ModelNode &targetNode, const std::optional<int> &offset, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml visual node scatter",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", targetNode),
+                               keyValue("offset", offset),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -199,8 +294,14 @@ void QmlVisualNode::scatter(const ModelNode &targetNode, const std::optional<int
     }
 }
 
-void QmlVisualNode::translate(const QVector3D &vector)
+void QmlVisualNode::translate(const QVector3D &vector, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml visual node translate",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("vector", vector),
+                               keyValue("caller location", sl)};
+
     if (modelNode().hasBindingProperty("x") || modelNode().hasBindingProperty("y"))
         return;
 
@@ -212,8 +313,14 @@ void QmlVisualNode::setDoubleProperty(PropertyNameView name, double value)
     modelNode().variantProperty(name).setValue(value);
 }
 
-void QmlVisualNode::setPosition(const QmlVisualNode::Position &position)
+void QmlVisualNode::setPosition(const QmlVisualNode::Position &position, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml visual node set position",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("position", position),
+                               keyValue("caller location", sl)};
+
     if (!modelNode().isValid())
         return;
 
@@ -229,8 +336,13 @@ void QmlVisualNode::setPosition(const QmlVisualNode::Position &position)
     }
 }
 
-QmlVisualNode::Position QmlVisualNode::position() const
+QmlVisualNode::Position QmlVisualNode::position(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml visual node position",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -247,8 +359,13 @@ QmlVisualNode::Position QmlVisualNode::position() const
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                  const ItemLibraryEntry &itemLibraryEntry,
                                                  const Position &position,
-                                                 QmlVisualNode parentQmlItemNode)
+                                                 QmlVisualNode parentQmlItemNode,
+                                                 SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml visual node create qml object node",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (!parentQmlItemNode.isValid())
         parentQmlItemNode = QmlVisualNode(view->rootModelNode());
 
@@ -283,13 +400,15 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
                                                    const QString &source,
                                                    const QmlVisualNode::Position &position)
 {
+    auto model = view->model();
+
 #ifdef QDS_USE_PROJECTSTORAGE
-    auto inputModel = view->model()->createModel("Item");
+    auto inputModel = model->createModel("Item");
 #else
-    auto inputModel = Model::create("QtQuick.Item", 1, 0, view->model());
+    auto inputModel = Model::create("QtQuick.Item", 1, 0, model);
 #endif
-    inputModel->setFileUrl(view->model()->fileUrl());
-    inputModel->changeImports(view->model()->imports(), {});
+    inputModel->setFileUrl(model->fileUrl());
+    inputModel->changeImports(model->imports(), {});
 
     QPlainTextEdit textEdit;
 
@@ -297,7 +416,9 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     NotIndentingTextEditModifier modifier(textEdit.document());
 
     std::unique_ptr<RewriterView> rewriterView = std::make_unique<RewriterView>(
-        view->externalDependencies(), RewriterView::Amend);
+        view->externalDependencies(),
+        model->projectStorageDependencies().modulesStorage,
+        RewriterView::Amend);
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     rewriterView->setAllowComponentRoot(true);
@@ -343,8 +464,14 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                  const ItemLibraryEntry &itemLibraryEntry,
                                                  const Position &position,
                                                  NodeAbstractProperty parentProperty,
-                                                 bool createInTransaction)
+                                                 bool createInTransaction,
+                                                 SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml visual node create qml object node",
+                               category(),
+                               keyValue("create in transaction", createInTransaction),
+                               keyValue("caller location", sl)};
+
     QmlObjectNode newQmlObjectNode;
 
     NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry, view->model());
@@ -474,11 +601,18 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 
 QmlVisualNode QmlVisualNode::createQml3DNode(AbstractView *view,
                                              const ItemLibraryEntry &itemLibraryEntry,
-                                             qint32 sceneRootId, const QVector3D &position,
-                                             bool createInTransaction)
+                                             qint32 sceneRootId,
+                                             const QVector3D &position,
+                                             bool createInTransaction,
+                                             SL sl)
 {
-    NodeAbstractProperty sceneNodeProperty = sceneRootId != -1 ? findSceneNodeProperty(view, sceneRootId)
-                                                               : view->rootModelNode().defaultNodeAbstractProperty();
+    NanotraceHR::Tracer tracer{"qml visual node create qml 3D node",
+                               category(),
+                               keyValue("caller location", sl)};
+
+    NodeAbstractProperty sceneNodeProperty = sceneRootId != -1
+                                                 ? findSceneNodeProperty(view, sceneRootId)
+                                                 : view->rootModelNode().defaultNodeAbstractProperty();
 
     QTC_ASSERT(sceneNodeProperty.isValid(), return {});
 
@@ -490,8 +624,13 @@ QmlVisualNode QmlVisualNode::createQml3DNode(AbstractView *view,
                                              const ModelNode &parentNode,
                                              const QString &importName,
                                              const QVector3D &position,
-                                             bool createInTransaction)
+                                             bool createInTransaction,
+                                             SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml visual node create qml 3D node",
+                               category(),
+                               keyValue("caller location", sl)};
+
     NodeAbstractProperty targetParentProperty = parentNode.defaultNodeListProperty();
 
     QTC_ASSERT(targetParentProperty.isValid(), return {});
@@ -536,46 +675,20 @@ QmlVisualNode QmlVisualNode::createQml3DNode(AbstractView *view,
     return newQmlObjectNode;
 }
 
-
-NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view, qint32 sceneRootId)
+NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view, qint32 sceneRootId, SL sl)
 {
-    QTC_ASSERT(view, return {});
+    NanotraceHR::Tracer tracer{"qml visual node find scene node property",
+                               category(),
+                               keyValue("caller location", sl)};
+
+    if (!view)
+        return {};
 
     ModelNode node;
     if (view->hasModelNodeForInternalId(sceneRootId))
         node = view->modelNodeForInternalId(sceneRootId);
 
     return node.defaultNodeListProperty();
-}
-
-bool QmlVisualNode::isFlowTransition(const ModelNode &node)
-{
-    return node.isValid() && node.metaInfo().isFlowViewFlowTransition();
-}
-
-bool QmlVisualNode::isFlowDecision(const ModelNode &node)
-{
-    return node.isValid() && node.metaInfo().isFlowViewFlowDecision();
-}
-
-bool QmlVisualNode::isFlowWildcard(const ModelNode &node)
-{
-    return node.isValid() && node.metaInfo().isFlowViewFlowWildcard();
-}
-
-bool QmlVisualNode::isFlowTransition() const
-{
-    return isFlowTransition(modelNode());
-}
-
-bool QmlVisualNode::isFlowDecision() const
-{
-    return isFlowDecision(modelNode());
-}
-
-bool QmlVisualNode::isFlowWildcard() const
-{
-    return isFlowWildcard(modelNode());
 }
 
 QList<ModelNode> toModelNodeList(const QList<QmlVisualNode> &qmlVisualNodeList)
@@ -600,8 +713,13 @@ QList<QmlVisualNode> toQmlVisualNodeList(const QList<ModelNode> &modelNodeList)
     return QmlVisualNodeList;
 }
 
-QStringList QmlModelStateGroup::names() const
+QStringList QmlModelStateGroup::names(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state group names",
+                               category(),
+                               keyValue("model node", m_modelNode),
+                               keyValue("caller location", sl)};
+
     QStringList returnList;
 
     if (!modelNode().isValid())
@@ -616,8 +734,13 @@ QStringList QmlModelStateGroup::names() const
     return returnList;
 }
 
-QList<QmlModelState> QmlModelStateGroup::allStates() const
+QList<QmlModelState> QmlModelStateGroup::allStates(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state group all states",
+                               category(),
+                               keyValue("model node", m_modelNode),
+                               keyValue("caller location", sl)};
+
     QList<QmlModelState> returnList;
 
     if (!modelNode().isValid())
@@ -632,8 +755,14 @@ QList<QmlModelState> QmlModelStateGroup::allStates() const
     return returnList;
 }
 
-QmlModelState QmlModelStateGroup::addState(const QString &name)
+QmlModelState QmlModelStateGroup::addState(const QString &name, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state group add state",
+                               category(),
+                               keyValue("name", name),
+                               keyValue("model node", m_modelNode),
+                               keyValue("caller location", sl)};
+
     if (!modelNode().isValid())
         return {};
 
@@ -644,8 +773,14 @@ QmlModelState QmlModelStateGroup::addState(const QString &name)
     return newState;
 }
 
-void QmlModelStateGroup::removeState(const QString &name)
+void QmlModelStateGroup::removeState(const QString &name, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state group remove state",
+                               category(),
+                               keyValue("name", name),
+                               keyValue("model node", m_modelNode),
+                               keyValue("caller location", sl)};
+
     if (!modelNode().isValid())
         return;
 
@@ -653,8 +788,14 @@ void QmlModelStateGroup::removeState(const QString &name)
         state(name).modelNode().destroy();
 }
 
-QmlModelState QmlModelStateGroup::state(const QString &name) const
+QmlModelState QmlModelStateGroup::state(const QString &name, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state group state",
+                               category(),
+                               keyValue("name", name),
+                               keyValue("model node", m_modelNode),
+                               keyValue("caller location", sl)};
+
     if (!modelNode().isValid())
         return {};
 

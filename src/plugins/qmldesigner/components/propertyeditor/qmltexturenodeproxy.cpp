@@ -3,6 +3,8 @@
 
 #include "qmltexturenodeproxy.h"
 
+#include "propertyeditortracing.h"
+
 #include <abstractview.h>
 #include <createtexture.h>
 #include <designmodewidget.h>
@@ -13,14 +15,24 @@
 
 namespace QmlDesigner {
 
+using QmlDesigner::PropertyEditorTracing::category;
+
 using namespace Qt::StringLiterals;
 
-QmlTextureNodeProxy::QmlTextureNodeProxy() = default;
+QmlTextureNodeProxy::QmlTextureNodeProxy()
+{
+    NanotraceHR::Tracer tracer{"qml texture node proxy constructor", category()};
+}
 
-QmlTextureNodeProxy::~QmlTextureNodeProxy() = default;
+QmlTextureNodeProxy::~QmlTextureNodeProxy()
+{
+    NanotraceHR::Tracer tracer{"qml texture node proxy destructor", category()};
+}
 
 void QmlTextureNodeProxy::setup(const QmlObjectNode &objectNode)
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy setup", category()};
+
     const QmlObjectNode texture = objectNode.metaInfo().isQtQuick3DTexture() ? objectNode
                                                                              : QmlObjectNode{};
 
@@ -30,6 +42,8 @@ void QmlTextureNodeProxy::setup(const QmlObjectNode &objectNode)
 
 void QmlTextureNodeProxy::updateSelectionDetails()
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy update selection details", category()};
+
     QScopeGuard falseSetter{
         std::bind_front(&QmlTextureNodeProxy::setSelectedNodeAcceptsMaterial, this, false)};
 
@@ -46,6 +60,8 @@ void QmlTextureNodeProxy::updateSelectionDetails()
 
 void QmlTextureNodeProxy::handlePropertyChanged(const AbstractProperty &property)
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy handle property changed", category()};
+
     if (!textureNode())
         return;
 
@@ -65,31 +81,43 @@ void QmlTextureNodeProxy::handlePropertyChanged(const AbstractProperty &property
 
 void QmlTextureNodeProxy::handleBindingPropertyChanged(const BindingProperty &property)
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy handle binding property changed", category()};
+
     handlePropertyChanged(property);
 }
 
 void QmlTextureNodeProxy::handlePropertiesRemoved(const AbstractProperty &property)
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy handle properties removed", category()};
+
     handlePropertyChanged(property);
 }
 
 QmlObjectNode QmlTextureNodeProxy::textureNode() const
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy texture node", category()};
+
     return m_textureNode;
 }
 
 bool QmlTextureNodeProxy::hasTexture() const
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy has texture", category()};
+
     return textureNode().isValid();
 }
 
 bool QmlTextureNodeProxy::selectedNodeAcceptsMaterial() const
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy selected node accepts material", category()};
+
     return m_selectedNodeAcceptsMaterial;
 }
 
 QString QmlTextureNodeProxy::resolveResourcePath(const QString &path) const
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy resolve resource path", category()};
+
     if (path.isEmpty())
         return ":/propertyeditor/images/texture_default.png";
 
@@ -108,6 +136,8 @@ QString QmlTextureNodeProxy::resolveResourcePath(const QString &path) const
 
 void QmlTextureNodeProxy::toolbarAction(int action)
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy toolbar action", category()};
+
     if (!hasQuick3DImport())
         return;
 
@@ -146,11 +176,15 @@ void QmlTextureNodeProxy::toolbarAction(int action)
 
 void QmlTextureNodeProxy::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy register declarative type", category()};
+
     qmlRegisterType<QmlTextureNodeProxy>("HelperWidgets", 2, 0, "QmlTextureNodeProxy");
 }
 
 void QmlTextureNodeProxy::setTextureNode(const QmlObjectNode &node)
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy set texture node", category()};
+
     if (m_textureNode == node)
         return;
     m_textureNode = node;
@@ -159,6 +193,9 @@ void QmlTextureNodeProxy::setTextureNode(const QmlObjectNode &node)
 
 void QmlTextureNodeProxy::setSelectedNodeAcceptsMaterial(bool value)
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy set selected node accepts material",
+                               category()};
+
     if (m_selectedNodeAcceptsMaterial == value)
         return;
     m_selectedNodeAcceptsMaterial = value;
@@ -167,6 +204,8 @@ void QmlTextureNodeProxy::setSelectedNodeAcceptsMaterial(bool value)
 
 bool QmlTextureNodeProxy::hasQuick3DImport() const
 {
+    NanotraceHR::Tracer tracer{"qml texture node proxy has quick3d import", category()};
+
     return textureNode().isValid() && textureNode().model()->hasImport("QtQuick3D"_L1);
 }
 

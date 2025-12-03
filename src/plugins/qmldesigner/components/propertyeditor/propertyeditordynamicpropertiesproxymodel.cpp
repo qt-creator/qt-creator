@@ -25,21 +25,31 @@
 
 #include "propertyeditordynamicpropertiesproxymodel.h"
 
+#include "propertyeditortracing.h"
+
 #include <dynamicpropertiesmodel.h>
 
 #include <propertyeditorview.h>
 
 namespace QmlDesigner {
 
+using QmlDesigner::PropertyEditorTracing::category;
+
 PropertyEditorDynamicPropertiesProxyModel::PropertyEditorDynamicPropertiesProxyModel(QObject *parent)
     : DynamicPropertiesProxyModel(parent)
 {
+    NanotraceHR::Tracer tracer{"property editor dynamic properties proxy model constructor",
+                               category()};
+
     if (PropertyEditorView::instance())
         initModel(PropertyEditorView::instance()->dynamicPropertiesModel());
 }
 
 void PropertyEditorDynamicPropertiesProxyModel::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{
+        "property editor dynamic properties proxy model register declarative type", category()};
+
     DynamicPropertiesProxyModel::registerDeclarativeType();
     qmlRegisterType<PropertyEditorDynamicPropertiesProxyModel>("HelperWidgets", 2, 0, "PropertyEditorDynamicPropertiesModel");
 }

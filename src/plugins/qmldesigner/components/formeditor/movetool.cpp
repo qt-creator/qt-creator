@@ -20,6 +20,8 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 MoveTool::MoveTool(FormEditorView *editorView)
     : AbstractFormEditorTool(editorView)
     , m_moveManipulator(editorView->scene()->manipulatorLayerItem(), editorView)
@@ -30,6 +32,8 @@ MoveTool::MoveTool(FormEditorView *editorView)
     , m_bindingIndicator(editorView->scene()->manipulatorLayerItem())
 
 {
+    NanotraceHR::Tracer tracer{"move tool constructor", category()};
+
     m_selectionIndicator.setCursor(Qt::SizeAllCursor);
 }
 
@@ -37,6 +41,8 @@ MoveTool::~MoveTool() = default;
 
 void MoveTool::clear()
 {
+    NanotraceHR::Tracer tracer{"move tool clear", category()};
+
     m_moveManipulator.clear();
     m_movingItems.clear();
     m_selectionIndicator.clear();
@@ -52,12 +58,15 @@ void MoveTool::clear()
 
 void MoveTool::start()
 {
+    NanotraceHR::Tracer tracer{"move tool start", category()};
+
     view()->formEditorWidget()->graphicsView()->viewport()->setCursor(Qt::SizeAllCursor);
 }
 
-void MoveTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
-                                            QGraphicsSceneMouseEvent *event)
+void MoveTool::mousePressEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"move tool mouse press event", category()};
+
     if (event->button() == Qt::LeftButton) {
         if (itemList.isEmpty())
             return;
@@ -72,9 +81,10 @@ void MoveTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
     AbstractFormEditorTool::mousePressEvent(itemList, event);
 }
 
-void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
-                                           QGraphicsSceneMouseEvent *event)
+void MoveTool::mouseMoveEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"move tool mouse move event", category()};
+
     if (m_moveManipulator.isActive()) {
         if (m_movingItems.isEmpty())
             return;
@@ -106,6 +116,8 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
 void MoveTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
                         QGraphicsSceneMouseEvent * event)
 {
+    NanotraceHR::Tracer tracer{"move tool hover move event", category()};
+
     if (itemList.isEmpty()) {
         view()->changeToSelectionTool();
         return;
@@ -145,13 +157,15 @@ void MoveTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
 
 void MoveTool::keyPressEvent(QKeyEvent *event)
 {
+    NanotraceHR::Tracer tracer{"move tool key press event", category()};
+
     switch (event->key()) {
-        case Qt::Key_Shift:
-        case Qt::Key_Alt:
-        case Qt::Key_Control:
-        case Qt::Key_AltGr:
-            event->setAccepted(false);
-            return;
+    case Qt::Key_Shift:
+    case Qt::Key_Alt:
+    case Qt::Key_Control:
+    case Qt::Key_AltGr:
+        event->setAccepted(false);
+        return;
     }
 
     double moveStep = 1.0;
@@ -188,13 +202,15 @@ void MoveTool::keyPressEvent(QKeyEvent *event)
 
 void MoveTool::keyReleaseEvent(QKeyEvent *keyEvent)
 {
+    NanotraceHR::Tracer tracer{"move tool key release event", category()};
+
     switch (keyEvent->key()) {
-        case Qt::Key_Shift:
-        case Qt::Key_Alt:
-        case Qt::Key_Control:
-        case Qt::Key_AltGr:
-            keyEvent->setAccepted(false);
-            return;
+    case Qt::Key_Shift:
+    case Qt::Key_Alt:
+    case Qt::Key_Control:
+    case Qt::Key_AltGr:
+        keyEvent->setAccepted(false);
+        return;
     }
 
     if (!keyEvent->isAutoRepeat()) {
@@ -220,6 +236,8 @@ void  MoveTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphi
 void MoveTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
                                  QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"move tool mouse release event", category()};
+
     if (m_moveManipulator.isActive()) {
         if (m_movingItems.isEmpty())
             return;
@@ -241,17 +259,23 @@ void MoveTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
 
 void MoveTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"move tool mouse double click event", category()};
+
     AbstractFormEditorTool::mouseDoubleClickEvent(itemList, event);
 }
 
 void MoveTool::itemsAboutToRemoved(const QList<FormEditorItem*> &removedItemList)
 {
-    for (FormEditorItem* removedItem : removedItemList)
+    NanotraceHR::Tracer tracer{"move tool items about to be removed", category()};
+
+    for (FormEditorItem *removedItem : removedItemList)
         m_movingItems.removeOne(removedItem);
 }
 
 void MoveTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"move tool selected items changed", category()};
+
     m_selectionIndicator.setItems(movingItems(itemList));
     m_resizeIndicator.setItems(itemList);
     m_rotationIndicator.setItems(itemList);
@@ -266,6 +290,8 @@ void MoveTool::instancesCompleted(const QList<FormEditorItem*> & /*itemList*/)
 
 void  MoveTool::instancesParentChanged(const QList<FormEditorItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"move tool instances parent changed", category()};
+
     m_moveManipulator.synchronizeInstanceParent(itemList);
 }
 
@@ -275,6 +301,8 @@ void MoveTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyName>
 
 bool MoveTool::haveSameParent(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"move tool have same parent", category()};
+
     if (itemList.isEmpty())
         return false;
 
@@ -291,8 +319,9 @@ bool MoveTool::haveSameParent(const QList<FormEditorItem*> &itemList)
 bool MoveTool::isAncestorOfAllItems(FormEditorItem* maybeAncestorItem,
                                     const QList<FormEditorItem*> &itemList)
 {
-    for (FormEditorItem* item : itemList)
-    {
+    NanotraceHR::Tracer tracer{"move tool is ancestor of all items", category()};
+
+    for (FormEditorItem *item : itemList) {
         if (!maybeAncestorItem->isAncestorOf(item) && item != maybeAncestorItem)
             return false;
     }
@@ -303,6 +332,8 @@ bool MoveTool::isAncestorOfAllItems(FormEditorItem* maybeAncestorItem,
 
 FormEditorItem* MoveTool::ancestorIfOtherItemsAreChild(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"move tool ancestor if other items are child", category()};
+
     if (itemList.isEmpty())
         return nullptr;
 
@@ -318,12 +349,16 @@ FormEditorItem* MoveTool::ancestorIfOtherItemsAreChild(const QList<FormEditorIte
 
 void MoveTool::updateMoveManipulator()
 {
+    NanotraceHR::Tracer tracer{"move tool update move manipulator", category()};
+
     if (m_moveManipulator.isActive())
         return;
 }
 
 void MoveTool::beginWithPoint(const QPointF &beginPoint)
 {
+    NanotraceHR::Tracer tracer{"move tool begin with point", category()};
+
     m_movingItems = movingItems(items());
     if (m_movingItems.isEmpty())
         return;
@@ -345,7 +380,9 @@ static QList<FormEditorItem *> movableItems(const QList<FormEditorItem *> &itemL
 
 QList<FormEditorItem*> MoveTool::movingItems(const QList<FormEditorItem*> &selectedItemList)
 {
-    QList<FormEditorItem*> filteredItemList = movableItems(selectedItemList);
+    NanotraceHR::Tracer tracer{"move tool moving items", category()};
+
+    QList<FormEditorItem *> filteredItemList = movableItems(selectedItemList);
 
     FormEditorItem* ancestorItem = ancestorIfOtherItemsAreChild(filteredItemList);
 
@@ -370,6 +407,8 @@ QList<FormEditorItem*> MoveTool::movingItems(const QList<FormEditorItem*> &selec
 
 void MoveTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"move tool form editor items changed", category()};
+
     const QList<FormEditorItem*> selectedItemList = filterSelectedModelNodes(itemList);
 
     m_selectionIndicator.updateItems(selectedItemList);

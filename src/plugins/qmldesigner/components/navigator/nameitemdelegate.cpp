@@ -3,12 +3,13 @@
 
 #include "nameitemdelegate.h"
 
-#include <qmath.h>
 
 #include "choosefrompropertylistdialog.h"
+#include "navigatortracing.h"
 #include "navigatortreeview.h"
 #include "navigatorview.h"
 #include "navigatorwidget.h"
+
 #include <dialogutils.h>
 #include <modelnodecontextmenu.h>
 #include <modelutils.h>
@@ -20,14 +21,17 @@
 #include <coreplugin/messagebox.h>
 #include <utils/qtcassert.h>
 
+#include <qmath.h>
 #include <QLineEdit>
-#include <QPen>
-#include <QPixmapCache>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPen>
+#include <QPixmapCache>
 
 namespace QmlDesigner {
+
+using NavigatorTracing::category;
 
 int NameItemDelegate::iconOffset = 0;
 
@@ -91,6 +95,7 @@ static QPixmap getWavyPixmap(qreal maxRadius, const QPen &pen)
 NameItemDelegate::NameItemDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
+    NanotraceHR::Tracer tracer{"name item delegate constructor", category()};
 }
 
 static int drawIcon(QPainter *painter, const QStyleOptionViewItem &styleOption, const QModelIndex &modelIndex)
@@ -131,6 +136,12 @@ static QRect drawText(QPainter *painter,
     textFrame.setWidth(width);
 
     return textFrame;
+}
+
+static bool isReference(const QModelIndex &modelIndex)
+{
+    // Internal ids < 0 are reserved for references nodes in NavigatorTreeModel
+    return static_cast<qint32>(modelIndex.internalId()) < 0;
 }
 
 static bool isThisOrAncestorLocked(const QModelIndex &modelIndex)
@@ -188,6 +199,8 @@ static void openContextMenu(const QModelIndex &index, const QPoint &pos)
 QSize NameItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/,
                                  const QModelIndex & /*modelIndex*/) const
 {
+    NanotraceHR::Tracer tracer{"name item delegate size hint", category()};
+
     return {15, 20 + (2 * delegateMargin)};
 }
 
@@ -195,11 +208,14 @@ void NameItemDelegate::paint(QPainter *painter,
                              const QStyleOptionViewItem &styleOption,
                              const QModelIndex &modelIndex) const
 {
+    NanotraceHR::Tracer tracer{"name item delegate paint", category()};
+
     painter->save();
 
     painter->setPen(Theme::getColor(Theme::Color::DSnavigatorText));
 
-    if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex)) {
+    if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex)
+        && !isReference(modelIndex)) {
         painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
                           Theme::getColor(Theme::Color::DSnavigatorItemBackgroundHover));
         painter->setPen(Theme::getColor(Theme::Color::DSnavigatorTextHover));
@@ -213,7 +229,7 @@ void NameItemDelegate::paint(QPainter *painter,
     ModelNode node = getModelNode(modelIndex);
     if (!ModelUtils::isThisOrAncestorLocked(node)) {
         NavigatorWidget *widget = qobject_cast<NavigatorWidget *>(styleOption.widget->parent());
-        if (widget && !widget->dragType().isEmpty()) {
+        if (widget && !widget->dragType().isEmpty() && !isReference(modelIndex)) {
             QByteArray dragType = widget->dragType();
             const NodeMetaInfo metaInfo = node.metaInfo();
 
@@ -276,6 +292,8 @@ QWidget *NameItemDelegate::createEditor(QWidget *parent,
                                         const QStyleOptionViewItem &/*option*/,
                                         const QModelIndex &index) const
 {
+    NanotraceHR::Tracer tracer{"name item delegate create editor", category()};
+
     if (!getModelNode(index).isValid())
         return nullptr;
 
@@ -284,6 +302,8 @@ QWidget *NameItemDelegate::createEditor(QWidget *parent,
 
 void NameItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
+    NanotraceHR::Tracer tracer{"name item delegate set editor data", category()};
+
     const ModelNode node = getModelNode(index);
     const QString value = node.id();
 
@@ -295,6 +315,8 @@ void NameItemDelegate::setModelData(QWidget *editor,
                                     [[maybe_unused]] QAbstractItemModel *model,
                                     const QModelIndex &index) const
 {
+    NanotraceHR::Tracer tracer{"name item delegate set model data", category()};
+
     auto lineEdit = static_cast<QLineEdit*>(editor);
     setId(index, lineEdit->text());
     lineEdit->clearFocus();
@@ -302,6 +324,8 @@ void NameItemDelegate::setModelData(QWidget *editor,
 
 bool NameItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QStyleOptionViewItem &, const QModelIndex &index)
 {
+    NanotraceHR::Tracer tracer{"name item delegate editor event", category()};
+
     if (event->type() == QEvent::MouseButtonRelease) {
         auto mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::RightButton) {
@@ -317,6 +341,8 @@ void NameItemDelegate::updateEditorGeometry(QWidget *editor,
                                             const QStyleOptionViewItem &option,
                                             const QModelIndex &/*index*/) const
 {
+    NanotraceHR::Tracer tracer{"name item delegate update editor geometry", category()};
+
     auto lineEdit = static_cast<QLineEdit*>(editor);
     lineEdit->setTextMargins(0, 0, 0, 2);
     // + 2 is shifting the QLineEdit to the left so it will align with the text when activated

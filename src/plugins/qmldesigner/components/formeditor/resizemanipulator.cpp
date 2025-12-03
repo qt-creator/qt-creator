@@ -5,13 +5,18 @@
 
 #include "formeditoritem.h"
 #include "formeditorscene.h"
-#include "qmlanchors.h"
+#include "formeditortracing.h"
+
+#include <mathutils.h>
+#include <qmlanchors.h>
+
 #include <QDebug>
-#include "mathutils.h"
 
 #include <limits>
 
 namespace QmlDesigner {
+
+using FormEditorTracing::category;
 
 ResizeManipulator::ResizeManipulator(LayerItem *layerItem, FormEditorView *view)
     : m_view(view),
@@ -23,15 +28,20 @@ ResizeManipulator::ResizeManipulator(LayerItem *layerItem, FormEditorView *view)
     m_resizeHandle(nullptr),
     m_isActive(false)
 {
+    NanotraceHR::Tracer tracer{"resize manipulator constructor", category()};
 }
 
 ResizeManipulator::~ResizeManipulator()
 {
+    NanotraceHR::Tracer tracer{"resize manipulator destructor", category()};
+
     deleteSnapLines();
 }
 
 void ResizeManipulator::setHandle(ResizeHandleItem *resizeHandle)
 {
+    NanotraceHR::Tracer tracer{"resize manipulator set handle", category()};
+
     Q_ASSERT(resizeHandle);
     m_resizeHandle = resizeHandle;
     m_resizeController = resizeHandle->resizeController();
@@ -42,12 +52,16 @@ void ResizeManipulator::setHandle(ResizeHandleItem *resizeHandle)
 
 void ResizeManipulator::removeHandle()
 {
+    NanotraceHR::Tracer tracer{"resize manipulator remove handle", category()};
+
     m_resizeController = ResizeController();
     m_resizeHandle = nullptr;
 }
 
 void ResizeManipulator::begin(const QPointF &/*beginPoint*/)
 {
+    NanotraceHR::Tracer tracer{"resize manipulator begin", category()};
+
     if (m_resizeController.isValid()) {
         m_isActive = true;
         m_beginBoundingRect = m_resizeController.formEditorItem()->qmlItemNode().instanceBoundingRect();
@@ -77,6 +91,8 @@ void ResizeManipulator::begin(const QPointF &/*beginPoint*/)
 
 void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSnapping, Qt::KeyboardModifiers keyMods)
 {
+    NanotraceHR::Tracer tracer{"resize manipulator update", category()};
+
     const bool preserveAspectRatio = keyMods.testFlag(Qt::ShiftModifier);
     const bool resizeFromCenter = keyMods.testFlag(Qt::AltModifier);
 
@@ -521,6 +537,8 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
 
 void ResizeManipulator::end(Snapper::Snapping useSnapping)
 {
+    NanotraceHR::Tracer tracer{"resize manipulator end", category()};
+
     if (useSnapping == Snapper::UseSnappingAndAnchoring) {
         deleteSnapLines();
         m_snapper.setTransformtionSpaceFormEditorItem(m_snapper.containerFormEditorItem());
@@ -536,6 +554,8 @@ void ResizeManipulator::end(Snapper::Snapping useSnapping)
 
 void ResizeManipulator::moveBy(double deltaX, double deltaY)
 {
+    NanotraceHR::Tracer tracer{"resize manipulator move by", category()};
+
     if (resizeHandle() && m_resizeController.isValid()) {
         QmlItemNode qmlItemNode(m_resizeController.formEditorItem()->qmlItemNode());
         QmlAnchors anchors(qmlItemNode.anchors());
@@ -591,12 +611,13 @@ void ResizeManipulator::moveBy(double deltaX, double deltaY)
             if (anchors.instanceHasAnchor(AnchorLineVerticalCenter))
                 qmlItemNode.setVariantProperty("height",  round(qmlItemNode.instanceValue("height").toDouble() + (deltaY * 2), 4));
         }
-
     }
 }
 
 bool ResizeManipulator::isInvalidSize(const QSizeF & size)
 {
+    NanotraceHR::Tracer tracer{"resize manipulator is invalid size", category()};
+
     if (size.width() < 0 || size.height() < 0)
         return true;
 
@@ -605,6 +626,8 @@ bool ResizeManipulator::isInvalidSize(const QSizeF & size)
 
 void ResizeManipulator::deleteSnapLines()
 {
+    NanotraceHR::Tracer tracer{"resize manipulator delete snap lines", category()};
+
     if (m_layerItem) {
         for (QGraphicsItem *item : std::as_const(m_graphicsLineList)) {
             m_layerItem->scene()->removeItem(item);
@@ -623,6 +646,8 @@ ResizeHandleItem *ResizeManipulator::resizeHandle()
 
 void ResizeManipulator::clear()
 {
+    NanotraceHR::Tracer tracer{"resize manipulator clear", category()};
+
     m_rewriterTransaction.commit();
 
     deleteSnapLines();
@@ -640,6 +665,8 @@ void ResizeManipulator::clear()
 
 bool ResizeManipulator::isActive() const
 {
+    NanotraceHR::Tracer tracer{"resize manipulator is active", category()};
+
     return m_isActive;
 }
 

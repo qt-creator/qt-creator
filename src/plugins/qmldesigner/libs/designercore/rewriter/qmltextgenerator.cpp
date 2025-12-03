@@ -9,18 +9,20 @@
 #include <QVector3D>
 #include <QVector4D>
 
+#include <qmldesignerutils/stringutils.h>
+
 #include "bindingproperty.h"
 #include "model.h"
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
 #include "signalhandlerproperty.h"
-#include "stringutils.h"
 #include "variantproperty.h"
 #include <nodemetainfo.h>
 
 using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
 using namespace Qt::StringLiterals;
+
+namespace QmlDesigner::Internal {
 
 static QString properColorName(const QColor &color)
 {
@@ -145,7 +147,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
                 return stringValue;
             case QMetaType::QString:
             case QMetaType::QChar:
-                return QStringView(u"\"%1\"").arg(escape(unicodeEscape(stringValue)));
+                return QStringView(u"\"%1\"").arg(StringUtils::escape(unicodeEscape(stringValue)));
             case QMetaType::QVector2D: {
                 auto vec = value.value<QVector2D>();
                 return QStringLiteral("Qt.vector2d(%1, %2)").arg(vec.x(), vec.y());
@@ -160,7 +162,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
                     .arg(vec.x(), vec.y(), vec.z(), vec.w());
             }
             default:
-                return QStringView(u"\"%1\"").arg(escape(stringValue));
+                return QStringView(u"\"%1\"").arg(StringUtils::escape(stringValue));
             }
         }
     } else {
@@ -281,3 +283,5 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
 
     return result;
 }
+
+} // namespace QmlDesigner::Internal

@@ -8,6 +8,7 @@
 #include "designdocument.h"
 
 #include <qmljs/qmljssimplereader.h>
+#include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <utils/qtcassert.h>
 
@@ -43,6 +44,22 @@ DesignerMcuManager &DesignerMcuManager::instance()
 QString DesignerMcuManager::mcuResourcesPath()
 {
     return Core::ICore::resourcePath("qmldesigner/qt4mcu").toUrlishString();
+}
+
+QString DesignerMcuManager::defaultFontFamilyMCU()
+{
+    const QmlDesignerPlugin *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
+    if (designerPlugin == nullptr) {
+        return QmlProjectManager::Constants::FALLBACK_MCU_FONT_FAMILY;
+    }
+
+    const QmlDesigner::DesignDocument *designDocument = designerPlugin->documentManager()
+                                                            .currentDesignDocument();
+    if (designDocument == nullptr) {
+        return QmlProjectManager::Constants::FALLBACK_MCU_FONT_FAMILY;
+    }
+
+    return designDocument->defaultFontFamilyMCU();
 }
 
 bool DesignerMcuManager::isMCUProject() const

@@ -96,10 +96,6 @@ Item {
             HelperWidgets.AbstractButton {
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.add_medium
-                enabled: (this.hasMaterial ?? false)
-                      && hasModelSelection
-                      && hasQuick3DImport
-                      && hasMaterialLibrary
                 tooltip: qsTr("Add a custom bundle folder.")
                 onClicked: ContentLibraryBackend.rootView.browseBundleFolder()
                 x: 5 // left margin
@@ -149,20 +145,26 @@ Item {
                         }
 
                         property alias count: repeater.count
-                        property bool isCustomCat: !["Textures", "Materials", "3D"].includes(section.caption);
+                        property bool isCustomCat: !["Textures", "Materials", "2D", "3D"].includes(section.caption);
 
                         onCountChanged: root.assignMaxCount()
 
                         onDropEnter: (drag) => {
-                            let has3DNode = ContentLibraryBackend.rootView
-                                         .has3DNode(drag.getDataAsArrayBuffer(drag.formats[0]))
 
                             let hasTexture = ContentLibraryBackend.rootView
                                          .hasTexture(drag.formats[0], drag.urls)
+                            let isValid2DNode = categoryTitle === "2D"
+                                         && ContentLibraryBackend.rootView
+                                         .has2DNode(drag.getDataAsArrayBuffer(drag.formats[0]))
+                            let isValid3DNode = categoryTitle === "3D"
+                                         && ContentLibraryBackend.rootView
+                                         .has3DNode(drag.getDataAsArrayBuffer(drag.formats[0]))
 
                             drag.accepted = (categoryTitle === "Textures" && hasTexture)
-                                         || (categoryTitle === "Materials" && drag.formats[0] === "application/vnd.qtdesignstudio.material")
-                                         || (categoryTitle === "3D" && has3DNode)
+                                         || (categoryTitle === "Materials"
+                                             && drag.formats[0] === "application/vnd.qtdesignstudio.material")
+                                         || isValid2DNode
+                                         || isValid3DNode
                                          || (section.isCustomCat && hasTexture)
 
                             section.highlight = drag.accepted
@@ -184,13 +186,21 @@ Item {
                                     ContentLibraryBackend.rootView.acceptTextureDrop(drag.getDataAsString(drag.formats[0]))
                             } else if (categoryTitle === "Materials") {
                                 ContentLibraryBackend.rootView.acceptMaterialDrop(drag.getDataAsString(drag.formats[0]))
-                            } else if (categoryTitle === "3D") {
-                                ContentLibraryBackend.rootView.accept3DDrop(drag.getDataAsArrayBuffer(drag.formats[0]))
+                            } else if (categoryTitle === "2D" || categoryTitle === "3D") {
+                                ContentLibraryBackend.rootView.acceptNodeDrop(drag.getDataAsArrayBuffer(drag.formats[0]))
                             } else { // custom bundle folder
-                                if (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+
+                                if (drag.formats[0] === "application/vnd.qtdesignstudio.assets") {
                                     ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls, categoryBundlePath)
-                                else if (drag.formats[0] === "application/vnd.qtdesignstudio.texture")
+                                } else if (drag.formats[0] === "application/vnd.qtdesignstudio.texture") {
                                     ContentLibraryBackend.rootView.acceptTextureDrop(drag.getDataAsString(drag.formats[0]), categoryBundlePath)
+                                } else if (drag.formats[0] === "text/uri-list") {
+                                    let validExternalDrop = ContentLibraryBackend.rootView
+                                            .hasTexture(drag.formats[0], drag.urls)
+
+                                    if (validExternalDrop)
+                                        ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls, categoryBundlePath)
+                                }
                             }
                         }
 
@@ -232,6 +242,17 @@ Item {
                                         }
                                     }
                                     DelegateChoice {
+                                        roleValue: "User2D"
+                                        delegate: ContentLibraryItem {
+                                            width: root.cellWidth
+                                            height: root.cellHeight
+                                            visible: modelData.bundleItemVisible && !infoText.visible
+
+                                            onShowContextMenu: ctxMenuItem.popupMenu(modelData)
+                                            onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
+                                        }
+                                    }
+                                    DelegateChoice {
                                         roleValue: "User3D"
                                         delegate: ContentLibraryItem {
                                             width: root.cellWidth
@@ -262,10 +283,12 @@ Item {
                             text: {
                                 let categoryName = (categoryTitle === "3D") ? categoryTitle + " assets"
                                                                             : categoryTitle.toLowerCase()
+                                let alwaysAvailable = categoryTitle === "Textures"
+                                    || categoryTitle === "2D" || section.isCustomCat
                                 if (!ContentLibraryBackend.rootView.isQt6Project) {
                                     qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
                                 } else if (!ContentLibraryBackend.rootView.hasQuick3DImport
-                                           && categoryTitle !== "Textures" && !section.isCustomCat) {
+                                           && !alwaysAvailable) {
                                     qsTr('To use %1, add the <b>QtQuick3D</b> module and the <b>View3D</b>
                                          component in the <b>Components</b> view, or click
                                          <a href=\"#add_import\"><span style=\"text-decoration:none;color:%2\">
@@ -273,7 +296,7 @@ Item {
                                     .arg(categoryName)
                                     .arg(StudioTheme.Values.themeInteraction)
                                 } else if (!ContentLibraryBackend.rootView.hasMaterialLibrary
-                                           && categoryTitle !== "Textures" && !section.isCustomCat) {
+                                           && !alwaysAvailable) {
                                     qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
                                 } else if (categoryEmpty) {
                                     qsTr("There are no items in this category.")

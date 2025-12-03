@@ -68,7 +68,9 @@ public:
     virtual bool renameId(const QString &oldId, const QString &newId) = 0;
     virtual QStringList autoComplete(QTextDocument * /*textDocument*/, int /*position*/, bool explicitComplete = true) = 0;
 
-    virtual bool moveToComponent(int nodeOffset, const QString &importData) = 0;
+    virtual QString moveToComponent(int nodeOffset, const QString &importData) = 0;
+
+    virtual void convertPosition(int /* pos */, int * /* line */, int * /* column */) const {};
 
 signals:
     void textChanged();

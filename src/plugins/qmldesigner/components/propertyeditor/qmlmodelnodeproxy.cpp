@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "abstractview.h"
 #include "qmlmodelnodeproxy.h"
+#include "abstractview.h"
+#include "propertyeditortracing.h"
 
 #include <nodemetainfo.h>
 
@@ -17,18 +18,25 @@
 
 namespace QmlDesigner {
 
+using QmlDesigner::PropertyEditorTracing::category;
+
 QmlModelNodeProxy::QmlModelNodeProxy(QObject *parent) :
     QObject(parent)
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy constructor", category()};
 }
 
 void QmlModelNodeProxy::setup(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy setup", category()};
+
     setup(ModelNodes{node});
 }
 
 void QmlModelNodeProxy::setup(const ModelNodes &editorNodes)
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy setup with editor nodes", category()};
+
     m_qmlObjectNode = editorNodes.isEmpty() ? ModelNode{} : editorNodes.first();
     m_editorNodes = editorNodes;
 
@@ -39,11 +47,15 @@ void QmlModelNodeProxy::setup(const ModelNodes &editorNodes)
 
 void QmlModelNodeProxy::registerDeclarativeType()
 {
-    qmlRegisterType<QmlModelNodeProxy>("HelperWidgets",2,0,"ModelNodeProxy");
+    NanotraceHR::Tracer tracer{"qml model node proxy register declarative type", category()};
+
+    qmlRegisterType<QmlModelNodeProxy>("HelperWidgets", 2, 0, "ModelNodeProxy");
 }
 
 void QmlModelNodeProxy::emitSelectionToBeChanged()
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy emit selection to be changed", category()};
+
     emit selectionToBeChanged();
 }
 
@@ -54,16 +66,22 @@ void QmlModelNodeProxy::emitSelectionChanged()
 
 void QmlModelNodeProxy::refresh()
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy refresh", category()};
+
     emit refreshRequired();
 }
 
 QmlObjectNode QmlModelNodeProxy::qmlObjectNode() const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy qml object node", category()};
+
     return m_qmlObjectNode;
 }
 
 ModelNode QmlModelNodeProxy::modelNode() const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy model node", category()};
+
     return m_qmlObjectNode.modelNode();
 }
 
@@ -74,11 +92,15 @@ ModelNodes QmlModelNodeProxy::editorNodes() const
 
 ModelNode QmlModelNodeProxy::singleSelectedNode() const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy single selected node", category()};
+
     return multiSelection() ? ModelNode{} : modelNode();
 }
 
 bool QmlModelNodeProxy::multiSelection() const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy multi selection", category()};
+
     if (!m_qmlObjectNode.isValid())
         return false;
 
@@ -87,6 +109,8 @@ bool QmlModelNodeProxy::multiSelection() const
 
 QString QmlModelNodeProxy::nodeId() const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy node id", category()};
+
     if (!m_qmlObjectNode.isValid())
         return {};
 
@@ -98,6 +122,8 @@ QString QmlModelNodeProxy::nodeId() const
 
 QString QmlModelNodeProxy::nodeObjectName() const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy node object name", category()};
+
     if (!m_qmlObjectNode.isValid())
         return {};
 
@@ -109,6 +135,8 @@ QString QmlModelNodeProxy::nodeObjectName() const
 
 QString QmlModelNodeProxy::simplifiedTypeName() const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy simplified type name", category()};
+
     if (!m_qmlObjectNode.isValid())
         return {};
 
@@ -125,6 +153,8 @@ static QList<int> toInternalIdList(const QList<ModelNode> &nodes)
 
 QList<int> QmlModelNodeProxy::allChildren(int internalId) const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy all children", category()};
+
     ModelNode modelNode = m_qmlObjectNode.modelNode();
 
     QTC_ASSERT(modelNode.isValid(), return {});
@@ -137,6 +167,8 @@ QList<int> QmlModelNodeProxy::allChildren(int internalId) const
 
 QList<int> QmlModelNodeProxy::allChildrenOfType(const QString &typeName, int internalId) const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy all children of type", category()};
+
     ModelNode modelNode = m_qmlObjectNode.modelNode();
 
     QTC_ASSERT(modelNode.isValid(), return {});
@@ -149,6 +181,8 @@ QList<int> QmlModelNodeProxy::allChildrenOfType(const QString &typeName, int int
 
 QString QmlModelNodeProxy::simplifiedTypeName(int internalId) const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy simplified type name", category()};
+
     ModelNode modelNode = m_qmlObjectNode.modelNode();
 
     QTC_ASSERT(modelNode.isValid(), return {});
@@ -158,6 +192,8 @@ QString QmlModelNodeProxy::simplifiedTypeName(int internalId) const
 
 PropertyEditorSubSelectionWrapper *QmlModelNodeProxy::findWrapper(int internalId) const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy find wrapper", category()};
+
     for (const auto &item : qAsConst(m_subselection)) {
         if (item->modelNode().internalId() == internalId)
             return item.data();
@@ -168,6 +204,8 @@ PropertyEditorSubSelectionWrapper *QmlModelNodeProxy::findWrapper(int internalId
 
 PropertyEditorSubSelectionWrapper *QmlModelNodeProxy::registerSubSelectionWrapper(int internalId)
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy register sub selection wrapper", category()};
+
     auto result = findWrapper(internalId);
 
     if (result)
@@ -193,6 +231,8 @@ void QmlModelNodeProxy::createModelNode(int internalIdParent,
                                         const QString &typeName,
                                         const QString &requiredImport)
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy create model node", category()};
+
     auto parentModelNode = m_qmlObjectNode.modelNode();
 
     QTC_ASSERT(parentModelNode.isValid(), return );
@@ -231,6 +271,8 @@ void QmlModelNodeProxy::moveNode(int internalIdParent,
                                  int fromIndex,
                                  int toIndex)
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy move node", category()};
+
     ModelNode modelNode = m_qmlObjectNode.modelNode();
 
     QTC_ASSERT(modelNode.isValid(), return );
@@ -247,6 +289,8 @@ void QmlModelNodeProxy::moveNode(int internalIdParent,
 
 bool QmlModelNodeProxy::isInstanceOf(const QString &typeName, int internalId) const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy is instance of", category()};
+
     ModelNode modelNode = m_qmlObjectNode.modelNode();
 
     QTC_ASSERT(modelNode.isValid(), return {});
@@ -261,6 +305,8 @@ bool QmlModelNodeProxy::isInstanceOf(const QString &typeName, int internalId) co
 
 void QmlModelNodeProxy::changeType(int internalId, const QString &typeName)
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy change type", category()};
+
     QTC_ASSERT(m_qmlObjectNode.isValid(), return );
 
     ModelNode node = m_qmlObjectNode.view()->modelNodeForInternalId(internalId);
@@ -279,6 +325,8 @@ void QmlModelNodeProxy::changeType(int internalId, const QString &typeName)
 void QmlModelNodeProxy::handleInstancePropertyChanged(const ModelNode &modelNode,
                                                       PropertyNameView propertyName)
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy handle instance property changed", category()};
+
     const QmlObjectNode qmlObjectNode(modelNode);
 
     for (const auto &item : qAsConst(m_subselection)) {
@@ -295,6 +343,8 @@ void QmlModelNodeProxy::handleInstancePropertyChanged(const ModelNode &modelNode
 
 void QmlModelNodeProxy::handleBindingPropertyChanged(const BindingProperty &property)
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy handle binding property changed", category()};
+
     for (const auto &item : qAsConst(m_subselection)) {
         if (item && item->isRelevantModelNode(property.parentModelNode())) {
             QmlObjectNode objectNode(item->modelNode());
@@ -308,6 +358,8 @@ void QmlModelNodeProxy::handleBindingPropertyChanged(const BindingProperty &prop
 
 void QmlModelNodeProxy::handleVariantPropertyChanged(const VariantProperty &property)
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy handle variant property changed", category()};
+
     for (const auto &item : qAsConst(m_subselection)) {
         if (item && item->isRelevantModelNode(property.parentModelNode())) {
             QmlObjectNode objectNode(item->modelNode());
@@ -321,6 +373,8 @@ void QmlModelNodeProxy::handleVariantPropertyChanged(const VariantProperty &prop
 
 void QmlModelNodeProxy::handlePropertiesRemoved(const AbstractProperty &property)
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy handle properties removed", category()};
+
     for (const auto &item : qAsConst(m_subselection)) {
         if (item && item->isRelevantModelNode(property.parentModelNode())) {
             QmlObjectNode objectNode(item->modelNode());
@@ -332,11 +386,15 @@ void QmlModelNodeProxy::handlePropertiesRemoved(const AbstractProperty &property
 
 QList<int> QmlModelNodeProxy::allChildren(const ModelNode &modelNode) const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy all children", category()};
+
     return toInternalIdList(modelNode.directSubModelNodes());
 }
 
 QList<int> QmlModelNodeProxy::allChildrenOfType(const ModelNode &modelNode, const QString &typeName) const
 {
+    NanotraceHR::Tracer tracer{"qml model node proxy all children of type", category()};
+
     QTC_ASSERT(modelNode.isValid(), return {});
 
     NodeMetaInfo metaInfo = modelNode.model()->metaInfo(typeName.toUtf8());

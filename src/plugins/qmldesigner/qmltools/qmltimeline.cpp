@@ -17,32 +17,45 @@
 
 namespace QmlDesigner {
 
-QmlTimeline::QmlTimeline() = default;
+using NanotraceHR::keyValue;
 
-QmlTimeline::QmlTimeline(const ModelNode &modelNode) : QmlModelNodeFacade(modelNode)
+using ModelTracing::category;
+
+bool QmlTimeline::isValid(SL sl) const
 {
-
+    return isValidQmlTimeline(modelNode(), sl);
 }
 
-bool QmlTimeline::isValid() const
+bool QmlTimeline::isValidQmlTimeline(const ModelNode &modelNode, SL sl)
 {
-    return isValidQmlTimeline(modelNode());
-}
+    NanotraceHR::Tracer tracer{"qml timeline is valid",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
 
-bool QmlTimeline::isValidQmlTimeline(const ModelNode &modelNode)
-{
     return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isQtQuickTimelineTimeline();
 }
 
-void QmlTimeline::destroy()
+void QmlTimeline::destroy(SL sl)
 {
-    Q_ASSERT(isValid());
+    NanotraceHR::Tracer tracer{"qml timeline destroy",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
     modelNode().destroy();
 }
 
 QmlTimelineKeyframeGroup QmlTimeline::keyframeGroup(const ModelNode &node,
-                                                    PropertyNameView propertyName)
+                                                    PropertyNameView propertyName,
+                                                    SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml timeline keyframe group",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", node),
+                               keyValue("property name", propertyName),
+                               keyValue("caller location", sl)};
+
     if (isValid()) {
         addKeyframeGroupIfNotExists(node, propertyName);
         for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
@@ -60,8 +73,15 @@ QmlTimelineKeyframeGroup QmlTimeline::keyframeGroup(const ModelNode &node,
     return QmlTimelineKeyframeGroup(); //not found
 }
 
-bool QmlTimeline::hasTimeline(const ModelNode &node, PropertyNameView propertyName)
+bool QmlTimeline::hasTimeline(const ModelNode &node, PropertyNameView propertyName, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml timeline has timeline",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", node),
+                               keyValue("property name", propertyName),
+                               keyValue("caller location", sl)};
+
     if (isValid()) {
         for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
             if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode)) {
@@ -78,39 +98,70 @@ bool QmlTimeline::hasTimeline(const ModelNode &node, PropertyNameView propertyNa
     return false;
 }
 
-qreal QmlTimeline::startKeyframe() const
+qreal QmlTimeline::startKeyframe(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml timeline start keyframe",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (isValid())
         return QmlObjectNode(modelNode()).modelValue("startFrame").toReal();
     return 0;
 }
 
-qreal QmlTimeline::endKeyframe() const
+qreal QmlTimeline::endKeyframe(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml timeline end keyframe",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (isValid())
         return QmlObjectNode(modelNode()).modelValue("endFrame").toReal();
     return 0;
 }
 
-qreal QmlTimeline::currentKeyframe() const
+qreal QmlTimeline::currentKeyframe(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml timeline current keyframe",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (isValid())
         return QmlObjectNode(modelNode()).instanceValue("currentFrame").toReal();
     return 0;
 }
 
-qreal QmlTimeline::duration() const
+qreal QmlTimeline::duration(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml timeline duration",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return endKeyframe() - startKeyframe();
 }
 
-bool QmlTimeline::isEnabled() const
+bool QmlTimeline::isEnabled(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml timeline is enabled",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return QmlObjectNode(modelNode()).modelValue("enabled").toBool();
 }
 
-qreal QmlTimeline::minActualKeyframe(const ModelNode &target) const
+qreal QmlTimeline::minActualKeyframe(const ModelNode &target, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml timeline min actual keyframe",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", target),
+                               keyValue("caller location", sl)};
+
     qreal min = std::numeric_limits<double>::max();
 
     for (const QmlTimelineKeyframeGroup &frames : keyframeGroupsForTarget(target)) {
@@ -122,8 +173,14 @@ qreal QmlTimeline::minActualKeyframe(const ModelNode &target) const
     return min;
 }
 
-qreal QmlTimeline::maxActualKeyframe(const ModelNode &target) const
+qreal QmlTimeline::maxActualKeyframe(const ModelNode &target, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml timeline max actual keyframe",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", target),
+                               keyValue("caller location", sl)};
+
     qreal max = std::numeric_limits<double>::min();
 
     for (const QmlTimelineKeyframeGroup &frames : keyframeGroupsForTarget(target)) {
@@ -135,21 +192,39 @@ qreal QmlTimeline::maxActualKeyframe(const ModelNode &target) const
     return max;
 }
 
-void QmlTimeline::moveAllKeyframes(const ModelNode &target, qreal offset)
+void QmlTimeline::moveAllKeyframes(const ModelNode &target, qreal offset, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml timeline move all keyframes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", target),
+                               keyValue("offset", offset),
+                               keyValue("caller location", sl)};
+
     for (QmlTimelineKeyframeGroup &frames : keyframeGroupsForTarget(target))
         frames.moveAllKeyframes(offset);
 
 }
 
-void QmlTimeline::scaleAllKeyframes(const ModelNode &target, qreal factor)
+void QmlTimeline::scaleAllKeyframes(const ModelNode &target, qreal factor, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml timeline scale all keyframes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", target),
+                               keyValue("factor", factor),
+                               keyValue("caller location", sl)};
+
     for (QmlTimelineKeyframeGroup &frames : keyframeGroupsForTarget(target))
         frames.scaleAllKeyframes(factor);
 }
 
-QList<ModelNode> QmlTimeline::allTargets() const
+QList<ModelNode> QmlTimeline::allTargets(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml timeline all targets",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
     QList<ModelNode> result;
     if (isValid()) {
         for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
@@ -163,38 +238,63 @@ QList<ModelNode> QmlTimeline::allTargets() const
     return result;
 }
 
-QList<QmlTimelineKeyframeGroup> QmlTimeline::keyframeGroupsForTarget(const ModelNode &target) const
+QList<QmlTimelineKeyframeGroup> QmlTimeline::keyframeGroupsForTarget(const ModelNode &target, SL sl) const
 {
-     QList<QmlTimelineKeyframeGroup> result;
-     if (isValid()) {
-         for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
-             if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode)) {
-                 const QmlTimelineKeyframeGroup frames(childNode);
-                 if (frames.target() == target)
-                     result.append(frames);
-             }
-         }
-     }
+    NanotraceHR::Tracer tracer{"qml timeline keyframe groups for target",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", target),
+                               keyValue("caller location", sl)};
+
+    QList<QmlTimelineKeyframeGroup> result;
+    if (isValid()) {
+        for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
+            if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode)) {
+                const QmlTimelineKeyframeGroup frames(childNode);
+                if (frames.target() == target)
+                    result.append(frames);
+            }
+        }
+    }
      return result;
 }
 
-void QmlTimeline::destroyKeyframesForTarget(const ModelNode &target)
+void QmlTimeline::destroyKeyframesForTarget(const ModelNode &target, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml timeline destroy keyframes for target",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", target),
+                               keyValue("caller location", sl)};
+
     for (QmlTimelineKeyframeGroup frames : keyframeGroupsForTarget(target))
         frames.destroy();
 }
 
 void QmlTimeline::removeKeyframesForTargetAndProperty(const ModelNode &target,
-                                                      PropertyNameView propertyName)
+                                                      PropertyNameView propertyName,
+                                                      SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml timeline remove keyframes for target and property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", target),
+                               keyValue("property name", propertyName),
+                               keyValue("caller location", sl)};
+
     for (QmlTimelineKeyframeGroup frames : keyframeGroupsForTarget(target)) {
         if (frames.propertyName() == propertyName)
             frames.destroy();
     }
 }
 
-bool QmlTimeline::hasActiveTimeline(AbstractView *view)
+bool QmlTimeline::hasActiveTimeline(AbstractView *view, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml timeline has active timeline",
+                               category(),
+                               keyValue("view", view),
+                               keyValue("caller location", sl)};
+
     if (view && view->isAttached()) {
         if (!view->model()->hasImport(Import::createLibraryImport("QtQuick.Timeline", "1.0"), true, true))
             return false;
@@ -205,16 +305,28 @@ bool QmlTimeline::hasActiveTimeline(AbstractView *view)
     return false;
 }
 
-bool QmlTimeline::isRecording() const
+bool QmlTimeline::isRecording(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml timeline is recording",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QTC_ASSERT(isValid(), return false);
 
     return modelNode().hasAuxiliaryData(recordProperty);
 }
 
-void QmlTimeline::toogleRecording(bool record) const
+void QmlTimeline::toogleRecording(bool record, SL sl) const
 {
-    QTC_ASSERT(isValid(), return);
+    NanotraceHR::Tracer tracer{"qml timeline toggle recording",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("recording", record),
+                               keyValue("caller location", sl)};
+
+    if (!isValid())
+        return;
 
     if (!record) {
         if (isRecording())
@@ -224,9 +336,15 @@ void QmlTimeline::toogleRecording(bool record) const
     }
 }
 
-void QmlTimeline::resetGroupRecording() const
+void QmlTimeline::resetGroupRecording(SL sl) const
 {
-    QTC_ASSERT(isValid(), return);
+    NanotraceHR::Tracer tracer{"qml timeline reset group recording",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    if (!isValid())
+        return;
 
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
         if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode)) {
@@ -242,7 +360,7 @@ void QmlTimeline::addKeyframeGroupIfNotExists(const ModelNode &node, PropertyNam
         return;
 
     if (!hasKeyframeGroup(node, propertyName)) {
-        ModelNode frames = modelNode().view()->createModelNode("QtQuick.Timeline.KeyframeGroup", 1, 0);
+        ModelNode frames = modelNode().view()->createModelNode("KeyframeGroup", 1, 0);
 
         modelNode().defaultNodeListProperty().reparentHere(frames);
 
@@ -253,8 +371,15 @@ void QmlTimeline::addKeyframeGroupIfNotExists(const ModelNode &node, PropertyNam
     }
 }
 
-bool QmlTimeline::hasKeyframeGroup(const ModelNode &node, PropertyNameView propertyName) const
+bool QmlTimeline::hasKeyframeGroup(const ModelNode &node, PropertyNameView propertyName, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml timeline has keyframe group",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", node),
+                               keyValue("property name", propertyName),
+                               keyValue("caller location", sl)};
+
     for (const QmlTimelineKeyframeGroup &frames : allKeyframeGroups()) {
         if (frames.target().isValid()
                 && frames.target() == node
@@ -265,8 +390,14 @@ bool QmlTimeline::hasKeyframeGroup(const ModelNode &node, PropertyNameView prope
     return false;
 }
 
-bool QmlTimeline::hasKeyframeGroupForTarget(const ModelNode &node) const
+bool QmlTimeline::hasKeyframeGroupForTarget(const ModelNode &node, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml timeline has keyframe group for target",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", node),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -278,8 +409,15 @@ bool QmlTimeline::hasKeyframeGroupForTarget(const ModelNode &node) const
     return false;
 }
 
-void QmlTimeline::insertKeyframe(const ModelNode &target, PropertyNameView propertyName)
+void QmlTimeline::insertKeyframe(const ModelNode &target, PropertyNameView propertyName, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml timeline insert keyframe",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target node", target),
+                               keyValue("property name", propertyName),
+                               keyValue("caller location", sl)};
+
     ModelNode targetNode = target;
     QmlTimelineKeyframeGroup timelineFrames(keyframeGroup(targetNode, propertyName));
 

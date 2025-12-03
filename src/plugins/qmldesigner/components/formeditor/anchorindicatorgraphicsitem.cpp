@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "anchorindicatorgraphicsitem.h"
+#include "formeditortracing.h"
 
 #include <QPainter>
 
@@ -12,9 +13,13 @@ const int AngleDegree = 16;
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 AnchorIndicatorGraphicsItem::AnchorIndicatorGraphicsItem(QGraphicsItem *parent) :
     QGraphicsObject(parent)
 {
+    NanotraceHR::Tracer tracer{"anchor indicator graphics item constructor", category()};
+
     setZValue(-3);
 }
 
@@ -36,6 +41,8 @@ int startAngleForAnchorLine(const AnchorLineType &anchorLineType)
 
 void AnchorIndicatorGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /* option */, QWidget * /* widget */)
 {
+    NanotraceHR::Tracer tracer{"anchor indicator graphics item paint", category()};
+
     painter->save();
 
     QPen linePen(QColor(0, 0, 0, 150));
@@ -91,6 +98,8 @@ void AnchorIndicatorGraphicsItem::paint(QPainter *painter, const QStyleOptionGra
 
 QRectF AnchorIndicatorGraphicsItem::boundingRect() const
 {
+    NanotraceHR::Tracer tracer{"anchor indicator graphics item boundingRect", category()};
+
     return m_boundingRect;
 }
 
@@ -199,6 +208,8 @@ static void updateAnchorLinePoints(QPointF *firstPoint, QPointF *secondPoint, co
 void AnchorIndicatorGraphicsItem::updateAnchorIndicator(const AnchorLine &sourceAnchorLine,
                                                         const AnchorLine &targetAnchorLine)
 {
+    NanotraceHR::Tracer tracer{"anchor indicator graphics item update anchor indicator", category()};
+
     if (sourceAnchorLine.qmlItemNode().isValid() && targetAnchorLine.qmlItemNode().isValid()) {
         m_sourceAnchorLineType = sourceAnchorLine.type();
         m_targetAnchorLineType = targetAnchorLine.type();
@@ -223,30 +234,28 @@ void AnchorIndicatorGraphicsItem::updateAnchorIndicator(const AnchorLine &source
 
 void AnchorIndicatorGraphicsItem::updateBoundingRect()
 {
+    NanotraceHR::Tracer tracer{"anchor indicator graphics item update bounding rect", category()};
+
     QPolygonF controlPolygon(QVector<QPointF>()
-                             << m_startPoint
-                             << m_firstControlPoint
-                             << m_secondControlPoint
-                             << m_endPoint
-                             << m_sourceAnchorLineFirstPoint
-                             << m_sourceAnchorLineSecondPoint
-                             << m_targetAnchorLineFirstPoint
-                             << m_targetAnchorLineSecondPoint
-                             );
+                             << m_startPoint << m_firstControlPoint << m_secondControlPoint << m_endPoint
+                             << m_sourceAnchorLineFirstPoint << m_sourceAnchorLineSecondPoint
+                             << m_targetAnchorLineFirstPoint << m_targetAnchorLineSecondPoint);
 
     m_boundingRect = controlPolygon.boundingRect().adjusted(-10., -10., 10., 10.);
 }
 AnchorLineType AnchorIndicatorGraphicsItem::sourceAnchorLineType() const
 {
+    NanotraceHR::Tracer tracer{"anchor indicator graphics item source anchor line type", category()};
+
     return m_sourceAnchorLineType;
 }
 
 void AnchorIndicatorGraphicsItem::setSourceAnchorLineType(const AnchorLineType &sourceAnchorLineType)
 {
+    NanotraceHR::Tracer tracer{"anchor indicator graphics item set source anchor line type",
+                               category()};
+
     m_sourceAnchorLineType = sourceAnchorLineType;
 }
-
-
-
 
 } // namespace QmlDesigner

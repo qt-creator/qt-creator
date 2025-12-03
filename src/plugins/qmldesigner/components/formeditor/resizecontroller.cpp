@@ -4,6 +4,7 @@
 #include "resizecontroller.h"
 
 #include "formeditoritem.h"
+#include "formeditortracing.h"
 #include "layeritem.h"
 
 #include <resizehandleitem.h>
@@ -11,6 +12,8 @@
 #include <QGraphicsScene>
 
 namespace QmlDesigner {
+
+using FormEditorTracing::category;
 
 class ResizeControllerData
 {
@@ -69,7 +72,7 @@ ResizeControllerData::~ResizeControllerData()
 ResizeController::ResizeController()
    : m_data(new ResizeControllerData(nullptr, nullptr))
 {
-
+    NanotraceHR::Tracer tracer{"resize controller default constructor", category()};
 }
 
 ResizeController::ResizeController(const QSharedPointer<ResizeControllerData> &data)
@@ -81,6 +84,8 @@ ResizeController::ResizeController(const QSharedPointer<ResizeControllerData> &d
 ResizeController::ResizeController(LayerItem *layerItem, FormEditorItem *formEditorItem)
     : m_data(new ResizeControllerData(layerItem, formEditorItem))
 {
+    NanotraceHR::Tracer tracer{"resize controller constructor", category()};
+
     m_data->topLeftItem = QSharedPointer<ResizeHandleItem>(new ResizeHandleItem(layerItem, *this));
     m_data->topLeftItem->setZValue(302);
     m_data->topLeftItem->setCursor(Qt::SizeFDiagCursor);
@@ -135,11 +140,15 @@ ResizeController &ResizeController::operator =(const ResizeController &other)
 
 bool ResizeController::isValid() const
 {
+    NanotraceHR::Tracer tracer{"resize controller is valid", category()};
+
     return m_data->formEditorItem && m_data->formEditorItem->qmlItemNode().isValid();
 }
 
 void ResizeController::show()
 {
+    NanotraceHR::Tracer tracer{"resize controller show", category()};
+
     m_data->topLeftItem->show();
     m_data->topRightItem->show();
     m_data->bottomLeftItem->show();
@@ -151,6 +160,8 @@ void ResizeController::show()
 }
 void ResizeController::hide()
 {
+    NanotraceHR::Tracer tracer{"resize controller hide", category()};
+
     m_data->topLeftItem->hide();
     m_data->topRightItem->hide();
     m_data->bottomLeftItem->hide();
@@ -185,8 +196,9 @@ static QPointF bottomCenter(const QRectF &rect)
 
 void ResizeController::updatePosition()
 {
-    if (isValid()) {
+    NanotraceHR::Tracer tracer{"resize controller update position", category()};
 
+    if (isValid()) {
         QRectF boundingRect = m_data->formEditorItem->qmlItemNode().instanceBoundingRect();
         QPointF topLeftPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
                                                                            boundingRect.topLeft()));
@@ -228,46 +240,64 @@ FormEditorItem* ResizeController::formEditorItem() const
 
 bool ResizeController::isTopLeftHandle(const ResizeHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is top left handle", category()};
+
     return handle == m_data->topLeftItem;
 }
 
 bool ResizeController::isTopRightHandle(const ResizeHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is top right handle", category()};
+
     return handle == m_data->topRightItem;
 }
 
 bool ResizeController::isBottomLeftHandle(const ResizeHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is bottom left handle", category()};
+
     return handle == m_data->bottomLeftItem;
 }
 
 bool ResizeController::isBottomRightHandle(const ResizeHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is bottom right handle", category()};
+
     return handle == m_data->bottomRightItem;
 }
 
 bool ResizeController::isTopHandle(const ResizeHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is top handle", category()};
+
     return handle == m_data->topItem;
 }
 
 bool ResizeController::isLeftHandle(const ResizeHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is left handle", category()};
+
     return handle == m_data->leftItem;
 }
 
 bool ResizeController::isRightHandle(const ResizeHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is right handle", category()};
+
     return handle == m_data->rightItem;
 }
 
 bool ResizeController::isBottomHandle(const ResizeHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is bottom handle", category()};
+
     return handle == m_data->bottomItem;
 }
 
 WeakResizeController ResizeController::toWeakResizeController() const
 {
+    NanotraceHR::Tracer tracer{"resize controller to weak resize controller", category()};
+
     return WeakResizeController(*this);
 }
 
@@ -292,6 +322,8 @@ WeakResizeController &WeakResizeController::operator =(const WeakResizeControlle
 
 ResizeController WeakResizeController::toResizeController() const
 {
+    NanotraceHR::Tracer tracer{"weak resize controller to resize controller", category()};
+
     return ResizeController(*this);
 }
 

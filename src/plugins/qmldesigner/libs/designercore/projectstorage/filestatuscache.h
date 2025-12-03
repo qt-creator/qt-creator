@@ -3,11 +3,10 @@
 
 #pragma once
 
-#include "filestatus.h"
-#include "filesysteminterface.h"
 #include <qmldesignercorelib_exports.h>
 
-QT_FORWARD_DECLARE_CLASS(QFileInfo)
+#include "filestatus.h"
+#include "filesysteminterface.h"
 
 namespace QmlDesigner {
 
@@ -22,12 +21,12 @@ public:
     FileStatusCache &operator=(const FileStatusCache &) = delete;
     FileStatusCache(const FileStatusCache &) = delete;
 
-    long long lastModifiedTime(SourceId sourceId) const;
-    long long fileSize(SourceId sourceId) const;
     const FileStatus &find(SourceId sourceId) const;
+    const FileStatus &updateAndFind(SourceId sourceId) const;
 
-    void update(SourceId sourceId);
-    void update(SourceIds sourceIds);
+    void remove(const DirectoryPathIds &directoryPathIds);
+    void remove(const SourceIds &sourceIds);
+
     SourceIds modified(SourceIds sourceIds) const;
 
     size_type size() const;

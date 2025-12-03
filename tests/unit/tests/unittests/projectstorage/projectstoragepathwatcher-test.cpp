@@ -17,6 +17,7 @@
 #include <utils/smallstring.h>
 
 namespace {
+
 using SourcePathCache = QmlDesigner::SourcePathCache<QmlDesigner::SourcePathStorage>;
 using Watcher = QmlDesigner::ProjectStoragePathWatcher<NiceMock<MockQFileSytemWatcher>,
                                                        NiceMock<MockTimer>,
@@ -37,15 +38,27 @@ using QmlDesigner::SourceType;
 using QmlDesigner::WatcherEntries;
 using QmlDesigner::WatcherEntry;
 
+auto IsNullFileStatus(const auto &sourceIdmatcher)
+{
+    return AllOf(Field("FileStatus::sourceId", &FileStatus::sourceId, sourceIdmatcher),
+                 Field("FileStatus::size", &FileStatus::size, -1),
+                 Field("FileStatus::lastModified", &FileStatus::lastModified, FileStatus::null));
+}
+
 class ProjectStoragePathWatcher : public testing::Test
 {
 protected:
     struct StaticData
     {
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
         Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
         Sqlite::Database sourcePathDatabase{":memory:", Sqlite::JournalMode::Memory};
         ProjectStorageErrorNotifierMock errorNotifierMock;
-        QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
+        QmlDesigner::ProjectStorage storage{database,
+                                            errorNotifierMock,
+                                            modulesStorage,
+                                            database.isInitialized()};
         QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
                                                          sourcePathDatabase.isInitialized()};
     };
@@ -59,7 +72,7 @@ protected:
     ProjectStoragePathWatcher()
     {
         ON_CALL(mockFileSystem, fileStatus(_)).WillByDefault([](auto sourceId) {
-            return FileStatus{sourceId, 1, 1};
+            return createFileStatus(sourceId, 1, 1);
         });
 
         ON_CALL(mockFileSystem, directoryEntries(Eq(directoryPath)))
@@ -77,6 +90,17 @@ protected:
         return std::move(entries);
     }
 
+    static QmlDesigner::FileStatus createFileStatus(SourceId sourceId,
+                                                    long long size,
+                                                    long long modifiedTime)
+    {
+        using file_time_type = std::filesystem::file_time_type;
+
+        return QmlDesigner::FileStatus{sourceId,
+                                       size,
+                                       file_time_type{file_time_type::duration{modifiedTime}}};
+    }
+
 protected:
     NiceMock<ProjectStoragePathWatcherNotifierMock> notifier;
     NiceMock<FileSystemMock> mockFileSystem;
@@ -88,7 +112,7 @@ protected:
     Watcher watcher{pathCache, fileStatusCache, &notifier};
     NiceMock<MockQFileSytemWatcher> &mockQFileSytemWatcher = watcher.fileSystemWatcher();
     ProjectChunkId projectChunkId1{ProjectPartId::create(2), SourceType::Qml};
-    ProjectChunkId projectChunkId2{ProjectPartId::create(2), SourceType::QmlUi};
+    ProjectChunkId projectChunkId2{ProjectPartId::create(3), SourceType::Qml};
     ProjectChunkId projectChunkId3{ProjectPartId::create(3), SourceType::QmlTypes};
     ProjectChunkId projectChunkId4{ProjectPartId::create(4), SourceType::Qml};
     SourcePathView path1{"/path/path1"};
@@ -101,6 +125,7 @@ protected:
     QString directoryPath = "/path";
     QString directoryPath2 = "/path2";
     QString directoryPath3 = "/path3";
+    Utils::PathString subDirectoryPath = "/path/sub";
     Utils::PathString directoryPathString = directoryPath;
     Utils::PathString directoryPathString2 = directoryPath2;
     SourceIds sourceIds = {pathCache.sourceId(path1),
@@ -111,6 +136,8 @@ protected:
     DirectoryPathIds directoryPathIds = {sourceIds[0].directoryPathId(),
                                          sourceIds[2].directoryPathId(),
                                          sourceIds[4].directoryPathId()};
+    DirectoryPathId subDirectoryPathId = pathCache.directoryPathId(subDirectoryPath);
+    SourceId subDirectoryPathSourceId = SourceId::create(subDirectoryPathId);
     ProjectChunkIds ids{projectChunkId1, projectChunkId2, projectChunkId3};
     WatcherEntry watcherEntry1{projectChunkId1, directoryPathIds[0], sourceIds[0]};
     WatcherEntry watcherEntry2{projectChunkId2, directoryPathIds[0], sourceIds[0]};
@@ -135,6 +162,14 @@ TEST_F(ProjectStoragePathWatcher, add_id_paths)
 
     watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
                            {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
+}
+
+TEST_F(ProjectStoragePathWatcher, add_directory_id_paths)
+{
+    EXPECT_CALL(mockQFileSytemWatcher,
+                addPaths(UnorderedElementsAre(QString(directoryPath), QString(subDirectoryPath))));
+
+    watcher.updateIdPaths({{projectChunkId1, {subDirectoryPathSourceId}}});
 }
 
 TEST_F(ProjectStoragePathWatcher, update_id_paths_calls_add_path_in_file_watcher)
@@ -267,9 +302,9 @@ TEST_F(ProjectStoragePathWatcher, remove_entries_with_id)
                            {projectChunkId2, {sourceIds[0], sourceIds[1]}},
                            {projectChunkId3, {sourceIds[1], sourceIds[3]}}});
 
-    watcher.removeIds({ProjectPartId::create(2)});
+    watcher.removeIds({ProjectPartId::create(3)});
 
-    ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry5, watcherEntry8));
+    ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry1, watcherEntry3));
 }
 
 TEST_F(ProjectStoragePathWatcher, remove_no_paths_for_empty_ids)
@@ -286,7 +321,7 @@ TEST_F(ProjectStoragePathWatcher, remove_no_paths_for_one_id)
 
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(_)).Times(0);
 
-    watcher.removeIds({projectChunkId3.id});
+    watcher.removeIds({projectChunkId4.id});
 }
 
 TEST_F(ProjectStoragePathWatcher, remove_path_for_one_id)
@@ -327,21 +362,21 @@ TEST_F(ProjectStoragePathWatcher, remove_one_path_for_two_id)
                            {projectChunkId2, {sourceIds[0], sourceIds[1]}},
                            {projectChunkId3, {sourceIds[3]}}});
 
-    EXPECT_CALL(mockQFileSytemWatcher, removePaths(ElementsAre(directoryPath)));
+    EXPECT_CALL(mockQFileSytemWatcher, removePaths(ElementsAre(directoryPath2)));
 
-    watcher.removeIds({projectChunkId1.id, projectChunkId2.id});
+    watcher.removeIds({projectChunkId2.id, projectChunkId3.id});
 }
 
 TEST_F(ProjectStoragePathWatcher, not_anymore_watched_entries_with_id)
 {
-    auto notContainsdId = [&](WatcherEntry entry) {
-        return entry.id != ids[0] && entry.id != ids[1];
+    auto containsdId = [&](const WatcherEntry &entry) {
+        return entry.id == ids[0] or entry.id == ids[1];
     };
     watcher.addEntries(
         sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
     auto oldEntries = watcher.notAnymoreWatchedEntriesWithIds({watcherEntry1, watcherEntry4},
-                                                              notContainsdId);
+                                                              containsdId);
 
     ASSERT_THAT(oldEntries, ElementsAre(watcherEntry2, watcherEntry3));
 }
@@ -363,11 +398,11 @@ TEST_F(ProjectStoragePathWatcher, two_notify_file_changes)
          {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3], sourceIds[4]}},
          {projectChunkId3, {sourceIds[4]}}});
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
-        .WillByDefault(Return(FileStatus{sourceIds[0], 1, 2}));
+        .WillByDefault(Return(createFileStatus(sourceIds[0], 1, 2)));
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[1])))
-        .WillByDefault(Return(FileStatus{sourceIds[1], 1, 2}));
+        .WillByDefault(Return(createFileStatus(sourceIds[1], 1, 2)));
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
-        .WillByDefault(Return(FileStatus{sourceIds[3], 1, 2}));
+        .WillByDefault(Return(createFileStatus(sourceIds[3], 1, 2)));
 
     EXPECT_CALL(notifier,
                 pathsWithIdsChanged(
@@ -383,9 +418,9 @@ TEST_F(ProjectStoragePathWatcher, notify_for_path_changes_if_modified_time_chang
     watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
                            {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
-        .WillByDefault(Return(FileStatus{sourceIds[0], 1, 2}));
+        .WillByDefault(Return(createFileStatus(sourceIds[0], 1, 2)));
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
-        .WillByDefault(Return(FileStatus{sourceIds[3], 1, 2}));
+        .WillByDefault(Return(createFileStatus(sourceIds[3], 1, 2)));
 
     EXPECT_CALL(notifier, pathsChanged(ElementsAre(sourceIds[0])));
 
@@ -397,9 +432,9 @@ TEST_F(ProjectStoragePathWatcher, notify_for_path_changes_if_size_get_bigger)
     watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
                            {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
-        .WillByDefault(Return(FileStatus{sourceIds[0], 2, 1}));
+        .WillByDefault(Return(createFileStatus(sourceIds[0], 2, 1)));
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
-        .WillByDefault(Return(FileStatus{sourceIds[3], 2, 1}));
+        .WillByDefault(Return(createFileStatus(sourceIds[3], 2, 1)));
 
     EXPECT_CALL(notifier, pathsChanged(ElementsAre(sourceIds[0])));
 
@@ -411,9 +446,9 @@ TEST_F(ProjectStoragePathWatcher, notify_for_path_changes_if_size_get_smaller)
     watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
                            {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
-        .WillByDefault(Return(FileStatus{sourceIds[0], 0, 1}));
+        .WillByDefault(Return(createFileStatus(sourceIds[0], 0, 1)));
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
-        .WillByDefault(Return(FileStatus{sourceIds[3], 0, 1}));
+        .WillByDefault(Return(createFileStatus(sourceIds[3], 0, 1)));
 
     EXPECT_CALL(notifier, pathsChanged(ElementsAre(sourceIds[0])));
 
@@ -434,7 +469,7 @@ TEST_F(ProjectStoragePathWatcher, no_duplicate_path_changes)
     watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
                            {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
-        .WillByDefault(Return(FileStatus{sourceIds[0], 1, 2}));
+        .WillByDefault(Return(createFileStatus(sourceIds[0], 1, 2)));
 
     EXPECT_CALL(notifier, pathsChanged(ElementsAre(sourceIds[0])));
 
@@ -449,11 +484,11 @@ TEST_F(ProjectStoragePathWatcher, trigger_manual_two_notify_file_changes)
          {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3], sourceIds[4]}},
          {projectChunkId3, {sourceIds[4]}}});
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
-        .WillByDefault(Return(FileStatus{sourceIds[0], 1, 2}));
+        .WillByDefault(Return(createFileStatus(sourceIds[0], 1, 2)));
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[1])))
-        .WillByDefault(Return(FileStatus{sourceIds[1], 1, 2}));
+        .WillByDefault(Return(createFileStatus(sourceIds[1], 1, 2)));
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
-        .WillByDefault(Return(FileStatus{sourceIds[3], 1, 2}));
+        .WillByDefault(Return(createFileStatus(sourceIds[3], 1, 2)));
 
     EXPECT_CALL(notifier,
                 pathsWithIdsChanged(
@@ -468,9 +503,9 @@ TEST_F(ProjectStoragePathWatcher, trigger_manual_notify_for_path_changes)
     watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
                            {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
-        .WillByDefault(Return(FileStatus{sourceIds[0], 1, 2}));
+        .WillByDefault(Return(createFileStatus(sourceIds[0], 1, 2)));
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
-        .WillByDefault(Return(FileStatus{sourceIds[3], 1, 2}));
+        .WillByDefault(Return(createFileStatus(sourceIds[3], 1, 2)));
 
     EXPECT_CALL(notifier, pathsChanged(ElementsAre(sourceIds[0])));
 
@@ -513,18 +548,12 @@ TEST_F(ProjectStoragePathWatcher, update_context_id_paths_adds_entry_to_director
         {projectChunkId4, {sourceIds[1], sourceIds[3]}},
     });
 
-    watcher.updateContextIdPaths({{projectChunkId4,
-                                   {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3]}}},
+    watcher.updateContextIdPaths({{projectChunkId4, {sourceIds[2], sourceIds[3]}}},
                                  {directoryPathIds[1]});
 
     ASSERT_THAT(watcher.watchedEntries(),
-                UnorderedElementsAre(watcherEntry1,
-                                     watcherEntry3,
-                                     watcherEntry6,
-                                     watcherEntry9,
-                                     watcherEntry10,
-                                     watcherEntry11,
-                                     watcherEntry12));
+                UnorderedElementsAre(
+                    watcherEntry1, watcherEntry3, watcherEntry10, watcherEntry11, watcherEntry12));
 }
 
 TEST_F(ProjectStoragePathWatcher, update_context_id_paths_removes_entry)
@@ -539,10 +568,24 @@ TEST_F(ProjectStoragePathWatcher, update_context_id_paths_removes_entry)
     ASSERT_THAT(watcher.watchedEntries(),
                 UnorderedElementsAre(watcherEntry1,
                                      watcherEntry3,
-                                     watcherEntry6,
                                      watcherEntry9,
                                      watcherEntry10,
                                      watcherEntry12));
+}
+
+TEST_F(ProjectStoragePathWatcher, update_context_id_paths_updates_file_status_cache_for_removes_entry)
+{
+    watcher.updateIdPaths({
+        {projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
+        {projectChunkId4, {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3]}},
+    });
+    ON_CALL(mockFileSystem, fileStatus(sourceIds[2])).WillByDefault([](auto sourceId) {
+        return QmlDesigner::FileStatus(sourceId);
+    });
+
+    watcher.updateContextIdPaths({{projectChunkId4, {sourceIds[3]}}}, {directoryPathIds[1]});
+
+    ASSERT_THAT(fileStatusCache.find(sourceIds[2]), IsNullFileStatus(sourceIds[2]));
 }
 
 } // namespace

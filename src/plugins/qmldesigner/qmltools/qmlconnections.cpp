@@ -9,41 +9,45 @@
 
 namespace QmlDesigner {
 
-QmlConnections::QmlConnections()
+using NanotraceHR::keyValue;
+
+using ModelTracing::category;
+
+bool QmlConnections::isValid(SL sl) const
 {
+    return isValidQmlConnections(modelNode(), sl);
 }
 
-QmlConnections::QmlConnections(const ModelNode &modelNode)
-    : QmlModelNodeFacade(modelNode)
+bool QmlConnections::isValidQmlConnections(const ModelNode &modelNode, SL sl)
 {
-}
-
-bool QmlConnections::isValid() const
-{
-    return isValidQmlConnections(modelNode());
-}
-
-bool QmlConnections::isValidQmlConnections(const ModelNode &modelNode)
-{
-    return isValidQmlModelNodeFacade(modelNode)
-            && modelNode.metaInfo().isValid()
-            && (modelNode.type() == "Connections"
-                || modelNode.type() == "QtQuick.Connections"
-                || modelNode.type() == "Qt.Connections"
-                || modelNode.type() == "QtQml.Connections");
+    NanotraceHR::Tracer tracer{"qml connection is valid qml connections",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+    return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isValid()
+           && (modelNode.type() == "Connections" || modelNode.type() == "QtQuick.Connections"
+               || modelNode.type() == "Qt.Connections" || modelNode.type() == "QtQml.Connections");
 }
 
 /*!
     Removes connections node.
 */
-void QmlConnections::destroy()
+void QmlConnections::destroy(SL sl)
 {
-    Q_ASSERT(isValid());
+    NanotraceHR::Tracer tracer{"qml connection destroy",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
     modelNode().destroy();
 }
 
-QString QmlConnections::target() const
+QString QmlConnections::target(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml connections target",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().isValid()) {
         const BindingProperty bindingproperty = modelNode().bindingProperty("target");
         if (bindingproperty.isValid())
@@ -53,13 +57,24 @@ QString QmlConnections::target() const
     return QString();
 }
 
-void QmlConnections::setTarget(const QString &target)
+void QmlConnections::setTarget(const QString &target, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml connections set target",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("target", target),
+                               keyValue("caller location", sl)};
+
     modelNode().bindingProperty("target").setExpression(target);
 }
 
-ModelNode QmlConnections::getTargetNode() const
+ModelNode QmlConnections::getTargetNode(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml connections get target node",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     ModelNode result;
 
     if (!modelNode().isValid())
@@ -91,13 +106,23 @@ ModelNode QmlConnections::getTargetNode() const
     return result;
 }
 
-QList<SignalHandlerProperty> QmlConnections::signalProperties() const
+QList<SignalHandlerProperty> QmlConnections::signalProperties(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml connections signal properties",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().signalProperties();
 }
 
-ModelNode QmlConnections::createQmlConnections(AbstractView *view)
+ModelNode QmlConnections::createQmlConnections(AbstractView *view, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml connections create qml connections",
+                               category(),
+                               keyValue("view", view),
+                               keyValue("caller location", sl)};
+
 #ifdef QDS_USE_PROJECTSTORAGE
     return view->createModelNode("Connections");
 #else

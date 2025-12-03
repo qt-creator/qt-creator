@@ -18,10 +18,14 @@ namespace QmlDesigner {
 using namespace NanotraceHR::Literals;
 
 namespace ImageCache {
+
+#ifdef ENABLE_IMAGE_CACHE_TRACING
+
 namespace {
 
 thread_local Category category_{"image cache",
-                                QmlDesigner::Tracing::eventQueueWithStringArguments(),
+                                Tracing::eventQueueWithStringArguments(),
+                                Tracing::eventQueueWithoutArguments(),
                                 category};
 } // namespace
 
@@ -29,6 +33,9 @@ Category &category()
 {
     return category_;
 }
+
+#endif
+
 } // namespace ImageCache
 
 AsynchronousImageCache::AsynchronousImageCache(ImageCacheStorageInterface &storage,

@@ -7,16 +7,17 @@ import QtQuick
 Item {
     id: root
 
-    property real divider
     property real containerSize
     property int orientation
+    readonly property alias containsMouse: mouseArea.containsMouse
+    readonly property alias dragActive: mouseArea.drag.active
 
-    property real _dragMin: 0.0
-    property real _dragMax: 0.0
-    readonly property real _size: 12
+    property real _dragMin: containerSize * 0.1
+    property real _dragMax: containerSize * 0.9
+    readonly property real grabSize: 4
 
-    width: orientation === Qt.Vertical ? _size : parent.width
-    height: orientation === Qt.Horizontal ? _size : parent.height
+    width: orientation === Qt.Vertical ? grabSize * 2 : parent.width
+    height: orientation === Qt.Horizontal ? grabSize * 2 : parent.height
 
     signal currentDividerChanged(real value)
 
@@ -31,16 +32,12 @@ Item {
         drag.minimumY: _dragMin
         drag.maximumY: _dragMax
         drag.smoothed: true
+        hoverEnabled: true
 
         onPositionChanged: {
-            var deltaPx = (orientation === Qt.Vertical ? root.x : root.y);
-            var deltaNorm = deltaPx / root.containerSize;
+            var deltaPx = (orientation === Qt.Vertical ? root.x : root.y) + grabSize;
+            var deltaNorm = (deltaPx / root.containerSize);
             currentDividerChanged(deltaNorm);
-        }
-
-        Component.onCompleted: {
-            _dragMin = containerSize * 0.1; // Drag constraint
-            _dragMax = containerSize - _dragMin;
         }
     }
 }

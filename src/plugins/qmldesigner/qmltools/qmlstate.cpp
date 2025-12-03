@@ -15,18 +15,19 @@
 
 namespace QmlDesigner {
 
-QmlModelState::QmlModelState()
-{
-}
+using NanotraceHR::keyValue;
 
-QmlModelState::QmlModelState(const ModelNode &modelNode)
-    : QmlModelNodeFacade(modelNode)
-{
-}
+using ModelTracing::category;
 
-QmlPropertyChanges QmlModelState::propertyChanges(const ModelNode &node)
+QmlPropertyChanges QmlModelState::ensurePropertyChangesForTarget(const ModelNode &node, SL sl)
 {
-    if (isValid() && !isBaseState()) {
+    NanotraceHR::Tracer tracer{"qml model state ensure property changes for target",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("node", node),
+                               keyValue("caller location", sl)};
+
+    if (!isBaseState() && isValid()) {
         addChangeSetIfNotExists(node);
 
         const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
@@ -42,8 +43,35 @@ QmlPropertyChanges QmlModelState::propertyChanges(const ModelNode &node)
     return QmlPropertyChanges(); //not found
 }
 
-QList<QmlModelStateOperation> QmlModelState::stateOperations(const ModelNode &node) const
+QmlPropertyChanges QmlModelState::propertyChangesForTarget(const ModelNode &node, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state property changes for target",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("node", node),
+                               keyValue("caller location", sl)};
+
+    if (!isBaseState() && isValid()) {
+        const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
+        for (const ModelNode &childNode : nodes) {
+            if (QmlPropertyChanges::isValidQmlPropertyChanges(childNode)
+                && QmlPropertyChanges(childNode).target().isValid()
+                && QmlPropertyChanges(childNode).target() == node)
+                return QmlPropertyChanges(childNode); //### exception if not valid(childNode);
+        }
+    }
+
+    return QmlPropertyChanges(); //not found
+}
+
+QList<QmlModelStateOperation> QmlModelState::stateOperations(const ModelNode &node, SL sl) const
+{
+    NanotraceHR::Tracer tracer{"qml model state state operations",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("node", node),
+                               keyValue("caller location", sl)};
+
     QList<QmlModelStateOperation> returnList;
 
     if (!isBaseState() && modelNode().hasNodeListProperty("changes")) {
@@ -61,8 +89,13 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations(const ModelNode &no
     return returnList; //not found
 }
 
-QList<QmlPropertyChanges> QmlModelState::propertyChanges() const
+QList<QmlPropertyChanges> QmlModelState::propertyChanges(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state property changes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QList<QmlPropertyChanges> returnList;
 
     if (!isBaseState() && modelNode().hasNodeListProperty("changes")) {
@@ -77,9 +110,14 @@ QList<QmlPropertyChanges> QmlModelState::propertyChanges() const
     return returnList;
 }
 
-
-bool QmlModelState::hasPropertyChanges(const ModelNode &node) const
+bool QmlModelState::hasPropertyChanges(const ModelNode &node, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state has property changes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("node", node),
+                               keyValue("caller location", sl)};
+
     if (!isBaseState() && modelNode().hasNodeListProperty("changes")) {
         const QList<QmlPropertyChanges> changes = propertyChanges();
         for (const QmlPropertyChanges &changeSet : changes) {
@@ -91,8 +129,14 @@ bool QmlModelState::hasPropertyChanges(const ModelNode &node) const
     return false;
 }
 
-bool QmlModelState::hasStateOperation(const ModelNode &node) const
+bool QmlModelState::hasStateOperation(const ModelNode &node, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state has state operation",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("node", node),
+                               keyValue("caller location", sl)};
+
     if (!isBaseState()) {
         const  QList<QmlModelStateOperation> operations = stateOperations();
         for (const  QmlModelStateOperation &stateOperation : operations) {
@@ -103,8 +147,13 @@ bool QmlModelState::hasStateOperation(const ModelNode &node) const
     return false;
 }
 
-QList<QmlModelStateOperation> QmlModelState::stateOperations() const
+QList<QmlModelStateOperation> QmlModelState::stateOperations(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state state operations",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     //### exception if not valid
     QList<QmlModelStateOperation> returnList;
 
@@ -120,8 +169,13 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations() const
     return returnList;
 }
 
-QList<QmlModelStateOperation> QmlModelState::allInvalidStateOperations() const
+QList<QmlModelStateOperation> QmlModelState::allInvalidStateOperations(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state all invalid state operations",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return Utils::filtered(stateOperations(), [](const QmlModelStateOperation &operation) {
         return !operation.target().isValid();
     });
@@ -134,9 +188,6 @@ QList<QmlModelStateOperation> QmlModelState::allInvalidStateOperations() const
 
 void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
 {
-    if (!isValid())
-        return;
-
     if (!hasPropertyChanges(node)) {
         ModelNode newChangeSet;
 
@@ -159,15 +210,19 @@ void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
     }
 }
 
-void QmlModelState::removePropertyChanges(const ModelNode &node)
+void QmlModelState::removePropertyChanges(const ModelNode &node, SL sl)
 {
-    //### exception if not valid
+    NanotraceHR::Tracer tracer{"qml model state remove property changes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("node", node),
+                               keyValue("caller location", sl)};
 
     if (!isValid())
         return;
 
     if (!isBaseState()) {
-        QmlPropertyChanges changeSet(propertyChanges(node));
+        QmlPropertyChanges changeSet(propertyChangesForTarget(node));
         if (changeSet.isValid())
             changeSet.modelNode().destroy();
     }
@@ -178,8 +233,14 @@ void QmlModelState::removePropertyChanges(const ModelNode &node)
 /*!
      Returns \c true if this state affects \a node.
 */
-bool QmlModelState::affectsModelNode(const ModelNode &node) const
+bool QmlModelState::affectsModelNode(const ModelNode &node, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state affects model node",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("node", node),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -189,8 +250,13 @@ bool QmlModelState::affectsModelNode(const ModelNode &node) const
     return !stateOperations(node).isEmpty();
 }
 
-QList<QmlObjectNode> QmlModelState::allAffectedNodes() const
+QList<QmlObjectNode> QmlModelState::allAffectedNodes(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state all affected nodes",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QList<QmlObjectNode> returnList;
 
     const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
@@ -203,37 +269,57 @@ QList<QmlObjectNode> QmlModelState::allAffectedNodes() const
     return returnList;
 }
 
-QString QmlModelState::name() const
+QString QmlModelState::name(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state name",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (isBaseState())
         return QString();
 
     return modelNode().variantProperty("name").value().toString();
 }
 
-void QmlModelState::setName(const QString &name)
+void QmlModelState::setName(const QString &name, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state set name",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("name", name),
+                               keyValue("caller location", sl)};
+
     if ((!isBaseState()) && (modelNode().isValid()))
         modelNode().variantProperty("name").setValue(name);
 }
 
-bool QmlModelState::isValid() const
+bool QmlModelState::isValid(SL sl) const
 {
-    return isValidQmlModelState(modelNode());
+    return isValidQmlModelState(modelNode(), sl);
 }
 
-bool QmlModelState::isValidQmlModelState(const ModelNode &modelNode)
+bool QmlModelState::isValidQmlModelState(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"is valid qml model state",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
     return isValidQmlModelNodeFacade(modelNode)
-           && (modelNode.metaInfo().isQtQuickState() || isBaseState(modelNode));
+           && (isBaseState(modelNode) || modelNode.metaInfo().isQtQuickState());
 }
 
 /**
   Removes state node & all subnodes.
   */
-void QmlModelState::destroy()
+void QmlModelState::destroy(SL sl)
 {
-    Q_ASSERT(isValid());
+    NanotraceHR::Tracer tracer{"qml model state destroy",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     modelNode().destroy();
 }
 
@@ -241,18 +327,34 @@ void QmlModelState::destroy()
     Returns \c true if this state is the base state.
 */
 
-bool QmlModelState::isBaseState() const
+bool QmlModelState::isBaseState(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state is base state",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return isBaseState(modelNode());
 }
 
-bool QmlModelState::isBaseState(const ModelNode &modelNode)
+bool QmlModelState::isBaseState(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"is base state",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
     return !modelNode.isValid() || modelNode.isRootNode();
 }
 
-QmlModelState QmlModelState::duplicate(const QString &name) const
+QmlModelState QmlModelState::duplicate(const QString &name, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state duplicate",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("name", name),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -289,15 +391,26 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
     return newState;
 }
 
-QmlModelStateGroup QmlModelState::stateGroup() const
+QmlModelStateGroup QmlModelState::stateGroup(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state state group",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QmlObjectNode parentNode(modelNode().parentProperty().parentModelNode());
     return parentNode.states();
 }
 
-ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListType &propertyList)
+ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListType &propertyList, SL sl)
 {
-    QTC_ASSERT(view, return {});
+    NanotraceHR::Tracer tracer{"qml model state create",
+                               category(),
+                               keyValue("view", view),
+                               keyValue("caller location", sl)};
+
+    if (!view)
+        return {};
 
 #ifdef QDS_USE_PROJECTSTORAGE
     return view->createModelNode("State", propertyList);
@@ -312,15 +425,25 @@ ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListTy
 #endif
 }
 
-void QmlModelState::setAsDefault()
+void QmlModelState::setAsDefault(SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state set as default",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if ((!isBaseState()) && (modelNode().isValid())) {
         stateGroup().modelNode().variantProperty("state").setValue(name());
     }
 }
 
-bool QmlModelState::isDefault() const
+bool QmlModelState::isDefault(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state is default",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if ((!isBaseState()) && (modelNode().isValid())) {
         if (stateGroup().modelNode().hasProperty("state")) {
             return (stateGroup().modelNode().variantProperty("state").value() == name());
@@ -330,67 +453,114 @@ bool QmlModelState::isDefault() const
     return false;
 }
 
-void QmlModelState::setAnnotation(const Annotation &annotation, const QString &id)
+void QmlModelState::setAnnotation(const Annotation &annotation, const QString &id, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state set annotation",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("id", id),
+                               keyValue("caller location", sl)};
+
     if (modelNode().isValid()) {
         modelNode().setCustomId(id);
         modelNode().setAnnotation(annotation);
     }
 }
 
-Annotation QmlModelState::annotation() const
+Annotation QmlModelState::annotation(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state annotation",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().isValid())
         return modelNode().annotation();
     return {};
 }
 
-QString QmlModelState::annotationName() const
+QString QmlModelState::annotationName(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state annotation name",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().isValid())
         return modelNode().customId();
     return {};
 }
 
-bool QmlModelState::hasAnnotation() const
+bool QmlModelState::hasAnnotation(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state has annotation",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().isValid())
         return modelNode().hasAnnotation() || modelNode().hasCustomId();
     return false;
 }
 
-void QmlModelState::removeAnnotation()
+void QmlModelState::removeAnnotation(SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state remove annotation",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().isValid()) {
         modelNode().removeCustomId();
         modelNode().removeAnnotation();
     }
 }
 
-QString QmlModelState::extend() const
+QString QmlModelState::extend(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state extend",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (isBaseState())
         return QString();
 
     return modelNode().variantProperty("extend").value().toString();
 }
 
-void QmlModelState::setExtend(const QString &name)
+void QmlModelState::setExtend(const QString &name, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state set extend",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("name", name),
+                               keyValue("caller location", sl)};
+
     if ((!isBaseState()) && (modelNode().isValid()))
         modelNode().variantProperty("extend").setValue(name);
 }
 
-bool QmlModelState::hasExtend() const
+bool QmlModelState::hasExtend(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml model state has extend",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isBaseState() && modelNode().isValid())
         return modelNode().hasVariantProperty("extend");
 
     return false;
 }
 
-QmlModelState QmlModelState::createBaseState(const AbstractView *view)
+QmlModelState QmlModelState::createBaseState(const AbstractView *view, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml model state create base state",
+                               category(),
+                               keyValue("view", view),
+                               keyValue("caller location", sl)};
+
     QmlModelState qmlModelState(view->rootModelNode());
 
     return qmlModelState;

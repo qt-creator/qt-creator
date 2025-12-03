@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "toolbox.h"
+#include "formeditortracing.h"
 
 #include <theme.h>
 
@@ -14,11 +15,15 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 ToolBox::ToolBox(QWidget *parentWidget)
     : Utils::StyledBar(parentWidget)
     , m_leftToolBar(new QToolBar(QLatin1String("LeftSidebar"), this))
     , m_rightToolBar(new QToolBar(QLatin1String("RightSidebar"), this))
 {
+    NanotraceHR::Tracer tracer{"tool box constructor", category()};
+
     Utils::StyleHelper::setPanelWidget(this, false);
     Utils::StyleHelper::setPanelWidgetSingleRow(this, false);
     setFixedHeight(Theme::toolbarSize());
@@ -55,6 +60,8 @@ ToolBox::ToolBox(QWidget *parentWidget)
 
 void ToolBox::setLeftSideActions(const QList<QAction*> &actions)
 {
+    NanotraceHR::Tracer tracer{"tool box set left side actions", category()};
+
     m_leftToolBar->clear();
     m_leftToolBar->addActions(actions);
     resize(sizeHint());
@@ -62,6 +69,8 @@ void ToolBox::setLeftSideActions(const QList<QAction*> &actions)
 
 void ToolBox::setRightSideActions(const QList<QAction*> &actions)
 {
+    NanotraceHR::Tracer tracer{"tool box set right side actions", category()};
+
     m_rightToolBar->clear();
     m_rightToolBar->addActions(actions);
     resize(sizeHint());
@@ -69,16 +78,22 @@ void ToolBox::setRightSideActions(const QList<QAction*> &actions)
 
 void ToolBox::addLeftSideAction(QAction *action)
 {
+    NanotraceHR::Tracer tracer{"tool box add left side action", category()};
+
     m_leftToolBar->addAction(action);
 }
 
 void ToolBox::addRightSideAction(QAction *action)
 {
+    NanotraceHR::Tracer tracer{"tool box add right side action", category()};
+
     m_rightToolBar->addAction(action);
 }
 
 QList<QAction*> ToolBox::actions() const
 {
+    NanotraceHR::Tracer tracer{"tool box actions", category()};
+
     return m_leftToolBar->actions() + m_rightToolBar->actions();
 }
 

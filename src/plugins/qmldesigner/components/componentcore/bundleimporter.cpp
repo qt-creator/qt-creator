@@ -73,11 +73,28 @@ QString BundleImporter::importComponent(const QString &bundleDir,
     if (m_pendingImports.contains(type) && !m_pendingImports[type].isImport)
         return QStringLiteral("Unable to import while unimporting the same type: '%1'").arg(QLatin1String(type));
 
-    if (!qmldirContent.contains(qmlFile)) {
-        qmldirContent.append(qmlType);
-        qmldirContent.append(" 1.0 ");
-        qmldirContent.append(qmlFile);
-        qmldirContent.append('\n');
+    bool typeAdded = false;
+    auto addTypeToQmldir = [&qmldirContent, &typeAdded](const QString &qmlType,
+                                                        const QString &qmlFile) {
+        const QString pattern = QString{"^\\s*%1\\s+1\\.0\\s+%2\\s*$"}
+                                    .arg(QRegularExpression::escape(qmlType),
+                                         QRegularExpression::escape(qmlFile));
+        const QRegularExpression regex{pattern, QRegularExpression::MultilineOption};
+
+        if (!qmldirContent.contains(regex)) {
+            qmldirContent.append(QString{"%1 1.0 %2\n"}.arg(qmlType, qmlFile));
+            typeAdded = true;
+        }
+    };
+
+    addTypeToQmldir(qmlType, qmlFile);
+#ifdef QDS_USE_PROJECTSTORAGE
+    for (const QString &file : files) {
+        if (const QFileInfo fileInfo{file}; fileInfo.suffix() == "qml")
+            addTypeToQmldir(fileInfo.baseName(), file);
+    }
+#endif
+    if (typeAdded) {
         qmldirPath.writeFileContents(qmldirContent.toUtf8());
         doReset = true;
     }
@@ -121,12 +138,15 @@ QString BundleImporter::importComponent(const QString &bundleDir,
 
     ImportData data;
     data.isImport = true;
-    data.type = type;
-    Import import = Import::createLibraryImport(module, "1.0");
+    data.typeAdded = typeAdded;
 #ifdef QDS_USE_PROJECTSTORAGE
-    model->changeImports({import}, {});
     m_pendingFullReset = doReset;
+    data.simpleType = type.split('.').constLast();
+    data.moduleName = module;
+    data.module = model->module(module.toUtf8(), Storage::ModuleKind::QmlLibrary);
 #else
+    Import import = Import::createLibraryImport(module);
+    data.type = type;
     if (doScan)
         data.pathToScan = bundleImportPath;
     else
@@ -167,9 +187,9 @@ void BundleImporter::handleImportTimer()
         for (const TypeName &pendingType : pendingTypes) {
             ImportData data = m_pendingImports.take(pendingType);
             if (data.isImport)
-                emit importFinished({}, m_bundleId);
+                emit importFinished({}, m_bundleId, false);
             else
-                emit unimportFinished({}, m_bundleId);
+                emit unimportFinished(m_bundleId);
         }
         m_bundleId.clear();
     };
@@ -183,16 +203,18 @@ void BundleImporter::handleImportTimer()
 
     const QList<TypeName> keys = m_pendingImports.keys();
     for (const TypeName &type : keys) {
-        ImportData &data = m_pendingImports[type];
+        const ImportData data = m_pendingImports.value(type);
         // Verify that code model has the new type fully available (or removed for unimport)
-        NodeMetaInfo metaInfo = model->metaInfo(type);
-        const bool typeComplete = metaInfo.isValid() && !metaInfo.prototypes().empty();
-        if (data.isImport == typeComplete) {
+        NodeMetaInfo metaInfo = model->metaInfo(data.module, data.simpleType);
+        if (data.isImport == metaInfo.isValid()) {
             m_pendingImports.remove(type);
-            if (data.isImport)
-                emit importFinished(type, m_bundleId);
-            else
-                emit unimportFinished(metaInfo, m_bundleId);
+            if (data.isImport) {
+                Import import = Import::createLibraryImport(data.moduleName);
+                model->changeImports({import}, {});
+                emit importFinished(data.simpleType, m_bundleId, data.typeAdded);
+            } else {
+                emit unimportFinished(m_bundleId);
+            }
         }
     }
 
@@ -224,9 +246,9 @@ void BundleImporter::handleImportTimer()
         for (const TypeName &pendingType : pendingTypes) {
             ImportData data = m_pendingImports.take(pendingType);
             if (data.isImport)
-                emit importFinished({}, m_bundleId);
+                emit importFinished({}, m_bundleId, false);
             else
-                emit unimportFinished({}, m_bundleId);
+                emit unimportFinished(m_bundleId);
         }
         m_bundleId.clear();
     };
@@ -339,9 +361,9 @@ void BundleImporter::handleImportTimer()
                     if (data.isImport == typeComplete) {
                         m_pendingImports.remove(type);
                         if (data.isImport)
-                            emit importFinished(metaInfo, m_bundleId);
+                            emit importFinished(metaInfo, m_bundleId, data.typeAdded);
                         else
-                            emit unimportFinished(metaInfo, m_bundleId);
+                            emit unimportFinished(m_bundleId);
                     }
                 }
             }
@@ -389,7 +411,7 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
     QString module = QString::fromLatin1(type.left(type.lastIndexOf('.')));
     m_bundleId = module.mid(module.lastIndexOf('.') + 1);
 
-    emit aboutToUnimport(type, m_bundleId);
+    emit aboutToUnimport(type.split('.').constLast(), m_bundleId);
 
     FilePath bundleImportPath = resolveBundleImportPath(m_bundleId);
     if (bundleImportPath.isEmpty())
@@ -416,15 +438,14 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
     }
 
     if (qmldirContent) {
-        int typeIndex = qmldirContent->indexOf(qmlType.toUtf8());
-        if (typeIndex != -1) {
-            int newLineIndex = qmldirContent->indexOf('\n', typeIndex);
-            newContent = qmldirContent->left(typeIndex);
-            if (newLineIndex != -1)
-                newContent.append(qmldirContent->mid(newLineIndex + 1));
-        }
-        if (newContent != qmldirContent) {
-            if (!qmldirPath.writeFileContents(newContent))
+        QString qmldirStr = QString::fromUtf8(*qmldirContent);
+        const QString pattern = QString{"^\\s*%1\\s+.*\\.qml\\s*\\r?\\n"}
+                                    .arg(QRegularExpression::escape(qmlType));
+        const QRegularExpression regex{pattern, QRegularExpression::MultilineOption};
+        QString newQmldirStr = qmldirStr;
+        newQmldirStr.remove(regex);
+        if (newQmldirStr != qmldirStr) {
+            if (!qmldirPath.writeFileContents(newQmldirStr.toUtf8()))
                 return QStringLiteral("Failed to write qmldir file: '%1'").arg(qmldirPath.toUrlishString());
         }
     }
@@ -456,12 +477,15 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
     if (writeAssetRefs)
         writeAssetRefMap(bundleImportPath, assetRefMap);
 
+    auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
+    Model *model = doc ? doc->currentModel() : nullptr;
+    if (!model)
+        return "Model not available, cannot remove import statement or update code model";
+
     // If the bundle module contains no .qml files after unimport, remove the import statement
     if (bundleImportPath.dirEntries({{"*.qml"}, QDir::Files}).isEmpty()) {
-        auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
-        Model *model = doc ? doc->currentModel() : nullptr;
         if (model) {
-            Import import = Import::createLibraryImport(module, "1.0");
+            Import import = Import::createLibraryImport(module);
             if (model->imports().contains(import))
                 model->changeImports({}, {import});
         }
@@ -469,8 +493,12 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
 
     ImportData data;
     data.isImport = false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    data.simpleType = type.split('.').constLast();
+    data.moduleName = module;
+    data.module = model->module(module.toUtf8(), Storage::ModuleKind::QmlLibrary);
+#else
     data.type = type;
-#ifndef QDS_USE_PROJECTSTORAGE
     data.fullReset = true;
 #endif
     m_pendingImports.insert(type, data);

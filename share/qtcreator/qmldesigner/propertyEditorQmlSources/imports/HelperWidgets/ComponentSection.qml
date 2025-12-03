@@ -58,6 +58,9 @@ Section {
                     anchors.fill: parent
                     visible: false
                     fixedSize: true
+                    validator: RegularExpressionValidator {
+                        regularExpression: /^[\d\w]*$/
+                    }
 
                     property bool blockEditingFinished: false
 

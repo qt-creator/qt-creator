@@ -32,7 +32,7 @@
 
     To learn the basics of \QDS required to complete this tutorial, see \l{Getting started}.
 
-    \section1 The starting project
+    \section1 Starting project
 
     The starting project consists of an animated 3D model of a ball bearing. Control the animations
     with a slider and a switch in the user interface.

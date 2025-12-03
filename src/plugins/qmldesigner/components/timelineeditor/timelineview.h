@@ -18,7 +18,8 @@ class TimelineView : public AbstractView
     Q_OBJECT
 
 public:
-    explicit TimelineView(ExternalDependenciesInterface &externalDepoendencies);
+    explicit TimelineView(ExternalDependenciesInterface &externalDepoendencies,
+                          ModulesStorage &modulesStorage);
     ~TimelineView() override;
     //Abstract View
     WidgetInfo widgetInfo() override;
@@ -83,6 +84,7 @@ public:
 private:
     TimelineWidget *createWidget();
     QPointer<TimelineWidget> m_timelineWidget;
+    ModulesStorage &m_modulesStorage;
     bool hasQtQuickTimelineImport();
     void ensureQtQuickTimelineImport();
 };

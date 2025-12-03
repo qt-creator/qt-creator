@@ -13,8 +13,6 @@ class NodeMetaInfo;
 
 namespace Utils3D {
 
-inline constexpr AuxiliaryDataKeyView active3dSceneProperty{AuxiliaryDataType::Temporary,
-                                                            "active3dScene"};
 ModelNode active3DSceneNode(AbstractView *view);
 qint32 active3DSceneId(Model *model);
 
@@ -22,6 +20,12 @@ ModelNode materialLibraryNode(AbstractView *view);
 void ensureMaterialLibraryNode(AbstractView *view);
 bool isPartOfMaterialLibrary(const ModelNode &node);
 ModelNode getTextureDefaultInstance(const QString &source, AbstractView *view);
+
+// key: bound mat/tex, value: nodes referenced by the bound mat/tex
+QHash<ModelNode, QSet<ModelNode>> allBoundMaterialsAndTextures(const ModelNode &node);
+void createMatLibForFile(const QString &fileName,
+                         const QHash<ModelNode, QSet<ModelNode>> &matAndTexNodes,
+                         AbstractView *view);
 
 ModelNode activeView3dNode(AbstractView *view);
 QString activeView3dId(AbstractView *view);

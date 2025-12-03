@@ -3,18 +3,14 @@
 
 #include "abstractproperty.h"
 #include "internalnode_p.h"
-#include <model.h>
 #include "model_p.h"
-#include <modelnode.h>
-#include "variantproperty.h"
-#include "bindingproperty.h"
-#include "signalhandlerproperty.h"
-#include "nodeproperty.h"
-#include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
-#include <QTextStream>
+#include "nodeproperty.h"
+#include "signalhandlerproperty.h"
+#include "variantproperty.h"
 
 #include <QByteArrayView>
+#include <QTextStream>
 
 namespace QmlDesigner {
 
@@ -47,13 +43,11 @@ AbstractProperty::AbstractProperty(const Internal::InternalPropertyPointer &prop
 }
 
 AbstractProperty::AbstractProperty(const AbstractProperty &property, AbstractView *view)
-    : m_propertyName(property.name()),
-      m_internalNode(property.internalNode()),
-      m_model(property.model()),
-      m_view(view)
-{
-
-}
+    : m_propertyName(property.name())
+    , m_internalNode(property.internalNode())
+    , m_model(property.model())
+    , m_view(view)
+{}
 
 AbstractProperty::~AbstractProperty() = default;
 
@@ -105,104 +99,141 @@ ModelNode AbstractProperty::parentModelNode() const
 /*!
     Returns whether the property is the default property for the model node.
 */
-bool AbstractProperty::isDefaultProperty() const
+bool AbstractProperty::isDefaultProperty(SL sl) const
 {
-    return ModelNode(m_internalNode, m_model.data(), view()).metaInfo().defaultPropertyName() == m_propertyName;
+    NanotraceHR::Tracer tracer{"abstract property is default property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
+    return ModelNode(m_internalNode, m_model.data(), view()).metaInfo(sl).defaultPropertyName(sl)
+           == m_propertyName;
 }
 
-VariantProperty AbstractProperty::toVariantProperty() const
+VariantProperty AbstractProperty::toVariantProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property to variant property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
     VariantProperty propertyVariant(name(), internalNodeSharedPointer(), model(), view());
 
-    if (propertyVariant.isVariantProperty())
+    if (propertyVariant.isVariantProperty(sl))
         return propertyVariant;
 
     return VariantProperty();
 }
 
-NodeProperty AbstractProperty::toNodeProperty() const
+NodeProperty AbstractProperty::toNodeProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property to node property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
     NodeProperty propertyNode(name(), internalNodeSharedPointer(), model(), view());
 
-    if (propertyNode.isNodeProperty())
+    if (propertyNode.isNodeProperty(sl))
         return propertyNode;
 
     return NodeProperty();
 }
 
-SignalHandlerProperty AbstractProperty::toSignalHandlerProperty() const
+SignalHandlerProperty AbstractProperty::toSignalHandlerProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property to signal handler property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
     SignalHandlerProperty propertyNode(name(), internalNodeSharedPointer(), model(), view());
 
-    if (propertyNode.isSignalHandlerProperty())
+    if (propertyNode.isSignalHandlerProperty(sl))
         return propertyNode;
 
     return SignalHandlerProperty();
 }
 
-SignalDeclarationProperty AbstractProperty::toSignalDeclarationProperty() const
+SignalDeclarationProperty AbstractProperty::toSignalDeclarationProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property to signal declaration property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
     SignalDeclarationProperty propertyNode(name(), internalNodeSharedPointer(), model(), view());
 
-    if (propertyNode.isSignalDeclarationProperty())
+    if (propertyNode.isSignalDeclarationProperty(sl))
         return propertyNode;
 
     return SignalDeclarationProperty();
 }
 
-NodeListProperty AbstractProperty::toNodeListProperty() const
+NodeListProperty AbstractProperty::toNodeListProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property to node list property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
     NodeListProperty propertyNodeList(name(), internalNodeSharedPointer(), model(), view());
 
-    if (propertyNodeList.isNodeListProperty())
+    if (propertyNodeList.isNodeListProperty(sl))
         return propertyNodeList;
 
     return NodeListProperty();
 }
 
-NodeAbstractProperty AbstractProperty::toNodeAbstractProperty() const
+NodeAbstractProperty AbstractProperty::toNodeAbstractProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property to node abstract property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
     NodeAbstractProperty propertyNodeAbstract(name(), internalNodeSharedPointer(), model(), view());
 
-    if (propertyNodeAbstract.isNodeAbstractProperty())
+    if (propertyNodeAbstract.isNodeAbstractProperty(sl))
         return propertyNodeAbstract;
 
     return NodeAbstractProperty();
 }
 
-BindingProperty AbstractProperty::toBindingProperty() const
+BindingProperty AbstractProperty::toBindingProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property to binding property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
     BindingProperty propertyBinding(name(), internalNodeSharedPointer(), model(), view());
 
-    if (propertyBinding.isBindingProperty())
+    if (propertyBinding.isBindingProperty(sl))
         return propertyBinding;
 
     return BindingProperty();
 }
 
-bool AbstractProperty::isVariantProperty() const
+bool AbstractProperty::isVariantProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property is variant property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -212,8 +243,12 @@ bool AbstractProperty::isVariantProperty() const
     return false;
 }
 
-bool AbstractProperty::isNodeAbstractProperty() const
+bool AbstractProperty::isNodeAbstractProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property is node abstract property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -223,8 +258,12 @@ bool AbstractProperty::isNodeAbstractProperty() const
     return false;
 }
 
-bool AbstractProperty::isNodeListProperty() const
+bool AbstractProperty::isNodeListProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property is node list property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -234,8 +273,12 @@ bool AbstractProperty::isNodeListProperty() const
     return false;
 }
 
-bool AbstractProperty::isNodeProperty() const
+bool AbstractProperty::isNodeProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property is node property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -245,8 +288,12 @@ bool AbstractProperty::isNodeProperty() const
     return false;
 }
 
-bool AbstractProperty::isSignalHandlerProperty() const
+bool AbstractProperty::isSignalHandlerProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property is signal handler property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -256,8 +303,12 @@ bool AbstractProperty::isSignalHandlerProperty() const
     return false;
 }
 
-bool AbstractProperty::isSignalDeclarationProperty() const
+bool AbstractProperty::isSignalDeclarationProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property is signal declaration property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -267,8 +318,12 @@ bool AbstractProperty::isSignalDeclarationProperty() const
     return false;
 }
 
-PropertyType AbstractProperty::type() const
+PropertyType AbstractProperty::type(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property type",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return PropertyType::None;
 
@@ -278,8 +333,12 @@ PropertyType AbstractProperty::type() const
     return PropertyType::None;
 }
 
-bool AbstractProperty::isBindingProperty() const
+bool AbstractProperty::isBindingProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property is binding property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -289,13 +348,27 @@ bool AbstractProperty::isBindingProperty() const
     return false;
 }
 
-bool AbstractProperty::isDynamic() const
+bool AbstractProperty::isDynamic(SL sl) const
 {
-    return !dynamicTypeName().isEmpty();
+    NanotraceHR::Tracer tracer{"abstract property is dynamic",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
+    if (!isValid())
+        return false;
+
+    if (auto property = internalNode()->property(name()))
+        return not property->dynamicTypeName().isEmpty();
+
+    return false;
 }
 
-TypeName AbstractProperty::dynamicTypeName() const
+TypeName AbstractProperty::dynamicTypeName(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"abstract property dynamic type name",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 

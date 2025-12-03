@@ -107,7 +107,7 @@ Project {
     standaloneApp: true
 @endif
 
-    qdsVersion: "4.7"
+    qdsVersion: "4.8"
 
     quickVersion: "%{QtQuickVersion}"
 

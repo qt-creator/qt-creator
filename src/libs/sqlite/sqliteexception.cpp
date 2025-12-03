@@ -15,6 +15,8 @@
 
 namespace Sqlite {
 
+using namespace std::string_literals;
+
 using NanotraceHR::keyValue;
 
 const char *Exception::what() const noexcept
@@ -24,15 +26,16 @@ const char *Exception::what() const noexcept
 
 const char *ExceptionWithMessage::what() const noexcept
 {
-    static Utils::SmallString text = Utils::SmallString::join(
-        {"Sqlite::ExceptionWithMessage", m_sqliteErrorMessage});
+    static std::string text;
+    text = "Sqlite::ExceptionWithMessage: ";
+    text += message();
 
-    return text.data();
+    return text.c_str();
 }
 
 void ExceptionWithMessage::printWarning() const
 {
-    qWarning() << what() << m_sqliteErrorMessage;
+    qWarning() << what();
 }
 
 StatementIsBusy::StatementIsBusy(Utils::SmallString &&sqliteErrorMessage,
@@ -63,10 +66,11 @@ StatementHasError::StatementHasError(Utils::SmallString &&sqliteErrorMessage,
 
 const char *StatementHasError::what() const noexcept
 {
-    static Utils::SmallString text = Utils::SmallString::join(
-        {"Sqlite::StatementHasError: ", message()});
+    static std::string text;
+    text = "Sqlite::StatementHasError: ";
+    text += message();
 
-    return text.data();
+    return text.c_str();
 }
 
 const char *StatementIsMisused::what() const noexcept
@@ -81,7 +85,11 @@ const char *InputOutputError::what() const noexcept
 
 const char *ConstraintPreventsModification::what() const noexcept
 {
-    return "Sqlite::ConstraintPreventsModification";
+    static std::string text;
+    text = "Sqlite::ConstraintPreventsModification: ";
+    text += message();
+
+    return text.c_str();
 }
 
 const char *NoValuesToFetch::what() const noexcept

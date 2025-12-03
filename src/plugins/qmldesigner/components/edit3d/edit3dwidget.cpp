@@ -377,7 +377,7 @@ void Edit3DWidget::createContextMenu()
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Add to Content Library"), [&] {
             QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
-            view()->emitCustomNotification("add_3d_to_content_lib", {}); // To ContentLibrary
+            view()->emitCustomNotification("add_node_to_content_lib", {}); // To ContentLibrary
         });
 
     m_importBundleAction = m_contextMenu->addAction(
@@ -647,6 +647,7 @@ void Edit3DWidget::showCanvas(bool show)
         m_onboardingLabel->setVisible(false);
     else
         showOnboardingLabel();
+    m_toolBox->setVisible(show);
 }
 
 QMenu *Edit3DWidget::visibilityTogglesMenu() const
@@ -782,7 +783,7 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
     } else if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
-               || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM)
+               || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_3D)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
         if (Utils3D::active3DSceneNode(m_view).isValid())
             dragEnterEvent->acceptProposedAction();
@@ -828,7 +829,7 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
     }
 
     // handle dropping bundle items
-    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM)) {
+    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_3D)) {
         m_view->dropBundleItem(pos);
         m_view->model()->endDrag();
         return;

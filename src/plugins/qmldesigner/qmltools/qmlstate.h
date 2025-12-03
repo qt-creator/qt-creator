@@ -21,56 +21,62 @@ class StatesEditorView;
 
 class QMLDESIGNER_EXPORT QmlModelState final : public QmlModelNodeFacade
 {
-    friend StatesEditorView;
-
 public:
-    QmlModelState();
-    QmlModelState(const ModelNode &modelNode);
+    QmlModelState() = default;
 
-    QmlPropertyChanges propertyChanges(const ModelNode &node);
-    QList<QmlModelStateOperation> stateOperations(const ModelNode &node) const;
-    QList<QmlPropertyChanges> propertyChanges() const;
-    QList<QmlModelStateOperation> stateOperations() const;
-    QList<QmlModelStateOperation> allInvalidStateOperations() const;
+    QmlModelState(const ModelNode &modelNode)
+        : QmlModelNodeFacade(modelNode)
+    {}
 
-    bool hasPropertyChanges(const ModelNode &node) const;
+    QmlPropertyChanges ensurePropertyChangesForTarget(const ModelNode &node, SL sl = {});
+    QmlPropertyChanges propertyChangesForTarget(const ModelNode &node, SL sl = {});
+    QList<QmlModelStateOperation> stateOperations(const ModelNode &node, SL sl = {}) const;
+    QList<QmlPropertyChanges> propertyChanges(SL sl = {}) const;
+    QList<QmlModelStateOperation> stateOperations(SL sl = {}) const;
+    QList<QmlModelStateOperation> allInvalidStateOperations(SL sl = {}) const;
 
-    bool hasStateOperation(const ModelNode &node) const;
+    bool hasPropertyChanges(const ModelNode &node, SL sl = {}) const;
 
-    void removePropertyChanges(const ModelNode &node);
+    bool hasStateOperation(const ModelNode &node, SL sl = {}) const;
 
-    bool affectsModelNode(const ModelNode &node) const;
-    QList<QmlObjectNode> allAffectedNodes() const;
-    QString name() const;
-    void setName(const QString &name);
-    bool isValid() const;
+    void removePropertyChanges(const ModelNode &node, SL sl = {});
+
+    bool affectsModelNode(const ModelNode &node, SL sl = {}) const;
+    QList<QmlObjectNode> allAffectedNodes(SL sl = {}) const;
+    QString name(SL sl = {}) const;
+    void setName(const QString &name, SL sl = {});
+    bool isValid(SL sl = {}) const;
     explicit operator bool() const { return isValid(); }
-    static bool isValidQmlModelState(const ModelNode &modelNode);
-    void destroy();
 
-    bool isBaseState() const;
-    static bool isBaseState(const ModelNode &modelNode);
-    QmlModelState duplicate(const QString &name) const;
-    QmlModelStateGroup stateGroup() const;
+    static bool isValidQmlModelState(const ModelNode &modelNode, SL sl = {});
+    void destroy(SL sl = {});
 
-    static ModelNode createQmlState(AbstractView *view, const PropertyListType &propertyList);
+    bool isBaseState(SL sl = {}) const;
+    static bool isBaseState(const ModelNode &modelNode, SL sl = {});
+    QmlModelState duplicate(const QString &name, SL sl = {}) const;
+    QmlModelStateGroup stateGroup(SL sl = {}) const;
 
-    void setAsDefault();
-    bool isDefault() const;
+    static ModelNode createQmlState(AbstractView *view,
+                                    const PropertyListType &propertyList,
+                                    SL sl = {});
 
-    void setAnnotation(const Annotation &annotation, const QString &id);
-    Annotation annotation() const;
-    QString annotationName() const;
-    bool hasAnnotation() const;
-    void removeAnnotation();
+    static QmlModelState createBaseState(const AbstractView *view, SL sl = {});
 
-    QString extend() const;
-    void setExtend(const QString &name);
-    bool hasExtend() const;
+    void setAsDefault(SL sl = {});
+    bool isDefault(SL sl = {}) const;
 
-protected:
+    void setAnnotation(const Annotation &annotation, const QString &id, SL sl = {});
+    Annotation annotation(SL sl = {}) const;
+    QString annotationName(SL sl = {}) const;
+    bool hasAnnotation(SL sl = {}) const;
+    void removeAnnotation(SL sl = {});
+
+    QString extend(SL sl = {}) const;
+    void setExtend(const QString &name, SL sl = {});
+    bool hasExtend(SL sl = {}) const;
+
+private:
     void addChangeSetIfNotExists(const ModelNode &node);
-    static QmlModelState createBaseState(const AbstractView *view);
 };
 
 } //QmlDesigner

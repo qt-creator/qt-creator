@@ -11,7 +11,6 @@
 
 namespace NanotraceHR {
 
-template<std::size_t Capacity>
 class StaticString
 {
 public:
@@ -27,13 +26,13 @@ public:
     {
         auto newSize = m_size + string.size();
 
-        if (newSize <= Capacity) {
+        if (newSize <= capacity) {
             std::char_traits<char>::copy(std::next(data(), static_cast<std::ptrdiff_t>(m_size)),
                                          string.data(),
                                          string.size());
             m_size = newSize;
         } else {
-            m_size = Capacity + 1;
+            m_size = capacity + 1;
         }
     }
 
@@ -41,13 +40,13 @@ public:
     {
         auto newSize = m_size + 1;
 
-        if (newSize <= Capacity) {
+        if (newSize <= capacity) {
             auto current = std::next(data(), static_cast<std::ptrdiff_t>(m_size));
             *current = character;
 
             m_size = newSize;
         } else {
-            m_size = Capacity + 1;
+            m_size = capacity + 1;
         }
     }
 
@@ -103,7 +102,7 @@ public:
         return *this;
     }
 
-    bool isValid() const { return m_size <= Capacity; }
+    constexpr bool isValid() const { return m_size <= capacity; }
 
     std::size_t size() const { return m_size; }
 
@@ -115,7 +114,8 @@ public:
     void clear() { m_size = 0; }
 
 private:
-    std::array<char, Capacity> m_data;
+    inline static constexpr std::size_t capacity = 13700;
+    std::array<char, capacity> m_data;
     std::size_t m_size = 0;
 };
 

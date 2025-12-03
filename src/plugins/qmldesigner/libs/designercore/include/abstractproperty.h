@@ -5,12 +5,9 @@
 
 #include "qmldesignercorelib_global.h"
 
-#include <utils/smallstring.h>
+#include <designercore/tracing/qmldesignertracing.h>
 
 #include <QPointer>
-#include <QSharedPointer>
-
-#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
@@ -47,6 +44,8 @@ class QMLDESIGNERCORE_EXPORT AbstractProperty
     friend ModelNode;
     friend Internal::ModelPrivate;
 
+    using SL = ModelTracing::SourceLocation;
+
 public:
     AbstractProperty() = default;
     AbstractProperty(const AbstractProperty &) = default;
@@ -67,27 +66,27 @@ public:
     bool exists() const;
     ModelNode parentModelNode() const;
 
-    bool isDefaultProperty() const;
-    VariantProperty toVariantProperty() const;
-    NodeListProperty toNodeListProperty() const;
-    NodeAbstractProperty toNodeAbstractProperty() const;
-    BindingProperty toBindingProperty() const;
-    NodeProperty toNodeProperty() const;
-    SignalHandlerProperty toSignalHandlerProperty() const;
-    SignalDeclarationProperty toSignalDeclarationProperty() const;
+    bool isDefaultProperty(SL sl = {}) const;
+    VariantProperty toVariantProperty(SL sl = {}) const;
+    NodeListProperty toNodeListProperty(SL sl = {}) const;
+    NodeAbstractProperty toNodeAbstractProperty(SL sl = {}) const;
+    BindingProperty toBindingProperty(SL sl = {}) const;
+    NodeProperty toNodeProperty(SL sl = {}) const;
+    SignalHandlerProperty toSignalHandlerProperty(SL sl = {}) const;
+    SignalDeclarationProperty toSignalDeclarationProperty(SL sl = {}) const;
 
-    bool isVariantProperty() const;
-    bool isNodeListProperty() const;
-    bool isNodeAbstractProperty() const;
-    bool isBindingProperty() const;
-    bool isNodeProperty() const;
-    bool isSignalHandlerProperty() const;
-    bool isSignalDeclarationProperty() const;
+    bool isVariantProperty(SL sl = {}) const;
+    bool isNodeListProperty(SL sl = {}) const;
+    bool isNodeAbstractProperty(SL sl = {}) const;
+    bool isBindingProperty(SL sl = {}) const;
+    bool isNodeProperty(SL sl = {}) const;
+    bool isSignalHandlerProperty(SL sl = {}) const;
+    bool isSignalDeclarationProperty(SL sl = {}) const;
 
-    PropertyType type() const;
+    PropertyType type(SL sl = {}) const;
 
-    bool isDynamic() const;
-    TypeName dynamicTypeName() const;
+    bool isDynamic(SL sl = {}) const;
+    TypeName dynamicTypeName(SL sl = {}) const;
 
     template<typename... TypeName>
     bool hasDynamicTypeName(const TypeName &...typeName) const

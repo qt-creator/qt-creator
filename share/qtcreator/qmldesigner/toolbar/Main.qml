@@ -147,11 +147,15 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: splitButton.right
             anchors.leftMargin: 10
+            closeButtonVisible: true
             model: backend.documentModel
 
             property int currentDocumentIndex: backend.documentIndex
             onCurrentDocumentIndexChanged: currentFile.currentIndex =  currentFile.currentDocumentIndex
             onActivated: backend.openFileByIndex(index)
+            onCloseRequest: (idx) => {
+                backend.closeDocument(idx)
+            }
         }
 
         Text {
@@ -199,21 +203,10 @@ Rectangle {
             onClicked: backend.goForward()
         }
 
-        ToolbarButton {
-            id: closeButton
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: forwardButton.right
-            anchors.leftMargin: 10
-            tooltip: qsTr("Close")
-            buttonIcon: StudioTheme.Constants.closeFile_large
-
-            onClicked: backend.closeCurrentDocument()
-        }
-
         CrumbleBar {
             id: flickable
             height: 36
-            anchors.left: closeButton.right
+            anchors.left: forwardButton.right
             anchors.leftMargin: 10
             anchors.right: createComponent.left
             anchors.rightMargin: 10
@@ -349,13 +342,12 @@ Rectangle {
 
                 onActiveFocusItemChanged: {
                     if (dvWindow.activeFocusItem === null && !dvWindow.active
-                        && !shareButton.hover
-                        && !backend.designViewerConnector.isWebViewerVisible)
+                        && !shareButton.hover)
                         dvWindow.close()
                 }
 
                 onVisibleChanged: {
-                    if (dvWindow.visible)
+                    if (dvWindow.visible && backend.designViewerConnector?.connectorStatus === 1)
                         backend.designViewerConnector.fetchUserInfo()
                 }
 
@@ -399,19 +391,6 @@ Rectangle {
 
                     anchors.fill: parent
                     currentIndex: backend.designViewerConnector?.connectorStatus ?? 0
-
-                    // Fetching
-                    Rectangle {
-                        id: fetchingPage
-                        color: StudioTheme.Values.themePopupBackground
-                        Layout.fillWidth: true
-                        implicitHeight: 200
-
-                        BusyIndicator {
-                            anchors.centerIn: parent
-                            running: StackView.status === StackView.Active // TODO test
-                        }
-                    }
 
                     // NotLoggedIn
                     Rectangle {

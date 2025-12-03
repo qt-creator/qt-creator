@@ -34,13 +34,25 @@ class QMLDESIGNER_EXPORT PropertyEditorView : public AbstractView
     Q_OBJECT
 
 public:
+    struct ExtraPropertyViewsCallbacks
+    {
+        using RegistrationFunc = std::function<void(PropertyEditorView *editor)>;
+        using AddFunc = std::function<void(const QString &parentName)>;
+        using TargetSelectionFunc = std::function<void(const ModelNode &node)>;
+
+        AddFunc addEditor = [](...) {};
+        RegistrationFunc registerEditor = [](...) {};
+        RegistrationFunc unregisterEditor = [](...) {};
+        TargetSelectionFunc setTargetNode = [](...) {};
+    };
+
     PropertyEditorView(class AsynchronousImageCache &imageCache,
                        ExternalDependenciesInterface &externalDependencies);
     ~PropertyEditorView() override;
 
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;
-
+    void setWidgetInfo(WidgetInfo info);
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
@@ -96,14 +108,32 @@ public:
     void changeExpression(const QString &name);
     void exportPropertyAsAlias(const QString &name);
     void removeAliasExport(const QString &name);
+    void demoteCustomManagerRole();
+    void setExtraPropertyViewsCallbacks(const ExtraPropertyViewsCallbacks &callbacks);
 
     bool locked() const;
+    bool isSelectionLocked() const { return m_isSelectionLocked; }
 
     void currentTimelineChanged(const ModelNode &node) override;
 
     void refreshMetaInfos(const TypeIds &deletedTypeIds) override;
 
     DynamicPropertiesModel *dynamicPropertiesModel() const;
+
+    void setUnifiedAction(QAction *unifiedAction);
+    QAction *unifiedAction() const;
+
+    ModelNode activeNode() const;
+    void setTargetNode(const ModelNode &node);
+
+    void setInstancesCount(int n);
+    int instancesCount() const;
+
+    virtual void registerWidgetInfo() override;
+    virtual void deregisterWidgetInfo() override;
+
+    void showExtraWidget();
+    void closeExtraWidget();
 
     static void setExpressionOnObjectNode(const QmlObjectNode &objectNode,
                                           PropertyNameView name,
@@ -127,8 +157,9 @@ private: //functions
     void updateSize();
 
     void select();
+    void loadLockedNode();
+    void saveLockedNode();
     void setActiveNodeToSelection();
-    void forceSelection(const ModelNode &node);
 
     void delayedResetView();
     void setupQmlBackend();
@@ -140,34 +171,44 @@ private: //functions
     bool noValidSelection() const;
     void highlightTextureProperties(bool highlight = true);
 
-    ModelNode activeNode() const;
     void setActiveNode(const ModelNode &node);
     QList<ModelNode> currentNodes() const;
 
-    void resetSelectionLocked();
+    void setSelectionUnlocked();
     void setIsSelectionLocked(bool locked);
 
     bool isNodeOrChildSelected(const ModelNode &node) const;
-    void resetIfNodeIsRemoved(const ModelNode &removedNode);
+    void setSelectionUnlockedIfNodeRemoved(const ModelNode &removedNode);
 
-    static PropertyEditorView *instance();
+    static PropertyEditorView *instance(); // TODO: remove
 
     NodeMetaInfo findCommonAncestor(const ModelNode &node);
+    AuxiliaryDataKey activeNodeAuxKey() const;
+
+    void showAsExtraWidget();
 
 private: //variables
+    enum class ManageCustomNotifications { No, Yes };
     AsynchronousImageCache &m_imageCache;
     ModelNode m_activeNode;
     QShortcut *m_updateShortcut;
+    QPointer<QAction> m_unifiedAction;
+    std::unique_ptr<DynamicPropertiesModel> m_dynamicPropertiesModel;
     PropertyEditorWidget* m_stackedWidget;
     QString m_qmlDir;
     QHash<QString, PropertyEditorQmlBackend *> m_qmlBackendHash;
-    PropertyEditorQmlBackend *m_qmlBackEndForCurrentType;
+    PropertyEditorQmlBackend *m_qmlBackEndForCurrentType = nullptr;
     PropertyComponentGenerator m_propertyComponentGenerator;
     PropertyEditorComponentGenerator m_propertyEditorComponentGenerator{m_propertyComponentGenerator};
     bool m_locked;
     bool m_textureAboutToBeRemoved = false;
     bool m_isSelectionLocked = false;
-    DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
+    int m_instancesCount = 0;
+    QString m_parentWidgetId = "";
+    QString m_uniqueWidgetId = "Properties";
+    QString m_widgetTabName = tr("Properties");
+    ManageCustomNotifications m_manageNotifications;
+    ExtraPropertyViewsCallbacks m_extraPropertyViewsCallbacks;
 
     friend class PropertyEditorDynamicPropertiesProxyModel;
 };

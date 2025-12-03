@@ -14,6 +14,8 @@
 #include <QDirIterator>
 #include <QFileInfo>
 
+#include <filesystem>
+
 namespace QmlDesigner {
 
 SourceIds FileSystem::directoryEntries(const QString &directoryPath) const
@@ -36,31 +38,29 @@ QStringList FileSystem::fileNames(const QString &directoryPath, const QStringLis
     return QDir{directoryPath}.entryList(nameFilters, QDir::Files);
 }
 
-long long FileSystem::lastModified(SourceId sourceId) const
-{
-    QFileInfo fileInfo(QString(m_sourcePathCache.sourcePath(sourceId)));
-
-    fileInfo.refresh();
-
-    if (fileInfo.exists())
-        return fileInfo.lastModified().toMSecsSinceEpoch() / 1000;
-
-    return 0;
-}
-
 FileStatus FileSystem::fileStatus(SourceId sourceId) const
 {
-    auto path = sourceId.fileNameId() ? m_sourcePathCache.sourcePath(sourceId)
-                                      : m_sourcePathCache.directoryPath(sourceId.directoryPathId());
-    QFileInfo fileInfo(QString{path});
+    auto sourcePath = sourceId.fileNameId()
+                          ? m_sourcePathCache.sourcePath(sourceId)
+                          : m_sourcePathCache.directoryPath(sourceId.directoryPathId());
 
-    fileInfo.refresh();
+    try {
+        auto path = std::filesystem::path{std::string_view{sourcePath},
+                                          std::filesystem::path::generic_format};
 
-    if (fileInfo.exists()) {
-        return FileStatus{sourceId, fileInfo.size(), fileInfo.lastModified().toMSecsSinceEpoch()};
+        auto directoryEntry = std::filesystem::directory_entry{path};
+        if (directoryEntry.exists()) {
+            auto lastWrite = directoryEntry.last_write_time();
+            std::error_code error;
+            long long fileSize = static_cast<long long>(directoryEntry.file_size(error));
+            if (error)
+                fileSize = 0;
+            return FileStatus{sourceId, static_cast<long long>(fileSize), lastWrite};
+        }
+    } catch (const std::filesystem::filesystem_error &) {
     }
 
-    return FileStatus{sourceId, -1, -1};
+    return FileStatus{sourceId};
 }
 
 QString FileSystem::contentAsQString(const QString &filePath) const

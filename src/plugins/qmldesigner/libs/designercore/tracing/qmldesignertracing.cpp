@@ -3,6 +3,8 @@
 
 #include "qmldesignertracing.h"
 
+#include <nanotrace/tracefile.h>
+
 #include <sqlitebasestatement.h>
 
 namespace QmlDesigner {
@@ -11,51 +13,36 @@ using namespace NanotraceHR::Literals;
 
 namespace Tracing {
 
-namespace {
-
-using TraceFile = NanotraceHR::TraceFile<tracingStatus()>;
-
-auto &traceFile()
-{
-    if constexpr (std::is_same_v<Sqlite::TraceFile, TraceFile>) {
-        return Sqlite::traceFile();
-    } else {
-        static TraceFile traceFile{"tracing.json"};
-        return traceFile;
-    }
-}
-} // namespace
-
-EventQueue &eventQueue()
-{
-    thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewTraceEvent, tracingStatus()>
-        stringViewEventQueue(traceFile());
-
-    return stringViewEventQueue;
-}
+#ifdef ENABLE_QMLDESIGNER_TRACING
 
 EventQueueWithStringArguments &eventQueueWithStringArguments()
 {
-    thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewWithStringArgumentsTraceEvent, tracingStatus()>
-        stringViewWithStringArgumentsEventQueue(traceFile());
-
-    return stringViewWithStringArgumentsEventQueue;
-}
-
-StringEventQueue &stringEventQueue()
-{
-    thread_local NanotraceHR::EventQueue<NanotraceHR::StringTraceEvent, tracingStatus()> eventQueue(
-        traceFile());
+    thread_local NanotraceHR::EnabledEventQueueWithArguments eventQueue(NanotraceHR::traceFile());
 
     return eventQueue;
 }
 
+EventQueueWithoutArguments &eventQueueWithoutArguments()
+{
+    thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueue(NanotraceHR::traceFile());
+
+    return eventQueue;
+}
+
+#endif
+
 } // namespace Tracing
 
 namespace ModelTracing {
+
+#ifdef ENABLE_MODEL_TRACING
+
 namespace {
 
-thread_local Category category_{"model", Tracing::stringEventQueue(), category};
+thread_local Category category_{"model",
+                                Tracing::eventQueueWithStringArguments(),
+                                Tracing::eventQueueWithoutArguments(),
+                                category};
 
 } // namespace
 
@@ -64,38 +51,23 @@ Category &category()
     return category_;
 }
 
+#endif
+
 } // namespace ModelTracing
 
-namespace ProjectStorageTracing {
+namespace ProjectManagingTracing {
+#ifdef ENABLE_PROJECT_MANAGING_TRACING
 
-Category &projectStorageCategory()
-{
-    thread_local Category category{"project storage",
-                                   Tracing::eventQueueWithStringArguments(),
-                                   projectStorageCategory};
-
-    return category;
-}
-
-Category &projectStorageUpdaterCategory()
-{
-    thread_local Category category{"project storage updater",
-                                   Tracing::eventQueueWithStringArguments(),
-                                   projectStorageCategory};
-
-    return category;
-}
-
-} // namespace ProjectStorageTracing
-
-namespace SourcePathStorageTracing {
 Category &category()
 {
-    thread_local Category category_{"project storage updater",
+    thread_local Category category_{"project manager",
                                     Tracing::eventQueueWithStringArguments(),
+                                    Tracing::eventQueueWithoutArguments(),
                                     category};
 
     return category_;
 }
-} // namespace SourcePathStorageTracing
+#endif
+
+} // namespace ProjectManagingTracing
 } // namespace QmlDesigner

@@ -236,7 +236,8 @@ void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
             auto &inserted = m_designDocuments[editor] = std::make_unique<DesignDocument>(
                 editor->document()->filePath().toUrlishString(),
                 m_projectManager.projectStorageDependencies(),
-                m_externalDependencies);
+                m_externalDependencies,
+                m_projectManager.modulesStorage());
             m_currentDesignDocument = inserted.get();
             m_currentDesignDocument->setEditor(editor);
         } else {

@@ -3,6 +3,7 @@
 
 #include "formeditorgraphicsview.h"
 #include "backgroundaction.h"
+#include "formeditortracing.h"
 #include "formeditorwidget.h"
 #include "navigation2d.h"
 
@@ -22,9 +23,13 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent)
     : QGraphicsView(parent)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view constructor", category()};
+
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setResizeAnchor(QGraphicsView::AnchorViewCenter);
     setAlignment(Qt::AlignCenter);
@@ -66,6 +71,8 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent)
 
 bool FormEditorGraphicsView::eventFilter(QObject *watched, QEvent *event)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view event filter", category()};
+
     if (m_isPanning != Panning::NotStarted) {
         if (event->type() == QEvent::Leave && m_isPanning == Panning::SpaceKeyStarted) {
             // there is no way to keep the cursor so we stop panning here
@@ -89,6 +96,8 @@ bool FormEditorGraphicsView::eventFilter(QObject *watched, QEvent *event)
 
 void FormEditorGraphicsView::wheelEvent(QWheelEvent *event)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view wheel event", category()};
+
     if (event->modifiers().testFlag(Qt::ControlModifier))
         event->ignore();
 
@@ -97,6 +106,8 @@ void FormEditorGraphicsView::wheelEvent(QWheelEvent *event)
 
 void FormEditorGraphicsView::mousePressEvent(QMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics mouse press event", category()};
+
     if (m_isPanning == Panning::NotStarted) {
         if (event->buttons().testFlag(Qt::MiddleButton))
             startPanning(event);
@@ -107,6 +118,8 @@ void FormEditorGraphicsView::mousePressEvent(QMouseEvent *event)
 
 void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics mouse release event", category()};
+
     // not sure why buttons() are empty here, but we have that information from the enum
     if (m_isPanning == Panning::MouseWheelStarted)
         stopPanning(event);
@@ -131,6 +144,8 @@ bool isTextInputItem(QGraphicsItem *item)
 
 void FormEditorGraphicsView::keyPressEvent(QKeyEvent *event)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view key press event", category()};
+
     // check for autorepeat to avoid a stoped space panning by leave event to be restarted
     if (!event->isAutoRepeat() && m_isPanning == Panning::NotStarted && event->key() == Qt::Key_Space &&
         !isTextInputItem(scene()->focusItem())) {
@@ -142,7 +157,10 @@ void FormEditorGraphicsView::keyPressEvent(QKeyEvent *event)
 
 void FormEditorGraphicsView::keyReleaseEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Space && !event->isAutoRepeat() && m_isPanning == Panning::SpaceKeyStarted)
+    NanotraceHR::Tracer tracer{"form editor graphics view key release event", category()};
+
+    if (event->key() == Qt::Key_Space && !event->isAutoRepeat()
+        && m_isPanning == Panning::SpaceKeyStarted)
         stopPanning(event);
 
     QGraphicsView::keyReleaseEvent(event);
@@ -150,6 +168,8 @@ void FormEditorGraphicsView::keyReleaseEvent(QKeyEvent *event)
 
 void FormEditorGraphicsView::startPanning(QEvent *event)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view key release event", category()};
+
     if (event->type() == QEvent::KeyPress)
         m_isPanning = Panning::SpaceKeyStarted;
     else
@@ -160,6 +180,8 @@ void FormEditorGraphicsView::startPanning(QEvent *event)
 
 void FormEditorGraphicsView::stopPanning(QEvent *event)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view stop panning", category()};
+
     m_isPanning = Panning::NotStarted;
     m_panningStartPosition = QPoint();
     viewport()->unsetCursor();
@@ -168,6 +190,8 @@ void FormEditorGraphicsView::stopPanning(QEvent *event)
 
 void FormEditorGraphicsView::setRootItemRect(const QRectF &rect)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view set root item rect", category()};
+
     m_rootItemRect = rect;
     viewport()->update();
 }
@@ -179,6 +203,8 @@ QRectF FormEditorGraphicsView::rootItemRect() const
 
 void FormEditorGraphicsView::activateCheckboardBackground()
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view activate checkboard background", category()};
+
     const int checkerbordSize = 20;
     QPixmap tilePixmap(checkerbordSize * 2, checkerbordSize * 2);
     tilePixmap.fill(Qt::white);
@@ -193,11 +219,15 @@ void FormEditorGraphicsView::activateCheckboardBackground()
 
 void FormEditorGraphicsView::activateColoredBackground(const QColor &color)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view activate colored background", category()};
+
     setBackgroundBrush(color);
 }
 
 void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rectangle)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view draw background", category()};
+
     painter->save();
     painter->setBrushOrigin(0, 0);
 
@@ -228,22 +258,30 @@ void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rec
 
 void FormEditorGraphicsView::frame(const QRectF &boundingRect)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view frame", category()};
+
     fitInView(boundingRect, Qt::KeepAspectRatio);
 }
 
 void FormEditorGraphicsView::setBackgoundImage(const QImage &image)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view set background image", category()};
+
     m_backgroundImage = image;
     update();
 }
 
 QImage FormEditorGraphicsView::backgroundImage() const
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon background image", category()};
+
     return m_backgroundImage;
 }
 
 void FormEditorGraphicsView::setZoomFactor(double zoom)
 {
+    NanotraceHR::Tracer tracer{"form editor graphics view set zoom factor", category()};
+
     resetTransform();
     scale(zoom, zoom);
 }

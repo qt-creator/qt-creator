@@ -3,12 +3,14 @@
 
 #include "materialbrowsertexturesmodel.h"
 
-#include "designmodewidget.h"
-#include "imageutils.h"
-#include "materialbrowserview.h"
-#include "qmldesignerplugin.h"
-#include "qmlobjectnode.h"
-#include "variantproperty.h"
+#include <abstractproperty.h>
+#include <bindingproperty.h>
+#include <designmodewidget.h>
+#include <imageutils.h>
+#include <materialbrowserview.h>
+#include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
+#include <variantproperty.h>
 
 #include <utils3d.h>
 
@@ -53,7 +55,17 @@ QVariant MaterialBrowserTexturesModel::data(const QModelIndex &index, int role) 
     case RoleTexName:
         return m_textureList.at(index.row()).variantProperty("objectName").value();
     case RoleTexSource: {
-        QString source = QmlObjectNode(m_textureList.at(index.row())).modelValue("source").toString();
+        ModelNode texNode = m_textureList.at(index.row());
+        QString source = QmlObjectNode(texNode).modelValue("source").toString();
+        if (source.isEmpty()) {
+            // Source might be bound to another property, so resolve that
+            AbstractProperty sourceProp = texNode.property("source");
+            if (sourceProp.isBindingProperty()) {
+                AbstractProperty resolvedProp = sourceProp.toBindingProperty().resolveToProperty();
+                if (resolvedProp.isVariantProperty())
+                    source = resolvedProp.toVariantProperty().value().toString();
+            }
+        }
         if (source.isEmpty())
             return {};
         if (Utils::FilePath::fromString(source).isAbsolutePath())

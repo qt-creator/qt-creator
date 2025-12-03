@@ -61,7 +61,7 @@ public:
     QString getImportPath() const;
     QSet<AssetPath> getComponentDependencies(const Utils::FilePath &filePath,
                                              const Utils::FilePath &mainCompDir) const;
-
+    bool isProjectComponent(const ModelNode &node) const;
 private:
     void createImporter();
     QString getExportPath(const ModelNode &node) const;

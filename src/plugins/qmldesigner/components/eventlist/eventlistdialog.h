@@ -19,13 +19,14 @@ class EventListDialog : public QDialog
     Q_OBJECT
 
 public:
-    EventListDialog(QWidget *parent = nullptr);
+    EventListDialog(class ModulesStorage &modulesStorage, QWidget *parent = nullptr);
     void initialize(EventList &events);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
+    ModulesStorage &m_modulesStorage;
     EventListDelegate *m_delegate;
     NotIndentingTextEditModifier *m_modifier;
     RewriterView *m_rewriter;

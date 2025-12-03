@@ -25,6 +25,7 @@ public:
     QWidget *widget = nullptr;
     PlacementHint placementHint = PlacementHint::NoPane;
     DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError;
+    QString parentId = "";
 };
 
 } // namespace QmlDesigner

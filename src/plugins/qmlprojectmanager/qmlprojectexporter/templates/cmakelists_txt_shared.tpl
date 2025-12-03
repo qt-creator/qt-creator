@@ -13,4 +13,8 @@
   <variable>Version</variable>
   <value type="int">22</value>
 </data>
+<data>
+  <variable>CMake Generator</variable>
+  <value type="int">%1</value>
+</data>
 </qtcreator>

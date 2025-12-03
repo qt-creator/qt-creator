@@ -5,6 +5,7 @@
 
 #include "iconcheckboxitemdelegate.h"
 #include "nameitemdelegate.h"
+#include "navigatortracing.h"
 #include "navigatortreemodel.h"
 #include "navigatorwidget.h"
 
@@ -17,13 +18,13 @@
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
-#include <rewritingexception.h>
-#include <theme.h>
-#include <variantproperty.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignericons.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
+#include <rewritingexception.h>
+#include <theme.h>
+#include <variantproperty.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -41,6 +42,8 @@
 #include <QMimeData>
 #include <QPixmap>
 #include <QTimer>
+
+using QmlDesigner::NavigatorTracing::category;
 
 inline static void setScenePos(const QmlDesigner::ModelNode &modelNode, const QPointF &pos)
 {
@@ -67,8 +70,13 @@ inline static void moveNodesUp(const QList<QmlDesigner::ModelNode> &nodes)
             index--;
             if (index < 0)
                 index = node.parentProperty().count() - 1; //wrap around
-            if (oldIndex != index)
-                node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+            if (oldIndex != index) {
+                try {
+                    node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+                } catch (QmlDesigner::Exception &exception) {
+                    exception.showException();
+                }
+            }
         }
     }
 }
@@ -82,8 +90,13 @@ inline static void moveNodesDown(const QList<QmlDesigner::ModelNode> &nodes)
             index++;
             if (index >= node.parentProperty().count())
                 index = 0; //wrap around
-            if (oldIndex != index)
-                node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+            if (oldIndex != index) {
+                try {
+                    node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+                } catch (QmlDesigner::Exception &exception) {
+                    exception.showException();
+                }
+            }
         }
     }
 }
@@ -94,22 +107,28 @@ NavigatorView::NavigatorView(ExternalDependenciesInterface &externalDependencies
     : AbstractView{externalDependencies}
     , m_blockSelectionChangedSignal(false)
 {
-
+    NanotraceHR::Tracer tracer{"navigator view constructor", category()};
 }
 
 NavigatorView::~NavigatorView()
 {
+    NanotraceHR::Tracer tracer{"navigator view destructor", category()};
+
     if (m_widget && !m_widget->parent())
         delete m_widget.data();
 }
 
 bool NavigatorView::hasWidget() const
 {
+    NanotraceHR::Tracer tracer{"navigator view has widget", category()};
+
     return true;
 }
 
 WidgetInfo NavigatorView::widgetInfo()
 {
+    NanotraceHR::Tracer tracer{"navigator view widget info", category()};
+
     if (!m_widget)
         setupWidget();
 
@@ -122,6 +141,8 @@ WidgetInfo NavigatorView::widgetInfo()
 
 void NavigatorView::modelAttached(Model *model)
 {
+    NanotraceHR::Tracer tracer{"navigator view model attached", category()};
+
     AbstractView::modelAttached(model);
 
     QTreeView *treeView = treeWidget();
@@ -149,6 +170,11 @@ void NavigatorView::modelAttached(Model *model)
     m_widget->clearSearch();
 
     QTimer::singleShot(0, this, [this, treeView]() {
+        m_currentModelInterface->showReferences(
+            designerSettings()
+                .value(DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES)
+                .toBool());
+
         m_currentModelInterface->setFilter(
                     designerSettings().value(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
 
@@ -180,6 +206,8 @@ void NavigatorView::modelAttached(Model *model)
 
 void NavigatorView::clearExplorerWarnings()
 {
+    NanotraceHR::Tracer tracer{"navigator view clear explorer warnings", category()};
+
     QList<ModelNode> allNodes;
     allNodes.append(rootModelNode());
     allNodes.append(rootModelNode().allSubModelNodes());
@@ -194,6 +222,8 @@ void NavigatorView::clearExplorerWarnings()
 
 void NavigatorView::modelAboutToBeDetached(Model *model)
 {
+    NanotraceHR::Tracer tracer{"navigator view model about to be detached", category()};
+
     QHash<QString, bool> &localExpandMap = m_expandMap[model->fileUrl()];
 
     // If detaching full document model, recreate expand map from scratch to remove stale entries.
@@ -229,16 +259,25 @@ void NavigatorView::modelAboutToBeDetached(Model *model)
         gatherExpandedState(rootIndex);
     }
 
+    m_currentModelInterface->resetModel();
+
     AbstractView::modelAboutToBeDetached(model);
 }
 
 void NavigatorView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)
 {
+    NanotraceHR::Tracer tracer{"navigator view imports changed", category()};
+
     treeWidget()->update();
 }
 
-void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & propertyList, PropertyChangeFlags /*propertyChange*/)
+void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
+                                             PropertyChangeFlags /*propertyChange*/)
 {
+    NanotraceHR::Tracer tracer{"navigator view binding properties changed", category()};
+
+    QSet<ModelNode> owners;
+
     for (const BindingProperty &bindingProperty : propertyList) {
         /* If a binding property that exports an item using an alias property has
          * changed, we have to update the affected item.
@@ -246,11 +285,26 @@ void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & prop
 
         if (bindingProperty.isAliasExport())
             m_currentModelInterface->notifyDataChanged(modelNodeForId(bindingProperty.expression()));
+
+        if (m_currentModelInterface->isReferenceNodesVisible() && bindingProperty.canBeReference()) {
+            const QList<ModelNode> modelNodes = bindingProperty.resolveToModelNodes();
+            for (const ModelNode &modelNode : modelNodes) {
+                if (m_currentModelInterface->canBeReference(modelNode)) {
+                    owners.insert(bindingProperty.parentModelNode());
+                    break;
+                }
+            }
+        }
     }
+
+    if (!owners.empty())
+        m_currentModelInterface->notifyModelReferenceNodesUpdated(owners.values());
 }
 
 void NavigatorView::dragStarted(QMimeData *mimeData)
 {
+    NanotraceHR::Tracer tracer{"navigator view drag started", category()};
+
     if (mimeData->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
         QByteArray data = mimeData->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
         QDataStream stream(data);
@@ -277,16 +331,20 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
         m_widget->setDragType(matNode.metaInfo().typeName());
 #endif
         m_widget->update();
-    } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM)) {
-        QByteArray data = mimeData->data(Constants::MIME_TYPE_BUNDLE_ITEM);
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)) {
+        m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_ITEM_2D);
+        m_widget->update();
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_3D)) {
+        QByteArray data = mimeData->data(Constants::MIME_TYPE_BUNDLE_ITEM_3D);
         QDataStream stream(data);
         TypeName bundleItemType;
         stream >> bundleItemType;
 
-        if (bundleItemType.contains("UserMaterials")) {
+        if (bundleItemType.contains("UserMaterials"))
             m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_MATERIAL);
-            m_widget->update();
-        }
+        else
+            m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_ITEM_3D);
+        m_widget->update();
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
         m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_TEXTURE);
         m_widget->update();
@@ -322,6 +380,8 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
 
 void NavigatorView::dragEnded()
 {
+    NanotraceHR::Tracer tracer{"navigator view drag ended", category()};
+
     m_widget->setDragType("");
     m_widget->update();
 }
@@ -331,12 +391,16 @@ void NavigatorView::customNotification([[maybe_unused]] const AbstractView *view
                                        [[maybe_unused]] const QList<ModelNode> &nodeList,
                                        [[maybe_unused]] const QList<QVariant> &data)
 {
+    NanotraceHR::Tracer tracer{"navigator view custom notification", category()};
+
     if (identifier == "asset_import_update")
         m_currentModelInterface->notifyIconsChanged();
 }
 
 void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exported)
 {
+    NanotraceHR::Tracer tracer{"navigator view handle changed export", category()};
+
     const ModelNode rootNode = rootModelNode();
     Q_ASSERT(rootNode.isValid());
     const PropertyName modelNodeId = modelNode.id().toUtf8();
@@ -352,17 +416,23 @@ void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exporte
 
 bool NavigatorView::isNodeInvisible(const ModelNode &modelNode) const
 {
+    NanotraceHR::Tracer tracer{"navigator view is node invisible", category()};
+
     return QmlVisualNode(modelNode).visibilityOverride();
 }
 
 void NavigatorView::disableWidget()
 {
+    NanotraceHR::Tracer tracer{"navigator view disable widget", category()};
+
     if (m_widget)
         m_widget->disableNavigator();
 }
 
 void NavigatorView::enableWidget()
 {
+    NanotraceHR::Tracer tracer{"navigator view enable widget", category()};
+
     if (m_widget)
         m_widget->enableNavigator();
 }
@@ -371,6 +441,8 @@ void NavigatorView::modelNodePreviewPixmapChanged(const ModelNode &node,
                                                   const QPixmap &pixmap,
                                                   const QByteArray &requestId)
 {
+    NanotraceHR::Tracer tracer{"navigator view model node preview pixmap changed", category()};
+
     // There might be multiple requests for different preview pixmap sizes.
     // Here only the one with the default size is picked.
     if (requestId.isEmpty())
@@ -379,6 +451,8 @@ void NavigatorView::modelNodePreviewPixmapChanged(const ModelNode &node,
 
 ModelNode NavigatorView::modelNodeForIndex(const QModelIndex &modelIndex) const
 {
+    NanotraceHR::Tracer tracer{"navigator view model node for index", category()};
+
     return modelIndex.model()->data(modelIndex, ModelNodeRole).value<ModelNode>();
 }
 
@@ -390,6 +464,8 @@ void NavigatorView::nodeRemoved(const ModelNode &removedNode,
                                 const NodeAbstractProperty & /*parentProperty*/,
                                 AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
+    NanotraceHR::Tracer tracer{"navigator view node removed", category()};
+
     m_currentModelInterface->notifyModelNodesRemoved({removedNode});
 }
 
@@ -398,6 +474,8 @@ void NavigatorView::nodeReparented(const ModelNode &modelNode,
                                    const NodeAbstractProperty & oldPropertyParent,
                                    AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
+    NanotraceHR::Tracer tracer{"navigator view node reparented", category()};
+
     if (!oldPropertyParent.isValid())
         m_currentModelInterface->notifyModelNodesInserted({modelNode});
     else
@@ -410,6 +488,8 @@ void NavigatorView::nodeReparented(const ModelNode &modelNode,
 
 void NavigatorView::nodeIdChanged(const ModelNode& modelNode, const QString & /*newId*/, const QString & /*oldId*/)
 {
+    NanotraceHR::Tracer tracer{"navigator view node id changed", category()};
+
     m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
@@ -419,6 +499,8 @@ void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &/*
 
 void NavigatorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
+    NanotraceHR::Tracer tracer{"navigator view properties removed", category()};
+
     QList<ModelNode> modelNodes;
     for (const AbstractProperty &property : propertyList) {
         if (property.isNodeAbstractProperty()) {
@@ -432,11 +514,15 @@ void NavigatorView::propertiesRemoved(const QList<AbstractProperty> &propertyLis
 
 void NavigatorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
+    NanotraceHR::Tracer tracer{"navigator view root node type changed", category()};
+
     m_currentModelInterface->notifyDataChanged(rootModelNode());
 }
 
 void NavigatorView::nodeTypeChanged(const ModelNode &modelNode, const TypeName &, int , int)
 {
+    NanotraceHR::Tracer tracer{"navigator view node type changed", category()};
+
     m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
@@ -444,6 +530,8 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode,
                                          [[maybe_unused]] AuxiliaryDataKeyView key,
                                          [[maybe_unused]] const QVariant &data)
 {
+    NanotraceHR::Tracer tracer{"navigator view auxiliary data changed", category()};
+
     m_currentModelInterface->notifyDataChanged(modelNode);
 
     if (key == lockedProperty) {
@@ -456,6 +544,8 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode,
 
 void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList)
 {
+    NanotraceHR::Tracer tracer{"navigator view instance error changed", category()};
+
     for (const ModelNode &modelNode : errorNodeList) {
         m_currentModelInterface->notifyDataChanged(modelNode);
         propagateInstanceErrorToExplorer(modelNode);
@@ -464,6 +554,8 @@ void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList
 
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty)
 {
+    NanotraceHR::Tracer tracer{"navigator view node order changed", category()};
+
     m_currentModelInterface->notifyModelNodesMoved(listProperty.directSubNodes());
 
     // make sure selection is in sync again
@@ -472,6 +564,8 @@ void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty)
 
 void NavigatorView::changeToComponent(const QModelIndex &index)
 {
+    NanotraceHR::Tracer tracer{"navigator view change to component", category()};
+
     if (index.isValid() && currentModel()->data(index, Qt::UserRole).isValid()) {
         const ModelNode doubleClickNode = modelNodeForIndex(index);
         if (doubleClickNode.metaInfo().isFileComponent())
@@ -484,16 +578,22 @@ void NavigatorView::changeToComponent(const QModelIndex &index)
 
 QModelIndex NavigatorView::indexForModelNode(const ModelNode &modelNode) const
 {
+    NanotraceHR::Tracer tracer{"navigator view index for model node", category()};
+
     return m_currentModelInterface->indexForModelNode(modelNode);
 }
 
 QAbstractItemModel *NavigatorView::currentModel() const
 {
+    NanotraceHR::Tracer tracer{"navigator view current model", category()};
+
     return treeWidget()->model();
 }
 
 const ProjectExplorer::FileNode *NavigatorView::fileNodeForModelNode(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"navigator view file node for model node", category()};
+
     QString filename = ModelUtils::componentFilePath(node);
     Utils::FilePath filePath = Utils::FilePath::fromString(filename);
     ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(
@@ -516,6 +616,8 @@ const ProjectExplorer::FileNode *NavigatorView::fileNodeForModelNode(const Model
 
 const ProjectExplorer::FileNode *NavigatorView::fileNodeForIndex(const QModelIndex &index) const
 {
+    NanotraceHR::Tracer tracer{"navigator view file node for index", category()};
+
     if (index.isValid() && currentModel()->data(index, Qt::UserRole).isValid()) {
         ModelNode node = modelNodeForIndex(index);
         if (node.metaInfo().isFileComponent()) {
@@ -526,8 +628,11 @@ const ProjectExplorer::FileNode *NavigatorView::fileNodeForIndex(const QModelInd
     return nullptr;
 }
 
-void NavigatorView::propagateInstanceErrorToExplorer(const ModelNode &modelNode) {
-    QModelIndex index = indexForModelNode(modelNode);;
+void NavigatorView::propagateInstanceErrorToExplorer(const ModelNode &modelNode)
+{
+    NanotraceHR::Tracer tracer{"navigator view propagate instance error to explorer", category()};
+
+    QModelIndex index = indexForModelNode(modelNode);
 
     do {
         const ProjectExplorer::FileNode *fnode = fileNodeForIndex(index);
@@ -543,6 +648,8 @@ void NavigatorView::propagateInstanceErrorToExplorer(const ModelNode &modelNode)
 
 void NavigatorView::leftButtonClicked()
 {
+    NanotraceHR::Tracer tracer{"navigator view left button clicked", category()};
+
     if (selectedModelNodes().size() > 1)
         return; //Semantics are unclear for multi selection.
 
@@ -567,6 +674,8 @@ void NavigatorView::leftButtonClicked()
 
 void NavigatorView::rightButtonClicked()
 {
+    NanotraceHR::Tracer tracer{"navigator view right button clicked", category()};
+
     if (selectedModelNodes().size() > 1)
         return; //Semantics are unclear for multi selection.
 
@@ -611,6 +720,8 @@ void NavigatorView::rightButtonClicked()
 
 void NavigatorView::upButtonClicked()
 {
+    NanotraceHR::Tracer tracer{"navigator view up button clicked", category()};
+
     bool blocked = blockSelectionChangedSignal(true);
     bool reverse = designerSettings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
 
@@ -625,6 +736,8 @@ void NavigatorView::upButtonClicked()
 
 void NavigatorView::downButtonClicked()
 {
+    NanotraceHR::Tracer tracer{"navigator view down button clicked", category()};
+
     bool blocked = blockSelectionChangedSignal(true);
     bool reverse = designerSettings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
 
@@ -637,8 +750,27 @@ void NavigatorView::downButtonClicked()
     blockSelectionChangedSignal(blocked);
 }
 
+void NavigatorView::colorizeToggled(bool flag)
+{
+    NanotraceHR::Tracer tracer{"navigator view colorize toggled", category()};
+
+    designerSettings().insert(DesignerSettingsKey::NAVIGATOR_COLORIZE_ICONS, flag);
+    m_currentModelInterface->notifyIconsChanged();
+}
+
+void NavigatorView::referenceToggled(bool flag)
+{
+    NanotraceHR::Tracer tracer{"navigator view reference toggled", category()};
+
+    m_currentModelInterface->showReferences(flag);
+    treeWidget()->expandAll();
+    designerSettings().insert(DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES, flag);
+}
+
 void NavigatorView::filterToggled(bool flag)
 {
+    NanotraceHR::Tracer tracer{"navigator view filter toggled", category()};
+
     m_currentModelInterface->setFilter(flag);
     treeWidget()->expandAll();
     designerSettings().insert(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, flag);
@@ -646,6 +778,8 @@ void NavigatorView::filterToggled(bool flag)
 
 void NavigatorView::reverseOrderToggled(bool flag)
 {
+    NanotraceHR::Tracer tracer{"navigator view reverse order toggled", category()};
+
     m_currentModelInterface->setOrder(flag);
     treeWidget()->expandAll();
     designerSettings().insert(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, flag);
@@ -653,12 +787,16 @@ void NavigatorView::reverseOrderToggled(bool flag)
 
 void NavigatorView::textFilterChanged(const QString &text)
 {
+    NanotraceHR::Tracer tracer{"navigator view text filter changed", category()};
+
     m_treeModel->setNameFilter(text);
     treeWidget()->expandAll();
 }
 
 void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, const QItemSelection &/*deselected*/)
 {
+    NanotraceHR::Tracer tracer{"navigator view change selection", category()};
+
     if (m_blockSelectionChangedSignal)
         return;
 
@@ -677,12 +815,16 @@ void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, con
 
 void NavigatorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/, const QList<ModelNode> &/*lastSelectedNodeList*/)
 {
+    NanotraceHR::Tracer tracer{"navigator view selected nodes changed", category()};
+
     // Update selection asynchronously to ensure NavigatorTreeModel's index cache is up to date
     QTimer::singleShot(0, this, &NavigatorView::updateItemSelection);
 }
 
 void NavigatorView::updateItemSelection()
 {
+    NanotraceHR::Tracer tracer{"navigator view update item selection", category()};
+
     if (!isAttached())
         return;
 
@@ -725,6 +867,7 @@ void NavigatorView::updateItemSelection()
 
 QTreeView *NavigatorView::treeWidget() const
 {
+    NanotraceHR::Tracer tracer{"navigator view tree widget", category()};
     if (m_widget)
         return m_widget->treeView();
     return nullptr;
@@ -732,12 +875,16 @@ QTreeView *NavigatorView::treeWidget() const
 
 NavigatorTreeModel *NavigatorView::treeModel()
 {
+    NanotraceHR::Tracer tracer{"navigator view tree model", category()};
+
     return m_treeModel.data();
 }
 
 // along the lines of QObject::blockSignals
 bool NavigatorView::blockSelectionChangedSignal(bool block)
 {
+    NanotraceHR::Tracer tracer{"navigator view block selection changed signal", category()};
+
     bool oldValue = m_blockSelectionChangedSignal;
     m_blockSelectionChangedSignal = block;
     return oldValue;
@@ -745,6 +892,8 @@ bool NavigatorView::blockSelectionChangedSignal(bool block)
 
 void NavigatorView::expandAncestors(const QModelIndex &index)
 {
+    NanotraceHR::Tracer tracer{"navigator view expand ancestors", category()};
+
     QModelIndex currentIndex = index.parent();
     while (currentIndex.isValid()) {
         if (!treeWidget()->isExpanded(currentIndex))
@@ -755,6 +904,8 @@ void NavigatorView::expandAncestors(const QModelIndex &index)
 
 void NavigatorView::reparentAndCatch(NodeAbstractProperty property, const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"navigator view reparent and catch", category()};
+
     try {
         property.reparentHere(modelNode);
     } catch (Exception &exception) {
@@ -764,6 +915,8 @@ void NavigatorView::reparentAndCatch(NodeAbstractProperty property, const ModelN
 
 void NavigatorView::setupWidget()
 {
+    NanotraceHR::Tracer tracer{"navigator view setup widget", category()};
+
     m_widget = new NavigatorWidget(this);
     m_treeModel = new NavigatorTreeModel(this);
     m_treeModel->setView(this);
@@ -776,6 +929,8 @@ void NavigatorView::setupWidget()
     connect(m_widget.data(), &NavigatorWidget::rightButtonClicked, this, &NavigatorView::rightButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::downButtonClicked, this, &NavigatorView::downButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::upButtonClicked, this, &NavigatorView::upButtonClicked);
+    connect(m_widget.data(), &NavigatorWidget::colorizeToggled, this, &NavigatorView::colorizeToggled);
+    connect(m_widget.data(), &NavigatorWidget::referenceToggled, this, &NavigatorView::referenceToggled);
     connect(m_widget.data(), &NavigatorWidget::filterToggled, this, &NavigatorView::filterToggled);
     connect(m_widget.data(), &NavigatorWidget::reverseOrderToggled, this, &NavigatorView::reverseOrderToggled);
 

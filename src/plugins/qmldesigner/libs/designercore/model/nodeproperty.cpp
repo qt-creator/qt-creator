@@ -10,8 +10,12 @@ namespace QmlDesigner {
 
 NodeProperty::NodeProperty() = default;
 
-void NodeProperty::setModelNode(const ModelNode &modelNode)
+void NodeProperty::setModelNode(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"node property set model node",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -33,8 +37,12 @@ void NodeProperty::setModelNode(const ModelNode &modelNode)
                                  false); //### we have to add a flag that this is not a list
 }
 
-ModelNode NodeProperty::modelNode() const
+ModelNode NodeProperty::modelNode(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"node property model node",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -45,13 +53,23 @@ ModelNode NodeProperty::modelNode() const
     return ModelNode();
 }
 
-void NodeProperty::reparentHere(const ModelNode &modelNode)
+void NodeProperty::reparentHere(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"node property reparent here",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     NodeAbstractProperty::reparentHere(modelNode, false);
 }
 
-void NodeProperty::setDynamicTypeNameAndsetModelNode(const TypeName &typeName, const ModelNode &modelNode)
+void NodeProperty::setDynamicTypeNameAndsetModelNode(const TypeName &typeName,
+                                                     const ModelNode &modelNode,
+                                                     SL sl)
 {
+    NanotraceHR::Tracer tracer{"node property set dynamic type and set model node",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!modelNode.isValid())
         return;
 

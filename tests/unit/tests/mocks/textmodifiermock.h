@@ -27,5 +27,5 @@ class TextModifierMock : public QmlDesigner::TextModifier
                 autoComplete,
                 (QTextDocument * textDocument, int positio, bool explicitComplete),
                 (override));
-    MOCK_METHOD(bool, moveToComponent, (int nodeOffset, const QString &importData), (override));
+    MOCK_METHOD(QString, moveToComponent, (int nodeOffset, const QString &importData), (override));
 };

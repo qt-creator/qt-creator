@@ -98,4 +98,62 @@ TEST(SourcePathView, file_name_for_file_name_only)
     ASSERT_THAT(filePath.name(), "file.h");
 }
 
+TEST(SourcePathView, common_path_for_same_path)
+{
+    std::string_view input{"/foo/"};
+
+    auto matched = QmlDesigner::SourcePathView::commonPath(input, input);
+
+    ASSERT_THAT(matched, FieldsAre("/foo/", IsEmpty(), IsEmpty()));
+}
+
+TEST(SourcePathView, common_path)
+{
+    std::string_view input1{"/foo/bar"};
+    std::string_view input2{"/foo/hoo"};
+
+    auto matched = QmlDesigner::SourcePathView::commonPath(input1, input2);
+
+    ASSERT_THAT(matched, FieldsAre("/foo/", "bar", "hoo"));
+}
+
+TEST(SourcePathView, common_path_last_is_sub_path)
+{
+    std::string_view input1{"/foo/bar"};
+    std::string_view input2{"/foo/"};
+
+    auto matched = QmlDesigner::SourcePathView::commonPath(input1, input2);
+
+    ASSERT_THAT(matched, FieldsAre("/foo/", "bar", IsEmpty()));
+}
+
+TEST(SourcePathView, common_path_first_is_sub_path)
+{
+    std::string_view input1{"/foo/"};
+    std::string_view input2{"/foo/bar"};
+
+    auto matched = QmlDesigner::SourcePathView::commonPath(input1, input2);
+
+    ASSERT_THAT(matched, FieldsAre("/foo/", IsEmpty(), "bar"));
+}
+
+TEST(SourcePathView, common_path_last_is_file)
+{
+    std::string_view input1{"/foo/bar"};
+    std::string_view input2{"/foo"};
+
+    auto matched = QmlDesigner::SourcePathView::commonPath(input1, input2);
+
+    ASSERT_THAT(matched, FieldsAre("/", "foo/bar", "foo"));
+}
+
+TEST(SourcePathView, common_path_first_is_file)
+{
+    std::string_view input1{"/foo"};
+    std::string_view input2{"/foo/bar"};
+
+    auto matched = QmlDesigner::SourcePathView::commonPath(input1, input2);
+
+    ASSERT_THAT(matched, FieldsAre("/", "foo", "foo/bar"));
+}
 }

@@ -33,4 +33,22 @@ public:
                  QmlDesigner::SourceId qmldirSourceId),
                 (override));
     MOCK_METHOD(void, qmltypesFileMissing, (QStringView qmltypesPath), (override));
+    MOCK_METHOD(void,
+                prototypeCycle,
+                (Utils::SmallStringView typeName, QmlDesigner::SourceId typeSourceId),
+                (override));
+    MOCK_METHOD(void,
+                aliasCycle,
+                (Utils::SmallStringView typeName,
+                 Utils::SmallStringView propertyName,
+                 QmlDesigner::SourceId typeSourceId),
+                (override));
+    MOCK_METHOD(void,
+                exportedTypeNameIsDuplicate,
+                (QmlDesigner::ModuleId moduleId, Utils::SmallStringView typeName),
+                (override));
+    MOCK_METHOD(void,
+                exportedTypesAreInADifferentDirectory,
+                (QmlDesigner::ModuleId moduleId, QStringView typeName),
+                (override));
 };

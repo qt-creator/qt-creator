@@ -24,20 +24,24 @@ class QMLDESIGNERCORE_EXPORT VariantProperty final : public AbstractProperty
     friend Internal::ModelPrivate;
     friend AbstractProperty;
 
+    using SL = ModelTracing::SourceLocation;
+
 public:
-    void setValue(const QVariant &value);
-    const QVariant &value() const;
+    void setValue(const QVariant &value, SL sl = {});
+    const QVariant &value(SL sl = {}) const;
 
     const QVariant &operator->() const { return value(); }
 
     const QVariant &operator*() const { return value(); }
 
-    void setEnumeration(const EnumerationName &enumerationName);
-    const Enumeration &enumeration() const;
-    bool holdsEnumeration() const;
+    void setEnumeration(const EnumerationName &enumerationName, SL sl = {});
+    const Enumeration &enumeration(SL sl = {}) const;
+    bool holdsEnumeration(SL sl = {}) const;
 
-    void setDynamicTypeNameAndValue(const TypeName &type, const QVariant &value);
-    void setDynamicTypeNameAndEnumeration(const TypeName &type, const EnumerationName &enumerationName);
+    void setDynamicTypeNameAndValue(const TypeName &type, const QVariant &value, SL sl = {});
+    void setDynamicTypeNameAndEnumeration(const TypeName &type,
+                                          const EnumerationName &enumerationName,
+                                          SL sl = {});
 
     VariantProperty();
     VariantProperty(const VariantProperty &property, AbstractView *view);

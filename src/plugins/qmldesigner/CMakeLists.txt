@@ -5,29 +5,29 @@ if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
 endif()
 
-option(USE_PROJECTSTORAGE "Use ProjectStorage" ${QTC_USE_QML_DESIGNER_LITE})
+option(USE_PROJECTSTORAGE "Use ProjectStorage" OFF)
 add_feature_info("Use project storage" ${USE_PROJECTSTORAGE} "")
-option(DETACH_DISABLED_VIEWS "Detach disabled views" OFF)
 
-env_with_default("QTC_ENABLE_PROJECT_STORAGE_TRACING" ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING OFF)
-option(ENABLE_PROJECT_STORAGE_TRACING "Enable project storage tracing" ${ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING})
-add_feature_info("Project storage tracing" ${ENABLE_PROJECT_STORAGE_TRACING} "")
+option(DETACH_DISABLED_VIEWS "Detach disabled views" ${BUILD_DESIGNSTUDIO})
 
-env_with_default("QTC_ENABLE_SOURCE_PATH_STORAGE_TRACING" ENV_QTC_ENABLE_SOURCE_PATH_STORAGE_TRACING OFF)
-option(ENABLE_SOURCE_PATH_STORAGE_TRACING "Enable source path storage tracing" ${ENV_QTC_ENABLE_SOURCE_PATH_STORAGE_TRACING})
-add_feature_info("Source path storage tracing" ${ENABLE_SOURCE_PATH_STORAGE_TRACING} "")
+# temporary workaround for broken QML imports in Qt -> Qt 6.9.2 should work without this
+env_with_default(QTC_USE_QML_IMPORT_OVERRIDE ENV_QTC_USE_QML_IMPORT_OVERRIDE ${BUILD_DESIGNSTUDIO})
+option(USE_QML_IMPORT_OVERRIDE "Use Qml import override from resource path." ${ENV_QTC_USE_QML_IMPORT_OVERRIDE})
 
-env_with_default("QTC_ENABLE_IMAGE_CACHE_TRACING" ENV_QTC_ENABLE_IMAGE_CACHE_TRACING OFF)
-option(ENABLE_IMAGE_CACHE_TRACING "Enable image cache tracing" ${ENV_QTC_ENABLE_IMAGE_CACHE_TRACING})
-add_feature_info("Image cache tracing" ${ENABLE_IMAGE_CACHE_TRACING} "")
-
-env_with_default("QTC_ENABLE_MODEL_TRACING" ENV_QTC_ENABLE_MODEL_TRACING OFF)
-option(ENABLE_MODEL_TRACING "Enable model tracing" ${ENV_QTC_ENABLE_MODEL_TRACING})
-add_feature_info("Model tracing" ${ENABLE_MODEL_TRACING} "")
-
-env_with_default("QDS_DESIGNVIEWER_USE_STAGING" ENV_QDS_DESIGNVIEWER_USE_STAGING OFF)
-option(QDS_DESIGNVIEWER_USE_STAGING "Use staging API URL for Design Viewer" ${ENV_QDS_DESIGNVIEWER_USE_STAGING})
-add_feature_info("Use staging API URL for Design Viewer" ${QDS_DESIGNVIEWER_USE_STAGING} "")
+if(USE_QML_IMPORT_OVERRIDE)
+  include(FetchContent)
+  FetchContent_Declare(qds_qml_import_override
+      GIT_REPOSITORY https://git.qt.io/design-studio/qds-qml-import-override.git
+      GIT_TAG        qds-4.8.0-beta1
+      SOURCE_DIR     "${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}/qmldesigner/qml-import-override"
+  )
+  FetchContent_MakeAvailable(qds_qml_import_override)
+  install(DIRECTORY "${qds_qml_import_override_SOURCE_DIR}/"
+          DESTINATION "${IDE_DATA_PATH}/qmldesigner/qml-import-override"
+          PATTERN ".git" EXCLUDE
+          PATTERN ".gitignore" EXCLUDE
+          PATTERN ".gitattributes" EXCLUDE)
+endif()
 
 if(QDS_DESIGNVIEWER_USE_STAGING)
   add_definitions(-DQDS_DESIGNVIEWER_USE_STAGING)
@@ -35,7 +35,7 @@ endif()
 
 add_subdirectory(libs)
 
-find_package(Qt6 QUIET COMPONENTS WebSockets WebEngineWidgets)
+find_package(Qt6 QUIET COMPONENTS NetworkAuth WebSockets)
 
 add_qtc_library(QmlDesignerSettings STATIC
   DEPENDS Utils
@@ -69,6 +69,7 @@ add_qtc_plugin(QmlDesigner
     $<$<BOOL:${DETACH_DISABLED_VIEWS}>:DETACH_DISABLED_VIEWS>
   PUBLIC_DEFINES
     $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
+    $<$<BOOL:${USE_QML_IMPORT_OVERRIDE}>:USE_QML_IMPORT_OVERRIDE>
   INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/libs
     ${CMAKE_CURRENT_LIST_DIR}/components
@@ -278,6 +279,8 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/formeditor
   PUBLIC_INCLUDES components/formeditor
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_FORM_EDITOR_TRACING}>:ENABLE_FORM_EDITOR_TRACING>
   SOURCES
     abstractcustomtool.cpp abstractcustomtool.h
     abstractformeditortool.cpp abstractformeditortool.h
@@ -293,6 +296,7 @@ extend_qtc_plugin(QmlDesigner
     formeditorgraphicsview.cpp formeditorgraphicsview.h
     formeditoritem.cpp formeditoritem.h
     formeditorscene.cpp formeditorscene.h
+    formeditortracing.cpp formeditortracing.h
     formeditorsubwindow.h
     formeditortoolbutton.cpp formeditortoolbutton.h
     formeditorview.cpp formeditorview.h
@@ -324,7 +328,6 @@ extend_qtc_plugin(QmlDesigner
     snapper.cpp snapper.h
     snappinglinecreator.cpp snappinglinecreator.h
     toolbox.cpp toolbox.h
-    transitiontool.cpp transitiontool.h
     view3dtool.cpp view3dtool.h
 )
 
@@ -342,6 +345,8 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/itemlibrary
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_ITEM_LIBRARY_TRACING}>:ENABLE_ITEM_LIBRARY_TRACING>
   SOURCES
     itemlibrary.qrc
     itemlibraryconstants.h
@@ -350,6 +355,7 @@ extend_qtc_plugin(QmlDesigner
     itemlibrarymodel.cpp itemlibrarymodel.h
     itemlibrarycategory.cpp itemlibrarycategory.h
     itemlibraryitemsmodel.cpp itemlibraryitemsmodel.h
+    itemlibrarytracing.cpp itemlibrarytracing.h
     itemlibraryview.cpp itemlibraryview.h
     itemlibrarywidget.cpp itemlibrarywidget.h
     itemlibraryiconimageprovider.cpp itemlibraryiconimageprovider.h
@@ -386,12 +392,15 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/navigator
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_NAVIGATOR_TRACING}>:ENABLE_NAVIGATOR_TRACING>
   SOURCES
     iconcheckboxitemdelegate.cpp iconcheckboxitemdelegate.h
     nameitemdelegate.cpp nameitemdelegate.h
     navigator.qrc
     navigatormodelinterface.h
     navigatorsearchwidget.cpp navigatorsearchwidget.h
+    navigatortracing.cpp navigatortracing.h
     navigatortreemodel.cpp navigatortreemodel.h
     navigatortreeview.cpp navigatortreeview.h
     navigatorview.cpp navigatorview.h
@@ -405,6 +414,8 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/propertyeditor
   PUBLIC_INCLUDES components/propertyeditor
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_PROPERTY_EDITOR_TRACING}>:ENABLE_PROPERTY_EDITOR_TRACING>
   SOURCES
     aligndistribute.cpp aligndistribute.h
     assetimageprovider.cpp assetimageprovider.h
@@ -412,6 +423,7 @@ extend_qtc_plugin(QmlDesigner
     compatibleproperties.cpp compatibleproperties.h
     designerpropertymap.cpp designerpropertymap.h
     fileresourcesmodel.cpp fileresourcesmodel.h
+    fontresourcesmodel.cpp fontresourcesmodel.h
     itemfiltermodel.cpp itemfiltermodel.h
     listvalidator.cpp listvalidator.h
     gradientmodel.cpp gradientmodel.h
@@ -424,6 +436,7 @@ extend_qtc_plugin(QmlDesigner
     propertyeditorcontextobject.cpp propertyeditorcontextobject.h
     propertyeditordynamicpropertiesproxymodel.cpp propertyeditordynamicpropertiesproxymodel.h
     propertyeditorqmlbackend.cpp propertyeditorqmlbackend.h
+    propertyeditortracing.cpp propertyeditortracing.h
     propertyeditortransaction.cpp propertyeditortransaction.h
     propertyeditorvalue.cpp propertyeditorvalue.h
     propertyeditorview.cpp propertyeditorview.h
@@ -746,13 +759,14 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
-  CONDITION TARGET Qt::WebEngineWidgets
+  CONDITION TARGET Qt::NetworkAuth
   SOURCES_PREFIX components/designviewer
   DEPENDS
-    Qt::WebEngineWidgets
+    qtkeychain Qt::NetworkAuth
   PUBLIC_DEFINES DVCONNECTOR_ENABLED
   SOURCES
     dvconnector.cpp dvconnector.h
+    dvauthenticator.cpp dvauthenticator.h
 )
 
 add_qtc_plugin(componentsplugin

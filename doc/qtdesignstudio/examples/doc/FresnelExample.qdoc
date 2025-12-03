@@ -7,7 +7,7 @@
 
     \title Fresnel properties on materials
     \brief Illustrates how to work with Fresnel.
-    \sa {Material Editor and Browser}, {Setting image-based lighting}, {Directional Light},
+    \sa {Material Browser}, {Setting image-based lighting}, {Directional Light},
     {3D models}, {Content Library}
 
     \image fresnel-example.webp
@@ -26,7 +26,7 @@
     To run the example in \QDS, go to the \uicontrol Welcome screen and select the example
     from the \uicontrol Examples tab.
 
-    \section1 The 3D scene
+    \section1 3D scene
 
     The 3D scene of the example project consists of the following models:
 
@@ -62,7 +62,7 @@
     Navigate the scene with your keyboard using the \uicontrol {Camera controls} listed in
     the example.
 
-    \section1 The materials
+    \section1 Materials
 
     The following materials are used in this example.
 
@@ -89,7 +89,7 @@
 
     You adjust clearcoat properties independently from the base material.
 
-    \section2 The Fresnel properties
+    \section2 Fresnel properties
 
     The following properties affect how Fresnel renders. These properties are
     available both for the base material and the clearcoat layer. Adjusting the settings for the
@@ -133,7 +133,7 @@
 
     \list 1
       \li In \uicontrol {Material Browser}, double-click a material.
-      \li In \uicontrol {Material Editor}, find the properties under
+      \li In \uicontrol {Properties}, find the properties under
       \uicontrol {Clearcoat} and \uicontrol {Fresnel} respectively.
     \endlist
 
@@ -142,7 +142,7 @@
     To create a new material with Fresnel:
 
     \list 1
-      \li In \uicontrol {Material Editor}, select \imageplus.
+      \li In \uicontrol {Material Browser}, select \imageplus.
       \li Edit the properties under \uicontrol {Clearcoat} and \uicontrol {Fresnel} respectively.
     \endlist
 

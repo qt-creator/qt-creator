@@ -3,8 +3,9 @@
 
 #include "qmlprivategate.h"
 
-#include <objectnodeinstance.h>
 #include <nodeinstanceserver.h>
+#include <objectnodeinstance.h>
+#include <qmlpuppet/qmlbase.h>
 
 #include <QQuickItem>
 #include <QQmlComponent>
@@ -43,7 +44,89 @@
 #include <private/qquick3drepeater_p.h>
 #endif
 
+#include <filesystem>
 
+using namespace Qt::Literals::StringLiterals;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+using EngineHandler = std::unique_ptr<QAbstractFileEngine>;
+#else
+using EngineHandler = QAbstractFileEngine *;
+#endif
+
+namespace {
+
+QString qmlDesignerRCPath()
+{
+    static const QString qmlDesignerRcPathsString = QString::fromLocal8Bit(
+        qgetenv("QMLDESIGNER_RC_PATHS"));
+    return qmlDesignerRcPathsString;
+}
+
+QString fixResourcePath(QString path, const QString &before, const QString &after)
+{
+    path.replace(path.indexOf(before), before.length(), after);
+    return path;
+}
+
+EngineHandler makeNormalizedPathEngineHandler(QString path)
+{
+    path.replace("//", "/");
+    path.replace('\\', '/');
+    return EngineHandler{new QFSFileEngine(path)};
+}
+
+std::optional<EngineHandler> tryMakeEngineHandler(QString fixedPath)
+{
+    // It turns out that `QFileInfo::exists` uses `QAbstractFileHandler` internally, so we cannot
+    // call it inside `QAbstractFileHandler::create` (directly or indirectly), otherwise it creates
+    // infinite recursion. `std::filesystem::exists` is fine though.
+    if (std::filesystem::exists(fixedPath.toStdString())) {
+        return makeNormalizedPathEngineHandler(std::move(fixedPath));
+    }
+
+    return {};
+}
+
+std::optional<EngineHandler> tryMakeEngineHandlerWithProjectRoot(
+    const QString &fileName, const QString &prefix)
+{
+    if (const auto projectRoot = QString::fromLocal8Bit(
+            qgetenv(QmlBase::QMLPUPPET_ENV_PROJECT_ROOT));
+        !projectRoot.isEmpty()) {
+        QString fixedPath = fixResourcePath(fileName, prefix, projectRoot + '/');
+        if (auto handler = tryMakeEngineHandler(std::move(fixedPath))) {
+            return std::move(*handler);
+        }
+    }
+
+    return {};
+}
+
+EngineHandler makeQrcResourceHandler(const QString &fileName, const QString &prefix)
+{
+    const QStringList searchPaths = qmlDesignerRCPath().split(';', Qt::SkipEmptyParts);
+    for (const QString &qrcPath : searchPaths) {
+        const QStringList qrcDefintion = qrcPath.split('=');
+        if (qrcDefintion.count() == 2) {
+            QString fixedPath
+                = fixResourcePath(fileName, prefix + qrcDefintion.first(), qrcDefintion.last() + '/');
+            if (auto handler = tryMakeEngineHandler(std::move(fixedPath))) {
+                return std::move(*handler);
+            }
+        }
+    }
+
+    // If none of the user-defined mappings above worked, let's try the path relative
+    // to the project root.
+    if (auto handler = tryMakeEngineHandlerWithProjectRoot(fileName, prefix)) {
+        return std::move(*handler);
+    }
+
+    return {};
+};
+
+} // namespace
 
 namespace QmlDesigner {
 
@@ -347,7 +430,8 @@ void DesignerCustomObjectDataFork::populateResetHashes()
         if (binding) {
             m_resetBindingHash.insert(propertyName, binding);
         } else if (property.isWritable()) {
-            m_resetValueHash.insert(propertyName, property.read());
+            if (!QmlPrivateGate::useCrashQTBUG136735Workaround(property, Q_FUNC_INFO))
+                m_resetValueHash.insert(propertyName, property.read());
         }
     }
 }
@@ -567,13 +651,6 @@ QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumb
     return QQuickDesignerSupportItems::createPrimitive(typeName, revision, context);
 }
 
-static QString qmlDesignerRCPath()
-{
-    static const QString qmlDesignerRcPathsString = QString::fromLocal8Bit(
-        qgetenv("QMLDESIGNER_RC_PATHS"));
-    return qmlDesignerRcPathsString;
-}
-
 QVariant fixResourcePaths(const QVariant &value)
 {
     if (value.typeId() == QMetaType::QUrl) {
@@ -581,13 +658,20 @@ QVariant fixResourcePaths(const QVariant &value)
         if (url.scheme() == QLatin1String("qrc")) {
             const QString path = QLatin1String("qrc:") +  url.path();
             if (!qmlDesignerRCPath().isEmpty()) {
-                const QStringList searchPaths = qmlDesignerRCPath().split(QLatin1Char(';'));
+                const QStringList searchPaths
+                    = qmlDesignerRCPath().split(QLatin1Char(';'), Qt::SkipEmptyParts);
                 for (const QString &qrcPath : searchPaths) {
                     const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
                     if (qrcDefintion.count() == 2) {
                         QString fixedPath = path;
-                        fixedPath.replace(QLatin1String("qrc:") + qrcDefintion.first(), qrcDefintion.last() + QLatin1Char('/'));
-                        if (QFileInfo::exists(fixedPath)) {
+                        fixedPath.replace(
+                            QLatin1String("qrc:") + qrcDefintion.first(),
+                            qrcDefintion.last() + QLatin1Char('/'));
+                        // It turns out that `QFileInfo::exists` uses `QAbstractFileHandler`
+                        // internally, so we cannot call it inside `QAbstractFileHandler::create`
+                        // (directly or indirectly), otherwise it creates infinite recursion.
+                        // `std::filesystem::exists` is fine though.
+                        if (std::filesystem::exists(fixedPath.toStdString())) {
                             fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
                             fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
                             return QUrl::fromLocalFile(fixedPath);
@@ -935,40 +1019,35 @@ public:
 #endif
 };
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-std::unique_ptr<QAbstractFileEngine>
-#else
-QAbstractFileEngine *
-#endif
-QrcEngineHandler::create(const QString &fileName) const
+EngineHandler QrcEngineHandler::create(const QString &fileName) const
 {
-    if (fileName.startsWith(":/qt-project.org"))
+    if (fileName.startsWith(":/qt-project.org") || fileName.startsWith("qrc:/qt-project.org"))
         return {};
 
-    if (fileName.startsWith(":/qtquickplugin"))
+    if (fileName.startsWith(":/qtquickplugin") || fileName.startsWith("qrc:/qtquickplugin"))
         return {};
 
-    if (fileName.startsWith(":/")) {
-        const QStringList searchPaths = qmlDesignerRCPath().split(';');
-        for (const QString &qrcPath : searchPaths) {
-            const QStringList qrcDefintion = qrcPath.split('=');
-            if (qrcDefintion.count() == 2) {
-                QString fixedPath = fileName;
-                fixedPath.replace(":" + qrcDefintion.first(), qrcDefintion.last() + '/');
-
-                if (fileName == fixedPath)
-                    return {};
-
-                if (QFileInfo::exists(fixedPath)) {
-                    fixedPath.replace("//", "/");
-                    fixedPath.replace('\\', '/');
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-                    return std::make_unique<QFSFileEngine>(fixedPath);
-#else
-                    return new QFSFileEngine(fixedPath);
-#endif
-                }
+    for (const auto &scheme : {QString::fromLatin1(":"), QString::fromLatin1("qrc:")}) {
+        for (const auto &prefix : {QString{scheme + '/'}, scheme}) {
+            if (fileName.startsWith(prefix)) {
+                return makeQrcResourceHandler(fileName, prefix);
             }
+        }
+    }
+
+    if (fileName.startsWith('/')) {
+        // On UNIX it might be a valid filesystem path
+#if !defined(Q_OS_WIN)
+        // It turns out that `QFileInfo::exists` uses `QAbstractFileHandler` internally,
+        // so we cannot call it inside `QAbstractFileHandler::create` (directly or indirectly),
+        // otherwise it creates infinite recursion. `std::filesystem::exists` is fine though.
+        if (std::filesystem::exists(fileName.toStdString())) {
+            return {};
+        }
+#endif
+
+        if (auto handler = tryMakeEngineHandlerWithProjectRoot(fileName, "/")) {
+            return std::move(*handler);
         }
     }
 
@@ -992,6 +1071,53 @@ void registerFixResourcePathsForObjectCallBack()
 
     if (!s_qrcEngineHandler)
         s_qrcEngineHandler = new QrcEngineHandler();
+}
+
+
+bool useCrashQTBUG136735Workaround(const QQmlProperty &property, const char *callerInfo)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 4)
+    Q_UNUSED(property)
+    Q_UNUSED(callerInfo)
+    return false; // fixed in Qt
+#else
+    if (!property.isValid())
+        return false;
+    auto coreMetaType = property.propertyMetaType();
+
+    // property.propertyTypeCategory() == QQmlProperty::PropertyTypeCategory::List
+    // for unknown reason the simple check is sometimes not working in the editor QMLPuppet
+    const bool listLike = coreMetaType.id() == QMetaType::QStringList
+                          || coreMetaType.id() == QMetaType::QVariantList
+                          || QtPrivate::hasRegisteredConverterFunctionToIterableMetaSequence(
+                              coreMetaType);
+
+    if (!listLike)
+        return false;
+
+    const QMetaObject *metaObject = property.object()->metaObject();
+    QString ownerClassName;
+
+    do {
+        bool isDirectProperty = property.property().enclosingMetaObject() == metaObject;
+        if (isDirectProperty) {
+            ownerClassName = QString::fromLatin1(metaObject->className());
+            break;
+        }
+    } while ((metaObject = metaObject->superClass()));
+
+    // is generated QML type
+    static const QRegularExpression
+        re(QStringLiteral(R"(_QML(?:TYPE)?_\d+$)"), QRegularExpression::CaseInsensitiveOption);
+    if (!re.match(ownerClassName).hasMatch())
+        return false;
+
+    QString debugString("skipped read() on %1::%2 (direct owned list<T> property, QTBUG-136735)");
+    qWarning().noquote() << callerInfo
+                         << qPrintable(debugString.arg(ownerClassName, property.name()))
+                         << QString("propertyCategory(%3)").arg(property.propertyTypeCategory());
+    return true;
+#endif
 }
 
 } // namespace QmlPrivateGate

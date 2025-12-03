@@ -9,6 +9,10 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
+using ModelTracing::category;
+
 static PropertyName lineTypeToString(AnchorLineType lineType)
 {
     switch (lineType) {
@@ -114,19 +118,26 @@ QmlItemNode QmlAnchors::qmlItemNode() const
     return m_qmlItemNode;
 }
 
-bool QmlAnchors::modelHasAnchors() const
+bool QmlAnchors::modelHasAnchors(SL sl) const
 {
-    return modelHasAnchor(AnchorLineLeft)
-            || modelHasAnchor(AnchorLineRight)
-            || modelHasAnchor(AnchorLineTop)
-            || modelHasAnchor(AnchorLineBottom)
-            || modelHasAnchor(AnchorLineHorizontalCenter)
-            || modelHasAnchor(AnchorLineVerticalCenter)
-            || modelHasAnchor(AnchorLineBaseline);
+    NanotraceHR::Tracer tracer{"qml anchors has anchors",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    return modelHasAnchor(AnchorLineLeft) || modelHasAnchor(AnchorLineRight)
+           || modelHasAnchor(AnchorLineTop) || modelHasAnchor(AnchorLineBottom)
+           || modelHasAnchor(AnchorLineHorizontalCenter) || modelHasAnchor(AnchorLineVerticalCenter)
+           || modelHasAnchor(AnchorLineBaseline);
 }
 
-bool QmlAnchors::modelHasAnchor(AnchorLineType sourceAnchorLineType) const
+bool QmlAnchors::modelHasAnchor(AnchorLineType sourceAnchorLineType, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors has anchor",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     const PropertyNameView propertyName = anchorPropertyName(sourceAnchorLineType);
 
     if (sourceAnchorLineType & AnchorLineFill)
@@ -138,20 +149,36 @@ bool QmlAnchors::modelHasAnchor(AnchorLineType sourceAnchorLineType) const
     return qmlItemNode().modelNode().hasBindingProperty(anchorPropertyName(sourceAnchorLineType));
 }
 
-AnchorLine QmlAnchors::modelAnchor(AnchorLineType sourceAnchorLineType) const
+AnchorLine QmlAnchors::modelAnchor(AnchorLineType sourceAnchorLineType, SL sl) const
 {
- QPair<PropertyName, ModelNode> targetAnchorLinePair;
- if (sourceAnchorLineType & AnchorLineFill && qmlItemNode().modelNode().hasBindingProperty("anchors.fill")) {
-     targetAnchorLinePair.second = qmlItemNode().modelNode().bindingProperty("anchors.fill").resolveToModelNode();
-     targetAnchorLinePair.first = lineTypeToString(sourceAnchorLineType);
- } else if (sourceAnchorLineType & AnchorLineCenter && qmlItemNode().modelNode().hasBindingProperty("anchors.centerIn")) {
-     targetAnchorLinePair.second = qmlItemNode().modelNode().bindingProperty("anchors.centerIn").resolveToModelNode();
-     targetAnchorLinePair.first = lineTypeToString(sourceAnchorLineType);
- } else {
-     AbstractProperty binding = qmlItemNode().modelNode().bindingProperty(anchorPropertyName(sourceAnchorLineType)).resolveToProperty();
-     targetAnchorLinePair.first = binding.name().toByteArray();
-     targetAnchorLinePair.second = binding.parentModelNode();
- }
+    NanotraceHR::Tracer tracer{"qml anchors get anchor",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    QPair<PropertyName, ModelNode> targetAnchorLinePair;
+    if (sourceAnchorLineType & AnchorLineFill
+        && qmlItemNode().modelNode().hasBindingProperty("anchors.fill")) {
+        targetAnchorLinePair.second = qmlItemNode()
+                                          .modelNode()
+                                          .bindingProperty("anchors.fill")
+                                          .resolveToModelNode();
+        targetAnchorLinePair.first = lineTypeToString(sourceAnchorLineType);
+    } else if (sourceAnchorLineType & AnchorLineCenter
+               && qmlItemNode().modelNode().hasBindingProperty("anchors.centerIn")) {
+        targetAnchorLinePair.second = qmlItemNode()
+                                          .modelNode()
+                                          .bindingProperty("anchors.centerIn")
+                                          .resolveToModelNode();
+        targetAnchorLinePair.first = lineTypeToString(sourceAnchorLineType);
+    } else {
+        AbstractProperty binding = qmlItemNode()
+                                       .modelNode()
+                                       .bindingProperty(anchorPropertyName(sourceAnchorLineType))
+                                       .resolveToProperty();
+        targetAnchorLinePair.first = binding.name().toByteArray();
+        targetAnchorLinePair.second = binding.parentModelNode();
+    }
 
  AnchorLineType targetAnchorLine = propertyNameToLineType(targetAnchorLinePair.first);
 
@@ -162,35 +189,51 @@ AnchorLine QmlAnchors::modelAnchor(AnchorLineType sourceAnchorLineType) const
  return AnchorLine(QmlItemNode(targetAnchorLinePair.second), targetAnchorLine);
 }
 
-bool QmlAnchors::isValid() const
+bool QmlAnchors::isValid(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors is valid",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return m_qmlItemNode.isValid();
 }
 
 void QmlAnchors::setAnchor(AnchorLineType sourceAnchorLine,
-                          const QmlItemNode &targetQmlItemNode,
-                          AnchorLineType targetAnchorLine)
+                           const QmlItemNode &targetQmlItemNode,
+                           AnchorLineType targetAnchorLine,
+                           SL sl)
 {
-    qmlItemNode().view()->executeInTransaction("QmlAnchors::setAnchor", [this, sourceAnchorLine, targetQmlItemNode, targetAnchorLine](){
-        if (qmlItemNode().isInBaseState()) {
-            if ((qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLineFill))
-                    || ((qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn") && (sourceAnchorLine & AnchorLineCenter)))) {
-                removeAnchor(sourceAnchorLine);
-            }
+    NanotraceHR::Tracer tracer{"qml anchors set anchor",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
 
-            const PropertyNameView propertyName = anchorPropertyName(sourceAnchorLine);
-            ModelNode targetModelNode = targetQmlItemNode.modelNode();
-            QString targetExpression = targetModelNode.validId();
-            if (targetQmlItemNode.modelNode() == qmlItemNode().modelNode().parentProperty().parentModelNode())
-                targetExpression = QLatin1String("parent");
-            if (sourceAnchorLine != AnchorLineCenter && sourceAnchorLine != AnchorLineFill)
-                targetExpression = targetExpression + QLatin1Char('.') + QString::fromLatin1(lineTypeToString(targetAnchorLine));
-            qmlItemNode().modelNode().bindingProperty(propertyName).setExpression(targetExpression);
-        }
-    });
+    qmlItemNode().view()->executeInTransaction(
+        "QmlAnchors::setAnchor", [this, sourceAnchorLine, targetQmlItemNode, targetAnchorLine]() {
+            if (qmlItemNode().isInBaseState()) {
+                if ((qmlItemNode().nodeInstance().hasAnchor("anchors.fill")
+                     && (sourceAnchorLine & AnchorLineFill))
+                    || ((qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn")
+                         && (sourceAnchorLine & AnchorLineCenter)))) {
+                    removeAnchor(sourceAnchorLine);
+                }
+
+                const PropertyNameView propertyName = anchorPropertyName(sourceAnchorLine);
+                ModelNode targetModelNode = targetQmlItemNode.modelNode();
+                QString targetExpression = targetModelNode.validId();
+                if (targetQmlItemNode.modelNode()
+                    == qmlItemNode().modelNode().parentProperty().parentModelNode())
+                    targetExpression = QLatin1String("parent");
+                if (sourceAnchorLine != AnchorLineCenter && sourceAnchorLine != AnchorLineFill)
+                    targetExpression = targetExpression + QLatin1Char('.')
+                                       + QString::fromLatin1(lineTypeToString(targetAnchorLine));
+                qmlItemNode().modelNode().bindingProperty(propertyName).setExpression(targetExpression);
+            }
+        });
 }
 
-bool detectHorizontalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
+static bool detectHorizontalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
 {
     if (knownNodeList.contains(node))
         return true;
@@ -227,7 +270,7 @@ bool detectHorizontalCycle(const ModelNode &node, QList<ModelNode> knownNodeList
     return false;
 }
 
-bool detectVerticalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
+static bool detectVerticalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
 {
     if (!node.isValid())
         return false;
@@ -267,8 +310,13 @@ bool detectVerticalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
     return false;
 }
 
-bool QmlAnchors::canAnchor(const QmlItemNode &targetModelNode) const
+bool QmlAnchors::canAnchor(const QmlItemNode &targetModelNode, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors can anchor",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!qmlItemNode().isInBaseState())
         return false;
 
@@ -282,8 +330,14 @@ bool QmlAnchors::canAnchor(const QmlItemNode &targetModelNode) const
 }
 
 AnchorLineType QmlAnchors::possibleAnchorLines(AnchorLineType sourceAnchorLineType,
-                                               const QmlItemNode &targetQmlItemNode) const
+                                               const QmlItemNode &targetQmlItemNode,
+                                               SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors possible anchor lines",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!canAnchor(targetQmlItemNode))
         return AnchorLineInvalid;
 
@@ -300,8 +354,13 @@ AnchorLineType QmlAnchors::possibleAnchorLines(AnchorLineType sourceAnchorLineTy
     return AnchorLineInvalid;
 }
 
-AnchorLine QmlAnchors::instanceAnchor(AnchorLineType sourceAnchorLine) const
+AnchorLine QmlAnchors::instanceAnchor(AnchorLineType sourceAnchorLine, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors get instance anchor",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QPair<PropertyName, qint32> targetAnchorLinePair;
     if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLineFill)) {
         targetAnchorLinePair = qmlItemNode().nodeInstance().anchor("anchors.fill");
@@ -324,9 +383,14 @@ AnchorLine QmlAnchors::instanceAnchor(AnchorLineType sourceAnchorLine) const
     return AnchorLine(QmlItemNode(qmlItemNode().nodeForInstance(qmlItemNode().nodeInstanceView()->instanceForId(targetAnchorLinePair.second))), targetAnchorLine);
 }
 
-void QmlAnchors::removeAnchor(AnchorLineType sourceAnchorLine)
+void QmlAnchors::removeAnchor(AnchorLineType sourceAnchorLine, SL sl)
 {
-    qmlItemNode().view()->executeInTransaction("QmlAnchors::removeAnchor", [this, sourceAnchorLine](){
+    NanotraceHR::Tracer tracer{"qml anchors remove anchor",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    qmlItemNode().view()->executeInTransaction("QmlAnchors::removeAnchor", [this, sourceAnchorLine]() {
         if (qmlItemNode().isInBaseState()) {
             const PropertyNameView propertyName = anchorPropertyName(sourceAnchorLine);
             if (qmlItemNode().modelNode().hasProperty("anchors.fill")
@@ -349,9 +413,14 @@ void QmlAnchors::removeAnchor(AnchorLineType sourceAnchorLine)
     });
 }
 
-void QmlAnchors::removeAnchors()
+void QmlAnchors::removeAnchors(SL sl)
 {
-    qmlItemNode().view()->executeInTransaction("QmlAnchors::removeAnchors", [this](){
+    NanotraceHR::Tracer tracer{"qml anchors remove anchors",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    qmlItemNode().view()->executeInTransaction("QmlAnchors::removeAnchors", [this]() {
         if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill"))
             qmlItemNode().modelNode().removeProperty("anchors.fill");
         if (qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn"))
@@ -373,10 +442,12 @@ void QmlAnchors::removeAnchors()
     });
 }
 
-bool QmlAnchors::instanceHasAnchor(AnchorLineType sourceAnchorLine) const
+bool QmlAnchors::instanceHasAnchor(AnchorLineType sourceAnchorLine, SL sl) const
 {
-    if (!qmlItemNode().isValid())
-        return false;
+    NanotraceHR::Tracer tracer{"qml anchors instance has anchor",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
 
     const PropertyNameView propertyName = anchorPropertyName(sourceAnchorLine);
 
@@ -390,55 +461,94 @@ bool QmlAnchors::instanceHasAnchor(AnchorLineType sourceAnchorLine) const
     return qmlItemNode().nodeInstance().hasAnchor(propertyName);
 }
 
-bool QmlAnchors::instanceHasAnchors() const
+bool QmlAnchors::instanceHasAnchors(SL sl) const
 {
-    return instanceHasAnchor(AnchorLineLeft) ||
-           instanceHasAnchor(AnchorLineRight) ||
-           instanceHasAnchor(AnchorLineTop) ||
-           instanceHasAnchor(AnchorLineBottom) ||
-           instanceHasAnchor(AnchorLineHorizontalCenter) ||
-           instanceHasAnchor(AnchorLineVerticalCenter) ||
-            instanceHasAnchor(AnchorLineBaseline);
+    NanotraceHR::Tracer tracer{"qml anchors instance has anchors",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    return instanceHasAnchor(AnchorLineLeft) || instanceHasAnchor(AnchorLineRight)
+           || instanceHasAnchor(AnchorLineTop) || instanceHasAnchor(AnchorLineBottom)
+           || instanceHasAnchor(AnchorLineHorizontalCenter)
+           || instanceHasAnchor(AnchorLineVerticalCenter) || instanceHasAnchor(AnchorLineBaseline);
 }
 
-QRectF contentRect(const NodeInstance &nodeInstance)
+static QRectF contentRect(const NodeInstance &nodeInstance)
 {
     QRectF contentRect(nodeInstance.position(), nodeInstance.size());
     return nodeInstance.contentTransform().mapRect(contentRect);
 }
 
-double QmlAnchors::instanceLeftAnchorLine() const
+double QmlAnchors::instanceLeftAnchorLine(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors instance left anchor line",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return contentRect(qmlItemNode().nodeInstance()).x();
 }
 
-double QmlAnchors::instanceTopAnchorLine() const
+double QmlAnchors::instanceTopAnchorLine(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors instance top anchor line",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return contentRect(qmlItemNode().nodeInstance()).y();
 }
 
-double QmlAnchors::instanceRightAnchorLine() const
+double QmlAnchors::instanceRightAnchorLine(SL sl) const
 {
-    return contentRect(qmlItemNode().nodeInstance()).x() + contentRect(qmlItemNode().nodeInstance()).width();
+    NanotraceHR::Tracer tracer{"qml anchors instance right anchor line",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    return contentRect(qmlItemNode().nodeInstance()).x()
+           + contentRect(qmlItemNode().nodeInstance()).width();
 }
 
-double QmlAnchors::instanceBottomAnchorLine() const
+double QmlAnchors::instanceBottomAnchorLine(SL sl) const
 {
-    return contentRect(qmlItemNode().nodeInstance()).y() + contentRect(qmlItemNode().nodeInstance()).height();
+    NanotraceHR::Tracer tracer{"qml anchors instance bottom anchor line",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    return contentRect(qmlItemNode().nodeInstance()).y()
+           + contentRect(qmlItemNode().nodeInstance()).height();
 }
 
-double QmlAnchors::instanceHorizontalCenterAnchorLine() const
+double QmlAnchors::instanceHorizontalCenterAnchorLine(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors instance horizontal center anchor line",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return (instanceLeftAnchorLine() + instanceRightAnchorLine()) / 2.0;
 }
 
-double QmlAnchors::instanceVerticalCenterAnchorLine() const
+double QmlAnchors::instanceVerticalCenterAnchorLine(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors instance vertical center anchor line",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return (instanceBottomAnchorLine() + instanceTopAnchorLine()) / 2.0;
 }
 
-double QmlAnchors::instanceAnchorLine(AnchorLineType anchorLine) const
+double QmlAnchors::instanceAnchorLine(AnchorLineType anchorLine, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors instance anchor line",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     switch (anchorLine) {
     case AnchorLineLeft: return instanceLeftAnchorLine();
     case AnchorLineTop: return instanceTopAnchorLine();
@@ -450,14 +560,24 @@ double QmlAnchors::instanceAnchorLine(AnchorLineType anchorLine) const
     }
 }
 
-void QmlAnchors::setMargin(AnchorLineType sourceAnchorLineType, double margin) const
+void QmlAnchors::setMargin(AnchorLineType sourceAnchorLineType, double margin, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors set margin",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     PropertyNameView propertyName = marginPropertyName(sourceAnchorLineType);
     qmlItemNode().setVariantProperty(propertyName, qRound(margin));
 }
 
-bool QmlAnchors::instanceHasMargin(AnchorLineType sourceAnchorLineType) const
+bool QmlAnchors::instanceHasMargin(AnchorLineType sourceAnchorLineType, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors instance has margin",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return !qIsNull(instanceMargin(sourceAnchorLineType));
 }
 
@@ -516,38 +636,63 @@ static bool checkForVerticalCycleRecusive(const QmlAnchors &anchors, QList<QmlIt
     return false;
 }
 
-bool QmlAnchors::checkForHorizontalCycle(const QmlItemNode &sourceItem) const
+bool QmlAnchors::checkForHorizontalCycle(const QmlItemNode &sourceItem, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors check for horizontal cycle",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QList<QmlItemNode> visitedItems;
     visitedItems.append(sourceItem);
 
     return checkForHorizontalCycleRecusive(*this, visitedItems);
 }
 
-bool QmlAnchors::checkForVerticalCycle(const QmlItemNode &sourceItem) const
+bool QmlAnchors::checkForVerticalCycle(const QmlItemNode &sourceItem, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors check for vertical cycle",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QList<QmlItemNode> visitedItems;
     visitedItems.append(sourceItem);
 
     return checkForVerticalCycleRecusive(*this, visitedItems);
 }
 
-double QmlAnchors::instanceMargin(AnchorLineType sourceAnchorLineType) const
+double QmlAnchors::instanceMargin(AnchorLineType sourceAnchorLineType, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors instance margin",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return qmlItemNode().nodeInstance().property(marginPropertyName(sourceAnchorLineType)).toDouble();
 }
 
-void QmlAnchors::removeMargin(AnchorLineType sourceAnchorLineType)
+void QmlAnchors::removeMargin(AnchorLineType sourceAnchorLineType, SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml anchors remove margin",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (qmlItemNode().isInBaseState()) {
         PropertyNameView propertyName = marginPropertyName(sourceAnchorLineType);
         qmlItemNode().modelNode().removeProperty(propertyName);
     }
 }
 
-void QmlAnchors::removeMargins()
+void QmlAnchors::removeMargins(SL sl)
 {
-    qmlItemNode().view()->executeInTransaction("QmlAnchors::removeMargins", [this](){
+    NanotraceHR::Tracer tracer{"qml anchors remove margins",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    qmlItemNode().view()->executeInTransaction("QmlAnchors::removeMargins", [this]() {
         removeMargin(AnchorLineLeft);
         removeMargin(AnchorLineRight);
         removeMargin(AnchorLineTop);
@@ -557,24 +702,39 @@ void QmlAnchors::removeMargins()
     });
 }
 
-void QmlAnchors::fill()
+void QmlAnchors::fill(SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml anchors fill",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (instanceHasAnchors())
         removeAnchors();
 
     qmlItemNode().modelNode().bindingProperty("anchors.fill").setExpression(QLatin1String("parent"));
 }
 
-void QmlAnchors::centerIn()
+void QmlAnchors::centerIn(SL sl)
 {
+    NanotraceHR::Tracer tracer{"qml anchors center in",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (instanceHasAnchors())
         removeAnchors();
 
     qmlItemNode().modelNode().bindingProperty("anchors.centerIn").setExpression(QLatin1String("parent"));
 }
 
-bool QmlAnchors::checkForCycle(AnchorLineType anchorLineTyp, const QmlItemNode &sourceItem) const
+bool QmlAnchors::checkForCycle(AnchorLineType anchorLineTyp, const QmlItemNode &sourceItem, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"qml anchors check for cycle",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (anchorLineTyp & AnchorLineHorizontalMask)
         return checkForHorizontalCycle(sourceItem);
     else

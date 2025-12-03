@@ -18,11 +18,15 @@ public:
     static void insertAllKeyframesForTarget(const ModelNode &targetNode,
                                             const QmlTimeline &timeline);
     static void copyAllKeyframesForTarget(const ModelNode &targetNode, const QmlTimeline &timeline);
-    static void pasteKeyframesToTarget(const ModelNode &targetNode, const QmlTimeline &timeline);
+    static void pasteKeyframesToTarget(const ModelNode &targetNode,
+                                       const QmlTimeline &timeline,
+                                       ModulesStorage &modulesStorage);
 
     static void copyKeyframes(const QList<ModelNode> &keyframes,
                               ExternalDependenciesInterface &externalDependencies);
-    static void pasteKeyframes(AbstractView *timelineView, const QmlTimeline &TimelineActions);
+    static void pasteKeyframes(AbstractView *timelineView,
+                               const QmlTimeline &TimelineActions,
+                               ModulesStorage &modulesStorage);
 
     static bool clipboardContainsKeyframes();
 

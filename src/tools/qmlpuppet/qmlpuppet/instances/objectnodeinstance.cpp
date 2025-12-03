@@ -623,14 +623,16 @@ static bool isPropertyBlackListed(const PropertyName &propertyName)
 QVariant ObjectNodeInstance::property(const PropertyName &name) const
 {
     if (ignoredProperties().contains(name))
-        return QVariant();
+        return {};
 
     // TODO: handle model nodes
 
     if (isPropertyBlackListed(name))
-        return QVariant();
+        return {};
 
     QQmlProperty property(object(), QString::fromUtf8(name), context());
+    if (QmlPrivateGate::useCrashQTBUG136735Workaround(property, Q_FUNC_INFO))
+        return {};
     if (property.property().isEnumType()) {
         QVariant value = property.read();
         QMetaEnum me = property.property().enumerator();
@@ -640,7 +642,7 @@ QVariant ObjectNodeInstance::property(const PropertyName &name) const
     if (property.propertyType() == QMetaType::QUrl) {
         QUrl url = property.read().toUrl();
         if (url.isEmpty())
-            return QVariant();
+            return {};
 
         if (url.scheme() == "file") {
             QFileInfo fi{nodeInstanceServer()->fileUrl().toLocalFile()};
@@ -762,6 +764,10 @@ bool ObjectNodeInstance::deleteHeldInstance() const
 ObjectNodeInstance::Pointer ObjectNodeInstance::create(QObject *object)
 {
     Pointer instance(new ObjectNodeInstance(object));
+
+    QQmlParserStatus *qmlParserStatus = dynamic_cast<QQmlParserStatus *>(object);
+    if (qmlParserStatus)
+        qmlParserStatus->classBegin();
 
     instance->populateResetHashes();
 

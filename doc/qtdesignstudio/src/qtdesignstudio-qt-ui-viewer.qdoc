@@ -89,4 +89,30 @@
             \image studio-devicemanager-remove-device.webp Remove a device from Device Manager.
       \endlist
 
+    \section1 Scope of \QUV
+
+    \QUV is an Android application for viewing \QDS projects on an Android
+    device. However, it doesn't support editing a \QDS project from an
+    Android device.
+
+    Feature support:
+    \table
+        \header
+            \li Feature
+            \li Status
+        \row
+            \li Displaying QML or Qt Quick UIs
+            \li Supported
+        \row
+            \li ActivityView (multi-window display of other apps)
+            \li Not supported
+        \row
+            \li AAOS Vehicle Properties API access
+            \li Not supported
+        \row
+            \li Other platform-specific APIs
+            \li Not supported
+    \endtable
+
+
 */

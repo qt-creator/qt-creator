@@ -6,7 +6,6 @@
 #include "effectcomposereditablenodesmodel.h"
 #include "effectcomposermodel.h"
 #include "effectcomposertr.h"
-#include "effectcomposeruniformsmodel.h"
 #include "effectcomposeruniformstablemodel.h"
 #include "effectcomposerwidget.h"
 #include "effectutils.h"
@@ -183,8 +182,10 @@ void EffectShadersCodeEditor::setupShader(ShaderEditorData *data)
         m_stackedWidget->addWidget(data->fragmentEditor.get());
         m_stackedWidget->addWidget(data->vertexEditor.get());
 
+        setUniformCallbacksOnEditors(data);
         selectNonEmptyShader(data);
         setUniformsModel(data->tableModel);
+        data->exitEditorCallback = [this, data] { cleanFromData(data); };
     } else {
         setUniformsModel(nullptr);
     }
@@ -192,6 +193,7 @@ void EffectShadersCodeEditor::setupShader(ShaderEditorData *data)
     if (oldEditorData) {
         m_stackedWidget->removeWidget(oldEditorData->fragmentEditor.get());
         m_stackedWidget->removeWidget(oldEditorData->vertexEditor.get());
+        oldEditorData->exitEditorCallback = nullptr;
     }
 }
 
@@ -215,10 +217,13 @@ void EffectShadersCodeEditor::selectShader(const QString &shaderName)
     m_stackedWidget->setCurrentWidget(editor);
 }
 
+const ShaderEditorData *EffectShadersCodeEditor::currentEditorData() const
+{
+    return m_currentEditorData;
+}
+
 ShaderEditorData *EffectShadersCodeEditor::createEditorData(
-    const QString &fragmentDocument,
-    const QString &vertexDocument,
-    EffectComposerUniformsModel *uniforms)
+    const QString &fragmentDocument, const QString &vertexDocument)
 {
     ShaderEditorData *result = new ShaderEditorData;
     result->fragmentEditor.reset(createJSEditor());
@@ -232,24 +237,6 @@ ShaderEditorData *EffectShadersCodeEditor::createEditorData(
 
     ::resetDocumentRevisions(result->fragmentDocument);
     ::resetDocumentRevisions(result->vertexDocument);
-
-    if (uniforms) {
-        result->tableModel = new EffectComposerUniformsTableModel(uniforms, uniforms);
-        std::function<QStringList()> uniformNames =
-            [uniformsTable = result->tableModel]() -> QStringList {
-            if (!uniformsTable)
-                return {};
-
-            auto uniformsModel = uniformsTable->sourceModel();
-            if (!uniformsModel)
-                return {};
-
-            return uniformsModel->uniformNames();
-        };
-
-        result->fragmentEditor->setUniformsCallback(uniformNames);
-        result->vertexEditor->setUniformsCallback(uniformNames);
-    }
 
     return result;
 }
@@ -269,11 +256,9 @@ void EffectShadersCodeEditor::insertTextToCursorPosition(const QString &text)
     editor->setFocus();
 }
 
-EffectShadersCodeEditor *EffectShadersCodeEditor::instance()
+void EffectShadersCodeEditor::switchToNodeIndex(int index)
 {
-    static EffectShadersCodeEditor *editorInstance
-        = new EffectShadersCodeEditor(Tr::tr("Shaders Code Editor"), Core::ICore::dialogParent());
-    return editorInstance;
+    emit requestToOpenNode(index);
 }
 
 EffectCodeEditorWidget *EffectShadersCodeEditor::createJSEditor()
@@ -464,6 +449,12 @@ void EffectShadersCodeEditor::selectNonEmptyShader(ShaderEditorData *data)
 
     m_stackedWidget->setCurrentWidget(widgetToSelect);
     widgetToSelect->setFocus();
+}
+
+void EffectShadersCodeEditor::setUniformCallbacksOnEditors(ShaderEditorData *data)
+{
+    data->fragmentEditor->setUniformsCallback(data->uniformsCallback);
+    data->vertexEditor->setUniformsCallback(data->uniformsCallback);
 }
 
 void EffectShadersCodeEditor::setSelectedShaderName(const QString &shaderName)

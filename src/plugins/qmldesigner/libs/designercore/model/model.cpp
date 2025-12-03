@@ -5,55 +5,28 @@
 #include "internalnode_p.h"
 #include "model_p.h"
 
-#include <modelnode.h>
+#include <itemlibraryentry.h>
 #include <modelutils.h>
-
-#include "abstractview.h"
-#include "internalbindingproperty.h"
-#include "internalnodeabstractproperty.h"
-#include "internalnodelistproperty.h"
-#include "internalnodeproperty.h"
-#include "internalproperty.h"
-#include "internalsignalhandlerproperty.h"
-#include "internalvariantproperty.h"
-#include "itemlibraryentry.h"
-#include "sourcepathstorage/sourcepath.h"
-#include "sourcepathstorage/sourcepathcache.h"
+#include <sourcepathstorage/sourcepathcache.h>
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include "metainfo.h"
 #endif
-#include "nodemetainfo.h"
 
-#include "abstractproperty.h"
-#include "bindingproperty.h"
-#include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 #include "rewriterview.h"
 #include "rewritingexception.h"
 #include "signalhandlerproperty.h"
 #include "variantproperty.h"
 
-#include <designeralgorithm.h>
 #include <predicate.h>
 #include <uniquename.h>
 
+#include <modulesstorage/modulesstorage.h>
 #include <projectstorage/projectstorage.h>
-
-#include <qmljs/qmljsmodelmanagerinterface.h>
-
+#include <qmldesignerutils/stringutils.h>
 #include <qmldesignerutils/version.h>
-#include <utils/algorithm.h>
 
-#include <QDrag>
 #include <QWidget>
-#include <QFileInfo>
-#include <QHashIterator>
-#include <QPointer>
-#include <QRegularExpression>
-#include <qcompilerdetection.h>
-
-#include <algorithm>
-#include <functional>
 
 /*!
 \defgroup CoreModel
@@ -72,6 +45,7 @@ Components that want to be informed about changes in the model can register a su
 
 namespace QmlDesigner {
 
+using ModelTracing::category;
 using NanotraceHR::keyValue;
 
 namespace Internal {
@@ -85,13 +59,16 @@ ModelPrivate::ModelPrivate(Model *model,
                            std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : projectStorage{&projectStorageDependencies.storage}
     , pathCache{&projectStorageDependencies.cache}
+    , modulesStorage{&projectStorageDependencies.modulesStorage}
     , projectStorageTriggerUpdate{&projectStorageDependencies.triggerUpdate}
     , m_model{model}
     , m_resourceManagement{std::move(resourceManagement)}
 {
+    NanotraceHR::Tracer tracer{"model private constructor", category()};
+
     m_metaInfoProxyModel = metaInfoProxyModel;
 
-    changeImports({Import::createLibraryImport({"QtQuick"})}, {});
+    m_imports = {Import::createLibraryImport({"QtQuick"})};
 
     m_rootInternalNode = createNode(
         typeName, major, minor, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
@@ -111,15 +88,17 @@ ModelPrivate::ModelPrivate(Model *model,
                            std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : projectStorage{&projectStorageDependencies.storage}
     , pathCache{&projectStorageDependencies.cache}
+    , modulesStorage{&projectStorageDependencies.modulesStorage}
     , projectStorageTriggerUpdate{&projectStorageDependencies.triggerUpdate}
     , m_model{model}
     , m_resourceManagement{std::move(resourceManagement)}
 {
-    setFileUrl(fileUrl);
-    changeImports(std::move(imports), {});
+    NanotraceHR::Tracer tracer{"model private constructor", category()};
 
-    m_rootInternalNode = createNode(
-        typeName, -1, -1, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
+    setFileUrl(fileUrl);
+    m_imports = std::move(imports);
+
+    m_rootInternalNode = createNode(typeName, -1, -1, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
 
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
@@ -137,6 +116,8 @@ ModelPrivate::ModelPrivate(Model *model,
     : m_model(model)
     , m_resourceManagement{std::move(resourceManagement)}
 {
+    NanotraceHR::Tracer tracer{"model private constructor", category()};
+
     m_metaInfoProxyModel = metaInfoProxyModel;
 
     m_rootInternalNode = createNode(
@@ -148,6 +129,8 @@ ModelPrivate::ModelPrivate(Model *model,
 
 ModelPrivate::~ModelPrivate()
 {
+    NanotraceHR::Tracer tracer{"model private destructor", category()};
+
     removeNode(rootNode());
     if constexpr (useProjectStorage())
         projectStorage->removeObserver(this);
@@ -155,6 +138,8 @@ ModelPrivate::~ModelPrivate()
 
 void ModelPrivate::detachAllViews()
 {
+    NanotraceHR::Tracer _{"model private detach all views", category()};
+
     auto tracer = traceToken.begin("detach all views");
 
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
@@ -174,9 +159,41 @@ void ModelPrivate::detachAllViews()
 }
 
 namespace {
+auto createModuleId(const Import &import,
+                    Utils::SmallStringView localDirectoryPath,
+                    ModulesStorage &modulesStorage)
+{
+    using Storage::ModuleKind;
+
+    auto moduleKind = import.isLibraryImport() ? ModuleKind::QmlLibrary : ModuleKind::PathLibrary;
+
+    if (moduleKind == ModuleKind::QmlLibrary)
+        return modulesStorage.moduleId(Utils::SmallString{import.url()}, moduleKind);
+
+    auto path = Utils::PathString::join({localDirectoryPath, "/", Utils::SmallString{import.file()}});
+    auto normalizedPath = std::filesystem::path{std::string_view{path}}.lexically_normal();
+    auto directoryPath = normalizedPath.generic_string();
+    std::string_view modulePath = directoryPath;
+    if (modulePath.back() == '/')
+        modulePath.remove_suffix(1);
+
+    return modulesStorage.moduleId(modulePath, moduleKind);
+}
+
+namespace {
+
+void removeDuplicates(std::ranges::range auto &entries)
+{
+    std::ranges::sort(entries);
+    auto removed = std::ranges::unique(entries);
+    entries.erase(removed.begin(), removed.end());
+}
+
+} // namespace
+
 Storage::Imports createStorageImports(const Imports &imports,
                                       Utils::SmallStringView localDirectoryPath,
-                                      ProjectStorageType &projectStorage,
+                                      ModulesStorage &modulesStorage,
                                       SourceId fileId)
 {
     using Storage::ModuleKind;
@@ -184,14 +201,22 @@ Storage::Imports createStorageImports(const Imports &imports,
     storageImports.reserve(Utils::usize(imports) + 1);
 
     for (const Import &import : imports) {
-        auto moduleKind = import.isLibraryImport() ? ModuleKind::QmlLibrary : ModuleKind::PathLibrary;
-        auto moduleId = projectStorage.moduleId(Utils::SmallString{import.url()}, moduleKind);
-        storageImports.emplace_back(moduleId, import.majorVersion(), import.minorVersion(), fileId);
+        ModuleId moduleId = createModuleId(import, localDirectoryPath, modulesStorage);
+        storageImports.emplace_back(moduleId,
+                                    Storage::Version::convertFromSignedInteger(import.majorVersion(),
+                                                                               import.minorVersion()),
+                                    fileId,
+                                    fileId,
+                                    import.alias());
     }
 
-    auto localDirectoryModuleId = projectStorage.moduleId(localDirectoryPath, ModuleKind::PathLibrary);
+    auto localDirectoryModuleId = modulesStorage.moduleId(localDirectoryPath, ModuleKind::PathLibrary);
+    storageImports.emplace_back(localDirectoryModuleId, Storage::Version{}, fileId, fileId);
 
-    storageImports.emplace_back(localDirectoryModuleId, Storage::Version{}, fileId);
+    auto qmlModuleId = modulesStorage.moduleId("QML", ModuleKind::QmlLibrary);
+    storageImports.emplace_back(qmlModuleId, Storage::Version{}, fileId, fileId);
+
+    removeDuplicates(storageImports);
 
     return storageImports;
 }
@@ -200,10 +225,13 @@ Storage::Imports createStorageImports(const Imports &imports,
 
 void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedImports)
 {
-    auto tracer = traceToken.begin("change imports");
+    NanotraceHR::Tracer tracer{"model private change imports",
+                               category(),
+                               keyValue("added imports", toBeAddedImports),
+                               keyValue("removed imports", toBeRemovedImports)};
 
-    std::sort(toBeAddedImports.begin(), toBeAddedImports.end());
-    std::sort(toBeRemovedImports.begin(), toBeRemovedImports.end());
+    std::ranges::sort(toBeAddedImports);
+    std::ranges::sort(toBeRemovedImports);
 
     Imports removedImports = set_intersection(m_imports, toBeRemovedImports);
     m_imports = set_difference(m_imports, removedImports);
@@ -215,15 +243,42 @@ void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedIm
 
     if (!removedImports.isEmpty() || !allNewAddedImports.isEmpty()) {
         if (useProjectStorage()) {
-            auto imports = createStorageImports(m_imports, m_localPath, *projectStorage, m_sourceId);
+            auto imports = createStorageImports(m_imports, m_localPath, *modulesStorage, m_sourceId);
             projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
         notifyImportsChanged(allNewAddedImports, removedImports);
+        updateModelNodeTypeIds(removedImports);
+    }
+}
+
+void ModelPrivate::setImports(Imports imports)
+{
+    NanotraceHR::Tracer tracer{"model private set imports",
+                               category(),
+                               keyValue("imports", imports),
+                               keyValue("source id", m_sourceId)};
+
+    std::ranges::sort(imports);
+
+    Imports removedImports = set_strict_difference(m_imports, imports);
+    Imports addedImports = set_strict_difference(imports, m_imports);
+
+    m_imports = imports;
+
+    if (!removedImports.isEmpty() || !addedImports.isEmpty()) {
+        if (useProjectStorage()) {
+            auto imports = createStorageImports(m_imports, m_localPath, *modulesStorage, m_sourceId);
+            projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
+        }
+        notifyImportsChanged(addedImports, removedImports);
+        updateModelNodeTypeIds(removedImports);
     }
 }
 
 void ModelPrivate::notifyImportsChanged(const Imports &addedImports, const Imports &removedImports)
 {
+    NanotraceHR::Tracer tracer{"model private notify imports changed", category()};
+
     bool resetModel = false;
     QString description;
 
@@ -249,6 +304,8 @@ void ModelPrivate::notifyImportsChanged(const Imports &addedImports, const Impor
 
 void ModelPrivate::notifyPossibleImportsChanged(const Imports &possibleImports)
 {
+    NanotraceHR::Tracer tracer{"model private notify possible imports changed", category()};
+
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         Q_ASSERT(view != nullptr);
         view->possibleImportsChanged(possibleImports);
@@ -257,6 +314,8 @@ void ModelPrivate::notifyPossibleImportsChanged(const Imports &possibleImports)
 
 void ModelPrivate::notifyUsedImportsChanged(const Imports &usedImports)
 {
+    NanotraceHR::Tracer tracer{"model private notify used imports changed", category()};
+
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         Q_ASSERT(view != nullptr);
         view->usedImportsChanged(usedImports);
@@ -265,18 +324,24 @@ void ModelPrivate::notifyUsedImportsChanged(const Imports &usedImports)
 
 const QUrl &ModelPrivate::fileUrl() const
 {
+    NanotraceHR::Tracer tracer{"model private file url", category()};
+
     return m_fileUrl;
 }
 
 void ModelPrivate::setDocumentMessages(const QList<DocumentMessage> &errors,
                                        const QList<DocumentMessage> &warnings)
 {
+    NanotraceHR::Tracer tracer{"model private set document messages", category()};
+
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
         view->documentMessagesChanged(errors, warnings);
 }
 
 void ModelPrivate::setFileUrl(const QUrl &fileUrl)
 {
+    NanotraceHR::Tracer _{"model private set file url", category(), keyValue("file url", fileUrl)};
+
     auto tracer = traceToken.begin("file url");
 
     QUrl oldPath = m_fileUrl;
@@ -288,8 +353,6 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
             m_sourceId = pathCache->sourceId(SourcePath{path});
             auto found = std::find(path.rbegin(), path.rend(), u'/').base();
             m_localPath = Utils::PathString{QStringView{path.begin(), std::prev(found)}};
-            auto imports = createStorageImports(m_imports, m_localPath, *projectStorage, m_sourceId);
-            projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
 
         for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
@@ -297,13 +360,23 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
     }
 }
 
-void ModelPrivate::changeNodeType(const InternalNodePointer &node, const TypeName &typeName,
-                                  int majorVersion, int minorVersion)
+void ModelPrivate::changeNodeType(const InternalNodePointer &node,
+                                  const TypeName &typeName,
+                                  int majorVersion,
+                                  int minorVersion)
 {
+    NanotraceHR::Tracer tracer{"model private change node type",
+                               category(),
+                               keyValue("node", *node),
+                               keyValue("type name", typeName)};
+
+    auto [alias, unqualifiedTypeName] = StringUtils::split_last(typeName);
+
     node->typeName = typeName;
+    node->unqualifiedTypeName = unqualifiedTypeName;
     node->majorVersion = majorVersion;
     node->minorVersion = minorVersion;
-    setTypeId(node.get(), typeName);
+    setTypeId(node.get(), alias, unqualifiedTypeName);
 
     try {
         notifyNodeTypeChanged(node, typeName, majorVersion, minorVersion);
@@ -321,6 +394,10 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
                                              const QString &behaviorPropertyName,
                                              bool isRootNode)
 {
+    NanotraceHR::Tracer tracer{"model private create node",
+                               category(),
+                               keyValue("type name", typeName)};
+
     if (typeName.isEmpty())
         return {};
 
@@ -329,13 +406,16 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
     if (!isRootNode)
         internalId = m_internalIdCounter++;
 
+    auto [alias, unqualifiedTypeName] = StringUtils::split_last(typeName);
+
     auto newNode = std::make_shared<InternalNode>(typeName,
+                                                  unqualifiedTypeName,
                                                   majorVersion,
                                                   minorVersion,
                                                   internalId,
                                                   traceToken.tickWithFlow("create node"));
 
-    setTypeId(newNode.get(), typeName);
+    setTypeId(newNode.get(), alias, unqualifiedTypeName);
 
     newNode->nodeSourceType = nodeSourceType;
 
@@ -369,6 +449,10 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
 
 void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
 {
+    NanotraceHR::Tracer tracer{"model private remove node from model",
+                               category(),
+                               keyValue("node", *node)};
+
     Q_ASSERT(node);
 
     node->resetParentProperty();
@@ -382,65 +466,73 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
     m_internalIdNodeHash.remove(node->internalId);
 }
 
-namespace {
-QT_WARNING_PUSH
-QT_WARNING_DISABLE_CLANG("-Wunneeded-internal-declaration")
-
-std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
-{
-    auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
-
-    if (found == typeName.rend())
-        return {{}, typeName};
-
-    return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
-}
-
-QT_WARNING_POP
-} // namespace
-
 ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView typeName)
 {
-    if constexpr (useProjectStorage()) {
-        auto [moduleName, shortTypeName] = decomposeTypePath(typeName);
+    NanotraceHR::Tracer tracer{"model private imported type name id",
+                               category(),
+                               keyValue("type name", typeName)};
 
-        if (moduleName.size()) {
-            QString aliasName = QString{moduleName};
-            auto found = std::ranges::find(m_imports, aliasName, &Import::alias);
-            if (found != m_imports.end()) {
-                using Storage::ModuleKind;
-                auto moduleKind = found->isLibraryImport() ? ModuleKind::QmlLibrary
-                                                           : ModuleKind::PathLibrary;
-                ModuleId moduleId = projectStorage->moduleId(Utils::PathString{found->url()},
-                                                             moduleKind);
-                ImportId importId = projectStorage->importId(
-                    Storage::Import{moduleId, found->majorVersion(), found->minorVersion(), m_sourceId});
-                return projectStorage->importedTypeNameId(importId, shortTypeName);
-            }
+    auto [moduleName, unqualifiedTypeName] = StringUtils::split_last(typeName);
+
+    return importedTypeNameId(moduleName, unqualifiedTypeName);
+}
+
+ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView alias,
+                                                    Utils::SmallStringView unqualifiedTypeName)
+{
+    NanotraceHR::Tracer tracer{"model private imported type name id",
+                               category(),
+                               keyValue("alias", alias),
+                               keyValue("unqualified type name", unqualifiedTypeName)};
+
+    if (alias.size()) {
+        ImportId importId = projectStorage->importId(m_sourceId, alias);
+        return projectStorage->importedTypeNameId(importId, unqualifiedTypeName);
+    }
+
+    return projectStorage->importedTypeNameId(m_sourceId, unqualifiedTypeName);
+}
+
+void ModelPrivate::setTypeId(InternalNode *node,
+                             Utils::SmallStringView alias,
+                             Utils::SmallStringView unqualifiedTypeName)
+{
+    NanotraceHR::Tracer tracer{"model private set type id",
+                               category(),
+                               keyValue("alias", alias),
+                               keyValue("unqualified type name", unqualifiedTypeName),
+                               keyValue("old exported type", node->exportedTypeName)};
+
+    if constexpr (useProjectStorage()) {
+        node->importedTypeNameId = importedTypeNameId(alias, unqualifiedTypeName);
+        node->exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
+        tracer.end(keyValue("new exported type", node->exportedTypeName),
+                   keyValue("imported type name id", node->importedTypeNameId));
+    }
+}
+
+bool ModelPrivate::refreshExportedTypeName(InternalNode *node)
+{
+    NanotraceHR::Tracer tracer{"model private refresh exported type name",
+                               category(),
+                               keyValue("node", *node)};
+
+    if constexpr (useProjectStorage()) {
+        auto exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
+        if (node->exportedTypeName != exportedTypeName) {
+            node->exportedTypeName = exportedTypeName;
+            tracer.end(keyValue("refreshed exported type name", node->exportedTypeName));
+            return true;
         }
-
-        return projectStorage->importedTypeNameId(m_sourceId, shortTypeName);
     }
 
-    return ImportedTypeNameId{};
-}
-
-void ModelPrivate::setTypeId(InternalNode *node, Utils::SmallStringView typeName)
-{
-    if constexpr (useProjectStorage()) {
-        node->importedTypeNameId = importedTypeNameId(typeName);
-        node->typeId = projectStorage->typeId(node->importedTypeNameId);
-    }
-}
-
-void ModelPrivate::refreshTypeId(InternalNode *node)
-{
-    if constexpr (useProjectStorage())
-        node->typeId = projectStorage->typeId(node->importedTypeNameId);
+    return false;
 }
 
 void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
 {
+    NanotraceHR::Tracer tracer{"model private handle resource set", category()};
+
     for (const ModelNode &node : resourceSet.removeModelNodes) {
         if (node)
             removeNode(node.m_internalNode);
@@ -451,47 +543,128 @@ void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
     setBindingProperties(resourceSet.setExpressions);
 }
 
-void ModelPrivate::updateModelNodeTypeIds(const TypeIds &removedTypeIds)
+void ModelPrivate::updateModelNodeTypeIds(const ExportedTypeNames &addedExportedTypeNames,
+                                          const ExportedTypeNames &removedExportedTypeNames)
 {
+    NanotraceHR::Tracer tracer{"model private update model node type ids", category()};
+
     auto nodes = m_nodes;
+    std::ranges::sort(nodes, {}, &InternalNode::exportedTypeName);
 
-    std::ranges::sort(nodes, {}, &InternalNode::typeId);
+    bool rootNodeIsRefreshed = false;
+    QVarLengthArray<InternalNodePointer, 24> refreshedNodes;
 
-    auto refeshNodeTypeId = [&](auto &node) { refreshTypeId(node.get()); };
+    auto refeshNodeTypeId = [&](auto &node) {
+        bool isRefreshed = refreshExportedTypeName(node.get());
+        if (isRefreshed) {
+            if (node == m_rootInternalNode)
+                rootNodeIsRefreshed = true;
+            else
+                refreshedNodes.push_back(node);
+        }
+    };
+    Utils::set_greedy_intersection(nodes,
+                                   removedExportedTypeNames,
+                                   refeshNodeTypeId,
+                                   {},
+                                   &InternalNode::exportedTypeName);
 
-    Utils::set_greedy_intersection(nodes, removedTypeIds, refeshNodeTypeId, {}, &InternalNode::typeId);
+    std::ranges::sort(nodes, {}, &InternalNode::unqualifiedTypeName);
+
+    Utils::set_greedy_intersection(nodes,
+                                   addedExportedTypeNames,
+                                   refeshNodeTypeId,
+                                   {},
+                                   &InternalNode::unqualifiedTypeName,
+                                   &Storage::Info::ExportedTypeName::name);
+
+    removeDuplicates(refreshedNodes);
+
+    if (rootNodeIsRefreshed) {
+        notifyRootNodeTypeChanged(QString::fromUtf8(m_rootInternalNode->typeName),
+                                  m_rootInternalNode->exportedTypeName.version.major.toSignedInteger(),
+                                  m_rootInternalNode->exportedTypeName.version.minor.toSignedInteger());
+    }
+
+    for (const auto &node : refreshedNodes) {
+        notifyNodeTypeChanged(node,
+                              node->typeName,
+                              node->exportedTypeName.version.major.toSignedInteger(),
+                              node->exportedTypeName.version.minor.toSignedInteger());
+    }
+}
+
+void ModelPrivate::updateModelNodeTypeIds(const Imports &removedImports)
+{
+    auto removedModuleIds = Utils::transform<SmallModuleIds<24>>(removedImports, [&](const Import &import) {
+        return createModuleId(import, m_localPath, *modulesStorage);
+    });
+
+    bool rootNodeIsRefreshed = false;
+    QVarLengthArray<InternalNodePointer, 24> refreshedNodes;
+
+    auto refeshNodeTypeId = [&](auto &node) {
+        bool isRefreshed = refreshExportedTypeName(node.get());
+        if (isRefreshed) {
+            if (node == m_rootInternalNode)
+                rootNodeIsRefreshed = true;
+            else
+                refreshedNodes.push_back(node);
+        }
+    };
+
+    for (InternalNodePointer &node : m_nodes) {
+        if (removedModuleIds.contains(node->exportedTypeName.moduleId)
+            or not node->exportedTypeName.typeId)
+            refeshNodeTypeId(node);
+    }
+
+    removeDuplicates(refreshedNodes);
+
+    if (rootNodeIsRefreshed) {
+        notifyRootNodeTypeChanged(QString::fromUtf8(m_rootInternalNode->typeName),
+                                  m_rootInternalNode->exportedTypeName.version.major.toSignedInteger(),
+                                  m_rootInternalNode->exportedTypeName.version.minor.toSignedInteger());
+    }
+
+    for (const auto &node : refreshedNodes) {
+        notifyNodeTypeChanged(node,
+                              node->typeName,
+                              node->exportedTypeName.version.major.toSignedInteger(),
+                              node->exportedTypeName.version.minor.toSignedInteger());
+    }
 }
 
 void ModelPrivate::removedTypeIds(const TypeIds &removedTypeIds)
 {
-    updateModelNodeTypeIds(removedTypeIds);
+    NanotraceHR::Tracer tracer{"model private removed type ids", category()};
 
     notifyNodeInstanceViewLast([&](AbstractView *view) { view->refreshMetaInfos(removedTypeIds); });
-}
-
-void ModelPrivate::exportedTypesChanged()
-{
-    for (auto &node : m_nodes) {
-        if (!node->typeId)
-            refreshTypeId(node.get());
-    }
 }
 
 void ModelPrivate::exportedTypeNamesChanged(const ExportedTypeNames &added,
                                             const ExportedTypeNames &removed)
 {
+    NanotraceHR::Tracer tracer{"model private exported type names changed", category()};
+
+    updateModelNodeTypeIds(added, removed);
+
     notifyNodeInstanceViewLast(
         [&](AbstractView *view) { view->exportedTypeNamesChanged(added, removed); });
 }
 
 void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
 {
+    NanotraceHR::Tracer tracer{"model private remove all sub nodes", category()};
+
     for (const InternalNodePointer &subNode : node->allSubNodes())
         removeNodeFromModel(subNode);
 }
 
 void ModelPrivate::removeNodeAndRelatedResources(const InternalNodePointer &node)
 {
+    NanotraceHR::Tracer tracer{"model private remove node and related resources", category()};
+
     if (m_resourceManagement) {
         handleResourceSet(
             m_resourceManagement->removeNodes({ModelNode{node, m_model, nullptr}}, m_model));
@@ -502,6 +675,8 @@ void ModelPrivate::removeNodeAndRelatedResources(const InternalNodePointer &node
 
 void ModelPrivate::removeNode(const InternalNodePointer &node)
 {
+    NanotraceHR::Tracer tracer{"model private remove node", category()};
+
     AbstractView::PropertyChangeFlags propertyChangeFlags = AbstractView::NoAdditionalChanges;
 
     notifyNodeAboutToBeRemoved(node);
@@ -529,6 +704,8 @@ void ModelPrivate::removeNode(const InternalNodePointer &node)
 
 InternalNodePointer ModelPrivate::rootNode() const
 {
+    NanotraceHR::Tracer tracer{"model private root node", category()};
+
     return m_rootInternalNode;
 }
 
@@ -546,7 +723,10 @@ void ModelPrivate::setMetaInfo(const MetaInfo &metaInfo)
 
 void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &id)
 {
-    using namespace NanotraceHR::Literals;
+    NanotraceHR::Tracer tracer{"model private change node id",
+                               category(),
+                               keyValue("node", *node),
+                               keyValue("id", id)};
 
     const QString oldId = node->id;
 
@@ -565,6 +745,9 @@ void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &
 
 bool ModelPrivate::propertyNameIsValid(PropertyNameView propertyName)
 {
+    NanotraceHR::Tracer tracer{"model private property name is valid",
+                               category(),
+                               keyValue("property name", propertyName)};
     if (propertyName.isEmpty())
         return false;
 
@@ -574,15 +757,18 @@ bool ModelPrivate::propertyNameIsValid(PropertyNameView propertyName)
     return true;
 }
 
-template<typename Callable>
-void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
+void ModelPrivate::notifyNodeInstanceViewLast(const std::invocable<AbstractView *> auto &call)
 {
+    NanotraceHR::Tracer tracer{"model private notify node instance view last", category()};
+
     bool resetModel = false;
     QString description;
 
     try {
-        if (m_rewriterView && !m_rewriterView->isBlockingNotifications())
+        if (m_rewriterView && !m_rewriterView->isBlockingNotifications()) {
+            NanotraceHR::Tracer tracer{m_rewriterView->name(), category()};
             call(m_rewriterView);
+        }
     } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
@@ -590,15 +776,19 @@ void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
 
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         try {
-            if (!view->isBlockingNotifications())
+            if (!view->isBlockingNotifications()) {
+                NanotraceHR::Tracer tracer{view->name(), category()};
                 call(view.data());
+            }
         } catch (const Exception &e) {
             e.showException(tr("Exception thrown by view %1.").arg(view->widgetInfo().tabName));
         }
     }
 
-    if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())
-        call(nodeInstanceView());
+    if (m_nodeInstanceView && !m_nodeInstanceView->isBlockingNotifications()) {
+        NanotraceHR::Tracer tracer{m_nodeInstanceView->name(), category()};
+        call(m_nodeInstanceView);
+    }
 
     if (resetModel) {
         try {
@@ -609,38 +799,48 @@ void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
     }
 }
 
-template<typename Callable>
-void ModelPrivate::notifyNormalViewsLast(Callable call)
+void ModelPrivate::notifyNormalViewsLast(const std::invocable<AbstractView *> auto &call)
 {
+    NanotraceHR::Tracer tracer{"model private notify normal views last", category()};
+
     bool resetModel = false;
     QString description;
 
     try {
-        if (m_rewriterView && !m_rewriterView->isBlockingNotifications())
+        if (m_rewriterView && !m_rewriterView->isBlockingNotifications()) {
+            NanotraceHR::Tracer tracer{m_rewriterView->name(), category()};
             call(m_rewriterView);
+        }
     } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
 
-    if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())
-        call(nodeInstanceView());
+    if (m_nodeInstanceView && !m_nodeInstanceView->isBlockingNotifications()) {
+        NanotraceHR::Tracer tracer{m_nodeInstanceView->name(), category()};
+        call(m_nodeInstanceView);
+    }
 
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
-        if (!view->isBlockingNotifications())
+        if (!view->isBlockingNotifications()) {
+            NanotraceHR::Tracer tracer{view->name(), category()};
             call(view.data());
+        }
     }
 
     if (resetModel)
         resetModelByRewriter(description);
 }
 
-template<typename Callable>
-void ModelPrivate::notifyInstanceChanges(Callable call)
+void ModelPrivate::notifyInstanceChanges(const std::invocable<AbstractView *> auto &call)
 {
+    NanotraceHR::Tracer tracer{"model private notify instance changes", category()};
+
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
-        if (!view->isBlockingNotifications())
+        if (!view->isBlockingNotifications()) {
+            NanotraceHR::Tracer tracer{view->name(), category()};
             call(view.data());
+        }
     }
 }
 
@@ -648,6 +848,8 @@ void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &node,
                                               AuxiliaryDataKeyView key,
                                               const QVariant &data)
 {
+    NanotraceHR::Tracer tracer{"model private notify auxiliary data changed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         ModelNode modelNode(node, m_model, view);
         view->auxiliaryDataChanged(modelNode, key, data);
@@ -657,6 +859,8 @@ void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &node,
 void ModelPrivate::notifyNodeSourceChanged(const InternalNodePointer &node,
                                            const QString &newNodeSource)
 {
+    NanotraceHR::Tracer tracer{"model private notify node source changed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         ModelNode ModelNode(node, m_model, view);
         view->nodeSourceChanged(ModelNode, newNodeSource);
@@ -665,17 +869,22 @@ void ModelPrivate::notifyNodeSourceChanged(const InternalNodePointer &node,
 
 void ModelPrivate::notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
 {
+    NanotraceHR::Tracer tracer{"model private notify root node type changed", category()};
+
     notifyNodeInstanceViewLast(
         [&](AbstractView *view) { view->rootNodeTypeChanged(type, majorVersion, minorVersion); });
 }
 
 void ModelPrivate::notifyInstancePropertyChange(Utils::span<const QPair<ModelNode, PropertyName>> properties)
 {
+    NanotraceHR::Tracer tracer{"model private notify instance property change", category()};
+
     notifyInstanceChanges([&](AbstractView *view) {
         using ModelNodePropertyPair = QPair<ModelNode, PropertyName>;
         QList<QPair<ModelNode, PropertyName>> adaptedPropertyList;
         for (const ModelNodePropertyPair &propertyPair : properties) {
-            ModelNodePropertyPair newPair(ModelNode{propertyPair.first.internalNode(), m_model, view}, propertyPair.second);
+            ModelNodePropertyPair newPair(ModelNode{propertyPair.first.internalNode(), m_model, view},
+                                          propertyPair.second);
             adaptedPropertyList.append(newPair);
         }
         view->instancePropertyChanged(adaptedPropertyList);
@@ -684,6 +893,8 @@ void ModelPrivate::notifyInstancePropertyChange(Utils::span<const QPair<ModelNod
 
 void ModelPrivate::notifyInstanceErrorChange(Utils::span<const qint32> instanceIds)
 {
+    NanotraceHR::Tracer tracer{"model private notify instance error change", category()};
+
     notifyInstanceChanges([&](AbstractView *view) {
         QVector<ModelNode> errorNodeList;
         errorNodeList.reserve(std::ssize(instanceIds));
@@ -695,6 +906,8 @@ void ModelPrivate::notifyInstanceErrorChange(Utils::span<const qint32> instanceI
 
 void ModelPrivate::notifyInstancesCompleted(Utils::span<const ModelNode> modelNodes)
 {
+    NanotraceHR::Tracer tracer{"model private notify instances completed", category()};
+
     auto internalNodes = toInternalNodeList(modelNodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
@@ -706,6 +919,8 @@ namespace {
 QMultiHash<ModelNode, InformationName> convertModelNodeInformationHash(
     const QMultiHash<ModelNode, InformationName> &informationChangeHash, AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"model private convert model node information hash", category()};
+
     QMultiHash<ModelNode, InformationName> convertedModelNodeInformationHash;
 
     for (auto it = informationChangeHash.cbegin(), end = informationChangeHash.cend(); it != end; ++it)
@@ -718,6 +933,8 @@ QMultiHash<ModelNode, InformationName> convertModelNodeInformationHash(
 void ModelPrivate::notifyInstancesInformationsChange(
     const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
+    NanotraceHR::Tracer tracer{"model private notify instances informations change", category()};
+
     notifyInstanceChanges([&](AbstractView *view) {
         view->instanceInformationsChanged(convertModelNodeInformationHash(informationChangeHash, view));
     });
@@ -725,6 +942,8 @@ void ModelPrivate::notifyInstancesInformationsChange(
 
 void ModelPrivate::notifyInstancesRenderImageChanged(Utils::span<const ModelNode> nodes)
 {
+    NanotraceHR::Tracer tracer{"model private notify instance render image changed", category()};
+
     auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
@@ -734,6 +953,8 @@ void ModelPrivate::notifyInstancesRenderImageChanged(Utils::span<const ModelNode
 
 void ModelPrivate::notifyInstancesPreviewImageChanged(Utils::span<const ModelNode> nodes)
 {
+    NanotraceHR::Tracer tracer{"model private notify instances preview image changed", category()};
+
     auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
@@ -743,6 +964,8 @@ void ModelPrivate::notifyInstancesPreviewImageChanged(Utils::span<const ModelNod
 
 void ModelPrivate::notifyInstancesChildrenChanged(Utils::span<const ModelNode> nodes)
 {
+    NanotraceHR::Tracer tracer{"model private notify instances children changed", category()};
+
     auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
@@ -752,6 +975,8 @@ void ModelPrivate::notifyInstancesChildrenChanged(Utils::span<const ModelNode> n
 
 void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"model private notify current state changed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->currentStateChanged(ModelNode(node.internalNode(), m_model, view));
     });
@@ -759,6 +984,8 @@ void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 
 void ModelPrivate::notifyCurrentTimelineChanged(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"model private notify current timeline changed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->currentTimelineChanged(ModelNode(node.internalNode(), m_model, view));
     });
@@ -766,11 +993,15 @@ void ModelPrivate::notifyCurrentTimelineChanged(const ModelNode &node)
 
 void ModelPrivate::notifyRenderImage3DChanged(const QImage &image)
 {
+    NanotraceHR::Tracer tracer{"model private notify render image 3d changed", category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->renderImage3DChanged(image); });
 }
 
 void ModelPrivate::notifyUpdateActiveScene3D(const QVariantMap &sceneState)
 {
+    NanotraceHR::Tracer tracer{"model private notify update active scene 3d", category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->updateActiveScene3D(sceneState); });
 }
 
@@ -778,42 +1009,58 @@ void ModelPrivate::notifyModelNodePreviewPixmapChanged(const ModelNode &node,
                                                        const QPixmap &pixmap,
                                                        const QByteArray &requestId)
 {
+    NanotraceHR::Tracer tracer{"model private notify model node preview pixmap changed", category()};
+
     notifyInstanceChanges(
         [&](AbstractView *view) { view->modelNodePreviewPixmapChanged(node, pixmap, requestId); });
 }
 
 void ModelPrivate::notifyImport3DSupportChanged(const QVariantMap &supportMap)
 {
+    NanotraceHR::Tracer tracer{"model private notify import 3d support changed", category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->updateImport3DSupport(supportMap); });
 }
 
 void ModelPrivate::notifyNodeAtPosResult(const ModelNode &modelNode, const QVector3D &pos3d)
 {
+    NanotraceHR::Tracer tracer{"model private notify node at result", category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->nodeAtPosReady(modelNode, pos3d); });
 }
 
 void ModelPrivate::notifyView3DAction(View3DActionType type, const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"model private notify view 3d action", category()};
+
     notifyNormalViewsLast([&](AbstractView *view) { view->view3DAction(type, value); });
 }
 
 void ModelPrivate::notifyDragStarted(QMimeData *mimeData)
 {
+    NanotraceHR::Tracer tracer{"model private notify drag started", category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->dragStarted(mimeData); });
 }
 
 void ModelPrivate::notifyDragEnded()
 {
+    NanotraceHR::Tracer tracer{"model private notify drag ended", category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->dragEnded(); });
 }
 
 void ModelPrivate::notifyRewriterBeginTransaction()
 {
+    NanotraceHR::Tracer tracer{"model private notify rewriter begin transaction", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) { view->rewriterBeginTransaction(); });
 }
 
 void ModelPrivate::notifyRewriterEndTransaction()
 {
+    NanotraceHR::Tracer tracer{"model private notify rewriter end transaction", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) { view->rewriterEndTransaction(); });
 }
 
@@ -821,6 +1068,8 @@ void ModelPrivate::notifyInstanceToken(const QString &token,
                                        int number,
                                        Utils::span<const ModelNode> nodes)
 {
+    NanotraceHR::Tracer tracer{"model private notify instance token", category()};
+
     auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
@@ -833,6 +1082,8 @@ void ModelPrivate::notifyCustomNotification(const AbstractView *senderView,
                                             Utils::span<const ModelNode> nodes,
                                             const QList<QVariant> &data)
 {
+    NanotraceHR::Tracer tracer{"model private notify custom notification", category()};
+
     auto internalList = toInternalNodeList(nodes);
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->customNotification(senderView, identifier, toModelNodeList(internalList, view), data);
@@ -842,12 +1093,18 @@ void ModelPrivate::notifyCustomNotification(const AbstractView *senderView,
 void ModelPrivate::notifyCustomNotificationTo(AbstractView *view,
                                               const CustomNotificationPackage &package)
 {
-    if (view)
+    NanotraceHR::Tracer tracer{"model private notify custom notification to", category()};
+
+    if (view) {
+        NanotraceHR::Tracer tracer{view->name(), category()};
         view->customNotification(package);
+    }
 }
 
 void ModelPrivate::notifyPropertiesRemoved(const QList<PropertyPair> &propertyPairList)
 {
+    NanotraceHR::Tracer tracer{"model private notify properties removed", category()};
+
     notifyNormalViewsLast([&](AbstractView *view) {
         QList<AbstractProperty> propertyList;
         propertyList.reserve(propertyPairList.size());
@@ -860,11 +1117,15 @@ void ModelPrivate::notifyPropertiesRemoved(const QList<PropertyPair> &propertyPa
 
 void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty *> &internalPropertyList)
 {
+    NanotraceHR::Tracer tracer{"model private notify properties about to be removed", category()};
+
     bool resetModel = false;
     QString description;
 
     try {
         if (m_rewriterView) {
+            NanotraceHR::Tracer tracer{m_rewriterView->name(), category()};
+
             QList<AbstractProperty> propertyList;
             for (InternalProperty *property : internalPropertyList) {
                 AbstractProperty newProperty(property->name(),
@@ -882,10 +1143,14 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
     }
 
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
+        NanotraceHR::Tracer tracer{view->name(), category()};
         QList<AbstractProperty> propertyList;
         Q_ASSERT(view != nullptr);
         for (auto property : internalPropertyList) {
-            AbstractProperty newProperty(property->name(), property->propertyOwner(), m_model, view.data());
+            AbstractProperty newProperty(property->name(),
+                                         property->propertyOwner(),
+                                         m_model,
+                                         view.data());
             propertyList.append(newProperty);
         }
 
@@ -897,14 +1162,18 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
         }
     }
 
-    if (nodeInstanceView()) {
+    if (m_nodeInstanceView) {
+        NanotraceHR::Tracer tracer{m_nodeInstanceView->name(), category()};
         QList<AbstractProperty> propertyList;
         for (auto property : internalPropertyList) {
-            AbstractProperty newProperty(property->name(), property->propertyOwner(), m_model, nodeInstanceView());
+            AbstractProperty newProperty(property->name(),
+                                         property->propertyOwner(),
+                                         m_model,
+                                         m_nodeInstanceView);
             propertyList.append(newProperty);
         }
 
-        nodeInstanceView()->propertiesAboutToBeRemoved(propertyList);
+        m_nodeInstanceView->propertiesAboutToBeRemoved(propertyList);
     }
 
     if (resetModel)
@@ -915,6 +1184,8 @@ void ModelPrivate::setAuxiliaryData(const InternalNodePointer &node,
                                     const AuxiliaryDataKeyView &key,
                                     const QVariant &data)
 {
+    NanotraceHR::Tracer tracer{"model private set auxiliary data", category()};
+
     bool changed = false;
 
     if (data.isValid())
@@ -928,6 +1199,8 @@ void ModelPrivate::setAuxiliaryData(const InternalNodePointer &node,
 
 void ModelPrivate::resetModelByRewriter(const QString &description)
 {
+    NanotraceHR::Tracer tracer{"model private reset model by rewriter", category()};
+
     if (m_rewriterView) {
         m_rewriterView->resetToLastCorrectQml();
 
@@ -937,6 +1210,8 @@ void ModelPrivate::resetModelByRewriter(const QString &description)
 
 void ModelPrivate::attachView(AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"model private attach view", category()};
+
     if (!view)
         return;
 
@@ -957,6 +1232,8 @@ void ModelPrivate::attachView(AbstractView *view)
 
 void ModelPrivate::detachView(AbstractView *view, bool notifyView)
 {
+    NanotraceHR::Tracer tracer{"model private detach view", category()};
+
     if (!view->isAttached())
         return;
 
@@ -967,6 +1244,8 @@ void ModelPrivate::detachView(AbstractView *view, bool notifyView)
 
 void ModelPrivate::notifyNodeCreated(const InternalNodePointer &newInternalNodePointer)
 {
+    NanotraceHR::Tracer tracer{"model private notify node created", category()};
+
     notifyNormalViewsLast([&](AbstractView *view) {
         view->nodeCreated(ModelNode{newInternalNodePointer, m_model, view});
     });
@@ -974,6 +1253,8 @@ void ModelPrivate::notifyNodeCreated(const InternalNodePointer &newInternalNodeP
 
 void ModelPrivate::notifyNodeAboutToBeRemoved(const InternalNodePointer &internalNodePointer)
 {
+    NanotraceHR::Tracer tracer{"model private notify node about to be removed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->nodeAboutToBeRemoved(ModelNode{internalNodePointer, m_model, view});
     });
@@ -984,6 +1265,8 @@ void ModelPrivate::notifyNodeRemoved(const InternalNodePointer &removedNode,
                                      PropertyNameView parentPropertyName,
                                      AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify node removed", category()};
+
     notifyNormalViewsLast([&](AbstractView *view) {
         view->nodeRemoved(ModelNode{removedNode, m_model, view},
                           NodeAbstractProperty{parentPropertyName, parentNode, m_model, view},
@@ -996,11 +1279,10 @@ void ModelPrivate::notifyNodeTypeChanged(const InternalNodePointer &node,
                                          int majorVersion,
                                          int minorVersion)
 {
+    NanotraceHR::Tracer tracer{"model private notify node type changed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
-        view->nodeTypeChanged(ModelNode{node, m_model, view},
-                              type,
-                              majorVersion,
-                              minorVersion);
+        view->nodeTypeChanged(ModelNode{node, m_model, view}, type, majorVersion, minorVersion);
     });
 }
 
@@ -1008,6 +1290,8 @@ void ModelPrivate::notifyNodeIdChanged(const InternalNodePointer &node,
                                        const QString &newId,
                                        const QString &oldId)
 {
+    NanotraceHR::Tracer tracer{"model private notify node id changed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->nodeIdChanged(ModelNode{node, m_model, view}, newId, oldId);
     });
@@ -1016,6 +1300,9 @@ void ModelPrivate::notifyNodeIdChanged(const InternalNodePointer &node,
 void ModelPrivate::notifyBindingPropertiesAboutToBeChanged(
     const QList<InternalBindingProperty *> &internalPropertyList)
 {
+    NanotraceHR::Tracer tracer{"model private notify binding properties about to be changed",
+                               category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QList<BindingProperty> propertyList;
         propertyList.reserve(internalPropertyList.size());
@@ -1032,6 +1319,8 @@ void ModelPrivate::notifyBindingPropertiesAboutToBeChanged(
 void ModelPrivate::notifyBindingPropertiesChanged(const QList<InternalBindingProperty *> &internalPropertyList,
                                                   AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify binding properties changed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QList<BindingProperty> propertyList;
         propertyList.reserve(internalPropertyList.size());
@@ -1049,6 +1338,8 @@ void ModelPrivate::notifySignalHandlerPropertiesChanged(
     const QVector<InternalSignalHandlerProperty *> &internalPropertyList,
     AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify signal handler properties changed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QVector<SignalHandlerProperty> propertyList;
         propertyList.reserve(internalPropertyList.size());
@@ -1066,6 +1357,9 @@ void ModelPrivate::notifySignalDeclarationPropertiesChanged(
     const QVector<InternalSignalDeclarationProperty *> &internalPropertyList,
     AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify signal declaration properties changed",
+                               category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QVector<SignalDeclarationProperty> propertyList;
         propertyList.reserve(internalPropertyList.size());
@@ -1082,6 +1376,8 @@ void ModelPrivate::notifySignalDeclarationPropertiesChanged(
 void ModelPrivate::notifyScriptFunctionsChanged(const InternalNodePointer &node,
                                                 const QStringList &scriptFunctionList)
 {
+    NanotraceHR::Tracer tracer{"model private notify script functions changed", category()};
+
     notifyNormalViewsLast([&](AbstractView *view) {
         view->scriptFunctionsChanged(ModelNode{node, m_model, view}, scriptFunctionList);
     });
@@ -1091,6 +1387,8 @@ void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &nod
                                                   const PropertyNameViews &propertyNameViews,
                                                   AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify variant properties changed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QList<VariantProperty> propertyList;
         propertyList.reserve(propertyNameViews.size());
@@ -1108,6 +1406,8 @@ void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &node,
                                                PropertyNameView oldPropertyName,
                                                AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify node about to be reparent", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         NodeAbstractProperty newProperty;
         NodeAbstractProperty oldProperty;
@@ -1116,10 +1416,7 @@ void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &node,
             oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, m_model, view);
 
         if (!newPropertyName.isEmpty() && newParent && newParent->isValid) {
-            newProperty = NodeAbstractProperty(newPropertyName,
-                                               newParent,
-                                               m_model,
-                                               view);
+            newProperty = NodeAbstractProperty(newPropertyName, newParent, m_model, view);
         }
 
         ModelNode modelNode(node, m_model, view);
@@ -1133,6 +1430,8 @@ void ModelPrivate::notifyNodeReparent(const InternalNodePointer &node,
                                       PropertyNameView oldPropertyName,
                                       AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify node reparent", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         NodeAbstractProperty newProperty;
         NodeAbstractProperty oldProperty;
@@ -1157,6 +1456,8 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListProperty *intern
                                           const InternalNodePointer &node,
                                           int oldIndex)
 {
+    NanotraceHR::Tracer tracer{"model private notify node order changed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         NodeListProperty nodeListProperty(internalListProperty->name(),
                                           internalListProperty->propertyOwner(),
@@ -1168,6 +1469,8 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListProperty *intern
 
 void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListProperty *internalListProperty)
 {
+    NanotraceHR::Tracer tracer{"model private notify node order changed", category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         NodeListProperty nodeListProperty(internalListProperty->name(),
                                           internalListProperty->propertyOwner(),
@@ -1179,6 +1482,8 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListProperty *intern
 
 void ModelPrivate::setSelectedNodes(const FewNodes &selectedNodeList)
 {
+    NanotraceHR::Tracer tracer{"model private set selected nodes", category()};
+
     auto sortedSelectedList = Utils::filtered(selectedNodeList, [](const auto &node) {
         return node && node->isValid;
     });
@@ -1215,20 +1520,24 @@ void ModelPrivate::setSelectedNodes(const FewNodes &selectedNodeList)
                             }));
     }
 
-    changeSelectedNodes(sortedSelectedList, lastSelectedNodeList);
+    notifySelectedNodesChanged(sortedSelectedList, lastSelectedNodeList);
 }
 
 void ModelPrivate::clearSelectedNodes()
 {
+    NanotraceHR::Tracer _{"model private clear selected nodes", category()};
+
     auto tracer = traceToken.begin("clear selected model nodes");
 
     auto lastSelectedNodeList = m_selectedInternalNodes;
     m_selectedInternalNodes.clear();
-    changeSelectedNodes(m_selectedInternalNodes, lastSelectedNodeList);
+    notifySelectedNodesChanged(m_selectedInternalNodes, lastSelectedNodeList);
 }
 
 void ModelPrivate::removeAuxiliaryData(const InternalNodePointer &node, const AuxiliaryDataKeyView &key)
 {
+    NanotraceHR::Tracer tracer{"model private remove auxiliary data", category()};
+
     bool removed = node->removeAuxiliaryData(key);
 
     if (removed)
@@ -1238,6 +1547,8 @@ void ModelPrivate::removeAuxiliaryData(const InternalNodePointer &node, const Au
 QList<ModelNode> ModelPrivate::toModelNodeList(Utils::span<const InternalNodePointer> nodes,
                                                AbstractView *view) const
 {
+    NanotraceHR::Tracer tracer{"model private to model node list", category()};
+
     QList<ModelNode> modelNodeList;
     modelNodeList.reserve(std::ssize(nodes));
     for (const InternalNodePointer &node : nodes)
@@ -1248,6 +1559,8 @@ QList<ModelNode> ModelPrivate::toModelNodeList(Utils::span<const InternalNodePoi
 
 ModelPrivate::ManyNodes ModelPrivate::toInternalNodeList(Utils::span<const ModelNode> modelNodes) const
 {
+    NanotraceHR::Tracer tracer{"model private to internal node list", category()};
+
     ManyNodes newNodeList;
     newNodeList.reserve(std::ssize(modelNodes));
     for (const ModelNode &modelNode : modelNodes)
@@ -1258,6 +1571,8 @@ ModelPrivate::ManyNodes ModelPrivate::toInternalNodeList(Utils::span<const Model
 
 QList<InternalProperty *> ModelPrivate::toInternalProperties(const AbstractProperties &properties)
 {
+    NanotraceHR::Tracer tracer{"model private to internal properties", category()};
+
     QList<InternalProperty *> internalProperties;
     internalProperties.reserve(properties.size());
 
@@ -1289,23 +1604,21 @@ QList<std::tuple<InternalBindingProperty *, QString>> ModelPrivate::toInternalBi
     return internalProperties;
 }
 
-void ModelPrivate::changeSelectedNodes(const FewNodes &newSelectedNodeList,
-                                       const FewNodes &oldSelectedNodeList)
+void ModelPrivate::notifySelectedNodesChanged(const FewNodes &newSelectedNodeList,
+                                              const FewNodes &oldSelectedNodeList)
 {
-    for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
-        Q_ASSERT(view != nullptr);
-        view->selectedNodesChanged(toModelNodeList(newSelectedNodeList, view.data()),
-                                   toModelNodeList(oldSelectedNodeList, view.data()));
-    }
+    NanotraceHR::Tracer tracer{"model private change selected nodes", category()};
 
-    if (nodeInstanceView()) {
-        nodeInstanceView()->selectedNodesChanged(toModelNodeList(newSelectedNodeList, nodeInstanceView()),
-                                                 toModelNodeList(oldSelectedNodeList, nodeInstanceView()));
-    }
+    notifyNodeInstanceViewLast([&](AbstractView *view) {
+        view->selectedNodesChanged(toModelNodeList(newSelectedNodeList, view),
+                                   toModelNodeList(oldSelectedNodeList, view));
+    });
 }
 
 const ModelPrivate::FewNodes &ModelPrivate::selectedNodes() const
 {
+    NanotraceHR::Tracer tracer{"model private selected nodes", category()};
+
     static FewNodes empty;
     for (const InternalNodePointer &node : m_selectedInternalNodes) {
         if (!node->isValid)
@@ -1317,6 +1630,8 @@ const ModelPrivate::FewNodes &ModelPrivate::selectedNodes() const
 
 void ModelPrivate::selectNode(const InternalNodePointer &node)
 {
+    NanotraceHR::Tracer tracer{"model private select node", category()};
+
     if (selectedNodes().contains(node))
         return;
 
@@ -1327,6 +1642,8 @@ void ModelPrivate::selectNode(const InternalNodePointer &node)
 
 void ModelPrivate::deselectNode(const InternalNodePointer &node)
 {
+    NanotraceHR::Tracer tracer{"model private deselect node", category()};
+
     FewNodes selectedNodeList(selectedNodes());
     bool isRemoved = selectedNodeList.removeOne(node);
 
@@ -1336,6 +1653,8 @@ void ModelPrivate::deselectNode(const InternalNodePointer &node)
 
 void ModelPrivate::removePropertyWithoutNotification(InternalProperty *property)
 {
+    NanotraceHR::Tracer tracer{"model private remove property without notification", category()};
+
     if (auto nodeListProperty = property->to<PropertyType::NodeList>()) {
         const auto allSubNodes = nodeListProperty->allSubNodes();
         for (const InternalNodePointer &node : allSubNodes)
@@ -1362,6 +1681,8 @@ static QList<PropertyPair> toPropertyPairList(const QList<InternalProperty *> &p
 
 void ModelPrivate::removePropertyAndRelatedResources(InternalProperty *property)
 {
+    NanotraceHR::Tracer tracer{"model private remove property and related resources", category()};
+
     if (m_resourceManagement) {
         handleResourceSet(m_resourceManagement->removeProperties(
             {AbstractProperty{property->name(), property->propertyOwner(), m_model, nullptr}},
@@ -1373,11 +1694,15 @@ void ModelPrivate::removePropertyAndRelatedResources(InternalProperty *property)
 
 void ModelPrivate::removeProperty(InternalProperty *property)
 {
+    NanotraceHR::Tracer tracer{"model private remove property", category()};
+
     removeProperties({property});
 }
 
 void ModelPrivate::removeProperties(const QList<InternalProperty *> &properties)
 {
+    NanotraceHR::Tracer tracer{"model private remove properties", category()};
+
     if (properties.isEmpty())
         return;
 
@@ -1395,6 +1720,8 @@ void ModelPrivate::setBindingProperty(const InternalNodePointer &node,
                                       PropertyNameView name,
                                       const QString &expression)
 {
+    NanotraceHR::Tracer tracer{"model private set binding property", category()};
+
     auto [bindingProperty, propertyChange] = node->getBindingProperty(name);
 
     notifyBindingPropertiesAboutToBeChanged({bindingProperty});
@@ -1404,6 +1731,8 @@ void ModelPrivate::setBindingProperty(const InternalNodePointer &node,
 
 void ModelPrivate::setBindingProperties(const ModelResourceSet::SetExpressions &setExpressions)
 {
+    NanotraceHR::Tracer tracer{"model private set binding properties", category()};
+
     if (setExpressions.isEmpty())
         return;
 
@@ -1424,6 +1753,8 @@ void ModelPrivate::setSignalHandlerProperty(const InternalNodePointer &node,
                                             PropertyNameView name,
                                             const QString &source)
 {
+    NanotraceHR::Tracer tracer{"model private set signal handler property", category()};
+
     auto [signalHandlerProperty, propertyChange] = node->getSignalHandlerProperty(name);
 
     signalHandlerProperty->setSource(source);
@@ -1434,6 +1765,8 @@ void ModelPrivate::setSignalDeclarationProperty(const InternalNodePointer &node,
                                                 PropertyNameView name,
                                                 const QString &signature)
 {
+    NanotraceHR::Tracer tracer{"model private set signal declaration property", category()};
+
     auto [signalDeclarationProperty, propertyChange] = node->getSignalDeclarationProperty(name);
 
     signalDeclarationProperty->setSignature(signature);
@@ -1444,6 +1777,8 @@ void ModelPrivate::setVariantProperty(const InternalNodePointer &node,
                                       PropertyNameView name,
                                       const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"model private set variant property", category()};
+
     auto [variantProperty, propertyChange] = node->getVariantProperty(name);
 
     variantProperty->setValue(value);
@@ -1456,6 +1791,8 @@ void ModelPrivate::setDynamicVariantProperty(const InternalNodePointer &node,
                                              const TypeName &dynamicPropertyType,
                                              const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"model private set dynamic variant property", category()};
+
     auto [variantProperty, propertyChange] = node->getVariantProperty(name);
 
     variantProperty->setDynamicValue(dynamicPropertyType, value);
@@ -1467,6 +1804,8 @@ void ModelPrivate::setDynamicBindingProperty(const InternalNodePointer &node,
                                              const TypeName &dynamicPropertyType,
                                              const QString &expression)
 {
+    NanotraceHR::Tracer tracer{"model private set dynamic binding property", category()};
+
     auto [bindingProperty, propertyChange] = node->getBindingProperty(name);
 
     notifyBindingPropertiesAboutToBeChanged({bindingProperty});
@@ -1480,6 +1819,8 @@ void ModelPrivate::reparentNode(const InternalNodePointer &parentNode,
                                 bool list,
                                 const TypeName &dynamicTypeName)
 {
+    NanotraceHR::Tracer tracer{"model private reparent node", category()};
+
     AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
 
     InternalNodeAbstractPropertyPointer oldParentProperty(childNode->parentProperty());
@@ -1490,12 +1831,8 @@ void ModelPrivate::reparentNode(const InternalNodePointer &parentNode,
         oldParentPropertyName = childNode->parentProperty()->name();
     }
 
-    notifyNodeAboutToBeReparent(childNode,
-                                parentNode,
-                                name,
-                                oldParentNode,
-                                oldParentPropertyName,
-                                propertyChange);
+    notifyNodeAboutToBeReparent(
+        childNode, parentNode, name, oldParentNode, oldParentPropertyName, propertyChange);
 
     InternalNodeAbstractProperty *newParentProperty = nullptr;
     AbstractView::PropertyChangeFlags newPropertyChange = AbstractView::NoAdditionalChanges;
@@ -1525,6 +1862,8 @@ void ModelPrivate::reparentNode(const InternalNodePointer &parentNode,
 
 void ModelPrivate::clearParent(const InternalNodePointer &node)
 {
+    NanotraceHR::Tracer tracer{"model private clear parent", category()};
+
     InternalNodeAbstractPropertyPointer oldParentProperty(node->parentProperty());
     InternalNodePointer oldParentNode;
     Utils::SmallString oldParentPropertyName;
@@ -1541,22 +1880,29 @@ void ModelPrivate::clearParent(const InternalNodePointer &node)
                        AbstractView::NoAdditionalChanges);
 }
 
-void ModelPrivate::changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion)
+void ModelPrivate::changeRootNodeType(const TypeName &typeName, int majorVersion, int minorVersion)
 {
+    NanotraceHR::Tracer tracer{"model private change root node type", category()};
+
     Q_ASSERT(rootNode());
 
-    m_rootInternalNode->traceToken.tick("type name", keyValue("type name", type));
+    m_rootInternalNode->traceToken.tick("type name", keyValue("type name", typeName));
 
-    m_rootInternalNode->typeName = type;
+    auto [alias, unqualifiedTypeName] = StringUtils::split_last(typeName);
+
+    m_rootInternalNode->typeName = typeName;
+    m_rootInternalNode->unqualifiedTypeName = unqualifiedTypeName;
     m_rootInternalNode->majorVersion = majorVersion;
     m_rootInternalNode->minorVersion = minorVersion;
-    setTypeId(m_rootInternalNode.get(), type);
-    notifyRootNodeTypeChanged(QString::fromUtf8(type), majorVersion, minorVersion);
+    setTypeId(m_rootInternalNode.get(), alias, unqualifiedTypeName);
+    notifyRootNodeTypeChanged(QString::fromUtf8(typeName), majorVersion, minorVersion);
 }
 
-void ModelPrivate::setScriptFunctions(const InternalNodePointer &node, const QStringList &scriptFunctionList)
+void ModelPrivate::setScriptFunctions(const InternalNodePointer &node,
+                                      const QStringList &scriptFunctionList)
 {
     m_rootInternalNode->traceToken.tick("script function");
+    NanotraceHR::Tracer tracer{"model private set script functions", category()};
 
     node->scriptFunctions = scriptFunctionList;
 
@@ -1566,6 +1912,7 @@ void ModelPrivate::setScriptFunctions(const InternalNodePointer &node, const QSt
 void ModelPrivate::setNodeSource(const InternalNodePointer &node, const QString &nodeSource)
 {
     m_rootInternalNode->traceToken.tick("node source");
+    NanotraceHR::Tracer tracer{"model private set node source", category()};
 
     node->nodeSource = nodeSource;
     notifyNodeSourceChanged(node, nodeSource);
@@ -1576,6 +1923,8 @@ void ModelPrivate::changeNodeOrder(const InternalNodePointer &parentNode,
                                    int from,
                                    int to)
 {
+    NanotraceHR::Tracer tracer{"model private change node order", category()};
+
     auto nodeList = parentNode->nodeListProperty(listPropertyName);
     Q_ASSERT(nodeList);
     nodeList->slide(from, to);
@@ -1586,6 +1935,8 @@ void ModelPrivate::changeNodeOrder(const InternalNodePointer &parentNode,
 
 void ModelPrivate::setRewriterView(RewriterView *rewriterView)
 {
+    NanotraceHR::Tracer tracer{"model private set rewriter view", category()};
+
     if (rewriterView == m_rewriterView.data())
         return;
 
@@ -1605,11 +1956,15 @@ void ModelPrivate::setRewriterView(RewriterView *rewriterView)
 
 RewriterView *ModelPrivate::rewriterView() const
 {
+    NanotraceHR::Tracer tracer{"model private rewriter view", category()};
+
     return m_rewriterView.data();
 }
 
 void ModelPrivate::setNodeInstanceView(AbstractView *nodeInstanceView)
 {
+    NanotraceHR::Tracer tracer{"model private set node instance view", category()};
+
     if (nodeInstanceView == m_nodeInstanceView)
         return;
 
@@ -1630,36 +1985,50 @@ void ModelPrivate::setNodeInstanceView(AbstractView *nodeInstanceView)
 
 AbstractView *ModelPrivate::nodeInstanceView() const
 {
+    NanotraceHR::Tracer tracer{"model private node instance view", category()};
+
     return m_nodeInstanceView.data();
 }
 
 InternalNodePointer ModelPrivate::currentTimelineNode() const
 {
+    NanotraceHR::Tracer tracer{"model private current timeline node", category()};
+
     return m_currentTimelineNode;
 }
 
-InternalNodePointer ModelPrivate::nodeForId(const QString &id) const
+InternalNodePointer ModelPrivate::nodeForId(QStringView id) const
 {
+    NanotraceHR::Tracer tracer{"model private node for id", category()};
+
     return m_idNodeHash.value(id);
 }
 
-bool ModelPrivate::hasId(const QString &id) const
+bool ModelPrivate::hasId(QStringView id) const
 {
+    NanotraceHR::Tracer tracer{"model private has id", category()};
+
     return m_idNodeHash.contains(id);
 }
 
 InternalNodePointer ModelPrivate::nodeForInternalId(qint32 internalId) const
 {
+    NanotraceHR::Tracer tracer{"model private node for internal id", category()};
+
     return m_internalIdNodeHash.value(internalId);
 }
 
 bool ModelPrivate::hasNodeForInternalId(qint32 internalId) const
 {
+    NanotraceHR::Tracer tracer{"model private has node for internal id", category()};
+
     return m_internalIdNodeHash.contains(internalId);
 }
 
 ModelPrivate::ManyNodes ModelPrivate::allNodesOrdered() const
 {
+    NanotraceHR::Tracer tracer{"model private all nodes ordered", category()};
+
     if (!m_rootInternalNode || !m_rootInternalNode->isValid)
         return {};
 
@@ -1679,6 +2048,8 @@ ModelPrivate::ManyNodes ModelPrivate::allNodesOrdered() const
 
 ModelPrivate::ManyNodes ModelPrivate::allNodesUnordered() const
 {
+    NanotraceHR::Tracer tracer{"model private all nodes unordered", category()};
+
     return m_nodes;
 }
 
@@ -1743,28 +2114,40 @@ Model::Model(ProjectStorageDependencies projectStorageDependencies,
              int major,
              int minor,
              Model *metaInfoProxyModel,
-             std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
-    : d(std::make_unique<Internal::ModelPrivate>(this,
+             std::unique_ptr<ModelResourceManagementInterface> resourceManagement,
+             SL sl)
+{
+    NanotraceHR::Tracer tracer{"model constructed with metainfoproxymodel",
+                               category(),
+                               keyValue("caller location", sl)};
+
+    d = std::make_unique<Internal::ModelPrivate>(this,
                                                  projectStorageDependencies,
                                                  typeName,
                                                  major,
                                                  minor,
                                                  metaInfoProxyModel,
-                                                 std::move(resourceManagement)))
-{}
+                                                 std::move(resourceManagement));
+}
 
 Model::Model(ProjectStorageDependencies projectStorageDependencies,
              Utils::SmallStringView typeName,
              Imports imports,
              const QUrl &fileUrl,
-             std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
-    : d(std::make_unique<Internal::ModelPrivate>(this,
+             std::unique_ptr<ModelResourceManagementInterface> resourceManagement,
+             SL sl)
+{
+    NanotraceHR::Tracer tracer{"model constructed with file url",
+                               category(),
+                               keyValue("caller location", sl)};
+
+    d = std::make_unique<Internal::ModelPrivate>(this,
                                                  projectStorageDependencies,
                                                  typeName,
                                                  std::move(imports),
                                                  fileUrl,
-                                                 std::move(resourceManagement)))
-{}
+                                                 std::move(resourceManagement));
+}
 
 #ifndef QDS_USE_PROJECTSTORAGE
 Model::Model(const TypeName &typeName,
@@ -1773,18 +2156,25 @@ Model::Model(const TypeName &typeName,
              Model *metaInfoProxyModel,
              std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : d(std::make_unique<Internal::ModelPrivate>(
-        this, typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)))
+          this, typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)))
 {}
 #endif
 
 ModelPointer Model::createModel(const TypeName &typeName,
-                                std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
+                                std::unique_ptr<ModelResourceManagementInterface> resourceManagement,
+                                SL sl)
 {
-    return Model::create({*d->projectStorage, *d->pathCache, *d->projectStorageTriggerUpdate},
+    NanotraceHR::Tracer tracer{"model create model", category(), keyValue("caller location", sl)};
+
+    return Model::create({*d->projectStorage,
+                          *d->pathCache,
+                          *d->modulesStorage,
+                          *d->projectStorageTriggerUpdate},
                          typeName,
                          imports(),
                          fileUrl(),
-                         std::move(resourceManagement));
+                         std::move(resourceManagement),
+                         sl);
 }
 
 Model::~Model() = default;
@@ -1794,13 +2184,25 @@ const Imports &Model::imports() const
     return d->imports();
 }
 
-ModuleIds Model::moduleIds() const
+ModuleIds Model::moduleIds(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"model module ids", category(), keyValue("caller location", sl)};
+
     return {};
 }
 
-Storage::Info::ExportedTypeName Model::exportedTypeNameForMetaInfo(const NodeMetaInfo &) const
+Storage::Info::ExportedTypeName Model::exportedTypeNameForMetaInfo(const NodeMetaInfo &metaInfo,
+                                                                   SL sl) const
 {
+    NanotraceHR::Tracer tracer{"model exported type name for meta info",
+                               category(),
+                               keyValue("caller location", sl)};
+
+    auto exportedTypeNames = metaInfo.exportedTypeNamesForSourceId(d->m_sourceId);
+
+    if (exportedTypeNames.size())
+        return exportedTypeNames.front();
+
     return {};
 }
 
@@ -1835,7 +2237,7 @@ QmlDesigner::Imports createPossibleFileImports(const Utils::FilePath &path)
 
 QmlDesigner::Imports createQt6ModulesForProjectStorage()
 {
-    QmlDesigner::Imports imports = {
+    return {
         QmlDesigner::Import::createLibraryImport("QtQuick"),
         QmlDesigner::Import::createLibraryImport("QtQuick.Controls"),
         QmlDesigner::Import::createLibraryImport("QtQuick.Window"),
@@ -1874,21 +2276,21 @@ QmlDesigner::Imports createQt6ModulesForProjectStorage()
         QmlDesigner::Import::createLibraryImport("Qt.SafeRenderer"),
 
         QmlDesigner::Import::createLibraryImport("SimulinkConnector")};
-
-    std::ranges::sort(imports);
-    return imports;
 };
 
 } //namespace
 
 #endif //QDS_USE_PROJECTSTORAGE
 
-Imports Model::possibleImports() const
+Imports Model::possibleImports([[maybe_unused]] SL sl) const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
+    NanotraceHR::Tracer tracer{"model possible imports", category(), keyValue("caller location", sl)};
+
     static auto qt6Imports = createQt6ModulesForProjectStorage();
     auto imports = createPossibleFileImports(Utils::FilePath::fromUrl(fileUrl()));
     imports.append(qt6Imports);
+    std::ranges::sort(imports);
 
     return imports;
 #else
@@ -1905,9 +2307,18 @@ Imports Model::usedImports() const
 #endif
 }
 
-void Model::changeImports(Imports importsToBeAdded, Imports importsToBeRemoved)
+void Model::changeImports(Imports importsToBeAdded, Imports importsToBeRemoved, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model change imports", category(), keyValue("caller location", sl)};
+
     d->changeImports(std::move(importsToBeAdded), std::move(importsToBeRemoved));
+}
+
+void Model::setImports(Imports imports, SL sl)
+{
+    NanotraceHR::Tracer tracer{"model set imports", category(), keyValue("caller location", sl)};
+
+    d->setImports(std::move(imports));
 }
 
 #ifndef QDS_USE_PROJECTSTORAGE
@@ -1953,8 +2364,10 @@ static bool compareVersions(const Import &import1, const Import &import2, bool a
     return version1 >= version2;
 }
 
-bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVersion) const
+bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVersion, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"model has import", category(), keyValue("caller location", sl)};
+
     if (imports().contains(import))
         return true;
 
@@ -1982,13 +2395,19 @@ bool Model::hasId(const QString &id) const
     return d->hasId(id);
 }
 
-bool Model::hasImport(const QString &importUrl) const
+bool Model::hasImport(const QString &importUrl, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"model has import with import url",
+                               category(),
+                               keyValue("caller location", sl)};
+
     return std::ranges::any_of(imports(), is_equal_to(importUrl), &Import::url);
 }
 
-QString Model::generateNewId(const QString &prefixName, const QString &fallbackPrefix) const
+QString Model::generateNewId(const QString &prefixName, const QString &fallbackPrefix, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"model generate id", category(), keyValue("caller location", sl)};
+
     return UniqueName::generateId(prefixName, fallbackPrefix, [&](const QString &id) {
         // Properties of the root node are not allowed for ids, because they are available in the
         // complete context without qualification.
@@ -1996,8 +2415,10 @@ QString Model::generateNewId(const QString &prefixName, const QString &fallbackP
     });
 }
 
-void Model::startDrag(std::unique_ptr<QMimeData> mimeData, const QPixmap &icon, QWidget *dragSource)
+void Model::startDrag(std::unique_ptr<QMimeData> mimeData, const QPixmap &icon, QWidget *dragSource, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model start drag", category(), keyValue("caller location", sl)};
+
     d->notifyDragStarted(mimeData.get());
 
     d->drag = Utils::makeUniqueObjectPtr<QDrag>(dragSource);
@@ -2007,8 +2428,10 @@ void Model::startDrag(std::unique_ptr<QMimeData> mimeData, const QPixmap &icon, 
         endDrag();
 }
 
-void Model::endDrag()
+void Model::endDrag(SL sl)
 {
+    NanotraceHR::Tracer tracer{"model end drag", category(), keyValue("caller location", sl)};
+
     if (!d->drag)
         return;
 
@@ -2016,20 +2439,30 @@ void Model::endDrag()
     d->drag.reset();
 }
 
-void Model::setCurrentStateNode(const ModelNode &node)
+void Model::setCurrentStateNode(const ModelNode &node, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model set current state node",
+                               category(),
+                               keyValue("caller location", sl)};
+
     Internal::WriteLocker locker(this);
     d->m_currentStateNode = node.internalNode();
     d->notifyCurrentStateChanged(node);
 }
 
-ModelNode Model::currentStateNode(AbstractView *view)
+ModelNode Model::currentStateNode(AbstractView *view, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model current state node", category(), keyValue("caller location", sl)};
+
     return ModelNode(d->currentStateNode(), this, view);
 }
 
-void Model::setCurrentTimelineNode(const ModelNode &timeline)
+void Model::setCurrentTimelineNode(const ModelNode &timeline, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model set current timeline node",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (timeline.internalNode() == d->m_currentTimelineNode)
         return;
 
@@ -2064,70 +2497,112 @@ ProjectStorageDependencies Model::projectStorageDependencies() const
 {
     return ProjectStorageDependencies{*d->projectStorage,
                                       *d->pathCache,
+                                      *d->modulesStorage,
                                       *d->projectStorageTriggerUpdate};
 }
 
 void Model::emitInstancePropertyChange(AbstractView *view,
-                                       Utils::span<const QPair<ModelNode, PropertyName>> properties)
+                                       Utils::span<const QPair<ModelNode, PropertyName>> properties,
+                                       SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit instance property change",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyInstancePropertyChange(properties);
 }
 
-void Model::emitInstanceErrorChange(AbstractView *view, Utils::span<const qint32> instanceIds)
+void Model::emitInstanceErrorChange(AbstractView *view, Utils::span<const qint32> instanceIds, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emite instance error change",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyInstanceErrorChange(instanceIds);
 }
 
-void Model::emitInstancesCompleted(AbstractView *view, Utils::span<const ModelNode> nodes)
+void Model::emitInstancesCompleted(AbstractView *view, Utils::span<const ModelNode> nodes, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit instances completed",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyInstancesCompleted(nodes);
 }
 
 void Model::emitInstanceInformationsChange(
-    AbstractView *view, const QMultiHash<ModelNode, InformationName> &informationChangeHash)
+    AbstractView *view, const QMultiHash<ModelNode, InformationName> &informationChangeHash, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit instance informations change",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyInstancesInformationsChange(informationChangeHash);
 }
 
-void Model::emitInstancesRenderImageChanged(AbstractView *view, Utils::span<const ModelNode> nodes)
+void Model::emitInstancesRenderImageChanged(AbstractView *view, Utils::span<const ModelNode> nodes, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit isntances render image changed",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyInstancesRenderImageChanged(nodes);
 }
 
-void Model::emitInstancesPreviewImageChanged(AbstractView *view, Utils::span<const ModelNode> nodes)
+void Model::emitInstancesPreviewImageChanged(AbstractView *view,
+                                             Utils::span<const ModelNode> nodes,
+                                             SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit instances preview image changed",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyInstancesPreviewImageChanged(nodes);
 }
 
-void Model::emitInstancesChildrenChanged(AbstractView *view, Utils::span<const ModelNode> nodes)
+void Model::emitInstancesChildrenChanged(AbstractView *view, Utils::span<const ModelNode> nodes, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit instances children changed",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyInstancesChildrenChanged(nodes);
 }
 
-void Model::emitInstanceToken(AbstractView *view,
-                              const QString &token,
-                              int number,
-                              const QVector<ModelNode> &nodeVector)
+void Model::emitInstanceToken(
+    AbstractView *view, const QString &token, int number, const QVector<ModelNode> &nodeVector, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit instance token",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyInstanceToken(token, number, nodeVector);
 }
 
-void Model::emitRenderImage3DChanged(AbstractView *view, const QImage &image)
+void Model::emitRenderImage3DChanged(AbstractView *view, const QImage &image, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit render image 3d changed",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyRenderImage3DChanged(image);
 }
 
-void Model::emitUpdateActiveScene3D(AbstractView *view, const QVariantMap &sceneState)
+void Model::emitUpdateActiveScene3D(AbstractView *view, const QVariantMap &sceneState, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit update active scene 3d",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyUpdateActiveScene3D(sceneState);
 }
@@ -2135,66 +2610,116 @@ void Model::emitUpdateActiveScene3D(AbstractView *view, const QVariantMap &scene
 void Model::emitModelNodelPreviewPixmapChanged(AbstractView *view,
                                                const ModelNode &node,
                                                const QPixmap &pixmap,
-                                               const QByteArray &requestId)
+                                               const QByteArray &requestId,
+                                               SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit model node preview pixmap changed",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyModelNodePreviewPixmapChanged(node, pixmap, requestId);
 }
 
-void Model::emitImport3DSupportChanged(AbstractView *view, const QVariantMap &supportMap)
+void Model::emitImport3DSupportChanged(AbstractView *view, const QVariantMap &supportMap, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit import 3d support changed",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyImport3DSupportChanged(supportMap);
 }
 
-void Model::emitNodeAtPosResult(AbstractView *view, const ModelNode &modelNode, const QVector3D &pos3d)
+void Model::emitNodeAtPosResult(AbstractView *view,
+                                const ModelNode &modelNode,
+                                const QVector3D &pos3d,
+                                SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit node at pos result",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyNodeAtPosResult(modelNode, pos3d);
 }
 
-void Model::emitView3DAction(View3DActionType type, const QVariant &value)
+void Model::emitView3DAction(View3DActionType type, const QVariant &value, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit view 3d action",
+                               category(),
+                               keyValue("caller location", sl)};
+
     d->notifyView3DAction(type, value);
 }
 
-void Model::emitDocumentMessage(const QString &error)
+void Model::emitDocumentMessage(const QString &error, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit document message with error",
+                               category(),
+                               keyValue("caller location", sl)};
+
     emitDocumentMessage({DocumentMessage(error)});
 }
 
 void Model::emitDocumentMessage(const QList<DocumentMessage> &errors,
-                                const QList<DocumentMessage> &warnings)
+                                const QList<DocumentMessage> &warnings,
+                                SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit document message with errors and warnings",
+                               category(),
+                               keyValue("caller location", sl)};
+
     d->setDocumentMessages(errors, warnings);
 }
 
 void Model::emitCustomNotification(AbstractView *view,
                                    const QString &identifier,
                                    Utils::span<const ModelNode> nodes,
-                                   const QList<QVariant> &data)
+                                   const QList<QVariant> &data,
+                                   SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit custom notification",
+                               category(),
+                               keyValue("caller location", sl)};
+
     d->notifyCustomNotification(view, identifier, nodes, data);
 }
 
-void Model::sendCustomNotificationTo(AbstractView *to, const CustomNotificationPackage &package)
+void Model::sendCustomNotificationTo(AbstractView *to, const CustomNotificationPackage &package, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit custom notification to",
+                               category(),
+                               keyValue("caller location", sl)};
+
     d->notifyCustomNotificationTo(to, package);
 }
 
-void Model::sendCustomNotificationToNodeInstanceView(const CustomNotificationPackage &package)
+void Model::sendCustomNotificationToNodeInstanceView(const CustomNotificationPackage &package, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit custom notification to node instance view",
+                               category(),
+                               keyValue("caller location", sl)};
+
     if (auto view = d->nodeInstanceView())
         d->notifyCustomNotificationTo(view, package);
 }
 
-void Model::emitRewriterBeginTransaction()
+void Model::emitRewriterBeginTransaction(SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit rewriter begin transaction",
+                               category(),
+                               keyValue("caller location", sl)};
+
     d->notifyRewriterBeginTransaction();
 }
 
-void Model::emitRewriterEndTransaction()
+void Model::emitRewriterEndTransaction(SL sl)
 {
+    NanotraceHR::Tracer tracer{"model emit rewriter end transaction",
+                               category(),
+                               keyValue("caller location", sl)};
+
     d->notifyRewriterEndTransaction();
 }
 
@@ -2209,8 +2734,10 @@ void Model::detachAllViews()
     d->detachAllViews();
 }
 
-bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowHigherVersion) const
+bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowHigherVersion, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"model is import possible", category(), keyValue("caller location", sl)};
+
     if (imports().contains(import))
         return true;
 
@@ -2234,8 +2761,10 @@ bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowH
     return false;
 }
 
-QStringList Model::importPaths() const
+QStringList Model::importPaths(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"model import paths", category(), keyValue("caller location", sl)};
+
     if (rewriterView())
         return rewriterView()->importDirectories();
 
@@ -2246,8 +2775,12 @@ QStringList Model::importPaths() const
     return {};
 }
 
-Import Model::highestPossibleImport(const QString &importPath)
+Import Model::highestPossibleImport(const QString &importPath, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model highest possible import",
+                               category(),
+                               keyValue("caller location", sl)};
+
     Import candidate;
 
     for (const Import &import : possibleImports()) {
@@ -2265,8 +2798,10 @@ RewriterView *Model::rewriterView() const
     return d->rewriterView();
 }
 
-void Model::setRewriterView(RewriterView *rewriterView)
+void Model::setRewriterView(RewriterView *rewriterView, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model set rewriter view", category(), keyValue("caller location", sl)};
+
     d->setRewriterView(rewriterView);
 }
 
@@ -2275,8 +2810,12 @@ const AbstractView *Model::nodeInstanceView() const
     return d->nodeInstanceView();
 }
 
-void Model::setNodeInstanceView(AbstractView *nodeInstanceView)
+void Model::setNodeInstanceView(AbstractView *nodeInstanceView, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model set node instance view",
+                               category(),
+                               keyValue("caller location", sl)};
+
     d->setNodeInstanceView(nodeInstanceView);
 }
 
@@ -2293,21 +2832,32 @@ Model *Model::metaInfoProxyModel() const
 }
 
 void Model::setDocumentMessages(const QList<DocumentMessage> &errors,
-                                const QList<DocumentMessage> &warnings)
+                                const QList<DocumentMessage> &warnings,
+                                SL sl)
 {
+    NanotraceHR::Tracer tracer{"model set document messages",
+                               category(),
+                               keyValue("caller location", sl)};
+
     d->setDocumentMessages(errors, warnings);
 }
 
 /*!
  * \brief Returns list of selected nodes for a view
  */
-QList<ModelNode> Model::selectedNodes(AbstractView *view) const
+QList<ModelNode> Model::selectedNodes(AbstractView *view, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"model selected nodes", category(), keyValue("caller location", sl)};
+
     return d->toModelNodeList(d->selectedNodes(), view);
 }
 
-void Model::setSelectedModelNodes(Utils::span<const ModelNode> selectedNodes)
+void Model::setSelectedModelNodes(Utils::span<const ModelNode> selectedNodes, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model set selected model nodes",
+                               category(),
+                               keyValue("caller location", sl)};
+
     QList<ModelNode> unlockedNodes;
 
     for (const auto &modelNode : selectedNodes) {
@@ -2318,8 +2868,12 @@ void Model::setSelectedModelNodes(Utils::span<const ModelNode> selectedNodes)
     d->setSelectedNodes(toInternalNodeList<Internal::InternalNode::FewNodes>(unlockedNodes));
 }
 
-void Model::clearMetaInfoCache()
+void Model::clearMetaInfoCache(SL sl)
 {
+    NanotraceHR::Tracer tracer{"model clear meta info cache",
+                               category(),
+                               keyValue("caller location", sl)};
+
     d->m_nodeMetaInfoCache.clear();
 }
 
@@ -2341,22 +2895,32 @@ SourceId Model::fileUrlSourceId() const
   \brief Sets the URL against which relative URLs within the model should be resolved.
   \param url the base URL, i.e. the qml file path.
   */
-void Model::setFileUrl(const QUrl &url)
+void Model::setFileUrl(const QUrl &url, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model set file url", category(), keyValue("caller location", sl)};
+
     Internal::WriteLocker locker(d.get());
     d->setFileUrl(url);
 }
 
-bool Model::hasNodeMetaInfo(const TypeName &typeName, int majorVersion, int minorVersion) const
+bool Model::hasNodeMetaInfo(const TypeName &typeName, int majorVersion, int minorVersion, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"model has node meta info", category(), keyValue("caller location", sl)};
+
     return metaInfo(typeName, majorVersion, minorVersion).isValid();
 }
 
 #ifndef QDS_USE_PROJECTSTORAGE
+MetaInfo Model::metaInfo()
+{
+    return d->metaInfo();
+}
+
 const MetaInfo Model::metaInfo() const
 {
     return d->metaInfo();
 }
+
 void Model::setMetaInfo(const MetaInfo &metaInfo)
 {
     d->setMetaInfo(metaInfo);
@@ -2383,10 +2947,23 @@ NodeMetaInfo Model::doubleMetaInfo() const
     }
 }
 
-template<const auto &moduleName, const auto &typeName>
+NodeMetaInfo Model::floatMetaInfo() const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    using namespace Storage::Info;
+    using Storage::ModuleKind;
+
+    return {d->projectStorage->commonTypeId<QML, FloatType, ModuleKind::CppLibrary>(),
+            d->projectStorage};
+#else
+    return {};
+#endif
+}
+
+template<Storage::Info::StaticString moduleName, Storage::Info::StaticString typeName, Storage::ModuleKind moduleKind>
 NodeMetaInfo Model::createNodeMetaInfo() const
 {
-    auto typeId = d->projectStorage->commonTypeCache().typeId<moduleName, typeName>();
+    auto typeId = d->projectStorage->commonTypeCache().typeId<moduleName, typeName, moduleKind>();
 
     return {typeId, d->projectStorage};
 }
@@ -2521,56 +3098,6 @@ NodeMetaInfo Model::qtQuickPropertyChangesMetaInfo() const
     }
 }
 
-NodeMetaInfo Model::flowViewFlowActionAreaMetaInfo() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<FlowView, FlowActionArea>();
-    } else {
-        return metaInfo("FlowView.FlowActionArea");
-    }
-}
-
-NodeMetaInfo Model::flowViewFlowDecisionMetaInfo() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<FlowView, FlowDecision>();
-    } else {
-        return metaInfo("FlowView.FlowDecision");
-    }
-}
-
-NodeMetaInfo Model::flowViewFlowItemMetaInfo() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<FlowView, FlowItem>();
-    } else {
-        return metaInfo("FlowView.FlowItem");
-    }
-}
-
-NodeMetaInfo Model::flowViewFlowWildcardMetaInfo() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<FlowView, FlowWildcard>();
-    } else {
-        return metaInfo("FlowView.FlowWildcard");
-    }
-}
-
-NodeMetaInfo Model::flowViewFlowTransitionMetaInfo() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<FlowView, FlowTransition>();
-    } else {
-        return metaInfo("FlowView.FlowTransition");
-    }
-}
-
 NodeMetaInfo Model::qtQuickTextEditMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2581,21 +3108,21 @@ NodeMetaInfo Model::qtQuickTextEditMetaInfo() const
     }
 }
 
-NodeMetaInfo Model::qtQuickControlsLabelMetaInfo() const
+NodeMetaInfo Model::qtQuickTemplatesLabelMetaInfo() const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
     using namespace Storage::Info;
-    return createNodeMetaInfo<QtQuick_Controls, Label>();
+    return createNodeMetaInfo<QtQuick_Templates, Label>();
 #else
     return metaInfo("QtQuick.Controls.Label");
 #endif
 }
 
-NodeMetaInfo Model::qtQuickControlsTextAreaMetaInfo() const
+NodeMetaInfo Model::qtQuickTemplatesTextAreaMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick_Controls, TextArea>();
+        return createNodeMetaInfo<QtQuick_Templates, TextArea>();
     } else {
         return metaInfo("QtQuick.Controls.TextArea");
     }
@@ -2608,6 +3135,26 @@ NodeMetaInfo Model::qtQuick3DNodeMetaInfo() const
         return createNodeMetaInfo<QtQuick3D, Node>();
     } else {
         return metaInfo("QtQuick3D.Node");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DObject3DMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, Object3D>();
+    } else {
+        return metaInfo("QtQuick3D.Object3D");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DCameraMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, Camera>();
+    } else {
+        return metaInfo("QtQuick3D.Camera");
     }
 }
 
@@ -2660,6 +3207,7 @@ NodeMetaInfo Model::qtQuick3DPerspectiveCameraMetaInfo() const
         return metaInfo("QtQuick3D.PerspectiveCamera");
     }
 }
+
 NodeMetaInfo Model::qtQuick3DTextureMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2790,6 +3338,36 @@ NodeMetaInfo Model::qtQuickTransistionMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuickWindowMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, Window>();
+    } else {
+        return metaInfo("QtQuick.Window.Window");
+    }
+}
+
+NodeMetaInfo Model::qtQuickDialogsAbstractDialogMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick_Dialogs, QQuickAbstractDialog, Storage::ModuleKind::CppLibrary>();
+    } else {
+        return metaInfo("QtQuick.Dialogs.Dialog");
+    }
+}
+
+NodeMetaInfo Model::qtQuickTemplatesPopupMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick_Templates, Popup>();
+    } else {
+        return metaInfo("QtQuick.Controls.Popup");
+    }
+}
+
 NodeMetaInfo Model::qtQmlConnectionsMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2842,16 +3420,24 @@ NodeMetaInfo Model::vector4dMetaInfo() const
 
 #ifdef QDS_USE_PROJECTSTORAGE
 
-QVarLengthArray<NodeMetaInfo, 256> Model::metaInfosForModule(Module module) const
+QVarLengthArray<NodeMetaInfo, 256> Model::metaInfosForModule(Module module, SL sl) const
 {
-        using namespace Storage::Info;
+    NanotraceHR::Tracer tracer{"model meta infos for module",
+                               category(),
+                               keyValue("caller location", sl)};
 
-        return Utils::transform<QVarLengthArray<NodeMetaInfo, 256>>(
-            d->projectStorage->typeIds(module.id()), NodeMetaInfo::bind(d->projectStorage));
+    using namespace Storage::Info;
+
+    return Utils::transform<QVarLengthArray<NodeMetaInfo, 256>>(d->projectStorage->typeIds(module.id()),
+                                                                NodeMetaInfo::bind(d->projectStorage));
 }
 
-SmallNodeMetaInfos<256> Model::singletonMetaInfos() const
+SmallNodeMetaInfos<256> Model::singletonMetaInfos(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"model singleton meta infos",
+                               category(),
+                               keyValue("caller location", sl)};
+
     using namespace Storage::Info;
 
     return Utils::transform<QVarLengthArray<NodeMetaInfo, 256>>(d->projectStorage->singletonTypeIds(
@@ -2861,9 +3447,13 @@ SmallNodeMetaInfos<256> Model::singletonMetaInfos() const
 
 #endif
 
-QList<ItemLibraryEntry> Model::itemLibraryEntries() const
+QList<ItemLibraryEntry> Model::itemLibraryEntries([[maybe_unused]] SL sl) const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
+    NanotraceHR::Tracer tracer{"model item library entries",
+                               category(),
+                               keyValue("caller location", sl)};
+
     using namespace Storage::Info;
     return toItemLibraryEntries(*d->pathCache, d->projectStorage->itemLibraryEntries(d->m_sourceId));
 #else
@@ -2871,20 +3461,31 @@ QList<ItemLibraryEntry> Model::itemLibraryEntries() const
 #endif
 }
 
-QList<ItemLibraryEntry> Model::directoryImportsItemLibraryEntries() const
+QList<ItemLibraryEntry> Model::directoryImportsItemLibraryEntries([[maybe_unused]] SL sl) const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
+    NanotraceHR::Tracer tracer{"model directory imports item library entries",
+                               category(),
+                               keyValue("caller location", sl)};
+
     using namespace Storage::Info;
-    return toItemLibraryEntries(*d->pathCache,
-                                d->projectStorage->directoryImportsItemLibraryEntries(d->m_sourceId));
+    return toItemLibraryEntriesFromDirectory(*d->pathCache,
+                                             d->projectStorage->directoryImportsItemLibraryEntries(
+                                                 d->m_sourceId),
+                                             d->m_sourceId.directoryPathId(),
+                                             d->m_localPath);
 #else
     return {};
 #endif
 }
 
-QList<ItemLibraryEntry> Model::allItemLibraryEntries() const
+QList<ItemLibraryEntry> Model::allItemLibraryEntries([[maybe_unused]] SL sl) const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
+    NanotraceHR::Tracer tracer{"model all item library entries",
+                               category(),
+                               keyValue("caller location", sl)};
+
     using namespace Storage::Info;
     return toItemLibraryEntries(*d->pathCache, d->projectStorage->allItemLibraryEntries());
 #else
@@ -2925,48 +3526,61 @@ namespace {
 }
 } // namespace
 
-NodeMetaInfo Model::metaInfo(const TypeName &typeName,
+NodeMetaInfo Model::metaInfo(Utils::SmallStringView typeName,
                              [[maybe_unused]] int majorVersion,
-                             [[maybe_unused]] int minorVersion) const
+                             [[maybe_unused]] int minorVersion,
+                             [[maybe_unused]] SL sl) const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
-    return NodeMetaInfo(d->projectStorage->typeId(d->importedTypeNameId(typeName)), d->projectStorage);
+    NanotraceHR::Tracer tracer{"model meta info with type name",
+                               category(),
+                               keyValue("caller location", sl)};
+
+    return NodeMetaInfo(d->projectStorage->exportedTypeName(d->importedTypeNameId(typeName)).typeId,
+                        d->projectStorage);
 #else
-    return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
+    return NodeMetaInfo(metaInfoProxyModel(), QByteArray(typeName), majorVersion, minorVersion);
 #endif
 }
 
 NodeMetaInfo Model::metaInfo([[maybe_unused]] Module module,
                              [[maybe_unused]] Utils::SmallStringView typeName,
-                             [[maybe_unused]] Storage::Version version) const
+                             [[maybe_unused]] Storage::Version version,
+                             [[maybe_unused]] SL sl) const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
+    NanotraceHR::Tracer tracer{"model meta info with module",
+                               category(),
+                               keyValue("caller location", sl)};
+
     return NodeMetaInfo(d->projectStorage->typeId(module.id(), typeName, version), d->projectStorage);
 #else
     return {};
 #endif
 }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-MetaInfo Model::metaInfo()
+Module Model::module(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind, SL sl) const
 {
-    return d->metaInfo();
-}
-#endif
+    if constexpr (useProjectStorage()) {
+        NanotraceHR::Tracer tracer{"model get module", category(), keyValue("caller location", sl)};
 
-Module Model::module(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind)
-{
-    if constexpr (useProjectStorage())
-        return Module(d->projectStorage->moduleId(moduleName, moduleKind), d->projectStorage);
+        return Module(d->modulesStorage->moduleId(moduleName, moduleKind), d->projectStorage);
+    }
 
     return {};
 }
 
 SmallModuleIds<128> Model::moduleIdsStartsWith(Utils::SmallStringView startsWith,
-                                               Storage::ModuleKind kind) const
+                                               Storage::ModuleKind kind,
+                                               SL sl) const
 {
-    if constexpr (useProjectStorage())
-        return d->projectStorage->moduleIdsStartsWith(startsWith, kind);
+    if constexpr (useProjectStorage()) {
+        NanotraceHR::Tracer tracer{"model module ids starts with",
+                                   category(),
+                                   keyValue("caller location", sl)};
+
+        return d->modulesStorage->moduleIdsStartsWith(startsWith, kind);
+    }
 
     return {};
 }
@@ -2985,11 +3599,12 @@ The view is informed that it has been registered within the model by a call to A
 \param view The view object to register. Must be not null.
 \see detachView
 */
-void Model::attachView(AbstractView *view)
+void Model::attachView(AbstractView *view, SL sl)
 {
-    auto traceToken = d->traceToken.begin("attachView",
-                                          keyValue("name",
-                                                   std::string_view{view->metaObject()->className()}));
+    NanotraceHR::Tracer tracer{"model attach view",
+                               category(),
+                               keyValue("name", view->name()),
+                               keyValue("caller location", sl)};
 
     //    Internal::WriteLocker locker(d);
     if (view->kind() == AbstractView::Kind::Rewriter) {
@@ -3015,11 +3630,12 @@ void Model::attachView(AbstractView *view)
 
 \see attachView
 */
-void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
+void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify, SL sl)
 {
-    auto traceToken = d->traceToken.begin("detachView",
-                                          keyValue("name",
-                                                   std::string_view{view->metaObject()->className()}));
+    NanotraceHR::Tracer tracer{"model detach view",
+                               category(),
+                               keyValue("name", view->name()),
+                               keyValue("caller location", sl)};
 
     //    Internal::WriteLocker locker(d);
     bool emitNotify = (emitDetachNotify == NotifyView);
@@ -3030,23 +3646,33 @@ void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
     d->detachView(view, emitNotify);
 }
 
-QList<ModelNode> Model::allModelNodesUnordered()
+QList<ModelNode> Model::allModelNodesUnordered(SL sl)
 {
+    NanotraceHR::Tracer tracer{"model all model nodes unordered",
+                               category(),
+                               keyValue("caller location", sl)};
+
     return toModelNodeList(d->allNodesUnordered(), this);
 }
 
-ModelNode Model::rootModelNode()
+ModelNode Model::rootModelNode(SL sl)
 {
+    NanotraceHR::Tracer tracer{"model root model node", category(), keyValue("caller location", sl)};
+
     return ModelNode{d->rootNode(), this, nullptr};
 }
 
-ModelNode Model::modelNodeForId(const QString &id)
+ModelNode Model::modelNodeForId(const QString &id, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model model node for id", category(), keyValue("caller location", sl)};
+
     return ModelNode(d->nodeForId(id), this, nullptr);
 }
 
-QHash<QStringView, ModelNode> Model::idModelNodeDict()
+QHash<QStringView, ModelNode> Model::idModelNodeDict(SL sl)
 {
+    NanotraceHR::Tracer tracer{"model id model node dict", category(), keyValue("caller location", sl)};
+
     QHash<QStringView, ModelNode> idModelNodes;
 
     for (const auto &[key, internalNode] : d->m_idNodeHash.asKeyValueRange())
@@ -3068,9 +3694,11 @@ ModelNode createNode(Model *model,
 }
 } // namespace
 
-ModelNode Model::createModelNode(const TypeName &typeName)
+ModelNode Model::createModelNode(const TypeName &typeName, [[maybe_unused]] SL sl)
 {
 #ifdef QDS_USE_PROJECTSTORAGE
+    NanotraceHR::Tracer tracer{"model create model node", category(), keyValue("caller location", sl)};
+
     return createNode(this, d.get(), typeName, -1, -1);
 #else
     const NodeMetaInfo m = metaInfo(typeName);
@@ -3078,15 +3706,21 @@ ModelNode Model::createModelNode(const TypeName &typeName)
 #endif
 }
 
-void Model::changeRootNodeType(const TypeName &type)
+void Model::changeRootNodeType(const TypeName &type, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model change root node type",
+                               category(),
+                               keyValue("caller location", sl)};
+
     Internal::WriteLocker locker(this);
 
     d->changeRootNodeType(type, -1, -1);
 }
 
-void Model::removeModelNodes(ModelNodes nodes, BypassModelResourceManagement bypass)
+void Model::removeModelNodes(ModelNodes nodes, BypassModelResourceManagement bypass, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model remove model nodes", category(), keyValue("caller location", sl)};
+
     nodes.removeIf(std::logical_not{});
 
     if (nodes.empty())
@@ -3104,8 +3738,10 @@ void Model::removeModelNodes(ModelNodes nodes, BypassModelResourceManagement byp
     d->handleResourceSet(set);
 }
 
-void Model::removeProperties(AbstractProperties properties, BypassModelResourceManagement bypass)
+void Model::removeProperties(AbstractProperties properties, BypassModelResourceManagement bypass, SL sl)
 {
+    NanotraceHR::Tracer tracer{"model remove properties", category(), keyValue("caller location", sl)};
+
     properties.removeIf(std::logical_not{});
 
     if (properties.empty())

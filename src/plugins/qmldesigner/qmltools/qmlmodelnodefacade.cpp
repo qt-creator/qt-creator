@@ -6,12 +6,13 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
+using ModelTracing::category;
+
 AbstractView *QmlModelNodeFacade::view() const
 {
-    if (modelNode().isValid())
-        return modelNode().view();
-    else
-        return nullptr;
+    return m_modelNode.view();
 }
 
 Model *QmlModelNodeFacade::model() const
@@ -42,33 +43,36 @@ bool QmlModelNodeFacade::hasModelNode() const
     return m_modelNode.isValid();
 }
 
-bool QmlModelNodeFacade::isValid() const
+bool QmlModelNodeFacade::isValid(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"is valid qml model node facade",
+                               category(),
+                               keyValue("model node", m_modelNode),
+                               keyValue("caller location", sl)};
+
     return isValidQmlModelNodeFacade(m_modelNode);
 }
 
-namespace {
-bool workaroundForIsValidQmlModelNodeFacadeInTests = false;
-}
-
-bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode)
+bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode, SL sl)
 {
-    if (workaroundForIsValidQmlModelNodeFacadeInTests) {
-        return modelNode.isValid();
-    }
+    NanotraceHR::Tracer tracer{"is valid qml model node facade",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
 
     return modelNode.isValid() && nodeInstanceView(modelNode)
            && nodeInstanceView(modelNode)->hasInstanceForModelNode(modelNode)
            && nodeInstanceView(modelNode)->instanceForModelNode(modelNode).isValid();
 }
 
-bool QmlModelNodeFacade::isRootNode() const
+bool QmlModelNodeFacade::isRootNode(SL sl) const
 {
-    return modelNode().isRootNode();
+    NanotraceHR::Tracer tracer{"is root node",
+                               category(),
+                               keyValue("model node", m_modelNode),
+                               keyValue("caller location", sl)};
+
+    return m_modelNode.isRootNode();
 }
 
-void QmlModelNodeFacade::enableUglyWorkaroundForIsValidQmlModelNodeFacadeInTests()
-{
-    workaroundForIsValidQmlModelNodeFacadeInTests = true;
-}
 } //QmlDesigner

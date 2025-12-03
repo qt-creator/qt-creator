@@ -5,15 +5,20 @@
 
 #include "formeditoritem.h"
 #include "formeditorscene.h"
-#include "qmlanchors.h"
+#include "formeditortracing.h"
+
+#include <enumeration.h>
+#include <mathutils.h>
+#include <qmlanchors.h>
+
 #include <QDebug>
 #include <QtMath>
-#include "enumeration.h"
-#include "mathutils.h"
 
 #include <limits>
 
 namespace QmlDesigner {
+
+using FormEditorTracing::category;
 
 RotationManipulator::RotationManipulator(LayerItem *layerItem, FormEditorView *view)
     : m_view(view)
@@ -23,15 +28,20 @@ RotationManipulator::RotationManipulator(LayerItem *layerItem, FormEditorView *v
     , m_beginBottomMargin(0.0)
     , m_layerItem(layerItem)
 {
+    NanotraceHR::Tracer tracer{"rotation manipulator constructor", category()};
 }
 
 RotationManipulator::~RotationManipulator()
 {
+    NanotraceHR::Tracer tracer{"rotation manipulator destructor", category()};
+
     deleteSnapLines();
 }
 
 void RotationManipulator::setHandle(RotationHandleItem *rotationHandle)
 {
+    NanotraceHR::Tracer tracer{"rotation manipulator set handle", category()};
+
     Q_ASSERT(rotationHandle);
     m_rotationHandle = rotationHandle;
     m_rotationController = rotationHandle->rotationController();
@@ -40,22 +50,29 @@ void RotationManipulator::setHandle(RotationHandleItem *rotationHandle)
 
 void RotationManipulator::removeHandle()
 {
+    NanotraceHR::Tracer tracer{"rotation manipulator remove handle", category()};
+
     m_rotationController = RotationController();
     m_rotationHandle = nullptr;
 }
 
-void RotationManipulator::begin(const QPointF &/*beginPoint*/)
+void RotationManipulator::begin(const QPointF & /*beginPoint*/)
 {
+    NanotraceHR::Tracer tracer{"rotation manipulator begin", category()};
+
     if (m_rotationController.isValid()) {
         m_isActive = true;
         m_beginBoundingRect = m_rotationController.formEditorItem()->qmlItemNode().instanceBoundingRect();
-        m_beginFromContentItemToSceneTransform = m_rotationController.formEditorItem()->instanceSceneContentItemTransform();
+        m_beginFromContentItemToSceneTransform = m_rotationController.formEditorItem()
+                                                     ->instanceSceneContentItemTransform();
         m_beginFromSceneToContentItemTransform = m_beginFromContentItemToSceneTransform.inverted();
         m_beginFromItemToSceneTransform = m_rotationController.formEditorItem()->instanceSceneTransform();
         m_beginToParentTransform = m_rotationController.formEditorItem()->qmlItemNode().instanceTransform();
-        m_rewriterTransaction = m_view->beginRewriterTransaction(QByteArrayLiteral("RotationManipulator::begin"));
+        m_rewriterTransaction = m_view->beginRewriterTransaction(
+            QByteArrayLiteral("RotationManipulator::begin"));
         m_rewriterTransaction.ignoreSemanticChecks();
-        m_beginBottomRightPoint = m_beginToParentTransform.map(m_rotationController.formEditorItem()->qmlItemNode().instanceBoundingRect().bottomRight());
+        m_beginBottomRightPoint = m_beginToParentTransform.map(
+            m_rotationController.formEditorItem()->qmlItemNode().instanceBoundingRect().bottomRight());
 
         QmlAnchors anchors(m_rotationController.formEditorItem()->qmlItemNode().anchors());
         m_beginTopMargin = anchors.instanceMargin(AnchorLineTop);
@@ -68,8 +85,10 @@ void RotationManipulator::begin(const QPointF &/*beginPoint*/)
     }
 }
 
-void RotationManipulator::update(const QPointF& updatePoint, Qt::KeyboardModifiers keyMods)
+void RotationManipulator::update(const QPointF &updatePoint, Qt::KeyboardModifiers keyMods)
 {
+    NanotraceHR::Tracer tracer{"rotation manipulator update", category()};
+
     if (m_rotationController.isValid()) {
         FormEditorItem *formEditorItem = m_rotationController.formEditorItem();
 
@@ -87,50 +106,41 @@ void RotationManipulator::update(const QPointF& updatePoint, Qt::KeyboardModifie
             const QString originStr = a.nameToString();
             if (originStr == "TopLeft") {
                 transformOrigin = boundingRect.topLeft();
-            }
-            else if (originStr == "Top") {
+            } else if (originStr == "Top") {
                 transformOrigin.setX(boundingRect.center().x());
                 transformOrigin.setY(boundingRect.top());
-            }
-            else if (originStr == "TopRight") {
+            } else if (originStr == "TopRight") {
                 transformOrigin = boundingRect.topRight();
-            }
-            else if (originStr == "Right") {
+            } else if (originStr == "Right") {
                 transformOrigin.setX(boundingRect.right());
                 transformOrigin.setY(boundingRect.center().y());
-            }
-            else if (originStr == "BottomRight") {
+            } else if (originStr == "BottomRight") {
                 transformOrigin = boundingRect.bottomRight();
-            }
-            else if (originStr == "Bottom") {
+            } else if (originStr == "Bottom") {
                 transformOrigin.setX(boundingRect.center().x());
                 transformOrigin.setY(boundingRect.bottom());
-            }
-            else if (originStr == "BottomLeft") {
+            } else if (originStr == "BottomLeft") {
                 transformOrigin = boundingRect.bottomLeft();
-            }
-            else if (originStr == "Left") {
+            } else if (originStr == "Left") {
                 transformOrigin.setX(boundingRect.left());
                 transformOrigin.setY(boundingRect.center().y());
-            }
-            else {
+            } else {
                 //center and anything else
                 transformOrigin = boundingRect.center();
             }
-        }
-        else {
+        } else {
             transformOrigin = boundingRect.center();
         }
 
-        auto angleCalc = [](const QPointF &origin, const QPointF &position){
+        auto angleCalc = [](const QPointF &origin, const QPointF &position) {
             const qreal deltaX = origin.x() - position.x();
             const qreal deltaY = origin.y() - position.y();
 
             return qRadiansToDegrees(qAtan2(deltaY, deltaX));
         };
 
-        auto snapCalc = [](const qreal angle, const qreal snap){
-            return qRound(angle/snap)*snap;
+        auto snapCalc = [](const qreal angle, const qreal snap) {
+            return qRound(angle / snap) * snap;
         };
 
         auto resultCalc = [&](qreal cursorAngle, qreal handleAngle) {
@@ -164,31 +174,34 @@ void RotationManipulator::update(const QPointF& updatePoint, Qt::KeyboardModifie
                 transformOrigin = boundingRect.center();
 
             const qreal handleAngle = angleCalc(transformOrigin, topLeftHandle);
-            formEditorItem->qmlItemNode().setRotation(resultCalc(cursorAngle + m_beginRotation, handleAngle));
-        }
-        else if (m_rotationHandle->isTopRightHandle()) {
+            formEditorItem->qmlItemNode().setRotation(
+                resultCalc(cursorAngle + m_beginRotation, handleAngle));
+        } else if (m_rotationHandle->isTopRightHandle()) {
             if (transformOrigin == topRightHandle)
                 transformOrigin = boundingRect.center();
             const qreal handleAngle = angleCalc(transformOrigin, topRightHandle);
-            formEditorItem->qmlItemNode().setRotation(resultCalc(cursorAngle + m_beginRotation, handleAngle));
-        }
-        else if (m_rotationHandle->isBottomRightHandle()) {
+            formEditorItem->qmlItemNode().setRotation(
+                resultCalc(cursorAngle + m_beginRotation, handleAngle));
+        } else if (m_rotationHandle->isBottomRightHandle()) {
             if (transformOrigin == bottomRightHandle)
                 transformOrigin = boundingRect.center();
             const qreal handleAngle = angleCalc(transformOrigin, bottomRightHandle);
-            formEditorItem->qmlItemNode().setRotation(resultCalc(cursorAngle + m_beginRotation, handleAngle));
-        }
-        else if (m_rotationHandle->isBottomLeftHandle()) {
+            formEditorItem->qmlItemNode().setRotation(
+                resultCalc(cursorAngle + m_beginRotation, handleAngle));
+        } else if (m_rotationHandle->isBottomLeftHandle()) {
             if (transformOrigin == bottomLeftHandle)
                 transformOrigin = boundingRect.center();
             const qreal handleAngle = angleCalc(transformOrigin, bottomLeftHandle);
-            formEditorItem->qmlItemNode().setRotation(resultCalc(cursorAngle + m_beginRotation, handleAngle));
+            formEditorItem->qmlItemNode().setRotation(
+                resultCalc(cursorAngle + m_beginRotation, handleAngle));
         }
     }
 }
 
 void RotationManipulator::end()
 {
+    NanotraceHR::Tracer tracer{"rotation manipulator end", category()};
+
     m_isActive = false;
     m_rewriterTransaction.commit();
     clear();
@@ -197,6 +210,8 @@ void RotationManipulator::end()
 
 void RotationManipulator::deleteSnapLines()
 {
+    NanotraceHR::Tracer tracer{"rotation manipulator delete snap lines", category()};
+
     if (m_layerItem) {
         for (QGraphicsItem *item : std::as_const(m_graphicsLineList)) {
             m_layerItem->scene()->removeItem(item);
@@ -215,6 +230,8 @@ RotationHandleItem *RotationManipulator::rotationHandle()
 
 void RotationManipulator::clear()
 {
+    NanotraceHR::Tracer tracer{"rotation manipulator clear", category()};
+
     m_rewriterTransaction.commit();
 
     deleteSnapLines();
@@ -234,5 +251,4 @@ bool RotationManipulator::isActive() const
 {
     return m_isActive;
 }
-
-}
+} // namespace QmlDesigner

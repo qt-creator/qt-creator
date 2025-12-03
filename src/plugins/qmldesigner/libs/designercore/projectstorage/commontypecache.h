@@ -6,6 +6,8 @@
 #include "projectstoragetypes.h"
 
 #include <modelfwd.h>
+#include <modulesstorage/modulesstorage.h>
+#include <tracing/qmldesignertracing.h>
 
 #include <algorithm>
 #include <tuple>
@@ -24,127 +26,126 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner::Storage::Info {
 
-inline constexpr char Affector3D[] = "Affector3D";
-inline constexpr char ArcItem[] = "ArcItem";
-inline constexpr char Attractor3D[] = "Attractor3D";
-inline constexpr char BakedLightmap[] = "BakedLightmap";
-inline constexpr char BoolType[] = "bool";
-inline constexpr char BorderImage[] = "BorderImage";
-inline constexpr char Buffer[] = "Buffer";
-inline constexpr char Camera[] = "Camera";
-inline constexpr char Command[] = "Command";
-inline constexpr char Component[] = "Component";
-inline constexpr char Connections[] = "Connections";
-inline constexpr char Control[] = "Control";
-inline constexpr char CubeMapTexture[] = "CubeMapTexture";
-inline constexpr char DefaultMaterial[] = "DefaultMaterial";
-inline constexpr char Dialog[] = "Dialog";
-inline constexpr char DirectionalLight[] = "DirectionalLight";
-inline constexpr char DoubleType[] = "double";
-inline constexpr char Effect[] = "Effect";
-inline constexpr char FloatType[] = "float";
-inline constexpr char FlowActionArea[] = "FlowActionArea";
-inline constexpr char FlowDecision[] = "FlowDecision";
-inline constexpr char FlowItem[] = "FlowItem";
-inline constexpr char FlowTransition[] = "FlowTransition";
-inline constexpr char FlowView[] = "FlowView";
-inline constexpr char FlowWildcard[] = "FlowWildcard";
-inline constexpr char Gradient[] = "Gradient";
-inline constexpr char GridView[] = "GridView";
-inline constexpr char GroupItem[] = "GroupItem";
-inline constexpr char Image[] = "Image";
-inline constexpr char InstanceListEntry[] = "InstanceListEntry";
-inline constexpr char InstanceList[] = "InstanceList";
-inline constexpr char IntType[] = "int";
-inline constexpr char Item[] = "Item";
-inline constexpr char JsonListModel[] = "JsonListModel";
-inline constexpr char KeyframeGroup[] = "KeyframeGroup";
-inline constexpr char Keyframe[] = "Keyframe";
-inline constexpr char Label[] = "Label";
-inline constexpr char Layout[] = "Layout";
-inline constexpr char Light[] = "Light";
-inline constexpr char ListElement[] = "ListElement";
-inline constexpr char ListModel[] = "ListModel";
-inline constexpr char ListView[] = "ListView";
-inline constexpr char Loader[] = "Loader";
-inline constexpr char Material[] = "Material";
-inline constexpr char Model[] = "Model";
-inline constexpr char MouseArea[] = "MouseArea";
-inline constexpr char Node[] = "Node";
-inline constexpr char OrthographicCamera[] = "OrthographicCamera";
-inline constexpr char Particle3D[] = "Particle3D";
-inline constexpr char ParticleEmitter3D[] = "ParticleEmitter3D";
-inline constexpr char Pass[] = "Pass";
-inline constexpr char PathView[] = "PathView";
-inline constexpr char Path[] = "Path";
-inline constexpr char PauseAnimation[] = "PauseAnimation";
-inline constexpr char PerspectiveCamera[] = "PerspectiveCamera";
-inline constexpr char Picture[] = "Picture";
-inline constexpr char PointLight[] = "PointLight";
-inline constexpr char Popup[] = "Popup";
-inline constexpr char Positioner[] = "Positioner";
-inline constexpr char PrincipledMaterial[] = "PrincipledMaterial";
-inline constexpr char PropertyAnimation[] = "PropertyAnimation";
-inline constexpr char PropertyChanges[] = "PropertyChanges";
-inline constexpr char QML[] = "QML";
-inline constexpr char QQuick3DParticleAbstractShape[] = "QQuick3DParticleAbstractShape";
-inline constexpr char QQuickStateOperation[] = "QQuickStateOperation";
-inline constexpr char QtMultimedia[] = "QtMultimedia";
-inline constexpr char QtObject[] = "QtObject";
-inline constexpr char QtQml[] = "QtQml";
-inline constexpr char QtQml_Models[] = "QtQml.Models";
-inline constexpr char QtQml_XmlListModel[] = "QtQml.XmlListModel";
-inline constexpr char QtQuick3D[] = "QtQuick3D";
-inline constexpr char QtQuick3D_Particles3D[] = "QtQuick3D.Particles3D";
-inline constexpr char QtQuick[] = "QtQuick";
-inline constexpr char QtQuick_Controls[] = "QtQuick.Controls";
-inline constexpr char QtQuick_Dialogs[] = "QtQuick.Dialogs";
-inline constexpr char QtQuick_Extras[] = "QtQuick.Extras";
-inline constexpr char QtQuick_Layouts[] = "QtQuick.Layouts";
-inline constexpr char QtQuick_Shapes[] = "QtQuick.Shapes";
-inline constexpr char QtQuick_Studio_Components[] = "QtQuick.Studio.Components";
-inline constexpr char QtQuick_Templates[] = "QtQuick.Templates";
-inline constexpr char QtQuick_Timeline[] = "QtQuick.Timeline";
-inline constexpr char QtQuick_Window[] = "QtQuick.Window";
-inline constexpr char Qt_SafeRenderer[] = "Qt.SafeRenderer";
-inline constexpr char Rectangle[] = "Rectangle";
-inline constexpr char Repeater[] = "Repeater";
-inline constexpr char SafePicture[] = "SafePicture";
-inline constexpr char SafeRendererPicture[] = "SafeRendererPicture";
-inline constexpr char SceneEnvironment[] = "SceneEnvironment";
-inline constexpr char Shader[] = "Shader";
-inline constexpr char Shape[] = "Shape";
-inline constexpr char SoundEffect[] = "SoundEffect";
-inline constexpr char SpecularGlossyMaterial[] = "SpecularGlossyMaterial";
-inline constexpr char SplitView[] = "SplitView";
-inline constexpr char SpotLight[] = "SpotLight";
-inline constexpr char SpriteParticle3D[] = "SpriteParticle3D";
-inline constexpr char StateGroup[] = "StateGroup";
-inline constexpr char State[] = "State";
-inline constexpr char SvgPathItem[] = "SvgPathItem";
-inline constexpr char SwipeView[] = "SwipeView";
-inline constexpr char TabBar[] = "TabBar";
-inline constexpr char TextArea[] = "TextArea";
-inline constexpr char TextEdit[] = "TextEdit";
-inline constexpr char Text[] = "Text";
-inline constexpr char TextureInput[] = "TextureInput";
-inline constexpr char Texture[] = "Texture";
-inline constexpr char TimelineAnimation[] = "TimelineAnimation";
-inline constexpr char Timeline[] = "Timeline";
-inline constexpr char Transition[] = "Transition";
-inline constexpr char UIntType[] = "uint";
-inline constexpr char View3D[] = "View3D";
-inline constexpr char Window[] = "Window";
-inline constexpr char XmlListModelRole[] = "XmlListModelRole";
-inline constexpr char color[] = "color";
-inline constexpr char date[] = "date";
-inline constexpr char font[] = "font";
-inline constexpr char string[] = "string";
-inline constexpr char url[] = "url";
-inline constexpr char var[] = "var";
-inline constexpr char vector2d[] = "vector2d";
-inline constexpr char vector3d[] = "vector3d";
-inline constexpr char vector4d[] = "vector4d";
+inline constexpr StaticString Affector3D = {"Affector3D"};
+inline constexpr StaticString ArcItem = {"ArcItem"};
+inline constexpr StaticString Attractor3D = {"Attractor3D"};
+inline constexpr StaticString BakedLightmap = {"BakedLightmap"};
+inline constexpr StaticString BoolType = {"bool"};
+inline constexpr StaticString BorderImage = {"BorderImage"};
+inline constexpr StaticString Buffer = {"Buffer"};
+inline constexpr StaticString Camera = {"Camera"};
+inline constexpr StaticString ColumnLayout = {"ColumnLayout"};
+inline constexpr StaticString Column = {"Column"};
+inline constexpr StaticString Command = {"Command"};
+inline constexpr StaticString Component = {"Component"};
+inline constexpr StaticString Connections = {"Connections"};
+inline constexpr StaticString Control = {"Control"};
+inline constexpr StaticString CubeMapTexture = {"CubeMapTexture"};
+inline constexpr StaticString DefaultMaterial = {"DefaultMaterial"};
+inline constexpr StaticString DirectionalLight = {"DirectionalLight"};
+inline constexpr StaticString DoubleType = {"double"};
+inline constexpr StaticString Effect = {"Effect"};
+inline constexpr StaticString FloatType = {"float"};
+inline constexpr StaticString Flow = {"Flow"};
+inline constexpr StaticString Gradient = {"Gradient"};
+inline constexpr StaticString GridLayout = {"GridLayout"};
+inline constexpr StaticString GridView = {"GridView"};
+inline constexpr StaticString Grid = {"Grid"};
+inline constexpr StaticString GroupItem = {"GroupItem"};
+inline constexpr StaticString Image = {"Image"};
+inline constexpr StaticString InstanceListEntry = {"InstanceListEntry"};
+inline constexpr StaticString InstanceList = {"InstanceList"};
+inline constexpr StaticString IntType = {"int"};
+inline constexpr StaticString Item = {"Item"};
+inline constexpr StaticString JsonListModel = {"JsonListModel"};
+inline constexpr StaticString KeyframeGroup = {"KeyframeGroup"};
+inline constexpr StaticString Keyframe = {"Keyframe"};
+inline constexpr StaticString Label = {"Label"};
+inline constexpr StaticString Layout = {"Layout"};
+inline constexpr StaticString Light = {"Light"};
+inline constexpr StaticString ListElement = {"ListElement"};
+inline constexpr StaticString ListModel = {"ListModel"};
+inline constexpr StaticString ListView = {"ListView"};
+inline constexpr StaticString Loader = {"Loader"};
+inline constexpr StaticString Material = {"Material"};
+inline constexpr StaticString Model = {"Model"};
+inline constexpr StaticString MouseArea = {"MouseArea"};
+inline constexpr StaticString Node = {"Node"};
+inline constexpr StaticString Object3D = {"Object3D"};
+inline constexpr StaticString OrthographicCamera = {"OrthographicCamera"};
+inline constexpr StaticString Particle3D = {"Particle3D"};
+inline constexpr StaticString ParticleEmitter3D = {"ParticleEmitter3D"};
+inline constexpr StaticString Pass = {"Pass"};
+inline constexpr StaticString PathView = {"PathView"};
+inline constexpr StaticString Path = {"Path"};
+inline constexpr StaticString PauseAnimation = {"PauseAnimation"};
+inline constexpr StaticString PerspectiveCamera = {"PerspectiveCamera"};
+inline constexpr StaticString Picture = {"Picture"};
+inline constexpr StaticString PointLight = {"PointLight"};
+inline constexpr StaticString Popup = {"Popup"};
+inline constexpr StaticString Positioner = {"Positioner"};
+inline constexpr StaticString PrincipledMaterial = {"PrincipledMaterial"};
+inline constexpr StaticString PropertyAnimation = {"PropertyAnimation"};
+inline constexpr StaticString PropertyChanges = {"PropertyChanges"};
+inline constexpr StaticString QML = {"QML"};
+inline constexpr StaticString QQuick3DParticleAbstractShape = {"QQuick3DParticleAbstractShape"};
+inline constexpr StaticString QQuickAbstractDialog = {"QQuickAbstractDialog"};
+inline constexpr StaticString QQuickStateOperation = {"QQuickStateOperation"};
+inline constexpr StaticString QtMultimedia = {"QtMultimedia"};
+inline constexpr StaticString QtObject = {"QtObject"};
+inline constexpr StaticString QtQml = {"QtQml"};
+inline constexpr StaticString QtQml_Models = {"QtQml.Models"};
+inline constexpr StaticString QtQml_XmlListModel = {"QtQml.XmlListModel"};
+inline constexpr StaticString QtQuick3D = {"QtQuick3D"};
+inline constexpr StaticString QtQuick3D_Particles3D = {"QtQuick3D.Particles3D"};
+inline constexpr StaticString QtQuick = {"QtQuick"};
+inline constexpr StaticString QtQuick_Dialogs = {"QtQuick.Dialogs"};
+inline constexpr StaticString QtQuick_Layouts = {"QtQuick.Layouts"};
+inline constexpr StaticString QtQuick_Shapes = {"QtQuick.Shapes"};
+inline constexpr StaticString QtQuick_Studio_Components = {"QtQuick.Studio.Components"};
+inline constexpr StaticString QtQuick_Templates = {"QtQuick.Templates"};
+inline constexpr StaticString QtQuick_Timeline = {"QtQuick.Timeline"};
+inline constexpr StaticString Qt_SafeRenderer = {"Qt.SafeRenderer"};
+inline constexpr StaticString Rectangle = {"Rectangle"};
+inline constexpr StaticString Repeater = {"Repeater"};
+inline constexpr StaticString RowLayout = {"RowLayout"};
+inline constexpr StaticString Row = {"Row"};
+inline constexpr StaticString SafePicture = {"SafePicture"};
+inline constexpr StaticString SafeRendererPicture = {"SafeRendererPicture"};
+inline constexpr StaticString SceneEnvironment = {"SceneEnvironment"};
+inline constexpr StaticString Shader = {"Shader"};
+inline constexpr StaticString Shape = {"Shape"};
+inline constexpr StaticString SoundEffect = {"SoundEffect"};
+inline constexpr StaticString SpecularGlossyMaterial = {"SpecularGlossyMaterial"};
+inline constexpr StaticString SplitView = {"SplitView"};
+inline constexpr StaticString SpotLight = {"SpotLight"};
+inline constexpr StaticString SpriteParticle3D = {"SpriteParticle3D"};
+inline constexpr StaticString StateGroup = {"StateGroup"};
+inline constexpr StaticString State = {"State"};
+inline constexpr StaticString SvgPathItem = {"SvgPathItem"};
+inline constexpr StaticString SwipeView = {"SwipeView"};
+inline constexpr StaticString TabBar = {"TabBar"};
+inline constexpr StaticString TextArea = {"TextArea"};
+inline constexpr StaticString TextEdit = {"TextEdit"};
+inline constexpr StaticString Text = {"Text"};
+inline constexpr StaticString TextureInput = {"TextureInput"};
+inline constexpr StaticString Texture = {"Texture"};
+inline constexpr StaticString TimelineAnimation = {"TimelineAnimation"};
+inline constexpr StaticString Timeline = {"Timeline"};
+inline constexpr StaticString Transition = {"Transition"};
+inline constexpr StaticString UIntType = {"uint"};
+inline constexpr StaticString View3D = {"View3D"};
+inline constexpr StaticString Window = {"Window"};
+inline constexpr StaticString XmlListModelRole = {"XmlListModelRole"};
+inline constexpr StaticString color = {"color"};
+inline constexpr StaticString date = {"date"};
+inline constexpr StaticString font = {"font"};
+inline constexpr StaticString string = {"string"};
+inline constexpr StaticString url = {"url"};
+inline constexpr StaticString var = {"var"};
+inline constexpr StaticString vector2d = {"vector2d"};
+inline constexpr StaticString vector3d = {"vector3d"};
+inline constexpr StaticString vector4d = {"vector4d"};
 
 struct BaseCacheType
 {
@@ -152,7 +153,7 @@ struct BaseCacheType
     QmlDesigner::TypeId typeId;
 };
 
-template<const char *moduleName_, ModuleKind moduleKind, const char *typeName_>
+template<StaticString moduleName, ModuleKind moduleKind, StaticString typeName>
 struct CacheType : public BaseCacheType
 {
 };
@@ -161,12 +162,6 @@ template<typename ProjectStorage>
 class CommonTypeCache
 {
     using CommonTypes = std::tuple<
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowActionArea>,
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowDecision>,
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowItem>,
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowTransition>,
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowView>,
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowWildcard>,
         CacheType<QML, ModuleKind::CppLibrary, FloatType>,
         CacheType<QML, ModuleKind::CppLibrary, UIntType>,
         CacheType<QML, ModuleKind::QmlLibrary, BoolType>,
@@ -184,8 +179,11 @@ class CommonTypeCache
         CacheType<QtQml_Models, ModuleKind::QmlLibrary, ListModel>,
         CacheType<QtQml_XmlListModel, ModuleKind::QmlLibrary, XmlListModelRole>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, BorderImage>,
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Column>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Gradient>,
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Grid>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, GridView>,
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Flow>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Image>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Item>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, ListView>,
@@ -199,6 +197,7 @@ class CommonTypeCache
         CacheType<QtQuick, ModuleKind::QmlLibrary, PropertyChanges>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Rectangle>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Repeater>,
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Row>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, State>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, StateGroup>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Text>,
@@ -223,6 +222,7 @@ class CommonTypeCache
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Material>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Model>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Node>,
+        CacheType<QtQuick3D, ModuleKind::QmlLibrary, Object3D>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, OrthographicCamera>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Pass>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, PerspectiveCamera>,
@@ -242,22 +242,23 @@ class CommonTypeCache
         CacheType<QtQuick3D_Particles3D, ModuleKind::QmlLibrary, ParticleEmitter3D>,
         CacheType<QtQuick3D_Particles3D, ModuleKind::QmlLibrary, SpriteParticle3D>,
         CacheType<QtQuick3D_Particles3D, ModuleKind::CppLibrary, QQuick3DParticleAbstractShape>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, Control>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, Label>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, Popup>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, SplitView>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, SwipeView>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, TabBar>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, TextArea>,
-        CacheType<QtQuick_Dialogs, ModuleKind::QmlLibrary, Dialog>,
-        CacheType<QtQuick_Extras, ModuleKind::QmlLibrary, Picture>,
+        CacheType<QtQuick_Dialogs, ModuleKind::CppLibrary, QQuickAbstractDialog>,
+        CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, ColumnLayout>,
+        CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, GridLayout>,
         CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, Layout>,
+        CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, RowLayout>,
         CacheType<QtQuick_Shapes, ModuleKind::QmlLibrary, Shape>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, ArcItem>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, GroupItem>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, JsonListModel>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, SvgPathItem>,
         CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, Control>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, Label>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, Popup>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, SplitView>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, SwipeView>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, TabBar>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, TextArea>,
         CacheType<QtQuick_Timeline, ModuleKind::QmlLibrary, Keyframe>,
         CacheType<QtQuick_Timeline, ModuleKind::QmlLibrary, KeyframeGroup>,
         CacheType<QtQuick_Timeline, ModuleKind::QmlLibrary, Timeline>,
@@ -265,12 +266,15 @@ class CommonTypeCache
         CacheType<QtQuick, ModuleKind::CppLibrary, QQuickStateOperation>,
         CacheType<Qt_SafeRenderer, ModuleKind::QmlLibrary, SafePicture>,
         CacheType<Qt_SafeRenderer, ModuleKind::QmlLibrary, SafeRendererPicture>,
-        CacheType<QtQuick_Window, ModuleKind::QmlLibrary, Window>>;
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Window>>;
 
 public:
-    CommonTypeCache(const ProjectStorage &projectStorage)
+    CommonTypeCache(const ProjectStorage &projectStorage, ModulesStorage &modulesStorage)
         : m_projectStorage{projectStorage}
+        , m_modulesStorage{modulesStorage}
     {
+        NanotraceHR::Tracer tracer{"common type cache constructor", ModelTracing::category()};
+
         m_typesWithoutProperties.fill(TypeId{});
     }
 
@@ -279,38 +283,53 @@ public:
     CommonTypeCache(CommonTypeCache &&) = default;
     CommonTypeCache &operator=(CommonTypeCache &&) = default;
 
-    void resetTypeIds()
+    void refreshTypeIds()
     {
+        NanotraceHR::Tracer tracer{"common type cache type ids refresh", ModelTracing::category()};
+
         std::apply([](auto &...type) { ((type.typeId = QmlDesigner::TypeId{}), ...); }, m_types);
+
+        std::apply([&](auto &...type) { (refreshTypedId(type), ...); }, m_types);
 
         updateTypeIdsWithoutProperties();
     }
 
     void clearForTestsOnly()
     {
+        NanotraceHR::Tracer tracer{"common type cache type ids clear for tests only",
+                                   ModelTracing::category()};
+
         std::apply([](auto &...type) { ((type.typeId = QmlDesigner::TypeId{}), ...); }, m_types);
         std::fill(std::begin(m_typesWithoutProperties), std ::end(m_typesWithoutProperties), TypeId{});
     }
 
-    template<const char *moduleName, const char *typeName, ModuleKind moduleKind = ModuleKind::QmlLibrary>
+    template<StaticString moduleName, StaticString typeName, ModuleKind moduleKind = ModuleKind::QmlLibrary>
     TypeId typeId() const
     {
-        auto &type = std::get<CacheType<moduleName, moduleKind, typeName>>(m_types);
-        if (type.typeId)
-            return type.typeId;
+        NanotraceHR::Tracer tracer{"common type cache type id for module and type name",
+                                   ModelTracing::category(),
+                                   NanotraceHR::keyValue("module", moduleName),
+                                   NanotraceHR::keyValue("type", typeName)};
 
-        return refreshTypedId(type, moduleName, moduleKind, typeName);
+        const auto &type = std::get<CacheType<moduleName, moduleKind, typeName>>(m_types);
+
+        return type.typeId;
     }
 
-    template<const char *typeName>
+    template<StaticString typeName>
     TypeId builtinTypeId() const
     {
+        NanotraceHR::Tracer tracer{"common type cache type id for built-in type",
+                                   ModelTracing::category()};
         return typeId<QML, typeName>();
     }
 
     template<typename Type>
     TypeId builtinTypeId() const
     {
+        NanotraceHR::Tracer tracer{"common type cache type id for built-in type",
+                                   ModelTracing::category()};
+
         if constexpr (std::is_same_v<Type, double>)
             return typeId<QML, DoubleType>();
         else if constexpr (std::is_same_v<Type, int>)
@@ -348,65 +367,55 @@ public:
     }
 
 private:
-    TypeId refreshTypedId(BaseCacheType &type,
-                          ::Utils::SmallStringView moduleName,
-                          ModuleKind moduleKind,
-                          ::Utils::SmallStringView typeName) const
+    void refreshTypedIdWithoutTransaction(BaseCacheType &type,
+                                          Utils::SmallStringView moduleName,
+                                          Utils::SmallStringView typeName,
+                                          ModuleKind moduleKind) const
     {
+        NanotraceHR::Tracer tracer{"common type cache refresh type it without transaction",
+                                   ModelTracing::category()};
+
         if (!type.moduleId)
-            type.moduleId = m_projectStorage.moduleId(moduleName, moduleKind);
-
-        type.typeId = m_projectStorage.typeId(type.moduleId, typeName, Storage::Version{});
-
-        return type.typeId;
-    }
-
-    TypeId refreshTypedIdWithoutTransaction(BaseCacheType &type,
-                                            ::Utils::SmallStringView moduleName,
-                                            ::Utils::SmallStringView typeName,
-                                            ModuleKind moduleKind) const
-    {
-        if (!type.moduleId)
-            type.moduleId = m_projectStorage.fetchModuleIdUnguarded(moduleName, moduleKind);
+            type.moduleId = m_modulesStorage.moduleId(moduleName, moduleKind);
 
         type.typeId = m_projectStorage.fetchTypeIdByModuleIdAndExportedName(type.moduleId, typeName);
+    }
 
-        return type.typeId;
+    template<StaticString moduleName, ModuleKind moduleKind, StaticString typeName>
+    void refreshTypedId(CacheType<moduleName, moduleKind, typeName> &type) const
+    {
+        refreshTypedIdWithoutTransaction(type, moduleName, typeName, moduleKind);
     }
 
     template<std::size_t size>
     void setupTypeIdsWithoutProperties(const TypeId (&typeIds)[size])
     {
+        NanotraceHR::Tracer tracer{"common type cache setup type ids without properties",
+                                   ModelTracing::category()};
+
         static_assert(size == std::tuple_size_v<TypeIdsWithoutProperties>,
                       "array size must match type id count!");
         std::copy(std::begin(typeIds), std::end(typeIds), std::begin(m_typesWithoutProperties));
     }
 
-    template<const char *moduleName, const char *typeName, ModuleKind moduleKind = ModuleKind::QmlLibrary>
-    TypeId typeIdWithoutTransaction() const
-    {
-        auto &type = std::get<CacheType<moduleName, moduleKind, typeName>>(m_types);
-        if (type.typeId)
-            return type.typeId;
-
-        return refreshTypedIdWithoutTransaction(type, moduleName, typeName, moduleKind);
-    }
-
     void updateTypeIdsWithoutProperties()
     {
-        setupTypeIdsWithoutProperties(
-            {typeIdWithoutTransaction<QML, BoolType>(),
-             typeIdWithoutTransaction<QML, IntType>(),
-             typeIdWithoutTransaction<QML, UIntType, ModuleKind::CppLibrary>(),
-             typeIdWithoutTransaction<QML, DoubleType>(),
-             typeIdWithoutTransaction<QML, FloatType, ModuleKind::CppLibrary>(),
-             typeIdWithoutTransaction<QML, date>(),
-             typeIdWithoutTransaction<QML, string>(),
-             typeIdWithoutTransaction<QML, url>()});
+        NanotraceHR::Tracer tracer{"common type cache type ids without properties update",
+                                   ModelTracing::category()};
+
+        setupTypeIdsWithoutProperties({typeId<QML, BoolType>(),
+                                       typeId<QML, IntType>(),
+                                       typeId<QML, UIntType, ModuleKind::CppLibrary>(),
+                                       typeId<QML, DoubleType>(),
+                                       typeId<QML, FloatType, ModuleKind::CppLibrary>(),
+                                       typeId<QML, date>(),
+                                       typeId<QML, string>(),
+                                       typeId<QML, url>()});
     }
 
 private:
     const ProjectStorage &m_projectStorage;
+    ModulesStorage &m_modulesStorage;
     mutable CommonTypes m_types;
     TypeIdsWithoutProperties m_typesWithoutProperties;
 };

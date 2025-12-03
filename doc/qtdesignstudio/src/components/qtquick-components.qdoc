@@ -24,9 +24,9 @@
     component instances and combine them.
 
     A component is specified within one file (with the file extension
-    \e ui.qml or \e .qml). For example, a Button component may be defined
-    in \e Button.ui.qml. Typically, the visual appearance of a component
-    is defined in a \e {UI file} (ui.qml). To create component files,
+    \c ui.qml or \c .qml). For example, a Button component may be defined
+    in \c Button.ui.qml. Typically, the visual appearance of a component
+    is defined in a \e {UI file} (\c {ui.qml}). To create component files,
     you can use \l{Creating components from scratch}{wizard templates}, or
     \l{Turning component instances into custom components}
     {move component instances into separate component files}.
@@ -79,8 +79,8 @@
             a speedometer should have an \c int or \c real property for speed
             to which the UI is bound.
         \li Separate UI from the application logic. Designers should work with
-            the \l{UI files} (.ui.qml), while developers should work on the
-            corresponding implementation files (.qml) to define their
+            the \l{UI files} (\c{}.ui.qml}), while developers should work on the
+            corresponding implementation files (\c{.qml}) to define their
             programmatic behaviors or JavaScript. This enables iteration from
             both the design and development side of the process without the
             risk of overwriting each other's work.

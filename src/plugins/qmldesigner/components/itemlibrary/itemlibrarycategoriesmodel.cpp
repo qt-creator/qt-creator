@@ -4,6 +4,7 @@
 #include "itemlibrarycategoriesmodel.h"
 #include "itemlibrarycategory.h"
 #include "itemlibrarymodel.h"
+#include "itemlibrarytracing.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -15,23 +16,32 @@
 
 namespace QmlDesigner {
 
+using ItemLibraryTracing::category;
+
 ItemLibraryCategoriesModel::ItemLibraryCategoriesModel(QObject *parent) :
     QAbstractListModel(parent)
 {
+    NanotraceHR::Tracer tracer{"item library categories model constructor", category()};
+
     addRoleNames();
 }
 
 ItemLibraryCategoriesModel::~ItemLibraryCategoriesModel()
 {
+    NanotraceHR::Tracer tracer{"item library categories model destructor", category()};
 }
 
 int ItemLibraryCategoriesModel::rowCount(const QModelIndex &) const
 {
+    NanotraceHR::Tracer tracer{"item library categories model row count", category()};
+
     return m_categoryList.size();
 }
 
 QVariant ItemLibraryCategoriesModel::data(const QModelIndex &index, int role) const
 {
+    NanotraceHR::Tracer tracer{"item library categories model data", category()};
+
     if (!index.isValid() || index.row() >= m_categoryList.size()) {
         qWarning() << Q_FUNC_INFO << "invalid index requested";
         return {};
@@ -53,6 +63,8 @@ QVariant ItemLibraryCategoriesModel::data(const QModelIndex &index, int role) co
 
 bool ItemLibraryCategoriesModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    NanotraceHR::Tracer tracer{"item library categories model set data", category()};
+
     // currently only categoryExpanded and categoryVisible properties is updatable
     if (index.isValid() && m_roleNames.contains(role)) {
         QVariant currValue = m_categoryList.at(index.row())->property(m_roleNames.value(role));
@@ -76,11 +88,15 @@ bool ItemLibraryCategoriesModel::setData(const QModelIndex &index, const QVarian
 
 QHash<int, QByteArray> ItemLibraryCategoriesModel::roleNames() const
 {
+    NanotraceHR::Tracer tracer{"item library categories model role names", category()};
+
     return m_roleNames;
 }
 
 void ItemLibraryCategoriesModel::expandCategories(bool expand)
 {
+    NanotraceHR::Tracer tracer{"item library categories model expand categories", category()};
+
     int i = 0;
     for (const auto &category : std::as_const(m_categoryList)) {
         if (category->categoryExpanded() != expand) {
@@ -94,6 +110,9 @@ void ItemLibraryCategoriesModel::expandCategories(bool expand)
 
 void ItemLibraryCategoriesModel::addCategory(ItemLibraryCategory *category)
 {
+    NanotraceHR::Tracer tracer{"item library categories model add category",
+                               ItemLibraryTracing::category()};
+
     m_categoryList.append(category);
 
     category->setVisible(true);
@@ -101,11 +120,15 @@ void ItemLibraryCategoriesModel::addCategory(ItemLibraryCategory *category)
 
 const QList<QPointer<ItemLibraryCategory>> &ItemLibraryCategoriesModel::categorySections() const
 {
+    NanotraceHR::Tracer tracer{"item library categories model category sections", category()};
+
     return m_categoryList;
 }
 
 void ItemLibraryCategoriesModel::sortCategorySections()
 {
+    NanotraceHR::Tracer tracer{"item library categories model sort category sections", category()};
+
     auto categorySort = [](ItemLibraryCategory *first, ItemLibraryCategory *second) {
         return QString::localeAwareCompare(first->sortingName(), second->sortingName()) < 0;
     };
@@ -118,12 +141,16 @@ void ItemLibraryCategoriesModel::sortCategorySections()
 
 void ItemLibraryCategoriesModel::resetModel()
 {
+    NanotraceHR::Tracer tracer{"item library categories model reset model", category()};
+
     beginResetModel();
     endResetModel();
 }
 
 bool ItemLibraryCategoriesModel::isAllCategoriesHidden() const
 {
+    NanotraceHR::Tracer tracer{"item library categories model is all categories hidden", category()};
+
     for (const auto &category : std::as_const(m_categoryList)) {
         if (category->isCategoryVisible())
             return false;
@@ -134,6 +161,8 @@ bool ItemLibraryCategoriesModel::isAllCategoriesHidden() const
 
 void ItemLibraryCategoriesModel::showAllCategories()
 {
+    NanotraceHR::Tracer tracer{"item library categories model show all categories", category()};
+
     for (const auto &category : std::as_const(m_categoryList)) {
         if (!category->isCategoryVisible()) {
             category->setCategoryVisible(true);
@@ -147,6 +176,8 @@ void ItemLibraryCategoriesModel::showAllCategories()
 
 void ItemLibraryCategoriesModel::hideCategory(const QString &categoryName)
 {
+    NanotraceHR::Tracer tracer{"item library categories model hide category", category()};
+
     for (int i = 0; i < m_categoryList.size(); ++i) {
         const auto category = m_categoryList.at(i);
         if (category->categoryName() == categoryName) {
@@ -161,6 +192,9 @@ void ItemLibraryCategoriesModel::hideCategory(const QString &categoryName)
 
 int ItemLibraryCategoriesModel::selectFirstVisibleCategory()
 {
+    NanotraceHR::Tracer tracer{"item library categories model select first visible category",
+                               category()};
+
     for (int i = 0; i < m_categoryList.length(); ++i) {
         const auto category = m_categoryList.at(i);
 
@@ -176,6 +210,8 @@ int ItemLibraryCategoriesModel::selectFirstVisibleCategory()
 
 void ItemLibraryCategoriesModel::clearSelectedCategory(int categoryIndex)
 {
+    NanotraceHR::Tracer tracer{"item library categories model clear selected category", category()};
+
     if (categoryIndex == -1 || m_categoryList.isEmpty())
         return;
 
@@ -185,6 +221,8 @@ void ItemLibraryCategoriesModel::clearSelectedCategory(int categoryIndex)
 
 QPointer<ItemLibraryCategory> ItemLibraryCategoriesModel::selectCategory(int categoryIndex)
 {
+    NanotraceHR::Tracer tracer{"item library categories model select category", category()};
+
     if (m_categoryList.isEmpty() || categoryIndex < 0 || categoryIndex >= m_categoryList.size())
         return nullptr;
 
@@ -200,6 +238,8 @@ QPointer<ItemLibraryCategory> ItemLibraryCategoriesModel::selectCategory(int cat
 
 void ItemLibraryCategoriesModel::addRoleNames()
 {
+    NanotraceHR::Tracer tracer{"item library categories model add role names", category()};
+
     int role = 0;
     const QMetaObject meta = ItemLibraryCategory::staticMetaObject;
     for (int i = meta.propertyOffset(); i < meta.propertyCount(); ++i)

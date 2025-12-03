@@ -146,7 +146,7 @@
         \li Select \uicontrol {Start Screen} to set the selected component as the
             start component.
         \li Select \uicontrol Export to launch the export dialog to export the document
-            into a .qtbridge archive.
+            into a .\c{.qtbridge} archive.
     \endlist
 
     \note XD Components can not be skipped and Text layers can only be merged when

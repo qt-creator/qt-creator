@@ -3,12 +3,16 @@
 
 #include "compatibleproperties.h"
 
+#include "propertyeditortracing.h"
+
 #include <bindingproperty.h>
 #include <qmlobjectnode.h>
 #include <qmltimelinekeyframegroup.h>
 #include <variantproperty.h>
 
 namespace QmlDesigner {
+
+using PropertyEditorTracing::category;
 
 /*!
  * \internal
@@ -17,6 +21,8 @@ namespace QmlDesigner {
  */
 void CompatibleProperties::createCompatibilityMap(QList<PropertyName> &properties)
 {
+    NanotraceHR::Tracer tracer{"compatible properties compatibility map", category()};
+
     m_compatibilityMap.clear();
     if (m_oldInfo == m_newInfo || !m_oldInfo.isQtQuick3DMaterial() || !m_newInfo.isQtQuick3DMaterial())
         return;
@@ -63,6 +69,8 @@ void CompatibleProperties::createCompatibilityMap(QList<PropertyName> &propertie
 
 void CompatibleProperties::copyMappedProperties(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"compatible properties copy mapped properties", category()};
+
     if (m_compatibilityMap.isEmpty())
         return;
     // Copy mapped properties to new name. Note that this will only copy the base
@@ -95,6 +103,8 @@ void CompatibleProperties::copyMappedProperties(const ModelNode &node)
 
 void CompatibleProperties::applyCompatibleProperties(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"compatible properties apply compatible properties", category()};
+
     for (const auto &pair : m_compatibilityMap.asKeyValueRange()) {
         const CopyData &copyData = pair.second;
         if (copyData.isBinding) {

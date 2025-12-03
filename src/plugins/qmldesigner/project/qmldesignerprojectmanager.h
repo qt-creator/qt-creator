@@ -27,8 +27,6 @@ class Target;
 
 namespace QmlDesigner {
 
-class ExternalDependenciesInterface;
-
 class QMLDESIGNER_EXPORT QmlDesignerProjectManager
 {
     class QmlDesignerProjectManagerProjectData;
@@ -37,12 +35,13 @@ class QMLDESIGNER_EXPORT QmlDesignerProjectManager
     class Data;
 
 public:
-    QmlDesignerProjectManager(ExternalDependenciesInterface &externalDependencies);
+    QmlDesignerProjectManager();
     ~QmlDesignerProjectManager();
 
     void registerPreviewImageProvider(QQmlEngine *engine) const;
 
     class AsynchronousImageCache &asynchronousImageCache();
+    ModulesStorage &modulesStorage();
     ProjectStorageDependencies projectStorageDependencies();
 
 private:
@@ -55,7 +54,6 @@ private:
     void generatePreview();
     ImageCacheData *imageCacheData();
 
-    void fileListChanged();
     void activeTargetChanged(::ProjectExplorer::Target *target);
     void aboutToRemoveTarget(::ProjectExplorer::Target *target);
     void kitChanged();
@@ -70,7 +68,6 @@ private:
     std::unique_ptr<ImageCacheData> m_imageCacheData;
     std::unique_ptr<PreviewImageCacheData> m_previewImageCacheData;
     std::unique_ptr<QmlDesignerProjectManagerProjectData> m_projectData;
-    ExternalDependenciesInterface &m_externalDependencies;
     QObject dummy;
 };
 } // namespace QmlDesigner

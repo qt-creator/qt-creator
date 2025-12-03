@@ -3,6 +3,8 @@
 
 #include "navigatorsearchwidget.h"
 
+#include "navigatortracing.h"
+
 #include <utils/stylehelper.h>
 #include <theme.h>
 
@@ -15,9 +17,13 @@
 
 namespace QmlDesigner {
 
+using NavigatorTracing::category;
+
 LineEdit::LineEdit(QWidget *parent)
     : QLineEdit(parent)
 {
+    NanotraceHR::Tracer tracer{"line edit constructor", category()};
+
     clearButton = new QToolButton(this);
 
     const QString fontName = "qtds_propertyIconFont.ttf";
@@ -74,6 +80,8 @@ LineEdit::LineEdit(QWidget *parent)
 
 void LineEdit::resizeEvent([[maybe_unused]] QResizeEvent *event)
 {
+    NanotraceHR::Tracer tracer{"line edit resize event", category()};
+
     QSize hint = clearButton->sizeHint();
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
 
@@ -83,6 +91,8 @@ void LineEdit::resizeEvent([[maybe_unused]] QResizeEvent *event)
 
 void LineEdit::keyPressEvent(QKeyEvent *event)
 {
+    NanotraceHR::Tracer tracer{"line edit key press event", category()};
+
     if (event->key() == Qt::Key_Escape && event->modifiers() == Qt::NoModifier) {
         clear();
         event->accept();
@@ -93,6 +103,8 @@ void LineEdit::keyPressEvent(QKeyEvent *event)
 
 void LineEdit::paintEvent(QPaintEvent *event)
 {
+    NanotraceHR::Tracer tracer{"line edit paint event", category()};
+
     if (text().isEmpty()) {
         QPalette p(palette());
         p.setColor(QPalette::Active,
@@ -108,12 +120,16 @@ void LineEdit::paintEvent(QPaintEvent *event)
 
 void LineEdit::updateClearButton(const QString& text)
 {
+    NanotraceHR::Tracer tracer{"line edit update clear button", category()};
+
     clearButton->setVisible(!text.isEmpty());
 }
 
 NavigatorSearchWidget::NavigatorSearchWidget(QWidget *parent)
     : QWidget(parent)
 {
+    NanotraceHR::Tracer tracer{"line edit constructor", category()};
+
     auto layout = new QBoxLayout(QBoxLayout::LeftToRight);
     layout->setSpacing(0);
     layout->setContentsMargins(10, 6, 10, 6);
@@ -136,6 +152,8 @@ NavigatorSearchWidget::NavigatorSearchWidget(QWidget *parent)
 
 void NavigatorSearchWidget::clear()
 {
+    NanotraceHR::Tracer tracer{"line edit clear", category()};
+
     m_textField->clear();
 }
 

@@ -41,6 +41,7 @@ public:
     QString effectsBundleId() const;
     QString userMaterialsBundleId() const;
     QString userEffectsBundleId() const;
+    QString user2DBundleId() const;
     QString user3DBundleId() const;
 
     QString materialsBundleType() const;
@@ -48,6 +49,7 @@ public:
     QString userBundleType(const QString &bundleId) const;
     QString userMaterialsBundleType() const;
     QString userEffectsBundleType() const;
+    QString user2DBundleType() const;
     QString user3DBundleType() const;
 
     Utils::FilePaths imported3dComponents() const;

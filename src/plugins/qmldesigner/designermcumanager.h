@@ -31,6 +31,7 @@ public:
     static DesignerMcuManager& instance();
 
     static QString mcuResourcesPath();
+    static QString defaultFontFamilyMCU();
 
     bool isMCUProject() const;
 

@@ -20,10 +20,9 @@ StudioControls.ComboBox {
 
     onTextColorChanged: root.setColor()
 
-    FileResourcesModel {
+    FontResourcesModel {
         id: fileModel
         modelNodeBackendProperty: modelNodeBackend
-        filter: root.fontFilter
     }
 
     DropArea {
@@ -59,19 +58,7 @@ StudioControls.ComboBox {
     }
 
     function setupModel() {
-        // default fonts
-        var familyNames = ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"]
-
-        for (var i = 0; i < fileModel.model.length; ++i) { // add custom fonts
-            var fontLoader = root.createFontLoader(fileModel.docPath + "/"
-                                                   + fileModel.model[i].relativeFilePath)
-            familyNames.push(fontLoader.name)
-        }
-
-        // Remove duplicate family names
-        familyNames = [...new Set(familyNames)]
-        familyNames.sort()
-        root.model = familyNames
+        root.model = fileModel.model
         root.currentIndex = root.find(root.backendValue.value)
     }
 

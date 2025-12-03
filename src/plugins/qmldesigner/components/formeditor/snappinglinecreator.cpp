@@ -4,11 +4,13 @@
 #include "snappinglinecreator.h"
 
 #include "formeditoritem.h"
+#include "formeditortracing.h"
 #include "formeditorview.h"
 
 #include <QtDebug>
 
 namespace QmlDesigner {
+using FormEditorTracing::category;
 
 SnappingLineCreator::SnappingLineCreator(FormEditorItem *formEditorItem)
     : m_formEditorItem(formEditorItem),
@@ -21,11 +23,15 @@ SnappingLineCreator::SnappingLineCreator(FormEditorItem *formEditorItem)
     m_leftPadding(formEditorItem->formEditorView()->containerPadding()),
     m_rightPadding(formEditorItem->formEditorView()->containerPadding())
 {
+    NanotraceHR::Tracer tracer{"snapping line creator constructor", category()};
+
     Q_ASSERT(m_formEditorItem);
 }
 
 void SnappingLineCreator::clearLines()
 {
+    NanotraceHR::Tracer tracer{"snapping line creator clearLines", category()};
+
     m_topLineMap.clear();
     m_bottomLineMap.clear();
     m_leftLineMap.clear();
@@ -42,7 +48,9 @@ void SnappingLineCreator::clearLines()
 
 void SnappingLineCreator::addLines(const QRectF &rectInSceneSpace, FormEditorItem *item)
 {
-    const QPair<QRectF, FormEditorItem*> rectInSceneSpaceItemPair = {rectInSceneSpace, item};
+    NanotraceHR::Tracer tracer{"snapping line creator addLines", category()};
+
+    const QPair<QRectF, FormEditorItem *> rectInSceneSpaceItemPair = {rectInSceneSpace, item};
     m_topLineMap.insert(rectInSceneSpace.top(), rectInSceneSpaceItemPair);
     m_bottomLineMap.insert(rectInSceneSpace.bottom(), rectInSceneSpaceItemPair);
     m_leftLineMap.insert(rectInSceneSpace.left(), rectInSceneSpaceItemPair);
@@ -54,7 +62,9 @@ void SnappingLineCreator::addLines(const QRectF &rectInSceneSpace, FormEditorIte
 
 void SnappingLineCreator::addOffsets(const QRectF &rectInSceneSpace, FormEditorItem *item)
 {
-    const QPair<QRectF, FormEditorItem*> rectInSceneSpaceItemPair = {rectInSceneSpace, item};
+    NanotraceHR::Tracer tracer{"snapping line creator addOffsets", category()};
+
+    const QPair<QRectF, FormEditorItem *> rectInSceneSpaceItemPair = {rectInSceneSpace, item};
     m_topOffsetMap.insert(rectInSceneSpace.top() - m_topOffset, rectInSceneSpaceItemPair);
     m_bottomOffsetMap.insert(rectInSceneSpace.bottom() + m_bottomOffset, rectInSceneSpaceItemPair);
     m_leftOffsetMap.insert(rectInSceneSpace.left() - m_leftOffset, rectInSceneSpaceItemPair);
@@ -64,6 +74,8 @@ void SnappingLineCreator::addOffsets(const QRectF &rectInSceneSpace, FormEditorI
 void SnappingLineCreator::generateLines(const QList<FormEditorItem*> &exceptionList,
                                         FormEditorItem *transformationSpaceItem)
 {
+    NanotraceHR::Tracer tracer{"snapping line creator generateLines", category()};
+
     if (!m_formEditorItem->qmlItemNode().isValid())
         return;
 
@@ -98,6 +110,9 @@ void SnappingLineCreator::generateLines(const QList<FormEditorItem*> &exceptionL
 
 void SnappingLineCreator::setContainerPaddingByGloablPadding(double containerPadding)
 {
+    NanotraceHR::Tracer tracer{"snapping line creator set container padding by global padding",
+                               category()};
+
     m_topPadding = containerPadding;
     m_bottomPadding = containerPadding;
     m_leftPadding = containerPadding;
@@ -106,6 +121,9 @@ void SnappingLineCreator::setContainerPaddingByGloablPadding(double containerPad
 
 void SnappingLineCreator::setContainerPaddingByContentItem(const QRectF &contentRectangle, const QRectF &itemBoundingRectangle)
 {
+    NanotraceHR::Tracer tracer{"snapping line creator set container padding by content item",
+                               category()};
+
     m_topPadding = contentRectangle.top() - itemBoundingRectangle.top();
     m_bottomPadding = itemBoundingRectangle.bottom() - contentRectangle.bottom();
     m_leftPadding = contentRectangle.left() - itemBoundingRectangle.left();
@@ -114,6 +132,8 @@ void SnappingLineCreator::setContainerPaddingByContentItem(const QRectF &content
 
 void SnappingLineCreator::setSpacing(double spacing)
 {
+    NanotraceHR::Tracer tracer{"snapping line creator set spacing", category()};
+
     m_topOffset = spacing;
     m_bottomOffset = spacing;
     m_leftOffset = spacing;
@@ -124,6 +144,8 @@ void SnappingLineCreator::update(const QList<FormEditorItem*> &exceptionList,
                                  FormEditorItem *transformationSpaceItem,
                                  FormEditorItem *containerFormEditorItem)
 {
+    NanotraceHR::Tracer tracer{"snapping line creator update", category()};
+
     clearLines();
     setContainerPaddingItem(containerFormEditorItem);
     setSpacing(m_formEditorItem->formEditorView()->spacing());
@@ -132,41 +154,57 @@ void SnappingLineCreator::update(const QList<FormEditorItem*> &exceptionList,
 
 SnapLineMap SnappingLineCreator::topLines() const
 {
+    NanotraceHR::Tracer tracer{"snapping line creator topLines", category()};
+
     return m_topLineMap;
 }
 
 SnapLineMap SnappingLineCreator::bottomLines() const
 {
+    NanotraceHR::Tracer tracer{"snapping line creator bottomLines", category()};
+
     return m_bottomLineMap;
 }
 
 SnapLineMap SnappingLineCreator::leftLines() const
 {
+    NanotraceHR::Tracer tracer{"snapping line creator leftLines", category()};
+
     return m_leftLineMap;
 }
 
 SnapLineMap SnappingLineCreator::rightLines() const
 {
+    NanotraceHR::Tracer tracer{"snapping line creator rightLines", category()};
+
     return m_rightLineMap;
 }
 
 SnapLineMap  SnappingLineCreator::horizontalCenterLines() const
 {
+    NanotraceHR::Tracer tracer{"snapping line creator horizontalCenterLines", category()};
+
     return m_horizontalCenterLineMap;
 }
 
 SnapLineMap  SnappingLineCreator::verticalCenterLines() const
 {
+    NanotraceHR::Tracer tracer{"snapping line creator verticalCenterLines", category()};
+
     return m_verticalCenterLineMap;
 }
 
 SnapLineMap SnappingLineCreator::topOffsets() const
 {
+    NanotraceHR::Tracer tracer{"snapping line creator topOffsets", category()};
+
     return m_topOffsetMap;
 }
 
 SnapLineMap SnappingLineCreator::bottomOffsets() const
 {
+    NanotraceHR::Tracer tracer{"snapping line creator bottomOffsets", category()};
+
     return m_bottomOffsetMap;
 }
 

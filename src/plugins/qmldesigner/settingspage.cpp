@@ -4,7 +4,6 @@
 #include "settingspage.h"
 
 #include "designersettings.h"
-#include "qmldesignerexternaldependencies.h"
 #include "qmldesignerplugin.h"
 #include "qmldesignertr.h"
 
@@ -18,6 +17,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/environment.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -50,7 +50,7 @@ class SettingsPageWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(QmlDesigner::Internal::SettingsPage)
 
 public:
-    explicit SettingsPageWidget(ExternalDependencies &externalDependencies);
+    explicit SettingsPageWidget();
 
     void apply() final;
 
@@ -67,11 +67,6 @@ private:
     QSpinBox *m_spinRootItemInitWidth;
     QLineEdit *m_styleLineEdit;
     QComboBox *m_controls2StyleComboBox;
-    QGroupBox *m_qmlPuppetGroupBox;
-    QRadioButton *m_useDefaultPuppetRadioButton;
-    Utils::PathChooser *m_fallbackPuppetPathLineEdit;
-    QRadioButton *m_useQtRelatedPuppetRadioButton;
-    Utils::PathChooser *m_puppetBuildPathLineEdit;
     QCheckBox *m_alwaysSaveSubcomponentsCheckBox;
     QCheckBox *m_designerWarningsInEditorCheckBox;
     QCheckBox *m_designerWarningsCheckBox;
@@ -81,6 +76,7 @@ private:
     QRadioButton *m_useQsTranslateFunctionRadioButton;
     QCheckBox *m_designerAlwaysDesignModeCheckBox;
     QCheckBox *m_askBeforeDeletingAssetCheckBox;
+    QCheckBox *m_askBeforeDeletingContentLibFileCheckBox;
     QCheckBox *m_alwaysAutoFormatUICheckBox;
     QCheckBox *m_featureTimelineEditorCheckBox;
     QCheckBox *m_featureDockWidgetContentMinSize;
@@ -91,12 +87,9 @@ private:
     QCheckBox *m_designerEnableDebuggerCheckBox;
     QCheckBox *m_showWarnExceptionsCheckBox;
     QComboBox *m_debugPuppetComboBox;
-
-    ExternalDependencies &m_externalDependencies;
 };
 
-SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencies)
-    : m_externalDependencies(externalDependencies)
+SettingsPageWidget::SettingsPageWidget()
 {
     m_spinItemSpacing = new QSpinBox;
     m_spinItemSpacing->setMaximum(50);
@@ -133,30 +126,6 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
     m_controls2StyleComboBox = new QComboBox;
     m_controls2StyleComboBox->addItems({ "Default", "Material", "Universal" });
 
-    m_qmlPuppetGroupBox = new QGroupBox(Tr::tr("QML Puppet"));
-
-    m_useDefaultPuppetRadioButton = new QRadioButton(Tr::tr("Use fallback QML Puppet"));
-    m_useDefaultPuppetRadioButton->setToolTip(
-        Tr::tr("If you select this radio button, Qt Design Studio always uses the "
-               "QML Puppet located at the following path."));
-    m_useDefaultPuppetRadioButton->setChecked(true);
-
-    m_fallbackPuppetPathLineEdit = new Utils::PathChooser;
-    m_fallbackPuppetPathLineEdit->setToolTip(
-        Tr::tr("Path to the QML Puppet executable."));
-
-    auto resetFallbackPuppetPathButton = new QPushButton(tr("Reset Path"));
-    resetFallbackPuppetPathButton->setToolTip(
-        Tr::tr("Resets the path to the built-in QML Puppet."));
-
-    m_useQtRelatedPuppetRadioButton = new QRadioButton(
-        Tr::tr("Use QML Puppet that is built with the selected Qt"));
-
-    m_puppetBuildPathLineEdit = new Utils::PathChooser;
-    m_puppetBuildPathLineEdit->setEnabled(false);
-
-    auto resetQmlPuppetBuildPathButton = new QPushButton(Tr::tr("Reset Path"));
-
     m_alwaysSaveSubcomponentsCheckBox = new QCheckBox(
         Tr::tr("Always save when leaving subcomponent in bread crumb"));
 
@@ -185,6 +154,8 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
         Tr::tr("Always open ui.qml files in Design mode"));
     m_askBeforeDeletingAssetCheckBox = new QCheckBox(
         Tr::tr("Ask for confirmation before deleting asset"));
+    m_askBeforeDeletingContentLibFileCheckBox = new QCheckBox(
+        Tr::tr("Ask for confirmation before deleting content library files"));
     m_alwaysAutoFormatUICheckBox = new QCheckBox(
         Tr::tr("Always auto-format ui.qml files in Design mode"));
     m_featureTimelineEditorCheckBox = new QCheckBox(Tr::tr("Enable Timeline editor"));
@@ -203,16 +174,6 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
     m_debugPuppetComboBox = new QComboBox;
 
     using namespace Layouting;
-
-    Column{m_useDefaultPuppetRadioButton,
-           Row{Space(20),
-               Form{Tr::tr("Path:"), m_fallbackPuppetPathLineEdit, resetFallbackPuppetPathButton}},
-           m_useQtRelatedPuppetRadioButton,
-           Row{Space(20),
-               Form{Tr::tr("Top level build path:"),
-                    m_puppetBuildPathLineEdit,
-                    resetQmlPuppetBuildPathButton}}}
-        .attachTo(m_qmlPuppetGroupBox);
 
     Grid{m_designerShowDebuggerCheckBox,
          m_showPropertyEditorWarningsCheckBox,
@@ -251,7 +212,6 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
                           br,
                           Tr::tr("Controls 2 style:"),
                           m_controls2StyleComboBox}}},
-           m_qmlPuppetGroupBox,
            Group{title(Tr::tr("Subcomponents")), Column{m_alwaysSaveSubcomponentsCheckBox}},
            Row{Group{title(Tr::tr("Warnings")),
                      Column{m_designerWarningsCheckBox,
@@ -266,6 +226,8 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
                       m_alwaysAutoFormatUICheckBox,
                       br,
                       m_askBeforeDeletingAssetCheckBox,
+                      m_askBeforeDeletingContentLibFileCheckBox,
+                      br,
                       m_featureTimelineEditorCheckBox,
                       br,
                       m_featureDockWidgetContentMinSize}},
@@ -278,20 +240,6 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
             m_designerShowDebuggerCheckBox->setChecked(true);
         }
     );
-    connect(resetFallbackPuppetPathButton, &QPushButton::clicked, [&]() {
-        m_fallbackPuppetPathLineEdit->setPath(externalDependencies.defaultPuppetFallbackDirectory());
-    });
-    m_fallbackPuppetPathLineEdit->lineEdit()->setPlaceholderText(
-        externalDependencies.defaultPuppetFallbackDirectory());
-
-    connect(resetQmlPuppetBuildPathButton, &QPushButton::clicked, [&]() {
-        m_puppetBuildPathLineEdit->setPath(
-            externalDependencies.defaultPuppetToplevelBuildDirectory());
-    });
-    connect(m_useDefaultPuppetRadioButton, &QRadioButton::toggled,
-        m_fallbackPuppetPathLineEdit, &QLineEdit::setEnabled);
-    connect(m_useQtRelatedPuppetRadioButton, &QRadioButton::toggled,
-        m_puppetBuildPathLineEdit, &QLineEdit::setEnabled);
     connect(resetStyle, &QPushButton::clicked,
         m_styleLineEdit, &QLineEdit::clear);
     connect(m_controls2StyleComboBox, &QComboBox::currentTextChanged, [this] {
@@ -324,8 +272,6 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
         m_designerShowDebuggerCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ENABLE_DEBUGVIEW,
         m_designerEnableDebuggerCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::USE_DEFAULT_PUPPET,
-        m_useDefaultPuppetRadioButton->isChecked());
 
     int typeOfQsTrFunction;
 
@@ -345,29 +291,6 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
     settings.insert(DesignerSettingsKey::DEBUG_PUPPET,
         m_debugPuppetComboBox->currentText());
 
-    QString newFallbackPuppetPath = m_fallbackPuppetPathLineEdit->filePath().toUrlishString();
-    QTC_CHECK(m_externalDependencies.defaultPuppetFallbackDirectory()
-              == m_fallbackPuppetPathLineEdit->lineEdit()->placeholderText());
-    if (newFallbackPuppetPath.isEmpty())
-        newFallbackPuppetPath = m_fallbackPuppetPathLineEdit->lineEdit()->placeholderText();
-
-    QString oldFallbackPuppetPath = m_externalDependencies.qmlPuppetFallbackDirectory();
-
-    if (oldFallbackPuppetPath != newFallbackPuppetPath && QFileInfo::exists(newFallbackPuppetPath)) {
-        if (newFallbackPuppetPath == m_externalDependencies.defaultPuppetFallbackDirectory())
-            settings.insert(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY, QString());
-        else
-            settings.insert(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY, newFallbackPuppetPath);
-    } else if (!QFileInfo::exists(oldFallbackPuppetPath) || !QFileInfo::exists(newFallbackPuppetPath)){
-        settings.insert(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY, QString());
-    }
-
-    if (!m_puppetBuildPathLineEdit->filePath().isEmpty()
-        && m_puppetBuildPathLineEdit->filePath().toUrlishString()
-               != m_externalDependencies.defaultPuppetToplevelBuildDirectory()) {
-        settings.insert(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
-            m_puppetBuildPathLineEdit->filePath().toUrlishString());
-    }
     settings.insert(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR,
         m_alwaysSaveSubcomponentsCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS,
@@ -382,6 +305,8 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
                     m_designerAlwaysDesignModeCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET,
                     m_askBeforeDeletingAssetCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE,
+                    m_askBeforeDeletingContentLibFileCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::SMOOTH_RENDERING, m_smoothRendering->isChecked());
 
     settings.insert(DesignerSettingsKey::REFORMAT_UI_QML_FILES,
@@ -414,10 +339,6 @@ void SettingsPageWidget::readSettings()
         DesignerSettingsKey::SHOW_DEBUGVIEW).toBool());
     m_designerEnableDebuggerCheckBox->setChecked(settings.value(
         DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool());
-    m_useDefaultPuppetRadioButton->setChecked(settings.value(
-        DesignerSettingsKey::USE_DEFAULT_PUPPET).toBool());
-    m_useQtRelatedPuppetRadioButton->setChecked(!settings.value(
-        DesignerSettingsKey::USE_DEFAULT_PUPPET).toBool());
     m_useQsTrFunctionRadioButton->setChecked(settings.value(
         DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 0);
     m_useQsTrIdFunctionRadioButton->setChecked(settings.value(
@@ -426,19 +347,6 @@ void SettingsPageWidget::readSettings()
         DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 2);
     m_styleLineEdit->setText(settings.value(
         DesignerSettingsKey::CONTROLS_STYLE).toString());
-
-    QString puppetFallbackDirectory = settings
-                                          .value(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY,
-                                                 m_externalDependencies.defaultPuppetFallbackDirectory())
-                                          .toString();
-    m_fallbackPuppetPathLineEdit->setPath(puppetFallbackDirectory);
-
-    QString puppetToplevelBuildDirectory = settings
-                                               .value(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
-                                                      m_externalDependencies
-                                                          .defaultPuppetToplevelBuildDirectory())
-                                               .toString();
-    m_puppetBuildPathLineEdit->setPath(puppetToplevelBuildDirectory);
 
     m_forwardPuppetOutputComboBox->setCurrentText(settings.value(
         DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString());
@@ -463,8 +371,9 @@ void SettingsPageWidget::readSettings()
 
     m_askBeforeDeletingAssetCheckBox->setChecked(
         settings.value(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool());
+    m_askBeforeDeletingContentLibFileCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE).toBool());
 
-    m_qmlPuppetGroupBox->setVisible(true);
     m_debugGroupBox->setVisible(true);
     m_featureTimelineEditorCheckBox->setVisible(false);
     m_featureDockWidgetContentMinSize->setVisible(false);
@@ -478,9 +387,7 @@ void SettingsPageWidget::apply()
 {
     auto settings = newSettings();
 
-    const auto restartNecessaryKeys = {DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY,
-                                       DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
-                                       DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
+    const auto restartNecessaryKeys = {DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
                                        DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
                                        DesignerSettingsKey::DEBUG_PUPPET,
                                        DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
@@ -501,12 +408,12 @@ void SettingsPageWidget::apply()
     designerSettings().insert(settings);
 }
 
-SettingsPage::SettingsPage(ExternalDependencies &externalDependencies)
+SettingsPage::SettingsPage()
 {
     setId("B.QmlDesigner");
     setDisplayName(Tr::tr("Qt Quick Designer"));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-    setWidgetCreator([&] { return new SettingsPageWidget(externalDependencies); });
+    setWidgetCreator([&] { return new SettingsPageWidget(); });
 }
 
 } // Internal

@@ -12,6 +12,9 @@ class WidgetRegistrationInterface
 public:
     virtual void registerWidgetInfo(WidgetInfo) = 0;
     virtual void deregisterWidgetInfo(WidgetInfo) = 0;
+    virtual void removeExtraWidget(WidgetInfo) = 0;
+    virtual void showExtraWidget(WidgetInfo) = 0;
+    virtual void hideExtraWidget(WidgetInfo) = 0;
 
 protected:
     ~WidgetRegistrationInterface() = default;
