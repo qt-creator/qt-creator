@@ -135,7 +135,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "getBuildStatus"},
+        {{"name", "get_build_status"},
          {"title", "Get current build status"},
          {"description", "Get current build progress and status"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
@@ -169,7 +169,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "openFile"},
+        {{"name", "open_file"},
          {"title", "Open a file in Qt Creator"},
          {"description", "Open a file in Qt Creator"},
          {"inputSchema",
@@ -196,7 +196,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "listProjects"},
+        {{"name", "list_projects"},
          {"title", "List all available projects"},
          {"description", "List all available projects"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
@@ -219,7 +219,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "listBuildConfigs"},
+        {{"name", "list_build_configs"},
          {"title", "List available build configurations"},
          {"description", "List available build configurations"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
@@ -242,7 +242,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "switchBuildConfig"},
+        {{"name", "switch_build_config"},
          {"title", "Switch to a specific build configuration"},
          {"description", "Switch to a specific build configuration"},
          {"inputSchema",
@@ -268,7 +268,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "runProject"},
+        {{"name", "run_project"},
          {"title", "Run the current project"},
          {"description", "Run the current project"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
@@ -285,7 +285,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "cleanProject"},
+        {{"name", "clean_project"},
          {"title", "Clean the current project"},
          {"description", "Clean the current project"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
@@ -302,7 +302,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "listOpenFiles"},
+        {{"name", "list_open_files"},
          {"title", "List currently open files"},
          {"description", "List currently open files"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
@@ -325,7 +325,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "listSessions"},
+        {{"name", "list_sessions"},
          {"title", "List available sessions"},
          {"description", "List available sessions"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
@@ -348,7 +348,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "loadSession"},
+        {{"name", "load_session"},
          {"title", "Load a specific session"},
          {"description", "Load a specific session"},
          {"inputSchema",
@@ -372,7 +372,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "listIssues"},
+        {{"name", "list_issues"},
          {"title", "List current issues (warnings and errors)"},
          {"description", "List current issues (warnings and errors)"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
@@ -412,7 +412,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "getCurrentProject"},
+        {{"name", "get_current_project"},
          {"title", "Get the currently active project"},
          {"description", "Get the currently active project"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
@@ -429,7 +429,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "getCurrentBuildConfig"},
+        {{"name", "get_current_build_config"},
          {"title", "Get the currently active build configuration"},
          {"description", "Get the currently active build configuration"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
@@ -446,7 +446,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "getCurrentSession"},
+        {{"name", "get_current_session"},
          {"title", "Get the currently active session"},
          {"description", "Get the currently active session"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
@@ -463,7 +463,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "saveSession"},
+        {{"name", "save_session"},
          {"title", "Save the current session"},
          {"description", "Save the current session"},
          {"inputSchema", QJsonObject{{"type", "object"}}},

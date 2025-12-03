@@ -49,9 +49,9 @@ MCPCommands::MCPCommands(QObject *parent)
     // Initialize default method timeouts (in seconds)
     m_methodTimeouts["debug"] = 60;
     m_methodTimeouts["build"] = 1200; // 20 minutes
-    m_methodTimeouts["runProject"] = 60;
-    m_methodTimeouts["loadSession"] = 120;
-    m_methodTimeouts["cleanProject"] = 300; // 5 minutes
+    m_methodTimeouts["run_project"] = 60;
+    m_methodTimeouts["load_session"] = 120;
+    m_methodTimeouts["clean_project"] = 300; // 5 minutes
 
     // Initialize issues manager
     m_issuesManager = new IssuesManager(this);
@@ -448,7 +448,7 @@ bool MCPCommands::performDebuggingCleanupSync()
 
     // Step 5: Final timeout - wait up to configured timeout
     if (isDebuggingActive()) {
-        int timeoutSeconds = getMethodTimeout("stopDebug");
+        int timeoutSeconds = getMethodTimeout("stop_debug");
         if (timeoutSeconds < 0)
             timeoutSeconds = 30; // Default 30 seconds
 
@@ -833,23 +833,23 @@ QString MCPCommands::getMethodMetadata()
     QStringList allMethods
         = {"build",
            "debug",
-           "runProject",
-           "cleanProject",
-           "loadSession",
-           "getVersion",
-           "listProjects",
-           "listBuildConfigs",
-           "getCurrentProject",
-           "getCurrentBuildConfig",
+           "run_project",
+           "clean_project",
+           "load_session",
+           "get_version",
+           "list_projects",
+           "list_build_configs",
+           "get_current_project",
+           "get_current_build_config",
            "quit",
-           "listOpenFiles",
-           "listSessions",
-           "getCurrentSession",
-           "saveSession",
-           "listIssues",
-           "getMethodMetadata",
-           "setMethodMetadata",
-           "stopDebug"};
+           "list_open_files",
+           "list_sessions",
+           "get_current_session",
+           "save_session",
+           "list_issues",
+           "get_method_metadata",
+           "set_method_metadata",
+           "stop_debug"};
 
     results.append("Available methods and their timeout settings:");
     results.append("");
@@ -868,12 +868,12 @@ QString MCPCommands::getMethodMetadata()
     // Add descriptions for key methods
     results.append("build: Compile the current project");
     results.append("debug: Start debugging the current project");
-    results.append("stopDebug: Stop the current debug session");
-    results.append("runProject: Run the current project");
-    results.append("cleanProject: Clean build artifacts");
-    results.append("listIssues: List current build issues and warnings");
-    results.append("getMethodMetadata: Get metadata about all methods");
-    results.append("setMethodMetadata: Configure timeout values for methods");
+    results.append("stop_debug: Stop the current debug session");
+    results.append("run_project: Run the current project");
+    results.append("clean_project: Clean build artifacts");
+    results.append("list_issues: List current build issues and warnings");
+    results.append("get_method_metadata: Get metadata about all methods");
+    results.append("set_method_metadata: Configure timeout values for methods");
 
     results.append("");
     results.append("=== METADATA COMPLETE ===");
@@ -897,7 +897,7 @@ QString MCPCommands::setMethodMetadata(const QString &method, int timeoutSeconds
     }
 
     // List of valid methods that support timeout configuration
-    QStringList validMethods = {"debug", "build", "runProject", "loadSession", "cleanProject"};
+    QStringList validMethods = {"debug", "build", "run_project", "load_session", "clean_project"};
 
     if (!validMethods.contains(method)) {
         results.append("ERROR: Method '" + method + "' does not support timeout configuration");
