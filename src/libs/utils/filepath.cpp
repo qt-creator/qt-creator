@@ -655,6 +655,9 @@ QStringView FilePath::pathView() const
 
 QString FilePath::path() const
 {
+    if (m_schemeLen == 0 && m_hostLen == 0)
+        return m_data;
+
     return pathView().toString();
 }
 
@@ -1438,8 +1441,10 @@ void FilePath::setPath(QStringView path)
     setParts(scheme(), host(), path);
 }
 
-void FilePath::setFromString(QStringView fileNameView)
+void FilePath::setFromString(const QString &fileNameStr)
 {
+    QStringView fileNameView = QStringView{fileNameStr};
+
     static const QStringView qtcDevSlash(u"__qtc_devices__/");
     static const QStringView colonSlashSlash(u"://");
 
@@ -1453,6 +1458,13 @@ void FilePath::setFromString(QStringView fileNameView)
         fileNameView = dummy;
     }
 #endif
+
+    const auto setDirectly = [&]{
+        m_data = fileNameStr;
+        m_schemeLen = 0;
+        m_hostLen = 0;
+        m_pathLen = fileNameStr.size();
+    };
 
     const QChar slash('/');
 
@@ -1485,7 +1497,7 @@ void FilePath::setFromString(QStringView fileNameView)
             return;
         }
 
-        setParts({}, {}, fileNameView);
+        setDirectly();
         return;
     }
 
@@ -1506,7 +1518,12 @@ void FilePath::setFromString(QStringView fileNameView)
         return;
     }
 
-    setParts({}, {}, fileNameView);
+    if (fileNameView.startsWith(u"/./")) {
+        setParts({}, {}, fileNameView.mid(3));
+        return;
+    }
+
+    setDirectly();
 }
 
 Result<DeviceFileAccessPtr> FilePath::fileAccess() const

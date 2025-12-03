@@ -338,7 +338,7 @@ private:
     // Implementation details. May change.
     friend class ::tst_fileutils;
     void setPath(QStringView path);
-    void setFromString(QStringView filepath);
+    void setFromString(const QString &filepath);
     Utils::Result<DeviceFileAccessPtr> fileAccess() const;
 
     [[nodiscard]] QString encodedHost() const;
