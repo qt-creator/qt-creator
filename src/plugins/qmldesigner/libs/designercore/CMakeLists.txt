@@ -194,7 +194,6 @@ extend_qtc_library(QmlDesignerCore
     imagecacheauxiliarydata.h
     import.h
     invalidargumentexception.h
-    iwidgetplugin.h
     mathutils.h
     modelfwd.h
     modelnode.h

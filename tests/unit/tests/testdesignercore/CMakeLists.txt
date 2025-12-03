@@ -182,7 +182,6 @@ extend_qtc_library(TestDesignerCore
     imagecacheauxiliarydata.h
     import.h
     invalidargumentexception.h
-    iwidgetplugin.h
     mathutils.h
     modelfwd.h
     modelnode.h
