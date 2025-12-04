@@ -611,7 +611,6 @@ void DebuggerItemModel::autoDetectCdbDebuggers()
         item.setEngineType(CdbEngineType);
         item.setUnexpandedDisplayName(
             uniqueDisplayName(Tr::tr("Auto-detected CDB at \"%1\"").arg(cdb.toUserOutput())));
-        item.reinitializeFromFile(); // collect version number
         addDebuggerItem(item);
     }
 }
