@@ -490,10 +490,10 @@ static void registerActionsForOptions()
         if (!commandId.isValid())
             continue;
 
-        ActionBuilder(m_instance, commandId)
+        ActionBuilder(ICore::instance(), commandId)
             .setText(Tr::tr("%1 > %2 Preferences...")
                          .arg(categoryDisplay.value(page->category()), page->displayName()))
-            .addOnTriggered(m_instance, [id = page->id()] {
+            .addOnTriggered(ICore::instance(), [id = page->id()] {
                 ICore::showOptionsDialog(id);
             });
     }
