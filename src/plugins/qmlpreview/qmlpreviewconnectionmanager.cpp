@@ -152,31 +152,31 @@ void QmlPreviewConnectionManager::createPreviewClient()
             &QmlPreviewClient::pathRequested,
             this,
             [this](const QString &path) {
-                const bool found = m_projectFileFinder.findFileOrDirectory(
+                bool found = false;
+                m_projectFileFinder.findFileOrDirectory(
                     Utils::FilePath::fromString(path),
                     [&](const Utils::FilePath &filename, int confidence) {
-                        if (m_fileLoader && confidence == path.length()) {
-                            bool success = false;
-                            QByteArray contents = m_fileLoader(filename.toFSPathString(), &success);
-                            if (success) {
-                                if (!m_fileSystemWatcher.watchesFile(filename)) {
-                                    m_fileSystemWatcher
-                                        .addFile(filename,
-                                                 Utils::FileSystemWatcher::WatchModifiedDate);
-                                }
-                                m_qmlPreviewClient->announceFile(path, contents);
-                            } else {
-                                m_qmlPreviewClient->announceError(path);
-                            }
-                        } else {
-                            m_qmlPreviewClient->announceError(path);
+                        if (!m_fileLoader || confidence < path.size())
+                            return;
+
+                        bool success = false;
+                        QByteArray contents = m_fileLoader(filename.toFSPathString(), &success);
+                        if (!success)
+                            return;
+
+                        if (!m_fileSystemWatcher.watchesFile(filename)) {
+                            m_fileSystemWatcher.addFile(
+                                filename, Utils::FileSystemWatcher::WatchModifiedDate);
                         }
+                        m_qmlPreviewClient->announceFile(path, contents);
+                        found = true;
                     },
                     [&](const QStringList &entries, int confidence) {
-                        if (confidence == path.length())
-                            m_qmlPreviewClient->announceDirectory(path, entries);
-                        else
-                            m_qmlPreviewClient->announceError(path);
+                        if (confidence < path.size())
+                            return;
+
+                        m_qmlPreviewClient->announceDirectory(path, entries);
+                        found = true;
                     });
 
                 if (!found)
