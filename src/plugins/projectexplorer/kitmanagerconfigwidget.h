@@ -42,6 +42,7 @@ public:
     void addAspectsToWorkingCopy(Layouting::Layout &parent);
     void makeStickySubWidgetsReadOnly();
 
+    Kit *kit() const { return m_kit; }
     Kit *workingCopy() const;
     bool isRegistering() const { return m_isRegistering; }
     bool isDefaultKit() const;
