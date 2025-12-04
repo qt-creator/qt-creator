@@ -105,7 +105,6 @@ private:
     QStringList parseSyntaxHighlightingXml();
 
     void fetchFromCapabilities() const;
-    void parseFromCapabilities(const QString &input) const;
 
     // Note: New items here need also be handled in CMakeToolItemModel::apply()
     // FIXME: Use a saner approach.

@@ -69,6 +69,8 @@ public:
     QMutex m_keywordsMutex;
     QList<FileApi> m_fileApis;
     CMakeTool::Version m_version;
+
+    void parseFromCapabilities(const QString &input);
 };
 
 } // namespace Internal
@@ -453,7 +455,7 @@ void CMakeTool::fetchFromCapabilities() const
 
         if (cmake.result() == ProcessResult::FinishedWithSuccess) {
             m_introspection->m_haveCapabilitites = true;
-            parseFromCapabilities(cmake.cleanedStdOut());
+            m_introspection->parseFromCapabilities(cmake.cleanedStdOut());
             return;
         } else {
             qCCritical(cmakeToolLog)
@@ -479,7 +481,7 @@ static int getVersion(const QVariantMap &obj, const QString &value)
     return result;
 }
 
-void CMakeTool::parseFromCapabilities(const QString &input) const
+void Internal::IntrospectionData::parseFromCapabilities(const QString &input)
 {
     auto doc = QJsonDocument::fromJson(input.toUtf8());
     if (!doc.isObject())
@@ -489,10 +491,12 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
     const QVariantList generatorList = data.value("generators").toList();
     for (const QVariant &v : generatorList) {
         const QVariantMap gen = v.toMap();
-        m_introspection->m_generators.append(Generator(gen.value("name").toString(),
-                                                       gen.value("extraGenerators").toStringList(),
-                                                       gen.value("platformSupport").toBool(),
-                                                       gen.value("toolsetSupport").toBool()));
+        m_generators.append(
+            CMakeTool::Generator(
+                gen.value("name").toString(),
+                gen.value("extraGenerators").toStringList(),
+                gen.value("platformSupport").toBool(),
+                gen.value("toolsetSupport").toBool()));
     }
 
     const QVariantMap fileApis = data.value("fileApi").toMap();
@@ -511,14 +515,14 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
                 highestVersion = version;
         }
         if (!kind.isNull() && highestVersion.first != -1 && highestVersion.second != -1)
-            m_introspection->m_fileApis.append({kind, highestVersion});
+            m_fileApis.append({kind, highestVersion});
     }
 
     const QVariantMap versionInfo = data.value("version").toMap();
-    m_introspection->m_version.major = versionInfo.value("major").toInt();
-    m_introspection->m_version.minor = versionInfo.value("minor").toInt();
-    m_introspection->m_version.patch = versionInfo.value("patch").toInt();
-    m_introspection->m_version.fullVersion = versionInfo.value("string").toByteArray();
+    m_version.major = versionInfo.value("major").toInt();
+    m_version.minor = versionInfo.value("minor").toInt();
+    m_version.patch = versionInfo.value("patch").toInt();
+    m_version.fullVersion = versionInfo.value("string").toByteArray();
 }
 
 void CMakeTool::setDetectionSource(const DetectionSource &source)
