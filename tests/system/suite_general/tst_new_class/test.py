@@ -29,6 +29,7 @@ def main():
         type(editor, notOverwrittenComment)
         type(editor, "<Return>")
         invokeMenuItem("File", "Save All")
+        waitForFileSaved("File saved.")
         clickButton(waitForObject(":Qt Creator.CloseDoc_QToolButton"))
     if test.verify(waitFor("str(mainWindow.windowTitle).startswith(headerFileName + ' ')", 2000),
                    "Header file was shown after closing source?"):
@@ -58,7 +59,9 @@ def main():
         type(editor, notOverwrittenComment)
         type(editor, "<Return>")
         invokeMenuItem("File", "Save All")
+        waitForFileSaved("All files saved.")
         invokeMenuItem("File", "Close All")
+        waitForClosedAll()
 
     def overwritten(filename):
         return notOverwrittenComment not in readFile(os.path.join(basePath, filename))

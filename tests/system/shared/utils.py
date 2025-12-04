@@ -162,7 +162,8 @@ def invokeMenuItem(menu, item, *subItems):
         except:
             nativeMouseClick(waitForObject(":Qt Creator_Core::Internal::MainWindow", 1000), 20, 20, 0, Qt.LeftButton)
     # Use Locator for menu items which wouldn't work on macOS
-    if menu == "Edit" and item == "Preferences..." or menu == "File" and item == "Exit":
+    if (menu == "Edit" and item == "Preferences..." or menu == "File" and item == "Exit"
+        or menu == "File" and item == "Close All"):
         selectFromLocator("t %s" % item, item)
         return
     menuObject = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar", menu)
@@ -636,3 +637,19 @@ def setReloadBehavior(to):
     selectFromCombo("{type='QComboBox' unnamed='1' leftWidget={type='QLabel' "
                     "text='When files are externally modified:'}}", to)
     clickButton(":Options.Apply_QPushButton")
+
+
+# needs to get called with Edit or Debug mode visible
+def waitForFileSaved(msg):
+    fileNameCombo = waitForObject(":Qt Creator_FilenameQComboBox", 2000)
+    test.verify(waitFor(lambda : not str(fileNameCombo.currentText).endswith('*'), 2000), msg)
+
+
+def waitForClosedAll():
+    label = "{type='QLabel' text~='%s' window=':Qt Creator_Core::Internal::MainWindow'}"
+    label = label % 'Open a document.*Drag and drop files here'
+    try:
+        waitForObject(label, 3000)
+        test.passes("Closed all documents.")
+    except:
+        test.fail("Failed to close all documents.")
