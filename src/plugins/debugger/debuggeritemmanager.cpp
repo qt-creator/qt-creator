@@ -1225,6 +1225,9 @@ public:
         itemModel().cancel();
     }
 
+    QModelIndex mapFromSource(const QModelIndex &idx) const;
+    QModelIndex mapToSource(const QModelIndex &idx) const;
+
     void cloneDebugger();
     void addDebugger();
     void removeDebugger();
@@ -1239,6 +1242,16 @@ public:
     DetailsWidget *m_container;
     DebuggerItemConfigWidget *m_itemConfigWidget;
 };
+
+QModelIndex DebuggerSettingsPageWidget::mapFromSource(const QModelIndex &idx) const
+{
+    return m_sortModel->mapFromSource(idx);
+}
+
+QModelIndex DebuggerSettingsPageWidget::mapToSource(const QModelIndex &idx) const
+{
+    return m_sortModel->mapToSource(idx);
+}
 
 void DebuggerSettingsPageWidget::cloneDebugger()
 {
@@ -1255,7 +1268,7 @@ void DebuggerSettingsPageWidget::cloneDebugger()
     newItem.setDetectionSource({DetectionSource::Manual, item->detectionSource().id});
     newItem.setEngineType(item->engineType());
     auto addedItem = itemModel().addDebuggerItem(newItem, true);
-    m_debuggerView->setCurrentIndex(m_sortModel->mapFromSource(itemModel().indexForItem(addedItem)));
+    m_debuggerView->setCurrentIndex(mapFromSource(itemModel().indexForItem(addedItem)));
 }
 
 void DebuggerSettingsPageWidget::addDebugger()
@@ -1265,7 +1278,7 @@ void DebuggerSettingsPageWidget::addDebugger()
     item.setEngineType(NoEngineType);
     item.setUnexpandedDisplayName(itemModel().uniqueDisplayName(Tr::tr("New Debugger")));
     auto addedItem = itemModel().addDebuggerItem(item, true);
-    m_debuggerView->setCurrentIndex(m_sortModel->mapFromSource(itemModel().indexForItem(addedItem)));
+    m_debuggerView->setCurrentIndex(mapFromSource(itemModel().indexForItem(addedItem)));
 }
 
 void DebuggerSettingsPageWidget::removeDebugger()
@@ -1279,7 +1292,7 @@ void DebuggerSettingsPageWidget::removeDebugger()
 
 void DebuggerSettingsPageWidget::currentDebuggerChanged(const QModelIndex &newCurrent)
 {
-    itemModel().setCurrentIndex(m_sortModel->mapToSource(newCurrent));
+    itemModel().setCurrentIndex(mapToSource(newCurrent));
     updateButtons();
 }
 
