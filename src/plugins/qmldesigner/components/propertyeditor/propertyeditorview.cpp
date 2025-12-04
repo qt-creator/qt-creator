@@ -1019,8 +1019,8 @@ void PropertyEditorView::modelAttached(Model *model)
 
 static PropertyEditorValue *variantToPropertyEditorValue(const QVariant &value)
 {
-    if (auto object = get_if<QObject *>(&value))
-        return qobject_cast<PropertyEditorValue *>(*object);
+    if (auto object = get_if<PropertyEditorValue *>(&value))
+        return *object;
 
     return nullptr;
 }
