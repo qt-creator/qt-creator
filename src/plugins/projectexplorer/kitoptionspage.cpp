@@ -150,10 +150,10 @@ public:
     void ensureWidget();
 
 private:
-    Kit *m_kit = m_kit;
-    KitModel *m_model = nullptr;
+    Kit * const m_kit;
+    KitModel * const m_model;
     KitManagerConfigWidget *m_widget = nullptr;
-    QBoxLayout *m_parentLayout = nullptr;
+    QBoxLayout * const m_parentLayout;
     bool m_isDefaultKit = false;
     bool m_hasUniqueName = true;
 };
