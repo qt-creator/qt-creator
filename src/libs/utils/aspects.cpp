@@ -828,16 +828,9 @@ public:
 class SelectionAspectPrivate
 {
 public:
-    ~SelectionAspectPrivate() { delete m_buttonGroup; }
-
-    SelectionAspect::DisplayStyle m_displayStyle
-            = SelectionAspect::DisplayStyle::RadioButtons;
+    SelectionAspect::DisplayStyle m_displayStyle = SelectionAspect::DisplayStyle::RadioButtons;
     QList<SelectionAspect::Option> m_options;
-
-    // These are all owned by the configuration widget.
-    QList<QPointer<QRadioButton>> m_buttons;
-    QPointer<QComboBox> m_comboBox;
-    QPointer<QButtonGroup> m_buttonGroup;
+    UndoableValue<int> m_undoable;
 };
 
 class MultiSelectionAspectPrivate
@@ -2266,14 +2259,12 @@ SelectionAspect::~SelectionAspect() = default;
 */
 void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    QTC_CHECK(d->m_buttonGroup == nullptr);
-    QTC_CHECK(!d->m_comboBox);
-    QTC_ASSERT(d->m_buttons.isEmpty(), d->m_buttons.clear());
+    d->m_undoable.setSilently(value());
 
     switch (d->m_displayStyle) {
-    case DisplayStyle::RadioButtons:
-        d->m_buttonGroup = new QButtonGroup();
-        d->m_buttonGroup->setExclusive(true);
+    case DisplayStyle::RadioButtons: {
+        auto buttonGroup = new QButtonGroup();
+        buttonGroup->setExclusive(true);
         for (int i = 0, n = d->m_options.size(); i < n; ++i) {
             const Option &option = d->m_options.at(i);
             auto button = createSubWidget<QRadioButton>(option.displayName);
@@ -2281,60 +2272,53 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
             button->setEnabled(option.enabled);
             button->setToolTip(option.tooltip);
             parent.addItem(button);
-            d->m_buttons.append(button);
-            d->m_buttonGroup->addButton(button, i);
+            buttonGroup->addButton(button, i);
         }
         bufferToGui();
-        connect(d->m_buttonGroup, &QButtonGroup::idClicked,
-                this, &SelectionAspect::handleGuiChanged);
+        connect(&d->m_undoable.m_signal, &UndoSignaller::changed, buttonGroup, [buttonGroup, this] {
+            QAbstractButton *button = buttonGroup->button(d->m_undoable.get());
+            QTC_ASSERT(button, return);
+            button->setChecked(true);
+        });
+
+        connect(buttonGroup, &QButtonGroup::idToggled, this, [this, buttonGroup] {
+            d->m_undoable.set(undoStack(), buttonGroup->id(buttonGroup->checkedButton()));
+            handleGuiChanged();
+        });
         break;
+    }
     case DisplayStyle::ComboBox:
         setLabelText(displayName());
-        d->m_comboBox = createSubWidget<QComboBox>();
+        auto comboBox = createSubWidget<QComboBox>();
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
-            d->m_comboBox->addItem(d->m_options.at(i).displayName);
-        d->m_comboBox->setCurrentIndex(value());
-        addLabeledItem(parent, d->m_comboBox);
-        bufferToGui();
-        connect(d->m_comboBox.data(), &QComboBox::activated,
-                this, &SelectionAspect::handleGuiChanged);
+            comboBox->addItem(d->m_options.at(i).displayName);
+        comboBox->setCurrentIndex(value());
+        addLabeledItem(parent, comboBox);
+        connect(&d->m_undoable.m_signal, &UndoSignaller::changed, comboBox, [comboBox, this] {
+            comboBox->setCurrentIndex(d->m_undoable.get());
+        });
+        connect(comboBox, &QComboBox::currentIndexChanged, this, [this, comboBox] {
+            d->m_undoable.set(undoStack(), comboBox->currentIndex());
+            handleGuiChanged();
+        });
+
         break;
     }
 }
 
 bool SelectionAspect::guiToBuffer()
 {
-    const int old = m_buffer;
-    switch (d->m_displayStyle) {
-    case DisplayStyle::RadioButtons:
-        if (d->m_buttonGroup)
-            m_buffer = d->m_buttonGroup->checkedId();
-        break;
-    case DisplayStyle::ComboBox:
-        if (d->m_comboBox)
-            m_buffer = d->m_comboBox->currentIndex();
-        break;
-    }
-    return m_buffer != old;
+    return updateStorage(m_buffer, d->m_undoable.get());
 }
 
 void SelectionAspect::bufferToGui()
 {
-    if (d->m_buttonGroup) {
-        QAbstractButton *button = d->m_buttonGroup->button(m_buffer);
-        QTC_ASSERT(button, return);
-        button->setChecked(true);
-    } else if (d->m_comboBox) {
-        d->m_comboBox->setCurrentIndex(m_buffer);
-    }
+    return d->m_undoable.setWithoutUndo(m_buffer);
 }
 
 void SelectionAspect::finish()
 {
-    delete d->m_buttonGroup;
-    d->m_buttonGroup = nullptr;
     BaseAspect::finish();
-    d->m_buttons.clear();
 }
 
 void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
