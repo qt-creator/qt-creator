@@ -237,15 +237,15 @@
             component. See \l {Annotating designs}.
         \li Select the \uicontrol Settings tab to specify the export path and
             asset format.
-        \li Select \uicontrol Export to export the document into a .qtbridge archive.
+        \li Select \uicontrol Export to export the document into a \c{.qtbridge} archive.
         \li When the exporting is done, select \uicontrol OK.
     \endlist
 
-    All the assets and metadata are exported into a .qtbridge archive in the directory
+    All the assets and metadata are exported into a .\c{.qtbridge} archive in the directory
     you specified. This might take a little while depending on the complexity of
     your project.
 
-    You can now create a project in \QDS and import the .qtbridge archive to it, as
+    You can now create a project in \QDS and import the .\c{.qtbridge} archive to it, as
     described in \l {Creating projects} and \l{Importing designs}.
 
     \section1 Specifying export path and asset format
@@ -255,7 +255,7 @@
 
     \image {qt-sketch-bridge-settings.png} {Qt Bridge for Sketch export settings with export path and asset format specified.}
 
-    \QBSK exports assets to a .qtbridge archive named after your
+    \QBSK exports assets to a .\c{.qtbridge} archive named after your
     Sketch file. By default, the directory is  located inside the parent directory
     of the Sketch file being exported. You can change the export path in the
     \uicontrol {Export Path} field.

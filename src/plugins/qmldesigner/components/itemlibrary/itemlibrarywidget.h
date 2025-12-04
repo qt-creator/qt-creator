@@ -69,7 +69,6 @@ public:
     void updateUsedImports(const Imports &usedImports);
 
     void setModel(Model *model);
-    void setFlowMode(bool b);
 
     inline static bool isHorizontalLayout = false;
 

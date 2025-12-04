@@ -4,6 +4,7 @@
 #pragma once
 
 #include "effectcodeeditorwidget.h"
+#include "shadereditordata.h"
 
 #include <texteditor/texteditor.h>
 
@@ -23,35 +24,16 @@ class EffectComposerUniformsTableModel;
 class EffectComposerEditableNodesModel;
 class EffectDocument;
 
-struct ShaderEditorData
-{
-    EffectComposerUniformsTableModel *tableModel = nullptr;
-
-    TextEditor::TextDocumentPtr fragmentDocument;
-    TextEditor::TextDocumentPtr vertexDocument;
-
-private:
-    friend class EffectShadersCodeEditor;
-    Utils::UniqueObjectLatePtr<EffectCodeEditorWidget> fragmentEditor;
-    Utils::UniqueObjectLatePtr<EffectCodeEditorWidget> vertexEditor;
-
-    ShaderEditorData() = default;
-};
-
 class EffectShadersCodeEditor : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(bool liveUpdate READ liveUpdate WRITE setLiveUpdate NOTIFY liveUpdateChanged)
 
-    Q_PROPERTY(
-        QString selectedShader
-        MEMBER m_selectedShaderName
-        WRITE selectShader
-        NOTIFY selectedShaderChanged)
+    Q_PROPERTY(QString selectedShader MEMBER m_selectedShaderName WRITE selectShader NOTIFY
+                   selectedShaderChanged)
 
 public:
-    EffectShadersCodeEditor(
-        const QString &title = tr("Untitled Editor"), QWidget *parent = nullptr);
+    EffectShadersCodeEditor(const QString &title = tr("Untitled Editor"), QWidget *parent = nullptr);
     ~EffectShadersCodeEditor() override;
 
     void showWidget();
@@ -69,21 +51,21 @@ public:
 
     void selectShader(const QString &shaderName);
 
+    const ShaderEditorData *currentEditorData() const;
+
     ShaderEditorData *createEditorData(
-        const QString &fragmentDocument,
-        const QString &vertexDocument,
-        EffectComposerUniformsModel *uniforms);
+        const QString &fragmentDocument, const QString &vertexDocument);
 
     Q_INVOKABLE void copyText(const QString &text);
     Q_INVOKABLE void insertTextToCursorPosition(const QString &text);
-
-    static EffectShadersCodeEditor *instance();
+    Q_INVOKABLE void switchToNodeIndex(int index);
 
 signals:
     void liveUpdateChanged(bool);
     void rebakeRequested();
     void openedChanged(bool);
     void selectedShaderChanged(const QString &);
+    void requestToOpenNode(int nodeIndex);
 
 protected:
     using QWidget::show;
@@ -104,6 +86,7 @@ private:
     void loadQml();
     void setUniformsModel(EffectComposerUniformsTableModel *uniforms);
     void selectNonEmptyShader(ShaderEditorData *data);
+    void setUniformCallbacksOnEditors(ShaderEditorData *data);
     void setSelectedShaderName(const QString &shaderName);
     void onEditorWidgetChanged();
     void onOpenStateChanged();

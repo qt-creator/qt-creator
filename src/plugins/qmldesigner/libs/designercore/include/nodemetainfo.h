@@ -94,10 +94,10 @@ public:
     FlagIs hideInNavigator() const;
     FlagIs visibleInLibrary(SL sl = {}) const;
 
-    bool hasProperty(::Utils::SmallStringView propertyName) const;
+    bool hasProperty(::Utils::SmallStringView propertyName, SL sl = {}) const;
     PropertyMetaInfos properties(SL sl = {}) const;
     PropertyMetaInfos localProperties(SL sl = {}) const;
-    PropertyMetaInfo property(PropertyNameView propertyName) const;
+    PropertyMetaInfo property(PropertyNameView propertyName, SL sl = {}) const;
     PropertyNameList signalNames(SL sl = {}) const;
     PropertyNameList slotNames(SL sl = {}) const;
     PropertyName defaultPropertyName(SL sl = {}) const;
@@ -107,11 +107,10 @@ public:
     NodeMetaInfos selfAndPrototypes(SL sl = {}) const;
     NodeMetaInfos prototypes(SL sl = {}) const;
     NodeMetaInfos heirs() const;
-    NodeMetaInfo commonBase(const NodeMetaInfo &metaInfo) const;
+    NodeMetaInfo commonPrototype(const NodeMetaInfo &metaInfo) const;
 
     bool defaultPropertyIsComponent() const;
 
-    QString displayName() const;
 #ifndef QDS_USE_PROJECTSTORAGE
     TypeName typeName() const;
     TypeName simplifiedTypeName() const;
@@ -163,17 +162,43 @@ public:
                    const NodeMetaInfo &metaInfo7,
                    SL sl = {}) const;
 
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo, SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1, const NodeMetaInfo &metaInfo2, SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1,
+                         const NodeMetaInfo &metaInfo2,
+                         const NodeMetaInfo &metaInfo3,
+                         SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1,
+                         const NodeMetaInfo &metaInfo2,
+                         const NodeMetaInfo &metaInfo3,
+                         const NodeMetaInfo &metaInfo4,
+                         SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1,
+                         const NodeMetaInfo &metaInfo2,
+                         const NodeMetaInfo &metaInfo3,
+                         const NodeMetaInfo &metaInfo4,
+                         const NodeMetaInfo &metaInfo5,
+                         SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1,
+                         const NodeMetaInfo &metaInfo2,
+                         const NodeMetaInfo &metaInfo3,
+                         const NodeMetaInfo &metaInfo4,
+                         const NodeMetaInfo &metaInfo5,
+                         const NodeMetaInfo &metaInfo6,
+                         SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1,
+                         const NodeMetaInfo &metaInfo2,
+                         const NodeMetaInfo &metaInfo3,
+                         const NodeMetaInfo &metaInfo4,
+                         const NodeMetaInfo &metaInfo5,
+                         const NodeMetaInfo &metaInfo6,
+                         const NodeMetaInfo &metaInfo7,
+                         SL sl = {}) const;
+
     bool isAlias(SL sl = {}) const;
     bool isBool(SL sl = {}) const;
     bool isColor(SL sl = {}) const;
     bool isFloat(SL sl = {}) const;
-    bool isFlowViewFlowActionArea() const;
-    bool isFlowViewFlowDecision(SL sl = {}) const;
-    bool isFlowViewFlowItem(SL sl = {}) const;
-    bool isFlowViewFlowTransition(SL sl = {}) const;
-    bool isFlowViewFlowView(SL sl = {}) const;
-    bool isFlowViewFlowWildcard(SL sl = {}) const;
-    bool isFlowViewItem(SL sl = {}) const;
     bool isFont(SL sl = {}) const;
     bool isGraphicalItem(SL sl = {}) const;
     bool isInteger(SL sl = {}) const;
@@ -200,6 +225,7 @@ public:
     bool isQtQuick3DMaterial() const;
     bool isQtQuick3DModel(SL sl = {}) const;
     bool isQtQuick3DNode(SL sl = {}) const;
+    bool isQtQuick3DObject3D(SL sl = {}) const;
     bool isQtQuick3DParticlesAbstractShape(SL sl = {}) const;
     bool isQtQuick3DParticles3DAffector3D(SL sl = {}) const;
     bool isQtQuick3DParticles3DAttractor3D(SL sl = {}) const;
@@ -216,10 +242,9 @@ public:
     bool isQtQuick3DCubeMapTexture(SL sl = {}) const;
     bool isQtQuick3DView3D(SL sl = {}) const;
     bool isQtQuickBorderImage(SL sl = {}) const;
-    bool isQtQuickControlsLabel(SL sl = {}) const;
-    bool isQtQuickControlsSwipeView(SL sl = {}) const;
-    bool isQtQuickControlsTabBar(SL sl = {}) const;
-    bool isQtQuickExtrasPicture(SL sl = {}) const;
+    bool isQtQuickTemplatesLabel(SL sl = {}) const;
+    bool isQtQuickTemplatesSwipeView(SL sl = {}) const;
+    bool isQtQuickTemplatesTabBar(SL sl = {}) const;
     bool isQtQuickGradient(SL sl = {}) const;
     bool isQtQuickImage(SL sl = {}) const;
     bool isQtQuickItem(SL sl = {}) const;
@@ -246,7 +271,7 @@ public:
     bool isQtQuickTimelineTimeline(SL sl = {}) const;
     bool isQtQuickTimelineTimelineAnimation(SL sl = {}) const;
     bool isQtQuickTransition(SL sl = {}) const;
-    bool isQtQuickWindowWindow(SL sl = {}) const;
+    bool isQtQuickWindow(SL sl = {}) const;
     bool isQtSafeRendererSafePicture(SL sl = {}) const;
     bool isQtSafeRendererSafeRendererPicture(SL sl = {}) const;
     bool isString(SL sl = {}) const;

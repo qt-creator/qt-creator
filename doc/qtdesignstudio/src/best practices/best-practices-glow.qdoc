@@ -42,17 +42,45 @@
     \note When setting up or experimenting with the glow effect, use the \l {Blend Modes}{Replace}
     blend mode to see the effect more clearly.
 
-    \section1 The Flashlight Example project
+    \section1 Flashlight Example project
 
     The flashlight example used in this documentation is available from the \uicontrol Examples
     section of the \QDS \uicontrol Welcome page.
 
-    You can use the project to experiment with the \uicontrol Glow properties. When you run the
+    Use the project to experiment with the \uicontrol Glow properties. When you run the
     project, you can control most properties with UI controls. Another way to experiment with
     properties is to change them directly in the \uicontrol Properties view in \QDS and see the
     changes live in the \uicontrol 2D view.
 
     \image {glow-example-project.webp} {The Flashlight Example project running.}
+
+    \section2 Controls
+
+    \table
+      \header
+        \li Description
+        \li Control
+      \row
+        \li Rotate the camera
+        \li Left mouse button
+      \row
+        \li Move the camera
+        \li \key Ctrl + left mouse button
+      \row
+        \li Rotate the flashlight
+        \li Right mouse button
+    \endtable
+
+    \section2 Light sources
+
+    In the scene, there are the following light sources (affected by the glow and bloom effects):
+
+    \list
+      \li A flashlight.
+      \li A computer screen.
+      \li Two candle lights.
+      \li A scene environment (HDR image).
+    \endlist
 
     \section1 Basic properties
 

@@ -17,14 +17,14 @@
     top part of the view displays properties that are common to all components,
     such as component type, ID, name, geometry, and visibility.
 
-    \image qtquick-item-properties-common.webp "Basic component properties"
+    \image {qtquick-item-properties-common.webp} {The basic component properties.}
 
     The bottom part of the view displays properties that have been defined for
     the component type. For example, the following image displays the predefined
     properties you can set for \l{basic-rectangle}{Rectangle} and \l Text
     components.
 
-    \image qmldesigner-element-properties.webp "Rectangle and Text properties"
+    \image qmldesigner-element-properties.webp {The Rectangle and Text tabs in the Properties view.}
 
     \section1 Custom properties
 
@@ -44,7 +44,7 @@
         \li A property that has been added inside a component.
     \endtable
 
-    \image {custom-properties.png} {Local Custom Properties and Exposed Custom Properties settings in the Settings view.}
+    \image {custom-properties.png} {The Local Custom Properties and Exposed Custom Properties settings in the Settings view.}
 
     \section1 Viewing changes in properties
 
@@ -64,12 +64,12 @@
     \uicontrol Position and \uicontrol Size values are explicitly set
     and highlighted.
 
-    \image qmldesigner-properties-explicit-base.png "Explicitly set properties"
+    \image {qmldesigner-properties-explicit-base.png} {Explicitly set properties.}
 
     In \uicontrol State1, only \uicontrol Position is explicitly set and
     highlighted.
 
-    \image qmldesigner-properties-explicit-state1.png "Explicitly set properties"
+    \image {qmldesigner-properties-explicit-state1.png} {Explicitly set properties.}
 
     Resetting a property sets it back to the default value and removes the value
     from the component file.
@@ -115,6 +115,36 @@
 
     You can \l{Locking Components}{lock other components} in
     \uicontrol Navigator to make multiselection easier.
+
+    \section1 Editing properties in multiple views
+
+    You can open multiple \uicontrol Properties views to edit the properties of multiple nodes
+    simultaneously. You can lock each of the \uicontrol Properties views to prevent the subject node from
+    changing by each selection.
+
+    To edit properties in multiple views, you first need to enable
+    \uicontrol {Multi Property Editor}:
+      \list 1
+        \li Select  \uicontrol Help > \uicontrol {About Plugins}, and then select
+            \uicontrol {Multi Property Editor}.
+        \li Restart \QDS.
+      \endlist
+
+    To edit the properties of multiple nodes simultaneously:
+      \list 1
+        \li In \uicontrol Navigator, select any node and open the
+            \uicontrol {Properties} view to edit its properties.
+        \li In \uicontrol Properties, to open another \uicontrol Properties view for editing
+            properties of another node:
+          \list 1
+            \li Select \imagelockoff to prevent the subject node from changing.
+            \li In \uicontrol Navigator, select another node.
+            \li In \uicontrol Properties, select \imageplus to edit its properties
+                in another \uicontrol Properties view.
+          \endlist
+        \li Edit the properties in each of the \uicontrol Properties views as needed.
+                \image {opening-multiple-properties-views.webp} {Opening a new Properties view to edit the properties of another node.}
+      \endlist
 
     \section1 Getting help for properties
 

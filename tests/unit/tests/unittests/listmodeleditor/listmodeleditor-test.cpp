@@ -78,6 +78,16 @@ class ListModelEditor : public testing::Test
                                                          QmlDesigner::NonLockingMutex>;
 
 public:
+    struct StaticData
+    {
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
+    };
+
+    static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
+
+    static void TearDownTestSuite() { staticData.reset(); }
+
     ListModelEditor()
     {
         designerModel->attachView(&mockView);
@@ -206,18 +216,21 @@ public:
     }
 
 protected:
+    inline static std::unique_ptr<StaticData> staticData;
+    QmlDesigner::ModulesStorage &modulesStorage = staticData->modulesStorage;
     NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
-    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId,
+                                                               "/path",
+                                                               modulesStorage};
     NiceMock<MockFunction<ModelNode(const ModelNode &)>> goIntoComponentMock;
-    QmlDesigner::ModelPointer designerModel{
-        QmlDesigner::Model::create(QmlDesigner::ProjectStorageDependencies{projectStorageMock,
-                                                                           pathCacheMock,
-                                                                           projectStorageTriggerUpdateMock},
-                                   "Item",
-                                   {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
-                                    QmlDesigner::Import::createLibraryImport("QtQuick")},
-                                   pathCacheMock.path.toQString())};
+    QmlDesigner::ModelPointer designerModel{QmlDesigner::Model::create(
+        QmlDesigner::ProjectStorageDependencies{
+            projectStorageMock, pathCacheMock, modulesStorage, projectStorageTriggerUpdateMock},
+        "Item",
+        {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
+         QmlDesigner::Import::createLibraryImport("QtQuick")},
+        pathCacheMock.path.toQString())};
     NiceMock<AbstractViewMock> mockView;
     QmlDesigner::ListModelEditorModel model{[&] { return mockView.createModelNode("ListModel"); },
                                             [&] { return mockView.createModelNode("ListElement"); },
@@ -229,12 +242,12 @@ protected:
     ModelNode element1;
     ModelNode element2;
     ModelNode element3;
-    QmlDesigner::ModelPointer componentModel{
-        QmlDesigner::Model::create({projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
-                                   "ListModel",
-                                   {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
-                                    QmlDesigner::Import::createLibraryImport("QtQuick")},
-                                   pathCacheMock.path.toQString())};
+    QmlDesigner::ModelPointer componentModel{QmlDesigner::Model::create(
+        {projectStorageMock, pathCacheMock, modulesStorage, projectStorageTriggerUpdateMock},
+        "ListModel",
+        {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
+         QmlDesigner::Import::createLibraryImport("QtQuick")},
+        pathCacheMock.path.toQString())};
     NiceMock<AbstractViewMock> mockComponentView;
     ModelNode componentElement;
 };

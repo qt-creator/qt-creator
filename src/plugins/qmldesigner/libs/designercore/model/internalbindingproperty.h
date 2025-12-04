@@ -18,7 +18,7 @@ public:
 
     bool isValid() const override;
 
-    QString expression() const;
+    const QString &expression() const;
     void setExpression(const QString &expression);
 
     void setDynamicExpression(const TypeName &type, const QString &expression);

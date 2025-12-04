@@ -91,15 +91,16 @@ static qreal getcurrentFrame(const QmlTimeline &timeline)
     return timeline.currentKeyframe();
 }
 
-TimelineWidget::TimelineWidget(TimelineView *view)
+TimelineWidget::TimelineWidget(TimelineView *view, ModulesStorage &modulesStorage)
     : QWidget()
+    , m_modulesStorage(modulesStorage)
     , m_toolbar(new TimelineToolBar(this))
     , m_rulerView(new QGraphicsView(this))
     , m_graphicsView(new QGraphicsView(this))
     , m_scrollbar(new Utils::ScrollBar(this))
     , m_statusBar(new QLabel(this))
     , m_timelineView(view)
-    , m_graphicsScene(new TimelineGraphicsScene(this, view->externalDependencies()))
+    , m_graphicsScene(new TimelineGraphicsScene(this, view->externalDependencies(), modulesStorage))
     , m_addButton(new QPushButton(this))
     , m_onboardingContainer(new QWidget(this))
     , m_loopPlayback(false)

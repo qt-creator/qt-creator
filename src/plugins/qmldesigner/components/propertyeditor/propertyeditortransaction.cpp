@@ -2,18 +2,26 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "propertyeditortransaction.h"
+
+#include "propertyeditortracing.h"
+
 #include <QTimerEvent>
 
 #include <QDebug>
 
 namespace QmlDesigner {
 
+using QmlDesigner::PropertyEditorTracing::category;
+
 PropertyEditorTransaction::PropertyEditorTransaction(QmlDesigner::PropertyEditorView *propertyEditor) : QObject(propertyEditor), m_propertyEditor(propertyEditor), m_timerId(-1)
 {
+    NanotraceHR::Tracer tracer{"property editor transaction constructor", category()};
 }
 
 void PropertyEditorTransaction::start()
 {
+    NanotraceHR::Tracer tracer{"property editor transaction start", category()};
+
     if (!m_propertyEditor->model())
         return;
     if (m_rewriterTransaction.isValid())
@@ -24,7 +32,9 @@ void PropertyEditorTransaction::start()
 
 void PropertyEditorTransaction::end()
 {
-    if (m_rewriterTransaction.isValid() &&  m_propertyEditor->model()) {
+    NanotraceHR::Tracer tracer{"property editor transaction end", category()};
+
+    if (m_rewriterTransaction.isValid() && m_propertyEditor->model()) {
         killTimer(m_timerId);
         m_rewriterTransaction.commit();
     }
@@ -32,6 +42,8 @@ void PropertyEditorTransaction::end()
 
 bool PropertyEditorTransaction::active() const
 {
+    NanotraceHR::Tracer tracer{"property editor transaction active", category()};
+
     return m_rewriterTransaction.isValid();
 }
 
@@ -39,6 +51,9 @@ void PropertyEditorTransaction::timerEvent(QTimerEvent *timerEvent)
 {
     if (timerEvent->timerId() != m_timerId)
         return;
+
+    NanotraceHR::Tracer tracer{"property editor transaction timer event", category()};
+
     killTimer(timerEvent->timerId());
     if (m_rewriterTransaction.isValid())
         m_rewriterTransaction.commit();

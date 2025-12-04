@@ -69,6 +69,7 @@ public:
 
     explicit NodeInstanceView(ConnectionManagerInterface &connectionManager,
                               ExternalDependenciesInterface &externalDependencies,
+                              ModulesStorage &modulesStorage,
                               bool qsbEnabled = false);
     ~NodeInstanceView() override;
 
@@ -102,7 +103,8 @@ public:
     void sceneCreated(const SceneCreatedCommand &command) override;
 
     QList<NodeInstance> instances() const;
-    NodeInstance instanceForModelNode(const ModelNode &node) const ;
+    const NodeInstance &instanceForModelNode(const ModelNode &node) const;
+    NodeInstance &instanceForModelNode(const ModelNode &node);
     bool hasInstanceForModelNode(const ModelNode &node) const;
 
     NodeInstance instanceForId(qint32 id) const;
@@ -281,6 +283,7 @@ private:
     QHash<ModelNode, QImage> m_statePreviewImage;
     ConnectionManagerInterface &m_connectionManager;
     ExternalDependenciesInterface &m_externalDependencies;
+    ModulesStorage &m_modulesStorage;
     std::unique_ptr<NodeInstanceServerProxy> m_nodeInstanceServer;
     QImage m_baseStatePreviewImage;
     QElapsedTimer m_lastCrashTime;

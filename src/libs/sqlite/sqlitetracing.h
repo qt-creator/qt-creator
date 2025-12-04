@@ -5,25 +5,30 @@
 
 #include <nanotrace/nanotracehr.h>
 
+#include <memory>
+
 namespace Sqlite {
 using namespace NanotraceHR::Literals;
 
-constexpr NanotraceHR::Tracing sqliteTracingStatus()
-{
 #ifdef ENABLE_SQLITE_TRACING
-    return NanotraceHR::Tracing::IsEnabled;
+
+using TraceFile = NanotraceHR::EnabledTraceFile;
+
+SQLITE_EXPORT std::shared_ptr<NanotraceHR::EnabledTraceFile> traceFile();
+
+NanotraceHR::EnabledCategory &sqliteLowLevelCategory();
+
+SQLITE_EXPORT NanotraceHR::EnabledCategory &sqliteHighLevelCategory();
 #else
-    return NanotraceHR::Tracing::IsDisabled;
-#endif
+inline NanotraceHR::DisabledCategory sqliteLowLevelCategory()
+{
+    return {};
 }
 
-using TraceFile = NanotraceHR::TraceFile<sqliteTracingStatus()>;
-
-SQLITE_EXPORT TraceFile &traceFile();
-
-NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteLowLevelCategory();
-
-SQLITE_EXPORT NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &
-sqliteHighLevelCategory();
+inline NanotraceHR::DisabledCategory sqliteHighLevelCategory()
+{
+    return {};
+}
+#endif
 
 } // namespace Sqlite

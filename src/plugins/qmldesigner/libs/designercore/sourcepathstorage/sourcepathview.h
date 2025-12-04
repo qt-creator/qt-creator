@@ -6,6 +6,7 @@
 #include <utils/smallstringview.h>
 
 #include <algorithm>
+#include <ranges>
 #include <vector>
 
 namespace QmlDesigner {
@@ -60,13 +61,28 @@ public:
                       std::size_t(std::ptrdiff_t(size()) - m_slashIndex - std::ptrdiff_t(1)));
     }
 
-    static
-    std::ptrdiff_t lastSlashIndex(Utils::SmallStringView filePath)
+    static constexpr std::tuple<std::string_view, std::string_view, std::string_view> commonPath(
+        std::string_view first, std::string_view second)
     {
-        auto foundReverse = std::find(filePath.rbegin(), filePath.rend(), separator);
+        auto [firstSplit, secondSplit] = std::ranges::mismatch(first, second);
+
+        firstSplit = std::ranges::find(std::make_reverse_iterator(firstSplit),
+                                       std::make_reverse_iterator(first.begin()),
+                                       separator)
+                         .base();
+
+        secondSplit = std::ranges::next(second.begin(),
+                                        std::ranges::distance(first.begin(), firstSplit));
+
+        return {{first.begin(), firstSplit}, {firstSplit, first.end()}, {secondSplit, second.end()}};
+    }
+
+    static constexpr std::ptrdiff_t lastSlashIndex(Utils::SmallStringView filePath)
+    {
+        auto foundReverse = std::ranges::find(filePath.rbegin(), filePath.rend(), separator);
         auto found = foundReverse.base();
 
-        auto distance = std::distance(filePath.begin(), found);
+        auto distance = std::ranges::distance(filePath.begin(), found);
 
         return distance - 1;
     }

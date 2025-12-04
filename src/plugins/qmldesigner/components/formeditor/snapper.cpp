@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "snapper.h"
+#include "formeditortracing.h"
 
 #include <QDebug>
 #include <QLineF>
@@ -15,22 +16,29 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 Snapper::Snapper()
     : m_containerFormEditorItem(nullptr),
     m_transformtionSpaceFormEditorItem(nullptr),
     m_snappingDistance(5.0)
 {
+    NanotraceHR::Tracer tracer{"snapper constructor", category()};
 }
 
 void Snapper::updateSnappingLines(const QList<FormEditorItem*> &exceptionList)
 {
+    NanotraceHR::Tracer tracer{"snapper update snapping lines", category()};
+
     if (m_containerFormEditorItem)
         m_containerFormEditorItem->updateSnappingLines(exceptionList, m_transformtionSpaceFormEditorItem);
 }
 
 void Snapper::updateSnappingLines(FormEditorItem* exceptionItem)
 {
-    QList<FormEditorItem*> exceptionList;
+    NanotraceHR::Tracer tracer{"snapper update snapping lines", category()};
+
+    QList<FormEditorItem *> exceptionList;
     exceptionList.append(exceptionItem);
     updateSnappingLines(exceptionList);
 }
@@ -38,22 +46,30 @@ void Snapper::updateSnappingLines(FormEditorItem* exceptionItem)
 
 void Snapper::setContainerFormEditorItem(FormEditorItem *formEditorItem)
 {
+    NanotraceHR::Tracer tracer{"snapper set container form editor item", category()};
+
     m_containerFormEditorItem = formEditorItem;
 }
 
 
 void Snapper::setTransformtionSpaceFormEditorItem(FormEditorItem *formEditorItem)
 {
+    NanotraceHR::Tracer tracer{"snapper set transformation space form editor item", category()};
+
     m_transformtionSpaceFormEditorItem = formEditorItem;
 }
 
 FormEditorItem *Snapper::transformtionSpaceFormEditorItem() const
 {
+    NanotraceHR::Tracer tracer{"snapper get transformation space form editor item", category()};
+
     return m_transformtionSpaceFormEditorItem;
 }
 
 double Snapper::snappedVerticalOffset(const QRectF &boundingRect) const
 {
+    NanotraceHR::Tracer tracer{"snapper snapped vertical offset", category()};
+
     double offset = std::numeric_limits<double>::max();
 
     offset = qMin(offset, snappedOffsetForLines(containerFormEditorItem()->leftSnappingLines(),
@@ -82,6 +98,8 @@ double Snapper::snappedVerticalOffset(const QRectF &boundingRect) const
 
 double Snapper::snappedHorizontalOffset(const QRectF &boundingRect) const
 {
+    NanotraceHR::Tracer tracer{"snapper snapped horizontal offset", category()};
+
     double offset = std::numeric_limits<double>::max();
 
     offset = qMin(offset, snappedOffsetForLines(containerFormEditorItem()->topSnappingLines(),
@@ -110,6 +128,8 @@ double Snapper::snappedHorizontalOffset(const QRectF &boundingRect) const
 
 double Snapper::snapTopOffset(const QRectF &boundingRect) const
 {
+    NanotraceHR::Tracer tracer{"snapper snap top offset", category()};
+
     double offset = std::numeric_limits<double>::max();
 
     offset = qMin(offset, snappedOffsetForLines(containerFormEditorItem()->topSnappingLines(),
@@ -125,6 +145,8 @@ double Snapper::snapTopOffset(const QRectF &boundingRect) const
 
 double Snapper::snapRightOffset(const QRectF &boundingRect) const
 {
+    NanotraceHR::Tracer tracer{"snapper snap right offset", category()};
+
     double offset = std::numeric_limits<double>::max();
 
     offset = qMin(offset, snappedOffsetForLines(containerFormEditorItem()->rightSnappingLines(),
@@ -140,6 +162,8 @@ double Snapper::snapRightOffset(const QRectF &boundingRect) const
 
 double Snapper::snapLeftOffset(const QRectF &boundingRect) const
 {
+    NanotraceHR::Tracer tracer{"snapper snap left offset", category()};
+
     double offset = std::numeric_limits<double>::max();
 
     offset = qMin(offset, snappedOffsetForLines(containerFormEditorItem()->leftSnappingLines(),
@@ -155,6 +179,8 @@ double Snapper::snapLeftOffset(const QRectF &boundingRect) const
 
 double Snapper::snapBottomOffset(const QRectF &boundingRect) const
 {
+    NanotraceHR::Tracer tracer{"snapper snap bottom offset", category()};
+
     double offset = std::numeric_limits<double>::max();
 
     offset = qMin(offset, snappedOffsetForLines(containerFormEditorItem()->bottomSnappingLines(),
@@ -172,6 +198,8 @@ double Snapper::snapBottomOffset(const QRectF &boundingRect) const
 
 QList<QLineF> Snapper::verticalSnappedLines(const QRectF &boundingRect, QList<QRectF> *boundingRects) const
 {
+    NanotraceHR::Tracer tracer{"snapper vertical snapped lines", category()};
+
     QList<QLineF> lineList = findSnappingLines(containerFormEditorItem()->leftSnappingLines(),
                                                Qt::Vertical,
                                                boundingRect.left(),
@@ -213,6 +241,8 @@ QList<QLineF> Snapper::verticalSnappedLines(const QRectF &boundingRect, QList<QR
 
 QList<QLineF> Snapper::horizontalSnappedLines(const QRectF &boundingRect, QList<QRectF> *boundingRects) const
 {
+    NanotraceHR::Tracer tracer{"snapper horizontal snapped lines", category()};
+
     QList<QLineF> lineList =  findSnappingLines(containerFormEditorItem()->topSnappingLines(),
                                                 Qt::Horizontal,
                                                 boundingRect.top(),
@@ -264,6 +294,8 @@ QLineF Snapper::createSnapLine(Qt::Orientation orientation,
                                double upperLimit,
                                const QRectF &itemRect) const
 {
+    NanotraceHR::Tracer tracer{"snapper create snap line", category()};
+
     if (orientation == Qt::Horizontal) {
         double lowerX(qMin(lowerLimit, double(itemRect.left())));
         double upperX(qMax(upperLimit, double(itemRect.right())));
@@ -287,6 +319,8 @@ QList<QLineF> Snapper::findSnappingLines(const SnapLineMap &snappingLineMap,
                                          double upperLimit,
                                          QList<QRectF> *boundingRects) const
 {
+    NanotraceHR::Tracer tracer{"snapper find snapping lines", category()};
+
     QList<QLineF> lineList;
 
     for (auto snappingLineIterator = snappingLineMap.cbegin(), end = snappingLineMap.cend();
@@ -315,6 +349,8 @@ QList<QLineF> Snapper::findSnappingOffsetLines(const SnapLineMap &snappingOffset
                                          double upperLimit,
                                          QList<QRectF> *boundingRects) const
 {
+    NanotraceHR::Tracer tracer{"snapper find snapping offset lines", category()};
+
     QList<QLineF> lineList;
 
     for (auto snappingOffsetIterator = snappingOffsetMap.cbegin(), end = snappingOffsetMap.cend();
@@ -379,6 +415,8 @@ double Snapper::snappedOffsetForOffsetLines(const SnapLineMap &snappingOffsetMap
                               double lowerLimit,
                               double upperLimit) const
 {
+    NanotraceHR::Tracer tracer{"snapper snapped offset for offset lines", category()};
+
     QMultiMap<double, double> minimumSnappingLineMap;
 
     for (auto snappingOffsetIterator = snappingOffsetMap.cbegin(), end = snappingOffsetMap.cend();
@@ -416,11 +454,15 @@ double Snapper::snappedOffsetForOffsetLines(const SnapLineMap &snappingOffsetMap
 
 void Snapper::setSnappingDistance(double snappingDistance)
 {
+    NanotraceHR::Tracer tracer{"snapper set snapping distance", category()};
+
     m_snappingDistance = snappingDistance;
 }
 
 double Snapper::snappingDistance() const
 {
+    NanotraceHR::Tracer tracer{"snapper snapping distance", category()};
+
     return m_snappingDistance;
 }
 
@@ -520,6 +562,8 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QRectF &boundingRect,
                                                      QGraphicsItem *layerItem,
                                                      const QTransform &transform)
 {
+    NanotraceHR::Tracer tracer{"snapper generate snapping lines", category()};
+
     QList<QRectF> boundingRectList;
     boundingRectList.append(boundingRect);
 
@@ -621,6 +665,8 @@ static void adjustAnchorLine(const QmlItemNode &sourceQmlItemNode,
 
 void Snapper::adjustAnchoringOfItem(FormEditorItem *formEditorItem)
 {
+    NanotraceHR::Tracer tracer{"snapper adjust anchoring of item", category()};
+
     const QmlItemNode qmlItemNode = formEditorItem->qmlItemNode();
     const QmlAnchors qmlAnchors = qmlItemNode.anchors();
 
@@ -681,6 +727,8 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundi
                                                      QGraphicsItem *layerItem,
                                                      const QTransform &transform)
 {
+    NanotraceHR::Tracer tracer{"snapper generate snapping lines", category()};
+
     QList<QGraphicsItem*> graphicsItemList;
     QList<QLineF> lineList;
     for (const QRectF &boundingRect : boundingRectList) {

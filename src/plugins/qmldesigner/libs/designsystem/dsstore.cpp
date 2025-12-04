@@ -79,7 +79,9 @@ std::optional<QString> modelSerializeHelper(
     QPlainTextEdit editor;
     editor.setPlainText(qmlText);
     QmlDesigner::NotIndentingTextEditModifier modifier(editor.document());
-    QmlDesigner::RewriterView view(ed, QmlDesigner::RewriterView::Validate);
+    QmlDesigner::RewriterView view(ed,
+                                   projectStorageDependencies.modulesStorage,
+                                   QmlDesigner::RewriterView::Validate);
     view.setPossibleImportsEnabled(false);
     view.setCheckSemanticErrors(false);
     view.setTextModifier(&modifier);
@@ -156,13 +158,13 @@ std::optional<QString> DSStore::load(const Utils::FilePath &dsModuleDirPath)
     auto addCollectionErr = [&collectionErrors](const QString &name, const QString &e) {
         collectionErrors << QString("Error loading collection %1. %2").arg(name, e);
     };
-    for (auto component : qmlDirParser.components()) {
-        if (!component.fileName.isEmpty()) {
+
+    const auto &moduleComponents = qmlDirParser.components();
+    for (const QmlDirParser::Component &component : moduleComponents) {
+        if (component.fileName.endsWith(".qml", Qt::CaseInsensitive)) {
             const auto collectionPath = dsModuleDirPath.pathAppended(component.fileName);
             if (auto err = loadCollection(component.typeName, collectionPath))
                 addCollectionErr(component.typeName, *err);
-        } else {
-            addCollectionErr(component.typeName, tr("Can not find component file."));
         }
     }
 
@@ -199,7 +201,7 @@ std::optional<QString> DSStore::save(const FilePath &moduleDirPath, bool mcuComp
 
     // Write qmldir
     FileSaver saver(moduleDirPath / "qmldir", QIODevice::Text);
-    const QString qmldirContents = QString("Module %1\n%2").arg(moduleImportStr(), singletons.join("\n"));
+    const QString qmldirContents = QString("module %1\n%2").arg(moduleImportStr(), singletons.join("\n"));
     saver.write(qmldirContents.toUtf8());
     if (const Result<> res = saver.finalize(); !res)
         errors << tr("Can not write design system qmldir. %1").arg(res.error());
@@ -482,7 +484,9 @@ std::optional<QString> DSStore::loadCollection(const QString &typeName,
     editor.setPlainText(qmlContent);
 
     QmlDesigner::NotIndentingTextEditModifier modifier(editor.document());
-    RewriterView view(m_ed, QmlDesigner::RewriterView::Validate);
+    RewriterView view(m_ed,
+                      m_projectStorageDependencies.modulesStorage,
+                      QmlDesigner::RewriterView::Validate);
     // QDS-8366
     view.setPossibleImportsEnabled(false);
     view.setCheckSemanticErrors(false);

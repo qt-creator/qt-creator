@@ -59,7 +59,7 @@
     \note The visibility of views depends on the selection of views on the
     selected workspace, so your \QDS might look somewhat different from the
     image above. To open and close views, select \uicontrol View > \uicontrol Views.
-    For more information about arranging the \QDS workspace, see \l {Managing workspaces}.
+    For more information about arranging the \QDS workspace, see \l {Workspaces}.
 
     Remove the button and the text component from the UI to have a clean workspace. Later
     in this tutorial, you will add and modify them as you need.

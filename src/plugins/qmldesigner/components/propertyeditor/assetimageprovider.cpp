@@ -3,6 +3,8 @@
 
 #include "assetimageprovider.h"
 
+#include "propertyeditortracing.h"
+
 #include <asset.h>
 #include <imagecache/imagecacheimageresponse.h>
 
@@ -18,6 +20,9 @@ namespace QmlDesigner {
 QQuickImageResponse *AssetImageProvider::requestImageResponse(const QString &id,
                                                               const QSize &requestedSize)
 {
+    NanotraceHR::Tracer tracer{"asset image provider request image response",
+                               PropertyEditorTracing::category()};
+
     if (id.endsWith(".mesh"))
         return m_imageCacheProvider.requestImageResponse(id, {});
 

@@ -15,6 +15,8 @@
 #include <sourcepathids.h>
 #include <sqlitetransaction.h>
 
+#include <tracing/qmldesignertracing.h>
+
 #include <algorithm>
 #include <utility>
 
@@ -35,6 +37,8 @@ public:
         , m_fileNameStorageAdapter{storage}
 
     {
+        NanotraceHR::Tracer tracer{"source path cache constructor",
+                                   SourcePathStorageTracing::category()};
         populateIfEmpty();
     }
 
@@ -43,7 +47,10 @@ public:
 
     void populateIfEmpty() override
     {
+        NanotraceHR::Tracer tracer{"source path cache populate if empty",
+                                   SourcePathStorageTracing::category()};
         if (m_fileNameCache.isEmpty()) {
+            tracer.tick("is not empty");
             m_directoryPathCache.populate();
             m_fileNameCache.populate();
         }
@@ -51,6 +58,9 @@ public:
 
     SourceId sourceId(SourcePathView sourcePath) const override
     {
+        NanotraceHR::Tracer tracer{"source path cache source id",
+                                   SourcePathStorageTracing::category()};
+
         Utils::SmallStringView directoryPath = sourcePath.directory();
 
         auto directoryPathId = m_directoryPathCache.id(directoryPath);
@@ -64,11 +74,15 @@ public:
 
     FileNameId fileNameId(Utils::SmallStringView fileName) const override
     {
+        NanotraceHR::Tracer tracer{"source path cache file name id",
+                                   SourcePathStorageTracing::category()};
         return m_fileNameCache.id(fileName);
     }
 
     SourceId sourceId(DirectoryPathId directoryPathId, Utils::SmallStringView fileName) const override
     {
+        NanotraceHR::Tracer tracer{"source path cache source id from directory path id",
+                                   SourcePathStorageTracing::category()};
         FileNameId fileNameId = m_fileNameCache.id(fileName);
 
         return SourceId::create(directoryPathId, fileNameId);
@@ -76,6 +90,9 @@ public:
 
     DirectoryPathId directoryPathId(Utils::SmallStringView directoryPath) const override
     {
+        NanotraceHR::Tracer tracer{"source path cache directory path id",
+                                   SourcePathStorageTracing::category()};
+
         Utils::SmallStringView path = directoryPath.back() == '/'
                                           ? directoryPath.substr(0, directoryPath.size() - 1)
                                           : directoryPath;
@@ -85,10 +102,15 @@ public:
 
     SourcePath sourcePath(SourceId sourceId) const override
     {
+        NanotraceHR::Tracer tracer{"source path cache source path",
+                                   SourcePathStorageTracing::category()};
+
         if (!sourceId) [[unlikely]]
             throw NoSourcePathForInvalidSourceId();
 
-        auto fileName = m_fileNameCache.value(sourceId.fileNameId());
+        Utils::SmallString fileName;
+        if (auto fileNameId = sourceId.fileNameId())
+            fileName = m_fileNameCache.value(fileNameId);
 
         Utils::PathString directoryPath = m_directoryPathCache.value(sourceId.directoryPathId());
 
@@ -97,6 +119,9 @@ public:
 
     Utils::PathString directoryPath(DirectoryPathId directoryPathId) const override
     {
+        NanotraceHR::Tracer tracer{"source path cache directory path",
+                                   SourcePathStorageTracing::category()};
+
         if (!directoryPathId) [[unlikely]]
             throw NoDirectoryPathForInvalidDirectoryPathId();
 
@@ -105,6 +130,9 @@ public:
 
     Utils::SmallString fileName(FileNameId fileNameId) const override
     {
+        NanotraceHR::Tracer tracer{"source path cache file name",
+                                   SourcePathStorageTracing::category()};
+
         if (!fileNameId) [[unlikely]]
             throw NoFileNameForInvalidFileNameId();
 
@@ -142,22 +170,11 @@ private:
         Storage &storage;
     };
 
-    struct FileNameLess
+    struct Less
     {
         bool operator()(Utils::SmallStringView first, Utils::SmallStringView second) const noexcept
         {
             return first < second;
-        }
-    };
-
-    struct DirectoryPathLess
-    {
-        bool operator()(Utils::SmallStringView first, Utils::SmallStringView second) const noexcept
-        {
-            return std::ranges::lexicographical_compare(first.rbegin(),
-                                                        first.rend(),
-                                                        second.rbegin(),
-                                                        second.rend());
         }
     };
 
@@ -166,15 +183,15 @@ private:
                                             DirectoryPathId,
                                             DirectoryPathStorageAdapter,
                                             Mutex,
-                                            DirectoryPathLess,
+                                            Less,
                                             Cache::DirectoryPath>;
     using FileNameCache = StorageCache<Utils::SmallString,
-                                         Utils::SmallStringView,
-                                         FileNameId,
-                                         FileNameStorageAdapter,
-                                         Mutex,
-                                         FileNameLess,
-                                         Cache::FileName>;
+                                       Utils::SmallStringView,
+                                       FileNameId,
+                                       FileNameStorageAdapter,
+                                       Mutex,
+                                       Less,
+                                       Cache::FileName>;
 
 private:
     DirectoryPathStorageAdapter m_directoryPathStorageAdapter;

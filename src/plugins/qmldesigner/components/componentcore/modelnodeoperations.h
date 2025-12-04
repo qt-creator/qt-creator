@@ -94,6 +94,7 @@ void layoutRowLayout(const SelectionContext &selectionState);
 void layoutColumnLayout(const SelectionContext &selectionState);
 void layoutGridLayout(const SelectionContext &selectionState);
 void goImplementation(const SelectionContext &selectionState);
+void addToGroupItem(const SelectionContext &selectionContext);
 void addNewSignalHandler(const SelectionContext &selectionState);
 void editMaterial(const SelectionContext &selectionContext);
 void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState, bool addAlwaysNewSlot);
@@ -101,7 +102,7 @@ void removeLayout(const SelectionContext &selectionContext);
 void removePositioner(const SelectionContext &selectionContext);
 void moveToComponent(const SelectionContext &selectionContext);
 void extractComponent(const SelectionContext &selectionContext);
-void add3DAssetToContentLibrary(const SelectionContext &selectionContext);
+void addNodeToContentLibrary(const SelectionContext &selectionContext);
 PropertyName getIndexPropertyName(const ModelNode &modelNode);
 void addItemToStackedContainer(const SelectionContext &selectionContext);
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext);
@@ -115,14 +116,9 @@ AddFilesResult addFontToProject(const QStringList &fileNames, const QString &dir
 AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &directory, bool showDialog = true);
 AddFilesResult addShaderToProject(const QStringList &fileNames, const QString &directory, bool showDialog = true);
 AddFilesResult addVideoToProject(const QStringList &fileNames, const QString &directory, bool showDialog = true);
-void createFlowActionArea(const SelectionContext &selectionContext);
-void addTransition(const SelectionContext &selectionState);
-void addFlowEffect(const SelectionContext &selectionState, const TypeName &typeName);
-void addCustomFlowEffect(const SelectionContext &selectionState);
-void setFlowStartItem(const SelectionContext &selectionContext);
-void addToGroupItem(const SelectionContext &selectionContext);
-void selectFlowEffect(const SelectionContext &selectionContext);
-void mergeWithTemplate(const SelectionContext &selectionContext, ExternalDependenciesInterface &externalDependencies);
+void mergeWithTemplate(const SelectionContext &selectionContext,
+                       ExternalDependenciesInterface &externalDependencies,
+                       ModulesStorage &modulesStorage);
 void removeGroup(const SelectionContext &selectionContext);
 void editAnnotation(const SelectionContext &selectionContext);
 void addMouseAreaFill(const SelectionContext &selectionContext);

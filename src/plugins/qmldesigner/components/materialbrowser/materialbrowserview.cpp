@@ -10,12 +10,14 @@
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserwidget.h"
 
+#include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <createtexture.h>
 #include <designmodewidget.h>
 #include <externaldependenciesinterface.h>
 #include <nodeabstractproperty.h>
 #include <nodeinstanceview.h>
+#include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
@@ -136,7 +138,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                                 mat.removeProperty(propName);
                         }
                     } else {
-                        QmlPropertyChanges changes = mat.propertyChangeForCurrentState();
+                        QmlPropertyChanges changes = mat.ensurePropertyChangeForCurrentState();
                         if (changes.isValid()) {
                             PropertyNameViews propNames;
                             const QList<AbstractProperty> changedProps = changes.targetProperties();
@@ -323,7 +325,7 @@ void MaterialBrowserView::updatePropertyList(const QList<T> &propertyList)
                 const ModelNodes textures = m_widget->materialBrowserTexturesModel()->textures();
                 for (const ModelNode &textureNode : textures) {
                     const QmlObjectNode textureQmlNode{textureNode};
-                    if (textureQmlNode.propertyChangeForCurrentState() == node)
+                    if (textureQmlNode.ensurePropertyChangeForCurrentState() == node)
                         m_widget->materialBrowserTexturesModel()->updateTextureSource(textureQmlNode);
                 }
             }
@@ -400,6 +402,19 @@ void MaterialBrowserView::bindingPropertiesChanged(const QList<BindingProperty> 
     updatePropertyList(propertyList);
 }
 
+void MaterialBrowserView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
+{
+    QList<ModelNode> modelNodes;
+    for (const AbstractProperty &property : propertyList) {
+        if (property.name() == "data" && property.isNodeListProperty()) {
+            ModelNode node = property.parentModelNode();
+            if (node.id() == Constants::MATERIAL_LIB_ID || node.isRootNode())
+                modelNodes.append(property.toNodeListProperty().directSubNodes());
+        }
+    }
+    handleNodesRemoved(modelNodes);
+}
+
 void MaterialBrowserView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
     updatePropertyList(propertyList);
@@ -428,36 +443,15 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
 
     refreshModel(removed);
 
-    if (isMaterial(node)) {
-        if (added && !m_puppetResetPending) {
-            // Workaround to fix various material issues all likely caused by QTBUG-103316
-            resetPuppet();
-            m_puppetResetPending = true;
-        }
+    if (isMaterial(node))
         m_widget->materialBrowserModel()->refreshSearch();
-    } else { // is texture
+    else // is texture
         m_widget->materialBrowserTexturesModel()->refreshSearch();
-    }
 }
 
 void MaterialBrowserView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    // removing the material lib node
-    if (removedNode.id() == Constants::MATERIAL_LIB_ID) {
-        m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
-        m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
-        m_widget->clearPreviewCache();
-        return;
-    }
-
-    // not under the material lib
-    if (removedNode.parentProperty().parentModelNode().id() != Constants::MATERIAL_LIB_ID)
-        return;
-
-    if (isMaterial(removedNode))
-        m_widget->materialBrowserModel()->removeMaterial(removedNode);
-    else if (isTexture(removedNode))
-        m_widget->materialBrowserTexturesModel()->removeTexture(removedNode);
+    handleNodesRemoved({removedNode});
 }
 
 void QmlDesigner::MaterialBrowserView::loadPropertyGroups()
@@ -482,6 +476,26 @@ void MaterialBrowserView::requestPreviews()
                 ->previewImageDataForGenericNode(node, {});
     }
     m_previewRequests.clear();
+}
+
+void MaterialBrowserView::handleNodesRemoved(const QList<ModelNode> &removedNodes)
+{
+    for (const auto &removedNode : removedNodes) {
+        if (removedNode.id() == Constants::MATERIAL_LIB_ID) {
+            m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
+            m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
+            m_widget->clearPreviewCache();
+            return;
+        }
+
+        if (removedNode.parentProperty().parentModelNode().id() != Constants::MATERIAL_LIB_ID)
+            continue;
+
+        if (isMaterial(removedNode))
+            m_widget->materialBrowserModel()->removeMaterial(removedNode);
+        else if (isTexture(removedNode))
+            m_widget->materialBrowserTexturesModel()->removeTexture(removedNode);
+    }
 }
 
 void MaterialBrowserView::importsChanged([[maybe_unused]] const Imports &addedImports,
@@ -540,7 +554,6 @@ void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completed
     for (const ModelNode &node : completedNodeList) {
         // We use root node completion as indication of QML Puppet reset
         if (node.isRootNode()) {
-            m_puppetResetPending  = false;
             QTimer::singleShot(1000, this, [this] {
                 if (!model() || !model()->nodeInstanceView())
                     return;
@@ -573,7 +586,7 @@ void MaterialBrowserView::auxiliaryDataChanged(const ModelNode &,
                                                AuxiliaryDataKeyView type,
                                                const QVariant &data)
 {
-    if (type == Utils3D::active3dSceneProperty)
+    if (type == active3dSceneProperty)
         active3DSceneChanged(data.toInt());
 }
 
@@ -590,7 +603,7 @@ void MaterialBrowserView::applyTextureToModel3D(const QmlObjectNode &model3D, co
     if (hasId(matsProp.expression()))
         materials.append(modelNodeForId(matsProp.expression()));
     else
-        materials = matsProp.resolveToModelNodeList();
+        materials = matsProp.resolveListToModelNodes();
 
     applyTextureToMaterial(materials, texture);
 }

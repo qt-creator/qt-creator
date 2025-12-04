@@ -3,6 +3,8 @@
 
 #include "aligndistribute.h"
 
+#include "propertyeditortracing.h"
+
 #include <nodeabstractproperty.h>
 #include <qmldesignerplugin.h>
 #include <qmlmodelnodeproxy.h>
@@ -23,12 +25,18 @@ using namespace Utils;
 
 namespace QmlDesigner {
 
+using PropertyEditorTracing::category;
+
 AlignDistribute::AlignDistribute(QObject *parent)
     : QObject(parent)
-{}
+{
+    NanotraceHR::Tracer tracer{"align distribute constructor", category()};
+}
 
 bool AlignDistribute::multiSelection() const
 {
+    NanotraceHR::Tracer tracer{"align distribute multiSelection", category()};
+
     if (!m_qmlObjectNode.isValid())
         return false;
 
@@ -37,6 +45,8 @@ bool AlignDistribute::multiSelection() const
 
 bool AlignDistribute::selectionHasAnchors() const
 {
+    NanotraceHR::Tracer tracer{"align distribute selection has anchors", category()};
+
     if (!m_qmlObjectNode.isValid())
         return true;
 
@@ -51,6 +61,8 @@ bool AlignDistribute::selectionHasAnchors() const
 
 bool AlignDistribute::selectionExclusivlyItems() const
 {
+    NanotraceHR::Tracer tracer{"align distribute selection exclusivly items", category()};
+
     if (!m_qmlObjectNode.isValid())
         return false;
 
@@ -64,6 +76,8 @@ bool AlignDistribute::selectionExclusivlyItems() const
 
 bool AlignDistribute::selectionContainsRootItem() const
 {
+    NanotraceHR::Tracer tracer{"align distribute selection contains root item", category()};
+
     if (!m_qmlObjectNode.isValid())
         return true;
 
@@ -78,6 +92,8 @@ bool AlignDistribute::selectionContainsRootItem() const
 
 void AlignDistribute::setModelNodeBackend(const QVariant &modelNodeBackend)
 {
+    NanotraceHR::Tracer tracer{"align distribute set model node backend", category()};
+
     auto modelNodeBackendObject = modelNodeBackend.value<QObject *>();
     const auto backendObjectCasted = qobject_cast<const QmlModelNodeProxy *>(modelNodeBackendObject);
 
@@ -92,11 +108,15 @@ void AlignDistribute::setModelNodeBackend(const QVariant &modelNodeBackend)
 // function or associated MEMBER variable. The property will be invalid.
 QVariant AlignDistribute::modelNodeBackend() const
 {
+    NanotraceHR::Tracer tracer{"align distribute model node backend", category()};
+
     return {};
 }
 
 void AlignDistribute::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"align distribute register declarative type", category()};
+
     qmlRegisterType<AlignDistribute>("HelperWidgets", 2, 0, "AlignDistribute");
 }
 
@@ -256,7 +276,9 @@ inline static qreal getInstanceSceneY(const QmlItemNode &qmlItemNode)
 
 void AlignDistribute::alignObjects(Target target, AlignTo alignTo, const QString &keyObject)
 {
-    QTC_ASSERT(m_qmlObjectNode.isValid(), return );
+    NanotraceHR::Tracer tracer{"align distribute align objects", category()};
+
+    QTC_ASSERT(m_qmlObjectNode.isValid(), return);
 
     const auto selectionContext = SelectionContext(m_qmlObjectNode.view());
     if (selectionContext.selectedModelNodes().empty())
@@ -347,6 +369,8 @@ void AlignDistribute::alignObjects(Target target, AlignTo alignTo, const QString
 
 void AlignDistribute::distributeObjects(Target target, AlignTo alignTo, const QString &keyObject)
 {
+    NanotraceHR::Tracer tracer{"align distribute distribute objects", category()};
+
     QTC_ASSERT(m_qmlObjectNode.isValid(), return );
 
     const auto selectionContext = SelectionContext(m_qmlObjectNode.view());
@@ -508,6 +532,8 @@ void AlignDistribute::distributeSpacing(Dimension dimension,
                                         const qreal &distance,
                                         DistributeOrigin distributeOrigin)
 {
+    NanotraceHR::Tracer tracer{"align distribute distribute spacing", category()};
+
     QTC_ASSERT(m_qmlObjectNode.isValid(), return );
 
     const auto selectionContext = SelectionContext(m_qmlObjectNode.view());
@@ -637,6 +663,8 @@ void AlignDistribute::distributeSpacing(Dimension dimension,
 
 AlignDistribute::CompareFunction AlignDistribute::getCompareFunction(Target target) const
 {
+    NanotraceHR::Tracer tracer{"align distribute get compare function", category()};
+
     static const std::map<Target, CompareFunction> cmpMap = {{Target::Left, compareByLeft},
                                                              {Target::CenterH, compareByCenterH},
                                                              {Target::Right, compareByRight},
@@ -648,6 +676,8 @@ AlignDistribute::CompareFunction AlignDistribute::getCompareFunction(Target targ
 
 AlignDistribute::Dimension AlignDistribute::getDimension(Target target) const
 {
+    NanotraceHR::Tracer tracer{"align distribute get dimension", category()};
+
     switch (target) {
     case Target::Left:
     case Target::CenterH:
@@ -665,6 +695,8 @@ AlignDistribute::Dimension AlignDistribute::getDimension(Target target) const
 
 bool AlignDistribute::executePixelPerfectDialog() const
 {
+    NanotraceHR::Tracer tracer{"align distribute execute pixel perfect dialog", category()};
+
     Utils::CheckableDecider decider(Key("WarnAboutPixelPerfectDistribution"));
 
     QMessageBox::StandardButton pressed = Utils::CheckableMessageBox::question(

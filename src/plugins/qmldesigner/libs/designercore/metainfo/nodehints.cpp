@@ -35,7 +35,7 @@ namespace QmlDesigner {
 
 static bool isSwipeView(const ModelNode &node)
 {
-    if (node.metaInfo().isQtQuickControlsSwipeView())
+    if (node.metaInfo().isQtQuickTemplatesSwipeView())
         return true;
 
     return false;

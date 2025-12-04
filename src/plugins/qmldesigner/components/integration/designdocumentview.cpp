@@ -27,9 +27,11 @@
 
 namespace QmlDesigner {
 
-DesignDocumentView::DesignDocumentView(ExternalDependenciesInterface &externalDependencies)
+DesignDocumentView::DesignDocumentView(ExternalDependenciesInterface &externalDependencies,
+                                       ModulesStorage &modulesStorage)
     : AbstractView{externalDependencies}
     , m_modelMerger(new ModelMerger(this))
+    , m_modulesStorage{modulesStorage}
 {
 }
 
@@ -119,6 +121,7 @@ QString DesignDocumentView::toText() const
     NotIndentingTextEditModifier modifier(textEdit.document());
 
     std::unique_ptr<RewriterView> rewriterView = std::make_unique<RewriterView>(externalDependencies(),
+                                                                                m_modulesStorage,
                                                                                 RewriterView::Amend);
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setPossibleImportsEnabled(false);
@@ -158,7 +161,7 @@ void DesignDocumentView::fromText(const QString &text)
     textEdit.setPlainText(imports + text);
     NotIndentingTextEditModifier modifier(textEdit.document());
 
-    RewriterView rewriterView{externalDependencies()};
+    RewriterView rewriterView{externalDependencies(), m_modulesStorage};
     rewriterView.setCheckSemanticErrors(false);
     rewriterView.setPossibleImportsEnabled(false);
     rewriterView.setTextModifier(&modifier);
@@ -184,7 +187,8 @@ static Model *currentModel()
     return nullptr;
 }
 
-ModelPointer DesignDocumentView::pasteToModel(ExternalDependenciesInterface &externalDependencies)
+ModelPointer DesignDocumentView::pasteToModel(ExternalDependenciesInterface &externalDependencies,
+                                              ModulesStorage &modulesStorage)
 {
     Model *parentModel = currentModel();
 
@@ -204,7 +208,7 @@ ModelPointer DesignDocumentView::pasteToModel(ExternalDependenciesInterface &ext
     pasteModel->setFileUrl(parentModel->fileUrl());
     pasteModel->changeImports(parentModel->imports(), {});
 
-    DesignDocumentView view{externalDependencies};
+    DesignDocumentView view{externalDependencies, modulesStorage};
     pasteModel->attachView(&view);
 
     view.fromClipboard();
@@ -218,6 +222,8 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy,
     Model *parentModel = currentModel();
 
     QTC_ASSERT(parentModel, return);
+
+    ModulesStorage &modulesStorage = parentModel->projectStorageDependencies().modulesStorage;
 
 #ifdef QDS_USE_PROJECTSTORAGE
     auto copyModel = parentModel->createModel("Rectangle");
@@ -243,7 +249,7 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy,
         }
     }
 
-    DesignDocumentView view{externalDependencies};
+    DesignDocumentView view{externalDependencies, modulesStorage};
     copyModel->attachView(&view);
 
     if (selectedNodes.size() == 1) {

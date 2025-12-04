@@ -269,6 +269,23 @@ void QmlProjectItem::addQmlProjectModule(const QString &modulePath)
     insertAndUpdateProjectFile("qmlprojectDependencies", qmlModules);
 }
 
+void QmlProjectItem::addFileFilter(const Utils::FilePath &path)
+{
+    QJsonArray filters = m_project["fileGroups"].toArray();
+    auto pathString = path.path();
+    auto iter = std::ranges::find_if(filters, [pathString](const QJsonValue &elem) {
+        return elem["directory"].toString() == pathString;
+    });
+
+    if (iter == filters.end()) {
+        QJsonObject newFilter;
+        newFilter["directory"] = pathString;
+        newFilter["type"] = "Qml";
+        filters.prepend(newFilter);
+        insertAndUpdateProjectFile("fileGroups", filters);
+    }
+}
+
 QStringList QmlProjectItem::fileSelectors() const
 {
     return m_project["runConfig"].toObject()["fileSelectors"].toVariant().toStringList();
@@ -530,7 +547,7 @@ void QmlProjectItem::setEnablePythonGeneration(bool enable)
 
 bool QmlProjectItem::standaloneApp() const
 {
-    return m_project["deployment"].toObject()["standaloneApp"].toBool();
+    return m_project["deployment"].toObject()["standaloneApp"].toBool(true);
 }
 
 void QmlProjectItem::setStandaloneApp(bool value)

@@ -4,10 +4,11 @@
 #include "sourcepathstorage.h"
 
 #include "sourcepathexceptions.h"
-
-#include <tracing/qmldesignertracing.h>
+#include "sourcepathstoragetracing.h"
 
 namespace QmlDesigner {
+
+using NanotraceHR::keyValue;
 
 using SourcePathStorageTracing::category;
 
@@ -43,7 +44,10 @@ class SourcePathStorage::Initializer
 public:
     Initializer(Database &database, bool isInitialized)
     {
+        NanotraceHR::Tracer tracer{"source path storage initializer", category()};
         if (!isInitialized) {
+            tracer.tick("is not initialized");
+
             createDirectoryPathsTable(database);
             createFileNamesTable(database);
         }
@@ -51,6 +55,8 @@ public:
 
     void createDirectoryPathsTable(Database &database)
     {
+        NanotraceHR::Tracer tracer{"source path storage initializer create directory paths table",
+                                   category()};
         Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("directoryPaths");
@@ -64,6 +70,9 @@ public:
 
     void createFileNamesTable(Database &database)
     {
+        NanotraceHR::Tracer tracer{"source path storage initializer create file names table",
+                                   category()};
+
         Sqlite::StrictTable table;
         table.setUseIfNotExists(true);
         table.setName("fileNames");
@@ -81,7 +90,7 @@ SourcePathStorage::SourcePathStorage(Database &database, bool isInitialized)
     , initializer{std::make_unique<SourcePathStorage::Initializer>(database, isInitialized)}
     , s{std::make_unique<SourcePathStorage::Statements>(database)}
 {
-    NanotraceHR::Tracer tracer{"initialize", category()};
+    NanotraceHR::Tracer tracer{"source path storage contructor", category()};
 
     exclusiveTransaction.commit();
 }
@@ -90,8 +99,7 @@ SourcePathStorage::~SourcePathStorage() = default;
 
 DirectoryPathId SourcePathStorage::fetchDirectoryPathIdUnguarded(Utils::SmallStringView directoryPath)
 {
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch source context id unguarded", category()};
+    NanotraceHR::Tracer tracer{"source path storage fetch source context id unguarded", category()};
 
     auto directoryPathId = readDirectoryPathId(directoryPath);
 
@@ -100,8 +108,7 @@ DirectoryPathId SourcePathStorage::fetchDirectoryPathIdUnguarded(Utils::SmallStr
 
 DirectoryPathId SourcePathStorage::fetchDirectoryPathId(Utils::SmallStringView directoryPath)
 {
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch source context id",
+    NanotraceHR::Tracer tracer{"source path storage fetch source context id",
                                category(),
                                keyValue("source context path", directoryPath)};
 
@@ -121,7 +128,6 @@ DirectoryPathId SourcePathStorage::fetchDirectoryPathId(Utils::SmallStringView d
 
 Utils::PathString SourcePathStorage::fetchDirectoryPath(DirectoryPathId directoryPathId) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source context path",
                                category(),
                                keyValue("source context id", directoryPathId)};
@@ -150,7 +156,6 @@ Cache::DirectoryPaths SourcePathStorage::fetchAllDirectoryPaths() const
 
 FileNameId SourcePathStorage::fetchFileNameId(Utils::SmallStringView fileName)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source id", category(), keyValue("source name", fileName)};
 
     auto fileNameId = Sqlite::withDeferredTransaction(database, [&] {
@@ -164,7 +169,6 @@ FileNameId SourcePathStorage::fetchFileNameId(Utils::SmallStringView fileName)
 
 Utils::SmallString SourcePathStorage::fetchFileName(FileNameId fileNameId) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source name and source context id",
                                category(),
                                keyValue("source name id", fileNameId)};
@@ -190,15 +194,14 @@ void SourcePathStorage::clearSources()
 
 Cache::FileNames SourcePathStorage::fetchAllFileNames() const
 {
-    NanotraceHR::Tracer tracer{"fetch all sources", category()};
+    NanotraceHR::Tracer tracer{"source path storage fetch all sources", category()};
 
     return s->selectAllSourcesStatement.valuesWithTransaction<Cache::FileName, 1024>();
 }
 
 FileNameId SourcePathStorage::fetchFileNameIdUnguarded(Utils::SmallStringView fileName)
 {
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch source id unguarded",
+    NanotraceHR::Tracer tracer{"source path storage fetch source id unguarded",
                                category(),
                                keyValue("source name", fileName)};
 
@@ -214,8 +217,7 @@ FileNameId SourcePathStorage::fetchFileNameIdUnguarded(Utils::SmallStringView fi
 
 DirectoryPathId SourcePathStorage::readDirectoryPathId(Utils::SmallStringView directoryPath)
 {
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"read source context id",
+    NanotraceHR::Tracer tracer{"source path storage read source context id",
                                category(),
                                keyValue("source context path", directoryPath)};
 
@@ -229,8 +231,7 @@ DirectoryPathId SourcePathStorage::readDirectoryPathId(Utils::SmallStringView di
 
 DirectoryPathId SourcePathStorage::writeDirectoryPathId(Utils::SmallStringView directoryPath)
 {
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"write source context id",
+    NanotraceHR::Tracer tracer{"source path storage write source context id",
                                category(),
                                keyValue("source context path", directoryPath)};
 
@@ -245,8 +246,9 @@ DirectoryPathId SourcePathStorage::writeDirectoryPathId(Utils::SmallStringView d
 
 FileNameId SourcePathStorage::writeFileNameId(Utils::SmallStringView fileName)
 {
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"write source id", category(), keyValue("source name", fileName)};
+    NanotraceHR::Tracer tracer{"source path storage write source id",
+                               category(),
+                               keyValue("source name", fileName)};
 
     s->insertIntoSourcesStatement.write(fileName);
 
@@ -259,8 +261,9 @@ FileNameId SourcePathStorage::writeFileNameId(Utils::SmallStringView fileName)
 
 FileNameId SourcePathStorage::readFileNameId(Utils::SmallStringView fileName)
 {
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"read source id", category(), keyValue("source name", fileName)};
+    NanotraceHR::Tracer tracer{"source path storage read source id",
+                               category(),
+                               keyValue("source name", fileName)};
 
     auto fileNameId = s->selectFileNameIdFromFileNamesByFileNameStatement.value<FileNameId>(
         fileName);

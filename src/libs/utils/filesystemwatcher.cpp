@@ -6,9 +6,13 @@
 #include "globalfilechangeblocker.h"
 #include "filepath.h"
 
-#include <QFileSystemWatcher>
+#include <chrono>
+
 #include <QDateTime>
+#include <QDir>
+#include <QFileSystemWatcher>
 #include <QLoggingCategory>
+#include <QTimer>
 
 namespace Utils {
 
@@ -122,12 +126,92 @@ using WatchEntryMap = QHash<FilePath, WatchEntry>;
 class FileSystemWatcherPrivate
 {
 public:
-    explicit FileSystemWatcherPrivate(FileSystemWatcher *q, int id) : m_id(id), q(q)
+    explicit FileSystemWatcherPrivate(FileSystemWatcher *q, int id)
+        : m_id(id)
+        , q(q)
     {
-        QObject::connect(Utils::GlobalFileChangeBlocker::instance(),
-                         &Utils::GlobalFileChangeBlocker::stateChanged,
-                         q,
-                         [this](bool blocked) { autoReloadPostponed(blocked); });
+        QObject::connect(
+            Utils::GlobalFileChangeBlocker::instance(),
+            &Utils::GlobalFileChangeBlocker::stateChanged,
+            q,
+            [this](bool blocked) { autoReloadPostponed(blocked); });
+    }
+
+    bool checkLimit() const
+    {
+        // Do not use more than half of the available file handles.
+        return quint64(m_directories.size() + m_files.size()) < (m_staticData->maxFileOpen / 2);
+    }
+
+    void fileChanged(const FilePath &path)
+    {
+        if (m_postponed)
+            m_postponedFiles.insert(path);
+        else
+            emit q->fileChanged(path);
+    }
+
+    void directoryChanged(const FilePath &path)
+    {
+        if (m_postponed)
+            m_postponedDirectories.insert(path);
+        else
+            emit q->directoryChanged(path);
+    }
+
+    void autoReloadPostponed(bool postponed)
+    {
+        if (m_postponed == postponed)
+            return;
+        m_postponed = postponed;
+        if (!postponed) {
+            for (const FilePath &file : std::as_const(m_postponedFiles))
+                emit q->fileChanged(file);
+            m_postponedFiles.clear();
+            for (const FilePath &directory : std::as_const(m_postponedDirectories))
+                emit q->directoryChanged(directory);
+            m_postponedDirectories.clear();
+        }
+    }
+
+    // Handle debounced directory change.
+    void handleDirChanged(const FilePath &dirPath)
+    {
+        // Emit only if trigger says it's a "real" change for this watch mode.
+        if (auto it = m_directories.find(dirPath);
+            it != m_directories.end() && it.value().trigger(dirPath)) {
+            qCDebug(fileSystemWatcherLog)
+                << q << "triggers on dir" << it.key() << it.value().watchMode
+                << it.value().modifiedTime.toString(Qt::ISODate);
+            directoryChanged(dirPath);
+        }
+
+        // Re-add files that were replaced (deleted + recreated).
+        QStringList toReadd;
+        for (const FilePath &entry : dirPath.dirEntries(QDir::Files)) {
+            if (m_files.contains(entry))
+                toReadd.append(entry.toFSPathString());
+        }
+
+        if (!toReadd.isEmpty()) {
+            // addPaths returns rejected; keep only successfully re-added files.
+            const QStringList rejected = m_staticData->m_watcher->addPaths(toReadd);
+            for (const QString &r : rejected)
+                toReadd.removeOne(r);
+
+            for (const QString &reAddedStr : std::as_const(toReadd)) {
+                const FilePath reAdded = FilePath::fromString(reAddedStr);
+                const FilePath directory = reAdded.parentDir();
+
+                // We watched the directory temporarily while file was gone; drop it again.
+                const int dirCount = --m_staticData->m_directoryCount[directory];
+                QTC_CHECK(dirCount >= 0);
+                if (!dirCount)
+                    m_staticData->m_watcher->removePath(directory.toFSPathString());
+
+                fileChanged(reAdded); // notify: file effectively changed (replacement)
+            }
+        }
     }
 
     WatchEntryMap m_files;
@@ -136,143 +220,90 @@ public:
     QSet<FilePath> m_postponedFiles;
     QSet<FilePath> m_postponedDirectories;
 
-    bool checkLimit() const;
-    void fileChanged(const FilePath &path);
-    void directoryChanged(const FilePath &path);
-
     const int m_id;
     FileSystemWatcherStaticData *m_staticData = nullptr;
 
+    // Debounce map for directoryChanged
+    QHash<FilePath, QTimer *> m_timerMap;
+
 private:
-    void autoReloadPostponed(bool postponed);
     bool m_postponed = false;
     FileSystemWatcher *q;
 };
 
-bool FileSystemWatcherPrivate::checkLimit() const
-{
-    // We are potentially watching a _lot_ of directories. This might crash
-    // qtcreator when we hit the upper limit.
-    // Heuristic is therefore: Do not use more than half of the file handles
-    // available in THIS watcher.
-    return quint64(m_directories.size() + m_files.size()) <
-           (m_staticData->maxFileOpen / 2);
-}
-
-void FileSystemWatcherPrivate::fileChanged(const FilePath &path)
-{
-    if (m_postponed)
-        m_postponedFiles.insert(path);
-    else
-        emit q->fileChanged(path);
-}
-
-void FileSystemWatcherPrivate::directoryChanged(const FilePath &path)
-{
-    if (m_postponed)
-        m_postponedDirectories.insert(path);
-    else
-        emit q->directoryChanged(path);
-}
-
-void FileSystemWatcherPrivate::autoReloadPostponed(bool postponed)
-{
-    if (m_postponed == postponed)
-        return;
-    m_postponed = postponed;
-    if (!postponed) {
-        for (const FilePath &file : std::as_const(m_postponedFiles))
-            emit q->fileChanged(file);
-        m_postponedFiles.clear();
-        for (const FilePath &directory : std::as_const(m_postponedDirectories))
-            emit q->directoryChanged(directory);
-        m_postponedDirectories.clear();
-    }
-}
-
-/*!
-    Creates a file system watcher with the ID 0 and the owner \a parent.
-*/
-
+/*! Creates a file system watcher with the ID 0 and the owner \a parent. */
 FileSystemWatcher::FileSystemWatcher(QObject *parent)
     : FileSystemWatcher(0, parent)
 {}
 
-/*!
-    Creates a file system watcher with the ID \a id and the owner \a parent.
-*/
-
+/*! Creates a file system watcher with the ID \a id and the owner \a parent. */
 FileSystemWatcher::FileSystemWatcher(int id, QObject *parent)
-    : QObject(parent), d(new FileSystemWatcherPrivate(this, id))
+    : QObject(parent)
+    , d(new FileSystemWatcherPrivate(this, id))
 {
-    // Check for id in map/
+    // Acquire / create shared watcher for this id
     FileSystemWatcherStaticDataMap &map = *fileSystemWatcherStaticDataMap();
-    FileSystemWatcherStaticDataMap::iterator it = map.find(d->m_id);
+    auto it = map.find(d->m_id);
     if (it == map.end())
         it = map.insert(d->m_id, FileSystemWatcherStaticData());
     d->m_staticData = &it.value();
 
     if (!d->m_staticData->m_watcher) {
         d->m_staticData->m_watcher = new QFileSystemWatcher();
-        qCDebug(fileSystemWatcherLog)
-            << this << "Created watcher for id" << d->m_id;
+        qCDebug(fileSystemWatcherLog) << this << "Created watcher for id" << d->m_id;
     }
     ++(d->m_staticData->m_objectCount);
-    connect(d->m_staticData->m_watcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &file) {
-        const FilePath filePath = FilePath::fromString(file);
-        const auto it = d->m_files.find(filePath);
-        if (it != d->m_files.end() && it.value().trigger(filePath)) {
-            qCDebug(fileSystemWatcherLog)
-                    << this << "triggers on file" << it.key()
-                    << it.value().watchMode
+
+    // QFileSystemWatcher emits QString; convert to FilePath and dispatch.
+
+    connect(
+        d->m_staticData->m_watcher,
+        &QFileSystemWatcher::fileChanged,
+        this,
+        [this](const QString &fileStr) {
+            const FilePath filePath = FilePath::fromString(fileStr);
+            auto it = d->m_files.find(filePath);
+            if (it != d->m_files.end() && it.value().trigger(filePath)) {
+                qCDebug(fileSystemWatcherLog)
+                    << this << "triggers on file" << it.key() << it.value().watchMode
                     << it.value().modifiedTime.toString(Qt::ISODate);
 
-            if (!filePath.exists()) {
-                const FilePath directory = filePath.parentDir();
-                const int dirCount = ++d->m_staticData->m_directoryCount[directory];
-                QTC_CHECK(dirCount > 0);
-
-                if (dirCount == 1)
-                    d->m_staticData->m_watcher->addPath(directory.toFSPathString());
+                if (!filePath.exists()) {
+                    // File disappeared: watch its directory so we notice recreation.
+                    const FilePath directory = filePath.parentDir();
+                    const int dirCount = ++d->m_staticData->m_directoryCount[directory];
+                    QTC_CHECK(dirCount > 0);
+                    if (dirCount == 1)
+                        d->m_staticData->m_watcher->addPath(directory.toFSPathString());
+                }
+                d->fileChanged(filePath);
             }
-            d->fileChanged(filePath);
-        }
-    });
+        });
 
-    connect(d->m_staticData->m_watcher, &QFileSystemWatcher::directoryChanged, this, [this](const QString &file) {
-        const FilePath dir = FilePath::fromString(file);
-        const auto it = d->m_directories.find(dir);
-        if (it != d->m_directories.end() && it.value().trigger(dir)) {
-            qCDebug(fileSystemWatcherLog)
-                << this << "triggers on dir" << it.key()
-                << it.value().watchMode
-                << it.value().modifiedTime.toString(Qt::ISODate);
-            d->directoryChanged(dir);
-        }
+    connect(
+        d->m_staticData->m_watcher,
+        &QFileSystemWatcher::directoryChanged,
+        this,
+        [this](const QString &dirStr) {
+            const FilePath dir = FilePath::fromString(dirStr);
 
-        QStringList toReadd;
-        for (const FilePath &entry : dir.dirEntries(QDir::Files)) {
-            if (d->m_files.contains(entry))
-                toReadd.append(entry.toFSPathString());
-        }
-
-        if (!toReadd.isEmpty()) {
-            for (const QString &rejected : d->m_staticData->m_watcher->addPaths(toReadd))
-                toReadd.removeOne(rejected);
-
-            // If we've successfully added the file, that means it was deleted and replaced.
-            for (const QString &dir : std::as_const(toReadd)) {
-                const FilePath directory = FilePath::fromString(dir);
-                const int dirCount = --d->m_staticData->m_directoryCount[directory];
-                QTC_CHECK(dirCount >= 0);
-
-                if (!dirCount)
-                    d->m_staticData->m_watcher->removePath(dir);
-
-                d->fileChanged(directory);
+            // Debounce per directory (100 ms)
+            QTimer *t = d->m_timerMap.value(dir, nullptr);
+            if (t) {
+                t->start(100);
+                return;
             }
-        }
-    });
+            t = new QTimer(this);
+            t->setSingleShot(true);
+            t->setInterval(100);
+            connect(t, &QTimer::timeout, this, [this, dir, t]() {
+                d->m_timerMap.remove(dir);
+                t->deleteLater();
+                d->handleDirChanged(dir);
+            });
+            d->m_timerMap.insert(dir, t);
+            t->start();
+        });
 }
 
 FileSystemWatcher::~FileSystemWatcher()
@@ -284,8 +315,7 @@ FileSystemWatcher::~FileSystemWatcher()
         d->m_staticData->m_watcher = nullptr;
         d->m_staticData->m_fileCount.clear();
         d->m_staticData->m_directoryCount.clear();
-        qCDebug(fileSystemWatcherLog)
-            << this << "Deleted watcher" << d->m_id;
+        qCDebug(fileSystemWatcherLog) << this << "Deleted watcher" << d->m_id;
     }
     delete d;
 }
@@ -302,39 +332,42 @@ void FileSystemWatcher::addFile(const FilePath &file, WatchMode wm)
 
 void FileSystemWatcher::addFiles(const FilePaths &filePaths, WatchMode wm)
 {
-    qCDebug(fileSystemWatcherLog)
-        << this << d->m_id << "addFiles mode" << wm << filePaths
-        << "limit currently:" << (d->m_files.size() + d->m_directories.size())
-        << "of" << d->m_staticData->maxFileOpen;
+    qCDebug(fileSystemWatcherLog) << this << d->m_id << "addFiles mode" << wm << filePaths
+                                  << "limit currently:"
+                                  << (d->m_files.size() + d->m_directories.size()) << "of"
+                                  << d->m_staticData->maxFileOpen;
+
     QStringList toAdd;
-    for (const FilePath &filePath : filePaths) {
-        if (watchesFile(filePath)) {
-            qWarning("FileSystemWatcher: File %s is already being watched",
-                     qPrintable(filePath.toUserOutput()));
+    for (const FilePath &fp : filePaths) {
+        if (watchesFile(fp)) {
+            qWarning(
+                "FileSystemWatcher: File %s is already being watched",
+                qPrintable(fp.toUserOutput()));
             continue;
         }
 
         if (!d->checkLimit()) {
-            qWarning("File %s is not watched: Too many file handles are already open (max is %u).",
-                     qPrintable(filePath.toUserOutput()), unsigned(d->m_staticData->maxFileOpen));
+            qWarning(
+                "File %s is not watched: Too many file handles are already open (max is %u).",
+                qPrintable(fp.toUserOutput()),
+                unsigned(d->m_staticData->maxFileOpen));
             break;
         }
 
-        d->m_files.insert(filePath, WatchEntry(filePath, wm));
+        d->m_files.insert(fp, WatchEntry(fp, wm));
 
-        const int count = ++d->m_staticData->m_fileCount[filePath];
+        const int count = ++d->m_staticData->m_fileCount[fp];
         QTC_CHECK(count > 0);
 
         if (count == 1) {
-            toAdd << filePath.toFSPathString();
+            toAdd << fp.toFSPathString();
 
-            if (!filePath.exists()) {
-                const FilePath directory = filePath.parentDir();
-                const int dirCount = ++d->m_staticData->m_directoryCount[directory];
+            if (!fp.exists()) {
+                const FilePath dir = fp.parentDir();
+                const int dirCount = ++d->m_staticData->m_directoryCount[dir];
                 QTC_CHECK(dirCount > 0);
-
                 if (dirCount == 1)
-                    toAdd << directory.toFSPathString();
+                    toAdd << dir.toFSPathString();
             }
         }
     }
@@ -350,32 +383,29 @@ void FileSystemWatcher::removeFile(const FilePath &file)
 
 void FileSystemWatcher::removeFiles(const FilePaths &filePaths)
 {
-    qCDebug(fileSystemWatcherLog)
-        << this << d->m_id << "removeFiles" << filePaths;
+    qCDebug(fileSystemWatcherLog) << this << d->m_id << "removeFiles" << filePaths;
+
     QStringList toRemove;
-    for (const FilePath &filePath : filePaths) {
-        const QString file = filePath.toFSPathString();
-        const auto it = d->m_files.constFind(filePath);
+    for (const FilePath &fp : filePaths) {
+        const auto it = d->m_files.constFind(fp);
         if (it == d->m_files.constEnd()) {
-            qWarning("FileSystemWatcher: File %s is not watched.",
-                     qPrintable(filePath.toUserOutput()));
+            qWarning("FileSystemWatcher: File %s is not watched.", qPrintable(fp.toUserOutput()));
             continue;
         }
         d->m_files.erase(it);
 
-        const int count = --(d->m_staticData->m_fileCount[filePath]);
+        const int count = --(d->m_staticData->m_fileCount[fp]);
         QTC_CHECK(count >= 0);
 
         if (!count) {
-            toRemove << file;
+            toRemove << fp.toFSPathString();
 
-            if (!filePath.exists()) {
-                const FilePath directory = filePath.parentDir();
-                const int dirCount = --d->m_staticData->m_directoryCount[directory];
+            if (!fp.exists()) {
+                const FilePath dir = fp.parentDir();
+                const int dirCount = --d->m_staticData->m_directoryCount[dir];
                 QTC_CHECK(dirCount >= 0);
-
                 if (!dirCount)
-                    toRemove << directory.toFSPathString();
+                    toRemove << dir.toFSPathString();
             }
         }
     }
@@ -409,21 +439,25 @@ void FileSystemWatcher::addDirectory(const FilePath &directory, WatchMode wm)
 
 void FileSystemWatcher::addDirectories(const FilePaths &directories, WatchMode wm)
 {
-    qCDebug(fileSystemWatcherLog)
-        << this << d->m_id << "addDirectories mode" << wm << directories
-        << "limit currently:" << (d->m_files.size() + d->m_directories.size())
-        << "of" << d->m_staticData->maxFileOpen;
+    qCDebug(fileSystemWatcherLog) << this << d->m_id << "addDirectories mode" << wm << directories
+                                  << "limit currently:"
+                                  << (d->m_files.size() + d->m_directories.size()) << "of"
+                                  << d->m_staticData->maxFileOpen;
+
     QStringList toAdd;
     for (const FilePath &dir : directories) {
         if (watchesDirectory(dir)) {
-            qWarning("FileSystemWatcher: Directory %s is already being watched.",
-                     qPrintable(dir.toUserOutput()));
+            qWarning(
+                "FileSystemWatcher: Directory %s is already being watched.",
+                qPrintable(dir.toUserOutput()));
             continue;
         }
 
         if (!d->checkLimit()) {
-            qWarning("Directory %s is not watched: Too many file handles are already open (max is %u).",
-                     qPrintable(dir.toUserOutput()), unsigned(d->m_staticData->maxFileOpen));
+            qWarning(
+                "Directory %s is not watched: Too many file handles are already open (max is %u).",
+                qPrintable(dir.toUserOutput()),
+                unsigned(d->m_staticData->maxFileOpen));
             break;
         }
 
@@ -431,7 +465,6 @@ void FileSystemWatcher::addDirectories(const FilePaths &directories, WatchMode w
 
         const int count = ++d->m_staticData->m_directoryCount[dir];
         QTC_CHECK(count > 0);
-
         if (count == 1)
             toAdd << dir.toFSPathString();
     }
@@ -440,32 +473,31 @@ void FileSystemWatcher::addDirectories(const FilePaths &directories, WatchMode w
         d->m_staticData->m_watcher->addPaths(toAdd);
 }
 
-void FileSystemWatcher::removeDirectory(const FilePath &file)
+void FileSystemWatcher::removeDirectory(const FilePath &directory)
 {
-    removeDirectories({file});
+    removeDirectories({directory});
 }
 
 void FileSystemWatcher::removeDirectories(const FilePaths &directories)
 {
-    qCDebug(fileSystemWatcherLog)
-        << this << d->m_id << "removeDirectories" << directories;
+    qCDebug(fileSystemWatcherLog) << this << d->m_id << "removeDirectories" << directories;
 
     QStringList toRemove;
     for (const FilePath &dir : directories) {
         const auto it = d->m_directories.constFind(dir);
         if (it == d->m_directories.constEnd()) {
-            qWarning("FileSystemWatcher: Directory %s is not watched.",
-                     qPrintable(dir.toUserOutput()));
+            qWarning(
+                "FileSystemWatcher: Directory %s is not watched.", qPrintable(dir.toUserOutput()));
             continue;
         }
         d->m_directories.erase(it);
 
         const int count = --d->m_staticData->m_directoryCount[dir];
         QTC_CHECK(count >= 0);
-
         if (!count)
             toRemove << dir.toFSPathString();
     }
+
     if (!toRemove.isEmpty())
         d->m_staticData->m_watcher->removePaths(toRemove);
 }
@@ -475,4 +507,4 @@ FilePaths FileSystemWatcher::directories() const
     return d->m_directories.keys();
 }
 
-} //Utils
+} // namespace Utils

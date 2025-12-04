@@ -266,291 +266,305 @@ Column {
         width: parent.width
         caption: qsTr("Particle Rotation")
 
-        ColumnLayout {
-            spacing: StudioTheme.Values.transform3DSectionSpacing
-
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Rotation")
-                    tooltip: qsTr("Sets the rotation of the particles in the beginning. Rotation is defined as degrees in euler angles.")
-                }
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotation_x
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotation_y
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotation_z
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
-                }
+        SectionLayout {
+            PropertyLabel {
+                id: rotationLabel
+                text: qsTr("Rotation")
+                tooltip: qsTr("Sets the rotation of the particles in the beginning. Rotation is defined as degrees in euler angles.")
             }
 
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Variation")
-                    tooltip: qsTr("Sets the rotation variation of the particles in the beginning. Rotation variation is defined as degrees in euler angles.")
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotation_x
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotationVariation_x
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
+                ControlLabel {
+                    text: "X"
+                    color: StudioTheme.Values.theme3DAxisXColor
                 }
 
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotationVariation_y
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotationVariation_z
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
-                }
+                ExpandingSpacer {}
             }
 
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Velocity")
-                    tooltip: qsTr("Sets the rotation velocity of the particles in the beginning. Rotation velocity is defined as degrees per second in euler angles.")
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotation_y
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotationVelocity_x
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
+                ControlLabel {
+                    text: "Y"
+                    color: StudioTheme.Values.theme3DAxisYColor
                 }
 
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotationVelocity_y
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotationVelocity_z
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
-                }
+                ExpandingSpacer {}
             }
 
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Velocity Variation")
-                    tooltip: qsTr("Sets the rotation velocity variation of the particles. Rotation velocity variation is defined as degrees per second in euler angles.")
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotation_z
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotationVelocityVariation_x
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
+                ControlLabel {
+                    text: "Z"
+                    color: StudioTheme.Values.theme3DAxisZColor
                 }
 
-                PropertyLabel {}
+                ExpandingSpacer {}
+            }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotationVelocityVariation_y
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
+            Spacer {
+                height: StudioTheme.Values.transform3DSectionSpacing
+                visible: rotationLabel.visible
+            }
+        }
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+        SectionLayout {
+            PropertyLabel {
+                id: variationLabel
+                text: qsTr("Variation")
+                tooltip: qsTr("Sets the rotation variation of the particles in the beginning. Rotation variation is defined as degrees in euler angles.")
+            }
 
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotationVariation_x
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
-                PropertyLabel {}
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.particleRotationVelocityVariation_z
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
+                ControlLabel {
+                    text: "X"
+                    color: StudioTheme.Values.theme3DAxisXColor
                 }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotationVariation_y
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Y"
+                    color: StudioTheme.Values.theme3DAxisYColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotationVariation_z
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Z"
+                    color: StudioTheme.Values.theme3DAxisZColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            Spacer {
+                height: StudioTheme.Values.transform3DSectionSpacing
+                visible: variationLabel.visible
+            }
+        }
+
+        SectionLayout {
+            PropertyLabel {
+                id: velocityLabel
+                text: qsTr("Velocity")
+                tooltip: qsTr("Sets the rotation velocity of the particles in the beginning. Rotation velocity is defined as degrees per second in euler angles.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotationVelocity_x
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "X"
+                    color: StudioTheme.Values.theme3DAxisXColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotationVelocity_y
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Y"
+                    color: StudioTheme.Values.theme3DAxisYColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotationVelocity_z
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Z"
+                    color: StudioTheme.Values.theme3DAxisZColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            Spacer {
+                height: StudioTheme.Values.transform3DSectionSpacing
+                visible: velocityLabel.visible
+            }
+        }
+
+        SectionLayout {
+            PropertyLabel {
+                text: qsTr("Velocity Variation")
+                tooltip: qsTr("Sets the rotation velocity variation of the particles. Rotation velocity variation is defined as degrees per second in euler angles.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotationVelocityVariation_x
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "X"
+                    color: StudioTheme.Values.theme3DAxisXColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotationVelocityVariation_y
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Y"
+                    color: StudioTheme.Values.theme3DAxisYColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.particleRotationVelocityVariation_z
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Z"
+                    color: StudioTheme.Values.theme3DAxisZColor
+                }
+
+                ExpandingSpacer {}
             }
         }
     }

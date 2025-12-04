@@ -6,6 +6,7 @@
 #include "assetslibrarymodel.h"
 #include "assetslibrarywidget.h"
 #include "formeditorscene.h"
+#include "formeditortracing.h"
 #include "formeditorview.h"
 #include "qmldesignerconstants.h"
 #include <designeractionmanager.h>
@@ -21,25 +22,32 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QLoggingCategory>
 #include <QMimeData>
-#include <QTimer>
-#include <QWidget>
 #include <QMessageBox>
+#include <QTimer>
+#include <QTransform>
+#include <QVector3D>
+#include <QWidget>
 
 static Q_LOGGING_CATEGORY(dragToolInfo, "qtc.qmldesigner.formeditor", QtWarningMsg);
 
 namespace QmlDesigner {
+
+using FormEditorTracing::category;
 
 DragTool::DragTool(FormEditorView *editorView)
     : AbstractFormEditorTool(editorView),
     m_moveManipulator(editorView->scene()->manipulatorLayerItem(), editorView),
     m_selectionIndicator(editorView->scene()->manipulatorLayerItem())
 {
+    NanotraceHR::Tracer tracer{"drag tool constructor", category()};
 }
 
 DragTool::~DragTool() = default;
 
 void DragTool::clear()
 {
+    NanotraceHR::Tracer tracer{"drag tool clear", category()};
+
     m_moveManipulator.clear();
     m_selectionIndicator.clear();
     m_movingItems.clear();
@@ -51,6 +59,8 @@ void DragTool::hoverMoveEvent(const QList<QGraphicsItem *> &, QGraphicsSceneMous
 
 void DragTool::keyPressEvent(QKeyEvent *event)
 {
+    NanotraceHR::Tracer tracer{"drag tool key press event", category()};
+
     if (event->key() == Qt::Key_Escape) {
         abort();
         event->accept();
@@ -68,6 +78,8 @@ void DragTool::updateMoveManipulator() {}
 
 void DragTool::beginWithPoint(const QPointF &beginPoint)
 {
+    NanotraceHR::Tracer tracer{"drag tool begin with point", category()};
+
     m_movingItems = scene()->itemsForQmlItemNodes(m_dragNodes);
 
     m_moveManipulator.setItems(m_movingItems);
@@ -78,25 +90,13 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry,
                                  const QmlItemNode &parentNode,
                                  const QPointF &scenePosition)
 {
+    NanotraceHR::Tracer tracer{"drag tool create QmlItemNode", category()};
+
     FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
     const QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform().inverted().map(scenePosition);
     QPointF itemPos = positonInItemSpace;
 
-    const bool rootIsFlow = QmlItemNode(view()->rootModelNode()).isFlowView();
-
-    QmlItemNode adjustedParentNode = parentNode;
-
-    if (rootIsFlow) {
-        itemPos = QPointF();
-        adjustedParentNode = view()->rootModelNode();
-    }
-
-    m_dragNodes.append(QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, itemPos, adjustedParentNode));
-
-    if (rootIsFlow) {
-        for (QmlItemNode &dragNode : m_dragNodes)
-            dragNode.setFlowItemPosition(positonInItemSpace);
-    }
+    m_dragNodes.append(QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, itemPos, parentNode));
 
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(m_dragNodes));
 }
@@ -105,6 +105,8 @@ void DragTool::createQmlItemNodeFromImage(const QString &imagePath,
                                           const QmlItemNode &parentNode,
                                           const QPointF &scenePosition)
 {
+    NanotraceHR::Tracer tracer{"drag tool create QmlItemNode from image", category()};
+
     if (parentNode.isValid()) {
         FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
         QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform().inverted().map(scenePosition);
@@ -117,6 +119,8 @@ void DragTool::createQmlItemNodeFromFont(const QString &fontPath,
                                          const QmlItemNode &parentNode,
                                          const QPointF &scenePos)
 {
+    NanotraceHR::Tracer tracer{"drag tool create QmlItemNode from font", category()};
+
     if (parentNode.isValid()) {
         FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
         QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform()
@@ -133,6 +137,8 @@ void DragTool::createQmlItemNodeFromFont(const QString &fontPath,
 FormEditorItem *DragTool::targetContainerOrRootItem(const QList<QGraphicsItem *> &itemList,
                                                     const QList<FormEditorItem *> &currentItems)
 {
+    NanotraceHR::Tracer tracer{"drag tool target container or root item", category()};
+
     FormEditorItem *formEditorItem = containerFormEditorItem(itemList, currentItems);
 
     if (!formEditorItem)
@@ -143,6 +149,8 @@ FormEditorItem *DragTool::targetContainerOrRootItem(const QList<QGraphicsItem *>
 
 void DragTool::formEditorItemsChanged(const QList<FormEditorItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"drag tool form editor items changed", category()};
+
     if (!m_movingItems.isEmpty()) {
         for (auto item : std::as_const(m_movingItems)) {
             if (itemList.contains(item)) {
@@ -155,6 +163,8 @@ void DragTool::formEditorItemsChanged(const QList<FormEditorItem *> &itemList)
 
 void DragTool::instancesCompleted(const QList<FormEditorItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"drag tool instances completed", category()};
+
     m_moveManipulator.synchronizeInstanceParent(itemList);
     for (FormEditorItem *item : itemList) {
         for (const QmlItemNode &dragNode : std::as_const(m_dragNodes)) {
@@ -168,6 +178,8 @@ void DragTool::instancesCompleted(const QList<FormEditorItem *> &itemList)
 
 void DragTool::instancesParentChanged(const QList<FormEditorItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"drag tool instances parent changed", category()};
+
     m_moveManipulator.synchronizeInstanceParent(itemList);
 }
 
@@ -175,6 +187,8 @@ void DragTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyName>
 
 void DragTool::clearMoveDelay()
 {
+    NanotraceHR::Tracer tracer{"drag tool clear move delay", category()};
+
     if (m_blockMove) {
         m_blockMove = false;
         if (!m_dragNodes.isEmpty() && m_dragNodes.first().isValid())
@@ -186,6 +200,8 @@ void DragTool::focusLost() {}
 
 void DragTool::abort()
 {
+    NanotraceHR::Tracer tracer{"drag tool abort", category()};
+
     if (!m_isAborted) {
         m_isAborted = true;
 
@@ -209,8 +225,10 @@ static ItemLibraryEntry itemLibraryEntryFromMimeData(const QMimeData *mimeData)
 
 static bool canBeDropped(const QMimeData *mimeData, Model *model)
 {
-    if (AbstractFormEditorTool::hasDroppableAsset(mimeData))
+    if (AbstractFormEditorTool::hasDroppableAsset(mimeData)
+        || mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)) {
         return true;
+    }
 #ifdef QDS_USE_PROJECTSTORAGE
     auto itemLibraryEntry = itemLibraryEntryFromMimeData(mimeData);
     NodeMetaInfo metaInfo{itemLibraryEntry.typeId(), model->projectStorage()};
@@ -228,9 +246,28 @@ static bool hasItemLibraryInfo(const QMimeData *mimeData)
 
 void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneDragDropEvent *event)
 {
+    NanotraceHR::Tracer tracer{"drag tool drop event", category()};
+
     if (canBeDropped(event->mimeData(), view()->model())) {
         event->accept();
         end(generateUseSnapping(event->modifiers()));
+
+        if (event->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)) {
+            view()->changeToSelectionTool();
+            view()->model()->endDrag();
+            FormEditorItem *target = targetContainerOrRootItem(itemList);
+
+            ModelNode targetNode = target->qmlItemNode().modelNode();
+            QTransform sceneTransform = QmlItemNode(targetNode).instanceSceneTransform().inverted();
+            QPointF targetPoint = sceneTransform.map(m_lastPoint);
+
+            view()->emitCustomNotification("drop_bundle_item",
+                                           {targetNode},
+                                           {QVector3D{float(targetPoint.x()),
+                                                      float(targetPoint.y()),
+                                                      .0f}}); // To ContentLibraryView
+            return;
+        }
 
         QString effectPath;
         const QStringList assetPaths = QString::fromUtf8(event->mimeData()
@@ -264,8 +301,7 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
             for (QmlItemNode &node : m_dragNodes) {
                 if (node.isValid()) {
                     if ((node.instanceParentItem().isValid()
-                         && node.instanceParent().modelNode().metaInfo().isLayoutable())
-                            || node.isFlowItem()) {
+                         && node.instanceParent().modelNode().metaInfo().isLayoutable())) {
                         node.removeProperty("x");
                         node.removeProperty("y");
                         resetPuppet = true;
@@ -308,6 +344,8 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
 
 void DragTool::dragEnterEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
 {
+    NanotraceHR::Tracer tracer{"drag tool drag enter event", category()};
+
     if (canBeDropped(event->mimeData(), view()->model())) {
         m_blockMove = false;
 
@@ -324,6 +362,8 @@ void DragTool::dragEnterEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraph
 
 void DragTool::dragLeaveEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
 {
+    NanotraceHR::Tracer tracer{"drag tool drag leave event", category()};
+
     if (canBeDropped(event->mimeData(), view()->model())) {
         event->accept();
 
@@ -345,6 +385,8 @@ void DragTool::dragLeaveEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraph
 void DragTool::createDragNodes(const QMimeData *mimeData, const QPointF &scenePosition,
                                const QList<QGraphicsItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"drag tool create drag nodes", category()};
+
     if (m_dragNodes.isEmpty()) {
         FormEditorItem *targetContainerFormEditorItem = targetContainerOrRootItem(itemList);
         if (targetContainerFormEditorItem) {
@@ -376,7 +418,16 @@ void DragTool::createDragNodes(const QMimeData *mimeData, const QPointF &scenePo
 
 void DragTool::dragMoveEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneDragDropEvent *event)
 {
+    NanotraceHR::Tracer tracer{"drag tool drag move event", category()};
+
+    if (event->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)) {
+        event->accept();
+        m_lastPoint = event->scenePos();
+        return;
+    }
+
     FormEditorItem *targetContainerItem = targetContainerOrRootItem(itemList);
+
     const QStringList assetPaths = QString::fromUtf8(event->mimeData()
                                                      ->data(Constants::MIME_TYPE_ASSETS)).split(',');
     QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPaths[0]).first;
@@ -405,18 +456,23 @@ void DragTool::dragMoveEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSc
 
 void DragTool::end()
 {
+    NanotraceHR::Tracer tracer{"drag tool end", category()};
     m_moveManipulator.end();
     clear();
 }
 
 void DragTool::end(Snapper::Snapping useSnapping)
 {
+    NanotraceHR::Tracer tracer{"drag tool end with snapping", category()};
+
     m_moveManipulator.end(useSnapping);
     clear();
 }
 
 void DragTool::move(const QPointF &scenePosition, const QList<QGraphicsItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"drag tool move", category()};
+
     if (!m_movingItems.isEmpty()) {
         FormEditorItem *containerItem = targetContainerOrRootItem(itemList, m_movingItems);
         for (auto &movingItem : std::as_const(m_movingItems)) {
@@ -440,6 +496,8 @@ void DragTool::move(const QPointF &scenePosition, const QList<QGraphicsItem *> &
 
 void DragTool::commitTransaction()
 {
+    NanotraceHR::Tracer tracer{"drag tool commit transaction", category()};
+
     try {
         handleView3dDrop();
         m_rewriterTransaction.commit();
@@ -450,6 +508,8 @@ void DragTool::commitTransaction()
 
 void DragTool::handleView3dDrop()
 {
+    NanotraceHR::Tracer tracer{"drag tool handle View3D drop", category()};
+
     // If a View3D is dropped, we need to assign material to the included model
     for (const QmlItemNode &dragNode : std::as_const(m_dragNodes)) {
         if (dragNode.modelNode().metaInfo().isQtQuick3DView3D()) {

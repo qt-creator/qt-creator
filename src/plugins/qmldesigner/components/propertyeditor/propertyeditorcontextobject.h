@@ -35,6 +35,8 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(int minorVersion READ minorVersion WRITE setMinorVersion NOTIFY minorVersionChanged)
     Q_PROPERTY(int majorQtQuickVersion READ majorQtQuickVersion WRITE setMajorQtQuickVersion NOTIFY majorQtQuickVersionChanged)
     Q_PROPERTY(int minorQtQuickVersion READ minorQtQuickVersion WRITE setMinorQtQuickVersion NOTIFY minorQtQuickVersionChanged)
+    Q_PROPERTY(int editorInstancesCount READ editorInstancesCount NOTIFY editorInstancesCountChanged)
+    Q_PROPERTY(int maxEditorInstancesCount READ maxEditorInstancesCount CONSTANT)
 
     Q_PROPERTY(QString activeDragSuffix READ activeDragSuffix NOTIFY activeDragSuffixChanged)
 
@@ -51,6 +53,8 @@ class PropertyEditorContextObject : public QObject
 
     Q_PROPERTY(bool isSelectionLocked READ isSelectionLocked WRITE setIsSelectionLocked NOTIFY isSelectionLockedChanged)
 
+    Q_PROPERTY(bool isMultiPropertyEditorPluginEnabled READ isMultiPropertyEditorPluginEnabled
+                   NOTIFY isMultiPropertyEditorPluginEnabledChanged)
     Q_PROPERTY(bool insightEnabled MEMBER m_insightEnabled NOTIFY insightEnabledChanged)
     Q_PROPERTY(QStringList insightCategories MEMBER m_insightCategories NOTIFY insightCategoriesChanged)
 
@@ -58,7 +62,7 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
     Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
     Q_PROPERTY(bool has3DModelSelected READ has3DModelSelected NOTIFY has3DModelSelectedChanged)
-
+    Q_PROPERTY(bool has3DScene READ has3DScene NOTIFY has3DSceneChanged)
 public:
     PropertyEditorContextObject(QObject *parent = nullptr);
 
@@ -107,7 +111,7 @@ public:
     Q_INVOKABLE void saveExpandedState(const QString &sectionName, bool expanded);
     Q_INVOKABLE bool loadExpandedState(const QString &sectionName, bool defaultValue) const;
 
-    enum ToolBarAction { SelectionLock, SelectionUnlock };
+    enum ToolBarAction { SelectionLock, SelectionUnlock, AddExtraWidget };
     Q_ENUM(ToolBarAction)
 
     QString activeDragSuffix() const;
@@ -121,6 +125,10 @@ public:
     void setMinorQtQuickVersion(int minorVersion);
     int minorVersion() const;
     void setMinorVersion(int minorVersion);
+    void setEditorInstancesCount(int n);
+    int editorInstancesCount() const;
+
+    int maxEditorInstancesCount() const { return 10; }
 
     bool hasActiveTimeline() const;
     void setHasActiveTimeline(bool b);
@@ -145,6 +153,9 @@ public:
     bool isQt6Project() const;
     void setIsQt6Project(bool value);
 
+    bool has3DScene() const;
+    void setHas3DScene(bool value);
+
     bool has3DModelSelected() const;
     void setHas3DModelSelected(bool value);
 
@@ -152,6 +163,7 @@ public:
 
     void setIsSelectionLocked(bool lock);
     bool isSelectionLocked() const;
+    bool isMultiPropertyEditorPluginEnabled() const;
 
     void setQuickWidget(QQuickWidget *newQuickWidget);
 
@@ -167,6 +179,7 @@ signals:
     void minorVersionChanged();
     void majorQtQuickVersionChanged();
     void minorQtQuickVersionChanged();
+    void editorInstancesCountChanged();
     void specificQmlComponentChanged();
     void hasAliasExportChanged();
     void hasActiveTimelineChanged();
@@ -175,8 +188,10 @@ signals:
     void hasQuick3DImportChanged();
     void hasMaterialLibraryChanged();
     void has3DModelSelectedChanged();
+    void has3DSceneChanged();
     void isQt6ProjectChanged();
     void isSelectionLockedChanged();
+    void isMultiPropertyEditorPluginEnabledChanged();
 
     void insightEnabledChanged();
     void insightCategoriesChanged();
@@ -220,9 +235,12 @@ private:
     int m_majorQtQuickVersion = 1;
     int m_minorQtQuickVersion = -1;
 
+    int m_editorInstancesCount = 0;
+
     bool m_hasQuick3DImport = false;
     bool m_hasMaterialLibrary = false;
     bool m_has3DModelSelected = false;
+    bool m_has3DScene = false;
     bool m_isQt6Project = false;
 
     QQmlComponent *m_qmlComponent;

@@ -20,12 +20,30 @@ using QmlDesigner::Storage::ModuleKind;
 class ModelUtilsWithModel : public ::testing::Test
 {
 protected:
+    struct StaticData
+    {
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
+    };
+
+    static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
+
+    static void TearDownTestSuite() { staticData.reset(); }
+
+protected:
+    inline static std::unique_ptr<StaticData> staticData;
+    QmlDesigner::ModulesStorage &modulesStorage = staticData->modulesStorage;
     NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/model.qml"};
     QmlDesigner::SourceId sourceId = pathCacheMock.createSourceId("/path/foo.qml");
-    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
-    QmlDesigner::ModuleId moduleId = projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary);
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId,
+                                                               "/path",
+                                                               modulesStorage};
+    QmlDesigner::ModuleId moduleId = modulesStorage.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    QmlDesigner::Model model{{projectStorageMock,
+                              pathCacheMock,
+                              modulesStorage,
+                              projectStorageTriggerUpdateMock},
                              "Item",
                              {QmlDesigner::Import::createLibraryImport("QML"),
                               QmlDesigner::Import::createLibraryImport("QtQuick"),
@@ -69,7 +87,9 @@ TEST_F(ModelUtilsWithModel, component_file_path_for_node)
     QmlDesigner::Storage::TypeTraits traits{QmlDesigner::Storage::TypeTraitsKind::Reference};
     traits.isFileComponent = true;
     auto typeId = projectStorageMock.createType(moduleId, "Foo", traits, {}, sourceId);
-    projectStorageMock.createImportedTypeNameId(pathCacheMock.sourceId, "Foo", typeId);
+    projectStorageMock.createImportedTypeNameId(pathCacheMock.sourceId,
+                                                "Foo",
+                                                {moduleId, typeId, "Foo"});
     auto node = model.createModelNode("Foo");
 
     auto path = QmlDesigner::ModelUtils::componentFilePath(node);
@@ -99,7 +119,9 @@ TEST_F(ModelUtilsWithModel, component_file_path_for_node_without_metainfo_is_emp
 TEST_F(ModelUtilsWithModel, component_file_path_for_non_file_component_node_is_empty)
 {
     auto typeId = projectStorageMock.createType(moduleId, "Foo", {}, {}, sourceId);
-    projectStorageMock.createImportedTypeNameId(pathCacheMock.sourceId, "Foo", typeId);
+    projectStorageMock.createImportedTypeNameId(pathCacheMock.sourceId,
+                                                "Foo",
+                                                {moduleId, typeId, "Foo"});
     auto node = model.createModelNode("Foo");
 
     auto path = QmlDesigner::ModelUtils::componentFilePath(node);

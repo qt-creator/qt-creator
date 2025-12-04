@@ -8,6 +8,7 @@
 #include "designersettings.h"
 #include "formeditoritem.h"
 #include "formeditorscene.h"
+#include "formeditortracing.h"
 #include "modelnodecontextmenu_helper.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
@@ -49,11 +50,15 @@ namespace QmlDesigner {
 namespace {
 constexpr AuxiliaryDataKeyView formeditorZoomProperty{AuxiliaryDataType::NodeInstancePropertyOverwrite,
                                                       "formeditorZoom"};
+
+using FormEditorTracing::category;
 }
 
 FormEditorWidget::FormEditorWidget(FormEditorView *view)
     : m_formEditorView(view)
 {
+    NanotraceHR::Tracer tracer{"form editor widget constructor", category()};
+
     setAcceptDrops(true);
 
     Core::Context context(Constants::qmlFormEditorContextId);
@@ -208,22 +213,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     auto frameAll = [this, zoomOut]() {
         if (m_graphicsView) {
-            QRectF bounds;
-
             QmlItemNode qmlItemNode(m_formEditorView->rootModelNode());
-            if (qmlItemNode.isFlowView()) {
-                for (QGraphicsItem *item : m_formEditorView->scene()->items()) {
-                    if (auto *fitem = FormEditorItem::fromQGraphicsItem(item)) {
-                        if (!fitem->qmlItemNode().modelNode().isRootNode()
-                            && !fitem->sceneBoundingRect().isNull())
-                            bounds |= fitem->sceneBoundingRect();
-                    }
-                }
-            } else {
-                bounds = qmlItemNode.instanceBoundingRect();
-            }
-
-            m_graphicsView->frame(bounds);
+            m_graphicsView->frame(qmlItemNode.instanceBoundingRect());
             zoomOut();
         }
     };
@@ -236,6 +227,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
                 if (FormEditorItem *item = m_formEditorView->scene()->itemForQmlItemNode(node))
                     boundingRect |= item->sceneBoundingRect();
             }
+            boundingRect |= m_formEditorView->scene()->manipulatorLayerItem()->boundingRect();
             m_graphicsView->frame(boundingRect);
             zoomOut();
         }
@@ -311,12 +303,16 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
 void FormEditorWidget::changeTransformTool(bool checked)
 {
+    NanotraceHR::Tracer tracer{"form editor widget change transform tool", category()};
+
     if (checked)
         m_formEditorView->changeToTransformTools();
 }
 
 void FormEditorWidget::changeRootItemWidth(const QString &widthText)
 {
+    NanotraceHR::Tracer tracer{"form editor widget change root item with", category()};
+
     bool canConvert;
     int width = widthText.toInt(&canConvert);
     if (canConvert) {
@@ -329,6 +325,8 @@ void FormEditorWidget::changeRootItemWidth(const QString &widthText)
 
 void FormEditorWidget::changeRootItemHeight(const QString &heighText)
 {
+    NanotraceHR::Tracer tracer{"form editor widget change root item height", category()};
+
     bool canConvert;
     int height = heighText.toInt(&canConvert);
     if (canConvert) {
@@ -341,6 +339,8 @@ void FormEditorWidget::changeRootItemHeight(const QString &heighText)
 
 void FormEditorWidget::changeBackgound(const QColor &color)
 {
+    NanotraceHR::Tracer tracer{"form editor widget change background", category()};
+
     if (color.alpha() == 0)
         m_graphicsView->activateCheckboardBackground();
     else
@@ -352,6 +352,9 @@ void FormEditorWidget::changeBackgound(const QColor &color)
 void FormEditorWidget::registerActionAsCommand(
     QAction *action, Utils::Id id, const QKeySequence &, const QByteArray &category, int priority)
 {
+    NanotraceHR::Tracer tracer{"form editor widget register action as command",
+                               QmlDesigner::category()};
+
     Core::Context context(Constants::qmlFormEditorContextId);
 
     Core::Command *command = Core::ActionManager::registerAction(action, id, context);
@@ -373,6 +376,8 @@ void FormEditorWidget::registerActionAsCommand(
 
 void FormEditorWidget::initialize()
 {
+    NanotraceHR::Tracer tracer{"form editor widget initialize", category()};
+
     double defaultZoom = 1.0;
     if (m_formEditorView->model() && m_formEditorView->rootModelNode().isValid()) {
         if (auto data = m_formEditorView->rootModelNode().auxiliaryData(formeditorZoomProperty)) {
@@ -388,6 +393,8 @@ void FormEditorWidget::initialize()
 
 void FormEditorWidget::updateActions()
 {
+    NanotraceHR::Tracer tracer{"form editor widget update action", category()};
+
     if (m_formEditorView->model() && m_formEditorView->rootModelNode().isValid()) {
         if (auto data = m_formEditorView->rootModelNode().auxiliaryData(widthProperty))
             m_rootWidthAction->setLineEditText(data->toString());
@@ -417,21 +424,29 @@ void FormEditorWidget::updateActions()
 
 void FormEditorWidget::resetView()
 {
+    NanotraceHR::Tracer tracer{"form editor widget reset view", category()};
+
     setRootItemRect(QRectF());
 }
 
 void FormEditorWidget::centerScene()
 {
+    NanotraceHR::Tracer tracer{"form editor widget center scene", category()};
+
     m_graphicsView->centerOn(rootItemRect().center());
 }
 
 void FormEditorWidget::setFocus()
 {
+    NanotraceHR::Tracer tracer{"form editor widget set focus", category()};
+
     m_graphicsView->setFocus(Qt::OtherFocusReason);
 }
 
 void FormEditorWidget::showErrorMessageBox(const QList<DocumentMessage> &errors)
 {
+    NanotraceHR::Tracer tracer{"form editor widget show error message box", category()};
+
     errorWidget()->setErrors(errors);
     errorWidget()->setVisible(true);
     m_graphicsView->setDisabled(true);
@@ -440,6 +455,8 @@ void FormEditorWidget::showErrorMessageBox(const QList<DocumentMessage> &errors)
 
 void FormEditorWidget::hideErrorMessageBox()
 {
+    NanotraceHR::Tracer tracer{"form editor widget hide error message box", category()};
+
     if (!m_documentErrorWidget.isNull())
         errorWidget()->setVisible(false);
 
@@ -449,6 +466,8 @@ void FormEditorWidget::hideErrorMessageBox()
 
 void FormEditorWidget::showWarningMessageBox(const QList<DocumentMessage> &warnings)
 {
+    NanotraceHR::Tracer tracer{"form editor widget show warning message box", category()};
+
     if (!errorWidget()->warningsEnabled())
         return;
 
@@ -458,61 +477,85 @@ void FormEditorWidget::showWarningMessageBox(const QList<DocumentMessage> &warni
 
 ZoomAction *FormEditorWidget::zoomAction() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget zoom action", category()};
+
     return m_zoomAction.data();
 }
 
 QAction *FormEditorWidget::zoomSelectionAction() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget zoom selection action", category()};
+
     return m_zoomSelectionAction.data();
 }
 
 QAction *FormEditorWidget::resetAction() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget reset action", category()};
+
     return m_resetAction.data();
 }
 
 QAction *FormEditorWidget::showBoundingRectAction() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget show bounding rect action", category()};
+
     return m_showBoundingRectAction.data();
 }
 
 QAction *FormEditorWidget::snappingAction() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget snapping action", category()};
+
     return m_snappingAction.data();
 }
 
 QAction *FormEditorWidget::snappingAndAnchoringAction() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget snapping and anchoring action", category()};
+
     return m_snappingAndAnchoringAction.data();
 }
 
 void FormEditorWidget::setScene(FormEditorScene *scene)
 {
+    NanotraceHR::Tracer tracer{"form editor widget set scene", category()};
+
     m_graphicsView->setScene(scene);
 }
 
 QActionGroup *FormEditorWidget::toolActionGroup() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget tool action group", category()};
+
     return m_toolActionGroup.data();
 }
 
 ToolBox *FormEditorWidget::toolBox() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget tool box", category()};
+
     return m_toolBox.data();
 }
 
 double FormEditorWidget::spacing() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget spacing", category()};
+
     return designerSettings().value(DesignerSettingsKey::ITEMSPACING).toDouble();
 }
 
 double FormEditorWidget::containerPadding() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget container padding", category()};
+
     return designerSettings().value(DesignerSettingsKey::CONTAINERPADDING).toDouble();
 }
 
 void FormEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
+    NanotraceHR::Tracer tracer{"form editor widget context help", category()};
+
     if (m_formEditorView)
         QmlDesignerPlugin::contextHelp(callback, m_formEditorView->contextHelpId());
     else
@@ -521,6 +564,8 @@ void FormEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback)
 
 void FormEditorWidget::setRootItemRect(const QRectF &rect)
 {
+    NanotraceHR::Tracer tracer{"form editor widget set root item rect", category()};
+
     m_graphicsView->setRootItemRect(rect);
 }
 
@@ -531,6 +576,8 @@ QRectF FormEditorWidget::rootItemRect() const
 
 void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
 {
+    NanotraceHR::Tracer tracer{"form editor widget export as image", category()};
+
     QString proposedFileName = m_formEditorView->model()->fileUrl().toLocalFile();
     proposedFileName.chop(4);
     if (proposedFileName.endsWith(".ui"))
@@ -555,6 +602,8 @@ void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
 
 QImage FormEditorWidget::takeFormEditorScreenshot()
 {
+    NanotraceHR::Tracer tracer{"form editor widget take for editor screenshot", category()};
+
     if (!m_formEditorView->isAttached())
         return {};
 
@@ -595,6 +644,8 @@ QImage FormEditorWidget::takeFormEditorScreenshot()
 
 QPicture FormEditorWidget::renderToPicture() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget render to picture", category()};
+
     QPicture picture;
     QPainter painter{&picture};
 
@@ -618,22 +669,30 @@ FormEditorGraphicsView *FormEditorWidget::graphicsView() const
 
 bool FormEditorWidget::errorMessageBoxIsVisible() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget error message box is visible", category()};
+
     return m_documentErrorWidget && m_documentErrorWidget->isVisible();
 }
 
 void FormEditorWidget::setBackgoundImage(const QImage &image)
 {
+    NanotraceHR::Tracer tracer{"form editor widget set background image", category()};
+
     m_graphicsView->setBackgoundImage(image);
     updateActions();
 }
 
 QImage FormEditorWidget::backgroundImage() const
 {
+    NanotraceHR::Tracer tracer{"form editor widget background image", category()};
+
     return m_graphicsView->backgroundImage();
 }
 
 DocumentWarningWidget *FormEditorWidget::errorWidget()
 {
+    NanotraceHR::Tracer tracer{"form editor widget error widget", category()};
+
     if (m_documentErrorWidget.isNull()) {
         m_documentErrorWidget = new DocumentWarningWidget(this);
         connect(m_documentErrorWidget.data(), &DocumentWarningWidget::gotoCodeClicked,
@@ -646,6 +705,8 @@ DocumentWarningWidget *FormEditorWidget::errorWidget()
 
 void FormEditorWidget::hideEvent(QHideEvent *event)
 {
+    NanotraceHR::Tracer tracer{"form editor widget hide event", category()};
+
     QWidget::hideEvent(event);
 
     QmlDesignerPlugin::viewManager().hideView(*m_formEditorView);
@@ -653,6 +714,8 @@ void FormEditorWidget::hideEvent(QHideEvent *event)
 
 void FormEditorWidget::showEvent(QShowEvent *event)
 {
+    NanotraceHR::Tracer tracer{"form editor widget show event", category()};
+
     QWidget::showEvent(event);
 
     const bool wasEnabled = m_formEditorView->isEnabled();
@@ -670,6 +733,8 @@ void FormEditorWidget::showEvent(QShowEvent *event)
 
 void FormEditorWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 {
+    NanotraceHR::Tracer tracer{"form editor widget drag enter event", category()};
+
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager()
                                                      .designerActionManager();
@@ -679,6 +744,8 @@ void FormEditorWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 
 void FormEditorWidget::dropEvent(QDropEvent *dropEvent)
 {
+    NanotraceHR::Tracer tracer{"form editor widget drop event", category()};
+
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager()
                                                      .designerActionManager();

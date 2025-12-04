@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "backgroundaction.h"
+#include "formeditortracing.h"
 
 #include <qmldesignertr.h>
 #include <theme.h>
@@ -15,19 +16,26 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 BackgroundAction::BackgroundAction(QObject *parent) :
     QWidgetAction(parent)
 {
+    NanotraceHR::Tracer tracer{"background action constructor", category()};
 }
 
 void BackgroundAction::setColor(const QColor &color)
 {
+    NanotraceHR::Tracer tracer{"background action set color", category()};
+
     if (m_comboBox)
         m_comboBox->setCurrentIndex(colors().indexOf(color));
 }
 
 void BackgroundAction::setColorEnabled(const QColor &color, bool enable)
 {
+    NanotraceHR::Tracer tracer{"background action set color enabled", category()};
+
     if (!m_comboBox)
         return;
 
@@ -65,6 +73,8 @@ QIcon iconForColor(const QColor &color) {
 
 QWidget *BackgroundAction::createWidget(QWidget *parent)
 {
+    NanotraceHR::Tracer tracer{"background action create widget", category()};
+
     auto comboBox = new QComboBox(parent);
     comboBox->setFixedWidth(42);
 
@@ -86,12 +96,16 @@ QWidget *BackgroundAction::createWidget(QWidget *parent)
 
 void BackgroundAction::emitBackgroundChanged(int index)
 {
+    NanotraceHR::Tracer tracer{"background action emit background changed", category()};
+
     if (index < colors().size())
         emit backgroundChanged(colors().at(index));
 }
 
 QList<QColor> BackgroundAction::colors()
 {
+    NanotraceHR::Tracer tracer{"background action colors", category()};
+
     static QColor alphaZero(Qt::transparent);
     static QList<QColor> colorList = {alphaZero,
                                       QColor(BackgroundAction::ContextImage),

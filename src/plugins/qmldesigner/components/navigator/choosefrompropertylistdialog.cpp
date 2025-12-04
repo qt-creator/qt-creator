@@ -2,18 +2,24 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "choosefrompropertylistdialog.h"
-#include "nodemetainfo.h"
+
+#include "navigatortracing.h"
 #include "ui_choosefrompropertylistdialog.h"
 
+#include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
+
+using NavigatorTracing::category;
 
 // This will filter and return possible properties that the given type can be bound to
 ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &insertInfo,
                                                            const NodeMetaInfo &parentInfo,
                                                            bool breakOnFirst)
 {
+    NanotraceHR::Tracer tracer{"choose from property list filter constructor", category()};
+
     // TODO: Metainfo based matching system (QDS-6240)
 
     // Fall back to a hardcoded list of supported cases:
@@ -136,11 +142,15 @@ ChooseFromPropertyListDialog::ChooseFromPropertyListDialog(const QStringList &pr
 
 ChooseFromPropertyListDialog::~ChooseFromPropertyListDialog()
 {
+    NanotraceHR::Tracer tracer{"choose from property list filter destructor", category()};
+
     delete m_ui;
 }
 
 TypeName ChooseFromPropertyListDialog::selectedProperty() const
 {
+    NanotraceHR::Tracer tracer{"choose from property list filter selected property", category()};
+
     return m_selectedProperty;
 }
 
@@ -149,6 +159,8 @@ TypeName ChooseFromPropertyListDialog::selectedProperty() const
 ChooseFromPropertyListDialog *ChooseFromPropertyListDialog::createIfNeeded(
         const ModelNode &targetNode, const ModelNode &newNode, QWidget *parent)
 {
+    NanotraceHR::Tracer tracer{"choose from property list filter create if needed", category()};
+
     const NodeMetaInfo info = newNode.metaInfo();
     const NodeMetaInfo targetInfo = targetNode.metaInfo();
     ChooseFromPropertyListFilter *filter = new ChooseFromPropertyListFilter(info, targetInfo);
@@ -163,6 +175,9 @@ ChooseFromPropertyListDialog *ChooseFromPropertyListDialog::createIfNeeded(
 ChooseFromPropertyListDialog *ChooseFromPropertyListDialog::createIfNeeded(
     const ModelNode &targetNode, const NodeMetaInfo &propertyType, QWidget *parent)
 {
+    NanotraceHR::Tracer tracer{"choose from property list filter create if needed for type",
+                               category()};
+
     const NodeMetaInfo metaInfo = targetNode.metaInfo();
     QStringList matchingNames;
     for (const auto &property : metaInfo.properties()) {
@@ -178,6 +193,8 @@ ChooseFromPropertyListDialog *ChooseFromPropertyListDialog::createIfNeeded(
 
 void ChooseFromPropertyListDialog::fillList(const QStringList &propNames)
 {
+    NanotraceHR::Tracer tracer{"choose from property list filter fill list", category()};
+
     if (propNames.isEmpty())
         return;
 

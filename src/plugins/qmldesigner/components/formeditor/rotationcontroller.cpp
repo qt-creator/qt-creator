@@ -4,6 +4,7 @@
 #include "rotationcontroller.h"
 
 #include "formeditoritem.h"
+#include "formeditortracing.h"
 #include "layeritem.h"
 
 #include <rotationhandleitem.h>
@@ -14,6 +15,8 @@
 #include <theme.h>
 
 namespace QmlDesigner {
+
+using FormEditorTracing::category;
 
 class RotationControllerData
 {
@@ -56,18 +59,19 @@ RotationControllerData::~RotationControllerData()
 RotationController::RotationController()
    : m_data(new RotationControllerData(nullptr, nullptr))
 {
-
+    NanotraceHR::Tracer tracer{"resize controller default constructor", category()};
 }
 
 RotationController::RotationController(const QSharedPointer<RotationControllerData> &data)
     : m_data(data)
 {
-
 }
 
 RotationController::RotationController(LayerItem *layerItem, FormEditorItem *formEditorItem)
     : m_data(new RotationControllerData(layerItem, formEditorItem))
 {
+    NanotraceHR::Tracer tracer{"resize controller constructor", category()};
+
     QCursor rotationCursor = getRotationCursor();
 
     m_data->topLeftItem = QSharedPointer<RotationHandleItem>(new RotationHandleItem(layerItem, *this));
@@ -78,11 +82,13 @@ RotationController::RotationController(LayerItem *layerItem, FormEditorItem *for
     m_data->topRightItem->setZValue(301);
     m_data->topRightItem->setCursor(rotationCursor);
 
-    m_data->bottomLeftItem = QSharedPointer<RotationHandleItem>(new RotationHandleItem(layerItem, *this));
+    m_data->bottomLeftItem = QSharedPointer<RotationHandleItem>(
+        new RotationHandleItem(layerItem, *this));
     m_data->bottomLeftItem->setZValue(301);
     m_data->bottomLeftItem->setCursor(rotationCursor);
 
-    m_data->bottomRightItem = QSharedPointer<RotationHandleItem>(new RotationHandleItem(layerItem, *this));
+    m_data->bottomRightItem = QSharedPointer<RotationHandleItem>(
+        new RotationHandleItem(layerItem, *this));
     m_data->bottomRightItem->setZValue(305);
     m_data->bottomRightItem->setCursor(rotationCursor);
 
@@ -108,11 +114,15 @@ RotationController &RotationController::operator =(const RotationController &oth
 
 bool RotationController::isValid() const
 {
+    NanotraceHR::Tracer tracer{"resize controller is valid", category()};
+
     return m_data && m_data->formEditorItem && m_data->formEditorItem->qmlItemNode().isValid();
 }
 
 void RotationController::show()
 {
+    NanotraceHR::Tracer tracer{"resize controller show", category()};
+
     m_data->topLeftItem->show();
     m_data->topRightItem->show();
     m_data->bottomLeftItem->show();
@@ -120,6 +130,8 @@ void RotationController::show()
 }
 void RotationController::hide()
 {
+    NanotraceHR::Tracer tracer{"resize controller hide", category()};
+
     m_data->topLeftItem->hide();
     m_data->topRightItem->hide();
     m_data->bottomLeftItem->hide();
@@ -129,6 +141,8 @@ void RotationController::hide()
 
 void RotationController::updatePosition()
 {
+    NanotraceHR::Tracer tracer{"resize controller update position", category()};
+
     if (isValid()) {
 
         QRectF boundingRect = m_data->formEditorItem->qmlItemNode().instanceBoundingRect();
@@ -158,26 +172,36 @@ FormEditorItem* RotationController::formEditorItem() const
 
 bool RotationController::isTopLeftHandle(const RotationHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is top left handle", category()};
+
     return handle == m_data->topLeftItem;
 }
 
 bool RotationController::isTopRightHandle(const RotationHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is top right handle", category()};
+
     return handle == m_data->topRightItem;
 }
 
 bool RotationController::isBottomLeftHandle(const RotationHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is bottom left handle", category()};
+
     return handle == m_data->bottomLeftItem;
 }
 
 bool RotationController::isBottomRightHandle(const RotationHandleItem *handle) const
 {
+    NanotraceHR::Tracer tracer{"resize controller is bottom right handle", category()};
+
     return handle == m_data->bottomRightItem;
 }
 
 QCursor RotationController::getRotationCursor() const
 {
+    NanotraceHR::Tracer tracer{"resize controller get rotation cursor", category()};
+
     const QString fontName = "qtds_propertyIconFont.ttf";
     const int cursorSize = 32; //32 is cursor recommended size
 
@@ -192,6 +216,8 @@ QCursor RotationController::getRotationCursor() const
 
 WeakRotationController RotationController::toWeakRotationController() const
 {
+    NanotraceHR::Tracer tracer{"resize controller to weak rotation controller", category()};
+
     return WeakRotationController(*this);
 }
 
@@ -216,6 +242,7 @@ WeakRotationController &WeakRotationController::operator =(const WeakRotationCon
 
 RotationController WeakRotationController::toRotationController() const
 {
+    NanotraceHR::Tracer tracer{"weak resize controller to rotation controller", category()};
     return RotationController(*this);
 }
 

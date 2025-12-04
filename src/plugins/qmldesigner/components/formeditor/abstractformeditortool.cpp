@@ -19,8 +19,11 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 AbstractFormEditorTool::AbstractFormEditorTool(FormEditorView *editorView) : m_view(editorView)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool constructor", category()};
 }
 
 AbstractFormEditorTool::~AbstractFormEditorTool() = default;
@@ -42,6 +45,8 @@ FormEditorScene* AbstractFormEditorTool::scene() const
 
 bool AbstractFormEditorTool::hasDroppableAsset(const QMimeData *mimeData)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool has droppable asset", category()};
+
     if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
         const QStringList assetPaths
             = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
@@ -59,6 +64,8 @@ bool AbstractFormEditorTool::hasDroppableAsset(const QMimeData *mimeData)
 
 void AbstractFormEditorTool::setItems(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool set items", category()};
+
     m_itemList = itemList;
     selectedItemsChanged(m_itemList);
 }
@@ -70,6 +77,8 @@ QList<FormEditorItem*> AbstractFormEditorTool::items() const
 
 QList<FormEditorItem *> AbstractFormEditorTool::toFormEditorItemList(const QList<QGraphicsItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool to form editor item list", category()};
+
     QList<FormEditorItem *> formEditorItemList;
 
     for (QGraphicsItem *graphicsItem : itemList) {
@@ -83,6 +92,8 @@ QList<FormEditorItem *> AbstractFormEditorTool::toFormEditorItemList(const QList
 
 bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & itemList)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool top item is movable", category()};
+
     QGraphicsItem *firstSelectableItem = topMovableGraphicsItem(itemList);
     if (firstSelectableItem == nullptr)
         return false;
@@ -100,6 +111,8 @@ bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & item
 
 bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool top selected item is movable", category()};
+
     QList<ModelNode> selectedNodes = view()->selectedModelNodes();
 
     for (QGraphicsItem *item : itemList) {
@@ -129,6 +142,9 @@ bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*
 
 bool AbstractFormEditorTool::selectedItemCursorInMovableArea(const QPointF &pos)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool selected item cursor in movable area",
+                               category()};
+
     if (!view()->hasSingleSelectedModelNode())
         return false;
 
@@ -160,6 +176,8 @@ bool AbstractFormEditorTool::topItemIsResizeHandle(const QList<QGraphicsItem*> &
 
 QGraphicsItem *AbstractFormEditorTool::topMovableGraphicsItem(const QList<QGraphicsItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool top movable graphics item", category()};
+
     for (QGraphicsItem *item : itemList) {
         if (item->flags().testFlag(QGraphicsItem::ItemIsMovable))
             return item;
@@ -170,6 +188,8 @@ QGraphicsItem *AbstractFormEditorTool::topMovableGraphicsItem(const QList<QGraph
 
 FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGraphicsItem*> &itemList, bool selectOnlyContentItems)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool top movable form editor item", category()};
+
     for (QGraphicsItem *item : itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem
@@ -184,28 +204,40 @@ FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGr
     return nullptr;
 }
 
-FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &point, const QList<QGraphicsItem*> &itemList)
+FormEditorItem *AbstractFormEditorTool::nearestFormEditorItem(const QPointF &point,
+                                                              const QList<QGraphicsItem *> &itemList)
 {
-    FormEditorItem* nearestItem = nullptr;
+    NanotraceHR::Tracer tracer{"abstract form editor tool nearest form editor item", category()};
+
+    FormEditorItem *nearestItem = nullptr;
+
     for (QGraphicsItem *item : itemList) {
-        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-
-        if (formEditorItem && formEditorItem->flowHitTest(point))
-            return formEditorItem;
-
-        if (!formEditorItem || !formEditorItem->qmlItemNode().isValid())
+        auto formEditorItem = FormEditorItem::fromQGraphicsItem(item);
+        if (!formEditorItem)
             continue;
+
+        if (formEditorItem->flowHitTest(point))
+            return formEditorItem;
 
         if (formEditorItem->parentItem() && !formEditorItem->parentItem()->isContentVisible())
             continue;
 
-        if (formEditorItem && ModelUtils::isThisOrAncestorLocked(formEditorItem->qmlItemNode().modelNode()))
+        auto qmlItemNode = formEditorItem->qmlItemNode();
+        if (ModelUtils::isThisOrAncestorLocked(qmlItemNode.modelNode()))
             continue;
 
-        if (!nearestItem)
+        if (!nearestItem) {
             nearestItem = formEditorItem;
-        else if (formEditorItem->selectionWeigth(point, 1) < nearestItem->selectionWeigth(point, 0))
+            continue;
+        }
+
+        bool isVisible = qmlItemNode.instanceIsVisible();
+        if (isVisible != nearestItem->qmlItemNode().instanceIsVisible()) {
+            if (isVisible)
+                nearestItem = formEditorItem;
+        } else if (formEditorItem->selectionWeigth(point, 1) < nearestItem->selectionWeigth(point, 0)) {
             nearestItem = formEditorItem;
+        }
     }
 
     if (nearestItem && nearestItem->qmlItemNode().isInStackedContainer())
@@ -216,6 +248,8 @@ FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &poi
 
 QList<FormEditorItem *> AbstractFormEditorTool::filterSelectedModelNodes(const QList<FormEditorItem *> &itemList) const
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool filter selected model nodes", category()};
+
     QList<FormEditorItem *> filteredItemList;
 
     for (FormEditorItem *item : itemList) {
@@ -232,7 +266,10 @@ void AbstractFormEditorTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/
 
 void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool drag enter event", category()};
+
     if (event->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)
+        || event->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)
         || hasDroppableAsset(event->mimeData())) {
         event->accept();
         view()->changeToDragTool();
@@ -244,6 +281,8 @@ void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemLis
 
 void AbstractFormEditorTool::mousePressEvent(const QList<QGraphicsItem*> & /*itemList*/, QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool mouse press event", category()};
+
     if (event->button() == Qt::RightButton)
         event->accept();
 }
@@ -261,6 +300,8 @@ static bool containsItemNode(const QList<QGraphicsItem*> & itemList, const QmlIt
 
 void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & itemList, QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool mouse release event", category()};
+
     if (event->button() == Qt::RightButton) {
 
         QmlItemNode currentSelectedNode;
@@ -292,6 +333,8 @@ void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & ite
 
 void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool mouse double click event", category()};
+
     if (event->button() == Qt::LeftButton) {
         FormEditorItem *formEditorItem = nearestFormEditorItem(event->pos(), itemList);
         if (formEditorItem) {
@@ -303,11 +346,15 @@ void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &
 
 void AbstractFormEditorTool::showContextMenu(QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool show context menu", category()};
+
     ModelNodeContextMenu::showContextMenu(view(), event->screenPos(), event->scenePos().toPoint(), true);
 }
 
 Snapper::Snapping AbstractFormEditorTool::generateUseSnapping(Qt::KeyboardModifiers keyboardModifier) const
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool generate use snapping", category()};
+
     bool shouldSnapping = view()->formEditorWidget()->snappingAction()->isChecked();
     bool shouldSnappingAndAnchoring = view()->formEditorWidget()->snappingAndAnchoringAction()->isChecked();
 
@@ -336,6 +383,8 @@ static bool isNotAncestorOfItemInList(FormEditorItem *formEditorItem, const QLis
 
 FormEditorItem *AbstractFormEditorTool::containerFormEditorItem(const QList<QGraphicsItem *> &itemUnderMouseList, const QList<FormEditorItem *> &selectedItemList) const
 {
+    NanotraceHR::Tracer tracer{"abstract form editor tool container form editor item", category()};
+
     for (QGraphicsItem* item : itemUnderMouseList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem

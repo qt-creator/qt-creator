@@ -118,6 +118,29 @@ TEST_F(SqliteDatabase, normal_locked_database_can_be_reopened)
     ASSERT_NO_THROW((Sqlite::Database{path, JournalMode::Wal, Sqlite::LockingMode::Normal}));
 }
 
+TEST_F(SqliteDatabase, memory_database_is_always_uninitialized)
+{
+    Utils::PathString path{Utils::TemporaryDirectory::masterDirectoryPath()
+                           + "/database_exclusive_locked.db"};
+    Sqlite::Database database{path, JournalMode::Wal, Sqlite::LockingMode::Normal};
+
+    Sqlite::Database memoryDatabase{path, JournalMode::Memory, Sqlite::LockingMode::Normal};
+
+    ASSERT_FALSE(memoryDatabase.isInitialized());
+}
+
+TEST_F(SqliteDatabase, memory_database_does_not_checks_for_path)
+{
+    ASSERT_NO_THROW((Sqlite::Database{{}, JournalMode::Memory, Sqlite::LockingMode::Normal}));
+}
+
+TEST_F(SqliteDatabase, memory_database_has_memory_path)
+{
+    Sqlite::Database database{{}, JournalMode::Memory, Sqlite::LockingMode::Normal};
+
+    ASSERT_THAT(database.databaseFilePath(), ":memory:");
+}
+
 TEST_F(SqliteDatabase, set_openl_mode)
 {
     database.setOpenMode(OpenMode::ReadOnly);

@@ -3,29 +3,40 @@
 
 #include "itemlibraryitemsmodel.h"
 #include "itemlibraryitem.h"
+#include "itemlibrarytracing.h"
+
 #include <utils/qtcassert.h>
 #include <QDebug>
 #include <QMetaProperty>
 
 namespace QmlDesigner {
 
+using ItemLibraryTracing::category;
+
 ItemLibraryItemsModel::ItemLibraryItemsModel(QObject *parent) :
     QAbstractListModel(parent)
 {
+    NanotraceHR::Tracer tracer{"item library items model constructor", category()};
+
     addRoleNames();
 }
 
 ItemLibraryItemsModel::~ItemLibraryItemsModel()
 {
+    NanotraceHR::Tracer tracer{"item library items model destructor", category()};
 }
 
 int ItemLibraryItemsModel::rowCount(const QModelIndex &) const
 {
+    NanotraceHR::Tracer tracer{"item library items model row count", category()};
+
     return m_itemList.size();
 }
 
 QVariant ItemLibraryItemsModel::data(const QModelIndex &index, int role) const
 {
+    NanotraceHR::Tracer tracer{"item library items model data", category()};
+
     if (!index.isValid() || index.row() >= m_itemList.count()) {
         qDebug() << Q_FUNC_INFO << "invalid index requested";
         return {};
@@ -41,11 +52,15 @@ QVariant ItemLibraryItemsModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> ItemLibraryItemsModel::roleNames() const
 {
+    NanotraceHR::Tracer tracer{"item library items model role names", category()};
+
     return m_roleNames;
 }
 
 void ItemLibraryItemsModel::addItem(ItemLibraryItem *element)
 {
+    NanotraceHR::Tracer tracer{"item library items model add item", category()};
+
     m_itemList.append(element);
 
     element->setVisible(element->isUsable());
@@ -53,11 +68,15 @@ void ItemLibraryItemsModel::addItem(ItemLibraryItem *element)
 
 const QList<QPointer<ItemLibraryItem>> &ItemLibraryItemsModel::items() const
 {
+    NanotraceHR::Tracer tracer{"item library items model items", category()};
+
     return m_itemList;
 }
 
 void ItemLibraryItemsModel::sortItems()
 {
+    NanotraceHR::Tracer tracer{"item library items model sort items", category()};
+
     int nullPointerSectionCount = m_itemList.removeAll(QPointer<ItemLibraryItem>());
     QTC_ASSERT(nullPointerSectionCount == 0,;);
     auto itemSort = [](ItemLibraryItem *first, ItemLibraryItem *second) {
@@ -69,12 +88,16 @@ void ItemLibraryItemsModel::sortItems()
 
 void ItemLibraryItemsModel::resetModel()
 {
+    NanotraceHR::Tracer tracer{"item library items model reset model", category()};
+
     beginResetModel();
     endResetModel();
 }
 
 void ItemLibraryItemsModel::addRoleNames()
 {
+    NanotraceHR::Tracer tracer{"item library items model add role names", category()};
+
     int role = 0;
     const QMetaObject meta = ItemLibraryItem::staticMetaObject;
     for (int i = meta.propertyOffset(); i < meta.propertyCount(); ++i)

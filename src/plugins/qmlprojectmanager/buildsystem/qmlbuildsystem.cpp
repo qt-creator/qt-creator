@@ -22,10 +22,6 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/session.h>
 
-#include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/deploymentdata.h>
@@ -56,21 +52,14 @@ namespace {
 Q_LOGGING_CATEGORY(infoLogger, "QmlProjectManager.QmlBuildSystem", QtInfoMsg)
 }
 
-IPlugin *findMcuSupportPlugin()
-{
-    const PluginSpec *pluginSpec = PluginManager::specById(QString("mcusupport"));
-    return pluginSpec ? pluginSpec->plugin() : nullptr;
-}
-
 void updateMcuBuildStep(BuildConfiguration *bc, bool mcuEnabled)
 {
     if (auto plugin = findMcuSupportPlugin()) {
-        QMetaObject::invokeMethod(
-            plugin,
-            "updateDeployStep",
-            Qt::DirectConnection,
-            Q_ARG(ProjectExplorer::BuildConfiguration *, bc),
-            Q_ARG(bool, mcuEnabled));
+        QMetaObject::invokeMethod(plugin,
+                                  "updateDeployStep",
+                                  Qt::DirectConnection,
+                                  Q_ARG(ProjectExplorer::BuildConfiguration *, bc),
+                                  Q_ARG(bool, mcuEnabled));
     } else if (mcuEnabled) {
         qWarning() << "Failed to find McuSupport plugin but qtForMCUs is enabled in the project";
     }
@@ -121,6 +110,18 @@ void QmlBuildSystem::updateDeploymentData()
     }
 
     setDeploymentData(deploymentData);
+}
+
+QString QmlBuildSystem::defaultFontFamilyMCU() const
+{
+    const QJsonObject project = m_projectItem->project();
+    QString defaultFontFamily = project["mcu"].toObject()["config"].toObject()["defaultFontFamily"].toString();
+
+    if (!defaultFontFamily.isEmpty()) {
+        return defaultFontFamily;
+    }
+
+    return QmlProjectManager::Constants::FALLBACK_MCU_FONT_FAMILY;
 }
 
 //probably this method needs to be moved into QmlProjectPlugin::initialize to be called only once
@@ -271,23 +272,22 @@ void QmlBuildSystem::generateProjectTree()
 {
     auto newRoot = std::make_unique<Internal::QmlProjectNode>(project());
 
-    for (const auto &file : m_projectItem->files()) {
-        const FileType fileType = (file == projectFilePath())
-                ? FileType::Project
-                : FileNode::fileTypeForFileName(file);
+    std::set<Utils::FilePath> uniqueFiles;
+    for (const auto &file : m_projectItem->files())
+        uniqueFiles.insert(file);
 
+    for (const auto &mcuProjectItem : m_mcuProjectItems) {
+        for (const auto &file : mcuProjectItem->files())
+            uniqueFiles.insert(file);
+    }
+
+    for (const auto &file : uniqueFiles) {
+        const FileType fileType = (file == projectFilePath())
+            ? FileType::Project
+            : FileNode::fileTypeForFileName(file);
         newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
     }
 
-    for (const auto &mcuProjectItem : std::as_const(m_mcuProjectItems)) {
-        for (const auto &file : mcuProjectItem->files()) {
-            // newRoot->addNestedNode(std::make_unique<FileNode>(file, FileType::Project));
-            const FileType fileType = (file == projectFilePath())
-                                          ? FileType::Project
-                                          : FileNode::fileTypeForFileName(file);
-            newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
-        }
-    }
     if (!projectFilePath().endsWith(Constants::fakeProjectName))
         newRoot->addNestedNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
@@ -381,12 +381,14 @@ FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
     const QStringView uiqmlstr = u"ui.qml";
     const QStringView qmlstr = u"qml";
 
-    //we will check mainUiFile and mainFile twice:
-    //first priority if it's ui.qml file, second if it's just a qml file
+    // First we check if mainUiFile is a valid ui.qml or .qml file
     const FilePath mainUiFile = mainUiFilePath();
-    if (mainUiFile.exists() && mainUiFile.completeSuffix() == uiqmlstr)
+    if (const QString extension = mainUiFile.completeSuffix();
+        mainUiFile.exists() && (extension == uiqmlstr || extension == qmlstr)) {
         return mainUiFile;
+    }
 
+    // Then we check if there are any valid ui.qml files. mainQmlFile is preferred to be checked first.
     const FilePath mainQmlFile = mainFilePath();
     if (mainQmlFile.exists() && mainQmlFile.completeSuffix() == uiqmlstr)
         return mainQmlFile;
@@ -399,10 +401,7 @@ FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
             return file;
     }
 
-    //check the suffix of mainUiFiles again, since there are no ui.qml files:
-    if (mainUiFile.exists() && mainUiFile.completeSuffix() == qmlstr)
-        return mainUiFile;
-
+    //check the suffix of mainQmlFile again, since there are no valid ui.qml files:
     if (mainQmlFile.exists() && mainQmlFile.completeSuffix() == qmlstr)
         return mainQmlFile;
 
@@ -431,6 +430,11 @@ QmlBuildSystem *QmlBuildSystem::getStartupBuildSystem()
 void QmlBuildSystem::addQmlProjectModule(const FilePath &path)
 {
     m_projectItem->addQmlProjectModule(path.toFSPathString());
+}
+
+void QmlBuildSystem::addFileFilter(const FilePath &path)
+{
+    m_projectItem->addFileFilter(path);
 }
 
 FilePath QmlBuildSystem::mainFilePath() const
@@ -592,6 +596,8 @@ QVariant QmlBuildSystem::additionalData(Id id) const
         return mainFilePath().toUrlishString();
     if (id == Constants::canonicalProjectDir)
         return canonicalProjectDir().toUrlishString();
+    if (id == Constants::customDefaultFontFamilyMCU)
+        return defaultFontFamilyMCU();
     return {};
 }
 
@@ -686,7 +692,25 @@ bool QmlBuildSystem::qt6Project() const
 
 EnvironmentItems QmlBuildSystem::environment() const
 {
-    return m_projectItem->environment();
+    Utils::EnvironmentItems env = m_projectItem->environment();
+
+    if (qtForMCUs()) {
+        const Utils::FilePath projectRoot = ProjectExplorer::ProjectManager::startupProject()
+                                                ->projectFilePath()
+                                                .parentDir();
+        env.append({Constants::QMLPUPPET_ENV_PROJECT_ROOT, projectRoot.toUserOutput()});
+
+        Utils::Result<Utils::FilePath> fontsDir = mcuFontsDir();
+        if (!fontsDir) {
+            qWarning() << "Failed to locate MCU installation." << fontsDir.error();
+            return env;
+        }
+
+        env.append({Constants::QMLPUPPET_ENV_MCU_FONTS_DIR, fontsDir->toUserOutput()});
+        env.append({Constants::QMLPUPPET_ENV_DEFAULT_FONT_FAMILY, defaultFontFamilyMCU()});
+    }
+
+    return env;
 }
 
 QStringList QmlBuildSystem::fileSelectors() const

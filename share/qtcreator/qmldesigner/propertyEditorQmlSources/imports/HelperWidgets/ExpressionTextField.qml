@@ -15,8 +15,6 @@ StudioControls.TextField {
 
     property bool completeOnlyTypes: false
     property bool completionActive: listView.model !== null
-    property bool dotCompletion: false
-    property int dotCursorPos: 0
     property string prefix
     property bool fixedSize: false
     property bool replaceCurrentTextByCompletion: false
@@ -146,14 +144,6 @@ StudioControls.TextField {
 
         switch (event.key) {
 
-        case Qt.Key_Period:
-            textField.dotCursorPos = textField.cursorPosition + 1
-            text = textField.text + "."
-            pos = textField.dotCursorPos
-            explicitComplete = false
-            textField.dotCompletion = true
-            break
-
         case Qt.Key_Right:
             if (!textField.completionActive)
                 return
@@ -209,7 +199,6 @@ StudioControls.TextField {
     //            list.pop()
 
     //        listView.model = list
-    //        textField.dotCompletion = false
 
     //        event.accepted = true
     //    } else {

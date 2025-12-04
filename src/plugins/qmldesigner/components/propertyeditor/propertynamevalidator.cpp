@@ -3,16 +3,24 @@
 
 #include "propertynamevalidator.h"
 
-#include "modelutils.h"
+#include "propertyeditortracing.h"
+
+#include <modelutils.h>
 
 #include <QRegularExpression>
 
+using QmlDesigner::PropertyEditorTracing::category;
+
 PropertyNameValidator::PropertyNameValidator(QObject *parent)
     : QValidator(parent)
-{}
+{
+    NanotraceHR::Tracer tracer{"property name validator constructor", category()};
+}
 
 QValidator::State PropertyNameValidator::validate(QString &input, int &) const
 {
+    NanotraceHR::Tracer tracer{"property name validator validate", category()};
+
     if (input.isEmpty())
         return QValidator::Intermediate;
 
@@ -32,5 +40,7 @@ QValidator::State PropertyNameValidator::validate(QString &input, int &) const
 
 void PropertyNameValidator::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"property name validator register declarative type", category()};
+
     qmlRegisterType<PropertyNameValidator>("HelperWidgets", 2, 0, "PropertyNameValidator");
 }

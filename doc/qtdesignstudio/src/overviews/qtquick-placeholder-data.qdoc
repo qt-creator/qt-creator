@@ -25,7 +25,7 @@
     internet, you have no control over it. To get reliable data, \e {dummy data}
     was introduced.
 
-    For example, the following code snippet describes the file example.qml that
+    For example, the following code snippet describes the file \c{example.qml} that
     contains a ListView that in turn specifies a C++ model:
 
     \qml
@@ -39,14 +39,14 @@
 
     Create a directory named \e dummydata in the root directory of the project,
     so that it is not deployed to the device. In the \c dummydata directory,
-    create a file (.qml) that has the same name as the value of \c model:
+    create a file (\c{.qml}) that has the same name as the value of \c model:
 
     \code
         qml/exampleapp/example.qml
         dummydata/dataModel.qml
     \endcode
 
-    Then create the dataModel.qml file that contains the dummy data:
+    Then create the \c{dataModel.qml} file that contains the dummy data:
 
     \qml
         import QtQuick 2.0
@@ -79,7 +79,7 @@
     zero-sized component. A parent for the opened file does not exist because
     the context is missing. To get around the missing context, the idea of a
     \e {dummy context} is introduced. If you place a file with the same name as
-    the application (here, example.qml) in the \c {dummydata/context} directory,
+    the application (here, \c{example.qml}) in the \c {dummydata/context} directory,
     you can fake a parent context:
 
     \qml

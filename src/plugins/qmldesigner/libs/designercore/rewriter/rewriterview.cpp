@@ -16,12 +16,15 @@
 #include <filemanager/objectlengthcalculator.h>
 #include <modelnode.h>
 #include <modelnodepositionstorage.h>
+#include <modulesstorage/modulesstorage.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
 #include <projectstorage/projectstorage.h>
 #include <rewritingexception.h>
 #include <signalhandlerproperty.h>
 #include <variantproperty.h>
+
+#include <qmldesignerutils/stringutils.h>
 
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -53,9 +56,11 @@ bool debugQmlPuppet(const DesignerSettings &settings)
 }
 
 RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
+                           ModulesStorage &modulesStorage,
                            DifferenceHandling differenceHandling,
                            InstantQmlTextUpdate instantQmlTextUpdate)
     : AbstractView{externalDependencies}
+    , m_modulesStorage{modulesStorage}
     , m_differenceHandling(differenceHandling)
     , m_positionStorage(std::make_unique<ModelNodePositionStorage>())
     , m_modelToTextMerger(std::make_unique<Internal::ModelToTextMerger>(this))
@@ -683,6 +688,12 @@ void RewriterView::setRemoveImports(bool removeImports)
     m_textToModelMerger->setRemoveImports(removeImports);
 }
 
+void RewriterView::convertPosition(int pos, int *line, int *column) const
+{
+    QTC_ASSERT(m_textModifier, return);
+    m_textModifier->convertPosition(pos, line, column);
+}
+
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
     return m_positionStorage.get();
@@ -962,50 +973,28 @@ QmlJS::Document::Ptr RewriterView::document() const
     return textToModelMerger()->document();
 }
 
-inline static QString getUrlFromType(const QString &typeName)
+QString RewriterView::convertTypeToImportAlias(QStringView type) const
 {
-    QStringList nameComponents = typeName.split('.');
-    QString result;
+    auto [url, simplifiedType] = StringUtils::split_last(type, u'.');
 
-    for (int i = 0; i < (nameComponents.size() - 1); i++) {
-        result += nameComponents.at(i);
-    }
+    if (url.isEmpty())
+        return simplifiedType.toString();
 
-    return result;
-}
+    auto &&imports = model()->imports();
+    auto projection = [](auto &&import) {
+        return import.isFileImport() ? import.file() : import.url();
+    };
+    auto found = std::ranges::find(imports, url, projection);
 
-QString RewriterView::convertTypeToImportAlias(const QString &type) const
-{
-    QString url;
-    QString simplifiedType = type;
-    if (type.contains('.')) {
-        QStringList nameComponents = type.split('.');
-        url = getUrlFromType(type);
-        simplifiedType = nameComponents.constLast();
-    }
+    if (found == imports.end())
+        return simplifiedType.toString();
 
-    QString alias;
-    if (!url.isEmpty()) {
-        for (const Import &import : model()->imports()) {
-            if (import.url() == url) {
-                alias = import.alias();
-                break;
-            }
-            if (import.file() == url) {
-                alias = import.alias();
-                break;
-            }
-        }
-    }
+    auto &&alias = found->alias();
 
-    QString result;
+    if (alias.isEmpty())
+        return simplifiedType.toString();
 
-    if (!alias.isEmpty())
-        result = alias + '.';
-
-    result += simplifiedType;
-
-    return result;
+    return alias + '.'_L1 + simplifiedType;
 }
 
 QStringList RewriterView::importDirectories() const
@@ -1022,14 +1011,17 @@ QSet<QPair<QString, QString>> RewriterView::qrcMapping() const
 namespace {
 #ifdef QDS_USE_PROJECTSTORAGE
 
-ModuleIds generateModuleIds(const ModelNodes &nodes)
+ModuleIds generateModuleIds(const ModelNodes &nodes, const ModulesStorage &modulesStorage)
 {
     ModuleIds moduleIds;
-    moduleIds.reserve(Utils::usize(nodes));
+    moduleIds.reserve(Utils::usize(nodes) + 1);
+
+    moduleIds.push_back(modulesStorage.moduleId("QtQuick", Storage::ModuleKind::QmlLibrary));
+
     for (const auto &node : nodes) {
-        auto exportedNames = node.metaInfo().allExportedTypeNames();
-        if (exportedNames.size())
-            moduleIds.push_back(exportedNames.front().moduleId);
+        auto exportedName = node.exportedTypeName();
+        if (exportedName.moduleId)
+            moduleIds.push_back(exportedName.moduleId);
     }
 
     std::sort(moduleIds.begin(), moduleIds.end());
@@ -1038,21 +1030,26 @@ ModuleIds generateModuleIds(const ModelNodes &nodes)
     return moduleIds;
 }
 
-QStringList generateImports(ModuleIds moduleIds, const ProjectStorageType &projectStorage)
+QStringList generateImports(ModuleIds moduleIds, const QUrl &docUrl, const ModulesStorage &modulesStorage)
 {
     QStringList imports;
     imports.reserve(std::ssize(moduleIds));
 
     for (auto moduleId : moduleIds) {
         using Storage::ModuleKind;
-        auto module = projectStorage.module(moduleId);
+        auto module = modulesStorage.module(moduleId);
         switch (module.kind) {
         case ModuleKind::QmlLibrary:
             imports.push_back("import " + module.name.toQString());
             break;
-        case ModuleKind::PathLibrary:
-            imports.push_back("import \"" + module.name.toQString() + "\"");
+        case ModuleKind::PathLibrary: {
+            const Utils::FilePath modulePath = Utils::FilePath::fromString(module.name.toQString());
+            const Utils::FilePath docFile = Utils::FilePath::fromUrl(docUrl);
+            const QString relPathStr = modulePath.relativePathFromDir(docFile);
+            if (relPathStr != ".")
+                imports.push_back("import \"" + relPathStr + "\"");
             break;
+        }
         case ModuleKind::CppLibrary:
             break;
         }
@@ -1061,29 +1058,29 @@ QStringList generateImports(ModuleIds moduleIds, const ProjectStorageType &proje
     return imports;
 }
 
-QStringList generateImports(const ModelNodes &nodes)
+QStringList generateImports(const ModelNodes &nodes, const ModulesStorage &modulesStorage, Model *model)
 {
     if (nodes.empty())
         return {};
 
-    auto moduleIds = generateModuleIds(nodes);
+    auto moduleIds = generateModuleIds(nodes, modulesStorage);
 
-    return generateImports(moduleIds, *nodes.front().model()->projectStorage());
+    return generateImports(moduleIds, model->fileUrl(), modulesStorage);
 }
 
 #endif
 } // namespace
 
-void RewriterView::moveToComponent(const ModelNode &modelNode)
+QString RewriterView::moveToComponent(const ModelNode &modelNode)
 {
     if (!modelNode.isValid())
-        return;
+        return {};
 
     int offset = nodeOffset(modelNode);
 
     const QList<ModelNode> nodes = modelNode.allSubModelNodesAndThisNode();
 #ifdef QDS_USE_PROJECTSTORAGE
-    auto directPaths = generateImports(nodes);
+    auto directPaths = generateImports(nodes, m_modulesStorage, model());
 #else
     QSet<QString> directPathsSet;
 
@@ -1105,7 +1102,7 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
     if (importData.size())
         importData.append(QString(2, QChar::LineFeed));
 
-    textModifier()->moveToComponent(offset, importData);
+    return textModifier()->moveToComponent(offset, importData);
 }
 
 QStringList RewriterView::autoComplete(const QString &text, int pos, bool explicitComplete)

@@ -59,291 +59,307 @@ Column {
         width: parent.width
         caption: qsTr("Transform")
 
-        ColumnLayout {
-            spacing: StudioTheme.Values.transform3DSectionSpacing
+        SectionLayout {
 
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Translation")
-                    tooltip: qsTr("Sets the translation of the node.")
-                }
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.x
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.y
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.z
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
-                }
+            PropertyLabel {
+                id: translationLabel
+                text: qsTr("Translation")
+                tooltip: qsTr("Sets the translation of the node.")
             }
 
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Rotation")
-                    tooltip: qsTr("Sets the rotation of the node in degrees.")
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.x
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.eulerRotation_x
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
+                ControlLabel {
+                    text: "X"
+                    color: StudioTheme.Values.theme3DAxisXColor
                 }
 
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.eulerRotation_y
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.eulerRotation_z
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
-                }
+                ExpandingSpacer {}
             }
 
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Scale")
-                    tooltip: qsTr("Sets the scale of the node.")
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.y
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.scale_x
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
+                ControlLabel {
+                    text: "Y"
+                    color: StudioTheme.Values.theme3DAxisYColor
                 }
 
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.scale_y
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.scale_z
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
-                }
+                ExpandingSpacer {}
             }
 
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Pivot")
-                    tooltip: qsTr("Sets the pivot of the node.")
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.z
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.pivot_x
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
+                ControlLabel {
+                    text: "Z"
+                    color: StudioTheme.Values.theme3DAxisZColor
                 }
 
-                PropertyLabel {}
+                ExpandingSpacer {}
+            }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.pivot_y
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
+            Spacer {
+                height: StudioTheme.Values.transform3DSectionSpacing
+                visible: translationLabel.visible
+            }
+        }
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+        SectionLayout {
+            PropertyLabel {
+                id: rotationLabel
+                text: qsTr("Rotation")
+                tooltip: qsTr("Sets the rotation of the node in degrees.")
+            }
 
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.eulerRotation_x
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
-                PropertyLabel {}
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.pivot_z
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
+                ControlLabel {
+                    text: "X"
+                    color: StudioTheme.Values.theme3DAxisXColor
                 }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.eulerRotation_y
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Y"
+                    color: StudioTheme.Values.theme3DAxisYColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.eulerRotation_z
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Z"
+                    color: StudioTheme.Values.theme3DAxisZColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            Spacer {
+                height: StudioTheme.Values.transform3DSectionSpacing
+                visible: rotationLabel.visible
+            }
+        }
+
+        SectionLayout {
+            PropertyLabel {
+                id: scaleLabel
+                text: qsTr("Scale")
+                tooltip: qsTr("Sets the scale of the node.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.scale_x
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "X"
+                    color: StudioTheme.Values.theme3DAxisXColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.scale_y
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Y"
+                    color: StudioTheme.Values.theme3DAxisYColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.scale_z
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Z"
+                    color: StudioTheme.Values.theme3DAxisZColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            Spacer {
+                height: StudioTheme.Values.transform3DSectionSpacing
+                visible: scaleLabel.visible
+            }
+        }
+
+        SectionLayout {
+            PropertyLabel {
+                id: pivotLabel
+                text: qsTr("Pivot")
+                tooltip: qsTr("Sets the pivot of the node.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.pivot_x
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "X"
+                    color: StudioTheme.Values.theme3DAxisXColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.pivot_y
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Y"
+                    color: StudioTheme.Values.theme3DAxisYColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.pivot_z
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Z"
+                    color: StudioTheme.Values.theme3DAxisZColor
+                }
+
+                ExpandingSpacer {}
             }
         }
     }

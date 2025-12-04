@@ -79,9 +79,9 @@ public:
         init();
     }
 
-    void performChanges(QmlJSRefactoringFilePtr currentFile,
-                        const QmlJSRefactoringChanges &refactoring,
-                        const QString &imports = QString()) override
+    QString performChanges(QmlJSRefactoringFilePtr currentFile,
+                           const QmlJSRefactoringChanges &refactoring,
+                           const QString &imports = QString()) override
     {
         QString componentName = m_componentName;
 
@@ -121,11 +121,11 @@ public:
                                                      &result,
                                                      Core::ICore::dialogParent());
         if (!confirm)
-            return;
+            return {};
 
         path = Utils::FilePath::fromUserInput(pathStr);
         if (componentName.isEmpty() || path.isEmpty())
-            return;
+            return {};
 
         const Utils::FilePath newFileName = path.pathAppended(componentName + QLatin1String(".")
                                                               + suffix);
@@ -168,7 +168,7 @@ public:
         const bool openEditor = false;
         const Utils::FilePath newFilePath = newFileName;
         if (!refactoring.file(newFileName)->create(newComponentSource, reindent, openEditor))
-            return;
+            return {};
 
         if (path.toUrlishString() == currentFileName.toFileInfo().path()) {
             // hack for the common case, next version should use the wizard
@@ -217,6 +217,8 @@ public:
                                          QStringList(newFileName.toUrlishString()), versionControl));
             }
         }
+
+        return newFilePath.toFSPathString();
     }
 };
 
@@ -248,10 +250,10 @@ void matchComponentFromObjectDefQuickFix(const QmlJSQuickFixAssistInterface *int
     }
 }
 
-void performComponentFromObjectDef(QmlJSEditorWidget *editor,
-                                   const QString &fileName,
-                                   QmlJS::AST::UiObjectDefinition *objDef,
-                                   const QString &importData)
+QString performComponentFromObjectDef(QmlJSEditorWidget *editor,
+                                      const QString &fileName,
+                                      QmlJS::AST::UiObjectDefinition *objDef,
+                                      const QString &importData)
 {
     QmlJSRefactoringChanges refactoring(QmlJS::ModelManagerInterface::instance(),
                                         QmlJS::ModelManagerInterface::instance()->snapshot());
@@ -260,7 +262,7 @@ void performComponentFromObjectDef(QmlJSEditorWidget *editor,
     QmlJSQuickFixAssistInterface interface(editor, TextEditor::AssistReason::ExplicitlyInvoked);
     Operation operation(&interface, objDef);
 
-    operation.performChanges(current, refactoring, importData);
+    return operation.performChanges(current, refactoring, importData);
 }
 
 } //namespace QmlJSEditor

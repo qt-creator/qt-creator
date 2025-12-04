@@ -1,4 +1,4 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -8,59 +8,41 @@
 
     \ingroup studio-views
 
-    \title Material Editor and Browser
+    \title Material Browser
 
     \brief Create and manage materials and textures.
 
-    In the \uicontrol {Material Editor} and \uicontrol {Material Browser} views,
+    In the \uicontrol {Material Browser} view,
     you create and manage materials and textures.
 
-    \image material-editor-browser.webp "Material Editor and Browser"
+    \image {material-editor-browser.webp} {Materials and textures in the Material Browser view.}
 
     \section1 Working with Materials
 
     \section2 Creating a material
 
-    To create a new material, do one of the following:
-
-    \list
-      \li In \uicontrol {Material Browser}, select \imageaddmaterial
+    To create a new material, select \imageaddmaterial
       \imageplus
       .
-      \li In \uicontrol {Material Editor}, select \imageplus
-      .
-    \endlist
+      in the {Material Browser}.
 
     \section2 Editing a material
 
-    To edit a material, select it in \uicontrol{Material Browser} and edit its
-    properties in \uicontrol{Material Editor}. If \uicontrol {Material Editor}
-    is closed, open it in one of the following ways:
-
-    \list
-      \li In \uicontrol{Navigator}, right-click an object that has the material
-      assigned to it and select \uicontrol {Edit Material}.
-      \li In \uicontrol{Material Browser}, double-click a material.
-    \endlist
+    To edit a material, double-click it in \uicontrol{Material Browser} and edit its
+    properties in the \uicontrol{Properties} view.
 
     \section2 Assigning a material to an object
 
-    To assign a material to a 3D object in your project, drag the material from
-    \uicontrol {Material Browser} to the object in the \uicontrol Navigator or
-    \uicontrol 3D view.
-
-    Additionally, you can also first select the object
-    in the \uicontrol Navigator or \uicontrol{3D} view, and then do one of the
-    following:
+    To assign a material to a 3D object in your project, do one of the follwing:
 
     \list
-      \li In \uicontrol {Material Browser}, right-click the material and select
-      \uicontrol {Apply to Selected}. If there already is any material assigned
-      to the object, you can select whether to replace the material or to add
+      \li Drag the material from \uicontrol {Material Browser} to the object in
+      the \uicontrol Navigator or \uicontrol 3D view.
+      \li Select the object in the \uicontrol Navigator or \uicontrol{3D} view,
+      and then in \uicontrol {Material Browser}, right-click the material and select
+      \uicontrol {Apply to Selected}. If there already is a material assigned
+      to the object, select whether to replace the material or to add
       another material to the object.
-      \li In \uicontrol {Material Editor}, select
-      \imageapply
-      . This replaces any material already assigned to the object.
     \endlist
 
     \section2 Removing a material from an object
@@ -93,18 +75,6 @@
 
     \note You can't copy material properties between materials of different
     material types.
-
-    \section2 Using texture maps
-
-    In \QDS you can add many different texture maps to your material.
-
-    To add a texture map to a material:
-    \list 1
-      \li Select the material in \uicontrol{Material Browser}.
-      \li From \uicontrol {Assets}, drag an image to the correct map field
-      in \uicontrol {Material Editor}. For example, to add a diffuse map, drag
-      the image to \uicontrol{Diffuse Map} in \uicontrol{Material Editor}.
-    \endlist
 
     \section3 Using a reflection map for environmental mapping
 
@@ -285,17 +255,16 @@
       \uicontrol {Create new texture}.
     \endlist
 
-    \note You can also create textures from the \l {Assets} or
-    \l {Texture Editor} views.
-
     \section2 Applying a texture to a material
 
-    To apply a texture to a material, select the material in
-    \uicontrol {Material Browser} and do one of the following:
+    To apply a texture to a material, do one of the following:
+
     \list
-      \li Right-click the texture and select
-      \uicontrol {Apply to selected material}.
-      \li Drag the texture to a supported property in the
-      \uicontrol {Material Editor}
+      \li From \uicontrol {Assets}, \uicontrol {Content Library}, or
+      \uicontrol {Material Browser}, drag a texture to a material in
+      \uicontrol {Material Browser} or to a 3D object in the \uicontrol {3D}
+      or \uicontrol {Navigator} view.
+      \li In \uicontrol {Material Browser}, select the material and then
+      right-click the texture and select \uicontrol {Apply to selected material}.
     \endlist
 */

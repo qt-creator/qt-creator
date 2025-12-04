@@ -59,7 +59,7 @@ void TextEditItem::setFormEditorItem(FormEditorItem *formEditorItem)
     auto font = node.instanceValue("font").value<QFont>();
     auto model = node.modelNode().model();
     if (metaInfo.isBasedOn(model->qtQuickTextEditMetaInfo(),
-                           model->qtQuickControlsTextAreaMetaInfo())) {
+                           model->qtQuickTemplatesTextAreaMetaInfo())) {
         QSize maximumSize = rect.size().toSize();
         textEdit()->setFont(font);
         activateTextEdit(maximumSize);

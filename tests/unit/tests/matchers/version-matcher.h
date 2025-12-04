@@ -7,28 +7,41 @@
 
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock-more-matchers.h>
+#include <utils/google-using-declarations.h>
 
-template<typename Matcher>
-auto IsVersionNumber(const Matcher &matcher)
+auto IsVersionNumber(const auto &matcher)
 {
     return Field("QmlDesigner::Storage::VersionNumber::value", &QmlDesigner::Storage::VersionNumber::value, matcher);
+}
+
+inline auto HasNoVersionNumber()
+{
+    return IsVersionNumber(QmlDesigner::Storage::VersionNumber::noVersion);
 }
 
 template<typename Matcher>
 auto IsMinorVersion(const Matcher &matcher)
 {
-    return Field("QmlDesigner::Storage::Version::minor", &QmlDesigner::Storage::Version::minor, matcher);
+    return Field("Version::minor", &QmlDesigner::Storage::Version::minor, matcher);
 }
 
-template<typename Matcher>
-auto IsMajorVersion(const Matcher &matcher)
+auto IsMajorVersion(const auto &matcher)
 {
-    return Field("QmlDesigner::Storage::Version::major", &QmlDesigner::Storage::Version::major, matcher);
+    return Field("Version::major", &QmlDesigner::Storage::Version::major, matcher);
 }
 
-template<typename MajorMatcher, typename MinorMatcher>
-auto IsVersion(const MajorMatcher &majorMatcher, const MinorMatcher &minorMatcher)
+auto IsVersion(const auto &majorMatcher, const auto &minorMatcher)
 {
     return AllOf(IsMajorVersion(IsVersionNumber(majorMatcher)),
                  IsMinorVersion(IsVersionNumber(minorMatcher)));
+}
+
+auto IsVersion(const auto &majorMatcher)
+{
+    return AllOf(IsMajorVersion(IsVersionNumber(majorMatcher)), IsMinorVersion(HasNoVersionNumber()));
+}
+
+inline auto HasNoVersion()
+{
+    return AllOf(IsMajorVersion(HasNoVersionNumber()), IsMinorVersion(HasNoVersionNumber()));
 }

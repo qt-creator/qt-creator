@@ -8,6 +8,7 @@
 #include <QtQml/qqml.h>
 
 #include <QLocale>
+#include <QRect>
 
 namespace QmlDesigner {
 
@@ -26,6 +27,8 @@ public:
     static void registerDeclarativeType();
 
     const QLocale &locale() const;
+
+    Q_INVOKABLE QRect screenContaining(int xGlobal, int yGlobal) const;
 
 signals:
     void localeChanged();

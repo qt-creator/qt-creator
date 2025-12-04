@@ -3,10 +3,11 @@
 
 #include "bindingproperty.h"
 #include "nodeproperty.h"
-#include "internalproperty.h"
+
 #include "internalnode_p.h"
-#include "model.h"
 #include "model_p.h"
+
+#include <qmldesignerutils/stringutils.h>
 
 using namespace Qt::StringLiterals;
 
@@ -27,8 +28,12 @@ BindingProperty::BindingProperty(const BindingProperty &property, AbstractView *
     : AbstractProperty(property.name(), property.internalNodeSharedPointer(), property.model(), view)
 {}
 
-void BindingProperty::setExpression(const QString &expression)
+void BindingProperty::setExpression(const QString &expression, SL sl)
 {
+    NanotraceHR::Tracer tracer{"binding property set expression",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -56,22 +61,28 @@ void BindingProperty::setExpression(const QString &expression)
     privateModel()->setBindingProperty(internalNodeSharedPointer(), name(), expression);
 }
 
-QString BindingProperty::expression() const
+const constinit QString null;
+
+const QString &BindingProperty::expression(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"binding property expression",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (isValid()) {
         if (auto property = internalNode()->bindingProperty(name()))
             return property->expression();
     }
 
-    return QString();
+    return null;
 }
 
-ModelNode BindingProperty::resolveBinding(const QString &binding, ModelNode currentNode) const
+ModelNode BindingProperty::resolveBinding(QStringView binding, ModelNode currentNode) const
 {
     int index = 0;
-    QString element = binding.split(QLatin1Char('.')).at(0);
-    while (!element.isEmpty())
-    {
+    auto elements = binding.split(QLatin1Char('.'));
+    QStringView element = elements.front();
+    while (!element.isEmpty()) {
         if (currentNode.isValid()) {
             if (element == QLatin1String("parent")) {
                 if (currentNode.hasParentProperty())
@@ -88,10 +99,10 @@ ModelNode BindingProperty::resolveBinding(const QString &binding, ModelNode curr
                 currentNode = ModelNode(privateModel()->nodeForId(element), model(), view());
             }
             index++;
-            if (index < binding.split(QLatin1Char('.')).size())
-                element = binding.split(QLatin1Char('.')).at(index);
+            if (std::cmp_less(index, elements.size()))
+                element = elements[index];
             else
-                element.clear();
+                element = {};
 
         } else {
             return ModelNode();
@@ -100,10 +111,11 @@ ModelNode BindingProperty::resolveBinding(const QString &binding, ModelNode curr
     return currentNode;
 }
 
-ModelNode BindingProperty::resolveToModelNode() const
+ModelNode BindingProperty::resolveToModelNode(SL sl) const
 {
-    if (!isValid())
-        return {};
+    NanotraceHR::Tracer tracer{"binding property resolve to model node",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
 
     QString binding = expression();
 
@@ -122,18 +134,23 @@ inline static QStringList commaSeparatedSimplifiedStringList(const QString &stri
     return simpleList;
 }
 
-
-AbstractProperty BindingProperty::resolveToProperty() const
+AbstractProperty BindingProperty::resolveToProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"binding property resolve to proprety",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
-    QString binding = expression();
+    QStringView binding = expression();
 
     if (binding.isEmpty())
         return {};
 
     ModelNode node = parentModelNode();
+#if 0
+    // This is from before the qmldesigner merge
     QString element;
     if (binding.contains(QLatin1Char('.'))) {
         element = binding.split(QLatin1Char('.')).constLast();
@@ -143,25 +160,37 @@ AbstractProperty BindingProperty::resolveToProperty() const
     } else {
         element = binding;
     }
+#endif
 
-    if (node.isValid() && !element.contains(' '))
-        return node.property(element.toUtf8());
-    else
-        return AbstractProperty();
+    auto [nodeBinding, lastElement] = StringUtils::split_last(binding, u'.');
+    if (nodeBinding.size())
+        node = resolveBinding(nodeBinding, node);
+
+    if (node.isValid() && !lastElement.contains(' '))
+        return node.property(lastElement.toUtf8());
+
+    return {};
 }
 
-bool BindingProperty::isList() const
+bool BindingProperty::isList(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"binding property is list",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
-    return expression().startsWith('[') && expression().endsWith(']');
+    QStringView expression = this->expression();
+
+    return expression.startsWith('[') && expression.endsWith(']');
 }
 
-QList<ModelNode> BindingProperty::resolveToModelNodeList() const
+QList<ModelNode> BindingProperty::resolveListToModelNodes(SL sl) const
 {
-    if (!isValid())
-        return {};
+    NanotraceHR::Tracer tracer{"binding property reolve list to model nodes",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
 
     QString binding = expression();
 
@@ -181,8 +210,40 @@ QList<ModelNode> BindingProperty::resolveToModelNodeList() const
     return returnList;
 }
 
-void BindingProperty::addModelNodeToArray(const ModelNode &modelNode)
+QList<ModelNode> BindingProperty::resolveToModelNodes(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"binding property resolve to model nodes",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
+    QString binding = expression();
+
+    if (binding.isEmpty())
+        return {};
+
+    if (isList()) {
+        QList<ModelNode> returnList;
+        binding.chop(1);
+        binding.remove(0, 1);
+        const QStringList simplifiedList = commaSeparatedSimplifiedStringList(binding);
+        for (const QString &nodeId : simplifiedList) {
+            if (auto internalNode = privateModel()->nodeForId(nodeId))
+                returnList.emplace_back(internalNode, model(), view());
+        }
+        return returnList;
+    } else if (auto node = resolveBinding(binding, parentModelNode())) {
+        return {node};
+    }
+
+    return {};
+}
+
+void BindingProperty::addModelNodeToArray(const ModelNode &modelNode, SL sl)
+{
+    NanotraceHR::Tracer tracer{"binding property add model node to array",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -209,8 +270,12 @@ void BindingProperty::addModelNodeToArray(const ModelNode &modelNode)
     }
 }
 
-void BindingProperty::removeModelNodeFromArray(const ModelNode &modelNode)
+void BindingProperty::removeModelNodeFromArray(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"binding property remove model node from array",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isBindingProperty())
         return;
 
@@ -229,24 +294,31 @@ void BindingProperty::removeModelNodeFromArray(const ModelNode &modelNode)
     }
 }
 
-QList<BindingProperty> BindingProperty::findAllReferencesTo(const ModelNode &modelNode)
+QList<BindingProperty> BindingProperty::findAllReferencesTo(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"binding property find all references to",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!modelNode.isValid())
         return {};
 
     QList<BindingProperty> list;
     for (const ModelNode &bindingNode : modelNode.view()->allModelNodes()) {
-        for (const BindingProperty &bindingProperty : bindingNode.bindingProperties())
-            if (bindingProperty.resolveToModelNode() == modelNode)
+        for (const BindingProperty &bindingProperty : bindingNode.bindingProperties()) {
+            if (bindingProperty.resolveToModelNodes().contains(modelNode))
                 list.append(bindingProperty);
-            else if (bindingProperty.resolveToModelNodeList().contains(modelNode))
-                list.append(bindingProperty);
+        }
     }
     return list;
 }
 
-void BindingProperty::deleteAllReferencesTo(const ModelNode &modelNode)
+void BindingProperty::deleteAllReferencesTo(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"binding property delete all references to",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     for (BindingProperty &bindingProperty : findAllReferencesTo(modelNode)) {
         if (bindingProperty.isList())
             bindingProperty.removeModelNodeFromArray(modelNode);
@@ -255,8 +327,21 @@ void BindingProperty::deleteAllReferencesTo(const ModelNode &modelNode)
     }
 }
 
-bool BindingProperty::isAlias() const
+bool BindingProperty::canBeReference(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"binding property can be reference",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
+    return !name().startsWith("anchors.");
+}
+
+bool BindingProperty::isAlias(SL sl) const
+{
+    NanotraceHR::Tracer tracer{"binding property is alias",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -265,8 +350,12 @@ bool BindingProperty::isAlias() const
            && parentModelNode().view()->modelNodeForId(expression()).isValid();
 }
 
-bool BindingProperty::isAliasExport() const
+bool BindingProperty::isAliasExport(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"binding property is alias export",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
     return parentModelNode() == parentModelNode().model()->rootModelNode() && isDynamic()
@@ -280,8 +369,12 @@ static bool isTrueFalseLiteral(const QString &expression)
            || (expression.compare("true", Qt::CaseInsensitive) == 0);
 }
 
-QVariant BindingProperty::convertToLiteral(const TypeName &typeName, const QString &testExpression)
+QVariant BindingProperty::convertToLiteral(const TypeName &typeName, const QString &testExpression, SL sl)
 {
+    NanotraceHR::Tracer tracer{"binding property convert to literal",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if ("QColor" == typeName || "color" == typeName) {
         QString unquoted = testExpression;
         unquoted.remove('"');
@@ -320,8 +413,14 @@ QVariant BindingProperty::convertToLiteral(const TypeName &typeName, const QStri
     return {};
 }
 
-void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, const QString &expression)
+void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName,
+                                                      const QString &expression,
+                                                      SL sl)
 {
+    NanotraceHR::Tracer tracer{"binding property set dynamic type name and expression",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     Internal::WriteLocker locker(model());
     if (!isValid())
         return;

@@ -377,6 +377,18 @@ TEST_F(SqliteStatement, bind_long_integer)
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
 
+#ifdef Q_OS_LINUX
+TEST_F(SqliteStatement, bind_int128)
+{
+    SqliteTestStatement<1, 1> statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
+
+    statement.bind(1, __int128_t(40), sourceLocation);
+    statement.next(sourceLocation);
+
+    ASSERT_THAT(statement.fetchInt128Value(0), __int128_t(40));
+}
+#endif
+
 TEST_F(SqliteStatement, bind_double)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=?", database);
@@ -1385,9 +1397,7 @@ TEST_F(SqliteStatement, get_range_with_transaction_without_arguments_calls)
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
 
     EXPECT_CALL(databaseMock, lock());
-    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(mockStatement, reset());
-    EXPECT_CALL(databaseMock, commit(_));
     EXPECT_CALL(databaseMock, unlock());
 
     mockStatement.rangeWithTransaction<int>();
@@ -1421,9 +1431,7 @@ TEST_F(SqliteStatement, get_range_with_transaction_without_arguments_calls_reset
     ON_CALL(mockStatement, next(_)).WillByDefault(Throw(Sqlite::StatementHasError("")));
 
     EXPECT_CALL(databaseMock, lock());
-    EXPECT_CALL(databaseMock, deferredBegin(_));
     EXPECT_CALL(mockStatement, reset());
-    EXPECT_CALL(databaseMock, rollback(_));
     EXPECT_CALL(databaseMock, unlock());
 
     EXPECT_THROW(

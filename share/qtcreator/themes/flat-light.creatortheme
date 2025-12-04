@@ -356,6 +356,11 @@ TextColorHighlightBackground=ffef0b
 TextColorLink=ff007af4
 TextColorNormal=text
 
+Navigator_DefaultColor=ffffffff
+Navigator_3DColor=ffffbf00
+Navigator_2DColor=ff5cdc68
+Navigator_MaterialColor=ff2aafd3
+
 OutputPanes_DebugTextColor=text
 OutputPanes_ErrorMessageTextColor=ffaa0000
 OutputPanes_MessageOutput=ff0000aa

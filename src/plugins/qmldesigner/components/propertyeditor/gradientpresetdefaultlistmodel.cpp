@@ -3,22 +3,33 @@
 
 #include "gradientpresetdefaultlistmodel.h"
 #include "gradientpresetitem.h"
+#include "propertyeditortracing.h"
 
 #include <QHash>
 #include <QByteArray>
 #include <QDebug>
 #include <QFile>
 
+using QmlDesigner::PropertyEditorTracing::category;
+
 GradientPresetDefaultListModel::GradientPresetDefaultListModel(QObject *parent)
     : GradientPresetListModel(parent)
 {
+    NanotraceHR::Tracer tracer{"gradient preset default list model constructor", category()};
+
     addAllPresets();
 }
 
-GradientPresetDefaultListModel::~GradientPresetDefaultListModel() {}
+GradientPresetDefaultListModel::~GradientPresetDefaultListModel()
+{
+    NanotraceHR::Tracer tracer{"gradient preset default list model destructor", category()};
+}
 
 void GradientPresetDefaultListModel::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"gradient preset default list model register declarative type",
+                               category()};
+
     qmlRegisterType<GradientPresetDefaultListModel>("HelperWidgets",
                                                     2,
                                                     0,
@@ -27,6 +38,8 @@ void GradientPresetDefaultListModel::registerDeclarativeType()
 
 void GradientPresetDefaultListModel::addAllPresets()
 {
+    NanotraceHR::Tracer tracer{"gradient preset default list model add all presets", category()};
+
     const QMetaObject &metaObj = QGradient::staticMetaObject;
     const QMetaEnum metaEnum = metaObj.enumerator(metaObj.indexOfEnumerator("Preset"));
 

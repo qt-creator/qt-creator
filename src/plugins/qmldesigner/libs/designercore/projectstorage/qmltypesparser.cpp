@@ -4,8 +4,7 @@
 #include "qmltypesparser.h"
 
 #include "projectstorage.h"
-
-#include <tracing/qmldesignertracing.h>
+#include "projectstoragetracing.h"
 
 #include <sqlitedatabase.h>
 
@@ -25,10 +24,10 @@ namespace QmlDesigner {
 
 #ifdef QDS_BUILD_QMLPARSER
 
-constexpr auto category = ProjectStorageTracing::projectStorageUpdaterCategory;
 using NanotraceHR::keyValue;
+using ProjectStorageTracing::category;
 using Storage::IsInsideProject;
-using Tracer = ProjectStorageTracing::Category::TracerType;
+using Tracer = NanotraceHR::Tracer<ProjectStorageTracing::Category>;
 using Storage::ModuleKind;
 namespace QmlDom = QQmlJS::Dom;
 
@@ -65,20 +64,20 @@ ComponentWithoutNamespaces createComponentNameWithoutNamespaces(const QList<QQml
 const Storage::Import &appendImports(Storage::Imports &imports,
                                      const QString &dependency,
                                      SourceId sourceId,
-                                     QmlTypesParser::ProjectStorage &storage)
+                                     ModulesStorage &modulesStorage)
 {
     auto spaceFound = std::ranges::find_if(dependency, [](QChar c) { return c.isSpace(); });
 
     Utils::PathString moduleName{QStringView(dependency.begin(), spaceFound)};
-    ModuleId cppModuleId = storage.moduleId(moduleName, ModuleKind::CppLibrary);
+    ModuleId cppModuleId = modulesStorage.moduleId(moduleName, ModuleKind::CppLibrary);
 
-    return imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
+    return imports.emplace_back(cppModuleId, Storage::Version{}, sourceId, sourceId);
 }
 
 void addImports(Storage::Imports &imports,
                 SourceId sourceId,
                 const QStringList &dependencies,
-                QmlTypesParser::ProjectStorage &storage,
+                ModulesStorage &modulesStorage,
                 ModuleId cppModuleId)
 {
     NanotraceHR::Tracer tracer{
@@ -89,16 +88,16 @@ void addImports(Storage::Imports &imports,
     };
 
     for (const QString &dependency : dependencies) {
-        const auto &import = appendImports(imports, dependency, sourceId, storage);
+        const auto &import = appendImports(imports, dependency, sourceId, modulesStorage);
         tracer.tick("append import", keyValue("import", import), keyValue("dependency", dependency));
     }
 
-    const auto &import = imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
+    const auto &import = imports.emplace_back(cppModuleId, Storage::Version{}, sourceId, sourceId);
     tracer.tick("append import", keyValue("import", import));
 
-    if (ModuleId qmlCppModuleId = storage.moduleId("QML", ModuleKind::CppLibrary);
+    if (ModuleId qmlCppModuleId = modulesStorage.moduleId("QML", ModuleKind::CppLibrary);
         cppModuleId != qmlCppModuleId) {
-        const auto &import = imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId);
+        const auto &import = imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId, sourceId);
         tracer.tick("append import", keyValue("import", import));
     }
 }
@@ -135,29 +134,74 @@ Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics
     return typeTrait;
 }
 
+Storage::TypeTraits createListTypeTraits(IsInsideProject isInsideProject)
+{
+    Storage::TypeTraits typeTrait = Storage::TypeTraitsKind::Sequence;
+
+    typeTrait.isInsideProject = isInsideProject == IsInsideProject::Yes;
+
+    return typeTrait;
+}
+
 Storage::Version createVersion(QTypeRevision qmlVersion)
 {
     return Storage::Version{qmlVersion.majorVersion(), qmlVersion.minorVersion()};
 }
 
-Storage::Synchronization::ExportedTypes createExports(const QList<QQmlJSScope::Export> &qmlExports,
-                                                      Utils::SmallStringView interanalName,
-                                                      QmlTypesParser::ProjectStorage &storage,
-                                                      ModuleId cppModuleId)
+ModuleId getQmlModuleId(const QString &name,
+                        ModulesStorage &modulesStorage,
+                        Internal::LastModule &lastQmlModule)
 {
-    Storage::Synchronization::ExportedTypes exportedTypes;
-    exportedTypes.reserve(Utils::usize(qmlExports));
+    if (lastQmlModule.name == name)
+        return lastQmlModule.id;
+
+    ModuleId moduleId = modulesStorage.moduleId(Utils::PathString{name}, ModuleKind::QmlLibrary);
+
+    lastQmlModule.name = name;
+    lastQmlModule.id = moduleId;
+
+    return moduleId;
+}
+
+Storage::Synchronization::ExportedTypes addExports(Storage::Synchronization::ExportedTypes &exportedTypes,
+                                                   const QList<QQmlJSScope::Export> &qmlExports,
+                                                   Utils::SmallStringView internalName,
+                                                   const QStringList &interanalAliases,
+                                                   ModulesStorage &modulesStorage,
+                                                   ModuleId cppModuleId,
+                                                   SourceId sourceId,
+                                                   Internal::LastModule &lastQmlModule)
+{
+    exportedTypes.reserve(Utils::usize(qmlExports) + exportedTypes.size());
+
+    TypeNameString cppExportedTypeName{internalName};
 
     for (const QQmlJSScope::Export &qmlExport : qmlExports) {
         TypeNameString exportedTypeName{qmlExport.type()};
-        exportedTypes.emplace_back(storage.moduleId(Utils::SmallString{qmlExport.package()},
-                                                    ModuleKind::QmlLibrary),
+
+        exportedTypes.emplace_back(sourceId,
+                                   getQmlModuleId(qmlExport.package(), modulesStorage, lastQmlModule),
                                    std::move(exportedTypeName),
-                                   createVersion(qmlExport.version()));
+                                   createVersion(qmlExport.version()),
+                                   sourceId,
+                                   cppExportedTypeName);
     }
 
-    TypeNameString cppExportedTypeName{interanalName};
-    exportedTypes.emplace_back(cppModuleId, cppExportedTypeName);
+    exportedTypes.emplace_back(sourceId,
+                               cppModuleId,
+                               cppExportedTypeName,
+                               Storage::Version{},
+                               sourceId,
+                               cppExportedTypeName);
+
+    for (QStringView internalAlias : interanalAliases) {
+        exportedTypes.emplace_back(sourceId,
+                                   cppModuleId,
+                                   Utils::SmallString{internalAlias},
+                                   Storage::Version{},
+                                   sourceId,
+                                   cppExportedTypeName);
+    }
 
     return exportedTypes;
 }
@@ -171,23 +215,26 @@ auto createCppEnumerationExport(Utils::SmallStringView typeName, Utils::SmallStr
     return cppExportedTypeName;
 }
 
-Storage::Synchronization::ExportedTypes createCppEnumerationExports(
+Storage::Synchronization::ExportedTypes addCppEnumerationExports(
+    Storage::Synchronization::ExportedTypes &exportedTypes,
     Utils::SmallStringView typeName,
     ModuleId cppModuleId,
+    SourceId sourceId,
     Utils::SmallStringView enumerationName,
     Utils::SmallStringView enumerationAlias)
 {
-    Storage::Synchronization::ExportedTypes exportedTypes;
+    auto scopedTypeName = createCppEnumerationExport(typeName, enumerationName);
 
     if (!enumerationAlias.empty()) {
         exportedTypes.reserve(2);
-        exportedTypes.emplace_back(cppModuleId,
-                                   createCppEnumerationExport(typeName, enumerationAlias));
+        auto name = createCppEnumerationExport(typeName, enumerationAlias);
+        exportedTypes.emplace_back(sourceId, cppModuleId, name, Storage::Version{}, sourceId, scopedTypeName);
     } else {
         exportedTypes.reserve(1);
     }
 
-    exportedTypes.emplace_back(cppModuleId, createCppEnumerationExport(typeName, enumerationName));
+    exportedTypes.emplace_back(
+        sourceId, cppModuleId, scopedTypeName, Storage::Version{}, sourceId, scopedTypeName);
 
     return exportedTypes;
 }
@@ -369,6 +416,7 @@ auto addEnumerationType(EnumerationTypes &enumerationTypes,
 
 void addEnumerationType(EnumerationTypes &enumerationTypes,
                         Storage::Synchronization::Types &types,
+                        Storage::Synchronization::ExportedTypes &exportedTypes,
                         Utils::SmallStringView typeName,
                         Utils::SmallStringView enumerationName,
                         SourceId sourceId,
@@ -382,11 +430,10 @@ void addEnumerationType(EnumerationTypes &enumerationTypes,
                        Storage::Synchronization::ImportedType{TypeNameString{}},
                        Storage::Synchronization::ImportedType{},
                        typeTraits,
-                       sourceId,
-                       createCppEnumerationExports(typeName,
-                                                   cppModuleId,
-                                                   enumerationName,
-                                                   enumerationAlias));
+                       sourceId);
+
+    addCppEnumerationExports(
+        exportedTypes, typeName, cppModuleId, sourceId, enumerationName, enumerationAlias);
 
     if (!enumerationAlias.empty())
         addEnumerationType(enumerationTypes, typeName, enumerationAlias);
@@ -405,6 +452,7 @@ QSet<QString> createEnumerationAliases(const QHash<QString, QQmlJSMetaEnum> &qml
 }
 
 EnumerationTypes addEnumerationTypes(Storage::Synchronization::Types &types,
+                                     Storage::Synchronization::ExportedTypes &exportedTypes,
                                      Utils::SmallStringView typeName,
                                      SourceId sourceId,
                                      ModuleId cppModuleId,
@@ -423,6 +471,7 @@ EnumerationTypes addEnumerationTypes(Storage::Synchronization::Types &types,
         TypeNameString enumerationAlias{qmlEnumeration.alias()};
         addEnumerationType(enumerationTypes,
                            types,
+                           exportedTypes,
                            typeName,
                            enumerationName,
                            sourceId,
@@ -442,12 +491,14 @@ TypeNameString extensionTypeName(const auto &component)
 }
 
 void addType(Storage::Synchronization::Types &types,
+             Storage::Synchronization::ExportedTypes &exportedTypes,
              SourceId sourceId,
              ModuleId cppModuleId,
              const QQmlJSExportedScope &exportScope,
-             QmlTypesParser::ProjectStorage &storage,
+             ModulesStorage &modulesStorage,
              const ComponentWithoutNamespaces &componentNameWithoutNamespace,
-             IsInsideProject isInsideProject)
+             IsInsideProject isInsideProject,
+             Internal::LastModule &lastQmlModule)
 {
     NanotraceHR::Tracer tracer{"add type",
                                category(),
@@ -456,13 +507,25 @@ void addType(Storage::Synchronization::Types &types,
 
     const auto &component = *exportScope.scope;
 
+    TypeNameString typeName{component.internalName()};
+    auto exports = exportScope.exports;
+    auto internalAliases = component.aliases();
+
+    addExports(exportedTypes,
+               exports,
+               typeName,
+               internalAliases,
+               modulesStorage,
+               cppModuleId,
+               sourceId,
+               lastQmlModule);
+
     auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(
         component.ownMethods(), componentNameWithoutNamespace);
-    TypeNameString typeName{component.internalName()};
     auto enumerations = component.ownEnumerations();
-    auto exports = exportScope.exports;
+    auto enumerationTypes = addEnumerationTypes(
+        types, exportedTypes, typeName, sourceId, cppModuleId, enumerations);
 
-    auto enumerationTypes = addEnumerationTypes(types, typeName, sourceId, cppModuleId, enumerations);
     const auto &type = types.emplace_back(
         Utils::SmallStringView{typeName},
         Storage::Synchronization::ImportedType{TypeNameString{component.baseTypeName()}},
@@ -472,66 +535,51 @@ void addType(Storage::Synchronization::Types &types,
                          component.isSingleton(),
                          isInsideProject),
         sourceId,
-        createExports(exports, typeName, storage, cppModuleId),
         createProperties(component.ownProperties(), enumerationTypes, componentNameWithoutNamespace),
         std::move(functionsDeclarations),
         std::move(signalDeclarations),
         createEnumeration(enumerations),
-        Storage::Synchronization::ChangeLevel::Full,
         Utils::SmallString{component.ownDefaultPropertyName()});
+
     tracer.end(keyValue("type", type));
-}
 
-using namespace Qt::StringLiterals;
+    if (component.isValueType()) {
+        NanotraceHR::Tracer tracer{"add value list type", category()};
 
-constexpr auto skipLists = std::make_tuple(
-    std::pair{std::pair{"QtQuick.Templates"_sv, ModuleKind::CppLibrary}, std::array{"QQuickItem"_L1}});
+        const auto &listType = types.emplace_back(Utils::SmallString::join({"QList<", typeName, ">"}),
+                                                  Storage::Synchronization::ImportedType{},
+                                                  Storage::Synchronization::ImportedType{},
+                                                  createListTypeTraits(isInsideProject),
+                                                  sourceId);
 
-Utils::span<const QLatin1StringView> getSkipList(const Storage::Module &module)
-{
-    static constexpr Utils::span<const QLatin1StringView> emptySkipList;
-    auto currentSkipList = emptySkipList;
+        tracer.end(keyValue("type", listType));
+    }
 
-    std::apply(
-        [&](const auto &entry) {
-            if (entry.first.first == module.name && entry.first.second == module.kind)
-                currentSkipList = entry.second;
-        },
-        skipLists);
-
-    return currentSkipList;
-}
-
-bool skipType(const QQmlJSExportedScope &object, Utils::span<const QLatin1StringView> skipList)
-{
-    return std::any_of(skipList.begin(), skipList.end(), [&](const QLatin1StringView skip) {
-        return object.scope->internalName() == skip;
-    });
 }
 
 void addTypes(Storage::Synchronization::Types &types,
-              const Storage::Synchronization::DirectoryInfo &directoryInfo,
+              Storage::Synchronization::ExportedTypes &exportedTypes,
+              const Storage::Synchronization::ProjectEntryInfo &projectEntryInfo,
               const QList<QQmlJSExportedScope> &objects,
-              QmlTypesParser::ProjectStorage &storage,
+              ModulesStorage &modulesStorage,
               const ComponentWithoutNamespaces &componentNameWithoutNamespaces,
-              IsInsideProject isInsideProject)
+              IsInsideProject isInsideProject,
+              Internal::LastModule &lastQmlModule)
 {
     NanotraceHR::Tracer tracer{"add types", category()};
     types.reserve(Utils::usize(objects) + types.size());
 
-    const auto skipList = getSkipList(storage.module(directoryInfo.moduleId));
 
     for (const auto &object : objects) {
-        if (skipType(object, skipList))
-            continue;
-
         addType(types,
-                directoryInfo.sourceId,
-                directoryInfo.moduleId,
+                exportedTypes,
+                projectEntryInfo.sourceId,
+                projectEntryInfo.moduleId,
                 object,
-                storage,
+                modulesStorage,
                 componentNameWithoutNamespaces,
-                isInsideProject);
+                isInsideProject,
+                lastQmlModule);
     }
 }
 
@@ -540,10 +588,14 @@ void addTypes(Storage::Synchronization::Types &types,
 void QmlTypesParser::parse(const QString &sourceContent,
                            Storage::Imports &imports,
                            Storage::Synchronization::Types &types,
-                           const Storage::Synchronization::DirectoryInfo &directoryInfo,
+                           Storage::Synchronization::ExportedTypes &exportedTypes,
+                           const Storage::Synchronization::ProjectEntryInfo &projectEntryInfo,
                            IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"qmltypes parser parse", category()};
+
+    lastQmlModule.name.clear();
+    lastQmlModule.id = ModuleId{};
 
     QQmlJSTypeDescriptionReader reader({}, sourceContent);
     QList<QQmlJSExportedScope> components;
@@ -554,8 +606,15 @@ void QmlTypesParser::parse(const QString &sourceContent,
 
     auto componentNameWithoutNamespaces = createComponentNameWithoutNamespaces(components);
 
-    addImports(imports, directoryInfo.sourceId, dependencies, m_storage, directoryInfo.moduleId);
-    addTypes(types, directoryInfo, components, m_storage, componentNameWithoutNamespaces, isInsideProject);
+    addImports(imports, projectEntryInfo.sourceId, dependencies, m_modulesStorage, projectEntryInfo.moduleId);
+    addTypes(types,
+             exportedTypes,
+             projectEntryInfo,
+             components,
+             m_modulesStorage,
+             componentNameWithoutNamespaces,
+             isInsideProject,
+             lastQmlModule);
 }
 
 #else
@@ -563,7 +622,8 @@ void QmlTypesParser::parse(const QString &sourceContent,
 void QmlTypesParser::parse([[maybe_unused]] const QString &sourceContent,
                            [[maybe_unused]] Storage::Imports &imports,
                            [[maybe_unused]] Storage::Synchronization::Types &types,
-                           [[maybe_unused]] const Storage::Synchronization::DirectoryInfo &directoryInfo,
+                           [[maybe_unused]] Storage::Synchronization::ExportedTypes &exportedTypes,
+                           [[maybe_unused]] const Storage::Synchronization::ProjectEntryInfo &projectEntryInfo,
                            [[maybe_unused]] IsInsideProject isInsideProject)
 {}
 

@@ -14,18 +14,20 @@ class QMLDESIGNERCORE_EXPORT SignalHandlerProperty final : public AbstractProper
     friend Internal::ModelPrivate;
     friend AbstractProperty;
 
-public:
-    void setSource(const QString &source);
-    QString source() const;
-    QString sourceNormalizedWithBraces() const;
+    using SL = ModelTracing::SourceLocation;
 
-    bool useNewFunctionSyntax();
+public:
+    void setSource(const QString &source, SL sl = {});
+    QString source(SL sl = {}) const;
+    QString sourceNormalizedWithBraces(SL sl = {}) const;
+
+    bool useNewFunctionSyntax(SL sl = {});
 
     SignalHandlerProperty();
     SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view);
 
-    static PropertyName prefixAdded(PropertyNameView propertyName);
-    static PropertyName prefixRemoved(PropertyNameView propertyName);
+    static PropertyName prefixAdded(PropertyNameView propertyName, SL sl = {});
+    static PropertyName prefixRemoved(PropertyNameView propertyName, SL sl = {});
 
     SignalHandlerProperty(PropertyNameView propertyName,
                           const Internal::InternalNodePointer &internalNode,
@@ -34,7 +36,7 @@ public:
         : AbstractProperty(propertyName, internalNode, model, view)
     {}
 
-    static QString normalizedSourceWithBraces(const QString &source);
+    static QString normalizedSourceWithBraces(const QString &source, SL sl = {});
 };
 
 class QMLDESIGNERCORE_EXPORT SignalDeclarationProperty final : public AbstractProperty
@@ -43,9 +45,11 @@ class QMLDESIGNERCORE_EXPORT SignalDeclarationProperty final : public AbstractPr
     friend Internal::ModelPrivate;
     friend AbstractProperty;
 
+    using SL = ModelTracing::SourceLocation;
+
 public:
-    void setSignature(const QString &source);
-    QString signature() const;
+    void setSignature(const QString &source, SL sl = {});
+    QString signature(SL sl = {}) const;
 
     SignalDeclarationProperty();
     SignalDeclarationProperty(const SignalDeclarationProperty &property, AbstractView *view);

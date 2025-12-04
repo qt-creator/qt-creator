@@ -55,7 +55,7 @@ public:
 #endif
     }
 
-    Edit3DView(ExternalDependenciesInterface &externalDependencies);
+    Edit3DView(ExternalDependenciesInterface &externalDependencies, ModulesStorage &modulesStorage);
 
     bool hasWidget() const override { return true; }
     WidgetInfo widgetInfo() override;
@@ -135,6 +135,14 @@ private:
         None
     };
 
+    enum class ViewPreset {
+        Single,
+        Quad,
+        ThreeLeftOneRight,
+        TwoHorizontal,
+        TwoVertical
+    };
+
     void registerEdit3DAction(Edit3DAction *action);
 
     void createEdit3DWidget();
@@ -151,15 +159,19 @@ private:
     void createViewportPresetActions();
     void createSeekerSliderAction();
     void syncCameraSpeedToNewView();
+    void syncActivePresetCheckedState(ViewPreset preset);
     QmlObjectNode currentSceneEnv();
     void storeCurrentSceneEnvironment();
 
     void setActiveViewport(int viewportIndex);
+    void setMouseCursor(int mouseCursor);
 
     QPoint resolveToolbarPopupPos(Edit3DAction *action) const;
 
     template<typename T, typename = typename std::enable_if<std::is_base_of<AbstractProperty , T>::value>::type>
     void maybeStoreCurrentSceneEnvironment(const QList<T> &propertyList);
+
+    ModulesStorage &m_modulesStorage;
 
     QPointer<Edit3DWidget> m_edit3DWidget;
     QVector<Edit3DAction *> m_leftActions;

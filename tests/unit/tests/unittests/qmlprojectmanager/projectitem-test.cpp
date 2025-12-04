@@ -457,7 +457,7 @@ TEST_F(QmlProjectItem, get_empty_standalone_app)
 {
     auto enable = projectItemEmpty->standaloneApp();
 
-    ASSERT_FALSE(enable);
+    ASSERT_TRUE(enable);
 }
 
 TEST_F(QmlProjectItem, get_empty_import_paths)
@@ -728,6 +728,11 @@ TEST_F(QmlProjectItem, set_enable_cmake_generation)
     projectItemSetters->setEnableCMakeGeneration(true);
 
     ASSERT_EQ(projectItemSetters->enableCMakeGeneration(), true);
+}
+
+TEST_F(QmlProjectItem, standalone_app_default)
+{
+    ASSERT_EQ(projectItemSetters->standaloneApp(), true);
 }
 
 TEST_F(QmlProjectItem, set_standalone_app)

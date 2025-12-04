@@ -398,10 +398,6 @@ void ConnectionModel::addConnection(const PropertyName &signalName)
                                 .nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName())
                                 .reparentHere(newNode);
 
-                        if (QmlItemNode(selectedNode).isFlowActionArea()
-                            || QmlVisualNode(selectedNode).isFlowTransition())
-                            source = selectedNode.validId() + ".trigger()";
-
                         newNode.bindingProperty("target").setExpression(selectedNode.validId());
                     } else {
                         rootModelNode
@@ -574,26 +570,6 @@ QStringList ConnectionModel::getSignalsForRow(int row) const
         stringList.append(getPossibleSignalsForConnection(signalHandlerProperty.parentModelNode()));
 
     return stringList;
-}
-
-QStringList ConnectionModel::getflowActionTriggerForRow(int row) const
-{
-    QStringList stringList;
-    SignalHandlerProperty signalHandlerProperty = signalHandlerPropertyForRow(row);
-
-    if (signalHandlerProperty.isValid()) {
-        const ModelNode parentModelNode = signalHandlerProperty.parentModelNode();
-        ModelNode targetNode = getTargetNodeForConnection(parentModelNode);
-        if (!targetNode.isValid() && !parentModelNode.isRootNode())
-             targetNode = parentModelNode.parentProperty().parentModelNode();
-         if (targetNode.isValid()) {
-             for (auto &node : targetNode.allSubModelNodesAndThisNode()) {
-                 if (QmlItemNode(node).isFlowActionArea() && node.hasId())
-                     stringList.append(node.id() + ".trigger()");
-             }
-         }
-     }
-     return stringList;
 }
 
 namespace {}

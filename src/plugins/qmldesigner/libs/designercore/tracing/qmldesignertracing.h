@@ -10,73 +10,59 @@
 namespace QmlDesigner {
 namespace Tracing {
 
-constexpr NanotraceHR::Tracing tracingStatus()
-{
 #ifdef ENABLE_QMLDESIGNER_TRACING
-    return NanotraceHR::Tracing::IsEnabled;
-#else
-    return NanotraceHR::Tracing::IsDisabled;
-#endif
-}
 
-using EventQueue = NanotraceHR::StringViewEventQueue<tracingStatus()>;
-using EventQueueWithStringArguments = NanotraceHR::StringViewWithStringArgumentsEventQueue<tracingStatus()>;
-using StringEventQueue = NanotraceHR::StringEventQueue<tracingStatus()>;
+using EventQueueWithStringArguments = NanotraceHR::EnabledEventQueueWithArguments;
+using EventQueueWithoutArguments = NanotraceHR::EnabledEventQueueWithoutArguments;
 
-[[gnu::pure]] QMLDESIGNERCORE_EXPORT EventQueue &eventQueue();
 [[gnu::pure]] QMLDESIGNERCORE_EXPORT EventQueueWithStringArguments &eventQueueWithStringArguments();
-[[gnu::pure]] QMLDESIGNERCORE_EXPORT StringEventQueue &stringEventQueue();
+[[gnu::pure]] QMLDESIGNERCORE_EXPORT EventQueueWithoutArguments &eventQueueWithoutArguments();
+
+#endif
 
 } // namespace Tracing
 
 namespace ModelTracing {
-constexpr NanotraceHR::Tracing tracingStatus()
-{
-#ifdef ENABLE_MODEL_TRACING
-    return NanotraceHR::Tracing::IsEnabled;
-#else
-    return NanotraceHR::Tracing::IsDisabled;
-#endif
-}
 
-using Category = NanotraceHR::StringCategory<tracingStatus()>;
+#ifdef ENABLE_MODEL_TRACING
+
+using Category = NanotraceHR::EnabledCategory;
 using SourceLocation = Category::SourceLocation;
-using AsynchronousToken = Category::AsynchronousTokenType;
+using AsynchronousToken = NanotraceHR::EnabledAsynchronousToken;
+using FlowToken = NanotraceHR::EnabledFlowToken;
 [[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
+
+#else
+
+using Category = NanotraceHR::DisabledCategory;
+using SourceLocation = Category::SourceLocation;
+using AsynchronousToken = NanotraceHR::DisabledAsynchronousToken;
+using FlowToken = NanotraceHR::DisabledFlowToken;
+
+inline Category category()
+{
+    return {};
+};
+
+#endif
 
 } // namespace ModelTracing
 
-namespace ProjectStorageTracing {
-constexpr NanotraceHR::Tracing projectStorageTracingStatus()
-{
-#ifdef ENABLE_PROJECT_STORAGE_TRACING
-    return NanotraceHR::Tracing::IsEnabled;
+namespace ProjectManagingTracing {
+
+#ifdef ENABLE_PROJECT_MANAGING_TRACING
+using Category = NanotraceHR::EnabledCategory;
+
+[[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
 #else
-    return NanotraceHR::Tracing::IsDisabled;
-#endif
+
+using Category = NanotraceHR::DisabledCategory;
+
+inline Category category()
+{
+    return {};
 }
 
-using Category = NanotraceHR::StringViewWithStringArgumentsCategory<projectStorageTracingStatus()>;
-
-[[gnu::pure]] Category &projectStorageCategory();
-
-[[gnu::pure]] Category &projectStorageUpdaterCategory();
-
-} // namespace ProjectStorageTracing
-
-namespace SourcePathStorageTracing {
-constexpr NanotraceHR::Tracing tracingStatus()
-{
-#ifdef ENABLE_SOURCE_PATH_STORAGE_TRACING
-    return NanotraceHR::Tracing::IsEnabled;
-#else
-    return NanotraceHR::Tracing::IsDisabled;
 #endif
-}
-
-using Category = NanotraceHR::StringViewWithStringArgumentsCategory<tracingStatus()>;
-
-[[gnu::pure]] Category &category();
-
-} // namespace SourcePathStorageTracing
+} // namespace ProjectManagingTracing
 } // namespace QmlDesigner

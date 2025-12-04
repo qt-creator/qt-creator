@@ -25,6 +25,7 @@
 #include <nodeproperty.h>
 #include <qmldesignertr.h>
 #include <theme.h>
+#include <variantproperty.h>
 
 #include <formeditortoolbutton.h>
 
@@ -946,88 +947,6 @@ public:
     }
 };
 
-bool flowOptionVisible(const SelectionContext &context)
-{
-    return QmlFlowViewNode::isValidQmlFlowViewNode(context.rootNode());
-}
-
-bool isFlowItem(const SelectionContext &context)
-{
-    return context.singleNodeIsSelected()
-           && QmlFlowItemNode::isValidQmlFlowItemNode(context.currentSingleSelectedNode());
-}
-
-bool isFlowTarget(const SelectionContext &context)
-{
-    return context.singleNodeIsSelected()
-           && QmlFlowTargetNode::isFlowEditorTarget(context.currentSingleSelectedNode());
-}
-
-bool isFlowTransitionItem(const SelectionContext &context)
-{
-    return context.singleNodeIsSelected()
-           && QmlFlowItemNode::isFlowTransition(context.currentSingleSelectedNode());
-}
-
-bool isFlowTransitionItemWithEffect(const SelectionContext &context)
-{
-    if (!isFlowTransitionItem(context))
-        return false;
-
-    ModelNode node = context.currentSingleSelectedNode();
-
-    return node.hasNodeProperty("effect");
-}
-
-bool isFlowActionItemItem(const SelectionContext &context)
-{
-    const ModelNode selectedNode = context.currentSingleSelectedNode();
-
-    return context.singleNodeIsSelected()
-            && (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(selectedNode)
-                || QmlVisualNode::isFlowDecision(selectedNode)
-                || QmlVisualNode::isFlowWildcard(selectedNode));
-}
-
-bool isFlowTargetOrTransition(const SelectionContext &context)
-{
-    return isFlowTarget(context) || isFlowTransitionItem(context);
-}
-
-class FlowActionConnectAction : public ActionGroup
-{
-public:
-    FlowActionConnectAction(const QString &displayName, const QByteArray &menuId, const QIcon &icon, int priority) :
-        ActionGroup(displayName, menuId, icon, priority,
-                    &isFlowActionItemItem, &flowOptionVisible)
-
-    {}
-
-    void updateContext() override
-    {
-        menu()->clear();
-        if (selectionContext().isValid()) {
-            action()->setEnabled(isEnabled(selectionContext()));
-            action()->setVisible(isVisible(selectionContext()));
-        } else {
-            return;
-        }
-        if (action()->isEnabled()) {
-            for (const QmlFlowItemNode &node : QmlFlowViewNode(selectionContext().rootNode()).flowItems()) {
-                if (node != selectionContext().currentSingleSelectedNode().parentProperty().parentModelNode()) {
-                    QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connect: %1")).arg(captionForModelNode(node));
-                    ActionTemplate *connectionAction = new ActionTemplate("CONNECT", what, &ModelNodeOperations::addTransition);
-
-                    SelectionContext nodeSelectionContext = selectionContext();
-                    nodeSelectionContext.setTargetNode(node);
-                    connectionAction->setSelectionContext(nodeSelectionContext);
-
-                    menu()->addAction(connectionAction);
-                }
-            }
-        }
-    }
-};
 namespace {
 const char xProperty[] = "x";
 const char yProperty[] = "y";
@@ -1161,6 +1080,38 @@ bool isStackedContainer(const SelectionContext &context)
     return NodeHints::fromModelNode(currentSelectedNode).isStackedContainer();
 }
 
+bool isStackedContainerAndIndexIsVariantOrResolvableBinding(const SelectionContext &context)
+{
+    if (!isStackedContainer(context))
+        return false;
+
+    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
+
+    const PropertyName propertyName = ModelNodeOperations::getIndexPropertyName(currentSelectedNode);
+
+    QTC_ASSERT(currentSelectedNode.metaInfo().hasProperty(propertyName), return false);
+
+    QmlItemNode containerItemNode(currentSelectedNode);
+
+    QTC_ASSERT(containerItemNode.isValid(), return false);
+
+    if (containerItemNode.hasBindingProperty(propertyName)) {
+        const AbstractProperty resolvedProperty = containerItemNode.bindingProperty(propertyName)
+                                                      .resolveToProperty();
+        if (resolvedProperty.isValid() && resolvedProperty.isVariantProperty()) {
+            auto variantProperty = resolvedProperty.toVariantProperty();
+            if (!variantProperty.isValid())
+                return false;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    return containerItemNode.modelNode().hasVariantProperty(propertyName);
+}
+
 bool isStackedContainerWithoutTabBar(const SelectionContext &context)
 {
     if (!isStackedContainer(context))
@@ -1169,7 +1120,7 @@ bool isStackedContainerWithoutTabBar(const SelectionContext &context)
     if (!context.view()->model())
         return false;
 
-    if (!context.view()->model()->metaInfo("QtQuick.Controls.TabBar", -1, -1).isValid())
+    if (!context.view()->model()->metaInfo("TabBar", -1, -1).isValid())
         return false;
 
     ModelNode currentSelectedNode = context.currentSingleSelectedNode();
@@ -1196,11 +1147,38 @@ bool isStackedContainerAndIndexCanBeDecreased(const SelectionContext &context)
     QTC_ASSERT(currentSelectedNode.metaInfo().hasProperty(propertyName), return false);
 
     QmlItemNode containerItemNode(currentSelectedNode);
+
     QTC_ASSERT(containerItemNode.isValid(), return false);
 
-    const int value = containerItemNode.instanceValue(propertyName).toInt();
+    auto isMoreThan = [](const QVariant &variant, int min) -> bool {
+        if (!variant.isValid())
+            return false;
 
-    return value > 0;
+        bool ok = false;
+        int value = variant.toInt(&ok);
+        return ok && value > min;
+    };
+
+    if (currentSelectedNode.hasBindingProperty(propertyName)) {
+        const AbstractProperty resolvedProperty = currentSelectedNode.bindingProperty(propertyName)
+                                                      .resolveToProperty();
+        if (resolvedProperty.isValid() && resolvedProperty.isVariantProperty()) {
+            const auto variantProperty = resolvedProperty.toVariantProperty();
+            if (!variantProperty.isValid())
+                return false;
+
+            if (isMoreThan(variantProperty.value(), 0))
+                return true;
+        }
+
+        return false;
+    }
+
+    QVariant modelValue = containerItemNode.modelValue(propertyName);
+    if (isMoreThan(modelValue, 0))
+        return true;
+
+    return false;
 }
 
 bool isStackedContainerAndIndexCanBeIncreased(const SelectionContext &context)
@@ -1215,13 +1193,40 @@ bool isStackedContainerAndIndexCanBeIncreased(const SelectionContext &context)
     QTC_ASSERT(currentSelectedNode.metaInfo().hasProperty(propertyName), return false);
 
     QmlItemNode containerItemNode(currentSelectedNode);
+
     QTC_ASSERT(containerItemNode.isValid(), return false);
 
-    const int value = containerItemNode.instanceValue(propertyName).toInt();
+    auto isLessThan = [](const QVariant &variant, int max) -> bool {
+        if (!variant.isValid())
+            return false;
+
+        bool ok = false;
+        int value = variant.toInt(&ok);
+        return ok && value < max;
+    };
 
     const int maxValue = currentSelectedNode.directSubModelNodes().size() - 1;
 
-    return value < maxValue;
+    if (currentSelectedNode.hasBindingProperty(propertyName)) {
+        const AbstractProperty resolvedProperty = currentSelectedNode.bindingProperty(propertyName)
+                                                      .resolveToProperty();
+        if (resolvedProperty.isValid() && resolvedProperty.isVariantProperty()) {
+            const auto variantProperty = resolvedProperty.toVariantProperty();
+            if (!variantProperty.isValid())
+                return false;
+
+            if (isLessThan(variantProperty.value(), maxValue))
+                return true;
+        }
+
+        return false;
+    }
+
+    QVariant modelValue = containerItemNode.modelValue(propertyName);
+    if (isLessThan(modelValue, maxValue))
+        return true;
+
+    return false;
 }
 
 bool isGroup(const SelectionContext &context)
@@ -1521,7 +1526,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           contextIcon(DesignerIcons::VisibilityIcon), // TODO: placeholder icon
                           isolateNodesToolTip,
                           rootCategory,
-                          QKeySequence("shift+h"),
+                          QKeySequence("shift+b"),
                           Priorities::IsolateSelection,
                           &isolateSelectedNodes,
                           &selectionNot2D3DMix));
@@ -1532,7 +1537,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           contextIcon(DesignerIcons::VisibilityIcon), // TODO: placeholder icon
                           showAllToolTip,
                           rootCategory,
-                          QKeySequence("alt+h"),
+                          QKeySequence("alt+b"),
                           Priorities::ShowAllNodes,
                           &showAllNodes,
                           &always));
@@ -1693,83 +1698,12 @@ void DesignerActionManager::createDefaultDesignerActions()
                           {},
                           Priorities::Group));
 
-    addDesignerAction(new ActionGroup(
-                          flowCategoryDisplayName,
-                          flowCategory,
-                          {},
-                          Priorities::FlowCategory,
-                          &isFlowTargetOrTransition,
-                          &flowOptionVisible));
-
-
-    auto effectMenu = new ActionGroup(
-                flowEffectCategoryDisplayName,
-                flowEffectCategory,
-                {},
-                Priorities::FlowCategory,
-                &isFlowTransitionItem,
-                &flowOptionVisible);
-
-    effectMenu->setCategory(flowCategory);
-    addDesignerAction(effectMenu);
-
-    addDesignerAction(new ModelNodeFormEditorAction(
-                          createFlowActionAreaCommandId,
-                          createFlowActionAreaDisplayName,
-                          addIcon.icon(),
-                          addFlowActionToolTip,
-                          flowCategory,
-                          {},
-                          1,
-                          &createFlowActionArea,
-                          &isFlowItem,
-                          &flowOptionVisible));
-
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          setFlowStartCommandId,
-                          setFlowStartDisplayName,
-                          {},
-                          flowCategory,
-                          {},
-                          2,
-                          &setFlowStartItem,
-                          &isFlowItem,
-                          &flowOptionVisible));
-
-    addDesignerAction(new FlowActionConnectAction(
-                          flowConnectionCategoryDisplayName,
-                          flowConnectionCategory,
-                          {},
-                          Priorities::FlowCategory));
-
-
-    const QList<TypeName> transitionTypes = {"FlowFadeEffect",
-                                   "FlowPushEffect",
-                                   "FlowMoveEffect",
-                                   "None"};
-
-    for (const TypeName &typeName : transitionTypes)
-        addTransitionEffectAction(typeName);
-
-    addCustomTransitionEffectAction();
-
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          selectFlowEffectCommandId,
-                          selectEffectDisplayName,
-                          {},
-                          flowCategory,
-                          {},
-                          2,
-                          &selectFlowEffect,
-                          &isFlowTransitionItemWithEffect));
-
-    addDesignerAction(new ActionGroup(
-                          stackedContainerCategoryDisplayName,
-                          stackedContainerCategory,
-                          addIcon.icon(),
-                          Priorities::StackedContainerCategory,
-                          &isStackedContainer,
-                          &isStackedContainer));
+    addDesignerAction(new ActionGroup(stackedContainerCategoryDisplayName,
+                                      stackedContainerCategory,
+                                      addIcon.icon(),
+                                      Priorities::StackedContainerCategory,
+                                      &isStackedContainer,
+                                      &isStackedContainer));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           removePositionerCommandId,
@@ -1851,40 +1785,38 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isStackedContainer,
                           &isStackedContainer));
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          addTabBarToStackedContainerCommandId,
-                          addTabBarToStackedContainerDisplayName,
-                          {},
-                          stackedContainerCategory,
-                          QKeySequence("Ctrl+Shift+t"),
-                          2,
-                          &addTabBarToStackedContainer,
-                          &isStackedContainerWithoutTabBar,
-                          &isStackedContainer));
+    addDesignerAction(new ModelNodeContextMenuAction(addTabBarToStackedContainerCommandId,
+                                                     addTabBarToStackedContainerDisplayName,
+                                                     {},
+                                                     stackedContainerCategory,
+                                                     QKeySequence("Ctrl+Shift+t"),
+                                                     2,
+                                                     &addTabBarToStackedContainer,
+                                                     &isStackedContainerWithoutTabBar,
+                                                     &isStackedContainer));
 
-    addDesignerAction(new ModelNodeFormEditorAction(
-                          decreaseIndexOfStackedContainerCommandId,
-                          decreaseIndexToStackedContainerDisplayName,
-                          prevIcon.icon(),
-                          decreaseIndexOfStackedContainerToolTip,
-                          stackedContainerCategory,
-                          QKeySequence("Ctrl+Shift+Left"),
-                          3,
-                          &decreaseIndexOfStackedContainer,
-                          &isStackedContainerAndIndexCanBeDecreased,
-                          &isStackedContainer));
-
-    addDesignerAction(new ModelNodeFormEditorAction(
-                          increaseIndexOfStackedContainerCommandId,
-                          increaseIndexToStackedContainerDisplayName,
-                          nextIcon.icon(),
-                          increaseIndexOfStackedContainerToolTip,
-                          stackedContainerCategory,
-                          QKeySequence("Ctrl+Shift+Right"),
-                          4,
-                          &increaseIndexOfStackedContainer,
-                          &isStackedContainerAndIndexCanBeIncreased,
-                          &isStackedContainer));
+    addDesignerAction(
+        new ModelNodeFormEditorAction(decreaseIndexOfStackedContainerCommandId,
+                                      decreaseIndexToStackedContainerDisplayName,
+                                      prevIcon.icon(),
+                                      decreaseIndexOfStackedContainerToolTip,
+                                      stackedContainerCategory,
+                                      QKeySequence("Ctrl+Shift+Left"),
+                                      3,
+                                      &decreaseIndexOfStackedContainer,
+                                      &isStackedContainerAndIndexCanBeDecreased,
+                                      &isStackedContainerAndIndexIsVariantOrResolvableBinding));
+    addDesignerAction(
+        new ModelNodeFormEditorAction(increaseIndexOfStackedContainerCommandId,
+                                      increaseIndexToStackedContainerDisplayName,
+                                      nextIcon.icon(),
+                                      increaseIndexOfStackedContainerToolTip,
+                                      stackedContainerCategory,
+                                      QKeySequence("Ctrl+Shift+Right"),
+                                      4,
+                                      &increaseIndexOfStackedContainer,
+                                      &isStackedContainerAndIndexCanBeIncreased,
+                                      &isStackedContainerAndIndexIsVariantOrResolvableBinding));
 
     addDesignerAction(
         new ModelNodeAction(layoutRowLayoutCommandId,
@@ -2082,14 +2014,16 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isModelOrMaterial));
 
     addDesignerAction(new ModelNodeContextMenuAction(
-                          mergeTemplateCommandId,
-                          mergeTemplateDisplayName,
-                          contextIcon(DesignerIcons::MergeWithTemplateIcon),
-                          rootCategory,
-                          {},
-                          Priorities::MergeWithTemplate,
-                          [&] (const SelectionContext& context) { mergeWithTemplate(context, m_externalDependencies); },
-                          &SelectionContextFunctors::always));
+        mergeTemplateCommandId,
+        mergeTemplateDisplayName,
+        contextIcon(DesignerIcons::MergeWithTemplateIcon),
+        rootCategory,
+        {},
+        Priorities::MergeWithTemplate,
+        [&](const SelectionContext &context) {
+            mergeWithTemplate(context, m_externalDependencies, m_modulesStorage);
+        },
+        &SelectionContextFunctors::always));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           addToContentLibraryCommandId,
@@ -2098,7 +2032,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           rootCategory,
                           QKeySequence(),
                           Priorities::Add3DToContentLib,
-                          &add3DAssetToContentLibrary,
+                          &addNodeToContentLibrary,
                           &enableAddToContentLib,
                           &enableAddToContentLib));
 
@@ -2171,39 +2105,34 @@ void DesignerActionManager::createDefaultAddResourceHandler()
 void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
 {
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick.Image",
+                ModelNodePreviewImageHandler("Image",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick.BorderImage",
+                ModelNodePreviewImageHandler("BorderImage",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("Qt.SafeRenderer.SafeRendererImage",
+                ModelNodePreviewImageHandler("SafeRendererImage",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("Qt.SafeRenderer.SafeRendererPicture",
+                ModelNodePreviewImageHandler("SafeRendererPicture",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick3D.Texture",
+                ModelNodePreviewImageHandler("Texture",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-        ModelNodePreviewImageHandler("QtQuick3D.Material",
-                                     ModelNodeOperations::previewImageDataForGenericNode));
-    registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick3D.Model",
+                ModelNodePreviewImageHandler("Material",
                                              ModelNodeOperations::previewImageDataForGenericNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick3D.Node",
+                ModelNodePreviewImageHandler("Model",
+                                             ModelNodeOperations::previewImageDataForGenericNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("Node",
                                              ModelNodeOperations::previewImageDataForGenericNode,
                                              true));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick.Item",
+                ModelNodePreviewImageHandler("Item",
                                              ModelNodeOperations::previewImageDataForGenericNode,
                                              true));
-
-    // TODO - Disabled until QTBUG-86616 is fixed
-//    registerModelNodePreviewHandler(
-//                ModelNodePreviewImageHandler("QtQuick3D.Effect",
-//                                             ModelNodeOperations::previewImageDataFor3DNode));
 }
 
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)
@@ -2245,9 +2174,11 @@ ActionInterface *DesignerActionManager::actionByMenuId(const QByteArray &id)
 }
 
 DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designerActionManagerView,
-                                             ExternalDependenciesInterface &externalDependencies)
+                                             ExternalDependenciesInterface &externalDependencies,
+                                             ModulesStorage &modulesStorage)
     : m_designerActionManagerView(designerActionManagerView)
     , m_externalDependencies(externalDependencies)
+    , m_modulesStorage(modulesStorage)
     , m_bundleHelper(std::make_unique<BundleHelper>(designerActionManagerView,
                                                     QmlDesignerPlugin::instance()->mainWidget()))
 {
@@ -2255,33 +2186,6 @@ DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designer
 }
 
 DesignerActionManager::~DesignerActionManager() = default;
-
-void DesignerActionManager::addTransitionEffectAction(const TypeName &typeName)
-{
-    addDesignerAction(new ModelNodeContextMenuAction(
-        QByteArray(ComponentCoreConstants::flowAssignEffectCommandId) + typeName,
-        QLatin1String(ComponentCoreConstants::flowAssignEffectDisplayName) + typeName,
-        {},
-        ComponentCoreConstants::flowEffectCategory,
-        {},
-        typeName == "None" ? 11 : 1,
-        [typeName](const SelectionContext &context)
-        { ModelNodeOperations::addFlowEffect(context, typeName); },
-    &isFlowTransitionItem));
-}
-
-void DesignerActionManager::addCustomTransitionEffectAction()
-{
-    addDesignerAction(new ModelNodeContextMenuAction(
-        QByteArray(ComponentCoreConstants::flowAssignEffectCommandId),
-        ComponentCoreConstants::flowAssignCustomEffectDisplayName,
-        {},
-        ComponentCoreConstants::flowEffectCategory,
-        {},
-        21,
-        &ModelNodeOperations::addCustomFlowEffect,
-    &isFlowTransitionItem));
-}
 
 void DesignerActionManager::setupIcons()
 {

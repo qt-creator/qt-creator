@@ -4,6 +4,7 @@
 #include "resizetool.h"
 
 #include "formeditorscene.h"
+#include "formeditortracing.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
 
@@ -15,6 +16,8 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 ResizeTool::ResizeTool(FormEditorView *editorView)
     : AbstractFormEditorTool(editorView)
     , m_selectionIndicator(editorView->scene()->manipulatorLayerItem())
@@ -23,6 +26,7 @@ ResizeTool::ResizeTool(FormEditorView *editorView)
     , m_rotationIndicator(editorView->scene()->manipulatorLayerItem())
     , m_resizeManipulator(editorView->scene()->manipulatorLayerItem(), editorView)
 {
+    NanotraceHR::Tracer tracer{"resize tool constructor", category()};
 }
 
 ResizeTool::~ResizeTool() = default;
@@ -30,6 +34,8 @@ ResizeTool::~ResizeTool() = default;
 void ResizeTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
                                             QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"resize tool mouse press event", category()};
+
     if (event->button() == Qt::LeftButton) {
         if (itemList.isEmpty())
             return;
@@ -50,6 +56,8 @@ void ResizeTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
 void ResizeTool::mouseMoveEvent(const QList<QGraphicsItem*> &,
                                            QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"resize tool mouse move event", category()};
+
     if (m_resizeManipulator.isActive())
         m_resizeManipulator.update(event->scenePos(), generateUseSnapping(event->modifiers()),
                                    event->modifiers());
@@ -58,9 +66,11 @@ void ResizeTool::mouseMoveEvent(const QList<QGraphicsItem*> &,
 void ResizeTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
                         QGraphicsSceneMouseEvent * /*event*/)
 {
+    NanotraceHR::Tracer tracer{"resize tool hover move event", category()};
+
     if (itemList.isEmpty()) {
-       view()->changeToSelectionTool();
-       return;
+        view()->changeToSelectionTool();
+        return;
     }
 
     ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.constFirst());
@@ -86,6 +96,8 @@ void ResizeTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraph
 void ResizeTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
                                               QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"resize tool mouse release event", category()};
+
     if (m_resizeManipulator.isActive()) {
         if (itemList.isEmpty())
             return;
@@ -107,13 +119,15 @@ void ResizeTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> & /*itemList*
 
 void ResizeTool::keyPressEvent(QKeyEvent * event)
 {
+    NanotraceHR::Tracer tracer{"resize tool key press event", category()};
+
     switch (event->key()) {
-        case Qt::Key_Shift:
-        case Qt::Key_Alt:
-        case Qt::Key_Control:
-        case Qt::Key_AltGr:
-            event->setAccepted(false);
-            return;
+    case Qt::Key_Shift:
+    case Qt::Key_Alt:
+    case Qt::Key_Control:
+    case Qt::Key_AltGr:
+        event->setAccepted(false);
+        return;
     }
 
     double moveStep = 1.0;
@@ -122,23 +136,32 @@ void ResizeTool::keyPressEvent(QKeyEvent * event)
         moveStep = 10.0;
 
     switch (event->key()) {
-        case Qt::Key_Left: m_resizeManipulator.moveBy(-moveStep, 0.0); break;
-        case Qt::Key_Right: m_resizeManipulator.moveBy(moveStep, 0.0); break;
-        case Qt::Key_Up: m_resizeManipulator.moveBy(0.0, -moveStep); break;
-        case Qt::Key_Down: m_resizeManipulator.moveBy(0.0, moveStep); break;
+    case Qt::Key_Left:
+        m_resizeManipulator.moveBy(-moveStep, 0.0);
+        break;
+    case Qt::Key_Right:
+        m_resizeManipulator.moveBy(moveStep, 0.0);
+        break;
+    case Qt::Key_Up:
+        m_resizeManipulator.moveBy(0.0, -moveStep);
+        break;
+    case Qt::Key_Down:
+        m_resizeManipulator.moveBy(0.0, moveStep);
+        break;
     }
-
 }
 
 void ResizeTool::keyReleaseEvent(QKeyEvent * keyEvent)
 {
-     switch (keyEvent->key()) {
-        case Qt::Key_Shift:
-        case Qt::Key_Alt:
-        case Qt::Key_Control:
-        case Qt::Key_AltGr:
-            keyEvent->setAccepted(false);
-            return;
+    NanotraceHR::Tracer tracer{"resize tool key release event", category()};
+
+    switch (keyEvent->key()) {
+    case Qt::Key_Shift:
+    case Qt::Key_Alt:
+    case Qt::Key_Control:
+    case Qt::Key_AltGr:
+        keyEvent->setAccepted(false);
+        return;
     }
 }
 
@@ -149,6 +172,8 @@ void ResizeTool::itemsAboutToRemoved(const QList<FormEditorItem*> & /*itemList*/
 
 void ResizeTool::selectedItemsChanged(const QList<FormEditorItem*> & /*itemList*/)
 {
+    NanotraceHR::Tracer tracer{"resize tool selected items changed", category()};
+
     m_selectionIndicator.setItems(items());
     m_resizeIndicator.setItems(items());
     m_anchorIndicator.setItems(items());
@@ -157,6 +182,8 @@ void ResizeTool::selectedItemsChanged(const QList<FormEditorItem*> & /*itemList*
 
 void ResizeTool::clear()
 {
+    NanotraceHR::Tracer tracer{"resize tool clear", category()};
+
     m_selectionIndicator.clear();
     m_resizeIndicator.clear();
     m_anchorIndicator.clear();
@@ -166,6 +193,8 @@ void ResizeTool::clear()
 
 void ResizeTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"resize tool form editor items changed", category()};
+
     const QList<FormEditorItem*> selectedItemList = filterSelectedModelNodes(itemList);
 
     m_selectionIndicator.updateItems(selectedItemList);

@@ -582,29 +582,29 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
 
 void layoutRowPositioner(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Row", compareByX);
+    layoutHelperFunction(selectionContext, "Row", compareByX);
 }
 
 void layoutColumnPositioner(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Column", compareByY);
+    layoutHelperFunction(selectionContext, "Column", compareByY);
 }
 
 void layoutGridPositioner(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Grid", compareByGrid);
+    layoutHelperFunction(selectionContext, "Grid", compareByGrid);
 }
 
 void layoutFlowPositioner(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Flow", compareByGrid);
+    layoutHelperFunction(selectionContext, "Flow", compareByGrid);
 }
 
 void layoutRowLayout(const SelectionContext &selectionContext)
 {
     try {
         LayoutInGridLayout::ensureLayoutImport(selectionContext);
-        layoutHelperFunction(selectionContext, "QtQuick.Layouts.RowLayout", compareByX);
+        layoutHelperFunction(selectionContext, "RowLayout", compareByX);
     } catch (RewritingException &e) { //better safe than sorry
         e.showException();
     }
@@ -614,7 +614,7 @@ void layoutColumnLayout(const SelectionContext &selectionContext)
 {
     try {
         LayoutInGridLayout::ensureLayoutImport(selectionContext);
-        layoutHelperFunction(selectionContext, "QtQuick.Layouts.ColumnLayout", compareByY);
+        layoutHelperFunction(selectionContext, "ColumnLayout", compareByY);
     } catch (RewritingException &e) { //better safe than sorry
         e.showException();
     }
@@ -662,7 +662,9 @@ static void addSignal(const QString &typeName,
 #else
     auto model = Model::create("Item", 2, 0);
 #endif
-    RewriterView rewriterView(externanDependencies, RewriterView::Amend);
+    RewriterView rewriterView(externanDependencies,
+                              otherModel->projectStorageDependencies().modulesStorage,
+                              RewriterView::Amend);
 
     auto textEdit = qobject_cast<TextEditor::TextEditorWidget*>
             (Core::EditorManager::currentEditor()->widget());
@@ -869,8 +871,11 @@ void moveToComponent(const SelectionContext &selectionContext)
     if (selectionContext.singleNodeIsSelected())
         modelNode = selectionContext.selectedModelNodes().constFirst();
 
-    if (modelNode.isValid())
-        selectionContext.view()->model()->rewriterView()->moveToComponent(modelNode);
+    if (modelNode.isValid()) {
+        QHash<ModelNode, QSet<ModelNode>> matAndTexNodes = Utils3D::allBoundMaterialsAndTextures(modelNode);
+        QString newFilePath = selectionContext.view()->model()->rewriterView()->moveToComponent(modelNode);
+        Utils3D::createMatLibForFile(newFilePath, matAndTexNodes, selectionContext.view());
+    }
 }
 
 void extractComponent(const SelectionContext &selectionContext)
@@ -879,24 +884,29 @@ void extractComponent(const SelectionContext &selectionContext)
     AbstractView *contextView = selectionContext.view();
 
     // Get the path of the qml component
-    QString filePath = ModelUtils::componentFilePath(selectedNode);
+    Utils::FilePath filePath = Utils::FilePath::fromString(ModelUtils::componentFilePath(selectedNode));
     if (filePath.isEmpty()) {
         qWarning() << "Qml file for component " << selectedNode.displayName() << "not found!";
         return;
     }
 
+    // Store properties to reset extracted comp properties later to their original values
+    QList<VariantProperty> originalProperties = selectedNode.variantProperties();
+
     // Read the content of the qml component
     QString componentText;
-    const FilePath path = FilePath::fromString(filePath);
-    const Result<QByteArray> res = path.fileContents();
+    const Result<QByteArray> res = filePath.fileContents();
     if (!res) {
         qWarning() << "Cannot open component file " << filePath;
         return;
     }
     componentText = QString::fromUtf8(*res);
 
+    Model *model = contextView->model();
+    ModulesStorage &modulesStorage = model->projectStorageDependencies().modulesStorage;
+
 #ifdef QDS_USE_PROJECTSTORAGE
-    ModelPointer inputModel = contextView->model()->createModel("Rectangle");
+    ModelPointer inputModel = model->createModel("Rectangle");
 #else
     ModelPointer inputModel = Model::create("QtQuick.Rectangle", 1, 0, contextView->model());
     inputModel->setFileUrl(contextView->model()->fileUrl());
@@ -906,35 +916,26 @@ void extractComponent(const SelectionContext &selectionContext)
     // This is not including the root node by default
     QPlainTextEdit textEdit;
     QString imports;
-    const QList<Import> modelImports = contextView->model()->imports();
+    const QList<Import> modelImports = model->imports();
     for (const Import &import : modelImports)
         imports += "import " + import.toString(true) + QLatin1Char('\n');
 
     textEdit.setPlainText(imports + componentText);
     NotIndentingTextEditModifier modifier(textEdit.document());
 
-    RewriterView rewriterView{contextView->externalDependencies()};
+    RewriterView rewriterView{contextView->externalDependencies(), modulesStorage};
     rewriterView.setCheckSemanticErrors(false);
     rewriterView.setPossibleImportsEnabled(false);
     rewriterView.setTextModifier(&modifier);
     inputModel->setRewriterView(&rewriterView);
     rewriterView.restoreAuxiliaryData();
 
-    if (rewriterView.errors().isEmpty() && rewriterView.rootModelNode().isValid()) {
-        try {
-            ModelMerger merger(contextView);
-            merger.insertModel(rewriterView.rootModelNode());
-        } catch(Exception &/*e*/) {
-            qWarning() << "Cannot add model " << rewriterView.rootModelNode().displayName();
-            return;
-        }
-    }
-
     // Merge the nodes in to the current document model
-    ModelPointer pasteModel = DesignDocumentView::pasteToModel(contextView->externalDependencies());
+    ModelPointer pasteModel = DesignDocumentView::pasteToModel(contextView->externalDependencies(),
+                                                               modulesStorage);
     QTC_ASSERT(pasteModel, return);
 
-    DesignDocumentView view{contextView->externalDependencies()};
+    DesignDocumentView view{contextView->externalDependencies(), modulesStorage};
     pasteModel->attachView(&view);
     QTC_ASSERT(view.rootModelNode().isValid(), return);
 
@@ -942,6 +943,45 @@ void extractComponent(const SelectionContext &selectionContext)
     contextView->model()->attachView(&view);
     ModelNode originalNode = rewriterView.rootModelNode();
     view.executeInTransaction("DesignerActionManager::extractComponent", [=, &view]() {
+        // Move component's materials/textures to the main material library
+        QList<ModelNode> componentNodes = originalNode.allSubModelNodesAndThisNode();
+        Utils::FilePath compDir = filePath.parentDir();
+
+        // Reset root node to its original properties
+        for (VariantProperty prop : originalProperties)
+            originalNode.variantProperty(prop.name()).setValue(prop.value());
+
+        for (ModelNode &node : componentNodes) {
+            // Correct node assets paths if needed
+            QString sourceValue = node.variantProperty("source").value().toString();
+            if (!sourceValue.isEmpty() && !sourceValue.startsWith("#")) {
+                Utils::FilePath assetPath = compDir.pathAppended(sourceValue); // full asset path
+                QString assetPathRelative = assetPath
+                                                .relativePathFromDir(DocumentManager::currentFilePath());
+                node.variantProperty("source").setValue(assetPathRelative);
+            }
+
+            // TODO: Move root node and its children to the main material library if root node is a material/texture
+            if (node.isRootNode())
+                continue;
+
+            if (node.metaInfo().isQtQuick3DMaterial() || node.metaInfo().isQtQuick3DTexture()) {
+                Utils3D::ensureMaterialLibraryNode(&view);
+                ModelNode mainMaterialLib = Utils3D::materialLibraryNode(&view);
+
+                // Create copy of the node, reparent under main mat library, and delete the original
+                ModelNode matOrTexture = view.insertModel(node);
+                mainMaterialLib.defaultNodeListProperty().reparentHere(matOrTexture);
+                node.destroy();
+            }
+        }
+
+        // Delete the extracted component's material library if present
+        ModelNode componentMaterialLibrary = originalNode.view()
+                                                 ->modelNodeForId(Constants::MATERIAL_LIB_ID);
+        if (componentMaterialLibrary.isValid())
+            componentMaterialLibrary.destroy();
+
         // Acquire the root of selected node
         const ModelNode rootOfSelection = selectedNode.parentProperty().parentModelNode();
         QTC_ASSERT(rootOfSelection.isValid(), return);
@@ -957,11 +997,14 @@ void extractComponent(const SelectionContext &selectionContext)
     });
 }
 
-void add3DAssetToContentLibrary(const SelectionContext &selectionContext)
+void addNodeToContentLibrary(const SelectionContext &selectionContext)
 {
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     ModelNode node = selectionContext.currentSingleSelectedNode();
-    selectionContext.view()->emitCustomNotification("add_3d_to_content_lib", {node});
+
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
+
+    QmlDesignerPlugin::viewManager().view()->emitCustomNotification("add_node_to_content_lib",
+                                                                    {node});
 }
 
 void goImplementation(const SelectionContext &selectionState)
@@ -998,7 +1041,7 @@ void editMaterial(const SelectionContext &selectionContext)
         if (view->hasId(prop.expression())) {
             material = view->modelNodeForId(prop.expression());
         } else {
-            QList<ModelNode> materials = prop.resolveToModelNodeList();
+            QList<ModelNode> materials = prop.resolveListToModelNodes();
 
             if (materials.size() > 0)
                 material = materials.first();
@@ -1029,18 +1072,17 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
         if (bindingTarget.isValid()) { // In this case the stacked container might be hooked up to a TabBar
             potentialTabBar = bindingTarget.parentModelNode();
 
-            if (!potentialTabBar.metaInfo().isQtQuickControlsTabBar())
+            if (!potentialTabBar.metaInfo().isQtQuickTemplatesTabBar())
                 potentialTabBar = ModelNode();
         }
     }
 
-    view->executeInTransaction("DesignerActionManager:addItemToStackedContainer", [=](){
+    view->executeInTransaction("DesignerActionManager:addItemToStackedContainer", [=]() {
 
-        NodeMetaInfo itemMetaInfo = view->model()->metaInfo("QtQuick.Item", -1, -1);
-        QTC_ASSERT(itemMetaInfo.isValid(), return);
 #ifdef QDS_USE_PROJECTSTORAGE
         QmlDesigner::ModelNode itemNode = view->createModelNode("Item");
 #else
+        NodeMetaInfo itemMetaInfo = selectionContext.view()->model()->metaInfo("QtQuick.Item", -1, -1);
         QmlDesigner::ModelNode itemNode =
                 view->createModelNode("QtQuick.Item", itemMetaInfo.majorVersion(), itemMetaInfo.minorVersion());
 #endif
@@ -1113,6 +1155,46 @@ static void setIndexProperty(const AbstractProperty &property, const QVariant &v
     Core::AsynchronousMessageBox::warning(title, description);
 }
 
+static std::optional<int> getIndexProperty(const AbstractProperty &property)
+{
+    if (property.isBindingProperty()) {
+        const AbstractProperty resolvedProperty = property.toBindingProperty().resolveToProperty();
+        if (resolvedProperty.isValid() && resolvedProperty.isVariantProperty()) {
+            const auto variantProperty = resolvedProperty.toVariantProperty();
+            if (!variantProperty.isValid())
+                return std::nullopt;
+
+            auto variant = variantProperty.value();
+            if (!variant.isValid())
+                return std::nullopt;
+
+            bool ok = false;
+            int value = variant.toInt(&ok);
+            if (!ok)
+                return std::nullopt;
+
+            return value;
+        }
+    } else {
+        QmlItemNode itemNode(property.parentModelNode());
+        if (!itemNode.isValid())
+            return std::nullopt;
+
+        QVariant modelValue(itemNode.modelValue(property.name()));
+        if (!modelValue.isValid())
+            return std::nullopt;
+
+        bool ok = false;
+        int value = modelValue.toInt(&ok);
+        if (!ok)
+            return std::nullopt;
+
+        return value;
+    }
+
+    return std::nullopt;
+}
+
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext)
 {
     AbstractView *view = selectionContext.view();
@@ -1125,17 +1207,16 @@ void increaseIndexOfStackedContainer(const SelectionContext &selectionContext)
     const PropertyName propertyName = getIndexPropertyName(container);
     QTC_ASSERT(container.metaInfo().hasProperty(propertyName), return);
 
-    QmlItemNode containerItemNode(container);
-    QTC_ASSERT(containerItemNode.isValid(), return);
+    std::optional<int> value = getIndexProperty(container.property(propertyName));
+    QTC_ASSERT(value, return);
 
-    int value = containerItemNode.instanceValue(propertyName).toInt();
-    ++value;
+    ++*value;
 
     const int maxValue = container.directSubModelNodes().size();
 
     QTC_ASSERT(value < maxValue, return);
 
-    setIndexProperty(container.property(propertyName), value);
+    setIndexProperty(container.property(propertyName), *value);
 }
 
 void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext)
@@ -1150,15 +1231,14 @@ void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext)
     const PropertyName propertyName = getIndexPropertyName(container);
     QTC_ASSERT(container.metaInfo().hasProperty(propertyName), return);
 
-    QmlItemNode containerItemNode(container);
-    QTC_ASSERT(containerItemNode.isValid(), return);
+    std::optional<int> value = getIndexProperty(container.property(propertyName));
+    QTC_ASSERT(value, return);
 
-    int value = containerItemNode.instanceValue(propertyName).toInt();
-    --value;
+    --*value;
 
     QTC_ASSERT(value > -1, return);
 
-    setIndexProperty(container.property(propertyName), value);
+    setIndexProperty(container.property(propertyName), *value);
 }
 
 void addTabBarToStackedContainer(const SelectionContext &selectionContext)
@@ -1322,105 +1402,6 @@ AddFilesResult addVideoToProject(const QStringList &fileNames, const QString &de
     return addFilesToProject(fileNames, getAssetDefaultDirectory("videos", defaultDir), showDialog);
 }
 
-void createFlowActionArea(const SelectionContext &selectionContext)
-{
-    AbstractView *view = selectionContext.view();
-
-    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
-    ModelNode container = selectionContext.currentSingleSelectedNode();
-    QTC_ASSERT(container.isValid(), return);
-    QTC_ASSERT(container.metaInfo().isValid(), return);
-
-    NodeMetaInfo actionAreaMetaInfo = view->model()->metaInfo("FlowView.FlowActionArea", -1, -1);
-    QTC_ASSERT(actionAreaMetaInfo.isValid(), return);
-
-    const QPointF pos = selectionContext.scenePosition().isNull() ? QPointF() : selectionContext.scenePosition() - QmlItemNode(container).flowPosition();
-
-    view->executeInTransaction("DesignerActionManager:createFlowActionArea", [&]() {
-#ifdef QDS_USE_PROJECTSTORAGE
-        ModelNode flowActionNode = view->createModelNode("FlowActionArea");
-#else
-            ModelNode flowActionNode = view->createModelNode("FlowView.FlowActionArea",
-                                                             actionAreaMetaInfo.majorVersion(),
-                                                             actionAreaMetaInfo.minorVersion());
-#endif
-        if (!pos.isNull()) {
-            flowActionNode.variantProperty("x").setValue(pos.x());
-            flowActionNode.variantProperty("y").setValue(pos.y());
-        }
-
-        container.defaultNodeListProperty().reparentHere(flowActionNode);
-        view->setSelectedModelNode(flowActionNode);
-    });
-}
-
-void addTransition(const SelectionContext &selectionContext)
-{
-    if (selectionContext.view()) {
-        AbstractView *view = selectionContext.view();
-        QmlFlowTargetNode targetNode = selectionContext.targetNode();
-        QmlFlowTargetNode sourceNode = selectionContext.currentSingleSelectedNode();
-
-        QTC_ASSERT(targetNode.isValid(), return);
-        QTC_ASSERT(sourceNode.isValid(), return);
-
-
-
-        view->executeInTransaction("DesignerActionManager:addTransition",
-                                   [targetNode, &sourceNode](){
-                                       sourceNode.assignTargetItem(targetNode);
-                                   });
-    }
-}
-
-void addFlowEffect(const SelectionContext &selectionContext, const TypeName &typeName)
-{
-   AbstractView *view = selectionContext.view();
-
-   QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
-   ModelNode container = selectionContext.currentSingleSelectedNode();
-   QTC_ASSERT(container.isValid(), return);
-   QTC_ASSERT(container.metaInfo().isValid(), return);
-   QTC_ASSERT(QmlItemNode::isFlowTransition(container), return);
-
-   NodeMetaInfo effectMetaInfo = view->model()->metaInfo("FlowView." + typeName, -1, -1);
-   QTC_ASSERT(typeName == "None" || effectMetaInfo.isValid(), return);
-
-   view->executeInTransaction("DesignerActionManager:addFlowEffect", [&]() {
-       if (container.hasProperty("effect"))
-           container.removeProperty("effect");
-
-       if (effectMetaInfo.isQtObject()) {
-#ifdef QDS_USE_PROJECTSTORAGE
-           ModelNode effectNode = view->createModelNode(typeName);
-#else
-           ModelNode effectNode = view->createModelNode(effectMetaInfo.typeName(),
-                                                        effectMetaInfo.majorVersion(),
-                                                        effectMetaInfo.minorVersion());
-#endif
-           container.nodeProperty("effect").reparentHere(effectNode);
-           view->setSelectedModelNode(effectNode);
-       }
-   });
-}
-
-void setFlowStartItem(const SelectionContext &selectionContext)
-{
-    AbstractView *view = selectionContext.view();
-
-    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
-    ModelNode node = selectionContext.currentSingleSelectedNode();
-    QTC_ASSERT(node.isValid(), return);
-    QTC_ASSERT(node.metaInfo().isValid(), return);
-    QmlFlowItemNode flowItem(node);
-    QTC_ASSERT(flowItem.isValid(), return);
-    QTC_ASSERT(flowItem.flowView().isValid(), return);
-    view->executeInTransaction("DesignerActionManager:setFlowStartItem",
-                               [&flowItem](){
-        flowItem.flowView().setStartFlowItem(flowItem);
-    });
-}
-
 static bool hasStudioComponentsImport(const SelectionContext &context)
 {
     if (context.view() && context.view()->model()) {
@@ -1509,107 +1490,10 @@ void addToGroupItem(const SelectionContext &selectionContext)
     }
 }
 
-void selectFlowEffect(const SelectionContext &selectionContext)
-{
-    if (!selectionContext.singleNodeIsSelected())
-        return;
-
-    ModelNode node = selectionContext.currentSingleSelectedNode();
-    QmlVisualNode transition(node);
-
-    QTC_ASSERT(transition.isValid(), return);
-    QTC_ASSERT(transition.isFlowTransition(), return);
-
-    if (node.hasNodeProperty("effect")) {
-        selectionContext.view()->setSelectedModelNode(node.nodeProperty("effect").modelNode());
-    }
-}
-
 static QString baseDirectory(const QUrl &url)
 {
     QString filePath = url.toLocalFile();
     return QFileInfo(filePath).absoluteDir().path();
-}
-
-static void getTypeAndImport(const SelectionContext &selectionContext,
-                             QString &type,
-                             QString &import)
-{
-    static QString s_lastBrowserPath;
-    QString path = s_lastBrowserPath;
-
-    if (path.isEmpty())
-        path = baseDirectory(selectionContext.view()->model()->fileUrl());
-
-    QString newFile = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
-                                                   ComponentCoreConstants::addCustomEffectDialogDisplayString,
-                                                   path,
-                                                   "*.qml");
-
-    if (!newFile.isEmpty()) {
-        QFileInfo file(newFile);
-
-        type = file.fileName();
-        type.remove(".qml");
-
-        s_lastBrowserPath = file.absolutePath();
-
-        import = QFileInfo(s_lastBrowserPath).baseName();
-    }
-}
-
-void addCustomFlowEffect(const SelectionContext &selectionContext)
-{
-    TypeName typeName;
-
-    QString typeString;
-    QString importString;
-
-    getTypeAndImport(selectionContext, typeString, importString);
-
-    typeName = typeString.toUtf8();
-
-    if (typeName.isEmpty())
-        return;
-
-    AbstractView *view = selectionContext.view();
-
-    view->executeInTransaction("DesignerActionManager:addFlowEffect", [view, importString]() {
-        const Import import = Import::createFileImport("FlowEffects");
-
-        if (!importString.isEmpty() && !view->model()->hasImport(import, true, true)) {
-            view->model()->changeImports({import}, {});
-        }
-    });
-
-    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
-    ModelNode container = selectionContext.currentSingleSelectedNode();
-    QTC_ASSERT(container.isValid(), return);
-    QTC_ASSERT(container.metaInfo().isValid(), return);
-    QTC_ASSERT(QmlItemNode::isFlowTransition(container), return);
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    NodeMetaInfo effectMetaInfo = view->model()->metaInfo(typeName, -1, -1);
-    QTC_ASSERT(typeName == "None" || effectMetaInfo.isValid(), return);
-#endif
-    view->executeInTransaction("DesignerActionManager:addFlowEffect", [&]() {
-        if (container.hasProperty("effect"))
-            container.removeProperty("effect");
-
-#ifdef QDS_USE_PROJECTSTORAGE
-        ModelNode effectNode = view->createModelNode(typeName);
-        container.nodeProperty("effect").reparentHere(effectNode);
-        view->setSelectedModelNode(effectNode);
-#else
-        if (effectMetaInfo.isValid()) {
-            ModelNode effectNode = view->createModelNode(effectMetaInfo.typeName(),
-                                                         effectMetaInfo.majorVersion(),
-                                                         effectMetaInfo.minorVersion());
-            container.nodeProperty("effect").reparentHere(effectNode);
-            view->setSelectedModelNode(effectNode);
-        }
-#endif
-    });
 }
 
 static QString fromCamelCase(const QString &s)
@@ -1708,7 +1592,9 @@ QString getTemplateDialog(const FilePath &projectPath)
     return result;
 }
 
-void mergeWithTemplate(const SelectionContext &selectionContext, ExternalDependenciesInterface &externalDependencies)
+void mergeWithTemplate(const SelectionContext &selectionContext,
+                       ExternalDependenciesInterface &externalDependencies,
+                       ModulesStorage &modulesStorage)
 {
     const FilePath projectPath = FilePath::fromString(
         baseDirectory(selectionContext.view()->model()->fileUrl()));
@@ -1718,6 +1604,7 @@ void mergeWithTemplate(const SelectionContext &selectionContext, ExternalDepende
     if (QFileInfo::exists(templateFile)) {
         StylesheetMerger::styleMerge(FilePath::fromString(templateFile),
                                      selectionContext.view()->model(),
+                                     modulesStorage,
                                      externalDependencies);
     }
 }
@@ -2114,8 +2001,7 @@ bool dropAsImage3dTexture(const ModelNode &targetNode,
         // if dropping an image on a material, create a texture instead of image
         // Show texture property selection dialog
         auto dialog = ChooseFromPropertyListDialog::createIfNeeded(targetNode,
-                                                                   view->model()->metaInfo(
-                                                                       "QtQuick3D.Texture"),
+                                                                   view->model()->metaInfo("Texture"),
                                                                    Core::ICore::dialogParent());
         if (!dialog)
             return false;
@@ -2279,15 +2165,35 @@ ModelNode handleItemLibraryImageDrop(const QString &imagePath,
     QTC_ASSERT(view, return {});
 
     ModelNode newModelNode;
+    Utils::FilePath origImagePath = Utils::FilePath::fromString(imagePath);
+    Utils::FilePath newImagePath;
 
-    if (!dropAsImage3dTexture(targetNode, imagePath, newModelNode, outMoveNodesAfter)) {
-        if (targetNode.metaInfo().isQtQuickImage() || targetNode.metaInfo().isQtQuickBorderImage()) {
-            // if dropping an image on an existing image, set the source
-            targetNode.variantProperty("source").setValue(relativePathToQmlFile(imagePath));
+    if (!origImagePath.isChildOf(DocumentManager::currentResourcePath())) {
+        AddFilesResult result = addImageToProject(
+            {imagePath}, getImagesDefaultDirectory().toUrlishString(), false);
+
+        if (result.status() == AddFilesResult::Failed) {
+            Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Image"),
+                                                  Tr::tr("Could not add %1 to project.").arg(imagePath));
+            return {};
+        }
+
+        newImagePath = getImagesDefaultDirectory().pathAppended(origImagePath.fileName());
+    } else {
+        newImagePath = Utils::FilePath::fromString(origImagePath.relativePathFromDir(DocumentManager::currentResourcePath()));
+    }
+
+    if (!dropAsImage3dTexture(targetNode, newImagePath.toUrlishString(), newModelNode, outMoveNodesAfter)) {
+        if (targetNode.metaInfo().isBasedOn(targetNode.model()->qtQuickImageMetaInfo(),
+                                            targetNode.model()->qtQuickBorderImageMetaInfo())) {
+
+            QString relImagePath = relativePathToQmlFile(newImagePath.toFSPathString());
+
+            targetNode.variantProperty("source").setValue(relImagePath);
         } else {
             // create an image
             QmlItemNode newItemNode = QmlItemNode::createQmlItemNodeFromImage(view,
-                                                                              imagePath,
+                                                                              newImagePath.toUrlishString(),
                                                                               QPointF(),
                                                                               targetProperty,
                                                                               false);

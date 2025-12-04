@@ -1,0 +1,138 @@
+{
+    "deployment": {
+        "enableCMakeGeneration": false,
+        "targetDirectory": "/opt/fileSelectors"
+    },
+    "environment": {
+        "QT_AUTO_SCREEN_SCALE_FACTOR": "1",
+        "QT_QUICK_CONTROLS_CONF": "qtquickcontrols2.conf"
+    },
+    "fileGroups": [
+        {
+            "directory": ".",
+            "files": [
+            ],
+            "filters": [
+                "*.qml"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Qml"
+        },
+        {
+            "directory": ".",
+            "files": [
+            ],
+            "filters": [
+                "*.js",
+                "*.ts"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "JavaScript"
+        },
+        {
+            "directory": ".",
+            "files": [
+            ],
+            "filters": [
+                "*.bmp",
+                "*.dae",
+                "*.gif",
+                "*.hdr",
+                "*.ico",
+                "*.jpeg",
+                "*.jpg",
+                "*.ktx",
+                "*.pbm",
+                "*.pgm",
+                "*.png",
+                "*.ppm",
+                "*.svg",
+                "*.svgz",
+                "*.tif",
+                "*.tiff",
+                "*.webp",
+                "*.xbm",
+                "*.xpm",
+                "*.tga"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Image"
+        },
+        {
+            "directory": "",
+            "files": [
+                "qtquickcontrols2.conf"
+            ],
+            "filters": [
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
+        },
+        {
+            "directory": "",
+            "files": [
+            ],
+            "filters": [
+                "*.conf"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
+        },
+        {
+            "directory": ".",
+            "files": [
+            ],
+            "filters": [
+                "qmldir"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
+        }
+    ],
+    "fileVersion": 1,
+    "importPaths": [
+        "imports"
+    ],
+    "language": {
+    },
+    "mcu": {
+        "config": {
+        },
+        "enabled": false,
+        "module": {
+        }
+    },
+    "otherProperties": {
+    },
+    "qmlprojectDependencies": [
+    ],
+    "runConfig": {
+        "fileSelectors": [
+            "WXGA",
+            "darkTheme",
+            "ShowIndicator"
+        ],
+        "mainFile": "fileSelectors.qml"
+    },
+    "versions": {
+        "qt": "5"
+    }
+}

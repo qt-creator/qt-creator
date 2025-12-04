@@ -50,8 +50,12 @@ static QList<ModelNode> internalNodesToModelNodes(const auto &inputList, Model *
     return modelNodeList;
 }
 
-QList<ModelNode> NodeListProperty::toModelNodeList() const
+QList<ModelNode> NodeListProperty::toModelNodeList(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"node list property to model node list",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -61,8 +65,12 @@ QList<ModelNode> NodeListProperty::toModelNodeList() const
     return {};
 }
 
-void NodeListProperty::slide(int from, int to) const
+void NodeListProperty::slide(int from, int to, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"node list property slide",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     Internal::WriteLocker locker(model());
     if (!isValid())
         return;
@@ -74,8 +82,12 @@ void NodeListProperty::slide(int from, int to) const
     privateModel()->changeNodeOrder(internalNodeSharedPointer(), name(), from, to);
 }
 
-void NodeListProperty::swap(int from, int to) const
+void NodeListProperty::swap(int from, int to, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"node list property swap",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (from == to)
         return;
 
@@ -92,13 +104,21 @@ void NodeListProperty::swap(int from, int to) const
     slide(a + 1, b);
 }
 
-void NodeListProperty::reparentHere(const ModelNode &modelNode)
+void NodeListProperty::reparentHere(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"node list property reparent here",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     NodeAbstractProperty::reparentHere(modelNode, true);
 }
 
-ModelNode NodeListProperty::at(int index) const
+ModelNode NodeListProperty::at(int index, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"node list property at",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -108,8 +128,14 @@ ModelNode NodeListProperty::at(int index) const
     return ModelNode();
 }
 
-void NodeListProperty::iterSwap(NodeListProperty::iterator &first, NodeListProperty::iterator &second)
+void NodeListProperty::iterSwap(NodeListProperty::iterator &first,
+                                NodeListProperty::iterator &second,
+                                SL sl)
 {
+    NanotraceHR::Tracer tracer{"node list property iter swap",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -122,8 +148,13 @@ void NodeListProperty::iterSwap(NodeListProperty::iterator &first, NodeListPrope
 
 NodeListProperty::iterator NodeListProperty::rotate(NodeListProperty::iterator first,
                                                     NodeListProperty::iterator newFirst,
-                                                    NodeListProperty::iterator last)
+                                                    NodeListProperty::iterator last,
+                                                    SL sl)
 {
+    NanotraceHR::Tracer tracer{"node list property rotate",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -141,8 +172,12 @@ NodeListProperty::iterator NodeListProperty::rotate(NodeListProperty::iterator f
     return {iter - begin, internalNodeListProperty().get(), model(), view()};
 }
 
-void NodeListProperty::reverse(NodeListProperty::iterator first, NodeListProperty::iterator last)
+void NodeListProperty::reverse(NodeListProperty::iterator first, NodeListProperty::iterator last, SL sl)
 {
+    NanotraceHR::Tracer tracer{"node list property reverse",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -156,8 +191,12 @@ void NodeListProperty::reverse(NodeListProperty::iterator first, NodeListPropert
     privateModel()->notifyNodeOrderChanged(m_internalNodeListProperty.get());
 }
 
-void NodeListProperty::reverseModelNodes(const QList<ModelNode> &nodes)
+void NodeListProperty::reverseModelNodes(const QList<ModelNode> &nodes, SL sl)
 {
+    NanotraceHR::Tracer tracer{"node list property reverse model nodes",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     ModelNode firstNode = nodes.first();
     if (!firstNode.isValid())
         return;

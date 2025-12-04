@@ -7,13 +7,18 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 AbstractCustomTool::AbstractCustomTool()
     : AbstractFormEditorTool(nullptr)
 {
+    NanotraceHR::Tracer tracer{"abstract custom tool constructor", category()};
 }
 
 void AbstractCustomTool::selectedItemsChanged(const QList<FormEditorItem *> & /*itemList*/)
 {
+    NanotraceHR::Tracer tracer{"abstract custom tool selected items changed", category()};
+
     view()->changeToSelectionTool();
 }
 

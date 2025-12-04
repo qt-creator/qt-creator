@@ -7,6 +7,7 @@
 
 #include <QQmlFileSelector>
 
+#include <QLibraryInfo>
 #include <QQuickItem>
 #include <QQuickView>
 #include <QQuickWindow>
@@ -559,6 +560,13 @@ QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
         // To get only the single item, we need to make a layer out of it, which enables
         // us to render it to a texture that we can grab to an image.
         QSGRenderContext *rc = QQuickWindowPrivate::get(m_viewData.window.data())->context;
+        if (!rc) {
+            qFatal(
+                "no render context (is the qmlpuppet using the correct Qt?) | "
+                "Qt prefix: %s | Qt version: %s",
+                qPrintable(QLibraryInfo::path(QLibraryInfo::PrefixPath)),
+                qVersion());
+        }
         QSGLayer *layer = rc->sceneGraphContext()->createLayer(rc);
         if (smoothRendering)
             layer->setSamples(4);

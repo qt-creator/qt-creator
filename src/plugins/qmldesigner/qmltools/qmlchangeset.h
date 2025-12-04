@@ -11,29 +11,41 @@ namespace QmlDesigner {
 class QMLDESIGNER_EXPORT QmlModelStateOperation : public QmlModelNodeFacade
 {
 public:
-    QmlModelStateOperation() : QmlModelNodeFacade() {}
-    QmlModelStateOperation(const ModelNode &modelNode) : QmlModelNodeFacade(modelNode) {}
-    ModelNode target() const;
-    void setTarget(const ModelNode &target);
-    bool explicitValue() const;
-    void setExplicitValue(bool value);
-    bool restoreEntryValues() const;
-    void setRestoreEntryValues(bool value);
-    QList<AbstractProperty> targetProperties() const;
-    bool isValid() const;
+    QmlModelStateOperation() : QmlModelNodeFacade()
+    {}
+
+    QmlModelStateOperation(const ModelNode &modelNode)
+        : QmlModelNodeFacade(modelNode)
+    {}
+
+    ModelNode target(SL sl = {}) const;
+    void setTarget(const ModelNode &target, SL sl = {});
+    bool explicitValue(SL sl = {}) const;
+    void setExplicitValue(bool value, SL sl = {});
+    bool restoreEntryValues(SL sl = {}) const;
+    void setRestoreEntryValues(bool value, SL sl = {});
+    QList<AbstractProperty> targetProperties(SL sl = {}) const;
+    bool isValid(SL sl = {}) const;
     explicit operator bool() const { return isValid(); }
-    static bool isValidQmlModelStateOperation(const ModelNode &modelNode);
+
+    static bool isValidQmlModelStateOperation(const ModelNode &modelNode, SL sl = {});
 };
 
 class QMLDESIGNER_EXPORT QmlPropertyChanges : public QmlModelStateOperation
 {
 public:
-    QmlPropertyChanges() : QmlModelStateOperation() {}
-    QmlPropertyChanges(const ModelNode &modelNode) : QmlModelStateOperation(modelNode) {}
-    bool isValid() const;
+    QmlPropertyChanges() : QmlModelStateOperation()
+    {}
+
+    QmlPropertyChanges(const ModelNode &modelNode)
+        : QmlModelStateOperation(modelNode)
+    {}
+
+    bool isValid(SL sl = {}) const;
     explicit operator bool() const { return isValid(); }
-    static bool isValidQmlPropertyChanges(const ModelNode &modelNode);
-    void removeProperty(PropertyNameView name);
+
+    static bool isValidQmlPropertyChanges(const ModelNode &modelNode, SL sl = {});
+    void removeProperty(PropertyNameView name, SL sl = {});
 };
 
 } //QmlDesigner

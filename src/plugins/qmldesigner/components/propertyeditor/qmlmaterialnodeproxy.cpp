@@ -3,6 +3,8 @@
 
 #include "qmlmaterialnodeproxy.h"
 
+#include "propertyeditortracing.h"
+
 #include <auxiliarydataproperties.h>
 #include <designmodewidget.h>
 #include <nodeinstanceview.h>
@@ -10,9 +12,13 @@
 #include <qmldesignerplugin.h>
 #include <utils3d.h>
 
+#include <qmldesignerutils/stringutils.h>
+
 #include <QQmlEngine>
 
 namespace QmlDesigner {
+
+using QmlDesigner::PropertyEditorTracing::category;
 
 using namespace Qt::StringLiterals;
 
@@ -33,6 +39,8 @@ QmlMaterialNodeProxy::QmlMaterialNodeProxy()
     : QObject()
     , m_previewUpdateTimer(this)
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy constructor", category()};
+
     m_previewUpdateTimer.setInterval(200);
     m_previewUpdateTimer.setSingleShot(true);
     m_previewUpdateTimer.callOnTimeout(
@@ -43,6 +51,8 @@ QmlMaterialNodeProxy::~QmlMaterialNodeProxy() = default;
 
 void QmlMaterialNodeProxy::setup(const ModelNodes &editorNodes)
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy setup", category()};
+
     QmlObjectNode objectNode = editorNodes.isEmpty() ? ModelNode{} : editorNodes.first();
     const QmlObjectNode material = objectNode.metaInfo().isQtQuick3DMaterial() ? objectNode
                                                                                : QmlObjectNode{};
@@ -54,16 +64,22 @@ void QmlMaterialNodeProxy::setup(const ModelNodes &editorNodes)
 
 ModelNode QmlMaterialNodeProxy::materialNode() const
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy material node", category()};
+
     return m_materialNode;
 }
 
 ModelNodes QmlMaterialNodeProxy::editorNodes() const
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy editor nodes", category()};
+
     return m_editorNodes;
 }
 
 void QmlMaterialNodeProxy::setPossibleTypes(const QStringList &types)
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy set possible types", category()};
+
     if (types == m_possibleTypes)
         return;
 
@@ -75,6 +91,8 @@ void QmlMaterialNodeProxy::setPossibleTypes(const QStringList &types)
 
 void QmlMaterialNodeProxy::updatePossibleTypes()
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy update possible types", category()};
+
     static const QStringList basicTypes{
         "CustomMaterial",
         "DefaultMaterial",
@@ -107,12 +125,16 @@ void QmlMaterialNodeProxy::updatePossibleTypes()
 
 void QmlMaterialNodeProxy::setCurrentType(const QString &type)
 {
-    m_currentType = type.split('.').last();
+    NanotraceHR::Tracer tracer{"qml material node proxy set current type", category()};
+
+    m_currentType = StringUtils::split_last(type).second.toString();
     updatePossibleTypeIndex();
 }
 
 void QmlMaterialNodeProxy::toolBarAction(int action)
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy tool bar action", category()};
+
     QTC_ASSERT(hasQuick3DImport(), return);
 
     switch (ToolBarAction(action)) {
@@ -151,6 +173,8 @@ void QmlMaterialNodeProxy::toolBarAction(int action)
 
 void QmlMaterialNodeProxy::setPreviewEnv(const QString &envAndValue)
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy set preview env", category()};
+
     if (envAndValue.isEmpty())
         return;
 
@@ -188,6 +212,8 @@ void QmlMaterialNodeProxy::setPreviewEnv(const QString &envAndValue)
 
 void QmlMaterialNodeProxy::setPreviewModel(const QString &modelStr)
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy set preview model", category()};
+
     if (modelStr.isEmpty())
         return;
 
@@ -212,6 +238,9 @@ void QmlMaterialNodeProxy::setPreviewModel(const QString &modelStr)
 
 void QmlMaterialNodeProxy::handleAuxiliaryPropertyChanges()
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy handle auxiliary property changes",
+                               category()};
+
     if (!hasQuick3DImport())
         return;
 
@@ -220,11 +249,15 @@ void QmlMaterialNodeProxy::handleAuxiliaryPropertyChanges()
 
 void QmlMaterialNodeProxy::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy register declarative type", category()};
+
     qmlRegisterType<QmlMaterialNodeProxy>("HelperWidgets", 2, 0, "QmlMaterialNodeProxy");
 }
 
 void QmlMaterialNodeProxy::updatePossibleTypeIndex()
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy update possible type index", category()};
+
     int newIndex = -1;
     if (!m_currentType.isEmpty())
         newIndex = m_possibleTypes.indexOf(m_currentType);
@@ -239,6 +272,8 @@ void QmlMaterialNodeProxy::updatePossibleTypeIndex()
 
 void QmlMaterialNodeProxy::updatePreviewModel()
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy update preview model", category()};
+
     if (!hasQuick3DImport())
         return;
 
@@ -275,6 +310,8 @@ void QmlMaterialNodeProxy::updatePreviewModel()
 
 void QmlMaterialNodeProxy::setMaterialNode(const QmlObjectNode &material)
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy set material node", category()};
+
     if (material == m_materialNode)
         return;
 
@@ -284,16 +321,22 @@ void QmlMaterialNodeProxy::setMaterialNode(const QmlObjectNode &material)
 
 void QmlMaterialNodeProxy::setEditorNodes(const ModelNodes &editorNodes)
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy set editor nodes", category()};
+
     m_editorNodes = editorNodes;
 }
 
 bool QmlMaterialNodeProxy::hasQuick3DImport() const
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy has quick3d import", category()};
+
     return materialNode().isValid() && materialNode().model()->hasImport("QtQuick3D"_L1);
 }
 
 AbstractView *QmlMaterialNodeProxy::materialView() const
 {
+    NanotraceHR::Tracer tracer{"qml material node proxy material view", category()};
+
     return materialNode().view();
 }
 

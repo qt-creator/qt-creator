@@ -120,7 +120,7 @@
 
     Running the QML language test generates a report in JSON format. This
     report is generated in the project root folder with the name
-    \e {translation_report_<ui-file-name>.json}.
+    \c {translation_report_<ui-file-name>.json}.
 
     Example of QML language test report:
 
@@ -147,11 +147,11 @@
     \endcode
 
     The report shows the type of error as well as line and column of the
-    affected text element in the \e{ui.qml} file.
+    affected text element in the \c{ui.qml} file.
 
     \section1 Running a translation test for several documents
 
-    You can run the project translation test on several \e{.ui.qml} files
+    You can run the project translation test on several \c{.ui.qml} files
     at the same time. \QDS runs the same tests as during the
     \l{Running a translation test for a single document}{Translation Test} and
     generates the same test reports but does not highlight errors in the UI.

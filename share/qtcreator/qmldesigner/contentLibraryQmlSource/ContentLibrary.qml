@@ -20,7 +20,6 @@ Item {
     enum TabIndex {
         MaterialsTab,
         TexturesTab,
-        EnvironmentsTab,
         EffectsTab,
         UserAssetsTab
     }
@@ -29,7 +28,6 @@ Item {
     function closeContextMenu() {
         materialsView.closeContextMenu()
         texturesView.closeContextMenu()
-        environmentsView.closeContextMenu()
         effectsView.closeContextMenu()
         userView.closeContextMenu()
         HelperWidgets.Controller.closeContextMenu()
@@ -61,7 +59,6 @@ Item {
 
         let maxItems = Math.max(materialsView.count,
                                 texturesView.count,
-                                environmentsView.count,
                                 effectsView.count)
 
         if (numColumns > maxItems)
@@ -111,7 +108,6 @@ Item {
                                     && ContentLibraryBackend.rootView.hasMaterialLibrary
                                     && ContentLibraryBackend.materialsModel.bundleExists
                             case ContentLibrary.TabIndex.TexturesTab:
-                            case ContentLibrary.TabIndex.EnvironmentsTab:
                                 return ContentLibraryBackend.texturesModel.bundleExists
                             case ContentLibrary.TabIndex.EffectsTab:
                                 return ContentLibraryBackend.effectsModel.hasRequiredQuick3DImport
@@ -129,7 +125,6 @@ Item {
                         // make sure categories with matches are expanded
                         materialsView.expandVisibleSections()
                         texturesView.expandVisibleSections()
-                        environmentsView.expandVisibleSections()
                         effectsView.expandVisibleSections()
                     }
                 }
@@ -142,7 +137,6 @@ Item {
                     tabsModel: [
                         { name: qsTr("Materials"),    icon: StudioTheme.Constants.material_medium },
                         { name: qsTr("Textures"),     icon: StudioTheme.Constants.textures_medium },
-                        { name: qsTr("Environments"), icon: StudioTheme.Constants.environment_medium },
                         { name: qsTr("Effects"),      icon: StudioTheme.Constants.effects_medium },
                         { name: qsTr("User Assets"),  icon: StudioTheme.Constants.userAssets_medium }
                     ]
@@ -202,25 +196,6 @@ Item {
 
                 model: ContentLibraryBackend.texturesModel
                 sectionCategory: "ContentLib_Tex"
-
-                searchBox: searchBox
-
-                onCountChanged: root.responsiveResize(stackLayout.width, stackLayout.height)
-            }
-
-            ContentLibraryTexturesView {
-                id: environmentsView
-
-                adsFocus: root.adsFocus
-                width: root.width
-
-                cellWidth: root.thumbnailSize
-                cellHeight: root.thumbnailSize
-                numColumns: root.numColumns
-                hideHorizontalScrollBar: true
-
-                model: ContentLibraryBackend.environmentsModel
-                sectionCategory: "ContentLib_Env"
 
                 searchBox: searchBox
 

@@ -53,6 +53,8 @@ public:
     void setQmlProjectModules(const QStringList &paths);
     void addQmlProjectModule(const QString &modulePath);
 
+    void addFileFilter(const Utils::FilePath &path);
+
     QStringList fileSelectors() const;
     void setFileSelectors(const QStringList &selectors);
     void addFileSelector(const QString &selector);

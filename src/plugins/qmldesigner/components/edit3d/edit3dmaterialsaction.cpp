@@ -48,7 +48,7 @@ static QList<ModelNode> getMaterials(const ModelNode &node)
     if (model->hasId(matsProp.expression()))
         materials.append(model->modelNodeForId(matsProp.expression()));
     else
-        materials = matsProp.resolveToModelNodeList();
+        materials = matsProp.resolveListToModelNodes();
 
     return materials;
 }

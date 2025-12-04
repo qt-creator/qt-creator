@@ -44,6 +44,7 @@ constexpr bool useProjectStorage()
 class SourcePathStorage;
 class ProjectStorageTriggerUpdateInterface;
 using PathCache = SourcePathCache<SourcePathStorage, std::shared_mutex>;
+class ModulesStorage;
 
 #ifdef QDS_MODEL_USE_PROJECTSTORAGEINTERFACE
 using ProjectStorageType = ProjectStorageInterface;
@@ -57,6 +58,7 @@ struct ProjectStorageDependencies
 {
     ProjectStorageType &storage;
     PathCacheType &cache;
+    ModulesStorage &modulesStorage;
     ProjectStorageTriggerUpdateInterface &triggerUpdate;
 };
 

@@ -57,6 +57,7 @@ public:
 
 public:
     RewriterView(ExternalDependenciesInterface &externalDependencies,
+                 ModulesStorage &modulesStorage,
                  DifferenceHandling differenceHandling = RewriterView::Amend,
                  InstantQmlTextUpdate instantQmlTextUpdate = InstantQmlTextUpdate::No);
     ~RewriterView() override;
@@ -129,7 +130,7 @@ public:
     const QmlJS::ScopeChain *scopeChain() const;
 #endif
 
-    QString convertTypeToImportAlias(const QString &type) const;
+    QString convertTypeToImportAlias(QStringView type) const;
 
     bool checkSemanticErrors() const { return m_checkSemanticErrors; }
 
@@ -143,7 +144,7 @@ public:
 
     QSet<QPair<QString, QString> > qrcMapping() const;
 
-    void moveToComponent(const ModelNode &modelNode);
+    QString moveToComponent(const ModelNode &modelNode);
 
     QStringList autoComplete(const QString &text, int pos, bool explicitComplete = true);
 
@@ -181,6 +182,8 @@ public:
 
     void setRemoveImports(bool removeImports);
 
+    void convertPosition(int pos, int *line, int *column) const;
+
 signals:
     void modelInterfaceProjectUpdated();
 
@@ -207,6 +210,7 @@ private: //variables
     bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
 
     QPointer<TextModifier> m_textModifier;
+    ModulesStorage &m_modulesStorage;
     int transactionLevel = 0;
     bool m_modificationGroupActive = false;
     bool m_checkSemanticErrors = true;

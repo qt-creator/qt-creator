@@ -53,6 +53,11 @@ signals:
     void directoryChanged(const Utils::FilePath &path);
 
 private:
+    void init();
+    void slotFileChanged(const QString &path);
+    void slotDirectoryChanged(const QString &path);
+    void handleDirChanged(const QString &path);
+
     class FileSystemWatcherPrivate *d;
 };
 

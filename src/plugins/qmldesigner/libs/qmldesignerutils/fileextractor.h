@@ -61,6 +61,8 @@ public:
     Q_INVOKABLE void browse();
     Q_INVOKABLE void extract();
 
+    Q_INVOKABLE void probeTargetPath();
+
 signals:
     void targetPathChanged();
     void detailedTextChanged();

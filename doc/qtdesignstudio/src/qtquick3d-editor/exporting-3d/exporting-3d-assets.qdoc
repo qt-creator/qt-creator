@@ -10,8 +10,8 @@
     \title Exporting 3D assets
 
     You can import files you created using 3D graphics applications and exported
-    to several widely-used formats, such as .blend, .dae, .fbx, .glb, .gltf,
-    .obj, .uia, or .uip. For a list of formats supported by each \l{Qt Quick 3D}
+    to several widely-used formats, such as \c{.blend}, \c{.dae}, \c{.fbx}, \c{.glb}, \c{.gltf},
+    \c{.obj}, \c{.uia}, or \c{.uip}. For a list of formats supported by each \l{Qt Quick 3D}
     version, see the module documentation.
 
     Depending on the 3D graphics tool, you might need to install export plugins

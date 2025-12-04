@@ -41,15 +41,15 @@
         \QDS creates the following files and folders:
 
     \list
-        \li .qmlproject project file defines that all component and image files
+        \li \c{.qmlproject} project file defines that all component and image files
             in the project folder belong to the project. All files are added
             automatically to their respective Files node based on their
             type.
             \note \QMCU does not recommend using the directory property to
             individually list the files in the project.
-        \li .qml files define the functionality and appearance of application
+        \li \c {.qml} files define the functionality and appearance of application
             components.
-        \li \e Screen01.ui.qml defines a custom component that you can edit in
+        \li \c Screen01.ui.qml defines a custom component that you can edit in
             the \l {2D} view. For more information, see \l {UI files}.
 
             While the custom component is a good starting point for new users,
@@ -58,19 +58,19 @@
             else. For more information, see \l {Exporting from Design Tools}.
 
             \note For MCU projects you can only import 2D assets.
-        \li \e CMakeLists.txt project configuration file allowing you to
+        \li \c CMakeLists.txt project configuration file allowing you to
             share your project as a fully working C++ application with
             developers.
-        \li qtquickcontrols2.conf file specifies the preferred style and some
+        \li \c {qtquickcontrols2.conf} file specifies the preferred style and some
             style-specific arguments.
-        \li \e fonts folder contains font files that you have added in
+        \li \c fonts folder contains font files that you have added in
             \uicontrol Assets.
-        \li \e imports folder contains a \e {Constants.qml} file that specifies
+        \li \c imports folder contains a \c {Constants.qml} file that specifies
             a font loader for the Arial font and the screen resolution. The size
-            of the default Screen.ui.qml \l{basic-rectangle}{Rectangle} should
+            of the default \c {Screen.ui.qml} \l{basic-rectangle}{Rectangle} should
             be set as \c {width: Constants.width} & \c {height: Constants.height}
             so that it inherits the global resolution saved here.
-        \li \e MCUDefaultStyle folder contains the default UI images and
+        \li \c MCUDefaultStyle folder contains the default UI images and
             components available for the MCU project.
     \endlist
 

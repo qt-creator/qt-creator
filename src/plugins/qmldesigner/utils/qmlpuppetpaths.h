@@ -11,10 +11,8 @@ namespace ProjectExplorer {
 class Kit;
 }
 namespace QmlDesigner {
-class DesignerSettings;
 
 namespace QmlPuppetPaths {
-QMLDESIGNER_EXPORT std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(
-    ProjectExplorer::Kit *kit, const DesignerSettings &settings);
+QMLDESIGNER_EXPORT std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(ProjectExplorer::Kit *kit);
 }
 } // namespace QmlDesigner

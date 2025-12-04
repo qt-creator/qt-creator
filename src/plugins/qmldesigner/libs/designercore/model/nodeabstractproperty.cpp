@@ -25,8 +25,12 @@ NodeAbstractProperty::NodeAbstractProperty(const Internal::InternalNodeAbstractP
     : AbstractProperty(property, model, view)
 {}
 
-void NodeAbstractProperty::reparentHere(const ModelNode &modelNode)
+void NodeAbstractProperty::reparentHere(const ModelNode &modelNode, SL sl)
 {
+    NanotraceHR::Tracer tracer{"node abstract property reparent here",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid() || !modelNode.isValid())
         return;
 
@@ -84,8 +88,12 @@ void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNode
     }
 }
 
-bool NodeAbstractProperty::isEmpty() const
+bool NodeAbstractProperty::isEmpty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"node abstract property is empty",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (isValid()) {
         Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(
             name());
@@ -98,8 +106,12 @@ bool NodeAbstractProperty::isEmpty() const
     return true;
 }
 
-int NodeAbstractProperty::indexOf(const ModelNode &node) const
+int NodeAbstractProperty::indexOf(const ModelNode &node, SL sl) const
 {
+    NanotraceHR::Tracer tracer{"node abstract property index of",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (isValid()) {
         Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(
             name());
@@ -112,8 +124,12 @@ int NodeAbstractProperty::indexOf(const ModelNode &node) const
     return -1;
 }
 
-NodeAbstractProperty NodeAbstractProperty::parentProperty() const
+NodeAbstractProperty NodeAbstractProperty::parentProperty(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"node abstract property parent property",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -123,8 +139,12 @@ NodeAbstractProperty NodeAbstractProperty::parentProperty() const
     return NodeAbstractProperty(internalNode()->parentProperty()->name(), internalNode()->parentProperty()->propertyOwner(), model(), view());
 }
 
-int NodeAbstractProperty::count() const
+int NodeAbstractProperty::count(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"node abstract property count",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
     if (!property)
         return 0;
@@ -132,8 +152,12 @@ int NodeAbstractProperty::count() const
         return property->count();
 }
 
-QList<ModelNode> NodeAbstractProperty::allSubNodes()
+QList<ModelNode> NodeAbstractProperty::allSubNodes(SL sl)
 {
+    NanotraceHR::Tracer tracer{"node abstract property all sub nodes",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!internalNode() || !internalNode()->isValid)
         return {};
 
@@ -162,8 +186,12 @@ QList<ModelNode> NodeAbstractProperty::allSubNodes()
     return {};
 }
 
-QList<ModelNode> NodeAbstractProperty::directSubNodes() const
+QList<ModelNode> NodeAbstractProperty::directSubNodes(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"node abstract property direct sub nodes",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!internalNode() || !internalNode()->isValid)
         return {};
 

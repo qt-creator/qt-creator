@@ -31,7 +31,9 @@ class TextToModelMerger
     TextToModelMerger &operator=(const TextToModelMerger&);
 
 public:
-    static QmlJS::Document::MutablePtr createParsedDocument(const QUrl &url, const QString &data, QList<DocumentMessage> *errors);
+    static QmlJS::Document::MutablePtr createParsedDocument(const QUrl &url,
+                                                            const QString &data,
+                                                            QList<DocumentMessage> *errors);
 
     TextToModelMerger(RewriterView *reWriterView);
     bool isActive() const;
@@ -132,8 +134,8 @@ private:
     void clearImplicitComponent(const ModelNode &node);
     void collectLinkErrors(QList<DocumentMessage> *errors, const ReadingContext &ctxt);
     void collectImportErrors(QList<DocumentMessage> *errors);
-    void collectSemanticErrorsAndWarnings(QList<DocumentMessage> *errors,
-                                          QList<DocumentMessage> *warnings);
+    void collectSemanticErrorsAndWarningsAst(QList<DocumentMessage> *errors,
+                                             QList<DocumentMessage> *warnings);
     void populateQrcMapping(const QString &filePath);
     void addIsoIconQrcMapping(const QUrl &fileUrl);
 

@@ -26,9 +26,10 @@
 #include "dynamicpropertiesproxymodel.h"
 
 #include "bindingproperty.h"
+#include "propertyeditortracing.h"
 #include "propertyeditorvalue.h"
-#include <scripteditorutils.h>
 
+#include <scripteditorutils.h>
 #include <dynamicpropertiesmodel.h>
 
 #include <abstractproperty.h>
@@ -45,6 +46,8 @@
 
 namespace QmlDesigner {
 
+using PropertyEditorTracing::category;
+
 static const int propertyNameRole = Qt::UserRole + 1;
 static const int propertyTypeRole = Qt::UserRole + 2;
 static const int propertyValueRole = Qt::UserRole + 3;
@@ -53,10 +56,13 @@ static const int propertyBindingRole = Qt::UserRole + 4;
 DynamicPropertiesProxyModel::DynamicPropertiesProxyModel(QObject *parent)
     : QAbstractListModel(parent)
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model constructor", category()};
 }
 
 void DynamicPropertiesProxyModel::initModel(DynamicPropertiesModel *model)
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model init model", category()};
+
     m_model = model;
 
     connect(m_model, &QAbstractItemModel::modelAboutToBeReset,
@@ -84,14 +90,18 @@ void DynamicPropertiesProxyModel::initModel(DynamicPropertiesModel *model)
 
 int DynamicPropertiesProxyModel::rowCount(const QModelIndex &) const
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model row count", category()};
+
     return m_model ? m_model->rowCount() : 0;
 }
 
 QHash<int, QByteArray> DynamicPropertiesProxyModel::roleNames() const
 {
-    static QHash<int, QByteArray> roleNames{{propertyNameRole,    "propertyName"},
-                                            {propertyTypeRole,    "propertyType"},
-                                            {propertyValueRole,   "propertyValue"},
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model role names", category()};
+
+    static QHash<int, QByteArray> roleNames{{propertyNameRole, "propertyName"},
+                                            {propertyTypeRole, "propertyType"},
+                                            {propertyValueRole, "propertyValue"},
                                             {propertyBindingRole, "propertyBinding"}};
 
     return roleNames;
@@ -99,6 +109,8 @@ QHash<int, QByteArray> DynamicPropertiesProxyModel::roleNames() const
 
 QVariant DynamicPropertiesProxyModel::data(const QModelIndex &index, int role) const
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model data", category()};
+
     if (index.isValid() && index.row() < rowCount()) {
         AbstractProperty property = m_model->propertyForRow(index.row());
 
@@ -132,6 +144,8 @@ QVariant DynamicPropertiesProxyModel::data(const QModelIndex &index, int role) c
 
 void DynamicPropertiesProxyModel::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model register declarative type", category()};
+
     static bool registered = false;
     if (!registered)
         qmlRegisterType<DynamicPropertiesProxyModel>("HelperWidgets", 2, 0, "DynamicPropertiesModel");
@@ -139,11 +153,14 @@ void DynamicPropertiesProxyModel::registerDeclarativeType()
 
 DynamicPropertiesModel *DynamicPropertiesProxyModel::dynamicPropertiesModel() const
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model dynamic properties model", category()};
     return m_model;
 }
 
 QString DynamicPropertiesProxyModel::newPropertyName() const
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model new property name", category()};
+
     DynamicPropertiesModel *propsModel = dynamicPropertiesModel();
 
     return QString::fromUtf8(uniquePropertyName("newName", propsModel->singleSelectedNode()));
@@ -151,6 +168,8 @@ QString DynamicPropertiesProxyModel::newPropertyName() const
 
 void DynamicPropertiesProxyModel::createProperty(const QString &name, const QString &type)
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model create property", category()};
+
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_PROPERTY_ADDED);
 
     TypeName typeName = type.toUtf8();
@@ -191,6 +210,8 @@ void DynamicPropertiesProxyModel::createProperty(const QString &name, const QStr
 
 DynamicPropertyRow::DynamicPropertyRow()
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model constructor", category()};
+
     m_backendValue = new PropertyEditorValue(this);
 
     QObject::connect(m_backendValue,
@@ -211,16 +232,22 @@ DynamicPropertyRow::DynamicPropertyRow()
 
 DynamicPropertyRow::~DynamicPropertyRow()
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model destructor", category()};
+
     clearProxyBackendValues();
 }
 
 void DynamicPropertyRow::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model register declarative type", category()};
+
     qmlRegisterType<DynamicPropertyRow>("HelperWidgets", 2, 0, "DynamicPropertyRow");
 }
 
 void DynamicPropertyRow::setRow(int r)
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model set row", category()};
+
     if (m_row == r)
         return;
 
@@ -231,11 +258,15 @@ void DynamicPropertyRow::setRow(int r)
 
 int DynamicPropertyRow::row() const
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model get row", category()};
+
     return m_row;
 }
 
 void DynamicPropertyRow::setModel(DynamicPropertiesProxyModel *model)
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model set model", category()};
+
     if (model == m_model)
         return;
 
@@ -259,21 +290,30 @@ void DynamicPropertyRow::setModel(DynamicPropertiesProxyModel *model)
 
 DynamicPropertiesProxyModel *DynamicPropertyRow::model() const
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model get model", category()};
+
     return m_model;
 }
 
 PropertyEditorValue *DynamicPropertyRow::backendValue() const
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model get backend value", category()};
+
     return m_backendValue;
 }
 
 void DynamicPropertyRow::remove()
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model remove", category()};
+
     m_model->dynamicPropertiesModel()->remove(m_row);
 }
 
 PropertyEditorValue *DynamicPropertyRow::createProxyBackendValue()
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model create proxy backend value",
+                               category()};
+
     auto *newValue = new PropertyEditorValue(this);
     m_proxyBackendValues.append(newValue);
 
@@ -284,12 +324,17 @@ PropertyEditorValue *DynamicPropertyRow::createProxyBackendValue()
 
 void DynamicPropertyRow::clearProxyBackendValues()
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model clear proxy backend values",
+                               category()};
+
     qDeleteAll(m_proxyBackendValues);
     m_proxyBackendValues.clear();
 }
 
 void DynamicPropertyRow::setupBackendValue()
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model setup backend value", category()};
+
     if (!m_model)
         return;
 
@@ -297,12 +342,8 @@ void DynamicPropertyRow::setupBackendValue()
     if (!property.isValid())
         return;
 
-    if (m_backendValue->name() != property.name())
-        m_backendValue->setName(property.name());
-
     ModelNode node = property.parentModelNode();
-    if (node != m_backendValue->modelNode())
-        m_backendValue->setModelNode(node);
+    m_backendValue->setModelNodeAndProperty(node, property.name());
 
     m_backendValue->setValue({});
 
@@ -333,6 +374,8 @@ void DynamicPropertyRow::setupBackendValue()
 
 void DynamicPropertyRow::commitValue(const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model commit value", category()};
+
     if (m_lock)
         return;
 
@@ -381,6 +424,8 @@ void DynamicPropertyRow::commitValue(const QVariant &value)
 
 void DynamicPropertyRow::commitExpression(const QString &expression)
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model commit expression", category()};
+
     if (m_lock || m_row < 0)
         return;
 
@@ -428,12 +473,19 @@ void DynamicPropertyRow::commitExpression(const QString &expression)
 
 void DynamicPropertyRow::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &, const QList<int> &)
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model handle data changed", category()};
+
+    if (m_model->dynamicPropertiesModel()->isCallbackToModelBlocked())
+        return;
+
     if (topLeft.row() == m_row)
         setupBackendValue();
 }
 
 void DynamicPropertyRow::resetValue()
 {
+    NanotraceHR::Tracer tracer{"dynamic properties proxy model reset value", category()};
+
     if (m_lock || m_row < 0)
         return;
 

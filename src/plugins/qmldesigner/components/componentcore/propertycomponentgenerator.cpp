@@ -87,87 +87,7 @@ PropertyComponentGenerator::Property generate(const PropertyMetaInfo &property,
     return PropertyComponentGenerator::BasicProperty{propertyName, component};
 }
 
-auto getRandomExportedName(const NodeMetaInfo &metaInfo)
-{
-    const auto &names = metaInfo.allExportedTypeNames();
-
-    using Result = decltype(names.front().name);
-
-    if (!names.empty())
-        return names.front().name;
-
-    return Result{};
-}
-
 } // namespace
-
-QString PropertyComponentGenerator::generateSubComponentText(Utils::SmallStringView propertyBaseName,
-                                                             const PropertyMetaInfo &subProperty) const
-{
-    auto propertyType = subProperty.propertyType();
-    if (auto entry = findEntry(propertyType)) {
-        auto propertyName = Utils::SmallString::join({propertyBaseName, subProperty.name()});
-        return generateComponentText(propertyName,
-                                     entry->propertyTemplate,
-                                     entry->typeName,
-                                     entry->needsTypeArg);
-    }
-
-    return {};
-}
-
-QString PropertyComponentGenerator::generateComplexComponentText(Utils::SmallStringView propertyName,
-                                                                 const NodeMetaInfo &propertyType) const
-{
-    auto subProperties = propertyType.properties();
-
-    if (std::empty(subProperties))
-        return {};
-
-    auto propertyTypeName = getRandomExportedName(propertyType);
-    static QString templateText = QStringLiteral(
-        R"xy(
-           Section {
-             caption: "%1 - %2"
-             anchors.left: parent.left
-             anchors.right: parent.right
-             leftPadding: 8
-             rightPadding: 0
-             expanded: false
-             level: 1
-             SectionLayout {
-     )xy");
-
-    auto component = templateText.arg(QString{propertyName}, QString{propertyTypeName});
-
-    auto propertyBaseName = Utils::SmallString::join({propertyName, "."});
-
-    bool subPropertiesHaveContent = false;
-    for (const auto &subProperty : propertyType.properties()) {
-        auto subPropertyContent = generateSubComponentText(propertyBaseName, subProperty);
-        subPropertiesHaveContent = subPropertiesHaveContent || subPropertyContent.size();
-        component += subPropertyContent;
-    }
-
-    component += "}\n}\n"_L1;
-
-    if (subPropertiesHaveContent)
-        return component;
-
-    return {};
-}
-
-PropertyComponentGenerator::Property PropertyComponentGenerator::generateComplexComponent(
-    const PropertyMetaInfo &property, const NodeMetaInfo &propertyType) const
-{
-    auto propertyName = property.name();
-    auto component = generateComplexComponentText(propertyName, propertyType);
-
-    if (component.isEmpty())
-        return {};
-
-    return ComplexProperty{propertyName, component};
-}
 
 namespace {
 
@@ -184,8 +104,12 @@ std::optional<PropertyComponentGenerator::Entry> createEntry(QmlJS::SimpleReader
     auto typeName = getProperty<QByteArray>(node, "typeNames");
 
     auto type = model->metaInfo(module, typeName);
-    if (!type)
-        return {};
+    if (!type) {
+        if (typeName == "float")
+            type = model->floatMetaInfo();
+        else
+            return {};
+    }
 
     auto path = getProperty<QString>(node, "sourceFile");
     if (path.isEmpty())
@@ -247,10 +171,7 @@ PropertyComponentGenerator::Property PropertyComponentGenerator::create(const Pr
     if (auto entry = findEntry(propertyType))
         return generate(property, *entry);
 
-    if (property.isWritable() && property.isPointer())
-        return {};
-
-    return generateComplexComponent(property, propertyType);
+    return {};
 }
 
 void PropertyComponentGenerator::setModel(Model *model)

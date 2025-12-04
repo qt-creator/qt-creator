@@ -60,8 +60,8 @@ static QProcessUniquePointer puppetProcess(const FilePath &puppetPath,
         QMessageBox::information(
             nullptr,
             Tr::tr("Puppet is starting..."),
-            Tr::tr("You can now attach your debugger to the %1 QML Puppet with process id: %2.")
-                .arg(puppetMode, QString::number(puppetProcess->processId())));
+            Tr::tr("You can now attach your debugger to the %1(%2) QML Puppet with process id: %3.")
+                .arg(puppetMode, puppetPath.toUserOutput(), QString::number(puppetProcess->processId())));
     }
 
     return puppetProcess;

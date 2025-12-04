@@ -15,6 +15,9 @@ class NodeInstanceView;
 
 class QMLDESIGNER_EXPORT QmlModelNodeFacade
 {
+protected:
+    using SL = ModelTracing::SourceLocation;
+
 public:
     operator ModelNode() const { return m_modelNode; }
 
@@ -23,8 +26,8 @@ public:
     ModelNode &modelNode() { return m_modelNode; }
 
     bool hasModelNode() const;
-    static bool isValidQmlModelNodeFacade(const ModelNode &modelNode);
-    bool isValid() const;
+    static bool isValidQmlModelNodeFacade(const ModelNode &modelNode, SL sl = {});
+    bool isValid(SL sl = {}) const;
     explicit operator bool() const { return isValid(); }
     QmlModelNodeFacade() = default;
 
@@ -33,43 +36,24 @@ public:
     NodeMetaInfo metaInfo() const { return m_modelNode.metaInfo(); }
     static const NodeInstanceView *nodeInstanceView(const ModelNode &modelNode);
     const NodeInstanceView *nodeInstanceView() const;
-    bool isRootNode() const;
+    bool isRootNode(SL sl = {}) const;
 
-    static void enableUglyWorkaroundForIsValidQmlModelNodeFacadeInTests();
-
-    friend bool operator==(const QmlModelNodeFacade &firstNode, const QmlModelNodeFacade &secondNode)
+    bool operator==(const QmlModelNodeFacade &other) const
     {
-        return firstNode.m_modelNode == secondNode.m_modelNode;
+        return m_modelNode == other.m_modelNode;
     }
 
-    friend bool operator==(const QmlModelNodeFacade &firstNode, const ModelNode &secondNode)
+    bool operator==(const ModelNode &other) const { return m_modelNode == other; }
+
+    auto operator<=>(const QmlModelNodeFacade &other) const
     {
-        return firstNode.m_modelNode == secondNode;
+        return m_modelNode <=> other.m_modelNode;
     }
 
-    friend bool operator==(const ModelNode &firstNode, const QmlModelNodeFacade &secondNode)
+    template<typename String>
+    friend void convertToString(String &string, const QmlModelNodeFacade &node)
     {
-        return firstNode == secondNode.m_modelNode;
-    }
-
-    friend bool operator!=(const QmlModelNodeFacade &firstNode, const QmlModelNodeFacade &secondNode)
-    {
-        return !(firstNode == secondNode);
-    }
-
-    friend bool operator!=(const QmlModelNodeFacade &firstNode, const ModelNode &secondNode)
-    {
-        return firstNode.m_modelNode != secondNode;
-    }
-
-    friend bool operator!=(const ModelNode &firstNode, const QmlModelNodeFacade &secondNode)
-    {
-        return firstNode != secondNode.m_modelNode;
-    }
-
-    friend bool operator<(const QmlModelNodeFacade &firstNode, const QmlModelNodeFacade &secondNode)
-    {
-        return firstNode.m_modelNode < secondNode.m_modelNode;
+        convertToString(string, node.m_modelNode);
     }
 
 protected:

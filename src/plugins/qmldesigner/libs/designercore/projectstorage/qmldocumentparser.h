@@ -20,8 +20,8 @@ class QMLDESIGNERCORE_EXPORT QmlDocumentParser final : public QmlDocumentParserI
 public:
 
 #ifdef QDS_BUILD_QMLPARSER
-    QmlDocumentParser(ProjectStorageType &storage, PathCacheType &pathCache)
-        : m_storage{storage}
+    QmlDocumentParser(ModulesStorage &modulesStorage, PathCacheType &pathCache)
+        : m_modulesStorage{modulesStorage}
         , m_pathCache{pathCache}
     {}
 #else
@@ -38,7 +38,7 @@ public:
 private:
     // m_pathCache and m_storage are only used when compiled for QDS
 #ifdef QDS_BUILD_QMLPARSER
-    ProjectStorageType &m_storage;
+    ModulesStorage &m_modulesStorage;
     PathCacheType &m_pathCache;
 #endif
 };

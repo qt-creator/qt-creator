@@ -17,14 +17,17 @@
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
 #include "propertyparser.h"
+#include "rewritertracing.h"
 #include "rewriterview.h"
 #include "signalhandlerproperty.h"
 #include "variantproperty.h"
+#include <astcheck/astcheck.h>
 
 #include <externaldependenciesinterface.h>
 #include <import.h>
 #include <modelutils.h>
 #include <projectstorage/modulescanner.h>
+#include <qmldesignerutils/stringutils.h>
 #include <rewritingexception.h>
 
 #include <enumeration.h>
@@ -210,15 +213,14 @@ QString fixEscapedUnicodeChar(const QString &value) //convert "\u2939"
     return value;
 }
 
-bool isSignalPropertyName(const QString &signalName)
+bool isSignalPropertyName(QStringView signalName)
 {
     if (signalName.isEmpty())
         return false;
     // see QmlCompiler::isSignalPropertyName
-    QStringList list = signalName.split(QLatin1String("."));
+    auto [dummy, pureSignalName] = QmlDesigner::StringUtils::split_last(signalName, u'.');
 
-    const QString &pureSignalName = list.constLast();
-    return pureSignalName.size() >= 3 && pureSignalName.startsWith(u"on")
+    return pureSignalName.length() >= 3 && pureSignalName.startsWith(u"on")
            && pureSignalName.at(2).isLetter();
 }
 
@@ -451,6 +453,8 @@ bool usesCustomParserButIsNotPropertyChange(const QmlDesigner::NodeMetaInfo &nod
 } // anonymous namespace
 
 namespace QmlDesigner {
+using RewriterTracing::category;
+
 namespace Internal {
 
 class ReadingContext
@@ -663,12 +667,18 @@ bool TextToModelMerger::isActive() const
     return m_isActive;
 }
 
-void TextToModelMerger::setupImports(const Document::Ptr &doc,
-                                     DifferenceHandler &differenceHandler)
+void TextToModelMerger::setupImports(const Document::Ptr &doc, DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger setup imports", category()};
+
+    if (!differenceHandler.isAmender())
+        return;
+
     Imports existingImports = m_rewriterView->model()->imports();
 
     m_hasVersionlessImport = false;
+
+    Imports imports;
 
     for (AST::UiHeaderItemList *iter = doc->qmlProgram()->headers; iter; iter = iter->next) {
         auto import = AST::cast<AST::UiImport *>(iter->headerItem);
@@ -682,30 +692,23 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
 
         if (!import->fileName.isEmpty()) {
             const QString strippedFileName = stripQuotes(import->fileName.toString());
-            const Import newImport = Import::createFileImport(strippedFileName,
-                                                              version, as, m_rewriterView->importDirectories());
-
-            if (!existingImports.removeOne(newImport))
-                differenceHandler.modelMissesImport(newImport);
+            imports.push_back(Import::createFileImport(strippedFileName,
+                                                       version,
+                                                       as,
+                                                       m_rewriterView->importDirectories()));
         } else {
             QString importUri = toString(import->importUri);
             if (version.isEmpty())
                 m_hasVersionlessImport = true;
 
-            const Import newImport = Import::createLibraryImport(importUri,
-                                                                 version,
-                                                                 as,
-                                                                 m_rewriterView->importDirectories());
-
-            if (!existingImports.removeOne(newImport))
-                differenceHandler.modelMissesImport(newImport);
+            imports.push_back(Import::createLibraryImport(importUri,
+                                                          version,
+                                                          as,
+                                                          m_rewriterView->importDirectories()));
         }
     }
 
-    if (m_removeImports) {
-        for (const Import &import : std::as_const(existingImports))
-            differenceHandler.importAbsentInQMl(import);
-    }
+    m_rewriterView->model()->setImports(imports);
 }
 
 namespace {
@@ -973,8 +976,12 @@ void TextToModelMerger::setupUsedImports()
 }
 #endif
 
-Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, const QString &data, QList<DocumentMessage> *errors)
+Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url,
+                                                             const QString &data,
+                                                             QList<DocumentMessage> *errors)
 {
+    NanotraceHR::Tracer tracer{"text to model merger create parsed document", category()};
+
     if (data.isEmpty()) {
         if (errors) {
             QmlJS::DiagnosticMessage msg;
@@ -1011,6 +1018,8 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
 
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger load", category()};
+
     QmlJS::ScopeChain::setSkipmakeComponentChain(true);
     const QScopeGuard cleanup([] { QmlJS::ScopeChain::setSkipmakeComponentChain(false); });
 
@@ -1044,12 +1053,14 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     // maybe the project environment (kit, ...) changed, so we need to clean old caches
     m_rewriterView->model()->clearMetaInfoCache();
 
+    tracer.tick("text to model merger load - before try catch");
     try {
         Snapshot snapshot = TextModifier::qmljsSnapshot();
 
         QList<DocumentMessage> errors;
         QList<DocumentMessage> warnings;
 
+        tracer.tick("text to model merger load - before create parsed document");
         if (Document::MutablePtr doc = createParsedDocument(url, data, &errors)) {
             /* We cannot do this since changes to other documents do have side effects on the current document
             if (m_document && (m_document->fingerprint() == doc->fingerprint())) {
@@ -1082,6 +1093,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         setupPossibleImports();
 #endif
 
+        tracer.tick("text to model merger load - before setup imports");
         qCInfo(rewriterBenchmark) << "possible imports:" << time.elapsed();
 
         setupImports(m_document, differenceHandler);
@@ -1091,7 +1103,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         collectImportErrors(&errors);
 
         if (view()->checkSemanticErrors()) {
-            collectSemanticErrorsAndWarnings(&errors, &warnings);
+            collectSemanticErrorsAndWarningsAst(&errors, &warnings);
 
             if (!errors.isEmpty()) {
                 m_rewriterView->setErrors(errors);
@@ -1109,6 +1121,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             if (program->members)
                 astRootNode = program->members->member;
         ModelNode modelRootNode = m_rewriterView->rootModelNode();
+
+        tracer.tick("text to model merger load - before sync node");
         syncNode(modelRootNode, astRootNode, &ctxt, differenceHandler);
         m_rewriterView->positionStorage()->cleanupInvalidOffsets();
 
@@ -1140,6 +1154,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                                  ReadingContext *context,
                                  DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger sync node -- recursive", category()};
+
     auto binding = AST::cast<AST::UiObjectBinding *>(astNode);
 
     const bool hasOnToken = binding && binding->hasOnToken;
@@ -1160,6 +1176,9 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     auto [info, typeName] = context->lookup(astObjectType);
     if (!info.isValid()) {
         qWarning() << "Skipping node with unknown type" << toString(astObjectType);
+        // We need to remove the invalid node so it doesn't corrupt the internal model
+        if (differenceHandler.isAmender())
+            removeModelNode(modelNode);
         return;
     }
 
@@ -1391,6 +1410,8 @@ static QVariant parsePropertyExpression(AST::ExpressionNode *expressionNode)
 {
     Q_ASSERT(expressionNode);
 
+    NanotraceHR::Tracer tracer{"text to model merger parse property expression", category()};
+
     auto arrayLiteral = AST::cast<AST::ArrayPattern *>(expressionNode);
 
     if (arrayLiteral) {
@@ -1424,6 +1445,8 @@ QVariant parsePropertyScriptBinding(AST::UiScriptBinding *uiScriptBinding)
 {
     Q_ASSERT(uiScriptBinding);
 
+    NanotraceHR::Tracer tracer{"text to model merger parse property script binding", category()};
+
     auto expStmt = AST::cast<AST::ExpressionStatement *>(uiScriptBinding->statement);
     if (!expStmt)
         return QVariant();
@@ -1437,6 +1460,8 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
                                              ReadingContext *context,
                                              DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger sync script binding", category()};
+
     QString astPropertyName = toString(script->qualifiedId);
     if (!prefix.isEmpty())
         astPropertyName.prepend(prefix + '.');
@@ -1525,6 +1550,8 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
 void TextToModelMerger::syncNodeId(ModelNode &modelNode, const QString &astObjectId,
                                    DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger sync node id", category()};
+
     if (astObjectId.isEmpty()) {
         if (!modelNode.id().isEmpty()) {
             ModelNode existingNodeWithId = m_rewriterView->modelNodeForId(astObjectId);
@@ -1548,6 +1575,8 @@ void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
                                          const TypeName &dynamicPropertyType,
                                          DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger sync node property", category()};
+
     auto [info, typeName] = context->lookup(binding->qualifiedTypeNameId);
 
     if (!info.isValid()) {
@@ -1585,6 +1614,8 @@ void TextToModelMerger::syncExpressionProperty(AbstractProperty &modelProperty,
                                                const TypeName &astType,
                                                DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger sync expression property", category()};
+
     if (modelProperty.isBindingProperty()) {
         BindingProperty bindingProperty = modelProperty.toBindingProperty();
         if (!compareJavaScriptExpression(bindingProperty.expression(), javascript)
@@ -1601,6 +1632,8 @@ void TextToModelMerger::syncSignalHandler(AbstractProperty &modelProperty,
                                                const QString &javascript,
                                                DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger sync signal handler", category()};
+
     if (modelProperty.isSignalHandlerProperty()) {
         SignalHandlerProperty signalHandlerProperty = modelProperty.toSignalHandlerProperty();
         if (signalHandlerProperty.source() != javascript)
@@ -1616,6 +1649,8 @@ void TextToModelMerger::syncArrayProperty(AbstractProperty &modelProperty,
                                           ReadingContext *context,
                                           DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger sync array property", category()};
+
     if (modelProperty.isNodeListProperty()) {
         NodeListProperty nodeListProperty = modelProperty.toNodeListProperty();
         syncNodeListProperty(nodeListProperty, arrayMembers, context, differenceHandler);
@@ -1626,30 +1661,13 @@ void TextToModelMerger::syncArrayProperty(AbstractProperty &modelProperty,
     }
 }
 
-static QString fileForFullQrcPath(const QString &string)
-{
-    QStringList stringList = string.split(QLatin1String("/"));
-    if (stringList.isEmpty())
-        return QString();
-
-    return stringList.constLast();
-}
-
-static QString removeFileFromQrcPath(const QString &string)
-{
-    QStringList stringList = string.split(QLatin1String("/"));
-    if (stringList.isEmpty())
-        return QString();
-
-    stringList.removeLast();
-    return stringList.join(QLatin1String("/"));
-}
-
 void TextToModelMerger::syncVariantProperty(AbstractProperty &modelProperty,
                                             const QVariant &astValue,
                                             const TypeName &astType,
                                             DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger sync variant property", category()};
+
     if (astValue.canConvert(QMetaType(QMetaType::QString)))
         populateQrcMapping(astValue.toString());
 
@@ -1674,6 +1692,8 @@ void TextToModelMerger::syncSignalDeclarationProperty(AbstractProperty &modelPro
                                             const QString &signature,
                                             DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger sync signal declaration property", category()};
+
     if (modelProperty.isSignalDeclarationProperty()) {
         SignalDeclarationProperty signalHandlerProperty = modelProperty.toSignalDeclarationProperty();
         if (signalHandlerProperty.signature() != signature)
@@ -1688,6 +1708,8 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
                                              ReadingContext *context,
                                              DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger sync node list property", category()};
+
     QList<ModelNode> modelNodes = modelListProperty.toModelNodeList();
     int i = 0;
     for (; i < modelNodes.size() && i < arrayMembers.size(); ++i) {
@@ -1717,6 +1739,8 @@ ModelNode TextToModelMerger::createModelNode(const NodeMetaInfo &nodeMetaInfo,
                                              ReadingContext *context,
                                              DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger create model node", category()};
+
     QString nodeSource;
 
     auto binding = AST::cast<AST::UiObjectBinding *>(astNode);
@@ -1774,6 +1798,8 @@ QStringList TextToModelMerger::syncGroupedProperties(ModelNode &modelNode,
                                                      ReadingContext *context,
                                                      DifferenceHandler &differenceHandler)
 {
+    NanotraceHR::Tracer tracer{"text to model merger sync grouped properties", category()};
+
     QStringList props;
 
     for (AST::UiObjectMemberList *iter = members; iter; iter = iter->next) {
@@ -1942,15 +1968,9 @@ void ModelValidator::idsDiffer([[maybe_unused]] ModelNode &modelNode,
     QTC_ASSERT(0, return);
 }
 
-void ModelAmender::modelMissesImport(const QmlDesigner::Import &import)
-{
-    m_merger->view()->model()->changeImports({import}, {});
-}
+void ModelAmender::modelMissesImport(const QmlDesigner::Import &) {}
 
-void ModelAmender::importAbsentInQMl(const QmlDesigner::Import &import)
-{
-    m_merger->view()->model()->changeImports({}, {import});
-}
+void ModelAmender::importAbsentInQMl(const QmlDesigner::Import &) {}
 
 void ModelAmender::bindingExpressionsDiffer(BindingProperty &modelProperty,
                                             const QString &javascript,
@@ -2182,6 +2202,8 @@ void ModelAmender::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 
 void TextToModelMerger::setupComponent(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"text to model merger setup component", category()};
+
     if (!node.isValid())
         return;
 
@@ -2201,11 +2223,15 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
 
 void TextToModelMerger::clearImplicitComponent(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"text to model merger clear implicit component", category()};
+
     ModelNode(node).setNodeSource({}, ModelNode::NodeWithoutSource);
 }
 
 void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const ReadingContext &ctxt)
 {
+    NanotraceHR::Tracer tracer{"text to model merger collect link errors", category()};
+
     const QList<QmlJS::DiagnosticMessage> diagnosticMessages = ctxt.diagnosticLinkMessages();
     for (const QmlJS::DiagnosticMessage &diagnosticMessage : diagnosticMessages) {
         if (diagnosticMessage.kind == QmlJS::Severity::ReadingTypeInfoWarning)
@@ -2218,6 +2244,8 @@ void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const 
 
 void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 {
+    NanotraceHR::Tracer tracer{"text to model merger collect import errors", category()};
+
     if (m_rewriterView->model()->imports().isEmpty()) {
         const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error,
                                                          SourceLocation(0, 0, 0, 0),
@@ -2260,9 +2288,14 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
         errors->append(DocumentMessage(DesignerCore::Tr::tr("No import for Qt Quick found.")));
 }
 
-void TextToModelMerger::collectSemanticErrorsAndWarnings(
+void TextToModelMerger::collectSemanticErrorsAndWarningsAst(
     [[maybe_unused]] QList<DocumentMessage> *errors, [[maybe_unused]] QList<DocumentMessage> *warnings)
 {
+    NanotraceHR::Tracer tracer{"text to model merger collect semantic errors and warnings",
+                               category()};
+
+    QList<StaticAnalysis::Message> messages;
+
 #ifndef QDS_USE_PROJECTSTORAGE
     Check check(m_document, m_scopeChain->context());
     check.disableMessage(StaticAnalysis::ErrPrototypeCycle);
@@ -2279,9 +2312,14 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(
     }
 
     check.enableQmlDesignerChecks();
+    messages = check();
+#else
+    AstCheck check(m_document);
+    messages = check();
+#endif
 
     QUrl fileNameUrl = QUrl::fromLocalFile(m_document->fileName().toUrlishString());
-    const QList<StaticAnalysis::Message> messages = check();
+
     for (const StaticAnalysis::Message &message : messages) {
         if (message.severity == Severity::Error) {
             if (message.type == StaticAnalysis::ErrUnknownComponent)
@@ -2292,16 +2330,19 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(
         if (message.severity == Severity::Warning)
             warnings->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
     }
-#endif
 }
 
 void TextToModelMerger::populateQrcMapping(const QString &filePath)
 {
+    NanotraceHR::Tracer tracer{"text to model merger populate QRC mapping", category()};
+
     if (!filePath.startsWith(QLatin1String("qrc:")))
         return;
 
-    QString path = removeFileFromQrcPath(filePath);
-    const QString fileName = fileForFullQrcPath(filePath);
+    auto [pathView, fileNameView] = StringUtils::split_last(filePath, u'/');
+
+    QString path = pathView.toString();
+    const QString fileName = fileNameView.toString();
     path.remove(QLatin1String("qrc:"));
     QMap<QString, Utils::FilePaths> map = ModelManagerInterface::instance()->filesInQrcPath(path);
     const Utils::FilePaths qrcFilePaths = map.value(fileName, {});
@@ -2316,6 +2357,8 @@ void TextToModelMerger::populateQrcMapping(const QString &filePath)
 
 void TextToModelMerger::addIsoIconQrcMapping(const QUrl &fileUrl)
 {
+    NanotraceHR::Tracer tracer{"text to model merger add ISO icon QRC mapping", category()};
+
     QDir dir(fileUrl.toLocalFile());
     do {
         if (!dir.entryList({"*.pro"}, QDir::Files).isEmpty()) {
@@ -2327,6 +2370,8 @@ void TextToModelMerger::addIsoIconQrcMapping(const QUrl &fileUrl)
 
 void TextToModelMerger::setupComponentDelayed(const ModelNode &node, bool synchronous)
 {
+    NanotraceHR::Tracer tracer{"text to model merger setup component delayed", category()};
+
     if (synchronous) {
         setupComponent(node);
     } else {
@@ -2337,6 +2382,8 @@ void TextToModelMerger::setupComponentDelayed(const ModelNode &node, bool synchr
 
 void TextToModelMerger::setupCustomParserNode(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"text to model merger setup custom parser node", category()};
+
     if (!node.isValid())
         return;
 
@@ -2352,6 +2399,8 @@ void TextToModelMerger::setupCustomParserNode(const ModelNode &node)
 
 void TextToModelMerger::setupCustomParserNodeDelayed(const ModelNode &node, bool synchronous)
 {
+    NanotraceHR::Tracer tracer{"text to model merger setup custom parser node delayed", category()};
+
     Q_ASSERT(usesCustomParserButIsNotPropertyChange(node.metaInfo()));
 
     if (synchronous) {
@@ -2376,6 +2425,8 @@ void TextToModelMerger::clearImplicitComponentDelayed(const ModelNode &node, boo
 
 void TextToModelMerger::delayedSetup()
 {
+    NanotraceHR::Tracer tracer{"text to model merger delayed setup", category()};
+
     for (const ModelNode &node : std::as_const(m_setupComponentList))
         setupComponent(node);
 
@@ -2447,6 +2498,7 @@ void TextToModelMerger::setRemoveImports(bool removeImports)
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
                                   const SourceLocation &location)
 {
+    NanotraceHR::Tracer tracer{"text to model merger text at", category()};
     return doc->source().mid(location.offset, location.length);
 }
 
@@ -2454,5 +2506,6 @@ QString TextToModelMerger::textAt(const Document::Ptr &doc,
                                   const SourceLocation &from,
                                   const SourceLocation &to)
 {
+    NanotraceHR::Tracer tracer{"text to model merger text at from to", category()};
     return doc->source().mid(from.offset, to.end() - from.begin());
 }

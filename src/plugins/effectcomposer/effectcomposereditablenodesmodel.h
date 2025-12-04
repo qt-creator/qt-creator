@@ -32,7 +32,7 @@ public:
     void setSourceModel(EffectComposerModel *sourceModel);
     QModelIndex proxyIndex(int sourceIndex) const;
 
-    Q_INVOKABLE void openCodeEditor(int proxyIndex);
+    Q_INVOKABLE int sourceIndex(int proxyIndex);
 
 signals:
     void selectedIndexChanged(int);

@@ -91,8 +91,8 @@
     and combine them.
 
     A component is specified within one file (with the file extension
-    \e ui.qml or \e .qml). For example, a Button component may be defined
-    in Button.ui.qml. Typically, the visual appearance of a component is
+    \c ui.qml or \c .qml). For example, a Button component may be defined
+    in \c {Button.ui.qml}. Typically, the visual appearance of a component is
     defined in a \e {UI file}. To create component files, you can use
     \l{Creating components from scratch}{wizard templates}, or
     \l{Turning component instances into custom components}

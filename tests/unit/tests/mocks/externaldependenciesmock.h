@@ -11,9 +11,6 @@ class ExternalDependenciesMock : public QmlDesigner::ExternalDependenciesInterfa
 {
 public:
     MOCK_METHOD(double, formEditorDevicePixelRatio, (), (const, override));
-    MOCK_METHOD(QString, defaultPuppetFallbackDirectory, (), (const, override));
-    MOCK_METHOD(QString, qmlPuppetFallbackDirectory, (), (const, override));
-    MOCK_METHOD(QString, defaultPuppetToplevelBuildDirectory, (), (const, override));
     MOCK_METHOD(QUrl, projectUrl, (), (const, override));
     MOCK_METHOD(QString, projectName, (), (const, override));
     MOCK_METHOD(QString, currentProjectDirPath, (), (const, override));

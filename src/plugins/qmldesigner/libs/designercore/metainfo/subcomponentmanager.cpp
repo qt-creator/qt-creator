@@ -372,6 +372,16 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
     if (!qualifier.isEmpty())
         itemLibraryEntry.setRequiredImport(fixedQualifier);
 
+    const NodeMetaInfo nodeMetaInfo = model()->metaInfo(baseComponentName.toUtf8());
+    if (nodeMetaInfo.isValid()) {
+        QHash<QString, QString> hints;
+        if (nodeMetaInfo.isBasedOn(model()->qtQuick3DObject3DMetaInfo()))
+            hints["canBeDroppedInFormEditor"] = "false";
+        if (nodeMetaInfo.isBasedOn(model()->qtQuick3DNodeMetaInfo()))
+            hints["canBeDroppedInView3D"] = "true";
+        itemLibraryEntry.addHints(hints);
+    }
+
     if (!model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry))
         model()->metaInfo().itemLibraryInfo()->addEntries({itemLibraryEntry});
 }

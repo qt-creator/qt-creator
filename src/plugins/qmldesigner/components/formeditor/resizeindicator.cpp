@@ -4,49 +4,61 @@
 #include "resizeindicator.h"
 
 #include "formeditoritem.h"
+#include "formeditortracing.h"
 
 namespace QmlDesigner {
+
+using FormEditorTracing::category;
 
 ResizeIndicator::ResizeIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)
 {
+    NanotraceHR::Tracer tracer{"resize indicator constructor", category()};
+
     Q_ASSERT(layerItem);
 }
 
 ResizeIndicator::~ResizeIndicator()
 {
+    NanotraceHR::Tracer tracer{"resize indicator destructor", category()};
+
     m_itemControllerHash.clear();
 }
 
 void ResizeIndicator::show()
 {
+    NanotraceHR::Tracer tracer{"resize indicator show", category()};
+
     for (ResizeController controller : std::as_const(m_itemControllerHash))
         controller.show();
 }
 
 void ResizeIndicator::hide()
 {
+    NanotraceHR::Tracer tracer{"resize indicator hide", category()};
+
     for (ResizeController controller : std::as_const(m_itemControllerHash))
         controller.hide();
 }
 
 void ResizeIndicator::clear()
 {
+    NanotraceHR::Tracer tracer{"resize indicator clear", category()};
+
     m_itemControllerHash.clear();
 }
 
 static bool itemIsResizable(const QmlItemNode &qmlItemNode)
 {
-    return qmlItemNode.isValid()
-            && qmlItemNode.instanceIsResizable()
-            && qmlItemNode.modelIsMovable()
-            && qmlItemNode.modelIsResizable()
-            && !qmlItemNode.instanceHasScaleOrRotationTransform()
-            && !qmlItemNode.instanceIsInLayoutable();
+    return qmlItemNode.isValid() && qmlItemNode.instanceIsResizable() && qmlItemNode.modelIsMovable()
+           && qmlItemNode.modelIsResizable() && !qmlItemNode.instanceHasScaleOrRotationTransform()
+           && !qmlItemNode.instanceIsInLayoutable();
 }
 
 void ResizeIndicator::setItems(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"resize indicator set items", category()};
+
     clear();
 
     for (FormEditorItem* item : itemList) {
@@ -59,6 +71,8 @@ void ResizeIndicator::setItems(const QList<FormEditorItem*> &itemList)
 
 void ResizeIndicator::updateItems(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"resize indicator update items", category()};
+
     for (FormEditorItem* item : itemList) {
         if (m_itemControllerHash.contains(item)) {
             if (!item || !itemIsResizable(item->qmlItemNode())) {

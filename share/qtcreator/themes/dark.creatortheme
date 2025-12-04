@@ -420,6 +420,11 @@ CodeModel_Error_TextMarkColor=error
 CodeModel_Warning_TextMarkColor=warning
 CodeModel_Info_TextMarkColor=info
 
+Navigator_DefaultColor=ffffffff
+Navigator_3DColor=ffffbf00
+Navigator_2DColor=ff5cdc68
+Navigator_MaterialColor=ff2aafd3
+
 PaletteWindow=normalBackground
 PaletteWindowText=text
 PaletteBase=normalBackground

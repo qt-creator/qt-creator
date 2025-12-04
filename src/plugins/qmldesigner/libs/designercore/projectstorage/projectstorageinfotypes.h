@@ -250,40 +250,68 @@ using TypeNameString = ::Utils::BasicSmallString<64>;
 class VersionNumber
 {
 public:
-    explicit VersionNumber() = default;
-    explicit VersionNumber(int value)
+    constexpr VersionNumber() = default;
+
+    explicit constexpr VersionNumber(unsigned int value)
         : value{value}
     {}
 
-    explicit operator bool() const { return value >= 0; }
+    explicit constexpr operator bool() const
+    {
+        return value != std::numeric_limits<unsigned int>::max();
+    }
 
-    auto operator<=>(const VersionNumber &first) const noexcept = default;
+    constexpr auto operator<=>(const VersionNumber &first) const noexcept = default;
+
+    static constexpr VersionNumber noVersionNumber() { return VersionNumber{noVersion}; }
+
+    static constexpr VersionNumber convertFromSignedInteger(int number)
+    {
+        return VersionNumber{number < 0 ? noVersion : static_cast<unsigned int>(number)};
+    }
+
+    int toSignedInteger() const
+    {
+        if (value == noVersion)
+            return -1;
+
+        return static_cast<int>(value);
+    }
+
+    inline static constexpr unsigned int noVersion = std::numeric_limits<unsigned int>::max();
 
 public:
-    int value = -1;
+    unsigned int value = noVersion;
 };
 
 class Version
 {
 public:
-    explicit Version() = default;
-    explicit Version(VersionNumber major, VersionNumber minor = VersionNumber{})
+    constexpr Version() = default;
+
+    explicit constexpr Version(VersionNumber major, VersionNumber minor = VersionNumber{})
         : major{major}
         , minor{minor}
     {}
 
-    explicit Version(int major, int minor)
+    constexpr Version(unsigned int major, unsigned int minor)
         : major{major}
         , minor{minor}
     {}
 
-    explicit Version(int major)
+    explicit constexpr Version(unsigned int major)
         : major{major}
     {}
 
-    auto operator<=>(const Version &first) const noexcept = default;
+    constexpr auto operator<=>(const Version &first) const noexcept = default;
 
-    explicit operator bool() const { return major && minor; }
+    explicit constexpr operator bool() const { return major && minor; }
+
+    static constexpr Version convertFromSignedInteger(int majorVersion, int minorVersion)
+    {
+        return Version{VersionNumber::convertFromSignedInteger(majorVersion),
+                       VersionNumber::convertFromSignedInteger(minorVersion)};
+    }
 
     template<typename String>
     friend void convertToString(String &string, const Version &version)
@@ -304,6 +332,17 @@ public:
 } // namespace QmlDesigner::Storage
 
 namespace QmlDesigner::Storage::Info {
+
+template<std::size_t size>
+struct StaticString
+{
+    char data[size];
+
+    operator Utils::SmallStringView() const { return {data, size - 1}; }
+};
+
+template<std::size_t size>
+StaticString(const char (&)[size]) -> StaticString<size>;
 
 struct TypeHint
 {
@@ -439,7 +478,7 @@ using ItemLibraryEntries = QVarLengthArray<ItemLibraryEntry, 1>;
 class ExportedTypeName
 {
 public:
-    ExportedTypeName() = default;
+    constexpr ExportedTypeName() = default;
 
     ExportedTypeName(ModuleId moduleId,
                      TypeId typeId,
@@ -454,8 +493,8 @@ public:
     ExportedTypeName(ModuleId moduleId,
                      TypeId typeId,
                      ::Utils::SmallStringView name,
-                     int majorVersion,
-                     int minorVersion)
+                     unsigned int majorVersion,
+                     unsigned int minorVersion)
         : name{name}
         , version{majorVersion, minorVersion}
         , moduleId{moduleId}
@@ -528,6 +567,8 @@ public:
     TypeId propertyTypeId;
 };
 
+using PropertyDeclarations = std::vector<PropertyDeclaration>;
+
 class Type
 {
 public:
@@ -554,6 +595,8 @@ public:
     SourceId sourceId;
     TypeTraits traits;
 };
+
+using Types = std::vector<Type>;
 
 using TypeIdsWithoutProperties = std::array<TypeId, 8>;
 

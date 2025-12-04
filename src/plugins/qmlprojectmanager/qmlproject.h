@@ -5,9 +5,18 @@
 
 #include "buildsystem/qmlbuildsystem.h" // IWYU pragma: keep
 #include "qmlprojectmanager_global.h"
+
+#include <extensionsystem/iplugin.h>
 #include <projectexplorer/project.h>
+#include <utils/expected.h>
+#include <utils/filepath.h>
 
 namespace QmlProjectManager {
+
+class QmlProject;
+
+ExtensionSystem::IPlugin *findMcuSupportPlugin();
+QMLPROJECTMANAGER_EXPORT Utils::Result<Utils::FilePath> mcuFontsDir();
 
 class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
 {
@@ -23,6 +32,7 @@ protected:
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
 
+    void openStartupQmlFile();
 private slots:
     void parsingFinished(bool success);
 };

@@ -3,9 +3,13 @@
 
 #include "propertyeditorutils.h"
 
+#include "propertyeditortracing.h"
+
 namespace QmlDesigner {
 
 namespace PropertyEditorUtils {
+
+using QmlDesigner::PropertyEditorTracing::category;
 
 #ifndef QDS_USE_PROJECTSTORAGE
 
@@ -31,6 +35,8 @@ static bool checkIfUnkownTypeProperty(const std::vector<PropertyName> &propertyN
 
 PropertyMetaInfos filteredProperties(const NodeMetaInfo &metaInfo)
 {
+    NanotraceHR::Tracer tracer{"property editor utils filtered properties", category()};
+
     auto properties = metaInfo.properties();
 
 #ifndef QDS_USE_PROJECTSTORAGE

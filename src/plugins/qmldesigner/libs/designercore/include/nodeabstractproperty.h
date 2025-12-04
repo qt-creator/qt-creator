@@ -18,20 +18,22 @@ class QMLDESIGNERCORE_EXPORT NodeAbstractProperty : public AbstractProperty
     friend Internal::ModelPrivate;
     friend AbstractProperty;
 
+    using SL = ModelTracing::SourceLocation;
+
     friend QMLDESIGNERCORE_EXPORT bool operator ==(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);
     friend QMLDESIGNERCORE_EXPORT bool operator !=(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);
 
 public:
     NodeAbstractProperty();
     NodeAbstractProperty(const NodeAbstractProperty &property, AbstractView *view);
-    void reparentHere(const ModelNode &modelNode);
-    bool isEmpty() const;
-    int count() const;
-    int indexOf(const ModelNode &node) const;
-    NodeAbstractProperty parentProperty() const;
+    void reparentHere(const ModelNode &modelNode, SL sl = {});
+    bool isEmpty(SL sl = {}) const;
+    int count(SL sl = {}) const;
+    int indexOf(const ModelNode &node, SL sl = {}) const;
+    NodeAbstractProperty parentProperty(SL sl = {}) const;
 
-    QList<ModelNode> allSubNodes();
-    QList<ModelNode> directSubNodes() const;
+    QList<ModelNode> allSubNodes(SL sl = {});
+    QList<ModelNode> directSubNodes(SL sl = {}) const;
 
     friend size_t qHash(const NodeAbstractProperty &property) { return qHash(AbstractProperty(property)); }
 

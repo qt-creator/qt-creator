@@ -1460,7 +1460,9 @@ void DocumentManager::setDefaultLocationForNewFiles(const FilePath &location)
 
 FilePath DocumentManager::projectsDirectory()
 {
-    return d->m_projectsDirectory;
+    static const FilePath forcedDefault = FilePath::fromUserInput(
+        qEnvironmentVariable("QTC_FORCE_DEFAULT_PROJECTS_DIRECTORY"));
+    return forcedDefault.isEmpty() ? d->m_projectsDirectory : forcedDefault;
 }
 
 /*!

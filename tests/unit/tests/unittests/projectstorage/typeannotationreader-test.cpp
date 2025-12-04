@@ -29,13 +29,12 @@ protected:
         traits.visibleInLibrary = FlagIs::True;
     }
 
-    ~TypeAnnotationReader() { storage.resetForTestsOnly(); }
+    ~TypeAnnotationReader() {}
 
     struct StaticData
     {
-        Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-        ProjectStorageErrorNotifierMock errorNotifierMock;
-        QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
     };
 
     static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
@@ -44,14 +43,14 @@ protected:
 
     auto moduleId(Utils::SmallStringView name) const
     {
-        return storage.moduleId(name, QmlDesigner::Storage::ModuleKind::QmlLibrary);
+        return modulesStorage.moduleId(name, QmlDesigner::Storage::ModuleKind::QmlLibrary);
     }
 
 protected:
     inline static std::unique_ptr<StaticData> staticData;
-    Sqlite::Database &database = staticData->database;
-    QmlDesigner::ProjectStorage &storage = staticData->storage;
-    QmlDesigner::Storage::TypeAnnotationReader reader{storage};
+    Sqlite::Database &modulesDatabase = staticData->modulesDatabase;
+    QmlDesigner::ModulesStorage &modulesStorage = staticData->modulesStorage;
+    QmlDesigner::Storage::TypeAnnotationReader reader{modulesStorage};
     QmlDesigner::SourceId sourceId = QmlDesigner::SourceId::create(33);
     QmlDesigner::DirectoryPathId directoryId = QmlDesigner::DirectoryPathId::create(77);
     QmlDesigner::Storage::TypeTraits traits;

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "formeditorannotationicon.h"
+#include "formeditortracing.h"
+
 #include <qmldesignertr.h>
 
 #include <QGraphicsSceneMouseEvent>
@@ -22,6 +24,7 @@
 namespace QmlDesigner {
 
 const int penWidth = 2;
+using FormEditorTracing::category;
 
 FormEditorAnnotationIcon::FormEditorAnnotationIcon(const ModelNode &modelNode, QGraphicsItem *parent)
     : QGraphicsObject(parent)
@@ -35,6 +38,8 @@ FormEditorAnnotationIcon::FormEditorAnnotationIcon(const ModelNode &modelNode, Q
     , m_iconW(40)
     , m_iconH(32)
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon constructor", category()};
+
     setAcceptHoverEvents(true);
 
     bool hasAuxData = modelNode.hasAnnotation() || modelNode.hasCustomId();
@@ -56,6 +61,8 @@ FormEditorAnnotationIcon::FormEditorAnnotationIcon(const ModelNode &modelNode, Q
 
 FormEditorAnnotationIcon::~FormEditorAnnotationIcon()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon destructor", category()};
+
     if (m_annotationEditor) {
         m_annotationEditor->deleteLater();
     }
@@ -63,6 +70,8 @@ FormEditorAnnotationIcon::~FormEditorAnnotationIcon()
 
 void FormEditorAnnotationIcon::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon paint", category()};
+
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
 
@@ -104,26 +113,36 @@ void FormEditorAnnotationIcon::paint(QPainter *painter, const QStyleOptionGraphi
 
 QRectF FormEditorAnnotationIcon::boundingRect() const
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon bounding rect", category()};
+
     return QRectF(0, 0, m_iconW, m_iconH);
 }
 
 qreal FormEditorAnnotationIcon::iconWidth()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon icon width", category()};
+
     return m_iconW;
 }
 
 qreal FormEditorAnnotationIcon::iconHeight()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon icon height", category()};
+
     return m_iconH;
 }
 
 bool FormEditorAnnotationIcon::isReaderActive()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon is reader active", category()};
+
     return m_readerIsActive;
 }
 
 void FormEditorAnnotationIcon::setActive(bool readerStatus)
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon set active", category()};
+
     m_readerIsActive = readerStatus;
 
     if (m_readerIsActive)
@@ -136,6 +155,8 @@ void FormEditorAnnotationIcon::setActive(bool readerStatus)
 
 void FormEditorAnnotationIcon::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon hover enter event", category()};
+
     QGraphicsItem::hoverEnterEvent(event);
     event->accept();
     update();
@@ -143,6 +164,8 @@ void FormEditorAnnotationIcon::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 
 void FormEditorAnnotationIcon::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon hover leave event", category()};
+
     QGraphicsItem::hoverLeaveEvent(event);
     event->accept();
     update();
@@ -150,11 +173,15 @@ void FormEditorAnnotationIcon::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 
 void FormEditorAnnotationIcon::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon hover move event", category()};
+
     QGraphicsItem::hoverMoveEvent(event);
 }
 
 void FormEditorAnnotationIcon::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon mouse press event", category()};
+
     event->accept();
     Qt::MouseButton button = event->button();
 
@@ -177,11 +204,15 @@ void FormEditorAnnotationIcon::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
 void FormEditorAnnotationIcon::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon mouse release event", category()};
+
     event->accept();
 }
 
 void FormEditorAnnotationIcon::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon context menu event", category()};
+
     QMenu menu;
     menu.addAction(Tr::tr("Edit Annotation"), [this] { createAnnotationEditor(); });
 
@@ -193,6 +224,8 @@ void FormEditorAnnotationIcon::contextMenuEvent(QGraphicsSceneContextMenuEvent *
 
 void FormEditorAnnotationIcon::drawReader()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon draw reader", category()};
+
     if (!childItems().isEmpty()) {
         for (QGraphicsItem * const item  : childItems()) {
             item->show();
@@ -205,6 +238,8 @@ void FormEditorAnnotationIcon::drawReader()
 
 void FormEditorAnnotationIcon::hideReader()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon hide reader", category()};
+
     if (!childItems().isEmpty())
         for (QGraphicsItem * const item : childItems())
             item->hide();
@@ -212,18 +247,24 @@ void FormEditorAnnotationIcon::hideReader()
 
 void FormEditorAnnotationIcon::quickResetReader()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon quick reset reader", category()};
+
     hideReader();
     drawReader();
 }
 
 void FormEditorAnnotationIcon::resetReader()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon reset reader", category()};
+
     removeReader();
     createReader();
 }
 
 void FormEditorAnnotationIcon::createReader()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon create reader", category()};
+
     const qreal width = 290.;
     const qreal height = 30.;
     const qreal offset = 5.;
@@ -291,6 +332,8 @@ void FormEditorAnnotationIcon::createReader()
 
 void FormEditorAnnotationIcon::removeReader()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon remove reader", category()};
+
     if (!childItems().isEmpty())
         qDeleteAll(childItems());
 }
@@ -299,6 +342,8 @@ QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(QRectF rect, const 
                                                              const QString &author, const QString &text,
                                                              const QString &date, QGraphicsItem *parent)
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon create comment bubble", category()};
+
     static QColor textColor = Utils::creatorColor(Utils::Theme::DStextColor);
     static QColor backgroundColor = Utils::creatorColor(Utils::Theme::QmlDesigner_BackgroundColorDarker);
     static QColor frameColor = Utils::creatorColor(Utils::Theme::QmlDesigner_BackgroundColor);
@@ -402,6 +447,8 @@ QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(QRectF rect, const 
 
 QGraphicsItem *FormEditorAnnotationIcon::createTitleBubble(const QRectF &rect, const QString &text, QGraphicsItem *parent)
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon create title bubble", category()};
+
     static QColor textColor = Utils::creatorColor(Utils::Theme::DStextColor);
     static QColor backgroundColor = Utils::creatorColor(Utils::Theme::QmlDesigner_BackgroundColorDarker);
     static QColor frameColor = Utils::creatorColor(Utils::Theme::QmlDesigner_BackgroundColor);
@@ -436,6 +483,8 @@ QGraphicsItem *FormEditorAnnotationIcon::createTitleBubble(const QRectF &rect, c
 
 void FormEditorAnnotationIcon::createAnnotationEditor()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon create annotation editor", category()};
+
     if (m_annotationEditor) {
         m_annotationEditor->close();
         m_annotationEditor->deleteLater();
@@ -458,6 +507,8 @@ void FormEditorAnnotationIcon::createAnnotationEditor()
 
 void FormEditorAnnotationIcon::removeAnnotationDialog()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon remove annotation dialog", category()};
+
     QString dialogTitle = Tr::tr("Annotation");
     if (!m_customId.isNull()) {
         dialogTitle = m_customId;
@@ -481,6 +532,8 @@ void FormEditorAnnotationIcon::removeAnnotationDialog()
 
 void FormEditorAnnotationIcon::annotationDialogAccepted()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon annotation dialog accepted", category()};
+
     if (m_annotationEditor) {
         QString customId = m_annotationEditor->customId();
         m_customId = customId;
@@ -507,6 +560,8 @@ void FormEditorAnnotationIcon::annotationDialogAccepted()
 
 void FormEditorAnnotationIcon::annotationDialogRejected()
 {
+    NanotraceHR::Tracer tracer{"formeditor annotation icon annotation dialog rejected", category()};
+
     if (m_annotationEditor) {
         m_annotationEditor->close();
         m_annotationEditor->deleteLater();

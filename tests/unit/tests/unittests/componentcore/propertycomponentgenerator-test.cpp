@@ -54,12 +54,24 @@ constexpr Utils::SmallStringView sourcesPath = UNITTEST_DIR
 class PropertyComponentGenerator : public ::testing::Test
 {
 protected:
+protected:
+    struct StaticData
+    {
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
+    };
+
     static void SetUpTestSuite()
     {
+        staticData = std::make_unique<StaticData>();
         simpleReaderNode = createTemplateConfiguration(QString{sourcesPath});
     }
 
-    static void TearDownTestSuite() { simpleReaderNode.reset(); }
+    static void TearDownTestSuite()
+    {
+        simpleReaderNode.reset();
+        staticData.reset();
+    }
 
     static QmlJS::SimpleReaderNode::Ptr createTemplateConfiguration(const QString &propertyEditorResourcesPath)
     {
@@ -172,19 +184,23 @@ protected:
     }
 
 protected:
+    inline static std::unique_ptr<StaticData> staticData;
+    QmlDesigner::ModulesStorage &modulesStorage = staticData->modulesStorage;
     inline static QSharedPointer<const QmlJS::SimpleReaderNode> simpleReaderNode;
     NiceMock<AbstractViewMock> viewMock;
     NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
-    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId,
+                                                               "/path",
+                                                               modulesStorage};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
-                             "Item",
-                             -1,
-                             -1,
-                             nullptr,
-                             std::make_unique<ModelResourceManagementMockWrapper>(
-                                 resourceManagementMock)};
+    QmlDesigner::Model model{
+        {projectStorageMock, pathCacheMock, modulesStorage, projectStorageTriggerUpdateMock},
+        "Item",
+        -1,
+        -1,
+        nullptr,
+        std::make_unique<ModelResourceManagementMockWrapper>(resourceManagementMock)};
     QmlDesigner::PropertyComponentGenerator generator{QString{sourcesPath}, &model};
     QmlDesigner::NodeMetaInfo itemMetaInfo = model.qtQuickItemMetaInfo();
     QmlDesigner::ModuleId qmlModuleId = projectStorageMock.createModule("QML", ModuleKind::QmlLibrary);
@@ -210,68 +226,6 @@ TEST_F(PropertyComponentGenerator,
     auto propertyComponent = generator.create(fontProperty);
 
     ASSERT_THAT(propertyComponent, IsComplexProperty(StrippedStringEq(expected)));
-}
-
-TEST_F(PropertyComponentGenerator,
-       complex_property_is_returned_for_property_without_a_template_and_subproperties)
-{
-    auto stringId = projectStorageMock.createValue(qmlModuleId, "string");
-    auto fooNodeInfo = createTypeWithProperties("Foo", stringId);
-    auto sub1Text = toString(generator.create(fooNodeInfo.property("sub1")), "foo", "sub1");
-    auto sub2Text = toString(generator.create(fooNodeInfo.property("sub2")), "foo", "sub2");
-    auto fooProperty = createProperty(itemMetaInfo.id(), "foo", {}, fooNodeInfo.id());
-    QString expectedText = QStringLiteral(
-        R"xy(
-           Section {
-             caption: "foo - Foo"
-             anchors.left: parent.left
-             anchors.right: parent.right
-             leftPadding: 8
-             rightPadding: 0
-             expanded: false
-             level: 1
-             SectionLayout {
-     )xy");
-    expectedText += sub1Text;
-    expectedText += sub2Text;
-    expectedText += "}}";
-
-    auto propertyComponent = generator.create(fooProperty);
-
-    ASSERT_THAT(propertyComponent, IsComplexProperty(StrippedStringEq(expectedText)));
-}
-
-TEST_F(PropertyComponentGenerator,
-       pointer_readonly_complex_property_is_returned_for_property_without_a_template_and_subproperties)
-{
-    auto stringId = projectStorageMock.createValue(qmlModuleId, "string");
-    auto fooNodeInfo = createTypeWithProperties("Foo", stringId);
-    auto sub1Text = toString(generator.create(fooNodeInfo.property("sub1")), "foo", "sub1");
-    auto sub2Text = toString(generator.create(fooNodeInfo.property("sub2")), "foo", "sub2");
-    auto fooProperty = createProperty(itemMetaInfo.id(),
-                                      "foo",
-                                      QmlDesigner::Storage::PropertyDeclarationTraits::IsPointer
-                                          | QmlDesigner::Storage::PropertyDeclarationTraits::IsReadOnly,
-                                      fooNodeInfo.id());
-    QString expectedText = QStringLiteral(
-        R"xy(
-           Section {
-             caption: "foo - Foo"
-             anchors.left: parent.left
-             anchors.right: parent.right
-             leftPadding: 8
-             rightPadding: 0
-             expanded: false
-             level: 1
-             SectionLayout {
-     )xy");
-    expectedText += sub1Text;
-    expectedText += sub2Text;
-    expectedText += "}}";
-
-    auto propertyComponent = generator.create(fooProperty);
-
-    ASSERT_THAT(propertyComponent, IsComplexProperty(StrippedStringEq(expectedText)));
 }
 
 TEST_F(PropertyComponentGenerator, basic_property_without_template_is_returning_monostate)
@@ -377,6 +331,18 @@ TEST_F(PropertyComponentGenerator, after_refresh_meta_infos_type_was_added)
     generator.refreshMetaInfos({});
 
     ASSERT_THAT(generator.create(xProperty), IsBasicProperty(StrippedStringEq(expected)));
+}
+
+TEST_F(PropertyComponentGenerator, generate_float_property_component)
+{
+    QString expected = getExpectedContent("float", "floatProp", "floatProp");
+    QmlDesigner::NodeMetaInfo floatMetaInfo = model.floatMetaInfo();
+    projectStorageMock.createProperty(itemMetaInfo.id(), "floatProp", floatMetaInfo.id());
+    auto floatProperty = itemMetaInfo.property("floatProp");
+
+    auto propertyComponent = generator.create(floatProperty);
+
+    ASSERT_THAT(propertyComponent, IsBasicProperty(StrippedStringEq(expected)));
 }
 
 } // namespace

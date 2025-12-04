@@ -73,7 +73,7 @@ VersionData {
         prefix: "font"
         bannedProperties: ["wordSpacing", "letterSpacing", "hintingPreference",
             "kerning", "preferShaping",  "capitalization",
-            "strikeout", "underline", "styleName"]
+            "strikeout", "underline", "styleName", "pointSize"]
     }
 
     QtQml.Timer {

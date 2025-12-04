@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "seekerslider.h"
+#include "formeditortracing.h"
 
 #include <utils/icon.h>
 #include <utils/stylehelper.h>
@@ -13,9 +14,13 @@
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 SeekerSlider::SeekerSlider(QWidget *parent)
     : QSlider(parent)
 {
+    NanotraceHR::Tracer tracer{"seeker slider constructor", category()};
+
     Utils::StyleHelper::setPanelWidget(this);
     Utils::StyleHelper::setPanelWidgetSingleRow(this);
     setOrientation(Qt::Horizontal);
@@ -25,17 +30,23 @@ SeekerSlider::SeekerSlider(QWidget *parent)
 
 int SeekerSlider::maxValue() const
 {
+    NanotraceHR::Tracer tracer{"seeker slider max value", category()};
+
     return maximum();
 }
 
 void SeekerSlider::setMaxValue(int maxValue)
 {
+    NanotraceHR::Tracer tracer{"seeker slider set max value", category()};
+
     maxValue = std::abs(maxValue);
     setRange(-maxValue, +maxValue);
 }
 
 void SeekerSlider::mousePressEvent(QMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"seeker slider mouse press", category()};
+
     if (event->button() != Qt::LeftButton)
         return;
 
@@ -51,6 +62,7 @@ void SeekerSlider::mousePressEvent(QMouseEvent *event)
 
 void SeekerSlider::mouseMoveEvent(QMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"seeker slider mouse move", category()};
     if (!m_moving)
         return;
 
@@ -59,6 +71,8 @@ void SeekerSlider::mouseMoveEvent(QMouseEvent *event)
 
 void SeekerSlider::mouseReleaseEvent(QMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"seeker slider mouse release", category()};
+
     if (!m_moving)
         return;
 
@@ -71,27 +85,37 @@ SeekerSliderAction::SeekerSliderAction(QObject *parent)
     : QWidgetAction(parent)
     , m_defaultSlider(new SeekerSlider())
 {
+    NanotraceHR::Tracer tracer{"seeker slider action constructor", category()};
+
     setDefaultWidget(m_defaultSlider);
     QObject::connect(m_defaultSlider, &QSlider::valueChanged, this, &SeekerSliderAction::valueChanged);
 }
 
 SeekerSliderAction::~SeekerSliderAction()
 {
+    NanotraceHR::Tracer tracer{"seeker slider action destructor", category()};
+
     m_defaultSlider->deleteLater();
 }
 
 SeekerSlider *SeekerSliderAction::defaultSlider() const
 {
+    NanotraceHR::Tracer tracer{"seeker slider action default slider", category()};
+
     return m_defaultSlider;
 }
 
 int SeekerSliderAction::value()
 {
+    NanotraceHR::Tracer tracer{"seeker slider action value", category()};
+
     return m_defaultSlider->value();
 }
 
 QWidget *SeekerSliderAction::createWidget(QWidget *parent)
 {
+    NanotraceHR::Tracer tracer{"seeker slider action create widget", category()};
+
     SeekerSlider *slider = new SeekerSlider(parent);
 
     QObject::connect(m_defaultSlider, &SeekerSlider::valueChanged, slider, &SeekerSlider::setValue);

@@ -602,6 +602,15 @@ void CMakeGenerator::createWriter()
 
     const Utils::FilePath rootPath = project->projectDirectory();
     const Utils::FilePath settingsFile = rootPath.pathAppended("CMakeLists.txt.shared");
+
+    if (!settingsFile.exists()) {
+        const QString sharedTemplate = CMakeWriter::readTemplate(":/templates/cmake_shared");
+        const QString sharedContent = sharedTemplate.arg(writer->identifier());
+        CMakeWriter::writeFile(settingsFile, sharedContent);
+        m_writer = writer;
+        return;
+    }
+
     Utils::PersistentSettingsReader reader;
     reader.load(settingsFile);
     auto store = reader.restoreValues();

@@ -17,7 +17,7 @@ bool InternalBindingProperty::isValid() const
     return InternalProperty::isValid() && isBindingProperty();
 }
 
-QString InternalBindingProperty::expression() const
+const QString &InternalBindingProperty::expression() const
 {
     return m_expression;
 }

@@ -4,9 +4,8 @@
 #include "effectcomposermodel.h"
 
 #include "compositionnode.h"
-#include "effectcomposertr.h"
 #include "effectcomposernodesmodel.h"
-#include "effectshaderscodeeditor.h"
+#include "effectcomposertr.h"
 #include "effectutils.h"
 #include "propertyhandler.h"
 #include "syntaxhighlighterdata.h"
@@ -38,9 +37,6 @@ using namespace Qt::StringLiterals;
 
 namespace EffectComposer {
 
-static constexpr int INVALID_CODE_EDITOR_INDEX = -1;
-static constexpr int MAIN_CODE_EDITOR_INDEX = -2;
-
 EffectComposerModel::EffectComposerModel(QObject *parent)
     : QAbstractListModel{parent}
     , m_effectComposerNodesModel{new EffectComposerNodesModel(this)}
@@ -51,7 +47,6 @@ EffectComposerModel::EffectComposerModel(QObject *parent)
     m_rebakeTimer.setSingleShot(true);
     connect(&m_rebakeTimer, &QTimer::timeout, this, &EffectComposerModel::bakeShaders);
     m_currentPreviewImage = defaultPreviewImage();
-    connectCodeEditor();
 }
 
 EffectComposerNodesModel *EffectComposerModel::effectComposerNodesModel() const
@@ -152,8 +147,6 @@ void EffectComposerModel::addNode(const QString &nodeQenPath)
 
     bakeShaders();
     setHasUnsavedChanges(true);
-
-    emit nodesChanged();
 }
 
 CompositionNode *EffectComposerModel::findNodeById(const QString &id) const
@@ -165,12 +158,18 @@ CompositionNode *EffectComposerModel::findNodeById(const QString &id) const
     return {};
 }
 
+CompositionNode *EffectComposerModel::nodeAt(int index) const
+{
+    if (!isValidIndex(index))
+        return nullptr;
+
+    return m_nodes.at(index);
+}
+
 void EffectComposerModel::moveNode(int fromIdx, int toIdx)
 {
     if (fromIdx == toIdx)
         return;
-
-    int oldCodeEditorIdx = m_codeEditorIndex;
 
     int toIdxAdjusted = fromIdx < toIdx ? toIdx + 1 : toIdx; // otherwise beginMoveRows() crashes
     beginMoveRows({}, fromIdx, fromIdx, {}, toIdxAdjusted);
@@ -179,18 +178,6 @@ void EffectComposerModel::moveNode(int fromIdx, int toIdx)
 
     setHasUnsavedChanges(true);
     bakeShaders();
-
-    // Adjust codeEditorIndex after move
-    if (oldCodeEditorIdx > -1) {
-        int newCodeEditorIndex = oldCodeEditorIdx;
-        if (oldCodeEditorIdx == fromIdx)
-            newCodeEditorIndex = toIdx;
-        if (fromIdx < oldCodeEditorIdx && toIdx >= oldCodeEditorIdx)
-            --newCodeEditorIndex;
-        if (fromIdx > oldCodeEditorIdx && toIdx <= oldCodeEditorIdx)
-            ++newCodeEditorIndex;
-        setCodeEditorIndex(newCodeEditorIndex);
-    }
 }
 
 void EffectComposerModel::removeNode(int idx)
@@ -198,12 +185,6 @@ void EffectComposerModel::removeNode(int idx)
     beginResetModel();
     m_rebakeTimer.stop();
     CompositionNode *node = m_nodes.takeAt(idx);
-
-    // Invalidate codeEditorIndex only if the index is the same as current index
-    // Then after the model reset, the nearest code editor should be opened.
-    const bool switchCodeEditorNode = m_codeEditorIndex == idx;
-    if (switchCodeEditorNode)
-        setCodeEditorIndex(INVALID_CODE_EDITOR_INDEX);
 
     const QStringList reqNodes = node->requiredNodes();
     for (const QString &reqId : reqNodes) {
@@ -217,16 +198,12 @@ void EffectComposerModel::removeNode(int idx)
     delete node;
     endResetModel();
 
-    if (switchCodeEditorNode)
-        openNearestAvailableCodeEditor(idx);
-
     if (m_nodes.isEmpty())
         setIsEmpty(true);
     else
         bakeShaders();
 
     setHasUnsavedChanges(true);
-    emit nodesChanged();
 }
 
 // Returns false if new name was generated
@@ -277,7 +254,6 @@ void EffectComposerModel::clear(bool clearName)
     setCodeEditorIndex(INVALID_CODE_EDITOR_INDEX);
 
     setIsEmpty(true);
-    emit nodesChanged();
 }
 
 void EffectComposerModel::assignToSelected()
@@ -1187,48 +1163,6 @@ R"(
     return s;
 }
 
-void EffectComposerModel::connectCodeEditor()
-{
-    EffectShadersCodeEditor *editor = EffectShadersCodeEditor::instance();
-    editor->setCompositionsModel(this);
-
-    connect(this, &QObject::destroyed, editor, &QObject::deleteLater);
-
-    connect(
-        editor,
-        &EffectShadersCodeEditor::rebakeRequested,
-        this,
-        &EffectComposerModel::startRebakeTimer);
-
-    connect(editor, &EffectShadersCodeEditor::openedChanged, this, [this](bool visible) {
-        if (!visible)
-            setCodeEditorIndex(INVALID_CODE_EDITOR_INDEX);
-    });
-}
-
-void EffectComposerModel::createCodeEditorData()
-{
-    using TextEditor::TextDocument;
-    if (m_shaderEditorData)
-        return;
-
-    m_shaderEditorData.reset(
-        EffectShadersCodeEditor::instance()
-            ->createEditorData(m_rootFragmentShader, m_rootVertexShader, nullptr));
-
-    connect(m_shaderEditorData->fragmentDocument.get(), &TextDocument::contentsChanged, this, [this] {
-        setRootFragmentShader(m_shaderEditorData->fragmentDocument->plainText());
-        setHasUnsavedChanges(true);
-        rebakeIfLiveUpdateMode();
-    });
-
-    connect(m_shaderEditorData->vertexDocument.get(), &TextDocument::contentsChanged, this, [this] {
-        setRootVertexShader(m_shaderEditorData->vertexDocument->plainText());
-        setHasUnsavedChanges(true);
-        rebakeIfLiveUpdateMode();
-    });
-}
-
 void EffectComposerModel::writeComposition(const QString &name)
 {
     resetEffectError(ErrorCommon);
@@ -1308,31 +1242,6 @@ void EffectComposerModel::saveComposition(const QString &name)
     writeComposition(name);
     m_pendingSaveBakeCounter = m_currentBakeCounter + 1; // next bake counter
     startRebakeTimer();
-}
-
-void EffectComposerModel::openCodeEditor(int idx)
-{
-    if (idx == MAIN_CODE_EDITOR_INDEX)
-        return openMainCodeEditor();
-
-    if (idx < 0 || idx >= m_nodes.size())
-        return;
-
-    CompositionNode *node = m_nodes.at(idx);
-    node->openCodeEditor();
-
-    setCodeEditorIndex(idx);
-}
-
-void EffectComposerModel::openMainCodeEditor()
-{
-    createCodeEditorData();
-
-    auto editor = EffectShadersCodeEditor::instance();
-    editor->setupShader(m_shaderEditorData.get());
-    editor->showWidget();
-
-    setCodeEditorIndex(MAIN_CODE_EDITOR_INDEX);
 }
 
 bool EffectComposerModel::canAddNodeToLibrary(int idx)
@@ -1561,7 +1470,6 @@ void EffectComposerModel::openComposition(const QString &path)
     }
 
     setHasUnsavedChanges(false);
-    emit nodesChanged();
     emit currentPreviewImageChanged();
     emit currentPreviewColorChanged();
 }
@@ -1738,24 +1646,6 @@ void EffectComposerModel::saveResources(const QString &name)
     }
 
     emit resourcesSaved(QString("%1.%2.%2").arg(m_effectTypePrefix, name).toUtf8(), effectPath);
-}
-
-void EffectComposerModel::openNearestAvailableCodeEditor(int idx)
-{
-    int nearestIdx = idx;
-
-    if (nearestIdx >= m_nodes.size())
-        nearestIdx = m_nodes.size() - 1;
-
-    while (nearestIdx >= 0) {
-        CompositionNode *node = m_nodes.at(nearestIdx);
-        if (!node->isDependency())
-            return openCodeEditor(nearestIdx);
-
-        --nearestIdx;
-    }
-
-    openMainCodeEditor();
 }
 
 // Get value in QML format that used for exports
@@ -2569,9 +2459,9 @@ void EffectComposerModel::connectCompositionNode(CompositionNode *node)
         this,
         setUnsaved);
 
-    connect(node, &CompositionNode::rebakeRequested, this, &EffectComposerModel::startRebakeTimer);
-    connect(node, &CompositionNode::fragmentCodeChanged, this, setUnsaved);
-    connect(node, &CompositionNode::vertexCodeChanged, this, setUnsaved);
+    connect(node, &CompositionNode::uniformsChanged, this, &EffectComposerModel::startRebakeTimer);
+    connect(node, &CompositionNode::codeChanged, this, &EffectComposerModel::rebakeIfLiveUpdateMode);
+    connect(node, &CompositionNode::codeChanged, this, setUnsaved);
 }
 
 void EffectComposerModel::updateExtraMargin()
@@ -2589,7 +2479,7 @@ void EffectComposerModel::startRebakeTimer()
 
 void EffectComposerModel::rebakeIfLiveUpdateMode()
 {
-    if (EffectShadersCodeEditor::instance()->liveUpdate())
+    if (m_liveUpdateMode)
         startRebakeTimer();
 }
 
@@ -2641,10 +2531,6 @@ void EffectComposerModel::setCurrentComposition(const QString &newCurrentComposi
 
     m_currentComposition = newCurrentComposition;
     emit currentCompositionChanged();
-
-    auto editor = EffectShadersCodeEditor::instance();
-    editor->close();
-    editor->cleanFromData(m_shaderEditorData.get());
 
     m_shaderEditorData.reset();
 }
@@ -2715,9 +2601,28 @@ int EffectComposerModel::customPreviewImageCount() const
     return m_customPreviewImages.size();
 }
 
-int EffectComposerModel::mainCodeEditorIndex() const
+void EffectComposerModel::updateCodeEditorIndex(const ShaderEditorData *editorData)
 {
-    return MAIN_CODE_EDITOR_INDEX;
+    int idx = INVALID_CODE_EDITOR_INDEX;
+
+    if (editorData) {
+        if (editorData == m_shaderEditorData.get()) { // editorData matches main node
+            idx = MAIN_CODE_EDITOR_INDEX;
+        } else if ( // Current selected index is correct (This case only helps performance)
+            isValidIndex(codeEditorIndex())
+            && nodeAt(codeEditorIndex())->matchesEditorData(editorData)) {
+            idx = codeEditorIndex();
+        } else { // Search all nodes
+            auto itr = std::ranges::find_if(m_nodes, [editorData](const CompositionNode *node) {
+                return node->matchesEditorData(editorData);
+            });
+
+            if (itr != m_nodes.end())
+                idx = static_cast<int>(std::distance(m_nodes.begin(), itr));
+        }
+    }
+
+    setCodeEditorIndex(idx);
 }
 
 Utils::FilePath EffectComposerModel::compositionPath() const
@@ -2750,6 +2655,11 @@ void EffectComposerModel::setHasUnsavedChanges(bool val)
         for (CompositionNode *node : std::as_const(m_nodes))
             node->markAsSaved();
     }
+}
+
+void EffectComposerModel::setLiveUpdateMode(bool val)
+{
+    m_liveUpdateMode = val;
 }
 
 QStringList EffectComposerModel::uniformNames() const
@@ -2791,6 +2701,29 @@ bool EffectComposerModel::isDependencyNode(int index) const
     if (m_nodes.size() > index)
         return m_nodes[index]->isDependency();
     return false;
+}
+
+ShaderEditorData *EffectComposerModel::editorData(ShaderEditorData::Creator creatorCallBack)
+{
+    using TextEditor::TextDocument;
+    if (m_shaderEditorData)
+        return m_shaderEditorData.get();
+
+    m_shaderEditorData.reset(creatorCallBack(m_rootFragmentShader, m_rootVertexShader));
+
+    connect(m_shaderEditorData->fragmentDocument.get(), &TextDocument::contentsChanged, this, [this] {
+        setRootFragmentShader(m_shaderEditorData->fragmentDocument->plainText());
+        setHasUnsavedChanges(true);
+        rebakeIfLiveUpdateMode();
+    });
+
+    connect(m_shaderEditorData->vertexDocument.get(), &TextDocument::contentsChanged, this, [this] {
+        setRootVertexShader(m_shaderEditorData->vertexDocument->plainText());
+        setHasUnsavedChanges(true);
+        rebakeIfLiveUpdateMode();
+    });
+
+    return m_shaderEditorData.get();
 }
 
 bool EffectComposerModel::hasCustomNode() const

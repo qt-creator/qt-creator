@@ -33,7 +33,7 @@
     connection between them.
 
     \note To avoid transforming components by mistake while editing your scene,
-    use the \l {Showing and hiding components}{showing and hiding} or the
+    use the \l {Showing and hiding other components}{showing and hiding} or the
     \l {Locking Components}{locking} features in \l Navigator.
 
     To refresh the contents of the \uicontrol{3D} view, select \key P or
@@ -55,7 +55,6 @@
     in the \uicontrol 3D view. From the context menu you can, for example:
     \list
       \li Create cameras, lights, and models.
-      \li Open \uicontrol {Material Editor} and edit materials.
       \li Delete components.
       \li Align camera views.
     \endlist
@@ -123,15 +122,32 @@
 
     \section2 Using the split view
 
-    To view the scene in a split view of four different point of views, select
-    \imagesplitview.
+    Use the split view to view the scene from different points of view using the different
+    viewport modes.
 
-    \image studio-3d-split-view.webp "Split view in the 3D view"
+    Use the split view to split the \uicontrol 3D view into multiple viewports. You can
+    manipulate each of the viewports separately.
 
-    Select one of the four panes to make it the active pane. The active pane is marked with
-    a blue frame. Use the world axis helper to change the point of view for each pane
-    independently. Navigate each split by panning, rotating, and zooming, as
-    described above.
+    To view the scene in a split view, select \imagesplitview (\uicontrol {Show Viewport Modes})
+    and then select one of the viewport modes:
+    \list
+        \li The \uicontrol Single mode shows the scene in a single viewport.
+        \li The \uicontrol Quad mode shows the scene from four different viewports.
+        \li The \uicontrol {3 Left 1 Right} mode shows the scene from four points of
+            view using three smaller and one larger viewport.
+        \li The \uicontrol {2 Horizontal} mode shows the scene from two horizontal
+            viewports.
+        \li The \uicontrol {2 Vertical} mode shows the scene from two vertical viewports.
+    \endlist
+
+    Select one of the viewports to make it the active viewport. The active viewport is marked with
+    a blue frame. Use the world axis helper to change the point of view for each viewport
+    independently. You can \l {Toggling the camera mode}{toggle the camera mode} between the
+    perspective and orthographic modes independently for each viewport.
+    \l {Navigating in the 3D scene}{Navigate} each split by panning, rotating, and zooming.
+    To resize the viewports, drag the border between them.
+
+    \image {studio-3d-split-view.webp} {Split view in the 3D view.}
 
     \section2 Using the fly mode
 

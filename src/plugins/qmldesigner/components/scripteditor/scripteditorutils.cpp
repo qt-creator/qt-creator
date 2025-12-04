@@ -225,7 +225,7 @@ QVariant defaultValueForType(const TypeName &type)
     QVariant value;
     if (type == "int")
         value = 0;
-    else if (type == "real")
+    else if (type == "real" || type == "double")
         value = 0.0;
     else if (type == "color")
         value = QColor(255, 255, 255);
@@ -326,9 +326,11 @@ QStringList availableSources(AbstractView *view)
 
     QStringList sourceNodes;
 
-    for (const auto &metaInfo : view->model()->singletonMetaInfos())
-        sourceNodes.push_back(metaInfo.displayName());
-
+    for (const auto &metaInfo : view->model()->singletonMetaInfos()) {
+        auto exportedType = view->model()->exportedTypeNameForMetaInfo(metaInfo);
+        if (exportedType.name.size())
+            sourceNodes.push_back(exportedType.name.toQString());
+    }
     for (const ModelNode &modelNode : view->allModelNodes()) {
         if (auto id = modelNode.id(); !id.isEmpty())
             sourceNodes.append(id);

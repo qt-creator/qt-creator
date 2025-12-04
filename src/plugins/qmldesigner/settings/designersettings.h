@@ -39,9 +39,6 @@ inline constexpr char EDIT3DVIEW_SNAP_ROTATION_INTERVAL[] = "Edit3DViewSnapRotat
 inline constexpr char EDIT3DVIEW_SNAP_SCALE[] = "Edit3DViewSnapScale";
 inline constexpr char EDIT3DVIEW_SNAP_SCALE_INTERVAL[] = "Edit3DViewSnapScaleInterval";
 inline constexpr char ALWAYS_SAVE_IN_CRUMBLEBAR[] = "AlwaysSaveInCrumbleBar";
-inline constexpr char USE_DEFAULT_PUPPET[] = "UseDefaultQmlPuppet";
-inline constexpr char PUPPET_TOPLEVEL_BUILD_DIRECTORY[] = "PuppetToplevelBuildDirectory";
-inline constexpr char PUPPET_DEFAULT_DIRECTORY[] = "PuppetDefaultDirectory";
 inline constexpr char CONTROLS_STYLE[] = "ControlsStyle";
 inline constexpr char TYPE_OF_QSTR_FUNCTION[] = "TypeOfQsTrFunction";
 inline constexpr char SHOW_PROPERTYEDITOR_WARNINGS[] = "ShowPropertyEditorWarnings";
@@ -49,8 +46,10 @@ inline constexpr char ENABLE_MODEL_EXCEPTION_OUTPUT[] = "WarnException";
 inline constexpr char PUPPET_KILL_TIMEOUT[] = "PuppetKillTimeout";
 inline constexpr char DEBUG_PUPPET[] = "DebugPuppet";
 inline constexpr char FORWARD_PUPPET_OUTPUT[] = "ForwardPuppetOutput";
+inline constexpr char NAVIGATOR_SHOW_REFERENCE_NODES[] = "NavigatorShowReferenceNodes";
 inline constexpr char NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS[] = "NavigatorShowOnlyVisibleItems";
 inline constexpr char NAVIGATOR_REVERSE_ITEM_ORDER[] = "NavigatorReverseItemOrder";
+inline constexpr char NAVIGATOR_COLORIZE_ICONS[] = "NavigatorColorizeIcons";
 inline constexpr char REFORMAT_UI_QML_FILES[]
     = "ReformatUiQmlFiles"; /* These settings are not exposed in ui. */
 inline constexpr char IGNORE_DEVICE_PIXEL_RATIO[]
@@ -63,11 +62,13 @@ inline constexpr char COLOR_PALETTE_FAVORITE[] = "ColorPaletteFavorite";
 inline constexpr char ALWAYS_DESIGN_MODE[] = "AlwaysDesignMode";
 inline constexpr char DISABLE_ITEM_LIBRARY_UPDATE_TIMER[] = "DisableItemLibraryUpdateTimer";
 inline constexpr char ASK_BEFORE_DELETING_ASSET[] = "AskBeforeDeletingAsset";
+inline constexpr char ASK_BEFORE_DELETING_CONTENTLIB_FILE[] = "AskBeforeDeletingContentLibFile";
 inline constexpr char SMOOTH_RENDERING[] = "SmoothRendering";
 inline constexpr char EDITOR_ZOOM_FACTOR[] = "EditorZoomFactor";
 inline constexpr char ACTIONS_MERGE_TEMPLATE_ENABLED[] = "ActionsMergeTemplateEnabled";
 inline constexpr char DOWNLOADABLE_BUNDLES_URL[] = "DownloadableBundlesLocation";
 inline constexpr char CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS[] = "ContentLibraryNewFlagExpirationInDays";
+inline constexpr char GROQ_API_KEY[] = "GroqApiKey";
 }
 
 class QMLDESIGNERSETTINGS_EXPORT DesignerSettings

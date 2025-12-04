@@ -24,6 +24,8 @@ typedef QWeakPointer<ObjectNodeInstance> ObjectNodeInstanceWeakPointer;
 
 namespace QmlPrivateGate {
 
+bool useCrashQTBUG136735Workaround(const QQmlProperty &property, const char *callerInfo);
+
 class ComponentCompleteDisabler
 {
 public:

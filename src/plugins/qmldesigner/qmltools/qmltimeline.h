@@ -16,46 +16,54 @@ class QMLDESIGNER_EXPORT QmlTimeline final : public QmlModelNodeFacade
 {
 
 public:
-    QmlTimeline();
-    QmlTimeline(const ModelNode &modelNode);
+    QmlTimeline() = default;
 
-    bool isValid() const;
+    QmlTimeline(const ModelNode &modelNode)
+        : QmlModelNodeFacade(modelNode)
+    {}
+
+    bool isValid(SL sl = {}) const;
     explicit operator bool() const { return isValid(); }
-    static bool isValidQmlTimeline(const ModelNode &modelNode);
-    void destroy();
 
-    QmlTimelineKeyframeGroup keyframeGroup(const ModelNode &modelNode, PropertyNameView propertyName);
-    bool hasTimeline(const ModelNode &modelNode, PropertyNameView propertyName);
+    static bool isValidQmlTimeline(const ModelNode &modelNode, SL sl = {});
+    void destroy(SL sl = {});
 
-    qreal startKeyframe() const;
-    qreal endKeyframe() const;
-    qreal currentKeyframe() const;
-    qreal duration() const;
+    QmlTimelineKeyframeGroup keyframeGroup(const ModelNode &modelNode,
+                                           PropertyNameView propertyName,
+                                           SL sl = {});
+    bool hasTimeline(const ModelNode &modelNode, PropertyNameView propertyName, SL sl = {});
 
-    bool isEnabled() const;
+    qreal startKeyframe(SL sl = {}) const;
+    qreal endKeyframe(SL sl = {}) const;
+    qreal currentKeyframe(SL sl = {}) const;
+    qreal duration(SL sl = {}) const;
 
-    qreal minActualKeyframe(const ModelNode &target) const;
-    qreal maxActualKeyframe(const ModelNode &target) const;
+    bool isEnabled(SL sl = {}) const;
 
-    void moveAllKeyframes(const ModelNode &target, qreal offset);
-    void scaleAllKeyframes(const ModelNode &target, qreal factor);
+    qreal minActualKeyframe(const ModelNode &target, SL sl = {}) const;
+    qreal maxActualKeyframe(const ModelNode &target, SL sl = {}) const;
 
-    QList<ModelNode> allTargets() const;
-    QList<QmlTimelineKeyframeGroup> keyframeGroupsForTarget(const ModelNode &target) const;
-    void destroyKeyframesForTarget(const ModelNode &target);
+    void moveAllKeyframes(const ModelNode &target, qreal offset, SL sl = {});
+    void scaleAllKeyframes(const ModelNode &target, qreal factor, SL sl = {});
 
-    void removeKeyframesForTargetAndProperty(const ModelNode &target, PropertyNameView propertyName);
+    QList<ModelNode> allTargets(SL sl = {}) const;
+    QList<QmlTimelineKeyframeGroup> keyframeGroupsForTarget(const ModelNode &target, SL sl = {}) const;
+    void destroyKeyframesForTarget(const ModelNode &target, SL sl = {});
 
-    static bool hasActiveTimeline(AbstractView *view);
+    void removeKeyframesForTargetAndProperty(const ModelNode &target,
+                                             PropertyNameView propertyName,
+                                             SL sl = {});
 
-    bool isRecording() const;
-    void toogleRecording(bool b) const;
+    static bool hasActiveTimeline(AbstractView *view, SL sl = {});
 
-    void resetGroupRecording() const;
-    bool hasKeyframeGroup(const ModelNode &node, PropertyNameView propertyName) const;
-    bool hasKeyframeGroupForTarget(const ModelNode &node) const;
+    bool isRecording(SL sl = {}) const;
+    void toogleRecording(bool b, SL sl = {}) const;
 
-    void insertKeyframe(const ModelNode &target, PropertyNameView propertyName);
+    void resetGroupRecording(SL sl = {}) const;
+    bool hasKeyframeGroup(const ModelNode &node, PropertyNameView propertyName, SL sl = {}) const;
+    bool hasKeyframeGroupForTarget(const ModelNode &node, SL sl = {}) const;
+
+    void insertKeyframe(const ModelNode &target, PropertyNameView propertyName, SL sl = {});
 
 private:
     void addKeyframeGroupIfNotExists(const ModelNode &node, PropertyNameView propertyName);

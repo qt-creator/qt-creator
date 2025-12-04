@@ -184,6 +184,7 @@ public slots:
     static bool closeAllEditors(bool askAboutModifiedEditors = true);
     static void slotCloseCurrentEditorOrDocument();
     static void closeOtherDocuments();
+    static void closeDocument(int idx);
     static void splitSideBySide();
     static void gotoOtherSplit();
     static void goBackInNavigationHistory();

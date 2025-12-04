@@ -28,6 +28,12 @@ struct NodePreviewImage
     QByteArray requestId;
 };
 
-using CustomNotificationPackage = std::variant<InputEvent, Resize3DCanvas, NodePreviewImage>;
+struct Request3DSceneToolStates
+{
+    QString sceneId;
+};
+
+using CustomNotificationPackage = std::variant<InputEvent, Resize3DCanvas, NodePreviewImage,
+                                               Request3DSceneToolStates>;
 
 } // namespace QmlDesigner

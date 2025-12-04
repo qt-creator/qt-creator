@@ -16,12 +16,14 @@ class EventListPluginView : public AbstractView
     Q_OBJECT
 
 public:
-    EventListPluginView(ExternalDependenciesInterface &externalDepoendencies);
+    EventListPluginView(ExternalDependenciesInterface &externalDepoendencies,
+                        ModulesStorage &modulesStorage);
     ~EventListPluginView() override = default;
 
     void registerActions();
 
 private:
+    ModulesStorage &m_modulesStorage;
     EventList m_eventlist;
     EventListDialog *m_eventListDialog = nullptr;
     AssignEventDialog *m_assigner = nullptr;

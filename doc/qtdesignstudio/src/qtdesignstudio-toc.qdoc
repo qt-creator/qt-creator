@@ -26,21 +26,21 @@
                                 \li \l{Connections}
                                 \li \l{Content Library}
                                 \li \l{Curves}
+                                \li \l{Design Tokens}
                                 \li \l{Effect Composer}
                                 \li \l{File System}
-                                \li \l{Material Editor and Browser}
+                                \li \l{Material Browser}
                                 \li \l{Navigator}
                                 \li \l{Open Documents}
                                 \li \l{Projects}
                                 \li \l{Properties}
                                 \li \l{Qt Insight}
                                 \li \l{States}
-                                \li \l{Texture Editor}
                                 \li \l{Timeline}
                                 \li \l{Transitions}
                                 \li \l{Translations}
                            \endlist
-                        \li \l{Managing workspaces}
+                        \li \l{Workspaces}
                         \li \l{Manage sessions}
                         \li \l{Keyboard shortcuts}
                     \endlist
@@ -82,7 +82,7 @@
                                 \li \l{Cameras}
                                 \li \l{Scene Environments}
                                 \li \l{Morph Target}
-                                \li \l{Repeater3D}
+                                \li \l{3D Repeater}
                                 \li \l{Loader3D}
                                 \li \l{Particles}
                                         \list
@@ -131,9 +131,6 @@
                         \li \l{Previewing on desktop}
                         \li \l{Previewing on devices}
                         \li \l{Sharing applications online}
-                          \list
-                            \li \l{Creating a single page navigation web application}
-                          \endlist
                         \li \l {Viewing applications on Android}
                     \endlist
                 \li \l {Asset creation with other tools}

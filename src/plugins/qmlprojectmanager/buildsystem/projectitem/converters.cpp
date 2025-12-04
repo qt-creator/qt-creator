@@ -4,6 +4,7 @@
 #include "converters.h"
 #include "utils/algorithm.h"
 #include "../../qmlprojectexporter/filetypes.h"
+#include "qmlprojectconstants.h"
 
 #include <QJsonDocument>
 
@@ -11,27 +12,6 @@ namespace QmlProjectManager::Converters {
 
 const static QStringList qmlFilesFilter{QStringLiteral("*.qml")};
 const static QStringList javaScriptFilesFilter{QStringLiteral("*.js"), QStringLiteral("*.ts")};
-const static QStringList fontFilesFilter{
-    QStringLiteral("*.afm"),
-    QStringLiteral("*.bdf"),
-    QStringLiteral("*.ccc"),
-    QStringLiteral("*.cff"),
-    QStringLiteral("*.fmp"),
-    QStringLiteral("*.fnt"),
-    QStringLiteral("*.otc"),
-    QStringLiteral("*.otf"),
-    QStringLiteral("*.pcf"),
-    QStringLiteral("*.pfa"),
-    QStringLiteral("*.pfb"),
-    QStringLiteral("*.pfm"),
-    QStringLiteral("*.pfr"),
-    QStringLiteral("*.ttc"),
-    QStringLiteral("*.ttcf"),
-    QStringLiteral("*.tte"),
-    QStringLiteral("*.ttf"),
-    QStringLiteral("*.woff"),
-    QStringLiteral("*.woff2"),
-};
 
 const QStringList imageFilesFilter() {
     return imageFiles([](const QString& suffix) { return "*." + suffix; });
@@ -486,12 +466,12 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
             // and all files are prefixed such as "directory/<filename>".
             // if directory is empty, then the files are prefixed with the project directory
             if (childNodeFiles.empty()) {
-                auto inserter = [&childNodeFilters](const QStringList &filterSource) {
+                auto inserter = [&childNodeFilters](auto &filterSource) {
                     if (!childNodeFilters.empty())
                         return;
 
-                    std::for_each(filterSource.begin(),
-                                  filterSource.end(),
+                    std::for_each(std::cbegin(filterSource),
+                                  std::cend(filterSource),
                                   [&childNodeFilters](const auto &value) {
                                       if (!childNodeFilters.contains(value)) {
                                           childNodeFilters << value;
@@ -510,7 +490,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
                 } else if (childNodeName == "imagefiles") {
                     inserter(imageFilesFilter());
                 } else if (childNodeName == "fontfiles") {
-                    inserter(fontFilesFilter);
+                    inserter(QmlProjectManager::Constants::QDS_FONT_FILES_FILTERS);
                 }
             }
 

@@ -27,7 +27,7 @@ void DesignSystemInterface::loadDesignSystem()
     m_models.clear();
 
     if (auto err = m_store->load())
-        qDebug() << err;
+        qDebug() << *err;
 
     emit collectionsChanged();
 }

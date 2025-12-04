@@ -34,13 +34,21 @@ public:
     using IsBasicId = std::true_type;
     using DatabaseType = long long;
 
-    constexpr explicit SourceId() = default;
+    constexpr SourceId() = default;
 
     static constexpr SourceId create(DirectoryPathId directoryPathId, FileNameId fileNameId)
     {
         SourceId compoundId;
         compoundId.id = (static_cast<long long>(directoryPathId.internalId()) << 32)
                         | static_cast<long long>(fileNameId.internalId());
+
+        return compoundId;
+    }
+
+    static constexpr SourceId create(DirectoryPathId directoryPathId)
+    {
+        SourceId compoundId;
+        compoundId.id = static_cast<long long>(directoryPathId.internalId()) << 32;
 
         return compoundId;
     }

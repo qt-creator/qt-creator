@@ -3,16 +3,10 @@
 
 #include "quick2propertyeditorview.h"
 
-#include <qmldesignerconstants.h>
-#include <scripteditorbackend.h>
-
 #include "aligndistribute.h"
-#include "annotationeditor/annotationeditor.h"
-#include "assetimageprovider.h"
-#include "bindingeditor/actioneditor.h"
-#include "bindingeditor/bindingeditor.h"
 #include "colorpalettebackend.h"
 #include "fileresourcesmodel.h"
+#include "fontresourcesmodel.h"
 #include "gradientmodel.h"
 #include "gradientpresetcustomlistmodel.h"
 #include "gradientpresetdefaultlistmodel.h"
@@ -21,23 +15,37 @@
 #include "listvalidator.h"
 #include "propertychangesmodel.h"
 #include "propertyeditorcontextobject.h"
+#include "propertyeditordynamicpropertiesproxymodel.h"
 #include "propertyeditorqmlbackend.h"
+#include "propertyeditortracing.h"
 #include "propertyeditorvalue.h"
 #include "propertymodel.h"
 #include "propertynamevalidator.h"
 #include "qmlanchorbindingproxy.h"
 #include "qmlmaterialnodeproxy.h"
 #include "qmltexturenodeproxy.h"
-#include "richtexteditor/richtexteditorproxy.h"
-#include "propertyeditordynamicpropertiesproxymodel.h"
-#include "theme.h"
 #include "tooltip.h"
 
+#include <qmldesignerconstants.h>
+#include <scripteditorbackend.h>
+
+#include <annotationeditor/annotationeditor.h>
+#include <assetimageprovider.h>
+#include <bindingeditor/actioneditor.h>
+#include <bindingeditor/bindingeditor.h>
+
+#include <richtexteditor/richtexteditorproxy.h>
+#include <theme.h>
+
 namespace QmlDesigner {
+
+using QmlDesigner::PropertyEditorTracing::category;
 
 Quick2PropertyEditorView::Quick2PropertyEditorView(AsynchronousImageCache &imageCache)
     : QQuickWidget()
 {
+    NanotraceHR::Tracer tracer{"quick2 property editor view constructor", category()};
+
     setObjectName(Constants::OBJECT_NAME_PROPERTY_EDITOR);
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     Theme::setupTheme(engine());
@@ -60,6 +68,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         declarativeTypesRegistered = true;
         PropertyEditorValue::registerDeclarativeTypes();
         FileResourcesModel::registerDeclarativeType();
+        FontResourcesModel::registerDeclarativeType();
         GradientModel::registerDeclarativeType();
         GradientPresetDefaultListModel::registerDeclarativeType();
         GradientPresetCustomListModel::registerDeclarativeType();

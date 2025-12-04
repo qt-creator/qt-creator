@@ -144,7 +144,7 @@ LayoutInGridLayout::LayoutInGridLayout(const QmlDesigner::SelectionContext &sele
 
 void LayoutInGridLayout::doIt()
 {
-    const TypeName layoutType = "QtQuick.Layouts.GridLayout";
+    const TypeName layoutType = "GridLayout";
 
     if (!m_selectionContext.view()
             || !m_selectionContext.view()->model()->hasNodeMetaInfo(layoutType))

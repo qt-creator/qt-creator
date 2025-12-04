@@ -16,22 +16,26 @@ class QMLDESIGNER_EXPORT QmlConnections : public QmlModelNodeFacade
     friend StatesEditorView;
 
 public:
-    QmlConnections();
-    QmlConnections(const ModelNode &modelNode);
+    QmlConnections() = default;
+
+    QmlConnections(const ModelNode &modelNode)
+        : QmlModelNodeFacade(modelNode)
+    {}
 
     explicit operator bool() const { return isValid(); }
-    bool isValid() const;
-    static bool isValidQmlConnections(const ModelNode &modelNode);
-    void destroy();
 
-    QString target() const;
-    void setTarget(const QString &target);
+    bool isValid(SL sl = {}) const;
+    static bool isValidQmlConnections(const ModelNode &modelNode, SL sl = {});
+    void destroy(SL sl = {});
 
-    ModelNode getTargetNode() const;
+    QString target(SL sl = {}) const;
+    void setTarget(const QString &target, SL sl = {});
 
-    QList<SignalHandlerProperty> signalProperties() const;
+    ModelNode getTargetNode(SL sl = {}) const;
 
-    static ModelNode createQmlConnections(AbstractView *view);
+    QList<SignalHandlerProperty> signalProperties(SL sl = {}) const;
+
+    static ModelNode createQmlConnections(AbstractView *view, SL sl = {});
 };
 
 } //QmlDesigner

@@ -17,14 +17,23 @@ namespace QmlDesigner {
 
 template<typename ProjectStorage, typename Mutex>
 class SourcePathCache;
+class ModulesStorage;
+
+namespace Internal {
+struct LastModule
+{
+    QString name;
+    ModuleId id;
+};
+} // namespace Internal
 
 class QMLDESIGNERCORE_EXPORT QmlTypesParser final : public QmlTypesParserInterface
 {
 public:
     using ProjectStorage = QmlDesigner::ProjectStorage;
 #ifdef QDS_BUILD_QMLPARSER
-    QmlTypesParser(ProjectStorage &storage)
-        : m_storage{storage}
+    QmlTypesParser(ModulesStorage &modulesStorage)
+        : m_modulesStorage{modulesStorage}
     {}
 #else
     QmlTypesParser(ProjectStorage &) {}
@@ -33,12 +42,14 @@ public:
     void parse(const QString &sourceContent,
                Storage::Imports &imports,
                Storage::Synchronization::Types &types,
-               const Storage::Synchronization::DirectoryInfo &directoryInfo,
+               Storage::Synchronization::ExportedTypes &exportedTypes,
+               const Storage::Synchronization::ProjectEntryInfo &projectEntryInfo,
                IsInsideProject isInsideProject) override;
 
 private:
 #ifdef QDS_BUILD_QMLPARSER
-    ProjectStorage &m_storage;
+    ModulesStorage &m_modulesStorage;
+    Internal::LastModule lastQmlModule;
 #endif
 };
 

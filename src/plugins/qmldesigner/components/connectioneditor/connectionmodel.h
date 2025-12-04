@@ -82,7 +82,6 @@ public:
     ConnectionView *connectionView() const;
 
     QStringList getSignalsForRow(int row) const;
-    QStringList getflowActionTriggerForRow(int row) const;
     ModelNode getTargetNodeForConnection(const ModelNode &connection) const;
 
     void addConnection(const PropertyName &signalName = {});

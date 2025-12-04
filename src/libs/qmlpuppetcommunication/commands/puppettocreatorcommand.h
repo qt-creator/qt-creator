@@ -13,19 +13,20 @@ class PuppetToCreatorCommand
 {
 public:
     enum Type {
-        Edit3DToolState,
-        Render3DView,
+        None,
         ActiveSceneChanged,
         ActiveViewportChanged,
-        RenderModelNodePreviewImage,
+        BakeLightsAborted,
+        BakeLightsFinished,
+        BakeLightsProgress,
+        Edit3DMouseCursor,
+        Edit3DToolState,
         Import3DPreviewIcon,
         Import3DPreviewImage,
         Import3DSupport,
         NodeAtPos,
-        BakeLightsProgress,
-        BakeLightsFinished,
-        BakeLightsAborted,
-        None
+        Render3DView,
+        RenderModelNodePreviewImage
     };
 
     PuppetToCreatorCommand(Type type, const QVariant &data);

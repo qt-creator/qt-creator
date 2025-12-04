@@ -3,7 +3,9 @@
 
 #include "utils3d.h"
 
+#include <auxiliarydataproperties.h>
 #include <designmodewidget.h>
+#include <indentingtexteditormodifier.h>
 #include <itemlibraryentry.h>
 #include <modelutils.h>
 #include <nodeabstractproperty.h>
@@ -14,6 +16,7 @@
 #include <qmldesignertr.h>
 #include <qmlitemnode.h>
 #include <qmlobjectnode.h>
+#include <rewriterview.h>
 #include <uniquename.h>
 #include <variantproperty.h>
 
@@ -22,9 +25,34 @@
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
+#include <QTextDocument>
 
 namespace QmlDesigner {
 namespace Utils3D {
+
+namespace {
+
+std::tuple<QString, Storage::ModuleKind> nodeModuleInfo(const ModelNode &node, Model *model)
+{
+    using Storage::ModuleKind;
+#ifdef QDS_USE_PROJECTSTORAGE
+    using Storage::Info::ExportedTypeName;
+    using Storage::Module;
+
+    ExportedTypeName exportedName = node.exportedTypeName();
+    if (exportedName.moduleId) {
+        Module module = model->projectStorageDependencies().modulesStorage.module(
+            exportedName.moduleId);
+        return {module.name.toQString(), module.kind};
+    }
+    return {{}, ModuleKind::QmlLibrary};
+#else
+    return {QString::fromUtf8(node.type()).left(node.type().lastIndexOf('.')),
+            ModuleKind::QmlLibrary};
+#endif
+}
+
+} // namespace
 
 ModelNode active3DSceneNode(AbstractView *view)
 {
@@ -55,7 +83,7 @@ ModelNode materialLibraryNode(AbstractView *view)
     return view->modelNodeForId(Constants::MATERIAL_LIB_ID);
 }
 
-// Creates material library if it doesn't exist and moves any existing materials into it.
+// Creates material library if it doesn't exist and moves any existing materials and textures into it.
 void ensureMaterialLibraryNode(AbstractView *view)
 {
     ModelNode matLib = view->modelNodeForId(Constants::MATERIAL_LIB_ID);
@@ -82,14 +110,19 @@ void ensureMaterialLibraryNode(AbstractView *view)
 
     // Do the material reparentings in different transaction to work around issue QDS-8094
     view->executeInTransaction(__FUNCTION__, [&] {
-        const QList<ModelNode> materials = view->rootModelNode().subModelNodesOfType(
-            view->model()->qtQuick3DMaterialMetaInfo());
-        if (!materials.isEmpty()) {
-            // Move all materials to under material library node
-            for (const ModelNode &node : materials) {
-                // If material has no name, set name to id
-                QString matName = node.variantProperty("objectName").value().toString();
-                if (matName.isEmpty()) {
+        const NodeMetaInfo matInfo = view->model()->qtQuick3DMaterialMetaInfo();
+        const NodeMetaInfo texInfo = view->model()->qtQuick3DTextureMetaInfo();
+        const QList<ModelNode> materialsAndTextures
+            = Utils::filtered(view->rootModelNode().allSubModelNodes(), [&](const ModelNode &node) {
+            return node.metaInfo().isBasedOn(matInfo, texInfo);
+        });
+
+        if (!materialsAndTextures.isEmpty()) {
+            // Move all matching nodes to under material library node
+            for (const ModelNode &node : materialsAndTextures) {
+                // If node has no name, set name to id
+                QString name = node.variantProperty("objectName").value().toString();
+                if (name.isEmpty()) {
                     VariantProperty objNameProp = node.variantProperty("objectName");
                     objNameProp.setValue(node.id());
                 }
@@ -110,6 +143,152 @@ bool isPartOfMaterialLibrary(const ModelNode &node)
     return matLib.isValid()
            && (node == matLib
                || (node.hasParentProperty() && node.parentProperty().parentModelNode() == matLib));
+}
+
+QHash<ModelNode, QSet<ModelNode>> allBoundMaterialsAndTextures(const ModelNode &node)
+{
+    auto model = node.model();
+    const QList<ModelNode> allNodes = node.allSubModelNodesAndThisNode();
+
+    auto matInfo = model->qtQuick3DMaterialMetaInfo();
+    auto texInfo = model->qtQuick3DTextureMetaInfo();
+
+    QSet<ModelNode> matTexNodes;
+    for (const auto &checkNode : allNodes) {
+        const QList<BindingProperty> bindProps = checkNode.bindingProperties();
+        for (const auto &bindProp : bindProps) {
+            const QList<ModelNode> boundNodes = bindProp.resolveToModelNodes();
+            for (const auto &boundNode : boundNodes) {
+                if (boundNode.metaInfo().isBasedOn(matInfo, texInfo))
+                    matTexNodes.insert(boundNode);
+            }
+        }
+    }
+
+    QHash<ModelNode, QSet<ModelNode>> finalHash;
+    for (const auto &boundNode : std::as_const(matTexNodes)) {
+        QSet<ModelNode> boundTex;
+        if (boundNode.metaInfo().isBasedOn(matInfo)) {
+            const QList<BindingProperty> bindProps = boundNode.bindingProperties();
+            for (const auto &prop : bindProps) {
+                ModelNode boundNode = prop.resolveToModelNode();
+                if (boundNode.metaInfo().isBasedOn(texInfo))
+                    boundTex.insert(boundNode);
+            }
+        }
+        finalHash.insert(boundNode, boundTex);
+    }
+
+    return finalHash;
+}
+
+void createMatLibForFile(const QString &fileName,
+                         const QHash<ModelNode, QSet<ModelNode>> &matAndTexNodes,
+                         AbstractView *view)
+{
+    if (!view || !view->model() || fileName.isEmpty() || matAndTexNodes.isEmpty())
+        return;
+
+    Utils::FilePath file = Utils::FilePath::fromString(fileName);
+    auto fileContents = file.fileContents();
+    if (!fileContents.has_value())
+        return;
+
+    const QString qmlStr = QString::fromUtf8(fileContents.value());
+    QString cleanQmlStr = qmlStr;
+    static QRegularExpression cppCommentsRE(R"(//[^\n]*)", QRegularExpression::MultilineOption);
+    static QRegularExpression cCommentsRE(R"(/\*.*?\*/)", QRegularExpression::DotMatchesEverythingOption);
+    cleanQmlStr.remove(cppCommentsRE);
+    cleanQmlStr.remove(cCommentsRE);
+
+    QSet<ModelNode> allNodes;
+    const QList<ModelNode> matNodes = matAndTexNodes.keys();
+    for (const auto &matNode : matNodes) {
+        allNodes.insert(matNode);
+        const QSet<ModelNode> texNodes = matAndTexNodes[matNode];
+        for (const auto &texNode : texNodes)
+            allNodes.insert(texNode);
+    }
+
+    // Find all nodes for which there are direct bindings
+    QList<ModelNode> directlyUsedNodes;
+    QString regExTemplate(R"(:.*\b%1\b.*\n)");
+    for (const auto &checkNode : allNodes) {
+        QRegularExpression re(regExTemplate.arg(checkNode.id()));
+        if (re.match(cleanQmlStr).hasMatch())
+            directlyUsedNodes.append(checkNode);
+    }
+
+    QSet<ModelNode> matLibNodes;
+    for (const auto &usedNode : std::as_const(directlyUsedNodes)) {
+        matLibNodes.insert(usedNode);
+        const QSet<ModelNode> texNodes = matAndTexNodes.value(usedNode);
+        matLibNodes.unite(texNodes);
+    }
+
+    if (matLibNodes.isEmpty())
+        return;
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    ModelPointer fileModel = view->model()->createModel("Item");
+#else
+    ModelPointer fileModel = Model::create("Item", 2, 0);
+#endif
+    fileModel->setFileUrl(QUrl::fromUserInput(fileName));
+    QTextDocument textDoc(qmlStr);
+    IndentingTextEditModifier modifier(&textDoc);
+    RewriterView rewriterView(view->externalDependencies(),
+                              view->model()->projectStorageDependencies().modulesStorage,
+                              RewriterView::Amend);
+    rewriterView.setTextModifier(&modifier);
+    fileModel->setRewriterView(&rewriterView);
+
+    using Storage::ModuleKind;
+
+    QHash<QString, ModuleKind> moduleInfos;
+    for (const auto &oldNode : std::as_const(matLibNodes)) {
+        auto [moduleName, moduleKind] = nodeModuleInfo(oldNode, view->model());
+        if (!moduleName.isEmpty())
+            moduleInfos.insert(moduleName, moduleKind);
+    }
+
+    Imports imports;
+    for (const auto &[path, kind] : moduleInfos.asKeyValueRange()) {
+        if (kind == ModuleKind::PathLibrary) {
+            imports.append(Import::createFileImport(
+                Utils::FilePath::fromString(path).relativePathFromDir(file.parentDir())));
+        } else {
+            imports.append(Import::createLibraryImport(path));
+        }
+    }
+
+    rewriterView.model()->changeImports(imports, {});
+
+    ensureMaterialLibraryNode(&rewriterView);
+    ModelNode matLib = materialLibraryNode(&rewriterView);
+    for (const auto &oldNode : std::as_const(matLibNodes)) {
+        if (fileModel->hasId(oldNode.id()))
+            continue;
+
+        const QList<VariantProperty> oldNodeVarProps = oldNode.variantProperties();
+        const QList<BindingProperty> oldNodeBindProps = oldNode.bindingProperties();
+
+        ModelNode newNode = fileModel->createModelNode(oldNode.type());
+
+        for (const VariantProperty &prop : oldNodeVarProps)
+            newNode.variantProperty(prop.name()).setValue(prop.value());
+        for (const BindingProperty &prop : oldNodeBindProps)
+            newNode.bindingProperty(prop.name()).setExpression(prop.expression());
+        newNode.setIdWithoutRefactoring(oldNode.id());
+        matLib.defaultNodeAbstractProperty().reparentHere(newNode);
+    }
+
+    rewriterView.forceAmend();
+
+    QString newText = modifier.text();
+
+    if (newText != qmlStr && !file.writeFileContents(newText.toUtf8()))
+        qWarning() << __FUNCTION__ << "Failed to save changes to:" << fileName;
 }
 
 ModelNode getTextureDefaultInstance(const QString &source, AbstractView *view)
@@ -564,8 +743,12 @@ void openNodeInPropertyEditor(const ModelNode &node)
     using namespace Qt::StringLiterals;
     QTC_ASSERT(node, return);
     const auto mainWidget = QmlDesignerPlugin::instance()->mainWidget();
-    mainWidget->showDockWidget("Properties"_L1);
-    mainWidget->viewManager().emitCustomNotification("force_editing_node", {node}, {});
+    AbstractView *mainPropertyEditor = QmlDesignerPlugin::instance()->viewManager().findView(
+        "Properties"_L1);
+
+    if (!mainPropertyEditor->isAttached())
+        mainWidget->showDockWidget("Properties"_L1);
+    mainWidget->viewManager().emitCustomNotification("set_property_editor_target_node", {node}, {});
 }
 
 bool hasImported3dType(AbstractView *view,

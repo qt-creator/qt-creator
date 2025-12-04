@@ -3,6 +3,8 @@
 
 #include "itemlibraryiconimageprovider.h"
 
+#include "itemlibrarytracing.h"
+
 #include <imagecache/imagecacheimageresponse.h>
 
 #include <projectexplorer/target.h>
@@ -13,9 +15,13 @@
 
 namespace QmlDesigner {
 
+using ItemLibraryTracing::category;
+
 QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QString &id,
                                                                         const QSize &)
 {
+    NanotraceHR::Tracer tracer{"item library icon image provider request image response", category()};
+
     auto response = std::make_unique<ImageCacheImageResponse>(QImage{
         Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/item-default-icon.png")});
 

@@ -23,7 +23,6 @@
 #include <designeractionmanager.h>
 #include <designsystemview/designsystemview.h>
 #include <eventlist/eventlistpluginview.h>
-#include <formeditor/transitiontool.h>
 #include <formeditor/view3dtool.h>
 #include <studioquickwidget.h>
 #ifndef QDS_USE_PROJECTSTORAGE
@@ -103,6 +102,7 @@ using namespace QmlDesigner::Internal;
 namespace QmlDesigner {
 
 const char experimentalFeatures[] = "QML/Designer/UseExperimentalFeatures";
+using ProjectManagingTracing::category;
 
 namespace Internal {
 
@@ -171,13 +171,15 @@ class QmlDesignerPluginPrivate
 {
 public:
     ExternalDependencies externalDependencies;
-    QmlDesignerProjectManager projectManager{externalDependencies};
-    ViewManager viewManager{projectManager.asynchronousImageCache(), externalDependencies};
+    QmlDesignerProjectManager projectManager;
+    ViewManager viewManager{projectManager.asynchronousImageCache(),
+                            externalDependencies,
+                            projectManager.modulesStorage()};
     DocumentManager documentManager{projectManager, externalDependencies};
     ShortCutManager shortCutManager;
     DeviceShare::DeviceManager deviceManager;
     RunManager runManager{deviceManager};
-    SettingsPage settingsPage{externalDependencies};
+    SettingsPage settingsPage;
     DesignModeWidget mainWidget;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
     Utils::UniqueObjectPtr<QToolBar> toolBar;
@@ -251,11 +253,15 @@ static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
 
 QmlDesignerPlugin::QmlDesignerPlugin()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin constructor", category()};
+
     m_instance = this;
 }
 
 QmlDesignerPlugin::~QmlDesignerPlugin()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin destructor", category()};
+
     if (d)
         Core::DesignMode::unregisterDesignWidget(&d->mainWidget);
     delete d;
@@ -265,6 +271,8 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 
 Utils::Result<> QmlDesignerPlugin::initialize(const QStringList &)
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin initialize", category()};
+
     WindowManager::registerDeclarativeType();
     StudioQuickUtils::registerDeclarativeType();
     StudioIntValidator::registerDeclarativeType();
@@ -306,12 +314,16 @@ Utils::Result<> QmlDesignerPlugin::initialize(const QStringList &)
 
 bool QmlDesignerPlugin::delayedInitialize()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin delayed initialize", category()};
+
     enforceDelayedInitialize();
     return true;
 }
 
 void QmlDesignerPlugin::extensionsInitialized()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin extensions initialized", category()};
+
     Core::DesignMode::setDesignModeIsRequired();
     // delay after Core plugin's extensionsInitialized, so the DesignMode is availabe
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToOpen, this, [this] {
@@ -333,6 +345,8 @@ void QmlDesignerPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin about to shutdown", category()};
+
     return SynchronousShutdown;
 }
 
@@ -365,6 +379,8 @@ static QString projectPath(const Utils::FilePath &fileName)
 
 void QmlDesignerPlugin::integrateIntoQtCreator(DesignModeWidget *modeWidget)
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin integrate into Qt Creator", category()};
+
     const Context context(Constants::qmlDesignerContextId, Constants::qtQuickToolsMenuContextId);
     IContext::attach(modeWidget, context, [modeWidget](const IContext::HelpCallback &callback) {
         modeWidget->contextHelp(callback);
@@ -419,6 +435,8 @@ void QmlDesignerPlugin::integrateIntoQtCreator(DesignModeWidget *modeWidget)
 
 void QmlDesignerPlugin::clearDesigner()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin clear designer", category()};
+
     if (d->documentManager.hasCurrentDesignDocument()) {
         deactivateAutoSynchronization();
         d->mainWidget.saveSettings();
@@ -427,6 +445,8 @@ void QmlDesignerPlugin::clearDesigner()
 
 void QmlDesignerPlugin::resetDesignerDocument()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin reset designer document", category()};
+
     d->shortCutManager.disconnectUndoActions(currentDesignDocument());
     d->documentManager.setCurrentDesignDocument(nullptr);
     d->shortCutManager.updateActions(nullptr);
@@ -435,6 +455,8 @@ void QmlDesignerPlugin::resetDesignerDocument()
 
 void QmlDesignerPlugin::setupDesigner()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin setup designer", category()};
+
     d->shortCutManager.disconnectUndoActions(currentDesignDocument());
     d->documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
     d->shortCutManager.connectUndoActions(currentDesignDocument());
@@ -471,6 +493,8 @@ static bool checkUiQMLNagScreen(const Utils::FilePath &fileName)
 
 void QmlDesignerPlugin::showDesigner()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin show designer", category()};
+
     QTC_ASSERT(!d->documentManager.hasCurrentDesignDocument(), return);
 
     enforceDelayedInitialize();
@@ -487,12 +511,16 @@ void QmlDesignerPlugin::showDesigner()
 
 void QmlDesignerPlugin::hideDesigner()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin hide designer", category()};
+
     clearDesigner();
     resetDesignerDocument();
 }
 
 void QmlDesignerPlugin::changeEditor()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin change editor", category()};
+
     if (d->mainWidget.isInitialized()) {
         // showDesigner was already already called
         clearDesigner();
@@ -506,6 +534,9 @@ void QmlDesignerPlugin::changeEditor()
 
 void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin jump text cursor to selected model node",
+                               category()};
+
     // visual editor -> text editor
     ModelNode selectedNode;
     if (!rewriterView()->selectedModelNodes().isEmpty())
@@ -528,6 +559,8 @@ void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
 
 void QmlDesignerPlugin::selectModelNodeUnderTextCursor()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin select model node under text cursor", category()};
+
     const int cursorPosition = currentDesignDocument()->textEditorWidget()->textCursor().position();
     ModelNode modelNode = rewriterView()->nodeAtTextCursorPosition(cursorPosition);
     if (modelNode.isValid())
@@ -536,6 +569,8 @@ void QmlDesignerPlugin::selectModelNodeUnderTextCursor()
 
 void QmlDesignerPlugin::activateAutoSynchronization()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin activate auto synchronization", category()};
+
     viewManager().detachViewsExceptRewriterAndComponetView();
     viewManager().detachComponentView();
 
@@ -563,6 +598,8 @@ void QmlDesignerPlugin::activateAutoSynchronization()
 
 void QmlDesignerPlugin::deactivateAutoSynchronization()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin deactivate auto synchronization", category()};
+
     viewManager().detachViewsExceptRewriterAndComponetView();
     viewManager().detachComponentView();
     viewManager().detachRewriterView();
@@ -571,6 +608,8 @@ void QmlDesignerPlugin::deactivateAutoSynchronization()
 
 void QmlDesignerPlugin::resetModelSelection()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin reset model selection", category()};
+
     if (!rewriterView()) {
         qCWarning(qmldesignerLog) << "No rewriter existing while calling resetModelSelection";
         return;
@@ -584,6 +623,8 @@ void QmlDesignerPlugin::resetModelSelection()
 
 QString QmlDesignerPlugin::identiferToDisplayString(const QString &identifier)
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin identifier to display string", category()};
+
     for (AbstractView *view : viewManager().views())
         if (view->widgetInfo().uniqueId.toLower() == identifier.toLower())
             return view->widgetInfo().feedbackDisplayName;
@@ -593,22 +634,30 @@ QString QmlDesignerPlugin::identiferToDisplayString(const QString &identifier)
 
 RewriterView *QmlDesignerPlugin::rewriterView() const
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin rewriter view", category()};
+
     return currentDesignDocument()->rewriterView();
 }
 
 Model *QmlDesignerPlugin::currentModel() const
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin current model", category()};
+
     return currentDesignDocument()->currentModel();
 }
 
 QmlDesignerPluginPrivate *QmlDesignerPlugin::privateInstance()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin private instance", category()};
+
     QTC_ASSERT(instance(), return nullptr);
     return instance()->d;
 }
 
 void QmlDesignerPlugin::enforceDelayedInitialize()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin enforce delayed initialize", category()};
+
     if (m_delayedInitialized)
         return;
 
@@ -630,13 +679,14 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     d->viewManager.registerView(std::make_unique<ConnectionView>(d->externalDependencies));
 
     auto timelineView = d->viewManager.registerView(
-        std::make_unique<TimelineView>(d->externalDependencies));
+        std::make_unique<TimelineView>(d->externalDependencies, d->projectManager.modulesStorage()));
     timelineView->registerActions();
 
     d->viewManager.registerView(std::make_unique<CurveEditorView>(d->externalDependencies));
 
     auto eventlistView = d->viewManager.registerView(
-        std::make_unique<EventListPluginView>(d->externalDependencies));
+        std::make_unique<EventListPluginView>(d->externalDependencies,
+                                              d->projectManager.modulesStorage()));
     eventlistView->registerActions();
 
     auto transitionEditorView = d->viewManager.registerView(
@@ -650,7 +700,6 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     d->viewManager.registerFormEditorTool(std::make_unique<ColorTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<TextTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<PathTool>(d->externalDependencies));
-    d->viewManager.registerFormEditorTool(std::make_unique<TransitionTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<View3DTool>());
 
     m_delayedInitialized = true;
@@ -658,23 +707,45 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
 
 DesignDocument *QmlDesignerPlugin::currentDesignDocument() const
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin current design document", category()};
+
     return d ? d->documentManager.currentDesignDocument() : nullptr;
 }
 
 Internal::DesignModeWidget *QmlDesignerPlugin::mainWidget() const
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin main widget", category()};
+
     return d ? &d->mainWidget : nullptr;
 }
 
+// FIXME: Merge
+// QmlDesignerProjectManager &QmlDesignerPlugin::projectManagerForPluginInitializationOnly()
+// {
+//     NanotraceHR::Tracer tracer{"qml designer plugin project manager for plugin initialization only",
+//                                category()};
+
+//     return m_instance->d->projectManager;
+// }
+
+// QWidget *QmlDesignerPlugin::createProjectExplorerWidget(QWidget *parent) const
+// {
+//     NanotraceHR::Tracer tracer{"qml designer plugin create project explorer widget", category()};
+
+//     return Internal::DesignModeWidget::createProjectExplorerWidget(parent);
+// }
+
 void QmlDesignerPlugin::switchToTextModeDeferred()
 {
-    QTimer::singleShot(0, this, [] {
-        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-    });
+    NanotraceHR::Tracer tracer{"qml designer plugin switch to text mode deferred", category()};
+
+    QTimer::singleShot(0, this, [] { Core::ModeManager::activateMode(Core::Constants::MODE_EDIT); });
 }
 
 double QmlDesignerPlugin::formEditorDevicePixelRatio()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin form editor device pixel ratio", category()};
+
     if (designerSettings().value(DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO).toBool())
         return 1;
 
@@ -686,12 +757,16 @@ double QmlDesignerPlugin::formEditorDevicePixelRatio()
 
 void QmlDesignerPlugin::contextHelp(const Core::IContext::HelpCallback &callback, const QString &id)
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin context help", category()};
+
     emitUsageStatistics(Constants::EVENT_HELP_REQUESTED + id);
     QmlDesignerPlugin::instance()->viewManager().qmlJSEditorContextHelp(callback);
 }
 
 void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin emit usage statistics", category()};
+
     QTC_ASSERT(instance(), return);
     emit instance()->usageStatisticsNotifier(normalizeIdentifier(identifier));
 
@@ -727,23 +802,30 @@ void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
 
 void QmlDesignerPlugin::emitUsageStatisticsContextAction(const QString &identifier)
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin emit usage statistics context action", category()};
+
     emitUsageStatistics(Constants::EVENT_ACTION_EXECUTED + identifier);
 }
 
 AsynchronousImageCache &QmlDesignerPlugin::imageCache()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin image cache", category()};
+
     return m_instance->d->projectManager.asynchronousImageCache();
 }
 
 void QmlDesignerPlugin::registerPreviewImageProvider(QQmlEngine *engine)
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin register preview image provider", category()};
+
     m_instance->d->projectManager.registerPreviewImageProvider(engine);
 }
 
 void QmlDesignerPlugin::trackWidgetFocusTime(QWidget *widget, const QString &identifier)
 {
-    connect(qApp, &QApplication::focusChanged,
-            widget, [widget, identifier](QWidget *from, QWidget *to) {
+    NanotraceHR::Tracer tracer{"qml designer plugin track widget focus time", category()};
+
+    connect(qApp, &QApplication::focusChanged, widget, [widget, identifier](QWidget *from, QWidget *to) {
         static QElapsedTimer widgetUsageTimer;
         static QString lastIdentifier;
         if (widget->isAncestorOf(to)) {
@@ -763,7 +845,9 @@ void QmlDesignerPlugin::registerCombinedTracedPoints(const QString &identifierFi
                                                      const QString &newIdentifier,
                                                      int maxDuration)
 {
-    QTC_ASSERT(privateInstance(), return );
+    NanotraceHR::Tracer tracer{"qml designer plugin register combined traced points", category()};
+
+    QTC_ASSERT(privateInstance(), return);
     privateInstance()->m_traceIdentifierDataHash.insert(identifierFirst,
                                                         TraceIdentifierData(identifierSecond,
                                                                             newIdentifier,
@@ -772,58 +856,81 @@ void QmlDesignerPlugin::registerCombinedTracedPoints(const QString &identifierFi
 
 void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin emit usage statistics time", category()};
+
     QTC_ASSERT(instance(), return);
     emit instance()->usageStatisticsUsageTimer(normalizeIdentifier(identifier), elapsed);
 }
 
 void QmlDesignerPlugin::emitUsageStatisticsUsageDuration(const QString &identifier, int elapsed)
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin emit usage statistics usage duration", category()};
+
     QTC_ASSERT(instance(), return);
     emit instance()->usageStatisticsUsageDuration(identifier, elapsed);
 }
 
 QmlDesignerPlugin *QmlDesignerPlugin::instance()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin instance", category()};
+
     return m_instance;
 }
 
 DocumentManager &QmlDesignerPlugin::documentManager()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin document manager", category()};
+
     return d->documentManager;
 }
 
 const DocumentManager &QmlDesignerPlugin::documentManager() const
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin document manager const", category()};
+
     return d->documentManager;
 }
 
 ViewManager &QmlDesignerPlugin::viewManager()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin view manager", category()};
+
     return instance()->d->viewManager;
 }
 
 DeviceShare::DeviceManager &QmlDesignerPlugin::deviceManager()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin device manager", category()};
+
     return instance()->d->deviceManager;
 }
 
 RunManager &QmlDesignerPlugin::runManager()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin run manager", category()};
+
     return instance()->d->runManager;
 }
 
 DesignerActionManager &QmlDesignerPlugin::designerActionManager()
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin designer action manager", category()};
+
     return d->viewManager.designerActionManager();
 }
 
 const DesignerActionManager &QmlDesignerPlugin::designerActionManager() const
 {
+    NanotraceHR::Tracer tracer{"qml designer plugin designer action manager const", category()};
+
     return d->viewManager.designerActionManager();
 }
 
 ExternalDependenciesInterface &QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()
 {
+    NanotraceHR::Tracer tracer{
+        "qml designer plugin external dependencies for plugin initialization only", category()};
+
     return instance()->d->externalDependencies;
 }
 

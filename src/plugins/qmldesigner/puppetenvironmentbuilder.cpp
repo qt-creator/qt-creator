@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "puppetenvironmentbuilder.h"
+#include "designermcumanager.h"
 #include "designersettings.h"
 #include "qmldesignerplugin.h"
 
@@ -9,12 +10,16 @@
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/kit.h>
-#include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/target.h>
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 #include <qmlprojectmanager/qmlproject.h>
+#include <qmlprojectmanager/qmlprojectconstants.h>
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversions.h>
+#include <utils/algorithm.h>
+#include <utils/expected.h>
+#include <utils/hostosinfo.h>
 
 #include <QLibraryInfo>
 
@@ -37,8 +42,7 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
 {
     qCInfo(puppetEnvirmentBuild) << Q_FUNC_INFO;
     m_availablePuppetType = determinePuppetType();
-    m_environment = Utils::Environment::systemEnvironment();
-
+    initEnvironment();
     addKit();
     addRendering();
     addControls();
@@ -51,6 +55,7 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
     addCustomFileSelectors();
     addDisableDeferredProperties();
     addResolveUrlsOnAssignment();
+    addMcuItems();
 
     qCInfo(puppetEnvirmentBuild) << "Puppet environment:" << m_environment.toStringList();
 
@@ -104,6 +109,14 @@ QString PuppetEnvironmentBuilder::getStyleConfigFileName() const
     return {};
 }
 
+void PuppetEnvironmentBuilder::initEnvironment() const
+{
+    if (m_availablePuppetType == PuppetType::Fallback)
+        m_environment = Utils::Environment::originalSystemEnvironment();
+    else
+        m_environment = Utils::Environment::systemEnvironment();
+}
+
 void PuppetEnvironmentBuilder::addKit() const
 {
     if (m_buildSystem) {
@@ -117,7 +130,6 @@ void PuppetEnvironmentBuilder::addKit() const
         }
     }
 }
-
 void PuppetEnvironmentBuilder::addRendering() const
 {
     m_environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
@@ -248,14 +260,48 @@ void PuppetEnvironmentBuilder::addResolveUrlsOnAssignment() const
     m_environment.set("QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT", "true");
 }
 
-PuppetType PuppetEnvironmentBuilder::determinePuppetType() const
+void PuppetEnvironmentBuilder::addMcuItems() const
 {
-    if (m_buildSystem && m_buildSystem->kit() && m_buildSystem->kit()->isValid()) {
-        if (m_qmlPuppetPath.isExecutableFile())
-            return PuppetType::Kit;
-    }
+    if (QmlDesigner::DesignerMcuManager::instance().isMCUProject()) {
+        addMcuFonts();
 
-    return PuppetType::Fallback;
+        const Utils::FilePath projectRoot = ProjectExplorer::ProjectManager::startupProject()
+                                                ->projectFilePath()
+                                                .parentDir();
+        m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_PROJECT_ROOT,
+                          projectRoot.toUserOutput());
+    }
 }
 
+void PuppetEnvironmentBuilder::addMcuFonts() const
+{
+    const Utils::Result<Utils::FilePath> mcuFontsDir = QmlProjectManager::mcuFontsDir();
+    if (!mcuFontsDir) {
+        qCWarning(puppetEnvirmentBuild)
+            << "Failed to locate MCU installation." << mcuFontsDir.error();
+        return;
+    }
+
+    m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_MCU_FONTS_DIR,
+                      mcuFontsDir->toUserOutput());
+    const QString defaultFontFamily = DesignerMcuManager::defaultFontFamilyMCU();
+    m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_DEFAULT_FONT_FAMILY,
+                      defaultFontFamily);
+}
+
+PuppetType PuppetEnvironmentBuilder::determinePuppetType() const
+{
+    auto hasValidKit = [&]() -> bool {
+        return m_buildSystem && m_buildSystem->kit() && m_buildSystem->kit()->isValid();
+    };
+
+    auto isExecutable = [&]() -> bool { return m_qmlPuppetPath.isExecutableFile(); };
+
+    auto inHostBin = [&]() -> bool {
+        auto *qt = QtSupport::QtKitAspect::qtVersion(m_buildSystem->kit());
+        return qt && m_qmlPuppetPath.startsWith(qt->hostBinPath().path());
+    };
+
+    return (hasValidKit() && isExecutable() && inHostBin()) ? PuppetType::Kit : PuppetType::Fallback;
+}
 } // namespace QmlDesigner

@@ -2,17 +2,18 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "movemanipulator.h"
-#include "layeritem.h"
+#include "formeditorgraphicsview.h"
 #include "formeditoritem.h"
 #include "formeditorscene.h"
+#include "formeditortracing.h"
 #include "formeditorwidget.h"
-#include "formeditorgraphicsview.h"
+#include "layeritem.h"
 
-#include <qmlanchors.h>
+#include <nodeabstractproperty.h>
 #include <nodehints.h>
 #include <nodemetainfo.h>
+#include <qmlanchors.h>
 #include <variantproperty.h>
-#include <nodeabstractproperty.h>
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -24,15 +25,20 @@ static Q_LOGGING_CATEGORY(moveManipulatorInfo, "qtc.qmldesigner.formeditor", QtW
 
 namespace QmlDesigner {
 
+using FormEditorTracing::category;
+
 MoveManipulator::MoveManipulator(LayerItem *layerItem, FormEditorView *view)
     : m_layerItem(layerItem),
     m_view(view),
     m_isActive(false)
 {
+    NanotraceHR::Tracer tracer{"move manipulator constructor", category()};
 }
 
 MoveManipulator::~MoveManipulator()
 {
+    NanotraceHR::Tracer tracer{"move manipulator destructor", category()};
+
     deleteSnapLines();
 }
 
@@ -43,7 +49,9 @@ QPointF MoveManipulator::beginPoint() const
 
 void MoveManipulator::setItem(FormEditorItem* item)
 {
-    QList<FormEditorItem*> itemList;
+    NanotraceHR::Tracer tracer{"move manipulator set item", category()};
+
+    QList<FormEditorItem *> itemList;
     itemList.append(item);
 
     setItems(itemList);
@@ -51,6 +59,8 @@ void MoveManipulator::setItem(FormEditorItem* item)
 
 void MoveManipulator::setItems(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"move manipulator set items", category()};
+
     m_itemList = itemList;
     if (!m_itemList.isEmpty()) {
         if (m_itemList.constFirst()->parentItem())
@@ -64,6 +74,8 @@ void MoveManipulator::setItems(const QList<FormEditorItem*> &itemList)
 
 void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, const ModelNode &parentNode)
 {
+    NanotraceHR::Tracer tracer{"move manipulator synchronize parent", category()};
+
     bool snapperUpdated = false;
 
     for (FormEditorItem *item : itemList) {
@@ -83,13 +95,18 @@ void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, 
 
 void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &itemList)
 {
-    if (m_view->model() && !m_itemList.isEmpty() && m_itemList.constFirst()->qmlItemNode().hasInstanceParent())
+    NanotraceHR::Tracer tracer{"move manipulator synchronize instance parent", category()};
+
+    if (m_view->model() && !m_itemList.isEmpty()
+        && m_itemList.constFirst()->qmlItemNode().hasInstanceParent())
         synchronizeParent(itemList, m_itemList.constFirst()->qmlItemNode().instanceParent());
 }
 
 bool MoveManipulator::itemsCanReparented() const
 {
-    for (FormEditorItem* item : std::as_const(m_itemList)) {
+    NanotraceHR::Tracer tracer{"move manipulator items can reparented", category()};
+
+    for (FormEditorItem *item : std::as_const(m_itemList)) {
         if (item
             && item->qmlItemNode().isValid()
             && !item->qmlItemNode().instanceCanReparent())
@@ -101,15 +118,20 @@ bool MoveManipulator::itemsCanReparented() const
 
 void MoveManipulator::setDirectUpdateInNodeInstances(bool directUpdate)
 {
+    NanotraceHR::Tracer tracer{"move manipulator set direct update in node instances", category()};
+
     const auto allFormEditorItems = m_view->scene()->allFormEditorItems();
     for (FormEditorItem *item : std::as_const(m_itemList)) {
         if (item && allFormEditorItems.contains(item) && item->qmlItemNode().isValid())
-            item->qmlItemNode().nodeInstance().setDirectUpdate(directUpdate);
+            if (auto instance = item->qmlItemNode().nodeInstance())
+                instance.setDirectUpdate(directUpdate);
     }
 }
 
 void MoveManipulator::begin(const QPointF &beginPoint)
 {
+    NanotraceHR::Tracer tracer{"move manipulator begin", category()};
+
     m_view->formEditorWidget()->graphicsView()->viewport()->setCursor(Qt::SizeAllCursor);
     m_isActive = true;
 
@@ -155,6 +177,8 @@ void MoveManipulator::begin(const QPointF &beginPoint)
 
 QPointF MoveManipulator::findSnappingOffset(const QHash<FormEditorItem*, QRectF> &boundingRectHash)
 {
+    NanotraceHR::Tracer tracer{"move manipulator find snapping offset", category()};
+
     QPointF offset;
 
     QMap<double, double> verticalOffsetMap;
@@ -196,9 +220,12 @@ QPointF MoveManipulator::findSnappingOffset(const QHash<FormEditorItem*, QRectF>
 
 void MoveManipulator::generateSnappingLines(const QHash<FormEditorItem*, QRectF> &boundingRectHash)
 {
-    m_graphicsLineList = m_snapper.generateSnappingLines(boundingRectHash.values(),
-                                                         m_layerItem.data(),
-                                                         m_snapper.transformtionSpaceFormEditorItem()->sceneTransform());
+    NanotraceHR::Tracer tracer{"move manipulator generate snapping lines", category()};
+
+    m_graphicsLineList = m_snapper.generateSnappingLines(
+        boundingRectHash.values(),
+        m_layerItem.data(),
+        m_snapper.transformtionSpaceFormEditorItem()->sceneTransform());
 }
 
 
@@ -207,7 +234,9 @@ QHash<FormEditorItem*, QRectF> MoveManipulator::tanslatedBoundingRects(const QHa
                                                                        const QPointF& offsetVector,
                                                                        const QTransform &transform)
 {
-    QHash<FormEditorItem*, QRectF> translatedBoundingRectHash;
+    NanotraceHR::Tracer tracer{"move manipulator tanslated bounding rects", category()};
+
+    QHash<FormEditorItem *, QRectF> translatedBoundingRectHash;
 
     for (auto hashIterator = boundingRectHash.cbegin(), end = boundingRectHash.cend();
               hashIterator != end;
@@ -236,6 +265,8 @@ QHash<FormEditorItem*, QRectF> MoveManipulator::tanslatedBoundingRects(const QHa
 */
 void MoveManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSnapping, State stateToBeManipulated)
 {
+    NanotraceHR::Tracer tracer{"move manipulator update", category()};
+
     m_lastPosition = updatePoint;
     deleteSnapLines(); //Since they position is changed and the item is moved the snapping lines are
                        //are obsolete. The new updated snapping lines (color and visibility) will be
@@ -295,6 +326,8 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSn
 
 void MoveManipulator::clear()
 {
+    NanotraceHR::Tracer tracer{"move manipulator clear", category()};
+
     deleteSnapLines();
     m_beginItemRectInSceneSpaceHash.clear();
     m_beginPositionInSceneSpaceHash.clear();
@@ -313,6 +346,8 @@ void MoveManipulator::clear()
 
 void MoveManipulator::reparentTo(FormEditorItem *newParent, ReparentFlag flag)
 {
+    NanotraceHR::Tracer tracer{"move manipulator reparent to", category()};
+
     deleteSnapLines();
 
     if (!newParent)
@@ -360,6 +395,8 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent, ReparentFlag flag)
 
 void MoveManipulator::end()
 {
+    NanotraceHR::Tracer tracer{"move manipulator end", category()};
+
     m_view->formEditorWidget()->graphicsView()->viewport()->unsetCursor();
     setDirectUpdateInNodeInstances(false);
     m_isActive = false;
@@ -371,6 +408,8 @@ void MoveManipulator::end()
 
 void MoveManipulator::end(Snapper::Snapping useSnapping)
 {
+    NanotraceHR::Tracer tracer{"move manipulator end with snapping", category()};
+
     if (useSnapping == Snapper::UseSnappingAndAnchoring) {
         for (FormEditorItem* formEditorItem : std::as_const(m_itemList))
             m_snapper.adjustAnchoringOfItem(formEditorItem);
@@ -381,7 +420,9 @@ void MoveManipulator::end(Snapper::Snapping useSnapping)
 
 void MoveManipulator::moveBy(double deltaX, double deltaY)
 {
-    for (FormEditorItem* item : std::as_const(m_itemList)) {
+    NanotraceHR::Tracer tracer{"move manipulator move by", category()};
+
+    for (FormEditorItem *item : std::as_const(m_itemList)) {
         if (!item || !item->qmlItemNode().isValid())
             continue;
 
@@ -412,23 +453,32 @@ void MoveManipulator::moveBy(double deltaX, double deltaY)
 
 void MoveManipulator::beginRewriterTransaction()
 {
-    m_rewriterTransaction = m_view->beginRewriterTransaction(QByteArrayLiteral("MoveManipulator::beginRewriterTransaction"));
+    NanotraceHR::Tracer tracer{"move manipulator begin rewriter transaction", category()};
+
+    m_rewriterTransaction = m_view->beginRewriterTransaction(
+        QByteArrayLiteral("MoveManipulator::beginRewriterTransaction"));
     m_rewriterTransaction.ignoreSemanticChecks();
 }
 
 void MoveManipulator::endRewriterTransaction()
 {
+    NanotraceHR::Tracer tracer{"move manipulator end rewriter transaction", category()};
+
     m_rewriterTransaction.commit();
 }
 
 void MoveManipulator::setOpacityForAllElements(qreal opacity)
 {
-    for (FormEditorItem* item : std::as_const(m_itemList))
+    NanotraceHR::Tracer tracer{"move manipulator set opacity for all elements", category()};
+
+    for (FormEditorItem *item : std::as_const(m_itemList))
         item->setOpacity(opacity);
 }
 
 void MoveManipulator::deleteSnapLines()
 {
+    NanotraceHR::Tracer tracer{"move manipulator delete snap lines", category()};
+
     if (m_layerItem) {
         for (QGraphicsItem *item : std::as_const(m_graphicsLineList)) {
             m_layerItem->scene()->removeItem(item);

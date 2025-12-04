@@ -756,7 +756,6 @@ void Import3dImporter::finalizeQuick3DImport()
                         }
                         timer->stop();
                         notifyFinished();
-                        model->rewriterView()->emitCustomNotification("asset_import_finished");
                     }
 #endif
                 } else {

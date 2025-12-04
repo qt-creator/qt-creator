@@ -49,9 +49,9 @@ public:
         setDescription(Tr::tr("Split Initializer"));
     }
 
-    void performChanges(QmlJSRefactoringFilePtr currentFile,
-                        const QmlJSRefactoringChanges &,
-                        const QString &) override
+    QString performChanges(QmlJSRefactoringFilePtr currentFile,
+                           const QmlJSRefactoringChanges &,
+                           const QString &) override
     {
         Q_ASSERT(_objectInitializer);
 
@@ -81,6 +81,8 @@ public:
                        QLatin1String("\n"));
 
         currentFile->apply(changes);
+
+        return {};
     }
 };
 
@@ -122,13 +124,14 @@ public:
         setDescription(Tr::tr("Add a Comment to Suppress This Message"));
     }
 
-    void performChanges(QmlJSRefactoringFilePtr currentFile,
-                        const QmlJSRefactoringChanges &,
-                        const QString &) override
+    QString performChanges(QmlJSRefactoringFilePtr currentFile,
+                           const QmlJSRefactoringChanges &,
+                           const QString &) override
     {
         currentFile->apply(Utils::ChangeSet::makeInsert(
             _message.location.begin() - _message.location.startColumn + 1,
             QString::fromLatin1("// %1\n").arg(_message.suppressionString())));
+        return {};
     }
 };
 

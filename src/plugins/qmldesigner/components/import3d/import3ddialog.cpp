@@ -91,14 +91,18 @@ constexpr QStringView expandValuesKey{u"expandValueComponents"};
 
 } // namespace
 
-Import3dDialog::Import3dDialog(
-        const QStringList &importFiles,
-        const QVariantMap &supportedExts, const QVariantMap &supportedOpts,
-        const QJsonObject &defaultOpts, const QSet<QString> &preselectedFilesForOverwrite,
-        AbstractView *view, QWidget *parent)
+Import3dDialog::Import3dDialog(const QStringList &importFiles,
+                               const QVariantMap &supportedExts,
+                               const QVariantMap &supportedOpts,
+                               const QJsonObject &defaultOpts,
+                               const QSet<QString> &preselectedFilesForOverwrite,
+                               AbstractView *view,
+                               ModulesStorage &modulesStorage,
+                               QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::Import3dDialog)
     , m_view(view)
+    , m_modulesStorage(modulesStorage)
     , m_importer(this)
     , m_preselectedFilesForOverwrite(preselectedFilesForOverwrite)
 {
@@ -278,6 +282,7 @@ Import3dDialog::~Import3dDialog()
 }
 
 void Import3dDialog::updateImport(AbstractView *view,
+                                  ModulesStorage &modulesStorage,
                                   const Utils::FilePath &import3dQml,
                                   const ModelNode &updateNode,
                                   const QVariantMap &supportedExts,
@@ -366,11 +371,14 @@ void Import3dDialog::updateImport(AbstractView *view,
                                 source = QDir{compFileInfo.absolutePath()}.absoluteFilePath(source);
                             preselectedFiles.insert(source);
                         }
-                        auto importDlg = new Import3dDialog(
-                                    {sourceInfo.absoluteFilePath()},
-                                    supportedExts, supportedOpts, options,
-                                    preselectedFiles, view,
-                                    Core::ICore::dialogParent());
+                        auto importDlg = new Import3dDialog({sourceInfo.absoluteFilePath()},
+                                                            supportedExts,
+                                                            supportedOpts,
+                                                            options,
+                                                            preselectedFiles,
+                                                            view,
+                                                            modulesStorage,
+                                                            Core::ICore::dialogParent());
                         importDlg->show();
 
                     } else {
@@ -990,8 +998,12 @@ Rectangle {
     }
 
     m_connectionManager = new Import3dConnectionManager;
-    m_rewriterView = new RewriterView{m_view->externalDependencies(), RewriterView::Amend};
-    m_nodeInstanceView = new NodeInstanceView{*m_connectionManager, m_view->externalDependencies()};
+    m_rewriterView = new RewriterView{m_view->externalDependencies(),
+                                      m_modulesStorage,
+                                      RewriterView::Amend};
+    m_nodeInstanceView = new NodeInstanceView{*m_connectionManager,
+                                              m_view->externalDependencies(),
+                                              m_modulesStorage};
 
 #ifdef QDS_USE_PROJECTSTORAGE
     m_model = m_view->model()->createModel("Item");

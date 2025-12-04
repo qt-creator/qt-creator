@@ -10,7 +10,7 @@
 #include "projectstoragetypes.h"
 #include "sourcepathstorage/storagecache.h"
 
-#include <tracing/qmldesignertracing.h>
+#include "projectstoragetracing.h"
 
 #include <sqlitealgorithms.h>
 #include <sqlitedatabase.h>
@@ -31,8 +31,6 @@ namespace QmlDesigner {
 
 using namespace NanotraceHR::Literals;
 
-using ProjectStorageTracing::projectStorageCategory;
-
 class QMLDESIGNERCORE_EXPORT ProjectStorage final : public ProjectStorageInterface
 {
     using Database = Sqlite::Database;
@@ -44,6 +42,7 @@ class QMLDESIGNERCORE_EXPORT ProjectStorage final : public ProjectStorageInterfa
 public:
     ProjectStorage(Database &database,
                    ProjectStorageErrorNotifierInterface &errorNotifier,
+                   ModulesStorage &modulesStorage,
                    bool isInitialized);
     ~ProjectStorage();
 
@@ -60,18 +59,11 @@ public:
 
     void removeObserver(ProjectStorageObserver *observer) override;
 
-    ModuleId moduleId(Utils::SmallStringView moduleName, Storage::ModuleKind kind) const override;
-
-    SmallModuleIds<128> moduleIdsStartsWith(Utils::SmallStringView startsWith,
-                                            Storage::ModuleKind kind) const override;
-
-    Storage::Module module(ModuleId moduleId) const override;
-
     TypeId typeId(ModuleId moduleId,
                   Utils::SmallStringView exportedTypeName,
                   Storage::Version version) const override;
 
-    TypeId typeId(ImportedTypeNameId typeNameId) const override;
+    Storage::Info::ExportedTypeName exportedTypeName(ImportedTypeNameId typeNameId) const override;
 
     SmallTypeIds<256> typeIds(ModuleId moduleId) const override;
 
@@ -82,6 +74,7 @@ public:
     Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId, SourceId sourceId) const override;
 
     ImportId importId(const Storage::Import &import) const override;
+    ImportId importId(SourceId sourceId, Utils::SmallStringView alias) const override;
 
     ImportedTypeNameId importedTypeNameId(ImportId importId, Utils::SmallStringView typeName) override;
 
@@ -129,12 +122,14 @@ public:
         return commonTypeCache_;
     }
 
-    template<const char *moduleName, const char *typeName, Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
+    template<Storage::Info::StaticString moduleName,
+             Storage::Info::StaticString typeName,
+             Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
     TypeId commonTypeId() const
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get type id from common type cache",
-                                   projectStorageCategory(),
+                                   ProjectStorageTracing::category(),
                                    keyValue("module name", std::string_view{moduleName}),
                                    keyValue("type name", std::string_view{typeName})};
 
@@ -150,7 +145,7 @@ public:
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get builtin type id from common type cache",
-                                   projectStorageCategory()};
+                                   ProjectStorageTracing::category()};
 
         auto typeId = commonTypeCache_.builtinTypeId<BuiltinType>();
 
@@ -159,12 +154,12 @@ public:
         return typeId;
     }
 
-    template<const char *builtinType>
+    template<Storage::Info::StaticString builtinType>
     TypeId builtinTypeId() const
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get builtin type id from common type cache",
-                                   projectStorageCategory()};
+                                   ProjectStorageTracing::category()};
 
         auto typeId = commonTypeCache_.builtinTypeId<builtinType>();
 
@@ -180,24 +175,24 @@ public:
     SmallTypeIds<64> heirIds(TypeId typeId) const override;
 
     template<typename... TypeIds>
-    bool isBasedOn_(TypeId typeId, TypeIds... baseTypeIds) const;
+    TypeId basedOn_(TypeId typeId, TypeIds... baseTypeIds) const;
 
-    bool isBasedOn(TypeId) const;
+    TypeId basedOn(TypeId) const;
 
-    bool isBasedOn(TypeId typeId, TypeId id1) const override;
+    TypeId basedOn(TypeId typeId, TypeId id1) const override;
 
-    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2) const override;
+    TypeId basedOn(TypeId typeId, TypeId id1, TypeId id2) const override;
 
-    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3) const override;
+    TypeId basedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3) const override;
 
-    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4) const override;
+    TypeId basedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4) const override;
 
-    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5) const override;
+    TypeId basedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5) const override;
 
-    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5, TypeId id6)
+    TypeId basedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5, TypeId id6)
         const override;
 
-    bool isBasedOn(TypeId typeId,
+    TypeId basedOn(TypeId typeId,
                    TypeId id1,
                    TypeId id2,
                    TypeId id3,
@@ -205,6 +200,52 @@ public:
                    TypeId id5,
                    TypeId id6,
                    TypeId id7) const override;
+
+    TypeId basedOn(TypeId typeId,
+                   TypeId id1,
+                   TypeId id2,
+                   TypeId id3,
+                   TypeId id4,
+                   TypeId id5,
+                   TypeId id6,
+                   TypeId id7,
+                   TypeId id8) const override;
+
+    TypeId basedOn(TypeId typeId,
+                   TypeId id1,
+                   TypeId id2,
+                   TypeId id3,
+                   TypeId id4,
+                   TypeId id5,
+                   TypeId id6,
+                   TypeId id7,
+                   TypeId id8,
+                   TypeId id9) const override;
+
+    TypeId basedOn(TypeId typeId,
+                   TypeId id1,
+                   TypeId id2,
+                   TypeId id3,
+                   TypeId id4,
+                   TypeId id5,
+                   TypeId id6,
+                   TypeId id7,
+                   TypeId id8,
+                   TypeId id9,
+                   TypeId id10) const override;
+
+    TypeId basedOn(TypeId typeId,
+                   TypeId id1,
+                   TypeId id2,
+                   TypeId id3,
+                   TypeId id4,
+                   TypeId id5,
+                   TypeId id6,
+                   TypeId id7,
+                   TypeId id8,
+                   TypeId id9,
+                   TypeId id10,
+                   TypeId id11) const override;
 
     TypeId fetchTypeIdByExportedName(Utils::SmallStringView name) const;
 
@@ -216,17 +257,21 @@ public:
     Storage::Synchronization::Type fetchTypeByTypeId(TypeId typeId);
 
     Storage::Synchronization::Types fetchTypes();
+    SmallTypeIds<256> fetchTypeIds() const;
 
     FileStatuses fetchAllFileStatuses() const;
 
     FileStatus fetchFileStatus(SourceId sourceId) const override;
 
-    std::optional<Storage::Synchronization::DirectoryInfo> fetchDirectoryInfo(SourceId sourceId) const override;
+    std::optional<Storage::Synchronization::ProjectEntryInfo> fetchProjectEntryInfo(
+        SourceId sourceId) const override;
 
-    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(DirectoryPathId directoryId) const override;
-    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(
-        DirectoryPathId directoryId, Storage::Synchronization::FileType fileType) const override;
-    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(const DirectoryPathIds &directoryIds) const;
+    Storage::Synchronization::ProjectEntryInfos fetchProjectEntryInfos(
+        SourceId contextSourceId) const override;
+    Storage::Synchronization::ProjectEntryInfos fetchProjectEntryInfos(
+        SourceId contextSourceId, Storage::Synchronization::FileType fileType) const override;
+    Storage::Synchronization::ProjectEntryInfos fetchProjectEntryInfos(
+        const SourceIds &contextSourceIds) const;
     SmallDirectoryPathIds<32> fetchSubdirectoryIds(DirectoryPathId directoryId) const override;
 
     void setPropertyEditorPathId(TypeId typeId, SourceId pathId);
@@ -237,95 +282,12 @@ public:
 
     void resetForTestsOnly();
 
+    Storage::Synchronization::FunctionDeclarations fetchFunctionDeclarationsForTestOnly(TypeId typeId) const;
+    Storage::Synchronization::SignalDeclarations fetchSignalDeclarationsForTestOnly(TypeId typeId) const;
+    Storage::Synchronization::EnumerationDeclarations fetchEnumerationDeclarationsForTestOnly(
+        TypeId typeId) const;
+
 private:
-    struct ModuleView
-    {
-        ModuleView() = default;
-
-        ModuleView(Utils::SmallStringView name, Storage::ModuleKind kind)
-            : name{name}
-            , kind{kind}
-        {}
-
-        ModuleView(const Storage::Module &module)
-            : name{module.name}
-            , kind{module.kind}
-        {}
-
-        Utils::SmallStringView name;
-        Storage::ModuleKind kind;
-
-        friend std::strong_ordering operator<=>(ModuleView first, ModuleView second)
-        {
-            return std::tie(first.kind, first.name) <=> std::tie(second.kind, second.name);
-        }
-
-        friend bool operator==(const Storage::Module &first, ModuleView second)
-        {
-            return first.name == second.name && first.kind == second.kind;
-        }
-
-        friend bool operator==(ModuleView first, const Storage::Module &second)
-        {
-            return second == first;
-        }
-    };
-
-    class ModuleStorageAdapter
-    {
-    public:
-        auto fetchId(ModuleView module) { return storage.fetchModuleId(module.name, module.kind); }
-
-        auto fetchValue(ModuleId id) { return storage.fetchModule(id); }
-
-        auto fetchAll() { return storage.fetchAllModules(); }
-
-        ProjectStorage &storage;
-    };
-
-    friend ModuleStorageAdapter;
-
-    struct ModuleNameLess
-    {
-        bool operator()(ModuleView first, ModuleView second) const noexcept
-        {
-            return first < second;
-        }
-    };
-
-    class ModuleCacheEntry : public StorageCacheEntry<Storage::Module, ModuleView, ModuleId>
-    {
-        using Base = StorageCacheEntry<Storage::Module, ModuleView, ModuleId>;
-
-    public:
-        using Base::Base;
-
-        ModuleCacheEntry(Utils::SmallStringView name, Storage::ModuleKind kind, ModuleId moduleId)
-            : Base{{name, kind}, moduleId}
-        {}
-
-        friend bool operator==(const ModuleCacheEntry &first, const ModuleCacheEntry &second)
-        {
-            return &first == &second && first.value == second.value;
-        }
-
-        friend bool operator==(const ModuleCacheEntry &first, ModuleView second)
-        {
-            return first.value.name == second.name && first.value.kind == second.kind;
-        }
-    };
-
-    using ModuleCacheEntries = std::vector<ModuleCacheEntry>;
-
-    using ModuleCache
-        = StorageCache<Storage::Module, ModuleView, ModuleId, ModuleStorageAdapter, NonLockingMutex, ModuleNameLess, ModuleCacheEntry>;
-
-    ModuleId fetchModuleId(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind);
-
-    Storage::Module fetchModule(ModuleId id);
-
-    ModuleCacheEntries fetchAllModules() const;
-
     enum class ExportedTypesChanged { No, Yes };
 
     void callRefreshMetaInfoCallback(TypeIds &deletedTypeIds,
@@ -466,31 +428,32 @@ private:
 
     using PropertyDeclarations = std::vector<PropertyDeclaration>;
 
-    class Prototype
+    class Base
     {
     public:
-        explicit Prototype(TypeId typeId, ImportedTypeNameId prototypeNameId)
+        explicit Base(TypeId typeId,
+                      ImportedTypeNameId prototypeNameId,
+                      ImportedTypeNameId extensionNameId)
             : typeId{typeId}
             , prototypeNameId{std::move(prototypeNameId)}
+            , extensionNameId{std::move(extensionNameId)}
         {}
 
-        friend std::weak_ordering operator<=>(Prototype first, Prototype second)
+        friend std::weak_ordering operator<=>(Base first, Base second)
         {
             return first.typeId <=> second.typeId;
         }
 
-        friend bool operator==(Prototype first, Prototype second)
-        {
-            return first.typeId == second.typeId;
-        }
+        friend bool operator==(Base first, Base second) { return first.typeId == second.typeId; }
 
         template<typename String>
-        friend void convertToString(String &string, const Prototype &prototype)
+        friend void convertToString(String &string, const Base &prototype)
         {
             using NanotraceHR::dictonary;
             using NanotraceHR::keyValue;
             auto dict = dictonary(keyValue("type id", prototype.typeId),
-                                  keyValue("prototype name id", prototype.prototypeNameId));
+                                  keyValue("prototype name id", prototype.prototypeNameId),
+                                  keyValue("extension name id", prototype.extensionNameId));
 
             convertToString(string, dict);
         }
@@ -498,9 +461,10 @@ private:
     public:
         TypeId typeId;
         ImportedTypeNameId prototypeNameId;
+        ImportedTypeNameId extensionNameId;
     };
 
-    using Prototypes = std::vector<Prototype>;
+    using Bases = std::vector<Base>;
 
     SourceIds filterSourceIdsWithoutType(const SourceIds &updatedSourceIds,
                                          SourceIds &sourceIdsOfTypes);
@@ -509,7 +473,10 @@ private:
 
     void unique(SourceIds &sourceIds);
 
-    void synchronizeTypeTraits(TypeId typeId, Storage::TypeTraits traits);
+    void updateAnnotationTypeTraitsInHeirs(TypeId typeId,
+                                           Storage::TypeTraits traits,
+                                           SmallTypeIds<256> &updatedTypes);
+    void updateAnnotationTypeTraitsFromPrototypes(TypeId typeId);
 
     class TypeAnnotationView
     {
@@ -559,9 +526,11 @@ private:
         return Sqlite::ValueView{};
     }
 
-    void synchronizeTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations,
-                                    const SourceIds &updatedTypeAnnotationSourceIds);
+    SmallTypeIds<256> synchronizeTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations,
+                                                 const SourceIds &updatedTypeAnnotationSourceIds);
 
+    void updateAnnotationsTypeTraitsFromPrototypes(SmallTypeIds<256> &alreadyUpdatedTypes,
+                                                   SmallTypeIds<256> &updatedPrototypeTypes);
     void synchronizeTypeTrait(const Storage::Synchronization::Type &type);
 
     void synchronizeTypes(Storage::Synchronization::Types &types,
@@ -569,15 +538,12 @@ private:
                           AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
                           AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                           PropertyDeclarations &relinkablePropertyDeclarations,
-                          Prototypes &relinkablePrototypes,
-                          Prototypes &relinkableExtensions,
-                          ExportedTypesChanged &exportedTypesChanged,
-                          Storage::Info::ExportedTypeNames &removedExportedTypeNames,
-                          Storage::Info::ExportedTypeNames &addedExportedTypeNames,
-                          const SourceIds &updatedSourceIds);
+                          Bases &relinkableBases,
+                          const SourceIds &updatedSourceIds,
+                          SmallTypeIds<256> &updatedPrototypeTypes);
 
-    void synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
-                                   const DirectoryPathIds &updatedDirectoryInfoDirectoryIds);
+    void synchronizeProjectEntryInfos(Storage::Synchronization::ProjectEntryInfos &projectEntryInfos,
+                                      const SourceIds &updatedProjectEntryInfoSourceIds);
 
     void synchronizeFileStatuses(FileStatuses &fileStatuses, const SourceIds &updatedSourceIds);
 
@@ -587,17 +553,11 @@ private:
                             const SourceIds &updatedModuleDependencySourceIds,
                             Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
                             const ModuleIds &updatedModuleIds,
-                            Prototypes &relinkablePrototypes,
-                            Prototypes &relinkableExtensions);
+                            Bases &relinkableBases);
 
     void synchromizeModuleExportedImports(
         Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
         const ModuleIds &updatedModuleIds);
-
-    ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name,
-                                    Storage::ModuleKind moduleKind) const override;
-
-    Storage::Module fetchModuleUnguarded(ModuleId id) const;
 
     void handleAliasPropertyDeclarationsWithPropertyType(
         TypeId typeId, AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);
@@ -612,20 +572,14 @@ private:
         Utils::SmallStringView exportedTypeName,
         TypeId typeId,
         AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);
-    void handlePrototypes(TypeId prototypeId, Prototypes &relinkablePrototypes);
-    void handlePrototypesWithExportedTypeNameAndTypeId(Utils::SmallStringView exportedTypeName,
-                                                       TypeId typeId,
-                                                       Prototypes &relinkablePrototypes);
-
-    void handleExtensions(TypeId extensionId, Prototypes &relinkableExtensions);
-    void handleExtensionsWithExportedTypeNameAndTypeId(Utils::SmallStringView exportedTypeName,
-                                                       TypeId typeId,
-                                                       Prototypes &relinkableExtensions);
+    void handleBases(TypeId baseId, Bases &relinkableBases);
+    void handleBasesWithExportedTypeNameAndTypeId(Utils::SmallStringView exportedTypeName,
+                                                  TypeId typeId,
+                                                  Bases &relinkableBases);
     void deleteType(TypeId typeId,
                     AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                     PropertyDeclarations &relinkablePropertyDeclarations,
-                    Prototypes &relinkablePrototypes,
-                    Prototypes &relinkableExtensions);
+                    Bases &relinkableBases);
 
     void relinkAliasPropertyDeclarations(AliasPropertyDeclarations &aliasPropertyDeclarations,
                                          const TypeIds &deletedTypeIds);
@@ -633,24 +587,19 @@ private:
     void relinkPropertyDeclarations(PropertyDeclarations &relinkablePropertyDeclaration,
                                     const TypeIds &deletedTypeIds);
 
-    template<typename Callable>
-    void relinkPrototypes(Prototypes &relinkablePrototypes,
-                          const TypeIds &deletedTypeIds,
-                          Callable updateStatement);
+    void relinkBases(Bases &relinkablePrototypes, const TypeIds &deletedTypeIds);
 
     void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
                                const SourceIds &updatedSourceIds,
                                const TypeIds &typeIdsToBeDeleted,
                                AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                PropertyDeclarations &relinkablePropertyDeclarations,
-                               Prototypes &relinkablePrototypes,
-                               Prototypes &relinkableExtensions,
+                               Bases &relinkableBases,
                                TypeIds &deletedTypeIds);
 
     void relink(AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                 PropertyDeclarations &relinkablePropertyDeclarations,
-                Prototypes &relinkablePrototypes,
-                Prototypes &relinkableExtensions,
+                Bases &relinkableBases,
                 TypeIds &deletedTypeIds);
 
     PropertyDeclarationId fetchAliasId(TypeId aliasTypeId,
@@ -669,12 +618,11 @@ private:
 
     void repairBrokenAliasPropertyDeclarations();
 
-    void synchronizeExportedTypes(const TypeIds &updatedTypeIds,
-                                  Storage::Synchronization::ExportedTypes &exportedTypes,
+    void synchronizeExportedTypes(Storage::Synchronization::ExportedTypes &exportedTypes,
+                                  const SourceIds &updatedExportedTypeSourceIds,
                                   AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                   PropertyDeclarations &relinkablePropertyDeclarations,
-                                  Prototypes &relinkablePrototypes,
-                                  Prototypes &relinkableExtensions,
+                                  Bases &relinkableBases,
                                   ExportedTypesChanged &exportedTypesChanged,
                                   Storage::Info::ExportedTypeNames &removedExportedTypeNames,
                                   Storage::Info::ExportedTypeNames &addedExportedTypeNames);
@@ -755,32 +703,21 @@ private:
         Storage::Synchronization::Types &types,
         AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);
 
-    void handlePrototypesWithSourceIdAndPrototypeId(SourceId sourceId,
-                                                    TypeId prototypeId,
-                                                    Prototypes &relinkablePrototypes);
-    void handlePrototypesAndExtensionsWithSourceId(SourceId sourceId,
-                                                   TypeId prototypeId,
-                                                   TypeId extensionId,
-                                                   Prototypes &relinkablePrototypes,
-                                                   Prototypes &relinkableExtensions);
-    void handleExtensionsWithSourceIdAndExtensionId(SourceId sourceId,
-                                                    TypeId extensionId,
-                                                    Prototypes &relinkableExtensions);
+    void handleBasesWithSourceIdAndBaseId(SourceId sourceId, TypeId baseId, Bases &relinkableBases);
+    void handleBasesWithSourceId(SourceId sourceId, Bases &relinkableBases);
 
     ImportId insertDocumentImport(const Storage::Import &import,
                                   Storage::Synchronization::ImportKind importKind,
                                   ModuleId sourceModuleId,
                                   ImportId parentImportId,
                                   Relink forceRelink,
-                                  Prototypes &relinkablePrototypes,
-                                  Prototypes &relinkableExtensions);
+                                  Bases &relinkableBases);
 
     void synchronizeDocumentImports(Storage::Imports &imports,
                                     const SourceIds &updatedSourceIds,
                                     Storage::Synchronization::ImportKind importKind,
                                     Relink forceRelink,
-                                    Prototypes &relinkablePrototypes,
-                                    Prototypes &relinkableExtensions);
+                                    Bases &relinkableBases);
 
     static Utils::PathString createJson(const Storage::Synchronization::ParameterDeclarations &parameters);
 
@@ -835,36 +772,14 @@ private:
     void synchronizeEnumerationDeclarations(
         TypeId typeId, Storage::Synchronization::EnumerationDeclarations &enumerationDeclarations);
 
-    void extractExportedTypes(TypeId typeId,
-                              const Storage::Synchronization::Type &type,
-                              Storage::Synchronization::ExportedTypes &exportedTypes);
-
-    TypeId declareType(Storage::Synchronization::Type &type);
+    TypeId declareType(std::string_view typeName, SourceId sourceId);
 
     void syncDeclarations(Storage::Synchronization::Type &type,
                           AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
                           PropertyDeclarationIds &propertyDeclarationIds);
 
-    template<typename Relinkable>
-    void removeRelinkableEntries(std::vector<Relinkable> &relinkables, auto &ids, auto projection)
-    {
-        NanotraceHR::Tracer tracer{"remove relinkable entries", projectStorageCategory()};
-
-        std::vector<Relinkable> newRelinkables;
-        newRelinkables.reserve(relinkables.size());
-
-        std::ranges::sort(ids);
-        std::ranges::sort(relinkables, {}, projection);
-
-        Utils::set_greedy_difference(
-            relinkables,
-            ids,
-            [&](Relinkable &entry) { newRelinkables.push_back(std::move(entry)); },
-            {},
-            projection);
-
-        relinkables = std::move(newRelinkables);
-    }
+    template<typename Relinkable, typename Ids, typename Projection>
+    void removeRelinkableEntries(std::vector<Relinkable> &relinkables, Ids ids, Projection projection);
 
     void syncDeclarations(Storage::Synchronization::Types &types,
                           AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
@@ -904,16 +819,22 @@ private:
     std::pair<TypeId, ImportedTypeNameId> fetchImportedTypeNameIdAndTypeId(
         const Storage::Synchronization::ImportedTypeName &typeName, SourceId sourceId);
 
-    void syncPrototypeAndExtension(Storage::Synchronization::Type &type, TypeIds &typeIds);
+    void syncPrototypeAndExtension(Storage::Synchronization::Type &type,
+                                   TypeIds &typeIds,
+                                   SmallTypeIds<256> &updatedPrototypeIds);
+
+    bool updateBases(TypeId type, TypeId prototypeId, TypeId extensionId);
+    bool updatePrototypes(TypeId type, TypeId prototypeId);
 
     void syncPrototypesAndExtensions(Storage::Synchronization::Types &types,
-                                     Prototypes &relinkablePrototypes,
-                                     Prototypes &relinkableExtensions);
+                                     Bases &relinkableBases,
+                                     SmallTypeIds<256> &updatedPrototypeIds);
 
     ImportId fetchImportId(SourceId sourceId, const Storage::Import &import) const;
+    ImportId fetchImportId(SourceId sourceId, Utils::SmallStringView alias) const;
 
-    ImportedTypeNameId fetchImportedTypeNameId(const Storage::Synchronization::ImportedTypeName &name,
-                                               SourceId sourceId);
+    std::tuple<ImportedTypeNameId, Storage::Synchronization::TypeNameKind> fetchImportedTypeNameId(
+        const Storage::Synchronization::ImportedTypeName &name, SourceId sourceId);
 
     template<typename Id>
     ImportedTypeNameId fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind kind,
@@ -921,6 +842,10 @@ private:
                                                Utils::SmallStringView typeName);
 
     TypeId fetchTypeId(ImportedTypeNameId typeNameId) const;
+
+    Storage::Info::ExportedTypeName fetchExportedTypeName(
+        ImportedTypeNameId typeNameId, Storage::Synchronization::TypeNameKind kind) const;
+    Storage::Info::ExportedTypeName fetchExportedTypeName(ImportedTypeNameId typeNameId) const;
 
     Utils::SmallString fetchImportedTypeName(ImportedTypeNameId typeNameId) const;
     SourceId fetchTypeSourceId(TypeId typeId) const;
@@ -968,15 +893,18 @@ private:
     PropertyDeclarationId fetchPropertyDeclarationIdByTypeIdAndNameUngarded(TypeId typeId,
                                                                             Utils::SmallStringView name);
 
-    Storage::Synchronization::ExportedTypes fetchExportedTypes(TypeId typeId);
+    TypeId fetchPrototypeId(TypeId typeId);
+    TypeId fetchExtensionId(TypeId typeId);
 
-    Storage::Synchronization::PropertyDeclarations fetchPropertyDeclarations(TypeId typeId);
+    Storage::Synchronization::PropertyDeclarations fetchPropertyDeclarations(TypeId typeId) const;
 
-    Storage::Synchronization::FunctionDeclarations fetchFunctionDeclarations(TypeId typeId);
+    Storage::Synchronization::FunctionDeclarations fetchFunctionDeclarations(TypeId typeId) const;
 
-    Storage::Synchronization::SignalDeclarations fetchSignalDeclarations(TypeId typeId);
+    Storage::Synchronization::SignalDeclarations fetchSignalDeclarations(TypeId typeId) const;
 
-    Storage::Synchronization::EnumerationDeclarations fetchEnumerationDeclarations(TypeId typeId);
+    Storage::Synchronization::EnumerationDeclarations fetchEnumerationDeclarations(TypeId typeId) const;
+
+    void resetBasesCache();
 
     class Initializer;
 
@@ -987,9 +915,10 @@ public:
     ProjectStorageErrorNotifierInterface *errorNotifier = nullptr; // cannot be null
     Sqlite::ExclusiveNonThrowingDestructorTransaction<Database> exclusiveTransaction;
     std::unique_ptr<Initializer> initializer;
-    mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};
-    Storage::Info::CommonTypeCache<ProjectStorageType> commonTypeCache_{*this};
+    ModulesStorage &modulesStorage;
+    Storage::Info::CommonTypeCache<ProjectStorageType> commonTypeCache_;
     QVarLengthArray<ProjectStorageObserver *, 24> observers;
+    mutable std::vector<std::optional<SmallTypeIds<12>>> basesCache;
     std::unique_ptr<Statements> s;
 };
 

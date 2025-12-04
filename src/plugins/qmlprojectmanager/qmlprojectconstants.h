@@ -11,6 +11,7 @@ const char primaryLanguageData[] = "PrimaryLanguageData";
 const char customForceFreeTypeData[] = "CustomForceFreeType";
 const char customQtForMCUs[] = "CustomQtForMCUs";
 const char customQt6Project[] = "CustomQt6Project";
+const char customDefaultFontFamilyMCU[] = "CustomDefaultFontFamilyMCU";
 
 const char mainFilePath[] = "MainFilePath";
 const char canonicalProjectDir[] ="CanonicalProjectDir";
@@ -34,5 +35,15 @@ const char G_EXPORT_GENERATE[] = "QmlDesigner.Group.GenerateProject";
 const char G_EXPORT_CONVERT[] = "QmlDesigner.Group.ConvertProject";
 
 const char fakeProjectName[] = "fake85673.qmlproject";
+
+inline constexpr const char *QDS_FONT_FILES_FILTERS[] = {
+    "*.afm", "*.bdf", "*.ccc", "*.cff", "*.fmp",  "*.fnt", "*.otc", "*.otf",  "*.pcf",   "*.pfa",
+    "*.pfb", "*.pfm", "*.pfr", "*.ttc", "*.ttcf", "*.tte", "*.ttf", "*.woff", "*.woff2",
+};
+constexpr char FALLBACK_MCU_FONT_FAMILY[] = "DejaVu Sans";
+// These constants should be kept in sync with their counterparts in qmlbase.h
+constexpr char QMLPUPPET_ENV_MCU_FONTS_DIR[] = "QMLPUPPET_MCU_FONTS_DIR";
+constexpr char QMLPUPPET_ENV_DEFAULT_FONT_FAMILY[] = "QMLPUPPET_DEFAULT_FONT_FAMILY";
+constexpr char QMLPUPPET_ENV_PROJECT_ROOT[] = "QMLPUPPET_PROJECT_ROOT";
 
 } // QmlProjectManager::Constants

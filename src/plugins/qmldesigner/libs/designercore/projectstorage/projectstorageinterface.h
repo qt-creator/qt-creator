@@ -31,17 +31,13 @@ public:
     virtual void addObserver(ProjectStorageObserver *observer) = 0;
     virtual void removeObserver(ProjectStorageObserver *observer) = 0;
 
-    virtual ModuleId moduleId(::Utils::SmallStringView name, Storage::ModuleKind kind) const = 0;
-    virtual SmallModuleIds<128>
-    moduleIdsStartsWith(Utils::SmallStringView startsWith, Storage::ModuleKind kind) const = 0;
-    virtual QmlDesigner::Storage::Module module(ModuleId moduleId) const = 0;
     virtual std::optional<Storage::Info::PropertyDeclaration>
     propertyDeclaration(PropertyDeclarationId propertyDeclarationId) const = 0;
     virtual TypeId typeId(ModuleId moduleId,
                           ::Utils::SmallStringView exportedTypeName,
                           Storage::Version version) const
         = 0;
-    virtual TypeId typeId(ImportedTypeNameId typeNameId) const = 0;
+    virtual Storage::Info::ExportedTypeName exportedTypeName(ImportedTypeNameId typeNameId) const = 0;
     virtual SmallTypeIds<256> typeIds(ModuleId moduleId) const = 0;
     virtual SmallTypeIds<256> singletonTypeIds(SourceId sourceId) const = 0;
     virtual Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId) const = 0;
@@ -49,6 +45,7 @@ public:
                                                                SourceId sourceId) const
         = 0;
     virtual ImportId importId(const Storage::Import &import) const = 0;
+    virtual ImportId importId(SourceId sourceId, Utils::SmallStringView alias) const = 0;
     virtual ImportedTypeNameId importedTypeNameId(ImportId sourceId, Utils::SmallStringView typeName)
         = 0;
     virtual ImportedTypeNameId importedTypeNameId(SourceId sourceId, Utils::SmallStringView typeName)
@@ -75,27 +72,37 @@ public:
     virtual SmallTypeIds<16> prototypeAndSelfIds(TypeId type) const = 0;
     virtual SmallTypeIds<16> prototypeIds(TypeId type) const = 0;
     virtual SmallTypeIds<64> heirIds(TypeId typeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(
+        TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const
+        = 0;
+    virtual TypeId basedOn(
+        TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const
+        = 0;
 
     virtual FileStatus fetchFileStatus(SourceId sourceId) const = 0;
-    virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(DirectoryPathId directoryId) const = 0;
-    virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(
-        DirectoryPathId directoryId, Storage::Synchronization::FileType) const
+    virtual Storage::Synchronization::ProjectEntryInfos fetchProjectEntryInfos(SourceId contextSourceId) const = 0;
+    virtual Storage::Synchronization::ProjectEntryInfos fetchProjectEntryInfos(
+        SourceId contextSourceId, Storage::Synchronization::FileType) const
         = 0;
-    virtual std::optional<Storage::Synchronization::DirectoryInfo>
-    fetchDirectoryInfo(SourceId sourceId) const = 0;
+    virtual std::optional<Storage::Synchronization::ProjectEntryInfo>
+    fetchProjectEntryInfo(SourceId sourceId) const = 0;
     virtual SmallDirectoryPathIds<32> fetchSubdirectoryIds(DirectoryPathId directoryId) const = 0;
 
     virtual SourceId propertyEditorPathId(TypeId typeId) const = 0;
     virtual const Storage::Info::CommonTypeCache<ProjectStorageType> &commonTypeCache() const = 0;
 
-    template<const char *moduleName, const char *typeName, Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
+    template<Storage::Info::StaticString moduleName,
+             Storage::Info::StaticString typeName,
+             Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
     TypeId commonTypeId() const
     {
         return commonTypeCache().template typeId<moduleName, typeName, moduleKind>();
@@ -117,7 +124,6 @@ protected:
     ProjectStorageInterface() = default;
     ~ProjectStorageInterface() = default;
 
-    virtual ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name, Storage::ModuleKind moduleKind) const = 0;
     virtual TypeId fetchTypeIdByModuleIdAndExportedName(ModuleId moduleId, Utils::SmallStringView name) const = 0;
 };
 

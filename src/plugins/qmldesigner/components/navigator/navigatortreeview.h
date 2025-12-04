@@ -20,11 +20,13 @@ public:
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void startDrag(Qt::DropActions supportedActions) override;
 
 private:
     PreviewToolTip *m_previewToolTip = nullptr;
     qint32 m_previewToolTipNodeId = -1;
     bool m_dragAllowed = true;
+    QModelIndex m_clickedIndex;
 };
 }

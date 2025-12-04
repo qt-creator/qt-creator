@@ -23,6 +23,16 @@ using QmlDesigner::SourcePathViews;
 class SourcePathCache : public testing::Test
 {
 protected:
+    struct StaticData
+    {
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
+    };
+
+    static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
+
+    static void TearDownTestSuite() { staticData.reset(); }
+
     SourcePathCache()
     {
         ON_CALL(storageMock, fetchDirectoryPathId(Eq("/path/to"))).WillByDefault(Return(directoryPathId5));
@@ -51,9 +61,11 @@ protected:
     SourceId sourceId542 = SourceId::create(directoryPathId5, fileNameId42);
     SourceId sourceId563 = SourceId::create(directoryPathId5, fileNameId63);
     SourceId sourceId642 = SourceId::create(directoryPathId6, fileNameId42);
-    NiceMock<ProjectStorageMock> storageMock;
+    inline static std::unique_ptr<StaticData> staticData;
+    QmlDesigner::ModulesStorage &modulesStorage = staticData->modulesStorage;
+    NiceMock<ProjectStorageMock> storageMock{modulesStorage};
     Cache cache{storageMock};
-    NiceMock<ProjectStorageMock> storageMockFilled;
+    NiceMock<ProjectStorageMock> storageMockFilled{modulesStorage};
     Cache cacheNotFilled{storageMockFilled};
 };
 

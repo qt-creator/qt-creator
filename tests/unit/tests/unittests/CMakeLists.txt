@@ -30,12 +30,6 @@ extend_qtc_test(unittest
   DEPENDS Nanotrace
 )
 
-
-finalize_qtc_gtest(unittest
-  EXCLUDE_SOURCES_REGEX ".c$"
-  EXCLUDE_ALL_FROM_PRECHECK
-)
-
 function(unittest_copy_data_folder)
   execute_process(
     COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -46,6 +40,7 @@ endfunction(unittest_copy_data_folder)
 
 add_subdirectory(componentcore)
 add_subdirectory(designercoreutils)
+add_subdirectory(qmldesignerutils)
 add_subdirectory(designsystem)
 add_subdirectory(listmodeleditor)
 add_subdirectory(imagecache)
@@ -56,3 +51,8 @@ add_subdirectory(projectstorage)
 add_subdirectory(sourcepathstorage)
 add_subdirectory(qmlprojectmanager)
 add_subdirectory(utils)
+
+finalize_qtc_gtest(unittest
+  EXCLUDE_SOURCES_REGEX ".c$"
+  EXCLUDE_ALL_FROM_PRECHECK
+)

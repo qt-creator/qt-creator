@@ -11,50 +11,60 @@ namespace QmlDesigner {
 
 class QMLDESIGNER_EXPORT QmlAnchors
 {
+protected:
+    using SL = ModelTracing::SourceLocation;
+
 public:
     QmlAnchors(const QmlItemNode &fxItemNode);
 
-    bool isValid() const;
+    bool isValid(SL sl = {}) const;
 
     void setAnchor(AnchorLineType sourceAnchorLineType,
                    const QmlItemNode &targetModelNode,
-                   AnchorLineType targetAnchorLineType);
-    bool canAnchor(const QmlItemNode &targetModelNode) const;
+                   AnchorLineType targetAnchorLineType,
+                   SL sl = {});
+    bool canAnchor(const QmlItemNode &targetModelNode, SL sl = {}) const;
     AnchorLineType possibleAnchorLines(AnchorLineType sourceAnchorLineType,
-                                         const QmlItemNode &targetModelNode) const;
-    AnchorLine instanceAnchor(AnchorLineType sourceAnchorLineType) const;
+                                       const QmlItemNode &targetModelNode,
+                                       SL sl = {}) const;
+    AnchorLine instanceAnchor(AnchorLineType sourceAnchorLineType, SL sl = {}) const;
 
-    void removeAnchor(AnchorLineType sourceAnchorLineType);
-    void removeAnchors();
-    bool instanceHasAnchor(AnchorLineType sourceAnchorLineType) const;
-    bool instanceHasAnchors() const;
-    double instanceLeftAnchorLine() const;
-    double instanceTopAnchorLine() const;
-    double instanceRightAnchorLine() const;
-    double instanceBottomAnchorLine() const;
-    double instanceHorizontalCenterAnchorLine() const;
-    double instanceVerticalCenterAnchorLine() const;
-    double instanceAnchorLine(AnchorLineType anchorLine) const;
+    void removeAnchor(AnchorLineType sourceAnchorLineType, SL sl = {});
+    void removeAnchors(SL sl = {});
+    bool instanceHasAnchor(AnchorLineType sourceAnchorLineType, SL sl = {}) const;
+    bool instanceHasAnchors(SL sl = {}) const;
+    double instanceLeftAnchorLine(SL sl = {}) const;
+    double instanceTopAnchorLine(SL sl = {}) const;
+    double instanceRightAnchorLine(SL sl = {}) const;
+    double instanceBottomAnchorLine(SL sl = {}) const;
+    double instanceHorizontalCenterAnchorLine(SL sl = {}) const;
+    double instanceVerticalCenterAnchorLine(SL sl = {}) const;
+    double instanceAnchorLine(AnchorLineType anchorLine, SL sl = {}) const;
 
-    void setMargin(AnchorLineType sourceAnchorLineType, double margin) const;
-    bool instanceHasMargin(AnchorLineType sourceAnchorLineType) const;
-    double instanceMargin(AnchorLineType sourceAnchorLineType) const;
-    void removeMargin(AnchorLineType sourceAnchorLineType);
-    void removeMargins();
+    void setMargin(AnchorLineType sourceAnchorLineType, double margin, SL sl = {}) const;
+    bool instanceHasMargin(AnchorLineType sourceAnchorLineType, SL sl = {}) const;
+    double instanceMargin(AnchorLineType sourceAnchorLineType, SL sl = {}) const;
+    void removeMargin(AnchorLineType sourceAnchorLineType, SL sl = {});
+    void removeMargins(SL sl = {});
 
-    void fill();
-    void centerIn();
+    void fill(SL sl = {});
+    void centerIn(SL sl = {});
 
-    bool checkForCycle(AnchorLineType anchorLineTyp, const QmlItemNode &sourceItem) const;
-    bool checkForHorizontalCycle(const QmlItemNode &sourceItem) const;
-    bool checkForVerticalCycle(const QmlItemNode &sourceItem) const;
+    bool checkForCycle(AnchorLineType anchorLineTyp, const QmlItemNode &sourceItem, SL sl = {}) const;
+    bool checkForHorizontalCycle(const QmlItemNode &sourceItem, SL sl = {}) const;
+    bool checkForVerticalCycle(const QmlItemNode &sourceItem, SL sl = {}) const;
 
     QmlItemNode qmlItemNode() const;
 
-    bool modelHasAnchors() const;
-    bool modelHasAnchor(AnchorLineType sourceAnchorLineType) const;
-    AnchorLine modelAnchor(AnchorLineType sourceAnchorLineType) const;
+    bool modelHasAnchors(SL sl = {}) const;
+    bool modelHasAnchor(AnchorLineType sourceAnchorLineType, SL sl = {}) const;
+    AnchorLine modelAnchor(AnchorLineType sourceAnchorLineType, SL sl = {}) const;
 
+    template<typename String>
+    friend void convertToString(String &string, const QmlAnchors &anchors)
+    {
+        convertToString(string, anchors.m_qmlItemNode);
+    }
 
 private:
     QmlItemNode m_qmlItemNode;

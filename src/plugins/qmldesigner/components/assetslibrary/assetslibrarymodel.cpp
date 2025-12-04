@@ -28,48 +28,16 @@ namespace QmlDesigner {
 AssetsLibraryModel::AssetsLibraryModel(QObject *parent)
     : QSortFilterProxyModel{parent}
 {
-    createBackendModel();
+    setRootPath({}); // Initialize backend model
     setRecursiveFilteringEnabled(true);
     sort(0);
 }
 
-void AssetsLibraryModel::createBackendModel()
-{
-    m_sourceFsModel = new QFileSystemModel(parent());
-
-    m_sourceFsModel->setReadOnly(false);
-
-    setSourceModel(m_sourceFsModel);
-
-    QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this,
-                     [this]([[maybe_unused]] const QString &dir) {
-        emit directoryLoaded(dir);
-        syncIsEmpty();
-    });
-
-    m_fileWatcher = new FileSystemWatcher(parent());
-    QObject::connect(m_fileWatcher, &FileSystemWatcher::fileChanged, this,
-                     [this] (const FilePath &path) {
-        emit fileChanged(path.toFSPathString());
-    });
-}
-
-void AssetsLibraryModel::destroyBackendModel()
-{
-    setSourceModel(nullptr);
-    m_sourceFsModel->disconnect(this);
-    m_sourceFsModel->deleteLater();
-    m_sourceFsModel = nullptr;
-
-    m_fileWatcher->disconnect(this);
-    m_fileWatcher->deleteLater();
-    m_fileWatcher = nullptr;
-}
-
 void AssetsLibraryModel::setSearchText(const QString &searchText)
 {
+    beginResetModel();
     m_searchText = searchText;
-    resetModel();
+    endResetModel();
 }
 
 bool AssetsLibraryModel::indexIsValid(const QModelIndex &index) const
@@ -295,12 +263,13 @@ bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
     if (QFileInfo(sourcePath).isFile() && !m_fileWatcher->watchesFile(FilePath::fromString(sourcePath)))
         m_fileWatcher->addFile(FilePath::fromString(sourcePath), FileSystemWatcher::WatchModifiedDate);
 
-    if (!m_searchText.isEmpty() && path.startsWith(m_rootPath) && QFileInfo{path}.isDir()) {
+    const QString rootPath = this->rootPath();
+    if (!m_searchText.isEmpty() && path.startsWith(rootPath) && QFileInfo{path}.isDir()) {
         QString sourceName = m_sourceFsModel->fileName(sourceIdx);
 
         return QFileInfo{sourcePath}.isFile() && sourceName.contains(m_searchText, Qt::CaseInsensitive);
     } else {
-        return sourcePath.startsWith(m_rootPath) || m_rootPath.startsWith(sourcePath);
+        return sourcePath.startsWith(rootPath) || rootPath.startsWith(sourcePath);
     }
 }
 
@@ -314,33 +283,36 @@ void AssetsLibraryModel::setIsEmpty(bool value)
 
 void AssetsLibraryModel::syncIsEmpty()
 {
-    QModelIndex rootIdx = indexForPath(m_rootPath);
+    QModelIndex rootIdx = indexForPath(rootPath());
 
     bool hasContent = rowCount(rootIdx);
     setIsEmpty(!hasContent);
 }
 
+static void disconnectAndDeleteObjects(QObject *from, const QList<QObject *> &objects)
+{
+    for (QObject *object : objects) {
+        if (object) {
+            object->disconnect(from);
+            object->deleteLater();
+        }
+    }
+}
+
 void AssetsLibraryModel::setRootPath(const QString &newPath)
 {
-    beginResetModel();
+    disconnectAndDeleteObjects(this, {m_sourceFsModel, m_fileWatcher});
 
-    destroyBackendModel();
-    createBackendModel();
-
-    m_rootPath = newPath;
-    m_sourceFsModel->setRootPath(newPath);
-
-    m_sourceFsModel->setNameFilters(Asset::supportedSuffixes().values());
-    m_sourceFsModel->setNameFilterDisables(false);
-
-    endResetModel();
+    m_sourceFsModel = createFsModel(newPath);
+    m_fileWatcher = createFsWatcher();
+    setSourceModel(m_sourceFsModel); // calls reset
 
     emit rootPathChanged();
 }
 
 QString AssetsLibraryModel::rootPath() const
 {
-    return m_rootPath;
+    return m_sourceFsModel->rootPath();
 }
 
 QString AssetsLibraryModel::filePath(const QModelIndex &index) const
@@ -361,15 +333,38 @@ QModelIndex AssetsLibraryModel::indexForPath(const QString &path) const
     return mapFromSource(idx);
 }
 
-void AssetsLibraryModel::resetModel()
+QFileSystemModel *AssetsLibraryModel::createFsModel(const QString &path)
 {
-    beginResetModel();
-    endResetModel();
+    QFileSystemModel *fsModel = new QFileSystemModel(parent());
+
+    fsModel->setReadOnly(false);
+
+    connect(fsModel, &QFileSystemModel::directoryLoaded, this, [this](const QString &dir) {
+        emit directoryLoaded(dir);
+        syncIsEmpty();
+    });
+
+    if (!path.isEmpty()) {
+        fsModel->setRootPath(path);
+        fsModel->setNameFilters(Asset::supportedSuffixes().values());
+        fsModel->setNameFilterDisables(false);
+    }
+
+    return fsModel;
+}
+
+Utils::FileSystemWatcher *AssetsLibraryModel::createFsWatcher()
+{
+    Utils::FileSystemWatcher *fsWatcher = new Utils::FileSystemWatcher(parent());
+    connect(fsWatcher, &Utils::FileSystemWatcher::fileChanged, this, [&](const Utils::FilePath &path) {
+        emit fileChanged(path.toFSPathString());
+    });
+    return fsWatcher;
 }
 
 QModelIndex AssetsLibraryModel::rootIndex() const
 {
-    return indexForPath(m_rootPath);
+    return indexForPath(rootPath());
 }
 
 bool AssetsLibraryModel::isDirectory(const QString &path) const

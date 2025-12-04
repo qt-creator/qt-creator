@@ -17,6 +17,7 @@ add_qtc_library(QmlDesignerCore
     QmlJS
     TextEditorSupport
     QmlDesignerSettings
+    AstCheck
   PUBLIC_DEPENDS
     QmlPuppetCommunication
     QmlDesignerUtils
@@ -48,14 +49,10 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
-  CONDITION ENABLE_PROJECT_STORAGE_TRACING OR ENABLE_SOURCE_PATH_STORAGE_TRACING OR ENABLE_IMAGE_CACHE_TRACING OR ENABLE_MODEL_TRACING
+  CONDITION ENABLE_PROJECT_STORAGE_TRACING OR ENABLE_SOURCE_PATH_STORAGE_TRACING OR ENABLE_IMAGE_CACHE_TRACING OR ENABLE_MODEL_TRACING OR ENABLE_FORM_EDITOR_TRACING OR ENABLE_PROPERTY_EDITOR_TRACING OR ENABLE_NAVIGATOR_TRACING OR ENABLE_ITEM_LIBRARY_TRACING OR ENABLE_REWRITER_TRACING OR ENABLE_PROJECT_MANAGING_TRACING
   PUBLIC_DEPENDS Nanotrace
   PUBLIC_DEFINES
     ENABLE_QMLDESIGNER_TRACING
-    $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
-    $<$<BOOL:${ENABLE_SOURCE_PATH_STORAGE_TRACING}>:ENABLE_SOURCE_PATH_STORAGE_TRACING>
-    $<$<BOOL:${ENABLE_IMAGE_CACHE_TRACING}>:ENABLE_IMAGE_CACHE_TRACING>
-    $<$<BOOL:${ENABLE_MODEL_TRACING}>:ENABLE_MODEL_TRACING>
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -130,6 +127,8 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   INCLUDES imagecache
   SOURCES_PREFIX imagecache
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_IMAGE_CACHE_TRACING}>:ENABLE_IMAGE_CACHE_TRACING>
   SOURCES
     asynchronousexplicitimagecache.cpp
     asynchronousimagecache.cpp
@@ -159,6 +158,8 @@ extend_qtc_library(QmlDesignerCore
 
 extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX tracing
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_PROJECT_MANAGING_TRACING}>:ENABLE_PROJECT_MANAGING_TRACING>
   SOURCES
     qmldesignertracing.cpp qmldesignertracing.h
 )
@@ -238,7 +239,6 @@ extend_qtc_library(QmlDesignerCore
     rewritingexception.h
     signalhandlerproperty.h
     sourcepathids.h
-    stringutils.h
     synchronousimagecache.h
     variantproperty.h
     widgetregistration.h
@@ -269,6 +269,8 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   INCLUDES model
   SOURCES_PREFIX model
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_MODEL_TRACING}>:ENABLE_MODEL_TRACING>
   SOURCES
     abstractproperty.cpp
     abstractview.cpp
@@ -307,8 +309,18 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
+  SOURCES_PREFIX modulesstorage
+  SOURCES
+    modulesstorage.cpp
+    modulesstorage.h
+    modulesstorageinterface.h
+)
+
+extend_qtc_library(QmlDesignerCore
   INCLUDES rewriter
   SOURCES_PREFIX rewriter
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_REWRITER_TRACING}>:ENABLE_REWRITER_TRACING>
   SOURCES
     componenttextmodifier.cpp
     modelnodepositionrecalculator.cpp
@@ -328,6 +340,8 @@ extend_qtc_library(QmlDesignerCore
     rewriteactioncompressor.cpp
     rewriteactioncompressor.h
     rewritertransaction.cpp
+    rewritertracing.h
+    rewritertracing.cpp
     rewriterview.cpp
     textmodifier.cpp
     texttomodelmerger.cpp
@@ -347,6 +361,8 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX sourcepathstorage
   PUBLIC_INCLUDES sourcepathstorage
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_SOURCE_PATH_STORAGE_TRACING}>:ENABLE_SOURCE_PATH_STORAGE_TRACING>
   SOURCES_PROPERTIES SKIP_AUTOGEN ON
   SOURCES
     nonlockingmutex.h
@@ -358,6 +374,8 @@ extend_qtc_library(QmlDesignerCore
     sourcepathexceptions.h
     sourcepathstorage.cpp
     sourcepathstorage.h
+    sourcepathstoragetracing.cpp
+    sourcepathstoragetracing.h
     sourcepathview.h
     storagecache.h
     storagecacheentry.h
@@ -377,6 +395,8 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX projectstorage
   PUBLIC_INCLUDES projectstorage
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
   SOURCES_PROPERTIES SKIP_AUTOGEN ON
   SOURCES
     commontypecache.h
@@ -398,6 +418,7 @@ extend_qtc_library(QmlDesignerCore
     projectstoragepathwatcher.h
     projectstoragepathwatchertypes.h
     projectstorageprinting.h
+    projectstoragetracing.cpp projectstoragetracing.h
     projectstoragetypes.h
     projectstorageupdater.cpp projectstorageupdater.h
     projectstorage.cpp projectstorage.h

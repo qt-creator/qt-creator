@@ -9,6 +9,10 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitmanager.h>
@@ -22,7 +26,10 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
+#include <utils/expected.h>
+#include <utils/infobar.h>
 #include <utils/mimeconstants.h>
+#include <utils/predicates.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -33,8 +40,51 @@
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Qt::Literals::StringLiterals;
+
+namespace {
+Utils::Result<FilePath> mcuInstallationRoot()
+{
+    ExtensionSystem::IPlugin *mcuSupportPlugin = QmlProjectManager::findMcuSupportPlugin();
+    if (mcuSupportPlugin == nullptr) {
+        return make_unexpected("Failed to find MCU Support plugin"_L1);
+    }
+
+    Utils::Result<FilePath> root;
+    QMetaObject::invokeMethod(mcuSupportPlugin,
+                              "installationRoot",
+                              Qt::DirectConnection,
+                              Q_RETURN_ARG(Utils::Result<FilePath>, root));
+
+    return root;
+}
+} // namespace
 
 namespace QmlProjectManager {
+
+ExtensionSystem::IPlugin *findMcuSupportPlugin()
+{
+    const QString pluginId = "mcusupport";
+    const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
+        ExtensionSystem::PluginManager::plugins(),
+        Utils::equal(&ExtensionSystem::PluginSpec::id, pluginId));
+
+    if (pluginSpec == nullptr) {
+        return nullptr;
+    }
+
+    return pluginSpec->plugin();
+}
+
+Utils::Result<FilePath> mcuFontsDir()
+{
+    Utils::Result<FilePath> mcuRoot = mcuInstallationRoot();
+    if (!mcuRoot) {
+        return mcuRoot;
+    }
+
+    return *mcuRoot / "src" / "3rdparty" / "fonts";
+}
 
 QmlProject::QmlProject(const Utils::FilePath &fileName)
     : Project(Utils::Constants::QMLPROJECT_MIMETYPE, fileName)
@@ -58,29 +108,40 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     connect(this, &QmlProject::anyParsingFinished, this, &QmlProject::parsingFinished);
 }
 
+void QmlProject::openStartupQmlFile()
+{
+    const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(activeBuildSystem());
+    if (!qmlBuildSystem)
+        return;
+
+    disconnect(ProjectManager::instance(),
+               &ProjectManager::projectAdded,
+               this,
+               &QmlProject::openStartupQmlFile);
+
+    const Utils::FilePath fileToOpen = qmlBuildSystem->getStartupQmlFileWithFallback();
+    QTimer::singleShot(0, qmlBuildSystem, [fileToOpen]() {
+        if (!fileToOpen.isEmpty() && fileToOpen.exists() && !fileToOpen.isDir())
+            Core::EditorManager::openEditor(fileToOpen, Utils::Id());
+    });
+}
+
 void QmlProject::parsingFinished(bool success)
 {
     // trigger only once
     disconnect(this, &QmlProject::anyParsingFinished, this, &QmlProject::parsingFinished);
 
-    if (!success || !activeBuildSystem())
+    if (!success)
         return;
 
-    const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-        activeBuildSystem());
-    if (!qmlBuildSystem)
+    if (activeBuildSystem()) {
+        openStartupQmlFile();
         return;
-
-    const auto openFile = [&](const Utils::FilePath file) {
-        //why is this timer needed here?
-        QTimer::singleShot(1000, this, [file] {
-            Core::EditorManager::openEditor(file, Utils::Id());
-        });
-    };
-
-    const Utils::FilePath fileToOpen = qmlBuildSystem->getStartupQmlFileWithFallback();
-    if (!fileToOpen.isEmpty() && fileToOpen.exists() && !fileToOpen.isDir())
-        openFile(fileToOpen);
+    }
+    connect(ProjectManager::instance(),
+            &ProjectManager::projectAdded,
+            this,
+            &QmlProject::openStartupQmlFile);
 }
 
 Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessage)

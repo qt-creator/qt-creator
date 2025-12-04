@@ -57,6 +57,8 @@ class QMLDESIGNERCORE_EXPORT AbstractView : public QObject
 {
     Q_OBJECT
 
+    using SL = ModelTracing::SourceLocation;
+
 public:
     Q_FLAGS(PropertyChangeFlag PropertyChangeFlags)
 
@@ -67,13 +69,14 @@ public:
     };
     Q_DECLARE_FLAGS(PropertyChangeFlags, PropertyChangeFlag)
 
-    AbstractView(ExternalDependenciesInterface &externalDependencies)
+    AbstractView(ExternalDependenciesInterface &externalDependencies,
+                 NanotraceHR::TracerLiteral functionName = __builtin_FUNCTION())
         : m_externalDependencies{externalDependencies}
         , m_action{Utils::makeUniqueObjectPtr<AbstractViewAction>(*this)}
+        , m_name(functionName)
     {}
 
     void setWidgetRegistration(WidgetRegistrationInterface *interface);
-    virtual void registerWidgetInfo();
     ~AbstractView() override;
 
     Model *model() const { return m_model.data(); }
@@ -85,9 +88,8 @@ public:
 
     RewriterTransaction beginRewriterTransaction(const QByteArray &identifier);
 
-    ModelNode createModelNode(const TypeName &typeName);
+    ModelNode createModelNode(const TypeName &typeName, SL sl = {});
 
-#
     ModelNode createModelNode(const TypeName &typeName,
                               int majorVersion,
                               int minorVersion,
@@ -95,14 +97,16 @@ public:
                               const AuxiliaryDatas &auxPropertyList = {},
                               const QString &nodeSource = {},
                               ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
-                              const QString &behaviorPropertyName = {});
+                              const QString &behaviorPropertyName = {},
+                              SL sl = {});
 
     ModelNode createModelNode(const TypeName &typeName,
                               const PropertyListType &propertyList,
                               const AuxiliaryDatas &auxPropertyList = {},
                               const QString &nodeSource = {},
                               ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
-                              const QString &behaviorPropertyName = {});
+                              const QString &behaviorPropertyName = {},
+                              SL sl = {});
 
     ModelNode rootModelNode() const;
     ModelNode rootModelNode();
@@ -247,6 +251,8 @@ public:
 
     virtual bool hasWidget() const;
     virtual WidgetInfo widgetInfo();
+    virtual void registerWidgetInfo();
+    virtual void deregisterWidgetInfo();
     virtual void disableWidget();
     virtual void enableWidget();
 
@@ -287,6 +293,14 @@ public:
         AbstractView *m_view;
     };
 
+    template<typename String>
+    friend void convertToString(String &string, const AbstractView *view)
+    {
+        convertToString(string, view->m_name);
+    }
+
+    const auto &name() const { return m_name; }
+
 protected:
     void setModel(Model *model);
     void removeModel();
@@ -297,9 +311,13 @@ protected:
         WidgetInfo::PlacementHint placementHint = WidgetInfo::NoPane,
         const QString &tabName = QString(),
         const QString &feedbackDisplayName = QString(),
-        DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError);
+        DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError,
+        const QString &parentId = QString());
 
     void setKind(Kind kind) { m_kind = kind; }
+
+    WidgetRegistrationInterface *widgetRegistration() const { return m_widgetRegistration; }
+
 private:
     QList<ModelNode> toModelNodeList(Utils::span<const Internal::InternalNodePointer> nodeList) const;
 
@@ -310,6 +328,8 @@ private:
     bool m_isBlockingNotifications = false;
     Kind m_kind = Kind::Other;
     WidgetRegistrationInterface *m_widgetRegistration = nullptr;
+
+    NanotraceHR::TracerLiteral m_name;
 };
 
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(

@@ -10,6 +10,7 @@ namespace QmlDesigner {
 constexpr QLatin1String componentBundlesMaterialBundleType{"Materials"};
 constexpr QLatin1String componentBundlesEffectBundleType{"Effects"};
 constexpr QLatin1String componentBundlesType{"Bundles"};
+constexpr QLatin1String componentBundlesUser2DBundleType{"User2D"};
 constexpr QLatin1String componentBundlesUser3DBundleType{"User3D"};
 constexpr QLatin1String componentBundlesUserEffectsBundleType{"UserEffects"};
 constexpr QLatin1String componentBundlesUserMaterialBundleType{"UserMaterials"};
@@ -160,6 +161,9 @@ Utils::FilePath GeneratedComponentUtils::userBundlePath(const QString &bundleId)
     if (bundleId == userEffectsBundleId())
         return basePath.pathAppended(componentBundlesUserEffectsBundleType);
 
+    if (bundleId == user2DBundleId())
+        return basePath.pathAppended(componentBundlesUser2DBundleType);
+
     if (bundleId == user3DBundleId())
         return basePath.pathAppended(componentBundlesUser3DBundleType);
 
@@ -292,6 +296,11 @@ QString GeneratedComponentUtils::userEffectsBundleId() const
     return componentBundlesUserEffectsBundleType;
 }
 
+QString GeneratedComponentUtils::user2DBundleId() const
+{
+    return componentBundlesUser2DBundleType;
+}
+
 QString GeneratedComponentUtils::user3DBundleId() const
 {
     return componentBundlesUser3DBundleType;
@@ -315,6 +324,9 @@ QString GeneratedComponentUtils::userBundleType(const QString &bundleId) const
     if (bundleId == userEffectsBundleId())
         return userEffectsBundleType();
 
+    if (bundleId == user2DBundleId())
+        return user2DBundleType();
+
     if (bundleId == user3DBundleId())
         return user3DBundleType();
 
@@ -330,6 +342,11 @@ QString GeneratedComponentUtils::userMaterialsBundleType() const
 QString GeneratedComponentUtils::userEffectsBundleType() const
 {
     return componentBundlesTypePrefix() + '.' + userEffectsBundleId();
+}
+
+QString GeneratedComponentUtils::user2DBundleType() const
+{
+    return componentBundlesTypePrefix() + '.' + user2DBundleId();
 }
 
 QString GeneratedComponentUtils::user3DBundleType() const

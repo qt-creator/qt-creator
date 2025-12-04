@@ -27,17 +27,23 @@ void incrementBasicId(BasicId &id)
     id = BasicId::create(id.internalId() + 1);
 }
 
-void setupIsBasedOn(ProjectStorageMock &mock)
+void setupBasedOn(ProjectStorageMock &mock)
 {
-    auto call = [&](TypeId typeId, auto... ids) -> bool {
-        return (mock.isBasedOn(typeId, ids) || ...);
+    auto call = [&](TypeId typeId, auto... ids) -> TypeId {
+        TypeId result;
+        ((result = mock.basedOn(typeId, ids)) || ...);
+        return result;
     };
-    ON_CALL(mock, isBasedOn(_, _, _)).WillByDefault(call);
-    ON_CALL(mock, isBasedOn(_, _, _, _)).WillByDefault(call);
-    ON_CALL(mock, isBasedOn(_, _, _, _, _)).WillByDefault(call);
-    ON_CALL(mock, isBasedOn(_, _, _, _, _, _)).WillByDefault(call);
-    ON_CALL(mock, isBasedOn(_, _, _, _, _, _, _)).WillByDefault(call);
-    ON_CALL(mock, isBasedOn(_, _, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _, _, _, _, _)).WillByDefault(call);
 }
 
 } // namespace
@@ -45,23 +51,13 @@ void setupIsBasedOn(ProjectStorageMock &mock)
 ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName,
                                           QmlDesigner::Storage::ModuleKind moduleKind)
 {
-    if (auto id = moduleId(moduleName, moduleKind)) {
-        return id;
-    }
-
-    static ModuleId moduleId;
-    incrementBasicId(moduleId);
-
-    ON_CALL(*this, moduleId(Eq(moduleName), Eq(moduleKind))).WillByDefault(Return(moduleId));
-    ON_CALL(*this, module(Eq(moduleId)))
-        .WillByDefault(Return(QmlDesigner::Storage::Module{moduleName, moduleKind}));
-    ON_CALL(*this, fetchModuleIdUnguarded(Eq(moduleName), Eq(moduleKind))).WillByDefault(Return(moduleId));
-
-    return moduleId;
+    return modulesStorage.moduleId(moduleName, moduleKind);
 }
 
 QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
-    SourceId sourceId, Utils::SmallStringView typeName, TypeId typeId)
+    SourceId sourceId,
+    Utils::SmallStringView typeName,
+    const QmlDesigner::Storage::Info::ExportedTypeName &exportedTypeName)
 {
     if (auto id = importedTypeNameId(sourceId, typeName))
         return id;
@@ -72,15 +68,16 @@ QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
     ON_CALL(*this, importedTypeNameId(sourceId, Eq(typeName)))
         .WillByDefault(Return(importedTypeNameId));
 
-    ON_CALL(*this, typeId(importedTypeNameId)).WillByDefault(Return(typeId));
+    ON_CALL(*this, exportedTypeName(importedTypeNameId)).WillByDefault(Return(exportedTypeName));
 
     return importedTypeNameId;
 }
 
-void ProjectStorageMock::refreshImportedTypeNameId(QmlDesigner::ImportedTypeNameId importedTypeId,
-                                                   TypeId typeId)
+void ProjectStorageMock::refreshImportedTypeNameId(
+    QmlDesigner::ImportedTypeNameId importedTypeId,
+    const QmlDesigner::Storage::Info::ExportedTypeName &exportedTypeName)
 {
-    ON_CALL(*this, typeId(importedTypeId)).WillByDefault(Return(typeId));
+    ON_CALL(*this, exportedTypeName(importedTypeId)).WillByDefault(Return(exportedTypeName));
 }
 
 QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
@@ -88,11 +85,15 @@ QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
 {
     return createImportedTypeNameId(sourceId,
                                     typeName,
-                                    typeId(moduleId, typeName, QmlDesigner::Storage::Version{}));
+                                    {moduleId,
+                                     typeId(moduleId, typeName, QmlDesigner::Storage::Version{}),
+                                     typeName});
 }
 
 QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
-    QmlDesigner::ImportId importId, Utils::SmallStringView typeName, QmlDesigner::TypeId typeId)
+    QmlDesigner::ImportId importId,
+    Utils::SmallStringView typeName,
+    const QmlDesigner::Storage::Info::ExportedTypeName &exportedTypeName)
 {
     if (auto id = importedTypeNameId(importId, typeName)) {
         return id;
@@ -104,21 +105,32 @@ QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
     ON_CALL(*this, importedTypeNameId(importId, Eq(typeName)))
         .WillByDefault(Return(importedTypeNameId));
 
-    ON_CALL(*this, typeId(importedTypeNameId)).WillByDefault(Return(typeId));
+    ON_CALL(*this, exportedTypeName(importedTypeNameId)).WillByDefault(Return(exportedTypeName));
 
     return importedTypeNameId;
 }
+
+static ImportId globalImportId;
 
 QmlDesigner::ImportId ProjectStorageMock::createImportId(QmlDesigner::ModuleId moduleId,
                                                          QmlDesigner::SourceId sourceId,
                                                          QmlDesigner::Storage::Version version)
 {
-    static ImportId importId;
-    incrementBasicId(importId);
+    incrementBasicId(globalImportId);
 
-    ON_CALL(*this, importId(IsImport(moduleId, sourceId, version))).WillByDefault(Return(importId));
+    ON_CALL(*this, importId(IsImport(moduleId, sourceId, version))).WillByDefault(Return(globalImportId));
 
-    return importId;
+    return globalImportId;
+}
+
+QmlDesigner::ImportId ProjectStorageMock::createImportIdWithAlias(QmlDesigner::SourceId sourceId,
+                                                                  Utils::SmallStringView alias)
+{
+    incrementBasicId(globalImportId);
+
+    ON_CALL(*this, importId(sourceId, alias)).WillByDefault(Return(globalImportId));
+
+    return globalImportId;
 }
 
 void ProjectStorageMock::addExportedTypeName(QmlDesigner::TypeId typeId,
@@ -128,7 +140,7 @@ void ProjectStorageMock::addExportedTypeName(QmlDesigner::TypeId typeId,
     ON_CALL(*this, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
     ON_CALL(*this, fetchTypeIdByModuleIdAndExportedName(Eq(moduleId), Eq(typeName)))
         .WillByDefault(Return(typeId));
-    exportedTypeName[typeId].emplace_back(moduleId, typeId, typeName);
+    exportedTypeNamesPerType[typeId].emplace_back(moduleId, typeId, typeName);
 }
 
 void ProjectStorageMock::addExportedTypeNameBySourceId(QmlDesigner::TypeId typeId,
@@ -146,7 +158,7 @@ void ProjectStorageMock::removeExportedTypeName(QmlDesigner::TypeId typeId,
     ON_CALL(*this, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(TypeId{}));
     ON_CALL(*this, fetchTypeIdByModuleIdAndExportedName(Eq(moduleId), Eq(typeName)))
         .WillByDefault(Return(TypeId{}));
-    exportedTypeName.erase(typeId);
+    exportedTypeNamesPerType.erase(typeId);
 }
 
 PropertyDeclarationId ProjectStorageMock::createProperty(TypeId typeId,
@@ -313,10 +325,10 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
     ON_CALL(*this, defaultPropertyDeclarationId(Eq(typeId)))
         .WillByDefault(Return(defaultPropertyDeclarationId));
 
-    ON_CALL(*this, isBasedOn(Eq(typeId), Eq(typeId))).WillByDefault(Return(true));
+    ON_CALL(*this, basedOn(Eq(typeId), Eq(typeId))).WillByDefault(Return(typeId));
 
     for (TypeId baseTypeId : baseTypeIds)
-        ON_CALL(*this, isBasedOn(Eq(typeId), Eq(baseTypeId))).WillByDefault(Return(true));
+        ON_CALL(*this, basedOn(Eq(typeId), Eq(baseTypeId))).WillByDefault(Return(baseTypeId));
 
     QmlDesigner::SmallTypeIds<16> selfAndPrototypes;
     selfAndPrototypes.push_back(typeId);
@@ -385,10 +397,12 @@ void ProjectStorageMock::setHeirs(QmlDesigner::TypeId typeId,
     ON_CALL(*this, heirIds(typeId)).WillByDefault(Return(heirIds));
 }
 
-ProjectStorageMock::ProjectStorageMock()
+ProjectStorageMock::ProjectStorageMock(QmlDesigner::ModulesStorage &modulesStorage)
+    : modulesStorage{modulesStorage}
+    , typeCache{*this, modulesStorage}
 {
     ON_CALL(*this, exportedTypeNames(_)).WillByDefault([&](TypeId id) {
-        return exportedTypeName[id];
+        return exportedTypeNamesPerType[id];
     });
 
     ON_CALL(*this, exportedTypeNames(_, _)).WillByDefault([&](TypeId typeId, SourceId sourceId) {
@@ -406,7 +420,7 @@ ProjectStorageMock::ProjectStorageMock()
 
 void ProjectStorageMock::setupQtQuick()
 {
-    setupIsBasedOn(*this);
+    setupBasedOn(*this);
 
     auto qmlModuleId = createModule("QML", ModuleKind::QmlLibrary);
     auto qmlNativeModuleId = createModule("QML", ModuleKind::CppLibrary);
@@ -457,6 +471,8 @@ void ProjectStorageMock::setupQtQuick()
     createProperty(itemId, "x", doubleId);
     createProperty(itemId, "font", fontId);
 
+    createObject(qtQuickModuleId, "Text", {itemId, qtObjectId});
+
     auto inputDeviceId = createObject(qtQuickModuleId, "InputDevice", {qtObjectId});
     createProperty(inputDeviceId, "seatName", stringId);
 
@@ -489,38 +505,15 @@ void ProjectStorageMock::setupQtQuick()
     auto qtQuickTimelineModuleId = createModule("QtQuick.Timeline", ModuleKind::QmlLibrary);
     createObject(qtQuickTimelineModuleId, "KeyframeGroup", {qtObjectId});
     createObject(qtQuickTimelineModuleId, "Keyframe", {qtObjectId});
-
-    auto flowViewModuleId = createModule("FlowView", ModuleKind::QmlLibrary);
-    createObject(flowViewModuleId,
-                 "FlowActionArea",
-                 "data",
-                 PropertyDeclarationTraits::IsList,
-                 qtObjectId,
-                 {itemId, qtObjectId});
-    createObject(flowViewModuleId,
-                 "FlowWildcard",
-                 "data",
-                 PropertyDeclarationTraits::IsList,
-                 qtObjectId,
-                 {qtObjectId});
-    createObject(flowViewModuleId, "FlowDecision", {qtObjectId});
-    createObject(flowViewModuleId, "FlowTransition", {qtObjectId});
-    createObject(flowViewModuleId,
-                 "FlowItem",
-                 "data",
-                 PropertyDeclarationTraits::IsList,
-                 qtObjectId,
-                 {qtObjectId, itemId});
 }
 
 void ProjectStorageMock::setupQtQuickImportedTypeNameIds(QmlDesigner::SourceId sourceId)
 {
-    auto qmlModuleId = moduleId("QML", ModuleKind::QmlLibrary);
-    auto qtQmlModelsModuleId = moduleId("QtQml.Models", ModuleKind::QmlLibrary);
-    auto qtQuickModuleId = moduleId("QtQuick", ModuleKind::QmlLibrary);
-    auto qtQuickNativeModuleId = moduleId("QtQuick", ModuleKind::CppLibrary);
-    auto qtQuickTimelineModuleId = moduleId("QtQuick.Timeline", ModuleKind::QmlLibrary);
-    auto flowViewModuleId = moduleId("FlowView", ModuleKind::QmlLibrary);
+    auto qmlModuleId = modulesStorage.moduleId("QML", ModuleKind::QmlLibrary);
+    auto qtQmlModelsModuleId = modulesStorage.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
+    auto qtQuickModuleId = modulesStorage.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    auto qtQuickNativeModuleId = modulesStorage.moduleId("QtQuick", ModuleKind::CppLibrary);
+    auto qtQuickTimelineModuleId = modulesStorage.moduleId("QtQuick.Timeline", ModuleKind::QmlLibrary);
 
     createImportedTypeNameId(sourceId, "int", qmlModuleId);
     createImportedTypeNameId(sourceId, "QtObject", qmlModuleId);
@@ -537,11 +530,6 @@ void ProjectStorageMock::setupQtQuickImportedTypeNameIds(QmlDesigner::SourceId s
     createImportedTypeNameId(sourceId, "PropertyChanges", qtQuickModuleId);
     createImportedTypeNameId(sourceId, "KeyframeGroup", qtQuickTimelineModuleId);
     createImportedTypeNameId(sourceId, "Keyframe", qtQuickTimelineModuleId);
-    createImportedTypeNameId(sourceId, "FlowActionArea", flowViewModuleId);
-    createImportedTypeNameId(sourceId, "FlowWildcard", flowViewModuleId);
-    createImportedTypeNameId(sourceId, "FlowDecision", flowViewModuleId);
-    createImportedTypeNameId(sourceId, "FlowTransition", flowViewModuleId);
-    createImportedTypeNameId(sourceId, "FlowItem", flowViewModuleId);
 }
 
 void ProjectStorageMock::setupCommonTypeCache()

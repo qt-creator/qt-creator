@@ -1,3 +1,4 @@
+add_subdirectory(astcheck)
 add_subdirectory(designercore)
-add_subdirectory(qmldesignerutils)
 add_subdirectory(designsystem)
+add_subdirectory(qmldesignerutils)

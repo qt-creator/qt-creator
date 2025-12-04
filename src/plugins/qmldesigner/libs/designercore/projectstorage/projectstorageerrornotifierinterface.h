@@ -32,6 +32,13 @@ public:
         = 0;
 
     virtual void qmltypesFileMissing(QStringView qmltypesPath) = 0;
+    virtual void prototypeCycle(Utils::SmallStringView typeName, SourceId typeSourceId) = 0;
+    virtual void aliasCycle(Utils::SmallStringView typeName,
+                            Utils::SmallStringView propertyName,
+                            SourceId typeSourceId)
+        = 0;
+    virtual void exportedTypeNameIsDuplicate(ModuleId moduleId, Utils::SmallStringView typeName) = 0;
+    virtual void exportedTypesAreInADifferentDirectory(ModuleId moduleId, QStringView typeName) = 0;
 
 protected:
     ~ProjectStorageErrorNotifierInterface() = default;

@@ -162,9 +162,9 @@ template<typename Container>
 auto toIntegers(const Container &container)
 {
     using DataType = typename Container::value_type::DatabaseType;
-    const DataType *data = reinterpret_cast<const DataType *>(container.data());
+    const DataType *data = reinterpret_cast<const DataType *>(std::data(container));
 
-    return Utils::span{data, container.size()};
+    return Utils::span{data, Utils::usize(container)};
 }
 
 } // namespace Sqlite

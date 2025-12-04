@@ -4,10 +4,13 @@
 #include "rubberbandselectionmanipulator.h"
 
 #include "formeditorscene.h"
+#include "formeditortracing.h"
 
 #include <utils/algorithm.h>
 
 namespace QmlDesigner {
+
+using FormEditorTracing::category;
 
 RubberBandSelectionManipulator::RubberBandSelectionManipulator(LayerItem *layerItem, FormEditorView *editorView)
     : m_selectionRectangleElement(layerItem),
@@ -15,11 +18,15 @@ RubberBandSelectionManipulator::RubberBandSelectionManipulator(LayerItem *layerI
     m_beginFormEditorItem(nullptr),
     m_isActive(false)
 {
+    NanotraceHR::Tracer tracer{"rubber band manipulator constructor", category()};
+
     m_selectionRectangleElement.hide();
 }
 
 void RubberBandSelectionManipulator::clear()
 {
+    NanotraceHR::Tracer tracer{"rubber band manipulator clear", category()};
+
     m_selectionRectangleElement.clear();
     m_isActive = false;
     m_beginPoint = QPointF();
@@ -29,6 +36,8 @@ void RubberBandSelectionManipulator::clear()
 
 FormEditorItem *RubberBandSelectionManipulator::topFormEditorItem(const QList<QGraphicsItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"rubber band manipulator top form editor item", category()};
+
     for (QGraphicsItem *item : itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
 
@@ -43,6 +52,8 @@ FormEditorItem *RubberBandSelectionManipulator::topFormEditorItem(const QList<QG
 
 void RubberBandSelectionManipulator::begin(const QPointF& beginPoint)
 {
+    NanotraceHR::Tracer tracer{"rubber band manipulator begin", category()};
+
     m_beginPoint = beginPoint;
     m_selectionRectangleElement.setRect(m_beginPoint, m_beginPoint);
     m_selectionRectangleElement.show();
@@ -53,11 +64,15 @@ void RubberBandSelectionManipulator::begin(const QPointF& beginPoint)
 
 void RubberBandSelectionManipulator::update(const QPointF& updatePoint)
 {
+    NanotraceHR::Tracer tracer{"rubber band manipulator update", category()};
+
     m_selectionRectangleElement.setRect(m_beginPoint, updatePoint);
 }
 
 void RubberBandSelectionManipulator::end()
 {
+    NanotraceHR::Tracer tracer{"rubber band manipulator end", category()};
+
     m_oldSelectionList.clear();
     m_selectionRectangleElement.hide();
     m_isActive = false;
@@ -65,6 +80,8 @@ void RubberBandSelectionManipulator::end()
 
 void RubberBandSelectionManipulator::select(SelectionType selectionType)
 {
+    NanotraceHR::Tracer tracer{"rubber band manipulator select", category()};
+
     if (!m_beginFormEditorItem)
         return;
 
@@ -117,16 +134,22 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
 
 void RubberBandSelectionManipulator::setItems(const QList<FormEditorItem *> &itemList)
 {
+    NanotraceHR::Tracer tracer{"rubber band manipulator set items", category()};
+
     m_itemList = itemList;
 }
 
 QPointF RubberBandSelectionManipulator::beginPoint() const
 {
+    NanotraceHR::Tracer tracer{"rubber band manipulator begin point", category()};
+
     return m_beginPoint;
 }
 
 bool RubberBandSelectionManipulator::isActive() const
 {
+    NanotraceHR::Tracer tracer{"rubber band manipulator is active", category()};
+
     return m_isActive;
 }
 

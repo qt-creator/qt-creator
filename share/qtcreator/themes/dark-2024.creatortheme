@@ -284,6 +284,11 @@ IconsCodeModelOverlayBackgroundColor=70000000
 IconsCodeModelOverlayForegroundColor=ffd0d0d0
 TextColorHighlightBackground=7a6f1c
 
+Navigator_DefaultColor=ffffffff
+Navigator_3DColor=ffffbf00
+Navigator_2DColor=ff5cdc68
+Navigator_MaterialColor=ff2aafd3
+
 OutputPanes_DebugTextColor=Token_Text_Default
 OutputPanes_ErrorMessageTextColor=ffff6c6c
 OutputPanes_MessageOutput=ff008787

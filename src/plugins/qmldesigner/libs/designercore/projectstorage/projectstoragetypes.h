@@ -21,30 +21,59 @@ namespace QmlDesigner::Storage {
 class Import
 {
 public:
-    explicit Import() = default;
+    Import() = default;
 
-    explicit Import(ModuleId moduleId, Storage::Version version, SourceId sourceId)
+    Import(ModuleId moduleId,
+           Storage::Version version,
+           SourceId sourceId,
+           SourceId contextSourceId,
+           Utils::SmallString alias = {})
+        : version{version}
+        , moduleId{moduleId}
+        , sourceId{sourceId}
+        , contextSourceId{contextSourceId}
+        , alias{std::move(alias)}
+    {}
+
+    Import(SourceId sourceId, ModuleId moduleId, Storage::Version version)
         : version{version}
         , moduleId{moduleId}
         , sourceId{sourceId}
     {}
 
-    explicit Import(ModuleId moduleId, int majorVersion, int minorVersion, SourceId sourceId)
+    Import(ModuleId moduleId,
+           unsigned int majorVersion,
+           unsigned int minorVersion,
+           SourceId sourceId,
+           SourceId contextSourceId)
         : version{majorVersion, minorVersion}
         , moduleId{moduleId}
         , sourceId{sourceId}
+        , contextSourceId{contextSourceId}
     {}
+
+    static Import fromSignedInteger(ModuleId moduleId,
+                                    int majorVersion,
+                                    int minorVersion,
+                                    SourceId sourceId,
+                                    SourceId contextSourceId)
+    {
+        return {moduleId,
+                Version::convertFromSignedInteger(majorVersion, minorVersion),
+                sourceId,
+                contextSourceId};
+    }
 
     friend bool operator==(const Import &first, const Import &second)
     {
         return first.moduleId == second.moduleId && first.version == second.version
-               && first.sourceId == second.sourceId;
+               && first.sourceId == second.sourceId && first.alias == second.alias;
     }
 
-    friend bool operator<(const Import &first, const Import &second)
+    friend auto operator<=>(const Import &first, const Import &second)
     {
-        return std::tie(first.sourceId, first.moduleId, first.version)
-               < std::tie(second.sourceId, second.moduleId, second.version);
+        return std::tie(first.sourceId, first.moduleId, first.version, first.alias)
+               <=> std::tie(second.sourceId, second.moduleId, second.version, second.alias);
     }
 
     template<typename String>
@@ -54,7 +83,9 @@ public:
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("module id", import.moduleId),
                               keyValue("source id", import.sourceId),
-                              keyValue("version", import.version));
+                              keyValue("version", import.version),
+                              keyValue("context source id", import.contextSourceId),
+                              keyValue("alias", import.alias));
         convertToString(string, dict);
     }
 
@@ -62,6 +93,8 @@ public:
     Storage::Version version;
     ModuleId moduleId;
     SourceId sourceId;
+    SourceId contextSourceId;
+    Utils::SmallString alias;
 };
 
 using Imports = std::vector<Import>;
@@ -157,18 +190,26 @@ class ImportView
 public:
     explicit ImportView() = default;
 
-    explicit ImportView(
-        ImportId importId, SourceId sourceId, ModuleId moduleId, int majorVersion, int minorVersion)
+    explicit ImportView(ImportId importId,
+                        SourceId sourceId,
+                        ModuleId moduleId,
+                        unsigned int majorVersion,
+                        unsigned int minorVersion,
+                        SourceId contextSourceId,
+                        Utils::SmallStringView alias)
         : importId{importId}
         , sourceId{sourceId}
         , moduleId{moduleId}
         , version{majorVersion, minorVersion}
+        , contextSourceId{contextSourceId}
+        , alias{alias}
     {}
 
     friend bool operator==(const ImportView &first, const ImportView &second)
     {
         return first.sourceId == second.sourceId && first.moduleId == second.moduleId
-               && first.version == second.version;
+               && first.version == second.version && first.contextSourceId == second.contextSourceId
+               && first.alias == second.alias;
     }
 
     template<typename String>
@@ -179,7 +220,9 @@ public:
         auto dict = dictonary(keyValue("import id", import.importId),
                               keyValue("source id", import.sourceId),
                               keyValue("module id", import.moduleId),
-                              keyValue("version", import.version));
+                              keyValue("version", import.version),
+                              keyValue("context source id", import.contextSourceId),
+                              keyValue("alias", import.alias));
 
         convertToString(string, dict);
     }
@@ -189,6 +232,8 @@ public:
     SourceId sourceId;
     ModuleId moduleId;
     Storage::Version version;
+    SourceId contextSourceId;
+    Utils::SmallStringView alias;
 };
 
 enum class IsAutoVersion : char { No, Yes };
@@ -267,8 +312,8 @@ public:
     explicit ModuleExportedImportView(ModuleExportedImportId moduleExportedImportId,
                                       ModuleId moduleId,
                                       ModuleId exportedModuleId,
-                                      int majorVersion,
-                                      int minorVersion,
+                                      unsigned int majorVersion,
+                                      unsigned int minorVersion,
                                       IsAutoVersion isAutoVersion)
         : moduleExportedImportId{moduleExportedImportId}
         , version{majorVersion, minorVersion}
@@ -310,8 +355,9 @@ class ImportedType
 {
 public:
     explicit ImportedType() = default;
-    explicit ImportedType(::Utils::SmallStringView name)
-        : name{name}
+
+    explicit ImportedType(TypeNameString name)
+        : name{std::move(name)}
     {}
 
     friend bool operator==(const ImportedType &first, const ImportedType &second)
@@ -337,14 +383,15 @@ class QualifiedImportedType
 {
 public:
     explicit QualifiedImportedType() = default;
-    explicit QualifiedImportedType(::Utils::SmallStringView name, Import import)
-        : name{name}
-        , import{std::move(import)}
+
+    explicit QualifiedImportedType(TypeNameString name, Utils::SmallString alias)
+        : name{std::move(name)}
+        , alias{std::move(alias)}
     {}
 
     friend bool operator==(const QualifiedImportedType &first, const QualifiedImportedType &second)
     {
-        return first.name == second.name && first.import == second.import;
+        return first.name == second.name && first.alias == second.alias;
     }
 
     template<typename String>
@@ -353,14 +400,14 @@ public:
         using NanotraceHR::dictonary;
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("name", importedType.name),
-                              keyValue("import", importedType.import));
+                              keyValue("alias", importedType.alias));
 
         convertToString(string, dict);
     }
 
 public:
     TypeNameString name;
-    Import import;
+    Utils::SmallString alias;
 };
 
 using ImportedTypes = std::vector<ImportedType>;
@@ -369,49 +416,31 @@ class ExportedType
 {
 public:
     explicit ExportedType() = default;
-    explicit ExportedType(::Utils::SmallStringView name, Storage::Version version = Storage::Version{})
-        : name{name}
-        , version{version}
-    {}
 
-    explicit ExportedType(ModuleId moduleId,
-                          ::Utils::SmallStringView name,
-                          Storage::Version version = Storage::Version{})
-        : name{name}
-        , version{version}
-        , moduleId{moduleId}
-    {}
-
-    explicit ExportedType(::Utils::SmallStringView name,
+    explicit ExportedType(SourceId contextSourceId,
+                          ModuleId moduleId,
+                          Utils::SmallStringView name,
                           Storage::Version version,
-                          TypeId typeId,
-                          ModuleId moduleId)
+                          SourceId typeSourceId,
+                          Utils::SmallStringView typeIdName)
         : name{name}
         , version{version}
-        , typeId{typeId}
         , moduleId{moduleId}
-    {}
-
-    explicit ExportedType(ModuleId moduleId,
-                          TypeId typeId,
-                          ::Utils::SmallStringView name,
-                          int majorVersion,
-                          int minorVersion)
-        : name{name}
-        , version{majorVersion, minorVersion}
-        , typeId{typeId}
-        , moduleId{moduleId}
+        , contextSourceId{contextSourceId}
+        , typeIdName{typeIdName}
+        , typeSourceId{typeSourceId}
     {}
 
     friend bool operator==(const ExportedType &first, const ExportedType &second)
     {
-        return first.name == second.name;
+        return std::tie(first.moduleId, first.name, first.version)
+               == std::tie(second.moduleId, second.name, second.version);
     }
 
-    friend bool operator<(const ExportedType &first, const ExportedType &second)
+    friend std::weak_ordering operator<=>(const ExportedType &first, const ExportedType &second)
     {
         return std::tie(first.moduleId, first.name, first.version)
-               < std::tie(second.moduleId, second.name, second.version);
+               <=> std::tie(second.moduleId, second.name, second.version);
     }
 
     template<typename String>
@@ -421,17 +450,21 @@ public:
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("name", exportedType.name),
                               keyValue("module id", exportedType.moduleId),
-                              keyValue("type id", exportedType.typeId),
-                              keyValue("version", exportedType.version));
+                              keyValue("version", exportedType.version),
+                              keyValue("context source id", exportedType.contextSourceId),
+                              keyValue("type id name", exportedType.typeIdName),
+                              keyValue("type source name", exportedType.typeSourceId));
 
         convertToString(string, dict);
     }
 
 public:
-    ::Utils::SmallString name;
+    Utils::SmallString name;
     Storage::Version version;
-    TypeId typeId;
     ModuleId moduleId;
+    SourceId contextSourceId;
+    Utils::SmallString typeIdName;
+    SourceId typeSourceId;
 };
 
 using ExportedTypes = std::vector<ExportedType>;
@@ -445,17 +478,18 @@ public:
         , version{version}
         , moduleId{moduleId}
     {}
+
     explicit ExportedTypeView(ModuleId moduleId,
                               ::Utils::SmallStringView name,
-                              int majorVersion,
-                              int minorVersion,
+                              unsigned int majorVersion,
+                              unsigned int minorVersion,
                               TypeId typeId,
-                              ExportedTypeNameId exportedTypeNameId)
+                              SourceId contextSourceId)
         : name{name}
         , version{majorVersion, minorVersion}
         , typeId{typeId}
         , moduleId{moduleId}
-        , exportedTypeNameId{exportedTypeNameId}
+        , contextSourceId{contextSourceId}
     {}
 
     template<typename String>
@@ -467,7 +501,7 @@ public:
                               keyValue("module id", exportedType.moduleId),
                               keyValue("type id", exportedType.typeId),
                               keyValue("version", exportedType.version),
-                              keyValue("version", exportedType.exportedTypeNameId));
+                              keyValue("context source id", exportedType.contextSourceId));
 
         convertToString(string, dict);
     }
@@ -477,7 +511,7 @@ public:
     Storage::Version version;
     TypeId typeId;
     ModuleId moduleId;
-    ExportedTypeNameId exportedTypeNameId;
+    SourceId contextSourceId;
 };
 
 using ImportedTypeName = std::variant<ImportedType, QualifiedImportedType>;
@@ -499,18 +533,13 @@ void convertToString(String &string, const ImportedTypeName &typeName)
 
         void operator()(const QmlDesigner::Storage::Synchronization::ImportedType &importedType) const
         {
-            auto dict = dictonary(keyValue("name", importedType.name));
-
-            convertToString(string, dict);
+            convertToString(string, importedType);
         }
 
         void operator()(
             const QmlDesigner::Storage::Synchronization::QualifiedImportedType &qualifiedImportedType) const
         {
-            auto dict = dictonary(keyValue("name", qualifiedImportedType.name),
-                                  keyValue("import", qualifiedImportedType.import));
-
-            convertToString(string, dict);
+            convertToString(string, qualifiedImportedType);
         }
 
         String &string;
@@ -848,15 +877,15 @@ public:
     explicit PropertyDeclaration(::Utils::SmallStringView name,
                                  ImportedTypeName typeName,
                                  PropertyDeclarationTraits traits,
+                                 PropertyKind kind,
                                  ::Utils::SmallStringView aliasPropertyName,
                                  ::Utils::SmallStringView aliasPropertyNameTail = {})
         : name{name}
         , typeName{std::move(typeName)}
         , aliasPropertyName{aliasPropertyName}
         , aliasPropertyNameTail{aliasPropertyNameTail}
-
         , traits{traits}
-        , kind{PropertyKind::Property}
+        , kind{kind}
     {}
 
     explicit PropertyDeclaration(::Utils::SmallStringView name,
@@ -980,65 +1009,52 @@ public:
     PropertyDeclarationId aliasId;
 };
 
-enum class ChangeLevel : char { Full, Minimal, ExcludeExportedTypes };
-
-template<typename String>
-void convertToString(String &string, const ChangeLevel &changeLevel)
-{
-    switch (changeLevel) {
-    case ChangeLevel::Full:
-        convertToString(string, "Full");
-        break;
-    case ChangeLevel::Minimal:
-        convertToString(string, "Minimal");
-        break;
-    case ChangeLevel::ExcludeExportedTypes:
-        convertToString(string, "ExcludeExportedTypes");
-        break;
-    }
-}
-
 class Type
 {
 public:
     explicit Type() = default;
+
     explicit Type(::Utils::SmallStringView typeName,
                   ImportedTypeName prototype,
                   ImportedTypeName extension,
                   TypeTraits traits,
                   SourceId sourceId,
-                  ExportedTypes exportedTypes = {},
-                  PropertyDeclarations propertyDeclarations = {},
+                  PropertyDeclarations propertyDeclarations,
                   FunctionDeclarations functionDeclarations = {},
                   SignalDeclarations signalDeclarations = {},
                   EnumerationDeclarations enumerationDeclarations = {},
-                  ChangeLevel changeLevel = ChangeLevel::Full,
                   ::Utils::SmallStringView defaultPropertyName = {})
         : typeName{typeName}
         , defaultPropertyName{defaultPropertyName}
         , prototype{std::move(prototype)}
         , extension{std::move(extension)}
-        , exportedTypes{std::move(exportedTypes)}
         , propertyDeclarations{std::move(propertyDeclarations)}
         , functionDeclarations{std::move(functionDeclarations)}
         , signalDeclarations{std::move(signalDeclarations)}
         , enumerationDeclarations{std::move(enumerationDeclarations)}
         , traits{traits}
         , sourceId{sourceId}
-        , changeLevel{changeLevel}
     {}
 
     explicit Type(::Utils::SmallStringView typeName,
-                  TypeId prototypeId,
-                  TypeId extensionId,
+                  ImportedTypeName prototype,
+                  ImportedTypeName extension,
+                  TypeTraits traits,
+                  SourceId sourceId)
+        : typeName{typeName}
+        , prototype{std::move(prototype)}
+        , extension{std::move(extension)}
+        , traits{traits}
+        , sourceId{sourceId}
+    {}
+
+    explicit Type(::Utils::SmallStringView typeName,
                   long long typeTraits,
                   long long typeAnnotationTraits,
                   SourceId sourceId)
         : typeName{typeName}
         , traits{typeTraits, typeAnnotationTraits}
         , sourceId{sourceId}
-        , prototypeId{prototypeId}
-        , extensionId{extensionId}
     {}
 
     explicit Type(::Utils::SmallStringView typeName,
@@ -1056,13 +1072,11 @@ public:
     explicit Type(::Utils::SmallStringView typeName,
                   ImportedTypeName prototype,
                   TypeTraits traits,
-                  SourceId sourceId,
-                  ChangeLevel changeLevel)
+                  SourceId sourceId)
         : typeName{typeName}
         , prototype{std::move(prototype)}
         , traits{traits}
         , sourceId{sourceId}
-        , changeLevel{changeLevel}
     {}
 
     explicit Type(::Utils::SmallStringView typeName,
@@ -1081,8 +1095,6 @@ public:
     explicit Type(SourceId sourceId,
                   ::Utils::SmallStringView typeName,
                   TypeId typeId,
-                  TypeId prototypeId,
-                  TypeId extensionId,
                   long long typeTraits,
                   long long typeAnnotationTraits,
                   ::Utils::SmallStringView defaultPropertyName)
@@ -1091,8 +1103,6 @@ public:
         , traits{typeTraits, typeAnnotationTraits}
         , sourceId{sourceId}
         , typeId{typeId}
-        , prototypeId{prototypeId}
-        , extensionId{extensionId}
     {}
 
     friend bool operator==(const Type &first, const Type &second) noexcept
@@ -1100,7 +1110,6 @@ public:
         return first.typeName == second.typeName
                && first.defaultPropertyName == second.defaultPropertyName
                && first.prototype == second.prototype && first.extension == second.extension
-               && first.exportedTypes == second.exportedTypes
                && first.propertyDeclarations == second.propertyDeclarations
                && first.functionDeclarations == second.functionDeclarations
                && first.signalDeclarations == second.signalDeclarations
@@ -1115,14 +1124,12 @@ public:
         auto dict = dictonary(keyValue("type name", type.typeName),
                               keyValue("prototype", type.prototype),
                               keyValue("extension", type.extension),
-                              keyValue("exported types", type.exportedTypes),
                               keyValue("property declarations", type.propertyDeclarations),
                               keyValue("function declarations", type.functionDeclarations),
                               keyValue("signal declarations", type.signalDeclarations),
                               keyValue("enumeration declarations", type.enumerationDeclarations),
                               keyValue("traits", type.traits),
                               keyValue("source id", type.sourceId),
-                              keyValue("change level", type.changeLevel),
                               keyValue("default property name", type.defaultPropertyName));
 
         convertToString(string, dict);
@@ -1133,7 +1140,6 @@ public:
     ::Utils::SmallString defaultPropertyName;
     ImportedTypeName prototype;
     ImportedTypeName extension;
-    ExportedTypes exportedTypes;
     PropertyDeclarations propertyDeclarations;
     FunctionDeclarations functionDeclarations;
     SignalDeclarations signalDeclarations;
@@ -1143,7 +1149,6 @@ public:
     TypeId typeId;
     TypeId prototypeId;
     TypeId extensionId;
-    ChangeLevel changeLevel = ChangeLevel::Full;
 };
 
 using Types = std::vector<Type>;
@@ -1185,44 +1190,45 @@ public:
 
 using PropertyEditorQmlPaths = std::vector<class PropertyEditorQmlPath>;
 
-class DirectoryInfo
+class ProjectEntryInfo
 {
 public:
-    DirectoryInfo(DirectoryPathId directoryId, SourceId sourceId, ModuleId moduleId, FileType fileType)
-        : directoryId{directoryId}
+    ProjectEntryInfo(SourceId contextSourceId, SourceId sourceId, ModuleId moduleId, FileType fileType)
+        : contextSourceId{contextSourceId}
         , sourceId{sourceId}
         , moduleId{moduleId}
         , fileType{fileType}
     {}
 
-    friend bool operator==(const DirectoryInfo &first, const DirectoryInfo &second)
+    friend bool operator==(const ProjectEntryInfo &first, const ProjectEntryInfo &second)
     {
-        return first.directoryId == second.directoryId && first.sourceId == second.sourceId
+        return first.contextSourceId == second.contextSourceId && first.sourceId == second.sourceId
                && first.moduleId.internalId() == second.moduleId.internalId()
                && first.fileType == second.fileType;
     }
 
     template<typename String>
-    friend void convertToString(String &string, const DirectoryInfo &directoryInfo)
+    friend void convertToString(String &string, const ProjectEntryInfo &projectEntryInfo)
     {
         using NanotraceHR::dictonary;
         using NanotraceHR::keyValue;
-        auto dict = dictonary(keyValue("directory id", directoryInfo.directoryId),
-                              keyValue("source id", directoryInfo.sourceId),
-                              keyValue("module id", directoryInfo.moduleId),
-                              keyValue("file type", directoryInfo.fileType));
+
+        auto dict = dictonary(keyValue("context source id", projectEntryInfo.contextSourceId),
+                              keyValue("source id", projectEntryInfo.sourceId),
+                              keyValue("module id", projectEntryInfo.moduleId),
+                              keyValue("file type", projectEntryInfo.fileType));
 
         convertToString(string, dict);
     }
 
 public:
-    DirectoryPathId directoryId;
+    SourceId contextSourceId;
     SourceId sourceId;
     ModuleId moduleId;
     FileType fileType;
 };
 
-using DirectoryInfos = std::vector<DirectoryInfo>;
+using ProjectEntryInfos = std::vector<ProjectEntryInfo>;
 
 class TypeAnnotation
 {
@@ -1282,60 +1288,24 @@ using TypeAnnotations = std::vector<TypeAnnotation>;
 class SynchronizationPackage
 {
 public:
-    SynchronizationPackage() = default;
-    SynchronizationPackage(Imports imports, Types types, SourceIds updatedSourceIds)
-        : imports{std::move(imports)}
-        , types{std::move(types)}
-        , updatedSourceIds(std::move(updatedSourceIds))
-    {}
-
-    SynchronizationPackage(Imports imports,
-                           Types types,
-                           SourceIds updatedSourceIds,
-                           Imports moduleDependencies,
-                           SourceIds updatedModuleDependencySourceIds)
-        : imports{std::move(imports)}
-        , types{std::move(types)}
-        , updatedSourceIds{std::move(updatedSourceIds)}
-        , moduleDependencies{std::move(moduleDependencies)}
-        , updatedModuleDependencySourceIds{std::move(updatedModuleDependencySourceIds)}
-    {}
-
-    SynchronizationPackage(Types types)
-        : types{std::move(types)}
-    {}
-
-    SynchronizationPackage(SourceIds updatedSourceIds)
-        : updatedSourceIds(std::move(updatedSourceIds))
-    {}
-
-    SynchronizationPackage(SourceIds updatedFileStatusSourceIds, FileStatuses fileStatuses)
-        : updatedFileStatusSourceIds(std::move(updatedFileStatusSourceIds))
-        , fileStatuses(std::move(fileStatuses))
-    {}
-
-    SynchronizationPackage(DirectoryPathIds updatedDirectoryInfoDirectoryIds,
-                           DirectoryInfos directoryInfos)
-        : directoryInfos(std::move(directoryInfos))
-        , updatedDirectoryInfoDirectoryIds(std::move(updatedDirectoryInfoDirectoryIds))
-    {}
-
-public:
-    Imports imports;
-    Types types;
-    SourceIds updatedSourceIds;
-    SourceIds updatedFileStatusSourceIds;
-    FileStatuses fileStatuses;
-    DirectoryInfos directoryInfos;
-    DirectoryPathIds updatedDirectoryInfoDirectoryIds;
-    Imports moduleDependencies;
-    SourceIds updatedModuleDependencySourceIds;
-    ModuleExportedImports moduleExportedImports;
-    ModuleIds updatedModuleIds;
-    PropertyEditorQmlPaths propertyEditorQmlPaths;
-    DirectoryPathIds updatedPropertyEditorQmlPathDirectoryIds;
-    TypeAnnotations typeAnnotations;
-    SourceIds updatedTypeAnnotationSourceIds;
+    Imports imports = {};
+    SourceIds updatedImportSourceIds = {};
+    ExportedTypes exportedTypes = {};
+    SourceIds updatedExportedTypeSourceIds = {};
+    Types types = {};
+    SourceIds updatedTypeSourceIds = {};
+    FileStatuses fileStatuses = {};
+    SourceIds updatedFileStatusSourceIds = {};
+    ProjectEntryInfos projectEntryInfos = {};
+    SourceIds updatedProjectEntryInfoSourceIds = {};
+    Imports moduleDependencies = {};
+    SourceIds updatedModuleDependencySourceIds = {};
+    ModuleExportedImports moduleExportedImports = {};
+    ModuleIds updatedModuleIds = {};
+    PropertyEditorQmlPaths propertyEditorQmlPaths = {};
+    DirectoryPathIds updatedPropertyEditorQmlPathDirectoryIds = {};
+    TypeAnnotations typeAnnotations = {};
+    SourceIds updatedTypeAnnotationSourceIds = {};
 };
 
 } // namespace Synchronization

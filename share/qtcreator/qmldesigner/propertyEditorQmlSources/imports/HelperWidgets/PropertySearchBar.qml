@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
@@ -62,7 +63,7 @@ Rectangle {
             internal.clear();
             const searchText = searchBox.text.toLowerCase();
             if (searchText.length > 0) {
-                internal.traverse(root.contentItem, searchText);
+                internal.traverse(root.contentItem, searchText, false);
                 internal.searched = true;
             }
         }
@@ -97,33 +98,51 @@ Rectangle {
             });
         }
 
-        function traverse(item, searchText) {
+        function traverse(item, searchText, isInSection) {
             let hideSection = true;
             let hideParentSection = true;
             item.children.forEach((child, index, arr) => {
                 if (!child.visible)
                     return;
 
-                if (child.__isPropertyLabel) {
+                if (child instanceof HelperWidgets.PropertyLabel) {
                     const propertyLabel = child;
                     const text = propertyLabel.text.toLowerCase();
-                    if (!text.includes(searchText)) {
-                        internal.disableSearchNoMatchAction(propertyLabel);
-                        const action = propertyLabel.__inDynamicPropertiesSection ? internal.disableVisibleAction
-                                                                                  : internal.disableSearchNoMatchAction;
-                        const nextItem = arr[index + 1];
-                        action(nextItem);
-                    } else {
-                        hideSection = false;
+                    // Some complex properties include empty labels for layout purposes, ignore those
+                    if (text !== "") {
+                        if (!text.includes(searchText)) {
+                            internal.disableSearchNoMatchAction(propertyLabel);
+                            let nextIndex = index;
+                            let nextItem = arr[++nextIndex];
+                            if (nextItem instanceof HelperWidgets.SecondColumnLayout)
+                                internal.disableSearchNoMatchAction(nextItem)
+                            else
+                                internal.disableVisibleAction(nextItem)
+
+                            while (nextIndex < arr.length - 1) {
+                                nextItem = arr[++nextIndex];
+                                if ((nextItem instanceof HelperWidgets.PropertyLabel && nextItem.text !== "")
+                                    || nextItem instanceof HelperWidgets.Section) {
+                                    break;
+                                }
+                                if (nextItem instanceof HelperWidgets.SecondColumnLayout
+                                    || nextItem instanceof HelperWidgets.PropertyLabel) {
+                                    internal.disableSearchNoMatchAction(nextItem);
+                                }
+                            }
+                        } else {
+                            hideSection = false;
+                        }
                     }
                 }
-                hideSection &= internal.traverse(child, searchText);
-                if (child.__isSection) {
+                hideSection &= internal.traverse(child, searchText,
+                                                 isInSection || child instanceof HelperWidgets.Section);
+                if (child instanceof HelperWidgets.Section) {
                     const action = hideSection ? internal.enableSearchHideAction
                                                : internal.expandSectionAction;
                     action(child);
 
-                    if (child.__isInEffectsSection && !hideSection)
+                    if (isInSection && !hideSection)
                         hideParentSection = false;
 
                     hideSection = true;

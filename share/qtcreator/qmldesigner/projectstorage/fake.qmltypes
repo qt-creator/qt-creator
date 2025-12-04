@@ -76,39 +76,7 @@ Component {
 }
 
 Component {
-  name: "QList<QColor>"
-}
-
-Component {
-  name: "QList<QAudioDevice>"
-}
-
-Component {
-  name: "QList<QMediaMetaData>"
-}
-
-Component {
-  name: "QList<QGeoCoordinate>"
-}
-
-Component {
-  name: "QList<QLinearGradient>"
-}
-
-Component {
-  name: "QList<QCameraFormat>"
-}
-
-Component {
-  name: "QList<QCameraDevice>"
-}
-
-Component {
   name: "QList<QAbstractState*>"
-}
-
-Component {
-  name: "QList<QMatrix4x4>"
 }
 
 Component {
@@ -117,30 +85,6 @@ Component {
 
 Component {
   name: "QList<QScxmlInvokableService*>"
-}
-
-Component {
-  name: "QList<QUrl>"
-}
-
-Component {
-  name: "QList<QRgb>"
-}
-
-Component {
-  name: "QList<uchar>"
-}
-
-Component {
-  name: "QList<QString>"
-}
-
-Component {
-  name: "QList<QPolygonF>"
-}
-
-Component {
-  name: "QList<int>"
 }
 
 Component {

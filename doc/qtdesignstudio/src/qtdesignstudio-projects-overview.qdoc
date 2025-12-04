@@ -25,7 +25,7 @@
 
             \QDS projects are useful for creating UIs. To use them
             for application development in Qt Creator, you have to convert them
-            to Qt Quick Application projects that contain .pro, .cpp, and .qrc
+            to Qt Quick Application projects that contain \c{.pro}, \c{.cpp}, and \c{.qrc}
             files.
     \endlist
 */

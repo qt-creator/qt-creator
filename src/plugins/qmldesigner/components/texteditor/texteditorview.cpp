@@ -229,8 +229,10 @@ void TextEditorWidget::jumpTextCursorToSelectedModelNode()
             jumpToModelNode(selectedNode);
         } else {
             if (currentState.affectsModelNode(selectedNode)) {
-                auto propertyChanges = currentState.propertyChanges(selectedNode);
-                jumpToModelNode(propertyChanges.modelNode());
+                // FIXME: QMLDESIGNER_MERGE
+                QTC_CHECK(false);
+                // auto propertyChanges = currentState.propertyChanges(selectedNode);
+                // jumpToModelNode(propertyChanges.modelNode());
             } else {
                 jumpToModelNode(currentState.modelNode());
             }
@@ -451,15 +453,7 @@ void TextEditorView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
-    auto textEditor = Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor>(
-        QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate());
-    static constexpr char qmlTextEditorContextId[] = "QmlDesigner::TextEditor";
-    IContext::attach(textEditor->widget(),
-                     Context(qmlTextEditorContextId, Constants::qtQuickToolsMenuContextId),
-                     [this](const IContext::HelpCallback &callback) {
-                         m_widget->contextHelp(callback);
-                     });
-    m_widget->setTextEditor(std::move(textEditor));
+    createTextEditor();
 }
 
 void TextEditorView::modelAboutToBeDetached(Model *model)
@@ -468,6 +462,7 @@ void TextEditorView::modelAboutToBeDetached(Model *model)
 
     if (m_widget)
         m_widget->setTextEditor(nullptr);
+    disconnect(m_designDocumentConnection);
 }
 
 WidgetInfo TextEditorView::widgetInfo()
@@ -478,34 +473,6 @@ WidgetInfo TextEditorView::widgetInfo()
                             tr("Code"),
                             tr("Code view"),
                             DesignerWidgetFlags::IgnoreErrors);
-}
-
-void TextEditorView::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const
-{
-#ifndef QDS_USE_PROJECTSTORAGE
-    ModelNode selectedNode = firstSelectedModelNode();
-    if (!selectedNode)
-        selectedNode = rootModelNode();
-
-    // TODO: Needs to be fixed for projectstorage.
-    Core::HelpItem helpItem({QString::fromUtf8("QML." + selectedNode.type()),
-                             "QML." + selectedNode.simplifiedTypeName()},
-                            {},
-                            {},
-                            Core::HelpItem::QmlComponent);
-
-    if (!helpItem.isValid()) {
-        helpItem = Core::HelpItem(
-            QUrl("qthelp://org.qt-project.qtdesignstudio/doc/quick-preset-components.html"));
-    }
-
-    callback(helpItem);
-#else
-    if (m_widget->textEditor())
-        m_widget->textEditor()->contextHelp(callback);
-    else
-        callback({});
-#endif
 }
 
 TextEditor::BaseTextEditor *TextEditorView::textEditor()
@@ -580,6 +547,10 @@ void TextEditorView::reformatFile()
         if (currentDocument->source() == newText)
             return;
 
+        const bool hasEditor = m_widget->textEditor();
+        if (!hasEditor)
+            createTextEditor();
+
         QTextCursor tc = m_widget->textEditor()->textCursor();
         int pos = m_widget->textEditor()->textCursor().position();
 
@@ -592,6 +563,9 @@ void TextEditorView::reformatFile()
         tc.endEditBlock();
 
         m_widget->textEditor()->setTextCursor(tc);
+
+        if (!hasEditor)
+            m_widget->setTextEditor(nullptr);
     }
 }
 
@@ -602,6 +576,26 @@ void TextEditorView::jumpToModelNode(const ModelNode &modelNode)
     m_widget->window()->windowHandle()->requestActivate();
     m_widget->textEditor()->widget()->setFocus();
     m_widget->textEditor()->editorWidget()->updateFoldingHighlight(QTextCursor());
+}
+
+void TextEditorView::createTextEditor()
+{
+    DesignDocument *designDocument = QmlDesignerPlugin::instance()->currentDesignDocument();
+    auto textEditor = Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor>(
+        designDocument->textEditor()->duplicate());
+    static constexpr char qmlTextEditorContextId[] = "QmlDesigner::TextEditor";
+    IContext::attach(textEditor->widget(),
+                     Context(qmlTextEditorContextId, Constants::qtQuickToolsMenuContextId),
+                     [this](const IContext::HelpCallback &callback) {
+                         m_widget->contextHelp(callback);
+                     });
+    m_widget->setTextEditor(std::move(textEditor));
+
+    disconnect(m_designDocumentConnection);
+    m_designDocumentConnection = connect(designDocument,
+                                         &DesignDocument::designDocumentClosed,
+                                         m_widget,
+                                         [this] { m_widget->setTextEditor(nullptr); });
 }
 
 } // namespace QmlDesigner

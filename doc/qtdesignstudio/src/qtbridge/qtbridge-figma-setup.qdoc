@@ -18,7 +18,7 @@
         \li Select \uicontrol {Try it out}.
         \li Select your logged in Figma account.
         \li After the plugin loads, select \uicontrol Run.
-        \li Select \uicontrol Export, to get the \e {.qtbridge} file in your
+        \li Select \uicontrol Export, to get the \c {.qtbridge} file in your
         local drive.
         \li In \QDS, drag the file to the \uicontrol 2D, \uicontrol 3D, \uicontrol Assets,
         or \uicontrol Navigator view in an open project .

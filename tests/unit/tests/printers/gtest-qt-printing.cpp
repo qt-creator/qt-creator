@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QIcon>
+#include <QLatin1StringView>
 #include <QString>
 #include <QTextCharFormat>
 
@@ -33,6 +34,11 @@ std::ostream &operator<<(std::ostream &out, QByteArrayView byteArray)
 std::ostream &operator<<(std::ostream &out, const QByteArray &byteArray)
 {
     return out << QByteArrayView{byteArray};
+}
+
+std::ostream &operator<<(std::ostream &out, QLatin1String text)
+{
+    return out << QByteArrayView{text};
 }
 
 std::ostream &operator<<(std::ostream &out, const QString &text)
@@ -115,6 +121,16 @@ void PrintTo(const QVariant &variant, std::ostream *os)
 }
 
 void PrintTo(const QByteArray &text, std::ostream *os)
+{
+    *os << text;
+}
+
+void PrintTo(QByteArrayView text, std::ostream *os)
+{
+    *os << text;
+}
+
+void PrintTo(QLatin1String text, std::ostream *os)
 {
     *os << text;
 }

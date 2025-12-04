@@ -48,7 +48,8 @@ class QMLDESIGNERCOMPONENTS_EXPORT DesignDocument : public QObject
 public:
     DesignDocument(const QUrl &filePath,
                    ProjectStorageDependencies projectStorageDependencies,
-                   ExternalDependenciesInterface &externalDependencies);
+                   ExternalDependenciesInterface &externalDependencies,
+                   ModulesStorage &modulesStorage);
     ~DesignDocument() override;
 
     QString displayName() const;
@@ -91,6 +92,7 @@ public:
     void changeToDocumentModel();
 
     bool isQtForMCUsProject() const;
+    [[nodiscard]] QString defaultFontFamilyMCU() const;
 
     Utils::FilePath projectFolder() const;
     bool hasProject() const;
@@ -158,6 +160,7 @@ private: // variables
     ProjectExplorer::Target *m_currentTarget;
     ProjectStorageDependencies m_projectStorageDependencies;
     ExternalDependenciesInterface &m_externalDependencies;
+    ModulesStorage &m_modulesStorage;
 };
 
 } // namespace QmlDesigner

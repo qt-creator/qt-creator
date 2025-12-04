@@ -3,8 +3,6 @@
 
 #include "qmlpuppetpaths.h"
 
-#include "designersettings.h"
-
 #include <coreplugin/icore.h>
 #include <projectexplorer/kit.h>
 #include <qtsupport/baseqtversion.h>
@@ -24,19 +22,9 @@ Utils::FilePath qmlPuppetExecutablePath(const Utils::FilePath &workingDirectory)
         .withExecutableSuffix();
 }
 
-Utils::FilePath qmlPuppetFallbackDirectory(const DesignerSettings &settings)
+std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetFallbackPaths()
 {
-    auto puppetFallbackDirectory = Utils::FilePath::fromString(
-        settings.value(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY).toString());
-    if (puppetFallbackDirectory.isEmpty() || !puppetFallbackDirectory.exists())
-        return Core::ICore::libexecPath();
-    return puppetFallbackDirectory;
-}
-
-std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetFallbackPaths(const DesignerSettings &settings)
-{
-    auto workingDirectory = qmlPuppetFallbackDirectory(settings);
-
+    auto workingDirectory = Core::ICore::libexecPath();
     return {workingDirectory, qmlPuppetExecutablePath(workingDirectory)};
 }
 
@@ -56,13 +44,12 @@ std::pair<Utils::FilePath, Utils::FilePath> pathsForKitPuppet(ProjectExplorer::K
 }
 } // namespace
 
-std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(ProjectExplorer::Kit *kit,
-                                                           const DesignerSettings &settings)
+std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(ProjectExplorer::Kit *kit)
 {
     auto [workingDirectoryPath, puppetPath] = pathsForKitPuppet(kit);
 
     if (workingDirectoryPath.isEmpty() || !puppetPath.exists())
-        return qmlPuppetFallbackPaths(settings);
+        return qmlPuppetFallbackPaths();
 
     return {workingDirectoryPath, puppetPath};
 }

@@ -127,27 +127,6 @@ void SignalList::prepareSignals()
 {
     if (!m_modelNode.isValid())
         return;
-
-    QList<QmlConnections> connections = QmlFlowViewNode::getAssociatedConnections(m_modelNode);
-
-    for (ModelNode &node : m_modelNode.view()->allModelNodes()) {
-        callOnlyMouseSignalNames(node.metaInfo().signalNames(),
-                                 QmlFlowViewNode::mouseSignals(),
-                                 [&](const PropertyName &signal) {
-                                     appendSignalToModel(connections, node, signal);
-                                 });
-
-        // Gather valid properties and aliases from components
-        for (const auto &property : node.metaInfo().properties()) {
-            const NodeMetaInfo info = property.propertyType();
-
-            callOnlyMouseSignalNames(info.signalNames(),
-                                     QmlFlowViewNode::mouseSignals(),
-                                     [&](const PropertyName &signal) {
-                                         appendSignalToModel(connections, node, signal);
-                                     });
-        }
-    }
 }
 
 void SignalList::connectClicked(const QModelIndex &modelIndex)

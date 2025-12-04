@@ -571,17 +571,19 @@ void StylesheetMerger::merge()
 
 void StylesheetMerger::styleMerge(const Utils::FilePath &templateFile,
                                   Model *model,
+                                  ModulesStorage &modulesStorage,
                                   ExternalDependenciesInterface &externalDependencies)
 {
     const Utils::Result<QByteArray> res = templateFile.fileContents();
 
     QTC_ASSERT(res, return);
     const QString qmlTemplateString = QString::fromUtf8(*res);
-    StylesheetMerger::styleMerge(qmlTemplateString, model, externalDependencies);
+    StylesheetMerger::styleMerge(qmlTemplateString, model, modulesStorage, externalDependencies);
 }
 
 void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
                                   Model *model,
+                                  ModulesStorage &modulesStorage,
                                   ExternalDependenciesInterface &externalDependencies)
 {
     Model *parentModel = model;
@@ -609,7 +611,7 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
     NotIndentingTextEditModifier textModifierTemplate(textEditTemplate.document());
 
     std::unique_ptr<RewriterView> templateRewriterView = std::make_unique<RewriterView>(
-        externalDependencies, RewriterView::Amend);
+        externalDependencies, modulesStorage, RewriterView::Amend);
     templateRewriterView->setTextModifier(&textModifierTemplate);
     templateModel->attachView(templateRewriterView.get());
     templateRewriterView->setCheckSemanticErrors(false);
@@ -633,7 +635,7 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
     NotIndentingTextEditModifier textModifierStyle(textEditStyle.document());
 
     std::unique_ptr<RewriterView> styleRewriterView = std::make_unique<RewriterView>(
-        externalDependencies, RewriterView::Amend);
+        externalDependencies, modulesStorage, RewriterView::Amend);
     styleRewriterView->setTextModifier(&textModifierStyle);
     styleModel->attachView(styleRewriterView.get());
 

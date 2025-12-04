@@ -11,6 +11,14 @@ Item {
     height: 768
     visible: true
 
+    enum ViewPreset {
+        Single,
+        Quad,
+        ThreeLeftOneRight,
+        TwoHorizontal,
+        TwoVertical
+    }
+
     property Node activeScene: null
     property int activeViewport: 0
     property var editViews: [null, null, null, null]
@@ -39,53 +47,40 @@ Item {
     property color gridColor: "#cccccc"
     property color viewportBorderColor: "#aaaaaaaa"
     property bool syncEnvBackground: true
-    property string activePreset: "Single"
+    property int activePreset: EditView3D.ViewPreset.Single
     property bool flyMode: false
     property bool showCameraSpeed: false
     property string cameraViewMode
+    property int mouseCursor: -1
 
     // The presets used to customize the display of the viewports
-    property var viewportPresets: {
-        "Single": {
-            numViewports: 1,
-            viewRects: [
-                { x: 0.0, y: 0.0, width: 1.0, height: 1.0 }
-            ]
-        },
-        "Quad": {
-            numViewports: 4,
-            viewRects: [
-                { x: 0.0, y: 0.0, width: 0.5, height: 0.5 },
-                { x: 0.5, y: 0.0, width: 0.5, height: 0.5 },
-                { x: 0.0, y: 0.5, width: 0.5, height: 0.5 },
-                { x: 0.5, y: 0.5, width: 0.5, height: 0.5 }
-            ]
-        },
-        "3Left1Right": {
-            numViewports: 4,
-            viewRects: [
-                { x: 0.0,  y: 0.0,  width: 0.25, height: 0.33 },
-                { x: 0.0,  y: 0.33, width: 0.25, height: 0.34 },
-                { x: 0.0,  y: 0.67, width: 0.25, height: 0.33 },
-                { x: 0.25, y: 0.0,  width: 0.75, height: 1.0  }
-            ]
-        },
-        "2Horizontal": {
-            numViewports: 2,
-            viewRects: [
-                { x: 0.0, y: 0.0,  width: 1.0, height: 0.5 },
-                { x: 0.0, y: 0.5,  width: 1.0, height: 0.5 }
-            ]
-        },
-        "2Vertical": {
-            numViewports: 2,
-            viewRects: [
-                { x: 0.0, y: 0.0,  width: 0.5, height: 1.0 },
-                { x: 0.5, y: 0.0,  width: 0.5, height: 1.0 }
-            ]
-        }
-        //TODO: reset of presets
-    };
+    readonly property var viewportPresets: [
+        [ // Single
+            { x: 0.0, y: 0.0, width: 1.0, height: 1.0 }
+        ],
+        [ // Quad
+            { x: 0.0, y: 0.0, width: 0.5, height: 0.5 },
+            { x: 0.5, y: 0.0, width: 0.5, height: 0.5 },
+            { x: 0.0, y: 0.5, width: 0.5, height: 0.5 },
+            { x: 0.5, y: 0.5, width: 0.5, height: 0.5 }
+        ],
+        [ // ThreeLeftOneRight
+            { x: 0.25, y: 0.0,  width: 0.75, height: 1.0  },
+            { x: 0.0,  y: 0.0,  width: 0.25, height: 0.33 },
+            { x: 0.0,  y: 0.3333, width: 0.25, height: 0.34 },
+            { x: 0.0,  y: 0.6667, width: 0.25, height: 0.33 }
+        ],
+        [ // TwoHorizontal
+            { x: 0.0, y: 0.0,  width: 1.0, height: 0.5 },
+            { x: 0.0, y: 0.5,  width: 1.0, height: 0.5 }
+        ],
+        [ // TwoVertical
+            { x: 0.0, y: 0.0,  width: 0.5, height: 1.0 },
+            { x: 0.5, y: 0.0,  width: 0.5, height: 1.0 }
+        ]
+    ]
+
+    property var activeDividers: defaultDividers()
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -102,13 +97,9 @@ Item {
     property Node activeParticleSystem: null
     property bool shuttingDown: false
 
-    // Always normalized [0.0…1.0]
-    property real dividerX: 0.5       // Vertical split (left & right)
-    property real dividerY: 0.5       // Horizontal split (top & bottom)
-
-    // Only used in “3Left1Right”
-    property real dividerY1: 0.3333     // first horizontal in left column
-    property real dividerY2: 0.6667     // secnd horizontal in left column
+    // Only used with ThreeLeftOneRight, never change
+    readonly property real dividerY1: 0.3333 // first horizontal in left column
+    readonly property real dividerY2: 0.6667 // secnd horizontal in left column
 
     property real fps: 0
 
@@ -117,6 +108,7 @@ Item {
     signal changeObjectProperty(var objects, var propNames)
     signal notifyActiveSceneChange()
     signal notifyActiveViewportChange(int index)
+    signal notifyMouseCursorChange(int cursor)
 
     onUsePerspectiveChanged:      _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
     onShowEditLightChanged:       _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
@@ -133,14 +125,19 @@ Item {
     onTransformModeChanged:       _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
     onMaterialOverridesChanged:   _generalHelper.storeToolState(sceneId, "matOverride", materialOverrides);
     onShowWireframesChanged:      _generalHelper.storeToolState(sceneId, "showWireframe", showWireframes);
+    onMouseCursorChanged:         notifyMouseCursorChange(viewRoot.mouseCursor)
+
     onActivePresetChanged: {
         _generalHelper.storeToolState(sceneId, "activePreset", activePreset);
         _generalHelper.requestOverlayUpdate();
+        applyViewportPreset()
+        cameraView.updateSnapping()
     }
     onActiveViewportChanged: {
         _generalHelper.storeToolState(sceneId, "activeViewport", activeViewport);
         cameraControls[activeViewport].forceActiveFocus();
         notifyActiveViewportChange(activeViewport);
+        cameraView.updateSnapping()
     }
 
     onActiveSceneChanged: updateActiveScene()
@@ -440,17 +437,29 @@ Item {
             viewRoot.showCameraSpeed = false;
         }
 
-        if ("activePreset" in toolStates)
-            activePreset = toolStates.activePreset;
-        else if (resetToDefault)
-            activePreset = "Quad";
-
-        applyViewportPreset(activePreset);
-
         if ("activeViewport" in toolStates)
             activeViewport = toolStates.activeViewport;
         else if (resetToDefault)
             activeViewport = 0;
+
+        if ("activePreset" in toolStates) {
+            if (toolStates.activePreset < 0 || toolStates.activePreset > 4)
+                activePreset = EditView3D.ViewPreset.Single;
+            else
+                activePreset = toolStates.activePreset;
+        } else if (resetToDefault) {
+            activePreset = EditView3D.ViewPreset.Single;
+        }
+
+        if ("activeDividers" in toolStates) {
+            activeDividers = toolStates.activeDividers;
+            updateViewRects()
+            updateSplitResizers()
+        } else if (resetToDefault) {
+            activeDividers = defaultDividers()
+            updateViewRects()
+            updateSplitResizers()
+        }
 
         if ("showWireframe" in toolStates)
             showWireframes = toolStates.showWireframe;
@@ -479,6 +488,7 @@ Item {
         _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
         _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
         _generalHelper.storeToolState(sceneId, "activePreset", activePreset)
+        _generalHelper.storeToolState(sceneId, "activeDividers", activeDividers)
         _generalHelper.storeToolState(sceneId, "activeViewport", activeViewport)
         _generalHelper.storeToolState(sceneId, "showWireframe", showWireframes)
         _generalHelper.storeToolState(sceneId, "matOverride", materialOverrides)
@@ -719,85 +729,63 @@ Item {
         cameraControls[activeViewport].moveCamera(amounts);
     }
 
-    function resetDividers()
+    function updateSplitResizers()
     {
-        dividerX = activePreset === "3Left1Right" ? 0.25 : 0.5
-        dividerY = 0.5
-
-        verticalResizer.x = dividerX * viewContainer.width
-        horizontalResizer.y = dividerY * viewContainer.height
+        verticalResizer.x = activeDividers[activePreset].x * viewContainer.width - verticalResizer.grabSize
+        horizontalResizer.y = activeDividers[activePreset].y * viewContainer.height - horizontalResizer.grabSize
     }
 
     // Update viewports based on selected preset
-    function applyViewportPreset(presetName)
+    function applyViewportPreset()
     {
-        let preset = viewportPresets[presetName];
+        let preset = viewportPresets[activePreset];
         if (!preset)
             return;
 
-        let count = preset.numViewports;
+        if (activeViewport >= preset.length)
+            activeViewport = 0;
 
         for (let i = 0; i < 4; ++i) {
-            if (i < count) {
+            if (i < preset.length) {
                 viewRects[i].visible = true;
-                viewRects[i].x = preset.viewRects[i].x * viewContainer.width;
-                viewRects[i].y = preset.viewRects[i].y * viewContainer.height;
-                viewRects[i].width = preset.viewRects[i].width * viewContainer.width;
-                viewRects[i].height = preset.viewRects[i].height * viewContainer.height;
+                viewRects[i].x = preset[i].x * viewContainer.width;
+                viewRects[i].y = preset[i].y * viewContainer.height;
+                viewRects[i].width = preset[i].width * viewContainer.width;
+                viewRects[i].height = preset[i].height * viewContainer.height;
             } else {
                 viewRects[i].visible = false;
             }
         }
-        resetDividers();
         updateViewRects();
+        updateSplitResizers();
 
-        //TODO: Do we need this here?
-        cameraView.updateSnapping();
+        viewRoot.updateMouseCursor();
     }
 
     // Updates the position, size, and visibility of viewports based on the selected
     // viewport preset and resizer(s) position.
     function updateViewRects()
     {
-        var w = viewContainer.width, h = viewContainer.height
+        var w = viewContainer.width
+        var h = viewContainer.height
+        var dividerX = activeDividers[activePreset].x
+        var dividerY = activeDividers[activePreset].y
+
         switch (activePreset) {
-        case "Single":
+        case EditView3D.ViewPreset.Single:
             viewRect0.width = w;
             viewRect0.height = h;
-            viewRect1.visible = viewRect2.visible = viewRect3.visible = false;
             break;
 
-        case "2Vertical":
-            viewRect0.width = dividerX * w;
-            viewRect0.height = h;
-            viewRect1.x = dividerX * w;
-            viewRect1.y = 0;
-            viewRect1.width = (1 - dividerX) * w;
-            viewRect1.height = h;
-            viewRect2.visible = viewRect3.visible = false;
-            break
-
-        case "2Horizontal":
-            viewRect0.width = w;
-            viewRect0.height = dividerY * h;
-            viewRect1.x = 0;
-            viewRect1.y = dividerY * h;
-            viewRect1.width = w;
-            viewRect1.height = (1 - dividerY) * h;
-            viewRect2.visible = viewRect3.visible = false;
-            break
-
-        case "Quad":
+        case EditView3D.ViewPreset.Quad:
             // top‑left
             viewRect0.width = dividerX * w;
             viewRect0.height = dividerY * h;
             // top‑right
             viewRect1.x = dividerX * w;
-            viewRect1.y = 0;
             viewRect1.width = (1 - dividerX) * w;
             viewRect1.height = dividerY * h;
             // bottom‑left
-            viewRect2.x = 0;
             viewRect2.y = dividerY * h;
             viewRect2.width = dividerX * w;
             viewRect2.height = (1 - dividerY) * h;
@@ -806,50 +794,100 @@ Item {
             viewRect3.y = dividerY * h
             viewRect3.width = (1 - dividerX) * w;
             viewRect3.height = (1 - dividerY) * h;
-            break
 
-        case "3Left1Right":
-            // left column 3 rows
-            viewRect0.width = dividerX * w;
-            viewRect0.height = dividerY1 * h;
+            splitBorderV.x = dividerX * w;
+            splitBorderH1.y = dividerY * h;
+            splitBorderH1.width = w;
+            break;
 
-            viewRect1.x = 0;
-            viewRect1.y = dividerY1 * h;
-            viewRect1.width = dividerX * w;
-            viewRect1.height = (dividerY2 - dividerY1) * h;
-
-            viewRect2.x = 0;
-            viewRect2.y = dividerY2 * h;
-            viewRect2.width = dividerX * w;
-            viewRect2.height = (1 - dividerY2) * h;
-
+        case EditView3D.ViewPreset.ThreeLeftOneRight:
             // big right view
-            viewRect3.x = dividerX * w;
-            viewRect3.y = 0;
-            viewRect3.width = (1 - dividerX) * w;
-            viewRect3.height = h;
-            break
+            viewRect0.x = dividerX * w;
+            viewRect0.width = (1 - dividerX) * w;
+            viewRect0.height = h;
+
+            // left column 3 rows
+            viewRect1.width = dividerX * w;
+            viewRect1.height = dividerY1 * h;
+
+            viewRect2.y = dividerY1 * h;
+            viewRect2.width = dividerX * w;
+            viewRect2.height = (dividerY2 - dividerY1) * h;
+
+            viewRect3.y = dividerY2 * h;
+            viewRect3.width = dividerX * w;
+            viewRect3.height = (1 - dividerY2) * h;
+
+            splitBorderV.x = dividerX * w;
+            splitBorderH1.y = dividerY1 * h;
+            splitBorderH1.width = dividerX * w;
+            splitBorderH2.y = dividerY2 * h;
+            break;
+
+        case EditView3D.ViewPreset.TwoHorizontal:
+            viewRect0.width = w;
+            viewRect0.height = dividerY * h;
+            viewRect1.y = dividerY * h;
+            viewRect1.width = w;
+            viewRect1.height = (1 - dividerY) * h;
+
+            splitBorderH1.y = dividerY * h;
+            splitBorderH1.width = w;
+            break;
+
+        case EditView3D.ViewPreset.TwoVertical:
+            viewRect0.width = dividerX * w;
+            viewRect0.height = h;
+            viewRect1.x = dividerX * w;
+            viewRect1.width = (1 - dividerX) * w;
+            viewRect1.height = h;
+
+            splitBorderV.x = dividerX * w;
+            break;
+
         }
 
         // Request overlays to redraw
         _generalHelper.requestOverlayUpdate();
     }
 
+    function defaultDividers() {
+        return [
+            { x: 0.0, y: 0.0 },
+            { x: 0.5, y: 0.5 },
+            { x: 0.25, y: 0.0 },
+            { x: 0.0, y: 0.5 },
+            { x: 0.5, y: 0.0 }
+        ]
+    }
+
+    function updateMouseCursor()
+    {
+        if (verticalResizer.containsMouse || verticalResizer.dragActive)
+            viewRoot.mouseCursor = Qt.SplitHCursor
+        else if (horizontalResizer.containsMouse || horizontalResizer.dragActive)
+            viewRoot.mouseCursor = Qt.SplitVCursor
+        else
+            viewRoot.mouseCursor = -1
+    }
+
     Component.onCompleted: {
         createEditViews();
         selectObjects([]);
-        applyViewportPreset(activePreset)
+        applyViewportPreset()
         // Work-around the fact that the projection matrix for the camera is not calculated until
         // the first frame is rendered, so any initial calls to mapFrom3DScene() will fail.
         _generalHelper.requestOverlayUpdate();
     }
 
     onWidthChanged: {
-        applyViewportPreset(activePreset)
+        updateViewRects()
+        updateSplitResizers()
         _generalHelper.requestOverlayUpdate()
     }
     onHeightChanged: {
-        applyViewportPreset(activePreset)
+        updateViewRects()
+        updateSplitResizers()
         _generalHelper.requestOverlayUpdate()
     }
 
@@ -921,11 +959,9 @@ Item {
             Rectangle {
                 id: viewRect0
                 gradient: bgGradient
-                border.width: 1
-                border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView0
-                    editView: viewRoot.editViews[0]
+                    viewportId: 0
                     viewRoot: viewRoot
                     importScene: overlayScene
 
@@ -946,11 +982,9 @@ Item {
             Rectangle {
                 id: viewRect1
                 gradient: bgGradient
-                border.width: 1
-                border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView1
-                    editView: viewRoot.editViews[1]
+                    viewportId: 1
                     viewRoot: viewRoot
                     importScene: overlayScene
 
@@ -971,11 +1005,9 @@ Item {
             Rectangle {
                 id: viewRect2
                 gradient: bgGradient
-                border.width: 1
-                border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView2
-                    editView: viewRoot.editViews[2]
+                    viewportId: 2
                     viewRoot: viewRoot
                     importScene: overlayScene
 
@@ -996,11 +1028,9 @@ Item {
             Rectangle {
                 id: viewRect3
                 gradient: bgGradient
-                border.width: 1
-                border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView3
-                    editView: viewRoot.editViews[3]
+                    viewportId: 3
                     viewRoot: viewRoot
                     importScene: overlayScene
 
@@ -1018,9 +1048,43 @@ Item {
                 }
             }
 
+            Rectangle {
+                id: splitBorderV
+                visible: viewRoot.activePreset === EditView3D.ViewPreset.TwoVertical
+                         || viewRoot.activePreset === EditView3D.ViewPreset.ThreeLeftOneRight
+                         || viewRoot.activePreset === EditView3D.ViewPreset.Quad
+                y: 0
+                width: 1
+                height: parent.height
+                border.width: 1
+                border.color: "#aaaaaa"
+            }
+
+            Rectangle {
+                id: splitBorderH1
+                visible: viewRoot.activePreset === EditView3D.ViewPreset.TwoHorizontal
+                         || viewRoot.activePreset === EditView3D.ViewPreset.ThreeLeftOneRight
+                         || viewRoot.activePreset === EditView3D.ViewPreset.Quad
+                x: 0
+                height: 1
+                border.width: 1
+                border.color: "#aaaaaa"
+            }
+
+            Rectangle {
+                id: splitBorderH2
+                visible: viewRoot.activePreset === EditView3D.ViewPreset.ThreeLeftOneRight
+                x: 0
+                height: 1
+                width: splitBorderH1.width
+                border.width: 1
+                border.color: "#aaaaaa"
+            }
+
             // Active viewport highlight
             Rectangle {
-                visible: activePreset !== "Single" && viewRects[viewRoot.activeViewport].visible
+                visible: activePreset !== EditView3D.ViewPreset.Single
+                         && viewRects[viewRoot.activeViewport].visible
                 x: viewRects[viewRoot.activeViewport].x
                 y: viewRects[viewRoot.activeViewport].y
                 width: viewRects[viewRoot.activeViewport].width
@@ -1028,23 +1092,32 @@ Item {
                 border.width: 2
                 border.color: "#57B9FC"
                 color: "transparent"
-                z: 1000 // Edge case to make sure selection rect drawn over everything
+                z: 500
             }
 
             // Vertical divider (left/right)
             ViewportResizer {
                 id: verticalResizer
                 orientation: Qt.Vertical
-                divider: dividerX
                 containerSize: viewContainer.width
                 y: 0
                 height: viewContainer.height
-                visible: viewRoot.activePreset === "2Vertical"
-                         || viewRoot.activePreset === "3Left1Right"
-                         || viewRoot.activePreset === "Quad"
+                visible: viewRoot.activePreset === EditView3D.ViewPreset.TwoVertical
+                         || viewRoot.activePreset === EditView3D.ViewPreset.ThreeLeftOneRight
+                         || viewRoot.activePreset === EditView3D.ViewPreset.Quad
                 onCurrentDividerChanged: (value) => {
-                    dividerX = value;
+                    viewRoot.activeDividers[viewRoot.activePreset]
+                                            = { x: value,
+                                                y: viewRoot.activeDividers[viewRoot.activePreset].y};
                     updateViewRects();
+                }
+                onContainsMouseChanged: viewRoot.updateMouseCursor()
+                onDragActiveChanged: {
+                    viewRoot.updateMouseCursor()
+                    if (!dragActive) {
+                        _generalHelper.storeToolState(viewRoot.sceneId, "activeDividers",
+                                                      viewRoot.activeDividers)
+                    }
                 }
             }
 
@@ -1053,15 +1126,24 @@ Item {
                 id: horizontalResizer
 
                 orientation: Qt.Horizontal
-                divider: dividerY
                 containerSize: viewContainer.height
                 x: 0
                 width: viewContainer.width
-                visible: viewRoot.activePreset === "2Horizontal"
-                         || viewRoot.activePreset === "Quad"
+                visible: viewRoot.activePreset === EditView3D.ViewPreset.TwoHorizontal
+                         || viewRoot.activePreset === EditView3D.ViewPreset.Quad
                 onCurrentDividerChanged: (value) => {
-                    dividerY = value;
+                    viewRoot.activeDividers[viewRoot.activePreset]
+                                            = { x: viewRoot.activeDividers[viewRoot.activePreset].x,
+                                                y: value};
                     updateViewRects();
+                }
+                onContainsMouseChanged: viewRoot.updateMouseCursor()
+                onDragActiveChanged: {
+                    viewRoot.updateMouseCursor()
+                    if (!dragActive) {
+                        _generalHelper.storeToolState(viewRoot.sceneId, "activeDividers",
+                                                      viewRoot.activeDividers)
+                    }
                 }
             }
 
@@ -1281,19 +1363,26 @@ Item {
                 preferredCamera: _generalHelper.activeScenePreferredCamera
                 preferredSize: Qt.size(viewRoot.width * 0.3, viewRoot.height * 0.3)
                 viewPortSize: Qt.size(viewRoot.viewPortRect.width, viewRoot.viewPortRect.height)
+                z: 1000
 
                 function updateSnapping() {
-                    const rect = viewRoot.viewRects[viewRoot.activeViewport];
-                    if (!rect || !rect.visible)
-                        return;
-
-                    const centerX = rect.x + rect.width / 2;
-                    cameraView.snapLeft = centerX < viewContainer.width / 2;
-                }
-
-                Connections {
-                    target: viewRoot
-                    onActiveViewportChanged: cameraView.updateSnapping()
+                    switch (viewRoot.activePreset) {
+                    case EditView3D.ViewPreset.Single:
+                        cameraView.snapLeft = true
+                        break
+                    case EditView3D.ViewPreset.Quad:
+                        cameraView.snapLeft = viewRoot.activeViewport != 2
+                        break
+                    case EditView3D.ViewPreset.ThreeLeftOneRight:
+                        cameraView.snapLeft = false
+                        break
+                    case EditView3D.ViewPreset.TwoHorizontal:
+                        cameraView.snapLeft = true
+                        break
+                    case EditView3D.ViewPreset.TwoVertical:
+                        cameraView.snapLeft = viewRoot.activeViewport == 1
+                        break
+                    }
                 }
             }
         }

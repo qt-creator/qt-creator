@@ -5,6 +5,7 @@
 
 #include "abstractproperty.h"
 #include "auxiliarydata.h"
+#include <projectstorage/projectstorageinfotypes.h>
 
 #include <tracing/qmldesignertracing.h>
 
@@ -171,6 +172,7 @@ public:
     AbstractView *view() const;
 
     NodeMetaInfo metaInfo(SL sl = {}) const;
+    const Storage::Info::ExportedTypeName &exportedTypeName(SL sl = {}) const;
     bool hasMetaInfo(SL sl = {}) const;
 
     bool isSelected(SL sl = {}) const;
@@ -272,6 +274,12 @@ public:
     friend std::weak_ordering operator<=>(const ModelNode &firstNode, const ModelNode &secondNode)
     {
         return firstNode.m_internalNode <=> secondNode.m_internalNode;
+    }
+
+    template<typename String>
+    friend void convertToString(String &string, const ModelNode &node)
+    {
+        convertToString(string, reinterpret_cast<std::uintptr_t>(node.m_internalNode.get()));
     }
 
 private: // functions

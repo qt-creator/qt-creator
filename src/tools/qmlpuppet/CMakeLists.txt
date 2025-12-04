@@ -19,6 +19,8 @@ if (NOT QT_CREATOR_API_DEFINED)
 
   set(DESTINATION DESTINATION .)
   set(QTC_SBOM_READY ON)
+
+  include(Utils)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
   include(QtCreatorSbom)
@@ -55,13 +57,15 @@ add_qtc_executable(qmlpuppet
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
     qmlpuppet/qmlpuppetmain.cpp
-    qmlpuppet/qmlbase.h
+    qmlpuppet/qmlbase.h qmlpuppet/qmlbase.cpp
     qmlpuppet/qmlpuppet.h qmlpuppet/qmlpuppet.cpp
     qmlpuppet/configcrashpad.h
     qmlpuppet.qrc
   PROPERTIES
     OUTPUT_NAME qmlpuppet-${IDE_VERSION}
 )
+
+include(AutoInstallDesignerComponents.cmake)
 
 if (IS_STAND_ALONE_PUPPET_BUILD)
     include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)

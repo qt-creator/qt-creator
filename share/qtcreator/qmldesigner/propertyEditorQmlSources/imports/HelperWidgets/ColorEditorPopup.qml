@@ -142,7 +142,7 @@ Column {
             GradientPresetList {
                 id: presetList
                 visible: false
-                transientParent: root.parentWindow
+                transientParent: Window.window
 
                 function applyPreset() {
                     if (!gradientModel.hasGradient) {
