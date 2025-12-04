@@ -18,7 +18,7 @@ using namespace Layouting;
 
 struct AspectUI : public Column
 {
-    AspectUI(Utils::BaseAspect *aspect)
+    AspectUI(Utils::BaseAspect *aspect, bool multipleInstances = false)
     {
         QLabel *volatileLabel = new QLabel;
         QLabel *valueLabel = new QLabel;
@@ -58,12 +58,31 @@ struct AspectUI : public Column
 
         // clang-format off
         this->addItems({
-            Group {
-                sizePolicy(QSizePolicy{QSizePolicy::Expanding, QSizePolicy::Maximum}),
-                Column {
-                    "Aspect:",
-                    aspect
+            [multipleInstances, aspect] {
+                if (multipleInstances) {
+                    return Column {
+                        noMargin,
+                        Group {
+                            sizePolicy(QSizePolicy{QSizePolicy::Expanding, QSizePolicy::Maximum}),
+                            Column {
+                                "First instance:", aspect
+                            }
+                        },
+                        Group {
+                            sizePolicy(QSizePolicy{QSizePolicy::Expanding, QSizePolicy::Maximum}),
+                            Column {
+                                "Second instance:", aspect
+                            }
+                        }
+                    }.emerge();
                 }
+                return Group {
+                    sizePolicy(QSizePolicy{QSizePolicy::Expanding, QSizePolicy::Maximum}),
+                    Column {
+                        "Single instance:",
+                        aspect
+                    }
+                }.emerge();
             },
             Widget {
                 sizePolicy(QSizePolicy{QSizePolicy::Expanding, QSizePolicy::Fixed}),
@@ -112,7 +131,8 @@ int main(int argc, char *argv[])
     auto stringAspect = [] {
         auto stringAspect = new Utils::StringAspect();
         stringAspect->setDisplayStyle(Utils::StringAspect::DisplayStyle::LineEditDisplay);
-        stringAspect->setDefaultValue("Default Text");
+        stringAspect->setDefaultValue("Default Value");
+        stringAspect->setPlaceHolderText("Placeholder text");
         return stringAspect;
     };
 
@@ -134,23 +154,23 @@ int main(int argc, char *argv[])
     TabWidget {
         Tab {
             "Selection Aspect",
-            AspectUI(selectionAspect())
+            AspectUI(selectionAspect(), true)
         },
         Tab {
             "Combo Selection Aspect",
-            AspectUI(comboSelectionAspect())
+            AspectUI(comboSelectionAspect(), true)
         },
         Tab {
             "String Aspect",
-            AspectUI(stringAspect())
+            AspectUI(stringAspect(), true)
         },
         Tab {
             "Integer Aspect",
-            AspectUI(integerAspect())
+            AspectUI(integerAspect(), false)
         },
         Tab {
             "Run As Aspect",
-            AspectUI(runAsAspect())
+            AspectUI(runAsAspect(), true)
         },
         Tab {
             "Theme",
