@@ -132,7 +132,7 @@ void StatesEditorView::deregisterPropertyChangesModel(PropertyChangesModel *mode
     m_propertyChangedModels.remove(model);
 }
 
-void StatesEditorView::synchonizeCurrentStateFromWidget()
+void StatesEditorView::synchronizeCurrentStateFromWidget()
 {
     if (!model())
         return;

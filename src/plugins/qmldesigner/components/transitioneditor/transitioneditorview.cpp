@@ -95,23 +95,15 @@ void TransitionEditorView::nodeReparented(const ModelNode &node,
 
 void TransitionEditorView::instancePropertyChanged(
     const QList<QPair<ModelNode, PropertyName>> & /*propertyList*/)
-{
+{}
 
-}
+void TransitionEditorView::variantPropertiesChanged(const QList<VariantProperty> & /* propertyList */,
+                                                    AbstractView::PropertyChangeFlags /*propertyChange*/)
+{}
 
-void TransitionEditorView::variantPropertiesChanged(
-    const QList<VariantProperty> & /* propertyList */,
-    AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void TransitionEditorView::bindingPropertiesChanged(
-    const QList<BindingProperty> & /*propertyList */,
-    AbstractView::PropertyChangeFlags /* propertyChange */)
-{
-
-}
+void TransitionEditorView::bindingPropertiesChanged(const QList<BindingProperty> & /*propertyList */,
+                                                    AbstractView::PropertyChangeFlags /* propertyChange */)
+{}
 
 void TransitionEditorView::selectedNodesChanged(const QList<ModelNode> & /*selectedNodeList*/,
                                         const QList<ModelNode> & /*lastSelectedNodeList*/)
@@ -125,7 +117,7 @@ void TransitionEditorView::auxiliaryDataChanged(const ModelNode &modelNode,
 {
     if (key == lockedProperty && data.toBool() && modelNode.isValid()) {
         for (const auto &node : modelNode.allSubModelNodesAndThisNode()) {
-            if (node.hasAuxiliaryData(transitionExpandedPropery))
+            if (node.hasAuxiliaryData(transitionExpandedProperty))
                 m_transitionEditorWidget->graphicsScene()->invalidateHeightForTarget(node);
         }
     }

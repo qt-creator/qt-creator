@@ -102,9 +102,7 @@ signals:
     void usageStatisticsNotifier(const QString &identifier);
     void usageStatisticsUsageTimer(const QString &identifier, int elapsed);
     void usageStatisticsUsageDuration(const QString &identifier, int elapsed);
-    void usageStatisticsInsertFeedback(const QString &identifier,
-                                       const QString &feedback,
-                                       int rating);
+    void usageStatisticsInsertFeedback(const QString &identifier, const QString &feedback, int rating);
 
 private slots:
     void closeFeedbackPopup();
@@ -126,7 +124,7 @@ private: // functions
     void deactivateAutoSynchronization();
     void resetModelSelection();
     void initializeShutdownSettings();
-    QString identiferToDisplayString(const QString &identifier);
+    QString identifierToDisplayString(const QString &identifier);
 
     RewriterView *rewriterView() const;
     Model *currentModel() const;

@@ -54,14 +54,14 @@ public:
         NanotraceHR::Tracer tracer{"project storage path watcher update id paths",
                                    ProjectStorageTracing::category()};
 
-        const auto &[entires, ids] = convertIdPathsToWatcherEntriesAndIds(idPaths);
+        const auto &[entries, ids] = convertIdPathsToWatcherEntriesAndIds(idPaths);
 
-        addEntries(entires);
+        addEntries(entries);
 
-        auto containsdId = [&, &ids = ids](WatcherEntry entry) {
+        auto containsId = [&, &ids = ids](WatcherEntry entry) {
             return std::ranges::binary_search(ids, entry.id);
         };
-        removeUnusedEntries(entires, containsdId);
+        removeUnusedEntries(entries, containsId);
     }
 
     void updateContextIdPaths(const std::vector<IdPaths> &idPaths,
@@ -72,15 +72,15 @@ public:
                                    NanotraceHR::keyValue("id paths", idPaths),
                                    NanotraceHR::keyValue("directory ids", directoryPathIds)};
 
-        const auto &[entires, ids] = convertIdPathsToWatcherEntriesAndIds(idPaths);
+        const auto &[entries, ids] = convertIdPathsToWatcherEntriesAndIds(idPaths);
 
-        addEntries(entires);
+        addEntries(entries);
 
         auto isInDirectory = [&](WatcherEntry entry) {
             return std::ranges::binary_search(directoryPathIds, entry.directoryPathId);
         };
 
-        removeUnusedEntries(entires, isInDirectory);
+        removeUnusedEntries(entries, isInDirectory);
     }
 
     void checkForChangeInDirectory(DirectoryPathIds directoryPathIds) override
@@ -168,8 +168,7 @@ public:
         ProjectChunkIds ids;
         ids.reserve(ids.size());
 
-        for (const IdPaths &idPath : idPaths)
-        {
+        for (const IdPaths &idPath : idPaths) {
             NanotraceHR::Tracer tracer{
                 "project storage path watcher convert id paths to watcher entries loop id path",
                 ProjectStorageTracing::category()};
@@ -522,8 +521,7 @@ public:
                     foundEntries.push_back(entry);
                     entry.lastModified = fileStatus.lastModified;
                     entry.size = fileStatus.size;
-                    tracer.tick("update entry",
-                                NanotraceHR::keyValue("file status", fileStatus));
+                    tracer.tick("update entry", NanotraceHR::keyValue("file status", fileStatus));
                 }
             },
             {},

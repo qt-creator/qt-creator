@@ -110,7 +110,7 @@ QList<PropertyName> getPropertyNames(const ModelNode &listElementNode)
     return names;
 }
 
-QList<PropertyName> mergeProperyNames(const QList<PropertyName> &first,
+QList<PropertyName> mergePropertyNames(const QList<PropertyName> &first,
                                       const QList<PropertyName> &second)
 {
     QList<PropertyName> merged;
@@ -144,13 +144,13 @@ QList<QString> convertToStringList(const QList<PropertyName> &propertyNames)
     return names;
 }
 
-QList<PropertyName> createProperyNames(const QList<ModelNode> &listElementNodes)
+QList<PropertyName> createPropertyNames(const QList<ModelNode> &listElementNodes)
 {
     QList<PropertyName> propertyNames;
     propertyNames.reserve(10);
 
     for (const ModelNode &listElementNode : listElementNodes)
-        propertyNames = mergeProperyNames(getPropertyNames(listElementNode), propertyNames);
+        propertyNames = mergePropertyNames(getPropertyNames(listElementNode), propertyNames);
 
     return propertyNames;
 }
@@ -199,7 +199,7 @@ void ListModelEditorModel::populateModel()
 {
     const auto listElementNodes = m_listModelNode.defaultNodeListProperty().toModelNodeList();
 
-    m_propertyNames = createProperyNames(listElementNodes);
+    m_propertyNames = createPropertyNames(listElementNodes);
 
     setHorizontalHeaderLabels(convertToStringList(m_propertyNames));
 

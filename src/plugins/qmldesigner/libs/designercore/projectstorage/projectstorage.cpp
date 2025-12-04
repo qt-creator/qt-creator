@@ -2816,7 +2816,7 @@ void ProjectStorage::synchronizeImports(Storage::Imports &imports,
 {
     NanotraceHR::Tracer tracer{"synchronize imports", category()};
 
-    synchromizeModuleExportedImports(moduleExportedImports, updatedModuleIds);
+    synchronizeModuleExportedImports(moduleExportedImports, updatedModuleIds);
     NanotraceHR::Tracer importTracer{"synchronize qml document imports", category()};
     synchronizeDocumentImports(imports,
                                updatedSourceIds,
@@ -2833,7 +2833,7 @@ void ProjectStorage::synchronizeImports(Storage::Imports &imports,
     moduleDependenciesTracer.end();
 }
 
-void ProjectStorage::synchromizeModuleExportedImports(
+void ProjectStorage::synchronizeModuleExportedImports(
     Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
     const ModuleIds &updatedModuleIds)
 {
@@ -3268,7 +3268,7 @@ void ProjectStorage::linkAliasPropertyDeclarationAliasIds(
                            TypeId{},
                            Storage::PropertyDeclarationTraits{});
 
-                errorNotifier->propertyNameDoesNotExists(aliasDeclaration.composedProperyName(),
+                errorNotifier->propertyNameDoesNotExists(aliasDeclaration.composedPropertyName(),
                                                          aliasDeclaration.sourceId);
             }
         } else if (raiseError == RaiseError::Yes) {

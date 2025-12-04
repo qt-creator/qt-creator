@@ -144,7 +144,7 @@ public:
     const QmlDesigner::DesignerSettings &designerSettings() const override { return settings; }
     void undoOnCurrentDesignDocument() override {}
     bool viewManagerUsesRewriterView(class RewriterView *) const override { return true; }
-    void viewManagerDiableWidgets() override {}
+    void viewManagerDisableWidgets() override {}
     QString itemLibraryImportUserComponentsTitle() const override { return {}; }
     bool isQt6Import() const override { return true; }
     bool hasStartupTarget() const override { return true; }
@@ -1486,7 +1486,7 @@ void tst_TestCore::testRewriterSignalDefinition()
 
     QCOMPARE(textEdit.toPlainText(), expectedQmlCode2);
 
-    testRewriterView->executeInTransaction("identifer", [rectangle](){
+    testRewriterView->executeInTransaction("identifier", [rectangle](){
         ModelNode newRectangle = rectangle.view()->createModelNode(rectangle.type(),
                                                                    rectangle.majorVersion(),
                                                                    rectangle.minorVersion());

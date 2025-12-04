@@ -331,7 +331,7 @@ TEST_F(Model_ResourceManagment, model_node_destroy_is_calling_model_resource_man
 }
 
 TEST_F(Model_ResourceManagment,
-       model_node_remove_propery_is_calling_model_resource_management_remove_property)
+       model_node_remove_property_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.variantProperty("foo");
     property.setValue(4);

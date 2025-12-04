@@ -368,14 +368,14 @@ TEST_F(ProjectStoragePathWatcher, remove_one_path_for_two_id)
 
 TEST_F(ProjectStoragePathWatcher, not_anymore_watched_entries_with_id)
 {
-    auto containsdId = [&](const WatcherEntry &entry) {
+    auto containsId = [&](const WatcherEntry &entry) {
         return entry.id == ids[0] or entry.id == ids[1];
     };
     watcher.addEntries(
         sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
     auto oldEntries = watcher.notAnymoreWatchedEntriesWithIds({watcherEntry1, watcherEntry4},
-                                                              containsdId);
+                                                              containsId);
 
     ASSERT_THAT(oldEntries, ElementsAre(watcherEntry2, watcherEntry3));
 }

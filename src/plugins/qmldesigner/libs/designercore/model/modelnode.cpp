@@ -1725,7 +1725,7 @@ void ModelNode::setLocked(bool value, SL sl)
         for (ModelNode node : allSubModelNodesAndThisNode()) {
             node.deselectNode();
             node.removeAuxiliaryData(timelineExpandedProperty);
-            node.removeAuxiliaryData(transitionExpandedPropery);
+            node.removeAuxiliaryData(transitionExpandedProperty);
         }
     } else {
         removeAuxiliaryData(lockedProperty);

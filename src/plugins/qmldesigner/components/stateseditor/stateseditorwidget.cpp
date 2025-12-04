@@ -146,11 +146,7 @@ void StatesEditorWidget::reloadQmlSource()
     connect(rootObject(),
             SIGNAL(currentStateInternalIdChanged()),
             m_statesEditorView.data(),
-            SLOT(synchonizeCurrentStateFromWidget()));
-    connect(rootObject(),
-            SIGNAL(createNewState()),
-            m_statesEditorView.data(),
-            SLOT(createNewState()));
+            SLOT(synchronizeCurrentStateFromWidget()));
     connect(rootObject(), SIGNAL(cloneState(int)), m_statesEditorView.data(), SLOT(cloneState(int)));
     connect(rootObject(),
             SIGNAL(extendState(int)),
@@ -160,7 +156,7 @@ void StatesEditorWidget::reloadQmlSource()
             SIGNAL(deleteState(int)),
             m_statesEditorView.data(),
             SLOT(removeState(int)));
-    m_statesEditorView.data()->synchonizeCurrentStateFromWidget();
+    m_statesEditorView.data()->synchronizeCurrentStateFromWidget();
 }
 
 } // namespace QmlDesigner

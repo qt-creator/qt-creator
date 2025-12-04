@@ -45,7 +45,7 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
                                        ImageCacheCollectorInterface &collector,
                                        ImageCache::TraceToken traceToken)
 {
-    auto [storageTracer, flowToken] = traceToken.beginDurationWithFlow("starte image generator");
+    auto [storageTracer, flowToken] = traceToken.beginDurationWithFlow("start image generator");
     const auto id = extraId.empty() ? Utils::PathString{name}
                                     : Utils::PathString::join({name, "+", extraId});
 

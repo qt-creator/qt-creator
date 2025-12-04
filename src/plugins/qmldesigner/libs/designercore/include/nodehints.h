@@ -33,7 +33,7 @@ namespace Internal {
 class QMLDESIGNERCORE_EXPORT NodeHints
 {
 public:
-    bool canBeContainerFor(const ModelNode &potenialChild) const;
+    bool canBeContainerFor(const ModelNode &potentialChild) const;
     bool forceClip() const;
     bool doesLayoutChildren() const;
     bool canBeDroppedInFormEditor() const;
@@ -43,7 +43,7 @@ public:
     bool isResizable() const;
     bool hasFormEditorItem() const;
     bool isStackedContainer() const;
-    bool canBeReparentedTo(const ModelNode &potenialParent);
+    bool canBeReparentedTo(const ModelNode &potentialParent);
     QString indexPropertyForStackedContainer() const;
     QStringList visibleNonDefaultProperties() const;
     bool takesOverRenderingOfChildren() const;

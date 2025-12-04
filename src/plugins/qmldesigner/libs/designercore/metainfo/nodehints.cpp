@@ -86,7 +86,7 @@ bool convert(FlagIs flagIs)
 }
 } // namespace
 
-bool NodeHints::canBeContainerFor(const ModelNode &potenialChild) const
+bool NodeHints::canBeContainerFor(const ModelNode &potentialChild) const
 {
     /* The default is true for now to avoid confusion. Once our .metaInfo files in Qt
        use the feature we can change the default to false. */
@@ -99,7 +99,7 @@ bool NodeHints::canBeContainerFor(const ModelNode &potenialChild) const
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
 
-    return evaluateBooleanExpression("canBeContainer", true, potenialChild);
+    return evaluateBooleanExpression("canBeContainer", true, potentialChild);
 }
 
 bool NodeHints::forceClip() const
@@ -216,12 +216,12 @@ bool NodeHints::isStackedContainer() const
     return evaluateBooleanExpression("isStackedContainer", false);
 }
 
-bool NodeHints::canBeReparentedTo(const ModelNode &potenialParent)
+bool NodeHints::canBeReparentedTo(const ModelNode &potentialParent)
 {
     if (!isValid())
         return true;
 
-    return evaluateBooleanExpression("canBeReparented", true, potenialParent);
+    return evaluateBooleanExpression("canBeReparented", true, potentialParent);
 }
 
 QString NodeHints::indexPropertyForStackedContainer() const

@@ -40,9 +40,9 @@ QString toInfo(const Import &import)
         txt += QStringView(u"without version");
 
     if (import.hasAlias())
-        txt += QStringView(u"aliassed as \"%1\"").arg(import.alias());
+        txt += QStringView(u"aliased as \"%1\"").arg(import.alias());
     else
-        txt += QStringView(u"unaliassed");
+        txt += QStringView(u"unaliased");
 
     return txt;
 }

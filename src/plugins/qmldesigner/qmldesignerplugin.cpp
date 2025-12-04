@@ -154,14 +154,16 @@ QtQuickDesignerFactory::QtQuickDesignerFactory()
 
 struct TraceIdentifierData
 {
-    TraceIdentifierData(const QString &_identifier, const QString &_newIdentifer, int _duration)
-        : identifier(_identifier), newIdentifer(_newIdentifer), maxDuration(_duration)
+    TraceIdentifierData(const QString &_identifier, const QString &_newIdentifier, int _duration)
+        : identifier(_identifier)
+        , newIdentifier(_newIdentifier)
+        , maxDuration(_duration)
     {}
 
     TraceIdentifierData() = default;
 
     QString identifier;
-    QString newIdentifer;
+    QString newIdentifier;
     int maxDuration;
     int time = 0;
 };
@@ -659,7 +661,7 @@ void QmlDesignerPlugin::resetModelSelection()
     rewriterView()->setSelectedModelNodes(QList<ModelNode>());
 }
 
-QString QmlDesignerPlugin::identiferToDisplayString(const QString &identifier)
+QString QmlDesignerPlugin::identifierToDisplayString(const QString &identifier)
 {
     NanotraceHR::Tracer tracer{"qml designer plugin identifier to display string", category()};
 
@@ -829,7 +831,7 @@ void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
         const int currentTime = privateInstance()->timer.elapsed();
         const int currentDuration = (currentTime - activeData.time);
         if (currentDuration < activeData.maxDuration)
-            emit instance()->usageStatisticsUsageDuration(activeData.newIdentifer, currentDuration);
+            emit instance()->usageStatisticsUsageDuration(activeData.newIdentifier, currentDuration);
 
         privateInstance()->m_activeTraceIdentifierDataHash.remove(identifier);
     }
@@ -954,7 +956,7 @@ void QmlDesignerPlugin::launchFeedbackPopupInternal(const QString &identifier)
     QTC_ASSERT(root, return );
 
     QObject *title = root->findChild<QObject *>("title");
-    QString name = Tr::tr("Enjoying %1?").arg(identiferToDisplayString(identifier));
+    QString name = Tr::tr("Enjoying %1?").arg(identifierToDisplayString(identifier));
     title->setProperty("text", name);
     root->setProperty("identifier", identifier);
 

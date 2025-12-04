@@ -580,7 +580,7 @@ TEST_F(ListModelEditor, next_interaction_row_prefers_selected_row_to_selected_in
     ASSERT_THAT(nextRow, Eq(3));
 }
 
-TEST_F(ListModelEditor, change_added_row_propery)
+TEST_F(ListModelEditor, change_added_row_property)
 {
     model.setListModel(listModelNode);
     model.addRow(rowCount());
@@ -594,7 +594,7 @@ TEST_F(ListModelEditor, change_added_row_propery)
                             ElementsAre(IsInvalid(), IsInvalid(), 22, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, change_added_row_propery_calls_variant_properties_changed)
+TEST_F(ListModelEditor, change_added_row_property_calls_variant_properties_changed)
 {
     model.setListModel(listModelNode);
     ModelNode element4;

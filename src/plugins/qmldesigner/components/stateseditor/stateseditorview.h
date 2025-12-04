@@ -93,7 +93,7 @@ public:
     void deregisterPropertyChangesModel(PropertyChangesModel *model);
 
 public slots:
-    void synchonizeCurrentStateFromWidget();
+    void synchronizeCurrentStateFromWidget();
     void createNewState();
     void cloneState(int nodeId);
     void extendState(int nodeId);

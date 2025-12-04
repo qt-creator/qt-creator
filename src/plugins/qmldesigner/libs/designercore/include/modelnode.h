@@ -16,14 +16,14 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 namespace Internal {
-    class InternalNode;
-    class ModelPrivate;
-    class InternalNode;
-    class InternalProperty;
+class InternalNode;
+class ModelPrivate;
+class InternalNode;
+class InternalProperty;
 
-    using InternalNodePointer = std::shared_ptr<InternalNode>;
-    using InternalPropertyPointer = std::shared_ptr<InternalProperty>;
-}
+using InternalNodePointer = std::shared_ptr<InternalNode>;
+using InternalPropertyPointer = std::shared_ptr<InternalProperty>;
+} // namespace Internal
 class NodeMetaInfo;
 class BindingProperty;
 class VariantProperty;
@@ -53,8 +53,8 @@ using AuxiliaryPropertyListType = QList<QPair<AuxiliaryDataKey, QVariant>>;
 inline constexpr AuxiliaryDataKeyView lockedProperty{AuxiliaryDataType::Document, "locked"};
 inline constexpr AuxiliaryDataKeyView timelineExpandedProperty{AuxiliaryDataType::Document,
                                                                "timeline_expanded"};
-inline constexpr AuxiliaryDataKeyView transitionExpandedPropery{AuxiliaryDataType::Document,
-                                                                "transition_expanded"};
+inline constexpr AuxiliaryDataKeyView transitionExpandedProperty{AuxiliaryDataType::Document,
+                                                                 "transition_expanded"};
 
 class QMLDESIGNERCORE_EXPORT ModelNode
 {

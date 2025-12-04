@@ -381,7 +381,7 @@ private:
             convertToString(string, dict);
         }
 
-        Utils::PathString composedProperyName() const
+        Utils::PathString composedPropertyName() const
         {
             if (aliasPropertyNameTail.empty())
                 return aliasPropertyName;
@@ -572,7 +572,7 @@ private:
                             const ModuleIds &updatedModuleIds,
                             Bases &relinkableBases);
 
-    void synchromizeModuleExportedImports(
+    void synchronizeModuleExportedImports(
         Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
         const ModuleIds &updatedModuleIds);
 
