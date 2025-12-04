@@ -1464,13 +1464,13 @@ void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
     // We have good shell access now, try to get bridge access, too:
 
     QFuture<Result<DeviceFileAccessPtr>> future = Utils::asyncRun(
-        [this, env = getEnvironment(), rootPath = q->rootPath()]() -> Result<DeviceFileAccessPtr>{
+        [this, rootPath = q->rootPath()]() -> Result<DeviceFileAccessPtr>{
             auto fileAccess = std::make_unique<CmdBridge::FileAccess>([&] {
                 QMetaObject::invokeMethod(
                     this->q, [this] { announceConnectionLoss(); }, Qt::QueuedConnection);
             });
             Result<> deployAndInitResult
-                = fileAccess->deployAndInit(Core::ICore::libexecPath(), rootPath, env);
+                = fileAccess->deployAndInit(Core::ICore::libexecPath(), rootPath, getEnvironment());
             if (deployAndInitResult)
                 return DeviceFileAccessPtr(std::move(fileAccess));
             return ResultError(deployAndInitResult.error());
