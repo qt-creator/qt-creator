@@ -84,14 +84,6 @@ QStringList variantToStringList(const QVariant &variant) {
     return stringList;
 }
 
-static QObject *variantToQObject(const QVariant &value)
-{
-    if (value.typeId() == QMetaType::QObjectStar || value.typeId() > QMetaType::User)
-        return *(QObject **)value.constData();
-
-    return nullptr;
-}
-
 namespace QmlDesigner {
 
 using namespace Qt::StringLiterals;
@@ -375,8 +367,7 @@ void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
 
     QString propertyName = QString::fromUtf8(name);
     propertyName.replace('.', '_');
-    auto valueObject = qobject_cast<PropertyEditorValue *>(
-        variantToQObject(backendValuesPropertyMap().value(propertyName)));
+    auto valueObject = propertyValueForName(propertyName);
     if (!valueObject) {
         valueObject = new PropertyEditorValue(&backendValuesPropertyMap());
         QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &DesignerPropertyMap::valueChanged);
@@ -419,7 +410,7 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode &,
             PropertyName subPropName(name.size() + 2, '\0');
             subPropName.replace(0, name.size(), name);
             subPropName.replace(name.size(), 2, suffix[i]);
-            auto propertyValue = qobject_cast<PropertyEditorValue *>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(subPropName))));
+            auto propertyValue = propertyValueForName(QString::fromUtf8(subPropName));
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
@@ -430,7 +421,7 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode &,
             PropertyName subPropName(name.size() + 2, '\0');
             subPropName.replace(0, name.size(), name);
             subPropName.replace(name.size(), 2, suffix[i]);
-            auto propertyValue = qobject_cast<PropertyEditorValue *>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(subPropName))));
+            auto propertyValue = propertyValueForName(QString::fromUtf8(subPropName));
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
@@ -441,15 +432,15 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode &,
             PropertyName subPropName(name.size() + 2, '\0');
             subPropName.replace(0, name.size(), name);
             subPropName.replace(name.size(), 2, suffix[i]);
-            auto propertyValue = qobject_cast<PropertyEditorValue *>(
-                variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(subPropName))));
+            auto propertyValue = propertyValueForName(QString::fromUtf8(subPropName));
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
     } else {
         PropertyName propertyName = name.toByteArray();
         propertyName.replace('.', '_');
-        auto propertyValue = qobject_cast<PropertyEditorValue *>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(propertyName))));
+        auto propertyValue = propertyValueForName(QString::fromUtf8(propertyName));
+
         if (propertyValue)
             propertyValue->setValue(value);
     }
@@ -524,8 +515,7 @@ PropertyEditorValue *PropertyEditorQmlBackend::propertyValueForName(const QStrin
 {
     NanotraceHR::Tracer tracer{"property editor qml backend property value for name", category()};
 
-    return qobject_cast<PropertyEditorValue *>(
-        variantToQObject(backendValuesPropertyMap().value(propertyName)));
+    return variantToPropertyEditorValue(backendValuesPropertyMap().value(propertyName));
 }
 
 void QmlDesigner::PropertyEditorQmlBackend::createPropertyEditorValues(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor)
@@ -550,8 +540,8 @@ PropertyEditorValue *PropertyEditorQmlBackend::insertValue(const QString &name,
 {
     NanotraceHR::Tracer tracer{"property editor qml backend insert value", category()};
 
-    auto valueObject = qobject_cast<PropertyEditorValue *>(
-        variantToQObject(m_backendValuesPropertyMap.value(name)));
+    auto valueObject = propertyValueForName(name);
+
     if (!valueObject)
         valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
 

@@ -229,6 +229,8 @@ private:
     bool m_forceBound = false;
 };
 
+PropertyEditorValue *variantToPropertyEditorValue(const QVariant &value);
+
 } // namespace QmlDesigner
 
 QML_DECLARE_TYPE(QmlDesigner::PropertyEditorValue)

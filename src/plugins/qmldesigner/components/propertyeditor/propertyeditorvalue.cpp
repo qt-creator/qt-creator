@@ -805,7 +805,8 @@ void PropertyEditorNodeWrapper::changeValue(const QString &propertyName)
         return;
 
     if (auto qmlObjectNode = QmlObjectNode{m_modelNode}) {
-        auto valueObject = qvariant_cast<PropertyEditorValue *>(m_valuesPropertyMap.value(QString::fromLatin1(name)));
+        auto valueObject = variantToPropertyEditorValue(
+            m_valuesPropertyMap.value(QString::fromUtf8(name)));
 
         if (valueObject->value().isValid())
             qmlObjectNode.setVariantProperty(name, valueObject->value());
@@ -870,14 +871,6 @@ QQmlPropertyMap *PropertyEditorSubSelectionWrapper::properties()
     return &m_valuesPropertyMap;
 }
 
-static QObject *variantToQObject(const QVariant &value)
-{
-    if (value.typeId() == QMetaType::QObjectStar || value.typeId() > QMetaType::User)
-        return *(QObject **)value.constData();
-
-    return nullptr;
-}
-
 void PropertyEditorSubSelectionWrapper::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                                                   PropertyNameView name,
                                                                   const QVariant &value,
@@ -889,8 +882,8 @@ void PropertyEditorSubSelectionWrapper::createPropertyEditorValue(const QmlObjec
     QString propertyName = QString::fromUtf8(name);
     propertyName.replace('.', '_');
 
-    auto valueObject = qobject_cast<PropertyEditorValue *>(
-        variantToQObject(m_valuesPropertyMap.value(propertyName)));
+    auto valueObject = variantToPropertyEditorValue(m_valuesPropertyMap.value(propertyName));
+
     if (!valueObject) {
         valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
         QObject::connect(valueObject, &PropertyEditorValue::valueChanged, this, &PropertyEditorSubSelectionWrapper::changeValue);
@@ -1014,8 +1007,7 @@ void PropertyEditorSubSelectionWrapper::changeValue(const QString &name)
 
     const NodeMetaInfo metaInfo = m_modelNode.metaInfo();
     QVariant castedValue;
-    PropertyEditorValue *value = qobject_cast<PropertyEditorValue *>(
-        variantToQObject(m_valuesPropertyMap.value(name)));
+    auto value = variantToPropertyEditorValue(m_valuesPropertyMap.value(name));
 
     if (auto property = metaInfo.property(name.toUtf8())) {
         castedValue = property.castedValue(value->value());
@@ -1047,8 +1039,10 @@ void PropertyEditorSubSelectionWrapper::setValueFromModel(PropertyNameView name,
 
     Utils::SmallString propertyName = name;
     propertyName.replace('.', '_');
-    auto propertyValue = qobject_cast<PropertyEditorValue *>(
-        variantToQObject(m_valuesPropertyMap.value(QString::fromUtf8(propertyName))));
+
+    auto propertyValue = variantToPropertyEditorValue(
+        m_valuesPropertyMap.value(QString::fromUtf8(propertyName)));
+
     if (propertyValue)
         propertyValue->setValue(value);
     m_locked = false;
@@ -1058,8 +1052,9 @@ void PropertyEditorSubSelectionWrapper::resetValue(PropertyNameView name)
 {
     NanotraceHR::Tracer tracer{"property editor sub selection wrapper reset value", category()};
 
-    auto propertyValue = qobject_cast<PropertyEditorValue *>(
-        variantToQObject(m_valuesPropertyMap.value(QString::fromUtf8(name))));
+    auto propertyValue = variantToPropertyEditorValue(
+        m_valuesPropertyMap.value(QString::fromUtf8(name)));
+
     if (propertyValue)
         propertyValue->resetValue();
 }
@@ -1092,8 +1087,7 @@ void PropertyEditorSubSelectionWrapper::changeExpression(const QString &property
 
     view()->executeInTransaction("PropertyEditorView::changeExpression", [this, name, propertyName] {
         QmlObjectNode qmlObjectNode{m_modelNode};
-        PropertyEditorValue *value = qobject_cast<PropertyEditorValue *>(
-            variantToQObject(m_valuesPropertyMap.value(propertyName)));
+        auto value = variantToPropertyEditorValue(m_valuesPropertyMap.value(propertyName));
 
         if (!value) {
             qWarning() << "PropertyEditor::changeExpression no value for " << propertyName;
@@ -1157,4 +1151,11 @@ AbstractView *PropertyEditorSubSelectionWrapper::view() const
     return m_modelNode.view();
 }
 
+PropertyEditorValue *variantToPropertyEditorValue(const QVariant &value)
+{
+    if (auto object = get_if<PropertyEditorValue *>(&value))
+        return *object;
+
+    return nullptr;
+}
 } // namespace QmlDesigner

@@ -136,7 +136,8 @@ void PropertyEditorView::changeValue(const QString &name)
         return;
 
     if (propertyName == "id") {
-        PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(QString::fromUtf8(propertyName));
+        PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(
+            QString::fromUtf8(propertyName));
         const QString newId = value->value().toString();
 
         if (newId == activeNode().id())
@@ -172,7 +173,8 @@ void PropertyEditorView::changeValue(const QString &name)
 
     PropertyName underscoreName(propertyName);
     underscoreName.replace('.', '_');
-    PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(QString::fromLatin1(underscoreName));
+    PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(
+        QString::fromLatin1(underscoreName));
 
     if (value == nullptr)
         return;
@@ -1017,14 +1019,6 @@ void PropertyEditorView::modelAttached(Model *model)
     showAsExtraWidget();
 }
 
-static PropertyEditorValue *variantToPropertyEditorValue(const QVariant &value)
-{
-    if (auto object = get_if<PropertyEditorValue *>(&value))
-        return *object;
-
-    return nullptr;
-}
-
 void PropertyEditorView::modelAboutToBeDetached(Model *model)
 {
     NanotraceHR::Tracer tracer{"property editor view model about to be detached", category()};
@@ -1040,10 +1034,8 @@ void PropertyEditorView::modelAboutToBeDetached(Model *model)
     for (PropertyEditorQmlBackend *qmlBackend : std::as_const(m_qmlBackendHash)) {
         const QStringList propNames = qmlBackend->backendValuesPropertyMap().keys();
         for (const QString &propName : propNames) {
-            if (PropertyEditorValue *valueObject = variantToPropertyEditorValue(
-                    qmlBackend->backendValuesPropertyMap().value(propName))) {
+            if (PropertyEditorValue *valueObject = qmlBackend->propertyValueForName(propName))
                 valueObject->resetMetaInfo();
-            }
         }
     }
     setActiveNode({});
@@ -1558,9 +1550,10 @@ void PropertyEditorView::highlightTextureProperties(bool highlight)
     const QStringList propNames = propMap.keys();
     for (const QString &propName : propNames) {
         if (metaInfo.property(propName.toUtf8()).propertyType().isQtQuick3DTexture()) {
-            QObject *propEditorValObj = propMap.value(propName).value<QObject *>();
-            PropertyEditorValue *propEditorVal = qobject_cast<PropertyEditorValue *>(propEditorValObj);
-            propEditorVal->setHasActiveDrag(highlight);
+            if (PropertyEditorValue *propEditorVal = m_qmlBackEndForCurrentType->propertyValueForName(
+                    propName)) {
+                propEditorVal->setHasActiveDrag(highlight);
+            }
         }
     }
 }
