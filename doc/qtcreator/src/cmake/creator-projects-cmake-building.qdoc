@@ -73,13 +73,12 @@
 
     \section1 Multi-config support
 
-    \QC supports
-    \l{https://cmake.org/cmake/help/latest/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html}
-    {Multi-config generators}, such as Xcode, Visual Studio, and Ninja
-    Multi-Config. This means that you need to configure CMake only once, have
-    only one build directory, and can switch between build types faster.
+    \QC supports \l{CMake: Multi-config generators}{Multi-config generators},
+    such as Xcode, Visual Studio, and Ninja Multi-Config. This means that you
+    need to configure CMake only once and have only one build directory, and
+    can switch between build types faster.
 
-    However, this means that \QC can no longer simply parse the first CMake
+    However, this also means that \QC can no longer simply parse the first CMake
     file-api JSON export. Therefore, the value of the \uicontrol {Build type}
     field must match that of the \c CMAKE_BUILD_TYPE variable for the single
     configuration generators (Ninja, Makefile) to determine, which generator
@@ -208,26 +207,6 @@
 
     \image {qtcreator-build-configuration-set-clicolor-force.webp} {Build Environment with CLICOLOR_FORCE set}
 
-    \section1 Using junction points on Windows
-
-    To overcome issues with long paths on Windows, create and use
-    \l{https://learn.microsoft.com/en-us/sysinternals/downloads/junction}
-    {junction points} for the source and build directories. At a junction point,
-    a directory serves as an alias to another directory on the computer.
-
-    To use the junction points for CMake configure, build, and install
-    operations, go to \preferences > \uicontrol CMake > \uicontrol General and
-    select \uicontrol {Use junctions for CMake configuration and build operations}.
-
-    \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
-
-    \QC stores junction points in \c {C:\ProgramData\QtCreator\Links}. To use
-    another path, set it as the value of the \c QTC_CMAKE_JUNCTIONS_DIR
-    environment variable.
-
-    Set the \c QTC_CMAKE_JUNCTIONS_HASH_LENGTH environment variable to shorten
-    the MD5 hash key length from the default length value of 32.
-
     \section1 CMake build steps
 
     \QC builds CMake projects by running \c {cmake . --build}, which then runs
@@ -255,8 +234,8 @@
 
     \section1 Using Ninja as a CMake generator
 
-    To use \l {https://ninja-build.org/}{Ninja} with CMake, you must install it
-    and select it as the CMake generator in the build and run kit:
+    To use \l {Ninja} with CMake, you must install it and select it as the CMake
+    generator in the build and run kit:
 
     \list 1
         \li Install Ninja.
@@ -314,4 +293,50 @@
     \sa {Activate kits for a project}, {Add custom output parsers},
     {Configure projects for building}, {Configure projects for running},
     {Build with CMake}{How to: Build with CMake}, {Open projects}, {CMake}
+*/
+
+/*!
+    \page creator-how-to-use-junction-points.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build-with-cmake
+
+    \title Use junction points on Windows
+
+    Long project paths on Windows might lead to builds failing.
+
+    To overcome these issues:
+
+    \list
+        \li Use source directory names with short absolute paths. For example,
+            use \c {C:\dev} instead of \c {C:\Users\My Name\Projects}.
+        \li Use short build directory paths.
+        \li Use the Ninja generator for CMake.
+        \li Use junction points on Windows for the source and build directories.
+    \endlist
+
+    \section1 Junction points
+
+    At a \l {Junction points}{junction point}, a directory serves as an alias to
+    another directory on the computer.
+
+    To use the junction points for CMake configure, build, and install
+    operations, go to \preferences > \uicontrol CMake > \uicontrol General and
+    select \uicontrol {Use junctions for CMake configuration and build operations}.
+
+    \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
+
+    The build system configures, compiles, and installs the project through
+    the junction points making command line commands shorter.
+
+    \details {Set environment variables}
+    \QC stores junction points in \c {C:\ProgramData\QtCreator\Links}. To use
+    another path, set it as the value of the \c QTC_CMAKE_JUNCTIONS_DIR
+    environment variable.
+
+    Set the \c QTC_CMAKE_JUNCTIONS_HASH_LENGTH environment variable to shorten
+    the MD5 hash key length from its default length value of 32.
+    \enddetails
+
+    \sa {Build with CMake}{How to: Build with CMake}
 */

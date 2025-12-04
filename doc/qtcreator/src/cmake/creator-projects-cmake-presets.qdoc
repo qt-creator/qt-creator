@@ -383,7 +383,7 @@
         \li \c {UseJunctionsForSourceAndBuildDirectories}
         \li On Windows, uses junction points for CMake configure, build, and
             install operations.
-        \li \l{Using Junction Points on Windows}
+        \li \l{Use junction points on Windows}
     \endtable
 
     An example of CMake configuration presets:

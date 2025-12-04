@@ -170,6 +170,10 @@
     \title Latest Windows App SDK downloads
 */
 /*!
+    \externalpage https://learn.microsoft.com/en-us/sysinternals/downloads/junction
+    \title Junction points
+*/
+/*!
     \externalpage https://www.nuget.org/downloads
     \title Available NuGet Distribution Versions
 */
@@ -264,6 +268,14 @@
 /*!
     \externalpage https://cmake.org/cmake/help/v3.25/manual/cmake-presets.7.html#test-preset
     \title CMake: Test Preset
+*/
+/*!
+    \externalpage https://cmake.org/cmake/help/latest/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html
+    \title CMake: Multi-config generators
+*/
+/*!
+    \externalpage https://ninja-build.org/
+    \title Ninja
 */
 /*!
     \externalpage https://microsoft.github.io/language-server-protocol/
