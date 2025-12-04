@@ -13,8 +13,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <utils/algorithm.h>
@@ -119,7 +119,8 @@ public:
     void triggerQtVersionRestore();
 
     bool restoreQtVersions();
-    void findSystemQt();
+    void findSystemQt(const IDeviceConstPtr &device);
+    void handleDeviceToolDetectionRequest(Id deviceId);
     void saveQtVersions();
 
     void updateDocumentation(const QtVersions &added,
@@ -167,7 +168,7 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
         // We did neither restore our settings or upgraded
         // in that case figure out if there's a qt in path
         // and add it to the Qt versions
-        findSystemQt();
+        findSystemQt(DeviceManager::defaultDesktopDevice());
         if (m_versions.size())
             saveQtVersions();
     }
@@ -188,6 +189,9 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
 
     const QtVersions vs = QtVersionManager::versions();
     updateDocumentation(vs, {}, vs, /*updateBlockedDocumentation=*/true);
+
+    connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
+            this, &QtVersionManagerImpl::handleDeviceToolDetectionRequest);
 }
 
 bool QtVersionManager::isLoaded()
@@ -463,10 +467,12 @@ FilePaths QtVersionManagerImpl::gatherQmakePathsFromQtChooser()
     return Utils::toList(foundQMakes);
 }
 
-void QtVersionManagerImpl::findSystemQt()
+void QtVersionManagerImpl::findSystemQt(const IDeviceConstPtr &device)
 {
-    FilePaths systemQMakes
-            = BuildableHelperLibrary::findQtsInEnvironment(Environment::systemEnvironment());
+    QTC_ASSERT(device, return);
+
+    FilePaths systemQMakes = BuildableHelperLibrary::findQtsInEnvironment(
+        device->systemEnvironment(), device->rootPath());
     systemQMakes.append(gatherQmakePathsFromQtChooser());
     for (const FilePath &qmakePath : std::as_const(systemQMakes)) {
         if (BuildableHelperLibrary::isQtChooser(qmakePath))
@@ -480,6 +486,16 @@ void QtVersionManagerImpl::findSystemQt()
             qmakePath, {DetectionSource::Manual, "PATH"});
         if (version)
             m_versions.insert(version->uniqueId(), version);
+    }
+}
+
+void QtVersionManagerImpl::handleDeviceToolDetectionRequest(Id deviceId)
+{
+    const VersionMap qtVersions = m_versions;
+    findSystemQt(DeviceManager::find(deviceId));
+    if (qtVersions != m_versions) {
+        saveQtVersions();
+        emit QtVersionManager::instance()->qtVersionsChanged(m_versions.keys());
     }
 }
 

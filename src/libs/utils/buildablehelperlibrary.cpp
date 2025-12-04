@@ -103,7 +103,9 @@ FilePaths BuildableHelperLibrary::findQtsInEnvironment(
     std::set<FilePath> canonicalEnvPaths;
     const FilePaths paths = env.path();
     for (const FilePath &path : paths) {
-        const FilePath devPath = deviceRoot.isEmpty() ? path : deviceRoot.withNewMappedPath(path);
+        FilePath devPath = deviceRoot.withNewMappedPath(path);
+        if (QTC_UNEXPECTED(deviceRoot.isEmpty()))
+            devPath = path;
         if (!canonicalEnvPaths.insert(devPath.canonicalPath()).second)
             continue;
         qmakeList << findQmakesInDir(devPath);
