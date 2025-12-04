@@ -5,6 +5,7 @@
 
 #include <utils/threadutils.h>
 
+#include <QCoreApplication>
 #include <QHostAddress>
 #include <QHttpServer>
 #include <QHttpServerRequest>
@@ -18,8 +19,7 @@
 // Define logging category for MCP server
 Q_LOGGING_CATEGORY(mcpServer, "qtc.mcpserver", QtWarningMsg)
 
-namespace MCP {
-namespace Internal {
+namespace Mcp::Internal {
 
 template<class Callable>
 static auto runOnGuiThread(Callable &&c) -> std::invoke_result_t<Callable>
@@ -67,19 +67,19 @@ static QHttpServerResponse createCorsEmptyResponse(QHttpServerResponder::StatusC
     return response;
 }
 
-MCPServer::MCPServer(QObject *parent)
+McpServer::McpServer(QObject *parent)
     : QObject(parent)
     , m_tcpServerP(new QTcpServer(this))
     , m_httpServerP(new QHttpServer(this))
-    , m_commandsP(new MCPCommands(this))
+    , m_commandsP(new McpCommands(this))
     , m_port(3001)
 {
     // Set up TCP server connections
-    connect(m_tcpServerP, &QTcpServer::newConnection, this, &MCPServer::handleNewConnection);
+    connect(m_tcpServerP, &QTcpServer::newConnection, this, &McpServer::handleNewConnection);
 
-    m_httpServerP->route("/", QHttpServerRequest::Method::Get, this, &MCPServer::onHttpGet);
-    m_httpServerP->route("/", QHttpServerRequest::Method::Post, this, &MCPServer::onHttpPost);
-    m_httpServerP->route("/", QHttpServerRequest::Method::Options, this, &MCPServer::onHttpOptions);
+    m_httpServerP->route("/", QHttpServerRequest::Method::Get, this, &McpServer::onHttpGet);
+    m_httpServerP->route("/", QHttpServerRequest::Method::Post, this, &McpServer::onHttpPost);
+    m_httpServerP->route("/", QHttpServerRequest::Method::Options, this, &McpServer::onHttpOptions);
 
     // Optional generic 404 for any other path
     m_httpServerP
@@ -509,7 +509,7 @@ MCPServer::MCPServer(QObject *parent)
         });
 }
 
-QHttpServerResponse MCPServer::onHttpGet(const QHttpServerRequest &req)
+QHttpServerResponse McpServer::onHttpGet(const QHttpServerRequest &req)
 {
     Q_UNUSED(req);
     // Simple GET request - return server info
@@ -523,7 +523,7 @@ QHttpServerResponse MCPServer::onHttpGet(const QHttpServerRequest &req)
     return createCorsJsonResponse(doc.toJson());
 }
 
-QHttpServerResponse MCPServer::onHttpPost(const QHttpServerRequest &req)
+QHttpServerResponse McpServer::onHttpPost(const QHttpServerRequest &req)
 {
     const QByteArrayView ct = req.headers().value("Content-Type");
     if (!ct.startsWith("application/json")) {
@@ -558,19 +558,19 @@ QHttpServerResponse MCPServer::onHttpPost(const QHttpServerRequest &req)
     return createCorsJsonResponse(QJsonDocument(reply).toJson());
 }
 
-QHttpServerResponse MCPServer::onHttpOptions(const QHttpServerRequest &)
+QHttpServerResponse McpServer::onHttpOptions(const QHttpServerRequest &)
 {
     // No body, just CORS headers and a 204 status
     return createCorsEmptyResponse(QHttpServerResponder::StatusCode::NoContent);
 }
 
-MCPServer::~MCPServer()
+McpServer::~McpServer()
 {
     stop();
     delete m_commandsP;
 }
 
-bool MCPServer::start(quint16 port)
+bool McpServer::start(quint16 port)
 {
     m_port = port;
     qCDebug(mcpServer) << "Starting MCP HTTP server on port" << m_port;
@@ -650,7 +650,7 @@ bool MCPServer::start(quint16 port)
     return true;
 }
 
-void MCPServer::stop()
+void McpServer::stop()
 {
     if (m_tcpServerP && m_tcpServerP->isListening()) {
         m_tcpServerP->close();
@@ -662,18 +662,18 @@ void MCPServer::stop()
     }
 }
 
-bool MCPServer::isRunning() const
+bool McpServer::isRunning() const
 {
     return (m_tcpServerP && m_tcpServerP->isListening())
            || (m_httpTcpServerP && m_httpTcpServerP->isListening());
 }
 
-quint16 MCPServer::getPort() const
+quint16 McpServer::getPort() const
 {
     return m_port;
 }
 
-QJsonObject MCPServer::callMCPMethod(
+QJsonObject McpServer::callMCPMethod(
     const QString &method, const QJsonObject &params, const QJsonValue &id)
 {
     if (method.isEmpty())
@@ -695,7 +695,7 @@ QJsonObject MCPServer::callMCPMethod(
     return reply;
 }
 
-QJsonObject MCPServer::createErrorResponse(int code, const QString &message, const QJsonValue &id)
+QJsonObject McpServer::createErrorResponse(int code, const QString &message, const QJsonValue &id)
 {
     QJsonObject response;
     response["jsonrpc"] = "2.0";
@@ -709,7 +709,7 @@ QJsonObject MCPServer::createErrorResponse(int code, const QString &message, con
     return response;
 }
 
-QJsonObject MCPServer::createSuccessResponse(const QJsonValue &result, const QJsonValue &id)
+QJsonObject McpServer::createSuccessResponse(const QJsonValue &result, const QJsonValue &id)
 {
     QJsonObject response;
     response["jsonrpc"] = "2.0";
@@ -719,20 +719,20 @@ QJsonObject MCPServer::createSuccessResponse(const QJsonValue &result, const QJs
     return response;
 }
 
-void MCPServer::handleNewConnection()
+void McpServer::handleNewConnection()
 {
     QTcpSocket *client = m_tcpServerP->nextPendingConnection();
     if (!client)
         return;
 
     m_clients.append(client);
-    connect(client, &QTcpSocket::readyRead, this, &MCPServer::handleClientData);
-    connect(client, &QTcpSocket::disconnected, this, &MCPServer::handleClientDisconnected);
+    connect(client, &QTcpSocket::readyRead, this, &McpServer::handleClientData);
+    connect(client, &QTcpSocket::disconnected, this, &McpServer::handleClientDisconnected);
 
     qCDebug(mcpServer) << "New TCP client connected, total clients:" << m_clients.size();
 }
 
-void MCPServer::handleClientData()
+void McpServer::handleClientData()
 {
     QTcpSocket *client = qobject_cast<QTcpSocket *>(sender());
     if (!client)
@@ -782,7 +782,7 @@ void MCPServer::handleClientData()
     sendResponse(client, response);
 }
 
-void MCPServer::handleClientDisconnected()
+void McpServer::handleClientDisconnected()
 {
     QTcpSocket *client = qobject_cast<QTcpSocket *>(sender());
     if (!client)
@@ -794,7 +794,7 @@ void MCPServer::handleClientDisconnected()
     qCDebug(mcpServer) << "TCP client disconnected, remaining clients:" << m_clients.size();
 }
 
-void MCPServer::sendResponse(QTcpSocket *client, const QJsonObject &response)
+void McpServer::sendResponse(QTcpSocket *client, const QJsonObject &response)
 {
     if (!client)
         return;
@@ -807,5 +807,4 @@ void MCPServer::sendResponse(QTcpSocket *client, const QJsonObject &response)
     client->flush();
 }
 
-} // namespace Internal
-} // namespace MCP
+} // namespace Mcp::Internal

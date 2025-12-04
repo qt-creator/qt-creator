@@ -1,6 +1,9 @@
 // Copyright (C) 2025 David M. Cotter
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #pragma once
+
+#include "mcpcommands.h"
 
 #include <QHttpServerResponse>
 #include <QJsonArray>
@@ -9,22 +12,20 @@
 #include <QObject>
 #include <QTimer>
 
-#include "mcpcommands.h"
-
 class QHttpServer;
 class QHttpServerRequest;
 class QTcpServer;
 class QTcpSocket;
 
-namespace MCP::Internal {
+namespace Mcp::Internal {
 
-class MCPServer : public QObject
+class McpServer : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit MCPServer(QObject *parent = nullptr);
-    ~MCPServer();
+    explicit McpServer(QObject *parent = nullptr);
+    ~McpServer();
 
     bool start(quint16 port = 3001);
     void stop();
@@ -64,8 +65,8 @@ private:
     QTcpServer *m_httpTcpServerP;
     QHttpServer *m_httpServerP;
     QList<QTcpSocket *> m_clients;
-    MCPCommands *m_commandsP;
+    McpCommands *m_commandsP;
     quint16 m_port;
 };
 
-} // namespace MCP::Internal
+} // namespace Mcp::Internal

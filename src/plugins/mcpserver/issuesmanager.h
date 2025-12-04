@@ -9,7 +9,7 @@
 // Include for MOC compilation
 #include <projectexplorer/task.h>
 
-namespace MCP::Internal {
+namespace Mcp::Internal {
 
 /**
  * @brief Manages access to Qt Creator's Issues panel
@@ -103,4 +103,4 @@ private:
     bool m_signalsConnected = false;
 };
 
-} // namespace MCP::Internal
+} // namespace Mcp::Internal

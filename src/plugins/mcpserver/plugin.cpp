@@ -6,8 +6,6 @@
 #include "pluginconstants.h"
 #include "plugintr.h"
 
-#include <utils/icon.h>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -18,7 +16,8 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <iostream>
+#include <utils/icon.h>
+
 #include <QAction>
 #include <QDebug>
 #include <QDialog>
@@ -27,14 +26,10 @@
 #include <QIcon>
 #include <QLabel>
 #include <QLoggingCategory>
-#include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
-#include <QPalette>
 #include <QPushButton>
-#include <QScrollArea>
 #include <QTextEdit>
-#include <QTextStream>
 #include <QVBoxLayout>
 
 #include "mcpservertest.h"
@@ -44,14 +39,14 @@ using namespace Core;
 // Define logging category for the plugin
 Q_LOGGING_CATEGORY(mcpPlugin, "qtc.mcpserver.plugin", QtWarningMsg)
 
-namespace MCP::Internal {
+namespace Mcp::Internal {
 
-class MCPServerStatusDialog : public QDialog
+class McpServerStatusDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit MCPServerStatusDialog(MCPServer *server, QWidget *parent = nullptr)
+    explicit McpServerStatusDialog(McpServer *server, QWidget *parent = nullptr)
         : QDialog(parent)
         , m_serverP(server)
     {
@@ -110,7 +105,7 @@ public:
 
         m_restartButton = new QPushButton(Tr::tr("Restart Server"));
         m_restartButton->setEnabled(false);
-        connect(m_restartButton, &QPushButton::clicked, this, &MCPServerStatusDialog::restartServer);
+        connect(m_restartButton, &QPushButton::clicked, this, &McpServerStatusDialog::restartServer);
         buttonLayout->addWidget(m_restartButton);
 
         QPushButton *closeButton = new QPushButton(Tr::tr("Close"));
@@ -178,22 +173,22 @@ private:
         }
     }
 
-    MCPServer *m_serverP;
+    McpServer *m_serverP;
     QLabel *m_statusIcon;
     QLabel *m_statusLabel;
     QLabel *m_detailsLabel;
     QPushButton *m_restartButton;
 };
 
-class MCPServerPlugin final : public ExtensionSystem::IPlugin
+class McpServerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "mcpserver.json")
 
 public:
-    MCPServerPlugin() = default;
+    McpServerPlugin() = default;
 
-    ~MCPServerPlugin() final
+    ~McpServerPlugin() final
     {
         delete m_serverP;
         delete m_commandsP;
@@ -213,8 +208,8 @@ public:
 
         // Create the MCP server and commands
         qCDebug(mcpPlugin) << "Creating MCP server and commands...";
-        m_serverP = new MCPServer(this);
-        m_commandsP = new MCPCommands(this);
+        m_serverP = new McpServer(this);
+        m_commandsP = new McpCommands(this);
 
         // Initialize the server
         qCDebug(mcpPlugin) << "Starting MCP server...";
@@ -233,7 +228,7 @@ public:
         // Create the MCP Server menu
         ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
         menu->menu()->setTitle(Tr::tr("MCP Server"));
-        menu->menu()->setIcon(MCPServerStatusDialog::icon().icon()); // Add icon to the main menu
+        menu->menu()->setIcon(McpServerStatusDialog::icon().icon()); // Add icon to the main menu
         ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
         // Add separator for About
@@ -243,7 +238,7 @@ public:
         ActionBuilder(this, Constants::ABOUT_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(QString("ℹ️ About MCP Server"))
-            .addOnTriggered(this, &MCPServerPlugin::showAbout);
+            .addOnTriggered(this, &McpServerPlugin::showAbout);
 
         // Add separator between About and commands
         menu->addSeparator();
@@ -252,12 +247,12 @@ public:
         ActionBuilder(this, Constants::MCP_INITIALIZE_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("🚀 MCP: Initialize"))
-            .addOnTriggered(this, &MCPServerPlugin::executeMCPInitialize);
+            .addOnTriggered(this, &McpServerPlugin::executeMCPInitialize);
 
         ActionBuilder(this, Constants::MCP_TOOLS_LIST_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("🛠️ MCP: List Tools"))
-            .addOnTriggered(this, &MCPServerPlugin::executeMCPToolsList);
+            .addOnTriggered(this, &McpServerPlugin::executeMCPToolsList);
 
         menu->addSeparator();
 
@@ -265,91 +260,91 @@ public:
         ActionBuilder(this, Constants::LIST_SESSIONS_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("📁 List Sessions"))
-            .addOnTriggered(this, &MCPServerPlugin::executeListSessions);
+            .addOnTriggered(this, &McpServerPlugin::executeListSessions);
 
         ActionBuilder(this, Constants::LIST_PROJECTS_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("📂 List Projects"))
-            .addOnTriggered(this, &MCPServerPlugin::executeListProjects);
+            .addOnTriggered(this, &McpServerPlugin::executeListProjects);
 
         ActionBuilder(this, Constants::LIST_BUILD_CONFIGS_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("⚙️ List Build Configs"))
-            .addOnTriggered(this, &MCPServerPlugin::executeListBuildConfigs);
+            .addOnTriggered(this, &McpServerPlugin::executeListBuildConfigs);
 
         ActionBuilder(this, Constants::GET_CURRENT_PROJECT_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("📋 Get Current Project"))
-            .addOnTriggered(this, &MCPServerPlugin::executeGetCurrentProject);
+            .addOnTriggered(this, &McpServerPlugin::executeGetCurrentProject);
 
         ActionBuilder(this, Constants::GET_CURRENT_BUILD_CONFIG_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("🔧 Get Current Build Config"))
-            .addOnTriggered(this, &MCPServerPlugin::executeGetCurrentBuildConfig);
+            .addOnTriggered(this, &McpServerPlugin::executeGetCurrentBuildConfig);
 
         ActionBuilder(this, Constants::GET_CURRENT_SESSION_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("🎯 Get Current Session"))
-            .addOnTriggered(this, &MCPServerPlugin::executeGetCurrentSession);
+            .addOnTriggered(this, &McpServerPlugin::executeGetCurrentSession);
 
         ActionBuilder(this, Constants::LIST_OPEN_FILES_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("📄 List Open Files"))
-            .addOnTriggered(this, &MCPServerPlugin::executeListOpenFiles);
+            .addOnTriggered(this, &McpServerPlugin::executeListOpenFiles);
 
         ActionBuilder(this, Constants::LIST_ISSUES_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("⚠️ List Issues"))
-            .addOnTriggered(this, &MCPServerPlugin::executeListIssues);
+            .addOnTriggered(this, &McpServerPlugin::executeListIssues);
 
         ActionBuilder(this, Constants::GET_METHOD_METADATA_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("📊 Get Method Metadata"))
-            .addOnTriggered(this, &MCPServerPlugin::executeGetMethodMetadata);
+            .addOnTriggered(this, &McpServerPlugin::executeGetMethodMetadata);
 
         ActionBuilder(this, Constants::SET_METHOD_METADATA_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("⚡ Set Method Metadata"))
-            .addOnTriggered(this, &MCPServerPlugin::executeSetMethodMetadata);
+            .addOnTriggered(this, &McpServerPlugin::executeSetMethodMetadata);
 
         menu->addSeparator();
 
         ActionBuilder(this, Constants::BUILD_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("🔨 Build Project"))
-            .addOnTriggered(this, &MCPServerPlugin::executeBuild);
+            .addOnTriggered(this, &McpServerPlugin::executeBuild);
 
         ActionBuilder(this, Constants::RUN_PROJECT_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("▶️ Run Project"))
-            .addOnTriggered(this, &MCPServerPlugin::executeRunProject);
+            .addOnTriggered(this, &McpServerPlugin::executeRunProject);
 
         ActionBuilder(this, Constants::DEBUG_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("🐛 Debug Project"))
-            .addOnTriggered(this, &MCPServerPlugin::executeDebug);
+            .addOnTriggered(this, &McpServerPlugin::executeDebug);
 
         ActionBuilder(this, Constants::STOP_DEBUG_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("⏹️ Stop Debugging"))
-            .addOnTriggered(this, &MCPServerPlugin::executeStopDebug);
+            .addOnTriggered(this, &McpServerPlugin::executeStopDebug);
 
         ActionBuilder(this, Constants::CLEAN_PROJECT_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("🧹 Clean Project"))
-            .addOnTriggered(this, &MCPServerPlugin::executeCleanProject);
+            .addOnTriggered(this, &McpServerPlugin::executeCleanProject);
 
         ActionBuilder(this, Constants::SAVE_SESSION_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("💾 Save Session"))
-            .addOnTriggered(this, &MCPServerPlugin::executeSaveSession);
+            .addOnTriggered(this, &McpServerPlugin::executeSaveSession);
 
         menu->addSeparator();
 
         ActionBuilder(this, Constants::QUIT_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
             .setText(Tr::tr("🚪 Quit Qt Creator"))
-            .addOnTriggered(this, &MCPServerPlugin::executeQuit);
+            .addOnTriggered(this, &McpServerPlugin::executeQuit);
     }
 
     void extensionsInitialized() final
@@ -386,7 +381,7 @@ private:
 
     void showAbout()
     {
-        MCPServerStatusDialog dialog(m_serverP, ICore::dialogParent());
+        McpServerStatusDialog dialog(m_serverP, ICore::dialogParent());
         dialog.exec();
     }
 
@@ -620,10 +615,10 @@ private:
         outputMessage(QString("Quit result: %1").arg(result));
     }
 
-    MCPServer *m_serverP = nullptr;
-    MCPCommands *m_commandsP = nullptr;
+    McpServer *m_serverP = nullptr;
+    McpCommands *m_commandsP = nullptr;
 };
 
-} // namespace MCP::Internal
+} // namespace Mcp::Internal
 
 #include "plugin.moc"

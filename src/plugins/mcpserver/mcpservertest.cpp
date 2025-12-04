@@ -10,13 +10,14 @@
 #include <QRegularExpression>
 #include <QTest>
 #include <QThread>
+#include <QTimer>
 
-class MCPServerTest : public QObject
+class McpServerTest : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit MCPServerTest(QObject *parent = nullptr)
+    explicit McpServerTest(QObject *parent = nullptr)
         : QObject(parent)
     {}
 
@@ -504,7 +505,7 @@ private slots:
 
 QObject *setupMCPServerTest()
 {
-    return new MCPServerTest();
+    return new McpServerTest();
 }
 
 #include "mcpservertest.moc"

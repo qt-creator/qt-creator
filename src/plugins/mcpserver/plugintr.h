@@ -5,11 +5,11 @@
 
 #include <QCoreApplication>
 
-namespace MCP {
+namespace Mcp {
 
 struct Tr
 {
     Q_DECLARE_TR_FUNCTIONS(QtC::MCP)
 };
 
-} // namespace MCP
+} // namespace Mcp

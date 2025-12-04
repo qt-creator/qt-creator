@@ -6,17 +6,16 @@
 #include <QObject>
 #include <QStringList>
 
-namespace MCP::Internal {
+namespace Mcp::Internal {
 
-// Forward declarations
 class IssuesManager;
 
-class MCPCommands : public QObject
+class McpCommands : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit MCPCommands(QObject *parent = nullptr);
+    explicit McpCommands(QObject *parent = nullptr);
 
     // Core MCP commands
     bool build();
@@ -75,4 +74,4 @@ private:
     IssuesManager *m_issuesManager;
 };
 
-} // namespace MCP::Internal
+} // namespace Mcp::Internal

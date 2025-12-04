@@ -11,7 +11,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/session.h>
+
 #include <debugger/debuggerruncontrol.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
@@ -19,31 +21,31 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
-#include <utils/fileutils.h>
+
+// #include <utils/fileutils.h>
 #include <utils/id.h>
-#include <QTimer>
 
 #include <QApplication>
 #include <QFile>
 #include <QLoggingCategory>
 #include <QProcess>
 #include <QThread>
+#include <QTimer>
 
 Q_LOGGING_CATEGORY(mcpCommands, "qtc.mcpserver.commands", QtWarningMsg)
 
-namespace MCP {
-namespace Internal {
+namespace Mcp::Internal {
 
-MCPCommands::MCPCommands(QObject *parent)
+McpCommands::McpCommands(QObject *parent)
     : QObject(parent)
     , m_sessionLoadResult(false)
 {
     // Connect signal-slot for session loading
     connect(
         this,
-        &MCPCommands::sessionLoadRequested,
+        &McpCommands::sessionLoadRequested,
         this,
-        &MCPCommands::handleSessionLoadRequest,
+        &McpCommands::handleSessionLoadRequest,
         Qt::QueuedConnection);
 
     // Initialize default method timeouts (in seconds)
@@ -57,7 +59,7 @@ MCPCommands::MCPCommands(QObject *parent)
     m_issuesManager = new IssuesManager(this);
 }
 
-bool MCPCommands::build()
+bool McpCommands::build()
 {
     if (!hasValidProject()) {
         qCDebug(mcpCommands) << "No valid project available for building";
@@ -90,7 +92,7 @@ bool MCPCommands::build()
     return true;
 }
 
-QString MCPCommands::debug()
+QString McpCommands::debug()
 {
     QStringList results;
     results.append("=== DEBUG ATTEMPT ===");
@@ -173,7 +175,7 @@ QString MCPCommands::debug()
     return results.join("\n");
 }
 
-QString MCPCommands::stopDebug()
+QString McpCommands::stopDebug()
 {
     QStringList results;
     results.append("=== STOP DEBUGGING ===");
@@ -222,12 +224,12 @@ QString MCPCommands::stopDebug()
     return results.join("\n");
 }
 
-QString MCPCommands::getVersion()
+QString McpCommands::getVersion()
 {
     return QCoreApplication::applicationVersion();
 }
 
-QString MCPCommands::getBuildStatus()
+QString McpCommands::getBuildStatus()
 {
     QStringList results;
     results.append("=== BUILD STATUS ===");
@@ -249,7 +251,7 @@ QString MCPCommands::getBuildStatus()
     return results.join("\n");
 }
 
-bool MCPCommands::openFile(const QString &path)
+bool McpCommands::openFile(const QString &path)
 {
     if (path.isEmpty()) {
         qCDebug(mcpCommands) << "Empty file path provided";
@@ -270,7 +272,7 @@ bool MCPCommands::openFile(const QString &path)
     return true;
 }
 
-QStringList MCPCommands::listProjects()
+QStringList McpCommands::listProjects()
 {
     QStringList projects;
 
@@ -284,7 +286,7 @@ QStringList MCPCommands::listProjects()
     return projects;
 }
 
-QStringList MCPCommands::listBuildConfigs()
+QStringList McpCommands::listBuildConfigs()
 {
     QStringList configs;
 
@@ -310,7 +312,7 @@ QStringList MCPCommands::listBuildConfigs()
     return configs;
 }
 
-bool MCPCommands::switchToBuildConfig(const QString &name)
+bool McpCommands::switchToBuildConfig(const QString &name)
 {
     if (name.isEmpty()) {
         qCDebug(mcpCommands) << "Empty build configuration name provided";
@@ -342,7 +344,7 @@ bool MCPCommands::switchToBuildConfig(const QString &name)
     return false;
 }
 
-bool MCPCommands::quit()
+bool McpCommands::quit()
 {
     qCDebug(mcpCommands) << "Starting graceful quit process...";
 
@@ -363,7 +365,7 @@ bool MCPCommands::quit()
     }
 }
 
-bool MCPCommands::performDebuggingCleanupSync()
+bool McpCommands::performDebuggingCleanupSync()
 {
     qCDebug(mcpCommands) << "Starting synchronous debugging cleanup process...";
 
@@ -488,13 +490,13 @@ bool MCPCommands::performDebuggingCleanupSync()
     }
 }
 
-void MCPCommands::performDebuggingCleanup()
+void McpCommands::performDebuggingCleanup()
 {
     // This method is kept for backward compatibility but should not be used
     qCDebug(mcpCommands) << "performDebuggingCleanup called - this method is deprecated";
 }
 
-bool MCPCommands::isDebuggingActive()
+bool McpCommands::isDebuggingActive()
 {
     // Check if debugging is currently active by looking at debugger actions
     Core::ActionManager *actionManager = Core::ActionManager::instance();
@@ -530,7 +532,7 @@ bool MCPCommands::isDebuggingActive()
     return false;
 }
 
-QString MCPCommands::abortDebug()
+QString McpCommands::abortDebug()
 {
     qCDebug(mcpCommands) << "Attempting to abort debug session...";
 
@@ -561,7 +563,7 @@ QString MCPCommands::abortDebug()
     return "Abort debug action not found or not enabled";
 }
 
-bool MCPCommands::killDebuggedProcesses()
+bool McpCommands::killDebuggedProcesses()
 {
     qCDebug(mcpCommands) << "Attempting to kill debugged processes...";
 
@@ -582,7 +584,7 @@ bool MCPCommands::killDebuggedProcesses()
     return true; // Simplified for now - always return true
 }
 
-QString MCPCommands::getCurrentProject()
+QString McpCommands::getCurrentProject()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (project) {
@@ -591,7 +593,7 @@ QString MCPCommands::getCurrentProject()
     return QString();
 }
 
-QString MCPCommands::getCurrentBuildConfig()
+QString McpCommands::getCurrentBuildConfig()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project) {
@@ -611,7 +613,7 @@ QString MCPCommands::getCurrentBuildConfig()
     return QString();
 }
 
-bool MCPCommands::runProject()
+bool McpCommands::runProject()
 {
     if (!hasValidProject()) {
         qCDebug(mcpCommands) << "No valid project available for running";
@@ -673,7 +675,7 @@ bool MCPCommands::runProject()
     return true;
 }
 
-bool MCPCommands::cleanProject()
+bool McpCommands::cleanProject()
 {
     if (!hasValidProject()) {
         qCDebug(mcpCommands) << "No valid project available for cleaning";
@@ -696,7 +698,7 @@ bool MCPCommands::cleanProject()
     return false;
 }
 
-QStringList MCPCommands::listOpenFiles()
+QStringList McpCommands::listOpenFiles()
 {
     QStringList files;
 
@@ -710,7 +712,7 @@ QStringList MCPCommands::listOpenFiles()
     return files;
 }
 
-bool MCPCommands::hasValidProject() const
+bool McpCommands::hasValidProject() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project) {
@@ -725,21 +727,21 @@ bool MCPCommands::hasValidProject() const
     return true;
 }
 
-QStringList MCPCommands::listSessions()
+QStringList McpCommands::listSessions()
 {
     QStringList sessions = Core::SessionManager::sessions();
     qCDebug(mcpCommands) << "Available sessions:" << sessions;
     return sessions;
 }
 
-QString MCPCommands::getCurrentSession()
+QString McpCommands::getCurrentSession()
 {
     QString session = Core::SessionManager::activeSession();
     qCDebug(mcpCommands) << "Current session:" << session;
     return session;
 }
 
-bool MCPCommands::loadSession(const QString &sessionName)
+bool McpCommands::loadSession(const QString &sessionName)
 {
     if (sessionName.isEmpty()) {
         qCDebug(mcpCommands) << "Empty session name provided";
@@ -774,7 +776,7 @@ bool MCPCommands::loadSession(const QString &sessionName)
     return true; // Return true to indicate the request was accepted
 }
 
-void MCPCommands::handleSessionLoadRequest(const QString &sessionName)
+void McpCommands::handleSessionLoadRequest(const QString &sessionName)
 {
     qCDebug(mcpCommands) << "Handling session load request on main thread:" << sessionName;
 
@@ -789,7 +791,7 @@ void MCPCommands::handleSessionLoadRequest(const QString &sessionName)
     }
 }
 
-bool MCPCommands::saveSession()
+bool McpCommands::saveSession()
 {
     qCDebug(mcpCommands) << "Saving current session";
 
@@ -803,7 +805,7 @@ bool MCPCommands::saveSession()
     return successB;
 }
 
-QStringList MCPCommands::listIssues()
+QStringList McpCommands::listIssues()
 {
     qCDebug(mcpCommands) << "Listing issues from Qt Creator's Issues panel";
 
@@ -823,7 +825,7 @@ QStringList MCPCommands::listIssues()
     return issues;
 }
 
-QString MCPCommands::getMethodMetadata()
+QString McpCommands::getMethodMetadata()
 {
     QStringList results;
     results.append("=== METHOD METADATA ===");
@@ -881,7 +883,7 @@ QString MCPCommands::getMethodMetadata()
     return results.join("\n");
 }
 
-QString MCPCommands::setMethodMetadata(const QString &method, int timeoutSeconds)
+QString McpCommands::setMethodMetadata(const QString &method, int timeoutSeconds)
 {
     QStringList results;
     results.append("=== SET METHOD METADATA ===");
@@ -927,12 +929,11 @@ QString MCPCommands::setMethodMetadata(const QString &method, int timeoutSeconds
     return results.join("\n");
 }
 
-int MCPCommands::getMethodTimeout(const QString &method) const
+int McpCommands::getMethodTimeout(const QString &method) const
 {
     return m_methodTimeouts.value(method, -1);
 }
 
 // handleSessionLoadRequest method removed - using direct session loading instead
 
-} // namespace Internal
-} // namespace MCP
+} // namespace Mcp::Internal

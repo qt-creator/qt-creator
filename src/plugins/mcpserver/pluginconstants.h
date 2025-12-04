@@ -3,7 +3,7 @@
 
 #pragma once
 
-namespace MCP::Constants {
+namespace Mcp::Constants {
 
 const char ACTION_ID[] = "MCPServer.Action";
 const char MENU_ID[] = "MCPServer.Menu";
@@ -34,4 +34,4 @@ const char SET_METHOD_METADATA_ACTION_ID[] = "MCPServer.SetMethodMetadata";
 const char MCP_INITIALIZE_ACTION_ID[] = "MCPServer.MCPInitialize";
 const char MCP_TOOLS_LIST_ACTION_ID[] = "MCPServer.MCPToolsList";
 
-} // namespace MCP::Constants
+} // namespace Mcp::Constants

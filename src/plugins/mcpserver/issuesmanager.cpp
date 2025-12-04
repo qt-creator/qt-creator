@@ -18,7 +18,7 @@
 
 Q_LOGGING_CATEGORY(mcpIssues, "qtc.mcpserver.issues", QtWarningMsg)
 
-namespace MCP {
+namespace Mcp {
 namespace Internal {
 
 IssuesManager::IssuesManager(QObject *parent)
@@ -304,4 +304,4 @@ QString IssuesManager::formatTask(
 }
 
 } // namespace Internal
-} // namespace MCP
+} // namespace Mcp
