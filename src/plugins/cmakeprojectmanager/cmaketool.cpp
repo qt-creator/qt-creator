@@ -457,10 +457,8 @@ void CMakeTool::fetchFromCapabilities() const
             m_introspection->m_haveCapabilitites = true;
             m_introspection->parseFromCapabilities(cmake.cleanedStdOut());
             return;
-        } else {
-            qCCritical(cmakeToolLog)
-                << "Fetching capabilities failed: " << cmake.verboseExitMessage();
         }
+        qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.verboseExitMessage();
     } else {
         qCDebug(cmakeToolLog) << "Device for" << cmakeExecutable().toUserOutput()
                               << "is not connected";
