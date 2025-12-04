@@ -38,6 +38,7 @@ QtcLibrary {
 
     Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "printsupport", "qml", "widgets", "xml"] }
     Depends { name: "Qt.macextras"; condition: Qt.core.versionMajor < 6 && qbs.targetOS.contains("macos") }
+    Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
     Depends { name: "Spinner" }
     Depends { name: "QtTaskTree" }
     Depends { name: "ptyqt" }
