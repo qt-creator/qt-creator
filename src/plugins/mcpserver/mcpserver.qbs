@@ -22,9 +22,9 @@ QtcPlugin {
         "mcpservertest.h",
         "mcpcommands.cpp",
         "mcpcommands.h",
-        "plugin.cpp",
-        "pluginconstants.h",
-        "plugintr.h",
+        "mcpserverplugin.cpp",
+        "mcpserverconstants.h",
+        "mcpservertr.h",
     ]
 
     Group {

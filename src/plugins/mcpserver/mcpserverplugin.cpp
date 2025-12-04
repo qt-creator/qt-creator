@@ -3,8 +3,8 @@
 
 #include "mcpcommands.h"
 #include "mcpserver.h"
-#include "pluginconstants.h"
-#include "plugintr.h"
+#include "mcpserverconstants.h"
+#include "mcpservertr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -621,4 +621,4 @@ private:
 
 } // namespace Mcp::Internal
 
-#include "plugin.moc"
+#include "mcpserverplugin.moc"

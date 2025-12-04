@@ -16,9 +16,9 @@ add_qtc_plugin(mcpserver
     mcpserver.cpp mcpserver.h
     mcpservertest.cpp mcpservertest.h
     mcpcommands.cpp mcpcommands.h
-    plugin.cpp
-    pluginconstants.h
-    plugintr.h
+    mcpserverplugin.cpp
+    mcpserverconstants.h
+    mcpservertr.h
   SBOM_ARGS
     USE_ATTRIBUTION_FILES
     CREATE_SBOM_FOR_EACH_ATTRIBUTION
