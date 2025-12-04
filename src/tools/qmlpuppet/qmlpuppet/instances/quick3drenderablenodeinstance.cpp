@@ -43,7 +43,10 @@ void Quick3DRenderableNodeInstance::initialize(const ObjectNodeInstance::Pointer
         QQmlComponent component(engine());
         component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/qt6/ModelNode3DImageView.qml"));
         m_dummyRootView = qobject_cast<QQuickItem *>(component.create());
-
+#ifdef SINGLE_WINDOW_RENDERING
+        QSize size = preview3dBoundingRect.size().toSize();
+        m_dummyRootView->setSize(size);
+#endif
         invokeDummyViewCreate();
 
         nodeInstanceServer()->setRootItem(m_dummyRootView);
@@ -57,9 +60,11 @@ QImage Quick3DRenderableNodeInstance::renderImage() const
     if (!isRootNodeInstance() || !m_dummyRootView)
         return {};
 
+ #ifndef SINGLE_WINDOW_RENDERING
     QSize size = preview3dBoundingRect.size().toSize();
     nodeInstanceServer()->quickWindow()->resize(size);
     m_dummyRootView->setSize(size);
+ #endif
 
     // Just render the window once to update spatial nodes
     nodeInstanceServer()->renderWindow();

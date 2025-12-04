@@ -198,7 +198,8 @@ void Qt5NodeInstanceServer::resizeCanvasToRootItem()
     }
 
     m_mainViewData->rect = QRect{QPoint{0, 0}, rootNodeInstance().boundingRect().size().toSize()};
-    m_mainViewData->wrapperItem->setPosition(-m_mainViewData->rootItem->position());
+    if (m_mainViewData->wrapperItem)
+        m_mainViewData->wrapperItem->setPosition(-m_mainViewData->rootItem->position());
     ensureWindowSize();
 #else
     m_viewData.bufferDirty = true;

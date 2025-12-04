@@ -424,7 +424,7 @@ void Qt5InformationNodeInstanceServer::updateColorSettings(
     [[maybe_unused]] const QList<PropertyValueContainer> &valueChanges)
 {
 #ifdef QUICK3D_MODULE
-    if (m_editView3DData->rootItem) {
+    if (m_editView3DData && m_editView3DData->rootItem) {
         for (const auto &container : valueChanges) {
             if (container.name() == "edit3dGridColor") {
                 QQmlProperty gridProp(m_editView3DData->rootItem, "gridColor", context());
@@ -1258,9 +1258,11 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
             renderWindow(); // Need to make sure all View3Ds have context
 
 #ifdef SINGLE_WINDOW_RENDERING
-            // Hide and disable the original scene to avoid any visual artifacts and input event interference
-            m_mainViewData->wrapperItem->setEnabled(false);
-            QQuickItemPrivate::get(m_mainViewData->wrapperItem)->refFromEffectItem(true);
+            if (m_mainViewData->wrapperItem) {
+                // Hide and disable the original scene to avoid artifacts and input event interference
+                m_mainViewData->wrapperItem->setEnabled(false);
+                QQuickItemPrivate::get(m_mainViewData->wrapperItem)->refFromEffectItem(true);
+            }
 #endif
         }
 #endif
@@ -2220,9 +2222,11 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             // Temporarily set enabled state in main scene wrapper to true while we resolve
             // property values. This is necessary because the enabled value from parent propagates
             // to children.
-            m_mainViewData->wrapperItem->setEnabled(true);
+            if (m_mainViewData->wrapperItem)
+                m_mainViewData->wrapperItem->setEnabled(true);
             auto valuesChangedCommand = createValuesChangedCommand(propertyChangedList);
-            m_mainViewData->wrapperItem->setEnabled(false);
+            if (m_mainViewData->wrapperItem)
+                m_mainViewData->wrapperItem->setEnabled(false);
 #endif
 
             resetAllItems();
