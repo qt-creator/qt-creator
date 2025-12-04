@@ -1,3 +1,4 @@
+add_subdirectory(aspects)
 add_subdirectory(components)
 add_subdirectory(crumblepath)
 add_subdirectory(infolabel)
