@@ -164,7 +164,7 @@ EffectCodeEditorFactory::EffectCodeEditorFactory()
     setCodeFoldingSupported(true);
     setSyntaxHighlighterCreator([] { return new SyntaxHighlighter; });
 
-    addHoverHandler(new QmlJSEditor::QmlJSHoverHandler);
+    addHoverHandler(&QmlJSEditor::qmlJSHoverHandler());
     setCompletionAssistProvider(new EffectsCompeletionAssistProvider);
 }
 

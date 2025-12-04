@@ -35,8 +35,7 @@ using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 class ProFileEditorWidget : public TextEditorWidget
 {
@@ -274,7 +273,7 @@ ProFileEditorFactory::ProFileEditorFactory()
     setOptionalActionMask(OptionalActions::UnCommentSelection
                 | OptionalActions::JumpToFileUnderCursor);
 
-    addHoverHandler(new ProFileHoverHandler);
+    addHoverHandler(&proFileHoverHandler());
     setSyntaxHighlighterCreator([]() { return new ProFileHighlighter; });
 
     const QString defaultOverlay = QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QT);
@@ -286,5 +285,4 @@ ProFileEditorFactory::ProFileEditorFactory()
                 creatorTheme()->imageFile(Theme::IconOverlayPrf, defaultOverlay), "prf");
 }
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

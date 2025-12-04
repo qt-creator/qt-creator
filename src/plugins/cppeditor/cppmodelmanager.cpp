@@ -2179,9 +2179,9 @@ CppCompletionAssistProvider *CppModelManager::completionAssistProvider()
     return d->m_builtinModelManagerSupport.completionAssistProvider();
 }
 
-TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler()
+TextEditor::BaseHoverHandler &CppModelManager::cppHoverHandler()
 {
-    return d->m_builtinModelManagerSupport.createHoverHandler();
+    return d->m_builtinModelManagerSupport.cppHoverHandler();
 }
 
 void CppModelManager::followSymbol(const CursorInEditor &data,

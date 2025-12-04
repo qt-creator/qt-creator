@@ -5,8 +5,7 @@
 
 #include <texteditor/texteditor.h>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 class ProFileEditorFactory : public TextEditor::TextEditorFactory
 {
@@ -14,5 +13,4 @@ public:
     ProFileEditorFactory();
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

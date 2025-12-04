@@ -24,6 +24,12 @@ public:
     }
 };
 
+static BaseHoverHandler &baseHoverHandler()
+{
+    static BaseHoverHandler theBaseHoverHandler;
+    return theBaseHoverHandler;
+}
+
 class PlainTextEditorFactory final : public TextEditorFactory
 {
 public:
@@ -33,7 +39,7 @@ public:
         setDisplayName(Tr::tr("Plain Text Editor"));
         addMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
         addMimeType(QLatin1String("text/css")); // for some reason freedesktop thinks css is text/x-csrc
-        addHoverHandler(new BaseHoverHandler);
+        addHoverHandler(&baseHoverHandler());
 
         setDocumentCreator([]() { return new TextDocument(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID); });
         setEditorWidgetCreator([]() { return new PlainTextEditorWidget; });

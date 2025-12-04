@@ -294,9 +294,9 @@ void CppEditorPlugin::extensionsInitialized()
 
     // Add the hover handler factories here instead of in initialize()
     // so that the Clang Code Model has a chance to hook in.
-    d->m_cppEditorFactory.addHoverHandler(CppModelManager::createHoverHandler());
-    d->m_cppEditorFactory.addHoverHandler(new ColorPreviewHoverHandler);
-    d->m_cppEditorFactory.addHoverHandler(new ResourcePreviewHoverHandler);
+    d->m_cppEditorFactory.addHoverHandler(&CppModelManager::cppHoverHandler());
+    d->m_cppEditorFactory.addHoverHandler(&colorPreviewHoverHandler());
+    d->m_cppEditorFactory.addHoverHandler(&resourcePreviewHoverHandler());
 
     FileIconProvider::registerIconOverlayForMimeType(
         creatorTheme()->imageFile(Theme::IconOverlayCppSource,

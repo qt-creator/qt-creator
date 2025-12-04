@@ -3,6 +3,7 @@
 
 #include "textsuggestion.h"
 
+#include "basehoverhandler.h"
 #include "textdocumentlayout.h"
 #include "texteditor.h"
 #include "texteditorconstants.h"
@@ -217,6 +218,23 @@ private:
     TextEditorWidget *m_editor;
 };
 
+// SuggestionHoverHandler
+
+class SuggestionHoverHandler final : public BaseHoverHandler
+{
+public:
+    SuggestionHoverHandler() = default;
+
+protected:
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                       int pos,
+                       ReportPriority report) final;
+    void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) final;
+
+private:
+    QTextBlock m_block;
+};
+
 void SuggestionHoverHandler::identifyMatch(
     TextEditorWidget *editorWidget, int pos, ReportPriority report)
 {
@@ -256,6 +274,12 @@ void SuggestionHoverHandler::operateTooltip(TextEditorWidget *editorWidget, cons
                  - Utils::ToolTip::offsetFromPosition();
     pos.ry() -= tooltipWidget->sizeHint().height();
     ToolTip::show(pos, tooltipWidget, editorWidget);
+}
+
+BaseHoverHandler &suggestionHoverHandler()
+{
+    static SuggestionHoverHandler theSuggestionHoverHandler;
+    return theSuggestionHoverHandler;
 }
 
 } // namespace TextEditor

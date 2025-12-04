@@ -5,8 +5,6 @@
 
 #include "texteditor_global.h"
 
-#include "basehoverhandler.h"
-
 #include <utils/textutils.h>
 
 #include <QTextBlock>
@@ -16,6 +14,7 @@
 namespace TextEditor {
 
 class TextEditorWidget;
+class BaseHoverHandler;
 
 class TEXTEDITOR_EXPORT TextSuggestion
 {
@@ -69,19 +68,6 @@ private:
     int m_currentSuggestion = 0;
 };
 
-class SuggestionHoverHandler final : public BaseHoverHandler
-{
-public:
-    SuggestionHoverHandler() = default;
-
-protected:
-    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
-                       int pos,
-                       ReportPriority report) final;
-    void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) final;
-
-private:
-    QTextBlock m_block;
-};
+BaseHoverHandler &suggestionHoverHandler();
 
 } // namespace TextEditor

@@ -7,6 +7,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 
+#include <texteditor/basehoverhandler.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/mimeutils.h>
@@ -148,6 +149,18 @@ static QString findResourceInProject(const QString &resName)
     return QString();
 }
 
+class ResourcePreviewHoverHandler final : public BaseHoverHandler
+{
+private:
+    void identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report) final;
+    void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point) final;
+
+private:
+    QString makeTooltip() const;
+
+    QString m_path;
+};
+
 void ResourcePreviewHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
                                                 int pos,
                                                 ReportPriority report)
@@ -195,6 +208,12 @@ QString ResourcePreviewHoverHandler::makeTooltip() const
         ret += QString("![image](%1)  \n").arg(m_path);
     ret += QString("[%1](%2)").arg(QDir::toNativeSeparators(m_path), m_path);
     return ret;
+}
+
+BaseHoverHandler &resourcePreviewHoverHandler()
+{
+    static ResourcePreviewHoverHandler theResourcePreviewHoverHandler;
+    return theResourcePreviewHoverHandler;
 }
 
 } // namespace ProjectExplorer

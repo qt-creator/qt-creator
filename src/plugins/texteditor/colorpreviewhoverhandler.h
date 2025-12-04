@@ -4,23 +4,11 @@
 #pragma once
 
 #include "texteditor_global.h"
-#include "basehoverhandler.h"
-
-#include <QColor>
-
-namespace Core { class IEditor; }
 
 namespace TextEditor {
 
-class TextEditorWidget;
+class BaseHoverHandler;
 
-class TEXTEDITOR_EXPORT ColorPreviewHoverHandler : public BaseHoverHandler
-{
-private:
-    void identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report) override;
-    void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point) override;
-
-    QColor m_colorTip;
-};
+TEXTEDITOR_EXPORT BaseHoverHandler &colorPreviewHoverHandler();
 
 } // namespace TextEditor

@@ -95,9 +95,10 @@ CppCompletionAssistProvider *BuiltinModelManagerSupport::completionAssistProvide
 }
 
 
-TextEditor::BaseHoverHandler *BuiltinModelManagerSupport::createHoverHandler()
+TextEditor::BaseHoverHandler &BuiltinModelManagerSupport::cppHoverHandler()
 {
-    return new CppHoverHandler;
+    static CppHoverHandler theCppHoverHandler;
+    return theCppHoverHandler;
 }
 
 void BuiltinModelManagerSupport::followSymbol(const CursorInEditor &data,

@@ -1202,9 +1202,10 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
     setParenthesesMatchingEnabled(true);
     setCodeFoldingSupported(true);
 
-    addHoverHandler(new QmlJSHoverHandler);
-    addHoverHandler(new ColorPreviewHoverHandler);
-    addHoverHandler(new ProjectExplorer::ResourcePreviewHoverHandler);
+    addHoverHandler(&qmlJSHoverHandler());
+    addHoverHandler(&colorPreviewHoverHandler());
+    addHoverHandler(&ProjectExplorer::resourcePreviewHoverHandler());
+
     setCompletionAssistProvider(new QmlJSCompletionAssistProvider);
 
     setOptionalActionMask(OptionalActions::Format

@@ -20,7 +20,7 @@ public:
     ~BuiltinModelManagerSupport() override;
 
     CppCompletionAssistProvider *completionAssistProvider();
-    TextEditor::BaseHoverHandler *createHoverHandler();
+    TextEditor::BaseHoverHandler &cppHoverHandler();
 
     BaseEditorDocumentProcessor *createEditorDocumentProcessor(
             TextEditor::TextDocument *baseTextDocument) final;

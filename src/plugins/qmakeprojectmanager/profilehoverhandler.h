@@ -3,40 +3,10 @@
 
 #pragma once
 
-#include <texteditor/basehoverhandler.h>
-#include <texteditor/codeassist/keywordscompletionassist.h>
+namespace TextEditor { class BaseHoverHandler; }
 
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
+namespace QmakeProjectManager::Internal {
 
-namespace QmakeProjectManager {
-namespace Internal {
+TextEditor::BaseHoverHandler &proFileHoverHandler();
 
-class ProFileHoverHandler : public TextEditor::BaseHoverHandler
-{
-public:
-    ProFileHoverHandler();
-
-private:
-    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
-                       int pos,
-                       ReportPriority report) override;
-    void identifyQMakeKeyword(const QString &text, int pos);
-
-    enum ManualKind {
-        VariableManual,
-        FunctionManual,
-        UnknownManual
-    };
-
-    QString manualName() const;
-    void identifyDocFragment(ManualKind manualKind,
-                       const QString &keyword);
-
-    QString m_docFragment;
-    ManualKind m_manualKind = UnknownManual;
-    const TextEditor::Keywords m_keywords;
-};
-
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

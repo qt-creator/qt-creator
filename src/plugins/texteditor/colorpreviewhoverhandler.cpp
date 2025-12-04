@@ -2,9 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "colorpreviewhoverhandler.h"
+
+#include "basehoverhandler.h"
 #include "texteditor.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/tooltip/tooltip.h>
 #include <utils/qtcassert.h>
 
@@ -347,6 +350,15 @@ static QColor colorFromFuncAndArgs(const QString &func, const QStringList &args)
     return colorFromArgs(args, spec);
 }
 
+class ColorPreviewHoverHandler : public BaseHoverHandler
+{
+private:
+    void identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report) override;
+    void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point) override;
+
+    QColor m_colorTip;
+};
+
 void ColorPreviewHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
                                              int pos, ReportPriority report)
 {
@@ -377,6 +389,12 @@ void ColorPreviewHoverHandler::operateTooltip(TextEditorWidget *editorWidget, co
         Utils::ToolTip::show(point, m_colorTip, editorWidget);
     else
         Utils::ToolTip::hide();
+}
+
+BaseHoverHandler &colorPreviewHoverHandler()
+{
+    static ColorPreviewHoverHandler theColorPreviewHoverHandler;
+    return theColorPreviewHoverHandler;
 }
 
 } // namespace TextEditor

@@ -3,10 +3,13 @@
 
 #include "profilehoverhandler.h"
 #include "profilecompletionassist.h"
-#include "qmakeprojectmanagerconstants.h"
 
 #include <coreplugin/helpmanager.h>
+
 #include <texteditor/texteditor.h>
+#include <texteditor/basehoverhandler.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
+
 #include <utils/htmldocextractor.h>
 
 #include <QScopeGuard>
@@ -16,13 +19,35 @@
 using namespace Core;
 using namespace Utils;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
-ProFileHoverHandler::ProFileHoverHandler()
-    : m_keywords(qmakeKeywords())
+class ProFileHoverHandler : public TextEditor::BaseHoverHandler
 {
-}
+public:
+    ProFileHoverHandler()
+        : m_keywords(qmakeKeywords())
+    {}
+
+private:
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                       int pos,
+                       ReportPriority report) override;
+    void identifyQMakeKeyword(const QString &text, int pos);
+
+    enum ManualKind {
+        VariableManual,
+        FunctionManual,
+        UnknownManual
+    };
+
+    QString manualName() const;
+    void identifyDocFragment(ManualKind manualKind,
+                       const QString &keyword);
+
+    QString m_docFragment;
+    ManualKind m_manualKind = UnknownManual;
+    const TextEditor::Keywords m_keywords;
+};
 
 void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
                                         int pos,
@@ -125,5 +150,10 @@ void ProFileHoverHandler::identifyDocFragment(ProFileHoverHandler::ManualKind ma
     }
 }
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+TextEditor::BaseHoverHandler &proFileHoverHandler()
+{
+    static ProFileHoverHandler theProFileHoverHandler;
+    return theProFileHoverHandler;
+}
+
+} // namespace QmakeProjectManager::Internal

@@ -10709,7 +10709,7 @@ public:
     TextEditorFactory::IndenterCreator m_indenterCreator;
     TextEditorFactory::SyntaxHighLighterCreator m_syntaxHighlighterCreator;
     CommentDefinition m_commentDefinition;
-    QList<BaseHoverHandler *> m_hoverHandlers; // owned
+    QList<BaseHoverHandler *> m_hoverHandlers; // not owned
     std::unique_ptr<CompletionAssistProvider> m_completionAssistProvider; // owned
     int m_optionalActionMask = 0;
     bool m_useGenericHighlighter = false;
@@ -10725,12 +10725,11 @@ TextEditorFactory::TextEditorFactory()
     : d(new TextEditorFactoryPrivate(this))
 {
     setEditorCreator([]() { return new BaseTextEditor; });
-    addHoverHandler(new SuggestionHoverHandler);
+    addHoverHandler(&suggestionHoverHandler());
 }
 
 TextEditorFactory::~TextEditorFactory()
 {
-    qDeleteAll(d->m_hoverHandlers);
     delete d;
 }
 

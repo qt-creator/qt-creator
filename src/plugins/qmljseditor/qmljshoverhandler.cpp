@@ -18,21 +18,23 @@
 
 #include <languageclient/languageclientmanager.h>
 
-#include <qmljs/qmljscontext.h>
-#include <qmljs/qmljsscopechain.h>
-#include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljsvalueowner.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
+#include <qmljs/qmljscontext.h>
+#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsutils.h>
+#include <qmljs/qmljsvalueowner.h>
 
+#include <texteditor/basehoverhandler.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>
 #include <utils/qrcparser.h>
 #include <utils/tooltip/tooltip.h>
 
-#include <QDir>
+#include <QColor>
 #include <QList>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -75,6 +77,41 @@ namespace {
     }
 }
 
+class QmlJSHoverHandler : public TextEditor::BaseHoverHandler
+{
+public:
+    QmlJSHoverHandler();
+
+private:
+    void reset();
+
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                       int pos,
+                       ReportPriority report) override;
+    void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) override;
+
+    bool matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos);
+    bool matchColorItem(const QmlJS::ScopeChain &lookupContext,
+                        const QmlJS::Document::Ptr &qmlDocument,
+                        const QList<QmlJS::AST::Node *> &astPath,
+                        unsigned pos);
+    void handleOrdinaryMatch(const QmlJS::ScopeChain &lookupContext,
+                             QmlJS::AST::Node *node);
+    void handleImport(const QmlJS::ScopeChain &lookupContext,
+                      QmlJS::AST::UiImport *node);
+
+    void prettyPrintTooltip(const QmlJS::Value *value,
+                            const QmlJS::ContextPtr &context);
+
+    bool setQmlTypeHelp(const QmlJS::ScopeChain &scopeChain, const QmlJS::Document::Ptr &qmlDocument,
+                        const QmlJS::ObjectValue *value, const QStringList &qName);
+    bool setQmlHelpItem(const QmlJS::ScopeChain &lookupContext,
+                        const QmlJS::Document::Ptr &qmlDocument,
+                        QmlJS::AST::Node *node);
+
+    QmlJS::ModelManagerInterface *m_modelManager = nullptr;
+    QColor m_colorTip;
+};
 QmlJSHoverHandler::QmlJSHoverHandler()
 {
     m_modelManager = ModelManagerInterface::instance();
@@ -526,6 +563,12 @@ bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
         }
     }
     return false;
+}
+
+BaseHoverHandler &qmlJSHoverHandler()
+{
+    static QmlJSHoverHandler theQmlJSHoverHandler;
+    return theQmlJSHoverHandler;
 }
 
 } // namespace QmlJSEditor

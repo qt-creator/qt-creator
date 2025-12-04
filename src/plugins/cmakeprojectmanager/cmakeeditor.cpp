@@ -502,6 +502,12 @@ void CMakeHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPo
     setToolTip(m_helpToolTip);
 }
 
+static BaseHoverHandler &cmakeHoverHandler()
+{
+    static CMakeHoverHandler theCMakeHoverHandler;
+    return theCMakeHoverHandler;
+}
+
 // CMakeEditorFactory
 
 class CMakeEditorFactory final : public TextEditorFactory
@@ -529,7 +535,7 @@ public:
                                 | OptionalActions::FollowSymbolUnderCursor
                                 | OptionalActions::Format);
 
-        addHoverHandler(new CMakeHoverHandler);
+        addHoverHandler(&cmakeHoverHandler());
 
         ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
         contextMenu->addAction(ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR));

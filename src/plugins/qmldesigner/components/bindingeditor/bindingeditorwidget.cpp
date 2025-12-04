@@ -154,7 +154,7 @@ BindingEditorFactory::BindingEditorFactory()
     setParenthesesMatchingEnabled(true);
     setCodeFoldingSupported(true);
 
-    addHoverHandler(new QmlJSEditor::QmlJSHoverHandler);
+    addHoverHandler(&QmlJSEditor::qmlJSHoverHandler());
     setCompletionAssistProvider(new QmlJSEditor::QmlJSCompletionAssistProvider);
 }
 

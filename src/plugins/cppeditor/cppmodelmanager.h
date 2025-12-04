@@ -171,7 +171,7 @@ public:
     static CppCompletionAssistProvider *completionAssistProvider();
     static BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                     TextEditor::TextDocument *baseTextDocument);
-    static TextEditor::BaseHoverHandler *createHoverHandler();
+    static TextEditor::BaseHoverHandler &cppHoverHandler();
     static FollowSymbolUnderCursor &builtinFollowSymbol();
 
     enum class Backend { Builtin, Best };
