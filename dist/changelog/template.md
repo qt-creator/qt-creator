@@ -67,6 +67,8 @@ Projects
 
 ### Workspace
 
+### Compilation Database
+
 ### Autotools
 
 ### Meson
