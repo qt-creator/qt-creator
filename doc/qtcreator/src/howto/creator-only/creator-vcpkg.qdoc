@@ -3,30 +3,33 @@
 
 /*!
     \page creator-vcpkg.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-build-systems
+    \ingroup creator-how-to-build
 
-    \title vcpkg Package Manager
+    \title Set up vcpkg package manager
 
-    \summary {The experimental vcpkg plugin integrates the vcpkg C/C++ package
-    manager.}
+    The experimental vcpkg plugin integrates the \l {vcpkg} C/C++ package
+    manager. It is available on all the \l{Supported Platforms}
+    {supported development platforms}.
 
-    \l {https://vcpkg.io/en/}{vcpkg} is available on all the
-    \l{Supported Platforms}{supported development platforms}.
-
-    You can use \QC to create and edit \c vcpkg.json files to specify packages to
-    build as part of your project when using CMake as the build system.
+    Create and edit \c vcpkg.json files to specify packages to build as part of
+    your project when using CMake as the build system.
 
     \note Enable the Vcpkg plugin to use it.
 
-    \section1 Setting vcpkg Preferences
+    \section1 Set up vcpkg
 
-    By default, vcpkg is automatically set up for use with CMake. To disable
-    automatic setup, select \preferences > \uicontrol CMake > \uicontrol General
-    > \uicontrol {Package manager auto setup}.
+    To set up vcpkg from the command line, enter:
 
-    \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
+    \badcode
+    $ git clone https://github.com/microsoft/vcpkg
+    $ cd vcpkg
+
+    $ ./bootstrap-vcpkg.sh
+    \endcode
+
+    \section1 Set the path to vcpkg
 
     To set the \uicontrol Path to the directory where you installed vcpkg, select
     \preferences > \uicontrol CMake > \uicontrol Vcpkg.
@@ -36,8 +39,16 @@
     Select \inlineimage {icons/online.png} {URL}
     to download vcpkg if you have not installed it yet.
 
+    \section1 Turn off automatic setup
+
+    By default, vcpkg is automatically set up for use with CMake. To turn off
+    automatic setup, select \preferences > \uicontrol CMake > \uicontrol General
+    > \uicontrol {Package manager auto setup}.
+
+    \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
+
     \sa {Create vcpkg manifest files}, {Edit vcpkg manifest files},
-    {Enable and disable plugins}
+    {Enable and disable plugins}, {Supported Platforms}, {vcpkg}
 */
 
 /*!
@@ -48,7 +59,7 @@
 
     \title Create vcpkg manifest files
 
-    To create a new vcpkg package manager manifest (\c vcpkg.json) file:
+    To create a new \l {vcpkg} package manager manifest (\c vcpkg.json) file:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File} >
@@ -72,7 +83,7 @@
     The wizard automatically adds the \c vcpkg.json file to the \c CMakeLists.txt file
     of the project.
 
-    \sa {vcpkg Package Manager}, {Edit vcpkg manifest files}
+    \sa {Set up vcpkg package manager}, {Edit vcpkg manifest files}
 */
 
 /*!
@@ -83,7 +94,8 @@
 
     \title Edit vcpkg manifest files
 
-    When you open a \c vcpkg.json file, it opens in the manifest file editor:
+    When you open a \c vcpkg.json file, it opens in the \l {vcpkg} manifest file
+    editor:
 
     \image {qtcreator-vcpkg-manifest-file-editor.webp} {vcpkg.json file in the manifest file editor}
 
@@ -118,5 +130,5 @@
     \inlineimage {icons/settings.png} {Configure} (\uicontrol Configure) on the
     editor toolbar.
 
-    \sa {vcpkg Package Manager}, {Create vcpkg manifest files}
+    \sa {Set up vcpkg package manager}, {Create vcpkg manifest files}
 */

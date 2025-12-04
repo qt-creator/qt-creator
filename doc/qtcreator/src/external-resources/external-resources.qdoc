@@ -357,3 +357,7 @@
     \externalpage https://developer.apple.com/help/account/provisioning-profiles/create-a-development-provisioning-profile/
     \title Apple documentation: Create a development provisioning profile
 */
+/*!
+    \externalpage https://vcpkg.io/en/
+    \title vcpkg
+*/
