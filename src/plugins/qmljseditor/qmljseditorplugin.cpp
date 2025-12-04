@@ -7,6 +7,7 @@
 #include "qmljseditordocument.h"
 #include "qmljseditorsettings.h"
 #include "qmljseditortr.h"
+#include "qmljsfilecomponentrenamehandler.h"
 #include "qmljsoutline.h"
 #include "qmljsquickfixassist.h"
 #include "qmllsclientsettings.h"
@@ -34,6 +35,7 @@
 #include <languageclient/languageclientmanager.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/taskhub.h>
@@ -117,6 +119,11 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
             &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
             &m_qmlTaskManager,
             &QmlTaskManager::documentsRemoved);
+
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+            &ProjectExplorer::ProjectExplorerPlugin::filesRenamed,
+            FileComponentRenameHandler::instance(),
+            &FileComponentRenameHandler::handleFilesRenamed);
 
     Context context(Constants::C_QMLJSEDITOR_ID, Constants::C_QTQUICKDESIGNEREDITOR_ID);
 

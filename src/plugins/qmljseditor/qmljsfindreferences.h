@@ -57,6 +57,8 @@ public:
 
     static QList<Usage> findUsageOfType(const Utils::FilePath &fileName, const QString &typeName);
 
+    static void updateModelManager(const Utils::FilePaths &filePaths);
+
 private:
     void displayResults(int first, int last);
     void searchFinished();

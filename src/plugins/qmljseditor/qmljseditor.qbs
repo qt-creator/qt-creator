@@ -42,6 +42,8 @@ QtcPlugin {
         "qmljseditordocument_p.h",
         "qmljseditorplugin.cpp",
         "qmljseditorplugin.h",
+        "qmljsfilecomponentrenamehandler.cpp",
+        "qmljsfilecomponentrenamehandler.h",
         "qmljsfindreferences.cpp",
         "qmljsfindreferences.h",
         "qmljshighlighter.cpp",
