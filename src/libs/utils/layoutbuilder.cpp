@@ -1443,12 +1443,12 @@ If::If(bool condition, const Items &list)
 
 If operator>>(const If &if_, const Then &then_)
 {
-    return If(if_.condition, if_.condition ? then_.list : If::Items());
+    return If(if_.condition, if_.condition ? then_.list : if_.list);
 }
 
 If operator>>(const If &if_, const Else &else_)
 {
-    return If(if_.condition, if_.condition ? If::Items() : else_.list);
+    return If(if_.condition, if_.condition ? if_.list : else_.list);
 }
 
 void addToLayout(Layout *layout, const If &if_)
