@@ -746,6 +746,7 @@ void NavigatorView::referenceToggled(bool flag)
     m_currentModelInterface->showReferences(flag);
     treeWidget()->expandAll();
     QmlDesignerPlugin::settings().insert(DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES, flag);
+    updateItemSelection();
 }
 
 void NavigatorView::filterToggled(bool flag)
@@ -755,6 +756,7 @@ void NavigatorView::filterToggled(bool flag)
     m_currentModelInterface->setFilter(flag);
     treeWidget()->expandAll();
     QmlDesignerPlugin::settings().insert(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, flag);
+    updateItemSelection();
 }
 
 void NavigatorView::reverseOrderToggled(bool flag)
@@ -764,6 +766,7 @@ void NavigatorView::reverseOrderToggled(bool flag)
     m_currentModelInterface->setOrder(flag);
     treeWidget()->expandAll();
     QmlDesignerPlugin::settings().insert(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, flag);
+    updateItemSelection();
 }
 
 void NavigatorView::textFilterChanged(const QString &text)
@@ -772,6 +775,7 @@ void NavigatorView::textFilterChanged(const QString &text)
 
     m_treeModel->setNameFilter(text);
     treeWidget()->expandAll();
+    updateItemSelection();
 }
 
 void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, const QItemSelection &/*deselected*/)
