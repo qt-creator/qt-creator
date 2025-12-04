@@ -1437,13 +1437,11 @@ bool AppOpSession::installAppNew()
                                                     &kCFTypeDictionaryKeyCallBacks,
                                                     &kCFTypeDictionaryValueCallBacks));
 
-    if (int error = mLib.deviceSecureInstallApplicationBundle(0,
-                                                              device,
-                                                              bundleUrl.get(),
-                                                              options.get(),
-                                                              &appSecureTransferSessionCallback))
+    if (int error = mLib.deviceSecureInstallApplicationBundle(
+            0, device, bundleUrl.get(), options.get(), &appSecureTransferSessionCallback)) {
+        addError(QString::fromLatin1("Failed to install application bundle with error code %1").arg(error));
         return false;
-
+    }
     return true;
 }
 
