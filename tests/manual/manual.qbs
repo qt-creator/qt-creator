@@ -4,7 +4,6 @@ Project {
     qbsSearchPaths: "qbs"
 
     references: [
-        "aspects/aspects.qbs",
         "cmdbridge/cmdbridge.qbs",
         "debugger/gui/gui.qbs",
         "debugger/simple/simple.qbs",

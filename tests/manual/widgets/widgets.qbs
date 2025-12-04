@@ -2,6 +2,7 @@ Project {
     name: "Widgets manualtests"
 
     references: [
+        "aspects/aspects.qbs",
         "components/components.qbs",
         "crumblepath/crumblepath.qbs",
         "infolabel/infolabel.qbs",
