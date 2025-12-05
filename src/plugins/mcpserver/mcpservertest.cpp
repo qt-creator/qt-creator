@@ -8,6 +8,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
+#include <QTcpSocket>
 #include <QTest>
 #include <QThread>
 #include <QTimer>
@@ -101,7 +102,7 @@ private:
         int timeoutMs = 5000)
     {
         QTcpSocket socket;
-        socket.connectToHost(QHostAddress::LocalHost, 3002);
+        socket.connectToHost(QHostAddress::LocalHost, 3001);
         if (!socket.waitForConnected(timeoutMs)) {
             throw std::runtime_error(
                 QStringLiteral("HTTP connect failed: %1").arg(socket.errorString()).toStdString());

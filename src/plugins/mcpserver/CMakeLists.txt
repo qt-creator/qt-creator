@@ -1,17 +1,15 @@
-find_package(Qt6 OPTIONAL_COMPONENTS HttpServer QUIET)
-
 add_qtc_plugin(mcpserver
-  CONDITION TARGET Qt::HttpServer
   PLUGIN_DEPENDS
     QtCreator::Core
     QtCreator::ProjectExplorer
   DEPENDS
-   Qt::HttpServer
    Qt::Widgets
    Qt::Network
    QtCreator::ExtensionSystem
    QtCreator::Utils
   SOURCES
+    httpparser.cpp httpparser.h
+    httpresponse.cpp httpresponse.h
     issuesmanager.cpp issuesmanager.h
     mcpserver.cpp mcpserver.h
     mcpservertest.cpp mcpservertest.h

@@ -7,12 +7,13 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "Utils" }
-    Depends { name: "Qt"; submodules: [ "network", "widgets"] }
-    Depends { name: "Qt.httpserver"; required: false }
-
-    condition: Qt.httpserver.present
+    Depends { name: "Qt"; submodules: ["network", "widgets"] }
 
     files: [
+        "httpparser.cpp",
+        "httpparser.h",
+        "httpresponse.cpp",
+        "httpresponse.h",
         "issuesmanager.cpp",
         "issuesmanager.h",
         "mcp.qrc",
