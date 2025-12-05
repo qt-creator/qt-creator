@@ -45,7 +45,7 @@ private:
                 QStringLiteral("TCP write failed: %1").arg(socket.errorString()).toStdString());
         }
 
-        // Use a QEventLopp since waitForReadyRead() would cause issues
+        // Use a QEventLoop since waitForReadyRead() would cause issues
         QByteArray response;
         QEventLoop loop;
         QTimer timeoutTimer;
@@ -60,28 +60,20 @@ private:
         QObject::connect(&timeoutTimer, &QTimer::timeout, &loop, [&]() { loop.quit(); });
 
         while (true) {
-            // Start (or restart) the timeout timer for each iteration.
             timeoutTimer.start();
-
-            // Run the loop – it will return as soon as readyRead() (or any of the
-            // other signals) fires.
             loop.exec();
 
-            if (socket.bytesAvailable()) {
+            if (socket.bytesAvailable())
                 response += socket.readAll();
 
-                // Try to parse the accumulated bytes as JSON. If it succeeds we
-                // have received the whole response and can break.
-                QJsonParseError err;
-                QJsonDocument::fromJson(response, &err);
-                if (err.error == QJsonParseError::NoError)
-                    break; // success – full JSON received
-            }
+            // Try to parse the accumulated bytes as JSON.
+            QJsonParseError err;
+            QJsonDocument::fromJson(response, &err);
+            if (err.error == QJsonParseError::NoError)
+                break; // full JSON received
 
-            if (!timeoutTimer.isActive()) {
-                // The timer has expired – we give up.
+            if (!timeoutTimer.isActive())
                 throw std::runtime_error("TCP read timeout");
-            }
 
             if (socket.state() != QAbstractSocket::ConnectedState) {
                 throw std::runtime_error(QStringLiteral("TCP socket closed / error: %1")
@@ -90,7 +82,7 @@ private:
             }
         }
 
-        socket.disconnectFromHost(); // clean shutdown
+        socket.disconnectFromHost();
         return QString::fromUtf8(response).trimmed();
     }
 
@@ -108,7 +100,7 @@ private:
                 QStringLiteral("HTTP connect failed: %1").arg(socket.errorString()).toStdString());
         }
 
-        // Build the raw HTTP request (identical to the original script)
+        // Build the raw HTTP request
         QByteArray request;
         request += QStringLiteral("%1 %2 HTTP/1.1\r\n").arg(method, path).toUtf8();
         request += QByteArrayLiteral("Host: localhost\r\n");
@@ -143,12 +135,10 @@ private:
 
         // Helper lambda – does the “do we have the whole HTTP message?” check.
         auto isComplete = [&](const QByteArray &buf) -> bool {
-            // 1) Find the end of the header block.
             int headerEnd = buf.indexOf("\r\n\r\n");
             if (headerEnd == -1)
                 return false; // still waiting for headers
 
-            // 2) Look for a Content‑Length header.
             QByteArray headerPart = buf.left(headerEnd + 4);
             QRegularExpression
                 re(QStringLiteral("Content-Length: (\\d+)"),
@@ -159,17 +149,16 @@ private:
                 int contentLen = match.captured(1).toInt();
                 int bodyStart = headerEnd + 4;
                 int bodyNow = buf.size() - bodyStart;
-                return bodyNow >= contentLen; // true when we have the whole body
+                return bodyNow >= contentLen;
             }
 
-            // No Content‑Length → most likely a 204/304 or a response that ends
-            // with the header block. Treat it as complete.
+            // No Content‑Length → treat as complete (e.g. 204/304)
             return true;
         };
 
         while (true) {
             timeoutTimer.start();
-            loop.exec(); // returns on readyRead / error / timeout
+            loop.exec();
 
             if (socket.bytesAvailable())
                 response += socket.readAll();
@@ -184,9 +173,6 @@ private:
                 throw std::runtime_error(QStringLiteral("HTTP socket closed / error: %1")
                                              .arg(socket.errorString())
                                              .toStdString());
-
-            // Otherwise loop again – timer has been restarted and we wait for the
-            // next readyRead().
         }
 
         socket.disconnectFromHost();
@@ -228,6 +214,128 @@ private:
             body += l + '\n';
         resp.body = body.trimmed();
         return resp;
+    }
+
+    /*! Open a persistent SSE connection (GET /sse) and discard the initial
+        “endpoint” event. Returns a socket that stays open for the duration of the
+        test. */
+    QTcpSocket *openSseSocket(int timeoutMs = 5000)
+    {
+        QTcpSocket *socket = new QTcpSocket(this);
+        socket->connectToHost(QHostAddress::LocalHost, 3001);
+        if (!socket->waitForConnected(timeoutMs)) {
+            delete socket;
+            throw std::runtime_error(
+                QStringLiteral("SSE connect failed: %1").arg(socket->errorString()).toStdString());
+        }
+
+        // Send the GET request for the SSE stream
+        QByteArray request;
+        request += "GET /sse HTTP/1.1\r\n";
+        request += "Host: localhost\r\n";
+        request += "Accept: text/event-stream\r\n";
+        request += "\r\n";
+
+        if (socket->write(request) != request.size() || !socket->waitForBytesWritten(timeoutMs)) {
+            delete socket;
+            throw std::runtime_error(
+                QStringLiteral("SSE write failed: %1").arg(socket->errorString()).toStdString());
+        }
+
+        // Wait for the HTTP status line + headers + the first “endpoint” event.
+        QByteArray buffer;
+        QEventLoop loop;
+        QTimer timeoutTimer;
+        timeoutTimer.setSingleShot(true);
+        timeoutTimer.setInterval(timeoutMs);
+
+        QObject::connect(socket, &QTcpSocket::readyRead, &loop, [&]() { loop.quit(); });
+        QObject::connect(socket, &QTcpSocket::disconnected, &loop, [&]() { loop.quit(); });
+        QObject::connect(socket, &QTcpSocket::errorOccurred, &loop, [&](QAbstractSocket::SocketError) {
+            loop.quit();
+        });
+        QObject::connect(&timeoutTimer, &QTimer::timeout, &loop, [&]() { loop.quit(); });
+
+        // Helper: have we received at least one complete SSE event?
+        auto haveCompleteEvent = [&](const QByteArray &buf) -> bool {
+            return buf.contains("\n\n"); // an empty line terminates an event
+        };
+
+        while (true) {
+            timeoutTimer.start();
+            loop.exec();
+
+            if (socket->bytesAvailable())
+                buffer += socket->readAll();
+
+            if (haveCompleteEvent(buffer))
+                break;
+
+            if (!timeoutTimer.isActive())
+                throw std::runtime_error("SSE connect timeout");
+
+            if (socket->state() != QAbstractSocket::ConnectedState)
+                throw std::runtime_error(QStringLiteral("SSE socket closed / error: %1")
+                                             .arg(socket->errorString())
+                                             .toStdString());
+        }
+
+        // Discard everything up to the first double‑newline (the “endpoint” event).
+        int endPos = buffer.indexOf("\n\n");
+        buffer.remove(0, endPos + 2);
+        Q_UNUSED(buffer);
+
+        return socket; // still open, ready to receive further events
+    }
+
+    /*! Read the next SSE *message* event from an already‑opened SSE socket.
+        Returns the raw JSON payload (the content of the `data:` line). */
+    QByteArray readSseMessage(QTcpSocket *socket, int timeoutMs = 5000)
+    {
+        QByteArray buffer;
+        QEventLoop loop;
+        QTimer timeoutTimer;
+        timeoutTimer.setSingleShot(true);
+        timeoutTimer.setInterval(timeoutMs);
+
+        QObject::connect(socket, &QTcpSocket::readyRead, &loop, [&]() { loop.quit(); });
+        QObject::connect(socket, &QTcpSocket::disconnected, &loop, [&]() { loop.quit(); });
+        QObject::connect(socket, &QTcpSocket::errorOccurred, &loop, [&](QAbstractSocket::SocketError) {
+            loop.quit();
+        });
+        QObject::connect(&timeoutTimer, &QTimer::timeout, &loop, [&]() { loop.quit(); });
+
+        while (true) {
+            timeoutTimer.start();
+            loop.exec();
+
+            if (socket->bytesAvailable())
+                buffer += socket->readAll();
+
+            // Look for an event that starts with “event: message”
+            int eventPos = buffer.indexOf("event: message\n");
+            if (eventPos != -1) {
+                // Find the data line after the event line
+                int dataPos = buffer.indexOf("data: ", eventPos);
+                if (dataPos != -1) {
+                    int lineEnd = buffer.indexOf('\n', dataPos);
+                    if (lineEnd != -1) {
+                        QByteArray json = buffer.mid(dataPos + 6, lineEnd - (dataPos + 6));
+                        // Remove the processed part so the next call starts fresh
+                        buffer.remove(0, lineEnd + 2); // also drop the empty line after the event
+                        return json;
+                    }
+                }
+            }
+
+            if (!timeoutTimer.isActive())
+                throw std::runtime_error("SSE read timeout");
+
+            if (socket->state() != QAbstractSocket::ConnectedState)
+                throw std::runtime_error(QStringLiteral("SSE socket closed / error: %1")
+                                             .arg(socket->errorString())
+                                             .toStdString());
+        }
     }
 
     void assertJsonRpcInitialize(const QJsonObject &obj, const QString &testName)
@@ -312,8 +420,10 @@ private slots:
         QVERIFY2(!tools.isEmpty(), "TCP tools/list: tools array is empty");
     }
 
+    // HTTP SSE tests
     void test_httpGetInfo()
     {
+        // This request is still a plain HTTP GET (no SSE). It should return a 200.
         QByteArray raw = sendHttpRequest(QStringLiteral("GET"), QStringLiteral("/"));
         HttpResponse resp = parseHttpResponse(raw);
         QCOMPARE(resp.statusCode, 200);
@@ -321,6 +431,10 @@ private slots:
 
     void test_httpInitialize()
     {
+        // Open an SSE stream first.
+        QTcpSocket *sseSocket = openSseSocket();
+
+        // Send the JSON‑RPC request as a POST to the SSE endpoint.
         QJsonObject req;
         req["jsonrpc"] = "2.0";
         req["method"] = "initialize";
@@ -339,20 +453,29 @@ private slots:
         QMap<QString, QString> hdr;
         hdr.insert(QStringLiteral("Content-Type"), QStringLiteral("application/json"));
 
-        QByteArray raw = sendHttpRequest(QStringLiteral("POST"), QStringLiteral("/"), hdr, payload);
+        // POST to /sse – we expect a 204 No Content response.
+        QByteArray raw
+            = sendHttpRequest(QStringLiteral("POST"), QStringLiteral("/sse"), hdr, payload);
         HttpResponse resp = parseHttpResponse(raw);
-        QCOMPARE(resp.statusCode, 200);
+        QCOMPARE(resp.statusCode, 204);
 
+        // The real JSON‑RPC reply arrives via SSE.
+        QByteArray sseJson = readSseMessage(sseSocket);
         QJsonParseError err;
-        QJsonDocument doc = QJsonDocument::fromJson(resp.body, &err);
+        QJsonDocument doc = QJsonDocument::fromJson(sseJson, &err);
         QVERIFY2(
             err.error == QJsonParseError::NoError,
-            qPrintable("HTTP initialize JSON parse error: " + err.errorString()));
-        assertJsonRpcInitialize(doc.object(), "HTTP Initialize");
+            qPrintable(QStringLiteral("SSE JSON parse error: %1").arg(err.errorString())));
+        assertJsonRpcInitialize(doc.object(), "HTTP Initialize (SSE)");
+
+        sseSocket->disconnectFromHost();
+        sseSocket->deleteLater();
     }
 
     void test_httpToolsList()
     {
+        QTcpSocket *sseSocket = openSseSocket();
+
         QJsonObject req;
         req["jsonrpc"] = "2.0";
         req["method"] = "tools/list";
@@ -362,15 +485,17 @@ private slots:
         QMap<QString, QString> hdr;
         hdr.insert(QStringLiteral("Content-Type"), QStringLiteral("application/json"));
 
-        QByteArray raw = sendHttpRequest(QStringLiteral("POST"), QStringLiteral("/"), hdr, payload);
+        QByteArray raw
+            = sendHttpRequest(QStringLiteral("POST"), QStringLiteral("/sse"), hdr, payload);
         HttpResponse resp = parseHttpResponse(raw);
-        QCOMPARE(resp.statusCode, 200);
+        QCOMPARE(resp.statusCode, 204);
 
+        QByteArray sseJson = readSseMessage(sseSocket);
         QJsonParseError err;
-        QJsonDocument doc = QJsonDocument::fromJson(resp.body, &err);
+        QJsonDocument doc = QJsonDocument::fromJson(sseJson, &err);
         QVERIFY2(
             err.error == QJsonParseError::NoError,
-            qPrintable("HTTP tools/list JSON parse error: " + err.errorString()));
+            qPrintable(QStringLiteral("SSE JSON parse error: %1").arg(err.errorString())));
 
         QJsonObject obj = doc.object();
         QVERIFY2(
@@ -380,6 +505,9 @@ private slots:
         QVERIFY2(result.contains("tools"), "HTTP tools/list: missing tools array");
         QJsonArray tools = result.value("tools").toArray();
         QVERIFY2(!tools.isEmpty(), "HTTP tools/list: tools array is empty");
+
+        sseSocket->disconnectFromHost();
+        sseSocket->deleteLater();
     }
 
     void test_httpCors()
@@ -430,21 +558,26 @@ private slots:
 
         QByteArray payload = QJsonDocument(req).toJson(QJsonDocument::Compact);
 
-        // ---- HTTP -------------------------------------------------
+        // ---- HTTP (SSE) -------------------------------------------------
+        QTcpSocket *sseSocket = openSseSocket();
+
         QMap<QString, QString> hdr;
         hdr.insert(QStringLiteral("Content-Type"), QStringLiteral("application/json"));
         QByteArray rawHttp
-            = sendHttpRequest(QStringLiteral("POST"), QStringLiteral("/"), hdr, payload);
+            = sendHttpRequest(QStringLiteral("POST"), QStringLiteral("/sse"), hdr, payload);
         HttpResponse httpResp = parseHttpResponse(rawHttp);
         bool httpOk = false;
-        if (httpResp.statusCode == 200) {
+        if (httpResp.statusCode == 204) {
+            QByteArray sseJson = readSseMessage(sseSocket);
             QJsonParseError err;
-            QJsonDocument doc = QJsonDocument::fromJson(httpResp.body, &err);
+            QJsonDocument doc = QJsonDocument::fromJson(sseJson, &err);
             if (err.error == QJsonParseError::NoError) {
                 QJsonObject obj = doc.object();
                 httpOk = (obj.value("id").toInt() == testId);
             }
         }
+        sseSocket->disconnectFromHost();
+        sseSocket->deleteLater();
 
         // ---- TCP --------------------------------------------------
         bool tcpOk = false;
@@ -461,6 +594,49 @@ private slots:
             qPrintable(QString("Protocol consistency failed – HTTP ok: %1, TCP ok: %2")
                            .arg(httpOk ? QStringLiteral("true") : "false")
                            .arg(tcpOk ? QStringLiteral("true") : "false")));
+    }
+
+    void test_sseMultipleClients()
+    {
+        // Open two independent SSE streams
+        QTcpSocket *sse1 = openSseSocket();
+        QTcpSocket *sse2 = openSseSocket();
+
+        // Send a simple request (tools/list) via POST to the SSE endpoint
+        QJsonObject req;
+        req["jsonrpc"] = "2.0";
+        req["method"] = "tools/list";
+        req["id"] = 12345;
+
+        QByteArray payload = QJsonDocument(req).toJson(QJsonDocument::Compact);
+        QMap<QString, QString> hdr;
+        hdr.insert(QStringLiteral("Content-Type"), QStringLiteral("application/json"));
+        QByteArray raw
+            = sendHttpRequest(QStringLiteral("POST"), QStringLiteral("/sse"), hdr, payload);
+        HttpResponse resp = parseHttpResponse(raw);
+        QCOMPARE(resp.statusCode, 204); // POST itself should be 204
+
+        // Both SSE connections should receive the same JSON‑RPC response
+        QByteArray json1 = readSseMessage(sse1);
+        QByteArray json2 = readSseMessage(sse2);
+        QCOMPARE(json1, json2); // identical payloads
+
+        QJsonParseError err;
+        QJsonDocument doc = QJsonDocument::fromJson(json1, &err);
+        QVERIFY2(
+            err.error == QJsonParseError::NoError,
+            qPrintable(QStringLiteral("SSE JSON parse error: %1").arg(err.errorString())));
+
+        QJsonObject obj = doc.object();
+        QVERIFY2(
+            obj.value("jsonrpc").toString() == QLatin1String("2.0"),
+            "SSE multiple clients: wrong jsonrpc version");
+        QVERIFY2(obj.value("id").toInt() == 12345, "SSE multiple clients: wrong id");
+
+        sse1->disconnectFromHost();
+        sse2->disconnectFromHost();
+        sse1->deleteLater();
+        sse2->deleteLater();
     }
 
     void test_pluginVersion()

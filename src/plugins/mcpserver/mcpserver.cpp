@@ -502,7 +502,12 @@ void McpServer::handleHttpRequest(QTcpSocket *client, const HttpParser::HttpRequ
 
 void McpServer::onHttpGet(QTcpSocket *client, const HttpParser::HttpRequest &request)
 {
-    Q_UNUSED(request);
+    // If the client asks for the SSE stream, upgrade the connection.
+    if (request.uri == QLatin1String("/sse")) {
+        qCDebug(mcpServer) << "Upgrading connection to SSE stream";
+        handleSseClient(client);
+        return;
+    }
 
     // Simple GET request - return server info
     QJsonObject serverInfo;
@@ -561,8 +566,14 @@ void McpServer::onHttpPost(QTcpSocket *client, const HttpParser::HttpRequest &re
     }
 
     const QJsonObject response = callMCPMethod(method, params, id);
-    QByteArray jsonResponse = HttpResponse::createCorsResponse(QJsonDocument(response).toJson());
-    sendHttpResponse(client, jsonResponse);
+
+    // Responses are sent as SSE events.
+    broadcastSseMessage(response);
+
+    // The HTTP POST itself gets a 204 No Content response (nothing in body).
+    QByteArray noContent = HttpResponse::createCorsResponse(QByteArray(),
+                                                            HttpResponse::NO_CONTENT);
+    sendHttpResponse(client, noContent);
 }
 
 void McpServer::onHttpOptions(QTcpSocket *client, const HttpParser::HttpRequest &request)
@@ -570,9 +581,57 @@ void McpServer::onHttpOptions(QTcpSocket *client, const HttpParser::HttpRequest 
     Q_UNUSED(request);
 
     // No body, just CORS headers and a 204 status
-    QByteArray response
-        = HttpResponse::createCorsResponse(QByteArray(), HttpResponse::NO_CONTENT);
+    QByteArray response = HttpResponse::createCorsResponse(QByteArray(), HttpResponse::NO_CONTENT);
     sendHttpResponse(client, response);
+}
+
+void McpServer::handleSseClient(QTcpSocket *client)
+{
+    // Build minimal SSE response headers
+    QByteArray header;
+    header.append("HTTP/1.1 200 OK\r\n");
+    header.append("Content-Type: text/event-stream\r\n");
+    header.append("Cache-Control: no-cache\r\n");
+    header.append("Connection: keep-alive\r\n");
+    // CORS – required for browsers / remote clients
+    header.append("Access-Control-Allow-Origin: *\r\n");
+    header.append("Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n");
+    header.append("Access-Control-Allow-Headers: Content-Type, Authorization\r\n");
+    header.append("\r\n"); // end of header
+
+    client->write(header);
+    client->flush();
+
+    // Send the mandatory `endpoint` event that tells the client where to POST.
+    QByteArray event;
+    event.append("event: endpoint\n");
+    event.append("data: /sse\n\n");
+    client->write(event);
+    client->flush();
+
+    // Remember this socket so we can push future messages.
+    m_sseClients.append(client);
+}
+
+void McpServer::broadcastSseMessage(const QJsonObject &msg)
+{
+    // Encode the JSON object in the compact form required by the spec.
+    const QByteArray json = QJsonDocument(msg).toJson(QJsonDocument::Compact);
+
+    // Build the SSE event payload.
+    QByteArray event;
+    event.append("event: message\n");
+    event.append("data: ");
+    event.append(json);
+    event.append("\n\n");
+
+    // Send to each live SSE client.
+    for (QTcpSocket *sseClient : std::as_const(m_sseClients)) {
+        if (sseClient && sseClient->state() == QAbstractSocket::ConnectedState) {
+            sseClient->write(event);
+            sseClient->flush();
+        }
+    }
 }
 
 void McpServer::sendHttpResponse(QTcpSocket *client, const QByteArray &httpResponse)
@@ -784,6 +843,7 @@ void McpServer::handleClientDisconnected()
         return;
 
     m_clients.removeAll(client);
+    m_sseClients.removeAll(client);
     client->deleteLater();
 
     qCDebug(mcpServer) << "TCP client disconnected, remaining clients:" << m_clients.size();

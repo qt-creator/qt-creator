@@ -54,6 +54,9 @@ private:
     void onHttpPost(QTcpSocket *client, const HttpParser::HttpRequest &request);
     void onHttpOptions(QTcpSocket *client, const HttpParser::HttpRequest &request);
 
+    // SSE specific helpers
+    void handleSseClient(QTcpSocket *client);
+    void broadcastSseMessage(const QJsonObject &msg);
 private:
     using MethodHandler
         = std::function<QJsonObject(const QJsonObject &params, const QJsonValue &id)>;
@@ -66,6 +69,7 @@ private:
     QTcpServer *m_tcpServerP;
     HttpParser *m_httpParserP;
     QList<QTcpSocket *> m_clients;
+    QList<QTcpSocket *> m_sseClients;
     McpCommands *m_commandsP;
     quint16 m_port;
 };
