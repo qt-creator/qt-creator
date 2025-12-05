@@ -6,7 +6,6 @@
 #include "instanceimageprovider.h"
 #include "propertyeditortracing.h"
 #include "propertyeditortransaction.h"
-#include "propertyeditorutils.h"
 #include "propertyeditorvalue.h"
 #include "propertymetainfo.h"
 
@@ -29,7 +28,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-#include <qmljs/qmljssimplereader.h>
 #include <utils/algorithm.h>
 #include <utils/array.h>
 #include <utils/environment.h>
@@ -53,36 +51,6 @@
 using QmlDesigner::PropertyEditorTracing::category;
 
 static Q_LOGGING_CATEGORY(propertyEditorBenchmark, "qtc.propertyeditor.load", QtWarningMsg)
-
-static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration = QmlJS::SimpleReaderNode::Ptr();
-
-inline static QString propertyTemplatesPath()
-{
-    return QmlDesigner::PropertyEditorQmlBackend::propertyEditorResourcesPath() + QStringLiteral("/PropertyTemplates/");
-}
-
-QmlJS::SimpleReaderNode::Ptr templateConfiguration()
-{
-    if (!s_templateConfiguration) {
-        QmlJS::SimpleReader reader;
-        const QString fileName = propertyTemplatesPath() + QStringLiteral("TemplateTypes.qml");
-        s_templateConfiguration = reader.readFile(fileName);
-
-        if (!s_templateConfiguration)
-            qWarning().nospace() << "template definitions:" << reader.errors();
-    }
-
-    return s_templateConfiguration;
-}
-
-QStringList variantToStringList(const QVariant &variant) {
-    QStringList stringList;
-
-    for (const QVariant &singleValue : variant.toList())
-        stringList << singleValue.toString();
-
-    return stringList;
-}
 
 namespace QmlDesigner {
 
@@ -124,8 +92,10 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
     m_contextObject->setModel(propertyEditor->model());
     m_contextObject->insertInQmlContext(context());
 
-    QObject::connect(&m_backendValuesPropertyMap, &DesignerPropertyMap::valueChanged,
-                     propertyEditor, &PropertyEditorView::changeValue);
+    QObject::connect(&m_backendValuesPropertyMap,
+                     &QQmlPropertyMap::valueChanged,
+                     propertyEditor,
+                     &PropertyEditorView::changeValue);
 }
 
 PropertyEditorQmlBackend::~PropertyEditorQmlBackend()
@@ -370,7 +340,7 @@ void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
     auto valueObject = propertyValueForName(propertyName);
     if (!valueObject) {
         valueObject = new PropertyEditorValue(&backendValuesPropertyMap());
-        QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &DesignerPropertyMap::valueChanged);
+        QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &QQmlPropertyMap::valueChanged);
         QObject::connect(valueObject, &PropertyEditorValue::expressionChanged, propertyEditor, &PropertyEditorView::changeExpression);
         QObject::connect(valueObject, &PropertyEditorValue::exportPropertyAsAliasRequested, propertyEditor, &PropertyEditorView::exportPropertyAsAlias);
         QObject::connect(valueObject, &PropertyEditorValue::removeAliasExportRequested, propertyEditor, &PropertyEditorView::removeAliasExport);
@@ -497,7 +467,7 @@ QmlAnchorBindingProxy &PropertyEditorQmlBackend::backendAnchorBinding()
     return m_backendAnchorBinding;
 }
 
-DesignerPropertyMap &PropertyEditorQmlBackend::backendValuesPropertyMap()
+QQmlPropertyMap &PropertyEditorQmlBackend::backendValuesPropertyMap()
 {
     NanotraceHR::Tracer tracer{"property editor qml backend backend values property map", category()};
 
@@ -554,7 +524,7 @@ PropertyEditorValue *PropertyEditorQmlBackend::insertValue(const QString &name,
     QObject::connect(valueObject,
                      &PropertyEditorValue::valueChanged,
                      &backendValuesPropertyMap(),
-                     &DesignerPropertyMap::valueChanged);
+                     &QQmlPropertyMap::valueChanged);
     m_backendValuesPropertyMap.insert(name, QVariant::fromValue(valueObject));
 
     return valueObject;

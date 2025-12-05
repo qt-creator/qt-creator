@@ -1546,7 +1546,7 @@ void PropertyEditorView::highlightTextureProperties(bool highlight)
     NodeMetaInfo metaInfo = activeNode().metaInfo();
     QTC_ASSERT(metaInfo.isValid(), return);
 
-    DesignerPropertyMap &propMap = m_qmlBackEndForCurrentType->backendValuesPropertyMap();
+    QQmlPropertyMap &propMap = m_qmlBackEndForCurrentType->backendValuesPropertyMap();
     const QStringList propNames = propMap.keys();
     for (const QString &propName : propNames) {
         if (metaInfo.property(propName.toUtf8()).propertyType().isQtQuick3DTexture()) {

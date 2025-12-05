@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "designerpropertymap.h"
 #include "propertyeditorcontextobject.h"
 #include "propertyeditorvalue.h"
 #include "qmlanchorbindingproxy.h"
@@ -52,7 +51,7 @@ public:
     QQuickWidget *widget();
     void setSource(const QUrl& url);
     QmlAnchorBindingProxy &backendAnchorBinding();
-    DesignerPropertyMap &backendValuesPropertyMap();
+    QQmlPropertyMap &backendValuesPropertyMap();
     PropertyEditorTransaction *propertyEditorTransaction();
 
     PropertyEditorValue *propertyValueForName(const QString &propertyName);
@@ -119,7 +118,7 @@ private:
 private:
     // to avoid a crash while destructing DesignerPropertyMap in the QQmlData
     // this needs be destructed after m_quickWidget->engine() is destructed
-    DesignerPropertyMap m_backendValuesPropertyMap;
+    QQmlPropertyMap m_backendValuesPropertyMap;
     std::unique_ptr<PropertyEditorContextObject> m_contextObject;
     QmlModelNodeProxy m_backendModelNode;
     QmlAnchorBindingProxy m_backendAnchorBinding;
