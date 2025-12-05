@@ -16,7 +16,6 @@ QtcPlugin {
         "httpresponse.h",
         "issuesmanager.cpp",
         "issuesmanager.h",
-        "mcp.qrc",
         "mcpserver.cpp",
         "mcpserver.h",
         "mcpservertest.cpp",
