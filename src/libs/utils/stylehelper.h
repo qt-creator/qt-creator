@@ -43,6 +43,7 @@ constexpr char C_SHOW_BORDER[] = "showborder";
 constexpr char C_TOP_BORDER[] = "topBorder";
 constexpr char C_TOOLBAR_ACTIONWIDGET[] = "toolbar_actionWidget";
 constexpr char C_TABBAR_WHEELSCROLLING[] = "tabBarWheelScrolling";
+constexpr char C_TABBAR_PINNED_DOCUMENT[] = "pinnedTab";
 
 constexpr char C_QT_SCALE_FACTOR_ROUNDING_POLICY[] = "QT_SCALE_FACTOR_ROUNDING_POLICY";
 

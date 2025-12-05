@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../generalsettings.h"
+#include "documentmodel_p.h"
 #include "editormanager_p.h"
+
 #include <utils/temporaryfile.h>
 
 #include <QTest>
@@ -31,6 +33,7 @@ private slots:
     void testKeepDocumentWhenClosingTabWithMoreSuspendedTabs();
     void testAlwaysSwitchToTab();
     void testCloseSplit();
+    void testPinned();
 };
 
 QObject *createTabbedEditorTest()
@@ -337,6 +340,29 @@ void TabbedEditorTest::testCloseSplit()
     QCOMPARE(DocumentModel::editorsForFilePath(a.filePath()), (QList<IEditor *>{editorA}));
     QCOMPARE(DocumentModel::entryForFilePath(d.filePath()), nullptr);
     QCOMPARE(DocumentModel::entryForFilePath(e.filePath()), nullptr);
+}
+
+void TabbedEditorTest::testPinned()
+{
+    TestFile a;
+    TestFile b;
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 1);
+    EditorView *view0 = views.at(0);
+    IEditor *editorA = EMP::openEditor(view0, a.filePath());
+    QVERIFY(editorA);
+    QCOMPARE(view0->tabs().size(), 1);
+    DocumentModel::Entry *entryA = DocumentModel::entryForDocument(editorA->document());
+    QVERIFY(entryA);
+    DocumentModelPrivate::setPinned(entryA, true);
+    QCOMPARE(entryA->pinned, true);
+    // check that clicking the close button unpins instead of closes
+    emit view0->tabCloseRequested(0);
+    QCOMPARE(view0->tabs().size(), 1);
+    QCOMPARE(entryA->pinned, false);
+    // and that after that the document is closed
+    emit view0->tabCloseRequested(0);
+    QCOMPARE(view0->tabs().size(), 0);
 }
 
 } // namespace Core::Internal

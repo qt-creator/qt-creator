@@ -42,6 +42,9 @@ namespace Internal {
 class EditorArea;
 class SplitterOrView;
 class ViewTabBar;
+#if WITH_TESTS
+class TabbedEditorTest;
+#endif
 
 class EditLocation
 {
@@ -154,6 +157,9 @@ protected:
 
 private:
     friend class SplitterOrView; // for setParentSplitterOrView
+#if WITH_TESTS
+    friend class Core::Internal::TabbedEditorTest; // tabCloseRequested
+#endif
 
     void closeCurrentEditor();
     void listSelectionActivated(int index);
@@ -164,6 +170,7 @@ private:
     void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
     int tabForEntry(DocumentModel::Entry *entry) const;
     void activateTab(int index);
+    void tabCloseRequested(int index);
     void closeTab(int index);
 
     void setParentSplitterOrView(SplitterOrView *splitterOrView);

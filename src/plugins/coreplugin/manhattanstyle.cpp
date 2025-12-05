@@ -246,6 +246,11 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
         if (qobject_cast<const QLineEdit*>(widget) && panelWidget(widget))
             return 1;
         break;
+    case PM_TabCloseIndicatorWidth:
+    case PM_TabCloseIndicatorHeight:
+        if (widget && widget->property(StyleHelper::C_TABBAR_PINNED_DOCUMENT).toBool())
+            return 18;
+        break;
     default:
         break;
     }
@@ -613,6 +618,31 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 {
     if (panelWidget(widget)) {
         drawPrimitiveForPanelWidget(element, option, painter, widget);
+    } else if (
+        element == PE_IndicatorTabClose && widget
+        && widget->property(StyleHelper::C_TABBAR_PINNED_DOCUMENT).toBool()) {
+        // pinned documents in editor tab bar
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
+
+        const bool hover = (option->state & State_MouseOver);
+        const qreal devicePixelRatio = painter->device()->devicePixelRatio();
+        QRect iconRect = option->rect.adjusted(1, 1, -1, -1);
+        iconRect.moveCenter(option->rect.center());
+        if (hover) {
+            QColor hoverColor = creatorColor(Theme::PanelTextColorLight);
+            hoverColor.setAlphaF(.2);
+            painter->setPen(hoverColor);
+            hoverColor.setAlphaF(.1);
+            painter->setBrush(hoverColor);
+            painter->drawRoundedRect(option->rect.adjusted(1, 1, -1, -1), 2, 2);
+        }
+        const static QIcon closeIcon = Utils::Icons::PINNED.icon();
+        const QPixmap iconPx
+            = closeIcon.pixmap(iconRect.size() * devicePixelRatio, devicePixelRatio, QIcon::Normal);
+        painter->drawPixmap(iconRect, iconPx);
+
+        painter->restore();
     } else {
         const bool tweakDarkTheme =
                 (element == PE_Frame

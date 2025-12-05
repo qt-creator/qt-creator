@@ -3,6 +3,7 @@
 
 #include "editorview.h"
 
+#include "../coreplugintr.h"
 #include "../editormanager/ieditor.h"
 #include "../editortoolbar.h"
 #include "../findplaceholder.h"
@@ -131,7 +132,7 @@ private:
 
 // EditorView
 
-static void updateTabText(QTabBar *tabBar, int index, IDocument *document)
+static void updateTabUi(QTabBar *tabBar, int index, IDocument *document)
 {
     QTC_ASSERT(index >= 0 && index < tabBar->count(), return);
     const auto data = tabBar->tabData(index).value<EditorView::TabData>();
@@ -142,6 +143,24 @@ static void updateTabText(QTabBar *tabBar, int index, IDocument *document)
         title += " (s)";
     tabBar->setTabText(index, title);
     tabBar->setTabToolTip(index, document->toolTip());
+
+    // HACK:
+    // Make close button to unpin button or back again
+    // Relies on Qt implementation details
+    QWidget *closeButton = [tabBar, index] {
+        if (QWidget *button = tabBar->tabButton(index, QTabBar::LeftSide))
+            return button;
+        return tabBar->tabButton(index, QTabBar::RightSide);
+    }();
+    DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
+    if (QTC_GUARD(entry && closeButton)) {
+        closeButton->setProperty(StyleHelper::C_TABBAR_PINNED_DOCUMENT, entry->pinned);
+        closeButton->setToolTip(
+            entry->pinned ? Tr::tr("Unpin")
+                          : QCoreApplication::translate("CloseButton", "Close Tab"));
+        closeButton->resize(closeButton->sizeHint());
+        closeButton->update();
+    }
 }
 
 EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
@@ -195,7 +214,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
         m_tabBar,
         &QTabBar::tabCloseRequested,
         this,
-        [this](int index) { closeTab(index); },
+        [this](int index) { tabCloseRequested(index); },
         Qt::QueuedConnection /* do not modify tab bar in tab bar signal */);
     connect(
         m_tabBar,
@@ -223,7 +242,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
                 DocumentModel::Entry *e = DocumentModel::entryAtRow(i);
                 const int tabIndex = tabForEntry(e);
                 if (tabIndex >= 0)
-                    updateTabText(m_tabBar, tabIndex, e->document);
+                    updateTabUi(m_tabBar, tabIndex, e->document);
             }
         });
     // Watch for items that are removed from the document model, e.g. suspended items
@@ -553,7 +572,7 @@ void EditorView::restoreTabState(QDataStream *stream)
         // use already added IEditor for auto saved document if possible
         m_tabBar->setTabData(
             tabIndex, QVariant::fromValue(TabData({editorForDocument(entry->document), entry})));
-        updateTabText(m_tabBar, tabIndex, entry->document);
+        updateTabUi(m_tabBar, tabIndex, entry->document);
     }
 }
 
@@ -638,7 +657,7 @@ void EditorView::addEditor(IEditor *editor)
         tabIndex = m_tabBar->addTab(""); // text set below
     m_tabBar->setTabData(
         tabIndex, QVariant::fromValue(TabData({editor, DocumentModel::entryForDocument(document)})));
-    updateTabText(m_tabBar, tabIndex, document);
+    updateTabUi(m_tabBar, tabIndex, document);
     m_tabBar->setVisible(false); // something is wrong with QTabBar... this is needed
     m_tabBar->setVisible(m_isShowingTabs);
 
@@ -674,7 +693,9 @@ void EditorView::removeEditor(IEditor *editor, RemovalOption option)
         } else {
             const auto data = m_tabBar->tabData(tabIndex).value<TabData>();
             m_tabBar->setTabData(tabIndex, QVariant::fromValue(TabData({nullptr, data.entry})));
-            updateTabText(m_tabBar, tabIndex, editor->document());
+            // use data.entry->document here, since the editor's document might have been
+            // removed from the document model already
+            updateTabUi(m_tabBar, tabIndex, data.entry->document);
         }
     }
 
@@ -763,7 +784,7 @@ void EditorView::closeOtherTabs(DocumentModel::Entry *entry)
     }
     if (closeCurrentEditor) {
         const int index = tabForEditor(current);
-        if (QTC_GUARD((index == 0 || index == 1) && index < m_tabBar->count()))
+        if (QTC_GUARD(index >= 0 && index < m_tabBar->count()))
             closeTab(index);
     }
 }
@@ -777,11 +798,25 @@ void EditorView::removeUnpinnedSuspendedTabs()
     }
 }
 
+void EditorView::tabCloseRequested(int index)
+{
+    if (index < 0 || index >= m_tabBar->count())
+        return;
+    const auto data = m_tabBar->tabData(index).value<TabData>();
+    if (data.entry->pinned) {
+        DocumentModelPrivate::setPinned(data.entry, false);
+    } else {
+        closeTab(index);
+    }
+}
+
 void EditorView::closeTab(int index)
 {
     if (index < 0 || index >= m_tabBar->count())
         return;
     const auto data = m_tabBar->tabData(index).value<TabData>();
+    if (data.entry->pinned)
+        return;
     if (data.editor)
         EditorManagerPrivate::closeEditorOrDocument(data.editor);
     else {
