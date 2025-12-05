@@ -12,10 +12,10 @@
 #include <nanotrace/nanotrace.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/devicemanagermodel.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorericons.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -23,8 +23,6 @@
 #include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -144,6 +142,8 @@ private:
 QVariant DebuggerTreeItem::data(int column, int role) const
 {
     switch (role) {
+    case FilePathRole: return m_item.command().toVariant();
+
     case Qt::DisplayRole:
         switch (column) {
         case 0:
@@ -1162,11 +1162,16 @@ public:
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
 
+        m_filterModel = new DeviceFilterModel(this);
+        m_filterModel->setSourceModel(&itemModel());
         m_sortModel = new KitSettingsSortModel(this);
-        m_sortModel->setSourceModel(&itemModel());
+        m_sortModel->setSourceModel(m_filterModel);
         m_sortModel->setSortedCategories({genericCategoryDisplayName(),
                                           ProjectExplorer::Constants::msgAutoDetected(),
                                           ProjectExplorer::Constants::msgManual()});
+        m_deviceModel = new DeviceManagerModel(this);
+        m_deviceComboBox = new QComboBox(this);
+        m_deviceComboBox->setModel(m_deviceModel);
         m_debuggerView = new QTreeView(this);
         m_debuggerView->setModel(m_sortModel);
         m_debuggerView->setUniformRowHeights(true);
@@ -1190,7 +1195,13 @@ public:
         buttonLayout->addWidget(m_delButton);
         buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
+        const auto deviceLayout = new QHBoxLayout;
+        deviceLayout->addWidget(new QLabel(Tr::tr("Device:")));
+        deviceLayout->addWidget(m_deviceComboBox);
+        deviceLayout->addStretch(1);
+
         auto verticalLayout = new QVBoxLayout();
+        verticalLayout->addLayout(deviceLayout);
         verticalLayout->addWidget(m_debuggerView);
         verticalLayout->addWidget(m_container);
 
@@ -1207,6 +1218,14 @@ public:
                 this, &DebuggerSettingsPageWidget::cloneDebugger, Qt::QueuedConnection);
         connect(m_delButton, &QAbstractButton::clicked,
                 this, &DebuggerSettingsPageWidget::removeDebugger, Qt::QueuedConnection);
+
+        m_deviceComboBox->setCurrentIndex(
+            m_deviceModel->indexOf(DeviceManager::defaultDesktopDevice()));
+        const auto updateDevice = [this](int idx) {
+            m_filterModel->setDevice(m_deviceModel->device(idx));
+        };
+        connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
+        updateDevice(m_deviceComboBox->currentIndex());
 
         m_itemConfigWidget = new DebuggerItemConfigWidget;
         m_container->setWidget(m_itemConfigWidget);
@@ -1233,7 +1252,10 @@ public:
     void currentDebuggerChanged(const QModelIndex &newCurrent);
     void updateButtons();
 
+    DeviceManagerModel *m_deviceModel;
+    DeviceFilterModel *m_filterModel;
     KitSettingsSortModel *m_sortModel;
+    QComboBox *m_deviceComboBox;
     QTreeView *m_debuggerView;
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
@@ -1244,12 +1266,14 @@ public:
 
 QModelIndex DebuggerSettingsPageWidget::mapFromSource(const QModelIndex &idx) const
 {
-    return m_sortModel->mapFromSource(idx);
+    QTC_ASSERT(m_sortModel->sourceModel() == m_filterModel, return {});
+    return m_sortModel->mapFromSource(m_filterModel->mapFromSource(idx));
 }
 
 QModelIndex DebuggerSettingsPageWidget::mapToSource(const QModelIndex &idx) const
 {
-    return m_sortModel->mapToSource(idx);
+    QTC_ASSERT(m_sortModel->sourceModel() == m_filterModel, return {});
+    return m_filterModel->mapToSource(m_sortModel->mapToSource(idx));
 }
 
 void DebuggerSettingsPageWidget::cloneDebugger()
