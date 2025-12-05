@@ -169,6 +169,7 @@ int main(int argc, char *argv[])
 
     // clang-format off
     TabWidget {
+        size(800, 600),
         Tab {
             "Selection Aspect",
             AspectUI(selectionAspect(), true)
