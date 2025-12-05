@@ -56,8 +56,6 @@ using CppAssistProposalModelPtr = QSharedPointer<CppAssistProposalModel>;
 
 class InternalCompletionAssistProvider : public CppCompletionAssistProvider
 {
-    Q_OBJECT
-
 public:
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 
