@@ -93,6 +93,7 @@ McpServer::McpServer(QObject *parent)
 
         // Build the CallToolResult payload as required by the spec.
         QJsonObject result;
+        result.insert("structuredContent", rawResult);
         QJsonObject textBlock{
             {"type", "text"},
             {"text", QString::fromUtf8(QJsonDocument(rawResult).toJson(QJsonDocument::Compact))}};
