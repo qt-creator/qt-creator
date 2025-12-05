@@ -39,7 +39,7 @@ void QmlPreviewClient::loadUrl(const QUrl &url)
     };
 
     m_numExpectedEvents = m_events.size();
-    if (m_numExpectedEvents > 0) {
+    if (m_numExpectedEvents > 0 && m_replayClient->state() == QmlDebugClient::Enabled) {
         const QList<QmlEvent> recorded = std::exchange(m_events, {});
         setAnimationSpeed(1000);
         doLoad();
@@ -47,6 +47,7 @@ void QmlPreviewClient::loadUrl(const QUrl &url)
             m_replayClient->sendEvent(m_eventTypes[event.typeIndex()], event);
         m_replayTimer.start();
     } else {
+        m_events.clear();
         doLoad();
     }
 }
