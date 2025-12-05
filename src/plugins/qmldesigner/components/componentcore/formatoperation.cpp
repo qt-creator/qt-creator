@@ -22,8 +22,9 @@ namespace {
 struct StylePropertyStruct
 {
     QString id;
-    QStringList subclasses;
-    QStringList properties;
+    QByteArray moduleName;
+    QByteArrayList subclasses;
+    QByteArrayList properties;
 };
 
 struct StyleProperties
@@ -35,6 +36,19 @@ struct StyleProperties
 QList<StylePropertyStruct> copyableProperties = {};
 QList<StyleProperties> applyableProperties = {};
 StylePropertyStruct chosenItem = {};
+
+Module resolveModule(QHash<QByteArray, Module> &modules, Model *model, const QByteArray &moduleName)
+{
+    Module module;
+    if (modules.contains(moduleName)) {
+        module = modules[moduleName];
+    } else {
+        module = model->module(moduleName, Storage::ModuleKind::QmlLibrary);
+        modules.insert(moduleName, module);
+    }
+    return module;
+}
+
 } // namespace
 
 void readFormatConfiguration()
@@ -62,19 +76,20 @@ void readFormatConfiguration()
                QVariantMap itemMap = item.toVariantMap();
                StylePropertyStruct current;
                current.id = itemMap["id"].toString();
-               QVariantList subclassVariantList = itemMap["subclasses"].toList();
-               QStringList subclassList;
+               current.moduleName = itemMap["module"].toByteArray();
+               const QVariantList subclassVariantList = itemMap["subclasses"].toList();
+               QByteArrayList subclassList;
 
-               for (auto subclass : subclassVariantList)
-                   subclassList.append(subclass.toString());
+               for (const QVariant &subclass : subclassVariantList)
+                   subclassList.append(subclass.toByteArray());
 
                current.subclasses = subclassList;
 
-               QVariantList propertyList = itemMap["properties"].toList();
-               QStringList propertyStringList;
+               const QVariantList propertyList = itemMap["properties"].toList();
+               QByteArrayList propertyStringList;
 
-               for (auto property : propertyList)
-                   propertyStringList.append(property.toString());
+               for (const QVariant &property : propertyList)
+                   propertyStringList.append(property.toByteArray());
 
                current.properties = propertyStringList;
                copyableProperties.append(current);
@@ -87,19 +102,22 @@ bool propertiesCopyable(const SelectionContext &selectionState)
 {
     NanotraceHR::Tracer tracer{"format operation properties copyable", category()};
 
-    if (!selectionState.singleNodeIsSelected())
+    if (!selectionState.singleNodeIsSelected() || !selectionState.model())
         return false;
 
     readFormatConfiguration();
 
     ModelNode modelNode = selectionState.currentSingleSelectedNode();
 
-    for (StylePropertyStruct copyable : copyableProperties)
-        for (QString copyableSubclass : copyable.subclasses) {
-            auto base = modelNode.model()->metaInfo(copyableSubclass.toUtf8());
-            if (modelNode.metaInfo().isBasedOn(base))
+    QHash<QByteArray, Module> modules;
+
+    for (const StylePropertyStruct &copyable : std::as_const(copyableProperties)) {
+        Module module = resolveModule(modules, selectionState.model(), copyable.moduleName);
+        for (const QByteArray &copyableSubclass : std::as_const(copyable.subclasses)) {
+            if (modelNode.metaInfo().isBasedOn(modelNode.model()->metaInfo(module, copyableSubclass)))
                 return true;
         }
+    }
     return false;
 }
 
@@ -107,17 +125,20 @@ bool propertiesApplyable(const SelectionContext &selectionState)
 {
     NanotraceHR::Tracer tracer{"format operation properties applyable", category()};
 
-    if (selectionState.selectedModelNodes().isEmpty())
+    if (selectionState.selectedModelNodes().isEmpty() || !selectionState.model())
         return false;
 
     if (chosenItem.subclasses.isEmpty())
         return false;
 
+    auto module = selectionState.model()->module(chosenItem.moduleName,
+                                                 Storage::ModuleKind::QmlLibrary);
+
     const ModelNode firstSelectedNode = selectionState.firstSelectedModelNode();
     bool found = false;
 
-    for (QString copyableSubclass : chosenItem.subclasses) {
-        auto base = firstSelectedNode.model()->metaInfo(copyableSubclass.toUtf8());
+    for (const QByteArray &copyableSubclass : std::as_const(chosenItem.subclasses)) {
+        auto base = firstSelectedNode.model()->metaInfo(module, copyableSubclass);
         if (firstSelectedNode.metaInfo().isBasedOn(base)) {
             found = true;
             break;
@@ -127,11 +148,12 @@ bool propertiesApplyable(const SelectionContext &selectionState)
     if (!found)
         return false;
 
-    for (const ModelNode &modelNode : selectionState.selectedModelNodes()){
+    const QList<ModelNode> nodes = selectionState.selectedModelNodes();
+    for (const ModelNode &modelNode : nodes) {
         found = false;
 
-        for (QString subclass : chosenItem.subclasses) {
-            auto base = modelNode.model()->metaInfo(subclass.toUtf8());
+        for (const QByteArray &subclass : std::as_const(chosenItem.subclasses)) {
+            auto base = modelNode.model()->metaInfo(module, subclass);
             if (modelNode.metaInfo().isBasedOn(base)) {
                 found = true;
                 break;
@@ -151,18 +173,20 @@ void copyFormat(const SelectionContext &selectionState)
 {
     NanotraceHR::Tracer tracer{"format operation copy format", category()};
 
-    if (!selectionState.view())
+    if (!selectionState.view() || !selectionState.model())
         return;
 
     selectionState.view()->executeInTransaction("DesignerActionManager|copyFormat", [selectionState]() {
         applyableProperties.clear();
 
         ModelNode node = selectionState.currentSingleSelectedNode();
-        QStringList propertyList;
-        for (StylePropertyStruct copyable : copyableProperties){
+        QByteArrayList propertyList;
+        QHash<QByteArray, Module> modules;
+        for (const StylePropertyStruct &copyable : std::as_const(copyableProperties)) {
             bool found = false;
-            for (QString copyableSubclass : copyable.subclasses) {
-                auto base = node.model()->metaInfo(copyableSubclass.toUtf8());
+            Module module = resolveModule(modules, selectionState.model(), copyable.moduleName);
+            for (const QByteArray &copyableSubclass : std::as_const(copyable.subclasses)) {
+                auto base = node.model()->metaInfo(module, copyableSubclass);
                 if (node.metaInfo().isBasedOn(base)) {
                     propertyList = copyable.properties;
                     chosenItem = copyable;
@@ -176,11 +200,11 @@ void copyFormat(const SelectionContext &selectionState)
 
         QmlObjectNode qmlObjectNode(node);
 
-        for (auto propertyName : propertyList) {
-            if (qmlObjectNode.propertyAffectedByCurrentState(propertyName.toUtf8())) {
+        for (const QByteArray &propertyName : std::as_const(propertyList)) {
+            if (qmlObjectNode.propertyAffectedByCurrentState(propertyName)) {
                 StyleProperties property;
-                property.propertyName = propertyName.toUtf8();
-                property.value = qmlObjectNode.modelValue(propertyName.toUtf8());
+                property.propertyName = propertyName;
+                property.value = qmlObjectNode.modelValue(propertyName);
                 applyableProperties.append(property);
             }
         }
@@ -191,19 +215,21 @@ void applyFormat(const SelectionContext &selectionState)
 {
     NanotraceHR::Tracer tracer{"format operation apply format", category()};
 
-    if (!selectionState.view())
+    if (!selectionState.view() || !selectionState.model())
         return;
 
     selectionState.view()->executeInTransaction("DesignerActionManager|applyFormat",[selectionState](){
-
-        for (ModelNode node : selectionState.selectedModelNodes()) {
+        const QList<ModelNode> nodes = selectionState.selectedModelNodes();
+        for (const ModelNode &node : nodes) {
             QmlObjectNode qmlObjectNode(node);
-            QStringList propertyList;
+            QByteArrayList propertyList;
+            QHash<QByteArray, Module> modules;
 
-            for (StylePropertyStruct copyable : copyableProperties){
+            for (const StylePropertyStruct &copyable : std::as_const(copyableProperties)) {
                 bool found = false;
-                for (QString copyableSubclass : copyable.subclasses) {
-                    auto base = node.model()->metaInfo(copyableSubclass.toUtf8());
+                Module module = resolveModule(modules, selectionState.model(), copyable.moduleName);
+                for (const QByteArray &copyableSubclass : std::as_const(copyable.subclasses)) {
+                    auto base = node.model()->metaInfo(module, copyableSubclass);
                     if (node.metaInfo().isBasedOn(base)) {
                         propertyList = copyable.properties;
                         found = true;
@@ -214,13 +240,15 @@ void applyFormat(const SelectionContext &selectionState)
                     break;
             }
 
-            for (auto propertyName : propertyList)
-                if (qmlObjectNode.propertyAffectedByCurrentState(propertyName.toUtf8()))
-                    qmlObjectNode.removeProperty(propertyName.toUtf8());
+            for (const QByteArray &propertyName : std::as_const(propertyList)) {
+                if (qmlObjectNode.propertyAffectedByCurrentState(propertyName))
+                    qmlObjectNode.removeProperty(propertyName);
+            }
 
-            for (StyleProperties currentProperty : applyableProperties)
+            for (const StyleProperties &currentProperty : std::as_const(applyableProperties)) {
                 if (node.metaInfo().hasProperty((currentProperty.propertyName)))
                     qmlObjectNode.setVariantProperty(currentProperty.propertyName, currentProperty.value);
+            }
         }
     });
 }
