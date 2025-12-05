@@ -75,11 +75,33 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     m_dialog->setWindowModality(Qt::ApplicationModal);
     m_dialog->setWindowFlags(Qt::Dialog);
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
-    m_dialog->setMinimumSize(1149, 554);
 
-    QSize screenSize = m_dialog->screen()->geometry().size();
-    if (screenSize.height() < 1080)
-        m_dialog->resize(parent->size());
+    m_dialog->setMinimumSize(1100, 554);
+
+    int width = 1200;
+    int height = 800;
+    QRect screenGeometry = parent->screen()->availableGeometry();
+    if (screenGeometry.width() < width)
+        width = screenGeometry.width();
+    if (screenGeometry.height() < height)
+        height = screenGeometry.height();
+    m_dialog->resize(width, height);
+
+    int x = parent->x();
+    int y = parent->y();
+    if (m_dialog->width() < parent->width())
+        x = parent->x() + (parent->width() - m_dialog->width()) / 2;
+    if (m_dialog->height() < parent->height())
+        y = parent->y() + (parent->height() - m_dialog->height()) / 2;
+
+    // Keep dialog from splitting screens
+    if (x < screenGeometry.x() || x + width > screenGeometry.x() + screenGeometry.width()
+        || y < screenGeometry.y() || y + height > screenGeometry.y() + screenGeometry.height()) {
+        x = screenGeometry.x() + (screenGeometry.width() - m_dialog->width()) / 2;
+        y = screenGeometry.y() + (screenGeometry.height() - m_dialog->height()) / 2;
+    }
+
+    m_dialog->move(x, y);
 
     QObject::connect(&m_wizard, &WizardHandler::deletingWizard, this, &QdsNewDialog::onDeletingWizard);
     QObject::connect(&m_wizard, &WizardHandler::wizardCreated, this, &QdsNewDialog::onWizardCreated);
