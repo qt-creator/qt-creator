@@ -359,10 +359,9 @@ void DocumentModelPrivate::itemChanged(IDocument *document)
         // Account for the weird requirements of beginMoveRows().
         const int effectiveToIndex = toIndex > fromIndex ? toIndex + 1 : toIndex;
         beginMoveRows(QModelIndex(), fromIndex, fromIndex, QModelIndex(), effectiveToIndex);
-
         m_entries.move(fromIndex - 1, toIndex - 1);
-
         endMoveRows();
+        emit dataChanged(index(toIndex, 0), index(toIndex, 0));
     } else {
         // Nothing to remove or add: The entry did not move.
         QTC_CHECK(positions.first == -1 && positions.second == -1);
