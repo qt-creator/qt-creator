@@ -8,9 +8,12 @@
 #include "environment.h"
 #include "filepath.h"
 #include "qtcprocess.h"
+#include "settingsdatabase.h"
 
 #include <QDateTime>
 #include <QHash>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMutex>
 #include <QMutexLocker>
 
@@ -47,6 +50,8 @@ public:
         OutputParser parser;
         ErrorHandler errorHandler;
         Callback callback;
+        Callback cachedValueChangedCallback;
+        bool persistValue = true;
         QList<ProcessResult> allowedResults{ProcessResult::FinishedWithSuccess};
     };
 
@@ -104,6 +109,33 @@ inline std::optional<Data> DataFromProcess<Data>::getOrProvideData(const Paramet
 
     const auto outputRetriever = std::make_shared<Process>();
     outputRetriever->setCommand(params.commandLine);
+
+    if (params.persistValue && !params.callback) {
+        const QChar separator = params.commandLine.executable().pathListSeparator();
+        const QString stringKey = params.commandLine.executable().toUrlishString() + separator
+                                  + params.commandLine.arguments() + separator
+                                  + params.environment.toStringList().join(separator);
+        if (const QByteArray json = SettingsDatabase::value(stringKey).toByteArray();
+            !json.isEmpty()) {
+            if (const auto doc = QJsonDocument::fromJson(json); doc.isObject()) {
+                const QJsonObject settingsObject = doc.object();
+                const QString out = settingsObject["stdout"].toString();
+                const QString err = settingsObject["stderr"].toString();
+                std::optional<Data> data = params.parser(out, err);
+                QMutexLocker<QMutex> cacheLocker(&m_cacheMutex);
+                m_cache.insert(key, std::make_pair(data, exeTimestamp));
+                QObject::connect(
+                    outputRetriever.get(),
+                    &Process::done,
+                    [params, exeTimestamp, key, outputRetriever] {
+                        handleProcessFinished(params, exeTimestamp, key, outputRetriever);
+                    });
+                outputRetriever->start();
+                return data;
+            }
+        }
+    }
+
     if (params.callback) {
         QObject::connect(outputRetriever.get(),
                          &Process::done,
@@ -133,11 +165,34 @@ inline std::optional<Data> DataFromProcess<Data>::handleProcessFinished(
     }
 
     std::optional<Data> data;
-    if (params.allowedResults.contains(process->result()))
+    if (params.allowedResults.contains(process->result())) {
+        if (params.persistValue) {
+            const QChar separator = params.commandLine.executable().pathListSeparator();
+            const QString stringKey = params.commandLine.executable().toUrlishString() + separator
+                                      + params.commandLine.arguments() + separator
+                                      + params.environment.toStringList().join(separator);
+            QJsonObject settingsObject;
+            const QString out = process->cleanedStdOut();
+            const QString err = process->cleanedStdErr();
+            settingsObject["stdout"] = out;
+            settingsObject["stderr"] = err;
+            SettingsDatabase::setValue(
+                stringKey,
+                QString::fromUtf8(QJsonDocument(settingsObject).toJson(QJsonDocument::Compact)));
+        }
         data = params.parser(process->cleanedStdOut(), process->cleanedStdErr());
-    else if (params.errorHandler)
+    } else if (params.errorHandler) {
         params.errorHandler(*process);
+    }
     QMutexLocker<QMutex> cacheLocker(&m_cacheMutex);
+    if (params.cachedValueChangedCallback) {
+        const auto it = m_cache.constFind(cacheKey);
+        if (it != m_cache.constEnd() && it.value().second == exeTimestamp) {
+            if (it.value().first != data)
+                params.cachedValueChangedCallback(data);
+        }
+    }
+
     m_cache.insert(cacheKey, std::make_pair(data, exeTimestamp));
     if (params.callback) {
         params.callback(data);

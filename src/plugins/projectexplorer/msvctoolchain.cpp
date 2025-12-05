@@ -1612,6 +1612,9 @@ public:
 
     static ClangClInfo getInfo(const FilePath &filePath);
 
+    friend bool operator==(const ClangClInfo &lhs, const ClangClInfo &rhs);
+    friend bool operator!=(const ClangClInfo &lhs, const ClangClInfo &rhs);
+
 private:
     FilePath m_filePath;
     QVersionNumber m_version;
@@ -2373,6 +2376,17 @@ ClangClInfo ClangClInfo::getInfo(const FilePath &filePath)
     };
     const auto info = DataFromProcess<ClangClInfo>::getData({{filePath, {"--version"}}, parser});
     return info ? *info : ClangClInfo();
+}
+
+bool operator==(const ClangClInfo &lhs, const ClangClInfo &rhs)
+{
+    return lhs.m_filePath == rhs.m_filePath && lhs.m_version == rhs.m_version
+           && lhs.m_defaultAbi == rhs.m_defaultAbi;
+}
+
+bool operator!=(const ClangClInfo &lhs, const ClangClInfo &rhs)
+{
+    return !(lhs == rhs);
 }
 
 } // namespace ProjectExplorer::Internal

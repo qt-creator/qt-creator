@@ -175,6 +175,7 @@ static FilePath queryResourceDir(const FilePath &clangToolPath)
                                                  parser);
     params.environment.setupEnglishOutput();
     params.allowedResults << ProcessResult::FinishedWithError;
+    params.persistValue = false;
     if (const auto filePath = DataFromProcess<FilePath>::getData(params))
         return *filePath;
     return {};
@@ -197,6 +198,7 @@ QString queryVersion(const FilePath &clangToolPath, QueryFailMode failMode)
         return {};
     };
     DataFromProcess<QString>::Parameters params({clangToolPath, {"--version"}}, parser);
+    params.persistValue = true;
     params.environment.setupEnglishOutput();
     if (failMode == QueryFailMode::Noisy)
         params.errorHandler = handleProcessError;
@@ -223,6 +225,30 @@ QPair<FilePath, QString> getClangIncludeDirAndVersion(const FilePath &clangToolP
     if (it == cache.end())
         it = cache.insert(clangToolPath, clangIncludeDirAndVersion(clangToolPath));
     return it.value();
+}
+
+bool operator==(const ClazyStandaloneInfo &c1, const ClazyStandaloneInfo &c2)
+{
+    return c1.version == c2.version
+           && c1.defaultChecks == c2.defaultChecks
+           && c1.supportedChecks == c2.supportedChecks;
+}
+
+bool operator!=(const ClazyStandaloneInfo &c1, const ClazyStandaloneInfo &c2)
+{
+    return !(c1 == c2);
+}
+
+bool operator==(const ClazyCheck &c1, const ClazyCheck &c2)
+{
+    return c1.name == c2.name
+           && c1.level == c2.level
+           && c1.topics == c2.topics;
+}
+
+bool operator!=(const ClazyCheck &c1, const ClazyCheck &c2)
+{
+    return !(c1 == c2);
 }
 
 } // namespace Internal
