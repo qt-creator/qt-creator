@@ -22,6 +22,7 @@ struct AspectUI : public Column
     {
         QLabel *volatileLabel = new QLabel;
         QLabel *valueLabel = new QLabel;
+        QLabel *storeLabel = new QLabel;
         QCheckBox *autoApplyCheck = new QCheckBox();
 
         autoApplyCheck->setText("Auto Apply:");
@@ -41,10 +42,13 @@ struct AspectUI : public Column
         QToolButton *redoBtn = new QToolButton();
         redoBtn->setDefaultAction(undoStack->createRedoAction(redoBtn));
 
-        const auto updateWidgets = [aspect, applyBtn, volatileLabel, valueLabel]() {
+        const auto updateWidgets = [aspect, applyBtn, volatileLabel, valueLabel, storeLabel]() {
             applyBtn->setEnabled(aspect->isDirty());
             volatileLabel->setText(QString("%1").arg(aspect->volatileVariantValue().toString()));
             valueLabel->setText(QString("%1").arg(aspect->variantValue().toString()));
+            Utils::Store map;
+            aspect->toMap(map);
+            storeLabel->setText(QString::fromUtf8(jsonFromStore(map)));
         };
 
         QObject::connect(
@@ -92,6 +96,14 @@ struct AspectUI : public Column
                     Group { Column { "Value:", valueLabel } },
                 }
             },
+            Group {
+                sizePolicy(QSizePolicy{QSizePolicy::Expanding, QSizePolicy::Fixed}),
+                Column {
+                    noMargin,
+                    "Store Representation:",
+                    storeLabel,
+                },
+            },
             st,
             Row {
                 undoBtn,
@@ -113,6 +125,7 @@ int main(int argc, char *argv[])
 
     auto selectionAspect = [] {
         auto selectionAspect = new Utils::SelectionAspect();
+        selectionAspect->setSettingsKey("SelectionAspectId");
         selectionAspect->addOption("Option 1", "This is option 1");
         selectionAspect->addOption("Option 2", "This is option 2");
         selectionAspect->addOption("Option 3", "This is option 3");
@@ -121,6 +134,7 @@ int main(int argc, char *argv[])
 
     auto comboSelectionAspect = [] {
         auto selectionAspect = new Utils::SelectionAspect();
+        selectionAspect->setSettingsKey("SelectionAspectId");
         selectionAspect->setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
         selectionAspect->addOption("Option 1", "This is option 1");
         selectionAspect->addOption("Option 2", "This is option 2");
@@ -130,6 +144,7 @@ int main(int argc, char *argv[])
 
     auto stringAspect = [] {
         auto stringAspect = new Utils::StringAspect();
+        stringAspect->setSettingsKey("StringAspectId");
         stringAspect->setDisplayStyle(Utils::StringAspect::DisplayStyle::LineEditDisplay);
         stringAspect->setDefaultValue("Default Value");
         stringAspect->setPlaceHolderText("Placeholder text");
@@ -138,6 +153,7 @@ int main(int argc, char *argv[])
 
     auto integerAspect = [] {
         auto integerAspect = new Utils::IntegerAspect();
+        integerAspect->setSettingsKey("IntegerAspectId");
         integerAspect->setRange(-10, 10);
         integerAspect->setDefaultValue(0);
         return integerAspect;
@@ -145,6 +161,7 @@ int main(int argc, char *argv[])
 
     auto runAsAspect = [] {
         auto runAsAspect = new ProjectExplorer::RunAsAspect();
+        runAsAspect->setSettingsKey("RunAsAspectId");
         return runAsAspect;
     };
 
