@@ -98,6 +98,18 @@ class WatcherEntry
     using file_time_type = std::filesystem::file_time_type;
 
 public:
+    WatcherEntry(const ProjectChunkId &id,
+                 const DirectoryPathId &directoryPathId,
+                 const SourceId &sourceId,
+                 const file_time_type &lastModified = file_time_type::min(),
+                 const long long size = -1)
+        : id(id)
+        , directoryPathId(directoryPathId)
+        , sourceId(sourceId)
+        , lastModified(lastModified)
+        , size(size)
+    {}
+
     ProjectChunkId id;
     DirectoryPathId directoryPathId;
     SourceId sourceId;

@@ -3539,7 +3539,7 @@ NodeMetaInfo Model::metaInfo(Utils::SmallStringView typeName,
     return NodeMetaInfo(d->projectStorage->exportedTypeName(d->importedTypeNameId(typeName)).typeId,
                         d->projectStorage);
 #else
-    return NodeMetaInfo(metaInfoProxyModel(), QByteArray(typeName), majorVersion, minorVersion);
+    return NodeMetaInfo(metaInfoProxyModel(), typeName.toByteArray(), majorVersion, minorVersion);
 #endif
 }
 
