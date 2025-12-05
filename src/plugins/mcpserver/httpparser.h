@@ -39,6 +39,7 @@ public:
         QMap<QString, QString> headers; ///< HTTP headers (case-insensitive keys)
         QByteArray body;                ///< Request body content
         bool isValid;                   ///< Whether the request is valid
+        bool needMoreData;              ///< Whether the request has all data available
         QString errorMessage;           ///< Error message if parsing failed
     };
 

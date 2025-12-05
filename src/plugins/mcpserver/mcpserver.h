@@ -72,6 +72,7 @@ private:
     QList<QTcpSocket *> m_sseClients;
     McpCommands *m_commandsP;
     quint16 m_port;
+    QHash<QTcpSocket*, QByteArray> m_partialData;
 };
 
 } // namespace Mcp::Internal

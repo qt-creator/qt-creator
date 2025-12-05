@@ -20,6 +20,7 @@ HttpParser::HttpRequest HttpParser::parseRequest(const QByteArray &data)
 {
     HttpRequest request;
     request.isValid = false;
+    request.needMoreData = false;
     request.errorMessage.clear();
 
     if (data.isEmpty()) {
@@ -124,9 +125,10 @@ HttpParser::HttpRequest HttpParser::parseRequest(const QByteArray &data)
         }
 
         if (request.body.size() != contentLength) {
-            request.errorMessage = QString("Body size mismatch: expected %1, got %2")
-                                       .arg(contentLength)
-                                       .arg(request.body.size());
+            request.needMoreData = true;
+            request.errorMessage = QString("Body incomplete: %1/%2 bytes received")
+                                       .arg(request.body.size()).arg(contentLength);
+            // Keep the partially‑read body; the caller can prepend it to the next read.
             return request;
         }
     }

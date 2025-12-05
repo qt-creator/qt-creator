@@ -66,6 +66,13 @@ McpServer::McpServer(QObject *parent)
         initResult["protocolVersion"] = "2024-11-05";
         initResult["capabilities"] = capabilities;
         initResult["serverInfo"] = serverInfo;
+        initResult["instructions"]
+            = "Use the listed tools to interact with the current Qt Creator session.";
+
+        // optional meta
+        QJsonObject meta;
+        meta["timestamp"] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+        initResult["_meta"] = meta;
 
         return createSuccessResponse(initResult, id);
     });
@@ -91,6 +98,14 @@ McpServer::McpServer(QObject *parent)
             {"text", QString::fromUtf8(QJsonDocument(rawResult).toJson(QJsonDocument::Compact))}};
         result.insert("content", QJsonArray{textBlock});
         result.insert("isError", false);
+
+        return createSuccessResponse(result, id);
+    });
+
+    addMethod("resources/list", [this](const QJsonObject &, const QJsonValue &id) {
+        QJsonArray emptyResources;
+        QJsonObject result;
+        result.insert("resources", emptyResources);
 
         return createSuccessResponse(result, id);
     });
@@ -525,9 +540,9 @@ void McpServer::onHttpPost(QTcpSocket *client, const HttpParser::HttpRequest &re
 {
     // Handle MCP JSON-RPC requests
     if (request.body.isEmpty()) {
-        QByteArray errorResponse
-            = HttpResponse::createErrorResponse(HttpResponse::BAD_REQUEST, "Empty request body");
-        sendHttpResponse(client, errorResponse);
+        QByteArray noContent
+            = HttpResponse::createCorsResponse(QByteArray(), HttpResponse::NO_CONTENT);
+        sendHttpResponse(client, noContent);
         return;
     }
 
@@ -571,8 +586,7 @@ void McpServer::onHttpPost(QTcpSocket *client, const HttpParser::HttpRequest &re
     broadcastSseMessage(response);
 
     // The HTTP POST itself gets a 204 No Content response (nothing in body).
-    QByteArray noContent = HttpResponse::createCorsResponse(QByteArray(),
-                                                            HttpResponse::NO_CONTENT);
+    QByteArray noContent = HttpResponse::createCorsResponse(QByteArray(), HttpResponse::NO_CONTENT);
     sendHttpResponse(client, noContent);
 }
 
@@ -773,8 +787,16 @@ void McpServer::handleClientData()
     if (!client)
         return;
 
-    QByteArray data = client->readAll();
-    qCDebug(mcpServer) << "Received data, size:" << data.size();
+    // Append the newly-received bytes to any data we already have for this socket
+    m_partialData[client] += client->readAll();
+    bool needMoreData = false;
+    const QScopeGuard cleanUpPartialData([&] {
+        if (!needMoreData)
+            m_partialData.remove(client);
+    });
+
+    const QByteArray &data = m_partialData[client];
+    qCDebug(mcpServer) << "Received data, total buffered size:" << data.size();
 
     // Check if this is an HTTP request
     if (isHttpRequest(data)) {
@@ -782,6 +804,14 @@ void McpServer::handleClientData()
 
         // Parse HTTP request
         HttpParser::HttpRequest httpRequest = m_httpParserP->parseRequest(data);
+
+        if (httpRequest.needMoreData) {
+            // We don't have the whole request yet – just wait for more data.
+            needMoreData = true;
+            qCDebug(mcpServer) << "HTTP request incomplete, waiting for more bytes";
+            return;
+        }
+
         if (!httpRequest.isValid) {
             qCDebug(mcpServer) << "Invalid HTTP request:" << httpRequest.errorMessage;
             QByteArray errorResponse = HttpResponse::createErrorResponse(
