@@ -763,18 +763,5 @@
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/plugins/mcpserver/LICENSE",
         "Copyright": "Copyright (c) 2025 davecotter"
-    },
-    {
-        "Id": "efsw",
-        "Name": "Entropia File System Watcher",
-        "QDocModule": "qtcreator",
-        "QtParts": ["tools"],
-        "QtUsage": "Used for watching files in QmlDesigner.",
-        "Description": "C++ cross-platform file system watcher and notifier.",
-        "Homepage": "https://github.com/SpartanJ/efsw",
-        "Version": "1.5.0",
-        "License": "MIT License",
-        "LicenseFile": "https://github.com/SpartanJ/efsw/blob/master/LICENSE",
-        "Copyright": "Copyright (c) 2020 Martín Lucas Golini"
     }
 ]
