@@ -38,7 +38,7 @@ Item {
                 extendedFunctionButton.color = StudioTheme.Values.themeInteraction
             }
         } else {
-            if (!backendValue.complexNode || !backendValue.complexNode.exists)
+            if (!backendValue.isComplexNode)
                 extendedFunctionButton.glyph = StudioTheme.Constants.actionIcon
         }
     }

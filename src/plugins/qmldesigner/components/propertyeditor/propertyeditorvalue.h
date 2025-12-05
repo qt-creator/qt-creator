@@ -58,43 +58,6 @@ private:
     AbstractView *view() const;
 };
 
-class PropertyEditorNodeWrapper : public QObject
-{
-    Q_OBJECT
-
-    Q_PROPERTY(bool exists READ exists NOTIFY existsChanged)
-    Q_PROPERTY(QQmlPropertyMap *properties READ properties NOTIFY propertiesChanged)
-    Q_PROPERTY(QString type READ type NOTIFY typeChanged)
-
-public:
-    PropertyEditorNodeWrapper(QObject *parent = nullptr);
-    PropertyEditorNodeWrapper(PropertyEditorValue *parent);
-
-    bool exists() const;
-    QString type() const;
-    QQmlPropertyMap *properties();
-    ModelNode parentModelNode() const;
-    PropertyNameView propertyName() const;
-
-public slots:
-    void add(const QString &type = QString());
-    void remove();
-    void changeValue(const QString &propertyName);
-    void update();
-
-signals:
-    void existsChanged();
-    void propertiesChanged();
-    void typeChanged();
-
-private:
-    void setup();
-
-    ModelNode m_modelNode;
-    QQmlPropertyMap m_valuesPropertyMap;
-    PropertyEditorValue *m_editorValue = nullptr;
-};
-
 class QMLDESIGNER_EXPORT PropertyEditorValue : public QObject
 {
     Q_OBJECT
@@ -114,7 +77,7 @@ class QMLDESIGNER_EXPORT PropertyEditorValue : public QObject
     Q_PROPERTY(QStringList expressionAsList READ getExpressionAsList NOTIFY expressionChanged FINAL)
 
     Q_PROPERTY(QString name READ nameAsQString CONSTANT FINAL)
-    Q_PROPERTY(PropertyEditorNodeWrapper *complexNode READ complexNode NOTIFY complexNodeChanged FINAL)
+    Q_PROPERTY(bool isComplexNode READ isComplexNode NOTIFY isComplexNodeChanged FINAL)
 
     Q_PROPERTY(bool isAvailable READ isAvailable NOTIFY isBoundChanged)
 
@@ -160,7 +123,7 @@ public:
     NodeMetaInfo propertyType() const { return m_propertyType; }
     void resetMetaInfo();
 
-    PropertyEditorNodeWrapper *complexNode();
+    bool isComplexNode() const;
 
     static void registerDeclarativeTypes();
 
@@ -203,7 +166,7 @@ signals:
 
     void modelStateChanged();
     void modelNodeChanged();
-    void complexNodeChanged();
+    void isComplexNodeChanged();
     void isBoundChanged();
     void isValidChanged();
     void isExplicitChanged();
@@ -220,12 +183,10 @@ private:
     QVariant m_value;
     QString m_expression;
     Utils::SmallString m_name;
-    bool m_isInSubState = false;
-    bool m_isInModel = false;
+    bool m_isComplexNode = false;
     bool m_isBound = false;
     bool m_hasActiveDrag = false;
     bool m_isValid = false; // if the property value belongs to a non-existing complexProperty it is invalid
-    PropertyEditorNodeWrapper *m_complexNode;
     bool m_forceBound = false;
 };
 
@@ -234,4 +195,3 @@ PropertyEditorValue *variantToPropertyEditorValue(const QVariant &value);
 } // namespace QmlDesigner
 
 QML_DECLARE_TYPE(QmlDesigner::PropertyEditorValue)
-QML_DECLARE_TYPE(QmlDesigner::PropertyEditorNodeWrapper)

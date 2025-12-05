@@ -4,7 +4,6 @@
 #include "propertyeditorvalue.h"
 
 #include "propertyeditortracing.h"
-#include "propertyeditorutils.h"
 #include "propertyeditorview.h"
 
 #include <abstractview.h>
@@ -32,25 +31,9 @@ namespace QmlDesigner {
 
 using QmlDesigner::PropertyEditorTracing::category;
 
-PropertyEditorValue::PropertyEditorValue(QObject *parent)
-    : QObject(parent),
-      m_complexNode(new PropertyEditorNodeWrapper(this))
-{
-    NanotraceHR::Tracer tracer{"property editor value constructor", category()};
-}
+namespace {
 
-QVariant PropertyEditorValue::value() const
-{
-    NanotraceHR::Tracer tracer{"property editor value value", category()};
-
-    QVariant returnValue = m_value;
-    if (m_propertyType.isUrl())
-        returnValue = returnValue.toUrl().toString();
-
-    return returnValue;
-}
-
-static bool cleverDoubleCompare(const QVariant &value1, const QVariant &value2)
+bool cleverDoubleCompare(const QVariant &value1, const QVariant &value2)
 {
     if (value1.typeId() == QMetaType::Double && value2.typeId() == QMetaType::Double) {
         // ignore slight changes on doubles
@@ -60,7 +43,7 @@ static bool cleverDoubleCompare(const QVariant &value1, const QVariant &value2)
     return false;
 }
 
-static bool cleverColorCompare(const QVariant &value1, const QVariant &value2)
+bool cleverColorCompare(const QVariant &value1, const QVariant &value2)
 {
     if (value1.typeId() == QMetaType::QColor && value2.typeId() == QMetaType::QColor) {
         QColor c1 = value1.value<QColor>();
@@ -79,7 +62,7 @@ static bool cleverColorCompare(const QVariant &value1, const QVariant &value2)
 
 // "red" is the same color as "#ff0000"
 // To simplify editing we convert all explicit color names in the hash format
-static void fixAmbigousColorNames(const NodeMetaInfo &metaInfo, QVariant *value)
+void fixAmbigousColorNames(const NodeMetaInfo &metaInfo, QVariant *value)
 {
     if (metaInfo.isColor()) {
         if (value->typeId() == QMetaType::QColor) {
@@ -94,7 +77,7 @@ static void fixAmbigousColorNames(const NodeMetaInfo &metaInfo, QVariant *value)
     }
 }
 
-static void fixUrl(const NodeMetaInfo &metaInfo, QVariant *value)
+void fixUrl(const NodeMetaInfo &metaInfo, QVariant *value)
 {
     if (metaInfo.isUrl()) {
         if (!value->isValid())
@@ -107,9 +90,36 @@ static void fixUrl(const NodeMetaInfo &metaInfo, QVariant *value)
  * because the color is converted to a string ignoring the alpha channel.
  * By comparing the variants in both directions we gain a symmetric comparison.
  */
-static bool compareVariants(const QVariant &value1, const QVariant &value2)
+bool compareVariants(const QVariant &value1, const QVariant &value2)
 {
     return value1 == value2 && value2 == value1;
+}
+
+bool modelHasNodePropertyWithSimilarName(const ModelNode &modelNode, PropertyNameView name)
+{
+    if (modelNode.hasProperty(name) && modelNode.property(name).isNodeProperty()) {
+        const ModelNode nodePropertyModelNode = modelNode.nodeProperty(name).modelNode();
+        return nodePropertyModelNode.isValid();
+    }
+    return false;
+}
+
+} // namespace
+
+PropertyEditorValue::PropertyEditorValue(QObject *parent)
+    : QObject(parent)
+{
+    NanotraceHR::Tracer tracer{"property editor value constructor", category()};
+}
+
+QVariant PropertyEditorValue::value() const
+{
+    NanotraceHR::Tracer tracer{"property editor value value", category()};
+
+    if (m_propertyType.isUrl())
+        return m_value.toUrl().toString();
+
+    return m_value;
 }
 
 void PropertyEditorValue::setValueWithEmit(const QVariant &value)
@@ -370,7 +380,12 @@ void PropertyEditorValue::setModelNodeAndProperty(const ModelNode &modelNode,
     if (modelNode != m_modelNode) {
         m_modelNode = modelNode;
 
-        m_complexNode->update();
+        bool isComplex = modelHasNodePropertyWithSimilarName(m_modelNode, name);
+        if (m_isComplexNode != isComplex) {
+            m_isComplexNode = isComplex;
+            emit isComplexNodeChanged();
+        }
+
         emit modelNodeChanged();
     }
 
@@ -380,11 +395,9 @@ void PropertyEditorValue::setModelNodeAndProperty(const ModelNode &modelNode,
     }
 }
 
-PropertyEditorNodeWrapper *PropertyEditorValue::complexNode()
+bool PropertyEditorValue::isComplexNode() const
 {
-    NanotraceHR::Tracer tracer{"property editor value complex node", category()};
-
-    return m_complexNode;
+    return m_isComplexNode;
 }
 
 void PropertyEditorValue::resetValue()
@@ -690,7 +703,6 @@ void PropertyEditorValue::registerDeclarativeTypes()
     NanotraceHR::Tracer tracer{"property editor value register declarative types", category()};
 
     qmlRegisterType<PropertyEditorValue>("HelperWidgets", 2, 0, "PropertyEditorValue");
-    qmlRegisterType<PropertyEditorNodeWrapper>("HelperWidgets", 2, 0, "PropertyEditorNodeWrapper");
     qmlRegisterType<QQmlPropertyMap>("HelperWidgets", 2, 0, "QQmlPropertyMap");
 }
 
@@ -698,170 +710,6 @@ void PropertyEditorValue::resetMetaInfo()
 {
     m_propertyType = {};
     m_propertyMetaInfo = {};
-}
-
-PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue *parent)
-    : QObject(parent),
-      m_valuesPropertyMap(this)
-{
-    NanotraceHR::Tracer tracer{"property editor value node wrapper constructor", category()};
-
-    m_editorValue = parent;
-    connect(m_editorValue, &PropertyEditorValue::modelNodeChanged, this, &PropertyEditorNodeWrapper::update);
-}
-
-PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(QObject *parent)
-    : QObject(parent)
-{
-    NanotraceHR::Tracer tracer{"property editor node wrapper constructor", category()};
-}
-
-bool PropertyEditorNodeWrapper::exists() const
-{
-    NanotraceHR::Tracer tracer{"property editor node wrapper exists", category()};
-
-    return m_editorValue && m_editorValue->modelNode().isValid() && m_modelNode.isValid();
-}
-
-QString PropertyEditorNodeWrapper::type() const
-{
-    NanotraceHR::Tracer tracer{"property editor node wrapper type", category()};
-
-    return m_modelNode.exportedTypeName().name.toQString();
-}
-
-ModelNode PropertyEditorNodeWrapper::parentModelNode() const
-{
-    NanotraceHR::Tracer tracer{"property editor node wrapper parent model node", category()};
-
-    return m_editorValue->modelNode();
-}
-
-PropertyNameView PropertyEditorNodeWrapper::propertyName() const
-{
-    NanotraceHR::Tracer tracer{"property editor node wrapper property name", category()};
-
-    return m_editorValue->name();
-}
-
-QQmlPropertyMap *PropertyEditorNodeWrapper::properties()
-{
-    NanotraceHR::Tracer tracer{"property editor node wrapper properties", category()};
-
-    return &m_valuesPropertyMap;
-}
-
-void PropertyEditorNodeWrapper::add(const QString &type)
-{
-    NanotraceHR::Tracer tracer{"property editor node wrapper add", category()};
-
-    TypeName propertyType = type.toUtf8();
-
-    if ((m_editorValue && m_editorValue->modelNode().isValid())) {
-        if (propertyType.isEmpty()) {
-            auto node = m_editorValue->modelNode();
-            auto metaInfo = m_editorValue->propertyType();
-            auto exportedTypeName = node.model()->exportedTypeNameForMetaInfo(metaInfo);
-            propertyType = exportedTypeName.name.toQByteArray();
-        }
-        m_modelNode = m_editorValue->modelNode().view()->createModelNode(propertyType);
-
-        m_editorValue->modelNode().nodeAbstractProperty(m_editorValue->name()).reparentHere(m_modelNode);
-        if (!m_modelNode.isValid())
-            qWarning("PropertyEditorNodeWrapper::add failed");
-    } else {
-        qWarning("PropertyEditorNodeWrapper::add failed - node invalid");
-    }
-    setup();
-}
-
-void PropertyEditorNodeWrapper::remove()
-{
-    NanotraceHR::Tracer tracer{"property editor node wrapper remove", category()};
-
-    if ((m_editorValue && m_editorValue->modelNode().isValid())) {
-        QmlObjectNode(m_modelNode).destroy();
-        m_editorValue->modelNode().removeProperty(m_editorValue->name());
-    } else {
-        qWarning("PropertyEditorNodeWrapper::remove failed - node invalid");
-    }
-    m_modelNode = ModelNode();
-
-    const QStringList propertyNames = m_valuesPropertyMap.keys();
-    for (const QString &propertyName : propertyNames)
-        m_valuesPropertyMap.clear(propertyName);
-    qDeleteAll(m_valuesPropertyMap.children());
-    emit propertiesChanged();
-    emit existsChanged();
-}
-
-void PropertyEditorNodeWrapper::changeValue(const QString &propertyName)
-{
-    NanotraceHR::Tracer tracer{"property editor node wrapper change value", category()};
-
-    const PropertyName name = propertyName.toUtf8();
-
-    if (name.isNull())
-        return;
-
-    if (auto qmlObjectNode = QmlObjectNode{m_modelNode}) {
-        auto valueObject = variantToPropertyEditorValue(
-            m_valuesPropertyMap.value(QString::fromUtf8(name)));
-
-        if (valueObject->value().isValid())
-            qmlObjectNode.setVariantProperty(name, valueObject->value());
-        else
-            qmlObjectNode.removeProperty(name);
-    }
-}
-
-void PropertyEditorNodeWrapper::setup()
-{
-    NanotraceHR::Tracer tracer{"property editor node wrapper setup", category()};
-
-    Q_ASSERT(m_editorValue);
-    Q_ASSERT(m_editorValue->modelNode().isValid());
-
-    if (m_editorValue->modelNode().isValid() && m_modelNode.isValid()) {
-        const QStringList propertyNames = m_valuesPropertyMap.keys();
-        for (const QString &propertyName : propertyNames)
-            m_valuesPropertyMap.clear(propertyName);
-        qDeleteAll(m_valuesPropertyMap.children());
-
-        if (QmlObjectNode qmlObjectNode = m_modelNode) {
-            const PropertyMetaInfos props = PropertyEditorUtils::filteredProperties(
-                m_modelNode.metaInfo());
-            for (const auto &property : props) {
-                const auto &propertyName = property.name();
-                auto valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
-                valueObject->setModelNodeAndProperty(m_modelNode, propertyName);
-                valueObject->setValue(qmlObjectNode.instanceValue(propertyName));
-                connect(valueObject, &PropertyEditorValue::valueChanged, &m_valuesPropertyMap, &QQmlPropertyMap::valueChanged);
-                m_valuesPropertyMap.insert(QString::fromUtf8(propertyName), QVariant::fromValue(valueObject));
-            }
-        }
-    }
-    connect(&m_valuesPropertyMap, &QQmlPropertyMap::valueChanged, this, &PropertyEditorNodeWrapper::changeValue);
-
-    emit propertiesChanged();
-    emit existsChanged();
-}
-
-void PropertyEditorNodeWrapper::update()
-{
-    NanotraceHR::Tracer tracer{"property editor node wrapper update", category()};
-
-    if (!m_editorValue || !m_editorValue->modelNode().isValid())
-        return;
-
-    if (m_editorValue->modelNode().hasProperty(m_editorValue->name())
-        && m_editorValue->modelNode().property(m_editorValue->name()).isNodeProperty()) {
-        m_modelNode = m_editorValue->modelNode().nodeProperty(m_editorValue->name()).modelNode();
-    }
-
-    setup();
-    emit existsChanged();
-    emit typeChanged();
 }
 
 QQmlPropertyMap *PropertyEditorSubSelectionWrapper::properties()
