@@ -621,43 +621,11 @@ void CorePlugin::warnAboutCrashReporing()
         label->setWindowTitle(Tr::tr("Crash Reporting"));
         label->setWordWrap(true);
         label->setOpenExternalLinks(true);
-        label->setText(msgCrashpadInformation());
+        label->setText(SystemSettings::msgCrashpadInformation());
         label->setContentsMargins(0, 0, 0, 8);
         return label;
     });
     infoBar->addInfo(info);
-}
-
-// static
-QString CorePlugin::msgCrashpadInformation()
-{
-#if ENABLE_CRASHREPORTING
-#if CRASHREPORTING_USES_CRASHPAD
-    const QString backend = "Google Crashpad";
-    const QString url
-        = "https://chromium.googlesource.com/crashpad/crashpad/+/master/doc/overview_design.md";
-#else
-    const QString backend = "Google Breakpad";
-    const QString url
-        = "https://chromium.googlesource.com/breakpad/breakpad/+/HEAD/docs/client_design.md";
-#endif
-    //: %1 = application name, %2 crash backend name (Google Crashpad or Google Breakpad)
-    return Tr::tr("%1 uses %2 for collecting crashes and sending them to Sentry "
-                  "for processing. %2 may capture arbitrary contents from crashed process’ "
-                  "memory, including user sensitive information, URLs, and whatever other content "
-                  "users have trusted %1 with. The collected crash reports are however only used "
-                  "for the sole purpose of fixing bugs.")
-               .arg(QGuiApplication::applicationDisplayName(), backend)
-           + "<br><br>" + Tr::tr("More information:") + "<br><a href='" + url
-           + "'>"
-           //: %1 = crash backend name (Google Crashpad or Google Breakpad)
-           + Tr::tr("%1 Overview").arg(backend)
-           + "</a>"
-             "<br><a href='https://sentry.io/security/'>"
-           + Tr::tr("%1 security policy").arg("Sentry.io") + "</a>";
-#else
-    return {};
-#endif
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()

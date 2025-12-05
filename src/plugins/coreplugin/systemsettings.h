@@ -48,6 +48,8 @@ public:
     Utils::NameValueDictionary envVarSeparators() const { return m_envVarSeparators; }
     void setEnvVarSeparators(const Utils::NameValueDictionary &separators);
 
+    static QString msgCrashpadInformation();
+
 private:
     static Utils::NameValueDictionary defaultEnvVarSeparators();
 
