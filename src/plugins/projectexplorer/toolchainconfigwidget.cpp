@@ -60,6 +60,8 @@ void ToolchainConfigWidget::apply()
     if (!bundle().detectionSource().isAutoDetected()) {
         for (const auto &[tc, pathChooser] : std::as_const(m_commands))
             bundle().setCompilerCommand(tc->language(), pathChooser->filePath());
+        bundle().setCxxCompilerIsManuallyProvided(
+            m_manualCxxCompilerCheckBox && m_manualCxxCompilerCheckBox->isChecked());
     }
     applyImpl();
 }
@@ -152,7 +154,7 @@ void ToolchainConfigWidget::setupCompilerPathChoosers()
         if (tc.language() == Constants::CXX_LANGUAGE_ID
             && bundle().factory()->supportedLanguages().contains(Constants::C_LANGUAGE_ID)) {
             m_manualCxxCompilerCheckBox = new QCheckBox(Tr::tr("Provide manually"));
-            m_manualCxxCompilerCheckBox->setChecked(false);
+            m_manualCxxCompilerCheckBox->setChecked(tc.isManuallyProvidedCxxCompiler());
             const auto commandLayout = new QHBoxLayout;
             commandLayout->addWidget(commandChooser);
             commandLayout->addWidget(m_manualCxxCompilerCheckBox);

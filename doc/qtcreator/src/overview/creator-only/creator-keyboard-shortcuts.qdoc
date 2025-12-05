@@ -944,10 +944,6 @@
             \li Run to line
             \li Ctrl+F10
             \li Shift+F8
-        \row
-            \li Reverse direction
-            \li F12
-            \li \e {None}
     \endtable
 
     \section1 Help Mode Shortcuts

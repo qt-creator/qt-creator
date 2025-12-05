@@ -136,6 +136,9 @@ public:
     virtual void setCompilerCommand(const Utils::FilePath &command);
     virtual bool matchesCompilerCommand(const Utils::FilePath &command) const;
 
+    void setIsManuallyProvidedCxxCompiler(bool manuallyProvided);
+    bool isManuallyProvidedCxxCompiler() const;
+
     virtual QList<Utils::OutputLineParser *> createOutputParsers() const = 0;
 
     virtual bool operator ==(const Toolchain &) const;
@@ -288,6 +291,7 @@ public:
 
     void setDetectionSource(const DetectionSource &s) { set(&Toolchain::setDetectionSource, s); }
     void setCompilerCommand(Utils::Id language, const Utils::FilePath &cmd);
+    void setCxxCompilerIsManuallyProvided(bool manuallyProvided);
 
     void setDisplayName(const QString &name) { set(&Toolchain::setDisplayName, name); }
     void setTargetAbi(const Abi &abi) { set(&Toolchain::setTargetAbi, abi); }

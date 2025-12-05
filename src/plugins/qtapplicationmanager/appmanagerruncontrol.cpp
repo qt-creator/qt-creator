@@ -189,6 +189,7 @@ public:
             rp.setupPortsGatherer(runControl);
             rp.setStartMode(Debugger::AttachToRemoteServer);
             rp.setCloseMode(Debugger::KillAndExitMonitorAtClose);
+            rp.setSkipDebugServer(true);
 
             if (rp.isCppDebugging()) {
                 rp.setUseExtendedRemote(false);
