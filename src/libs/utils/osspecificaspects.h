@@ -60,7 +60,7 @@ inline Utils::Result<OsArch> osArchFromString(const QString &architecture)
         return OsArchX86;
     if (architecture == QLatin1String("ia64"))
         return OsArchItanium;
-    if (architecture == QLatin1String("arm"))
+    if (architecture == QLatin1String("arm") || architecture.startsWith(QLatin1String("armv")))
         return OsArchArm;
     if (architecture == QLatin1String("arm64") || architecture == QLatin1String("aarch64"))
         return OsArchArm64;
