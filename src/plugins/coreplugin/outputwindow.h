@@ -49,6 +49,7 @@ public:
 
     void grayOutOldContent();
     void clear();
+    void clearLinesPrefixedWith(const QString& prefix, bool deleteTrailingLineBreak);
     void flush();
     void reset();
 

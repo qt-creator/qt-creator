@@ -12,9 +12,12 @@
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
+#include <coreplugin/outputwindow.h>
 #include <coreplugin/progressmanager/processprogress.h>
 
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 
@@ -157,6 +160,12 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     commandLine.addArgs(arguments);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+
+    if (settings(parameters.project).cleanOldOutput())
+    {
+        ProjectExplorerPlugin::buildSystemOutput()->clearLinesPrefixedWith(Constants::OUTPUT_PREFIX, true);
+        Core::MessageManager::clearLinesPrefixedWith(Constants::OUTPUT_PREFIX, false);
+    }
 
     BuildSystem::startNewBuildSystemOutput(
         addCMakePrefix(::CMakeProjectManager::Tr::tr("Running %1 in %2.")

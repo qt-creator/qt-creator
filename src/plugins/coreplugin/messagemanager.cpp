@@ -66,6 +66,11 @@ public:
         m_widget->appendMessage(text, Utils::GeneralMessageFormat);
     }
 
+    void clearLinesPrefixedWith(const QString &prefix, bool deleteTrailingLineBreak)
+    {
+        m_widget->clearLinesPrefixedWith(prefix, deleteTrailingLineBreak);
+    }
+
 private:
     QWidget *outputWidget(QWidget *parent) final
     {
@@ -146,6 +151,15 @@ void setWheelZoomEnabled(bool enabled)
 {
     QTC_ASSERT(messageOutputWindow(), return);
     messageOutputWindow()->setWheelZoomEnabled(enabled);
+}
+
+void clearLinesPrefixedWith(const QString &prefix, bool deleteTrailingLineBreak)
+{
+    // Make sure this end up in the GUI thread.
+    QMetaObject::invokeMethod(Utils::shutdownGuard(), [prefix, deleteTrailingLineBreak] {
+        QTC_ASSERT(messageOutputWindow(), return);
+        messageOutputWindow()->clearLinesPrefixedWith(prefix, deleteTrailingLineBreak);
+    });
 }
 
 /*!

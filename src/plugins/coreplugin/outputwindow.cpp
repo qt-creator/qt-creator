@@ -774,6 +774,25 @@ void OutputWindow::clear()
     d->taskPositions.clear();
 }
 
+void OutputWindow::clearLinesPrefixedWith(const QString& prefix, bool deleteTrailingLineBreak)
+{
+    QTextDocument *doc = document();
+
+    auto block = doc->lastBlock();
+    while (true) {
+        if (block.text().startsWith(prefix)) {
+            QTextCursor c(block);
+            c.select(QTextCursor::BlockUnderCursor);
+            c.removeSelectedText();
+            if (deleteTrailingLineBreak)
+                c.deleteChar();
+        }
+        if (block == doc->firstBlock())
+            break;
+        block = block.previous();
+    }
+}
+
 void OutputWindow::flush()
 {
     if (totalQueuedSize() > 5 * d->chunkSize) {

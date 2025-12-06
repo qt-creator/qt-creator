@@ -52,6 +52,7 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
             showSourceSubFolders,
             showAdvancedOptionsByDefault,
             useJunctionsForSourceAndBuildDirectories,
+            cleanOldOutput,
             st
         };
     });
@@ -126,6 +127,10 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
         "With <tt>QTC_CMAKE_JUNCTIONS_HASH_LENGTH</tt>, you can shorten the MD5 hash key length "
         "to a value smaller than the default length value of 32.<br><br>"
         "Junctions are used for CMake configure, build and install operations."));
+
+    cleanOldOutput.setSettingsKey("CleanOldOutput");
+    cleanOldOutput.setDefaultValue(true);
+    cleanOldOutput.setLabelText(::CMakeProjectManager::Tr::tr("Clear CMake old output on a new run"));
 
     readSettings();
 
