@@ -147,7 +147,7 @@ void FetchContext::cherryPick()
     // Point user to errors.
     VcsBase::VcsOutputWindow::instance()->popup(IOutputPane::ModeSwitch
                                                   | IOutputPane::WithFocus);
-    gitClient().synchronousCherryPick(m_repository, "FETCH_HEAD");
+    gitClient().synchronousCherryPick(m_repository, {"FETCH_HEAD"});
 }
 
 void FetchContext::checkout()

@@ -1013,8 +1013,8 @@
             \li Copy local commits to the updated upstream head.
 
         \row
-            \li \uicontrol {Cherry Pick}
-            \li Cherry pick the top commit from the selected branch.
+            \li \uicontrol {Cherry-Pick}
+            \li Select commits to cherry-pick from the selected branch.
         \row
             \li \uicontrol Track
             \li Set the current branch to track the selected one.

@@ -59,7 +59,7 @@ private:
     QtTaskTree::Group fastForwardMergeRecipe(const std::function<void()> &callback);
     bool merge(bool allowFastForward);
     void rebase();
-    bool cherryPick();
+    void cherryPick();
     void log(const QModelIndex &idx);
     void reflog(const QModelIndex &idx);
     void push();

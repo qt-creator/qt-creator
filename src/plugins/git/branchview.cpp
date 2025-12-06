@@ -293,7 +293,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                                   .arg(currentName, indexName),
                                   this, &BranchView::rebase);
             contextMenu.addSeparator();
-            contextMenu.addAction(Tr::tr("Cherry &Pick"), this, &BranchView::cherryPick);
+            contextMenu.addAction(Tr::tr("Cherry-&Pick..."), this, &BranchView::cherryPick);
         }
         if (!currentSelected && !isTag) {
             if (currentLocal) {
@@ -601,15 +601,15 @@ void BranchView::rebase()
         gitClient().rebase(m_repository, baseBranch);
 }
 
-bool BranchView::cherryPick()
+void BranchView::cherryPick()
 {
     if (!Core::DocumentManager::saveAllModifiedDocuments())
-        return false;
+        return;
     const QModelIndex selected = selectedIndex();
     QTC_CHECK(selected != m_model->currentBranch());
 
     const QString branch = m_model->fullName(selected, true);
-    return gitClient().synchronousCherryPick(m_repository, branch);
+    cherryPickCommits(branch);
 }
 
 void BranchView::log(const QModelIndex &idx)

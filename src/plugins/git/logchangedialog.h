@@ -14,6 +14,7 @@
 QT_BEGIN_NAMESPACE
 class QDialogButtonBox;
 class QComboBox;
+class QLabel;
 class QStandardItemModel;
 class QStandardItem;
 QT_END_NAMESPACE
@@ -34,7 +35,8 @@ public:
     {
         None = 0x00,
         IncludeRemotes = 0x01,
-        Silent = 0x02
+        Silent = 0x02,
+        OmitMerges = 0x04,
     };
 
     Q_DECLARE_FLAGS(LogFlags, LogFlag)
@@ -43,6 +45,7 @@ public:
     bool init(const Utils::FilePath &repository, const QString &commit = {}, LogFlags flags = None);
     QString commit() const;
     int commitIndex() const;
+    QStringList commitList() const;
     QStringList patchRange() const;
     bool isRowSelected(int row) const;
     QString earliestCommit() const;
@@ -51,6 +54,7 @@ public:
 
 signals:
     void commitActivated(const QString &commit);
+    void hasSelectionChanged(bool hasSelection);
 
 private:
     void emitCommitActivated(const QModelIndex &index);
@@ -73,19 +77,21 @@ public:
     };
     LogChangeDialog(DialogType type, QWidget *parent);
 
-    void setContiguousSelectionEnabled(bool enabled);
+    void setSelectionMode(QAbstractItemView::SelectionMode mode);
 
     bool runDialog(const Utils::FilePath &repository, const QString &commit = QString(),
                    LogChangeWidget::LogFlags flags = LogChangeWidget::None);
 
     QString commit() const;
     int commitIndex() const;
+    QStringList commitList() const;
     QStringList patchRange() const;
     QString resetFlag() const;
     LogChangeWidget *widget() const;
 
 private:
     LogChangeWidget *m_widget = nullptr;
+    QLabel *m_selectionHintLabel = nullptr;
     QDialogButtonBox *m_dialogButtonBox = nullptr;
     QComboBox *m_resetTypeComboBox = nullptr;
 };

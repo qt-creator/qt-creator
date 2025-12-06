@@ -3558,18 +3558,21 @@ bool GitClient::synchronousRevert(const FilePath &workingDirectory, const QStrin
     return executeAndHandleConflicts(workingDirectory, {command, "--no-edit", commit}, command);
 }
 
-bool GitClient::synchronousCherryPick(const FilePath &workingDirectory, const QString &commit)
+bool GitClient::synchronousCherryPick(const FilePath &workingDirectory, const QStringList &commits)
 {
+    if (commits.isEmpty())
+        return false;
+
     const QString command = "cherry-pick";
     // "commit" might be --continue or --abort
-    const bool isRealCommit = !commit.startsWith('-');
+    const bool isRealCommit = !commits.first().startsWith('-');
     if (isRealCommit && !beginStashScope(workingDirectory, command))
         return false;
 
     QStringList arguments = {command};
-    if (isRealCommit && isRemoteCommit(workingDirectory, commit))
+    if (isRealCommit && isRemoteCommit(workingDirectory, commits.first()))
         arguments << "-x";
-    arguments << commit;
+    arguments << commits;
 
     return executeAndHandleConflicts(workingDirectory, arguments, command);
 }
@@ -3912,7 +3915,7 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
     const FilePath &workingDir = fileWorkingDirectory(source);
     const bool isRange = change.contains("..");
     menu->addAction(Tr::tr("Cherr&y-Pick %1").arg(change), [workingDir, change] {
-        gitClient().synchronousCherryPick(workingDir, change);
+        gitClient().synchronousCherryPick(workingDir, {change});
     });
     menu->addAction(Tr::tr("Re&vert %1").arg(change), [workingDir, change] {
         gitClient().synchronousRevert(workingDir, change);

@@ -291,7 +291,7 @@ public:
     void revert(const Utils::FilePath &workingDirectory, const QString &argument);
 
     bool synchronousRevert(const Utils::FilePath &workingDirectory, const QString &commit);
-    bool synchronousCherryPick(const Utils::FilePath &workingDirectory, const QString &commit);
+    bool synchronousCherryPick(const Utils::FilePath &workingDirectory, const QStringList &commits);
     void interactiveRebase(const Utils::FilePath &workingDirectory, const QString &commit, bool fixup);
     void synchronousAbortCommand(const Utils::FilePath &workingDir, const QString &abortCommand);
     QString synchronousTrackingBranch(const Utils::FilePath &workingDirectory,

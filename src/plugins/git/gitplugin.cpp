@@ -247,6 +247,7 @@ public:
     void cleanRepository();
     void updateSubmodules();
     void createPatchesFromCommits();
+    void cherryPickCommits(const QString &branch);
     void applyCurrentFilePatch();
     void applyClipboardPatch();
     void promptApplyPatch();
@@ -808,7 +809,7 @@ GitPluginPrivate::GitPluginPrivate()
 
     //: Avoid translating "Cherry Pick"
     m_abortCherryPickAction = createAction(Tr::tr("Abort Cherry Pick"), "Git.CherryPickAbort",
-        std::bind(&GitClient::synchronousCherryPick, &gitClient(), _1, QString("--abort")));
+        std::bind(&GitClient::synchronousCherryPick, &gitClient(), _1, QStringList("--abort")));
 
     //: Avoid translating "Cherry Pick"
     m_continueCherryPickAction = createAction(Tr::tr("Continue Cherry Pick"), "Git.CherryPickContinue",
@@ -1310,7 +1311,7 @@ void GitPluginPrivate::startChangeRelatedAction(const Id &id)
 
     switch (dialog.command()) {
     case CherryPick:
-        gitClient().synchronousCherryPick(workingDirectory, change);
+        gitClient().synchronousCherryPick(workingDirectory, {change});
         break;
     case Revert:
         gitClient().synchronousRevert(workingDirectory, change);
@@ -1605,12 +1606,30 @@ void GitPluginPrivate::createPatchesFromCommits()
 
     LogChangeDialog dialog(LogChangeDialog::Select, Core::ICore::dialogParent());
     PatchItemDelegate delegate(dialog.widget());
-    dialog.setContiguousSelectionEnabled(true);
+    dialog.setSelectionMode(QAbstractItemView::ContiguousSelection);
     dialog.setWindowTitle(Tr::tr("Select Commits for Patch Creation"));
 
     const Utils::FilePath topLevel = state.topLevel();
     if (dialog.runDialog(topLevel, {}, LogChangeWidget::None))
         gitClient().formatPatch(topLevel, dialog.patchRange());
+}
+
+void GitPluginPrivate::cherryPickCommits(const QString &branch)
+{
+    const VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+
+    LogChangeDialog dialog(LogChangeDialog::Select, Core::ICore::dialogParent());
+    PatchItemDelegate delegate(dialog.widget());
+    dialog.setSelectionMode(QAbstractItemView::MultiSelection);
+    dialog.setWindowTitle(Tr::tr("Select Commits to Cherry-Pick"));
+
+    const Utils::FilePath topLevel = state.topLevel();
+    const uint flags = LogChangeWidget::IncludeRemotes | LogChangeWidget::OmitMerges;
+    if (dialog.runDialog(topLevel, branch, LogChangeWidget::LogFlags(flags))) {
+        const QStringList commits = dialog.commitList();
+        gitClient().synchronousCherryPick(topLevel, commits);
+    }
 }
 
 // If the file is modified in an editor, make sure it is saved.
@@ -2345,6 +2364,11 @@ class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
         return nullptr;
     }
 };
+
+void cherryPickCommits(const QString &branch)
+{
+    dd->cherryPickCommits(branch);
+}
 
 } // Git::Internal
 

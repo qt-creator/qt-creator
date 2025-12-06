@@ -8,6 +8,7 @@
 
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
@@ -81,6 +82,10 @@ bool LogChangeWidget::init(const FilePath &repository, const QString &commit, Lo
     m_model->setWorkingDirectory(repository);
     if (!populateLog(repository, commit, flags))
         return false;
+
+    if (selectionMode() == QAbstractItemView::MultiSelection)
+        selectionModel()->clearSelection();
+
     if (m_model->rowCount() > 0)
         return true;
     if (!(flags & Silent))
@@ -101,6 +106,21 @@ int LogChangeWidget::commitIndex() const
     if (currentIndex.isValid())
         return currentIndex.row();
     return -1;
+}
+
+/**
+ * Returns a list of commit hashes suitable for cherry-picking.
+ */
+QStringList LogChangeWidget::commitList() const
+{
+    QModelIndexList selected = selectionModel()->selectedRows();
+    std::sort(selected.begin(), selected.end(), [](const QModelIndex &a, const QModelIndex &b) {
+        return a.row() > b.row(); // sort list bottom to top
+    });
+    const QStringList result = Utils::transform(selected, [](const QModelIndex &row) {
+        return row.data().toString();
+    });
+    return result;
 }
 
 /**
@@ -156,6 +176,8 @@ void LogChangeWidget::selectionChanged(const QItemSelection &selected,
                                        const QItemSelection &deselected)
 {
     Utils::TreeView::selectionChanged(selected, deselected);
+    emit hasSelectionChanged(!selected.isEmpty());
+
     if (!m_hasCustomDelegate)
         return;
     const QModelIndexList previousIndexes = deselected.indexes();
@@ -189,6 +211,8 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
             remotesFlag += '=' + m_excludedRemote;
         arguments << "--not" << remotesFlag;
     }
+    if (flags & OmitMerges)
+        arguments << "--no-merges";
     arguments << "--";
 
     const Result<QString> res = gitClient().synchronousLog(repository, arguments, RunFlags::NoOutput);
@@ -240,6 +264,11 @@ LogChangeDialog::LogChangeDialog(DialogType type, QWidget *parent) :
     const bool isReset = type == Reset;
     auto layout = new QVBoxLayout(this);
     layout->addWidget(new QLabel(isReset ? Tr::tr("Reset to:") : Tr::tr("Select change:"), this));
+    m_selectionHintLabel = new QLabel(
+                Tr::tr("Hint: Select or deselect a single commit with a mouse click "
+                       "and multiple commits by dragging the mouse over them."), this);
+    m_selectionHintLabel->setVisible(false);
+    layout->addWidget(m_selectionHintLabel);
     layout->addWidget(m_widget);
     auto popUpLayout = new QHBoxLayout;
     if (isReset) {
@@ -261,16 +290,18 @@ LogChangeDialog::LogChangeDialog(DialogType type, QWidget *parent) :
     connect(m_dialogButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     connect(m_widget, &LogChangeWidget::activated, okButton, [okButton] { okButton->animateClick(); });
+    connect(m_widget, &LogChangeWidget::hasSelectionChanged, this, [this](bool hasSelection) {
+        m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(hasSelection);
+    });
+
 
     resize(600, 400);
 }
 
-void LogChangeDialog::setContiguousSelectionEnabled(bool enabled)
+void LogChangeDialog::setSelectionMode(QAbstractItemView::SelectionMode mode)
 {
-    if (enabled)
-        m_widget->setSelectionMode(QAbstractItemView::ContiguousSelection);
-    else
-        m_widget->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_widget->setSelectionMode(mode);
+    m_selectionHintLabel->setVisible(mode == QAbstractItemView::SelectionMode::MultiSelection);
 }
 
 bool LogChangeDialog::runDialog(const FilePath &repository,
@@ -296,6 +327,11 @@ QString LogChangeDialog::commit() const
 int LogChangeDialog::commitIndex() const
 {
     return m_widget->commitIndex();
+}
+
+QStringList LogChangeDialog::commitList() const
+{
+    return m_widget->commitList();
 }
 
 QStringList LogChangeDialog::patchRange() const
