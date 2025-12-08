@@ -278,6 +278,17 @@ def package_qtcreator(args, paths):
     zip = common.sevenzip_command(args.zip_threads)
     if not args.no_zip:
         if not args.no_qtcreator:
+            # Workaround: always create a tiny cmdbridge.7z for build_wrapper.py
+            dummy_txt = os.path.join(paths.result, 'cmdbridge.txt')
+            with open(dummy_txt, 'w') as f:
+                f.write('dummy\n')
+            common.check_print_call(
+                common.sevenzip_command(args.zip_threads)
+                + [os.path.join(paths.result, 'cmdbridge' + args.zip_infix + '.7z'),
+                'cmdbridge.txt'],
+                paths.result
+            )
+            # real data
             common.check_print_call(zip
                                     + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '.7z'),
                                        zipPatternForApp(paths)],
