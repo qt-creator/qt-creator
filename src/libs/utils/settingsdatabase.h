@@ -26,18 +26,9 @@ QTCREATOR_UTILS_EXPORT void endTransaction();
 QTCREATOR_UTILS_EXPORT void destroy();
 
 template<typename T>
-void setValueWithDefault(const QString &key, const T &val, const T &defaultValue)
+void setValueWithDefault(const QString &key, const T &val, const T &defaultValue = T())
 {
     if (val == defaultValue)
-        remove(key);
-    else
-        setValue(key, QVariant::fromValue(val));
-}
-
-template<typename T>
-void setValueWithDefault(const QString &key, const T &val)
-{
-    if (val == T())
         remove(key);
     else
         setValue(key, QVariant::fromValue(val));
