@@ -3,7 +3,7 @@
 
 #include "settingsdatabase.h"
 
-#include <utils/qtcsettings.h>
+#include "qtcsettings.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -17,8 +17,8 @@
 #include <QVariant>
 
 /*!
-    \namespace Core::SettingsDatabase
-    \inheaderfile coreplugin/settingsdatabase.h
+    \namespace Utils::SettingsDatabase
+    \inheaderfile utils/settingsdatabase.h
     \inmodule QtCreator
 
     \brief The SettingsDatabase namespace offers an alternative to the
@@ -34,7 +34,7 @@
     \sa settings()
 */
 
-namespace Core::SettingsDatabase {
+namespace Utils::SettingsDatabase {
 
 enum { debug_settings = 0 };
 
@@ -277,4 +277,4 @@ void endTransaction()
     d->m_db.commit();
 }
 
-} // Core::SettingsDatabase
+} // Utils::SettingsDatabase

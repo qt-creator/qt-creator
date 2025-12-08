@@ -23,7 +23,6 @@
 #include "../outputpane.h"
 #include "../outputpanemanager.h"
 #include "../rightpane.h"
-#include "../settingsdatabase.h"
 #include "../systemsettings.h"
 #include "../vcsmanager.h"
 #include "documentmodel.h"
@@ -50,6 +49,7 @@
 #include <utils/overridecursor.h>
 #include <utils/qtcassert.h>
 #include <utils/searchresultitem.h>
+#include <utils/settingsdatabase.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 

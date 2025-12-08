@@ -23,7 +23,6 @@
 #include "loggingviewer.h"
 #include "modemanager.h"
 #include "session.h"
-#include "settingsdatabase.h"
 #include "systemsettings.h"
 #include "themechooser.h"
 #include "vcsmanager.h"
@@ -42,10 +41,11 @@
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/outputformatter.h>
 #include <utils/passworddialog.h>
 #include <utils/pathchooser.h>
-#include <utils/outputformatter.h>
 #include <utils/savefile.h>
+#include <utils/settingsdatabase.h>
 #include <utils/store.h>
 #include <utils/stringutils.h>
 #include <utils/textutils.h>

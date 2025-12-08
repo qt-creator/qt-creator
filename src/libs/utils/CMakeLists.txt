@@ -1,5 +1,5 @@
 add_qtc_library(Utils
-  DEPENDS Qt::Qml Qt::Xml Spinner QtCLibArchive
+  DEPENDS Qt::Qml Qt::Sql Qt::Xml Spinner QtCLibArchive
   PUBLIC_DEPENDS
     Qt::Concurrent
     Qt::Core
@@ -157,6 +157,7 @@ add_qtc_library(Utils
     searchresultitem.cpp searchresultitem.h
     set_algorithm.h
     settingsaccessor.cpp settingsaccessor.h
+    settingsdatabase.cpp settingsdatabase.h
     shutdownguard.cpp shutdownguard.h
     sizedarray.h
     smallstring.h

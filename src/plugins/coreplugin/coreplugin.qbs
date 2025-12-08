@@ -5,7 +5,7 @@ QtcPlugin {
     name: "Core"
     Depends {
         name: "Qt"
-        submodules: ["widgets", "xml", "network", "qml", "sql", "printsupport"]
+        submodules: ["widgets", "xml", "network", "qml", "printsupport"]
     }
 
     Depends {
@@ -156,8 +156,6 @@ QtcPlugin {
             "sessionview.h",
             "secretaspect.cpp",
             "secretaspect.h",
-            "settingsdatabase.cpp",
-            "settingsdatabase.h",
             "sidebar.cpp",
             "sidebar.h",
             "sidebarwidget.cpp",

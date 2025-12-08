@@ -6,11 +6,11 @@
 #include "webassemblyconstants.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/settingsdatabase.h>
 
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
+#include <utils/settingsdatabase.h>
 
 #include <QCache>
 
@@ -38,7 +38,7 @@ static QString emSdkEnvOutput(const FilePath &sdkRoot)
         return {};
     const QDateTime ts = tsFile.lastModified();
 
-    namespace DB = Core::SettingsDatabase;
+    namespace DB = SettingsDatabase;
     if (DB::value(emSdkEnvTSKey).toDateTime() == ts
         && FilePath::fromVariant(DB::value(emSdkEnvTSFileKey)) == tsFile
         && DB::contains(emSdkEnvOutputKey)) {
@@ -107,7 +107,7 @@ QVersionNumber version(const FilePath &sdkRoot)
         return {};
     const QDateTime ts = tsFile.lastModified();
 
-    namespace DB = Core::SettingsDatabase;
+    namespace DB = SettingsDatabase;
     if (DB::value(emSdkVersionTSKey).toDateTime() == ts
         && FilePath::fromVariant(DB::value(emSdkVersionTSFileKey)) == tsFile
         && DB::contains(emSdkVersionKey)) {
@@ -133,7 +133,7 @@ QVersionNumber version(const FilePath &sdkRoot)
 
 void clearCaches()
 {
-    namespace DB = Core::SettingsDatabase;
+    namespace DB = SettingsDatabase;
     DB::remove(emSdkEnvTSFileKey);
     DB::remove(emSdkEnvTSKey);
     DB::remove(emSdkEnvOutputKey);

@@ -36,7 +36,7 @@ QtcLibrary {
         cpp.frameworks: ["Foundation", "AppKit"]
     }
 
-    Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "printsupport", "qml", "widgets", "xml"] }
+    Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "printsupport", "qml", "widgets", "xml", "sql"] }
     Depends { name: "Qt.macextras"; condition: Qt.core.versionMajor < 6 && qbs.targetOS.contains("macos") }
     Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
     Depends { name: "Spinner" }
@@ -297,6 +297,8 @@ QtcLibrary {
         "set_algorithm.h",
         "settingsaccessor.cpp",
         "settingsaccessor.h",
+        "settingsdatabase.cpp",
+        "settingsdatabase.h",
         "sizedarray.h",
         "smallstring.h",
         "smallstringiterator.h",

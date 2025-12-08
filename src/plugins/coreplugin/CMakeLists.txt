@@ -1,7 +1,7 @@
 find_package(Qt6 COMPONENTS DBus QUIET)
 
 add_qtc_plugin(Core
-  DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate TerminalLib qtkeychain
+  DEPENDS Qt::PrintSupport Qt::Qml Qt::Gui Qt::GuiPrivate TerminalLib qtkeychain
   PLUGIN_TEST_DEPENDS TextEditor
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils
   SOURCES
@@ -266,8 +266,6 @@ add_qtc_plugin(Core
     sessionmodel.h
     sessionview.cpp
     sessionview.h
-    settingsdatabase.cpp
-    settingsdatabase.h
     sidebar.cpp
     sidebar.h
     sidebarwidget.cpp
