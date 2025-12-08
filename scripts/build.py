@@ -71,7 +71,7 @@ def get_arguments():
                         action='store_true', default=False)
     parser.add_argument('--with-sdk-tool', help='Builds a internal sdk-tool (not standalone) which is used in Qt Design Studio builds',
                         action='store_true', default=False)
-    parser.add_argument('--with-extra-cmdbridge', help='dummy argument', default=False)
+    parser.add_argument('--with-extra-cmdbridge', help='dummy argument', action='store_true', default=False)
     parser.add_argument('--add-path', help='Prepends a CMAKE_PREFIX_PATH to the build',
                         action='append', dest='prefix_paths', default=[])
     parser.add_argument('--add-module-path', help='Prepends a CMAKE_MODULE_PATH to the build',
