@@ -16,6 +16,8 @@
 #include <QStringList>
 #include <QVariant>
 
+#include <chrono>
+
 /*!
     \namespace Utils::SettingsDatabase
     \inheaderfile utils/settingsdatabase.h
@@ -39,6 +41,7 @@ namespace Utils::SettingsDatabase {
 enum { debug_settings = 0 };
 
 using SettingsMap = QMap<QString, QVariant>;
+using LastUsageMap = QMap<QString, std::chrono::system_clock::time_point>;
 
 class SettingsDatabaseImpl
 {
@@ -58,6 +61,7 @@ public:
     }
 
     SettingsMap m_settings;
+    LastUsageMap m_lastUsage;
 
     QStringList m_groups;
 
@@ -110,6 +114,17 @@ void ensureImpl()
             }
         }
 
+        QVariantMap lastUsages = value("SettingsDataBaseLastUsages").toMap();
+        for (auto it = d->m_settings.begin(); it != d->m_settings.constEnd(); ++it) {
+            auto lastUsageIt = lastUsages.find(it.key());
+            std::chrono::system_clock::time_point lastUsage;
+            if (lastUsageIt != lastUsages.end())
+                lastUsage = std::chrono::system_clock::from_time_t(lastUsageIt.value().toLongLong());
+            else
+                lastUsage = std::chrono::system_clock::now();
+            d->m_lastUsage.insert(it.key(), lastUsage);
+        }
+
         // syncing can be slow, especially on Linux and Windows
         d->m_db.exec(QLatin1String("PRAGMA synchronous = OFF;"));
     }
@@ -121,6 +136,16 @@ void destroy()
         return;
 
     // TODO: Delay writing of dirty keys and save them here
+
+    QVariantMap lastUsages;
+    const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    for (auto it = d->m_lastUsage.begin(); it != d->m_lastUsage.end(); ++it) {
+        if (now - it.value() > std::chrono::months(1))
+            remove(it.key());
+        else
+            lastUsages.insert(it.key(), static_cast<qint64>(std::chrono::system_clock::to_time_t(it.value())));
+    }
+    setValue("SettingsDataBaseLastUsages", lastUsages);
 
     delete d;
     d = nullptr;
@@ -134,6 +159,7 @@ void setValue(const QString &key, const QVariant &value)
 
     // Add to cache
     d->m_settings.insert(effectiveKey, value);
+    d->m_lastUsage.insert(effectiveKey, std::chrono::system_clock::now());
 
     if (!d->m_db.isOpen())
         return;
@@ -175,6 +201,7 @@ QVariant value(const QString &key, const QVariant &defaultValue)
         d->m_settings.insert(effectiveKey, value);
     }
 
+    d->m_lastUsage.insert(effectiveKey, std::chrono::system_clock::now());
     return value;
 }
 
