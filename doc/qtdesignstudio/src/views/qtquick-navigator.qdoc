@@ -61,9 +61,6 @@
 
     \section2 Showing and hiding reference nodes
 
-    You can choose to show or hide reference nodes in \uicontrol Navigator.
-    Click on a reference node to select the referenced node.
-
     A component in \uicontrol Navigator may have nodes that are bound to one or more of its
     properties, which are referred to as \e {reference nodes}. Toggle on the
     visibility of reference nodes to show them as child nodes of each component.
@@ -73,22 +70,12 @@
     To toggle the visibility of reference nodes, select \imagereferencenode
     (Show reference nodes).
 
+    Click on a reference node to select the referenced node.
+
     \section2 Showing and hiding other components
 
-    To show and hide components in the \uicontrol {2D} view when focusing on
-    specific parts of the application, select \imageeyeopen and
-    \imagevisibilityoff in \uicontrol Navigator.
-
-    To change the visibility of a component in the application code, select the
-    \uicontrol Visibility check box in the \uicontrol Properties view or select
-    \uicontrol Visibility in the context menu.
-
-    You can also set the \uicontrol Opacity field to 0 in \uicontrol Properties
-    to hide components in the UI that you want to apply animation to.
-
-    As all properties, visibility and opacity are inherited from the parent
-    component. To hide or show child components, edit the properties of the
-    parent component.
+    To show and hide components in the \uicontrol {2D} and \uicontrol {3D} views, select
+    \imageeyeopen and \imagevisibilityoff next to the component in \uicontrol Navigator.
 
     To show and hide invisible components in \uicontrol Navigator, select
     \imagevisibilityon.
