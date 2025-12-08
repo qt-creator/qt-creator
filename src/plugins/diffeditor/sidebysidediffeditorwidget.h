@@ -113,6 +113,8 @@ public:
 
     void clear(const QString &message = {});
 
+    void unfoldAll(bool unfold);
+
 signals:
     void currentDiffFileIndexChanged(int index);
 

@@ -375,6 +375,7 @@ private:
     void documentHasChanged();
     void toggleDescription();
     void updateDescription();
+    void foldAllHasChanged();
     void contextLineCountHasChanged(int lines);
     void ignoreWhitespaceHasChanged();
     void prepareForReload();
@@ -408,6 +409,7 @@ private:
     QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_toggleSyncAction = nullptr;
     QAction *m_whitespaceButtonAction = nullptr;
+    QAction *m_foldAllAction = nullptr;
     QAction *m_toggleDescriptionAction = nullptr;
     QAction *m_reloadAction = nullptr;
     QAction *m_contextLabelAction = nullptr;
@@ -496,6 +498,10 @@ DiffEditor::DiffEditor()
     m_whitespaceButtonAction = m_toolBar->addAction(Tr::tr("Ignore Whitespace"));
     m_whitespaceButtonAction->setCheckable(true);
 
+    m_foldAllAction = m_toolBar->addAction(Utils::Icons::EXPAND_ALL_TOOLBAR.icon(), {});
+    m_foldAllAction->setToolTip("Fold All");
+    m_foldAllAction->setCheckable(true);
+
     m_toggleDescriptionAction = m_toolBar->addAction(Icons::TOP_BAR.icon(), {});
     m_toggleDescriptionAction->setCheckable(true);
 
@@ -507,6 +513,8 @@ DiffEditor::DiffEditor()
 
     m_viewSwitcherAction = m_toolBar->addAction(QIcon(), {});
 
+    connect(m_foldAllAction, &QAction::toggled,
+            this, &DiffEditor::foldAllHasChanged);
     connect(m_whitespaceButtonAction, &QAction::toggled,
             this, &DiffEditor::ignoreWhitespaceHasChanged);
     connect(m_contextSpinBox, &QSpinBox::valueChanged,
@@ -682,6 +690,21 @@ void DiffEditor::updateDescription()
     m_toggleDescriptionAction->setToolTip(actionText);
     m_toggleDescriptionAction->setText(actionText);
     m_toggleDescriptionAction->setVisible(!description.isEmpty());
+}
+
+void DiffEditor::foldAllHasChanged()
+{
+    const bool fold = m_foldAllAction->isChecked();
+    const QString actionText = fold ? Tr::tr("Unfold All") : Tr::tr("Fold All");
+    m_foldAllAction->setToolTip(actionText);
+
+    auto sideWidget = qobject_cast<SideBySideDiffEditorWidget *>(m_sideBySideView->widget());
+    if (sideWidget)
+        sideWidget->unfoldAll(!fold);
+
+    auto unifiedWidget = qobject_cast<UnifiedDiffEditorWidget *>(m_unifiedView->widget());
+    if (unifiedWidget)
+        unifiedWidget->unfoldAll(!fold);
 }
 
 void DiffEditor::contextLineCountHasChanged(int lines)

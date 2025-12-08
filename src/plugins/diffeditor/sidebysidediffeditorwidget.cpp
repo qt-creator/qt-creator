@@ -127,6 +127,8 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
     });
 
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+    setOptionalActions(TextEditor::OptionalActions::UnCollapseAll);
 }
 
 void SideDiffEditorWidget::saveState()
@@ -802,6 +804,12 @@ void SideBySideDiffEditorWidget::clear(const QString &message)
         m_asyncTask.reset();
         m_controller.setBusyShowing(false);
     }
+}
+
+void SideBySideDiffEditorWidget::unfoldAll(bool unfold)
+{
+    for (auto editor : m_editor)
+        editor->unfoldAll(unfold);
 }
 
 void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)

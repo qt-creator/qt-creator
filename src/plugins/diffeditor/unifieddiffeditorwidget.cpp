@@ -44,6 +44,8 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
             this, &UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor);
 
     IContext::attach(this, Context(Constants::UNIFIED_VIEW_ID));
+
+    setOptionalActions(TextEditor::OptionalActions::UnCollapseAll);
 }
 
 UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget() = default;
