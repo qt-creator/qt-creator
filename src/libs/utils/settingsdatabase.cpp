@@ -60,7 +60,6 @@ public:
     SettingsMap m_settings;
 
     QStringList m_groups;
-    QStringList m_dirtyKeys;
 
     QSqlDatabase m_db;
 };
