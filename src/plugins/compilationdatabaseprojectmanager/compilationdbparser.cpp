@@ -43,13 +43,6 @@ static QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &fla
     return flags;
 }
 
-static FilePath jsonObjectFilePath(const FilePath &projectFile, const QJsonObject &object)
-{
-    const FilePath workingDir = projectFile.withNewMappedPath(
-        FilePath::fromUserInput(object["directory"].toString()));
-    return workingDir.resolvePath(object["file"].toString());
-}
-
 static std::vector<DbEntry> readJsonObjects(
     const FilePath &projectFile, const QByteArray &projectFileContents)
 {
@@ -69,10 +62,12 @@ static std::vector<DbEntry> readJsonObjects(
         }
 
         const QJsonObject object = document.object();
-        const FilePath filePath = jsonObjectFilePath(projectFile, object);
+        const FilePath workingDir = projectFile.withNewMappedPath(
+            FilePath::fromUserInput(object["directory"].toString()));
+        const FilePath filePath = workingDir.resolvePath(object["file"].toString());
         const QStringList flags = filterFromFileName(jsonObjectFlags(object, flagsCache),
                                                      filePath.fileName());
-        result.push_back({flags, filePath, FilePath::fromUserInput(object["directory"].toString())});
+        result.push_back({flags, filePath, workingDir});
 
         objectStart = projectFileContents.indexOf('{', objectEnd + 1);
         objectEnd = projectFileContents.indexOf('}', objectStart + 1);
