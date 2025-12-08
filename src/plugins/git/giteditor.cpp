@@ -122,59 +122,36 @@ VcsBase::BaseAnnotationHighlighterCreator GitEditorWidget::annotationHighlighter
     return VcsBase::getAnnotationHighlighterCreator<GitAnnotationHighlighter>();
 }
 
-/* Remove the date specification from annotation, which is tabular:
-\code
-8ca887aa (author               YYYY-MM-DD HH:MM:SS <offset>  <line>)<content>
-\endcode */
-
+/**
+ * Optionally remove path, author or date specification from annotation, which is tabular:
+ * \code
+ * 8ca887aa filepath (author YYYY-MM-DD HH:MM:SS <offset> <line>) <content>
+ * \endcode
+ */
 static QString sanitizeBlameOutput(const QString &b)
 {
+    static const char pattern[] =
+        R"(^(\S+)\s(.+?)\s\((.*)\s+(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\s\+\d{4}).*?\)(.*)$)";
+    static const QRegularExpression re(pattern, QRegularExpression::MultilineOption);
+
     if (b.isEmpty())
         return b;
 
+    const bool omitPath = settings().omitAnnotationPath();
+    const bool omitAuthor = settings().omitAnnotationAuthor();
     const bool omitDate = settings().omitAnnotationDate();
-    const QChar space(' ');
-    const int parenPos = b.indexOf(')');
-    if (parenPos == -1)
-        return b;
 
-    int i = parenPos;
-    while (i >= 0 && b.at(i) != space)
-        --i;
-    while (i >= 0 && b.at(i) == space)
-        --i;
-    int stripPos = i + 1;
-    if (omitDate) {
-        int spaceCount = 0;
-        // i is now on timezone. Go back 3 spaces: That is where the date starts.
-        while (i >= 0) {
-            if (b.at(i) == space)
-                ++spaceCount;
-            if (spaceCount == 3) {
-                stripPos = i;
-                break;
-            }
-            --i;
-        }
-    }
-
-    // Copy over the parts that have not changed into a new byte array
     QString result;
-    int prevPos = 0;
-    int pos = b.indexOf('\n', 0) + 1;
-    forever {
-        QTC_CHECK(prevPos < pos);
-        int afterParen = prevPos + parenPos;
-        result.append(b.mid(prevPos, stripPos));
-        result.append(b.mid(afterParen, pos - afterParen));
-        prevPos = pos;
-        QTC_CHECK(prevPos != 0);
-        if (pos == b.size())
-            break;
-
-        pos = b.indexOf('\n', pos) + 1;
-        if (pos == 0) // indexOf returned -1
-            pos = b.size();
+    QRegularExpressionMatchIterator i = re.globalMatch(b);
+    while (i.hasNext()) {
+        static const QString sep = "  ";
+        QRegularExpressionMatch match = i.next();
+        const QString hash   = match.captured(1) + sep;
+        const QString path   = omitPath   ? QString() : match.captured(2) + sep;
+        const QString author = omitAuthor ? QString() : match.captured(3) + sep;
+        const QString date   = omitDate   ? QString() : match.captured(4) + sep;
+        const QString code   = match.captured(5);
+        result.append(hash + path + author + date + code + "\n");
     }
     return result;
 }

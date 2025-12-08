@@ -55,6 +55,8 @@ GitSettings::GitSettings()
 
     showTags.setSettingsKey("ShowTags");
 
+    omitAnnotationPath.setSettingsKey("OmitAnnotationPath");
+    omitAnnotationAuthor.setSettingsKey("OmitAnnotationAuthor");
     omitAnnotationDate.setSettingsKey("OmitAnnotationDate");
 
     ignoreSpaceChangesInDiff.setSettingsKey("SpaceIgnorantDiff");

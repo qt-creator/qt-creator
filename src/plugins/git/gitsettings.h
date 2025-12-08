@@ -24,6 +24,8 @@ public:
     Utils::BoolAspect rebaseMerges{this};
     Utils::BoolAspect updateRefs{this};
     Utils::BoolAspect showTags{this};
+    Utils::BoolAspect omitAnnotationPath{this};
+    Utils::BoolAspect omitAnnotationAuthor{this};
     Utils::BoolAspect omitAnnotationDate{this};
     Utils::BoolAspect ignoreSpaceChangesInDiff{this};
     Utils::BoolAspect ignoreSpaceChangesInBlame{this};

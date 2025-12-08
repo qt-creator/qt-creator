@@ -596,6 +596,12 @@ public:
     explicit GitBlameConfig(QToolBar *toolBar)
         : VcsBaseEditorConfig(toolBar)
     {
+        mapSetting(addToggleButton(QString(), Tr::tr("Omit Path"),
+                                   Tr::tr("Hide the file path of a change from the output.")),
+                   &settings().omitAnnotationPath);
+        mapSetting(addToggleButton(QString(), Tr::tr("Omit Author"),
+                                   Tr::tr("Hide the author of a change from the output.")),
+                   &settings().omitAnnotationAuthor);
         mapSetting(addToggleButton(QString(), Tr::tr("Omit Date"),
                                    Tr::tr("Hide the date of a change from the output.")),
                    &settings().omitAnnotationDate);
@@ -1401,7 +1407,7 @@ void GitClient::annotate(const Utils::FilePath &workingDir, const QString &file,
     }
 
     editor->setWorkingDirectory(workingDir);
-    QStringList arguments = {"blame", "--root"};
+    QStringList arguments = {"blame", "--root", "--show-name"};
     arguments << argWidget->arguments();
     if (!revision.isEmpty())
         arguments << revision;
