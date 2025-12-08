@@ -46,6 +46,9 @@ public:
         int minor = 0;
         int patch = 0;
         QByteArray fullVersion;
+
+        friend bool operator==(const Version &v1, const Version &v2);
+        friend bool operator!=(const Version &v1, const Version &v2);
     };
 
     class Generator
@@ -61,6 +64,9 @@ public:
         bool supportsToolset = true;
 
         bool matches(const QString &n) const;
+
+        friend bool operator==(const CMakeTool::Generator &g1, const CMakeTool::Generator &g2);
+        friend bool operator!=(const CMakeTool::Generator &g1, const CMakeTool::Generator &g2);
     };
 
     explicit CMakeTool(const Utils::Store &map, bool fromSdk);

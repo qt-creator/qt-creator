@@ -9,6 +9,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <utils/algorithm.h>
+#include <utils/datafromprocess.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -40,9 +41,33 @@ const char CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY[] = "AutoCreateBuildDir
 const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 const char CMAKE_INFORMATION_DETECTIONSOURCE[] = "DetectionSource";
 
+bool operator==(const CMakeTool::Version &v1, const CMakeTool::Version &v2)
+{
+    return v1.major == v2.major && v1.minor == v2.minor && v1.patch == v2.patch
+           && v1.fullVersion == v2.fullVersion;
+}
+
+bool operator!=(const CMakeTool::Version &v1, const CMakeTool::Version &v2)
+{
+    return !(v1 == v2);
+}
+
 bool CMakeTool::Generator::matches(const QString &n) const
 {
     return n == name;
+}
+
+bool operator==(const CMakeTool::Generator &g1, const CMakeTool::Generator &g2)
+{
+    return g1.name == g2.name
+           && g1.extraGenerators == g2.extraGenerators
+           && g1.supportsPlatform == g2.supportsPlatform
+           && g1.supportsToolset == g2.supportsToolset;
+}
+
+bool operator!=(const CMakeTool::Generator &g1, const CMakeTool::Generator &g2)
+{
+    return !(g1 == g2);
 }
 
 namespace Internal {
@@ -57,6 +82,37 @@ public:
     std::pair<int, int> version;
 };
 
+bool operator==(const FileApi &f1, const FileApi &f2)
+{
+    return f1.kind == f2.kind && f1.version == f2.version;
+}
+
+bool operator!=(const FileApi &f1, const FileApi &f2)
+{
+    return !(f1 == f2);
+}
+
+class Capabilities {
+public:
+    static Capabilities fromJson(const QString &input);
+
+    QList<CMakeTool::Generator> generators;
+    QList<FileApi> fileApis;
+    CMakeTool::Version version;
+};
+
+bool operator==(const Capabilities &c1, const Capabilities &c2)
+{
+    return c1.generators == c2.generators
+           && c1.fileApis == c2.fileApis
+           && c1.version == c2.version;
+}
+
+bool operator!=(const Capabilities &c1, const Capabilities &c2)
+{
+    return !(c1 == c2);
+}
+
 class IntrospectionData
 {
 public:
@@ -64,13 +120,9 @@ public:
     bool m_haveCapabilitites = true;
     bool m_haveKeywords = false;
 
-    QList<CMakeTool::Generator> m_generators;
+    Capabilities m_capabilities;
     CMakeKeywords m_keywords;
     QMutex m_keywordsMutex;
-    QList<FileApi> m_fileApis;
-    CMakeTool::Version m_version;
-
-    void parseFromCapabilities(const QString &input);
 };
 
 } // namespace Internal
@@ -145,7 +197,8 @@ bool CMakeTool::isValid() const
     if (!m_introspection->m_didAttemptToRun)
         readInformation();
 
-    return m_introspection->m_haveCapabilitites && !m_introspection->m_fileApis.isEmpty();
+    return m_introspection->m_haveCapabilitites
+           && !m_introspection->m_capabilities.fileApis.isEmpty();
 }
 
 void CMakeTool::runCMake(Process &cmake, const QStringList &args, int timeoutS) const
@@ -214,7 +267,7 @@ FilePath CMakeTool::cmakeExecutable(const FilePath &path)
 
 QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const
 {
-    return isValid() ? m_introspection->m_generators : QList<CMakeTool::Generator>();
+    return isValid() ? m_introspection->m_capabilities.generators : QList<CMakeTool::Generator>();
 }
 
 CMakeKeywords CMakeTool::keywords()
@@ -233,14 +286,18 @@ CMakeKeywords CMakeTool::keywords()
                                        / "find-root.cmake";
         findCMakeRoot.writeFileContents("message(${CMAKE_ROOT})");
 
-        FilePath cmakeRoot;
-        runCMake(proc, {"-P", findCMakeRoot.nativePath()});
-        if (proc.result() == ProcessResult::FinishedWithSuccess) {
-            QStringList output = filtered(proc.allOutput().split('\n'),
-                                          std::not_fn(&QString::isEmpty));
+        CommandLine command(cmakeExecutable(), {"-P", findCMakeRoot.nativePath()});
+        auto outputParser = [](const QString &stdOut, const QString &) -> std::optional<FilePath> {
+            QStringList output = filtered(stdOut.split('\n'), std::not_fn(&QString::isEmpty));
             if (output.size() > 0)
-                cmakeRoot = FilePath::fromString(output[0]);
-        }
+                return FilePath::fromString(output[0]);
+            return {};
+        };
+        DataFromProcess<FilePath>::Parameters params(command, outputParser);
+        params.environment = command.executable().deviceEnvironment();
+        params.environment.setupEnglishOutput();
+        params.disableUnixTerminal = true;
+        const FilePath cmakeRoot = DataFromProcess<FilePath>::getData(params).value_or(FilePath());
 
         const struct
         {
@@ -299,12 +356,12 @@ CMakeKeywords CMakeTool::keywords()
 
 bool CMakeTool::hasFileApi() const
 {
-    return isValid() ? !m_introspection->m_fileApis.isEmpty() : false;
+    return isValid() ? !m_introspection->m_capabilities.fileApis.isEmpty() : false;
 }
 
 CMakeTool::Version CMakeTool::version() const
 {
-    return isValid() ? m_introspection->m_version : CMakeTool::Version();
+    return isValid() ? m_introspection->m_capabilities.version : CMakeTool::Version();
 }
 
 QString CMakeTool::versionDisplay() const
@@ -315,7 +372,7 @@ QString CMakeTool::versionDisplay() const
     if (!isValid())
         return Tr::tr("Version not parseable");
 
-    const Version &version = m_introspection->m_version;
+    const Version &version = m_introspection->m_capabilities.version;
     if (version.fullVersion.isEmpty())
         return QString::fromUtf8(version.fullVersion);
 
@@ -450,15 +507,25 @@ void CMakeTool::fetchFromCapabilities() const
     if (device
         && (device->deviceState() == IDevice::DeviceReadyToUse
             || device->deviceState() == IDevice::DeviceConnected)) {
-        Process cmake;
-        runCMake(cmake, {"-E", "capabilities"});
 
-        if (cmake.result() == ProcessResult::FinishedWithSuccess) {
+        CommandLine command(cmakeExecutable(), {"-E", "capabilities"});
+        auto outputParser = [](const QString &stdOut, const QString &) {
+            return Internal::Capabilities::fromJson(stdOut);
+        };
+        DataFromProcess<Internal::Capabilities>::Parameters params(command, outputParser);
+        params.environment = command.executable().deviceEnvironment();
+        params.environment.setupEnglishOutput();
+        params.disableUnixTerminal = true;
+        params.errorHandler = [](const Process &p) {
+            qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << p.verboseExitMessage();
+        };
+        const auto capabilities = DataFromProcess<Internal::Capabilities>::getData(params);
+
+        if (const auto capabilities = DataFromProcess<Internal::Capabilities>::getData(params)) {
             m_introspection->m_haveCapabilitites = true;
-            m_introspection->parseFromCapabilities(cmake.cleanedStdOut());
+            m_introspection->m_capabilities = *capabilities;
             return;
         }
-        qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.verboseExitMessage();
     } else {
         qCDebug(cmakeToolLog) << "Device for" << cmakeExecutable().toUserOutput()
                               << "is not connected";
@@ -479,22 +546,22 @@ static int getVersion(const QVariantMap &obj, const QString &value)
     return result;
 }
 
-void Internal::IntrospectionData::parseFromCapabilities(const QString &input)
+Internal::Capabilities Internal::Capabilities::fromJson(const QString &input)
 {
+    Capabilities result;
     auto doc = QJsonDocument::fromJson(input.toUtf8());
     if (!doc.isObject())
-        return;
+        return result;
 
     const QVariantMap data = doc.object().toVariantMap();
     const QVariantList generatorList = data.value("generators").toList();
     for (const QVariant &v : generatorList) {
         const QVariantMap gen = v.toMap();
-        m_generators.append(
-            CMakeTool::Generator(
-                gen.value("name").toString(),
-                gen.value("extraGenerators").toStringList(),
-                gen.value("platformSupport").toBool(),
-                gen.value("toolsetSupport").toBool()));
+        result.generators.append(CMakeTool::Generator(
+            gen.value("name").toString(),
+            gen.value("extraGenerators").toStringList(),
+            gen.value("platformSupport").toBool(),
+            gen.value("toolsetSupport").toBool()));
     }
 
     const QVariantMap fileApis = data.value("fileApi").toMap();
@@ -513,14 +580,16 @@ void Internal::IntrospectionData::parseFromCapabilities(const QString &input)
                 highestVersion = version;
         }
         if (!kind.isNull() && highestVersion.first != -1 && highestVersion.second != -1)
-            m_fileApis.append({kind, highestVersion});
+            result.fileApis.append({kind, highestVersion});
     }
 
     const QVariantMap versionInfo = data.value("version").toMap();
-    m_version.major = versionInfo.value("major").toInt();
-    m_version.minor = versionInfo.value("minor").toInt();
-    m_version.patch = versionInfo.value("patch").toInt();
-    m_version.fullVersion = versionInfo.value("string").toByteArray();
+    result.version.major = versionInfo.value("major").toInt();
+    result.version.minor = versionInfo.value("minor").toInt();
+    result.version.patch = versionInfo.value("patch").toInt();
+    result.version.fullVersion = versionInfo.value("string").toByteArray();
+
+    return result;
 }
 
 void CMakeTool::setDetectionSource(const DetectionSource &source)

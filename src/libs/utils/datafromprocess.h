@@ -53,6 +53,7 @@ public:
         Callback cachedValueChangedCallback;
         bool persistValue = true;
         QList<ProcessResult> allowedResults{ProcessResult::FinishedWithSuccess};
+        bool disableUnixTerminal = false;
     };
 
     // Use the first variant whenever possible.
@@ -109,6 +110,9 @@ inline std::optional<Data> DataFromProcess<Data>::getOrProvideData(const Paramet
 
     const auto outputRetriever = std::make_shared<Process>();
     outputRetriever->setCommand(params.commandLine);
+    outputRetriever->setEnvironment(params.environment);
+    if (params.disableUnixTerminal)
+        outputRetriever->setDisableUnixTerminal();
 
     if (params.persistValue && !params.callback) {
         const QChar separator = params.commandLine.executable().pathListSeparator();
