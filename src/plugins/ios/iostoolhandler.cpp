@@ -699,6 +699,17 @@ void IosSimulatorToolHandlerPrivate::requestTransferApp(const FilePath &appBundl
     Q_UNUSED(timeout)
     m_bundlePath = appBundlePath;
     m_deviceId = deviceIdentifier;
+
+    if (!m_bundlePath.exists()) {
+        errorMsg(
+            Tr::tr(
+                "Application install on Simulator failed. Could not find bundle at expected "
+                "location \"%1\".")
+                .arg(m_bundlePath.toUserOutput()));
+        didTransferApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
+        return;
+    }
+
     isTransferringApp(m_bundlePath, m_deviceId, 0, 100, "");
 
     auto onSimulatorStart = [this](const SimulatorControl::Response &response) {
