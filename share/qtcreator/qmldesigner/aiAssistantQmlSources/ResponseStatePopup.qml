@@ -134,6 +134,20 @@ Rectangle {
             }
 
             AiIconButton {
+                id: undoChangeButton
+                objectName: "UndoChangeButton"
+
+                buttonIcon: StudioTheme.Constants.undo
+
+                tooltip: qsTr("Undo change")
+
+                onClicked: {
+                    AiAssistantBackend.rootView.undoLastChange()
+                    root.hidePopup()
+                }
+            }
+
+            AiIconButton {
                 id: closeFeedbackButton
                 objectName: "CloseFeedbackButton"
 

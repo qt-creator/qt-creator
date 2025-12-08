@@ -6,14 +6,10 @@
 #include "aiapimanager.h"
 #include "aiassistantconstants.h"
 #include "aiassistanttermsdialog.h"
+#include "aiassistantutils.h"
 #include "aiassistantview.h"
 #include "aimodelsmodel.h"
 #include "airesponse.h"
-
-#include <astcheck/astcheck.h>
-#include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsreformatter.h>
-#include <qmljs/qmljsstaticanalysismessage.h>
 
 #include <asset.h>
 #include <designersettings.h>
@@ -55,54 +51,6 @@ QString qmlSourcesPath()
 DesignDocument *currentDesignDocument()
 {
     return QmlDesignerPlugin::instance()->currentDesignDocument();
-}
-
-RewriterView *rewriterView()
-{
-    return currentDesignDocument()->rewriterView();
-}
-
-// AUX data excluded
-QString currentQmlText()
-{
-    constexpr QStringView annotationsStart{u"/*##^##"};
-    constexpr QStringView annotationsEnd{u"##^##*/"};
-
-    QString pureQml = currentDesignDocument()->plainTextEdit()->toPlainText();
-    int startIndex = pureQml.indexOf(annotationsStart);
-    int endIndex = pureQml.indexOf(annotationsEnd, startIndex);
-    if (startIndex != -1 && endIndex != -1) {
-        int lengthToRemove = (endIndex + annotationsEnd.length()) - startIndex;
-        pureQml.remove(startIndex, lengthToRemove);
-    }
-    return pureQml;
-}
-
-QString reformatQml(const QString &content)
-{
-    auto document = QmlJS::Document::create({}, QmlJS::Dialect::QmlQtQuick2);
-    document->setSource(content);
-    document->parseQml();
-    if (document->isParsedCorrectly())
-        return QmlJS::reformat(document);
-
-    return content;
-}
-
-void selectIds(const QStringList &ids)
-{
-    if (ids.isEmpty())
-        return;
-
-    Model *model = rewriterView()->model();
-    ModelNodes selectedNodes;
-    selectedNodes.reserve(ids.size());
-
-    for (const QString &id : ids)
-        selectedNodes.append(rewriterView()->modelNodeForId(id));
-
-    if (!selectedNodes.isEmpty())
-        model->setSelectedModelNodes(selectedNodes);
 }
 
 } // namespace
@@ -157,6 +105,7 @@ AiAssistantWidget::~AiAssistantWidget() = default;
 void AiAssistantWidget::clear()
 {
     setAttachedImageSource("");
+    m_lastTransaction = AiTransaction();
     emit removeFeedbackPopup();
 }
 
@@ -245,7 +194,7 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
     m_apiManager->request(
         {
             .manifest = m_manifest.toString(),
-            .qml = currentQmlText(),
+            .qml = AiAssistantUtils::currentQmlText(),
             .userPrompt = prompt,
             .attachedImage = fullImageUrl(attachedImageSource()),
         },
@@ -290,8 +239,12 @@ void AiAssistantWidget::retryLastPrompt()
 
 void AiAssistantWidget::applyLastGeneratedQml()
 {
-    auto textModifier = rewriterView()->textModifier();
-    textModifier->replace(0, textModifier->text().size(), m_lastGeneratedQml);
+    m_lastTransaction.commit();
+}
+
+void AiAssistantWidget::undoLastChange()
+{
+    m_lastTransaction.rollback();
 }
 
 void AiAssistantWidget::sendThumbFeedback(bool up)
@@ -401,44 +354,14 @@ void AiAssistantWidget::handleAiResponse(const AiResponse &response)
         return;
     }
 
-    QStringList selectedIds = response.selectedIds();
-    if (!selectedIds.isEmpty()) {
-        selectIds(selectedIds);
+    m_lastTransaction = AiTransaction(response);
+
+    if (m_lastTransaction.producesQmlError()) {
+        emit notifyAIResponseInvalidQml();
     } else {
-        const QString newQml = reformatQml(response.qml());
-        const QString currentQml = currentQmlText();
-
-        if (!newQml.isEmpty() && currentQml != newQml) {
-            m_lastGeneratedQml = newQml;
-            if (isValidQmlCode(newQml)) {
-                auto textModifier = rewriterView()->textModifier();
-                textModifier->replace(0, textModifier->text().size(), newQml);
-                emit notifyAIResponseSuccess();
-            } else {
-                emit notifyAIResponseInvalidQml();
-            }
-        }
+        m_lastTransaction.commit();
+        emit notifyAIResponseSuccess();
     }
-}
-
-bool AiAssistantWidget::isValidQmlCode(const QString &qmlCode) const
-{
-    using namespace QmlJS;
-
-    Document::MutablePtr doc = Document::create(Utils::FilePath::fromString("<internal>"), Dialect::Qml);
-    doc->setSource(qmlCode);
-    bool success = doc->parseQml();
-
-    AstCheck check(doc);
-    QList<StaticAnalysis::Message> messages = check();
-
-    // TODO: add check for correct Qml types (property names)
-
-    success &= Utils::allOf(messages, [](const StaticAnalysis::Message &message) {
-        return message.severity != Severity::Error;
-    });
-
-    return success;
 }
 
 } // namespace QmlDesigner

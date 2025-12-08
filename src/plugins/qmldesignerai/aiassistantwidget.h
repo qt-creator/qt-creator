@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "aitransaction.h"
 #include "manifest.h"
 
 #include <utils/uniqueobjectptr.h>
@@ -54,6 +55,7 @@ public:
     Q_INVOKABLE QUrl fullImageUrl(const QString &path) const;
     Q_INVOKABLE void retryLastPrompt();
     Q_INVOKABLE void applyLastGeneratedQml();
+    Q_INVOKABLE void undoLastChange();
     Q_INVOKABLE void sendThumbFeedback(bool up);
     Q_INVOKABLE void openModelSettings();
     Q_INVOKABLE void openTermsDialog();
@@ -79,7 +81,6 @@ private: // functions
     void setIsGenerating(bool val);
     void setHasValidModel(bool val);
     void handleAiResponse(const AiResponse &response);
-    bool isValidQmlCode(const QString &qmlCode) const;
 
 private: // variables
     Utils::UniqueObjectPtr<AiApiManager> m_apiManager;
@@ -88,7 +89,7 @@ private: // variables
 
     QPointer<AiAssistantView> m_view;
     QStringList m_inputHistory;
-    QString m_lastGeneratedQml;
+    AiTransaction m_lastTransaction;
     QString m_attachedImageSource;
     Manifest m_manifest;
     int m_historyIndex = -1;
