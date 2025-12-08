@@ -271,7 +271,7 @@ void ModelPrivate::setImports(Imports imports)
             projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
         notifyImportsChanged(addedImports, removedImports);
-        updateModelNodeTypeIds(removedImports);
+        // updateModelNodeTypeIds(removedImports); // Crashes without USE_PROJECTSTORAGE
     }
 }
 
