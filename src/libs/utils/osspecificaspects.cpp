@@ -28,13 +28,17 @@ Result<OsType> osTypeFromString(const QString &string)
 {
     if (string.compare("windows", Qt::CaseInsensitive) == 0)
         return OsTypeWindows;
+
     if (string.compare("linux", Qt::CaseInsensitive) == 0)
         return OsTypeLinux;
+
     if (string.compare("mac", Qt::CaseInsensitive) == 0
         || string.compare("darwin", Qt::CaseInsensitive) == 0
         || string.compare("macos", Qt::CaseInsensitive) == 0)
         return OsTypeMac;
-    if (string.compare("other unix", Qt::CaseInsensitive) == 0)
+
+    if (string.compare("other unix", Qt::CaseInsensitive) == 0
+        || string.compare("qnx", Qt::CaseInsensitive) == 0)
         return OsTypeOtherUnix;
 
     return ResultError(QString::fromLatin1("Unknown os type: %1").arg(string));
