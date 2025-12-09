@@ -27,9 +27,6 @@ using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-const DetectionSource DebuggerItem::genericDetectionSource
-    = {DetectionSource::FromSystem, "Generic"};
-
 static Result<QString> fetchVersionOutput(const FilePath &executable, Environment environment)
 {
     // CDB only understands the single-dash -version, whereas GDB and LLDB are

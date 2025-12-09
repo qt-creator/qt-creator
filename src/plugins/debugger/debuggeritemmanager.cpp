@@ -193,7 +193,7 @@ class DebuggerItemModel : public TreeModel<TreeItem, StaticTreeItem, DebuggerTre
 {
 public:
     DebuggerItemModel();
-    enum { Generic, AutoDetected, Manual };
+    enum { AutoDetected, Manual, Generic };
 
     QModelIndex lastIndex() const;
     void setCurrentIndex(const QModelIndex &index);
@@ -243,34 +243,14 @@ const DebuggerItem *findDebugger(const Predicate &pred)
     return titem ? &titem->m_item : nullptr;
 }
 
-static QString genericCategoryDisplayName() { return Tr::tr("Generic"); }
-
 DebuggerItemModel::DebuggerItemModel()
 {
     setHeader({Tr::tr("Name"), Tr::tr("Path"), Tr::tr("Type")});
 
-    auto generic = new StaticTreeItem(genericCategoryDisplayName());
     auto autoDetected = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
-    rootItem()->appendChild(generic);
     rootItem()->appendChild(autoDetected);
     rootItem()->appendChild(new StaticTreeItem(ProjectExplorer::Constants::msgManual()));
-
-    DebuggerItem genericGdb(QVariant("gdb"));
-    genericGdb.setDetectionSource(DebuggerItem::genericDetectionSource);
-    genericGdb.setEngineType(GdbEngineType);
-    genericGdb.setAbi(Abi());
-    genericGdb.setCommand("gdb");
-    genericGdb.setUnexpandedDisplayName(Tr::tr("GDB from PATH on Build Device"));
-    generic->appendChild(new DebuggerTreeItem(genericGdb, false));
-
-    DebuggerItem genericLldb(QVariant("lldb"));
-    genericGdb.setDetectionSource(DebuggerItem::genericDetectionSource);
-    genericLldb.setEngineType(LldbEngineType);
-    genericLldb.setAbi(Abi());
-    genericLldb.setCommand("lldb");
-    genericLldb.setUnexpandedDisplayName(Tr::tr("LLDB from PATH on Build Device"));
-    generic->appendChild(new DebuggerTreeItem(genericLldb, false));
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &DebuggerItemModel::saveDebuggers);
@@ -286,6 +266,9 @@ DebuggerTreeItem *DebuggerItemModel::addDebuggerItem(const DebuggerItem &item, b
             return AutoDetected;
         return Manual;
     }();
+    if (group == Generic)
+        return nullptr; // Legacy.
+
     auto treeItem = new DebuggerTreeItem(item, changed);
     rootItem()->childAt(group)->appendChild(treeItem);
     return treeItem;
@@ -514,34 +497,32 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
     if (!m_id.isValid())
         return;
 
-    if (m_detectionSource != DebuggerItem::genericDetectionSource) {
-        m_taskTreeRunner.reset();
+    m_taskTreeRunner.reset();
 
-        if (m_binaryChooser->filePath().isExecutableFile()) {
-            const auto onSetup = [this](Async<DebuggerItem> &task) {
-                task.setConcurrentCallData([tmp = item()]() mutable {
-                    tmp.reinitializeFromFile();
-                    return tmp;
-                });
-            };
-            const auto onDone = [this](const Async<DebuggerItem> &task) {
-                if (!task.isResultAvailable())
-                    return;
+    if (m_binaryChooser->filePath().isExecutableFile()) {
+        const auto onSetup = [this](Async<DebuggerItem> &task) {
+            task.setConcurrentCallData([tmp = item()]() mutable {
+                tmp.reinitializeFromFile();
+                return tmp;
+            });
+        };
+        const auto onDone = [this](const Async<DebuggerItem> &task) {
+            if (!task.isResultAvailable())
+                return;
 
-                const DebuggerItem tmp = task.result();
-                setAbis(tmp.abiNames());
-                m_version->setText(tmp.version());
-                m_engineType = tmp.engineType();
-                m_type->setText(tmp.engineTypeName());
-            };
-            m_taskTreeRunner.start({AsyncTask<DebuggerItem>(onSetup, onDone)});
-        } else {
-            const DebuggerItem tmp;
+            const DebuggerItem tmp = task.result();
             setAbis(tmp.abiNames());
             m_version->setText(tmp.version());
             m_engineType = tmp.engineType();
             m_type->setText(tmp.engineTypeName());
-        }
+        };
+        m_taskTreeRunner.start({AsyncTask<DebuggerItem>(onSetup, onDone)});
+    } else {
+        const DebuggerItem tmp;
+        setAbis(tmp.abiNames());
+        m_version->setText(tmp.version());
+        m_engineType = tmp.engineType();
+        m_type->setText(tmp.engineTypeName());
     }
 
     store();
@@ -1185,8 +1166,7 @@ public:
         m_filterModel->setSourceModel(&itemModel());
         m_sortModel = new KitSettingsSortModel(this);
         m_sortModel->setSourceModel(m_filterModel);
-        m_sortModel->setSortedCategories({genericCategoryDisplayName(),
-                                          ProjectExplorer::Constants::msgAutoDetected(),
+        m_sortModel->setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
                                           ProjectExplorer::Constants::msgManual()});
         m_deviceModel = new DeviceManagerModel(this);
         m_deviceComboBox = new QComboBox(this);

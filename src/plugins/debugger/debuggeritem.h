@@ -42,8 +42,6 @@ public:
         QString version;
     };
 
-    static const ProjectExplorer::DetectionSource genericDetectionSource;
-
     DebuggerItem() = default;
     DebuggerItem(const Utils::Store &data);
 
