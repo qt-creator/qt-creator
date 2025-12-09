@@ -375,7 +375,11 @@
         "Path": "@SOURCE_DIR@/src/libs/3rdparty/sqlite",
         "Description": "SQLite is a C-language library that implements a small, fast, self-contained, high-reliability, full-featured, SQL database engine.",
         "Homepage": "https://www.sqlite.org",
-        "License": "Public Domain",
+        "Version": "3.49.1",
+        "PURL": "pkg:github/sqlite/sqlite@version-$<VERSION>",
+        "CPE": "cpe:2.3:a:sqlite:sqlite:$<VERSION>:*:*:*:*:*:*:*",
+        "License": "SQLite Blessing",
+        "LicenseId": "blessing",
         "Copyright": "The authors disclaim copyright to the source code. However, a license can be obtained if needed."
     },
     {
