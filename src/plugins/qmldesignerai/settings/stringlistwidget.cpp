@@ -152,25 +152,32 @@ void StringListWidget::wheelEvent(QWheelEvent *event)
     event->accept(); // Accept the event to prevent handling it by the parent at bounds
 }
 
+void StringListWidget::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
+{
+    const int row = currentRow();
+    QListWidget::closeEditor(editor, hint);
+
+    // If edited item is empty, remove it
+    if (auto editedItem = item(row); editedItem && editedItem->text().trimmed().isEmpty())
+        delete takeItem(row);
+}
+
 void StringListWidget::onRowChanged(int row)
 {
-    // if currently selected item is empty, remove it
-    if (m_prevRow > -1 && item(m_prevRow)->text().trimmed().isEmpty())
-        delete takeItem(m_prevRow);
-
     bool hasRowSelection = row > -1;
     m_removeButton->setEnabled(hasRowSelection);
     m_moveUpButton->setEnabled(hasRowSelection && row != 0);
     m_moveDownButton->setEnabled(hasRowSelection && row != count() - 1);
-    m_prevRow = row;
 }
 
 void StringListWidget::setWidgetItems(const QStringList &items)
 {
     clear();
 
-    for (const QString &itemText : items)
-        addItem(itemText);
+    for (const QString &itemText : items) {
+        if (const QString trimmedText = itemText.trimmed(); !trimmedText.isEmpty())
+            addItem(trimmedText);
+    }
 }
 
 } // namespace QmlDesigner

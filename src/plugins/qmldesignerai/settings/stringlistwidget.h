@@ -26,6 +26,7 @@ public:
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
+    void closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint) override;
 
 private: // functions
     void onRowChanged(int row);
@@ -39,7 +40,6 @@ private: // variables
     Utils::UniqueObjectPtr<QToolButton> m_resetButton;
     Utils::UniqueObjectPtr<QToolBar> m_toolBar;
     QStringList m_defaultItems;
-    int m_prevRow = -1;
 };
 
 } // namespace QmlDesigner
