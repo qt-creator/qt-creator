@@ -2001,14 +2001,14 @@ InternalNodePointer ModelPrivate::nodeForId(QStringView id) const
 {
     NanotraceHR::Tracer tracer{"model private node for id", category()};
 
-    return m_idNodeHash.value(id);
+    return m_idNodeHash.value(id.toString());
 }
 
 bool ModelPrivate::hasId(QStringView id) const
 {
     NanotraceHR::Tracer tracer{"model private has id", category()};
 
-    return m_idNodeHash.contains(id);
+    return m_idNodeHash.contains(id.toString());
 }
 
 InternalNodePointer ModelPrivate::nodeForInternalId(qint32 internalId) const

@@ -12,6 +12,7 @@
 #include <QFileInfo>
 #include <QProcessEnvironment>
 #include <QJsonValue>
+#include <QMetaType>
 
 #include <private/qabstractfileengine_p.h>
 #include <private/qfsfileengine_p.h>
@@ -1084,13 +1085,13 @@ bool useCrashQTBUG136735Workaround(const QQmlProperty &property, const char *cal
     if (!property.isValid())
         return false;
     auto coreMetaType = property.propertyMetaType();
+    const QMetaType to = QMetaType::fromType<QIterable<QMetaSequence>>();
 
     // property.propertyTypeCategory() == QQmlProperty::PropertyTypeCategory::List
     // for unknown reason the simple check is sometimes not working in the editor QMLPuppet
     const bool listLike = coreMetaType.id() == QMetaType::QStringList
                           || coreMetaType.id() == QMetaType::QVariantList
-                          || QtPrivate::hasRegisteredConverterFunctionToIterableMetaSequence(
-                              coreMetaType);
+                          || QMetaType::hasRegisteredConverterFunction(coreMetaType, to);
 
     if (!listLike)
         return false;

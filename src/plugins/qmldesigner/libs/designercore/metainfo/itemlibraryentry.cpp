@@ -115,7 +115,7 @@ ItemLibraryEntry ItemLibraryEntry::createFromDirectory(const PathCacheType &path
         auto relativePath = std::filesystem::path{std::string_view{componentDirectoryPath}}
                                 .lexically_relative(documentDirectoryPath)
                                 .generic_u16string();
-        m_data->category = QString(relativePath);
+        m_data->category = QString::fromStdU16String(relativePath);
     }
 
     return itemLibraryEntry;

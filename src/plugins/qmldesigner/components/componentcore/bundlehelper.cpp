@@ -417,7 +417,7 @@ static QString getRelativePath(const std::string_view path, const Model *model)
 {
     std::filesystem::path filePath{path};
     std::filesystem::path modelPath(std::u16string_view(model->fileUrl().toLocalFile()));
-    return QString{filePath.lexically_relative(modelPath).generic_u16string()};
+    return QString::fromStdU16String(filePath.lexically_relative(modelPath).generic_u16string());
 }
 
 static Imports getRequiredImports(const ModelNode &node,
