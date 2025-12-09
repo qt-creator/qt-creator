@@ -279,7 +279,7 @@ private:
 
     OpenEditorsWindow *m_windowPopup = nullptr;
 
-    QMap<QString, QVariant> m_editorStates;
+    QMap<QString, QPair<QVariant, QDate>> m_editorStates;
 
     EditorManager::WindowTitleHandler m_titleAdditionHandler;
     EditorManager::WindowTitleHandler m_sessionTitleHandler;

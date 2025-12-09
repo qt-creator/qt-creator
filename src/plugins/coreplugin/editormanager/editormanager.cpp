@@ -1713,8 +1713,11 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     for (IEditor *editor : std::as_const(acceptedEditors)) {
         if (!editor->document()->filePath().isEmpty() && !editor->document()->isTemporary()) {
             QByteArray state = editor->saveState();
-            if (!state.isEmpty())
-                d->m_editorStates.insert(editor->document()->filePath().toUrlishString(), QVariant(state));
+            if (!state.isEmpty()) {
+                d->m_editorStates.insert(
+                    editor->document()->filePath().toUrlishString(),
+                    {QVariant(state), QDate::currentDate()});
+            }
         }
     }
 
@@ -1816,7 +1819,13 @@ void EditorManagerPrivate::restoreEditorState(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
     QString fileName = editor->document()->filePath().toUrlishString();
-    editor->restoreState(d->m_editorStates.value(fileName).toByteArray());
+    QByteArray state;
+    if (auto it = d->m_editorStates.find(fileName); it != d->m_editorStates.end()) {
+        state = it->first.toByteArray();
+        it->second = QDate::currentDate(); // update timestamp
+    }
+
+    editor->restoreState(state);
 }
 
 static void setView(QList<QPointer<EditorView>> &list, EditorView *view)
@@ -3906,7 +3915,7 @@ QByteArray EditorManager::saveState()
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::WriteOnly);
 
-    stream << QByteArray("EditorManagerV5");
+    stream << QByteArray("EditorManagerV6");
 
     // TODO: In case of split views it's not possible to restore these for all correctly with this
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
@@ -3914,11 +3923,18 @@ QByteArray EditorManager::saveState()
         if (!document->filePath().isEmpty() && !document->isTemporary()) {
             IEditor *editor = DocumentModel::editorsForDocument(document).constFirst();
             QByteArray state = editor->saveState();
-            if (!state.isEmpty())
-                d->m_editorStates.insert(document->filePath().toUrlishString(), QVariant(state));
+            if (!state.isEmpty()) {
+                d->m_editorStates.insert(
+                    editor->document()->filePath().toUrlishString(),
+                    {QVariant(state), QDate::currentDate()});
+            }
         }
     }
 
+    const QDate threshold = QDate::currentDate().addMonths(-1);
+    Utils::erase(d->m_editorStates, [threshold](const QPair<QVariant, QDate> &value) {
+        return value.second < threshold;
+    });
     stream << d->m_editorStates;
 
     const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
@@ -3962,7 +3978,7 @@ public:
 */
 static void restore(
     const QByteArray &state,
-    const std::function<void(QMap<QString, QVariant>)> &editorStatesHandler,
+    const std::function<void(QMap<QString, QPair<QVariant, QDate>>)> &editorStatesHandler,
     const std::function<bool(FileStateEntry)> &fileHandler,
     const std::function<void(QByteArray)> &splitterStateHandler,
     const std::function<void(QVector<QVariantHash>)> &windowStateHandler)
@@ -3970,12 +3986,20 @@ static void restore(
     QDataStream stream(state);
     QByteArray version;
     stream >> version;
+    const bool isVersion6 = version == "EditorManagerV6";
     const bool isVersion5 = version == "EditorManagerV5";
-    if (version != "EditorManagerV4" && !isVersion5)
+    if (version != "EditorManagerV4" && !isVersion5 && !isVersion6)
         return;
 
-    QMap<QString, QVariant> editorStates;
-    stream >> editorStates;
+    QMap<QString, QPair<QVariant, QDate>> editorStates;
+    if (isVersion6) {
+        stream >> editorStates;
+    } else {
+        QMap<QString, QVariant> oldEditorStates;
+        stream >> oldEditorStates;
+        for (auto it = oldEditorStates.constBegin(); it != oldEditorStates.constEnd(); ++it)
+            editorStates.insert(it.key(), qMakePair(it.value(), QDate::currentDate()));
+    }
     if (editorStatesHandler)
         editorStatesHandler(editorStates);
 
@@ -4027,7 +4051,9 @@ void EditorManager::restoreState(const QByteArray &state)
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    const auto setEditorStates = [](const QMap<QString, QVariant> &s) { d->m_editorStates = s; };
+    const auto setEditorStates = [](const QMap<QString, QPair<QVariant, QDate>> &s) {
+        d->m_editorStates = s;
+    };
     const auto openFile = [](const FileStateEntry &file) {
         if (!file.filePath.isEmpty() && !file.displayName.isEmpty()) {
             const FilePath filePath = FilePath::fromUserInput(file.filePath);
