@@ -88,7 +88,6 @@ static const char kCurrentDocumentXPos[] = "CurrentDocument:XPos";
 static const char kCurrentDocumentYPos[] = "CurrentDocument:YPos";
 static const char kMakeWritableWarning[] = "Core.EditorManager.MakeWritable";
 
-static const char documentStatesKey[] = "EditorManager/DocumentStates";
 static const char fileSystemCaseSensitivityKey[] = "Core/FileSystemCaseSensitivity";
 static const char preferredEditorFactoriesKey[] = "EditorManager/PreferredEditorFactories";
 
@@ -1270,8 +1269,6 @@ static QHash<QString, IEditorFactory *> fromMap(const QMap<QString, QVariant> &m
 
 void EditorManagerPrivate::saveSettings()
 {
-    SettingsDatabase::setValue(documentStatesKey, d->m_editorStates);
-
     QtcSettings *qsettings = ICore::settings();
     qsettings->setValueWithDefault(preferredEditorFactoriesKey,
                                    toMap(userPreferredEditorTypes()));
@@ -1292,11 +1289,6 @@ void EditorManagerPrivate::readSettings()
     const QHash<QString, IEditorFactory *> preferredEditorFactories = fromMap(
         qs->value(preferredEditorFactoriesKey).toMap());
     setUserPreferredEditorTypes(preferredEditorFactories);
-
-    if (SettingsDatabase::contains(documentStatesKey)) {
-        d->m_editorStates = SettingsDatabase::value(documentStatesKey)
-            .value<QMap<QString, QVariant>>();
-    }
 
     updateAutoSave();
 }
