@@ -1488,19 +1488,20 @@ void LinuxDevicePrivate::setupShellPhase3(
         DEBUG("Bridge ok to use");
         q->setFileAccess(initResult.value());
         q->setDeviceState(IDevice::DeviceReadyToUse);
-        setupShellFinalize(ResultOk, cont);
     } else {
         DEBUG("Failed to start CmdBridge:" << initResult.error()
               << ", falling back to slow shell access");
-        setupShellFinalize(ResultError(initResult.error()), cont);
     }
+
+    // Either "script access" and "cmdbridge access" is good enough to continue.
+    setupShellFinalize(ResultOk, cont);
 }
 
 void LinuxDevicePrivate::setupShellFinalize(const Result<> &result, const Continuation<> &cont)
 {
     unannounceConnectionAttempt();
 
-    cont(result); // either "script access" and "cmdbridge access" is good enough to continue.
+    cont(result);
 
     DeviceManager::instance()->deviceUpdated(q->id());
 }
