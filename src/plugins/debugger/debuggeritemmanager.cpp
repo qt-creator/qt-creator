@@ -203,7 +203,7 @@ public:
     void cancel();
     DebuggerTreeItem *currentTreeItem();
 
-    void detectDebuggers(const IDeviceConstPtr &device);
+    void detectDebuggers(const IDeviceConstPtr &device, const FilePaths &searchPaths);
     void restoreDebuggers();
     void saveDebuggers();
 
@@ -922,15 +922,15 @@ void DebuggerItemModel::restoreDebuggers()
     readDebuggers(userSettingsFileName(), false);
 
     // Auto detect current.
-    detectDebuggers(DeviceManager::defaultDesktopDevice());
+    const IDeviceConstPtr desktopDevice = DeviceManager::defaultDesktopDevice();
+    if (QTC_GUARD(desktopDevice))
+        detectDebuggers(desktopDevice, desktopDevice->systemEnvironment().path());
 }
 
-void DebuggerItemModel::detectDebuggers(const IDeviceConstPtr &device)
+void DebuggerItemModel::detectDebuggers(const IDeviceConstPtr &device, const FilePaths &searchPaths)
 {
     QTC_ASSERT(device, return);
-    const FilePaths searchPaths = Utils::transform(
-        device->systemEnvironment().path(),
-        [root = device->rootPath()](const FilePath &raw) { return root.withNewMappedPath(raw); });
+
     autoDetectGdbOrLldbDebuggers(searchPaths, {});
     if (device->id() == ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
         autoDetectCdbDebuggers();
@@ -1222,7 +1222,11 @@ public:
         connect(m_delButton, &QAbstractButton::clicked,
                 this, &DebuggerSettingsPageWidget::removeDebugger, Qt::QueuedConnection);
         connect(m_detectButton , &QAbstractButton::clicked,
-                this, [this] { itemModel().detectDebuggers(currentDevice()); });
+                this, [this] {
+            const IDeviceConstPtr dev = currentDevice();
+            QTC_ASSERT(dev, return);
+            itemModel().detectDebuggers(dev, dev->systemEnvironment().mappedPath(dev->rootPath()));
+        });
 
         m_deviceComboBox->setCurrentIndex(
             m_deviceModel->indexOf(DeviceManager::defaultDesktopDevice()));
@@ -1235,6 +1239,11 @@ public:
         m_itemConfigWidget = new DebuggerItemConfigWidget;
         m_container->setWidget(m_itemConfigWidget);
         updateButtons();
+
+        connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested, this,
+            [](Id devId, const FilePaths &searchPaths) {
+                itemModel().detectDebuggers(DeviceManager::find(devId), searchPaths);
+            });
     }
 
     void apply() final
