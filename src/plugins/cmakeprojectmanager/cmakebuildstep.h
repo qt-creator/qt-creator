@@ -103,6 +103,8 @@ private:
     void updateBuildTargetsModel();
     void updateDeploymentData();
 
+    QStringList processSubDirStagingSingleTarget(const QStringList &targets);
+
     friend class CMakeBuildStepConfigWidget;
     QStringList m_buildTargets; // Convention: Empty string member signifies "Current executable"
 

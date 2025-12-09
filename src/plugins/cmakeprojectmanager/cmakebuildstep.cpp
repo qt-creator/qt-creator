@@ -437,12 +437,54 @@ void CMakeBuildStep::setBuildsBuildTarget(const QString &target, bool on)
     setBuildTargets(targets);
 }
 
+// In the case of using a staging directory and having to build one target
+// then use the `sub/dir/all` target for building. This will trigger also
+// a `sub/dir/install` target which will affect a smaller part of the project
+// than the `install` target which will trigger a build of `all`
+// See QTCREATORBUG-33580 for details.
+QStringList CMakeBuildStep::processSubDirStagingSingleTarget(const QStringList &targets)
+{
+    if (targets.size() != 1)
+        return targets;
+
+    const CMakeBuildSystem *cmakeBuildSystem = qobject_cast<const CMakeBuildSystem *>(buildSystem());
+    // Only for staging and Ninja or Makefiles generators
+    if (!useStaging() || !cmakeBuildSystem->hasSubprojectBuildSupport())
+        return targets;
+
+    // Skip the "all" "clean" "install" "pack" targets
+    const QString targetName = targets.front();
+    if (specialTargets(cmakeBuildSystem->isMultiConfig()).contains(targetName))
+        return targets;
+
+    // This can happen if you select and deselect targets in the UI
+    // we get the already prepared target back
+    if (targetName.endsWith("/all"))
+        return targets;
+
+    CMakeBuildTarget targetInfo = Utils::findOrDefault(
+        cmakeBuildSystem->buildTargets(),
+        [targetName](const CMakeBuildTarget &bt) { return bt.title == targetName; });
+
+    if (targetInfo.backtrace.isEmpty())
+        return targets;
+
+    const QString targetSubdir = targetInfo.backtrace.last()
+                                     .path.parentDir()
+                                     .relativeChildPath(buildSystem()->projectDirectory())
+                                     .path();
+    if (targetSubdir.isEmpty())
+        return targets;
+
+    return {targetSubdir + "/all"};
+}
+
 void CMakeBuildStep::setBuildTargets(const QStringList &buildTargets)
 {
     if (buildTargets.isEmpty())
         m_buildTargets = QStringList(defaultBuildTarget());
     else
-        m_buildTargets = buildTargets;
+        m_buildTargets = processSubDirStagingSingleTarget(buildTargets);
     updateBuildTargetsModel();
 }
 
@@ -475,6 +517,11 @@ CommandLine CMakeBuildStep::cmakeCommand() const
                      .path()});
             cmd.addArg("--target");
             cmd.addArg(operation);
+
+            if (useStaging()) {
+                cmd.addArg("--target");
+                cmd.addArg("install");
+            }
         } else {
             cmd.addArgs(
                 {"--build", CMakeToolManager::mappedFilePath(project, buildDirectory).path()});
@@ -485,6 +532,11 @@ CommandLine CMakeBuildStep::cmakeCommand() const
                 ninjaSubprojectClean = true;
             }
             cmd.addArg(target);
+
+            if (useStaging()) {
+                cmd.addArg("--target");
+                cmd.addArg(path + "/" + "install");
+            }
         }
     } else {
         cmd.addArgs({"--build", CMakeToolManager::mappedFilePath(project, buildDirectory).path()});
@@ -497,9 +549,10 @@ CommandLine CMakeBuildStep::cmakeCommand() const
             }
             return s;
         }));
+
+        if (useStaging())
+            cmd.addArg("install");
     }
-    if (useStaging())
-        cmd.addArg("install");
 
     if (bs && bs->isMultiConfigReader()) {
         cmd.addArg("--config");
