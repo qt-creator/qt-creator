@@ -1442,11 +1442,8 @@ void GdbEngine::handleStop2(const GdbMi &data)
 
 void GdbEngine::handleStop3()
 {
-    if (!usesTerminal() || state() != InferiorRunOk) {
-        DebuggerCommand cmd("-thread-info", Discardable);
-        cmd.callback = CB(handleThreadInfo);
-        runCommand(cmd);
-    }
+    if (!usesTerminal() || state() != InferiorRunOk)
+        runCommand({"-thread-info", Discardable, CB(handleThreadInfo)});
 }
 
 void GdbEngine::handleShowVersion(const DebuggerResponse &response)
@@ -1637,11 +1634,8 @@ FilePath GdbEngine::cleanupFullName(const QString &fileName)
 void GdbEngine::shutdownInferior()
 {
     CHECK_STATE(InferiorShutdownRequested);
-    DebuggerCommand cmd;
-    cmd.function = QLatin1String(runParameters().closeMode() == DetachAtClose ? "detach " : "kill ");
-    cmd.callback = CB(handleInferiorShutdown);
-    cmd.flags = NeedsTemporaryStop|LosesChild;
-    runCommand(cmd);
+    runCommand({QLatin1String(runParameters().closeMode() == DetachAtClose ? "detach " : "kill "),
+                NeedsTemporaryStop | LosesChild, CB(handleInferiorShutdown)});
 }
 
 void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
@@ -1785,16 +1779,10 @@ void GdbEngine::continueInferiorInternal()
     notifyInferiorRunRequested();
     showStatusMessage(Tr::tr("Running requested..."), 5000);
     CHECK_STATE(InferiorRunRequested);
-    if (isNativeMixedActiveFrame()) {
-        DebuggerCommand cmd("executeContinue", RunRequest);
-        cmd.callback = CB(handleExecuteContinue);
-        runCommand(cmd);
-    } else {
-        DebuggerCommand cmd("-exec-continue");
-        cmd.flags = RunRequest | NeedsFlush;
-        cmd.callback = CB(handleExecuteContinue);
-        runCommand(cmd);
-    }
+    if (isNativeMixedActiveFrame())
+        runCommand({"executeContinue", RunRequest, CB(handleExecuteContinue)});
+    else
+        runCommand({"-exec-continue", RunRequest | NeedsFlush, CB(handleExecuteContinue)});
 }
 
 void GdbEngine::continueInferior()
@@ -2227,9 +2215,7 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, const Break
             // This delete was deferred. Act now.
             const GdbMi mainbkpt = response.data["bkpt"];
             notifyBreakpointRemoveProceeding(bp);
-            DebuggerCommand cmd("-break-delete " + mainbkpt["number"].data());
-            cmd.flags = NeedsTemporaryStop;
-            runCommand(cmd);
+            runCommand({"-break-delete " + mainbkpt["number"].data(), NeedsTemporaryStop});
             notifyBreakpointRemoveOk(bp);
             return;
         }
@@ -2253,10 +2239,8 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, const Break
         // ^error,msg="mi_cmd_break_insert: Unknown option ``a''"
         const QString fileName = bp->fileName().toUrlishString();
         const int lineNumber = bp->textPosition().line;
-        DebuggerCommand cmd("trace \"" + GdbMi::escapeCString(fileName) + "\":"
-                            + QString::number(lineNumber),
-                            NeedsTemporaryStop);
-        runCommand(cmd);
+        runCommand({"trace \"" + GdbMi::escapeCString(fileName) + "\":" + QString::number(lineNumber),
+                    NeedsTemporaryStop});
     } else {
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         // know how to do pending breakpoints using CLI but not MI. So try
@@ -2408,9 +2392,7 @@ void GdbEngine::handleTracepointInsert(const DebuggerResponse &response, const B
             // This delete was deferred. Act now.
             const GdbMi mainbkpt = response.data["tracepoint"][0];
             notifyBreakpointRemoveProceeding(bp);
-            DebuggerCommand cmd("-break-delete " + mainbkpt["number"].data());
-            cmd.flags = NeedsTemporaryStop;
-            runCommand(cmd);
+            runCommand({"-break-delete " + mainbkpt["number"].data(), NeedsTemporaryStop});
             notifyBreakpointRemoveOk(bp);
             return;
         }
@@ -2733,8 +2715,7 @@ void GdbEngine::updateBreakpoint(const Breakpoint &bp)
 void GdbEngine::enableSubBreakpoint(const SubBreakpoint &sbp, bool on)
 {
     QTC_ASSERT(sbp, return);
-    DebuggerCommand cmd((on ? "-break-enable " : "-break-disable ") + sbp->responseId);
-    runCommand(cmd);
+    runCommand({(on ? "-break-enable " : "-break-disable ") + sbp->responseId});
 }
 
 void GdbEngine::removeBreakpoint(const Breakpoint &bp)
@@ -2756,8 +2737,7 @@ void GdbEngine::removeBreakpoint(const Breakpoint &bp)
         notifyBreakpointRemoveProceeding(bp);
         showMessage(
             QString("DELETING BP %1 IN %2").arg(bp->responseId()).arg(bp->fileName().toUserOutput()));
-        DebuggerCommand cmd("-break-delete " + bp->responseId(), NeedsTemporaryStop);
-        runCommand(cmd);
+        runCommand({"-break-delete " + bp->responseId(), NeedsTemporaryStop});
 
         // Pretend it succeeds without waiting for response. Feels better.
         // Otherwise, clicking in the gutter leaves the breakpoint visible
@@ -4528,7 +4508,7 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
     {
         showMessage("INFERIOR ATTACHED");
 
-        QString commands = settings().gdbPostAttachCommands();
+        const QString commands = settings().gdbPostAttachCommands();
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
 
@@ -4707,7 +4687,7 @@ void GdbEngine::handleExecRun(const DebuggerResponse &response)
     if (response.resultClass == ResultRunning) {
 
         if (isLocalRunEngine()) {
-            QString commands = settings().gdbPostAttachCommands();
+            const QString commands = settings().gdbPostAttachCommands();
             if (!commands.isEmpty())
                 runCommand({commands, NativeCommand});
         }
@@ -4748,7 +4728,7 @@ void GdbEngine::handleTargetRemote(const DebuggerResponse &response)
         // gdb server will stop the remote application itself.
         showMessage("INFERIOR STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString commands = settings().gdbPostAttachCommands();
+        const QString commands = settings().gdbPostAttachCommands();
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
         handleInferiorPrepared();
@@ -4764,7 +4744,7 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
     if (response.resultClass == ResultDone) {
         showMessage("ATTACHED TO GDB SERVER STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString commands = settings().gdbPostAttachCommands();
+        const QString commands = settings().gdbPostAttachCommands();
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
         if (runParameters().attachPid().isValid()) { // attach to pid if valid
