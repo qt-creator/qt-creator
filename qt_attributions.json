@@ -8,8 +8,10 @@
         "Path": "@SOURCE_DIR@/src/libs/3rdparty/yaml-cpp",
         "Description": "yaml-cpp is a YAML parser and emitter in C++ matching the YAML 1.2 spec.",
         "Homepage": "https://github.com/jbeder/yaml-cpp",
-        "PURL": "pkg:github/jbeder/yaml-cpp@$<VERSION>",
         "Version": "0.8.0",
+        "PURL": "pkg:github/jbeder/yaml-cpp@$<VERSION>",
+        "CPE": "cpe:2.3:a:yaml-cpp_project:yaml-cpp:$<VERSION>:*:*:*:*:*:*:*",
+        "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/yaml-cpp/LICENSE",
         "Copyright": "Copyright (c) 2008-2015 Jesse Beder."
