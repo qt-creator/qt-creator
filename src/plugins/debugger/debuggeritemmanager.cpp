@@ -114,6 +114,7 @@ public:
 
     void load(const DebuggerItem *item);
     void store() const;
+    void setDeviceRootPath(const FilePath &rootPath);
 
 private:
     void binaryPathHasChanged();
@@ -447,6 +448,11 @@ void DebuggerItemConfigWidget::store() const
 {
     if (!m_id.isNull())
         itemModel().updateDebugger(item());
+}
+
+void DebuggerItemConfigWidget::setDeviceRootPath(const FilePath &rootPath)
+{
+    m_binaryChooser->setInitialBrowsePathBackup(rootPath);
 }
 
 void DebuggerItemConfigWidget::setAbis(const QStringList &abiNames)
@@ -1243,6 +1249,7 @@ public:
         itemModel().cancel();
     }
 
+    IDeviceConstPtr currentDevice() const;
     QModelIndex mapFromSource(const QModelIndex &idx) const;
     QModelIndex mapToSource(const QModelIndex &idx) const;
 
@@ -1263,6 +1270,11 @@ public:
     DetailsWidget *m_container;
     DebuggerItemConfigWidget *m_itemConfigWidget;
 };
+
+IDeviceConstPtr DebuggerSettingsPageWidget::currentDevice() const
+{
+    return m_deviceModel->device(m_deviceComboBox->currentIndex());
+}
 
 QModelIndex DebuggerSettingsPageWidget::mapFromSource(const QModelIndex &idx) const
 {
@@ -1325,6 +1337,9 @@ void DebuggerSettingsPageWidget::updateButtons()
     DebuggerItem *item = titem ? &titem->m_item : nullptr;
 
     m_itemConfigWidget->load(item);
+    const IDeviceConstPtr dev = currentDevice();
+    if (QTC_GUARD(dev))
+        m_itemConfigWidget->setDeviceRootPath(dev->rootPath());
     m_container->setVisible(item != nullptr);
     m_cloneButton->setEnabled(item && item->isValid() && item->canClone());
     m_delButton->setEnabled(item && !item->detectionSource().isAutoDetected());
