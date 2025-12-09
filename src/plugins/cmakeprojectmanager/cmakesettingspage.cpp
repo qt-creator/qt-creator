@@ -11,12 +11,12 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/devicemanagermodel.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/algorithm.h>
 #include <utils/detailswidget.h>
-#include <utils/fileutils.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -26,6 +26,7 @@
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -170,6 +171,7 @@ QVariant CMakeToolTreeItem::data(int column, int role) const
     }
 
     switch (role) {
+    case FilePathRole: return m_executable.toVariant();
     case Qt::DisplayRole: {
         switch (column) {
         case 0: {
@@ -538,8 +540,12 @@ public:
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
 
+        m_deviceComboBox = new QComboBox(this);
+        m_deviceComboBox->setModel(&m_deviceModel);
+
+        m_filterModel.setSourceModel(&m_model);
         m_cmakeToolsView = new QTreeView(this);
-        m_cmakeToolsView->setModel(&m_model);
+        m_cmakeToolsView->setModel(&m_filterModel);
         m_cmakeToolsView->setUniformRowHeights(true);
         m_cmakeToolsView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_cmakeToolsView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -552,19 +558,21 @@ public:
         (void) new HeaderViewStretcher(header, 0);
 
         using namespace Layouting;
-        Row {
-            Column {
-                m_cmakeToolsView,
-                m_container,
-            },
-            Column {
-                m_addButton,
-                m_cloneButton,
-                m_delButton,
-                m_makeDefButton,
-                st,
-            },
-        }.attachTo(this);
+        Column {
+            Row { Tr::tr("Device:"), m_deviceComboBox, st },
+            Row {
+                Column {
+                    m_cmakeToolsView,
+                    m_container,
+                },
+                Column {
+                    m_addButton,
+                    m_cloneButton,
+                    m_delButton,
+                    m_makeDefButton,
+                    st,
+                },
+            }}.attachTo(this);
 
         connect(m_cmakeToolsView->selectionModel(), &QItemSelectionModel::currentChanged,
                 this, &CMakeToolConfigWidget::currentCMakeToolChanged, Qt::QueuedConnection);
@@ -580,8 +588,17 @@ public:
 
         m_itemConfigWidget = new CMakeToolItemConfigWidget(&m_model);
         m_container->setWidget(m_itemConfigWidget);
+
+        const auto updateDevice = [this](int idx) {
+            m_filterModel.setDevice(m_deviceModel.device(idx));
+        };
+        connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
+        m_deviceComboBox->setCurrentIndex(
+            m_deviceModel.indexOf(DeviceManager::defaultDesktopDevice()));
+        updateDevice(m_deviceComboBox->currentIndex());
     }
 
+private:
     void apply() final;
 
     void cloneCMakeTool();
@@ -590,7 +607,13 @@ public:
     void setDefaultCMakeTool();
     void currentCMakeToolChanged(const QModelIndex &newCurrent);
 
+    QModelIndex mapFromSource(const QModelIndex &idx) const;
+    QModelIndex mapToSource(const QModelIndex &idx) const;
+
     CMakeToolItemModel m_model;
+    DeviceManagerModel m_deviceModel;
+    DeviceFilterModel m_filterModel;
+    QComboBox *m_deviceComboBox;
     QTreeView *m_cmakeToolsView;
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
@@ -619,7 +642,7 @@ void CMakeToolConfigWidget::cloneCMakeTool()
         m_currentItem->m_isAutoRun,
         DetectionSource{DetectionSource::Manual, m_currentItem->m_detectionSource.id});
 
-    m_cmakeToolsView->setCurrentIndex(newItem);
+    m_cmakeToolsView->setCurrentIndex(mapFromSource(newItem));
 }
 
 void CMakeToolConfigWidget::addCMakeTool()
@@ -631,7 +654,7 @@ void CMakeToolConfigWidget::addCMakeTool()
         true,
         DetectionSource::Manual);
 
-    m_cmakeToolsView->setCurrentIndex(newItem);
+    m_cmakeToolsView->setCurrentIndex(mapFromSource(newItem));
 }
 
 void CMakeToolConfigWidget::removeCMakeTool()
@@ -667,12 +690,24 @@ void CMakeToolConfigWidget::setDefaultCMakeTool()
 
 void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurrent)
 {
-    m_currentItem = m_model.cmakeToolItem(newCurrent);
+    m_currentItem = m_model.cmakeToolItem(mapToSource(newCurrent));
     m_itemConfigWidget->load(m_currentItem);
     m_container->setVisible(m_currentItem);
     m_cloneButton->setEnabled(m_currentItem);
     m_delButton->setEnabled(m_currentItem && !m_currentItem->m_detectionSource.isAutoDetected());
     m_makeDefButton->setEnabled(m_currentItem && (!m_model.defaultItemId().isValid() || m_currentItem->m_id != m_model.defaultItemId()));
+}
+
+QModelIndex CMakeToolConfigWidget::mapFromSource(const QModelIndex &idx) const
+{
+    QTC_ASSERT(m_filterModel.sourceModel() == &m_model, return {});
+    return m_filterModel.mapFromSource(idx);
+}
+
+QModelIndex CMakeToolConfigWidget::mapToSource(const QModelIndex &idx) const
+{
+    QTC_ASSERT(m_filterModel.sourceModel() == &m_model, return {});
+    return m_filterModel.mapToSource(idx);
 }
 
 // CMakeSettingsPage
