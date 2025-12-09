@@ -32,6 +32,7 @@
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
+#include <texteditor/marginsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/syntaxhighlighter.h>
@@ -1086,6 +1087,12 @@ void VcsBaseEditorWidget::keyPressEvent(QKeyEvent *e)
         return;
     }
     TextEditorWidget::keyPressEvent(e);
+}
+
+void VcsBaseEditorWidget::setMarginSettings(const TextEditor::MarginSettings &ms)
+{
+    Q_UNUSED(ms)
+    TextEditorWidget::setMarginSettings({});
 }
 
 void VcsBaseEditorWidget::slotActivateAnnotation()

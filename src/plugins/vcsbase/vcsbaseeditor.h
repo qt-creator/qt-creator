@@ -219,6 +219,8 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *e) override;
     void keyPressEvent(QKeyEvent *) override;
 
+    void setMarginSettings(const TextEditor::MarginSettings &ms) final;
+
     /* A helper that can be used to locate a file in a diff in case it
      * is relative. Tries to derive the directory from base directory,
      * source and version control. */
