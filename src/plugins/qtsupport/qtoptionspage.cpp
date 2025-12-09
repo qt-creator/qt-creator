@@ -395,23 +395,25 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     m_formLayout = qobject_cast<QFormLayout*>(versionInfoWidget->layout());
 
     // clang-format off
-    Row {
-        Column {
-            Row { Tr::tr("Device:"), m_deviceComboBox, st },
-            m_qtdirList,
-            m_versionInfoWidget,
-            m_infoWidget,
-            Row { Tr::tr("Register documentation:"), m_documentationSetting, st }
-        },
+    Column {
+        Row { Tr::tr("Device:"), m_deviceComboBox, st },
+        Row {
+            Column {
+                m_qtdirList,
+                m_versionInfoWidget,
+                m_infoWidget,
+                Row { Tr::tr("Register documentation:"), m_documentationSetting, st }
+            },
 
-        Column {
-            addButton,
-            m_delButton,
-            redetectButton,
-            Space(20),
-            m_linkWithQtButton,
-            m_cleanUpButton,
-            st,
+            Column {
+                addButton,
+                m_delButton,
+                redetectButton,
+                Space(20),
+                m_linkWithQtButton,
+                m_cleanUpButton,
+                st,
+            }
         }
     }.attachTo(this);
     // clang-format on

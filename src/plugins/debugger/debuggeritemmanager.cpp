@@ -1200,14 +1200,17 @@ public:
         deviceLayout->addWidget(m_deviceComboBox);
         deviceLayout->addStretch(1);
 
-        auto verticalLayout = new QVBoxLayout();
-        verticalLayout->addLayout(deviceLayout);
-        verticalLayout->addWidget(m_debuggerView);
-        verticalLayout->addWidget(m_container);
+        auto debuggersLayout = new QVBoxLayout();
+        debuggersLayout->addWidget(m_debuggerView);
+        debuggersLayout->addWidget(m_container);
 
-        auto horizontalLayout = new QHBoxLayout(this);
-        horizontalLayout->addLayout(verticalLayout);
+        auto horizontalLayout = new QHBoxLayout;
+        horizontalLayout->addLayout(debuggersLayout);
         horizontalLayout->addLayout(buttonLayout);
+
+        const auto mainLayout = new QVBoxLayout(this);
+        mainLayout->addLayout(deviceLayout);
+        mainLayout->addLayout(horizontalLayout);
 
         connect(m_debuggerView->selectionModel(), &QItemSelectionModel::currentChanged,
                 this, &DebuggerSettingsPageWidget::currentDebuggerChanged, Qt::QueuedConnection);
