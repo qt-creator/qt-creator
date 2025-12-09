@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "mcusupporttr.h"
-
 #include <projectexplorer/devicesupport/desktopdevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
