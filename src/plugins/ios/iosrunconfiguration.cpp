@@ -134,46 +134,23 @@ FilePath IosRunConfiguration::bundleDirectory() const
         if (cmakeGenerator.isEmpty()) {
             // qmake node gives absolute IosBuildDir
             res = FilePath::fromString(pathStr);
-        } else {
+        } else if (!pathStr.isEmpty()) {
             // CMake node gives IosBuildDir relative to root build directory
-
-            bool useCmakePath = true;
-
-            if (pathStr.isEmpty())
-                useCmakePath = false;
-
-            if (useCmakePath && cmakeGenerator == "Xcode") {
+            if (cmakeGenerator == "Xcode") {
                 // When generating Xcode project, CMake may put a "${EFFECTIVE_PLATFORM_NAME}" macro,
                 // which is expanded by Xcode at build time.
                 // To get an actual executable path at configure time, replace this macro here
                 // depending on the device type.
-
-                const QString before = "${EFFECTIVE_PLATFORM_NAME}";
-
-                int idx = pathStr.indexOf(before);
-
-                if (idx == -1) {
-                    useCmakePath = false;
-                } else {
-                    QString after;
-                    if (isDevice)
-                        after = "-iphoneos";
-                    else
-                        after = "-iphonesimulator";
-
-                    pathStr.replace(idx, before.size(), after);
-                }
+                pathStr.replace(
+                    "${EFFECTIVE_PLATFORM_NAME}",
+                    QLatin1String(isDevice ? "-iphoneos" : "-iphonesimulator"));
             }
 
-            if (useCmakePath) {
-                // With Ninja generator IosBuildDir may be just "." when executable is in the root directory,
-                // so use canonical path to ensure that redundand dot is removed.
-                res = buildConfiguration()->buildDirectory().pathAppended(pathStr).canonicalPath();
-                // All done with path provided by CMake
-                shouldAppendBuildTypeAndPlatform = false;
-            } else {
-                res = buildConfiguration()->buildDirectory();
-            }
+            // With Ninja generator IosBuildDir may be just "." when executable is in the root directory,
+            // so use canonical path to ensure that redundand dot is removed.
+            res = buildConfiguration()->buildDirectory().pathAppended(pathStr).canonicalPath();
+            // All done with path provided by CMake
+            shouldAppendBuildTypeAndPlatform = false;
         }
     }
 
