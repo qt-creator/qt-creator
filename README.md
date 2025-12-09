@@ -48,8 +48,8 @@ Prerequisites:
     * MinGW with GCC 11.2 or Visual Studio 2022 or later
     * Python 3.8 or later (optional, needed for the python enabled debug helper)
     * Debugging Tools for Windows (optional, for MSVC debugging support with CDB)
-* On macOS: latest Xcode
-* On Linux: GCC 10 or later
+* On macOS: Xcode 16 or later
+* On Linux: GCC 11 or later
 * LLVM/Clang 14 or later (optional, LLVM/Clang 17 is recommended.
   See [instructions](#getting-llvmclang-for-the-clang-code-model) on how to
   get LLVM.
