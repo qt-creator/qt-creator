@@ -203,6 +203,7 @@ public:
     void cancel();
     DebuggerTreeItem *currentTreeItem();
 
+    void detectDebuggers(const IDeviceConstPtr &device);
     void restoreDebuggers();
     void saveDebuggers();
 
@@ -689,6 +690,7 @@ static QList<DebuggerItem> autoDetectGdbOrLldbDebuggersImpl(
 
     FilePaths suspects;
 
+    // FIXME: Devicify.
     if (searchPaths.front().osType() == OsTypeMac) {
         Process proc;
         proc.setCommand({"xcrun", {"--find", "lldb"}});
@@ -939,11 +941,20 @@ void DebuggerItemModel::restoreDebuggers()
     readDebuggers(userSettingsFileName(), false);
 
     // Auto detect current.
-    IDevice::ConstPtr desktop = DeviceManager::defaultDesktopDevice();
-    QTC_ASSERT(desktop, return);
-    autoDetectGdbOrLldbDebuggers(desktop->systemEnvironment().path(), {});
-    autoDetectCdbDebuggers();
-    autoDetectUvscDebuggers();
+    detectDebuggers(DeviceManager::defaultDesktopDevice());
+}
+
+void DebuggerItemModel::detectDebuggers(const IDeviceConstPtr &device)
+{
+    QTC_ASSERT(device, return);
+    const FilePaths searchPaths = Utils::transform(
+        device->systemEnvironment().path(),
+        [root = device->rootPath()](const FilePath &raw) { return root.withNewMappedPath(raw); });
+    autoDetectGdbOrLldbDebuggers(searchPaths, {});
+    if (device->id() == ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
+        autoDetectCdbDebuggers();
+        autoDetectUvscDebuggers();
+    }
 }
 
 void DebuggerItemModel::saveDebuggers()
@@ -1164,6 +1175,8 @@ public:
         m_delButton = new QPushButton(this);
         m_delButton->setEnabled(false);
 
+        m_detectButton = new QPushButton(Tr::tr("Re-detect"), this);
+
         m_container = new DetailsWidget(this);
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
@@ -1199,6 +1212,7 @@ public:
         buttonLayout->addWidget(m_addButton);
         buttonLayout->addWidget(m_cloneButton);
         buttonLayout->addWidget(m_delButton);
+        buttonLayout->addWidget(m_detectButton);
         buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
         const auto deviceLayout = new QHBoxLayout;
@@ -1224,6 +1238,8 @@ public:
                 this, &DebuggerSettingsPageWidget::cloneDebugger, Qt::QueuedConnection);
         connect(m_delButton, &QAbstractButton::clicked,
                 this, &DebuggerSettingsPageWidget::removeDebugger, Qt::QueuedConnection);
+        connect(m_detectButton , &QAbstractButton::clicked,
+                this, [this] { itemModel().detectDebuggers(currentDevice()); });
 
         m_deviceComboBox->setCurrentIndex(
             m_deviceModel->indexOf(DeviceManager::defaultDesktopDevice()));
@@ -1267,6 +1283,7 @@ public:
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
     QPushButton *m_delButton;
+    QPushButton *m_detectButton;
     DetailsWidget *m_container;
     DebuggerItemConfigWidget *m_itemConfigWidget;
 };
