@@ -5,6 +5,8 @@
 
 #include "movie.h"
 
+#ifdef QTC_MOVIE_COPY_INCLUDED
+
 #include "private/qobject_p.h"
 #include "private/qproperty_p.h"
 #include "qbuffer.h"
@@ -938,3 +940,4 @@ QBindable<QtcMovie::CacheMode> QtcMovie::bindableCacheMode()
 }
 
 #include "moc_movie.cpp"
+#endif

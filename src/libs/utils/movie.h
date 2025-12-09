@@ -4,12 +4,25 @@
 #ifndef QtcMovie_H
 #define QtcMovie_H
 
-#include <QtGui/qtguiglobal.h>
+#include <QtCore/qtversion.h>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0) \
+    || (QT_VERSION >= QT_VERSION_CHECK(6, 8, 5) && QT_VERSION < QT_VERSION_CHECK(6, 9, 0)) \
+    || QT_VERSION >= QT_VERSION_CHECK(6, 9, 2)
+
+#include <QMovie>
+
+using QtcMovie = QMovie;
+
+#else
+
+#define QTC_MOVIE_COPY_INCLUDED
 
 #include <QtCore/qbytearray.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qobject.h>
 #include <QtGui/qimagereader.h>
+#include <QtGui/qtguiglobal.h>
 
 QT_REQUIRE_CONFIG(movie);
 
@@ -105,5 +118,6 @@ private:
 };
 
 QT_END_NAMESPACE
+#endif
 
 #endif // QtcMovie_H
