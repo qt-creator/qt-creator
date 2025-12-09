@@ -57,9 +57,10 @@ public:
     // FileIsActive and GetMimeType must be thread-safe.
     using FileIsActive = std::function<bool(const Utils::FilePath &filePath)>;
     using GetMimeType = std::function<QString(const Utils::FilePath &filePath)>;
-    void setFiles(const Utils::FilePaths &files,
-                  const FileIsActive &fileIsActive = {},
-                  const GetMimeType &getMimeType = {});
+    void setFiles(const Utils::FilePaths &files);
+    void setFileActiveChecker(const FileIsActive &fileIsActive);
+    void setMimeTypeGetter(const GetMimeType &getMimeType);
+
     static HeaderPath frameworkDetectionHeuristic(const HeaderPath &header);
     void setHeaderPaths(const HeaderPaths &headerPaths);
     void setIncludePaths(const Utils::FilePaths &includePaths);

@@ -526,14 +526,13 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                                              return !isPchFile(buildDirectory, filePath)
                                                  && !isUnityFile(buildDirectory, filePath);
                                          });
+            rpp.setFiles(filtered);
 
-            rpp.setFiles(filtered,
-                         {},
-                         [headerMimeType](const FilePath &path) {
-                             if (CppEditor::ProjectFile::isAmbiguousHeader(path))
-                                 return headerMimeType;
-                             return Utils::mimeTypeForFile(path).name();
-                         });
+            rpp.setMimeTypeGetter([headerMimeType](const FilePath &path) {
+                if (CppEditor::ProjectFile::isAmbiguousHeader(path))
+                    return headerMimeType;
+                return Utils::mimeTypeForFile(path).name();
+            });
 
             FilePath precompiled_header
                 = findOrDefault(t.sources, [&ending](const SourceInfo &si) {

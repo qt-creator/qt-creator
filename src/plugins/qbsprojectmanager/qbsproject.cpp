@@ -1043,8 +1043,8 @@ static RawProjectPart generateProjectPart(
         Utils::transform(arrayToStringList(props.value("cpp.prefixHeaders")), [&](const QString &f) {
             return refFile.withNewPath(f);
         }));
-    rpp.setFiles(filePathToSourceArtifact.keys(), {},
-                 [filePathToSourceArtifact](const FilePath &filePath) {
+    rpp.setFiles(filePathToSourceArtifact.keys());
+    rpp.setMimeTypeGetter([filePathToSourceArtifact](const FilePath &filePath) {
         // Keep this lambda thread-safe!
         return getMimeType(filePathToSourceArtifact.value(filePath));
     });

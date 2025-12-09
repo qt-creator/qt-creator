@@ -39,12 +39,18 @@ void RawProjectPart::setDisplayName(const QString &displayName)
     this->displayName = displayName;
 }
 
-void RawProjectPart::setFiles(const FilePaths &files,
-                              const FileIsActive &fileIsActive,
-                              const GetMimeType &getMimeType)
+void RawProjectPart::setFiles(const FilePaths &files)
 {
     this->files = files;
+}
+
+void RawProjectPart::setFileActiveChecker(const FileIsActive &fileIsActive)
+{
     this->fileIsActive = fileIsActive;
+}
+
+void RawProjectPart::setMimeTypeGetter(const GetMimeType &getMimeType)
+{
     this->getMimeType = getMimeType;
 }
 
