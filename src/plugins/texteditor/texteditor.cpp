@@ -6363,11 +6363,11 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
     { // paint background
         d->paintWidgetBackground(data, painter);
-        // draw backgrond to the right of the wrap column before everything else
+        // draw background to the right of the wrap column before everything else
         d->paintRightMarginArea(data, painter);
         // paint a blended background color depending on scope depth
         d->paintBlockHighlight(data, painter);
-        // paint background of if defed out blocks in bigger chunks
+        // paint background of ifdefed out blocks in bigger chunks
         d->paintIfDefedOutBlocks(data, painter);
         d->paintRightMarginLine(data, painter);
         // paint find scope on top of ifdefed out blocks and right margin
