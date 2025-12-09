@@ -13,17 +13,25 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/taskprogress.h>
+
+#include <cplusplus/CppDocument.h>
+
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsreuse.h>
+
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
+#include <QStack>
 
 using namespace Core;
 using namespace QtTaskTree;
@@ -194,6 +202,7 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
 void TestCodeParser::onStartupProjectChanged(Project *project)
 {
     m_qmlEditorRev.clear();
+    m_applicationTargetFiles.clear();
     if (m_parserState == FullParse || m_parserState == PartialParse) {
         qCDebug(LOG) << "Canceling scanForTest (startup project changed)";
         ProgressManager::cancelTasks(Constants::TASK_PARSE);
@@ -274,6 +283,61 @@ static void parseFileForTests(QPromise<TestParseResultPtr> &promise,
     }
 }
 
+// files that can hold a test that is runnable: sources of an application target, everything they
+// include and the project sources belonging to these - frameworks other than Qt Test register
+// tests from any file of their translation unit
+// counterpart hop mirrors what CppModelManager::dependingInternalTargets() does,
+// so a test in a library the application target links against is kept
+static QSet<FilePath> filesOfApplicationTargets(Project *project, const CPlusPlus::Snapshot &snapshot)
+{
+    const BuildSystem *buildSystem = project->activeBuildSystem();
+    if (!buildSystem)
+        return {};
+    QSet<QString> buildKeys;
+    for (const BuildTargetInfo &bti : buildSystem->applicationTargets())
+        buildKeys.insert(bti.buildKey);
+    if (buildKeys.isEmpty())
+        return {};
+    const CppEditor::ProjectInfo::ConstPtr info = CppEditor::CppModelManager::projectInfo(project);
+    if (!info)
+        return {};
+    QSet<FilePath> result;
+    QStack<FilePath> pending;
+    for (const CppEditor::ProjectPart::ConstPtr &part : info->projectParts()) {
+        if (!buildKeys.contains(part->buildSystemTarget))
+            continue;
+        for (const CppEditor::ProjectFile &file : part->files) {
+            if (Utils::insert(result, file.path))
+                pending.push(file.path);
+        }
+    }
+    while (!pending.isEmpty()) {
+        const CPlusPlus::Document::Ptr doc = snapshot.document(pending.pop());
+        if (!doc)
+            continue;
+        const FilePaths included = doc->includedFiles();
+        for (const FilePath &file : included) {
+            if (Utils::insert(result, file))
+                pending.push(file);
+        }
+    }
+    // the source belonging to a header of the closure is not part of it, but can hold the test the
+    // header only declares - do not follow its includes, they lead away from the application target
+    const QSet<FilePath> &projectFiles = info->sourceFiles();
+    const FilePath projectDir = project->projectDirectory();
+    QSet<FilePath> counterparts;
+    for (const FilePath &file : std::as_const(result)) {
+        if (!file.isChildOf(projectDir))
+            continue;
+        const FilePath counterpart
+            = CppEditor::correspondingHeaderOrSource(file, nullptr,
+                                                     CppEditor::CacheUsage::ReadOnly);
+        if (!counterpart.isEmpty() && projectFiles.contains(counterpart))
+            counterparts.insert(counterpart);
+    }
+    return result.unite(counterparts);
+}
+
 void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
                                   const QList<ITestParser *> &parsers)
 {
@@ -286,6 +350,8 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
     if (postponed(filePaths))
         return;
 
+    QElapsedTimer computeTimer;
+    computeTimer.start();
     QSet<FilePath> files = filePaths; // avoid getting cleared if m_postponedFiles have been passed
     m_reparseTimer.stop();
     m_reparseTimerTimedOut = false;
@@ -294,8 +360,21 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
     Project *project = ProjectManager::startupProject();
     if (!project)
         return;
+    const CPlusPlus::Snapshot cppSnapshot = CppEditor::CppModelManager::snapshot();
     if (isFullParse) {
-        files = Utils::toSet(project->files(Project::SourceFiles));
+        m_applicationTargetFiles = filesOfApplicationTargets(project, cppSnapshot);
+        const QSet<FilePath> &targetFiles = m_applicationTargetFiles;
+        if (targetFiles.isEmpty()) {
+            files = Utils::toSet(project->files(Project::SourceFiles));
+        } else {
+            files = Utils::toSet(project->files([&targetFiles](const Node *node) {
+                if (node->asContainerNode())
+                    return true;
+                return node->listInProject() && !node->isGenerated() && node->isEnabled()
+                        && targetFiles.contains(node->filePath());
+            }));
+        }
+
         if (files.isEmpty()) {
             // at least project file should be there, but might happen if parsing current project
             // takes too long, especially when opening sessions holding multiple projects
@@ -332,6 +411,19 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
         emit requestRemoval(files);
     }
 
+    if (!isFullParse && !m_applicationTargetFiles.isEmpty()) {
+        // the removal above has happened already, so tests of files that dropped out of an
+        // application target since the last full parse are gone instead of getting re-added
+        files = Utils::filtered(files, [this](const FilePath &fn) {
+            return fn.endsWith(".qml") || m_applicationTargetFiles.contains(fn);
+        });
+        if (files.isEmpty()) {
+            qCDebug(LOG) << "No file belongs to an application target - canceling scan immediately";
+            onFinished(true);
+            return;
+        }
+    }
+
     const TestProjectSettings *settings = testProjectSettings(project);
     if (settings->limitToFilter()) {
         qCDebug(LOG) << "Applying project path filters - currently" << files.size() << "files";
@@ -366,12 +458,12 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
 
     QTC_ASSERT(!(isFullParse && files.isEmpty()), onFinished(true); return);
 
+    qCDebug(LOG) << "computation took:" << computeTimer.elapsed() << "ms";
     // use only a single parser or all current active?
     const QList<ITestParser *> codeParsers = parsers.isEmpty() ? m_testCodeParsers : parsers;
     qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "StartParsing";
     m_parsingTimer.restart();
     QSet<QString> extensions;
-    const auto cppSnapshot = CppEditor::CppModelManager::snapshot();
 
     for (ITestParser *parser : codeParsers) {
         parser->init(files, isFullParse);
