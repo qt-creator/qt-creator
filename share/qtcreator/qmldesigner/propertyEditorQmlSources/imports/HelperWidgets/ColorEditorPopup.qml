@@ -27,7 +27,7 @@ Column {
 
     property alias gradientLine: gradientLine
     property alias popupHexTextField: popupHexTextField
-    property alias gradientPropertyName: root.gradientModel.gradientPropertyName
+    property alias gradientPropertyName: gradientModel.gradientPropertyName
     property alias gradientOrientation: gradientOrientation
 
     property alias gradientModel: gradientModel
