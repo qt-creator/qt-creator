@@ -147,6 +147,10 @@ void StatesEditorWidget::reloadQmlSource()
             SIGNAL(currentStateInternalIdChanged()),
             m_statesEditorView.data(),
             SLOT(synchronizeCurrentStateFromWidget()));
+    connect(rootObject(),
+            SIGNAL(createNewState()),
+            m_statesEditorView.data(),
+            SLOT(createNewState()));
     connect(rootObject(), SIGNAL(cloneState(int)), m_statesEditorView.data(), SLOT(cloneState(int)));
     connect(rootObject(),
             SIGNAL(extendState(int)),
