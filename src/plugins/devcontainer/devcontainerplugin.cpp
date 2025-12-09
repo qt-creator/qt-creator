@@ -20,18 +20,22 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/fsengine/fsengine.h>
+#include <utils/guard.h>
 #include <utils/guardedcallback.h>
 #include <utils/icon.h>
 #include <utils/infobar.h>
 #include <utils/theme/theme.h>
 
 #include <QMessageBox>
+#include <QTimer>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -94,8 +98,16 @@ public:
             this,
             &DevContainerPlugin::onEditorCreated);
 
-        for (auto project : ProjectManager::instance()->projects())
+        connect(
+            ProjectTree::instance(),
+            &ProjectTree::subtreeChanged,
+            this,
+            &DevContainerPlugin::onProjectTreeChanged);
+
+        for (auto project : ProjectManager::instance()->projects()) {
             onProjectAdded(project);
+            onProjectTreeChanged(project->rootProjectNode());
+        }
 
 #ifdef WITH_TESTS
         addTestCreator([this]() {
@@ -109,6 +121,8 @@ public:
     void onProjectAdded(Project *project);
     void onProjectRemoved(Project *project);
 
+    void onProjectTreeChanged(FolderNode *node);
+
     void onEditorCreated(Core::IEditor *editor, const FilePath &filePath);
 
     void startDeviceForProject(Project *project, DevContainer::InstanceConfig instanceConfig);
@@ -121,9 +135,14 @@ signals:
 #endif
 
 private:
+    using FilePathWatcherResults = std::vector<Utils::Result<std::unique_ptr<FilePathWatcher>>>;
+
     std::map<Project *, std::vector<std::shared_ptr<Device>>> devicesForProject;
+    std::map<Project *, FilePathWatcherResults> configFileWatchersForProject;
     std::unique_ptr<DevContainerDeviceFactory> deviceFactory;
     QObject guard;
+
+    Guard m_projectTreeUpdateGuard;
 };
 
 Id instantiateInfoBarId(Project *project)
@@ -137,6 +156,10 @@ void DevContainerPlugin::onProjectRemoved(Project *project)
     const Id infoBarId = instantiateInfoBarId(project);
     InfoBar *infoBar = Core::ICore::popupInfoBar();
     infoBar->removeInfo(infoBarId);
+
+    auto itWatchers = configFileWatchersForProject.find(project);
+    if (itWatchers != configFileWatchersForProject.end())
+        configFileWatchersForProject.erase(itWatchers);
 
     auto it = devicesForProject.find(project);
     if (it == devicesForProject.end())
@@ -286,6 +309,95 @@ std::shared_ptr<Device> DevContainerPlugin::device(Project *project, const FileP
         });
     }
     return nullptr;
+}
+
+void DevContainerPlugin::onProjectTreeChanged(FolderNode *fn)
+{
+    if (m_projectTreeUpdateGuard.isLocked())
+        return;
+
+    GuardLocker lk(m_projectTreeUpdateGuard);
+
+    if (!fn)
+        return;
+
+    if (!fn->isProjectNodeType())
+        return;
+
+    Project *project = fn->getProject();
+    if (QTC_UNEXPECTED(!project))
+        return;
+
+    const FilePath devContainerFolder = project->projectDirectory() / ".devcontainer";
+
+    // Watch all folders that could contain devcontainer.json files
+    const FilePaths pathsToWatch = Utils::filtered(
+        FilePaths{project->projectDirectory(), devContainerFolder}
+            + (devContainerFolder).dirEntries(QDir::Dirs | QDir::NoDotAndDotDot),
+        &FilePath::isDir);
+
+    FilePathWatcherResults &watchMapEntry = configFileWatchersForProject[project];
+    watchMapEntry = pathsToWatch.watch();
+    for (const auto &watchResult : watchMapEntry) {
+        if (!watchResult) {
+            Core::MessageManager::writeSilently(
+                Tr::tr("Failed to watch devcontainer config files for project %1: %2")
+                    .arg(project->displayName(), watchResult.error()));
+            continue;
+        }
+        connect(
+            watchResult.value().get(),
+            &FilePathWatcher::pathChanged,
+            this,
+            [this, ptr = QPointer<Project>(project)] {
+                // Delay the processing as the onProjectTreeChanged will delete the watcher
+                // that called us.
+                QTimer::singleShot(0, this, [this, ptr]() {
+                    if (ptr) {
+                        if (ptr->rootProjectNode()->filePath().isDir())
+                            onProjectTreeChanged(ptr->rootProjectNode());
+                        else
+                            onProjectTreeChanged(ptr->containerNode());
+                    }
+                });
+            });
+    }
+
+    const FilePaths devContainerFiles = devContainerFilesForProject(project);
+    if (devContainerFiles.isEmpty())
+        return;
+
+    static const QString devContainerNodeDisplayName = Tr::tr("Development Containers");
+
+    auto devContainerVirtualNode = std::make_unique<VirtualFolderNode>(project->projectDirectory());
+    devContainerVirtualNode->setDisplayName(devContainerNodeDisplayName);
+    devContainerVirtualNode->setIcon(DEVCONTAINER_ICON.icon());
+
+    for (const FilePath &devContainerFile : devContainerFiles) {
+        Node *existingNode = devContainerVirtualNode->findNode(
+            [&devContainerFile](ProjectExplorer::Node *n) {
+                return n->filePath() == devContainerFile;
+            });
+
+        if (!existingNode) {
+            auto fileNode = std::make_unique<FileNode>(
+                devContainerFile, Node::fileTypeForFileName(devContainerFile));
+            fileNode->setIcon(DEVCONTAINER_ICON.icon());
+
+            devContainerVirtualNode->addNestedNode(std::move(fileNode));
+        }
+    }
+
+    FolderNode *existingDevContainerVirtualNode = project->rootProjectNode()->findChildFolderNode(
+        [](FolderNode *n) { return n->displayName() == devContainerNodeDisplayName; });
+
+    if (existingDevContainerVirtualNode)
+        project->rootProjectNode()
+            ->replaceSubtree(existingDevContainerVirtualNode, std::move(devContainerVirtualNode));
+    else
+        project->rootProjectNode()->addNode(std::move(devContainerVirtualNode));
+
+    ProjectTree::emitSubtreeChanged(project->rootProjectNode());
 }
 
 void DevContainerPlugin::onEditorCreated(Core::IEditor *editor, const FilePath &filePath)
