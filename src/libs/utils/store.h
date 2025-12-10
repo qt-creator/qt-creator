@@ -6,6 +6,7 @@
 #include "result.h"
 #include "storekey.h"
 
+#include <QJsonDocument>
 #include <QMap>
 #include <QVariant>
 
@@ -32,7 +33,8 @@ QTCREATOR_UTILS_EXPORT bool isStore(const QVariant &value);
 QTCREATOR_UTILS_EXPORT Key numberedKey(const Key &key, int number);
 
 QTCREATOR_UTILS_EXPORT Result<Store> storeFromJson(const QByteArray &json);
-QTCREATOR_UTILS_EXPORT QByteArray jsonFromStore(const Store &store);
+QTCREATOR_UTILS_EXPORT QByteArray
+jsonFromStore(const Store &store, QJsonDocument::JsonFormat format = QJsonDocument::Indented);
 
 // These recursively change type.
 QTCREATOR_UTILS_EXPORT QVariant storeEntryFromMapEntry(const QVariant &value);

@@ -165,10 +165,10 @@ Result<Store> storeFromJson(const QByteArray &json)
     return storeFromMap(doc.toVariant().toMap());
 }
 
-QByteArray jsonFromStore(const Store &store)
+QByteArray jsonFromStore(const Store &store, QJsonDocument::JsonFormat format)
 {
     QJsonDocument doc = QJsonDocument::fromVariant(mapFromStore(store));
-    return doc.toJson();
+    return doc.toJson(format);
 }
 
 Store storeFromSettings(const Key &groupKey, QtcSettings *s)
