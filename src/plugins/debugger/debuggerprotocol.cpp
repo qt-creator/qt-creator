@@ -8,9 +8,8 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QHostAddress>
-#include <QTimeZone>
-#include <QJsonArray>
 #include <QJsonDocument>
+#include <QTimeZone>
 
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
@@ -767,67 +766,6 @@ QString decodeData(QStringView ba, const QString &encoding)
 // DebuggerCommand
 //
 //////////////////////////////////////////////////////////////////////////////////
-
-template<typename Value>
-QJsonValue addToJsonObject(const QJsonValue &args, const char *name, const Value &value)
-{
-    QTC_ASSERT(args.isObject() || args.isNull(), return args);
-    QJsonObject obj = args.toObject();
-    obj.insert(QLatin1String(name), value);
-    return obj;
-}
-
-void DebuggerCommand::arg(const char *name, int value)
-{
-    args = addToJsonObject(args, name, value);
-}
-
-void DebuggerCommand::arg(const char *name, qlonglong value)
-{
-    args = addToJsonObject(args, name, value);
-}
-
-void DebuggerCommand::arg(const char *name, qulonglong value)
-{
-    // gdb and lldb will correctly cast the value back to unsigned if needed, so this is no problem.
-    args = addToJsonObject(args, name, qint64(value));
-}
-
-void DebuggerCommand::arg(const char *name, const QString &value)
-{
-    args = addToJsonObject(args, name, value);
-}
-
-void DebuggerCommand::arg(const char *name, const char *value)
-{
-    args = addToJsonObject(args, name, value);
-}
-
-void DebuggerCommand::arg(const char *name, const QList<int> &list)
-{
-    QJsonArray numbers;
-    for (int item : list)
-        numbers.append(item);
-    args = addToJsonObject(args, name, numbers);
-}
-
-void DebuggerCommand::arg(const char *name, const QStringList &list)
-{
-    QJsonArray arr;
-    for (const QString &item : list)
-        arr.append(toHex(item));
-    args = addToJsonObject(args, name, arr);
-}
-
-void DebuggerCommand::arg(const char *name, bool value)
-{
-    args = addToJsonObject(args, name, value);
-}
-
-void DebuggerCommand::arg(const char *name, const QJsonValue &value)
-{
-    args = addToJsonObject(args, name, value);
-}
 
 static QJsonValue translateJsonToPython(const QJsonValue &value)
 {

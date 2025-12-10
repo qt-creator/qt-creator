@@ -4,10 +4,11 @@
 #pragma once
 
 #include <QByteArray>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QList>
 #include <QString>
-#include <QJsonValue>
-#include <QJsonObject>
 #include <QVarLengthArray>
 
 #include <utils/filepath.h>
@@ -16,6 +17,9 @@
 namespace Utils { class ProcessHandle; }
 
 namespace Debugger::Internal {
+
+QString fromHex(const QString &str);
+QString toHex(const QString &str);
 
 class DebuggerResponse;
 
@@ -32,15 +36,38 @@ public:
     DebuggerCommand(const QString &f, int fl, const Callback &cb) : function(f), callback(cb), flags(fl) {}
     DebuggerCommand(const QString &f, const Callback &cb) : function(f), callback(cb) {}
 
-    void arg(const char *name, bool value);
-    void arg(const char *name, int value);
-    void arg(const char *name, qlonglong value);
-    void arg(const char *name, qulonglong value);
-    void arg(const char *name, const QString &value);
-    void arg(const char *name, const char *value);
-    void arg(const char *name, const QList<int> &list);
-    void arg(const char *name, const QStringList &list); // Note: Hex-encodes.
-    void arg(const char *name, const QJsonValue &value);
+    template <typename Value>
+    void arg(const char *name, const Value &value)
+    {
+        if constexpr (std::is_same_v<Value, QList<int>>) {
+            QJsonArray numbers;
+            for (int item : value)
+                numbers.append(item);
+            addToJsonObject(name, numbers);
+        } else if constexpr (std::is_same_v<Value, QStringList>) {
+            QJsonArray arr;
+            for (const QString &item : value)
+                arr.append(toHex(item));
+            addToJsonObject(name, arr);
+        } else if constexpr (std::is_same_v<Value, QChar>) {
+            addToJsonObject(name, QString(value));
+        } else if constexpr (std::is_same_v<Value, qulonglong>) {
+            // gdb and lldb will correctly cast the value back to unsigned if needed,
+            // so this is no problem.
+            addToJsonObject(name, qint64(value));
+        } else {
+            addToJsonObject(name, value);
+        }
+    }
+
+    template<typename Value>
+    void addToJsonObject(const char *name, const Value &value)
+    {
+        QTC_ASSERT(args.isObject() || args.isNull(), return);
+        QJsonObject obj = args.toObject();
+        obj.insert(QLatin1String(name), value);
+        args = obj;
+    }
 
     QString argsToPython() const;
     QString argsToString() const;
@@ -178,10 +205,6 @@ private:
     void dumpChildren(QString *str, bool multiline, int indent) const;
     Children m_children;
 };
-
-QString fromHex(const QString &str);
-QString toHex(const QString &str);
-
 
 enum ResultClass
 {
