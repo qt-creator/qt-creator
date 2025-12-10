@@ -9,6 +9,7 @@
 #include "dashboard/dto.h"
 #include "dashboard/error.h"
 #include "localbuild.h"
+#include "pluginarserver.h"
 
 #include <coreplugin/credentialquery.h>
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -1389,6 +1390,7 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
 
     ShutdownFlag aboutToShutdown() final
     {
+        shutdownAllPluginArServers();
         if (shutdownAllLocalDashboards([this] { emit asynchronousShutdownFinished(); }))
             return AsynchronousShutdown;
         else
@@ -1523,6 +1525,12 @@ void updateEnvironmentForLocalBuild(Environment *env)
                                + "Plugin/" + QCoreApplication::applicationVersion());
     env->set("AXIVION_USER_AGENT", ua);
     env->set("AXIVION_PROJECT_NAME", dd->m_currentProjectInfo->name);
+}
+
+NetworkAccessManager *axivionNetworkManager()
+{
+    QTC_ASSERT(dd, return nullptr);
+    return &dd->m_networkAccessManager;
 }
 
 } // Axivion::Internal

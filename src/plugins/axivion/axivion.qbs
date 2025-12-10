@@ -25,6 +25,8 @@ QtcPlugin {
         "issueheaderview.h",
         "localbuild.cpp",
         "localbuild.h",
+        "pluginarserver.cpp",
+        "pluginarserver.h",
     ]
 
     cpp.includePaths: base.concat(["."]) // needed for the generated stuff below

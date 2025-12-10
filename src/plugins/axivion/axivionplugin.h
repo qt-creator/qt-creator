@@ -6,6 +6,7 @@
 #include "dashboard/dto.h"
 
 #include <utils/id.h>
+#include <utils/networkaccessmanager.h>
 #include <utils/result.h>
 
 #include <QHash>
@@ -148,6 +149,8 @@ DashboardMode currentDashboardMode();
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);
 
 void updateEnvironmentForLocalBuild(Utils::Environment *env);
+
+Utils::NetworkAccessManager *axivionNetworkManager();
 
 } // Axivion::Internal
 
