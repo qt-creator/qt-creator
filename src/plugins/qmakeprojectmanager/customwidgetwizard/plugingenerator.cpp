@@ -142,7 +142,7 @@ Result<Core::GeneratedFiles> generatePlugin(
         if (!pluginHeaderContents)
             return ResultError(pluginHeaderContents.error());
         Core::GeneratedFile pluginHeader(baseDir / wo.pluginHeaderFile);
-        pluginHeader.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
+        pluginHeader.setContents(CppEditor::licenseTemplate(
                                      project, FilePath::fromString(wo.pluginHeaderFile),
                                      wo.pluginClassName)
                                  + *pluginHeaderContents);
@@ -170,7 +170,7 @@ Result<Core::GeneratedFiles> generatePlugin(
         if (!pluginSourceContents)
             return {};
         Core::GeneratedFile pluginSource(baseDir / wo.pluginSourceFile);
-        pluginSource.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
+        pluginSource.setContents(CppEditor::licenseTemplate(
                                      project,
                                      FilePath::fromString(wo.pluginSourceFile), wo.pluginClassName)
                                  + *pluginSourceContents);
@@ -217,7 +217,7 @@ Result<Core::GeneratedFiles> generatePlugin(
             if (!widgetHeaderContents)
                 return ResultError(widgetHeaderContents.error());
             Core::GeneratedFile widgetHeader(baseDir / wo.widgetHeaderFile);
-            widgetHeader.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
+            widgetHeader.setContents(CppEditor::licenseTemplate(
                                          project,
                                          FilePath::fromString(wo.widgetHeaderFile),
                                          wo.widgetClassName)
@@ -230,7 +230,7 @@ Result<Core::GeneratedFiles> generatePlugin(
             if (!widgetSourceContents)
                 return ResultError(widgetSourceContents.error());
             Core::GeneratedFile widgetSource(baseDir / wo.widgetSourceFile);
-            widgetSource.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
+            widgetSource.setContents(CppEditor::licenseTemplate(
                                          project,
                                          FilePath::fromString(wo.widgetSourceFile),
                                          wo.widgetClassName)
@@ -268,7 +268,7 @@ Result<Core::GeneratedFiles> generatePlugin(
         if (!collectionHeaderContents)
             return ResultError(collectionHeaderContents.error());
         Core::GeneratedFile collectionHeader(baseDir / options.collectionHeaderFile);
-        collectionHeader.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
+        collectionHeader.setContents(CppEditor::licenseTemplate(
                                          project,
                                          FilePath::fromString(options.collectionHeaderFile),
                                          options.collectionClassName)
@@ -286,7 +286,7 @@ Result<Core::GeneratedFiles> generatePlugin(
         if (!collectionSourceFileContents)
             return ResultError(collectionSourceFileContents.error());
         Core::GeneratedFile collectionSource(baseDir / options.collectionSourceFile);
-        collectionSource.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
+        collectionSource.setContents(CppEditor::licenseTemplate(
                                          project,
                                          FilePath::fromString(options.collectionSourceFile),
                                          options.collectionClassName)

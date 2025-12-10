@@ -59,8 +59,7 @@ FormClassWizardParameters FormClassWizardDialog::parameters() const
     m_classPage->getParameters(&rc);
     // Name the ui class in the Ui namespace after the class specified
     rc.uiTemplate = QtSupport::CodeGenerator::changeUiClassName(m_rawFormTemplate, rc.className);
-    rc.usePragmaOnce = CppEditor::AbstractEditorSupport::usePragmaOnce(
-        ProjectExplorer::ProjectTree::currentProject());
+    rc.usePragmaOnce = CppEditor::usePragmaOnce(ProjectExplorer::ProjectTree::currentProject());
     return rc;
 }
 

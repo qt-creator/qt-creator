@@ -71,9 +71,9 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     const QString unqualifiedClassName = namespaceList.takeLast();
 
     ProjectExplorer::Project * const project = ProjectExplorer::ProjectTree::currentProject();
-    const QString headerLicense = CppEditor::AbstractEditorSupport::licenseTemplate(
+    const QString headerLicense = CppEditor::licenseTemplate(
         project, FilePath::fromString(parameters.headerFile), parameters.className);
-    const QString sourceLicense = CppEditor::AbstractEditorSupport::licenseTemplate(
+    const QString sourceLicense = CppEditor::licenseTemplate(
         project, FilePath::fromString(parameters.sourceFile), parameters.className);
     // Include guards
     const QString guard

@@ -38,8 +38,8 @@ void AbstractEditorSupport::notifyAboutUpdatedContents() const
                 filePath(), sourceFilePath(), contents());
 }
 
-QString AbstractEditorSupport::licenseTemplate(ProjectExplorer::Project *project,
-                                               const FilePath &filePath, const QString &className)
+QString licenseTemplate(ProjectExplorer::Project *project,
+                        const FilePath &filePath, const QString &className)
 {
     const QString license = Internal::cppFileSettingsForProject(project).licenseTemplate();
     Utils::MacroExpander expander;
@@ -51,7 +51,7 @@ QString AbstractEditorSupport::licenseTemplate(ProjectExplorer::Project *project
     return TemplateEngine::processText(&expander, license).value_or(QString());
 }
 
-bool AbstractEditorSupport::usePragmaOnce(ProjectExplorer::Project *project)
+bool usePragmaOnce(ProjectExplorer::Project *project)
 {
     return Internal::cppFileSettingsForProject(project).headerPragmaOnce;
 }

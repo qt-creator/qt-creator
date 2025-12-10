@@ -13,6 +13,13 @@ namespace ProjectExplorer { class Project; }
 
 namespace CppEditor {
 
+CPPEDITOR_EXPORT QString licenseTemplate(ProjectExplorer::Project *project,
+                                         const Utils::FilePath &filePath = {},
+                                         const QString &className = {});
+
+CPPEDITOR_EXPORT bool usePragmaOnce(ProjectExplorer::Project *project);
+
+
 class CPPEDITOR_EXPORT AbstractEditorSupport : public QObject
 {
     Q_OBJECT
@@ -29,11 +36,6 @@ public:
     void updateDocument();
     void notifyAboutUpdatedContents() const;
     unsigned revision() const { return m_revision; }
-
-    static QString licenseTemplate(ProjectExplorer::Project *project,
-                                   const Utils::FilePath &filePath = {},
-                                   const QString &className = {});
-    static bool usePragmaOnce(ProjectExplorer::Project *project);
 
 private:
     unsigned m_revision;
