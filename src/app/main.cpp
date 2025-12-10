@@ -138,11 +138,19 @@ static void displayError(const QString &t)
         qCritical("%s", qPrintable(t));
 }
 
-static void printVersion(const PluginSpec *coreplugin)
+static void printVersion(const AppInfo &appInfo, const PluginSpec *coreplugin)
 {
     QString version;
     QTextStream str(&version);
-    str << '\n' << Core::Constants::IDE_DISPLAY_NAME << ' ' << coreplugin->version()<< " based on Qt " << qVersion() << "\n\n";
+    str << '\n';
+    str << QGuiApplication::applicationDisplayName() << '\n';
+    str << "Version: " << QCoreApplication::applicationVersion() << '\n';
+    str << "Qt Version: " << qVersion() << '\n';
+    if (!appInfo.revision.isEmpty())
+        str << "Revision: " << appInfo.revision << '\n';
+    if (appInfo.buildTime.isValid())
+        str << "Date: " << appInfo.buildTime.toString(Qt::RFC2822Date) << '\n';
+    str << '\n';
     PluginManager::formatPluginVersions(str);
     str << '\n' << coreplugin->copyright() << '\n';
     displayHelpText(version);
@@ -961,7 +969,7 @@ int main(int argc, char **argv)
     }
     if (foundAppOptions.contains(QLatin1String(VERSION_OPTION))
             || foundAppOptions.contains(QLatin1String(VERSION_OPTION2))) {
-        printVersion(coreplugin);
+        printVersion(info, coreplugin);
         return 0;
     }
     if (foundAppOptions.contains(QLatin1String(HELP_OPTION1))
