@@ -172,8 +172,6 @@ const char GENERATOR_ID_PREFIX[] = "PE.Wizard.Generator.";
 
 // Device types
 const char DESKTOP_DEVICE_TYPE[] = "Desktop";
-const char BUILD_DEVICE[] = "BuildDevice";
-const char RUN_DEVICE[] = "RunDevice";
 
 // RunMode
 const char NO_RUN_MODE[]="RunConfiguration.NoRunMode";

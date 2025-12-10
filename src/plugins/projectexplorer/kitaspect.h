@@ -202,8 +202,6 @@ public:
     enum ItemRole {
         IdRole = Qt::UserRole + 100,
         IsNoneRole,
-        FromBuildDeviceRole,
-        FromRunDeviceRole,
         TypeRole,
         QualityRole
     };

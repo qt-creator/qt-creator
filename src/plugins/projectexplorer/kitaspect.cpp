@@ -71,25 +71,11 @@ private:
                 sourceModel()->data(source_right, role).value<T>());
         };
 
-        // Criterion 1a: "None" item come last.
+        // Criterion 1: "None" item come last.
         if (getValue(source_left, KitAspect::IsNoneRole).toBool())
             return false;
 
         if (getValue(source_right, KitAspect::IsNoneRole).toBool())
-            return true;
-
-        // Criterion 1b: "From Build Device" comes before "None"
-        if (getValue(source_left, KitAspect::FromBuildDeviceRole).toBool())
-            return false;
-
-        if (getValue(source_right, KitAspect::FromBuildDeviceRole).toBool())
-            return true;
-
-        // Criterion 1b: "From Run Device" comes before "None" and "Build"
-        if (getValue(source_left, KitAspect::FromRunDeviceRole).toBool())
-            return false;
-
-        if (getValue(source_right, KitAspect::FromRunDeviceRole).toBool())
             return true;
 
         // Criterion 2: "Type", which is is the name of some category by which the entries

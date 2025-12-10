@@ -97,10 +97,6 @@ public:
         for (CMakeTool *tool : toolsForBuildDevice(&m_kit))
             rootItem()->appendChild(new CMakeToolTreeItem(tool, false));
 
-        // "From Build Device"
-        if (BuildDeviceKitAspect::device(&m_kit))
-            rootItem()->appendChild(new CMakeToolTreeItem(ProjectExplorer::Constants::BUILD_DEVICE));
-
         // "None"
         rootItem()->appendChild(new CMakeToolTreeItem());
     }
@@ -239,34 +235,13 @@ CMakeKitAspectFactory::CMakeKitAspectFactory()
 
 using namespace Internal;
 
-static Id ensureId(const Kit *k, Id id)
-{
-    if (id == ProjectExplorer::Constants::BUILD_DEVICE) {
-        id = BuildDeviceKitAspect::deviceId(k);
-        CMakeTool *tool = CMakeToolManager::findById(id);
-        if (!tool) {
-            DetectionSource ds{DetectionSource::Temporary, id.toString()};
-            auto newTool = std::make_unique<CMakeTool>(ds, id);
-            CMakeTool *tool = newTool.get();
-            CMakeToolManager::registerCMakeTool(std::move(newTool));
-            IDeviceConstPtr dev = BuildDeviceKitAspect::device(k);
-            if (QTC_GUARD(dev)) {
-                tool->setFilePath(dev->deviceToolPath(Constants::TOOL_TYPE_CMAKE));
-                tool->setDisplayName(QString("Referenced from %1").arg(dev->displayName()));
-            }
-        }
-    }
-    return id;
-}
-
 static CMakeTool *cmakeTool(const Kit *k)
 {
     if (!k)
         return nullptr;
     if (!k->isAspectRelevant(CMakeKitAspect::id()))
         return nullptr;
-    Id id = ensureId(k, Id::fromSetting(k->value(Constants::TOOL_ID)));
-    return CMakeToolManager::findById(id);
+    return CMakeToolManager::findById(Id::fromSetting(k->value(Constants::TOOL_ID)));
 }
 
 Id CMakeKitAspect::id()
@@ -341,7 +316,7 @@ void CMakeKitAspectFactory::fix(Kit *k)
 {
     QTC_ASSERT(k, return);
     // TODO: Differentiate (centrally?) between "nothing set" and "actively set to nothing".
-    Id id = ensureId(k, Id::fromSetting(k->value(Constants::TOOL_ID)));
+    const Id id = Id::fromSetting(k->value(Constants::TOOL_ID));
     if (id.isValid()) {
         CMakeTool * const tool = CMakeToolManager::findById(id);
         if (!tool || !toolsForBuildDevice(k).contains(tool)) {

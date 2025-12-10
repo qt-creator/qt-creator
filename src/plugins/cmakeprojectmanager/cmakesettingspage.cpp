@@ -159,18 +159,6 @@ QVariant CMakeToolTreeItem::data(int column, int role) const
         return {};
     }
 
-    if (m_id == ProjectExplorer::Constants::BUILD_DEVICE) {
-        if (role == Qt::DisplayRole && column == 0)
-            return Tr::tr("CMake from Build Device");
-        if (role == ProjectExplorer::KitAspect::FromBuildDeviceRole)
-            return true;
-        if (role == ProjectExplorer::KitAspect::IdRole)
-            return m_id.toSetting();
-        if (role == ProjectExplorer::KitAspect::QualityRole)
-            return int(!hasError());
-        return {};
-    }
-
     switch (role) {
     case FilePathRole: return m_executable.toVariant();
     case Qt::DisplayRole: {
