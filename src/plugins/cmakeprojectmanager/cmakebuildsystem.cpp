@@ -501,7 +501,7 @@ static CMakeBuildSystem::SnippetAndLocation generateSnippetForExistingTargetProp
     if (!function.Arguments().empty()) {
         const auto &lastArg = function.Arguments().back();
         insertLine = lastArg.Line - 1;
-        result.column = lastArg.Column + lastArg.Value.length() + 1;
+        result.column = lastArg.Column + int(lastArg.Value.length()) + 1;
     }
 
     result.line = insertLine + 1;
