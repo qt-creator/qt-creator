@@ -819,14 +819,6 @@ void DebuggerCommand::arg(const char *name, const QStringList &list)
     args = addToJsonObject(args, name, arr);
 }
 
-void DebuggerCommand::arg(const char *value)
-{
-    QTC_ASSERT(args.isArray() || args.isNull(), return);
-    QJsonArray arr = args.toArray();
-    arr.append(value);
-    args = arr;
-}
-
 void DebuggerCommand::arg(const char *name, bool value)
 {
     args = addToJsonObject(args, name, value);
