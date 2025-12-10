@@ -416,6 +416,7 @@ class CMakeToolItemConfigWidget : public QWidget
 public:
     explicit CMakeToolItemConfigWidget(CMakeToolItemModel *model);
     void load(const CMakeToolTreeItem *item);
+    void setDeviceRoot(const FilePath &devRoot);
     void store() const;
 
 private:
@@ -515,6 +516,11 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
     m_loadingItem = false;
 }
 
+void CMakeToolItemConfigWidget::setDeviceRoot(const FilePath &devRoot)
+{
+    m_binaryChooser->setInitialBrowsePathBackup(devRoot);
+}
+
 //
 // CMakeToolConfigWidget
 //
@@ -609,6 +615,7 @@ private:
 
     QModelIndex mapFromSource(const QModelIndex &idx) const;
     QModelIndex mapToSource(const QModelIndex &idx) const;
+    IDeviceConstPtr currentDevice() const;
 
     CMakeToolItemModel m_model;
     DeviceManagerModel m_deviceModel;
@@ -692,6 +699,9 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurren
 {
     m_currentItem = m_model.cmakeToolItem(mapToSource(newCurrent));
     m_itemConfigWidget->load(m_currentItem);
+    const IDeviceConstPtr dev = currentDevice();
+    if (QTC_GUARD(dev))
+        m_itemConfigWidget->setDeviceRoot(dev->rootPath());
     m_container->setVisible(m_currentItem);
     m_cloneButton->setEnabled(m_currentItem);
     m_delButton->setEnabled(m_currentItem && !m_currentItem->m_detectionSource.isAutoDetected());
@@ -708,6 +718,11 @@ QModelIndex CMakeToolConfigWidget::mapToSource(const QModelIndex &idx) const
 {
     QTC_ASSERT(m_filterModel.sourceModel() == &m_model, return {});
     return m_filterModel.mapToSource(idx);
+}
+
+IDeviceConstPtr CMakeToolConfigWidget::currentDevice() const
+{
+    return m_deviceModel.device(m_deviceComboBox->currentIndex());
 }
 
 // CMakeSettingsPage
