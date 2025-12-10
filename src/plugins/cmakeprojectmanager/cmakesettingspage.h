@@ -31,6 +31,10 @@ public:
     void updateErrorFlags();
     bool hasError() const;
 
+    Utils::Id id() const { return m_id; }
+    Utils::FilePath executable() const { return m_executable; }
+    ProjectExplorer::DetectionSource detectionSource() const { return m_detectionSource; }
+
     static const int DefaultExecutableRole = Qt::UserRole + 1;
     QVariant data(int column, int role) const override;
 

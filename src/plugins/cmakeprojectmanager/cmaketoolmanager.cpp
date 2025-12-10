@@ -16,6 +16,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
@@ -292,6 +293,42 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
 
         emit m_instance->cmakeRemoved(id);
     }
+}
+
+std::vector<std::unique_ptr<CMakeTool> > CMakeToolManager::autoDetectCMakeTools(const IDeviceConstPtr &device)
+{
+    QTC_ASSERT(device, return {});
+
+    FilePaths extraDirs;
+
+    if (device->osType() == OsTypeWindows) {
+        for (const auto &envVar : QStringList{"ProgramFiles", "ProgramFiles(x86)", "ProgramW6432"}) {
+            if (qtcEnvironmentVariableIsSet(envVar)) {
+                const QString progFiles = qtcEnvironmentVariable(envVar);
+                extraDirs.append(FilePath::fromUserInput(progFiles + "/CMake"));
+                extraDirs.append(FilePath::fromUserInput(progFiles + "/CMake/bin"));
+            }
+        }
+    } else if (device->osType() == OsTypeMac) {
+        extraDirs.append("/Applications/CMake.app/Contents/bin");
+        extraDirs.append("/usr/local/bin");    // homebrew intel
+        extraDirs.append("/opt/homebrew/bin"); // homebrew arm
+        extraDirs.append("/opt/local/bin");    // macports
+    }
+
+    const FilePaths suspects
+        = device->rootPath().withNewMappedPath(FilePath("cmake")).searchAllInPath(extraDirs);
+
+    std::vector<std::unique_ptr<CMakeTool>> found;
+    for (const FilePath &command : std::as_const(suspects)) {
+        auto item = std::make_unique<CMakeTool>(DetectionSource::FromSystem, CMakeTool::createId());
+        item->setFilePath(command);
+        item->setDisplayName(Tr::tr("System CMake at %1").arg(command.toUserOutput()));
+
+        found.emplace_back(std::move(item));
+    }
+
+    return found;
 }
 
 CMakeKeywords CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords()

@@ -16,6 +16,7 @@
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/layoutbuilder.h>
@@ -542,6 +543,8 @@ public:
         m_makeDefButton->setEnabled(false);
         m_makeDefButton->setToolTip(Tr::tr("Set as the default CMake Tool to use when creating a new kit or when no value is set."));
 
+        m_detectButton = new QPushButton(Tr::tr("Re-detect"), this);
+
         m_container = new DetailsWidget(this);
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
@@ -576,6 +579,7 @@ public:
                     m_cloneButton,
                     m_delButton,
                     m_makeDefButton,
+                    m_detectButton,
                     st,
                 },
             }}.attachTo(this);
@@ -591,6 +595,8 @@ public:
                 this, &CMakeToolConfigWidget::removeCMakeTool);
         connect(m_makeDefButton, &QAbstractButton::clicked,
                 this, &CMakeToolConfigWidget::setDefaultCMakeTool);
+        connect(m_detectButton, &QAbstractButton::clicked,
+                this, &CMakeToolConfigWidget::redetect);
 
         m_itemConfigWidget = new CMakeToolItemConfigWidget(&m_model);
         m_container->setWidget(m_itemConfigWidget);
@@ -611,6 +617,7 @@ private:
     void addCMakeTool();
     void removeCMakeTool();
     void setDefaultCMakeTool();
+    void redetect();
     void currentCMakeToolChanged(const QModelIndex &newCurrent);
 
     QModelIndex mapFromSource(const QModelIndex &idx) const;
@@ -626,6 +633,7 @@ private:
     QPushButton *m_cloneButton;
     QPushButton *m_delButton;
     QPushButton *m_makeDefButton;
+    QPushButton *m_detectButton;
     DetailsWidget *m_container;
     CMakeToolItemConfigWidget *m_itemConfigWidget;
     CMakeToolTreeItem *m_currentItem = nullptr;
@@ -693,6 +701,35 @@ void CMakeToolConfigWidget::setDefaultCMakeTool()
 
     m_model.setDefaultItemId(m_currentItem->m_id);
     m_makeDefButton->setEnabled(false);
+}
+
+void CMakeToolConfigWidget::redetect()
+{
+    // Step 1: Detect
+    auto toAdd = CMakeToolManager::autoDetectCMakeTools(currentDevice());
+
+    // Step 2: Match existing against newly detected.
+    QList<Id> toRemove;
+    m_model.forItemsAtLevel<2>([&](const CMakeToolTreeItem *item) {
+        bool hasMatch = false;
+        for (auto it = toAdd.begin(); it != toAdd.end(); ++it) {
+            if ((*it)->filePath().isSameFile(item->executable())) {
+                hasMatch = true;
+                toAdd.erase(it);
+                break;
+            }
+        }
+        if (item->detectionSource().isSystemDetected() && !hasMatch)
+            toRemove << item->id();
+    });
+
+    // Step 3: Remove previously auto-detected that were not newly detected.
+    for (const Id &id : std::as_const(toRemove))
+        m_model.removeCMakeTool(id);
+
+    // Step 4: Add newly detected that haven't been present so far.
+    for (const auto &tool : toAdd)
+        m_model.addCMakeTool(tool.get(), true);
 }
 
 void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurrent)

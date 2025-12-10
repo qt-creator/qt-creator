@@ -7,6 +7,7 @@
 
 #include "cmaketool.h"
 
+#include <projectexplorer/devicesupport/idevicefwd.h>
 #include <projectexplorer/kitaspect.h>
 
 #include <utils/filepath.h>
@@ -15,6 +16,7 @@
 #include <QObject>
 
 #include <memory>
+#include <vector>
 
 namespace ProjectExplorer {
 class Project;
@@ -37,6 +39,8 @@ public:
 
     static bool registerCMakeTool(std::unique_ptr<CMakeTool> &&tool);
     static void deregisterCMakeTool(const Utils::Id &id);
+    static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools(
+        const ProjectExplorer::IDeviceConstPtr &device);
 
     static CMakeKeywords defaultProjectOrDefaultCMakeKeyWords();
 
