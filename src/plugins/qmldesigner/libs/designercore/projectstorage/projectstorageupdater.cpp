@@ -1062,7 +1062,7 @@ void ProjectStorageUpdater::updatePropertyEditorPaths(
 namespace {
 
 template<typename Result = SmallSourceIds<16>>
-Result mergedSourceIds(std::span<SourceId> sourceIds1, std::span<SourceId> sourceIds2)
+Result mergedSourceIds(Utils::span<SourceId> sourceIds1, Utils::span<SourceId> sourceIds2)
 {
     Result mergedSourceIds;
     mergedSourceIds.reserve(static_cast<Result::size_type>(sourceIds1.size() + sourceIds2.size()));
