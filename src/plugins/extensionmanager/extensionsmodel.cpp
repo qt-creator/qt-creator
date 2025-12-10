@@ -371,17 +371,10 @@ void ExtensionsModel::setRepositoryPaths(const FilePaths &paths)
 QString customOsTypeToString(OsType osType)
 {
     switch (osType) {
-    case OsTypeWindows:
-        return "Windows";
-    case OsTypeLinux:
-        return "Linux";
     case OsTypeMac:
         return "macOS";
-    case OsTypeOtherUnix:
-        return "Other Unix";
-    case OsTypeOther:
     default:
-        return "Other";
+        return osTypeToString(osType);
     }
 }
 
