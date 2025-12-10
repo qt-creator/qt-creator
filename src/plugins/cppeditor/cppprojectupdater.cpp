@@ -89,7 +89,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
                 compilerFiles += Utils::toSet(compiler->targets());
             }
         }
-        GeneratedCodeModelSupport::update(extraCompilers);
+        GeneratedFileSupport::update(extraCompilers);
         auto updateFuture = CppModelManager::updateProjectInfo(storage->projectInfo, compilerFiles);
         m_futureSynchronizer.addFuture(updateFuture);
     };

@@ -556,7 +556,7 @@ void ModelManagerTest::testSnapshotAfterTwoProjects()
         QVERIFY(CppModelManager::snapshot().contains(file));
 }
 
-/// Check: (1) For a project with a *.ui file an AbstractEditorSupport object
+/// Check: (1) For a project with a *.ui file a GeneratedFileSupport object
 ///            is added for the ui_* file.
 /// Check: (2) The CppSourceProcessor can successfully resolve the ui_* file
 ///            though it might not be actually generated in the build dir.
@@ -574,7 +574,7 @@ void ModelManagerTest::testExtraeditorsupportUiFiles()
     QVERIFY(projects.open(projectFile, /*configureAsExampleProject=*/ true));
 
     // Check working copy.
-    // An AbstractEditorSupport object should have been added for the ui_* file.
+    // A GeneratedFileSupport object should have been added for the ui_* file.
     WorkingCopy workingCopy = CppModelManager::workingCopy();
 
     QCOMPARE(workingCopy.size(), 2); // CppModelManager::configurationFileName() and "ui_*.h"

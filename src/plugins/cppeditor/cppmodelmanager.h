@@ -44,7 +44,7 @@ class TextDocument;
 
 namespace CppEditor {
 
-class AbstractEditorSupport;
+class GeneratedFileSupport;
 class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
@@ -129,18 +129,17 @@ public:
     static bool replaceDocument(Document::Ptr newDoc);
 
     static void emitDocumentUpdated(Document::Ptr doc);
-    static void emitAbstractEditorSupportContentsUpdated(const Utils::FilePath &filePath,
-                                                         const Utils::FilePath &sourcePath,
-                                                         const QByteArray &contents);
-    static void emitAbstractEditorSupportRemoved(const Utils::FilePath &filePath);
+    static void emitGeneratedFileContentsUpdated(const Utils::FilePath &filePath,
+                                                 const Utils::FilePath &sourcePath,
+                                                 const QByteArray &contents);
+    static void emitGeneratedFileSupportRemoved(const Utils::FilePath &filePath);
 
     static bool isCppEditor(Core::IEditor *editor);
     static std::optional<QVersionNumber> usesClangd(const TextEditor::TextDocument *document);
     static bool isClangCodeModelActive();
 
-    static QSet<AbstractEditorSupport*> abstractEditorSupports();
-    static void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
-    static void removeExtraEditorSupport(AbstractEditorSupport *editorSupport);
+    static void addGeneratedFileSupport(GeneratedFileSupport *editorSupport);
+    static void removeGeneratedFileSupport(GeneratedFileSupport *editorSupport);
 
     static const QList<CppEditorDocumentHandle *> cppEditorDocuments();
     static CppEditorDocumentHandle *cppEditorDocument(const Utils::FilePath &filePath);
@@ -259,10 +258,10 @@ signals:
 
     void gcFinished(); // Needed for tests.
 
-    void abstractEditorSupportContentsUpdated(const Utils::FilePath &filePath,
-                                              const Utils::FilePath &sourcePath,
-                                              const QByteArray &contents);
-    void abstractEditorSupportRemoved(const Utils::FilePath &filePath);
+    void generatedFileContentsUpdated(const Utils::FilePath &filePath,
+                                      const Utils::FilePath &sourcePath,
+                                      const QByteArray &contents);
+    void generatedFileSupportRemoved(const Utils::FilePath &filePath);
     void fallbackProjectPartUpdated();
 
     void diagnosticsChanged(const Utils::FilePath &filePath, const QString &kind);

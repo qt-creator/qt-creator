@@ -7,8 +7,6 @@
 
 #include <utils/filepath.h>
 
-#include <QObject>
-
 namespace ProjectExplorer { class Project; }
 
 namespace CppEditor {
@@ -19,26 +17,5 @@ CPPEDITOR_EXPORT QString licenseTemplate(ProjectExplorer::Project *project,
 
 CPPEDITOR_EXPORT bool usePragmaOnce(ProjectExplorer::Project *project);
 
-
-class CPPEDITOR_EXPORT AbstractEditorSupport : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit AbstractEditorSupport(QObject *parent = nullptr);
-    ~AbstractEditorSupport() override;
-
-    /// \returns the contents, encoded as UTF-8
-    virtual QByteArray contents() const = 0;
-    virtual Utils::FilePath filePath() const = 0;
-    virtual Utils::FilePath sourceFilePath() const = 0;
-
-    void updateDocument();
-    void notifyAboutUpdatedContents() const;
-    unsigned revision() const { return m_revision; }
-
-private:
-    unsigned m_revision;
-};
 
 } // CppEditor

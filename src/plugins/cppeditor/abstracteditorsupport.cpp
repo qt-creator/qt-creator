@@ -5,7 +5,6 @@
 
 #include "cppeditortr.h"
 #include "cppfilesettingspage.h"
-#include "cppmodelmanager.h"
 
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
@@ -14,29 +13,6 @@
 using namespace Utils;
 
 namespace CppEditor {
-
-AbstractEditorSupport::AbstractEditorSupport(QObject *parent) :
-    QObject(parent), m_revision(1)
-{
-    CppModelManager::addExtraEditorSupport(this);
-}
-
-AbstractEditorSupport::~AbstractEditorSupport()
-{
-    CppModelManager::removeExtraEditorSupport(this);
-}
-
-void AbstractEditorSupport::updateDocument()
-{
-    ++m_revision;
-    CppModelManager::updateSourceFiles({filePath()});
-}
-
-void AbstractEditorSupport::notifyAboutUpdatedContents() const
-{
-    CppModelManager::emitAbstractEditorSupportContentsUpdated(
-                filePath(), sourceFilePath(), contents());
-}
 
 QString licenseTemplate(ProjectExplorer::Project *project,
                         const FilePath &filePath, const QString &className)

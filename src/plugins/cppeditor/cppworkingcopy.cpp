@@ -9,7 +9,7 @@
 
     The working copy holds
      - unsaved content of editors
-     - uic-ed UI files (through \c AbstractEditorSupport)
+     - uic-ed UI files (through \c GeneratedFileSupport)
      - the preprocessor configuration
 
     Contents are keyed on filename, and hold the revision in the editor and the editor's

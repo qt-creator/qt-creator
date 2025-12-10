@@ -4,32 +4,36 @@
 #pragma once
 
 #include "cppeditor_global.h"
-#include "abstracteditorsupport.h"
+
+#include <utils/filepath.h>
 
 namespace ProjectExplorer { class ExtraCompiler; }
 
 namespace CppEditor {
 
-class CPPEDITOR_EXPORT GeneratedCodeModelSupport : public AbstractEditorSupport
+class CPPEDITOR_EXPORT GeneratedFileSupport : public QObject
 {
-    Q_OBJECT
-
 public:
-    GeneratedCodeModelSupport(ProjectExplorer::ExtraCompiler *generator,
-                              const Utils::FilePath &generatedFile);
-    ~GeneratedCodeModelSupport() override;
+    GeneratedFileSupport(ProjectExplorer::ExtraCompiler *generator,
+                         const Utils::FilePath &generatedFile);
+    ~GeneratedFileSupport() override;
 
     /// Returns the contents encoded in UTF-8.
-    QByteArray contents() const override;
-    Utils::FilePath filePath() const override; // The generated file
-    Utils::FilePath sourceFilePath() const override;
+    QByteArray contents() const;
+    Utils::FilePath filePath() const; // The generated file
+    Utils::FilePath sourceFilePath() const;
+
+    void updateDocument();
+    void notifyAboutUpdatedContents() const;
+    unsigned revision() const { return m_revision; }
 
     static void update(const QList<ProjectExplorer::ExtraCompiler *> &generators);
 
 private:
     void onContentsChanged(const Utils::FilePath &file);
     Utils::FilePath m_generatedFilePath;
-    ProjectExplorer::ExtraCompiler *m_generator;
+    ProjectExplorer::ExtraCompiler * const m_generator;
+    unsigned m_revision = 1;
 };
 
 } // CppEditor

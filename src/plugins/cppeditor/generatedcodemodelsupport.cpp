@@ -47,29 +47,45 @@ private:
     QSet<QObject *> m_cache;
 };
 
-GeneratedCodeModelSupport::GeneratedCodeModelSupport(ExtraCompiler *generator,
+void GeneratedFileSupport::updateDocument()
+{
+    ++m_revision;
+    CppModelManager::updateSourceFiles({filePath()});
+}
+
+void GeneratedFileSupport::notifyAboutUpdatedContents() const
+{
+    CppModelManager::emitGeneratedFileContentsUpdated(
+                filePath(), sourceFilePath(), contents());
+}
+
+GeneratedFileSupport::GeneratedFileSupport(ExtraCompiler *generator,
                                                      const FilePath &generatedFile) :
-    AbstractEditorSupport(generator),
+    QObject(generator),
     m_generatedFilePath(generatedFile),
     m_generator(generator)
 {
+    CppModelManager::addGeneratedFileSupport(this);
+
     QLoggingCategory log("qtc.cppeditor.generatedcodemodelsupport", QtWarningMsg);
-    qCDebug(log) << "ctor GeneratedCodeModelSupport for" << m_generator->source()
+    qCDebug(log) << "ctor GeneratedFileSupport for" << m_generator->source()
                  << generatedFile;
 
     connect(m_generator, &ExtraCompiler::contentsChanged,
-            this, &GeneratedCodeModelSupport::onContentsChanged, Qt::QueuedConnection);
+            this, &GeneratedFileSupport::onContentsChanged, Qt::QueuedConnection);
     onContentsChanged(generatedFile);
 }
 
-GeneratedCodeModelSupport::~GeneratedCodeModelSupport()
+GeneratedFileSupport::~GeneratedFileSupport()
 {
-    CppModelManager::emitAbstractEditorSupportRemoved(m_generatedFilePath);
+    CppModelManager::emitGeneratedFileSupportRemoved(m_generatedFilePath);
     QLoggingCategory log("qtc.cppeditor.generatedcodemodelsupport", QtWarningMsg);
     qCDebug(log) << "dtor ~generatedcodemodelsupport for" << m_generatedFilePath;
+
+    CppModelManager::removeGeneratedFileSupport(this);
 }
 
-void GeneratedCodeModelSupport::onContentsChanged(const FilePath &file)
+void GeneratedFileSupport::onContentsChanged(const FilePath &file)
 {
     if (file == m_generatedFilePath) {
         notifyAboutUpdatedContents();
@@ -77,22 +93,22 @@ void GeneratedCodeModelSupport::onContentsChanged(const FilePath &file)
     }
 }
 
-QByteArray GeneratedCodeModelSupport::contents() const
+QByteArray GeneratedFileSupport::contents() const
 {
     return m_generator->content(m_generatedFilePath);
 }
 
-FilePath GeneratedCodeModelSupport::filePath() const
+FilePath GeneratedFileSupport::filePath() const
 {
     return m_generatedFilePath;
 }
 
-FilePath GeneratedCodeModelSupport::sourceFilePath() const
+FilePath GeneratedFileSupport::sourceFilePath() const
 {
     return m_generator->source();
 }
 
-void GeneratedCodeModelSupport::update(const QList<ExtraCompiler *> &generators)
+void GeneratedFileSupport::update(const QList<ExtraCompiler *> &generators)
 {
     static QObjectCache extraCompilerCache;
 
@@ -102,7 +118,7 @@ void GeneratedCodeModelSupport::update(const QList<ExtraCompiler *> &generators)
 
         extraCompilerCache.insert(generator);
         generator->forEachTarget([generator](const FilePath &generatedFile) {
-            new GeneratedCodeModelSupport(generator, generatedFile);
+            new GeneratedFileSupport(generator, generatedFile);
         });
     }
 }

@@ -3,14 +3,12 @@
 
 #include "cppmodelmanager.h"
 
-#include "abstracteditorsupport.h"
 #include "baseeditordocumentprocessor.h"
 #include "compileroptionsbuilder.h"
 #include "cppbuiltinmodelmanagersupport.h"
 #include "cppcanonicalsymbol.h"
 #include "cppcodemodelinspectordumper.h"
 #include "cppcodemodelsettings.h"
-#include "cppeditorconstants.h"
 #include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cppfindreferences.h"
@@ -23,6 +21,7 @@
 #include "cpptoolsjsextension.h"
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
+#include "generatedcodemodelsupport.h"
 #include "symbolfinder.h"
 #include "symbolsfindfilter.h"
 
@@ -36,6 +35,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/session.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <cplusplus/ASTPath.h>
@@ -43,8 +43,6 @@
 #include <cplusplus/TypeOfExpression.h>
 
 #include <extensionsystem/pluginmanager.h>
-
-#include <coreplugin/session.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/gcctoolchain.h>
@@ -191,7 +189,7 @@ public:
     // Editor integration
     mutable QMutex m_cppEditorDocumentsMutex;
     QMap<FilePath, CppEditorDocumentHandle *> m_cppEditorDocuments;
-    QSet<AbstractEditorSupport *> m_extraEditorSupports;
+    QSet<GeneratedFileSupport *> m_generatedFileSupports;
 
     // Model Manager Supports for e.g. completion and highlighting
     BuiltinModelManagerSupport m_builtinModelManagerSupport;
@@ -1138,19 +1136,14 @@ void CppModelManager::dumpModelManagerConfiguration(const QString &logFileId)
                               ProjectExplorer::Macro::toByteArray(definedMacros()));
 }
 
-QSet<AbstractEditorSupport *> CppModelManager::abstractEditorSupports()
+void CppModelManager::addGeneratedFileSupport(GeneratedFileSupport *editorSupport)
 {
-    return d->m_extraEditorSupports;
+    d->m_generatedFileSupports.insert(editorSupport);
 }
 
-void CppModelManager::addExtraEditorSupport(AbstractEditorSupport *editorSupport)
+void CppModelManager::removeGeneratedFileSupport(GeneratedFileSupport *editorSupport)
 {
-    d->m_extraEditorSupports.insert(editorSupport);
-}
-
-void CppModelManager::removeExtraEditorSupport(AbstractEditorSupport *editorSupport)
-{
-    d->m_extraEditorSupports.remove(editorSupport);
+    d->m_generatedFileSupports.remove(editorSupport);
 }
 
 CppEditorDocumentHandle *CppModelManager::cppEditorDocument(const FilePath &filePath)
@@ -1257,7 +1250,7 @@ WorkingCopy CppModelManager::buildWorkingCopyList()
                            cppEditorDocument->revision());
     }
 
-    for (AbstractEditorSupport *es : std::as_const(d->m_extraEditorSupports))
+    for (GeneratedFileSupport *es : std::as_const(d->m_generatedFileSupports))
         workingCopy.insert(es->filePath(), es->contents(), es->revision());
 
     // Add the project configuration file
@@ -1731,15 +1724,15 @@ void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
         emit m_instance->documentUpdated(doc);
 }
 
-void CppModelManager::emitAbstractEditorSupportContentsUpdated(
+void CppModelManager::emitGeneratedFileContentsUpdated(
     const FilePath &filePath, const FilePath &sourcePath, const QByteArray &contents)
 {
-    emit m_instance->abstractEditorSupportContentsUpdated(filePath, sourcePath, contents);
+    emit m_instance->generatedFileContentsUpdated(filePath, sourcePath, contents);
 }
 
-void CppModelManager::emitAbstractEditorSupportRemoved(const FilePath &filePath)
+void CppModelManager::emitGeneratedFileSupportRemoved(const FilePath &filePath)
 {
-    emit m_instance->abstractEditorSupportRemoved(filePath);
+    emit m_instance->generatedFileSupportRemoved(filePath);
 }
 
 void CppModelManager::onProjectAdded(Project *)
@@ -2121,9 +2114,9 @@ void CppModelManager::GC()
     for (const CppEditorDocumentHandle *editorDocument : editorDocuments)
         filesInEditorSupports << editorDocument->filePath();
 
-    const QSet<AbstractEditorSupport *> abstractEditorSupportList = abstractEditorSupports();
-    for (AbstractEditorSupport *abstractEditorSupport : abstractEditorSupportList)
-        filesInEditorSupports << abstractEditorSupport->filePath();
+    const QSet<GeneratedFileSupport *> generatedFileSupports = d->m_generatedFileSupports;
+    for (GeneratedFileSupport *generatedFileSupport : generatedFileSupports)
+        filesInEditorSupports << generatedFileSupport->filePath();
 
     Snapshot currentSnapshot = snapshot();
     QSet<FilePath> reachableFiles;

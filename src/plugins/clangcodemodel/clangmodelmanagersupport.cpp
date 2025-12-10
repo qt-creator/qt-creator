@@ -263,10 +263,10 @@ ClangModelManagerSupport::ClangModelManagerSupport()
             this, &ClangModelManagerSupport::onCurrentEditorChanged);
 
     CppModelManager *modelManager = CppModelManager::instance();
-    connect(modelManager, &CppModelManager::abstractEditorSupportContentsUpdated,
-            this, &ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated);
-    connect(modelManager, &CppModelManager::abstractEditorSupportRemoved,
-            this, &ClangModelManagerSupport::onAbstractEditorSupportRemoved);
+    connect(modelManager, &CppModelManager::generatedFileContentsUpdated,
+            this, &ClangModelManagerSupport::onGeneratedFileContentsUpdated);
+    connect(modelManager, &CppModelManager::generatedFileSupportRemoved,
+            this, &ClangModelManagerSupport::onGeneratedFileSupportRemoved);
     connect(modelManager, &CppModelManager::projectPartsUpdated,
             this, &ClangModelManagerSupport::updateLanguageClient);
     connect(modelManager, &CppModelManager::fallbackProjectPartUpdated, this, [this] {
@@ -917,7 +917,7 @@ void ClangModelManagerSupport::onEditorOpened(IEditor *editor)
     }
 }
 
-void ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated(
+void ClangModelManagerSupport::onGeneratedFileContentsUpdated(
     const FilePath &filePath, const FilePath &, const QByteArray &content)
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
@@ -932,7 +932,7 @@ void ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated(
     m_potentialShadowDocuments.insert(filePath, stringContent);
 }
 
-void ClangModelManagerSupport::onAbstractEditorSupportRemoved(const FilePath &filePath)
+void ClangModelManagerSupport::onGeneratedFileSupportRemoved(const FilePath &filePath)
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
 
