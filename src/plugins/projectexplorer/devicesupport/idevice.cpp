@@ -309,13 +309,14 @@ Group IDevice::autoDetectDeviceToolsRecipe()
 
     QList<Data> datas;
 
+    const FilePaths detectionPaths = d->autoDetectionPaths();
     for (DeviceToolAspectFactory *factory : theDeviceToolFactories) {
         FilePaths patterns = FilePaths::fromStrings(factory->filePattern());
         patterns.setSchemeAndHost(rootPath());
 
         DeviceToolAspect *toolAspect = d->deviceToolAspects.value(factory->toolId());
         QTC_ASSERT(toolAspect, continue);
-        datas << Data{factory, d->autoDetectionPaths(), patterns, toolAspect->expandedValue()};
+        datas << Data{factory, detectionPaths, patterns, toolAspect->expandedValue()};
     }
 
     const ListIterator iterator(datas);
