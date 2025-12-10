@@ -124,6 +124,7 @@ private:
 protected:
     QString m_vcvarsBat;
     QString m_varsBatArg; // Argument
+    mutable std::optional<bool> m_isValid;
 };
 
 class PROJECTEXPLORER_EXPORT ClangClToolchain : public MsvcToolchain
@@ -144,7 +145,7 @@ public:
 
     const QList<MsvcToolchain *> &msvcToolchains() const;
     Utils::FilePath clangPath() const { return m_clangPath; }
-    void setClangPath(const Utils::FilePath &path) { m_clangPath = path; clearVersion(); }
+    void setClangPath(const Utils::FilePath &path);
 
     Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                 const Utils::Environment &env) const override;

@@ -932,10 +932,9 @@ MsvcToolchain::~MsvcToolchain()
 
 bool MsvcToolchain::isValid() const
 {
-    if (m_vcvarsBat.isEmpty())
-        return false;
-    QFileInfo fi(m_vcvarsBat);
-    return fi.isFile() && fi.isExecutable();
+    if (!m_isValid.has_value())
+        m_isValid = Utils::FilePath::fromUserInput(m_vcvarsBat).isExecutableFile();
+    return m_isValid.value_or(false);
 }
 
 QString MsvcToolchain::originalTargetTriple() const
@@ -1051,6 +1050,7 @@ void MsvcToolchain::fromMap(const Store &data)
         return;
     }
     m_vcvarsBat = QDir::fromNativeSeparators(data.value(varsBatKeyC).toString());
+    m_isValid.reset();
     m_varsBatArg = data.value(varsBatArgKeyC).toString();
 
     m_environmentModifications = EnvironmentItem::itemsFromVariantList(
@@ -1295,6 +1295,7 @@ void MsvcToolchain::setupVarsBat(const Abi &abi, const QString &varsBat, const Q
 {
     m_lastEnvironment = Utils::Environment::systemEnvironment();
     setTargetAbiNoSignal(abi);
+    m_isValid.reset();
     m_vcvarsBat = varsBat;
     m_varsBatArg = varsBatArg;
 
@@ -1309,6 +1310,7 @@ void MsvcToolchain::resetVarsBat()
     m_lastEnvironment = Utils::Environment::systemEnvironment();
     setTargetAbiNoSignal(Abi());
     m_vcvarsBat.clear();
+    m_isValid.reset();
     m_varsBatArg.clear();
 }
 
@@ -1754,8 +1756,11 @@ ClangClToolchain::ClangClToolchain()
 
 bool ClangClToolchain::isValid() const
 {
-    const FilePath clang = clangPath();
-    return MsvcToolchain::isValid() && clang.exists() && clang.fileName() == "clang-cl.exe";
+    if (!m_isValid) {
+        const FilePath clang = clangPath();
+        m_isValid = MsvcToolchain::isValid() && clang.exists() && clang.fileName() == "clang-cl.exe";
+    }
+    return m_isValid.value_or(false);
 }
 
 void ClangClToolchain::addToEnvironment(Utils::Environment &env) const
@@ -1804,6 +1809,13 @@ void ClangClToolchain::fromMap(const Store &data)
     }
 
     m_clangPath = FilePath::fromString(clangPath);
+}
+
+void ClangClToolchain::setClangPath(const Utils::FilePath &path)
+{
+    m_clangPath = path;
+    clearVersion();
+    m_isValid.reset();
 }
 
 bool ClangClToolchain::operator==(const Toolchain &other) const
