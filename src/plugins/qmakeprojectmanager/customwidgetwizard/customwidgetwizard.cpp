@@ -5,7 +5,6 @@
 #include "customwidgetwizarddialog.h"
 #include "plugingenerator.h"
 #include "filenamingparameters.h"
-#include "pluginoptions.h"
 #include "../qmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -16,8 +15,7 @@
 
 using namespace Utils;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 CustomWidgetWizard::CustomWidgetWizard()
 {
@@ -47,8 +45,7 @@ Result<Core::GeneratedFiles> CustomWidgetWizard::generateFiles(const QWizard *w)
     p.path = cw->filePath().toUrlishString();
     p.templatePath = QtWizard::templateDir();
     p.templatePath += QLatin1String("/customwidgetwizard");
-    return PluginGenerator::generatePlugin(p, *(cw->pluginOptions()));
+    return generatePlugin(p, *(cw->pluginOptions()));
 }
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

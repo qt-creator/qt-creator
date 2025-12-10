@@ -6,15 +6,17 @@
 #include "../qmakeprojectmanagertr.h"
 
 #include <coreplugin/generatedfile.h>
+
 #include <cppeditor/abstracteditorsupport.h>
+
 #include <projectexplorer/projecttree.h>
+
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
 #include <utils/templateengine.h>
 
 #include <QFileInfo>
-#include <QDir>
 #include <QRegularExpression>
 #include <QSet>
 
@@ -56,7 +58,51 @@ static QString qt5PluginMetaData(const QString &interfaceName)
         + interfaceName + QLatin1String("\")");
 }
 
-Result<Core::GeneratedFiles> PluginGenerator::generatePlugin(
+using SubstitutionMap = QMap<QString, QString>;
+
+static Result<QString> processTemplate(const QString &tmpl, const SubstitutionMap &substMap)
+{
+    const Result<QByteArray> res = FilePath::fromString(tmpl).fileContents();
+    if (!res)
+        return ResultError(res.error());
+
+    QString cont = QString::fromUtf8(*res);
+
+    // Expander needed to handle extra variable "Cpp:PragmaOnce"
+    MacroExpander *expander = Utils::globalMacroExpander();
+    const Result<QString> processed = TemplateEngine::processText(expander, cont);
+    if (!processed)
+        return ResultError(QString("Error processing custom plugin file: %1\nFile:\n%2")
+                               .arg(processed.error(), cont));
+
+    cont = processed.value_or(QString());
+
+    const QChar atChar = QLatin1Char('@');
+    int offset = 0;
+    for (;;) {
+        const int start = cont.indexOf(atChar, offset);
+        if (start < 0)
+            break;
+        const int end = cont.indexOf(atChar, start + 1);
+        QTC_ASSERT(end, continue);
+        const QString keyword = cont.mid(start + 1, end - start - 1);
+        const QString replacement = substMap.value(keyword);
+        cont.replace(start, end - start + 1, replacement);
+        offset = start + replacement.size();
+    }
+    return cont;
+}
+
+static QString cStringQuote(QString s)
+{
+    s.replace(QLatin1Char('\\'), QLatin1String("\\\\"));
+    s.replace(QLatin1Char('"'), QLatin1String("\\\""));
+    s.replace(QLatin1Char('\t'), QLatin1String("\\t"));
+    s.replace(QLatin1Char('\n'), QLatin1String("\\n"));
+    return s;
+}
+
+Result<Core::GeneratedFiles> generatePlugin(
     const GenerationParameters &p, const PluginOptions &options)
 {
     const QChar slash = QLatin1Char('/');
@@ -295,48 +341,6 @@ Result<Core::GeneratedFiles> PluginGenerator::generatePlugin(
     proFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     rc.push_back(proFile);
     return rc;
-}
-
-Result<QString> PluginGenerator::processTemplate(const QString &tmpl, const SubstitutionMap &substMap)
-{
-    const Result<QByteArray> res = FilePath::fromString(tmpl).fileContents();
-    if (!res)
-        return ResultError(res.error());
-
-    QString cont = QString::fromUtf8(*res);
-
-    // Expander needed to handle extra variable "Cpp:PragmaOnce"
-    MacroExpander *expander = Utils::globalMacroExpander();
-    const Result<QString> processed = TemplateEngine::processText(expander, cont);
-    if (!processed)
-        return ResultError(QString("Error processing custom plugin file: %1\nFile:\n%2")
-                               .arg(processed.error(), cont));
-
-    cont = processed.value_or(QString());
-
-    const QChar atChar = QLatin1Char('@');
-    int offset = 0;
-    for (;;) {
-        const int start = cont.indexOf(atChar, offset);
-        if (start < 0)
-            break;
-        const int end = cont.indexOf(atChar, start + 1);
-        Q_ASSERT(end);
-        const QString keyword = cont.mid(start + 1, end - start - 1);
-        const QString replacement = substMap.value(keyword);
-        cont.replace(start, end - start + 1, replacement);
-        offset = start + replacement.size();
-    }
-    return cont;
-}
-
-QString PluginGenerator::cStringQuote(QString s)
-{
-    s.replace(QLatin1Char('\\'), QLatin1String("\\\\"));
-    s.replace(QLatin1Char('"'), QLatin1String("\\\""));
-    s.replace(QLatin1Char('\t'), QLatin1String("\\t"));
-    s.replace(QLatin1Char('\n'), QLatin1String("\\n"));
-    return s;
 }
 
 } // QmakeProjectManager::Internal
