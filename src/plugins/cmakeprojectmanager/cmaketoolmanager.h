@@ -74,6 +74,7 @@ signals:
 private:
     static void saveCMakeTools();
     static void ensureDefaultCMakeToolIsValid();
+    void handleDeviceToolDetectionRequest(Utils::Id devId);
 };
 
 namespace Internal { void setupCMakeToolManager(QObject *guard); }

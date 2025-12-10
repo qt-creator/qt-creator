@@ -16,6 +16,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectmanager.h>
@@ -238,6 +239,9 @@ CMakeToolManager::CMakeToolManager()
     connect(this, &CMakeToolManager::cmakeAdded, this, &CMakeToolManager::cmakeToolsChanged);
     connect(this, &CMakeToolManager::cmakeRemoved, this, &CMakeToolManager::cmakeToolsChanged);
     connect(this, &CMakeToolManager::cmakeUpdated, this, &CMakeToolManager::cmakeToolsChanged);
+
+    connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
+            this, &CMakeToolManager::handleDeviceToolDetectionRequest);
 
     setObjectName("CMakeToolManager");
     ExtensionSystem::PluginManager::addObject(this);
@@ -574,6 +578,15 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
     // signaling:
     if (oldId != d->m_defaultCMake)
         emit m_instance->defaultCMakeChanged();
+}
+
+void CMakeToolManager::handleDeviceToolDetectionRequest(Utils::Id devId)
+{
+    auto detected = autoDetectCMakeTools(DeviceManager::find(devId));
+    for (auto &&tool : detected) {
+        if (!CMakeToolManager::findByCommand(tool->cmakeExecutable()))
+            CMakeToolManager::registerCMakeTool(std::move(tool));
+    }
 }
 
 void Internal::setupCMakeToolManager(QObject *guard)
