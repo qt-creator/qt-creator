@@ -451,10 +451,24 @@ bool Kit::hasValue(Id key) const
 
 void Kit::setValue(Id key, const QVariant &value)
 {
-    if (d->m_data.value(key) == value)
-        return;
-    d->m_data.insert(key, value);
-    kitUpdated();
+    const auto it = d->m_data.find(key);
+    const bool keyWasPresent = it != d->m_data.end();
+
+    // Return right away if the same value is already present,
+    // but make sure we always enter the key even if the value is null.
+    if (keyWasPresent) {
+        if (*it == value)
+            return;
+        *it = value;
+    } else {
+        d->m_data.insert(key, value);
+    }
+
+    // "Key not present" and "key with null value present"
+    // are not distinguishable from the outside, so no need to
+    // emit the signal.
+    if (keyWasPresent || value.isValid())
+        kitUpdated();
 }
 
 /// \internal
