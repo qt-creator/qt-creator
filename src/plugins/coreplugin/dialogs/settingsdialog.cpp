@@ -358,8 +358,8 @@ void setWheelScrollingWithoutFocusBlockedForChildren(QWidget *widget)
 class SmartScrollArea : public QScrollArea
 {
 public:
-    explicit SmartScrollArea(QWidget *parent, IOptionsPage *page)
-        : QScrollArea(parent), m_page(page)
+    explicit SmartScrollArea(QWidget *parent, const std::function<QWidget *()> widgetProvider)
+        : QScrollArea(parent), m_widgetProvider(widgetProvider)
     {
         setFrameStyle(QFrame::NoFrame | QFrame::Plain);
         viewport()->setAutoFillBackground(false);
@@ -370,7 +370,7 @@ private:
     void showEvent(QShowEvent *event) final
     {
         if (!widget()) {
-            if (QWidget *inner = m_page->widget()) {
+            if (QWidget *inner = m_widgetProvider()) {
                 setWheelScrollingWithoutFocusBlockedForChildren<QComboBox *>(inner);
                 setWheelScrollingWithoutFocusBlockedForChildren<QAbstractSpinBox *>(inner);
                 setWidget(inner);
@@ -432,7 +432,7 @@ private:
         return list.first()->sizeHint().width();
     }
 
-    IOptionsPage *m_page = nullptr;
+    std::function<QWidget *()> m_widgetProvider;
 };
 
 // ----------- SettingsDialog
@@ -673,7 +673,7 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
     auto tabWidget = new QTabWidget;
     tabWidget->tabBar()->setObjectName("qc_settings_main_tabbar"); // easier lookup in Squish
     for (IOptionsPage *page : std::as_const(category->pages))
-        tabWidget->addTab(new SmartScrollArea(this, page), page->displayName());
+        tabWidget->addTab(new SmartScrollArea(this, [page] { return page->widget(); }), page->displayName());
 
     connect(tabWidget, &QTabWidget::currentChanged,
             this, &SettingsDialog::currentTabChanged);
