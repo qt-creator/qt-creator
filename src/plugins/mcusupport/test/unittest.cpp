@@ -395,7 +395,7 @@ bool createFakePath(const FilePath& path, const bool is_file = false)
 McuSupportTest::McuSupportTest()
     : targetFactory{settingsMockPtr}
     , compilerDescription{.label=armGccLabel, .envVar=armGccEnvVar, .cmakeVar=TOOLCHAIN_DIR_CMAKE_VARIABLE, .description=armGccLabel, .setting=armGccDirectorySetting, .type=Utils::PathChooser::Kind::ExistingDirectory}
-    , toochainFileDescription{.label=armGccLabel, .envVar=armGccEnvVar, .cmakeVar=TOOLCHAIN_DIR_CMAKE_VARIABLE, .description=armGccLabel, .setting=armGccDirectorySetting, .type=Utils::PathChooser::Kind::ExistingDirectory }
+    , toochainFileDescription{.label=armGccLabel, .envVar=armGccEnvVar, .cmakeVar=TOOLCHAIN_FILE_CMAKE_VARIABLE, .description=armGccLabel, .setting=armGccDirectorySetting, .type=Utils::PathChooser::Kind::ExistingDirectory }
     , targetDescription {
         "autotest-sourceFile",
         "2.0.1",
