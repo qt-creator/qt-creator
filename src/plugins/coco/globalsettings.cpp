@@ -197,85 +197,47 @@ void CocoSettings::findDefaultDirectory()
     }
 }
 
-class GlobalSettingsWidget : public QFrame
+class GlobalSettingsWidget : public Core::IOptionsPageWidget
 {
 public:
-    GlobalSettingsWidget();
+    GlobalSettingsWidget()
+    {
+        setOnApply([] { cocoSettings().apply(); });
+        setOnCancel([] { cocoSettings().cancel(); });
 
-    void apply();
-    void cancel();
+        using namespace Layouting;
+        Form {
+            Column {
+                Row { Tr::tr("Coco Directory"), cocoSettings().cocoPath },
+                Row { m_messageLabel }
+            }
+        }.attachTo(this);
+
+        connect(&cocoSettings(), &CocoSettings::updateCocoDir, this, [this] {
+            m_messageLabel.setText(cocoSettings().errorMessage());
+            if (cocoSettings().isValid())
+                m_messageLabel.setIconType(InfoLabel::None);
+            else
+                m_messageLabel.setIconType(InfoLabel::Error);
+        });
+    }
 
 private:
-    Utils::TextDisplay m_messageLabel;
+    TextDisplay m_messageLabel;
 };
 
-GlobalSettingsWidget::GlobalSettingsWidget()
-{
-    using namespace Layouting;
-    Form {
-        Column {
-            Row { Tr::tr("Coco Directory"), cocoSettings().cocoPath },
-            Row { m_messageLabel }
-        }
-    }.attachTo(this);
-
-    connect(&cocoSettings(), &CocoSettings::updateCocoDir, this, [this] {
-        m_messageLabel.setText(cocoSettings().errorMessage());
-        if (cocoSettings().isValid())
-            m_messageLabel.setIconType(Utils::InfoLabel::None);
-        else
-            m_messageLabel.setIconType(Utils::InfoLabel::Error);
-    });
-}
-
-void GlobalSettingsWidget::apply()
-{
-    cocoSettings().apply();
-}
-
-void GlobalSettingsWidget::cancel()
-{
-    cocoSettings().cancel();
-}
 
 class GlobalSettingsPage : public Core::IOptionsPage
 {
 public:
-    GlobalSettingsWidget *widget() override;
-    void apply() override;
-    void cancel() override;
-
-    GlobalSettingsPage();
-
-    QPointer<GlobalSettingsWidget> m_widget;
+    GlobalSettingsPage()
+    {
+        setId(Constants::COCO_SETTINGS_PAGE_ID);
+        setDisplayName(Tr::tr("Coco"));
+        setCategory("I.Coco"); // Category I contains also the C++ settings.
+        setWidgetCreator([] { return new GlobalSettingsWidget; });
+    }
 };
-
-GlobalSettingsPage::GlobalSettingsPage()
-    : m_widget(nullptr)
-{
-    setId(Constants::COCO_SETTINGS_PAGE_ID);
-    setDisplayName(Tr::tr("Coco"));
-    setCategory("I.Coco"); // Category I contains also the C++ settings.
-}
-
-GlobalSettingsWidget *GlobalSettingsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new GlobalSettingsWidget;
-    return m_widget;
-}
-
-void GlobalSettingsPage::apply()
-{
-    if (m_widget)
-        m_widget->apply();
-}
-
-void GlobalSettingsPage::cancel()
-{
-    if (m_widget)
-        m_widget->cancel();
-}
 
 void setupCocoSettings()
 {
