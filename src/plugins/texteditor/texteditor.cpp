@@ -907,7 +907,6 @@ public:
     void updateRedoAction();
     void updateUndoAction();
     void updateCopyAction(bool on);
-    void updatePasteAction();
 
 public:
     TextEditorWidget *q;
@@ -1106,7 +1105,6 @@ public:
     QAction *m_copyAction = nullptr;
     QAction *m_copyHtmlAction = nullptr;
     QAction *m_cutAction = nullptr;
-    QAction *m_pasteAction = nullptr;
     QAction *m_autoIndentAction = nullptr;
     QAction *m_autoFormatAction = nullptr;
     QAction *m_visualizeWhitespaceAction = nullptr;
@@ -1125,7 +1123,6 @@ public:
     QAction *m_jumpToFileInNextSplitAction = nullptr;
     QList<QAction *> m_modifyingActions;
     QList<QAction *> m_suggestionActions;
-    bool m_updatePasteActionScheduled = false;
 
     SingleTaskTreeRunner m_searchRunner;
     SingleTaskTreeRunner m_selectionHighlightRunner;
@@ -1299,17 +1296,6 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
     connect(q, &PlainTextEdit::copyAvailable,
             this, &TextEditorWidgetPrivate::updateCopyAction);
-
-    connect(qApp->clipboard(), &QClipboard::dataChanged, this, [this] {
-        // selecting text with the mouse can cause the clipboard to change quite often and the
-        // check whether the clipboard text is empty in update paste action is potentially
-        // expensive. So we only schedule the update if it is not already scheduled.
-
-        if (m_updatePasteActionScheduled)
-            return;
-        m_updatePasteActionScheduled = true;
-        QTimer::singleShot(100, this, &TextEditorWidgetPrivate::updatePasteAction);
-    });
 
     m_parenthesesMatchingTimer.setSingleShot(true);
     m_parenthesesMatchingTimer.setInterval(50);
@@ -4298,12 +4284,11 @@ void TextEditorWidgetPrivate::registerActions()
                       .addOnTriggered([this] { q->cut(); })
                       .setScriptable(true)
                       .contextAction();
-    m_pasteAction = ActionBuilder(this, PASTE)
-                                  .setContext(m_editorContext)
-                                  .addOnTriggered([this] { q->paste(); })
-                                  .setScriptable(true)
-                                  .contextAction();
-    m_modifyingActions << m_pasteAction;
+    m_modifyingActions << ActionBuilder(this, PASTE)
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->paste(); })
+                              .setScriptable(true)
+                              .contextAction();
 
     ActionBuilder(this, SELECTALL)
         .setContext(m_editorContext)
@@ -4796,7 +4781,6 @@ void TextEditorWidgetPrivate::updateActions()
     updateRedoAction();
     updateUndoAction();
     updateCopyAction(q->textCursor().hasSelection());
-    updatePasteAction();
     updateOptionalActions();
 }
 
@@ -4839,13 +4823,6 @@ void TextEditorWidgetPrivate::updateCopyAction(bool hasCopyableText)
         m_copyAction->setEnabled(hasCopyableText);
     if (m_copyHtmlAction)
         m_copyHtmlAction->setEnabled(hasCopyableText);
-}
-
-void TextEditorWidgetPrivate::updatePasteAction()
-{
-    m_updatePasteActionScheduled = false;
-    if (m_pasteAction)
-        m_pasteAction->setEnabled(!q->isReadOnly() && !qApp->clipboard()->text(QClipboard::Mode::Clipboard).isEmpty());
 }
 
 bool TextEditorWidget::codeFoldingVisible() const
