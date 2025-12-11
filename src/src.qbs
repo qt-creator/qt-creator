@@ -11,6 +11,7 @@ Project {
         "app/images/logo/logo.qbs",
         "libs/libs.qbs",
         "plugins/plugins.qbs",
+        "share/share.qbs",
         "tools/tools.qbs",
         project.sharedSourcesDir + "/json",
         project.sharedSourcesDir + "/proparser",
