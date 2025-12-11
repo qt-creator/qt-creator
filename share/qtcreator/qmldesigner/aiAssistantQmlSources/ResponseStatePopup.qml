@@ -94,9 +94,19 @@ Rectangle {
             id: messageText
 
             color: StudioTheme.Values.themeTextColor
-            wrapMode: Text.WordWrap
+            wrapMode: Text.NoWrap
+            elide: Text.ElideRight
 
             Layout.fillWidth: true
+
+            HelperWidgets.ToolTipArea {
+                id: messageTextTooltip
+
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                enabled: messageText.truncated
+                tooltip: messageText.text
+            }
         }
 
         Row {
