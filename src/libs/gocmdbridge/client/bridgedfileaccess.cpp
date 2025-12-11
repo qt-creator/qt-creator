@@ -22,14 +22,18 @@ FileAccess::FileAccess(const std::function<void()> &errorExitHandler)
 
 FileAccess::~FileAccess() = default;
 
-static ResultError exceptionError(
-    const QString &context, const FilePath &filePath, const std::exception &e)
+static QString str(const std::exception &e)
 {
-    QTC_CHECK(context.contains("%1"));
-    QString message = context;
-    if (!filePath.isEmpty())
-        message = message.arg(filePath.toUserOutput()) + ": ";
-    message += QString::fromLocal8Bit(e.what());
+    return QString::fromLocal8Bit(e.what());
+}
+
+static QString str(const FilePath &f)
+{
+    return f.toUserOutput();
+}
+
+static ResultError logError(const QString &message)
+{
     qCWarning(faLog) << message;
     return ResultError(message);
 }
@@ -67,7 +71,7 @@ Result<> FileAccess::init(
 
     auto startResult = m_client->start(deleteOnExit);
     if (!startResult)
-        return ResultError(QString("Could not start cmdbridge: %1").arg(startResult.error()));
+        return logError(Tr::tr("Could not start cmdbridge: %1").arg(startResult.error()));
 
     return ResultOk;
 }
@@ -78,15 +82,15 @@ Result<> FileAccess::deployAndInit(
     const Environment &environment)
 {
     if (remoteRootPath.isEmpty())
-        return ResultError(Tr::tr("Remote root path is empty."));
+        return logError(Tr::tr("The remote root path is empty."));
 
     if (!remoteRootPath.isAbsolutePath())
-        return ResultError(Tr::tr("Remote root path is not absolute."));
+        return logError(Tr::tr("The remote root path is not absolute."));
 
     const auto whichDD = run({remoteRootPath.withNewPath("which"), {"dd"}});
 
     if (!whichDD) // TODO: Support Windows?
-        return ResultError(Tr::tr("Could not find dd on remote host: %1").arg(whichDD.error()));
+        return logError(Tr::tr("Could not find \"dd\" on the remote host: %1").arg(whichDD.error()));
 
     QElapsedTimer timer;
     timer.start();
@@ -94,37 +98,39 @@ Result<> FileAccess::deployAndInit(
         return QString("%1  (%2 ms)").arg(remoteRootPath.host()).arg(timer.elapsed());
     };
 
-    qCDebug(faLog) << deco() << "Found dd on remote host:" << *whichDD;
+    qCDebug(faLog) << deco() << "Found dd on the remote host:" << *whichDD;
 
     const Result<QString> unameOs = run({remoteRootPath.withNewPath("uname"), {"-s"}});
     if (!unameOs) {
-        return ResultError(
-            QString("Could not determine OS on remote host: %1").arg(unameOs.error()));
+        return logError(
+            Tr::tr("Could not determine the operating system on the remote host: %1")
+                .arg(unameOs.error()));
     }
 
     const Result<OsType> osType = osTypeFromString(*unameOs);
     if (!osType)
-        return ResultError(osType.error());
+        return logError(osType.error());
 
     qCDebug(faLog) << deco() << "Remote host OS:" << *unameOs;
 
     const Result<QString> unameArch = run({remoteRootPath.withNewPath("uname"), {"-m"}});
     if (!unameArch) {
-        return ResultError(
-            QString("Could not determine architecture on remote host: %1").arg(unameArch.error()));
+        return logError(
+            Tr::tr("Could not determine the architecture of the remote host: %1")
+                .arg(unameArch.error()));
     }
 
     const Result<OsArch> osArch = osArchFromString(*unameArch);
     if (!osArch)
-        return ResultError(osArch.error());
+        return logError(osArch.error());
 
     qCDebug(faLog) << deco() << "Remote host architecture:" << *unameArch;
 
     const Result<FilePath> cmdBridgePath = Client::getCmdBridgePath(*osType, *osArch, libExecPath);
 
     if (!cmdBridgePath) {
-        return ResultError(
-            QString("Could not determine compatible cmdbridge for remote host: %1")
+        return logError(
+            Tr::tr("Could not find a compatible cmdbridge for the remote host: %1")
                 .arg(cmdBridgePath.error()));
     }
 
@@ -136,8 +142,8 @@ Result<> FileAccess::deployAndInit(
     const auto cmdBridgeFileData = cmdBridgePath->fileContents();
 
     if (!cmdBridgeFileData) {
-        return ResultError(
-            QString("Could not read cmdbridge file: %1").arg(cmdBridgeFileData.error()));
+        return logError(
+            Tr::tr("Could not read the cmdbridge file: %1").arg(cmdBridgeFileData.error()));
     }
 
     const QString xdgRuntimeDir = environment.value("XDG_RUNTIME_DIR");
@@ -148,8 +154,7 @@ Result<> FileAccess::deployAndInit(
     const auto tmpFile = run({remoteRootPath.withNewPath("mktemp"), tmpFileArgs});
 
     if (!tmpFile) {
-        return ResultError(
-            QString("Could not create temporary file: %1").arg(tmpFile.error()));
+        return logError(Tr::tr("Could not create a temporary file: %1").arg(tmpFile.error()));
     }
 
     qCDebug(faLog) << deco() << "Using temporary file:" << *tmpFile;
@@ -161,8 +166,9 @@ Result<> FileAccess::deployAndInit(
     const auto makeExecutable = run({remoteRootPath.withNewPath("chmod"), {"+x", *tmpFile}});
 
     if (!makeExecutable) {
-        return ResultError(
-            QString("Could not make temporary file executable: %1").arg(makeExecutable.error()));
+        return logError(
+            Tr::tr("Could not make the temporary file \"%1\" executable: %2")
+                .arg(*tmpFile, makeExecutable.error()));
     }
 
     return init(remoteRootPath.withNewPath(*tmpFile), environment, true);
@@ -392,7 +398,8 @@ Result<QByteArray> FileAccess::fileId(const FilePath &filePath) const
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         return f->result().toUtf8();
     } catch (const std::exception &e) {
-        return exceptionError("Error getting file ID of %1", filePath, e);
+        return logError(
+            Tr::tr("Could not get the file ID of \"%1\": %2").arg(str(filePath), str(e)));
     }
 }
 
@@ -420,10 +427,8 @@ Result<FilePathInfo> FileAccess::filePathInfo(const FilePath &filePath) const
                 fileInfoFlagsfromStatMode(stat.mode) | FilePathInfo::FileFlags(stat.usermode),
                 stat.modTime};
     } catch (const std::exception &e) {
-        QString message = "Error getting file path info of " + filePath.toUserOutput()
-                          + QString::fromLocal8Bit(e.what());
-        qDebug(faLog) << message;
-        return ResultError(message);
+        return logError(
+            Tr::tr("Could not get the file path info of \"%1\": %2").arg(str(filePath), str(e)));
     }
 }
 
@@ -435,12 +440,15 @@ Result<FilePath> FileAccess::symLinkTarget(const FilePath &filePath) const
         return filePath.parentDir().resolvePath(filePath.withNewPath(f->result()).path());
     } catch (const std::system_error &e) {
         if (e.code().value() == ENOENT)
-            return exceptionError("No such file: %1", filePath, e);
-        if (e.code().value() == EINVAL)
-            return ResultError(Tr::tr("Path \"%1\" is not a symlink.").arg(filePath.toUserOutput()));
-        return exceptionError("Error getting symlink target for %1", filePath, e);
+            return logError(Tr::tr("The file \"%1\" does not exist.").arg(str(filePath)));
+        if (e.code().value() == EINVAL) {
+            return logError(Tr::tr("The path \"%1\" is not a symlink.").arg(str(filePath)));
+        }
+        return logError(
+            Tr::tr("Could not get the symlink target for \"%1\": %2").arg(str(filePath), str(e)));
     } catch (const std::exception &e) {
-        return exceptionError("Error getting symlink target for %1", filePath, e);
+        return logError(
+            Tr::tr("Could not get the symlink target for \"%1\": %2").arg(str(filePath), str(e)));
     }
 }
 
@@ -468,7 +476,8 @@ Result<> FileAccess::setPermissions(const FilePath &filePath, QFile::Permissions
         f->waitForFinished();
         return ResultOk;
     } catch (const std::exception &e) {
-        return exceptionError("Error setting permissions for %1", filePath, e);
+        return logError(
+            Tr::tr("Could not set permissions for \"%1\": %2").arg(str(filePath), str(e)));
     }
 }
 
@@ -487,7 +496,8 @@ Result<QString> FileAccess::owner(const FilePath &filePath) const
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         return f->result();
     } catch (const std::exception &e) {
-        return exceptionError("Error getting file owner of %1", filePath, e);
+        return logError(
+            Tr::tr("Could not get the file owner of \"%1\": %2").arg(str(filePath), str(e)));
     }
 }
 
@@ -498,7 +508,8 @@ Result<uint> FileAccess::ownerId(const FilePath &filePath) const
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         return f->result();
     } catch (const std::exception &e) {
-        return exceptionError("Error getting file owner id of %1", filePath, e);
+        return logError(
+            Tr::tr("Could not get the file owner ID of \"%1\": %2").arg(str(filePath), str(e)));
     }
 }
 
@@ -509,7 +520,8 @@ Result<QString> FileAccess::group(const FilePath &filePath) const
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         return f->result();
     } catch (const std::exception &e) {
-        return exceptionError("Error getting file group of %1", filePath, e);
+        return logError(
+            Tr::tr("Could not get the file group of \"%1\": %2").arg(str(filePath), str(e)));
     }
 }
 
@@ -520,7 +532,8 @@ Result<uint> FileAccess::groupId(const FilePath &filePath) const
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         return f->result();
     } catch (const std::exception &e) {
-        return exceptionError("Error getting file group id of %1", filePath, e);
+        return logError(
+            Tr::tr("Could not get the file group ID of \"%1\": %2").arg(str(filePath), str(e)));
     }
 }
 
@@ -541,10 +554,10 @@ Result<QByteArray> FileAccess::fileContents(const FilePath &filePath,
         return data;
     } catch (const std::system_error &e) {
         if (e.code().value() == ENOENT)
-            return ResultError(Tr::tr("File does not exist: \"%1\".").arg(filePath.toUserOutput()));
-        return exceptionError("Error reading file %1", filePath, e);
+            return logError(Tr::tr("The file \"%1\" does not exist.").arg(str(filePath)));
+        return logError(Tr::tr("Could not read file \"%1\": %2").arg(str(filePath), str(e)));
     } catch (const std::exception &e) {
-        return exceptionError("Error reading file %1", filePath, e);
+        return logError(Tr::tr("Could not read file \"%1\": %2").arg(str(filePath), str(e)));
     }
 }
 
@@ -556,7 +569,7 @@ Result<qint64> FileAccess::writeFileContents(const FilePath &filePath,
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         return f->result();
     } catch (const std::exception &e) {
-        return exceptionError(Tr::tr("Error writing file \"%1\""), filePath, e);
+        return logError(Tr::tr("Could not write file \"%1\": %2").arg(str(filePath), str(e)));
     }
 }
 
@@ -569,10 +582,10 @@ Result<> FileAccess::removeFile(const FilePath &filePath) const
         f->waitForFinished();
     } catch (const std::system_error &e) {
         if (e.code().value() == ENOENT)
-            return ResultError(Tr::tr("File does not exist: \"%1\".").arg(filePath.toUserOutput()));
-        return exceptionError(Tr::tr("Error removing file \"%1\""), filePath, e);
+            return logError(Tr::tr("The file \"%1\" does not exist.").arg(str(filePath)));
+        return logError(Tr::tr("Could not remove the file \"%1\": %2").arg(str(filePath), str(e)));
     } catch (const std::exception &e) {
-        return exceptionError(Tr::tr("Error removing file \"%1\""), filePath, e);
+        return logError(Tr::tr("Could not remove the file \"%1\": %2").arg(str(filePath), str(e)));
     }
 
     return ResultOk;
@@ -585,7 +598,8 @@ Result<> FileAccess::removeRecursively(const FilePath &filePath) const
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         f->waitForFinished();
     } catch (const std::exception &e) {
-        return exceptionError("Error removing %1 recursively", filePath, e);
+        return logError(
+            Tr::tr("Could not remove \"%1\" recursively: %2").arg(str(filePath), str(e)));
     }
     return ResultOk;
 }
@@ -597,7 +611,8 @@ Result<> FileAccess::ensureExistingFile(const FilePath &filePath) const
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         f->waitForFinished();
     } catch (const std::exception &e) {
-        return exceptionError("Error ensure existing file %1", filePath, e);
+        return logError(
+            Tr::tr("Could not ensure that the file \"%1\" exists: %2").arg(str(filePath), str(e)));
     }
     return ResultOk;
 }
@@ -609,7 +624,8 @@ Result<> FileAccess::createDirectory(const FilePath &filePath) const
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         f->waitForFinished();
     } catch (const std::exception &e) {
-        return exceptionError("Error creating directory %1", filePath, e);
+        return logError(
+            Tr::tr("Could not create the directory \"%1\": %2").arg(str(filePath), str(e)));
     }
     return ResultOk;
 }
@@ -621,8 +637,9 @@ Result<> FileAccess::copyFile(const FilePath &filePath, const FilePath &target) 
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         f->waitForFinished();
     } catch (const std::exception &e) {
-        return exceptionError(QString("Error copying file from %2 to %1")
-                                .arg(target.toUserOutput()), filePath, e);
+        return logError(
+            Tr::tr("Could not copy the file \"%1\" to \"%2\": %3")
+                .arg(str(filePath), str(target), str(e)));
     }
     return ResultOk;
 }
@@ -634,8 +651,9 @@ Result<> FileAccess::createSymLink(const FilePath &filePath, const FilePath &sym
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         f->waitForFinished();
     } catch (const std::exception &e) {
-        return exceptionError(QString("Error creating symlink from %2 to %1")
-                                .arg(symLink.toUserOutput()), filePath, e);
+        return logError(
+            Tr::tr("Could not create a symlink from \"%1\" to \"%2\": %3")
+                .arg(str(filePath), str(symLink), str(e)));
     }
     return ResultOk;
 }
@@ -651,8 +669,9 @@ Result<> FileAccess::renameFile(const FilePath &filePath, const FilePath &target
         if (!f)
             return ResultError(f.error());
     } catch (const std::exception &e) {
-        return exceptionError(QString("Error renaming file from %2 to %1")
-                                .arg(target.toUserOutput()), filePath, e);
+        return logError(
+            Tr::tr("Could not rename the file \"%1\" to \"%2\": %3")
+                .arg(str(filePath), str(target), str(e)));
     }
     return ResultOk;
 }
@@ -674,7 +693,7 @@ Result<> FileAccess::signalProcess(int pid, ControlSignal signal) const
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         f->waitForFinished();
     } catch (const std::exception &e) {
-        return exceptionError(Tr::tr("Error killing process with PID %1").arg(pid), {}, e);
+        return logError(Tr::tr("Could not kill the process with PID %1: %2").arg(pid).arg(str(e)));
     };
 
     return ResultOk;
@@ -705,7 +724,8 @@ Result<FilePath> FileAccess::createTemp(const FilePath &filePath, bool dir)
             return result;
         return filePath.withNewPath(result->path());
     } catch (const std::exception &e) {
-        return exceptionError("Error creating temporary file for %1", filePath, e);
+        return logError(
+            Tr::tr("Could not create a temporary file for \"%1\": %2").arg(str(filePath), str(e)));
     }
 }
 
