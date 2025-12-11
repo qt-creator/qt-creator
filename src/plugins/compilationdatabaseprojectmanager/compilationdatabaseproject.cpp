@@ -49,9 +49,10 @@ static bool isClCompatibleCompiler(const QString &compilerName)
     return compilerName.endsWith("cl");
 }
 
-static Id getCompilerId(QString compilerName)
+static Id getCompilerId(const FilePath &compilerPath)
 {
-    if (HostOsInfo::isWindowsHost()) {
+    QString compilerName = compilerPath.fileName();
+    if (compilerPath.osType() == OsTypeWindows) {
         if (compilerName.endsWith(".exe"))
             compilerName.chop(4);
         if (isGccCompiler(compilerName))
@@ -67,36 +68,39 @@ static Id getCompilerId(QString compilerName)
     return ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID;
 }
 
-static Toolchain *toolchainFromCompilerId(const Id &compilerId, const Id &language)
+static Toolchain *toolchainFromCompilerId(
+    const Id &compilerId, const FilePath &sourceFile, const Id &language)
 {
-    return ToolchainManager::toolchain([&compilerId, &language](const Toolchain *tc) {
-        if (!tc->isValid() || tc->language() != language)
-            return false;
-        return tc->typeId() == compilerId;
+    return ToolchainManager::toolchain([&](const Toolchain *tc) {
+        return tc->isValid() && tc->language() == language && tc->typeId() == compilerId
+               && tc->compilerCommand().isSameDevice(sourceFile);
     });
 }
 
-static FilePath compilerPath(QString pathFlag)
+static FilePath compilerPath(QString pathFlag, const FilePath &sourceFile)
 {
     if (pathFlag.isEmpty())
         return {};
 #ifdef Q_OS_WIN
-    // Handle short DOS style file names (cmake can generate them).
-    const DWORD pathLength
-        = GetLongPathNameW(reinterpret_cast<LPCWSTR>(pathFlag.utf16()), nullptr, 0);
-    if (pathLength > 0) {
-        // Works only with existing paths.
-        wchar_t *buffer = new wchar_t[pathLength];
-        GetLongPathNameW(reinterpret_cast<LPCWSTR>(pathFlag.utf16()), buffer, pathLength);
-        pathFlag = QString::fromUtf16(
-            reinterpret_cast<char16_t *>(buffer), static_cast<int>(pathLength - 1));
-        delete[] buffer;
+    if (sourceFile.isLocal()) {
+        // Handle short DOS style file names (cmake can generate them).
+        const DWORD pathLength
+            = GetLongPathNameW(reinterpret_cast<LPCWSTR>(pathFlag.utf16()), nullptr, 0);
+        if (pathLength > 0) {
+            // Works only with existing paths.
+            wchar_t *buffer = new wchar_t[pathLength];
+            GetLongPathNameW(reinterpret_cast<LPCWSTR>(pathFlag.utf16()), buffer, pathLength);
+            pathFlag = QString::fromUtf16(
+                reinterpret_cast<char16_t *>(buffer), static_cast<int>(pathLength - 1));
+            delete[] buffer;
+        }
     }
 #endif
-    return FilePath::fromUserInput(pathFlag);
+    return sourceFile.withNewMappedPath(FilePath::fromUserInput(pathFlag));
 }
 
-static Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Id &language)
+static Toolchain *toolchainFromFlags(
+    const Kit *kit, const QStringList &flags, const FilePath &sourceFile, const Id &language)
 {
     Toolchain *const kitToolchain = ToolchainKitAspect::toolchain(kit, language);
 
@@ -104,27 +108,27 @@ static Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, c
         return kitToolchain;
 
     // Try exact compiler match.
-    const FilePath compiler = compilerPath(flags.front());
+    const FilePath compiler = compilerPath(flags.front(), sourceFile);
     Toolchain *toolchain = ToolchainManager::toolchain([&compiler, &language](const Toolchain *tc) {
         return tc->isValid() && tc->language() == language && tc->compilerCommand() == compiler;
     });
     if (toolchain)
         return toolchain;
 
-    Id compilerId = getCompilerId(compiler.fileName());
-    if (kitToolchain->isValid() && kitToolchain->typeId() == compilerId)
+    Id compilerId = getCompilerId(compiler);
+    if (kitToolchain && kitToolchain->isValid() && kitToolchain->typeId() == compilerId)
         return kitToolchain;
-    if ((toolchain = toolchainFromCompilerId(compilerId, language)))
+    if ((toolchain = toolchainFromCompilerId(compilerId, sourceFile, language)))
         return toolchain;
 
     if (compilerId != ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID
         && compilerId != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-        compilerId = HostOsInfo::isWindowsHost()
+        compilerId = sourceFile.osType() == OsTypeWindows
                          ? Id(ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)
                          : Id(ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID);
-        if (kitToolchain->isValid() && kitToolchain->typeId() == compilerId)
+        if (kitToolchain && kitToolchain->isValid() && kitToolchain->typeId() == compilerId)
             return kitToolchain;
-        if ((toolchain = toolchainFromCompilerId(compilerId, language)))
+        if ((toolchain = toolchainFromCompilerId(compilerId, sourceFile, language)))
             return toolchain;
     }
 
@@ -170,15 +174,15 @@ static RawProjectPart makeRawProjectPart(
     if (fileKind == CppEditor::ProjectFile::Kind::CHeader
         || fileKind == CppEditor::ProjectFile::Kind::CSource) {
         if (!kitInfo.cToolchain) {
-            kitInfo.cToolchain
-                = toolchainFromFlags(kit, originalFlags, ProjectExplorer::Constants::C_LANGUAGE_ID);
+            kitInfo.cToolchain = toolchainFromFlags(
+                kit, originalFlags, filePath, ProjectExplorer::Constants::C_LANGUAGE_ID);
         }
         addDriverModeFlagIfNeeded(kitInfo.cToolchain, flags, originalFlags);
         rpp.setFlagsForC({kitInfo.cToolchain, flags, workingDir});
     } else {
         if (!kitInfo.cxxToolchain) {
-            kitInfo.cxxToolchain
-                = toolchainFromFlags(kit, originalFlags, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+            kitInfo.cxxToolchain = toolchainFromFlags(
+                kit, originalFlags, filePath, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
         }
         addDriverModeFlagIfNeeded(kitInfo.cxxToolchain, flags, originalFlags);
         rpp.setFlagsForCxx({kitInfo.cxxToolchain, flags, workingDir});
