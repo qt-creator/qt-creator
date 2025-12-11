@@ -19,6 +19,7 @@
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcwidgets.h>
 #include <utils/styledbar.h>
@@ -31,6 +32,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDialog>
+#include <QDialogButtonBox>
 #include <QEventLoop>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -463,7 +465,7 @@ private:
     Id m_currentPage;
     QStackedLayout *m_stackedLayout;
     Utils::FancyLineEdit *m_filterLineEdit;
-    QCheckBox *m_sortCheckBox;
+    QAbstractButton *m_sortCheckBox;
     QListView *m_categoryList;
     QLabel *m_headerLabel;
 };
@@ -472,7 +474,7 @@ SettingsDialog::SettingsDialog()
     : m_pages(sortedOptionsPages())
     , m_stackedLayout(new QStackedLayout)
     , m_filterLineEdit(new QtcSearchBox)
-    , m_sortCheckBox(new QCheckBox(Tr::tr("Sort categories")))
+    , m_sortCheckBox(new QtcSwitch(Tr::tr("Sort categories")))
     , m_categoryList(new CategoryListView)
     , m_headerLabel(new QLabel)
 {
@@ -594,32 +596,53 @@ void SettingsDialog::createGui()
 {
     m_headerLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
-    auto applyButton = new QtcButton(Tr::tr("Apply"), QtcButton::LargePrimary);
-    auto cancelButton = new QtcButton(Tr::tr("Cancel"),  QtcButton::LargeSecondary);
-
-    auto headerHLayout = new QHBoxLayout;
-    const int leftMargin = QApplication::style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
-    headerHLayout->addSpacerItem(new QSpacerItem(leftMargin, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
-    headerHLayout->addWidget(m_headerLabel);
-    headerHLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
-    headerHLayout->addWidget(applyButton);
-    headerHLayout->addWidget(cancelButton);
+    auto buttonBox = new QDialogButtonBox;
+    buttonBox->addButton(new QtcButton(Tr::tr("Apply"), QtcButton::MediumPrimary),
+                         QDialogButtonBox::ApplyRole);
+    buttonBox->addButton(new QtcButton(Tr::tr("Cancel"), QtcButton::MediumSecondary),
+                         QDialogButtonBox::RejectRole);
 
     m_stackedLayout->setContentsMargins(0, 0, 0, 0);
-    QWidget *emptyWidget = new QWidget(this);
+    auto emptyWidget = new QWidget(this);
     m_stackedLayout->addWidget(emptyWidget); // no category selected, for example when filtering
 
-    connect(applyButton, &QAbstractButton::clicked, this, &SettingsDialog::apply);
-    connect(cancelButton, &QAbstractButton::clicked, this, &SettingsDialog::cancel);
+    using namespace Layouting;
+    QWidget *leftColumn = Column {
+        noMargin,
+        m_filterLineEdit,
+        m_categoryList,
+        Row {
+            st,
+            m_sortCheckBox,
+        },
+    }.emerge();
+    leftColumn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
-    auto mainGridLayout = new QGridLayout;
-    mainGridLayout->addWidget(m_filterLineEdit, 0, 0, 1, 1);
-    mainGridLayout->addLayout(headerHLayout,    0, 1, 1, 1);
-    mainGridLayout->addWidget(m_categoryList,   1, 0, 1, 1);
-    mainGridLayout->addWidget(m_sortCheckBox,   2, 0, 1, 1);
-    mainGridLayout->addLayout(m_stackedLayout,  1, 1, 2, 1);
-    mainGridLayout->setColumnStretch(1, 4);
-    setLayout(mainGridLayout);
+    QWidget *rightColumn = Column {
+        noMargin,
+        Row {
+            m_headerLabel,
+            st,
+            buttonBox,
+        },
+        m_stackedLayout,
+    }.emerge();
+
+    leftColumn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+
+    Row {
+        customMargins(StyleHelper::SpacingTokens::PaddingHXxl,
+                      StyleHelper::SpacingTokens::PaddingVXl,
+                      StyleHelper::SpacingTokens::PaddingHXxl,
+                      StyleHelper::SpacingTokens::PaddingVXl),
+        spacing(0),
+        leftColumn,
+        Space(StyleHelper::SpacingTokens::GapHL),
+        rightColumn,
+    }.attachTo(this);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::apply);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &SettingsDialog::cancel);
 }
 
 void SettingsDialog::showCategory(int index)
@@ -772,6 +795,7 @@ public:
             inner = new SettingsDialog;
             auto layout = new QVBoxLayout(this);
             layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
             layout->addWidget(new StyledBar);
             layout->addWidget(inner);
         }
