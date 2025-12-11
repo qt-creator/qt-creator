@@ -922,6 +922,10 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
 
         // Check whether a language version is already used.
         QString theOption = option;
+        if (toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID &&
+                (theOption.startsWith("/clang:") || theOption.startsWith("-clang:"))) {
+            theOption = theOption.sliced(7);
+        }
         if (theOption.startsWith("-std=") || theOption.startsWith("--std=")) {
             m_compilerFlags.isLanguageVersionSpecified = true;
             theOption.replace("=c18", "=c17");
