@@ -230,6 +230,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
             menu.exec(m_tabBar->mapToGlobal(pos));
         },
         Qt::QueuedConnection);
+    connect(m_tabBar, &QTabBar::tabMoved, [this] { ensurePinnedOrder(); });
     // We cannot watch for IDocument changes, because the tab might refer
     // to a suspended document. And if a new editor for that is opened in another view,
     // this view will not know about that.
@@ -243,6 +244,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
                 const int tabIndex = tabForEntry(e);
                 if (tabIndex >= 0)
                     updateTabUi(m_tabBar, tabIndex, e->document);
+                ensurePinnedOrder();
             }
         });
     // Watch for items that are removed from the document model, e.g. suspended items
@@ -660,6 +662,7 @@ void EditorView::addEditor(IEditor *editor)
     updateTabUi(m_tabBar, tabIndex, document);
     m_tabBar->setVisible(false); // something is wrong with QTabBar... this is needed
     m_tabBar->setVisible(m_isShowingTabs);
+    ensurePinnedOrder();
 
     if (editor == currentEditor())
         setCurrentEditor(editor);
@@ -822,6 +825,20 @@ void EditorView::closeTab(int index)
     else {
         m_tabBar->removeTab(index);
         EditorManagerPrivate::tabClosed(data.entry);
+    }
+}
+
+void EditorView::ensurePinnedOrder()
+{
+    // ensure that pinned tabs go first
+    int lastPinnedIndex = -1;
+    for (int i = 0; i < m_tabBar->count(); ++i) {
+        const auto data = m_tabBar->tabData(i).value<TabData>();
+        if (data.entry->pinned) {
+            if (i > lastPinnedIndex + 1) // there were unpinned in between, move
+                m_tabBar->moveTab(i, lastPinnedIndex + 1);
+            ++lastPinnedIndex;
+        }
     }
 }
 

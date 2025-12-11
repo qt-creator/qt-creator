@@ -172,6 +172,7 @@ private:
     void activateTab(int index);
     void tabCloseRequested(int index);
     void closeTab(int index);
+    void ensurePinnedOrder();
 
     void setParentSplitterOrView(SplitterOrView *splitterOrView);
 

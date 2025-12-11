@@ -349,20 +349,29 @@ void TabbedEditorTest::testPinned()
     const QList<EditorView *> views = mainAreaViews();
     QCOMPARE(views.size(), 1);
     EditorView *view0 = views.at(0);
+    IEditor *editorB = EMP::openEditor(view0, b.filePath()); // B first then A, for tab order check
     IEditor *editorA = EMP::openEditor(view0, a.filePath());
     QVERIFY(editorA);
-    QCOMPARE(view0->tabs().size(), 1);
+    QVERIFY(editorB);
+    QCOMPARE(view0->tabs().size(), 2);
+    QCOMPARE(view0->tabs().at(0).editor, editorB);
+    QCOMPARE(view0->tabs().at(1).editor, editorA);
     DocumentModel::Entry *entryA = DocumentModel::entryForDocument(editorA->document());
+    DocumentModel::Entry *entryB = DocumentModel::entryForDocument(editorB->document());
     QVERIFY(entryA);
+    QVERIFY(entryB);
+    // check that tab for pinned document is moved to front
     DocumentModelPrivate::setPinned(entryA, true);
     QCOMPARE(entryA->pinned, true);
+    QCOMPARE(view0->tabs().at(0).editor, editorA);
+    QCOMPARE(view0->tabs().at(1).editor, editorB);
     // check that clicking the close button unpins instead of closes
     emit view0->tabCloseRequested(0);
-    QCOMPARE(view0->tabs().size(), 1);
+    QCOMPARE(view0->tabs().size(), 2);
     QCOMPARE(entryA->pinned, false);
     // and that after that the document is closed
     emit view0->tabCloseRequested(0);
-    QCOMPARE(view0->tabs().size(), 0);
+    QCOMPARE(view0->tabs().size(), 1);
 }
 
 } // namespace Core::Internal
