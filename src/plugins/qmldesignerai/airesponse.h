@@ -14,9 +14,6 @@ public:
         NoError,
         JsonParseError,
         EmptyResponse,
-        InvalidChoices, // TODO: remove
-        EmptyChoices,   // TODO: remove
-        InvalidMessage, // TODO: remove
         EmptyMessage,
         RequestError,
         StructureError,

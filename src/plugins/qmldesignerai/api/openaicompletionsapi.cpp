@@ -104,15 +104,15 @@ AiResponse OpenAiCompletionsApi::interpretResponse(const QByteArray &response)
         return Error::EmptyResponse;
 
     if (!rootObject.contains("choices") || !rootObject["choices"].isArray())
-        return Error::InvalidChoices;
+        return AiResponse::structureError("Missing or invalid `choices` array");
 
     QJsonArray choicesArray = rootObject["choices"].toArray();
     if (choicesArray.isEmpty())
-        return Error::EmptyChoices;
+        return AiResponse::structureError("`choices` array is empty");
 
     QJsonObject firstChoice = choicesArray.first().toObject();
     if (!firstChoice.contains("message") || !firstChoice["message"].isObject())
-        return Error::InvalidMessage;
+        return AiResponse::structureError("Missing or invalid `message` object in first `choice`");
 
     QJsonObject messageObject = firstChoice["message"].toObject();
     QString content = messageObject.value("content").toString();

@@ -25,12 +25,6 @@ QString AiResponse::errorString() const
         return Tr::tr("JSON parse error");
     case Error::EmptyResponse:
         return Tr::tr("Empty JSON response");
-    case Error::InvalidChoices:
-        return Tr::tr("Missing or invalid `choices` array");
-    case Error::EmptyChoices:
-        return Tr::tr("`choices` array is empty");
-    case Error::InvalidMessage:
-        return Tr::tr("Missing or invalid `message` object in first `choice`");
     case Error::EmptyMessage:
         return Tr::tr("Missing or invalid `content` string in `message`");
     case Error::RequestError:
