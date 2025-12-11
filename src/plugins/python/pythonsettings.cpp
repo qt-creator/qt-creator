@@ -1241,18 +1241,14 @@ public:
         setDisplayName(Tr::tr("Interpreters"));
         setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
         setWidgetCreator([] { return new InterpreterOptionsWidget; });
-    }
-
-    QStringList keywords() const final
-    {
-        return {
+        setFixedKeywords({
             Tr::tr("Name:"),
             Tr::tr("Executable"),
             Tr::tr("&Add"),
             Tr::tr("&Delete"),
             Tr::tr("&Clean Up"),
             Tr::tr("&Make Default")
-        };
+        });
     }
 };
 

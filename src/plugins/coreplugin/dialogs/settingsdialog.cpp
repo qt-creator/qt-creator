@@ -22,6 +22,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcwidgets.h>
+#include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 
@@ -39,6 +40,7 @@
 #include <QIcon>
 #include <QLabel>
 #include <QListView>
+#include <QMessageBox>
 #include <QPointer>
 #include <QPushButton>
 #include <QResizeEvent>
@@ -50,6 +52,7 @@
 #include <QStackedLayout>
 #include <QStyle>
 #include <QStyledItemDelegate>
+#include <QTimer>
 
 using namespace Utils;
 
@@ -61,6 +64,9 @@ const int kMaxMinimumHeight = 250;
 const char pageKeyC[] = "General/LastPreferencePage";
 const char sortKeyC[] = "General/SortCategories";
 const int categoryIconSize = 24;
+
+class SettingsTab;
+static QHash<Id, QPointer<SettingsTab>> s_tabForPage;
 
 static bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
 {
@@ -253,9 +259,11 @@ class CategoryFilterModel : public QSortFilterProxyModel
 public:
     CategoryFilterModel() = default;
 
-protected:
+private:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 };
+
+} // namespace
 
 static bool categoryVisible([[maybe_unused]] const Id &id)
 {
@@ -318,6 +326,7 @@ public:
  * Special version of a QListView that has the width of the first column as
  * minimum size.
  */
+
 class CategoryListView : public QListView
 {
 public:
@@ -326,6 +335,8 @@ public:
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
         setItemDelegate(new CategoryListViewDelegate(this));
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        viewport()->installEventFilter(this);
+        installEventFilter(this);
     }
 
     QSize sizeHint() const final
@@ -335,9 +346,9 @@ public:
         return QSize(width, 100);
     }
 
-    // QListView installs a event filter on its scrollbars
     bool eventFilter(QObject *obj, QEvent *event) final
     {
+        // QListView installs a event filter on its scrollbars
         if (obj == verticalScrollBar()
                 && (event->type() == QEvent::Show || event->type() == QEvent::Hide))
             updateGeometry();
@@ -345,7 +356,7 @@ public:
     }
 };
 
-// ----------- SmartScrollArea
+// ----------- SettingsTab
 
 template <typename T>
 void setWheelScrollingWithoutFocusBlockedForChildren(QWidget *widget)
@@ -355,30 +366,66 @@ void setWheelScrollingWithoutFocusBlockedForChildren(QWidget *widget)
         setWheelScrollingWithoutFocusBlocked(child);
 }
 
-class SmartScrollArea : public QScrollArea
+class SettingsTab : public QScrollArea
 {
+    Q_OBJECT
+
 public:
-    explicit SmartScrollArea(QWidget *parent, const std::function<QWidget *()> widgetProvider)
-        : QScrollArea(parent), m_widgetProvider(widgetProvider)
+    explicit SettingsTab(IOptionsPage *page)
+        : m_page(page)
     {
+        s_tabForPage[page->id()] = this;
         setFrameStyle(QFrame::NoFrame | QFrame::Plain);
         viewport()->setAutoFillBackground(false);
         setWidgetResizable(true);
     }
 
+    ~SettingsTab()
+    {
+        s_tabForPage.remove(m_page->id());
+    }
+
+    void apply()
+    {
+        if (m_inner)
+            m_inner->apply();
+    }
+
+    void cancel()
+    {
+        if (!m_inner)
+            return;
+
+        m_inner->cancel();
+
+        if (m_page->recreateOnCancel()) {
+            delete m_inner;
+            createInner();
+        }
+    }
+
+signals:
+    void dirtyChanged(bool dirty);
+
 private:
+    void createInner()
+    {
+        m_inner = m_page->createWidget();
+        QTC_ASSERT(m_inner, return);
+        setWheelScrollingWithoutFocusBlockedForChildren<QComboBox *>(m_inner);
+        setWheelScrollingWithoutFocusBlockedForChildren<QAbstractSpinBox *>(m_inner);
+        setWidget(m_inner);
+        m_inner->setAutoFillBackground(false);
+
+        if (auto w = qobject_cast<IOptionsPageWidget *>(m_inner)) {
+            connect(w, &IOptionsPageWidget::dirtyChanged, this, &SettingsTab::dirtyChanged);
+        }
+    }
+
     void showEvent(QShowEvent *event) final
     {
-        if (!widget()) {
-            if (QWidget *inner = m_widgetProvider()) {
-                setWheelScrollingWithoutFocusBlockedForChildren<QComboBox *>(inner);
-                setWheelScrollingWithoutFocusBlockedForChildren<QAbstractSpinBox *>(inner);
-                setWidget(inner);
-                inner->setAutoFillBackground(false);
-            } else {
-                QTC_CHECK(false);
-            }
-        }
+        if (!m_inner)
+            createInner();
 
         QScrollArea::showEvent(event);
     }
@@ -425,14 +472,15 @@ private:
 
     int scrollBarWidth() const
     {
-        auto that = const_cast<SmartScrollArea *>(this);
+        auto that = const_cast<SettingsTab *>(this);
         QWidgetList list = that->scrollBarWidgets(Qt::AlignRight);
         if (list.isEmpty())
             return 0;
         return list.first()->sizeHint().width();
     }
 
-    std::function<QWidget *()> m_widgetProvider;
+    IOptionsPage * const m_page;
+    IOptionsPageWidget *m_inner = nullptr;
 };
 
 // ----------- SettingsDialog
@@ -444,21 +492,33 @@ public:
 
     void showPage(Id pageId);
 
-private:
     void apply();
     void cancel();
-    void currentChanged(const QModelIndex &current);
+
+    void currentCategoryChanged(const QModelIndex &current);
     void currentTabChanged(int);
     void filter(const QString &text);
 
+    void setDirty(bool dirty);
     void createGui();
     void showCategory(int index);
-    static void updateEnabledTabs(Category *category, const QString &searchText);
+    void updateEnabledTabs(Category *category, const QString &searchText);
     void ensureCategoryWidget(Category *category);
 
-    const QList<IOptionsPage *> m_pages;
+    void setupDirtyHook(QWidget *widget);
 
-    QSet<IOptionsPage *> m_visitedPages;
+    void switchBackIfNeeded();
+    void switchBack()
+    {
+        Id previousPage = m_previousPage;
+        m_previousPage = {};
+        showPage(previousPage);
+    };
+
+
+private:
+    const QList<IOptionsPage *> m_pages;
+    QSet<Id> m_visitedPages;
     CategoryFilterModel m_proxyModel;
     CategoryModel m_model;
     Id m_currentCategory;
@@ -468,7 +528,21 @@ private:
     QAbstractButton *m_sortCheckBox;
     QListView *m_categoryList;
     QLabel *m_headerLabel;
+
+    QtcButton m_applyButton{Tr::tr("Apply"), QtcButton::MediumPrimary};
+    QtcButton m_cancelButton{Tr::tr("Cancel"), QtcButton::MediumSecondary};
+
+    bool m_isDirty = false;
+    bool m_currentlySwitching = false;
+    Id m_previousPage;
 };
+
+void SettingsDialog::setDirty(bool dirty)
+{
+    m_isDirty = dirty;
+    m_applyButton.setEnabled(dirty);
+    m_cancelButton.setEnabled(dirty);
+}
 
 SettingsDialog::SettingsDialog()
     : m_pages(sortedOptionsPages())
@@ -500,7 +574,7 @@ SettingsDialog::SettingsDialog()
     m_sortCheckBox->setChecked(settings->value(sortKeyC, false).toBool());
 
     connect(m_categoryList->selectionModel(), &QItemSelectionModel::currentRowChanged,
-            this, &SettingsDialog::currentChanged);
+            this, &SettingsDialog::currentCategoryChanged);
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, [this] {
         QtcSettings *settings = ICore::settings();
@@ -597,10 +671,11 @@ void SettingsDialog::createGui()
     m_headerLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
     auto buttonBox = new QDialogButtonBox;
-    buttonBox->addButton(new QtcButton(Tr::tr("Apply"), QtcButton::MediumPrimary),
-                         QDialogButtonBox::AcceptRole);
-    buttonBox->addButton(new QtcButton(Tr::tr("Cancel"), QtcButton::MediumSecondary),
-                         QDialogButtonBox::RejectRole);
+    buttonBox->addButton(&m_applyButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(&m_cancelButton, QDialogButtonBox::ActionRole);
+
+    connect(&m_applyButton, &QAbstractButton::clicked, this, &SettingsDialog::apply);
+    connect(&m_cancelButton, &QAbstractButton::clicked, this, &SettingsDialog::cancel);
 
     m_stackedLayout->setContentsMargins(0, 0, 0, 0);
     auto emptyWidget = new QWidget(this);
@@ -643,6 +718,8 @@ void SettingsDialog::createGui()
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::apply);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &SettingsDialog::cancel);
+
+    setDirty(false);
 }
 
 void SettingsDialog::showCategory(int index)
@@ -654,8 +731,10 @@ void SettingsDialog::showCategory(int index)
     const int currentTabIndex = category->tabWidget->currentIndex();
     if (currentTabIndex != -1) {
         IOptionsPage *page = category->pages.at(currentTabIndex);
+        if (!m_currentlySwitching)
+            m_previousPage = m_currentPage;
         m_currentPage = page->id();
-        m_visitedPages.insert(page);
+        m_visitedPages.insert(m_currentPage);
     }
 
     m_stackedLayout->setCurrentIndex(category->index);
@@ -672,11 +751,13 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
     m_model.ensurePages(category);
     auto tabWidget = new QTabWidget;
     tabWidget->tabBar()->setObjectName("qc_settings_main_tabbar"); // easier lookup in Squish
-    for (IOptionsPage *page : std::as_const(category->pages))
-        tabWidget->addTab(new SmartScrollArea(this, [page] { return page->widget(); }), page->displayName());
+    for (IOptionsPage *page : std::as_const(category->pages)) {
+        auto tab = new SettingsTab(page);
+        connect(tab, &SettingsTab::dirtyChanged, this, &SettingsDialog::setDirty);
+        tabWidget->addTab(tab, page->displayName());
+    }
 
-    connect(tabWidget, &QTabWidget::currentChanged,
-            this, &SettingsDialog::currentTabChanged);
+    connect(tabWidget, &QTabWidget::currentChanged, this, &SettingsDialog::currentTabChanged);
 
     category->tabWidget = tabWidget;
     category->index = m_stackedLayout->addWidget(tabWidget);
@@ -702,7 +783,41 @@ void SettingsDialog::updateEnabledTabs(Category *category, const QString &search
     }
 }
 
-void SettingsDialog::currentChanged(const QModelIndex &current)
+void SettingsDialog::switchBackIfNeeded()
+{
+    if (!m_isDirty)
+        return;
+
+    if (!m_previousPage.isValid())
+        return;
+
+    if (m_currentlySwitching)
+        return;
+
+    QMessageBox dialog(dialogParent());
+    dialog.setWindowTitle(Tr::tr("Unapplied Changes"));
+    dialog.setIcon(QMessageBox::Warning);
+    dialog.resize(400, 500);
+    dialog.setText(Tr::tr("The previous page contains unsaved changes."));
+
+    QPushButton *applyButton
+        = dialog.addButton(Tr::tr("Apply Unsaved Changes"), QMessageBox::AcceptRole);
+    connect(applyButton, &QAbstractButton::clicked, this, &SettingsDialog::apply);
+
+    QPushButton *abandonButton
+        = dialog.addButton(Tr::tr("Abandon Unsaved Changes"), QMessageBox::AcceptRole);
+    connect(abandonButton, &QAbstractButton::clicked, this, &SettingsDialog::cancel);
+
+    QPushButton *backButton
+        = dialog.addButton(Tr::tr("Return to Previous Page"), QMessageBox::RejectRole);
+    connect(backButton, &QAbstractButton::clicked, this, &SettingsDialog::switchBack);
+
+    m_currentlySwitching = true;
+    dialog.exec();
+    m_currentlySwitching = false;
+}
+
+void SettingsDialog::currentCategoryChanged(const QModelIndex &current)
 {
     if (current.isValid()) {
         showCategory(m_proxyModel.mapToSource(current).row());
@@ -710,6 +825,8 @@ void SettingsDialog::currentChanged(const QModelIndex &current)
         m_stackedLayout->setCurrentIndex(0);
         m_headerLabel->clear();
     }
+
+    QTimer::singleShot(0, this, [this] { switchBackIfNeeded(); });
 }
 
 void SettingsDialog::currentTabChanged(int index)
@@ -724,8 +841,12 @@ void SettingsDialog::currentTabChanged(int index)
     // Remember the current tab and mark it as visited
     const Category *category = m_model.categories().at(modelIndex.row());
     IOptionsPage *page = category->pages.at(index);
+    if (!m_currentlySwitching)
+        m_previousPage = m_currentPage;
     m_currentPage = page->id();
-    m_visitedPages.insert(page);
+    m_visitedPages.insert(m_currentPage);
+
+    QTimer::singleShot(0, this, [this] { switchBackIfNeeded(); });
 }
 
 void SettingsDialog::filter(const QString &text)
@@ -744,29 +865,32 @@ void SettingsDialog::filter(const QString &text)
 
 void SettingsDialog::apply()
 {
-    for (IOptionsPage *page : std::as_const(m_visitedPages))
-        page->apply();
+    for (const Id page : std::as_const(m_visitedPages)) {
+        SettingsTab *tab = s_tabForPage.value(page);
+        QTC_ASSERT(tab, continue);
+        tab->apply();
+    }
 
-    // disconnectTabWidgets();
-
-    // for (IOptionsPage *page : std::as_const(m_pages))
-    //     page->finish();
+    m_visitedPages = { m_currentPage };
 
     ICore::saveSettings(ICore::SettingsDialogDone); // save all settings
+
+    setDirty(false);
 }
 
 void SettingsDialog::cancel()
 {
-    for (IOptionsPage *page : std::as_const(m_pages))
-        page->cancel();
+    for (const Id page : std::as_const(m_visitedPages)) {
+        SettingsTab *tab = s_tabForPage.value(page);
+        tab->cancel();
+    }
 
-    // for (IOptionsPage *page : std::as_const(m_pages))
-    //     page->finish();
+    m_visitedPages = { m_currentPage };
 
     ICore::saveSettings(ICore::SettingsDialogDone); // save all settings
-}
 
-} // namespace
+    setDirty(false);
+}
 
 class SettingsModeWidget final : public QWidget
 {
@@ -824,11 +948,12 @@ SettingsMode::~SettingsMode()
 {
     delete m_settingsModeWidget;
     // Delete any widgets that have been created e.g. for IOptionsPage::keywords, but
-    // were never parent of the mode.
+    // were never parented to the mode.
     // Otherwise these would only be deleted when the corresponding static IOptionsPage
     // is deleted, which is too late and can lead to crashes.
-    for (IOptionsPage *page : IOptionsPage::allOptionsPages())
-        page->deleteWidget();
+    for (QWidget *widget : s_tabForPage)
+        delete widget;
+    s_tabForPage.clear();
 }
 
 void SettingsMode::open(Id initialPage)
@@ -840,3 +965,5 @@ void SettingsMode::open(Id initialPage)
 }
 
 } // namespace Core::Internal
+
+#include "settingsdialog.moc"

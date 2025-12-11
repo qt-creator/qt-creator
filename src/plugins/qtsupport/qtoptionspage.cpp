@@ -1206,11 +1206,7 @@ public:
         setDisplayName(Tr::tr("Qt Versions"));
         setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
         setWidgetCreator([] { return new QtSettingsPageWidget; });
-    }
-
-    QStringList keywords() const final
-    {
-        return {
+        setFixedKeywords({
             Tr::tr("Add..."),
             Tr::tr("Remove"),
             Tr::tr("Clean Up"),
@@ -1219,7 +1215,7 @@ public:
             Tr::tr("Qt installation path:"),
             Tr::tr("qmake path:"),
             Tr::tr("Register documentation:")
-        };
+        });
     }
 };
 

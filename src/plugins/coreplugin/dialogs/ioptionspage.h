@@ -17,7 +17,6 @@ namespace Internal {
 class IOptionsPageWidgetPrivate;
 class IOptionsPagePrivate;
 class IOptionsPageProviderPrivate;
-class SettingsMode;
 } // namespace Internal
 
 class CORE_EXPORT IOptionsPageWidget : public QWidget
@@ -31,12 +30,17 @@ public:
     void setOnApply(const std::function<void()> &func);
     void setOnCancel(const std::function<void()> &func);
 
-protected:
-    friend class IOptionsPage;
     virtual void apply();
     virtual void cancel();
 
+    void setupDirtyHook(QWidget *widget);
+    void gotDirty();
+
+signals:
+    void dirtyChanged(bool dirty);
+
 private:
+    friend class Internal::IOptionsPagePrivate;
     std::unique_ptr<Internal::IOptionsPageWidgetPrivate> d;
 };
 
@@ -52,34 +56,28 @@ public:
         Utils::Id id, const QString &displayName, const Utils::FilePath &iconPath);
     static const QList<IOptionsPage *> allOptionsPages();
 
+    IOptionsPageWidget *createWidget();
+
     Utils::Id id() const;
     QString displayName() const;
     Utils::Id category() const;
     QString displayCategory() const;
     Utils::FilePath categoryIconPath() const;
+    bool recreateOnCancel() const;
+
     std::optional<Utils::AspectContainer *> aspects() const;
-
-    using WidgetCreator = std::function<QWidget *()>;
-    void setWidgetCreator(const WidgetCreator &widgetCreator);
-
-    virtual QWidget *widget();
-    virtual void apply();
-    virtual void cancel();
-
-    virtual bool matches(const QRegularExpression &regexp) const;
+    bool matches(const QRegularExpression &regexp) const;
 
 protected:
-    virtual QStringList keywords() const;
-
     void setId(Utils::Id id);
     void setDisplayName(const QString &displayName);
     void setCategory(Utils::Id category);
     void setSettingsProvider(const std::function<Utils::AspectContainer *()> &provider);
+    void setWidgetCreator(const std::function<IOptionsPageWidget *()> &widgetCreator);
+    void setFixedKeywords(const QStringList &);
+    void setRecreateOnCancel(bool on);
 
 private:
-    friend class Core::Internal::SettingsMode; // for deleteWidget
-    void deleteWidget();
-
     std::unique_ptr<Internal::IOptionsPagePrivate> d;
 };
 

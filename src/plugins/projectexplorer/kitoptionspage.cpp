@@ -27,6 +27,7 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
+using namespace Core;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -56,8 +57,8 @@ class KitManagerConfigWidget;
 class KitNode : public TreeItem
 {
 public:
-    KitNode(Kit *k, KitModel *m, QBoxLayout *parentLayout)
-        : m_kit(k), m_model(m), m_parentLayout(parentLayout)
+    KitNode(Kit *k, KitModel *m, QBoxLayout *parentLayout, IOptionsPageWidget *pageWidget)
+        : m_kit(k), m_model(m), m_parentLayout(parentLayout), m_pageWidget(pageWidget)
     {}
 
     ~KitNode() override { delete m_widget; }
@@ -162,6 +163,7 @@ private:
     KitModel * const m_model;
     KitManagerConfigWidget *m_widget = nullptr;
     QBoxLayout * const m_parentLayout;
+    Core::IOptionsPageWidget * const m_pageWidget;
     bool m_isDefaultKit = false;
     bool m_hasUniqueName = true;
 };
@@ -173,7 +175,7 @@ class KitModel : public TreeModel<TreeItem, TreeItem, KitNode>
     Q_OBJECT
 
 public:
-    explicit KitModel(QBoxLayout *parentLayout, QObject *parent = nullptr);
+    explicit KitModel(QBoxLayout *parentLayout, IOptionsPageWidget *pageWidget, QObject *parent);
 
     Kit *kit(const QModelIndex &);
     KitNode *kitNode(const QModelIndex &);
@@ -217,14 +219,15 @@ private:
 
     QList<KitNode *> m_toRemoveList;
 
-    QBoxLayout *m_parentLayout;
+    QBoxLayout * const  m_parentLayout;
+    IOptionsPageWidget * const m_pageWidget;
     KitNode *m_defaultNode = nullptr;
     Guard m_widgetConstructionGuard;
 };
 
-KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
+KitModel::KitModel(QBoxLayout *parentLayout, IOptionsPageWidget *pageWidget, QObject *parent)
     : TreeModel<TreeItem, TreeItem, KitNode>(parent),
-      m_parentLayout(parentLayout)
+    m_parentLayout(parentLayout), m_pageWidget(pageWidget)
 {
     setHeader(QStringList(Tr::tr("Name")));
     m_autoRoot = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
@@ -399,7 +402,7 @@ KitNode *KitModel::findWorkingCopy(Kit *k) const
 
 KitNode *KitModel::createNode(Kit *k)
 {
-    auto node = new KitNode(k, this, m_parentLayout);
+    auto node = new KitNode(k, this, m_parentLayout, m_pageWidget);
     return node;
 }
 
@@ -547,7 +550,7 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(horizontalLayout);
 
-    m_model = new Internal::KitModel(verticalLayout, this);
+    m_model = new Internal::KitModel(verticalLayout, this, this);
     connect(m_model, &Internal::KitModel::kitStateChanged,
             this, &KitOptionsPageWidget::updateState);
     verticalLayout->setStretch(0, 1);
@@ -722,6 +725,7 @@ void KitNode::ensureWidget()
     m_model->handleWidgetConstructionStart();
 
     m_widget = new KitManagerConfigWidget(m_kit, m_isDefaultKit, m_hasUniqueName);
+    m_pageWidget->setupDirtyHook(m_widget);
 
     QObject::connect(m_widget, &KitManagerConfigWidget::dirty, m_model, [this] { update(); });
 

@@ -258,8 +258,6 @@ class MimeTypeSettingsPage final : public IOptionsPage
 public:
     MimeTypeSettingsPage();
 
-    QStringList keywords() const final;
-
     void writeUserModifiedMimeTypes();
 
 public:
@@ -740,18 +738,7 @@ MimeTypeSettingsPage::MimeTypeSettingsPage()
     setDisplayName(Tr::tr("MIME Types"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setWidgetCreator([this] { return new MimeTypeSettingsWidget(this); });
-
-    m_filterModel.setSourceModel(&m_model);
-    m_filterModel.setFilterKeyColumn(-1);
-    m_filterModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
-
-    m_userModifiedMimeTypes = readUserModifiedMimeTypes();
-    Utils::addMimeInitializer([this] { registerUserModifiedMimeTypes(m_userModifiedMimeTypes); });
-}
-
-QStringList MimeTypeSettingsPage::keywords() const
-{
-    return {
+    setFixedKeywords({
         Tr::tr("Reset MIME Types"),
         Tr::tr("Reset Handlers"),
         Tr::tr("Registered MIME Types"),
@@ -760,7 +747,14 @@ QStringList MimeTypeSettingsPage::keywords() const
         Tr::tr("Edit..."),
         Tr::tr("Remove"),
         Tr::tr("Details")
-    };
+    });
+
+    m_filterModel.setSourceModel(&m_model);
+    m_filterModel.setFilterKeyColumn(-1);
+    m_filterModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
+
+    m_userModifiedMimeTypes = readUserModifiedMimeTypes();
+    Utils::addMimeInitializer([this] { registerUserModifiedMimeTypes(m_userModifiedMimeTypes); });
 }
 
 QWidget *MimeEditorDelegate::createEditor(QWidget *parent,

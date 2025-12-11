@@ -45,8 +45,7 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 QVariant ToolchainTreeItem::data(int column, int role) const
 {
@@ -285,6 +284,9 @@ public:
 
         m_widgetStack = new QStackedWidget;
         m_container->setWidget(m_widgetStack);
+        connect(m_widgetStack, &QStackedWidget::widgetAdded, this, [this](int index) {
+            setupDirtyHook(m_widgetStack->widget(index));
+        });
 
         const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
             ToolchainBundle::HandleMissing::CreateAndRegister);
@@ -738,5 +740,4 @@ ToolChainOptionsPage::ToolChainOptionsPage()
     setWidgetCreator([] { return new ToolChainOptionsWidget; });
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal
