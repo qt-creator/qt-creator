@@ -272,8 +272,8 @@ void ParserThread::checkProtocolVersion(const QString &versionStr)
     const int version = versionStr.toInt(&ok);
     if (!ok)
         throw ParserException{Tr::tr("Could not parse protocol version from \"%1\"").arg(versionStr)};
-    if (version != 4)
-        throw ParserException{Tr::tr("XmlProtocol version %1 not supported (supported version: 4)").arg(version)};
+    if (version < 4 || version > 6)
+        throw ParserException{Tr::tr("XmlProtocol version %1 not supported (supported versions: %2-%3)").arg(version).arg(4).arg(6)};
 }
 
 void ParserThread::checkTool(const QString &reportedStr)
@@ -398,6 +398,10 @@ void ParserThread::parseError()
             e.setTid(parseInt64(blockingReadElementText(), "error/tid"));
         } else if (name == QLatin1String("kind")) { //TODO this is memcheck-specific:
             e.setKind(parseErrorKind(blockingReadElementText()));
+        } else if (name == QLatin1String("fd")) {
+            e.setFd(parseInt64(blockingReadElementText(), "error/fd"));
+        } else if (name == QLatin1String("path")) {
+            e.setPath(blockingReadElementText());
         } else if (name == QLatin1String("suppression")) {
             e.setSuppression(parseSuppression());
         } else if (name == QLatin1String("xwhat")) {

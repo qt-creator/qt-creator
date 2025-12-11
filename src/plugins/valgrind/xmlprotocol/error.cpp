@@ -27,6 +27,8 @@ public:
     quint64 leakedBytes = 0;
     qint64 leakedBlocks = 0;
     qint64 hThreadId = -1;
+    qint64 fd = -1;
+    QString path;
 
     bool operator==(const Private &other) const
     {
@@ -38,7 +40,9 @@ public:
                 && suppression == other.suppression
                 && leakedBytes == other.leakedBytes
                 && leakedBlocks == other.leakedBlocks
-                && hThreadId == other.hThreadId;
+                && hThreadId == other.hThreadId
+                && fd == other.fd
+                && path == other.path;
     }
 };
 
@@ -123,6 +127,26 @@ void Error::setLeakedBlocks(qint64 b)
     d->leakedBlocks = b;
 }
 
+qint64 Error::fd() const
+{
+    return d->fd;
+}
+
+void Error::setFd(qint64 fd)
+{
+    d->fd = fd;
+}
+
+QString Error::path() const
+{
+    return d->path;
+}
+
+void Error::setPath(const QString &path)
+{
+    d->path = path;
+}
+
 QString Error::what() const
 {
     return d->what;
@@ -171,6 +195,11 @@ QString Error::toXml() const
     stream << "  <unique>" << d->unique << "</unique>\n";
     stream << "  <tid>" << d->tid << "</tid>\n";
     stream << "  <kind>" << d->kind << "</kind>\n";
+    if (d->fd != -1) {
+        stream << "  <fd>" << d->fd << "</fd>\n";
+        if (!d->path.isEmpty())
+            stream << "  <path>" << d->path << "</path>\n";
+    }
     if (d->leakedBlocks > 0 && d->leakedBytes > 0) {
         stream << "  <xwhat>\n"
                << "    <text>" << d->what << "</text>\n"

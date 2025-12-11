@@ -413,6 +413,10 @@ MemcheckTool::MemcheckTool(QObject *parent)
     initKindFilterAction(a, { InvalidFree,  MismatchedFree });
     m_errorFilterActions.append(a);
 
+    a = new QAction(Tr::tr("File Descriptor Issues"), this);
+    initKindFilterAction(a, { FdBadClose, FdNotClosed, FdBadUse });
+    m_errorFilterActions.append(a);
+
     m_errorView = new MemcheckErrorView;
     m_errorView->setObjectName("MemcheckErrorView");
     m_errorView->setFrameStyle(QFrame::NoFrame);

@@ -46,6 +46,9 @@ enum MemcheckError
     MismatchedAllocateDeallocateAlignment,
     FishyValue,
     // CoreMemError    // questionable, seems to be unlikely to happen
+    FdBadClose,
+    FdNotClosed,
+    FdBadUse,
 };
 Q_ENUM_NS(MemcheckError);
 
@@ -108,6 +111,12 @@ public:
 
     qint64 leakedBlocks() const;
     void setLeakedBlocks(qint64 blocks);
+
+    qint64 fd() const;
+    void setFd(qint64 fd);
+
+    QString path() const;
+    void setPath(const QString &path);
 
     //helgrind
     qint64 helgrindThreadId() const;
