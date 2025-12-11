@@ -390,7 +390,7 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
         && infoBar->canInfoBeAdded(installPylsInfoBarId)) {
         auto message = Tr::tr("Install Python language server (PyLS) for %1 (%2). "
                               "The language server provides Python specific completion and annotation.")
-                           .arg(pythonName(python), python.toUserOutput());
+                           .arg(pythonVersion(python), python.toUserOutput());
         InfoBarEntry info(installPylsInfoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
         info.addCustomButton(Tr::tr("Install"), [this, python, document, state] {
             installPythonLanguageServer(python, document, state.pylsModulePath, false, false);
@@ -400,7 +400,7 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
     } else if (state.state == PythonLanguageServerState::Updatable) {
         if (infoBar->canInfoBeAdded(updatePylsInfoBarId)) {
             auto message = Tr::tr("Update Python language server (PyLS) for %1 (%2).")
-                               .arg(pythonName(python), python.toUserOutput());
+                               .arg(pythonVersion(python), python.toUserOutput());
             InfoBarEntry info(updatePylsInfoBarId, message);
             info.addCustomButton(
                 Tr::tr("Always Update"),

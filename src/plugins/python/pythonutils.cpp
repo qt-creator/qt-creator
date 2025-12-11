@@ -18,6 +18,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
+#include <utils/datafromprocess.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronizedvalue.h>
@@ -137,25 +138,6 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
     }
 }
 
-QString pythonName(const FilePath &pythonPath)
-{
-    static QHash<FilePath, QString> nameForPython;
-    if (!pythonPath.exists())
-        return {};
-    QString name = nameForPython.value(pythonPath);
-    if (name.isEmpty()) {
-        Process pythonProcess;
-        pythonProcess.setCommand({pythonPath, {"--version"}});
-        using namespace std::chrono_literals;
-        pythonProcess.runBlocking(2s);
-        if (pythonProcess.result() != ProcessResult::FinishedWithSuccess)
-            return {};
-        name = pythonProcess.allOutput().trimmed();
-        nameForPython[pythonPath] = name;
-    }
-    return name;
-}
-
 PythonProject *pythonProjectForFile(const FilePath &file)
 {
     for (Project *project : ProjectManager::projects()) {
@@ -207,26 +189,13 @@ bool pipIsUsable(const FilePath &python)
 
 QString pythonVersion(const FilePath &python)
 {
-    static QReadWriteLock lock;
-    static QMap<FilePath, QString> versionCache;
-
-    {
-        QReadLocker locker(&lock);
-        auto it = versionCache.constFind(python);
-        if (it != versionCache.constEnd())
-            return *it;
-    }
-
-    Process p;
-    p.setCommand({python, {"--version"}});
-    p.runBlocking();
-    if (p.result() == ProcessResult::FinishedWithSuccess) {
-        const QString version = p.readAllStandardOutput().trimmed();
-        QWriteLocker locker(&lock);
-        versionCache.insert(python, version);
-        return version;
-    }
-    return QString();
+    DataFromProcess<QString>::Parameters
+        params({python, {"--version"}}, [](const QString &stdOut, const QString &) {
+            return stdOut.trimmed();
+        });
+    if (const std::optional<QString> version = DataFromProcess<QString>::getData(params))
+        return *version;
+    return {};
 }
 
 } // namespace Python::Internal

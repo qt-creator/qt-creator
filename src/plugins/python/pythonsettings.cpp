@@ -129,13 +129,7 @@ Interpreter PythonSettings::createInterpreter(
     result.command = python;
     result.detectionSource = detectionSource;
 
-    Process pythonProcess;
-    pythonProcess.setProcessChannelMode(QProcess::MergedChannels);
-    pythonProcess.setCommand({python, {"--version"}});
-    using namespace std::chrono_literals;
-    pythonProcess.runBlocking(1s);
-    if (pythonProcess.result() == ProcessResult::FinishedWithSuccess)
-        result.name = pythonProcess.cleanedStdOut().trimmed();
+    result.name = pythonVersion(python);
     if (result.name.isEmpty())
         result.name = defaultName;
     QDir pythonDir(python.parentDir().toUrlishString());
