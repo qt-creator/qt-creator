@@ -1927,7 +1927,8 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
     return res;
 }
 
-static QString calcRelativePath(QStringView absolutePath, QStringView absoluteAnchorPath)
+static QString calcRelativePath(
+    QStringView absolutePath, QStringView absoluteAnchorPath, Qt::CaseSensitivity caseSensitivity)
 {
     if (absolutePath.isEmpty() || absoluteAnchorPath.isEmpty())
         return QString();
@@ -1936,8 +1937,10 @@ static QString calcRelativePath(QStringView absolutePath, QStringView absoluteAn
     const QList<QStringView> splits1 = absolutePath.split('/');
     const QList<QStringView> splits2 = absoluteAnchorPath.split('/');
     int i = 0;
-    while (i < splits1.count() && i < splits2.count() && splits1.at(i) == splits2.at(i))
+    while (i < splits1.count() && i < splits2.count()
+           && splits1.at(i).compare(splits2.at(i), caseSensitivity) == 0) {
         ++i;
+    }
     QString relativePath;
     int j = i;
     bool addslash = false;
@@ -1986,7 +1989,8 @@ QString FilePath::relativePathFromDir(const FilePath &anchorDir) const
     const FilePath absPath = absoluteFilePath();
     const FilePath absoluteAnchorPath = anchorDir.absoluteFilePath();
 
-    QString relativeFilePath = calcRelativePath(absPath.pathView(), absoluteAnchorPath.pathView());
+    QString relativeFilePath = calcRelativePath(
+        absPath.pathView(), absoluteAnchorPath.pathView(), absoluteAnchorPath.caseSensitivity());
 
     return relativeFilePath;
 }

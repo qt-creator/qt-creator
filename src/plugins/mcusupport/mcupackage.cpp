@@ -417,7 +417,7 @@ Toolchain *McuToolchainPackage::msvcToolchain(Id language)
 {
     Toolchain *toolChain = ToolchainManager::toolchain([language](const Toolchain *t) {
         const Abi abi = t->targetAbi();
-        return abi.osFlavor() == Abi::WindowsMsvc2019Flavor
+        return abi.osFlavor() == Abi::WindowsMsvc2022Flavor
                && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
                && t->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
                && t->language() == language;

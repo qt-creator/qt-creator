@@ -395,10 +395,13 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
 void ProWriter::addFiles(ProFile *profile, QStringList *lines, const QStringList &values,
                          const QString &var, const QString &continuationIndent)
 {
+    qCDebug(prowriterLog) << Q_FUNC_INFO << values;
+
     using namespace Utils;
     QStringList valuesToWrite;
     QString prefixPwd;
     FilePath baseDir = FilePath::fromString(profile->fileName()).parentDir();
+    qCDebug(prowriterLog) << "base dir:" << baseDir;
     if (profile->fileName().endsWith(".pri"))
         prefixPwd = "$$PWD/";
     for (const QString &v : values) {
@@ -410,7 +413,9 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines, const QStringList
          */
         if (!tmp.isSameDevice(baseDir))
             tmp = FilePath::fromParts(baseDir.scheme(), baseDir.host(), tmp.path());
-        valuesToWrite << (prefixPwd + tmp.relativePathFromDir(baseDir));
+        const QString relPath = tmp.relativePathFromDir(baseDir);
+        qCDebug(prowriterLog) << "relative path from" << baseDir << "to" << tmp << "is" << relPath;
+        valuesToWrite << (prefixPwd + relPath);
     }
 
     putVarValues(profile, lines, valuesToWrite, var, AppendValues | MultiLine | AppendOperator,

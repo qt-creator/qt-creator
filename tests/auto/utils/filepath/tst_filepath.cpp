@@ -522,6 +522,11 @@ void tst_filepath::relativePathFromDir_data()
     QTest::newRow("normal3") << "/a/b/c"
                              << "/x/y"
                              << "../../a/b/c";
+    if (HostOsInfo::isWindowsHost()) {
+        QTest::newRow("different drive letter case") << "C:/myproject/main.cpp"
+                                                     << "c:/myproject"
+                                                     << "main.cpp";
+    }
 }
 
 void tst_filepath::relativePathFromDir()

@@ -62,7 +62,15 @@ public:
 
     ~KitNode() override { delete m_widget; }
 
-    Kit *kit() const { return m_kit; }
+    Kit *kit() const
+    {
+        if (m_widget) {
+            // This is initially the same as m_kit, but potentially gets updated by
+            // "apply" actions. See QTCREATORBUG-33829.
+            return m_widget->kit();
+        }
+        return m_kit;
+    }
 
     QVariant data(int, int role) const override
     {

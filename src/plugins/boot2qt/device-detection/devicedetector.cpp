@@ -9,6 +9,7 @@
 #include "../qdbutils.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 
 #include <utils/qtcassert.h>
 
@@ -16,6 +17,7 @@
 #include <QObject>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Qdb::Internal {
 
@@ -87,19 +89,28 @@ void DeviceDetector::handleDeviceEvent(QdbDeviceTracker::DeviceEventType eventTy
         const QString ipAddress = info["ipAddress"];
         device->setupDefaultNetworkSettings(ipAddress);
 
-        IDevice::DeviceState state;
-        if (ipAddress.isEmpty())
-            state = IDevice::DeviceConnected;
-        else
-            state = IDevice::DeviceReadyToUse;
+        if (const QdbDevice::Ptr existing = std::static_pointer_cast<QdbDevice>(
+                DeviceManager::find(deviceId));
+            existing && existing->sshParameters() == device->sshParameters()) {
+            device = existing;
+        } else {
+            DeviceManager::addDevice(device);
+        }
 
-        DeviceManager::addDevice(device);
-        device->setDeviceState(state);
-
-        if (state == IDevice::DeviceConnected)
-            showMessage(messagePrefix.arg("connected, waiting for IP"), false);
-        else
-            showMessage(messagePrefix.arg("is ready to use at ").append(ipAddress), false);
+        if (ipAddress.isEmpty()) {
+            device->setDeviceState(IDevice::DeviceDisconnected);
+            showMessage(messagePrefix.arg("waiting for IP"), false);
+        } else if (device->deviceState() != IDevice::DeviceReadyToUse) {
+            device->tryToConnect(
+                {this, [ipAddress, messagePrefix](const Result<> &res) {
+                     if (res.has_value())
+                         showMessage(
+                             messagePrefix.arg("is ready to use at ").append(ipAddress), false);
+                     else
+                         showMessage(
+                             messagePrefix.arg("failed to connect to ").append(ipAddress), true);
+                 }});
+        }
     } else if (eventType == QdbDeviceTracker::DisconnectedDevice) {
         DeviceManager::setDeviceState(deviceId, IDevice::DeviceDisconnected);
         showMessage(messagePrefix.arg("disconnected"), false);
