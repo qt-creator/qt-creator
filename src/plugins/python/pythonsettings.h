@@ -65,6 +65,8 @@ public:
     static void listDetectedPython(
         const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
 
+    static QString defaultInterpreterId();
+
 signals:
     void interpretersChanged(const QList<Interpreter> &interpreters, const QString &defaultId);
     void pylsConfigurationChanged(const QString &configuration);
@@ -89,7 +91,15 @@ private:
 
 void setupPythonSettings();
 
-Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(
-    QObject *parent, const std::function<bool(QString)> &isDefaultId = {});
+class InterpreterModel final : public Utils::ListModel<PythonSettings::Interpreter>
+{
+public:
+    explicit InterpreterModel(const std::function<bool(QString)> &isDefaultId);
+
+    void addInterpreter(const PythonSettings::Interpreter &interpreter);
+    void removeInterpreterFrom(const QString &detectionSource);
+    QList<PythonSettings::Interpreter> interpreters() const;
+    QList<PythonSettings::Interpreter> interpreterFrom(const QString &detectionSource) const;
+};
 
 } // Python::Internal

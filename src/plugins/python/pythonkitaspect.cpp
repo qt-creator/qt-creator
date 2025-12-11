@@ -37,7 +37,10 @@ public:
             setSourceModel(nullptr);
             model->deleteLater();
         }
-        ListModel<Interpreter> * const model = createInterpreterModel(this);
+        InterpreterModel * const model = new InterpreterModel([](const QString &id) {
+            return id == PythonSettings::defaultInterpreter().id;
+        });
+        model->setParent(this);
         model->setAllData(model->allData() << Interpreter("none", {}, {}));
         setSourceModel(model);
     }

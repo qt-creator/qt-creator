@@ -63,6 +63,61 @@ using namespace Utils;
 
 namespace Python::Internal {
 
+// This is defacto the unapplied state of PythonSettings::defaultInterpreter().id()
+static QString s_defaultId;
+
+InterpreterModel::InterpreterModel(const std::function<bool(QString)> &isDefaultId)
+{
+    setDataAccessor([isDefaultId](const Interpreter &interpreter, int column, int role) -> QVariant {
+        if (interpreter.id == "none") {
+            if (role == Qt::DisplayRole)
+                return Tr::tr("None", "No Python interpreter");
+            if (role == KitAspect::IsNoneRole)
+                return true;
+            return {};
+        }
+        switch (role) {
+        case Qt::DisplayRole:
+            return interpreter.name;
+        case Qt::FontRole: {
+            QFont f;
+            f.setBold(isDefaultId && isDefaultId(interpreter.id));
+            return f;
+        }
+        case Qt::ToolTipRole:
+            if (!interpreter.command.isLocal())
+                break;
+            if (interpreter.command.isEmpty())
+                return Tr::tr("Executable is empty.");
+            if (!interpreter.command.exists())
+                return Tr::tr("\"%1\" does not exist.").arg(interpreter.command.toUserOutput());
+            if (!interpreter.command.isExecutableFile())
+                return Tr::tr("\"%1\" is not an executable file.")
+                    .arg(interpreter.command.toUserOutput());
+            break;
+        case Qt::DecorationRole:
+            if (column == 0 && !PythonSettings::interpreterIsValid(interpreter))
+                return Utils::Icons::CRITICAL.icon();
+            break;
+        case KitAspect::IdRole:
+            return interpreter.id;
+        case KitAspect::QualityRole:
+            return int(PythonSettings::interpreterIsValid(interpreter));
+        default:
+            break;
+        }
+        return {};
+    });
+    setAllData(PythonSettings::interpreters());
+}
+
+// This is defacto the unapplied state of PythonSettings::interpreters()
+InterpreterModel &interpreterModel()
+{
+    static InterpreterModel theInterpreterModel([](const QString &id) { return id == s_defaultId; });
+    return theInterpreterModel;
+}
+
 Interpreter PythonSettings::createInterpreter(
     const FilePath &python,
     const QString &defaultName,
@@ -144,22 +199,23 @@ class InterpreterOptionsWidget : public Core::IOptionsPageWidget
 public:
     InterpreterOptionsWidget();
 
-    void apply() override;
+    void apply() override
+    {
+        PythonSettings::setInterpreter(interpreterModel().interpreters(), s_defaultId);
+    }
 
-    void addInterpreter(const Interpreter &interpreter);
-    void removeInterpreterFrom(const QString &detectionSource);
-    QList<Interpreter> interpreters() const;
-    QList<Interpreter> interpreterFrom(const QString &detectionSource) const;
+    void cancel() override
+    {
+        s_defaultId = PythonSettings::defaultInterpreterId();
+    }
 
 private:
     QTreeView *m_view = nullptr;
-    ListModel<Interpreter> * const m_model;
     InterpreterDetailsWidget *m_detailsWidget = nullptr;
     QPushButton *m_deleteButton = nullptr;
     QPushButton *m_makeDefaultButton = nullptr;
     QPushButton *m_generateKitButton = nullptr;
     QPushButton *m_cleanButton = nullptr;
-    QString m_defaultId;
 
     void currentChanged(const QModelIndex &index, const QModelIndex &previous);
     void detailsChanged();
@@ -173,9 +229,7 @@ private:
 };
 
 InterpreterOptionsWidget::InterpreterOptionsWidget()
-    : m_model(createInterpreterModel(this, [this](const QString &id) { return id == m_defaultId ; }))
-    , m_detailsWidget(new InterpreterDetailsWidget(this))
-    , m_defaultId(PythonSettings::defaultInterpreter().id)
+    : m_detailsWidget(new InterpreterDetailsWidget(this))
 {
     auto addButton = new QPushButton(Tr::tr("&Add"), this);
 
@@ -211,7 +265,7 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
 
     m_detailsWidget->hide();
 
-    m_view->setModel(m_model);
+    m_view->setModel(&interpreterModel());
     m_view->setHeaderHidden(true);
     m_view->setSelectionMode(QAbstractItemView::SingleSelection);
     m_view->setSelectionBehavior(QAbstractItemView::SelectItems);
@@ -228,34 +282,29 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
             this, &InterpreterOptionsWidget::currentChanged);
 }
 
-void InterpreterOptionsWidget::apply()
+void InterpreterModel::addInterpreter(const Interpreter &interpreter)
 {
-    PythonSettings::setInterpreter(interpreters(), m_defaultId);
+    appendItem(interpreter);
 }
 
-void InterpreterOptionsWidget::addInterpreter(const Interpreter &interpreter)
+void InterpreterModel::removeInterpreterFrom(const QString &detectionSource)
 {
-    m_model->appendItem(interpreter);
-}
-
-void InterpreterOptionsWidget::removeInterpreterFrom(const QString &detectionSource)
-{
-    m_model->destroyItems([&detectionSource](const Interpreter &interpreter) {
+    destroyItems([&detectionSource](const Interpreter &interpreter) {
         return interpreter.detectionSource.id == detectionSource;
     });
 }
 
-QList<Interpreter> InterpreterOptionsWidget::interpreters() const
+QList<Interpreter> InterpreterModel::interpreters() const
 {
     QList<Interpreter> interpreters;
-    for (const TreeItem *treeItem : *m_model)
+    for (const TreeItem *treeItem : *this)
         interpreters << static_cast<const ListItem<Interpreter> *>(treeItem)->itemData;
     return interpreters;
 }
 
-QList<Interpreter> InterpreterOptionsWidget::interpreterFrom(const QString &detectionSource) const
+QList<Interpreter> InterpreterModel::interpreterFrom(const QString &detectionSource) const
 {
-    return m_model->allData([&detectionSource](const Interpreter &interpreter) {
+    return allData([&detectionSource](const Interpreter &interpreter) {
         return interpreter.detectionSource.id == detectionSource;
     });
 }
@@ -263,11 +312,11 @@ QList<Interpreter> InterpreterOptionsWidget::interpreterFrom(const QString &dete
 void InterpreterOptionsWidget::currentChanged(const QModelIndex &index, const QModelIndex &previous)
 {
     if (previous.isValid()) {
-        m_model->itemAt(previous.row())->itemData = m_detailsWidget->toInterpreter();
-        emit m_model->dataChanged(previous, previous);
+        interpreterModel().itemAt(previous.row())->itemData = m_detailsWidget->toInterpreter();
+        emit interpreterModel().dataChanged(previous, previous);
     }
     if (index.isValid()) {
-        const Interpreter interpreter = m_model->itemAt(index.row())->itemData;
+        const Interpreter interpreter = interpreterModel().itemAt(index.row())->itemData;
         m_detailsWidget->updateInterpreter(interpreter);
         m_detailsWidget->show();
         updateGenerateKitButton(interpreter);
@@ -284,8 +333,8 @@ void InterpreterOptionsWidget::detailsChanged()
     const QModelIndex &index = m_view->currentIndex();
     if (index.isValid()) {
         const Interpreter interpreter = m_detailsWidget->toInterpreter();
-        m_model->itemAt(index.row())->itemData = interpreter;
-        emit m_model->dataChanged(index, index);
+        interpreterModel().itemAt(index.row())->itemData = interpreter;
+        emit interpreterModel().dataChanged(index, index);
         updateGenerateKitButton(interpreter);
     }
     updateCleanButton();
@@ -293,7 +342,7 @@ void InterpreterOptionsWidget::detailsChanged()
 
 void InterpreterOptionsWidget::updateCleanButton()
 {
-    m_cleanButton->setEnabled(Utils::anyOf(m_model->allData(), [](const Interpreter &interpreter) {
+    m_cleanButton->setEnabled(Utils::anyOf(interpreterModel().allData(), [](const Interpreter &interpreter) {
         return !interpreter.command.isExecutableFile();
     }));
 }
@@ -307,7 +356,7 @@ void InterpreterOptionsWidget::updateGenerateKitButton(const Interpreter &interp
 
 void InterpreterOptionsWidget::addItem()
 {
-    const QModelIndex &index = m_model->indexForItem(m_model->appendItem(
+    const QModelIndex &index = interpreterModel().indexForItem(interpreterModel().appendItem(
         {QUuid::createUuid().toString(), QString("Python"), FilePath(), DetectionSource::Manual}));
     QTC_ASSERT(index.isValid(), return);
     m_view->setCurrentIndex(index);
@@ -318,58 +367,8 @@ void InterpreterOptionsWidget::deleteItem()
 {
     const QModelIndex &index = m_view->currentIndex();
     if (index.isValid())
-        m_model->destroyItem(m_model->itemAt(index.row()));
+        interpreterModel().destroyItem(interpreterModel().itemAt(index.row()));
     updateCleanButton();
-}
-
-class InterpreterOptionsPage : public Core::IOptionsPage
-{
-public:
-    InterpreterOptionsPage()
-    {
-        setId(Constants::C_PYTHONOPTIONS_PAGE_ID);
-        setDisplayName(Tr::tr("Interpreters"));
-        setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
-        setWidgetCreator([] { return new InterpreterOptionsWidget(); });
-    }
-
-    QList<Interpreter> interpreters()
-    {
-        return static_cast<InterpreterOptionsWidget *>(widget())->interpreters();
-    }
-
-    void addInterpreter(const Interpreter &interpreter)
-    {
-        static_cast<InterpreterOptionsWidget *>(widget())->addInterpreter(interpreter);
-    }
-
-    void removeInterpreterFrom(const QString &detectionSource)
-    {
-        static_cast<InterpreterOptionsWidget *>(widget())->removeInterpreterFrom(detectionSource);
-    }
-
-    QList<Interpreter> interpreterFrom(const QString &detectionSource)
-    {
-        return static_cast<InterpreterOptionsWidget *>(widget())->interpreterFrom(detectionSource);
-    }
-
-    QStringList keywords() const final
-    {
-        return {
-            Tr::tr("Name:"),
-            Tr::tr("Executable"),
-            Tr::tr("&Add"),
-            Tr::tr("&Delete"),
-            Tr::tr("&Clean Up"),
-            Tr::tr("&Make Default")
-        };
-    }
-};
-
-static InterpreterOptionsPage &interpreterOptionsPage()
-{
-    static InterpreterOptionsPage page;
-    return page;
 }
 
 static const QStringList &plugins()
@@ -536,13 +535,13 @@ void InterpreterOptionsWidget::makeDefault()
 {
     const QModelIndex &index = m_view->currentIndex();
     if (index.isValid()) {
-        QModelIndex defaultIndex = m_model->findIndex([this](const Interpreter &interpreter) {
-            return interpreter.id == m_defaultId;
+        QModelIndex defaultIndex = interpreterModel().findIndex([](const Interpreter &interpreter) {
+            return interpreter.id == s_defaultId;
         });
-        m_defaultId = m_model->itemAt(index.row())->itemData.id;
-        emit m_model->dataChanged(index, index, {Qt::FontRole});
+        s_defaultId = interpreterModel().itemAt(index.row())->itemData.id;
+        emit interpreterModel().dataChanged(index, index, {Qt::FontRole});
         if (defaultIndex.isValid())
-            emit m_model->dataChanged(defaultIndex, defaultIndex, {Qt::FontRole});
+            emit interpreterModel().dataChanged(defaultIndex, defaultIndex, {Qt::FontRole});
     }
 }
 
@@ -550,13 +549,13 @@ void InterpreterOptionsWidget::generateKit()
 {
     const QModelIndex &index = m_view->currentIndex();
     if (index.isValid())
-        PythonSettings::addKitsForInterpreter(m_model->itemAt(index.row())->itemData, true);
+        PythonSettings::addKitsForInterpreter(interpreterModel().itemAt(index.row())->itemData, true);
     m_generateKitButton->setEnabled(false);
 }
 
 void InterpreterOptionsWidget::cleanUp()
 {
-    m_model->destroyItems(
+    interpreterModel().destroyItems(
         [](const Interpreter &interpreter) { return !interpreter.command.isExecutableFile(); });
     updateCleanButton();
 }
@@ -758,9 +757,10 @@ PythonSettings::PythonSettings()
     if (m_defaultInterpreterId.isEmpty())
         m_defaultInterpreterId = idForPythonFromPath(m_interpreters);
 
+    s_defaultId = m_defaultInterpreterId;
+
     writeToSettings(Core::ICore::settings());
 
-    interpreterOptionsPage();
     pylspOptionsPage();
 }
 
@@ -1128,6 +1128,11 @@ void PythonSettings::writeToSettings(QtcSettings *settings)
     settings->endGroup();
 }
 
+QString PythonSettings::defaultInterpreterId()
+{
+    return settingsInstance->m_defaultInterpreterId;
+}
+
 std::optional<ExecutableItem> PythonSettings::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
@@ -1165,7 +1170,7 @@ std::optional<ExecutableItem> PythonSettings::autoDetect(
 
     const auto searchDone = [detectionSource, logCallback](const Async<Interpreter> &task) {
         for (const auto &interpreter : task.results()) {
-            interpreterOptionsPage().addInterpreter(interpreter);
+            interpreterModel().addInterpreter(interpreter);
             logCallback(
                 Tr::tr("Found \"%1\" (%2).")
                     .arg(interpreter.name, interpreter.command.toUserOutput()));
@@ -1178,16 +1183,16 @@ std::optional<ExecutableItem> PythonSettings::autoDetect(
 void PythonSettings::removeDetectedPython(
     const QString &detectionSource, const LogCallback &logCallback)
 {
-    for (Interpreter &interpreter : interpreterOptionsPage().interpreterFrom(detectionSource))
+    for (Interpreter &interpreter : interpreterModel().interpreterFrom(detectionSource))
         logCallback(Tr::tr("Removing Python: %1.").arg(interpreter.name));
 
-    interpreterOptionsPage().removeInterpreterFrom(detectionSource);
+    interpreterModel().removeInterpreterFrom(detectionSource);
 }
 
 void PythonSettings::listDetectedPython(
     const QString &detectionSource, const LogCallback &logCallback)
 {
-    for (Interpreter &interpreter: interpreterOptionsPage().interpreterFrom(detectionSource))
+    for (Interpreter &interpreter: interpreterModel().interpreterFrom(detectionSource))
         logCallback(Tr::tr("Python: %1.").arg(interpreter.name));
 }
 
@@ -1236,56 +1241,33 @@ void setupPythonSettings()
     static GuardedObject thePythonSettings{new PythonSettings};
 }
 
-Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(
-    QObject *parent, const std::function<bool(QString)> &isDefaultId)
+// InterpreterOptionsPage
+
+class InterpreterOptionsPage : public Core::IOptionsPage
 {
-    const auto model = new ListModel<Interpreter>(parent);
-    model->setDataAccessor([isDefaultId](const Interpreter &interpreter, int column, int role) -> QVariant {
-        if (interpreter.id == "none") {
-            if (role == Qt::DisplayRole)
-                return Tr::tr("None", "No Python interpreter");
-            if (role == KitAspect::IsNoneRole)
-                return true;
-            return {};
-        }
-        switch (role) {
-        case Qt::DisplayRole:
-            return interpreter.name;
-        case Qt::FontRole: {
-            QFont f;
-            if (isDefaultId)
-                f.setBold(isDefaultId(interpreter.id));
-            else
-                f.setBold(interpreter.id == PythonSettings::defaultInterpreter().id);
-            return f;
-        }
-        case Qt::ToolTipRole:
-            if (!interpreter.command.isLocal())
-                break;
-            if (interpreter.command.isEmpty())
-                return Tr::tr("Executable is empty.");
-            if (!interpreter.command.exists())
-                return Tr::tr("\"%1\" does not exist.").arg(interpreter.command.toUserOutput());
-            if (!interpreter.command.isExecutableFile())
-                return Tr::tr("\"%1\" is not an executable file.")
-                    .arg(interpreter.command.toUserOutput());
-            break;
-        case Qt::DecorationRole:
-            if (column == 0 && !PythonSettings::interpreterIsValid(interpreter))
-                return Utils::Icons::CRITICAL.icon();
-            break;
-        case KitAspect::IdRole:
-            return interpreter.id;
-        case KitAspect::QualityRole:
-            return int(PythonSettings::interpreterIsValid(interpreter));
-        default:
-            break;
-        }
-        return {};
-    });
-    model->setAllData(PythonSettings::interpreters());
-    return model;
-}
+public:
+    InterpreterOptionsPage()
+    {
+        setId(Constants::C_PYTHONOPTIONS_PAGE_ID);
+        setDisplayName(Tr::tr("Interpreters"));
+        setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new InterpreterOptionsWidget; });
+    }
+
+    QStringList keywords() const final
+    {
+        return {
+            Tr::tr("Name:"),
+            Tr::tr("Executable"),
+            Tr::tr("&Add"),
+            Tr::tr("&Delete"),
+            Tr::tr("&Clean Up"),
+            Tr::tr("&Make Default")
+        };
+    }
+};
+
+static InterpreterOptionsPage page;
 
 } // Python::Internal
 
