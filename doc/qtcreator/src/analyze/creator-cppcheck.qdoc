@@ -21,7 +21,7 @@
     \list 1
         \li Go to \uicontrol Analyze > \uicontrol Cppcheck.
             \image {qtcreator-cppcheck-run-configuration.png} {Cppcheck run configuration}
-        \li In uicontrol Binary, enter the path to the Cppcheck executable file.
+        \li In \uicontrol Binary, enter the path to the Cppcheck executable file.
         \li In \uicontrol Checks, select the checks to perform.
             \note By default, Cppcheck uses multiple threads to perform checks.
             Select \uicontrol {Unused functions} to turn off the default
