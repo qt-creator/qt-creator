@@ -1582,15 +1582,19 @@ void QmakeBuildSystem::buildHelper(Action action, bool isFileBuild, QmakeProFile
             bc->setSubNodeBuild(profile->proFileNode());
     }
 
-    if (isFileBuild)
+    BuildStepList *buildSteps = bc->buildSteps();
+    if (isFileBuild) {
         bc->setFileNodeBuild(buildableFile);
+        if (BuildStepList * const bsl = bc->makeStepOnlyList(); !bsl->isEmpty())
+            buildSteps = bsl;
+    }
     if (ProjectExplorerPlugin::saveModifiedFiles()) {
         if (action == BUILD)
-            BuildManager::buildList(bc->buildSteps());
+            BuildManager::buildList(buildSteps);
         else if (action == CLEAN)
             BuildManager::buildList(bc->cleanSteps());
         else if (action == REBUILD)
-            BuildManager::buildLists({bc->cleanSteps(), bc->buildSteps()});
+            BuildManager::buildLists({bc->cleanSteps(), buildSteps});
     }
 
     bc->setSubNodeBuild(nullptr);

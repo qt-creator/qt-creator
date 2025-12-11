@@ -145,6 +145,13 @@ QList<BuildStep *> BuildStepList::steps() const
     return m_steps;
 }
 
+QList<BuildStep *> BuildStepList::takeSteps()
+{
+    QList<BuildStep *> steps = m_steps;
+    m_steps.clear();
+    return steps;
+}
+
 BuildStep *BuildStepList::firstStepWithId(Utils::Id id) const
 {
     return Utils::findOrDefault(m_steps, Utils::equal(&BuildStep::id, id));

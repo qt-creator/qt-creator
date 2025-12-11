@@ -7,6 +7,8 @@
 
 #include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtbuildaspects.h>
 
@@ -36,6 +38,8 @@ public:
 
     ProjectExplorer::FileNode *fileNodeBuild() const;
     void setFileNodeBuild(ProjectExplorer::FileNode *node);
+
+    ProjectExplorer::BuildStepList *makeStepOnlyList();
 
     QtSupport::QtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
     void setQMakeBuildConfiguration(QtSupport::QtVersion::QmakeBuildConfigs config);
@@ -133,6 +137,8 @@ private:
     QtSupport::QtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     QmakeProFileNode *m_subNodeBuild = nullptr;
     ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;
+    ProjectExplorer::BuildStepList
+        m_makeStepOnlyList{this, ProjectExplorer::Constants::BUILDSTEPS_BUILD};
 
     QMetaObject::Connection m_bsParsingFinishedConnection;
 };

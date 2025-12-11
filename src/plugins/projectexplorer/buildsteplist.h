@@ -28,6 +28,7 @@ public:
     void clear();
 
     QList<BuildStep *> steps() const;
+    QList<BuildStep *> takeSteps();
 
     template <class BS> BS *firstOfType() const {
         BS *bs = nullptr;

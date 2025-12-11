@@ -175,6 +175,8 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
 
 QmakeBuildConfiguration::~QmakeBuildConfiguration()
 {
+    m_makeStepOnlyList.takeSteps();
+
     // BuildSystem might send signals during destruction before this QObject
     // had a chance to disconnect from it.
     disconnect(m_bsParsingFinishedConnection);
@@ -336,6 +338,14 @@ FileNode *QmakeBuildConfiguration::fileNodeBuild() const
 void QmakeBuildConfiguration::setFileNodeBuild(FileNode *node)
 {
     m_fileNodeBuild = node;
+}
+
+BuildStepList *QmakeBuildConfiguration::makeStepOnlyList()
+{
+    m_makeStepOnlyList.takeSteps();
+    if (const auto makeStep = buildSteps()->firstStepWithId(Constants::MAKESTEP_BS_ID))
+        m_makeStepOnlyList.appendStep(makeStep);
+    return &m_makeStepOnlyList;
 }
 
 FilePath QmakeBuildConfiguration::makefile() const
