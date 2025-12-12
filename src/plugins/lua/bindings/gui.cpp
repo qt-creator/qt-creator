@@ -625,8 +625,8 @@ void setupGuiModule()
         auto qtcButton = gui.new_usertype<Utils::QtcWidgets::Button>(
             "QtcButton",
             sol::call_constructor,
-            sol::factories([](const sol::table &children) {
-                return constructWidgetType<Utils::QtcWidgets::Button>(children, nullptr);
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Utils::QtcWidgets::Button>(children, guard);
             }),
             "setText",
             &Utils::QtcWidgets::Button::setText,
