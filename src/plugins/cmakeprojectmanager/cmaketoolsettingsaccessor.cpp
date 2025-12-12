@@ -11,6 +11,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 
 #include <QDebug>
 #include <QGuiApplication>
@@ -122,8 +123,13 @@ CMakeToolSettingsAccessor::CMakeTools CMakeToolSettingsAccessor::restoreCMakeToo
     CMakeTools userTools = cmakeTools(restoreSettings(), false);
 
     //autodetect tools
-    std::vector<std::unique_ptr<CMakeTool>> autoDetectedTools
-        = CMakeToolManager::autoDetectCMakeTools(DeviceManager::defaultDesktopDevice());
+    const IDeviceConstPtr desktopDevice = DeviceManager::defaultDesktopDevice();
+    std::vector<std::unique_ptr<CMakeTool>> autoDetectedTools;
+    if (QTC_GUARD(desktopDevice)) {
+        const FilePath root = desktopDevice->rootPath();
+        autoDetectedTools = CMakeToolManager::autoDetectCMakeTools(
+            desktopDevice->systemEnvironment().mappedPath(root), root);
+    }
 
     //filter out the tools that were stored in SDK
     std::vector<std::unique_ptr<CMakeTool>> toRegister = mergeTools(sdkTools.cmakeTools,

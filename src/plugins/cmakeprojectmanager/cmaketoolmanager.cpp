@@ -299,29 +299,29 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
     }
 }
 
-std::vector<std::unique_ptr<CMakeTool> > CMakeToolManager::autoDetectCMakeTools(const IDeviceConstPtr &device)
+std::vector<std::unique_ptr<CMakeTool>> CMakeToolManager::autoDetectCMakeTools(
+    const FilePaths &searchPaths, const FilePath &rootPath)
 {
-    QTC_ASSERT(device, return {});
+    QStringList extraDirs;
 
-    FilePaths extraDirs;
-
-    if (device->osType() == OsTypeWindows) {
+    if (rootPath.osType() == OsTypeWindows) {
         for (const auto &envVar : QStringList{"ProgramFiles", "ProgramFiles(x86)", "ProgramW6432"}) {
             if (qtcEnvironmentVariableIsSet(envVar)) {
                 const QString progFiles = qtcEnvironmentVariable(envVar);
-                extraDirs.append(FilePath::fromUserInput(progFiles + "/CMake"));
-                extraDirs.append(FilePath::fromUserInput(progFiles + "/CMake/bin"));
+                extraDirs.append(progFiles + "/CMake");
+                extraDirs.append(progFiles + "/CMake/bin");
             }
         }
-    } else if (device->osType() == OsTypeMac) {
+    } else if (rootPath.osType() == OsTypeMac) {
         extraDirs.append("/Applications/CMake.app/Contents/bin");
         extraDirs.append("/usr/local/bin");    // homebrew intel
         extraDirs.append("/opt/homebrew/bin"); // homebrew arm
         extraDirs.append("/opt/local/bin");    // macports
     }
 
-    const FilePaths suspects
-        = device->rootPath().withNewMappedPath(FilePath("cmake")).searchAllInPath(extraDirs);
+    const FilePaths suspects = rootPath.withNewMappedPath(FilePath("cmake"))
+                                   .searchAllInDirectories(
+                                       searchPaths + FilePaths::resolvePaths(rootPath, extraDirs));
 
     std::vector<std::unique_ptr<CMakeTool>> found;
     for (const FilePath &command : std::as_const(suspects)) {
@@ -580,9 +580,11 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
         emit m_instance->defaultCMakeChanged();
 }
 
-void CMakeToolManager::handleDeviceToolDetectionRequest(Utils::Id devId)
+void CMakeToolManager::handleDeviceToolDetectionRequest(Utils::Id devId, const FilePaths &searchPaths)
 {
-    auto detected = autoDetectCMakeTools(DeviceManager::find(devId));
+    const IDeviceConstPtr dev = DeviceManager::find(devId);
+    QTC_ASSERT(dev, return);
+    auto detected = autoDetectCMakeTools(searchPaths, dev->rootPath());
     for (auto &&tool : detected) {
         if (!CMakeToolManager::findByCommand(tool->cmakeExecutable()))
             CMakeToolManager::registerCMakeTool(std::move(tool));

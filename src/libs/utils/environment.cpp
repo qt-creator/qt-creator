@@ -257,6 +257,11 @@ FilePaths Environment::path() const
     return pathListValue("PATH");
 }
 
+FilePaths Environment::mappedPath(const FilePath &anchor) const
+{
+    return transform(path(), [&anchor](const FilePath &fp) { return anchor.withNewMappedPath(fp); });
+}
+
 FilePaths Environment::pathListValue(const QString &varName) const
 {
     return pathListFromValue(expandedValueForKey(varName), osType());

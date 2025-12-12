@@ -7,7 +7,6 @@
 
 #include "cmaketool.h"
 
-#include <projectexplorer/devicesupport/idevicefwd.h>
 #include <projectexplorer/kitaspect.h>
 
 #include <utils/filepath.h>
@@ -40,7 +39,7 @@ public:
     static bool registerCMakeTool(std::unique_ptr<CMakeTool> &&tool);
     static void deregisterCMakeTool(const Utils::Id &id);
     static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools(
-        const ProjectExplorer::IDeviceConstPtr &device);
+        const Utils::FilePaths &searchPaths, const Utils::FilePath &rootPath);
 
     static CMakeKeywords defaultProjectOrDefaultCMakeKeyWords();
 
@@ -74,7 +73,7 @@ signals:
 private:
     static void saveCMakeTools();
     static void ensureDefaultCMakeToolIsValid();
-    void handleDeviceToolDetectionRequest(Utils::Id devId);
+    void handleDeviceToolDetectionRequest(Utils::Id devId, const Utils::FilePaths &searchPaths);
 };
 
 namespace Internal { void setupCMakeToolManager(QObject *guard); }

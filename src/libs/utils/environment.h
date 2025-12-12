@@ -71,6 +71,7 @@ public:
                           FilePath::MatchScope = FilePath::WithAnySuffix) const;
 
     FilePaths path() const;
+    FilePaths mappedPath(const FilePath &anchor) const;
     FilePaths pathListValue(const QString &varName) const;
     void setPathListValue(const QString &varName, const FilePaths &paths);
     static QString valueFromPathList(const FilePaths &paths, OsType osType);

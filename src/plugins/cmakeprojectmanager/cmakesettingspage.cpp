@@ -18,6 +18,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
+#include <utils/environment.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -694,7 +695,11 @@ void CMakeToolConfigWidget::setDefaultCMakeTool()
 void CMakeToolConfigWidget::redetect()
 {
     // Step 1: Detect
-    auto toAdd = CMakeToolManager::autoDetectCMakeTools(currentDevice());
+    const IDeviceConstPtr dev = currentDevice();
+    QTC_ASSERT(dev, return);
+    const FilePath root = dev->rootPath();
+    auto toAdd
+        = CMakeToolManager::autoDetectCMakeTools(dev->systemEnvironment().mappedPath(root), root);
 
     // Step 2: Match existing against newly detected.
     QList<Id> toRemove;
