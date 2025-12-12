@@ -9,16 +9,13 @@
 #include "qtversionmanager.h"
 #include "qtversionfactory.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/devicesupport/devicemanagermodel.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 
@@ -280,7 +277,7 @@ private:
     void updateDescriptionLabel();
     void userChangedCurrentVersion();
     void updateWidgets();
-    void setupLinkWithQtButton();
+    void updateLinkWithQtButton();
     IDeviceConstPtr currentDevice() const;
     QtVersion *currentVersion() const;
     QtVersionItem *currentItem() const;
@@ -418,8 +415,6 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     }.attachTo(this);
     // clang-format on
 
-    setupLinkWithQtButton();
-
     m_infoBrowser->setOpenLinks(false);
     m_infoBrowser->setTextInteractionFlags(Qt::TextBrowserInteraction);
     connect(m_infoBrowser, &QTextBrowser::anchorClicked,
@@ -483,12 +478,10 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     connect(m_editPathPushButton, &QAbstractButton::clicked,
             this, &QtSettingsPageWidget::editPath);
 
-    connect(addButton, &QAbstractButton::clicked,
-            this, &QtSettingsPageWidget::addQtDir);
-    connect(m_delButton, &QAbstractButton::clicked,
-            this, &QtSettingsPageWidget::removeQtDir);
-    connect(redetectButton, &QAbstractButton::clicked,
-            this, &QtSettingsPageWidget::redetect);
+    connect(addButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::addQtDir);
+    connect(m_delButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::removeQtDir);
+    connect(m_linkWithQtButton, &QPushButton::clicked, this, &LinkWithQtSupport::linkWithQt);
+    connect(redetectButton, &QAbstractButton::clicked, this, &QtSettingsPageWidget::redetect);
 
     connect(m_qtdirList->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &QtSettingsPageWidget::versionChanged);
@@ -513,6 +506,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
 
     const auto updateDevice = [this](int index) {
         m_filterModel->setDevice(m_deviceManagerModel.device(index));
+        updateLinkWithQtButton();
     };
     connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
     m_deviceComboBox->setCurrentIndex(
@@ -982,7 +976,7 @@ static QString linkingPurposeText()
         "installations are not affected.").arg(QGuiApplication::applicationDisplayName());
 }
 
-static bool canLinkWithQt(QString *toolTip)
+static bool canLinkWithQt(QString *toolTip, const IDeviceConstPtr &device)
 {
     bool canLink = true;
     bool installSettingsExist;
@@ -990,27 +984,31 @@ static bool canLinkWithQt(QString *toolTip)
         &installSettingsExist);
     QStringList tip;
     tip << linkingPurposeText();
-    if (!ICore::resourcePath().isWritableDir()) {
+    if (device && device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
         canLink = false;
-        tip << Tr::tr("%1's resource directory is not writable.")
-                   .arg(QGuiApplication::applicationDisplayName());
+        tip << Tr::tr("This functionality is only available for the Desktop device.");
+    } else {
+        if (!ICore::resourcePath().isWritableDir()) {
+            canLink = false;
+            tip << Tr::tr("%1's resource directory is not writable.")
+                       .arg(QGuiApplication::applicationDisplayName());
+        }
+        const FilePath link = installSettingsValue ? *installSettingsValue : FilePath();
+        if (!link.isEmpty())
+            tip << Tr::tr("%1 is currently linked to \"%2\".")
+                       .arg(QGuiApplication::applicationDisplayName(), link.toUserOutput());
     }
-    const FilePath link = installSettingsValue ? *installSettingsValue : FilePath();
-    if (!link.isEmpty())
-        tip << Tr::tr("%1 is currently linked to \"%2\".")
-                   .arg(QGuiApplication::applicationDisplayName(), link.toUserOutput());
     if (toolTip)
         *toolTip = tip.join("\n\n");
     return canLink;
 }
 
-void QtSettingsPageWidget::setupLinkWithQtButton()
+void QtSettingsPageWidget::updateLinkWithQtButton()
 {
     QString tip;
-    const bool canLink = canLinkWithQt(&tip);
+    const bool canLink = canLinkWithQt(&tip, currentDevice());
     m_linkWithQtButton->setEnabled(canLink);
     m_linkWithQtButton->setToolTip(tip);
-    connect(m_linkWithQtButton, &QPushButton::clicked, this, &LinkWithQtSupport::linkWithQt);
 }
 
 IDeviceConstPtr QtSettingsPageWidget::currentDevice() const
@@ -1235,7 +1233,7 @@ void setupQtSettingsPage()
 
 bool LinkWithQtSupport::canLinkWithQt()
 {
-    return Internal::canLinkWithQt(nullptr);
+    return Internal::canLinkWithQt(nullptr, {});
 }
 
 bool LinkWithQtSupport::isLinkedWithQt()
