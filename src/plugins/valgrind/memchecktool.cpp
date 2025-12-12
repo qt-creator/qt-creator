@@ -413,8 +413,18 @@ MemcheckTool::MemcheckTool(QObject *parent)
     initKindFilterAction(a, { InvalidFree,  MismatchedFree });
     m_errorFilterActions.append(a);
 
+    a = new QAction(Tr::tr("Size and Alignment Errors"), this);
+    initKindFilterAction(a, { ReallocSizeZero, InvalidSize, InvalidSizeAndAlignment,
+                              InvalidAlignment, MismatchedAllocateDeallocateSize,
+                              MismatchedAllocateDeallocateAlignment });
+    m_errorFilterActions.append(a);
+
     a = new QAction(Tr::tr("File Descriptor Issues"), this);
     initKindFilterAction(a, { FdBadClose, FdNotClosed, FdBadUse });
+    m_errorFilterActions.append(a);
+
+    a = new QAction(Tr::tr("Other"), this);
+    initKindFilterAction(a, { FishyValue });
     m_errorFilterActions.append(a);
 
     m_errorView = new MemcheckErrorView;
