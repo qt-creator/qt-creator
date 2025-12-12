@@ -4713,6 +4713,10 @@ void GdbEngine::callTargetRemote()
     CHECK_STATE(EngineSetupRequested);
     QString channel = cleanedChannel(runParameters().remoteChannel());
 
+    // If running gdb under docker, localhost should be replaced with host.docker.internal
+    if (m_gdbProc.commandLine().executable().scheme() == u"docker")
+        channel.replace("localhost", "host.docker.internal");
+
     if (m_isQnxGdb)
         runCommand({"target qnx " + channel, CB(handleTargetQnx)});
     else if (runParameters().useExtendedRemote())
