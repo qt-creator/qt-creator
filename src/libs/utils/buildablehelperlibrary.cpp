@@ -99,16 +99,22 @@ static FilePaths findQmakesInDir(const FilePath &dir)
 FilePaths BuildableHelperLibrary::findQtsInEnvironment(
     const Environment &env, const FilePath &deviceRoot)
 {
-    FilePaths qmakeList;
-    std::set<FilePath> canonicalEnvPaths;
-    const FilePaths paths = env.path();
-    for (const FilePath &path : paths) {
+    return findQtsInPaths(Utils::transform(env.path(), [&deviceRoot](const FilePath &path) {
         FilePath devPath = deviceRoot.withNewMappedPath(path);
         if (QTC_UNEXPECTED(deviceRoot.isEmpty()))
             devPath = path;
-        if (!canonicalEnvPaths.insert(devPath.canonicalPath()).second)
+        return devPath;
+    }));
+}
+
+FilePaths BuildableHelperLibrary::findQtsInPaths(const FilePaths &paths)
+{
+    FilePaths qmakeList;
+    std::set<FilePath> canonicalEnvPaths;
+    for (const FilePath &path : paths) {
+        if (!canonicalEnvPaths.insert(path.canonicalPath()).second)
             continue;
-        qmakeList << findQmakesInDir(devPath);
+        qmakeList << findQmakesInDir(path);
     }
     return qmakeList;
 }

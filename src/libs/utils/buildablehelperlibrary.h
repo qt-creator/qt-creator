@@ -17,6 +17,7 @@ class QTCREATOR_UTILS_EXPORT BuildableHelperLibrary
 {
 public:
     static FilePaths findQtsInEnvironment(const Environment &env, const FilePath &deviceRoot);
+    static FilePaths findQtsInPaths(const FilePaths &paths);
     static bool isQtChooser(const FilePath &filePath);
     static FilePath qtChooserToQmakePath(const FilePath &path);
     // return true if the qmake at qmakePath is a Qt (used by QtVersion)

@@ -120,7 +120,8 @@ public:
 
     bool restoreQtVersions();
     void findSystemQt(const IDeviceConstPtr &device);
-    void handleDeviceToolDetectionRequest(Id deviceId);
+    void addQtVersionsFromFilePaths(const FilePaths &filePaths);
+    void handleDeviceToolDetectionRequest(Id deviceId, const FilePaths &searchPaths);
     void saveQtVersions();
 
     void updateDocumentation(const QtVersions &added,
@@ -452,6 +453,7 @@ QString QtVersionManagerImpl::qmakePath(const QString &qtchooser, const QString 
 
 FilePaths QtVersionManagerImpl::gatherQmakePathsFromQtChooser()
 {
+    // FIXME: Desktop-only
     const QString qtchooser = QStandardPaths::findExecutable(QStringLiteral("qtchooser"));
     if (qtchooser.isEmpty())
         return {};
@@ -474,7 +476,12 @@ void QtVersionManagerImpl::findSystemQt(const IDeviceConstPtr &device)
     FilePaths systemQMakes = BuildableHelperLibrary::findQtsInEnvironment(
         device->systemEnvironment(), device->rootPath());
     systemQMakes.append(gatherQmakePathsFromQtChooser());
-    for (const FilePath &qmakePath : std::as_const(systemQMakes)) {
+    addQtVersionsFromFilePaths(systemQMakes);
+}
+
+void QtVersionManagerImpl::addQtVersionsFromFilePaths(const FilePaths &filePaths)
+{
+    for (const FilePath &qmakePath : filePaths) {
         if (BuildableHelperLibrary::isQtChooser(qmakePath))
             continue;
         const auto isSameQmake = [qmakePath](const QtVersion *version) {
@@ -489,10 +496,12 @@ void QtVersionManagerImpl::findSystemQt(const IDeviceConstPtr &device)
     }
 }
 
-void QtVersionManagerImpl::handleDeviceToolDetectionRequest(Id deviceId)
+void QtVersionManagerImpl::handleDeviceToolDetectionRequest(Id deviceId, const FilePaths &searchPaths)
 {
+    Q_UNUSED(deviceId)
+
     const VersionMap qtVersions = m_versions;
-    findSystemQt(DeviceManager::find(deviceId));
+    addQtVersionsFromFilePaths(BuildableHelperLibrary::findQtsInPaths(searchPaths));
     if (qtVersions != m_versions) {
         saveQtVersions();
         emit QtVersionManager::instance()->qtVersionsChanged(m_versions.keys());
