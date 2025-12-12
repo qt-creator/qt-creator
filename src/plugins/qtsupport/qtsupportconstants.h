@@ -39,6 +39,4 @@ const char KIT_QML_IMPORT_PATH[] = "QtSupport.KitQmlImportPath";
 const char KIT_HAS_MERGED_HEADER_PATHS_WITH_QML_IMPORT_PATHS[] =
         "QtSupport.KitHasMergedHeaderPathsWithQmlImportPaths";
 
-const char QMAKE_TOOL_ID[] = "QMakeTool";
-
 } // namepsace QtSupport::Constants

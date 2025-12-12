@@ -11,7 +11,6 @@
 #include "qtoutputformatter.h"
 #include "qtparser.h"
 #include "qtprojectimporter.h"
-#include "qtsupportconstants.h"
 #include "qtsupporttr.h"
 #include "qttestparser.h"
 #include "qtversionmanager.h"
@@ -27,7 +26,6 @@
 #include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
@@ -68,23 +66,6 @@ static void processRunnerCallback(ProcessData *data)
     data->stdOut = proc.rawStdOut();
 }
 
-class QmakeToolFactory : public DeviceToolAspectFactory
-{
-public:
-    QmakeToolFactory()
-    {
-        setToolId(Constants::QMAKE_TOOL_ID);
-        setToolType(DeviceToolAspect::BuildTool);
-        setFilePattern({"qmake"});
-        setLabelText(Tr::tr("qmake executable:"));
-    }
-};
-
-void setupQmakeToolFactory()
-{
-    static QmakeToolFactory theQmakeToolFactory;
-}
-
 class QtSupportPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -106,7 +87,6 @@ void QtSupportPlugin::initialize()
 #endif
 
     setupQtVersionManager(this);
-    setupQmakeToolFactory();
 
     setupDesktopQtVersion();
     setupEmbeddedLinuxQtVersion();
