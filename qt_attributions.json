@@ -492,6 +492,8 @@
         "Description": "An abstract C99 library which implements a VT220 or xterm-like terminal emulator.",
         "Homepage": "https://www.leonerd.org.uk/code/libvterm",
         "Version" : "0.3.3",
+        "CPE": "cpe:2.3:a:leonerd:libvterm:$<VERSION>:*:*:*:*:*:*:*",
+        "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/libvterm/LICENSE",
         "Copyright": "Copyright (c) 2008 Paul Evans"
