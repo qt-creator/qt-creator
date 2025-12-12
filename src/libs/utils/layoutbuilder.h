@@ -703,6 +703,7 @@ QTC_DEFINE_BUILDER_SETTER(minimumHeight, setMinimumHeight)
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Layout &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Widget &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, QWidget *inner);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, QWidget &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, QLayout *inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const LayoutModifier &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const QString &inner);

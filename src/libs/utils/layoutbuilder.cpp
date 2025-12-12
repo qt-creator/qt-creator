@@ -522,6 +522,11 @@ void addToLayout(Layout *layout, QWidget *inner)
     layout->addLayoutItem(inner);
 }
 
+void addToLayout(Layout *layout, QWidget &inner)
+{
+    layout->addLayoutItem(&inner);
+}
+
 void addToLayout(Layout *layout, QLayout *inner)
 {
     layout->addLayoutItem(inner);

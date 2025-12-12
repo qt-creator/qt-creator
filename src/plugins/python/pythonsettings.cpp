@@ -151,22 +151,19 @@ class InterpreterDetailsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    InterpreterDetailsWidget(QWidget *parent)
-        : QWidget(parent)
-        , m_name(new QLineEdit)
-        , m_executable(new PathChooser())
+    InterpreterDetailsWidget()
     {
-        m_executable->setExpectedKind(PathChooser::ExistingCommand);
-        m_executable->setAllowPathFromDevice(true);
+        m_executable.setExpectedKind(PathChooser::ExistingCommand);
+        m_executable.setAllowPathFromDevice(true);
 
-        connect(m_name, &QLineEdit::textChanged, this, &InterpreterDetailsWidget::changed);
-        connect(m_executable, &PathChooser::textChanged, this, &InterpreterDetailsWidget::changed);
+        connect(&m_name, &QLineEdit::textChanged, this, &InterpreterDetailsWidget::changed);
+        connect(&m_executable, &PathChooser::textChanged, this, &InterpreterDetailsWidget::changed);
 
         using namespace Layouting;
 
         Form {
-            Tr::tr("Name:"), m_name, br,
-            Tr::tr("Executable"), m_executable,
+            Tr::tr("Name:"), &m_name, br,
+            Tr::tr("Executable"), &m_executable,
             noMargin
         }.attachTo(this);
     }
@@ -175,18 +172,18 @@ public:
     {
         QSignalBlocker blocker(this); // do not emit changed when we change the controls here
         m_currentInterpreter = interpreter;
-        m_name->setText(interpreter.name);
-        m_executable->setFilePath(interpreter.command);
+        m_name.setText(interpreter.name);
+        m_executable.setFilePath(interpreter.command);
     }
 
     Interpreter toInterpreter()
     {
-        m_currentInterpreter.command = m_executable->filePath();
-        m_currentInterpreter.name = m_name->text();
+        m_currentInterpreter.command = m_executable.filePath();
+        m_currentInterpreter.name = m_name.text();
         return m_currentInterpreter;
     }
-    QLineEdit *m_name = nullptr;
-    PathChooser *m_executable = nullptr;
+    QLineEdit m_name;
+    PathChooser m_executable;
     Interpreter m_currentInterpreter;
 
 signals:
@@ -210,13 +207,6 @@ public:
     }
 
 private:
-    QTreeView *m_view = nullptr;
-    InterpreterDetailsWidget *m_detailsWidget = nullptr;
-    QPushButton *m_deleteButton = nullptr;
-    QPushButton *m_makeDefaultButton = nullptr;
-    QPushButton *m_generateKitButton = nullptr;
-    QPushButton *m_cleanButton = nullptr;
-
     void currentChanged(const QModelIndex &index, const QModelIndex &previous);
     void detailsChanged();
     void updateCleanButton();
@@ -226,29 +216,34 @@ private:
     void makeDefault();
     void generateKit();
     void cleanUp();
+
+    QTreeView m_view;
+    InterpreterDetailsWidget m_detailsWidget;
+    QPushButton m_addButton;
+    QPushButton m_deleteButton;
+    QPushButton m_makeDefaultButton;
+    QPushButton m_generateKitButton;
+    QPushButton m_cleanButton;
 };
 
 InterpreterOptionsWidget::InterpreterOptionsWidget()
-    : m_detailsWidget(new InterpreterDetailsWidget(this))
 {
-    auto addButton = new QPushButton(Tr::tr("&Add"), this);
+    m_addButton.setText(Tr::tr("&Add"));
 
-    m_deleteButton = new QPushButton(Tr::tr("&Delete"), this);
-    m_deleteButton->setEnabled(false);
-    m_makeDefaultButton = new QPushButton(Tr::tr("&Make Default"));
-    m_makeDefaultButton->setEnabled(false);
-    m_generateKitButton = new QPushButton(Tr::tr("&Generate Kit"));
-    m_generateKitButton->setEnabled(false);
+    m_deleteButton.setText(Tr::tr("&Delete"));
+    m_deleteButton.setEnabled(false);
+    m_makeDefaultButton.setText(Tr::tr("&Make Default"));
+    m_makeDefaultButton.setEnabled(false);
+    m_generateKitButton.setText(Tr::tr("&Generate Kit"));
+    m_generateKitButton.setEnabled(false);
 
-    m_cleanButton = new QPushButton(Tr::tr("&Clean Up"), this);
-    m_cleanButton->setToolTip(Tr::tr("Remove all Python interpreters without a valid executable."));
-
-    m_view = new QTreeView(this);
+    m_cleanButton.setText(Tr::tr("&Clean Up"));
+    m_cleanButton.setToolTip(Tr::tr("Remove all Python interpreters without a valid executable."));
 
     using namespace Layouting;
 
     Column buttons {
-        addButton,
+        m_addButton,
         m_deleteButton,
         m_makeDefaultButton,
         m_generateKitButton,
@@ -263,22 +258,22 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
 
     updateCleanButton();
 
-    m_detailsWidget->hide();
+    m_detailsWidget.hide();
 
-    m_view->setModel(&interpreterModel());
-    m_view->setHeaderHidden(true);
-    m_view->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_view->setSelectionBehavior(QAbstractItemView::SelectItems);
+    m_view.setModel(&interpreterModel());
+    m_view.setHeaderHidden(true);
+    m_view.setSelectionMode(QAbstractItemView::SingleSelection);
+    m_view.setSelectionBehavior(QAbstractItemView::SelectItems);
 
-    connect(addButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::addItem);
-    connect(m_deleteButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::deleteItem);
-    connect(m_makeDefaultButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::makeDefault);
-    connect(m_generateKitButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::generateKit);
-    connect(m_cleanButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::cleanUp);
+    connect(&m_addButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::addItem);
+    connect(&m_deleteButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::deleteItem);
+    connect(&m_makeDefaultButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::makeDefault);
+    connect(&m_generateKitButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::generateKit);
+    connect(&m_cleanButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::cleanUp);
 
-    connect(m_detailsWidget, &InterpreterDetailsWidget::changed,
+    connect(&m_detailsWidget, &InterpreterDetailsWidget::changed,
             this, &InterpreterOptionsWidget::detailsChanged);
-    connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
+    connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,
             this, &InterpreterOptionsWidget::currentChanged);
 }
 
@@ -312,27 +307,27 @@ QList<Interpreter> InterpreterModel::interpreterFrom(const QString &detectionSou
 void InterpreterOptionsWidget::currentChanged(const QModelIndex &index, const QModelIndex &previous)
 {
     if (previous.isValid()) {
-        interpreterModel().itemAt(previous.row())->itemData = m_detailsWidget->toInterpreter();
+        interpreterModel().itemAt(previous.row())->itemData = m_detailsWidget.toInterpreter();
         emit interpreterModel().dataChanged(previous, previous);
     }
     if (index.isValid()) {
         const Interpreter interpreter = interpreterModel().itemAt(index.row())->itemData;
-        m_detailsWidget->updateInterpreter(interpreter);
-        m_detailsWidget->show();
+        m_detailsWidget.updateInterpreter(interpreter);
+        m_detailsWidget.show();
         updateGenerateKitButton(interpreter);
     } else {
-        m_detailsWidget->hide();
-        m_generateKitButton->setEnabled(false);
+        m_detailsWidget.hide();
+        m_generateKitButton.setEnabled(false);
     }
-    m_deleteButton->setEnabled(index.isValid());
-    m_makeDefaultButton->setEnabled(index.isValid());
+    m_deleteButton.setEnabled(index.isValid());
+    m_makeDefaultButton.setEnabled(index.isValid());
 }
 
 void InterpreterOptionsWidget::detailsChanged()
 {
-    const QModelIndex &index = m_view->currentIndex();
+    const QModelIndex &index = m_view.currentIndex();
     if (index.isValid()) {
-        const Interpreter interpreter = m_detailsWidget->toInterpreter();
+        const Interpreter interpreter = m_detailsWidget.toInterpreter();
         interpreterModel().itemAt(index.row())->itemData = interpreter;
         emit interpreterModel().dataChanged(index, index);
         updateGenerateKitButton(interpreter);
@@ -342,7 +337,7 @@ void InterpreterOptionsWidget::detailsChanged()
 
 void InterpreterOptionsWidget::updateCleanButton()
 {
-    m_cleanButton->setEnabled(Utils::anyOf(interpreterModel().allData(), [](const Interpreter &interpreter) {
+    m_cleanButton.setEnabled(Utils::anyOf(interpreterModel().allData(), [](const Interpreter &interpreter) {
         return !interpreter.command.isExecutableFile();
     }));
 }
@@ -351,7 +346,7 @@ void InterpreterOptionsWidget::updateGenerateKitButton(const Interpreter &interp
 {
     bool enabled = !KitManager::kit(Id::fromString(interpreter.id))
             && (!interpreter.command.isLocal() || interpreter.command.isExecutableFile());
-    m_generateKitButton->setEnabled(enabled);
+    m_generateKitButton.setEnabled(enabled);
 }
 
 void InterpreterOptionsWidget::addItem()
@@ -359,13 +354,13 @@ void InterpreterOptionsWidget::addItem()
     const QModelIndex &index = interpreterModel().indexForItem(interpreterModel().appendItem(
         {QUuid::createUuid().toString(), QString("Python"), FilePath(), DetectionSource::Manual}));
     QTC_ASSERT(index.isValid(), return);
-    m_view->setCurrentIndex(index);
+    m_view.setCurrentIndex(index);
     updateCleanButton();
 }
 
 void InterpreterOptionsWidget::deleteItem()
 {
-    const QModelIndex &index = m_view->currentIndex();
+    const QModelIndex &index = m_view.currentIndex();
     if (index.isValid())
         interpreterModel().destroyItem(interpreterModel().itemAt(index.row()));
     updateCleanButton();
@@ -533,7 +528,7 @@ static PyLSOptionsPage &pylspOptionsPage()
 
 void InterpreterOptionsWidget::makeDefault()
 {
-    const QModelIndex &index = m_view->currentIndex();
+    const QModelIndex &index = m_view.currentIndex();
     if (index.isValid()) {
         QModelIndex defaultIndex = interpreterModel().findIndex([](const Interpreter &interpreter) {
             return interpreter.id == s_defaultId;
@@ -547,10 +542,10 @@ void InterpreterOptionsWidget::makeDefault()
 
 void InterpreterOptionsWidget::generateKit()
 {
-    const QModelIndex &index = m_view->currentIndex();
+    const QModelIndex &index = m_view.currentIndex();
     if (index.isValid())
         PythonSettings::addKitsForInterpreter(interpreterModel().itemAt(index.row())->itemData, true);
-    m_generateKitButton->setEnabled(false);
+    m_generateKitButton.setEnabled(false);
 }
 
 void InterpreterOptionsWidget::cleanUp()
