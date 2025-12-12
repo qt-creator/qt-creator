@@ -2263,7 +2263,7 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons: {
-        auto buttonGroup = new QButtonGroup();
+        auto buttonGroup = new QButtonGroup(parent.product());
         buttonGroup->setExclusive(true);
         for (int i = 0, n = d->m_options.size(); i < n; ++i) {
             const Option &option = d->m_options.at(i);
