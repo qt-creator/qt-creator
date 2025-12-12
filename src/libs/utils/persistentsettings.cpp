@@ -123,7 +123,6 @@ struct ParseValueStackEntry
 ParseValueStackEntry::ParseValueStackEntry(const QVariant &aSimpleValue, const QString &k)
     : typeId(QMetaType::Type(aSimpleValue.typeId())), key(k), simpleValue(aSimpleValue)
 {
-    QTC_ASSERT(simpleValue.isValid(), return);
 }
 
 QVariant ParseValueStackEntry::value() const
@@ -163,7 +162,8 @@ public:
     QVariantMap parse(const FilePath &file);
 
 private:
-    QVariant readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttributes &attributes) const;
+    std::optional<QVariant> readSimpleValue(
+        QXmlStreamReader &r, const QXmlStreamAttributes &attributes) const;
 
     bool handleStartElement(QXmlStreamReader &r);
     bool handleEndElement(const QStringView name);
@@ -215,12 +215,12 @@ bool ParseContext::handleStartElement(QXmlStreamReader &r)
         const QString key = attributes.hasAttribute(keyAttribute) ?
                     attributes.value(keyAttribute).toString() : QString();
         // This reads away the end element, so, handle end element right here.
-        const QVariant v = readSimpleValue(r, attributes);
-        if (!v.isValid()) {
+        const std::optional<QVariant> v = readSimpleValue(r, attributes);
+        if (!v.has_value()) {
             qWarning() << ParseContext::formatWarning(r, QString::fromLatin1("Failed to read element \"%1\".").arg(name.toString()));
             return false;
         }
-        m_valueStack.push_back(ParseValueStackEntry(v, key));
+        m_valueStack.push_back(ParseValueStackEntry(*v, key));
         return handleEndElement(name);
     }
     if (name == valueListElement) {
@@ -269,11 +269,16 @@ QString ParseContext::formatWarning(const QXmlStreamReader &r, const QString &me
     return result;
 }
 
-QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttributes &attributes) const
+std::optional<QVariant> ParseContext::readSimpleValue(
+    QXmlStreamReader &r, const QXmlStreamAttributes &attributes) const
 {
     // Simple value
     const QStringView type = attributes.value(typeAttribute);
     const QString text = r.readElementText();
+    if (type.isEmpty() || type == QLatin1String("UnknownType")) {
+        QTC_CHECK(text.isEmpty());
+        return QVariant();
+    }
     if (type == QLatin1String("QChar")) { // Workaround: QTBUG-12345
         QTC_ASSERT(text.size() == 1, return QVariant());
         return QVariant(QChar(text.at(0)));
@@ -285,7 +290,7 @@ QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttr
     QVariant value;
     value.setValue(text);
     value.convert(QMetaType::fromName(type.toLatin1().constData()));
-    return value;
+    return value.isValid() ? std::make_optional(value) : std::nullopt;
 }
 
 // =================================== PersistentSettingsReader
@@ -363,7 +368,8 @@ static void writeVariantValue(QXmlStreamWriter &w, const QVariant &variant, cons
         // ignore void pointers
     } else {
         w.writeStartElement(valueElement);
-        w.writeAttribute(typeAttribute, QLatin1String(variant.typeName()));
+        const auto typeName = QLatin1String(variant.isValid() ? variant.typeName() : "UnknownType");
+        w.writeAttribute(typeAttribute, QLatin1String(typeName));
         if (!key.isEmpty())
             w.writeAttribute(keyAttribute, xmlAttrFromKey(key));
         switch (variant.typeId()) {
