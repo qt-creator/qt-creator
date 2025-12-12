@@ -363,10 +363,12 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         linuxDevice->tryToConnect(
             {linuxDevice.get(), [linuxDevice, autoDetectButton](const Result<> &res) {
                  if (res) {
-                     emit DeviceManager::instance()->toolDetectionRequested(linuxDevice->id());
+                     const auto recipeAndSearchPaths = linuxDevice->autoDetectDeviceToolsRecipe();
+                     emit DeviceManager::instance()->toolDetectionRequested(
+                         linuxDevice->id(), recipeAndSearchPaths.searchPaths);
                      GlobalTaskTree::start(
                          QtTaskTree::Group {
-                             linuxDevice->autoDetectDeviceToolsRecipe(),
+                             recipeAndSearchPaths.recipe,
                              QSyncTask([btn = QPointer<QWidget>(autoDetectButton)] {
                                  if (btn)
                                      btn->setEnabled(true);

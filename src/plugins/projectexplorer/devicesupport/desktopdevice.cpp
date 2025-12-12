@@ -233,7 +233,7 @@ public:
             autoDetectButton->setEnabled(false);
 
             GlobalTaskTree::start(Group {
-                device->autoDetectDeviceToolsRecipe(),
+                device->autoDetectDeviceToolsRecipe().recipe,
                 QSyncTask([btn = QPointer<QWidget>(autoDetectButton)] {
                     if (btn)
                         btn->setEnabled(true);
@@ -431,7 +431,7 @@ FilePath DesktopDevice::rootPath() const
 void DesktopDevice::initDeviceToolAspects()
 {
     IDevice::initDeviceToolAspects();
-    GlobalTaskTree::start(autoDetectDeviceToolsRecipe());
+    GlobalTaskTree::start(autoDetectDeviceToolsRecipe().recipe);
 }
 
 } // namespace ProjectExplorer

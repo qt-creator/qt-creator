@@ -295,7 +295,12 @@ public:
 
     virtual bool supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const;
 
-    QtTaskTree::Group autoDetectDeviceToolsRecipe();
+    class RecipeAndSearchPath {
+    public:
+        QtTaskTree::Group recipe;
+        Utils::FilePaths searchPaths;
+    };
+    RecipeAndSearchPath autoDetectDeviceToolsRecipe();
 
     virtual Utils::Result<> supportsBuildingProject(const Utils::FilePath &projectDir) const;
 

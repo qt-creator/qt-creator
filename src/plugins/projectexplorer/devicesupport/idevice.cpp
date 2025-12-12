@@ -296,7 +296,7 @@ bool IDevice::supportsFileTransferMethod(FileTransferMethod method) const
     return false;
 }
 
-Group IDevice::autoDetectDeviceToolsRecipe()
+IDevice::RecipeAndSearchPath IDevice::autoDetectDeviceToolsRecipe()
 {
     struct Data
     {
@@ -372,9 +372,9 @@ Group IDevice::autoDetectDeviceToolsRecipe()
     };
 
     // clang-format off
-    return Group {
+    return {Group {
         For(iterator) >> Do { AsyncTask<Data>(onSetupSearch, onSearchDone) }
-    };
+    }, detectionPaths};
     // clang-format on
 }
 
