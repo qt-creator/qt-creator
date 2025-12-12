@@ -598,7 +598,7 @@ void SettingsDialog::createGui()
 
     auto buttonBox = new QDialogButtonBox;
     buttonBox->addButton(new QtcButton(Tr::tr("Apply"), QtcButton::MediumPrimary),
-                         QDialogButtonBox::ApplyRole);
+                         QDialogButtonBox::AcceptRole);
     buttonBox->addButton(new QtcButton(Tr::tr("Cancel"), QtcButton::MediumSecondary),
                          QDialogButtonBox::RejectRole);
 
