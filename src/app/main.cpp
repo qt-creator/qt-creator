@@ -28,18 +28,22 @@
 
 #include <QAccessible>
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
 #include <QFontDatabase>
+#include <QHBoxLayout>
 #include <QLibraryInfo>
 #include <QMessageBox>
 #include <QNetworkProxyFactory>
 #include <QPixmapCache>
 #include <QProcess>
+#include <QPushButton>
 #include <QScopeGuard>
 #include <QStandardPaths>
 #include <QStyle>
 #include <QSurfaceFormat>
+#include <QTextEdit>
 #include <QTextStream>
 #include <QThreadPool>
 #include <QTranslator>
@@ -124,10 +128,22 @@ static inline QString toHtml(const QString &t)
 
 static void displayHelpText(const QString &t)
 {
-    if (HostOsInfo::isWindowsHost() && qApp)
-        QMessageBox::information(nullptr, QLatin1String(Core::Constants::IDE_DISPLAY_NAME), toHtml(t));
-    else
+    if (HostOsInfo::isWindowsHost() && qApp) {
+        QDialog d(nullptr);
+        QVBoxLayout *layout = new QVBoxLayout(&d);
+        d.resize(600, 400);
+        d.setWindowTitle(QLatin1String(Core::Constants::IDE_DISPLAY_NAME));
+        auto label = new QTextEdit(toHtml(t), &d);
+        label->setReadOnly(true);
+        layout->addWidget(label);
+        auto dbb = new QDialogButtonBox(QDialogButtonBox::Ok, &d);
+        QObject::connect(dbb->button(QDialogButtonBox::Ok), &QPushButton::clicked,
+                         &d, &QDialog::accept);
+        layout->addWidget(dbb);
+        d.exec();
+    } else {
         printf("%s", qPrintable(t));
+    }
 }
 
 static void displayError(const QString &t)
