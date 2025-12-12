@@ -241,19 +241,19 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
     m_cleanButton.setToolTip(Tr::tr("Remove all Python interpreters without a valid executable."));
 
     using namespace Layouting;
-
-    Column buttons {
-        m_addButton,
-        m_deleteButton,
-        m_makeDefaultButton,
-        m_generateKitButton,
-        m_cleanButton,
-        st
-    };
-
-    Column {
-        Row { m_view, buttons },
-        m_detailsWidget
+    Row {
+        Column {
+            m_view,
+            m_detailsWidget
+        },
+        Column {
+            m_addButton,
+            m_deleteButton,
+            m_makeDefaultButton,
+            m_generateKitButton,
+            m_cleanButton,
+            st
+        }
     }.attachTo(this);
 
     updateCleanButton();
