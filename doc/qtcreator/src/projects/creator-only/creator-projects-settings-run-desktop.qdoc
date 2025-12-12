@@ -34,7 +34,7 @@
 
     For console applications, select \uicontrol{Run in terminal}.
     To specify the terminal to use on Linux and \macos, go to \preferences >
-    \uicontrol Environment > \uicontrol System. To use an \l{Terminal}
+    \uicontrol Environment > \uicontrol System. To use an \l{Open a terminal}
     {internal terminal}, go to \preferences > \uicontrol Terminal >
     \uicontrol {Use internal terminal}.
 

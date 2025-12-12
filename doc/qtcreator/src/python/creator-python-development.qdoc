@@ -100,7 +100,7 @@
 
     You can write Python code in the \uicontrol Edit mode. Select \uicontrol REPL
     on the toolbar to start the \l{https://pythonprogramminglanguage.com/repl/}
-    {Python interactive shell} in the \l Terminal view.
+    {Python interactive shell} in the \l {Open a Terminal}{Terminal} view.
 
     \image {qtcreator-terminal-python.webp} {Python shell in the Terminal view}
 
