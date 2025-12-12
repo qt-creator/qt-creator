@@ -15,5 +15,12 @@
         <file>wizards/qsrapp2_1/qml.qrc.tpl</file>
         <file>wizards/qsrapp2_1/safeasset.qrc.tpl</file>
         <file>wizards/qsrapp2_1/wizard.json</file>
+        <file>wizards/qsrapp2_2/file.pro</file>
+        <file>wizards/qsrapp2_2/CMakeLists.txt</file>
+        <file>wizards/qsrapp2_2/main.cpp.tpl</file>
+        <file>wizards/qsrapp2_2/main.qml.tpl</file>
+        <file>wizards/qsrapp2_2/qml.qrc.tpl</file>
+        <file>wizards/qsrapp2_2/safeasset.qrc.tpl</file>
+        <file>wizards/qsrapp2_2/wizard.json</file>
     </qresource>
 </RCC>

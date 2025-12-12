@@ -1,10 +1,10 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project", "CMakeProjectManager.CMakeProject" ],
-    "id": "E.QSRApp2_1",
+    "id": "E.QSRApp2_2",
     "category": "D.QtSafeRendererApplication",
-    "trDescription": "Creates a Qt Safe Renderer 2.1 project with a simple UI and project setup.\n\nSupports both qmake and CMake.",
-    "trDisplayName": "Qt Safe Renderer Application 2.1",
+    "trDescription": "Creates a Qt Safe Renderer 2.2 (and newer) project with a simple UI and project setup.\n\nSupports both qmake and CMake.",
+    "trDisplayName": "Qt Safe Renderer Application 2.2",
     "trDisplayCategory": "Application (Qt Safe Renderer)",
     "icon": "../icon.png",
     "iconKind": "Themed",

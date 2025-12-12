@@ -11,7 +11,7 @@
 
 #if defined(USE_OUTPUTVERIFIER)
 #include <outputverifier.h>
-#include "testverifier.h"
+#include <outputverifier_capi.h>
 #endif
 
 #include "safewindow.h"
@@ -24,11 +24,11 @@ int main(int argc, char *argv[])
 
     static SafeRenderer::QSafeLayoutResourceReader layout("/layoutData/main/main.srl");
 
-#if defined(USE_OUTPUTVERIFIER)
-    static SafeRenderer::OutputVerifier outputVerifier;
-    SafeRenderer::SafeWindow telltaleWindow(layout.size(), SafeRenderer::QSafePoint(0U, 0U), outputVerifier);
-#else
     SafeRenderer::SafeWindow telltaleWindow(layout.size(), SafeRenderer::QSafePoint(0U, 0U));
+
+#if defined(USE_OUTPUTVERIFIER)
+    SafeRenderer::OutputVerifier &outputVerifier = SafeRenderer::OutputVerifier::getOutputVerifierInstance();
+    OutputVerifier_initVerifierDevice(0, 0, layout.size().width(), layout.size().height());
 #endif
 
     static SafeRenderer::StateManager stateManager(telltaleWindow, layout);
