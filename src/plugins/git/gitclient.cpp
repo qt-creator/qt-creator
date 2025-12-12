@@ -3947,6 +3947,8 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
 
             if (dialog.checkout())
                 gitClient().checkout(workingDir, newBranch);
+            else
+                VcsManager::emitRepositoryChanged(workingDir);
         });
 
         connect(menu->addAction(Tr::tr("&Interactive Rebase from %1...").arg(change)),
