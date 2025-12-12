@@ -478,7 +478,7 @@ QStringList CMakeBuildStep::processSubDirStagingSingleTarget(const QStringList &
         cmakeBuildSystem->buildTargets(),
         [targetName](const CMakeBuildTarget &bt) { return bt.title == targetName; });
 
-    if (targetInfo.backtrace.isEmpty())
+    if (targetInfo.backtrace.isEmpty() || targetInfo.targetType == UtilityType)
         return targets;
 
     const QString targetSubdir = targetInfo.backtrace.last()
@@ -562,7 +562,24 @@ CommandLine CMakeBuildStep::cmakeCommand() const
             return s;
         }));
 
-        if (useStaging())
+        // For the case when we have only one target to build, and this is an utility target
+        // we don't need to do an "install" step when using staging
+        auto isUtilityTarget = [bs, this]() -> bool {
+            if (m_buildTargets.size() != 1)
+                return false;
+
+            const QString targetName = m_buildTargets.front();
+            if (specialTargets(bs->isMultiConfig()).contains(targetName))
+                return false;
+
+            const CMakeBuildTarget targetInfo
+                = Utils::findOrDefault(bs->buildTargets(), [targetName](const CMakeBuildTarget &bt) {
+                      return bt.title == targetName;
+                  });
+            return targetInfo.targetType == UtilityType;
+        };
+
+        if (useStaging() && !isUtilityTarget())
             cmd.addArg("install");
     }
 
