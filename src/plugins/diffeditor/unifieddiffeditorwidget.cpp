@@ -15,8 +15,10 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/async.h>
+#include <utils/icon.h>
 #include <utils/mathutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QMenu>
 #include <QScrollBar>
@@ -140,6 +142,20 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     end.setPosition(tc.selectionEnd());
     const int startBlockNumber = start.blockNumber();
     const int endBlockNumber = end.blockNumber();
+
+    if (tc.hasSelection()) {
+        menu->addSeparator();
+        QAction *action = menu->addAction(Tr::tr("Copy Cleaned Text"), this, [tc] {
+            const QRegularExpression endingsRe(R"([\r\x{2028}\x{2029}])");
+            const QRegularExpression headerRe(R"(^(?:@@ |\+\+\+ |--- ).*\n)",
+                                              QRegularExpression::MultilineOption);
+            const QRegularExpression patchRe(R"(^[\+\- ])", QRegularExpression::MultilineOption);
+            const QString text = tc.selectedText()
+                    .replace(endingsRe, "\n").remove(headerRe).remove(patchRe);
+            Utils::setClipboardAndSelection(text);
+        });
+        action->setIcon(Icon::fromTheme("edit-copy"));
+    }
 
     QTextCursor cursor = cursorForPosition(e->pos());
     const int blockNumber = cursor.blockNumber();
