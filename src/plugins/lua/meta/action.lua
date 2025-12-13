@@ -38,6 +38,11 @@ function action.create(id, options) end
 ---@param id string The id of the action.
 function action.trigger(id) end
 
+---Sets the state of an Action.
+---@param id string The id of the action.
+---@param checked boolean Whether the action should be set or not.
+function action.setChecked(id, checked) end
+
 ---@class Command
 ---@field enabled boolean Whether the command is enabled or not.
 ---@field keySequences QKeySequence[] Current key sequences for the command.

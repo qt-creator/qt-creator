@@ -137,6 +137,26 @@ void setupActionModule()
             command->action()->trigger();
         };
 
+        result["setChecked"] = [](const std::string &actionId, bool checked) mutable {
+            Command *command = ActionManager::command(
+                Id::fromString(QString::fromStdString(actionId)));
+            if (!command)
+                throw std::runtime_error("Action not found: " + actionId);
+            if (!command->action())
+                throw std::runtime_error("Action not assigned: " + actionId);
+            if (!command->action()->isEnabled())
+                throw std::runtime_error("Action not enabled: " + actionId);
+            if (!command->action()->isCheckable())
+                throw std::runtime_error("Action not checkable: " + actionId);
+
+            // We won't use "setChecked", as many Actions are (incorrectly) connected only
+            // to "triggered", which is not emitted when just setting the checked state.
+            // So we simulate a user click here if the state does not match the requested one.
+            if (command->action()->isChecked() == checked)
+                return;
+            command->action()->trigger();
+        };
+
         return result;
     });
 }
