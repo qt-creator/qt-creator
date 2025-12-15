@@ -120,11 +120,7 @@ void ToolchainManager::restoreToolchains()
         if (!device)
             return;
 
-        // FIXME: ToolchainDetector needs extension to instruct downstream code to
-        // look at all possible combinations of PATH and explicit search paths,
-        // so that the settings from the device widget can be honored.
-        ToolchainDetector detector(m_instance->toolchains(), device, {});
-
+        ToolchainDetector detector(m_instance->toolchains(), device, device->toolSearchPaths());
         Toolchains toRegister;
         for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
             for (Toolchain * const tc : f->autoDetect(detector)) {

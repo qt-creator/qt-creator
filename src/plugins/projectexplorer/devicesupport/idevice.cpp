@@ -296,6 +296,11 @@ bool IDevice::supportsFileTransferMethod(FileTransferMethod method) const
     return false;
 }
 
+FilePaths IDevice::toolSearchPaths() const
+{
+    return d->autoDetectionPaths();
+}
+
 IDevice::RecipeAndSearchPath IDevice::autoDetectDeviceToolsRecipe()
 {
     struct Data
