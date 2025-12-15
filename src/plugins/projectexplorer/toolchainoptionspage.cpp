@@ -531,8 +531,10 @@ void ToolChainOptionsWidget::redetectToolchains()
     ToolchainManager::resetBadToolchains();
 
     // Step 2: Re-detect toolchains.
+    const IDeviceConstPtr device = currentDevice();
+    QTC_ASSERT(device, return);
     for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
-        const ToolchainDetector detector(knownTcs, currentDevice(), {});  // FIXME: Pass search paths
+        const ToolchainDetector detector(knownTcs, device, device->toolSearchPaths());
         for (Toolchain * const tc : f->autoDetect(detector)) {
             if (knownTcs.contains(tc))
                 continue;
