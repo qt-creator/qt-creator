@@ -576,8 +576,9 @@ bool CompletionList::eventFilter(QObject *watched, QEvent *event)
 LocatorWidget::LocatorWidget(Locator *locator)
     : m_locatorModel(new LocatorModel(this))
     , m_filterMenu(new QMenu(this))
-    , m_centeredPopupAction(new QAction(locatorSettings().useCenteredPopup.labelText(), this))
+    , m_useCenteredPopup(new QAction(locatorSettings().useCenteredPopup.labelText(), this))
     , m_useTabCompletion(new QAction(locatorSettings().useTabCompletion.labelText(), this))
+    , m_ignoreGeneratedFiles(new QAction(locatorSettings().ignoreGeneratedFiles.labelText(), this))
     , m_refreshAction(new QAction(Tr::tr("Refresh"), this))
     , m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this))
     , m_fileLineEdit(new FancyLineEdit)
@@ -609,19 +610,21 @@ LocatorWidget::LocatorWidget(Locator *locator)
     m_fileLineEdit->installEventFilter(this);
     this->installEventFilter(this);
 
-    m_centeredPopupAction->setCheckable(true);
-    m_centeredPopupAction->setChecked(locatorSettings().useCenteredPopup());
+    m_useCenteredPopup->setCheckable(true);
     m_useTabCompletion->setCheckable(true);
-    m_useTabCompletion->setChecked(locatorSettings().useTabCompletion());
+    m_ignoreGeneratedFiles->setCheckable(true);
 
-    connect(m_filterMenu, &QMenu::aboutToShow, this, [this] {
-        m_centeredPopupAction->setChecked(locatorSettings().useCenteredPopup());
+    const auto updateActions = [this] {
+        m_useCenteredPopup->setChecked(locatorSettings().useCenteredPopup());
         m_useTabCompletion->setChecked(locatorSettings().useTabCompletion());
-    });
+        m_ignoreGeneratedFiles->setChecked(locatorSettings().ignoreGeneratedFiles());
+    };
+    updateActions();
+    connect(m_filterMenu, &QMenu::aboutToShow, this, updateActions);
 
     Utils::addToolTipsToMenu(m_filterMenu);
 
-    connect(m_centeredPopupAction, &QAction::toggled, locator, [locator](bool toggled) {
+    connect(m_useCenteredPopup, &QAction::toggled, locator, [locator](bool toggled) {
         if (toggled != locatorSettings().useCenteredPopup()) {
             locatorSettings().useCenteredPopup.setValue(toggled);
             QMetaObject::invokeMethod(locator, [] { LocatorManager::show({}); });
@@ -630,11 +633,9 @@ LocatorWidget::LocatorWidget(Locator *locator)
     connect(m_useTabCompletion, &QAction::toggled, locator, [](bool checked) {
         locatorSettings().useTabCompletion.setValue(checked);
     });
-
-    m_filterMenu->addAction(m_centeredPopupAction);
-    m_filterMenu->addAction(m_useTabCompletion);
-    m_filterMenu->addAction(m_refreshAction);
-    m_filterMenu->addAction(m_configureAction);
+    connect(m_ignoreGeneratedFiles, &QAction::toggled, locator, [](bool checked) {
+        locatorSettings().ignoreGeneratedFiles.setValue(checked);
+    });
 
     m_fileLineEdit->setButtonMenu(FancyLineEdit::Left, m_filterMenu);
 
@@ -700,8 +701,9 @@ void LocatorWidget::updateFilterList()
         });
     }
     m_filterMenu->addSeparator();
-    m_filterMenu->addAction(m_centeredPopupAction);
+    m_filterMenu->addAction(m_useCenteredPopup);
     m_filterMenu->addAction(m_useTabCompletion);
+    m_filterMenu->addAction(m_ignoreGeneratedFiles);
     m_filterMenu->addAction(m_refreshAction);
     m_filterMenu->addAction(m_configureAction);
 }

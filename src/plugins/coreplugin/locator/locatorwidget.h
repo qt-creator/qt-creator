@@ -76,8 +76,9 @@ private:
 
     LocatorModel *m_locatorModel = nullptr;
     QMenu *m_filterMenu = nullptr;
-    QAction *m_centeredPopupAction = nullptr;
+    QAction *m_useCenteredPopup = nullptr;
     QAction *m_useTabCompletion = nullptr;
+    QAction *m_ignoreGeneratedFiles = nullptr;
     QAction *m_refreshAction = nullptr;
     QAction *m_configureAction = nullptr;
     Utils::FancyLineEdit *m_fileLineEdit = nullptr;

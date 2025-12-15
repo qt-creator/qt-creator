@@ -20,13 +20,20 @@ CurrentProjectFilter::CurrentProjectFilter()
                           "or \":<number>\" to jump to the given line number. Append another "
                           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("p");
-    setRefreshRecipe(QSyncTask([this] { invalidate(); }));
+
+    const auto invalidateCache = [this] { invalidate(); };
+
+    setRefreshRecipe(QSyncTask(invalidateCache));
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFilter::currentProjectChanged);
+    connect(this, &ILocatorFilter::ignoreGeneratedFilesChanged, this, invalidateCache);
 
     m_cache.setGeneratorProvider([this] {
-        const FilePaths paths = m_project ? m_project->files(Project::SourceFiles) : FilePaths();
+        const Project::NodeMatcher matcher = ILocatorFilter::ignoreGeneratedFiles()
+                                                 ? Project::SourceFiles
+                                                 : Project::AllFiles;
+        const FilePaths paths = m_project ? m_project->files(matcher) : FilePaths();
         return LocatorFileCache::filePathsGenerator(paths);
     });
 }

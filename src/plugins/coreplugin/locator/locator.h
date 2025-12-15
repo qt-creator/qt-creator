@@ -27,6 +27,7 @@ struct LocatorSettings : public Utils::AspectContainer
     Utils::BoolAspect useCenteredPopup{this};
     Utils::BoolAspect useTabCompletion{this};
     Utils::BoolAspect relativePaths{this};
+    Utils::BoolAspect ignoreGeneratedFiles{this};
     Utils::IntegerAspect refreshInterval{this}; // minutes
 };
 

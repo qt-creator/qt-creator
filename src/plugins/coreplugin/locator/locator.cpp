@@ -67,6 +67,12 @@ LocatorSettings::LocatorSettings()
     relativePaths.setToolTip(
         Tr::tr("Locator filters show relative paths to the active project when possible."));
 
+    ignoreGeneratedFiles.setSettingsKey("IgnoreGeneratedFiles");
+    ignoreGeneratedFiles.setDefaultValue(true);
+    ignoreGeneratedFiles.setLabelText(Tr::tr("Ignore Generated Files"));
+    ignoreGeneratedFiles.setToolTip(
+        Tr::tr("Ignore generated files when using project related filters."));
+
     refreshInterval.setSettingsKey("RefreshInterval");
     refreshInterval.setRange(0, 320);
     refreshInterval.setSingleStep(5);

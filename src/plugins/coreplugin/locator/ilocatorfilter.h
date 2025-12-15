@@ -247,11 +247,14 @@ public:
     static QString msgIncludeByDefault();
     static QString msgIncludeByDefaultToolTip();
 
+    static bool ignoreGeneratedFiles();
+
 public slots:
     void setEnabled(bool enabled);
 
 signals:
     void enabledChanged(bool enabled);
+    void ignoreGeneratedFilesChanged();
 
 protected:
     void setHidden(bool hidden);

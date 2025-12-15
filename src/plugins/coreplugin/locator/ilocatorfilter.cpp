@@ -3,6 +3,8 @@
 
 #include "ilocatorfilter.h"
 
+#include "locator.h"
+
 #include "../coreplugintr.h"
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
@@ -452,6 +454,9 @@ ILocatorFilter::ILocatorFilter(QObject *parent)
     : QObject(parent)
 {
     g_locatorFilters.append(this);
+    Internal::locatorSettings().ignoreGeneratedFiles.addOnChanged(this, [this] {
+        emit ignoreGeneratedFilesChanged();
+    });
 }
 
 ILocatorFilter::~ILocatorFilter()
@@ -681,6 +686,14 @@ QString ILocatorFilter::msgIncludeByDefault()
 QString ILocatorFilter::msgIncludeByDefaultToolTip()
 {
     return Tr::tr("Include the filter when not using a prefix for searches.");
+}
+
+/*!
+    Returns if the user requests to ignore generated files in project related searches.
+*/
+bool ILocatorFilter::ignoreGeneratedFiles()
+{
+    return Internal::locatorSettings().ignoreGeneratedFiles();
 }
 
 /*!

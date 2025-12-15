@@ -26,15 +26,26 @@ AllProjectsFilter::AllProjectsFilter()
                           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("a");
     setDefaultIncludedByDefault(true);
-    setRefreshRecipe(QSyncTask([this] { m_cache.invalidate(); }));
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
-            this, [this] { m_cache.invalidate(); });
+    const auto invalidateCache = [this] { m_cache.invalidate(); };
+
+    setRefreshRecipe(QSyncTask(invalidateCache));
+
+    connect(
+        ProjectExplorerPlugin::instance(),
+        &ProjectExplorerPlugin::fileListChanged,
+        this,
+        invalidateCache);
+    connect(this, &ILocatorFilter::ignoreGeneratedFilesChanged, this, invalidateCache);
+
     m_cache.setGeneratorProvider([] {
         // This body runs in main thread
+        const Project::NodeMatcher matcher = ILocatorFilter::ignoreGeneratedFiles()
+                                                 ? Project::SourceFiles
+                                                 : Project::AllFiles;
         FilePaths filePaths;
         for (Project *project : ProjectManager::projects())
-            filePaths.append(project->files(Project::SourceFiles));
+            filePaths.append(project->files(matcher));
         return [filePaths](const QFuture<void> &future) {
             // This body runs in non-main thread
             FilePaths sortedPaths = filePaths;
