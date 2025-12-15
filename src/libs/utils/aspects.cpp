@@ -2991,7 +2991,11 @@ FilePathListAspect::~FilePathListAspect() = default;
 
 FilePaths FilePathListAspect::operator()() const
 {
-    return Utils::transform(m_internal, &FilePath::fromUserInput);
+    return Utils::transform(m_internal, [expander = macroExpander()](const QString &f) {
+        if (expander)
+            return FilePath::fromUserInput(expander->expand(f));
+        return FilePath::fromUserInput(f);
+    });
 }
 
 bool FilePathListAspect::guiToBuffer()
