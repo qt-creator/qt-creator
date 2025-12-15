@@ -801,8 +801,7 @@ void QtSettingsPageWidget::redetect()
     if (!QTC_GUARD(dev))
         return;
 
-    const FilePaths qMakes
-        = BuildableHelperLibrary::findQtsInEnvironment(dev->systemEnvironment(), dev->rootPath());
+    const FilePaths qMakes = BuildableHelperLibrary::findQtsInPaths(dev->toolSearchPaths());
     for (const FilePath &qmakePath : qMakes) {
         if (BuildableHelperLibrary::isQtChooser(qmakePath))
             continue;
