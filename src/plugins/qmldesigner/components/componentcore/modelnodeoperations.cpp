@@ -777,6 +777,11 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
         Core::EditorManager::openEditorAt(
             {usages.constFirst().path, usages.constFirst().line, usages.constFirst().col});
 
+#ifndef QDS_USE_PROJECTSTORAGE
+        // Skip adding of signal handlers, since it crashes when not QDS_USE_PROJECTSTORAGE
+        return;
+#endif // QDS_USE_PROJECTSTORAGE
+
         if (!signalNames.isEmpty()) {
             auto dialog = new AddSignalHandlerDialog(Core::ICore::dialogParent());
             dialog->setSignals(signalNames);
