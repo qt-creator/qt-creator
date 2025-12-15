@@ -168,7 +168,7 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         if (index.column() == DisplayNameColumn)
             return m_entries.at(index.row()).displayName;
         if (index.column() == ExtraInfoColumn) {
-            if (Locator::instance()->relativePaths()) {
+            if (locatorSettings().relativePaths()) {
                 return ICore::pathRelativeToActiveProject(FilePath::fromUserInput(m_entries.at(index.row()).extraInfo)).toUserOutput();
             } else {
                 return m_entries.at(index.row()).extraInfo;
@@ -512,7 +512,7 @@ void CompletionList::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Tab:
-        if (Locator::useTabCompletion()) {
+        if (locatorSettings().useTabCompletion()) {
             emit completionRequested(currentIndex());
             return;
         }
@@ -576,8 +576,8 @@ bool CompletionList::eventFilter(QObject *watched, QEvent *event)
 LocatorWidget::LocatorWidget(Locator *locator)
     : m_locatorModel(new LocatorModel(this))
     , m_filterMenu(new QMenu(this))
-    , m_centeredPopupAction(new QAction(Tr::tr("Open as Centered Popup"), this))
-    , m_useTabCompletion(new QAction(Tr::tr("Use Tab Completion"), this))
+    , m_centeredPopupAction(new QAction(locatorSettings().useCenteredPopup.labelText(), this))
+    , m_useTabCompletion(new QAction(locatorSettings().useTabCompletion.labelText(), this))
     , m_refreshAction(new QAction(Tr::tr("Refresh"), this))
     , m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this))
     , m_fileLineEdit(new FancyLineEdit)
@@ -610,24 +610,26 @@ LocatorWidget::LocatorWidget(Locator *locator)
     this->installEventFilter(this);
 
     m_centeredPopupAction->setCheckable(true);
-    m_centeredPopupAction->setChecked(Locator::useCenteredPopupForShortcut());
+    m_centeredPopupAction->setChecked(locatorSettings().useCenteredPopup());
     m_useTabCompletion->setCheckable(true);
-    m_useTabCompletion->setChecked(Locator::useTabCompletion());
+    m_useTabCompletion->setChecked(locatorSettings().useTabCompletion());
 
     connect(m_filterMenu, &QMenu::aboutToShow, this, [this] {
-        m_centeredPopupAction->setChecked(Locator::useCenteredPopupForShortcut());
-        m_useTabCompletion->setChecked(Locator::useTabCompletion());
+        m_centeredPopupAction->setChecked(locatorSettings().useCenteredPopup());
+        m_useTabCompletion->setChecked(locatorSettings().useTabCompletion());
     });
 
     Utils::addToolTipsToMenu(m_filterMenu);
 
     connect(m_centeredPopupAction, &QAction::toggled, locator, [locator](bool toggled) {
-        if (toggled != Locator::useCenteredPopupForShortcut()) {
-            Locator::setUseCenteredPopupForShortcut(toggled);
+        if (toggled != locatorSettings().useCenteredPopup()) {
+            locatorSettings().useCenteredPopup.setValue(toggled);
             QMetaObject::invokeMethod(locator, [] { LocatorManager::show({}); });
         }
     });
-    connect(m_useTabCompletion, &QAction::toggled, locator, &Locator::setUseTabCompletion);
+    connect(m_useTabCompletion, &QAction::toggled, locator, [](bool checked) {
+        locatorSettings().useTabCompletion.setValue(checked);
+    });
 
     m_filterMenu->addAction(m_centeredPopupAction);
     m_filterMenu->addAction(m_useTabCompletion);

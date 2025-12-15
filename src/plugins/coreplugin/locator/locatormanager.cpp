@@ -35,7 +35,7 @@ static LocatorWidget *locatorWidget()
     // if that is a popup, try to find a better one
     if (window->windowFlags() & Qt::Popup && window->parentWidget())
         window = window->parentWidget()->window();
-    if (!Locator::useCenteredPopupForShortcut()) {
+    if (!locatorSettings().useCenteredPopup()) {
         if (auto *widget = Aggregation::query<LocatorWidget>(window)) {
             if (popup)
                 popup->close();

@@ -47,8 +47,46 @@ static Locator *m_instance = nullptr;
 
 const char kDirectoryFilterPrefix[] = "directory";
 const char kUrlFilterPrefix[] = "url";
-const char kUseCenteredPopup[] = "UseCenteredPopupForShortcut";
-const char kUseTabCompletion[] = "UseTabCompletion";
+
+LocatorSettings::LocatorSettings()
+{
+    setAutoApply(false);
+    setSettingsGroup("Locator");
+
+    useCenteredPopup.setSettingsKey("UseCenteredPopupForShortcut");
+    useCenteredPopup.setDefaultValue(false);
+    useCenteredPopup.setLabelText(Tr::tr("Open as Centered Popup"));
+
+    useTabCompletion.setSettingsKey("UseTabCompletion");
+    useTabCompletion.setDefaultValue(true);
+    useTabCompletion.setLabelText(Tr::tr("Use Tab Completion"));
+
+    relativePaths.setSettingsKey("RelativePaths");
+    relativePaths.setDefaultValue(false);
+    relativePaths.setLabelText(Tr::tr("Show Paths in Relation to Active Project"));
+    relativePaths.setToolTip(
+        Tr::tr("Locator filters show relative paths to the active project when possible."));
+
+    refreshInterval.setSettingsKey("RefreshInterval");
+    refreshInterval.setRange(0, 320);
+    refreshInterval.setSingleStep(5);
+    refreshInterval.setDefaultValue(60);
+    //: short for "minutes"
+    refreshInterval.setSuffix(Tr::tr(" min"));
+    refreshInterval.setLabelText(Tr::tr("Refresh interval:"));
+    refreshInterval.setToolTip(
+        Tr::tr(
+            "Locator filters that do not update their cached data immediately, such as the "
+            "custom directory filters, update it after this time interval."));
+
+    readSettings();
+}
+
+LocatorSettings &locatorSettings()
+{
+    static LocatorSettings theSettings;
+    return theSettings;
+}
 
 class LocatorData
 {
@@ -160,18 +198,7 @@ void Locator::aboutToShutdown()
 void Locator::loadSettings()
 {
     namespace DB = SettingsDatabase;
-    const Settings def;
     DB::beginGroup("Locator");
-
-    ICore::settings()->withGroup("Locator", [this, &def](QtcSettings *settings) {
-        m_refreshTimer.setInterval(
-            minutes(settings->value("RefreshInterval", int(def.refreshInterval / 1min)).toInt()));
-        m_settings.relativePaths = settings->value("RelativePaths", def.relativePaths).toBool();
-        m_settings.useCenteredPopup
-            = settings->value(kUseCenteredPopup, def.useCenteredPopup).toBool();
-        m_settings.useTabCompletion
-            = settings->value(kUseTabCompletion, def.useTabCompletion).toBool();
-    });
 
     for (ILocatorFilter *filter : std::as_const(m_filters)) {
         if (DB::contains(filter->id().toString())) {
@@ -203,8 +230,19 @@ void Locator::loadSettings()
     DB::endGroup();
     DB::endGroup();
 
-    if (m_refreshTimer.interval() > 0)
+    const auto updateTimer = [this] {
+        const int interval = locatorSettings().refreshInterval();
+        if (interval < 1) {
+            m_refreshTimer.stop();
+            m_refreshTimer.setInterval(0);
+            return;
+        }
+        m_refreshTimer.setInterval(minutes(interval));
         m_refreshTimer.start();
+    };
+    locatorSettings().refreshInterval.addOnChanged(this, updateTimer);
+    updateTimer();
+
     m_settingsInitialized = true;
     setFilters(m_filters + customFilters);
 }
@@ -293,7 +331,6 @@ void Locator::saveSettings() const
     if (!m_settingsInitialized)
         return;
 
-    const Settings def;
     namespace DB = SettingsDatabase;
     DB::beginTransaction();
     DB::beginGroup("Locator");
@@ -319,15 +356,7 @@ void Locator::saveSettings() const
     DB::endGroup();
     DB::endTransaction();
 
-    ICore::settings()->withGroup("Locator", [this, &def](QtcSettings *settings) {
-        settings->setValueWithDefault(
-            "RefreshInterval", refreshInterval(), int(def.refreshInterval / 1min));
-        settings->setValueWithDefault("RelativePaths", m_settings.relativePaths, def.relativePaths);
-        settings->setValueWithDefault(
-            kUseCenteredPopup, m_settings.useCenteredPopup, def.useCenteredPopup);
-        settings->setValueWithDefault(
-            kUseTabCompletion, m_settings.useTabCompletion, def.useTabCompletion);
-    });
+    locatorSettings().writeSettings();
 }
 
 /*!
@@ -358,52 +387,6 @@ void Locator::setFilters(QList<ILocatorFilter *> f)
 void Locator::setCustomFilters(QList<ILocatorFilter *> filters)
 {
     m_customFilters = filters;
-}
-
-int Locator::refreshInterval() const
-{
-    return m_refreshTimer.interval() / 60000;
-}
-
-void Locator::setRefreshInterval(int interval)
-{
-    if (interval < 1) {
-        m_refreshTimer.stop();
-        m_refreshTimer.setInterval(0);
-        return;
-    }
-    m_refreshTimer.setInterval(minutes(interval));
-    m_refreshTimer.start();
-}
-
-bool Locator::relativePaths() const
-{
-    return m_settings.relativePaths;
-}
-
-void Locator::setRelativePaths(bool use)
-{
-    m_settings.relativePaths = use;
-}
-
-bool Locator::useCenteredPopupForShortcut()
-{
-    return m_instance->m_settings.useCenteredPopup;
-}
-
-void Locator::setUseCenteredPopupForShortcut(bool center)
-{
-    m_instance->m_settings.useCenteredPopup = center;
-}
-
-bool Locator::useTabCompletion()
-{
-    return m_instance->m_settings.useTabCompletion;
-}
-
-void Locator::setUseTabCompletion(bool useTabCompletion)
-{
-    m_instance->m_settings.useTabCompletion = useTabCompletion;
 }
 
 void Locator::refresh(const QList<ILocatorFilter *> &filters)

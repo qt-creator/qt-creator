@@ -259,24 +259,6 @@ public:
 
         auto addButton = new QPushButton(Tr::tr("Add..."));
 
-        auto refreshIntervalLabel = new QLabel(Tr::tr("Refresh interval:"));
-        refreshIntervalLabel->setToolTip(
-            Tr::tr("Locator filters that do not update their cached data immediately, such as the "
-               "custom directory filters, update it after this time interval."));
-
-        m_refreshInterval = new QSpinBox;
-        m_refreshInterval->setToolTip(refreshIntervalLabel->toolTip());
-        m_refreshInterval->setSuffix(Tr::tr(" min"));
-        m_refreshInterval->setFrame(true);
-        m_refreshInterval->setButtonSymbols(QAbstractSpinBox::PlusMinus);
-        m_refreshInterval->setMaximum(320);
-        m_refreshInterval->setSingleStep(5);
-        m_refreshInterval->setValue(60);
-
-        m_relativePaths = new QCheckBox(Tr::tr("Show Paths in Relation to Active Project"));
-        m_relativePaths->setToolTip(
-            Tr::tr("Locator filters show relative paths to the active project when possible."));
-
         auto filterEdit = new FancyLineEdit;
         filterEdit->setFiltering(true);
 
@@ -316,6 +298,8 @@ public:
         m_editButton = new QPushButton(Tr::tr("Edit..."));
         m_editButton->setEnabled(false);
 
+        const LocatorSettings &settings = locatorSettings();
+
         using namespace Layouting;
 
         Column buttons{addButton, m_removeButton, m_editButton, st};
@@ -324,8 +308,10 @@ public:
         Grid {
             filterEdit, br,
             m_filterList, buttons, br,
-            Span(2, Row{refreshIntervalLabel, m_refreshInterval, st}), br,
-            Span(2, Row{m_relativePaths, st})
+            Column {
+                Row {settings.refreshInterval, st},
+                settings.relativePaths
+            }
         }.attachTo(this);
         // clang-format on
 
@@ -360,8 +346,6 @@ public:
         });
         addButton->setMenu(addMenu);
 
-        m_refreshInterval->setValue(m_plugin->refreshInterval());
-        m_relativePaths->setChecked(m_plugin->relativePaths());
         saveFilterStates();
     }
 
@@ -382,8 +366,6 @@ private:
     Utils::TreeView *m_filterList;
     QPushButton *m_removeButton;
     QPushButton *m_editButton;
-    QSpinBox *m_refreshInterval;
-    QCheckBox *m_relativePaths;
     Locator *m_plugin = nullptr;
     Utils::TreeModel<> *m_model = nullptr;
     QSortFilterProxyModel *m_proxyModel = nullptr;
@@ -406,8 +388,7 @@ void LocatorSettingsWidget::apply()
     // Pass the new configuration on to the plugin
     m_plugin->setFilters(m_filters);
     m_plugin->setCustomFilters(m_customFilters);
-    m_plugin->setRefreshInterval(m_refreshInterval->value());
-    m_plugin->setRelativePaths(m_relativePaths->isChecked());
+    locatorSettings().apply();
     requestRefresh();
     m_plugin->saveSettings();
     saveFilterStates();
