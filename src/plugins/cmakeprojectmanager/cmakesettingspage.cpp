@@ -697,9 +697,7 @@ void CMakeToolConfigWidget::redetect()
     // Step 1: Detect
     const IDeviceConstPtr dev = currentDevice();
     QTC_ASSERT(dev, return);
-    const FilePath root = dev->rootPath();
-    auto toAdd
-        = CMakeToolManager::autoDetectCMakeTools(dev->systemEnvironment().mappedPath(root), root);
+    auto toAdd = CMakeToolManager::autoDetectCMakeTools(dev->toolSearchPaths(), dev->rootPath());
 
     // Step 2: Match existing against newly detected.
     QList<Id> toRemove;
