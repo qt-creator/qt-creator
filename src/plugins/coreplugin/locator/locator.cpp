@@ -160,29 +160,17 @@ void Locator::aboutToShutdown()
 void Locator::loadSettings()
 {
     namespace DB = SettingsDatabase;
-    // check if we have to read old settings
-    // TOOD remove a few versions after 4.15
-    const QString settingsGroup = DB::contains("Locator") ? QString("Locator")
-                                                                : QString("QuickOpen");
     const Settings def;
-    DB::beginGroup(settingsGroup);
-    // TODO SettingsDatabase just for old settings from QtC < 16.0
-    // when removed, the defaults need to move to the ICore::settings() code path below
-    {
+    DB::beginGroup("Locator");
+
+    ICore::settings()->withGroup("Locator", [this, &def](QtcSettings *settings) {
         m_refreshTimer.setInterval(
-            minutes(DB::value("RefreshInterval", int(def.refreshInterval / 1min)).toInt()));
-        m_settings.relativePaths = DB::value("RelativePaths", def.relativePaths).toBool();
-        m_settings.useCenteredPopup = DB::value(kUseCenteredPopup, def.useCenteredPopup).toBool();
-    }
-    ICore::settings()->withGroup("Locator", [this](QtcSettings *settings) {
-        m_refreshTimer.setInterval(
-            minutes(settings->value("RefreshInterval", refreshInterval()).toInt()));
-        m_settings.relativePaths
-            = settings->value("RelativePaths", m_settings.relativePaths).toBool();
+            minutes(settings->value("RefreshInterval", int(def.refreshInterval / 1min)).toInt()));
+        m_settings.relativePaths = settings->value("RelativePaths", def.relativePaths).toBool();
         m_settings.useCenteredPopup
-            = settings->value(kUseCenteredPopup, m_settings.useCenteredPopup).toBool();
+            = settings->value(kUseCenteredPopup, def.useCenteredPopup).toBool();
         m_settings.useTabCompletion
-            = settings->value(kUseTabCompletion, m_settings.useTabCompletion).toBool();
+            = settings->value(kUseTabCompletion, def.useTabCompletion).toBool();
     });
 
     for (ILocatorFilter *filter : std::as_const(m_filters)) {
@@ -310,12 +298,6 @@ void Locator::saveSettings() const
     DB::beginTransaction();
     DB::beginGroup("Locator");
     DB::remove(QString());
-    // TODO SettingsDatabase only for backward compatibility < 16.0
-    {
-        DB::setValue("RefreshInterval", refreshInterval());
-        DB::setValue("RelativePaths", relativePaths());
-        DB::setValueWithDefault(kUseCenteredPopup, m_settings.useCenteredPopup, def.useCenteredPopup);
-    }
     for (ILocatorFilter *filter : m_filters) {
         if (!m_customFilters.contains(filter) && filter->id().isValid()) {
             const QByteArray state = filter->saveState();
