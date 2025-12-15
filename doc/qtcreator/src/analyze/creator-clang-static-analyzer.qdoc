@@ -153,7 +153,7 @@
             \uicontrol {Clang Tools}.
             \image {qtcreator-clang-tools-settings.webp} {Clang Tools customized settings}
         \li Clear \uicontrol {Use global settings}.
-        \li Specify \uicontrol preferences for the project.
+        \li Set preferences for the project.
         \li In \uicontrol {Suppressed diagnostics}, you can view the suppression
             list for a project and to remove diagnostics from it.
     \endlist

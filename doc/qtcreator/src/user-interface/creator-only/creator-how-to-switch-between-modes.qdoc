@@ -27,7 +27,7 @@
         \li Purpose
         \li Read More
     \row
-        \li {1,8} \inlineimage {qtcreator-mode-selector.webp} {Mode selector}
+        \li {1,9} \inlineimage {qtcreator-mode-selector.webp} {Mode selector}
     \row
         \li \uicontrol Welcome
         \li \key Ctrl+1
@@ -66,6 +66,11 @@
         \li \key Ctrl+7
         \li Read documentation.
         \li \l{Getting help}
+    \row
+        \li \uicontrol Preferences
+        \li \key Ctrl+8
+        \li Set global preferences.
+        \li \l{Find preferences}
     \endtable
 
     Some actions in \QC trigger a mode change. For example,
