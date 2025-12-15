@@ -449,7 +449,7 @@ bool BaseAspect::isAutoApply() const
 }
 
 /*!
-    Sets auto-apply mode. When auto-apply mode is \a on, user interaction to this
+    Sets auto-apply mode. When auto-apply mode is \a off, user interaction to this
     aspect's widget will not modify the \c value of the aspect until \c apply()
     is called programmatically.
 
