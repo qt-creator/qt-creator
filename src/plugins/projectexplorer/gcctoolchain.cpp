@@ -1473,31 +1473,27 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
     if (!m_autoDetecting)
         return {};
 
-    const bool isLocal = detector.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    const FilePath rootPath = detector.device->rootPath();
+    const OsType os = detector.device->osType();
     FilePaths searchPaths = detector.searchPaths;
-    if (!isLocal) {
-        if (searchPaths.isEmpty())
-            searchPaths = detector.device->systemEnvironment().path();
-        searchPaths = Utils::transform(searchPaths, [&](const FilePath &onDevice) {
-            return detector.device->filePath(onDevice.path());
-        });
-    } else if (searchPaths.isEmpty()) {
-        searchPaths = Environment::systemEnvironment().path();
+    if (searchPaths.isEmpty())
+        searchPaths = detector.device->systemEnvironment().mappedPath(rootPath);
+
+    if (os == OsTypeWindows) {
         searchPaths << gnuSearchPathsFromRegistry();
         searchPaths << atmelSearchPathsFromRegistry();
         searchPaths << renesasRl78SearchPathsFromRegistry();
-        if (HostOsInfo::isMacHost()) {
-            searchPaths << "/opt/homebrew/opt/ccache/libexec" // homebrew arm
-                        << "/usr/local/opt/ccache/libexec"    // homebrew intel
-                        << "/opt/local/libexec/ccache"; // macports, no links are created automatically though
-        }
-        if (HostOsInfo::isAnyUnixHost()) {
-            FilePath ccachePath = "/usr/lib/ccache/bin";
-            if (!ccachePath.exists())
-                ccachePath = "/usr/lib/ccache";
-            if (ccachePath.exists() && !searchPaths.contains(ccachePath))
-                searchPaths << ccachePath;
-        }
+    } else if (os == OsTypeMac) {
+        searchPaths << rootPath.withNewPath("/opt/homebrew/opt/ccache/libexec") // homebrew arm
+                    << rootPath.withNewPath("/usr/local/opt/ccache/libexec")    // homebrew intel
+                    << rootPath.withNewPath("/opt/local/libexec/ccache"); // macports, no links are created automatically though
+    }
+    if (os == OsTypeMac || os == OsTypeLinux || os == OsTypeOtherUnix) {
+        FilePath ccachePath = rootPath.withNewPath("/usr/lib/ccache/bin");
+        if (!ccachePath.exists())
+            ccachePath = rootPath.withNewPath("/usr/lib/ccache");
+        if (ccachePath.exists() && !searchPaths.contains(ccachePath))
+            searchPaths << ccachePath;
     }
 
     FilePaths executables;
@@ -1510,16 +1506,14 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
     }, {nameFilters, QDir::Files | QDir::Executable });
 
     // Gcc is almost never what you want on macOS, but it is by default found in /usr/bin
-    if (HostOsInfo::isMacHost() && detector.device->type() == Constants::DESKTOP_DEVICE_TYPE) {
-         executables.removeOne(FilePath::fromPathPart(u"/usr/bin/gcc"));
-         executables.removeOne(FilePath::fromPathPart(u"/usr/bin/g++"));
-         executables.removeOne(FilePath::fromPathPart(u"/usr/bin/llvm-gcc"));
-         executables.removeOne(FilePath::fromPathPart(u"/usr/bin/llvm-g++"));
+    if (detector.device->osType() == OsTypeMac) {
+         executables.removeOne(rootPath.withNewPath("/usr/bin/gcc"));
+         executables.removeOne(rootPath.withNewPath("/usr/bin/g++"));
+         executables.removeOne(rootPath.withNewPath("/usr/bin/llvm-gcc"));
+         executables.removeOne(rootPath.withNewPath("/usr/bin/llvm-g++"));
     }
 
     Utils::sort(executables);
-
-    const OsType os = detector.device->osType();
 
     Toolchains result;
 
@@ -1555,7 +1549,7 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                                     GccToolchain::Clang));
     known.append(tcs);
 
-    if (isLocal)
+    if (detector.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         tcs.append(autoDetectSdkClangToolchain(known));
 
     result += tcs;

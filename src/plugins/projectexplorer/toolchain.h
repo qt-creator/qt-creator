@@ -352,7 +352,7 @@ public:
 
     const Toolchains alreadyKnown;
     const IDeviceConstPtr device;
-    const Utils::FilePaths searchPaths; // If empty use device path and/or magic.
+    const Utils::FilePaths searchPaths; // If empty use PATH.
 };
 
 class PROJECTEXPLORER_EXPORT ToolchainFactory
