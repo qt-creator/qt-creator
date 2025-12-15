@@ -334,10 +334,13 @@ public:
                 markForRemoval(item);
         });
 
-        m_filterModel.setDevice(DeviceManager::defaultDesktopDevice());
-        connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, [this](int idx) {
-            m_filterModel.setDevice(DeviceManager::deviceAt(idx));
-        });
+        const auto updateDevice = [this](int index) {
+            m_filterModel.setDevice(m_deviceManagerModel.device(index));
+        };
+        connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
+        m_deviceComboBox->setCurrentIndex(
+            m_deviceManagerModel.indexForId(ProjectExplorer::Constants::DESKTOP_DEVICE_ID));
+        updateDevice(m_deviceComboBox->currentIndex());
 
         updateState();
     }
