@@ -1225,7 +1225,7 @@ public:
                 this, [this] {
             const IDeviceConstPtr dev = currentDevice();
             QTC_ASSERT(dev, return);
-            itemModel().detectDebuggers(dev, dev->systemEnvironment().mappedPath(dev->rootPath()));
+            itemModel().detectDebuggers(dev, dev->toolSearchPaths());
         });
 
         m_deviceComboBox->setCurrentIndex(
