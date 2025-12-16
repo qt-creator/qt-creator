@@ -68,6 +68,17 @@ public:
         showWrapColumn = new QCheckBox(Tr::tr("Display right &margin after column:"));
         tintMarginArea = new QCheckBox(Tr::tr("Tint whole margin area"));
 
+        auto centeredEditorContentWidthLabel = new QLabel(Tr::tr("Editor content width"));
+        centeredEditorContentWidthLabel->setToolTip(
+            Tr::tr("100% means that whole width of editor window is used to display text"
+            " content (default).<br>50% means that half of editor width is used to display"
+            " text content.<br>Remaining 50% is divided as left and right margins while"
+            " centering content"));
+        centeredEditorContentWidth = new QSpinBox;
+        centeredEditorContentWidth->setMinimum(50);
+        centeredEditorContentWidth->setMaximum(100);
+        centeredEditorContentWidth->setSuffix("%");
+
         wrapColumn = new QSpinBox;
         wrapColumn->setMaximum(999);
 
@@ -127,7 +138,8 @@ public:
                 title(Tr::tr("Margin")),
                 Column {
                     Row { showWrapColumn, wrapColumn, st },
-                    Row { useIndenter, tintMarginArea, st }
+                    Row { useIndenter, tintMarginArea, st },
+                    Row { centeredEditorContentWidthLabel, centeredEditorContentWidth, st }
                 }
             },
             Group {
@@ -189,6 +201,7 @@ public:
 
     QCheckBox *enableTextWrapping;
     QLabel *enableTextWrappingHintLabel;
+    QSpinBox *centeredEditorContentWidth;
     QCheckBox *showWrapColumn;
     QCheckBox *tintMarginArea;
     QSpinBox *wrapColumn;
@@ -239,6 +252,7 @@ void DisplaySettingsWidget::settingsFromUI(DisplaySettings &displaySettings,
     marginSettings.m_tintMarginArea = tintMarginArea->isChecked();
     marginSettings.m_useIndenter = useIndenter->isChecked();
     marginSettings.m_marginColumn = wrapColumn->value();
+    marginSettings.m_centerEditorContentWidthPercent = centeredEditorContentWidth->value();
     displaySettings.m_visualizeWhitespace = visualizeWhitespace->isChecked();
     displaySettings.m_visualizeIndent = visualizeIndent->isChecked();
     displaySettings.m_displayFoldingMarkers = displayFoldingMarkers->isChecked();
@@ -280,6 +294,7 @@ void DisplaySettingsWidget::settingsToUI()
     useIndenter->setChecked(marginSettings.m_useIndenter);
     wrapColumn->setValue(marginSettings.m_marginColumn);
     wrapColumn->setEnabled(marginSettings.m_showMargin);
+    centeredEditorContentWidth->setValue(marginSettings.m_centerEditorContentWidthPercent);
     visualizeWhitespace->setChecked(displaySettings.m_visualizeWhitespace);
     visualizeIndent->setChecked(displaySettings.m_visualizeIndent);
     displayFoldingMarkers->setChecked(displaySettings.m_displayFoldingMarkers);
@@ -315,6 +330,12 @@ const DisplaySettings &DisplaySettingsPage::displaySettings() const
 const MarginSettings &DisplaySettingsPage::marginSettings() const
 {
     return d->m_marginSettings;
+}
+
+void DisplaySettingsPage::setEditorContentWidth(int width)
+{
+    d->m_marginSettings.m_centerEditorContentWidthPercent = std::clamp(width, 50, 100);
+    emit TextEditorSettings::instance()->marginSettingsChanged(marginSettings());
 }
 
 void DisplaySettingsWidget::setDisplaySettings(const DisplaySettings &newDisplaySettings,

@@ -14,12 +14,14 @@ const char wrapColumnKey[] = "MarginColumn";
 const char groupPostfix[] = "textMarginSettings";
 const char useIndenterColumnKey[] = "UseIndenter";
 const char tintMarginAreaColumnKey[] = "tintMarginArea";
+const char centeredEditorContentWidthPercent[] = "centeredEditorContentWidthPercent";
 
 MarginSettings::MarginSettings()
     : m_showMargin(false)
     , m_tintMarginArea(true)
     , m_useIndenter(false)
     , m_marginColumn(80)
+    , m_centerEditorContentWidthPercent(100)
 {
 }
 
@@ -30,6 +32,7 @@ void MarginSettings::toSettings(QtcSettings *s) const
     s->setValue(tintMarginAreaColumnKey, m_tintMarginArea);
     s->setValue(useIndenterColumnKey, m_useIndenter);
     s->setValue(wrapColumnKey, m_marginColumn);
+    s->setValue(centeredEditorContentWidthPercent, m_centerEditorContentWidthPercent);
     s->endGroup();
 }
 
@@ -42,6 +45,8 @@ void MarginSettings::fromSettings(QtcSettings *s)
     m_tintMarginArea = s->value(tintMarginAreaColumnKey, m_tintMarginArea).toBool();
     m_useIndenter = s->value(useIndenterColumnKey, m_useIndenter).toBool();
     m_marginColumn = s->value(wrapColumnKey, m_marginColumn).toInt();
+    m_centerEditorContentWidthPercent = s->value(centeredEditorContentWidthPercent,
+                                                 m_centerEditorContentWidthPercent).toInt();
     s->endGroup();
 }
 
@@ -51,7 +56,8 @@ Store MarginSettings::toMap() const
         {tintMarginAreaColumnKey, m_tintMarginArea},
         {showWrapColumnKey, m_showMargin},
         {useIndenterColumnKey, m_useIndenter},
-        {wrapColumnKey, m_marginColumn}
+        {wrapColumnKey, m_marginColumn},
+        {centeredEditorContentWidthPercent, m_centerEditorContentWidthPercent}
     };
 }
 
@@ -61,6 +67,8 @@ void MarginSettings::fromMap(const Store &map)
     m_tintMarginArea = map.value(tintMarginAreaColumnKey, m_tintMarginArea).toBool();
     m_useIndenter = map.value(useIndenterColumnKey, m_useIndenter).toBool();
     m_marginColumn = map.value(wrapColumnKey, m_marginColumn).toInt();
+    m_centerEditorContentWidthPercent = map.value(centeredEditorContentWidthPercent,
+                                                  m_centerEditorContentWidthPercent).toInt();
 }
 
 bool MarginSettings::equals(const MarginSettings &other) const
@@ -69,6 +77,7 @@ bool MarginSettings::equals(const MarginSettings &other) const
         && m_tintMarginArea == other.m_tintMarginArea
         && m_useIndenter == other.m_useIndenter
         && m_marginColumn == other.m_marginColumn
+        && m_centerEditorContentWidthPercent == other.m_centerEditorContentWidthPercent
         ;
 }
 

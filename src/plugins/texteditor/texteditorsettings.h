@@ -80,6 +80,7 @@ public:
     static int decreaseFontZoom();
     static int increaseFontZoom(int step);
     static void resetFontZoom();
+    static void setEditorContentWidth(int width);
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);

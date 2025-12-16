@@ -607,6 +607,11 @@ void TextEditorSettings::resetFontZoom()
     setFontZoom(100);
 }
 
+void TextEditorSettings::setEditorContentWidth(int width)
+{
+    d->m_displaySettingsPage.setEditorContentWidth(width);
+}
+
 TextEditorSettings &Internal::textEditorSettings()
 {
     static TextEditorSettings theTextEditorSettings;

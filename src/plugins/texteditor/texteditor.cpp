@@ -910,6 +910,10 @@ public:
     void updateUndoAction();
     void updateCopyAction(bool on);
 
+    void updateCenteringContentMargins();
+    bool detectCombinedEditor() const;
+    void setBackgroundColor();
+
 public:
     TextEditorWidget *q;
     QWidget *m_toolBarWidget = nullptr;
@@ -1130,6 +1134,8 @@ public:
 
     QSingleTaskTreeRunner m_searchRunner;
     QSingleTaskTreeRunner m_selectionHighlightRunner;
+
+    bool m_isCombinedEditor = false;
 };
 
 class TextEditorWidgetFind : public BaseTextFind<TextEditorWidget>
@@ -1642,6 +1648,10 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
         applyFontSettingsDelayed();
     else
         m_document->setFontSettings(fontSettings);
+
+    if (!m_isCombinedEditor)
+        setBackgroundColor();
+
     const TabSettings tabSettings = TextEditorSettings::codeStyle()->tabSettings();
     if (m_document->tabSettings() == tabSettings)
         applyTabSettings();
@@ -3708,6 +3718,15 @@ bool TextEditorWidget::event(QEvent *e)
             setTextInteractionFlags(textInteractionFlags() | Qt::TextSelectableByKeyboard);
         d->updateActions();
         break;
+    case QEvent::ParentChange: {
+        bool isCombinedEditor = d->detectCombinedEditor();
+        if (d->m_isCombinedEditor != isCombinedEditor) {
+            if (!isCombinedEditor)
+                d->setBackgroundColor();
+            d->m_isCombinedEditor = isCombinedEditor;
+        }
+        break;
+    }
     default:
         break;
     }
@@ -6617,12 +6636,52 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
     return space;
 }
 
+void TextEditorWidgetPrivate::setBackgroundColor()
+{
+    auto localPalette = q->palette();
+    auto fontBackgroundColor = m_document->fontSettings().toTextCharFormat(C_TEXT).background().color();
+    if (localPalette.window() != fontBackgroundColor) {
+        localPalette.setColor(QPalette::Window, fontBackgroundColor);
+        q->setPalette(localPalette);
+        q->setAutoFillBackground(true);
+        q->setBackgroundVisible(true);
+    }
+}
+
+bool TextEditorWidgetPrivate::detectCombinedEditor() const
+{
+    auto qParent = q->parent();
+    const auto maxParentDepth = 3;
+    auto parentLevel = 1;
+    while (qParent && parentLevel < maxParentDepth) {
+        if (qobject_cast<QSplitter *>(qParent) != nullptr)
+            return true;
+        qParent = qParent->parent();
+        parentLevel++;
+    }
+    return false;
+}
+
+void TextEditorWidgetPrivate::updateCenteringContentMargins()
+{
+    if (!m_isCombinedEditor) {
+        int margin = q->width() * (100 - m_marginSettings.m_centerEditorContentWidthPercent) / 200;
+        q->setEditorTextMargin(
+            "TextEditor.ContentMarginWidth", Qt::LeftEdge, margin);
+        q->setEditorTextMargin(
+            "TextEditor.ContentMarginWidth", Qt::RightEdge, margin);
+    }
+}
+
 void TextEditorWidgetPrivate::slotUpdateExtraAreaWidth(std::optional<int> width)
 {
     if (!width.has_value())
         width = q->extraAreaWidth();
+
     q->setEditorTextMargin(
-        "TextEditor.ExtraAreaWidth", q->isLeftToRight() ? Qt::LeftEdge : Qt::RightEdge, *width);
+        "TextEditor.ExtraAreaWidth",  q->isLeftToRight() ? Qt::LeftEdge : Qt::RightEdge , *width);
+
+    updateCenteringContentMargins();
 }
 
 void TextEditorWidgetPrivate::slotUpdateBlockCount()
@@ -9253,6 +9312,8 @@ void TextEditorWidget::showEvent(QShowEvent* e)
 void TextEditorWidgetPrivate::applyFontSettingsDelayed()
 {
     m_fontSettingsNeedsApply = true;
+    if (!m_isCombinedEditor)
+        setBackgroundColor();
     if (q->isVisible())
         q->triggerPendingUpdates();
     updateActions();

@@ -31,6 +31,7 @@ public:
     bool m_tintMarginArea;
     bool m_useIndenter;
     int m_marginColumn;
+    int m_centerEditorContentWidthPercent;
 };
 
 } // namespace TextEditor
