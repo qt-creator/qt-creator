@@ -3,6 +3,7 @@ add_qtc_library(DesignSystem STATIC
   DEPENDS
     Qt::Core Qt::Widgets QmlDesignerCore TextEditorSupport
   SOURCES
+    designsystem_global.h
     dsconstants.h
     dsstore.h dsstore.cpp
     dsthemegroup.h dsthemegroup.cpp
