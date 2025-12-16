@@ -21,7 +21,6 @@
 #include <utils/datafromprocess.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
-#include <utils/synchronizedvalue.h>
 
 #include <QReadLocker>
 
@@ -154,37 +153,45 @@ bool isVenvPython(const FilePath &python)
     return python.parentDir().parentDir().pathAppended("pyvenv.cfg").exists();
 }
 
-static bool isUsableHelper(
-    SynchronizedValue<QHash<FilePath, bool>> *cache,
-    const QString &commandArg,
-    const FilePath &python)
+bool venvIsUsable(const FilePath &python, const std::function<void(const bool)> &changedHandler)
 {
-    std::optional<bool> result;
-    cache->read([&result, python](const QHash<FilePath, bool> &cache) {
-        if (auto it = cache.find(python); it != cache.end())
-            result = it.value();
-    });
-    if (result)
-        return *result;
-
-    Process process;
-    process.setCommand({python, {"-m", commandArg, "-h"}});
-    process.runBlocking();
-    const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
-    cache->writeLocked()->insert(python, usable);
-    return usable;
+    DataFromProcess<bool>::Parameters
+        params({python, {"-m", "venv", "-h"}}, [](const QString &, const QString &) {
+            return true;
+        });
+    params.cachedValueChangedCallback = [changedHandler](const std::optional<bool> &newValue) {
+        if (changedHandler)
+            changedHandler(newValue.value_or(false));
+    };
+    return DataFromProcess<bool>::getData(params).value_or(false);
 }
 
-bool venvIsUsable(const FilePath &python)
+bool pipIsUsable(const FilePath &python, const std::function<void(const bool)> &changedHandler)
 {
-    static SynchronizedValue<QHash<FilePath, bool>> cache;
-    return isUsableHelper(&cache, "venv", python);
+    DataFromProcess<bool>::Parameters
+        params({python, {"-m", "pip", "-h"}}, [](const QString &, const QString &) {
+            return true;
+        });
+    params.cachedValueChangedCallback = [changedHandler](const std::optional<bool> &newValue) {
+        if (changedHandler)
+            changedHandler(newValue.value_or(false));
+    };
+    return DataFromProcess<bool>::getData(params).value_or(false);
 }
 
-bool pipIsUsable(const FilePath &python)
+void pipIsUsableAsync(
+    const Utils::FilePath &python, const std::function<void(const bool)> &callback)
 {
-    static SynchronizedValue<QHash<FilePath, bool>> cache;
-    return isUsableHelper(&cache, "pip", python);
+    DataFromProcess<bool>::Parameters
+        params({python, {"-m", "pip", "-h"}}, [](const QString &, const QString &) {
+            return true;
+        });
+    params.callback = [callback](const std::optional<bool> &usable) {
+        if (callback)
+            callback(usable.value_or(false));
+    };
+    DataFromProcess<bool>::provideData(params);
+
 }
 
 QString pythonVersion(const FilePath &python)

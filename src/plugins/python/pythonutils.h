@@ -16,8 +16,12 @@ class PythonProject;
 PythonProject *pythonProjectForFile(const Utils::FilePath &pythonFile);
 
 bool isVenvPython(const Utils::FilePath &python);
-bool venvIsUsable(const Utils::FilePath &python);
-bool pipIsUsable(const Utils::FilePath &python);
+bool venvIsUsable(
+    const Utils::FilePath &python, const std::function<void(const bool)> &changedHandler = {});
+bool pipIsUsable(
+    const Utils::FilePath &python, const std::function<void(const bool)> &changedHandler = {});
+void pipIsUsableAsync(
+    const Utils::FilePath &python, const std::function<void(const bool)> &callback);
 
 QString pythonVersion(const Utils::FilePath &python);
 

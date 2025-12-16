@@ -10,6 +10,7 @@
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
+#include <projectexplorer/kitmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -109,7 +110,11 @@ public:
                                       Tr::tr("Python \"%1\" is not executable.")
                                           .arg(path.toUserOutput()));
         } else {
-            if (!pipIsUsable(path)) {
+            auto changedHandler = [id = k->id()](const bool) {
+                if (auto k = KitManager::kit(id))
+                    k->validate();
+            };
+            if (!pipIsUsable(path, changedHandler)) {
                 result << BuildSystemTask(
                     Task::Warning,
                     Tr::tr("Python \"%1\" does not contain a usable pip. pip is needed to install "
@@ -119,7 +124,7 @@ public:
                            "ensure that pip is installed for that Python.")
                         .arg(path.toUserOutput()));
             }
-            if (!venvIsUsable(path)) {
+            if (!venvIsUsable(path, changedHandler)) {
                 result << BuildSystemTask(
                     Task::Warning,
                     Tr::tr(

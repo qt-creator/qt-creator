@@ -79,7 +79,7 @@ static FilePath pyLspPath(const FilePath &python)
     return {};
 }
 
-static PythonLanguageServerState checkPythonLanguageServer(const FilePath &python)
+static PythonLanguageServerState checkPythonLanguageServer(const FilePath &python, bool pipUsable)
 {
     static QHash<FilePath, PythonLanguageServerState> m_stateCache;
     using namespace LanguageClient;
@@ -90,11 +90,9 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
 
     const FilePath lspPath = pyLspPath(python);
     if (!lspPath.isEmpty()) {
-        bool pipAvailable = pipIsUsable(python);
-
         const FilePath pylsp = (lspPath / "bin" / "pylsp").withExecutableSuffix();
         if (pylsp.exists()) {
-            if (pipAvailable) {
+            if (pipUsable) {
                 Process pythonProcess;
                 Environment env = pylsp.deviceEnvironment();
                 env.appendOrSet("PYTHONPATH", lspPath.toUserOutput());
@@ -128,7 +126,7 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
                 .value();
         }
 
-        if (pipAvailable)
+        if (pipUsable)
             return {PythonLanguageServerState::Installable, lspPath};
     }
     return m_stateCache.insert(python, {PythonLanguageServerState::NotInstallable, FilePath()})
@@ -310,6 +308,8 @@ public:
     void installPythonLanguageServer(const FilePath &python,
                                      QPointer<TextDocument> document,
                                      const FilePath &pylsPath, bool silent, bool upgrade);
+    void startCheckPythonLanguageServer(
+        const FilePath &python, QPointer<TextDocument> document, bool pipUsable);
     void openDocument(const FilePath &python, TextDocument *document);
 
     QHash<FilePath, QList<TextDocument *>> m_infoBarEntries;
@@ -352,6 +352,26 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
     m_pipInstallerRunner.start(pipInstallerTask(data), {}, onDone);
 }
 
+void PyLSConfigureAssistant::startCheckPythonLanguageServer(
+    const FilePath &python, QPointer<TextDocument> document, bool pipUsable)
+{
+    if (!document)
+        return;
+    const auto onSetup = [python, pipUsable](Async<PythonLanguageServerState> &task) {
+        task.setConcurrentCallData(&checkPythonLanguageServer, python, pipUsable);
+    };
+    const auto onDone =
+        [this, python, document](const Async<PythonLanguageServerState> &task) {
+            if (!document || !task.isResultAvailable())
+                return;
+            handlePyLSState(python, task.result(), document);
+        };
+
+    using namespace std::literals::chrono_literals;
+    const Group recipe{AsyncTask<PythonLanguageServerState>(onSetup, onDone).withTimeout(10s)};
+    m_documentRunner.start(document, recipe);
+}
+
 void PyLSConfigureAssistant::openDocument(const FilePath &python, TextDocument *document)
 {
     resetEditorInfoBar(document);
@@ -363,19 +383,14 @@ void PyLSConfigureAssistant::openDocument(const FilePath &python, TextDocument *
         return;
     }
 
-    const auto onSetup = [python](Async<PythonLanguageServerState> &task) {
-        task.setConcurrentCallData(&checkPythonLanguageServer, python);
-    };
-    const auto onDone = [this, python, document = QPointer<TextDocument>(document)](
-                            const Async<PythonLanguageServerState> &task) {
-        if (!document || !task.isResultAvailable())
-            return;
-        handlePyLSState(python, task.result(), document);
-    };
-
-    using namespace std::literals::chrono_literals;
-    const Group recipe { AsyncTask<PythonLanguageServerState>(onSetup, onDone).withTimeout(10s) };
-    m_documentRunner.start(document, recipe);
+    pipIsUsableAsync(
+        python,
+        [self = QPointer(this), python, document = QPointer<TextDocument>(document)](
+            const bool pipUsable) {
+            if (!self)
+                return;
+            self->startCheckPythonLanguageServer(python, document, pipUsable);
+        });
 }
 
 void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,

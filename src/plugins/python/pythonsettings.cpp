@@ -862,19 +862,11 @@ QString PythonSettings::pylsConfiguration()
     return settingsInstance->m_pylsConfiguration;
 }
 
-static void cacheVenvAndPipUsability(const Interpreter &interpreter)
-{
-    static QPointer<QThreadPool> pool(new QThreadPool(PythonSettings::instance()));
-    Utils::asyncRun(pool.get(), &venvIsUsable, interpreter.command);
-    Utils::asyncRun(pool.get(), &pipIsUsable, interpreter.command);
-}
-
 void PythonSettings::addInterpreter(const Interpreter &interpreter, bool isDefault)
 {
     if (Utils::anyOf(settingsInstance->m_interpreters, Utils::equal(&Interpreter::id, interpreter.id)))
         return;
     settingsInstance->m_interpreters.append(interpreter);
-    cacheVenvAndPipUsability(interpreter);
     if (isDefault)
         settingsInstance->m_defaultInterpreterId = interpreter.id;
     saveSettings();
@@ -1056,7 +1048,6 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
     if (kitsGenerated)
         fixupPythonKits();
     for (const Interpreter &interpreter : std::as_const(m_interpreters)) {
-        cacheVenvAndPipUsability(interpreter);
         if (!kitsGenerated) {
             if (interpreter.detectionSource.isAutoDetected()) {
                 const FilePath &cmd = interpreter.command;
