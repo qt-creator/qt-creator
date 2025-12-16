@@ -294,6 +294,9 @@ void PythonDocument::updateCurrentPython()
 
 void PythonDocument::updatePython(const FilePath &python)
 {
+    if (m_python == python)
+        return;
+    m_python = python;
     openDocumentWithPython(python, this);
     PySideInstaller::instance().checkPySideInstallation(python, this);
     emit pythonUpdated(python);

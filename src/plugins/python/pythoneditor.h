@@ -18,6 +18,9 @@ public:
 
 signals:
     void pythonUpdated(const Utils::FilePath &python);
+
+private:
+    Utils::FilePath m_python;
 };
 
 void setupPythonEditorFactory(QObject *guard);
