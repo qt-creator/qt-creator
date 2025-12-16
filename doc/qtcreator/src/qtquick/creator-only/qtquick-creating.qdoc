@@ -133,8 +133,8 @@
         \li Select \uicontrol Next (or \uicontrol Continue on \macos) to open
             the \uicontrol {Define Project Details} dialog.
 
-        \li Select \uicontrol {Create a project that you can open in \QDS} to
-            make the project compatible with \QDS.
+        \li Select \uicontrol {Create a project that you can open in \QMLD} to
+            make the project compatible with \QMLD.
 
         \li Select \uicontrol {Use Qt Virtual Keyboard} to add
             support for \l{Qt Virtual Keyboard} to the application.
@@ -175,13 +175,13 @@
         \li \c Screen01.ui.qml file defines a custom QML type using instances of a
             Rectangle type that forms the background, a Button, and a Text
             component that displays some text. This file is created if you select
-            \uicontrol {Create a project that you can open in \QDS}.
+            \uicontrol {Create a project that you can open in \QMLD}.
 
     \endlist
 
     To use JavaScript and image files in the application, copy them to the
     project folder.
 
-    \sa {Create Qt Quick Applications}, {Manage kits}{How to: Manage kits},
-    {Creating projects}
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    {Designing Qt Quick UIs}, {Manage kits}{How to: Manage kits}, {Creating projects}
 */

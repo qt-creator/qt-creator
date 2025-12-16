@@ -49,7 +49,20 @@
             \li \l{Debugging}
                 \generatelist creator-how-to-debug
             \li \l{Designing UIs}
-                \generatelist creator-how-to-design
+                \list
+                    \li \l{Designing Qt Quick UIs}
+                        \generatelist creator-how-to-design-qtquick
+                        \list
+                            \li \l{Using UI components}
+                            \generatelist creator-how-to-design-qtquick-components
+                            \li \l{Adding animation}
+                            \generatelist creator-how-to-design-qtquick-animation
+                            \li \l{Working with states}
+                            \generatelist creator-how-to-design-qtquick-states
+                        \endlist
+                    \li \l{Designing widget-based UIs}
+                        \generatelist creator-how-to-design-widgets
+                \endlist
             \li \l{Developing for devices}
                 \list
                     \li \l{Developing for Android}
@@ -138,14 +151,18 @@
                                 \generatelist creator-reference-preferences-text-editor
                         \endlist
                     \li UI Design
-                        \generatelist creator-reference-ui-design
+                        \generatelist creator-reference-ui-design-qtquick
+                        \list
+                        \li \QMLD views
+                            \generatelist qtquickdesigner-views
+                        \endlist
                     \li Version Control Systems
                         \generatelist creator-reference-vcs
                     \li Views
                     \list
-                        \li Output Views
+                        \li Output views
                             \generatelist creator-reference-output-views
-                        \li Sidebar Views
+                        \li Sidebar views
                             \generatelist creator-reference-sidebar-views
                     \endlist
                 \endlist

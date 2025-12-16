@@ -16,7 +16,12 @@ headerdirs =
 sourcedirs = ../src \
     $$GENERATED_ATTRIBUTIONS_DIR
 
-imagedirs = ../images
+imagedirs = ../images \
+../../../src/libs/qmleditorwidgets/images \
+../../../src/plugins/qmldesigner/components/componentcore/images \
+../../../src/plugins/qmldesigner/components/edit3d/images \
+../../../src/plugins/qmldesigner/componentsplugin/images \
+../../../src/plugins/qmldesigner/qtquickplugin/images
 
 exampledirs = ../examples
 examples.fileextensions += *.qml *.svg
@@ -27,9 +32,11 @@ depends +=    qtwidgets \
               qtcmake \
               qtcore \
               qtqml \
+              qtqmlmodels \
               qtqmltest \
               qtquick \
               qtquickcontrols \
+              qtquickshapesdesignhelpers \
               qmake \
               qtdesigner \
               qtdoc \
@@ -48,6 +55,7 @@ depends +=    qtwidgets \
 include(../../config/macros.qdocconf)
 include(../../config/qt-cpp-ignore.qdocconf)
 include(../../config/qt-defines.qdocconf)
+include(../../config/icon-macros.qdocconf)
 
 defines += qtcreator
 

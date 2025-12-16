@@ -3,14 +3,9 @@
 
 /*!
     \page creator-checking-code-syntax.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-analyze
-    \ingroup studio-how-to-code
 
     \title Check code syntax
 
@@ -22,7 +17,6 @@
     Similarly, when you are working on an instance of a JavaScript object
     notation (JSON) entity, \QC underlines errors in the JSON data structure.
 
-    \if defined(qtcreator)
     \section1 Examples of C++ code errors
 
     \QC annotates an error because a semicolon is missing at the end of the line:
@@ -38,12 +32,6 @@
     \image {qtcreator-typo-clang.png} {Annotation tooltip in the Edit mode}
 
     \section1 Check QML or JavaScript syntax
-    \endif
-
-    \if defined(qtdesignstudio)
-    In addition to underlining, errors and warnings are marked with icons and
-    annotated.
-    \endif
 
     When writing QML or JavaScript code, the annotations may have error codes.
 
@@ -84,23 +72,15 @@
     If you hide the annotations, you can move the mouse pointer over an icon to
     view them.
 
-    \sa {JavaScript and QML Checks}
-
-    \if defined(qtcreator)
-    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code}
-    \endif
+    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code},
+    {JavaScript and QML Checks}
 */
 
 /*!
     \page creator-reference-js-and-qml-error-codes.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-analyzer
-    \ingroup studio-how-to-code
 
     \title JavaScript and QML Checks
 
@@ -111,12 +91,7 @@
     \uicontrol {Run Checks} or select \key {Ctrl+Shift+C}.
 
     View the results in the \uicontrol QML and \uicontrol {QML Analysis}
-    filters in
-    \if defined(qtcreator)
-    \l Issues.
-    \else
-    \l {Accessing the Issue and Warning messages}{Issues}.
-    \endif
+    filters in \l Issues.
 
     \note If you turn on \QMLLS for a project, it uses \l {qmllint Reference}
     {qmllint} to check QML and JavaScript code and to generate warnings, so the
@@ -464,50 +439,48 @@
         \li Use only one statement per line
         \li
 
-    \if defined(qtdesignstudio)
     \row
         \li M203
         \li Warning
-        \li Imperative code is not supported in \QDS
+        \li Imperative code is not supported in \QMLD
         \li
 
     \row
         \li M204
         \li Warning
-        \li This QML type is not supported in \QDS
+        \li This QML type is not supported in \QMLD
         \li
     \row
         \li M205
         \li Warning
-        \li Reference to parent QML type cannot be resolved correctly by \QDS
+        \li Reference to parent QML type cannot be resolved correctly by \QMLD
         \li
 
     \row
         \li M206
         \li Warning
         \li This visual property binding cannot be evaluated in the local
-            context and might not show up in \QDS as expected
+            context and might not show up in \QMLD as expected
         \li
 
     \row
         \li M207
         \li Warning
-        \li \QDS only supports states in the root QML type
+        \li \QMLD only supports states in the root QML type
         \li
 
     \row
         \li M208
         \li Error
-        \li This id might be ambiguous and is not supported in \QDS
+        \li This id might be ambiguous and is not supported in \QMLD
         \li
 
     \row
         \li M209
         \li Error
         \li This type (type name) is not supported as a root element in
-            \QDS
+            \QMLD
         \li
-    \endif
 
     \row
         \li M220
@@ -771,28 +744,19 @@
     \endlist
 
     To see an error message, move the mouse pointer over code that
-    \QC underlines in the code editor or when you open a QML file in \QDS.
+    \QC underlines in the code editor or when you open a QML file in \QMLD.
 
     To reset the code model, select \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Reset Code Model}.
 
-    \sa {Check code syntax}, {Using QML modules with plugins}
-
-    \if defined(qtcreator)
-    \sa {Analyzing code}
-    \endif
+    \sa {Check code syntax}, {Analyzing code}, {Using QML modules with plugins}
 */
 
 /*!
     \page creator-how-to-autoformat-qml-js.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-edit
-    \ingroup studio-how-to-code
 
     \title Automatically format QML/JS files
 

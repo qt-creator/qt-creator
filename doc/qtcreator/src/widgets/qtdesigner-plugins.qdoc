@@ -9,14 +9,13 @@
 
 /*!
     \page adding-plugins.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-ui-design
-    \ingroup creator-reference-ui-design-widgets
+    \ingroup creator-how-to-design-widgets
 
-    \title Adding \QD Plugins
+    \title Add \QD Plugins
 
-    \brief Adding widgets to \QD by creating plugins that extend Qt applications.
+    Add widgets to \QD by creating plugins that extend Qt applications.
 
     You can create plugins to add your own widgets to \QD. To include a plugin
     with an application, compile it into a dynamic library that you ship
@@ -29,7 +28,7 @@
     For more information about how to create plugins for \QD, see
     \l{Using Custom Widgets with \QD}.
 
-    \section1 Locating \QD Plugins
+    \section1 Locate \QD plugins
 
     \QD fetches plugins from the standard locations and loads the plugins
     that match its build key. \QD is delivered both as a standalone application
@@ -52,7 +51,7 @@
     choose \uicontrol Help > \uicontrol {About Plugins} on Linux and Windows
     (or \uicontrol {\QC} > \uicontrol {About Plugins} on \macos).
 
-    \section1 Matching Build Keys
+    \section1 Match build keys
 
     The \QC that is included in pre-built Qt packages on Windows is built with
     the Microsoft Visual Studio compiler. If you install a Qt version that was built

@@ -182,13 +182,72 @@
     \l {Designing UIs}
     \endquotation
 
-    Design UIs with either \l{User Interfaces}{Qt Quick or Qt Widgets}.
-    \QC integrates a visual editor, \QD, for designing widget-based UIs
-    in the \uicontrol Design mode. For Qt Quick UIs, use a separate visual
-    editor, \l{\QDS Manual}{\QDS}, or the \uicontrol Edit mode.
+    Design UIs with either \l{User Interfaces}{Qt Quick or Qt Widgets} using
+    integrated visual editors in the \uicontrol Design mode.
 
     \details {How to design UIs}
     \generatelist creator-how-to-design
+    \enddetails
+
+    \section2 Design Qt Quick UIs
+
+    \quotation
+    \l {Designing Qt Quick UIs}
+    \endquotation
+
+    \QC automatically opens UI forms (\c .ui.qml) files in the integrated \QMLD,
+    in \uicontrol Design mode.
+
+    \details {How to design Qt Quick UIs}
+    \generatelist creator-how-to-design-qtquick
+    \enddetails
+
+    \section3 Use UI components
+
+    \quotation
+    \l {Using UI components}
+    \endquotation
+
+    Import Qt QML modules to use instances of their QML types in applications.
+
+    \details {How to use UI components}
+    \generatelist creator-how-to-design-qtquick-components
+    \enddetails
+
+    \section3 Add animation
+
+    \quotation
+    \l {Adding animation}
+    \endquotation
+
+    Pick from a selection of animation techniques that are suitable for different
+    purposes
+
+    \details {How to animate UI components}
+    \generatelist creator-how-to-design-qtquick-animation
+    \enddetails
+
+    \section3 Work with states
+
+    \quotation
+    \l {Working with states}
+    \endquotation
+
+    \details {How to apply states}
+    \generatelist creator-how-to-design-qtquick-states
+    \enddetails
+
+    \section2 Design widget-based UIs
+
+    \quotation
+    \l {Designing widget-based UIs}
+    \endquotation
+
+    \QC automatically opens all \c .ui files in the integrated \QD, in \uicontrol Design
+    mode.
+
+    \details {How to design widget-based UIs}
+    \generatelist creator-how-to-design-widgets
     \enddetails
 
     \section1 Develop for devices

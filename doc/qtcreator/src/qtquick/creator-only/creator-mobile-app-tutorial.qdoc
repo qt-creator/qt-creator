@@ -208,4 +208,7 @@
         \li To run the application on the device, select \key {Ctrl+R}.
 
     \endlist
+
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    {Designing Qt Quick UIs}
 */

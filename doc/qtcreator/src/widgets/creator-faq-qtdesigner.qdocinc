@@ -13,7 +13,7 @@
     that match its build key. The locations are different for standalone and
     integrated \QD.
 
-    For more information, see \l{Adding \QD Plugins}.
+    For more information, see \l{Add \QD plugins}.
 
 //! [qt designer faq]
 */

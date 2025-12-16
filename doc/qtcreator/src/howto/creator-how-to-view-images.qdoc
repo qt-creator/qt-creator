@@ -44,7 +44,7 @@
     values for the image viewer.
 
     \if defined(qtcreator)
-    \sa {Design UIs}{How to: Design UIs}, {UI Design}
+    \sa {Design UIs}{How to: Design UIs}, {Qt Quick UI Design}
     \endif
 */
 
@@ -72,6 +72,6 @@
     different modes and states.
 
     \if defined(qtcreator)
-    \sa {Design UIs}{How to: Design UIs}, {UI Design}
+    \sa {Design UIs}{How to: Design UIs}, {Qt Quick UI Design}
     \endif
 */

@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -9,35 +9,22 @@
 
 /*!
     \page creator-quick-ui-forms.html
-    \if defined(qtdesignstudio)
-    \previouspage studio-advanced.html
-    \nextpage creator-telemetry.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
-    \ingroup creator-reference-ui-design
-    \ingroup creator-reference-ui-design-quick
+    \ingroup creator-reference-ui-design-qtquick
+    \ingroup creator-reference-ui-design-qtquick-quick
 
     \title UI files
 
-    \brief Limitations of \QDS UI files (.ui.qml).
+    \brief Limitations of UI files (.ui.qml).
 
-    \if defined(qtdesignstudio)
-    \QDS wizards create UI files that have the filename extension \c .ui.qml.
-    Edit the UI files in the \l {2D} view.
-
-    If you use the \l {Code} view to add code that the \uicontrol {2D} view does
-    not support, \QDS displays error messages.
-    \else
     If you switch between \QC and \QDS or cooperate with designers on
     a project, you might encounter UI files (\c .ui.qml). They are intended to
-    be edited in \QDS only.
+    be edited in \QMLD or \QDS only.
 
-    To open UI files with \QDS, select \uicontrol {Open With} >
-    \uicontrol {\QDS} in the context menu for the file.
-    \endif
-
+    By default, \QC opens UI files in the \uicontrol Design mode. To open them
+    with \QDS, select \uicontrol {Open With} > \uicontrol {\QDS} in the context
+    menu for the file.
 
     The following features are not supported in \c .ui.qml files:
 
@@ -62,14 +49,14 @@
         \li Transform
     \endlist
 
-    \section1 Supported Methods
+    \section1 Supported methods
 
     \QC supports most JavaScript functions that are supported by the QML
     engine, as well as a subset of Qt QML methods.
 
     This section lists the functions that you can use in \c .ui.qml files.
 
-    \section2 JavaScript Functions
+    \section2 JavaScript functions
 
     As a rule of thumb, \e {pure functions} are supported. They only depend on
     and modify states of parameters that are within their scope, and therefore
@@ -108,7 +95,7 @@
     \l{https://doc.qt.io/qt/qtqml-javascript-functionlist.html}
     {List of JavaScript Objects and Functions}.
 
-    \section2 Qt QML Methods
+    \section2 Qt QML methods
 
     \QC supports color methods, helper methods for creating objects of
     specific data types, and translation methods.
@@ -156,12 +143,10 @@
     For more information about using the methods, see
     \l{https://doc.qt.io/qt/qml-qtqml-qt.html}{Qt QML Methods}.
 
-    \if defined(qtdesignstudio)
     \section1 Using UI files
 
-    You can edit the UI files in the \l {2D} and
-    \uicontrol {Code} views. Components that are
-    supposed to be used in code have to be exported as properties:
+    Edit the UI files in the \uicontrol Design mode. To use components in code,
+    export them as properties:
 
     \code
     Item {
@@ -180,7 +165,7 @@
 
     The property alias exports the button to the code that uses the form.
     You can use the \inlineimage {icons/alias.png} {Export}
-    (\uicontrol Export) button in \l Navigator to export a component
+    (\uicontrol Export) button in \l {Navigate component files}{Navigator} to export a component
     as a property:
 
     \image {qmldesigner-export-item.png} {Navigator view.}
@@ -198,11 +183,12 @@
 
     You can also assign properties or define behavior or transitions.
 
-    To move from the \l {2D} or \l Navigator view directly to the
-    implementation of a component in the \c .qml file, right-click the
-    component and select \uicontrol {Go to Implementation} in the
-    context menu.
-    \else
-    \sa {\QMLD}
-    \endif
+    To move from the \l {Design 2D UIs}{2D} or \l {Navigate component files}
+    {Navigator} view directly to the implementation of a component in the \c .qml
+    file, right-click the component and select \uicontrol {Go to Implementation}
+    in the context menu.
+
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    {Designing Qt Quick UIs}
+
 */

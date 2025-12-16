@@ -1,0 +1,213 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page quick-shapes.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-design-qtquick-components
+
+    \title Create shapes
+
+    \brief Use basic and advanced shapes in UIs.
+
+    \QMLD is a UI design tool rather than a generic drawing tool, and therefore,
+    the focus is on providing ready-made UI controls that you can modify
+    according to your needs. The values of some properties of the controls are
+    specified by using styling, and therefore you cannot change them.
+
+    However, you can use some of the components in \l {Using UI components}
+    {Components} to draw basic shapes, such as rectangles. In addition, you can
+    install the \l {Qt Quick Shapes Design Helpers} module to create more
+    complex shapes, such as ellipse, polygon, and star in the \uicontrol {2D}
+    view.
+
+    \image studio-shapes.png {Shapes in the 2D view}
+
+    Most visual components in \uicontrol Components are based on the \l [QtQuick]
+    {Item} component. Even though it has no visual appearance itself (similarly
+    to a mouse area, for example), it defines all the properties that are
+    common across visual components, such as position, size, and visibility. For
+    more information, see \l{Basic Component Properties}.
+
+    In addition, each component has a set of properties that specify its visual
+    appearance and behavior. You can modify the property values to set fill
+    and border colors, stroke width, and other characteristics of the shapes.
+
+    The following sections describe the available shapes and their properties
+    in more detail. You can modify the values of the properties in the
+    \uicontrol Properties view.
+
+    \section1 Rectangle
+
+    The basic \l [QtQuick] {Rectangle} component is used for drawing shapes
+    with four sides and corners, as well as a solid border.
+
+    \image qml-shapes-rectangle.png {A rectangle and its properties}
+
+    Rectangles can be filled either with a solid fill color or a linear
+    gradient that you set in the \uicontrol {Fill color} field. You can
+    also use a \l{Picking Colors}{color picker} to select colors and a
+    \l{Picking Gradients}{gradient picker} to select gradients from a
+    predefined set of \l{https://webgradients.com/}{WebGradients}.
+
+    An optional solid border can be added to a rectangle with its own color
+    and thickness by setting the values of the \uicontrol {Border color} and
+    \uicontrol {Border width} fields. To create a border without a fill color,
+    select the \imagetransparenticon
+    button that sets the color to \e transparent.
+
+    By setting the value of the \uicontrol Radius field, you can create shapes
+    with rounded corners. With the right combination of the values of the
+    rectangle width, height, and radius properties, you can create oval and
+    circular shapes. For example, to draw a full circle, first draw a rectangle
+    with all four sides equal, and then set its radius to half the side length.
+
+    When drawing curved edges, consider enabling \uicontrol Antialiasing
+    in the \uicontrol Advanced section to improve the appearance of
+    your shape.
+
+    \section1 RectangleShape
+
+    If you want to modify each corner of the rectangle independently
+    or use a dashed border, create an instance of the \uicontrol RectangleShape
+    component available in \uicontrol Components >
+    \uicontrol {Qt Quick Shapes Design Helpers} instead of the basic
+    \uicontrol Rectangle component available in \uicontrol {Default Components}
+    > \uicontrol Basic.
+
+    By setting the values of properties in the \uicontrol {Corner Radiuses}
+    section, you can draw each corner independently. By using radius values
+    in combination with the values in the \uicontrol {Corner Bevel} section,
+    you can create shapes with cut corners.
+
+    \image studio-shapes-rectangle.png {A rectangle with cut corners}
+
+    In addition to linear gradients, you can specify conical and radial
+    gradients in the \uicontrol {Fill color} field.
+
+    In the \uicontrol {Stroke Details} section, you can specify the border
+    mode, line style, and dash pattern for dashed and dotted lines.
+
+    \section1 EllipseShape
+
+    To add a full ellipse, an arc, or a filled pie slice, create an instance of
+    the \uicontrol EllipseShape component available in \uicontrol Components >
+    \uicontrol {Qt Quick Shapes Design Helpers}. Set \uicontrol {Start angle}
+    and \uicontrol {Sweep angle} to control the appearance of the shape.
+
+    By default, the type renders a full ellipse. The interior is filled with
+    the \uicontrol {Fill color}, and the outline is drawn according to
+    \uicontrol {Stroke color}, \uicontrol {Stroke width}, and
+    \uicontrol {Stroke style}.
+
+    To create an arc or a pie slice, set \uicontrol {Start angle} and
+    \uicontrol {Sweep angle} to 0-360 degrees to define the segment of
+    the ellipse to draw.
+
+    To create a simple arc (just the outline), set \uicontrol {Fill color} to
+    \uicontrol {Transparent}. The arc's line style can be customized with
+    \uicontrol {Dash pattern} and \uicontrol {Dash offset}.
+
+    To create a filled pie slice (a segment connected to the center), set
+    \uicontrol {Fill color}. The outline of the slice will also be stroked.
+
+    To create a donut ring (a hollow ellipse), set \uicontrol {Inner arc ratio}
+    to a value between 0.0 and 1.0. This defines the ratio of the inner ellipse's
+    radius to the outer ellipse's radius.
+
+    The area inside the stroke is painted using either a solid fill color set in
+    \uicontrol {Fill color} or a gradient defined using one of the
+    \uicontrol {Shape gradient} types and set in \uicontrol {Fill gradient}.
+    If you set both a color and a gradient, the gradient is used.
+
+    To add an optional border with its own color and thickness, set
+    \uicontrol {Stroke color} and \uicontrol {Stroke width}. Set the color to
+    transparent to create a border without a fill color.
+
+    To draw an ellipse with rounded corners, set \uicontrol {Corner radius}.
+
+    \section1 RegularPolygonShape
+
+    A regular polygon can be just a 2D polygon shaped stroke, a filling, or a
+    stroke with filling. Set \uicontrol {Stroke Details} to change the appearance
+    of the outline.
+
+    The area inside the stroke is painted using either a solid fill color or a
+    gradient. If you set both a color and a gradient, the gradient is used.
+
+    To create a polygon with a stroke, set \uicontrol {Side count} between 3 to
+    100 and \uicontrol {Stroke width} to greater than 0.
+
+    To draw a polygon with rounded corners, set \uicontrol {Corner radius}.
+
+    \section1 StarShape
+
+    A star can be a star shaped stroke, a filling, or a stroke with filling. Set
+    \uicontrol {Stroke Details} to change the appearance of the outline.
+
+    Set \uicontrol {Point count} between 3 and 60 to specify the number of points
+    of the star. Set the ratio between 0.1 and 1 to specify the distance of the
+    inner points of the star from the center.
+
+    The area inside the stroke is painted using either a solid fill color or a
+    gradient. If you set both a color and a gradient, the gradient is used.
+
+    To create a star with a stroke, set \uicontrol {Side count} between 3 to
+    100 and \uicontrol {Stroke width} to greater than 0.
+
+    To draw a star with rounded corners, set \uicontrol {Corner radius}.
+
+    \section1 Summary of the shape components
+
+    The following table lists the components that you can use to draw shapes.
+    The \e Location column indicates the location of the component in
+    \uicontrol Components. The \e {MCU support} column indicates which
+    components are supported on MCUs.
+
+    \table
+    \header
+        \li Icon
+        \li Name
+        \li Location
+        \li MCU support
+        \li Purpose
+    \row
+        \li \imageitemarc16px
+        \li \l EllipseShape
+        \li A shape component that can render an ellipse, an arc, or a pie slice.
+        \li No
+        \li
+    \row
+        \li \imagerecticon16
+        \li \l Rectangle
+        \li Default Components - Basic
+        \li Yes
+        \li A rectangle that is painted with a solid fill color or linear
+            gradient and an optional border. You can use the radius property
+            to draw circles.
+    \row
+        \li \imagecustomrectangle16px
+        \li \l RectangleShape
+        \li Qt Quick Shapes Design Helpers
+        \li No
+        \li An extended rectangle that is painted with a solid fill color or
+            linear, conical, or radial gradients, and corners that you can
+            shape independently of each other.
+    \row
+        \li
+        \li \l RegularPolygonShape
+        \li Qt Quick Shapes Design Helpers
+        \li No
+        \li A filled regular polygon with an optional border.
+    \row
+        \li
+        \li \l StarShape
+        \li Qt Quick Shapes Design Helpers
+        \li No
+        \li A filled star-shaped polygon with an optional border.
+    \endtable
+
+    \sa {Use UI components}{How to: Use UI components}, {Qt Quick UI design},
+    {Designing Qt Quick UIs}
+*/

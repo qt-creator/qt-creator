@@ -1,0 +1,98 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page qtquick-creating-ui-logic.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-ui-design-qtquick
+
+    \title Creating UI logic
+
+    \summary {Turn your wireframe into an interactive prototype by adding UI
+    logic that lets your components apply actions or react to mock data from
+    backend systems to simulate complex experiences.}
+
+    Create connections between the UI components to enable them to communicate
+    with each other. For example, how should the appearance of a button change
+    on a mouse click and which action should the UI perform in response to the
+    \e signal that is emitted upon the mouse click.
+
+    You can create connections between UI components by binding their
+    properties together. This way, when the value of a property changes in a
+    parent component, it can be automatically changed in all the child
+    components by emitting a signal that indicates a change in the value.
+
+    To reference a property of a component from another component, you can
+    create \l{Add property aliases}{property aliases} that hold a reference
+    to another property. Unlike an ordinary property definition, which
+    allocates a new, unique storage space for the property, a property
+    alias connects the newly declared property (called the
+    \e {aliasing property}) as a direct reference to an existing property
+    (the \e {aliased property}). Any content that is data-driven should be
+    exported as a public property of the relevant component. For example,
+    a speedometer should have a property for speed to which the UI is bound.
+
+    You can declare various \l{Working with states}{UI states} that describe how
+    property values change from a base state. States can be a useful way of
+    organizing your UI logic. You can associate transitions with components
+    to define how their properties will animate when they change due to a
+    state change.
+
+    Using property aliases and states to create the differences in your
+    component instances enables you to reuse components instead of duplicating
+    them. Thus, the components do not need to be processed as completely new
+    component types. This reduces the loading and compilation time as well as
+    the package size of the final application.
+
+    The preset \l{Insert UI controls}{UI controls} have default properties and
+    states that you can modify. If you need additional properties, you can turn
+    instances of the controls into custom components and specify new properties
+    for them.
+
+    To have your UI perform certain operations, you might need to write
+    JavaScript expressions for conditions or convert numbers to strings.
+    For example, you can bind property values using the boolean
+    AND, NOT, and OR operators, as well as map numbers and numerical
+    ranges. In addition, you can synchronize the property values of two
+    components bi-directionally.
+
+    The following table summarizes some typical use cases with links to more
+    information.
+
+    \table
+    \header
+        \li To learn about
+        \li Go to
+    \row
+        \li Responding to application events
+        \li \l{Connect components to signals}
+    \row
+        \li Formatting connections
+        \li \l{Actions and conditions}
+    \row
+        \li Dynamically changing the behavior of a component
+        \li \l{Add bindings between properties}
+    \row
+        \li Formatting property bindings
+        \li \l{Set bindings}
+    \row
+        \li Referencing a property of a component from another component
+        \li \l{Add property aliases}
+    \row
+        \li Referencing a state from within a specific component
+        \li \l{Working with states}
+    \row
+        \li Switching to a state when a particular property changes
+        \li \l{Apply states to components}
+    \row
+        \li Using preset UI controls that have default properties and states
+        \li \l{Insert UI controls}
+    \row
+        \li Adding custom properties for a particular component type
+        \li \l{Specify custom properties}
+    \endtable
+
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    {Designing Qt Quick UIs}
+*/

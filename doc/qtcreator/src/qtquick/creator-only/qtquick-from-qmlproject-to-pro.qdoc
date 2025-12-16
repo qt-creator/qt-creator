@@ -3,11 +3,9 @@
 
 /*!
     \page quick-converting-ui-projects.html
-    \nextpage creator-editor-external.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-ui-design
-    \ingroup creator-reference-ui-design-quick
+    \ingroup creator-reference-ui-design-qtquick
 
     \title Converting UI Projects to Applications
 
@@ -15,4 +13,7 @@
     .pro file.}
 
     \include qtquick-converting-ui-projects-to-applications.qdocinc {converting-ui-projects-to-applications} {Qt Quick UI Prototype}
+
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    {Designing Qt Quick UIs}
 */

@@ -9,14 +9,13 @@
 
 /*!
     \page creator-using-qt-designer.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-ui-design
-    \ingroup creator-reference-ui-design-widgets
+    \title Designing widget-based UIs
 
-    \title \QD
-
-    \brief A visual editor for Qt Widgets.
+    \quotation
+    \l {Design widget-based UIs}{How to: Design widget-based UIs}
+    \endquotation
 
     \QC automatically opens all \c .ui files in the integrated \QD, in \uicontrol Design
     mode.
@@ -38,7 +37,7 @@
     To learn how to use the integrated \QD to create a small Qt Widgets-based
     application, take the \l{Qt Academy: Getting Started with \QC} course.
 
-    \section1 Code Editor Integration
+    \section1 Code editor integration
 
     To switch between forms (\uicontrol Design mode) and code (\uicontrol Edit mode),
     select \key Shift+F4.
@@ -48,7 +47,7 @@
     select \uicontrol {Go to Slot}. Select a signal in the list to go to an existing
     slot function or to create a new slot function.
 
-    \section1 Managing Image Resources
+    \section1 Manage image resources
 
     In standalone \QD, image resources are created using the built-in
     \uicontrol {Resource Editor}. In \QC, \c .ui files are usually part of a project,
@@ -61,15 +60,13 @@
     \uicontrol {Follow Symbol Under Cursor} in the context menu
     or select \key F2 when the cursor is over a string literal.
 
-    \section1 Specifying Settings for \QD
+    \section1 Set preferences for \QD
 
     You can drag and drop the views in \QD to new positions on the screen.
 
-    To specify settings for \QD:
+    To set preferences for \QD, go to \preferences > \uicontrol Designer:
 
     \list
-
-        \li Select \preferences > \uicontrol Designer.
 
         \li Specify embedded device profiles, that determine style, font, and
             screen resolution, for example, in \uicontrol{Embedded Design}.
@@ -84,7 +81,7 @@
     To preview the settings, select \uicontrol Tools > \uicontrol{Form Editor} >
     \uicontrol Preview, or select \key Alt+Shift+R.
 
-    \section1 Previewing Forms Using Device Profiles
+    \section1 Preview forms using device profiles
 
     A \e {device profile} is a set of configuration files that describe a mobile
     device. It includes a border image that surrounds the form and depicts a
@@ -94,13 +91,13 @@
     \uicontrol {Form Editor} > \uicontrol {Preview In}, and then select a
     device profile.
 
-    \section2 Adding Device Profiles
+    \section2 Add device profiles
 
     To add device profiles:
 
     \list 1
 
-        \li \preferences > \uicontrol Designer.
+        \li Go to \preferences > \uicontrol Designer.
             \image {qtdesigner-embedded-design.png} {Qt Widgets Designer preferences}
         \li In \uicontrol {Embedded Design}, select \inlineimage {icons/plus.png}
             {Add a profile} (\uicontrol {Add a profile}) to open the
@@ -119,5 +116,5 @@
     To import device profiles from \c .qdp files, select \uicontrol Open. To save
     them as \c .qdp files, select \uicontrol Save.
 
-    \sa {Tutorial: Qt Widgets application}, {Adding \QD Plugins}
+    \sa {Tutorial: Qt Widgets application}, {Add \QD plugins}
 */

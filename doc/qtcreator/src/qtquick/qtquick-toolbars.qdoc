@@ -34,7 +34,7 @@
     Edit the properties of
     \l {Border Image} and
     \if defined(qtdesignstudio)
-    \l {Images}{Image} items
+    \l {Use images in UIs}{Image} items
     \else
     \l Image items
     \endif
@@ -79,7 +79,7 @@
 
     Edit the properties of
     \if defined(qtdesignstudio)
-    \l {basic-rectangle}{Rectangle}
+    \l {Rectangle}
     \else
     Rectangle
     \endif

@@ -162,14 +162,20 @@
     \annotatedlist creator-reference-preferences-text-editor
     \enddetails
 
-    \section1 UI Design
+    \section1 Qt Quick UI Design
 
-    You can use a visual editor, \QD, for designing widget-based UIs
-    in the \uicontrol Design mode. For Qt Quick UIs, use a separate visual
-    editor, \l{\QDS Manual}{\QDS}, or the \uicontrol Edit mode.
+    You can use \QMLD to design Qt Quick based UIs in the \uicontrol Design mode.
 
     \details {Reference topics}
-    \annotatedlist creator-reference-ui-design
+    \annotatedlist creator-reference-ui-design-qtquick
+    \enddetails
+
+    \section2 \QMLD views
+
+    You can edit QML files in the \uicontrol Design mode.
+
+    \details {Reference topics}
+    \annotatedlist qtquickdesigner-views
     \enddetails
 
     \section1 Views
@@ -177,7 +183,7 @@
     When you switch modes or trigger actions, \QC opens views for viewing
     output and organizing project contents.
 
-    \section2 Output Views
+    \section2 Output views
 
     You can view output from several sources, such as a list of errors and
     warnings encountered during a build, detailed output from the compiler,

@@ -6,20 +6,16 @@
     \page creator-reference-ui-design.html
     \nextpage creator-quick-tour.html
 
-    \ingroup creator-how-to-design
-
     \title Designing UIs
 
     \quotation
     \l {Design UIs}{How to: Design UIs}
     \endquotation
 
-    \image {heartgame-start.webp} {Heart Rate Game}
-
     To create intuitive, modern-looking, fluid user interfaces (UI), use
-    \l{Qt Quick} and \l{\QDS documentation}{\QDS}.
+    \l{Qt Quick} and the integrated \QMLD.
 
-    \annotatedlist creator-reference-ui-design-quick
+    \image {heartgame-start.webp} {Heart Rate Game}
 
     Use the QML live preview to preview a QML file or an entire Qt Quick
     application on the desktop, as well as on Android and embedded Linux
@@ -29,8 +25,6 @@
     If you need a traditional user interface that has a clear structure and
     enforces a platform look and feel, use \l{Qt Widgets} and the integrated
     \l{\QD}.
-
-    \annotatedlist creator-reference-ui-design-widgets
 
     \sa {Design UIs}{How to: Design UIs}
 */

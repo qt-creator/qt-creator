@@ -3,19 +3,11 @@
 
 /*!
     \page creator-live-preview-devices.html
-    \if defined (qtdesignstudio)
-    \previouspage studio-live-preview-desktop.html
-    \nextpage qt-design-viewer.html
-
-    \title Previewing on devices
-
-    \else
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-design
+    \ingroup creator-how-to-design-qtquick
 
     \title Preview Qt Quick UIs on devices
-    \endif
 
     To preview a UI on an Android device, turn on USB debugging on the device
     and connect it to the computer with a USB cable.
@@ -36,25 +28,16 @@
     To preview a UI on a device:
 
     \list 1
-        \if defined(qtcreator)
         \li Go to \uicontrol Projects > \uicontrol {Build & Run}.
         \li Activate the kit predefined for the device type (1).
         \li Select the kit for the device in the kit selector (2).
             \image {qtcreator-kit-selector-devices.webp} {Kit selector}
-        \else
-        \li In the bottom toolbar, select \inlineimage {icons/settings.png} {Preferences}
-            and enable the kit predefined for the device type.
-            \image {design-studio-kit-selection.webp} {Activating a kit.}
-        \li Select the kit for the device in the bottom toolbar.
-            \image {design-studio-select-kit.webp} {Selecting a kit for a device.}
-        \endif
         \li Go to \uicontrol Build, and select \uicontrol {QML Preview} or
             \key {Alt+P}.
     \endlist
 
     \section2 On Android
 
-    \if defined(qtcreator)
     Use the USB debugging feature on an Android device to create a connection
     to the device from \QC and run the preview utility on it.
 
@@ -69,10 +52,6 @@
     The first time you preview a UI on a device, the preview utility
     is copied to it, which might take some time. Thereafter, previewing
     gets faster because only the UI files need to be copied to the device.
-    \else
-    Preview \QDS projects with \QUV on an Android device.
-    Learn more about \l{Viewing Applications on Android}.
-    \endif
 
     \section2 On \B2Q
 
@@ -81,7 +60,5 @@
 
     \sa {\B2Q: Documentation}, {Support Levels for Target Hardware}
 
-    \if defined(qtcreator)
-    \sa {Design UIs}{How to: Design UIs}, {UI Design}
-    \endif
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI Design}
 */

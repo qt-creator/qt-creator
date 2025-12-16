@@ -174,7 +174,7 @@
     \previouspage creator-how-tos.html
     \endif
 
-    \ingroup creator-how-to-design
+    \ingroup creator-how-to-design-qtquick
 
     \title Run QML files
 
@@ -186,7 +186,7 @@
     \sa {Use external tools}
 
     \if defined(qtcreator)
-    \sa {Design UIs}{How to: Design UIs}, {UI Design}
+    \sa {Design UIs}{How to: Design UIs}, {Qt Quick UI Design}
     \endif
 */
 
