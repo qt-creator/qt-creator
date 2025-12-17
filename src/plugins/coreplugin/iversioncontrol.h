@@ -241,7 +241,6 @@ public:
     void setTopicFileTracker(const FileTracker &fileTracker);
 
     using TopicRefresher = std::function<QString(const Utils::FilePath &)>;
-    QString refreshTopic(const Utils::FilePath &repository);
     void setTopicRefresher(const TopicRefresher &topicRefresher);
 
     static QColor vcStateToColor(const IVersionControl::FileState &state);

@@ -132,12 +132,6 @@ FilePath IVersionControl::trackFile(const FilePath &repository)
     return d->m_fileTracker(repository);
 }
 
-QString IVersionControl::refreshTopic(const FilePath &repository)
-{
-    QTC_ASSERT(d->m_topicRefresher, return {});
-    return d->m_topicRefresher(repository);
-}
-
 /*!
     Returns the topic for repository under \a topLevel.
 
@@ -176,8 +170,9 @@ QString IVersionControl::vcsTopic(const FilePath &topLevel)
     const QDateTime lastModified = file.lastModified();
     if (lastModified == data.timeStamp)
         return data.topic;
+    QTC_ASSERT(d->m_topicRefresher, return {});
     data.timeStamp = lastModified;
-    return data.topic = refreshTopic(topLevel);
+    return data.topic = d->m_topicRefresher(topLevel);
 }
 
 /*!
