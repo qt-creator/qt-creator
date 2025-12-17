@@ -23,6 +23,13 @@ find_dependency(Qt6 "@IDE_QT_VERSION_MIN@"
 )
 find_dependency(Qt6 COMPONENTS Quick QuickWidgets QUIET)
 
+# Consumers (external plugins) import QtCreatorTargets.cmake via find_package(QtCreator).
+# Some exported targets (e.g. QtCreator::QmlPuppetCommunication, QtCreator::QmlDesignerUtils)
+# have Qt6::CorePrivate / Qt6::QmlPrivate in INTERFACE_LINK_LIBRARIES; these targets are only
+# defined by the separate Qt6CorePrivate/Qt6QmlPrivate packages, so load them before importing.
+find_dependency(Qt6CorePrivate REQUIRED)
+find_dependency(Qt6QmlPrivate REQUIRED)
+
 if (NOT IDE_VERSION)
   include("${CMAKE_CURRENT_LIST_DIR}/QtCreatorIDEBranding.cmake")
 endif()
