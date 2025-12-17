@@ -75,10 +75,12 @@ macro(qtc_auto_setup_compiler_standard toolchainFile)
   endforeach()
 
   # Forward important CMake variables to the package manager in the toolchain file
-  foreach(fwd_var CMAKE_MSVC_RUNTIME_LIBRARY CMAKE_SYSROOT CMAKE_OSX_SYSROOT CMAKE_OSX_ARCHITECTURES)
+  foreach(fwd_var CMAKE_MSVC_RUNTIME_LIBRARY CMAKE_SYSROOT
+                  CMAKE_OSX_SYSROOT CMAKE_OSX_ARCHITECTURES
+                  ANDROID_ABI ANDROID_NDK)
     if (${fwd_var})
       file(APPEND "${toolchainFile}"
-          "set(${fwd_var} ${${fwd_var}})\n")
+          "set(${fwd_var} \"${${fwd_var}}\")\n")
     endif()
   endforeach()
 endmacro()
@@ -291,68 +293,74 @@ macro(qtc_auto_setup_vcpkg)
         ")
       qtc_auto_setup_compiler_standard("${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake")
 
+      # If set explicitly in Qt Creator's CMake parameters, just set it in the toolchain
+      if (VCPKG_TARGET_TRIPLET)
+        file(APPEND "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake"
+          "set(VCPKG_TARGET_TRIPLET \"${VCPKG_TARGET_TRIPLET}\")\n")
+      endif()
+
       if (CMAKE_TOOLCHAIN_FILE AND NOT
           CMAKE_TOOLCHAIN_FILE STREQUAL "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake")
         file(APPEND "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake"
           "include(\"${CMAKE_TOOLCHAIN_FILE}\")\n")
       endif()
 
-      if (VCPKG_TARGET_TRIPLET)
-        set(vcpkg_triplet ${VCPKG_TARGET_TRIPLET})
-      else()
-        if (ANDROID_ABI)
-          if (ANDROID_ABI STREQUAL "armeabi-v7a")
-            set(vcpkg_triplet arm-neon-android)
-          elseif (ANDROID_ABI STREQUAL "arm64-v8a")
-            set(vcpkg_triplet arm64-android)
-          elseif (ANDROID_ABI STREQUAL "x86")
-              set(vcpkg_triplet x86-android)
-          elseif (ANDROID_ABI STREQUAL "x86_64")
-              set(vcpkg_triplet x64-android)
-          else()
-              message(FATAL_ERROR "Unsupported Android ABI: ${ANDROID_ABI}")
-          endif()
-          # Needed by vcpkg/scripts/toolchains/android.cmake
-          file(APPEND "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake" "
-            set(ENV{ANDROID_NDK_HOME} \"${ANDROID_NDK}\")
-          ")
-        elseif (WIN32)
-          if ("$ENV{PROCESSOR_ARCHITECTURE}" STREQUAL "ARM64")
-            set(vcpkg_triplet arm64-mingw-static)
-          else()
-            set(vcpkg_triplet x64-mingw-static)
-          endif()
-          if (CMAKE_CXX_COMPILER MATCHES ".*/(.*)/cl.exe")
-            string(TOLOWER ${CMAKE_MATCH_1} host_arch_lowercase)
-            set(vcpkg_triplet ${host_arch_lowercase}-windows)
-          endif()
-        elseif(APPLE)
-          # We're too early to use CMAKE_HOST_SYSTEM_PROCESSOR
-          execute_process(
-            COMMAND uname -m
-            OUTPUT_VARIABLE __apple_host_system_processor
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-          if (__apple_host_system_processor MATCHES "arm64")
-            set(vcpkg_triplet arm64-osx)
-          else()
-            set(vcpkg_triplet x64-osx)
-          endif()
+      file(APPEND "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake" [=[
+        if (VCPKG_TARGET_TRIPLET)
+          set(vcpkg_triplet ${VCPKG_TARGET_TRIPLET})
         else()
-          # We're too early to use CMAKE_HOST_SYSTEM_PROCESSOR
-          execute_process(
-            COMMAND uname -m
-            OUTPUT_VARIABLE __linux_host_system_processor
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-          if (__linux_host_system_processor MATCHES "aarch64")
-            set(vcpkg_triplet arm64-linux)
+          if (ANDROID_ABI)
+            if (ANDROID_ABI STREQUAL "armeabi-v7a")
+              set(vcpkg_triplet arm-neon-android)
+            elseif (ANDROID_ABI STREQUAL "arm64-v8a")
+              set(vcpkg_triplet arm64-android)
+            elseif (ANDROID_ABI STREQUAL "x86")
+                set(vcpkg_triplet x86-android)
+            elseif (ANDROID_ABI STREQUAL "x86_64")
+                set(vcpkg_triplet x64-android)
+            else()
+                message(FATAL_ERROR "Unsupported Android ABI: ${ANDROID_ABI}")
+            endif()
+            set(ENV{ANDROID_NDK_HOME} "${ANDROID_NDK}")
+          elseif (WIN32)
+            if ("$ENV{PROCESSOR_ARCHITECTURE}" STREQUAL "ARM64")
+              set(vcpkg_triplet arm64-mingw-static)
+            else()
+              set(vcpkg_triplet x64-mingw-static)
+            endif()
+            if (CMAKE_CXX_COMPILER MATCHES ".*/(.*)/cl.exe")
+              string(TOLOWER ${CMAKE_MATCH_1} host_arch_lowercase)
+              set(vcpkg_triplet ${host_arch_lowercase}-windows)
+            endif()
+          elseif(APPLE)
+            # We're too early to use CMAKE_HOST_SYSTEM_PROCESSOR
+            execute_process(
+              COMMAND uname -m
+              OUTPUT_VARIABLE __apple_host_system_processor
+              OUTPUT_STRIP_TRAILING_WHITESPACE)
+            if (__apple_host_system_processor MATCHES "arm64")
+              set(vcpkg_triplet arm64-osx)
+            else()
+              set(vcpkg_triplet x64-osx)
+            endif()
           else()
-            set(vcpkg_triplet x64-linux)
+            # We're too early to use CMAKE_HOST_SYSTEM_PROCESSOR
+            execute_process(
+              COMMAND uname -m
+              OUTPUT_VARIABLE __linux_host_system_processor
+              OUTPUT_STRIP_TRAILING_WHITESPACE)
+            if (__linux_host_system_processor MATCHES "aarch64")
+              set(vcpkg_triplet arm64-linux)
+            else()
+              set(vcpkg_triplet x64-linux)
+            endif()
           endif()
         endif()
-      endif()
+
+        set(VCPKG_TARGET_TRIPLET ${vcpkg_triplet})
+      ]=])
 
       file(APPEND "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake" "
-        set(VCPKG_TARGET_TRIPLET ${vcpkg_triplet})
         include(\"${vpkg_root}/scripts/buildsystems/vcpkg.cmake\")
       ")
     endif()
