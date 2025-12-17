@@ -988,8 +988,14 @@ void GitClient::updateNextModificationInfo()
             const IVCF modification = std::max(gitStates.value(line.at(0), IVCF::Unknown),
                                                gitStates.value(line.at(1), IVCF::Unknown));
 
-            if (modification != IVCF::Unknown)
+            if (modification == IVCF::Renamed) {
+                const QString renameSymbol = " -> ";
+                const int index = line.indexOf(renameSymbol);
+                const int start = (index >= 0) ? index + renameSymbol.size() : 3;
+                modifiedFiles.insert(line.mid(start).trimmed(), modification);
+            } else if (modification != IVCF::Unknown) {
                 modifiedFiles.insert(line.mid(3).trimmed(), modification);
+            }
         }
 
         const QHash<QString, IVCF> oldfiles = info.modifiedFiles;
