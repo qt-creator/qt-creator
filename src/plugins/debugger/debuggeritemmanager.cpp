@@ -211,13 +211,14 @@ public:
     QVariant registerDebugger(const DebuggerItem &item);
     void readDebuggers(const FilePath &fileName, bool isSdk);
     void autoDetectCdbDebuggers();
-    void autoDetectGdbOrLldbDebuggers(const FilePaths &searchPaths, const QString &detectionSource);
+    void autoDetectGdbOrLldbDebuggers(const FilePaths &searchPaths,
+                                      const QString &detectionSource,
+                                      QString *logMessage = nullptr);
     void autoDetectUvscDebuggers();
     QString uniqueDisplayName(const QString &base);
 
     PersistentSettingsWriter m_writer{userSettingsFileName(), "QtCreatorDebuggers"};
     QPersistentModelIndex m_currentIndex;
-    QSingleTaskTreeRunner m_detectGdbLldbRunner;
 };
 
 static DebuggerItemModel &itemModel()
@@ -635,12 +636,9 @@ static Utils::FilePaths searchGdbPathsFromRegistry()
     return searchPaths;
 }
 
-static QList<DebuggerItem> autoDetectGdbOrLldbDebuggersImpl(
-    const FilePaths &searchPaths,
-    const QString &detectionSourceId,
-    const QList<DebuggerItem> &existingDebuggers)
+void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(
+    const FilePaths &searchPaths, const QString &detectionSourceId, QString *logMessage)
 {
-    QList<DebuggerItem> result;
     const DetectionSource detectionSource{DetectionSource::FromSystem, detectionSourceId};
 
     QStringList filters
@@ -667,7 +665,7 @@ static QList<DebuggerItem> autoDetectGdbOrLldbDebuggersImpl(
     }
 
     if (searchPaths.isEmpty())
-        return result;
+        return;
 
     FilePaths suspects;
 
@@ -698,23 +696,15 @@ static QList<DebuggerItem> autoDetectGdbOrLldbDebuggersImpl(
     for (const FilePath &path : paths)
         suspects.append(path.dirEntries({filters, QDir::Files | QDir::Executable}));
 
-    auto findItem = [&](auto predicate) -> DebuggerItem {
-        return Utils::findOrDefault(existingDebuggers + result, predicate);
-    };
-
+    QStringList logMessages{Tr::tr("Searching debuggers...")};
     for (const FilePath &command : std::as_const(suspects)) {
-        const auto commandMatches = [command](const DebuggerItem item) {
-            return item.command() == command;
+        const auto commandMatches = [command](const DebuggerTreeItem *titem) {
+            return titem->m_item.command() == command;
         };
-        DebuggerItem existingItem = findItem(commandMatches);
-        if (existingItem.isValid()) {
-            if (command.lastModified() != existingItem.lastModified()) {
-                DebuggerItem updatedItem = existingItem;
-                updatedItem.reinitializeFromFile();
-                if (updatedItem != existingItem)
-                    result.append(updatedItem);
-                existingItem = updatedItem;
-            }
+        if (DebuggerTreeItem *existingTreeItem = findItemAtLevel<2>(commandMatches)) {
+            DebuggerItem &existingItem = existingTreeItem->m_item;
+            if (command.lastModified() != existingItem.lastModified())
+                existingItem.reinitializeFromFile();
 
             if (doEnableNativeDapDebuggers()) {
                 if (existingItem.engineType() != GdbEngineType)
@@ -727,14 +717,16 @@ static QList<DebuggerItem> autoDetectGdbOrLldbDebuggersImpl(
                     continue;
                 // This is the "update" path: there's already a capable GDB in the settings,
                 // we only need to add a corresponding DAP entry if it's missing.
-                const auto commandMatchesAndIsDap = [commandMatches](const DebuggerItem item) {
-                    return commandMatches(item) && item.engineType() == GdbDapEngineType;
+                const auto commandMatchesAndIsDap = [command, commandMatches](
+                                                        const DebuggerTreeItem *titem) {
+                    return commandMatches(titem) && titem->m_item.engineType() == GdbDapEngineType;
                 };
-                DebuggerItem dapItem = findItem(commandMatchesAndIsDap);
-                if (dapItem.isValid())
+                const DebuggerTreeItem *existingDapTreeItem = findItemAtLevel<2>(
+                    commandMatchesAndIsDap);
+                if (existingDapTreeItem)
                     continue;
 
-                dapItem = makeAutoDetectedDebuggerItem(
+                const DebuggerItem dapItem = makeAutoDetectedDebuggerItem(
                     command,
                     {
                         .engineType = GdbDapEngineType,
@@ -742,17 +734,23 @@ static QList<DebuggerItem> autoDetectGdbOrLldbDebuggersImpl(
                         .version = existingItem.version(),
                     },
                     detectionSource);
-                result.append(dapItem);
+                addDebuggerItem(dapItem);
+                logMessages.append(
+                    Tr::tr("Added a surrogate GDB DAP item for existing entry \"%1\".")
+                        .arg(command.toUserOutput()));
             }
             continue;
         }
 
         const Result<DebuggerItem> item
             = makeAutoDetectedDebuggerItem(command, detectionSource);
-        if (!item)
+        if (!item) {
+            logMessages.append(item.error());
             continue;
+        }
 
-        result.append(*item);
+        addDebuggerItem(*item);
+        logMessages.append(Tr::tr("Found: \"%1\".").arg(command.toUserOutput()));
         if (doEnableNativeDapDebuggers()) {
             if (item->engineType() != GdbEngineType)
                 continue;
@@ -771,33 +769,13 @@ static QList<DebuggerItem> autoDetectGdbOrLldbDebuggersImpl(
                     .version = item->version(),
                 },
                 detectionSource);
-            result.append(dapItem);
+            addDebuggerItem(dapItem);
+            logMessages.append(
+                Tr::tr("Added a surrogate GDB DAP item for \"%1\".").arg(command.toUserOutput()));
         }
     }
-
-    return result;
-}
-
-void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(
-    const FilePaths &searchPaths, const QString &detectionSourceId)
-{
-    auto setupSearch = [searchPaths, detectionSourceId](Async<QList<DebuggerItem>> &async) {
-        async.setConcurrentCallData(
-            &autoDetectGdbOrLldbDebuggersImpl,
-            searchPaths,
-            detectionSourceId,
-            DebuggerItemManager::debuggers());
-    };
-
-    auto searchDone = [this](const Async<QList<DebuggerItem>> &async) {
-        const QList<DebuggerItem> items = async.result();
-        for (const DebuggerItem &item : items) {
-            if (item.isValid() && item.engineType() != NoEngineType)
-                registerDebugger(item);
-        }
-    };
-
-    m_detectGdbLldbRunner.start({AsyncTask<QList<DebuggerItem>>(setupSearch, searchDone)});
+    if (logMessage)
+        *logMessage = logMessages.join('\n');
 }
 
 void DebuggerItemModel::autoDetectUvscDebuggers()
