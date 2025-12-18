@@ -58,7 +58,12 @@ void QtDesignSystemStyle::drawControl(ControlElement element, const QStyleOption
         const int paddingR = tabOpt->position == QStyleOptionTab::End ? 0 : PaddingHXxs;
         const QRect shapeR = opt->rect.adjusted(paddingL, 0, -paddingR, 0);
         if (selected || (hovered && enabled)) {
-            if (hovered || tabOpt->position == QStyleOptionTab::Moving) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+            const bool isMoving = tabOpt->position == QStyleOptionTab::Moving;
+#else
+            const bool isMoving = false;
+#endif
+            if (hovered || isMoving) {
                 StyleHelper::drawCardBg(painter, shapeR.adjusted(0, 0, 0, +SpacingTokens::RadiusS),
                                         creatorColor(Theme::Token_Foreground_Subtle));
             }
