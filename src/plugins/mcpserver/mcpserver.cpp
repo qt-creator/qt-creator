@@ -677,7 +677,7 @@ bool McpServer::start(quint16 port)
 
     // Try to start TCP server on the requested port first
     if (!m_tcpServerP->listen(QHostAddress::LocalHost, m_port)) {
-        qCCritical(mcpServer) << "Failed to start MCP TCP server on port" << m_port << ":"
+        qCWarning(mcpServer) << "Failed to start MCP TCP server on port" << m_port << ":"
                               << m_tcpServerP->errorString();
         qCWarning(mcpServer) << "Port" << m_port
                              << "is in use, trying to find an available port...";
@@ -693,7 +693,7 @@ bool McpServer::start(quint16 port)
         }
 
         if (!m_tcpServerP->isListening()) {
-            qCCritical(mcpServer) << "Failed to start MCP TCP server on any port from 3001-3010";
+            qCWarning(mcpServer) << "Failed to start MCP TCP server on any port from 3001-3010";
             return false;
         }
     }
