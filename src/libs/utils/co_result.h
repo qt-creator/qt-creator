@@ -8,13 +8,10 @@
 
 // return_object_holder adapted from https://github.com/toby-allsopp/coroutine_monad/blob/master/return_object_holder.h
 template<typename T>
-using deferred = std::optional<T>;
-
-template<typename T>
 struct return_object_holder
 {
     // The staging object that is returned (by copy/move) to the caller of the coroutine.
-    deferred<T> stage;
+    std::optional<T> stage;
     return_object_holder *&p;
 
     // When constructed, we assign a pointer to ourselves to the supplied reference to
@@ -63,19 +60,8 @@ auto make_return_object_holder(return_object_holder<T> *&p)
     return return_object_holder<T>{p};
 }
 
-using std::coroutine_traits;
-
-template<typename R>
-using p_t = coroutine_traits<Utils::Result<R>>::promise_type;
-
-template<typename E>
-struct expectation_failed
-{
-    E value;
-};
-
 template<typename R, typename... Args>
-struct coroutine_traits<Utils::Result<R>, Args...>
+struct std::coroutine_traits<Utils::Result<R>, Args...>
 {
     struct promise_type
     {
