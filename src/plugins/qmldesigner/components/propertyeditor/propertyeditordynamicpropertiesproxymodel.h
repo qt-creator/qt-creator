@@ -32,10 +32,16 @@ namespace QmlDesigner {
 class PropertyEditorDynamicPropertiesProxyModel : public DynamicPropertiesProxyModel
 {
     Q_OBJECT
+
+    Q_PROPERTY(DynamicPropertiesModel *model MEMBER m_dynamicPropertiesModel WRITE initModel)
+
 public:
     explicit PropertyEditorDynamicPropertiesProxyModel(QObject *parent = nullptr);
 
     static void registerDeclarativeType();
+
+private:
+    DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
 };
 
 } // namespace QmlDesigner

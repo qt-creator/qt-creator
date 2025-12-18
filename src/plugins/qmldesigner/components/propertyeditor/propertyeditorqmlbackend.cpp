@@ -71,7 +71,8 @@ static bool isMaterialAuxiliaryKey(AuxiliaryDataKeyView key)
 
 PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyEditor,
                                                    AsynchronousImageCache &imageCache)
-    : m_contextObject(std::make_unique<PropertyEditorContextObject>())
+    : m_contextObject(
+          std::make_unique<PropertyEditorContextObject>(propertyEditor->dynamicPropertiesModel()))
     , m_view(Utils::makeUniqueObjectPtr<Quick2PropertyEditorView>(imageCache))
     , m_propertyEditorTransaction(std::make_unique<PropertyEditorTransaction>(propertyEditor))
     , m_dummyPropertyEditorValue(std::make_unique<PropertyEditorValue>())

@@ -149,7 +149,7 @@ void DynamicPropertiesProxyModel::registerDeclarativeType()
 
     static bool registered = false;
     if (!registered)
-        qmlRegisterType<DynamicPropertiesProxyModel>("HelperWidgets", 2, 0, "DynamicPropertiesModel");
+        qmlRegisterType<DynamicPropertiesProxyModel>("HelperWidgets", 2, 0, "DynamicPropertiesProxyModel");
 }
 
 DynamicPropertiesModel *DynamicPropertiesProxyModel::dynamicPropertiesModel() const

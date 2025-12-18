@@ -18,6 +18,8 @@ QT_FORWARD_DECLARE_CLASS(QQuickWidget)
 
 namespace QmlDesigner {
 
+class DynamicPropertiesModel;
+
 class PropertyEditorContextObject : public QObject
 {
     Q_OBJECT
@@ -63,8 +65,10 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
     Q_PROPERTY(bool has3DModelSelected READ has3DModelSelected NOTIFY has3DModelSelectedChanged)
     Q_PROPERTY(bool has3DScene READ has3DScene NOTIFY has3DSceneChanged)
+    Q_PROPERTY(DynamicPropertiesModel *dynamicPropertiesModel MEMBER m_dynamicPropertiesModel CONSTANT)
+
 public:
-    PropertyEditorContextObject(QObject *parent = nullptr);
+    PropertyEditorContextObject(DynamicPropertiesModel *dynamicPropertiesModel);
 
     QUrl specificsUrl() const {return m_specificsUrl; }
     QString specificQmlData() const {return m_specificQmlData; }
@@ -225,10 +229,11 @@ private:
     QString m_stateName;
     QStringList m_allStateNames;
 
-    bool m_isBaseState;
-    bool m_selectionChanged;
+    bool m_isBaseState = false;
+    bool m_selectionChanged = false;
 
-    QQmlPropertyMap *m_backendValues;
+    QQmlPropertyMap *m_backendValues = nullptr;
+    DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
 
     int m_majorVersion = 1;
     int m_minorVersion = 1;
@@ -243,8 +248,8 @@ private:
     bool m_has3DScene = false;
     bool m_isQt6Project = false;
 
-    QQmlComponent *m_qmlComponent;
-    QQmlContext *m_qmlContext;
+    QQmlComponent *m_qmlComponent = nullptr;
+    QQmlContext *m_qmlContext = nullptr;
     QPointer<QQuickWidget> m_quickWidget;
 
     QPoint m_lastPos;

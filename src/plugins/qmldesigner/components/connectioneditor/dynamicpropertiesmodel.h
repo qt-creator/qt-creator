@@ -61,6 +61,8 @@ public:
 
     bool isCallbackToModelBlocked() const { return m_blockCallbackToModel; }
 
+    static void registerDeclarativeType();
+
 protected:
     QHash<int, QByteArray> roleNames() const override;
 

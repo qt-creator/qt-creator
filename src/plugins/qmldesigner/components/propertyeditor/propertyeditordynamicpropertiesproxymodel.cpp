@@ -40,9 +40,6 @@ PropertyEditorDynamicPropertiesProxyModel::PropertyEditorDynamicPropertiesProxyM
 {
     NanotraceHR::Tracer tracer{"property editor dynamic properties proxy model constructor",
                                category()};
-
-    if (PropertyEditorView::instance())
-        initModel(PropertyEditorView::instance()->dynamicPropertiesModel());
 }
 
 void PropertyEditorDynamicPropertiesProxyModel::registerDeclarativeType()

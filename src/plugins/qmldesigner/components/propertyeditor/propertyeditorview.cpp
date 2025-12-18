@@ -509,12 +509,6 @@ void PropertyEditorView::removeAliasForProperty(const ModelNode &modelNode, cons
     }
 }
 
-PropertyEditorView *PropertyEditorView::instance()
-{
-    NanotraceHR::Tracer tracer{"property editor view instance", category()};
-    return QmlDesignerPlugin::instance()->viewManager().propertyEditorView();
-}
-
 NodeMetaInfo PropertyEditorView::findCommonAncestor(const ModelNode &node)
 {
     NanotraceHR::Tracer tracer{"property editor view find common ancestor", category()};

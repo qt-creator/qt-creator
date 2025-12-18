@@ -26,6 +26,7 @@
 #include "qmltexturenodeproxy.h"
 #include "tooltip.h"
 
+#include <dynamicpropertiesmodel.h>
 #include <qmldesignerconstants.h>
 #include <scripteditorbackend.h>
 
@@ -91,6 +92,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         PropertyModel::registerDeclarativeType();
         PropertyNameValidator::registerDeclarativeType();
         ScriptEditorBackend::registerDeclarativeType();
+        DynamicPropertiesModel::registerDeclarativeType();
 
         const QString resourcePath = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 

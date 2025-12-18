@@ -18,7 +18,7 @@ PropertyEditorPane {
         anchors.right: parent.right
 
         DynamicPropertiesSection {
-            propertiesModel: PropertyEditorDynamicPropertiesModel {}
+            propertiesModel: PropertyEditorDynamicPropertiesModel { model: dynamicPropertiesModel }
             visible: !hasMultiSelection
         }
 

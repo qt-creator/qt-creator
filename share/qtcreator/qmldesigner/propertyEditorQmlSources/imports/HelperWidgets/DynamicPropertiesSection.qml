@@ -37,7 +37,7 @@ Section {
     anchors.right: parent.right
     caption: qsTr("Local Custom Properties")
 
-    property DynamicPropertiesModel propertiesModel: null
+    property DynamicPropertiesProxyModel propertiesModel: null
 
     property Component colorEditor: Component {
         id: colorEditor

@@ -46,13 +46,8 @@ using QmlDesigner::PropertyEditorTracing::category;
 
 static Q_LOGGING_CATEGORY(urlSpecifics, "qtc.propertyeditor.specifics", QtWarningMsg)
 
-PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent)
-    : QObject(parent)
-    , m_isBaseState(false)
-    , m_selectionChanged(false)
-    , m_backendValues(nullptr)
-    , m_qmlComponent(nullptr)
-    , m_qmlContext(nullptr)
+PropertyEditorContextObject::PropertyEditorContextObject(DynamicPropertiesModel *dynamicPropertiesModel)
+    : m_dynamicPropertiesModel{dynamicPropertiesModel}
 {
     NanotraceHR::Tracer tracer{"property editor context object constructor", category()};
 }

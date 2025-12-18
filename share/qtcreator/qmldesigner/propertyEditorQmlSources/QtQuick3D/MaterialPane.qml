@@ -77,7 +77,7 @@ Item {
             toolbarComponent: Material.Toolbar {}
 
             DynamicPropertiesSection {
-                propertiesModel: PropertyEditorDynamicPropertiesModel {}
+                propertiesModel: PropertyEditorDynamicPropertiesModel { model: dynamicPropertiesModel }
                 visible: !hasMultiSelection
             }
 

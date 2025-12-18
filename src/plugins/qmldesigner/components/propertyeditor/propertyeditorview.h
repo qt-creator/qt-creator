@@ -180,8 +180,6 @@ private: //functions
     bool isNodeOrChildSelected(const ModelNode &node) const;
     void setSelectionUnlockedIfNodeRemoved(const ModelNode &removedNode);
 
-    static PropertyEditorView *instance(); // TODO: remove
-
     NodeMetaInfo findCommonAncestor(const ModelNode &node);
     AuxiliaryDataKey activeNodeAuxKey() const;
 

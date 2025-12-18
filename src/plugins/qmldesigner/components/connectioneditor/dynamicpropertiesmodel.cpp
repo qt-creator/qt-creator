@@ -402,6 +402,12 @@ void DynamicPropertiesModel::setSelectedNode(const ModelNode &node)
     reset();
 }
 
+void DynamicPropertiesModel::registerDeclarativeType()
+{
+    qmlRegisterUncreatableType<DynamicPropertiesModel>(
+        "HelperWidgets", 2, 0, "DynamicPropertiesModel", "Cannot create DynamicPropertiesModel in QML");
+}
+
 DynamicPropertiesModelBackendDelegate::DynamicPropertiesModelBackendDelegate(DynamicPropertiesModel &model)
     : m_model(model)
 {
