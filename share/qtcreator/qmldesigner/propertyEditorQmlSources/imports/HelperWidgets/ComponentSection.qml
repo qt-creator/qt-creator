@@ -71,7 +71,7 @@ Section {
                         typeLineEdit.blockEditingFinished = true
 
                         if (typeLineEdit.visible)
-                            changeTypeName(typeLineEdit.text.trim())
+                            changeTypeNameAsync(typeLineEdit.text.trim())
 
                         typeLineEdit.visible = false
                         typeLineEdit.blockEditingFinished = false

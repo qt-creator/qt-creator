@@ -81,7 +81,6 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
     , m_updateShortcut(nullptr)
     , m_dynamicPropertiesModel(std::make_unique<DynamicPropertiesModel>(true, this))
     , m_stackedWidget(new PropertyEditorWidget())
-    , m_qmlBackEndForCurrentType(nullptr)
     , m_propertyComponentGenerator{PropertyEditorQmlBackend::propertyEditorResourcesPath(), model()}
     , m_locked(false)
     , m_manageNotifications(ManageCustomNotifications::Yes)
@@ -113,8 +112,6 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
 PropertyEditorView::~PropertyEditorView()
 {
     NanotraceHR::Tracer tracer{"property editor view destructor", category()};
-
-    qDeleteAll(m_qmlBackendHash);
 }
 
 void PropertyEditorView::changeValue(const QString &name)
@@ -136,7 +133,7 @@ void PropertyEditorView::changeValue(const QString &name)
         return;
 
     if (propertyName == "id") {
-        PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(
+        PropertyEditorValue *value = m_qmlBackEnd->propertyValueForName(
             QString::fromUtf8(propertyName));
         const QString newId = value->value().toString();
 
@@ -162,7 +159,7 @@ void PropertyEditorView::changeValue(const QString &name)
     if (propertyName == "objectName" && currentNodes().size() == 1) {
         if (activeNode().metaInfo().isQtQuick3DMaterial()
             || activeNode().metaInfo().isQtQuick3DTexture()) {
-            PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(
+            PropertyEditorValue *value = m_qmlBackEnd->propertyValueForName(
                 "objectName");
             const QString &newObjectName = value->value().toString();
             QmlObjectNode objectNode(activeNode());
@@ -173,7 +170,7 @@ void PropertyEditorView::changeValue(const QString &name)
 
     PropertyName underscoreName(propertyName);
     underscoreName.replace('.', '_');
-    PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(
+    PropertyEditorValue *value = m_qmlBackEnd->propertyValueForName(
         QString::fromLatin1(underscoreName));
 
     if (value == nullptr)
@@ -269,7 +266,7 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
         underscoreName.replace('.', '_');
 
         QmlObjectNode qmlObjectNode{activeNode()};
-        PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(
+        PropertyEditorValue *value = m_qmlBackEnd->propertyValueForName(
             QString::fromUtf8(underscoreName));
 
         if (!value) {
@@ -342,7 +339,7 @@ void PropertyEditorView::currentTimelineChanged(const ModelNode &)
 {
     NanotraceHR::Tracer tracer{"property editor view current timeline changed", category()};
 
-    m_qmlBackEndForCurrentType->contextObject()->setHasActiveTimeline(
+    m_qmlBackEnd->contextObject()->setHasActiveTimeline(
         QmlTimeline::hasActiveTimeline(this));
 }
 
@@ -549,9 +546,9 @@ void PropertyEditorView::updateSize()
 {
     NanotraceHR::Tracer tracer{"property editor view update size", category()};
 
-    if (!m_qmlBackEndForCurrentType)
+    if (!m_qmlBackEnd)
         return;
-    auto frame = m_qmlBackEndForCurrentType->widget()->findChild<QWidget *>("propertyEditorFrame");
+    auto frame = m_qmlBackEnd->widget()->findChild<QWidget *>("propertyEditorFrame");
     if (frame)
         frame->resize(m_stackedWidget->size());
 }
@@ -572,10 +569,10 @@ void PropertyEditorView::resetView()
 
     setupQmlBackend();
 
-    if (m_qmlBackEndForCurrentType) {
-        m_qmlBackEndForCurrentType->emitSelectionChanged();
+    if (m_qmlBackEnd) {
+        m_qmlBackEnd->emitSelectionChanged();
 
-        const auto qmlBackEndObject = m_qmlBackEndForCurrentType->widget()->rootObject();
+        const auto qmlBackEndObject = m_qmlBackEnd->widget()->rootObject();
         if (qmlBackEndObject) {
             const auto metaObject = qmlBackEndObject->metaObject();
             const int methodIndex = metaObject->indexOfMethod("clearSearch()");
@@ -595,8 +592,7 @@ void PropertyEditorView::setIsSelectionLocked(bool locked)
 
     if (m_isSelectionLocked != locked) {
         m_isSelectionLocked = locked;
-        for (PropertyEditorQmlBackend *qmlBackend : std::as_const(m_qmlBackendHash))
-            qmlBackend->contextObject()->setIsSelectionLocked(locked);
+        m_qmlBackEnd->contextObject()->setIsSelectionLocked(locked);
     }
 
     // Show current selection on unlock
@@ -606,25 +602,21 @@ void PropertyEditorView::setIsSelectionLocked(bool locked)
 
 namespace {
 
-PropertyEditorQmlBackend *getQmlBackend(QHash<QString, PropertyEditorQmlBackend *> &qmlBackendHash,
-                                        const QUrl &qmlFileUrl,
-                                        AsynchronousImageCache &imageCache,
-                                        PropertyEditorWidget *stackedWidget,
-                                        PropertyEditorView *propertyEditorView)
+std::unique_ptr<PropertyEditorQmlBackend> getQmlBackend(
+    AsynchronousImageCache &imageCache,
+    PropertyEditorWidget *stackedWidget,
+    PropertyEditorView *propertyEditorView)
 {
     NanotraceHR::Tracer tracer{"property editor view get Qml Backend", category()};
 
-    auto qmlFileName = qmlFileUrl.toString();
-    PropertyEditorQmlBackend *currentQmlBackend = qmlBackendHash.value(qmlFileName);
+    std::unique_ptr<PropertyEditorQmlBackend> currentQmlBackend;
 
     if (!currentQmlBackend) {
-        currentQmlBackend = new PropertyEditorQmlBackend(propertyEditorView, imageCache);
+        currentQmlBackend = std::make_unique<PropertyEditorQmlBackend>(propertyEditorView, imageCache);
 
         stackedWidget->addWidget(currentQmlBackend->widget());
-        qmlBackendHash.insert(qmlFileName, currentQmlBackend);
 
         currentQmlBackend->setupContextProperties();
-        currentQmlBackend->setSource(qmlFileUrl);
     }
 
     return currentQmlBackend;
@@ -635,13 +627,13 @@ void setupCurrentQmlBackend(PropertyEditorQmlBackend *currentQmlBackend,
                             const QUrl &qmlSpecificsFile,
                             const QmlModelState &currentState,
                             PropertyEditorView *propertyEditorView,
-                            const QString &specificQmlData)
+                            const QString &specificQmlData,
+                            const QUrl &qmlFileUrl)
 {
+    currentQmlBackend->setSource(qmlFileUrl);
     QString currentStateName = currentState.isBaseState() ? QStringLiteral("invalid state")
                                                           : currentState.name();
 
-    if (specificQmlData.isEmpty())
-        currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     currentQmlBackend->setup(editorNodes, currentStateName, qmlSpecificsFile, propertyEditorView);
     currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
 }
@@ -747,26 +739,23 @@ void PropertyEditorView::setupQmlBackend()
                                                                     isEditableComponent);
     }
 
-    PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
-                                                                createPaneUrl(panePath),
-                                                                m_imageCache,
-                                                                m_stackedWidget,
-                                                                this);
-    setupCurrentQmlBackend(currentQmlBackend,
+    if (!m_qmlBackEnd)
+        m_qmlBackEnd = getQmlBackend(m_imageCache, m_stackedWidget, this);
+
+    setupCurrentQmlBackend(m_qmlBackEnd.get(),
                            currentNodes(),
                            QUrl::fromLocalFile(QString{specificsPath}),
                            currentStateNode(),
                            this,
-                           specificQmlData);
+                           specificQmlData,
+                           createPaneUrl(panePath));
 
-    setupWidget(currentQmlBackend, this, m_stackedWidget);
+    setupWidget(m_qmlBackEnd.get(), this, m_stackedWidget);
 
-    m_qmlBackEndForCurrentType = currentQmlBackend;
-
-    setupInsight(rootModelNode(), currentQmlBackend);
+    setupInsight(rootModelNode(), m_qmlBackEnd.get());
 
     m_dynamicPropertiesModel->setSelectedNode(activeNode());
-    connect(m_qmlBackEndForCurrentType->contextObject(),
+    connect(m_qmlBackEnd->contextObject(),
             &PropertyEditorContextObject::toolBarAction,
             this,
             &PropertyEditorView::handleToolBarAction,
@@ -845,7 +834,7 @@ bool PropertyEditorView::noValidSelection() const
 {
     NanotraceHR::Tracer tracer{"property editor view no valid selection", category()};
 
-    QTC_ASSERT(m_qmlBackEndForCurrentType, return true);
+    QTC_ASSERT(m_qmlBackEnd, return true);
     return !QmlObjectNode::isValidQmlObjectNode(activeNode());
 }
 
@@ -888,8 +877,8 @@ void PropertyEditorView::setInstancesCount(int n)
 
     m_instancesCount = n;
 
-    if (m_qmlBackEndForCurrentType)
-        m_qmlBackEndForCurrentType->contextObject()->setEditorInstancesCount(instancesCount());
+    if (m_qmlBackEnd)
+        m_qmlBackEnd->contextObject()->setEditorInstancesCount(instancesCount());
 }
 
 int PropertyEditorView::instancesCount() const
@@ -918,8 +907,8 @@ void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &,
         select();
 
     // Notify model selection changes to backend regardless of being locked
-    if (m_qmlBackEndForCurrentType)
-        m_qmlBackEndForCurrentType->handleModelSelectedNodesChanged(this);
+    if (m_qmlBackEnd)
+        m_qmlBackEnd->handleModelSelectedNodesChanged(this);
 }
 
 bool PropertyEditorView::isNodeOrChildSelected(const ModelNode &node) const
@@ -978,11 +967,11 @@ void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
     m_texOrMatAboutToBeRemoved = hasMaterialOrTexture(allRemovedNodes);
 
-    if (m_qmlBackEndForCurrentType) {
+    if (m_qmlBackEnd) {
         if (Utils::contains(allRemovedNodes,
                             QLatin1String{Constants::MATERIAL_LIB_ID},
                             bind_back(&ModelNode::id, SL{})))
-            m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(false);
+            m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
     }
 }
 
@@ -990,8 +979,8 @@ void PropertyEditorView::nodeRemoved(const ModelNode &, const NodeAbstractProper
 {
     NanotraceHR::Tracer tracer{"property editor view node removed", category()};
 
-    if (m_qmlBackEndForCurrentType && m_texOrMatAboutToBeRemoved)
-        m_qmlBackEndForCurrentType->refreshBackendModel();
+    if (m_qmlBackEnd && m_texOrMatAboutToBeRemoved)
+        m_qmlBackEnd->refreshBackendModel();
 
     m_texOrMatAboutToBeRemoved = false;
 }
@@ -1019,19 +1008,20 @@ void PropertyEditorView::modelAboutToBeDetached(Model *model)
 
     saveLockedNode();
     AbstractView::modelAboutToBeDetached(model);
-    if (m_qmlBackEndForCurrentType)
-        m_qmlBackEndForCurrentType->propertyEditorTransaction()->end();
+    if (m_qmlBackEnd)
+        m_qmlBackEnd->propertyEditorTransaction()->end();
 
     resetView();
     m_dynamicPropertiesModel->reset();
 
-    for (PropertyEditorQmlBackend *qmlBackend : std::as_const(m_qmlBackendHash)) {
-        const QStringList propNames = qmlBackend->backendValuesPropertyMap().keys();
+    if (m_qmlBackEnd) {
+        const QStringList propNames = m_qmlBackEnd->backendValuesPropertyMap().keys();
         for (const QString &propName : propNames) {
-            if (PropertyEditorValue *valueObject = qmlBackend->propertyValueForName(propName))
+            if (PropertyEditorValue *valueObject = m_qmlBackEnd->propertyValueForName(propName))
                 valueObject->resetMetaInfo();
         }
     }
+
     setActiveNode({});
 }
 
@@ -1042,16 +1032,16 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
     if (noValidSelection())
         return;
 
-    QTC_ASSERT(m_qmlBackEndForCurrentType, return );
+    QTC_ASSERT(m_qmlBackEnd, return );
 
     bool changed = false;
     for (const AbstractProperty &property : propertyList) {
-        m_qmlBackEndForCurrentType->handlePropertiesRemovedInModelNodeProxy(property);
+        m_qmlBackEnd->handlePropertiesRemovedInModelNodeProxy(property);
 
         ModelNode node(property.parentModelNode());
 
         if (node.isRootNode() && !activeNode().isRootNode())
-            m_qmlBackEndForCurrentType->contextObject()->setHasAliasExport(QmlObjectNode(activeNode()).isAliasExported());
+            m_qmlBackEnd->contextObject()->setHasAliasExport(QmlObjectNode(activeNode()).isAliasExported());
 
         if (node == activeNode()
             || QmlObjectNode(activeNode()).propertyChangeForCurrentState() == node) {
@@ -1063,12 +1053,12 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
 
             convertedpropertyName.replace('.', '_');
 
-            PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(
+            PropertyEditorValue *value = m_qmlBackEnd->propertyValueForName(
                 QString::fromUtf8(convertedpropertyName));
 
             if (value) {
                 value->resetValue();
-                m_qmlBackEndForCurrentType
+                m_qmlBackEnd
                     ->setValue(activeNode(),
                                propertyName,
                                QmlObjectNode(activeNode()).instanceValue(propertyName));
@@ -1076,23 +1066,23 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
             m_locked = false;
 
             if (propertyIsAttachedLayoutProperty(propertyName)) {
-                m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(activeNode(),
+                m_qmlBackEnd->setValueforLayoutAttachedProperties(activeNode(),
                                                                                 propertyName);
 
                 if (propertyName == "Layout.margins") {
-                    m_qmlBackEndForCurrentType
+                    m_qmlBackEnd
                         ->setValueforLayoutAttachedProperties(activeNode(), "Layout.topMargin");
-                    m_qmlBackEndForCurrentType
+                    m_qmlBackEnd
                         ->setValueforLayoutAttachedProperties(activeNode(), "Layout.bottomMargin");
-                    m_qmlBackEndForCurrentType
+                    m_qmlBackEnd
                         ->setValueforLayoutAttachedProperties(activeNode(), "Layout.leftMargin");
-                    m_qmlBackEndForCurrentType
+                    m_qmlBackEnd
                         ->setValueforLayoutAttachedProperties(activeNode(), "Layout.rightMargin");
                 }
             }
 
             if (propertyIsAttachedInsightProperty(propertyName)) {
-                m_qmlBackEndForCurrentType->setValueforInsightAttachedProperties(activeNode(),
+                m_qmlBackEnd->setValueforInsightAttachedProperties(activeNode(),
                                                                                  propertyName);
             }
 
@@ -1103,13 +1093,13 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
             }
 
             if (propertyName.contains("anchor"))
-                m_qmlBackEndForCurrentType->backendAnchorBinding().invalidate(activeNode());
+                m_qmlBackEnd->backendAnchorBinding().invalidate(activeNode());
 
             dynamicPropertiesModel()->dispatchPropertyChanges(property);
         }
     }
     if (changed)
-        m_qmlBackEndForCurrentType->updateInstanceImage();
+        m_qmlBackEnd->updateInstanceImage();
 }
 
 void PropertyEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
@@ -1127,7 +1117,7 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
     if (noValidSelection())
         return;
 
-    QTC_ASSERT(m_qmlBackEndForCurrentType, return );
+    QTC_ASSERT(m_qmlBackEnd, return );
 
     bool changed = false;
 
@@ -1135,16 +1125,16 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
     bool selectedNodeHasBindingProperties = !activeNode().bindingProperties().isEmpty();
 
     for (const VariantProperty &property : propertyList) {
-        m_qmlBackEndForCurrentType->handleVariantPropertyChangedInModelNodeProxy(property);
+        m_qmlBackEnd->handleVariantPropertyChangedInModelNodeProxy(property);
 
         ModelNode node(property.parentModelNode());
 
         if (propertyIsAttachedLayoutProperty(property.name()))
-            m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(activeNode(),
+            m_qmlBackEnd->setValueforLayoutAttachedProperties(activeNode(),
                                                                             property.name());
 
         if (propertyIsAttachedInsightProperty(property.name()))
-            m_qmlBackEndForCurrentType->setValueforInsightAttachedProperties(activeNode(),
+            m_qmlBackEnd->setValueforInsightAttachedProperties(activeNode(),
                                                                              property.name());
 
         if (node == activeNode()
@@ -1170,7 +1160,7 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
     }
 
     if (changed)
-        m_qmlBackEndForCurrentType->updateInstanceImage();
+        m_qmlBackEnd->updateInstanceImage();
 }
 
 void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
@@ -1181,33 +1171,33 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
     if (noValidSelection())
         return;
 
-    QTC_ASSERT(m_qmlBackEndForCurrentType, return);
+    QTC_ASSERT(m_qmlBackEnd, return);
 
     if (locked()) {
         for (const BindingProperty &property : propertyList)
-            m_qmlBackEndForCurrentType->handleBindingPropertyInModelNodeProxyAboutToChange(property);
+            m_qmlBackEnd->handleBindingPropertyInModelNodeProxyAboutToChange(property);
         return;
     }
 
     bool changed = false;
     for (const BindingProperty &property : propertyList) {
-        m_qmlBackEndForCurrentType->handleBindingPropertyChangedInModelNodeProxy(property);
+        m_qmlBackEnd->handleBindingPropertyChangedInModelNodeProxy(property);
 
         ModelNode node(property.parentModelNode());
 
         if (property.isAliasExport())
-            m_qmlBackEndForCurrentType->contextObject()->setHasAliasExport(QmlObjectNode(activeNode()).isAliasExported());
+            m_qmlBackEnd->contextObject()->setHasAliasExport(QmlObjectNode(activeNode()).isAliasExported());
 
         if (node == activeNode()
             || QmlObjectNode(activeNode()).propertyChangeForCurrentState() == node) {
             if (property.isDynamic())
                 m_dynamicPropertiesModel->updateItem(property);
             if (property.name().contains("anchor"))
-                m_qmlBackEndForCurrentType->backendAnchorBinding().invalidate(activeNode());
+                m_qmlBackEnd->backendAnchorBinding().invalidate(activeNode());
 
             m_locked = true;
             QString exp = QmlObjectNode(activeNode()).bindingProperty(property.name()).expression();
-            m_qmlBackEndForCurrentType->setExpression(property.name(), exp);
+            m_qmlBackEnd->setExpression(property.name(), exp);
             m_locked = false;
             changed = true;
         }
@@ -1215,7 +1205,7 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
     }
 
     if (changed)
-        m_qmlBackEndForCurrentType->updateInstanceImage();
+        m_qmlBackEnd->updateInstanceImage();
 }
 
 void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node,
@@ -1232,26 +1222,26 @@ void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node,
     QScopeGuard rootGuard([this, node, key, &saved] {
         if (node.isRootNode()) {
             if (!saved)
-                m_qmlBackEndForCurrentType->setValueforAuxiliaryProperties(activeNode(), key);
-            m_qmlBackEndForCurrentType->handleAuxiliaryDataChanges(node, key);
+                m_qmlBackEnd->setValueforAuxiliaryProperties(activeNode(), key);
+            m_qmlBackEnd->handleAuxiliaryDataChanges(node, key);
         }
     });
 
     if (!node.isSelected())
         return;
 
-    m_qmlBackEndForCurrentType->setValueforAuxiliaryProperties(activeNode(), key);
+    m_qmlBackEnd->setValueforAuxiliaryProperties(activeNode(), key);
     saved = true;
 
     if (key == insightEnabledProperty)
-        m_qmlBackEndForCurrentType->contextObject()->setInsightEnabled(data.toBool());
+        m_qmlBackEnd->contextObject()->setInsightEnabled(data.toBool());
 
     if (key == insightCategoriesProperty)
-        m_qmlBackEndForCurrentType->contextObject()->setInsightCategories(data.toStringList());
+        m_qmlBackEnd->contextObject()->setInsightCategories(data.toStringList());
 
     if (key == active3dSceneProperty) {
         bool hasScene3D = data.toInt() != -1;
-        m_qmlBackEndForCurrentType->contextObject()->setHas3DScene(hasScene3D);
+        m_qmlBackEnd->contextObject()->setHas3DScene(hasScene3D);
     }
 }
 
@@ -1276,7 +1266,7 @@ void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode,
     QList<InformationName> informationNameList = informationChangedHash.values(activeNode());
     if (informationNameList.contains(Anchor)
             || informationNameList.contains(HasAnchor))
-        m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(activeNode()));
+        m_qmlBackEnd->backendAnchorBinding().setup(QmlItemNode(activeNode()));
     m_locked = false;
 }
 
@@ -1292,17 +1282,17 @@ void PropertyEditorView::nodeIdChanged(const ModelNode &node, const QString &new
 
     m_dynamicPropertiesModel->reset();
 
-    if (m_qmlBackEndForCurrentType) {
+    if (m_qmlBackEnd) {
         if (newId == Constants::MATERIAL_LIB_ID)
-            m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(true);
+            m_qmlBackEnd->contextObject()->setHasMaterialLibrary(true);
         else if (oldId == Constants::MATERIAL_LIB_ID)
-            m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(false);
+            m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
 
         if (node == activeNode())
             setValue(node, "id", newId);
         if (node.metaInfo().isBasedOn(model()->qtQuick3DTextureMetaInfo(),
                                       model()->qtQuick3DMaterialMetaInfo())) {
-            m_qmlBackEndForCurrentType->refreshBackendModel();
+            m_qmlBackEnd->refreshBackendModel();
         }
     }
 }
@@ -1311,8 +1301,8 @@ void PropertyEditorView::select()
 {
     NanotraceHR::Tracer tracer{"property editor view select", category()};
 
-    if (m_qmlBackEndForCurrentType)
-        m_qmlBackEndForCurrentType->emitSelectionToBeChanged();
+    if (m_qmlBackEnd)
+        m_qmlBackEnd->emitSelectionToBeChanged();
 
     resetView();
 }
@@ -1417,7 +1407,7 @@ void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
     if (!activeNode().isValid())
         return;
 
-    QTC_ASSERT(m_qmlBackEndForCurrentType, return );
+    QTC_ASSERT(m_qmlBackEnd, return );
 
     m_locked = true;
     bool changed = false;
@@ -1427,7 +1417,7 @@ void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
         const QmlObjectNode qmlObjectNode(modelNode);
         const PropertyName propertyName = propertyPair.second;
 
-        m_qmlBackEndForCurrentType->handleInstancePropertyChangedInModelNodeProxy(modelNode,
+        m_qmlBackEnd->handleInstancePropertyChangedInModelNodeProxy(modelNode,
                                                                                   propertyName);
 
         if (qmlObjectNode.isValid() && modelNode == activeNode()
@@ -1444,7 +1434,7 @@ void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
     }
 
     if (changed)
-        m_qmlBackEndForCurrentType->updateInstanceImage();
+        m_qmlBackEnd->updateInstanceImage();
 
     m_locked = false;
 }
@@ -1471,35 +1461,35 @@ void PropertyEditorView::nodeReparented(const ModelNode &node,
 {
     NanotraceHR::Tracer tracer{"property editor view node reparented", category()};
 
-    if (!m_qmlBackEndForCurrentType)
+    if (!m_qmlBackEnd)
         return;
 
     if (node == activeNode())
-        m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(activeNode()));
+        m_qmlBackEnd->backendAnchorBinding().setup(QmlItemNode(activeNode()));
 
     using SL = const ModelTracing::SourceLocation;
     const ModelNodes &allNodes = node.allSubModelNodesAndThisNode();
 
     if (hasMaterialOrTexture(allNodes))
-        m_qmlBackEndForCurrentType->refreshBackendModel();
+        m_qmlBackEnd->refreshBackendModel();
 
     if (Utils::contains(allNodes,
                         QLatin1String{Constants::MATERIAL_LIB_ID},
                         bind_back(&ModelNode::id, SL{})))
-        m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(true);
+        m_qmlBackEnd->contextObject()->setHasMaterialLibrary(true);
 }
 
 void PropertyEditorView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
     NanotraceHR::Tracer tracer{"property editor view imports changed", category()};
 
-    if (!m_qmlBackEndForCurrentType)
+    if (!m_qmlBackEnd)
         return;
 
     if (Utils::contains(removedImports, quick3dImport, &Import::url))
-        m_qmlBackEndForCurrentType->contextObject()->setHasQuick3DImport(false);
+        m_qmlBackEnd->contextObject()->setHasQuick3DImport(false);
     else if (Utils::contains(addedImports, quick3dImport, &Import::url))
-        m_qmlBackEndForCurrentType->contextObject()->setHasQuick3DImport(true);
+        m_qmlBackEnd->contextObject()->setHasQuick3DImport(true);
 }
 
 void PropertyEditorView::customNotification(const AbstractView *,
@@ -1529,8 +1519,8 @@ void PropertyEditorView::modelNodePreviewPixmapChanged(const ModelNode &node,
     if (node != activeNode())
         return;
 
-    if (m_qmlBackEndForCurrentType)
-        m_qmlBackEndForCurrentType->handleModelNodePreviewPixmapChanged(node, pixmap, requestId);
+    if (m_qmlBackEnd)
+        m_qmlBackEnd->handleModelNodePreviewPixmapChanged(node, pixmap, requestId);
 }
 
 void PropertyEditorView::highlightTextureProperties(bool highlight)
@@ -1540,11 +1530,11 @@ void PropertyEditorView::highlightTextureProperties(bool highlight)
     NodeMetaInfo metaInfo = activeNode().metaInfo();
     QTC_ASSERT(metaInfo.isValid(), return);
 
-    QQmlPropertyMap &propMap = m_qmlBackEndForCurrentType->backendValuesPropertyMap();
+    QQmlPropertyMap &propMap = m_qmlBackEnd->backendValuesPropertyMap();
     const QStringList propNames = propMap.keys();
     for (const QString &propName : propNames) {
         if (metaInfo.property(propName.toUtf8()).propertyType().isQtQuick3DTexture()) {
-            if (PropertyEditorValue *propEditorVal = m_qmlBackEndForCurrentType->propertyValueForName(
+            if (PropertyEditorValue *propEditorVal = m_qmlBackEnd->propertyValueForName(
                     propName)) {
                 propEditorVal->setHasActiveDrag(highlight);
             }
@@ -1561,7 +1551,7 @@ void PropertyEditorView::dragStarted(QMimeData *mimeData)
                                       .split(',')[0];
         const QString suffix = "*." + assetPath.split('.').last().toLower();
 
-        m_qmlBackEndForCurrentType->contextObject()->setActiveDragSuffix(suffix);
+        m_qmlBackEnd->contextObject()->setActiveDragSuffix(suffix);
 
         Asset asset(assetPath);
         if (!asset.isValidTextureSource())
@@ -1578,7 +1568,7 @@ void PropertyEditorView::dragEnded()
 {
     NanotraceHR::Tracer tracer{"property editor view drag ended", category()};
 
-    m_qmlBackEndForCurrentType->contextObject()->setActiveDragSuffix("");
+    m_qmlBackEnd->contextObject()->setActiveDragSuffix("");
     highlightTextureProperties(false);
 }
 
@@ -1589,7 +1579,7 @@ void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode,
     NanotraceHR::Tracer tracer{"property editor view set value", category()};
 
     m_locked = true;
-    m_qmlBackEndForCurrentType->setValue(qmlObjectNode, name, value);
+    m_qmlBackEnd->setValue(qmlObjectNode, name, value);
     m_locked = false;
 }
 
@@ -1598,8 +1588,8 @@ bool PropertyEditorView::eventFilter(QObject *obj, QEvent *event)
     NanotraceHR::Tracer tracer{"property editor view event filter", category()};
 
     if (event->type() == QEvent::FocusOut) {
-        if (m_qmlBackEndForCurrentType && m_qmlBackEndForCurrentType->widget() == obj)
-            QMetaObject::invokeMethod(m_qmlBackEndForCurrentType->widget()->rootObject(), "closeContextMenu");
+        if (m_qmlBackEnd && m_qmlBackEnd->widget() == obj)
+            QMetaObject::invokeMethod(m_qmlBackEnd->widget()->rootObject(), "closeContextMenu");
     }
     return AbstractView::eventFilter(obj, event);
 }
@@ -1608,12 +1598,11 @@ void PropertyEditorView::reloadQml()
 {
     NanotraceHR::Tracer tracer{"property editor view reload Qml", category()};
 
-    m_qmlBackendHash.clear();
     while (QWidget *widget = m_stackedWidget->widget(0)) {
         m_stackedWidget->removeWidget(widget);
         delete widget;
     }
-    m_qmlBackEndForCurrentType = nullptr;
+    m_qmlBackEnd.reset();
 
     resetView();
 }

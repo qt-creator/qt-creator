@@ -51,7 +51,7 @@ Rectangle {
         anchors.top: propertySearchBar.bottom
         width: parent.width
 
-        onToolBarAction: action => handleToolBarAction(action)
+        onToolBarAction: action => handleToolBarActionAsync(action)
     }
 
     Loader {

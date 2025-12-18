@@ -30,7 +30,7 @@ Column {
             buttonIcon: qsTr("Edit Component")
             iconFontFamily: StudioTheme.Constants.font.family
 
-            onClicked: goIntoComponent()
+            onClicked: goIntoComponentAsync()
         }
     }
 }

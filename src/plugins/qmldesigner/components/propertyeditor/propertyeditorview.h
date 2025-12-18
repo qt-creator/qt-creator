@@ -195,8 +195,7 @@ private: //variables
     std::unique_ptr<DynamicPropertiesModel> m_dynamicPropertiesModel;
     PropertyEditorWidget* m_stackedWidget;
     QString m_qmlDir;
-    QHash<QString, PropertyEditorQmlBackend *> m_qmlBackendHash;
-    PropertyEditorQmlBackend *m_qmlBackEndForCurrentType = nullptr;
+    std::unique_ptr<PropertyEditorQmlBackend> m_qmlBackEnd;
     PropertyComponentGenerator m_propertyComponentGenerator;
     PropertyEditorComponentGenerator m_propertyEditorComponentGenerator{m_propertyComponentGenerator};
     bool m_locked;

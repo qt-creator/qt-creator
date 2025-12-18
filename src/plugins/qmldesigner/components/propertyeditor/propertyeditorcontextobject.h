@@ -88,9 +88,11 @@ public:
 
     Q_INVOKABLE void toggleExportAlias();
 
-    Q_INVOKABLE void goIntoComponent();
+    Q_INVOKABLE void goIntoComponentAsync();
+    void goIntoComponent();
 
-    Q_INVOKABLE void changeTypeName(const QString &typeName);
+    Q_INVOKABLE void changeTypeNameAsync(const QString &typeName);
+    void changeTypeName(const QString &typeName);
     Q_INVOKABLE void insertKeyframe(const QString &propertyName);
 
     Q_INVOKABLE void hideCursor();
@@ -110,7 +112,8 @@ public:
     Q_INVOKABLE QRect screenRect() const;
     Q_INVOKABLE QPoint globalPos(const QPoint &point) const;
 
-    Q_INVOKABLE void handleToolBarAction(int action);
+    Q_INVOKABLE void handleToolBarActionAsync(int action);
+    void handleToolBarAction(int action);
 
     Q_INVOKABLE void saveExpandedState(const QString &sectionName, bool expanded);
     Q_INVOKABLE bool loadExpandedState(const QString &sectionName, bool defaultValue) const;

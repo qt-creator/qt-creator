@@ -90,7 +90,7 @@ StudioControls.SplitView {
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                     enabled: backend.possibleTypes.length > 1
 
-                    onActivated: changeTypeName(currentValue)
+                    onActivated: changeTypeNameAsync(currentValue)
 
                     Binding {
                         when: !typeComboBox.open

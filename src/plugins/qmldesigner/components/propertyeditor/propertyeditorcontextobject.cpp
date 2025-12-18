@@ -33,6 +33,7 @@
 #include <QQmlContext>
 #include <QQuickWidget>
 #include <QWindow>
+#include <QTimer>
 
 #include <coreplugin/icore.h>
 
@@ -141,6 +142,11 @@ void PropertyEditorContextObject::toggleExportAlias()
     }
 }
 
+void PropertyEditorContextObject::goIntoComponentAsync()
+{
+    QTimer::singleShot(0, this, &PropertyEditorContextObject::goIntoComponent);
+}
+
 void PropertyEditorContextObject::goIntoComponent()
 {
     NanotraceHR::Tracer tracer{"property editor context object go into component", category()};
@@ -156,6 +162,13 @@ void PropertyEditorContextObject::goIntoComponent()
     const ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
     DocumentManager::goIntoComponent(selectedNode);
+}
+
+void PropertyEditorContextObject::changeTypeNameAsync(const QString &typeName)
+{
+    QTimer::singleShot(0, this, [this, typeName](){
+        changeTypeName(typeName);
+    });
 }
 
 void PropertyEditorContextObject::changeTypeName(const QString &typeName)
@@ -847,6 +860,15 @@ QPoint PropertyEditorContextObject::globalPos(const QPoint &point) const
     if (m_quickWidget)
         return m_quickWidget->mapToGlobal(point);
     return point;
+}
+
+void PropertyEditorContextObject::handleToolBarActionAsync(int action)
+{
+    NanotraceHR::Tracer tracer{"property editor context object handle toolbar action", category()};
+
+    QTimer::singleShot(0, this, [this, action](){
+        handleToolBarAction(action);
+    });
 }
 
 void PropertyEditorContextObject::handleToolBarAction(int action)
