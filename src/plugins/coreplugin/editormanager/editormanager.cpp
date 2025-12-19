@@ -3984,15 +3984,23 @@ static void restore(
     const std::function<void(QVector<QVariantHash>)> &windowStateHandler)
 {
     QDataStream stream(state);
-    QByteArray version;
-    stream >> version;
-    const bool isVersion6 = version == "EditorManagerV6";
-    const bool isVersion5 = version == "EditorManagerV5";
-    if (version != "EditorManagerV4" && !isVersion5 && !isVersion6)
+    const int version = [&stream] {
+        QByteArray versionStr;
+        stream >> versionStr;
+        static const QByteArray prefix = "EditorManagerV";
+        if (versionStr.startsWith(prefix)) {
+            bool ok;
+            const int v = versionStr.mid(prefix.size()).toInt(&ok);
+            if (ok)
+                return v;
+        }
+        return -1;
+    }();
+    if (version < 4)
         return;
 
     QMap<QString, QPair<QVariant, QDate>> editorStates;
-    if (isVersion6) {
+    if (version >= 6) {
         stream >> editorStates;
     } else {
         QMap<QString, QVariant> oldEditorStates;
@@ -4010,7 +4018,7 @@ static void restore(
         stream >> file.filePath;
         stream >> file.displayName;
         stream >> file.id;
-        if (isVersion5)
+        if (version >= 5)
             stream >> file.pinned;
 
         if (fileHandler && !fileHandler(file))
