@@ -11,6 +11,7 @@
     You can install and run \QDS on several operating systems to create
     applications for multiple desktop, embedded, and mobile device platforms.
 
+
     \section1 Host platforms
 
     \QDS is available in binary packages for the following operating systems:
@@ -29,6 +30,8 @@
     \note For a good user experience on Windows 10, we recommend the following
     minimum hardware and software: Intel Core i7 with 8GB of RAM and integrated
     Intel Graphics.
+
+    \warning Rendering might fail on virtual machines without GPU acceleration.
 
     \section1 Design tools
 
