@@ -5,7 +5,7 @@
 #include <QtTaskTree/qttasktreeglobal.h>
 
 #if QT_CONFIG(concurrent)
-#  include <QtTaskTree/qconcurrentcalltask.h>
+#  include <QtTaskTree/qthreadfunctiontask.h>
 #endif
 #include <QtTaskTree/qbarriertask.h>
 #include <QtTaskTree/qconditional.h>
@@ -4500,10 +4500,10 @@ void tst_TaskTree::testInThread()
 {
     QFETCH(TestData, testData);
 
-    const auto onSetup = [testData](QConcurrentCall<TestResult> &task) {
-        task.setConcurrentCallData(&runInThread, testData);
+    const auto onSetup = [testData](QThreadFunction<TestResult> &task) {
+        task.setThreadFunctionData(&runInThread, testData);
     };
-    const auto onDone = [testData](const QConcurrentCall<TestResult> &task) {
+    const auto onDone = [testData](const QThreadFunction<TestResult> &task) {
         QVERIFY(task.future().resultCount());
         const TestResult result = task.result();
         QCOMPARE(result.actualLog, testData.expectedLog);
@@ -4513,7 +4513,7 @@ void tst_TaskTree::testInThread()
 
     const Group recipe = For (RepeatIterator(s_threadCount)) >> Do {
         parallel,
-        QConcurrentCallTask<TestResult>(onSetup, onDone)
+        QThreadFunctionTask<TestResult>(onSetup, onDone)
     };
 
     QTaskTree taskTree(recipe);
@@ -4535,7 +4535,7 @@ static void autoSyncOn(QPromise<void> &promise)
     while (s_treeFinished == false)
         QThread::msleep(1); // Ensures the tree has finished.
     Q_ASSERT(promise.isCanceled()); // Tree has already canceled the promise.
-    QThread::msleep(1); // Spin for a while so that QConcurrentCallBase::syncAll() awaits for us.
+    QThread::msleep(1); // Spin for a while so that QThreadFunctionBase::syncAll() awaits for us.
     s_syncDone = true;
 }
 
@@ -4544,14 +4544,14 @@ static void autoSyncOff(QPromise<void> &promise)
     Q_ASSERT(!promise.isCanceled()); // Tree is still running.
     s_jobStarted = true; // Let know the threadJob has started.
     while (!promise.isCanceled())
-        QThread::msleep(1); // Spin for a while so that ~QConcurrentCall awaits for us.
+        QThread::msleep(1); // Spin for a while so that ~QThreadFunction awaits for us.
     s_syncDone = true;
 }
 
 void tst_TaskTree::testAutoDelayedSync()
 {
-    const auto onAutoSyncOnSetup = [](QConcurrentCall<void> &task) {
-        task.setConcurrentCallData(&autoSyncOn);
+    const auto onAutoSyncOnSetup = [](QThreadFunction<void> &task) {
+        task.setThreadFunctionData(&autoSyncOn);
     };
 
     const auto isNotStarted = [](int) { return s_jobStarted == false; };
@@ -4562,7 +4562,7 @@ void tst_TaskTree::testAutoDelayedSync()
 
     const Group recipeAutoSyncOn {
         parallel,
-        QConcurrentCallTask<void>(onAutoSyncOnSetup),
+        QThreadFunctionTask<void>(onAutoSyncOnSetup),
         awaiter
     };
 
@@ -4570,21 +4570,21 @@ void tst_TaskTree::testAutoDelayedSync()
     QCOMPARE(resultOn, DoneWith::Error);
     QCOMPARE(s_syncDone, false);
     s_treeFinished = true;
-    QConcurrentCallBase::syncAll();
+    QThreadFunctionBase::syncAll();
     QCOMPARE(s_syncDone, true);
 
     s_jobStarted = false;
     s_treeFinished = false;
     s_syncDone = false ;
 
-    const auto onAutoSyncOffSetup = [](QConcurrentCall<void> &task) {
+    const auto onAutoSyncOffSetup = [](QThreadFunction<void> &task) {
         task.setAutoDelayedSync(false);
-        task.setConcurrentCallData(autoSyncOff);
+        task.setThreadFunctionData(autoSyncOff);
     };
 
     const Group recipeAutoSyncOff {
         parallel,
-        QConcurrentCallTask<void>(onAutoSyncOffSetup),
+        QThreadFunctionTask<void>(onAutoSyncOffSetup),
         awaiter
     };
 
@@ -5023,7 +5023,7 @@ void tst_TaskTree::exactHandlers()
 void tst_TaskTree::cleanupTestCase()
 {
 #if QT_CONFIG(concurrent)
-    QConcurrentCallBase::syncAll();
+    QThreadFunctionBase::syncAll();
 #endif
 }
 

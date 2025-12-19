@@ -30,7 +30,7 @@
     The module includes several built-in task adapters for common operations:
     \list
     \li QProcessTask - Execute external processes.
-    \li QConcurrentCallTask - Run functions via QtConcurrent.
+    \li QThreadFunctionTask - Run functions in separate threads.
     \li QNetworkReplyWrapperTask - Network operations.
     \li QTcpSocketWrapperTask - TCP socket operations.
     \li QBarrierTask - Synchronization primitives.

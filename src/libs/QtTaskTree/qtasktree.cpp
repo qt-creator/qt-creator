@@ -51,7 +51,7 @@ using namespace Qt::StringLiterals;
 
     The recipes are declarative descriptions on what task types
     are to be created and executed, e.g.: QProcess, QNetworkReplyWrapper,
-    or QConcurrentCall<ReturnType>, or whether they should run in sequence
+    or QThreadFunction<ReturnType>, or whether they should run in sequence
     or in parallel. Inside recipes you may define different continuation
     paths depending on whether the previous task finished with success
     or an error. It's also possible to nest tasks in
@@ -74,7 +74,7 @@ using namespace Qt::StringLiterals;
         \li QProcess
         \li QNetworkAccessManager + QNetworkReply = QNetworkReplyWrapper
         \li QtConcurrent::run() + QFutureWatcher<Result>
-            = QConcurrentCall<Result>
+            = QThreadFunction<Result>
     \endlist
 
     \section1 Recipe & Task Tree
@@ -140,8 +140,8 @@ using namespace Qt::StringLiterals;
         \li QProcess
         \li Starts process.
     \row
-        \li QConcurrentCallTask<ReturnType>
-        \li QConcurrentCall<ReturnType>
+        \li QThreadFunctionTask<ReturnType>
+        \li QThreadFunction<ReturnType>
         \li Starts asynchronous task, runs in separate thread.
     \row
         \li QTaskTreeTask
@@ -164,13 +164,13 @@ using namespace Qt::StringLiterals;
 
     The QTaskTree has a top level Group element, a.k.a recipe, which may
     contain any number of tasks of various types, such as QProcessTask,
-    QNetworkReplyWrapperTask, or QConcurrentCallTask<ReturnType>:
+    QNetworkReplyWrapperTask, or QThreadFunctionTask<ReturnType>:
 
     \code
         const Group recipe {
             QProcessTask(...),
             QNetworkReplyWrapperTask(...),
-            QConcurrentCallTask<int>(...)
+            QThreadFunctionTask<int>(...)
         };
 
         QTaskTree *taskTree = new QTaskTree(recipe);
@@ -180,11 +180,11 @@ using namespace Qt::StringLiterals;
 
     The recipe above consist of a top level element of the Group type that
     contains tasks of the QProcessTask, QNetworkReplyWrapperTask,
-    and QConcurrentCallTask<int> type. After taskTree->start() is called,
+    and QThreadFunctionTask<int> type. After taskTree->start() is called,
     the tasks are created and run in a chain, starting with QProcess.
     When the QProcess finishes successfully, the QNetworkReplyWrapper
     task is started. Finally, when the network task finishes successfully,
-    the QConcurrentCall<int> task is started.
+    the QThreadFunction<int> task is started.
 
     When the last running task finishes with success, the task tree is
     considered to have run successfully and the QTaskTree::done() signal
@@ -206,7 +206,7 @@ using namespace Qt::StringLiterals;
             Group {
                 parallel,
                 QProcessTask(...),
-                QConcurrentCallTask<int>(...)
+                QThreadFunctionTask<int>(...)
             },
             QNetworkReplyWrapperTask(...)
         };
@@ -214,13 +214,13 @@ using namespace Qt::StringLiterals;
 
     The example above differs from the first example in that the top level
     element has a subgroup that contains the QProcessTask and
-    QConcurrentCallTask<int>. The subgroup is a sibling element of the
+    QThreadFunctionTask<int>. The subgroup is a sibling element of the
     QNetworkReplyWrapperTask in the root. The subgroup contains an
     additional \e parallel element that instructs its Group to execute
     its tasks in parallel.
 
     So, when the QTaskTree starts the recipe above, the QProcess and
-    QConcurrentCall<int> start immediately and run in parallel.
+    QThreadFunction<int> start immediately and run in parallel.
     Since the root group doesn't contain a \e parallel element,
     its direct child tasks are run in sequence. Thus, the
     QNetworkReplyWrapper starts when the whole subgroup finishes. The group is
@@ -228,7 +228,7 @@ using namespace Qt::StringLiterals;
     The order in which the tasks finish is not relevant.
 
     So, depending on which task lasts longer
-    (QProcess or QConcurrentCall<int>), the following scenarios can take place:
+    (QProcess or QThreadFunction<int>), the following scenarios can take place:
 
     \table
     \header
@@ -244,19 +244,19 @@ using namespace Qt::StringLiterals;
         \li QProcess starts
         \li QProcess starts
     \row
-        \li QConcurrentCall<int> starts
-        \li QConcurrentCall<int> starts
+        \li QThreadFunction<int> starts
+        \li QThreadFunction<int> starts
     \row
         \li ...
         \li ...
     \row
         \li \b {QProcess finishes}
-        \li \b {QConcurrentCall<int> finishes}
+        \li \b {QThreadFunction<int> finishes}
     \row
         \li ...
         \li ...
     \row
-        \li \b {QConcurrentCall<int> finishes}
+        \li \b {QThreadFunction<int> finishes}
         \li \b {QProcess finishes}
     \row
         \li Sub Group finishes
@@ -283,7 +283,7 @@ using namespace Qt::StringLiterals;
     The presented scenarios assume that all tasks run successfully. If a task
     fails during execution, the task tree finishes with an error.
     In particular, when QProcess finishes with an error while
-    QConcurrentCall<int> is still being executed, the QConcurrentCall<int>
+    QThreadFunction<int> is still being executed, the QThreadFunction<int>
     is automatically canceled, the subgroup finishes with an error,
     the QNetworkReplyWrapper is skipped, and the tree finishes with an error.
 
@@ -570,28 +570,28 @@ using namespace Qt::StringLiterals;
             // [3] instance of custom inter-task struct manageable by task tree
             const Storage<CopyStorage> storage;
 
-            const auto onLoaderSetup = [source](QConcurrentCall<QByteArray> &async) {
-                async.setConcurrentCallData(&load, source);
+            const auto onLoaderSetup = [source](QThreadFunction<QByteArray> &async) {
+                async.setThreadFunctionData(&load, source);
             };
             // [4] runtime: task tree activates the instance from [7] before invoking handler
-            const auto onLoaderDone = [storage](const QConcurrentCall<QByteArray> &async) {
+            const auto onLoaderDone = [storage](const QThreadFunction<QByteArray> &async) {
                 storage->content = async.result(); // [5] loader stores the result in storage
             };
 
             // [4] runtime: task tree activates the instance from [7] before invoking handler
-            const auto onSaverSetup = [storage, destination](QConcurrentCall<void> &async) {
+            const auto onSaverSetup = [storage, destination](QThreadFunction<void> &async) {
                 const QByteArray content = storage->content; // [6] saver takes data from storage
-                async.setConcurrentCallData(&save, destination, content);
+                async.setThreadFunctionData(&save, destination, content);
             };
-            const auto onSaverDone = [](const QConcurrentCall<void> &async) {
+            const auto onSaverDone = [](const QThreadFunction<void> &async) {
                 qDebug() << "Save done successfully";
             };
 
             const Group root {
                 // [7] runtime: task tree creates an instance of CopyStorage when root is entered
                 storage,
-                QConcurrentCallTask<QByteArray>(onLoaderSetup, onLoaderDone, CallDone::OnSuccess),
-                QConcurrentCallTask<void>(onSaverSetup, onSaverDone, CallDone::OnSuccess)
+                QThreadFunctionTask<QByteArray>(onLoaderSetup, onLoaderDone, CallDone::OnSuccess),
+                QThreadFunctionTask<void>(onSaverSetup, onSaverDone, CallDone::OnSuccess)
             };
             return root;
         }
@@ -828,7 +828,7 @@ namespace QtTaskTree {
         \li \l QCustomTask
         \li Defines asynchronous task type and task's start, done,
             and error handlers. Aliased with a unique task name, such as,
-            QConcurrentCallTask<ResultType> or QNetworkReplyWrapperTask.
+            QThreadFunctionTask<ResultType> or QNetworkReplyWrapperTask.
             Asynchronous tasks are the main reason for using a task tree.
     \row
         \li \l {QtTaskTree::} {Group}
@@ -868,12 +868,12 @@ namespace QtTaskTree {
     it may also be a child of Group.
 
     Insert child tasks into the group by using aliased custom task names,
-    such as, QConcurrentCallTask<ResultType> or QNetworkReplyWrapperTask:
+    such as, QThreadFunctionTask<ResultType> or QNetworkReplyWrapperTask:
 
     \code
         const Group group {
             QNetworkReplyWrapperTask(...),
-            QConcurrentCallTask<int>(...)
+            QThreadFunctionTask<int>(...)
         };
     \endcode
 
@@ -903,7 +903,7 @@ namespace QtTaskTree {
                     QNetworkReplyWrapperTask(...),
                     QNetworkReplyWrapperTask(...),
                 }
-                QConcurrentCallTask<QString>(...)
+                QThreadFunctionTask<QString>(...)
             }
         };
     \endcode
@@ -922,7 +922,7 @@ namespace QtTaskTree {
             // created dynamically by the running task tree.
             storage->data = task.reply()->readAll();
         };
-        const auto onSecondSetup = [storage](QConcurrentCall<QImage> &task) {
+        const auto onSecondSetup = [storage](QThreadFunction<QImage> &task) {
             // storage-> gives a pointer to MyCustomStruct. Since the group is sequential,
             // the stored MyCustomStruct was already updated inside the onFirstDone handler.
             const QByteArray storedData = storage->data;
@@ -935,7 +935,7 @@ namespace QtTaskTree {
             sequential,
             storage,
             QNetworkReplyWrapperTask(onFirstSetup, onFirstDone, CallDone::OnSuccess),
-            QConcurrentCallTask<QImage>(onSecondSetup)
+            QThreadFunctionTask<QImage>(onSecondSetup)
         };
     \endcode
 */
@@ -2996,7 +2996,7 @@ Group::Group(const GroupItems &children)
                     QNetworkReplyWrapperTask(...),
                     QNetworkReplyWrapperTask(...),
                 }
-                QConcurrentCallTask<QString>(...)
+                QThreadFunctionTask<QString>(...)
             }
         };
     \endcode
@@ -3723,7 +3723,7 @@ using namespace QtTaskTree;
     \l {QtTaskTree::} {Group} as any other task.
     Avoid long-running execution of the QSyncTask's handler body,
     since it is executed synchronously from the caller thread.
-    If that is unavoidable, consider using QConcurrentCallTask instead.
+    If that is unavoidable, consider using QThreadFunctionTask instead.
 */
 
 /*!
@@ -3740,7 +3740,7 @@ using namespace QtTaskTree;
 
     The passed \a handler executes synchronously from the caller thread,
     so avoid a long-running execution of the handler body.
-    Otherwise, consider using QConcurrentCallTask.
+    Otherwise, consider using QThreadFunctionTask.
 
     \note The QSyncTask element is not counted as a task when reporting
           task tree progress, and is not included in QTaskTree::taskCount()
@@ -3781,8 +3781,8 @@ using namespace QtTaskTree;
 
     Custom task names are aliased with unique names using the
     QCustomTask template with a given Task, Adapter and Deleter.
-    For example, QConcurrentCallTask<T> is an alias to the QCustomTask
-    that is defined to work with QConcurrentCall<T> as an associated task class.
+    For example, QThreadFunctionTask<T> is an alias to the QCustomTask
+    that is defined to work with QThreadFunction<T> as an associated task class.
     The following table contains custom tasks provided by the TaskTree library
     and their associated task classes:
 
@@ -3796,8 +3796,8 @@ using namespace QtTaskTree;
         \li QBarrier
         \li Starts an awaiter task.
     \row
-        \li QConcurrentCallTask<ReturnType>
-        \li QConcurrentCall<ReturnType>
+        \li QThreadFunctionTask<ReturnType>
+        \li QThreadFunction<ReturnType>
         \li Starts an asynchronous task. Runs in a separate thread.
     \row
         \li QProcessTask
@@ -3966,23 +3966,23 @@ using namespace QtTaskTree;
 
         const QString input = ...;
 
-        const auto onFirstSetup = [input](QConcurrentCall<void> &task) {
+        const auto onFirstSetup = [input](QThreadFunction<void> &task) {
             if (input == "Skip")
                 return SetupResult::StopWithSuccess; // This task won't start, the next one will
             if (input == "Error")
                 return SetupResult::StopWithError; // This task and the next one won't start
-            task.setConcurrentCallData(parseAndLog, input);
+            task.setThreadFunctionData(parseAndLog, input);
             // This task will start, and the next one will start after this one finished with success
             return SetupResult::Continue;
         };
 
-        const auto onSecondSetup = [input](QConcurrentCall<void> &task) {
-            task.setConcurrentCallData(parseAndLog, input);
+        const auto onSecondSetup = [input](QThreadFunction<void> &task) {
+            task.setThreadFunctionData(parseAndLog, input);
         };
 
         const Group group {
-            QConcurrentCallTask<void>(onFirstSetup),
-            QConcurrentCallTask<void>(onSecondSetup)
+            QThreadFunctionTask<void>(onFirstSetup),
+            QThreadFunctionTask<void>(onSecondSetup)
         };
     \endcode
 
@@ -4456,13 +4456,13 @@ int QTaskTree::progressValue() const
 
         Storage<QByteArray> storage;
 
-        const auto onSaverSetup = [storage](QConcurrentCall<QByteArray> &concurrent) {
-            concurrent.setConcurrentCallData(&save, "foo.txt", *storage);
+        const auto onSaverSetup = [storage](QThreadFunction<QByteArray> &task) {
+            task.setThreadFunctionData(&save, "foo.txt", *storage);
         };
 
         const Group root {
             storage,
-            QConcurrentCallTask(onSaverSetup)
+            QThreadFunctionTask(onSaverSetup)
         };
 
         QTaskTree taskTree(root);
@@ -4499,16 +4499,16 @@ int QTaskTree::progressValue() const
 
         Storage<QByteArray> storage;
 
-        const auto onLoaderSetup = [](QConcurrentCall<QByteArray> &concurrent) {
-            concurrent.setConcurrentCallData(&load, "foo.txt");
+        const auto onLoaderSetup = [](QThreadFunction<QByteArray> &task) {
+            task.setThreadFunctionData(&load, "foo.txt");
         };
-        const auto onLoaderDone = [storage](const QConcurrentCall<QByteArray> &concurrent) {
-            *storage = concurrent.result();
+        const auto onLoaderDone = [storage](const QThreadFunction<QByteArray> &task) {
+            *storage = task.result();
         };
 
         const Group root {
             storage,
-            QConcurrentCallTask(onLoaderSetup, onLoaderDone, CallDone::OnSuccess)
+            QThreadFunctionTask(onLoaderSetup, onLoaderDone, CallDone::OnSuccess)
         };
 
         QTaskTree taskTree(root);

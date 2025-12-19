@@ -4,8 +4,6 @@ add_qtc_library(QtTaskTree
   SOURCES
     qbarriertask.cpp
     qbarriertask.h
-    qconcurrentcalltask.cpp
-    qconcurrentcalltask.h
     qconditional.cpp
     qconditional.h
     qnetworkreplywrappertask.cpp
@@ -18,6 +16,8 @@ add_qtc_library(QtTaskTree
     qtasktreerunner.h
     qtcpsocketwrappertask.cpp
     qtcpsocketwrappertask.h
+    qthreadfunctiontask.cpp
+    qthreadfunctiontask.h
     qttasktreeglobal.h
 )
 
@@ -28,8 +28,8 @@ endif()
 set(other_headers
   QAbstractTaskTreeRunner
   QBarrier
-  QConcurrentCall
-  QConcurrentCallBase
+  QThreadFunction
+  QThreadFunctionBase
   QCustomTask
   QDefaultTaskAdapter
   QMappedTaskTreeRunner

@@ -9,8 +9,6 @@ QtcLibrary {
     files: [
         "qbarriertask.cpp",
         "qbarriertask.h",
-        "qconcurrentcalltask.cpp",
-        "qconcurrentcalltask.h",
         "qconditional.cpp",
         "qconditional.h",
         "qnetworkreplywrappertask.cpp",
@@ -23,6 +21,8 @@ QtcLibrary {
         "qtasktreerunner.h",
         "qtcpsocketwrappertask.cpp",
         "qtcpsocketwrappertask.h",
+        "qthreadfunctiontask.cpp",
+        "qthreadfunctiontask.h",
         "qttasktreeglobal.h",
     ]
 

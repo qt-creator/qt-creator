@@ -2,8 +2,8 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
-#ifndef QCONCURRENTCALLTASK_H
-#define QCONCURRENTCALLTASK_H
+#ifndef QTHREADFUNCTIONTASK_H
+#define QTHREADFUNCTIONTASK_H
 
 #include <QtTaskTree/qtasktree.h>
 
@@ -13,16 +13,16 @@ QT_REQUIRE_CONFIG(concurrent);
 
 QT_BEGIN_NAMESPACE
 
-class QConcurrentCallBasePrivate;
+class QThreadFunctionBasePrivate;
 
-class Q_TASKTREE_EXPORT QConcurrentCallBase : public QObject
+class Q_TASKTREE_EXPORT QThreadFunctionBase : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QConcurrentCallBase)
+    Q_DECLARE_PRIVATE(QThreadFunctionBase)
 
 public:
-    QConcurrentCallBase(QObject *parent = nullptr);
-    ~QConcurrentCallBase() override;
+    QThreadFunctionBase(QObject *parent = nullptr);
+    ~QThreadFunctionBase() override;
 
     void setThreadPool(QThreadPool *pool);
     QThreadPool *threadPool() const;
@@ -49,36 +49,36 @@ protected:
 };
 
 template <typename ResultType>
-class QConcurrentCall : public QConcurrentCallBase
+class QThreadFunction : public QThreadFunctionBase
 {
-    Q_DISABLE_COPY_MOVE(QConcurrentCall)
+    Q_DISABLE_COPY_MOVE(QThreadFunction)
 
 public:
-    explicit QConcurrentCall(QObject *parent = nullptr)
-        : QConcurrentCallBase(parent)
+    explicit QThreadFunction(QObject *parent = nullptr)
+        : QThreadFunctionBase(parent)
     {
         connect(&m_watcher, &QFutureWatcherBase::finished, this, [this] {
             Q_EMIT done(QtTaskTree::toDoneResult(!m_watcher.isCanceled()));
         });
         connect(&m_watcher, &QFutureWatcherBase::resultReadyAt,
-                this, &QConcurrentCallBase::resultReadyAt);
+                this, &QThreadFunctionBase::resultReadyAt);
         connect(&m_watcher, &QFutureWatcherBase::resultsReadyAt,
-                this, &QConcurrentCallBase::resultsReadyAt);
+                this, &QThreadFunctionBase::resultsReadyAt);
         connect(&m_watcher, &QFutureWatcherBase::progressValueChanged,
-                this, &QConcurrentCallBase::progressValueChanged);
+                this, &QThreadFunctionBase::progressValueChanged);
         connect(&m_watcher, &QFutureWatcherBase::progressRangeChanged,
-                this, &QConcurrentCallBase::progressRangeChanged);
+                this, &QThreadFunctionBase::progressRangeChanged);
         connect(&m_watcher, &QFutureWatcherBase::progressTextChanged,
-                this, &QConcurrentCallBase::progressTextChanged);
+                this, &QThreadFunctionBase::progressTextChanged);
     }
 
-    ~QConcurrentCall() override
+    ~QThreadFunction() override
     {
         disconnect(&m_watcher);
     }
 
     template <typename Function, typename ...Args>
-    void setConcurrentCallData(Function &&function, Args &&...args)
+    void setThreadFunctionData(Function &&function, Args &&...args)
     {
         wrapConcurrent(std::forward<Function>(function), std::forward<Args>(args)...);
     }
@@ -95,12 +95,12 @@ public:
     void start()
     {
         if (future().isRunning()) {
-            qWarning("QConcurrentCall: Can't start, the future is still running.");
+            qWarning("QThreadFunction: Can't start, the future is still running.");
             return;
         }
 
         if (!m_startHandler) {
-            qWarning("QConcurrentCall: No start handler specified.");
+            qWarning("QThreadFunction: No start handler specified.");
             Q_EMIT done(QtTaskTree::DoneResult::Error);
             return;
         }
@@ -152,8 +152,8 @@ private:
 };
 
 template <typename ResultType>
-using QConcurrentCallTask = QCustomTask<QConcurrentCall<ResultType>>;
+using QThreadFunctionTask = QCustomTask<QThreadFunction<ResultType>>;
 
 QT_END_NAMESPACE
 
-#endif // QCONCURRENTCALLTASK_H
+#endif // QTHREADFUNCTIONTASK_H

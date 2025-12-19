@@ -2,7 +2,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
-#include <QtTaskTree/qconcurrentcalltask.h>
+#include <QtTaskTree/qthreadfunctiontask.h>
 
 #include <QtCore/private/qobject_p.h>
 #include <QThread>
@@ -68,7 +68,7 @@ private:
 
 Q_APPLICATION_STATIC(QtTaskTree::FutureSynchronizer, s_futureSynchronizer);
 
-class QConcurrentCallBasePrivate : public QObjectPrivate
+class QThreadFunctionBasePrivate : public QObjectPrivate
 {
 public:
     bool isUsingSynchronizer() const { return m_isAutoSync && isMainThread(); }
@@ -80,28 +80,28 @@ public:
 };
 
 /*!
-    \class QConcurrentCallBase
-    \inheaderfile qconcurrentcalltask.h
+    \class QThreadFunctionBase
+    \inheaderfile qthreadfunctiontask.h
     \inmodule TaskTree
-    \brief A base class for QConcurrentCall class template.
+    \brief A base class for QThreadFunction class template.
     \reentrant
 */
 
 /*!
-    \class QConcurrentCall
-    \inheaderfile qconcurrentcalltask.h
+    \class QThreadFunction
+    \inheaderfile qthreadfunctiontask.h
     \inmodule TaskTree
     \brief A class template controlling the execution of a function in a
            separate thread via QtConcurrent::run().
     \reentrant
 
-    A QConcurrentCall is a convenient class template that combines a stored
+    A QThreadFunction is a convenient class template that combines a stored
     function to be called later via QtConcurrent::run() with an internal
-    QFutureWatcher monitoring the function execution. Use QConcurrentCallTask
-    to execute the QConcurrentCall inside the QTaskTree recipe.
+    QFutureWatcher monitoring the function execution. Use QThreadFunctionTask
+    to execute the QThreadFunction inside the QTaskTree recipe.
 
     Set a function with its arguments to be executed in a separate thread
-    using setConcurrentCallData() method.
+    using setThreadFunctionData() method.
 
     To report an error from inside the function running in a separate thread,
     place the \c {QPromise<ResultType> &promise} argument in that function
@@ -113,15 +113,15 @@ public:
         {
             const QFileInfo fi(source);
             if (!fi.exists()) {
-                promise.future().cancel(); // The QConcurrentCall finishes with DoneResult::Error
+                promise.future().cancel(); // The QThreadFunction finishes with DoneResult::Error
                 return;
             }
 
             // Copy file...
         }
 
-        QConcurrentCall<void> task;
-        task.setConcurrentCallData(copyFile, "source.txt", "dest.txt");
+        QThreadFunction<void> task;
+        task.setThreadFunctionData(copyFile, "source.txt", "dest.txt");
         task.start();
     \endcode
 
@@ -138,19 +138,19 @@ public:
 */
 
 /*!
-    \fn template <typename ResultType> QConcurrentCall<ResultType>::QConcurrentCall(QObject *parent = nullptr)
+    \fn template <typename ResultType> QThreadFunction<ResultType>::QThreadFunction(QObject *parent = nullptr)
 
-    Constructs a QConcurrentCall with a given \a parent.
+    Constructs a QThreadFunction with a given \a parent.
 */
-QConcurrentCallBase::QConcurrentCallBase(QObject *parent)
-    : QObject(*new QConcurrentCallBasePrivate, parent)
+QThreadFunctionBase::QThreadFunctionBase(QObject *parent)
+    : QObject(*new QThreadFunctionBasePrivate, parent)
 {}
 
 /*!
-    \fn template <typename ResultType> QConcurrentCall<ResultType>::~QConcurrentCall() override
+    \fn template <typename ResultType> QThreadFunction<ResultType>::~QThreadFunction() override
 
-    Destroys the QConcurrentCall.
-    If the QConcurrentCall is not running, no other actions are performed,
+    Destroys the QThreadFunction.
+    If the QThreadFunction is not running, no other actions are performed,
     otherwise the associated future is canceled, and depending on
     the automatic delayed synchronization the following actions are performed:
 
@@ -161,7 +161,7 @@ QConcurrentCallBase::QConcurrentCallBase(QObject *parent)
     \row
         \li On
         \li The associated QFuture is stored in the global registry.
-            Use \l QConcurrentCallBase::syncAll() on application quit
+            Use \l QThreadFunctionBase::syncAll() on application quit
             to synchronize all futures stored previously in the
             global registry.
     \row
@@ -175,28 +175,28 @@ QConcurrentCallBase::QConcurrentCallBase(QObject *parent)
     in a separate thread, so that it may finish as soon as possible
     without completing its job.
 
-    Finally, on application quit, \l QConcurrentCallBase::syncAll()
+    Finally, on application quit, \l QThreadFunctionBase::syncAll()
     should be called in order to synchronize all the functions still
     being potentially running in separate threads.
-    The call to \l QConcurrentCallBase::syncAll() is blocking in
+    The call to \l QThreadFunctionBase::syncAll() is blocking in
     case some functions are still finalizing.
 
     \note When the automatic delayed synchronization is on,
-          the function will still run for a while after the QConcurrentCall's
+          the function will still run for a while after the QThreadFunction's
           destructor is finished, so it's the user responsibility to ensure
           that all data the function may operate on is still available.
           If that can't be guaranteed, set the automatic delayed
           synchronization to off via
-          QConcurrentCall::setAutoDelayedSync(false). In this case the
-          QConcurrentCall destructor will blocking wait for the function
-          to be finished before deleting the QConcurrentCall.
+          QThreadFunction::setAutoDelayedSync(false). In this case the
+          QThreadFunction destructor will blocking wait for the function
+          to be finished before deleting the QThreadFunction.
           Refer to QCustomTask documentation for more information
           about \c Deleter template parameter.
     \sa setAutoDelayedSync(), syncAll()
 */
-QConcurrentCallBase::~QConcurrentCallBase()
+QThreadFunctionBase::~QThreadFunctionBase()
 {
-    Q_D(QConcurrentCallBase);
+    Q_D(QThreadFunctionBase);
     if (!d->m_future || d->m_future->isFinished())
         return;
 
@@ -211,29 +211,29 @@ QConcurrentCallBase::~QConcurrentCallBase()
 }
 
 /*!
-    \fn template <typename ResultType> void QConcurrentCall<ResultType>::setThreadPool(QThreadPool *pool)
+    \fn template <typename ResultType> void QThreadFunction<ResultType>::setThreadPool(QThreadPool *pool)
 
     Sets the QThreadPool \a pool to be used when executing the call.
     If the passed \a pool is \c nullptr, the QThreadPool::globalInstance()
     is used.
 */
-void QConcurrentCallBase::setThreadPool(QThreadPool *pool) { d_func()->m_threadPool = pool; }
+void QThreadFunctionBase::setThreadPool(QThreadPool *pool) { d_func()->m_threadPool = pool; }
 
 /*!
-    \fn template <typename ResultType> QThreadPool *QConcurrentCall<ResultType>::threadPool() const
+    \fn template <typename ResultType> QThreadPool *QThreadFunction<ResultType>::threadPool() const
 
     Returns the thread pool that is used when executing the call.
     If \c nullptr is returned, the QThreadPool::globalInstance() is used.
 */
-QThreadPool *QConcurrentCallBase::threadPool() const { return d_func()->m_threadPool; }
+QThreadPool *QThreadFunctionBase::threadPool() const { return d_func()->m_threadPool; }
 
 /*!
-    \fn template <typename ResultType> void QConcurrentCall<ResultType>::setAutoDelayedSync(bool on)
+    \fn template <typename ResultType> void QThreadFunction<ResultType>::setAutoDelayedSync(bool on)
 
     Sets the automatic delayed synchronization to \a on.
 
     By default, an automatic delayed synchronization is on, meaning
-    the destruction of the running QConcurrentCall object won't blocking
+    the destruction of the running QThreadFunction object won't blocking
     wait until the function running in separate thread is finished.
     Instead, the associated QFuture is canceled,
     and the function is left running until it's finished.
@@ -241,28 +241,28 @@ QThreadPool *QConcurrentCallBase::threadPool() const { return d_func()->m_thread
     in a separate thread via the QPromise argument, so that
     it may finish early without completing its job.
     In case the automatic delayed synchronization is on, it's necessary to call
-    QConcurrentCallBase::syncAll() on application quit, in order
+    QThreadFunctionBase::syncAll() on application quit, in order
     to synchronize all the possibly running functions in separate threads.
 
     When the automatic delayed synchronization is off, the synchronization
-    happens on QConcurrentCall's destruction, what can block the caller
+    happens on QThreadFunction's destruction, what can block the caller
     thread for considerable amount of time.
 
-    The automatic synchronization is used only when QConcurrentCall
+    The automatic synchronization is used only when QThreadFunction
     was executed from the main thread.
 
     \sa syncAll(), isAutoDelayedSync()
 */
-void QConcurrentCallBase::setAutoDelayedSync(bool on) { d_func()->m_isAutoSync = on; }
+void QThreadFunctionBase::setAutoDelayedSync(bool on) { d_func()->m_isAutoSync = on; }
 
 /*!
-    \fn template <typename ResultType> bool QConcurrentCall<ResultType>::isAutoDelayedSync() const
+    \fn template <typename ResultType> bool QThreadFunction<ResultType>::isAutoDelayedSync() const
 
     Returns whether the automatic delayed synchronization is on.
 
     \sa syncAll(), setAutoDelayedSync()
 */
-bool QConcurrentCallBase::isAutoDelayedSync() const { return d_func()->m_isAutoSync; }
+bool QThreadFunctionBase::isAutoDelayedSync() const { return d_func()->m_isAutoSync; }
 
 /*!
     \internal
@@ -270,15 +270,15 @@ bool QConcurrentCallBase::isAutoDelayedSync() const { return d_func()->m_isAutoS
     Might be used for custom deleter performing custom synchronization
     on the associated QFuture. The default value is false.
 */
-void QConcurrentCallBase::setSyncSkipped(bool on) { d_func()->m_isSyncSkipped = on; }
+void QThreadFunctionBase::setSyncSkipped(bool on) { d_func()->m_isSyncSkipped = on; }
 
 /*!
     \internal
 */
-bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipped; }
+bool QThreadFunctionBase::isSyncSkipped() const { return d_func()->m_isSyncSkipped; }
 
 /*!
-    \fn template <typename ResultType> void QConcurrentCall<ResultType>::started()
+    \fn template <typename ResultType> void QThreadFunction<ResultType>::started()
 
     This signal is emitted just after the execution of the stored function
     has started.
@@ -287,7 +287,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> void QConcurrentCall<ResultType>::done(QtTaskTree::DoneResult result)
+    \fn template <typename ResultType> void QThreadFunction<ResultType>::done(QtTaskTree::DoneResult result)
 
     This signal is emitted just after the execution of the stored function
     has finished. The passed \a result indicates whether the function
@@ -297,7 +297,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> void QConcurrentCall<ResultType>::resultReadyAt(int index)
+    \fn template <typename ResultType> void QThreadFunction<ResultType>::resultReadyAt(int index)
 
     This signal is emitted whenever the function running in a separate thread
     reported any partial result at \a index via QPromise::addResult().
@@ -307,7 +307,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> void QConcurrentCall<ResultType>::resultsReadyAt(int beginIndex, int endIndex)
+    \fn template <typename ResultType> void QThreadFunction<ResultType>::resultsReadyAt(int beginIndex, int endIndex)
 
     This signal is emitted whenever the function running in a separate thread
     reported any ready results indexed from \a beginIndex to \a endIndex.
@@ -317,7 +317,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> void QConcurrentCall<ResultType>::progressRangeChanged(int minimum, int maximum)
+    \fn template <typename ResultType> void QThreadFunction<ResultType>::progressRangeChanged(int minimum, int maximum)
 
     This signal is emitted whenever the progress range of the
     concurrent call has changed to \a minimum and \a maximum.
@@ -326,7 +326,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> void QConcurrentCall<ResultType>::progressValueChanged(int value)
+    \fn template <typename ResultType> void QThreadFunction<ResultType>::progressValueChanged(int value)
 
     This signal is emitted when the progress value of the
     function executed in a separate thread has changed
@@ -336,7 +336,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> void QConcurrentCall<ResultType>::progressTextChanged(const QString &text)
+    \fn template <typename ResultType> void QThreadFunction<ResultType>::progressTextChanged(const QString &text)
 
     This signal is emitted when the textual progress of the
     function executed in a separate thread has changed
@@ -346,7 +346,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> template <typename Function, typename ...Args> void QConcurrentCall<ResultType>::setConcurrentCallData(Function &&function, Args &&...args)
+    \fn template <typename ResultType> template <typename Function, typename ...Args> void QThreadFunction<ResultType>::setThreadFunctionData(Function &&function, Args &&...args)
 
     Sets the \a function to be executed with passed \a args in a separate
     thread when start() is called.
@@ -355,7 +355,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> bool QConcurrentCall<ResultType>::isDone() const
+    \fn template <typename ResultType> bool QThreadFunction<ResultType>::isDone() const
 
     Returns whether the function execution is finished.
 
@@ -363,7 +363,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> bool QConcurrentCall<ResultType>::isResultAvailable() const
+    \fn template <typename ResultType> bool QThreadFunction<ResultType>::isResultAvailable() const
 
     Returns whether the result is ready.
 
@@ -371,14 +371,14 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> QFuture<ResultType> QConcurrentCall<ResultType>::future() const
+    \fn template <typename ResultType> QFuture<ResultType> QThreadFunction<ResultType>::future() const
 
     Returns the QFuture<ResultType> associated with the function
     executed in a separate thread.
 */
 
 /*!
-    \fn template <typename ResultType> ResultType QConcurrentCall<ResultType>::result() const
+    \fn template <typename ResultType> ResultType QThreadFunction<ResultType>::result() const
 
     Returns the ResultType reported by the function executed in a
     separate thread.
@@ -392,7 +392,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> ResultType QConcurrentCall<ResultType>::takeResult() const
+    \fn template <typename ResultType> ResultType QThreadFunction<ResultType>::takeResult() const
 
     Takes (moves) the ResultType reported by the function executed in a
     separate thread.
@@ -406,7 +406,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> ResultType QConcurrentCall<ResultType>::resultAt(int index) const
+    \fn template <typename ResultType> ResultType QThreadFunction<ResultType>::resultAt(int index) const
 
     Returns the ResultType reported by the function executed in a
     separate thread at \a index.
@@ -415,7 +415,7 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> QList<ResultType> QConcurrentCall<ResultType>::results() const
+    \fn template <typename ResultType> QList<ResultType> QThreadFunction<ResultType>::results() const
 
     Returns the list of ResultType reported by the function executed in a
     separate thread.
@@ -424,46 +424,46 @@ bool QConcurrentCallBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> void QConcurrentCall<ResultType>::start()
+    \fn template <typename ResultType> void QThreadFunction<ResultType>::start()
 
     Starts the asynchronous invocation of stored function in a separate
     thread. Connect to done() signal to collect the result reported
     by the function.
 
-    \sa setConcurrentCallData(), done()
+    \sa setThreadFunctionData(), done()
 */
 
 /*!
     This method should be called on application quit to synchronize
     the finalization of all still possibly running functions that were
-    started via QConcurrentCall.
+    started via QThreadFunction.
     The call has to be executed from the main thread.
 
-    \sa QConcurrentCall::setAutoDelayedSync()
+    \sa QThreadFunction::setAutoDelayedSync()
 */
-void QConcurrentCallBase::syncAll()
+void QThreadFunctionBase::syncAll()
 {
     if (!isMainThread()) {
-        qWarning("The QConcurrentCallBase::syncAll() should be called from the main thread. "
+        qWarning("The QThreadFunctionBase::syncAll() should be called from the main thread. "
                  "The current call is ignored.");
         return;
     }
     s_futureSynchronizer->waitForFinished();
 }
 
-void QConcurrentCallBase::storeFuture(const QFuture<void> &future)
+void QThreadFunctionBase::storeFuture(const QFuture<void> &future)
 {
-    Q_D(QConcurrentCallBase);
+    Q_D(QThreadFunctionBase);
     d->m_future = future;
     if (d->isUsingSynchronizer())
         s_futureSynchronizer->addFuture(future);
 }
 
 /*!
-    \typedef QConcurrentCallTask
+    \typedef QThreadFunctionTask
     \relates QCustomTask
 
-    Type alias for the QCustomTask<QConcurrentCall<ResultType>>,
+    Type alias for the QCustomTask<QThreadFunction<ResultType>>,
     to be used inside recipes.
 */
 
