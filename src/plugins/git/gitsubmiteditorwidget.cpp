@@ -307,6 +307,7 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
     menu->addSeparator();
     if (state & (UnmergedFile | UnmergedThem | UnmergedUs)) {
         addAction(Tr::tr("Run Merge Tool for \"%1\"").arg(fp), FileMergeTool);
+        addAction(Tr::tr("Diff Incoming Changes for \"%1\"").arg(fp), FileMergeDiffIncoming);
 
         if (state & DeletedFile) {
             addAction(Tr::tr("Resolve by Recovering \"%1\"").arg(fp), FileMergeRecover);

@@ -1155,6 +1155,32 @@ void GitClient::diffRepository(const FilePath &workingDirectory,
     });
 }
 
+void GitClient::diffIncoming(const Utils::FilePath &workingDirectory, const QString &fileName) const
+{
+    const QString title = Tr::tr("Git Diff Incoming \"%1\" Changes").arg(fileName);
+    const FilePath sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
+    const QString documentId = gitDocumentId(".DiffFile.", sourceFile);
+    const QStringList args = {"--", fileName};
+    const CommandInProgress command = checkCommandInProgress(workingDirectory);
+    QString left;
+    QString right;
+
+    if (command == GitClient::Revert) {
+        left = "REVERT_HEAD";
+        right = "REVERT_HEAD^";
+    } else if (command == GitClient::CherryPick) {
+        left = "CHERRY_PICK_HEAD^";
+        right = "CHERRY_PICK_HEAD";
+    } else {
+        right = "...MERGE_HEAD";
+    }
+
+    requestReload(documentId, sourceFile, title, workingDirectory,
+                  [&left, &right, &args](IDocument *doc) {
+        return new GitDiffEditorController(doc, left, right, args);
+    });
+}
+
 void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileName,
                          DiffMode diffMode) const
 {

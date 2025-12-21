@@ -320,6 +320,10 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
         gitClient().merge(m_workingDirectory, {filePath.toUrlishString()});
         break;
 
+    case FileMergeDiffIncoming:
+        gitClient().diffIncoming(m_workingDirectory, filePath.toUrlishString());
+        break;
+
     case FileMergeResolved:
         markAsResolved(filePath);
         break;

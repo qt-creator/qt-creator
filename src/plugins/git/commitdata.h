@@ -34,6 +34,7 @@ enum FileAction {
     FileRemove,
     FileAddGitignore,
     FileMergeTool,
+    FileMergeDiffIncoming,
     FileMergeResolved,
     FileMergeOurs,
     FileMergeTheirs,
