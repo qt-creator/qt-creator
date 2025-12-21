@@ -631,9 +631,9 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
         iconRect.moveCenter(option->rect.center());
         if (hover) {
             QColor hoverColor = creatorColor(Theme::PanelTextColorLight);
-            hoverColor.setAlphaF(.2);
+            hoverColor.setAlphaF(.2f);
             painter->setPen(hoverColor);
-            hoverColor.setAlphaF(.1);
+            hoverColor.setAlphaF(.1f);
             painter->setBrush(hoverColor);
             painter->drawRoundedRect(option->rect.adjusted(1, 1, -1, -1), 2, 2);
         }
