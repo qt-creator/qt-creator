@@ -176,7 +176,7 @@ void LogChangeWidget::selectionChanged(const QItemSelection &selected,
                                        const QItemSelection &deselected)
 {
     Utils::TreeView::selectionChanged(selected, deselected);
-    emit hasSelectionChanged(!selected.isEmpty());
+    emit hasSelectionChanged(!selectionModel()->selectedIndexes().isEmpty());
 
     if (!m_hasCustomDelegate)
         return;
