@@ -1088,12 +1088,19 @@ bool GitClient::isConflictFree(const Utils::FilePath &workingDirectory,
     return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
+static QString gitDocumentId(const QString &id, const Utils::FilePath &path = {})
+{
+    QString result = QLatin1String(Constants::GIT_PLUGIN) + id;
+    if (!path.isEmpty())
+        result += path.toUrlishString();
+    return result;
+}
+
 void GitClient::diffFiles(const FilePath &workingDirectory,
                           const QStringList &unstagedFileNames,
                           const QStringList &stagedFileNames) const
 {
-    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
-            + QLatin1String(".DiffFiles.") + workingDirectory.toUrlishString();
+    const QString documentId = gitDocumentId(".DiffFiles.", workingDirectory);
     requestReload(documentId,
                   workingDirectory, Tr::tr("Git Diff Files"), workingDirectory,
                   [stagedFileNames, unstagedFileNames](IDocument *doc) {
@@ -1116,9 +1123,7 @@ void GitClient::diffPath(const FilePath &workingDirectory, const QString &relati
             ? Tr::tr("Git Diff Staged %1").arg(relativePath)
             : Tr::tr("Git Diff %1").arg(relativePath);
     }
-    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
-                               + QLatin1String(".DiffPath.")
-                               + workingDirectory.pathAppended(relativePath).toUrlishString();
+    const QString documentId = gitDocumentId(".DiffPath.", workingDirectory.pathAppended(relativePath));
     const QStringList args = diffModeArguments(diffMode, {"--", relativePath});
     requestReload(documentId,
                   workingDirectory, title, workingDirectory,
@@ -1144,8 +1149,7 @@ void GitClient::diffRepository(const FilePath &workingDirectory,
     const QString title = (diffMode == Staged)
         ? Tr::tr("Git Diff Staged Repository Changes")
         : Tr::tr("Git Diff Repository");
-    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
-            + QLatin1String(".DiffRepository.") + workingDirectory.toUrlishString();
+    const QString documentId = gitDocumentId(".DiffRepository.", workingDirectory);
     const QStringList args = diffModeArguments(diffMode);
     requestReload(documentId, workingDirectory, title, workingDirectory,
                   [&leftCommit, &rightCommit, &args](IDocument *doc) {
@@ -1160,8 +1164,7 @@ void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileNa
         ? Tr::tr("Git Diff Staged \"%1\" Changes").arg(fileName)
         : Tr::tr("Git Diff \"%1\"").arg(fileName);
     const FilePath sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
-    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
-            + QLatin1String(".DiffFile.") + sourceFile.toUrlishString();
+    const QString documentId = gitDocumentId(".DiffFile.", sourceFile);
     const QStringList args = diffModeArguments(diffMode, {"--", fileName});
     requestReload(documentId, sourceFile, title, workingDirectory,
                   [&args](IDocument *doc) {
@@ -1172,8 +1175,7 @@ void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileNa
 void GitClient::diffBranch(const FilePath &workingDirectory, const QString &branchName) const
 {
     const QString title = Tr::tr("Git Diff Branch \"%1\"").arg(branchName);
-    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
-            + QLatin1String(".DiffBranch.") + branchName;
+    const QString documentId = gitDocumentId(".DiffBranch.") + branchName;
     requestReload(documentId, workingDirectory, title, workingDirectory,
                   [branchName](IDocument *doc) {
         return new GitDiffEditorController(doc, branchName, {}, {});
@@ -1333,8 +1335,7 @@ void GitClient::show(const FilePath &source, const QString &id, const QString &n
     const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     if (!repoDirectory.isEmpty())
         workingDirectory = repoDirectory;
-    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
-            + QLatin1String(".Show.") + id;
+    const QString documentId = gitDocumentId(".Show.") + id;
     requestReload(documentId, source, title, workingDirectory,
                   [id](IDocument *doc) { return new ShowController(doc, id); });
 }
@@ -4054,9 +4055,7 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
         }
     }
 
-    const QString documentId = QLatin1String(Git::Constants::GIT_PLUGIN)
-            + QLatin1String(".GitShow.") + topLevelString
-            + QLatin1String(".") + relativePath;
+    const QString documentId = gitDocumentId(".GitShow.") + topLevelString + "." + relativePath;
     QString title = Tr::tr("Git Show %1:%2").arg(ref, relativePath);
     IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, documentId,
                                                             EditorManager::DoNotSwitchToDesignMode);
