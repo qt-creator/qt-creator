@@ -251,12 +251,10 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
     const auto onDiffDone = [diffInputStorage](const Process &process) {
-        if (process.result() == ProcessResult::FinishedWithSuccess) {
+        if (process.result() == ProcessResult::FinishedWithSuccess)
             *diffInputStorage = process.cleanedStdOut();
-        } else {
-            VcsOutputWindow::instance()->appendError(process.workingDirectory(),
-                                                     process.cleanedStdErr());
-        }
+        else
+            VcsOutputWindow::appendError(process.workingDirectory(), process.cleanedStdErr());
     };
 
     const Group root {

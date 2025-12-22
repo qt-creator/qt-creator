@@ -1396,8 +1396,8 @@ void VcsBaseEditorWidget::executeTask(const ExecutableItem &task,
     const auto onDone = [this, resultStorage](DoneWith doneWith) {
         if (doneWith != DoneWith::Success) {
             textDocument()->setPlainText(Tr::tr("Failed to retrieve data."));
-            VcsOutputWindow::instance()->appendError(resultStorage->workingDirectory(),
-                                                     resultStorage->cleanedStdErr());
+            VcsOutputWindow::appendError(resultStorage->workingDirectory(),
+                                         resultStorage->cleanedStdErr());
             return;
         }
         setPlainText(resultStorage->cleanedStdOut());
