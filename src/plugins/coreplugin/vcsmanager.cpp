@@ -30,6 +30,7 @@
 #include <optional>
 
 static Q_LOGGING_CATEGORY(findRepoLog, "qtc.vcs.find-repo", QtWarningMsg)
+static Q_LOGGING_CATEGORY(status, "qtc.vcs.status", QtWarningMsg)
 
 using namespace Utils;
 
@@ -516,8 +517,10 @@ void VcsManager::emitRepositoryChanged(const FilePath &repository)
 
 void VcsManager::delayedEmitRepositoryChanged()
 {
-    for (const Utils::FilePath &repository : std::as_const(d->m_repoChangedSet))
+    for (const Utils::FilePath &repository : std::as_const(d->m_repoChangedSet)) {
+        qCDebug(status).nospace() << "delayedEmitRepositoryChanged(" << repository << ")";
         emit m_instance->repositoryChanged(repository);
+    }
 
     d->m_repoChangedSet.clear();
 }
@@ -559,6 +562,7 @@ FilePath VcsManager::findRepositoryForFiles(
 void VcsManager::handleConfigurationChanges(IVersionControl *vc)
 {
     d->m_cachedAdditionalToolsPathsDirty = true;
+    qCDebug(status).nospace() << "handleConfigurationChanges(" << vc << ")";
     emit configurationChanged(vc);
 }
 
