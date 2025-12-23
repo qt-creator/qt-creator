@@ -35,7 +35,6 @@ public:
     virtual QString name() const = 0;
 
     virtual unsigned capabilities() const = 0;
-    virtual bool hasSettings() const;
     virtual const Core::IOptionsPage *settingsPage() const;
 
     virtual bool checkConfiguration(QString *errorMessage = nullptr);

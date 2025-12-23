@@ -18,7 +18,6 @@ public:
 
     QString name() const override;
     unsigned capabilities() const override;
-    bool hasSettings() const override;
     const Core::IOptionsPage *settingsPage() const override;
 
     bool checkConfiguration(QString *errorMessage = nullptr) override;

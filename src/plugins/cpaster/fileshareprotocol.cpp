@@ -43,11 +43,6 @@ unsigned FileShareProtocol::capabilities() const
     return ListCapability | PostDescriptionCapability | PostUserNameCapability;
 }
 
-bool FileShareProtocol::hasSettings() const
-{
-    return true;
-}
-
 const Core::IOptionsPage *FileShareProtocol::settingsPage() const
 {
     return &fileShareSettingsPage();

@@ -33,11 +33,6 @@ Protocol::Protocol()
 
 Protocol::~Protocol() = default;
 
-bool Protocol::hasSettings() const
-{
-    return false;
-}
-
 bool Protocol::checkConfiguration(QString *)
 {
     return true;

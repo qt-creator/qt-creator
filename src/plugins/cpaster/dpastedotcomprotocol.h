@@ -14,7 +14,6 @@ public:
 
 private:
     QString name() const override { return protocolName(); }
-    bool hasSettings() const override { return false; }
     unsigned capabilities() const override;
     void fetch(const QString &id) override;
     void fetchFinished(const QString &id, QNetworkReply * const reply, bool alreadyRedirected);
