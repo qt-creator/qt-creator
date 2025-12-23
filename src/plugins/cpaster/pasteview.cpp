@@ -181,10 +181,10 @@ void PasteView::contentChanged()
 void PasteView::protocolChanged(int p)
 {
     QTC_ASSERT(p >= 0 && p < m_protocols.size(), return);
-    const unsigned caps = m_protocols.at(p)->capabilities();
-    m_uiDescription->setEnabled(caps & Protocol::PostDescriptionCapability);
-    m_uiUsername->setEnabled(caps & Protocol::PostUserNameCapability);
-    m_uiComment->setEnabled(caps & Protocol::PostCommentCapability);
+    const Capabilities caps = m_protocols.at(p)->capabilities();
+    m_uiDescription->setEnabled(caps & Capability::PostDescription);
+    m_uiUsername->setEnabled(caps & Capability::PostUserName);
+    m_uiComment->setEnabled(caps & Capability::PostComment);
 }
 
 void PasteView::setupDialog(const QString &user, const QString &description, const QString &comment)

@@ -14,9 +14,9 @@ QString UrlOpenProtocol::name() const
     return QLatin1String("Open URL"); // unused
 }
 
-unsigned UrlOpenProtocol::capabilities() const
+Capabilities UrlOpenProtocol::capabilities() const
 {
-    return 0;
+    return Capability::None;
 }
 
 void UrlOpenProtocol::fetch(const QString &url)

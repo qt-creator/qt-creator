@@ -14,6 +14,18 @@ namespace Core { class IOptionsPage; }
 
 namespace CodePaster {
 
+enum class Capability
+{
+    None            = 0,
+    List            = 1 << 0,
+    PostComment     = 1 << 1,
+    PostDescription = 1 << 2,
+    PostUserName    = 1 << 3
+};
+
+Q_DECLARE_FLAGS(Capabilities, Capability)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Capabilities)
+
 class Protocol : public QObject
 {
     Q_OBJECT
@@ -23,18 +35,11 @@ public:
         Text, C, Cpp, JavaScript, Diff, Xml
     };
 
-    enum Capabilities  {
-        ListCapability = 0x1,
-        PostCommentCapability = 0x2,
-        PostDescriptionCapability = 0x4,
-        PostUserNameCapability = 0x8
-    };
-
     ~Protocol() override;
 
     virtual QString name() const = 0;
 
-    virtual unsigned capabilities() const = 0;
+    virtual Capabilities capabilities() const = 0;
     virtual const Core::IOptionsPage *settingsPage() const;
 
     virtual bool checkConfiguration(QString *errorMessage = nullptr);

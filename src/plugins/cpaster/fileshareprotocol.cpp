@@ -38,9 +38,9 @@ QString FileShareProtocol::name() const
     return fileShareSettingsPage().displayName();
 }
 
-unsigned FileShareProtocol::capabilities() const
+Capabilities FileShareProtocol::capabilities() const
 {
-    return ListCapability | PostDescriptionCapability | PostUserNameCapability;
+    return Capability::List | Capability::PostDescription | Capability::PostUserName;
 }
 
 const Core::IOptionsPage *FileShareProtocol::settingsPage() const

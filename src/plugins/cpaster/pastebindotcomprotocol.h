@@ -13,7 +13,7 @@ public:
     static QString protocolName();
     QString name() const override { return protocolName(); }
 
-    unsigned capabilities() const override;
+    Capabilities capabilities() const override;
 
     void fetch(const QString &id) override;
     void paste(const QString &text,

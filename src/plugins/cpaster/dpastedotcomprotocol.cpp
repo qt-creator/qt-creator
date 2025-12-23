@@ -17,9 +17,9 @@ static QString apiUrl() { return baseUrl() + "/api/v2/"; }
 
 QString DPasteDotComProtocol::protocolName() { return QString("DPaste.Com"); }
 
-unsigned DPasteDotComProtocol::capabilities() const
+Capabilities DPasteDotComProtocol::capabilities() const
 {
-    return PostDescriptionCapability | PostUserNameCapability;
+    return Capability::PostDescription | Capability::PostUserName;
 }
 
 void DPasteDotComProtocol::fetch(const QString &id)

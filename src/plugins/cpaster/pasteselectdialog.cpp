@@ -127,7 +127,7 @@ void PasteSelectDialog::list()
     const int index = protocol();
 
     Protocol *protocol = m_protocols[index];
-    QTC_ASSERT((protocol->capabilities() & Protocol::ListCapability), return);
+    QTC_ASSERT((protocol->capabilities() & Capability::List), return);
 
     m_listWidget->clear();
     if (Protocol::ensureConfiguration(protocol, this)) {
@@ -138,7 +138,7 @@ void PasteSelectDialog::list()
 
 void PasteSelectDialog::protocolChanged(int i)
 {
-    const bool canList = m_protocols.at(i)->capabilities() & Protocol::ListCapability;
+    const bool canList = m_protocols.at(i)->capabilities() & Capability::List;
     m_refreshButton->setEnabled(canList);
     if (canList) {
         list();

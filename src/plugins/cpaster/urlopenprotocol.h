@@ -11,7 +11,7 @@ class UrlOpenProtocol : public NetworkProtocol
 {
 public:
     QString name() const override;
-    unsigned capabilities() const override;
+    Capabilities capabilities() const override;
     void fetch(const QString &url) override;
     void paste(const QString &, ContentType, int, const QString &, const QString &, const QString &) override;
 

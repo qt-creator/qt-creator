@@ -30,9 +30,9 @@ QString PasteBinDotComProtocol::protocolName()
     return QLatin1String(PROTOCOL_NAME);
 }
 
-unsigned PasteBinDotComProtocol::capabilities() const
+Capabilities PasteBinDotComProtocol::capabilities() const
 {
-    return ListCapability | PostDescriptionCapability;
+    return Capability::List | Capability::PostDescription;
 }
 
 static inline QByteArray format(Protocol::ContentType ct)
