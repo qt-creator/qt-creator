@@ -86,7 +86,7 @@ public:
 
 signals:
     void repositoryChanged(const Utils::FilePath &repository);
-    void configurationChanged(const IVersionControl *vcs);
+    void configurationChanged(const Core::IVersionControl *vcs);
 
 private:
     explicit VcsManager(QObject *parent = nullptr);
