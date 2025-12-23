@@ -26,6 +26,13 @@ enum class Capability
 Q_DECLARE_FLAGS(Capabilities, Capability)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Capabilities)
 
+class ProtocolData
+{
+public:
+    QString name;
+    Capabilities capabilities = Capability::None;
+};
+
 class Protocol : public QObject
 {
     Q_OBJECT
@@ -37,9 +44,9 @@ public:
 
     ~Protocol() override;
 
-    virtual QString name() const = 0;
+    QString name() const { return m_protocolData.name; }
+    Capabilities capabilities() const { return m_protocolData.capabilities; };
 
-    virtual Capabilities capabilities() const = 0;
     virtual const Core::IOptionsPage *settingsPage() const;
 
     virtual bool checkConfiguration(QString *errorMessage = nullptr);
@@ -73,9 +80,12 @@ signals:
     void listDone(const QString &name, const QStringList &result);
 
 protected:
-    Protocol();
+    Protocol(const ProtocolData &data);
     static QString textFromHtml(QString data);
     static QString fixNewLines(QString in);
+
+private:
+    ProtocolData m_protocolData;
 };
 
 /* Network-based protocol: Provides access with delayed
@@ -85,11 +95,11 @@ protected:
 class NetworkProtocol : public Protocol
 {
 public:
-    NetworkProtocol() = default;
-
     ~NetworkProtocol() override;
 
 protected:
+    NetworkProtocol(const ProtocolData &data) : Protocol(data) {}
+
     QNetworkReply *httpGet(const QString &url, bool handleCookies = false);
 
     QNetworkReply *httpPost(const QString &link, const QByteArray &data,

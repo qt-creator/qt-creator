@@ -15,12 +15,11 @@ namespace CodePaster {
 static QString baseUrl() { return QString("https://dpaste.com"); }
 static QString apiUrl() { return baseUrl() + "/api/v2/"; }
 
-QString DPasteDotComProtocol::protocolName() { return QString("DPaste.Com"); }
+DPasteDotComProtocol::DPasteDotComProtocol()
+    : NetworkProtocol({protocolName(), Capability::PostDescription | Capability::PostUserName})
+{}
 
-Capabilities DPasteDotComProtocol::capabilities() const
-{
-    return Capability::PostDescription | Capability::PostUserName;
-}
+QString DPasteDotComProtocol::protocolName() { return QString("DPaste.Com"); }
 
 void DPasteDotComProtocol::fetch(const QString &id)
 {

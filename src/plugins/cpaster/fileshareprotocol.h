@@ -16,8 +16,6 @@ public:
     FileShareProtocol();
     ~FileShareProtocol() override;
 
-    QString name() const override;
-    Capabilities capabilities() const override;
     const Core::IOptionsPage *settingsPage() const override;
 
     bool checkConfiguration(QString *errorMessage = nullptr) override;

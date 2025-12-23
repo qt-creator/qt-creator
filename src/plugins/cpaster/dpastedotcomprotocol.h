@@ -10,11 +10,10 @@ namespace CodePaster {
 class DPasteDotComProtocol : public NetworkProtocol
 {
 public:
+    DPasteDotComProtocol();
     static QString protocolName();
 
 private:
-    QString name() const override { return protocolName(); }
-    Capabilities capabilities() const override;
     void fetch(const QString &id) override;
     void fetchFinished(const QString &id, QNetworkReply * const reply, bool alreadyRedirected);
     void paste(const QString &text,

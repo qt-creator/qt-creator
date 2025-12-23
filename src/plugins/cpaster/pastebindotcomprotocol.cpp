@@ -25,14 +25,13 @@ const char API_KEY[]="api_dev_key=516686fc461fb7f9341fd7cf2af6f829&"; // user: q
 
 const char PROTOCOL_NAME[] = "Pastebin.Com";
 
+PasteBinDotComProtocol::PasteBinDotComProtocol()
+    : NetworkProtocol({protocolName(), Capability::List | Capability::PostDescription})
+{}
+
 QString PasteBinDotComProtocol::protocolName()
 {
     return QLatin1String(PROTOCOL_NAME);
-}
-
-Capabilities PasteBinDotComProtocol::capabilities() const
-{
-    return Capability::List | Capability::PostDescription;
 }
 
 static inline QByteArray format(Protocol::ContentType ct)

@@ -26,10 +26,9 @@
 
 namespace CodePaster {
 
-Protocol::Protocol()
-        : QObject()
-{
-}
+Protocol::Protocol(const ProtocolData &data)
+    : m_protocolData(data)
+{}
 
 Protocol::~Protocol() = default;
 

@@ -28,20 +28,14 @@ const char pasterElementC[] = "paster";
 const char userElementC[] = "user";
 const char descriptionElementC[] = "description";
 const char textElementC[] = "text";
+const char protocolNameC[] = "Fileshare";
 
-FileShareProtocol::FileShareProtocol() = default;
+FileShareProtocol::FileShareProtocol()
+    : Protocol({protocolNameC,
+                Capability::List | Capability::PostDescription | Capability::PostUserName})
+{}
 
 FileShareProtocol::~FileShareProtocol() = default;
-
-QString FileShareProtocol::name() const
-{
-    return fileShareSettingsPage().displayName();
-}
-
-Capabilities FileShareProtocol::capabilities() const
-{
-    return Capability::List | Capability::PostDescription | Capability::PostUserName;
-}
 
 const Core::IOptionsPage *FileShareProtocol::settingsPage() const
 {
