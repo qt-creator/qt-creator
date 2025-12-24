@@ -31,6 +31,7 @@ enum FileAction {
     FileStage,
     FileUnstage,
     FileUnstageAdded,
+    FileRevertRenaming,
     FileRemove,
     FileAddGitignore,
     FileMergeTool,

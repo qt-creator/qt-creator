@@ -305,6 +305,9 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
     addAction(Tr::tr("Copy \"%1\"").arg(fp), FileCopyClipboard);
     Core::EditorManager::addContextMenuActions(menu, fullFilePath);
     menu->addSeparator();
+    if (state & RenamedFile) {
+        addAction(Tr::tr("Revert Renaming \"%1\"").arg(fp), FileRevertRenaming);
+    }
     if (state & (UnmergedFile | UnmergedThem | UnmergedUs)) {
         addAction(Tr::tr("Run Merge Tool for \"%1\"").arg(fp), FileMergeTool);
         addAction(Tr::tr("Diff Incoming Changes for \"%1\"").arg(fp), FileMergeDiffIncoming);

@@ -271,6 +271,16 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
         break;
     }
 
+    case FileRevertRenaming: {
+        const QStringList files = filePath.toUrlishString().split(" -> ");
+        QTC_ASSERT(files.size() == 2, return);
+        const Utils::FilePath from = m_workingDirectory.pathAppended(files.at(1));
+        const Utils::FilePath to   = m_workingDirectory.pathAppended(files.at(0));
+        if (gitClient().synchronousMove(m_workingDirectory, from, to))
+            refresh = true;
+        break;
+    }
+
     case FileRemove: {
         const Result<> success  = fullPath.removeFile();
         if (!success) {
