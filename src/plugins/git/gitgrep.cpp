@@ -148,6 +148,8 @@ static void runGitGrep(QPromise<SearchResultItems> &promise, const FileFindParam
             arguments << "-i";
         if (parameters.flags & FindWholeWords)
             arguments << "-w";
+        if (parameters.flags & DontFindBinaryFiles)
+            arguments << "-I";
         if (parameters.flags & FindRegularExpression)
             arguments << "-P";
         else
@@ -252,6 +254,14 @@ void GitGrep::writeSettings(Store &s) const
     if (!m_treeLineEdit->text().isEmpty())
         s.insert(GitGrepRef, m_treeLineEdit->text());
     s.insert(GitGrepRecurse, m_recurseSubmodules->isChecked());
+}
+
+FindFlags GitGrep::supportedFindFlags() const
+{
+    return Utils::FindCaseSensitively
+           | Utils::FindRegularExpression
+           | Utils::FindWholeWords
+           | Utils::DontFindBinaryFiles;
 }
 
 SearchExecutor GitGrep::searchExecutor() const
