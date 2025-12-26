@@ -842,6 +842,17 @@ GitClient::GitClient()
 
 GitClient::~GitClient() = default;
 
+/**
+ * Returns a list with old and new name from \a pattern in git move format "foo -> bar".
+ *
+ * @return A two element QStringList containing old and new name.
+ * In case of error, the list contains only one element.
+ */
+QStringList GitClient::splitRenamedFilePattern(const QString &pattern) const
+{
+    return pattern.split(" -> ");
+}
+
 GitSettings &GitClient::settings()
 {
     return Internal::settings();
@@ -987,10 +998,9 @@ void GitClient::updateNextModificationInfo()
                                                gitStates.value(line.at(1), IVCF::Unknown));
 
             if (modification == IVCF::Renamed) {
-                const QString renameSymbol = " -> ";
-                const int index = line.indexOf(renameSymbol);
-                const int start = (index >= 0) ? index + renameSymbol.size() : 3;
-                modifiedFiles.insert(line.mid(start).trimmed(), modification);
+                const QStringList files = splitRenamedFilePattern(line);
+                if (files.size() == 2)
+                    modifiedFiles.insert(files.at(1), modification);
             } else if (modification != IVCF::Unknown) {
                 modifiedFiles.insert(line.mid(3).trimmed(), modification);
             }
@@ -3068,8 +3078,6 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
                              const FilePath &messageFile,
                              SubmitFileModel *model)
 {
-    const QString renameSeparator = " -> ";
-
     QStringList filesToAdd;
     QStringList filesToRemove;
     QStringList filesToReset;
@@ -3091,8 +3099,9 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
             if (state & (ModifiedFile | AddedFile | DeletedFile | TypeChangedFile)) {
                 filesToReset.append(file);
             } else if (state & (RenamedFile | CopiedFile)) {
-                const QString newFile = file.mid(file.indexOf(renameSeparator) + renameSeparator.size());
-                filesToReset.append(newFile);
+                const QStringList files = splitRenamedFilePattern(file);
+                if (files.size() == 2)
+                    filesToReset.append(files.at(1));
             }
         } else if (state & UnmergedFile && checked) {
             QTC_ASSERT(false, continue); // There should not be unmerged files when committing!

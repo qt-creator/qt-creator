@@ -137,6 +137,8 @@ public:
     GitClient();
     ~GitClient();
 
+    QStringList splitRenamedFilePattern(const QString &pattern) const;
+
     Utils::FilePath vcsBinary(const Utils::FilePath &forDirectory) const override;
 
     void vcsExecAbortable(const Utils::FilePath &workingDirectory, const QStringList &arguments,

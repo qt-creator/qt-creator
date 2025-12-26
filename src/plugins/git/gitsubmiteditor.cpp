@@ -175,10 +175,10 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
             unmergedFiles.push_back(fileName);
         } else if (state & StagedFile) {
             if (state & (RenamedFile | CopiedFile)) {
-                const int arrow = fileName.indexOf(" -> ");
-                if (arrow != -1) {
-                    stagedFiles.push_back(fileName.left(arrow));
-                    stagedFiles.push_back(fileName.mid(arrow + 4));
+                const QStringList files = gitClient().splitRenamedFilePattern(fileName);
+                if (files.size() == 2) {
+                    stagedFiles.push_back(files.at(0));
+                    stagedFiles.push_back(files.at(1));
                     continue;
                 }
             }
@@ -272,7 +272,7 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
     }
 
     case FileRevertRenaming: {
-        const QStringList files = filePath.toUrlishString().split(" -> ");
+        const QStringList files = gitClient().splitRenamedFilePattern(filePath.toUrlishString());
         QTC_ASSERT(files.size() == 2, return);
         const Utils::FilePath from = m_workingDirectory.pathAppended(files.at(1));
         const Utils::FilePath to   = m_workingDirectory.pathAppended(files.at(0));
