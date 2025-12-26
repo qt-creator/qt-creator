@@ -31,6 +31,7 @@
 #include <QScrollArea>
 #include <QShortcut>
 #include <QSpacerItem>
+#include <QStyledItemDelegate>
 #include <QTextBlock>
 #include <QTimer>
 #include <QToolButton>
@@ -86,6 +87,18 @@ public:
         });
         connect(this, &QAbstractButton::clicked, a, &QAction::trigger);
         setEnabled(a->isEnabled());
+    }
+};
+
+class FileItemDelegate final : public QStyledItemDelegate
+{
+public:
+    FileItemDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
+
+    void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const final
+    {
+        QStyledItemDelegate::initStyleOption(option, index);
+        option->palette.setColor(QPalette::HighlightedText, option->palette.color(QPalette::Text));
     }
 };
 
@@ -182,6 +195,7 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->fileView->setContextMenuPolicy(Qt::CustomContextMenu);
     d->fileView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     d->fileView->setRootIsDecorated(false);
+    d->fileView->setItemDelegate(new FileItemDelegate(d->fileView));
 
     auto verticalLayout_2 = new QVBoxLayout(groupBox);
     auto fileCheckBoxLayout = new QHBoxLayout();
