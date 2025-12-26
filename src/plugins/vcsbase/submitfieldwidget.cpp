@@ -15,10 +15,12 @@
 #include <QIcon>
 #include <QToolBar>
 
-#include <QList>
 #include <QDebug>
+#include <QList>
+#include <QLoggingCategory>
 
-enum { debug = 0 };
+static Q_LOGGING_CATEGORY(log, "qtc.vcs.submitfieldwidget", QtWarningMsg);
+
 enum { spacing = 2 };
 
 static void inline setComboBlocked(QComboBox *cb, int index)
@@ -294,8 +296,7 @@ void SubmitFieldWidget::removeField(int index)
 
 void SubmitFieldWidget::slotComboIndexChanged(int pos, int comboIndex)
 {
-    if (debug)
-        qDebug() << '>' << Q_FUNC_INFO << pos;
+    qCDebug(log) << '>' << Q_FUNC_INFO << pos;
     if (pos < 0)
         return;
     // Accept new index or reset combo to previous value?
@@ -304,8 +305,7 @@ void SubmitFieldWidget::slotComboIndexChanged(int pos, int comboIndex)
         previousIndex = comboIndex;
     else
         setComboBlocked(d->fieldEntries.at(pos).combo, previousIndex);
-    if (debug)
-        qDebug() << '<' << Q_FUNC_INFO << pos;
+    qCDebug(log) << '<' << Q_FUNC_INFO << pos;
 }
 
 // Handle change of a combo. Return "false" if the combo
