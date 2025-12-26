@@ -54,8 +54,6 @@
 #include <QStyle>
 #include <QToolBar>
 
-#include <cstring>
-
 // Return true if word is meaningful and can be added to a completion model
 static bool acceptsWordForCompletion(const QString &word)
 {
@@ -110,7 +108,7 @@ public:
     VcsBaseSubmitEditorPrivate(SubmitEditorWidget *editorWidget,
                                VcsBaseSubmitEditor *q);
 
-    SubmitEditorWidget *m_widget;
+    SubmitEditorWidget *m_widget = nullptr;
     VcsBaseSubmitEditorParameters m_parameters;
     QString m_displayName;
     FilePath m_checkScriptWorkingDirectory;
@@ -232,7 +230,7 @@ void VcsBaseSubmitEditor::slotUpdateEditorSettings()
 static inline QStringList fieldTexts(const QString &fileContents)
 {
     QStringList rc;
-    const QStringList rawFields = fileContents.trimmed().split(QLatin1Char('\n'));
+    const QStringList rawFields = fileContents.trimmed().split('\n');
     for (const QString &field : rawFields) {
         const QString trimmedField = field.trimmed();
         if (!trimmedField.isEmpty())
@@ -426,8 +424,6 @@ void VcsBaseSubmitEditor::setDescriptionMandatory(bool v)
     d->m_widget->setDescriptionMandatory(v);
 }
 
-enum { checkDialogMinimumWidth = 500 };
-
 void VcsBaseSubmitEditor::accept(VersionControlBase *plugin)
 {
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
@@ -503,7 +499,7 @@ void VcsBaseSubmitEditor::slotCheckSubmitMessage()
     if (!checkSubmitMessage(&errorMessage)) {
         QMessageBox msgBox(QMessageBox::Warning, Tr::tr("Submit Message Check Failed"),
                            errorMessage, QMessageBox::Ok, d->m_widget);
-        msgBox.setMinimumWidth(checkDialogMinimumWidth);
+        msgBox.setMinimumWidth(500);
         msgBox.exec();
     }
 }
