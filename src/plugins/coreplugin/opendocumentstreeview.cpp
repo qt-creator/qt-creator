@@ -22,6 +22,7 @@ public:
     void handlePressed(const QModelIndex &index);
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
+    void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const final;
 
     mutable QModelIndex pressedIndex;
     bool closeButtonVisible = true;
@@ -71,6 +72,12 @@ void OpenDocumentsDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         icon.paint(painter, iconRect, Qt::AlignRight | Qt::AlignVCenter);
     }
 
+}
+
+void OpenDocumentsDelegate::initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const
+{
+    QStyledItemDelegate::initStyleOption(option, index);
+    option->palette.setColor(QPalette::HighlightedText, option->palette.color(QPalette::Text));
 }
 
 } // namespace Internal

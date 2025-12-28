@@ -6,6 +6,8 @@
 #include "documentmodel.h"
 #include "editormanager.h"
 #include "ieditor.h"
+#include "iversioncontrol.h"
+#include "vcsmanager.h"
 #include "../actionmanager/command.h"
 #include "../coreplugintr.h"
 #include "../inavigationwidgetfactory.h"
@@ -13,6 +15,7 @@
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 #include <utils/treemodel.h>
 
 #include <QAbstractProxyModel>
@@ -63,6 +66,8 @@ public:
 
 private:
     void handleActivated(const QModelIndex &);
+    void handleUpdateFileState(const Utils::FilePath &repository, const QStringList &files);
+    void handleClearFileState(const Utils::FilePath &repository);
     void updateCurrentItem(IEditor*);
     void contextMenuRequested(QPoint pos);
     void activateEditor(const QModelIndex &index);
@@ -100,6 +105,11 @@ OpenEditorsWidget::OpenEditorsWidget()
     connect(this, &OpenDocumentsTreeView::customContextMenuRequested,
             this, &OpenEditorsWidget::contextMenuRequested);
     updateCurrentItem(EditorManager::currentEditor());
+
+    connect(VcsManager::instance(), &VcsManager::updateFileState,
+            this, &OpenEditorsWidget::handleUpdateFileState);
+    connect(VcsManager::instance(), &VcsManager::clearFileState,
+            this, &OpenEditorsWidget::handleClearFileState);
 }
 
 OpenEditorsWidget::~OpenEditorsWidget() = default;
@@ -133,6 +143,33 @@ void OpenEditorsWidget::handleActivated(const QModelIndex &index)
         QWidget *vp = viewport();
         QMouseEvent e(QEvent::MouseMove, vp->mapFromGlobal(cursorPos), cursorPos, Qt::NoButton, {}, {});
         QCoreApplication::sendEvent(vp, &e);
+    }
+}
+
+void OpenEditorsWidget::handleUpdateFileState(const FilePath &repository, const QStringList &files)
+{
+    for (const QString &fileName : files) {
+        const Utils::FilePath fullPath = repository.pathAppended(fileName);
+        const std::optional<int> index = DocumentModel::indexOfFilePath(fullPath);
+        if (!index)
+            continue;
+
+        const QModelIndex idx = m_model->index(*index, 0);
+        if (QTC_GUARD(idx.isValid()))
+            emit dataChanged(idx, idx, {Qt::ForegroundRole});
+    }
+}
+
+void OpenEditorsWidget::handleClearFileState(const FilePath &repository)
+{
+    for (int row = 0; row < m_model->rowCount(); ++row) {
+        const DocumentModel::Entry *entry = DocumentModel::entryAtRow(row);
+        QTC_ASSERT(entry, continue);
+
+        if (entry->filePath().startsWith(repository.path())) {
+            const QModelIndex index = m_model->index(row, 0);
+            emit dataChanged(index, index, {Qt::ForegroundRole});
+        }
     }
 }
 
@@ -247,12 +284,27 @@ void ProxyModel::setSourceModel(QAbstractItemModel *sm)
 
 QVariant ProxyModel::data(const QModelIndex &index, int role) const
 {
+    auto filePath = [this, index] {
+        return FilePath::fromVariant(QAbstractProxyModel::data(index, FilePathRole));
+    };
+
     if (role == Qt::DecorationRole && index.column() == 0) {
         const QVariant sourceDecoration = QAbstractProxyModel::data(index, role);
         if (sourceDecoration.isValid())
             return sourceDecoration;
-        const QVariant filePath = QAbstractProxyModel::data(index, FilePathRole);
-        return FileIconProvider::icon(FilePath::fromVariant(filePath));
+        return FileIconProvider::icon(filePath());
+    } else if (role == Qt::ForegroundRole) {
+        const VcsFileState state = VcsManager::fileState(filePath());
+        return Core::IVersionControl::vcStateToColor(state);
+    } else if (role == Qt::ToolTipRole) {
+        const FilePath path = filePath();
+        const VcsFileState state = VcsManager::fileState(path);
+        QString toolTip = path.toUserOutput();
+        if (state != VcsFileState::Unknown) {
+            const QString stateText = IVersionControl::modificationToText(state);
+            toolTip += "<p>" + stateText;
+        }
+        return toolTip;
     }
 
     return QAbstractProxyModel::data(index, role);
