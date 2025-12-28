@@ -568,8 +568,8 @@ GitPluginPrivate::GitPluginPrivate()
         const FilePath gitDir = gitClient().findGitDirForRepository(repository);
         return gitDir.isEmpty() ? FilePath() : gitDir / "HEAD";
     });
-    setTopicRefresher([this](const FilePath &repository) {
-        emit repositoryChanged(repository);
+    setTopicRefresher([](const FilePath &repository) {
+        emitRepositoryChanged(repository);
         return gitClient().synchronousTopic(repository);
     });
 
