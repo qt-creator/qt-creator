@@ -2305,8 +2305,8 @@ bool GitClient::cleanList(const FilePath &workingDirectory, const QString &modul
     const QString relativeBase = modulePath.isEmpty() ? QString() : modulePath + '/';
     const QString prefix = "Would remove ";
     const QStringList removeLines = Utils::filtered(
-                splitLines(result.cleanedStdOut()), [](const QString &s) {
-        return s.startsWith("Would remove ");
+                splitLines(result.cleanedStdOut()), [&prefix](const QString &s) {
+        return s.startsWith(prefix);
     });
     *files = Utils::transform(removeLines, [&relativeBase, &prefix](const QString &s) -> QString {
         return relativeBase + s.mid(prefix.size());
