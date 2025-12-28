@@ -820,15 +820,14 @@ GitClient::GitClient()
 
     connect(&VcsBase::Internal::commonSettings().vcsShowStatus, &Utils::BaseAspect::changed,
             this, [this] {
-        bool enable = VcsBase::Internal::commonSettings().vcsShowStatus();
-        if (enable) {
+        if (VcsBase::Internal::commonSettings().vcsShowStatus())
             m_timer.start();
-        } else {
+        else
             m_timer.stop();
-            for (const auto &fp : std::as_const(m_modifInfos)) {
-                m_modifInfos[fp.rootPath].modifiedFiles.clear();
-                emitClearFileStatus(fp.rootPath);
-            }
+
+        for (const auto &fp : std::as_const(m_modifInfos)) {
+            m_modifInfos[fp.rootPath].modifiedFiles.clear();
+            emitClearFileStatus(fp.rootPath);
         }
     });
     connect(qApp, &QApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
