@@ -91,6 +91,7 @@ using namespace std::placeholders;
 namespace Git::Internal {
 
 static Q_LOGGING_CATEGORY(log, "qtc.vcs.git", QtWarningMsg);
+static Q_LOGGING_CATEGORY(status, "qtc.vcs.git.status", QtWarningMsg);
 
 using GitClientMemberFunc = void (GitClient::*)(const FilePath &);
 
@@ -1905,11 +1906,13 @@ IVersionControl::FileState GitPluginPrivate::modificationState(
 
 void GitPluginPrivate::monitorDirectory(const Utils::FilePath &path)
 {
+    qCDebug(status).nospace() << "monitorDirectory(" << path << ")";
     gitClient().monitorDirectory(gitClient().findRepositoryForDirectory(path));
 }
 
 void GitPluginPrivate::stopMonitoringDirectory(const Utils::FilePath &path)
 {
+    qCDebug(status).nospace() << "stopMonitoringDirectory(" << path << ")";
     gitClient().stopMonitoring(gitClient().findRepositoryForDirectory(path));
 }
 
@@ -2017,21 +2020,25 @@ void GitPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 
 void emitFilesChanged(const FilePaths &files)
 {
+    qCDebug(status).nospace() << "emitFilesChanged(" << files << ")";
     emit dd->filesChanged(files);
 }
 
-void emitRepositoryChanged(const FilePath &r)
+void emitRepositoryChanged(const FilePath &repository)
 {
-    emit dd->repositoryChanged(r);
+    qCDebug(status).nospace() << "emitRepositoryChanged(" << repository << ")";
+    emit dd->repositoryChanged(repository);
 }
 
 void emitFileStatusChanged(const FilePath &repository, const QStringList &files)
 {
+    qCDebug(status).nospace() << "emitFileStatusChanged(" << repository << ", " << files << ")";
     emit dd->updateFileStatus(repository, files);
 }
 
 void emitClearFileStatus(const FilePath &repository)
 {
+    qCDebug(status).nospace() << "emitClearFileStatus(" << repository << ")";
     emit dd->clearFileStatus(repository);
 }
 

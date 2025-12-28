@@ -18,8 +18,8 @@ QString msgRepositoryLabel(const Utils::FilePath &repository);
 QString invalidBranchAndRemoteNamePattern();
 bool isCommitEditorOpen();
 
-void emitFilesChanged(const Utils::FilePaths &);
-void emitRepositoryChanged(const Utils::FilePath &);
+void emitFilesChanged(const Utils::FilePaths &files);
+void emitRepositoryChanged(const Utils::FilePath &repository);
 void emitFileStatusChanged(const Utils::FilePath &repository, const QStringList &files);
 void emitClearFileStatus(const Utils::FilePath &repository);
 void startRebaseFromCommit(const Utils::FilePath &workingDirectory, const QString &commit);
