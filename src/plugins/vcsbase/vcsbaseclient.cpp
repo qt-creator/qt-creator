@@ -86,19 +86,16 @@ Environment VcsBaseClientImpl::processEnvironment(const FilePath &appliedTo) con
 
 QStringList VcsBaseClientImpl::splitLines(const QString &s)
 {
-    const QChar newLine = QLatin1Char('\n');
-    QString output = s;
-    if (output.endsWith(newLine))
-        output.truncate(output.size() - 1);
+    const QString output = stripLastNewline(s);
     if (output.isEmpty())
         return {};
-    return output.split(newLine);
+    return output.split('\n');
 }
 
 QString VcsBaseClientImpl::stripLastNewline(const QString &in)
 {
     if (in.endsWith('\n'))
-        return in.left(in.size() - 1);
+        return in.chopped(1);
     return in;
 }
 
