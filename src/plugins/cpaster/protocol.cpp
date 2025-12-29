@@ -176,38 +176,4 @@ QNetworkReply *NetworkProtocol::httpPost(const QString &link, const QByteArray &
 
 NetworkProtocol::~NetworkProtocol() = default;
 
-bool NetworkProtocol::httpStatus(QString url, QString *errorMessage, bool useHttps)
-{
-    // Connect to host and display a message box, using its event loop.
-    errorMessage->clear();
-    const QString httpPrefix = QLatin1String("http://");
-    const QString httpsPrefix = QLatin1String("https://");
-    if (!url.startsWith(httpPrefix) && !url.startsWith(httpsPrefix)) {
-        url.prepend(useHttps ? httpsPrefix : httpPrefix);
-        url.append(QLatin1Char('/'));
-    }
-    std::unique_ptr<QNetworkReply> reply(httpGet(url));
-    QMessageBox box(QMessageBox::Information,
-                    Tr::tr("Checking connection"),
-                    Tr::tr("Connecting to %1...").arg(url),
-                    QMessageBox::Cancel,
-                    Core::ICore::dialogParent());
-    connect(reply.get(), &QNetworkReply::finished, &box, &QWidget::close);
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    box.exec();
-    QApplication::restoreOverrideCursor();
-    // User canceled, discard and be happy.
-    if (!reply->isFinished()) {
-        QNetworkReply *replyPtr = reply.release();
-        connect(replyPtr, &QNetworkReply::finished, replyPtr, &QNetworkReply::deleteLater);
-        return false;
-    }
-    // Passed
-    if (reply->error() == QNetworkReply::NoError)
-        return true;
-    // Error.
-    *errorMessage = reply->errorString();
-    return false;
-}
-
 } // CodePaster
