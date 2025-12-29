@@ -60,31 +60,27 @@ public:
     virtual Utils::Id id() const = 0;
 
     /*!
-     * \brief isVcsFileOrDirectory
-     * \param filePath
-     * \return True if filePath is a file or directory that is maintained by the
-     * version control system.
+     * Returns true if \a filePath is a file or directory that is maintained by this VCS.
      *
      * It will return true only for exact matches of the name, not for e.g. files in a
      * directory owned by the version control system (e.g. .git/control).
      *
-     * This method needs to be thread safe!
+     * \note Implementations of this method must be thread safe!
      */
     virtual bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const = 0;
 
     /*!
-     * Returns whether files in this directory should be managed with this
-     * version control.
-     * If \a topLevel is non-null, it should return the topmost directory,
-     * for which this IVersionControl should be used. The VcsManager assumes
-     * that all files in the returned directory are managed by the same IVersionControl.
+     * Returns whether files in directory \a filePath are managed by this VCS.
+     *
+     * If \a topLevel is non-null, it returns the topmost directory, for which
+     * this VCS should be used. The VcsManager assumes that all files in the
+     * returned directory are managed by the same VCS.
      */
-
     virtual bool managesDirectory(const Utils::FilePath &filePath,
                                   Utils::FilePath *topLevel = nullptr) const = 0;
 
     /*!
-     * Returns whether \a relativeFilePath is managed by this version control.
+     * Returns true if \a fileName within \a workingDirectory is managed by this VCS.
      *
      * \a workingDirectory is assumed to be part of a valid repository (not necessarily its
      * top level). \a fileName is expected to be relative to workingDirectory.
@@ -100,28 +96,28 @@ public:
     virtual Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
 
     /*!
-     * Returns true is the VCS is configured to run.
+     * Returns true if the VCS is configured to run.
      */
     virtual bool isConfigured() const = 0;
 
     /*!
-     * Returns true if the file has modification compared to version control
+     * Returns true if the file \a path has modification compared to version control.
      */
     virtual Core::IVersionControl::FileState modificationState(
         const Utils::FilePath &path, const Utils::FilePath &topLevelDir = {}) const;
 
     /*!
-     * Starts monitoring modified files inside path
+     * Starts monitoring modified files inside \a path.
      */
     virtual void monitorDirectory(const Utils::FilePath &path);
 
     /*!
-     * Stops monitoring modified files inside path
+     * Stops monitoring modified files inside \a path.
      */
     virtual void stopMonitoringDirectory(const Utils::FilePath &path);
 
     /*!
-     * Called to query whether a VCS supports the respective operations.
+     * Called to query whether a VCS supports the respective \a operation.
      *
      * Return false if the VCS is not configured yet.
      */
@@ -133,8 +129,10 @@ public:
     virtual OpenSupportMode openSupportMode(const Utils::FilePath &filepath) const;
 
     /*!
-     * Called prior to save, if the file is read only. Should be implemented if
-     * the scc requires a operation before editing the file, e.g. 'p4 edit'
+     * Called prior to save, if the file \a filePath is read only.
+     *
+     * Should be implemented if the VCS requires a operation before editing
+     * the file, e.g. 'p4 edit'.
      *
      * \note The EditorManager calls this for the editors.
      */
@@ -143,43 +141,43 @@ public:
     /*!
      * Returns settings.
      */
-
     virtual SettingsFlags settingsFlags() const { return {}; }
 
     /*!
-     * Called after a file has been added to a project If the version control
-     * needs to know which files it needs to track you should reimplement this
-     * function, e.g. 'p4 add', 'cvs add', 'svn add'.
+     * Called after the file \a filePath has been added to a project.
      *
-     * \note This function should be called from IProject subclasses after
-     *       files are added to the project.
+     * The implementations should add the file to the version control
+     * e.g. 'p4 add', 'cvs add', 'svn add'.
      */
     virtual bool vcsAdd(const Utils::FilePath &filePath) = 0;
 
     /*!
-     * Called after a file has been removed from the project (if the user
-     * wants), e.g. 'p4 delete', 'svn delete'.
+     * Called after the file \a filePath has been removed from the project.
+     *
+     * The implementations should remove the file, e.g. 'p4 delete', 'svn delete'.
      */
     virtual bool vcsDelete(const Utils::FilePath &filePath) = 0;
 
     /*!
-     * Called to rename a file, should do the actual on disk renaming
-     * (e.g. git mv, svn move, p4 move)
+     * Called to rename the file \a from to \a to.
+     *
+     * The implementations should do the actual on disk renaming,
+     * e.g. 'git mv', 'svn move', 'p4 move'.
      */
     virtual bool vcsMove(const Utils::FilePath &from, const Utils::FilePath &to) = 0;
 
     /*!
-     * Called to initialize the version control system in a directory.
+     * Called to initialize the version control system in \a directory.
      */
     virtual bool vcsCreateRepository(const Utils::FilePath &directory) = 0;
 
     /*!
-     * Topic (e.g. name of the current branch)
+     * Returns the topic (e.g. name of the current branch).
      */
     virtual QString vcsTopic(const Utils::FilePath &topLevel);
 
     /*!
-     * Display annotation for a file and scroll to line
+     * Display annotation for \a file and scroll to \a line.
      */
     virtual void vcsAnnotate(const Utils::FilePath &file, int line) = 0;
 
@@ -196,30 +194,41 @@ public:
                          const Utils::FilePath &relativePath) = 0;
 
     /*!
-     * Display text for Open operation
+     * Returns the display text for Open operation.
      */
     virtual QString vcsOpenText() const;
 
     /*!
-     * Display text for Make Writable
+     * Returns the display text for Make Writable.
      */
     virtual QString vcsMakeWritableText() const;
 
     /*!
-     * Display details of reference
+     * Display details of \a reference within \a workingDirectory.
      */
     virtual void vcsDescribe(const Utils::FilePath &workingDirectory, const QString &reference) = 0;
 
     /*!
      * Return a list of paths where tools that came with the VCS may be installed.
+     *
      * This is helpful on windows where e.g. git comes with a lot of nice unix tools.
      */
     virtual Utils::FilePaths additionalToolsPath() const;
 
+    /*!
+     * Add context \a menu actions for the \a reference within \a workingDirectory.
+     *
+     * The context menu is requested when the user right clicks in the Version Control pane.
+     */
     virtual void fillLinkContextMenu(QMenu *menu,
                                      const Utils::FilePath &workingDirectory,
                                      const QString &reference);
 
+    /*!
+     * Handle the \a reference within \a workingDirectory.
+     *
+     * Typical implementation would be showing the reference.
+     */
     virtual bool handleLink(const Utils::FilePath &workingDirectory, const QString &reference);
 
     class CORE_EXPORT RepoUrl {
