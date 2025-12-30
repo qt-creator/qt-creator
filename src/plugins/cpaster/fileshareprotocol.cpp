@@ -30,9 +30,16 @@ const char descriptionElementC[] = "description";
 const char textElementC[] = "text";
 const char protocolNameC[] = "Fileshare";
 
+static Result<> checkConfig()
+{
+    return fileShareSettings().path().isEmpty() ? ResultError(Tr::tr("Please configure a path."))
+                                                : ResultOk;
+}
+
 FileShareProtocol::FileShareProtocol()
     : Protocol({protocolNameC,
-                Capability::List | Capability::PostDescription | Capability::PostUserName})
+                Capability::List | Capability::PostDescription | Capability::PostUserName,
+                checkConfig})
 {}
 
 FileShareProtocol::~FileShareProtocol() = default;
@@ -83,16 +90,6 @@ static bool parse(const QString &fileName,
     if (reader.hasError()) {
         *errorMessage = Tr::tr("Error in %1 at %2: %3")
                         .arg(fileName).arg(reader.lineNumber()).arg(reader.errorString());
-        return false;
-    }
-    return true;
-}
-
-bool FileShareProtocol::checkConfiguration(QString *errorMessage)
-{
-    if (fileShareSettings().path().isEmpty()) {
-        if (errorMessage)
-            *errorMessage = Tr::tr("Please configure a path.");
         return false;
     }
     return true;

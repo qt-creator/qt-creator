@@ -18,7 +18,6 @@ public:
 
     const Core::IOptionsPage *settingsPage() const override;
 
-    bool checkConfiguration(QString *errorMessage = nullptr) override;
     void fetch(const QString &id) override;
     void list() override;
     void paste(const QString &text,

@@ -22,8 +22,6 @@
 #include <QUrl>
 #include <QVariant>
 
-#include <memory>
-
 namespace CodePaster {
 
 Protocol::Protocol(const ProtocolData &data)
@@ -31,11 +29,6 @@ Protocol::Protocol(const ProtocolData &data)
 {}
 
 Protocol::~Protocol() = default;
-
-bool Protocol::checkConfiguration(QString *)
-{
-    return true;
-}
 
 const Core::IOptionsPage *Protocol::settingsPage() const
 {
@@ -107,12 +100,12 @@ QString Protocol::textFromHtml(QString data)
 
 bool Protocol::ensureConfiguration(Protocol *p, QWidget *parent)
 {
-    QString errorMessage;
     while (true) {
-        if (p->checkConfiguration(&errorMessage))
+        const auto res = p->checkConfiguration();
+        if (res)
             return true;
         // Cancel returns empty error message.
-        if (errorMessage.isEmpty() || !showConfigurationError(p, errorMessage, parent))
+        if (res.error().isEmpty() || !showConfigurationError(p, res.error(), parent))
             break;
     }
     return false;

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/result.h>
+
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -26,11 +28,14 @@ enum class Capability
 Q_DECLARE_FLAGS(Capabilities, Capability)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Capabilities)
 
+using ConfigChecker = std::function<Utils::Result<>()>;
+
 class ProtocolData
 {
 public:
     QString name;
     Capabilities capabilities = Capability::None;
+    ConfigChecker configChecker = {};
 };
 
 class Protocol : public QObject
@@ -46,10 +51,12 @@ public:
 
     QString name() const { return m_protocolData.name; }
     Capabilities capabilities() const { return m_protocolData.capabilities; };
+    Utils::Result<> checkConfiguration() const {
+        return m_protocolData.configChecker ? m_protocolData.configChecker() : Utils::ResultOk;
+    }
 
     virtual const Core::IOptionsPage *settingsPage() const;
 
-    virtual bool checkConfiguration(QString *errorMessage = nullptr);
     virtual void fetch(const QString &id) = 0;
     virtual void list();
     virtual void paste(const QString &text,
