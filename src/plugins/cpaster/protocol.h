@@ -82,7 +82,6 @@ signals:
 
 protected:
     Protocol(const ProtocolData &data);
-    static QString textFromHtml(QString data);
     static QString fixNewLines(QString in);
 
 private:

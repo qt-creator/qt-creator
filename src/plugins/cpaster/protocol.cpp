@@ -88,16 +88,6 @@ QString Protocol::fixNewLines(QString data)
     return data;
 }
 
-QString Protocol::textFromHtml(QString data)
-{
-    data.remove(QLatin1Char('\r'));
-    data.replace(QLatin1String("&lt;"), QString(QLatin1Char('<')));
-    data.replace(QLatin1String("&gt;"), QString(QLatin1Char('>')));
-    data.replace(QLatin1String("&amp;"), QString(QLatin1Char('&')));
-    data.replace(QLatin1String("&quot;"), QString(QLatin1Char('"')));
-    return data;
-}
-
 // Show a configuration error and point user to settings.
 // Return true when settings changed.
 static bool showConfigurationError(const Protocol *p, const QString &message, QWidget *parent)
