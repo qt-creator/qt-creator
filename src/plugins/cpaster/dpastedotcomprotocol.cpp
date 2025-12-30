@@ -117,12 +117,6 @@ void DPasteDotComProtocol::paste(
     });
 }
 
-bool DPasteDotComProtocol::checkConfiguration(QString * /*errorMessage*/)
-{
-    // we need a 1s gap between requests, so skip status check to avoid failing
-    return true;
-}
-
 void DPasteDotComProtocol::reportError(const QString &message)
 {
     const QString fullMessage = Tr::tr("%1: %2").arg(protocolName(), message);

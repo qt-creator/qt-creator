@@ -22,7 +22,6 @@ private:
                const QString &username = QString(),
                const QString &comment = QString(),
                const QString &description = QString()) override;
-    bool checkConfiguration(QString *errorMessage) override;
 
     static void reportError(const QString &message);
 };
