@@ -108,17 +108,14 @@ QString Protocol::textFromHtml(QString data)
 bool Protocol::ensureConfiguration(Protocol *p, QWidget *parent)
 {
     QString errorMessage;
-    bool ok = false;
     while (true) {
-        if (p->checkConfiguration(&errorMessage)) {
-            ok = true;
-            break;
-        }
+        if (p->checkConfiguration(&errorMessage))
+            return true;
         // Cancel returns empty error message.
         if (errorMessage.isEmpty() || !showConfigurationError(p, errorMessage, parent))
             break;
     }
-    return ok;
+    return false;
 }
 
 bool Protocol::showConfigurationError(const Protocol *p,
