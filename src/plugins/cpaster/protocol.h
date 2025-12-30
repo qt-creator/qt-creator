@@ -95,13 +95,4 @@ QNetworkReply *httpGet(const QString &url, bool handleCookies = false);
 
 QNetworkReply *httpPost(const QString &link, const QByteArray &data, bool handleCookies = false);
 
-class NetworkProtocol : public Protocol
-{
-public:
-    ~NetworkProtocol() override;
-
-protected:
-    NetworkProtocol(const ProtocolData &data) : Protocol(data) {}
-};
-
 } //namespace CodePaster

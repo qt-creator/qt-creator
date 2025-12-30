@@ -7,7 +7,7 @@
 
 namespace CodePaster {
 
-class PasteBinDotComProtocol : public NetworkProtocol
+class PasteBinDotComProtocol : public Protocol
 {
 public:
     PasteBinDotComProtocol();

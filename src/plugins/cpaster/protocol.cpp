@@ -174,6 +174,4 @@ QNetworkReply *httpPost(const QString &link, const QByteArray &data,
     return Utils::NetworkAccessManager::instance()->post(r, data);
 }
 
-NetworkProtocol::~NetworkProtocol() = default;
-
 } // CodePaster

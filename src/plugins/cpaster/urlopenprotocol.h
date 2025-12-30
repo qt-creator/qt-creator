@@ -7,7 +7,7 @@
 
 namespace CodePaster {
 
-class UrlOpenProtocol : public NetworkProtocol
+class UrlOpenProtocol : public Protocol
 {
 public:
     UrlOpenProtocol();

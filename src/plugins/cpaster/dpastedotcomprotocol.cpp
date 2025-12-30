@@ -16,7 +16,7 @@ static QString baseUrl() { return QString("https://dpaste.com"); }
 static QString apiUrl() { return baseUrl() + "/api/v2/"; }
 
 DPasteDotComProtocol::DPasteDotComProtocol()
-    : NetworkProtocol({protocolName(), Capability::PostDescription | Capability::PostUserName})
+    : Protocol({protocolName(), Capability::PostDescription | Capability::PostUserName})
 {}
 
 QString DPasteDotComProtocol::protocolName() { return QString("DPaste.Com"); }

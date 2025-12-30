@@ -9,10 +9,8 @@
 
 namespace CodePaster {
 
-UrlOpenProtocol::UrlOpenProtocol()
-    : NetworkProtocol({"Open URL"})
+UrlOpenProtocol::UrlOpenProtocol() : Protocol({"Open URL"})
 {}
-
 
 void UrlOpenProtocol::fetch(const QString &url)
 {
