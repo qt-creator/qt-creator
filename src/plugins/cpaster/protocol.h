@@ -66,9 +66,6 @@ public:
                        const QString &comment = QString(),
                        const QString &description = QString()) = 0;
 
-    // Convenience to determine content type from mime type
-    static ContentType contentType(const QString &mimeType);
-
     // Ensure configuration is correct
     static bool ensureConfiguration(Protocol *p,
                                     QWidget *parent = nullptr);

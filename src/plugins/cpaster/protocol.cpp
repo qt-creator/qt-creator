@@ -9,7 +9,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/networkaccessmanager.h>
-#include <utils/mimeconstants.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -33,39 +32,6 @@ Protocol::~Protocol() = default;
 void Protocol::list()
 {
     qFatal("Base Protocol list() called");
-}
-
-Protocol::ContentType Protocol::contentType(const QString &mt)
-{
-    using namespace Utils::Constants;
-    if (mt == QLatin1String(C_SOURCE_MIMETYPE)
-        || mt == QLatin1String(C_HEADER_MIMETYPE)
-        || mt == QLatin1String(GLSL_MIMETYPE)
-        || mt == QLatin1String(GLSL_VERT_MIMETYPE)
-        || mt == QLatin1String(GLSL_FRAG_MIMETYPE)
-        || mt == QLatin1String(GLSL_ES_VERT_MIMETYPE)
-        || mt == QLatin1String(GLSL_ES_FRAG_MIMETYPE))
-        return C;
-    if (mt == QLatin1String(CPP_SOURCE_MIMETYPE)
-        || mt == QLatin1String(CPP_HEADER_MIMETYPE)
-        || mt == QLatin1String(OBJECTIVE_C_SOURCE_MIMETYPE)
-        || mt == QLatin1String(OBJECTIVE_CPP_SOURCE_MIMETYPE))
-        return Cpp;
-    if (mt == QLatin1String(QML_MIMETYPE)
-        || mt == QLatin1String(QMLUI_MIMETYPE)
-        || mt == QLatin1String(QMLPROJECT_MIMETYPE)
-        || mt == QLatin1String(QBS_MIMETYPE)
-        || mt == QLatin1String(JS_MIMETYPE)
-        || mt == QLatin1String(JSON_MIMETYPE))
-        return JavaScript;
-    if (mt == QLatin1String("text/x-patch"))
-        return Diff;
-    if (mt == QLatin1String("text/xml")
-        || mt == QLatin1String("application/xml")
-        || mt == QLatin1String(RESOURCE_MIMETYPE)
-        || mt == QLatin1String(FORM_MIMETYPE))
-        return Xml;
-    return Text;
 }
 
 QString Protocol::fixNewLines(QString data)

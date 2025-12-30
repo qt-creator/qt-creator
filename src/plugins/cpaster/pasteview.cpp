@@ -10,6 +10,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/layoutbuilder.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 
@@ -35,6 +36,39 @@ namespace CodePaster {
 const char groupC[] = "CPaster";
 const char heightKeyC[] = "PasteViewHeight";
 const char widthKeyC[] = "PasteViewWidth";
+
+static Protocol::ContentType contentType(const QString &mt)
+{
+    using namespace Utils::Constants;
+    if (mt == QLatin1StringView(C_SOURCE_MIMETYPE)
+        || mt == QLatin1StringView(C_HEADER_MIMETYPE)
+        || mt == QLatin1StringView(GLSL_MIMETYPE)
+        || mt == QLatin1StringView(GLSL_VERT_MIMETYPE)
+        || mt == QLatin1StringView(GLSL_FRAG_MIMETYPE)
+        || mt == QLatin1StringView(GLSL_ES_VERT_MIMETYPE)
+        || mt == QLatin1StringView(GLSL_ES_FRAG_MIMETYPE))
+        return Protocol::C;
+    if (mt == QLatin1StringView(CPP_SOURCE_MIMETYPE)
+        || mt == QLatin1StringView(CPP_HEADER_MIMETYPE)
+        || mt == QLatin1StringView(OBJECTIVE_C_SOURCE_MIMETYPE)
+        || mt == QLatin1StringView(OBJECTIVE_CPP_SOURCE_MIMETYPE))
+        return Protocol::Cpp;
+    if (mt == QLatin1StringView(QML_MIMETYPE)
+        || mt == QLatin1StringView(QMLUI_MIMETYPE)
+        || mt == QLatin1StringView(QMLPROJECT_MIMETYPE)
+        || mt == QLatin1StringView(QBS_MIMETYPE)
+        || mt == QLatin1StringView(JS_MIMETYPE)
+        || mt == QLatin1StringView(JSON_MIMETYPE))
+        return Protocol::JavaScript;
+    if (mt == QLatin1StringView("text/x-patch"))
+        return Protocol::Diff;
+    if (mt == QLatin1StringView("text/xml")
+        || mt == QLatin1StringView("application/xml")
+        || mt == QLatin1StringView(RESOURCE_MIMETYPE)
+        || mt == QLatin1StringView(FORM_MIMETYPE))
+        return Protocol::Xml;
+    return Protocol::Text;
+}
 
 PasteView::PasteView(const QList<Protocol *> &protocols,
                      const QString &mt,
@@ -273,7 +307,7 @@ void PasteView::accept()
     if (data.isEmpty())
         return;
 
-    const Protocol::ContentType ct = Protocol::contentType(m_mimeType);
+    const Protocol::ContentType ct = contentType(m_mimeType);
     protocol->paste(data, ct, expiryDays(), user(), comment(), description());
     // Store settings and close
     QtcSettings *settings = Core::ICore::settings();
