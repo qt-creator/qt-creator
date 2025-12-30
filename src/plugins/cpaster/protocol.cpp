@@ -98,26 +98,11 @@ QString Protocol::textFromHtml(QString data)
     return data;
 }
 
-bool Protocol::ensureConfiguration(Protocol *p, QWidget *parent)
+// Show a configuration error and point user to settings.
+// Return true when settings changed.
+static bool showConfigurationError(const Protocol *p, const QString &message, QWidget *parent)
 {
-    while (true) {
-        const auto res = p->checkConfiguration();
-        if (res)
-            return true;
-        // Cancel returns empty error message.
-        if (res.error().isEmpty() || !showConfigurationError(p, res.error(), parent))
-            break;
-    }
-    return false;
-}
-
-bool Protocol::showConfigurationError(const Protocol *p,
-                                      const QString &message,
-                                      QWidget *parent,
-                                      bool showConfig)
-{
-    if (!p->settingsPage())
-        showConfig = false;
+    const bool showConfig = p->settingsPage();
 
     if (!parent)
         parent = Core::ICore::dialogParent();
@@ -131,6 +116,19 @@ bool Protocol::showConfigurationError(const Protocol *p,
     if (mb.clickedButton() == settingsButton)
         rc = Core::ICore::showOptionsDialog(p->settingsPage()->id(), parent);
     return rc;
+}
+
+bool Protocol::ensureConfiguration(Protocol *p, QWidget *parent)
+{
+    while (true) {
+        const auto res = p->checkConfiguration();
+        if (res)
+            return true;
+        // Cancel returns empty error message.
+        if (res.error().isEmpty() || !showConfigurationError(p, res.error(), parent))
+            break;
+    }
+    return false;
 }
 
 // --------- NetworkProtocol

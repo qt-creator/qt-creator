@@ -69,12 +69,6 @@ public:
     // Convenience to determine content type from mime type
     static ContentType contentType(const QString &mimeType);
 
-    // Show a configuration error and point user to settings.
-    // Return true when settings changed.
-    static bool showConfigurationError(const Protocol *p,
-                                       const QString &message,
-                                       QWidget *parent = nullptr,
-                                       bool showConfig = true);
     // Ensure configuration is correct
     static bool ensureConfiguration(Protocol *p,
                                     QWidget *parent = nullptr);
