@@ -153,7 +153,7 @@ static void addCookies(QNetworkRequest &request)
         request.setHeader(QNetworkRequest::CookieHeader, QVariant::fromValue(cookie));
 }
 
-QNetworkReply *NetworkProtocol::httpGet(const QString &link, bool handleCookies)
+QNetworkReply *httpGet(const QString &link, bool handleCookies)
 {
     QUrl url(link);
     QNetworkRequest r(url);
@@ -162,7 +162,7 @@ QNetworkReply *NetworkProtocol::httpGet(const QString &link, bool handleCookies)
     return Utils::NetworkAccessManager::instance()->get(r);
 }
 
-QNetworkReply *NetworkProtocol::httpPost(const QString &link, const QByteArray &data,
+QNetworkReply *httpPost(const QString &link, const QByteArray &data,
                                          bool handleCookies)
 {
     QUrl url(link);

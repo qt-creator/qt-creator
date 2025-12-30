@@ -88,9 +88,12 @@ private:
     ProtocolData m_protocolData;
 };
 
-/* Network-based protocol: Provides access with delayed
+/* Network-based protocol helpers: Provides access with delayed
  * initialization to a QNetworkAccessManager and conveniences
  * for HTTP-requests. */
+QNetworkReply *httpGet(const QString &url, bool handleCookies = false);
+
+QNetworkReply *httpPost(const QString &link, const QByteArray &data, bool handleCookies = false);
 
 class NetworkProtocol : public Protocol
 {
@@ -99,11 +102,6 @@ public:
 
 protected:
     NetworkProtocol(const ProtocolData &data) : Protocol(data) {}
-
-    QNetworkReply *httpGet(const QString &url, bool handleCookies = false);
-
-    QNetworkReply *httpPost(const QString &link, const QByteArray &data,
-                            bool handleCookies = false);
 };
 
 } //namespace CodePaster
