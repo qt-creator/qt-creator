@@ -4,6 +4,7 @@
 #pragma once
 
 #include "core_global.h"
+#include "vcsfilestate.h"
 
 #include <utils/id.h>
 #include <utils/filepath.h>
@@ -41,17 +42,6 @@ public:
         OpenOptional,  /*!< Files can be opened by the VCS, or hijacked */
         OpenMandatory  /*!< Files must always be opened by the VCS */
     };
-
-    enum class FileState : quint8 {
-        Unknown = 0x00,
-        Untracked,
-        Added,
-        Modified,
-        Deleted,
-        Renamed,
-        Unmerged,
-    };
-    Q_ENUM(FileState)
 
     IVersionControl();
     ~IVersionControl() override;
@@ -101,20 +91,9 @@ public:
     virtual bool isConfigured() const = 0;
 
     /*!
-     * Returns true if the file \a path has modification compared to version control.
+     * Starts or stops monitoring (depending on \a monitor) modified files inside \a path.
      */
-    virtual Core::IVersionControl::FileState modificationState(
-        const Utils::FilePath &path, const Utils::FilePath &topLevelDir = {}) const;
-
-    /*!
-     * Starts monitoring modified files inside \a path.
-     */
-    virtual void monitorDirectory(const Utils::FilePath &path);
-
-    /*!
-     * Stops monitoring modified files inside \a path.
-     */
-    virtual void stopMonitoringDirectory(const Utils::FilePath &path);
+    virtual Utils::FilePaths monitorDirectory(const Utils::FilePath &path, bool monitor);
 
     /*!
      * Called to query whether a VCS supports the respective \a operation.
@@ -252,14 +231,12 @@ public:
     using TopicRefresher = std::function<QString(const Utils::FilePath &)>;
     void setTopicRefresher(const TopicRefresher &topicRefresher);
 
-    static QColor vcStateToColor(const IVersionControl::FileState &state);
-    static QString modificationToText(const IVersionControl::FileState &state);
+    static QColor vcStateToColor(const Core::VcsFileState &state);
+    static QString modificationToText(const Core::VcsFileState &state);
 
 signals:
     void repositoryChanged(const Utils::FilePath &repository);
     void filesChanged(const Utils::FilePaths &files);
-    void updateFileStatus(const Utils::FilePath &repository, const QStringList &files);
-    void clearFileStatus(const Utils::FilePath &repository);
     void configurationChanged();
 
 private:

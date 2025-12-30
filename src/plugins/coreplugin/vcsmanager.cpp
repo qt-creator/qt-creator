@@ -104,6 +104,7 @@ public:
     FilePaths m_cachedAdditionalToolsPaths;
     bool m_cachedAdditionalToolsPathsDirty = true;
     QSet<FilePath> m_repoChangedSet;
+    QHash<FilePath, FileStateHash> m_fileStates;
     QTimer m_repoChangedTimer;
 };
 
@@ -531,6 +532,70 @@ void VcsManager::clearVersionControlCache()
     d->clearCache();
     for (const FilePath &repo : repoList)
         emitRepositoryChanged(repo);
+}
+
+void VcsManager::monitorDirectory(const Utils::FilePath &path, bool monitor)
+{
+    IVersionControl *vc = VcsManager::findVersionControlForDirectory(path);
+    if (!vc)
+        return;
+
+    const Utils::FilePaths paths = vc->monitorDirectory(path, monitor);
+    for (const FilePath &p : paths) {
+        if (monitor)
+            d->m_fileStates[p] = {};
+        else
+            d->m_fileStates.remove(p);
+    }
+}
+
+static FilePath nearestParentDirectory(const QList<FilePath> &dirs, const FilePath &file)
+{
+    FilePath nearest;
+    for (const auto &parent : dirs) {
+        if (!file.isChildOf(parent))
+            continue;
+        if (parent.pathView().size() > nearest.pathView().size())
+            nearest = parent;
+    }
+    return nearest;
+}
+
+Core::VcsFileState VcsManager::fileState(const Utils::FilePath &filePath)
+{
+    const FilePath repository = nearestParentDirectory(d->m_fileStates.keys(), filePath);
+    const QString relativePath = filePath.relativeChildPath(repository).path();
+
+    return d->m_fileStates.value(repository).value(relativePath, VcsFileState::Unknown);
+}
+
+void VcsManager::updateModifiedFiles(const Utils::FilePath &repository, const FileStateHash &modifiedFiles)
+{
+    QTC_ASSERT(d->m_fileStates.contains(repository), return);
+
+    QStringList changedFiles;
+    QStringList oldList = d->m_fileStates.value(repository).keys();
+    QStringList newList = modifiedFiles.keys();
+    oldList.sort();
+    newList.sort();
+
+    std::set_symmetric_difference(std::begin(oldList), std::end(oldList),
+                                  std::begin(newList), std::end(newList),
+                                  std::back_inserter(changedFiles));
+
+    if (changedFiles.isEmpty())
+        return;
+
+    d->m_fileStates[repository] = modifiedFiles;
+
+    qCDebug(status).nospace() << "emit updateFileState(" << repository << ", " << changedFiles << ")";
+    emit instance()->updateFileState(repository, changedFiles);
+}
+
+void VcsManager::emitClearFileState(const Utils::FilePath &repository)
+{
+    qCDebug(status).nospace() << "emit clearFileState(" << repository << ")";
+    emit instance()->clearFileState(repository);
 }
 
 // Find top level for version controls like git/Mercurial that have

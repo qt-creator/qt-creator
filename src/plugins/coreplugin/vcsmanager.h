@@ -4,6 +4,7 @@
 #pragma once
 
 #include "core_global.h"
+#include "vcsfilestate.h"
 
 #include <utils/filepath.h>
 #include <utils/id.h>
@@ -16,6 +17,8 @@ namespace Core {
 class IVersionControl;
 
 namespace Internal { class ICorePrivate; }
+
+using FileStateHash = QHash<QString, Core::VcsFileState>;
 
 /* VcsManager:
  * 1) Provides functionality for finding the IVersionControl * for a given
@@ -84,9 +87,18 @@ public:
     static Utils::FilePath findRepositoryForFiles(
         const Utils::FilePath &fileOrDir, const QStringList &checkFiles);
 
+    static void monitorDirectory(const Utils::FilePath &path, bool monitor);
+    static Core::VcsFileState fileState(const Utils::FilePath &path);
+
+    static void updateModifiedFiles(const Utils::FilePath &repository, const FileStateHash &modifiedFiles);
+    static void emitClearFileState(const Utils::FilePath &repository);
+
 signals:
     void repositoryChanged(const Utils::FilePath &repository);
     void configurationChanged(const Core::IVersionControl *vcs);
+
+    void updateFileState(const Utils::FilePath &repository, const QStringList &files);
+    void clearFileState(const Utils::FilePath &repository);
 
 private:
     explicit VcsManager(QObject *parent = nullptr);

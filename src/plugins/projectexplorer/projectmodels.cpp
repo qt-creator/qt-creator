@@ -184,6 +184,11 @@ FlatModel::FlatModel(QObject *parent)
 
     for (Project *project : ProjectManager::projects())
         handleProjectAdded(project);
+
+    connect(VcsManager::instance(), &VcsManager::updateFileState,
+            this, &FlatModel::updateVCStatusFor);
+    connect(VcsManager::instance(), &VcsManager::clearFileState,
+            this, &FlatModel::clearVCStatusFor);
 }
 
 QVariant FlatModel::data(const QModelIndex &index, int role) const
@@ -247,8 +252,8 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     }
     case Qt::ForegroundRole:
         if (fileNode) {
-            Core::IVersionControl::FileState state = fileNode->modificationState();
-            if (state != Core::IVersionControl::FileState::Unknown)
+            Core::VcsFileState state = fileNode->modificationState();
+            if (state != Core::VcsFileState::Unknown)
                 return Core::IVersionControl::vcStateToColor(state);
         }
         return node->isEnabled() ? QVariant()
@@ -457,12 +462,7 @@ void FlatModel::handleProjectAdded(Project *project)
     });
 
     const FilePath &rootPath = project->rootProjectDirectory();
-    IVersionControl *vc = VcsManager::findVersionControlForDirectory(rootPath);
-    if (vc) {
-        vc->monitorDirectory(rootPath);
-        connect(vc, &IVersionControl::updateFileStatus, this, &FlatModel::updateVCStatusFor);
-        connect(vc, &IVersionControl::clearFileStatus, this, &FlatModel::clearVCStatusFor);
-    }
+    VcsManager::monitorDirectory(rootPath, true);
 
     addOrRebuildProjectModel(project);
 }
@@ -504,9 +504,9 @@ void FlatModel::handleProjectRemoved(Project *project)
 
     if (!project)
         return;
+
     const FilePath &rootPath = project->rootProjectDirectory();
-    if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(rootPath))
-        vc->stopMonitoringDirectory(rootPath);
+    VcsManager::monitorDirectory(rootPath, false);
 }
 
 WrapperNode *FlatModel::nodeForProject(const Project *project) const

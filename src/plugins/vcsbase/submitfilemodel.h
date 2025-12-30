@@ -52,11 +52,10 @@ public:
 
     virtual void updateSelections(SubmitFileModel *source);
 
-    // Function that converts(qualifies) a QString/QVariant pair to FileState
+    // Function that converts(qualifies) a QString/QVariant pair to VcsFileState
     //     1st arg is the file status string as passed to addFile()
     //     2nd arg is the file extra data as passed to addFile()
-    typedef std::function<Core::IVersionControl::FileState(const QString &, const QVariant &)>
-            FileStatusQualifier;
+    typedef std::function<Core::VcsFileState(const QString &, const QVariant &)> FileStatusQualifier;
 
     const FileStatusQualifier &fileStatusQualifier() const;
     void setFileStatusQualifier(FileStatusQualifier &&func);

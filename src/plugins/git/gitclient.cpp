@@ -825,10 +825,8 @@ GitClient::GitClient()
         else
             m_timer.stop();
 
-        for (const auto &fp : std::as_const(m_modifInfos)) {
-            m_modifInfos[fp.rootPath].modifiedFiles.clear();
-            emitClearFileStatus(fp.rootPath);
-        }
+        for (const FilePath &path : std::as_const(m_monitoredPaths))
+            VcsManager::emitClearFileState(path);
     });
     connect(qApp, &QApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
         if (!VcsBase::Internal::commonSettings().vcsShowStatus())
@@ -909,56 +907,53 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
     return res;
 }
 
-IVersionControl::FileState GitClient::modificationState(const Utils::FilePath &workingDirectory,
-                                const Utils::FilePath &fileName) const
+FilePaths GitClient::monitorDirectory(const Utils::FilePath &path, bool monitor)
 {
-    const ModificationInfo &info = m_modifInfos[workingDirectory];
-    int length = workingDirectory.toUrlishString().size();
-    const QString fileNameFromRoot = fileName.absoluteFilePath().path().mid(length + 1);
-    return info.modifiedFiles.value(fileNameFromRoot, IVersionControl::FileState::Unknown);
-}
-
-void GitClient::stopMonitoring(const Utils::FilePath &path)
-{
-    const FilePath directory = path;
-    // Submodule management
-    const FilePaths subPaths = submoduleDataToAbsolutePath(submoduleList(directory), directory);
-    for (const FilePath &subModule : subPaths)
-        m_modifInfos.remove(subModule);
-    m_modifInfos.remove(directory);
-    if (m_modifInfos.isEmpty())
-        m_timer.stop();
-}
-
-void GitClient::monitorDirectory(const Utils::FilePath &path)
-{
-    const FilePath directory = path;
+    const FilePath directory = gitClient().findRepositoryForDirectory(path);
     if (directory.isEmpty())
-        return;
-    m_modifInfos.insert(directory, {directory, {}});
+        return {};
+
+    FilePaths result;
+    const bool monitored = m_monitoredPaths.contains(directory);
+    if (monitor && !monitored) {
+        m_monitoredPaths.insert(directory);
+        result.append(directory);
+    } else if (!monitor && monitored) {
+        m_monitoredPaths.remove(directory);
+        result.append(directory);
+    } else {
+        return {};
+    }
+
     // Submodule management
     const FilePaths subPaths = submoduleDataToAbsolutePath(submoduleList(directory), directory);
-    for (const FilePath &subModule : subPaths)
-        m_modifInfos.insert(subModule, {subModule, {}});
+    for (const FilePath &subModule : subPaths) {
+        result.append(subModule);
+        if (monitor && !monitored)
+            m_monitoredPaths.insert(subModule);
+        else
+            m_monitoredPaths.remove(subModule);
+    }
 
-    if (!VcsBase::Internal::commonSettings().vcsShowStatus())
-        return;
+    if (m_monitoredPaths.isEmpty())
+        m_timer.stop();
+    else if (VcsBase::Internal::commonSettings().vcsShowStatus())
+        updateModificationInfos();
 
-    updateModificationInfos();
+    return result;
 }
 
 void GitClient::updateModificationInfos()
 {
-    for (const ModificationInfo &infoTemp : std::as_const(m_modifInfos)) {
-        const FilePath path = infoTemp.rootPath;
+    for (const FilePath &path : std::as_const(m_monitoredPaths))
         m_statusUpdateQueue.append(path);
-    }
+
     updateNextModificationInfo();
 }
 
 void GitClient::updateNextModificationInfo()
 {
-    using IVCF = IVersionControl::FileState;
+    using FileState = Core::VcsFileState;
 
     if (qApp->applicationState() != Qt::ApplicationActive)
         return;
@@ -973,52 +968,37 @@ void GitClient::updateNextModificationInfo()
     const auto command = [path, this](const CommandResult &result) {
         updateNextModificationInfo();
 
-        if (!m_modifInfos.contains(path))
+        if (!m_monitoredPaths.contains(path))
             return;
 
-        ModificationInfo &info = m_modifInfos[path];
-
         const QStringList res = result.cleanedStdOut().split("\n", Qt::SkipEmptyParts);
-        QHash<QString, IVCF> modifiedFiles;
+        FileStateHash modifiedFiles;
         for (const QString &line : res) {
             if (line.size() <= 3)
                 continue;
 
-            static const QHash<QChar, IVCF> gitStates {
-                                                      {'M', IVCF::Modified},
-                                                      {'?', IVCF::Untracked},
-                                                      {'A', IVCF::Added},
-                                                      {'R', IVCF::Renamed},
-                                                      {'D', IVCF::Deleted},
-                                                      {'U', IVCF::Unmerged},
+            static const QHash<QChar, FileState> gitStates {
+                                                      {'M', FileState::Modified},
+                                                      {'?', FileState::Untracked},
+                                                      {'A', FileState::Added},
+                                                      {'R', FileState::Renamed},
+                                                      {'D', FileState::Deleted},
+                                                      {'U', FileState::Unmerged},
                                                       };
 
-            const IVCF modification = std::max(gitStates.value(line.at(0), IVCF::Unknown),
-                                               gitStates.value(line.at(1), IVCF::Unknown));
+            const FileState modification = std::max(gitStates.value(line.at(0), FileState::Unknown),
+                                               gitStates.value(line.at(1), FileState::Unknown));
 
-            if (modification == IVCF::Renamed) {
+            if (modification == FileState::Renamed) {
                 const QStringList files = splitRenamedFilePattern(line);
                 if (files.size() == 2)
                     modifiedFiles.insert(files.at(1), modification);
-            } else if (modification != IVCF::Unknown) {
+            } else if (modification != FileState::Unknown) {
                 modifiedFiles.insert(line.mid(3).trimmed(), modification);
             }
         }
 
-        const QHash<QString, IVCF> oldfiles = info.modifiedFiles;
-        info.modifiedFiles = modifiedFiles;
-
-        QStringList newList = modifiedFiles.keys();
-        QStringList list = oldfiles.keys();
-        newList.sort();
-        list.sort();
-        QStringList statusChangedFiles;
-
-        std::set_symmetric_difference(std::begin(list), std::end(list),
-                                      std::begin(newList), std::end(newList),
-                                      std::back_inserter(statusChangedFiles));
-
-        emitFileStatusChanged(info.rootPath, statusChangedFiles);
+        VcsManager::updateModifiedFiles(path, modifiedFiles);
     };
     enqueueCommand({path, {"status", "-s", "--porcelain", "--ignore-submodules"},
                     RunFlags::NoOutput, {}, {}, command});

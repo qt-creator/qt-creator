@@ -282,6 +282,7 @@ add_qtc_plugin(Core
     themechooser.h
     vcsmanager.cpp
     vcsmanager.h
+    vcsfilestate.h
     versiondialog.cpp
     versiondialog.h
     welcomepagehelper.cpp

@@ -131,7 +131,7 @@ public:
     struct ModificationInfo
     {
         Utils::FilePath rootPath;
-        QHash<QString, Core::IVersionControl::FileState> modifiedFiles;
+        QHash<QString, Core::VcsFileState> modifiedFiles;
     };
 
     GitClient();
@@ -149,10 +149,7 @@ public:
     Utils::FilePath findGitDirForRepository(const Utils::FilePath &repositoryDir) const;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
-    Core::IVersionControl::FileState modificationState(const Utils::FilePath &workingDirectory,
-                         const Utils::FilePath &fileName) const;
-    void monitorDirectory(const Utils::FilePath &path);
-    void stopMonitoring(const Utils::FilePath &path);
+    Utils::FilePaths monitorDirectory(const Utils::FilePath &path, bool monitor);
 
     enum DiffMode { Unstaged, Staged };
     bool isConflictFree(const Utils::FilePath &workingDirectory, const Utils::FilePath &fileName,
@@ -439,7 +436,7 @@ private:
 
     QString m_gitQtcEditor;
     QMap<Utils::FilePath, StashInfo> m_stashInfo;
-    QHash<Utils::FilePath, ModificationInfo> m_modifInfos;
+    QSet<Utils::FilePath> m_monitoredPaths;
     QQueue<Utils::FilePath> m_statusUpdateQueue;
     QTimer m_timer;
     QString m_diffCommit;

@@ -27,20 +27,18 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
     // checkScriptWorkingDirectory property is fine (at this point it was set by SubversionPlugin)
     model->setRepositoryRoot(checkScriptWorkingDirectory());
     model->setFileStatusQualifier([](const QString &status, const QVariant &) {
-        using IVCF = Core::IVersionControl::FileState;
-
         const QByteArray statusC = status.toLatin1();
         if (statusC == FileConflictedC)
-            return IVCF::Unmerged;
+            return Core::VcsFileState::Unmerged;
         if (statusC == FileUntrackedC)
-            return IVCF::Untracked;
+            return Core::VcsFileState::Untracked;
         if (statusC == FileAddedC)
-            return IVCF::Added;
+            return Core::VcsFileState::Added;
         if (statusC == FileModifiedC)
-            return IVCF::Modified;
+            return Core::VcsFileState::Modified;
         if (statusC == FileDeletedC)
-            return IVCF::Deleted;
-        return IVCF::Unknown;
+            return Core::VcsFileState::Deleted;
+        return Core::VcsFileState::Unknown;
     } );
 
     for (const StatusFilePair &pair : statusOutput) {

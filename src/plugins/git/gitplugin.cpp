@@ -158,10 +158,7 @@ public:
     FilePaths unmanagedFiles(const FilePaths &filePaths) const final;
 
     bool isConfigured() const final;
-    Core::IVersionControl::FileState modificationState(
-        const FilePath &path, const FilePath &topLevelDir = {}) const final;
-    void monitorDirectory(const Utils::FilePath &path) final;
-    void stopMonitoringDirectory(const Utils::FilePath &path) final;
+    FilePaths monitorDirectory(const Utils::FilePath &path, bool monitor) final;
     bool supportsOperation(Operation operation) const final;
     bool vcsOpen(const FilePath &filePath) final;
     bool vcsAdd(const FilePath &filePath) final;
@@ -1896,24 +1893,10 @@ bool GitPluginPrivate::isConfigured() const
     return !gitClient().vcsBinary({}).isEmpty();
 }
 
-IVersionControl::FileState GitPluginPrivate::modificationState(
-    const FilePath &path, const FilePath &topLevelDir) const
+FilePaths GitPluginPrivate::monitorDirectory(const FilePath &path, bool monitor)
 {
-    FilePath projectDir = topLevelDir;
-    if (projectDir.isEmpty())
-        projectDir = gitClient().findRepositoryForDirectory(path.absolutePath());
-    return gitClient().modificationState(projectDir, path);}
-
-void GitPluginPrivate::monitorDirectory(const Utils::FilePath &path)
-{
-    qCDebug(status).nospace() << "monitorDirectory(" << path << ")";
-    gitClient().monitorDirectory(gitClient().findRepositoryForDirectory(path));
-}
-
-void GitPluginPrivate::stopMonitoringDirectory(const Utils::FilePath &path)
-{
-    qCDebug(status).nospace() << "stopMonitoringDirectory(" << path << ")";
-    gitClient().stopMonitoring(gitClient().findRepositoryForDirectory(path));
+    qCDebug(status).nospace() << "monitorDirectory(" << path << ", " << monitor << ")";
+    return gitClient().monitorDirectory(path, monitor);
 }
 
 bool GitPluginPrivate::supportsOperation(Operation operation) const
@@ -2028,18 +2011,6 @@ void emitRepositoryChanged(const FilePath &repository)
 {
     qCDebug(status).nospace() << "emitRepositoryChanged(" << repository << ")";
     emit dd->repositoryChanged(repository);
-}
-
-void emitFileStatusChanged(const FilePath &repository, const QStringList &files)
-{
-    qCDebug(status).nospace() << "emitFileStatusChanged(" << repository << ", " << files << ")";
-    emit dd->updateFileStatus(repository, files);
-}
-
-void emitClearFileStatus(const FilePath &repository)
-{
-    qCDebug(status).nospace() << "emitClearFileStatus(" << repository << ")";
-    emit dd->clearFileStatus(repository);
 }
 
 void startRebaseFromCommit(const FilePath &workingDirectory, const QString &commit)

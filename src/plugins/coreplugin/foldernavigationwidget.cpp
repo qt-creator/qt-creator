@@ -122,7 +122,6 @@ public:
 
 private:
     Utils::FilePath m_rootDir;
-    QPointer<IVersionControl> m_vc;
 };
 
 // Sorts folders on top if wanted
@@ -173,7 +172,10 @@ bool FolderSortProxyModel::lessThan(const QModelIndex &source_left, const QModel
 }
 
 FolderNavigationModel::FolderNavigationModel(QObject *parent) : QFileSystemModel(parent)
-{ }
+{
+    connect(VcsManager::instance(), &VcsManager::updateFileState,
+            this, &FolderNavigationModel::updateVCStatusFor);
+}
 
 void FolderNavigationModel::setRootDir(const Utils::FilePath &rootDir)
 {
@@ -181,17 +183,11 @@ void FolderNavigationModel::setRootDir(const Utils::FilePath &rootDir)
         return;
 
     m_rootDir = rootDir;
-    if (m_vc)
-        disconnect(m_vc, nullptr, this, nullptr);
 
     if (rootDir.isEmpty())
         return;
 
-    m_vc = VcsManager::findVersionControlForDirectory(m_rootDir);
-    if (m_vc) {
-        connect(m_vc, &IVersionControl::updateFileStatus, this, &FolderNavigationModel::updateVCStatusFor);
-        m_vc->monitorDirectory(m_rootDir);
-    }
+    VcsManager::monitorDirectory(m_rootDir, true);
 }
 
 void FolderNavigationModel::updateVCStatusFor(const FilePath &rootDir, const QStringList &files)
@@ -212,16 +208,16 @@ QVariant FolderNavigationModel::data(const QModelIndex &index, int role) const
         FilePath::fromString(QFileSystemModel::data(index, QFileSystemModel::FilePathRole).toString());
     if (role == Qt::ToolTipRole) {
         QString tooltip = QDir::toNativeSeparators(QDir::cleanPath(filePath(index)));
-        if (m_vc) {
-            const QString &stateText = IVersionControl::modificationToText(m_vc->modificationState(file));
-            if (!stateText.isEmpty())
-                tooltip += "<p>" + stateText;
+        const VcsFileState state = VcsManager::fileState(file);
+        if (state != VcsFileState::Unknown) {
+            const QString stateText = IVersionControl::modificationToText(state);
+            tooltip += "<p>" + stateText;
         }
         return tooltip;
     } else if (role == IsFolderRole) {
         return isDir(index);
-    } else if (role == Qt::ForegroundRole && m_vc) {
-        return IVersionControl::vcStateToColor(m_vc->modificationState(file));
+    } else if (role == Qt::ForegroundRole) {
+        return IVersionControl::vcStateToColor(VcsManager::fileState(file));
     }
 
     return QFileSystemModel::data(index, role);

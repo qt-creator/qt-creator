@@ -5,6 +5,8 @@
 
 #include "vcsbasetr.h"
 
+#include <coreplugin/vcsfilestate.h>
+
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
@@ -22,31 +24,29 @@ namespace VcsBase {
 
 enum { StateColumn = 0, FileColumn = 1 };
 
-static QBrush fileStatusTextForeground(Core::IVersionControl::FileState statusHint)
+static QBrush fileStatusTextForeground(Core::VcsFileState statusHint)
 {
-    using IVCF = Core::IVersionControl::FileState;
-
     Theme::Color statusTextColor = Theme::VcsBase_FileStatusUnknown_TextColor;
     switch (statusHint) {
-    case IVCF::Unknown:
+    case Core::VcsFileState::Unknown:
         statusTextColor = Theme::VcsBase_FileStatusUnknown_TextColor;
         break;
-    case IVCF::Untracked:
+    case Core::VcsFileState::Untracked:
         statusTextColor = Theme::VcsBase_FileUntracked_TextColor;
         break;
-    case IVCF::Added:
+    case Core::VcsFileState::Added:
         statusTextColor = Theme::VcsBase_FileAdded_TextColor;
         break;
-    case IVCF::Modified:
+    case Core::VcsFileState::Modified:
         statusTextColor = Theme::VcsBase_FileModified_TextColor;
         break;
-    case IVCF::Deleted:
+    case Core::VcsFileState::Deleted:
         statusTextColor = Theme::VcsBase_FileDeleted_TextColor;
         break;
-    case IVCF::Renamed:
+    case Core::VcsFileState::Renamed:
         statusTextColor = Theme::VcsBase_FileRenamed_TextColor;
         break;
-    case IVCF::Unmerged:
+    case Core::VcsFileState::Unmerged:
         statusTextColor = Theme::VcsBase_FileUnmerged_TextColor;
         break;
     }
@@ -56,7 +56,7 @@ static QBrush fileStatusTextForeground(Core::IVersionControl::FileState statusHi
 static QList<QStandardItem *> createFileRow(const FilePath &repositoryRoot,
                                             const QString &fileName,
                                             const QString &status,
-                                            Core::IVersionControl::FileState statusHint,
+                                            Core::VcsFileState statusHint,
                                             CheckMode checked,
                                             const QVariant &v)
 {
@@ -75,7 +75,7 @@ static QList<QStandardItem *> createFileRow(const FilePath &repositoryRoot,
     // Note: for "overlaid" icons in Utils::FileIconProvider a valid file path is not required
     fileItem->setIcon(FileIconProvider::icon(repositoryRoot.pathAppended(fileName)));
     const QList<QStandardItem *> row{statusItem, fileItem};
-    if (statusHint != Core::IVersionControl::FileState::Unknown) {
+    if (statusHint != Core::VcsFileState::Unknown) {
         const QBrush textForeground = fileStatusTextForeground(statusHint);
         for (QStandardItem *item : row)
             item->setForeground(textForeground);
@@ -115,9 +115,9 @@ void SubmitFileModel::setRepositoryRoot(const FilePath &repoRoot)
 QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const QString &status, CheckMode checkMode,
                                                 const QVariant &v)
 {
-    const Core::IVersionControl::FileState statusHint = m_fileStatusQualifier
-                                                            ? m_fileStatusQualifier(status, v)
-                                                            : Core::IVersionControl::FileState::Unknown;
+    const Core::VcsFileState statusHint = m_fileStatusQualifier
+                                            ? m_fileStatusQualifier(status, v)
+                                            : Core::VcsFileState::Unknown;
     const QList<QStandardItem *> row =
             createFileRow(m_repositoryRoot, fileName, status, statusHint, checkMode, v);
     appendRow(row);
@@ -240,9 +240,9 @@ void SubmitFileModel::setFileStatusQualifier(FileStatusQualifier &&func)
     const int topLevelColCount = columnCount();
     for (int row = 0; row < topLevelRowCount; ++row) {
         const QStandardItem *statusItem = item(row, StateColumn);
-        const Core::IVersionControl::FileState statusHint = func
+        const Core::VcsFileState statusHint = func
                                           ? func(statusItem->text(), statusItem->data())
-                                          : Core::IVersionControl::FileState::Unknown;
+                                          : Core::VcsFileState::Unknown;
         const QBrush textForeground = fileStatusTextForeground(statusHint);
         for (int col = 0; col < topLevelColCount; ++col)
             item(row, col)->setForeground(textForeground);

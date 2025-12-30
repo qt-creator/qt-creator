@@ -64,22 +64,11 @@ FilePaths IVersionControl::additionalToolsPath() const
     return {};
 }
 
-IVersionControl::FileState IVersionControl::modificationState(
-    const FilePath &path, const FilePath &topLevelDir) const
+FilePaths IVersionControl::monitorDirectory(const Utils::FilePath &path, bool monitor)
 {
     Q_UNUSED(path)
-    Q_UNUSED(topLevelDir)
-    return IVersionControl::FileState::Unknown;
-}
-
-void IVersionControl::monitorDirectory(const Utils::FilePath &path)
-{
-    Q_UNUSED(path)
-}
-
-void IVersionControl::stopMonitoringDirectory(const Utils::FilePath &path)
-{
-    Q_UNUSED(path)
+    Q_UNUSED(monitor)
+    return {};
 }
 
 IVersionControl::RepoUrl::RepoUrl(const QString &location)
@@ -223,43 +212,41 @@ bool IVersionControl::handleLink(const FilePath &workingDirectory, const QString
     return true;
 }
 
-QColor IVersionControl::vcStateToColor(const IVersionControl::FileState &state)
+QColor IVersionControl::vcStateToColor(const Core::VcsFileState &state)
 {
-    using IVCF = Core::IVersionControl::FileState;
     using UT = Utils::Theme;
     switch (state) {
-    case IVCF::Modified:
+    case VcsFileState::Modified:
         return Utils::creatorColor(UT::VcsBase_FileModified_TextColor);
-    case IVCF::Added:
+    case VcsFileState::Added:
         return Utils::creatorColor(UT::VcsBase_FileAdded_TextColor);
-    case IVCF::Renamed:
+    case VcsFileState::Renamed:
         return Utils::creatorColor(UT::VcsBase_FileRenamed_TextColor);
-    case IVCF::Deleted:
+    case VcsFileState::Deleted:
         return Utils::creatorColor(UT::VcsBase_FileDeleted_TextColor);
-    case IVCF::Untracked:
+    case VcsFileState::Untracked:
         return Utils::creatorColor(UT::VcsBase_FileUntracked_TextColor);
-    case IVCF::Unmerged:
+    case VcsFileState::Unmerged:
         return Utils::creatorColor(UT::VcsBase_FileUnmerged_TextColor);
     default:
         return Utils::creatorColor(UT::PaletteText);
     }
 }
 
-QString IVersionControl::modificationToText(const IVersionControl::FileState &state)
+QString IVersionControl::modificationToText(const VcsFileState &state)
 {
-    using IVCF = Core::IVersionControl::FileState;
     switch (state) {
-    case IVCF::Added:
+    case VcsFileState::Added:
         return Tr::tr("Version control state: added.");
-    case IVCF::Modified:
+    case VcsFileState::Modified:
         return Tr::tr("Version control state: modified.");
-    case IVCF::Deleted:
+    case VcsFileState::Deleted:
         return Tr::tr("Version control state: deleted.");
-    case IVCF::Renamed:
+    case VcsFileState::Renamed:
         return Tr::tr("Version control state: renamed.");
-    case IVCF::Untracked:
+    case VcsFileState::Untracked:
         return Tr::tr("Version control state: untracked.");
-    case IVCF::Unmerged:
+    case VcsFileState::Unmerged:
         return Tr::tr("Version control state: unmerged.");
     default:
         return {};

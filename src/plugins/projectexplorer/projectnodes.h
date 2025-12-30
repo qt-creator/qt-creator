@@ -9,6 +9,8 @@
 #include <QStringList>
 
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsfilestate.h>
+
 #include <utils/filepath.h>
 #include <utils/id.h>
 
@@ -204,7 +206,7 @@ public:
     void setHasError(const bool error);
     void setHasError(const bool error) const;
 
-    Core::IVersionControl::FileState modificationState() const;
+    Core::VcsFileState modificationState() const;
     void resetModificationState();
 
     QIcon icon() const;
@@ -215,7 +217,7 @@ public:
 
 private:
     FileType m_fileType;
-    mutable std::optional<Core::IVersionControl::FileState> m_modificationState;
+    mutable std::optional<Core::VcsFileState> m_modificationState;
     mutable QIcon m_icon;
     mutable bool m_hasError = false;
     bool m_useUnavailableMarker = false;

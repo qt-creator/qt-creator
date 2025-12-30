@@ -31,8 +31,7 @@ void CommitEditor::setFields(const Utils::FilePath &repositoryRoot, const Branch
                              const QStringList &tags, const QString &userName,
                              const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus)
 {
-    using IVCF = Core::IVersionControl::FileState;
-
+    using FileState = Core::VcsFileState;
     FossilCommitWidget *fossilWidget = commitWidget();
     QTC_ASSERT(fossilWidget, return);
 
@@ -42,21 +41,21 @@ void CommitEditor::setFields(const Utils::FilePath &repositoryRoot, const Branch
     m_fileModel->setRepositoryRoot(repositoryRoot);
     m_fileModel->setFileStatusQualifier([](const QString &status, const QVariant &) {
         if (status == Constants::FSTATUS_NEW) {
-            return IVCF::Untracked;
+            return FileState::Untracked;
         } else if (status == Constants::FSTATUS_ADDED
             || status == Constants::FSTATUS_ADDED_BY_MERGE
             || status == Constants::FSTATUS_ADDED_BY_INTEGRATE) {
-            return IVCF::Added;
+            return FileState::Added;
         } else if (status == Constants::FSTATUS_EDITED
             || status == Constants::FSTATUS_UPDATED_BY_MERGE
             || status == Constants::FSTATUS_UPDATED_BY_INTEGRATE) {
-            return IVCF::Modified;
+            return FileState::Modified;
         } else if (status == Constants::FSTATUS_DELETED) {
-            return IVCF::Deleted;
+            return FileState::Deleted;
         } else if (status == Constants::FSTATUS_RENAMED) {
-            return IVCF::Renamed;
+            return FileState::Renamed;
         }
-        return IVCF::Unknown;
+        return FileState::Unknown;
     });
 
     const QList<VcsBase::VcsBaseClient::StatusItem> toAdd = Utils::filtered(repoStatus,
