@@ -4,6 +4,7 @@
 #pragma once
 
 #include "../utils_global.h"
+#include "../id.h"
 
 #include <QAbstractScrollArea>
 #include <QAbstractTextDocumentLayout>
@@ -152,6 +153,8 @@ public:
     Q_INVOKABLE QVariant inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const;
 
     TextEditorLayout *editorLayout() const;
+
+    void setEditorTextMargin(Utils::Id id, Qt::Edge edge, int margin);
 
 public Q_SLOTS:
 

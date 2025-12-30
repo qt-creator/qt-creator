@@ -39,6 +39,7 @@ const char displayAnnotationsKey[] = "DisplayAnnotations";
 const char annotationAlignmentKey[] = "AnnotationAlignment";
 const char minimalAnnotationContentKey[] = "MinimalAnnotationContent";
 const char highlightSelectionKey[] = "HighlightSelection";
+const char displayMinimapKey[] = "DisplayMinimap";
 const char groupPostfix[] = "textDisplaySettings";
 
 void DisplaySettings::toSettings(QtcSettings *s) const
@@ -65,6 +66,7 @@ void DisplaySettings::toSettings(QtcSettings *s) const
     s->setValue(displayAnnotationsKey, m_displayAnnotations);
     s->setValue(annotationAlignmentKey, static_cast<int>(m_annotationAlignment));
     s->setValue(highlightSelectionKey, m_highlightSelection);
+    s->setValue(displayMinimapKey, m_displayMinimap);
     s->endGroup();
 }
 
@@ -98,6 +100,7 @@ void DisplaySettings::fromSettings(QtcSettings *s)
                          static_cast<int>(m_annotationAlignment)).toInt());
     m_minimalAnnotationContent = s->value(minimalAnnotationContentKey, m_minimalAnnotationContent).toInt();
     m_highlightSelection = s->value(highlightSelectionKey, m_highlightSelection).toBool();
+    m_displayMinimap = s->value(displayMinimapKey, m_displayMinimap).toBool();
     s->endGroup();
 }
 
@@ -127,6 +130,7 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_annotationAlignment == ds.m_annotationAlignment
         && m_minimalAnnotationContent == ds.m_minimalAnnotationContent
         && m_highlightSelection == ds.m_highlightSelection
+        && m_displayMinimap == ds.m_displayMinimap
             ;
 }
 

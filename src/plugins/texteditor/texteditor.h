@@ -41,6 +41,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 class HighlightScrollBarController;
+class MinimapController;
 }
 
 namespace TextEditor {
@@ -520,6 +521,7 @@ public:
     int centerVisibleBlockNumber() const;
 
     Core::HighlightScrollBarController *highlightScrollBarController() const;
+    Core::MinimapController *minimapController() const;
 
     void addHoverHandler(BaseHoverHandler *handler);
     void removeHoverHandler(BaseHoverHandler *handler);

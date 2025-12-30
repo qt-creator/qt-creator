@@ -125,6 +125,10 @@ add_qtc_plugin(Core
     find/ifindsupport.h
     find/itemviewfind.cpp
     find/itemviewfind.h
+    find/minimapcontroller.cpp
+    find/minimapcontroller.h
+    find/minimapoverlay.cpp
+    find/minimapoverlay.h
     find/optionspopup.cpp
     find/optionspopup.h
     find/searchresulttreeitemdelegate.cpp

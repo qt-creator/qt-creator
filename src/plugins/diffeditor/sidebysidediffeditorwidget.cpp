@@ -8,6 +8,7 @@
 #include "diffeditortr.h"
 
 #include <coreplugin/find/highlightscrollbarcontroller.h>
+#include <coreplugin/find/minimapcontroller.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -726,13 +727,16 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     setupEditor(RightSide);
     m_editor[LeftSide]->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    auto setupHighlight = [this] {
+    auto setupScrollbarOverlays = [this] {
         HighlightScrollBarController *ctrl = m_editor[LeftSide]->highlightScrollBarController();
         if (ctrl)
             ctrl->setScrollArea(m_editor[RightSide]);
+        MinimapController *mini = m_editor[LeftSide]->minimapController();
+        if (mini)
+            mini->setScrollArea(m_editor[RightSide]);
     };
-    setupHighlight();
-    connect(m_editor[LeftSide], &SideDiffEditorWidget::gotDisplaySettings, this, setupHighlight);
+    setupScrollbarOverlays();
+    connect(m_editor[LeftSide], &SideDiffEditorWidget::gotDisplaySettings, this, setupScrollbarOverlays);
 
     m_editor[RightSide]->verticalScrollBar()->setFocusProxy(m_editor[LeftSide]);
     connect(m_editor[LeftSide], &SideDiffEditorWidget::gotFocus, this, [this] {

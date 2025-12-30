@@ -58,6 +58,7 @@ public:
     bool m_displayAnnotations = true;
     AnnotationAlignment m_annotationAlignment = AnnotationAlignment::RightSide;
     int m_minimalAnnotationContent = 15;
+    bool m_displayMinimap = false;
 
     bool equals(const DisplaySettings &ds) const;
 

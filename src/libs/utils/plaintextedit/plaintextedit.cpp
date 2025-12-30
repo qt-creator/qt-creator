@@ -137,6 +137,8 @@ public:
     TextEditorLayout *editorLayout = nullptr;
     bool adjustScrollBarsScheduled = false;
 
+    QHash<QPair<Id, Qt::Edge>, int> editorTextWidthMargins;
+
     void append(const QString &text, Qt::TextFormat format = Qt::AutoText);
 
     void cursorPositionChanged();
@@ -2357,6 +2359,26 @@ QVariant PlainTextEdit::inputMethodQuery(Qt::InputMethodQuery query, QVariant ar
 TextEditorLayout *PlainTextEdit::editorLayout() const
 {
     return d->editorLayout;
+}
+
+void PlainTextEdit::setEditorTextMargin(Id id, Qt::Edge edge, int margin)
+{
+    int currentMargin = d->editorTextWidthMargins.value({id, edge}, 0);
+    if (currentMargin == margin)
+        return;
+    d->editorTextWidthMargins[{id, edge}] = margin;
+    QMargins margins;
+    for (auto it = d->editorTextWidthMargins.begin(); it != d->editorTextWidthMargins.end(); ++it) {
+        if (it.key().second == Qt::LeftEdge)
+            margins.setLeft(margins.left() + it.value());
+        else if (it.key().second == Qt::TopEdge)
+            margins.setTop(margins.top() + it.value());
+        else if (it.key().second == Qt::RightEdge)
+            margins.setRight(margins.right() + it.value());
+        else if (it.key().second == Qt::BottomEdge)
+            margins.setBottom(margins.bottom() + it.value());
+    }
+    setViewportMargins(margins);
 }
 
 void PlainTextEdit::focusInEvent(QFocusEvent *e)

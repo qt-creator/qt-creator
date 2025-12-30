@@ -45,6 +45,7 @@
 #include <coreplugin/dialogs/codecselector.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/find/highlightscrollbarcontroller.h>
+#include <coreplugin/find/minimapcontroller.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/locator/locatormanager.h>
 #include <coreplugin/manhattanstyle.h>
@@ -1065,6 +1066,8 @@ public:
     QList<SearchResult> m_selectionResults;
     QTimer m_scrollBarUpdateTimer;
     HighlightScrollBarController *m_highlightScrollBarController = nullptr;
+    MinimapController *m_minimapController = nullptr;
+
     bool m_scrollBarUpdateScheduled = false;
 
     const MultiTextCursor m_cursors;
@@ -1370,6 +1373,7 @@ TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
     q->disconnect(this);
     delete m_toolBarWidget;
     delete m_highlightScrollBarController;
+    delete m_minimapController;
 }
 
 static QFrame *createSeparator(const QString &styleSheet)
@@ -1498,6 +1502,16 @@ void TextEditorWidgetPrivate::setupScrollBar()
     } else if (m_highlightScrollBarController) {
         delete m_highlightScrollBarController;
         m_highlightScrollBarController = nullptr;
+    }
+
+    if (m_displaySettings.m_displayMinimap) {
+        if (!m_minimapController)
+            m_minimapController = new MinimapController();
+
+        m_minimapController->setScrollArea(q);
+    } else if (m_minimapController) {
+        delete m_minimapController;
+        m_minimapController = nullptr;
     }
 }
 
@@ -6607,13 +6621,8 @@ void TextEditorWidgetPrivate::slotUpdateExtraAreaWidth(std::optional<int> width)
 {
     if (!width.has_value())
         width = q->extraAreaWidth();
-    QMargins margins;
-    if (q->isLeftToRight())
-        margins = QMargins(*width, 0, 0, 0);
-    else
-        margins = QMargins(0, 0, *width, 0);
-    if (margins != q->viewportMargins())
-        q->setViewportMargins(margins);
+    q->setEditorTextMargin(
+        "TextEditor.ExtraAreaWidth", q->isLeftToRight() ? Qt::LeftEdge : Qt::RightEdge, *width);
 }
 
 void TextEditorWidgetPrivate::slotUpdateBlockCount()
@@ -10600,6 +10609,11 @@ int TextEditorWidget::centerVisibleBlockNumber() const
 HighlightScrollBarController *TextEditorWidget::highlightScrollBarController() const
 {
     return d->m_highlightScrollBarController;
+}
+
+MinimapController *TextEditorWidget::minimapController() const
+{
+    return d->m_minimapController;
 }
 
 // The remnants of PlainTextEditor.

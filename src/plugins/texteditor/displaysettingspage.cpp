@@ -111,6 +111,8 @@ public:
         displayAnnotations = new QGroupBox(Tr::tr("Line Annotations")),
         displayAnnotations->setCheckable(true);
 
+        enableMinimap = new QCheckBox(Tr::tr("Enable Minimap"));
+
         using namespace Layouting;
 
         Column {
@@ -163,8 +165,14 @@ public:
                     }
                 }
             },
-
             displayAnnotations,
+            Group {
+                title(Tr::tr("Minimap")),
+                Column {
+                    enableMinimap,
+                }
+            },
+
             st
         }.attachTo(this);
 
@@ -208,6 +216,7 @@ public:
     QRadioButton *atMargin;
     QRadioButton *rightAligned;
     QRadioButton *betweenLines;
+    QCheckBox *enableMinimap;
 };
 
 void DisplaySettingsWidget::apply()
@@ -256,6 +265,7 @@ void DisplaySettingsWidget::settingsFromUI(DisplaySettings &displaySettings,
         displaySettings.m_annotationAlignment = AnnotationAlignment::RightSide;
     else if (betweenLines->isChecked())
         displaySettings.m_annotationAlignment = AnnotationAlignment::BetweenLines;
+    displaySettings.m_displayMinimap = enableMinimap->isChecked();
 }
 
 void DisplaySettingsWidget::settingsToUI()
@@ -294,6 +304,7 @@ void DisplaySettingsWidget::settingsToUI()
     case AnnotationAlignment::RightSide: rightAligned->setChecked(true); break;
     case AnnotationAlignment::BetweenLines: betweenLines->setChecked(true); break;
     }
+    enableMinimap->setChecked(displaySettings.m_displayMinimap);
 }
 
 const DisplaySettings &DisplaySettingsPage::displaySettings() const
