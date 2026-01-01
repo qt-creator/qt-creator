@@ -519,20 +519,20 @@ namespace {
     return qmldirPaths;
 }
 
-QString propertyEditorResourcesPath()
-{
-#ifdef SHARE_QML_PATH
-    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
-        return (Utils::FilePath{SHARE_QML_PATH}.cleanPath() / "propertyEditorQmlSources").path();
+// QString propertyEditorResourcesPath()
+// {
+// #ifdef SHARE_QML_PATH
+//     if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+//         return (Utils::FilePath{SHARE_QML_PATH}.cleanPath() / "propertyEditorQmlSources").path();
 
-#endif
-    return resourcePath("qmldesigner/propertyEditorQmlSources");
-}
+// #endif
+//     return resourcePath("qmldesigner/propertyEditorQmlSources");
+// }
 
-QString qtCreatorItemLibraryPath()
-{
-    return resourcePath("qmldesigner/itemLibrary");
-}
+// QString qtCreatorItemLibraryPath()
+// {
+//     return resourcePath("qmldesigner/itemLibrary");
+// }
 
 } // namespace
 
