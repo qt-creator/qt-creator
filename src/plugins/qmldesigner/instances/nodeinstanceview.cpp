@@ -1082,6 +1082,7 @@ TypeName createQualifiedTypeName(const ModelNode &node, ModulesStorage &modulesS
 
     return {};
 #else
+    Q_UNUSED(modulesStorage)
     return node.type();
 #endif
 }

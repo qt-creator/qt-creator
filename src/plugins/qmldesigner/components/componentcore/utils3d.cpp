@@ -47,6 +47,7 @@ std::tuple<QString, Storage::ModuleKind> nodeModuleInfo(const ModelNode &node, M
     }
     return {{}, ModuleKind::QmlLibrary};
 #else
+    Q_UNUSED(model)
     return {QString::fromUtf8(node.type()).left(node.type().lastIndexOf('.')),
             ModuleKind::QmlLibrary};
 #endif

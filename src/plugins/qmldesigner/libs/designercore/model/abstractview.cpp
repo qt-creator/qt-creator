@@ -105,6 +105,7 @@ ModelNode AbstractView::createModelNode(const TypeName &typeName, SL sl)
 
     return createModelNode(typeName, -1, -1);
 #else
+    Q_UNUSED(sl)
     const NodeMetaInfo metaInfo = model()->metaInfo(typeName);
     return createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
 #endif
