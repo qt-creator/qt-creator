@@ -55,6 +55,9 @@ enum PasteSource {
     PasteClipboard = 0x2
 };
 
+Q_DECLARE_FLAGS(PasteSources, PasteSource)
+Q_DECLARE_OPERATORS_FOR_FLAGS(PasteSources)
+
 class CodePasterServiceImpl final : public QObject, public CodePaster::Service
 {
     Q_OBJECT
@@ -77,7 +80,7 @@ public:
     CodePasterPluginPrivate();
     ~CodePasterPluginPrivate();
 
-    void post(PasteSource pasteSources);
+    void post(PasteSources pasteSources);
     void post(QString data, const QString &mimeType);
 
     void pasteSnippet();
@@ -230,7 +233,7 @@ static inline void fixSpecialCharacters(QString &data)
     }
 }
 
-void CodePasterPluginPrivate::post(PasteSource pasteSources)
+void CodePasterPluginPrivate::post(PasteSources pasteSources)
 {
     QString data;
     QString mimeType;
@@ -278,7 +281,7 @@ void CodePasterPluginPrivate::fetchUrl()
 
 void CodePasterPluginPrivate::pasteSnippet()
 {
-    post(PasteSource(PasteEditor | PasteClipboard));
+    post(PasteEditor | PasteClipboard);
 }
 
 void CodePasterPluginPrivate::fetch()
