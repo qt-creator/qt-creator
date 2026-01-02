@@ -257,12 +257,18 @@ static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
     QList<QAction *> actions = menu->actions();
     QAction *firstAction = actions.isEmpty() ? nullptr : actions.first();
 
+    const auto copyExpanded = new QAction(Tr::tr("Copy Expanded Value"), menu);
+    QObject::connect(copyExpanded, &QAction::triggered, pathChooser, [pathChooser] {
+        Utils::setClipboardAndSelection(pathChooser->filePath().toUserOutput());
+    });
+    menu->insertAction(firstAction, copyExpanded);
+
     if (pathChooser->filePath().exists()) {
         auto showInGraphicalShell = new QAction(FileUtils::msgGraphicalShellAction(), menu);
         QObject::connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser] {
             Core::FileUtils::showInGraphicalShell(pathChooser->filePath());
         });
-        menu->insertAction(firstAction, showInGraphicalShell);
+        menu->insertAction(copyExpanded, showInGraphicalShell);
 
         auto showInTerminal = new QAction(FileUtils::msgTerminalHereAction(), menu);
         QObject::connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser] {
@@ -271,7 +277,7 @@ static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
             else
                 FileUtils::openTerminal(pathChooser->filePath(), {});
         });
-        menu->insertAction(firstAction, showInTerminal);
+        menu->insertAction(copyExpanded, showInTerminal);
 
     } else {
         auto mkPathAct = new QAction(Tr::tr("Create Folder"), menu);
