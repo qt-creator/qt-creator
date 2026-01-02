@@ -3,42 +3,12 @@
 
 #pragma once
 
-#include <QDialog>
 #include <QList>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QLineEdit;
-class QListWidget;
-class QPushButton;
-QT_END_NAMESPACE
 
 namespace CodePaster {
 
 class Protocol;
 
-class PasteSelectDialog : public QDialog
-{
-public:
-    explicit PasteSelectDialog(const QList<Protocol*> &protocols);
-    ~PasteSelectDialog() override;
-
-    QString pasteId() const;
-
-    int protocol() const;
-
-private:
-    QString protocolName() const;
-    void protocolChanged(int);
-    void list();
-    void listDone(const QString &name, const QStringList &items);
-
-    const QList<Protocol*> m_protocols;
-
-    QComboBox *m_protocolBox;
-    QListWidget *m_listWidget;
-    QPushButton *m_refreshButton;
-    QLineEdit *m_pasteEdit;
-};
+void executeFetchDialog(const QList<Protocol*> &protocols);
 
 } // CodePaster

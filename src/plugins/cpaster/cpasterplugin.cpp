@@ -283,22 +283,7 @@ void CodePasterPluginPrivate::pasteSnippet()
 
 void CodePasterPluginPrivate::fetch()
 {
-    PasteSelectDialog dialog(m_protocols);
-
-    if (dialog.exec() != QDialog::Accepted)
-        return;
-    // Save new protocol in case user changed it.
-    if (settings().protocols() != dialog.protocol()) {
-        settings().protocols.setValue(dialog.protocol());
-        settings().writeSettings();
-    }
-
-    const QString pasteID = dialog.pasteId();
-    if (pasteID.isEmpty())
-        return;
-    Protocol *protocol = m_protocols[dialog.protocol()];
-    if (Protocol::ensureConfiguration(protocol))
-        protocol->fetch(pasteID);
+    executeFetchDialog(m_protocols);
 }
 
 void CodePasterPluginPrivate::finishPost(const QString &link)

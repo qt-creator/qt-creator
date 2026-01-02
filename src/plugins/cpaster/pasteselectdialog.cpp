@@ -13,9 +13,9 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
-#include <QApplication>
 #include <QComboBox>
 #include <QDebug>
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -23,6 +23,27 @@
 #include <QPushButton>
 
 namespace CodePaster {
+
+class PasteSelectDialog : public QDialog
+{
+public:
+    explicit PasteSelectDialog(const QList<Protocol *> &protocols);
+
+    QString pasteId() const;
+    int protocol() const;
+
+private:
+    void protocolChanged(int);
+    void list();
+    void listDone(const QString &name, const QStringList &items);
+
+    const QList<Protocol *> m_protocols;
+
+    QComboBox *m_protocolBox = nullptr;
+    QListWidget *m_listWidget = nullptr;
+    QPushButton *m_refreshButton = nullptr;
+    QLineEdit *m_pasteEdit = nullptr;
+};
 
 PasteSelectDialog::PasteSelectDialog(const QList<Protocol *> &protocols)
     : QDialog(Core::ICore::dialogParent())
@@ -90,8 +111,6 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol *> &protocols)
     }
 }
 
-PasteSelectDialog::~PasteSelectDialog() = default;
-
 QString PasteSelectDialog::pasteId() const
 {
     QString id = m_pasteEdit->text();
@@ -106,15 +125,10 @@ int PasteSelectDialog::protocol() const
     return m_protocolBox->currentIndex();
 }
 
-QString PasteSelectDialog::protocolName() const
-{
-    return m_protocolBox->currentText();
-}
-
 void PasteSelectDialog::listDone(const QString &name, const QStringList &items)
 {
     // Set if the protocol is still current
-    if (name == protocolName()) {
+    if (name == m_protocolBox->currentText()) {
         m_listWidget->clear();
         m_listWidget->addItems(items);
     }
@@ -144,6 +158,26 @@ void PasteSelectDialog::protocolChanged(int i)
         m_listWidget->clear();
         m_listWidget->addItem(new QListWidgetItem(Tr::tr("This protocol does not support listing")));
     }
+}
+
+void executeFetchDialog(const QList<Protocol*> &protocols)
+{
+    PasteSelectDialog dialog(protocols);
+
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+    // Save new protocol in case user changed it.
+    if (settings().protocols() != dialog.protocol()) {
+        settings().protocols.setValue(dialog.protocol());
+        settings().writeSettings();
+    }
+
+    const QString pasteID = dialog.pasteId();
+    if (pasteID.isEmpty())
+        return;
+    Protocol *protocol = protocols[dialog.protocol()];
+    if (Protocol::ensureConfiguration(protocol))
+        protocol->fetch(pasteID);
 }
 
 } // CodePaster
