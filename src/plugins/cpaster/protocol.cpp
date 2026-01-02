@@ -30,11 +30,6 @@ Protocol::Protocol(const ProtocolData &data)
 
 Protocol::~Protocol() = default;
 
-const Core::IOptionsPage *Protocol::settingsPage() const
-{
-    return nullptr;
-}
-
 void Protocol::list()
 {
     qFatal("Base Protocol list() called");

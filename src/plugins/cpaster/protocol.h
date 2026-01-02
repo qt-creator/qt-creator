@@ -36,6 +36,7 @@ public:
     QString name;
     Capabilities capabilities = Capability::None;
     ConfigChecker configChecker = {};
+    Core::IOptionsPage *settingsPage = nullptr;
 };
 
 class Protocol : public QObject
@@ -54,8 +55,7 @@ public:
     Utils::Result<> checkConfiguration() const {
         return m_protocolData.configChecker ? m_protocolData.configChecker() : Utils::ResultOk;
     }
-
-    virtual const Core::IOptionsPage *settingsPage() const;
+    const Core::IOptionsPage *settingsPage() const { return m_protocolData.settingsPage; }
 
     virtual void fetch(const QString &id) = 0;
     virtual void list();

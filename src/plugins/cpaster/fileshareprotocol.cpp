@@ -39,15 +39,10 @@ static Result<> checkConfig()
 FileShareProtocol::FileShareProtocol()
     : Protocol({protocolNameC,
                 Capability::List | Capability::PostDescription | Capability::PostUserName,
-                checkConfig})
+                checkConfig, &fileShareSettingsPage()})
 {}
 
 FileShareProtocol::~FileShareProtocol() = default;
-
-const Core::IOptionsPage *FileShareProtocol::settingsPage() const
-{
-    return &fileShareSettingsPage();
-}
 
 static bool parse(const QString &fileName,
                   QString *errorMessage,

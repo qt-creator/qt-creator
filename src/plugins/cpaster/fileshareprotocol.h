@@ -16,8 +16,6 @@ public:
     FileShareProtocol();
     ~FileShareProtocol() override;
 
-    const Core::IOptionsPage *settingsPage() const override;
-
     void fetch(const QString &id) override;
     void list() override;
     void paste(const QString &text,
