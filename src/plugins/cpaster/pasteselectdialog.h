@@ -20,8 +20,7 @@ class Protocol;
 class PasteSelectDialog : public QDialog
 {
 public:
-    explicit PasteSelectDialog(const QList<Protocol*> &protocols,
-                               QWidget *parent = nullptr);
+    explicit PasteSelectDialog(const QList<Protocol*> &protocols);
     ~PasteSelectDialog() override;
 
     QString pasteId() const;

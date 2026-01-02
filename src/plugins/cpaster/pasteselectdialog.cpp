@@ -6,6 +6,8 @@
 #include "cpastertr.h"
 #include "protocol.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
@@ -21,9 +23,9 @@
 
 namespace CodePaster {
 
-PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols, QWidget *parent) :
-    QDialog(parent),
-    m_protocols(protocols)
+PasteSelectDialog::PasteSelectDialog(const QList<Protocol *> &protocols)
+    : QDialog(Core::ICore::dialogParent())
+    , m_protocols(protocols)
 {
     setObjectName("CodePaster.PasteSelectDialog");
     resize(550, 350);
