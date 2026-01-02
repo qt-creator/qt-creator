@@ -129,7 +129,7 @@ void FileShareProtocol::list()
         if (debug)
             qDebug() << entryFi.absoluteFilePath() << errorMessage;
     }
-    emit listDone(name(), entries);
+    emit listDone(entries);
 }
 
 void FileShareProtocol::paste(

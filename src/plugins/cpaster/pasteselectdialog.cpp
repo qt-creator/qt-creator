@@ -35,7 +35,6 @@ public:
 private:
     void protocolChanged(int);
     void list();
-    void listDone(const QString &name, const QStringList &items);
 
     const QList<Protocol *> m_protocols;
 
@@ -92,8 +91,15 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol *> &protocols)
     connect(m_listWidget, &QListWidget::doubleClicked, this, &QDialog::accept);
 
     for (const Protocol *protocol : protocols) {
-        m_protocolBox->addItem(protocol->name());
-        connect(protocol, &Protocol::listDone, this, &PasteSelectDialog::listDone);
+        const QString name = protocol->name();
+        m_protocolBox->addItem(name);
+        connect(protocol, &Protocol::listDone, this, [this, name](const QStringList &result) {
+            if (name != m_protocolBox->currentText())
+                return; // Set if the protocol is still current
+
+            m_listWidget->clear();
+            m_listWidget->addItems(result);
+        });
     }
     connect(m_protocolBox, &QComboBox::currentIndexChanged,
             this, &PasteSelectDialog::protocolChanged);
@@ -123,15 +129,6 @@ QString PasteSelectDialog::pasteId() const
 int PasteSelectDialog::protocol() const
 {
     return m_protocolBox->currentIndex();
-}
-
-void PasteSelectDialog::listDone(const QString &name, const QStringList &items)
-{
-    // Set if the protocol is still current
-    if (name == m_protocolBox->currentText()) {
-        m_listWidget->clear();
-        m_listWidget->addItems(items);
-    }
 }
 
 void PasteSelectDialog::list()

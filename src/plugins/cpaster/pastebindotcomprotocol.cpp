@@ -461,7 +461,7 @@ void PasteBinDotComProtocol::listFinished()
         const QStringList list = parseLists(m_listReply, &errorMessage);
         if (list.isEmpty())
             qWarning().nospace() << "Failed to read list from " << PASTEBIN_BASE <<  ':' << errorMessage;
-        emit listDone(name(), list);
+        emit listDone(list);
         if (debug)
             qDebug() << list;
     }

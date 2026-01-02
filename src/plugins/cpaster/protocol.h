@@ -78,7 +78,7 @@ signals:
     void fetchDone(const QString &titleDescription,
                    const QString &content,
                    bool error);
-    void listDone(const QString &name, const QStringList &result);
+    void listDone(const QStringList &result);
 
 protected:
     Protocol(const ProtocolData &data);
