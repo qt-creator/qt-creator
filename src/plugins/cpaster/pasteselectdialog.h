@@ -26,7 +26,6 @@ public:
     QString pasteId() const;
 
     int protocol() const;
-    void setProtocol(const QString &);
 
 private:
     QString protocolName() const;

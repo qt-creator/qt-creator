@@ -5,6 +5,7 @@
 
 #include "cpastertr.h"
 #include "protocol.h"
+#include "settings.h"
 
 #include <coreplugin/icore.h>
 
@@ -79,6 +80,14 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol *> &protocols)
 
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    const int index = m_protocolBox->findText(settings().protocols.stringValue());
+    if (index >= 0) {
+        if (index != m_protocolBox->currentIndex())
+            m_protocolBox->setCurrentIndex(index);
+         else
+            protocolChanged(index); // Trigger a refresh
+    }
 }
 
 PasteSelectDialog::~PasteSelectDialog() = default;
@@ -90,19 +99,6 @@ QString PasteSelectDialog::pasteId() const
     if (blankPos != -1)
         id.truncate(blankPos);
     return id;
-}
-
-void PasteSelectDialog::setProtocol(const QString &p)
-{
-    const int index = m_protocolBox->findText(p);
-    if (index >= 0) {
-        if (index != m_protocolBox->currentIndex()) {
-            m_protocolBox->setCurrentIndex(index);
-        } else {
-            // Trigger a refresh
-            protocolChanged(index);
-        }
-    }
 }
 
 int PasteSelectDialog::protocol() const

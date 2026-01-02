@@ -284,7 +284,6 @@ void CodePasterPluginPrivate::pasteSnippet()
 void CodePasterPluginPrivate::fetch()
 {
     PasteSelectDialog dialog(m_protocols);
-    dialog.setProtocol(settings().protocols.stringValue());
 
     if (dialog.exec() != QDialog::Accepted)
         return;
