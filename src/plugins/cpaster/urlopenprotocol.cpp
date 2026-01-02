@@ -22,16 +22,12 @@ void UrlOpenProtocol::fetch(const QString &url)
 
 void UrlOpenProtocol::fetchFinished()
 {
-    const QString title = m_fetchReply->url().toString();
-    QString content;
-    const bool error = m_fetchReply->error();
-    if (error)
-        content = m_fetchReply->errorString();
+    if (m_fetchReply->error())
+        reportError(m_fetchReply->errorString());
     else
-        content = QString::fromUtf8(m_fetchReply->readAll());
+        emit fetchDone(m_fetchReply->url().toString(), QString::fromUtf8(m_fetchReply->readAll()));
     m_fetchReply->deleteLater();
     m_fetchReply = nullptr;
-    emit fetchDone(title, content, error);
 }
 
 void UrlOpenProtocol::paste(const QString &, ContentType, int, const QString &,

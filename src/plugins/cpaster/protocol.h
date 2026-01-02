@@ -72,9 +72,7 @@ public:
 
 signals:
     void pasteDone(const QString &link);
-    void fetchDone(const QString &titleDescription,
-                   const QString &content,
-                   bool error);
+    void fetchDone(const QString &titleDescription, const QString &content);
     void listDone(const QStringList &result);
 
 protected:

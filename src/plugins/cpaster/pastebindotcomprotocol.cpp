@@ -137,26 +137,21 @@ void PasteBinDotComProtocol::fetch(const QString &id)
 
 void PasteBinDotComProtocol::fetchFinished()
 {
-    QString title;
-    QString content;
-    const bool error = m_fetchReply->error();
-    if (error) {
-        content = m_fetchReply->errorString();
-        if (debug)
-            qDebug() << "fetchFinished: error" << m_fetchId << content;
+    if (m_fetchReply->error()) {
+        reportError(m_fetchReply->errorString());
     } else {
-        title = QLatin1String(PROTOCOL_NAME) + QLatin1String(": ") + m_fetchId;
-        content = QString::fromUtf8(m_fetchReply->readAll());
+        const QString title = QLatin1String(PROTOCOL_NAME) + QLatin1String(": ") + m_fetchId;
+        const QString content = QString::fromUtf8(m_fetchReply->readAll());
         if (debug) {
             QDebug nsp = qDebug().nospace();
             nsp << "fetchFinished: " << content.size() << " Bytes";
             if (debug > 1)
                 nsp << content;
         }
+        emit fetchDone(title, content);
     }
     m_fetchReply->deleteLater();
     m_fetchReply = nullptr;
-    emit fetchDone(title, content, error);
 }
 
 void PasteBinDotComProtocol::list()

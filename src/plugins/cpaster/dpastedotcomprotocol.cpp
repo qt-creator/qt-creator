@@ -46,17 +46,11 @@ void DPasteDotComProtocol::fetchFinished(const QString &id, QNetworkReply * cons
             return;
         }
     }
-    QString title;
-    QString content;
-    const bool error = reply->error();
-    if (error) {
-        content = reply->errorString();
-    } else {
-        title = name() + ": " + id;
-        content = QString::fromUtf8(reply->readAll());
-    }
+    if (reply->error())
+        reportError(reply->errorString());
+    else
+        emit fetchDone(name() + ": " + id, QString::fromUtf8(reply->readAll()));
     reply->deleteLater();
-    emit fetchDone(title, content, error);
 }
 
 static QByteArray typeToString(Protocol::ContentType type)

@@ -86,9 +86,7 @@ public:
     void pasteSnippet();
     void fetch();
     void finishPost(const QString &link);
-    void finishFetch(const QString &titleDescription,
-                     const QString &content,
-                     bool error);
+    void finishFetch(const QString &titleDescription, const QString &content);
 
     void fetchUrl();
 
@@ -334,15 +332,8 @@ static inline QString tempFilePattern(const QString &prefix, const QString &exte
     return pattern;
 }
 
-void CodePasterPluginPrivate::finishFetch(const QString &titleDescription,
-                                          const QString &content,
-                                          bool error)
+void CodePasterPluginPrivate::finishFetch(const QString &titleDescription, const QString &content)
 {
-    // Failure?
-    if (error) {
-        MessageManager::writeDisrupting(content);
-        return;
-    }
     if (content.isEmpty()) {
         MessageManager::writeDisrupting(
             Tr::tr("Empty snippet received for \"%1\".").arg(titleDescription));

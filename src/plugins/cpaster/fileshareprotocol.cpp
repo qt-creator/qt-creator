@@ -99,9 +99,9 @@ void FileShareProtocol::fetch(const QString &id)
     QString errorMessage;
     QString text;
     if (parse(fi.absoluteFilePath(), &errorMessage, nullptr, nullptr, &text))
-        emit fetchDone(id, text, false);
+        emit fetchDone(id, text);
     else
-        emit fetchDone(id, errorMessage, true);
+        reportError(errorMessage);
 }
 
 void FileShareProtocol::list()
