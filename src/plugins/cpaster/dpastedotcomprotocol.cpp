@@ -3,8 +3,6 @@
 
 #include "dpastedotcomprotocol.h"
 
-#include "cpastertr.h"
-
 #include <coreplugin/messagemanager.h>
 
 #include <QNetworkReply>
@@ -115,12 +113,6 @@ void DPasteDotComProtocol::paste(
         reply->deleteLater();
         emit pasteDone(data);
     });
-}
-
-void DPasteDotComProtocol::reportError(const QString &message)
-{
-    const QString fullMessage = Tr::tr("%1: %2").arg(protocolName(), message);
-    Core::MessageManager::writeDisrupting(fullMessage);
 }
 
 } // CodePaster

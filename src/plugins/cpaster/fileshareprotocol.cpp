@@ -160,7 +160,7 @@ void FileShareProtocol::paste(
         saver.setResult(&writer);
     }
     if (const Result<> res = saver.finalize(); !res) {
-        Core::MessageManager::writeDisrupting(res.error());
+        reportError(res.error());
         return;
     }
 

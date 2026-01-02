@@ -5,8 +5,9 @@
 
 #include "cpastertr.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <utils/networkaccessmanager.h>
 
@@ -32,6 +33,11 @@ Protocol::~Protocol() = default;
 void Protocol::list()
 {
     qFatal("Base Protocol list() called");
+}
+
+void Protocol::reportError(const QString &message)
+{
+    Core::MessageManager::writeDisrupting(QString("%1: %2").arg(name(), message));
 }
 
 QString Protocol::fixNewLines(QString data)

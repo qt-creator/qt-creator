@@ -109,7 +109,7 @@ void PasteBinDotComProtocol::paste(
 void PasteBinDotComProtocol::pasteFinished()
 {
     if (m_pasteReply->error())
-        qWarning("%s protocol error: %s", PROTOCOL_NAME, qPrintable(m_pasteReply->errorString()));
+        reportError(m_pasteReply->errorString());
     else
         emit pasteDone(QString::fromLatin1(m_pasteReply->readAll()));
 

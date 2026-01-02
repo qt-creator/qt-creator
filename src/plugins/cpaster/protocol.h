@@ -79,6 +79,7 @@ signals:
 
 protected:
     Protocol(const ProtocolData &data);
+    void reportError(const QString &message);
     static QString fixNewLines(QString in);
 
 private:

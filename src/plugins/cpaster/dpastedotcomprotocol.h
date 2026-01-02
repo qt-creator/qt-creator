@@ -22,8 +22,6 @@ private:
                const QString &username = QString(),
                const QString &comment = QString(),
                const QString &description = QString()) override;
-
-    static void reportError(const QString &message);
 };
 
 } // CodePaster
