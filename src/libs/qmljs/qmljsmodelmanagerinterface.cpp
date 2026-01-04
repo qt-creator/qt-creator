@@ -92,7 +92,7 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
 {
     m_threadPool.setMaxThreadCount(4);
     m_futureSynchronizer.setCancelOnWait(false);
-    m_indexerDisabled = qEnvironmentVariableIsSet("QTC_NO_CODE_INDEXER");
+    m_indexerDisabled = qEnvironmentVariableIsSet("QTC_NO_QML_CODE_INDEXER") || qEnvironmentVariableIsSet("QTC_NO_CODE_INDEXER");
 
     m_updateCppQmlTypesTimer = new QTimer(this);
     const int second = 1000;
