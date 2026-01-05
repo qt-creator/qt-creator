@@ -72,6 +72,9 @@ QList<EditorView *> mainAreaViews()
 
 static void closeAll()
 {
+    const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
+    for (DocumentModel::Entry *entry : entries)
+        DocumentModelPrivate::setPinned(entry, false);
     EditorManager::closeAllEditors(false);
     EditorArea *mainArea = EMP::mainEditorArea();
     if (mainArea->hasSplits())

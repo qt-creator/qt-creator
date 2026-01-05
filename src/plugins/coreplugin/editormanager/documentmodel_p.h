@@ -34,7 +34,7 @@ public:
     QStringList mimeTypes() const override;
 
     DocumentModel::Entry *addEntry(DocumentModel::Entry *entry);
-    void removeDocument(int idx);
+    DocumentModel::Entry *removeDocument(int idx);
 
     std::optional<int> indexOfFilePath(const Utils::FilePath &filePath) const;
     std::optional<int> indexOfDocument(IDocument *document) const;
@@ -51,7 +51,7 @@ public:
                                                       Utils::Id id);
     static DocumentModel::Entry *firstSuspendedEntry();
     static DocumentModel::Entry *removeEditor(IEditor *editor);
-    static void removeEntry(DocumentModel::Entry *entry);
+    static DocumentModel::Entry *removeEntry(DocumentModel::Entry *entry);
     enum PinnedFileRemovalPolicy {
         DoNotRemovePinnedFiles,
         RemovePinnedFiles

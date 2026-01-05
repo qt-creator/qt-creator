@@ -199,7 +199,7 @@ private:
     static EditorFactories findFactories(Utils::Id editorId, const Utils::FilePath &filePath);
     static IEditor *createEditor(IEditorFactory *factory, const Utils::FilePath &filePath);
     static void addEditor(IEditor *editor);
-    static void removeEditor(IEditor *editor, bool removeSusependedEntry);
+    static DocumentModel::Entry *removeEditor(IEditor *editor, bool removeSusependedEntry);
     static IEditor *placeEditor(EditorView *view, IEditor *editor);
     static void restoreEditorState(IEditor *editor);
     static EditorArea *findEditorArea(const EditorView *view, int *areaIndex = nullptr);

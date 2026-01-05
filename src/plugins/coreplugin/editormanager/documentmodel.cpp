@@ -211,11 +211,14 @@ std::optional<int> DocumentModelPrivate::indexOfFilePath(const Utils::FilePath &
     return index;
 }
 
-void DocumentModelPrivate::removeDocument(int idx)
+/*!
+    Returns the entry to be deleted. The caller has to take responsibility of that.
+*/
+DocumentModel::Entry *DocumentModelPrivate::removeDocument(int idx)
 {
     if (idx < 0)
-        return;
-    QTC_ASSERT(idx < m_entries.size(), return);
+        return nullptr;
+    QTC_ASSERT(idx < m_entries.size(), return nullptr);
     int row = idx + 1/*<no document>*/;
     beginRemoveRows(QModelIndex(), row, row);
     DocumentModel::Entry *entry = m_entries.takeAt(idx);
@@ -227,7 +230,7 @@ void DocumentModelPrivate::removeDocument(int idx)
         m_entryByFixedPath.remove(fixedPath);
     disconnect(entry->document, &IDocument::changed, this, nullptr);
     disambiguateDisplayNames(entry);
-    delete entry;
+    return entry;
 }
 
 std::optional<int> DocumentModelPrivate::indexOfDocument(IDocument *document) const
@@ -447,12 +450,15 @@ DocumentModel::Entry *DocumentModelPrivate::removeEditor(IEditor *editor)
     return entry;
 }
 
-void DocumentModelPrivate::removeEntry(DocumentModel::Entry *entry)
+/*!
+    Returns the entry to be deleted. The caller has to take responsibility of that.
+*/
+DocumentModel::Entry *DocumentModelPrivate::removeEntry(DocumentModel::Entry *entry)
 {
     // For non suspended entries, we wouldn't know what to do with the associated editors
-    QTC_ASSERT(entry->isSuspended, return);
+    QTC_ASSERT(entry->isSuspended, return nullptr);
     int index = d->m_entries.indexOf(entry);
-    d->removeDocument(index);
+    return d->removeDocument(index);
 }
 
 void DocumentModelPrivate::removeAllSuspendedEntries(PinnedFileRemovalPolicy pinnedFileRemovalPolicy)

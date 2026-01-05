@@ -1401,18 +1401,23 @@ void EditorManagerPrivate::addEditor(IEditor *editor)
     QMetaObject::invokeMethod(d, &EditorManagerPrivate::autoSuspendDocuments, Qt::QueuedConnection);
 }
 
-void EditorManagerPrivate::removeEditor(IEditor *editor, bool removeSuspendedEntry)
+/*!
+    Returns the entry to be deleted (if one). The caller has to take responsibility of that.
+*/
+DocumentModel::Entry *EditorManagerPrivate::removeEditor(IEditor *editor, bool removeSuspendedEntry)
 {
     DocumentModel::Entry *entry = DocumentModelPrivate::removeEditor(editor);
-    QTC_ASSERT(entry, return);
+    QTC_ASSERT(entry, return nullptr);
+    DocumentModel::Entry *entryToDelete = nullptr;
     if (entry->isSuspended) {
         IDocument *document = editor->document();
         DocumentManager::removeDocument(document);
         if (removeSuspendedEntry)
-            DocumentModelPrivate::removeEntry(entry);
+            entryToDelete = DocumentModelPrivate::removeEntry(entry);
         emit m_instance->documentClosed(document);
     }
     ICore::removeContextObject(editor);
+    return entryToDelete;
 }
 
 IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
@@ -1516,7 +1521,7 @@ bool EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentMode
     }
 
     if (!openEditor(view, entry->filePath(), entry->id(), flags)) {
-        DocumentModelPrivate::removeEntry(entry);
+        delete DocumentModelPrivate::removeEntry(entry);
         return false;
     }
     return true;
@@ -1725,8 +1730,10 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
 
     // Remove accepted editors from document model/manager and context list,
     // and sort them per view, so we can remove them from views in an orderly
-    // manner.
+    // manner. Keep the Entry items alive until the editors were removed from the views,
+    // Since the tabs still refer to them until then.
     QList<std::pair<EditorView *, IEditor *>> editorsPerView;
+    QList<DocumentModel::Entry *> entriesToDelete;
     for (IEditor *editor : std::as_const(acceptedEditors)) {
         emit m_instance->editorAboutToClose(editor);
         const DocumentModel::Entry *entry = DocumentModel::entryForDocument(editor->document());
@@ -1734,7 +1741,8 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
         const bool isPinned = QTC_GUARD(entry) && entry->pinned;
         const bool removeSuspendedEntry = !isPinned && flag != CloseFlag::Suspend
                                           && flag != CloseFlag::SuspendRemoveTab;
-        removeEditor(editor, removeSuspendedEntry);
+        if (DocumentModel::Entry *toDelete = removeEditor(editor, removeSuspendedEntry))
+            entriesToDelete.append(toDelete);
         if (EditorView *view = viewForEditor(editor)) {
             editorsPerView.append({view, editor});
             if (QApplication::focusWidget()
@@ -1749,6 +1757,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
         editorsPerView,
         flag == CloseFlag::Suspend ? EditorView::KeepTab : EditorView::RemoveTab,
         RemoveEditorFlag::EnsureNewEditor);
+    qDeleteAll(entriesToDelete);
 
     emit m_instance->editorsClosed(Utils::toList(acceptedEditors));
 
@@ -1944,8 +1953,11 @@ const QList<IEditor *> EditorManagerPrivate::emptyView(EditorView *view)
             removeEditorsFromViews({{view, editor}}, EditorView::RemoveTab, RemoveEditorFlag::None);
         } else {
             emit m_instance->editorAboutToClose(editor);
-            removeEditor(editor, true /*=removeSuspendedEntry, but doesn't matter since it's not the last editor anyhow*/);
+            DocumentModel::Entry *toDelete = removeEditor(
+                editor,
+                true /*=removeSuspendedEntry, but doesn't matter since it's not the last editor anyhow*/);
             removeEditorsFromViews({{view, editor}}, EditorView::RemoveTab, RemoveEditorFlag::None);
+            delete toDelete;
             removedEditors.append(editor);
         }
     }
@@ -3395,7 +3407,7 @@ bool EditorManager::closeDocuments(const QList<DocumentModel::Entry *> &entries)
             continue;
         // Pinned files shouldn't be removed from Open Documents, even when pressing the "x" button.
         if (!entry->pinned && entry->isSuspended)
-            DocumentModelPrivate::removeEntry(entry);
+            delete DocumentModelPrivate::removeEntry(entry);
         else
             documentsToClose << entry->document;
     }
