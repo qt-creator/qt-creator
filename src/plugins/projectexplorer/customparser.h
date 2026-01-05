@@ -8,6 +8,7 @@
 #include <projectexplorer/task.h>
 #include <utils/detailswidget.h>
 
+#include <QJsonObject>
 #include <QObject>
 #include <QRegularExpression>
 #include <QVariantMap>
@@ -66,6 +67,9 @@ public:
 
     Utils::Store toMap() const;
     void fromMap(const Utils::Store &map);
+
+    QJsonObject toJson() const;
+    static CustomParserSettings fromJson(const QJsonObject &obj);
 
     Utils::Id id;
     QString displayName;

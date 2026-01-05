@@ -9,16 +9,22 @@
 #include "projectexplorertr.h"
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 
 #include <QAbstractTableModel>
 #include <QHeaderView>
 #include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QLabel>
 #include <QList>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -40,10 +46,12 @@ public:
     bool add(const ProjectExplorer::CustomParserSettings& s);
     bool remove(const QModelIndexList &indexes);
 
+    QList<CustomParserSettings> parsers() const { return m_customParsers; }
+
     void apply();
 
 protected:
-    QList<ProjectExplorer::CustomParserSettings> m_customParsers;
+    QList<CustomParserSettings> m_customParsers;
 };
 
 CustomParsersModel::CustomParsersModel(QObject *parent)
@@ -267,9 +275,13 @@ public:
         const auto addButton = new QPushButton(Tr::tr("Add..."));
         const auto removeButton = new QPushButton(Tr::tr("Remove"));
         const auto editButton = new QPushButton("Edit...");
+        const auto exportButton = new QPushButton(Tr::tr("Export..."));
+        const auto importButton = new QPushButton(Tr::tr("Import..."));
         buttonLayout->addWidget(addButton);
         buttonLayout->addWidget(removeButton);
         buttonLayout->addWidget(editButton);
+        buttonLayout->addWidget(exportButton);
+        buttonLayout->addWidget(importButton);
         buttonLayout->addStretch(1);
 
         connect(addButton, &QPushButton::clicked, this, [this] {
@@ -298,13 +310,66 @@ public:
             m_model.setData(parserView->currentIndex(), QVariant::fromValue<CustomParserSettings>(s), Qt::UserRole);
         });
 
-        const auto updateButtons = [editButton, parserView, removeButton] {
-            removeButton->setEnabled(parserView->selectionModel()->hasSelection());
-            editButton->setEnabled(parserView->selectionModel()->selection().size() == 1);
+        connect(exportButton, &QPushButton::clicked, [this, parserView] {
+            const QModelIndexList selected = parserView->selectionModel()->selectedRows();
+            QJsonArray jsonArray;
+            for (const QModelIndex &idx : selected) {
+                CustomParserSettings parser
+                    = m_model.data(idx, Qt::UserRole).value<CustomParserSettings>();
+                jsonArray.append(parser.toJson());
+            }
+            FilePath jsonFile = FileUtils::getSaveFilePath(Tr::tr("Save Parsers"), {}, "*.json");
+            if (jsonFile.isEmpty())
+                return;
+            const auto result = jsonFile.writeFileContents(QJsonDocument(jsonArray).toJson());
+            if (!result) {
+                QMessageBox::critical(
+                    this,
+                    Tr::tr(("Error Saving Parsers")),
+                    Tr::tr("Error saving parsers: %1").arg(result.error()));
+            }
+        });
+
+        connect(importButton, &QPushButton::clicked, [this] {
+            const FilePath jsonFile
+                = FileUtils::getOpenFilePath(Tr::tr("Load Parsers"), {}, Tr::tr("*.json"));
+            if (jsonFile.isEmpty())
+                return;
+            const auto content = jsonFile.fileContents();
+            const auto showError = [this](const QString &detail) {
+                QMessageBox::critical(
+                    this,
+                    Tr::tr("Error Loading Parsers"),
+                    Tr::tr("Error loading parsers: %1").arg(detail));
+            };
+            if (!content)
+                return showError(content.error());
+            QJsonParseError jsonError;
+            QJsonDocument doc = QJsonDocument::fromJson(*content, &jsonError);
+            if (jsonError.error != QJsonParseError::NoError)
+                return showError(jsonError.errorString());
+            const QJsonArray jsonArray = doc.array();
+            for (const QJsonValue &v : jsonArray) {
+                const CustomParserSettings parser = CustomParserSettings::fromJson(v.toObject());
+                if (parser.id.isValid()
+                    && !Utils::contains(m_model.parsers(), [&parser](const CustomParserSettings &p) {
+                           return p.id == parser.id;
+                       })) {
+                    m_model.add(parser);
+                }
+            }
+        });
+
+        const auto updateButtons = [editButton, parserView, removeButton, exportButton] {
+            const qsizetype selectionCount = parserView->selectionModel()->selection().size();
+            removeButton->setEnabled(selectionCount > 0);
+            exportButton->setEnabled(selectionCount > 0);
+            editButton->setEnabled(selectionCount == 1);
         };
         updateButtons();
         connect(parserView->selectionModel(), &QItemSelectionModel::selectionChanged,
             updateButtons);
+        connect(&m_model, &QAbstractItemModel::modelReset, updateButtons);
     }
 
 private:

@@ -24,7 +24,11 @@
     To use a custom output parser for all build or run configurations by default,
     select \uicontrol {Build default} or \uicontrol {Run default}.
 
-    To remove the selected parser, select \uicontrol Remove.
+    To remove the selected parsers, select \uicontrol Remove.
+
+    To export the selected parsers into a JSON file, select \uicontrol Export.
+
+    To import one or more parsers from a JSON file, select \uicontrol Import.
 
     \section1 Set custom parser preferences
 

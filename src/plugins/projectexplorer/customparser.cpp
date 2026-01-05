@@ -170,6 +170,18 @@ void CustomParserSettings::fromMap(const Store &map)
     runDefault = map.value(runDefaultKey).toBool();
 }
 
+QJsonObject CustomParserSettings::toJson() const
+{
+    return QJsonObject::fromVariantMap(mapFromStore(toMap()));
+}
+
+CustomParserSettings CustomParserSettings::fromJson(const QJsonObject &obj)
+{
+    CustomParserSettings settings;
+    settings.fromMap(storeFromMap(obj.toVariantMap()));
+    return settings;
+}
+
 CustomParsersAspect::CustomParsersAspect(BuildConfiguration *bc)
 {
     Q_UNUSED(bc)
