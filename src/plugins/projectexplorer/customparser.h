@@ -4,13 +4,15 @@
 #pragma once
 
 #include "ioutputparser.h"
-#include "projectconfiguration.h"
 
 #include <projectexplorer/task.h>
 #include <utils/detailswidget.h>
 
+#include <QObject>
 #include <QRegularExpression>
 #include <QVariantMap>
+
+namespace Utils { class QtcSettings; }
 
 namespace ProjectExplorer {
 class Target;
@@ -133,6 +135,24 @@ signals:
 
 private:
     void updateSummary();
+};
+
+class PROJECTEXPLORER_EXPORT CustomParsers : public QObject
+{
+    Q_OBJECT
+public:
+    static void set(const QList<CustomParserSettings> &settings);
+    static void add(const CustomParserSettings &settings);
+    static void remove(Utils::Id id);
+    static const QList<CustomParserSettings> get();
+
+    static void load(const Utils::QtcSettings &s);
+    static void save(Utils::QtcSettings &s);
+
+    static CustomParsers &instance();
+
+signals:
+    void changed();
 };
 
 #ifdef WITH_TESTS

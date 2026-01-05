@@ -102,7 +102,6 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/locator/directoryfilter.h>
 #include <coreplugin/messagebox.h>
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
@@ -124,7 +123,6 @@
 #include <utils/async.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
-#include <utils/globaltasktree.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
 #include <utils/processinterface.h>
@@ -279,9 +277,6 @@ const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxM
 const char RECENTPROJECTS_FILE_NAMES_KEY[] = "ProjectExplorer/RecentProjects/FileNames";
 const char RECENTPROJECTS_DISPLAY_NAMES_KEY[] = "ProjectExplorer/RecentProjects/DisplayNames";
 const char RECENTPROJECTS_EXISTENCE_KEY[] = "ProjectExplorer/RecentProjects/Existence";
-
-const char CUSTOM_PARSER_COUNT_KEY[] = "ProjectExplorer/Settings/CustomParserCount";
-const char CUSTOM_PARSER_PREFIX_KEY[] = "ProjectExplorer/Settings/CustomParser";
 
 } // namespace Constants
 
@@ -698,7 +693,6 @@ public:
     QPointer<RunConfiguration> m_defaultRunConfiguration;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
     MiniProjectTargetSelector * m_targetSelector;
-    QList<CustomParserSettings> m_customParsers;
     bool m_shouldHaveRunConfiguration = false;
     Id m_runMode = Constants::NO_RUN_MODE;
 
@@ -1840,14 +1834,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     QtcSettings *s = ICore::settings();
 
     restoreRecentProjects(s);
-
-    const int customParserCount = s->value(Constants::CUSTOM_PARSER_COUNT_KEY).toInt();
-    for (int i = 0; i < customParserCount; ++i) {
-        CustomParserSettings settings;
-        settings.fromMap(storeFromVariant(
-            s->value(numberedKey(Constants::CUSTOM_PARSER_PREFIX_KEY, i))));
-        dd->m_customParsers << settings;
-    }
+    CustomParsers::load(*s);
 
     auto buildManager = new BuildManager(this, dd->m_cancelBuildAction);
     connect(buildManager, &BuildManager::buildStateChanged,
@@ -2400,11 +2387,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
 
     buildPropertiesSettings().writeSettings(); // FIXME: Should not be needed.
 
-    s->setValueWithDefault(Constants::CUSTOM_PARSER_COUNT_KEY, int(dd->m_customParsers.count()), 0);
-    for (int i = 0; i < dd->m_customParsers.count(); ++i) {
-        s->setValue(numberedKey(Constants::CUSTOM_PARSER_PREFIX_KEY, i),
-                    variantFromStore(dd->m_customParsers.at(i).toMap()));
-    }
+    CustomParsers::save(*s);
 }
 
 void ProjectExplorerPlugin::openProjectWelcomePage(const FilePath &filePath)
@@ -4255,38 +4238,6 @@ void ProjectExplorerPluginPrivate::handleRenameFile()
         }
         focusWidget = focusWidget->parentWidget();
     }
-}
-
-void ProjectExplorerPlugin::setCustomParsers(const QList<CustomParserSettings> &settings)
-{
-    if (dd->m_customParsers != settings) {
-        dd->m_customParsers = settings;
-        emit m_instance->customParsersChanged();
-    }
-}
-
-void ProjectExplorerPlugin::addCustomParser(const CustomParserSettings &settings)
-{
-    QTC_ASSERT(settings.id.isValid(), return);
-    QTC_ASSERT(!contains(dd->m_customParsers, [&settings](const CustomParserSettings &s) {
-        return s.id == settings.id;
-    }), return);
-
-    dd->m_customParsers << settings;
-    emit m_instance->customParsersChanged();
-}
-
-void ProjectExplorerPlugin::removeCustomParser(Id id)
-{
-    Utils::erase(dd->m_customParsers, [id](const CustomParserSettings &s) {
-        return s.id == id;
-    });
-    emit m_instance->customParsersChanged();
-}
-
-const QList<CustomParserSettings> ProjectExplorerPlugin::customParsers()
-{
-    return dd->m_customParsers;
 }
 
 QStringList ProjectExplorerPlugin::projectFilePatterns()

@@ -112,11 +112,6 @@ public:
     bool delayedInitialize() final;
     ShutdownFlag aboutToShutdown() final;
 
-    static void setCustomParsers(const QList<CustomParserSettings> &settings);
-    static void addCustomParser(const CustomParserSettings &settings);
-    static void removeCustomParser(Utils::Id id);
-    static const QList<CustomParserSettings> customParsers();
-
     static void startRunControl(RunControl *runControl);
 
     static Utils::FilePairs renameFiles(

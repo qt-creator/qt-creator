@@ -133,7 +133,7 @@ public:
         layout->addWidget(selectionWidget);
 
         QList<Id> parsers = bc->customParsers();
-        for (const auto &s : ProjectExplorerPlugin::customParsers()) {
+        for (const auto &s : CustomParsers::get()) {
             if (s.buildDefault && !parsers.contains(s.id))
                 parsers.append(s.id);
         }

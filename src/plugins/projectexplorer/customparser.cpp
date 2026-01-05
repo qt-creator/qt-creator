@@ -12,6 +12,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
 #include <QCheckBox>
 #include <QLabel>
@@ -40,7 +41,12 @@ const char exampleKey[] = "Example";
 const char buildDefaultKey[] = "BuildDefault";
 const char runDefaultKey[] = "RunDefault";
 
+const char CUSTOM_PARSER_COUNT_KEY[] = "ProjectExplorer/Settings/CustomParserCount";
+const char CUSTOM_PARSER_PREFIX_KEY[] = "ProjectExplorer/Settings/CustomParser";
+
 namespace ProjectExplorer {
+
+static QList<CustomParserSettings> g_parsers;
 
 bool CustomParserExpression::operator ==(const CustomParserExpression &other) const
 {
@@ -174,7 +180,7 @@ CustomParsersAspect::CustomParsersAspect(BuildConfiguration *bc)
     setConfigWidgetCreator([this] {
         const auto widget =
                 new CustomParsersSelectionWidget(CustomParsersSelectionWidget::InRunConfig);
-        for (const auto &s : ProjectExplorerPlugin::customParsers()) {
+        for (const auto &s : CustomParsers::get()) {
             if (s.runDefault && !m_parsers.contains(s.id))
                 m_parsers.append(s.id);
         }
@@ -187,7 +193,7 @@ CustomParsersAspect::CustomParsersAspect(BuildConfiguration *bc)
 
 OutputTaskParser *createCustomParserFromId(Utils::Id id)
 {
-    const CustomParserSettings parser = findOrDefault(ProjectExplorerPlugin::customParsers(),
+    const CustomParserSettings parser = findOrDefault(CustomParsers::get(),
             [id](const CustomParserSettings &p) { return p.id == id; });
     if (parser.id.isValid())
         return new Internal::CustomParser(parser);
@@ -267,6 +273,58 @@ OutputLineParser::Result CustomParser::parseLine(
     return hasMatch(line, channel, m_warning, Task::Warning);
 }
 
+void CustomParsers::set(const QList<CustomParserSettings> &settings)
+{
+    if (g_parsers != settings) {
+        g_parsers = settings;
+        emit instance().changed();
+    }
+}
+
+void CustomParsers::add(const CustomParserSettings &settings)
+{
+    QTC_ASSERT(settings.id.isValid(), return);
+    QTC_ASSERT(!contains(g_parsers, [&settings](const CustomParserSettings &s) {
+        return s.id == settings.id;
+    }), return);
+
+    g_parsers << settings;
+    emit instance().changed();
+}
+
+void CustomParsers::remove(Utils::Id id)
+{
+    Utils::erase(g_parsers, [id](const CustomParserSettings &s) { return s.id == id; });
+    emit instance().changed();
+}
+
+const QList<CustomParserSettings> CustomParsers::get() { return g_parsers; }
+
+void CustomParsers::load(const Utils::QtcSettings &s)
+{
+    const int customParserCount = s.value(CUSTOM_PARSER_COUNT_KEY).toInt();
+    for (int i = 0; i < customParserCount; ++i) {
+        CustomParserSettings settings;
+        settings.fromMap(storeFromVariant(s.value(numberedKey(CUSTOM_PARSER_PREFIX_KEY, i))));
+        g_parsers << settings;
+    }
+}
+
+void CustomParsers::save(Utils::QtcSettings &s)
+{
+    s.setValueWithDefault(CUSTOM_PARSER_COUNT_KEY, int(g_parsers.count()), 0);
+    for (int i = 0; i < g_parsers.count(); ++i) {
+        s.setValue(
+            numberedKey(CUSTOM_PARSER_PREFIX_KEY, i), variantFromStore(g_parsers.at(i).toMap()));
+    }
+}
+
+CustomParsers &CustomParsers::instance()
+{
+    static CustomParsers theInstance;
+    return theInstance;
+}
+
 namespace {
 class SelectionWidget : public QWidget
 {
@@ -319,7 +377,7 @@ private:
         for (const auto &p : std::as_const(parserCheckBoxes))
             delete p.first;
         parserCheckBoxes.clear();
-        for (const CustomParserSettings &s : ProjectExplorerPlugin::customParsers()) {
+        for (const CustomParserSettings &s : CustomParsers::get()) {
             const auto checkBox = new QCheckBox(s.displayName, this);
             bool isSelected = parsers.contains(s.id);
             bool projectDefault =

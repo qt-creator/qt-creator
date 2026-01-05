@@ -5,7 +5,6 @@
 
 #include "customparser.h"
 #include "customparserconfigdialog.h"
-#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 
@@ -49,15 +48,15 @@ protected:
 
 CustomParsersModel::CustomParsersModel(QObject *parent)
     : QAbstractTableModel(parent)
-    , m_customParsers(ProjectExplorerPlugin::customParsers())
+    , m_customParsers(CustomParsers::get())
 {
     connect(
-        ProjectExplorerPlugin::instance(),
-        &ProjectExplorerPlugin::customParsersChanged,
+        &CustomParsers::instance(),
+        &CustomParsers::changed,
         this,
         [this] {
             beginResetModel();
-            m_customParsers = ProjectExplorerPlugin::customParsers();
+            m_customParsers = CustomParsers::get();
             endResetModel();
         });
 }
@@ -242,7 +241,7 @@ bool CustomParsersModel::remove(const QModelIndexList &indexes)
 
 void CustomParsersModel::apply()
 {
-    ProjectExplorerPlugin::setCustomParsers(m_customParsers);
+    CustomParsers::set(m_customParsers);
 }
 
 class CustomParsersSettingsWidget final : public Core::IOptionsPageWidget

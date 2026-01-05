@@ -10,7 +10,6 @@
 #include "linuxiccparser.h"
 #include "msvcparser.h"
 #include "customparser.h"
-#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmacro.h"
@@ -111,8 +110,7 @@ private:
 
 CustomParserSettings CustomToolchain::customParserSettings() const
 {
-    return findOrDefault(ProjectExplorerPlugin::customParsers(),
-                         [this](const CustomParserSettings &s) {
+    return findOrDefault(CustomParsers::get(), [this](const CustomParserSettings &s) {
         return s.id == outputParserId();
     });
 }
@@ -425,7 +423,7 @@ CustomToolchainConfigWidget::CustomToolchainConfigWidget(const ToolchainBundle &
     const QList<CustomToolchain::Parser> parsers = CustomToolchain::parsers();
     for (const auto &parser : parsers)
         m_errorParserComboBox->addItem(parser.displayName, parser.parserId.toString());
-    for (const CustomParserSettings &s : ProjectExplorerPlugin::customParsers())
+    for (const CustomParserSettings &s : CustomParsers::get())
         m_errorParserComboBox->addItem(s.displayName, s.id.toString());
 
     auto parserLayoutWidget = new QWidget;
