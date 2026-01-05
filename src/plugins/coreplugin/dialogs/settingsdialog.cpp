@@ -432,55 +432,6 @@ private:
         QScrollArea::showEvent(event);
     }
 
-    void resizeEvent(QResizeEvent *event) final
-    {
-        QWidget *inner = widget();
-        if (inner) {
-            int fw = frameWidth() * 2;
-            QSize innerSize = event->size() - QSize(fw, fw);
-            QSize innerSizeHint = inner->minimumSizeHint();
-
-            if (innerSizeHint.height() > innerSize.height()) { // Widget wants to be bigger than available space
-                innerSize.setWidth(innerSize.width() - scrollBarWidth());
-                innerSize.setHeight(innerSizeHint.height());
-            }
-            inner->resize(innerSize);
-        }
-        QScrollArea::resizeEvent(event);
-    }
-
-    QSize minimumSizeHint() const final
-    {
-        QWidget *inner = widget();
-        if (inner) {
-            int fw = frameWidth() * 2;
-
-            QSize minSize = inner->minimumSizeHint();
-            minSize += QSize(fw, fw);
-            minSize += QSize(scrollBarWidth(), 0);
-            minSize.setWidth(qMin(minSize.width(), kMaxMinimumWidth));
-            minSize.setHeight(qMin(minSize.height(), kMaxMinimumHeight));
-            return minSize;
-        }
-        return QSize(0, 0);
-    }
-
-    bool event(QEvent *event) final
-    {
-        if (event->type() == QEvent::LayoutRequest)
-            updateGeometry();
-        return QScrollArea::event(event);
-    }
-
-    int scrollBarWidth() const
-    {
-        auto that = const_cast<SettingsTab *>(this);
-        QWidgetList list = that->scrollBarWidgets(Qt::AlignRight);
-        if (list.isEmpty())
-            return 0;
-        return list.first()->sizeHint().width();
-    }
-
     IOptionsPage * const m_page;
     IOptionsPageWidget *m_inner = nullptr;
 };
