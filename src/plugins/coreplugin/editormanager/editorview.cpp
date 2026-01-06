@@ -13,6 +13,8 @@
 #include "documentmodel_p.h"
 #include "editormanager.h"
 #include "editormanager_p.h"
+#include "iversioncontrol.h"
+#include "vcsmanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
@@ -142,7 +144,14 @@ static void updateTabUi(QTabBar *tabBar, int index, IDocument *document)
     if (qtcEnvironmentVariableIsSet("QTC_DEBUG_DOCUMENTMODEL") && !data.editor)
         title += " (s)";
     tabBar->setTabText(index, title);
-    tabBar->setTabToolTip(index, document->toolTip());
+    const Utils::FilePath fullPath = document->filePath();
+    const VcsFileState state = VcsManager::fileState(fullPath);
+    const QColor color = Core::IVersionControl::vcStateToColor(state);
+    tabBar->setTabTextColor(index, color);
+    QString toolTip = document->toolTip();
+    if (state != VcsFileState::Unknown)
+        toolTip += "<p>" + Core::IVersionControl::modificationToText(state);
+    tabBar->setTabToolTip(index, toolTip);
 
     // HACK:
     // Make close button to unpin button or back again
@@ -193,6 +202,10 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
         connect(m_toolBar, &EditorToolBar::verticalSplitClicked, this, &EditorView::splitVertically);
         connect(m_toolBar, &EditorToolBar::splitNewWindowClicked, this, &EditorView::splitNewWindow);
         connect(m_toolBar, &EditorToolBar::closeSplitClicked, this, &EditorView::closeSplit);
+        connect(VcsManager::instance(), &VcsManager::updateFileState,
+                this, &EditorView::handleUpdateFileState);
+        connect(VcsManager::instance(), &VcsManager::clearFileState,
+                this, &EditorView::handleClearFileState);
         m_toolBar->setMenuProvider([this](QMenu *menu) { fillListContextMenu(menu); });
         m_toolBar->setGoBackMenu(m_backMenu);
         m_toolBar->setGoForwardMenu(m_forwardMenu);
@@ -839,6 +852,38 @@ void EditorView::ensurePinnedOrder()
                 m_tabBar->moveTab(i, lastPinnedIndex + 1);
             ++lastPinnedIndex;
         }
+    }
+}
+
+void EditorView::handleUpdateFileState(const Utils::FilePath &repository, const QStringList &files)
+{
+    const Utils::FilePaths fullPaths = Utils::transform(files, [repository](const QString &file) {
+        return repository.pathAppended(file);
+    });
+
+    for (int i = 0; i < m_tabBar->count(); ++i) {
+        const auto data = m_tabBar->tabData(i).value<EditorView::TabData>();
+        QTC_ASSERT(data.editor, continue);
+        IDocument *document = data.editor->document();
+        QTC_ASSERT(document, continue);
+        const Utils::FilePath fullEditorPath = document->filePath();
+
+        if (fullPaths.contains(fullEditorPath))
+            updateTabUi(m_tabBar, i, document);
+    }
+}
+
+void EditorView::handleClearFileState(const Utils::FilePath &repository)
+{
+    for (int i = 0; i < m_tabBar->count(); ++i) {
+        const auto data = m_tabBar->tabData(i).value<EditorView::TabData>();
+        QTC_ASSERT(data.editor, continue);
+        IDocument *document = data.editor->document();
+        QTC_ASSERT(document, continue);
+        const Utils::FilePath fullEditorPath = document->filePath();
+
+        if (fullEditorPath.isChildOf(repository))
+            updateTabUi(m_tabBar, i, document);
     }
 }
 
