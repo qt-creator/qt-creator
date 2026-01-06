@@ -81,7 +81,6 @@ public:
     ~CodePasterPluginPrivate();
 
     void post(PasteSources pasteSources);
-    void post(const QString &data, const QString &mimeType);
 
     void pasteSnippet();
     void fetch();
@@ -119,7 +118,7 @@ CodePasterServiceImpl::CodePasterServiceImpl(CodePasterPluginPrivate *d)
 
 void CodePasterServiceImpl::postText(const QString &text, const QString &mimeType)
 {
-    d->post(text, mimeType);
+    executePasteDialog(d->m_protocols, text, mimeType);
 }
 
 void CodePasterServiceImpl::postCurrentEditor()
@@ -219,11 +218,6 @@ void CodePasterPluginPrivate::post(PasteSources pasteSources)
         QString subType = "plain";
         data = QGuiApplication::clipboard()->text(subType, QClipboard::Clipboard);
     }
-    post(data, mimeType);
-}
-
-void CodePasterPluginPrivate::post(const QString &data, const QString &mimeType)
-{
     executePasteDialog(m_protocols, data, mimeType);
 }
 
