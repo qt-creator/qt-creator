@@ -205,12 +205,6 @@ void PasteView::protocolChanged(int p)
     m_uiUsername->setEnabled(caps & Capability::PostUserName);
 }
 
-void PasteView::setupDialog(const QString &user, const QString &description)
-{
-    m_uiUsername->setText(user);
-    m_uiDescription->setText(description);
-}
-
 int PasteView::showDialog()
 {
     m_uiDescription->setFocus();
@@ -229,10 +223,9 @@ int PasteView::showDialog()
 }
 
 // Show up with checkable list of diff chunks.
-int PasteView::show(const QString &user, const QString &description,
-                    int expiryDays, const FileDataList &parts)
+int PasteView::show(const QString &user, int expiryDays, const FileDataList &parts)
 {
-    setupDialog(user, description);
+    m_uiUsername->setText(user);
     m_uiPatchList->clear();
     m_parts = parts;
     m_mode = DiffChunkMode;
@@ -250,10 +243,9 @@ int PasteView::show(const QString &user, const QString &description,
 }
 
 // Show up with editable plain text.
-int PasteView::show(const QString &user, const QString &description,
-                    int expiryDays, const QString &content)
+int PasteView::show(const QString &user, int expiryDays, const QString &content)
 {
-    setupDialog(user, description);
+    m_uiUsername->setText(user);
     m_mode = PlainTextMode;
     m_stackedWidget->setCurrentIndex(1);
     m_plainTextEdit->setPlainText(content);
