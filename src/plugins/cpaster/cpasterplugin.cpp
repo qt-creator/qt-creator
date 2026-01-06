@@ -81,7 +81,7 @@ public:
     ~CodePasterPluginPrivate();
 
     void post(PasteSources pasteSources);
-    void post(QString data, const QString &mimeType);
+    void post(const QString &data, const QString &mimeType);
 
     void pasteSnippet();
     void fetch();
@@ -209,28 +209,6 @@ static inline void textFromCurrentEditor(QString *text, QString *mimeType)
     }
 }
 
-static inline void fixSpecialCharacters(QString &data)
-{
-    QChar *uc = data.data();
-    QChar *e = uc + data.size();
-
-    for (; uc != e; ++uc) {
-        switch (uc->unicode()) {
-        case 0xfdd0: // QTextBeginningOfFrame
-        case 0xfdd1: // QTextEndOfFrame
-        case QChar::ParagraphSeparator:
-        case QChar::LineSeparator:
-            *uc = QLatin1Char('\n');
-            break;
-        case QChar::Nbsp:
-            *uc = QLatin1Char(' ');
-            break;
-        default:
-            break;
-        }
-    }
-}
-
 void CodePasterPluginPrivate::post(PasteSources pasteSources)
 {
     QString data;
@@ -244,25 +222,9 @@ void CodePasterPluginPrivate::post(PasteSources pasteSources)
     post(data, mimeType);
 }
 
-void CodePasterPluginPrivate::post(QString data, const QString &mimeType)
+void CodePasterPluginPrivate::post(const QString &data, const QString &mimeType)
 {
-    fixSpecialCharacters(data);
-
-    const QString username = settings().username();
-
-    PasteView view(m_protocols, mimeType, ICore::dialogParent());
-    view.setProtocol(settings().protocols.stringValue());
-
-    const FileDataList diffChunks = splitDiffToFiles(data);
-    const int dialogResult = diffChunks.isEmpty()
-        ? view.show(username, settings().expiryDays(), data)
-        : view.show(username, settings().expiryDays(), diffChunks);
-
-    // Save new protocol in case user changed it.
-    if (dialogResult == QDialog::Accepted && settings().protocols() != view.protocol()) {
-        settings().protocols.setValue(view.protocol());
-        settings().writeSettings();
-    }
+    executePasteDialog(m_protocols, data, mimeType);
 }
 
 void CodePasterPluginPrivate::fetchUrl()

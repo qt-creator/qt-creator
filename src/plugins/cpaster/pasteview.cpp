@@ -6,6 +6,8 @@
 #include "columnindicatortextedit.h"
 #include "cpastertr.h"
 #include "protocol.h"
+#include "settings.h"
+#include "splitter.h"
 
 #include <coreplugin/icore.h>
 
@@ -70,12 +72,61 @@ static Protocol::ContentType contentType(const QString &mt)
     return Protocol::Text;
 }
 
-PasteView::PasteView(const QList<Protocol *> &protocols,
-                     const QString &mt,
-                     QWidget *parent) :
-    QDialog(parent),
-    m_protocols(protocols),
-    m_mimeType(mt)
+class PasteView : public QDialog
+{
+public:
+    enum Mode
+    {
+        // Present a list of read-only diff chunks which the user can check for inclusion
+        DiffChunkMode,
+        // Present plain, editable text.
+        PlainTextMode
+    };
+
+    explicit PasteView(const QList<Protocol *> &protocols, const QString &mimeType);
+    ~PasteView() override;
+
+    // Show up with checkable list of diff chunks.
+    int show(const QString &user, int expiryDays, const FileDataList &parts);
+    // Show up with editable plain text.
+    int show(const QString &user, int expiryDays, const QString &content);
+
+    void setProtocol(const QString &protocol);
+
+    QString user() const;
+    QString description() const;
+    QString content() const;
+    int protocol() const;
+    void setExpiryDays(int d);
+    int expiryDays() const;
+
+    void accept() override;
+
+private:
+    void contentChanged();
+    void protocolChanged(int);
+
+    int showDialog();
+
+    const QList<Protocol *> m_protocols;
+    const QString m_mimeType;
+
+    QComboBox *m_protocolBox;
+    QSpinBox *m_expirySpinBox;
+    QLineEdit *m_uiUsername;
+    QLineEdit *m_uiDescription;
+    QStackedWidget *m_stackedWidget;
+    QListWidget *m_uiPatchList;
+    ColumnIndicatorTextEdit *m_uiPatchView;
+    QPlainTextEdit *m_plainTextEdit;
+    FileDataList m_parts;
+    Mode m_mode = DiffChunkMode;
+};
+
+PasteView::PasteView(const QList<Protocol *> &protocols, const QString &mt)
+    : QDialog(Core::ICore::dialogParent())
+    , m_protocols(protocols)
+    , m_mimeType(mt)
 {
     setObjectName("CodePaster.ViewDialog");
     resize(670, 678);
@@ -299,6 +350,51 @@ void PasteView::setProtocol(const QString &protocol)
          protocolChanged(index); // Force enabling
      else
          m_protocolBox->setCurrentIndex(index);
+}
+
+static inline void fixSpecialCharacters(QString &data)
+{
+    QChar *uc = data.data();
+    QChar *e = uc + data.size();
+
+    for (; uc != e; ++uc) {
+        switch (uc->unicode()) {
+        case 0xfdd0: // QTextBeginningOfFrame
+        case 0xfdd1: // QTextEndOfFrame
+        case QChar::ParagraphSeparator:
+        case QChar::LineSeparator:
+            *uc = QLatin1Char('\n');
+            break;
+        case QChar::Nbsp:
+            *uc = QLatin1Char(' ');
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void executePasteDialog(const QList<Protocol *> &protocols, const QString &data,
+                        const QString &mimeType)
+{
+    QString copiedData = data;
+    fixSpecialCharacters(copiedData);
+
+    const QString username = settings().username();
+
+    PasteView view(protocols, mimeType);
+    view.setProtocol(settings().protocols.stringValue());
+
+    const FileDataList diffChunks = splitDiffToFiles(copiedData);
+    const int dialogResult = diffChunks.isEmpty()
+                                 ? view.show(username, settings().expiryDays(), copiedData)
+                                 : view.show(username, settings().expiryDays(), diffChunks);
+
+    // Save new protocol in case user changed it.
+    if (dialogResult == QDialog::Accepted && settings().protocols() != view.protocol()) {
+        settings().protocols.setValue(view.protocol());
+        settings().writeSettings();
+    }
 }
 
 } // CodePaster
