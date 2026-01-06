@@ -39,17 +39,16 @@ public:
     ~PasteView() override;
 
     // Show up with checkable list of diff chunks.
-    int show(const QString &user, const QString &description, const QString &comment,
+    int show(const QString &user, const QString &description,
              int expiryDays, const FileDataList &parts);
     // Show up with editable plain text.
-    int show(const QString &user, const QString &description, const QString &comment,
+    int show(const QString &user, const QString &description,
              int expiryDays, const QString &content);
 
     void setProtocol(const QString &protocol);
 
     QString user() const;
     QString description() const;
-    QString comment() const;
     QString content() const;
     int protocol() const;
     void setExpiryDays(int d);
@@ -61,18 +60,16 @@ private:
     void contentChanged();
     void protocolChanged(int);
 
-    void setupDialog(const QString &user, const QString &description, const QString &comment);
+    void setupDialog(const QString &user, const QString &description);
     int showDialog();
 
     const QList<Protocol *> m_protocols;
-    const QString m_commentPlaceHolder;
     const QString m_mimeType;
 
     QComboBox *m_protocolBox;
     QSpinBox *m_expirySpinBox;
     QLineEdit *m_uiUsername;
     QLineEdit *m_uiDescription;
-    QTextEdit *m_uiComment;
     QStackedWidget *m_stackedWidget;
     QListWidget *m_uiPatchList;
     ColumnIndicatorTextEdit *m_uiPatchView;

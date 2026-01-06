@@ -75,7 +75,6 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
                      QWidget *parent) :
     QDialog(parent),
     m_protocols(protocols),
-    m_commentPlaceHolder(Tr::tr("<Comment>")),
     m_mimeType(mt)
 {
     setObjectName("CodePaster.ViewDialog");
@@ -99,11 +98,6 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
     m_uiDescription->setPlaceholderText(Tr::tr("<Description>"));
 
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-    m_uiComment = new QTextEdit(this);
-    m_uiComment->setSizePolicy(sizePolicy);
-    m_uiComment->setMaximumHeight(100);
-    m_uiComment->setTabChangesFocus(true);
 
     m_uiPatchList = new QListWidget;
     sizePolicy.setVerticalStretch(1);
@@ -152,7 +146,6 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
             Tr::tr("&Username:"), m_uiUsername, br,
             Tr::tr("&Description:"), m_uiDescription,
         },
-        m_uiComment,
         m_stackedWidget,
         buttonBox
     }.attachTo(this);
@@ -178,14 +171,6 @@ QString PasteView::user() const
 QString PasteView::description() const
 {
     return m_uiDescription->text();
-}
-
-QString PasteView::comment() const
-{
-    const QString comment = m_uiComment->toPlainText();
-    if (comment == m_commentPlaceHolder)
-        return QString();
-    return comment;
 }
 
 QString PasteView::content() const
@@ -218,14 +203,12 @@ void PasteView::protocolChanged(int p)
     const Capabilities caps = m_protocols.at(p)->capabilities();
     m_uiDescription->setEnabled(caps & Capability::PostDescription);
     m_uiUsername->setEnabled(caps & Capability::PostUserName);
-    m_uiComment->setEnabled(caps & Capability::PostComment);
 }
 
-void PasteView::setupDialog(const QString &user, const QString &description, const QString &comment)
+void PasteView::setupDialog(const QString &user, const QString &description)
 {
     m_uiUsername->setText(user);
     m_uiDescription->setText(description);
-    m_uiComment->setPlainText(comment.isEmpty() ? m_commentPlaceHolder : comment);
 }
 
 int PasteView::showDialog()
@@ -246,14 +229,10 @@ int PasteView::showDialog()
 }
 
 // Show up with checkable list of diff chunks.
-int PasteView::show(
-        const QString &user,
-        const QString &description,
-        const QString &comment,
-        int expiryDays,
-        const FileDataList &parts)
+int PasteView::show(const QString &user, const QString &description,
+                    int expiryDays, const FileDataList &parts)
 {
-    setupDialog(user, description, comment);
+    setupDialog(user, description);
     m_uiPatchList->clear();
     m_parts = parts;
     m_mode = DiffChunkMode;
@@ -272,9 +251,9 @@ int PasteView::show(
 
 // Show up with editable plain text.
 int PasteView::show(const QString &user, const QString &description,
-                    const QString &comment, int expiryDays, const QString &content)
+                    int expiryDays, const QString &content)
 {
-    setupDialog(user, description, comment);
+    setupDialog(user, description);
     m_mode = PlainTextMode;
     m_stackedWidget->setCurrentIndex(1);
     m_plainTextEdit->setPlainText(content);
@@ -308,7 +287,7 @@ void PasteView::accept()
         return;
 
     const Protocol::ContentType ct = contentType(m_mimeType);
-    protocol->paste(data, ct, expiryDays(), user(), comment(), description());
+    protocol->paste(data, ct, expiryDays(), user(), description());
     // Store settings and close
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(groupC);

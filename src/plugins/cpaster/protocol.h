@@ -20,9 +20,8 @@ enum class Capability
 {
     None            = 0,
     List            = 1 << 0,
-    PostComment     = 1 << 1,
-    PostDescription = 1 << 2,
-    PostUserName    = 1 << 3
+    PostDescription = 1 << 1,
+    PostUserName    = 1 << 2
 };
 
 Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -62,9 +61,8 @@ public:
     virtual void paste(const QString &text,
                        ContentType ct = Text,
                        int expiryDays = 1,
-                       const QString &username = QString(),
-                       const QString &comment = QString(),
-                       const QString &description = QString()) = 0;
+                       const QString &username = {},
+                       const QString &description = {}) = 0;
 
     // Ensure configuration is correct
     static bool ensureConfiguration(Protocol *p,

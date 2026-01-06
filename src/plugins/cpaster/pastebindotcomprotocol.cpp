@@ -80,11 +80,9 @@ void PasteBinDotComProtocol::paste(
         ContentType ct,
         int expiryDays,
         const QString & /* username */, // Not used unless registered user
-        const QString &comment,
         const QString &description
         )
 {
-    Q_UNUSED(comment)
     Q_UNUSED(description)
     QTC_ASSERT(!m_pasteReply, return);
 

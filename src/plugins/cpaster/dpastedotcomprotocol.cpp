@@ -77,12 +77,9 @@ void DPasteDotComProtocol::paste(
         ContentType ct,
         int expiryDays,
         const QString &username,
-        const QString &comment,
         const QString &description
         )
 {
-    Q_UNUSED(comment)
-
     // See http://dpaste.com/api/v2/
     QByteArray data;
     data += "content=" + QUrl::toPercentEncoding(fixNewLines(text));

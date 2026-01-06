@@ -137,7 +137,6 @@ void FileShareProtocol::paste(
         ContentType /* ct */,
         int /* expiryDays */,
         const QString &username,
-        const QString & /* comment */,
         const QString &description
         )
 {

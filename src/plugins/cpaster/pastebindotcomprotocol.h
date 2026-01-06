@@ -17,9 +17,8 @@ public:
     void paste(const QString &text,
                ContentType ct = Text,
                int expiryDays = 1,
-               const QString &username = QString(),
-               const QString &comment = QString(),
-               const QString &description = QString()) override;
+               const QString &username = {},
+               const QString &description = {}) override;
     void list() override;
 
 private:
