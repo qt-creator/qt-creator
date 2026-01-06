@@ -9,12 +9,14 @@
 #include "task.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 
 #include <QCheckBox>
+#include <QJsonArray>
 #include <QLabel>
 #include <QPair>
 #include <QString>
@@ -43,6 +45,8 @@ const char runDefaultKey[] = "RunDefault";
 
 const char CUSTOM_PARSER_COUNT_KEY[] = "ProjectExplorer/Settings/CustomParserCount";
 const char CUSTOM_PARSER_PREFIX_KEY[] = "ProjectExplorer/Settings/CustomParser";
+
+const char importFileName[] = "customparsers.json";
 
 namespace ProjectExplorer {
 
@@ -295,11 +299,7 @@ void CustomParsers::set(const QList<CustomParserSettings> &settings)
 
 void CustomParsers::add(const CustomParserSettings &settings)
 {
-    QTC_ASSERT(settings.id.isValid(), return);
-    QTC_ASSERT(!contains(g_parsers, [&settings](const CustomParserSettings &s) {
-        return s.id == settings.id;
-    }), return);
-
+    QTC_ASSERT(canAdd(settings, g_parsers), return);
     g_parsers << settings;
     emit instance().changed();
 }
@@ -312,6 +312,11 @@ void CustomParsers::remove(Utils::Id id)
 
 const QList<CustomParserSettings> CustomParsers::get() { return g_parsers; }
 
+const QList<CustomParserSettings> CustomParsers::modifiableParsers()
+{
+    return Utils::filtered(g_parsers, [](const CustomParserSettings &p) { return !p.readOnly; });
+}
+
 void CustomParsers::load(const Utils::QtcSettings &s)
 {
     const int customParserCount = s.value(CUSTOM_PARSER_COUNT_KEY).toInt();
@@ -320,15 +325,65 @@ void CustomParsers::load(const Utils::QtcSettings &s)
         settings.fromMap(storeFromVariant(s.value(numberedKey(CUSTOM_PARSER_PREFIX_KEY, i))));
         g_parsers << settings;
     }
+
+    for (const FilePath &importFile :
+         {Core::ICore::installerResourcePath(importFileName),
+          Core::ICore::userResourcePath(importFileName)}) {
+        if (!importFile.exists())
+            continue;
+        const auto parsers = parsersFromFile(importFile);
+        if (!parsers) {
+            Core::MessageManager::writeFlashing(
+                Tr::tr("Failure reading custom output parsers from \"%1\": %2")
+                    .arg(importFile.toUserOutput(), parsers.error()));
+            return;
+        }
+        for (const CustomParserSettings &parser: *parsers) {
+            if (canAdd(parser, g_parsers)) {
+                CustomParserSettings p = parser;
+                p.readOnly = true;
+                add(p);
+            }
+        }
+    }
 }
 
 void CustomParsers::save(Utils::QtcSettings &s)
 {
-    s.setValueWithDefault(CUSTOM_PARSER_COUNT_KEY, int(g_parsers.count()), 0);
-    for (int i = 0; i < g_parsers.count(); ++i) {
+    const QList<CustomParserSettings> modifiable = modifiableParsers();
+    s.setValueWithDefault(CUSTOM_PARSER_COUNT_KEY, int(modifiable.count()), 0);
+    for (int i = 0; i < modifiable.count(); ++i) {
         s.setValue(
-            numberedKey(CUSTOM_PARSER_PREFIX_KEY, i), variantFromStore(g_parsers.at(i).toMap()));
+            numberedKey(CUSTOM_PARSER_PREFIX_KEY, i), variantFromStore(modifiable.at(i).toMap()));
     }
+}
+
+bool CustomParsers::canAdd(
+    const CustomParserSettings &parser, const QList<CustomParserSettings> &parsers)
+{
+    return parser.id.isValid()
+           && !Utils::contains(parsers, [&parser](const CustomParserSettings &p) {
+                  return p.id == parser.id;
+              });
+}
+
+Result<QList<CustomParserSettings>> CustomParsers::parsersFromFile(const FilePath &jsonFile)
+{
+    const auto content = jsonFile.fileContents();
+    if (!content)
+        return ResultError(content.error());
+    QJsonParseError jsonError;
+    QJsonDocument doc = QJsonDocument::fromJson(*content, &jsonError);
+    if (jsonError.error != QJsonParseError::NoError)
+        return ResultError(jsonError.errorString());
+    const QJsonArray jsonArray = doc.array();
+    QList<CustomParserSettings> parsers;
+    for (const QJsonValue &v : jsonArray) {
+        const CustomParserSettings parser = CustomParserSettings::fromJson(v.toObject());
+        if (canAdd(parser, parsers))
+            parsers << parser;
+    }
+    return parsers;
 }
 
 CustomParsers &CustomParsers::instance()

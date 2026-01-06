@@ -75,6 +75,7 @@ public:
     QString displayName;
     bool buildDefault = false;
     bool runDefault = false;
+    bool readOnly = false;
     CustomParserExpression error;
     CustomParserExpression warning;
 };
@@ -149,9 +150,16 @@ public:
     static void add(const CustomParserSettings &settings);
     static void remove(Utils::Id id);
     static const QList<CustomParserSettings> get();
+    static const QList<CustomParserSettings> modifiableParsers();
 
     static void load(const Utils::QtcSettings &s);
     static void save(Utils::QtcSettings &s);
+
+    static Utils::Result<QList<CustomParserSettings>> parsersFromFile(
+        const Utils::FilePath &jsonFile);
+
+    static bool canAdd(const CustomParserSettings &parser,
+                       const QList<CustomParserSettings> &parsers);
 
     static CustomParsers &instance();
 

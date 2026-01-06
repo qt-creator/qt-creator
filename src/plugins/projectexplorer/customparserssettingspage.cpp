@@ -46,8 +46,6 @@ public:
     bool add(const ProjectExplorer::CustomParserSettings& s);
     bool remove(const QModelIndexList &indexes);
 
-    QList<CustomParserSettings> parsers() const { return m_customParsers; }
-
     void apply();
 
 protected:
@@ -164,6 +162,18 @@ QVariant CustomParsersModel::data(const QModelIndex &index, int role) const
         }
         break;
 
+    case Qt::FontRole: {
+        QFont f;
+        if (index.column() == 0 && s.readOnly)
+            f.setItalic(true);
+        return f;
+    }
+
+    case Qt::ToolTipRole:
+        if (s.readOnly)
+            return Tr::tr("Parser is not modifiable, because it was auto-imported.");
+        return {};
+
     case Qt::UserRole:
         return QVariant::fromValue<CustomParserSettings>(s);
     }
@@ -222,16 +232,21 @@ Qt::ItemFlags CustomParsersModel::flags(const QModelIndex &index) const
 
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-    if (index.column() > 0)
-        flags |= Qt::ItemIsUserCheckable;
-    else
-        flags |= Qt::ItemIsEditable;
+    if (!m_customParsers.at(index.row()).readOnly) {
+        if (index.column() > 0)
+            flags |= Qt::ItemIsUserCheckable;
+        else
+            flags |= Qt::ItemIsEditable;
+    }
 
     return flags;
 }
 
 bool CustomParsersModel::add(const CustomParserSettings &s)
 {
+    if (!CustomParsers::canAdd(s, m_customParsers))
+        return false;
+
     beginInsertRows(index(-1, -1), m_customParsers.size(), m_customParsers.size());
     m_customParsers.append(s);
     endInsertRows();
@@ -335,36 +350,28 @@ public:
                 = FileUtils::getOpenFilePath(Tr::tr("Load Parsers"), {}, Tr::tr("*.json"));
             if (jsonFile.isEmpty())
                 return;
-            const auto content = jsonFile.fileContents();
-            const auto showError = [this](const QString &detail) {
+            const auto parsersRead = CustomParsers::parsersFromFile(jsonFile);
+            if (!parsersRead) {
                 QMessageBox::critical(
                     this,
                     Tr::tr("Error Loading Parsers"),
-                    Tr::tr("Error loading parsers: %1").arg(detail));
-            };
-            if (!content)
-                return showError(content.error());
-            QJsonParseError jsonError;
-            QJsonDocument doc = QJsonDocument::fromJson(*content, &jsonError);
-            if (jsonError.error != QJsonParseError::NoError)
-                return showError(jsonError.errorString());
-            const QJsonArray jsonArray = doc.array();
-            for (const QJsonValue &v : jsonArray) {
-                const CustomParserSettings parser = CustomParserSettings::fromJson(v.toObject());
-                if (parser.id.isValid()
-                    && !Utils::contains(m_model.parsers(), [&parser](const CustomParserSettings &p) {
-                           return p.id == parser.id;
-                       })) {
-                    m_model.add(parser);
-                }
+                    Tr::tr("Error loading parsers: %1").arg(parsersRead.error()));
             }
+            for (const CustomParserSettings &parser : *parsersRead)
+                m_model.add(parser);
         });
 
-        const auto updateButtons = [editButton, parserView, removeButton, exportButton] {
-            const qsizetype selectionCount = parserView->selectionModel()->selection().size();
-            removeButton->setEnabled(selectionCount > 0);
-            exportButton->setEnabled(selectionCount > 0);
-            editButton->setEnabled(selectionCount == 1);
+        const auto updateButtons = [editButton, parserView, removeButton, exportButton, this] {
+            QList<CustomParserSettings> modifiableParsers;
+            const QModelIndexList indexes = parserView->selectionModel()->selectedRows();
+            for (const QModelIndex &idx : indexes) {
+                const auto parser = m_model.data(idx, Qt::UserRole).value<CustomParserSettings>();
+                if (!parser.readOnly)
+                    modifiableParsers << parser;
+            }
+            removeButton->setEnabled(!modifiableParsers.isEmpty());
+            exportButton->setEnabled(!indexes.isEmpty());
+            editButton->setEnabled(modifiableParsers.size() == 1);
         };
         updateButtons();
         connect(parserView->selectionModel(), &QItemSelectionModel::selectionChanged,
