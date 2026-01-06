@@ -54,13 +54,15 @@
             project.
     \endlist
 
-    The wizard generates the following files:
+    The wizard creates a subdirectory named after the project for
+    a QML module of the same name and generates the following files:
 
     \list
         \li \c {pyproject.toml}, which lists the files in the Python
             project and other configurations.
         \li \c {main.py}, which has some boilerplate code.
-        \li \c {main.qml}, which imports Qt Quick controls.
+        \li \c {<ProjectName>/Main.qml}, which imports Qt Quick controls.
+        \li \c {<ProjectName>/qmldir}, declaring a QML module.
         \li \c {requirements.txt}, which stores the PySide version of the
             generated code. You can use this file to install the required PySide version
             using pip.
@@ -102,13 +104,13 @@
     \section1 Load the QML file
 
     The following lines in the main class create a QQmlApplicationEngine
-    instance and load the generated QML file to the engine object:
+    instance and load the generated QML module to the engine object:
 
     \badcode
         ...
         engine = QQmlApplicationEngine()
-        qml_file = Path(__file__).resolve().parent / "main.qml"
-        engine.load(qml_file)
+        engine.addImportPath(Path(__file__).parent)
+        engine.loadFromModule("ProjectName", "Main")
         ...
     \endcode
 
@@ -127,7 +129,7 @@
 
     \section1 Design the UI
 
-    Open the \c {main.qml} file in the \uicontrol Edit mode to design a
+    Open the \c {Main.qml} file in the \uicontrol Edit mode to design a
     Qt Quick UI.
 
     \section2 Add imports

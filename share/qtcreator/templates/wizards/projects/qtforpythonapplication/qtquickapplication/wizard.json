@@ -13,7 +13,7 @@
     "options":
     [
         { "key": "SrcFileName", "value": "main.py" },
-        { "key": "QmlFileName", "value": "main.qml" },
+        { "key": "QmlFileName", "value": "Main.qml" },
         { "key": "PyProjectTomlFile", "value": "pyproject.toml" },
         { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
         { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" },
@@ -26,7 +26,11 @@
         {
             "trDisplayName": "Project Location",
             "trShortTitle": "Location",
-            "typeId": "Project"
+            "typeId": "Project",
+            "data": {
+                "projectNameValidator": "^[A-Za-z0-9_]+$",
+                "trProjectNameValidatorUserMessage": "Project name must use only letters, digits, or underscores."
+            }
         },
         {
             "trDisplayName": "Define Project Details",
@@ -81,8 +85,12 @@
                 },
                 {
                     "source": "main.qml.tpl",
-                    "target": "%{QmlFileName}",
+                    "target": "%{ProjectName}/%{QmlFileName}",
                     "openInEditor": true
+                },
+                {
+                    "source": "qmldir.tpl",
+                    "target": "%{ProjectName}/qmldir"
                 },
                 {
                     "source": "../requirements.txt",

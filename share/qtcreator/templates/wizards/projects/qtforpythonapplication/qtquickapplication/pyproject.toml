@@ -2,4 +2,4 @@
 name = "PySide QtQuick Project"
 
 [tool.pyside6-project]
-files = ["%{SrcFileName}", "%{QmlFileName}"]
+files = ["%{SrcFileName}", "%{ProjectName}/%{QmlFileName}", "%{ProjectName}/qmldir"]
