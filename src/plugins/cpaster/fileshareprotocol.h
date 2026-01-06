@@ -17,7 +17,7 @@ public:
     ~FileShareProtocol() override;
 
     void fetch(const QString &id) override;
-    void list() override;
+    QtTaskTree::ExecutableItem listRecipe(const ListHandler &handler) const override;
     void paste(const PasteInputData &inputData) override;
 };
 

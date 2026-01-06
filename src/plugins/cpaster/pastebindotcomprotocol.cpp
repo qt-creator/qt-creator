@@ -3,7 +3,10 @@
 
 #include "pastebindotcomprotocol.h"
 
+#include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
+
+#include <QtTaskTree/QNetworkReplyWrapper>
 
 #include <QDebug>
 #include <QRegularExpression>
@@ -13,6 +16,8 @@
 #include <QNetworkReply>
 
 enum { debug = 0 };
+
+using namespace QtTaskTree;
 
 namespace CodePaster {
 
@@ -124,17 +129,6 @@ void PasteBinDotComProtocol::fetchFinished()
     }
     m_fetchReply->deleteLater();
     m_fetchReply = nullptr;
-}
-
-void PasteBinDotComProtocol::list()
-{
-    QTC_ASSERT(!m_listReply, return);
-
-    const QString url = QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_ARCHIVE);
-    m_listReply = httpGet(url);
-    connect(m_listReply, &QNetworkReply::finished, this, &PasteBinDotComProtocol::listFinished);
-    if (debug)
-        qDebug() << "list: sending " << url << m_listReply;
 }
 
 /* Quick & dirty: Parse out the 'archive' table as of 16.3.2016:
@@ -411,29 +405,37 @@ static inline QStringList parseLists(QIODevice *io, QString *errorMessage)
     return rc;
 }
 
-void PasteBinDotComProtocol::listFinished()
+ExecutableItem PasteBinDotComProtocol::listRecipe(const ListHandler &handler) const
 {
-    const bool error = m_listReply->error();
-    if (error) {
-        if (debug)
-            qDebug() << "listFinished: error" << m_listReply->errorString();
-    } else {
-        if (m_listReply->hasRawHeader("Content-Type")) {
+    const auto onSetup = [](QNetworkReplyWrapper &task) {
+        task.setNetworkAccessManager(Utils::NetworkAccessManager::instance());
+        const QUrl url(QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_ARCHIVE));
+        task.setRequest(QNetworkRequest(url));
+    };
+    const auto onDone = [handler](const QNetworkReplyWrapper &task, DoneWith result) {
+        QNetworkReply *reply = task.reply();
+        if (result == DoneWith::Error) {
+            if (debug)
+                qDebug() << "listFinished: error" << reply->errorString();
+            return;
+        }
+        if (reply->hasRawHeader("Content-Type")) {
             // if the content type changes to xhtml we should switch back to QXmlStreamReader
-            const QByteArray contentType = m_listReply->rawHeader("Content-Type");
+            const QByteArray contentType = reply->rawHeader("Content-Type");
             if (!contentType.startsWith("text/html"))
                 qWarning() << "Content type has changed to" << contentType;
         }
         QString errorMessage;
-        const QStringList list = parseLists(m_listReply, &errorMessage);
+        const QStringList list = parseLists(reply, &errorMessage);
         if (list.isEmpty())
             qWarning().nospace() << "Failed to read list from " << PASTEBIN_BASE <<  ':' << errorMessage;
-        emit listDone(list);
+        if (handler)
+            handler(list);
         if (debug)
             qDebug() << list;
-    }
-    m_listReply->deleteLater();
-    m_listReply = nullptr;
+    };
+
+    return QNetworkReplyWrapperTask(onSetup, onDone);
 }
 
 } // CodePaster

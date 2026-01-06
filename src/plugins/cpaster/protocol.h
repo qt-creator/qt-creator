@@ -6,6 +6,7 @@
 #include <utils/result.h>
 
 #include <QObject>
+#include <QtTaskTree/QTaskTree>
 
 QT_BEGIN_NAMESPACE
 class QNetworkReply;
@@ -69,7 +70,7 @@ public:
     const Core::IOptionsPage *settingsPage() const { return m_protocolData.settingsPage; }
 
     virtual void fetch(const QString &id) = 0;
-    virtual void list();
+    virtual QtTaskTree::ExecutableItem listRecipe(const ListHandler &handler) const;
     virtual void paste(const PasteInputData &inputData) = 0;
 
     // Ensure configuration is correct
@@ -79,11 +80,10 @@ public:
 signals:
     void pasteDone(const QString &link);
     void fetchDone(const QString &titleDescription, const QString &content);
-    void listDone(const QStringList &result);
 
 protected:
     Protocol(const ProtocolData &data);
-    void reportError(const QString &message);
+    void reportError(const QString &message) const;
     static QString fixNewLines(QString in);
 
 private:

@@ -30,12 +30,13 @@ Protocol::Protocol(const ProtocolData &data)
 
 Protocol::~Protocol() = default;
 
-void Protocol::list()
+QtTaskTree::ExecutableItem Protocol::listRecipe(const ListHandler &) const
 {
-    qFatal("Base Protocol list() called");
+    reportError(Tr::tr("List cabability not supported."));
+    return QtTaskTree::errorItem;
 }
 
-void Protocol::reportError(const QString &message)
+void Protocol::reportError(const QString &message) const
 {
     Core::MessageManager::writeDisrupting(QString("%1: %2").arg(name(), message));
 }

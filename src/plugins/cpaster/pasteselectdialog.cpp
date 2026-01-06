@@ -13,6 +13,8 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 #include <QComboBox>
 #include <QDebug>
 #include <QDialog>
@@ -42,6 +44,7 @@ private:
     QListWidget *m_listWidget = nullptr;
     QPushButton *m_refreshButton = nullptr;
     QLineEdit *m_pasteEdit = nullptr;
+    QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 PasteSelectDialog::PasteSelectDialog(const QList<Protocol *> &protocols)
@@ -93,13 +96,6 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol *> &protocols)
     for (const Protocol *protocol : protocols) {
         const QString name = protocol->name();
         m_protocolBox->addItem(name);
-        connect(protocol, &Protocol::listDone, this, [this, name](const QStringList &result) {
-            if (name != m_protocolBox->currentText())
-                return; // Set if the protocol is still current
-
-            m_listWidget->clear();
-            m_listWidget->addItems(result);
-        });
     }
     connect(m_protocolBox, &QComboBox::currentIndexChanged,
             this, &PasteSelectDialog::protocolChanged);
@@ -140,13 +136,23 @@ void PasteSelectDialog::list()
 
     m_listWidget->clear();
     if (Protocol::ensureConfiguration(protocol, this)) {
-        m_listWidget->addItem(new QListWidgetItem(Tr::tr("Waiting for items")));
-        protocol->list();
+        m_listWidget->addItem(Tr::tr("Waiting for items..."));
+
+        const auto listHandler = [this](const QStringList &results) {
+            m_listWidget->clear();
+            m_listWidget->addItems(results);
+        };
+        const auto errorHandler = [this] {
+            m_listWidget->addItem(Tr::tr("Error while retrieving items."));
+        };
+        m_taskTreeRunner.start({protocol->listRecipe(listHandler)}, {},
+                               errorHandler, QtTaskTree::CallDone::OnError);
     }
 }
 
 void PasteSelectDialog::protocolChanged(int i)
 {
+    m_taskTreeRunner.reset();
     const bool canList = m_protocols.at(i)->capabilities() & Capability::List;
     m_refreshButton->setEnabled(canList);
     if (canList) {

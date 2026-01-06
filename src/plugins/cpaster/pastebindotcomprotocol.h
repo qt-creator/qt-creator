@@ -14,17 +14,15 @@ public:
     static QString protocolName();
 
     void fetch(const QString &id) override;
-    void list() override;
+    QtTaskTree::ExecutableItem listRecipe(const ListHandler &handler) const override;
     void paste(const PasteInputData &inputData) override;
 
 private:
     void fetchFinished();
     void pasteFinished();
-    void listFinished();
 
     QNetworkReply *m_fetchReply = nullptr;
     QNetworkReply *m_pasteReply = nullptr;
-    QNetworkReply *m_listReply = nullptr;
 
     QString m_fetchId;
 };

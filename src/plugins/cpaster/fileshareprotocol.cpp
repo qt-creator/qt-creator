@@ -104,32 +104,32 @@ void FileShareProtocol::fetch(const QString &id)
         reportError(errorMessage);
 }
 
-void FileShareProtocol::list()
+static QFileInfoList fileShareInfoList()
 {
     // Read out directory, display by date (latest first)
     QDir dir(fileShareSettings().path().toFSPathString(), tempGlobPatternC,
-             QDir::Time, QDir::Files|QDir::NoDotAndDotDot|QDir::Readable);
-    QStringList entries;
-    QString user;
-    QString description;
-    QString errorMessage;
-    const QChar blank = QLatin1Char(' ');
+             QDir::Time, QDir::Files | QDir::NoDotAndDotDot | QDir::Readable);
     const QFileInfoList entryInfoList = dir.entryInfoList();
-    const int count = qMin(int(fileShareSettings().displayCount()), entryInfoList.size());
-    for (int i = 0; i < count; i++) {
-        const QFileInfo& entryFi = entryInfoList.at(i);
-        if (parse(entryFi.absoluteFilePath(), &errorMessage, &user, &description)) {
-            QString entry = entryFi.fileName();
-            entry += blank;
-            entry += user;
-            entry += blank;
-            entry += description;
-            entries.push_back(entry);
+    return entryInfoList.mid(0, fileShareSettings().displayCount());
+}
+
+QtTaskTree::ExecutableItem FileShareProtocol::listRecipe(const ListHandler &handler) const
+{
+    return QSyncTask([handler] {
+        QStringList entries;
+        QString user;
+        QString description;
+        QString errorMessage;
+        const QFileInfoList entryInfoList = fileShareInfoList();
+        for (const QFileInfo &entry : entryInfoList) {
+            if (parse(entry.absoluteFilePath(), &errorMessage, &user, &description))
+                entries.append(entry.fileName() + u' ' + user + u' ' + description);
+            if (debug)
+                qDebug() << entry.absoluteFilePath() << errorMessage;
         }
-        if (debug)
-            qDebug() << entryFi.absoluteFilePath() << errorMessage;
-    }
-    emit listDone(entries);
+        if (handler)
+            handler(entries);
+    });
 }
 
 void FileShareProtocol::paste(const PasteInputData &inputData)
