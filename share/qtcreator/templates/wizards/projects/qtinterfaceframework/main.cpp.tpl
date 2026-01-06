@@ -10,5 +10,5 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     engine.loadFromModule("%{ProjectNameCap}", "Main");
 
-    return app.exec();
+    return QCoreApplication::exec();
 }

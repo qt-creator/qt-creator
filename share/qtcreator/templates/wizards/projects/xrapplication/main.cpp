@@ -11,5 +11,5 @@ int main(int argc, char *argv[])
                      Qt::QueuedConnection);
     engine.loadFromModule("%{JS: value('ProjectName')}", "Main");
 
-    return app.exec();
+    return QCoreApplication::exec();
 }

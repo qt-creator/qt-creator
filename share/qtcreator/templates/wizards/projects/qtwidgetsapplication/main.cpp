@@ -24,5 +24,5 @@ int main(int argc, char *argv[])
 @endif
     %{Class} w;
     w.show();
-    return a.exec();
+    return QCoreApplication::exec();
 }

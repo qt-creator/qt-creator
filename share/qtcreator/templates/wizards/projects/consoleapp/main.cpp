@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 @endif
 
     // Set up code that uses the Qt event loop here.
-    // Call a.quit() or a.exit() to quit the application.
+    // Call QCoreApplication::quit() or QCoreApplication::exit() to quit the application.
     // A not very useful example would be including
     // #include <QTimer>
     // near the top of the file and calling
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     // which quits the application after 5 seconds.
 
     // If you do not need a running Qt event loop, remove the call
-    // to a.exec() or use the Non-Qt Plain C++ Application template.
+    // to QCoreApplication::exec() or use the Non-Qt Plain C++ Application template.
 
-    return a.exec();
+    return QCoreApplication::exec();
 }
