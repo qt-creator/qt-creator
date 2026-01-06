@@ -39,7 +39,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     bool add(const ProjectExplorer::CustomParserSettings& s);
-    bool remove(const QModelIndex &index);
+    bool remove(const QModelIndexList &indexes);
 
     void apply();
 
@@ -231,11 +231,12 @@ bool CustomParsersModel::add(const CustomParserSettings &s)
     return true;
 }
 
-bool CustomParsersModel::remove(const QModelIndex &index)
+bool CustomParsersModel::remove(const QModelIndexList &indexes)
 {
-    beginRemoveRows(index.parent(), index.row(), index.row());
-    m_customParsers.removeAt(index.row());
-    endRemoveRows();
+    beginResetModel();
+    for (auto it = std::rbegin(indexes); it != std::rend(indexes); ++it)
+        m_customParsers.removeAt(it->row());
+    endResetModel();
     return true;
 }
 
@@ -251,7 +252,7 @@ public:
     {
         Utils::TreeView *parserView = new Utils::TreeView(this);
         parserView->setModel(&m_model);
-        parserView->setSelectionMode(QAbstractItemView::SingleSelection);
+        parserView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         parserView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
         const auto mainLayout = new QVBoxLayout(this);
@@ -284,7 +285,7 @@ public:
         });
 
         connect(removeButton, &QPushButton::clicked, this, [this, parserView] {
-            m_model.remove(parserView->currentIndex());
+            m_model.remove(parserView->selectionModel()->selectedRows());
         });
 
         connect(editButton, &QPushButton::clicked, this, [this, parserView] {
@@ -299,9 +300,8 @@ public:
         });
 
         const auto updateButtons = [editButton, parserView, removeButton] {
-            const bool enable = parserView->currentIndex().isValid();
-            removeButton->setEnabled(enable);
-            editButton->setEnabled(enable);
+            removeButton->setEnabled(parserView->selectionModel()->hasSelection());
+            editButton->setEnabled(parserView->selectionModel()->selection().size() == 1);
         };
         updateButtons();
         connect(parserView->selectionModel(), &QItemSelectionModel::selectionChanged,
