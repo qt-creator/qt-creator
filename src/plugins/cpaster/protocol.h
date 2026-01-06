@@ -85,8 +85,8 @@ private:
 /* Network-based protocol helpers: Provides access with delayed
  * initialization to a QNetworkAccessManager and conveniences
  * for HTTP-requests. */
-QNetworkReply *httpGet(const QString &url, bool handleCookies = false);
+QNetworkReply *httpGet(const QString &url);
 
-QNetworkReply *httpPost(const QString &link, const QByteArray &data, bool handleCookies = false);
+QNetworkReply *httpPost(const QString &link, const QByteArray &data);
 
 } //namespace CodePaster

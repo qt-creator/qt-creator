@@ -90,30 +90,17 @@ bool Protocol::ensureConfiguration(Protocol *p, QWidget *parent)
 
 // --------- NetworkProtocol
 
-static void addCookies(QNetworkRequest &request)
-{
-    auto accessMgr = Utils::NetworkAccessManager::instance();
-    const QList<QNetworkCookie> cookies = accessMgr->cookieJar()->cookiesForUrl(request.url());
-    for (const QNetworkCookie &cookie : cookies)
-        request.setHeader(QNetworkRequest::CookieHeader, QVariant::fromValue(cookie));
-}
-
-QNetworkReply *httpGet(const QString &link, bool handleCookies)
+QNetworkReply *httpGet(const QString &link)
 {
     QUrl url(link);
     QNetworkRequest r(url);
-    if (handleCookies)
-        addCookies(r);
     return Utils::NetworkAccessManager::instance()->get(r);
 }
 
-QNetworkReply *httpPost(const QString &link, const QByteArray &data,
-                                         bool handleCookies)
+QNetworkReply *httpPost(const QString &link, const QByteArray &data)
 {
     QUrl url(link);
     QNetworkRequest r(url);
-    if (handleCookies)
-        addCookies(r);
     r.setHeader(QNetworkRequest::ContentTypeHeader,
                 QVariant(QByteArray("application/x-www-form-urlencoded")));
     return Utils::NetworkAccessManager::instance()->post(r, data);
