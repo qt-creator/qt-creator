@@ -5,8 +5,12 @@
 
 #include <coreplugin/messagemanager.h>
 
-#include <QNetworkReply>
-#include <QUrl>
+#include <utils/networkaccessmanager.h>
+
+#include <QtTaskTree/QNetworkReplyWrapper>
+
+using namespace QtTaskTree;
+using namespace Utils;
 
 namespace CodePaster {
 
@@ -19,38 +23,60 @@ DPasteDotComProtocol::DPasteDotComProtocol()
 
 QString DPasteDotComProtocol::protocolName() { return QString("DPaste.Com"); }
 
-void DPasteDotComProtocol::fetch(const QString &id)
+ExecutableItem DPasteDotComProtocol::fetchRecipe(const QString &id,
+                                                 const FetchHandler &handler) const
 {
-    QNetworkReply * const reply = httpGet(baseUrl() + '/' + id + ".txt");
-    connect(reply, &QNetworkReply::finished, this, [this, id, reply] {
-        fetchFinished(id, reply, false);
-    });
-}
+    const Storage<std::optional<QString>> storage;
 
-void DPasteDotComProtocol::fetchFinished(const QString &id, QNetworkReply * const reply,
-                                         bool alreadyRedirected)
-{
-    const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-    if (status >= 300 && status <= 308 && status != 306) {
-        if (!alreadyRedirected) {
+    const auto onGetSetup = [id](QNetworkReplyWrapper &task) {
+        task.setNetworkAccessManager(NetworkAccessManager::instance());
+        const QUrl url(baseUrl() + '/' + id + ".txt");
+        task.setRequest(QNetworkRequest(url));
+    };
+    const auto onGetDone = [this, id, storage, handler](const QNetworkReplyWrapper &task, DoneWith result) {
+        QNetworkReply *reply = task.reply();
+        const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        if (status >= 300 && status <= 308 && status != 306) {
             const QString location = QString::fromUtf8(reply->rawHeader("Location"));
+            *storage = location;
             if (status == 301 || status == 308) {
                 const QString m = QString("HTTP redirect (%1) to \"%2\"").arg(status).arg(location);
                 Core::MessageManager::writeSilently(m);
             }
-            QNetworkReply * const newRep = httpGet(location);
-            connect(newRep, &QNetworkReply::finished, this, [this, id, newRep] {
-                fetchFinished(id, newRep, true);
-            });
-            reply->deleteLater();
+            return true;
+        }
+        if (result == DoneWith::Error) {
+            reportError(reply->errorString());
+            return false;
+        }
+        if (handler)
+            handler(name() + ": " + id, QString::fromUtf8(reply->readAll()));
+        return true;
+    };
+
+    const auto onRedirectedGetSetup = [storage](QNetworkReplyWrapper &task) {
+        if (!*storage)
+            return SetupResult::StopWithSuccess;
+
+        task.setNetworkAccessManager(NetworkAccessManager::instance());
+        task.setRequest(QNetworkRequest(**storage));
+        return SetupResult::Continue;
+    };
+    const auto onRedirectedGetDone = [this, id, handler](const QNetworkReplyWrapper &task, DoneWith result) {
+        QNetworkReply *reply = task.reply();
+        if (result == DoneWith::Error) {
+            reportError(reply->errorString());
             return;
         }
-    }
-    if (reply->error())
-        reportError(reply->errorString());
-    else
-        emit fetchDone(name() + ": " + id, QString::fromUtf8(reply->readAll()));
-    reply->deleteLater();
+        if (handler)
+            handler(name() + ": " + id, QString::fromUtf8(reply->readAll()));
+    };
+
+    return Group {
+        storage,
+        QNetworkReplyWrapperTask(onGetSetup, onGetDone),
+        QNetworkReplyWrapperTask(onRedirectedGetSetup, onRedirectedGetDone)
+    };
 }
 
 static QByteArray typeToString(ContentType type)

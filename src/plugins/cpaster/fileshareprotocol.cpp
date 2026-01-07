@@ -16,6 +16,7 @@
 #include <QFileInfo>
 #include <QDebug>
 
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace CodePaster {
@@ -90,18 +91,24 @@ static bool parse(const QString &fileName,
     return true;
 }
 
-void FileShareProtocol::fetch(const QString &id)
+ExecutableItem FileShareProtocol::fetchRecipe(const QString &id,
+                                              const FetchHandler &handler) const
 {
-    // Absolute or relative path name.
-    QFileInfo fi(id);
-    if (fi.isRelative())
-        fi = fileShareSettings().path().pathAppended(id).toFileInfo();
-    QString errorMessage;
-    QString text;
-    if (parse(fi.absoluteFilePath(), &errorMessage, nullptr, nullptr, &text))
-        emit fetchDone(id, text);
-    else
+    return QSyncTask([this, id, handler] {
+        // Absolute or relative path name.
+        QFileInfo fi(id);
+        if (fi.isRelative())
+            fi = fileShareSettings().path().pathAppended(id).toFileInfo();
+        QString errorMessage;
+        QString text;
+        if (parse(fi.absoluteFilePath(), &errorMessage, nullptr, nullptr, &text)) {
+            if (handler)
+                handler(id, text);
+            return true;
+        }
         reportError(errorMessage);
+        return false;
+    });
 }
 
 static QFileInfoList fileShareInfoList()

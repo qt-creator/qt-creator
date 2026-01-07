@@ -30,6 +30,12 @@ Protocol::Protocol(const ProtocolData &data)
 
 Protocol::~Protocol() = default;
 
+QtTaskTree::ExecutableItem Protocol::fetchRecipe(const QString &, const FetchHandler &) const
+{
+    reportError(Tr::tr("Fetch cabability not supported."));
+    return QtTaskTree::errorItem;
+}
+
 QtTaskTree::ExecutableItem Protocol::listRecipe(const ListHandler &) const
 {
     reportError(Tr::tr("List cabability not supported."));
@@ -87,15 +93,6 @@ bool Protocol::ensureConfiguration(Protocol *p, QWidget *parent)
             break;
     }
     return false;
-}
-
-// --------- NetworkProtocol
-
-QNetworkReply *httpGet(const QString &link)
-{
-    QUrl url(link);
-    QNetworkRequest r(url);
-    return Utils::NetworkAccessManager::instance()->get(r);
 }
 
 QNetworkReply *httpPost(const QString &link, const QByteArray &data)

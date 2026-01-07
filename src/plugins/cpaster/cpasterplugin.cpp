@@ -34,6 +34,8 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 #include <QDebug>
 #include <QAction>
 #include <QApplication>
@@ -85,7 +87,8 @@ public:
     void pasteSnippet();
     void fetch();
     void finishPost(const QString &link);
-    void finishFetch(const QString &titleDescription, const QString &content);
+
+    void fetchId(const QString &pasteId, Protocol *protocol);
 
     void fetchUrl();
 
@@ -103,6 +106,7 @@ public:
 
     UrlOpenProtocol m_urlOpen;
 
+    QSingleTaskTreeRunner m_taskTreeRunner;
     CodePasterServiceImpl m_service{this};
 };
 
@@ -142,15 +146,12 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
         for (Protocol *proto : m_protocols) {
             settings().protocols.addOption(proto->name());
             connect(proto, &Protocol::pasteDone, this, &CodePasterPluginPrivate::finishPost);
-            connect(proto, &Protocol::fetchDone, this, &CodePasterPluginPrivate::finishFetch);
         }
         settings().protocols.setDefaultValue(m_protocols.at(0)->name());
     }
 
     // Create the settings Page
     settings().readSettings();
-
-    connect(&m_urlOpen, &Protocol::fetchDone, this, &CodePasterPluginPrivate::finishFetch);
 
     //register actions
 
@@ -232,7 +233,7 @@ void CodePasterPluginPrivate::fetchUrl()
         if (!ok)
             return;
     } while (!url.isValid());
-    m_urlOpen.fetch(url.toString());
+    fetchId(url.toString(), &m_urlOpen);
 }
 
 void CodePasterPluginPrivate::pasteSnippet()
@@ -247,7 +248,7 @@ void CodePasterPluginPrivate::fetch()
         return;
     Protocol *protocol = m_protocols[settings().protocols()];
     if (Protocol::ensureConfiguration(protocol))
-        protocol->fetch(pasteId);
+        fetchId(pasteId, protocol);
 }
 
 void CodePasterPluginPrivate::finishPost(const QString &link)
@@ -295,41 +296,45 @@ static inline QString tempFilePattern(const QString &prefix, const QString &exte
     return pattern;
 }
 
-void CodePasterPluginPrivate::finishFetch(const QString &titleDescription, const QString &content)
+void CodePasterPluginPrivate::fetchId(const QString &pasteId, Protocol *protocol)
 {
-    if (content.isEmpty()) {
-        MessageManager::writeDisrupting(
-            Tr::tr("Empty snippet received for \"%1\".").arg(titleDescription));
-        return;
-    }
-    // If the mime type has a preferred suffix (cpp/h/patch...), use that for
-    // the temporary file. This is to make it more convenient to "Save as"
-    // for the user and also to be able to tell a patch or diff in the VCS plugins
-    // by looking at the file name of DocumentManager::currentFile() without expensive checking.
-    // Default to "txt".
-    QByteArray byteContent = content.toUtf8();
-    QString suffix;
-    const MimeType mimeType = mimeTypeForData(byteContent);
-    if (mimeType.isValid())
-        suffix = mimeType.preferredSuffix();
-    if (suffix.isEmpty())
-         suffix = QLatin1String("txt");
+    const auto fetchHandler = [this](const QString &titleDescription, const QString &content) {
+        if (content.isEmpty()) {
+            MessageManager::writeDisrupting(
+                Tr::tr("Empty snippet received for \"%1\".").arg(titleDescription));
+            return;
+        }
+        // If the mime type has a preferred suffix (cpp/h/patch...), use that for
+        // the temporary file. This is to make it more convenient to "Save as"
+        // for the user and also to be able to tell a patch or diff in the VCS plugins
+        // by looking at the file name of DocumentManager::currentFile() without expensive checking.
+        // Default to "txt".
+        const QByteArray byteContent = content.toUtf8();
+        QString suffix;
+        const MimeType mimeType = mimeTypeForData(byteContent);
+        if (mimeType.isValid())
+            suffix = mimeType.preferredSuffix();
+        if (suffix.isEmpty())
+            suffix = QLatin1String("txt");
 
-    const QString filePrefix = filePrefixFromTitle(titleDescription);
-    TempFileSaver saver(tempFilePattern(filePrefix, suffix));
-    saver.setAutoRemove(false);
-    saver.write(byteContent);
-    if (const Result<> res = saver.finalize(); !res) {
-        MessageManager::writeDisrupting(res.error());
-        return;
-    }
+        const QString filePrefix = filePrefixFromTitle(titleDescription);
+        TempFileSaver saver(tempFilePattern(filePrefix, suffix));
+        saver.setAutoRemove(false);
+        saver.write(byteContent);
+        if (const Result<> res = saver.finalize(); !res) {
+            MessageManager::writeDisrupting(res.error());
+            return;
+        }
 
-    const FilePath filePath = saver.filePath();
-    m_fetchedSnippets.push_back(filePath.toUrlishString());
-    // Open editor with title.
-    IEditor *editor = EditorManager::openEditor(filePath);
-    QTC_ASSERT(editor, return);
-    editor->document()->setPreferredDisplayName(titleDescription);
+        const FilePath filePath = saver.filePath();
+        m_fetchedSnippets.push_back(filePath.toUrlishString());
+        // Open editor with title.
+        IEditor *editor = EditorManager::openEditor(filePath);
+        QTC_ASSERT(editor, return);
+        editor->document()->setPreferredDisplayName(titleDescription);
+    };
+
+    m_taskTreeRunner.start({protocol->fetchRecipe(pasteId, fetchHandler)});
 }
 
 // CodePasterPlugin

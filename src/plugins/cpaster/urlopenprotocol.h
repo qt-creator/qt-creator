@@ -12,13 +12,9 @@ class UrlOpenProtocol : public Protocol
 public:
     UrlOpenProtocol();
 
-    void fetch(const QString &url) override;
+    QtTaskTree::ExecutableItem fetchRecipe(const QString &id,
+                                           const FetchHandler &handler) const override;
     void paste(const PasteInputData &) override {}
-
-private:
-    void fetchFinished();
-
-    QNetworkReply *m_fetchReply = nullptr;
 };
 
 } // CodePaster

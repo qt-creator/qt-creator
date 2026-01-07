@@ -13,18 +13,15 @@ public:
     PasteBinDotComProtocol();
     static QString protocolName();
 
-    void fetch(const QString &id) override;
+    QtTaskTree::ExecutableItem fetchRecipe(const QString &id,
+                                           const FetchHandler &handler) const override;
     QtTaskTree::ExecutableItem listRecipe(const ListHandler &handler) const override;
     void paste(const PasteInputData &inputData) override;
 
 private:
-    void fetchFinished();
     void pasteFinished();
 
-    QNetworkReply *m_fetchReply = nullptr;
     QNetworkReply *m_pasteReply = nullptr;
-
-    QString m_fetchId;
 };
 
 } // CodePaster

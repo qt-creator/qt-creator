@@ -13,11 +13,10 @@
 #include <QStringList>
 #include <QByteArray>
 
-#include <QNetworkReply>
-
 enum { debug = 0 };
 
 using namespace QtTaskTree;
+using namespace Utils;
 
 namespace CodePaster {
 
@@ -94,41 +93,42 @@ void PasteBinDotComProtocol::pasteFinished()
     m_pasteReply = nullptr;
 }
 
-void PasteBinDotComProtocol::fetch(const QString &id)
+ExecutableItem PasteBinDotComProtocol::fetchRecipe(const QString &id,
+                                                   const FetchHandler &handler) const
 {
-    // Did we get a complete URL or just an id. Insert a call to the php-script
-    QString link = QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_RAW);
+    const auto onSetup = [id](QNetworkReplyWrapper &task) {
+        task.setNetworkAccessManager(NetworkAccessManager::instance());
+        // Did we get a complete URL or just an id. Insert a call to the php-script
+        QString link = QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_RAW);
 
-    if (id.startsWith(QLatin1String("http://")))
-        link.append(id.mid(id.lastIndexOf(QLatin1Char('/')) + 1));
-    else
-        link.append(id);
+        if (id.startsWith(QLatin1String("http://")))
+            link.append(id.mid(id.lastIndexOf(QLatin1Char('/')) + 1));
+        else
+            link.append(id);
 
-    if (debug)
-        qDebug() << "fetch: sending " << link;
-
-    m_fetchReply = httpGet(link);
-    connect(m_fetchReply, &QNetworkReply::finished, this, &PasteBinDotComProtocol::fetchFinished);
-    m_fetchId = id;
-}
-
-void PasteBinDotComProtocol::fetchFinished()
-{
-    if (m_fetchReply->error()) {
-        reportError(m_fetchReply->errorString());
-    } else {
-        const QString title = QLatin1String(PROTOCOL_NAME) + QLatin1String(": ") + m_fetchId;
-        const QString content = QString::fromUtf8(m_fetchReply->readAll());
+        if (debug)
+            qDebug() << "fetch: sending " << link;
+        task.setRequest(QNetworkRequest(QUrl(link)));
+    };
+    const auto onDone = [this, id, handler](const QNetworkReplyWrapper &task, DoneWith result) {
+        QNetworkReply *reply = task.reply();
+        if (result == DoneWith::Error) {
+            reportError(reply->errorString());
+            return;
+        }
+        const QString title = QLatin1String(PROTOCOL_NAME) + QLatin1String(": ") + id;
+        const QString content = QString::fromUtf8(reply->readAll());
         if (debug) {
             QDebug nsp = qDebug().nospace();
             nsp << "fetchFinished: " << content.size() << " Bytes";
             if (debug > 1)
                 nsp << content;
         }
-        emit fetchDone(title, content);
-    }
-    m_fetchReply->deleteLater();
-    m_fetchReply = nullptr;
+        if (handler)
+            handler(title, content);
+    };
+
+    return QNetworkReplyWrapperTask(onSetup, onDone);
 }
 
 /* Quick & dirty: Parse out the 'archive' table as of 16.3.2016:
@@ -408,7 +408,7 @@ static inline QStringList parseLists(QIODevice *io, QString *errorMessage)
 ExecutableItem PasteBinDotComProtocol::listRecipe(const ListHandler &handler) const
 {
     const auto onSetup = [](QNetworkReplyWrapper &task) {
-        task.setNetworkAccessManager(Utils::NetworkAccessManager::instance());
+        task.setNetworkAccessManager(NetworkAccessManager::instance());
         const QUrl url(QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_ARCHIVE));
         task.setRequest(QNetworkRequest(url));
     };

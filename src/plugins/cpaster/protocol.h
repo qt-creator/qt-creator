@@ -53,6 +53,7 @@ public:
     QString description = {};
 };
 
+using FetchHandler = std::function<void(const QString &, const QString &)>;
 using ListHandler = std::function<void(const QStringList &)>;
 
 class Protocol : public QObject
@@ -69,7 +70,8 @@ public:
     }
     const Core::IOptionsPage *settingsPage() const { return m_protocolData.settingsPage; }
 
-    virtual void fetch(const QString &id) = 0;
+    virtual QtTaskTree::ExecutableItem fetchRecipe(const QString &id,
+                                                   const FetchHandler &handler) const;
     virtual QtTaskTree::ExecutableItem listRecipe(const ListHandler &handler) const;
     virtual void paste(const PasteInputData &inputData) = 0;
 
@@ -79,7 +81,6 @@ public:
 
 signals:
     void pasteDone(const QString &link);
-    void fetchDone(const QString &titleDescription, const QString &content);
 
 protected:
     Protocol(const ProtocolData &data);
@@ -89,11 +90,6 @@ protected:
 private:
     ProtocolData m_protocolData;
 };
-
-/* Network-based protocol helpers: Provides access with delayed
- * initialization to a QNetworkAccessManager and conveniences
- * for HTTP-requests. */
-QNetworkReply *httpGet(const QString &url);
 
 QNetworkReply *httpPost(const QString &link, const QByteArray &data);
 

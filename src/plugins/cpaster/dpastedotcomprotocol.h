@@ -14,8 +14,8 @@ public:
     static QString protocolName();
 
 private:
-    void fetch(const QString &id) override;
-    void fetchFinished(const QString &id, QNetworkReply * const reply, bool alreadyRedirected);
+    QtTaskTree::ExecutableItem fetchRecipe(const QString &id,
+                                           const FetchHandler &handler) const override;
     void paste(const PasteInputData &inputData) override;
 };
 
