@@ -64,35 +64,6 @@ static inline QByteArray expirySpecification(int expiryDays)
     return QByteArray("N");
 }
 
-void PasteBinDotComProtocol::paste(const PasteInputData &inputData)
-{
-    QTC_ASSERT(!m_pasteReply, return);
-
-    // Format body
-    QByteArray pasteData = API_KEY;
-    pasteData += "api_option=paste";
-    pasteData += "&api_paste_expire_date=" + expirySpecification(inputData.expiryDays);
-    pasteData += "&api_paste_format=" + typeToString(inputData.ct);
-    pasteData += "&api_paste_name=" + QUrl::toPercentEncoding(inputData.description);
-    pasteData += "&api_paste_code=" + QUrl::toPercentEncoding(fixNewLines(inputData.text));
-    // fire request
-    m_pasteReply = httpPost(QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_API), pasteData);
-    connect(m_pasteReply, &QNetworkReply::finished, this, &PasteBinDotComProtocol::pasteFinished);
-    if (debug)
-        qDebug() << "paste: sending " << m_pasteReply << pasteData;
-}
-
-void PasteBinDotComProtocol::pasteFinished()
-{
-    if (m_pasteReply->error())
-        reportError(m_pasteReply->errorString());
-    else
-        emit pasteDone(QString::fromLatin1(m_pasteReply->readAll()));
-
-    m_pasteReply->deleteLater();
-    m_pasteReply = nullptr;
-}
-
 ExecutableItem PasteBinDotComProtocol::fetchRecipe(const QString &id,
                                                    const FetchHandler &handler) const
 {
@@ -433,6 +404,39 @@ ExecutableItem PasteBinDotComProtocol::listRecipe(const ListHandler &handler) co
             handler(list);
         if (debug)
             qDebug() << list;
+    };
+
+    return QNetworkReplyWrapperTask(onSetup, onDone);
+}
+
+ExecutableItem PasteBinDotComProtocol::pasteRecipe(const PasteInputData &inputData,
+                                                   const PasteHandler &handler) const
+{
+    const auto onSetup = [inputData](QNetworkReplyWrapper &task) {
+        task.setNetworkAccessManager(NetworkAccessManager::instance());
+        QByteArray pasteData = API_KEY;
+        pasteData += "api_option=paste";
+        pasteData += "&api_paste_expire_date=" + expirySpecification(inputData.expiryDays);
+        pasteData += "&api_paste_format=" + typeToString(inputData.ct);
+        pasteData += "&api_paste_name=" + QUrl::toPercentEncoding(inputData.description);
+        pasteData += "&api_paste_code=" + QUrl::toPercentEncoding(fixNewLines(inputData.text));
+        QNetworkRequest request{QUrl(QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_API))};
+        request.setHeader(QNetworkRequest::ContentTypeHeader,
+                          QVariant(QByteArray("application/x-www-form-urlencoded")));
+        task.setRequest(request);
+        task.setOperation(QNetworkAccessManager::PostOperation);
+        task.setData(pasteData);
+        if (debug)
+            qDebug() << "paste: sending " << pasteData;
+    };
+    const auto onDone = [this, handler](const QNetworkReplyWrapper &task, DoneWith result) {
+        QNetworkReply *reply = task.reply();
+        if (result == DoneWith::Error) {
+            reportError(reply->errorString());
+            return;
+        }
+        if (handler)
+            handler(QString::fromLatin1(reply->readAll()));
     };
 
     return QNetworkReplyWrapperTask(onSetup, onDone);

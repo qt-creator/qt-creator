@@ -26,6 +26,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/globaltasktree.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -37,8 +38,6 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QDebug>
-#include <QAction>
-#include <QApplication>
 #include <QClipboard>
 #include <QInputDialog>
 #include <QMenu>
@@ -83,14 +82,11 @@ public:
     ~CodePasterPluginPrivate();
 
     void post(PasteSources pasteSources);
-
     void pasteSnippet();
+
     void fetch();
-    void finishPost(const QString &link);
-
-    void fetchId(const QString &pasteId, Protocol *protocol);
-
     void fetchUrl();
+    void fetchId(const QString &pasteId, Protocol *protocol);
 
     PasteBinDotComProtocol pasteBinProto;
     FileShareProtocol fileShareProto;
@@ -123,8 +119,21 @@ CodePasterServiceImpl::CodePasterServiceImpl(CodePasterPluginPrivate *d)
 void CodePasterServiceImpl::postText(const QString &text, const QString &mimeType)
 {
     const auto pasteInputData = executePasteDialog(d->m_protocols, text, mimeType);
-    if (pasteInputData)
-        d->m_protocols[settings().protocols()]->paste(*pasteInputData);
+    if (!pasteInputData)
+        return;
+
+    const auto pasteHandler = [](const QString &link) {
+        if (settings().copyToClipboard())
+            Utils::setClipboardAndSelection(link);
+
+        if (settings().displayOutput())
+            MessageManager::writeDisrupting(link);
+        else
+            MessageManager::writeFlashing(link);
+    };
+
+    Protocol *protocol = d->m_protocols[settings().protocols()];
+    GlobalTaskTree::start({protocol->pasteRecipe(*pasteInputData, pasteHandler)});
 }
 
 void CodePasterServiceImpl::postCurrentEditor()
@@ -143,10 +152,8 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
 {
     // Connect protocols
     if (!m_protocols.isEmpty()) {
-        for (Protocol *proto : m_protocols) {
+        for (Protocol *proto : m_protocols)
             settings().protocols.addOption(proto->name());
-            connect(proto, &Protocol::pasteDone, this, &CodePasterPluginPrivate::finishPost);
-        }
         settings().protocols.setDefaultValue(m_protocols.at(0)->name());
     }
 
@@ -249,17 +256,6 @@ void CodePasterPluginPrivate::fetch()
     Protocol *protocol = m_protocols[settings().protocols()];
     if (Protocol::ensureConfiguration(protocol))
         fetchId(pasteId, protocol);
-}
-
-void CodePasterPluginPrivate::finishPost(const QString &link)
-{
-    if (settings().copyToClipboard())
-        Utils::setClipboardAndSelection(link);
-
-    if (settings().displayOutput())
-        MessageManager::writeDisrupting(link);
-    else
-        MessageManager::writeFlashing(link);
 }
 
 // Extract the characters that can be used for a file name from a title

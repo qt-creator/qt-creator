@@ -14,7 +14,6 @@ public:
 
     QtTaskTree::ExecutableItem fetchRecipe(const QString &id,
                                            const FetchHandler &handler) const override;
-    void paste(const PasteInputData &) override {}
 };
 
 } // CodePaster

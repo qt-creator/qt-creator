@@ -9,7 +9,6 @@
 #include <QtTaskTree/QTaskTree>
 
 QT_BEGIN_NAMESPACE
-class QNetworkReply;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -55,11 +54,10 @@ public:
 
 using FetchHandler = std::function<void(const QString &, const QString &)>;
 using ListHandler = std::function<void(const QStringList &)>;
+using PasteHandler = std::function<void(const QString &)>;
 
 class Protocol : public QObject
 {
-    Q_OBJECT
-
 public:
     ~Protocol() override;
 
@@ -73,14 +71,11 @@ public:
     virtual QtTaskTree::ExecutableItem fetchRecipe(const QString &id,
                                                    const FetchHandler &handler) const;
     virtual QtTaskTree::ExecutableItem listRecipe(const ListHandler &handler) const;
-    virtual void paste(const PasteInputData &inputData) = 0;
+    virtual QtTaskTree::ExecutableItem pasteRecipe(const PasteInputData &inputData,
+                                                   const PasteHandler &handler) const;
 
     // Ensure configuration is correct
-    static bool ensureConfiguration(Protocol *p,
-                                    QWidget *parent = nullptr);
-
-signals:
-    void pasteDone(const QString &link);
+    static bool ensureConfiguration(Protocol *p, QWidget *parent = nullptr);
 
 protected:
     Protocol(const ProtocolData &data);
@@ -90,7 +85,5 @@ protected:
 private:
     ProtocolData m_protocolData;
 };
-
-QNetworkReply *httpPost(const QString &link, const QByteArray &data);
 
 } //namespace CodePaster

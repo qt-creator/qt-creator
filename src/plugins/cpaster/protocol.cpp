@@ -9,15 +9,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
-#include <utils/networkaccessmanager.h>
-
-#include <QApplication>
 #include <QDebug>
 #include <QMessageBox>
-#include <QNetworkCookie>
-#include <QNetworkCookieJar>
-#include <QNetworkReply>
-#include <QNetworkRequest>
 #include <QPushButton>
 #include <QUrl>
 #include <QVariant>
@@ -39,6 +32,12 @@ QtTaskTree::ExecutableItem Protocol::fetchRecipe(const QString &, const FetchHan
 QtTaskTree::ExecutableItem Protocol::listRecipe(const ListHandler &) const
 {
     reportError(Tr::tr("List cabability not supported."));
+    return QtTaskTree::errorItem;
+}
+
+QtTaskTree::ExecutableItem Protocol::pasteRecipe(const PasteInputData &, const PasteHandler &) const
+{
+    reportError(Tr::tr("Paste cabability not supported."));
     return QtTaskTree::errorItem;
 }
 
@@ -93,15 +92,6 @@ bool Protocol::ensureConfiguration(Protocol *p, QWidget *parent)
             break;
     }
     return false;
-}
-
-QNetworkReply *httpPost(const QString &link, const QByteArray &data)
-{
-    QUrl url(link);
-    QNetworkRequest r(url);
-    r.setHeader(QNetworkRequest::ContentTypeHeader,
-                QVariant(QByteArray("application/x-www-form-urlencoded")));
-    return Utils::NetworkAccessManager::instance()->post(r, data);
 }
 
 } // CodePaster

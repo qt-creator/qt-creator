@@ -92,32 +92,44 @@ static QByteArray typeToString(ContentType type)
     return {};
 }
 
-void DPasteDotComProtocol::paste(const PasteInputData &inputData)
+ExecutableItem DPasteDotComProtocol::pasteRecipe(const PasteInputData &inputData,
+                                                 const PasteHandler &handler) const
 {
-    // See http://dpaste.com/api/v2/
-    QByteArray data;
-    data += "content=" + QUrl::toPercentEncoding(fixNewLines(inputData.text));
-    data += "&expiry_days=" + QByteArray::number(inputData.expiryDays);
-    data += "&syntax=" + typeToString(inputData.ct);
-    data += "&title=" + QUrl::toPercentEncoding(inputData.description);
-    data += "&poster=" + QUrl::toPercentEncoding(inputData.username);
-
-    QNetworkReply * const reply = httpPost(apiUrl(), data);
-    connect(reply, &QNetworkReply::finished, this, [this, reply] {
-        QString data;
-        if (reply->error()) {
-            reportError(reply->errorString()); // FIXME: Why can't we properly emit an error here?
+    const auto onSetup = [inputData](QNetworkReplyWrapper &task) {
+        task.setNetworkAccessManager(NetworkAccessManager::instance());
+        QByteArray data;
+        data += "content=" + QUrl::toPercentEncoding(fixNewLines(inputData.text));
+        data += "&expiry_days=" + QByteArray::number(inputData.expiryDays);
+        data += "&syntax=" + typeToString(inputData.ct);
+        data += "&title=" + QUrl::toPercentEncoding(inputData.description);
+        data += "&poster=" + QUrl::toPercentEncoding(inputData.username);
+        QNetworkRequest request{QUrl(apiUrl())};
+        request.setHeader(QNetworkRequest::ContentTypeHeader,
+                          QVariant(QByteArray("application/x-www-form-urlencoded")));
+        task.setRequest(request);
+        task.setOperation(QNetworkAccessManager::PostOperation);
+        task.setData(data);
+    };
+    const auto onDone = [this, handler](const QNetworkReplyWrapper &task, DoneWith result) {
+        QNetworkReply *reply = task.reply();
+        if (result == DoneWith::Error) {
+            reportError(reply->errorString());
             reportError(QString::fromUtf8(reply->readAll()));
-        } else {
-            data = QString::fromUtf8(reply->readAll());
-            if (!data.startsWith(baseUrl())) {
-                reportError(data);
-                data.clear();
-            }
+            return false;
         }
-        reply->deleteLater();
-        emit pasteDone(data);
-    });
+
+        const QString data = QString::fromUtf8(reply->readAll());
+        if (!data.startsWith(baseUrl())) {
+            reportError(data);
+            return false;
+        }
+
+        if (handler)
+            handler(data);
+        return true;
+    };
+
+    return QNetworkReplyWrapperTask(onSetup, onDone);
 }
 
 } // CodePaster

@@ -16,12 +16,8 @@ public:
     QtTaskTree::ExecutableItem fetchRecipe(const QString &id,
                                            const FetchHandler &handler) const override;
     QtTaskTree::ExecutableItem listRecipe(const ListHandler &handler) const override;
-    void paste(const PasteInputData &inputData) override;
-
-private:
-    void pasteFinished();
-
-    QNetworkReply *m_pasteReply = nullptr;
+    QtTaskTree::ExecutableItem pasteRecipe(const PasteInputData &inputData,
+                                           const PasteHandler &handler) const override;
 };
 
 } // CodePaster

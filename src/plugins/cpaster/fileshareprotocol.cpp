@@ -43,8 +43,6 @@ FileShareProtocol::FileShareProtocol()
                 checkConfig, &fileShareSettingsPage()})
 {}
 
-FileShareProtocol::~FileShareProtocol() = default;
-
 static bool parse(const QString &fileName,
                   QString *errorMessage,
                   QString *user = nullptr, QString *description = nullptr, QString *text = nullptr)
@@ -139,31 +137,36 @@ QtTaskTree::ExecutableItem FileShareProtocol::listRecipe(const ListHandler &hand
     });
 }
 
-void FileShareProtocol::paste(const PasteInputData &inputData)
+ExecutableItem FileShareProtocol::pasteRecipe(const PasteInputData &inputData,
+                                              const PasteHandler &handler) const
 {
-    // Write out temp XML file
-    TempFileSaver saver(fileShareSettings().path().pathAppended(tempPatternC).toFSPathString());
-    saver.setAutoRemove(false);
-    if (!saver.hasError()) {
-        // Flat text sections embedded into pasterElement
-        QXmlStreamWriter writer(saver.file());
-        writer.writeStartDocument();
-        writer.writeStartElement(QLatin1String(pasterElementC));
+    return QSyncTask([this, inputData, handler] {
+        // Write out temp XML file
+        TempFileSaver saver(fileShareSettings().path().pathAppended(tempPatternC).toFSPathString());
+        saver.setAutoRemove(false);
+        if (!saver.hasError()) {
+            // Flat text sections embedded into pasterElement
+            QXmlStreamWriter writer(saver.file());
+            writer.writeStartDocument();
+            writer.writeStartElement(QLatin1String(pasterElementC));
 
-        writer.writeTextElement(QLatin1String(userElementC), inputData.username);
-        writer.writeTextElement(QLatin1String(descriptionElementC), inputData.description);
-        writer.writeTextElement(QLatin1String(textElementC), inputData.text);
+            writer.writeTextElement(QLatin1String(userElementC), inputData.username);
+            writer.writeTextElement(QLatin1String(descriptionElementC), inputData.description);
+            writer.writeTextElement(QLatin1String(textElementC), inputData.text);
 
-        writer.writeEndElement();
-        writer.writeEndDocument();
+            writer.writeEndElement();
+            writer.writeEndDocument();
 
-        saver.setResult(&writer);
-    }
-    if (const Result<> res = saver.finalize(); !res) {
-        reportError(res.error());
-        return;
-    }
+            saver.setResult(&writer);
+        }
+        if (const Result<> res = saver.finalize(); !res) {
+            reportError(res.error());
+            return;
+        }
 
-    emit pasteDone(saver.filePath().toUserOutput());
+        if (handler)
+            handler(saver.filePath().toUserOutput());
+    });
 }
+
 } // namespace CodePaster

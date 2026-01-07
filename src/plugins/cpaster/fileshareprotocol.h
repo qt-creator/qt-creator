@@ -14,12 +14,12 @@ class FileShareProtocol : public Protocol
 {
 public:
     FileShareProtocol();
-    ~FileShareProtocol() override;
 
     QtTaskTree::ExecutableItem fetchRecipe(const QString &id,
                                            const FetchHandler &handler) const override;
     QtTaskTree::ExecutableItem listRecipe(const ListHandler &handler) const override;
-    void paste(const PasteInputData &inputData) override;
+    QtTaskTree::ExecutableItem pasteRecipe(const PasteInputData &inputData,
+                                           const PasteHandler &handler) const override;
 };
 
 } // CodePaster

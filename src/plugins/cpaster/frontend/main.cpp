@@ -5,9 +5,10 @@
 #include "../dpastedotcomprotocol.h"
 #include "../pastebindotcomprotocol.h"
 
+#include <QCoreApplication>
 #include <QFile>
 #include <QObject>
-#include <QCoreApplication>
+#include <QtTaskTree/QTaskTree>
 
 #include <cstdio>
 #include <cstdlib>
@@ -46,17 +47,13 @@ public:
             QCoreApplication::exit(EXIT_FAILURE);
             return;
         }
-        connect(m_protocol.data(), &Protocol::pasteDone, this, &PasteReceiver::handlePasteDone);
-        m_protocol->paste({content});
-    }
-
-private:
-    void handlePasteDone(const QString &link)
-    {
-        std::cout << qPrintable(link) << std::endl;
+        QTaskTree::runBlocking({m_protocol->pasteRecipe({content}, [](const QString &link) {
+            std::cout << qPrintable(link) << std::endl;
+        })});
         QCoreApplication::quit();
     }
 
+private:
     const QString m_filePath;
     QScopedPointer<Protocol> m_protocol;
 };
