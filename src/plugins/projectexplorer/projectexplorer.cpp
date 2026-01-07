@@ -681,6 +681,7 @@ public:
     QPointer<RunConfiguration> m_defaultRunConfiguration;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
     MiniProjectTargetSelector * m_targetSelector;
+    QList<CustomProjectSettingsHandler> m_projectSettingsHandlers;
     bool m_shouldHaveRunConfiguration = false;
     Id m_runMode = Constants::NO_RUN_MODE;
 
@@ -2360,6 +2361,27 @@ void ProjectExplorerPlugin::openProjectWelcomePage(const FilePath &filePath)
         showOpenProjectError(result);
 }
 
+void ProjectManager::registerCustomProjectSettingsHandler(const CustomProjectSettingsHandler &handler)
+{
+    dd->m_projectSettingsHandlers << handler;
+}
+
+void ProjectManager::loadCustomProjectSettings(Project &project)
+{
+    for (const CustomProjectSettingsHandler &handler :
+         std::as_const(dd->m_projectSettingsHandlers)) {
+        handler.load(project);
+    }
+}
+
+void ProjectManager::unloadCustomProjectSettings(const Project &project)
+{
+    for (const CustomProjectSettingsHandler &handler :
+         std::as_const(dd->m_projectSettingsHandlers)) {
+        handler.unload(project);
+    }
+}
+
 OpenProjectResult ProjectExplorerPlugin::openProject(const FilePath &filePath, bool searchInDir)
 {
     OpenProjectResult result = openProjects({filePath}, searchInDir);
@@ -2445,6 +2467,7 @@ OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths
         if (ProjectManager::canOpenProjectForMimeType(mt)) {
             if (ProjectManager::ensurePluginForProjectIsLoaded(mt) ) {
                 if (Project *pro = ProjectManager::openProject(mt, filePath)) {
+                    ProjectManager::loadCustomProjectSettings(*pro);
                     QString restoreError;
                     Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
                     if (restoreResult == Project::RestoreResult::Ok) {
@@ -2458,6 +2481,7 @@ OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths
                     } else {
                         if (restoreResult == Project::RestoreResult::Error)
                             appendError(errorString, restoreError);
+                        ProjectManager::unloadCustomProjectSettings(*pro);
                         delete pro;
                     }
                 }
