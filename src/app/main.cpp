@@ -54,14 +54,6 @@
 #include <string>
 #include <vector>
 
-#ifdef ENABLE_CRASHPAD
-#define NOMINMAX
-#include "client/crash_report_database.h"
-#include "client/crashpad_client.h"
-#include "client/crashpad_info.h"
-#include "client/settings.h"
-#endif
-
 #ifdef ENABLE_SENTRY
 #include <sentry.h>
 
@@ -471,69 +463,6 @@ QStringList lastSessionArgument()
     return hasProjectExplorer ? QStringList({"-lastsession"}) : QStringList();
 }
 
-#ifdef ENABLE_CRASHPAD
-void startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
-{
-    if (!crashReportingEnabled)
-        return;
-
-    using namespace crashpad;
-
-    // Cache directory that will store crashpad information and minidumps
-    const QString databasePath = appInfo.crashReports.path();
-    const QString handlerPath = (appInfo.libexec / "crashpad_handler").path();
-#ifdef Q_OS_WIN
-    base::FilePath database(databasePath.toStdWString());
-    base::FilePath handler(HostOsInfo::withExecutableSuffix(handlerPath).toStdWString());
-#elif defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-    base::FilePath database(databasePath.toStdString());
-    base::FilePath handler(HostOsInfo::withExecutableSuffix(handlerPath).toStdString());
-#endif
-
-    std::unique_ptr<CrashReportDatabase> db = CrashReportDatabase::Initialize(database);
-    if (db && db->GetSettings())
-        db->GetSettings()->SetUploadsEnabled(crashReportingEnabled);
-
-    // URL used to submit minidumps to
-    std::string url(CRASHPAD_BACKEND_URL);
-
-    // Optional annotations passed via --annotations to the handler
-    std::map<std::string, std::string> annotations;
-    annotations["app-version"] = Core::Constants::IDE_VERSION_DISPLAY;
-    annotations["qt-version"] = QT_VERSION_STR;
-#ifdef IDE_REVISION
-    annotations["sha1"] = Core::Constants::IDE_REVISION_STR;
-#endif
-
-    CrashpadInfo::GetCrashpadInfo()->set_crashpad_handler_behavior(crashpad::TriState::kEnabled);
-    if (HostOsInfo::isWindowsHost()) {
-        // reduces the size of crash reports, which can be large on Windows
-        CrashpadInfo::GetCrashpadInfo()
-            ->set_gather_indirectly_referenced_memory(crashpad::TriState::kEnabled, 0);
-    }
-
-    // Explicitly enable Crashpad handling. This is the default in vanilla Crashpad,
-    // but we use a version that only handles processes that enable it explicitly,
-    // so we do not handle arbitrary subprocesses
-    CrashpadInfo::GetCrashpadInfo()->set_crashpad_handler_behavior(crashpad::TriState::kEnabled);
-
-    // Optional arguments to pass to the handler
-    std::vector<std::string> arguments;
-    arguments.push_back("--no-rate-limit");
-
-    CrashpadClient *client = new CrashpadClient();
-    client->StartHandler(
-        handler,
-        database,
-        database,
-        url,
-        annotations,
-        arguments,
-        /* restartable */ true,
-        /* asynchronous_start */ true);
-}
-#endif
-
 #ifdef ENABLE_SENTRY
 void configureSentry(const AppInfo &appInfo, bool crashReportingEnabled)
 {
@@ -877,9 +806,7 @@ int main(int argc, char **argv)
     // depends on AppInfo and QApplication being created
     const bool crashReportingEnabled = userSettings->value("CrashReportingEnabled", false).toBool();
 
-#if defined(ENABLE_CRASHPAD)
-    startCrashpad(info, crashReportingEnabled);
-#elif defined(ENABLE_SENTRY)
+#if defined(ENABLE_SENTRY)
     configureSentry(info, crashReportingEnabled);
 #else
     Q_UNUSED(crashReportingEnabled)

@@ -178,21 +178,6 @@ extend_qtc_executable(qtcreator
 )
 
 extend_qtc_executable(qtcreator
-  CONDITION BUILD_WITH_CRASHPAD
-  DEFINES
-    CRASHPAD_BACKEND_URL="${CRASHPAD_BACKEND_URL}"
-    ENABLE_CRASHPAD
-    WIN32_LEAN_AND_MEAN # It comes usually with precompiled header, but at the installer they are disabled
-  DEPENDS Crashpad::Crashpad
-)
-if(BUILD_WITH_CRASHPAD)
-  install(
-    PROGRAMS ${CRASHPAD_BIN_DIR}/crashpad_handler${CMAKE_EXECUTABLE_SUFFIX}
-    DESTINATION "${IDE_LIBEXEC_PATH}"
-  )
-endif()
-
-extend_qtc_executable(qtcreator
   CONDITION BUILD_WITH_SENTRY
   DEFINES
     SENTRY_DSN="${SENTRY_DSN}"

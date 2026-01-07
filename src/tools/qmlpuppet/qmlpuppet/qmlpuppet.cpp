@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlpuppet.h"
-#include "configcrashpad.h"
 
 #ifdef MULTILANGUAGE_TRANSLATIONPROVIDER
 #include <sqlitelibraryinitializer.h>
@@ -77,20 +76,6 @@ void QmlPuppet::populateParser()
          {"import3dAsset", "Import 3d asset.", "sourceAsset, outDir, importOptJson"}});
 }
 
-// should be in sync with coreplugin/icore.cpp -> FilePath ICore::crashReportsPath()
-// and src\app\main.cpp
-QString crashReportsPath()
-{
-    QSettings settings(
-        QSettings::IniFormat,
-        QSettings::UserScope,
-        QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
-        QLatin1String(Core::Constants::IDE_CASED_ID));
-
-    return QFileInfo(settings.fileName()).path() + "/" + Core::Constants::IDE_ID
-           + "/crashpad_reports";
-}
-
 void QmlPuppet::initQmlRunner()
 {
     QmlBase::initQmlRunner();
@@ -126,9 +111,6 @@ void QmlPuppet::initQmlRunner()
 
         Import3D::import3D(sourceAsset, outDir, options);
     } else {
-        startCrashpad(QCoreApplication::applicationDirPath()
-                          + '/' + RELATIVE_LIBEXEC_PATH, crashReportsPath());
-
         new QmlDesigner::Qt5NodeInstanceClientProxy(m_coreApp.get());
     }
 

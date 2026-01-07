@@ -59,7 +59,6 @@ add_qtc_executable(qmlpuppet
     qmlpuppet/qmlpuppetmain.cpp
     qmlpuppet/qmlbase.h qmlpuppet/qmlbase.cpp
     qmlpuppet/qmlpuppet.h qmlpuppet/qmlpuppet.cpp
-    qmlpuppet/configcrashpad.h
     qmlpuppet.qrc
   PROPERTIES
     OUTPUT_NAME qmlpuppet-${IDE_VERSION}
@@ -247,17 +246,6 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.4.0)
     endif()
 endif()
 
-
-# Crashpad
-# only windows requires separate crashpad client per process until client->SetHandlerIPCPipe()
-# is implemented (check the TODO inside startCrashpad())
-extend_qtc_executable(qmlpuppet
-  CONDITION BUILD_WITH_CRASHPAD AND WIN32
-  DEFINES
-    CRASHPAD_BACKEND_URL="${CRASHPAD_BACKEND_URL}"
-    ENABLE_CRASHPAD
-  DEPENDS Crashpad::Crashpad
-)
 
 # add application icon
 # IDE_LOGO_PATH in a default QtCreator build is empty, all icons are found by relative paths
