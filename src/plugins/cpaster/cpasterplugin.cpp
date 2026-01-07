@@ -240,7 +240,12 @@ void CodePasterPluginPrivate::pasteSnippet()
 
 void CodePasterPluginPrivate::fetch()
 {
-    executeFetchDialog(m_protocols);
+    const QString pasteId = executeFetchDialog(m_protocols);
+    if (pasteId.isEmpty())
+        return;
+    Protocol *protocol = m_protocols[settings().protocols()];
+    if (Protocol::ensureConfiguration(protocol))
+        protocol->fetch(pasteId);
 }
 
 void CodePasterPluginPrivate::finishPost(const QString &link)

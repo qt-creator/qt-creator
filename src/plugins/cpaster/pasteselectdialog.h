@@ -9,6 +9,6 @@ namespace CodePaster {
 
 class Protocol;
 
-void executeFetchDialog(const QList<Protocol*> &protocols);
+QString executeFetchDialog(const QList<Protocol *> &protocols);
 
 } // CodePaster

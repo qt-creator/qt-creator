@@ -157,24 +157,18 @@ void PasteSelectDialog::protocolChanged(int i)
     }
 }
 
-void executeFetchDialog(const QList<Protocol*> &protocols)
+QString executeFetchDialog(const QList<Protocol *> &protocols)
 {
     PasteSelectDialog dialog(protocols);
 
     if (dialog.exec() != QDialog::Accepted)
-        return;
+        return {};
     // Save new protocol in case user changed it.
     if (settings().protocols() != dialog.protocol()) {
         settings().protocols.setValue(dialog.protocol());
         settings().writeSettings();
     }
-
-    const QString pasteID = dialog.pasteId();
-    if (pasteID.isEmpty())
-        return;
-    Protocol *protocol = protocols[dialog.protocol()];
-    if (Protocol::ensureConfiguration(protocol))
-        protocol->fetch(pasteID);
+    return dialog.pasteId();
 }
 
 } // CodePaster
