@@ -30,8 +30,4 @@ void UrlOpenProtocol::fetchFinished()
     m_fetchReply = nullptr;
 }
 
-void UrlOpenProtocol::paste(const QString &, ContentType, int, const QString &, const QString &)
-{
-}
-
 } // CodePaster

@@ -53,40 +53,28 @@ void DPasteDotComProtocol::fetchFinished(const QString &id, QNetworkReply * cons
     reply->deleteLater();
 }
 
-static QByteArray typeToString(Protocol::ContentType type)
+static QByteArray typeToString(ContentType type)
 {
     switch (type) {
-    case Protocol::C:
-        return "c";
-    case Protocol::Cpp:
-        return "cpp";
-    case Protocol::Diff:
-        return "diff";
-    case Protocol::JavaScript:
-        return "js";
-    case Protocol::Text:
-        return "text";
-    case Protocol::Xml:
-        return "xml";
+    case C:          return "c";
+    case Cpp:        return "cpp";
+    case Diff:       return "diff";
+    case JavaScript: return "js";
+    case Text:       return "text";
+    case Xml:        return "xml";
     }
     return {}; // For dumb compilers.
 }
 
-void DPasteDotComProtocol::paste(
-        const QString &text,
-        ContentType ct,
-        int expiryDays,
-        const QString &username,
-        const QString &description
-        )
+void DPasteDotComProtocol::paste(const PasteInputData &inputData)
 {
     // See http://dpaste.com/api/v2/
     QByteArray data;
-    data += "content=" + QUrl::toPercentEncoding(fixNewLines(text));
-    data += "&expiry_days=" + QByteArray::number(expiryDays);
-    data += "&syntax=" + typeToString(ct);
-    data += "&title=" + QUrl::toPercentEncoding(description);
-    data += "&poster=" + QUrl::toPercentEncoding(username);
+    data += "content=" + QUrl::toPercentEncoding(fixNewLines(inputData.text));
+    data += "&expiry_days=" + QByteArray::number(inputData.expiryDays);
+    data += "&syntax=" + typeToString(inputData.ct);
+    data += "&title=" + QUrl::toPercentEncoding(inputData.description);
+    data += "&poster=" + QUrl::toPercentEncoding(inputData.username);
 
     QNetworkReply * const reply = httpPost(apiUrl(), data);
     connect(reply, &QNetworkReply::finished, this, [this, reply] {

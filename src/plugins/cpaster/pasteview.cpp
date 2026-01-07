@@ -39,7 +39,7 @@ const char groupC[] = "CPaster";
 const char heightKeyC[] = "PasteViewHeight";
 const char widthKeyC[] = "PasteViewWidth";
 
-static Protocol::ContentType contentType(const QString &mt)
+static ContentType contentType(const QString &mt)
 {
     using namespace Utils::Constants;
     if (mt == QLatin1StringView(C_SOURCE_MIMETYPE)
@@ -49,27 +49,27 @@ static Protocol::ContentType contentType(const QString &mt)
         || mt == QLatin1StringView(GLSL_FRAG_MIMETYPE)
         || mt == QLatin1StringView(GLSL_ES_VERT_MIMETYPE)
         || mt == QLatin1StringView(GLSL_ES_FRAG_MIMETYPE))
-        return Protocol::C;
+        return C;
     if (mt == QLatin1StringView(CPP_SOURCE_MIMETYPE)
         || mt == QLatin1StringView(CPP_HEADER_MIMETYPE)
         || mt == QLatin1StringView(OBJECTIVE_C_SOURCE_MIMETYPE)
         || mt == QLatin1StringView(OBJECTIVE_CPP_SOURCE_MIMETYPE))
-        return Protocol::Cpp;
+        return Cpp;
     if (mt == QLatin1StringView(QML_MIMETYPE)
         || mt == QLatin1StringView(QMLUI_MIMETYPE)
         || mt == QLatin1StringView(QMLPROJECT_MIMETYPE)
         || mt == QLatin1StringView(QBS_MIMETYPE)
         || mt == QLatin1StringView(JS_MIMETYPE)
         || mt == QLatin1StringView(JSON_MIMETYPE))
-        return Protocol::JavaScript;
+        return JavaScript;
     if (mt == QLatin1StringView("text/x-patch"))
-        return Protocol::Diff;
+        return Diff;
     if (mt == QLatin1StringView("text/xml")
         || mt == QLatin1StringView("application/xml")
         || mt == QLatin1StringView(RESOURCE_MIMETYPE)
         || mt == QLatin1StringView(FORM_MIMETYPE))
-        return Protocol::Xml;
-    return Protocol::Text;
+        return Xml;
+    return Text;
 }
 
 class PasteView : public QDialog
@@ -329,8 +329,8 @@ void PasteView::accept()
     if (data.isEmpty())
         return;
 
-    const Protocol::ContentType ct = contentType(m_mimeType);
-    protocol->paste(data, ct, expiryDays(), user(), description());
+    const ContentType ct = contentType(m_mimeType);
+    protocol->paste({data, ct, expiryDays(), user(), description()});
     // Store settings and close
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(groupC);

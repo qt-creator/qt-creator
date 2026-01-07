@@ -13,7 +13,7 @@ public:
     UrlOpenProtocol();
 
     void fetch(const QString &url) override;
-    void paste(const QString &, ContentType, int, const QString &, const QString &) override;
+    void paste(const PasteInputData &) override {}
 
 private:
     void fetchFinished();

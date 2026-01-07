@@ -47,7 +47,7 @@ public:
             return;
         }
         connect(m_protocol.data(), &Protocol::pasteDone, this, &PasteReceiver::handlePasteDone);
-        m_protocol->paste(content);
+        m_protocol->paste({content});
     }
 
 private:

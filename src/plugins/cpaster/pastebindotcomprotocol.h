@@ -14,12 +14,8 @@ public:
     static QString protocolName();
 
     void fetch(const QString &id) override;
-    void paste(const QString &text,
-               ContentType ct = Text,
-               int expiryDays = 1,
-               const QString &username = {},
-               const QString &description = {}) override;
     void list() override;
+    void paste(const PasteInputData &inputData) override;
 
 private:
     void fetchFinished();

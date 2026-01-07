@@ -38,15 +38,27 @@ public:
     Core::IOptionsPage *settingsPage = nullptr;
 };
 
+enum ContentType {
+    Text, C, Cpp, JavaScript, Diff, Xml
+};
+
+class PasteInputData
+{
+public:
+    QString text;
+    ContentType ct = Text;
+    int expiryDays = 1;
+    QString username = {};
+    QString description = {};
+};
+
+using ListHandler = std::function<void(const QStringList &)>;
+
 class Protocol : public QObject
 {
     Q_OBJECT
 
 public:
-    enum ContentType {
-        Text, C, Cpp, JavaScript, Diff, Xml
-    };
-
     ~Protocol() override;
 
     QString name() const { return m_protocolData.name; }
@@ -58,11 +70,7 @@ public:
 
     virtual void fetch(const QString &id) = 0;
     virtual void list();
-    virtual void paste(const QString &text,
-                       ContentType ct = Text,
-                       int expiryDays = 1,
-                       const QString &username = {},
-                       const QString &description = {}) = 0;
+    virtual void paste(const PasteInputData &inputData) = 0;
 
     // Ensure configuration is correct
     static bool ensureConfiguration(Protocol *p,

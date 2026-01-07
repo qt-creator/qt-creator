@@ -16,11 +16,7 @@ public:
 private:
     void fetch(const QString &id) override;
     void fetchFinished(const QString &id, QNetworkReply * const reply, bool alreadyRedirected);
-    void paste(const QString &text,
-               ContentType ct = Text,
-               int expiryDays = 1,
-               const QString &username = {},
-               const QString &description = {}) override;
+    void paste(const PasteInputData &inputData) override;
 };
 
 } // CodePaster

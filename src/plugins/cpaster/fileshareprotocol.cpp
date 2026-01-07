@@ -132,13 +132,7 @@ void FileShareProtocol::list()
     emit listDone(entries);
 }
 
-void FileShareProtocol::paste(
-        const QString &text,
-        ContentType /* ct */,
-        int /* expiryDays */,
-        const QString &username,
-        const QString &description
-        )
+void FileShareProtocol::paste(const PasteInputData &inputData)
 {
     // Write out temp XML file
     TempFileSaver saver(fileShareSettings().path().pathAppended(tempPatternC).toFSPathString());
@@ -149,9 +143,9 @@ void FileShareProtocol::paste(
         writer.writeStartDocument();
         writer.writeStartElement(QLatin1String(pasterElementC));
 
-        writer.writeTextElement(QLatin1String(userElementC), username);
-        writer.writeTextElement(QLatin1String(descriptionElementC), description);
-        writer.writeTextElement(QLatin1String(textElementC), text);
+        writer.writeTextElement(QLatin1String(userElementC), inputData.username);
+        writer.writeTextElement(QLatin1String(descriptionElementC), inputData.description);
+        writer.writeTextElement(QLatin1String(textElementC), inputData.text);
 
         writer.writeEndElement();
         writer.writeEndDocument();
