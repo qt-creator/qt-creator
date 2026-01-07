@@ -35,6 +35,7 @@ add_qtc_library(Utils
     completinglineedit.cpp completinglineedit.h
     completingtextedit.cpp completingtextedit.h
     cpplanguage_details.h
+    crashreporting.cpp crashreporting.h
     crumblepath.cpp crumblepath.h
     datafromprocess.h
     delegates.cpp delegates.h
@@ -320,6 +321,20 @@ extend_qtc_library(Utils
     ATTRIBUTION_IDS
       ptyqt
       ptyqt-conpty
+)
+
+extend_qtc_library(Utils
+  CONDITION BUILD_WITH_SENTRY
+  DEFINES
+    SENTRY_DSN="${SENTRY_DSN}"
+    SENTRY_PROJECT="${SENTRY_PROJECT}"
+    ENABLE_SENTRY
+  DEPENDS sentry::sentry
+)
+extend_qtc_library(Utils
+  CONDITION DEFINED SENTRY_CRASHPAD_PATH
+  DEFINES
+    SENTRY_CRASHPAD_PATH="${SENTRY_CRASHPAD_PATH}"
 )
 
 extend_qtc_library(Utils

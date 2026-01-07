@@ -325,16 +325,6 @@ extend_qtc_plugin(Core
   DEPENDS Qt::DBus
 )
 
-extend_qtc_plugin(Core
-  CONDITION BUILD_WITH_SENTRY
-  DEFINES ENABLE_CRASHREPORTING
-)
-
-extend_qtc_plugin(Core
-  CONDITION BUILD_WITH_SENTRY AND SENTRY_CRASHPAD_PATH
-  DEFINES CRASHREPORTING_USES_CRASHPAD
-)
-
 set(FONTS_BASE "${QtCreator_SOURCE_DIR}/src/share/3rdparty/studiofonts/")
 qt_add_resources(Core
   CoreWelcomeScreenFonts_rcc

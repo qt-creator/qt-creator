@@ -13,6 +13,7 @@
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/aspects.h>
+#include <utils/crashreporting.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
@@ -53,12 +54,6 @@
 #include <optional>
 #include <string>
 #include <vector>
-
-#ifdef ENABLE_SENTRY
-#include <sentry.h>
-
-Q_LOGGING_CATEGORY(sentryLog, "qtc.sentry", QtWarningMsg)
-#endif
 
 using namespace ExtensionSystem;
 using namespace Utils;
@@ -463,40 +458,6 @@ QStringList lastSessionArgument()
     return hasProjectExplorer ? QStringList({"-lastsession"}) : QStringList();
 }
 
-#ifdef ENABLE_SENTRY
-void configureSentry(const AppInfo &appInfo, bool crashReportingEnabled)
-{
-    if (!crashReportingEnabled)
-        return;
-
-    sentry_options_t *options = sentry_options_new();
-    sentry_options_set_dsn(options, SENTRY_DSN);
-#ifdef Q_OS_WIN
-    sentry_options_set_database_pathw(options, appInfo.crashReports.nativePath().toStdWString().c_str());
-#else
-    sentry_options_set_database_path(options, appInfo.crashReports.nativePath().toUtf8().constData());
-#endif
-#ifdef SENTRY_CRASHPAD_PATH
-    if (const FilePath handlerpath = appInfo.libexec / "crashpad_handler"; handlerpath.exists()) {
-        sentry_options_set_handler_path(options, handlerpath.nativePath().toUtf8().constData());
-    } else if (const auto fallback = FilePath::fromString(SENTRY_CRASHPAD_PATH); fallback.exists()) {
-        sentry_options_set_handler_path(options, fallback.nativePath().toUtf8().constData());
-    } else {
-        qCWarning(sentryLog) << "Failed to find crashpad_handler for Sentry crash reports.";
-    }
-#endif
-    const QString release = QString(SENTRY_PROJECT) + "@" + QCoreApplication::applicationVersion();
-    sentry_options_set_release(options, release.toUtf8().constData());
-    sentry_options_set_debug(options, sentryLog().isDebugEnabled() ? 1 : 0);
-    sentry_init(options);
-    sentry_set_tag("qt.version", qVersion());
-    sentry_set_tag("qt.architecture", QSysInfo::buildCpuArchitecture().toUtf8().constData());
-    sentry_set_tag("qtcreator.compiler", Utils::compilerString().toUtf8().constData());
-    if (!Utils::appInfo().revision.isEmpty())
-        sentry_set_tag("qtcreator.revision", Utils::appInfo().revision.toUtf8().constData());
-}
-#endif
-
 class ShowInGuiHandler
 {
 public:
@@ -803,14 +764,8 @@ int main(int argc, char **argv)
     CrashHandlerSetup setupCrashHandler(
         Core::Constants::IDE_DISPLAY_NAME, CrashHandlerSetup::EnableRestart, info.libexec.path());
 
-    // depends on AppInfo and QApplication being created
-    const bool crashReportingEnabled = userSettings->value("CrashReportingEnabled", false).toBool();
-
-#if defined(ENABLE_SENTRY)
-    configureSentry(info, crashReportingEnabled);
-#else
-    Q_UNUSED(crashReportingEnabled)
-#endif
+    // depends on AppInfo, userSettings, and QApplication being created
+    Utils::setUpCrashReporting();
 
     PluginManager pluginManager;
     PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
@@ -982,8 +937,6 @@ int main(int argc, char **argv)
     }
 
     const int exitCode = restarter.restartOrExit(app.exec());
-#ifdef ENABLE_SENTRY
-    sentry_close();
-#endif
+    Utils::shutdownCrashReporting();
     return exitCode;
 }

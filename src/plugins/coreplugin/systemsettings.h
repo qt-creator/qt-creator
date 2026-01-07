@@ -36,10 +36,6 @@ public:
 
     Utils::SelectionAspect reloadSetting{this};
 
-#ifdef ENABLE_CRASHREPORTING
-    Utils::BoolAspect enableCrashReporting{this};
-#endif
-
     Utils::BoolAspect askBeforeExit{this};
 
     Utils::EnvironmentItems environmentChanges() const;
@@ -47,8 +43,6 @@ public:
 
     Utils::NameValueDictionary envVarSeparators() const { return m_envVarSeparators; }
     void setEnvVarSeparators(const Utils::NameValueDictionary &separators);
-
-    static QString msgCrashpadInformation();
 
 private:
     static Utils::NameValueDictionary defaultEnvVarSeparators();

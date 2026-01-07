@@ -11,13 +11,10 @@
 #include "icore.h"
 #include "vcsmanager.h"
 
-#ifdef ENABLE_CRASHREPORTING
-#include "coreplugin.h"
-#endif
-
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/crashreporting.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
@@ -44,23 +41,6 @@ using namespace Utils;
 using namespace Layouting;
 
 namespace Core::Internal {
-
-#ifdef CRASHREPORTING_USES_CRASHPAD
-// TODO: move to somewhere in Utils
-static QString formatSize(qint64 size)
-{
-    QStringList units{Tr::tr("Bytes"), Tr::tr("KiB"), Tr::tr("MiB"), Tr::tr("GiB"), Tr::tr("TiB")};
-    double outputSize = size;
-    int i;
-    for (i = 0; i < units.size() - 1; ++i) {
-        if (outputSize < 1024)
-            break;
-        outputSize /= 1024;
-    }
-    return i == 0 ? QString("%0 %1").arg(outputSize).arg(units[i]) // Bytes
-                  : QString("%0 %1").arg(outputSize, 0, 'f', 2).arg(units[i]); // KB, MB, GB, TB
-}
-#endif // CRASHREPORTING_USES_CRASHPAD
 
 SystemSettings &systemSettings()
 {
@@ -165,17 +145,8 @@ SystemSettings::SystemSettings()
     askBeforeExit.setLabelText(Tr::tr("Ask for confirmation before exiting"));
     askBeforeExit.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
-#ifdef ENABLE_CRASHREPORTING
-    enableCrashReporting.setSettingsKey("CrashReportingEnabled");
-    enableCrashReporting.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
-    enableCrashReporting.setLabelText(Tr::tr("Enable crash reporting"));
-    enableCrashReporting.setToolTip(
-        "<p>"
-        + Tr::tr("Allow crashes to be automatically reported. Collected reports are "
-                 "used for the sole purpose of fixing bugs.")
-        + "</p><p>"
-        + Tr::tr("Crash reports are saved in \"%1\".").arg(appInfo().crashReports.toUserOutput()));
-#endif // ENABLE_CRASHREPORTING
+    addCrashReportSetting(this);
+
     readSettings();
 
     autoSaveInterval.setEnabler(&autoSaveModifiedFiles);
@@ -184,38 +155,6 @@ SystemSettings::SystemSettings()
 
     autoSaveModifiedFiles.addOnChanged(this, &EditorManagerPrivate::updateAutoSave);
     autoSaveInterval.addOnChanged(this, &EditorManagerPrivate::updateAutoSave);
-}
-
-QString SystemSettings::msgCrashpadInformation()
-{
-#if ENABLE_CRASHREPORTING
-#if CRASHREPORTING_USES_CRASHPAD
-    const QString backend = "Google Crashpad";
-    const QString url
-        = "https://chromium.googlesource.com/crashpad/crashpad/+/master/doc/overview_design.md";
-#else
-    const QString backend = "Google Breakpad";
-    const QString url
-        = "https://chromium.googlesource.com/breakpad/breakpad/+/HEAD/docs/client_design.md";
-#endif
-    //: %1 = application name, %2 crash backend name (Google Crashpad or Google Breakpad)
-    return Tr::tr(
-               "%1 uses %2 for collecting crashes and sending them to Sentry "
-               "for processing. %2 may capture arbitrary contents from crashed process’ "
-               "memory, including user sensitive information, URLs, and whatever other content "
-               "users have trusted %1 with. The collected crash reports are however only used "
-               "for the sole purpose of fixing bugs.")
-               .arg(QGuiApplication::applicationDisplayName(), backend)
-           + "<br><br>" + Tr::tr("More information:") + "<br><a href='" + url
-           + "'>"
-           //: %1 = crash backend name (Google Crashpad or Google Breakpad)
-           + Tr::tr("%1 Overview").arg(backend)
-           + "</a>"
-             "<br><a href='https://sentry.io/security/'>"
-           + Tr::tr("%1 security policy").arg("Sentry.io") + "</a>";
-#else
-    return {};
-#endif
 }
 
 class EnvVarSeparatorItem : public TreeItem
@@ -333,11 +272,6 @@ public:
         , m_terminalExecuteArgs(new QLineEdit)
         , m_environmentChangesLabel(new Utils::ElidingLabel)
         , m_envVarSeparatorsLabel(new QLabel)
-#ifdef CRASHREPORTING_USES_CRASHPAD
-        , m_crashReportsMenuButton(new QPushButton(Tr::tr("Manage"), this))
-        , m_crashReportsSizeText(new QLabel(this))
-#endif
-
     {
         SystemSettings &s = systemSettings();
 
@@ -359,13 +293,6 @@ public:
         resetFileBrowserButton->setToolTip(Tr::tr("Reset to default."));
         auto helpExternalFileBrowserButton = new QToolButton;
         helpExternalFileBrowserButton->setText(Tr::tr("?"));
-#ifdef ENABLE_CRASHREPORTING
-        auto helpCrashReportingButton = new QToolButton(this);
-        helpCrashReportingButton->setText(Tr::tr("?"));
-        connect(helpCrashReportingButton, &QAbstractButton::clicked, this, [this] {
-            showHelpDialog(Tr::tr("Crash Reporting"), SystemSettings::msgCrashpadInformation());
-        });
-#endif
         auto resetTerminalButton = new QPushButton(Tr::tr("Reset"));
         resetTerminalButton->setToolTip(Tr::tr("Reset to default.", "Terminal"));
         auto environmentButton = new QPushButton(Tr::tr("Change..."));
@@ -411,29 +338,8 @@ public:
         grid.addRow({Tr::tr("Maximum number of entries in \"Recent Files\":"),
                     Row{s.maxRecentFiles, st}});
         grid.addRow({s.askBeforeExit});
-#ifdef ENABLE_CRASHREPORTING
-        Row crashDetails;
-#ifdef CRASHREPORTING_USES_CRASHPAD
-        m_crashReportsMenuButton->setToolTip(s.enableCrashReporting.toolTip());
-        m_crashReportsSizeText->setToolTip(s.enableCrashReporting.toolTip());
-        auto crashReportsMenu = new QMenu(m_crashReportsMenuButton);
-        m_crashReportsMenuButton->setMenu(crashReportsMenu);
-        crashDetails.addItems({m_crashReportsMenuButton, m_crashReportsSizeText});
-#endif // CRASHREPORTING_USES_CRASHPAD
-        crashDetails.addItem(helpCrashReportingButton);
-        if (qtcEnvironmentVariableIsSet("QTC_SHOW_CRASHBUTTON")) {
-            auto crashButton = new QPushButton("CRASH!!!");
-            connect(crashButton, &QPushButton::clicked, [] {
-                // do a real crash
-                volatile int *a = reinterpret_cast<volatile int *>(NULL);
-                *a = 1;
-            });
-            crashDetails.addItem(crashButton);
-        }
-        crashDetails.addItem(st);
-        grid.addRow({s.enableCrashReporting, crashDetails});
 
-#endif
+        Utils::addCrashReportSettingsUi(this, &grid);
 
         Column {
             Group {
@@ -456,55 +362,6 @@ public:
         if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
             m_externalFileBrowserEdit->setText(UnixUtils::fileBrowser(ICore::settings()));
         }
-
-#if defined(ENABLE_CRASHREPORTING) && defined(CRASHREPORTING_USES_CRASHPAD)
-        const FilePaths reportsPaths
-            = {ICore::crashReportsPath() / "completed",
-               ICore::crashReportsPath() / "reports",
-               ICore::crashReportsPath() / "attachments",
-               ICore::crashReportsPath() / "pending",
-               ICore::crashReportsPath() / "new"};
-
-        auto openLocationAction = new QAction(Tr::tr("Go to Crash Reports"));
-        connect(openLocationAction, &QAction::triggered, this, [reportsPaths] {
-            const FilePath path = reportsPaths.first().parentDir();
-            if (!QDesktopServices::openUrl(path.toUrl())) {
-                qWarning() << "Failed to open path:" << path;
-            }
-        });
-        crashReportsMenu->addAction(openLocationAction);
-
-        auto clearAction = new QAction(Tr::tr("Clear Crash Reports"));
-        crashReportsMenu->addAction(clearAction);
-
-        const auto updateClearCrashWidgets = [this, reportsPaths] {
-            qint64 size = 0;
-            FilePath::iterateDirectories(
-                reportsPaths,
-                [&size](const FilePath &item) {
-                    size += item.fileSize();
-                    return IterationPolicy::Continue;
-                },
-                FileFilter({}, QDir::Files, QDirIterator::Subdirectories));
-            m_crashReportsMenuButton->setEnabled(size > 0);
-            m_crashReportsSizeText->setText(formatSize(size));
-        };
-        updateClearCrashWidgets();
-        connect(
-            clearAction,
-            &QAction::triggered,
-            this,
-            [updateClearCrashWidgets, reportsPaths] {
-                FilePath::iterateDirectories(
-                    reportsPaths,
-                    [](const FilePath &item) {
-                        item.removeRecursively();
-                        return IterationPolicy::Continue;
-                    },
-                    FileFilter({}, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot));
-                updateClearCrashWidgets();
-            });
-#endif // ENABLE_CRASHREPORTING && CRASHREPORTING_USES_CRASHPAD
 
         if (HostOsInfo::isAnyUnixHost()) {
             connect(resetTerminalButton,
@@ -596,10 +453,6 @@ private:
     QLineEdit *m_terminalExecuteArgs;
     Utils::ElidingLabel *m_environmentChangesLabel;
     QLabel * const m_envVarSeparatorsLabel;
-#ifdef CRASHREPORTING_USES_CRASHPAD
-    QPushButton *m_crashReportsMenuButton;
-    QLabel *m_crashReportsSizeText;
-#endif
     QPointer<QMessageBox> m_dialog;
     EnvironmentItems m_environmentChanges;
     NameValueDictionary m_envVarSeparators;

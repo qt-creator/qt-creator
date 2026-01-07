@@ -35,6 +35,7 @@
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
+#include <utils/crashreporting.h>
 #include <utils/environment.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
@@ -76,8 +77,6 @@ namespace Core::Internal {
 
 static CorePlugin *m_instance = nullptr;
 
-const char kWarnCrashReportingSetting[] = "WarnCrashReporting";
-
 class CorePlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -102,7 +101,6 @@ public slots:
 
 private:
     void checkSettings();
-    void warnAboutCrashReporing();
 
     ICore *m_core = nullptr;
     EditMode *m_editMode = nullptr;
@@ -457,14 +455,19 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
 
     Utils::PathChooser::setAboutToShowContextMenuHandler(&addToPathChooserContextMenu);
 
-#ifdef ENABLE_CRASHREPORTING
-    connect(
-        ICore::instance(),
-        &ICore::coreOpened,
-        this,
-        &CorePlugin::warnAboutCrashReporing,
-        Qt::QueuedConnection);
-#endif
+    if (Utils::isCrashReportingAvailable()) {
+        connect(
+            ICore::instance(),
+            &ICore::coreOpened,
+            this,
+            [] {
+                Utils::warnAboutCrashReporting(
+                    ICore::popupInfoBar(), ICore::msgShowOptionsDialog(), [] {
+                        ICore::showOptionsDialog(Constants::SETTINGS_ID_SYSTEM);
+                    });
+            },
+            Qt::QueuedConnection);
+    }
 
 #ifdef WITH_TESTS
     addTestCreator(createLocatorTest);
@@ -601,49 +604,6 @@ void CorePlugin::checkSettings()
                    errorDetails,
                    QGuiApplication::applicationDisplayName());
     showMsgBox(errorMsg, QMessageBox::Critical);
-}
-
-void CorePlugin::warnAboutCrashReporing()
-{
-    InfoBar *infoBar = ICore::popupInfoBar();
-    if (!infoBar->canInfoBeAdded(kWarnCrashReportingSetting))
-        return;
-
-    QString warnStr = ICore::settings()->value("CrashReportingEnabled", false).toBool()
-            ? Tr::tr("%1 collects crash reports for the sole purpose of fixing bugs. "
-                 "To disable this feature go to %2.")
-            : Tr::tr("%1 can collect crash reports for the sole purpose of fixing bugs. "
-                 "To enable this feature go to %2.");
-
-    if (Utils::HostOsInfo::isMacHost()) {
-        warnStr = warnStr.arg(QGuiApplication::applicationDisplayName(),
-                              QGuiApplication::applicationDisplayName()
-                                  + Tr::tr(" > Preferences > Environment > System"));
-    } else {
-        warnStr = warnStr.arg(QGuiApplication::applicationDisplayName(),
-                              Tr::tr("Edit > Preferences > Environment > System"));
-    }
-
-    Utils::InfoBarEntry info(kWarnCrashReportingSetting, warnStr,
-                             Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.setTitle(Tr::tr("Crash Reporting"));
-    info.setInfoType(InfoLabel::Information);
-    info.addCustomButton(
-        ICore::msgShowOptionsDialog(),
-        [] { ICore::showOptionsDialog(Core::Constants::SETTINGS_ID_SYSTEM); },
-        {},
-        InfoBarEntry::ButtonAction::SuppressPersistently);
-
-    info.setDetailsWidgetCreator([]() -> QWidget * {
-        auto label = new QLabel;
-        label->setWindowTitle(Tr::tr("Crash Reporting"));
-        label->setWordWrap(true);
-        label->setOpenExternalLinks(true);
-        label->setText(SystemSettings::msgCrashpadInformation());
-        label->setContentsMargins(0, 0, 0, 8);
-        return label;
-    });
-    infoBar->addInfo(info);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
