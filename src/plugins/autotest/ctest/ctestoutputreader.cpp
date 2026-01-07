@@ -65,7 +65,8 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     static const QRegularExpression testResult("^\\s*(?<first>\\d+/\\d+)? "
                                                "Test\\s+#(?<current>\\d+): (.*) (\\.+)\\s*"
                                                "(Passed|\\*\\*\\*Failed|\\*\\*\\*Not Run|"
-                                               ".*\\*\\*\\*Exception:.*)\\s+(.*)(\\d+\\.\\d+) sec$");
+                                               "\\*\\*\\*Skipped|.*\\*\\*\\*Exception:.*)"
+                                               "\\s+(.*)(\\d+\\.\\d+) sec$");
     static const QRegularExpression testCrash("^\\s*\\d+/\\d+ Test\\s+#\\d+: (.*) (\\.+)\\s*"
                                               "Exit code .*$");
     static const QRegularExpression summary("^\\d+% tests passed, (\\d+) tests failed "
@@ -117,6 +118,8 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
             m_result = ResultType::Pass;
         else if (resultType == "***Failed" || resultType == "***Not Run")
             m_result = ResultType::Fail;
+        else if (resultType == "***Skipped")
+            m_result = ResultType::Skip;
         else
             m_result = ResultType::MessageFatal;
         if (match.hasCaptured(7))
