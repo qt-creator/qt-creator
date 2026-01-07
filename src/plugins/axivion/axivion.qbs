@@ -27,6 +27,8 @@ QtcPlugin {
         "localbuild.h",
         "pluginarserver.cpp",
         "pluginarserver.h",
+        "singlefileanalysis.cpp",
+        "singlefileanalysis.h",
     ]
 
     cpp.includePaths: base.concat(["."]) // needed for the generated stuff below

@@ -9,8 +9,9 @@
 #include "dashboard/dto.h"
 #include "dashboard/error.h"
 #include "localbuild.h"
-#include "pluginarserver.h"
+#include "singlefileanalysis.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/credentialquery.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -48,6 +49,7 @@
 #include <QNetworkCookieJar>
 #include <QNetworkReply>
 #include <QRandomGenerator>
+#include <QRegularExpression>
 #include <QUrlQuery>
 
 #include <cmath>
@@ -266,6 +268,7 @@ public:
     void handleOpenedDocs();
     void onDocumentOpened(IDocument *doc);
     void onDocumentClosed(IDocument * doc);
+    void onCurrentEditorChanged(IEditor *editor);
     void clearAllMarks();
     void updateExistingMarks();
     void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &filePath);
@@ -1228,6 +1231,7 @@ void AxivionPluginPrivate::handleOpenedDocs()
     const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
     for (IDocument *doc : openDocuments)
         onDocumentOpened(doc);
+    onCurrentEditorChanged(EditorManager::currentEditor()); // ensure correct enabled state for SFA
 }
 
 void AxivionPluginPrivate::clearAllMarks()
@@ -1291,6 +1295,23 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
 
     m_docMarksRunner.resetKey(doc);
     qDeleteAll(m_allMarks.take(document->filePath()));
+}
+
+void AxivionPluginPrivate::onCurrentEditorChanged(IEditor *editor)
+{
+    QAction *action = ActionManager::command("Axivion.SingleFile")->action();
+    const IDocument *document = editor ? editor->document() : nullptr;
+    if (!m_currentProjectInfo || !document || document->filePath().isEmpty()) {
+        action->setEnabled(false);
+        return;
+    }
+    const FilePath filePath = settings().mappedFilePath(document->filePath(),
+                                                        m_currentProjectInfo->name);
+    const QString suffix = filePath.suffix();
+    // for now just hard-code common, also need to check for a running local analysis / build?
+    static const QRegularExpression cSuffixes("^c(c|pp|xx)?$",
+                                              QRegularExpression::CaseInsensitiveOption);
+    action->setEnabled(cSuffixes.match(suffix).hasMatch());
 }
 
 void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView,
@@ -1386,11 +1407,13 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
                 dd, &AxivionPluginPrivate::onDocumentOpened);
         connect(EditorManager::instance(), &EditorManager::documentClosed,
                 dd, &AxivionPluginPrivate::onDocumentClosed);
+        connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+                dd, &AxivionPluginPrivate::onCurrentEditorChanged);
     }
 
     ShutdownFlag aboutToShutdown() final
     {
-        shutdownAllPluginArServers();
+        shutdownAllAnalyses();
         if (shutdownAllLocalDashboards([this] { emit asynchronousShutdownFinished(); }))
             return AsynchronousShutdown;
         else

@@ -10,6 +10,7 @@
 #include "issueheaderview.h"
 #include "dynamiclistmodel.h"
 #include "localbuild.h"
+#include "singlefileanalysis.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -78,6 +79,7 @@ constexpr int ListItemSourcePathRole = Qt::UserRole + 3; // only *retrieval* of 
 // progress model
 constexpr int ProjectNameRole = Qt::UserRole + 20;
 constexpr int ProgressItemDataRole = Qt::UserRole + 21;
+constexpr int FileRole = Qt::UserRole + 22;
 
 static const Icon MARKER_ICON({{":/axivion/images/marker.png", Theme::IconsBaseColor}});
 static const Icon USER_ICON({{":/axivion/images/user.png", Theme::PanelTextColorDark}}, Icon::Tint);
@@ -1372,7 +1374,8 @@ void IssuesWidget::openFilterHelp()
 void IssuesWidget::checkForLocalBuildAndUpdate()
 {
     checkForLocalBuildResults(m_currentProject, [this] {
-        m_localBuild->setEnabled(!hasRunningLocalBuild(m_currentProject));
+        m_localBuild->setEnabled(!hasRunningLocalBuild(m_currentProject)
+                                 && !hasRunningSingleFileAnalysis(m_currentProject));
         m_localDashBoard->setEnabled(true);
     });
 }
@@ -1459,6 +1462,7 @@ private:
 struct ProgressItemData
 {
     QString projectName;
+    QString fileName;
     QString state;
     int percent = 0;
 };
@@ -1480,6 +1484,10 @@ bool ProgressItem::setData(int column, const QVariant &data, int role)
         m_data.projectName = data.toString();
         return true;
     }
+    if (role == FileRole) {
+        m_data.fileName = data.toString();
+        return true;
+    }
     if (role == ProgressItemDataRole) {
         m_data = data.value<ProgressItemData>();
         return true;
@@ -1497,6 +1505,8 @@ QVariant ProgressItem::data(int column, int role) const
 {
     if (role == ProjectNameRole)
         return m_data.projectName;
+    if (role == FileRole)
+        return m_data.fileName;
     if (role == ProgressItemDataRole)
         return QVariant::fromValue(m_data);
     if (role == Qt::ToolTipRole)
@@ -1512,8 +1522,9 @@ public:
 
     void addOrUpdateProgressItem(const QString &projectName, const ProgressItemData &data)
     {
-        auto oldItem = findNonRootItem([projectName] (ProgressItem *it) {
-                return it->data(0, ProjectNameRole).toString() == projectName;
+        auto oldItem = findNonRootItem([projectName, data] (ProgressItem *it) {
+                return it->data(0, ProjectNameRole).toString() == projectName
+                        && it->data(0, FileRole).toString() == data.fileName;
         });
         if (oldItem) {
             oldItem->setData(0, QVariant::fromValue(data), ProgressItemDataRole);
@@ -1596,7 +1607,9 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     QFont boldFont = opt.font;
     boldFont.setBold(true);
     painter->setFont(boldFont);
-    painter->drawText(ItemMargin + 1, opt.rect.top() + ItemMargin + fm.ascent(), data.projectName);
+    const QString labelText = data.fileName.isEmpty()
+            ? data.projectName : QString("SFA: %1 (%2)").arg(data.fileName, data.projectName);
+    painter->drawText(ItemMargin + 1, opt.rect.top() + ItemMargin + fm.ascent(), labelText);
 
     QColor progressBrush = creatorColor(Theme::ProgressBarColorFinished);
     if (data.percent == 100 && data.state == Tr::tr("Failed"))
@@ -1667,7 +1680,9 @@ public:
     void setIssueDetailsHtml(const QString &html, const QString &projectName);
     void handleAnchorClicked(const QUrl &url);
     void updateNamedFilters();
-    void updateLocalBuildStateFor(const QString &projectName, const QString &state, int percent);
+    void updateLocalBuildStateFor(const QString &projectName,const QString &state, int percent);
+    void updateSfaStateFor(const QString &projectName, const QString &fileName,
+                           const QString &state, int percent);
 
     void leaveOrEnterDashboardMode(bool byLocalBuildButton);
     bool currentIssueHasValidPathMapping() const;
@@ -1678,6 +1693,7 @@ public:
 
 private:
     void removeFinishedBuilds();
+    void onSingleFileAnalysisTriggered();
 
     IssuesWidget *m_issuesWidget = nullptr;
     LazyImageBrowser *m_issueDetails = nullptr;
@@ -1748,10 +1764,21 @@ AxivionPerspective::AxivionPerspective()
 
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     QAction *action = new QAction(Tr::tr("Axivion"), this);
+    action->setIcon(Icon({{":/axivion/images/axivion.png", Theme::MenuBarItemTextColorNormal}},
+                         Icon::MenuTintedStyle).icon());
     menu->addAction(ActionManager::registerAction(action, "Axivion.Perspective"),
                     Debugger::Constants::G_ANALYZER_TOOLS);
     connect(action, &QAction::triggered,
             this, &Perspective::select);
+
+    action = new QAction(Tr::tr("Single File Analysis"), this);
+    action->setIcon(Icon({{":/axivion/images/axivion.png", Theme::MenuBarItemTextColorNormal}},
+                         Icon::MenuTintedStyle).icon());
+    action->setEnabled(false);
+    menu->addAction(ActionManager::registerAction(action, "Axivion.SingleFile"),
+                    Debugger::Constants::G_ANALYZER_TOOLS);
+    connect(action, &QAction::triggered, this, &AxivionPerspective::onSingleFileAnalysisTriggered);
+    menu->addSeparator();
 }
 
 void AxivionPerspective::handleShowIssues(const QString &kind)
@@ -1826,15 +1853,23 @@ bool AxivionPerspective::handleProgressContextMenu(const ItemViewEvent &e)
     const QModelIndex first = selectedIndices.isEmpty() ? QModelIndex() : selectedIndices.first();
 
     const QString project = first.isValid() ? first.data(ProjectNameRole).toString() : QString{};
-    const LocalBuildInfo localBuildInfo = project.isEmpty() ? LocalBuildInfo{}
-                                                            : localBuildInfoFor(project);
+    const QString file = first.isValid() ? first.data(FileRole).toString() : QString{};
+    const LocalBuildInfo localBuildInfo = project.isEmpty()
+            ? LocalBuildInfo{} : (file.isEmpty() ? localBuildInfoFor(project)
+                                                 : localBuildInfoFor(project, file));
     const bool selectedFinished = localBuildInfo.state == LocalBuildState::Finished;
     QMenu *menu = new QMenu;
     QAction *action = nullptr;
     if (!selectedFinished && !project.isEmpty()) {
-        action = new QAction(Tr::tr("Cancel Local Build"), menu);
-        QObject::connect(action, &QAction::triggered,
-                         menu, [project] { cancelLocalBuild(project); });
+        if (file.isEmpty()) {
+            action = new QAction(Tr::tr("Cancel Local Build"), menu);
+            QObject::connect(action, &QAction::triggered,
+                             menu, [project] { cancelLocalBuild(project); });
+        } else {
+            action = new QAction(Tr::tr("Cancel Single File Analysis"), menu);
+            QObject::connect(action, &QAction::triggered,
+                             menu, [file, project] { cancelSingleFileAnalysis(file, project); });
+        }
         menu->addAction(action);
         menu->addSeparator();
     }
@@ -1913,7 +1948,15 @@ void AxivionPerspective::updateLocalBuildStateFor(const QString &projectName, co
                                                   int percent)
 {
     m_issuesWidget->updateLocalBuildState(projectName, percent);
-    m_progressWidget->addOrUpdateProgressItem(projectName, {projectName, state, percent});
+    m_progressWidget->addOrUpdateProgressItem(projectName, {projectName, {}, state, percent});
+}
+
+void AxivionPerspective::updateSfaStateFor(const QString &projectName, const QString &fileName,
+                                           const QString &state, int percent)
+{
+    m_issuesWidget->updateLocalBuildState(projectName, percent);
+    m_progressWidget->addOrUpdateProgressItem(projectName,
+                                              {projectName, fileName, state, percent});
 }
 
 void AxivionPerspective::leaveOrEnterDashboardMode(bool byLocalBuildButton)
@@ -1944,6 +1987,14 @@ void AxivionPerspective::removeFinishedBuilds()
 {
     removeFinishedLocalBuilds();
     m_progressWidget->removeFinishedItems();
+}
+
+void AxivionPerspective::onSingleFileAnalysisTriggered()
+{
+    IDocument *document = EditorManager::instance()->currentDocument();
+    QTC_ASSERT(document, return);
+    QTC_ASSERT(projectInfo(), return);
+    startSingleFileAnalysis(document->filePath(), projectInfo()->name);
 }
 
 static AxivionPerspective *axivionPerspective()
@@ -2021,6 +2072,13 @@ void updateLocalBuildStateFor(const QString &projectName, const QString &state, 
 {
     QTC_ASSERT(axivionPerspective(), return);
     axivionPerspective()->updateLocalBuildStateFor(projectName, state, percent);
+}
+
+void updateSfaStateFor(const QString &projectName, const QString &fileName,
+                       const QString &state, int percent)
+{
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->updateSfaStateFor(projectName, fileName, state, percent);
 }
 
 void leaveOrEnterDashboardMode(bool byLocalBuildButton)
