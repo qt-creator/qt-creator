@@ -81,7 +81,7 @@ CommonVcsSettings::CommonVcsSettings()
     lineWrapWidth.setDefaultValue(72);
 
     vcsShowStatus.setSettingsKey("ShowVcsStatus");
-    vcsShowStatus.setDefaultValue(false);
+    vcsShowStatus.setDefaultValue(true);
     vcsShowStatus.setLabelText(Tr::tr("Show VCS file status"));
     vcsShowStatus.setToolTip(Tr::tr("Request file status updates from files and reflect them "
                                     "on the project tree."));
