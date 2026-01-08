@@ -45,6 +45,7 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
         using namespace Layouting;
         return Column {
             autorunCMake,
+            cleanOldOutput,
             packageManagerAutoSetup,
             maintenanceToolDependencyProvider,
             askBeforeReConfigureInitialParams,
@@ -52,7 +53,6 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
             showSourceSubFolders,
             showAdvancedOptionsByDefault,
             useJunctionsForSourceAndBuildDirectories,
-            cleanOldOutput,
             st
         };
     });
@@ -130,7 +130,8 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
 
     cleanOldOutput.setSettingsKey("CleanOldOutput");
     cleanOldOutput.setDefaultValue(true);
-    cleanOldOutput.setLabelText(::CMakeProjectManager::Tr::tr("Clear CMake old output on a new run"));
+    cleanOldOutput.setLabelText(
+        ::CMakeProjectManager::Tr::tr("Clear old CMake output on a new run"));
 
     readSettings();
 

@@ -434,13 +434,12 @@ private:
     QJsonDocument m_fallbackJson;
 };
 
-QmlFormatSettingsWidget::QmlFormatSettingsWidget(
-    QWidget *parent, FormatterSelectionWidget *selection)
+QmlFormatSettingsWidget::QmlFormatSettingsWidget(QWidget *parent, FormatterSelectionWidget *selection)
     : QmlCodeStyleWidgetBase(parent)
     , m_optionsTableView(new QTableView())
     , m_optionsModel(new QmlFormatOptionsModel(this))
     , m_optionsDelegate(new QmlFormatOptionsDelegate(m_optionsModel, this))
-    , m_deployIniButton(new QPushButton(Tr::tr("Deploy INI file to current project")))
+    , m_deployIniButton(new QPushButton(Tr::tr("Deploy INI File to Current Project")))
     , m_tableResetButton(new QPushButton(Tr::tr("Reset to Defaults")))
     , m_formatterSelectionWidget(selection)
 {
