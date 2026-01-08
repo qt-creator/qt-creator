@@ -85,11 +85,17 @@ CommonVcsSettings::CommonVcsSettings()
     vcsShowStatus.setLabelText(Tr::tr("Show VCS file status"));
     vcsShowStatus.setToolTip(Tr::tr("Request file status updates from files and reflect them "
                                     "on the project tree."));
+    vcsShowStatusInterval.setSettingsKey("ShowVcsStatusInterval");
+    vcsShowStatusInterval.setSuffix(Tr::tr(" seconds"));
+    vcsShowStatusInterval.setDefaultValue(10);
+    vcsShowStatusInterval.setRange(1, 20);
+    vcsShowStatusInterval.setLabelText(Tr::tr("Refresh Interval:"));
+    vcsShowStatusInterval.setToolTip(Tr::tr("Specifies the file status update refresh interval."));
 
     setLayouter([this] {
         using namespace Layouting;
         return Column {
-            vcsShowStatus, br,
+            Row { vcsShowStatus, vcsShowStatusInterval, st },
             Row { lineWrap, lineWrapWidth, st },
             Form {
                 submitMessageCheckScript, br,

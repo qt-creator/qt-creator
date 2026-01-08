@@ -811,8 +811,13 @@ GitClient::GitClient()
             .arg(QCoreApplication::applicationPid());
 
     connect(&m_timer, &QTimer::timeout, this, &GitClient::updateModificationInfos);
-    using namespace std::chrono_literals;
-    m_timer.setInterval(10s);
+
+    auto setInterval = [this] {
+        const int seconds = VcsBase::Internal::commonSettings().vcsShowStatusInterval();
+        m_timer.setInterval(1000 * seconds);
+    };
+
+    setInterval();
     m_timer.setSingleShot(true);
 
     if (VcsBase::Internal::commonSettings().vcsShowStatus())
@@ -828,6 +833,8 @@ GitClient::GitClient()
         for (const FilePath &path : std::as_const(m_monitoredPaths))
             VcsManager::emitClearFileState(path);
     });
+    connect(&VcsBase::Internal::commonSettings().vcsShowStatusInterval, &Utils::BaseAspect::changed,
+            this, setInterval);
     connect(qApp, &QApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
         if (!VcsBase::Internal::commonSettings().vcsShowStatus())
             return;

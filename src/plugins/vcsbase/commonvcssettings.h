@@ -25,6 +25,7 @@ public:
     Utils::BoolAspect lineWrap{this};
     Utils::IntegerAspect lineWrapWidth{this};
     Utils::BoolAspect vcsShowStatus{this};
+    Utils::IntegerAspect vcsShowStatusInterval{this};
 };
 
 VCSBASE_EXPORT CommonVcsSettings &commonSettings();
