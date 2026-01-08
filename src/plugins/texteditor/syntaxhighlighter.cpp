@@ -251,7 +251,8 @@ void SyntaxHighlighterPrivate::reformatBlocks()
             forceRehighlightBlocks.remove(block.blockNumber());
             forceHighlightOfNextBlock = (block.userState() != stateBeforeHighlight)
                                         || (braceDepthBeforeHighlight
-                                            != TextBlockUserData::braceDepth(block));
+                                            != TextBlockUserData::braceDepth(block))
+                                        || forceRehighlightBlocks.contains(block.blockNumber() + 1);
         }
 
         if (block == endBlock && !forceHighlightOfNextBlock)
@@ -728,6 +729,12 @@ QTextBlockUserData *SyntaxHighlighter::currentBlockUserData() const
 QTextBlock SyntaxHighlighter::currentBlock() const
 {
     return d->currentBlock;
+}
+
+void SyntaxHighlighter::forceRehighlightBlock(const QTextBlock &block)
+{
+    QTC_ASSERT(block.isValid(), return);
+    d->forceRehighlightBlocks << block.blockNumber();
 }
 
 static bool byStartOfRange(const QTextLayout::FormatRange &range, const QTextLayout::FormatRange &other)

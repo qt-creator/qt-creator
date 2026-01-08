@@ -298,13 +298,10 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     // rehighlight the next block if it contains a folding marker since we move the folding
     // marker in some cases and we need to rehighlight the next block to update this floding indent
-    int rehighlightNextBlock = 0;
     if (const QTextBlock nextBlock = currentBlock().next(); nextBlock.isValid()) {
         if (TextBlockUserData::foldingIndent(nextBlock.next())
             > TextBlockUserData::foldingIndent(nextBlock)) {
-            static const int rehighlightNextBlockMask = 1 << 24;
-            if (!(currentBlockState() & rehighlightNextBlockMask))
-                rehighlightNextBlock = rehighlightNextBlockMask;
+            forceRehighlightBlock(nextBlock.next());
         }
     }
 
@@ -313,8 +310,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     if (text.size() > lastTokenEnd)
         formatSpaces(text, lastTokenEnd, text.size() - lastTokenEnd);
 
-    if (!initialLexerState && lexerStateWithoutNewLineExpectedBit(lexerState)
-        && !tokens.isEmpty()) {
+    if (!initialLexerState && lexerStateWithoutNewLineExpectedBit(lexerState) && !tokens.isEmpty()) {
         const Token &lastToken = tokens.last();
         if (lastToken.is(T_COMMENT) || lastToken.is(T_DOXY_COMMENT)) {
             insertParen({Parenthesis::Opened, QLatin1Char('+'), lastToken.utf16charsBegin()});
@@ -330,7 +326,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     TextBlockUserData::setFoldingIndent(currentBlock(), foldingIndent);
     TextBlockUserData::setBraceDepth(currentBlock(), braceDepth);
-    setCurrentBlockState(rehighlightNextBlock | tokenize.state());
+    setCurrentBlockState(tokenize.state());
     qCDebug(highlighterLog) << "storing brace depth" << braceDepth << "and folding indent" << foldingIndent;
 
     TextBlockUserData::setExpectedRawStringSuffix(currentBlock(),

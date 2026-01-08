@@ -92,6 +92,7 @@ protected:
     QTextBlockUserData *currentBlockUserData() const;
 
     QTextBlock currentBlock() const;
+    void forceRehighlightBlock(const QTextBlock &block);
 
     virtual void documentChanged(QTextDocument * /*oldDoc*/, QTextDocument * /*newDoc*/) {};
 
