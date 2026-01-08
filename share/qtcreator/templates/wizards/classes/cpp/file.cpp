@@ -57,9 +57,6 @@ public:
     return *this;
 }
 
-%{CN}::~%{CN}()
-{
-
-}
+%{CN}::~%{CN}() = default;
 @endif
 %{JS: Cpp.closeNamespaces('%{Class}')}\

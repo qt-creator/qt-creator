@@ -33,8 +33,8 @@ class %{CN} : public %{BaseClass}\
     Q_OBJECT
 
 public:
-    %{CN}(QWidget *parent = nullptr);
-    ~%{CN}();
+    explicit %{CN}(QWidget *parent = nullptr);
+    ~%{CN}() override;
 @if %{GenerateForm}
 @if %{JS: QtSupport.uiAsPointer() }
 

@@ -22,6 +22,4 @@ void %{ObjectName}::paint(QPainter *painter)
     painter->drawRect(0, 0, 100, 100);
 }
 
-%{ObjectName}::~%{ObjectName}()
-{
-}
+%{ObjectName}::~%{ObjectName}() = default;

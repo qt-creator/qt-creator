@@ -13,7 +13,7 @@ class %{TestCaseName} : public QObject
 
 public:
     %{TestCaseName}();
-    ~%{TestCaseName}();
+    ~%{TestCaseName}() override;
 
 private slots:
 @if "%{GenerateInitAndCleanup}" == "true"
@@ -31,10 +31,7 @@ private slots:
 
 }
 
-%{TestCaseName}::~%{TestCaseName}()
-{
-
-}
+%{TestCaseName}::~%{TestCaseName}() = default;
 
 @if "%{GenerateInitAndCleanup}" == "true"
 void %{TestCaseName}::initTestCase()

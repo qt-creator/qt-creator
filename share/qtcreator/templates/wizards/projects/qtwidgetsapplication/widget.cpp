@@ -22,11 +22,13 @@
 @endif
 }
 
+@if %{GenerateForm} && %{JS: QtSupport.uiAsPointer() }
 %{CN}::~%{CN}()
 {
-@if %{GenerateForm} && %{JS: QtSupport.uiAsPointer() }
     delete ui;
-@endif
 }
+@else
+%{CN}::~%{CN}() = default;
+@endif
 
 %{JS: Cpp.closeNamespaces('%{Class}')}\
