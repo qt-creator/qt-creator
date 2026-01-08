@@ -334,7 +334,8 @@ void DocumentManager::addFileToVersionControl(const QString &directoryPath, cons
                                     QMessageBox::Yes | QMessageBox::No);
         if (button == QMessageBox::Yes && !versionControl->vcsAdd(FilePath::fromString(newFilePath))) {
             Core::AsynchronousMessageBox::warning(Core::VcsManager::msgAddToVcsFailedTitle(),
-                                                   Core::VcsManager::msgToAddToVcsFailed(QStringList(newFilePath), versionControl));
+                                                  Core::VcsManager::msgAddToVcsFailed(
+                                                      QStringList(newFilePath), versionControl));
         }
     }
 }

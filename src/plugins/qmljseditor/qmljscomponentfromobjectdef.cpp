@@ -213,7 +213,7 @@ public:
             if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFileName)) {
                 QMessageBox::warning(Core::ICore::dialogParent(),
                                      Core::VcsManager::msgAddToVcsFailedTitle(),
-                                     Core::VcsManager::msgToAddToVcsFailed(
+                                     Core::VcsManager::msgAddToVcsFailed(
                                          QStringList(newFileName.toUrlishString()), versionControl));
             }
         }

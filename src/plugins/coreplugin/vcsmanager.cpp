@@ -455,7 +455,7 @@ QString VcsManager::msgAddToVcsFailedTitle()
     return Tr::tr("Adding to Version Control Failed");
 }
 
-QString VcsManager::msgToAddToVcsFailed(const QStringList &files, const IVersionControl *vc)
+QString VcsManager::msgAddToVcsFailed(const QStringList &files, const IVersionControl *vc)
 {
     QStringList fileList = files;
     const qsizetype size = files.size();
@@ -505,7 +505,7 @@ void VcsManager::promptToAdd(const FilePath &directory, const FilePaths &filePat
         if (!notAddedToVc.isEmpty()) {
             QMessageBox::warning(ICore::dialogParent(),
                                  VcsManager::msgAddToVcsFailedTitle(),
-                                 VcsManager::msgToAddToVcsFailed(notAddedToVc, vc));
+                                 VcsManager::msgAddToVcsFailed(notAddedToVc, vc));
         }
     }
 }

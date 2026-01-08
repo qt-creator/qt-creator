@@ -70,7 +70,7 @@ public:
     static QString msgAddToVcsTitle();
     static QString msgPromptToAddToVcs(const QStringList &files, const IVersionControl *vc);
     static QString msgAddToVcsFailedTitle();
-    static QString msgToAddToVcsFailed(const QStringList &files, const IVersionControl *vc);
+    static QString msgAddToVcsFailed(const QStringList &files, const IVersionControl *vc);
 
     /*!
      * Return a list of paths where tools that came with the VCS may be installed.
