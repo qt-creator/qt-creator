@@ -447,7 +447,7 @@ QString VcsManager::msgPromptToAddToVcs(const QStringList &files, const IVersion
         ? Tr::tr("Add the file\n%1\nto version control (%2)?")
               .arg(files.front(), vc->displayName())
         : Tr::tr("Add the files\n%1\nto version control (%2)?")
-              .arg(files.join(QString(QLatin1Char('\n'))), vc->displayName());
+              .arg(files.join('\n'), vc->displayName());
 }
 
 QString VcsManager::msgAddToVcsFailedTitle()
@@ -465,11 +465,11 @@ QString VcsManager::msgToAddToVcsFailed(const QStringList &files, const IVersion
         //: %1 = name of VCS system, %2 = lines with file paths
         return Tr::tr("Could not add the following files to version control (%1)\n%2\n"
                       "... and %n more.", "", size - maxSize)
-            .arg(vc->displayName(), fileList.join(QString(QLatin1Char('\n'))));
+            .arg(vc->displayName(), fileList.join('\n'));
     }
     //: %1 = name of VCS system, %2 = lines with file paths
     return Tr::tr("Could not add the following files to version control (%1)\n%2")
-        .arg(vc->displayName(), fileList.join(QString(QLatin1Char('\n'))));
+        .arg(vc->displayName(), fileList.join('\n'));
 }
 
 FilePaths VcsManager::additionalToolsPath()
