@@ -34,32 +34,17 @@ QString PasteBinDotComProtocol::protocolName()
     return QLatin1String(PROTOCOL_NAME);
 }
 
-static inline QByteArray format(ContentType ct)
+static QByteArray typeToString(ContentType type)
 {
-    QByteArray format = "api_paste_format=";
-    switch (ct) {
-    case C:
-        format += 'c';
-        break;
-    case Cpp:
-        format += "cpp-qt";
-        break;
-    case JavaScript:
-        format += "javascript";
-        break;
-    case Diff:
-        format += "diff";
-        break;
-    case Xml:
-        format += "xml";
-        break;
-    case Text:
-        // fallthrough!
-    default:
-        format += "text";
+    switch (type) {
+    case C:          return "c";
+    case Cpp:        return "cpp-qt";
+    case Diff:       return "diff";
+    case JavaScript: return "javascript";
+    case Text:       return "text";
+    case Xml:        return "xml";
     }
-    format += '&';
-    return format;
+    return {};
 }
 
 // According to documentation, Pastebin.com accepts only fixed expiry specifications:
@@ -81,15 +66,11 @@ void PasteBinDotComProtocol::paste(const PasteInputData &inputData)
 
     // Format body
     QByteArray pasteData = API_KEY;
-    pasteData += "api_option=paste&";
-    pasteData += "api_paste_expire_date=";
-    pasteData += expirySpecification(inputData.expiryDays);
-    pasteData += '&';
-    pasteData += format(inputData.ct);
-    pasteData += "api_paste_name="; // Title or name.
-    pasteData += QUrl::toPercentEncoding(inputData.description);
-    pasteData += "&api_paste_code=";
-    pasteData += QUrl::toPercentEncoding(fixNewLines(inputData.text));
+    pasteData += "api_option=paste";
+    pasteData += "&api_paste_expire_date=" + expirySpecification(inputData.expiryDays);
+    pasteData += "&api_paste_format=" + typeToString(inputData.ct);
+    pasteData += "&api_paste_name=" + QUrl::toPercentEncoding(inputData.description);
+    pasteData += "&api_paste_code=" + QUrl::toPercentEncoding(fixNewLines(inputData.text));
     // fire request
     m_pasteReply = httpPost(QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_API), pasteData);
     connect(m_pasteReply, &QNetworkReply::finished, this, &PasteBinDotComProtocol::pasteFinished);

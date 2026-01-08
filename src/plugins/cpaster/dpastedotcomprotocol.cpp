@@ -63,7 +63,7 @@ static QByteArray typeToString(ContentType type)
     case Text:       return "text";
     case Xml:        return "xml";
     }
-    return {}; // For dumb compilers.
+    return {};
 }
 
 void DPasteDotComProtocol::paste(const PasteInputData &inputData)
