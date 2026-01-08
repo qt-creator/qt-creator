@@ -83,7 +83,7 @@ public:
         PlainTextMode
     };
 
-    explicit PasteView(const QList<Protocol *> &protocols, const QString &mimeType);
+    explicit PasteView(const QList<Protocol *> &protocols);
     ~PasteView() override;
 
     // Show up with checkable list of diff chunks.
@@ -109,7 +109,6 @@ private:
     int showDialog();
 
     const QList<Protocol *> m_protocols;
-    const QString m_mimeType;
 
     QComboBox *m_protocolBox;
     QSpinBox *m_expirySpinBox;
@@ -123,10 +122,9 @@ private:
     Mode m_mode = DiffChunkMode;
 };
 
-PasteView::PasteView(const QList<Protocol *> &protocols, const QString &mt)
+PasteView::PasteView(const QList<Protocol *> &protocols)
     : QDialog(Core::ICore::dialogParent())
     , m_protocols(protocols)
-    , m_mimeType(mt)
 {
     setObjectName("CodePaster.ViewDialog");
     resize(670, 678);
@@ -329,8 +327,6 @@ void PasteView::accept()
     if (data.isEmpty())
         return;
 
-    const ContentType ct = contentType(m_mimeType);
-    protocol->paste({data, ct, expiryDays(), user(), description()});
     // Store settings and close
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(groupC);
@@ -374,27 +370,32 @@ static inline void fixSpecialCharacters(QString &data)
     }
 }
 
-void executePasteDialog(const QList<Protocol *> &protocols, const QString &data,
-                        const QString &mimeType)
+std::optional<PasteInputData> executePasteDialog(const QList<Protocol *> &protocols,
+                                                 const QString &data, const QString &mimeType)
 {
     QString copiedData = data;
     fixSpecialCharacters(copiedData);
 
     const QString username = settings().username();
 
-    PasteView view(protocols, mimeType);
+    PasteView view(protocols);
     view.setProtocol(settings().protocols.stringValue());
 
     const FileDataList diffChunks = splitDiffToFiles(copiedData);
     const int dialogResult = diffChunks.isEmpty()
                                  ? view.show(username, settings().expiryDays(), copiedData)
                                  : view.show(username, settings().expiryDays(), diffChunks);
+    if (dialogResult != QDialog::Accepted)
+        return {};
 
     // Save new protocol in case user changed it.
-    if (dialogResult == QDialog::Accepted && settings().protocols() != view.protocol()) {
+    if (settings().protocols() != view.protocol()) {
         settings().protocols.setValue(view.protocol());
         settings().writeSettings();
     }
+
+    return PasteInputData{view.content(), contentType(mimeType), view.expiryDays(),
+                          view.user(), view.description()};
 }
 
 } // CodePaster

@@ -7,9 +7,10 @@
 
 namespace CodePaster {
 
+class PasteInputData;
 class Protocol;
 
-void executePasteDialog(const QList<Protocol *> &protocols, const QString &data,
-                        const QString &mimeType);
+std::optional<PasteInputData> executePasteDialog(const QList<Protocol *> &protocols,
+                                                 const QString &data, const QString &mimeType);
 
 } // CodePaster

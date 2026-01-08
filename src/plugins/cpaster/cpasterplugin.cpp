@@ -66,11 +66,11 @@ class CodePasterServiceImpl final : public QObject, public CodePaster::Service
 public:
     explicit CodePasterServiceImpl(CodePasterPluginPrivate *d);
 
-private:
     void postText(const QString &text, const QString &mimeType) final;
     void postCurrentEditor() final;
     void postClipboard() final;
 
+private:
     CodePasterPluginPrivate *d = nullptr;
 };
 
@@ -118,7 +118,9 @@ CodePasterServiceImpl::CodePasterServiceImpl(CodePasterPluginPrivate *d)
 
 void CodePasterServiceImpl::postText(const QString &text, const QString &mimeType)
 {
-    executePasteDialog(d->m_protocols, text, mimeType);
+    const auto pasteInputData = executePasteDialog(d->m_protocols, text, mimeType);
+    if (pasteInputData)
+        d->m_protocols[settings().protocols()]->paste(*pasteInputData);
 }
 
 void CodePasterServiceImpl::postCurrentEditor()
@@ -218,7 +220,7 @@ void CodePasterPluginPrivate::post(PasteSources pasteSources)
         QString subType = "plain";
         data = QGuiApplication::clipboard()->text(subType, QClipboard::Clipboard);
     }
-    executePasteDialog(m_protocols, data, mimeType);
+    m_service.postText(data, mimeType);
 }
 
 void CodePasterPluginPrivate::fetchUrl()
