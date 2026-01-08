@@ -46,6 +46,68 @@ public:
     Utils::FilePath jsonFile(const QString &kind, const Utils::FilePath &replyDir) const;
 };
 
+struct PathPair
+{
+    QString from;
+    QString to;
+};
+
+class Installer
+{
+public:
+    QString component;
+    QString destination;
+    std::vector<PathPair> paths;
+    QString type;
+    bool isExcludeFromAll = false;
+    bool isForAllComponents = false;
+    bool isOptional = false;
+    QString targetId;
+    int targetIndex = -1;
+    bool targetIsImportLibrary = false;
+    QString targetInstallNamelink;
+    QString exportName;
+    struct ExportTarget {
+        QString id;
+        int index;
+    };
+    std::vector<ExportTarget> exportTargets;
+    QString runtimeDependencySetName;
+    QString runtimeDependencySetType;
+    QString fileSetName;
+    QString fileSetType;
+    QStringList fileSetDirectories;
+    struct FileSetTarget {
+        QString id;
+        int index;
+    };
+    FileSetTarget fileSetTarget;
+    struct CxxModuleBmiTarget {
+        QString id;
+        int index;
+    };
+    CxxModuleBmiTarget cxxModuleBmiTarget;
+    QString scriptFile;
+    int backtrace = -1;
+};
+
+class BacktraceNode
+{
+public:
+    int file = -1;
+    int line = -1;
+    int command = -1;
+    int parent = -1;
+};
+
+class BacktraceInfo
+{
+public:
+    std::vector<QString> commands;
+    std::vector<QString> files;
+    std::vector<BacktraceNode> nodes;
+};
+
 class DirectoryInfo
 {
 public:
@@ -56,6 +118,11 @@ public:
     std::vector<int> children;
     std::vector<int> targets;
     bool hasInstallRule = false;
+    int codemodelVersionMajor = 2;
+    int codemodelVersionMinor = 0;
+    QString jsonFile;
+    std::vector<Installer> installers;
+    BacktraceInfo backtraceGraph;
 };
 
 class ProjectInfo
@@ -66,6 +133,7 @@ public:
     std::vector<int> children;
     std::vector<int> directories;
     std::vector<int> targets;
+    std::vector<int> abstractTargets;
 };
 
 class TargetInfo
@@ -77,6 +145,10 @@ public:
     int directory = -1;
     int project = -1;
     QString jsonFile;
+    bool imported = false;
+    bool local = false;
+    bool abstract = false;
+    bool symbolic = false;
 };
 
 class ConfigurationInfo
@@ -86,6 +158,18 @@ public:
     std::vector<DirectoryInfo> directories;
     std::vector<ProjectInfo> projects;
     std::vector<TargetInfo> targets;
+    std::vector<TargetInfo> abstractTargets;
+};
+
+class DirectoryDetails
+{
+public:
+    int codemodelVersionMajor = 2;
+    int codemodelVersionMinor = 0;
+    QString sourcePath;
+    QString buildPath;
+    std::vector<Installer> installers;
+    BacktraceInfo backtraceGraph;
 };
 
 class InstallDestination
@@ -160,21 +244,56 @@ public:
     QString sysroot;
 };
 
-class BacktraceNode
+class ToolchainCompiler
 {
 public:
-    int file = -1;
-    int line = -1;
-    int command = -1;
-    int parent = -1;
+    QString path;
+    QString id;
+    QString version;
+    QString target;
+    struct Implicit {
+        QStringList includeDirectories;
+        QStringList linkDirectories;
+        QStringList linkFrameworkDirectories;
+        QStringList linkLibraries;
+    } implicit;
 };
 
-class BacktraceInfo
+class Toolchain
 {
 public:
-    std::vector<QString> commands;
-    std::vector<QString> files;
-    std::vector<BacktraceNode> nodes;
+    QString language;
+    ToolchainCompiler compiler;
+    QStringList sourceFileExtensions;
+};
+
+class ConfigureLog
+{
+public:
+    QString path;
+    QStringList eventKindNames;
+};
+
+class FileSetInfo
+{
+public:
+    QString name;
+    QString type;
+    QString visibility;
+    QStringList baseDirectories;
+};
+
+class PrecompileHeaderInfo
+{
+public:
+    QString header;
+    int backtrace;
+};
+
+class DebuggerInfo
+{
+public:
+    QString workingDirectory;
 };
 
 class TargetDetails
@@ -196,10 +315,23 @@ public:
     std::optional<LinkInfo> link;
     std::optional<ArchiveInfo> archive;
     std::vector<DependencyInfo> dependencies;
+    std::vector<DependencyInfo> linkLibraries;
+    std::vector<DependencyInfo> interfaceLinkLibraries;
+    std::vector<DependencyInfo> compileDependencies;
+    std::vector<DependencyInfo> interfaceCompileDependencies;
+    std::vector<DependencyInfo> objectDependencies;
+    std::vector<DependencyInfo> orderDependencies;
     std::vector<SourceInfo> sources;
     std::vector<QString> sourceGroups;
     std::vector<CompileInfo> compileGroups;
     BacktraceInfo backtraceGraph;
+    bool imported = false;
+    bool local = false;
+    bool abstract = false;
+    bool symbolic = false;
+    DebuggerInfo debugger;
+    std::vector<FileSetInfo> fileSets;
+    std::vector<PrecompileHeaderInfo> precompileHeaders;
 };
 
 } // namespace FileApiDetails
@@ -212,6 +344,9 @@ public:
     std::vector<CMakeFileInfo> cmakeFiles;
     FileApiDetails::ConfigurationInfo codemodel;
     std::vector<FileApiDetails::TargetDetails> targetDetails;
+    std::vector<FileApiDetails::DirectoryDetails> directoryDetails;
+    std::vector<FileApiDetails::Toolchain> toolchains;
+    FileApiDetails::ConfigureLog configureLog;
 };
 
 class FileApiParser

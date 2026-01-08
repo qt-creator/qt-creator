@@ -164,6 +164,225 @@ static ReplyFileContents readReplyFile(const FilePath &filePath, QString &errorM
     return result;
 }
 
+static std::vector<Installer> extractInstallers(const QJsonArray &installersArray)
+{
+    std::vector<Installer> result;
+    for (const auto &v : installersArray) {
+        const QJsonObject obj = v.toObject();
+        if (obj.isEmpty())
+            continue;
+
+        Installer installer;
+        installer.component = obj.value("component").toString();
+        installer.destination = obj.value("destination").toString();
+        installer.type = obj.value("type").toString();
+        installer.isExcludeFromAll = obj.value("isExcludeFromAll").toBool(false);
+        installer.isForAllComponents = obj.value("isForAllComponents").toBool(false);
+        installer.isOptional = obj.value("isOptional").toBool(false);
+        installer.targetId = obj.value("targetId").toString();
+        installer.targetIndex = obj.value("targetIndex").toInt(-1);
+        installer.targetIsImportLibrary = obj.value("targetIsImportLibrary").toBool(false);
+        installer.targetInstallNamelink = obj.value("targetInstallNamelink").toString();
+        installer.exportName = obj.value("exportName").toString();
+        installer.runtimeDependencySetName = obj.value("runtimeDependencySetName").toString();
+        installer.runtimeDependencySetType = obj.value("runtimeDependencySetType").toString();
+        installer.fileSetName = obj.value("fileSetName").toString();
+        installer.fileSetType = obj.value("fileSetType").toString();
+        installer.scriptFile = obj.value("scriptFile").toString();
+        installer.backtrace = obj.value("backtrace").toInt(-1);
+
+        const QJsonArray fsDirArray = obj.value("fileSetDirectories").toArray();
+        for (const auto &dirV : fsDirArray) {
+            if (dirV.isString())
+                installer.fileSetDirectories.append(dirV.toString());
+        }
+
+        // Handle paths array
+        const QJsonArray pathsArray = obj.value("paths").toArray();
+        for (const auto &pathV : pathsArray) {
+            if (pathV.isString()) {
+                installer.paths.push_back({pathV.toString(), QString()});
+            } else if (pathV.isObject()) {
+                const QJsonObject pathObj = pathV.toObject();
+                if (pathObj.contains("from") && pathObj.contains("to")) {
+                    installer.paths.push_back(
+                        {pathObj.value("from").toString(), pathObj.value("to").toString()});
+                }
+            }
+        }
+
+        // Handle exportTargets array
+        const QJsonArray exportTargetsArray = obj.value("exportTargets").toArray();
+        for (const auto &targetV : exportTargetsArray) {
+            const QJsonObject targetObj = targetV.toObject();
+            Installer::ExportTarget exportTarget;
+            exportTarget.id = targetObj.value("id").toString();
+            exportTarget.index = targetObj.value("index").toInt(-1);
+            installer.exportTargets.push_back(exportTarget);
+        }
+
+        // Handle fileSetTarget
+        const QJsonObject fileSetTargetObj = obj.value("fileSetTarget").toObject();
+        if (!fileSetTargetObj.isEmpty()) {
+            installer.fileSetTarget.id = fileSetTargetObj.value("id").toString();
+            installer.fileSetTarget.index = fileSetTargetObj.value("index").toInt(-1);
+        }
+
+        // Handle cxxModuleBmiTarget
+        const QJsonObject cxxModuleBmiTargetObj = obj.value("cxxModuleBmiTarget").toObject();
+        if (!cxxModuleBmiTargetObj.isEmpty()) {
+            installer.cxxModuleBmiTarget.id = cxxModuleBmiTargetObj.value("id").toString();
+            installer.cxxModuleBmiTarget.index = cxxModuleBmiTargetObj.value("index").toInt(-1);
+        }
+
+        result.emplace_back(std::move(installer));
+    }
+    return result;
+}
+
+static DirectoryDetails readDirectoryFile(const FilePath &directoryFile, QString &errorMessage)
+{
+    Q_UNUSED(errorMessage);
+    DirectoryDetails result;
+
+    const QJsonDocument doc = readJsonFile(directoryFile);
+    const QJsonObject root = doc.object();
+
+    // Parse codemodel version (from codemodelVersion object)
+    const QJsonObject codemodelVersionObj = root.value("codemodelVersion").toObject();
+    if (!codemodelVersionObj.isEmpty()) {
+        result.codemodelVersionMajor = codemodelVersionObj.value("major").toInt(2);
+        result.codemodelVersionMinor = codemodelVersionObj.value("minor").toInt(0);
+    }
+
+    const QJsonObject paths = root.value("paths").toObject();
+    result.sourcePath = paths.value("source").toString();
+    result.buildPath = paths.value("build").toString();
+
+    // Parse installers
+    const QJsonArray installersArray = root.value("installers").toArray();
+    result.installers = extractInstallers(installersArray);
+
+    // Parse backtraceGraph
+    const QJsonObject backtraceGraphObj = root.value("backtraceGraph").toObject();
+    if (!backtraceGraphObj.isEmpty()) {
+        result.backtraceGraph.commands = transform<std::vector>(
+            backtraceGraphObj.value("commands").toArray(),
+            [](const QJsonValue &v) { return v.toString(); });
+        result.backtraceGraph.files = transform<std::vector>(
+            backtraceGraphObj.value("files").toArray(),
+            [](const QJsonValue &v) { return v.toString(); });
+        result.backtraceGraph.nodes = transform<std::vector>(
+            backtraceGraphObj.value("nodes").toArray(),
+            [](const QJsonValue &v) {
+                const QJsonObject o = v.toObject();
+                return BacktraceNode{
+                    o.value("file").toInt(-1),
+                    o.value("line").toInt(-1),
+                    o.value("command").toInt(-1),
+                    o.value("parent").toInt(-1)
+                };
+            });
+    }
+
+    return result;
+}
+
+static std::vector<Toolchain> readToolchainsFile(
+    const FilePath &toolchainsFile, QString &errorMessage)
+{
+    std::vector<Toolchain> result;
+    const QJsonDocument doc = readJsonFile(toolchainsFile);
+    const QJsonObject root = doc.object();
+
+    if (!checkJsonObject(root, "toolchains", 1)) {
+        errorMessage = Tr::tr("Invalid toolchains file generated by CMake.");
+        return {};
+    }
+
+    const QJsonArray toolchains = root.value("toolchains").toArray();
+    for (const auto &v : toolchains) {
+        Toolchain toolchain;
+        const QJsonObject obj = v.toObject();
+        toolchain.language = obj.value("language").toString();
+
+        const QJsonObject compilerObj = obj.value("compiler").toObject();
+        toolchain.compiler.path = compilerObj.value("path").toString();
+        toolchain.compiler.id = compilerObj.value("id").toString();
+        toolchain.compiler.version = compilerObj.value("version").toString();
+        toolchain.compiler.target = compilerObj.value("target").toString(); // Added
+
+        const QJsonObject implicitObj = compilerObj.value("implicit").toObject();
+        toolchain.compiler.implicit.includeDirectories
+            = implicitObj.value("includeDirectories").toVariant().toStringList();
+        toolchain.compiler.implicit.linkDirectories
+            = implicitObj.value("linkDirectories").toVariant().toStringList();
+        toolchain.compiler.implicit.linkFrameworkDirectories
+            = implicitObj.value("linkFrameworkDirectories").toVariant().toStringList();
+        toolchain.compiler.implicit.linkLibraries
+            = implicitObj.value("linkLibraries").toVariant().toStringList();
+
+        toolchain.sourceFileExtensions
+            = obj.value("sourceFileExtensions").toVariant().toStringList();
+
+        result.emplace_back(std::move(toolchain));
+    }
+    return result;
+}
+
+static ConfigureLog readConfigureLogFile(const FilePath &configureLogFile, QString &errorMessage)
+{
+    ConfigureLog result;
+    const QJsonDocument doc = readJsonFile(configureLogFile);
+    const QJsonObject root = doc.object();
+
+    if (!checkJsonObject(root, "configureLog", 1)) {
+        errorMessage = Tr::tr("Invalid configureLog file generated by CMake.");
+        return result;
+    }
+
+    result.path = root.value("path").toString();
+    result.eventKindNames = root.value("eventKindNames").toVariant().toStringList();
+
+    return result;
+}
+
+static std::vector<FileSetInfo> extractFileSets(const QJsonArray &fileSetsArray)
+{
+    std::vector<FileSetInfo> result;
+    for (const auto &v : fileSetsArray) {
+        const QJsonObject obj = v.toObject();
+        if (obj.isEmpty())
+            continue;
+
+        FileSetInfo fs;
+        fs.name = obj.value("name").toString();
+        fs.type = obj.value("type").toString();
+        fs.visibility = obj.value("visibility").toString();
+        fs.baseDirectories = obj.value("baseDirectories").toVariant().toStringList();
+
+        result.emplace_back(std::move(fs));
+    }
+    return result;
+}
+
+static std::vector<PrecompileHeaderInfo> extractPrecompileHeaders(const QJsonArray &precompileHeadersArray)
+{
+    std::vector<PrecompileHeaderInfo> result;
+    for (const auto &v : precompileHeadersArray) {
+        const QJsonObject obj = v.toObject();
+        if (obj.isEmpty())
+            continue;
+
+        PrecompileHeaderInfo pch;
+        pch.header = obj.value("header").toString();
+        pch.backtrace = obj.value("backtrace").toInt(-1);
+
+        result.emplace_back(std::move(pch));
+    }
+    return result;
+}
+
 // Cache file:
 
 static CMakeConfig readCacheFile(const FilePath &cacheFile, QString &errorMessage)
@@ -267,6 +486,12 @@ std::vector<DirectoryInfo> extractDirectories(const QJsonArray &directories, QSt
         dir.children = indexList(obj.value("childIndexes"));
         dir.targets = indexList(obj.value("targetIndexes"));
         dir.hasInstallRule = obj.value("hasInstallRule").toBool();
+        const QJsonObject codemodelVersionObj = obj.value("codemodelVersion").toObject();
+        if (!codemodelVersionObj.isEmpty()) {
+            dir.codemodelVersionMajor = codemodelVersionObj.value("major").toInt(2);
+            dir.codemodelVersionMinor = codemodelVersionObj.value("minor").toInt(0);
+        }
+        dir.jsonFile = obj.value("jsonFile").toString();
 
         result.emplace_back(std::move(dir));
     }
@@ -296,6 +521,7 @@ static std::vector<ProjectInfo> extractProjects(const QJsonArray &projects, QStr
         project.children = indexList(obj.value("childIndexes"));
         project.directories = indexList(obj.value("directoryIndexes"));
         project.targets = indexList(obj.value("targetIndexes"));
+        project.abstractTargets = indexList(obj.value("abstractTargetIndexes"));
 
         if (project.directories.empty()) {
             qCDebug(cmakeFileApi) << "Invalid project skipped!";
@@ -326,6 +552,10 @@ static std::vector<TargetInfo> extractTargets(const QJsonArray &targets, QString
         target.directory = obj.value("directoryIndex").toInt(-1);
         target.project = obj.value("projectIndex").toInt(-1);
         target.jsonFile = obj.value("jsonFile").toString();
+        target.imported = obj.value("imported").toBool(false);
+        target.local = obj.value("local").toBool(false);
+        target.abstract = obj.value("abstract").toBool(false);
+        target.symbolic = obj.value("symbolic").toBool(false);
 
         if (target.name.isEmpty() || target.id.isEmpty() || target.jsonFile.isEmpty()
             || target.directory == -1 || target.project == -1) {
@@ -448,6 +678,7 @@ static std::vector<ConfigurationInfo> extractConfigurations(const QJsonArray &co
         config.directories = extractDirectories(obj.value("directories").toArray(), errorMessage);
         config.projects = extractProjects(obj.value("projects").toArray(), errorMessage);
         config.targets = extractTargets(obj.value("targets").toArray(), errorMessage);
+        config.abstractTargets = extractTargets(obj.value("abstractTargets").toArray(), errorMessage);
 
         if (!validateIndexes(config)) {
             errorMessage = Tr::tr("Invalid codemodel file generated by CMake: Broken "
@@ -579,6 +810,51 @@ static TargetDetails extractTargetDetails
         });
     }
     {
+        const QJsonArray linkLibraries = root.value("linkLibraries").toArray();
+        t.linkLibraries = transform<std::vector>(linkLibraries, [](const QJsonValue &v) {
+            const QJsonObject o = v.toObject();
+            return DependencyInfo{o.value("id").toString(), o.value("backtrace").toInt(-1)};
+        });
+    }
+    {
+        const QJsonArray interfaceLinkLibraries = root.value("interfaceLinkLibraries").toArray();
+        t.interfaceLinkLibraries
+            = transform<std::vector>(interfaceLinkLibraries, [](const QJsonValue &v) {
+                  const QJsonObject o = v.toObject();
+                  return DependencyInfo{o.value("id").toString(), o.value("backtrace").toInt(-1)};
+              });
+    }
+    {
+        const QJsonArray compileDependencies = root.value("compileDependencies").toArray();
+        t.compileDependencies = transform<std::vector>(compileDependencies, [](const QJsonValue &v) {
+            const QJsonObject o = v.toObject();
+            return DependencyInfo{o.value("id").toString(), o.value("backtrace").toInt(-1)};
+        });
+    }
+    {
+        const QJsonArray interfaceCompileDependencies
+            = root.value("interfaceCompileDependencies").toArray();
+        t.interfaceCompileDependencies
+            = transform<std::vector>(interfaceCompileDependencies, [](const QJsonValue &v) {
+                  const QJsonObject o = v.toObject();
+                  return DependencyInfo{o.value("id").toString(), o.value("backtrace").toInt(-1)};
+              });
+    }
+    {
+        const QJsonArray objectDependencies = root.value("objectDependencies").toArray();
+        t.objectDependencies = transform<std::vector>(objectDependencies, [](const QJsonValue &v) {
+            const QJsonObject o = v.toObject();
+            return DependencyInfo{o.value("id").toString(), o.value("backtrace").toInt(-1)};
+        });
+    }
+    {
+        const QJsonArray orderDependencies = root.value("orderDependencies").toArray();
+        t.orderDependencies = transform<std::vector>(orderDependencies, [](const QJsonValue &v) {
+            const QJsonObject o = v.toObject();
+            return DependencyInfo{o.value("id").toString(), o.value("backtrace").toInt(-1)};
+        });
+    }
+    {
         const QJsonArray sources = root.value("sources").toArray();
         t.sources = transform<std::vector>(sources, [replyDir](const QJsonValue &v) {
             const QJsonObject o = v.toObject();
@@ -658,6 +934,24 @@ static TargetDetails extractTargetDetails
                 return LauncherInfo { o.value("type").toString(), command, arguments };
             });
         }
+    }
+
+    t.imported = root.value("imported").toBool(false);
+    t.local = root.value("local").toBool(false);
+    t.abstract = root.value("abstract").toBool(false);
+    t.symbolic = root.value("symbolic").toBool(false);
+
+    {
+        const QJsonObject debugger = root.value("debugger").toObject();
+        t.debugger.workingDirectory = debugger.value("workingDirectory").toString();
+    }
+    {
+        const QJsonArray fileSets = root.value("fileSets").toArray();
+        t.fileSets = extractFileSets(fileSets);
+    }
+    {
+        const QJsonArray precompileHeaders = root.value("precompileHeaders").toArray();
+        t.precompileHeaders = extractPrecompileHeaders(precompileHeaders);
     }
 
     return t;
@@ -933,6 +1227,34 @@ FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &
         }
     }
 
+    for (const DirectoryInfo &d : result.codemodel.directories) {
+        // Skip if we already have a directory entry (e.g. multiple configurations)
+        if (d.jsonFile.isEmpty())
+            continue;
+
+        const FilePath dirFile = replyDir / d.jsonFile;
+        DirectoryDetails dirDetails = readDirectoryFile(dirFile, errorMessage);
+        if (!errorMessage.isEmpty())
+            return result;
+
+        // Store the directory details for later use (e.g. install rules)
+        result.directoryDetails.emplace_back(std::move(dirDetails));
+    }
+
+    const FilePath toolchainsPath = result.replyFile.jsonFile("toolchains", replyDir);
+    if (!toolchainsPath.isEmpty()) {
+        result.toolchains = readToolchainsFile(toolchainsPath, errorMessage);
+        if (!errorMessage.isEmpty())
+            return result;
+    }
+
+    const FilePath configureLogPath = result.replyFile.jsonFile("configureLog", replyDir);
+    if (!configureLogPath.isEmpty()) {
+        result.configureLog = readConfigureLogFile(configureLogPath, errorMessage);
+        if (!errorMessage.isEmpty())
+            return result;
+    }
+
     return result;
 }
 
@@ -952,7 +1274,9 @@ FilePaths FileApiParser::cmakeQueryFilePaths(const FilePath &buildDirectory)
     return {
         queryDir / "cache-v2",
         queryDir / "codemodel-v2",
-        queryDir / "cmakeFiles-v1"
+        queryDir / "cmakeFiles-v1",
+        queryDir / "toolchains-v1",
+        queryDir / "configureLog-v1",
     };
 }
 
