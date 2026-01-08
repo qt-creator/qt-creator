@@ -231,7 +231,7 @@ bool LineColumnButton::event(QEvent *event)
     tooltipText += QString("<td>%1</td>").arg(multiCursor.cursorCount());
     tooltipText += "</tr>\n";
 
-    auto addRow = [&](const QString header, auto cellText) {
+    auto addRow = [&](const QString &header, auto cellText) {
         tooltipText += "<tr>";
         tooltipText += QString("<th align='left'>%1</th>").arg(header);
         for (const QTextCursor &c : cursors)
