@@ -31209,7 +31209,8 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Number</source>
-        <translation>Zahl</translation>
+        <extracomment>Header for the breakpoint list: Consecutive Number of the breakpoint.</extracomment>
+        <translation>Nummer</translation>
     </message>
     <message>
         <source>Breakpoint at &quot;%1&quot;</source>

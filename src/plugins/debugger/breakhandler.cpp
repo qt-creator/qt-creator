@@ -895,8 +895,16 @@ BreakHandler::BreakHandler(DebuggerEngine *engine)
 #if USE_BREAK_MODEL_TEST
     new ModelTest(this, 0);
 #endif
-    setHeader({Tr::tr("Number"), Tr::tr("Function"), Tr::tr("File"), Tr::tr("Line"),
-               Tr::tr("Address"), Tr::tr("Condition"), Tr::tr("Ignore"), Tr::tr("Threads")});
+    setHeader(
+        {//: Header for the breakpoint list: Consecutive Number of the breakpoint.
+         Tr::tr("Number"),
+         Tr::tr("Function"),
+         Tr::tr("File"),
+         Tr::tr("Line"),
+         Tr::tr("Address"),
+         Tr::tr("Condition"),
+         Tr::tr("Ignore"),
+         Tr::tr("Threads")});
 }
 
 bool BreakpointParameters::isLocatedAt(const FilePath &file, int line, const FilePath &markerFile) const
