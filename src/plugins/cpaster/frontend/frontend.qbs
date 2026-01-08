@@ -22,11 +22,9 @@ QtcTool {
         name: "Plugin Sources"
         prefix: "../"
         files: [
-            "cpasterconstants.h",
             "dpastedotcomprotocol.h", "dpastedotcomprotocol.cpp",
             "pastebindotcomprotocol.h", "pastebindotcomprotocol.cpp",
             "protocol.h", "protocol.cpp",
-            "urlopenprotocol.h", "urlopenprotocol.cpp",
         ]
     }
 }

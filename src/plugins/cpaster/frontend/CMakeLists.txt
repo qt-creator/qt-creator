@@ -6,5 +6,4 @@ add_qtc_executable(cpaster
     ../dpastedotcomprotocol.cpp ../dpastedotcomprotocol.h
     ../pastebindotcomprotocol.cpp ../pastebindotcomprotocol.h
     ../protocol.cpp ../protocol.h
-    ../urlopenprotocol.cpp ../urlopenprotocol.h
 )
