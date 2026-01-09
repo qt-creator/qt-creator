@@ -70,6 +70,9 @@ private:
 
     static void setBinaryForKit(const Utils::FilePath &binary);
 
+    // Creates one kit per toolchain, sorted in descending order by weight.
+    static void createKitsFromToolchains(std::vector<std::unique_ptr<Kit>> &kits);
+
     // Make sure the this is only called after all
     // KitAspects are registered!
     static void restoreKits();

@@ -252,43 +252,8 @@ void KitManager::restoreKits()
     QList<Kit *> hostKits;
     if (resultList.empty() || !haveKitForBinary) {
         // No kits exist yet, so let's try to autoconfigure some from the toolchains we know.
-        QHash<Abi, QHash<LanguageCategory, std::optional<ToolchainBundle>>> uniqueToolchains;
-
-        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
-            ToolchainBundle::HandleMissing::CreateAndRegister);
-        for (const ToolchainBundle &bundle : bundles) {
-            auto &bestBundle
-                = uniqueToolchains[bundle.targetAbi()][bundle.factory()->languageCategory()];
-            if (!bestBundle) {
-                bestBundle = bundle;
-                continue;
-            }
-
-            if (ToolchainManager::isBetterToolchain(bundle, *bestBundle))
-                bestBundle = bundle;
-        }
-
-        // Create temporary kits for all toolchains found.
         decltype(resultList) tempList;
-        for (auto it = uniqueToolchains.cbegin(); it != uniqueToolchains.cend(); ++it) {
-            auto kit = std::make_unique<Kit>();
-            kit->setDetectionSource(DetectionSource::Manual); // TODO: Why manual? What does autodetected mean here?
-            for (const auto &bundle : it.value())
-                ToolchainKitAspect::setBundle(kit.get(), *bundle);
-            if (contains(resultList, [&kit](const std::unique_ptr<Kit> &existingKit) {
-                return ToolchainKitAspect::toolChains(kit.get())
-                         == ToolchainKitAspect::toolChains(existingKit.get());
-            })) {
-                continue;
-            }
-            if (isHostKit(kit.get()))
-                kit->setUnexpandedDisplayName(Tr::tr("Desktop (%1)").arg(it.key().toString()));
-            else
-                kit->setUnexpandedDisplayName(it.key().toString());
-            RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), deviceTypeForKit(kit.get()));
-            kit->setup();
-            tempList.emplace_back(std::move(kit));
-        }
+        createKitsFromToolchains(tempList);
 
         // Now make the "best" temporary kits permanent. The logic is as follows:
         //     - If the user has requested a kit for a given binary and one or more kits
@@ -297,9 +262,6 @@ void KitManager::restoreKits()
         //     - If the user has not requested a kit for a given binary or no such kit could
         //       be created, we choose all kits with the highest weight. If none of these
         //       is a host kit, then we also add the host kit with the highest weight.
-        Utils::sort(tempList, [](const std::unique_ptr<Kit> &k1, const std::unique_ptr<Kit> &k2) {
-            return k1->weight() > k2->weight();
-        });
         if (!abisOfBinary.isEmpty()) {
             for (auto it = tempList.begin(); it != tempList.end(); ++it) {
                 if (kitMatchesAbiList(it->get(), abisOfBinary)) {
@@ -419,6 +381,57 @@ void KitManager::showLoadingProgress()
                                         "LoadingKitsProgress",
                                         5s);
     connect(instance(), &KitManager::kitsLoaded, []() { futureInterface.reportFinished(); });
+}
+
+void KitManager::createKitsFromToolchains(std::vector<std::unique_ptr<Kit>> &kits)
+{
+    QHash<Abi, QHash<LanguageCategory, std::optional<ToolchainBundle>>> uniqueToolchains;
+
+    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+        ToolchainBundle::HandleMissing::CreateAndRegister);
+    for (const ToolchainBundle &bundle : bundles) {
+        auto &bestBundle
+            = uniqueToolchains[bundle.targetAbi()][bundle.factory()->languageCategory()];
+        if (!bestBundle) {
+            bestBundle = bundle;
+            continue;
+        }
+
+        if (ToolchainManager::isBetterToolchain(bundle, *bestBundle))
+            bestBundle = bundle;
+    }
+
+    // Create temporary kits for all toolchains found.
+    for (auto it = uniqueToolchains.cbegin(); it != uniqueToolchains.cend(); ++it) {
+        auto kit = std::make_unique<Kit>();
+        kit->setDetectionSource(DetectionSource::Manual); // TODO: Why manual? What does autodetected mean here?
+        for (const auto &bundle : it.value())
+            ToolchainKitAspect::setBundle(kit.get(), *bundle);
+        if (contains(kits, [&kit](const std::unique_ptr<Kit> &existingKit) {
+                return ToolchainKitAspect::toolChains(kit.get())
+                == ToolchainKitAspect::toolChains(existingKit.get());
+            })) {
+            continue;
+        }
+        if (isHostKit(kit.get()))
+            kit->setUnexpandedDisplayName(Tr::tr("Desktop (%1)").arg(it.key().toString()));
+        else
+            kit->setUnexpandedDisplayName(it.key().toString());
+        RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), deviceTypeForKit(kit.get()));
+        kit->setup();
+        kits.emplace_back(std::move(kit));
+    }
+
+    // Now make the "best" temporary kits permanent. The logic is as follows:
+    //     - If the user has requested a kit for a given binary and one or more kits
+    //       with a matching ABI exist, then we randomly choose exactly one among those with
+    //       the highest weight.
+    //     - If the user has not requested a kit for a given binary or no such kit could
+    //       be created, we choose all kits with the highest weight. If none of these
+    //       is a host kit, then we also add the host kit with the highest weight.
+    Utils::sort(kits, [](const std::unique_ptr<Kit> &k1, const std::unique_ptr<Kit> &k2) {
+        return k1->weight() > k2->weight();
+    });
 }
 
 void KitManager::setBinaryForKit(const FilePath &binary)
