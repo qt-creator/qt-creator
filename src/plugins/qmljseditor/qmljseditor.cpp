@@ -952,7 +952,9 @@ void QmlJSEditorWidget::renameSymbolUnderCursor()
 
     if (auto client = getQmllsClient(ProjectExplorer::ProjectManager::startupProject(),
                                      fileName, DefaultFunctionality)) {
-        client->symbolSupport().renameSymbol(textDocument(), textCursor(), QString());
+        QTextCursor tc = textCursor();
+        tc.select(QTextCursor::WordUnderCursor);
+        client->symbolSupport().renameSymbol(textDocument(), textCursor(), tc.selectedText());
     } else {
         const int offset = textCursor().position();
         m_findReferences->renameUsages(fileName, offset);
