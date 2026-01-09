@@ -5,6 +5,7 @@
 
 #include "projectexplorer_export.h"
 
+#include "devicesupport/idevicefwd.h"
 #include "kit.h"
 
 #include <QSet>
@@ -71,7 +72,9 @@ private:
     static void setBinaryForKit(const Utils::FilePath &binary);
 
     // Creates one kit per toolchain, sorted in descending order by weight.
-    static void createKitsFromToolchains(std::vector<std::unique_ptr<Kit>> &kits);
+    // If dev is non-null, use it as the build device and constrain the toolchains accordingly.
+    static void createKitsFromToolchains(
+        const IDeviceConstPtr &dev, std::vector<std::unique_ptr<Kit>> &kits);
 
     // Make sure the this is only called after all
     // KitAspects are registered!

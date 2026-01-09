@@ -5,6 +5,7 @@
 
 #include "abi.h"
 #include "devicesupport/devicekitaspects.h"
+#include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
 #include "kitfeatureprovider.h"
@@ -22,7 +23,6 @@
 #include <qnx/qnxconstants.h>
 #include <remotelinux/remotelinux_constants.h>
 
-#include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 #include <utils/persistentsettings.h>
 #include <utils/pointeralgorithm.h>
@@ -133,9 +133,10 @@ static bool isHostKit(const Kit *kit)
     return kitMatchesAbiList(kit, {hostAbi});
 };
 
-static Id deviceTypeForKit(const Kit *kit)
+static Id runDeviceTypeForKit(const Kit *kit)
 {
-    if (isHostKit(kit))
+    const Id buildDeviceType = BuildDeviceTypeKitAspect::deviceTypeId(kit);
+    if (buildDeviceType == Constants::DESKTOP_DEVICE_TYPE && isHostKit(kit))
         return Constants::DESKTOP_DEVICE_TYPE;
     const QList<Toolchain *> toolchains = ToolchainKitAspect::toolChains(kit);
     for (const Toolchain * const tc : toolchains) {
@@ -159,7 +160,7 @@ static Id deviceTypeForKit(const Kit *kit)
             break;
         }
     }
-    return Constants::DESKTOP_DEVICE_TYPE;
+    return buildDeviceType;
 };
 
 void KitManager::restoreKits()
@@ -253,7 +254,7 @@ void KitManager::restoreKits()
     if (resultList.empty() || !haveKitForBinary) {
         // No kits exist yet, so let's try to autoconfigure some from the toolchains we know.
         decltype(resultList) tempList;
-        createKitsFromToolchains(tempList);
+        createKitsFromToolchains({}, tempList);
 
         // Now make the "best" temporary kits permanent. The logic is as follows:
         //     - If the user has requested a kit for a given binary and one or more kits
@@ -383,13 +384,16 @@ void KitManager::showLoadingProgress()
     connect(instance(), &KitManager::kitsLoaded, []() { futureInterface.reportFinished(); });
 }
 
-void KitManager::createKitsFromToolchains(std::vector<std::unique_ptr<Kit>> &kits)
+void KitManager::createKitsFromToolchains(
+    const IDeviceConstPtr &dev, std::vector<std::unique_ptr<Kit>> &kits)
 {
     QHash<Abi, QHash<LanguageCategory, std::optional<ToolchainBundle>>> uniqueToolchains;
 
     const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
         ToolchainBundle::HandleMissing::CreateAndRegister);
     for (const ToolchainBundle &bundle : bundles) {
+        if (dev && !dev->rootPath().isSameDevice(bundle.get(&Toolchain::compilerCommand)))
+            continue;
         auto &bestBundle
             = uniqueToolchains[bundle.targetAbi()][bundle.factory()->languageCategory()];
         if (!bestBundle) {
@@ -404,6 +408,10 @@ void KitManager::createKitsFromToolchains(std::vector<std::unique_ptr<Kit>> &kit
     // Create temporary kits for all toolchains found.
     for (auto it = uniqueToolchains.cbegin(); it != uniqueToolchains.cend(); ++it) {
         auto kit = std::make_unique<Kit>();
+        if (dev) {
+            BuildDeviceTypeKitAspect::setDeviceTypeId(kit.get(), dev->type());
+            BuildDeviceKitAspect::setDevice(kit.get(), dev);
+        }
         kit->setDetectionSource(DetectionSource::Manual); // TODO: Why manual? What does autodetected mean here?
         for (const auto &bundle : it.value())
             ToolchainKitAspect::setBundle(kit.get(), *bundle);
@@ -413,11 +421,12 @@ void KitManager::createKitsFromToolchains(std::vector<std::unique_ptr<Kit>> &kit
             })) {
             continue;
         }
-        if (isHostKit(kit.get()))
+        const Id runDeviceType = runDeviceTypeForKit(kit.get());
+        RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), runDeviceType);
+        if (runDeviceType == Constants::DESKTOP_DEVICE_TYPE)
             kit->setUnexpandedDisplayName(Tr::tr("Desktop (%1)").arg(it.key().toString()));
         else
             kit->setUnexpandedDisplayName(it.key().toString());
-        RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), deviceTypeForKit(kit.get()));
         kit->setup();
         kits.emplace_back(std::move(kit));
     }
