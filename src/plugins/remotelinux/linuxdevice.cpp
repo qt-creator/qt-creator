@@ -24,6 +24,7 @@
 #include <projectexplorer/devicesupport/processlist.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 
@@ -361,11 +362,20 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
     connect(autoDetectButton, &QPushButton::clicked, this, [linuxDevice, autoDetectButton] {
         autoDetectButton->setEnabled(false);
         linuxDevice->tryToConnect(
-            {linuxDevice.get(), [linuxDevice, autoDetectButton](const Result<> &res) {
+            {linuxDevice.get(),
+             [linuxDevice, autoDetectButton, createKits = linuxDevice->kitCreationEnabled()](
+                 const Result<> &res) {
                  if (res) {
                      const auto recipeAndSearchPaths = linuxDevice->autoDetectDeviceToolsRecipe();
                      emit DeviceManager::instance()->toolDetectionRequested(
                          linuxDevice->id(), recipeAndSearchPaths.searchPaths);
+
+                     // FIXME: The receivers of the toolDetectionRequested() signal are not
+                     //        necessarily running synchronously. Find a way to run this
+                     //        when the last receiver has finished.
+                     if (createKits)
+                         KitManager::createKitsForBuildDevice(linuxDevice);
+
                      GlobalTaskTree::start(
                          QtTaskTree::Group {
                              recipeAndSearchPaths.recipe,
@@ -1189,6 +1199,7 @@ LinuxDevice::LinuxDevice()
     sshParams.setTimeout(10);
     setDefaultSshParameters(sshParams);
     setKillCommandForPathFunction(killCommandForPath);
+    offerKitCreation();
 
     sourceProfile.setSettingsKey("SourceProfile");
     sourceProfile.setDefaultValue(true);

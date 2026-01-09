@@ -646,6 +646,30 @@ void KitManager::setDefaultKit(Kit *k)
     emit instance()->defaultkitChanged();
 }
 
+void KitManager::createKitsForBuildDevice(const IDevicePtr &dev)
+{
+    QTC_ASSERT(dev, return);
+
+    std::vector<std::unique_ptr<Kit>> kits;
+    createKitsFromToolchains(dev, kits);
+    if (kits.empty())
+        return;
+
+    // Consider only kits with maximum weight, as in restoreKits().
+    const int maxWeight = kits.front()->weight();
+    const auto firstWithNonMaxWeight = std::upper_bound(
+        kits.begin(), kits.end(), maxWeight, [](int weight, const std::unique_ptr<Kit> &kit) {
+            return kit->weight() < weight;
+        });
+    kits.erase(firstWithNonMaxWeight, kits.end());
+
+    for (const auto &kit : std::as_const(kits)) {
+        registerKit([&kit](Kit *k) {
+            k->copyFrom(kit.get());
+        });
+    }
+}
+
 void KitManager::completeKit(Kit *k)
 {
     QTC_ASSERT(k, return);

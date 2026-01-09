@@ -138,7 +138,8 @@ public:
           autoDetectInQtInstallation(q),
           autoDetectQtInstallation(q),
           autoDetectInDirectories(q),
-          autoDetectDirectories(q)
+          autoDetectDirectories(q),
+          autoCreateKits(q)
     {
         displayName.setSettingsKey("Name");
         displayName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
@@ -171,6 +172,13 @@ public:
             Tr::tr("Select the paths on the device that should be scanned for binaries."));
         autoDetectDirectories.setHistoryCompleter("Directories");
         autoDetectDirectories.setEnabler(&autoDetectInDirectories);
+
+        autoCreateKits.setSettingsKey("AutoCreateKits");
+        autoCreateKits.setDefaultValue(true);
+        autoCreateKits.setLabelText(Tr::tr("Create Kits"));
+        autoCreateKits.setToolTip(Tr::tr("Set up kits for this device's toolchains."));
+        autoCreateKits.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+        autoCreateKits.setVisible(false);
 
         QObject::connect(&sshParametersAspectContainer, &AspectContainer::applied, q, [this] {
             *sshParameters.writeLocked() = sshParametersAspectContainer.sshParameters();
@@ -211,6 +219,7 @@ public:
     FilePathAspect autoDetectQtInstallation;
     BoolAspect autoDetectInDirectories;
     StringAspect autoDetectDirectories;
+    BoolAspect autoCreateKits;
 };
 
 } // namespace Internal
@@ -294,6 +303,16 @@ bool IDevice::supportsFileTransferMethod(FileTransferMethod method) const
     }
     QTC_CHECK(false);
     return false;
+}
+
+void IDevice::offerKitCreation()
+{
+    d->autoCreateKits.setVisible(true);
+}
+
+bool IDevice::kitCreationEnabled() const
+{
+    return d->autoCreateKits.isVisible() && d->autoCreateKits.volatileValue();
 }
 
 FilePaths IDevice::toolSearchPaths() const
@@ -1118,6 +1137,7 @@ std::function<void(Layouting::Layout *)> IDevice::deviceToolsGui()
                         d->autoDetectInPath, br,
                         d->autoDetectInQtInstallation, d->autoDetectQtInstallation, br,
                         d->autoDetectInDirectories, d->autoDetectDirectories, br,
+                        d->autoCreateKits, br,
                     },
                 }
             }, br,

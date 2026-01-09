@@ -43,6 +43,9 @@ public:
     static void deregisterKits(const QList<Kit *> kits);
     static void setDefaultKit(Kit *k);
 
+    // Creates at least one kit for the given device if toolchains are known for it.
+    static void createKitsForBuildDevice(const IDevicePtr &dev);
+
     static void saveKits();
 
     static bool isLoaded();

@@ -303,6 +303,9 @@ public:
     };
     RecipeAndSearchPath autoDetectDeviceToolsRecipe();
 
+    void offerKitCreation();
+    bool kitCreationEnabled() const;
+
     virtual Utils::Result<> supportsBuildingProject(const Utils::FilePath &projectDir) const;
 
 public:
