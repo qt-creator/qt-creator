@@ -36,8 +36,9 @@
 #include <QPixmapCache>
 #include <QScrollArea>
 
-using namespace Utils;
 using namespace Core;
+using namespace QtTaskTree;
+using namespace Utils;
 
 const char THUMBNAIL_CACHE_IMAGE_FORMAT[] = "png";
 
@@ -519,8 +520,6 @@ private:
         // setJson(FileUtils::fetchQrc(":/learning/testdata/courses.json").toUtf8(), m_model); return;
 #endif // WITH_TESTS
 
-        using namespace QtTaskTree;
-
         const auto onQuerySetup = [this](QNetworkReplyWrapper &query) {
             const QString request = "https://www.qt.io/hubfs/Academy/courses.json";
             query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
@@ -547,54 +546,18 @@ private:
 
     void queueImageForDownload(const QString &url)
     {
-        m_pendingImages.insert(url);
-        if (!m_isDownloadingImage)
-            fetchNextImage();
-    }
-
-    void updateModelIndexesForUrl(const QString &url)
-    {
-        const QList<ListItem *> items = m_model.items();
-        for (int row = 0, end = items.size(); row < end; ++row) {
-            if (items.at(row)->imageUrl == url) {
-                const QModelIndex index = m_model.index(row);
-                emit m_model.dataChanged(index, index, {ListModel::ItemImageRole, Qt::DisplayRole});
-                const QPixmap pixmap = index.data(ListModel::ItemImageRole).value<QPixmap>();
-                storeToThumbnailCache(url, pixmap);
-            }
-        }
-    }
-
-    void fetchNextImage()
-    {
-        if (m_pendingImages.isEmpty()) {
-            m_isDownloadingImage = false;
-            return;
-        }
-
-        const auto it = m_pendingImages.constBegin();
-        const QString nextUrl = *it;
-        m_pendingImages.erase(it);
-
-        if (QPixmapCache::find(nextUrl, nullptr)) {
+        if (QPixmapCache::find(url, nullptr)) {
             // this image is already cached it might have been added while downloading
-            updateModelIndexesForUrl(nextUrl);
-            fetchNextImage();
+            updateModelIndexesForUrl(url);
             return;
         }
 
-        m_isDownloadingImage = true;
-        QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(QNetworkRequest(nextUrl));
-        connect(reply, &QNetworkReply::finished,
-                this, [this, reply]() { onImageDownloadFinished(reply); });
-    }
-
-    void onImageDownloadFinished(QNetworkReply *reply)
-    {
-        QTC_ASSERT(reply, return);
-        const QScopeGuard cleanup([reply] { reply->deleteLater(); });
-
-        if (reply->error() == QNetworkReply::NoError) {
+        const auto onSetup = [url](QNetworkReplyWrapper &task) {
+            task.setNetworkAccessManager(NetworkAccessManager::instance());
+            task.setRequest(QNetworkRequest(url));
+        };
+        const auto onDone = [this](const QNetworkReplyWrapper &task) {
+            QNetworkReply *reply = task.reply();
             const QByteArray data = reply->readAll();
             QPixmap pixmap;
             const QUrl imageUrl = reply->request().url();
@@ -609,9 +572,21 @@ private:
                 QPixmapCache::insert(url, pixmap);
                 updateModelIndexesForUrl(url);
             }
-        } // handle error not needed - it's okay'ish to have no images as long as the rest works
+        };
+        sequentialTaskTreeRunner.enqueue({QNetworkReplyWrapperTask(onSetup, onDone, CallDone::OnSuccess)});
+    }
 
-        fetchNextImage();
+    void updateModelIndexesForUrl(const QString &url)
+    {
+        const QList<ListItem *> items = m_model.items();
+        for (int row = 0, end = items.size(); row < end; ++row) {
+            if (items.at(row)->imageUrl == url) {
+                const QModelIndex index = m_model.index(row);
+                emit m_model.dataChanged(index, index, {ListModel::ItemImageRole, Qt::DisplayRole});
+                const QPixmap pixmap = index.data(ListModel::ItemImageRole).value<QPixmap>();
+                storeToThumbnailCache(url, pixmap);
+            }
+        }
     }
 
     void onTagClicked(const QString &tag)
@@ -662,9 +637,8 @@ private:
     GridView *m_view;
     CourseItemDelegate m_delegate;
     bool m_dataFetched = false;
-    QSet<QString> m_pendingImages;
-    bool m_isDownloadingImage = false;
     QSingleTaskTreeRunner taskTreeRunner;
+    QSequentialTaskTreeRunner sequentialTaskTreeRunner;
     SpinnerSolution::Spinner *m_spinner;
     const CourseItem *m_selectedCourse = nullptr;
 };
