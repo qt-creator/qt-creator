@@ -348,7 +348,7 @@ MimeTypeSettingsWidget::MimeTypeSettingsWidget(MimeTypeSettingsPage *settings)
     m_patternsLineEdit = new QLineEdit;
     m_patternsLineEdit->setObjectName("patternsLineEdit");
     m_patternsLineEdit->setToolTip(Tr::tr("A semicolon-separated list of wildcarded file names."));
-    m_patternsLineEdit->setValidator(new PatternValidator(';', {' ', ','}));
+    m_patternsLineEdit->setValidator(new PatternValidator(';', {' ', ','}, m_patternsLineEdit));
 
     m_magicHeadersTreeWidget = new QTreeWidget;
     m_magicHeadersTreeWidget->setHeaderItem(new QTreeWidgetItem({
