@@ -392,6 +392,8 @@
     Ignoring second debugger -accepting and dropping.
     \endcode
 
+    \include {androiddev.qdoc} {android-emulator-info}
+
     \sa {Android}{How to: Develop for Android}, {Developing for Android},
     {Configure on-device developer options}
 */
