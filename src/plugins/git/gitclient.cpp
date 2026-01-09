@@ -814,7 +814,7 @@ GitClient::GitClient()
 
     auto setInterval = [this] {
         const int seconds = VcsBase::Internal::commonSettings().vcsShowStatusInterval();
-        m_timer.setInterval(1000 * seconds);
+        m_timer.setInterval(std::chrono::seconds(seconds));
     };
 
     setInterval();
