@@ -6,12 +6,12 @@
 #include "documentmodel.h"
 #include "editormanager.h"
 #include "ieditor.h"
-#include "iversioncontrol.h"
-#include "vcsmanager.h"
 #include "../actionmanager/command.h"
 #include "../coreplugintr.h"
 #include "../inavigationwidgetfactory.h"
+#include "../iversioncontrol.h"
 #include "../opendocumentstreeview.h"
+#include "../vcsmanager.h"
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>

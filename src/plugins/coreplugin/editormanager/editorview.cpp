@@ -8,13 +8,13 @@
 #include "../editortoolbar.h"
 #include "../findplaceholder.h"
 #include "../generalsettings.h"
+#include "../iversioncontrol.h"
 #include "../minisplitter.h"
+#include "../vcsmanager.h"
 #include "documentmodel.h"
 #include "documentmodel_p.h"
 #include "editormanager.h"
 #include "editormanager_p.h"
-#include "iversioncontrol.h"
-#include "vcsmanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
