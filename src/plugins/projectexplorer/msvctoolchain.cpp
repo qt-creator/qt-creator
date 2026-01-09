@@ -28,6 +28,8 @@
 #include <utils/temporarydirectory.h>
 #include <utils/winutils.h>
 
+#include <QtTaskTree/QAbstractTaskTreeRunner>
+
 #include <QComboBox>
 #include <QDateTime>
 #include <QDir>
@@ -42,6 +44,7 @@
 #include <QSettings>
 #include <QVersionNumber>
 
+using namespace QtTaskTree;
 using namespace Utils;
 
 using namespace std::chrono_literals;
@@ -322,35 +325,6 @@ static QList<VisualStudioInstallation> detectVisualStudioFromVswhere()
         }
     }
     return installations;
-}
-
-static FilePaths detectClangClFromVswhere()
-{
-    const FilePath vswhere = vswherePath();
-    if (!vswhere.isExecutableFile())
-        return {};
-
-    Process vswhereProcess;
-    vswhereProcess.setUtf8Codec();
-    vswhereProcess.setCommand(
-        {vswhere, {"-products", "*", "-format", "json", "-utf8", "-find", "**\\clang-cl.exe"}});
-    vswhereProcess.runBlocking(5s);
-    if (vswhereProcess.result() != ProcessResult::FinishedWithSuccess) {
-        qWarning() << vswhereProcess.verboseExitMessage();
-        return {};
-    }
-
-    const QByteArray output = vswhereProcess.cleanedStdOut().toUtf8();
-    QJsonParseError error;
-    const QJsonDocument doc = QJsonDocument::fromJson(output, &error);
-    if (error.error != QJsonParseError::NoError || doc.isNull()) {
-        qWarning() << "Could not parse json document from vswhere output.";
-        return {};
-    }
-
-    return Utils::transform<FilePaths>(doc.array(), [](const QJsonValue &v) {
-        return FilePath::fromUserInput(v.toString());
-    });
 }
 
 static QList<VisualStudioInstallation> detectVisualStudioFromRegistry()
@@ -2277,7 +2251,42 @@ public:
     {
         return std::make_unique<ClangClToolchainConfigWidget>(bundle);
     }
+
+    mutable QParallelTaskTreeRunner m_taskTreeRunner;
 };
+
+static ExecutableItem detectClangClRecipe()
+{
+    const auto onSetup = [](Process &task) {
+        task.setUtf8Codec();
+        task.setCommand({vswherePath(),
+            {"-products", "*", "-format", "json", "-utf8", "-find", "**\\clang-cl.exe"}});
+    };
+    const auto onDone = [](const Process &task, DoneWith result) {
+        if (result != DoneWith::Success) {
+            qWarning() << task.verboseExitMessage();
+            return;
+        }
+        const QByteArray output = task.cleanedStdOut().toUtf8();
+        QJsonParseError error;
+        const QJsonDocument doc = QJsonDocument::fromJson(output, &error);
+        if (error.error != QJsonParseError::NoError || doc.isNull()) {
+            qWarning() << "Could not parse json document from vswhere output.";
+            return;
+        }
+        const FilePaths filePaths = Utils::transform<FilePaths>(doc.array(), [](const QJsonValue &v) {
+            return FilePath::fromUserInput(v.toString());
+        });
+
+        Toolchains newResults;
+        Toolchains known = ToolchainManager::toolchains();
+        for (const FilePath &clangCl : filePaths)
+            newResults.append(detectClangClToolChainInPath(clangCl, known, ""));
+        ToolchainManager::registerToolchains(newResults);
+    };
+
+    return ProcessTask(onSetup, onDone);
+}
 
 Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
@@ -2317,15 +2326,8 @@ Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector
     if (!clangClPath.isEmpty())
         results.append(detectClangClToolChainInPath(clangClPath, known, ""));
 
-    QFuture<FilePaths> future = Utils::asyncRun(detectClangClFromVswhere);
-    Utils::onResultReady(future, ProjectExplorerPlugin::instance(), [](const FilePaths &fromVswhere) {
-        Toolchains newResults;
-        Toolchains known = ToolchainManager::toolchains();
-        for (const FilePath &clangCl : fromVswhere)
-            newResults.append(detectClangClToolChainInPath(clangCl, known, ""));
-        ToolchainManager::registerToolchains(newResults);
-    });
-    Utils::futureSynchronizer()->addFuture(future);
+    if (vswherePath().isExecutableFile())
+        m_taskTreeRunner.start({detectClangClRecipe()});
 
     return results;
 }
