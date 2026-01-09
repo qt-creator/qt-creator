@@ -5,7 +5,7 @@
     \page quick-property-bindings.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-design-qtquick
+    \ingroup creator-how-to-design-qtquick-components
 
     \title Add bindings between properties
 
@@ -24,7 +24,8 @@
     For more information about the use of property bindings, see
     \l{Property Binding}.
 
-    You can create bindings between components in \uicontrol Bindings.
+    To create bindings between components, go to \uicontrol Connections >
+    \uicontrol Bindings.
 
     \image {qmldesigner-bindings.webp} {The Bindings tab in the Connections view.}
 
@@ -45,32 +46,31 @@
         \li Select \uicontrol Bindings from the \uicontrol Connections view.
         \li Select the \imageplus
              (\uicontrol Add) button to add a binding to the currently selected
-            component.
+            component in the binding editor.
 
-        \image qmldesigner-updated-bindings-editor.webp {The Add Binding dialog.}
+        \image {qmldesigner-updated-bindings-editor.webp} {The binding editor.}
+        \caption The binding editor.
 
-        \li From the pop-up \uicontrol {Bindings editor}, in the \uicontrol From section,
-            select \e {viewBox} as the parent component, then select its \uicontrol {border.color}
-            property.
-        \li In the \uicontrol To section you find the \e {connectBox} component already selected
-            as the target component. Select \uicontrol {color} from the \uicontrol {drop-down}
+        \li In \uicontrol From, select \e {viewBox} as the parent component. Then
+            select its \uicontrol {border.color} property.
+        \li In \uicontrol To, the \e {connectBox} component is already selected
+            as the target component. Select \uicontrol {color} from the drop-down
             below to set its affected property.
-        \li You see the \uicontrol {border.color} of the \e {viewBox} component
-            instantly getting applied to the \uicontrol {color} of the \e {connectBox}
-            component.
+        \li The \uicontrol {border.color} of the \e {viewBox} component is
+            applied to the \uicontrol {color} of the \e {connectBox} component.
 
-        \image qmldesigner-components-after-binding.webp {Two components next to each other in the 2D view with the property binding applied.}
+        \image {qmldesigner-components-after-binding.webp} {Two components next to each other in the 2D view with the property binding applied.}
 
     \endlist
 
-    All the \uicontrol Bindings connections have automated JavaScript expression in the
-    \uicontrol {Code view}. For more information, see \l{Set bindings}.
+    All bindings have an automated JavaScript expression in the code. For more
+    information, see \l{Set bindings}.
 
     For an example of creating property bindings, see
     \l{Use states to change component property values}.
 
     \include creator-logical-operators.qdocinc logical operators
 
-    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    \sa {Use UI components}{How to: Use UI components}, {Qt Quick UI design},
     {Designing Qt Quick UIs}
 */

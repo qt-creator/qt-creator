@@ -5,7 +5,7 @@
     \page quick-signals.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-design-qtquick
+    \ingroup creator-how-to-design-qtquick-components
 
     \title Connect components to signals
 
@@ -39,130 +39,97 @@
     For more information about signals and signal handlers, see
     \l{Signal and Handler Event System}.
 
-    \section1 Connect components to signals in the Connection view
+    \section1 Add connections
 
-    You can connect components to signals that are available to them in
-    \uicontrol Connections. Then define \uicontrol Action for them. You can
-    put \b {logical conditions} on this \uicontrol Actions to control them
-    according to your needs.
-
-    \image {qmldesigner-connections-advanced.webp} {The Connections tab in the Connections view.}
-
-    Initiate a new connection for a component:
+    To connect components to signals that are available to them:
 
     \list 1
-        \li Select the component you want to connect in the \uicontrol Navigator or \uicontrol 2D
-        view.
+        \li Select the component you want to connect in the \uicontrol Navigator
+            or \uicontrol 2D view.
         \li Go to the \uicontrol Connections tab in the \uicontrol Connections view.
-        \li Select the \imageplus
-            (\uicontrol Add) button to add a connection.
+            \image {qmldesigner-connections-advanced.webp} {The Connections tab in the Connections view.}
+        \li Select \imageplus (\uicontrol Add) to create a connection in the
+            connection editor.
     \endlist
 
-    \image {qmldesigner-connections-editor.webp} {The Add Connection dialog.}
+    \section1 Connect signals to actions
 
-    Connect component \uicontrol Signal to \uicontrol Action:
+    To connect a signal to an action:
 
     \list 1
-        \li Select the interaction \uicontrol Signal for the \uicontrol Target component with
-            which you want to connect an \uicontrol Action.
-        \li Select an \uicontrol Action that you want to implement when the selected
-            \uicontrol Signal for the \uicontrol Target component is initiated.
-        \li You get different properties or sub-sections associated with the selected
-            \uicontrol Action. Select \uicontrol {Item/Method/State/Property/Value} from related
-            sub-sections. This way you can formulate changes in the design by manipulating
-            components.
-        \li Select \uicontrol {Add Condition} to include a logic to the selected \uicontrol Action.
-            To do this, you can first select the component you want to put logic on, and then
-            select the conditional statements \e {(AND, OR, EQUAL, NOT EQUAL, GREATER, LESS,
-            GREATER OR EQUAL, LESS OR EQUAL)} and then select another component to compare
-            between them.
-        \li Optional. You can include an \uicontrol {Else Statement} by selecting the
-            \uicontrol {Else Statement} control and adding components and conditional
-            statements in a similar way to the previous step.
-        \li Optional. To use complex conditional statements, select the \uicontrol {Manual Edit}
-            control. After you have entered your JavaScript statements, close the window to apply
-            them.
+        \li Select or create a connection to open the connection editor.
+            \image {qmldesigner-connections-editor.webp} {The connection editor.}
+            \caption The connection editor.
+        \li In \uicontrol Target, select a component.
+        \li In \uicontrol Signal, select the signal to emit.
+        \li In \uicontrol Action, select the action to apply when the signal is
+            emitted.
     \endlist
 
-    \note Select a connection to re-open the \uicontrol {Connection Editor} for any
-        previously created \uicontrol Connection.
-    \note Select \imageminus
-          (\uicontrol Remove) to delete a connection.
+    The properties of the connection depend on the selected action:
 
+    \list
+        \li \uicontrol {Call Function} sets the function to call.
+        \li \uicontrol {Assign} sets the source and target properties.
+        \li \uicontrol {Change State} sets a target state within a state group.
+        \li \uicontrol {Set Property} sets a component property.
+        \li \uicontrol {Print Message} sets a text to show.
+    \endlist
 
-    \section1 Actions and conditions
+    \section2 Add conditions
 
-    You use the \uicontrol {Connection Editor} to create the JavaScript
-    expressions for \e actions with \e conditions. An \e action connects
-    a component to a signal, whereas \e conditions fetch property values
-    from other components and compare them to each other. Based on that, you can later change
-    the components with JavaScript expressions.
+    Use the connection editor to create the JavaScript expressions for actions
+    with conditions. An action connects a component to a signal, whereas
+    conditions fetch property values from other components and compare them to
+    each other. You can then use JavaScript expressions to change the components.
+
+    Select \uicontrol {Add Condition} to add logic to the selected action.
+
+    \image {qmldesigner-connections-editor-else.webp} {Adding a connection in the connection editor.}
+
+    To include an \c else statement, select \uicontrol {Add Else Statement}.
+
+    To use complex conditional statements:
+
+    \list 1
+        \li Select \uicontrol {{}} to open \uicontrol {Action Editor}.
+        \li Enter JavaScript statements.
+        \li Close the dialog to apply the changes.
+    \endlist
 
     For more information about the logical operators that you can use to
-    construct conditional expressions, see \l {Summary of Logical Operators}.
+    construct conditional expressions, see \l {Summary of logical operators}.
 
     \section2 Create JavaScript expressions
 
-    To create JavaScript expressions for actions, do one of the following:
+    To create JavaScript expressions for actions in the connection editor:
 
     \list
-      \li Follow the steps described above in Connect component \uicontrol Signal to
-          \uicontrol Action. For a list of \uicontrol Actions and their properties, see
-          \l {Action Properties}.
-          \image {qmldesigner-connections-ConditionalAction-Autometic.webp} {The Add Connection dialog with a JavaScript expression.}
-      \li Open the \uicontrol {Manual Code Edit} window from the
-          \uicontrol {Connections} view and write JavaScript expressions with components
-          and logical expressions manually.
-
-          \note If you create a conditional expression by selecting options from the
-            drop-down menus in the \uicontrol {Connection} view, you can only create a single
-            level \e {if-else} expression. For nested level \e {if-else} expressions,
-            use the \uicontrol {Manual Code Edit}.
-
-        \image {qmldesigner-connections-ConditionalAction-Manual.webp} {A JavaScript code snippet in the Manual Code Edit dialog.}
+      \li Connect component signals to actions.
+          \image {qmldesigner-connections-ConditionalAction-Autometic.webp} {The connection editor showing a JavaScript expression.}
+      \li Select \uicontrol {{}} to open the \uicontrol {Action Editor} view and
+            write JavaScript expressions with components and logical expressions.
+          \image {qmldesigner-connections-ConditionalAction-Manual.webp} {A JavaScript code snippet in Action Editor.}
     \endlist
 
-    \section2 Action properties
+    \note In the connection editor, you can only create single-level
+    \e {if-else} expressions. To create nested expressions, select \uicontrol {{}}.
 
-    \table
-        \header
-            \li Action
-            \li 1st property
-            \li 2nd property
-        \row
-            \li \uicontrol {Call Function}
-            \li \uicontrol {Item}: [Sets the component that is affected by the action of the
-                \b Target component's \b Signal.]
-            \li \uicontrol {Method}: [Sets the item component's method that is affected by the
-                \b Target component's \b Signal.]
-        \row
-            \li \uicontrol {Assign}
-            \li \uicontrol {From}: [Sets the component and its property from which the value
-                is copied when the \b Target component initiates the \b Signal.]
-            \li \uicontrol {To}: [Sets the component and its property to which the copied value
-                is assigned when the \b Target component initiates the \b Signal.]
-        \row
-            \li \uicontrol {Change State}
-            \li \uicontrol {State Group}: [Sets a \b {State Group} that is accessed when the
-                \b Target component initiates the \b Signal.]
-            \li \uicontrol {State}: [Sets a \b State within the assigned \b {State Group}
-                that is accessed when the \b Target component initiates the \b Signal.]
-        \row
-            \li \uicontrol {Set Property}
-            \li \uicontrol {Item}: [Sets the component that is affected by the action
-                of the \b Target component's \b Signal.]
-            \li \uicontrol {Property}: [Sets the property of the component that is
-                affected by the action of the \b Target component's \b Signal.]
-        \row
-            \li \uicontrol {Print Message}
-            \li \uicontrol {Message}: [Sets a text that is printed when the \b Signal
-                of the \b Target component initiates.]
-            \li N/A
-    \endtable
+    \section2 Jump to the code
+
+    To go to the code in the \uicontrol Code view, select \imagejumptocode16px
+    (\uicontrol {Jump to the code}) in the connection editor.
+
+    \section1 Remove connections
+
+    To delete a connection, select it in \uicontrol Connections and then select
+    \imageminus (\uicontrol Remove).
+
+    \section1 See connections in action
 
     Watch this video for practical examples of the \uicontrol {Connection} view workflow:
     \youtube KDxnMQzgmIY
 
-    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    \sa {Use UI components}{How to: Use UI components}, {Qt Quick UI design},
     {Designing Qt Quick UIs}
 */

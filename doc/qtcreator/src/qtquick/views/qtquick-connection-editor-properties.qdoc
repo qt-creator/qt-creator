@@ -5,11 +5,11 @@
     \page quick-dynamic-properties.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-design-qtquick
+    \ingroup creator-how-to-design-qtquick-components
 
     \title Specify custom properties
 
-    Each \l{Use preset components}{preset component }has a set of preset properties
+    Each \l{Use preset components}{preset component} has a set of preset properties
     that you can specify values for. You can add custom properties that would
     not otherwise exist for a particular \l{Component Types}{component type}.
     You bind the properties to dynamic expressions to define global properties
@@ -35,14 +35,13 @@
     To add a custom property for a component:
 
     \list 1
-        \li Go to the \uicontrol {Local Custom Properties} section in the
-        \uicontrol Properties view.
-        \li Select the \imageplus
-            (\uicontrol Add) button to add a custom property for the currently
-            selected component.
-            \image {add-local-custom-property.png} {Selecting the Add button in the Properties view.}
+        \li Go to \uicontrol Properties > \uicontrol {Local Custom Properties}.
+        \li Select \imageplus (\uicontrol Add).
+            \image {add-local-custom-property.png} {Adding a property in the Properties view.}
         \li Set the \uicontrol Name and \uicontrol Type for the property.
-            \image {add-new-property-dialog.png} {Selecting the Type for the property in the Add New Property dialog.}
+            \image {add-new-property-dialog.webp} {The Add New Property dialog.}
+            \caption The Add New Property dialog.
+        \li Select \uicontrol {Add Property} to add the property.
     \endlist
 
     \section1 Bind a property value
@@ -51,39 +50,40 @@
     accessible in the application:
 
     \list 1
-      \li In the \uicontrol Properties view, select
-        \imageactionicon
+      \li In the \uicontrol Properties view, select \imageactionicon
         next to the property.
       \li Select \uicontrol {Set Binding}.
-        \image qmldesigner-binding-editor.png "Binding Editor"
+        \image {qmldesigner-binding-editor.png} {Binding Editor.}
+        \caption The Binding Editor dialog.
     \endlist
 
     For more information, see \l{Set bindings}.
 
-    \section1 Add a custom property to a component in the Connections view
+    \section1 Add custom properties in the Connections view
 
-    To add a custom property to a component in the \uicontrol {Connections} view:
+    To add a custom property for a component in the \uicontrol {Connections} view:
 
     \list 1
-        \li Select the component you want to add a Custom property to in the
-            \uicontrol {2D} view or in the \uicontrol {Navigator} view.
-        \li Select \uicontrol {Properties} from the \uicontrol {Connections} view.
+        \li Select a component in the \uicontrol {2D} or \uicontrol {Navigator}
+            view.
+        \li Go to \uicontrol {Connections} > \uicontrol {Properties}.
 
             \image {add-updated-local-custom-property.webp} {The Properties tab in the Connections view.}
 
-        \li Select the \imageplus
-             (\uicontrol Add) button to add a Custom property.
-        \li From the pop-up \uicontrol {Custom property editor}, select the \uicontrol {Type}
-            of the property you want to include.
+        \li Select \imageplus (\uicontrol Add) to add a custom property.
+        \li In the custom property editor, select the \uicontrol {Type}
+            of the property to include.
 
-            \image {add-updated-local-custom-property-editor.webp} {The Custom Property Editor dialog.}
+            \image {add-updated-local-custom-property-editor.webp} {The custom property editor.}
+            \caption The custom property editor.
 
-        \li Next, set the \uicontrol{Name} of the property.
-        \li Set a value to the Custom property in the \uicontrol {Value} field.
+        \li Set the \uicontrol Name and \uicontrol Value for the property.
     \endlist
 
-    \note Select the \imageminus
-          (\uicontrol Remove) to delete a Custom Property.
+    \section1 Remove custom properties
+
+    Go to \uicontrol Connections > \uicontrol Properties, and select \imageminus
+    (\uicontrol Remove) to delete the selected custom property.
 
     \section1 Supported property types
 
@@ -103,10 +103,11 @@
     \row
         \li color
         \li Color value that can be specified by using an SVG color name, such
-            as "red", "green", or "lightsteelblue", or a hexadecimal triplet or
-            quad in the form "#RRGGBB" and "#AARRGGBB", respectively. For
-            example, the color red corresponds to a triplet of "#FF0000" and
-            a slightly transparent blue to a quad of "#800000FF".
+            as \c {"red"}, \c {"green"}, or \c {"lightsteelblue"}, or a
+            hexadecimal triplet or quad in the form \c {"#RRGGBB"} and
+            \c {"#AARRGGBB"}, respectively. For example, the color red
+            corresponds to a triplet of \c {"#FF0000"} and a slightly transparent
+            blue to a quad of \c {"#800000FF"}.
             In addition, you can use the following Qt functions: \l{Qt::rgba()}
             {Qt.rgba()}, \l{Qt::hsva()}{Qt.hsva()}, \l{Qt::hsla()}{Qt.hsla()},
             \l{Qt::darker()}{Qt.darker()}, \l{Qt::lighter()}{Qt.lighter()}, and
@@ -144,6 +145,6 @@
         \li Refers to a value with x, y, z, and w attributes.
     \endtable
 
-    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    \sa {Use UI components}{How to: Use UI components}, {Qt Quick UI design},
     {Designing Qt Quick UIs}
 */
