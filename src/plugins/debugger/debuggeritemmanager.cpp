@@ -255,6 +255,10 @@ DebuggerItemModel::DebuggerItemModel()
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &DebuggerItemModel::saveDebuggers);
+    connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested, this,
+            [this](Id devId, const FilePaths &searchPaths) {
+        detectDebuggers(DeviceManager::find(devId), searchPaths);
+    });
 }
 
 DebuggerTreeItem *DebuggerItemModel::addDebuggerItem(const DebuggerItem &item, bool changed)
@@ -1217,11 +1221,6 @@ public:
         m_itemConfigWidget = new DebuggerItemConfigWidget;
         m_container->setWidget(m_itemConfigWidget);
         updateButtons();
-
-        connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested, this,
-            [](Id devId, const FilePaths &searchPaths) {
-                itemModel().detectDebuggers(DeviceManager::find(devId), searchPaths);
-            });
     }
 
     void apply() final
