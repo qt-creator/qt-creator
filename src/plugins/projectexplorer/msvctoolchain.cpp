@@ -748,8 +748,107 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
     return in;
 }
 
-void MsvcToolchain::environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> &promise,
-                                             QString vcvarsBat, QString varsBatArg)
+static std::optional<QString> generateEnvironmentSettings(const Environment &env,
+                                                          const QString &batchFile,
+                                                          const QString &batchArgs,
+                                                          QMap<QString, QString> &envPairs)
+{
+    const QString marker = "####################";
+    // Create a temporary file name for the output. Use a temporary file here
+    // as I don't know another way to do this in Qt...
+
+    // Create a batch file to create and save the env settings
+    TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/XXXXXX.bat");
+
+    QByteArray call = "call ";
+    call += ProcessArgs::quoteArg(batchFile).toLocal8Bit();
+    if (!batchArgs.isEmpty()) {
+        call += ' ';
+        call += batchArgs.toLocal8Bit();
+    }
+
+    if (HostOsInfo::isWindowsHost())
+        saver.write("chcp 65001\r\n");
+    saver.write("set VSCMD_SKIP_SENDTELEMETRY=1\r\n");
+    saver.write("set CLINK_NOAUTORUN=1\r\n");
+    saver.write("setlocal enableextensions\r\n");
+    saver.write("if defined VCINSTALLDIR (\r\n");
+    saver.write("  if not defined QTC_NO_MSVC_CLEAN_ENV (\r\n");
+    saver.write("    call \"%VCINSTALLDIR%/Auxiliary/Build/vcvarsall.bat\" /clean_env\r\n");
+    saver.write("  )\r\n");
+    saver.write(")\r\n");
+    saver.write(QByteArray(call + "\r\n"));
+    saver.write(QByteArray("@echo " + marker.toLocal8Bit() + "\r\n"));
+    saver.write("set\r\n");
+    saver.write(QByteArray("@echo " + marker.toLocal8Bit() + "\r\n"));
+    if (const Result<> &res = saver.finalize(); !res) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
+        return {};
+    }
+
+    Process run;
+
+    // As of WinSDK 7.1, there is logic preventing the path from being set
+    // correctly if "ORIGINALPATH" is already set. That can cause problems
+    // if Creator is launched within a session set up by setenv.cmd.
+    Environment runEnv = env;
+    runEnv.unset(QLatin1String("ORIGINALPATH"));
+    run.setEnvironment(runEnv);
+    FilePath cmdPath = FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
+    if (cmdPath.isEmpty())
+        cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
+    // Windows SDK setup scripts require command line switches for environment expansion.
+    CommandLine cmd(cmdPath, {"/D", "/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
+    qCDebug(Log) << "readEnvironmentSetting: " << call << cmd.toUserOutput()
+                 << " Env: " << runEnv.toStringList().size();
+    run.setUtf8Codec();
+    run.setCommand(cmd);
+    run.runBlocking(1min);
+
+    if (run.result() != ProcessResult::FinishedWithSuccess) {
+        const QString message = run.exitMessage(Process::FailureMessageFormat::WithStdErr);
+        qWarning().noquote() << message;
+        QString command = QDir::toNativeSeparators(batchFile);
+        if (!batchArgs.isEmpty())
+            command += ' ' + batchArgs;
+        return Tr::tr("Failed to retrieve MSVC Environment from \"%1\":\n%2")
+            .arg(command, message);
+    }
+
+    // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
+    const QString stdOut = run.cleanedStdOut();
+
+    //
+    // Now parse the file to get the environment settings
+    const int start = stdOut.indexOf(marker);
+    if (start == -1) {
+        qWarning("Could not find start marker in stdout output.");
+        return {};
+    }
+
+    const int end = stdOut.indexOf(marker, start + 1);
+    if (end == -1) {
+        qWarning("Could not find end marker in stdout output.");
+        return {};
+    }
+
+    const QString output = stdOut.mid(start, end - start);
+
+    const QStringList lines = output.split(QLatin1String("\n"));
+    for (const QString &line : lines) {
+        const int pos = line.indexOf('=');
+        if (pos > 0) {
+            const QString varName = line.mid(0, pos);
+            const QString varValue = line.mid(pos + 1);
+            envPairs.insert(varName, varValue);
+        }
+    }
+
+    return std::nullopt;
+}
+
+static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> &promise,
+                                     QString vcvarsBat, QString varsBatArg)
 {
     const Utils::Environment inEnv = Utils::Environment::systemEnvironment();
     Utils::Environment outEnv;
@@ -1031,7 +1130,7 @@ void MsvcToolchain::fromMap(const Store &data)
         data.value(environModsKeyC).toList());
     rescanForCompiler();
 
-    initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &MsvcToolchain::environmentModifications,
+    initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &environmentModifications,
                                       m_vcvarsBat, m_varsBatArg));
 
     if (m_vcvarsBat.isEmpty() || !targetAbi().isValid()) {
@@ -1275,7 +1374,7 @@ void MsvcToolchain::setupVarsBat(const Abi &abi, const QString &varsBat, const Q
 
     if (!varsBat.isEmpty()) {
         initEnvModWatcher(Utils::asyncRun(envModThreadPool(),
-                          &MsvcToolchain::environmentModifications, varsBat, varsBatArg));
+                          &environmentModifications, varsBat, varsBatArg));
     }
 }
 
@@ -2090,105 +2189,6 @@ int MsvcToolchain::priority() const
 void MsvcToolchain::cancelMsvcToolChainDetection()
 {
     envModThreadPool()->clear();
-}
-
-std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Environment &env,
-                                                                  const QString &batchFile,
-                                                                  const QString &batchArgs,
-                                                                  QMap<QString, QString> &envPairs)
-{
-    const QString marker = "####################";
-    // Create a temporary file name for the output. Use a temporary file here
-    // as I don't know another way to do this in Qt...
-
-    // Create a batch file to create and save the env settings
-    TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/XXXXXX.bat");
-
-    QByteArray call = "call ";
-    call += ProcessArgs::quoteArg(batchFile).toLocal8Bit();
-    if (!batchArgs.isEmpty()) {
-        call += ' ';
-        call += batchArgs.toLocal8Bit();
-    }
-
-    if (HostOsInfo::isWindowsHost())
-        saver.write("chcp 65001\r\n");
-    saver.write("set VSCMD_SKIP_SENDTELEMETRY=1\r\n");
-    saver.write("set CLINK_NOAUTORUN=1\r\n");
-    saver.write("setlocal enableextensions\r\n");
-    saver.write("if defined VCINSTALLDIR (\r\n");
-    saver.write("  if not defined QTC_NO_MSVC_CLEAN_ENV (\r\n");
-    saver.write("    call \"%VCINSTALLDIR%/Auxiliary/Build/vcvarsall.bat\" /clean_env\r\n");
-    saver.write("  )\r\n");
-    saver.write(")\r\n");
-    saver.write(QByteArray(call + "\r\n"));
-    saver.write(QByteArray("@echo " + marker.toLocal8Bit() + "\r\n"));
-    saver.write("set\r\n");
-    saver.write(QByteArray("@echo " + marker.toLocal8Bit() + "\r\n"));
-    if (const Result<> &res = saver.finalize(); !res) {
-        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
-        return {};
-    }
-
-    Process run;
-
-    // As of WinSDK 7.1, there is logic preventing the path from being set
-    // correctly if "ORIGINALPATH" is already set. That can cause problems
-    // if Creator is launched within a session set up by setenv.cmd.
-    Environment runEnv = env;
-    runEnv.unset(QLatin1String("ORIGINALPATH"));
-    run.setEnvironment(runEnv);
-    FilePath cmdPath = FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
-    if (cmdPath.isEmpty())
-        cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
-    // Windows SDK setup scripts require command line switches for environment expansion.
-    CommandLine cmd(cmdPath, {"/D", "/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
-    qCDebug(Log) << "readEnvironmentSetting: " << call << cmd.toUserOutput()
-                 << " Env: " << runEnv.toStringList().size();
-    run.setUtf8Codec();
-    run.setCommand(cmd);
-    run.runBlocking(1min);
-
-    if (run.result() != ProcessResult::FinishedWithSuccess) {
-        const QString message = run.exitMessage(Process::FailureMessageFormat::WithStdErr);
-        qWarning().noquote() << message;
-        QString command = QDir::toNativeSeparators(batchFile);
-        if (!batchArgs.isEmpty())
-            command += ' ' + batchArgs;
-        return Tr::tr("Failed to retrieve MSVC Environment from \"%1\":\n%2")
-            .arg(command, message);
-    }
-
-    // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
-    const QString stdOut = run.cleanedStdOut();
-
-    //
-    // Now parse the file to get the environment settings
-    const int start = stdOut.indexOf(marker);
-    if (start == -1) {
-        qWarning("Could not find start marker in stdout output.");
-        return {};
-    }
-
-    const int end = stdOut.indexOf(marker, start + 1);
-    if (end == -1) {
-        qWarning("Could not find end marker in stdout output.");
-        return {};
-    }
-
-    const QString output = stdOut.mid(start, end - start);
-
-    const QStringList lines = output.split(QLatin1String("\n"));
-    for (const QString &line : lines) {
-        const int pos = line.indexOf('=');
-        if (pos > 0) {
-            const QString varName = line.mid(0, pos);
-            const QString varValue = line.mid(pos + 1);
-            envPairs.insert(varName, varValue);
-        }
-    }
-
-    return std::nullopt;
 }
 
 MsvcToolchain::WarningFlagAdder::WarningFlagAdder(const QString &flag, WarningFlags &flags)
