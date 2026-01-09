@@ -129,7 +129,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_lockButton->setEnabled(false);
 
     d->m_dragHandle->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
-    d->m_dragHandle->setToolTip(Tr::tr("Drag to drag documents between splits"));
+    d->m_dragHandle->setToolTip(Tr::tr("Drag to open the document in another split."));
     d->m_dragHandle->installEventFilter(this);
     d->m_dragHandleMenu = new QMenu(d->m_dragHandle);
     d->m_dragHandle->setMenu(d->m_dragHandleMenu);
