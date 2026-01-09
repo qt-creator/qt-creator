@@ -68,6 +68,8 @@ const int categoryIconSize = 24;
 class SettingsTab;
 static QHash<Id, QPointer<SettingsTab>> s_tabForPage;
 
+static Id s_previousMode;
+
 static bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
 {
     if (p1->category() != p2->category())
@@ -492,6 +494,7 @@ public:
 
     void showPage(Id pageId);
 
+    void ok();
     void apply();
     void cancel();
 
@@ -529,7 +532,8 @@ private:
     QListView *m_categoryList;
     QLabel *m_headerLabel;
 
-    QtcButton m_applyButton{Tr::tr("Apply"), QtcButton::MediumPrimary};
+    QtcButton m_okButton{Tr::tr("Ok"), QtcButton::MediumPrimary};
+    QtcButton m_applyButton{Tr::tr("Apply"), QtcButton::MediumSecondary};
     QtcButton m_cancelButton{Tr::tr("Cancel"), QtcButton::MediumSecondary};
 
     bool m_isDirty = false;
@@ -540,6 +544,7 @@ private:
 void SettingsDialog::setDirty(bool dirty)
 {
     m_isDirty = dirty;
+    m_okButton.setEnabled(dirty);
     m_applyButton.setEnabled(dirty);
     m_cancelButton.setEnabled(dirty);
 }
@@ -671,9 +676,11 @@ void SettingsDialog::createGui()
     m_headerLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
     auto buttonBox = new QDialogButtonBox;
+    buttonBox->addButton(&m_okButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(&m_applyButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(&m_cancelButton, QDialogButtonBox::ActionRole);
 
+    connect(&m_okButton, &QAbstractButton::clicked, this, &SettingsDialog::ok);
     connect(&m_applyButton, &QAbstractButton::clicked, this, &SettingsDialog::apply);
     connect(&m_cancelButton, &QAbstractButton::clicked, this, &SettingsDialog::cancel);
 
@@ -863,6 +870,12 @@ void SettingsDialog::filter(const QString &text)
     updateEnabledTabs(category, text);
 }
 
+void SettingsDialog::ok()
+{
+    apply();
+    ModeManager::activateMode(s_previousMode);
+}
+
 void SettingsDialog::apply()
 {
     for (const Id page : std::as_const(m_visitedPages)) {
@@ -900,6 +913,7 @@ public:
         connect(ModeManager::instance(), &ModeManager::currentModeChanged, this, [this](Id mode, Id oldMode) {
             QTC_ASSERT(mode != oldMode, return);
             if (mode == Constants::MODE_SETTINGS) {
+                s_previousMode = oldMode;
                 if (!inner)
                     open({});
             } else if (oldMode == Constants::MODE_SETTINGS) {
