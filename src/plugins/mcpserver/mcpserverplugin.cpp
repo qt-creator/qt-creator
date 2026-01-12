@@ -191,7 +191,6 @@ public:
     ~McpServerPlugin() final
     {
         delete m_serverP;
-        delete m_commandsP;
     }
 
     void initialize() final
@@ -209,7 +208,6 @@ public:
         // Create the MCP server and commands
         qCDebug(mcpPlugin) << "Creating MCP server and commands...";
         m_serverP = new McpServer(this);
-        m_commandsP = new McpCommands(this);
 
         // Initialize the server
         qCDebug(mcpPlugin) << "Starting MCP server...";
@@ -270,7 +268,6 @@ private:
     }
 
     McpServer *m_serverP = nullptr;
-    McpCommands *m_commandsP = nullptr;
 };
 
 } // namespace Mcp::Internal
