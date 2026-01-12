@@ -86,6 +86,8 @@ QtcLibrary {
         "completingtextedit.cpp",
         "completingtextedit.h",
         "cpplanguage_details.h",
+        "crashreporting.cpp",
+        "crashreporting.h",
         "crumblepath.cpp",
         "crumblepath.h",
         "datafromprocess.h",

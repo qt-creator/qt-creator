@@ -29,7 +29,9 @@ Q_LOGGING_CATEGORY(sentryLog, "qtc.sentry", QtWarningMsg)
 
 namespace Utils {
 
+#ifdef ENABLE_SENTRY
 static bool s_isCrashreportingSetUp = false;
+#endif
 
 const char kCrashReportingInfoBarEntry[] = "WarnCrashReporting";
 const char kCrashReportingSetting[] = "CrashReportingEnabled";
