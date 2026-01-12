@@ -366,6 +366,7 @@ public:
     WorkspaceRunConfiguration(BuildConfiguration *bc, Id id)
         : RunConfiguration(bc, id)
     {
+        enabled.setVisible(false);
         environment.setSupportForBuildEnvironment(bc);
 
         hint.setText(Tr::tr("Clone the configuration to change it. Or, make the changes in "
