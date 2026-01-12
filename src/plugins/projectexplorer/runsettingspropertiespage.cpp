@@ -421,7 +421,12 @@ void DeploySettingsWidget::initForActiveBuildConfig()
     disconnect(m_deployConfigurationCombo, &QComboBox::currentIndexChanged,
                this, &DeploySettingsWidget::currentDeployConfigurationChanged);
     BuildConfiguration * const bc = m_target->activeBuildConfiguration();
-    m_deployConfigurationCombo->setModel(QTC_GUARD(bc) ? bc->deployConfigurationModel() : nullptr);
+    ProjectConfigurationModel * const model = QTC_GUARD(bc) ? bc->deployConfigurationModel()
+                                                            : nullptr;
+    if (model)
+        m_deployConfigurationCombo->setModel(model);
+    else
+        m_deployConfigurationCombo->clear();
     connect(m_deployConfigurationCombo, &QComboBox::currentIndexChanged,
             this, &DeploySettingsWidget::currentDeployConfigurationChanged);
 
@@ -812,9 +817,14 @@ void RunSettingsWidget::initForActiveBuildConfig()
     disconnect(m_runConfigurationCombo, &QComboBox::currentIndexChanged,
             this, &RunSettingsWidget::currentRunConfigurationChanged);
     RunConfiguration *rc = m_target->activeRunConfiguration();
-    ProjectConfigurationModel *model = m_target->activeBuildConfiguration()->runConfigurationModel();
-    m_runConfigurationCombo->setModel(model);
-    m_runConfigurationCombo->setCurrentIndex(model->indexFor(rc));
+    BuildConfiguration * const bc = m_target->activeBuildConfiguration();
+    ProjectConfigurationModel * const model = QTC_GUARD(bc) ? bc->runConfigurationModel() : nullptr;
+    if (model) {
+        m_runConfigurationCombo->setModel(model);
+        m_runConfigurationCombo->setCurrentIndex(model->indexFor(rc));
+    } else {
+        m_runConfigurationCombo->clear();
+    }
     connect(m_runConfigurationCombo, &QComboBox::currentIndexChanged,
             this, &RunSettingsWidget::currentRunConfigurationChanged);
     updateRemoveToolButtons();
