@@ -194,7 +194,7 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
 
     if (int(stopBeforeBuild()) < 0 || int(stopBeforeBuild()) > int(StopBeforeBuild::SameApp)) {
         stopBeforeBuild.setValue(stopBeforeBuild.defaultValue());
-        stopBeforeBuild.writeSettings();
+        writeSettings();
     }
 }
 
@@ -232,14 +232,14 @@ enum { UseCurrentDirectory, UseProjectDirectory };
 void setPromptToStopSettings(bool promptToStop)
 {
     globalProjectExplorerSettings().promptToStopRunControl.setValue(promptToStop);
-    globalProjectExplorerSettings().promptToStopRunControl.writeSettings();
+    globalProjectExplorerSettings().writeSettings();
     emit globalProjectExplorerSettings().changed();
 }
 
 void setSaveBeforeBuildSettings(bool saveBeforeBuild)
 {
     globalProjectExplorerSettings().saveBeforeBuild.setValue(saveBeforeBuild);
-    globalProjectExplorerSettings().saveBeforeBuild.writeSettings();
+    globalProjectExplorerSettings().writeSettings();
 }
 
 class ProjectExplorerSettingsWidget : public IOptionsPageWidget
