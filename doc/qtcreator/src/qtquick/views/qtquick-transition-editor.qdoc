@@ -18,7 +18,7 @@
 
     First, you need to \l{Working with states}{add states} in the \l {Apply states to components}{States} view
     and \l{Specify component properties}{edit some properties} that can be
-    animated, such as colors or numbers, in the \l Properties view. For example,
+    animated, such as colors or numbers, in the \uicontrol {Properties} view. For example,
     you can animate the changes in the position of a component.
 
     \image qtquick-transition-editor-view.webp "Transitions view"

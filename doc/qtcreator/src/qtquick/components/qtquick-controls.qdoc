@@ -26,14 +26,14 @@
     \endlist
 
     You can specify values for the properties of component instances in the
-    \l Properties view. Some properties are common to all components,
+    \uicontrol {Properties} view. Some properties are common to all components,
     whereas some are common to particular types of controls. Some properties
     are only available for a particular control. The following sections
     describe the preset UI controls and their properties.
 
     \section1 General control properties
 
-    You can set control properties in the \l Properties view.
+    You can set control properties in the \uicontrol {Properties} view.
 
     \image {qtquick-designer-control-properties.png} {The Control section in the Properties view.}
 

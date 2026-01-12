@@ -18,7 +18,7 @@
     \image {qmldesigner-navigator.webp} {Navigator with component preview.}
 
     You can select components in the \uicontrol Navigator view to edit their
-    properties in the \l Properties view. Components can access the
+    properties in the \uicontrol {Properties} view. Components can access the
     properties of their parent component. To select components in the
     \l {Design 2D UIs}{2D} view, right-click a component, and select another
     component in the \uicontrol Selection submenu.
@@ -130,9 +130,8 @@
 
     \image {qtquick-designer-navigator-lock.gif} {Locking components in Navigator.}
 
-    You cannot select locked components in the \uicontrol {2D} view or
-    the \l {3D} view nor access their properties in
-    \uicontrol Properties.
+    You cannot select locked components in \uicontrol {2D} nor access their
+    properties in \uicontrol Properties.
 
     If you attempt to \l{Working with states}{remove a state} that changes the
     properties of a locked component, you are prompted to confirm the removal.

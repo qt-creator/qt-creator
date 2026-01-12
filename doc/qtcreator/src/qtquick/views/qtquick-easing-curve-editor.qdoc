@@ -5,7 +5,7 @@
     \page qtquick-editing-easing-curves.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-design-qtquick
+    \ingroup creator-how-to-design-qtquick-animation
 
     \title Edit easing curves
 
@@ -101,7 +101,7 @@
     \list 1
         \li In \l {Navigate component files}{Navigator}, select an \l{Animations}{Animation} component
             instance.
-        \li In \l Properties, select the \imagecurveeditor
+        \li In \uicontrol {Properties}, select the \imagecurveeditor
             (\uicontrol {Easing Curve Editor}) button.
         \li Select an easing curve, as described in \l{Select Easing Curves}.
     \endlist

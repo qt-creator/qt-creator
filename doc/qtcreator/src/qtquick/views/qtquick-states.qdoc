@@ -18,7 +18,7 @@
 
     Select the new state to switch to it in the \l {Design 2D UIs}{2D} view, and
     then modify the values of the properties of components or component
-    instances in \l Properties.
+    instances in \uicontrol {Properties}.
 
     For example, to change the appearance of a button, you can define states in
     the button component to hide the button image and show another image in its
@@ -48,7 +48,7 @@
 
     \youtube FzmLuRHQXaw
 
-    \section1 Setting the Default state
+    \section1 Setting the default state
 
     The default state determines the startup state of the application.
 
@@ -82,7 +82,7 @@
             not part of a view.
         \li In \uicontrol States, select the \uicontrol + symbol to create
             a new state and give it a name. For example, \c Normal.
-        \li In \l Properties (2), clear \uicontrol Visibility
+        \li In \uicontrol {Properties} (2), clear \uicontrol Visibility
             or set \uicontrol Opacity to 0 for each component that
             is not needed in this view. If you specify the setting for the
             parent component, all child components inherit it and are also

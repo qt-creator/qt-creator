@@ -95,7 +95,7 @@
     To set anchors and margins for components:
 
     \list 1
-        \li Go to \l Properties > \uicontrol Layout > \uicontrol Anchors.
+        \li Go to \uicontrol {Properties} > \uicontrol Layout > \uicontrol Anchors.
         \li Select the corresponding button for the anchor you want for the component.
             You can combine multiple anchors. For each selected button, you can
             choose the target component of that anchor from the corresponding dropdown.
@@ -306,7 +306,7 @@
     child components, and are therefore well suited for dynamic and resizable
     UIs. However, do not select fixed positions and
     sizes for the child components in the \l{2D Geometry}{Geometry - 2D} section
-    in \l Properties, unless their implicit sizes are not satisfactory.
+    in \uicontrol {Properties}, unless their implicit sizes are not satisfactory.
 
     Use anchors or the width and height properties of the layout itself
     to select its size in respect to its non-layout parent component. However,

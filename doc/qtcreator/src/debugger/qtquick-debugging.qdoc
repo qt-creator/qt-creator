@@ -1,23 +1,11 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
-
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
 
 /*!
     \page creator-debugging-qml.html
-    \if defined(qtdesignstudio)
-    \previouspage studio-debugging.html
-    \nextpage creator-stack-view.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-debugger
-    \ingroup studio-debugger
 
     \title Debugging Qt Quick projects
 
@@ -28,21 +16,13 @@
     For an example of how to debug Qt Quick Projects, see
     \l{Tutorial: Qt Quick debugging}.
 
-    \if defined(qtdesignstudio)
-    \note In this section, you are using advanced menu items. These are not
-    visible by default. To toggle the visibility of advanced menu items, see
-    \l{Customizing the Menu Bar}.
-    \endif
-
     \section1 Setting up QML debugging
 
-    \if defined(qtcreator)
     The process of setting up debugging for Qt Quick projects depends on the
     \e type of the project: \uicontrol {Qt Quick UI Prototype} or
     \uicontrol {Qt Quick Application}, and the Qt version.
 
     \section2 Debugging Qt Quick UI projects
-    \endif
 
     To debug Qt Quick UI projects (\c .qmlproject), select \uicontrol Automatic
     or \uicontrol Enabled in \uicontrol{Run Settings} >
@@ -50,7 +30,6 @@
 
     \image {qtquick-debugger-settings.webp} {Debugger settings section in Run Settings}
 
-    \if defined(qtcreator)
     \section2 Debugging Qt Quick applications
 
     To debug Qt Quick Applications:
@@ -127,7 +106,6 @@
     For example, for qmake the global setting only affects build configurations
     that are automatically created when enabling a kit. Also, CMake ignores the
     global setting.
-    \endif
 
     \section1 Starting QML debugging
 
@@ -152,7 +130,6 @@
 
     \list 1
 
-        \if defined(qtcreator)
         \li Build the application by using the appropriate configuration
             parameters (if you build the application with \QC, it automatically
             uses the correct configuration):
@@ -168,7 +145,6 @@
                     \l CONFIG property in the \c .pro file:
                     \c {CONFIG += qml_debug}
             \endlist
-        \endif
 
         \li Start the application with the following arguments:
 
@@ -267,12 +243,7 @@
 
     You can change property values temporarily, without editing the source, and
     view the results in the running application. You can change the property
-    values permanently in
-    \if defined(qtcreator)
-    code.
-    \else
-    the \l Properties view.
-    \endif
+    values permanently in code.
 
     \section1 Applying QML changes at runtime
 
@@ -280,7 +251,5 @@
     in the \uicontrol Locals or \uicontrol Expression view, they are immediately
     updated in the running application, but not in the source code.
 
-    \if defined(qtcreator)
     \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Managing kits}
-    \endif
 */

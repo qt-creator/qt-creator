@@ -28,7 +28,7 @@
     \endlist
 
     The fonts are added to the list of fonts for the \uicontrol Font property
-    in \l Properties.
+    in \uicontrol {Properties}.
 
     \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
     {Designing Qt Quick UIs}

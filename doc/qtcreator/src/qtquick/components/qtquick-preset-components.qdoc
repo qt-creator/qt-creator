@@ -17,7 +17,7 @@
 
     To edit the appearance of a component instance, select it in
     the \uicontrol {2D} or \uicontrol Navigator view
-    and set its properties in the \l Properties view.
+    and set its properties in the \uicontrol {Properties} view.
 
     For more information about creating your own components, see
     \l{Create custom components}.

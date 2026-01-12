@@ -111,7 +111,7 @@
 
     \list 1
         \li In the \l {Navigate component files}{Navigator} view, select the component to animate.
-        \li In the \l Properties view, select \imageactionicon
+        \li In the \uicontrol {Properties} view, select \imageactionicon
             (\uicontrol Actions) > \uicontrol {Insert Keyframe} for the property
             that you want to animate.
             \image {timeline-insert-keyframe.png} {Selecting Insert Keyframe from the Action drop-down menu in the Properties view.}

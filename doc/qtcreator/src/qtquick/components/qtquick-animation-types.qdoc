@@ -25,7 +25,7 @@
 
     A property animation is applied when the value of a property changes.
     Color and number animations are property animation types for specific
-    purposes. Specify settings for animations in \l Properties >
+    purposes. Specify settings for animations in \uicontrol {Properties} >
     \uicontrol {Animation Targets}.
 
     \section2 Animate color changes

@@ -68,7 +68,7 @@
     Additionally, select \key Shift or \key Alt (or \key Opt on \macos)
     to rotate component instances in steps of 5 or 45 degrees, respectively.
 
-    You can set the \l{Managing 2D Transformations}{origin} in \l Properties >
+    You can set the \l{Managing 2D Transformations}{origin} in \uicontrol {Properties} >
     \uicontrol {Geometry - 2D} > \uicontrol Origin. There, you can also enter
     the value of the \uicontrol Rotation property in degrees.
 
@@ -110,7 +110,7 @@
     \image {qmldesigner-snap-margins.webp} {Snapping lines on canvas}
 
     For alternative ways of aligning and distributing component instances by
-    using the \l Properties view, see \l{Align and distribute components}.
+    using the \uicontrol {Properties} view, see \l{Align and distribute components}.
 
     \section1 Hide component boundaries
 
@@ -163,7 +163,7 @@
 
     When you open a UI file, the component defined in the file and the component
     instances it contains are drawn in the \uicontrol {2D} view. When you
-    edit component instance properties in \l Properties, the code and its
+    edit component instance properties in \uicontrol {Properties}, the code and its
     representation in the \uicontrol {2D} view might get out of sync. For
     example, when you change the position of a component instance within a
     column or a row, the new position might not be displayed correctly in

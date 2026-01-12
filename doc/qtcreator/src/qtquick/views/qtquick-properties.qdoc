@@ -9,7 +9,7 @@
 
     \title Specify component properties
 
-    The \l Properties view displays all the properties of the selected
+    The \uicontrol {Properties} view displays all the properties of the selected
     component.
 
     \target basic-item
