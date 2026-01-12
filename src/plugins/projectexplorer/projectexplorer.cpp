@@ -2392,7 +2392,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
 
 void ProjectExplorerPlugin::openProjectWelcomePage(const FilePath &filePath)
 {
-    OpenProjectResult result = openProject(filePath);
+    OpenProjectResult result = openProject(filePath, false);
     if (!result)
         showOpenProjectError(result);
 }
