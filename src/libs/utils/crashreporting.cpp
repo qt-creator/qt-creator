@@ -126,15 +126,23 @@ bool isCrashReportingAvailable()
 #endif
 }
 
-void setUpCrashReporting()
+/*!
+    Returns whether it succeeded.
+    Normally \c false indicates that a restart is required before the change can take effect.
+*/
+bool setUpCrashReporting()
 {
     if (!isCrashReportingAvailable())
-        return;
-    QTC_ASSERT(!appInfo().crashReports.isEmpty(), return);
-    QTC_ASSERT(QCoreApplication::instance(), return);
+        return false;
+    QTC_ASSERT(!appInfo().crashReports.isEmpty(), return false);
+    QTC_ASSERT(QCoreApplication::instance(), return false);
 #ifdef ENABLE_SENTRY
-    if (!theCrashReportSetting().value() || s_isCrashreportingSetUp)
-        return;
+    // Disabling crash reporting when it is already set up requires restart
+    if (!theCrashReportSetting().value())
+        return !s_isCrashreportingSetUp;
+
+    if (s_isCrashreportingSetUp)
+        return true;
 
     s_isCrashreportingSetUp = true;
 
@@ -166,13 +174,20 @@ void setUpCrashReporting()
     if (!appInfo().revision.isEmpty())
         sentry_set_tag("qtcreator.revision", appInfo().revision.toUtf8().constData());
 #endif
+    return true;
 }
 
-void addCrashReportSetting(AspectContainer *container)
+void addCrashReportSetting(
+    AspectContainer *container, const std::function<void(QString)> &askForRestart)
 {
     if (!isCrashReportingAvailable())
         return;
-    container->registerAspect(&theCrashReportSetting());
+    BoolAspect *setting = &theCrashReportSetting();
+    theCrashReportSetting().addOnChanged(setting, [askForRestart] {
+        if (!setUpCrashReporting())
+            askForRestart(Tr::tr("The crash reporting state will take effect after restart."));
+    });
+    container->registerAspect(setting);
 }
 
 void addCrashReportSettingsUi(QWidget *parent, Layouting::Grid *grid)

@@ -21,8 +21,9 @@ class AspectContainer;
 class BoolAspect;
 
 QTCREATOR_UTILS_EXPORT bool isCrashReportingAvailable();
-QTCREATOR_UTILS_EXPORT void setUpCrashReporting();
-QTCREATOR_UTILS_EXPORT void addCrashReportSetting(AspectContainer *container);
+QTCREATOR_UTILS_EXPORT bool setUpCrashReporting();
+QTCREATOR_UTILS_EXPORT void addCrashReportSetting(
+    AspectContainer *container, const std::function<void(QString)> &askForRestart);
 QTCREATOR_UTILS_EXPORT void addCrashReportSettingsUi(QWidget *parent, Layouting::Grid *grid);
 QTCREATOR_UTILS_EXPORT void warnAboutCrashReporting(
     InfoBar *infoBar,

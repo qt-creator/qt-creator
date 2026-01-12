@@ -145,7 +145,7 @@ SystemSettings::SystemSettings()
     askBeforeExit.setLabelText(Tr::tr("Ask for confirmation before exiting"));
     askBeforeExit.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
-    addCrashReportSetting(this);
+    addCrashReportSetting(this, [](const QString &title) { ICore::askForRestart(title); });
 
     readSettings();
 
