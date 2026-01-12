@@ -256,8 +256,12 @@ DebuggerItemModel::DebuggerItemModel()
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &DebuggerItemModel::saveDebuggers);
     connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested, this,
-            [this](Id devId, const FilePaths &searchPaths) {
-        detectDebuggers(DeviceManager::find(devId), searchPaths);
+            [this](Id devId, const FilePaths &searchPaths, quint64 token) {
+        const IDevicePtr dev = DeviceManager::find(devId);
+        QTC_ASSERT(dev, return);
+        dev->registerToolDetectionTask(token);
+        detectDebuggers(dev, searchPaths);
+        dev->deregisterToolDetectionTask(token);
     });
 }
 

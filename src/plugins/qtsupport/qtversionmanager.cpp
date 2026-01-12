@@ -121,7 +121,7 @@ public:
     bool restoreQtVersions();
     void findSystemQt(const IDeviceConstPtr &device);
     void addQtVersionsFromFilePaths(const FilePaths &filePaths);
-    void handleDeviceToolDetectionRequest(Id deviceId, const FilePaths &searchPaths);
+    void handleDeviceToolDetectionRequest(Id deviceId, const FilePaths &searchPaths, quint64 token);
     void saveQtVersions();
 
     void updateDocumentation(const QtVersions &added,
@@ -496,16 +496,20 @@ void QtVersionManagerImpl::addQtVersionsFromFilePaths(const FilePaths &filePaths
     }
 }
 
-void QtVersionManagerImpl::handleDeviceToolDetectionRequest(Id deviceId, const FilePaths &searchPaths)
+void QtVersionManagerImpl::handleDeviceToolDetectionRequest(
+    Id deviceId, const FilePaths &searchPaths, quint64 token)
 {
-    Q_UNUSED(deviceId)
+    const IDevicePtr dev = DeviceManager::find(deviceId);
+    QTC_ASSERT(dev, return);
 
+    dev->registerToolDetectionTask(token);
     const VersionMap qtVersions = m_versions;
     addQtVersionsFromFilePaths(BuildableHelperLibrary::findQtsInPaths(searchPaths));
     if (qtVersions != m_versions) {
         saveQtVersions();
         emit QtVersionManager::instance()->qtVersionsChanged(m_versions.keys());
     }
+    dev->deregisterToolDetectionTask(token);
 }
 
 void QtVersionManager::addVersion(QtVersion *version)

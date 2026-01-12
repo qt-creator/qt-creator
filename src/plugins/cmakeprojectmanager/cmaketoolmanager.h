@@ -73,7 +73,7 @@ signals:
 private:
     static void saveCMakeTools();
     static void ensureDefaultCMakeToolIsValid();
-    void handleDeviceToolDetectionRequest(Utils::Id devId, const Utils::FilePaths &searchPaths);
+    void handleDeviceToolDetectionRequest(Utils::Id devId, const Utils::FilePaths &searchPaths, quint64 token);
 };
 
 namespace Internal { void setupCMakeToolManager(QObject *guard); }

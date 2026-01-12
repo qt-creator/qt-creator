@@ -580,15 +580,18 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
         emit m_instance->defaultCMakeChanged();
 }
 
-void CMakeToolManager::handleDeviceToolDetectionRequest(Utils::Id devId, const FilePaths &searchPaths)
+void CMakeToolManager::handleDeviceToolDetectionRequest(
+    Utils::Id devId, const FilePaths &searchPaths, quint64 token)
 {
-    const IDeviceConstPtr dev = DeviceManager::find(devId);
+    const IDevicePtr dev = DeviceManager::find(devId);
     QTC_ASSERT(dev, return);
+    dev->registerToolDetectionTask(token);
     auto detected = autoDetectCMakeTools(searchPaths, dev->rootPath());
     for (auto &&tool : detected) {
         if (!CMakeToolManager::findByCommand(tool->cmakeExecutable()))
             CMakeToolManager::registerCMakeTool(std::move(tool));
     }
+    dev->deregisterToolDetectionTask(token);
 }
 
 void Internal::setupCMakeToolManager(QObject *guard)
