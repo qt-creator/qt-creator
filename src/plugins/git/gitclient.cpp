@@ -2518,10 +2518,7 @@ ExecutableItem GitClient::statusTask(const FilePath &workingDirectory, StatusMod
         statusResult.result = hasChanges ? StatusResult::Changed : StatusResult::Unchanged;
     };
 
-    return Group {
-        resultStorage,
-        commandTask({workingDirectory, arguments, RunFlags::NoOutput, {}, {}, commandHandler})
-    };
+    return commandTask({workingDirectory, arguments, RunFlags::NoOutput, {}, {}, commandHandler});
 }
 
 QString GitClient::commandInProgressDescription(const FilePath &workingDirectory) const
