@@ -315,7 +315,7 @@ IDevice::RecipeAndSearchPath IDevice::autoDetectDeviceToolsRecipe()
     QList<Data> datas;
 
     const FilePaths detectionPaths = d->autoDetectionPaths();
-    for (DeviceToolAspectFactory *factory : theDeviceToolFactories) {
+    for (DeviceToolAspectFactory *factory : std::as_const(theDeviceToolFactories)) {
         FilePaths patterns = FilePaths::fromStrings(factory->filePattern());
         patterns.setSchemeAndHost(rootPath());
 
@@ -332,15 +332,19 @@ IDevice::RecipeAndSearchPath IDevice::autoDetectDeviceToolsRecipe()
         std::shared_ptr<IDevice> device = weakDevice.lock();
         if (!device)
             return;
-
-        static const auto searchForTools = [](Data data, IDeviceConstPtr device) -> Data {
-            for (const FilePath &pattern : data.patterns) {
+        const FilePath deviceRootPath = device->rootPath();
+        const auto searchForTools = [deviceRootPath](Data data, IDeviceConstPtr device) -> Data {
+            for (const FilePath &pattern : std::as_const(data.patterns)) {
                 FilePaths candidates = Utils::filtered(
                     pattern.searchAllInDirectories(data.searchPaths), [&](const FilePath &toolPath) {
                         // We assume that check() is thread safe to call.
                         return data.factory->check(device, toolPath);
                     });
-
+                candidates = Utils::transform(candidates, [deviceRootPath](const FilePath &path) {
+                    if (path.isChildOf(deviceRootPath))
+                        return FilePath::fromPathPart(path.path());
+                    return path;
+                });
                 data.candidates.append(candidates);
             }
             if (!data.currentValue.isEmpty()) {
