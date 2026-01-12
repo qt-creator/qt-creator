@@ -70,7 +70,7 @@ private:
     HttpParser *m_httpParserP;
     QList<QTcpSocket *> m_clients;
     QList<QTcpSocket *> m_sseClients;
-    McpCommands *m_commandsP;
+    McpCommands m_commands;
     quint16 m_port;
     QHash<QTcpSocket*, QByteArray> m_partialData;
 };

@@ -42,7 +42,6 @@ McpServer::McpServer(QObject *parent)
     : QObject(parent)
     , m_tcpServerP(new QTcpServer(this))
     , m_httpParserP(new HttpParser(this))
-    , m_commandsP(new McpCommands(this))
     , m_port(3001)
 {
     // Set up TCP server connections
@@ -60,7 +59,7 @@ McpServer::McpServer(QObject *parent)
 
         QJsonObject serverInfo;
         serverInfo["name"] = "Qt Creator MCP Server";
-        serverInfo["version"] = m_commandsP->getVersion();
+        serverInfo["version"] = m_commands.getVersion();
 
         QJsonObject initResult;
         initResult["protocolVersion"] = "2024-11-05";
@@ -131,7 +130,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
-            bool ok = runOnGuiThread([this] { return m_commandsP->build(); });
+            bool ok = runOnGuiThread([this] { return m_commands.build(); });
             return QJsonObject{{"success", ok}};
         });
 
@@ -148,7 +147,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
-            QString status = runOnGuiThread([this] { return m_commandsP->getBuildStatus(); });
+            QString status = runOnGuiThread([this] { return m_commands.getBuildStatus(); });
             return QJsonObject{{"result", status}};
         });
 
@@ -165,7 +164,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
-            QString result = runOnGuiThread([this] { return m_commandsP->debug(); });
+            QString result = runOnGuiThread([this] { return m_commands.debug(); });
             return QJsonObject{{"result", result}};
         });
 
@@ -192,7 +191,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
         [this](const QJsonObject &p) {
             const QString path = p.value("path").toString();
-            bool ok = runOnGuiThread([this, path] { return m_commandsP->openFile(path); });
+            bool ok = runOnGuiThread([this, path] { return m_commands.openFile(path); });
             return QJsonObject{{"success", ok}};
         });
 
@@ -213,7 +212,7 @@ McpServer::McpServer(QObject *parent)
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
             const QStringList projects = runOnGuiThread(
-                [this] { return m_commandsP->listProjects(); });
+                [this] { return m_commands.listProjects(); });
             QJsonArray arr;
             for (const QString &pr : projects)
                 arr.append(pr);
@@ -237,7 +236,7 @@ McpServer::McpServer(QObject *parent)
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
             const QStringList configs = runOnGuiThread(
-                [this] { return m_commandsP->listBuildConfigs(); });
+                [this] { return m_commands.listBuildConfigs(); });
             QJsonArray arr;
             for (const QString &c : configs)
                 arr.append(c);
@@ -267,7 +266,7 @@ McpServer::McpServer(QObject *parent)
         [this](const QJsonObject &p) {
             const QString name = p.value("name").toString();
             bool ok = runOnGuiThread(
-                [this, name] { return m_commandsP->switchToBuildConfig(name); });
+                [this, name] { return m_commands.switchToBuildConfig(name); });
             return QJsonObject{{"success", ok}};
         });
 
@@ -284,7 +283,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
-            bool ok = runOnGuiThread([this] { return m_commandsP->runProject(); });
+            bool ok = runOnGuiThread([this] { return m_commands.runProject(); });
             return QJsonObject{{"success", ok}};
         });
 
@@ -301,7 +300,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
-            bool ok = runOnGuiThread([this] { return m_commandsP->cleanProject(); });
+            bool ok = runOnGuiThread([this] { return m_commands.cleanProject(); });
             return QJsonObject{{"success", ok}};
         });
 
@@ -322,7 +321,7 @@ McpServer::McpServer(QObject *parent)
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
             const QStringList files = runOnGuiThread(
-                [this] { return m_commandsP->listOpenFiles(); });
+                [this] { return m_commands.listOpenFiles(); });
             QJsonArray arr;
             for (const QString &f : files)
                 arr.append(f);
@@ -346,7 +345,7 @@ McpServer::McpServer(QObject *parent)
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
             const QStringList sessions = runOnGuiThread(
-                [this] { return m_commandsP->listSessions(); });
+                [this] { return m_commands.listSessions(); });
             QJsonArray arr;
             for (const QString &s : sessions)
                 arr.append(s);
@@ -373,7 +372,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
         [this](const QJsonObject &p) {
             const QString name = p.value("sessionName").toString();
-            bool ok = runOnGuiThread([this, name] { return m_commandsP->loadSession(name); });
+            bool ok = runOnGuiThread([this, name] { return m_commands.loadSession(name); });
             return QJsonObject{{"success", ok}};
         });
 
@@ -393,7 +392,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
-            const QStringList issues = runOnGuiThread([this] { return m_commandsP->listIssues(); });
+            const QStringList issues = runOnGuiThread([this] { return m_commands.listIssues(); });
             QJsonArray arr;
             for (const QString &i : issues)
                 arr.append(i);
@@ -413,7 +412,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
-            bool ok = runOnGuiThread([this] { return m_commandsP->quit(); });
+            bool ok = runOnGuiThread([this] { return m_commands.quit(); });
             return QJsonObject{{"success", ok}};
         });
 
@@ -430,7 +429,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
-            QString proj = runOnGuiThread([this] { return m_commandsP->getCurrentProject(); });
+            QString proj = runOnGuiThread([this] { return m_commands.getCurrentProject(); });
             return QJsonObject{{"project", proj}};
         });
 
@@ -447,7 +446,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
-            QString cfg = runOnGuiThread([this] { return m_commandsP->getCurrentBuildConfig(); });
+            QString cfg = runOnGuiThread([this] { return m_commands.getCurrentBuildConfig(); });
             return QJsonObject{{"buildConfig", cfg}};
         });
 
@@ -464,7 +463,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
-            QString sess = runOnGuiThread([this] { return m_commandsP->getCurrentSession(); });
+            QString sess = runOnGuiThread([this] { return m_commands.getCurrentSession(); });
             return QJsonObject{{"session", sess}};
         });
 
@@ -481,7 +480,7 @@ McpServer::McpServer(QObject *parent)
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
         [this](const QJsonObject &p) {
             Q_UNUSED(p);
-            bool ok = runOnGuiThread([this] { return m_commandsP->saveSession(); });
+            bool ok = runOnGuiThread([this] { return m_commands.saveSession(); });
             return QJsonObject{{"success", ok}};
         });
 }
@@ -489,7 +488,6 @@ McpServer::McpServer(QObject *parent)
 McpServer::~McpServer()
 {
     stop();
-    delete m_commandsP;
 }
 
 bool McpServer::isHttpRequest(const QByteArray &data)
