@@ -57,15 +57,8 @@ public:
     void performDebuggingCleanup();
     bool performDebuggingCleanupSync();
 
-signals:
-    void sessionLoadRequested(const QString &sessionName);
-
-private slots:
-    void handleSessionLoadRequest(const QString &sessionName);
-
 private:
     bool hasValidProject() const;
-    bool m_sessionLoadResult;
 
     // Method timeout storage
     QMap<QString, int> m_methodTimeouts;

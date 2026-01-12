@@ -38,16 +38,7 @@ namespace Mcp::Internal {
 
 McpCommands::McpCommands(QObject *parent)
     : QObject(parent)
-    , m_sessionLoadResult(false)
 {
-    // Connect signal-slot for session loading
-    connect(
-        this,
-        &McpCommands::sessionLoadRequested,
-        this,
-        &McpCommands::handleSessionLoadRequest,
-        Qt::QueuedConnection);
-
     // Initialize default method timeouts (in seconds)
     m_methodTimeouts["debug"] = 60;
     m_methodTimeouts["build"] = 1200; // 20 minutes
@@ -774,21 +765,6 @@ bool McpCommands::loadSession(const QString &sessionName)
 
     qCDebug(mcpCommands) << "Session loading initiated asynchronously";
     return true; // Return true to indicate the request was accepted
-}
-
-void McpCommands::handleSessionLoadRequest(const QString &sessionName)
-{
-    qCDebug(mcpCommands) << "Handling session load request on main thread:" << sessionName;
-
-    // Load session on main thread
-    bool success = Core::SessionManager::loadSession(sessionName);
-    m_sessionLoadResult = success;
-
-    if (success) {
-        qCDebug(mcpCommands) << "Session loaded successfully on main thread:" << sessionName;
-    } else {
-        qCDebug(mcpCommands) << "Failed to load session on main thread:" << sessionName;
-    }
 }
 
 bool McpCommands::saveSession()
