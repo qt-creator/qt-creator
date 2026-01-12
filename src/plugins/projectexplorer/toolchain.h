@@ -74,6 +74,7 @@ public:
     void setDisplayName(const QString &name);
 
     DetectionSource detectionSource() const;
+    bool isDeviceDetected() const;
     ToolchainFactory *factory() const;
 
     QByteArray id() const;

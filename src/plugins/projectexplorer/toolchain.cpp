@@ -174,6 +174,11 @@ DetectionSource Toolchain::detectionSource() const
     return d->m_detectionSource;
 }
 
+bool Toolchain::isDeviceDetected() const
+{
+    return detectionSource().isSystemDetected() && !compilerCommand().isLocal();
+}
+
 ToolchainFactory *Toolchain::factory() const
 {
     ToolchainFactory * const factory = ToolchainFactory::factoryForType(typeId());

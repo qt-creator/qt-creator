@@ -163,14 +163,26 @@ static ToolChainOperations mergeToolChainLists(const Toolchains &systemFileTcs,
     const Toolchains newlyAutodetectedTcs
             = subtractByEqual(autodetectedTcs, redetectedUserTcs);
 
-    const Toolchains notRedetectedButValidUserTcs
-            = Utils::filtered(notRedetectedUserTcs, &Toolchain::isValid);
+    const Toolchains notRedetectedButValidLocalUserTcs
+        = Utils::filtered(notRedetectedUserTcs, [](const Toolchain *tc) {
+              return tc->isValid() && tc->compilerCommand().isLocal();
+          });
+
+    const Toolchains notRedetectedRemoteUserTcs
+        = Utils::filtered(notRedetectedUserTcs, [](const Toolchain *tc) {
+              return tc->isDeviceDetected();
+          });
 
     ToolChainOperations result;
-    result.toDemote = notRedetectedButValidUserTcs;
-    result.toRegister = stabilizeOrder(systemFileTcs + manualUserFileTcs + result.toDemote // manual TCs
-                                       + redetectedUserTcs + newlyAutodetectedTcs, // auto TCs
-                                       userFileTcs);
+    result.toDemote = notRedetectedButValidLocalUserTcs;
+    result.toRegister = stabilizeOrder(
+        // manual TCs
+        systemFileTcs + manualUserFileTcs + result.toDemote
+
+        // auto TCs
+            + redetectedUserTcs + notRedetectedRemoteUserTcs
+            + newlyAutodetectedTcs,
+        userFileTcs);
 
     result.toDelete = makeUniqueByPointerEqual(subtractByPointerEqual(systemFileTcs + userFileTcs + autodetectedTcs,
                                                                       result.toRegister));
@@ -218,7 +230,6 @@ Toolchains ToolchainSettingsAccessor::restoreToolchains() const
 
     // Process ops:
     for (Toolchain *tc : ops.toDemote) {
-        // FIXME: We currently only demote local toolchains, as they are not redetected.
         if (tc->detectionSource().id.isEmpty())
             tc->setDetectionSource(DetectionSource::Manual);
     }
