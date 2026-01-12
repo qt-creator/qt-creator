@@ -365,6 +365,7 @@ public:
     WorkspaceRunConfiguration(BuildConfiguration *bc, Id id)
         : RunConfiguration(bc, id)
     {
+        enabled.setVisible(false);
         hint.setText(Tr::tr("Clone the configuration to change it. Or, make the changes in "
                             "the .qtcreator/project.json file."));
 
