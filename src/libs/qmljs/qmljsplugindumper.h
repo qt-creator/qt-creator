@@ -86,13 +86,14 @@ private:
 private:
     void watchFilePaths(const Utils::FilePaths &paths);
     void unwatchFilePath(const Utils::FilePath &path);
-    void prepareLibraryInfo(LibraryInfo &libInfo,
-                            const Utils::FilePath &libraryPath,
-                            const QStringList &deps,
-                            const QStringList &errors,
-                            const QStringList &warnings,
-                            const QList<ModuleApiInfo> &moduleApis,
-                            QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects);
+    void prepareLibraryInfo(
+        LibraryInfo &libInfo,
+        const Utils::FilePath &libraryPath,
+        const QStringList &deps,
+        const QStringList &errors,
+        const QStringList &warnings,
+        const QList<ModuleApiInfo> &moduleApis,
+        const QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects);
 
     ModelManagerInterface *m_modelManager;
     QMap<Utils::FilePath, std::shared_ptr<Utils::FilePathWatcher>> m_pluginWatcher;

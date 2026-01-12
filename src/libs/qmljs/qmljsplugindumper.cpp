@@ -521,13 +521,14 @@ static void applyQt515MissingImportWorkaround(const QString &path, LibraryInfo &
     }
 }
 
-void PluginDumper::prepareLibraryInfo(LibraryInfo &libInfo,
-                                      const FilePath &libraryPath,
-                                      const QStringList &deps,
-                                      const QStringList &errors,
-                                      const QStringList &warnings,
-                                      const QList<ModuleApiInfo> &moduleApis,
-                                      QList<FakeMetaObject::ConstPtr> &objects)
+void PluginDumper::prepareLibraryInfo(
+    LibraryInfo &libInfo,
+    const FilePath &libraryPath,
+    const QStringList &deps,
+    const QStringList &errors,
+    const QStringList &warnings,
+    const QList<ModuleApiInfo> &moduleApis,
+    const QList<FakeMetaObject::ConstPtr> &objects)
 {
     QStringList errs = errors;
 
@@ -571,26 +572,42 @@ void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
                     return;
 
                 PluginDumper::DependencyInfo loadResult = loadFuture.result();
-                QStringList errors = typesResult.errors;
-                QStringList warnings = typesResult.errors;
-                QList<FakeMetaObject::ConstPtr> objects = typesResult.objects;
 
-                errors += loadResult.errors;
-                warnings += loadResult.warnings;
-                objects += loadResult.objects;
+                m_modelManager->addFuture(
+                    Utils::asyncRun([this, libraryPath, libraryInfo, typesResult, loadResult]() {
+                        QStringList errors = typesResult.errors;
+                        QStringList warnings = typesResult.errors;
+                        QList<FakeMetaObject::ConstPtr> objects = typesResult.objects;
 
-                QmlJS::LibraryInfo libInfo = libraryInfo;
-                prepareLibraryInfo(libInfo, libraryPath, typesResult.dependencies,
-                                   errors, warnings,
-                                   typesResult.moduleApis, objects);
-                m_modelManager->updateLibraryInfo(libraryPath, libInfo);
+                        errors += loadResult.errors;
+                        warnings += loadResult.warnings;
+                        objects += loadResult.objects;
+                        QmlJS::LibraryInfo libInfo = libraryInfo;
+                        prepareLibraryInfo(
+                            libInfo,
+                            libraryPath,
+                            typesResult.dependencies,
+                            errors,
+                            warnings,
+                            typesResult.moduleApis,
+                            objects);
+                        m_modelManager->updateLibraryInfo(libraryPath, libInfo);
+                    }));
             });
         } else {
-            QmlJS::LibraryInfo libInfo = libraryInfo;
-            prepareLibraryInfo(libInfo, libraryPath, typesResult.dependencies,
-                               typesResult.errors, typesResult.warnings,
-                               typesResult.moduleApis, typesResult.objects);
-            m_modelManager->updateLibraryInfo(libraryPath, libInfo);
+            m_modelManager->addFuture(
+                Utils::asyncRun([this, libraryPath, libraryInfo, typesResult]() {
+                    QmlJS::LibraryInfo libInfo = libraryInfo;
+                    prepareLibraryInfo(
+                        libInfo,
+                        libraryPath,
+                        typesResult.dependencies,
+                        typesResult.errors,
+                        typesResult.warnings,
+                        typesResult.moduleApis,
+                        typesResult.objects);
+                    m_modelManager->updateLibraryInfo(libraryPath, libInfo);
+                }));
         }
     });
 }
