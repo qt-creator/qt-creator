@@ -182,6 +182,11 @@ public:
         FileMergeRecover
     };
 
+    void fillDefaultFileActionMenu(QMenu *menu,
+                                   IVersionControl *vc,
+                                   const Utils::FilePath &topLevel,
+                                   const Utils::FilePath &relativePath);
+
     virtual void vcsFillFileActionMenu(QMenu *menu,
                                        const Utils::FilePath &topLevel,
                                        const Utils::FilePath &relativePath,

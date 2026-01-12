@@ -748,35 +748,15 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     if (hasCurrentItem) {
         FilePath topLevel;
         if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
-            //: %1 = version control name, %2 = file or directory name
-            const QString diffText = Tr::tr("%1 Diff for \"%2\"")
-                                         .arg(vc->displayName(), current.data().toString());
-            QAction *vcsDiff = menu.addAction(diffText);
+            QMenu *subMenu = menu.addMenu(vc->displayName());
             const FilePath relativePath = filePath.relativeChildPath(topLevel);
-            connect(vcsDiff, &QAction::triggered, this, [vc, topLevel, relativePath] {
-                const FilePath path = relativePath.isEmpty() ? "." : relativePath;
-                vc->vcsDiff(topLevel, path);
-            });
-            //: %1 = version control name, %2 = file or directory name
-            const QString logText = Tr::tr("%1 Log for \"%2\"")
-                                        .arg(vc->displayName(), current.data().toString());
-            QAction *vcsLog = menu.addAction(logText);
-            connect(vcsLog, &QAction::triggered, this, [vc, topLevel, relativePath] {
-                vc->vcsLog(topLevel, relativePath);
-            });
-            if (!isDir) {
-                //: %1 = version control name, %2 = filename
-                const QString annotateText = Tr::tr("%1 Annotate \"%2\"")
-                                             .arg(vc->displayName(), current.data().toString());
-                QAction *vcsAnnotate = menu.addAction(annotateText);
-                connect(vcsAnnotate, &QAction::triggered, this, [vc, filePath] {
-                    vc->vcsAnnotate(filePath, 1);
-                });
+            vc->fillDefaultFileActionMenu(subMenu, vc, topLevel, relativePath);
 
+            if (!isDir) {
                 const VcsFileState vcsFileState = VcsManager::fileState(filePath);
-                QMenu *subMenu = menu.addMenu(vc->displayName());
                 vc->vcsFillFileActionMenu(subMenu, topLevel, relativePath, vcsFileState);
             }
+
             menu.addSeparator();
         }
 

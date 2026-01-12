@@ -341,28 +341,22 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
     if (node) {
         QMenu *menu = ProjectExplorerPlugin::vcsFileContextMenu();
         menu->clear();
+        menu->setEnabled(false);
 
-        if (node->isVirtualFolderType()) {
-            ProjectExplorerPlugin::updateVcsActions({}, node->displayName());
-            menu->setEnabled(false);
-        } else {
-            const FilePath directory = node->directory();
+        if (!node->isVirtualFolderType()) {
+            const FilePath filePath = node->filePath();
             FilePath topLevel;
             Core::IVersionControl *vc =
-                    Core::VcsManager::findVersionControlForDirectory(directory, &topLevel);
+                    Core::VcsManager::findVersionControlForDirectory(filePath, &topLevel);
             if (vc) {
-                ProjectExplorerPlugin::updateVcsActions(vc->displayName(), node->displayName());
-
+                const FilePath relativePath = filePath.relativeChildPath(topLevel);
+                menu->setTitle(vc->displayName());
+                menu->setEnabled(true);
+                vc->fillDefaultFileActionMenu(menu, vc, topLevel, relativePath);
                 if (const FileNode *fileNode = node->asFileNode(); fileNode) {
                     const Core::VcsFileState state = fileNode->modificationState();
-                    const FilePath relativePath = node->path().relativeChildPath(topLevel);
                     vc->vcsFillFileActionMenu(menu, topLevel, relativePath, state);
-                    menu->setTitle(vc->displayName());
-                    menu->setEnabled(true);
                 }
-            } else {
-                ProjectExplorerPlugin::updateVcsActions({}, node->displayName());
-                menu->setEnabled(false);
             }
         }
     }

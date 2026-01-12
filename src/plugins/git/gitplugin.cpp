@@ -2085,8 +2085,6 @@ void GitPluginPrivate::vcsFillFileActionMenu(QMenu *menu,
     case VcsFileState::Renamed: // Requires the old file name which is not available here
     case VcsFileState::Deleted: // Cannot happen for file nodes
     case VcsFileState::Unknown: // Files with unknown state cannot be handled
-        // Needed because otherwise the project menu stays empty forever
-        menu->addAction(Tr::tr("<None>"));
         break;
     }
 }
