@@ -136,7 +136,7 @@
     If you attempt to \l{Working with states}{remove a state} that changes the
     properties of a locked component, you are prompted to confirm the removal.
 
-    If you have \l{Editing Animation Curves}{added easing curves} to keyframe
+    If you have \l{Edit animation curves}{added easing curves} to keyframe
     animations, you can lock and unlock them in the \l{Edit animation curves}
     {Curves} view. If you lock the components that contain the easing curves,
     the lock status is synchronized between \uicontrol Navigator and

@@ -16,106 +16,76 @@
     You can also bind the timeline to a property value of a component such as
     a slider and control the animation this way.
 
-    \section1 Creating an animation
+    \section1 Add a timeline
 
-    To create an animation, whether it's a keyframe animation or an animation
-    bound to a property value, you first need to create a timeline.
+    Use the timeline and keyframe based editor in the \uicontrol Timeline
+    view to animate the properties of components. The view is empty until
+    you create a timeline.
+
+    \image {qtquick-designer-timeline-empty.webp} {An empty Timeline view.}
+
+    The following video shows how to insert keyframes for component properties
+    and to animate them in \uicontrol Timeline:
+
+    \youtube V3Po15bNErw
 
     \section2 Create a timeline
 
     To create a timeline to animate a UI component:
 
     \list 1
-        \li In the \l Timeline view, select the \imageplus
-            (\uicontrol {Add Timeline}) button to specify settings
-            for the timeline and running the animation
-            in the \uicontrol {Timeline Settings} dialog.
-        \li On the \uicontrol {Timeline Settings} tab:
-            \list
-                \li In the \uicontrol {Timeline ID} field, enter an id that
+        \li Go to \uicontrol View > \uicontrol Views > \uicontrol {Timeline}.
+        \li Select \imageplus (\uicontrol {Add Timeline}) to specify settings
+            for the timeline and running the animation.
+            \image {qtquick-designer-timeline-settings.webp} {The Timeline Settings dialog.}
+        \li In \uicontrol {Timeline Settings}:
+            \list 1
+                \li In \uicontrol {Timeline ID}, enter an ID that
                 describes the timeline.
-                \li In the \uicontrol {Start frame} field, set the first frame
+                \li In \uicontrol {Start frame}, set the first frame
                 of the timeline. Negative values are allowed.
-                \li In the \uicontrol {End frame} field, set the last frame
+                \li In \uicontrol {End frame}, set the last frame
                 of the timeline.
-                \image {timeline-settings-dialog.png} {The Timeline Settings dialog.}
             \endlist
-        \li On the \uicontrol {Animation Settings} tab:
-            \list
-                \li In the \uicontrol {Animation ID} field, enter an ID for the
+        \li In \uicontrol {Animation Settings}:
+            \list 1
+                \li In \uicontrol {Animation ID}, enter an ID for the
                 animation.
-                \li Optional. Select \uicontrol {Running in Base State}
-                to run the animation when the base state is applied.
-                Clear the checkbox to run the animation when some other state
-                is applied. For more information, see
-                \l {Bind animations to states}.
-                \li In the \uicontrol {Start frame} field, set the first frame
+                \li In \uicontrol {Start frame}, set the first frame
                 of the animation.
-                \li In the \uicontrol {End frame} field, set the last frame of
+                \li In \uicontrol {End frame}, set the last frame of
                 the animation.
-                \li In the \uicontrol {Duration} field, set the length of the
+                \li In \uicontrol {Duration}, set the length of the
                 animation in milliseconds.
-                \li Optional. Select \uicontrol Continuous to
-                loop the animation indefinitely.
-                \li Optional. In the \uicontrol Loops field, set the number of
-                times to run the animation. The default number of
-                loops is one, which means that you must restart the animation
-                to see it again.
-                \li Optional. Select \uicontrol {Ping pong} to
-                play the animation backwards back to the beginning when it
-                reaches the end.
-                \li Optional. In the \uicontrol Finished field, select the state
-                to transition to when the animation finishes.
             \endlist
+            See the tooltips for the purpose of the optional animation settings.
         \li Select \uicontrol Close to close the dialog and save the settings.
+            \image {qtquick-designer-timeline-no-tracks.webp} {A timeline without keyframe tracks.}
     \endlist
 
-    Now, with the settings set for the timeline and the animation, you
-    set the keyframes for the properties to animate.
-
-    \section3 Create additional timelines
-
-    You can create more than one timeline. The purpose of several timelines is
-    to use different timelines in different states.
-
-    To create a timeline for a second state:
-
-     \list 1
-       \li In \uicontrol {Timeline}, open the \uicontrol {Timeline Settings}
-       dialog.
-       \li Next to the \uicontrol {Timeline Settings} tab, select
-       \imageplus. This creates another timeline.
-       \li In the table below the \uicontrol {Animation Settings} tab, set the
-       Timeline for the state where you want to use it.
-       \image {timeline-settings-dialog-second.png} {Two timelines in the Timeline Settings dialog.}
-    \endlist
-    To set the keyframe values for the timeline you created, first select the
-    state in \uicontrol {States} and the timeline is available in
-    \uicontrol{Timelines}.
-
-    \image {timeline-states.webp} {The Timeline and States views.}
+    You can now set the keyframes for the properties to animate.
 
     \section2 Set keyframe values
 
-    When you create a timeline, \QDS creates one animation for the timeline.
+    When you create a timeline, \QMLD creates one animation for the timeline.
     You can create as many animations for a timeline as you want. For example,
     you can create animations to run just a small section of the timeline or to
     run the timeline backwards.
 
-    To animate components in the \l Timeline view, you set keyframe values for
-    the property to animate. \QDS automatically adds keyframes between two
+    To animate components in the \uicontrol {Timeline} view, you set keyframe values for
+    the property to animate. \QMLD automatically adds keyframes between two
     keyframes and sets their values evenly to create, for example, movement or
     transformation.
 
     To set keyframe values for a component property:
 
     \list 1
-        \li In the \l {Navigate component files}{Navigator} view, select the component to animate.
+        \li In the \uicontrol {Navigator} view, select the component to animate.
         \li In the \uicontrol {Properties} view, select \imageactionicon
-            (\uicontrol Actions) > \uicontrol {Insert Keyframe} for the property
+           (\uicontrol Actions) > \uicontrol {Insert Keyframe} for the property
             that you want to animate.
             \image {timeline-insert-keyframe.png} {Selecting Insert Keyframe from the Action drop-down menu in the Properties view.}
-        \li In the \l Timeline view, select the
+        \li In \uicontrol {Timeline} view, select the
             \uicontrol {Per Property Recording} button
             to start recording property changes.
             \image {timeline-per-property-recording.webp} {Selecting the Per Property Recording button in the Timeline view.}
@@ -124,9 +94,24 @@
             Select \key Enter to save the value.
         \li Move the playhead to another frame on the timeline and specify
             the value at that frame. For more information, see
-            \l{Navigating in timeline}.
+            \l{Navigate the timeline}.
         \li When you have specified as many values as you need, select
             \uicontrol {Per Property Recording} again to stop recording.
+    \endlist
+
+    \section2 Create timelines for use in states
+
+    You can create more than one timeline to use in states that you add in the
+    \uicontrol {States} view.
+
+    To create a timeline for a second state:
+
+    \list 1
+        \li Go to \uicontrol {Timeline} > \uicontrol {Timeline Settings}.
+        \li Select \imageplus to create another timeline.
+        \li In the table below \uicontrol {Animation Settings} tab, set the
+            timeline for the state where you want to use it.
+        \image {qtquick-timeline-settings-states.webp} {Using a timeline in a state.}
     \endlist
 
     \section2 Bind a timeline to a property
@@ -140,47 +125,39 @@
 
     \list 1
         \li From \uicontrol {Components}, drag a slider to
-        the \uicontrol {2D} or \uicontrol {Navigator} view.
+            the \uicontrol {2D} or \uicontrol {Navigator} view.
         \li In \uicontrol {Navigator}, select \e slider and in
-        \uicontrol {Properties}, set:
-            \list
-              \li \uicontrol To to 1000.
-              \note The \uicontrol From and \uicontrol To values of the slider
-              should match the \uicontrol {Start Frame} and
-              \uicontrol {End Frame} values of the timeline if you want to
-              control the complete animation with the slider.
-            \endlist
-        \li In the \uicontrol {Timeline Settings} dialog, select
-        \imageminus
+            \uicontrol {Properties}, set \uicontrol To to 1000.
+            \note The \uicontrol From and \uicontrol To values of the slider
+            should match the \uicontrol {Start Frame} and
+            \uicontrol {End Frame} values of the timeline if you want to
+            control the complete animation with the slider.
+        \li In the \uicontrol {Timeline Settings} dialog, select \imageminus
         next to the \uicontrol {Animation Settings} tab to delete the
         animation. If you have several animations, delete all.
         \li In \uicontrol {Expression binding}, enter \c {slider.value}.
-        \image {timeline-settings-property-binding.png} {Expression binding set to slider.value in the Timeline Settings dialog.}
+        \image {qtquick-designer-timeline-settings-property-binding.webp} {Expression binding set to slider.value in the Timeline Settings dialog.}
     \endlist
 
     \section2 Bind animations to states
 
-    You can bind animations to states, this means that the animation will run
-    when you enter the state.
+    Bind animations to states to run them when you enter the state.
 
-    To bind an animation to a state:
+    In the table at the bottom of the \uicontrol {Timeline Settings}
+    dialog:
     \list 1
-      \li In the table at the bottom of the \uicontrol {Timeline Settings}
-      dialog lists:
-        \list
-          \li Double-click the value in the \uicontrol Timeline field and select
-          the timeline with the animation you want to bind to the state.
-          \li Double-click the value in the \uicontrol Animation field and
-          select the animation you want to bind to the state.
-          \image {timeline-bind-animation-state.png} {Selecting an Animation in the Timeline Settings dialog window to bind it to a state.}
-        \endlist
+        \li Double-click the value in \uicontrol Timeline and select
+        the timeline with the animation you want to bind to the state.
+        \li Double-click the value in \uicontrol Animation and
+        select the animation you want to bind to the state.
+        \image {timeline-bind-animation-state.png} {Selecting an Animation in the Timeline Settings dialog window to bind it to a state.}
     \endlist
     To bind a state to a certain keyframe in an animation without running the
-    animation, set the keyframe in the \uicontrol{Fixed Frame} field.
+    animation, set the keyframe in \uicontrol{Fixed Frame}.
 
     \section1 Manage keyframes
 
-    \image studio-timeline-with-tracks.webp "Timeline view"
+    \image {studio-timeline-with-tracks.webp} {A timeline with tracks.}
 
     \section2 Edit keyframes
 
@@ -203,9 +180,9 @@
 
     The \uicontrol {Edit Keyframe} dialog displays the name of the property
     you are animating and its current value at the frame specified in the
-    \uicontrol Frame field. You can change both the keyframe and its value.
+    \uicontrol Frame. You can change both the keyframe and its value.
 
-    \image studio-edit-keyframe.png "Edit Keyframe dialog"
+    \image {qtquick-designer-edit-keyframe.webp} {The Edit Keyframe dialog.}
 
     \section2 Copy keyframes
 
@@ -229,14 +206,47 @@
     component name in \uicontrol {Timeline} and select
     \uicontrol {Delete All Keyframes} in the context menu.
 
+    \section1 Navigate the timeline
+
+    \image {studio-timeline.webp} {Possible ways to navigate a timeline.}
+
+    You can navigate the timeline in the following ways:
+
+    \list
+        \li Drag the playhead (1) to a frame.
+        \li Click on the ruler (2) to move to a frame.
+        \li Select the \uicontrol {To Start (Home)}, \uicontrol {Previous (,)},
+            \uicontrol {Next (.)}, or \uicontrol {To End (End)} buttons (3), or
+            use the keyboard shortcuts to move to the first, previous, next, or
+            last frame on the timeline.
+        \li Enter the number of a frame in the current keyframe field (4) to
+            move to that frame.
+        \li Select the \uicontrol Previous and \uicontrol Next buttons next to
+            a property name on the timeline (5) to move to the previous or next
+            keyframe for that property.
+    \endlist
+
+    \section1 Zoom the timeline
+
+    Use the slider on the toolbar to set the zooming level in \uicontrol Timeline.
+    Select the \imagezoomsmall and \imagezoombig buttons to zoom out of or into
+    the view.
+
+    \section1 Set keyframe track color
+
+    To change the color of a keyframe track, select \uicontrol {Override Color}
+    in the context menu, and then select a color in the \l{Picking Colors}
+    {color picker}. To reset the color, select \uicontrol {Reset Color}.
+
+    \image {studio-timeline-keyframe-track-colors.webp} {Keyframe track colors in Timeline.}
+
     \section1 View the animation
 
     To preview your animation, do one of the following in the
     \uicontrol{Timeline} view:
     \list
       \li Drag the playhead along the timeline.
-      \li Select \imagestartplayback
-      button or select \key Space.
+      \li Select \imagestartplayback or \key Space.
     \endlist
 
     To preview the whole UI, select the run dropdown from the top toolbar,

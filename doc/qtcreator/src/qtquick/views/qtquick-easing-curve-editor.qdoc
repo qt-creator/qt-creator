@@ -34,7 +34,7 @@
     a custom curve. For more information about easing curve types, see the
     technical documentation for \l [QML] {PropertyAnimation}{easing curves}.
 
-    \image studio-easing-curve-editor.png "Easing Curve Editor"
+    \image {studio-easing-curve-editor.png} {Easing Curve Editor.}
 
     To select an easing curve:
 
@@ -81,7 +81,7 @@
 
     When you attach easing curves to keyframes, the shape of the
     keyframe marker on a keyframe track in
-    \l Timeline changes from \imagekeyframelinearactive
+    \uicontrol {Timeline} changes from \imagekeyframelinearactive
     to a marker that describes the type of the selected easing curve.
 
     \section1 Attach easing curves to transitions

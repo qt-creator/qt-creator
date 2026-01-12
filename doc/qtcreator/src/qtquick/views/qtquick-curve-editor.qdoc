@@ -12,13 +12,15 @@
     The \uicontrol {Curves} view shows the interpolated values of an animated
     property over the animation range.
 
-    \image studio-curve-editor.webp {Curves view}
+    \image {studio-curve-editor.webp} {Curves view}
 
     When you edit an animation curve, you implicitly edit the
     \l{Edit easing curves}{easing curves} that the underlying system uses
     to define an animation. The animation curve is an extension to visualize
     both the value of a keyframe and the interpolation between keyframes
     simultaneously.
+
+    \section1 Apply interpolation between keyframes
 
     You can use the toolbar buttons to add \uicontrol Linear, \uicontrol Step,
     or \uicontrol Spline interpolation between keyframes.
@@ -37,26 +39,31 @@
     When you set interpolation to \uicontrol Spline, handles appear in
     \uicontrol {Curves} that you can use to modify the curve. Select
     \imageeasingcurveunify (\uicontrol Unify) to lock the handle on the
-    left of a keyframe to the one
-    on the right of it so that moving the left handle also moves the right
-    handle.
+    left of a keyframe to the one on the right of it so that moving the
+    left handle also moves the right handle.
+
+    \section1 Unlock properties and easing curves
 
     If the component that contains the animated property has been locked
     in \l{Navigate component files}{Navigator}, you can select \imagelockon
     to unlock it. You can also lock individual easing curves for editing.
 
+    \section1 Lock animation curves
+
     To lock an animation curve, hover over the property in the list,
     and then select \imagelockoff.
+
+    \section1 Pin animation curves
 
     To pin an animation curve, hover over the property in the list,
     and then select \imagepin.
 
-    \section1 Editing animation curves
+    \section1 Add keyframes to animation curves
 
-    To edit animation curves:
+    To add keyframes to animation curves:
 
     \list 1
-        \li In the \l Timeline view, animate at least one property value by
+        \li In the \uicontrol Timeline view, animate at least one property value by
             \l{Manage keyframes}{inserting keyframes} for it.
         \li Select \uicontrol View > \uicontrol Views >
             \uicontrol {Curves} to open the animation curve editor.
@@ -68,11 +75,11 @@
 
     Your changes are automatically saved when you close the view.
 
-    \section1 Deleting keyframes in curves
+    \section1 Delete keyframes in curves
 
     To delete the selected keyframe, select \uicontrol {Delete Selected Keyframes}
     in the context menu.
 
-    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    \sa {Add animation}{How to: Add animation}, {Qt Quick UI design},
     {Designing Qt Quick UIs}
 */

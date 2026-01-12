@@ -1,53 +1,47 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page qtquick-transition-editor.html
-    \previouspage studio-translations.html
-    \nextpage qtquick-timeline-view.html
+    \previouspage creator-how-tos.html
 
-    \ingroup qtquickdesigner-views
+    \ingroup creator-how-to-design-qtquick-animation
 
-    \title Transitions
-
-    \brief Make movement between states smooth.
+    \title Add transitions between states
 
     To make movement between states smooth, you can use
-    \uicontrol {Transitions} to animate the changes between
-    states.
+    \uicontrol {Transitions} to animate the changes between states.
 
     First, you need to \l{Working with states}{add states} in the \l {Apply states to components}{States} view
     and \l{Specify component properties}{edit some properties} that can be
     animated, such as colors or numbers, in the \uicontrol {Properties} view. For example,
     you can animate the changes in the position of a component.
 
-    \image qtquick-transition-editor-view.webp "Transitions view"
+    \image {qtquick-transition-editor-view.webp} {Transitions view.}
 
     In \uicontrol {Transitions}, you can set the start frame, end
     frame, and duration for the transition of each property. You can also
     set an \l{Edit easing curves}{easing curve} for each animation and
     the maximum duration of the whole transition.
 
-    \section1 Zooming in Transitions
+    \section1 Zoom in Transitions
 
     Use the slider on the toolbar to set the zooming level in
-    \uicontrol {Transitions}. Select the \imagezoomsmall
-    and \imagezoombig
+    \uicontrol {Transitions}. Select the \imagezoomsmall and \imagezoombig
     buttons to zoom out of or into the view.
 
-    \section1 Animating transitions between states
+    \section1 Animate transitions between states
 
     To animate transitions:
 
     \list 1
         \li Select \uicontrol View > \uicontrol Views >
             \uicontrol {Transition Editor}.
-            \image qmldesigner-transition-editor-startup.webp "Empty Transitions view"
-        \li Select the \imageplus
-            (\uicontrol {Add Transition}) button to add a transition. This
-            works only if you have added at least one state and modified at
+            \image {qmldesigner-transition-editor-startup.webp} {An empty Transitions view.}
+        \li Select \imageplus (\uicontrol {Add Transition}) to add a transition.
+            This works only if you added at least one state and modified at
             least one property in it.
-            \image qtquick-transition-editor-view.webp "Transitions view"
+            \image {qtquick-transition-editor-view.webp} {Transitions view.}
         \li Move the blue bar next to the component or property name to set
             the start and end frame of the animation of the property. Pull its
             left and right edges to set the duration of the animation.
@@ -56,30 +50,27 @@
             (\uicontrol {Easing Curve Editor (C)}) button.
     \endlist
 
-    \section1 Specifying transition settings
+    \section1 Specify transition settings
 
-    To modify transition settings, select the \imagesettings
-    (\uicontrol {Transition Settings (S)}) button in
-    \uicontrol {Transition Editor}.
+    To modify transition settings, select \imagesettings
+    (\uicontrol {Transition Settings (S)}) in \uicontrol {Transition Editor}.
 
-    \image qtquick-transition-editor-settings.webp "Transitions settings"
+    \image {qtquick-transition-editor-settings.webp} {Transitions settings.}
 
     To add transitions:
 
     \list 1
-        \li Select the \imageplus
-            (\uicontrol {Add Transition}) button.
-        \li In the \uicontrol {Transition ID} field, enter an ID for the
-            transition.
-        \li In the \uicontrol From field, select the state to transition from.
-        \li In the \uicontrol To field, select the state to transition to.
+        \li Select \imageplus (\uicontrol {Add Transition}).
+        \li In \uicontrol {Transition ID}, enter an ID for the transition.
+        \li In \uicontrol From, select the state to transition from.
+        \li In \uicontrol To, select the state to transition to.
     \endlist
 
     To remove the current transition, select the \imageminus
     (\uicontrol {Remove Transition}) button.
 
-    To change \uicontrol {State Group}, select it from the \uicontrol {State Group} dropdown.
+    To change the state group, select it from \uicontrol {State Group}.
 
-    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    \sa {Add animation}{How to: Add animation}, {Qt Quick UI design},
     {Designing Qt Quick UIs}
 */
