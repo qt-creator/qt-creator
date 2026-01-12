@@ -20,6 +20,7 @@
 #include <QDomDocument>
 #include <QTimer>
 #include <QToolBar>
+#include <QVBoxLayout>
 #include <QWidget>
 
 using namespace TextEditor;
