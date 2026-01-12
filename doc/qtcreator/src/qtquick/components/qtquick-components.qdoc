@@ -100,9 +100,9 @@
 
     \image {qtquick-components-tab-add.png} {Select modules to add.}
 
-    This adds an \e {import statement} to the component code that you
-    can see in the \l {Code} view. For example, if you add the
-    \uicontrol QtQuick.Controls module, the following import statement
+    This adds an \e {import statement} to the component code that you can see in
+    the \uicontrol {Code} view or \uicontrol Edit mode. For example, if you add
+    the \uicontrol QtQuick.Controls module, the following import statement
     is added to the code: \c {import QtQuick.Controls}.
 
     Because the added components and modules are packaged with your UI into the

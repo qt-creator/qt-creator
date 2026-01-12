@@ -145,9 +145,10 @@
 
     \section1 Arrange components
 
-    You can view the order of components in a component file in \uicontrol Navigator
-    and the \l {Code} view. The order of components in the file also
-    determines the order in which they are drawn in the \uicontrol {2D} view.
+    You can view the order of components in a component file in the
+    \uicontrol Navigator or \uicontrol {Code} view or in the \uicontrol Edit
+    mode. The order of components in the file also determines the order in which
+    they are drawn in the \uicontrol {2D} view.
     By default, components that are located at the top of the file are listed at
     the bottom of the \uicontrol Navigator tree and behind overlapping
     components in the \uicontrol {2D} view. To list the components in the order
@@ -155,13 +156,13 @@
     \imagereverseorder.
 
     To move a component to the top or bottom of the tree within its parent,
-    right-click it in the \uicontrol Navigator or \uicontrol {2D} view
-    and select \uicontrol Arrange > \uicontrol {Bring to Front} or
+    right-click it in the \uicontrol Navigator, and select
+    \uicontrol Arrange > \uicontrol {Bring to Front} or
     \uicontrol {Send to Back}. To move a component up or down, select
     \uicontrol {Bring Forward} or \uicontrol {Send Backward}.
 
-    To reverse the order of the selected components in the \uicontrol Navigator and
-    \uicontrol {Code} views, select \uicontrol Arrange > \uicontrol Reverse.
+    To reverse the order of the selected components, select \uicontrol Arrange >
+    \uicontrol Reverse.
 
     \image {qtquick-designer-navigator-arrange.gif } {Reversing component order in Navigator.}
 
@@ -181,7 +182,8 @@
     \section1 Add property aliases
 
     A \e {property alias} is a property that you can use from outside the
-    component. When you view the code in the \l {Code} view, a property alias
+    component. When you view the code in the \uicontrol {Code} view or
+    \uicontrol Edit mode, a property alias
     declaration looks like an ordinary property definition, except that it
     requires the \e alias keyword instead of a \l{Supported Property Types}
     {property type}, and the right-hand-side of the property declaration must

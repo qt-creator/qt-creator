@@ -157,8 +157,8 @@
             list item.
     \endlist
 
-    You can replace the default model and delegate with other,
-    more complex models and delegates in the \l {Code} view.
+    You can replace the default model and delegate with other, more complex
+    models and delegates in the \uicontrol {Code} view or \uicontrol Edit mode.
     \l{ItemDelegate}{Item Delegate} and \l{SwipeDelegate}{Swipe Delegate}
     components are also available in \uicontrol Components
     > \uicontrol {Qt Quick Controls}.
