@@ -12,7 +12,7 @@
     To make movement between states smooth, you can use
     \uicontrol {Transitions} to animate the changes between states.
 
-    First, you need to \l{Working with states}{add states} in the \l {Apply states to components}{States} view
+    First, you need to \l{Working with states}{add states} in the \uicontrol {States} view
     and \l{Specify component properties}{edit some properties} that can be
     animated, such as colors or numbers, in the \uicontrol {Properties} view. For example,
     you can animate the changes in the position of a component.

@@ -179,7 +179,7 @@
     \section1 Use states to change component property values
 
     \list 1
-        \li In the \l {Apply states to components}{States} view, select \imageplus
+        \li In the \uicontrol {States} view, select \imageplus
             twice to create two new states.
             \image {qmldesigner-borderimage-states.png} {Active and inactive states.}
         \li Select \uicontrol State1.

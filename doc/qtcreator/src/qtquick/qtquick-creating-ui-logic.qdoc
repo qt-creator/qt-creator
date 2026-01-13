@@ -84,7 +84,7 @@
         \li \l{Working with states}
     \row
         \li Switching to a state when a particular property changes
-        \li \l{Apply states to components}
+        \li \l{Set when conditions}
     \row
         \li Using preset UI controls that have default properties and states
         \li \l{Insert UI controls}

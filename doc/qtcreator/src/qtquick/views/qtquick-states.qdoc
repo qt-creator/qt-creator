@@ -11,12 +11,12 @@
     \l {Work with states}{How to: Work with states}
     \endquotation
 
-    You can define states for components and component instances in the
-    \l {Apply states to components}{States} view by selecting \imageplus.
+    To set states for components and component instances, go to \uicontrol {View}
+    > \uicontrol {Views} > \uicontrol {States} and then select \imageplus.
 
     \image {qmldesigner-transitions.png} {States view}
 
-    Select the new state to switch to it in the \l {Design 2D UIs}{2D} view, and
+    Select the new state to switch to it in the \uicontrol {2D} view, and
     then modify the values of the properties of components or component
     instances in \uicontrol {Properties}.
 
@@ -40,26 +40,52 @@
     \image {qmldesigner-states.png} {States and Properties views.}
 
     \note If you have \l{Lock components}{locked a component} in
-    \l {Navigate component files}{Navigator}, and you attempt to remove states
-    where you change the values of its properties, you are prompted to confirm
-    the removal.
+    \uicontrol {Navigator}, and you attempt to remove states where you change
+    the values of its properties, you are prompted to confirm the removal.
 
-    For more information, watch the following video:
+    For more information about working with states, watch the following video:
 
     \youtube FzmLuRHQXaw
 
-    \section1 Setting the default state
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs},
+    {Work with states}{How to: Work with states}, {Qt Quick UI design},
+    {Designing Qt Quick UIs}
+*/
+
+/*!
+    \page qtquick-states-set-default.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-design-qtquick-states
+
+    \title Set the default state
 
     The default state determines the startup state of the application.
 
-    To set a state to the default state, select \uicontrol Default.
+    To set a state to the default state:
 
-    \section1 Using states
+    \list 1
+        \li Go to \uicontrol {View} > \uicontrol {Views} > \uicontrol {States}.
+            \image {qmldesigner-transitions.png} {States view.}
+        \li Select \uicontrol Default.
+    \endlist
 
-    To keep the code clean, you should create a base state that contains all
+    \sa {Work with states}{How to: Work with states}, {Qt Quick UI design},
+    {Designing Qt Quick UIs}
+*/
+
+/*!
+    \page qtquick-states-base-state.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-design-qtquick-states
+
+    \title Create a base state
+
+    To keep the code clean, create a base state that contains all
     the components you will need in the application. You can then create states,
     in which you hide and show a set of components and modify their properties.
-    This allows you to:
+    This lets you:
 
     \list
         \li Align components on different views with each other.
@@ -72,13 +98,16 @@
             states.
     \endlist
 
+    \section1 Use states to create application views
+
     To create views for an application by using states:
 
     \list 1
+        \li Go to \uicontrol {View} > \uicontrol {Views} > \uicontrol {States}.
         \li In the base state, add all components you will need in the
             application (1). While you work on one view, you can select
             \imageeyeopen
-            in \l {Navigate component files}{Navigator} to hide components on the canvas that are
+            in \uicontrol {Navigator} to hide components on the canvas that are
             not part of a view.
         \li In \uicontrol States, select the \uicontrol + symbol to create
             a new state and give it a name. For example, \c Normal.
@@ -95,7 +124,7 @@
 
     \image qmldesigner-screen-design.png "Designing views"
 
-    \section1 State groups
+    \section1 Group states
 
     With state groups, you can change the state of certain components
     independently of other components and their states in the same view.
@@ -104,7 +133,7 @@
 
     By default, there is one default state group.
 
-    \section1 Extending states
+    \section1 Extend states
 
     When a state extends another state, it inherits all the changes of that
     state. The state being extended is treated as the base state in regards to
@@ -113,17 +142,17 @@
     Using extended states can make the user interface and your QML code
     cleaner.
 
-    Below is an example where the only change between \e State1 and \e State2
-    is the brightness of \e directionalLight.
+    In the following example, the only change between \c State1 and \c State2
+    is the brightness of \c directionalLight.
 
     Here, extended states are not used:
 
     \image {no-extended-state.webp} {Three states in the States view with no extended state.}
 
-    Here, \e State2 is extended from \e State1:
+    Here, \c State2 is extended from \c State1:
 
     \image {extended-state.webp} {Three states in the States view with State2 extended from State1.}
 
-    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    \sa {Work with states}{How to: Work with states}, {Qt Quick UI design},
     {Designing Qt Quick UIs}
 */
