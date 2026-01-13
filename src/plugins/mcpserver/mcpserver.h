@@ -34,6 +34,9 @@ public:
     QJsonObject callMCPMethod(
         const QString &method, const QJsonObject &params = {}, const QJsonValue &id = {});
 
+    using ToolHandler = std::function<QJsonObject(const QJsonObject &params)>;
+    void addTool(const QJsonObject &tool, ToolHandler handler);
+
 private slots:
     void handleNewConnection();
     void handleClientData();
@@ -62,7 +65,6 @@ private:
         = std::function<QJsonObject(const QJsonObject &params, const QJsonValue &id)>;
     QHash<QString, MethodHandler> m_methods;
 
-    using ToolHandler = std::function<QJsonObject(const QJsonObject &params)>;
     QHash<QString, ToolHandler> m_toolHandlers;
     QJsonArray m_toolList;
 

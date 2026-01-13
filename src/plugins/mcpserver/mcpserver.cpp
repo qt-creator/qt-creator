@@ -111,13 +111,6 @@ McpServer::McpServer(QObject *parent)
         return createSuccessResponse(result, id);
     });
 
-    auto addTool = [&](const QJsonObject &tool, ToolHandler handler) {
-        m_toolList.append(tool);
-        const QString name = tool.value("name").toString();
-        if (QTC_GUARD(!name.isEmpty()))
-            m_toolHandlers.insert(name, std::move(handler));
-    };
-
     addTool(
         {{"name", "build"},
          {"title", "Build the current project"},
@@ -742,6 +735,14 @@ QJsonObject McpServer::callMCPMethod(
     }
 
     return reply;
+}
+
+void McpServer::addTool(const QJsonObject &tool, ToolHandler handler)
+{
+    m_toolList.append(tool);
+    const QString name = tool.value("name").toString();
+    if (QTC_GUARD(!name.isEmpty()))
+        m_toolHandlers.insert(name, std::move(handler));
 }
 
 QJsonObject McpServer::createErrorResponse(int code, const QString &message, const QJsonValue &id)
