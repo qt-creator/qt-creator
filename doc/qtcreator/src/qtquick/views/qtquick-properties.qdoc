@@ -3,24 +3,34 @@
 
 /*!
     \page qtquick-properties.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-ui-design-qtquick
+    \ingroup creator-how-to-design-qtquick-components
 
-    \title Specify component properties
+    \title Set basic component properties
 
-    The \uicontrol {Properties} view displays all the properties of the selected
-    component.
+    The \uicontrol Properties view displays all the properties of the selected
+    component. The properties are grouped by type. The top part of the view
+    displays properties that are common to all components, such as component
+    type, ID, name, geometry, and visibility.
+
+    \image {qtquick-item-properties-common.webp} {The basic component properties.}
+
+    The bottom part of the view displays properties that have been defined for
+    the component type. For example, the following image displays the predefined
+    properties you can set for \l{Rectangle} and \l Text components.
+
+    \image {qmldesigner-element-properties.webp} {The Rectangle and Text tabs in the Properties view.}
 
     \target basic-item
-    \section1 Basic component properties
+    \section1 Set basic properties
 
     All components share a set of properties that you can specify in the
     \uicontrol Properties view.
 
     \image {qtquick-item-properties-common.webp} {Basic component properties.}
 
-    \section2 Type
+    \section2 Change component type
 
     When you create an instance of a \l{Component Types}{preset component},
     it has all the properties of the preset you used. If you realize later that
@@ -35,7 +45,7 @@
     (\uicontrol Actions) menu next to the property name, and then select
     \uicontrol Reset to remove the property values before trying again.
 
-    \section2 ID
+    \section2 Set component ID
 
     Each component and each instance of a component has an \e ID that uniquely
     identifies it and enables other components' properties to be bound to it.
@@ -52,13 +62,13 @@
     \uicontrol Actions menu to add property aliases for property values of child
     components.
 
-    \section2 Name
+    \section2 Set component name for annotations
 
     The value of the \uicontrol {Name} field specifies the component name
     used in an \l{Annotate designs}{annotation}. It is a free-form text
     that descibes the component.
 
-    \section1 2D geometry
+    \section1 Set 2D geometry
 
     Set the properties in the \uicontrol {Geometry - 2D} section to determine
     the position and size of a component.
@@ -87,7 +97,7 @@
     if its final size is determined by property bindings. For more
     information, see \l {Preview component size}.
 
-    \section2 Resetting component position and size
+    \section2 Reset component position and size
 
     To return a component to its default position after moving it,
     right-click in the \uicontrol 2D or \uicontrol Navigator view and select
@@ -96,7 +106,7 @@
     \uicontrol Navigator view and select \uicontrol Edit >
     \uicontrol {Reset Size}.
 
-    \section2 Managing 2D transformations
+    \section2 Manage 2D transformations
 
     You can assign any number of transformations, such as rotation and scaling,
     to a component. Each transformation is applied in order, one at a time.
@@ -115,12 +125,12 @@
     Alternatively, you can move, resize, or rotate components by dragging them
     in the \uicontrol {2D} view.
 
-    \section1 Visibility
+    \section1 Set component visibility
 
     Set the properties in the \uicontrol Visibility section to show and
     hide components.
 
-    \image qtquick-properties-visibility.png "Visibility properties"
+    \image {qtquick-properties-visibility.png} {Visibility properties.}
 
     Clear \uicontrol Visible to hide a component and all
     its child components, unless they have explicitly been set to be visible.
@@ -153,26 +163,40 @@
     in the \uicontrol State field, select the \l{Working with states}{state} to
     change the value of a property in that state.
 
-    \section1 Picking colors
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    {Designing Qt Quick UIs}
+*/
 
-    You can define color properties for some of the components in the
-    \uicontrol Properties view by using the color picker. Open the color picker
-    by clicking, for example, the color field of the \uicontrol {Fill color} or
-    \uicontrol {Border color} property.
+/*!
+    \page qtquick-how-to-pick-colors.html
+    \previouspage creator-how-tos.html
 
-    \image qtquick-designer-color-picker.png "Color Picker view"
+    \ingroup creator-how-to-design-qtquick-components
 
-    To choose a new color, select the color of your choice in the color selector
-    (1), or select the \uicontrol {Eye Dropper} icon (2) and then select any
-    color visible in your screen to use further in your project.
+    \title Pick colors
+
+    To set color properties for some of the components in the
+    \uicontrol Properties view, use the color picker. To open it, click the color
+    field of the \uicontrol {Fill color} or \uicontrol {Border color} property,
+    for example.
+
+    \image {qtquick-designer-color-picker.png} {Color Picker view.}
+
+    To choose a new color:
+
+    \list
+        \li Select a color in the color selector (1).
+        \li Select the \uicontrol {Eye Dropper} icon (2), and then select any
+            color visible in your screen to use.
+    \endlist
 
     The \uicontrol Original field displays the original color of the component,
     while the \uicontrol New field displays the current color.
 
-    Make the color fully transparent by clicking the \uicontrol Transparent icon
+    To make the color fully transparen, select the \uicontrol Transparent icon
     (3).
 
-    To use preset \l {Selecting Web Gradients}{web gradients}, select the
+    To use preset \l {Select web gradients}{web gradients}, select the
     \uicontrol {Gradient Picker} icon (4).
 
     Use the dropdown menu (5) to determine the color fill type you wish to use.
@@ -188,10 +212,61 @@
 
     Select the \uicontrol X icon to close the color picker.
 
-    \section2 Picking gradients
+    \section1 Color details
+
+    Further define the colors in your project by modifying the properties in the
+    \uicontrol {Color Details} section of the color picker.
+
+    \image {qtquick-designer-color-details.png} {Color Details tab.}
+
+    Use the \uicontrol Hex property to enter the Hex value of a new color
+    manually. Define exact values for red, green, and blue using the
+    \uicontrol Hex property to create different shades for the colors used in
+    the project.
+
+    The default color value mode is HSVA (hue-saturation-value-alpha). Use the
+    dropdown menu to change the color value mode to RGBA (red-green-blue-alpha)
+    or HSLA (hue-saturation-lightness-alpha). \e Hue is defined in degrees which
+    refer to different colors of the color wheel. \e Saturation modifies the
+    intensity of the color. \e Value determines the brightness of the color. In
+    HSLA \e Lightness signifies the amount of white or black blended with the
+    color.
+
+    \section1 Palette
+
+    \image {qtquick-designer-color-palette.png} {Color Palette tab.}
+
+    Use the dropdown menu in the \uicontrol Palette section of the
+    color picker to change the \uicontrol Palette type. \uicontrol Recent
+    displays the recent colors used in the project, while \uicontrol Favorites
+    shows the colors you have added to your collection of favorite colors. You
+    can add colors to \uicontrol Favorites by right-clicking the color thumbnail
+    for \uicontrol Original, \uicontrol New, or in \uicontrol Palette >
+    \uicontrol Recent colors and selecting \uicontrol {Add to Favorites}.
+
+    Select one of the \uicontrol Palette color thumbnails to choose it as
+    the new color.
+
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    {Designing Qt Quick UIs}
+*/
+
+/*!
+    \page qtquick-how-to-pick-gradients.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-design-qtquick-components
+
+    \title Pick gradients
+
+    To set gradients, use the the color picker in the \uicontrol Properties view.
+    To open it, click the color field of the \uicontrol {Fill color} or
+    \uicontrol {Border color} property, for example.
+
+    \image {qtquick-designer-color-picker.png} {Color Picker view.}
 
     A gradient is defined by two or more colors which are blended
-    seamlessly. The colors are specified as a set of gradient stops,
+    seamlessly (6). The colors are specified as a set of gradient stops,
     each of which defines a position on the gradient bar from 0.0 to 1.0
     and a color. Drag the gradient stops along the gradient bar to set their
     values. Select the arrow below a gradient stop to see its value as
@@ -205,15 +280,15 @@
     or \uicontrol Vertical in the \uicontrol {Gradient Controls} section of the
     color picker.
 
-    \image {qtquick-designer-gradient-stops.gif} {An Animation showing how to add and remove gradient stops.}
+    \image {qtquick-designer-gradient-stops.gif} {An animation showing how to add and remove gradient stops.}
 
     Calculating gradients can be computationally expensive compared to the
     use of solid color fills or images. Consider using gradients only for
     static components in a UI.
 
-    \section2 Setting gradient properties
+    \section1 Set gradient properties
 
-    \image qtquick-designer-gradient-types.png "Available gradient types"
+    \image {qtquick-designer-gradient-types.png} {Available gradient types.}
 
     You can select \uicontrol Linear (1), \uicontrol Radial (2), or
     \uicontrol Conical (3) as the color fill type. After selecting one of the
@@ -221,7 +296,7 @@
     \l{Shapes}{Qt Quick Shapes Design Helpers} in the \uicontrol {Gradient Controls}
     section of the color picker.
 
-    \section3 Linear gradients
+    \section2 Linear gradients
 
     A \e {linear gradient} interpolates colors between start and end points.
     Outside these points, the gradient is either padded, reflected, or repeated
@@ -229,9 +304,9 @@
     vertical interpolation in the \uicontrol X1, \uicontrol X2, \uicontrol Y1,
     and \uicontrol Y2 fields.
 
-    \image qtquick-designer-gradient-properties-linear.png "Linear gradient controls"
+    \image {qtquick-designer-gradient-properties-linear.png} {Linear gradient controls.}
 
-    \section3 Radial gradients
+    \section2 Radial gradients
 
     A \e {radial gradient} interpolates colors between a focal circle and a
     center circle. Points outside the cone defined by the two circles will
@@ -250,7 +325,7 @@
 
     \image qtquick-designer-gradient-properties-radial.png "Radial gradient properties"
 
-    \section3 Conical gradients
+    \section2 Conical gradients
 
     A \e {conical gradient} interpolates colors counter-clockwise around a
     center point. Set the horizontal and vertical center point of the gradient
@@ -259,7 +334,7 @@
 
     \image qtquick-designer-gradient-properties-conical.png "Conical gradient properties"
 
-    \section2 Selecting web gradients
+    \section1 Select web gradients
 
     The \uicontrol {Gradient Picker} enables you to specify
     \l{https://webgradients.com/}{WebGradients} for components
@@ -268,7 +343,7 @@
     To open the \uicontrol {Gradient Picker}, select the
     \uicontrol {Gradient Picker Dialog} icon (4).
 
-    \image qtquick-designer-gradient-picker.png "Gradient Picker dialog"
+    \image {qtquick-designer-gradient-picker.png} {Gradient Picker dialog.}
 
     To apply a gradient on the selected component, select \uicontrol Apply.
 
@@ -278,49 +353,24 @@
     By default, a linear gradient is used, but you can select another
     supported gradient type in the dropdown menu (5) of the color picker.
 
-    \section2 Color Details
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    {Designing Qt Quick UIs}
+*/
 
-    Further define the colors in your project by modifying the properties in the
-    \uicontrol {Color Details} section of the color picker.
+/*!
+    \page qtquick-how-to-advanced-properties.html
+    \previouspage creator-how-tos.html
 
-    \image qtquick-designer-color-details.png "Color Details tab"
+    \ingroup creator-how-to-design-qtquick-components
 
-    Use the \uicontrol Hex property to enter the Hex value of a new color
-    manually. Define exact values for red, green, and blue using the
-    \uicontrol Hex property to create different shades for the colors used in
-    the project.
-
-    The default color value mode is HSVA (hue-saturation-value-alpha). Use the
-    dropdown menu to change the color value mode to RGBA (red-green-blue-alpha)
-    or HSLA (hue-saturation-lightness-alpha). \e Hue is defined in degrees which
-    refer to different colors of the color wheel. \e Saturation modifies the
-    intensity of the color. \e Value determines the brightness of the color. In
-    HSLA \e Lightness signifies the amount of white or black blended with the
-    color.
-
-    \section2 Palette
-
-    \image qtquick-designer-color-palette.png "Color Palette tab"
-
-    Use the dropdown menu in the \uicontrol Palette section of the
-    color picker to change the \uicontrol Palette type. \uicontrol Recent
-    displays the recent colors used in the project, while \uicontrol Favorites
-    shows the colors you have added to your collection of favorite colors. You
-    can add colors to \uicontrol Favorites by right-clicking the color thumbnail
-    for \uicontrol Original, \uicontrol New, or in \uicontrol Palette >
-    \uicontrol Recent colors and selecting \uicontrol {Add to Favorites}.
-
-    Select one of the \uicontrol Palette color thumbnails to choose it as
-    the new color.
-
-    \section1 Specifying developer properties
+    \title Set advanced component properties
 
     In the \uicontrol Advanced and \uicontrol Layer sections of the
     \uicontrol Properties view, you can manage the more advanced
     properties of components that are inherited from the \l Item
     component and that are mostly used by application developers.
 
-    \image qtquick-properties-advanced.png "Advanced section in Properties"
+    \image {qtquick-properties-advanced.png} {Advanced section in Properties.}
 
     Select \uicontrol Smooth to activate smooth sampling. Smooth
     sampling is performed using linear interpolation, while non-smooth sampling
@@ -336,7 +386,7 @@
     text usually set their baseline to the baseline of their text. For non-text
     components, a default baseline offset of 0 is used.
 
-    \section2 Managing mouse and keyboard events
+    \section1 Manage mouse and keyboard events
 
     Select \uicontrol Enabled to allow the component to receive
     mouse and keyboard events. The children of the component inherit this
@@ -350,7 +400,7 @@
     moves keyboard focus to the next component in the chain. Pressing back tab
     (usually, \key {Shift+Tab}) moves focus to the previous component.
 
-    \section2 Using layers
+    \section1 Use layers
 
     Qt Quick makes use of a dedicated scene graph that is then traversed and
     rendered via a graphics API such as OpenGL ES, OpenGL, Vulkan, Metal, or
@@ -374,7 +424,7 @@
     to be able to set layer properties. Rendering is described in
     \l {Qt Quick Scene Graph Default Renderer}.
 
-    \image qtquick-item-properties-layer.png "Layer properties"
+    \image {qtquick-item-properties-layer.png} {Layer properties.}
 
     Components are normally rendered directly into the window they belong to.
     However, by selecting \uicontrol Enabled in the
@@ -433,30 +483,6 @@
     the texture. You can clamp the texture to edges or repeat it horizontally
     and vertically. Note that some OpenGL ES 2 implementations do not support
     the \uicontrol Repeat wrap mode with non-power-of-two textures.
-
-    \section1 Copying and pasting formatting
-
-    You can copy property values from a component and paste them to one or
-    several other components. The values are applied if the target components
-    have those particular properties.
-
-    To copy property values from a component, right-click it in the
-    \uicontrol 2D or \uicontrol Navigator view and select \uicontrol Edit >
-    \uicontrol {Copy Formatting}.
-
-    To apply the values to one or several other components, select them in the
-    \uicontrol {Navigator} or \uicontrol {2D} view, and
-    then right-click and select \uicontrol Edit > \uicontrol {Apply Formatting}.
-
-    \section1 Editing properties inline
-
-    You can double-click components in the \uicontrol {2D} view to edit their
-    text, color, or source properties inline. Because you can specify several
-    of these properties for some components, such as \l {text-edit}{Text Edit},
-    you can also right-click components to open the inline editors from the
-    context menu.
-
-    \image qmldesigner-inline-editing.png {Selecting Edit Color from the context menu in the 2D view.}
 
     \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
     {Designing Qt Quick UIs}

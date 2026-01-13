@@ -13,7 +13,7 @@
     place instances of \l{Component types}{2D components}
     and \l{Add assets}{assets} into them.
 
-    \image {qmldesigner-form-editor.webp} {The 2D view}
+    \image {qmldesigner-form-editor.webp} {The 2D view.}
 
     When you select component instances in the \uicontrol {2D} view, markers
     appear around their edges and in their corners. Depending on the shape of
@@ -31,7 +31,7 @@
     When the move cursor is displayed, you can move the selected component
     instance to any position in the \uicontrol {2D} view.
 
-    \image {qmldesigner-form-editor-move-cursor.webp} {Move cursor in the 2D view}
+    \image {qmldesigner-form-editor-move-cursor.webp} {Move cursor in the 2D view.}
 
     For more information about alternative ways of positioning component
     instances in UIs, see \l{Make layouts scalable}.
@@ -41,7 +41,7 @@
     When the resize cursor is displayed, you can drag the markers to resize
     component instances.
 
-    \image {qtquick-designer-scaling-items.webp} {The 2D view}
+    \image {qtquick-designer-scaling-items.webp} {The 2D view.}
 
     To have the resizing done from the center of the selected component instance
     rather than from its edges, select \key Alt (or \key Opt on \macos).
@@ -54,7 +54,7 @@
     aspect ratio, select \key Alt+Shift (or \key {Opt+Shift} on \macos).
 
     For more information about alternative ways to specify the size of a
-    component or component instance in a UI, see \l{2D Geometry}.
+    component or component instance in a UI, see \l{Set 2D geometry}.
 
     \section1 Rotate components
 
@@ -63,12 +63,12 @@
     clockwise or counter-clockwise to freely rotate the component instance
     around its origin.
 
-    \image {qtquick-designer-rotating-items.webp} {2D rotation tool}
+    \image {qtquick-designer-rotating-items.webp} {2D rotation tool.}
 
     Additionally, select \key Shift or \key Alt (or \key Opt on \macos)
     to rotate component instances in steps of 5 or 45 degrees, respectively.
 
-    You can set the \l{Managing 2D Transformations}{origin} in \uicontrol {Properties} >
+    You can set the \l{Manage 2D transformations}{origin} in \uicontrol {Properties} >
     \uicontrol {Geometry - 2D} > \uicontrol Origin. There, you can also enter
     the value of the \uicontrol Rotation property in degrees.
 
@@ -79,7 +79,7 @@
     from a list. More buttons are availabe for zooming to fit all content
     in the view or zooming to fit the currently selected component instances.
 
-    \image {qmldesigner-zooming.gif} {Zooming in the 2D view}
+    \image {qmldesigner-zooming.gif} {Zooming in the 2D view.}
 
     \section1 Snap to parent and sibling components
 
@@ -102,12 +102,12 @@
     \uicontrol {Sibling component spacing} field, specify the
     distance in pixels between siblings and the snapping lines.
 
-    \image {qtquick-designer-options.png} {Qt Quick Designer preferences}
+    \image {qtquick-designer-preferences.webp} {Qt Quick Designer preferences.}
 
     The following image shows the snapping lines (1) when
     \uicontrol {Parent component padding} is set to 10 pixels.
 
-    \image {qmldesigner-snap-margins.webp} {Snapping lines on canvas}
+    \image {qmldesigner-snap-margins.webp} {Snapping lines on canvas.}
 
     For alternative ways of aligning and distributing component instances by
     using the \uicontrol {Properties} view, see \l{Align and distribute components}.
@@ -134,7 +134,7 @@
     values are not changed permanently in the UI file. You can permanently
     change the property values in the \uicontrol Properties view (4).
 
-    \image {qmldesigner-preview-size.webp} {Component width and height}
+    \image {qmldesigner-preview-size.webp} {Component width and height.}
 
     To set the initial size of the root component, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}
@@ -157,7 +157,7 @@
     not affect the background color of your root component or component
     instances in any way.
 
-    \image {qmldesigner-canvas-color.webp} {Transparent canvas color for a transparent component instance}
+    \image {qmldesigner-canvas-color.webp} {Transparent canvas color for a transparent component instance.}
 
     \section1 Refresh the 2D view contents
 
@@ -170,8 +170,7 @@
     the \uicontrol {2D} view.
 
     To refresh the contents of the \uicontrol {2D} view, select the \key R key or
-    select the \imagereset
-    (\uicontrol {Reset View}) button.
+    the \imagereset (\uicontrol {Reset View}) button.
 
     \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
     {Designing Qt Quick UIs}

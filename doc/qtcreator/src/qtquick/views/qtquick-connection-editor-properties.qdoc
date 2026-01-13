@@ -7,7 +7,7 @@
 
     \ingroup creator-how-to-design-qtquick-components
 
-    \title Specify custom properties
+    \title Add custom properties
 
     Each \l{Use preset components}{preset component} has a set of preset properties
     that you can specify values for. You can add custom properties that would
@@ -29,6 +29,8 @@
     (alias property) of the relevant component. For example, a speedometer
     should have an \e int or \e real property for speed to which the UI is
     bound.
+
+    \image {custom-properties.png} {The Local Custom Properties and Exposed Custom Properties settings in the Settings view.}
 
     \section1 Add properties for a component
 

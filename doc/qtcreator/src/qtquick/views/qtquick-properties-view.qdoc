@@ -9,40 +9,9 @@
 
     \title Change properties
 
-    The \uicontrol Properties view displays all the properties of the selected
-    component. The properties are grouped by type. The top part of the view
-    displays properties that are common to all components, such as component
-    type, ID, name, geometry, and visibility.
+    Change the values of component properties in the \uicontrol Properties view.
 
-    \image {qtquick-item-properties-common.webp} {The basic component properties.}
-
-    The bottom part of the view displays properties that have been defined for
-    the component type. For example, the following image displays the predefined
-    properties you can set for \l{Rectangle} and \l Text components.
-
-    \image {qmldesigner-element-properties.webp} {The Rectangle and Text tabs in the Properties view.}
-
-    \section1 Custom properties
-
-    Custom properties are properties that the user has added to the component.
-
-    There are two types of custom properties:
-
-    \table
-      \header
-        \li Custom property type
-        \li Description
-      \row
-        \li Local Custom Property
-        \li A property that has been added for a \l{Use preset components}{preset component}.
-      \row
-        \li Exposed Custom Property
-        \li A property that has been added inside a component.
-    \endtable
-
-    \image {custom-properties.png} {The Local Custom Properties and Exposed Custom Properties settings in the Settings view.}
-
-    \section1 Viewing changes in properties
+   \section1 View changes in properties
 
     The default values of properties are displayed in white color, while the
     values that you specify explicitly are highlighted with blue color. In
@@ -112,19 +81,38 @@
     You can \l{Lock components}{lock other components} in \uicontrol Navigator to
     make multiselection easier.
 
-    \section1 Editing properties in multiple views
+    \section1 Copy and paste formatting
+
+    You can copy property values from a component and paste them to one or
+    several other components. The values are applied if the target components
+    have those particular properties.
+
+    To copy property values from a component, right-click it in the
+    \uicontrol 2D or \uicontrol Navigator view and select \uicontrol Edit >
+    \uicontrol {Copy Formatting}.
+
+    To apply the values to one or several other components, select them in the
+    \uicontrol {Navigator} or \uicontrol {2D} view, and
+    then right-click and select \uicontrol Edit > \uicontrol {Apply Formatting}.
+
+    \section1 Edit properties inline
+
+    You can double-click components in the \uicontrol {2D} view to edit their
+    text, color, or source properties inline. Because you can specify several
+    of these properties for some components, such as \l {text-edit}{Text Edit},
+    you can also right-click components to open the inline editors from the
+    context menu.
+
+    \image {qmldesigner-inline-editing.png} {Selecting Edit Color from the context menu in the 2D view.}
+
+    \section1 Edit properties in multiple views
 
     You can open multiple \uicontrol Properties views to edit the properties of multiple nodes
     simultaneously. You can lock each of the \uicontrol Properties views to prevent the subject node from
     changing by each selection.
 
-    To edit properties in multiple views, you first need to enable
-    \uicontrol {Multi Property Editor}:
-      \list 1
-        \li Go to \uicontrol Help > \uicontrol {About Plugins}, and then select
-            \uicontrol {Multi Property Editor}.
-        \li Restart \QMLD.
-      \endlist
+    \note To edit properties in multiple views, activate the
+    \uicontrol {Multi Property Editor} extension.
 
     To edit the properties of multiple nodes simultaneously:
       \list 1
@@ -142,16 +130,16 @@
                 \image {opening-multiple-properties-views.webp} {Opening a new Properties view to edit the properties of another node.}
       \endlist
 
-    \section1 Getting help for properties
+    \section1 Get help for properties
 
     \list
         \li For information about setting common component properties, see
-            \l{Specify component properties}.
+            \l{Set basic component properties}.
         \li For more information about the properties available for a
             component, select \key {F1} or see \l{Component types}
             and \l{Make layouts scalable}.
     \endlist
 
-    \sa {Use UI components}{How to: Use UI components}, {Qt Quick UI design},
-    {Designing Qt Quick UIs}
+    \sa {Activate extensions}, {Use UI components}{How to: Use UI components},
+    {Qt Quick UI design}, {Designing Qt Quick UIs}
 */

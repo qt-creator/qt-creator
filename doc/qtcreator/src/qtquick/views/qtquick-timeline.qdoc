@@ -235,7 +235,7 @@
     \section1 Set keyframe track color
 
     To change the color of a keyframe track, select \uicontrol {Override Color}
-    in the context menu, and then select a color in the \l{Picking Colors}
+    in the context menu, and then select a color in the \l{Pick colors}
     {color picker}. To reset the color, select \uicontrol {Reset Color}.
 
     \image {studio-timeline-keyframe-track-colors.webp} {Keyframe track colors in Timeline.}

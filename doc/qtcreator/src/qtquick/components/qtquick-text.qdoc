@@ -152,7 +152,7 @@
     For the \uicontrol {Text Field} and \uicontrol {Text Area} controls, you
     can also set the color of the \l{Placeholder Text}{placeholder text}.
 
-    For more information about selecting colors, see \l{Picking Colors}. You
+    For more information about selecting colors, see \l{Pick colors}. You
     can only set solid colors for text components.
 
     \section1 Advanced text properties
@@ -215,7 +215,7 @@
     In the \uicontrol {Render type} field, you can override the default
     rendering type for a text component. Select \uicontrol NativeRendering if
     you prefer text to look native on the target platform and do not
-    require advanced features such as \l {Managing 2D Transformations}
+    require advanced features such as \l {Manage 2D transformations}
     {transformation} of the text. Using rotation or scaling in combination
     with native rendering leads to poor and sometimes pixelated results.
 

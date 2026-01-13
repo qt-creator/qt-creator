@@ -305,7 +305,7 @@
     Unlike positioners, layouts manage both the positions and sizes of their
     child components, and are therefore well suited for dynamic and resizable
     UIs. However, do not select fixed positions and
-    sizes for the child components in the \l{2D Geometry}{Geometry - 2D} section
+    sizes for the child components in the \l{Set 2D geometry}{Geometry - 2D} section
     in \uicontrol {Properties}, unless their implicit sizes are not satisfactory.
 
     Use anchors or the width and height properties of the layout itself

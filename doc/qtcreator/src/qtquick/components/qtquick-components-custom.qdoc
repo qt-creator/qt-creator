@@ -38,7 +38,7 @@
             \uicontrol Navigator or the \uicontrol {2D} view.
         \li Edit component properties in the \uicontrol Properties view.
             The available properties depend on the component type. You can
-            \l{Specify custom properties}{add properties for
+            \l{Add custom properties}{add properties for
             components} on the \uicontrol {Properties} tab in the
             \uicontrol Connections view.
         \li To change the appearance and behavior of the component instances

@@ -160,7 +160,7 @@
         \li Select the text component to specify font size and color in
             \uicontrol Properties:
             \list 1
-                \li In the \uicontrol Color field, use the \l{Picking Colors}
+                \li In the \uicontrol Color field, use the \l{Pick colors}
                     {color picker} to select the font color, or enter a value
                     in the field.
                 \li In \uicontrol Font group, \uicontrol Size field, enter the

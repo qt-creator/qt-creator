@@ -24,13 +24,13 @@
         \li Select component instances in \uicontrol Navigator to edit the
             values of their properties in \uicontrol Properties.
             \image {qmldesigner-properties-view.png} {Properties view.}
-            For more information, see \l {Specify component properties}.
+            For more information, see \l {Set basic component properties}.
         \li To change the appearance and behavior of the component instances
             in ways that are not supported in \QMLD by default, you can define
             custom properties on the \uicontrol {Properties} tab in the
             \uicontrol {Connections} view.
             \image {add-updated-local-custom-property.webp} {Connections View Properties tab.}
-            For more information, see \l{Specify custom properties}.
+            For more information, see \l{Add custom properties}.
         \li To enable users to interact with the component instances, connect
             the instances to signals on the \uicontrol Connections tab in the
             \uicontrol {Connections} view. For example, you can specify what

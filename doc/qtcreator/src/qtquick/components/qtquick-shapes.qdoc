@@ -28,7 +28,7 @@
     {Item} component. Even though it has no visual appearance itself (similarly
     to a mouse area, for example), it defines all the properties that are
     common across visual components, such as position, size, and visibility. For
-    more information, see \l{Basic Component Properties}.
+    more information, see \l{Set basic component properties}.
 
     In addition, each component has a set of properties that specify its visual
     appearance and behavior. You can modify the property values to set fill
@@ -47,8 +47,8 @@
 
     Rectangles can be filled either with a solid fill color or a linear
     gradient that you set in the \uicontrol {Fill color} field. You can
-    also use a \l{Picking Colors}{color picker} to select colors and a
-    \l{Picking Gradients}{gradient picker} to select gradients from a
+    also use a \l{Pick colors}{color picker} to select colors and a
+    \l{Pick gradients}{gradient picker} to select gradients from a
     predefined set of \l{https://webgradients.com/}{WebGradients}.
 
     An optional solid border can be added to a rectangle with its own color

@@ -11,13 +11,13 @@
     \title Navigate component files
 
     The \uicontrol Navigator view displays the components in the current
-    component file and their relationships. \l{glossary-component}{Components}
-    (1) are listed in a tree structure, below their parent (2). You can preview
-    components by hovering the mouse over them (3).
+    component file and their relationships. Components (1) are listed in
+    a tree structure, below their parent (2). To preview components, hover
+    the mouse over them (3).
 
     \image {qmldesigner-navigator.webp} {Navigator with component preview.}
 
-    You can select components in the \uicontrol Navigator view to edit their
+    Select components in the \uicontrol Navigator view to edit their
     properties in the \uicontrol {Properties} view. Components can access the
     properties of their parent component. To select components in the
     \uicontrol {2D} view, right-click a component, and select another
@@ -77,7 +77,7 @@
     specific parts of the application, select \imageeyeopen and
     \imagevisibilityoff in \uicontrol Navigator.
 
-    To change the visibility of a component in the application code, select
+    To change the visibility of a component in the application code, set its
     \uicontrol Visibility in the \uicontrol Properties view or select
     \uicontrol Visibility in the context menu.
 
@@ -102,22 +102,21 @@
 
     \list 1
         \li Select the nodes you wish to hide in \uicontrol Navigator.
-        \li Right-click on the selected nodes to access the context menu and
-            select \uicontrol {Isolate Selection}, or select \key Shift + \key B.
+        \li Right-click the selected nodes to access the context menu, and
+            select \uicontrol {Isolate Selection} or \key Shift + \key B.
     \endlist
 
     \note You can only use the \uicontrol {Isolate Selection} command if all the
           selected nodes are either 2D or 3D. You cannot use the command with
           a mixed selection of 2D and 3D nodes.
 
-    To show all nodes in \uicontrol Navigator, right-click on the selected nodes to access
-    the context menu and select \uicontrol {Show All Nodes}, or select
-    \key Alt/Option + \key B.
+    To show all nodes in \uicontrol Navigator, right-click the selected nodes and
+    select \uicontrol {Show All Nodes} or select \key Alt/Option + \key B.
 
     \section1 Lock components
 
     When designing complex applications, it is easy to accidentally modify
-    the properties of a component in one of the \QDS views in ways that lead to
+    the properties of a component in one of the \QMLD views in ways that lead to
     surprising results. For example, the \uicontrol {2D} view can become
     crowded and other components can get in the way when you are trying to
     select or transform a particular component, so that you end up transforming
@@ -125,8 +124,8 @@
 
     To lock components that you are not currently editing and their children,
     select \imagelockon
-    in \uicontrol Navigator. Locked components cannot be handled in any \QDS
-    views. You can unlock the components when you want to edit them again.
+    in \uicontrol Navigator. Locked components cannot be handled in any \QMLD
+    views. Unlock the components when you want to edit them again.
 
     \image {qtquick-designer-navigator-lock.gif} {Locking components in Navigator.}
 
@@ -137,8 +136,8 @@
     properties of a locked component, you are prompted to confirm the removal.
 
     If you have \l{Edit animation curves}{added easing curves} to keyframe
-    animations, you can lock and unlock them in the \l{Edit animation curves}
-    {Curves} view. If you lock the components that contain the easing curves,
+    animations, you can lock and unlock them in the \uicontrol {Curves} view.
+    If you lock the components that contain the easing curves,
     the lock status is synchronized between \uicontrol Navigator and
     \uicontrol {Curves}.
 

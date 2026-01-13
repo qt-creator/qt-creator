@@ -90,7 +90,7 @@
         \li \l{Insert UI controls}
     \row
         \li Adding custom properties for a particular component type
-        \li \l{Specify custom properties}
+        \li \l{Add custom properties}
     \endtable
 
     \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
