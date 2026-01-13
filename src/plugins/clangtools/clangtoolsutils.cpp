@@ -349,7 +349,7 @@ QString clazyDocUrl(const QString &check)
     QVersionNumber version = ClangToolsSettings::clazyVersion();
     if (!version.isNull())
         version = QVersionNumber(version.majorVersion(), version.minorVersion());
-    const QString versionString = version.isNull() ? "master" : version.toString();
+    const QString versionString = version.isNull() ? "master" : version.toString().prepend("v");
     static const char urlTemplate[]
             = "https://github.com/KDE/clazy/blob/%1/docs/checks/README-%2.md";
     return QString::fromLatin1(urlTemplate).arg(versionString, check);
