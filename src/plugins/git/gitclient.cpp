@@ -3097,6 +3097,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
     QStringList filesToAdd;
     QStringList filesToRemove;
     QStringList filesToReset;
+    QStringList filesStaged;
 
     int commitCount = 0;
 
@@ -3111,6 +3112,9 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
         if (state == UntrackedFile && checked)
             filesToAdd.append(file);
 
+        if ((state & StagedFile) && checked)
+            filesStaged.append(file);
+
         if ((state & StagedFile) && !checked) {
             if (state & (ModifiedFile | AddedFile | DeletedFile | TypeChangedFile)) {
                 filesToReset.append(file);
@@ -3124,12 +3128,10 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
         }
 
         if ((state == ModifiedFile || state == TypeChangedFile) && checked) {
-            filesToReset.removeAll(file);
             filesToAdd.append(file);
         } else if (state == AddedFile && checked) {
             filesToAdd.append(file);
         } else if (state == DeletedFile && checked) {
-            filesToReset.removeAll(file);
             filesToRemove.append(file);
         } else if (state == RenamedFile && checked) {
             QTC_ASSERT(false, continue); // git mv directly stages.
@@ -3137,6 +3139,37 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
             QTC_ASSERT(false, continue); // only is noticed after adding a new file to the index
         } else if (state == UnmergedFile && checked) {
             QTC_ASSERT(false, continue); // There should not be unmerged files when committing!
+        }
+    }
+
+    if (!filesToReset.isEmpty() || !filesStaged.isEmpty()) {
+        QStringList warningFiles;
+        for (int i = 0; i < model->rowCount(); ++i) {
+            const FileStates state = static_cast<FileStates>(model->extraData(i).toInt());
+            if ((state & StagedFile))
+                continue;
+
+            // If staged file is marked for reset but also unstaged: warn user about merge
+            if (filesToReset.contains(model->file(i)))
+                warningFiles.append(model->file(i));
+
+            // If staged and unstaged file are marked for commit: warn user about merge
+            if (filesStaged.contains(model->file(i)) && model->checked(i))
+                warningFiles.append(model->file(i));
+        }
+
+        if (!warningFiles.isEmpty()) {
+            const QStringList partialFiles = warningFiles.first(qMin(20, warningFiles.size()));
+            QString fileList = partialFiles.join('\n');
+            if (partialFiles.size() != warningFiles.size())
+                fileList += "\n...";
+            const QString message =
+                Tr::tr("For the following files, the staged content will be overwritten with the "
+                       "unstaged version.\nContinue?\n%1").arg(fileList);
+            QMessageBox box(QMessageBox::Warning, Tr::tr("Possible Data Loss"),
+                            message, QMessageBox::Yes | QMessageBox::No, ICore::dialogParent());
+            if (box.exec() == QMessageBox::No)
+                return false;
         }
     }
 
