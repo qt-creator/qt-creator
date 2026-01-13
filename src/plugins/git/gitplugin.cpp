@@ -221,7 +221,9 @@ public:
 
     void manageRemotes();
     void initRepository();
-    void startRebaseFromCommit(const FilePath &workingDirectory, QString commit);
+    bool canRebase(const FilePath &workingDirectory);
+    void startRebaseFromCommit(const FilePath &workingDirectory, QString commit, bool fixup = false);
+    void editCommitMessage(const FilePath &workingDirectory, const QString &commit);
 
     void updateActions(VersionControlBase::ActionState) override;
     bool activateCommit() override;
@@ -1265,11 +1267,19 @@ void GitPluginPrivate::startRebase()
     startRebaseFromCommit(topLevel, {});
 }
 
-void GitPluginPrivate::startRebaseFromCommit(const FilePath &workingDirectory, QString commit)
+bool GitPluginPrivate::canRebase(const FilePath &workingDirectory)
 {
     if (!DocumentManager::saveAllModifiedDocuments())
-        return;
+        return false;
     if (workingDirectory.isEmpty() || !gitClient().canRebase(workingDirectory))
+        return false;
+    return true;
+}
+
+void GitPluginPrivate::startRebaseFromCommit(const FilePath &workingDirectory,
+                                             QString commit, bool fixup)
+{
+    if (!canRebase(workingDirectory))
         return;
 
     if (commit.isEmpty()) {
@@ -1282,7 +1292,23 @@ void GitPluginPrivate::startRebaseFromCommit(const FilePath &workingDirectory, Q
     }
 
     if (gitClient().beginStashScope(workingDirectory, "Rebase-i"))
-        gitClient().interactiveRebase(workingDirectory, commit, false);
+        gitClient().interactiveRebase(workingDirectory, commit, fixup);
+}
+
+void GitPluginPrivate::editCommitMessage(const FilePath &workingDirectory, const QString &commit)
+{
+    if (!canRebase(workingDirectory))
+        return;
+
+    const QStringList arguments = {"commit", "--squash=" + commit, "--no-edit", "--allow-empty"};
+    const CommandResult result = gitClient().vcsSynchronousExec(workingDirectory, arguments);
+    if (result.result() != ProcessResult::FinishedWithSuccess) {
+        VcsOutputWindow::appendError(
+            workingDirectory, Tr::tr("Cannot create reword commit for %1.").arg(commit) + "\n");
+        return;
+    }
+
+    startRebaseFromCommit(workingDirectory, commit, true);
 }
 
 void GitPluginPrivate::startChangeRelatedAction(const Id &id)
@@ -2279,6 +2305,11 @@ void emitRepositoryChanged(const FilePath &repository)
 void startRebaseFromCommit(const FilePath &workingDirectory, const QString &commit)
 {
     dd->startRebaseFromCommit(workingDirectory, commit);
+}
+
+void editCommitMessage(const FilePath &workingDirectory, const QString &commit)
+{
+    dd->editCommitMessage(workingDirectory, commit);
 }
 
 void manageRemotes()

@@ -3991,6 +3991,11 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
                 &QAction::triggered, [workingDir, change] {
             startRebaseFromCommit(workingDir, change);
         });
+
+        connect(menu->addAction(Tr::tr("Edit Commit Message of %1...").arg(change)),
+                &QAction::triggered, [workingDir, change] {
+            editCommitMessage(workingDir, change);
+        });
     }
     QAction *logAction = menu->addAction(Tr::tr("&Log for %1").arg(change), [workingDir, change] {
         gitClient().log(workingDir, QString(), false, {change});
