@@ -233,6 +233,7 @@ public:
         m_factories = Utils::filtered(ToolchainFactory::allToolchainFactories(),
                     [](ToolchainFactory *factory) { return factory->canCreate();});
 
+        m_deviceManagerModel.showAllEntry();
         m_deviceComboBox = new QComboBox;
         m_deviceComboBox->setModel(&m_deviceManagerModel);
 
@@ -379,8 +380,7 @@ public:
             m_filterModel.setDevice(m_deviceManagerModel.device(index));
         };
         connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
-        m_deviceComboBox->setCurrentIndex(
-            m_deviceManagerModel.indexForId(ProjectExplorer::Constants::DESKTOP_DEVICE_ID));
+        m_deviceComboBox->setCurrentIndex(m_deviceManagerModel.indexForId({}));
         updateDevice(m_deviceComboBox->currentIndex());
 
         updateState();
@@ -575,26 +575,33 @@ void ToolChainOptionsWidget::redetectToolchains()
     ToolchainManager::resetBadToolchains();
 
     // Step 2: Re-detect toolchains.
-    const IDeviceConstPtr device = currentDevice();
-    QTC_ASSERT(device, return);
-    for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
-        const ToolchainDetector detector(knownTcs, device, device->toolSearchPaths());
-        for (Toolchain * const tc : f->autoDetect(detector)) {
-            if (knownTcs.contains(tc))
-                continue;
-            knownTcs << tc;
-            const auto matchItem = [&](const ItemToCheck &item) {
-                return Utils::contains(item.first->bundle->toolchains(), [&](Toolchain *btc) {
-                    return *btc == *tc;
-                });
-            };
-            if (const auto item
-                = std::find_if(itemsToRemove.begin(), itemsToRemove.end(), matchItem);
-                item != itemsToRemove.end()) {
-                item->second << tc;
-                continue;
+    QList<IDeviceConstPtr> devices;
+    if (const IDeviceConstPtr device = currentDevice()) {
+        devices << device;
+    } else {
+        for (int i = 0; i < DeviceManager::deviceCount(); ++i)
+            devices << DeviceManager::deviceAt(i);
+    }
+    for (const IDeviceConstPtr &device : std::as_const(devices)) {
+        for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
+            const ToolchainDetector detector(knownTcs, device, device->toolSearchPaths());
+            for (Toolchain * const tc : f->autoDetect(detector)) {
+                if (knownTcs.contains(tc))
+                    continue;
+                knownTcs << tc;
+                const auto matchItem = [&](const ItemToCheck &item) {
+                    return Utils::contains(item.first->bundle->toolchains(), [&](Toolchain *btc) {
+                        return *btc == *tc;
+                    });
+                };
+                if (const auto item
+                    = std::find_if(itemsToRemove.begin(), itemsToRemove.end(), matchItem);
+                    item != itemsToRemove.end()) {
+                    item->second << tc;
+                    continue;
+                }
+                toAdd << tc;
             }
-            toAdd << tc;
         }
     }
 
@@ -644,8 +651,7 @@ void ToolChainOptionsWidget::toolChainSelectionChanged()
     QWidget *currentTcWidget = item ? item->widget() : nullptr;
     if (currentTcWidget) {
         m_widgetStack->setCurrentWidget(currentTcWidget);
-        const IDeviceConstPtr dev = currentDevice();
-        if (QTC_GUARD(dev)) {
+        if (const IDeviceConstPtr dev = currentDevice()) {
             qobject_cast<ToolchainConfigWidget *>(currentTcWidget)
                 ->setFallbackBrowsePath(dev->rootPath());
         }

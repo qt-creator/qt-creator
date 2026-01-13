@@ -25,6 +25,7 @@ public:
 
     void setFilter(const QList<Utils::Id> &filter);
     void setTypeFilter(Utils::Id type);
+    void showAllEntry();
 
     IDevicePtr device(int pos) const;
     Utils::Id deviceId(int pos) const;
