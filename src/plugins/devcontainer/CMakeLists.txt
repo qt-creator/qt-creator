@@ -5,6 +5,7 @@ add_qtc_plugin(DevContainerPlugin
   LONG_DESCRIPTION_MD README.md
   SOURCES
     devcontainerplugin.cpp
+    devcontainerplugin_constants.h
     devcontainerplugin_global.h
     devcontainerplugintr.h
     devcontainerdevice.cpp
