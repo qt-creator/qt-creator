@@ -21,8 +21,8 @@
             \note Components are listed in \uicontrol Components >
             \uicontrol {My Components} only if the filename begins with a
             capital letter.
-        \li Select \uicontrol {Design} to edit the file in the \l {Design 2D UIs}{2D} view.
-        \li In \l {Navigate component files}{Navigator}, select \uicontrol Item and set the width
+        \li Select \uicontrol {Design} to edit the file in the \uicontrol {2D} view.
+        \li In \uicontrol {Navigator}, select \uicontrol Item and set the width
             (\uicontrol W) and height (\uicontrol H) of the button in
             \uicontrol {Properties}.
         \li Drag a \uicontrol Rectangle from \uicontrol Components >
@@ -120,10 +120,10 @@
     To construct the button component:
 
     \list 1
-        \li Select \uicontrol {Design} to edit the UI file in the \l {Design 2D UIs}{2D} view.
+        \li Select \uicontrol {Design} to edit the UI file in the \uicontrol {2D} view.
         \li Select \uicontrol Assets > \imageplus
             to copy the image files you want to use to the project folder.
-        \li In \l {Navigate component files}{Navigator}, select the root component and set the
+        \li In \uicontrol {Navigator}, select the root component and set the
             width (\uicontrol W) and height (\uicontrol H) of the button in the
             \uicontrol {Properties} view to match the size of the images
             you plan to use. This specifies the initial size of the button

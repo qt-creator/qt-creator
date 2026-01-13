@@ -99,8 +99,8 @@
     \section1 Multiselection
 
     To modify the values of common properties of multiple components
-    simultaneously, select the components in the \l {Navigate component files}
-    {Navigator} or \l {Design 2D UIs}{2D} view:
+    simultaneously, select the components in the \uicontrol {Navigator} or
+    \uicontrol {2D} view:
 
     \list
         \li On Windows, select and hold \key Ctrl and \key Shift, and then click

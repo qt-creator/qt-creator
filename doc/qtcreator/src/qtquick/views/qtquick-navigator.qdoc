@@ -20,7 +20,7 @@
     You can select components in the \uicontrol Navigator view to edit their
     properties in the \uicontrol {Properties} view. Components can access the
     properties of their parent component. To select components in the
-    \l {Design 2D UIs}{2D} view, right-click a component, and select another
+    \uicontrol {2D} view, right-click a component, and select another
     component in the \uicontrol Selection submenu.
 
     Typically, child components are located within the parent component in

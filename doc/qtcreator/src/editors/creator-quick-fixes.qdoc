@@ -151,7 +151,7 @@
 
             \li QML type name.
                 \if defined(qtdesignstudio)
-                This action is also available in the \l {Design 2D UIs}{2D} view.
+                This action is also available in the \uicontrol {2D} view.
                 \endif
         \row
             \li Split Initializer

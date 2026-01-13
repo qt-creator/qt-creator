@@ -13,16 +13,16 @@
     that you add to the project folder by dragging external asset
     files to \QMLD or by selecting \imageplus.
 
-    \image qtquick-assets-tab.webp {Assets view.}
+    \image {qtquick-assets-tab.webp} {Assets view.}
 
     To add assets to your UI, drag them from \uicontrol Assets to the
-    \l {Navigate component files}{Navigator} or \l {Design 2D UIs}{2D} view.
+    \uicontrol {Navigator} or \uicontrol {2D} view.
 
     To add multiple assets to your UI simultaneously, multiselect them first by
     holding \key Ctrl and clicking the asset files you wish to select.
 
-    When you drag assets from \uicontrol Assets to the \l {Navigate component files}{Navigator}
-    or \l {Design 2D UIs}{2D} view, component instances with a suitable type are
+    When you drag assets from \uicontrol Assets to the \uicontrol {Navigator}
+    or \uicontrol {2D} view, component instances with a suitable type are
     automatically created for you. For example, instances of the
     \l{Use images in UIs}{Image} component will be created for graphics files.
 

@@ -165,7 +165,7 @@
 
     The property alias exports the button to the code that uses the form.
     You can use the \inlineimage {icons/alias.png} {Export}
-    (\uicontrol Export) button in \l {Navigate component files}{Navigator} to export a component
+    (\uicontrol Export) button in \uicontrol {Navigator} to export a component
     as a property:
 
     \image {qmldesigner-export-item.png} {Navigator view.}
@@ -183,8 +183,8 @@
 
     You can also assign properties or define behavior or transitions.
 
-    To move from the \l {Design 2D UIs}{2D} or \l {Navigate component files}
-    {Navigator} view directly to the implementation of a component in the \c .qml
+    To move from the \uicontrol {2D} or \uicontrol {Navigator} view directly to
+    the implementation of a component in the \c .qml
     file, right-click the component and select \uicontrol {Go to Implementation}
     in the context menu.
 

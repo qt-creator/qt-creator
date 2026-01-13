@@ -230,7 +230,7 @@
     or \uicontrol Flow \imageflowpositionericon16px :
 
     \list 1
-        \li Select the components in the \l {Design 2D UIs}{2D} view.
+        \li Select the components in the \uicontrol {2D} view.
         \li Right-click anywhere in the \uicontrol 2D view and
             select \uicontrol Positioner > \uicontrol Row,
             \uicontrol Column, \uicontrol Grid or \uicontrol {Flow Positioner}.
@@ -282,7 +282,7 @@
     corner of its cell with position (0, 0).
 
     \QMLD generates the grid based on the positions of the child components in
-    the \l {Design 2D UIs}{2D} view. You can modify the number of rows and columns in the
+    the \uicontrol {2D} view. You can modify the number of rows and columns in the
     \uicontrol Rows and \uicontrol Columns fields.
 
     \image {qtquick-positioner-grid-properties.png} {Grid properties.}
@@ -326,7 +326,7 @@
 
     To make the components adept the width and height within the grid, follow these steps:
     \list 1
-        \li Select a \uicontrol Rectangle component in the \l {Design 2D UIs}{2D} view
+        \li Select a \uicontrol Rectangle component in the \uicontrol {2D} view
             and go to \uicontrol Layout in the \uicontrol {Properties} view.
         \li In the \uicontrol {Fill layout}, select both the \uicontrol Width and
             \uicontrol Height checkboxes.
@@ -355,7 +355,7 @@
             the \uicontrol {Stack Layout} component.
             \note You can also add components to the \uicontrol {Stack Layout} by
             selecting the \imageplus button next to the
-            \uicontrol {Stack Layout} component name in the \l {Design 2D UIs}{2D} view.
+            \uicontrol {Stack Layout} component name in the \uicontrol {2D} view.
         \li To move between components of \uicontrol {Stack Layout},
             select the \uicontrol {Stack Layout} component in the \uicontrol 2D view. Then
             select the \imageprev

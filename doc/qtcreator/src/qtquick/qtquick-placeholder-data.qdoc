@@ -21,7 +21,7 @@
 
     \section1 Use dummy models
 
-    If you open a file in the \l {Design 2D UIs}{2D} view that references a C++ model, you see
+    If you open a file in the \uicontrol {2D} view that references a C++ model, you see
     nothing in it. If you fetch the data in the model from the internet, you have
     no control over it. To get reliable data, use \e {dummy data}.
 

@@ -18,8 +18,8 @@
 
     Custom components are stored in \uicontrol Components >
     \uicontrol {My Components}. You can create instances of custom components
-    by dragging them from \uicontrol Components to the \l {Design 2D UIs}{2D} or
-    \l {Navigate component files}{Navigator} view.
+    by dragging them from \uicontrol Components to the \uicontrol {2D} or
+    \uicontrol {Navigator} view.
 
     \section1 Create components from scratch
 

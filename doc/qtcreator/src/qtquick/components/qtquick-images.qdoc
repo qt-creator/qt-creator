@@ -26,8 +26,8 @@
 
     \image {qtquick-designer-image-type.png} {Image component in different views.}
 
-    When you drag an image file from \uicontrol Assets to \l {Navigate component files}{Navigator}
-    or the \l {Design 2D UIs}{2D} view, \QMLD automatically
+    When you drag an image file from \uicontrol Assets to \uicontrol {Navigator}
+    or the \uicontrol {2D} view, \QMLD automatically
     creates an instance of the Image component for you with the path to the
     image file set as the value of the \uicontrol Source field in
     \uicontrol Properties.

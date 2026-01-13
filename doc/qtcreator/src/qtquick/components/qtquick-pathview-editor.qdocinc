@@ -16,7 +16,7 @@
     \image {qmldesigner-pathview-editor.png} {Path View editor.}
 
     To start editing the path, double-click the path view in the
-    \l {Design 2D UIs}{2D} view. The editor composes the path of PathCubic path
+    \uicontrol {2D} view. The editor composes the path of PathCubic path
     objects. They are cubic Bezier curves to a given position with two control
     points. Drag and drop the control points in the \uicontrol {2D} view to
     construct the curve.

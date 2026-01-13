@@ -99,7 +99,7 @@
     To attach easing curves to property animations:
 
     \list 1
-        \li In \l {Navigate component files}{Navigator}, select an \l{Animations}{Animation} component
+        \li In \uicontrol {Navigator}, select an \l{Animations}{Animation} component
             instance.
         \li In \uicontrol {Properties}, select the \imagecurveeditor
             (\uicontrol {Easing Curve Editor}) button.

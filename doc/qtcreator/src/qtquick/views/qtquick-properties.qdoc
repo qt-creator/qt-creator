@@ -113,7 +113,7 @@
     in degrees clockwise around the origin point.
 
     Alternatively, you can move, resize, or rotate components by dragging them
-    in the \l {Design 2D UIs}{2D} view.
+    in the \uicontrol {2D} view.
 
     \section1 Visibility
 
@@ -445,12 +445,12 @@
     \uicontrol {Copy Formatting}.
 
     To apply the values to one or several other components, select them in the
-    \l {Navigate component files}{Navigator} or \l {Design 2D UIs}{2D} view, and
+    \uicontrol {Navigator} or \uicontrol {2D} view, and
     then right-click and select \uicontrol Edit > \uicontrol {Apply Formatting}.
 
     \section1 Editing properties inline
 
-    You can double-click components in the \l {Design 2D UIs}{2D} view to edit their
+    You can double-click components in the \uicontrol {2D} view to edit their
     text, color, or source properties inline. Because you can specify several
     of these properties for some components, such as \l {text-edit}{Text Edit},
     you can also right-click components to open the inline editors from the

@@ -13,7 +13,7 @@
     project by selecting \uicontrol Components > \imageplus. For more
     information, see \l{Import modules}. You can then create instances of the
     components by dragging them from \uicontrol Components to the
-    \l {Design 2D UIs}{2D} or \l {Navigate component files}{Navigator} view.
+    \uicontrol {2D} or \uicontrol {Navigator} view.
 
     To edit the appearance of a component instance, select it in
     the \uicontrol {2D} or \uicontrol Navigator view
