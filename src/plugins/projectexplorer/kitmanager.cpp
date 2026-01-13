@@ -422,11 +422,13 @@ void KitManager::createKitsFromToolchains(
             continue;
         }
         const Id runDeviceType = runDeviceTypeForKit(kit.get());
+        const QString abiString = it.key().toString();
         RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), runDeviceType);
-        if (runDeviceType == Constants::DESKTOP_DEVICE_TYPE)
-            kit->setUnexpandedDisplayName(Tr::tr("Desktop (%1)").arg(it.key().toString()));
-        else
-            kit->setUnexpandedDisplayName(it.key().toString());
+        const QString displayName = dev ? Tr::tr("%1 on %2").arg(abiString, dev->displayName())
+                                        : runDeviceType == Constants::DESKTOP_DEVICE_TYPE
+                                        ? Tr::tr("Desktop (%1)").arg(abiString)
+                                        : abiString;
+        kit->setUnexpandedDisplayName(displayName);
         kit->setup();
         kits.emplace_back(std::move(kit));
     }
