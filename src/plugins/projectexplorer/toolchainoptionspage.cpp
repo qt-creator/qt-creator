@@ -40,6 +40,7 @@
 #include <QSpacerItem>
 #include <QStackedWidget>
 #include <QTextStream>
+#include <QTimer>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -185,6 +186,44 @@ private:
 // ToolChainOptionsWidget
 // --------------------------------------------------------------------------
 
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 9, 0)
+
+class StackedWidget final : public QStackedWidget
+{
+    Q_OBJECT
+
+public:
+    using QStackedWidget::QStackedWidget;
+
+    bool event(QEvent *ev) final
+    {
+        const bool res = QStackedWidget::event(ev);
+
+        if (ev->type() == QEvent::ChildAdded) {
+            QChildEvent *childEvent = static_cast<QChildEvent *>(ev);
+            if (QWidget *w = qobject_cast<QWidget *>(childEvent->child())) {
+                QTimer::singleShot(0, this, [this, w = QPointer(w)] {
+                    QTC_ASSERT(w, return);
+                    const int idx = indexOf(w.get());
+                    emit widgetAdded(idx);
+                });
+            }
+        }
+
+        return res;
+    }
+
+signals:
+    void widgetAdded(int index);
+};
+
+#else
+
+using StackedWidget = QStackedWidget;
+
+#endif
+
 class ToolChainOptionsWidget final : public Core::IOptionsPageWidget
 {
 public:
@@ -282,9 +321,9 @@ public:
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
 
-        m_widgetStack = new QStackedWidget;
+        m_widgetStack = new StackedWidget;
         m_container->setWidget(m_widgetStack);
-        connect(m_widgetStack, &QStackedWidget::widgetAdded, this, [this](int index) {
+        connect(m_widgetStack, &StackedWidget::widgetAdded, this, [this](int index) {
             setupDirtyHook(m_widgetStack->widget(index));
         });
 
@@ -386,7 +425,7 @@ public:
     QComboBox *m_deviceComboBox;
     QTreeView *m_toolChainView;
     DetailsWidget *m_container;
-    QStackedWidget *m_widgetStack;
+    StackedWidget *m_widgetStack;
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
     QPushButton *m_delButton;
@@ -741,3 +780,8 @@ ToolChainOptionsPage::ToolChainOptionsPage()
 }
 
 } // namespace ProjectExplorer::Internal
+
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 9, 0)
+#include "toolchainoptionspage.moc"
+#endif
