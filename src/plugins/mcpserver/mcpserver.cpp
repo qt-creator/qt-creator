@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcpserver.h"
+#include "utils/qtcassert.h"
 
 #include <utils/threadutils.h>
 
@@ -113,8 +114,8 @@ McpServer::McpServer(QObject *parent)
     auto addTool = [&](const QJsonObject &tool, ToolHandler handler) {
         m_toolList.append(tool);
         const QString name = tool.value("name").toString();
-        Q_ASSERT(!name.isEmpty());
-        m_toolHandlers.insert(name, std::move(handler));
+        if (QTC_GUARD(!name.isEmpty()))
+            m_toolHandlers.insert(name, std::move(handler));
     };
 
     addTool(
