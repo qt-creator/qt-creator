@@ -9329,6 +9329,9 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     QTextOption::Flags optionFlags = currentOptionFlags;
     optionFlags.setFlag(QTextOption::AddSpaceForLineAndParagraphSeparators);
     optionFlags.setFlag(QTextOption::ShowTabsAndSpaces, ds.m_visualizeWhitespace);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    optionFlags.setFlag(QTextOption::ShowDefaultIgnorables, true);
+#endif
     if (optionFlags != currentOptionFlags) {
         if (SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter())
             highlighter->rehighlight();
