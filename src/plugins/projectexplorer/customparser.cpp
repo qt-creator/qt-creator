@@ -5,6 +5,7 @@
 
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "task.h"
 
 #include <coreplugin/icore.h>
@@ -347,6 +348,32 @@ void CustomParsers::load(const Utils::QtcSettings &s)
             }
         }
     }
+
+    const auto projectSettingsLoader = [](const FilePath &jsonFile) -> Result<QVariant> {
+        const auto parsers = parsersFromFile(jsonFile);
+        if (!parsers)
+            return ResultError(parsers.error());
+        QVariantList ids;
+        for (const CustomParserSettings &parser: *parsers) {
+            if (canAdd(parser, g_parsers)) {
+                CustomParserSettings p = parser;
+                p.readOnly = true;
+                add(p);
+                ids << p.id.toSetting();
+            }
+        }
+        return ids;
+    };
+    const auto projectSettingsUnloader = [](const QVariant &data) {
+        const QVariantList l = data.toList();
+        for (const QVariant &v : l)
+            remove(Id::fromSetting(v));
+    };
+    ProjectManager::registerCustomProjectSettingsHandler(
+        {importFileName,
+         CustomProjectSettingsHandler::FileType::File,
+         projectSettingsLoader,
+         projectSettingsUnloader});
 }
 
 void CustomParsers::save(Utils::QtcSettings &s)
