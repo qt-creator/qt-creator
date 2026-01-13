@@ -341,7 +341,7 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
     if (node) {
         QMenu *menu = ProjectExplorerPlugin::vcsFileContextMenu();
         menu->clear();
-        menu->setEnabled(false);
+        menu->menuAction()->setVisible(false);
 
         if (!node->isVirtualFolderType()) {
             const FilePath filePath = node->filePath();
@@ -351,7 +351,7 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
             if (vc) {
                 const FilePath relativePath = filePath.relativeChildPath(topLevel);
                 menu->setTitle(vc->displayName());
-                menu->setEnabled(true);
+                menu->menuAction()->setVisible(true);
                 vc->fillDefaultFileActionMenu(menu, vc, topLevel, relativePath);
                 if (const FileNode *fileNode = node->asFileNode(); fileNode) {
                     const Core::VcsFileState state = fileNode->modificationState();

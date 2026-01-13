@@ -1289,6 +1289,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     vcsFile->setOnAllDisabledBehavior(ActionContainer::Show);
     dd->m_vcsFileMenu = vcsFile->menu();
     dd->m_vcsFileMenu->setTitle("VCS File");
+    dd->m_vcsFileMenu->menuAction()->setVisible(false);
     mfileContextMenu->addMenu(vcsFile, Constants::G_FILE_OTHER);
     mfolderContextMenu->addMenu(vcsFile, Constants::G_FOLDER_FILES);
     msubProjectContextMenu->addMenu(vcsFile, Constants::G_PROJECT_LAST);
@@ -3669,7 +3670,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
             m_showInGraphicalShell->setVisible(false);
             m_showFileSystemPane->setVisible(false);
             m_searchOnFileSystem->setVisible(false);
-            m_vcsFileMenu->setEnabled(false);
+            m_vcsFileMenu->menuAction()->setVisible(false);
         }
 
         if (supports(HideFileActions)) {
