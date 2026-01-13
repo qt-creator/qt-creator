@@ -160,9 +160,12 @@ void GitSubmitEditorWidget::initialize(const FilePath &repository, const CommitD
         auto logChangeGroupBox = new QGroupBox(Tr::tr("Select Change"));
         auto logChangeLayout = new QVBoxLayout;
         logChangeGroupBox->setLayout(logChangeLayout);
+        m_editMessageCheckBox = new QCheckBox(Tr::tr("Edit commit message"));
+        m_editMessageCheckBox->setToolTip(Tr::tr("Opens an editor to edit the final commit message."));
         m_logChangeWidget = new LogChangeWidget;
         m_logChangeWidget->init(repository);
         connect(m_logChangeWidget, &LogChangeWidget::commitActivated, this, &GitSubmitEditorWidget::showRequested);
+        logChangeLayout->addWidget(m_editMessageCheckBox);
         logChangeLayout->addWidget(m_logChangeWidget);
         insertLeftWidget(logChangeGroupBox);
         m_gitSubmitPanel->editGroup->hide();
@@ -206,6 +209,8 @@ GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
     rc.bypassHooks = m_gitSubmitPanel->bypassHooksCheckBox->isChecked();
     rc.pushAction = m_pushAction;
     rc.signOff = m_gitSubmitPanel->signOffCheckBox->isChecked();
+    if (m_editMessageCheckBox)
+        rc.editMessage = m_editMessageCheckBox->isChecked();
     return rc;
 }
 

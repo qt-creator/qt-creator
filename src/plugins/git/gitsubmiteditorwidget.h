@@ -13,6 +13,7 @@
 #include <QSyntaxHighlighter>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QValidator;
 QT_END_NAMESPACE
 
@@ -70,6 +71,7 @@ private:
     GitSubmitPanel *m_gitSubmitPanel = nullptr;
     GitSubmitHighlighter *m_highlighter = nullptr;
     LogChangeWidget *m_logChangeWidget = nullptr;
+    QCheckBox *m_editMessageCheckBox = nullptr;
     QValidator *m_emailValidator = nullptr;
     QString m_originalAuthor;
     QString m_originalEmail;

@@ -443,7 +443,7 @@ private:
     QTimer m_timer;
     QString m_diffCommit;
     Utils::FilePaths m_updatedSubmodules;
-    bool m_disableEditor = false;
+    bool m_disableSequenceEditor = false;
 };
 
 GITSHARED_EXPORT GitClient &gitClient();

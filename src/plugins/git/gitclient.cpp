@@ -2363,7 +2363,8 @@ Environment GitClient::processEnvironment(const FilePath &appliedTo) const
         }
         environment.set("HOME", homePath);
     }
-    environment.set("GIT_EDITOR", m_disableEditor ? "true" : m_gitQtcEditor);
+    environment.set("GIT_EDITOR", m_gitQtcEditor);
+    environment.set("GIT_SEQUENCE_EDITOR", m_disableSequenceEditor ? "true" : m_gitQtcEditor);
     environment.set("GIT_OPTIONAL_LOCKS", "0");
     return environment.appliedToEnvironment(appliedTo.deviceEnvironment());
 }
@@ -3128,7 +3129,10 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
     // Do the final commit
     QStringList arguments = {"commit"};
     if (commitType == FixupCommit) {
-        arguments << "--fixup" << amendHash;
+        if (data.editMessage)
+            arguments << ("--squash=" + amendHash) << "--no-edit";
+        else
+            arguments << "--fixup" << amendHash;
     } else {
         arguments << "-F" << messageFile.nativePath();
         if (commitType == AmendCommit)
@@ -3620,10 +3624,10 @@ void GitClient::interactiveRebase(const FilePath &workingDirectory, const QStrin
         arguments << "--update-refs";
     arguments << commit + '^';
     if (fixup)
-        m_disableEditor = true;
+        m_disableSequenceEditor = true;
     vcsExecAbortable(workingDirectory, arguments, true);
     if (fixup)
-        m_disableEditor = false;
+        m_disableSequenceEditor = false;
 }
 
 QString GitClient::msgNoChangedFiles()

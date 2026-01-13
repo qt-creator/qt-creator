@@ -35,9 +35,10 @@ public:
 
     QString author;
     QString email;
-    bool bypassHooks = false;
     PushAction pushAction = NoPush;
+    bool bypassHooks = false;
     bool signOff = false;
+    bool editMessage = false;
 };
 
 enum FileState {
