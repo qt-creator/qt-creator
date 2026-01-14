@@ -18,6 +18,7 @@ const char ADDNEWFILE[]           = "ProjectExplorer.AddNewFile";
 const char FILEPROPERTIES[]       = "ProjectExplorer.FileProperties";
 const char RENAMEFILE[]           = "ProjectExplorer.RenameFile";
 const char REMOVEFILE[]           = "ProjectExplorer.RemoveFile";
+const char RUN[]                  = "ProjectExplorer.Run";
 
 // Context
 const char C_PROJECTEXPLORER[]    = "Project Explorer";

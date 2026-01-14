@@ -4,6 +4,8 @@
 #include "mcpserver.h"
 #include "utils/qtcassert.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/threadutils.h>
 
 #include <QCoreApplication>
@@ -261,23 +263,6 @@ McpServer::McpServer(QObject *parent)
             const QString name = p.value("name").toString();
             bool ok = runOnGuiThread(
                 [this, name] { return m_commands.switchToBuildConfig(name); });
-            return QJsonObject{{"success", ok}};
-        });
-
-    addTool(
-        {{"name", "run_project"},
-         {"title", "Run the current project"},
-         {"description", "Run the current project"},
-         {"inputSchema", QJsonObject{{"type", "object"}}},
-         {"outputSchema",
-          QJsonObject{
-              {"type", "object"},
-              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
-              {"required", QJsonArray{"success"}}}},
-         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
-            Q_UNUSED(p);
-            bool ok = runOnGuiThread([this] { return m_commands.runProject(); });
             return QJsonObject{{"success", ok}};
         });
 
@@ -743,6 +728,57 @@ void McpServer::addTool(const QJsonObject &tool, ToolHandler handler)
     const QString name = tool.value("name").toString();
     if (QTC_GUARD(!name.isEmpty()))
         m_toolHandlers.insert(name, std::move(handler));
+}
+
+static bool triggerCommand(const QString toolName, const Utils::Id commandId)
+{
+    auto error = [toolName](const QString &msg) {
+        qCDebug(mcpServer) << "Cannot run tool " << toolName << ": " << msg;
+        return false;
+    };
+    Core::Command *command = Core::ActionManager::command(commandId);
+    if (!command)
+        return error("Cannot find command with id" + commandId.toString());
+    QAction *action = command->action();
+    if (!action)
+        return error("Command with id" + commandId.toString() + "has no action assigned");
+    if (!action->isEnabled())
+        return error("Action for Command with id" + commandId.toString() + "is not enabled");
+    action->trigger();
+    return true;
+}
+
+void McpServer::initializeToolsForCommands()
+{
+    auto addToolForCommand = [this](const QString &name, const Utils::Id commandId) {
+        Core::Command *command = Core::ActionManager::command(commandId);
+        if (!command)
+            return;
+        QAction *action = command->action();
+        QTC_ASSERT(action, return);
+
+        const QString title = action->text();
+        const QString description = command->description();
+
+        addTool(
+            {{"name", name},
+             {"title", title},
+             {"description", description},
+             {"inputSchema", QJsonObject{{"type", "object"}}},
+             {"outputSchema",
+              QJsonObject{
+                          {"type", "object"},
+                          {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+                          {"required", QJsonArray{"success"}}}},
+             {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+            [commandId, name](const QJsonObject &p) {
+                Q_UNUSED(p);
+                const bool ok = triggerCommand(name, commandId);
+                return QJsonObject{{"success", ok}};
+            });
+    };
+
+    addToolForCommand("run_project", ProjectExplorer::Constants::RUN);
 }
 
 QJsonObject McpServer::createErrorResponse(int code, const QString &message, const QJsonValue &id)

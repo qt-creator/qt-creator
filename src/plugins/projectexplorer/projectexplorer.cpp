@@ -235,7 +235,6 @@ const char CLEANDEPENDCM[]        = "ProjectExplorer.CleanDependenciesCM";
 const char CLEANSESSION[]         = "ProjectExplorer.CleanSession";
 const char CLEANSESSIONALLCONFIGS[] = "ProjectExplorer.CleanSessionForAllConfigs";
 const char CANCELBUILD[]          = "ProjectExplorer.CancelBuild";
-const char RUN[]                  = "ProjectExplorer.Run";
 const char RUNWITHOUTDEPLOY[]     = "ProjectExplorer.RunWithoutDeploy";
 const char RUNCONTEXTMENU[]       = "ProjectExplorer.RunContextMenu";
 const char ADDEXISTINGFILES[]     = "ProjectExplorer.AddExistingFiles";
@@ -1514,6 +1513,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     // run action
     dd->m_runAction = new QAction(runIcon, Tr::tr("Run"), this);
     cmd = ActionManager::registerAction(dd->m_runAction, Constants::RUN);
+    cmd->setDescription(Tr::tr("Run Active Project"));
     cmd->setAttribute(Command::CA_UpdateText);
 
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+R")));

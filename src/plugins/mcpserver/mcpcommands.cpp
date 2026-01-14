@@ -604,68 +604,6 @@ QString McpCommands::getCurrentBuildConfig()
     return QString();
 }
 
-bool McpCommands::runProject()
-{
-    if (!hasValidProject()) {
-        qCDebug(mcpCommands) << "No valid project available for running";
-        return false;
-    }
-
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    if (!project) {
-        qCDebug(mcpCommands) << "No current project";
-        return false;
-    }
-
-    ProjectExplorer::Target *target = project->activeTarget();
-    if (!target) {
-        qCDebug(mcpCommands) << "No active target";
-        return false;
-    }
-
-    ProjectExplorer::RunConfiguration *runConfig = target->activeRunConfiguration();
-    if (!runConfig) {
-        qCDebug(mcpCommands) << "No active run configuration available for running";
-        return false;
-    }
-
-    qCDebug(mcpCommands) << "Running project:" << project->displayName();
-
-    // Use ActionManager to trigger the "Run" action
-    Core::ActionManager *actionManager = Core::ActionManager::instance();
-    if (!actionManager) {
-        qCDebug(mcpCommands) << "ActionManager not available";
-        return false;
-    }
-
-    // Try different possible action IDs for running
-    QStringList runActionIds
-        = {"ProjectExplorer.Run", "ProjectExplorer.RunProject", "ProjectExplorer.RunStartupProject"};
-
-    bool actionTriggered = false;
-    for (const QString &actionId : runActionIds) {
-        Core::Command *command = actionManager->command(Utils::Id::fromString(actionId));
-        if (command && command->action()) {
-            qCDebug(mcpCommands) << "Triggering run action:" << actionId;
-            command->action()->trigger();
-            actionTriggered = true;
-            break;
-        }
-    }
-
-    if (!actionTriggered) {
-        qCDebug(mcpCommands) << "No run action found, falling back to RunControl method";
-
-        // Fallback: Create a RunControl and start it
-        ProjectExplorer::RunControl *runControl = new ProjectExplorer::RunControl(
-            Utils::Id("Desktop"));
-        runControl->copyDataFromRunConfiguration(runConfig);
-        runControl->start();
-    }
-
-    return true;
-}
-
 bool McpCommands::cleanProject()
 {
     if (!hasValidProject()) {

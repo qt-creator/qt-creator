@@ -32,7 +32,6 @@ public:
     // Additional useful commands
     QString getCurrentProject();
     QString getCurrentBuildConfig();
-    bool runProject();
     bool cleanProject();
     QStringList listOpenFiles();
 
