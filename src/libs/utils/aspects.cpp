@@ -27,6 +27,7 @@
 #include <QCheckBox>
 #include <QCompleter>
 #include <QDebug>
+#include <QFontComboBox>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLayout>
@@ -823,6 +824,12 @@ class ColorAspectPrivate
 public:
     QPointer<QtColorButton> m_colorButton; // Owned by configuration widget
     QSize m_size;
+};
+
+class FontFamilyAspectPrivate
+{
+public:
+    UndoableValue<QString> m_undoable;
 };
 
 class SelectionAspectPrivate
@@ -1946,6 +1953,59 @@ void ColorAspect::bufferToGui()
     if (d->m_colorButton)
         d->m_colorButton->setColor(m_buffer);
 }
+
+/*!
+    \class Utils::FontAspect
+    \inmodule QtCreator
+
+    \brief A color aspect is a color property of some object, together with
+    a description of its behavior for common operations like visualizing or
+    persisting.
+
+    The color aspect is displayed using a QtColorButton.
+*/
+
+FontFamilyAspect::FontFamilyAspect(AspectContainer *container)
+    : TypedAspect(container), d(new Internal::FontFamilyAspectPrivate)
+{
+    setSpan(2, 1); // Default: Label + Combobox
+}
+
+FontFamilyAspect::~FontFamilyAspect() = default;
+
+void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
+{
+    if (QLabel *l = createLabel())
+        parent.addItem(l);
+
+    auto fontComboBox = createSubWidget<QFontComboBox>();
+    fontComboBox->setFontFilters(QFontComboBox::MonospacedFonts);
+    // Note: The extra QFontInfo hoop below is needed to get an actually
+    // resolved for on the system,  otherwise asking "Monospace" can result
+    // in "Dejavu Sans Mono" being selected.
+    fontComboBox->setCurrentFont(QFontInfo(QFont(value())).family());
+    parent.addItem(fontComboBox);
+
+    connect(fontComboBox, &QFontComboBox::currentFontChanged, [fontComboBox, this] {
+        const QString val = fontComboBox->currentFont().family();
+        d->m_undoable.set(undoStack(), val);
+        updateStorage(m_buffer, val);
+        volatileValueChanged();
+    });
+
+    connect(&d->m_undoable.m_signal, &UndoSignaller::changed, fontComboBox, [fontComboBox, this] {
+        fontComboBox->setCurrentFont(d->m_undoable.get());
+    });
+}
+
+bool FontFamilyAspect::isDirty()
+{
+    const QString resolved = QFontInfo(QFont(m_internal)).family();
+    return resolved != m_buffer;
+}
+
+
+// !internal
 
 static void updateToggleAction(ToggleAspect &aspect,
                                const std::unique_ptr<Internal::ToggleAspectPrivate> &d)

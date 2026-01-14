@@ -19,7 +19,6 @@
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
-#include <QFontComboBox>
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -451,11 +450,11 @@ TerminalSettings::TerminalSettings()
                "enabled and for \"Open Terminal here\"."));
     enableTerminal.setDefaultValue(true);
 
-    font.setSettingsKey("FontFamily");
-    font.setLabelText(Tr::tr("Family:"));
-    font.setHistoryCompleter("Terminal.Fonts.History");
-    font.setToolTip(Tr::tr("The font family used in the terminal."));
-    font.setDefaultValue(defaultFontFamily());
+    fontFamily.setSettingsKey("FontFamily");
+    fontFamily.setLabelText(Tr::tr("Family:"));
+    // fontFamily.setHistoryCompleter("Terminal.Fonts.History");
+    fontFamily.setToolTip(Tr::tr("The font family used in the terminal."));
+    fontFamily.setDefaultValue(defaultFontFamily());
 
     fontSize.setSettingsKey("FontSize");
     fontSize.setLabelText(Tr::tr("Size:"));
@@ -568,14 +567,6 @@ TerminalSettings::TerminalSettings()
     setLayouter([this] {
         using namespace Layouting;
 
-        QFontComboBox *fontComboBox = new QFontComboBox;
-        fontComboBox->setFontFilters(QFontComboBox::MonospacedFonts);
-        fontComboBox->setCurrentFont(font());
-
-        connect(fontComboBox, &QFontComboBox::currentFontChanged, this, [this](const QFont &f) {
-            font.setVolatileValue(f.family());
-        });
-
         auto loadThemeButton = new QPushButton(Tr::tr("Load Theme..."));
         auto resetTheme = new QPushButton(Tr::tr("Reset Theme"));
         auto copyTheme = schemeLog().isDebugEnabled() ? new QPushButton(Tr::tr("Copy Theme"))
@@ -658,7 +649,7 @@ TerminalSettings::TerminalSettings()
             Group {
                 title(Tr::tr("Font")),
                 Row {
-                    font.labelText(), fontComboBox, Space(20),
+                    fontFamily, Space(20),
                     fontSize, st,
                 },
             },

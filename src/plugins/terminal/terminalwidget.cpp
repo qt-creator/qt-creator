@@ -214,7 +214,7 @@ void TerminalWidget::setupFont()
 {
     QFont f;
     f.setFixedPitch(true);
-    f.setFamily(settings().font());
+    f.setFamily(settings().fontFamily());
     f.setPointSize(settings().fontSize());
 
     setFont(f);

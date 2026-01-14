@@ -14,7 +14,7 @@ public:
 
     Utils::BoolAspect enableTerminal{this};
 
-    Utils::StringAspect font{this};
+    Utils::FontFamilyAspect fontFamily{this};
     Utils::IntegerAspect fontSize{this};
     Utils::FilePathAspect shell{this};
     Utils::StringAspect shellArguments{this};

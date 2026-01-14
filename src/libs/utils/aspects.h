@@ -45,6 +45,7 @@ class ColorAspectPrivate;
 class DoubleAspectPrivate;
 class FilePathAspectPrivate;
 class FilePathListAspectPrivate;
+class FontFamilyAspectPrivate;
 class IntegerAspectPrivate;
 class MultiSelectionAspectPrivate;
 class SelectionAspectPrivate;
@@ -527,6 +528,22 @@ private:
     bool guiToBuffer() override;
 
     std::unique_ptr<Internal::ColorAspectPrivate> d;
+};
+
+class QTCREATOR_UTILS_EXPORT FontFamilyAspect : public TypedAspect<QString>
+{
+    Q_OBJECT
+
+public:
+    FontFamilyAspect(AspectContainer *container = nullptr);
+    ~FontFamilyAspect() override;
+
+    void addToLayoutImpl(Layouting::Layout &parent) override;
+
+private:
+    bool isDirty() override;
+
+    std::unique_ptr<Internal::FontFamilyAspectPrivate> d;
 };
 
 class QTCREATOR_UTILS_EXPORT SelectionAspect : public TypedAspect<int>
