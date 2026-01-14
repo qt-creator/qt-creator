@@ -58,9 +58,6 @@ using namespace Utils;
 
 namespace Core::Internal {
 
-const int kMaxMinimumWidth = 250;
-const int kMaxMinimumHeight = 250;
-
 const char pageKeyC[] = "General/LastPreferencePage";
 const char sortKeyC[] = "General/SortCategories";
 const int categoryIconSize = 24;
