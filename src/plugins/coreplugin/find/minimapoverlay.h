@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
-
 #include <QImage>
 #include <QPointer>
 #include <QTimer>
