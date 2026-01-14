@@ -563,9 +563,8 @@ static FilePath nearestParentDirectory(const QList<FilePath> &dirs, const FilePa
 
 Core::VcsFileState VcsManager::fileState(const Utils::FilePath &filePath)
 {
-    const FilePath cleanPath = filePath.cleanPath();
-    const FilePath repository = nearestParentDirectory(d->m_fileStates.keys(), cleanPath);
-    const QString relativePath = cleanPath.relativeChildPath(repository).path();
+    const FilePath repository = nearestParentDirectory(d->m_fileStates.keys(), filePath);
+    const QString relativePath = filePath.relativeChildPath(repository).path();
 
     return d->m_fileStates.value(repository).value(relativePath, VcsFileState::Unknown);
 }
