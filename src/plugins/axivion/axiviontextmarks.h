@@ -8,10 +8,13 @@ namespace Utils { class FilePath; }
 
 namespace Axivion::Internal {
 
-void handleIssuesForFile(const Dto::FileViewDto &fileView, const Utils::FilePath &filePath);
-void clearAllMarks();
-void clearMarks(const Utils::FilePath &filePath);
-bool hasLineIssues(const Utils::FilePath &filePath);
+enum class LineMarkerType { Dashboard, SFA };
+
+void handleIssuesForFile(const Dto::FileViewDto &fileView, const Utils::FilePath &filePath,
+                         LineMarkerType type);
+void clearAllMarks(LineMarkerType type);
+void clearMarks(const Utils::FilePath &filePath, LineMarkerType type);
+bool hasLineIssues(const Utils::FilePath &filePath, LineMarkerType type);
 
 void updateExistingMarks();
 

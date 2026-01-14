@@ -5,6 +5,7 @@
 
 #include "axivionperspective.h"
 #include "axivionsettings.h"
+#include "axiviontextmarks.h"
 #include "axiviontr.h"
 #include "localbuild.h"
 #include "pluginarserver.h"
@@ -246,6 +247,7 @@ void SingleFileAnalysis::onSessionStarted(const QString &projectName, int sessio
         qCDebug(sfaLog) << "requesting session finish";
         requestArSessionFinish(data.bauhausSuite, data.sessionId, false);
     };
+    clearAllMarks(LineMarkerType::SFA);
     qCDebug(sfaLog) << "starting analysis cmd" << analysis.analysisCommand;
     m_startedAnalysesRunner.start(projectName, {ProcessTask(onSetup, onDone)});
     m_localBuildInfos.insert(projectName, {LocalBuildState::Building});

@@ -63,21 +63,23 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
-QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind)
+QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind, LineMarkerType type)
 {
     if (!issueKind)
         return {};
 
-    static QHash<Dto::IssueKind, QIcon> prefixToIcon;
+    static QHash<QPair<Dto::IssueKind, LineMarkerType>, QIcon> prefixToIcon;
 
-    auto it = prefixToIcon.constFind(*issueKind);
+    auto it = prefixToIcon.constFind({*issueKind, type});
     if (it != prefixToIcon.constEnd())
         return *it;
 
     const QLatin1String prefix = Dto::IssueKindMeta::enumToStr(*issueKind);
+    auto themeColor = (type == LineMarkerType::Dashboard) ? Theme::PaletteButtonText
+                                                          : Theme::IconsWarningColor;
     const Icon icon({{FilePath::fromString(":/axivion/images/button-" + prefix + ".png"),
-                      Theme::PaletteButtonText}}, Icon::Tint);
-    return prefixToIcon.insert(*issueKind, icon.icon()).value();
+                      themeColor}}, Icon::Tint);
+    return prefixToIcon.insert({*issueKind, type}, icon.icon()).value();
 }
 
 static QString anyToString(const Dto::Any &any)
@@ -987,7 +989,7 @@ Group dashboardInfoRecipe(DashboardMode dashboardMode, const DashboardInfoHandle
 Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
 {
     const auto onSetup = [dashboardMode, projectName] {
-        clearAllMarks();
+        clearAllMarks(LineMarkerType::Dashboard);
         if (dashboardMode == DashboardMode::Global)
             dd->m_currentProjectInfo = {};
         else
@@ -1207,7 +1209,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
         return;
 
     const FilePath docFilePath = doc->filePath();
-    if (hasLineIssues(docFilePath)) // FIXME local vs global dashboard
+    if (hasLineIssues(docFilePath, LineMarkerType::Dashboard)) // FIXME local vs global dashboard
         return;
 
     if (docFilePath.isEmpty())
@@ -1217,10 +1219,10 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     if (filePath.isEmpty())
         return;
 
-    const auto handler = [this, docFilePath](const Dto::FileViewDto &data) {
+    const auto handler = [docFilePath](const Dto::FileViewDto &data) {
         if (data.lineMarkers.empty())
             return;
-        handleIssuesForFile(data, docFilePath);
+        handleIssuesForFile(data, docFilePath, LineMarkerType::Dashboard);
     };
 
     const bool useGlobal = m_dashboardMode == DashboardMode::Global
@@ -1237,7 +1239,8 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
         return;
 
     m_docMarksRunner.resetKey(doc);
-    clearMarks(document->filePath());
+    clearMarks(document->filePath(), LineMarkerType::SFA);
+    clearMarks(document->filePath(), LineMarkerType::Dashboard);
 }
 
 void AxivionPluginPrivate::onCurrentEditorChanged(IEditor *editor)
@@ -1266,7 +1269,7 @@ void AxivionPluginPrivate::enableInlineIssues(bool enable)
     if (enable && m_dashboardServerId.isValid())
         handleOpenedDocs();
     else
-        clearAllMarks();
+        clearAllMarks(LineMarkerType::Dashboard);
 }
 
 void AxivionPluginPrivate::switchDashboardMode(DashboardMode mode, bool byLocalBuildButton)

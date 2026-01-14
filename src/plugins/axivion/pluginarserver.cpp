@@ -5,6 +5,7 @@
 
 #include "axivionplugin.h"
 #include "axivionsettings.h"
+#include "axiviontextmarks.h"
 #include "axiviontr.h"
 
 #include <coreplugin/messagemanager.h>
@@ -365,13 +366,25 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
 
         it->m_runningSessions.remove(sessionId);
         QJsonParseError error;
-        // we have a FileViewDto here.. but for now just simple
         QJsonDocument json = QJsonDocument::fromJson(reply, &error);
         if (error.error != QJsonParseError::NoError || !json.isObject()) {
             qCDebug(log) << "parse error (session start reply)";
             return DoneResult::Error;
         }
         qCDebug(log) << reply;
+        // for now just quick and dirty
+        const QJsonArray filesInfo = json.object().value("filesInfo").toArray();
+        QTC_ASSERT(filesInfo.size() == 1, return DoneResult::Error);
+        const QJsonObject fileView = filesInfo.first().toObject();
+        Result<Dto::FileViewDto> result
+                = Dto::FileViewDto::deserializeExpected(QJsonDocument{fileView}.toJson());
+        if (!result) {
+            qCDebug(log) << "error deserializing filewview dto" << result.error();
+            return DoneResult::Error;
+        }
+        qCDebug(log) << "deserialize succeeded" << result->fileName << result->lineMarkers.size();
+        // handle line markers for this file
+        handleIssuesForFile(*result, FilePath::fromUserInput(result->fileName), LineMarkerType::SFA);
         return DoneResult::Success;
     };
     const auto onError = [bauhausSuite, sessionId](const QByteArray &reply) {

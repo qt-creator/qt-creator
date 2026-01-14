@@ -5,6 +5,7 @@
 
 #include "axivionplugin.h"
 #include "axivionsettings.h"
+#include "axiviontextmarks.h"
 #include "axiviontr.h"
 #include "dashboard/dto.h"
 #include "issueheaderview.h"
@@ -1049,7 +1050,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     int buttonId = 0;
     for (const Dto::IssueKindInfoDto &kind : issueKinds) {
         auto button = new QToolButton(this);
-        button->setIcon(iconForIssue(kind.getOptionalPrefixEnum()));
+        button->setIcon(iconForIssue(kind.getOptionalPrefixEnum(), LineMarkerType::Dashboard));
         button->setToolTip(kind.nicePluralName);
         button->setCheckable(true);
         connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{

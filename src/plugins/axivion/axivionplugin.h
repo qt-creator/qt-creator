@@ -132,7 +132,8 @@ std::optional<Dto::NamedFilterInfoDto> namedFilterInfoForKey(const QString &key,
 
 bool handleCertificateIssue();
 
-QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind);
+enum class LineMarkerType;
+QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind, LineMarkerType type);
 QString anyToSimpleString(const Dto::Any &any, const QString &type,
                           const std::optional<std::vector<Dto::ColumnTypeOptionDto>> &options);
 void fetchIssueInfo(DashboardMode dashboardMode, const QString &id);
