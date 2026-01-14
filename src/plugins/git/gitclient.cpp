@@ -3130,9 +3130,10 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
     QStringList arguments = {"commit"};
     if (commitType == FixupCommit) {
         if (data.editMessage)
-            arguments << ("--squash=" + amendHash) << "--no-edit";
+            arguments << "--squash";
         else
-            arguments << "--fixup" << amendHash;
+            arguments << "--fixup";
+        arguments << amendHash << "-m" << "" << "--no-verify";
     } else {
         arguments << "-F" << messageFile.nativePath();
         if (commitType == AmendCommit)

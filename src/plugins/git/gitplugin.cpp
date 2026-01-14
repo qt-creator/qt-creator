@@ -1300,7 +1300,7 @@ void GitPluginPrivate::editCommitMessage(const FilePath &workingDirectory, const
     if (!canRebase(workingDirectory))
         return;
 
-    const QStringList arguments = {"commit", "--squash=" + commit, "--no-edit", "--allow-empty"};
+    const QStringList arguments = {"commit", "--squash=" + commit, "--no-edit", "-m", "", "--allow-empty", "--no-verify"};
     const CommandResult result = gitClient().vcsSynchronousExec(workingDirectory, arguments);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         VcsOutputWindow::appendError(
