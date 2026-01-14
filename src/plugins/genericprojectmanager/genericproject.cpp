@@ -550,7 +550,7 @@ GenericBuildSystem::SourceFiles GenericBuildSystem::processEntries(
         if (!seenFiles.insert(trimmedPath).second)
             continue;
 
-        const FilePath absPath = projectDir / trimmedPath;
+        const FilePath absPath = (projectDir / trimmedPath).cleanPath();
         if (absPath.exists()) {
             sourceFiles.append({absPath, tagsForFile});
             if (map)
