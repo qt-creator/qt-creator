@@ -5,6 +5,7 @@
 
 #include "axivionperspective.h"
 #include "axivionsettings.h"
+#include "axiviontextmarks.h"
 #include "axiviontr.h"
 #include "dashboard/dto.h"
 #include "dashboard/error.h"
@@ -29,16 +30,16 @@
 #include <QtTaskTree/QAbstractTaskTreeRunner>
 
 #include <texteditor/textdocument.h>
-#include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/fileinprojectfinder.h>
+#include <utils/utilsicons.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
-#include <utils/utilsicons.h>
+#include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QInputDialog>
@@ -53,9 +54,6 @@
 #include <QUrlQuery>
 
 #include <cmath>
-#include <memory>
-
-constexpr char s_axivionTextMarkId[] = "AxivionTextMark";
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -269,9 +267,6 @@ public:
     void onDocumentOpened(IDocument *doc);
     void onDocumentClosed(IDocument * doc);
     void onCurrentEditorChanged(IEditor *editor);
-    void clearAllMarks();
-    void updateExistingMarks();
-    void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &filePath);
     void enableInlineIssues(bool enable);
     void fetchIssueInfo(DashboardMode dashboardMode, const QString &id);
     void fetchNamedFilters(DashboardMode dashboardMode);
@@ -305,42 +300,11 @@ public:
     QMappedTaskTreeRunner<IDocument *> m_docMarksRunner;
     QSingleTaskTreeRunner m_issueInfoRunner;
     QSingleTaskTreeRunner m_namedFilterRunner;
-    QHash<FilePath, QSet<TextMark *>> m_allMarks;
     bool m_inlineIssuesEnabled = true;
     DashboardMode m_dashboardMode = DashboardMode::Global;
 };
 
 static AxivionPluginPrivate *dd = nullptr;
-
-class AxivionTextMark : public TextMark
-{
-public:
-    AxivionTextMark(const FilePath &filePath, const Dto::LineMarkerDto &issue,
-                    std::optional<Theme::Color> color)
-        : TextMark(filePath, issue.startLine, {"Axivion", s_axivionTextMarkId})
-    {
-        const QString markText = issue.description;
-        const QString id = issue.kind + QString::number(issue.id.value_or(-1));
-        setToolTip(id + '\n' + markText);
-        setIcon(iconForIssue(issue.getOptionalKindEnum()));
-        if (color)
-            setColor(*color);
-        setPriority(TextMark::NormalPriority);
-        setLineAnnotation(markText);
-        setActionsProvider([id] {
-            auto action = new QAction;
-            action->setIcon(Icons::INFO.icon());
-            action->setToolTip(Tr::tr("Show Issue Properties"));
-            QObject::connect(action, &QAction::triggered,
-                             dd, [id] {
-                const bool useGlobal = currentDashboardMode() == DashboardMode::Global
-                        || !currentIssueHasValidPathMapping();
-                dd->fetchIssueInfo(useGlobal ? DashboardMode::Global : DashboardMode::Local, id);
-            });
-            return QList{action};
-        });
-    }
-};
 
 void fetchLocalDashboardInfo(const DashboardInfoHandler &handler, const QString &projectName)
 {
@@ -443,7 +407,7 @@ AxivionPluginPrivate::AxivionPluginPrivate()
             this, &AxivionPluginPrivate::handleSslErrors);
 #endif // ssl
     connect(&settings().highlightMarks, &BoolAspect::changed,
-            this, &AxivionPluginPrivate::updateExistingMarks);
+            this, []{ updateExistingMarks(); });
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             this, &AxivionPluginPrivate::onSessionLoaded);
     connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
@@ -1023,7 +987,7 @@ Group dashboardInfoRecipe(DashboardMode dashboardMode, const DashboardInfoHandle
 Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
 {
     const auto onSetup = [dashboardMode, projectName] {
-        dd->clearAllMarks();
+        clearAllMarks();
         if (dashboardMode == DashboardMode::Global)
             dd->m_currentProjectInfo = {};
         else
@@ -1234,27 +1198,6 @@ void AxivionPluginPrivate::handleOpenedDocs()
     onCurrentEditorChanged(EditorManager::currentEditor()); // ensure correct enabled state for SFA
 }
 
-void AxivionPluginPrivate::clearAllMarks()
-{
-    for (const QSet<TextMark *> &marks : std::as_const(m_allMarks))
-       qDeleteAll(marks);
-    m_allMarks.clear();
-}
-
-void AxivionPluginPrivate::updateExistingMarks() // update whether highlight marks or not
-{
-    static Theme::Color color = Theme::Color(Theme::Bookmarks_TextMarkColor); // FIXME!
-    const bool colored = settings().highlightMarks();
-
-    auto changeColor = colored ? [](TextMark *mark) { mark->setColor(color); }
-                               : [](TextMark *mark) { mark->unsetColor(); };
-
-    for (const QSet<TextMark *> &marksForFile : std::as_const(m_allMarks)) {
-        for (auto mark : marksForFile)
-            changeColor(mark);
-    }
-}
-
 void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
 {
     if (!m_inlineIssuesEnabled)
@@ -1264,7 +1207,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
         return;
 
     const FilePath docFilePath = doc->filePath();
-    if (m_allMarks.contains(docFilePath)) // FIXME local vs global dashboard
+    if (hasLineIssues(docFilePath)) // FIXME local vs global dashboard
         return;
 
     if (docFilePath.isEmpty())
@@ -1294,7 +1237,7 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
         return;
 
     m_docMarksRunner.resetKey(doc);
-    qDeleteAll(m_allMarks.take(document->filePath()));
+    clearMarks(document->filePath());
 }
 
 void AxivionPluginPrivate::onCurrentEditorChanged(IEditor *editor)
@@ -1312,23 +1255,6 @@ void AxivionPluginPrivate::onCurrentEditorChanged(IEditor *editor)
     static const QRegularExpression cSuffixes("^c(c|pp|xx)?$",
                                               QRegularExpression::CaseInsensitiveOption);
     action->setEnabled(cSuffixes.match(suffix).hasMatch());
-}
-
-void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView,
-                                               const FilePath &filePath)
-{
-    if (fileView.lineMarkers.empty())
-        return;
-
-    std::optional<Theme::Color> color = std::nullopt;
-    if (settings().highlightMarks())
-        color.emplace(Theme::Color(Theme::Bookmarks_TextMarkColor)); // FIXME!
-    for (const Dto::LineMarkerDto &marker : std::as_const(fileView.lineMarkers)) {
-        // FIXME the line location can be wrong (even the whole issue could be wrong)
-        // depending on whether this line has been changed since the last axivion run and the
-        // current state of the file - some magic has to happen here
-        m_allMarks[filePath] << new AxivionTextMark(filePath, marker, color);
-    }
 }
 
 void AxivionPluginPrivate::enableInlineIssues(bool enable)

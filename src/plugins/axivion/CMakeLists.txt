@@ -7,6 +7,7 @@ add_qtc_plugin(Axivion
     axivionperspective.cpp axivionperspective.h
     axivionplugin.cpp axivionplugin.h
     axivionsettings.cpp axivionsettings.h
+    axiviontextmarks.cpp axiviontextmarks.h
     axiviontr.h
     dashboard/dto.cpp dashboard/dto.h
     dashboard/concat.cpp dashboard/concat.h

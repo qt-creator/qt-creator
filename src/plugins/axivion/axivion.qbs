@@ -18,6 +18,8 @@ QtcPlugin {
         "axivionplugin.h",
         "axivionsettings.cpp",
         "axivionsettings.h",
+        "axiviontextmarks.cpp",
+        "axiviontextmarks.h",
         "axiviontr.h",
         "dynamiclistmodel.cpp",
         "dynamiclistmodel.h",
