@@ -5,6 +5,10 @@
 
 #include "iostr.h"
 
+#include <utils/algorithm.h>
+#include <utils/filepath.h>
+#include <utils/filepathinfo.h>
+
 #include <QJsonArray>
 #include <QJsonDocument>
 
@@ -23,8 +27,12 @@ Result<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput)
     auto jsonOutput = QJsonDocument::fromJson(rawOutput.sliced(start, end - start + 1), &parseError);
     if (jsonOutput.isNull()) {
         // parse error
+        const int line = rawOutput.left(parseError.offset).count('\n') + 1;
         return make_unexpected(
-            Tr::tr("Failed to parse devicectl output: %1.").arg(parseError.errorString()));
+            Tr::tr("Failed to parse devicectl output at %1 (line %2): %3.")
+                .arg(parseError.offset)
+                .arg(line)
+                .arg(parseError.errorString()));
     }
     const QJsonValue errorValue = jsonOutput["error"];
     if (!errorValue.isUndefined()) {
@@ -119,6 +127,87 @@ Utils::Result<qint64> parseLaunchResult(const QByteArray &rawOutput)
         return make_unexpected(Tr::tr("devicectl returned unexpected output ... running failed."));
     }
     return pid;
+}
+
+/* Returns the identifiers of all installed developer apps */
+Result<QSet<QString>> parseAppIdentifiers(const QByteArray &rawOutput)
+{
+    const Result<QJsonValue> result = parseDevicectlResult(rawOutput);
+    if (!result)
+        return make_unexpected(result.error());
+    if (!(*result)["apps"].isArray())
+        return make_unexpected(Tr::tr("Failed to parse devicectl output: Expected \"apps\" array."));
+    const QJsonArray apps = (*result)["apps"].toArray();
+    const QSet<QString> identifiers = Utils::transform<QSet>(apps, [](const QJsonValue &app) {
+        return app["bundleIdentifier"].toString();
+    });
+    return identifiers;
+}
+
+Result<QMap<FilePath, FilePathInfo>> parseFileList(
+    const QByteArray &rawOutput, const FilePath &basePath, bool includeSubDirectories)
+{
+    const Result<QJsonValue> result = parseDevicectlResult(rawOutput);
+    if (!result)
+        return make_unexpected(result.error());
+    if (!(*result)["files"].isArray())
+        return make_unexpected(
+            Tr::tr("Failed to parse devicectl output: Expected \"files\" array."));
+    QMap<FilePath, FilePathInfo> resultFiles;
+    const QJsonArray files = (*result)["files"].toArray();
+    for (const QJsonValue &v : files) {
+        const QString relativePath = v["relativePath"].toString();
+        if (!includeSubDirectories && relativePath.contains('/'))
+            continue;
+        const FilePath path = basePath.pathAppended(relativePath);
+        FilePathInfo info;
+        info.fileSize = v["metadata"]["size"].toInt();
+        info.lastModified
+            = QDateTime::fromString(v["metadata"]["lastModDate"].toString(), Qt::ISODateWithMs);
+        info.fileFlags = FilePathInfo::ExistsFlag;
+        if (v["resources"]["isDirectory"].toBool())
+            info.fileFlags |= FilePathInfo::DirectoryType;
+        else
+            info.fileFlags |= FilePathInfo::FileType;
+        if (v["resources"]["isHidden"].toBool())
+            info.fileFlags |= FilePathInfo::HiddenFlag;
+        const int permissions = v["metadata"]["permissions"].toInt(0777);
+        if (permissions & 0400) {
+            info.fileFlags |= FilePathInfo::ReadOwnerPerm;
+            info.fileFlags |= FilePathInfo::ReadUserPerm;
+        }
+        if (permissions & 0200) {
+            info.fileFlags |= FilePathInfo::WriteOwnerPerm;
+            info.fileFlags |= FilePathInfo::WriteUserPerm;
+        }
+        if (permissions & 0100) {
+            info.fileFlags |= FilePathInfo::ExeOwnerPerm;
+            info.fileFlags |= FilePathInfo::ExeUserPerm;
+        }
+        if (permissions & 0040)
+            info.fileFlags |= FilePathInfo::ReadGroupPerm;
+        if (permissions & 0020)
+            info.fileFlags |= FilePathInfo::WriteGroupPerm;
+        if (permissions & 0010)
+            info.fileFlags |= FilePathInfo::ExeGroupPerm;
+        if (permissions & 0004)
+            info.fileFlags |= FilePathInfo::ReadOtherPerm;
+        if (permissions & 0002)
+            info.fileFlags |= FilePathInfo::WriteOtherPerm;
+        if (permissions & 0001)
+            info.fileFlags |= FilePathInfo::ExeOtherPerm;
+        resultFiles.insert(path, info);
+    }
+    return resultFiles;
+}
+
+/* Just checks that no error was returned, discarding all parsed data. */
+Utils::Result<> checkDevicectlResult(const QByteArray &rawOutput)
+{
+    const Result<QJsonValue> result = parseDevicectlResult(rawOutput);
+    if (!result)
+        return make_unexpected(result.error());
+    return ResultOk;
 }
 
 } // namespace Ios::Internal

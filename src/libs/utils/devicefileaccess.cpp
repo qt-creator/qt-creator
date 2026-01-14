@@ -455,6 +455,11 @@ bool DeviceFileAccess::supportsAtomicSaveFile(const FilePath &filePath) const
     return true;
 }
 
+bool DeviceFileAccess::supportsRemovingFiles() const
+{
+    return true;
+}
+
 // DesktopDeviceFileAccess
 
 class DesktopFilePathWatcher final : public FilePathWatcher

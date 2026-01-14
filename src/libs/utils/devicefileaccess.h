@@ -90,6 +90,7 @@ protected:
     virtual TextEncoding processStdErrEncoding(const FilePath &executable) const;
 
     virtual bool supportsAtomicSaveFile(const FilePath &filePath) const;
+    virtual bool supportsRemovingFiles() const;
 };
 
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess

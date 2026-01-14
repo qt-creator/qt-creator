@@ -319,6 +319,7 @@ public:
     FilePath intern() const;
 
     bool supportsAtomicSaveFile() const;
+    bool supportsRemoving() const;
 
 private:
     // These are needed.

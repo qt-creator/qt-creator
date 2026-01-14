@@ -3,8 +3,15 @@
 
 #include "../../../../src/plugins/ios/devicectlutils.h"
 
-#include <QTest>
+#include <utils/filepath.h>
 
+#include <QDate>
+#include <QDateTime>
+#include <QTest>
+#include <QTime>
+#include <QTimeZone>
+
+using namespace Utils;
 using namespace Ios::Internal;
 
 class tst_Devicectlutils : public QObject
@@ -23,6 +30,9 @@ private slots:
     void parseProcessIdentifier();
 
     void parseLaunchResult();
+
+    void parseAppIdentifiers();
+    void parseFileList();
 };
 
 void tst_Devicectlutils::parseError_data()
@@ -473,6 +483,245 @@ void tst_Devicectlutils::parseLaunchResult()
     const Utils::Result<qint64> result = Ios::Internal::parseLaunchResult(data);
     QVERIFY(result);
     QCOMPARE(*result, 1802);
+}
+
+void tst_Devicectlutils::parseAppIdentifiers()
+{
+    const QByteArray data(R"raw(
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "info",
+      "apps",
+      "--quiet",
+      "--json-output",
+      "-",
+      "-d",
+      "00000000-0000000000000000"
+    ],
+    "commandType" : "devicectl.device.info.apps",
+    "environment" : {
+      "TERM" : "xterm-256color"
+    },
+    "jsonVersion" : 2,
+    "outcome" : "success",
+    "version" : "477.30"
+  },
+  "result" : {
+    "apps" : [
+      {
+        "appClip" : false,
+        "builtByDeveloper" : true,
+        "bundleIdentifier" : "org.qt-project.appuntitled17",
+        "bundleVersion" : "0.1",
+        "defaultApp" : false,
+        "hidden" : false,
+        "internalApp" : false,
+        "name" : "appuntitled17",
+        "removable" : true,
+        "url" : "file:///private/var/containers/Bundle/Application/C7DE4EA8-766A-450B-9F81-852F60595FB0/appuntitled17.app/",
+        "version" : "0.1"
+      },
+      {
+        "appClip" : false,
+        "builtByDeveloper" : true,
+        "bundleIdentifier" : "org.qt-project.ijij",
+        "bundleVersion" : "1",
+        "defaultApp" : false,
+        "hidden" : false,
+        "internalApp" : false,
+        "name" : "ijij",
+        "removable" : true,
+        "url" : "file:///private/var/containers/Bundle/Application/1E3B5069-0825-4A65-A926-4126DDC0D313/ijij.app/",
+        "version" : "1.0"
+      }
+    ],
+    "defaultAppsIncluded" : false,
+    "deviceIdentifier" : "00000000-0000-0000-0000-000000000000",
+    "hiddenAppsIncluded" : false,
+    "internalAppsIncluded" : false,
+    "removableAppsIncluded" : true
+  }
+})raw");
+    const Utils::Result<QSet<QString>> result = Ios::Internal::parseAppIdentifiers(data);
+    QVERIFY(result);
+    QCOMPARE(*result, QSet<QString>({"org.qt-project.appuntitled17", "org.qt-project.ijij"}));
+}
+
+void tst_Devicectlutils::parseFileList()
+{
+    const QByteArray data(R"raw(
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "info",
+      "files",
+      "--domain-type",
+      "appDataContainer",
+      "-d",
+      "00000000-0000000000000000",
+      "--quiet",
+      "--json-output",
+      "-",
+      "--domain-identifier",
+      "org.qt-project.ijij",
+      "--subdirectory",
+      "/"
+    ],
+    "commandType" : "devicectl.device.info.files",
+    "environment" : {
+      "TERM" : "xterm-256color"
+    },
+    "jsonVersion" : 2,
+    "outcome" : "success",
+    "version" : "477.30"
+  },
+  "result" : {
+    "deviceIdentifier" : "00000000-0000-0000-0000-000000000000",
+    "domain" : "appDataContainer",
+    "domainIdentifier" : "org.qt-project.ijij",
+    "files" : [
+      {
+        "metadata" : {
+          "extendedAttributes" : {
+
+          },
+          "lastModDate" : "2025-10-23T07:54:37.000Z",
+          "ownerGid" : 501,
+          "ownerUid" : 0,
+          "permissions" : 420,
+          "size" : 582
+        },
+        "name" : ".com.apple.mobile_container_manager.metadata.plist",
+        "relativePath" : ".com.apple.mobile_container_manager.metadata.plist",
+        "resources" : {
+          "isDirectory" : false,
+          "isHidden" : true,
+          "isReadable" : true,
+          "isSymbolicLink" : false,
+          "isWritable" : true
+        }
+      },
+      {
+        "metadata" : {
+          "extendedAttributes" : {
+
+          },
+          "lastModDate" : "2025-10-23T07:59:21.000Z",
+          "ownerGid" : 501,
+          "ownerUid" : 501,
+          "permissions" : 493,
+          "size" : 192
+        },
+        "name" : "Library",
+        "relativePath" : "Library",
+        "resources" : {
+          "isDirectory" : true,
+          "isHidden" : false,
+          "isReadable" : true,
+          "isSymbolicLink" : false,
+          "isWritable" : true
+        }
+      },
+      {
+        "metadata" : {
+          "extendedAttributes" : {
+
+          },
+          "lastModDate" : "2025-10-23T07:55:30.000Z",
+          "ownerGid" : 501,
+          "ownerUid" : 501,
+          "permissions" : 493,
+          "size" : 96
+        },
+        "name" : "Library/Caches",
+        "relativePath" : "Library/Caches",
+        "resources" : {
+          "isDirectory" : true,
+          "isHidden" : false,
+          "isReadable" : true,
+          "isSymbolicLink" : false,
+          "isWritable" : true
+        }
+      },
+      {
+        "metadata" : {
+          "extendedAttributes" : {
+
+          },
+          "lastModDate" : "2025-10-23T07:55:30.000Z",
+          "ownerGid" : 501,
+          "ownerUid" : 501,
+          "permissions" : 493,
+          "size" : 96
+        },
+        "name" : "Library/Caches/com.apple.dyld",
+        "relativePath" : "Library/Caches/com.apple.dyld",
+        "resources" : {
+          "isDirectory" : true,
+          "isHidden" : false,
+          "isReadable" : true,
+          "isSymbolicLink" : false,
+          "isWritable" : true
+        }
+      },
+      {
+        "metadata" : {
+          "extendedAttributes" : {
+
+          },
+          "lastModDate" : "2025-10-23T07:55:30.000Z",
+          "ownerGid" : 501,
+          "ownerUid" : 501,
+          "permissions" : 256,
+          "size" : 2816
+        },
+        "name" : "Library/Caches/com.apple.dyld/ijij.dyld4",
+        "relativePath" : "Library/Caches/com.apple.dyld/ijij.dyld4",
+        "resources" : {
+          "isDirectory" : false,
+          "isHidden" : false,
+          "isReadable" : true,
+          "isSymbolicLink" : false,
+          "isWritable" : true
+        }
+      }
+    ]
+  }
+})raw");
+    const Utils::Result<QMap<FilePath, FilePathInfo>> result
+        = Ios::Internal::parseFileList(data, FilePath::fromString("/foo"));
+    QVERIFY2(result, qPrintable(result ? QString() : result.error()));
+    QCOMPARE(result->size(), 2);
+
+    const FilePath file1 = FilePath::fromString(
+        "/foo/.com.apple.mobile_container_manager.metadata.plist");
+    QVERIFY(result->contains(file1));
+    const FilePathInfo info1 = result->value(file1);
+    QCOMPARE(info1.fileSize, 582);
+    QCOMPARE(info1.lastModified, QDateTime(QDate(2025, 10, 23), QTime(07, 54, 37), QTimeZone::utc()));
+    QVERIFY(info1.fileFlags.testFlag(FilePathInfo::FileType));
+    QVERIFY(!info1.fileFlags.testFlag(FilePathInfo::DirectoryType));
+    QVERIFY(info1.fileFlags.testFlag(FilePathInfo::HiddenFlag));
+    QVERIFY(info1.fileFlags.testFlag(FilePathInfo::WriteUserPerm));
+    QVERIFY(info1.fileFlags.testFlag(FilePathInfo::ReadUserPerm));
+    QVERIFY(!info1.fileFlags.testFlag(FilePathInfo::ExeUserPerm));
+
+    const FilePath file2 = FilePath::fromString("/foo/Library");
+    QVERIFY(result->contains(file2));
+    const FilePathInfo info2 = result->value(file2);
+    QCOMPARE(info2.fileSize, 192);
+    QCOMPARE(info2.lastModified, QDateTime(QDate(2025, 10, 23), QTime(07, 59, 21), QTimeZone::utc()));
+    QVERIFY(!info2.fileFlags.testFlag(FilePathInfo::FileType));
+    QVERIFY(info2.fileFlags.testFlag(FilePathInfo::DirectoryType));
+    QVERIFY(!info2.fileFlags.testFlag(FilePathInfo::HiddenFlag));
+    QVERIFY(info2.fileFlags.testFlag(FilePathInfo::WriteUserPerm));
+    QVERIFY(info2.fileFlags.testFlag(FilePathInfo::ReadUserPerm));
+    QVERIFY(info2.fileFlags.testFlag(FilePathInfo::ExeUserPerm));
 }
 
 QTEST_GUILESS_MAIN(tst_Devicectlutils)

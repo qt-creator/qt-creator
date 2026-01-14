@@ -876,7 +876,8 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
 
     FilePath realFp = autoSaveName(filePath);
     if (!filePath.exists() || !realFp.exists() || filePath.lastModified() >= realFp.lastModified()) {
-        realFp.removeFile();
+        if (realFp.supportsRemoving())
+            realFp.removeFile();
         realFp = filePath;
     }
 
@@ -2603,8 +2604,8 @@ void EditorManagerPrivate::autoSave()
             continue;
         const FilePath saveName = autoSaveName(document->filePath());
         const FilePath savePath = saveName.absolutePath();
-        if (document->filePath().isEmpty()
-                || !savePath.isWritableDir()) // FIXME: save them to a dedicated directory
+        if (document->filePath().isEmpty() || !document->filePath().supportsRemoving()
+            || !savePath.isWritableDir()) // FIXME: save them to a dedicated directory
             continue;
         if (Result<> res = document->autoSave(saveName); !res)
             errors << res.error();

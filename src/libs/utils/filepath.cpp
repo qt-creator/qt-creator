@@ -444,6 +444,15 @@ bool FilePath::supportsAtomicSaveFile() const
     return (*access)->supportsAtomicSaveFile(*this);
 }
 
+bool FilePath::supportsRemoving() const
+{
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return false;
+
+    return (*access)->supportsRemovingFiles();
+}
+
 /*!
     Returns a QString for passing on to QString based APIs.
 
