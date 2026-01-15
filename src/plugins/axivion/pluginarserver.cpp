@@ -12,20 +12,21 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
+#include <utils/shutdownguard.h>
 
 #include <QtTaskTree/QNetworkReplyWrapper>
 #include <QtTaskTree/QAbstractTaskTreeRunner>
 
+#include <QHash>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
 #include <QMetaObject>
-#include <QMap>
 
 using namespace Core;
-using namespace Utils;
 using namespace QtTaskTree;
+using namespace Utils;
 
 namespace Axivion::Internal {
 
@@ -33,96 +34,32 @@ Q_LOGGING_CATEGORY(log, "qtc.axivion.pluginarserver", QtWarningMsg)
 
 class PluginArServer;
 
-// running pluginarservers per bauhaus suite
-static QMap<FilePath, PluginArServer *> s_pluginArServers;
-
-QSingleTaskTreeRunner *taskTreeRunner()
-{
-    static QSingleTaskTreeRunner singleTaskTreeRunner;
-    return &singleTaskTreeRunner;
-}
-
-class PluginArServer
+class ArServerData
 {
 public:
-    ~PluginArServer();
-    static bool setupNewPluginArServer(const FilePath &bauhausSuite, const CallbackFunc &onRunning);
-    void sendCleanShutdown();
-
-    QUrl serverUrl() const;
-    QString startSessionRel() const;
-    QString finishSessionRel() const;
-    QString disposeIssuesRel() const;
-    QByteArray basicAuth() const;
-
-    void addStartedArSession(int id, const QString &pipeName);
-    void removeRunningArSession(int id);
-    QList<int> runningSessions() const;
-    QString pipeNameForSession(int id) const;
-
-    void triggerOnRunning() { if (m_onRunning) m_onRunning(); }
-
-private:
-    enum class State { Starting, HttpModeRequested, Initialized };
-    explicit PluginArServer(const FilePath &bauhausSuite, const CallbackFunc &onRunning);
-    void handleOutput();
-    void handleMessage(const QByteArray &msg);
-    void writeMessage(const QJsonDocument &msg);
-
-    Process *m_process = nullptr;
-    FilePath m_bauhausSuite;
-    QByteArray m_buffer;
     QByteArray m_accessSecret;
     QUrl m_serverUrl;
     QString m_disposeIssuesRel;
     QString m_arSessionStartRel;
     QString m_arSessionFinishRel;
-    QMap<int, QString> m_runningSessions;
-    CallbackFunc m_onRunning;
-    int m_msgCounter = 0;
-
-    State m_state = State::Starting;
+    QHash<int, QString> m_runningSessions;
 };
 
+static QHash<FilePath, ArServerData> s_arServers;
+static GuardedObject<QMappedTaskTreeRunner<FilePath>> s_arServerRunner;
+static GuardedObject<QSingleTaskTreeRunner> s_networkRunner;
 
-PluginArServer::PluginArServer(const FilePath &bauhausSuite, const CallbackFunc &onRunning)
-    : m_bauhausSuite(bauhausSuite)
-    , m_onRunning(onRunning)
+class ShutdownNotifier : public QObject
 {
-    QTC_CHECK(!m_bauhausSuite.isEmpty());
-    QTC_CHECK(!s_pluginArServers.contains(m_bauhausSuite));
-    s_pluginArServers.insert(m_bauhausSuite, this);
-    Environment env = Environment::systemEnvironment();
-    if (!bauhausSuite.isEmpty())
-        env.prependOrSetPath(bauhausSuite.pathAppended("bin"));
-    if (!settings().javaHome().isEmpty())
-        env.set("JAVA_HOME", settings().javaHome().toUserOutput());
-    if (!settings().bauhausPython().isEmpty())
-        env.set("BAUHAUS_PYTHON", settings().bauhausPython().toUserOutput());
-    env.set("PYTHON_IO_ENCODING", "utf-8:replace");
-    const QString userAgent = QString("Axivion" + QCoreApplication::applicationName()
-                                      + "Plugin/" + QCoreApplication::applicationVersion());
-    env.set("AXIVION_USER_AGENT", userAgent);
+    Q_OBJECT
 
-    m_process = new Process;
-    CommandLine cmd = HostOsInfo::isWindowsHost() ? CommandLine{"cmd", {"/c"}}
-                                                  : CommandLine{"/bin/sh", {"-c"}};
-    cmd.addCommandLineAsArgs({FilePath::fromString("pluginARServer").withExecutableSuffix(), {}},
-                             CommandLine::Raw);
-    m_process->setCommand(cmd);
+signals:
+    void shutdownRequested(const FilePath &bauhausSuite);
+};
 
-    m_process->setEnvironment(env);
-    m_process->setProcessMode(ProcessMode::Writer);
-    QObject::connect(m_process, &Process::readyReadStandardOutput,
-                     m_process, [this] { handleOutput(); });
-    QObject::connect(m_process, &Process::done, m_process,
-                     [this] { shutdownPluginArServer(m_bauhausSuite); }, Qt::QueuedConnection);
-    // TODO should we handle this somehow? includes FileNotFound,
-    //      issues with python / java, not existing bauhaus config
-    m_process->setStdErrLineCallback([](const QString &line) { qCInfo(log) << "E" << line; });
-    qCDebug(log) << "Starting PluginArServer" << cmd.toUserOutput();
-    m_process->start();
-}
+static GuardedObject<ShutdownNotifier> s_shutdownNotifier;
+
+enum class State { Starting, HttpModeRequested, Initialized };
 
 static QJsonDocument msgToJson(int msgId, int inReplyTo, const QString &subject,
                                const QVariantMap &args)
@@ -136,43 +73,36 @@ static QJsonDocument msgToJson(int msgId, int inReplyTo, const QString &subject,
     return QJsonDocument{message};
 }
 
-void PluginArServer::handleOutput()
-{
-    m_buffer.append(m_process->readAllRawStandardOutput());
-    int endOfFrame = m_buffer.indexOf(0x17);
-    if (endOfFrame == -1)
-        return;
-
-    qsizetype start = 0;
-    do {
-        qsizetype eoMessage = m_buffer.indexOf(0x10, start);
-        if (eoMessage == -1)
-            break;
-        handleMessage(m_buffer.mid(start, eoMessage - start));
-        start = eoMessage + 1;
-    } while (true);
-    if (start == 0) {
-        handleMessage(m_buffer.mid(start, endOfFrame));
-    }
-    // cut processed output
-    m_buffer = m_buffer.mid(endOfFrame + 1);
-    // should we do another round?
-}
-
 static void writeError(const QString &error)
 {
     static const QString prefix{"[Axivion|PluginArServer] "};
     MessageManager::writeFlashing(prefix + error);
 }
 
-void PluginArServer::handleMessage(const QByteArray &msg)
+class ArServerProcessData
+{
+public:
+    OnServerStarted m_onRunning;
+    QByteArray m_buffer = {};
+    int m_msgCounter = 0;
+    State m_state = State::Starting;
+};
+
+static void writeMessage(Process *process, const QJsonDocument &msg)
+{
+    process->writeRaw(msg.toJson(QJsonDocument::Compact));
+    process->writeRaw(QByteArray{1, 0x17});
+}
+
+static void handleMessage(const QByteArray &msg, const FilePath &bauhausSuite,
+                          ArServerProcessData *data, Process *process)
 {
     qCInfo(log) << "handling message:" << msg;
     QJsonParseError error;
     QJsonDocument json = QJsonDocument::fromJson(msg, &error);
     if (error.error != QJsonParseError::NoError) {
         writeError(Tr::tr("Failed to parse json '%1': %2")
-                   .arg(QString::fromUtf8(msg)).arg(error.error));
+                       .arg(QString::fromUtf8(msg)).arg(error.error));
         return;
     }
     if (!json.isObject()) {
@@ -181,176 +111,145 @@ void PluginArServer::handleMessage(const QByteArray &msg)
     }
     const QJsonObject obj = json.object();
 
-    switch (m_state) {
+    ArServerData &serverData = s_arServers[bauhausSuite];
+
+    switch (data->m_state) {
     case State::Starting: {
         if (!obj.contains("serverVersion") || !obj.contains("accessSecret")) {
             writeError(Tr::tr("Unexpected response when starting PluginArServer."));
             return;
         }
-        m_accessSecret = obj.value("accessSecret").toString().toUtf8();
+        serverData.m_accessSecret = obj.value("accessSecret").toString().toUtf8();
         const QVariantMap args{{"serveIssues", true}};
-        const QJsonDocument message = msgToJson(++m_msgCounter, 0, "Command: Start HTTP Server",
+        const QJsonDocument message = msgToJson(++data->m_msgCounter, 0, "Command: Start HTTP Server",
                                                 args);
-        m_state = State::HttpModeRequested;
+        data->m_state = State::HttpModeRequested;
         qCDebug(log) << "requesting https server start";
-        writeMessage(message);
+        writeMessage(process, message);
     } break;
     case State::HttpModeRequested: {
-        int inReplyTo = obj.value("inReplyTo").toInt();
-        QTC_CHECK(inReplyTo == m_msgCounter); // should we handle this?
+        const int inReplyTo = obj.value("inReplyTo").toInt();
+        QTC_CHECK(inReplyTo == data->m_msgCounter); // should we handle this?
         if (obj.value("subject").toString() != "Response: OK") {
             writeError(Tr::tr("Unexpected response for HTTP Server start request."));
-            QMetaObject::invokeMethod(
-                        m_process, [this] { shutdownPluginArServer(m_bauhausSuite); }, Qt::QueuedConnection);
+            QMetaObject::invokeMethod(process,
+                [bauhausSuite] { shutdownPluginArServer(bauhausSuite); }, Qt::QueuedConnection);
             return;
         }
         const QVariantMap args = obj.value("arguments").toVariant().toMap();
-        m_serverUrl = args.value("httpServerUri").toString();
-        m_disposeIssuesRel = args.value("httpServerDisposeIssuesRelativeUri").toString();
-        m_arSessionStartRel = args.value("httpServerARSessionStartRelativeUri").toString();
-        m_arSessionFinishRel = args.value("httpServerARSessionFinishRelativeUri").toString();
-        QTC_CHECK(!m_serverUrl.isEmpty());
+        serverData.m_serverUrl = args.value("httpServerUri").toString();
+        serverData.m_disposeIssuesRel = args.value("httpServerDisposeIssuesRelativeUri").toString();
+        serverData.m_arSessionStartRel = args.value("httpServerARSessionStartRelativeUri").toString();
+        serverData.m_arSessionFinishRel = args.value("httpServerARSessionFinishRelativeUri").toString();
+        QTC_CHECK(!serverData.m_serverUrl.isEmpty());
         // QTC_CHECK(!m_disposeIssuesRel.isEmpty()); // relevant only if serverIssues=true arg
-        QTC_CHECK(!m_arSessionStartRel.isEmpty());
-        QTC_CHECK(!m_arSessionFinishRel.isEmpty());
-        qCDebug(log) << "server started at" << m_serverUrl;
-        m_state = State::Initialized;
-        if (m_onRunning)
-            m_onRunning();
+        QTC_CHECK(!serverData.m_arSessionStartRel.isEmpty());
+        QTC_CHECK(!serverData.m_arSessionFinishRel.isEmpty());
+        qCDebug(log) << "server started at" << serverData.m_serverUrl;
+        data->m_state = State::Initialized;
+        if (data->m_onRunning)
+            data->m_onRunning();
     } break;
     case State::Initialized:
-        int inReplyTo = obj.value("inReplyTo").toInt();
-        QTC_CHECK(inReplyTo == m_msgCounter); // should we handle this?
+        const int inReplyTo = obj.value("inReplyTo").toInt();
+        QTC_CHECK(inReplyTo == data->m_msgCounter); // should we handle this?
         qCDebug(log) << "I" << msg; // json - atm we expect a response ok for clean shutdown..
         break;
     }
 }
 
-void PluginArServer::writeMessage(const QJsonDocument &msg)
+static void handleOutput(const FilePath &bauhausSuite, ArServerProcessData *data, Process *process)
 {
-    QTC_ASSERT(m_process, return);
-    m_process->writeRaw(msg.toJson(QJsonDocument::Compact));
-    m_process->writeRaw(QByteArray{1, 0x17});
-}
-
-PluginArServer::~PluginArServer()
-{
-    m_process->close();
-    delete m_process;
-    s_pluginArServers.remove(m_bauhausSuite);
-}
-
-bool PluginArServer::setupNewPluginArServer(const FilePath &bauhausSuite,
-                                            const CallbackFunc &onRunning)
-{
-    QTC_ASSERT(!s_pluginArServers.contains(bauhausSuite), return false);
-    (void)new PluginArServer(bauhausSuite, onRunning);
-    return true;
-}
-
-void PluginArServer::sendCleanShutdown()
-{
-    qCDebug(log) << "requesting clean shutdown";
-    writeMessage(msgToJson(++m_msgCounter, 0, "Command: Shutdown", {}));
-}
-
-QUrl PluginArServer::serverUrl() const
-{
-    if (m_state != State::Initialized) {
-        qCDebug(log) << "cannot get server url of uninitialized pluginarserver";
-        return {};
-    }
-    return m_serverUrl;
-}
-
-QString PluginArServer::startSessionRel() const
-{
-    return m_arSessionStartRel;
-}
-
-QString PluginArServer::finishSessionRel() const
-{
-    return m_arSessionFinishRel;
-}
-
-QString PluginArServer::disposeIssuesRel() const
-{
-    return m_disposeIssuesRel;
-}
-
-QByteArray PluginArServer::basicAuth() const
-{
-    if (m_state != State::Initialized) {
-        qCDebug(log) << "cannot authenticate with uninitialized pluginarserver";
-        return {};
-    }
-    return "Basic " + QByteArray(m_accessSecret).prepend(':').toBase64();
-}
-
-void PluginArServer::addStartedArSession(int id, const QString &pipeName)
-{
-    if (m_state != State::Initialized) {
-        qCDebug(log) << "cannot add started session with uninitialized pluginarserver";
+    data->m_buffer.append(process->readAllRawStandardOutput());
+    const int endOfFrame = data->m_buffer.indexOf(0x17);
+    if (endOfFrame == -1)
         return;
+
+    qsizetype start = 0;
+    do {
+        qsizetype eoMessage = data->m_buffer.indexOf(0x10, start);
+        if (eoMessage == -1)
+            break;
+        handleMessage(data->m_buffer.mid(start, eoMessage - start), bauhausSuite, data, process);
+        start = eoMessage + 1;
+    } while (true);
+    if (start == 0) {
+        handleMessage(data->m_buffer.mid(start, endOfFrame), bauhausSuite, data, process);
     }
-    QTC_ASSERT(!m_runningSessions.contains(id), return);
-    m_runningSessions.insert(id, pipeName);
+    // cut processed output
+    data->m_buffer = data->m_buffer.mid(endOfFrame + 1);
 }
 
-void PluginArServer::removeRunningArSession(int id)
+void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &onRunning)
 {
-    if (m_state != State::Initialized) {
-        qCDebug(log) << "cannot add started session with uninitialized pluginarserver";
-        return;
-    }
-    QTC_ASSERT(m_runningSessions.contains(id), return);
-    m_runningSessions.remove(id);
-}
-
-QList<int> PluginArServer::runningSessions() const
-{
-    if (m_state != State::Initialized) {
-        qCDebug(log) << "cannot get running sessions with uninitialized pluginarserver";
-        return {};
-    }
-    return m_runningSessions.keys();
-}
-
-QString PluginArServer::pipeNameForSession(int session) const
-{
-    return m_runningSessions.value(session);
-}
-
-void startPluginArServer(const FilePath &bauhausSuite, const CallbackFunc &onRunning)
-{
-    auto server = s_pluginArServers.value(bauhausSuite);
-    if (server) {
-        server->triggerOnRunning();
+    if (s_arServerRunner->isKeyRunning(bauhausSuite)) {
+        if (onRunning)
+            onRunning();
         return;
     }
 
-    PluginArServer::setupNewPluginArServer(bauhausSuite, onRunning);
+    const Storage<ArServerProcessData> storage{onRunning};
+
+    const auto onSetup = [bauhausSuite, storage](Process &process) {
+        Environment env = Environment::systemEnvironment();
+        if (!bauhausSuite.isEmpty())
+            env.prependOrSetPath(bauhausSuite.pathAppended("bin"));
+        if (!settings().javaHome().isEmpty())
+            env.set("JAVA_HOME", settings().javaHome().toUserOutput());
+        if (!settings().bauhausPython().isEmpty())
+            env.set("BAUHAUS_PYTHON", settings().bauhausPython().toUserOutput());
+        env.set("PYTHON_IO_ENCODING", "utf-8:replace");
+        const QString userAgent = QString("Axivion" + QCoreApplication::applicationName()
+                                          + "Plugin/" + QCoreApplication::applicationVersion());
+        env.set("AXIVION_USER_AGENT", userAgent);
+
+        CommandLine cmd = HostOsInfo::isWindowsHost() ? CommandLine{"cmd", {"/c"}}
+                                                      : CommandLine{"/bin/sh", {"-c"}};
+        cmd.addCommandLineAsArgs({FilePath::fromString("pluginARServer").withExecutableSuffix(), {}},
+                                 CommandLine::Raw);
+        process.setCommand(cmd);
+
+        process.setEnvironment(env);
+        process.setProcessMode(ProcessMode::Writer);
+        process.setStdErrLineCallback([](const QString &line) { qCInfo(log) << "E" << line; });
+        QObject::connect(&process, &Process::readyReadStandardOutput, &process,
+                         [bauhausSuite, data = storage.activeStorage(), process = &process] {
+            handleOutput(bauhausSuite, data, process);
+        });
+        QObject::connect(s_shutdownNotifier.get(), &ShutdownNotifier::shutdownRequested, &process,
+                         [bauhausSuite, data = storage.activeStorage(), process = &process]
+                         (const FilePath &suite) {
+            if (bauhausSuite == suite)
+                writeMessage(process, msgToJson(++data->m_msgCounter, 0, "Command: Shutdown", {}));
+        });
+    };
+    const auto onDone = [bauhausSuite] { s_arServers.remove(bauhausSuite); };
+
+    const Group recipe {
+        storage,
+        ProcessTask(onSetup, onDone)
+    };
+
+    s_arServers.insert(bauhausSuite, {});
+    s_arServerRunner->start(bauhausSuite, recipe);
 }
 
 void shutdownPluginArServer(const FilePath &bauhausSuite)
 {
-    if (!s_pluginArServers.contains(bauhausSuite))
-        return;
-    qCDebug(log) << "deleting instance for" << bauhausSuite;
-    delete s_pluginArServers.take(bauhausSuite); // for now...
+    s_arServers.remove(bauhausSuite);
+    s_arServerRunner->resetKey(bauhausSuite);
 }
 
 void cleanShutdownPluginArServer(const FilePath &bauhausSuite)
 {
-    if (auto pluginArServer = s_pluginArServers.value(bauhausSuite))
-        pluginArServer->sendCleanShutdown();
+    if (s_shutdownNotifier.get())
+        emit s_shutdownNotifier->shutdownRequested(bauhausSuite);
 }
 
 void shutdownAllPluginArServers()
 {
-    QMap<FilePath, PluginArServer *> copy = s_pluginArServers;
-    s_pluginArServers.clear();
-    qDeleteAll(copy);
+    s_arServers.clear();
+    s_arServerRunner->reset();
 }
 
 static void setupQuery(QNetworkReplyWrapper &query, const QUrl &url, const QByteArray &auth,
@@ -368,19 +267,25 @@ static void setupQuery(QNetworkReplyWrapper &query, const QUrl &url, const QByte
 
 using OnDoneCallback = std::function<DoneResult(const QByteArray &)>;
 
-template<typename T, typename Base>
-static void sendQuery(T (Base::* member)()const,
+static QByteArray basicAuth(const QByteArray &secret)
+{
+    return "Basic " + QByteArray(secret).prepend(':').toBase64();
+}
+
+static void sendQuery(const QString &relative,
                       const Utils::FilePath &bauhausSuite,
                       const QJsonDocument &body,
                       const OnDoneCallback &onSuccess,
                       const OnDoneCallback &onError)
 {
-    PluginArServer *pluginArServer = s_pluginArServers.value(bauhausSuite);
-    QTC_ASSERT(pluginArServer, return);
-    const QUrl serverUrl = pluginArServer->serverUrl();
+    const auto it = s_arServers.constFind(bauhausSuite);
+    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
+        return;
+
+    const QUrl serverUrl = it->m_serverUrl;
     QTC_ASSERT(!serverUrl.isEmpty(), return);
-    const QUrl url = serverUrl.resolved(std::mem_fn(member)(pluginArServer));
-    const QByteArray auth = pluginArServer->basicAuth();
+    const QUrl url = serverUrl.resolved(relative);
+    const QByteArray auth = basicAuth(it->m_accessSecret);
 
     qCDebug(log) << "URL" << url;
     const auto onNetworkQuerySetup = [url, auth, body](QNetworkReplyWrapper &query) {
@@ -400,12 +305,15 @@ static void sendQuery(T (Base::* member)()const,
         return onError(reply->readAll());
     };
 
-    taskTreeRunner()->start({QNetworkReplyWrapperTask(onNetworkQuerySetup, onNetworkQueryDone)});
+    s_networkRunner->start({QNetworkReplyWrapperTask(onNetworkQuerySetup, onNetworkQueryDone)});
 }
 
-void requestArSessionStart(const Utils::FilePath &bauhausSuite,
-                           const SessionCallbackFunc &onStarted)
+void requestArSessionStart(const FilePath &bauhausSuite, const OnSessionStarted &onStarted)
 {
+    const auto it = s_arServers.constFind(bauhausSuite);
+    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
+        return;
+
     const auto onSuccess = [bauhausSuite, onStarted](const QByteArray &reply) {
         qCDebug(log) << "pluginar session started for" << bauhausSuite;
         // handle the response....
@@ -418,9 +326,11 @@ void requestArSessionStart(const Utils::FilePath &bauhausSuite,
         const QJsonObject jsonObj = json.object();
         const int id = jsonObj.value("arSessionId").toInt();
         const QString pipe = jsonObj.value("pipeName").toString();
-        PluginArServer *pluginAr = s_pluginArServers.value(bauhausSuite);
-        QTC_ASSERT(pluginAr, return DoneResult::Error);
-        pluginAr->addStartedArSession(id, pipe);
+        const auto it = s_arServers.find(bauhausSuite);
+        if (it == s_arServers.end())
+            return DoneResult::Error;
+
+        it->m_runningSessions.insert(id, pipe);
         if (onStarted)
             onStarted(id);
         return DoneResult::Success;
@@ -432,11 +342,15 @@ void requestArSessionStart(const Utils::FilePath &bauhausSuite,
     };
 
     qCDebug(log) << "start pluginar session for" << bauhausSuite.toUserOutput();
-    sendQuery(&PluginArServer::startSessionRel, bauhausSuite, {}, onSuccess, onError);
+    sendQuery(it->m_arSessionStartRel, bauhausSuite, {}, onSuccess, onError);
 }
 
 void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, bool abort)
 {
+    const auto it = s_arServers.constFind(bauhausSuite);
+    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
+        return;
+
     QJsonObject jsonObj;
     jsonObj.insert("arSessionId", sessionId);
     jsonObj.insert("abort", abort);
@@ -445,8 +359,11 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
     const auto onSuccess = [bauhausSuite, sessionId](const QByteArray &reply) {
         qCDebug(log) << "pluginar session finished for" << bauhausSuite;
         // handle the response....
-        if (auto pluginAr = s_pluginArServers.value(bauhausSuite))
-            pluginAr->removeRunningArSession(sessionId);
+        const auto it = s_arServers.find(bauhausSuite);
+        if (it == s_arServers.end())
+            return DoneResult::Error;
+
+        it->m_runningSessions.remove(sessionId);
         QJsonParseError error;
         // we have a FileViewDto here.. but for now just simple
         QJsonDocument json = QJsonDocument::fromJson(reply, &error);
@@ -464,12 +381,16 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
     };
 
     qCDebug(log) << "finish pluginar session" << bauhausSuite << "session" << sessionId;
-    sendQuery(&PluginArServer::finishSessionRel, bauhausSuite, json, onSuccess, onError);
+    sendQuery(it->m_arSessionFinishRel, bauhausSuite, json, onSuccess, onError);
 }
 
 void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, int sessionId,
                            const QList<long> &issues)
 {
+    const auto it = s_arServers.constFind(bauhausSuite);
+    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
+        return;
+
     QJsonArray jsonArray;
     for (long issue : issues)
         jsonArray.append(double(issue));
@@ -488,14 +409,18 @@ void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, int sessionId,
     };
 
     qCDebug(log) << "dispose issues for" << bauhausSuite << "session" << sessionId;
-    sendQuery(&PluginArServer::disposeIssuesRel, bauhausSuite, json, onSuccess, onError);
+    sendQuery(it->m_disposeIssuesRel, bauhausSuite, json, onSuccess, onError);
 }
 
 QString pluginArPipeOut(const Utils::FilePath &bauhausSuite, int sessionId)
 {
-    auto server = s_pluginArServers.find(bauhausSuite);
-    QTC_ASSERT(server != s_pluginArServers.end(), return {});
-    return (*server)->pipeNameForSession(sessionId);
+    const auto it = s_arServers.constFind(bauhausSuite);
+    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
+        return {};
+
+    return it->m_runningSessions.value(sessionId);
 }
 
 } // namespace Axivion::Internal
+
+#include "pluginarserver.moc"

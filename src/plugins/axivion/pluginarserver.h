@@ -5,24 +5,19 @@
 
 #include <QList>
 
-QT_BEGIN_NAMESPACE
-template <typename T> class QList;
-QT_END_NAMESPACE
-
 namespace Utils { class FilePath; }
 
 namespace Axivion::Internal {
 
-using CallbackFunc = std::function<void()>;
-using SessionCallbackFunc = std::function<void(int)>;
+using OnServerStarted = std::function<void()>;
+using OnSessionStarted = std::function<void(int)>;
 
-void startPluginArServer(const Utils::FilePath &bauhausSuite, const CallbackFunc &onRunning);
+void startPluginArServer(const Utils::FilePath &bauhausSuite, const OnServerStarted &onRunning);
 void cleanShutdownPluginArServer(const Utils::FilePath &bauhausSuite);
 void shutdownPluginArServer(const Utils::FilePath &bauhausSuite);
 void shutdownAllPluginArServers();
 
-void requestArSessionStart(const Utils::FilePath &bauhausSuite,
-                           const SessionCallbackFunc &onStarted);
+void requestArSessionStart(const Utils::FilePath &bauhausSuite, const OnSessionStarted &onStarted);
 void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, bool abort);
 void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, int sessionId,
                            const QList<long> &issues);
