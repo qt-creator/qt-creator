@@ -45,8 +45,6 @@ public:
     QStringList listIssues();
 
     // Method metadata management
-    QString getMethodMetadata();
-    QString setMethodMetadata(const QString &method, int timeoutSeconds);
     int getMethodTimeout(const QString &method) const;
 
     // Debugging management helpers
