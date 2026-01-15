@@ -202,7 +202,6 @@ GitGrep::GitGrep()
     const QRegularExpression refExpression("[\\S]*");
     m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
     layout->addWidget(m_treeLineEdit);
-    // asynchronously check git version, add "recurse submodules" option if available
 
     m_recurseSubmodules = new QCheckBox(Tr::tr("Recurse submodules"));
     layout->addWidget(m_recurseSubmodules);
