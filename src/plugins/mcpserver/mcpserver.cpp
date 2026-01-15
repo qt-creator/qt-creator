@@ -6,6 +6,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <debugger/debuggerconstants.h>
 #include <utils/threadutils.h>
 
 #include <QCoreApplication>
@@ -145,23 +146,6 @@ McpServer::McpServer(QObject *parent)
             Q_UNUSED(p);
             QString status = runOnGuiThread([this] { return m_commands.getBuildStatus(); });
             return QJsonObject{{"result", status}};
-        });
-
-    addTool(
-        {{"name", "debug"},
-         {"title", "Start debugging the current project"},
-         {"description", "Start debugging the current project"},
-         {"inputSchema", QJsonObject{{"type", "object"}}},
-         {"outputSchema",
-          QJsonObject{
-              {"type", "object"},
-              {"properties", QJsonObject{{"result", QJsonObject{{"type", "string"}}}}},
-              {"required", QJsonArray{"result"}}}},
-         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
-            Q_UNUSED(p);
-            QString result = runOnGuiThread([this] { return m_commands.debug(); });
-            return QJsonObject{{"result", result}};
         });
 
     addTool(
@@ -779,6 +763,7 @@ void McpServer::initializeToolsForCommands()
     };
 
     addToolForCommand("run_project", ProjectExplorer::Constants::RUN);
+    addToolForCommand("debug", Debugger::Constants::DEBUGGER_START);
 }
 
 QJsonObject McpServer::createErrorResponse(int code, const QString &message, const QJsonValue &id)

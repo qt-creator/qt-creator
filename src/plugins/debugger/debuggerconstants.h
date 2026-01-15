@@ -26,6 +26,9 @@ const char G_ANALYZER_OPTIONS[]      = "Menu.Group.Analyzer.Options";
 
 const char ANALYZERTASK_ID[]         = "Analyzer.TaskId";
 
+// Debugger commands
+const char DEBUGGER_START[]          = "Debugger.Start";
+
 } // namespace Constants
 
 // Keep in sync with debugger/utils.py

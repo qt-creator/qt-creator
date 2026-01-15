@@ -338,8 +338,6 @@ Q_DECLARE_METATYPE(QString *)
 namespace Debugger {
 namespace Internal {
 
-const char DEBUGGER_START[] = "Debugger.Start";
-
 // Menu Groups
 const char MENU_GROUP_GENERAL[]              = "Debugger.Group.General";
 const char MENU_GROUP_SPECIAL[]              = "Debugger.Group.Special";
@@ -947,7 +945,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     //mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = ActionManager::registerAction(&m_startAction, DEBUGGER_START);
-    cmd->setDescription(Tr::tr("Start Debugging"));
+    cmd->setDescription(Tr::tr("Start Debugging the current project"));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultKeySequence(startShortcut);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
