@@ -379,6 +379,13 @@ public:
         s.disabledMessages.setValue(disabled);
         s.disabledMessagesForNonQuickUi.setValue(disabledForNonQuickUi);
         s.writeSettings();
+        Core::IOptionsPageWidget::apply();
+    }
+
+    void cancel() final
+    {
+        settings().cancel();
+        Core::IOptionsPageWidget::cancel();
     }
 
 private:
