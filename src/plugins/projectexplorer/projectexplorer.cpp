@@ -228,7 +228,6 @@ const char DEPLOY[]               = "ProjectExplorer.Deploy";
 const char DEPLOYCM[]             = "ProjectExplorer.DeployCM";
 const char DEPLOYSESSION[]        = "ProjectExplorer.DeploySession";
 const char CLEANPROJECTONLY[]     = "ProjectExplorer.CleanProjectOnly";
-const char CLEAN[]                = "ProjectExplorer.Clean";
 const char CLEANALLCONFIGS[]      = "ProjectExplorer.CleanProjectForAllConfigs";
 const char CLEANCM[]              = "ProjectExplorer.CleanCM";
 const char CLEANDEPENDCM[]        = "ProjectExplorer.CleanDependenciesCM";
@@ -1405,7 +1404,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     dd->m_buildAction->setIcon(buildIcon);
     cmd = ActionManager::registerAction(dd->m_buildAction, Constants::BUILD);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(dd->m_buildAction->text());
+    cmd->setDescription(Tr::tr("Build Active Project"));
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
@@ -1489,7 +1488,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 
     // clean action
     dd->m_cleanAction = new QAction(Utils::Icons::CLEAN.icon(), Tr::tr("Clean"), this);
-    dd->m_cleanAction->setWhatsThis(Tr::tr("Clean Project"));
+    dd->m_cleanAction->setWhatsThis(Tr::tr("Clean Active Project"));
     cmd = ActionManager::registerAction(dd->m_cleanAction, Constants::CLEAN);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_cleanAction->whatsThis());

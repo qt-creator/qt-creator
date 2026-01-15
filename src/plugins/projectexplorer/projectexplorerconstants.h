@@ -13,6 +13,7 @@ const char MODE_SESSION[]         = "Project";
 
 // Actions
 const char BUILD[]                = "ProjectExplorer.Build";
+const char CLEAN[]                = "ProjectExplorer.Clean";
 const char STOP[]                 = "ProjectExplorer.Stop";
 const char ADDNEWFILE[]           = "ProjectExplorer.AddNewFile";
 const char FILEPROPERTIES[]       = "ProjectExplorer.FileProperties";

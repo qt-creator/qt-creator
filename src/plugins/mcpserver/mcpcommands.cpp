@@ -43,39 +43,6 @@ McpCommands::McpCommands(QObject *parent)
     m_issuesManager = new IssuesManager(this);
 }
 
-bool McpCommands::build()
-{
-    if (!hasValidProject()) {
-        qCDebug(mcpCommands) << "No valid project available for building";
-        return false;
-    }
-
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    if (!project) {
-        qCDebug(mcpCommands) << "No current project";
-        return false;
-    }
-
-    ProjectExplorer::Target *target = project->activeTarget();
-    if (!target) {
-        qCDebug(mcpCommands) << "No active target";
-        return false;
-    }
-
-    ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
-    if (!buildConfig) {
-        qCDebug(mcpCommands) << "No active build configuration";
-        return false;
-    }
-
-    qCDebug(mcpCommands) << "Starting build for project:" << project->displayName();
-
-    // Trigger build
-    ProjectExplorer::BuildManager::buildProjectWithoutDependencies(project);
-
-    return true;
-}
-
 QString McpCommands::stopDebug()
 {
     QStringList results;
@@ -512,29 +479,6 @@ QString McpCommands::getCurrentBuildConfig()
     return QString();
 }
 
-bool McpCommands::cleanProject()
-{
-    if (!hasValidProject()) {
-        qCDebug(mcpCommands) << "No valid project available for cleaning";
-        return false;
-    }
-
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    ProjectExplorer::Target *target = project->activeTarget();
-
-    if (target) {
-        ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
-        if (buildConfig) {
-            qCDebug(mcpCommands) << "Cleaning project:" << project->displayName();
-            ProjectExplorer::BuildManager::cleanProjectWithoutDependencies(project);
-            return true;
-        }
-    }
-
-    qCDebug(mcpCommands) << "No build configuration available for cleaning";
-    return false;
-}
-
 QStringList McpCommands::listOpenFiles()
 {
     QStringList files;
@@ -547,21 +491,6 @@ QStringList McpCommands::listOpenFiles()
     qCDebug(mcpCommands) << "Open files:" << files;
 
     return files;
-}
-
-bool McpCommands::hasValidProject() const
-{
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    if (!project) {
-        return false;
-    }
-
-    ProjectExplorer::Target *target = project->activeTarget();
-    if (!target) {
-        return false;
-    }
-
-    return true;
 }
 
 QStringList McpCommands::listSessions()

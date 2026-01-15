@@ -18,7 +18,6 @@ public:
     explicit McpCommands(QObject *parent = nullptr);
 
     // Core MCP commands
-    bool build();
     QString stopDebug();
     bool openFile(const QString &path);
     QStringList listProjects();
@@ -31,7 +30,6 @@ public:
     // Additional useful commands
     QString getCurrentProject();
     QString getCurrentBuildConfig();
-    bool cleanProject();
     QStringList listOpenFiles();
 
     // Session management commands
@@ -51,8 +49,6 @@ public:
     bool performDebuggingCleanupSync();
 
 private:
-    bool hasValidProject() const;
-
     // Issues management
     IssuesManager *m_issuesManager;
 };

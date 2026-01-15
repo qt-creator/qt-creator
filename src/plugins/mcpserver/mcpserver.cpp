@@ -115,23 +115,6 @@ McpServer::McpServer(QObject *parent)
     });
 
     addTool(
-        {{"name", "build"},
-         {"title", "Build the current project"},
-         {"description", "Compile the current Qt Creator project"},
-         {"inputSchema", QJsonObject{{"type", "object"}}},
-         {"outputSchema",
-          QJsonObject{
-              {"type", "object"},
-              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
-              {"required", QJsonArray{"success"}}}},
-         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
-            Q_UNUSED(p);
-            bool ok = runOnGuiThread([this] { return m_commands.build(); });
-            return QJsonObject{{"success", ok}};
-        });
-
-    addTool(
         {{"name", "get_build_status"},
          {"title", "Get current build status"},
          {"description", "Get current build progress and status"},
@@ -247,23 +230,6 @@ McpServer::McpServer(QObject *parent)
             const QString name = p.value("name").toString();
             bool ok = runOnGuiThread(
                 [this, name] { return m_commands.switchToBuildConfig(name); });
-            return QJsonObject{{"success", ok}};
-        });
-
-    addTool(
-        {{"name", "clean_project"},
-         {"title", "Clean the current project"},
-         {"description", "Clean the current project"},
-         {"inputSchema", QJsonObject{{"type", "object"}}},
-         {"outputSchema",
-          QJsonObject{
-              {"type", "object"},
-              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
-              {"required", QJsonArray{"success"}}}},
-         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
-            Q_UNUSED(p);
-            bool ok = runOnGuiThread([this] { return m_commands.cleanProject(); });
             return QJsonObject{{"success", ok}};
         });
 
@@ -763,6 +729,8 @@ void McpServer::initializeToolsForCommands()
     };
 
     addToolForCommand("run_project", ProjectExplorer::Constants::RUN);
+    addToolForCommand("build", ProjectExplorer::Constants::BUILD);
+    addToolForCommand("clean_project", ProjectExplorer::Constants::CLEAN);
     addToolForCommand("debug", Debugger::Constants::DEBUGGER_START);
 }
 
