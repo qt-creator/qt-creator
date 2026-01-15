@@ -540,6 +540,7 @@ public:
 
         m_deviceComboBox = new QComboBox(this);
         Core::IOptionsPageWidget::setIgnoreForDirtyHook(m_deviceComboBox);
+        m_deviceModel.showAllEntry();
         m_deviceComboBox->setModel(&m_deviceModel);
 
         m_filterModel.setSourceModel(&m_model);
@@ -595,8 +596,7 @@ public:
             m_filterModel.setDevice(m_deviceModel.device(idx));
         };
         connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
-        m_deviceComboBox->setCurrentIndex(
-            m_deviceModel.indexOf(DeviceManager::defaultDesktopDevice()));
+        m_deviceComboBox->setCurrentIndex(0);
         updateDevice(m_deviceComboBox->currentIndex());
     }
 
@@ -696,9 +696,20 @@ void CMakeToolConfigWidget::setDefaultCMakeTool()
 void CMakeToolConfigWidget::redetect()
 {
     // Step 1: Detect
-    const IDeviceConstPtr dev = currentDevice();
-    QTC_ASSERT(dev, return);
-    auto toAdd = CMakeToolManager::autoDetectCMakeTools(dev->toolSearchPaths(), dev->rootPath());
+    QList<IDeviceConstPtr> devices;
+    if (const IDeviceConstPtr dev = currentDevice()) {
+        devices << dev;
+    } else {
+        for (int i = 0; i < DeviceManager::deviceCount(); ++i)
+            devices << DeviceManager::deviceAt(i);
+    }
+    std::vector<std::unique_ptr<CMakeTool>> toAdd;
+    for (const IDeviceConstPtr &dev : std::as_const(devices)) {
+        auto detected
+            = CMakeToolManager::autoDetectCMakeTools(dev->toolSearchPaths(), dev->rootPath());
+        for (auto &&tool : detected)
+            toAdd.push_back(std::move(tool));
+    }
 
     // Step 2: Match existing against newly detected.
     QList<Id> toRemove;
@@ -728,8 +739,7 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurren
 {
     m_currentItem = m_model.cmakeToolItem(mapToSource(newCurrent));
     m_itemConfigWidget->load(m_currentItem);
-    const IDeviceConstPtr dev = currentDevice();
-    if (QTC_GUARD(dev))
+    if (const IDeviceConstPtr dev = currentDevice())
         m_itemConfigWidget->setDeviceRoot(dev->rootPath());
     m_container->setVisible(m_currentItem);
     m_cloneButton->setEnabled(m_currentItem);
