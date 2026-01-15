@@ -770,7 +770,7 @@ void TestResultsPane::createMarks(const QModelIndex &parent)
                 continue;
 
             TestEditorMark *mark = new TestEditorMark(index, result.fileName(), result.line());
-            mark->setIcon(index.data(Qt::DecorationRole).value<QIcon>());
+            mark->setIcon(Icons::TEXTMARK_FAIL.icon());
             mark->setColor(Theme::OutputPanes_TestFailTextColor);
             mark->setPriority(TextEditor::TextMark::NormalPriority);
             mark->setToolTip(result.description());
