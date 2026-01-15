@@ -25,6 +25,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 #include <utils/temporarydirectory.h>
 #include <utils/winutils.h>
 
@@ -2342,7 +2343,7 @@ void setupMsvcToolchain()
 void setupClangClToolchain()
 {
 #ifdef Q_OS_WIN
-    static ClangClToolchainFactory theClangClToolchainFactory;
+    static GuardedObject<ClangClToolchainFactory> theClangClToolchainFactory;
 #endif
 }
 
