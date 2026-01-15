@@ -5,6 +5,8 @@
 
 #include "texteditor_global.h"
 
+#include <utils/id.h>
+
 #include <QObject>
 
 namespace Utils { class FilePath; }
@@ -35,6 +37,7 @@ public:
     void addCodeStyle(ICodeStylePreferences *codeStyle);
     // is removed and deleted
     void removeCodeStyle(ICodeStylePreferences *codeStyle);
+    void removeAutoImportedCodeStyle(Utils::Id id);
 
     ICodeStylePreferences *codeStyle(const QByteArray &id) const;
 
@@ -42,6 +45,7 @@ public:
 
     ICodeStylePreferences *importCodeStyle(const Utils::FilePath &fileName);
     void exportCodeStyle(const Utils::FilePath &fileName, ICodeStylePreferences *codeStyle) const;
+    ICodeStylePreferences *loadCodeStyle(const Utils::FilePath &fileName, bool readOnly = false);
 
 signals:
     void codeStyleAdded(ICodeStylePreferences *);
@@ -50,7 +54,6 @@ signals:
 private:
     Utils::FilePath settingsDir() const;
     Utils::FilePath settingsPath(const QByteArray &id) const;
-    ICodeStylePreferences *loadCodeStyle(const Utils::FilePath &fileName);
     void saveCodeStyle(ICodeStylePreferences *codeStyle) const;
 
     Internal::CodeStylePoolPrivate *d;
