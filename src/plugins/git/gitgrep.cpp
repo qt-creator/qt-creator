@@ -11,6 +11,7 @@
 #include <texteditor/findinfiles.h>
 
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -277,6 +278,7 @@ SearchExecutor GitGrep::searchExecutor() const
         arguments << "--" << filterArgs << exclusionArgs;
 
         inputs.command = CommandLine{vcsBinary, arguments};
+        VcsOutputWindow::appendCommand(inputs.parameters.searchDir, inputs.command);
         return Utils::asyncRun(runGitGrep, inputs);
     };
 }
