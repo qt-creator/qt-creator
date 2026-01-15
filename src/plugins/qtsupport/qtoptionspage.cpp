@@ -11,6 +11,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/devicemanagermodel.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
@@ -347,6 +348,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     , m_configurationWidget(nullptr)
 {
     m_deviceComboBox = new QComboBox;
+    m_deviceManagerModel.showAllEntry();
     m_deviceComboBox->setModel(&m_deviceManagerModel);
 
     m_qtdirList = new QTreeView(this);
@@ -509,8 +511,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
         updateLinkWithQtButton();
     };
     connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
-    m_deviceComboBox->setCurrentIndex(
-        m_deviceManagerModel.indexForId(ProjectExplorer::Constants::DESKTOP_DEVICE_ID));
+    m_deviceComboBox->setCurrentIndex(0);
     updateDevice(m_deviceComboBox->currentIndex());
 }
 
@@ -736,7 +737,7 @@ void QtSettingsPageWidget::addQtDir()
 {
     FilePath initialDir;
     const IDeviceConstPtr dev = currentDevice();
-    if (QTC_GUARD(dev) && dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
+    if (dev && dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
         initialDir = dev->rootPath();
     FilePath qtVersion
         = FileUtils::getOpenFilePath(Tr::tr("Select a qmake Executable"),
@@ -797,24 +798,29 @@ void QtSettingsPageWidget::removeQtDir()
 
 void QtSettingsPageWidget::redetect()
 {
-    const IDeviceConstPtr dev = currentDevice();
-    if (!QTC_GUARD(dev))
-        return;
+    QList<IDeviceConstPtr> devices;
+    if (const IDeviceConstPtr device = currentDevice()) {
+        devices << device;
+    } else {
+        for (int i = 0; i < DeviceManager::deviceCount(); ++i)
+            devices << DeviceManager::deviceAt(i);
+    }
+    for (const IDeviceConstPtr &dev : std::as_const(devices)) {
+        const FilePaths qMakes = BuildableHelperLibrary::findQtsInPaths(dev->toolSearchPaths());
+        for (const FilePath &qmakePath : qMakes) {
+            if (BuildableHelperLibrary::isQtChooser(qmakePath))
+                continue;
+            if (checkAlreadyExists(m_autoItem, qmakePath).first)
+                continue;
+            if (checkAlreadyExists(m_manualItem, qmakePath).first)
+                continue;
 
-    const FilePaths qMakes = BuildableHelperLibrary::findQtsInPaths(dev->toolSearchPaths());
-    for (const FilePath &qmakePath : qMakes) {
-        if (BuildableHelperLibrary::isQtChooser(qmakePath))
-            continue;
-        if (checkAlreadyExists(m_autoItem, qmakePath).first)
-            continue;
-        if (checkAlreadyExists(m_manualItem, qmakePath).first)
-            continue;
-
-        if (QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(
-                qmakePath, {DetectionSource::Manual, "PATH"})) {
-            auto item = new QtVersionItem(version);
-            item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
-            m_manualItem->appendChild(item);
+            if (QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(
+                    qmakePath, {DetectionSource::Manual, "PATH"})) {
+                auto item = new QtVersionItem(version);
+                item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
+                m_manualItem->appendChild(item);
+            }
         }
     }
 
