@@ -33,6 +33,7 @@ public:
     {}
 
     operator T&() const { return *m_object; }
+    T *operator->() const noexcept { return m_object; }
     T *get() const { return m_object; }
 
 private:
