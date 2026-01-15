@@ -4,6 +4,7 @@
 #pragma once
 
 #include <coreplugin/helpmanager.h>
+#include <utils/aspects.h>
 
 #include <QMetaType>
 #include <QMutex>
@@ -28,6 +29,23 @@ struct HelpViewerFactory
     std::function<HelpViewer *()> create;
 };
 
+class HelpSettings final : public Utils::AspectContainer
+{
+public:
+    HelpSettings();
+
+    Utils::StringAspect homePage{this};
+    Utils::IntegerAspect fontZoom{this}; // percentages
+    Utils::BoolAspect antiAlias{this};
+    Utils::BoolAspect scrollWheelZooming{this};
+    Utils::BoolAspect returnOnClose{this};
+    Utils::StringAspect lastShownPages{this};
+    Utils::IntegerAspect lastSelectedTab{this};
+    Utils::TypedAspect<QByteArray> viewerBackendId{this};
+};
+
+HelpSettings &helpSettings();
+
 class LocalHelpManager : public QObject
 {
     Q_OBJECT
@@ -50,18 +68,8 @@ public:
 
     static LocalHelpManager *instance();
 
-    static QString defaultHomePage();
-    static QString homePage();
-    static void setHomePage(const QString &page);
-
     static QFont fallbackFont();
     static void setFallbackFont(const QFont &font);
-
-    static int fontZoom();
-    static int setFontZoom(int percentage);
-
-    static bool antialias();
-    static void setAntialias(bool on);
 
     static StartOption startOption();
     static void setStartOption(StartOption option);
@@ -69,23 +77,9 @@ public:
     static Core::HelpManager::HelpViewerLocation contextHelpOption();
     static void setContextHelpOption(Core::HelpManager::HelpViewerLocation location);
 
-    static bool returnOnClose();
-    static void setReturnOnClose(bool returnOnClose);
-
-    static bool isScrollWheelZoomingEnabled();
-    static void setScrollWheelZoomingEnabled(bool enabled);
-
-    static QStringList lastShownPages();
-    static void setLastShownPages(const QStringList &pages);
-
-    static int lastSelectedTab();
-    static void setLastSelectedTab(int index);
-
     static HelpViewerFactory defaultViewerBackend();
     static QVector<HelpViewerFactory> viewerBackends();
     static HelpViewerFactory viewerBackend();
-    static void setViewerBackendId(const QByteArray &id);
-    static QByteArray viewerBackendId();
 
     static void setupGuiHelpEngine();
     static void setEngineNeedsUpdate();
@@ -109,12 +103,7 @@ public:
 
 signals:
     void fallbackFontChanged(const QFont &font);
-    void fontZoomChanged(int percentage);
-    void antialiasChanged(bool on);
-    void returnOnCloseChanged();
-    void scrollWheelZoomingEnabledChanged(bool enabled);
     void contextHelpOptionChanged(Core::HelpManager::HelpViewerLocation option);
-    void backendChanged();
 };
 
 } // namespace Help::Internal

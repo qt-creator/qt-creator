@@ -206,9 +206,9 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     mainLayout->addStretch(1);
 
     m_font = LocalHelpManager::fallbackFont();
-    m_fontZoom = LocalHelpManager::fontZoom();
+    m_fontZoom = helpSettings().fontZoom();
     zoomSpinBox->setValue(m_fontZoom);
-    antialiasCheckBox->setChecked(LocalHelpManager::antialias());
+    antialiasCheckBox->setChecked(helpSettings().antiAlias());
 
     updateFontSizeSelector();
     updateFontStyleSelector();
@@ -233,7 +233,7 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     connect(zoomSpinBox, &QSpinBox::valueChanged,
             this, [this](int value) { m_fontZoom = value; });
 
-    m_homePage = LocalHelpManager::homePage();
+    m_homePage = helpSettings().homePage();
     homePageLineEdit->setText(m_homePage);
 
     m_startOption = LocalHelpManager::startOption();
@@ -259,16 +259,16 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     connect(exportButton, &QPushButton::clicked,
             this, &GeneralSettingsPageWidget::exportBookmarks);
 
-    m_returnOnClose = LocalHelpManager::returnOnClose();
+    m_returnOnClose = helpSettings().returnOnClose();
     m_returnOnCloseCheckBox->setChecked(m_returnOnClose);
 
-    m_scrollWheelZoomingEnabled = LocalHelpManager::isScrollWheelZoomingEnabled();
+    m_scrollWheelZoomingEnabled = helpSettings().scrollWheelZooming();
     scrollWheelZooming->setChecked(m_scrollWheelZoomingEnabled);
 
     viewerBackend->addItem(
         Tr::tr("Default (%1)", "Default viewer backend")
             .arg(LocalHelpManager::defaultViewerBackend().displayName));
-    const QByteArray currentBackend = LocalHelpManager::viewerBackendId();
+    const QByteArray currentBackend = helpSettings().viewerBackendId();
     const QVector<HelpViewerFactory> backends = LocalHelpManager::viewerBackends();
     for (const HelpViewerFactory &f : backends) {
         viewerBackend->addItem(f.displayName, f.id);
@@ -288,10 +288,10 @@ void GeneralSettingsPageWidget::apply()
     if (m_font != LocalHelpManager::fallbackFont())
         LocalHelpManager::setFallbackFont(m_font);
 
-    if (m_fontZoom != LocalHelpManager::fontZoom())
-        LocalHelpManager::setFontZoom(m_fontZoom);
+    if (m_fontZoom != helpSettings().fontZoom())
+        helpSettings().fontZoom.setValue(m_fontZoom);
 
-    LocalHelpManager::setAntialias(antialiasCheckBox->isChecked());
+    helpSettings().antiAlias.setValue(antialiasCheckBox->isChecked());
 
     QString homePage = QUrl::fromUserInput(homePageLineEdit->text()).toString();
     if (homePage.isEmpty())
@@ -299,7 +299,7 @@ void GeneralSettingsPageWidget::apply()
     homePageLineEdit->setText(homePage);
     if (m_homePage != homePage) {
         m_homePage = homePage;
-        LocalHelpManager::setHomePage(homePage);
+        helpSettings().homePage.setValue(homePage);
     }
 
     const int startOption = helpStartComboBox->currentIndex();
@@ -317,17 +317,18 @@ void GeneralSettingsPageWidget::apply()
     const bool close = m_returnOnCloseCheckBox->isChecked();
     if (m_returnOnClose != close) {
         m_returnOnClose = close;
-        LocalHelpManager::setReturnOnClose(m_returnOnClose);
+        helpSettings().returnOnClose.setValue(m_returnOnClose);
     }
 
     const bool zoom = scrollWheelZooming->isChecked();
     if (m_scrollWheelZoomingEnabled != zoom) {
         m_scrollWheelZoomingEnabled = zoom;
-        LocalHelpManager::setScrollWheelZoomingEnabled(m_scrollWheelZoomingEnabled);
+        helpSettings().scrollWheelZooming.setValue(m_scrollWheelZoomingEnabled);
     }
 
     const QByteArray viewerBackendId = viewerBackend->currentData().toByteArray();
-    LocalHelpManager::setViewerBackendId(viewerBackendId);
+    helpSettings().viewerBackendId.setValue(viewerBackendId);
+    helpSettings().writeSettings();
 }
 
 void GeneralSettingsPageWidget::setCurrentPage()
@@ -343,7 +344,7 @@ void GeneralSettingsPageWidget::setBlankPage()
 
 void GeneralSettingsPageWidget::setDefaultPage()
 {
-    homePageLineEdit->setText(LocalHelpManager::defaultHomePage());
+    homePageLineEdit->setText(helpSettings().homePage.defaultValue());
 }
 
 void GeneralSettingsPageWidget::importBookmarks()

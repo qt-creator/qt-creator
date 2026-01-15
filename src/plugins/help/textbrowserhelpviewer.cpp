@@ -55,7 +55,7 @@ TextBrowserHelpViewer::~TextBrowserHelpViewer() = default;
 
 void TextBrowserHelpViewer::setViewerFont(const QFont &newFont)
 {
-    setFontAndScale(newFont, LocalHelpManager::fontZoom() / 100.0, LocalHelpManager::antialias());
+    setFontAndScale(newFont, helpSettings().fontZoom() / 100.0, helpSettings().antiAlias());
 }
 
 void TextBrowserHelpViewer::setFontAndScale(const QFont &font, qreal scale, bool antialias)
@@ -71,12 +71,12 @@ void TextBrowserHelpViewer::setFontAndScale(const QFont &font, qreal scale, bool
 
 void TextBrowserHelpViewer::setScale(qreal scale)
 {
-    setFontAndScale(LocalHelpManager::fallbackFont(), scale, LocalHelpManager::antialias());
+    setFontAndScale(LocalHelpManager::fallbackFont(), scale, helpSettings().antiAlias());
 }
 
 void TextBrowserHelpViewer::setAntialias(bool on)
 {
-    setFontAndScale(LocalHelpManager::fallbackFont(), LocalHelpManager::fontZoom() / 100.0, on);
+    setFontAndScale(LocalHelpManager::fallbackFont(), helpSettings().fontZoom() / 100.0, on);
 }
 
 QString TextBrowserHelpViewer::title() const

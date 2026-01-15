@@ -89,7 +89,7 @@ void OpenPagesManager::setupInitialPages()
 {
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     const LocalHelpManager::StartOption option = LocalHelpManager::startOption();
-    QString homePage = LocalHelpManager::homePage();
+    const QString homePage = helpSettings().homePage();
 
     int initialPage = 0;
     switch (option) {
@@ -102,11 +102,12 @@ void OpenPagesManager::setupInitialPages()
         break;
 
     case LocalHelpManager::ShowLastPages: {
-        const QStringList &lastShownPageList = LocalHelpManager::lastShownPages();
-        const int pageCount = lastShownPageList.count();
+        const QStringList lastShownPageList =
+            helpSettings().lastShownPages().split(Constants::ListSeparator, Qt::SkipEmptyParts);
+        const int pageCount = lastShownPageList.size();
 
         if (pageCount > 0) {
-            initialPage = LocalHelpManager::lastSelectedTab();
+            initialPage = helpSettings().lastSelectedTab();
             for (int curPage = 0; curPage < pageCount; ++curPage) {
                 const QString &curFile = lastShownPageList.at(curPage);
                 if (engine.findFile(curFile).isValid() || curFile == Help::Constants::AboutBlank) {
