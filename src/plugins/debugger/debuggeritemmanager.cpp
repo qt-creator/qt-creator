@@ -1151,6 +1151,7 @@ public:
         m_sortModel->setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
                                           ProjectExplorer::Constants::msgManual()});
         m_deviceModel = new DeviceManagerModel(this);
+        m_deviceModel->showAllEntry();
         m_deviceComboBox = new QComboBox(this);
         m_deviceComboBox->setModel(m_deviceModel);
         m_debuggerView = new QTreeView(this);
@@ -1205,13 +1206,18 @@ public:
                 this, &DebuggerSettingsPageWidget::removeDebugger, Qt::QueuedConnection);
         connect(m_detectButton , &QAbstractButton::clicked,
                 this, [this] {
-            const IDeviceConstPtr dev = currentDevice();
-            QTC_ASSERT(dev, return);
-            itemModel().detectDebuggers(dev, dev->toolSearchPaths());
+            QList<IDeviceConstPtr> devices;
+            if (const IDeviceConstPtr dev = currentDevice()) {
+                devices << dev;
+            } else {
+                for (int i = 0; i < DeviceManager::deviceCount(); ++i)
+                    devices << DeviceManager::deviceAt(i);
+            }
+            for (const IDeviceConstPtr &dev : std::as_const(devices))
+                itemModel().detectDebuggers(dev, dev->toolSearchPaths());
         });
 
-        m_deviceComboBox->setCurrentIndex(
-            m_deviceModel->indexOf(DeviceManager::defaultDesktopDevice()));
+        m_deviceComboBox->setCurrentIndex(0);
         const auto updateDevice = [this](int idx) {
             m_filterModel->setDevice(m_deviceModel->device(idx));
         };
@@ -1324,7 +1330,7 @@ void DebuggerSettingsPageWidget::updateButtons()
 
     m_itemConfigWidget->load(item);
     const IDeviceConstPtr dev = currentDevice();
-    if (QTC_GUARD(dev))
+    if (dev)
         m_itemConfigWidget->setDeviceRootPath(dev->rootPath());
     m_container->setVisible(item != nullptr);
     m_cloneButton->setEnabled(item && item->isValid() && item->canClone());
