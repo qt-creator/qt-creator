@@ -315,17 +315,6 @@ bool AndroidDeployQtStep::needsPackageRegeneration()
         return true;
     }
 
-    const QString buildKey = buildConfiguration()->activeBuildKey();
-    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
-    if (node) {
-        const FilePath apk = FilePath::fromString(node->data(Constants::AndroidApk).toString());
-        if (!apk.isEmpty() && !apk.exists()) {
-            emit addOutput(Tr::tr("APK file does not exist, regenerating package."),
-                           OutputFormat::NormalMessage);
-            return true;
-        }
-    }
-
     const FilePath timestampFile = androidBuildDir / "AndroidDeployTimestamp";
     if (!m_lastDeploymentTime.isValid()) {
         if (timestampFile.exists()) {
@@ -338,12 +327,15 @@ bool AndroidDeployQtStep::needsPackageRegeneration()
     }
 
     const BuildSystem *bs = buildSystem();
+    const QString buildKey = buildConfiguration()->activeBuildKey();
 
     if (jsonFile.lastModified() > m_lastDeploymentTime) {
         emit addOutput(Tr::tr("Deployment settings changed since last deploy, regenerating package."),
                        OutputFormat::NormalMessage);
         return true;
     }
+
+    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
     if (node) {
         const FilePath apk = FilePath::fromString(node->data(Constants::AndroidApk).toString());
         if (!apk.isEmpty() && apk.exists() && apk.lastModified() > m_lastDeploymentTime) {
@@ -357,12 +349,6 @@ bool AndroidDeployQtStep::needsPackageRegeneration()
     for (const QString &abi : androidAbis) {
         const FilePath libsDir = androidBuildDir / "libs" / abi;
         if (libsDir.exists()) {
-            if (libsDir.lastModified() > m_lastDeploymentTime) {
-                emit addOutput(Tr::tr("Libraries directory %1 modified since last deploy, regenerating package.")
-                                   .arg(libsDir.fileName()),
-                               OutputFormat::NormalMessage);
-                return true;
-            }
             const FilePaths files = libsDir.dirEntries(QDir::Files);
             for (const FilePath &file : files) {
                 if (file.lastModified() > m_lastDeploymentTime) {

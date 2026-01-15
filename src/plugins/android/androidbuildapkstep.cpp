@@ -729,6 +729,8 @@ bool AndroidBuildApkStep::init()
     const FilePath outputDir = androidBuildDirectory(buildConfiguration());
     m_packagePath = packagePath(this);
 
+    qCDebug(buildapkstepLog).noquote() << "APK or AAB path:" << m_packagePath.toUserOutput();
+
     FilePath command = version->hostBinPath().pathAppended("androiddeployqt").withExecutableSuffix();
 
     m_inputFile = AndroidQtVersion::androidDeploymentSettings(buildConfiguration());
@@ -1080,13 +1082,6 @@ bool AndroidBuildApkStep::needsApkRegeneration()
         return true;
     }
 
-    if (!m_packagePath.exists()) {
-        emit addOutput(Tr::tr("APK file does not exist at %1, regenerating APK.")
-                           .arg(m_packagePath.toUserOutput()),
-                       OutputFormat::NormalMessage);
-        return true;
-    }
-
     const FilePath timestampFile = androidBuildDir / "AndroidBuildTimestamp";
     if (!m_lastBuildTime.isValid()) {
         if (timestampFile.exists()) {
@@ -1110,12 +1105,6 @@ bool AndroidBuildApkStep::needsApkRegeneration()
     for (const QString &abi : androidAbis) {
         const FilePath libsDir = androidBuildDir / "libs" / abi;
         if (libsDir.exists()) {
-            if (libsDir.lastModified() > m_lastBuildTime) {
-                emit addOutput(Tr::tr("Libraries directory %1 modified since last build, regenerating APK.")
-                                   .arg(libsDir.fileName()),
-                               OutputFormat::NormalMessage);
-                return true;
-            }
             const FilePaths files = libsDir.dirEntries(QDir::Files);
             for (const FilePath &file : files) {
                 if (file.lastModified() > m_lastBuildTime) {
