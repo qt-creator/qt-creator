@@ -44,9 +44,6 @@ public:
     // Issue management commands
     QStringList listIssues();
 
-    // Method metadata management
-    int getMethodTimeout(const QString &method) const;
-
     // Debugging management helpers
     bool isDebuggingActive();
     QString abortDebug();
@@ -56,9 +53,6 @@ public:
 
 private:
     bool hasValidProject() const;
-
-    // Method timeout storage
-    QMap<QString, int> m_methodTimeouts;
 
     // Issues management
     IssuesManager *m_issuesManager;

@@ -39,13 +39,6 @@ namespace Mcp::Internal {
 McpCommands::McpCommands(QObject *parent)
     : QObject(parent)
 {
-    // Initialize default method timeouts (in seconds)
-    m_methodTimeouts["debug"] = 60;
-    m_methodTimeouts["build"] = 1200; // 20 minutes
-    m_methodTimeouts["run_project"] = 60;
-    m_methodTimeouts["load_session"] = 120;
-    m_methodTimeouts["clean_project"] = 300; // 5 minutes
-
     // Initialize issues manager
     m_issuesManager = new IssuesManager(this);
 }
@@ -441,9 +434,7 @@ bool McpCommands::performDebuggingCleanupSync()
 
     // Step 5: Final timeout - wait up to configured timeout
     if (isDebuggingActive()) {
-        int timeoutSeconds = getMethodTimeout("stop_debug");
-        if (timeoutSeconds < 0)
-            timeoutSeconds = 30; // Default 30 seconds
+        const int timeoutSeconds = 30;
 
         qCDebug(mcpCommands) << "Still debugging, waiting up to" << timeoutSeconds
                  << "seconds for final timeout...";
@@ -737,11 +728,6 @@ QStringList McpCommands::listIssues()
 
     qCDebug(mcpCommands) << "Found" << issues.size() << "issues total";
     return issues;
-}
-
-int McpCommands::getMethodTimeout(const QString &method) const
-{
-    return m_methodTimeouts.value(method, -1);
 }
 
 // handleSessionLoadRequest method removed - using direct session loading instead
