@@ -624,12 +624,13 @@ private:
     FilePathAspect m_localPath{this};
 };
 
-class AxivionSettingsWidget : public IOptionsPageWidget
+class AxivionSettingsWidget final : public IOptionsPageWidget
 {
 public:
     AxivionSettingsWidget();
 
-    void apply() override;
+    void apply() final;
+    void cancel() final;
 
 private:
     void showServerDialog(bool add);
@@ -790,11 +791,19 @@ void AxivionSettingsWidget::apply()
                             FilePath::fromUserInput(item->text(1)),
                             FilePath::fromUserInput(item->text(2))});
     }
-    if (oldMappings == newMappings)
-        return;
+    if (oldMappings != newMappings) {
+        pathMappingSettings().setVariantValue(pathMappingsToSetting(newMappings));
+        pathMappingSettings().writeSettings();
+    }
 
-    pathMappingSettings().setVariantValue(pathMappingsToSetting(newMappings));
-    pathMappingSettings().writeSettings();
+    IOptionsPageWidget::apply();
+}
+
+void AxivionSettingsWidget::cancel()
+{
+    settings().cancel();
+    pathMappingSettings().cancel();
+    IOptionsPageWidget::cancel();
 }
 
 void AxivionSettingsWidget::updateDashboardServers()
