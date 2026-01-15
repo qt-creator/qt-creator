@@ -39,6 +39,7 @@
 
 #include <QDebug>
 #include <QClipboard>
+#include <QGuiApplication>
 #include <QInputDialog>
 #include <QMenu>
 #include <QUrl>
