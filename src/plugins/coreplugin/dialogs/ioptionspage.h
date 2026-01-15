@@ -78,6 +78,7 @@ protected:
     void setWidgetCreator(const std::function<IOptionsPageWidget *()> &widgetCreator);
     void setFixedKeywords(const QStringList &);
     void setRecreateOnCancel(bool on);
+    void setAutoApply();
 
 private:
     std::unique_ptr<Internal::IOptionsPagePrivate> d;

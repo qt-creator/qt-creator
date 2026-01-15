@@ -68,6 +68,7 @@ public:
     QStringList m_keywords;
     std::function<AspectContainer *()> m_settingsProvider;
     bool m_recreateOnCancel = false;
+    bool m_autoApply = false;
     QPointer<IOptionsPageWidget> m_widget; // Cache.
 };
 
@@ -404,6 +405,11 @@ bool IOptionsPage::recreateOnCancel() const
     return d->m_recreateOnCancel;
 }
 
+void IOptionsPage::setAutoApply()
+{
+    d->m_autoApply = true;
+}
+
 /*!
     Is used by the \uicontrol Options dialog search filter to match \a regexp to this options
     page. If not set,  it takes the widget and then looks for all child labels, check boxes, push
@@ -521,7 +527,8 @@ IOptionsPageWidget *IOptionsPagePrivate::createWidget()
     if (m_widgetCreator) {
         m_widget = m_widgetCreator();
         QTC_ASSERT(m_widget, return nullptr);
-        m_widget->setupDirtyHook(m_widget);
+        if (!m_autoApply)
+            m_widget->setupDirtyHook(m_widget);
         return m_widget;
     }
 
