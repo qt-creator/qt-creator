@@ -442,7 +442,6 @@ public:
 
     void showPage(Id pageId);
 
-    void ok();
     void apply();
     void cancel();
 
@@ -628,9 +627,17 @@ void SettingsDialog::createGui()
     buttonBox->addButton(&m_applyButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(&m_cancelButton, QDialogButtonBox::ActionRole);
 
-    connect(&m_okButton, &QAbstractButton::clicked, this, &SettingsDialog::ok);
+    connect(&m_okButton, &QAbstractButton::clicked, this, [this] {
+        apply();
+        ModeManager::activateMode(s_previousMode);
+    });
+
     connect(&m_applyButton, &QAbstractButton::clicked, this, &SettingsDialog::apply);
-    connect(&m_cancelButton, &QAbstractButton::clicked, this, &SettingsDialog::cancel);
+
+    connect(&m_cancelButton, &QAbstractButton::clicked, this, [this] {
+        cancel();
+        ModeManager::activateMode(s_previousMode);
+    });
 
     m_stackedLayout->setContentsMargins(0, 0, 0, 0);
     auto emptyWidget = new QWidget(this);
@@ -816,12 +823,6 @@ void SettingsDialog::filter(const QString &text)
 
     Category *category = m_model.categories().at(currentIndex.row());
     updateEnabledTabs(category, text);
-}
-
-void SettingsDialog::ok()
-{
-    apply();
-    ModeManager::activateMode(s_previousMode);
 }
 
 void SettingsDialog::apply()
