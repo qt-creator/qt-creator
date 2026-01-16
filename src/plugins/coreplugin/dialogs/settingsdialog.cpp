@@ -493,7 +493,6 @@ void SettingsDialog::setDirty(bool dirty)
     m_isDirty = dirty;
     m_okButton.setEnabled(dirty);
     m_applyButton.setEnabled(dirty);
-    m_cancelButton.setEnabled(dirty);
 }
 
 SettingsDialog::SettingsDialog()
