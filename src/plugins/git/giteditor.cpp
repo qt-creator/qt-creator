@@ -147,11 +147,11 @@ static QString sanitizeBlameOutput(const QString &b)
         static const QString sep = "  ";
         QRegularExpressionMatch match = i.next();
         const QString hash   = match.captured(1) + sep;
-        const QString path   = omitPath   ? QString() : match.captured(2) + sep;
+        const QString path   = omitPath   ? QString() : match.captured(2);
         const QString author = omitAuthor ? QString() : match.captured(3) + sep;
-        const QString date   = omitDate   ? QString() : match.captured(4) + sep;
+        const QString date   = omitDate   ? QString() : match.captured(4);
         const QString code   = match.captured(5);
-        result.append(hash + path + author + date + code + "\n");
+        result.append(hash + path + "  (" + author + date + ")  " + code + "\n");
     }
     return result;
 }
