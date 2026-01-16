@@ -231,7 +231,7 @@ static FilePath currentRepository()
 void GerritPlugin::openView()
 {
     if (m_dialog.isNull()) {
-        while (!gerritSettings().isValid()) {
+        if (!gerritSettings().isValid()) {
             QMessageBox::warning(Core::ICore::dialogParent(), Git::Tr::tr("Error"),
                                  Git::Tr::tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
             if (!ICore::showOptionsDialog("Gerrit"))
