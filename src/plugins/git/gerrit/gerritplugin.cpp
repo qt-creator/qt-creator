@@ -373,17 +373,15 @@ FilePath GerritPlugin::findLocalRepository(const QString &project, const QString
         if ((!branchRegexp.isNull() && branchRegexp->match(fileName).hasMatch())
             || fileName == fixedProject) {
             // Perform a check on the branch.
-            if (branch.isEmpty())  {
+            if (branch.isEmpty())
                 return repository;
-            } else {
-                // Find the branch of a repository.
-                const QString repositoryBranch =
-                        gitClient().synchronousCurrentLocalBranch(repository);
-                if (repositoryBranch.isEmpty() || repositoryBranch == branch)
-                    return repository;
-            } // !branch.isEmpty()
-        } // branchRegexp or file name match
-    } // for repositories
+            // Find the branch of a repository.
+            const QString repositoryBranch = gitClient().synchronousCurrentLocalBranch(repository);
+            if (repositoryBranch.isEmpty() || repositoryBranch == branch)
+                return repository;
+        }
+    }
+
     // No match, do we have  a projects folder?
     if (DocumentManager::useProjectsDirectory())
         return DocumentManager::projectsDirectory();
