@@ -431,12 +431,12 @@ private:
     IOptionsPageWidget *m_inner = nullptr;
 };
 
-// ----------- SettingsDialog
+// ----------- SettingsWidget
 
-class SettingsDialog : public QWidget
+class SettingsWidget : public QWidget
 {
 public:
-    SettingsDialog();
+    SettingsWidget();
 
     void showPage(Id pageId);
 
@@ -486,14 +486,14 @@ private:
     Id m_previousPage;
 };
 
-void SettingsDialog::setDirty(bool dirty)
+void SettingsWidget::setDirty(bool dirty)
 {
     m_isDirty = dirty;
     m_okButton.setEnabled(dirty);
     m_applyButton.setEnabled(dirty);
 }
 
-SettingsDialog::SettingsDialog()
+SettingsWidget::SettingsWidget()
     : m_pages(sortedOptionsPages())
     , m_stackedLayout(new QStackedLayout)
     , m_filterLineEdit(new QtcSearchBox)
@@ -523,7 +523,7 @@ SettingsDialog::SettingsDialog()
     m_sortCheckBox->setChecked(settings->value(sortKeyC, false).toBool());
 
     connect(m_categoryList->selectionModel(), &QItemSelectionModel::currentRowChanged,
-            this, &SettingsDialog::currentCategoryChanged);
+            this, &SettingsWidget::currentCategoryChanged);
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, [this] {
         QtcSettings *settings = ICore::settings();
@@ -542,11 +542,11 @@ SettingsDialog::SettingsDialog()
                                        QRegularExpression::CaseInsensitiveOption));
             });
     connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
-            this, &SettingsDialog::filter);
+            this, &SettingsWidget::filter);
     m_categoryList->setFocus();
 }
 
-void SettingsDialog::showPage(const Id pageId)
+void SettingsWidget::showPage(const Id pageId)
 {
     // handle the case of "show last page"
     Id initialPageId = pageId;
@@ -615,7 +615,7 @@ void SettingsDialog::showPage(const Id pageId)
     }
 }
 
-void SettingsDialog::createGui()
+void SettingsWidget::createGui()
 {
     m_headerLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
@@ -629,7 +629,7 @@ void SettingsDialog::createGui()
         ModeManager::activatePreviousMode();
     });
 
-    connect(&m_applyButton, &QAbstractButton::clicked, this, &SettingsDialog::apply);
+    connect(&m_applyButton, &QAbstractButton::clicked, this, &SettingsWidget::apply);
 
     connect(&m_cancelButton, &QAbstractButton::clicked, this, [this] {
         cancel();
@@ -675,13 +675,13 @@ void SettingsDialog::createGui()
         rightColumn,
     }.attachTo(this);
 
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::apply);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &SettingsDialog::cancel);
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &SettingsWidget::apply);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &SettingsWidget::cancel);
 
     setDirty(false);
 }
 
-void SettingsDialog::showCategory(int index)
+void SettingsWidget::showCategory(int index)
 {
     Category *category = m_model.categories().at(index);
     ensureCategoryWidget(category);
@@ -702,7 +702,7 @@ void SettingsDialog::showCategory(int index)
     updateEnabledTabs(category, m_filterLineEdit->text());
 }
 
-void SettingsDialog::ensureCategoryWidget(Category *category)
+void SettingsWidget::ensureCategoryWidget(Category *category)
 {
     if (category->tabWidget)
         return;
@@ -712,17 +712,17 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
     tabWidget->tabBar()->setObjectName("qc_settings_main_tabbar"); // easier lookup in Squish
     for (IOptionsPage *page : std::as_const(category->pages)) {
         auto tab = new SettingsTab(page);
-        connect(tab, &SettingsTab::dirtyChanged, this, &SettingsDialog::setDirty);
+        connect(tab, &SettingsTab::dirtyChanged, this, &SettingsWidget::setDirty);
         tabWidget->addTab(tab, page->displayName());
     }
 
-    connect(tabWidget, &QTabWidget::currentChanged, this, &SettingsDialog::currentTabChanged);
+    connect(tabWidget, &QTabWidget::currentChanged, this, &SettingsWidget::currentTabChanged);
 
     category->tabWidget = tabWidget;
     category->index = m_stackedLayout->addWidget(tabWidget);
 }
 
-void SettingsDialog::updateEnabledTabs(Category *category, const QString &searchText)
+void SettingsWidget::updateEnabledTabs(Category *category, const QString &searchText)
 {
     int firstEnabledTab = -1;
     const QRegularExpression regex(QRegularExpression::escape(searchText),
@@ -742,7 +742,7 @@ void SettingsDialog::updateEnabledTabs(Category *category, const QString &search
     }
 }
 
-void SettingsDialog::switchBackIfNeeded()
+void SettingsWidget::switchBackIfNeeded()
 {
     if (!m_isDirty)
         return;
@@ -761,22 +761,22 @@ void SettingsDialog::switchBackIfNeeded()
 
     QPushButton *applyButton
         = dialog.addButton(Tr::tr("Apply Unsaved Changes"), QMessageBox::AcceptRole);
-    connect(applyButton, &QAbstractButton::clicked, this, &SettingsDialog::apply);
+    connect(applyButton, &QAbstractButton::clicked, this, &SettingsWidget::apply);
 
     QPushButton *abandonButton
         = dialog.addButton(Tr::tr("Abandon Unsaved Changes"), QMessageBox::AcceptRole);
-    connect(abandonButton, &QAbstractButton::clicked, this, &SettingsDialog::cancel);
+    connect(abandonButton, &QAbstractButton::clicked, this, &SettingsWidget::cancel);
 
     QPushButton *backButton
         = dialog.addButton(Tr::tr("Return to Previous Page"), QMessageBox::RejectRole);
-    connect(backButton, &QAbstractButton::clicked, this, &SettingsDialog::switchBack);
+    connect(backButton, &QAbstractButton::clicked, this, &SettingsWidget::switchBack);
 
     m_currentlySwitching = true;
     dialog.exec();
     m_currentlySwitching = false;
 }
 
-void SettingsDialog::currentCategoryChanged(const QModelIndex &current)
+void SettingsWidget::currentCategoryChanged(const QModelIndex &current)
 {
     if (current.isValid()) {
         showCategory(m_proxyModel.mapToSource(current).row());
@@ -788,7 +788,7 @@ void SettingsDialog::currentCategoryChanged(const QModelIndex &current)
     QTimer::singleShot(0, this, [this] { switchBackIfNeeded(); });
 }
 
-void SettingsDialog::currentTabChanged(int index)
+void SettingsWidget::currentTabChanged(int index)
 {
     if (index == -1)
         return;
@@ -808,7 +808,7 @@ void SettingsDialog::currentTabChanged(int index)
     QTimer::singleShot(0, this, [this] { switchBackIfNeeded(); });
 }
 
-void SettingsDialog::filter(const QString &text)
+void SettingsWidget::filter(const QString &text)
 {
     // When there is no current index, select the first one when possible
     if (!m_categoryList->currentIndex().isValid() && m_model.rowCount() > 0)
@@ -822,7 +822,7 @@ void SettingsDialog::filter(const QString &text)
     updateEnabledTabs(category, text);
 }
 
-void SettingsDialog::apply()
+void SettingsWidget::apply()
 {
     for (const Id page : std::as_const(m_visitedPages)) {
         SettingsTab *tab = s_tabForPage.value(page);
@@ -837,7 +837,7 @@ void SettingsDialog::apply()
     setDirty(false);
 }
 
-void SettingsDialog::cancel()
+void SettingsWidget::cancel()
 {
     for (const Id page : std::as_const(m_visitedPages)) {
         SettingsTab *tab = s_tabForPage.value(page);
@@ -875,7 +875,7 @@ public:
         (void) IWizardFactory::allWizardFactories();
 
         if (!inner) {
-            inner = new SettingsDialog;
+            inner = new SettingsWidget;
             auto layout = new QVBoxLayout(this);
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
@@ -886,7 +886,7 @@ public:
         inner->showPage(targetPage);
     }
 
-    SettingsDialog *inner = nullptr;
+    SettingsWidget *inner = nullptr;
 };
 
 SettingsMode::SettingsMode()
