@@ -127,7 +127,7 @@ public:
 class DebuggerOutputParser
 {
 public:
-    explicit DebuggerOutputParser(const QString &output);
+    explicit DebuggerOutputParser(const QString &output, QStringDecoder &decoder);
 
     using Buffer = QVarLengthArray<char, 30>;
 
@@ -155,6 +155,7 @@ public:
 private:
     const QChar *from = nullptr;
     const QChar *to = nullptr;
+    QStringDecoder &decoder;
 };
 
 class GdbMi
@@ -191,8 +192,8 @@ public:
     Utils::ProcessHandle toProcessHandle() const;
     int toInt() const { return m_data.toInt(); }
     qint64 toLongLong() const { return m_data.toLongLong(); }
-    void fromString(const QString &str);
-    void fromStringMultiple(const QString &str);
+    void fromString(const QString &str, QStringDecoder &decoder);
+    void fromStringMultiple(const QString &str, QStringDecoder &decoder);
 
     static QString escapeCString(const QString &ba);
     void parseResultOrValue(DebuggerOutputParser &state);

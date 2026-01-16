@@ -153,7 +153,8 @@ void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 
 CdbEngine::CdbEngine() :
     m_tokenPrefix("<token>"),
-    m_extensionCommandPrefix("!" QT_CREATOR_CDB_EXT ".")
+    m_extensionCommandPrefix("!" QT_CREATOR_CDB_EXT "."),
+    m_cdbOutputDecoder(QStringEncoder::System)
 {
     m_process.setProcessMode(ProcessMode::Writer);
     m_process.setUseCtrlCStub(true);
@@ -1244,7 +1245,7 @@ void CdbEngine::postResolveSymbol(const QString &module, const QString &function
 void CdbEngine::showScriptMessages(const QString &message) const
 {
     GdbMi gdmiMessage;
-    gdmiMessage.fromString(message);
+    gdmiMessage.fromString(message, m_cdbOutputDecoder);
     if (gdmiMessage.isValid())
         showScriptMessages(gdmiMessage);
     else
@@ -2020,13 +2021,13 @@ void CdbEngine::handleSessionIdle(const QString &message)
         // Store stop reason to be handled in runEngine().
         if (runParameters().startMode() == AttachToCore) {
             m_coreStopReason.reset(new GdbMi);
-            m_coreStopReason->fromString(message);
+            m_coreStopReason->fromString(message, m_cdbOutputDecoder);
         }
         return;
     }
 
     GdbMi stopReason;
-    stopReason.fromString(message);
+    stopReason.fromString(message, m_cdbOutputDecoder);
     processStop(stopReason, false);
 }
 
@@ -2063,7 +2064,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
         response.data.m_name = "data";
         if (t == 'R') {
             response.resultClass = ResultDone;
-            response.data.fromString(message);
+            response.data.fromString(message, m_cdbOutputDecoder);
             if (response.data.isValid()) {
                 showScriptMessages(response.data);
             } else {
@@ -2123,7 +2124,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
     if (what == "exception") {
         WinException exception;
         GdbMi gdbmi;
-        gdbmi.fromString(message);
+        gdbmi.fromString(message, m_cdbOutputDecoder);
         exception.fromGdbMI(gdbmi);
         // Don't show the Win32 x86 emulation subsystem breakpoint hit or the
         // set thread names exception.

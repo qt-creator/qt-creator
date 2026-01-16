@@ -448,9 +448,10 @@ void PdbEngine::handleOutput(const QString &data)
 void PdbEngine::handleOutput2(const QString &data)
 {
     const QStringList lines = data.split('\n');
+    QStringDecoder decoder(QStringEncoder::System);
     for (const QString &line : lines) {
         GdbMi item;
-        item.fromString(line);
+        item.fromString(line, decoder);
 
         showMessage(line, LogOutput);
 

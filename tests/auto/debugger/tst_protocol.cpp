@@ -26,7 +26,8 @@ void tst_protocol::parseCString()
     QFETCH(QString, input);
     QFETCH(QString, expected);
 
-    Debugger::Internal::DebuggerOutputParser parser(input);
+    QStringDecoder decoder(QStringEncoder::Utf8);
+    Debugger::Internal::DebuggerOutputParser parser(input, decoder);
     QString parsed = parser.readCString();
 
     QCOMPARE(parsed, expected);
@@ -69,8 +70,9 @@ void tst_protocol::gdbmiFromString()
 {
     QFETCH(QString, input);
 
+    QStringDecoder decoder(QStringEncoder::Utf8);
     Debugger::Internal::GdbMi gdbmi;
-    gdbmi.fromString(input);
+    gdbmi.fromString(input, decoder);
 }
 
 void tst_protocol::gdbmiFromString_data()
