@@ -137,24 +137,138 @@ McpServer::McpServer(QObject *parent)
          {"description", "Open a file in Qt Creator"},
          {"inputSchema",
           QJsonObject{
-              {"type", "object"},
-              {"properties",
-               QJsonObject{
-                   {"path",
-                    QJsonObject{
-                        {"type", "string"},
-                        {"format", "uri"},
-                        {"description", "Absolute path of the file to open"}}}}},
-              {"required", QJsonArray{"path"}}}},
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"path",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"format", "uri"},
+                                                {"description", "Absolute path of the file to open"}}}}},
+                      {"required", QJsonArray{"path"}}}},
          {"outputSchema",
           QJsonObject{
-              {"type", "object"},
+                      {"type", "object"},
+                      {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+                      {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            const QString path = p.value("path").toString();
+            bool ok = runOnGuiThread([this, path] { return m_commands.openFile(path); });
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "file_plain_text"},
+         {"title", "file plain text"},
+         {"description", "Returns the content of the file as plain text"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"path",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"format", "uri"},
+                                                {"description", "Absolute path of the file"}}}}},
+                      {"required", QJsonArray{"path"}}}},
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties", QJsonObject{{"text", QJsonObject{{"type", "string"}}}}},
+                      {"required", QJsonArray{"text"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            const QString path = p.value("path").toString();
+            const QString text = runOnGuiThread([this, path] { return m_commands.getFilePlainText(path); });
+            return QJsonObject{{"text", text}};
+        });
+
+    addTool(
+        {{"name", "set_file_plain_text"},
+         {"title", "set file plain text"},
+         {"description",
+          "overrided the content of the file with the provided plain text. If the file is "
+          "currently open it is not saved!"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"path",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"format", "uri"},
+                                                {"description", "Absolute path of the file"}}},
+                                   {"plainText",
+                                    QJsonObject{{"type", "string"}, {"description", "text to write into the file"}}}}},
+                      {"required", QJsonArray{"path"}}}},
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+                      {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            const QString path = p.value("path").toString();
+            const QString text = p.value("plainText").toString();
+            bool ok = runOnGuiThread(
+                [this, path, text] { return m_commands.setFilePlainText(path, text); });
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "save_file"},
+         {"title", "Save a file in Qt Creator"},
+         {"description", "Save a file in Qt Creator"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"path",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"format", "uri"},
+                                                {"description", "Absolute path of the file to save"}}}}},
+                      {"required", QJsonArray{"path"}}}},
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
               {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
               {"required", QJsonArray{"success"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
         [this](const QJsonObject &p) {
             const QString path = p.value("path").toString();
-            bool ok = runOnGuiThread([this, path] { return m_commands.openFile(path); });
+            bool ok = runOnGuiThread([this, path] { return m_commands.saveFile(path); });
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "close_file"},
+         {"title", "Close a file in Qt Creator"},
+         {"description", "Close a file in Qt Creator"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"path",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"format", "uri"},
+                                                {"description", "Absolute path of the file to close"}}}}},
+                      {"required", QJsonArray{"path"}}}},
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+                      {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            const QString path = p.value("path").toString();
+            bool ok = runOnGuiThread([this, path] { return m_commands.closeFile(path); });
             return QJsonObject{{"success", ok}};
         });
 

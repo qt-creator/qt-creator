@@ -22,8 +22,11 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#include <texteditor/textdocument.h>
+
 // #include <utils/fileutils.h>
 #include <utils/id.h>
+#include <utils/mimeutils.h>
 
 #include <QApplication>
 #include <QFile>
@@ -126,7 +129,7 @@ bool McpCommands::openFile(const QString &path)
         return false;
     }
 
-    Utils::FilePath filePath = Utils::FilePath::fromString(path);
+    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
 
     if (!filePath.exists()) {
         qCDebug(mcpCommands) << "File does not exist:" << path;
@@ -138,6 +141,137 @@ bool McpCommands::openFile(const QString &path)
     Core::EditorManager::openEditor(filePath);
 
     return true;
+}
+
+QString McpCommands::getFilePlainText(const QString &path)
+{
+    if (path.isEmpty()) {
+        qCDebug(mcpCommands) << "Empty file path provided";
+        return QString();
+    }
+
+
+    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+
+    if (!filePath.exists()) {
+        qCDebug(mcpCommands) << "File does not exist:" << path;
+        return QString();
+    }
+
+    if (auto doc = TextEditor::TextDocument::textDocumentForFilePath(filePath))
+        return doc->plainText();
+
+    Utils::MimeType mime = Utils::mimeTypeForFile(filePath);
+    if (!mime.inherits("text/plain")) {
+        qCDebug(mcpCommands) << "File is not a plain text document:" << path
+                             << "MIME type:" << mime.name();
+        return QString();
+    }
+
+    Utils::Result<QByteArray> contents = filePath.fileContents();
+    if (contents.has_value())
+        return Core::EditorManager::defaultTextEncoding().decode(*contents);
+
+    qCDebug(mcpCommands) << "Failed to read file contents:" << path << "Error:" << contents.error();
+    return QString();
+}
+
+bool McpCommands::setFilePlainText(const QString &path, const QString &contents)
+{
+    if (path.isEmpty()) {
+        qCDebug(mcpCommands) << "Empty file path provided";
+        return false;
+    }
+
+    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+
+    if (!filePath.exists()) {
+        qCDebug(mcpCommands) << "File does not exist:" << path;
+        return false;
+    }
+
+    auto doc = Core::DocumentModel::documentForFilePath(filePath);
+
+    if (!doc) {
+        qCDebug(mcpCommands) << "No document found for file:" << path;
+        return false;
+    }
+
+    if (auto textDoc = qobject_cast<TextEditor::TextDocument *>(doc)) {
+        textDoc->document()->setPlainText(contents);
+        return true;
+    }
+
+    Utils::MimeType mime = Utils::mimeTypeForFile(filePath);
+    if (!mime.inherits("text/plain")) {
+        qCDebug(mcpCommands) << "File is not a plain text document:" << path
+                             << "MIME type:" << mime.name();
+        return false;
+    }
+
+    qCDebug(mcpCommands) << "Setting plain text for file:" << path;
+
+    Utils::Result<qint64> result = filePath.writeFileContents(
+        Core::EditorManager::defaultTextEncoding().encode(contents));
+
+    if (!result)
+        qCDebug(mcpCommands) << "Failed to write file contents:" << path << "Error:" << result.error();
+    return result.has_value();
+}
+
+bool McpCommands::saveFile(const QString &path)
+{
+    if (path.isEmpty()) {
+        qCDebug(mcpCommands) << "Empty file path provided";
+        return false;
+    }
+
+    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+
+    auto doc = Core::DocumentModel::documentForFilePath(filePath);
+
+    if (!doc) {
+        qCDebug(mcpCommands) << "No document found for file:" << path;
+        return false;
+    }
+
+    if (!doc->isModified()) {
+        qCDebug(mcpCommands) << "Document is not modified, no need to save:" << path;
+        return true;
+    }
+
+    qCDebug(mcpCommands) << "Saving file:" << path;
+
+    Utils::Result<> res = doc->save();
+    if (!res)
+        qCDebug(mcpCommands) << "Failed to save document:" << path << "Error:" << res.error();
+
+    return res.has_value();
+}
+
+bool McpCommands::closeFile(const QString &path)
+{
+    if (path.isEmpty()) {
+        qCDebug(mcpCommands) << "Empty file path provided";
+        return false;
+    }
+
+    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+
+    auto doc = Core::DocumentModel::documentForFilePath(filePath);
+
+    if (!doc) {
+        qCDebug(mcpCommands) << "No document found for file:" << path;
+        return false;
+    }
+
+    qCDebug(mcpCommands) << "Closing file:" << path;
+
+    bool closed = Core::EditorManager::closeDocuments({doc}, false);
+    if (!closed)
+        qCDebug(mcpCommands) << "Failed to close document:" << path;
+
+    return closed;
 }
 
 QStringList McpCommands::listProjects()

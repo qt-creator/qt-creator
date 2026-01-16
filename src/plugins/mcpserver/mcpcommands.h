@@ -19,13 +19,20 @@ public:
 
     // Core MCP commands
     QString stopDebug();
-    bool openFile(const QString &path);
+
     QStringList listProjects();
     QStringList listBuildConfigs();
     bool switchToBuildConfig(const QString &name);
     bool quit();
     QString getVersion();
     QString getBuildStatus();
+
+    // document management commands
+    bool openFile(const QString &path);
+    QString getFilePlainText(const QString &path);
+    bool setFilePlainText(const QString &path, const QString &contents);
+    bool saveFile(const QString &path);
+    bool closeFile(const QString &path);
 
     // Additional useful commands
     QString getCurrentProject();
