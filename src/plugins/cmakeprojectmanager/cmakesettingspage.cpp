@@ -539,6 +539,7 @@ public:
         m_container->setVisible(false);
 
         m_deviceComboBox = new QComboBox(this);
+        Core::IOptionsPageWidget::setIgnoreForDirtyHook(m_deviceComboBox);
         m_deviceComboBox->setModel(&m_deviceModel);
 
         m_filterModel.setSourceModel(&m_model);

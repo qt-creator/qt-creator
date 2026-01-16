@@ -28,6 +28,7 @@ using namespace Utils;
 using namespace Core::Internal;
 
 static QHash<Id, std::pair<QString, FilePath>> g_categories;
+const char IGNORE_FOR_DIRTY_HOOK[] = "qtcIgnoreForDirtyHook";
 
 namespace Core {
 namespace Internal {
@@ -188,10 +189,18 @@ static bool makesDirty(QObject *watched, QEvent *event)
 
 void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
 {
-    QList<QWidget *> children = widget->findChildren<QWidget *>();
+    if (widget->property(IGNORE_FOR_DIRTY_HOOK).toBool())
+        return;
+    QList<QWidget *> children;
     children.append(this);
 
-    for (QWidget *child : std::as_const(children)) {
+    while (!children.isEmpty()) {
+        QWidget *child = children.takeLast();
+        if (child->property(IGNORE_FOR_DIRTY_HOOK).toBool())
+            continue;
+
+        children += child->findChildren<QWidget *>(Qt::FindDirectChildrenOnly);
+
         if (child->metaObject() == &QWidget::staticMetaObject)
             continue;
 
@@ -255,6 +264,11 @@ bool IOptionsPageWidgetPrivate::eventFilter(QObject *watched, QEvent *event)
 void IOptionsPageWidget::gotDirty()
 {
     emit dirtyChanged(true);
+}
+
+void IOptionsPageWidget::setIgnoreForDirtyHook(QWidget *widget, bool ignore)
+{
+    widget->setProperty(IGNORE_FOR_DIRTY_HOOK, ignore);
 }
 
 /*!

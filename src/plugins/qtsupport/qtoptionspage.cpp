@@ -348,6 +348,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     , m_configurationWidget(nullptr)
 {
     m_deviceComboBox = new QComboBox;
+    Core::IOptionsPageWidget::setIgnoreForDirtyHook(m_deviceComboBox);
     m_deviceManagerModel.showAllEntry();
     m_deviceComboBox->setModel(&m_deviceManagerModel);
 
