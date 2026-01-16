@@ -45,6 +45,7 @@ void SelectableTextEditorWidget::setDisplaySettings(const DisplaySettings &displ
     settings.m_displayLineNumbers = true;
     settings.m_markTextChanges = false;
     settings.m_highlightBlocks = false;
+    settings.m_displayMinimap = false;
     TextEditorWidget::setDisplaySettings(settings);
 }
 

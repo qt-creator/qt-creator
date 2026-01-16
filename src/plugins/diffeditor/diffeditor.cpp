@@ -341,6 +341,7 @@ void DescriptionEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
     settings.m_scrollBarHighlights = ds.m_scrollBarHighlights;
     settings.m_highlightCurrentLine = ds.m_highlightCurrentLine;
+    settings.m_displayMinimap = false;
     TextEditorWidget::setDisplaySettings(settings);
 }
 
