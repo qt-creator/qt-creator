@@ -85,6 +85,8 @@ struct ModeManagerPrivate
     QAction *m_setModeSelectorStyleHiddenAction = nullptr;
     QAction *m_setModeSelectorStyleIconsOnlyAction = nullptr;
 
+    QList<Id> m_previousModes; // Includes current.
+
     bool m_startingUp = true;
     Id m_pendingFirstActiveMode; // Valid before extentionsInitialized.
 };
@@ -192,6 +194,14 @@ static IMode *findMode(Id id)
 void ModeManager::activateMode(Id id)
 {
     d->activateModeHelper(id);
+}
+
+void ModeManager::activatePreviousMode()
+{
+    if (d->m_previousModes.size() >= 2) {
+        d->m_previousModes.takeLast(); // The current mode.
+        activateMode(d->m_previousModes.takeLast());
+    }
 }
 
 void ModeManagerPrivate::activateModeHelper(Id id)
@@ -447,7 +457,15 @@ void ModeManager::currentTabChanged(int index)
     if (d->m_oldCurrent >= 0)
         oldMode = d->m_modes.at(d->m_oldCurrent);
     d->m_oldCurrent = index;
-    emit currentModeChanged(mode->id(), oldMode ? oldMode->id() : Id());
+
+    // Trim stack a bit if it is getting too long.
+    if (d->m_previousModes.size() >= 10)
+        d->m_previousModes.takeFirst();
+
+    const Id modeId = mode->id();
+    d->m_previousModes.append(modeId);
+
+    emit currentModeChanged(modeId, oldMode ? oldMode->id() : Id());
     emit currentMainWindowChanged();
 }
 

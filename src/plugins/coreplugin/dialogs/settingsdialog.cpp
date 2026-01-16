@@ -65,8 +65,6 @@ const int categoryIconSize = 24;
 class SettingsTab;
 static QHash<Id, QPointer<SettingsTab>> s_tabForPage;
 
-static Id s_previousMode;
-
 static bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
 {
     if (p1->category() != p2->category())
@@ -628,14 +626,14 @@ void SettingsDialog::createGui()
 
     connect(&m_okButton, &QAbstractButton::clicked, this, [this] {
         apply();
-        ModeManager::activateMode(s_previousMode);
+        ModeManager::activatePreviousMode();
     });
 
     connect(&m_applyButton, &QAbstractButton::clicked, this, &SettingsDialog::apply);
 
     connect(&m_cancelButton, &QAbstractButton::clicked, this, [this] {
         cancel();
-        ModeManager::activateMode(s_previousMode);
+        ModeManager::activatePreviousMode();
     });
 
     m_stackedLayout->setContentsMargins(0, 0, 0, 0);
@@ -861,7 +859,6 @@ public:
         connect(ModeManager::instance(), &ModeManager::currentModeChanged, this, [this](Id mode, Id oldMode) {
             QTC_ASSERT(mode != oldMode, return);
             if (mode == Constants::MODE_SETTINGS) {
-                s_previousMode = oldMode;
                 if (!inner)
                     open({});
             } else if (oldMode == Constants::MODE_SETTINGS) {
