@@ -3,25 +3,13 @@
 
 /*!
     \page creator-projects-view.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-curve-editor.html
-    \nextpage creator-file-system-view.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-sidebar-views
-    \ingroup qtquickdesigner-views
 
     \title Projects
 
-    \if defined(qtdesignstudio)
-    \summary {View a list of the files contained within the open project.}
-    \else
     \summary {Shows a list of projects in a project tree.}
-    \endif
-
-    \if defined(qtcreator)
     The project tree has a list of all projects open in the current
     \l{Manage sessions}{session}. For each project, the tree visualizes
     the build system structure of the project and lists all files that
@@ -33,10 +21,6 @@
     is the fastest way to find a particular project, file, class, or function,
     or almost anything else in your project.
 
-    \else
-    \image {projects-view-design.webp} {Projects view.}
-    \endif
-
     You can use the project tree in the following ways:
 
     \list
@@ -44,16 +28,10 @@
             double-click them in the project tree. Files open in the
             appropriate editor, according to the file type. For example, code
             source files open in the code editor.
-            \if defined(qtcreator)
             Use the \l{Switch between modes} {mode selector} to open the current
             file in another editor.
-            \endif
         \li To open a
-            \if defined(qtcreator)
             \l{Projects View Context Menu}{context menu}
-            \else
-            context menu
-            \endif
             that has the actions most commonly needed, right-click an
             item in the project tree. For example, through the menu of
             the project root directory you can, among other actions, run
@@ -68,7 +46,6 @@
     \note If you cannot see a file in the \l Projects view, switch to the
     \uicontrol {File System} view, which shows all the files in the file system.
 
-    \if defined(qtcreator)
     \section1 Projects View Context Menu
 
     The \uicontrol Projects view has context menus for managing projects,
@@ -155,5 +132,4 @@
     or a tag) and ClearCase (the view displays the branch name).
 
     \sa {View CMake project contents}, {File System}
-    \endif
 */

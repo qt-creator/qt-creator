@@ -3,13 +3,11 @@
 
 /*!
     \page creator-project-managing-workspaces.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup qtquickdesigner-views
+    \ingroup creator-how-to-design-qtquick
 
-    \title Workspaces
-
-    \brief Organize \QMLD views freely and save your setups as workspaces.
+    \title Use workspaces
 
     \QMLD provides a flexible UI, allowing you to arrange views freely and save
     your setups as \e workspaces. You can also use one of the predefined workspaces.
@@ -38,10 +36,7 @@
 
     To open closed views, select \uicontrol View > \uicontrol Views.
 
-    \note To lock all views, toggle
-        \imagelockoff
-        to \imagelockon
-        at the top toolbar.
+    \note To lock all views, toggle \imagelockoff to \imagelockon at the top toolbar.
 
     \section1 Manage workspaces
 

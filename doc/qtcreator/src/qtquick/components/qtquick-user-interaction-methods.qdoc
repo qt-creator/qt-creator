@@ -193,7 +193,7 @@
 
     The \uicontrol {Focus Scope} component is not a visual component and
     therefore the properties of its children need to be exposed to the parent
-    component of the focus scope. \l{Using layouts}{Layouts} and
+    component of the focus scope. \l{Use layouts}{Layouts} and
     \l{Make layouts scalable}{positioners} will use these visual and styling
     properties to create the layout.
 

@@ -152,10 +152,6 @@
                         \endlist
                     \li UI Design
                         \generatelist creator-reference-ui-design-qtquick
-                        \list
-                        \li \QMLD views
-                            \generatelist qtquickdesigner-views
-                        \endlist
                     \li Version Control Systems
                         \generatelist creator-reference-vcs
                     \li Views

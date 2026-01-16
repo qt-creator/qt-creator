@@ -90,7 +90,7 @@
     \uicontrol X and \uicontrol Y fields change accordingly.
 
     The component size and position can also be managed automatically
-    when \l{Using layouts}{using layouts}.
+    when \l{Use layouts}{Use layouts}.
 
     The width and height of the root component in a component file determine
     the size of a component. The component size might also be zero (0,0)

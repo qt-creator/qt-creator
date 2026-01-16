@@ -1,22 +1,11 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
-
 /*!
     \page qt-quick-toolbars.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-edit
-    \ingroup studio-how-to-code
 
     \title Edit properties of QML types
 
@@ -31,13 +20,7 @@
 
     \section1 Preview images
 
-    Edit the properties of
-    \l {Border Image} and
-    \if defined(qtdesignstudio)
-    \l {Use images in UIs}{Image} items
-    \else
-    \l Image items
-    \endif
+    Edit the properties of \l {Border Image} and \l Image items
     to scale and tile the images, replace them with other images,
     preview them, and change the image margins.
 
@@ -77,13 +60,8 @@
 
     \section1 Edit rectangles
 
-    Edit the properties of
-    \if defined(qtdesignstudio)
-    \l {Rectangle}
-    \else
-    Rectangle
-    \endif
-    items to change the fill and border colors and add gradients.
+    Edit the properties of \l {Rectangle} items to change the fill and border
+    colors and add gradients.
 
     \image {qml-toolbar-rectangle.png} {Qt Quick toolbar for rectangles}
 
@@ -106,7 +84,5 @@
 
     To pin toolbars by default, select \uicontrol {Pin Qt Quick Toolbar}.
 
-    \if defined(qtcreator)
     \sa {Tutorial: Qt Quick application}
-    \endif
 */

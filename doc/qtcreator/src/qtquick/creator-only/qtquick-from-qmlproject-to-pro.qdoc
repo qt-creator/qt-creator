@@ -1,19 +1,78 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page quick-converting-ui-projects.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-ui-design-qtquick
+    \ingroup creator-how-to-projects-create
+    \ingroup creator-how-to-design-qtquick
 
-    \title Converting UI Projects to Applications
+    \title Convert UI projects to applications
 
-    \summary {Converting a project that has a .qmlproject file to one that has a
-    .pro file.}
+    Qt Quick UI prototype projects are useful for creating user interfaces. To
+    use them for application development in \QC, you have to add:
 
-    \include qtquick-converting-ui-projects-to-applications.qdocinc {converting-ui-projects-to-applications} {Qt Quick UI Prototype}
+    \list
+        \li A \c CMakeLists.txt project configuration file
+        \li C++ code (\c .cpp)
+        \li Resource files
+        \li Code needed for deploying applications to \l{glossary-device}
+            {devices}
+    \endlist
 
-    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
+    For more information about integrating QML and C++, see
+    \l{Overview - QML and C++ Integration}.
+
+    \section1 Build Qt Quick applications with CMake
+
+    \QDS project wizard templates can generate projects that you can build with
+    CMake. You can open the \c CMakeLists.txt project file in \QC to continue
+    developing the project.
+
+    \section1 Add Studio Components to Qt installations
+
+    In \QDS, you can use Qt Quick Studio components, which are not available in
+    Qt installations by default. To use them in \QC, you must install the module
+    manually.
+
+    For example:
+    \list 1
+        \li Clone the module repository.
+            \badcode
+            git clone https://code.qt.io/qt-labs/qtquickdesigner-components.git
+            \endcode
+
+        \li Install the Qt Quick Studio Components module.
+
+        \badcode
+        mkdir build
+        cd build
+        cmake -GNinja -DCMAKE_INSTALL_PREFIX=<path_to_qt_install_directory> <path_to_qtquickdesigner-components>
+        cmake --build .
+        cmake --install .
+        \endcode
+        \note Replace \e <path_to_qt_install_directory> and
+        \e <path_to_qtquickdesigner-components> with the real location on your
+        computer. For example, \c {/Qt/6.11.0/msvc2022_64} and
+        \c {../qtquickdesigner-components/}.
+    \endlist
+
+    \section1 Handle large data files
+
+    Graphical assets used in the UI, such as images, effects, or 3D scenes
+    are a typical cause for performance problems in UIs. Even building the
+    application requires huge amounts of memory if you try to include large
+    asset files, such as 100-MB 3D models or 64-MB textures, into the \c .qrc
+    file for compiling them into the binary.
+
+    First try to optimize your assets, as described in \l{Optimizing designs}.
+
+    Large assets should either be loaded directly from the file system or by
+    using the Qt resource system dynamically. For more information, see
+    \l{The Qt Resource System}.
+
+    \sa {Create Qt Quick UI Prototypes},
+    {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
     {Designing Qt Quick UIs}
 */

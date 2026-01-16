@@ -74,8 +74,7 @@
 
     To open more views, go to \uicontrol View > \uicontrol Views. Move the views
     anywhere on the screen and save them as \e workspaces, as instructed in
-    \l {Workspaces}.
+    \l {Use workspaces}.
 
-    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI Design},
-    {Designing Qt Quick UIs}
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI Design}
 */

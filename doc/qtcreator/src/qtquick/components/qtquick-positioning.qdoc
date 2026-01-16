@@ -19,7 +19,7 @@
     \l{Important Concepts In Qt Quick - Positioning#manual-positioning}
     {manual positioning} provides the most efficient form of positioning
     components. For a dynamic UI, use the following positioning
-    methods:
+    methods.
 
     \table
         \header
@@ -40,7 +40,7 @@
             \li \l{Make layouts scalable}
             \li To arrange components in rows, columns, grids, or flows.
         \row
-            \li \l{Using layouts}
+            \li \l{Use layouts}
             \li To place the components in columns, grids, rows and stacks in layouts.
                 The layouts adept the nature of dynamic and resizable UI.
         \row

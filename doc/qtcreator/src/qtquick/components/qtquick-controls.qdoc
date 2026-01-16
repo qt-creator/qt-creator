@@ -581,7 +581,7 @@
     position its contents, for instance by creating a \l RowLayout. If the
     toolbar contains only one item, it will resize to fit the implicit item
     size. This makes a toolbar particularly suitable for use together with
-    \l{Using layouts}{layouts}. However, you can specify content width
+    \l{Use layouts}{layouts}. However, you can specify content width
     (\uicontrol W) and height (\uicontrol H) in the \uicontrol {Content size}
     field in the \uicontrol Pane section.
 

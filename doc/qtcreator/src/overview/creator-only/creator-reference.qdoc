@@ -170,14 +170,6 @@
     \annotatedlist creator-reference-ui-design-qtquick
     \enddetails
 
-    \section2 \QMLD views
-
-    You can edit QML files in the \uicontrol Design mode.
-
-    \details {Reference topics}
-    \annotatedlist qtquickdesigner-views
-    \enddetails
-
     \section1 Views
 
     When you switch modes or trigger actions, \QC opens views for viewing

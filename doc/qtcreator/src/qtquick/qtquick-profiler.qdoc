@@ -9,12 +9,7 @@
 
 /*!
     \page creator-how-to-profile-qml.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-qml-performance-monitor.html
-    \nextpage studio-advanced.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-analyze
 
@@ -24,22 +19,13 @@
     in your applications, such as slowness and unresponsive, stuttering user
     interfaces.
 
-    \if defined(qtdesignstudio)
-    \note In this section, you are using advanced menu items. These are not
-    visible by default. To toggle the visibility of advanced menu items, see
-    \l{Customizing the Menu Bar}.
-    \endif
-
-
     To collect data about a QML application:
 
     \list 1
         \li Set up QML debugging for the project. For more information, see
             \l{Setting Up QML Debugging}.
-        \if defined(qtcreator)
         \li In the \uicontrol Projects mode, select a \l{Managing kits}
             {kit} with Qt version 4.7.4 or later.
-       \endif
             \note To profile applications on \l{glossary-device}{devices}, you
             must install Qt libraries on them.
         \li Go to \uicontrol Analyze > \uicontrol {QML Profiler} to profile the
@@ -145,33 +131,19 @@
          \li Select \uicontrol OK.
     \endlist
 
-    \sa {Profiling QML applications}
-
-    \if defined(qtcreator)
-    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code}
-    \endif
+    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code},
+    {Profiling QML applications}
 */
 
 /*!
     \page creator-qml-performance-monitor.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-qml-debugging-example.html
-    \nextpage creator-how-to-profile-qml.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-analyzer
 
     \title Profiling QML applications
 
     \brief Improve the performance of QML applications.
-
-    \if defined(qtdesignstudio)
-    \note In this section, you are using advanced menu items. These are not
-    visible by default. To toggle the visibility of advanced menu items, see
-    \l{Customizing the Menu Bar}.
-    \endif
 
     With QML Profiler, you can find causes for typical performance problems
     in your applications, such as slowness and unresponsive, stuttering user
@@ -182,11 +154,9 @@
     Another typical cause for similar performance problems is creating or
     updating invisible items, which takes time in the GUI thread.
 
-    \if defined(qtcreator)
     Triggering long-running C++ functions, such as paint methods and signal
     handlers, also takes time in the GUI thread, but is more difficult to see in
     QML Profiler because it does not profile C++ code.
-    \endif
 
     To find excessive use of JavaScript, check the frame rate in animations and
     Scene Graph events, look for gaps, and check whether the application behaves
@@ -200,7 +170,6 @@
     are never visible to the users because they are located outside the screen
     or hidden beneath other, visible elements.
 
-    \if defined(qtcreator)
     If frames get dropped even though JavaScript is not being run, and there are
     large, unexplained gaps in the timeline, check your custom QQuickItem
     implementations. You can use \l{Profile function execution}
@@ -210,7 +179,6 @@
     JavaScript down to the C++ and all the way to the kernel space. You can
     view the collected data in the \l{Chrome Trace Format Visualizer}
     {Chrome Trace Format Viewer}.
-    \endif
 
     \section1 Analyzing Collected Data
 
@@ -646,9 +614,6 @@
     suitable for analyzing per frame execution times. However, it is very easy
     to see the total impact of the various QML and JavaScript events there.
 
-    \sa {Profile QML applications}
-
-    \if defined(qtcreator)
-    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code}
-    \endif
+    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code},
+    {Profile QML applications}
 */

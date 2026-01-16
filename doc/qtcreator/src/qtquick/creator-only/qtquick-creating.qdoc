@@ -12,6 +12,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-projects-create
+    \ingroup creator-how-to-design-qtquick
 
     \title Create Qt Quick Applications
 
@@ -84,7 +85,9 @@
     \QC creates a QML file, \c Main.qml, that you can modify in the
     \uicontrol Edit mode.
 
-    \sa {Create Qt Quick UI Prototypes}, {Tutorial: Mobile application},
+    \sa {Create Qt Quick UI Prototypes},
+    {Design Qt Quick UIs}{How to: Design Qt Quick UIs},
+    {Tutorial: Mobile application},
     {Tutorial: Qt Quick and Python},
     {Tutorial: Qt Quick application}, {Creating projects},
     {Developing Qt Quick Applications}
@@ -95,6 +98,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-projects-create
+    \ingroup creator-how-to-design-qtquick
 
     \title Create Qt Quick UI Prototypes
 
@@ -112,7 +116,7 @@
 
     For more information about how to turn Qt Quick UI Prototype projects into
     Qt Quick Application projects, see
-    \l{Converting UI Projects to Applications}.
+    \l{Convert UI projects to applications}.
 
     To create a Qt Quick UI Prototype project:
 
@@ -182,6 +186,7 @@
     To use JavaScript and image files in the application, copy them to the
     project folder.
 
-    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
-    {Designing Qt Quick UIs}, {Manage kits}{How to: Manage kits}, {Creating projects}
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs},
+   {Manage kits}{How to: Manage kits}, {Creating projects},
+    {Designing Qt Quick UIs}, {Qt Quick UI design},
 */
