@@ -156,6 +156,8 @@ QtcPlugin {
             "sessionview.h",
             "secretaspect.cpp",
             "secretaspect.h",
+            "settingsmode.cpp",
+            "settingsmode.h",
             "sidebar.cpp",
             "sidebar.h",
             "sidebarwidget.cpp",
@@ -210,7 +212,6 @@ QtcPlugin {
             "promptoverwritedialog.cpp", "promptoverwritedialog.h",
             "readonlyfilesdialog.cpp", "readonlyfilesdialog.h",
             "saveitemsdialog.cpp", "saveitemsdialog.h",
-            "settingsdialog.cpp", "settingsdialog.h",
             "shortcutsettings.cpp", "shortcutsettings.h",
         ]
     }

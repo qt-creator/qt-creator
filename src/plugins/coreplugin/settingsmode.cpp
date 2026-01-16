@@ -1,17 +1,17 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "settingsdialog.h"
+#include "settingsmode.h"
 
-#include "../coreplugintr.h"
-#include "../icore.h"
-#include "../iwizardfactory.h"
-#include "../coreconstants.h"
-#include "../coreicons.h"
-#include "../modemanager.h"
-#include "ioptionspage.h"
+#include "coreconstants.h"
+#include "coreicons.h"
+#include "coreplugintr.h"
+#include "dialogs/ioptionspage.h"
+#include "icore.h"
+#include "iwizardfactory.h"
+#include "modemanager.h"
 
-#include "../../projectexplorer/projectexplorerconstants.h" // Soft. For KITS_SETTINGS_PAGE_ID
+#include "../projectexplorer/projectexplorerconstants.h" // Soft. For KITS_SETTINGS_PAGE_ID
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -925,4 +925,4 @@ void SettingsMode::open(Id initialPage)
 
 } // namespace Core::Internal
 
-#include "settingsdialog.moc"
+#include "settingsmode.moc"
