@@ -53,4 +53,10 @@ WorkDoneProgressCreateRequest::WorkDoneProgressCreateRequest(const WorkDoneProgr
 
 }
 
+WorkDoneProgressCancelNotification::WorkDoneProgressCancelNotification(const WorkDoneProgressCancelParams &params)
+    : Notification(methodName, params)
+{
+
+}
+
 } // namespace LanguageServerProtocol

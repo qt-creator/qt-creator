@@ -140,11 +140,12 @@ public:
 
 using WorkDoneProgressCancelParams = ProgressTokenParams;
 
-class LANGUAGESERVERPROTOCOL_EXPORT WorkDoneProgressCancelRequest
-    : public Request<std::nullptr_t, std::nullptr_t, WorkDoneProgressCancelParams>
+class LANGUAGESERVERPROTOCOL_EXPORT WorkDoneProgressCancelNotification
+    : public Notification<WorkDoneProgressCancelParams>
 {
 public:
-    using Request::Request;
+    WorkDoneProgressCancelNotification(const WorkDoneProgressCancelParams &params);
+    using Notification::Notification;
     constexpr static const char methodName[] = "window/workDoneProgress/cancel";
 };
 

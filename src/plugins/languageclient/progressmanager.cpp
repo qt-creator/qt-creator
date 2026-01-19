@@ -3,6 +3,8 @@
 
 #include "progressmanager.h"
 
+#include "client.h"
+
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <languageserverprotocol/progresssupport.h>
@@ -16,7 +18,8 @@ namespace LanguageClient {
 
 static Q_LOGGING_CATEGORY(LOGPROGRESS, "qtc.languageclient.progress", QtWarningMsg);
 
-ProgressManager::ProgressManager()
+ProgressManager::ProgressManager(Client *client)
+    : m_client(client)
 {}
 
 ProgressManager::~ProgressManager()
@@ -92,6 +95,7 @@ void ProgressManager::beginProgress(const ProgressToken &token, const WorkDonePr
     progressItem.showBarTimer->setInterval(750);
     progressItem.showBarTimer->callOnTimeout([this, token]() { spawnProgressBar(token); });
     progressItem.showBarTimer->start();
+    progressItem.cancelable = begin.cancellable().value_or(false);
     m_progress[token] = progressItem;
     reportProgress(token, begin);
 }
@@ -108,15 +112,31 @@ void ProgressManager::spawnProgressBar(const LanguageServerProtocol::ProgressTok
     if (clickHandler)
         QObject::connect(progress, &Core::FutureProgress::clicked, clickHandler);
     const std::function<void()> cancelHandler = m_cancelHandlers.value(token);
+    if (progressItem.cancelable) {
+        QObject::connect(progress, &Core::FutureProgress::canceled, m_client, [this, token] (){
+            cancelProgress(token);
+        });
+    }
     if (cancelHandler)
         QObject::connect(progress, &Core::FutureProgress::canceled, cancelHandler);
     else
-        progress->setCancelEnabled(false);
+        progress->setCancelEnabled(progressItem.cancelable);
     if (!progressItem.message.isEmpty()) {
         progress->setSubtitle(progressItem.message);
         progress->setSubtitleVisibleInStatusBar(true);
     }
     progressItem.progressInterface = progress;
+}
+
+void ProgressManager::cancelProgress(const ProgressToken &token)
+{
+    QTC_ASSERT(m_client, return);
+    WorkDoneProgressCancelParams cancelParams;
+    cancelParams.setToken(token);
+    m_client->sendMessage(WorkDoneProgressCancelNotification(cancelParams));
+    ProgressItem &progressItem = m_progress[token];
+    QTC_ASSERT(progressItem.futureInterface, return);
+    progressItem.futureInterface->cancelAndFinish();
 }
 
 void ProgressManager::reportProgress(const ProgressToken &token,
