@@ -1,21 +1,10 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
-
 /*!
     \page creator-qml-debugging-example.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-expressions-view.html
-    \nextpage creator-qml-performance-monitor.html
-    \else
     \previouspage creator-tutorials.html
     \nextpage creator-how-tos.html
-    \endif
 
     \ingroup creator-tutorials
 
@@ -30,13 +19,6 @@
 
     For more information about all the options you have, see
     \l{Debugging Qt Quick projects}.
-
-    \if defined(qtdesignstudio)
-    \note In this tutorial, you are using advanced menu items. These are not
-    visible by default. To toggle the visibility of advanced menu items, see
-    \l{Customizing the Menu Bar}.
-
-    \endif
 
     The Same Game demo shows how to write a game in QML, using JavaScript for
     all the game logic. Open the demo project in \QC to debug it:

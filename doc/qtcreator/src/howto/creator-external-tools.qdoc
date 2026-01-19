@@ -9,12 +9,7 @@
 
 /*!
     \page creator-editor-external.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-vcs-git.html
-    \nextpage studio-accessing-output-issues-and-warnings.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-use
 
@@ -36,11 +31,9 @@
 
     \image {qtcreator-external-tools.webp} {External Tools tab in Environment preferences}
 
-    \if defined(qtcreator)
     Select \inlineimage {icons/replace.png} {Variables} (\uicontrol {Variables})
     in a field to select from a list of \l{Use \QC variables}{variables} that are
     available in a particular context.
-    \endif
 
 
     To configure external tools:
@@ -66,25 +59,19 @@
 
         \li In the \uicontrol Output field, select how to handle output from the
             tool.
-            \if defined(qtcreator)
             You can ignore the output, view it in \l{View output}
             {General Messages}, or replace the selected text with the
             output in the code editor.
-            \endif
 
         \li In the \uicontrol {Error output} field, select how to handle error
             messages from the tool.
 
-        \if defined(qtcreator)
         \li In the \uicontrol {Base environment} field, select whether to run
             the tool in the system environment or the \l{Specify the environment for projects}
             {build environment} or \l {Specify the run environment}
             {run environment} of the active project. Select the build or run
             environment if the system environment does not have the necessary
             PATH settings to find the toolchain, for example.
-        \else
-        \li In the \uicontrol {Base environment} field, use the default settings.
-        \endif
 
         \li In the \uicontrol Environment field, select \uicontrol Change to modify
             environment variable values for build and run environments in
@@ -120,19 +107,13 @@
 
     \sa {Run QML files}, {Use external text editors}, {Use Qt Linguist}
 
-    \if defined(qtcreator)
     \sa {Edit environment settings}, {Specify the environment for projects},
     {Use \QC variables}
-    \endif
 */
 
 /*!
     \page creator-how-to-use-qtlinguist.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-editor-external.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-use
 
@@ -159,20 +140,13 @@
     \uicontrol Projects or \uicontrol {File System} view and go to
     \uicontrol {Open With} > \uicontrol {Qt Linguist} in the context menu.
 
-    \if defined(qtcreator)
-    \sa {Add translation files}
-    \endif
-
-    \sa {Internationalization with Qt}, {Qt Linguist Manual}
+    \sa {Add translation files}, {Internationalization with Qt},
+    {Qt Linguist Manual}
 */
 
 /*!
     \page creator-how-to-run-qml-files.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-editor-external.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-design-qtquick
 
@@ -185,18 +159,12 @@
 
     \sa {Use external tools}
 
-    \if defined(qtcreator)
     \sa {Design UIs}{How to: Design UIs}, {Qt Quick UI Design}
-    \endif
 */
 
 /*!
     \page creator-how-to-use-external-text-editors.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-editor-external.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-use
 
@@ -208,9 +176,7 @@
         \li Right-click the filename in one of the following views to open a context
             menu:
             \list
-                \if defined(qtcreator)
                 \li \l {Editing code}
-                \endif
                 \li \l {File System}
                 \li \l {Open Documents}
                 \li \l {Projects}

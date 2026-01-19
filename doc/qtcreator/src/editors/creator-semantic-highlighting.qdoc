@@ -3,14 +3,9 @@
 
 /*!
     \page creator-highlighting.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-edit
-    \ingroup studio-how-to-highlight-code
 
     \title Download highlight definitions
 
@@ -44,10 +39,8 @@
     for editing, it prompts you to download additional highlight definition
     files. Select \uicontrol {Download Definitions} to download the files.
 
-    \if defined(qtcreator)
     To view information about the downloaded files, open the \l{View output}
     {General Messages} view.
-    \endif
 
     \section2 Ignore file patterns
 
@@ -72,24 +65,15 @@
     To apply the changes you make to the definition files, select
     \uicontrol {Reload Definitions}.
 
-    \if defined(qtdesignstudio)
-    \sa Code
-    \else
     \sa {Edit code}{How to: Edit code}, {Editing code}
-    \endif
 */
 
 /*!
     \page creator-how-to-use-code-blocks.html
 
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-edit
-    \ingroup studio-how-to-highlight-code
 
     \title Highlight code blocks
 
@@ -114,14 +98,12 @@
 
     \image {qtcreator-preferences-text-editor-display.webp} {Display tab in Text Editor preferences}
 
-    \if defined(qtcreator)
     \section1 Fold all comment blocks
 
     To fold all comment blocks, go to \uicontrol Tools > \uicontrol C++ >
     \uicontrol {Fold All Comment Blocks}.
 
     To unfold all comment blocks, select \uicontrol {Unfold All Comment Blocks}.
-    \endif
 
     \section1 Animate matching braces
 
@@ -131,7 +113,6 @@
     \preferences > \uicontrol {Text Editor} > \uicontrol Display and clear
     \uicontrol {Animate matching parentheses}.
 
-    \if defined(qtcreator)
     \section1 Move between code blocks
 
     Use keyboard shortcuts to move within and between code blocks:
@@ -144,11 +125,6 @@
     To also select the lines from the cursor position to the end
     or beginning of the block, select \key {Ctrl+Shift+]} and
     \key {Ctrl+Shift+[}, respectively.
-    \endif
 
-    \if defined(qtdesignstudio)
-    \sa Code
-    \else
     \sa {Edit code}{How to: Edit code}, {Editing code}
-    \endif
 */

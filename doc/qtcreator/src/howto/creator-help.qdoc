@@ -3,12 +3,7 @@
 
 /*!
     \page creator-how-to-get-help.html
-    \if defined(qtdesignstudio)
-    \previouspage studio-help.html
-    \nextpage studio-faq.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \title Getting help
 
@@ -41,16 +36,10 @@
             \uicontrol Help mode, go to \preferences > \uicontrol Help.
     \endlist
 
-    \if defined(qtdesignstudio)
-    The following image shows the context sensitive help in the \l Code view.
-
-    \image {qds-help-in-code-view.webp} {Context-sensitive help in the Code view.}
-    \else
     The following image shows the context sensitive help in the \uicontrol Edit
     mode.
 
     \image {qtcreator-context-sensitive-help.webp} {Context-sensitive help in Edit mode}
-    \endif
 
     \section1 Change the font
 
@@ -96,22 +85,12 @@
     To use a keyboard shortcut for viewing help tooltips, select
     \uicontrol {Show help tooltips using keyboard shortcut (Alt)}.
 
-    \if defined(qtdesignstudio)
-    \section1 See Also
-
-    \generatelist creator-how-to-get-help
-    \else
     \sa {Read documentation}{How to: Read documentation}
-    \endif
 */
 
 /*!
     \page creator-how-to-find-info-in-documentation.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-how-to-get-help.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-get-help
 
@@ -155,19 +134,13 @@
 
     \endlist
 
-    \if defined(qtcreator)
     \sa {Read documentation}{How to: Read documentation}, {Installation},
     {Get and Install Qt}
-    \endif
 */
 
 /*!
     \page creator-how-to-add-bookmarks-to-help-pages.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-how-to-get-help.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-get-help
 
@@ -198,18 +171,12 @@
     \uicontrol General and select \uicontrol {Import Bookmarks} or
     \uicontrol {Export Bookmarks}.
 
-    \if defined(qtcreator)
     \sa {Read documentation}{How to: Read documentation}
-    \endif
 */
 
 /*!
     \page creator-how-to-search-from-docs.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-how-to-get-help.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-get-help
 
@@ -257,18 +224,12 @@
     punctuation, such as domain names, use the asterisk as a wild card. For
     example, to find \c {Pastebin.Com}, enter the search term \c {Pastebin*}.
 
-    \if defined(qtcreator)
     \sa {Read documentation}{How to: Read documentation}
-    \endif
 */
 
 /*!
     \page creator-how-to-add-external-documentation.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-how-to-get-help.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-get-help
 
@@ -291,18 +252,12 @@
 
     \endlist
 
-    \if defined(qtcreator)
     \sa {Read documentation}{How to: Read documentation}
-    \endif
 */
 
 /*!
     \page creator-how-to-detach-help-window.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-how-to-get-help.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-get-help
 
@@ -312,11 +267,7 @@
     code editor when you select \key F1. If there is not enough vertical
     space, the help opens in the full-screen help mode.
 
-    \if defined(qtdesignstudio)
-    \image {qds-help-in-code-view.webp} {Context-sensitive help in the Code view.}
-    \else
     \image {qtcreator-context-sensitive-help.webp} {Context-sensitive help in Edit mode}
-    \endif
 
     To specify that the help always opens in full-screen mode or in an external
     window, go to \preferences > \uicontrol Help > \uicontrol General.
@@ -330,18 +281,12 @@
     To change this setting in a help view, select
     \inlineimage {icons/linkicon.png} {Show Context Help menu}.
 
-    \if defined(qtcreator)
     \sa {Read documentation}{How to: Read documentation}
-    \endif
 */
 
 /*!
     \page creator-how-to-set-help-start-page.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-how-to-get-help.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-get-help
 
@@ -367,18 +312,12 @@
             home page.
     \endlist
 
-    \if defined(qtcreator)
     \sa {Read documentation}{How to: Read documentation}
-    \endif
 */
 
 /*!
     \page creator-how-to-filter-documentation.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-how-to-get-help.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-get-help
 
@@ -437,7 +376,5 @@
     To remove the selected filter, select \inlineimage {icons/minus.png}
     {Remove Filter} (\uicontrol {Remove Filter}).
 
-    \if defined(qtcreator)
     \sa {Read documentation}{How to: Read documentation}
-    \endif
 */

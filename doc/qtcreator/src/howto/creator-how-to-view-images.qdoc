@@ -3,14 +3,9 @@
 
 /*!
     \page creator-how-to-view-images.html
-    \if defined(qtcreator)
     \previouspage creator-how-tos.html
-    \else
-    \previouspage studio-ui.html
-    \endif
 
     \ingroup creator-how-to-design
-    \ingroup studio-how-to-image-viewer
 
     \title View images
 
@@ -43,21 +38,14 @@
     background and outline modes and fitting images to screen as default
     values for the image viewer.
 
-    \if defined(qtcreator)
     \sa {Design UIs}{How to: Design UIs}, {Qt Quick UI Design}
-    \endif
 */
 
 /*!
     \page creator-how-to-export-svg-images.html
-    \if defined(qtcreator)
     \previouspage creator-how-tos.html
-    \else
-    \previouspage studio-ui.html
-    \endif
 
     \ingroup creator-how-to-design
-    \ingroup studio-how-to-image-viewer
 
     \title Create pixmaps from SVG images
 
@@ -71,7 +59,5 @@
     You can then use QIcon::addPixmap() to add the pixmaps to icons in
     different modes and states.
 
-    \if defined(qtcreator)
     \sa {Design UIs}{How to: Design UIs}, {Qt Quick UI Design}
-    \endif
 */

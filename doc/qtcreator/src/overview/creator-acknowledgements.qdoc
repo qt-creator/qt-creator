@@ -9,11 +9,7 @@
 
 /*!
     \page creator-acknowledgements.html
-    \if defined(qtdesignstudio)
-    \previouspage technical-support.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference
 

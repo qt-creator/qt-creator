@@ -28,14 +28,9 @@
 
 /*!
     \page creator-editor-finding.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-search
-    \ingroup studio-how-to-search
 
     \title Search in current file
 
@@ -147,24 +142,15 @@
     you can search in currently open projects or files on the file system. Or,
     search for symbols to refactor code.
 
-    \if defined(qtcreator)
     \sa {Search}{How to: Search}, {Search Results View}
-    \else
-    \sa {Search in projects or file systems}
-    \endif
 
 */
 
 /*!
     \page creator-how-to-advanced-search.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-search
-    \ingroup studio-how-to-search
 
     \title Search in projects or file systems
 
@@ -202,10 +188,8 @@
         \li Select \uicontrol Search.
     \endlist
 
-    \if defined(qtcreator)
     If you cannot find some files, see \l{Specify project contents} for
     how to declare them as a part of the project.
-    \endif
 
     \section1 Search in all projects
 
@@ -235,10 +219,8 @@
                     remote branch, or a commit hash, enter a reference.
                     Leave the field empty to search through the file
                     system.
-                \if defined(qtcreator)
                 \li Select \uicontrol {Silver Searcher} to use the
                     experimental Silver Searcher plugin.
-                \endif
             \endlist
         \li In \uicontrol Directory, select the directory to search in.
             Select \uicontrol Browse to locate the directory or
@@ -262,10 +244,6 @@
     select \uicontrol {Preserve case}. The rules listed in
     \l {Preserve case when replacing} apply here as well.
 
-    \if defined(qtcreator)
-    \sa {Search}{How to: Search}, {Find symbols}, {Turn on Silver Searcher},
-    {Search Results View}
-    \endif
-
-    \sa {Search in current file}
+    \sa {Search}{How to: Search}, {Find symbols}, {Search in current file},
+    {Turn on Silver Searcher}, {Search Results View}
 */

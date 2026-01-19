@@ -3,14 +3,9 @@
 
 /*!
     \page creator-preferences-text-editor-behavior.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-preferences-text-editor
-    \ingroup studio-preferences-code
 
     \title Behavior
 
@@ -31,14 +26,10 @@
     You can specify tab settings at the following levels:
 
     \list
-        \if defined(qtcreator)
         \li For all C++ files
-        \endif
         \li For all QML files
         \li For all other text files
-        \if defined(qtcreator)
         \li For C++ files in a project
-        \endif
         \li For QML files in a project
         \li For other text files in a project
     \endlist
@@ -95,10 +86,7 @@
     always place them there. Select \uicontrol {At Line Start} to place single
     line comments at the end of the line.
 
-    \if defined(qtcreator)
     \sa {Configure editors}{How to: Configure editors}, {Find preferences},
+    {Indent text or code}, {Specify Qt Quick code style}, {Configuring editors},
     {C++ Code Style}, {Nim}
-    \endif
-
-    \sa {Indent text or code}, {Specify Qt Quick code style}, {Configuring editors}
 */

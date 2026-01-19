@@ -3,14 +3,9 @@
 
 /*!
     \page creator-stack-view.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-debugging-qml.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-debugger-views
-    \ingroup studio-debugger-views
 
     \title Viewing call stack trace
 
@@ -46,22 +41,15 @@
     should it find any. You can select a frame in the QML stack to open the QML
     file in the editor.
 
-    \if defined(qtcreator)
     \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
     {Setting breakpoints}
-    \endif
 */
 
 /*!
     \page creator-breakpoints-view.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-debugging-qml.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-debugger-views
-    \ingroup studio-debugger-views
 
     \title Setting breakpoints
 
@@ -142,26 +130,15 @@
 
     \image {qtcreator-debug-breakpoints.webp} {Breakpoints view}
 
-    \if defined(qtdesignstudio)
-    For more information, see:
-
-    \generatelist studio-how-to-debug
-    \else
     \sa {Add breakpoints}, {Debug}{How to: Debug}, {Debugging}, {Debuggers},
     {Debugger}
-    \endif
 */
 
 /*!
     \page creator-how-to-add-breakpoints.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-breakpoints-view.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-debug
-    \ingroup studio-how-to-debug
 
     \title Add breakpoints
 
@@ -248,30 +225,18 @@
             You can set conditions for the tracepoint.
     \row
         \li \uicontrol Message
-        \li The tracepoint message to show in
-            \if defined(qtcreator)
-            \l {Application Output}.
-            \else
-            \l {Accessing the Output messages}{Output}.
-            \endif
+        \li The tracepoint message to show in \l {Application Output}.
     \endtable
 
-    \if defined(qtcreator)
     \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
     {Setting breakpoints}
-    \endif
 */
 
 /*!
     \page creator-how-to-manage-breakpoints.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-breakpoints-view.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-debug
-    \ingroup studio-how-to-debug
 
     \title Manage breakpoints
 
@@ -337,22 +302,15 @@
     Other than data breakpoints retain their enabled or disabled state when the
     debugged application is restarted.
 
-    \if defined(qtcreator)
     \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
     {Setting breakpoints}
-    \endif
 */
 
 /*!
     \page creator-how-to-set-data-breakpoints.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-breakpoints-view.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-debug
-    \ingroup studio-how-to-debug
 
     \title Set data breakpoints
 
@@ -386,22 +344,15 @@
     launch. If you really want a data breakpoint to be active again, re-enable
     it manually.
 
-    \if defined(qtcreator)
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger},
     {Setting breakpoints}
-    \endif
 */
 
 /*!
     \page creator-locals-view.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-debugging-qml.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-debugger-views
-    \ingroup studio-debugger-views
 
     \title Local variables and function parameters
 
@@ -423,7 +374,6 @@
     You can expand the view contents to check that your application sets a
     local value correctly.
 
-    \if defined(qtcreator)
     \section1 Locals view actions
 
     Right-click the \uicontrol Locals view to select the following actions:
@@ -445,7 +395,6 @@
         \li Set debugger preferences
     \endlist
     //! [0]
-    \endif
 
     \section1 Selecting object type for display
 
@@ -454,21 +403,14 @@
     display} in the context menu. Keep in mind that choosing the dynamic type
     might be slower.
 
-    \if defined(qtcreator)
     \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
-    \endif
 */
 
 /*!
     \page creator-expressions-view.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-debugging-qml.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-debugger-views
-    \ingroup studio-debugger-views
 
     \title Evaluating expressions
 
@@ -529,8 +471,6 @@
 
     The QML debugger can evaluate JavaScript expressions.
 
-    \if defined(qtcreator)
-
     \section1 C and C++ expressions
 
     CDB, GDB, and LLDB support the evaluation of simple C and C++ expressions,
@@ -588,5 +528,4 @@
     \include creator-debug-views.qdoc 0
 
     \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
-    \endif
 */

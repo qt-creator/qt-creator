@@ -50,13 +50,17 @@
 
     QDoc finds the new topics automatically, when you place them as \c {.qdoc}
     files in a doc source folder. However, to make the topics accessible to
-    readers, you must also add them to the table of contents, use the
-    \l{https://doc.qt.io/qt-6/19-qdoc-commands-grouping.html#ingroup-command}
-    {\c {\ingroup}} command to automatically add them to lists of topics, or
-    use the \l{https://doc.qt.io/qt-6/08-qdoc-commands-creatinglinks.html#l-command}
-    {\c {\l (link)}} and
-    \l{https://doc.qt.io/qt-6/08-qdoc-commands-creatinglinks.html#sa-see-also}
-    {\c {\sa (see also)}} commands to add links to them from other topics.
+    readers:
+
+    \list
+        \li Add them to the table of contents in \c qtcreator-toc.qdoc.
+        \li Use the \l{https://doc.qt.io/qt-6/19-qdoc-commands-grouping.html#ingroup-command}
+            {\c {\ingroup}} command to automatically add them to lists of topics.
+        \li Use the \l{https://doc.qt.io/qt-6/08-qdoc-commands-creatinglinks.html#l-command}
+            {\c {\l (link)}} and
+            \l{https://doc.qt.io/qt-6/08-qdoc-commands-creatinglinks.html#sa-see-also}
+            {\c {\sa (see also)}} commands to add links to them from other topics.
+    \endlist
 
     \section1 Creating Folders and Files
 
@@ -66,7 +70,6 @@
     \list
         \li \QC Manual
         \li Extending \QC Manual
-        \li \QDS Manual
     \endlist
 
     The sources for each project are in the following subfolders of
@@ -75,17 +78,11 @@
     \list
         \li \c \doc\qtcreator\src
         \li \c \doc\qtcreatordev\src
-        \li \c \doc\qtdesignstudio\src
     \endlist
 
-    The \QC Manual and the \QDS Manual share some topics about developing
-    Qt Quick applications, writing and debugging code, previewing QML files,
-    and so on.
-
-    The Extending \QC Manual has its own sources. In addition, it
-    pulls in API reference documentation from the \QC source files. Add
-    code documentation directly to the code source files. However, you can
-    write an API overview also as a separate \c {.qdoc} file.
+    The Extending \QC Manual pulls in API reference documentation from the \QC
+    source files. Add code documentation directly to the code source files.
+    However, you can write an API overview also as a separate \c {.qdoc} file.
 
     Create a subfolder for your documentation in the appropriate \c src folder.
     Create a separate file for each topic.
@@ -102,13 +99,15 @@
     \section1 Integrating Topics to Documentation
 
     You must integrate your new topics to the manuals by adding links to them
-    from the table of contents and from other relevant topics. In addition, use
-    the \l {https://doc.qt.io/qt-6/15-qdoc-commands-navigation.html#previouspage-command}
-    {\c {\previouspage}} and
-    \l {https://doc.qt.io/qt-6/15-qdoc-commands-navigation.html#nextpage-command}
-    {\c {\nextpage}} commands to add navigation links between topics.
+    from the table of contents and from other relevant topics. The easiest way
+    to do this, is to add \c {\ingroup} commands in each topic.
 
-    To link to the topic, you can use the topic title. For example:
+    In the \QC Manual, you can see the current groups in the \e {How To} and
+    \e {Reference} sections of the TOC. You can add new groups.
+
+    To link to the topics from other topics, you can use the topic title.
+
+    For example:
 
     \badcode
     \l {Integrating Topics to Documentation}
@@ -118,149 +117,25 @@
     \sa {Integrating Topics to Documentation}
     \endcode
 
-    \badcode
-    \previouspage {Integrating Topics to Documentation}
-    \endcode
-
     This only works if topic titles are unique. Also, if you change the
     title, the link breaks. You can avoid this risk by adding the
     \l{https://doc.qt.io/qt-6/08-qdoc-commands-creatinglinks.html#target-command}
     {\c {\target}} command to your topic and then linking to the target.
 
-    \section2 Showing and Hiding Information
-
-    \QDS uses only a subset of \QC plugins and it has its own special plugins.
-    Their manuals have different structure and content, so only some
-    source files are needed in both manuals. All files from
-    \c \doc\qtdesignstudio\ are excluded from the \QC Manual builds.
-
-    If QDoc parsed all the \QC Manual sources when you build the \QDS Manual, it
-    would generate HTML files for each
-    topic and include those files and all the images that they refer to in the
-    \QDS help compilation files. This would unnecessarily increase the size of
-    the \QDS help database and pollute the help index with references to files
-    that are not actually listed in the table of contents of the \QDS Manual.
-    To avoid this, some files are excluded from the \QDS Manual builds.
-
-    \section3 Excluding Source Files from \QDS Manual Builds
-
-    The folders to exclude from \QDS Manual builds are
-    listed as values of the \c excludedirs option in
-    \c {\doc\qtdesignstudio\config\qtdesignstudio.qdocconf}.
-
-    You only need to edit the values of the option if you want to show or hide
-    all the contents of a folder. For example, if you add support for a \QC
-    plugin that was previously not supported by \QDS, you should remove the
-    folder that contains the documentation for the plugin from the values.
-
-    To hide or show individual topics within individual \c {.qdoc} files, you
-    need to move the files in the \QC Manual source (\c \doc\qtcreator\src) to
-    or from the excluded folders.
-
-    For example, if support for iOS were added, you would need to check whether
-    the information about iOS support is applicable to \QDS Manual. If yes,
-    you would need to remove the following line from the \c excludedirs value:
-
-    \badcode
-    ../../src/ios \
-    \endcode
-
-    You would then use defines to hide any \QC specific information from the
-    source file in the folder.
-
-    If a folder contains some files that are needed in both manuals and some
-    that are only needed in the \QC Manual, the latter are located in a
-    subfolder called \c {creator-only}, which is excluded from the \QDS
-    Manual builds.
-
-    If you add a new folder in \c \doc\qtcreator\src that you don't need in the
-    \QDS Manual, add the folder path and name as a value of \c excludedirs.
-
-    \section3 Hiding Text from HTML Files
-
-    The \c qtcreator define is specified as a value of the
-    \l{QDoc: defines variable}{\c defines} variable in the \QC QDoc configuration
-    file, \c {\doc\qtcreator\config\qtcreator-project.qdocconf}.
-    Use it as a value of the
-    \l{https://doc.qt.io/qt-6/12-0-qdoc-commands-miscellaneous.html#if-command}
-    {\c {\if}} command in the \QC Manual sources to hide \QC specific information
-    from the generated HTML files when you build the \QDS Manual.
-
-    The \c qtdesignstudio define is specified as a value of the \c defines
-    variable in the \QDS Manual configuration file,
-    \c {qtcreator\doc\qtdesignstudio\config\qtdesignstudio.qdocconf}.
-    Use it with the \c {\if} command in the \QC Manual sources to hide \QDS
-    specific information from the generated HTML when you build the \QC Manual.
-
-    You can use the
-    \l{https://doc.qt.io/qt-6/12-0-qdoc-commands-miscellaneous.html#else-command}
-    {\c {\else}} command to display different text depending on which manual is built.
-
-    End the conditional text with the
-    \l{https://doc.qt.io/qt-6/12-0-qdoc-commands-miscellaneous.html#endif-command}
-    {\c {\endif}} command.
-
-    For example, the terminology around the code editor is different in \QC and
-    \QDS, so different text is shown depending on which manual is built:
-
-    \badcode
-    \li \l{Writing Code}
-
-        \if defined(qtdesignstudio)
-        The \l{Code} view offers services, such as semantic highlighting,
-        syntax checking, code completion, code indentation, and in-line
-        error indicators while you are typing.
-        \else
-        Writing, editing, and navigating in source code are core tasks in
-        application development. Therefore, the code editor is one of the
-        key components of \QC. You can use the code editor in the
-        \uicontrol Edit mode.
-        \endif
-    \endcode
-
-    \note Section titles in the two manuals can be identical only if the page is
-    excluded from the \QDS Manual. In this case, QDoc can correctly determine
-    the link target. If you add a link to a section title that appears twice in
-    the doc source files, QDoc uses the first reference to that title in the
-    \c {.index} file.
-
-    \section3 Writing About \QDS Specific Features
-
-    \QDS specific plugins and features are described in a set of doc
-    source files located in the \c {\doc\qtdesignstudio\src} folder.
-
-    Save screenshots and other illustrations in \c {\qtdesignstudio\images}.
-
-    If you add new topics to the \QDS Manual, add links to them to the table
-    of contents in \c {qtdesignstudio-toc.qdoc}.
-
-    \section2 Updating Next and Previous Links
+    \section1 Updating Next and Previous Links
 
     QDoc automatically generates links to the previous and next page in each
     manual based on the list in a topic with the title \e {All Topics}, which
-    is in the following files:
-
-    \list
-        \li \QC: \c {\qtcreator\doc\qtcreator\src\qtcreator-toc.qdoc}
-        \li \QDS: \c {\qtcreator\doc\qtdesignstudio\src\qtdesignstudio-toc.qdoc}
-    \endlist
+    is in the following file: \c {\qtcreator\doc\qtcreator\src\qtcreator-toc.qdoc}.
 
     The title of the topic to use for automatically generating the navigation
     links is set as the value of the \c navigation.toctitles option in the
-    document configuration file:
-
-    \list
-        \li \QC: \c {\doc\qtcreator\config\qtcreator-project.qdocconf}
-        \li \QDS: \c {\doc\qtdesignstudio\config\qtdesignstudio.qdocconf}
-    \endlist
+    document configuration file: \c {\doc\qtcreator\config\qtcreator-project.qdocconf}.
 
     When you add new topics, you must add them either to the TOC or to a
     group of topics (\c {\ingroup}) that is used to generate a list in the TOC
     (\l{https://doc.qt.io/qt-6/12-0-qdoc-commands-miscellaneous.html#generatelist-command}
     {\c {\generatelist}}).
-
-    In the \QC Manual, you can see the current groups in the \e {How To} and
-    \e {Reference} sections of the TOC. You can add new groups.
 
     \note You do not need to manually change the navigation links, but they must
     be there with some initial values for QDoc to replace with the values from
@@ -304,22 +179,14 @@
 
     Follow the guidelines in \l{QUIP 21 | Using images in Qt documentation}.
 
-    The following sections contain some \QC and \QDS specific guidelines and
-    examples.
+    The following sections contain some \QC specific guidelines and examples.
 
     \section2 Icons
 
     The \l{Qt Documentation} published online can be viewed
     in dark and light modes. To make the icons used in the docs visible in both
     modes, save icon files as gray-scale images with a transparent background in
-    the following locations, depending on whether they are used in both manuals
-    or just the \QDS Manual:
-
-    \list
-        \li \c qtcreator/doc/qtcreator/images/icons - used in the \QC Manual.
-        \li \c qtcreator/doc/qtdesignstudio/images/icons - used only in the
-            \QDS Manual.
-    \endlist
+    the following location: \c {qtcreator/doc/qtcreator/images/icons}.
 
     You can use a script located in \c qttools/util/recolordocsicons/ to recolor
     icons.
@@ -327,8 +194,7 @@
     \section2 Saving Images
 
     Save images in PNG or WebP format in the \QC project folder in the
-    \c doc/qtcreator/images or \c doc/qtdesignstudio/images folder or their
-    subfolders.
+    \c doc/qtcreator/images folder or its subfolders.
 
     Before committing PNG images, optimize them by using an image optimization
     tool, such as OptiPNG. To invoke it from the \QC project enter the following
@@ -349,13 +215,9 @@
     use the macro, you need to save a thumbnail of the video in
     \c {qtcreator\doc\qtcreator\images\extraimages\images}.
 
-    You must add the filename of the thumbnail file to
-    \c {qtcreator-extraimages.qdocconf} and \c {qtdesignstudio-extraimages.qdocconf}
-    files in the \c {\qtcreator\doc\qtcreator\images\extraimages} folder.
-
-    If you'll only link to the video from the \QC Manual or the \QDS Manual,
-    you'll only need to add the thumbnail filename to the \c extraimages.qdocconf
-    file for that project.
+    You must add the filename of the thumbnail file to the
+    \c {qtcreator-extraimages.qdocconf} file in the
+    \c {\qtcreator\doc\qtcreator\images\extraimages} folder.
 
     \section1 Building Documentation
 
@@ -399,9 +261,6 @@
     When using CMake, the docs are built in the \QC \e {build folder} or a
     separate doc build folder, not in the project folder.
 
-    To get the correct product name and version when building \QDS Manual, you
-    must run CMake with the BUILD_DESIGNSTUDIO option.
-
     To build docs with CMake in a separate doc build folder:
 
     \list 1
@@ -414,21 +273,11 @@
             For example (all on one line):
             \badcode
             C:\dev\qtc-doc-build>cmake -DWITH_DOCS=ON
-                "-DCMAKE_PREFIX_PATH=C:\Qt\6.4.0\msvc2019_64"
+                "-DCMAKE_PREFIX_PATH=C:\Qt\6.10.0\msvc2022_64"
                 C:\dev\qtc-super\qtcreator
             \endcode
         \li To also build Extending \QC Manual, add the following option:
             \c {-DBUILD_DEVELOPER_DOCS=ON}
-        \li To also build the \QDS Manual, add the following option:
-            \c {-DBUILD_DESIGNSTUDIO=ON}
-
-            For example:
-            \badcode
-            C:\dev\qtc-doc-build>cmake -DWITH_DOCS=ON -DBUILD_DEVELOPER_DOCS=ON
-                -DBUILD_DESIGNSTUDIO=ON
-                "-DCMAKE_PREFIX_PATH=C:\Qt\6.4.0\msvc2019_64"
-                C:\dev\qtc-super\qtcreator
-            \endcode
         \li To build the docs using the online style, use the following option
             instead of \c {-DWITH_DOCS=ON}:
             \c {-DWITH_ONLINE_DOCS=ON}
@@ -438,7 +287,7 @@
             C:\dev\qtc-doc-build>cmake -DWITH_ONLINE_DOCS=ON
                 -DBUILD_DEVELOPER_DOCS=ON
                 -DBUILD_DESIGNSTUDIO=ON
-                "-DCMAKE_PREFIX_PATH=C:\Qt\6.4.0\msvc2019_64"
+                "-DCMAKE_PREFIX_PATH=C:\Qt\6.10.0\msvc2022_64"
                 C:\dev\qtc-super\qtcreator
             \endcode
             \note If you already ran CMake \c {-DWITH_DOCS=ON} in a folder and
@@ -467,10 +316,8 @@
     \list
         \li \c doc/html/qtcreator
         \li \c doc/html/qtcreator-dev
-        \li \c doc/html/qtdesignstudio
         \li \c doc/html/qtcreator-online
         \li \c doc/html/qtcreator-dev-online
-        \li \c doc/html/qtdesignstudio-online
     \endlist
 
     The help files (\c {.qch}) are generated in the \c {share/doc/qtcreator}
@@ -488,14 +335,14 @@
 
     \list
         \li \c html_docs_<doc_config_file_name> - build the document (qtcreator/
-            qtcreator-dev/qtdesignstudio) in help format, but do not generate a
+            qtcreator-dev) in help format, but do not generate a
             help file (.qch).
 
         \li \c html_docs_<doc_config_file_name>-online - build the document
-            (qtcreator/qtcreator-dev/qtdesignstudio) in online format.
+            (qtcreator/qtcreator-dev) in online format.
 
         \li \c qch_docs_<doc_config_file_name> - build the document (qtcreator/
-            qtcreator-dev/qtdesignstudio) in help format and generate a
+            qtcreator-dev) in help format and generate a
             help file.
     \endlist
 */

@@ -9,11 +9,7 @@
 
 /*!
     \page creator-preferences-text-editor-font-colors.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \title Configuring editors
 
@@ -50,14 +46,9 @@
 
 /*!
     \page creator-how-to-change-editor-colors.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-configure-editors
-    \ingroup studio-how-to-code
 
     \title Change editor colors
 
