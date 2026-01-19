@@ -7,10 +7,12 @@
 
 #include <coreplugin/ioutputpane.h>
 
+#include <utils/filepath.h>
 #include <utils/itemviews.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
+#include <QMultiHash>
 #include <QQueue>
 #include <QTimer>
 
@@ -136,7 +138,7 @@ private:
     bool m_autoScroll = false;
     bool m_atEnd = false;
     bool m_testRunning = false;
-    QList<TestEditorMark *> m_marks;
+    QMultiHash<QPair<Utils::FilePath, int>, TestEditorMark *> m_marks;
     QQueue<TestResult> m_buffered;
     std::optional<TestResult> m_lastCurrentMessage = std::nullopt;
     QTimer m_bufferTimer;
