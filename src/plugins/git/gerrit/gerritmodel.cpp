@@ -28,8 +28,6 @@
 #include <QUrl>
 #include <QVariant>
 
-enum { debug = 0 };
-
 using namespace Utils;
 using namespace VcsBase;
 

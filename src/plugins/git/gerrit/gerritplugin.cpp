@@ -38,8 +38,6 @@ using namespace Utils;
 
 using namespace Git::Internal;
 
-enum { debug = 0 };
-
 namespace Gerrit::Internal {
 
 namespace Constants {
