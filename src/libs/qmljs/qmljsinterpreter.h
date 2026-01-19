@@ -721,8 +721,8 @@ public:
     static BuiltinObjects loadQmlTypes(const QFileInfoList &qmltypesFiles,
                              QStringList *errors, QStringList *warnings);
 
-    static BuiltinObjects &defaultQtObjects();
-    static BuiltinObjects &defaultLibraryObjects();
+    static const BuiltinObjects &defaultQtObjects();
+    static const BuiltinObjects &defaultLibraryObjects();
 
     // parses the contents of a qmltypes file and fills the newObjects map
     static void parseQmlTypeDescriptions(const QByteArray &contents,
@@ -733,7 +733,9 @@ public:
                                          QString *warningMessage,
                                          const QString &fileName);
 
-    static std::function<void()> defaultObjectsInitializer;
+    using Initializer
+        = std::function<void(BuiltinObjects & /*qtObjects*/, BuiltinObjects & /*libraryObjects*/)>;
+    static void setDefaultObjectsInitializer(const Initializer &init);
 };
 
 class QMLJS_EXPORT FakeMetaObjectWithOrigin

@@ -275,7 +275,10 @@ void ModelManagerInterface::addTaskInternal(const QFuture<void> &result, const Q
     qCDebug(qmljsLog) << "started " << taskId << " " << msg;
 }
 
-void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resourcePath)
+void ModelManagerInterface::loadQmlTypeDescriptionsInternal(
+    const QString &resourcePath,
+    CppQmlTypesLoader::BuiltinObjects &defaultQtObjects,
+    CppQmlTypesLoader::BuiltinObjects &defaultLibraryObjects)
 {
     const QDir typeFileDir(resourcePath + QLatin1String("/qml-type-descriptions"));
     const QStringList qmlTypesExtensions = QStringList("*.qmltypes");
@@ -292,9 +295,7 @@ void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resou
         if (qmlTypesFiles.at(i).baseName() == QLatin1String("builtins")) {
             QFileInfoList list;
             list.append(qmlTypesFiles.at(i));
-            CppQmlTypesLoader::defaultQtObjects() = CppQmlTypesLoader::loadQmlTypes(list,
-                                                                                    &errors,
-                                                                                    &warnings);
+            defaultQtObjects = CppQmlTypesLoader::loadQmlTypes(list, &errors, &warnings);
             qmlTypesFiles.removeAt(i);
             break;
         }
@@ -304,7 +305,7 @@ void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resou
     const CppQmlTypesLoader::BuiltinObjects objs =
             CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles, &errors, &warnings);
     for (auto it = objs.cbegin(); it != objs.cend(); ++it)
-        CppQmlTypesLoader::defaultLibraryObjects().insert(it.key(), it.value());
+        defaultLibraryObjects.insert(it.key(), it.value());
 
     for (const QString &error : std::as_const(errors))
         writeMessageInternal(error);

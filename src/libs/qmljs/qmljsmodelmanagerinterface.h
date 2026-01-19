@@ -5,8 +5,9 @@
 
 #include "qmljs_global.h"
 #include "qmljsbundle.h"
-#include "qmljsdocument.h"
 #include "qmljsdialect.h"
+#include "qmljsdocument.h"
+#include "qmljsinterpreter.h"
 
 #include <cplusplus/CppDocument.h>
 #include <utils/environment.h>
@@ -241,7 +242,10 @@ protected:
 
     void maybeScan(const PathsAndLanguages &importPaths);
     void updateImportPaths();
-    void loadQmlTypeDescriptionsInternal(const QString &path);
+    void loadQmlTypeDescriptionsInternal(
+        const QString &path,
+        QmlJS::CppQmlTypesLoader::BuiltinObjects &defaultQtObjects,
+        QmlJS::CppQmlTypesLoader::BuiltinObjects &defaultLibraryObjects);
     void setDefaultProject(const ProjectInfo &pInfo, ProjectBase *p);
     void cancelAllThreads();
 

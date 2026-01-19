@@ -17,6 +17,7 @@
 #include "qmljsvalueowner.h"
 
 #include <utils/qtcassert.h>
+#include <utils/synchronizedvalue.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -25,6 +26,7 @@
 #include <QString>
 #include <QStringList>
 
+using namespace Utils;
 using namespace LanguageUtils;
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -857,7 +859,7 @@ const ASTVariableReference *Value::asAstVariableReference() const
     return nullptr;
 }
 
-const Internal::QtObjectPrototypeReference *Value::asQtObjectPrototypeReference() const
+const QmlJS::Internal::QtObjectPrototypeReference *Value::asQtObjectPrototypeReference() const
 {
     return nullptr;
 }
@@ -1382,24 +1384,31 @@ const Function *Function::asFunction() const
 
 CppQmlTypesLoader::BuiltinObjects sDefaultLibraryObjects;
 CppQmlTypesLoader::BuiltinObjects sDefaultQtObjects;
-std::function<void()> CppQmlTypesLoader::defaultObjectsInitializer;
+SynchronizedValue<CppQmlTypesLoader::Initializer> sDefaultObjectsInitializer;
 
-CppQmlTypesLoader::BuiltinObjects &CppQmlTypesLoader::defaultQtObjects()
+void CppQmlTypesLoader::setDefaultObjectsInitializer(const Initializer &init)
 {
-    if (defaultObjectsInitializer) {
-        const std::function<void()> init = defaultObjectsInitializer;
-        defaultObjectsInitializer = {};
-        init();
-    }
+    sDefaultObjectsInitializer = init;
+}
+
+const CppQmlTypesLoader::BuiltinObjects &CppQmlTypesLoader::defaultQtObjects()
+{
+    sDefaultObjectsInitializer.write([](Initializer &init) {
+        if (init) {
+            init(sDefaultQtObjects, sDefaultLibraryObjects);
+            init = {};
+        }
+    });
     return sDefaultLibraryObjects;
 }
-CppQmlTypesLoader::BuiltinObjects &CppQmlTypesLoader::defaultLibraryObjects()
+const CppQmlTypesLoader::BuiltinObjects &CppQmlTypesLoader::defaultLibraryObjects()
 {
-    if (defaultObjectsInitializer) {
-        const std::function<void()> init = defaultObjectsInitializer;
-        defaultObjectsInitializer = {};
-        init();
-    }
+    sDefaultObjectsInitializer.write([](Initializer &init) {
+        if (init) {
+            init(sDefaultQtObjects, sDefaultLibraryObjects);
+            init = {};
+        }
+    });
     return sDefaultQtObjects;
 }
 
