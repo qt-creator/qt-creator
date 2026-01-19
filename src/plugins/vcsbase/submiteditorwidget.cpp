@@ -825,22 +825,27 @@ void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint &pos)
     // Execute menu offering to check/uncheck all
     QMenu menu;
     //: Check all for submit
-    QAction *checkAllAction = menu.addAction(Tr::tr("Check All"));
+    const QAction *checkAllAction = menu.addAction(Tr::tr("Check All"));
     //: Uncheck all for submit
-    QAction *uncheckAllAction = menu.addAction(Tr::tr("Uncheck All"));
+    const QAction *uncheckAllAction = menu.addAction(Tr::tr("Uncheck All"));
+
+    //: Check selected for submit
+    const QAction *checkSelectedAction = menu.addAction(Tr::tr("Check Selected"));
+    //: Uncheck selected for submit
+    const QAction *uncheckSelectedAction = menu.addAction(Tr::tr("Uncheck Selected"));
 
     if (const QModelIndex index = d->fileView->indexAt(pos); index.isValid())
         addFileContextMenuActions(&menu, index);
 
-    QAction *action = menu.exec(d->fileView->mapToGlobal(pos));
-    if (action == checkAllAction) {
-        fileModel()->setAllChecked(true);;
-        return;
-    }
-    if (action == uncheckAllAction) {
+    const QAction *action = menu.exec(d->fileView->mapToGlobal(pos));
+    if (action == checkAllAction)
+        fileModel()->setAllChecked(true);
+    else if (action == uncheckAllAction)
         fileModel()->setAllChecked(false);
-        return;
-    }
+    else if (action == checkSelectedAction)
+        d->checkSelectedCheckBox->setChecked(true);
+    else if (action == uncheckSelectedAction)
+        d->checkSelectedCheckBox->setChecked(false);
 }
 
 bool SubmitEditorWidget::isEmptyFileListEnabled() const
