@@ -113,6 +113,9 @@
         \li \l{Conan Build Configuration}{Conan}
     \endlist
 
+    You can also edit the build steps for the
+    \l{Partially supported project types}{partially supported build systems}.
+
     You can use \l{IncrediBuild Build Steps}{IncrediBuild} to accelerate the
     build process when using qmake or CMake.
 
