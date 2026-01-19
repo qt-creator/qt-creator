@@ -201,17 +201,6 @@ bool CMakeTool::isValid() const
            && !m_introspection->m_capabilities.fileApis.isEmpty();
 }
 
-void CMakeTool::runCMake(Process &cmake, const QStringList &args, int timeoutS) const
-{
-    const FilePath executable = cmakeExecutable();
-    cmake.setDisableUnixTerminal();
-    Environment env = executable.deviceEnvironment();
-    env.setupEnglishOutput();
-    cmake.setEnvironment(env);
-    cmake.setCommand({executable, args});
-    cmake.runBlocking(std::chrono::seconds(timeoutS));
-}
-
 Store CMakeTool::toMap() const
 {
     Store data;
