@@ -97,8 +97,8 @@
     You can use states also to change the button text color and font size. For
     example, you can scale the button text up or down.
 
-    Add a \l {Mouse Area} component that covers the whole area and
-    reacts to mouse events.
+    Add a \l {Enable a mouse area}{Mouse Area} component that covers the whole
+    area and reacts to mouse events.
 
    \image {qmldesigner-borderimage-type.png} {Button component in the 2D and States views.}
 

@@ -138,8 +138,8 @@
     cases, it may be better to use the \uicontrol Opacity property instead.
 
     If this property is disabled, the component will no longer receive
-    \l{Mouse Area}{mouse events}. However, it will continue to receive key
-    events and will retain the keyboard focus events if \uicontrol Enabled
+    \l{Enable a mouse area}{mouse events}. However, it will continue to receive
+    key events and will retain the keyboard focus events if \uicontrol Enabled
     in the \uicontrol Advanced section is selected.
 
     The visibility value is only affected by changes to this property or the

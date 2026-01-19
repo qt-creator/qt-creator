@@ -21,10 +21,10 @@
     JavaScript code to be executed when the signal handler is invoked.
 
     Components have predefined signals that are emitted when users interact with
-    the application. For example, the \l {Mouse Area} component has a \c clicked
-    signal that is emitted whenever the mouse is clicked within the area. Since
-    the signal name is \c clicked, the signal handler for receiving this signal
-    is named \c onClicked.
+    the application. For example, the \l {Enable a mouse area}{Mouse Area}
+    component has a \c clicked signal that is emitted whenever the mouse is
+    clicked within the area. Since the signal name is \c clicked, the signal
+    handler for receiving this signal is named \c onClicked.
 
     A signal is automatically emitted when the value of a property changes.
     This type of signal is a \e{property change signal} and signal handlers

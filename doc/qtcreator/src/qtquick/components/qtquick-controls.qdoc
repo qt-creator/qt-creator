@@ -558,7 +558,7 @@
     in the \uicontrol {Content size} field.
 
     If the total width of the buttons exceeds the available width of the tab
-    bar, it automatically becomes \l{Flickable}{flickable}.
+    bar, it automatically becomes \l{Create flickable components}{flickable}.
 
     \image {qtquickcontrols2-tabbar-flickable.png} {A Tab Bar exceeding the available width.}
 
