@@ -989,7 +989,7 @@ void CMakeGeneratorKitAspectFactory::fix(Kit *k)
                            [info](const CMakeTool::Generator &g) {
         return g.matches(info.generator);
     });
-    if (it == known.constEnd() || (info.generator == "Ninja" && !isNinjaPresent(k))) {
+    if (it == known.constEnd()) {
         GeneratorInfo dv;
         dv.fromVariant(defaultValue(k));
         setGeneratorInfo(k, dv);
