@@ -175,7 +175,7 @@
             \image {qtcreator-search-single-projects.webp} {Single Project option in the Search Results view}
         \li In \uicontrol {Search for}, enter the string you are looking for.
         \li Select options to make the search case sensitive, search only whole
-            words, use regular expressions, or ignore binary files.
+            words, use regular expressions, or ignore binary or generated files.
         \li In \uicontrol Project, select an open project to search in.
             Select \uicontrol Current to search in the project that the currently
             active file belongs to.
