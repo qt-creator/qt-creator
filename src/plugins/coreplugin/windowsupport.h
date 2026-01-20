@@ -31,7 +31,7 @@ private:
     void updateTitle(QWidget *window, int index = -1);
     void updateVisibility(QWidget *window, int index);
 
-    QMenu *m_dockMenu = nullptr;
+    std::unique_ptr<QMenu> m_dockMenu;
     QList<QWidget *> m_windows;
     QList<QAction *> m_windowActions;
     QList<Utils::Id> m_windowActionIds;
