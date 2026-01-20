@@ -98,6 +98,19 @@ public:
 
     void commitChanges()
     {
+        for (const Id &id : std::as_const(m_markedForDeletion))
+            DeviceManager::removeDevice(id);
+
+        m_markedForDeletion.clear();
+        m_newDevices.clear();
+        emit dataChanged(index(0, 0), index(rowCount() - 1, 0), {Qt::FontRole});
+    }
+
+    void abandonChanges()
+    {
+        for (const Id &id : std::as_const(m_newDevices))
+            DeviceManager::removeDevice(id);
+
         m_markedForDeletion.clear();
         m_newDevices.clear();
         emit dataChanged(index(0, 0), index(rowCount() - 1, 0), {Qt::FontRole});
@@ -105,9 +118,6 @@ public:
 
     bool isMarkedForDeletion(const Id &id) const { return m_markedForDeletion.contains(id); }
     bool isNewDevice(const Id &id) const { return m_newDevices.contains(id); }
-
-    QSet<Id> markedForDeletion() const { return m_markedForDeletion; }
-    QSet<Id> newDevices() const { return m_newDevices; }
 
 private:
     void emitDataChanged(const Id &id)
@@ -180,22 +190,21 @@ private:
 
 void DeviceSettingsWidget::apply()
 {
-    for (const Id &id : m_deviceProxyModel.markedForDeletion())
-        DeviceManager::removeDevice(id);
-
     m_deviceProxyModel.commitChanges();
     updateButtons();
 
     saveSettings();
+
+    IOptionsPageWidget::apply();
 }
 
 void DeviceSettingsWidget::cancel()
 {
-    for (const Id &id : m_deviceProxyModel.newDevices())
-        DeviceManager::removeDevice(id);
+    m_deviceProxyModel.abandonChanges();
 
     for (int i = 0; i < m_deviceManagerModel->rowCount(); i++)
         m_deviceManagerModel->device(i)->cancel();
+
     IOptionsPageWidget::cancel();
 }
 
