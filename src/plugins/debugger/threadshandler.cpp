@@ -229,6 +229,7 @@ bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int r
         if (ev.as<QContextMenuEvent>()) {
             auto menu = new QMenu;
             addStandardActions(ev.view(), menu);
+            menu->setAttribute(Qt::WA_DeleteOnClose);
             menu->popup(ev.globalPos());
             return true;
         }
