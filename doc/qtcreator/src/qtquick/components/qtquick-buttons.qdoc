@@ -68,7 +68,7 @@
     text for each button instance, for example.
 
     To create a graphical button that scales beautifully without using
-    vector graphics, use the \l {Border Image} component. For more
+    vector graphics, use the \l [QML] {BorderImage} component. For more
     information, see \l{Create scalable buttons and borders}.
 
     \sa {Use UI components}{How to: Use UI components}, {Qt Quick UI design},
@@ -83,7 +83,7 @@
 
     \title Create scalable buttons and borders
 
-    You can use the \l {Border Image} component to display an image, such as a
+    You can use the \l [QML] {BorderImage} component to display an image, such as a
     PNG file, as a border and a background.
 
     Use two border images and suitable graphics to change the appearance of

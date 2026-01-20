@@ -9,7 +9,7 @@
 
     \title Using QML modules with plugins
 
-    \brief Using C++ plugins to expose custom components to Qt Quick
+    \brief Use C++ plugins to expose custom components to Qt Quick
     applications.
 
     \l{Defining a QML Module}{QML modules} may use \l{Creating C++ Plugins for QML}
@@ -40,7 +40,7 @@
             \c qtquickcontrols2.metainfo, as an example.
 
         \li Import the module into the project, as instructed in
-            \l {Importing QML Modules}.
+            \l {Importing QML modules}.
 
         \endlist
 
@@ -52,7 +52,7 @@
     Since Qt 6.2, CMake generates the \c qmltypes and \c qmldir files
     automatically.
 
-    \section2 Generating Type Description Files
+    \section1 Generating type description files
 
     When \l{Defining QML Types from C++}{registering QML types}, make sure that
     the QML module has a \c{plugins.qmltypes} file. Ideally, it should be located
@@ -62,14 +62,14 @@
 
     For more information, see \l{Type Description Files}.
 
-    \section2 Dumping Plugins Automatically
+    \section2 Dumping plugins automatically
 
     If a module with plugins lacks the \c qmltypes file, \QC tries to generate
     a temporary file itself by running the \c qmldump program in the background.
     However, this automatic dumping is a fallback mechanism with many points of
     failure and you cannot rely upon it.
 
-    \section1 Importing QML Modules
+    \section1 Importing QML modules
 
     By default, \QC will look in the QML import path of Qt for QML modules.
 
@@ -86,7 +86,7 @@
 
     The import path affects all the targets built by the CMake project.
 
-    \section1 Running QML Modules in Design Mode
+    \section1 Running QML modules in Design mode
 
     The QML Puppet is used in the
     \uicontrol Design mode to render and preview images and to collect

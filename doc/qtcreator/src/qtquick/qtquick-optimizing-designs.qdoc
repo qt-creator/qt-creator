@@ -9,6 +9,8 @@
 
     \title Optimizing designs
 
+    \brief Solve performance problems by optimizing graphical assets.
+
     You can test your UIs on the target devices to make sure you get the best
     performance out of your animations. To solve performance problems, you
     typically need to optimize the graphical assets used in the UI.
@@ -41,8 +43,8 @@
     content better.
 
     An image with one transparent pixel is treated as fully transparent, even
-    though it is mostly opaque. The same is true for a \l {Border Image} with
-    transparent edges.
+    though it is mostly opaque. The same is true for a \l [QML] {BorderImage}
+    {Border Image} with transparent edges.
 
     \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
     {Designing Qt Quick UIs}

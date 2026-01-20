@@ -9,7 +9,7 @@
 
     \title Make layouts scalable
 
-    The position of a \l{glossary-component}{component} in a UI is either
+    The position of a component in a UI is either
     absolute or relative to other components. The visual components exist at a
     particular location in the screen coordinate system at any instant in time.
     The x and y coordinates of a visual component are relative to those of its
@@ -37,15 +37,12 @@
             \li To align the unanchored components left, right, vertical, horizontal, top, and
                 bottom with respect to each other.
         \row
-            \li \l{Make layouts scalable}
-            \li To arrange components in rows, columns, grids, or flows.
-        \row
             \li \l{Use layouts}
             \li To place the components in columns, grids, rows and stacks in layouts.
                 The layouts adept the nature of dynamic and resizable UI.
         \row
             \li \l {Organize components}
-            \li To keep the components or controls collected with frames, groups,
+            \li To keep the components or controls collected with frames,
                 group boxes, pages, and panes.
     \endtable
 
@@ -61,20 +58,20 @@
         (\uicontrol Actions) menu next to a property, and then select
         \uicontrol {Set Binding}.
 
-        \image qmldesigner-set-expression.png "Actions menu"
+        \image {qmldesigner-set-expression.png} {Actions menu.}
 
         \li In \uicontrol {Binding Editor}, select a component and a property from
         lists of available components and their properties.
 
-        \image qmldesigner-binding-editor.png "Binding Editor"
+        \image {qmldesigner-binding-editor.png} {Binding Editor.}
     \endlist
 
     When a binding is set, the \uicontrol Actions menu icon changes to
     \imageactioniconbinding.
     To remove bindings, select \uicontrol Actions > \uicontrol Reset.
 
-   See \l {Add bindings between properties} to learn how to set bindings using
-   the \uicontrol Bindings tab in the \l Connections view.
+    See \l {Add bindings between properties} to learn how to set bindings using
+    the \uicontrol Bindings tab in the \uicontrol Connections view.
 
     \note For better performance, set anchors and margins for binding
     components. For example, instead of setting \c {parent.width} for a
@@ -105,7 +102,7 @@
             \imageqtcreatoranchorsreseticon (\uicontrol {Reset Anchors}).
     \endlist
 
-    \image qmldesigner-anchor-buttons.png "Anchor buttons"
+    \image {qmldesigner-anchor-buttons.png} {Anchor buttons.}
 
     For performance reasons, you can only anchor a component to its siblings
     or direct parent. By default, a component is anchored to its parent when
@@ -242,7 +239,7 @@
     It is used as a convenient way to vertically position a series of
     components without using anchors.
 
-    \image qtquick-positioner-column-properties.png "Column properties"
+    \image {qtquick-positioner-column-properties.png} {Column properties.}
 
     For all positioners, set the spacing between the child
     components in the \uicontrol Spacing field.
@@ -320,7 +317,7 @@
             \image qtquick-layout-context-menu.webp "Grid Layout in the context-menu"
         \li After you assign them to \uicontrol {Grid Layout}, the components are arranged
             in rows and columns.
-            \image qtquick-layout-in-grid.webp "Components in grid rows and columns"
+            \image {qtquick-layout-in-grid.webp} {Components in grid rows and columns.}
 
     \endlist
 
@@ -330,7 +327,7 @@
             and go to \uicontrol Layout in the \uicontrol {Properties} view.
         \li In the \uicontrol {Fill layout}, select both the \uicontrol Width and
             \uicontrol Height checkboxes.
-            \image qtquick-layout-grid-layout-properties.webp "Layout properties for the component"
+            \image {qtquick-layout-grid-layout-properties.webp} {Layout properties for the component.}
             \note Manipulate the \uicontrol {Row span} and the \uicontrol {Column span}
                   to allow the components to take more row and column spaces within the
                   \uicontrol {Grid Layout}.
@@ -416,52 +413,32 @@
     You can use the \uicontrol Frame and \uicontrol {Group Box} controls to
     draw frames around groups of controls.
 
-    If you don't want a frame, use the \uicontrol Group component instead.
-
     The following table lists the UI controls that you can use to organize
-    components in UIs. The \e Location column indicates the
-    location of the component in \uicontrol Components.
+    components in UIs. To access the controls, go to \uicontrol Components >
+    \uicontrol {Qt Quick Controls}.
 
     \table
     \header
         \li Icon
         \li Name
-        \li Location
         \li Purpose
     \row
         \li \imageframeicon16
         \li \l [QtQuickControls]{Frame}
-        \li Qt Quick Controls
         \li A visual frame around a group of controls.
-    \row
-        \li \imagegroup16px
-        \li Group
-        \li Qt Quick Shapes Design Helpers
-        \li Enables handling the selected components as a group.
     \row
         \li \imagegroupboxicon16
         \li \l [QtQuickControls]{GroupBox}{Group Box}
-        \li Qt Quick Controls
         \li A titled visual frame around a group of controls.
     \row
         \li \imagepageicon16
         \li \l [QtQuickControls]{Page}
-        \li Qt Quick Controls
         \li A styled page control with support for a header and footer.
     \row
         \li \imagepaneicon16
         \li \l [QtQuickControls]{Pane}
-        \li Qt Quick Controls
         \li A background that matches the application style and theme.
     \endtable
-
-
-    To access \uicontrol Frame, \uicontrol {Group Box}, \uicontrol Pane, and
-    \uicontrol Page controls, go to \uicontrol Components >
-    \uicontrol {Qt Quick Controls}.
-
-    To access \uicontrol Group control,
-    go to \uicontrol Components > \uicontrol {Qt Quick Shapes Design Helpers}.
 
     \sa {Use UI components}{How to: Use UI components}, {Qt Quick UI design},
     {Designing Qt Quick UIs}

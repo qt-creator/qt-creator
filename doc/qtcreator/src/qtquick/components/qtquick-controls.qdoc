@@ -17,7 +17,7 @@
     The following types of controls are available for user interaction:
 
     \list
-        \li \l {Button Controls}
+        \li \l {Button controls}
         \li \l {Indicators}
         \li \l {Selectors}
         \li \l {Tab Bar}
@@ -76,14 +76,14 @@
     \endlist
 
     For more information about setting text properties, see
-    \l {Character Properties} and \l Padding.
+    \l {Character properties} and \l Padding.
 
     The properties that are shared by all button controls are described in:
 
     \list
-        \li \l {Displaying Text and Icons}
-        \li \l {Checking Buttons}
-        \li \l {Button Signals}
+        \li \l {Display text and icons}
+        \li \l {Checkable buttons}
+        \li \l {Button signals}
     \endlist
 
     \section2 Button
@@ -180,7 +180,7 @@
     checked, and unchecked states when users toggle it by using touch, mouse,
     or keyboard.
 
-    \image qtquickcontrols2-checkbox-tristate.gif "Tri-state checkbox"
+    \image {qtquickcontrols2-checkbox-tristate.gif} {Tri-state checkbox.}
 
     When options can be grouped, you can use a partially checked checkbox to
     represent the whole group. Select \uicontrol PartiallyChecked in the
@@ -195,7 +195,7 @@
 
     \section2 Radio Button
 
-    \image qtquickcontrols2-radiobutton.gif "Radio button"
+    \image {qtquickcontrols2-radiobutton.gif} {Radio button.}
 
     \uicontrol {Radio Button} is an option button that can be toggled on
     (checked) or off (unchecked). Radio buttons are typically used to select
@@ -208,7 +208,7 @@
     \uicontrol {Radio Delegate} is similar to radio button, except that it is
     typically used in views.
 
-    \image qtquickcontrols2-radiodelegate.gif "Radio delegate"
+    \image {qtquickcontrols2-radiodelegate.gif} {Radio delegate.}
 
     Select \uicontrol Highlight in the \uicontrol {Radio Delegate}
     section to highlight the delegate.
@@ -229,14 +229,14 @@
     You can create an instance of \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls > \uicontrol Switch:
 
-    \image qtquickcontrols2-switch.gif "Switch"
+    \image {qtquickcontrols2-switch.gif} {Switch.}
 
     A switch is an option button that can be dragged or toggled on
     (checked) or off (unchecked). Switches are typically used to select between
     two states: \e on or \e off. For larger sets of options, such as those in a
     list, consider using \uicontrol {Switch Delegate} instead.
 
-    \image qtquickcontrols2-switchdelegate.gif "Switch delegate"
+    \image {qtquickcontrols2-switchdelegate.gif} {Switch delegate.}
 
     Select \uicontrol Highlight in the \uicontrol {Item Delegate}
     section to highlight the delegate.
@@ -254,7 +254,7 @@
     In addition to common \l Button properties, a round button has the
     \uicontrol Radius property, which holds the radius of the button.
 
-    \image qtquick-designer-round-button-properties.png "Round Button properties"
+    \image {qtquick-designer-round-button-properties.png} {Round Button properties.}
 
     To create a relatively square button that has slightly rounded corners, use
     a small value, such as 3.
@@ -263,7 +263,7 @@
     of the width or height of the button, and make the button's width and height
     identical.
 
-    \section2 Displaying text and icons
+    \section2 Display text and icons
 
     A button can contain text, an icon, or both. Specify the button text in
     the \uicontrol Text field in the \uicontrol {Button Content} section. The
@@ -271,9 +271,9 @@
     icon is displayed, or when both are visible, whether the text is placed
     beside the icon or under it.
 
-    \image qtquick-designer-abstract-button-properties.png "Button Content properties"
+    \image {qtquick-designer-abstract-button-properties.png} {Button Content properties.}
 
-    \section2 Checking buttons
+    \section2 Checkable buttons
 
     A \e checkable button toggles between checked (on) and unchecked (off) when
     users select it or the space bar while the button has active
@@ -311,11 +311,11 @@
     The following sections contain guidelines for choosing the indicator most
     suitable for a use case.
 
-    \image qtquick-designer-indicator-types.png "Indicator types"
+    \image {qtquick-designer-indicator-types.png} {Indicator types.}
 
     \section2 Busy Indicator
 
-    \image qtquickcontrols2-busyindicator.gif "Busy indicator"
+    \image {qtquickcontrols2-busyindicator.gif} {Busy indicator.}
 
     \uicontrol {Busy Indicator} indicates that an operation is in progress, and
     that the UI has to wait for the operation to complete.
@@ -328,7 +328,7 @@
 
     Select \uicontrol Running to make the busy indicator visible.
 
-    \image qtquick-properties-busy-indicator.png "Busy Indicator properties"
+    \image {qtquick-properties-busy-indicator.png} {Busy Indicator properties.}
 
     Select \uicontrol Live to provide live updates of the
     progress.
@@ -348,7 +348,7 @@
     \uicontrol Count field. Select the current page in the \uicontrol Current
     field.
 
-    \image qtquick-properties-page-indicator.png "Page Indicator properties"
+    \image {qtquick-properties-page-indicator.png} {Page Indicator properties.}
 
     Select \uicontrol Interactive to determine that the page
     indicator reacts to presses and automatically changes the value of the
@@ -370,7 +370,7 @@
     should be updated regularly. Specify the range in the \uicontrol From
     and \uicontrol To fields, which can both contain any value.
 
-    \image {qtquick-designer-progressbar-properties.png} {The Progress Bar section in the Properties view.}
+    \image {qtquick-designer-progressbar-properties.png}} {The Progress Bar section in the Properties view.}
 
     Select \uicontrol Indeterminate when unable to determine the
     size of the item being downloaded, or if the download progress might get
@@ -399,7 +399,7 @@
     following sections contain guidelines for choosing the selector most
     suitable for a use case.
 
-    \image qtquick-designer-selector-types.png "Selector types"
+    \image {qtquick-designer-selector-types.png} {Selector types.}
 
     \target slider-control
     \section2 Slider and Dial
@@ -407,13 +407,13 @@
     You can create an instance of \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls > \uicontrol Slider:
 
-    \image qtquickcontrols2-slider.gif "Slider"
+    \image {qtquickcontrols2-slider.gif} {Slider.}
 
     A slider is used to select a value by sliding a handle along a
     track, whereas \uicontrol {Range Slider} is used to select a range
     specified by two values, by sliding each handle along a track.
 
-    \image qtquickcontrols2-rangeslider.gif "Range slider"
+    \image {qtquickcontrols2-rangeslider.gif} {Range slider.}
 
     \uicontrol Dial is similar to a traditional dial knob that is found on
     devices such as stereos or industrial equipment. It allows users to
@@ -422,7 +422,7 @@
     You can create an instance of \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls > \uicontrol Dial:
 
-    \image qtquickcontrols2-dial-no-wrap.gif "Dial"
+    \image {qtquickcontrols2-dial-no-wrap.gif} {Dial.}
 
     In the \uicontrol From and \uicontrol To fields, set the range of the
     slider or dial. Set the value of the slide handle or dial in the
@@ -431,7 +431,7 @@
     \uicontrol {Value 2} fields. Select \uicontrol Live to
     provide live updates of the value properties.
 
-    \image qtquick-designer-range-slider-properties.png "Range slider properties"
+    \image {qtquick-designer-range-slider-properties.png} {Range slider properties.}
 
     In the \uicontrol {Snap mode} field, set how the slider handles or dial
     behave with regards to the value of the \uicontrol {Step size} field. By
@@ -458,7 +458,7 @@
     controls audio volume. Set the input mode in the \uicontrol {Input mode}
     field.
 
-    \image qtquick-designer-dial-properties.png "Dial properties"
+    \image {qtquick-designer-dial-properties.png} {Dial properties.}
 
     \section2 Spin Box
 
@@ -466,7 +466,7 @@
     \uicontrol {Qt Quick Controls} > \uicontrol Controls >
     \uicontrol {Spin Box}:
 
-    \image qtquickcontrols2-spinbox.png "Spin Box"
+    \image {qtquickcontrols2-spinbox.png} {Spin Box.}
 
     A spin box enables users to choose an integer value by clicking
     the up or down indicator buttons, or by pressing up or down on the keyboard.
@@ -477,7 +477,7 @@
 
     \section2 Combo Box
 
-    \image qtquickcontrols2-combobox.gif "Combo box"
+    \image {qtquickcontrols2-combobox.gif} {Combo box.}
 
     \uicontrol {Combo Box} is a combined button and popup list. It provides a
     means of presenting a list of options to users in a way that takes up the
@@ -493,7 +493,7 @@
     Select \uicontrol Editable to auto-complete combo box text
     based on what is available in the model.
 
-    \image qtquick-designer-combobox-properties.png "Combo box properties"
+    \image {qtquick-designer-combobox-properties.png} {Combo box properties.}
 
     When using models that have multiple named roles, specify the role of
     the \uicontrol {Display text} property in the \uicontrol {Text role} field.
@@ -539,7 +539,7 @@
 
     \section1 Tab Bar
 
-    \image qtquickcontrols2-tabbar.gif "Tab Bar"
+    \image {qtquickcontrols2-tabbar.gif} {Tab Bar.}
 
     \uicontrol {Tab Bar} provides a tab-based navigation model, where users
     can switch between different views or subtasks. A tab bar is commonly
@@ -552,7 +552,7 @@
     tab button. The default value is \c -1 when the tab bar is empty and
     \c 0 otherwise.
 
-    \image qtquick-designer-tabbar-properties.png "Tab Bar properties"
+    \image {qtquick-designer-tabbar-properties.png} {Tab Bar properties.}
 
     You can specify content width (\uicontrol W) and height (\uicontrol H)
     in the \uicontrol {Content size} field.
@@ -564,7 +564,7 @@
 
     \section1 Tool Bar
 
-    \image {qtquickcontrols2-toolbar.png} {A Tool Bar}
+    \image {qtquickcontrols2-toolbar.png} {A Tool Bar.}
 
     \uicontrol {Tool Bar} contains application-wide and context-sensitive
     actions and controls, such as navigation buttons and search fields. A
@@ -599,10 +599,10 @@
     enables you to check how your UI looks when using the available
     styles.
 
-    \image qtquick-designer-style-list.png "Style menu on the toolbar"
+    \image {qtquick-designer-style-list.png} {Style menu on the toolbar.}
 
     For an example of defining your own style and using it in the Design mode,
-    see \l {Qt Quick Controls 2 - Flat Style}.
+    see \l {Qt Quick Controls - Flat Style}.
 
     For more information about how to customize a particular control, see
     \l{Customization Reference}.

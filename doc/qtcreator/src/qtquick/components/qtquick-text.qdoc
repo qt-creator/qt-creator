@@ -76,7 +76,7 @@
     by setting a binding on the text property, change the default call to
     \c qsTranslate() by selecting the \uicontrol {qsTranslate()} radio button.
 
-    For more information, see \l {Mark Strings for Translation}.
+    For more information, see \l {Writing Source Code for Translation}.
 
     \section1 Character properties
 

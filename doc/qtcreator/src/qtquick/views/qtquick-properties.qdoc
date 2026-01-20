@@ -18,7 +18,7 @@
 
     The bottom part of the view displays properties that have been defined for
     the component type. For example, the following image displays the predefined
-    properties you can set for \l{Rectangle} and \l Text components.
+    properties you can set for \l [QML] {Rectangle} and \l Text components.
 
     \image {qmldesigner-element-properties.webp} {The Rectangle and Text tabs in the Properties view.}
 
@@ -90,7 +90,7 @@
     \uicontrol X and \uicontrol Y fields change accordingly.
 
     The component size and position can also be managed automatically
-    when \l{Use layouts}{Use layouts}.
+    when \l{Use layouts}{using layouts}.
 
     The width and height of the root component in a component file determine
     the size of a component. The component size might also be zero (0,0)
@@ -259,14 +259,18 @@
 
     \title Pick gradients
 
-    To set gradients, use the the color picker in the \uicontrol Properties view.
-    To open it, click the color field of the \uicontrol {Fill color} or
-    \uicontrol {Border color} property, for example.
+    To set gradients, use the the gradient bar (6) of the color picker in the
+    \uicontrol Properties view. To open the color picker, click the color field
+    of the \uicontrol {Fill color} or \uicontrol {Border color} property, for
+    example.
+
+    To show the gradient bar, select a gradient type in the dropdown menu (5) of
+    the color picker.
 
     \image {qtquick-designer-color-picker.png} {Color Picker view.}
 
     A gradient is defined by two or more colors which are blended
-    seamlessly (6). The colors are specified as a set of gradient stops,
+    seamlessly. The colors are specified as a set of gradient stops,
     each of which defines a position on the gradient bar from 0.0 to 1.0
     and a color. Drag the gradient stops along the gradient bar to set their
     values. Select the arrow below a gradient stop to see its value as
@@ -292,9 +296,9 @@
 
     You can select \uicontrol Linear (1), \uicontrol Radial (2), or
     \uicontrol Conical (3) as the color fill type. After selecting one of the
-    gradient types, you can define the gradient properties for
-    \l{Shapes}{Qt Quick Shapes Design Helpers} in the \uicontrol {Gradient Controls}
-    section of the color picker.
+    gradient types, you can define the gradient properties for components that
+    support the type in the \uicontrol {Gradient Controls} section of the color
+    picker.
 
     \section2 Linear gradients
 
@@ -340,12 +344,17 @@
     \l{https://webgradients.com/}{WebGradients} for components
     that support \l QGradient.
 
-    To open the \uicontrol {Gradient Picker}, select the
-    \uicontrol {Gradient Picker Dialog} icon (4).
+    To apply a web gradient to a component:
 
-    \image {qtquick-designer-gradient-picker.png} {Gradient Picker dialog.}
-
-    To apply a gradient on the selected component, select \uicontrol Apply.
+    \list 1
+        \li Select the component in the \uicontrol Navigator or \uicontrol {2D}
+            view.
+        \li In the \uicontrol Properties view, select a color property to open
+            the color picker.
+        \li Select the \uicontrol {Gradient Picker Dialog} icon (4).
+            \image {qtquick-designer-gradient-picker.png} {Gradient Picker dialog.}
+        \li Select a gradient from the list, and then select \uicontrol Apply.
+    \endlist
 
     To save a gradient in the \uicontrol {User Presets} tab, select
     \uicontrol Save.

@@ -119,7 +119,7 @@
     by using \e transitions. Transitions are animation types that interpolate
     property changes caused by state changes.
 
-    In \l {Transitions}, you can set the start frame, end frame,
+    In the \uicontrol {Transitions} view, you can set the start frame, end frame,
     and duration for the transition of each property. You can also set
     an \l{Edit easing curves}{easing curve} for each animation and
     the maximum duration of the whole transition.
