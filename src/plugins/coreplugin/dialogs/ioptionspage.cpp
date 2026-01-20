@@ -278,7 +278,7 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
             continue;
         }
         if (auto ob = qobject_cast<QLineEdit *>(child)) {
-            connect(ob, &QLineEdit::textChanged, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QLineEdit::textEdited, this, &IOptionsPageWidget::gotDirty);
             continue;
         }
         if (auto ob = qobject_cast<QComboBox *>(child)) {
@@ -297,11 +297,11 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
             connect(ob, &QCheckBox::toggled, this, &IOptionsPageWidget::gotDirty);
             continue;
         }
-        if (auto ob = qobject_cast<QAbstractItemView *>(child)) {
-            ob->viewport()->setProperty(DirtyOnMouseButtonRelease, true);
-            ob->viewport()->installEventFilter(d.get());
-            continue;
-        }
+    }
+
+    if (auto ob = qobject_cast<QAbstractItemView *>(widget)) {
+        ob->viewport()->setProperty(DirtyOnMouseButtonRelease, true);
+        ob->viewport()->installEventFilter(d.get());
     }
 }
 
