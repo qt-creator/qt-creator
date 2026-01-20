@@ -119,52 +119,91 @@ if (APPLE)
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/app-Info.plist"
   )
   # icon
+  set(USE_XCODE_26_FOR_APPICON OFF)  # switch to ON to disable legacy mode
+  if(USE_XCODE_26_FOR_APPICON)
+    set(QTCREATOR_APP_ICON "${CMAKE_CURRENT_BINARY_DIR}/qtcreator.icns")
+    set(QTCREATOR_ACTOOL_APP_ICON_OUTPUT "${QTCREATOR_APP_ICON}")
+    set(QTCREATOR_APP_ICON_ASSET "${IDE_ICON_PATH}/macos/qtcreator.icon")
+    set(QTCREATOR_APP_ICON_FILES
+      macos/qtcreator.icon/icon.json
+      macos/qtcreator.icon/Assets/icon.png
+    )
+  else()
+    set(QTCREATOR_APP_ICON "${IDE_ICON_PATH}/macos/legacy/qtcreator.icns")
+    set(QTCREATOR_ACTOOL_APP_ICON_OUTPUT)
+    set(QTCREATOR_APP_ICON_ASSET "${CMAKE_CURRENT_BINARY_DIR}/qtcreator-appicon.xcassets")
+    set(QTCREATOR_APP_ICON_FILES
+      ${QTCREATOR_APP_ICON_ASSET}/qtcreator.iconset/icon_16x16.png
+      ${QTCREATOR_APP_ICON_ASSET}/qtcreator.iconset/icon_16x16@2x.png
+      ${QTCREATOR_APP_ICON_ASSET}/qtcreator.iconset/icon_128x128.png
+      ${QTCREATOR_APP_ICON_ASSET}/qtcreator.iconset/icon_128x128@2x.png
+    )
+    add_custom_command(
+      OUTPUT ${QTCREATOR_APP_ICON_FILES}
+      COMMAND
+        iconutil -c iconset
+        "${QTCREATOR_APP_ICON}"
+        -o "${QTCREATOR_APP_ICON_ASSET}/qtcreator.iconset"
+      DEPENDS
+        "${QTCREATOR_APP_ICON}"
+      VERBATIM
+    )
+  endif()
+  set(QTCREATOR_PROJECT_ICONSET_FILES
+    macos/qtcreator.xcassets/qtcreator-project.iconset/icon_128x128.png
+    macos/qtcreator.xcassets/qtcreator-project.iconset/icon_128x128@2x.png
+    macos/qtcreator.xcassets/qtcreator-project.iconset/icon_16x16.png
+    macos/qtcreator.xcassets/qtcreator-project.iconset/icon_16x16@2x.png
+    macos/qtcreator.xcassets/qtcreator-project.iconset/icon_256x256.png
+    macos/qtcreator.xcassets/qtcreator-project.iconset/icon_256x256@2x.png
+    macos/qtcreator.xcassets/qtcreator-project.iconset/icon_32x32.png
+    macos/qtcreator.xcassets/qtcreator-project.iconset/icon_32x32@2x.png
+    macos/qtcreator.xcassets/qtcreator-project.iconset/icon_512x512.png
+    macos/qtcreator.xcassets/qtcreator-project.iconset/icon_512x512@2x.png
+  )
   add_custom_command(
-    OUTPUT qtcreator.icns qtcreator-project.icns
+    OUTPUT Assets.car ${QTCREATOR_ACTOOL_APP_ICON_OUTPUT}
     COMMAND
       xcrun actool --app-icon qtcreator --output-partial-info-plist "${CMAKE_CURRENT_BINARY_DIR}/qtcreator.Info.plist"
-      --platform macosx --minimum-deployment-target 10.7 --compile "${CMAKE_CURRENT_BINARY_DIR}"
-      "${IDE_ICON_PATH}/qtcreator.xcassets"
+      --platform macosx --target-device mac --minimum-deployment-target 11.0 --compile "${CMAKE_CURRENT_BINARY_DIR}"
+      --bundle-identifier "${IDE_BUNDLE_IDENTIFIER}"
+      "${IDE_ICON_PATH}/macos/qtcreator.xcassets" "${QTCREATOR_APP_ICON_ASSET}"
       > /dev/null
     BYPRODUCTS qtcreator.Info.plist
     DEPENDS
-      qtcreator.xcassets/qtcreator.appiconset/Contents.json
-      qtcreator.xcassets/qtcreator.appiconset/icon_128x128.png
-      qtcreator.xcassets/qtcreator.appiconset/icon_128x128@2x.png
-      qtcreator.xcassets/qtcreator.appiconset/icon_16x16.png
-      qtcreator.xcassets/qtcreator.appiconset/icon_16x16@2x.png
-      qtcreator.xcassets/qtcreator.appiconset/icon_256x256.png
-      qtcreator.xcassets/qtcreator.appiconset/icon_256x256@2x.png
-      qtcreator.xcassets/qtcreator.appiconset/icon_32x32.png
-      qtcreator.xcassets/qtcreator.appiconset/icon_32x32@2x.png
-      qtcreator.xcassets/qtcreator.appiconset/icon_512x512.png
-      qtcreator.xcassets/qtcreator.appiconset/icon_512x512@2x.png
-      qtcreator.xcassets/qtcreator-project.iconset/icon_128x128.png
-      qtcreator.xcassets/qtcreator-project.iconset/icon_128x128@2x.png
-      qtcreator.xcassets/qtcreator-project.iconset/icon_16x16.png
-      qtcreator.xcassets/qtcreator-project.iconset/icon_16x16@2x.png
-      qtcreator.xcassets/qtcreator-project.iconset/icon_256x256.png
-      qtcreator.xcassets/qtcreator-project.iconset/icon_256x256@2x.png
-      qtcreator.xcassets/qtcreator-project.iconset/icon_32x32.png
-      qtcreator.xcassets/qtcreator-project.iconset/icon_32x32@2x.png
-      qtcreator.xcassets/qtcreator-project.iconset/icon_512x512.png
-      qtcreator.xcassets/qtcreator-project.iconset/icon_512x512@2x.png
+      ${QTCREATOR_PROJECT_ICONSET_FILES}
+      ${QTCREATOR_APP_ICON_FILES}
+    VERBATIM
+  )
+  add_custom_command(
+    OUTPUT qtcreator-project.icns
+    COMMAND
+      iconutil -c icns
+      "${IDE_ICON_PATH}/macos/qtcreator.xcassets/qtcreator-project.iconset"
+      -o "${CMAKE_CURRENT_BINARY_DIR}/qtcreator-project.icns"
+    DEPENDS
+      ${QTCREATOR_PROJECT_ICONSET_FILES}
     VERBATIM
   )
   target_sources(qtcreator
     PRIVATE
-      "${CMAKE_CURRENT_BINARY_DIR}/qtcreator.icns"
+      "${CMAKE_CURRENT_BINARY_DIR}/Assets.car"
+      ${QTCREATOR_APP_ICON}
       "${CMAKE_CURRENT_BINARY_DIR}/qtcreator-project.icns"
   )
   qtc_copy_to_builddir(copy_icns
     DESTINATION ${IDE_DATA_PATH}
     FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/qtcreator.icns
+      ${CMAKE_CURRENT_BINARY_DIR}/Assets.car
+      "${QTCREATOR_APP_ICON}"
+      ${IDE_ICON_PATH}/macos/qtcreator.icon/Assets/icon.png
       ${CMAKE_CURRENT_BINARY_DIR}/qtcreator-project.icns
   )
   install(
     FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/qtcreator.icns
+      ${CMAKE_CURRENT_BINARY_DIR}/Assets.car
+      "${QTCREATOR_APP_ICON}"
+      ${IDE_ICON_PATH}/macos/qtcreator.icon/Assets/icon.png
       ${CMAKE_CURRENT_BINARY_DIR}/qtcreator-project.icns
     DESTINATION ${IDE_DATA_PATH}
   )
