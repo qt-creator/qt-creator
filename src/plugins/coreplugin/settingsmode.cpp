@@ -619,6 +619,11 @@ void SettingsWidget::createGui()
 {
     m_headerLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
+    m_okButton.setToolTip(Tr::tr("Apply all changes and return to previous mode."));
+    m_applyButton.setToolTip(Tr::tr("Apply all changes and stay here."));
+    m_cancelButton.setToolTip(Tr::tr("Discard all changes. Hold <Shift> to stay here, "
+                                     "otherwise return to previous mode."));
+
     auto buttonBox = new QDialogButtonBox;
     buttonBox->addButton(&m_okButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(&m_applyButton, QDialogButtonBox::ActionRole);
@@ -633,7 +638,8 @@ void SettingsWidget::createGui()
 
     connect(&m_cancelButton, &QAbstractButton::clicked, this, [this] {
         cancel();
-        ModeManager::activatePreviousMode();
+        if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier))
+            ModeManager::activatePreviousMode();
     });
 
     m_stackedLayout->setContentsMargins(0, 0, 0, 0);
