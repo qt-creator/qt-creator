@@ -531,6 +531,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
 
     if (didChangeDevice) {
         m_configWidget = DeviceManager::mutableDevice(device->id())->createWidget();
+        setupDirtyHook(m_configWidget);
         if (m_configWidget)
             m_osSpecificGroupBox->layout()->addWidget(m_configWidget);
     }
