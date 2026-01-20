@@ -54,7 +54,8 @@ void MinimapOverlay::paintMinimap(QPainter *painter) const
     if (m_minimap.isNull() || !m_vScroll)
         return;
 
-    painter->fillRect(rect(), creatorColor(Theme::Token_Background_Default));
+    QColor bg = m_editor->palette().brush(QPalette::Base).color();
+    painter->fillRect(rect(), bg);
 
     const QRect geo = rect().adjusted(1, 0, 1, 0);
 
@@ -173,6 +174,7 @@ void MinimapOverlay::updateImage()
         dstLine += m_lineGap * imageWidth;
     };
 
+    auto defaultTextColor = m_editor->palette().brush(QPalette::Text).color();
     for (QTextBlock block = m_doc->firstBlock(); block.isValid(); block = block.next()) {
         if (!block.isVisible())
             continue;
@@ -199,7 +201,13 @@ void MinimapOverlay::updateImage()
         int fmtPos = formats.first().start;
         int fmtEnd = fmtPos + formats.first().length;
 
-        QColor curFg = formats[fmtIdx].format.foreground().color();
+        auto getCurFg = [&](int index) -> QColor {
+            if (formats[index].format.hasProperty(QTextFormat::ForegroundBrush))
+                return formats[index].format.foreground().color();
+            return defaultTextColor;
+        };
+
+        QColor curFg = getCurFg(fmtIdx);
 
         int dstX = 0;
         for (int i = 0; i < text.length() && dstX < imageWidth; ++i) {
@@ -207,7 +215,7 @@ void MinimapOverlay::updateImage()
                 ++fmtIdx;
                 fmtPos = formats[fmtIdx].start;
                 fmtEnd = fmtPos + formats[fmtIdx].length;
-                curFg = formats[fmtIdx].format.foreground().color();
+                curFg = getCurFg(fmtIdx);
             }
 
             QChar ch = text.at(i);
