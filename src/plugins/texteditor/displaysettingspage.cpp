@@ -161,17 +161,11 @@ public:
                         displayFileEncoding,
                         displayFileLineEnding,
                         displayTabSettings,
-                        st
+                        enableMinimap,
                     }
                 }
             },
             displayAnnotations,
-            Group {
-                title(Tr::tr("Minimap")),
-                Column {
-                    enableMinimap,
-                }
-            },
 
             st
         }.attachTo(this);
