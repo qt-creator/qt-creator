@@ -2176,8 +2176,8 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
         d->m_toolTipManager.deregisterEngine();
         d->m_memoryAgents.handleDebuggerFinished();
 
-        d->destroyPerspective();
         emit engineFinished();
+        d->destroyPerspective();
     }
 }
 
