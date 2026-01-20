@@ -152,7 +152,7 @@ public:
 
         autoDetectInQtInstallation.setSettingsKey("AutoDetectInQtInstallation");
         autoDetectInQtInstallation.setDefaultValue(true);
-        autoDetectInQtInstallation.setLabelText(Tr::tr("Search in Qt Installation"));
+        autoDetectInQtInstallation.setLabelText(Tr::tr("Search in Qt installation"));
         autoDetectInQtInstallation.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
         autoDetectQtInstallation.setSettingsKey("AutoDetectQtInstallation");
@@ -163,7 +163,7 @@ public:
 
         autoDetectInDirectories.setSettingsKey("AutoDetectInDirectories");
         autoDetectInDirectories.setDefaultValue(false);
-        autoDetectInDirectories.setLabelText(Tr::tr("Search in Directories"));
+        autoDetectInDirectories.setLabelText(Tr::tr("Search in directories"));
         autoDetectInDirectories.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
         autoDetectDirectories.setSettingsKey("AutoDetectDirectories");
@@ -176,7 +176,7 @@ public:
 
         autoCreateKits.setSettingsKey("AutoCreateKits");
         autoCreateKits.setDefaultValue(true);
-        autoCreateKits.setLabelText(Tr::tr("Create Kits"));
+        autoCreateKits.setLabelText(Tr::tr("Create kits"));
         autoCreateKits.setToolTip(Tr::tr("Set up kits for this device's toolchains."));
         autoCreateKits.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
         autoCreateKits.setVisible(false);
