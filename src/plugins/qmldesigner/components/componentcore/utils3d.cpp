@@ -655,11 +655,14 @@ ModelNode createMaterial(AbstractView *view)
             return;
 
         newMatNode = view->createModelNode("PrincipledMaterial");
-
         QmlObjectNode(newMatNode).setNameAndId("New Material", "material");
         matLib.defaultNodeListProperty().reparentHere(newMatNode);
-        newMatNode.selectNode();
+
+        QTimer::singleShot(0, view, [newMatNode]() mutable {
+            newMatNode.selectNode();
+        });
     });
+
     return newMatNode;
 }
 

@@ -159,8 +159,10 @@ void QmlMaterialNodeProxy::toolBarAction(int action)
     }
 
     case ToolBarAction::DeleteCurrentMaterial: {
-        if (materialNode().isValid())
-            materialView()->executeInTransaction(__FUNCTION__, [&] { materialNode().destroy(); });
+        ModelNode nodeToDestroy = materialNode();
+        QTimer::singleShot(0, materialView(), [nodeToDestroy]() mutable {
+            nodeToDestroy.destroy();
+        });
         break;
     }
 
