@@ -253,12 +253,12 @@ void MinimapOverlay::updateImage()
 
 void MinimapOverlay::doMove()
 {
-    QTimer::singleShot(0, [this]{
+    QMetaObject::invokeMethod(this, [this] {
         QPoint point = parentWidget()->mapFromGlobal(m_vScroll->mapToGlobal(m_vScroll->pos()));
         point.setX(point.x() - m_minimapWidth);
 
         move(point);
-    });
+    }, Qt::QueuedConnection);
 }
 
 void MinimapOverlay::doResize()
