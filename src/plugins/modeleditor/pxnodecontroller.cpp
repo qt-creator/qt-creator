@@ -173,13 +173,13 @@ void PxNodeController::addFileSystemEntry(const FilePath &filePath, int line, in
                                        MenuAction::TYPE_ADD_DIAGRAM_LINK, "diagram", filePath, menu));
         menu->addAction(new MenuAction(Tr::tr("Add Document Link to %1").arg(fileName), fileName,
                                        MenuAction::TYPE_ADD_DOCUMENT_LINK, "document", filePath, menu));
-        connect(menu, &QMenu::aboutToHide, menu, &QMenu::deleteLater);
         connect(menu, &QMenu::triggered, this, [this, filePath, topMostElementAtPos, pos, diagram](
                                                    QAction *action) {
             // TODO potential risk if topMostElementAtPos or diagram is deleted in between
             onMenuActionTriggered(static_cast<MenuAction *>(action), filePath, topMostElementAtPos,
                                   pos, diagram);
         });
+        menu->setAttribute(Qt::WA_DeleteOnClose);
         menu->popup(QCursor::pos());
     } else if (filePath.isDir()) {
         auto menu = new QMenu;
@@ -189,12 +189,12 @@ void PxNodeController::addFileSystemEntry(const FilePath &filePath, int line, in
                                        MenuAction::TYPE_ADD_PACKAGE_AND_DIAGRAM, menu));
         menu->addAction(new MenuAction(Tr::tr("Add Component Model"), elementName,
                                        MenuAction::TYPE_ADD_COMPONENT_MODEL, menu));
-        connect(menu, &QMenu::aboutToHide, menu, &QMenu::deleteLater);
         connect(menu, &QMenu::triggered, this, [this, filePath, topMostElementAtPos, pos, diagram](
                                                    QAction *action) {
             onMenuActionTriggered(static_cast<MenuAction *>(action), filePath, topMostElementAtPos,
                                   pos, diagram);
         });
+        menu->setAttribute(Qt::WA_DeleteOnClose);
         menu->popup(QCursor::pos());
     }
 }

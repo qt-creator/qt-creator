@@ -563,6 +563,7 @@ void TerminalWidget::contextMenuRequested(const QPoint &pos)
     contextMenu->addSeparator();
     contextMenu->addAction(configureAction);
 
+    contextMenu->setAttribute(Qt::WA_DeleteOnClose);
     contextMenu->popup(mapToGlobal(pos));
 }
 

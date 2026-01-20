@@ -690,7 +690,7 @@ bool PeripheralRegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     addStandardActions(ev.view(), menu);
 
-    connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->popup(ev.globalPos());
     return true;
 }
