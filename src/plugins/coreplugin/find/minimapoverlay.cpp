@@ -199,9 +199,7 @@ void MinimapOverlay::updateImage()
         int fmtPos = formats.first().start;
         int fmtEnd = fmtPos + formats.first().length;
 
-        const QTextCharFormat &cf = formats[fmtIdx].format;
-        QColor curFg = cf.foreground().color();
-        QColor curBg = cf.background().color();
+        QColor curFg = formats[fmtIdx].format.foreground().color();
 
         int dstX = 0;
         for (int i = 0; i < text.length() && dstX < imageWidth; ++i) {
@@ -209,9 +207,7 @@ void MinimapOverlay::updateImage()
                 ++fmtIdx;
                 fmtPos = formats[fmtIdx].start;
                 fmtEnd = fmtPos + formats[fmtIdx].length;
-                const QTextCharFormat &cf = formats[fmtIdx].format;
-                curFg = cf.foreground().color();
-                curBg = cf.background().color();
+                curFg = formats[fmtIdx].format.foreground().color();
             }
 
             QChar ch = text.at(i);
