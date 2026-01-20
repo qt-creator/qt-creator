@@ -498,6 +498,7 @@ private:
     Id m_id;
     StringAspect m_dashboardUrl;
     StringAspect m_username;
+    BoolAspect m_isAnonAuth;
     BoolAspect m_valid;
 };
 
@@ -516,10 +517,14 @@ DashboardSettingsWidget::DashboardSettingsWidget(QWidget *parent, QPushButton *o
     m_username.setDisplayStyle(StringAspect::LineEditDisplay);
     m_username.setPlaceHolderText(Tr::tr("User name"));
 
+    m_isAnonAuth.setLabelText(Tr::tr("Anonymous authentication"));
+    m_isAnonAuth.setDefaultValue(true);
+
     using namespace Layouting;
 
     Form {
         m_dashboardUrl, br,
+        m_isAnonAuth, br,
         m_username, br,
         noMargin
     }.attachTo(this);
@@ -529,7 +534,14 @@ DashboardSettingsWidget::DashboardSettingsWidget(QWidget *parent, QPushButton *o
         m_valid.setValue(isValid());
         ok->setEnabled(m_valid());
     };
+    auto anonAuthChanged = [this] {
+        const bool anonymous = m_isAnonAuth();
+        if (anonymous)
+            m_username.setValue("anon_auth");
+        m_username.setEnabled(!anonymous);
+    };
     m_dashboardUrl.addOnChanged(this, checkValidity);
+    m_isAnonAuth.addOnChanged(this, anonAuthChanged);
     m_username.addOnChanged(this, checkValidity);
 }
 
@@ -550,6 +562,8 @@ void DashboardSettingsWidget::setDashboardServer(const AxivionServer &server)
     m_id = server.id;
     m_dashboardUrl.setValue(server.dashboard);
     m_username.setValue(server.username);
+    m_isAnonAuth.setValue(server.username == "anon_auth");
+    m_username.setEnabled(!m_isAnonAuth());
 }
 
 bool DashboardSettingsWidget::isValid() const
@@ -726,8 +740,9 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     }.attachTo(this);
 
     connect(addServerButton, &QPushButton::clicked, this, [this] {
-        // add an empty item unconditionally
-        m_dashboardServers->addItem(Tr::tr("unset"), QVariant::fromValue(AxivionServer()));
+        // add an empty item unconditionally, default to anon_auth
+        const auto serverVariant = QVariant::fromValue(AxivionServer{{}, {}, "anon_auth", true});
+        m_dashboardServers->addItem(Tr::tr("unset"), serverVariant);
         m_dashboardServers->setCurrentIndex(m_dashboardServers->count() - 1);
         showServerDialog(true);
     });
