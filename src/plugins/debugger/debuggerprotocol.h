@@ -9,6 +9,7 @@
 #include <QJsonValue>
 #include <QList>
 #include <QString>
+#include <QStringDecoder>
 #include <QVarLengthArray>
 
 #include <utils/filepath.h>
