@@ -192,8 +192,8 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
 {
     if (widget->property(IGNORE_FOR_DIRTY_HOOK).toBool())
         return;
-    QList<QWidget *> children;
-    children.append(this);
+
+    QList<QWidget *> children = { widget };
 
     while (!children.isEmpty()) {
         QWidget *child = children.takeLast();
