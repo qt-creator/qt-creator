@@ -95,13 +95,13 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.9.0)
   )
 endif()
 
-if (Qt6_VERSION VERSION_GREATER_EQUAL 6.11.0)
-  find_package(Qt6
-    COMPONENTS
-    TaskTree
-    REQUIRED
-  )
-endif()
+#if (Qt6_VERSION VERSION_GREATER_EQUAL 6.11.0)
+#  find_package(Qt6
+#    COMPONENTS
+#    TaskTree
+#    REQUIRED
+#  )
+#endif()
 
 qtc_setup_sbom()
 qtc_sbom_begin_project()
