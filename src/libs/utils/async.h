@@ -66,23 +66,6 @@ const QFuture<T> &onResultReady(const QFuture<T> &future, QObject *guard, Functi
 }
 
 /*!
-    Adds a handler for when the future is finished.
-    This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
-    or create a QFutureWatcher already for other reasons.
-*/
-template<typename R, typename T>
-const QFuture<T> &onFinished(const QFuture<T> &future,
-                             R *receiver, void (R::*member)(const QFuture<T> &))
-{
-    auto watcher = new QFutureWatcher<T>(receiver);
-    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
-    QObject::connect(watcher, &QFutureWatcherBase::finished, receiver,
-                     [future, receiver, member] { (receiver->*member)(future); });
-    watcher->setFuture(future);
-    return future;
-}
-
-/*!
     Adds a handler for when the future is finished. The guard object determines the lifetime of
     the connection.
     This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
