@@ -173,26 +173,6 @@ void setupClangdConfigFile()
     }
 }
 
-static std::optional<Utils::FilePath> clangdExecutableFromBuildDevice(Kit *kit)
-{
-    if (!kit)
-        return std::nullopt;
-
-    // Desktop has dedicated settings.
-    if (BuildDeviceTypeKitAspect::deviceTypeId(kit)
-        == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        return std::nullopt;
-    }
-
-    if (const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit)) {
-        FilePath clangd = buildDevice->deviceToolPath(CppEditor::Constants::CLANGD_TOOL_ID);
-        if (!clangd.isEmpty())
-            return clangd;
-    }
-
-    return std::nullopt;
-}
-
 static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils::FilePath &jsonDbDir)
 {
     using CppEditor::ClangdSettings;
@@ -206,8 +186,7 @@ static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils:
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
     const QString limitResults = QString("--limit-results=%1").arg(settings.completionResults());
-    const Utils::FilePath clangdExePath = clangdExecutableFromBuildDevice(bc ? bc->kit() : nullptr).value_or(
-        settings.clangdFilePath());
+    const Utils::FilePath clangdExePath = settings.clangdFilePath(bc ? bc->kit() : nullptr);
     Utils::CommandLine cmd{clangdExePath,
                            {indexingOption,
                             headerInsertionOption,

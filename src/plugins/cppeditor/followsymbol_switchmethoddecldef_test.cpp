@@ -498,7 +498,7 @@ void FollowSymbolTest::initTestCase()
     if (clangdFromEnv.isEmpty())
         return;
     ClangdSettings::setClangdFilePath(Utils::FilePath::fromUserInput(clangdFromEnv));
-    const auto clangd = ClangdSettings::instance().clangdFilePath();
+    const auto clangd = ClangdSettings::instance().clangdFilePath(nullptr);
     if (clangd.isEmpty() || !clangd.exists())
         return;
 

@@ -11,6 +11,7 @@
 
 namespace ProjectExplorer {
 class BuildConfiguration;
+class Kit;
 class Project;
 }
 
@@ -103,7 +104,7 @@ public:
     static void setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
     static ClangDiagnosticConfigsModel diagnosticConfigsModel();
 
-    Utils::FilePath clangdFilePath() const;
+    Utils::FilePath clangdFilePath(const ProjectExplorer::Kit *kit) const;
     IndexingPriority indexingPriority() const { return m_data.indexingPriority; }
     Utils::FilePath projectIndexPath(const Utils::MacroExpander &expander) const;
     Utils::FilePath sessionIndexPath(const Utils::MacroExpander &expander) const;
