@@ -62,7 +62,7 @@ public:
     }
 
     qint64 issueId = -1;
-    std::optional<FilePath> bauhausSuite;
+    std::optional<FilePath> bauhausSuite = std::nullopt;
 };
 
 class TextMarkManager
@@ -136,7 +136,7 @@ void clearMarks(const FilePath &filePath, LineMarkerType type)
         auto it = marks.begin();
         for (auto end = marks.end(); it != end; ++it) {
             const FilePath bauhaus = (*it)->bauhausSuite.value_or(FilePath{});
-            QTC_CHECK(!bauhaus.isEmpty());
+            QTC_ASSERT(!bauhaus.isEmpty(), continue);
             idsToRevoke[bauhaus].append((*it)->issueId);
         }
         for (auto it = idsToRevoke.begin(), end = idsToRevoke.end(); it != end; ++it)

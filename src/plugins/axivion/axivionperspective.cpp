@@ -18,6 +18,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <cppeditor/cppeditorconstants.h>
+
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
 
@@ -1776,10 +1778,17 @@ AxivionPerspective::AxivionPerspective()
     action->setIcon(Icon({{":/axivion/images/axivion.png", Theme::MenuBarItemTextColorNormal}},
                          Icon::MenuTintedStyle).icon());
     action->setEnabled(false);
-    menu->addAction(ActionManager::registerAction(action, "Axivion.SingleFile"),
-                    Debugger::Constants::G_ANALYZER_TOOLS);
+    Command *cmd = ActionManager::registerAction(action, "Axivion.SingleFile");
+    menu->addAction(cmd, Debugger::Constants::G_ANALYZER_TOOLS);
     connect(action, &QAction::triggered, this, &AxivionPerspective::onSingleFileAnalysisTriggered);
     menu->addSeparator();
+
+    ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
+    if (!contextMenu) // CppEditor plugin not loaded
+        return;
+    contextMenu->addSeparator();
+    contextMenu->addAction(cmd);
+    contextMenu->addSeparator();
 }
 
 void AxivionPerspective::handleShowIssues(const QString &kind)
