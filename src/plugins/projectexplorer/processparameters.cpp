@@ -109,6 +109,7 @@ FilePath ProcessParameters::effectiveCommand() const
         m_commandMissing = m_effectiveCommand.isEmpty();
         if (m_commandMissing)
             m_effectiveCommand = cmd;
+        m_commandMissing = m_effectiveCommand.isEmpty();
     }
     return m_effectiveCommand;
 }
