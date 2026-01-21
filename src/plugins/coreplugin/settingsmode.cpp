@@ -767,15 +767,18 @@ void SettingsWidget::switchBackIfNeeded()
 
     QPushButton *applyButton
         = dialog.addButton(Tr::tr("Apply Unsaved Changes"), QMessageBox::AcceptRole);
-    connect(applyButton, &QAbstractButton::clicked, this, &SettingsWidget::apply);
+    connect(applyButton, &QAbstractButton::clicked, this, &SettingsWidget::apply,
+            Qt::QueuedConnection);
 
     QPushButton *abandonButton
         = dialog.addButton(Tr::tr("Abandon Unsaved Changes"), QMessageBox::AcceptRole);
-    connect(abandonButton, &QAbstractButton::clicked, this, &SettingsWidget::cancel);
+    connect(abandonButton, &QAbstractButton::clicked, this, &SettingsWidget::cancel,
+            Qt::QueuedConnection);
 
     QPushButton *backButton
         = dialog.addButton(Tr::tr("Return to Previous Page"), QMessageBox::RejectRole);
-    connect(backButton, &QAbstractButton::clicked, this, &SettingsWidget::switchBack);
+    connect(backButton, &QAbstractButton::clicked, this, &SettingsWidget::switchBack,
+            Qt::QueuedConnection);
 
     m_currentlySwitching = true;
     dialog.exec();
