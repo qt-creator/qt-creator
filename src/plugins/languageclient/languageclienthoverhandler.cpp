@@ -157,9 +157,9 @@ void HoverHandler::setContent(const HoverContent &hoverContent)
     if (auto markupContent = std::get_if<MarkupContent>(&hoverContent))
         setToolTip(markupContent->content(), markupContent->textFormat());
     else if (auto markedString = std::get_if<MarkedString>(&hoverContent))
-        setToolTip(toolTipForMarkedStrings({*markedString}));
+        setToolTip(toolTipForMarkedStrings({*markedString}), Qt::MarkdownText);
     else if (auto markedStrings = std::get_if<QList<MarkedString>>(&hoverContent))
-        setToolTip(toolTipForMarkedStrings(*markedStrings));
+        setToolTip(toolTipForMarkedStrings(*markedStrings), Qt::MarkdownText);
 }
 
 } // namespace LanguageClient
