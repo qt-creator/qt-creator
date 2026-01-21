@@ -447,6 +447,7 @@ public:
     void currentTabChanged(int);
     void filter(const QString &text);
 
+    bool isDirty() const { return m_isDirty; }
     void setDirty(bool dirty);
     void createGui();
     void showCategory(int index);
@@ -463,6 +464,7 @@ public:
         showPage(previousPage);
     };
 
+    bool askToLeave(); // returns true if ok to leave.
 
 private:
     const QList<IOptionsPage *> m_pages;
@@ -785,6 +787,36 @@ void SettingsWidget::switchBackIfNeeded()
     m_currentlySwitching = false;
 }
 
+bool SettingsWidget::askToLeave()
+{
+    QTC_ASSERT(!m_currentlySwitching, return false);
+
+    QMessageBox dialog(dialogParent());
+    dialog.setWindowTitle(Tr::tr("Unapplied Changes"));
+    dialog.setIcon(QMessageBox::Warning);
+    dialog.resize(400, 500);
+    dialog.setText(Tr::tr("There are unsaved changes."));
+
+    bool okToSwitch = false;
+
+    QPushButton *applyButton
+        = dialog.addButton(Tr::tr("Apply Unsaved Changes"), QMessageBox::AcceptRole);
+    connect(applyButton, &QAbstractButton::clicked, this, [this, &okToSwitch] {
+        apply();
+        okToSwitch = true;
+    });
+
+    dialog.addButton(Tr::tr("Stay in Settings Mode"), QMessageBox::AcceptRole);
+
+    m_currentlySwitching = true;
+
+    dialog.exec();
+
+    m_currentlySwitching = false;
+
+    return okToSwitch;
+}
+
 void SettingsWidget::currentCategoryChanged(const QModelIndex &current)
 {
     if (current.isValid()) {
@@ -865,6 +897,14 @@ class SettingsModeWidget final : public QWidget
 public:
     SettingsModeWidget()
     {
+        connect(ModeManager::instance(), &ModeManager::currentModeAboutToChange, this,
+                [this](Id mode, Id oldMode, bool *okToSwitch) {
+            Q_UNUSED(mode);
+            QTC_ASSERT(okToSwitch, return);
+            if (oldMode == Constants::MODE_SETTINGS && inner && inner->isDirty())
+                *okToSwitch = inner->askToLeave();
+        });
+
         connect(ModeManager::instance(), &ModeManager::currentModeChanged, this, [this](Id mode, Id oldMode) {
             QTC_ASSERT(mode != oldMode, return);
             if (mode == Constants::MODE_SETTINGS) {

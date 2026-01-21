@@ -219,7 +219,10 @@ void FancyTabBar::mousePressEvent(QMouseEvent *event)
                     emit menuTriggered(index, event);
                 } else {
                     if (index != m_currentIndex) {
-                        emit currentAboutToChange(index);
+                        bool okToSwitch = true;
+                        emit currentAboutToChange(index, &okToSwitch);
+                        if (!okToSwitch)
+                            return;
                         m_currentIndex = index;
                         update();
                         emit currentChanged(m_currentIndex);
@@ -408,7 +411,10 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex, int visibleIndex,
 void FancyTabBar::setCurrentIndex(int index)
 {
     if ((index == -1 || isTabEnabled(index)) && index != m_currentIndex) {
-        emit currentAboutToChange(index);
+        bool okToSwitch = true;
+        emit currentAboutToChange(index, &okToSwitch);
+        if (!okToSwitch)
+            return;
         m_currentIndex = index;
         update();
         emit currentChanged(m_currentIndex);

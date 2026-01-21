@@ -54,7 +54,7 @@ public:
     static void cycleModeStyle();
 
 signals:
-    void currentModeAboutToChange(Utils::Id mode);
+    void currentModeAboutToChange(Utils::Id mode, Utils::Id oldMode, bool *okToSwitch);
 
     // the default argument '=0' is important for connects without the oldMode argument.
     void currentModeChanged(Utils::Id mode, Utils::Id oldMode = {});
@@ -68,7 +68,7 @@ private:
     static void extensionsInitialized();
 
     static void addMode(IMode *mode);
-    void currentTabAboutToChange(int index);
+    void currentTabAboutToChange(int index, bool *okToSwitch);
     void currentTabChanged(int index);
 
     void aboutToShutdown();
