@@ -174,50 +174,49 @@ void MinimapOverlay::updateImage()
         dstLine += m_lineGap * imageWidth;
     };
 
-    auto defaultTextColor = m_editor->palette().brush(QPalette::Text).color();
+    QColor defaultTextColor = m_editor->palette().brush(QPalette::Text).color();
     for (QTextBlock block = m_doc->firstBlock(); block.isValid(); block = block.next()) {
         if (!block.isVisible())
             continue;
 
         const QTextLayout *layout = block.layout();
         QVector<QTextLayout::FormatRange> formats = layout->formats();
-        if (formats.isEmpty()) {
-            QTextLayout::FormatRange fr;
-            fr.start = 0;
-            fr.length = block.length();
-            fr.format = block.charFormat();
-            formats.append(fr);
-        } else {
-            std::sort(
-                formats.begin(),
-                formats.end(),
-                [](const QTextLayout::FormatRange &a, const QTextLayout::FormatRange &b) {
-                    return a.start < b.start;
-                });
-        }
+        std::sort(
+            formats.begin(),
+            formats.end(),
+            [](const QTextLayout::FormatRange &a, const QTextLayout::FormatRange &b) {
+                return a.start < b.start;
+            });
 
         const QString text = block.text();
-        int fmtIdx = 0;
-        int fmtPos = formats.first().start;
-        int fmtEnd = fmtPos + formats.first().length;
 
-        auto getCurFg = [&](int index) -> QColor {
-            if (formats[index].format.hasProperty(QTextFormat::ForegroundBrush))
-                return formats[index].format.foreground().color();
-            return defaultTextColor;
-        };
-
-        QColor curFg = getCurFg(fmtIdx);
+        int formatIndex = 0;
+        int currentFormatEnd = formats.isEmpty() ? block.length() : formats.first().start;
+        QColor curFg = defaultTextColor;
 
         int dstX = 0;
         for (int i = 0; i < text.length() && dstX < imageWidth; ++i) {
-            while (i >= fmtEnd && fmtIdx + 1 < formats.size()) {
-                ++fmtIdx;
-                fmtPos = formats[fmtIdx].start;
-                fmtEnd = fmtPos + formats[fmtIdx].length;
-                curFg = getCurFg(fmtIdx);
-            }
+            if (i >= currentFormatEnd) {
+                if (formatIndex >= formats.size()) {
+                    currentFormatEnd = block.length();
+                    curFg = defaultTextColor;
+                } else {
+                    const QTextLayout::FormatRange &format = formats[formatIndex];
+                    if (i < format.start) {
+                        currentFormatEnd = format.start;
+                        curFg = defaultTextColor;
+                    } else {
+                        const QTextCharFormat &fmt = format.format;
+                        if (fmt.foreground().style() != Qt::NoBrush)
+                            curFg = fmt.foreground().color();
+                        else
+                            curFg = defaultTextColor;
 
+                        currentFormatEnd = format.start + format.length;
+                        ++formatIndex;
+                    }
+                }
+            }
             QChar ch = text.at(i);
             if (ch.isSpace()) {
                 updatePixel(&dstLine[dstX], bgPremul, curFg, false);
