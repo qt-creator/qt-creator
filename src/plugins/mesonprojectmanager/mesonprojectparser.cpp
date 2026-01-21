@@ -317,12 +317,12 @@ bool MesonProjectParser::parse(const FilePath &sourcePath, const FilePath &build
     m_buildDir = buildPath.canonicalPath();
     m_outputParser.setSourceDirectory(m_srcDir);
     m_outputParser.setBuildDirectory(m_buildDir);
-    if (!isSetup(m_buildDir)) {
+    if (!isSetup(m_buildDir))
         return parse(m_srcDir);
-    } else {
-        m_introType = IntroDataType::file;
-        return startParser();
-    }
+
+    m_introType = IntroDataType::file;
+    startParser();
+    return true;
 }
 
 bool MesonProjectParser::parse(const FilePath &sourcePath)
@@ -369,7 +369,7 @@ static void addMissingTargets(QStringList &targetList)
     }
 }
 
-bool MesonProjectParser::startParser()
+void MesonProjectParser::startParser()
 {
     m_parserFutureResult = Utils::asyncRun(
         ProjectExplorerPlugin::sharedThreadPool(),
@@ -392,7 +392,6 @@ bool MesonProjectParser::startParser()
         delete parserData;
         emit parsingCompleted(true);
     });
-    return true;
 }
 
 MesonProjectParser::ParserData *MesonProjectParser::extractParserResults(

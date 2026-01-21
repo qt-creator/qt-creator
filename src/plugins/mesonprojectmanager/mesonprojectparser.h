@@ -76,7 +76,7 @@ signals:
      void parsingCompleted(bool success);
 
 private:
-    bool startParser();
+    void startParser();
     static ParserData *extractParserResults(const Utils::FilePath &srcDir,
                                             MesonInfoParser::Result &&parserResult);
     ProjectExplorer::RawProjectPart buildRawPart(const Target &target,
