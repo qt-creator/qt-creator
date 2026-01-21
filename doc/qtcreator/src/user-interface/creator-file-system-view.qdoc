@@ -24,6 +24,9 @@
     \uicontrol {Projects directory} in \preferences >
     \uicontrol {Build & Run} > \uicontrol General.
 
+    To view files on a connected device, such as a Remote Linux or Android
+    device, select the device in the menu.
+
     The file that is currently active in the editor determines which folder
     to display in the \uicontrol {File System} view:
 
