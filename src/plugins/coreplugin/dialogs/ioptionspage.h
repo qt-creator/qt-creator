@@ -33,12 +33,16 @@ public:
     virtual void apply();
     virtual void cancel();
 
+    bool useDirtyHook() const;
+    void setUseDirtyHook(bool on);
+
     void setupDirtyHook(QWidget *widget);
     void gotDirty();
 
     static bool setIgnoreForDirtyHook(QWidget *widget, bool ignore = true);
 
     void connectAspect(QWidget *widget, const Utils::BaseAspect *aspect);
+
 signals:
     void dirtyChanged(bool dirty);
 
@@ -69,6 +73,7 @@ public:
     QString displayCategory() const;
     Utils::FilePath categoryIconPath() const;
     bool recreateOnCancel() const;
+    bool useDirtyHook() const;
 
     std::optional<Utils::AspectContainer *> aspects() const;
     bool matches(const QRegularExpression &regexp) const;
@@ -82,6 +87,7 @@ protected:
     void setFixedKeywords(const QStringList &);
     void setRecreateOnCancel(bool on);
     void setAutoApply();
+    void setUseDirtyHook(bool on);
 
 private:
     std::unique_ptr<Internal::IOptionsPagePrivate> d;

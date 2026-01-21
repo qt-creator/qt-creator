@@ -53,6 +53,7 @@ public:
 
     AspectContainer *m_aspects = nullptr;
     int m_dirtyCount = 0;
+    bool m_useDirtyHook = true;
 };
 
 class IOptionsPagePrivate
@@ -124,6 +125,16 @@ IOptionsPageWidget::~IOptionsPageWidget()
         QObject::disconnect(con);
 
     d.reset();
+}
+
+bool IOptionsPageWidget::useDirtyHook() const
+{
+    return d->m_useDirtyHook;
+}
+
+void IOptionsPageWidget::setUseDirtyHook(bool on)
+{
+    d->m_useDirtyHook = on;
 }
 
 /*!
@@ -590,7 +601,7 @@ IOptionsPageWidget *IOptionsPagePrivate::createWidget()
     if (m_widgetCreator) {
         m_widget = m_widgetCreator();
         QTC_ASSERT(m_widget, return nullptr);
-        if (!m_autoApply)
+        if (!m_autoApply && m_widget->useDirtyHook())
             m_widget->setupDirtyHook(m_widget);
         return m_widget;
     }
