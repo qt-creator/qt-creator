@@ -261,6 +261,7 @@ void LanguageClientSettingsPageWidget::currentChanged(const QModelIndex &index)
         m_currentSettings.setting = m_settings.settingForIndex(index);
         m_currentSettings.widget = m_currentSettings.setting->createSettingsWidget(this);
         layout()->addWidget(m_currentSettings.widget);
+        setupDirtyHook(m_currentSettings.widget);
     } else {
         m_currentSettings.setting = nullptr;
         m_currentSettings.widget = nullptr;
