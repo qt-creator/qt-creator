@@ -48,7 +48,7 @@ public:
 
 static QHash<FilePath, ArServerData> s_arServers;
 static GuardedObject<QMappedTaskTreeRunner<FilePath>> s_arServerRunner;
-static GuardedObject<QSingleTaskTreeRunner> s_networkRunner;
+static GuardedObject<QParallelTaskTreeRunner> s_networkRunner;
 
 class ShutdownNotifier : public QObject
 {
@@ -297,11 +297,12 @@ static void sendQuery(const QString &relative,
             = [bauhausSuite, onSuccess, onError]
             (const QNetworkReplyWrapper &query, DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
-        // const QNetworkReply::NetworkError error = reply->error();
         const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
                 .toString().split(";").constFirst().trimmed().toLower();
         if (doneWith == DoneWith::Success && status == 200 && contentType == "application/json")
+            return onSuccess(reply->readAll());
+        if (doneWith == DoneWith::Success && status > 200 && status < 300) // e.g. issue disposal
             return onSuccess(reply->readAll());
         return onError(reply->readAll());
     };
@@ -384,7 +385,7 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
         }
         qCDebug(log) << "deserialize succeeded" << result->fileName << result->lineMarkers.size();
         // handle line markers for this file
-        handleIssuesForFile(*result, FilePath::fromUserInput(result->fileName), LineMarkerType::SFA);
+        handleIssuesForFile(*result, FilePath::fromUserInput(result->fileName), bauhausSuite);
         return DoneResult::Success;
     };
     const auto onError = [bauhausSuite, sessionId](const QByteArray &reply) {
@@ -397,8 +398,7 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
     sendQuery(it->m_arSessionFinishRel, bauhausSuite, json, onSuccess, onError);
 }
 
-void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, int sessionId,
-                           const QList<long> &issues)
+void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, const QList<qint64> &issues)
 {
     const auto it = s_arServers.constFind(bauhausSuite);
     if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
@@ -415,13 +415,13 @@ void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, int sessionId,
         qCDebug(log) << reply;
         return DoneResult::Success;
     };
-    const auto onError = [bauhausSuite, sessionId](const QByteArray &reply) {
-        qCDebug(log) << "error disposing issues" << sessionId << "for" << bauhausSuite;
+    const auto onError = [bauhausSuite](const QByteArray &reply) {
+        qCDebug(log) << "error disposing issues for" << bauhausSuite;
         qCDebug(log) << "resp:" << reply;
         return DoneResult::Error;
     };
 
-    qCDebug(log) << "dispose issues for" << bauhausSuite << "session" << sessionId;
+    qCDebug(log) << "dispose issues for" << bauhausSuite << "session";
     sendQuery(it->m_disposeIssuesRel, bauhausSuite, json, onSuccess, onError);
 }
 

@@ -19,8 +19,7 @@ void shutdownAllPluginArServers();
 
 void requestArSessionStart(const Utils::FilePath &bauhausSuite, const OnSessionStarted &onStarted);
 void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, bool abort);
-void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, int sessionId,
-                           const QList<long> &issues);
+void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, const QList<qint64> &issues);
 
 QString pluginArPipeOut(const Utils::FilePath &bauhausSuite, int sessionId);
 

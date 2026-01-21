@@ -1222,7 +1222,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     const auto handler = [docFilePath](const Dto::FileViewDto &data) {
         if (data.lineMarkers.empty())
             return;
-        handleIssuesForFile(data, docFilePath, LineMarkerType::Dashboard);
+        handleIssuesForFile(data, docFilePath, std::nullopt);
     };
 
     const bool useGlobal = m_dashboardMode == DashboardMode::Global

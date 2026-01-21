@@ -3,15 +3,17 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 namespace Dto { class FileViewDto; }
-namespace Utils { class FilePath; }
 
 namespace Axivion::Internal {
 
 enum class LineMarkerType { Dashboard, SFA };
 
+// bauhausSuite == std::nullopt used for LineMarkerType::Dashboard, otherwise LineMarkerType::SFA
 void handleIssuesForFile(const Dto::FileViewDto &fileView, const Utils::FilePath &filePath,
-                         LineMarkerType type);
+                         const std::optional<Utils::FilePath> &bauhausSuite);
 void clearAllMarks(LineMarkerType type);
 void clearMarks(const Utils::FilePath &filePath, LineMarkerType type);
 bool hasLineIssues(const Utils::FilePath &filePath, LineMarkerType type);
