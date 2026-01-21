@@ -48,24 +48,6 @@ auto asyncRun(Function &&function, Args &&...args)
 }
 
 /*!
-    Adds a handler for when a result is ready.
-    This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
-    or create a QFutureWatcher already for other reasons.
-*/
-template <typename R, typename T>
-const QFuture<T> &onResultReady(const QFuture<T> &future, R *receiver, void(R::*member)(const T &))
-{
-    auto watcher = new QFutureWatcher<T>(receiver);
-    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
-    QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, receiver,
-                     [future, receiver, member](int index) {
-        (receiver->*member)(future.resultAt(index));
-    });
-    watcher->setFuture(future);
-    return future;
-}
-
-/*!
     Adds a handler for when a result is ready. The guard object determines the lifetime of
     the connection.
     This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
