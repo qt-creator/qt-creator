@@ -33,11 +33,20 @@ public:
     bool setFilePlainText(const QString &path, const QString &contents);
     bool saveFile(const QString &path);
     bool closeFile(const QString &path);
+    // TODO: find file for pattern
+    // TODO: reformat file
+    // TODO: search in File
+    // TODO: replace text in file
+    // TODO: get symbol info
+    // TODO: rename symbol
 
     // Additional useful commands
     QString getCurrentProject();
     QString getCurrentBuildConfig();
     QStringList listOpenFiles();
+    // TODO: list project dependencies
+    // TODO: add a new File to the project
+    // TODO: get repositories in project
 
     // Session management commands
     QStringList listSessions();
@@ -48,12 +57,16 @@ public:
     // Issue management commands
     QStringList listIssues();
 
+    // TODO: list issues for a File
+
     // Debugging management helpers
     bool isDebuggingActive();
     QString abortDebug();
     bool killDebuggedProcesses();
     void performDebuggingCleanup();
     bool performDebuggingCleanupSync();
+
+    // TODO: execute command in terminal
 
 private:
     // Issues management
