@@ -94,6 +94,8 @@
     The category and tool are added to the \uicontrol Tools >
     \uicontrol External menu.
 
+    To remove a tool or category, select it and then select \uicontrol Remove.
+
     If you change the configuration of preconfigured tools, you can later
     revert the changes by selecting the \uicontrol Reset button.
 
