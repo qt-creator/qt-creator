@@ -486,6 +486,14 @@ public:
             for (BuildStep *step : buildSteps()->steps())
                 step->setEnabled(false);
         }
+        if (extraInfos.contains("env")) {
+            EnvironmentItems envItems = extraInfos["env"].value<EnvironmentItems>();
+            for (auto &envItem : envItems)
+                envItem.value = macroExpander()->expand(envItem.value);
+
+            setUserEnvironmentChanges(envItems);
+            originalExtraInfo->remove("env");
+        }
     }
 
     void fromMap(const Store &map) override
@@ -584,6 +592,31 @@ public:
                 continue;
             QVariantMap extraInfo = buildConfigObject.toVariantMap();
             extraInfo["forSetup"] = forSetup;
+
+            if (buildConfigObject.contains("env")) {
+                QJsonObject envObject = buildConfigObject["env"].toObject();
+                EnvironmentItems envItems;
+
+                for (QString key : envObject.keys()) {
+                    QString value = envObject[key].toString();
+                    EnvironmentItem::Operation op = EnvironmentItem::Operation::SetEnabled;
+                    if (key.startsWith('+')) {
+                        key = key.mid(1).trimmed();
+                        op = EnvironmentItem::Operation::Prepend;
+                    } else if (key.endsWith('+')) {
+                        key = key.left(key.length() - 1).trimmed();
+                        op = EnvironmentItem::Operation::Append;
+                    } else if (key.startsWith('-')) {
+                        key = key.mid(1).trimmed();
+                        op = EnvironmentItem::Operation::Unset;
+                    }
+
+                    envItems.append(EnvironmentItem(key, value, op));
+                }
+
+                extraInfo["env"] = QVariant::fromValue(envItems);
+            }
+
             buildInfo.extraInfo = extraInfo;
 
             buildInfos.append(buildInfo);
