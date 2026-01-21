@@ -34,10 +34,20 @@ class JsonAutoCompleter : public AutoCompleter
         return !isInString(cursor);
     }
 
+    bool contextAllowAutoInsertion(const QTextCursor &cursor) const
+    {
+        if (isInString(cursor))
+            return false;
+        if (cursor.atBlockEnd())
+            return true;
+        return cursor.block().text().at(cursor.positionInBlock()).isSpace();
+    }
+
     bool contextAllowsAutoBrackets(const QTextCursor &cursor, const QString &) const override
     {
-        return !isInString(cursor);
+        return contextAllowAutoInsertion(cursor);
     }
+
     QString insertMatchingBrace(const QTextCursor &cursor,
                                 const QString &text,
                                 QChar lookAhead,
@@ -67,8 +77,9 @@ class JsonAutoCompleter : public AutoCompleter
 
     bool contextAllowsAutoQuotes(const QTextCursor &cursor, const QString &) const override
     {
-        return !isInString(cursor);
+        return contextAllowAutoInsertion(cursor);
     }
+
     QString insertMatchingQuote(const QTextCursor &cursor,
                                 const QString &text,
                                 QChar lookAhead,
