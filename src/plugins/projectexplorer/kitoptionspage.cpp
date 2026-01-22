@@ -754,6 +754,7 @@ public:
         setDisplayName(Tr::tr("Kits"));
         setCategory(Constants::KITS_SETTINGS_CATEGORY);
         setWidgetCreator([] { return new Internal::KitOptionsPageWidget; });
+        setUseDirtyHook(false);
     }
 };
 
