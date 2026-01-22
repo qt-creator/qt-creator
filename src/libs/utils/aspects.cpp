@@ -1519,6 +1519,7 @@ public:
     Environment m_environment;
     QPointer<PathChooser> m_pathChooserDisplay;
     Lazy<FilePath> m_baseDirectory;
+    FilePath m_initialBrowsePathBackup;
     StringAspect::ValueAcceptor m_valueAcceptor;
     std::optional<FancyLineEdit::ValidationFunction> m_validator;
     std::optional<FilePath> m_effectiveBinary;
@@ -1717,6 +1718,7 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
         d->m_pathChooserDisplay->setValidationFunction(*d->m_validator);
     d->m_pathChooserDisplay->setEnvironment(d->m_environment);
     d->m_pathChooserDisplay->setBaseDirectory(d->m_baseDirectory);
+    d->m_pathChooserDisplay->setInitialBrowsePathBackup(d->m_initialBrowsePathBackup);
     d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
     d->m_pathChooserDisplay->setPromptDialogFilter(d->m_prompDialogFilter);
     d->m_pathChooserDisplay->setPromptDialogTitle(d->m_prompDialogTitle);
@@ -1864,6 +1866,13 @@ void FilePathAspect::setBaseDirectory(const Lazy<FilePath> &baseDirectory)
     d->m_baseDirectory = baseDirectory;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setBaseDirectory(baseDirectory);
+}
+
+void FilePathAspect::setInitialBrowsePathBackup(const FilePath &initialBrowsePathBackup)
+{
+    d->m_initialBrowsePathBackup = initialBrowsePathBackup;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setInitialBrowsePathBackup(initialBrowsePathBackup);
 }
 
 void FilePathAspect::setPlaceHolderText(const QString &placeHolderText)
