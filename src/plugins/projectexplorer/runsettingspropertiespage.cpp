@@ -19,6 +19,7 @@
 #include <utils/guard.h>
 #include <utils/guiutils.h>
 #include <utils/itemviews.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
@@ -209,41 +210,40 @@ public:
     RunAndDeploySettingsWidgetBase(Target *target)
         : m_target(target)
     {
-        m_gridLayout = new QGridLayout(this);
-        m_gridLayout->setContentsMargins(0, 20, 0, 0);
-        m_gridLayout->setHorizontalSpacing(6);
-        m_gridLayout->setVerticalSpacing(8);
+        m_subWidgetsLayout = new QVBoxLayout;
+
+        auto topLayout = new QVBoxLayout(this);
+        topLayout->setContentsMargins(0, StyleHelper::SpacingTokens::PaddingVXl, 0, 0);
+        m_subWidgetsLayout->setSpacing(StyleHelper::SpacingTokens::GapVXxl);
+        topLayout->addLayout(m_subWidgetsLayout);
+        topLayout->addStretch(1);
     }
 
 protected:
     void addSubWidget(QWidget *widget, QLabel *label)
     {
-        widget->setContentsMargins({});
-
         label->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
-        label->setContentsMargins(0, 18, 0, 0);
+        using namespace Layouting;
+        QWidget *subWidget = Column {
+            label,
+            widget,
+            noMargin,
+        }.emerge();
 
-        QGridLayout *l = m_gridLayout;
-        l->addWidget(label, l->rowCount(), 0, 1, -1);
-        l->addWidget(widget, l->rowCount(), 0, 1, -1);
-
-        m_subWidgets.push_back({widget, label});
+        m_subWidgetsLayout->addWidget(subWidget);
+        m_subWidgets.append(subWidget);
     }
 
     void removeSubWidgets()
     {
-        for (const RunConfigItem &item : std::as_const(m_subWidgets)) {
-            delete item.first;
-            delete item.second;
-        }
+        qDeleteAll(m_subWidgets);
         m_subWidgets.clear();
     }
 
     QPointer<Target> m_target;
-    using RunConfigItem = QPair<QWidget *, QLabel *>;
-    QList<RunConfigItem> m_subWidgets;
-    QGridLayout *m_gridLayout;
+    QWidgetList m_subWidgets;
+    QVBoxLayout *m_subWidgetsLayout;
 };
 
 // DeploySettingsWidget
@@ -295,26 +295,31 @@ DeploySettingsWidget::DeploySettingsWidget(Target *target)
     m_removeDeployToolButton = new QPushButton(Tr::tr("Remove"), this);
     m_renameDeployButton = new QPushButton(Tr::tr("Rename..."), this);
 
-    auto spacer1 = new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    auto spacer2 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
     auto deployWidget = new QWidget(this);
 
     auto deployLabel = new QLabel(Tr::tr("Active deployment configuration:"), this);
     deployLabel->setBuddy(m_deployConfigurationCombo);
 
-    m_gridLayout->addWidget(deployLabel, 0, 0, 1, 1);
-    m_gridLayout->addWidget(m_deployConfigurationCombo, 0, 1, 1, 1);
-    m_gridLayout->addWidget(m_addDeployToolButton, 0, 2, 1, 1);
-    m_gridLayout->addWidget(m_removeDeployToolButton, 0, 3, 1, 1);
-    m_gridLayout->addWidget(m_renameDeployButton, 0, 4, 1, 1);
-    m_gridLayout->addItem(spacer1, 1, 8, 1, 1);
-    m_gridLayout->addWidget(deployWidget, 2, 0, 1, -1);
-    m_gridLayout->addItem(spacer2, 3, 0, 1, 1);
-    deployWidget->setContentsMargins(0, 10, 0, 25);
+    using namespace Layouting;
+    Form actionsLayout {
+        noMargin,
+        deployLabel,
+        Flow {
+            spacing(StyleHelper::SpacingTokens::GapHS),
+            m_deployConfigurationCombo,
+            m_addDeployToolButton,
+            m_removeDeployToolButton,
+            m_renameDeployButton,
+        },
+    };
+
+    m_subWidgetsLayout->addWidget(actionsLayout.emerge());
+    m_subWidgetsLayout->addWidget(deployWidget);
+
+    deployWidget->setContentsMargins({});
     m_deployLayout = new QVBoxLayout(deployWidget);
     m_deployLayout->setContentsMargins(0, 0, 0, 0);
-    m_deployLayout->setSpacing(5);
+    m_deployLayout->setSpacing(StyleHelper::SpacingTokens::GapVS);
 
     m_addDeployMenu = new QMenu(m_addDeployToolButton);
     m_addDeployToolButton->setMenu(m_addDeployMenu);
@@ -584,28 +589,32 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_cloneRunButton = new QPushButton(Tr::tr("Clone..."), this);
     m_cloneIntoThisButton = new QPushButton(Tr::tr("Clone into This..."), this);
 
-    auto spacer1 = new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    auto spacer2 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
     auto runWidget = new QWidget(this);
 
     auto runLabel = new QLabel(Tr::tr("Active run configuration:"), this);
     runLabel->setBuddy(m_runConfigurationCombo);
 
-    m_gridLayout->addWidget(runLabel, 0, 0, 1, 1);
-    m_gridLayout->addWidget(m_runConfigurationCombo, 0, 1, 1, 1);
-    m_gridLayout->addWidget(m_addRunToolButton, 0, 2, 1, 1);
-    m_gridLayout->addWidget(m_removeRunToolButton, 0, 3, 1, 1);
-    m_gridLayout->addWidget(m_removeRunConfigsButton, 0, 4, 1, 1);
-    m_gridLayout->addWidget(m_removeAllRunConfigsButton, 0, 5, 1, 1);
-    m_gridLayout->addWidget(m_renameRunButton, 0, 6, 1, 1);
-    m_gridLayout->addWidget(m_cloneRunButton, 0, 7, 1, 1);
-    m_gridLayout->addWidget(m_cloneIntoThisButton, 0, 8, 1, 1);
-    m_gridLayout->addItem(spacer1, 1, 9, 1, 1);
-    m_gridLayout->addWidget(runWidget, 2, 0, 1, -1);
-    m_gridLayout->addItem(spacer2, 3, 0, 1, 1);
+    using namespace Layouting;
+    Form actionsLayout {
+        noMargin,
+        runLabel,
+        Flow {
+            spacing(StyleHelper::SpacingTokens::GapHS),
+            m_runConfigurationCombo,
+            m_addRunToolButton,
+            m_removeRunToolButton,
+            m_removeRunConfigsButton,
+            m_removeAllRunConfigsButton,
+            m_renameRunButton,
+            m_cloneRunButton,
+            m_cloneIntoThisButton,
+        },
+    };
 
-    runWidget->setContentsMargins(0, 10, 0, 0);
+    m_subWidgetsLayout->addWidget(actionsLayout.emerge());
+    m_subWidgetsLayout->addWidget(runWidget);
+
+    runWidget->setContentsMargins({});
     m_runLayout = new QVBoxLayout(runWidget);
     m_runLayout->setContentsMargins(0, 0, 0, 0);
     m_runLayout->setSpacing(5);
