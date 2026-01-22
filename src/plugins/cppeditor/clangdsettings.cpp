@@ -168,9 +168,9 @@ ClangdSettings::ClangdSettings()
             });
 }
 
-bool ClangdSettings::useClangd() const
+bool ClangdSettings::useClangd(const Kit *kit) const
 {
-    return m_data.useClangd && clangdVersion(clangdFilePath(nullptr)) >= minimumClangdVersion(); // FIXME
+    return m_data.useClangd && clangdVersion(clangdFilePath(kit)) >= minimumClangdVersion();
 }
 
 void ClangdSettings::setUseClangd(bool use) { instance().m_data.useClangd = use; }
@@ -328,10 +328,10 @@ static FilePath getClangHeadersPath(const FilePath &clangdFilePath)
     return {};
 }
 
-FilePath ClangdSettings::clangdIncludePath() const
+FilePath ClangdSettings::clangdIncludePath(const Kit *kit) const
 {
-    QTC_ASSERT(useClangd(), return {});
-    FilePath clangdPath = clangdFilePath(nullptr); // FIXME
+    QTC_ASSERT(useClangd(kit), return {});
+    FilePath clangdPath = clangdFilePath(kit);
     QTC_ASSERT(!clangdPath.isEmpty() && clangdPath.exists(), return {});
     static QHash<FilePath, FilePath> headersPathCache;
     const auto it = headersPathCache.constFind(clangdPath);
@@ -641,7 +641,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "The maximum number of completion results returned by clangd.");
 
     m_useClangdCheckBox.setText(Tr::tr("Use clangd"));
-    m_useClangdCheckBox.setChecked(settings.useClangd());
+    m_useClangdCheckBox.setChecked(settings.useClangd(nullptr));
     m_clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_clangdChooser.setFilePath(settings.clangdFilePath(nullptr));
     m_clangdChooser.setAllowPathFromDevice(true);

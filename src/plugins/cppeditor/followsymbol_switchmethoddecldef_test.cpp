@@ -214,7 +214,7 @@ ProjectExplorer::Kit *F2TestCase::m_testKit = nullptr;
 F2TestCase::F2TestCase(CppEditorAction action,
                        const QList<TestDocumentPtr> &testFiles,
                        OverrideItemList expectedVirtualFunctionProposal)
-    : m_prevUseClangd(ClangdSettings::instance().useClangd())
+    : m_prevUseClangd(ClangdSettings::instance().useClangd(nullptr))
 {
     QVERIFY(succeededSoFar());
 

@@ -310,7 +310,7 @@ class ClangdClient::Private
 {
 public:
     Private(ClangdClient *q, BuildConfiguration *bc)
-        : q(q), settings(CppEditor::ClangdProjectSettings(bc).settings())
+        : q(q), buildConfig(bc), settings(CppEditor::ClangdProjectSettings(bc).settings())
     {}
 
     void findUsages(TextDocument *document, const QTextCursor &cursor,
@@ -335,7 +335,10 @@ public:
     MessageId getAndHandleAst(const TextDocOrFile &doc, const AstHandler &astHandler,
                               AstCallbackMode callbackMode, const Range &range = {});
 
+    Kit * kit() const { return buildConfig ? buildConfig->kit() : nullptr; }
+
     ClangdClient * const q;
+    const QPointer<BuildConfiguration> buildConfig;
     const CppEditor::ClangdSettings::Data settings;
     QList<ClangdFollowSymbol *> followSymbolOps;
     ClangdSwitchDeclDef *switchDeclDef = nullptr;
@@ -401,7 +404,7 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
     if (!bc) {
         QJsonObject initOptions;
         const Utils::FilePath includeDir
-                = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
+                = CppEditor::ClangdSettings(d->settings).clangdIncludePath(nullptr);
         CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                     *CppEditor::CppModelManager::fallbackProjectPart(),
                     warningsConfigForProject(nullptr), includeDir, {});
@@ -480,14 +483,14 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
     });
 
     connect(this, &Client::workDone, this,
-            [this, bc = QPointer(bc)](const ProgressToken &token) {
+            [this](const ProgressToken &token) {
         const QString * const val = std::get_if<QString>(&token);
         if (val && *val == indexingToken()) {
             d->isFullyIndexed = true;
             emit indexingFinished();
 #ifdef WITH_TESTS
-            if (bc)
-                emit bc->project()->indexingFinished("Indexer.Clangd");
+            if (d->buildConfig)
+                emit d->buildConfig->project()->indexingFinished("Indexer.Clangd");
 #endif
         }
     });
@@ -919,7 +922,8 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     cachedConfig.value() = fullConfig;
 
     QJsonObject cdbChanges;
-    const Utils::FilePath includeDir = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
+    const Utils::FilePath includeDir = CppEditor::ClangdSettings(d->settings)
+                                           .clangdIncludePath(d->kit());
     CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                 *projectPart, warningsConfigForProject(project()), includeDir,
                 ProjectExplorer::Macro::toMacros(config.editorDefines()));

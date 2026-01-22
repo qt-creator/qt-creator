@@ -274,7 +274,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
             return;
         if (ClangdClient * const fallbackClient = clientForProject(nullptr))
             LanguageClientManager::shutdownClient(fallbackClient);
-        if (ClangdSettings::instance().useClangd())
+        if (ClangdSettings::instance().useClangd(nullptr))
             claimNonProjectSources(new ClangdClient(nullptr, {}));
     });
 
@@ -496,7 +496,7 @@ static bool isProjectDataUpToDate(Project *project, ProjectInfoList projectInfo,
     if (project && !ProjectManager::hasProject(project))
         return false;
     const ClangdSettings settings(ClangdProjectSettings(project).settings());
-    if (!settings.useClangd())
+    if (!settings.useClangd(project ? project->activeKit() : nullptr))
         return false;
     if (!sessionModeEnabled() && !project)
         return false;
@@ -525,7 +525,7 @@ static bool isProjectDataUpToDate(Project *project, ProjectInfoList projectInfo,
 void ClangModelManagerSupport::updateLanguageClient(Project *project)
 {
     const ClangdSettings settings(ClangdProjectSettings(project).settings());
-    if (!settings.useClangd())
+    if (!settings.useClangd(project ? project->activeKit() : nullptr))
         return;
     ProjectInfoList projectInfo;
     if (sessionModeEnabled()) {
@@ -541,7 +541,7 @@ void ClangModelManagerSupport::updateLanguageClient(Project *project)
     if (jsonDbDir.isEmpty())
         return;
 
-    const FilePath includeDir = settings.clangdIncludePath();
+    const FilePath includeDir = settings.clangdIncludePath(project ? project->activeKit() : nullptr);
     const auto onSetup = [this, projectInfo, jsonDbDir, project, includeDir](
                              Async<GenerateCompilationDbResult> &task) {
         task.setFutureSynchronizer(&m_generatorSynchronizer);
@@ -899,7 +899,7 @@ void ClangModelManagerSupport::onEditorOpened(IEditor *editor)
 
         Project * project = ProjectManager::projectForFile(document->filePath());
         const ClangdSettings settings(ClangdProjectSettings(project).settings());
-        if (!settings.useClangd())
+        if (!settings.useClangd(project ? project->activeKit() : nullptr))
             return;
         if (!settings.sizeIsOkay(textDocument->filePath()))
             return;
@@ -988,6 +988,7 @@ void ClangModelManagerSupport::onClangdSettingsChanged()
 
     for (Project * const project : ProjectManager::projects()) {
         const ClangdSettings settings(ClangdProjectSettings(project).settings());
+        const Kit * const kit = project ? project->activeKit() : nullptr;
         ClangdClient * const client = clientWithBuildConfiguration(project->activeBuildConfiguration());
         if (sessionMode) {
             if (client && client->buildConfiguration())
@@ -995,11 +996,11 @@ void ClangModelManagerSupport::onClangdSettingsChanged()
             continue;
         }
         if (!client) {
-            if (settings.useClangd())
+            if (settings.useClangd(kit))
                 updateLanguageClient(project);
             continue;
         }
-        if (!settings.useClangd()) {
+        if (!settings.useClangd(kit)) {
             LanguageClientManager::shutdownClient(client);
             continue;
         }
@@ -1016,11 +1017,11 @@ void ClangModelManagerSupport::onClangdSettingsChanged()
     };
     const ClangdSettings &settings = ClangdSettings::instance();
     if (!fallbackOrSessionClient) {
-        if (settings.useClangd())
+        if (settings.useClangd(nullptr))
             startNewFallbackOrSessionClient();
         return;
     }
-    if (!settings.useClangd()) {
+    if (!settings.useClangd(nullptr)) {
         LanguageClientManager::shutdownClient(fallbackOrSessionClient);
         return;
     }

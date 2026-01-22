@@ -93,7 +93,7 @@ public:
     ClangdSettings(const Data &data) : m_data(data) {}
 
     static ClangdSettings &instance();
-    bool useClangd() const;
+    bool useClangd(const ProjectExplorer::Kit *kit) const;
     static void setUseClangd(bool use);
     static void setUseClangdAndSave(bool use);
 
@@ -128,7 +128,7 @@ public:
     void setData(const Data &data, bool saveAndEmitSignal = true);
     Data data() const { return m_data; }
 
-    Utils::FilePath clangdIncludePath() const;
+    Utils::FilePath clangdIncludePath(const ProjectExplorer::Kit *kit) const;
     static Utils::FilePath clangdUserConfigFilePath();
 
 #ifdef WITH_TESTS
