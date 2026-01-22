@@ -45,18 +45,28 @@ public:
             setColor(*color);
         setPriority(TextMark::NormalPriority);
         setLineAnnotation(markText);
-        if (type == LineMarkerType::SFA) // TODO
-            return;
-        setActionsProvider([id] {
+
+        setActionsProvider([id, type, bauhausSuite, issue] {
             auto action = new QAction;
             action->setIcon(Icons::INFO.icon());
             action->setToolTip(Tr::tr("Show Issue Properties"));
-            QObject::connect(action, &QAction::triggered,
-                             action, [id] {
-                const bool useGlobal = currentDashboardMode() == DashboardMode::Global
-                        || !currentIssueHasValidPathMapping();
-                fetchIssueInfo(useGlobal ? DashboardMode::Global : DashboardMode::Local, id);
-            });
+            if (type == LineMarkerType::Dashboard) {
+                QObject::connect(action, &QAction::triggered,
+                                 action, [id] {
+                    const bool useGlobal = currentDashboardMode() == DashboardMode::Global
+                            || !currentIssueHasValidPathMapping();
+                    fetchIssueInfo(useGlobal ? DashboardMode::Global : DashboardMode::Local, id);
+                });
+            } else {
+                // only connect if we have valid parameters
+                if (auto pi = projectInfo(); pi && bauhausSuite && issue.issueUrl) {
+                    QObject::connect(action, &QAction::triggered,
+                                     action,
+                                     [bs = *bauhausSuite, ii = *issue.issueUrl, pn = pi->name]{
+                        fetchIssueInfoFromPluginAr(bs, ii, pn);
+                    });
+                }
+            }
             return QList{action};
         });
     }

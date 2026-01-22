@@ -21,6 +21,9 @@ void requestArSessionStart(const Utils::FilePath &bauhausSuite, const OnSessionS
 void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, bool abort);
 void requestIssuesDisposal(const Utils::FilePath &bauhausSuite, const QList<qint64> &issues);
 
+void fetchIssueInfoFromPluginAr(const Utils::FilePath &bauhausSuite, const QString &relativeIssue,
+                                const QString &projectName);
+
 QString pluginArPipeOut(const Utils::FilePath &bauhausSuite, int sessionId);
 
 } // namespace Axivion::Internal

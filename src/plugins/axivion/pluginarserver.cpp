@@ -3,6 +3,7 @@
 
 #include "pluginarserver.h"
 
+#include "axivionperspective.h"
 #include "axivionplugin.h"
 #include "axivionsettings.h"
 #include "axiviontextmarks.h"
@@ -259,6 +260,9 @@ static void setupQuery(QNetworkReplyWrapper &query, const QUrl &url, const QByte
     QNetworkRequest request(url);
     request.setRawHeader("Authorization", auth);
     request.setRawHeader("Content-Type", "application/json");
+    const QByteArray userAgent = "Axivion" + QCoreApplication::applicationName().toUtf8()
+            + "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
+    request.setRawHeader("X-Axivion-User-Agent", userAgent);
     query.setRequest(request);
     query.setOperation(QNetworkAccessManager::PostOperation);
     if (!body.isNull())
@@ -432,6 +436,48 @@ QString pluginArPipeOut(const Utils::FilePath &bauhausSuite, int sessionId)
         return {};
 
     return it->m_runningSessions.value(sessionId);
+}
+
+void fetchIssueInfoFromPluginAr(const Utils::FilePath &bauhausSuite, const QString &relativeIssue,
+                                const QString &projectName)
+{
+    auto it = s_arServers.constFind(bauhausSuite);
+    if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
+        return;
+
+    const QUrl serverUrl = it->m_serverUrl;
+    const QString issueProperties{relativeIssue + "/properties"};
+    const QUrl url = serverUrl.resolved(issueProperties);
+    const QByteArray auth = basicAuth(it->m_accessSecret);
+
+    qCDebug(log) << "URL" << url;
+    const auto onNetworkQuerySetup = [url, auth](QNetworkReplyWrapper &query) {
+        setupQuery(query, url, auth, {});
+        query.setOperation(QNetworkAccessManager::GetOperation);
+    };
+    auto onSuccess = [projectName](const QByteArray &reply) {
+        QByteArray fixedHtml = reply;
+        const int idx = fixedHtml.indexOf("<div class=\"ax-issuedetails-table-container\">");
+        if (idx >= 0)
+            fixedHtml = "<html><body>" + fixedHtml.mid(idx);
+        updateIssueDetails(QString::fromUtf8(fixedHtml), projectName);
+        return DoneResult::Success;
+    };
+
+    const auto onNetworkQueryDone
+            = [bauhausSuite, onSuccess]
+            (const QNetworkReplyWrapper &query, DoneWith doneWith) {
+        QNetworkReply *reply = query.reply();
+        const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
+                .toString().split(";").constFirst().trimmed().toLower();
+        if (doneWith == DoneWith::Success && status == 200 && contentType == "text/html")
+            return onSuccess(reply->readAll());
+        qCDebug(log) << "fetching issue failed" << reply->errorString() << reply->error() << status;
+        return DoneResult::Error;
+    };
+
+    s_networkRunner->start({QNetworkReplyWrapperTask(onNetworkQuerySetup, onNetworkQueryDone)});
 }
 
 } // namespace Axivion::Internal
