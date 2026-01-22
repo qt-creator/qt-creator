@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "axivionutils.h"
 #include "dashboard/dto.h"
 
 #include <utils/id.h>
@@ -71,13 +72,6 @@ public:
     std::optional<QUrl> globalNamedFilters;
     std::optional<QUrl> userNamedFilters;
     std::optional<QString> userName;
-};
-
-enum class ContentType {
-    Html,
-    Json,
-    PlainText,
-    Svg
 };
 
 class DownloadData

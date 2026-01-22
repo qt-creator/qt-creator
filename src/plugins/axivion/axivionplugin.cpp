@@ -163,8 +163,7 @@ QString anyToSimpleString(const Dto::Any &any, const QString &type,
 
 static QString apiTokenDescription()
 {
-    const QString ua = "Axivion" + QCoreApplication::applicationName() + "Plugin/"
-                       + QCoreApplication::applicationVersion();
+    const QString ua = QString::fromUtf8(axivionUserAgent());
     QString user = Utils::qtcEnvironmentVariable("USERNAME");
     if (user.isEmpty())
         user = Utils::qtcEnvironmentVariable("USER");
@@ -454,10 +453,6 @@ static QUrl constructUrl(DashboardMode dashboardMode, const QString &projectName
 }
 
 static constexpr int httpStatusCodeOk = 200;
-constexpr char s_htmlContentType[] = "text/html";
-constexpr char s_plaintextContentType[] = "text/plain";
-constexpr char s_svgContentType[] = "image/svg+xml";
-constexpr char s_jsonContentType[] = "application/json";
 
 static bool isServerAccessEstablished(DashboardMode dashboardMode)
 {
@@ -473,17 +468,6 @@ static QByteArray basicAuth(const LocalDashboardAccess &localAccess)
     const QByteArray credentials = QString{localAccess.user + ':' + localAccess.password}
                                        .toUtf8().toBase64();
     return "Basic " + credentials;
-}
-
-static QByteArray contentTypeData(ContentType contentType)
-{
-    switch (contentType) {
-    case ContentType::Html:      return s_htmlContentType;
-    case ContentType::Json:      return s_jsonContentType;
-    case ContentType::PlainText: return s_plaintextContentType;
-    case ContentType::Svg:       return s_svgContentType;
-    }
-    return {};
 }
 
 QUrl resolveDashboardInfoUrl(DashboardMode dashboardMode, const QUrl &resource)
@@ -511,9 +495,7 @@ Group downloadDataRecipe(DashboardMode dashboardMode, const Storage<DownloadData
         } else {
             request.setRawHeader("Authorization", basicAuth(*dd->m_localDashboard));
         }
-        const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
-                              "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
-        request.setRawHeader("X-Axivion-User-Agent", ua);
+        request.setRawHeader("X-Axivion-User-Agent", axivionUserAgent());
         query.setRequest(request);
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
         return SetupResult::Continue;
@@ -521,14 +503,9 @@ Group downloadDataRecipe(DashboardMode dashboardMode, const Storage<DownloadData
     const auto onQueryDone = [storage](const QNetworkReplyWrapper &query, DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
-                                        .toString()
-                                        .split(';')
-                                        .constFirst()
-                                        .trimmed()
-                                        .toLower();
+        const QByteArray contentType = contentTypeFromRawHeader(reply);
         if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
-            && contentType == QString::fromUtf8(contentTypeData(storage->expectedContentType))) {
+            && contentType == contentTypeData(storage->expectedContentType)) {
             storage->outputData = reply->readAll();
             return DoneResult::Success;
         }
@@ -544,15 +521,13 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
 
     const auto onNetworkQuerySetup = [dtoStorage](QNetworkReplyWrapper &query) {
         QNetworkRequest request(dtoStorage->url);
-        request.setRawHeader("Accept", s_jsonContentType);
+        request.setRawHeader("Accept", contentTypeData(ContentType::Json));
         if (dtoStorage->credential) // Unauthorized access otherwise
             request.setRawHeader("Authorization", *dtoStorage->credential);
-        const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
-                              "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
-        request.setRawHeader("X-Axivion-User-Agent", ua);
+        request.setRawHeader("X-Axivion-User-Agent", axivionUserAgent());
 
         if constexpr (std::is_same_v<DtoStorageType<DtoType>, PostDtoStorage<DtoType>>) {
-            request.setRawHeader("Content-Type", "application/json");
+            request.setRawHeader("Content-Type", s_jsonContentType);
             request.setRawHeader("AX-CSRF-Token", dtoStorage->csrfToken);
             query.setData(dtoStorage->writeData);
             query.setOperation(QNetworkAccessManager::PostOperation);
@@ -567,12 +542,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
         QNetworkReply *reply = query.reply();
         const QNetworkReply::NetworkError error = reply->error();
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
-                                        .toString()
-                                        .split(';')
-                                        .constFirst()
-                                        .trimmed()
-                                        .toLower();
+        const QByteArray contentType = contentTypeFromRawHeader(reply);
         if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
             && contentType == s_jsonContentType) {
             *storage = reply->readAll();
@@ -1120,11 +1090,8 @@ void AxivionPluginPrivate::fetchIssueInfo(DashboardMode dashboardMode, const QSt
     const auto onSetup = [storage, url] { storage->inputUrl = url; };
 
     const auto onDone = [storage, projectName] {
-        QByteArray fixedHtml = storage->outputData;
-        const int idx = fixedHtml.indexOf("<div class=\"ax-issuedetails-table-container\">");
-        if (idx >= 0)
-            fixedHtml = "<html><body>" + fixedHtml.mid(idx);
-        updateIssueDetails(QString::fromUtf8(fixedHtml), projectName);
+        updateIssueDetails(QString::fromUtf8(fixIssueDetailsHtml(storage->outputData)),
+                           projectName);
     };
 
     m_issueInfoRunner.start({
@@ -1473,9 +1440,7 @@ void updateEnvironmentForLocalBuild(Environment *env)
     if (dd->m_dashboardInfo->userName)
         env->set("AXIVION_USERNAME", *dd->m_dashboardInfo->userName);
     env->set("AXIVION_LOCAL_BUILD", "1");
-    const QString ua = QString("Axivion" + QCoreApplication::applicationName()
-                               + "Plugin/" + QCoreApplication::applicationVersion());
-    env->set("AXIVION_USER_AGENT", ua);
+    env->set("AXIVION_USER_AGENT", QString::fromUtf8(axivionUserAgent()));
     env->set("AXIVION_PROJECT_NAME", dd->m_currentProjectInfo->name);
 }
 

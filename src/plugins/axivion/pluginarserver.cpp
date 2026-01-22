@@ -7,6 +7,7 @@
 #include "axivionplugin.h"
 #include "axivionsettings.h"
 #include "axiviontextmarks.h"
+#include "axivionutils.h"
 #include "axiviontr.h"
 
 #include <coreplugin/messagemanager.h>
@@ -126,7 +127,7 @@ static void handleMessage(const QByteArray &msg, const FilePath &bauhausSuite,
         const QJsonDocument message = msgToJson(++data->m_msgCounter, 0, "Command: Start HTTP Server",
                                                 args);
         data->m_state = State::HttpModeRequested;
-        qCDebug(log) << "requesting https server start";
+        qCDebug(log) << "requesting http server start";
         writeMessage(process, message);
     } break;
     case State::HttpModeRequested: {
@@ -201,9 +202,7 @@ void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &on
         if (!settings().bauhausPython().isEmpty())
             env.set("BAUHAUS_PYTHON", settings().bauhausPython().toUserOutput());
         env.set("PYTHON_IO_ENCODING", "utf-8:replace");
-        const QString userAgent = QString("Axivion" + QCoreApplication::applicationName()
-                                          + "Plugin/" + QCoreApplication::applicationVersion());
-        env.set("AXIVION_USER_AGENT", userAgent);
+        env.set("AXIVION_USER_AGENT", QString::fromUtf8(axivionUserAgent()));
 
         CommandLine cmd = HostOsInfo::isWindowsHost() ? CommandLine{"cmd", {"/c"}}
                                                       : CommandLine{"/bin/sh", {"-c"}};
@@ -259,10 +258,8 @@ static void setupQuery(QNetworkReplyWrapper &query, const QUrl &url, const QByte
 {
     QNetworkRequest request(url);
     request.setRawHeader("Authorization", auth);
-    request.setRawHeader("Content-Type", "application/json");
-    const QByteArray userAgent = "Axivion" + QCoreApplication::applicationName().toUtf8()
-            + "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
-    request.setRawHeader("X-Axivion-User-Agent", userAgent);
+    request.setRawHeader("Content-Type", contentTypeData(ContentType::Json));
+    request.setRawHeader("X-Axivion-User-Agent", axivionUserAgent());
     query.setRequest(request);
     query.setOperation(QNetworkAccessManager::PostOperation);
     if (!body.isNull())
@@ -302,9 +299,8 @@ static void sendQuery(const QString &relative,
             (const QNetworkReplyWrapper &query, DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
-                .toString().split(";").constFirst().trimmed().toLower();
-        if (doneWith == DoneWith::Success && status == 200 && contentType == "application/json")
+        const QByteArray contentType = contentTypeFromRawHeader(reply);
+        if (doneWith == DoneWith::Success && status == 200 && contentType == s_jsonContentType)
             return onSuccess(reply->readAll());
         if (doneWith == DoneWith::Success && status > 200 && status < 300) // e.g. issue disposal
             return onSuccess(reply->readAll());
@@ -456,11 +452,7 @@ void fetchIssueInfoFromPluginAr(const Utils::FilePath &bauhausSuite, const QStri
         query.setOperation(QNetworkAccessManager::GetOperation);
     };
     auto onSuccess = [projectName](const QByteArray &reply) {
-        QByteArray fixedHtml = reply;
-        const int idx = fixedHtml.indexOf("<div class=\"ax-issuedetails-table-container\">");
-        if (idx >= 0)
-            fixedHtml = "<html><body>" + fixedHtml.mid(idx);
-        updateIssueDetails(QString::fromUtf8(fixedHtml), projectName);
+        updateIssueDetails(QString::fromUtf8(fixIssueDetailsHtml(reply)), projectName);
         return DoneResult::Success;
     };
 
@@ -469,9 +461,8 @@ void fetchIssueInfoFromPluginAr(const Utils::FilePath &bauhausSuite, const QStri
             (const QNetworkReplyWrapper &query, DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
-                .toString().split(";").constFirst().trimmed().toLower();
-        if (doneWith == DoneWith::Success && status == 200 && contentType == "text/html")
+        const QByteArray contentType = contentTypeFromRawHeader(reply);
+        if (doneWith == DoneWith::Success && status == 200 && contentType == s_htmlContentType)
             return onSuccess(reply->readAll());
         qCDebug(log) << "fetching issue failed" << reply->errorString() << reply->error() << status;
         return DoneResult::Error;

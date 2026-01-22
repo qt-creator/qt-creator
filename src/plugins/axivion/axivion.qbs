@@ -21,6 +21,8 @@ QtcPlugin {
         "axiviontextmarks.cpp",
         "axiviontextmarks.h",
         "axiviontr.h",
+        "axivionutils.cpp",
+        "axivionutils.h",
         "dynamiclistmodel.cpp",
         "dynamiclistmodel.h",
         "issueheaderview.cpp",

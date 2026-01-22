@@ -9,6 +9,7 @@ add_qtc_plugin(Axivion
     axivionsettings.cpp axivionsettings.h
     axiviontextmarks.cpp axiviontextmarks.h
     axiviontr.h
+    axivionutils.cpp axivionutils.h
     dashboard/dto.cpp dashboard/dto.h
     dashboard/concat.cpp dashboard/concat.h
     dashboard/error.h dashboard/error.cpp
