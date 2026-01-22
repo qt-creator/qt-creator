@@ -145,7 +145,7 @@ static QString sanitizeBlameOutput(const QString &b)
     QRegularExpressionMatchIterator i = re.globalMatch(b);
     while (i.hasNext()) {
         static const QString sep = "  ";
-        QRegularExpressionMatch match = i.next();
+        const QRegularExpressionMatch match = i.next();
         const QString hash   = match.captured(1) + sep;
         const QString path   = omitPath   ? QString() : match.captured(2);
         const QString author = omitAuthor ? QString() : match.captured(3) + sep;
