@@ -171,6 +171,19 @@
     To add a comment or disable any of the above actions, prefix it with two hash
     characters (##).
 
+    \section1 Set variable separators
+
+    For environment variables that use non-standard list separators, you can
+    set custom separators:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Environment > \uicontrol System.
+        \li Select \uicontrol Change in \uicontrol {Variable separators}.
+        \li Select \uicontrol Add.
+        \li Enter the variable name and separator.
+        \li Select \uicontrol OK.
+    \endlist
+
     \sa {Specify the environment for projects}, {Configure projects for building},
     {Configure projects for running}, {Use \QC variables}, {Managing kits}
 */
