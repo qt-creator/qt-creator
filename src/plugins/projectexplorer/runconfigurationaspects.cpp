@@ -182,7 +182,7 @@ void WorkingDirectoryAspect::addToLayoutImpl(Layout &builder)
     if (QTC_GUARD(macroExpander()))
         m_chooser->setMacroExpander(macroExpander());
     m_chooser->setHistoryCompleter(settingsKey());
-    m_chooser->setExpectedKind(Utils::PathChooser::Directory);
+    m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_chooser->setPromptDialogTitle(Tr::tr("Select Working Directory"));
     m_chooser->setBaseDirectory(m_defaultWorkingDirectory);
     m_chooser->setFilePath(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
