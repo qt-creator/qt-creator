@@ -840,8 +840,8 @@ ProcessInterface *AndroidDevice::createProcessInterface() const
         CommandLine cmd(adbToolPath);
         cmd.addArgs({"-s", serialNumber, "shell"});
         CommandLine inner("echo", {pidMarker.arg("1234")}); // dummy PID
-        if (!setupData.m_workingDirectory.isEmpty())
-            inner.addCommandLineWithAnd({"cd", {setupData.m_workingDirectory.path()}});
+        if (!setupData.rawWorkingDirectory().isEmpty())
+            inner.addCommandLineWithAnd({"cd", {setupData.rawWorkingDirectory().path()}});
         inner.addCommandLineWithAnd(setupData.m_commandLine);
         cmd.addCommandLineAsSingleArg(inner);
         return cmd;

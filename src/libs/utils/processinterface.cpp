@@ -237,4 +237,14 @@ void WrappedProcessInterface::sendControlSignal(ControlSignal controlSignal)
     }
 }
 
+FilePath ProcessSetupData::fixedWorkingDirectory() const
+{
+    FilePath workingDir = m_workingDirectory;
+    if (!workingDir.isDir())
+        workingDir = workingDir.parentDir();
+    if (!workingDir.isEmpty() && !QTC_GUARD(workingDir.exists()))
+        workingDir = workingDir.withNewPath({});
+    return workingDir;
+}
+
 } // Utils

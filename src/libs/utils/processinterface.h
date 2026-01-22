@@ -71,12 +71,15 @@ public:
 class QTCREATOR_UTILS_EXPORT ProcessSetupData
 {
 public:
+    void setWorkingDirectory(const FilePath &workingDir) { m_workingDirectory = workingDir; }
+    FilePath rawWorkingDirectory() const { return m_workingDirectory; }
+    FilePath fixedWorkingDirectory() const;
+
     ProcessMode m_processMode = ProcessMode::Reader;
     TerminalMode m_terminalMode = TerminalMode::Off;
 
     std::optional<Pty::Data> m_ptyData;
     CommandLine m_commandLine;
-    FilePath m_workingDirectory;
     Environment m_environment;
     Environment m_controlEnvironment;
     QByteArray m_writeData;
@@ -95,6 +98,9 @@ public:
     bool m_belowNormalPriority = false; // internal, dependent on other fields and specific code path
     bool m_createConsoleOnWindows = false;
     bool m_forceDefaultErrorMode = false;
+
+private:
+    FilePath m_workingDirectory;
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessResultData

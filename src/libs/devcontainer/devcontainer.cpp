@@ -1770,9 +1770,9 @@ static WrappedProcessInterface *makeProcessInterface(
             });
         }
 
-        const FilePath workingDirectory = setupData.m_workingDirectory.isEmpty()
+        const FilePath workingDirectory = setupData.rawWorkingDirectory().isEmpty()
                                               ? Config::workspaceFolder(config)
-                                              : setupData.m_workingDirectory;
+                                              : setupData.rawWorkingDirectory();
 
         dockerCmd.addArgs({"-w", workingDirectory.path()});
 
