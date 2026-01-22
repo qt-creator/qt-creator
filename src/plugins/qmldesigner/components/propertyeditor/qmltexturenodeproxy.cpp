@@ -163,8 +163,14 @@ void QmlTextureNodeProxy::toolbarAction(int action)
 
     case ToolBarAction::DeleteCurrentTexture: {
         if (textureNode()) {
-            AbstractView *view = textureNode().view();
-            view->executeInTransaction(__FUNCTION__, [&] { textureNode().destroy(); });
+            ModelNode nodeToDestroy = textureNode();
+            AbstractView *view = nodeToDestroy.view();
+
+            QTimer::singleShot(0, view, [view, nodeToDestroy]() mutable {
+                view->executeInTransaction(__FUNCTION__, [&nodeToDestroy] {
+                    nodeToDestroy.destroy();
+                });
+            });
         }
     } break;
 
