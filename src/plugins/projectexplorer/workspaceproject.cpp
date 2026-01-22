@@ -557,7 +557,7 @@ public:
             BuildInfo info;
             info.buildSystemName = WorkspaceBuildSystem::name();
             info.factory = this;
-            info.typeName = msgBuildConfigurationBuild();
+            info.typeName = Tr::tr("Empty");
             info.projectDirectory = projectPath.parentDir().parentDir();
             info.buildDirectory = info.projectDirectory.pathAppended("build");
             info.displayName = msgBuildConfigurationDefault();
@@ -580,7 +580,7 @@ public:
             buildInfo.displayName = buildConfigObject["name"].toString();
             if (buildInfo.displayName.isEmpty())
                 continue;
-            buildInfo.typeName = buildInfo.displayName;
+            buildInfo.typeName = Tr::tr("Copy of %1").arg(buildInfo.displayName);
             buildInfo.factory = m_instance;
             buildInfo.buildDirectory = FilePath::fromUserInput(
                 buildConfigObject["buildDirectory"].toString());
