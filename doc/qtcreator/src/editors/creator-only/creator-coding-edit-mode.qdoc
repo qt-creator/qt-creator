@@ -79,6 +79,16 @@
     (\key {Ctrl+Alt+Right}) or \uicontrol {Next Tab}
     (\key {Ctrl+Alt+Left}).
 
+    \section2 Using Minimap
+
+    To navigate code visually, you can use Minimap, which shows an overview of
+    the file content alongside the editor.
+
+    \image {qtcreator-minimap-in-editor.webp} {Minimap in the Edit mode}
+
+    To show the Minimap in the editor, go to \preferences > \uicontrol {Text Editor}
+    > \uicontrol Display, and then select \uicontrol {Enable Minimap}.
+
     \section1 Editor toolbar
 
     The editor toolbar is context sensitive and shows items relevant to the file
