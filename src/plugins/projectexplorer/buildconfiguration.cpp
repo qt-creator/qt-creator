@@ -200,6 +200,12 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     expander->registerVariable("sourceDir", Tr::tr("Source directory"),
                                [this] { return project()->projectDirectory().toUserOutput(); },
                                false);
+
+    expander->registerVariable(
+        "Project:Root",
+        Tr::tr("The project root directory. May differ from Project:Path for some build systems."),
+        [this] { return project()->projectDirectory().toFSPathString(); });
+
     expander->registerVariable("BuildSystem:Name", Tr::tr("Build system"), [this] {
         return buildSystem()->name();
     });
