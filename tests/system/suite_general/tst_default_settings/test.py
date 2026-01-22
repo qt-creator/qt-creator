@@ -61,7 +61,11 @@ def __checkKits__():
                 "Verifying found and expected compilers are equal.")
     # check debugger
     expectedDebuggers = __getExpectedDebuggers__()
+    # workaround preferences issue
+    expectDialog = hasUnsavedSettings()
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Debuggers")
+    if expectDialog:
+        handleUnsavedSettings(SettingsAction.Abandon)
     foundDebugger = []
     __iterateTree__(":BuildAndRun_QTreeView", __dbgFunc__, foundDebugger)
     test.verify(__compareDebuggers__(foundDebugger, expectedDebuggers),
@@ -79,7 +83,11 @@ def __checkKits__():
         qmakePaths = map(qmakePaths, str.lower)
     qmakePaths = list(qmakePaths)
     foundQt = []
+    expectDialog = hasUnsavedSettings()
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
+    # workaround preferences issue
+    if expectDialog:
+        handleUnsavedSettings(SettingsAction.Abandon)
     __iterateTree__(":qtdirList_QTreeView", __qtFunc__, foundQt, qmakePaths)
     test.verify(len(list(qmakePaths)) == len(foundQt),
                 "Was qmake from %s autodetected? Found %s" % (qmakePaths, foundQt))

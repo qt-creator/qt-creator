@@ -20,8 +20,17 @@ def verifySaveBeforeBuildChecked(shouldBeChecked):
 
 def ensureSaveBeforeBuildChecked(shouldBeChecked):
     __openBuildAndRunSettings__()
+    origChecked = False
+    try:
+        checkbox = waitForObject(":Build and Run.Save all files before build_QCheckBox", 1000)
+        origChecked = checkbox.checkState() != Qt.Unchecked
+    except:
+        pass
     ensureChecked(":Build and Run.Save all files before build_QCheckBox", shouldBeChecked)
-    clickButton(waitForObject(":Options.Apply_QPushButton"))
+    if origChecked != shouldBeChecked:
+        clickButton(waitForObject(":Options.Apply_QPushButton"))
+    else:
+        clickButton(waitForObject(":Options.Cancel_QPushButton"))
 
 
 def main():

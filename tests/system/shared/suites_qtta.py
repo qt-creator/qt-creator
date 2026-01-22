@@ -48,13 +48,22 @@ def changeAutocompleteToManual(toManual=True):
     invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Text Editor"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Completion")
-    ensureChecked(waitForObject(":Behavior.Autocomplete common prefix_QCheckBox"), not toManual)
+
+    checkbox = waitForObject(":Behavior.Autocomplete common prefix_QCheckBox")
+    origChecked = checkbox.checkState() != Qt.Unchecked
+    ensureChecked(checkbox, not toManual)
     activateCompletion = "Always"
     if toManual:
         activateCompletion = "Manually"
-    selectFromCombo(":Activate completion:_QComboBox", activateCompletion)
-    verifyEnabled(":Options.Apply_QPushButton")
-    clickButton(waitForObject(":Options.Apply_QPushButton"))
+    completionCombo = waitForObject(":Activate completion:_QComboBox")
+    origCompletion = str(completionCombo.currentText)
+    selectFromCombo(completionCombo, activateCompletion)
+    if origChecked == toManual and origCompletion != activateCompletion:
+        button = ":Options.Apply_QPushButton"
+    else:
+        button = ":Options.Cancel_QPushButton"
+    verifyEnabled(button)
+    clickButton(waitForObject(button))
     switchViewTo(ViewConstants.EDIT)
 
 # wait and verify if object item exists/not exists
