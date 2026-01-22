@@ -21,10 +21,6 @@ add_qtc_library(QtTaskTree
     qttasktreeglobal.h
 )
 
-if(TARGET QtTaskTree)
-  add_library(Qt::TaskTree ALIAS QtTaskTree)
-endif()
-
 set(other_headers
   QAbstractTaskTreeRunner
   QBarrier

@@ -6,7 +6,7 @@ add_qtc_library(Utils
     Qt::Gui
     Qt::Network
     Qt::PrintSupport
-    Qt::TaskTree
+    QtTaskTree
     Qt::Widgets
     $<$<BOOL:${QTC_STATIC_BUILD}>:Spinner>
   SOURCES

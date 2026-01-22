@@ -1,5 +1,5 @@
 add_qtc_library(DevContainer
-  PUBLIC_DEPENDS Qt::Core Qt::TaskTree Utils
+  PUBLIC_DEPENDS Qt::Core Utils
   SOURCES
     devcontainer.cpp
     devcontainer.h

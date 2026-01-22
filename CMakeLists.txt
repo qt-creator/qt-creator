@@ -95,13 +95,18 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.9.0)
   )
 endif()
 
-#if (Qt6_VERSION VERSION_GREATER_EQUAL 6.11.0)
-#  find_package(Qt6
-#    COMPONENTS
-#    TaskTree
-#    REQUIRED
-#  )
-#endif()
+if(NO AND Qt6_VERSION VERSION_GREATER_EQUAL 6.11.0)
+  set(QTC_USES_INTERNAL_TASKTREE OFF)
+  find_package(Qt6
+    COMPONENTS
+    TaskTree
+    REQUIRED
+  )
+  set_property(TARGET Qt6::TaskTree PROPERTY IMPORTED_GLOBAL TRUE)
+  add_library(QtTaskTree ALIAS Qt6::TaskTree)
+else()
+  set(QTC_USES_INTERNAL_TASKTREE ON)
+endif()
 
 qtc_setup_sbom()
 qtc_sbom_begin_project()
