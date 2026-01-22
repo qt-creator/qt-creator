@@ -131,7 +131,7 @@ VcsBase::BaseAnnotationHighlighterCreator GitEditorWidget::annotationHighlighter
 static QString sanitizeBlameOutput(const QString &b)
 {
     static const char pattern[] =
-        R"(^(\S+)\s(.+?)\s\((.*)\s+(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\s\+\d{4}).*?\)(.*)$)";
+        R"(^(\S+)\s(.+?)\s\((.*)\s+(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\s[+-]\d{4}).*?\)(.*)$)";
     static const QRegularExpression re(pattern, QRegularExpression::MultilineOption);
 
     if (b.isEmpty())
