@@ -10,6 +10,7 @@
 #include "projectexplorertr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -24,6 +25,7 @@
 
 #include <utility>
 
+using namespace Core;
 using namespace Utils;
 
 static const char DETECTIONSOURCETYPE[] = "DetectionSource.type";
@@ -205,6 +207,8 @@ void KitAspect::refresh()
         return;
 
     for (const Private::ListAspect &la : std::as_const(d->listAspects)) {
+        const bool prev = IOptionsPageWidget::setIgnoreForDirtyHook(la.comboBox, true);
+
         la.spec.resetModel();
         la.comboBox->model()->sort(0);
         const QVariant itemId = la.spec.getter(*k);
@@ -219,6 +223,8 @@ void KitAspect::refresh()
         }
         la.comboBox->setCurrentIndex(idx);
         la.comboBox->setEnabled(!d->readOnly && la.comboBox->count() > 1);
+
+        IOptionsPageWidget::setIgnoreForDirtyHook(la.comboBox, prev);
     }
 }
 

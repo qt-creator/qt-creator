@@ -327,9 +327,12 @@ void IOptionsPageWidget::gotDirty()
     emit dirtyChanged(d->m_dirtyCount > 0);
 }
 
-void IOptionsPageWidget::setIgnoreForDirtyHook(QWidget *widget, bool ignore)
+bool IOptionsPageWidget::setIgnoreForDirtyHook(QWidget *widget, bool ignore)
 {
-    widget->setProperty(IGNORE_FOR_DIRTY_HOOK, ignore);
+    const bool prev = widget->property(IGNORE_FOR_DIRTY_HOOK).toBool();
+    if (prev != ignore)
+        widget->setProperty(IGNORE_FOR_DIRTY_HOOK, ignore);
+    return prev;
 }
 
 /*!

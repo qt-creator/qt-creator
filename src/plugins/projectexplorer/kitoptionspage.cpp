@@ -603,6 +603,11 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     scrollToSelectedKit();
 
     updateState();
+
+    setupDirtyHook(m_addButton);
+    setupDirtyHook(m_cloneButton);
+    setupDirtyHook(m_delButton);
+    setupDirtyHook(m_makeDefaultButton);
 }
 
 void KitOptionsPageWidget::scrollToSelectedKit()
