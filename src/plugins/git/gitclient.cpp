@@ -814,7 +814,7 @@ GitClient::GitClient()
     connect(&m_timer, &QTimer::timeout, this, &GitClient::updateModificationInfos);
 
     auto setInterval = [this] {
-        const int seconds = VcsBase::Internal::commonSettings().vcsShowStatusInterval();
+        const int seconds = qMax(1, VcsBase::Internal::commonSettings().vcsShowStatusInterval());
         m_timer.setInterval(std::chrono::seconds(seconds));
     };
 
