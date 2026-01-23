@@ -320,7 +320,7 @@ void PasteView::accept()
 
     Protocol *protocol = m_protocols.at(index);
 
-    if (!Protocol::ensureConfiguration(protocol, this))
+    if (!Protocol::ensureConfiguration(protocol))
         return;
 
     const QString data = content();
