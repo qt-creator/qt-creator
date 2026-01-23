@@ -5,7 +5,6 @@ source("../../shared/qtcreator.py")
 
 currentSelectedTreeItem = None
 sectionInProgress = None
-genericDebuggers = []
 warningOrError = re.compile('<p><b>((Error|Warning).*?)</p>')
 
 def main():
@@ -70,8 +69,7 @@ def __checkKits__():
     __iterateTree__(":BuildAndRun_QTreeView", __dbgFunc__, foundDebugger)
     test.verify(__compareDebuggers__(foundDebugger, expectedDebuggers),
                 "Verifying found and expected debuggers are equal.")
-    if not test.compare(len(genericDebuggers), 2, "Verifying generic debugger count."):
-        test.log(str(genericDebuggers))
+
     # check Qt versions
     qmakePathsInPath = findAllFilesInPATH("qmake")
     qmakePaths = filter(lambda qmakePath: (not "Using Qt version"
@@ -124,7 +122,7 @@ def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
 def __iterateTree__(treeObjStr, additionalFunc, *additionalParameters):
     global currentSelectedTreeItem, sectionInProgress
     model = waitForObject(treeObjStr).model()
-    # 1st row: Auto-detected, 2nd row: Manual (Debugger has additional section Generic prepended)
+    # 1st row: Auto-detected, 2nd row: Manual
     for sect in dumpIndices(model):
         sectionInProgress = str(sect.text)
         doneItems = []
@@ -155,16 +153,10 @@ def __compFunc__(it, foundComp, foundCompNames):
     foundCompNames.append(it)
 
 def __dbgFunc__(it, foundDbg):
-    global sectionInProgress, genericDebuggers
+    global sectionInProgress
     waitFor("object.exists(':Path.Utils_BaseValidatingLineEdit')", 2000)
     pathLineEdit = findObject(":Path.Utils_BaseValidatingLineEdit")
-    if sectionInProgress == 'Generic':
-        debugger = str(pathLineEdit.text)
-        test.verify(debugger == 'gdb' or debugger == 'lldb',
-                    'Verifying generic debugger is GDB or LLDB.')
-        genericDebuggers.append(debugger)
-    else:
-        foundDbg.append(str(pathLineEdit.text))
+    foundDbg.append(str(pathLineEdit.text))
 
 def __qtFunc__(it, foundQt, qmakePath):
     qtPath = str(waitForObject(":QtSupport__Internal__QtVersionManager.qmake_QLabel").text)
