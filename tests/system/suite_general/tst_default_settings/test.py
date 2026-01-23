@@ -92,7 +92,12 @@ def __checkKits__():
     if foundQt:
         foundQt = foundQt[0]    # qmake from "which" should be used in kits
     # check kits
+    # workaround preferences issue
+    expectDialog = hasUnsavedSettings()
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
+    if expectDialog:
+        handleUnsavedSettings(SettingsAction.Abandon)
+
     __iterateTree__(":BuildAndRun_QTreeView", __kitFunc__, foundQt, foundCompilerNames)
     test.compare(glblDefaultKits, 1, "Was exactly one default kit found?")
     return len(qmakePaths) > 0
