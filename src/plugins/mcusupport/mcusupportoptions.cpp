@@ -268,7 +268,8 @@ void McuSupportOptions::displayKitCreationMessages(const MessagesList messages,
     Utils::InfoBarEntry info(mcuKitCreationErrorInfoId,
                              Tr::tr("Errors while creating Qt for MCUs kits"),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
-
+    info.setTitle(Tr::tr("Qt for MCUs"));
+    info.setInfoType(InfoLabel::Error);
     info.addCustomButton(
         Tr::tr("Details"),
         [messages, &settingsHandler, qtMCUsPackage] {
