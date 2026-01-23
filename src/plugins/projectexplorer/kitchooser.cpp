@@ -45,7 +45,7 @@ KitChooser::KitChooser(QWidget *parent) :
 
 void KitChooser::onManageButtonClicked()
 {
-    Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, this);
+    Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID);
 }
 
 void KitChooser::setShowIcons(bool showIcons)
