@@ -109,7 +109,6 @@ private:
     QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
     bool hideContextPane();
 
-    QmlJSEditorDocument *m_qmlJsEditorDocument = nullptr;
     QTimer m_updateUsesTimer; // to wait for multiple text cursor position changes
     QTimer m_updateOutlineIndexTimer;
     QTimer m_contextPaneTimer;
