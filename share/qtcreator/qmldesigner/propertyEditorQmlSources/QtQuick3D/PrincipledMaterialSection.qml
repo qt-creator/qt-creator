@@ -488,11 +488,10 @@ Column {
                 SpinBox {
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                     + StudioTheme.Values.actionIndicatorWidth
-                    minimumValue: 0
-                    maximumValue: 16
+                    minimumValue: -9999999
+                    maximumValue: 9999999
                     decimals: 2
                     stepSize: 0.01
-                    sliderIndicatorVisible: true
                     backendValue: backendValues.emissiveFactor_x
                 }
 
@@ -512,11 +511,10 @@ Column {
                 SpinBox {
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                     + StudioTheme.Values.actionIndicatorWidth
-                    minimumValue: 0
-                    maximumValue: 16
+                    minimumValue: -9999999
+                    maximumValue: 9999999
                     decimals: 2
                     stepSize: 0.01
-                    sliderIndicatorVisible: true
                     backendValue: backendValues.emissiveFactor_y
                 }
 
@@ -536,11 +534,10 @@ Column {
                 SpinBox {
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                     + StudioTheme.Values.actionIndicatorWidth
-                    minimumValue: 0
-                    maximumValue: 16
+                    minimumValue: -9999999
+                    maximumValue: 9999999
                     decimals: 2
                     stepSize: 0.01
-                    sliderIndicatorVisible: true
                     backendValue: backendValues.emissiveFactor_z
                 }
 
