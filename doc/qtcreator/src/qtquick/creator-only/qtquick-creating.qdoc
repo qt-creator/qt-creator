@@ -63,6 +63,11 @@
             The Qt version determines the Qt Quick imports
             that are used in the QML files.
 
+        \li For Qt versions earlier than 6.10, select
+            \uicontrol {Set QT_QML_GENERATE_QMLLS_INI to ON in CMake} to
+            configure \QMLLS. It offers code completion and issues warnings
+            when you write QML code.
+
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection}
             dialog.
 
@@ -85,8 +90,8 @@
     \QC creates a QML file, \c Main.qml, that you can modify in the
     \uicontrol Edit mode.
 
-    \sa {Create Qt Quick UI Prototypes},
-    {Design Qt Quick UIs}{How to: Design Qt Quick UIs},
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs},
+    {Configure language servers for projects},
     {Tutorial: Mobile application},
     {Tutorial: Qt Quick and Python},
     {Tutorial: Qt Quick application}, {Creating projects},

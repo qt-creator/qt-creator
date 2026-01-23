@@ -275,7 +275,7 @@
     To always use \QMLLS of the highest registered Qt version, select
     \uicontrol {Use qmlls from latest Qt kit}.
 
-    To use older \QMLLS versions, select
+    To use earlier \QMLLS versions, select
     \uicontrol{Allow versions below Qt 6.8}.
 
     To use a specific \QMLLS version, set the path to the executable in
@@ -284,12 +284,22 @@
 
     \section1 Automatically configure new CMake projects
 
-    To automatically configure new CMake projects, select
-    \uicontrol {Create .qmlls.ini files for new projects}.
+    To automatically configure new CMake projects that target 6.10 or later,
+    select \uicontrol {Enable qmml's CMake integration}.
 
-    \sa {Manage language servers}{How to: Manage language servers},
-    {Enabling and Disabling Messages}, {Building projects with CMake}, {Managing kits},
-    {Managing language servers}
+    To configure projects that target Qt versions earlier than 6.10:
+
+    \list
+        \li Select \uicontrol {QT_QML_GENERATE_QMLLS_INI to ON in CMake} when you
+            create the project.
+        \li Select \uicontrol {Create .qmlls.ini files for new projects
+            targeting Qt < 6.10}.
+    \endlist
+
+    \sa {Create Qt Quick Applications},
+    {Manage language servers}{How to: Manage language servers},
+    {Enabling and Disabling Messages}, {Building projects with CMake},
+    {Managing kits}, {Managing language servers}
 */
 
 /*!
