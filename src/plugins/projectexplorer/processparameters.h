@@ -42,6 +42,9 @@ public:
     /// Get the fully expanded arguments to use:
     QString effectiveArguments() const;
 
+    /// Reset the effective Command, so its re-evaluated on the next call to effectiveCommand()
+    void clearEffectiveCommand() const;
+
     /// True if effectiveCommand() would return only a fallback
     bool commandMissing() const;
 

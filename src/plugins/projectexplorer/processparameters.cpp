@@ -124,6 +124,11 @@ bool ProcessParameters::commandMissing() const
     return m_commandMissing;
 }
 
+void ProcessParameters::clearEffectiveCommand() const
+{
+    m_effectiveCommand.clear();
+}
+
 QString ProcessParameters::effectiveArguments() const
 {
     if (m_effectiveArguments.isEmpty()) {
