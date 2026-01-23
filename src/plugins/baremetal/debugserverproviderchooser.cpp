@@ -59,7 +59,7 @@ void DebugServerProviderChooser::setCurrentProviderId(const QString &id)
 
 void DebugServerProviderChooser::manageButtonClicked()
 {
-    Core::ICore::showOptionsDialog(Constants::DEBUG_SERVER_PROVIDERS_SETTINGS_ID, this);
+    Core::ICore::showOptionsDialog(Constants::DEBUG_SERVER_PROVIDERS_SETTINGS_ID);
 }
 
 void DebugServerProviderChooser::currentIndexChanged(int index)
