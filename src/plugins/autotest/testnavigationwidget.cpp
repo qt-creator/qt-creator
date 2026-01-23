@@ -64,7 +64,7 @@ private:
     void reapplyCachedExpandedState();
 
     TestTreeModel *m_model;
-    TestTreeSortFilterModel *m_sortFilterModel;
+    TestTreeSortFilterModel m_sortFilterModel;
     TestTreeView *m_view;
     QToolButton *m_sort;
     QToolButton *m_filterButton;
@@ -80,10 +80,9 @@ TestNavigationWidget::TestNavigationWidget()
 {
     setWindowTitle(Tr::tr("Tests"));
     m_model = TestTreeModel::instance();
-    m_sortFilterModel = new TestTreeSortFilterModel(m_model, m_model);
-    m_sortFilterModel->setDynamicSortFilter(true);
+
     m_view = new TestTreeView(this);
-    m_view->setModel(m_sortFilterModel);
+    m_view->setModel(&m_sortFilterModel);
     m_view->setSortingEnabled(true);
     m_view->setItemDelegate(new TestTreeItemDelegate(this));
 
@@ -154,7 +153,7 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
         QRect rect(m_view->visualRect(index));
         if (rect.contains(event->pos())) {
             ITestTreeItem *item = static_cast<ITestTreeItem *>(
-                        m_model->itemForIndex(m_sortFilterModel->mapToSource(index)));
+                        m_model->itemForIndex(m_sortFilterModel.mapToSource(index)));
             if (item->canProvideTestConfiguration()) {
                 runThisTest = new QAction(Tr::tr("Run This Test"), &menu);
                 runThisTest->setEnabled(enabled);
@@ -289,18 +288,18 @@ void TestNavigationWidget::onSortClicked()
     if (m_sortAlphabetically) {
         m_sort->setIcon(Utils::Icons::SORT_ALPHABETICALLY_TOOLBAR.icon());
         m_sort->setToolTip(Tr::tr("Sort Alphabetically"));
-        m_sortFilterModel->setSortMode(TestTreeItem::Naturally);
+        m_sortFilterModel.setSortMode(TestTreeItem::Naturally);
     } else {
         m_sort->setIcon(Icons::SORT_NATURALLY.icon());
         m_sort->setToolTip(Tr::tr("Sort Naturally"));
-        m_sortFilterModel->setSortMode(TestTreeItem::Alphabetically);
+        m_sortFilterModel.setSortMode(TestTreeItem::Alphabetically);
     }
     m_sortAlphabetically = !m_sortAlphabetically;
 }
 
 void TestNavigationWidget::onFilterMenuTriggered(QAction *action)
 {
-    m_sortFilterModel->toggleFilter(
+    m_sortFilterModel.toggleFilter(
         TestTreeSortFilterModel::toFilterMode(action->data().value<int>()));
 }
 
@@ -336,7 +335,7 @@ void TestNavigationWidget::onRunThisTestTriggered(TestRunMode runMode)
     const QModelIndexList selected = m_view->selectionModel()->selectedIndexes();
     if (selected.isEmpty())
         return;
-    const QModelIndex &sourceIndex = m_sortFilterModel->mapToSource(selected.first());
+    const QModelIndex &sourceIndex = m_sortFilterModel.mapToSource(selected.first());
     if (!sourceIndex.isValid())
         return;
 
