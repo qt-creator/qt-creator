@@ -79,6 +79,10 @@
     (\key {Ctrl+Alt+Right}) or \uicontrol {Next Tab}
     (\key {Ctrl+Alt+Left}).
 
+    To pin a tab to the front of the tab bar, right-click the tab and select
+    \uicontrol {Pin}. Select \inlineimage {icons/pin.png} {Unpin} to unpin
+    the tab.
+
     \section2 Using Minimap
 
     To navigate code visually, you can use Minimap, which shows an overview of
