@@ -1148,19 +1148,19 @@ public:
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
 
-        m_filterModel = new DeviceFilterModel(this);
-        m_filterModel->setSourceModel(&itemModel());
-        m_sortModel = new KitSettingsSortModel(this);
-        m_sortModel->setSourceModel(m_filterModel);
-        m_sortModel->setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
-                                          ProjectExplorer::Constants::msgManual()});
-        m_deviceModel = new DeviceManagerModel(this);
-        m_deviceModel->showAllEntry();
+        m_filterModel.setSourceModel(&itemModel());
+
+        m_sortModel.setSourceModel(&m_filterModel);
+        m_sortModel.setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
+                                         ProjectExplorer::Constants::msgManual()});
+        m_deviceModel.showAllEntry();
+
         m_deviceComboBox = new QComboBox(this);
         Core::IOptionsPageWidget::setIgnoreForDirtyHook(m_deviceComboBox);
-        m_deviceComboBox->setModel(m_deviceModel);
+        m_deviceComboBox->setModel(&m_deviceModel);
+
         m_debuggerView = new QTreeView(this);
-        m_debuggerView->setModel(m_sortModel);
+        m_debuggerView->setModel(&m_sortModel);
         m_debuggerView->setUniformRowHeights(true);
         m_debuggerView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_debuggerView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -1224,7 +1224,7 @@ public:
 
         m_deviceComboBox->setCurrentIndex(0);
         const auto updateDevice = [this](int idx) {
-            m_filterModel->setDevice(m_deviceModel->device(idx));
+            m_filterModel.setDevice(m_deviceModel.device(idx));
         };
         connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
         updateDevice(m_deviceComboBox->currentIndex());
@@ -1255,9 +1255,9 @@ public:
     void currentDebuggerChanged(const QModelIndex &newCurrent);
     void updateButtons();
 
-    DeviceManagerModel *m_deviceModel;
-    DeviceFilterModel *m_filterModel;
-    KitSettingsSortModel *m_sortModel;
+    DeviceManagerModel m_deviceModel;
+    DeviceFilterModel m_filterModel;
+    KitSettingsSortModel m_sortModel;
     QComboBox *m_deviceComboBox;
     QTreeView *m_debuggerView;
     QPushButton *m_addButton;
@@ -1270,19 +1270,19 @@ public:
 
 IDeviceConstPtr DebuggerSettingsPageWidget::currentDevice() const
 {
-    return m_deviceModel->device(m_deviceComboBox->currentIndex());
+    return m_deviceModel.device(m_deviceComboBox->currentIndex());
 }
 
 QModelIndex DebuggerSettingsPageWidget::mapFromSource(const QModelIndex &idx) const
 {
-    QTC_ASSERT(m_sortModel->sourceModel() == m_filterModel, return {});
-    return m_sortModel->mapFromSource(m_filterModel->mapFromSource(idx));
+    QTC_ASSERT(m_sortModel.sourceModel() == &m_filterModel, return {});
+    return m_sortModel.mapFromSource(m_filterModel.mapFromSource(idx));
 }
 
 QModelIndex DebuggerSettingsPageWidget::mapToSource(const QModelIndex &idx) const
 {
-    QTC_ASSERT(m_sortModel->sourceModel() == m_filterModel, return {});
-    return m_filterModel->mapToSource(m_sortModel->mapToSource(idx));
+    QTC_ASSERT(m_sortModel.sourceModel() == &m_filterModel, return {});
+    return m_filterModel.mapToSource(m_sortModel.mapToSource(idx));
 }
 
 void DebuggerSettingsPageWidget::cloneDebugger()

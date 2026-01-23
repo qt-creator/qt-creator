@@ -14,7 +14,7 @@ namespace ProjectExplorer {
 class PROJECTEXPLORER_EXPORT KitSettingsSortModel : public Utils::SortModel
 {
 public:
-    using SortModel::SortModel;
+    KitSettingsSortModel() = default;
 
     void setSortedCategories(const QStringList &categories) { m_sortedCategories = categories; }
 
