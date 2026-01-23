@@ -147,6 +147,7 @@ Editing
 * Added the option to rename all usages of a QML component when renaming the
   file
   ([QTCREATORBUG-33195](https://bugreports.qt.io/browse/QTCREATORBUG-33195))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-rename-symbols.html))
 * Improved the performance of scanning for QML files
 * Improved the `qmlformat` settings
   ([QTCREATORBUG-33305](https://bugreports.qt.io/browse/QTCREATORBUG-33305))

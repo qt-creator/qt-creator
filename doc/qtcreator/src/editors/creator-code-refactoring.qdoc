@@ -11,6 +11,8 @@
 
     You can rename symbols in all files in a project.
 
+    \section1 Rename C++ symbols
+
     When you rename a class, you can also change filenames that match the
     class name.
 
@@ -24,9 +26,20 @@
             Use the keyboard shortcut to rename Python symbols.
     \endlist
 
-    To rename a QML type in a project, go to \uicontrol Tools >
-    \uicontrol {QML/JS} > \uicontrol {Rename Symbol Under Cursor}
-    or select \key {Ctrl+Shift+R}.
+    \section1 Rename QML types
+
+    To rename a QML type in a project:
+
+    \list
+        \li Go to \uicontrol Tools > \uicontrol {QML/JS} >
+            \uicontrol {Rename Symbol Under Cursor} or select \key {Ctrl+Shift+R}.
+        \li Go to \uicontrol Projects, and select \uicontrol Rename in the
+            context menu to rename a QML file that specifies a QML type. \QC asks
+            you whether you also want to rename all the usages of the type name
+            in other files in the project.
+    \endlist
+
+    \section1 Replace found symbol instances
 
     \uicontrol {Search Results} shows the location
     and number of instances of the symbol in the current project.
