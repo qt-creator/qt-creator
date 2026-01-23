@@ -151,6 +151,7 @@ Editing
 * Improved the performance of scanning for QML files
 * Improved the `qmlformat` settings
   ([QTCREATORBUG-33305](https://bugreports.qt.io/browse/QTCREATORBUG-33305))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-preferences-qtquick-code-style.html))
 * Fixed a wrong warning `Duplicate Id. (M15)`
   ([QTCREATORBUG-32418](https://bugreports.qt.io/browse/QTCREATORBUG-32418))
 * Fixed that `Split Initializer` did not remove unneeded semicolons
