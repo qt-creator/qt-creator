@@ -4,7 +4,6 @@
 #include "vcsmanager.h"
 
 #include "coreplugintr.h"
-#include "dialogs/addtovcsdialog.h"
 #include "documentmanager.h"
 #include "editormanager/editormanager.h"
 #include "icore.h"
@@ -16,14 +15,18 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 
+#include <QDialogButtonBox>
 #include <QJsonArray>
 #include <QLabel>
 #include <QList>
+#include <QListWidget>
 #include <QMap>
 #include <QMessageBox>
+#include <QScrollArea>
 #include <QString>
 #include <QTimer>
 
@@ -39,6 +42,54 @@ namespace Core {
 #if defined(WITH_TESTS)
 const char TEST_PREFIX[] = "/8E3A9BA0-0B97-40DF-AEC1-2BDF9FC9EDBE/";
 #endif
+
+class AddToVcsDialog final : public QDialog
+{
+public:
+    AddToVcsDialog(const QString &title, const FilePaths &files, const QString &vcsDisplayName)
+        : QDialog(ICore::dialogParent())
+    {
+        using namespace Layouting;
+
+        resize(363, 375);
+        setMinimumSize({200, 200});
+        setBaseSize({300, 500});
+        setWindowTitle(title);
+
+        auto filesListWidget = new QListWidget;
+        filesListWidget->setSelectionMode(QAbstractItemView::NoSelection);
+        filesListWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+        QWidget *scrollAreaWidgetContents = Column{filesListWidget, noMargin}.emerge();
+        scrollAreaWidgetContents->setGeometry({0, 0, 341, 300});
+
+        auto scrollArea = new QScrollArea;
+        scrollArea->setWidgetResizable(true);
+        scrollArea->setWidget(scrollAreaWidgetContents);
+
+        auto buttonBox = new QDialogButtonBox;
+        buttonBox->setStandardButtons(QDialogButtonBox::No | QDialogButtonBox::Yes);
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+        const QString addTo = files.size() == 1
+                                  ? Tr::tr("Add the file to version control (%1)").arg(vcsDisplayName)
+                                  : Tr::tr("Add the files to version control (%1)").arg(vcsDisplayName);
+
+        // clang-format off
+        Column {
+            addTo,
+            scrollArea,
+            buttonBox
+        }.attachTo(this);
+        // clang-format on
+
+        for (const Utils::FilePath &file : files) {
+            QListWidgetItem *item = new QListWidgetItem(file.toUserOutput());
+            filesListWidget->addItem(item);
+        }
+    }
+};
 
 // ---- VCSManagerPrivate:
 // Maintains a cache of top-level directory->version control.
@@ -493,8 +544,7 @@ void VcsManager::promptToAdd(const FilePath &directory, const FilePaths &filePat
     if (unmanagedFiles.isEmpty())
         return;
 
-    Internal::AddToVcsDialog dlg(ICore::dialogParent(), VcsManager::msgAddToVcsTitle(),
-                                 unmanagedFiles, vc->displayName());
+    AddToVcsDialog dlg(VcsManager::msgAddToVcsTitle(), unmanagedFiles, vc->displayName());
     if (dlg.exec() == QDialog::Accepted) {
         QStringList notAddedToVc;
         for (const FilePath &file : unmanagedFiles) {

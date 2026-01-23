@@ -38,8 +38,6 @@ add_qtc_plugin(Core
     customlanguagemodels.h
     designmode.cpp
     designmode.h
-    dialogs/addtovcsdialog.cpp
-    dialogs/addtovcsdialog.h
     dialogs/codecselector.cpp
     dialogs/codecselector.h
     dialogs/externaltoolconfig.cpp

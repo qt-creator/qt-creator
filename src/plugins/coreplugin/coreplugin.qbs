@@ -202,7 +202,6 @@ QtcPlugin {
         name: "Dialogs"
         prefix: "dialogs/"
         files: [
-            "addtovcsdialog.cpp", "addtovcsdialog.h",
             "codecselector.cpp", "codecselector.h",
             "externaltoolconfig.cpp", "externaltoolconfig.h",
             "filepropertiesdialog.cpp", "filepropertiesdialog.h",
