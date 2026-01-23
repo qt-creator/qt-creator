@@ -32,7 +32,7 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
 
     setContentsMargins(0, 0, 0, 0);
     auto topLayout = new QVBoxLayout(this);
-    topLayout->setContentsMargins(0, 0, 0, 25);
+    topLayout->setContentsMargins({});
 
     auto baseEnvironmentWidget = new QWidget;
     m_baseLayout = new QHBoxLayout(baseEnvironmentWidget);
