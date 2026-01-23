@@ -54,15 +54,25 @@ public:
                                   const Utils::FilePath &defaultLocation = {},
                                   const QVariantMap &extraVariables = {});
 
-    static bool showOptionsDialog(const Utils::Id page, QWidget *parent = nullptr);
-    static bool showOptionsDialog(const Utils::Id page, Utils::Id item, QWidget *parent = nullptr);
+    static bool showOptionsDialog(const Utils::Id page);
+    static bool showOptionsDialog(const Utils::Id page, Utils::Id item);
+
+    [[deprecated("Drop the parent parameter")]]
+    static bool showOptionsDialog(const Utils::Id page, QWidget *parent);
+    [[deprecated("Drop the parent parameter")]]
+    static bool showOptionsDialog(const Utils::Id page, Utils::Id item, QWidget *parent);
+
     static QString msgShowOptionsDialog();
     static QString msgShowOptionsDialogToolTip();
 
     static bool showWarningWithOptions(const QString &title, const QString &text,
                                        const QString &details = QString(),
-                                       Utils::Id settingsId = {},
-                                       QWidget *parent = nullptr);
+                                       Utils::Id settingsId = {});
+    [[deprecated("Drop the parent parameter")]]
+    static bool showWarningWithOptions(const QString &title, const QString &text,
+                                       const QString &details,
+                                       Utils::Id settingsId,
+                                       QWidget *parent);
 
     static Utils::QtcSettings *settings(QSettings::Scope scope = QSettings::UserScope);
     static QPrinter *printer();

@@ -440,12 +440,16 @@ void ICore::showNewItemDialog(const QString &title,
     \sa msgShowOptionsDialog()
     \sa msgShowOptionsDialogToolTip()
 */
-bool ICore::showOptionsDialog(const Id page, QWidget *parent)
+bool ICore::showOptionsDialog(const Id page)
 {
-    Q_UNUSED(parent); // FIXME: Drop from caller side.
     QTC_ASSERT(d->m_settingMode, return false);
     d->m_settingMode->open(page);
     return true;
+}
+
+bool ICore::showOptionsDialog(const Id page, QWidget *)
+{
+    return showOptionsDialog(page);
 }
 
 /*!
@@ -460,10 +464,15 @@ bool ICore::showOptionsDialog(const Id page, QWidget *parent)
     \sa msgShowOptionsDialog()
     \sa msgShowOptionsDialogToolTip()
 */
-bool ICore::showOptionsDialog(const Utils::Id page, Utils::Id item, QWidget *parent)
+bool ICore::showOptionsDialog(const Id page, Id item)
 {
     setPreselectedOptionsPageItem(page, item);
-    return showOptionsDialog(page, parent);
+    return showOptionsDialog(page);
+}
+
+bool ICore::showOptionsDialog(const Id page, Id item, QWidget *)
+{
+    return showOptionsDialog(page, item);
 }
 
 /*!
@@ -506,12 +515,10 @@ QString ICore::msgShowOptionsDialogToolTip()
     \sa showOptionsDialog()
 */
 bool ICore::showWarningWithOptions(const QString &title, const QString &text,
-                                   const QString &details, Id settingsId, QWidget *parent)
+                                   const QString &details, Id settingsId)
 {
-    if (!parent)
-        parent = d->m_mainwindow;
     QMessageBox msgBox(QMessageBox::Warning, title, text,
-                       QMessageBox::Ok, parent);
+                       QMessageBox::Ok, dialogParent());
     msgBox.setEscapeButton(QMessageBox::Ok);
     if (!details.isEmpty())
         msgBox.setDetailedText(details);
@@ -522,6 +529,12 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
     if (settingsButton && msgBox.clickedButton() == settingsButton)
         return showOptionsDialog(settingsId);
     return false;
+}
+
+bool ICore::showWarningWithOptions(const QString &title, const QString &text,
+                                   const QString &details, Id settingsId, QWidget *)
+{
+    return showWarningWithOptions(title, text, details, settingsId);
 }
 
 /*!
