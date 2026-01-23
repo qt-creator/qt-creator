@@ -63,7 +63,7 @@ TextStyle categoryForTextStyle(int style)
     case KSyntaxHighlighting::Theme::Warning: return C_WARNING;
     case KSyntaxHighlighting::Theme::Alert: return C_ERROR_CONTEXT;
     case KSyntaxHighlighting::Theme::Error: return C_ERROR;
-    case KSyntaxHighlighting::Theme::Others: return C_INFO_CONTEXT;
+    case KSyntaxHighlighting::Theme::Others: return C_TEXT;
     }
     return C_TEXT;
 }
