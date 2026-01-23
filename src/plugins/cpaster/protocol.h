@@ -8,10 +8,6 @@
 #include <QObject>
 #include <QtTaskTree/QTaskTree>
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
-
 namespace Core { class IOptionsPage; }
 
 namespace CodePaster {
@@ -75,7 +71,7 @@ public:
                                                    const PasteHandler &handler) const;
 
     // Ensure configuration is correct
-    static bool ensureConfiguration(Protocol *p, QWidget *parent = nullptr);
+    static bool ensureConfiguration(Protocol *p);
 
 protected:
     Protocol(const ProtocolData &data);
