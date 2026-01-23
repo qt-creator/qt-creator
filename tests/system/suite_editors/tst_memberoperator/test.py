@@ -52,7 +52,7 @@ def main():
                 if include:
                     placeCursorToLine(cppwindow, "#include <QCoreApplication>")
                     typeLines(cppwindow, ("", "#include " + include))
-                placeCursorToLine(cppwindow, "return a.exec();")
+                placeCursorToLine(cppwindow, "return QCoreApplication::exec();")
                 typeLines(cppwindow, ("<Up>", testData.field(record, "declaration")))
                 type(cppwindow, testData.field(record, "usage"))
                 if useClang:
