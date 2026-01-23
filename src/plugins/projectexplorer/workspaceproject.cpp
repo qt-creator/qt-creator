@@ -231,6 +231,7 @@ void WorkspaceBuildSystem::reparse(bool force)
         bti.projectFilePath = projectPath;
         bti.workingDirectory = workingDirectory;
         bti.additionalData = QVariantMap{{"arguments", arguments}};
+        bti.usesTerminal = targetObject["useTerminal"].toBool(false);
 
         targetInfos << bti;
     }
@@ -411,6 +412,13 @@ public:
             arguments.setArguments(argumentsAsString());
             if (!bti.workingDirectory.isEmpty())
                 workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
+
+            // Workaround: TerminalAspect::setUseTerminalHint will only enable if the project settings
+            // allow it. So instead we fake the user having set the value via "fromMap" here.
+            static_cast<BaseAspect *>(&terminal)->fromMap(
+                Utils::storeFromVariant(
+                    QVariantMap{{"RunConfiguration.UseTerminal", bti.usesTerminal}}));
+            // terminal.setUseTerminalHint(bti.usesTerminal);
         });
 
         auto enabledUpdater = [this] { setEnabled(enabled.value()); };
@@ -433,6 +441,7 @@ public:
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDirectory{this};
     BoolAspect enabled{this};
+    TerminalAspect terminal{this};
 };
 
 class WorkspaceProjectRunConfigurationFactory : public RunConfigurationFactory

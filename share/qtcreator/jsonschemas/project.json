@@ -44,6 +44,10 @@
                         "workingDirectory": {
                             "type": "string",
                             "description": "The working directory to run the executable in"
+                        },
+                        "useTerminal": {
+                            "type": "boolean",
+                            "description": "Whether to run the executable in a terminal"
                         }
                     },
                     "required": [

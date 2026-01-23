@@ -128,7 +128,7 @@ void TerminalAspect::calculateUseTerminal()
 */
 bool TerminalAspect::useTerminal() const
 {
-    return m_useTerminal && isEnabled();
+    return m_useTerminal;
 }
 
 /*!
