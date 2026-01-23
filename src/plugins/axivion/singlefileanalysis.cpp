@@ -183,6 +183,11 @@ void SingleFileAnalysis::startAnalysisFor(const FilePath &filePath, const QStrin
     data.analysisCommand = analysisCmd;
 
     auto onServerRunning = [this, projectName] { onPluginArServerRunning(projectName); };
+    if (settings().saveOpenFiles()) {
+        if (!saveModifiedFiles(projectName))
+            return;
+    }
+
     showLocalBuildProgress();
     qCDebug(sfaLog) << "starting single file analysis for" << projectName << filePath;
     updateSfaStateFor(projectName, filePath.fileName(), Tr::tr("Preparing"), 5);
