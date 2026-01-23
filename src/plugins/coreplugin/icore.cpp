@@ -338,8 +338,6 @@ static QMenuBar *globalMenuBar()
 
 static ICorePrivate *d = nullptr;
 
-static std::function<NewDialog *(QWidget *)> m_newDialogFactory = &createDefaultNewDialog;
-
 /*!
     Returns the pointer to the instance. Only use for connecting to signals.
 */
@@ -353,7 +351,7 @@ ICore *ICore::instance()
 */
 bool ICore::isNewItemDialogRunning()
 {
-    return NewDialog::currentDialog() || IWizardFactory::isWizardRunning();
+    return currentNewDialog() || IWizardFactory::isWizardRunning();
 }
 
 /*!
@@ -364,8 +362,8 @@ bool ICore::isNewItemDialogRunning()
 */
 QWidget *ICore::newItemDialog()
 {
-    if (NewDialog::currentDialog())
-        return NewDialog::currentDialog();
+    if (currentNewDialog())
+        return currentNewDialog();
     return IWizardFactory::currentWizard();
 }
 
@@ -429,26 +427,7 @@ void ICore::showNewItemDialog(const QString &title,
 {
     QTC_ASSERT(!isNewItemDialogRunning(), return);
 
-    /* This is a workaround for QDS: In QDS, we currently have a "New Project" dialog box but we do
-     * not also have a "New file" dialog box (yet). Therefore, when requested to add a new file, we
-     * need to use QtCreator's dialog box. In QDS, if `factories` contains project wizard factories
-     * (even though it may contain file wizard factories as well), then we consider it to be a
-     * request for "New Project". Otherwise, if we only have file wizard factories, we defer to
-     * QtCreator's dialog and request "New File"
-     */
-    auto dialogFactory = m_newDialogFactory;
-    bool haveProjectWizards = Utils::anyOf(factories, [](IWizardFactory *f) {
-        return f->kind() == IWizardFactory::ProjectWizard;
-    });
-
-    if (!haveProjectWizards)
-        dialogFactory = &createDefaultNewDialog;
-
-    NewDialog *newDialog = dialogFactory(dialogParent());
-    connect(newDialog->widget(), &QObject::destroyed, m_core, &ICore::updateNewItemDialogState);
-    newDialog->setWizardFactories(factories, defaultLocation, extraVariables);
-    newDialog->setWindowTitle(title);
-    newDialog->showDialog();
+    showNewDialog(title, factories, defaultLocation, extraVariables);
 
     updateNewItemDialogState();
 }
@@ -1351,10 +1330,6 @@ void ICore::updateNewItemDialogState()
 /*!
     \internal
 */
-void ICore::setNewDialogFactory(const std::function<NewDialog *(QWidget *)> &newFactory)
-{
-    m_newDialogFactory = newFactory;
-}
 
 static bool hideToolsMenu()
 {

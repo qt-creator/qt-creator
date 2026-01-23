@@ -36,22 +36,6 @@
 
 using namespace Utils;
 
-namespace Core {
-
-NewDialog::NewDialog()
-{
-    QTC_CHECK(m_currentDialog == nullptr);
-
-    m_currentDialog = this;
-}
-
-NewDialog::~NewDialog()
-{
-    QTC_CHECK(m_currentDialog != nullptr);
-    m_currentDialog = nullptr;
-}
-
-} // Core
 
 namespace Core::Internal {
 
@@ -174,32 +158,29 @@ Q_DECLARE_METATYPE(Core::Internal::WizardFactoryContainer)
 
 namespace Core::Internal {
 
-class NewDialogWidget : public QDialog, public NewDialog
+static class NewDialog *s_currentNewDialog = nullptr;
+
+class NewDialog final : public QDialog
 {
 public:
-    explicit NewDialogWidget(QWidget *parent);
-    ~NewDialogWidget() override;
+    NewDialog();
+
+    ~NewDialog() final { s_currentNewDialog = nullptr; }
 
     void setWizardFactories(QList<IWizardFactory *> factories,
                             const Utils::FilePath &defaultLocation,
-                            const QVariantMap &extraVariables) override;
+                            const QVariantMap &extraVariables);
 
-    void showDialog() override;
+    void showDialog();
     Utils::Id selectedPlatform() const;
-    QWidget *widget() override { return this; }
-
-    void setWindowTitle(const QString &title) override {
-        QDialog::setWindowTitle(title);
-    }
-
-protected:
-    bool event(QEvent *) override;
 
 private:
+    bool event(QEvent *) final;
+
     void currentCategoryChanged(const QModelIndex &);
     void currentItemChanged(const QModelIndex &);
-    void accept() override;
-    void reject() override;
+    void accept() final;
+    void reject() final;
     void updateOkButton();
     void setSelectedPlatform(int index);
 
@@ -220,8 +201,8 @@ private:
     QVariantMap m_extraVariables;
 };
 
-NewDialogWidget::NewDialogWidget(QWidget *parent)
-    : QDialog(parent)
+NewDialog::NewDialog()
+    : QDialog(ICore::dialogParent())
     , m_comboBox(new QComboBox)
     , m_templateCategoryView(new QTreeView)
     , m_templatesView(new QListView)
@@ -229,6 +210,8 @@ NewDialogWidget::NewDialogWidget(QWidget *parent)
     , m_templateDescription(new QTextBrowser)
 
 {
+    s_currentNewDialog = this;
+
     setObjectName("Core.NewDialog");
     setAttribute(Qt::WA_DeleteOnClose);
     ICore::registerWindow(this, Context("Core.NewDialog"));
@@ -303,21 +286,21 @@ NewDialogWidget::NewDialogWidget(QWidget *parent)
     connect(m_templateCategoryView->selectionModel(),
             &QItemSelectionModel::currentChanged,
             this,
-            &NewDialogWidget::currentCategoryChanged);
+            &NewDialog::currentCategoryChanged);
 
     connect(m_templatesView->selectionModel(),
             &QItemSelectionModel::currentChanged,
             this,
-            &NewDialogWidget::currentItemChanged);
+            &NewDialog::currentItemChanged);
 
-    connect(m_templatesView, &QListView::doubleClicked, this, &NewDialogWidget::accept);
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &NewDialogWidget::accept);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &NewDialogWidget::reject);
+    connect(m_templatesView, &QListView::doubleClicked, this, &NewDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &NewDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &NewDialog::reject);
 
     connect(m_comboBox,
             &QComboBox::currentIndexChanged,
             this,
-            &NewDialogWidget::setSelectedPlatform);
+            &NewDialog::setSelectedPlatform);
 }
 
 // Sort by category. id
@@ -328,7 +311,7 @@ static bool wizardFactoryLessThan(const IWizardFactory *f1, const IWizardFactory
     return f1->id().toString().compare(f2->id().toString()) < 0;
 }
 
-void NewDialogWidget::setWizardFactories(QList<IWizardFactory *> factories,
+void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
                                    const FilePath &defaultLocation,
                                    const QVariantMap &extraVariables)
 {
@@ -386,7 +369,7 @@ void NewDialogWidget::setWizardFactories(QList<IWizardFactory *> factories,
         parentItem->removeRow(0);
 }
 
-void NewDialogWidget::showDialog()
+void NewDialog::showDialog()
 {
     QModelIndex idx;
 
@@ -424,13 +407,13 @@ void NewDialogWidget::showDialog()
     show();
 }
 
-Id NewDialogWidget::selectedPlatform() const
+Id NewDialog::selectedPlatform() const
 {
     const int index = m_comboBox->currentIndex();
     return Id::fromSetting(m_comboBox->itemData(index));
 }
 
-bool NewDialogWidget::event(QEvent *event)
+bool NewDialog::event(QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride) {
         auto ke = static_cast<QKeyEvent *>(event);
@@ -442,17 +425,15 @@ bool NewDialogWidget::event(QEvent *event)
     return QDialog::event(event);
 }
 
-NewDialogWidget::~NewDialogWidget()
-{
-}
 
-IWizardFactory *NewDialogWidget::currentWizardFactory() const
+
+IWizardFactory *NewDialog::currentWizardFactory() const
 {
     QModelIndex index = m_filterProxyModel.mapToSource(m_templatesView->currentIndex());
     return factoryOfItem(m_model.itemFromIndex(index));
 }
 
-void NewDialogWidget::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory)
+void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory)
 {
     const QString categoryName = factory->category();
     QStandardItem *categoryItem = nullptr;
@@ -476,7 +457,7 @@ void NewDialogWidget::addItem(QStandardItem *topLevelCategoryItem, IWizardFactor
 
 }
 
-void NewDialogWidget::currentCategoryChanged(const QModelIndex &index)
+void NewDialog::currentCategoryChanged(const QModelIndex &index)
 {
     if (index.parent() != m_model.invisibleRootItem()->index()) {
         QModelIndex sourceIndex = m_filterProxyModel.mapToSource(index);
@@ -488,7 +469,7 @@ void NewDialogWidget::currentCategoryChanged(const QModelIndex &index)
     }
 }
 
-void NewDialogWidget::currentItemChanged(const QModelIndex &index)
+void NewDialog::currentItemChanged(const QModelIndex &index)
 {
     QModelIndex sourceIndex = m_filterProxyModel.mapToSource(index);
     QStandardItem *cat = m_model.itemFromIndex(sourceIndex);
@@ -525,7 +506,7 @@ void NewDialogWidget::currentItemChanged(const QModelIndex &index)
     updateOkButton();
 }
 
-void NewDialogWidget::saveState()
+void NewDialog::saveState()
 {
     const QModelIndex filterIdx = m_templateCategoryView->currentIndex();
     const QModelIndex idx = m_filterProxyModel.mapToSource(filterIdx);
@@ -542,7 +523,7 @@ static void runWizard(IWizardFactory *wizard, const FilePath &defaultLocation, I
     wizard->runWizard(path, platform, variables);
 }
 
-void NewDialogWidget::accept()
+void NewDialog::accept()
 {
     saveState();
     if (m_templatesView->currentIndex().isValid()) {
@@ -555,25 +536,39 @@ void NewDialogWidget::accept()
     QDialog::accept();
 }
 
-void NewDialogWidget::reject()
+void NewDialog::reject()
 {
     saveState();
     QDialog::reject();
 }
 
-void NewDialogWidget::updateOkButton()
+void NewDialog::updateOkButton()
 {
     m_okButton->setEnabled(currentWizardFactory() != nullptr);
 }
 
-void NewDialogWidget::setSelectedPlatform(int /*platform*/)
+void NewDialog::setSelectedPlatform(int /*platform*/)
 {
     m_filterProxyModel.setPlatform(selectedPlatform());
 }
 
-NewDialog *createDefaultNewDialog(QWidget *parent)
+QWidget *currentNewDialog()
 {
-    return new NewDialogWidget(parent);
+    return s_currentNewDialog;
+}
+
+void showNewDialog(
+    const QString &title,
+    QList<IWizardFactory *> factories,
+    const Utils::FilePath &defaultLocation,
+    const QVariantMap &extraVariables)
+{
+    auto newDialog = new NewDialog;
+    newDialog->setWindowTitle(title);
+    newDialog->setWizardFactories(factories, defaultLocation, extraVariables);
+
+    QObject::connect(newDialog, &QObject::destroyed, ICore::instance(), &ICore::updateNewItemDialogState);
+    newDialog->showDialog();
 }
 
 } // Core::Internal

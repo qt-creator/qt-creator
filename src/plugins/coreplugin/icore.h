@@ -31,7 +31,6 @@ namespace Core {
 class Context;
 class IDocument;
 class IWizardFactory;
-class NewDialog;
 
 class CORE_EXPORT ICore : public QObject
 {
@@ -161,7 +160,6 @@ public:
     static QStatusBar *statusBar();
 
     static void saveSettings(SaveSettingsReason reason);
-    static void setNewDialogFactory(const std::function<NewDialog *(QWidget *)> &newFactory);
     static void updateNewItemDialogState();
 
     static void setOverrideColor(const QColor &color);
