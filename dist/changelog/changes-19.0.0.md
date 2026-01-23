@@ -115,6 +115,7 @@ Editing
 * Added a quick fix for adding a class or struct definition from a forward
   declaration
   ([QTCREATORBUG-19929](https://bugreports.qt.io/browse/QTCREATORBUG-19929))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-reference-cpp-quick-fixes.html))
 * Added an image preview when hovering over references to image resources
   ([QTCREATORBUG-29727](https://bugreports.qt.io/browse/QTCREATORBUG-29727),
    [QTCREATORBUG-29819](https://bugreports.qt.io/browse/QTCREATORBUG-29819))

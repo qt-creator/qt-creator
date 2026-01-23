@@ -178,6 +178,10 @@
             \li Adds an \c {#include} directive and package dependency to the
                 project file to make an unknown Qt class available.
         \row
+            \li Add definition
+            \li Creates an empty class or struct definition from a forward
+                declaration.
+        \row
             \li Create Implementations for Member Functions
             \li Creates implementations for all member functions in one go.
                 In the \uicontrol {Member Function Implementations} dialog,
