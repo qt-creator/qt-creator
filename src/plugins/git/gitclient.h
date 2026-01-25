@@ -225,7 +225,7 @@ public:
     QStringList setupCheckoutArguments(const Utils::FilePath &workingDirectory, const QString &ref);
     void updateSubmodulesIfNeeded(const Utils::FilePath &workingDirectory, bool prompt);
 
-    // Do a stash and return identier.
+    // Do a stash and return identifier.
     enum { StashPromptDescription = 0x1, StashImmediateRestore = 0x2, StashIgnoreUnchanged = 0x4 };
     QString synchronousStash(const Utils::FilePath &workingDirectory,
                              const QString &messageKeyword = {},

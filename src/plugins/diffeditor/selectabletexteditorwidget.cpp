@@ -53,7 +53,7 @@ static QList<DiffSelection> subtractSelection(
         const DiffSelection &minuendSelection,
         const DiffSelection &subtrahendSelection)
 {
-    // tha case that whole minuend is before the whole subtrahend
+    // the case that whole minuend is before the whole subtrahend
     if (minuendSelection.end >= 0 && minuendSelection.end <= subtrahendSelection.start)
         return {minuendSelection};
 

@@ -521,7 +521,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         ReloadStorage *data = storage.activeStorage();
         QStringList parents;
         QString errorMessage;
-        // TODO: it's trivial now to call below asynchonously, too
+        // TODO: it's trivial now to call below asynchronously, too
         gitClient().synchronousParentRevisions(workingDirectory(), data->m_commit,
                                                &parents, &errorMessage);
         data->m_follows = {busyMessage};
@@ -3159,7 +3159,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
 }
 
 /**
- * Formats the patches given in \a patchRange as multiple singe file patches.
+ * Formats the patches given in \a patchRange as multiple single file patches.
  *
  * The format for \a patchRange is {"-n", "hash"} where `n` specifies the
  * number of commits before `hash`.

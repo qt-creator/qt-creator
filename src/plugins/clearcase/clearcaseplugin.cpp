@@ -467,7 +467,7 @@ FileStatus::Status ClearCasePluginPrivate::getFileStatus(const FilePath &fileNam
 /// 6) /home/<username>/snapshots/myview/vobs/vobA
 ///
 /// Note: The VOB directory is used as toplevel although the directory one up could have been
-///       used on cases execpt 5. For case 5 it would have been /, which we don't want.
+///       used on cases except 5. For case 5 it would have been /, which we don't want.
 ///
 /// "cleartool pwv" returns the values for "set view" and "working directory view", also for
 /// snapshot views.

@@ -1470,7 +1470,7 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
         return in.absoluteFilePath();
 
     // 4) remove trailing tab char and try again: At least git appends \t when the
-    //    filename contains spaces. Since the diff commend does use \t all of a sudden,
+    //    filename contains spaces. Since the diff command does use \t all of a sudden,
     //    too, when seeing spaces in a filename, I expect the same behavior in other VCS.
     if (f.endsWith(QLatin1Char('\t')))
         return findDiffFile(f.left(f.size() - 1));
