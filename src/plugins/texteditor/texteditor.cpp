@@ -6640,7 +6640,11 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
 void TextEditorWidgetPrivate::setBackgroundColor()
 {
     auto localPalette = q->palette();
-    auto fontBackgroundColor = m_document->fontSettings().toTextCharFormat(C_TEXT).background().color();
+    QColor fontBackgroundColor;
+    if (m_marginSettings.m_tintMarginArea)
+        fontBackgroundColor = blendRightMarginColor(m_document->fontSettings(), false);
+    else
+        fontBackgroundColor = m_document->fontSettings().toTextCharFormat(C_TEXT).background().color();
     if (localPalette.window() != fontBackgroundColor) {
         localPalette.setColor(QPalette::Window, fontBackgroundColor);
         q->setPalette(localPalette);
