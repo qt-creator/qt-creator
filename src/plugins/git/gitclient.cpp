@@ -436,7 +436,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         updateDescription(*data);
     };
 
-    const auto desciptionDetailsSetup = [storage] {
+    const auto descriptionDetailsSetup = [storage] {
         if (!storage->m_postProcessDescription)
             return SetupResult::StopWithSuccess;
         return SetupResult::Continue;
@@ -572,7 +572,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
             Group {
                 parallel,
                 finishAllAndSuccess,
-                onGroupSetup(desciptionDetailsSetup),
+                onGroupSetup(descriptionDetailsSetup),
                 ProcessTask(onBranchesSetup, onBranchesDone),
                 ProcessTask(onPrecedesSetup, onPrecedesDone),
                 QTaskTreeTask(onFollowsSetup)
