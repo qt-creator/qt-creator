@@ -45,7 +45,8 @@ updateCodeActionRefactoringMarker(Client *client,
                                   const QList<LanguageServerProtocol::CodeAction> &actions,
                                   const LanguageServerProtocol::DocumentUri &uri);
 void updateEditorToolBar(Core::IEditor *editor);
-const QIcon LANGUAGECLIENT_EXPORT symbolIcon(int type);
+const QIcon LANGUAGECLIENT_EXPORT
+symbolIcon(int type, const QList<LanguageServerProtocol::SymbolTag> &tags);
 
 void autoSetupLanguageServer(TextEditor::TextDocument *document);
 

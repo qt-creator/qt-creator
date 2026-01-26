@@ -592,7 +592,8 @@ public:
 };
 
 enum class SymbolTag {
-    Deprecated = 1,
+    FirstTag = 1,
+    Deprecated = FirstTag,
     Private = 2,
     Package = 3,
     Protected = 4,
@@ -612,6 +613,7 @@ enum class SymbolTag {
     Declaration = 18,
     Definition = 19,
     ReadOnly = 20,
+    LastTag = ReadOnly
 };
 namespace Internal {
 std::optional<QList<SymbolTag>> getSymbolTags(const JsonObject &o);

@@ -309,8 +309,12 @@ void updateEditorToolBar(Core::IEditor *editor)
     }
 }
 
-static CodeModelIcon::Type symbolTypeToIconType(SymbolKind kind)
+static CodeModelIcon::Type symbolTypeToIconType(SymbolKind kind, const QList<SymbolTag> &tags)
 {
+    const auto isPrivate = [&] { return tags.contains(SymbolTag::Private); };
+    const auto isProtected = [&] { return tags.contains(SymbolTag::Protected); };
+    const auto isStatic = [&] { return tags.contains(SymbolTag::Static); };
+
     using namespace Utils::CodeModelIcon;
     switch (kind) {
     case SymbolKind::Module:
@@ -322,12 +326,22 @@ static CodeModelIcon::Type symbolTypeToIconType(SymbolKind kind)
     case SymbolKind::Constructor:
     case SymbolKind::Object:
         return Class;
-    case SymbolKind::Method:
-        return FuncPublic;
     case SymbolKind::Property:
         return Property;
     case SymbolKind::Field:
     case SymbolKind::Variable:
+        if (isStatic()) {
+            if (isPrivate())
+                return VarPrivateStatic;
+            if (isProtected())
+                return VarProtectedStatic;
+            return VarPublicStatic;
+        }
+        if (isPrivate())
+            return VarPrivate;
+        if (isProtected())
+            return VarProtected;
+        [[fallthrough]];
     case SymbolKind::Constant:
     case SymbolKind::String:
     case SymbolKind::Number:
@@ -336,10 +350,23 @@ static CodeModelIcon::Type symbolTypeToIconType(SymbolKind kind)
     case SymbolKind::TypeParameter:
         return VarPublic;
     case SymbolKind::Enum:
-        return Enum; break;
+        return Enum;
     case SymbolKind::Function:
-    case SymbolKind::Event:
+    case SymbolKind::Method:
     case SymbolKind::Operator:
+        if (isStatic()) {
+            if (isPrivate())
+                return FuncPrivateStatic;
+            if (isProtected())
+                return FuncProtectedStatic;
+            return FuncPublicStatic;
+        }
+        if (isPrivate())
+            return FuncPrivate;
+        if (isProtected())
+            return FuncProtected;
+        [[fallthrough]];
+    case SymbolKind::Event:
         return FuncPublic;
     case SymbolKind::Key:
     case SymbolKind::Null:
@@ -354,7 +381,7 @@ static CodeModelIcon::Type symbolTypeToIconType(SymbolKind kind)
     return Unknown;
 }
 
-const QIcon symbolIcon(int type)
+const QIcon symbolIcon(int type, const QList<SymbolTag> &tags)
 {
     if (type < int(SymbolKind::FirstSymbolKind) || type > int(SymbolKind::LastSymbolKind))
         return {};
@@ -364,7 +391,7 @@ const QIcon symbolIcon(int type)
         return Icons::NEWFILE.icon();
 
     using namespace Utils::CodeModelIcon;
-    const Type iconType = symbolTypeToIconType(kind);
+    const Type iconType = symbolTypeToIconType(kind, tags);
     static QMap<Type, QIcon> icons;
     const auto icon = icons.constFind(iconType);
     if (icon != icons.constEnd())

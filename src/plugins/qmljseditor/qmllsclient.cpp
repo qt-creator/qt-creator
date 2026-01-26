@@ -238,7 +238,7 @@ private:
         if (symbolName.contains(QLatin1Char('.')))
             symbolName = symbolName.split(QLatin1Char('.')).last();
         const auto &icon = QmlJS::Icons::Provider::instance().icon(symbolName);
-        return icon.isNull() ? LanguageClient::symbolIcon(type()) : icon;
+        return icon.isNull() ? LanguageClient::symbolIcon(type(), tags()) : icon;
     }
 };
 

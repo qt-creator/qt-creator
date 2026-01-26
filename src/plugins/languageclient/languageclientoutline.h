@@ -43,6 +43,7 @@ protected:
     QString name() const { return m_name; }
     QString detail() const { return m_detail; }
     int type() const { return m_type; }
+    QList<LanguageServerProtocol::SymbolTag> tags() const { return m_tags; }
 
 private:
     QString m_name;

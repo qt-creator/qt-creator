@@ -35,7 +35,7 @@ static void filterResults(QPromise<void> &promise, const LocatorStorage &storage
         entry.displayName = info.name();
         if (std::optional<QString> container = info.containerName())
             entry.extraInfo = container.value_or(QString());
-        entry.displayIcon = symbolIcon(info.kind());
+        entry.displayIcon = symbolIcon(info.kind(), info.symbolTags().value_or(QList<SymbolTag>()));
         entry.linkForEditor = info.location().toLink(client->hostPathMapper());
         return entry;
     };
@@ -180,7 +180,7 @@ static LocatorFilterEntry entryForSymbolInfo(const SymbolInformation &info,
     entry.displayName = info.name();
     if (std::optional<QString> container = info.containerName())
         entry.extraInfo = container.value_or(QString());
-    entry.displayIcon = symbolIcon(info.kind());
+    entry.displayIcon = symbolIcon(info.kind(), info.symbolTags().value_or(QList<SymbolTag>()));
     entry.linkForEditor = info.location().toLink(pathMapper);
     return entry;
 }
@@ -207,7 +207,8 @@ LocatorFilterEntries entriesForDocSymbols(const QList<DocumentSymbol> &infoList,
         const bool hasMatch = regexp.match(info.name()).hasMatch();
         LocatorFilterEntry entry;
         if (hasMatch) {
-            entry.displayIcon = LanguageClient::symbolIcon(info.kind());
+            entry.displayIcon = LanguageClient::symbolIcon(
+                info.kind(), info.symbolTags().value_or(QList<SymbolTag>()));
             const Position &pos = info.range().start();
             entry.linkForEditor = {filePath, pos.line() + 1, pos.character()};
             docSymbolModifier(entry, info, parent);

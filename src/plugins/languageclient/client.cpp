@@ -445,7 +445,10 @@ static ClientCapabilities generateClientCapabilities()
          SymbolKind::Operator,   SymbolKind::TypeParameter});
     symbolCapabilities.setSymbolKind(symbolKindCapabilities);
     SymbolCapabilities::SymbolTagCapabilities symbolTagCapabilities;
-    symbolTagCapabilities.setValueSet({SymbolTag::Deprecated});
+    QList<SymbolTag> valueSet;
+    for (int i = int(SymbolTag::FirstTag); i <= int(SymbolTag::LastTag); ++i)
+        valueSet << static_cast<SymbolTag>(i);
+    symbolTagCapabilities.setValueSet(valueSet);
     symbolCapabilities.setSymbolTag(symbolTagCapabilities);
     symbolCapabilities.setHierarchicalDocumentSymbolSupport(true);
     documentCapabilities.setDocumentSymbol(symbolCapabilities);

@@ -436,7 +436,7 @@ QVariant LanguageClientOutlineItem::data(int column, int role) const
 {
     switch (role) {
     case Qt::DecorationRole:
-        return symbolIcon(m_type);
+        return symbolIcon(m_type, m_tags);
     case Qt::DisplayRole:
         return valid() ? m_name : Tr::tr("<Select Symbol>");
     case AnnotationRole:

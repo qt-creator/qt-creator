@@ -64,7 +64,8 @@ protected:
         case Qt::DecorationRole:
             if (hasTag(SymbolTag::Deprecated))
                 return Utils::Icons::WARNING.icon();
-            return symbolIcon(int(m_item.symbolKind()));
+            return symbolIcon(
+                int(m_item.symbolKind()), m_item.symbolTags().value_or(QList<SymbolTag>()));
         case Qt::DisplayRole:
             return m_item.name();
         case Qt::ToolTipRole:
@@ -205,7 +206,8 @@ private:
         case Qt::DecorationRole:
             if (m_item.symbolTags().value_or(QList<SymbolTag>()).contains(SymbolTag::Deprecated))
                 return Utils::Icons::WARNING.icon();
-            return symbolIcon(int(m_item.symbolKind()));
+            return symbolIcon(
+                int(m_item.symbolKind()), m_item.symbolTags().value_or(QList<SymbolTag>()));
         case Qt::DisplayRole:
             return m_item.name();
         case LinkRole:
