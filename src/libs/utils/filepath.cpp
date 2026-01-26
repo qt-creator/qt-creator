@@ -435,6 +435,15 @@ FilePath FilePath::intern() const
     return result;
 }
 
+bool FilePath::supportsAtomicSaveFile() const
+{
+    Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return false;
+
+    return (*access)->supportsAtomicSaveFile(*this);
+}
+
 /*!
     Returns a QString for passing on to QString based APIs.
 

@@ -88,6 +88,8 @@ protected:
 
     virtual TextEncoding processStdOutEncoding(const FilePath &executable) const;
     virtual TextEncoding processStdErrEncoding(const FilePath &executable) const;
+
+    virtual bool supportsAtomicSaveFile(const FilePath &filePath) const;
 };
 
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess
@@ -155,6 +157,8 @@ protected:
 
     TextEncoding processStdOutEncoding(const FilePath &executable) const override;
     TextEncoding processStdErrEncoding(const FilePath &executable) const override;
+
+    bool supportsAtomicSaveFile(const FilePath &filePath) const override;
 };
 
 class QTCREATOR_UTILS_EXPORT UnixDeviceFileAccess : public DeviceFileAccess

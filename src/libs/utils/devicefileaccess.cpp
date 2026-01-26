@@ -34,6 +34,7 @@
 #define CALLBACK WINAPI
 #endif
 #include <shlobj.h>
+#include <winioctl.h>
 #include <qt_windows.h>
 #else
 #include <qplatformdefs.h>
@@ -445,6 +446,13 @@ TextEncoding DeviceFileAccess::processStdErrEncoding(const FilePath &executable)
 {
     Q_UNUSED(executable)
     return TextEncoding::Utf8; // Good default nowadays.
+}
+
+bool DeviceFileAccess::supportsAtomicSaveFile(const FilePath &filePath) const
+{
+    if (hasHardLinks(filePath))
+        return false;
+    return true;
 }
 
 // DesktopDeviceFileAccess
@@ -1124,6 +1132,49 @@ TextEncoding DesktopDeviceFileAccess::processStdErrEncoding(const FilePath &exec
 {
     Q_UNUSED(executable)
     return TextEncoding::encodingForLocale();
+}
+
+static bool localFileSystemSupportsAtomicSaveFile(const FilePath &path)
+{
+    QTC_ASSERT(path.isLocal(), return true);
+#ifdef Q_OS_WIN
+    const HANDLE handle = CreateFile(
+        (wchar_t *) path.nativePath().utf16(),
+        0,
+        FILE_SHARE_READ,
+        NULL,
+        OPEN_EXISTING,
+        FILE_FLAG_BACKUP_SEMANTICS,
+        NULL);
+    if (handle != INVALID_HANDLE_VALUE) {
+        FILESYSTEM_STATISTICS stats;
+        DWORD bytesReturned;
+        bool success = DeviceIoControl(
+            handle,
+            FSCTL_FILESYSTEM_GET_STATISTICS,
+            NULL,
+            0,
+            &stats,
+            sizeof(stats),
+            &bytesReturned,
+            NULL);
+        CloseHandle(handle);
+        if (success || GetLastError() == ERROR_MORE_DATA) {
+            return stats.FileSystemType != FILESYSTEM_STATISTICS_TYPE_FAT
+                   && stats.FileSystemType != FILESYSTEM_STATISTICS_TYPE_EXFAT;
+        }
+    }
+#else
+    Q_UNUSED(path)
+#endif
+    return true;
+}
+
+bool DesktopDeviceFileAccess::supportsAtomicSaveFile(const FilePath &filePath) const
+{
+    if (!localFileSystemSupportsAtomicSaveFile(filePath))
+        return false;
+    return DeviceFileAccess::supportsAtomicSaveFile(filePath);
 }
 
 Result<QDateTime> DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const

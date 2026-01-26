@@ -319,6 +319,8 @@ public:
 
     FilePath intern() const;
 
+    bool supportsAtomicSaveFile() const;
+
 private:
     // These are needed.
     QTCREATOR_UTILS_EXPORT friend bool operator==(const FilePath &first, const FilePath &second);
