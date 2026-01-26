@@ -405,6 +405,18 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
 {
     RawProjectParts rpps;
 
+    static const QMap<QString, QString> headerMimeTypeForLanguage
+        = {{"C", Utils::Constants::C_HEADER_MIMETYPE},
+           {"CXX", Utils::Constants::CPP_HEADER_MIMETYPE},
+           {"OBJC", Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE},
+           {"OBJCXX", Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE}};
+
+    static const QMap<QString, QString> sourceMimeTypeForLanguage
+        = {{"C", Utils::Constants::C_SOURCE_MIMETYPE},
+           {"CXX", Utils::Constants::CPP_SOURCE_MIMETYPE},
+           {"OBJC", Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE},
+           {"OBJCXX", Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE}};
+
     for (const TargetDetails &t : input.targetDetails) {
         if (cancelFuture.isCanceled())
             return {};
@@ -412,19 +424,6 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
         QHash<QString, QPair<int, int>> compileLanguageCountHash;
         for (const CompileInfo &ci : t.compileGroups)
             compileLanguageCountHash[ci.language].first++;
-
-        auto mimeTypeForLanguage = [](const QString &language) -> QString {
-            if (language == "C") {
-                return Utils::Constants::C_HEADER_MIMETYPE;
-            } else if (language == "CXX") {
-                return Utils::Constants::CPP_HEADER_MIMETYPE;
-            } else if (language == "OBJC") {
-                return Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE;
-            } else if (language == "OBJCXX") {
-                return Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
-            }
-            return {};
-        };
 
         QHash<FilePath, QString> sourceFileToMimeType;
 
@@ -480,7 +479,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                 const FilePath sourcePath = sourceDirectory.resolvePath(si.path);
                 sources.append(sourcePath);
 
-                sourceFileToMimeType.insert(sourcePath, mimeTypeForLanguage(ci.language));
+                sourceFileToMimeType.insert(sourcePath, sourceMimeTypeForLanguage.value(ci.language));
             }
 
             // Skip groups with only generated source files e.g. <build-dir>/.rcc/qrc_<target>.cpp
@@ -496,7 +495,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                 return isUnityFile(buildDirectory, path);
             });
 
-            const QString headerMimeType = mimeTypeForLanguage(ci.language);
+            const QString headerMimeType = headerMimeTypeForLanguage.value(ci.language);
 
             auto haveFileKindForLanguage = [&](const auto &kind) {
                 if (kind == CppEditor::ProjectFile::AmbiguousHeader)
