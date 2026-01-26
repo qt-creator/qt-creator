@@ -7,6 +7,7 @@
 #include "projectexplorertr.h"
 
 #include <utils/environment.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>
@@ -34,16 +35,11 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
     auto topLayout = new QVBoxLayout(this);
     topLayout->setContentsMargins({});
 
-    auto baseEnvironmentWidget = new QWidget;
-    m_baseLayout = new QHBoxLayout(baseEnvironmentWidget);
-    m_baseLayout->setContentsMargins(0, 0, 0, 0);
-
     auto label = [aspect]() {
         if (aspect->labelText().isEmpty())
             aspect->setLabelText(Tr::tr("Base environment for this run configuration:"));
         return aspect->createLabel();
     };
-    m_baseLayout->addWidget(label());
 
     m_baseEnvironmentComboBox = new QComboBox;
     for (const QString &displayName : m_aspect->displayNames())
@@ -55,26 +51,33 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
     connect(m_baseEnvironmentComboBox, &QComboBox::currentIndexChanged,
             this, &EnvironmentAspectWidget::baseEnvironmentSelected);
 
-    m_baseLayout->addWidget(m_baseEnvironmentComboBox);
-    m_baseLayout->addStretch(10);
+    using namespace Layouting;
+    Column extraWidgets {
+        noMargin,
+        Row {
+            bindTo(&m_baseLayout),
+            label(),
+            m_baseEnvironmentComboBox,
+            Stretch(Utils::StyleHelper::SpacingTokens::GapHL),
+        },
+        If {m_aspect->isPrintOnRunAllowed()} >> Then { [this] {
+            const auto printOnRunCheckBox = new QCheckBox(
+                Tr::tr("Show in Application Output when running"));
+            printOnRunCheckBox->setChecked(m_aspect->isPrintOnRunEnabled());
+            connect(printOnRunCheckBox, &QCheckBox::toggled,
+                    m_aspect, &EnvironmentAspect::setPrintOnRun);
+            return printOnRunCheckBox;
+        }()},
+    };
 
     const EnvironmentWidget::Type widgetType = aspect->isLocal()
             ? EnvironmentWidget::TypeLocal : EnvironmentWidget::TypeRemote;
-    m_environmentWidget = new EnvironmentWidget(this, widgetType, baseEnvironmentWidget);
+    m_environmentWidget = new EnvironmentWidget(this, widgetType, extraWidgets.emerge());
     m_environmentWidget->setBaseEnvironment(m_aspect->modifiedBaseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(m_aspect->currentDisplayName());
     m_environmentWidget->setUserChanges(m_aspect->userEnvironmentChanges());
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     topLayout->addWidget(m_environmentWidget);
-
-    if (m_aspect->isPrintOnRunAllowed()) {
-        const auto printOnRunCheckBox = new QCheckBox(
-            Tr::tr("Show in Application Output when running"));
-        printOnRunCheckBox->setChecked(m_aspect->isPrintOnRunEnabled());
-        connect(printOnRunCheckBox, &QCheckBox::toggled,
-                m_aspect, &EnvironmentAspect::setPrintOnRun);
-        topLayout->addWidget(printOnRunCheckBox);
-    }
 
     connect(m_environmentWidget, &EnvironmentWidget::userChangesChanged,
             this, &EnvironmentAspectWidget::userChangesEdited);
