@@ -1,0 +1,291 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-mcp-server.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build
+    \ingroup creator-how-to-debug
+    \ingroup creator-how-to-run
+
+    \title Use MCP client
+
+    \QC supports the model context protocol (MCP) to let AI assistants control it
+    for debugging, building, and managing projects.
+
+    To use an MCP client, install one and activate the \QC MCP server extension
+    to start the MCP server.
+
+    \section1 View MCP server status
+
+    \QC starts the MCP server when you activate the \QC MCP server extension. The
+    server runs at \c 127.0.0.1 and accepts connections on port \c 3001. For
+    security reasons, you cannot run it on a remote computer.
+
+    To view the MCP server status, go to \uicontrol Tools >
+    \uicontrol {MCP Server} > \uicontrol {About MCP Server}.
+
+    \image {qtcreator-mcp-server-status.webp} {MCP Server Status dialog}
+
+    If the server does not start, see whether \uicontrol {General Messages} shows
+    a warning about the port being in use.
+
+    Make sure that no other process is bound to the port. For example, on Linux,
+    enter \c {lsof -i :3001} in \uicontrol Terminal.
+
+    To use another port than \c 3001, set the \c MCP_SERVER_PORT
+    environment variable to configure the port before \QC starts.
+
+    \section1 Set up a simple MCP client
+
+    You can use any HTTP client that can send POST requests and read SSE
+    responses. This section describes how to use \c pip to install a simple
+    MCP client and how to configure it.
+
+    To install and configure a simple MCP client:
+
+    \list 1
+        \li Go to \uicontrol Terminal, and enter:
+            \badcode
+            pip install simple-mcp-client
+            \endcode
+        \li Change the \c {simple_mcp_client\config.json} configuration
+            file to point to the \c qtcreator MCP server:
+            \badcode
+            "mcpServers": {
+              "qtcreator": {
+                "enable": false,
+                "type": "sse",
+                "url": "http://127.0.0.1:3001/sse",
+                "command": null,
+                "args": [],
+                "env": {}
+              }
+            }
+            \endcode
+    \endlist
+
+    You can find the \c {config.json} file in the following locations:
+
+    \list
+        \li On Linux: \c {~/.config/simple_mcp_client/}
+        \li On Windows: \c {C:\Users\<username>\AppData\Roaming\simple_mcp_client}
+    \endlist
+
+    \section1 Run \QC tools
+
+    To run \QC tools from the MCP client, start the client and connect to the
+    \QC MCP server.
+
+    To start the MCP client and view the list of \QC tools:
+
+    \list 1
+        \li Go to \uicontrol Terminal, and enter:
+            \badcode
+            python -m simple_mcp_client.main
+            \endcode
+        \li In \uicontrol {Mini MCP Client Network Hub}, enter:
+            \badcode
+            connect qtcreator
+            \endcode
+        \li To view a list of tools, enter:
+            \badcode
+            tools qtcreator
+            \endcode
+            \image {qtcreator-mcp-client-tools.webp} {\QC tools in the MCP client}
+        \li To run a tool, enter
+            \badcode
+            execute qtcreator <tool-name>
+            \endcode
+            For example:
+            \badcode
+            execute qtcreator list_sessions
+            \endcode
+    \endlist
+
+    If the SSE connection fails, make sure that the MCP client supports
+    cross-origin resource sharing (CORS). It is an HTTP-header based mechanism
+    that lets servers permit loading resources for other domains, schemes, or
+    ports.
+
+    On Windows, the firewall might block inbound connections to \c localhost.
+    Make sure that the \QC executable can accept local traffic.
+
+    If a debug session does not stop when \QC exits, you can manually stop
+    debugging in the \uicontrol Debug mode or increase the timeout by setting the
+    \c {MCP_QUIT_TIMEOUT} environment variable to 60 seconds.
+
+    \section2 Summary of tools
+
+    The following table summarizes the \QC tools that the server registers.
+    Each tool is a JSON-RPC method that has a name, human-readable title,
+    description, input and output JSON schema, and a flag indicating whether
+    the tool is read-only.
+
+    \table
+    \header
+        \li Name
+        \li Title
+        \li Description
+        \li Parameters
+        \li Result
+        \li Read-only
+    \row
+        \li \c get_build_status
+        \li Get current build status
+        \li Returns a short textual description of the current build activity.
+        \li Empty object: {}
+        \li \c {"result": "string"}
+        \li Yes
+    \row
+        \li \c open_file
+        \li Open a file in \QC
+        \li Opens the given file (URI) in the editor. The file is not saved
+            automatically.
+        \li \c path: URI string or absolute file path
+        \li \c {"success": true|false}
+        \li No
+    \row
+        \li \c file_plain_text
+        \li Read file as plain text
+        \li Returns the raw text content of a file.
+        \li \c path: URI
+        \li \c {"success":  "text": "<plain_text>"}
+        \li Yes
+    \row
+        \li \c set_file_plain_text
+        \li Write plain text to a file
+        \li Overwrites a file with the supplied text. If the file is open in the
+            editor, the change is not saved automatically.
+        \li \c path: URI
+
+            \c plainText: string
+        \li \c {"success": true|false}
+        \li No
+    \row
+        \li \c save_file
+        \li Save a file
+        \li Saves the editor document if it is modified.
+        \li \c path: URI
+        \li \c {"success": true|false}
+        \li No
+    \row
+        \li \c close_file
+        \li Close a file
+        \li Closes the document if it is open.
+        \li \c path: URI
+        \li \c {"success": true|false}
+        \li No
+    \row
+        \li \c list_projects
+        \li List all available projects
+        \li Returns an array of project display names.
+        \li Empty
+        \li \c {"projects": ["MyApp", "LibA", ...]}
+        \li Yes
+    \row
+        \li \c list_build_configs
+        \li List available build configurations
+        \li Returns an array of build-configuration names for the active project.
+        \li Empty
+        \li \c {"buildConfigs": ["Debug", "Release"]}
+        \li Yes
+    \row
+        \li \c switch_build_config
+        \li Switch to a specific build configuration
+        \li Activates the named build configuration for the current project.
+        \li \c name: configuration name as a string
+        \li \c {"success": true|false}
+        \li No
+    \row
+        \li \c list_open_files
+        \li List currently open files
+        \li Returns an array of absolute file paths.
+        \li Empty
+        \li \c {"openFiles": ["/path/to/file1.cpp", ...]}
+        \li Yes
+    \row
+        \li \c list_sessions
+        \li List available \QC sessions
+        \li Returns an array of session names.
+        \li Empty
+        \li \c {"sessions": ["default", "work", "debug"]}
+        \li Yes
+    \row
+        \li \c load_session
+        \li Load a specific session
+        \li Switches to the named session asynchronously.
+        \li \c sessionName: session name as a string
+        \li \c {"success": true|false}
+        \li No
+    \row
+        \li \c save_session
+        \li Save the current session
+        \li Saves the current session to disk.
+        \li \c Empty
+        \li \c {"success": true|false}
+        \li No
+    \row
+        \li \c list_issues
+        \li List current issues (warnings and errors)
+        \li Returns an array of issue strings from  \uicontrol Issues.
+        \li \c Empty
+        \li \c {"issues": ["error: <string>", "warning: <string>"]}
+        \li Yes
+    \row
+        \li \c quit
+        \li Quit \QC
+        \li Performs a graceful shutdown (stops debugging, saves sessions, and
+            calls QApplication::quit()).
+        \li \c Empty
+        \li \c {"success": true|false}
+        \li No
+    \row
+        \li \c get_current_project
+        \li Get the currently active project
+        \li Returns the display name of the startup project.
+        \li Empty
+        \li \c {"project": "MyApp"}
+        \li Yes
+    \row
+        \li \c get_current_build_config
+        \li Get the active build configuration
+        \li Returns the name of the currently selected build configuration.
+        \li Empty
+        \li \c {"buildConfig": "Debug"}
+        \li Yes
+    \row
+        \li \c get_current_session
+        \li Get the active session name
+        \li Returns the name of the currently loaded session.
+        \li \c Empty
+        \li \c {"session": "default"}
+        \li Yes
+    \endtable
+
+    In addition to the static tools, the plugin registers \e {dynamic tools} for
+    triggering the most common \QC actions:
+
+    \list
+        \li \c {run_project} triggers the \uicontrol Run action.
+        \li \c {build} triggers the \uicontrol Build action.
+        \li \c {clean_project} triggers the \uicontrol Clean action.
+        \li \c {debug} triggers the \uicontrol Debug action.
+    \endlist
+
+    Dynamic tools take an empty \c params object and return
+    \c {{ "success": true|false }}.
+
+    \section2 Add tools
+
+    The MCP Server extension uses \c Core::ActionManager to create tools with the
+    names shown in the table. The implementation calls QAction::trigger() on
+    the UI thread via \c McpServer::runOnGuiThread().
+
+    Therefore, you can turn any other command that is exposed through
+    \c ActionManager into an MCP tool by adding a small wrapper in
+    \c McpServer::initializeToolsForCommands().
+
+    \sa {Activate extensions}
+*/

@@ -20,6 +20,8 @@ Implements a basic
 for Qt Creator that allows opening files and projects, as well as building,
 running, and debugging, and a few other actions.
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-mcp-server.html))
+
 ### Ant
 
 Adds lightweight support for projects using the
