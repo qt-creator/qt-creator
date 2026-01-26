@@ -177,6 +177,10 @@
     To clear the output from CMake, select
     \inlineimage {icons/clean_pane_small.png} {Clear} (\uicontrol Clear).
 
+    To always clear old output when you run CMake, go to \preferences >
+    \uicontrol CMake > \uicontrol General and select
+    \uicontrol {Clear old CMake output on a new run}.
+
     You can enter a string in the \uicontrol Filter field to filter output.
     To specify filtering options, select
     \inlineimage {icons/magnifier.png} {Filter menu}.

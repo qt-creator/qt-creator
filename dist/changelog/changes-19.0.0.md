@@ -223,6 +223,7 @@ Projects
     * Removed the automatic execution of the Qt Online Installer
     * Added informative CMake output and a task with a link that starts the
       installation process on user request
+    ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-edit-cmake-config-files.html#install-missing-qt-packages))
 * Improved the performance of parsing projects
 * Improved the `QML debugging and profiling` setting for build configurations
   by not relying on `CMAKE_CXX_FLAGS_INIT`
@@ -230,6 +231,7 @@ Projects
    [QTBUG-139293](https://bugreports.qt.io/browse/QTBUG-139293))
 * Added `Preferences > CMake > General > Clear old CMake output on a new run`
   ([QTCREATORBUG-33838](https://bugreports.qt.io/browse/QTCREATORBUG-33838))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-build-settings-cmake.html#viewing-cmake-output))
 * Removed the special `CMake From Build Device` setting for kits that is no
   longer needed
 * Fixed that building a single target always built everything if
