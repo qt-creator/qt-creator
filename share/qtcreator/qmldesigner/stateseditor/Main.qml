@@ -25,6 +25,7 @@
 
 import QtQuick
 import QtQuick.Controls.Basic as Basic
+import QtQuick.Templates as T
 import StatesEditor
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
@@ -317,7 +318,7 @@ Rectangle {
         x: editButton.x - Math.max(0, editButton.x + editDialog.width - root.width)
         y: toolBar.height
         width: Math.min(300, root.width)
-        closePolicy: Popup.NoAutoClose
+        closePolicy: T.Popup.NoAutoClose
 
         onApplied: editDialog.accept()
 

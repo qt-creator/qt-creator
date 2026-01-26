@@ -24,6 +24,7 @@ NameValueDictionary::NameValueDictionary(const QStringList &env, OsType osType)
 }
 
 NameValueDictionary::NameValueDictionary(const NameValuePairs &nameValues)
+    : m_osType(HostOsInfo::hostOs())
 {
     for (const auto &nameValue : nameValues)
         set(nameValue.first, nameValue.second);

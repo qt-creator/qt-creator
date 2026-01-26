@@ -94,6 +94,10 @@ Tasks CMakeProject::projectIssues(const Kit *k) const
     if (k && mcuRE.match(projectPath.path()).hasMatch() && !k->hasFeatures({"MCU"}))
         result << BuildSystemTask(Task::Error, "Kit is not suitable for MCU projects.");
 
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
+    if (!presetItem.isNull() && !m_presetsData.havePresets)
+        result << BuildSystemTask(Task::Error, "Kit is not suitable for CMake projects that don't use presets.");
+
     result.append(m_issues);
     return result;
 }
