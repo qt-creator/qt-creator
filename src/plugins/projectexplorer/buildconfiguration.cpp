@@ -106,7 +106,6 @@ public:
 
         auto vbox = new QVBoxLayout(this);
         vbox->setContentsMargins(0, 0, 0, 0);
-        vbox->addWidget(clearBox);
         vbox->addWidget(envWidget);
     }
 };
