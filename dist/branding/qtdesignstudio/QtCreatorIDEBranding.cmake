@@ -46,6 +46,7 @@ set(DESIGNSTUDIO_PLUGINS
     QmlDesigner
     QmlDesignerAi
     QmlDesignerBase
+    QmlDesignerMcp
     QmlJSEditor
     QmlJSTools
     QmlPreview

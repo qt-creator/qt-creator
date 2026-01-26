@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "name": "Declarative Only",
+      "description": "Write only declarative QML components. Do not include any JavaScript logic, signal handlers (like onClicked), or imperative code. Just define static UI structure, properties, and bindings — no behaviors or event handling."
+    },
+    {
+      "name": "States",
+      "description": "The `states` property must ALWAYS be declared on the root object only if requested to add states. If the user requests states for a child object, define the state on the root and use the `PropertyChanges { target: <childId> ... }` pattern to apply changes to that object."
+    }
+  ]
+}
