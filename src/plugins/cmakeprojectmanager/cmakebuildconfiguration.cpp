@@ -105,6 +105,7 @@ const char CMAKE_CXX_FLAGS_DEBUG[] = "CMAKE_CXX_FLAGS_DEBUG";
 const char CMAKE_CXX_FLAGS_RELWITHDEBINFO[] = "CMAKE_CXX_FLAGS_RELWITHDEBINFO";
 const char QT_CREATOR_ENABLE_PACKAGE_MANAGER_SETUP[] = "QT_CREATOR_ENABLE_PACKAGE_MANAGER_SETUP";
 const char QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER[] = "QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER";
+const char QT_ENABLE_QML_DEBUG_FLAG[] = "Qt:QT_ENABLE_QML_DEBUG";
 const char QT_ENABLE_QML_DEBUG[] = "QT_ENABLE_QML_DEBUG";
 
 const char CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM[] = "CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM";
@@ -1614,15 +1615,21 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             // TODO deprecated since Qt Creator 15, remove later
             return QString();
         });
-    macroExpander()->registerVariable(QT_QML_DEBUG_FLAG,
-                                      Tr::tr("The CMake flag for QML debugging, if enabled"),
-                                      [this] {
-                                          if (aspect<QtSupport::QmlDebuggingAspect>()->value()
-                                              == TriState::Enabled) {
-                                              return QLatin1String(QT_QML_DEBUG_PARAM);
-                                          }
-                                          return QLatin1String();
-                                      });
+    macroExpander()->registerVariable(
+        QT_QML_DEBUG_FLAG, Tr::tr("The C++ compiler QML debugging define, if enabled"), [this] {
+            if (aspect<QtSupport::QmlDebuggingAspect>()->value() == TriState::Enabled) {
+                return QLatin1String(QT_QML_DEBUG_PARAM);
+            }
+            return QLatin1String();
+        });
+
+    macroExpander()->registerVariable(
+        QT_ENABLE_QML_DEBUG_FLAG, Tr::tr("The CMake boolean value for QML debugging: ON / OFF."), [this] {
+            if (aspect<QtSupport::QmlDebuggingAspect>()->value() == TriState::Enabled) {
+                return QLatin1String("ON");
+            }
+            return QLatin1String("OFF");
+        });
 
     setInitialBuildAndCleanSteps();
 
@@ -1724,7 +1731,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                   : TriState::Default);
 
         if (qt && qt->isQmlDebuggingSupported())
-            cmd.addArg(QLatin1String("-D%1:BOOL=ON").arg(QT_ENABLE_QML_DEBUG));
+            cmd.addArg(QLatin1String("-DQT_ENABLE_QML_DEBUG:BOOL=%{") + QT_ENABLE_QML_DEBUG_FLAG + "}");
 
         // QT_QML_GENERATE_QMLLS_INI, if enabled via the settings checkbox:
         if (isGenerateQmllsSettingsEnabled()) {
