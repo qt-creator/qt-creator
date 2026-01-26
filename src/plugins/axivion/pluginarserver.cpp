@@ -183,7 +183,8 @@ static void handleOutput(const FilePath &bauhausSuite, ArServerProcessData *data
     data->m_buffer = data->m_buffer.mid(endOfFrame + 1);
 }
 
-void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &onRunning)
+void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &onRunning,
+                         const OnServerStartFailed &onFailed)
 {
     if (s_arServerRunner->isKeyRunning(bauhausSuite)) {
         if (onRunning)
@@ -212,7 +213,6 @@ void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &on
 
         process.setEnvironment(env);
         process.setProcessMode(ProcessMode::Writer);
-        process.setStdErrLineCallback([](const QString &line) { qCInfo(log) << "E" << line; });
         QObject::connect(&process, &Process::readyReadStandardOutput, &process,
                          [bauhausSuite, data = storage.activeStorage(), process = &process] {
             handleOutput(bauhausSuite, data, process);
@@ -224,7 +224,16 @@ void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &on
                 writeMessage(process, msgToJson(++data->m_msgCounter, 0, "Command: Shutdown", {}));
         });
     };
-    const auto onDone = [bauhausSuite] { s_arServers.remove(bauhausSuite); };
+    const auto onDone = [bauhausSuite, storage, onFailed](const Process &proc) {
+        if (storage->m_state == State::Starting && proc.error() == QProcess::UnknownError) {
+            const QString error = Tr::tr("PluginArServer stopped with unknown error.").append('\n')
+                    .append(proc.cleanedStdErr());
+            writeError(error);
+            if (onFailed)
+                onFailed();
+        }
+        s_arServers.remove(bauhausSuite);
+    };
 
     const Group recipe {
         storage,

@@ -191,6 +191,10 @@ void SingleFileAnalysis::startAnalysisFor(const FilePath &filePath, const QStrin
     data.analysisCommand = analysisCmd;
 
     auto onServerRunning = [this, projectName] { onPluginArServerRunning(projectName); };
+    auto onFailed = [this, projectName, filePath] {
+        m_startedAnalyses.remove(projectName);
+        updateSfaStateFor(projectName, filePath.fileName(), Tr::tr("Failed"), 100);
+    };
     if (settings().saveOpenFiles()) {
         if (!saveModifiedFiles(projectName))
             return;
@@ -200,7 +204,7 @@ void SingleFileAnalysis::startAnalysisFor(const FilePath &filePath, const QStrin
     qCDebug(sfaLog) << "starting single file analysis for" << projectName << filePath;
     updateSfaStateFor(projectName, filePath.fileName(), Tr::tr("Preparing"), 5);
     m_startedAnalyses.insert(projectName, data);
-    startPluginArServer(bauhausSuite, onServerRunning);
+    startPluginArServer(bauhausSuite, onServerRunning, onFailed);
 }
 
 void SingleFileAnalysis::onPluginArServerRunning(const QString &projectName)
