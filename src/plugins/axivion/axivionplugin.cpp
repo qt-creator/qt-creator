@@ -5,11 +5,14 @@
 
 #include "axivionperspective.h"
 #include "axivionsettings.h"
+#include "axiviontextmarks.h"
 #include "axiviontr.h"
 #include "dashboard/dto.h"
 #include "dashboard/error.h"
 #include "localbuild.h"
+#include "singlefileanalysis.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/credentialquery.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -27,16 +30,16 @@
 #include <QtTaskTree/QAbstractTaskTreeRunner>
 
 #include <texteditor/textdocument.h>
-#include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/fileinprojectfinder.h>
+#include <utils/utilsicons.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
-#include <utils/utilsicons.h>
+#include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QInputDialog>
@@ -47,12 +50,10 @@
 #include <QNetworkCookieJar>
 #include <QNetworkReply>
 #include <QRandomGenerator>
+#include <QRegularExpression>
 #include <QUrlQuery>
 
 #include <cmath>
-#include <memory>
-
-constexpr char s_axivionTextMarkId[] = "AxivionTextMark";
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -62,21 +63,23 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
-QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind)
+QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind, LineMarkerType type)
 {
     if (!issueKind)
         return {};
 
-    static QHash<Dto::IssueKind, QIcon> prefixToIcon;
+    static QHash<QPair<Dto::IssueKind, LineMarkerType>, QIcon> prefixToIcon;
 
-    auto it = prefixToIcon.constFind(*issueKind);
+    auto it = prefixToIcon.constFind({*issueKind, type});
     if (it != prefixToIcon.constEnd())
         return *it;
 
     const QLatin1String prefix = Dto::IssueKindMeta::enumToStr(*issueKind);
+    auto themeColor = (type == LineMarkerType::Dashboard) ? Theme::PaletteButtonText
+                                                          : Theme::IconsWarningColor;
     const Icon icon({{FilePath::fromString(":/axivion/images/button-" + prefix + ".png"),
-                      Theme::PaletteButtonText}}, Icon::Tint);
-    return prefixToIcon.insert(*issueKind, icon.icon()).value();
+                      themeColor}}, Icon::Tint);
+    return prefixToIcon.insert({*issueKind, type}, icon.icon()).value();
 }
 
 static QString anyToString(const Dto::Any &any)
@@ -160,8 +163,7 @@ QString anyToSimpleString(const Dto::Any &any, const QString &type,
 
 static QString apiTokenDescription()
 {
-    const QString ua = "Axivion" + QCoreApplication::applicationName() + "Plugin/"
-                       + QCoreApplication::applicationVersion();
+    const QString ua = QString::fromUtf8(axivionUserAgent());
     QString user = Utils::qtcEnvironmentVariable("USERNAME");
     if (user.isEmpty())
         user = Utils::qtcEnvironmentVariable("USER");
@@ -265,9 +267,7 @@ public:
     void handleOpenedDocs();
     void onDocumentOpened(IDocument *doc);
     void onDocumentClosed(IDocument * doc);
-    void clearAllMarks();
-    void updateExistingMarks();
-    void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &filePath);
+    void onCurrentEditorChanged(IEditor *editor);
     void enableInlineIssues(bool enable);
     void fetchIssueInfo(DashboardMode dashboardMode, const QString &id);
     void fetchNamedFilters(DashboardMode dashboardMode);
@@ -301,42 +301,11 @@ public:
     QMappedTaskTreeRunner<IDocument *> m_docMarksRunner;
     QSingleTaskTreeRunner m_issueInfoRunner;
     QSingleTaskTreeRunner m_namedFilterRunner;
-    QHash<FilePath, QSet<TextMark *>> m_allMarks;
     bool m_inlineIssuesEnabled = true;
     DashboardMode m_dashboardMode = DashboardMode::Global;
 };
 
 static AxivionPluginPrivate *dd = nullptr;
-
-class AxivionTextMark : public TextMark
-{
-public:
-    AxivionTextMark(const FilePath &filePath, const Dto::LineMarkerDto &issue,
-                    std::optional<Theme::Color> color)
-        : TextMark(filePath, issue.startLine, {"Axivion", s_axivionTextMarkId})
-    {
-        const QString markText = issue.description;
-        const QString id = issue.kind + QString::number(issue.id.value_or(-1));
-        setToolTip(id + '\n' + markText);
-        setIcon(iconForIssue(issue.getOptionalKindEnum()));
-        if (color)
-            setColor(*color);
-        setPriority(TextMark::NormalPriority);
-        setLineAnnotation(markText);
-        setActionsProvider([id] {
-            auto action = new QAction;
-            action->setIcon(Icons::INFO.icon());
-            action->setToolTip(Tr::tr("Show Issue Properties"));
-            QObject::connect(action, &QAction::triggered,
-                             dd, [id] {
-                const bool useGlobal = currentDashboardMode() == DashboardMode::Global
-                        || !currentIssueHasValidPathMapping();
-                dd->fetchIssueInfo(useGlobal ? DashboardMode::Global : DashboardMode::Local, id);
-            });
-            return QList{action};
-        });
-    }
-};
 
 void fetchLocalDashboardInfo(const DashboardInfoHandler &handler, const QString &projectName)
 {
@@ -439,7 +408,7 @@ AxivionPluginPrivate::AxivionPluginPrivate()
             this, &AxivionPluginPrivate::handleSslErrors);
 #endif // ssl
     connect(&settings().highlightMarks, &BoolAspect::changed,
-            this, &AxivionPluginPrivate::updateExistingMarks);
+            this, []{ updateExistingMarks(); });
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             this, &AxivionPluginPrivate::onSessionLoaded);
     connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
@@ -484,10 +453,6 @@ static QUrl constructUrl(DashboardMode dashboardMode, const QString &projectName
 }
 
 static constexpr int httpStatusCodeOk = 200;
-constexpr char s_htmlContentType[] = "text/html";
-constexpr char s_plaintextContentType[] = "text/plain";
-constexpr char s_svgContentType[] = "image/svg+xml";
-constexpr char s_jsonContentType[] = "application/json";
 
 static bool isServerAccessEstablished(DashboardMode dashboardMode)
 {
@@ -503,17 +468,6 @@ static QByteArray basicAuth(const LocalDashboardAccess &localAccess)
     const QByteArray credentials = QString{localAccess.user + ':' + localAccess.password}
                                        .toUtf8().toBase64();
     return "Basic " + credentials;
-}
-
-static QByteArray contentTypeData(ContentType contentType)
-{
-    switch (contentType) {
-    case ContentType::Html:      return s_htmlContentType;
-    case ContentType::Json:      return s_jsonContentType;
-    case ContentType::PlainText: return s_plaintextContentType;
-    case ContentType::Svg:       return s_svgContentType;
-    }
-    return {};
 }
 
 QUrl resolveDashboardInfoUrl(DashboardMode dashboardMode, const QUrl &resource)
@@ -541,9 +495,7 @@ Group downloadDataRecipe(DashboardMode dashboardMode, const Storage<DownloadData
         } else {
             request.setRawHeader("Authorization", basicAuth(*dd->m_localDashboard));
         }
-        const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
-                              "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
-        request.setRawHeader("X-Axivion-User-Agent", ua);
+        request.setRawHeader("X-Axivion-User-Agent", axivionUserAgent());
         query.setRequest(request);
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
         return SetupResult::Continue;
@@ -551,14 +503,9 @@ Group downloadDataRecipe(DashboardMode dashboardMode, const Storage<DownloadData
     const auto onQueryDone = [storage](const QNetworkReplyWrapper &query, DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
-                                        .toString()
-                                        .split(';')
-                                        .constFirst()
-                                        .trimmed()
-                                        .toLower();
+        const QByteArray contentType = contentTypeFromRawHeader(reply);
         if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
-            && contentType == QString::fromUtf8(contentTypeData(storage->expectedContentType))) {
+            && contentType == contentTypeData(storage->expectedContentType)) {
             storage->outputData = reply->readAll();
             return DoneResult::Success;
         }
@@ -574,15 +521,13 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
 
     const auto onNetworkQuerySetup = [dtoStorage](QNetworkReplyWrapper &query) {
         QNetworkRequest request(dtoStorage->url);
-        request.setRawHeader("Accept", s_jsonContentType);
+        request.setRawHeader("Accept", contentTypeData(ContentType::Json));
         if (dtoStorage->credential) // Unauthorized access otherwise
             request.setRawHeader("Authorization", *dtoStorage->credential);
-        const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
-                              "Plugin/" + QCoreApplication::applicationVersion().toUtf8();
-        request.setRawHeader("X-Axivion-User-Agent", ua);
+        request.setRawHeader("X-Axivion-User-Agent", axivionUserAgent());
 
         if constexpr (std::is_same_v<DtoStorageType<DtoType>, PostDtoStorage<DtoType>>) {
-            request.setRawHeader("Content-Type", "application/json");
+            request.setRawHeader("Content-Type", s_jsonContentType);
             request.setRawHeader("AX-CSRF-Token", dtoStorage->csrfToken);
             query.setData(dtoStorage->writeData);
             query.setOperation(QNetworkAccessManager::PostOperation);
@@ -597,12 +542,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
         QNetworkReply *reply = query.reply();
         const QNetworkReply::NetworkError error = reply->error();
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
-                                        .toString()
-                                        .split(';')
-                                        .constFirst()
-                                        .trimmed()
-                                        .toLower();
+        const QByteArray contentType = contentTypeFromRawHeader(reply);
         if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
             && contentType == s_jsonContentType) {
             *storage = reply->readAll();
@@ -1019,7 +959,7 @@ Group dashboardInfoRecipe(DashboardMode dashboardMode, const DashboardInfoHandle
 Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
 {
     const auto onSetup = [dashboardMode, projectName] {
-        dd->clearAllMarks();
+        clearAllMarks(LineMarkerType::Dashboard);
         if (dashboardMode == DashboardMode::Global)
             dd->m_currentProjectInfo = {};
         else
@@ -1150,11 +1090,8 @@ void AxivionPluginPrivate::fetchIssueInfo(DashboardMode dashboardMode, const QSt
     const auto onSetup = [storage, url] { storage->inputUrl = url; };
 
     const auto onDone = [storage, projectName] {
-        QByteArray fixedHtml = storage->outputData;
-        const int idx = fixedHtml.indexOf("<div class=\"ax-issuedetails-table-container\">");
-        if (idx >= 0)
-            fixedHtml = "<html><body>" + fixedHtml.mid(idx);
-        updateIssueDetails(QString::fromUtf8(fixedHtml), projectName);
+        updateIssueDetails(QString::fromUtf8(fixIssueDetailsHtml(storage->outputData)),
+                           projectName);
     };
 
     m_issueInfoRunner.start({
@@ -1227,27 +1164,7 @@ void AxivionPluginPrivate::handleOpenedDocs()
     const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
     for (IDocument *doc : openDocuments)
         onDocumentOpened(doc);
-}
-
-void AxivionPluginPrivate::clearAllMarks()
-{
-    for (const QSet<TextMark *> &marks : std::as_const(m_allMarks))
-       qDeleteAll(marks);
-    m_allMarks.clear();
-}
-
-void AxivionPluginPrivate::updateExistingMarks() // update whether highlight marks or not
-{
-    static Theme::Color color = Theme::Color(Theme::Bookmarks_TextMarkColor); // FIXME!
-    const bool colored = settings().highlightMarks();
-
-    auto changeColor = colored ? [](TextMark *mark) { mark->setColor(color); }
-                               : [](TextMark *mark) { mark->unsetColor(); };
-
-    for (const QSet<TextMark *> &marksForFile : std::as_const(m_allMarks)) {
-        for (auto mark : marksForFile)
-            changeColor(mark);
-    }
+    onCurrentEditorChanged(EditorManager::currentEditor()); // ensure correct enabled state for SFA
 }
 
 void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
@@ -1259,7 +1176,7 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
         return;
 
     const FilePath docFilePath = doc->filePath();
-    if (m_allMarks.contains(docFilePath)) // FIXME local vs global dashboard
+    if (hasLineIssues(docFilePath, LineMarkerType::Dashboard)) // FIXME local vs global dashboard
         return;
 
     if (docFilePath.isEmpty())
@@ -1269,10 +1186,10 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     if (filePath.isEmpty())
         return;
 
-    const auto handler = [this, docFilePath](const Dto::FileViewDto &data) {
+    const auto handler = [docFilePath](const Dto::FileViewDto &data) {
         if (data.lineMarkers.empty())
             return;
-        handleIssuesForFile(data, docFilePath);
+        handleIssuesForFile(data, docFilePath, std::nullopt);
     };
 
     const bool useGlobal = m_dashboardMode == DashboardMode::Global
@@ -1289,24 +1206,25 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
         return;
 
     m_docMarksRunner.resetKey(doc);
-    qDeleteAll(m_allMarks.take(document->filePath()));
+    clearMarks(document->filePath(), LineMarkerType::SFA);
+    clearMarks(document->filePath(), LineMarkerType::Dashboard);
 }
 
-void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView,
-                                               const FilePath &filePath)
+void AxivionPluginPrivate::onCurrentEditorChanged(IEditor *editor)
 {
-    if (fileView.lineMarkers.empty())
+    QAction *action = ActionManager::command("Axivion.SingleFile")->action();
+    const IDocument *document = editor ? editor->document() : nullptr;
+    if (!m_currentProjectInfo || !document || document->filePath().isEmpty()) {
+        action->setEnabled(false);
         return;
-
-    std::optional<Theme::Color> color = std::nullopt;
-    if (settings().highlightMarks())
-        color.emplace(Theme::Color(Theme::Bookmarks_TextMarkColor)); // FIXME!
-    for (const Dto::LineMarkerDto &marker : std::as_const(fileView.lineMarkers)) {
-        // FIXME the line location can be wrong (even the whole issue could be wrong)
-        // depending on whether this line has been changed since the last axivion run and the
-        // current state of the file - some magic has to happen here
-        m_allMarks[filePath] << new AxivionTextMark(filePath, marker, color);
     }
+    const FilePath filePath = settings().mappedFilePath(document->filePath(),
+                                                        m_currentProjectInfo->name);
+    const QString suffix = filePath.suffix();
+    // for now just hard-code common, also need to check for a running local analysis / build?
+    static const QRegularExpression cSuffixes("^c(c|pp|xx)?$",
+                                              QRegularExpression::CaseInsensitiveOption);
+    action->setEnabled(cSuffixes.match(suffix).hasMatch());
 }
 
 void AxivionPluginPrivate::enableInlineIssues(bool enable)
@@ -1318,7 +1236,7 @@ void AxivionPluginPrivate::enableInlineIssues(bool enable)
     if (enable && m_dashboardServerId.isValid())
         handleOpenedDocs();
     else
-        clearAllMarks();
+        clearAllMarks(LineMarkerType::Dashboard);
 }
 
 void AxivionPluginPrivate::switchDashboardMode(DashboardMode mode, bool byLocalBuildButton)
@@ -1385,10 +1303,13 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
                 dd, &AxivionPluginPrivate::onDocumentOpened);
         connect(EditorManager::instance(), &EditorManager::documentClosed,
                 dd, &AxivionPluginPrivate::onDocumentClosed);
+        connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+                dd, &AxivionPluginPrivate::onCurrentEditorChanged);
     }
 
     ShutdownFlag aboutToShutdown() final
     {
+        shutdownAllAnalyses();
         if (shutdownAllLocalDashboards([this] { emit asynchronousShutdownFinished(); }))
             return AsynchronousShutdown;
         else
@@ -1519,10 +1440,14 @@ void updateEnvironmentForLocalBuild(Environment *env)
     if (dd->m_dashboardInfo->userName)
         env->set("AXIVION_USERNAME", *dd->m_dashboardInfo->userName);
     env->set("AXIVION_LOCAL_BUILD", "1");
-    const QString ua = QString("Axivion" + QCoreApplication::applicationName()
-                               + "Plugin/" + QCoreApplication::applicationVersion());
-    env->set("AXIVION_USER_AGENT", ua);
+    env->set("AXIVION_USER_AGENT", QString::fromUtf8(axivionUserAgent()));
     env->set("AXIVION_PROJECT_NAME", dd->m_currentProjectInfo->name);
+}
+
+NetworkAccessManager *axivionNetworkManager()
+{
+    QTC_ASSERT(dd, return nullptr);
+    return &dd->m_networkAccessManager;
 }
 
 } // Axivion::Internal

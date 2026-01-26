@@ -30,6 +30,8 @@ Editing
 
 ### Language Server Protocol
 
+### Diff Viewer
+
 ### Widget Designer
 
 ### Copilot
@@ -140,6 +142,8 @@ Platforms
 ### iOS
 
 ### Remote Linux
+
+### Development Container
 
 ### Docker
 

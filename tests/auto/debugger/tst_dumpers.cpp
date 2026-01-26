@@ -1907,6 +1907,7 @@ void tst_Dumpers::dumper()
 
     Context context(m_debuggerEngine);
     QByteArray contents;
+    QStringDecoder decoder(QStringEncoder::System);
     GdbMi actual;
     if (m_debuggerEngine == GdbEngine) {
         int posDataStart = output.indexOf("data=");
@@ -1917,7 +1918,7 @@ void tst_Dumpers::dumper()
         contents = output.mid(posDataStart);
         contents.replace("\\\"", "\"");
 
-        actual.fromStringMultiple(QString::fromLocal8Bit(contents));
+        actual.fromStringMultiple(QString::fromLocal8Bit(contents), decoder);
         context.nameSpace = actual["qtnamespace"].data();
         int runtime = actual["runtime"].data().toFloat() * 1000;
         qCDebug(lcDumpers, "CaseInner: %5d", runtime);
@@ -1945,7 +1946,7 @@ void tst_Dumpers::dumper()
         if (context.nameSpace == "::")
             context.nameSpace.clear();
         contents.replace("\\\"", "\"");
-        actual.fromStringMultiple(QString::fromLocal8Bit(contents));
+        actual.fromStringMultiple(QString::fromLocal8Bit(contents), decoder);
         int runtime = actual["runtime"].data().toFloat() * 1000;
         qCDebug(lcDumpers, "CaseInner: %5d", runtime);
         m_totalInnerTime += runtime;
@@ -1967,7 +1968,7 @@ void tst_Dumpers::dumper()
             if (localsBeginPos != -1)
                 localsBeginPos = output.indexOf(locals, localsBeginPos);
         } while (localsBeginPos != -1);
-        actual.fromString(QString::fromLocal8Bit(contents));
+        actual.fromString(QString::fromLocal8Bit(contents), decoder);
         context.nameSpace = actual["result"]["qtnamespace"].data();
         int runtime = actual["result"]["runtime"].data().toFloat() * 1000;
         qCDebug(lcDumpers, "CaseInner: %5d", runtime);

@@ -6,6 +6,7 @@ QtcPlugin {
     Depends { name: "app_version_header" }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "TextEditor" }
     Depends { name: "Utils" }
     Depends { name: "Qt"; submodules: ["network", "widgets"] }
 

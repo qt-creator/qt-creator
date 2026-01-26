@@ -425,8 +425,9 @@ void LldbEngine::continueInferior()
 
 void LldbEngine::handleResponse(const QString &response)
 {
+    QStringDecoder decoder(QStringEncoder::System); // FIXME: Can be wrong on remote
     GdbMi all;
-    all.fromStringMultiple(response);
+    all.fromStringMultiple(response, decoder);
 
     for (const GdbMi &item : all) {
         const QString name = item.name();

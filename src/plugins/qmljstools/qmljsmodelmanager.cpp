@@ -106,7 +106,12 @@ static ModelManagerInterface::ProjectInfo
 ModelManager::ModelManager()
 {
     qRegisterMetaType<QmlJSTools::SemanticInfo>("QmlJSTools::SemanticInfo");
-    CppQmlTypesLoader::defaultObjectsInitializer = [this] { loadDefaultQmlTypeDescriptions(); };
+    CppQmlTypesLoader::setDefaultObjectsInitializer(
+        [this](
+            CppQmlTypesLoader::BuiltinObjects &defaultQtObjects,
+            CppQmlTypesLoader::BuiltinObjects &defaultLibraryObjects) {
+            loadDefaultQmlTypeDescriptions(defaultQtObjects, defaultLibraryObjects);
+        });
 
     Project::setQmlCodeModelIsUsed();
 
@@ -180,11 +185,15 @@ void ModelManager::delayedInitialization()
     setDefaultVContext(qbsVContext);
 }
 
-void ModelManager::loadDefaultQmlTypeDescriptions()
+void ModelManager::loadDefaultQmlTypeDescriptions(
+    CppQmlTypesLoader::BuiltinObjects &defaultQtObjects,
+    CppQmlTypesLoader::BuiltinObjects &defaultLibraryObjects)
 {
     if (ICore::instance()) {
-        loadQmlTypeDescriptionsInternal(ICore::resourcePath().toUrlishString());
-        loadQmlTypeDescriptionsInternal(ICore::userResourcePath().toUrlishString());
+        loadQmlTypeDescriptionsInternal(
+            ICore::resourcePath().toUrlishString(), defaultQtObjects, defaultLibraryObjects);
+        loadQmlTypeDescriptionsInternal(
+            ICore::userResourcePath().toUrlishString(), defaultQtObjects, defaultLibraryObjects);
     }
 }
 

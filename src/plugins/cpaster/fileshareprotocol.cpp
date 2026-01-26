@@ -43,50 +43,45 @@ FileShareProtocol::FileShareProtocol()
                 checkConfig, &fileShareSettingsPage()})
 {}
 
-static bool parse(const QString &fileName,
-                  QString *errorMessage,
-                  QString *user = nullptr, QString *description = nullptr, QString *text = nullptr)
+struct ParseResult
+{
+    QString user;
+    QString description;
+    QString text;
+};
+
+static Result<ParseResult> parse(const QString &fileName)
 {
     unsigned elementCount = 0;
 
-    errorMessage->clear();
-    if (user)
-        user->clear();
-    if (description)
-        description->clear();
-    if (text)
-        text->clear();
-
     QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        *errorMessage = Tr::tr("Cannot open %1: %2").arg(fileName, file.errorString());
-        return false;
-    }
+    if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
+        return ResultError(Tr::tr("Cannot open %1: %2").arg(fileName, file.errorString()));
+
+    ParseResult result;
     QXmlStreamReader reader(&file);
     while (!reader.atEnd()) {
         if (reader.readNext() == QXmlStreamReader::StartElement) {
             const auto elementName = reader.name();
             // Check start element
-            if (elementCount == 0 && elementName != QLatin1String(pasterElementC)) {
-                *errorMessage = Tr::tr("%1 does not appear to be a paster file.").arg(fileName);
-                return false;
-            }
+            if (elementCount == 0 && elementName != QLatin1String(pasterElementC))
+                return ResultError(Tr::tr("%1 does not appear to be a paster file.").arg(fileName));
+
             // Parse elements
             elementCount++;
-            if (user && elementName == QLatin1String(userElementC))
-                *user = reader.readElementText();
-            else if (description && elementName == QLatin1String(descriptionElementC))
-                *description = reader.readElementText();
-            else if (text && elementName == QLatin1String(textElementC))
-                *text = reader.readElementText();
+            if (elementName == QLatin1String(userElementC))
+                result.user = reader.readElementText();
+            else if (elementName == QLatin1String(descriptionElementC))
+                result.description = reader.readElementText();
+            else if (elementName == QLatin1String(textElementC))
+                result.text = reader.readElementText();
         }
     }
     if (reader.hasError()) {
-        *errorMessage = Tr::tr("Error in %1 at %2: %3")
-                        .arg(fileName).arg(reader.lineNumber()).arg(reader.errorString());
-        return false;
+        return ResultError(Tr::tr("Error in %1 at %2: %3")
+                               .arg(fileName).arg(reader.lineNumber()).arg(reader.errorString()));
     }
-    return true;
+    return result;
 }
 
 ExecutableItem FileShareProtocol::fetchRecipe(const QString &id,
@@ -97,14 +92,13 @@ ExecutableItem FileShareProtocol::fetchRecipe(const QString &id,
         QFileInfo fi(id);
         if (fi.isRelative())
             fi = fileShareSettings().path().pathAppended(id).toFileInfo();
-        QString errorMessage;
-        QString text;
-        if (parse(fi.absoluteFilePath(), &errorMessage, nullptr, nullptr, &text)) {
+        const auto result = parse(fi.absoluteFilePath());
+        if (result) {
             if (handler)
-                handler(id, text);
+                handler(id, result->text);
             return true;
         }
-        reportError(errorMessage);
+        reportError(result.error());
         return false;
     });
 }
@@ -122,15 +116,13 @@ QtTaskTree::ExecutableItem FileShareProtocol::listRecipe(const ListHandler &hand
 {
     return QSyncTask([handler] {
         QStringList entries;
-        QString user;
-        QString description;
-        QString errorMessage;
         const QFileInfoList entryInfoList = fileShareInfoList();
         for (const QFileInfo &entry : entryInfoList) {
-            if (parse(entry.absoluteFilePath(), &errorMessage, &user, &description))
-                entries.append(entry.fileName() + u' ' + user + u' ' + description);
-            if (debug)
-                qDebug() << entry.absoluteFilePath() << errorMessage;
+            const auto result = parse(entry.absoluteFilePath());
+            if (result)
+                entries.append(entry.fileName() + u' ' + result->user + u' ' + result->description);
+            else if (debug)
+                qDebug() << entry.absoluteFilePath() << result.error();
         }
         if (handler)
             handler(entries);

@@ -109,6 +109,7 @@ FilePath ProcessParameters::effectiveCommand() const
         m_commandMissing = m_effectiveCommand.isEmpty();
         if (m_commandMissing)
             m_effectiveCommand = cmd;
+        m_commandMissing = m_effectiveCommand.isEmpty();
     }
     return m_effectiveCommand;
 }
@@ -121,6 +122,11 @@ bool ProcessParameters::commandMissing() const
 {
     effectiveCommand();
     return m_commandMissing;
+}
+
+void ProcessParameters::clearEffectiveCommand() const
+{
+    m_effectiveCommand.clear();
 }
 
 QString ProcessParameters::effectiveArguments() const

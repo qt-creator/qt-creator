@@ -1,5 +1,9 @@
 add_subdirectory(3rdparty)
 
+if(QTC_USES_INTERNAL_TASKTREE)
+  add_subdirectory(QtTaskTree)
+endif()
+
 add_subdirectory(devcontainer)
 add_subdirectory(nanotrace)
 add_subdirectory(advanceddockingsystem)
@@ -17,9 +21,6 @@ add_subdirectory(qtcreatorcdbext)
 add_subdirectory(solutions)
 add_subdirectory(tracing)
 add_subdirectory(utils)
-if(Qt6_VERSION VERSION_LESS 6.11.0)
-  add_subdirectory(QtTaskTree)
-endif()
 
 if (WITH_QMLDESIGNER)
   add_subdirectory(sqlite)

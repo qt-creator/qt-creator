@@ -304,7 +304,10 @@ public:
     RecipeAndSearchPath autoDetectDeviceToolsRecipe();
 
     void offerKitCreation();
-    bool kitCreationEnabled() const;
+
+    void requestToolDetection(const Utils::FilePaths &searchPaths);
+    void registerToolDetectionTask(quint64 token);
+    void deregisterToolDetectionTask(quint64 token);
 
     virtual Utils::Result<> supportsBuildingProject(const Utils::FilePath &projectDir) const;
 
@@ -338,6 +341,7 @@ private:
 
     int version() const;
     void setFromSdk();
+    bool kitCreationEnabled() const;
 
     const std::unique_ptr<Internal::IDevicePrivate> d;
     friend class DeviceManager;

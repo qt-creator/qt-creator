@@ -9364,6 +9364,11 @@ void TextEditorWidget::applyFontSettings()
             documentLayout->emitDocumentSizeChanged();
     }
 
+    QPalette p = palette();
+    p.setBrush(QPalette::Text, textFormat.foreground());
+    p.setBrush(QPalette::Base, textFormat.background());
+    setPalette(p);
+
     // Line numbers
     QPalette ep;
     ep.setColor(QPalette::Dark, lineNumberFormat.foreground().color());

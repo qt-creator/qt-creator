@@ -21,6 +21,7 @@ public:
     QString insertMatchingQuote(const QTextCursor &cursor, const QString &text,
                                 QChar lookAhead, bool skipChars, int *skippedChars) const override;
     int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor) override;
+    bool contextAllowsAutoInsertion(const QTextCursor &cursor, const QString &textToInsert, const QString &allowedCharacters) const;
     bool contextAllowsAutoBrackets(const QTextCursor &cursor, const QString &textToInsert) const override;
     bool contextAllowsAutoQuotes(const QTextCursor &cursor, const QString &textToInsert) const override;
     bool contextAllowsElectricCharacters(const QTextCursor &cursor) const override;

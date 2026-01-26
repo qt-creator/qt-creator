@@ -11,6 +11,7 @@
 
 namespace ProjectExplorer {
 class BuildConfiguration;
+class Kit;
 class Project;
 }
 
@@ -92,7 +93,7 @@ public:
     ClangdSettings(const Data &data) : m_data(data) {}
 
     static ClangdSettings &instance();
-    bool useClangd() const;
+    bool useClangd(const ProjectExplorer::Kit *kit) const;
     static void setUseClangd(bool use);
     static void setUseClangdAndSave(bool use);
 
@@ -103,7 +104,7 @@ public:
     static void setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
     static ClangDiagnosticConfigsModel diagnosticConfigsModel();
 
-    Utils::FilePath clangdFilePath() const;
+    Utils::FilePath clangdFilePath(const ProjectExplorer::Kit *kit) const;
     IndexingPriority indexingPriority() const { return m_data.indexingPriority; }
     Utils::FilePath projectIndexPath(const Utils::MacroExpander &expander) const;
     Utils::FilePath sessionIndexPath(const Utils::MacroExpander &expander) const;
@@ -127,7 +128,7 @@ public:
     void setData(const Data &data, bool saveAndEmitSignal = true);
     Data data() const { return m_data; }
 
-    Utils::FilePath clangdIncludePath() const;
+    Utils::FilePath clangdIncludePath(const ProjectExplorer::Kit *kit) const;
     static Utils::FilePath clangdUserConfigFilePath();
 
 #ifdef WITH_TESTS

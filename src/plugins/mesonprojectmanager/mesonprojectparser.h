@@ -76,10 +76,9 @@ signals:
      void parsingCompleted(bool success);
 
 private:
-    bool startParser();
+    void startParser();
     static ParserData *extractParserResults(const Utils::FilePath &srcDir,
                                             MesonInfoParser::Result &&parserResult);
-    void update(const QFuture<ParserData *> &data);
     ProjectExplorer::RawProjectPart buildRawPart(const Target &target,
                                                  const Target::SourceGroup &sources,
                                                  const ProjectExplorer::Toolchain *cxxToolchain,

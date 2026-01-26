@@ -135,7 +135,7 @@ void PasteSelectDialog::list()
     QTC_ASSERT((protocol->capabilities() & Capability::List), return);
 
     m_listWidget->clear();
-    if (Protocol::ensureConfiguration(protocol, this)) {
+    if (Protocol::ensureConfiguration(protocol)) {
         m_listWidget->addItem(Tr::tr("Waiting for items..."));
 
         const auto listHandler = [this](const QStringList &results) {

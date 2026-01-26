@@ -18,10 +18,8 @@ public:
     explicit McpCommands(QObject *parent = nullptr);
 
     // Core MCP commands
-    bool build();
-    QString debug();
     QString stopDebug();
-    bool openFile(const QString &path);
+
     QStringList listProjects();
     QStringList listBuildConfigs();
     bool switchToBuildConfig(const QString &name);
@@ -29,12 +27,26 @@ public:
     QString getVersion();
     QString getBuildStatus();
 
+    // document management commands
+    bool openFile(const QString &path);
+    QString getFilePlainText(const QString &path);
+    bool setFilePlainText(const QString &path, const QString &contents);
+    bool saveFile(const QString &path);
+    bool closeFile(const QString &path);
+    // TODO: find file for pattern
+    // TODO: reformat file
+    // TODO: search in File
+    // TODO: replace text in file
+    // TODO: get symbol info
+    // TODO: rename symbol
+
     // Additional useful commands
     QString getCurrentProject();
     QString getCurrentBuildConfig();
-    bool runProject();
-    bool cleanProject();
     QStringList listOpenFiles();
+    // TODO: list project dependencies
+    // TODO: add a new File to the project
+    // TODO: get repositories in project
 
     // Session management commands
     QStringList listSessions();
@@ -45,10 +57,7 @@ public:
     // Issue management commands
     QStringList listIssues();
 
-    // Method metadata management
-    QString getMethodMetadata();
-    QString setMethodMetadata(const QString &method, int timeoutSeconds);
-    int getMethodTimeout(const QString &method) const;
+    // TODO: list issues for a File
 
     // Debugging management helpers
     bool isDebuggingActive();
@@ -57,12 +66,9 @@ public:
     void performDebuggingCleanup();
     bool performDebuggingCleanupSync();
 
+    // TODO: execute command in terminal
+
 private:
-    bool hasValidProject() const;
-
-    // Method timeout storage
-    QMap<QString, int> m_methodTimeouts;
-
     // Issues management
     IssuesManager *m_issuesManager;
 };

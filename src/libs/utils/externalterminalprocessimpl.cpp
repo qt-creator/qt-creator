@@ -124,7 +124,7 @@ Result<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setu
                        return ResultError(Tr::tr("Failed to open temporary script file.")));
 
             const QString shScript = QString("cd '%1'\n%2\nclear\n'%3' %4\nrm '%5'\n")
-                                         .arg(setupData.m_workingDirectory.nativePath())
+                                         .arg(setupData.rawWorkingDirectory().nativePath())
                                          .arg(env)
                                          .arg(setupData.m_commandLine.executable().nativePath())
                                          .arg(setupData.m_commandLine.arguments())
@@ -173,7 +173,7 @@ Result<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setu
     if (detached)
         QObject::connect(process, &Process::done, process, &Process::deleteLater);
 
-    process->setWorkingDirectory(setupData.m_workingDirectory);
+    process->setWorkingDirectory(setupData.fixedWorkingDirectory());
 
     if constexpr (HostOsInfo::isWindowsHost()) {
         process->setCommand(setupData.m_commandLine);

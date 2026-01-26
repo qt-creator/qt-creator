@@ -63,11 +63,12 @@ QString resourcePath()
 void tst_Check::initTestCase()
 {
     // the resource path is wrong, have to load things manually
-    QFileInfo builtins(resourcePath() + "/qml-type-descriptions/builtins.qmltypes");
-    QStringList errors, warnings;
-    CppQmlTypesLoader::defaultQtObjects()
-        = CppQmlTypesLoader::loadQmlTypes(QFileInfoList() << builtins, &errors, &warnings);
-
+    CppQmlTypesLoader::setDefaultObjectsInitializer(
+        [](CppQmlTypesLoader::BuiltinObjects &qtObjects, CppQmlTypesLoader::BuiltinObjects &) {
+            const QFileInfo builtins(resourcePath() + "/qml-type-descriptions/builtins.qmltypes");
+            QStringList errors, warnings;
+            qtObjects = CppQmlTypesLoader::loadQmlTypes({builtins}, &errors, &warnings);
+        });
     if (!ModelManagerInterface::instance())
         new ModelManagerInterface;
     if (!ExtensionSystem::PluginManager::instance())
@@ -76,7 +77,7 @@ void tst_Check::initTestCase()
 
     PathsAndLanguages lPaths;
     const QStringList paths(QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath));
-    for (auto p: paths)
+    for (const auto &p : paths)
         lPaths.maybeInsert(Utils::FilePath::fromString(p), Dialect::Qml);
     ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), lPaths,
                                       modelManager, false);
@@ -95,7 +96,8 @@ void tst_Check::test_data()
 {
     QTest::addColumn<QString>("path");
 
-    for (QFileInfo it : QDir(TESTSRCDIR).entryInfoList(QStringList("*.qml"), QDir::Files, QDir::Name)) {
+    for (const QFileInfo &it :
+         QDir(TESTSRCDIR).entryInfoList(QStringList("*.qml"), QDir::Files, QDir::Name)) {
         QTest::newRow(it.fileName().toUtf8()) << it.filePath();
     }
 }

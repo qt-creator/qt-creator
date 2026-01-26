@@ -24,6 +24,9 @@ const Utils::Icon RESULT_PASS({
 const Utils::Icon RESULT_FAIL({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestFailTextColor}},
         Utils::Icon::Tint);
+const Utils::Icon TEXTMARK_FAIL({
+        {":/utils/images/editclear.png", Utils::Theme::OutputPanes_TestFailTextColor}},
+        Utils::Icon::Tint);
 const Utils::Icon RESULT_XFAIL({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestXFailTextColor}},
         Utils::Icon::Tint);

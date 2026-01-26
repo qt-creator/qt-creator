@@ -254,7 +254,7 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
     QString processArgs;
     const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &processArgs,
                                                      &m_setup.m_environment,
-                                                     m_setup.m_workingDirectory);
+                                                     m_setup.rawWorkingDirectory());
 
     if (osType == OsTypeWindows) {
         QString args;
@@ -300,7 +300,7 @@ static FilePath resolve(const FilePath &workingDir, const FilePath &filePath)
 
 bool DefaultImpl::ensureProgramExists(const QString &program)
 {
-    const FilePath programFilePath = resolve(m_setup.m_workingDirectory,
+    const FilePath programFilePath = resolve(m_setup.rawWorkingDirectory(),
                                              FilePath::fromString(program));
     if (programFilePath.exists() && programFilePath.isExecutableFile())
         return true;
@@ -381,12 +381,6 @@ public:
             penv = Environment::systemEnvironment().toProcessEnvironment();
         const QStringList senv = penv.toStringList();
 
-        FilePath workingDir = m_setup.m_workingDirectory;
-        if (!workingDir.isDir())
-            workingDir = workingDir.parentDir();
-        if (!workingDir.isEmpty() && !QTC_GUARD(workingDir.exists()))
-            workingDir = workingDir.withNewPath({});
-
         connect(m_ptyProcess->notifier(), &QIODevice::readyRead, this, [this] {
             if (m_setup.m_ptyData->ptyInputFlagsChangedHandler()
                 && m_inputFlags != m_ptyProcess->inputFlags()) {
@@ -423,7 +417,7 @@ public:
             executable,
             HostOsInfo::isWindowsHost() ? QStringList{m_setup.m_nativeArguments} << arguments
                                         : arguments,
-            workingDir.nativePath(),
+            m_setup.fixedWorkingDirectory().nativePath(),
             senv,
             m_setup.m_ptyData->size().width(),
             m_setup.m_ptyData->size().height());
@@ -510,7 +504,7 @@ private:
         const QProcessEnvironment penv = m_setup.m_environment.toProcessEnvironment();
         if (!penv.isEmpty())
             m_process->setProcessEnvironment(penv);
-        m_process->setWorkingDirectory(m_setup.m_workingDirectory.path());
+        m_process->setWorkingDirectory(m_setup.fixedWorkingDirectory().path());
         m_process->setStandardInputFile(m_setup.m_standardInputFile);
         m_process->setProcessChannelMode(m_setup.m_processChannelMode);
         if (m_setup.m_lowPriority)
@@ -1106,19 +1100,19 @@ void Process::setRunData(const ProcessRunData &data)
         QTC_CHECK(data.workingDirectory.isSameDevice(data.command.executable()));
     }
     d->m_setup.m_commandLine = data.command;
-    d->m_setup.m_workingDirectory = data.workingDirectory;
+    d->m_setup.setWorkingDirectory(data.workingDirectory);
     d->m_setup.m_environment = data.environment;
 }
 
 ProcessRunData Process::runData() const
 {
-    return {d->m_setup.m_commandLine, d->m_setup.m_workingDirectory, d->m_setup.m_environment};
+    return {d->m_setup.m_commandLine, d->m_setup.rawWorkingDirectory(), d->m_setup.m_environment};
 }
 
 void Process::setCommand(const CommandLine &cmdLine)
 {
-    if (!d->m_setup.m_workingDirectory.isLocal() && !cmdLine.executable().isLocal()) {
-        QTC_CHECK(d->m_setup.m_workingDirectory.isSameDevice(cmdLine.executable()));
+    if (!d->m_setup.rawWorkingDirectory().isLocal() && !cmdLine.executable().isLocal()) {
+        QTC_CHECK(d->m_setup.rawWorkingDirectory().isSameDevice(cmdLine.executable()));
     }
     d->m_setup.m_commandLine = cmdLine;
 }
@@ -1130,7 +1124,7 @@ const CommandLine &Process::commandLine() const
 
 FilePath Process::workingDirectory() const
 {
-    return d->m_setup.m_workingDirectory;
+    return d->m_setup.rawWorkingDirectory();
 }
 
 void Process::setWorkingDirectory(const FilePath &dir)
@@ -1138,7 +1132,7 @@ void Process::setWorkingDirectory(const FilePath &dir)
     if (!dir.isLocal() && !d->m_setup.m_commandLine.executable().isLocal()) {
         QTC_CHECK(dir.isSameDevice(d->m_setup.m_commandLine.executable()));
     }
-    d->m_setup.m_workingDirectory = dir;
+    d->m_setup.setWorkingDirectory(dir);
 }
 
 void Process::setUseCtrlCStub(bool enabled)
@@ -1272,9 +1266,9 @@ QString Process::toStandaloneCommandLine() const
 {
     QStringList parts;
     parts.append("/usr/bin/env");
-    if (!d->m_setup.m_workingDirectory.isEmpty()) {
+    if (!d->m_setup.rawWorkingDirectory().isEmpty()) {
         parts.append("-C");
-        parts.append(d->m_setup.m_workingDirectory.path());
+        parts.append(d->m_setup.rawWorkingDirectory().path());
     }
     parts.append("-i");
     if (d->m_setup.m_environment.hasChanges()) {

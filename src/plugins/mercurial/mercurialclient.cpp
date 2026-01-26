@@ -165,7 +165,7 @@ QString MercurialClient::shortDescriptionSync(const FilePath &workingDirectory,
     return stripLastNewline(result.cleanedStdOut());
 }
 
-// Default format: "hash (author summmary)"
+// Default format: "hash (author summary)"
 static const char defaultFormatC[] = "{node} ({author|person} {desc|firstline})";
 
 QString MercurialClient::shortDescriptionSync(const FilePath &workingDirectory,

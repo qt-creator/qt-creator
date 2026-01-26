@@ -36,6 +36,7 @@ public:
 
     using ToolHandler = std::function<QJsonObject(const QJsonObject &params)>;
     void addTool(const QJsonObject &tool, ToolHandler handler);
+    void initializeToolsForCommands();
 
 private slots:
     void handleNewConnection();

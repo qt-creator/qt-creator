@@ -362,20 +362,10 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
     connect(autoDetectButton, &QPushButton::clicked, this, [linuxDevice, autoDetectButton] {
         autoDetectButton->setEnabled(false);
         linuxDevice->tryToConnect(
-            {linuxDevice.get(),
-             [linuxDevice, autoDetectButton, createKits = linuxDevice->kitCreationEnabled()](
-                 const Result<> &res) {
+            {linuxDevice.get(), [linuxDevice, autoDetectButton](const Result<> &res) {
                  if (res) {
                      const auto recipeAndSearchPaths = linuxDevice->autoDetectDeviceToolsRecipe();
-                     emit DeviceManager::instance()->toolDetectionRequested(
-                         linuxDevice->id(), recipeAndSearchPaths.searchPaths);
-
-                     // FIXME: The receivers of the toolDetectionRequested() signal are not
-                     //        necessarily running synchronously. Find a way to run this
-                     //        when the last receiver has finished.
-                     if (createKits)
-                         KitManager::createKitsForBuildDevice(linuxDevice);
-
+                     linuxDevice->requestToolDetection(recipeAndSearchPaths.searchPaths);
                      GlobalTaskTree::start(
                          QtTaskTree::Group {
                              recipeAndSearchPaths.recipe,
@@ -831,7 +821,7 @@ void SshProcessInterfacePrivate::start()
         const CommandLine full = q->m_setup.m_commandLine;
         if (!full.isEmpty()) { // Empty is ok in case of opening a terminal.
             CommandLine inner;
-            const QString wd = q->m_setup.m_workingDirectory.path();
+            const QString wd = q->m_setup.rawWorkingDirectory().path();
             if (!wd.isEmpty())
                 inner.addCommandLineWithAnd({"cd", {wd}});
             if (!useTerminal) {
@@ -989,7 +979,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
         }
     }
 
-    const FilePath &workingDirectory = q->m_setup.m_workingDirectory;
+    const FilePath &workingDirectory = q->m_setup.rawWorkingDirectory();
     if (!workingDirectory.isEmpty()) {
         inner.addArgs({"cd", workingDirectory.path()});
         inner.addArgs("&&", CommandLine::Raw);

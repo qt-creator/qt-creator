@@ -43,6 +43,8 @@ public:
     static void addProjectSelector(QAction *action);
 
     static void activateMode(Utils::Id id);
+    static void activatePreviousMode();
+
     static void setFocusToCurrentMode();
     static Style modeStyle();
 

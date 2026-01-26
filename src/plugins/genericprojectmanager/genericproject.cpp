@@ -711,6 +711,7 @@ void setupGenericProject(QObject *guard)
     ActionBuilder removeDirAction(guard, "GenericProject.RemoveDir");
     removeDirAction.setContext(Constants::GENERICPROJECT_ID);
     removeDirAction.setText(Tr::tr("Remove Directory"));
+    removeDirAction.setCommandAttribute(Command::CA_Hide);
     removeDirAction.addToContainer(PEC::M_FOLDERCONTEXT, PEC::G_FOLDER_OTHER);
     removeDirAction.addOnTriggered([] {
         const auto folderNode = ProjectTree::currentNode()->asFolderNode();

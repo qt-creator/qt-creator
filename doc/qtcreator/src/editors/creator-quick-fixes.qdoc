@@ -3,14 +3,9 @@
 
 /*!
     \page creator-editor-quick-fixes.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-edit
-    \ingroup studio-how-to-refactor-code
 
     \title Apply quick fixes
 
@@ -19,16 +14,12 @@
     cursor in the code editor.
 
     \list 1
-    \if defined(qtcreator)
         \li To apply quick fixes:
             \list
                 \li In C++ code, right-click an operand, conditional statement,
                     string, or name.
                 \li In QML code, right-click an item ID or name.
             \endlist
-    \else
-        \li To apply quick fixes to QML code, right-click an item ID or name.
-    \endif
         \li In the context menu, go to \uicontrol {Refactoring} and then select a
             quick fix.
     \endlist
@@ -40,7 +31,6 @@
     this feature, go to \preferences > \uicontrol Environment >
     \uicontrol System and clear \uicontrol {Auto-save files after refactoring}.
 
-    \if defined(qtcreator)
     \section1 Create functions
 
     Apply quick fixes to implement member functions, insert
@@ -92,7 +82,6 @@
 
     \sa {Find symbols}, {Specify settings for quick fixes}, {Quick Fixes},
     {C++ Quick Fixes}
-    \endif
 
     \section1 Move classes to separate files
 
@@ -110,14 +99,9 @@
 
 /*!
     \page creator-reference-qml-quick-fixes.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-editors
-    \ingroup studio-code-view
 
     \title QML Quick Fixes
 
@@ -150,9 +134,7 @@
                 \image {qtcreator-move-component-into-separate-file.png} {Move Component into Separate File dialog}
 
             \li QML type name.
-                \if defined(qtdesignstudio)
                 This action is also available in the \uicontrol {2D} view.
-                \endif
         \row
             \li Split Initializer
             \li Reformats a one-line type into a multi-line type. For example,
@@ -186,10 +168,7 @@
 
     \endtable
 
-    \sa {Apply quick fixes}, {Rename symbols}
-
-    \if defined(qtcreator)
-    \sa {Exclude files from to-do lists}, {Find symbols},
-    {Specify settings for quick fixes}, {Quick Fixes}, {C++ Quick Fixes}
-    \endif
+    \sa {Apply quick fixes}, {Exclude files from to-do lists}, {Find symbols},
+    {Rename symbols}, {Specify settings for quick fixes}, {Quick Fixes},
+    {C++ Quick Fixes}
 */

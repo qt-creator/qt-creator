@@ -3,6 +3,7 @@
 
 #include "abstractprocessstep.h"
 
+#include "buildsteplist.h"
 #include "processparameters.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
@@ -161,6 +162,12 @@ GroupItem AbstractProcessStep::defaultProcessTask()
 
 bool AbstractProcessStep::setupProcess(Process &process)
 {
+    // Reset the effectiveCommand (if we are not the first step) so they its re-evaluated.
+    // This helps if a previous process has installed additional executables that
+    // might now become available.
+    if (stepList()->at(0) != this)
+        d->m_param.clearEffectiveCommand();
+
     const FilePath workingDir = d->m_param.effectiveWorkingDirectory();
     if (!workingDir.exists() && !workingDir.createDir()) {
         emit addOutput(Tr::tr("Could not create directory \"%1\"").arg(workingDir.toUserOutput()),

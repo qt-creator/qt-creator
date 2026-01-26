@@ -44,6 +44,13 @@ public:
     std::optional<bool> find = false;
 };
 
+struct Trace {
+    std::optional<QString> mode;
+    std::optional<QString> format;
+    std::optional<QStringList> source;
+    std::optional<QString> redirect;
+};
+
 class Condition {
 public:
     QString type;
@@ -177,6 +184,8 @@ public:
     std::optional<Warnings> warnings;
     std::optional<Errors> errors;
     std::optional<Debug> debug;
+    std::optional<QString> graphviz;
+    std::optional<Trace> trace;
 };
 
 class BuildPreset {

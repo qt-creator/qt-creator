@@ -550,8 +550,7 @@ QString TestTreeModel::report(bool full) const
         result.append(" > ");
 
         if (full) {
-            TestTreeSortFilterModel sortFilterModel(const_cast<TestTreeModel *>(this));
-            sortFilterModel.setDynamicSortFilter(true);
+            TestTreeSortFilterModel sortFilterModel;
             sortFilterModel.sort(0);
             tree = "\n" + sortFilterModel.report();
             rootNode->forAllChildren([&itemsPerRoot](TreeItem *) {
@@ -928,10 +927,10 @@ QMap<QString, int> TestTreeModel::boostTestSuitesAndTests() const
 
 /***************************** Sort/Filter Model **********************************/
 
-TestTreeSortFilterModel::TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent)
+TestTreeSortFilterModel::TestTreeSortFilterModel()
 {
-    setSourceModel(sourceModel);
+    setSourceModel(TestTreeModel::instance());
+    setDynamicSortFilter(true);
 }
 
 void TestTreeSortFilterModel::setSortMode(ITestTreeItem::SortMode sortMode)

@@ -28,6 +28,7 @@ using namespace Utils;
 using namespace Core::Internal;
 
 static QHash<Id, std::pair<QString, FilePath>> g_categories;
+const char IGNORE_FOR_DIRTY_HOOK[] = "qtcIgnoreForDirtyHook";
 
 namespace Core {
 namespace Internal {
@@ -67,6 +68,7 @@ public:
     QStringList m_keywords;
     std::function<AspectContainer *()> m_settingsProvider;
     bool m_recreateOnCancel = false;
+    bool m_autoApply = false;
     QPointer<IOptionsPageWidget> m_widget; // Cache.
 };
 
@@ -188,10 +190,18 @@ static bool makesDirty(QObject *watched, QEvent *event)
 
 void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
 {
-    QList<QWidget *> children = widget->findChildren<QWidget *>();
-    children.append(this);
+    if (widget->property(IGNORE_FOR_DIRTY_HOOK).toBool())
+        return;
 
-    for (QWidget *child : std::as_const(children)) {
+    QList<QWidget *> children = { widget };
+
+    while (!children.isEmpty()) {
+        QWidget *child = children.takeLast();
+        if (child->property(IGNORE_FOR_DIRTY_HOOK).toBool())
+            continue;
+
+        children += child->findChildren<QWidget *>(Qt::FindDirectChildrenOnly);
+
         if (child->metaObject() == &QWidget::staticMetaObject)
             continue;
 
@@ -255,6 +265,11 @@ bool IOptionsPageWidgetPrivate::eventFilter(QObject *watched, QEvent *event)
 void IOptionsPageWidget::gotDirty()
 {
     emit dirtyChanged(true);
+}
+
+void IOptionsPageWidget::setIgnoreForDirtyHook(QWidget *widget, bool ignore)
+{
+    widget->setProperty(IGNORE_FOR_DIRTY_HOOK, ignore);
 }
 
 /*!
@@ -390,6 +405,11 @@ bool IOptionsPage::recreateOnCancel() const
     return d->m_recreateOnCancel;
 }
 
+void IOptionsPage::setAutoApply()
+{
+    d->m_autoApply = true;
+}
+
 /*!
     Is used by the \uicontrol Options dialog search filter to match \a regexp to this options
     page. If not set,  it takes the widget and then looks for all child labels, check boxes, push
@@ -507,7 +527,8 @@ IOptionsPageWidget *IOptionsPagePrivate::createWidget()
     if (m_widgetCreator) {
         m_widget = m_widgetCreator();
         QTC_ASSERT(m_widget, return nullptr);
-        m_widget->setupDirtyHook(m_widget);
+        if (!m_autoApply)
+            m_widget->setupDirtyHook(m_widget);
         return m_widget;
     }
 

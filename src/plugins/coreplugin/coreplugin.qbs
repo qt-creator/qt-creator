@@ -156,6 +156,8 @@ QtcPlugin {
             "sessionview.h",
             "secretaspect.cpp",
             "secretaspect.h",
+            "settingsmode.cpp",
+            "settingsmode.h",
             "sidebar.cpp",
             "sidebar.h",
             "sidebarwidget.cpp",
@@ -200,7 +202,6 @@ QtcPlugin {
         name: "Dialogs"
         prefix: "dialogs/"
         files: [
-            "addtovcsdialog.cpp", "addtovcsdialog.h",
             "codecselector.cpp", "codecselector.h",
             "externaltoolconfig.cpp", "externaltoolconfig.h",
             "filepropertiesdialog.cpp", "filepropertiesdialog.h",
@@ -210,7 +211,6 @@ QtcPlugin {
             "promptoverwritedialog.cpp", "promptoverwritedialog.h",
             "readonlyfilesdialog.cpp", "readonlyfilesdialog.h",
             "saveitemsdialog.cpp", "saveitemsdialog.h",
-            "settingsdialog.cpp", "settingsdialog.h",
             "shortcutsettings.cpp", "shortcutsettings.h",
         ]
     }

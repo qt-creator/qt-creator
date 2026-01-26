@@ -13,6 +13,7 @@
 
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
+#include <utils/textcodec.h>
 
 #include <cstdio>
 
@@ -31,8 +32,8 @@ static uchar fromhex(uchar c)
 
 // DebuggerOutputParser
 
-DebuggerOutputParser::DebuggerOutputParser(const QString &output)
-    : from(output.begin()), to(output.end())
+DebuggerOutputParser::DebuggerOutputParser(const QString &output, QStringDecoder &decoder)
+    : from(output.begin()), to(output.end()), decoder(decoder)
 {
 }
 
@@ -206,7 +207,7 @@ QString DebuggerOutputParser::readCString()
 {
     Buffer buffer;
     readCStringData(buffer);
-    return QString::fromUtf8(buffer);
+    return decoder.decode(buffer);
 }
 
 void GdbMi::parseValue(DebuggerOutputParser &parser)
@@ -379,15 +380,15 @@ QString GdbMi::toString(bool multiline, int indent) const
     return result;
 }
 
-void GdbMi::fromString(const QString &ba)
+void GdbMi::fromString(const QString &ba, QStringDecoder &decoder)
 {
-    DebuggerOutputParser parser(ba);
+    DebuggerOutputParser parser(ba, decoder);
     parseResultOrValue(parser);
 }
 
-void GdbMi::fromStringMultiple(const QString &ba)
+void GdbMi::fromStringMultiple(const QString &ba, QStringDecoder &decoder)
 {
-    DebuggerOutputParser parser(ba);
+    DebuggerOutputParser parser(ba, decoder);
     parseTuple_helper(parser);
 }
 

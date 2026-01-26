@@ -241,8 +241,10 @@ HelpPluginPrivate::HelpPluginPrivate()
     reportBug.setText(Tr::tr("Report Bug..."));
     reportBug.addToContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_SUPPORT);
     reportBug.addOnTriggered(this, [isDesigner] {
-        const QUrl bugreportUrl = isDesigner ? QString("https://bugreports.qt.io/secure/CreateIssue.jspa?pid=11740") //QDS
-                                             : QString("https://bugreports.qt.io/secure/CreateIssue.jspa?pid=10512"); //QtC
+        const QUrl bugreportUrl = isDesigner ? QString("%1/secure/CreateIssue.jspa?pid=10222")
+                                                   .arg(Core::Constants::QT_JIRA_URL) //QDS
+                                             : QString("%1/secure/CreateIssue.jspa?pid=10234")
+                                                   .arg(Core::Constants::QT_JIRA_URL); //QtC
         QDesktopServices::openUrl(bugreportUrl);
     });
 

@@ -3,34 +3,19 @@
 
 /*!
     \page creator-file-system-view.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-projects-view.html
-    \nextpage creator-open-documents-view.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-sidebar-views
-    \ingroup qtquickdesigner-views
 
     \title File System
 
-    \if defined(qtdesignstudio)
-    \summary {View all the files in the current directory.}
-    \else
     \summary {Shows all the files in the current directory.}
-    \endif
-
-    \if defined(qtcreator)
     \note Usually, \l{Navigate with locator}{searching with the locator}
     is the fastest way to find a particular project, file, class, or function,
     or almost anything else in your project. Use the \e {file system (f)} filter
     to open files from anywhere in the file system.
 
     \image {qtcreator-filesystem-view.webp} {File System view in the sidebar}
-    \else
-    \image {filesystem-view-design.webp} {File System view.}
-    \endif
 
     To go to the root directory of the file system, select \uicontrol Computer
     in the menu (1). Select \uicontrol Home to go to the user's home
@@ -38,6 +23,9 @@
     or \uicontrol Projects to go to the directory specified in
     \uicontrol {Projects directory} in \preferences >
     \uicontrol {Build & Run} > \uicontrol General.
+
+    To view files on a connected device, such as a Remote Linux or Android
+    device, select the device in the menu.
 
     The file that is currently active in the editor determines which folder
     to display in the \uicontrol {File System} view:
@@ -57,7 +45,6 @@
     The view displays the path to the active file as bread crumbs. You can move
     to any directory along the path by clicking it.
 
-    \if defined(qtcreator)
     \section1 File System Context Menu
 
     Use the context menu functions to:
@@ -111,5 +98,4 @@
     (\uicontrol {Synchronize with Editor}).
 
     \sa {View CMake project contents}, {Projects}
-    \endif
 */

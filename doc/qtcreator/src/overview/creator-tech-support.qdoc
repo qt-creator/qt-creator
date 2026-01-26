@@ -9,13 +9,7 @@
 
 /*!
     \page technical-support.html
-    \if defined(qtdesignstudio)
-    \previouspage studio-platforms.html
-    \nextpage creator-acknowledgements.html
-    \else
     \previouspage creator-reference.html
-
-    \endif
 
     \ingroup creator-reference
 
@@ -36,7 +30,6 @@
             \li View examples of what you can do with Qt Quick
             \li \l{Qt Quick Examples and Tutorials}
 
-        \if defined(qtcreator)
         \row
             \li View examples of what you can do with Qt
             \li \l{Qt Examples And Tutorials}
@@ -49,22 +42,19 @@
             \li Participate in Qt development
             \li \l{https://wiki.qt.io/Qt_Contribution_Guidelines}
                 {Qt Contribution Guidelines}
-        \endif
 
        \row
             \li Find extensions for Qt, such as \QC plugins, development tools,
                 and Qt modules
             \li \l{https://marketplace.qt.io/}{Qt Marketplace}
 
-        \if defined(qtcreator)
         \row
             \li Find free Qt-based applications
             \li \l{https://github.com/topics/qt}{Qt Apps on GitHub}
-        \else
+
         \row
             \li Find free QML and Qt Quick applications
             \li \l{https://github.com/topics/qml}{QML Apps on GitHub}
-        \endif
 
         \row
             \li Develop with a commercial Qt license and support -

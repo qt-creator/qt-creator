@@ -10,6 +10,7 @@
 #include "sshparameters.h"
 
 #include "../kit.h"
+#include "../kitmanager.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
@@ -151,7 +152,7 @@ public:
 
         autoDetectInQtInstallation.setSettingsKey("AutoDetectInQtInstallation");
         autoDetectInQtInstallation.setDefaultValue(true);
-        autoDetectInQtInstallation.setLabelText(Tr::tr("Search in Qt Installation"));
+        autoDetectInQtInstallation.setLabelText(Tr::tr("Search in Qt installation"));
         autoDetectInQtInstallation.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
         autoDetectQtInstallation.setSettingsKey("AutoDetectQtInstallation");
@@ -162,7 +163,7 @@ public:
 
         autoDetectInDirectories.setSettingsKey("AutoDetectInDirectories");
         autoDetectInDirectories.setDefaultValue(false);
-        autoDetectInDirectories.setLabelText(Tr::tr("Search in Directories"));
+        autoDetectInDirectories.setLabelText(Tr::tr("Search in directories"));
         autoDetectInDirectories.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
         autoDetectDirectories.setSettingsKey("AutoDetectDirectories");
@@ -175,7 +176,7 @@ public:
 
         autoCreateKits.setSettingsKey("AutoCreateKits");
         autoCreateKits.setDefaultValue(true);
-        autoCreateKits.setLabelText(Tr::tr("Create Kits"));
+        autoCreateKits.setLabelText(Tr::tr("Create kits"));
         autoCreateKits.setToolTip(Tr::tr("Set up kits for this device's toolchains."));
         autoCreateKits.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
         autoCreateKits.setVisible(false);
@@ -211,6 +212,9 @@ public:
     SshParametersAspectContainer sshParametersAspectContainer;
 
     QHash<Id, DeviceToolAspect *> deviceToolAspects;
+
+    quint64 toolDetectionToken = 0;
+    int toolDetectionTaskCount = 0;
 
     bool isTesting = false;
 
@@ -313,6 +317,29 @@ void IDevice::offerKitCreation()
 bool IDevice::kitCreationEnabled() const
 {
     return d->autoCreateKits.isVisible() && d->autoCreateKits.volatileValue();
+}
+
+void IDevice::registerToolDetectionTask(quint64 token)
+{
+    if (token && token == d->toolDetectionToken)
+        ++d->toolDetectionTaskCount;
+}
+
+void IDevice::deregisterToolDetectionTask(quint64 token)
+{
+    if (token && token == d->toolDetectionToken) {
+        if (--d->toolDetectionTaskCount == 0)
+            KitManager::createKitsForBuildDevice(shared_from_this());
+    }
+}
+
+void IDevice::requestToolDetection(const FilePaths &searchPaths)
+{
+    const quint64 token = kitCreationEnabled() ? ++d->toolDetectionToken : 0;
+    d->toolDetectionTaskCount = 0;
+    registerToolDetectionTask(token);
+    emit DeviceManager::instance()->toolDetectionRequested(id(), searchPaths, token);
+    deregisterToolDetectionTask(token);
 }
 
 FilePaths IDevice::toolSearchPaths() const

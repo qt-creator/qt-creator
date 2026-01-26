@@ -122,7 +122,7 @@ public:
         displayAnnotations = new QGroupBox(Tr::tr("Line Annotations")),
         displayAnnotations->setCheckable(true);
 
-        enableMinimap = new QCheckBox(Tr::tr("Enable Minimap"));
+        enableMinimap = new QCheckBox(Tr::tr("Enable minimap"));
 
         using namespace Layouting;
 
@@ -173,17 +173,11 @@ public:
                         displayFileEncoding,
                         displayFileLineEnding,
                         displayTabSettings,
-                        st
+                        enableMinimap,
                     }
                 }
             },
             displayAnnotations,
-            Group {
-                title(Tr::tr("Minimap")),
-                Column {
-                    enableMinimap,
-                }
-            },
 
             st
         }.attachTo(this);

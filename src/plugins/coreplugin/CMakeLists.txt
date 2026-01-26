@@ -38,8 +38,6 @@ add_qtc_plugin(Core
     customlanguagemodels.h
     designmode.cpp
     designmode.h
-    dialogs/addtovcsdialog.cpp
-    dialogs/addtovcsdialog.h
     dialogs/codecselector.cpp
     dialogs/codecselector.h
     dialogs/externaltoolconfig.cpp
@@ -58,8 +56,6 @@ add_qtc_plugin(Core
     dialogs/readonlyfilesdialog.h
     dialogs/saveitemsdialog.cpp
     dialogs/saveitemsdialog.h
-    dialogs/settingsdialog.cpp
-    dialogs/settingsdialog.h
     dialogs/shortcutsettings.cpp
     dialogs/shortcutsettings.h
     diffservice.cpp
@@ -270,6 +266,8 @@ add_qtc_plugin(Core
     sessionmodel.h
     sessionview.cpp
     sessionview.h
+    settingsmode.cpp
+    settingsmode.h
     sidebar.cpp
     sidebar.h
     sidebarwidget.cpp

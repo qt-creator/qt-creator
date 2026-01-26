@@ -107,7 +107,6 @@ public:
 private:
     void readInformation() const;
 
-    void runCMake(Utils::Process &proc, const QStringList &args, int timeoutS = 5) const;
     QStringList parseSyntaxHighlightingXml();
 
     void fetchFromCapabilities() const;

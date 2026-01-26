@@ -18,6 +18,7 @@
 #include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/session.h>
 
@@ -59,6 +60,31 @@ static void configureEditors(const Project *project)
             for (IEditor *editor : editors)
                 project->editorConfiguration()->configureEditor(editor);
         }
+    }
+}
+
+void CustomProjectSettingsHandler::load(Project &project) const
+{
+    QTC_ASSERT(m_loader, return);
+    const FilePath candidate
+        = project.projectDirectory().pathAppended(".qtcreator").pathAppended(m_fileName);
+    if (!candidate.exists())
+        return;
+    const auto result = m_loader(candidate);
+    if (!result) {
+        MessageManager::writeFlashing(
+            Tr::tr("Failed to load settings from \"%1\": %2")
+                .arg(candidate.toUserOutput(), result.error()));
+        return;
+    }
+    project.setExtraData(m_key, *result);
+}
+
+void CustomProjectSettingsHandler::unload(const Project &project) const
+{
+    if (const QVariant data = project.extraData(m_key); data.isValid()) {
+        QTC_ASSERT(m_unloader, return);
+        m_unloader(data);
     }
 }
 
@@ -600,6 +626,7 @@ void ProjectManager::removeProjects(const QList<Project *> &remove)
         FolderNavigationWidgetFactory::removeRootDirectory(projectFolderId(pro));
         disconnect(pro, nullptr, m_instance, nullptr);
         emit m_instance->projectRemoved(pro);
+        unloadCustomProjectSettings(*pro);
     }
 
     if (changeStartupProject)

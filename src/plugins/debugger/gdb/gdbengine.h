@@ -93,6 +93,7 @@ private: ////////// General Interface //////////
     void readDebuggeeOutput(const QByteArray &ba);
 
     QStringDecoder m_inferiorOutputDecoder{Utils::TextEncoding::encodingForLocale().name()};
+    QStringDecoder m_gdbOutputDecoder{Utils::TextEncoding::encodingForLocale().name()};
 
     QString m_inbuffer;
     bool m_busy = false;

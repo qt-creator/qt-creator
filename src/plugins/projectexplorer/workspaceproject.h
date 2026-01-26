@@ -5,10 +5,18 @@
 
 #include "project.h"
 
+#include "treescanner.h"
+
+#include <utils/filepath.h>
+#include <utils/filesystemwatcher.h>
 #include <utils/store.h>
 
 #include <QJsonObject>
 #include <qglobal.h>
+
+namespace Core {
+class IVersionControl;
+}
 
 namespace ProjectExplorer {
 
@@ -23,10 +31,25 @@ public:
 
     void excludeNode(Node *node);
 
+    void setFilters(const QList<QRegularExpression> &filters) { m_filters = filters; }
+    const QList<QRegularExpression> &filters() const { return m_filters; }
+    void scan(const Utils::FilePath &path);
+
 private:
     void updateBuildConfigurations();
     void saveProjectDefinition(const QJsonObject &json);
     void excludePath(const Utils::FilePath &path);
+    bool isFiltered(
+        const Utils::FilePath &path, QList<Core::IVersionControl *> versionControls) const;
+    void handleDirectoryChanged(const Utils::FilePath &directory);
+    void setupScanner();
+    void scanNext();
+
+private:
+    Utils::FilePaths m_scanQueue;
+    TreeScanner m_scanner;
+    QList<QRegularExpression> m_filters;
+    std::unique_ptr<Utils::FileSystemWatcher> m_watcher;
 };
 
 void setupWorkspaceProject(QObject *guard);

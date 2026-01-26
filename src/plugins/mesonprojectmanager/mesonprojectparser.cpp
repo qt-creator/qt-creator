@@ -317,12 +317,12 @@ bool MesonProjectParser::parse(const FilePath &sourcePath, const FilePath &build
     m_buildDir = buildPath.canonicalPath();
     m_outputParser.setSourceDirectory(m_srcDir);
     m_outputParser.setBuildDirectory(m_buildDir);
-    if (!isSetup(m_buildDir)) {
+    if (!isSetup(m_buildDir))
         return parse(m_srcDir);
-    } else {
-        m_introType = IntroDataType::file;
-        return startParser();
-    }
+
+    m_introType = IntroDataType::file;
+    startParser();
+    return true;
 }
 
 bool MesonProjectParser::parse(const FilePath &sourcePath)
@@ -353,7 +353,23 @@ QList<BuildTargetInfo> MesonProjectParser::appsTargets() const
     return apps;
 }
 
-bool MesonProjectParser::startParser()
+static void addMissingTargets(QStringList &targetList)
+{
+    // Not all targets are listed in introspection data
+    static const QString additionalTargets[]{
+                                             Constants::Targets::all,
+                                             Constants::Targets::tests,
+                                             Constants::Targets::benchmark,
+                                             Constants::Targets::clean,
+                                             Constants::Targets::install};
+
+    for (const QString &target : additionalTargets) {
+        if (!targetList.contains(target))
+            targetList.append(target);
+    }
+}
+
+void MesonProjectParser::startParser()
 {
     m_parserFutureResult = Utils::asyncRun(
         ProjectExplorerPlugin::sharedThreadPool(),
@@ -363,8 +379,19 @@ bool MesonProjectParser::startParser()
             else
                 return extractParserResults(srcDir, MesonInfoParser::parse(processOutput));
         });
-    Utils::onFinished(m_parserFutureResult, this, &MesonProjectParser::update);
-    return true;
+    Utils::onFinished(m_parserFutureResult, this,
+                      [this](const QFuture<MesonProjectParser::ParserData *> &data) {
+        auto parserData = data.result();
+        m_parserResult = std::move(parserData->data);
+        m_rootNode = std::move(parserData->rootNode);
+        m_targetsNames.clear();
+        for (const Target &target : m_parserResult.targets)
+            m_targetsNames.push_back(Target::unique_name(target, m_srcDir));
+        addMissingTargets(m_targetsNames);
+        m_targetsNames.sort();
+        delete parserData;
+        emit parsingCompleted(true);
+    });
 }
 
 MesonProjectParser::ParserData *MesonProjectParser::extractParserResults(
@@ -372,37 +399,6 @@ MesonProjectParser::ParserData *MesonProjectParser::extractParserResults(
 {
     auto rootNode = buildTree(srcDir, parserResult.targets, parserResult.buildSystemFiles);
     return new ParserData{std::move(parserResult), std::move(rootNode)};
-}
-
-static void addMissingTargets(QStringList &targetList)
-{
-    // Not all targets are listed in introspection data
-    static const QString additionalTargets[]{
-        Constants::Targets::all,
-        Constants::Targets::tests,
-        Constants::Targets::benchmark,
-        Constants::Targets::clean,
-        Constants::Targets::install};
-
-    for (const QString &target : additionalTargets) {
-        if (!targetList.contains(target))
-            targetList.append(target);
-    }
-}
-
-void MesonProjectParser::update(const QFuture<MesonProjectParser::ParserData *> &data)
-{
-    auto parserData = data.result();
-    m_parserResult = std::move(parserData->data);
-    m_rootNode = std::move(parserData->rootNode);
-    m_targetsNames.clear();
-    for (const Target &target : m_parserResult.targets) {
-        m_targetsNames.push_back(Target::unique_name(target, m_srcDir));
-    }
-    addMissingTargets(m_targetsNames);
-    m_targetsNames.sort();
-    delete parserData;
-    emit parsingCompleted(true);
 }
 
 RawProjectPart MesonProjectParser::buildRawPart(

@@ -5,6 +5,7 @@
 
 #include "qmljstools_global.h"
 
+#include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QFuture>
@@ -39,7 +40,9 @@ private:
     void updateFromBuildConfig(ProjectExplorer::BuildConfiguration *bc,
                                const ProjectExplorer::QmlCodeModelInfo &extra);
 
-    void loadDefaultQmlTypeDescriptions();
+    void loadDefaultQmlTypeDescriptions(
+        QmlJS::CppQmlTypesLoader::BuiltinObjects &defaultQtObjects,
+        QmlJS::CppQmlTypesLoader::BuiltinObjects &defaultLibraryObjects);
     QHash<QString, QmlJS::Dialect> initLanguageForSuffix() const;
 };
 

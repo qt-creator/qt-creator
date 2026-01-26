@@ -25,10 +25,12 @@ class WorkDoneProgressEnd;
 
 namespace LanguageClient {
 
+class Client;
+
 class LANGUAGECLIENT_EXPORT ProgressManager
 {
 public:
-    ProgressManager();
+    ProgressManager(Client *client);
     ~ProgressManager();
     void handleProgress(const LanguageServerProtocol::ProgressParams &params);
     void setTitleForToken(const LanguageServerProtocol::ProgressToken &token,
@@ -51,6 +53,7 @@ private:
     void endProgress(const LanguageServerProtocol::ProgressToken &token,
                      const LanguageServerProtocol::WorkDoneProgressEnd &end);
     void spawnProgressBar(const LanguageServerProtocol::ProgressToken &token);
+    void cancelProgress(const LanguageServerProtocol::ProgressToken &token);
 
     struct ProgressItem
     {
@@ -60,12 +63,15 @@ private:
         QTimer *showBarTimer = nullptr;
         QString message;
         QString title;
+        bool cancelable = false;
     };
 
     QMap<LanguageServerProtocol::ProgressToken, ProgressItem> m_progress;
     QMap<LanguageServerProtocol::ProgressToken, QString> m_titles;
     QMap<LanguageServerProtocol::ProgressToken, std::function<void()>> m_clickHandlers;
     QMap<LanguageServerProtocol::ProgressToken, std::function<void()>> m_cancelHandlers;
+
+    Client *m_client = nullptr;
 };
 
 } // namespace LanguageClient

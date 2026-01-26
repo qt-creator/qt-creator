@@ -863,9 +863,7 @@ void EditorView::handleUpdateFileState(const Utils::FilePath &repository, const 
 
     for (int i = 0; i < m_tabBar->count(); ++i) {
         const auto data = m_tabBar->tabData(i).value<EditorView::TabData>();
-        QTC_ASSERT(data.editor, continue);
-        IDocument *document = data.editor->document();
-        QTC_ASSERT(document, continue);
+        IDocument *document = data.entry->document;
         const Utils::FilePath fullEditorPath = document->filePath();
 
         if (fullPaths.contains(fullEditorPath))
@@ -877,9 +875,7 @@ void EditorView::handleClearFileState(const Utils::FilePath &repository)
 {
     for (int i = 0; i < m_tabBar->count(); ++i) {
         const auto data = m_tabBar->tabData(i).value<EditorView::TabData>();
-        QTC_ASSERT(data.editor, continue);
-        IDocument *document = data.editor->document();
-        QTC_ASSERT(document, continue);
+        IDocument *document = data.entry->document;
         const Utils::FilePath fullEditorPath = document->filePath();
 
         if (fullEditorPath.isChildOf(repository))

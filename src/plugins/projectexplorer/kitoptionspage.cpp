@@ -510,7 +510,7 @@ public:
     QPushButton *m_defaultFilterButton = nullptr;
 
     KitModel *m_model = nullptr;
-    KitSettingsSortModel *m_sortModel = nullptr;
+    KitSettingsSortModel m_sortModel;
     QItemSelectionModel *m_selectionModel = nullptr;
     KitManagerConfigWidget *m_currentWidget = nullptr;
 };
@@ -555,11 +555,11 @@ KitOptionsPageWidget::KitOptionsPageWidget()
             this, &KitOptionsPageWidget::updateState);
     verticalLayout->setStretch(0, 1);
     verticalLayout->setStretch(1, 0);
-    m_sortModel = new KitSettingsSortModel(this);
-    m_sortModel->setSortedCategories({Constants::msgAutoDetected(), Constants::msgManual()});
-    m_sortModel->setSourceModel(m_model);
 
-    m_kitsView->setModel(m_sortModel);
+    m_sortModel.setSortedCategories({Constants::msgAutoDetected(), Constants::msgManual()});
+    m_sortModel.setSourceModel(m_model);
+
+    m_kitsView->setModel(&m_sortModel);
     m_kitsView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     m_kitsView->expandAll();
     m_kitsView->setSortingEnabled(true);
@@ -607,7 +607,7 @@ KitOptionsPageWidget::KitOptionsPageWidget()
 
 void KitOptionsPageWidget::scrollToSelectedKit()
 {
-    QModelIndex index = m_sortModel->mapFromSource(
+    QModelIndex index = m_sortModel.mapFromSource(
         m_model->indexOf(Core::preselectedOptionsPageItem(Constants::KITS_SETTINGS_PAGE_ID)));
     m_selectionModel->select(index,
                              QItemSelectionModel::Clear
@@ -619,7 +619,7 @@ void KitOptionsPageWidget::scrollToSelectedKit()
 void KitOptionsPageWidget::kitSelectionChanged()
 {
     QModelIndex current = currentIndex();
-    KitManagerConfigWidget * const newWidget = m_model->widget(m_sortModel->mapToSource(current));
+    KitManagerConfigWidget * const newWidget = m_model->widget(m_sortModel.mapToSource(current));
     if (newWidget == m_currentWidget)
         return;
 
@@ -640,7 +640,7 @@ void KitOptionsPageWidget::addNewKit()
 {
     Kit *k = m_model->markForAddition(nullptr);
 
-    QModelIndex newIdx = m_sortModel->mapFromSource(m_model->indexOf(k));
+    QModelIndex newIdx = m_sortModel.mapFromSource(m_model->indexOf(k));
     m_selectionModel->select(newIdx,
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
@@ -652,7 +652,7 @@ void KitOptionsPageWidget::addNewKit()
 
 Kit *KitOptionsPageWidget::currentKit() const
 {
-    return m_model->kit(m_sortModel->mapToSource(currentIndex()));
+    return m_model->kit(m_sortModel.mapToSource(currentIndex()));
 }
 
 void KitOptionsPageWidget::cloneKit()
@@ -662,7 +662,7 @@ void KitOptionsPageWidget::cloneKit()
         return;
 
     Kit *k = m_model->markForAddition(current);
-    QModelIndex newIdx = m_sortModel->mapFromSource(m_model->indexOf(k));
+    QModelIndex newIdx = m_sortModel.mapFromSource(m_model->indexOf(k));
     m_kitsView->scrollTo(newIdx);
     m_selectionModel->select(newIdx,
                              QItemSelectionModel::Clear
@@ -681,7 +681,7 @@ void KitOptionsPageWidget::removeKit()
 
 void KitOptionsPageWidget::makeDefaultKit()
 {
-    m_model->setDefaultKit(m_sortModel->mapToSource(currentIndex()));
+    m_model->setDefaultKit(m_sortModel.mapToSource(currentIndex()));
     updateState();
 }
 

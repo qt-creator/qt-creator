@@ -173,26 +173,6 @@ void setupClangdConfigFile()
     }
 }
 
-static std::optional<Utils::FilePath> clangdExecutableFromBuildDevice(Kit *kit)
-{
-    if (!kit)
-        return std::nullopt;
-
-    // Desktop has dedicated settings.
-    if (BuildDeviceTypeKitAspect::deviceTypeId(kit)
-        == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        return std::nullopt;
-    }
-
-    if (const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit)) {
-        FilePath clangd = buildDevice->deviceToolPath(CppEditor::Constants::CLANGD_TOOL_ID);
-        if (!clangd.isEmpty())
-            return clangd;
-    }
-
-    return std::nullopt;
-}
-
 static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils::FilePath &jsonDbDir)
 {
     using CppEditor::ClangdSettings;
@@ -206,8 +186,7 @@ static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils:
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
     const QString limitResults = QString("--limit-results=%1").arg(settings.completionResults());
-    const Utils::FilePath clangdExePath = clangdExecutableFromBuildDevice(bc ? bc->kit() : nullptr).value_or(
-        settings.clangdFilePath());
+    const Utils::FilePath clangdExePath = settings.clangdFilePath(bc ? bc->kit() : nullptr);
     Utils::CommandLine cmd{clangdExePath,
                            {indexingOption,
                             headerInsertionOption,
@@ -331,7 +310,7 @@ class ClangdClient::Private
 {
 public:
     Private(ClangdClient *q, BuildConfiguration *bc)
-        : q(q), settings(CppEditor::ClangdProjectSettings(bc).settings())
+        : q(q), buildConfig(bc), settings(CppEditor::ClangdProjectSettings(bc).settings())
     {}
 
     void findUsages(TextDocument *document, const QTextCursor &cursor,
@@ -356,7 +335,10 @@ public:
     MessageId getAndHandleAst(const TextDocOrFile &doc, const AstHandler &astHandler,
                               AstCallbackMode callbackMode, const Range &range = {});
 
+    Kit * kit() const { return buildConfig ? buildConfig->kit() : nullptr; }
+
     ClangdClient * const q;
+    const QPointer<BuildConfiguration> buildConfig;
     const CppEditor::ClangdSettings::Data settings;
     QList<ClangdFollowSymbol *> followSymbolOps;
     ClangdSwitchDeclDef *switchDeclDef = nullptr;
@@ -422,7 +404,7 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
     if (!bc) {
         QJsonObject initOptions;
         const Utils::FilePath includeDir
-                = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
+                = CppEditor::ClangdSettings(d->settings).clangdIncludePath(nullptr);
         CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                     *CppEditor::CppModelManager::fallbackProjectPart(),
                     warningsConfigForProject(nullptr), includeDir, {});
@@ -501,14 +483,14 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
     });
 
     connect(this, &Client::workDone, this,
-            [this, bc = QPointer(bc)](const ProgressToken &token) {
+            [this](const ProgressToken &token) {
         const QString * const val = std::get_if<QString>(&token);
         if (val && *val == indexingToken()) {
             d->isFullyIndexed = true;
             emit indexingFinished();
 #ifdef WITH_TESTS
-            if (bc)
-                emit bc->project()->indexingFinished("Indexer.Clangd");
+            if (d->buildConfig)
+                emit d->buildConfig->project()->indexingFinished("Indexer.Clangd");
 #endif
         }
     });
@@ -940,7 +922,8 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     cachedConfig.value() = fullConfig;
 
     QJsonObject cdbChanges;
-    const Utils::FilePath includeDir = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
+    const Utils::FilePath includeDir = CppEditor::ClangdSettings(d->settings)
+                                           .clangdIncludePath(d->kit());
     CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                 *projectPart, warningsConfigForProject(project()), includeDir,
                 ProjectExplorer::Macro::toMacros(config.editorDefines()));

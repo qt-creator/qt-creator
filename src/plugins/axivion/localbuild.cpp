@@ -8,9 +8,6 @@
 #include "axivionsettings.h"
 #include "axiviontr.h"
 
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/idocument.h>
-
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtTaskTree/QAbstractTaskTreeRunner>
@@ -41,8 +38,6 @@
 #include <QSqlResult>
 #include <QTimer>
 #include <QVBoxLayout>
-
-#include <unordered_map>
 
 using namespace QtTaskTree;
 using namespace Utils;
@@ -332,14 +327,12 @@ void startLocalDashboard(const QString &projectName,
     if ((failed = !query.exec()))
         return;
 
-    const QString userAgent("Axivion" + QCoreApplication::applicationName() +
-                            "Plugin/" + QCoreApplication::applicationVersion());
     EnvironmentItems envItems;
     if (!settings().bauhausPython().isEmpty())
         envItems.append(EnvironmentItem("BAUHAUS_PYTHON", settings().bauhausPython().path()));
     if (!settings().javaHome().isEmpty())
         envItems.append(EnvironmentItem("JAVA_HOME", settings().javaHome().path()));
-    envItems.append(EnvironmentItem("AXIVION_USER_AGENT", userAgent));
+    envItems.append(EnvironmentItem("AXIVION_USER_AGENT", QString::fromUtf8(axivionUserAgent())));
     while (query.next()) {
         const QString name = query.value("Name").toString();
         const QString value = query.value("Value").toString();
@@ -516,24 +509,6 @@ static void setupEnvAndCommandLineFromUserInput(Environment *env, CommandLine *c
     } else {
         *cmdLine = CommandLine{file};
     }
-}
-
-static bool saveModifiedFiles(const QString &projectName)
-{
-    QList<Core::IDocument *> modifiedDocs = Core::DocumentManager::modifiedDocuments();
-    if (modifiedDocs.isEmpty())
-        return true;
-
-    // if we have a mapping, limit to docs of this project directory, otherwise save all
-    const FilePath projectBase = settings().localProjectForProjectName(projectName);
-    if (!projectBase.isEmpty()) {
-        modifiedDocs = Utils::filtered(modifiedDocs, [projectBase](Core::IDocument *doc) {
-                return doc->filePath().isChildOf(projectBase);
-        });
-    }
-    bool canceled = false;
-    bool success = Core::DocumentManager::saveModifiedDocumentsSilently(modifiedDocs, &canceled);
-    return success && !canceled;
 }
 
 bool LocalBuild::startLocalBuildFor(const QString &projectName)

@@ -107,9 +107,8 @@ private:
 
 namespace Internal {
 
-class TestTreeSortFilterModel : public QSortFilterProxyModel
+class TestTreeSortFilterModel final : public QSortFilterProxyModel
 {
-    Q_OBJECT
 public:
     enum FilterMode {
         Basic,
@@ -118,20 +117,20 @@ public:
         ShowAll            = ShowInitAndCleanup | ShowTestData
     };
 
-    explicit TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent = nullptr);
+    TestTreeSortFilterModel();
+
     void setSortMode(ITestTreeItem::SortMode sortMode);
     void toggleFilter(FilterMode filterMode);
     static FilterMode toFilterMode(int f);
 
     QString report() const;
-protected:
+
+private:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const final;
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const final;
 
-private:
     Autotest::TestTreeItem::SortMode m_sortMode = Autotest::TestTreeItem::Alphabetically;
     FilterMode m_filterMode = Basic;
-
 };
 
 } // namespace Internal

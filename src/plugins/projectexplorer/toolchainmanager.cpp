@@ -115,12 +115,11 @@ void ToolchainManager::restoreToolchains()
     emit m_instance->toolchainsLoaded();
 
     connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
-            m_instance, [](Id devId) {
-        const IDevice::ConstPtr device = DeviceManager::find(devId);
-        if (!device)
-            return;
-
-        ToolchainDetector detector(m_instance->toolchains(), device, device->toolSearchPaths());
+            m_instance, [](Id devId, const FilePaths &searchPaths, quint64 token) {
+        const IDevice::Ptr device = DeviceManager::find(devId);
+        QTC_ASSERT(device, return);
+        device->registerToolDetectionTask(token);
+        ToolchainDetector detector(m_instance->toolchains(), device, searchPaths);
         Toolchains toRegister;
         for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
             for (Toolchain * const tc : f->autoDetect(detector)) {
@@ -129,6 +128,7 @@ void ToolchainManager::restoreToolchains()
             }
         }
         registerToolchains(toRegister);
+        device->deregisterToolDetectionTask(token);
     });
 }
 

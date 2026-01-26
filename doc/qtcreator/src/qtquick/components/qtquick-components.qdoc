@@ -68,7 +68,7 @@
             a speedometer should have an \c int or \c real property for speed
             to which the UI is bound.
         \li Separate UI from the application logic. Designers should work with
-            the \l{UI files} (\c{}.ui.qml}), while developers should work on the
+            the \l{UI files} (\c{.ui.qml}), while developers should work on the
             corresponding implementation files (\c{.qml}) to define their
             programmatic behaviors or JavaScript. This enables iteration from
             both the design and development side of the process without the

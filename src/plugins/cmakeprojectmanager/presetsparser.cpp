@@ -174,6 +174,37 @@ bool parseVendor(const QJsonValue &jsonValue, std::optional<QVariantMap> &vendor
     return true;
 }
 
+static std::optional<PresetsDetails::Trace> parseTrace(const QJsonValue &jsonValue)
+{
+    if (jsonValue.isUndefined())
+        return std::nullopt;
+
+    PresetsDetails::Trace trace;
+
+    QJsonObject object = jsonValue.toObject();
+    if (object.contains("mode"))
+        trace.mode = object.value("mode").toString();
+    if (object.contains("format"))
+        trace.format = object.value("format").toString();
+
+    if (object.contains("source")) {
+        QJsonValue sourceValue = object.value("source");
+        if (sourceValue.isArray()) {
+            trace.source = QStringList();
+            const QJsonArray sourceArray = sourceValue.toArray();
+            for (const auto &sourceItem : sourceArray)
+                trace.source.value() << sourceItem.toString();
+        } else if (sourceValue.isString()) {
+            trace.source = QStringList{sourceValue.toString()};
+        }
+    }
+
+    if (object.contains("redirect"))
+        trace.redirect = object.value("redirect").toString();
+
+    return trace;
+}
+
 bool parseConfigurePresets(const QJsonValue &jsonValue,
                            QList<PresetsDetails::ConfigurePreset> &configurePresets,
                            const Utils::FilePath &fileDir)
@@ -231,6 +262,11 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
             preset.toolchainFile = object.value("toolchainFile").toString();
         if (object.contains("cmakeExecutable"))
             preset.cmakeExecutable = FilePath::fromUserInput(object.value("cmakeExecutable").toString());
+        if (object.contains("graphviz"))
+            preset.graphviz = object.value("graphviz").toString();
+
+        if (object.contains("trace"))
+            preset.trace = parseTrace(object.value("trace"));
 
         const QJsonObject cacheVariablesObj = object.value("cacheVariables").toObject();
         for (const QString &cacheKey : cacheVariablesObj.keys()) {

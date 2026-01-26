@@ -420,7 +420,10 @@ def iterateKits(clickOkWhenDone, alreadyOnOptionsDialog,
     if not alreadyOnOptionsDialog:
         invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Kits"))
+    expectDialog = hasUnsavedSettings()
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
+    if expectDialog:
+        handleUnsavedSettings(SettingsAction.Abandon)
     treeView = waitForObject(":BuildAndRun_QTreeView")
     model = treeView.model()
     test.compare(model.rowCount(), 2, "Verifying expected target section count")
@@ -653,3 +656,36 @@ def waitForClosedAll():
         test.passes("Closed all documents.")
     except:
         test.fail("Failed to close all documents.")
+
+
+def hasUnsavedSettings():
+    try:
+        apply = findObject(":Options.Apply_QPushButton")
+    except:
+        apply = None
+    if not apply:
+        test.warning("Checking for unapplied settings while not being in Preferences?")
+        return False
+    return apply.enabled
+
+
+class SettingsAction:
+    Apply = 0
+    Abandon = 1
+
+def handleUnsavedSettings(settingsAction):
+    try:
+        mBox = "{type='QMessageBox' unnamed='1' visible='1' windowTitle='Unapplied Changes'}"
+        if settingsAction == SettingsAction.Abandon:
+            text = 'Abandon Unsaved Changes'
+        elif settingsAction == SettingsAction.Apply:
+            text = 'Apply Unsaved Changes'
+        else:
+            test.fatal("Unexpected settingsAction: %s" % settingsAction)
+            return
+        button = waitForObject("{text='%s' type='QPushButton' unnamed='1' visible='1' window=%s}"
+                               % (text, mBox), 5000)
+        clickButton(button)
+        test.warning("Handled unsaved settings with a workaround.")
+    except:
+        test.fatal("Could not handle unsaved settings.")

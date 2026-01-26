@@ -272,7 +272,8 @@ void GdbEngine::handleResponse(const QString &buff)
     if (buff.isEmpty() || buff == "(gdb) ")
         return;
 
-    DebuggerOutputParser parser(buff);
+
+    DebuggerOutputParser parser(buff, m_gdbOutputDecoder);
 
     const int token = parser.readInt();
 
@@ -311,7 +312,7 @@ void GdbEngine::handleResponse(const QString &buff)
             }
             if (data.startsWith("interpreterresult={")) {
                 GdbMi allData;
-                allData.fromStringMultiple(data);
+                allData.fromStringMultiple(data, m_gdbOutputDecoder);
                 DebuggerResponse response;
                 response.resultClass = ResultDone;
                 response.data = allData["interpreterresult"];
@@ -321,7 +322,7 @@ void GdbEngine::handleResponse(const QString &buff)
             }
             if (data.startsWith("interpreterasync={")) {
                 GdbMi allData;
-                allData.fromStringMultiple(data);
+                allData.fromStringMultiple(data, m_gdbOutputDecoder);
                 QString asyncClass = allData["asyncclass"].data();
                 if (asyncClass == "breakpointmodified")
                     handleInterpreterBreakpointModified(allData["interpreterasync"]);
@@ -329,13 +330,13 @@ void GdbEngine::handleResponse(const QString &buff)
             }
             if (data.startsWith("tracepointhit={")) {
                 GdbMi allData;
-                allData.fromStringMultiple(data);
+                allData.fromStringMultiple(data, m_gdbOutputDecoder);
                 handleTracepointHit(allData["tracepointhit"]);
                 break;
             }
             if (data.startsWith("tracepointmodified=")) {
                 GdbMi allData;
-                allData.fromStringMultiple(data);
+                allData.fromStringMultiple(data, m_gdbOutputDecoder);
                 handleTracepointModified(allData["tracepointmodified"]);
                 break;
             }
@@ -441,7 +442,7 @@ void GdbEngine::handleResponse(const QString &buff)
             m_pendingConsoleStreamOutput.clear();
 
             if (response.data.data().isEmpty())
-                response.data.fromString(response.consoleStreamOutput);
+                response.data.fromString(response.consoleStreamOutput, m_gdbOutputDecoder);
 
             handleResultRecord(&response);
             break;
@@ -574,7 +575,7 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
         const int pos3 = ba.indexOf('"', pos2 + 2);
         ba.remove(pos1, pos3 - pos1 + 1);
         GdbMi res;
-        res.fromString(ba);
+        res.fromString(ba, m_gdbOutputDecoder);
         const FilePath &buildPath = runParameters().buildDirectory();
         BreakHandler *handler = breakHandler();
         Breakpoint bp;
@@ -648,7 +649,7 @@ void GdbEngine::readGdbStandardError()
 
 void GdbEngine::readDebuggeeOutput(const QByteArray &ba)
 {
-    const QString msg = m_inferiorOutputDecoder.decode(ba);
+    const QString msg = m_gdbOutputDecoder.decode(ba);
     if (msg.startsWith("&\"") && isMostlyHarmlessMessage(QStringView{msg}.mid(2, msg.size() - 4)))
         showMessage("Mostly harmless terminal warning suppressed.", LogWarning);
     else
@@ -2476,7 +2477,7 @@ void GdbEngine::handleTracepointModified(const GdbMi &data)
         ++pos3;
     ba.remove(pos1, pos3 - pos1 + 1);
     GdbMi res;
-    res.fromString(ba);
+    res.fromString(ba, m_gdbOutputDecoder);
     BreakHandler *handler = breakHandler();
     Breakpoint bp;
     for (const GdbMi &bkpt : res) {
@@ -3181,7 +3182,7 @@ void GdbEngine::handleThreadNames(const DebuggerResponse &response)
     if (response.resultClass == ResultDone) {
         ThreadsHandler *handler = threadsHandler();
         GdbMi names;
-        names.fromString(response.consoleStreamOutput);
+        names.fromString(response.consoleStreamOutput, m_gdbOutputDecoder);
         for (const GdbMi &name : names) {
             ThreadData thread;
             thread.id = name["id"].data();

@@ -97,9 +97,6 @@
     and then select \uicontrol {Go into Component} in the context menu. For
     additional ways of opening base components, see \l{Move within components}.
 
-    For an example of creating a reusable custom component, see
-    \l{Progress Bar}.
-
     Custom components are listed in \uicontrol Components
     > \uicontrol {My Components}, and you can use instances of them to build
     more components.

@@ -1832,7 +1832,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
             &s.useDebuggingHelpers, &BoolAspect::writeSettings, Qt::UniqueConnection);
     connect(dynamicTypeAction, &QAction::triggered,
             &s.useDynamicType, &BoolAspect::writeSettings, Qt::UniqueConnection);
-    connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->popup(ev.globalPos());
     return true;
 }

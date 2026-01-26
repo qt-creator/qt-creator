@@ -54,7 +54,8 @@ void MinimapOverlay::paintMinimap(QPainter *painter) const
     if (m_minimap.isNull() || !m_vScroll)
         return;
 
-    painter->fillRect(rect(), creatorColor(Theme::Token_Background_Default));
+    QColor bg = m_editor->palette().brush(QPalette::Base).color();
+    painter->fillRect(rect(), bg);
 
     const QRect geo = rect().adjusted(1, 0, 1, 0);
 
@@ -173,47 +174,49 @@ void MinimapOverlay::updateImage()
         dstLine += m_lineGap * imageWidth;
     };
 
+    QColor defaultTextColor = m_editor->palette().brush(QPalette::Text).color();
     for (QTextBlock block = m_doc->firstBlock(); block.isValid(); block = block.next()) {
         if (!block.isVisible())
             continue;
 
         const QTextLayout *layout = block.layout();
         QVector<QTextLayout::FormatRange> formats = layout->formats();
-        if (formats.isEmpty()) {
-            QTextLayout::FormatRange fr;
-            fr.start = 0;
-            fr.length = block.length();
-            fr.format = block.charFormat();
-            formats.append(fr);
-        } else {
-            std::sort(
-                formats.begin(),
-                formats.end(),
-                [](const QTextLayout::FormatRange &a, const QTextLayout::FormatRange &b) {
-                    return a.start < b.start;
-                });
-        }
+        std::sort(
+            formats.begin(),
+            formats.end(),
+            [](const QTextLayout::FormatRange &a, const QTextLayout::FormatRange &b) {
+                return a.start < b.start;
+            });
 
         const QString text = block.text();
-        int fmtIdx = 0;
-        int fmtPos = formats.first().start;
-        int fmtEnd = fmtPos + formats.first().length;
 
-        const QTextCharFormat &cf = formats[fmtIdx].format;
-        QColor curFg = cf.foreground().color();
-        QColor curBg = cf.background().color();
+        int formatIndex = 0;
+        int currentFormatEnd = formats.isEmpty() ? block.length() : formats.first().start;
+        QColor curFg = defaultTextColor;
 
         int dstX = 0;
         for (int i = 0; i < text.length() && dstX < imageWidth; ++i) {
-            while (i >= fmtEnd && fmtIdx + 1 < formats.size()) {
-                ++fmtIdx;
-                fmtPos = formats[fmtIdx].start;
-                fmtEnd = fmtPos + formats[fmtIdx].length;
-                const QTextCharFormat &cf = formats[fmtIdx].format;
-                curFg = cf.foreground().color();
-                curBg = cf.background().color();
-            }
+            if (i >= currentFormatEnd) {
+                if (formatIndex >= formats.size()) {
+                    currentFormatEnd = block.length();
+                    curFg = defaultTextColor;
+                } else {
+                    const QTextLayout::FormatRange &format = formats[formatIndex];
+                    if (i < format.start) {
+                        currentFormatEnd = format.start;
+                        curFg = defaultTextColor;
+                    } else {
+                        const QTextCharFormat &fmt = format.format;
+                        if (fmt.foreground().style() != Qt::NoBrush)
+                            curFg = fmt.foreground().color();
+                        else
+                            curFg = defaultTextColor;
 
+                        currentFormatEnd = format.start + format.length;
+                        ++formatIndex;
+                    }
+                }
+            }
             QChar ch = text.at(i);
             if (ch.isSpace()) {
                 updatePixel(&dstLine[dstX], bgPremul, curFg, false);
@@ -249,12 +252,12 @@ void MinimapOverlay::updateImage()
 
 void MinimapOverlay::doMove()
 {
-    QTimer::singleShot(0, [this]{
+    QMetaObject::invokeMethod(this, [this] {
         QPoint point = parentWidget()->mapFromGlobal(m_vScroll->mapToGlobal(m_vScroll->pos()));
         point.setX(point.x() - m_minimapWidth);
 
         move(point);
-    });
+    }, Qt::QueuedConnection);
 }
 
 void MinimapOverlay::doResize()

@@ -90,24 +90,16 @@
             \li Remove a remote repository.
     \endtable
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Compare files},
     {Set up version control systems}, {Version Control Systems}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-first-commit.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-general
-
-    \ingroup studio-how-to-git-gs
 
     \title Commit your first change
 
@@ -167,23 +159,15 @@
             and select \uicontrol Push.
     \endlist
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-initialize-git-repo.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-general
-
-    \ingroup studio-how-to-git-gs
 
     \title Initialize Git repositories
 
@@ -197,25 +181,17 @@
     However, Git does not track anything in the project yet, so you need to
     create an initial commit to start tracking the project files.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-diff.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
     \ingroup creator-how-to-git-current-project
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title git diff
 
@@ -298,26 +274,17 @@
             select \uicontrol {Diff Staged}.
     \endlist
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-log.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
-
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
     \ingroup creator-how-to-git-current-project
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title git log
 
@@ -482,22 +449,15 @@
 
     \image {qtcreator-vcs-show.png} {Commit description in Git Show}
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-blame.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
-    \ingroup studio-how-to-git
 
     \title git blame
 
@@ -558,24 +518,16 @@
     to navigate through the history of the file and obtain previous versions
     of it.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-stage-changes.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
     \ingroup creator-how-to-git-current-project
-
-    \ingroup studio-how-to-git
 
     \title Stage changes
 
@@ -595,24 +547,16 @@
     You can stage changes for a commit chunk-by-chunk or line-by-line in the
     \l{git diff}{Git Diff} view.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-reset.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title git reset
 
@@ -664,24 +608,16 @@
 
     You are asked to confirm the reversion.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-clean.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-project
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title git clean
 
@@ -707,23 +643,15 @@
         \li Select \uicontrol Delete to remove the selected files.
     \endlist
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-reflog.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title git reflog
 
@@ -732,23 +660,15 @@
     \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} and select
     \uicontrol Reflog.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-status.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title git status
 
@@ -759,23 +679,15 @@
     To include untracked files, select
     \uicontrol {Status (Including All Untracked)}.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-commit.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title git commit
 
@@ -830,23 +742,15 @@
             \uicontrol {Mark Conflicts Resolved} to move the file out of conflicted state.
     \endlist
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-am.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title git am
 
@@ -874,23 +778,15 @@
     \uicontrol {Fixup Previous Commit}. This operation uses interactive
     rebase. In case of conflicts, a merge tool is suggested.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-interactive-rebase.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title Interactive rebase
 
@@ -909,23 +805,15 @@
     and then select \uicontrol {Interactive Rebase from <hash>} in the context
     menu.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-branch.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title git branch
 
@@ -1041,23 +929,15 @@
             \li Open the \uicontrol Remotes dialog.
     \endtable
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-merge.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title git merge
 
@@ -1084,23 +964,15 @@
     git config --global merge.tool kdiff3
     \endcode
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-apply-patch.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title Create and apply patches
 
@@ -1127,23 +999,15 @@
 
     To apply a patch from the clipboard, select \uicontrol {Apply from Clipboard}.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-stash.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-local-repository
-
-    \ingroup studio-how-to-git
 
     \title git stash
 
@@ -1180,23 +1044,15 @@
     \uicontrol {Local Repository} > \uicontrol Stash and select
     \uicontrol {Stash Pop}.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-commits.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-commits
-
-    \ingroup studio-how-to-git
 
     \title Apply actions to commits
 
@@ -1230,23 +1086,15 @@
             \li Show the commit in the diff editor.
     \endtable
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-fetch.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-remote-repository
-
-    \ingroup studio-how-to-git
 
     \title git fetch
 
@@ -1254,23 +1102,15 @@
     go to \uicontrol Tools > \uicontrol Git > \uicontrol {Remote Repository} and
     select \uicontrol Fetch.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-pull.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-remote-repository
-
-    \ingroup studio-how-to-git
 
     \title git pull
 
@@ -1318,23 +1158,15 @@
     select \uicontrol {Pull with rebase} to perform a rebase operation while
     pulling.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-push.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-remote-repository
-
-    \ingroup studio-how-to-git
 
     \title git push
 
@@ -1344,23 +1176,15 @@
     If the local branch does not have an upstream branch in the remote
     repository, \QC prompts you to create it and set it as upstream.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-instant-blame.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-current-file
-
-    \ingroup studio-how-to-git
 
     \title Show instant blame
 
@@ -1407,23 +1231,15 @@
 
     \note Most of these actions have no meaning for uncommmited changes.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-with-subversion.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-general
-
-    \ingroup studio-how-to-git-gs
 
     \title Use Git with Subversion
 
@@ -1443,23 +1259,15 @@
     every local Git commit. Afterwards, the branch is rebased or reset
     depending on whether or not there is a diff between Subversion and head.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-gerrit.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-remote-repository
-
-    \ingroup studio-how-to-git
 
     \title Review code with Gerrit
 
@@ -1518,23 +1326,15 @@
 
     \image {qtcreator-preferences-vcs-gerrit.webp} {Gerrit tab in Version Control preferences}
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */
 
 /*!
     \page creator-how-to-git-tools.html
-    \if defined(qtdesignstudio)
-    \previouspage Using Git
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-git
     \ingroup creator-how-to-git-general
-
-    \ingroup studio-how-to-git-gs
 
     \title Git Tools
 
@@ -1582,7 +1382,5 @@
     \uicontrol {Git Tools} > \uicontrol {Merge Tool}. This menu item is
     visible only when you have merge conflicts to resolve.
 
-    \if defined(qtcreator)
     \sa {Use Git}{How to: Use Git}, {Using Git}
-    \endif
 */

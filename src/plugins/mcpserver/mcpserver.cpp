@@ -4,6 +4,9 @@
 #include "mcpserver.h"
 #include "utils/qtcassert.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <debugger/debuggerconstants.h>
 #include <utils/threadutils.h>
 
 #include <QCoreApplication>
@@ -112,23 +115,6 @@ McpServer::McpServer(QObject *parent)
     });
 
     addTool(
-        {{"name", "build"},
-         {"title", "Build the current project"},
-         {"description", "Compile the current Qt Creator project"},
-         {"inputSchema", QJsonObject{{"type", "object"}}},
-         {"outputSchema",
-          QJsonObject{
-              {"type", "object"},
-              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
-              {"required", QJsonArray{"success"}}}},
-         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
-            Q_UNUSED(p);
-            bool ok = runOnGuiThread([this] { return m_commands.build(); });
-            return QJsonObject{{"success", ok}};
-        });
-
-    addTool(
         {{"name", "get_build_status"},
          {"title", "Get current build status"},
          {"description", "Get current build progress and status"},
@@ -146,46 +132,143 @@ McpServer::McpServer(QObject *parent)
         });
 
     addTool(
-        {{"name", "debug"},
-         {"title", "Start debugging the current project"},
-         {"description", "Start debugging the current project"},
-         {"inputSchema", QJsonObject{{"type", "object"}}},
-         {"outputSchema",
-          QJsonObject{
-              {"type", "object"},
-              {"properties", QJsonObject{{"result", QJsonObject{{"type", "string"}}}}},
-              {"required", QJsonArray{"result"}}}},
-         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
-            Q_UNUSED(p);
-            QString result = runOnGuiThread([this] { return m_commands.debug(); });
-            return QJsonObject{{"result", result}};
-        });
-
-    addTool(
         {{"name", "open_file"},
          {"title", "Open a file in Qt Creator"},
          {"description", "Open a file in Qt Creator"},
          {"inputSchema",
           QJsonObject{
-              {"type", "object"},
-              {"properties",
-               QJsonObject{
-                   {"path",
-                    QJsonObject{
-                        {"type", "string"},
-                        {"format", "uri"},
-                        {"description", "Absolute path of the file to open"}}}}},
-              {"required", QJsonArray{"path"}}}},
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"path",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"format", "uri"},
+                                                {"description", "Absolute path of the file to open"}}}}},
+                      {"required", QJsonArray{"path"}}}},
          {"outputSchema",
           QJsonObject{
-              {"type", "object"},
+                      {"type", "object"},
+                      {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+                      {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            const QString path = p.value("path").toString();
+            bool ok = runOnGuiThread([this, path] { return m_commands.openFile(path); });
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "file_plain_text"},
+         {"title", "file plain text"},
+         {"description", "Returns the content of the file as plain text"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"path",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"format", "uri"},
+                                                {"description", "Absolute path of the file"}}}}},
+                      {"required", QJsonArray{"path"}}}},
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties", QJsonObject{{"text", QJsonObject{{"type", "string"}}}}},
+                      {"required", QJsonArray{"text"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            const QString path = p.value("path").toString();
+            const QString text = runOnGuiThread([this, path] { return m_commands.getFilePlainText(path); });
+            return QJsonObject{{"text", text}};
+        });
+
+    addTool(
+        {{"name", "set_file_plain_text"},
+         {"title", "set file plain text"},
+         {"description",
+          "overrided the content of the file with the provided plain text. If the file is "
+          "currently open it is not saved!"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"path",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"format", "uri"},
+                                                {"description", "Absolute path of the file"}}},
+                                   {"plainText",
+                                    QJsonObject{{"type", "string"}, {"description", "text to write into the file"}}}}},
+                      {"required", QJsonArray{"path"}}}},
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+                      {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            const QString path = p.value("path").toString();
+            const QString text = p.value("plainText").toString();
+            bool ok = runOnGuiThread(
+                [this, path, text] { return m_commands.setFilePlainText(path, text); });
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "save_file"},
+         {"title", "Save a file in Qt Creator"},
+         {"description", "Save a file in Qt Creator"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"path",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"format", "uri"},
+                                                {"description", "Absolute path of the file to save"}}}}},
+                      {"required", QJsonArray{"path"}}}},
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
               {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
               {"required", QJsonArray{"success"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
         [this](const QJsonObject &p) {
             const QString path = p.value("path").toString();
-            bool ok = runOnGuiThread([this, path] { return m_commands.openFile(path); });
+            bool ok = runOnGuiThread([this, path] { return m_commands.saveFile(path); });
+            return QJsonObject{{"success", ok}};
+        });
+
+    addTool(
+        {{"name", "close_file"},
+         {"title", "Close a file in Qt Creator"},
+         {"description", "Close a file in Qt Creator"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"path",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"format", "uri"},
+                                                {"description", "Absolute path of the file to close"}}}}},
+                      {"required", QJsonArray{"path"}}}},
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+                      {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p) {
+            const QString path = p.value("path").toString();
+            bool ok = runOnGuiThread([this, path] { return m_commands.closeFile(path); });
             return QJsonObject{{"success", ok}};
         });
 
@@ -261,40 +344,6 @@ McpServer::McpServer(QObject *parent)
             const QString name = p.value("name").toString();
             bool ok = runOnGuiThread(
                 [this, name] { return m_commands.switchToBuildConfig(name); });
-            return QJsonObject{{"success", ok}};
-        });
-
-    addTool(
-        {{"name", "run_project"},
-         {"title", "Run the current project"},
-         {"description", "Run the current project"},
-         {"inputSchema", QJsonObject{{"type", "object"}}},
-         {"outputSchema",
-          QJsonObject{
-              {"type", "object"},
-              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
-              {"required", QJsonArray{"success"}}}},
-         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
-            Q_UNUSED(p);
-            bool ok = runOnGuiThread([this] { return m_commands.runProject(); });
-            return QJsonObject{{"success", ok}};
-        });
-
-    addTool(
-        {{"name", "clean_project"},
-         {"title", "Clean the current project"},
-         {"description", "Clean the current project"},
-         {"inputSchema", QJsonObject{{"type", "object"}}},
-         {"outputSchema",
-          QJsonObject{
-              {"type", "object"},
-              {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
-              {"required", QJsonArray{"success"}}}},
-         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
-            Q_UNUSED(p);
-            bool ok = runOnGuiThread([this] { return m_commands.cleanProject(); });
             return QJsonObject{{"success", ok}};
         });
 
@@ -743,6 +792,60 @@ void McpServer::addTool(const QJsonObject &tool, ToolHandler handler)
     const QString name = tool.value("name").toString();
     if (QTC_GUARD(!name.isEmpty()))
         m_toolHandlers.insert(name, std::move(handler));
+}
+
+static bool triggerCommand(const QString toolName, const Utils::Id commandId)
+{
+    auto error = [toolName](const QString &msg) {
+        qCDebug(mcpServer) << "Cannot run tool " << toolName << ": " << msg;
+        return false;
+    };
+    Core::Command *command = Core::ActionManager::command(commandId);
+    if (!command)
+        return error("Cannot find command with id" + commandId.toString());
+    QAction *action = command->action();
+    if (!action)
+        return error("Command with id" + commandId.toString() + "has no action assigned");
+    if (!action->isEnabled())
+        return error("Action for Command with id" + commandId.toString() + "is not enabled");
+    action->trigger();
+    return true;
+}
+
+void McpServer::initializeToolsForCommands()
+{
+    auto addToolForCommand = [this](const QString &name, const Utils::Id commandId) {
+        Core::Command *command = Core::ActionManager::command(commandId);
+        if (!command)
+            return;
+        QAction *action = command->action();
+        QTC_ASSERT(action, return);
+
+        const QString title = action->text();
+        const QString description = command->description();
+
+        addTool(
+            {{"name", name},
+             {"title", title},
+             {"description", description},
+             {"inputSchema", QJsonObject{{"type", "object"}}},
+             {"outputSchema",
+              QJsonObject{
+                          {"type", "object"},
+                          {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+                          {"required", QJsonArray{"success"}}}},
+             {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+            [commandId, name](const QJsonObject &p) {
+                Q_UNUSED(p);
+                const bool ok = triggerCommand(name, commandId);
+                return QJsonObject{{"success", ok}};
+            });
+    };
+
+    addToolForCommand("run_project", ProjectExplorer::Constants::RUN);
+    addToolForCommand("build", ProjectExplorer::Constants::BUILD);
+    addToolForCommand("clean_project", ProjectExplorer::Constants::CLEAN);
+    addToolForCommand("debug", Debugger::Constants::DEBUGGER_START);
 }
 
 QJsonObject McpServer::createErrorResponse(int code, const QString &message, const QJsonValue &id)

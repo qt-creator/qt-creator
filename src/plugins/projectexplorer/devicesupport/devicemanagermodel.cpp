@@ -25,8 +25,8 @@ public:
 
 } // namespace Internal
 
-DeviceManagerModel::DeviceManagerModel(QObject *parent)
-    : QAbstractListModel(parent), d(std::make_unique<Internal::DeviceManagerModelPrivate>())
+DeviceManagerModel::DeviceManagerModel()
+    : d(std::make_unique<Internal::DeviceManagerModelPrivate>())
 {
     handleDeviceListChanged();
     connect(DeviceManager::instance(), &DeviceManager::deviceAdded,

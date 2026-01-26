@@ -98,6 +98,19 @@ public:
 
     void commitChanges()
     {
+        for (const Id &id : std::as_const(m_markedForDeletion))
+            DeviceManager::removeDevice(id);
+
+        m_markedForDeletion.clear();
+        m_newDevices.clear();
+        emit dataChanged(index(0, 0), index(rowCount() - 1, 0), {Qt::FontRole});
+    }
+
+    void abandonChanges()
+    {
+        for (const Id &id : std::as_const(m_newDevices))
+            DeviceManager::removeDevice(id);
+
         m_markedForDeletion.clear();
         m_newDevices.clear();
         emit dataChanged(index(0, 0), index(rowCount() - 1, 0), {Qt::FontRole});
@@ -105,9 +118,6 @@ public:
 
     bool isMarkedForDeletion(const Id &id) const { return m_markedForDeletion.contains(id); }
     bool isNewDevice(const Id &id) const { return m_newDevices.contains(id); }
-
-    QSet<Id> markedForDeletion() const { return m_markedForDeletion; }
-    QSet<Id> newDevices() const { return m_newDevices; }
 
 private:
     void emitDataChanged(const Id &id)
@@ -158,7 +168,7 @@ private:
 
     void updateButtons();
 
-    DeviceManagerModel * const m_deviceManagerModel;
+    DeviceManagerModel m_deviceManagerModel;
     DeviceProxyModel m_deviceProxyModel;
     QList<QPushButton *> m_additionalActionButtons;
     IDeviceWidget *m_configWidget = nullptr;
@@ -180,29 +190,27 @@ private:
 
 void DeviceSettingsWidget::apply()
 {
-    for (const Id &id : m_deviceProxyModel.markedForDeletion())
-        DeviceManager::removeDevice(id);
-
     m_deviceProxyModel.commitChanges();
     updateButtons();
 
     saveSettings();
+
+    IOptionsPageWidget::apply();
 }
 
 void DeviceSettingsWidget::cancel()
 {
-    for (const Id &id : m_deviceProxyModel.newDevices())
-        DeviceManager::removeDevice(id);
+    m_deviceProxyModel.abandonChanges();
 
-    for (int i = 0; i < m_deviceManagerModel->rowCount(); i++)
-        m_deviceManagerModel->device(i)->cancel();
+    for (int i = 0; i < m_deviceManagerModel.rowCount(); i++)
+        m_deviceManagerModel.device(i)->cancel();
+
     IOptionsPageWidget::cancel();
 }
 
 DeviceSettingsWidget::DeviceSettingsWidget()
-    : m_deviceManagerModel(new DeviceManagerModel(this))
 {
-    m_deviceProxyModel.setSourceModel(m_deviceManagerModel);
+    m_deviceProxyModel.setSourceModel(&m_deviceManagerModel);
 
     m_configurationLabel = new QLabel(Tr::tr("&Device:"));
     m_configurationComboBox = new QComboBox;
@@ -219,6 +227,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
     m_defaultDeviceButton = new QPushButton(Tr::tr("Set As Default"));
 
     OptionPushButton *addButton = new OptionPushButton(Tr::tr("&Add..."));
+    IOptionsPageWidget::setIgnoreForDirtyHook(addButton);
     connect(addButton, &OptionPushButton::clicked, this, &DeviceSettingsWidget::addDevice);
 
     QMenu *deviceTypeMenu = new QMenu(addButton);
@@ -243,7 +252,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
             DeviceManager::addDevice(device);
             m_deviceProxyModel.markAsNew(device->id());
             updateButtons();
-            m_configurationComboBox->setCurrentIndex(m_deviceManagerModel->indexOf(device));
+            m_configurationComboBox->setCurrentIndex(m_deviceManagerModel.indexOf(device));
             saveSettings();
         });
     }
@@ -299,7 +308,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
     int lastIndex = -1;
     if (const Id deviceToSelect = preselectedOptionsPageItem(Constants::DEVICE_SETTINGS_PAGE_ID);
         deviceToSelect.isValid()) {
-        lastIndex = m_deviceManagerModel->indexForId(deviceToSelect);
+        lastIndex = m_deviceManagerModel.indexForId(deviceToSelect);
     }
     if (lastIndex == -1)
         lastIndex = ICore::settings()->value(LastDeviceIndexKey, 0).toInt();
@@ -341,7 +350,7 @@ void DeviceSettingsWidget::addDevice()
     m_deviceProxyModel.markAsNew(device->id());
 
     updateButtons();
-    m_configurationComboBox->setCurrentIndex(m_deviceManagerModel->indexOf(device));
+    m_configurationComboBox->setCurrentIndex(m_deviceManagerModel.indexOf(device));
     saveSettings();
     if (device->hasDeviceTester())
         testDevice();
@@ -426,7 +435,7 @@ int DeviceSettingsWidget::currentIndex() const
 IDevice::ConstPtr DeviceSettingsWidget::currentDevice() const
 {
     Q_ASSERT(currentIndex() != -1);
-    return m_deviceManagerModel->device(currentIndex());
+    return m_deviceManagerModel.device(currentIndex());
 }
 
 
@@ -451,7 +460,7 @@ void DeviceSettingsWidget::testDevice()
 
 void DeviceSettingsWidget::handleDeviceUpdated(Id id)
 {
-    const int index = m_deviceManagerModel->indexForId(id);
+    const int index = m_deviceManagerModel.indexForId(id);
     if (index == currentIndex())
         currentDeviceChanged(index);
 }
@@ -467,7 +476,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
 
     qDeleteAll(m_additionalActionButtons);
     m_additionalActionButtons.clear();
-    const IDevice::ConstPtr device = m_deviceManagerModel->device(index);
+    const IDevice::ConstPtr device = m_deviceManagerModel.device(index);
     if (!device) {
         setDeviceInfoWidgetsEnabled(false);
         updateButtons();
@@ -497,6 +506,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
 
     if (device->canCreateProcessModel()) {
         QPushButton * const button = new QPushButton(Tr::tr("Show Running Processes..."));
+        IOptionsPageWidget::setIgnoreForDirtyHook(button);
         m_additionalActionButtons << button;
         connect(button, &QAbstractButton::clicked,
                 this, &DeviceSettingsWidget::handleProcessListRequested);

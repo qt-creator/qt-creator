@@ -208,6 +208,7 @@ private:
     int m_pythonVersion = 0; // 0xMMmmpp MM = major; mm = minor; pp = patch
     bool m_initialSessionIdleHandled = false;
     mutable CPlusPlus::Snapshot m_codeModelSnapshot;
+    mutable QStringDecoder m_cdbOutputDecoder;
 };
 
 } // Debugger::Internal

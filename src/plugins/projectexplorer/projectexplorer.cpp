@@ -228,14 +228,12 @@ const char DEPLOY[]               = "ProjectExplorer.Deploy";
 const char DEPLOYCM[]             = "ProjectExplorer.DeployCM";
 const char DEPLOYSESSION[]        = "ProjectExplorer.DeploySession";
 const char CLEANPROJECTONLY[]     = "ProjectExplorer.CleanProjectOnly";
-const char CLEAN[]                = "ProjectExplorer.Clean";
 const char CLEANALLCONFIGS[]      = "ProjectExplorer.CleanProjectForAllConfigs";
 const char CLEANCM[]              = "ProjectExplorer.CleanCM";
 const char CLEANDEPENDCM[]        = "ProjectExplorer.CleanDependenciesCM";
 const char CLEANSESSION[]         = "ProjectExplorer.CleanSession";
 const char CLEANSESSIONALLCONFIGS[] = "ProjectExplorer.CleanSessionForAllConfigs";
 const char CANCELBUILD[]          = "ProjectExplorer.CancelBuild";
-const char RUN[]                  = "ProjectExplorer.Run";
 const char RUNWITHOUTDEPLOY[]     = "ProjectExplorer.RunWithoutDeploy";
 const char RUNCONTEXTMENU[]       = "ProjectExplorer.RunContextMenu";
 const char ADDEXISTINGFILES[]     = "ProjectExplorer.AddExistingFiles";
@@ -683,6 +681,7 @@ public:
     QPointer<RunConfiguration> m_defaultRunConfiguration;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
     MiniProjectTargetSelector * m_targetSelector;
+    QList<CustomProjectSettingsHandler> m_projectSettingsHandlers;
     bool m_shouldHaveRunConfiguration = false;
     Id m_runMode = Constants::NO_RUN_MODE;
 
@@ -1406,7 +1405,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     dd->m_buildAction->setIcon(buildIcon);
     cmd = ActionManager::registerAction(dd->m_buildAction, Constants::BUILD);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(dd->m_buildAction->text());
+    cmd->setDescription(Tr::tr("Build Active Project"));
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
@@ -1490,7 +1489,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 
     // clean action
     dd->m_cleanAction = new QAction(Utils::Icons::CLEAN.icon(), Tr::tr("Clean"), this);
-    dd->m_cleanAction->setWhatsThis(Tr::tr("Clean Project"));
+    dd->m_cleanAction->setWhatsThis(Tr::tr("Clean Active Project"));
     cmd = ActionManager::registerAction(dd->m_cleanAction, Constants::CLEAN);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_cleanAction->whatsThis());
@@ -1514,6 +1513,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     // run action
     dd->m_runAction = new QAction(runIcon, Tr::tr("Run"), this);
     cmd = ActionManager::registerAction(dd->m_runAction, Constants::RUN);
+    cmd->setDescription(Tr::tr("Run Active Project"));
     cmd->setAttribute(Command::CA_UpdateText);
 
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+R")));
@@ -2361,6 +2361,27 @@ void ProjectExplorerPlugin::openProjectWelcomePage(const FilePath &filePath)
         showOpenProjectError(result);
 }
 
+void ProjectManager::registerCustomProjectSettingsHandler(const CustomProjectSettingsHandler &handler)
+{
+    dd->m_projectSettingsHandlers << handler;
+}
+
+void ProjectManager::loadCustomProjectSettings(Project &project)
+{
+    for (const CustomProjectSettingsHandler &handler :
+         std::as_const(dd->m_projectSettingsHandlers)) {
+        handler.load(project);
+    }
+}
+
+void ProjectManager::unloadCustomProjectSettings(const Project &project)
+{
+    for (const CustomProjectSettingsHandler &handler :
+         std::as_const(dd->m_projectSettingsHandlers)) {
+        handler.unload(project);
+    }
+}
+
 OpenProjectResult ProjectExplorerPlugin::openProject(const FilePath &filePath, bool searchInDir)
 {
     OpenProjectResult result = openProjects({filePath}, searchInDir);
@@ -2446,6 +2467,7 @@ OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths
         if (ProjectManager::canOpenProjectForMimeType(mt)) {
             if (ProjectManager::ensurePluginForProjectIsLoaded(mt) ) {
                 if (Project *pro = ProjectManager::openProject(mt, filePath)) {
+                    ProjectManager::loadCustomProjectSettings(*pro);
                     QString restoreError;
                     Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
                     if (restoreResult == Project::RestoreResult::Ok) {
@@ -2459,6 +2481,7 @@ OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths
                     } else {
                         if (restoreResult == Project::RestoreResult::Error)
                             appendError(errorString, restoreError);
+                        ProjectManager::unloadCustomProjectSettings(*pro);
                         delete pro;
                     }
                 }

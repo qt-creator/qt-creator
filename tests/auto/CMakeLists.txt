@@ -28,6 +28,6 @@ add_subdirectory(updateinfo)
 add_subdirectory(utils)
 add_subdirectory(valgrind)
 
-if(Qt6_VERSION VERSION_LESS 6.11.0)
+if(QTC_USES_INTERNAL_TASKTREE)
   add_subdirectory(qttasktree)
 endif()

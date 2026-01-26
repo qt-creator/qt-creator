@@ -171,7 +171,7 @@ void TerminalInterface::onStubReadyRead()
         out.chop(1); // remove newline
         if (out.startsWith("err:chdir ")) {
             emitError(QProcess::FailedToStart,
-                      msgCannotChangeToWorkDir(m_setup.m_workingDirectory,
+                      msgCannotChangeToWorkDir(m_setup.rawWorkingDirectory(),
                                                errnoToString(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
             emitError(QProcess::FailedToStart,
@@ -365,8 +365,8 @@ void TerminalInterface::start()
 
     CommandLine cmd{stubPath, {"-s", d->stubServer.fullServerName()}};
 
-    if (!m_setup.m_workingDirectory.isEmpty())
-        cmd.addArgs({"-w", m_setup.m_workingDirectory.nativePath()});
+    if (!m_setup.rawWorkingDirectory().isEmpty())
+        cmd.addArgs({"-w", m_setup.rawWorkingDirectory().nativePath()});
 
     if (m_setup.m_terminalMode == TerminalMode::Debug)
         cmd.addArg("-d");

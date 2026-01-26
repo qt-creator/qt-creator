@@ -742,6 +742,7 @@ public:
     void setExpectedKind(const PathChooser::Kind expectedKind);
     void setEnvironment(const Environment &env);
     void setBaseDirectory(const Lazy<FilePath> &baseDirectory);
+    void setInitialBrowsePathBackup(const FilePath &initialBrowsePathBackup);
 
     void setPlaceHolderText(const QString &placeHolderText);
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);

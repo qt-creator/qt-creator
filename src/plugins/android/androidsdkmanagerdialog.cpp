@@ -43,8 +43,7 @@ public:
         PackageStateRole
     };
 
-    explicit AndroidSdkModel(QObject *parent)
-        : QAbstractItemModel(parent)
+    AndroidSdkModel()
     {
         connect(&sdkManager(), &AndroidSdkManager::packagesReloaded,
                 this, &AndroidSdkModel::refreshData);
@@ -391,32 +390,73 @@ private:
     Process m_process;
 };
 
-class PackageFilterModel : public QSortFilterProxyModel
+class PackageFilterModel final : public QSortFilterProxyModel
 {
 public:
-    PackageFilterModel(AndroidSdkModel *sdkModel);
+    explicit PackageFilterModel(QAbstractItemModel *sdkModel)
+        : QSortFilterProxyModel(sdkModel)
+    {
+        setSourceModel(sdkModel);
+    }
 
-    void setAcceptedPackageState(AndroidSdkPackage::PackageState state);
-    void setAcceptedSearchPackage(const QString &text);
-    bool filterAcceptsRow(int source_row, const QModelIndex &sourceParent) const override;
+    void setAcceptedPackageState(AndroidSdkPackage::PackageState state)
+    {
+        m_packageState = state;
+        invalidateFilter();
+    }
+
+    void setAcceptedSearchPackage(const QString &name)
+    {
+        m_searchText = name;
+        invalidateFilter();
+    }
+
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const final
+    {
+        QModelIndex srcIndex = sourceModel()->index(sourceRow, 0, sourceParent);
+        if (!srcIndex.isValid())
+            return false;
+
+        auto packageState = [](const QModelIndex& i) {
+            return (AndroidSdkPackage::PackageState)i.data(AndroidSdkModel::PackageStateRole).toInt();
+        };
+
+        auto packageFound = [this](const QModelIndex& i) {
+            return i.data(AndroidSdkModel::packageNameColumn).toString()
+            .contains(m_searchText, Qt::CaseInsensitive);
+        };
+
+        bool showTopLevel = false;
+        if (!sourceParent.isValid()) {
+            // Top Level items
+            for (int row = 0; row < sourceModel()->rowCount(srcIndex); ++row) {
+                QModelIndex childIndex = sourceModel()->index(row, 0, srcIndex);
+                if ((m_packageState & packageState(childIndex) && packageFound(childIndex))) {
+                    showTopLevel = true;
+                    break;
+                }
+            }
+        }
+
+        return showTopLevel || ((packageState(srcIndex) & m_packageState) && packageFound(srcIndex));
+    }
 
 private:
     AndroidSdkPackage::PackageState m_packageState = AndroidSdkPackage::AnyValidState;
     QString m_searchText;
 };
 
-class AndroidSdkManagerDialog : public QDialog
+class AndroidSdkManagerDialog final : public QDialog
 {
 public:
     AndroidSdkManagerDialog();
 
 private:
-    AndroidSdkModel *m_sdkModel = nullptr;
+    AndroidSdkModel m_sdkModel;
 };
 
 AndroidSdkManagerDialog::AndroidSdkManagerDialog()
     : QDialog(Core::ICore::dialogParent())
-    , m_sdkModel(new AndroidSdkModel(this))
 {
     setWindowTitle(Tr::tr("Android SDK Manager"));
     resize(664, 396);
@@ -453,7 +493,7 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog()
     buttonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel);
     buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
 
-    auto proxyModel = new PackageFilterModel(m_sdkModel);
+    auto proxyModel = new PackageFilterModel(&m_sdkModel);
     packagesView->setModel(proxyModel);
     packagesView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     packagesView->header()->setSectionResizeMode(AndroidSdkModel::packageNameColumn,
@@ -486,10 +526,10 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog()
     }.attachTo(this);
 
     const auto updateApplyButton = [this, buttonBox] {
-        buttonBox->button(QDialogButtonBox::Apply)->setEnabled(m_sdkModel->installationChange().count());
+        buttonBox->button(QDialogButtonBox::Apply)->setEnabled(m_sdkModel.installationChange().count());
     };
-    connect(m_sdkModel, &AndroidSdkModel::modelReset, this, updateApplyButton);
-    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, updateApplyButton);
+    connect(&m_sdkModel, &AndroidSdkModel::modelReset, this, updateApplyButton);
+    connect(&m_sdkModel, &AndroidSdkModel::dataChanged, this, updateApplyButton);
 
     connect(expandCheck, &QCheckBox::stateChanged, this, [packagesView](int state) {
         if (state == Qt::Checked)
@@ -502,32 +542,32 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog()
     connect(showAllRadio, &QRadioButton::toggled, this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::AnyValidState);
-            m_sdkModel->resetSelection();
+            m_sdkModel.resetSelection();
         }
     });
     connect(showInstalledRadio, &QRadioButton::toggled, this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::Installed);
-            m_sdkModel->resetSelection();
+            m_sdkModel.resetSelection();
         }
     });
     connect(showAvailableRadio, &QRadioButton::toggled, this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::Available);
-            m_sdkModel->resetSelection();
+            m_sdkModel.resetSelection();
         }
     });
 
     connect(searchField, &QLineEdit::textChanged,
             this, [this, proxyModel, expandCheck](const QString &text) {
         proxyModel->setAcceptedSearchPackage(text);
-        m_sdkModel->resetSelection();
+        m_sdkModel.resetSelection();
         // It is more convenient to expand the view with the results
         expandCheck->setChecked(!text.isEmpty());
     });
 
     connect(buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, [this] {
-        sdkManager().runInstallationChange(m_sdkModel->installationChange());
+        sdkManager().runInstallationChange(m_sdkModel.installationChange());
     });
     connect(buttonBox, &QDialogButtonBox::rejected, this, &AndroidSdkManagerDialog::reject);
 
@@ -583,54 +623,6 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog()
         }
         sdkManager().reloadPackages();
     });
-}
-
-PackageFilterModel::PackageFilterModel(AndroidSdkModel *sdkModel) :
-    QSortFilterProxyModel(sdkModel)
-{
-    setSourceModel(sdkModel);
-}
-
-void PackageFilterModel::setAcceptedPackageState(AndroidSdkPackage::PackageState state)
-{
-    m_packageState = state;
-    invalidateFilter();
-}
-
-void PackageFilterModel::setAcceptedSearchPackage(const QString &name)
-{
-    m_searchText = name;
-    invalidateFilter();
-}
-
-bool PackageFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
-{
-    QModelIndex srcIndex = sourceModel()->index(sourceRow, 0, sourceParent);
-    if (!srcIndex.isValid())
-        return false;
-
-    auto packageState = [](const QModelIndex& i) {
-      return (AndroidSdkPackage::PackageState)i.data(AndroidSdkModel::PackageStateRole).toInt();
-    };
-
-    auto packageFound = [this](const QModelIndex& i) {
-        return i.data(AndroidSdkModel::packageNameColumn).toString()
-                .contains(m_searchText, Qt::CaseInsensitive);
-    };
-
-    bool showTopLevel = false;
-    if (!sourceParent.isValid()) {
-        // Top Level items
-        for (int row = 0; row < sourceModel()->rowCount(srcIndex); ++row) {
-            QModelIndex childIndex = sourceModel()->index(row, 0, srcIndex);
-            if ((m_packageState & packageState(childIndex) && packageFound(childIndex))) {
-                showTopLevel = true;
-                break;
-            }
-        }
-    }
-
-    return showTopLevel || ((packageState(srcIndex) & m_packageState) && packageFound(srcIndex));
 }
 
 void executeAndroidSdkManagerDialog()

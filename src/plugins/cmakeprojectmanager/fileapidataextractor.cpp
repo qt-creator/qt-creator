@@ -413,6 +413,21 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
         for (const CompileInfo &ci : t.compileGroups)
             compileLanguageCountHash[ci.language].first++;
 
+        auto mimeTypeForLanguage = [](const QString &language) -> QString {
+            if (language == "C") {
+                return Utils::Constants::C_HEADER_MIMETYPE;
+            } else if (language == "CXX") {
+                return Utils::Constants::CPP_HEADER_MIMETYPE;
+            } else if (language == "OBJC") {
+                return Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE;
+            } else if (language == "OBJCXX") {
+                return Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
+            }
+            return {};
+        };
+
+        QHash<FilePath, QString> sourceFileToMimeType;
+
         for (const CompileInfo &ci : t.compileGroups) {
             if (ci.language != "C" && ci.language != "CXX" && ci.language != "OBJC"
                 && ci.language != "OBJCXX" && ci.language != "CUDA")
@@ -461,7 +476,11 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                 SourceInfo si = t.sources.at(idx);
                 if (si.isGenerated)
                     continue;
-                sources.append(sourceDirectory.resolvePath(si.path));
+
+                const FilePath sourcePath = sourceDirectory.resolvePath(si.path);
+                sources.append(sourcePath);
+
+                sourceFileToMimeType.insert(sourcePath, mimeTypeForLanguage(ci.language));
             }
 
             // Skip groups with only generated source files e.g. <build-dir>/.rcc/qrc_<target>.cpp
@@ -477,18 +496,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                 return isUnityFile(buildDirectory, path);
             });
 
-            const QString headerMimeType = [&]() -> QString {
-                if (ci.language == "C") {
-                    return Utils::Constants::C_HEADER_MIMETYPE;
-                } else if (ci.language == "CXX") {
-                    return Utils::Constants::CPP_HEADER_MIMETYPE;
-                } else if (ci.language == "OBJC") {
-                    return Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE;
-                } else if (ci.language == "OBJCXX") {
-                    return Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
-                }
-                return {};
-            }();
+            const QString headerMimeType = mimeTypeForLanguage(ci.language);
 
             auto haveFileKindForLanguage = [&](const auto &kind) {
                 if (kind == CppEditor::ProjectFile::AmbiguousHeader)
@@ -528,9 +536,16 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                                          });
             rpp.setFiles(filtered);
 
-            rpp.setMimeTypeGetter([headerMimeType](const FilePath &path) {
+            rpp.setMimeTypeGetter([headerMimeType, sourceFileToMimeType](const FilePath &path) {
                 if (CppEditor::ProjectFile::isAmbiguousHeader(path))
                     return headerMimeType;
+
+                if (sourceFileToMimeType.contains(path)) {
+                    const QString sourceMimeType = sourceFileToMimeType[path];
+                    if (!sourceMimeType.isEmpty())
+                        return sourceMimeType;
+                }
+
                 return Utils::mimeTypeForFile(path).name();
             });
 

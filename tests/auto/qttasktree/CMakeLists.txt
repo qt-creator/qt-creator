@@ -1,4 +1,4 @@
 add_qtc_test(tst_qttasktree
-  DEPENDS Qt::Concurrent Qt::Network Qt::TaskTree
+  DEPENDS Qt::Concurrent Qt::Network QtTaskTree
   SOURCES tst_qttasktree.cpp
 )

@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 10,
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 23,
@@ -14,11 +14,25 @@
       "displayName": "Linux GCC",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build-${presetName}",
-      "toolchainFile" : "$env{HOME}/Qt/6.4.2/gcc_64/lib/cmake/Qt6/qt.toolchain.cmake",
+      "graphviz" : "${sourceDir}/build-${presetName}/graphviz.dot",
+      "toolchainFile" : "$env{HOME}/Qt/6.10.0/gcc_64/lib/cmake/Qt6/qt.toolchain.cmake",
       "condition" : {
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
+      }
+    },
+    {
+      "name": "macos-clang",
+      "displayName": "macOS Clang",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-${presetName}",
+      "graphviz" : "${sourceDir}/build-${presetName}/graphviz.dot",
+      "toolchainFile" : "$env{HOME}/Qt/6.10.0/macos/lib/cmake/Qt6/qt.toolchain.cmake",
+      "condition" : {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
       }
     }
   ]

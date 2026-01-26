@@ -131,7 +131,7 @@ VcsBase::BaseAnnotationHighlighterCreator GitEditorWidget::annotationHighlighter
 static QString sanitizeBlameOutput(const QString &b)
 {
     static const char pattern[] =
-        R"(^(\S+)\s(.+?)\s\((.*)\s+(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\s\+\d{4}).*?\)(.*)$)";
+        R"(^(\S+)\s(.+?)\s\((.*)\s+(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\s[+-]\d{4}).*?\)(.*)$)";
     static const QRegularExpression re(pattern, QRegularExpression::MultilineOption);
 
     if (b.isEmpty())
@@ -145,13 +145,13 @@ static QString sanitizeBlameOutput(const QString &b)
     QRegularExpressionMatchIterator i = re.globalMatch(b);
     while (i.hasNext()) {
         static const QString sep = "  ";
-        QRegularExpressionMatch match = i.next();
+        const QRegularExpressionMatch match = i.next();
         const QString hash   = match.captured(1) + sep;
-        const QString path   = omitPath   ? QString() : match.captured(2) + sep;
+        const QString path   = omitPath   ? QString() : match.captured(2);
         const QString author = omitAuthor ? QString() : match.captured(3) + sep;
-        const QString date   = omitDate   ? QString() : match.captured(4) + sep;
+        const QString date   = omitDate   ? QString() : match.captured(4);
         const QString code   = match.captured(5);
-        result.append(hash + path + author + date + code + "\n");
+        result.append(hash + path + "  (" + author + date + ")  " + code + "\n");
     }
     return result;
 }

@@ -134,6 +134,7 @@ public:
         , m_documentSymbolCache(q)
         , m_hoverHandler(q)
         , m_symbolSupport(q)
+        , m_progressManager(q)
         , m_tokenSupport(q)
         , m_serverDeviceTemplate(clientInterface->serverDeviceTemplate())
     {

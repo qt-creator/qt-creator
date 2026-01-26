@@ -1387,6 +1387,26 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
             initialArguments.append("--debug-output");
     }
 
+    if (configurePreset.graphviz) {
+        QString graphvizValue = configurePreset.graphviz.value();
+        CMakePresets::Macros::expand(configurePreset, env, project->projectDirectory(), graphvizValue);
+        initialArguments.append("--graphviz=" + graphvizValue);
+    }
+
+    if (configurePreset.trace) {
+        const auto &trace = configurePreset.trace.value();
+        if (trace.mode)
+            initialArguments.append("--trace=" + trace.mode.value());
+        if (trace.format)
+            initialArguments.append("--trace-format=" + trace.format.value());
+        if (trace.source) {
+            for (const QString &source : trace.source.value())
+                initialArguments.append("--trace-source=" + source);
+        }
+        if (trace.redirect)
+            initialArguments.append("--trace-redirect=" + trace.redirect.value());
+    }
+
     CMakePresets::Macros::updateToolchainFile(configurePreset,
                                               env,
                                               project->projectDirectory(),

@@ -98,6 +98,28 @@
                         "buildDirectory": {
                             "type": "string",
                             "description": "The directory to build the project in"
+                        },
+                        "env": {
+                            "type": "object",
+                            "description": "Environment variables for the build as key/value pairs (Requires Qt Creator >= 19.0).\n\nPossibly existing values in the base environment are replaced.\n\nTo append, prepend, or unset values:\n  +VAR: Append value to existing variable or set new variable\n  VAR+: Prepend value to existing variable or set new variable\n  -VAR: Unset variable (value is ignored)",
+                            "patternProperties": {
+                                "^\\+": {
+                                    "type": "string",
+                                    "description": "Appends value to existing variable or set new variable."
+                                },
+                                "\\+$": {
+                                    "type": "string",
+                                    "description": "Prepends value to existing variable or set new variable."
+                                },
+                                "^-": {
+                                    "type": "string",
+                                    "description": "Unsets variable. The value is ignored."
+                                }
+                            },
+                            "additionalProperties": {
+                                "type": "string",
+                                "description": "Sets the variable to the specified value."
+                            }
                         }
                     },
                     "required": [

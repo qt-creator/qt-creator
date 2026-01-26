@@ -23,9 +23,9 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/stylehelper.h>
 #include <utils/summarywidget.h>
 #include <utils/utilsicons.h>
 
@@ -161,6 +161,9 @@ AndroidSettingsWidget::AndroidSettingsWidget()
 {
     setWindowTitle(Tr::tr("Android Configuration"));
 
+    auto infoLabel = new InfoLabel(Tr::tr("All changes on this page take effect immediately."));
+    infoLabel->setFilled(true);
+
     const QIcon downloadIcon = Icons::ONLINE.icon();
 
     m_sdkLocationPathChooser = new PathChooser;
@@ -290,6 +293,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     using namespace Layouting;
 
     Column {
+        infoLabel,
+        Space(StyleHelper::SpacingTokens::GapVM),
         Group {
             title(Tr::tr("Android Settings")),
             Grid {
@@ -334,7 +339,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             }
         },
         st,
-        Tr::tr("All changes on this page take effect immediately.")
     }.attachTo(this);
 
     connect(m_sdkLocationPathChooser, &PathChooser::rawPathChanged,
@@ -737,6 +741,7 @@ public:
         setId(Constants::ANDROID_SETTINGS_ID);
         setDisplayName(Tr::tr("Android"));
         setCategory(ProjectExplorer::Constants::SDK_SETTINGS_CATEGORY);
+        setAutoApply();
         setWidgetCreator([] { return new AndroidSettingsWidget; });
     }
 };

@@ -89,7 +89,7 @@
     To attach easing curves to transitions:
 
     \list 1
-        \li In \l{Transitions}, select the \imagecurveeditor
+        \li In the \uicontrol {Transitions} view, select the \imagecurveeditor
             (\uicontrol {Easing Curve Editor}) button.
         \li Select an easing curve, as described in \l{Select Easing Curves}.
     \endlist

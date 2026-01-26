@@ -58,7 +58,7 @@
     navigation wraps around and moves the selection to the next line or cell
     in the other end of the view when it reaches the end of the view.
 
-    Both list and grid views are inherently \l {Flickable}{flickable}.
+    Both list and grid views are inherently \l {Create flickable components}{flickable}.
 
     The value of the \uicontrol {Snap mode} field determines how the view
     scrolling will settle following a drag or flick. By default, the view

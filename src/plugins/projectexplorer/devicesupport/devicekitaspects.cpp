@@ -75,7 +75,6 @@ public:
     {
         setManagingPage(Constants::DEVICE_SETTINGS_PAGE_ID);
 
-        const auto model = new DeviceManagerModel(this);
         auto getter = [](const Kit &k) {
             auto device = DeviceAspect::device(&k);
             return device ? device->id().toSetting() : QVariant{};
@@ -83,10 +82,10 @@ public:
         auto setter = [](Kit &k, const QVariant &id) {
             DeviceAspect::setDeviceId(&k, Id::fromSetting(id));
         };
-        auto resetModel = [this, model] {
-            model->setTypeFilter(TypeAspect::deviceTypeId(kit()));
+        auto resetModel = [this] {
+            m_model.setTypeFilter(TypeAspect::deviceTypeId(kit()));
         };
-        addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+        addListAspectSpec({&m_model, std::move(getter), std::move(setter), std::move(resetModel)});
 
         connect(DeviceManager::instance(), &DeviceManager::updated,
                 this, &DeviceKitAspectImpl::refresh);
@@ -111,6 +110,8 @@ private:
             KitAspect::addToInnerLayout(layout);
         }
     }
+
+    DeviceManagerModel m_model;
 };
 
 template <typename DeviceTypeKitAspect>

@@ -35,7 +35,7 @@
                             "CMakePresets.json",
                             "CMakeUserPresets.json"
                         ],
-                        "url": "https://raw.githubusercontent.com/Kitware/CMake/refs/tags/v3.24.0/Help/manual/presets/schema.json"
+                        "url": "https://raw.githubusercontent.com/Kitware/CMake/refs/tags/v3.31.0/Help/manual/presets/schema.json"
                     }
                 ]
             }

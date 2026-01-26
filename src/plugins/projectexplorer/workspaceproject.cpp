@@ -80,16 +80,9 @@ public:
     void handleDirectoryChanged(const FilePath &directory);
 
     void scan(const FilePath &path);
-    void scanNext();
 
 private:
-    bool isFiltered(const FilePath &path, QList<IVersionControl *> versionControls) const;
-
-    QList<QRegularExpression> m_filters;
-    std::unique_ptr<FileSystemWatcher> m_watcher;
     ParseGuard m_parseGuard;
-    FilePaths m_scanQueue;
-    TreeScanner m_scanner;
 };
 
 static FolderNode *findAvailableParent(ProjectNode *root, const FilePath &path)
@@ -106,6 +99,12 @@ static FolderNode *findAvailableParent(ProjectNode *root, const FilePath &path)
 
 WorkspaceBuildSystem::WorkspaceBuildSystem(BuildConfiguration *bc)
     : BuildSystem(bc)
+{
+    connect(project(), &Project::projectFileIsDirty, this, &BuildSystem::requestDelayedParse);
+    requestDelayedParse();
+}
+
+void WorkspaceProject::setupScanner()
 {
     connect(&m_scanner, &TreeScanner::finished, this, [this] {
         QTC_ASSERT(!m_scanQueue.isEmpty(), return);
@@ -126,31 +125,32 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(BuildConfiguration *bc)
             };
             collectWatchFolders(parent);
             parent->forEachNode({}, collectWatchFolders);
-            qCDebug(wsbs) << "Added and collected nodes in" << timer.elapsed() << "ms" << toWatch.size() << "dirs";
+            qCDebug(wsbs) << "Added and collected nodes in" << timer.elapsed() << "ms"
+                          << toWatch.size() << "dirs";
             m_watcher->addDirectories(toWatch, FileSystemWatcher::WatchAllChanges);
-            qCDebug(wsbs) << "Added and and collected and watched nodes in" << timer.elapsed() << "ms";
+            qCDebug(wsbs) << "Added and and collected and watched nodes in" << timer.elapsed()
+                          << "ms";
         };
 
         if (scannedDir == projectDirectory()) {
             qCDebug(wsbs) << "Finished scanning new root" << scannedDir;
             auto root = std::make_unique<ProjectNode>(scannedDir);
-            root->setDisplayName(project()->displayName());
+            root->setDisplayName(displayName());
             m_watcher.reset(new FileSystemWatcher);
             connect(
                 m_watcher.get(),
                 &FileSystemWatcher::directoryChanged,
                 this,
-                [this](const FilePath &path) {
-                    handleDirectoryChanged(path);
-                });
+                [this, w = m_watcher.get()](const FilePath &path) { handleDirectoryChanged(path); });
 
             addNodes(root.get());
             setRootProjectNode(std::move(root));
         } else {
             qCDebug(wsbs) << "Finished scanning subdir" << scannedDir;
-            FolderNode *parent = findAvailableParent(project()->rootProjectNode(), scannedDir);
+            FolderNode *parent = findAvailableParent(rootProjectNode(), scannedDir);
             const FilePath relativePath = scannedDir.relativeChildPath(parent->filePath());
-            const QString firstRelativeFolder = relativePath.path().left(relativePath.path().indexOf('/'));
+            const QString firstRelativeFolder = relativePath.path().left(
+                relativePath.path().indexOf('/'));
             const FilePath nodePath = parent->filePath() / firstRelativeFolder;
             auto newNode = std::make_unique<FolderNode>(nodePath);
             newNode->setDisplayName(firstRelativeFolder);
@@ -161,14 +161,11 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(BuildConfiguration *bc)
         scanNext();
     });
     m_scanner.setDirFilter(workspaceDirFilter);
-    m_scanner.setFilter([&](const MimeType &, const FilePath &filePath) {
-        return Utils::anyOf(m_filters, [filePath](const QRegularExpression &filter) {
+    m_scanner.setFilter([this](const MimeType &, const FilePath &filePath) {
+        return anyOf(m_filters, [filePath](const QRegularExpression &filter) {
             return filter.match(filePath.path()).hasMatch();
         });
     });
-
-    connect(project(), &Project::projectFileIsDirty, this, &BuildSystem::requestDelayedParse);
-    requestDelayedParse();
 }
 
 WorkspaceBuildSystem::~WorkspaceBuildSystem()
@@ -179,23 +176,29 @@ WorkspaceBuildSystem::~WorkspaceBuildSystem()
 
 void WorkspaceBuildSystem::reparse(bool force)
 {
-    const QList<QRegularExpression> oldFilters = m_filters;
-    m_filters.clear();
-    FilePath projectPath = project()->projectDirectory();
+    if (!m_parseGuard.guardsProject())
+        m_parseGuard = guardParsingRun();
 
-    const QJsonObject json = projectDefinition(project()->projectFilePath()).value_or(QJsonObject());
+    const auto project = qobject_cast<WorkspaceProject *>(this->project());
+
+    const QList<QRegularExpression> oldFilters = project->filters();
+    QList<QRegularExpression> filters;
+    FilePath projectPath = project->projectDirectory();
+
+    const QJsonObject json = projectDefinition(project->projectFilePath()).value_or(QJsonObject());
     const QJsonValue projectNameValue = json.value(PROJECT_NAME_KEY);
     if (projectNameValue.isString())
-        project()->setDisplayName(projectNameValue.toString());
+        project->setDisplayName(projectNameValue.toString());
     const QJsonArray excludesJson = json.value(FILES_EXCLUDE_KEY).toArray();
     for (const QJsonValue &excludeJson : excludesJson) {
         if (excludeJson.isString()) {
             FilePath absolute = projectPath.pathAppended(excludeJson.toString());
-            m_filters << QRegularExpression(
-                Utils::wildcardToRegularExpression(absolute.path()),
+            filters << QRegularExpression(
+                wildcardToRegularExpression(absolute.path()),
                 QRegularExpression::CaseInsensitiveOption);
         }
     }
+    project->setFilters(filters);
 
     QList<BuildTargetInfo> targetInfos;
 
@@ -207,7 +210,7 @@ void WorkspaceBuildSystem::reparse(bool force)
         const QJsonObject targetObject = target.toObject();
 
         QJsonArray args = targetObject["arguments"].toArray();
-        QStringList arguments = Utils::transform<QStringList>(args, [](const QJsonValue &arg) {
+        QStringList arguments = transform<QStringList>(args, [](const QJsonValue &arg) {
             return arg.toString();
         });
         FilePath workingDirectory = FilePath::fromUserInput(
@@ -234,10 +237,13 @@ void WorkspaceBuildSystem::reparse(bool force)
 
     setApplicationTargets(targetInfos);
 
-    if (force || oldFilters != m_filters)
-        scan(project()->projectDirectory());
+    if (force || oldFilters != filters)
+        scan(project->projectDirectory());
     else
         emitBuildSystemUpdated();
+
+    m_parseGuard.markAsSuccess();
+    m_parseGuard = {};
 }
 
 void WorkspaceBuildSystem::triggerParsing()
@@ -275,9 +281,9 @@ bool WorkspaceBuildSystem::supportsAction(Node *, ProjectAction action, const No
            || action == ProjectAction::EraseFile;
 }
 
-void WorkspaceBuildSystem::handleDirectoryChanged(const FilePath &directory)
+void WorkspaceProject::handleDirectoryChanged(const FilePath &directory)
 {
-    ProjectNode *root = project()->rootProjectNode();
+    ProjectNode *root = rootProjectNode();
     QTC_ASSERT(root, return);
     auto node = root->findNode(
         [&directory](Node *node) {
@@ -323,21 +329,23 @@ void WorkspaceBuildSystem::handleDirectoryChanged(const FilePath &directory)
 
 void WorkspaceBuildSystem::scan(const FilePath &path)
 {
-    m_scanQueue << path;
-    scanNext();
+    qobject_cast<WorkspaceProject *>(project())->scan(path);
+    emitBuildSystemUpdated();
 }
 
-void WorkspaceBuildSystem::scanNext()
+void WorkspaceProject::scan(const FilePath &path)
+{
+    if (!m_scanQueue.contains(path)) {
+        m_scanQueue.append(path);
+        scanNext();
+    }
+}
+
+void WorkspaceProject::scanNext()
 {
     if (m_scanQueue.isEmpty()) {
         qCDebug(wsbs) << "Scan done.";
-        m_parseGuard.markAsSuccess();
-        m_parseGuard = {};
-
-        emitBuildSystemUpdated();
     } else {
-        if (!m_parseGuard.guardsProject())
-            m_parseGuard = guardParsingRun();
         if (m_scanner.isFinished()) {
             const FilePath next = m_scanQueue.first();
             qCDebug(wsbs) << "Start scanning" << next;
@@ -346,16 +354,14 @@ void WorkspaceBuildSystem::scanNext()
     }
 }
 
-bool WorkspaceBuildSystem::isFiltered(const FilePath &path, QList<IVersionControl *> versionControls) const
+bool WorkspaceProject::isFiltered(const FilePath &path, QList<IVersionControl *> versionControls) const
 {
-    const bool explicitlyExcluded = Utils::anyOf(
-        m_filters,
-        [path](const QRegularExpression &filter) {
-            return filter.match(path.path()).hasMatch();
-        });
+    const bool explicitlyExcluded = anyOf(m_filters, [path](const QRegularExpression &filter) {
+        return filter.match(path.path()).hasMatch();
+    });
     if (explicitlyExcluded)
         return true;
-    return Utils::anyOf(versionControls, [path](const IVersionControl *vc) {
+    return anyOf(versionControls, [path](const IVersionControl *vc) {
         return vc->isVcsFileOrDirectory(path);
     });
 }
@@ -480,15 +486,23 @@ public:
             for (BuildStep *step : buildSteps()->steps())
                 step->setEnabled(false);
         }
+        if (extraInfos.contains("env")) {
+            EnvironmentItems envItems = extraInfos["env"].value<EnvironmentItems>();
+            for (auto &envItem : envItems)
+                envItem.value = macroExpander()->expand(envItem.value);
+
+            setUserEnvironmentChanges(envItems);
+            originalExtraInfo->remove("env");
+        }
     }
 
-    void fromMap(const Utils::Store &map) override
+    void fromMap(const Store &map) override
     {
         BuildConfiguration::fromMap(map);
         initializeExtraInfo(mapFromStore(storeFromVariant(map.value("extraInfo"))));
     }
 
-    void toMap(Utils::Store &map) const override
+    void toMap(Store &map) const override
     {
         BuildConfiguration::toMap(map);
         if (originalExtraInfo)
@@ -578,6 +592,31 @@ public:
                 continue;
             QVariantMap extraInfo = buildConfigObject.toVariantMap();
             extraInfo["forSetup"] = forSetup;
+
+            if (buildConfigObject.contains("env")) {
+                QJsonObject envObject = buildConfigObject["env"].toObject();
+                EnvironmentItems envItems;
+
+                for (QString key : envObject.keys()) {
+                    QString value = envObject[key].toString();
+                    EnvironmentItem::Operation op = EnvironmentItem::Operation::SetEnabled;
+                    if (key.startsWith('+')) {
+                        key = key.mid(1).trimmed();
+                        op = EnvironmentItem::Operation::Prepend;
+                    } else if (key.endsWith('+')) {
+                        key = key.left(key.length() - 1).trimmed();
+                        op = EnvironmentItem::Operation::Append;
+                    } else if (key.startsWith('-')) {
+                        key = key.mid(1).trimmed();
+                        op = EnvironmentItem::Operation::Unset;
+                    }
+
+                    envItems.append(EnvironmentItem(key, value, op));
+                }
+
+                extraInfo["env"] = QVariant::fromValue(envItems);
+            }
+
             buildInfo.extraInfo = extraInfo;
 
             buildInfos.append(buildInfo);
@@ -606,6 +645,8 @@ WorkspaceProject::WorkspaceProject(const FilePath &file, const QJsonObject &defa
     setBuildSystemCreator<WorkspaceBuildSystem>();
 
     connect(this, &Project::projectFileIsDirty, this, &WorkspaceProject::updateBuildConfigurations);
+
+    setupScanner();
 }
 
 FilePath WorkspaceProject::projectDirectory() const
@@ -673,7 +714,7 @@ void WorkspaceProject::updateBuildConfigurations()
 
 void WorkspaceProject::saveProjectDefinition(const QJsonObject &json)
 {
-    Utils::FileSaver saver(projectFilePath());
+    FileSaver saver(projectFilePath());
     saver.write(QJsonDocument(json).toJson());
     saver.finalize();
 }

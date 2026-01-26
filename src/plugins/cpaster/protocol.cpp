@@ -63,32 +63,30 @@ QString Protocol::fixNewLines(QString data)
 
 // Show a configuration error and point user to settings.
 // Return true when settings changed.
-static bool showConfigurationError(const Protocol *p, const QString &message, QWidget *parent)
+static bool showConfigurationError(const Protocol *p, const QString &message)
 {
     const bool showConfig = p->settingsPage();
 
-    if (!parent)
-        parent = Core::ICore::dialogParent();
     const QString title = Tr::tr("%1 - Configuration Error").arg(p->name());
-    QMessageBox mb(QMessageBox::Warning, title, message, QMessageBox::Cancel, parent);
+    QMessageBox mb(QMessageBox::Warning, title, message, QMessageBox::Cancel, Core::ICore::dialogParent());
     QPushButton *settingsButton = nullptr;
     if (showConfig)
         settingsButton = mb.addButton(Core::ICore::msgShowOptionsDialog(), QMessageBox::AcceptRole);
     mb.exec();
     bool rc = false;
     if (mb.clickedButton() == settingsButton)
-        rc = Core::ICore::showOptionsDialog(p->settingsPage()->id(), parent);
+        rc = Core::ICore::showOptionsDialog(p->settingsPage()->id());
     return rc;
 }
 
-bool Protocol::ensureConfiguration(Protocol *p, QWidget *parent)
+bool Protocol::ensureConfiguration(Protocol *p)
 {
     while (true) {
         const auto res = p->checkConfiguration();
         if (res)
             return true;
         // Cancel returns empty error message.
-        if (res.error().isEmpty() || !showConfigurationError(p, res.error(), parent))
+        if (res.error().isEmpty() || !showConfigurationError(p, res.error()))
             break;
     }
     return false;

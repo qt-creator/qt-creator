@@ -47,10 +47,7 @@ namespace {
 class CloneIntoRunConfigDialog : public QDialog
 {
 public:
-    CloneIntoRunConfigDialog(const RunConfiguration *thisRc)
-        : m_rcModel(new RCModel(this))
-        , m_sortModel(new SortModel(this))
-        , m_rcView(new TreeView(this))
+    explicit CloneIntoRunConfigDialog(const RunConfiguration *thisRc)
     {
         setWindowTitle(Tr::tr("Clone From Run Configuration"));
         resize(500, 400);
@@ -93,9 +90,9 @@ public:
         // Initialize model. Only use static data. This way, we are immune
         // to removal of any configurations while the dialog is running.
         if (eligibleRcs.isEmpty()) {
-            m_rcModel->rootItem()->appendChild(
+            m_rcModel.rootItem()->appendChild(
                 new StaticTreeItem(Tr::tr("There are no other run configurations.")));
-            m_rcView->setSelectionMode(TreeView::NoSelection);
+            m_rcView.setSelectionMode(TreeView::NoSelection);
         } else {
             for (auto projectIt = eligibleRcs.cbegin(); projectIt != eligibleRcs.cend();
                  ++projectIt) {
@@ -115,33 +112,39 @@ public:
                     }
                     projectItem->appendChild(targetItem);
                 }
-                m_rcModel->rootItem()->appendChild(projectItem);
+                m_rcModel.rootItem()->appendChild(projectItem);
             }
-            m_rcView->setSelectionMode(TreeView::SingleSelection);
-            m_rcView->setSelectionBehavior(TreeView::SelectItems);
+            m_rcView.setSelectionMode(TreeView::SingleSelection);
+            m_rcView.setSelectionBehavior(TreeView::SelectItems);
         }
 
         // UI
-        m_sortModel->setSourceModel(m_rcModel);
-        m_rcView->setModel(m_sortModel);
-        m_rcView->expandAll();
-        m_rcView->setSortingEnabled(true);
-        m_rcView->resizeColumnToContents(0);
-        m_rcView->sortByColumn(0, Qt::AscendingOrder);
+        m_sortModel.setSourceModel(&m_rcModel);
+
+        m_rcView.setModel(&m_sortModel);
+        m_rcView.expandAll();
+        m_rcView.setSortingEnabled(true);
+        m_rcView.resizeColumnToContents(0);
+        m_rcView.sortByColumn(0, Qt::AscendingOrder);
+
         const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         buttonBox->button(QDialogButtonBox::Ok)->setText(Tr::tr("Clone"));
-        connect(m_rcView, &TreeView::doubleClicked, this, [this] { accept(); });
+
+        connect(&m_rcView, &TreeView::doubleClicked, this, [this] { accept(); });
+
         const auto updateOkButton = [buttonBox, this] {
             buttonBox->button(QDialogButtonBox::Ok)
-                ->setEnabled(isRcItem(m_rcView->selectionModel()->currentIndex()));
+                ->setEnabled(isRcItem(m_rcView.selectionModel()->currentIndex()));
         };
-        connect(m_rcView->selectionModel(), &QItemSelectionModel::selectionChanged,
+        connect(m_rcView.selectionModel(), &QItemSelectionModel::selectionChanged,
                 this, updateOkButton);
         updateOkButton();
+
         connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
         const auto layout = new QVBoxLayout(this);
-        layout->addWidget(m_rcView);
+        layout->addWidget(&m_rcView);
         layout->addWidget(buttonBox);
     }
 
@@ -177,10 +180,10 @@ private:
 
     void accept() override
     {
-        const QModelIndex current = m_rcView->selectionModel()->currentIndex();
+        const QModelIndex current = m_rcView.selectionModel()->currentIndex();
         QTC_ASSERT(isRcItem(current), return);
         const auto item = dynamic_cast<RCTreeItem *>(
-            m_rcModel->itemForIndex(m_sortModel->mapToSource(current)));
+            m_rcModel.itemForIndex(m_sortModel.mapToSource(current)));
         QTC_ASSERT(item, return);
         m_source = item->runConfig();
         QDialog::accept();
@@ -192,9 +195,9 @@ private:
     }
 
     using RCModel = TreeModel<TreeItem, StaticTreeItem, StaticTreeItem, StaticTreeItem, RCTreeItem>;
-    RCModel * const m_rcModel;
-    SortModel * const m_sortModel;
-    TreeView * const m_rcView;
+    RCModel m_rcModel;
+    SortModel m_sortModel;
+    TreeView m_rcView;
     const RunConfiguration * m_source = nullptr;
 };
 } // namespace

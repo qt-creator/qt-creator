@@ -20,7 +20,7 @@ namespace Internal { class DeviceManagerModelPrivate; }
 class PROJECTEXPLORER_EXPORT DeviceManagerModel : public QAbstractListModel
 {
 public:
-    explicit DeviceManagerModel(QObject *parent = nullptr);
+    DeviceManagerModel();
     ~DeviceManagerModel() override;
 
     void setFilter(const QList<Utils::Id> &filter);
@@ -52,7 +52,7 @@ private:
 class PROJECTEXPLORER_EXPORT DeviceFilterModel : public QSortFilterProxyModel
 {
 public:
-    using QSortFilterProxyModel::QSortFilterProxyModel;
+    DeviceFilterModel() = default;
 
     void setDevice(const IDeviceConstPtr &device);
 

@@ -7,7 +7,9 @@ add_qtc_plugin(Axivion
     axivionperspective.cpp axivionperspective.h
     axivionplugin.cpp axivionplugin.h
     axivionsettings.cpp axivionsettings.h
+    axiviontextmarks.cpp axiviontextmarks.h
     axiviontr.h
+    axivionutils.cpp axivionutils.h
     dashboard/dto.cpp dashboard/dto.h
     dashboard/concat.cpp dashboard/concat.h
     dashboard/error.h dashboard/error.cpp
@@ -15,6 +17,8 @@ add_qtc_plugin(Axivion
     dynamiclistmodel.cpp dynamiclistmodel.h
     issueheaderview.cpp issueheaderview.h
     localbuild.cpp localbuild.h
+    pluginarserver.cpp pluginarserver.h
+    singlefileanalysis.cpp singlefileanalysis.h
 )
 
 file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)

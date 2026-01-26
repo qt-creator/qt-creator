@@ -129,8 +129,6 @@ QmlJSEditorWidget::QmlJSEditorWidget()
 
 void QmlJSEditorWidget::finalizeInitialization()
 {
-    m_qmlJsEditorDocument = static_cast<QmlJSEditorDocument *>(textDocument());
-
     m_updateUsesTimer.setInterval(UPDATE_USES_DEFAULT_INTERVAL);
     m_updateUsesTimer.setSingleShot(true);
     connect(&m_updateUsesTimer, &QTimer::timeout, this, &QmlJSEditorWidget::updateUses);
@@ -159,10 +157,10 @@ void QmlJSEditorWidget::finalizeInitialization()
     connect(this->document(), &QTextDocument::modificationChanged,
             this, &QmlJSEditorWidget::updateModificationChange);
 
-    connect(m_qmlJsEditorDocument, &QmlJSEditorDocument::updateCodeWarnings,
+    connect(qmlJsEditorDocument(), &QmlJSEditorDocument::updateCodeWarnings,
             this, &QmlJSEditorWidget::updateCodeWarnings);
 
-    connect(m_qmlJsEditorDocument, &QmlJSEditorDocument::semanticInfoUpdated,
+    connect(qmlJsEditorDocument(), &QmlJSEditorDocument::semanticInfoUpdated,
             this, &QmlJSEditorWidget::semanticInfoUpdated);
 
     setRequestMarkEnabled(true);
@@ -281,7 +279,7 @@ void QmlJSEditorWidget::jumpToOutlineElement(int /*index*/)
     if (!m_outlineCombo)
         return;
     QModelIndex index = m_outlineCombo->view()->currentIndex();
-    SourceLocation location = m_qmlJsEditorDocument->outlineModel()->sourceLocation(index);
+    SourceLocation location = qmlJsEditorDocument()->outlineModel()->sourceLocation(index);
 
     if (!location.isValid())
         return;
@@ -300,10 +298,10 @@ void QmlJSEditorWidget::updateOutlineIndexNow()
 {
     if (!m_outlineCombo)
         return;
-    if (!m_qmlJsEditorDocument->outlineModel()->document())
+    if (!qmlJsEditorDocument()->outlineModel()->document())
         return;
 
-    if (m_qmlJsEditorDocument->outlineModel()->document()->editorRevision() != document()->revision()) {
+    if (qmlJsEditorDocument()->outlineModel()->document()->editorRevision() != document()->revision()) {
         m_updateOutlineIndexTimer.start();
         return;
     }
@@ -324,7 +322,7 @@ void QmlJSEditorWidget::updateOutlineIndexNow()
 
 void QmlJSEditorWidget::updateContextPane()
 {
-    const SemanticInfo info = m_qmlJsEditorDocument->semanticInfo();
+    const SemanticInfo info = qmlJsEditorDocument()->semanticInfo();
     if (m_contextPane && document() && info.isValid()
             && document()->revision() == info.document->editorRevision())
     {
@@ -374,14 +372,14 @@ void QmlJSEditorWidget::showTextMarker()
 
 void QmlJSEditorWidget::updateUses()
 {
-    if (m_qmlJsEditorDocument->isSemanticInfoOutdated()) // will be updated when info is updated
+    if (qmlJsEditorDocument()->isSemanticInfoOutdated()) // will be updated when info is updated
         return;
 
     QList<QTextEdit::ExtraSelection> selections;
 
     // code model may present the locations not in a document order
     const QList<SourceLocation> locations = Utils::sorted(
-                m_qmlJsEditorDocument->semanticInfo().idLocations.value(wordUnderCursor()),
+                qmlJsEditorDocument()->semanticInfo().idLocations.value(wordUnderCursor()),
                 [](const SourceLocation &lhs, const SourceLocation &rhs) {
         return lhs.begin() < rhs.begin();
     });
@@ -516,10 +514,10 @@ void QmlJSEditorWidget::setSelectedElements()
         endPos = textCursor().position();
     }
 
-    if (m_qmlJsEditorDocument->semanticInfo().isValid()) {
+    if (qmlJsEditorDocument()->semanticInfo().isValid()) {
         SelectedElement selectedMembers;
         const QList<UiObjectMember *> members
-            = selectedMembers(m_qmlJsEditorDocument->semanticInfo().document, startPos, endPos);
+            = selectedMembers(qmlJsEditorDocument()->semanticInfo().document, startPos, endPos);
         if (!members.isEmpty()) {
             for (UiObjectMember *m : members) {
                 offsets << m;
@@ -534,10 +532,10 @@ void QmlJSEditorWidget::setSelectedElements()
 void QmlJSEditorWidget::applyFontSettings()
 {
     TextEditorWidget::applyFontSettings();
-    if (!m_qmlJsEditorDocument->isSemanticInfoOutdated())
+    QTC_ASSERT(qmlJsEditorDocument(), return);
+    if (!qmlJsEditorDocument()->isSemanticInfoOutdated())
         updateUses();
 }
-
 
 QString QmlJSEditorWidget::wordUnderCursor() const
 {
@@ -556,7 +554,7 @@ void QmlJSEditorWidget::createToolBar()
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
-    m_outlineCombo->setModel(m_qmlJsEditorDocument->outlineModel());
+    m_outlineCombo->setModel(qmlJsEditorDocument()->outlineModel());
 
     auto treeView = new QTreeView;
 
@@ -580,7 +578,7 @@ void QmlJSEditorWidget::createToolBar()
 
     connect(m_outlineCombo, &QComboBox::activated,
             this, &QmlJSEditorWidget::jumpToOutlineElement);
-    connect(m_qmlJsEditorDocument->outlineModel(), &Internal::QmlOutlineModel::updated,
+    connect(qmlJsEditorDocument()->outlineModel(), &Internal::QmlOutlineModel::updated,
             static_cast<QTreeView *>(m_outlineCombo->view()), &QTreeView::expandAll);
 
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
@@ -732,7 +730,7 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
     const QTextCursor cursor = textCursor();
 
     const unsigned cursorPosition = cursor.position();
-    const SemanticInfo semanticInfo = m_qmlJsEditorDocument->semanticInfo();
+    const SemanticInfo semanticInfo = qmlJsEditorDocument()->semanticInfo();
     if (!semanticInfo.isValid())
         return;
 
@@ -784,7 +782,7 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
         return;
     }
 
-    const SemanticInfo semanticInfo = m_qmlJsEditorDocument->semanticInfo();
+    const SemanticInfo semanticInfo = qmlJsEditorDocument()->semanticInfo();
     if (! semanticInfo.isValid())
         return processLinkCallback(Utils::Link());
 
@@ -963,7 +961,7 @@ void QmlJSEditorWidget::renameSymbolUnderCursor()
 
 void QmlJSEditorWidget::showContextPane()
 {
-    const SemanticInfo info = m_qmlJsEditorDocument->semanticInfo();
+    const SemanticInfo info = qmlJsEditorDocument()->semanticInfo();
     if (m_contextPane && info.isValid()) {
         Node *newNode = info.declaringMemberNoProperties(position());
         ScopeChain scopeChain = info.scopeChain(info.rangePath(position()));
@@ -981,7 +979,7 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     QMenu *refactoringMenu = new QMenu(Tr::tr("Refactoring"), menu);
 
-    if (!m_qmlJsEditorDocument->isSemanticInfoOutdated()) {
+    if (!qmlJsEditorDocument()->isSemanticInfoOutdated()) {
         std::unique_ptr<AssistInterface> interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
             QScopedPointer<IAssistProcessor> processor(
@@ -1010,8 +1008,8 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
                 menu->addMenu(refactoringMenu);
             if (action->objectName() == QLatin1String(Constants::SHOW_QT_QUICK_HELPER)) {
                 bool enabled = m_contextPane->isAvailable(
-                            this, m_qmlJsEditorDocument->semanticInfo().document,
-                            m_qmlJsEditorDocument->semanticInfo().declaringMemberNoProperties(position()));
+                            this, qmlJsEditorDocument()->semanticInfo().document,
+                            qmlJsEditorDocument()->semanticInfo().declaringMemberNoProperties(position()));
                 action->setEnabled(enabled);
             }
         }
@@ -1051,8 +1049,8 @@ void QmlJSEditorWidget::wheelEvent(QWheelEvent *event)
     TextEditorWidget::wheelEvent(event);
 
     if (visible)
-        m_contextPane->apply(this, m_qmlJsEditorDocument->semanticInfo().document, nullptr,
-                             m_qmlJsEditorDocument->semanticInfo().declaringMemberNoProperties(m_oldCursorPosition),
+        m_contextPane->apply(this, qmlJsEditorDocument()->semanticInfo().document, nullptr,
+                             qmlJsEditorDocument()->semanticInfo().declaringMemberNoProperties(m_oldCursorPosition),
                              false, true);
 }
 
@@ -1070,7 +1068,7 @@ void QmlJSEditorWidget::resizeEvent(QResizeEvent *event)
 
 QmlJSEditorDocument *QmlJSEditorWidget::qmlJsEditorDocument() const
 {
-    return m_qmlJsEditorDocument;
+    return static_cast<QmlJSEditorDocument *>(textDocument());
 }
 
 void QmlJSEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)
@@ -1095,7 +1093,7 @@ QModelIndex QmlJSEditorWidget::indexForPosition(unsigned cursorPosition, const Q
 {
     QModelIndex lastIndex = rootIndex;
 
-    Internal::QmlOutlineModel *model = m_qmlJsEditorDocument->outlineModel();
+    Internal::QmlOutlineModel *model = qmlJsEditorDocument()->outlineModel();
     const int rowCount = model->rowCount(rootIndex);
     for (int i = 0; i < rowCount; ++i) {
         QModelIndex childIndex = model->index(i, 0, rootIndex);
@@ -1119,7 +1117,7 @@ bool QmlJSEditorWidget::hideContextPane()
 {
     bool b = (m_contextPane) && m_contextPane->widget()->isVisible();
     if (b)
-        m_contextPane->apply(this, m_qmlJsEditorDocument->semanticInfo().document,
+        m_contextPane->apply(this, qmlJsEditorDocument()->semanticInfo().document,
                              nullptr, nullptr, false);
     return b;
 }
@@ -1130,7 +1128,7 @@ std::unique_ptr<AssistInterface> QmlJSEditorWidget::createAssistInterface(
 {
     if (assistKind == Completion) {
         return std::make_unique<QmlJSCompletionAssistInterface>(
-            textCursor(), textDocument()->filePath(), reason, m_qmlJsEditorDocument->semanticInfo());
+            textCursor(), textDocument()->filePath(), reason, qmlJsEditorDocument()->semanticInfo());
     } else if (assistKind == QuickFix) {
         return std::make_unique<Internal::QmlJSQuickFixAssistInterface>(
             const_cast<QmlJSEditorWidget *>(this), reason);
@@ -1142,9 +1140,9 @@ QString QmlJSEditorWidget::foldReplacementText(const QTextBlock &block) const
 {
     const int curlyIndex = block.text().indexOf(QLatin1Char('{'));
 
-    if (curlyIndex != -1 && m_qmlJsEditorDocument->semanticInfo().isValid()) {
+    if (curlyIndex != -1 && qmlJsEditorDocument()->semanticInfo().isValid()) {
         const int pos = block.position() + curlyIndex;
-        Node *node = m_qmlJsEditorDocument->semanticInfo().rangeAt(pos);
+        Node *node = qmlJsEditorDocument()->semanticInfo().rangeAt(pos);
 
         const QString objectId = idOfObject(node);
         if (!objectId.isEmpty())

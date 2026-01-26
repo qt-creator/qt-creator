@@ -45,6 +45,7 @@ void SelectableTextEditorWidget::setDisplaySettings(const DisplaySettings &displ
     settings.m_displayLineNumbers = true;
     settings.m_markTextChanges = false;
     settings.m_highlightBlocks = false;
+    settings.m_displayMinimap = false;
     TextEditorWidget::setDisplaySettings(settings);
 }
 
@@ -52,7 +53,7 @@ static QList<DiffSelection> subtractSelection(
         const DiffSelection &minuendSelection,
         const DiffSelection &subtrahendSelection)
 {
-    // tha case that whole minuend is before the whole subtrahend
+    // the case that whole minuend is before the whole subtrahend
     if (minuendSelection.end >= 0 && minuendSelection.end <= subtrahendSelection.start)
         return {minuendSelection};
 

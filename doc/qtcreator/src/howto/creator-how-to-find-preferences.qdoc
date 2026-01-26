@@ -3,14 +3,9 @@
 
 /*!
     \page creator-how-to-find-preferences.html
-    \if defined(qtcreator)
     \previouspage creator-how-tos.html
-    \else
-    \previouspage studio-ui.html
-    \endif
 
     \ingroup creator-how-to-ui
-    \ingroup studio-how-to
 
     \title Find preferences
 

@@ -11,6 +11,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/devicemanagermodel.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
@@ -313,9 +314,9 @@ private:
     bool isNameUnique(const QtVersion *version);
     void updateVersionItem(QtVersionItem *item);
 
-    TreeModel<TreeItem, TreeItem, QtVersionItem> *m_model;
-    DeviceFilterModel *m_filterModel;
-    KitSettingsSortModel *m_sortModel;
+    TreeModel<TreeItem, TreeItem, QtVersionItem> m_model;
+    DeviceFilterModel m_filterModel;
+    KitSettingsSortModel m_sortModel;
     TreeItem *m_autoItem;
     TreeItem *m_manualItem;
 
@@ -347,6 +348,8 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     , m_configurationWidget(nullptr)
 {
     m_deviceComboBox = new QComboBox;
+    Core::IOptionsPageWidget::setIgnoreForDirtyHook(m_deviceComboBox);
+    m_deviceManagerModel.showAllEntry();
     m_deviceComboBox->setModel(&m_deviceManagerModel);
 
     m_qtdirList = new QTreeView(this);
@@ -430,20 +433,17 @@ QtSettingsPageWidget::QtSettingsPageWidget()
                                     {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
     m_manualItem = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
 
-    m_model = new TreeModel<TreeItem, TreeItem, QtVersionItem>(this);
-    m_model->setHeader({Tr::tr("Name"), Tr::tr("qmake Path")});
-    m_model->rootItem()->appendChild(m_autoItem);
-    m_model->rootItem()->appendChild(m_manualItem);
+    m_model.setHeader({Tr::tr("Name"), Tr::tr("qmake Path")});
+    m_model.rootItem()->appendChild(m_autoItem);
+    m_model.rootItem()->appendChild(m_manualItem);
 
-    m_filterModel = new DeviceFilterModel(this);
-    m_filterModel->setSourceModel(m_model);
+    m_filterModel.setSourceModel(&m_model);
 
-    m_sortModel = new KitSettingsSortModel(this);
-    m_sortModel->setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
-                                        ProjectExplorer::Constants::msgManual()});
-    m_sortModel->setSourceModel(m_filterModel);
+    m_sortModel.setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
+                                     ProjectExplorer::Constants::msgManual()});
+    m_sortModel.setSourceModel(&m_filterModel);
 
-    m_qtdirList->setModel(m_sortModel);
+    m_qtdirList->setModel(&m_sortModel);
     m_qtdirList->setSortingEnabled(true);
 
     m_qtdirList->setFirstColumnSpanned(0, QModelIndex(), true);
@@ -505,12 +505,11 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     }});
 
     const auto updateDevice = [this](int index) {
-        m_filterModel->setDevice(m_deviceManagerModel.device(index));
+        m_filterModel.setDevice(m_deviceManagerModel.device(index));
         updateLinkWithQtButton();
     };
     connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
-    m_deviceComboBox->setCurrentIndex(
-        m_deviceManagerModel.indexForId(ProjectExplorer::Constants::DESKTOP_DEVICE_ID));
+    m_deviceComboBox->setCurrentIndex(0);
     updateDevice(m_deviceComboBox->currentIndex());
 }
 
@@ -525,19 +524,19 @@ QtVersion *QtSettingsPageWidget::currentVersion() const
 QtVersionItem *QtSettingsPageWidget::currentItem() const
 {
     const QModelIndex sourceIdx = mapToSource(m_qtdirList->selectionModel()->currentIndex());
-    return m_model->itemForIndexAtLevel<2>(sourceIdx);
+    return m_model.itemForIndexAtLevel<2>(sourceIdx);
 }
 
 QModelIndex QtSettingsPageWidget::mapFromSource(const QModelIndex &idx) const
 {
-    QTC_ASSERT(m_filterModel == m_sortModel->sourceModel(), return {});
-    return m_sortModel->mapFromSource(m_filterModel->mapFromSource(idx));
+    QTC_ASSERT(&m_filterModel == m_sortModel.sourceModel(), return {});
+    return m_sortModel.mapFromSource(m_filterModel.mapFromSource(idx));
 }
 
 QModelIndex QtSettingsPageWidget::mapToSource(const QModelIndex &idx) const
 {
-    QTC_ASSERT(m_filterModel == m_sortModel->sourceModel(), return {});
-    return m_filterModel->mapToSource(m_sortModel->mapToSource(idx));
+    QTC_ASSERT(&m_filterModel == m_sortModel.sourceModel(), return {});
+    return m_filterModel.mapToSource(m_sortModel.mapToSource(idx));
 }
 
 std::pair<bool, QString> QtSettingsPageWidget::checkAlreadyExists(
@@ -578,14 +577,14 @@ void QtSettingsPageWidget::cleanUpQtVersions()
         return;
 
     for (QtVersionItem *item : std::as_const(toRemove))
-        m_model->destroyItem(item);
+        m_model.destroyItem(item);
 
     updateCleanUpButton();
 }
 
 void QtSettingsPageWidget::toolChainsUpdated()
 {
-    m_model->forItemsAtLevel<2>([this](QtVersionItem *item) {
+    m_model.forItemsAtLevel<2>([this](QtVersionItem *item) {
         if (item == currentItem())
             updateDescriptionLabel();
         else
@@ -680,7 +679,7 @@ bool QtSettingsPageWidget::isNameUnique(const QtVersion *version)
 {
     const QString name = version->displayName().trimmed();
 
-    return !m_model->findItemAtLevel<2>([name, version](QtVersionItem *item) {
+    return !m_model.findItemAtLevel<2>([name, version](QtVersionItem *item) {
         QtVersion *v = item->version();
         return v != version && v->displayName().trimmed() == name;
     });
@@ -699,7 +698,7 @@ void QtSettingsPageWidget::updateQtVersions(const QList<int> &additions, const Q
     QList<int> toAdd = additions;
 
     // Find existing items to remove/change:
-    m_model->forItemsAtLevel<2>([&](QtVersionItem *item) {
+    m_model.forItemsAtLevel<2>([&](QtVersionItem *item) {
         int id = item->uniqueId();
         if (removals.contains(id)) {
             toRemove.append(item);
@@ -711,7 +710,7 @@ void QtSettingsPageWidget::updateQtVersions(const QList<int> &additions, const Q
 
     // Remove changed/removed items:
     for (QtVersionItem *item : std::as_const(toRemove))
-        m_model->destroyItem(item);
+        m_model.destroyItem(item);
 
     // Add changed/added items:
     for (int a : std::as_const(toAdd)) {
@@ -724,7 +723,7 @@ void QtSettingsPageWidget::updateQtVersions(const QList<int> &additions, const Q
         parent->appendChild(item);
     }
 
-    m_model->forItemsAtLevel<2>([this](QtVersionItem *item) { updateVersionItem(item); });
+    m_model.forItemsAtLevel<2>([this](QtVersionItem *item) { updateVersionItem(item); });
 }
 
 QtSettingsPageWidget::~QtSettingsPageWidget()
@@ -736,7 +735,7 @@ void QtSettingsPageWidget::addQtDir()
 {
     FilePath initialDir;
     const IDeviceConstPtr dev = currentDevice();
-    if (QTC_GUARD(dev) && dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
+    if (dev && dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
         initialDir = dev->rootPath();
     FilePath qtVersion
         = FileUtils::getOpenFilePath(Tr::tr("Select a qmake Executable"),
@@ -773,7 +772,7 @@ void QtSettingsPageWidget::addQtDir()
         auto item = new QtVersionItem(version);
         item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
         m_manualItem->appendChild(item);
-        m_qtdirList->setCurrentIndex(mapFromSource(m_model->indexForItem(item))); // should update the rest of the ui
+        m_qtdirList->setCurrentIndex(mapFromSource(m_model.indexForItem(item))); // should update the rest of the ui
         m_nameEdit->setFocus();
         m_nameEdit->selectAll();
     } else {
@@ -790,31 +789,36 @@ void QtSettingsPageWidget::removeQtDir()
     if (!item)
         return;
 
-    m_model->destroyItem(item);
+    m_model.destroyItem(item);
 
     updateCleanUpButton();
 }
 
 void QtSettingsPageWidget::redetect()
 {
-    const IDeviceConstPtr dev = currentDevice();
-    if (!QTC_GUARD(dev))
-        return;
+    QList<IDeviceConstPtr> devices;
+    if (const IDeviceConstPtr device = currentDevice()) {
+        devices << device;
+    } else {
+        for (int i = 0; i < DeviceManager::deviceCount(); ++i)
+            devices << DeviceManager::deviceAt(i);
+    }
+    for (const IDeviceConstPtr &dev : std::as_const(devices)) {
+        const FilePaths qMakes = BuildableHelperLibrary::findQtsInPaths(dev->toolSearchPaths());
+        for (const FilePath &qmakePath : qMakes) {
+            if (BuildableHelperLibrary::isQtChooser(qmakePath))
+                continue;
+            if (checkAlreadyExists(m_autoItem, qmakePath).first)
+                continue;
+            if (checkAlreadyExists(m_manualItem, qmakePath).first)
+                continue;
 
-    const FilePaths qMakes = BuildableHelperLibrary::findQtsInPaths(dev->toolSearchPaths());
-    for (const FilePath &qmakePath : qMakes) {
-        if (BuildableHelperLibrary::isQtChooser(qmakePath))
-            continue;
-        if (checkAlreadyExists(m_autoItem, qmakePath).first)
-            continue;
-        if (checkAlreadyExists(m_manualItem, qmakePath).first)
-            continue;
-
-        if (QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(
-                qmakePath, {DetectionSource::Manual, "PATH"})) {
-            auto item = new QtVersionItem(version);
-            item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
-            m_manualItem->appendChild(item);
+            if (QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(
+                    qmakePath, {DetectionSource::Manual, "PATH"})) {
+                auto item = new QtVersionItem(version);
+                item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
+                m_manualItem->appendChild(item);
+            }
         }
     }
 
@@ -1025,7 +1029,7 @@ void QtSettingsPageWidget::updateCurrentQtName()
     item->version()->setUnexpandedDisplayName(m_nameEdit->text());
 
     updateDescriptionLabel();
-    m_model->forItemsAtLevel<2>([this](QtVersionItem *item) { updateVersionItem(item); });
+    m_model.forItemsAtLevel<2>([this](QtVersionItem *item) { updateVersionItem(item); });
 }
 
 void QtSettingsPageWidget::apply()
@@ -1039,7 +1043,7 @@ void QtSettingsPageWidget::apply()
         QtVersionManager::DocumentationSetting(m_documentationSetting->currentData().toInt()));
 
     QtVersions versions;
-    m_model->forItemsAtLevel<2>([&versions](QtVersionItem *item) {
+    m_model.forItemsAtLevel<2>([&versions](QtVersionItem *item) {
         item->setChanged(false);
         versions.append(item->version()->clone());
     });

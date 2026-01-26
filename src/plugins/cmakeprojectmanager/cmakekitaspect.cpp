@@ -283,7 +283,7 @@ Tasks CMakeKitAspectFactory::validate(const Kit *k) const
     CMakeTool *tool = cmakeTool(k);
     if (tool && tool->isValid()) {
         CMakeTool::Version version = tool->version();
-        if (version.major < 3 || (version.major == 3 && version.minor < 14)) {
+        if (version.major < 3 || (version.major == 3 && version.minor < 16)) {
             result << BuildSystemTask(Task::Warning,
                 CMakeKitAspect::msgUnsupportedVersion(version.fullVersion));
         }
@@ -989,7 +989,7 @@ void CMakeGeneratorKitAspectFactory::fix(Kit *k)
                            [info](const CMakeTool::Generator &g) {
         return g.matches(info.generator);
     });
-    if (it == known.constEnd() || (info.generator == "Ninja" && !isNinjaPresent(k))) {
+    if (it == known.constEnd()) {
         GeneratorInfo dv;
         dv.fromVariant(defaultValue(k));
         setGeneratorInfo(k, dv);

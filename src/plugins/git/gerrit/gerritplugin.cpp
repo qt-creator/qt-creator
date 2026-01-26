@@ -38,8 +38,6 @@ using namespace Utils;
 
 using namespace Git::Internal;
 
-enum { debug = 0 };
-
 namespace Gerrit::Internal {
 
 namespace Constants {
@@ -231,7 +229,7 @@ static FilePath currentRepository()
 void GerritPlugin::openView()
 {
     if (m_dialog.isNull()) {
-        while (!gerritSettings().isValid()) {
+        if (!gerritSettings().isValid()) {
             QMessageBox::warning(Core::ICore::dialogParent(), Git::Tr::tr("Error"),
                                  Git::Tr::tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
             if (!ICore::showOptionsDialog("Gerrit"))
@@ -373,17 +371,15 @@ FilePath GerritPlugin::findLocalRepository(const QString &project, const QString
         if ((!branchRegexp.isNull() && branchRegexp->match(fileName).hasMatch())
             || fileName == fixedProject) {
             // Perform a check on the branch.
-            if (branch.isEmpty())  {
+            if (branch.isEmpty())
                 return repository;
-            } else {
-                // Find the branch of a repository.
-                const QString repositoryBranch =
-                        gitClient().synchronousCurrentLocalBranch(repository);
-                if (repositoryBranch.isEmpty() || repositoryBranch == branch)
-                    return repository;
-            } // !branch.isEmpty()
-        } // branchRegexp or file name match
-    } // for repositories
+            // Find the branch of a repository.
+            const QString repositoryBranch = gitClient().synchronousCurrentLocalBranch(repository);
+            if (repositoryBranch.isEmpty() || repositoryBranch == branch)
+                return repository;
+        }
+    }
+
     // No match, do we have  a projects folder?
     if (DocumentManager::useProjectsDirectory())
         return DocumentManager::projectsDirectory();

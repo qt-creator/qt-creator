@@ -16,7 +16,10 @@
 #include <coreplugin/session.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectsettingswidget.h>
 
@@ -165,9 +168,9 @@ ClangdSettings::ClangdSettings()
             });
 }
 
-bool ClangdSettings::useClangd() const
+bool ClangdSettings::useClangd(const Kit *kit) const
 {
-    return m_data.useClangd && clangdVersion(clangdFilePath()) >= minimumClangdVersion();
+    return m_data.useClangd && clangdVersion(clangdFilePath(kit)) >= minimumClangdVersion();
 }
 
 void ClangdSettings::setUseClangd(bool use) { instance().m_data.useClangd = use; }
@@ -215,8 +218,17 @@ ClangDiagnosticConfigsModel ClangdSettings::diagnosticConfigsModel()
     return model;
 }
 
-FilePath ClangdSettings::clangdFilePath() const
+FilePath ClangdSettings::clangdFilePath(const Kit *kit) const
 {
+    if (kit && BuildDeviceTypeKitAspect::deviceTypeId(kit)
+                   != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        if (const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit)) {
+            FilePath clangd = buildDevice->deviceToolPath(CppEditor::Constants::CLANGD_TOOL_ID);
+            if (!clangd.isEmpty())
+                return clangd;
+        }
+    }
+
     if (!m_data.executableFilePath.isEmpty())
         return m_data.executableFilePath;
     return fallbackClangdFilePath();
@@ -316,10 +328,10 @@ static FilePath getClangHeadersPath(const FilePath &clangdFilePath)
     return {};
 }
 
-FilePath ClangdSettings::clangdIncludePath() const
+FilePath ClangdSettings::clangdIncludePath(const Kit *kit) const
 {
-    QTC_ASSERT(useClangd(), return {});
-    FilePath clangdPath = clangdFilePath();
+    QTC_ASSERT(useClangd(kit), return {});
+    FilePath clangdPath = clangdFilePath(kit);
     QTC_ASSERT(!clangdPath.isEmpty() && clangdPath.exists(), return {});
     static QHash<FilePath, FilePath> headersPathCache;
     const auto it = headersPathCache.constFind(clangdPath);
@@ -629,9 +641,9 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "The maximum number of completion results returned by clangd.");
 
     m_useClangdCheckBox.setText(Tr::tr("Use clangd"));
-    m_useClangdCheckBox.setChecked(settings.useClangd());
+    m_useClangdCheckBox.setChecked(settings.useClangd(nullptr));
     m_clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_clangdChooser.setFilePath(settings.clangdFilePath());
+    m_clangdChooser.setFilePath(settings.clangdFilePath(nullptr));
     m_clangdChooser.setAllowPathFromDevice(true);
     m_clangdChooser.setEnabled(m_useClangdCheckBox.isChecked());
     m_clangdChooser.setCommandVersionArguments({"--version"});

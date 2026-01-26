@@ -286,8 +286,12 @@ void TestResultsPane::handleNextBuffered()
         return;
     }
 
-    if (!m_buffered.isEmpty())
+    if (!m_buffered.isEmpty()) {
         m_bufferTimer.start();
+    } else if (!m_testRunning) {
+        createMarks();
+        updateMenuItemsEnabledState();
+    }
 }
 
 void TestResultsPane::addTestResult(const TestResult &result)
@@ -596,7 +600,6 @@ void TestResultsPane::onTestRunFinished()
     m_testRunning = false;
     m_stopTestRun->setEnabled(false);
 
-    updateMenuItemsEnabledState();
     updateSummaryLabel();
     m_summaryWidget->setVisible(true);
     m_model->removeCurrentTestMessage();
@@ -605,7 +608,6 @@ void TestResultsPane::onTestRunFinished()
     if (testSettings().popupOnFinish() && (!testSettings().popupOnFail() || hasFailedTests(m_model))) {
         popup(IOutputPane::NoModeSwitch);
     }
-    createMarks();
 }
 
 void TestResultsPane::onScrollBarRangeChanged(int, int max)
@@ -763,12 +765,16 @@ void TestResultsPane::createMarks(const QModelIndex &parent)
         bool isLocationItem = result.result() == ResultType::MessageLocation;
         if (interested.contains(result.result())
                 || (isLocationItem && interested.contains(parentType))) {
+            // do not pollute with too many marks - they won't be readable at all
+            if (m_marks.values({result.fileName(), result.line()}).size() > 13)
+                continue;
+
             TestEditorMark *mark = new TestEditorMark(index, result.fileName(), result.line());
-            mark->setIcon(index.data(Qt::DecorationRole).value<QIcon>());
+            mark->setIcon(Icons::TEXTMARK_FAIL.icon());
             mark->setColor(Theme::OutputPanes_TestFailTextColor);
             mark->setPriority(TextEditor::TextMark::NormalPriority);
             mark->setToolTip(result.description());
-            m_marks << mark;
+            m_marks.insert({result.fileName(), result.line()}, mark);
         }
     }
 }
@@ -915,6 +921,8 @@ void TestResultsPane::handlePendingResultsSilently()
         }
         if (value != -1)
             m_treeView->verticalScrollBar()->setValue(value);
+        createMarks();
+        updateMenuItemsEnabledState();
     };
 
     m_pendingRunner.start({AsyncTask<CopyAndAddResult>{onSetup, onDone}});

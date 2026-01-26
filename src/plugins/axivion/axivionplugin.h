@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include "axivionutils.h"
 #include "dashboard/dto.h"
 
 #include <utils/id.h>
+#include <utils/networkaccessmanager.h>
 #include <utils/result.h>
 
 #include <QHash>
@@ -72,13 +74,6 @@ public:
     std::optional<QString> userName;
 };
 
-enum class ContentType {
-    Html,
-    Json,
-    PlainText,
-    Svg
-};
-
 class DownloadData
 {
 public:
@@ -131,7 +126,8 @@ std::optional<Dto::NamedFilterInfoDto> namedFilterInfoForKey(const QString &key,
 
 bool handleCertificateIssue();
 
-QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind);
+enum class LineMarkerType;
+QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind, LineMarkerType type);
 QString anyToSimpleString(const Dto::Any &any, const QString &type,
                           const std::optional<std::vector<Dto::ColumnTypeOptionDto>> &options);
 void fetchIssueInfo(DashboardMode dashboardMode, const QString &id);
@@ -148,6 +144,8 @@ DashboardMode currentDashboardMode();
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);
 
 void updateEnvironmentForLocalBuild(Utils::Environment *env);
+
+Utils::NetworkAccessManager *axivionNetworkManager();
 
 } // Axivion::Internal
 

@@ -6,11 +6,11 @@
 #include "actionmanager/actioncontainer.h"
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
+#include "coreconstants.h"
 #include "coreicons.h"
 #include "coreplugintr.h"
 #include "dialogs/externaltoolconfig.h"
 #include "dialogs/ioptionspage.h"
-#include "dialogs/settingsdialog.h"
 #include "dialogs/shortcutsettings.h"
 #include "documentmanager.h"
 #include "editormanager/documentmodel_p.h"
@@ -43,6 +43,7 @@
 #include "progressmanager/progressmanager_p.h"
 #include "progressmanager/progressview.h"
 #include "rightpane.h"
+#include "settingsmode.h"
 #include "statusbarmanager.h"
 #include "systemsettings.h"
 #include "vcsmanager.h"
@@ -2610,7 +2611,7 @@ void ICorePrivate::changeLog()
         // (?<![[\/]) == don't replace if it is preceded by "[" or "/"
         // i.e. if it already is part of a link
         static const QRegularExpression bugexpr(R"((?<![[\/])((QT(CREATOR)?BUG|PYSIDE)-\d+))");
-        contents.replace(bugexpr, R"([\1](https://bugreports.qt.io/browse/\1))");
+        contents.replace(bugexpr, QString(R"([\1](%1/browse/\1))").arg(Constants::QT_JIRA_URL));
         static const QRegularExpression docexpr("https://doc[.]qt[.]io/qtcreator/([.a-zA-Z/_-]*)");
         QList<QRegularExpressionMatch> matches;
         for (const QRegularExpressionMatch &m : docexpr.globalMatch(contents))
@@ -2638,6 +2639,11 @@ void ICorePrivate::changeLog()
 
 void ICorePrivate::contact()
 {
+    // `&#37;3D` is a weird way for spelling `=`, which would be escaped by JIRA as `%3D`.
+    // But then `%` needs to be escaped as `&#37;` so that the `QString("%3").arg(...)` won't be confused.
+    const QString jiraLink = QString("<a href=\"%1/issues?jql=project&#37;3DQTCREATORBUG\">%1</a>")
+                                 .arg(Core::Constants::QT_JIRA_URL);
+
     QMessageBox dlg(QMessageBox::Information, Tr::tr("Contact"),
            Tr::tr("<p>Qt Creator developers can be reached at the Qt Creator mailing list:</p>"
               "%1"
@@ -2653,9 +2659,7 @@ void ICorePrivate::contact()
                             "<a href=\"https://web.libera.chat/#qt-creator\">"
                             "https://web.libera.chat/#qt-creator"
                          "</a></p>")
-                    .arg("<a href=\"https://bugreports.qt.io/projects/QTCREATORBUG\">"
-                            "https://bugreports.qt.io"
-                         "</a>")
+                    .arg(jiraLink)
                     .arg("<a href=\"https://pastebin.com\">"
                             "https://pastebin.com"
                          "</a>"),

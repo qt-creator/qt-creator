@@ -22,8 +22,11 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#include <texteditor/textdocument.h>
+
 // #include <utils/fileutils.h>
 #include <utils/id.h>
+#include <utils/mimeutils.h>
 
 #include <QApplication>
 #include <QFile>
@@ -39,131 +42,8 @@ namespace Mcp::Internal {
 McpCommands::McpCommands(QObject *parent)
     : QObject(parent)
 {
-    // Initialize default method timeouts (in seconds)
-    m_methodTimeouts["debug"] = 60;
-    m_methodTimeouts["build"] = 1200; // 20 minutes
-    m_methodTimeouts["run_project"] = 60;
-    m_methodTimeouts["load_session"] = 120;
-    m_methodTimeouts["clean_project"] = 300; // 5 minutes
-
     // Initialize issues manager
     m_issuesManager = new IssuesManager(this);
-}
-
-bool McpCommands::build()
-{
-    if (!hasValidProject()) {
-        qCDebug(mcpCommands) << "No valid project available for building";
-        return false;
-    }
-
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    if (!project) {
-        qCDebug(mcpCommands) << "No current project";
-        return false;
-    }
-
-    ProjectExplorer::Target *target = project->activeTarget();
-    if (!target) {
-        qCDebug(mcpCommands) << "No active target";
-        return false;
-    }
-
-    ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
-    if (!buildConfig) {
-        qCDebug(mcpCommands) << "No active build configuration";
-        return false;
-    }
-
-    qCDebug(mcpCommands) << "Starting build for project:" << project->displayName();
-
-    // Trigger build
-    ProjectExplorer::BuildManager::buildProjectWithoutDependencies(project);
-
-    return true;
-}
-
-QString McpCommands::debug()
-{
-    QStringList results;
-    results.append("=== DEBUG ATTEMPT ===");
-
-    if (!hasValidProject()) {
-        results.append("ERROR: No valid project available for debugging");
-        return results.join("\n");
-    }
-
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    if (!project) {
-        results.append("ERROR: No current project");
-        return results.join("\n");
-    }
-
-    ProjectExplorer::Target *target = project->activeTarget();
-    if (!target) {
-        results.append("ERROR: No active target");
-        return results.join("\n");
-    }
-
-    ProjectExplorer::RunConfiguration *runConfig = target->activeRunConfiguration();
-    if (!runConfig) {
-        results.append("ERROR: No active run configuration available for debugging");
-        return results.join("\n");
-    }
-
-    results.append("Project: " + project->displayName());
-    results.append("Run configuration: " + runConfig->displayName());
-    results.append("");
-
-    // Trigger debug action on main thread
-    results.append("=== STARTING DEBUG SESSION ===");
-
-    Core::ActionManager *actionManager = Core::ActionManager::instance();
-    if (actionManager) {
-        // Try multiple common debug action IDs
-        QStringList debugActionIds
-            = {"Debugger.StartDebugging",
-               "ProjectExplorer.StartDebugging",
-               "Debugger.Debug",
-               "ProjectExplorer.Debug",
-               "Debugger.StartDebuggingOfStartupProject",
-               "ProjectExplorer.StartDebuggingOfStartupProject"};
-
-        bool debugTriggered = false;
-        for (const QString &debugActionId : debugActionIds) {
-            results.append("Trying debug action: " + debugActionId);
-
-            Core::Command *command = actionManager->command(Utils::Id::fromString(debugActionId));
-            if (command && command->action()) {
-                results.append("Found debug action, triggering...");
-                command->action()->trigger();
-                results.append("Debug action triggered successfully");
-                debugTriggered = true;
-                break;
-            } else {
-                results.append("Debug action not found: " + debugActionId);
-            }
-        }
-
-        if (!debugTriggered) {
-            results.append("ERROR: No debug action found among tried IDs");
-            return results.join("\n");
-        }
-    } else {
-        results.append("ERROR: ActionManager not available");
-        return results.join("\n");
-    }
-
-    results.append("Debug session initiated successfully!");
-    results.append("The debugger is now starting in the background.");
-    results.append("Check Qt Creator's debugger output for progress updates.");
-    results.append("NOTE: The debug session will continue running asynchronously.");
-
-    results.append("");
-    results.append("=== DEBUG RESULT ===");
-    results.append("Debug command completed.");
-
-    return results.join("\n");
 }
 
 QString McpCommands::stopDebug()
@@ -249,7 +129,7 @@ bool McpCommands::openFile(const QString &path)
         return false;
     }
 
-    Utils::FilePath filePath = Utils::FilePath::fromString(path);
+    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
 
     if (!filePath.exists()) {
         qCDebug(mcpCommands) << "File does not exist:" << path;
@@ -261,6 +141,137 @@ bool McpCommands::openFile(const QString &path)
     Core::EditorManager::openEditor(filePath);
 
     return true;
+}
+
+QString McpCommands::getFilePlainText(const QString &path)
+{
+    if (path.isEmpty()) {
+        qCDebug(mcpCommands) << "Empty file path provided";
+        return QString();
+    }
+
+
+    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+
+    if (!filePath.exists()) {
+        qCDebug(mcpCommands) << "File does not exist:" << path;
+        return QString();
+    }
+
+    if (auto doc = TextEditor::TextDocument::textDocumentForFilePath(filePath))
+        return doc->plainText();
+
+    Utils::MimeType mime = Utils::mimeTypeForFile(filePath);
+    if (!mime.inherits("text/plain")) {
+        qCDebug(mcpCommands) << "File is not a plain text document:" << path
+                             << "MIME type:" << mime.name();
+        return QString();
+    }
+
+    Utils::Result<QByteArray> contents = filePath.fileContents();
+    if (contents.has_value())
+        return Core::EditorManager::defaultTextEncoding().decode(*contents);
+
+    qCDebug(mcpCommands) << "Failed to read file contents:" << path << "Error:" << contents.error();
+    return QString();
+}
+
+bool McpCommands::setFilePlainText(const QString &path, const QString &contents)
+{
+    if (path.isEmpty()) {
+        qCDebug(mcpCommands) << "Empty file path provided";
+        return false;
+    }
+
+    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+
+    if (!filePath.exists()) {
+        qCDebug(mcpCommands) << "File does not exist:" << path;
+        return false;
+    }
+
+    auto doc = Core::DocumentModel::documentForFilePath(filePath);
+
+    if (!doc) {
+        qCDebug(mcpCommands) << "No document found for file:" << path;
+        return false;
+    }
+
+    if (auto textDoc = qobject_cast<TextEditor::TextDocument *>(doc)) {
+        textDoc->document()->setPlainText(contents);
+        return true;
+    }
+
+    Utils::MimeType mime = Utils::mimeTypeForFile(filePath);
+    if (!mime.inherits("text/plain")) {
+        qCDebug(mcpCommands) << "File is not a plain text document:" << path
+                             << "MIME type:" << mime.name();
+        return false;
+    }
+
+    qCDebug(mcpCommands) << "Setting plain text for file:" << path;
+
+    Utils::Result<qint64> result = filePath.writeFileContents(
+        Core::EditorManager::defaultTextEncoding().encode(contents));
+
+    if (!result)
+        qCDebug(mcpCommands) << "Failed to write file contents:" << path << "Error:" << result.error();
+    return result.has_value();
+}
+
+bool McpCommands::saveFile(const QString &path)
+{
+    if (path.isEmpty()) {
+        qCDebug(mcpCommands) << "Empty file path provided";
+        return false;
+    }
+
+    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+
+    auto doc = Core::DocumentModel::documentForFilePath(filePath);
+
+    if (!doc) {
+        qCDebug(mcpCommands) << "No document found for file:" << path;
+        return false;
+    }
+
+    if (!doc->isModified()) {
+        qCDebug(mcpCommands) << "Document is not modified, no need to save:" << path;
+        return true;
+    }
+
+    qCDebug(mcpCommands) << "Saving file:" << path;
+
+    Utils::Result<> res = doc->save();
+    if (!res)
+        qCDebug(mcpCommands) << "Failed to save document:" << path << "Error:" << res.error();
+
+    return res.has_value();
+}
+
+bool McpCommands::closeFile(const QString &path)
+{
+    if (path.isEmpty()) {
+        qCDebug(mcpCommands) << "Empty file path provided";
+        return false;
+    }
+
+    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+
+    auto doc = Core::DocumentModel::documentForFilePath(filePath);
+
+    if (!doc) {
+        qCDebug(mcpCommands) << "No document found for file:" << path;
+        return false;
+    }
+
+    qCDebug(mcpCommands) << "Closing file:" << path;
+
+    bool closed = Core::EditorManager::closeDocuments({doc}, false);
+    if (!closed)
+        qCDebug(mcpCommands) << "Failed to close document:" << path;
+
+    return closed;
 }
 
 QStringList McpCommands::listProjects()
@@ -441,9 +452,7 @@ bool McpCommands::performDebuggingCleanupSync()
 
     // Step 5: Final timeout - wait up to configured timeout
     if (isDebuggingActive()) {
-        int timeoutSeconds = getMethodTimeout("stop_debug");
-        if (timeoutSeconds < 0)
-            timeoutSeconds = 30; // Default 30 seconds
+        const int timeoutSeconds = 30;
 
         qCDebug(mcpCommands) << "Still debugging, waiting up to" << timeoutSeconds
                  << "seconds for final timeout...";
@@ -604,91 +613,6 @@ QString McpCommands::getCurrentBuildConfig()
     return QString();
 }
 
-bool McpCommands::runProject()
-{
-    if (!hasValidProject()) {
-        qCDebug(mcpCommands) << "No valid project available for running";
-        return false;
-    }
-
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    if (!project) {
-        qCDebug(mcpCommands) << "No current project";
-        return false;
-    }
-
-    ProjectExplorer::Target *target = project->activeTarget();
-    if (!target) {
-        qCDebug(mcpCommands) << "No active target";
-        return false;
-    }
-
-    ProjectExplorer::RunConfiguration *runConfig = target->activeRunConfiguration();
-    if (!runConfig) {
-        qCDebug(mcpCommands) << "No active run configuration available for running";
-        return false;
-    }
-
-    qCDebug(mcpCommands) << "Running project:" << project->displayName();
-
-    // Use ActionManager to trigger the "Run" action
-    Core::ActionManager *actionManager = Core::ActionManager::instance();
-    if (!actionManager) {
-        qCDebug(mcpCommands) << "ActionManager not available";
-        return false;
-    }
-
-    // Try different possible action IDs for running
-    QStringList runActionIds
-        = {"ProjectExplorer.Run", "ProjectExplorer.RunProject", "ProjectExplorer.RunStartupProject"};
-
-    bool actionTriggered = false;
-    for (const QString &actionId : runActionIds) {
-        Core::Command *command = actionManager->command(Utils::Id::fromString(actionId));
-        if (command && command->action()) {
-            qCDebug(mcpCommands) << "Triggering run action:" << actionId;
-            command->action()->trigger();
-            actionTriggered = true;
-            break;
-        }
-    }
-
-    if (!actionTriggered) {
-        qCDebug(mcpCommands) << "No run action found, falling back to RunControl method";
-
-        // Fallback: Create a RunControl and start it
-        ProjectExplorer::RunControl *runControl = new ProjectExplorer::RunControl(
-            Utils::Id("Desktop"));
-        runControl->copyDataFromRunConfiguration(runConfig);
-        runControl->start();
-    }
-
-    return true;
-}
-
-bool McpCommands::cleanProject()
-{
-    if (!hasValidProject()) {
-        qCDebug(mcpCommands) << "No valid project available for cleaning";
-        return false;
-    }
-
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    ProjectExplorer::Target *target = project->activeTarget();
-
-    if (target) {
-        ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
-        if (buildConfig) {
-            qCDebug(mcpCommands) << "Cleaning project:" << project->displayName();
-            ProjectExplorer::BuildManager::cleanProjectWithoutDependencies(project);
-            return true;
-        }
-    }
-
-    qCDebug(mcpCommands) << "No build configuration available for cleaning";
-    return false;
-}
-
 QStringList McpCommands::listOpenFiles()
 {
     QStringList files;
@@ -701,21 +625,6 @@ QStringList McpCommands::listOpenFiles()
     qCDebug(mcpCommands) << "Open files:" << files;
 
     return files;
-}
-
-bool McpCommands::hasValidProject() const
-{
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    if (!project) {
-        return false;
-    }
-
-    ProjectExplorer::Target *target = project->activeTarget();
-    if (!target) {
-        return false;
-    }
-
-    return true;
 }
 
 QStringList McpCommands::listSessions()
@@ -799,115 +708,6 @@ QStringList McpCommands::listIssues()
 
     qCDebug(mcpCommands) << "Found" << issues.size() << "issues total";
     return issues;
-}
-
-QString McpCommands::getMethodMetadata()
-{
-    QStringList results;
-    results.append("=== METHOD METADATA ===");
-    results.append("");
-
-    // Get all methods with their current timeout settings
-    QStringList allMethods
-        = {"build",
-           "debug",
-           "run_project",
-           "clean_project",
-           "load_session",
-           "get_version",
-           "list_projects",
-           "list_build_configs",
-           "get_current_project",
-           "get_current_build_config",
-           "quit",
-           "list_open_files",
-           "list_sessions",
-           "get_current_session",
-           "save_session",
-           "list_issues",
-           "get_method_metadata",
-           "set_method_metadata",
-           "stop_debug"};
-
-    results.append("Available methods and their timeout settings:");
-    results.append("");
-
-    for (const QString &method : allMethods) {
-        int timeout = getMethodTimeout(method);
-        QString timeoutStr = timeout >= 0 ? QString::number(timeout) + " seconds"
-                                          : QString("default");
-        results.append(QString("  %1: %2").arg(method, -20).arg(timeoutStr));
-    }
-
-    results.append("");
-    results.append("=== METHOD DESCRIPTIONS ===");
-    results.append("");
-
-    // Add descriptions for key methods
-    results.append("build: Compile the current project");
-    results.append("debug: Start debugging the current project");
-    results.append("stop_debug: Stop the current debug session");
-    results.append("run_project: Run the current project");
-    results.append("clean_project: Clean build artifacts");
-    results.append("list_issues: List current build issues and warnings");
-    results.append("get_method_metadata: Get metadata about all methods");
-    results.append("set_method_metadata: Configure timeout values for methods");
-
-    results.append("");
-    results.append("=== METADATA COMPLETE ===");
-
-    return results.join("\n");
-}
-
-QString McpCommands::setMethodMetadata(const QString &method, int timeoutSeconds)
-{
-    QStringList results;
-    results.append("=== SET METHOD METADATA ===");
-
-    if (method.isEmpty()) {
-        results.append("ERROR: Method name cannot be empty");
-        return results.join("\n");
-    }
-
-    if (timeoutSeconds < 0) {
-        results.append("ERROR: Timeout cannot be negative");
-        return results.join("\n");
-    }
-
-    // List of valid methods that support timeout configuration
-    QStringList validMethods = {"debug", "build", "run_project", "load_session", "clean_project"};
-
-    if (!validMethods.contains(method)) {
-        results.append("ERROR: Method '" + method + "' does not support timeout configuration");
-        results.append("Valid methods: " + validMethods.join(", "));
-        return results.join("\n");
-    }
-
-    // Store the new timeout value
-    int oldTimeout = m_methodTimeouts.value(method, -1);
-    m_methodTimeouts[method] = timeoutSeconds;
-
-    results.append("Method: " + method);
-    results.append(
-        "Previous timeout: "
-        + (oldTimeout >= 0 ? QString::number(oldTimeout) + " seconds" : QString("not set")));
-    results.append("New timeout: " + QString::number(timeoutSeconds) + " seconds");
-    results.append("");
-    results.append("Timeout updated successfully!");
-    results.append("Note: This change affects the timeout hints shown in method responses.");
-    results.append(
-        "The actual operation timeouts are still controlled by Qt Creator's internal mechanisms.");
-
-    results.append("");
-    results.append("=== SET METHOD METADATA RESULT ===");
-    results.append("Method metadata update completed.");
-
-    return results.join("\n");
-}
-
-int McpCommands::getMethodTimeout(const QString &method) const
-{
-    return m_methodTimeouts.value(method, -1);
 }
 
 // handleSessionLoadRequest method removed - using direct session loading instead

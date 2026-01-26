@@ -754,7 +754,7 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
         m_editor[RightSide]->verticalScrollBar()->setFocusPolicy(Qt::ClickFocus);
 
         // Hack #3. Setting the focus policy is not orthogonal to setting the focus proxy and
-        // unfortuantely it changes the policy of the proxy too. We bring back the original policy
+        // unfortunately it changes the policy of the proxy too. We bring back the original policy
         // to keep tab focus working.
         m_editor[LeftSide]->setFocusPolicy(Qt::StrongFocus);
     });

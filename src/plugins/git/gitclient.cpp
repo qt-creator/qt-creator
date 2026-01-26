@@ -436,7 +436,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         updateDescription(*data);
     };
 
-    const auto desciptionDetailsSetup = [storage] {
+    const auto descriptionDetailsSetup = [storage] {
         if (!storage->m_postProcessDescription)
             return SetupResult::StopWithSuccess;
         return SetupResult::Continue;
@@ -521,7 +521,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         ReloadStorage *data = storage.activeStorage();
         QStringList parents;
         QString errorMessage;
-        // TODO: it's trivial now to call below asynchonously, too
+        // TODO: it's trivial now to call below asynchronously, too
         gitClient().synchronousParentRevisions(workingDirectory(), data->m_commit,
                                                &parents, &errorMessage);
         data->m_follows = {busyMessage};
@@ -572,7 +572,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
             Group {
                 parallel,
                 finishAllAndSuccess,
-                onGroupSetup(desciptionDetailsSetup),
+                onGroupSetup(descriptionDetailsSetup),
                 ProcessTask(onBranchesSetup, onBranchesDone),
                 ProcessTask(onPrecedesSetup, onPrecedesDone),
                 QTaskTreeTask(onFollowsSetup)
@@ -814,7 +814,7 @@ GitClient::GitClient()
     connect(&m_timer, &QTimer::timeout, this, &GitClient::updateModificationInfos);
 
     auto setInterval = [this] {
-        const int seconds = VcsBase::Internal::commonSettings().vcsShowStatusInterval();
+        const int seconds = qMax(1, VcsBase::Internal::commonSettings().vcsShowStatusInterval());
         m_timer.setInterval(std::chrono::seconds(seconds));
     };
 
@@ -3159,7 +3159,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
 }
 
 /**
- * Formats the patches given in \a patchRange as multiple singe file patches.
+ * Formats the patches given in \a patchRange as multiple single file patches.
  *
  * The format for \a patchRange is {"-n", "hash"} where `n` specifies the
  * number of commits before `hash`.

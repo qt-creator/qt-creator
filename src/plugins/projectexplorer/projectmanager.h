@@ -6,6 +6,8 @@
 #include "projectexplorer_export.h"
 #include "task.h"
 
+#include <utils/storekey.h>
+
 #include <QString>
 #include <QObject>
 
@@ -25,6 +27,29 @@ class QmlCodeModelInfo;
 class Kit;
 class Project;
 class Target;
+
+class CustomProjectSettingsHandler
+{
+public:
+    using Loader = std::function<Utils::Result<QVariant>(const Utils::FilePath &)>;
+    using Unloader = std::function<void(const QVariant &)>;
+
+    CustomProjectSettingsHandler(
+        const QString &fileName, const Loader &loader, const Unloader &unloader)
+        : m_fileName(fileName)
+        , m_loader(loader)
+        , m_unloader(unloader)
+    {}
+
+    void load(Project &project) const;
+    void unload(const Project &project) const;
+
+private:
+    Utils::Key m_key = Utils::Id::generate().toKey();
+    QString m_fileName;
+    Loader m_loader;
+    Unloader m_unloader;
+};
 
 class PROJECTEXPLORER_EXPORT ProjectManager : public QObject
 {
@@ -56,6 +81,10 @@ public:
             issuesGenerator);
     }
     static IssuesGenerator getIssuesGenerator(const Utils::FilePath &projectFilePath);
+
+    static void registerCustomProjectSettingsHandler(const CustomProjectSettingsHandler &handler);
+    static void loadCustomProjectSettings(Project &project);
+    static void unloadCustomProjectSettings(const Project &project);
 
     static void closeAllProjects();
 

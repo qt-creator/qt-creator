@@ -18,13 +18,21 @@ QtcPlugin {
         "axivionplugin.h",
         "axivionsettings.cpp",
         "axivionsettings.h",
+        "axiviontextmarks.cpp",
+        "axiviontextmarks.h",
         "axiviontr.h",
+        "axivionutils.cpp",
+        "axivionutils.h",
         "dynamiclistmodel.cpp",
         "dynamiclistmodel.h",
         "issueheaderview.cpp",
         "issueheaderview.h",
         "localbuild.cpp",
         "localbuild.h",
+        "pluginarserver.cpp",
+        "pluginarserver.h",
+        "singlefileanalysis.cpp",
+        "singlefileanalysis.h",
     ]
 
     cpp.includePaths: base.concat(["."]) // needed for the generated stuff below

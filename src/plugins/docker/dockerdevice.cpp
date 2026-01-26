@@ -278,7 +278,7 @@ static WrappedProcessInterface *makeProcessInterface(
             markerTemplate,
             setupData.m_commandLine,
             setupData.m_environment,
-            setupData.m_workingDirectory,
+            setupData.rawWorkingDirectory(),
             interactive,
             inTerminal,
             !setupData.m_ptyData);

@@ -28,7 +28,7 @@ public:
     void writeSettings(Utils::Store &settings) const override;
     TextEditor::SearchExecutor searchExecutor() const override;
     TextEditor::EditorOpener editorOpener() const override;
-    virtual Utils::FindFlags supportedFindFlags() const;
+    Utils::FindFlags supportedFindFlags() const override;
 
 private:
     GitGrepParameters gitParameters() const;

@@ -78,7 +78,7 @@ bool BlameMark::addToolTipContent(QLayout *target) const
             if (link.startsWith("blame") || link == "revert" || link == "showFile") {
                 const VcsBasePluginState state = currentState();
                 QTC_ASSERT(state.hasTopLevel(), return);
-                const Utils::FilePath path = state.topLevel();
+                const FilePath path = state.topLevel();
 
                 const QString originalFileName = info.originalFileName;
                 if (link.startsWith("blame")) {
@@ -101,7 +101,7 @@ bool BlameMark::addToolTipContent(QLayout *target) const
                     qCInfo(log).nospace().noquote()
                         << "Showing file: \"" << path << "/" << originalFileName << "\" @ " << hash;
 
-                    const auto fileName = Utils::FilePath::fromString(originalFileName);
+                    const auto fileName = FilePath::fromString(originalFileName);
                     gitClient().openShowEditor(path, hash, fileName);
                 }
             } else if (link == "logLine") {
@@ -222,12 +222,6 @@ void InstantBlame::setup()
 
     auto setupBlameForEditor = [this] {
         qCDebug(log) << "Setting up blame for editor.";
-        Core::IEditor *editor = EditorManager::currentEditor();
-        if (!editor) {
-            qCDebug(log) << "No current editor found.";
-            stop();
-            return;
-        }
 
         if (!settings().instantBlame()) {
             qCDebug(log) << "Instant blame is disabled.";
@@ -236,9 +230,10 @@ void InstantBlame::setup()
             return;
         }
 
-        const TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
+        TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
         if (!widget) {
-            qCInfo(log) << "Cannot get widget for editor" << editor;
+            qCInfo(log) << "Cannot get current text editor widget.";
+            stop();
             return;
         }
 
@@ -263,7 +258,7 @@ void InstantBlame::setup()
                                            }
                                            m_cursorPositionChangedTimer->start(500);
                                        });
-        m_document = editor->document();
+        m_document = widget->textDocument();
         m_documentChangedConn = connect(m_document, &IDocument::changed,
                                         this, &InstantBlame::slotDocumentChanged,
                                         Qt::UniqueConnection);
@@ -308,7 +303,7 @@ void InstantBlame::setup()
 // <TAB>echo Hello World!
 // ----------------------------------------------------------------------------
 
-static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePath &filePath,
+static CommitInfo parseBlameOutput(const QStringList &blame, const FilePath &filePath,
                                    int line, const Git::Internal::Author &author)
 {
     CommitInfo result;
@@ -407,9 +402,8 @@ void InstantBlame::perform()
     qCDebug(log) << "New editor line:" << line;
     m_lastVisitedEditorLine = line;
 
-    const Utils::FilePath filePath = widget->textDocument()->filePath();
-    const QFileInfo fi(filePath.toUrlishString());
-    const Utils::FilePath workingDirectory = Utils::FilePath::fromString(fi.path());
+    const FilePath filePath = widget->textDocument()->filePath();
+    const FilePath workingDirectory = filePath.parentDir();
     const QString lineString = QString("%1,%1").arg(line);
     const auto lineDiffHandler = [this](const CommandResult &result) {
         const QString error = result.cleanedStdErr().trimmed();
@@ -466,7 +460,7 @@ void InstantBlame::perform()
         options.append("-w");
     if (settings().instantBlameIgnoreLineMoves())
         options.append("-M");
-    options.append({"-L", lineString, "--", filePath.toUrlishString()});
+    options.append({"-L", lineString, "--", filePath.path()});
     qCDebug(log) << "Running git" << options.join(' ');
     gitClient().enqueueCommand({workingDirectory, options, RunFlags::NoOutput, {}, m_encoding,
                                 commandHandler});

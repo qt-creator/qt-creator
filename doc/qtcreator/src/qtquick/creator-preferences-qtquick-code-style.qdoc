@@ -3,14 +3,9 @@
 
 /*!
     \page creator-preferences-qtquick-code-style.html
-    \if defined(qtdesignstudio)
-    \previouspage qtquick-text-editor.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-edit
-    \ingroup studio-how-to-code
 
     \title Specify Qt Quick code style
 
@@ -82,9 +77,6 @@
         \li View the code style set in a \c .qmlformat.ini file on the right.
     \endlist
 
-    \sa {Automatically format QML/JS files}, {Indent text or code}
-
-    \if defined(qtcreator)
-    \sa {Find preferences}, {Specify code style}
-    \endif
+    \sa {Automatically format QML/JS files}, {Find preferences},
+    {Indent text or code}, {Specify code style}
 */

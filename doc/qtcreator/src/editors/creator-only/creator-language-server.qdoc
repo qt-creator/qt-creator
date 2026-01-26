@@ -75,6 +75,9 @@
     \l{https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager}
     {NPM} package manager on the computer.
 
+    \QC also offers to install language servers for Rust, C#, and Swift from
+    their respective systems when you open projects in the editor that use them.
+
     \image {qtcreator-language-server-json.webp} {Prompt to install JSON language server}
 
     \l{Add a Java language server} for  \l{Developing for Android}

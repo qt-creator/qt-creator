@@ -241,6 +241,7 @@ public:
 
     void extensionsInitialized() final
     {
+        m_serverP->initializeToolsForCommands();
 #ifdef WITH_TESTS
         addTestCreator(setupMCPServerTest);
 #endif

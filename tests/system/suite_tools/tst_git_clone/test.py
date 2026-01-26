@@ -53,7 +53,7 @@ def verifyVersionControlView(targetDir, canceled):
 
 def verifyFiles(targetDir):
     for file in [".gitignore", "LICENSE.GPL3-EXCEPT", "installerfw.pro",
-                 os.path.join("tests", "test-installer", "create-test-installer.bat"),
+                 os.path.join("tests", "README"),
                  os.path.join("src", "sdk", "main.cpp")]:
         test.verify(os.path.exists(os.path.join(targetDir, cloneDir, file)),
                     "Verify the existence of %s" % file)

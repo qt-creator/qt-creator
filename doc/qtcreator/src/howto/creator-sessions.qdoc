@@ -9,16 +9,10 @@
 
 /*!
     \page creator-project-managing-sessions.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-project-managing-workspaces.html
-    \nextpage studio-keyboard-shortcuts.html
-    \else
     \previouspage creator-how-tos.html
     \nextpage creator-keyboard-shortcuts.html
-    \endif
 
     \ingroup creator-how-to-use
-    \ingroup studio-how-to
 
     \title Manage sessions
 
@@ -33,10 +27,8 @@
     \list
 
         \li Projects
-            \if defined(qtcreator)
             with their dependencies (including SUBDIRS projects when using
             qmake)
-            \endif
 
         \li Editors
 
@@ -90,8 +82,6 @@
         \li Select \uicontrol {Open} in \uicontrol {Session Manager}.
     \endlist
 
-    \if defined(qtcreator)
-
     The \uicontrol Projects tab in the \uicontrol Welcome mode lists existing
     sessions. To open a session, select it or select
     \key Ctrl+Alt+<number>, where \e <number> is the number of the session to
@@ -124,5 +114,4 @@
     \endlist
 
     \sa {Navigate with locator}, {Command-Line Options}
-    \endif
 */

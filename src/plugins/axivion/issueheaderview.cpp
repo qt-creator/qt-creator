@@ -70,7 +70,7 @@ public:
         infoButton->setCheckable(true);
         infoButton->setChecked(true);
         m_lineEdit = new Utils::FancyLineEdit(this);
-        m_lineEdit->setClearButtonEnabled(true);
+        m_lineEdit->setFiltering(true);
         m_lineEdit->setText(filter);
         // TODO add some pre-check for validity of the expression
         // or handle invalid filter exception correctly

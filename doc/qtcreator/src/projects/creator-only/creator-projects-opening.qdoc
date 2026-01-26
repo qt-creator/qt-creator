@@ -18,9 +18,37 @@
     \title Open projects
 
     To open a project, open the configuration file for the project:
-    \c {CMakeLists.txt} or \c {CMakeCache.txt} (CMake), \c {.pro} (qmake),
-    \c {.qbs} (Qbs), \c {meson.build} (Meson), \c {pyproject.toml} (Python), or
-    \c {Makefile.am} (Autotools, experimental).
+
+    \list
+        \li \c {CMakeLists.txt} or \c {CMakeCache.txt} (CMake)
+        \li \c {.pro} (qmake)
+        \li \c {.qbs} (Qbs)
+        \li \c {meson.build} (Meson)
+        \li \c {pyproject.toml} (Python)
+        \li \c {Makefile.am} (Autotools, experimental)
+    \endlist
+
+    \section1 Partially supported project types
+
+    Some project types have limited support. To open them, activate the corresponding
+    extension. \QC suggests the required extension when you open a project for the
+    first time.
+
+    To open a partially supported project, open the configuration file for the project:
+
+    \list
+        \li \c {build.xml} (\l{https://ant.apache.org/}{Ant})
+        \li \c {cargo.toml} (\l{Rust: cargo-build}{Cargo})
+        \li \c {.csproj} (\l{https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build}{.NET/C#})
+        \li \c {.gradle} or \c {.gradle.kts} (\l{https://docs.gradle.org/current/userguide/command_line_interface.html}{Gradle})
+        \li \c {Package.swift} (\l{https://www.swift.org/documentation/server/guides/building.html}{Swift})
+    \endlist
+
+    To build and run these projects, use the custom configuration \QC automatically
+    creates, set up your own build and run configurations, or use the terminal
+    as you would outside of \QC.
+
+    \section1 Open project files
 
     You can open a project in the following ways:
 
@@ -66,9 +94,6 @@
 
     You can open either the JSON file or the workspace to open the project the
     next time.
-
-    Also, you can open \l {Rust: cargo-build}{Cargo build projects} when
-    developing \l {Rust} packages.
 
     When you add files to the directory or remove them from there, the contents
     of the \l Projects view are updated automatically.
@@ -153,6 +178,6 @@
     later. Select \inlineimage {icons/pin.png} {Pin}
     (\uicontrol Pin) to pin the progress bar back to the toggle button.
 
-    \sa {Configure projects for building}, {Configure projects for running},
+    \sa {Activate extensions}, {Configure projects for building}, {Configure projects for running},
     {Manage kits}{How to: Manage kits}, {Managing kits}
 */
