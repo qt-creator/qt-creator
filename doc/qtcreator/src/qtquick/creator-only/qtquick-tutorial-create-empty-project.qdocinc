@@ -30,7 +30,7 @@
 
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection} dialog.
 
-        \li Select Qt 6.5 or later \l{Managing kits}{kits} for the
+        \li Select \l{Managing kits}{kits} for the
             platforms that you want to build the application for. To build
             applications for mobile devices, select kits also for Android and
             iOS.

@@ -772,7 +772,7 @@ void PathChooser::setValueAlternatives(const FilePaths &candidates)
     if (!d->m_alternativesButton)
         d->m_alternativesButton = new QPushButton(Tr::tr("Alternatives"), this);
 
-    auto menu = new QMenu;
+    auto menu = new QMenu(d->m_alternativesButton);
     for (const FilePath &candidate : candidates) {
         QAction *action = menu->addAction(candidate.toUserOutput());
         connect(action, &QAction::triggered, this, [this, candidate] {

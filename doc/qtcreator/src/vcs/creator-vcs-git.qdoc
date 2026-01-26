@@ -218,6 +218,12 @@
     \image {qtcreator-git-diff-repository.webp} {Git Diff Repository view}
     \caption Git Diff Repository view
 
+    \section1 Fold diff chunks
+
+    To fold all diff chunks, select \inlineimage {icons/qtcreator-expand.png} {Fold All}
+    (\uicontrol {Fold All}) from the toolbar. This collapses all diff chunks in
+    the \uicontrol {Git Diff} view, making it easier to navigate large diffs.
+
     \section1 Toggle unified and side-by-side views
 
     The \uicontrol {Git Diff} view displays the diff side-by-side. To use

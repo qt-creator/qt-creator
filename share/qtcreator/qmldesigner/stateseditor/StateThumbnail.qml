@@ -257,7 +257,7 @@ Item {
                 }
             }
 
-            PropertyChangesModel {
+            HelperWidgets.PropertyChangesModel {
                 id: propertyChangesModel
                 modelNodeBackendProperty: StatesEditorBackend.statesEditorModel.stateModelNode(root.internalNodeId)
             }
@@ -357,7 +357,7 @@ Item {
                                 height: propertyChangesColumn.height
                                 color: StudioTheme.Values.themeBackgroundColorAlternate
 
-                                PropertyModel {
+                                HelperWidgets.PropertyModel {
                                     id: propertyModel
                                     modelNodeBackendProperty: propertyChanges.propertyModelNode
                                 }
@@ -619,7 +619,7 @@ Item {
                 }
             }
 
-            BindingEditor {
+            HelperWidgets.BindingEditor {
                 id: bindingEditor
 
                 property string newWhenCondition

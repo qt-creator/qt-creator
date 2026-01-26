@@ -140,6 +140,7 @@ Editing
 * Added the option `Set QT_QML_GENERATE_QMLLS_INI to ON in CMake` to the
   `Qt Quick Application` wizard
   ([QTCREATORBUG-33673](https://bugreports.qt.io/browse/QTCREATORBUG-33673))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/quick-projects.html))
 * Added an image preview when hovering over references to image resources
   ([QTCREATORBUG-29727](https://bugreports.qt.io/browse/QTCREATORBUG-29727),
    [QTCREATORBUG-29819](https://bugreports.qt.io/browse/QTCREATORBUG-29819))
@@ -159,10 +160,13 @@ Editing
     * Fixed that custom indentation size was not respected when reformatting
       ([QTCREATORBUG-33712](https://bugreports.qt.io/browse/QTCREATORBUG-33712))
 
+    ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-use-qml-language-server.html))
+
 ### Diff Viewer
 
 * Added `Fold All` and `Unfold All`
   ([QTCREATORBUG-33783](https://bugreports.qt.io/browse/QTCREATORBUG-33783))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-git-diff.html))
 * Added `Copy Cleaned Text` that removes leading dashes and plus signs
   ([QTCREATORBUG-23694](https://bugreports.qt.io/browse/QTCREATORBUG-23694))
 
