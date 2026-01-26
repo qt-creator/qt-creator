@@ -415,6 +415,7 @@ LanguageClientOutlineItem::LanguageClientOutlineItem(const SymbolInformation &in
     : m_name(info.name())
     , m_range(info.location().range())
     , m_type(info.kind())
+    , m_tags(info.symbolTags().value_or(QList<SymbolTag>()))
 { }
 
 LanguageClientOutlineItem::LanguageClientOutlineItem(Client *client, const DocumentSymbol &info)
@@ -423,6 +424,7 @@ LanguageClientOutlineItem::LanguageClientOutlineItem(Client *client, const Docum
     , m_range(info.range())
     , m_selectionRange(info.selectionRange())
     , m_type(info.kind())
+    , m_tags(info.symbolTags().value_or(QList<SymbolTag>()))
 {
     const QList<LanguageServerProtocol::DocumentSymbol> children = sortedSymbols(
         info.children().value_or(QList<DocumentSymbol>()));

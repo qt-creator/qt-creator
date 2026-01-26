@@ -50,6 +50,7 @@ private:
     LanguageServerProtocol::Range m_range;
     LanguageServerProtocol::Range m_selectionRange;
     int m_type = -1;
+    QList<LanguageServerProtocol::SymbolTag> m_tags;
 };
 
 Utils::TreeViewComboBox *createOutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor);
