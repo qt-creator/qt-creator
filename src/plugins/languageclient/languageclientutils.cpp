@@ -309,44 +309,68 @@ void updateEditorToolBar(Core::IEditor *editor)
     }
 }
 
-const QIcon symbolIcon(int type)
+static CodeModelIcon::Type symbolTypeToIconType(SymbolKind kind)
 {
     using namespace Utils::CodeModelIcon;
-    static QMap<SymbolKind, QIcon> icons;
+    switch (kind) {
+    case SymbolKind::Module:
+    case SymbolKind::Namespace:
+    case SymbolKind::Package:
+        return Namespace;
+    case SymbolKind::Class:
+    case SymbolKind::Interface:
+    case SymbolKind::Constructor:
+    case SymbolKind::Object:
+        return Class;
+    case SymbolKind::Method:
+        return FuncPublic;
+    case SymbolKind::Property:
+        return Property;
+    case SymbolKind::Field:
+    case SymbolKind::Variable:
+    case SymbolKind::Constant:
+    case SymbolKind::String:
+    case SymbolKind::Number:
+    case SymbolKind::Boolean:
+    case SymbolKind::Array:
+    case SymbolKind::TypeParameter:
+        return VarPublic;
+    case SymbolKind::Enum:
+        return Enum; break;
+    case SymbolKind::Function:
+    case SymbolKind::Event:
+    case SymbolKind::Operator:
+        return FuncPublic;
+    case SymbolKind::Key:
+    case SymbolKind::Null:
+        return Keyword;
+    case SymbolKind::EnumMember:
+        return Enumerator;
+    case SymbolKind::Struct:
+        return Struct;
+    case SymbolKind::File:
+        break;
+    }
+    return Unknown;
+}
+
+const QIcon symbolIcon(int type)
+{
     if (type < int(SymbolKind::FirstSymbolKind) || type > int(SymbolKind::LastSymbolKind))
         return {};
-    auto kind = static_cast<SymbolKind>(type);
-    if (!icons.contains(kind)) {
-        switch (kind) {
-        case SymbolKind::File: icons[kind] = Utils::Icons::NEWFILE.icon(); break;
-        case SymbolKind::Module:
-        case SymbolKind::Namespace:
-        case SymbolKind::Package: icons[kind] = iconForType(Namespace); break;
-        case SymbolKind::Class: icons[kind] = iconForType(Class); break;
-        case SymbolKind::Method: icons[kind] = iconForType(FuncPublic); break;
-        case SymbolKind::Property: icons[kind] = iconForType(Property); break;
-        case SymbolKind::Field: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::Constructor: icons[kind] = iconForType(Class); break;
-        case SymbolKind::Enum: icons[kind] = iconForType(Enum); break;
-        case SymbolKind::Interface: icons[kind] = iconForType(Class); break;
-        case SymbolKind::Function: icons[kind] = iconForType(FuncPublic); break;
-        case SymbolKind::Variable:
-        case SymbolKind::Constant:
-        case SymbolKind::String:
-        case SymbolKind::Number:
-        case SymbolKind::Boolean:
-        case SymbolKind::Array: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::Object: icons[kind] = iconForType(Class); break;
-        case SymbolKind::Key:
-        case SymbolKind::Null: icons[kind] = iconForType(Keyword); break;
-        case SymbolKind::EnumMember: icons[kind] = iconForType(Enumerator); break;
-        case SymbolKind::Struct: icons[kind] = iconForType(Struct); break;
-        case SymbolKind::Event:
-        case SymbolKind::Operator: icons[kind] = iconForType(FuncPublic); break;
-        case SymbolKind::TypeParameter: icons[kind] = iconForType(VarPublic); break;
-        }
-    }
-    return icons[kind];
+
+    const auto kind = static_cast<SymbolKind>(type);
+    if (kind == SymbolKind::File)
+        return Icons::NEWFILE.icon();
+
+    using namespace Utils::CodeModelIcon;
+    const Type iconType = symbolTypeToIconType(kind);
+    static QMap<Type, QIcon> icons;
+    const auto icon = icons.constFind(iconType);
+    if (icon != icons.constEnd())
+        return *icon;
+
+    return icons[iconType] = iconForType(iconType);
 }
 
 bool applyDocumentChange(const Client *client, const DocumentChange &change)
