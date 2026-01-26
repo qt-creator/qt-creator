@@ -166,6 +166,7 @@ Editing
 
 * Added `Fold All` and `Unfold All`
   ([QTCREATORBUG-33783](https://bugreports.qt.io/browse/QTCREATORBUG-33783))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-git-diff.html))
 * Added `Copy Cleaned Text` that removes leading dashes and plus signs
   ([QTCREATORBUG-23694](https://bugreports.qt.io/browse/QTCREATORBUG-23694))
 
