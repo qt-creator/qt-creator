@@ -47,9 +47,13 @@ public:
         bauhausConfig.setExpectedKind(PathChooser::ExistingDirectory);
         bauhausConfig.setAllowPathFromDevice(false);
         bauhausConfig.setHistoryCompleter("Axivion.SFABauhausConfig");
+        if (const FilePath &last = settings().lastBauhausConfig(); !last.isEmpty())
+            bauhausConfig.setValue(last);
         command.setExpectedKind(PathChooser::Any);
         command.setAllowPathFromDevice(false);
         command.setHistoryCompleter("Axivion.SFACommand");
+        if (const FilePath &last = settings().lastSfaCommand(); !last.isEmpty())
+            command.setValue(last);
 
         QWidget *widget = new QWidget(this);
         auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
@@ -325,6 +329,10 @@ void startSingleFileAnalysis(const FilePath &file, const QString &projectName)
     SingleFileDialog dia;
     if (dia.exec() != QDialog::Accepted)
         return;
+
+    settings().lastBauhausConfig.setValue(dia.bauhausConfig());
+    settings().lastSfaCommand.setValue(dia.command());
+    settings().writeSettings();
 
     s_sfaInstance.startAnalysisFor(file, projectName, dia.bauhausConfig(), dia.command());
 }

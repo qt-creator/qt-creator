@@ -304,6 +304,8 @@ AxivionSettings::AxivionSettings()
                                "find java in PATH."));
 
     lastLocalBuildCommand.setSettingsKey("LastLocalBuildCmd"); // used without UI
+    lastBauhausConfig.setSettingsKey("LastBauhausConfig"); // user without UI
+    lastSfaCommand.setSettingsKey("LastSfaCmd"); // used without UI
 
     defaultIssueKind.setSettingsKey("DefaultIssueKind"); // used without UI
     defaultIssueKind.setDefaultValue("SV"); // style violations

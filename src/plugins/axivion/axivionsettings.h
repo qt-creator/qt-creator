@@ -82,6 +82,8 @@ public:
     Utils::FilePathAspect bauhausPython{this};
     Utils::FilePathAspect javaHome{this};
     Utils::FilePathAspect lastLocalBuildCommand{this};
+    Utils::FilePathAspect lastBauhausConfig{this};
+    Utils::FilePathAspect lastSfaCommand{this};
     Utils::StringAspect defaultIssueKind{this};
 
 signals:
