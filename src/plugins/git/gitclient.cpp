@@ -409,32 +409,32 @@ ShowController::ShowController(IDocument *document, const QString &id)
     const QString noColor = AnsiEscapeCodeHandler::noColor();
 
     struct ReloadStorage {
-        bool m_postProcessDescription = false;
+        bool postProcessDescription = false;
 
-        QString m_header;
-        QString m_body;
-        QString m_branches;
-        QString m_precedes;
-        QStringList m_parents;
-        QStringList m_follows;
+        QString header;
+        QString body;
+        QString branches;
+        QString precedes;
+        QStringList parents;
+        QStringList follows;
     };
 
     const Storage<ReloadStorage> storage;
 
     const auto updateDescription = [this, decorateColor, noColor](const ReloadStorage &storage) {
-        QString desc = storage.m_header;
-        if (!storage.m_branches.isEmpty())
-            desc.append(BRANCHES_PREFIX + storage.m_branches + '\n');
-        if (!storage.m_precedes.isEmpty())
-            desc.append("Precedes: " + decorateColor + storage.m_precedes + noColor + '\n');
+        QString desc = storage.header;
+        if (!storage.branches.isEmpty())
+            desc.append(BRANCHES_PREFIX + storage.branches + '\n');
+        if (!storage.precedes.isEmpty())
+            desc.append("Precedes: " + decorateColor + storage.precedes + noColor + '\n');
         QStringList follows;
-        for (const QString &str : storage.m_follows) {
+        for (const QString &str : storage.follows) {
             if (!str.isEmpty())
                 follows.append(str);
         }
         if (!follows.isEmpty())
             desc.append("Follows: " + decorateColor + follows.join(", ") + noColor + '\n');
-        desc.append('\n' + storage.m_body);
+        desc.append('\n' + storage.body);
         setDescription(desc);
     };
 
@@ -457,14 +457,14 @@ ShowController::ShowController(IDocument *document, const QString &id)
     const auto onDescriptionDone = [this, storage, updateDescription](const Process &process) {
         ReloadStorage *data = storage.activeStorage();
         const QString output = process.cleanedStdOut();
-        data->m_postProcessDescription = output.startsWith("commit ");
-        if (!data->m_postProcessDescription) {
+        data->postProcessDescription = output.startsWith("commit ");
+        if (!data->postProcessDescription) {
             setDescription(output);
             return;
         }
         const int lastHeaderLine = output.indexOf("\n\n") + 1;
-        data->m_header = output.left(lastHeaderLine);
-        data->m_body = output.mid(lastHeaderLine + 1);
+        data->header = output.left(lastHeaderLine);
+        data->body = output.mid(lastHeaderLine + 1);
         updateDescription(*data);
     };
 
@@ -485,18 +485,18 @@ ShowController::ShowController(IDocument *document, const QString &id)
             return DoneResult::Error;
         }
         ReloadStorage *data = storage.activeStorage();
-        data->m_parents = parents;
+        data->parents = parents;
         return DoneResult::Success;
     };
 
     const auto descriptionDetailsSetup = [storage] {
-        if (!storage->m_postProcessDescription)
+        if (!storage->postProcessDescription)
             return SetupResult::StopWithSuccess;
         return SetupResult::Continue;
     };
 
     const auto onBranchesSetup = [this, storage, id](Process &process) {
-        storage->m_branches = busyMessage;
+        storage->branches = busyMessage;
         const QString branchesFormat = QStringLiteral(
                                            "--format="
                                            "%(if:equals=refs/remotes)%(refname:rstrip=-2)%(then)"
@@ -512,7 +512,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
     const auto onBranchesDone = [storage, updateDescription, decorateColor, noColor](
                                     const Process &process, DoneWith result) {
         ReloadStorage *data = storage.activeStorage();
-        data->m_branches.clear();
+        data->branches.clear();
         if (result == DoneWith::Success) {
             const QString remotePrefix = "remotes/";
             const QString localPrefix = "<Local>";
@@ -530,7 +530,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
                         continue;
                     const QString remote = branch.mid(prefixLength, nextSlash - prefixLength);
                     if (remote != previousRemote) {
-                        data->m_branches += decorateColor + branchesDisplay(previousRemote, &branches, &first)
+                        data->branches += decorateColor + branchesDisplay(previousRemote, &branches, &first)
                                             + noColor + '\n';
                         branches.clear();
                         previousRemote = remote;
@@ -542,51 +542,51 @@ ShowController::ShowController(IDocument *document, const QString &id)
             }
             if (branches.isEmpty()) {
                 if (previousRemote == localPrefix)
-                    data->m_branches += decorateColor + Tr::tr("<None>") + noColor;
+                    data->branches += decorateColor + Tr::tr("<None>") + noColor;
             } else {
-                data->m_branches += decorateColor + branchesDisplay(previousRemote, &branches, &first)
+                data->branches += decorateColor + branchesDisplay(previousRemote, &branches, &first)
                                     + noColor;
             }
-            data->m_branches = data->m_branches.trimmed();
+            data->branches = data->branches.trimmed();
         }
         updateDescription(*data);
     };
 
     const auto onPrecedesSetup = [this, storage, id](Process &process) {
-        storage->m_precedes = busyMessage;
+        storage->precedes = busyMessage;
         setupCommand(process, {"describe", "--contains", id});
     };
     const auto onPrecedesDone = [storage, updateDescription](const Process &process, DoneWith result) {
         ReloadStorage *data = storage.activeStorage();
-        data->m_precedes.clear();
+        data->precedes.clear();
         if (result == DoneWith::Success) {
-            data->m_precedes = process.cleanedStdOut().trimmed();
-            const int tilde = data->m_precedes.indexOf('~');
+            data->precedes = process.cleanedStdOut().trimmed();
+            const int tilde = data->precedes.indexOf('~');
             if (tilde != -1)
-                data->m_precedes.truncate(tilde);
-            if (data->m_precedes.endsWith("^0"))
-                data->m_precedes.chop(2);
+                data->precedes.truncate(tilde);
+            if (data->precedes.endsWith("^0"))
+                data->precedes.chop(2);
         }
         updateDescription(*data);
     };
 
     const auto onFollowsSetup = [this, storage, updateDescription](QTaskTree &taskTree) {
         ReloadStorage *data = storage.activeStorage();
-        const QStringList parents = data->m_parents;
-        data->m_follows = {busyMessage};
-        data->m_follows.resize(parents.size());
+        const QStringList parents = data->parents;
+        data->follows = {busyMessage};
+        data->follows.resize(parents.size());
 
         const ListIterator iterator(parents);
         const auto onFollowSetup = [this, iterator](Process &process) {
             setupCommand(process, {"describe", "--tags", "--abbrev=0", *iterator});
         };
         const auto onFollowDone = [data, updateDescription, iterator](const Process &process) {
-            data->m_follows[iterator.iteration()] = process.cleanedStdOut().trimmed();
+            data->follows[iterator.iteration()] = process.cleanedStdOut().trimmed();
             updateDescription(*data);
         };
 
         const auto onDone = [data, updateDescription] {
-            data->m_follows.clear();
+            data->follows.clear();
             updateDescription(*data);
         };
 
