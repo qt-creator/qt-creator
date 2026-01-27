@@ -128,7 +128,7 @@ public:
 
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(pasteStdOutCB);
+        selectionWidget->addExtraWidget(pasteStdOutCB);
         layout->addWidget(selectionWidget);
 
         QList<Id> parsers = bc->customParsers();

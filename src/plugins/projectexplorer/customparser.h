@@ -135,6 +135,8 @@ public:
     void setSelectedParsers(const QList<Utils::Id> &parsers);
     QList<Utils::Id> selectedParsers() const;
 
+    void addExtraWidget(QWidget *widget);
+
 signals:
     void selectionChanged();
 

@@ -12,8 +12,10 @@
 #include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
+#include <utils/stylehelper.h>
 
 #include <QCheckBox>
 #include <QJsonArray>
@@ -400,13 +402,25 @@ public:
     SelectionWidget(CustomParsersSelectionWidget::Embedded where, QWidget *parent)
         : QWidget(parent), m_where(where)
     {
-        const auto layout = new QVBoxLayout(this);
         const auto explanatoryLabel = new QLabel(Tr::tr(
             "Custom output parsers scan command line output for user-provided error patterns<br>"
             "to create entries in Issues.<br>"
             "The parsers can be configured <a href=\"dummy\">here</a>."));
-        layout->addWidget(explanatoryLabel);
-        layout->setContentsMargins(0, 0, 0, 0);
+
+        using namespace Layouting;
+        Column {
+            noMargin,
+            spacing(StyleHelper::SpacingTokens::GapVL),
+            Column {
+                bindTo(&m_extraWidgetsLayout),
+            },
+            explanatoryLabel,
+            Column {
+                bindTo(&m_checkBoxesLayout),
+                spacing(StyleHelper::SpacingTokens::GapVXxs),
+            },
+        }.attachTo(this);
+
         connect(explanatoryLabel, &QLabel::linkActivated, [] {
             Core::ICore::showOptionsDialog(Constants::CUSTOM_PARSERS_SETTINGS_PAGE_ID);
         });
@@ -432,14 +446,17 @@ public:
         return parsers;
     }
 
+    void addExtraWidget(QWidget *widget)
+    {
+        m_extraWidgetsLayout->addWidget(widget);
+    }
+
 signals:
     void selectionChanged();
 
 private:
     void updateUi()
     {
-        const auto layout = qobject_cast<QVBoxLayout *>(this->layout());
-        QTC_ASSERT(layout, return);
         QList<Utils::Id> parsers = selectedParsers();
         for (const auto &p : std::as_const(parserCheckBoxes))
             delete p.first;
@@ -459,13 +476,15 @@ private:
             checkBox->setCheckState(parsers.contains(s.id) ? Qt::Checked : Qt::Unchecked);
             connect(checkBox, &QCheckBox::stateChanged, this, &SelectionWidget::selectionChanged);
             parserCheckBoxes.push_back({checkBox, s.id});
-            layout->addWidget(checkBox);
+            m_checkBoxesLayout->addWidget(checkBox);
         }
         setSelectedParsers(parsers);
     }
 
     QList<QPair<QCheckBox *, Utils::Id>> parserCheckBoxes;
     const CustomParsersSelectionWidget::Embedded m_where;
+    QVBoxLayout *m_extraWidgetsLayout;
+    QVBoxLayout *m_checkBoxesLayout;
 };
 } // anonymous namespace
 
@@ -489,6 +508,11 @@ void CustomParsersSelectionWidget::setSelectedParsers(const QList<Utils::Id> &pa
 QList<Utils::Id> CustomParsersSelectionWidget::selectedParsers() const
 {
     return qobject_cast<SelectionWidget *>(widget())->selectedParsers();
+}
+
+void CustomParsersSelectionWidget::addExtraWidget(QWidget *widget)
+{
+    qobject_cast<SelectionWidget *>(this->widget())->addExtraWidget(widget);
 }
 
 void CustomParsersSelectionWidget::updateSummary()
