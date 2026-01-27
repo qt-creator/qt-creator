@@ -416,6 +416,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         QString m_body;
         QString m_branches;
         QString m_precedes;
+        QStringList m_parents;
         QStringList m_follows;
     };
 
@@ -468,6 +469,27 @@ ShowController::ShowController(IDocument *document, const QString &id)
         data->m_header = output.left(lastHeaderLine);
         data->m_body = output.mid(lastHeaderLine + 1);
         updateDescription(*data);
+    };
+
+    const auto onParentRevsSetup = [this, id](Process &process) {
+        setupCommand(process, {"rev-list", noColorOption, "--parents", "--max-count=1", id});
+        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        return SetupResult::Continue;
+    };
+    const auto onParentRevsDone = [storage, id](const Process &process) {
+        const QString outputText = process.cleanedStdOut().trimmed();
+        // Should result in one line of blank-delimited revisions, specifying current first
+        // unless it is top.
+        QStringList parents;
+        if (!splitCommitParents(outputText, nullptr, &parents)) {
+            const Utils::FilePath workingDirectory = process.workingDirectory();
+            const QString text = msgParentRevisionFailed(workingDirectory, id, msgInvalidRevision());
+            VcsOutputWindow::appendError(workingDirectory, text);
+            return DoneResult::Error;
+        }
+        ReloadStorage *data = storage.activeStorage();
+        data->m_parents = parents;
+        return DoneResult::Success;
     };
 
     const auto descriptionDetailsSetup = [storage] {
@@ -553,11 +575,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
     const auto onFollowsSetup = [this, storage, updateDescription](QTaskTree &taskTree) {
         ReloadStorage *data = storage.activeStorage();
-        QStringList parents;
-        QString errorMessage;
-        // TODO: it's trivial now to call below asynchronously, too
-        gitClient().synchronousParentRevisions(workingDirectory(), data->m_commit,
-                                               &parents, &errorMessage);
+        const QStringList parents = data->m_parents;
         data->m_follows = {busyMessage};
         data->m_follows.resize(parents.size());
 
@@ -601,8 +619,11 @@ ShowController::ShowController(IDocument *document, const QString &id)
         continueOnError,
         onGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toUrlishString()); }),
         Group {
-            finishAllAndSuccess,
-            ProcessTask(onDescriptionSetup, onDescriptionDone, CallDone::OnSuccess),
+            Group {
+                parallel,
+                ProcessTask(onDescriptionSetup, onDescriptionDone, CallDone::OnSuccess),
+                ProcessTask(onParentRevsSetup, onParentRevsDone, CallDone::OnSuccess),
+            },
             Group {
                 parallel,
                 finishAllAndSuccess,
