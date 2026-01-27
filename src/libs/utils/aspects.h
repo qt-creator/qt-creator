@@ -119,6 +119,8 @@ public:
     void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
     QWidget *createConfigWidget() const;
 
+    static QPointer<const BaseAspect> aspectForWidget(QWidget *widget);
+
     virtual QAction *action();
 
     AspectContainer *container() const;
@@ -272,7 +274,7 @@ protected:
         return w;
     }
 
-    void registerSubWidget(QWidget *widget);
+    void registerSubWidget(QWidget *widget) const;
 
     void saveToMap(Store &data, const QVariant &value,
                    const QVariant &defaultValue, const Key &key) const;

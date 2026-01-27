@@ -52,6 +52,7 @@ public:
     std::function<void()> m_onFinish;
 
     AspectContainer *m_aspects = nullptr;
+    int m_dirtyCount = 0;
 };
 
 class IOptionsPagePrivate
@@ -117,7 +118,13 @@ IOptionsPageWidget::IOptionsPageWidget()
     : d(new Internal::IOptionsPageWidgetPrivate(this))
 {}
 
-IOptionsPageWidget::~IOptionsPageWidget() = default;
+IOptionsPageWidget::~IOptionsPageWidget()
+{
+    for (const QMetaObject::Connection &con : m_connections)
+        QObject::disconnect(con);
+
+    d.reset();
+}
 
 /*!
     Sets the function that is called by default on apply to \a func.
@@ -188,18 +195,69 @@ static bool makesDirty(QObject *watched, QEvent *event)
     return false;
 }
 
-void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
+void IOptionsPageWidget::connectAspect(QWidget *widget, const BaseAspect *aspect)
 {
     QTC_ASSERT(widget, return);
+    QTC_ASSERT(aspect, return);
+
+    while (aspect->container())
+        aspect = aspect->container();
+
+    if (m_trackedAspects.contains(aspect))
+        return;
+
+    m_trackedAspects.insert(aspect);
+
+    const auto dirtyStateMachine = [this, aspect, countedAsDirty = false]() mutable {
+        int oldDirtyCount = d->m_dirtyCount;
+        if (aspect->isDirty() && !countedAsDirty) {
+            d->m_dirtyCount++;
+            countedAsDirty = true;
+        } else if (!aspect->isDirty() && countedAsDirty) {
+            d->m_dirtyCount--;
+            countedAsDirty = false;
+        }
+        if (oldDirtyCount != d->m_dirtyCount)
+            emit dirtyChanged(d->m_dirtyCount > 0);
+    };
+
+    QMetaObject::Connection dirtyCon
+        = connect(aspect, &BaseAspect::volatileValueChanged, this, dirtyStateMachine);
+
+    QMetaObject::Connection disco
+        = connect(widget, &QObject::destroyed, this, [aspect, this, dirtyCon] {
+              QObject::disconnect(dirtyCon);
+              m_trackedAspects.remove(aspect);
+          });
+
+    m_connections.append(dirtyCon);
+    m_connections.append(disco);
+}
+
+void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
+{
+    QTC_ASSERT(!d->m_aspects, return);
+    QTC_ASSERT(widget, return);
+
     if (widget->property(IGNORE_FOR_DIRTY_HOOK).toBool())
         return;
 
-    QList<QWidget *> children = { widget };
+    if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(widget)) {
+        connectAspect(widget, aspect.data());
+        return;
+    }
+
+    QList<QWidget *> children = {widget};
 
     while (!children.isEmpty()) {
         QWidget *child = children.takeLast();
         if (child->property(IGNORE_FOR_DIRTY_HOOK).toBool())
             continue;
+
+        if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(child)) {
+            connectAspect(child, aspect.data());
+            continue;
+        }
 
         children += child->findChildren<QWidget *>(Qt::FindDirectChildrenOnly);
 
@@ -265,7 +323,8 @@ bool IOptionsPageWidgetPrivate::eventFilter(QObject *watched, QEvent *event)
 
 void IOptionsPageWidget::gotDirty()
 {
-    emit dirtyChanged(true);
+    d->m_dirtyCount++;
+    emit dirtyChanged(d->m_dirtyCount > 0);
 }
 
 void IOptionsPageWidget::setIgnoreForDirtyHook(QWidget *widget, bool ignore)

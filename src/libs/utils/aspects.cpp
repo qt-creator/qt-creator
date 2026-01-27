@@ -49,6 +49,9 @@ using namespace Layouting;
 
 namespace Utils {
 
+static const char ASPECT_PROPERTY[] = "aspect";
+
+
 BaseAspect::Changes::Changes()
 {
     memset(this, 0, sizeof(*this));
@@ -533,7 +536,11 @@ QString BaseAspect::displayName() const
 */
 QWidget *BaseAspect::createConfigWidget() const
 {
-    return d->m_configWidgetCreator ? d->m_configWidgetCreator() : nullptr;
+    auto configWidget = d->m_configWidgetCreator ? d->m_configWidgetCreator() : nullptr;
+    if (configWidget)
+        registerSubWidget(configWidget);
+
+    return configWidget;
 }
 
 QAction *BaseAspect::action()
@@ -628,10 +635,23 @@ bool BaseAspect::isDirty() const
     return false;
 }
 
-void BaseAspect::registerSubWidget(QWidget *widget)
+QPointer<const BaseAspect> BaseAspect::aspectForWidget(QWidget *widget)
+{
+    if (!widget)
+        return nullptr;
+    const QVariant v = widget->property(ASPECT_PROPERTY);
+    if (!v.isValid())
+        return nullptr;
+    return v.value<QPointer<const BaseAspect>>();
+}
+
+void BaseAspect::registerSubWidget(QWidget *widget) const
 {
     widget->setEnabled(isEnabled());
     widget->setToolTip(d->m_tooltip);
+    QPointer<const BaseAspect> thisPtr(this);
+    const auto thisPtrVariant = QVariant::fromValue<QPointer<const BaseAspect>>(thisPtr);
+    widget->setProperty(ASPECT_PROPERTY, thisPtrVariant);
 
     // Visible is on by default. Not setting it explicitly avoid popping
     // it up when the parent is not set yet, the normal case.
@@ -2886,14 +2906,14 @@ void StringListAspect::addToLayoutImpl(Layout &parent)
 {
     d->undoable.setSilently(value());
 
-    auto editor = new QTreeWidget();
+    auto editor = createSubWidget<QTreeWidget>();
     editor->setHeaderHidden(true);
     editor->setRootIsDecorated(false);
     editor->setEditTriggers(
         d->allowEditing ? QAbstractItemView::AllEditTriggers : QAbstractItemView::NoEditTriggers);
 
-    QPushButton *add = d->allowAdding ? new QPushButton(Tr::tr("Add")) : nullptr;
-    QPushButton *remove = d->allowRemoving ? new QPushButton(Tr::tr("Remove")) : nullptr;
+    QPushButton *add = d->allowAdding ? createSubWidget<QPushButton>(Tr::tr("Add")) : nullptr;
+    QPushButton *remove = d->allowRemoving ? createSubWidget<QPushButton>(Tr::tr("Remove")) : nullptr;
 
     auto itemsToStringList = [editor] {
         QStringList items;
@@ -2974,12 +2994,6 @@ void StringListAspect::addToLayoutImpl(Layout &parent)
             }
         } // clang-format on
     );
-
-    registerSubWidget(editor);
-    if (d->allowAdding)
-        registerSubWidget(add);
-    if (d->allowRemoving)
-        registerSubWidget(remove);
 }
 
 void StringListAspect::appendValue(const QString &s, bool allowDuplicates)
@@ -3086,7 +3100,7 @@ void FilePathListAspect::addToLayoutImpl(Layout &parent)
 {
     d->undoable.setSilently(value());
 
-    PathListEditor *editor = new PathListEditor;
+    PathListEditor *editor = createSubWidget<PathListEditor>();
     editor->setPathList(value());
     connect(editor, &PathListEditor::changed, this, [this, editor] {
         d->undoable.set(undoStack(), editor->pathList());
@@ -3991,7 +4005,7 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         m_fillCallback(cb);
     }
 
-    QComboBox *comboBox = new QComboBox();
+    QComboBox *comboBox = createSubWidget<QComboBox>();
     comboBox->setInsertPolicy(QComboBox::InsertPolicy::NoInsert);
     comboBox->setEditable(m_comboBoxEditable);
     if (m_comboBoxEditable) {
