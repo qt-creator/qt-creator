@@ -5660,6 +5660,7 @@ bool Parser::parseNameId(NameAST *&name)
     case T_DYNAMIC_CAST:
     case T_REINTERPRET_CAST:
     case T_CONST_CAST:
+    case T_NUMERIC_LITERAL:
         rewind(start);
         return parseName(name, false);
     } // switch
