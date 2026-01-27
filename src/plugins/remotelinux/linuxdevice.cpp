@@ -364,11 +364,11 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         linuxDevice->tryToConnect(
             {linuxDevice.get(), [linuxDevice, autoDetectButton](const Result<> &res) {
                  if (res) {
-                     const auto recipeAndSearchPaths = linuxDevice->autoDetectDeviceToolsRecipe();
-                     linuxDevice->requestToolDetection(recipeAndSearchPaths.searchPaths);
+                     const QtTaskTree::Group recipe = linuxDevice->autoDetectDeviceToolsRecipe();
+                     linuxDevice->requestToolDetection(linuxDevice->toolSearchPaths());
                      GlobalTaskTree::start(
                          QtTaskTree::Group {
-                             recipeAndSearchPaths.recipe,
+                             recipe,
                              QSyncTask([btn = QPointer<QWidget>(autoDetectButton)] {
                                  if (btn)
                                      btn->setEnabled(true);

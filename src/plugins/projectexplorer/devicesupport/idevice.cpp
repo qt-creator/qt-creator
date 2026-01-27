@@ -347,12 +347,11 @@ FilePaths IDevice::toolSearchPaths() const
     return d->autoDetectionPaths();
 }
 
-IDevice::RecipeAndSearchPath IDevice::autoDetectDeviceToolsRecipe()
+Group IDevice::autoDetectDeviceToolsRecipe()
 {
     struct Data
     {
         DeviceToolAspectFactory *factory;
-        FilePaths searchPaths;
         FilePaths patterns;
         FilePath currentValue;
         FilePaths candidates = {};
@@ -360,14 +359,13 @@ IDevice::RecipeAndSearchPath IDevice::autoDetectDeviceToolsRecipe()
 
     QList<Data> datas;
 
-    const FilePaths detectionPaths = d->autoDetectionPaths();
     for (DeviceToolAspectFactory *factory : std::as_const(theDeviceToolFactories)) {
         FilePaths patterns = FilePaths::fromStrings(factory->filePattern());
         patterns.setSchemeAndHost(rootPath());
 
         DeviceToolAspect *toolAspect = d->deviceToolAspects.value(factory->toolId());
         QTC_ASSERT(toolAspect, continue);
-        datas << Data{factory, detectionPaths, patterns, toolAspect->expandedValue()};
+        datas << Data{factory, patterns, toolAspect->expandedValue()};
     }
 
     const ListIterator iterator(datas);
@@ -378,13 +376,16 @@ IDevice::RecipeAndSearchPath IDevice::autoDetectDeviceToolsRecipe()
         std::shared_ptr<IDevice> device = weakDevice.lock();
         if (!device)
             return;
+        const FilePaths detectionPaths = device->toolSearchPaths();
         const FilePath deviceRootPath = device->rootPath();
-        const auto searchForTools = [deviceRootPath](Data data, IDeviceConstPtr device) -> Data {
+        const auto searchForTools = [deviceRootPath,
+                                     detectionPaths](Data data, IDeviceConstPtr device) -> Data {
             for (const FilePath &pattern : std::as_const(data.patterns)) {
                 FilePaths candidates = Utils::filtered(
-                    pattern.searchAllInDirectories(data.searchPaths), [&](const FilePath &toolPath) {
+                    pattern.searchAllInDirectories(detectionPaths), [&](const FilePath &toolPath) {
                         // We assume that check() is thread safe to call.
-                        return data.factory->check(device, toolPath);
+                        QTC_ASSERT_RESULT(data.factory->check(device, toolPath), return false);
+                        return true;
                     });
                 candidates = Utils::transform(candidates, [deviceRootPath](const FilePath &path) {
                     if (path.isChildOf(deviceRootPath))
@@ -427,9 +428,9 @@ IDevice::RecipeAndSearchPath IDevice::autoDetectDeviceToolsRecipe()
     };
 
     // clang-format off
-    return {Group {
-        For(iterator) >> Do { AsyncTask<Data>(onSetupSearch, onSearchDone) }
-    }, detectionPaths};
+    return For (iterator) >> Do {
+        AsyncTask<Data>(onSetupSearch, onSearchDone)
+    };
     // clang-format on
 }
 
