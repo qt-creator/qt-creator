@@ -43,21 +43,32 @@
 
     To add run configurations for a build configuration, select \uicontrol Add.
 
-    To add a run configuration that is based on the current one, select
+    To add a run configuration that is based on the active one, select
     \uicontrol Clone.
 
-    To copy the values from another run configuration into the current
+    To copy the values from another run configuration into the active
     one, even if it belongs to another build configuration, select
     \uicontrol {Clone into This}.
 
-    To rename the current run configuration, select \uicontrol Rename.
+    To edit the active run configuration, select \key {Ctrl+E, Ctrl+R}
+    (or \key {Cmd+E, Cmd+R} on \macos).
 
-    To remove the current run configuration, select \uicontrol Remove. To remove
+    To rename the active run configuration, select \uicontrol Rename.
+
+    \section2 Remove run configurations
+
+    To remove the active run configuration, select \uicontrol Remove. To remove
     all run configurations that belong to a build configuration, select
     \uicontrol {Remove All}.
 
-    To edit the active run configuration, select \key {Ctrl+E, Ctrl+R}
-    (or \key {Cmd+E, Cmd+R} on \macos).
+    To remove multiple run configurations:
+
+    \list 1
+        \li Select \uicontrol {Bulk Remove}.
+        \li Multiselect run configurations by holding \key Ctrl and clicking
+            them.
+        \li Select \uicontrol {Remove selected}.
+    \endlist
 
     \section2 qmake run configurations
 

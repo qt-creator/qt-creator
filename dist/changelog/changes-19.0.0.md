@@ -210,6 +210,7 @@ Projects
 * Added support for Qt Creator variables in the build directory setting
   ([QTCREATORBUG-24121](https://bugreports.qt.io/browse/QTCREATORBUG-24121))
 * Added `Bulk Remove` to run configuration settings
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-run-settings.html))
 * Added the option to export and import custom output parsers
 * Fixed that local paths in the device tool settings were not interpreted as
   paths on the device
