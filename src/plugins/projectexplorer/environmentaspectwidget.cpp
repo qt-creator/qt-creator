@@ -9,6 +9,7 @@
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QCheckBox>
 #include <QComboBox>
