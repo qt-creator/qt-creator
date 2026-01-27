@@ -246,6 +246,7 @@ Projects
 * Presets
     * Added support for `graphviz` and `trace`
       ([QTCREATORBUG-33943](https://bugreports.qt.io/browse/QTCREATORBUG-33943))
+      ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-build-settings-cmake-presets.html))
 
 ### qmake
 

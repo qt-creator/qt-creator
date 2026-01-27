@@ -270,8 +270,8 @@
     \title cmake-format
 */
 /*!
-    \externalpage https://cmake.org/cmake/help/v3.25/manual/cmake-presets.7.html#test-preset
-    \title CMake: Test Preset
+    \externalpage https://cmake.org/cmake/help/v3.31/manual/cmake-presets.7.html
+    \title CMake: cmake-presets(7)
 */
 /*!
     \externalpage https://cmake.org/cmake/help/latest/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html
