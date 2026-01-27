@@ -203,6 +203,7 @@ Projects
 * Added `Re-detect` to `Preferences > Kits > Qt Versions`
 * Added the option to run applications as a different user
   ([QTCREATORBUG-33655](https://bugreports.qt.io/browse/QTCREATORBUG-33655))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-run-settings-desktop-devices.html))
 * Added the option to search in generated files with the project related
   `Advanced Find` filters
   ([QTCREATORBUG-33579](https://bugreports.qt.io/browse/QTCREATORBUG-33579))
