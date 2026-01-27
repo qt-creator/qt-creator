@@ -10,10 +10,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/welcomepagehelper.h>
 
-#include <solutions/spinner/spinner.h>
 #include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 #include <QtTaskTree/QTaskTree>
-#include <QtTaskTree/QSingleTaskTreeRunner>
+
+#include <solutions/spinner/spinner.h>
 
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
@@ -573,7 +574,7 @@ private:
                 updateModelIndexesForUrl(url);
             }
         };
-        sequentialTaskTreeRunner.enqueue({QNetworkReplyWrapperTask(onSetup, onDone, CallDone::OnSuccess)});
+        imageDownloader.start({QNetworkReplyWrapperTask(onSetup, onDone, CallDone::OnSuccess)});
     }
 
     void updateModelIndexesForUrl(const QString &url)
@@ -638,7 +639,7 @@ private:
     CourseItemDelegate m_delegate;
     bool m_dataFetched = false;
     QSingleTaskTreeRunner taskTreeRunner;
-    QSequentialTaskTreeRunner sequentialTaskTreeRunner;
+    QParallelTaskTreeRunner imageDownloader;
     SpinnerSolution::Spinner *m_spinner;
     const CourseItem *m_selectedCourse = nullptr;
 };
