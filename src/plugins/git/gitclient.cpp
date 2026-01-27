@@ -1332,12 +1332,6 @@ void GitClient::reflog(const FilePath &workingDirectory, const QString &ref)
     executeInEditor(workingDir, arguments, editor);
 }
 
-// Do not show "0000" or "^32ae4"
-static inline bool canShow(const QString &hash)
-{
-    return !hash.startsWith('^') && hash.count('0') != hash.size();
-}
-
 static inline QString msgCannotShow(const QString &hash)
 {
     return Tr::tr("Cannot describe \"%1\".").arg(hash);
@@ -1347,7 +1341,7 @@ void GitClient::show(const FilePath &source, const QString &id, const QString &n
 {
     FilePath workingDirectory = source.isDir() ? source.absoluteFilePath() : source.absolutePath();
 
-    if (!canShow(id)) {
+    if (!isValidRevision(id)) {
         VcsOutputWindow::appendError(workingDirectory, msgCannotShow(id));
         return;
     }
@@ -2270,7 +2264,7 @@ SubmoduleDataMap GitClient::submoduleList(const FilePath &workingDirectory) cons
 QByteArray GitClient::synchronousShow(const FilePath &workingDirectory, const QString &id,
                                       RunFlags flags) const
 {
-    if (!canShow(id)) {
+    if (!isValidRevision(id)) {
         VcsOutputWindow::appendError(workingDirectory, msgCannotShow(id));
         return {};
     }
@@ -2386,9 +2380,10 @@ void GitClient::endStashScope(const FilePath &workingDirectory)
     m_stashInfo[repoDirectory].end();
 }
 
+// Do not show "0000" or "^32ae4"
 bool GitClient::isValidRevision(const QString &revision) const
 {
-    if (revision.size() < 1)
+    if (revision.isEmpty() || revision.startsWith('^'))
         return false;
     for (const auto i : revision)
         if (i != '0')
