@@ -123,7 +123,7 @@ struct DebuggerData
     std::unique_ptr<Process> terminalProcess = {};
 };
 
-ExecutableItem coreFileRecipe(const Storage<DebuggerData> &storage)
+static ExecutableItem coreFileRecipe(const Storage<DebuggerData> &storage)
 {
     const Storage<QFile> fileStorage; // tempCoreFile
 
@@ -173,7 +173,7 @@ ExecutableItem coreFileRecipe(const Storage<DebuggerData> &storage)
     };
 }
 
-ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const QStoredBarrier &barrier)
+static ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const QStoredBarrier &barrier)
 {
     const auto onSetup = [storage, barrier] {
         DebuggerRunParameters &runParameters = storage->runParameters;
@@ -216,7 +216,7 @@ ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const QStore
     return QSyncTask(onSetup);
 }
 
-ExecutableItem fixupParamsRecipe(const Storage<DebuggerData> &storage)
+static ExecutableItem fixupParamsRecipe(const Storage<DebuggerData> &storage)
 {
     return QSyncTask([storage] {
         RunControl *runControl = storage->runControl;
@@ -304,7 +304,7 @@ ExecutableItem fixupParamsRecipe(const Storage<DebuggerData> &storage)
     });
 }
 
-ProcessTask debugServerTask(const Storage<DebuggerData> &storage)
+static ProcessTask debugServerTask(const Storage<DebuggerData> &storage)
 {
     const auto onSetup = [storage](Process &process) {
         process.setUtf8Codec();
@@ -432,7 +432,7 @@ static ExecutableItem doneAwaiter(const Storage<DebuggerData> &storage)
     });
 }
 
-ExecutableItem startEnginesRecipe(const Storage<DebuggerData> &storage)
+static ExecutableItem startEnginesRecipe(const Storage<DebuggerData> &storage)
 {
     const auto setupEngines = [storage] {
         RunControl *runControl = storage->runControl;
@@ -480,7 +480,7 @@ static ExecutableItem terminalAwaiter(const Storage<DebuggerData> &storage)
     });
 }
 
-ExecutableItem finalizeRecipe(const Storage<DebuggerData> &storage)
+static ExecutableItem finalizeRecipe(const Storage<DebuggerData> &storage)
 {
     const auto isRunning = [storage] { return storage->enginesDriver.isRunning(); };
     const auto isTerminalRunning = [storage] {
