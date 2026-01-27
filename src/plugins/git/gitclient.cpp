@@ -410,7 +410,6 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
     struct ReloadStorage {
         bool m_postProcessDescription = false;
-        QString m_commit;
 
         QString m_header;
         QString m_body;
@@ -464,8 +463,6 @@ ShowController::ShowController(IDocument *document, const QString &id)
             return;
         }
         const int lastHeaderLine = output.indexOf("\n\n") + 1;
-        const int commitPos = output.indexOf('m', 8) + 1;
-        data->m_commit = output.mid(commitPos, 12);
         data->m_header = output.left(lastHeaderLine);
         data->m_body = output.mid(lastHeaderLine + 1);
         updateDescription(*data);
@@ -498,7 +495,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         return SetupResult::Continue;
     };
 
-    const auto onBranchesSetup = [this, storage](Process &process) {
+    const auto onBranchesSetup = [this, storage, id](Process &process) {
         storage->m_branches = busyMessage;
         const QString branchesFormat = QStringLiteral(
                                            "--format="
@@ -509,7 +506,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
                                            "%(end)"
             );
         setupCommand(process, {"branch", noColorOption, "-a", branchesFormat,
-                               "--contains", storage->m_commit});
+                               "--contains", id});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
     const auto onBranchesDone = [storage, updateDescription, decorateColor, noColor](
@@ -555,9 +552,9 @@ ShowController::ShowController(IDocument *document, const QString &id)
         updateDescription(*data);
     };
 
-    const auto onPrecedesSetup = [this, storage](Process &process) {
+    const auto onPrecedesSetup = [this, storage, id](Process &process) {
         storage->m_precedes = busyMessage;
-        setupCommand(process, {"describe", "--contains", storage->m_commit});
+        setupCommand(process, {"describe", "--contains", id});
     };
     const auto onPrecedesDone = [storage, updateDescription](const Process &process, DoneWith result) {
         ReloadStorage *data = storage.activeStorage();
