@@ -190,6 +190,7 @@ static bool makesDirty(QObject *watched, QEvent *event)
 
 void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
 {
+    QTC_ASSERT(widget, return);
     if (widget->property(IGNORE_FOR_DIRTY_HOOK).toBool())
         return;
 
