@@ -22,7 +22,7 @@
     To view the installed Qt versions, select \preferences > \uicontrol Kits >
     \uicontrol {Qt Versions}.
 
-    \image {qtcreator-qt-versions.png} {Qt Versions tab in Kits preferences}
+    \image {qtcreator-qt-versions.webp} {Qt Versions tab in Kits preferences}
 
     To view detailed information about each Qt version, select it in the list and
     select \uicontrol Details in the \uicontrol {Qt version for} section.
@@ -51,6 +51,9 @@
             versions and kits in the Qt installation directory.
         \li Select \uicontrol {Restart Now} to restart \QC.
     \endlist
+
+    To refresh the list of automatically detected Qt versions, select
+    \uicontrol {Re-detect}.
 
     To remove the automatically detected Qt versions from the list, select
     \uicontrol {Remove Link}.

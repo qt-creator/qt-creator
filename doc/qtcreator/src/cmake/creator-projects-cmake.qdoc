@@ -164,6 +164,9 @@
 
     \endlist
 
+    To refresh the list of automatically detected CMake executables, select
+    \uicontrol {Re-detect}.
+
     \section2 Add or remove CMake tools
 
     To add a path to a CMake executable that \QC does not detect automatically,
