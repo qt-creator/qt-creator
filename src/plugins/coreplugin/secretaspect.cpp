@@ -165,7 +165,7 @@ void SecretAspect::writeSettings() const
     // clang-format on
 }
 
-bool SecretAspect::isDirty()
+bool SecretAspect::isDirty() const
 {
     return d->wasEdited;
 }
