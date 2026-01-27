@@ -9,7 +9,6 @@
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
-#include <utils/stylehelper.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -59,7 +58,7 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
             bindTo(&m_baseLayout),
             label(),
             m_baseEnvironmentComboBox,
-            Stretch(Utils::StyleHelper::SpacingTokens::GapHL),
+            st,
         },
         If {m_aspect->isPrintOnRunAllowed()} >> Then { [this] {
             const auto printOnRunCheckBox = new QCheckBox(
