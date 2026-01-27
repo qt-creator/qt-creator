@@ -113,6 +113,40 @@ static QString branchesDisplay(const QString &prefix, QStringList *branches, boo
     return output;
 }
 
+static QString msgParentRevisionFailed(const FilePath &workingDirectory,
+                                       const QString &revision,
+                                       const QString &why)
+{
+    //: Failed to find parent revisions of a hash for "annotate previous"
+    return Tr::tr("Cannot find parent revisions of \"%1\" in \"%2\": %3")
+            .arg(revision, workingDirectory.toUserOutput(), why);
+}
+
+static QString msgInvalidRevision()
+{
+    return Tr::tr("Invalid revision");
+}
+
+// Split a line of "<commit> <parent1> ..." to obtain parents from "rev-list" or "log".
+static inline bool splitCommitParents(const QString &line,
+                                      QString *commit = nullptr,
+                                      QStringList *parents = nullptr)
+{
+    if (commit)
+        commit->clear();
+    if (parents)
+        parents->clear();
+    QStringList tokens = line.trimmed().split(' ');
+    if (tokens.size() < 2)
+        return false;
+    if (commit)
+        *commit = tokens.front();
+    tokens.pop_front();
+    if (parents)
+        *parents = tokens;
+    return true;
+}
+
 ///////////////////////////////
 
 static void stage(DiffEditorController *diffController, const QString &patch, bool revert)
@@ -1767,40 +1801,6 @@ bool GitClient::synchronousCheckoutFiles(const FilePath &workingDirectory, QStri
                  .arg(revision, fileArg, workingDirectory.toUserOutput(), result.cleanedStdErr()),
                  errorMessage);
     return false;
-}
-
-static QString msgParentRevisionFailed(const FilePath &workingDirectory,
-                                              const QString &revision,
-                                              const QString &why)
-{
-    //: Failed to find parent revisions of a hash for "annotate previous"
-    return Tr::tr("Cannot find parent revisions of \"%1\" in \"%2\": %3")
-            .arg(revision, workingDirectory.toUserOutput(), why);
-}
-
-static QString msgInvalidRevision()
-{
-    return Tr::tr("Invalid revision");
-}
-
-// Split a line of "<commit> <parent1> ..." to obtain parents from "rev-list" or "log".
-static inline bool splitCommitParents(const QString &line,
-                                      QString *commit = nullptr,
-                                      QStringList *parents = nullptr)
-{
-    if (commit)
-        commit->clear();
-    if (parents)
-        parents->clear();
-    QStringList tokens = line.trimmed().split(' ');
-    if (tokens.size() < 2)
-        return false;
-    if (commit)
-        *commit = tokens.front();
-    tokens.pop_front();
-    if (parents)
-        *parents = tokens;
-    return true;
 }
 
 bool GitClient::synchronousRevListCmd(const FilePath &workingDirectory, const QStringList &extraArguments,
