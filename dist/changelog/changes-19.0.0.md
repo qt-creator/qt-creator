@@ -284,6 +284,7 @@ Analyzer
 
 * Added the option to resize the category column in the timeline view
   ([QTCREATORBUG-33045](https://bugreports.qt.io/browse/QTCREATORBUG-33045))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-profile-qml.html))
 
 ### Coco
 
@@ -297,6 +298,7 @@ Analyzer
 * Added support for protocol versions 5 and 6
   ([QTCREATORBUG-33759](https://bugreports.qt.io/browse/QTCREATORBUG-33759))
 * Added the option to show `Size and Alignment Errors` and `Other` issues
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-memcheck.html))
 
 Terminal
 --------

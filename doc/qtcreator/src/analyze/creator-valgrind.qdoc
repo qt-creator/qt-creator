@@ -59,7 +59,9 @@
             delete memory blocks.
     \endlist
 
-    You can see the results when you stop Memcheck.
+    You can see the results when you stop Memcheck. \QC divides the issues into
+    categories and displays them if they belong to the running application. By
+    default, it filters out other issues (such as issues from external libraries).
 
     Select a line to see the place where a memory leak occurred and a stack trace
     that shows what caused it.
@@ -73,13 +75,26 @@
     To move between rows, select \inlineimage {icons/prev.png} {Previous}
     or \inlineimage {icons/next.png} {Next}.
 
-    To filter the results, select \inlineimage {icons/filtericon.png} {Filter},
-    and then select the types of issues to display in the view. You
-    can view and hide definite and possible memory leaks, uninitialized
-    values, invalid calls to \c free(), and external errors.
-
     For more information about using Memcheck, see
     \l{Interpreting Memcheck's Output} in the Valgrind documentation.
+
+    \section1 Filter memory issues
+
+    To filter the results, select \inlineimage {icons/filtericon.png} {Filter},
+    and then select the types of issues to display in the view:
+
+    \list
+        \li Definite and possible memory leaks
+        \li Use of uninitialized memory
+        \li Invalid calls to \c free()
+        \li Size and alignment errors
+        \li File descriptor issues
+    \endlist
+
+    Select \uicontrol Other to show issues that do not belong to any category.
+
+    Select \uicontrol {External errors} to also show issues from external
+    libraries.
 
     \sa {Analyze}{How to: Analyze}, {Profile function execution},
     {Run Valgrind tools on external applications},
