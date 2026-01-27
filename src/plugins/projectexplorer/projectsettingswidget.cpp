@@ -95,7 +95,7 @@ void ProjectSettingsWidget::addGlobalOrProjectSelectorToLayout(QBoxLayout *layou
     if (m_useGlobalSettingsLabelVisibleVisible) {
         horizontalLayout->addWidget(settingsLabel);
         connect(settingsLabel, &QLabel::linkActivated, this, [this] {
-            Core::ICore::showOptionsDialog(m_globalSettingsId);
+            Core::ICore::showSettings(m_globalSettingsId);
         });
     }
     horizontalLayout->addStretch(1);

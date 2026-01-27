@@ -94,7 +94,7 @@ public:
             msg.exec();
 
             if (msg.clickedButton() == configButton)
-                Core::ICore::showOptionsDialog(Constants::COCO_SETTINGS_PAGE_ID);
+                Core::ICore::showSettings(Constants::COCO_SETTINGS_PAGE_ID);
         }
     }
 

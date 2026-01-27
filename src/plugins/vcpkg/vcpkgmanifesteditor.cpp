@@ -117,9 +117,9 @@ public:
         });
 
         QAction *optionsAction = toolBar()->addAction(Utils::Icons::SETTINGS_TOOLBAR.icon(),
-                                                      Core::ICore::msgShowOptionsDialog());
+                                                      Core::ICore::msgShowSettings());
         connect(optionsAction, &QAction::triggered, [] {
-            Core::ICore::showOptionsDialog(Constants::Settings::GENERAL_ID);
+            Core::ICore::showSettings(Constants::Settings::GENERAL_ID);
         });
 
         updateToolBar();

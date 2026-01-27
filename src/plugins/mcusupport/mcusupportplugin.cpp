@@ -127,7 +127,7 @@ static void askUserAboutMcuSupportKitsSetup()
     // clazy:excludeall=connect-3arg-lambda
     info.addCustomButton(
         Tr::tr("Create Kits for Qt for MCUs"),
-        [] { QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); }); },
+        [] { QTimer::singleShot(0, []() { ICore::showSettings(Constants::SETTINGS_ID); }); },
         {},
         InfoBarEntry::ButtonAction::Hide);
     infoBar->addInfo(info);

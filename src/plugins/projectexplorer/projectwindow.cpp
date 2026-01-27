@@ -1720,7 +1720,7 @@ public:
                 treeItem = treeItem->parent();
             }
         }
-        ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID);
+        ICore::showSettings(Constants::KITS_SETTINGS_PAGE_ID);
     }
 
     void handleImportBuild()

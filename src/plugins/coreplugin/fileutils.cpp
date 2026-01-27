@@ -103,11 +103,11 @@ static void showGraphicalShellError(const QString &app, const QString &error)
     QMessageBox mbox(QMessageBox::Warning, title, msg, QMessageBox::Close, ICore::dialogParent());
     if (!error.isEmpty())
         mbox.setDetailedText(Tr::tr("\"%1\" returned the following error:\n\n%2").arg(app, error));
-    QAbstractButton *settingsButton = mbox.addButton(Core::ICore::msgShowOptionsDialog(),
+    QAbstractButton *settingsButton = mbox.addButton(Core::ICore::msgShowSettings(),
                                                      QMessageBox::ActionRole);
     mbox.exec();
     if (mbox.clickedButton() == settingsButton)
-        ICore::showOptionsDialog(Constants::SETTINGS_ID_INTERFACE);
+        ICore::showSettings(Constants::SETTINGS_ID_INTERFACE);
 }
 
 void showInGraphicalShell(const FilePath &pathIn)

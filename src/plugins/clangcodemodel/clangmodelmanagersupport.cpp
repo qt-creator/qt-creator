@@ -183,7 +183,7 @@ static void checkSystemForClangdSuitability()
             "You can enable/disable and fine-tune clangd <a href=\"dummy\">here</a>."));
         label->setWordWrap(true);
         QObject::connect(label, &QLabel::linkActivated, [] {
-            ICore::showOptionsDialog(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);
+            ICore::showSettings(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);
         });
         return label;
     });

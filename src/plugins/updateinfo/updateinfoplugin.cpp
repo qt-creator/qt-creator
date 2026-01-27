@@ -432,7 +432,7 @@ static void showUpdateInfo(const QList<Update> &updates,
     info.setInfoType(InfoLabel::Information);
     info.addCustomButton(
         Tr::tr("Open Settings"),
-        [] { ICore::showOptionsDialog(FILTER_OPTIONS_PAGE_ID); },
+        [] { ICore::showSettings(FILTER_OPTIONS_PAGE_ID); },
         {},
         InfoBarEntry::ButtonAction::Hide);
     if (newQt) {

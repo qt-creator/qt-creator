@@ -1044,9 +1044,8 @@ bool handleMissingPathMapping(const FilePath &missingPath, const QString &projec
             // present axivion options to modify existing
             // FIXME? we have no way to give a hint regarding the missing file path, should we
             // put the path into the clipboard at least?
-            if (!ICore::showOptionsDialog("Analyzer.Axivion.Settings"))
-                return false;
-            return true;
+            ICore::showSettings("Analyzer.Axivion.Settings");
+            return false;
         } else {
             ProjectExplorer::Project *startupProj = ProjectExplorer::ProjectManager::startupProject();
             const FilePath computedPath = startupProj ? findFileForIssuePath(missingPath)

@@ -1242,7 +1242,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     // Application interaction
     // Use a queued connection so the dialog isn't triggered in the same event.
     connect(settings().settingsDialog.action(), &QAction::triggered, this,
-            [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); }, Qt::QueuedConnection);
+            [] { ICore::showSettings(DEBUGGER_COMMON_SETTINGS_ID); }, Qt::QueuedConnection);
 
     EngineManager::registerDefaultPerspective(Tr::tr("Debugger Preset"),
                                               {},

@@ -123,13 +123,13 @@ private:
     void handle(const Task &task) override
     {
         Q_UNUSED(task)
-        ICore::showOptionsDialog(m_targetPage);
+        ICore::showSettings(m_targetPage);
     }
 
     QAction *createAction() const
     {
-        auto action = new QAction(ICore::msgShowOptionsDialog());
-        action->setToolTip(ICore::msgShowOptionsDialogToolTip());
+        auto action = new QAction(ICore::msgShowSettings());
+        action->setToolTip(ICore::msgShowSettingsToolTip());
         return action;
     }
 

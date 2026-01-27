@@ -93,13 +93,13 @@ class GitLabPlugin final : public ExtensionSystem::IPlugin
     void openView()
     {
         if (dd->dialog.isNull()) {
-            while (!gitLabParameters().isValid()) {
+            if (!gitLabParameters().isValid()) {
                 QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Error"),
                                      Tr::tr("Invalid GitLab configuration. For a fully functional "
                                             "configuration, you need to set up host name or address and "
                                             "an access token. Providing the path to curl is mandatory."));
-                if (!Core::ICore::showOptionsDialog("GitLab"))
-                    return;
+                Core::ICore::showSettings("GitLab");
+                return;
             }
             GitLabDialog *gitlabD = new GitLabDialog(Core::ICore::dialogParent());
             gitlabD->setModal(true);

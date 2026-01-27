@@ -139,7 +139,7 @@ private:
     {
         if (!Internal::settings().toolsRegistered()) {
             // Show options if ffmpeg/ffprobe are neither autodetected nor manually set
-            Core::ICore::showOptionsDialog(Constants::TOOLSSETTINGSPAGE_ID);
+            Core::ICore::showSettings(Constants::TOOLSSETTINGSPAGE_ID);
             if (!Internal::settings().toolsRegistered())
                 return; // User did not set ffmpeg/ffprobe
         }

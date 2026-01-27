@@ -395,7 +395,7 @@ private:
         if (!globalSettingsCategory.isValid())
             globalSettingsCategory = Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS;
         menu->addAction(Tr::tr("Global Settings..."), [globalSettingsCategory] {
-            Core::ICore::showOptionsDialog(globalSettingsCategory);
+            Core::ICore::showSettings(globalSettingsCategory);
         });
 
         menu->popup(QCursor::pos());

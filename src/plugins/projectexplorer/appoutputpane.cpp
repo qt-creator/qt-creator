@@ -483,10 +483,10 @@ AppOutputPane::AppOutputPane() :
     connect(this, &IOutputPane::zoomOutRequested, this, &AppOutputPane::zoomOut);
     connect(this, &IOutputPane::resetZoomRequested, this, &AppOutputPane::resetZoom);
 
-    m_settingsButton->setToolTip(Core::ICore::msgShowOptionsDialog());
+    m_settingsButton->setToolTip(Core::ICore::msgShowSettings());
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
     connect(m_settingsButton, &QToolButton::clicked, this, [] {
-        Core::ICore::showOptionsDialog(OPTIONS_PAGE_ID);
+        Core::ICore::showSettings(OPTIONS_PAGE_ID);
     });
 
     auto formatterWidgetsLayout = new QHBoxLayout;

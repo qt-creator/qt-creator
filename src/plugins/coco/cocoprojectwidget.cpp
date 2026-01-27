@@ -243,7 +243,7 @@ void CocoProjectWidget::onCoverageGroupBoxClicked()
         box.exec();
 
         if (box.clickedButton() == editButton)
-            Core::ICore::showOptionsDialog(Constants::COCO_SETTINGS_PAGE_ID);
+            Core::ICore::showSettings(Constants::COCO_SETTINGS_PAGE_ID);
 
         m_coverageGroupBoxEnabled.setValue(cocoSettings().isValid(), Utils::BaseAspect::BeQuiet);
     } else

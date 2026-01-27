@@ -552,7 +552,7 @@ void TerminalWidget::contextMenuRequested(const QPoint &pos)
     QAction *configureAction = new QAction(contextMenu);
     configureAction->setText(Tr::tr("Configure..."));
     connect(configureAction, &QAction::triggered, this, [] {
-        ICore::showOptionsDialog("Terminal.General");
+        ICore::showSettings("Terminal.General");
     });
 
     contextMenu->addAction(ActionManager::command(Constants::COPY)->action());

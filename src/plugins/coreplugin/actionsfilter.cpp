@@ -280,7 +280,7 @@ LocatorFilterEntry::Acceptor ActionsFilter::acceptor(const ActionFilterEntryData
         } else if (data.optionsPageId.isValid()) {
             QMetaObject::invokeMethod(
                 Core::ICore::instance(),
-                [id = data.optionsPageId] { Core::ICore::showOptionsDialog(id); },
+                [id = data.optionsPageId] { Core::ICore::showSettings(id); },
                 Qt::QueuedConnection);
         }
         if (m_lastTriggered.size() > maxHistorySize)

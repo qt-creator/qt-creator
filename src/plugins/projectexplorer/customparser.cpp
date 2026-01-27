@@ -456,7 +456,7 @@ public:
         }.attachTo(this);
 
         connect(explanatoryLabel, &QLabel::linkActivated, [] {
-            Core::ICore::showOptionsDialog(Constants::CUSTOM_PARSERS_SETTINGS_PAGE_ID);
+            Core::ICore::showSettings(Constants::CUSTOM_PARSERS_SETTINGS_PAGE_ID);
         });
         updateUi();
         connect(&CustomParsers::instance(), &CustomParsers::changed,

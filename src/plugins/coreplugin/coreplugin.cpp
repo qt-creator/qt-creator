@@ -462,8 +462,8 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
             this,
             [] {
                 Utils::warnAboutCrashReporting(
-                    ICore::popupInfoBar(), ICore::msgShowOptionsDialog(), [] {
-                        ICore::showOptionsDialog(Constants::SETTINGS_ID_SYSTEM);
+                    ICore::popupInfoBar(), ICore::msgShowSettings(), [] {
+                        ICore::showSettings(Constants::SETTINGS_ID_SYSTEM);
                     });
             },
             Qt::QueuedConnection);
@@ -515,7 +515,7 @@ static void registerActionsForOptions()
             .setText(Tr::tr("%1 > %2 Preferences...")
                          .arg(categoryDisplay.value(page->category()), page->displayName()))
             .addOnTriggered(ICore::instance(), [id = page->id()] {
-                ICore::showOptionsDialog(id);
+                ICore::showSettings(id);
             });
     }
 }

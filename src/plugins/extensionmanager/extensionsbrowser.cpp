@@ -665,7 +665,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     connect(d->sortFilterProxyModel, &SortFilterProxyModel::rowsInserted,
             this, updatePlaceHolderVisibility);
     connect(settingsToolButton, &QAbstractButton::clicked, this, []() {
-        ICore::showOptionsDialog(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
+        ICore::showSettings(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
     });
     connect(&settings().useExternalRepo, &BaseAspect::changed, this, updateExternalRepoSwitch);
     connect(externalRepoSwitch, &QAbstractButton::toggled, this, setUseExternalRepo);

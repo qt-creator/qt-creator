@@ -580,7 +580,7 @@ LocatorWidget::LocatorWidget(Locator *locator)
     , m_useTabCompletion(new QAction(locatorSettings().useTabCompletion.labelText(), this))
     , m_ignoreGeneratedFiles(new QAction(locatorSettings().ignoreGeneratedFiles.labelText(), this))
     , m_refreshAction(new QAction(Tr::tr("Refresh"), this))
-    , m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this))
+    , m_configureAction(new QAction(ICore::msgShowSettings(), this))
     , m_fileLineEdit(new FancyLineEdit)
 {
     setAttribute(Qt::WA_Hover);
@@ -1041,7 +1041,7 @@ QAbstractItemModel *LocatorWidget::model() const
 
 void LocatorWidget::showConfigureDialog()
 {
-    ICore::showOptionsDialog(Constants::FILTER_OPTIONS_PAGE);
+    ICore::showSettings(Constants::FILTER_OPTIONS_PAGE);
 }
 
 LocatorWidget *createStaticLocatorWidget(Locator *locator)

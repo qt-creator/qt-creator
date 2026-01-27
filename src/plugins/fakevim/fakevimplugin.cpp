@@ -1978,7 +1978,7 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
     } else if (cmd.matches("se", "set")) {
         if (cmd.args.isEmpty()) {
             // :se[t]
-            ICore::showOptionsDialog(SETTINGS_ID);
+            ICore::showSettings(SETTINGS_ID);
         } else if (cmd.args == "ic" || cmd.args == "ignorecase") {
             // :set nc
             setActionChecked(Core::Constants::CASE_SENSITIVE, false);

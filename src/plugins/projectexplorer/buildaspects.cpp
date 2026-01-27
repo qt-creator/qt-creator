@@ -131,7 +131,7 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
     d->genericProblemLabel = new InfoLabel({}, InfoLabel::Warning);
     d->genericProblemLabel->setElideMode(Qt::ElideNone);
     connect(d->genericProblemLabel, &QLabel::linkActivated, this, [] {
-        Core::ICore::showOptionsDialog(Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
+        Core::ICore::showSettings(Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
     });
     d->specialProblemLabel = new InfoLabel({}, InfoLabel::Warning);
     d->specialProblemLabel->setElideMode(Qt::ElideNone);

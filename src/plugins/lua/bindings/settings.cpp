@@ -693,7 +693,7 @@ void setupSettingsModule()
                 return pool.makePage<OptionsPage>(pluginSpec, options);
             },
             "show",
-            [](OptionsPage *page) { Core::ICore::showOptionsDialog(page->id()); });
+            [](OptionsPage *page) { Core::ICore::showSettings(page->id()); });
 
         settings.new_usertype<ExtensionOptionsPage>(
             "ExtensionOptionsPage",
@@ -702,7 +702,7 @@ void setupSettingsModule()
                 return pool.makePage<ExtensionOptionsPage>(pluginSpec, container);
             },
             "show",
-            [](ExtensionOptionsPage *page) { Core::ICore::showOptionsDialog(page->id()); });
+            [](ExtensionOptionsPage *page) { Core::ICore::showSettings(page->id()); });
 
         // clang-format off
         settings["StringDisplayStyle"] = lua.create_table_with(

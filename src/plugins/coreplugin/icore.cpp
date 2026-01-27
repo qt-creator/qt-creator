@@ -433,71 +433,53 @@ void ICore::showNewItemDialog(const QString &title,
 }
 
 /*!
-    Opens the options mode on the specified \a page.
-
-    Returns whether the user accepted the dialog.
+    Opens the perferences mode on the specified \a page.
 
     \sa msgShowOptionsDialog()
     \sa msgShowOptionsDialogToolTip()
 */
-bool ICore::showOptionsDialog(const Id page)
+void ICore::showSettings(const Id page)
 {
-    QTC_ASSERT(d->m_settingMode, return false);
+    QTC_ASSERT(d->m_settingMode, return);
     d->m_settingMode->open(page);
-    return true;
-}
-
-bool ICore::showOptionsDialog(const Id page, QWidget *)
-{
-    return showOptionsDialog(page);
 }
 
 /*!
-    Opens the options dialog on the specified \a page. The dialog's \a parent
+    Opens the preferences mode on the specified \a page. The dialog's \a parent
     defaults to dialogParent(). If the dialog is already shown when this method
     is called, it is just switched to the specified \a page.
     Pre-selects some part of the dialog specified by \a item which the dialog
     knows how to interpret.
 
-    Returns whether the user accepted the dialog.
-
     \sa msgShowOptionsDialog()
     \sa msgShowOptionsDialogToolTip()
 */
-bool ICore::showOptionsDialog(const Id page, Id item)
+void ICore::showSettings(const Id page, Id item)
 {
     setPreselectedOptionsPageItem(page, item);
-    return showOptionsDialog(page);
-}
-
-bool ICore::showOptionsDialog(const Id page, Id item, QWidget *)
-{
-    return showOptionsDialog(page, item);
+    return showSettings(page);
 }
 
 /*!
-    Returns the text to use on buttons that open the options dialog.
+    Returns the text to use on buttons that open the prefences mode.
 
-    \sa showOptionsDialog()
+    \sa showSettings()
     \sa msgShowOptionsDialogToolTip()
 */
-QString ICore::msgShowOptionsDialog()
+QString ICore::msgShowSettings()
 {
     return Tr::tr("Configure...", "msgShowOptionsDialog");
 }
 
 /*!
-    Returns the tool tip to use on buttons that open the options dialog.
+    Returns the tool tip to use on buttons that open the preferences mode.
 
-    \sa showOptionsDialog()
+    \sa showSettings()
     \sa msgShowOptionsDialog()
 */
-QString ICore::msgShowOptionsDialogToolTip()
+QString ICore::msgShowSettingsToolTip()
 {
-    if (Utils::HostOsInfo::isMacHost())
-        return Tr::tr("Open Preferences dialog.", "msgShowOptionsDialogToolTip (mac version)");
-    else
-        return Tr::tr("Open Options dialog.", "msgShowOptionsDialogToolTip (non-mac version)");
+    return Tr::tr("Open Preferences.", "msgShowOptionsDialogToolTip");
 }
 
 /*!
@@ -510,11 +492,9 @@ QString ICore::msgShowOptionsDialogToolTip()
     Use this function to display configuration errors and to point users to the
     setting they should fix.
 
-    Returns \c true if the user accepted the settings dialog.
-
-    \sa showOptionsDialog()
+    \sa showSettings()
 */
-bool ICore::showWarningWithOptions(const QString &title, const QString &text,
+void ICore::showWarningWithOptions(const QString &title, const QString &text,
                                    const QString &details, Id settingsId)
 {
     QMessageBox msgBox(QMessageBox::Warning, title, text,
@@ -524,17 +504,17 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
         msgBox.setDetailedText(details);
     QAbstractButton *settingsButton = nullptr;
     if (settingsId.isValid())
-        settingsButton = msgBox.addButton(msgShowOptionsDialog(), QMessageBox::AcceptRole);
+        settingsButton = msgBox.addButton(msgShowSettings(), QMessageBox::AcceptRole);
     msgBox.exec();
     if (settingsButton && msgBox.clickedButton() == settingsButton)
-        return showOptionsDialog(settingsId);
-    return false;
+        showSettings(settingsId);
 }
 
 bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                    const QString &details, Id settingsId, QWidget *)
 {
-    return showWarningWithOptions(title, text, details, settingsId);
+    showWarningWithOptions(title, text, details, settingsId);
+    return true;
 }
 
 /*!
@@ -1979,7 +1959,7 @@ void ICorePrivate::registerDefaultActions()
     optionsAction.setMenuRole(QAction::PreferencesRole);
     optionsAction.setDefaultKeySequence(QKeySequence::Preferences);
     optionsAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_PREFERENCES);
-    optionsAction.addOnTriggered(this, [] { ICore::showOptionsDialog(Id()); });
+    optionsAction.addOnTriggered(this, [] { ICore::showSettings(Id()); });
 
     mwindow->addSeparator(Constants::G_WINDOW_LIST);
 

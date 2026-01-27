@@ -287,7 +287,7 @@ void updateEditorToolBar(Core::IEditor *editor)
                 LanguageClientManager::showInspector();
             });
             menu->addAction(Tr::tr("Manage..."), [] {
-                Core::ICore::showOptionsDialog(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
+                Core::ICore::showSettings(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
             });
             menu->popup(QCursor::pos());
         });

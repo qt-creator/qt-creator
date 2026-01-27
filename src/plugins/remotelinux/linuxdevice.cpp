@@ -1603,7 +1603,7 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
                 "<a href=\"dummy\">settings page</a>."));
             label->setWordWrap(true);
             QObject::connect(label, &QLabel::linkActivated, [] {
-                Core::ICore::showOptionsDialog(ProjectExplorer::Constants::DEVICE_SETTINGS_PAGE_ID);
+                Core::ICore::showSettings(ProjectExplorer::Constants::DEVICE_SETTINGS_PAGE_ID);
             });
             return label;
         });

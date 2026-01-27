@@ -152,7 +152,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
             Tr::tr("Configure Android"),
             [this] {
                 QTimer::singleShot(0, this, [] {
-                    Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_ID);
+                    Core::ICore::showSettings(Constants::ANDROID_SETTINGS_ID);
                 });
             },
             {},

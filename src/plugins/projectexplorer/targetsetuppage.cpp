@@ -396,7 +396,7 @@ std::vector<TargetSetupWidget *> TargetSetupPagePrivate::sortedWidgetList() cons
 
 void TargetSetupPage::openOptions()
 {
-    Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID);
+    Core::ICore::showSettings(Constants::KITS_SETTINGS_PAGE_ID);
 }
 
 TargetSetupPagePrivate::TargetSetupPagePrivate(TargetSetupPage *parent)
