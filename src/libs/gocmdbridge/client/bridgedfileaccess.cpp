@@ -440,9 +440,10 @@ Result<FilePath> FileAccess::symLinkTarget(const FilePath &filePath) const
         return filePath.parentDir().resolvePath(filePath.withNewPath(f->result()).path());
     } catch (const std::system_error &e) {
         if (e.code().value() == ENOENT)
-            return logError(Tr::tr("The file \"%1\" does not exist.").arg(str(filePath)));
+            return ResultError(Tr::tr("The file \"%1\" does not exist.").arg(str(filePath)));
         if (e.code().value() == EINVAL) {
-            return logError(Tr::tr("The path \"%1\" is not a symlink.").arg(str(filePath)));
+            return ResultError(
+                Tr::tr("The path \"%1\" is not a symlink.").arg(str(filePath)));
         }
         return logError(
             Tr::tr("Could not get the symlink target for \"%1\": %2").arg(str(filePath), str(e)));
