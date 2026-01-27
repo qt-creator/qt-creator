@@ -58,6 +58,8 @@ public:
         setCombinedIcon(":/devcontainer/images/container.png",
                         ":/devcontainer/images/containerdevice.png");
         setExecutionTypeId(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
+
+        setCreator([]() -> IDevice::Ptr { return std::make_shared<DevContainer::Device>(); });
     }
 };
 
@@ -465,7 +467,9 @@ void DevContainerPlugin::startDeviceForProject(
         Core::MessageManager::writeSilently(message);
     };
 
-    std::shared_ptr<Device> device = std::make_shared<DevContainer::Device>(project);
+    std::shared_ptr<IDevice> dev = deviceFactory->create();
+    auto device = std::static_pointer_cast<Device>(dev);
+    device->setProject(project);
     device->setDisplayName(Tr::tr("Development Container for %1").arg(project->displayName()));
 
     const auto onDone = guardedCallback(&guard, [this, project, log, device](Result<> result) {

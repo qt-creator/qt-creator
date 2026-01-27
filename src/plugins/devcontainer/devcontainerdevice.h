@@ -25,8 +25,10 @@ using ProgressPtr = std::unique_ptr<ProgressPromise>;
 class Device : public ProjectExplorer::IDevice
 {
 public:
-    Device(ProjectExplorer::Project *project);
+    Device();
     ~Device();
+
+    void setProject(ProjectExplorer::Project *project) { m_project = project; }
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
 
