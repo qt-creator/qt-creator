@@ -171,8 +171,6 @@ signals:
 
     void recentProjectsChanged();
 
-    void customParsersChanged();
-
     void runActionsUpdated();
     void runControlStarted(ProjectExplorer::RunControl *runControl);
     void runControlStoped(ProjectExplorer::RunControl *runControl);

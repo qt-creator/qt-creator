@@ -3,7 +3,6 @@
 
 #include "customparser.h"
 
-#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "task.h"
@@ -425,7 +424,7 @@ public:
             Core::ICore::showOptionsDialog(Constants::CUSTOM_PARSERS_SETTINGS_PAGE_ID);
         });
         updateUi();
-        connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::customParsersChanged,
+        connect(&CustomParsers::instance(), &CustomParsers::changed,
                 this, &SelectionWidget::updateUi);
     }
 
