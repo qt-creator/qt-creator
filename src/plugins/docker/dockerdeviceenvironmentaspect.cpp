@@ -91,15 +91,15 @@ Utils::Environment DockerDeviceEnvironmentAspect::operator()() const
 bool DockerDeviceEnvironmentAspect::guiToBuffer()
 {
     const QStringList newValue = undoable.get();
-    if (newValue != m_buffer) {
-        m_buffer = newValue;
+    if (newValue != m_volatileValue) {
+        m_volatileValue = newValue;
         return true;
     }
     return false;
 }
 void DockerDeviceEnvironmentAspect::bufferToGui()
 {
-    undoable.setWithoutUndo(m_buffer);
+    undoable.setWithoutUndo(m_volatileValue);
 }
 
 void DockerDeviceEnvironmentAspect::fromMap(const Utils::Store &map)

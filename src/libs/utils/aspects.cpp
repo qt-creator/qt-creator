@@ -1432,37 +1432,37 @@ QString StringAspect::expandedValue() const
 
 QString StringAspect::operator()() const
 {
-    if (!m_internal.isEmpty()) {
+    if (!m_value.isEmpty()) {
         if (auto expander = macroExpander())
-            return expander->expand(m_internal);
+            return expander->expand(m_value);
     }
-    return m_internal;
+    return m_value;
 }
 
 bool StringAspect::guiToBuffer()
 {
-    return updateStorage(m_buffer, d->undoable.get());
+    return updateStorage(m_volatileValue, d->undoable.get());
 }
 
 bool StringAspect::bufferToInternal()
 {
     if (d->m_valueAcceptor) {
-        if (const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, m_buffer))
-           return updateStorage(m_internal, *tmp);
+        if (const std::optional<QString> tmp = d->m_valueAcceptor(m_value, m_volatileValue))
+           return updateStorage(m_value, *tmp);
         return false;
     }
-    return updateStorage(m_internal, m_buffer);
+    return updateStorage(m_value, m_volatileValue);
 }
 
 bool StringAspect::internalToBuffer()
 {
-    const QString val = d->m_displayFilter ? d->m_displayFilter(m_internal) : m_internal;
-    return updateStorage(m_buffer, val);
+    const QString val = d->m_displayFilter ? d->m_displayFilter(m_value) : m_value;
+    return updateStorage(m_volatileValue, val);
 }
 
 void StringAspect::bufferToGui()
 {
-    d->undoable.setWithoutUndo(m_buffer);
+    d->undoable.setWithoutUndo(m_volatileValue);
 }
 
 /*!
@@ -1687,30 +1687,30 @@ bool FilePathAspect::isCheckable() const
 bool FilePathAspect::guiToBuffer()
 {
     if (d->m_pathChooserDisplay)
-        return updateStorage(m_buffer, d->m_pathChooserDisplay->lineEdit()->text());
+        return updateStorage(m_volatileValue, d->m_pathChooserDisplay->lineEdit()->text());
     return false;
 }
 
 bool FilePathAspect::bufferToInternal()
 {
     if (d->m_valueAcceptor) {
-        if (const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, m_buffer))
-           return updateStorage(m_internal, *tmp);
+        if (const std::optional<QString> tmp = d->m_valueAcceptor(m_value, m_volatileValue))
+           return updateStorage(m_value, *tmp);
         return false;
     }
-    return updateStorage(m_internal, m_buffer);
+    return updateStorage(m_value, m_volatileValue);
 }
 
 bool FilePathAspect::internalToBuffer()
 {
-    const QString val = d->m_displayFilter ? d->m_displayFilter(m_internal) : m_internal;
-    return updateStorage(m_buffer, val);
+    const QString val = d->m_displayFilter ? d->m_displayFilter(m_value) : m_value;
+    return updateStorage(m_volatileValue, val);
 }
 
 void FilePathAspect::bufferToGui()
 {
     if (d->m_pathChooserDisplay) {
-        d->m_pathChooserDisplay->lineEdit()->setText(m_buffer);
+        d->m_pathChooserDisplay->lineEdit()->setText(m_volatileValue);
         d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
     }
 
@@ -1973,14 +1973,14 @@ void ColorAspect::setMinimumSize(const QSize &size)
 bool ColorAspect::guiToBuffer()
 {
     if (d->m_colorButton)
-        return updateStorage(m_buffer, d->m_colorButton->color());
+        return updateStorage(m_volatileValue, d->m_colorButton->color());
     return false;
 }
 
 void ColorAspect::bufferToGui()
 {
     if (d->m_colorButton)
-        d->m_colorButton->setColor(m_buffer);
+        d->m_colorButton->setColor(m_volatileValue);
 }
 
 /*!
@@ -2018,7 +2018,7 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
     connect(fontComboBox, &QFontComboBox::currentFontChanged, [fontComboBox, this] {
         const QString val = fontComboBox->currentFont().family();
         d->m_undoable.set(undoStack(), val);
-        updateStorage(m_buffer, val);
+        updateStorage(m_volatileValue, val);
         volatileValueChanged();
     });
 
@@ -2029,8 +2029,8 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
 
 bool FontFamilyAspect::isDirty() const
 {
-    const QString resolved = QFontInfo(QFont(m_internal)).family();
-    return resolved != m_buffer;
+    const QString resolved = QFontInfo(QFont(m_value)).family();
+    return resolved != m_volatileValue;
 }
 
 
@@ -2274,24 +2274,24 @@ QAction *BoolAspect::action()
         return TypedAspect::action();
     auto act = TypedAspect::action(); // Creates it.
     act->setCheckable(true);
-    act->setChecked(m_internal);
+    act->setChecked(m_value);
     act->setToolTip(toolTip());
     connect(act, &QAction::triggered, this, [this](bool newValue) {
         setValue(newValue);
     });
-    connect(this, &BoolAspect::changed, act, [act, this] { act->setChecked(m_internal); });
+    connect(this, &BoolAspect::changed, act, [act, this] { act->setChecked(m_value); });
 
     return act;
 }
 
 bool BoolAspect::guiToBuffer()
 {
-    return updateStorage(m_buffer, d->m_undoable.get());
+    return updateStorage(m_volatileValue, d->m_undoable.get());
 }
 
 void BoolAspect::bufferToGui()
 {
-    d->m_undoable.setWithoutUndo(m_buffer);
+    d->m_undoable.setWithoutUndo(m_volatileValue);
 }
 
 void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacement)
@@ -2397,12 +2397,12 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 
 bool SelectionAspect::guiToBuffer()
 {
-    return updateStorage(m_buffer, d->m_undoable.get());
+    return updateStorage(m_volatileValue, d->m_undoable.get());
 }
 
 void SelectionAspect::bufferToGui()
 {
-    return d->m_undoable.setWithoutUndo(m_buffer);
+    return d->m_undoable.setWithoutUndo(m_volatileValue);
 }
 
 void SelectionAspect::finish()
@@ -2579,7 +2579,7 @@ void MultiSelectionAspect::bufferToGui()
         QTC_CHECK(n == d->m_allValues.size());
         for (int i = 0; i != n; ++i) {
             auto item = d->m_listView->item(i);
-            item->setCheckState(m_buffer.contains(item->text()) ? Qt::Checked : Qt::Unchecked);
+            item->setCheckState(m_volatileValue.contains(item->text()) ? Qt::Checked : Qt::Unchecked);
         }
     }
 }
@@ -2595,7 +2595,7 @@ bool MultiSelectionAspect::guiToBuffer()
             if (item->checkState() == Qt::Checked)
                 val.append(item->text());
         }
-        return updateStorage(m_buffer, val);
+        return updateStorage(m_volatileValue, val);
     }
     return false;
 }
@@ -2652,14 +2652,14 @@ void IntegerAspect::addToLayoutImpl(Layouting::Layout &parent)
 bool IntegerAspect::guiToBuffer()
 {
     if (d->m_spinBox)
-        return updateStorage(m_buffer, d->m_spinBox->value() * d->m_displayScaleFactor);
+        return updateStorage(m_volatileValue, d->m_spinBox->value() * d->m_displayScaleFactor);
     return false;
 }
 
 void IntegerAspect::bufferToGui()
 {
     if (d->m_spinBox)
-        d->m_spinBox->setValue(m_buffer / d->m_displayScaleFactor);
+        d->m_spinBox->setValue(m_volatileValue / d->m_displayScaleFactor);
 }
 
 void IntegerAspect::setRange(qint64 min, qint64 max)
@@ -2752,14 +2752,14 @@ void DoubleAspect::addToLayoutImpl(Layout &builder)
 bool DoubleAspect::guiToBuffer()
 {
     if (d->m_spinBox)
-        return updateStorage(m_buffer, d->m_spinBox->value());
+        return updateStorage(m_volatileValue, d->m_spinBox->value());
     return false;
 }
 
 void DoubleAspect::bufferToGui()
 {
     if (d->m_spinBox)
-        d->m_spinBox->setValue(m_buffer);
+        d->m_spinBox->setValue(m_volatileValue);
 }
 
 void DoubleAspect::setRange(double min, double max)
@@ -2890,8 +2890,8 @@ StringListAspect::~StringListAspect() = default;
 bool StringListAspect::guiToBuffer()
 {
     const QStringList newValue = d->undoable.get();
-    if (newValue != m_buffer) {
-        m_buffer = newValue;
+    if (newValue != m_volatileValue) {
+        m_volatileValue = newValue;
         return true;
     }
     return false;
@@ -2899,7 +2899,7 @@ bool StringListAspect::guiToBuffer()
 
 void StringListAspect::bufferToGui()
 {
-    d->undoable.setWithoutUndo(m_buffer);
+    d->undoable.setWithoutUndo(m_volatileValue);
 }
 
 void StringListAspect::addToLayoutImpl(Layout &parent)
@@ -3074,7 +3074,7 @@ FilePathListAspect::~FilePathListAspect() = default;
 
 FilePaths FilePathListAspect::operator()() const
 {
-    return Utils::transform(m_internal, [expander = macroExpander()](const QString &f) {
+    return Utils::transform(m_value, [expander = macroExpander()](const QString &f) {
         if (expander)
             return FilePath::fromUserInput(expander->expand(f));
         return FilePath::fromUserInput(f);
@@ -3084,8 +3084,8 @@ FilePaths FilePathListAspect::operator()() const
 bool FilePathListAspect::guiToBuffer()
 {
     const QStringList newValue = d->undoable.get();
-    if (newValue != m_buffer) {
-        m_buffer = newValue;
+    if (newValue != m_volatileValue) {
+        m_volatileValue = newValue;
         return true;
     }
     return false;
@@ -3093,7 +3093,7 @@ bool FilePathListAspect::guiToBuffer()
 
 void FilePathListAspect::bufferToGui()
 {
-    d->undoable.setWithoutUndo(m_buffer);
+    d->undoable.setWithoutUndo(m_volatileValue);
 }
 
 void FilePathListAspect::addToLayoutImpl(Layout &parent)
@@ -3946,11 +3946,11 @@ QStandardItem *StringSelectionAspect::itemById(const QString &id)
 void StringSelectionAspect::bufferToGui()
 {
     if (!m_model) {
-        m_undoable.setSilently(m_buffer);
+        m_undoable.setSilently(m_volatileValue);
         return;
     }
 
-    auto selected = itemById(m_buffer);
+    auto selected = itemById(m_volatileValue);
     if (selected) {
         m_undoable.setSilently(selected->data().toString());
         m_selectionModel->setCurrentIndex(selected->index(),
@@ -3963,7 +3963,7 @@ void StringSelectionAspect::bufferToGui()
         m_selectionModel->setCurrentIndex(m_model->item(0)->index(),
                                           QItemSelectionModel::SelectionFlag::ClearAndSelect);
     } else {
-        m_undoable.setSilently(m_buffer);
+        m_undoable.setSilently(m_volatileValue);
         m_selectionModel->setCurrentIndex(QModelIndex(), QItemSelectionModel::SelectionFlag::Clear);
     }
 
@@ -3975,11 +3975,11 @@ bool StringSelectionAspect::guiToBuffer()
     if (!m_model)
         return false;
 
-    auto oldBuffer = m_buffer;
+    auto oldBuffer = m_volatileValue;
 
-    m_buffer = m_undoable.get();
+    m_volatileValue = m_undoable.get();
 
-    return oldBuffer != m_buffer;
+    return oldBuffer != m_volatileValue;
 }
 
 void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)

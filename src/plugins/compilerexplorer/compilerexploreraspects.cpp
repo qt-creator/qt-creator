@@ -30,8 +30,8 @@ void LibrarySelectionAspect::bufferToGui()
     for (int i = 0; i < m_model->rowCount(); i++) {
         QModelIndex idx = m_model->index(i, 0);
         const QString libId = idx.data(LibraryData).value<Api::Library>().id;
-        if (m_buffer.contains(libId))
-            m_model->setData(idx, m_buffer[libId], SelectedVersion);
+        if (m_volatileValue.contains(libId))
+            m_model->setData(idx, m_volatileValue[libId], SelectedVersion);
         else
             m_model->setData(idx, QVariant(), SelectedVersion);
     }
@@ -44,17 +44,17 @@ bool LibrarySelectionAspect::guiToBuffer()
     if (!m_model)
         return false;
 
-    auto oldBuffer = m_buffer;
+    auto oldBuffer = m_volatileValue;
 
-    m_buffer.clear();
+    m_volatileValue.clear();
 
     for (int i = 0; i < m_model->rowCount(); i++) {
         if (m_model->item(i)->data(SelectedVersion).isValid()) {
-            m_buffer.insert(qvariant_cast<Api::Library>(m_model->item(i)->data(LibraryData)).id,
+            m_volatileValue.insert(qvariant_cast<Api::Library>(m_model->item(i)->data(LibraryData)).id,
                             m_model->item(i)->data(SelectedVersion).toString());
         }
     }
-    return oldBuffer != m_buffer;
+    return oldBuffer != m_volatileValue;
 }
 
 QVariantMap toVariantMap(const QMap<QString, QString> &map)
@@ -67,12 +67,12 @@ QVariantMap toVariantMap(const QMap<QString, QString> &map)
 
 QVariant LibrarySelectionAspect::variantValue() const
 {
-    return toVariantMap(m_internal);
+    return toVariantMap(m_value);
 }
 
 QVariant LibrarySelectionAspect::volatileVariantValue() const
 {
-    return toVariantMap(m_buffer);
+    return toVariantMap(m_volatileValue);
 }
 
 QVariant LibrarySelectionAspect::defaultVariantValue() const

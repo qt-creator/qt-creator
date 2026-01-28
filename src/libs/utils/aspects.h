@@ -318,30 +318,30 @@ public:
         ValueType value;
     };
 
-    ValueType operator()() const { return m_internal; }
-    ValueType value() const { return m_internal; }
+    ValueType operator()() const { return m_value; }
+    ValueType value() const { return m_value; }
     ValueType defaultValue() const { return m_default; }
-    ValueType volatileValue() const { return m_buffer; }
+    ValueType volatileValue() const { return m_volatileValue; }
 
     // We assume that this is only used in the ctor and no signalling is needed.
     // If it is used elsewhere changes have to be detected and signalled externally.
     void setDefaultValue(const ValueType &value)
     {
         m_default = value;
-        m_internal = value;
+        m_value = value;
         if (internalToBuffer()) // Might be more than a plain copy.
             bufferToGui();
     }
 
     bool isDefaultValue() const override
     {
-        return m_default == m_internal;
+        return m_default == m_value;
     }
 
     void setValue(const ValueType &value, Announcement howToAnnounce = DoEmit)
     {
         Changes changes;
-        changes.internalFromOutside = updateStorage(m_internal, value);
+        changes.internalFromOutside = updateStorage(m_value, value);
         if (internalToBuffer()) {
             changes.bufferFromInternal = true;
             bufferToGui();
@@ -352,7 +352,7 @@ public:
     void setVolatileValue(const ValueType &value, Announcement howToAnnounce = DoEmit)
     {
         Changes changes;
-        if (updateStorage(m_buffer, value)) {
+        if (updateStorage(m_volatileValue, value)) {
             changes.bufferFromOutside = true;
             bufferToGui();
         }
@@ -363,28 +363,28 @@ public:
 
     bool isDirty() const override
     {
-        return m_internal != m_buffer;
+        return m_value != m_volatileValue;
     }
 
 protected:
     bool internalToBuffer() override
     {
-        return updateStorage(m_buffer, m_internal);
+        return updateStorage(m_volatileValue, m_value);
     }
 
     bool bufferToInternal() override
     {
-        return updateStorage(m_internal, m_buffer);
+        return updateStorage(m_value, m_volatileValue);
     }
 
     QVariant variantValue() const override
     {
-        return QVariant::fromValue<ValueType>(m_internal);
+        return QVariant::fromValue<ValueType>(m_value);
     }
 
     QVariant volatileVariantValue() const override
     {
-        return QVariant::fromValue<ValueType>(m_buffer);
+        return QVariant::fromValue<ValueType>(m_volatileValue);
     }
 
     void setVariantValue(const QVariant &value, Announcement howToAnnounce = DoEmit) override
@@ -403,8 +403,8 @@ protected:
     }
 
     ValueType m_default{};
-    ValueType m_internal{};
-    ValueType m_buffer{};
+    ValueType m_value{};
+    ValueType m_volatileValue{};
 };
 
 template <typename ValueType>
