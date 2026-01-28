@@ -352,20 +352,17 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         autoDetectButton->setEnabled(false);
         linuxDevice->tryToConnect(
             {linuxDevice.get(), [linuxDevice, autoDetectButton](const Result<> &res) {
-                 if (res) {
-                     const QtTaskTree::Group recipe = linuxDevice->autoDetectDeviceToolsRecipe();
-                     linuxDevice->requestToolDetection(linuxDevice->toolSearchPaths());
-                     GlobalTaskTree::start(
-                         QtTaskTree::Group {
-                             recipe,
-                             QSyncTask([btn = QPointer<QWidget>(autoDetectButton)] {
-                                 if (btn)
-                                     btn->setEnabled(true);
-                             })
-                         });
+                 if (!res) {
+                     autoDetectButton->setEnabled(true);
                      return;
                  }
-                 autoDetectButton->setEnabled(true);
+
+                 linuxDevice->requestToolDetection(linuxDevice->toolSearchPaths());
+                 const auto onDone = [btn = QPointer<QWidget>(autoDetectButton)] {
+                     if (btn)
+                         btn->setEnabled(true);
+                 };
+                 GlobalTaskTree::start(linuxDevice->autoDetectDeviceToolsRecipe(), {}, onDone);
              }});
     });
 
