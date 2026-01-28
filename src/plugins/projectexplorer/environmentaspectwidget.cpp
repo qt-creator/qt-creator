@@ -51,14 +51,6 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
     connect(m_baseEnvironmentComboBox, &QComboBox::currentIndexChanged,
             this, &EnvironmentAspectWidget::baseEnvironmentSelected);
 
-    QCheckBox *printOnRunCheckBox = nullptr;
-    if (m_aspect->isPrintOnRunAllowed()) {
-        printOnRunCheckBox = new QCheckBox(Tr::tr("Show in Application Output when running"));
-        printOnRunCheckBox->setChecked(m_aspect->isPrintOnRunEnabled());
-        connect(printOnRunCheckBox, &QCheckBox::toggled,
-                m_aspect, &EnvironmentAspect::setPrintOnRun);
-    }
-
     using namespace Layouting;
     Column extraWidgets {
         noMargin,
@@ -68,7 +60,14 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
             m_baseEnvironmentComboBox,
             st,
         },
-        If {printOnRunCheckBox} >> Then { printOnRunCheckBox },
+        If {m_aspect->isPrintOnRunAllowed()} >> Then { [this] {
+            const auto printOnRunCheckBox = new QCheckBox(
+                Tr::tr("Show in Application Output when running"));
+            printOnRunCheckBox->setChecked(m_aspect->isPrintOnRunEnabled());
+            connect(printOnRunCheckBox, &QCheckBox::toggled,
+                    m_aspect, &EnvironmentAspect::setPrintOnRun);
+            return printOnRunCheckBox;
+        }},
     };
 
     const EnvironmentWidget::Type widgetType = aspect->isLocal()
