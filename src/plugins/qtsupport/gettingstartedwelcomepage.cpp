@@ -323,7 +323,11 @@ public:
             connect(exampleSetSelector,
                     &QComboBox::activated,
                     s_exampleSetModel,
-                    &ExampleSetModel::selectExampleSet);
+                    [this](int index) {
+                s_exampleSetModel->selectExampleSet(index);
+                QTC_ASSERT(m_viewController, return);
+                m_viewController->zoomOut();
+            });
             connect(s_exampleSetModel,
                     &ExampleSetModel::selectedExampleSetChanged,
                     exampleSetSelector,

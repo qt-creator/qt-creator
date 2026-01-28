@@ -491,6 +491,11 @@ bool ExamplesViewController::isVisible() const
     return m_isVisible;
 }
 
+void ExamplesViewController::zoomOut()
+{
+    m_view->zoomOut();
+}
+
 static bool hasExamplesOrDemosAndDocumentation(const QtVersion *v)
 {
     if ((!v->hasDemos() && !v->hasExamples()) || !v->hasDocs())

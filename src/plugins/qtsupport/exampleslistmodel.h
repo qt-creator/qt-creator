@@ -99,6 +99,7 @@ public:
     void setVisible(bool isVisible);
     bool isVisible() const;
 
+    void zoomOut();
 private:
     ExampleSetModel *m_exampleSetModel;
     Core::SectionedGridView *m_view;

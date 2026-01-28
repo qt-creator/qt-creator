@@ -902,6 +902,16 @@ void SectionedGridView::clear()
     m_allItemsView.reset();
 }
 
+void SectionedGridView::zoomOut()
+{
+    if (!m_zoomedInWidget)
+        return;
+    removeWidget(m_zoomedInWidget);
+    delete m_zoomedInWidget;
+    m_zoomedInWidget = nullptr;
+    setCurrentIndex(0);
+}
+
 void SectionedGridView::zoomInSection(const Section &section)
 {
     auto zoomedInWidget = new QWidget(this);
@@ -911,11 +921,7 @@ void SectionedGridView::zoomInSection(const Section &section)
     zoomedInWidget->setLayout(layout);
 
     QLabel *backLink = createLinkLabel("&lt; " + Tr::tr("Back"), this);
-    connect(backLink, &QLabel::linkActivated, this, [this, zoomedInWidget] {
-        removeWidget(zoomedInWidget);
-        delete zoomedInWidget;
-        setCurrentIndex(0);
-    });
+    connect(backLink, &QLabel::linkActivated, this, &SectionedGridView::zoomOut);
     using namespace Layouting;
     QWidget *sectionLabel = Row {
         createTitleLabel(section.name),

@@ -204,6 +204,7 @@ public:
 
     void clear();
 
+    void zoomOut();
 private:
     void zoomInSection(const Section &section);
 
