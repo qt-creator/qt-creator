@@ -633,7 +633,7 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
         const QStringList lines = editor->toPlainText().split('\n', Qt::SkipEmptyParts);
         const QStringList expandedLines = Utils::transform(lines,
                                            [expander](const QString &s) {
-                                               return expander->expand(s);
+                                               return expander->expand(s).trimmed();
                                            });
         const bool isInitial = isInitialConfiguration();
         QStringList unknownOptions;
