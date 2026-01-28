@@ -246,13 +246,6 @@ void HighlightingItemDelegate::drawDisplay(QPainter *painter,
     if (text.isEmpty())
         return;
 
-    if (option.state & QStyle::State_Editing) {
-        painter->save();
-        painter->setPen(option.palette.color(cg, QPalette::Text));
-        painter->drawRect(rect.adjusted(0, 0, -1, -1));
-        painter->restore();
-    }
-
     const QStyleOptionViewItem opt = option;
 
     const QWidget *widget = option.widget;
