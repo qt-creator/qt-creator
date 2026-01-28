@@ -919,7 +919,25 @@ void DockerDevicePrivate::shutdown()
 
 Result<FilePath> DockerDevicePrivate::localSource(const FilePath &other) const
 {
-    const auto devicePath = FilePath::fromString(other.path());
+    QString fixedPath = other.path();
+    /* Try to convert Unix-style paths (originally Windows paths transformed
+     * into Unix-style for mounting purposes) back to Windows format:
+     * /c/dev/src -> C:/dev/src
+     * This is the opposite to DockerDeviceFileAccess::mapToDevicePath.
+     */
+    if (HostOsInfo::isWindowsHost() &&
+            (other.osType() == Utils::OsTypeLinux
+             || other.osType() == Utils::OsTypeMac
+             || other.osType() == Utils::OsTypeOtherUnix)) {
+        QRegularExpression linuxPathRegex("^/([A-Za-z])/(.*)?$");
+        QRegularExpressionMatch linuxPathMatch = linuxPathRegex.match(fixedPath);
+        if (linuxPathMatch.hasMatch()) {
+            QString driveLetter = linuxPathMatch.captured(1);
+            QString restOfThePath = linuxPathMatch.captured(2);
+            fixedPath = driveLetter.toUpper() + ":/" + restOfThePath;
+        }
+    }
+    const auto devicePath = FilePath::fromString(fixedPath);
     for (const FilePath &mount : q->mounts()) {
         const FilePath mountPoint = mount;
         if (devicePath.isChildOf(mountPoint)) {
