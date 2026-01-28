@@ -119,6 +119,7 @@ Editing
 * Added an image preview when hovering over references to image resources
   ([QTCREATORBUG-29727](https://bugreports.qt.io/browse/QTCREATORBUG-29727),
    [QTCREATORBUG-29819](https://bugreports.qt.io/browse/QTCREATORBUG-29819))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-preview-images.html))
 * Fixed issues with parameter packs when refactoring
   ([QTCREATORBUG-32597](https://bugreports.qt.io/browse/QTCREATORBUG-32597))
 * Fixed that `Add Definition` was not available for `friend` functions
@@ -144,6 +145,7 @@ Editing
 * Added an image preview when hovering over references to image resources
   ([QTCREATORBUG-29727](https://bugreports.qt.io/browse/QTCREATORBUG-29727),
    [QTCREATORBUG-29819](https://bugreports.qt.io/browse/QTCREATORBUG-29819))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-preview-images.html))
 * Added the option to rename all usages of a QML component when renaming the
   file
   ([QTCREATORBUG-33195](https://bugreports.qt.io/browse/QTCREATORBUG-33195))
