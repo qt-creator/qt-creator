@@ -42,7 +42,7 @@ class AndroidManifestEditor : public Core::IEditor
 public:
     explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
 
-    QWidget *toolBar() override;
+    QWidget *toolBar() override { return nullptr; }
     Core::IDocument *document() const override;
     TextEditor::TextEditorWidget *textEditor() const;
 
@@ -51,9 +51,6 @@ public:
     void gotoLine(int line, int column = 0, bool centerLine = true) override;
 
     AndroidManifestEditorWidget *ownWidget() const;
-
-private:
-    QToolBar *m_toolBar;
 };
 
 } // Android::Internal

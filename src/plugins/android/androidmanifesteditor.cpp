@@ -280,15 +280,8 @@ void AndroidManifestEditorWidget::hideInfoBar()
 // AndroidManifestEditor
 
 AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget)
-    : m_toolBar(nullptr)
 {
-    m_toolBar = new QToolBar(editorWidget);
     setWidget(editorWidget);
-}
-
-QWidget *AndroidManifestEditor::toolBar()
-{
-    return m_toolBar;
 }
 
 AndroidManifestEditorWidget *AndroidManifestEditor::ownWidget() const
