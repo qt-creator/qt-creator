@@ -1238,8 +1238,11 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
 
         const QStringList variableList
             = Utils::transform(validIndexes, [this](const QModelIndex &index) {
-                  return ConfigModel::dataItemFromIndex(index).toCMakeConfigItem().toArgument(
-                      isInitialConfiguration() ? nullptr : m_buildConfig->macroExpander());
+                  const QString value
+                      = ConfigModel::dataItemFromIndex(index).toCMakeConfigItem().toArgument(
+                          isInitialConfiguration() ? nullptr : m_buildConfig->macroExpander());
+
+                  return value.contains(QChar::Space) ? QString(R"("%1")").arg(value) : value;
               });
 
         setClipboardAndSelection(variableList.join('\n'));
