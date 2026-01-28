@@ -497,6 +497,14 @@ static ClientCapabilities generateClientCapabilities()
     rename.setDynamicRegistration(true);
     documentCapabilities.setRename(rename);
 
+    TextDocumentClientCapabilities::FoldingRangeClientCapabilities foldingRange;
+    TextDocumentClientCapabilities::FoldingRangeClientCapabilities::KindCapabilities foldingRangeKind;
+    foldingRangeKind.setValueSet({FoldingRangeKind::comment(), FoldingRangeKind::imports(), FoldingRangeKind::region()});
+    foldingRange.setDynamicRegistration(true);
+    foldingRange.setFoldingRangeKind(foldingRangeKind);
+    foldingRange.setLineFoldingOnly(true);
+    documentCapabilities.setFoldingRange(foldingRange);
+
     TextDocumentClientCapabilities::SignatureHelpCapabilities signatureHelp;
     signatureHelp.setDynamicRegistration(true);
     TextDocumentClientCapabilities::SignatureHelpCapabilities::SignatureInformationCapabilities info;

@@ -402,4 +402,18 @@ bool HoverResult::isValid() const
     return true;
 }
 
+FoldingRangeResult::FoldingRangeResult(const QJsonValue &value)
+{
+    if (value.isArray()) {
+        QList<FoldingRange> ranges;
+        for (auto arrayValue : value.toArray()) {
+            if (arrayValue.isObject())
+                ranges.append(FoldingRange(arrayValue.toObject()));
+        }
+        *this = ranges;
+    } else {
+        *this = nullptr;
+    }
+}
+
 } // namespace LanguageServerProtocol

@@ -320,6 +320,24 @@ void ServerCapabilities::setColorProvider(std::variant<bool, JsonObject> colorPr
     insertVariant<bool, JsonObject>(renameProviderKey, colorProvider);
 }
 
+std::optional<
+    std::variant<bool, WorkDoneProgressOptions, ServerCapabilities::FoldingRangeRegistrationOptions>>
+ServerCapabilities::foldingRangeProvider() const
+{
+    using RetType = std::variant<bool, WorkDoneProgressOptions, FoldingRangeRegistrationOptions>;
+    const QJsonValue &localValue = value(foldingRangeProviderKey);
+    if (localValue.isBool())
+        return RetType(localValue.toBool());
+    if (localValue.isObject()) {
+        const QJsonObject obj = localValue.toObject();
+        if (obj.contains(idKey))
+            return RetType(FoldingRangeRegistrationOptions(obj));
+        if (obj.contains(workDoneProgressKey))
+            return RetType(WorkDoneProgressOptions(obj));
+    }
+    return std::nullopt;
+}
+
 std::optional<std::variant<QString, bool> >
 ServerCapabilities::WorkspaceServerCapabilities::WorkspaceFoldersCapabilities::changeNotifications() const
 {

@@ -742,4 +742,10 @@ enum Kind {
 };
 } // namespace CompletionItemKind
 
+namespace FoldingRangeKind {
+LANGUAGESERVERPROTOCOL_EXPORT QString comment();
+LANGUAGESERVERPROTOCOL_EXPORT QString imports();
+LANGUAGESERVERPROTOCOL_EXPORT QString region();
+} // namespace FoldingRangeKind
+
 } // namespace LanguageServerProtocol

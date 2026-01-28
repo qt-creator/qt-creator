@@ -511,4 +511,9 @@ std::optional<QList<SymbolTag>> DocumentSymbol::symbolTags() const
 {
     return Internal::getSymbolTags(*this);
 }
+
+QString FoldingRangeKind::comment() { return "comment"; }
+QString FoldingRangeKind::imports() { return "imports"; }
+QString FoldingRangeKind::region() { return "region"; }
+
 } // namespace LanguageServerProtocol

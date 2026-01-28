@@ -436,6 +436,18 @@ public:
     std::optional<JsonObject> experimental() const { return optionalValue<JsonObject>(experimentalKey); }
     void setExperimental(const JsonObject &experimental) { insert(experimentalKey, experimental); }
     void clearExperimental() { remove(experimentalKey); }
+
+    class FoldingRangeRegistrationOptions : public TextDocumentRegistrationOptions,
+                                            public WorkDoneProgressOptions,
+                                            public StaticRegistrationOptions
+    {
+    public:
+        using TextDocumentRegistrationOptions::TextDocumentRegistrationOptions;
+    };
+
+    // The server provides folding range support.
+    std::optional<std::variant<bool, WorkDoneProgressOptions, FoldingRangeRegistrationOptions>>
+    foldingRangeProvider() const;
 };
 
 } // namespace LanguageClient

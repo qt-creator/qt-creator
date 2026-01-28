@@ -359,6 +359,81 @@ public:
 };
 
 /**
+ * Represents a folding range. To be valid, start and end line must be bigger
+ * than zero and smaller than the number of lines in the document. Clients
+ * are free to ignore invalid ranges.
+ */
+class LANGUAGESERVERPROTOCOL_EXPORT FoldingRange : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    /**
+     * The zero-based start line of the range to fold. The folded area starts
+     * after the line's last character. To be valid, the end must be zero or
+     * larger and smaller than the number of lines in the document.
+     */
+    int startLine() const { return typedValue<int>(startLineKey); }
+
+    /**
+     * The zero-based character offset from where the folded range starts. If
+     * not defined, defaults to the length of the start line.
+     */
+    std::optional<int> startCharacter() const { return optionalValue<int>(startCharacterKey); }
+
+    /**
+     * The zero-based end line of the range to fold. The folded area ends with
+     * the line's last character. To be valid, the end must be zero or larger
+     * and smaller than the number of lines in the document.
+     */
+    int endLine() const { return typedValue<int>(endLineKey); }
+
+    /**
+     * The zero-based character offset before the folded range ends. If not
+     * defined, defaults to the length of the end line.
+     */
+    std::optional<int> endCharacter() const { return optionalValue<int>(endCharacterKey); }
+
+    /**
+     * Describes the kind of the folding range such as `comment` or `region`.
+     * The kind is used to categorize folding ranges and used by commands like
+     * 'Fold all comments'. See [FoldingRangeKind](#FoldingRangeKind) for an
+     * enumeration of standardized kinds.
+     */
+    std::optional<QString> kind() const { return optionalValue<QString>(kindKey); }
+
+    /**
+     * The text that the client should show when the specified range is
+     * collapsed. If not defined or not supported by the client, a default
+     * will be chosen by the client.
+     *
+     * @since 3.17.0 - proposed
+     */
+    std::optional<QString> collapsedText() const { return optionalValue<QString>(collapsedTextKey); }
+
+    bool isValid() const override { return contains(startLineKey) && contains(endLineKey); }
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT FoldingRangeResult
+    : public std::variant<QList<FoldingRange>, std::nullptr_t>
+{
+public:
+    using variant::variant;
+    FoldingRangeResult() : variant(nullptr) {}
+    explicit FoldingRangeResult(const QJsonValue &value);
+    using variant::operator=;
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT FoldingRangeRequest
+    : public Request<FoldingRangeResult, std::nullptr_t, TextDocumentParams>
+{
+public:
+    explicit FoldingRangeRequest(const TextDocumentParams &params) : Request(methodName, params) {}
+    using Request::Request;
+    constexpr static const char methodName[] = "textDocument/foldingRange";
+};
+
+/**
  * The kind of a code action.
  *
  * Kinds are a hierarchical list of identifiers separated by `.`, e.g. `"refactor.extract.function"`.

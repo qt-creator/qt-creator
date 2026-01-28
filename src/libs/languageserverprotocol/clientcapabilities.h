@@ -520,6 +520,104 @@ public:
     { insert(renameKey, rename); }
     void clearRename() { remove(renameKey); }
 
+    class LANGUAGESERVERPROTOCOL_EXPORT FoldingRangeClientCapabilities
+        : public DynamicRegistrationCapabilities
+    {
+    public:
+        using DynamicRegistrationCapabilities::DynamicRegistrationCapabilities;
+
+        class LANGUAGESERVERPROTOCOL_EXPORT KindCapabilities : public JsonObject
+        {
+        public:
+            using JsonObject::JsonObject;
+
+            /**
+             * The folding range kind values the client supports. When this
+             * property exists the client also guarantees that it will
+             * handle values outside its set gracefully and falls back
+             * to a default value when unknown.
+            */
+            std::optional<QStringList> valueSet() const
+            {
+                return optionalArray<QString>(valueSetKey);
+            }
+            void setValueSet(const QStringList &valueSet) { insertArray(valueSetKey, valueSet); }
+        };
+
+        class LANGUAGESERVERPROTOCOL_EXPORT Capabilities : public JsonObject
+        {
+        public:
+            using JsonObject::JsonObject;
+
+            /**
+             * If set, the client signals that it supports setting collapsedText on
+             * folding ranges to display custom labels instead of the default text.
+             *
+             * @since 3.17.0
+             */
+            std::optional<bool> collapsedText() const
+            {
+                return optionalValue<bool>(collapsedTextKey);
+            }
+            void setCollapsedText(bool collapsedText) { insert(collapsedTextKey, collapsedText); }
+        };
+
+        /**
+         * The maximum number of folding ranges that the client prefers to receive
+         * per document. The value serves as a hint, servers are free to follow the
+         * limit.
+         */
+        std::optional<int> rangeLimit() const { return optionalValue<int>(rangeLimitKey); }
+        void setRangeLimit(int limit) { insert(rangeLimitKey, limit); }
+
+        /**
+         * If set, the client signals that it only supports folding complete lines.
+         * If set, client will ignore specified `startCharacter` and `endCharacter`
+         * properties in a FoldingRange.
+         */
+        std::optional<bool> lineFoldingOnly() const
+        {
+            return optionalValue<bool>(lineFoldingOnlyKey);
+        }
+        void setLineFoldingOnly(bool lineFolding) { insert(lineFoldingOnlyKey, lineFolding); }
+
+        /**
+         * Specific options for the folding range kind.
+         *
+         * @since 3.17.0
+         */
+        std::optional<KindCapabilities> foldingRangeKind() const
+        {
+            return optionalValue<KindCapabilities>(foldingRangeKindKey);
+        }
+        void setFoldingRangeKind(const KindCapabilities &foldingRangeKind)
+        {
+            insert(foldingRangeKindKey, foldingRangeKind);
+        }
+
+        /**
+         * Specific options for the folding range.
+         * @since 3.17.0
+         */
+        std::optional<Capabilities> foldingRange() const
+        {
+            return optionalValue<Capabilities>(foldingRangeKey);
+        }
+        void setFoldingRange(const Capabilities &foldingRange)
+        {
+            insert(foldingRangeKey, foldingRange);
+        }
+    };
+
+    std::optional<FoldingRangeClientCapabilities> foldingRange() const
+    {
+        return optionalValue<FoldingRangeClientCapabilities>(foldingRangeKey);
+    }
+    void setFoldingRange(const FoldingRangeClientCapabilities &foldingRange)
+    {
+        insert(foldingRangeKey, foldingRange);
+    }
+
     std::optional<SemanticTokensClientCapabilities> semanticTokens() const;
     void setSemanticTokens(const SemanticTokensClientCapabilities &semanticTokens);
     void clearSemanticTokens() { remove(semanticTokensKey); }
