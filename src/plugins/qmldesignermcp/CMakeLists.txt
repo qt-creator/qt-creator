@@ -43,3 +43,11 @@ extend_qtc_plugin(QmlDesignerMcp
     openaicompletionsapi.cpp openaicompletionsapi.h
     openairesponsesapi.cpp openairesponsesapi.h
 )
+
+extend_qtc_plugin(QmlDesignerMcp
+  CONDITION USE_MCP
+  PUBLIC_INCLUDES mcp
+  SOURCES_PREFIX mcp
+  SOURCES
+    mcpclient.cpp mcpclient.h
+)
