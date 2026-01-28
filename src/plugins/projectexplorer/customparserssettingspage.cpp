@@ -54,7 +54,7 @@ protected:
 
 CustomParsersModel::CustomParsersModel(QObject *parent)
     : QAbstractTableModel(parent)
-    , m_customParsers(CustomParsers::get())
+    , m_customParsers(CustomParsers::parsersAvailableInProject(nullptr))
 {
     connect(
         &CustomParsers::instance(),
@@ -62,7 +62,7 @@ CustomParsersModel::CustomParsersModel(QObject *parent)
         this,
         [this] {
             beginResetModel();
-            m_customParsers = CustomParsers::get();
+            m_customParsers = CustomParsers::parsersAvailableInProject(nullptr);
             endResetModel();
         });
 }

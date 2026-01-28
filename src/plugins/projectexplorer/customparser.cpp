@@ -190,15 +190,14 @@ CustomParserSettings CustomParserSettings::fromJson(const QJsonObject &obj)
 
 CustomParsersAspect::CustomParsersAspect(BuildConfiguration *bc)
 {
-    Q_UNUSED(bc)
     setId("CustomOutputParsers");
     setSettingsKey("CustomOutputParsers");
     setDisplayName(Tr::tr("Custom Output Parsers"));
     addDataExtractor(this, &CustomParsersAspect::parsers, &Data::parsers);
-    setConfigWidgetCreator([this] {
-        const auto widget =
-                new CustomParsersSelectionWidget(CustomParsersSelectionWidget::InRunConfig);
-        for (const auto &s : CustomParsers::get()) {
+    setConfigWidgetCreator([this, bc] {
+        const auto widget = new CustomParsersSelectionWidget(
+            CustomParsersSelectionWidget::InRunConfig, bc->project());
+        for (const auto &s : CustomParsers::parsersAvailableInProject(bc->project())) {
             if (s.runDefault && !m_parsers.contains(s.id))
                 m_parsers.append(s.id);
         }
@@ -314,6 +313,13 @@ void CustomParsers::remove(Utils::Id id)
 
 const QList<CustomParserSettings> CustomParsers::get() { return g_parsers; }
 
+const QList<CustomParserSettings> CustomParsers::parsersAvailableInProject(const Project *project)
+{
+    return Utils::filtered(g_parsers, [project](const CustomParserSettings &s) {
+        return !s.project || s.project == project;
+    });
+}
+
 const QList<CustomParserSettings> CustomParsers::modifiableParsers()
 {
     return Utils::filtered(g_parsers, [](const CustomParserSettings &p) { return !p.readOnly; });
@@ -349,7 +355,8 @@ void CustomParsers::load(const Utils::QtcSettings &s)
         }
     }
 
-    const auto projectSettingsLoader = [](const FilePath &jsonFile) -> Result<QVariant> {
+    const auto projectSettingsLoader = [](const FilePath &jsonFile,
+                                          const Project &project) -> Result<QVariant> {
         const auto parsers = parsersFromFile(jsonFile);
         if (!parsers)
             return ResultError(parsers.error());
@@ -358,6 +365,7 @@ void CustomParsers::load(const Utils::QtcSettings &s)
             if (canAdd(parser, g_parsers)) {
                 CustomParserSettings p = parser;
                 p.readOnly = true;
+                p.project = &project;
                 add(p);
                 ids << p.id.toSetting();
             }
@@ -425,8 +433,8 @@ class SelectionWidget : public QWidget
 {
     Q_OBJECT
 public:
-    SelectionWidget(CustomParsersSelectionWidget::Embedded where, QWidget *parent)
-        : QWidget(parent), m_where(where)
+    SelectionWidget(CustomParsersSelectionWidget::Embedded where, Project *project, QWidget *parent)
+        : QWidget(parent), m_project(project), m_where(where)
     {
         const auto explanatoryLabel = new QLabel(Tr::tr(
             "Custom output parsers scan command line output for user-provided error patterns<br>"
@@ -487,7 +495,7 @@ private:
         for (const auto &p : std::as_const(parserCheckBoxes))
             delete p.first;
         parserCheckBoxes.clear();
-        for (const CustomParserSettings &s : CustomParsers::get()) {
+        for (const CustomParserSettings &s : CustomParsers::parsersAvailableInProject(m_project)) {
             const auto checkBox = new QCheckBox(s.displayName, this);
             bool isSelected = parsers.contains(s.id);
             bool projectDefault =
@@ -507,6 +515,7 @@ private:
         setSelectedParsers(parsers);
     }
 
+    const Project * const m_project;
     QList<QPair<QCheckBox *, Utils::Id>> parserCheckBoxes;
     const CustomParsersSelectionWidget::Embedded m_where;
     QVBoxLayout *m_extraWidgetsLayout;
@@ -514,10 +523,11 @@ private:
 };
 } // anonymous namespace
 
-CustomParsersSelectionWidget::CustomParsersSelectionWidget(Embedded where, QWidget *parent)
+CustomParsersSelectionWidget::CustomParsersSelectionWidget(
+    Embedded where, Project *project, QWidget *parent)
     : DetailsWidget(parent)
 {
-    const auto widget = new SelectionWidget(where, this);
+    const auto widget = new SelectionWidget(where, project, this);
     connect(widget, &SelectionWidget::selectionChanged, this, [this] {
         updateSummary();
         emit selectionChanged();

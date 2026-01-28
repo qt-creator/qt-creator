@@ -16,6 +16,7 @@
 namespace Utils { class QtcSettings; }
 
 namespace ProjectExplorer {
+class Project;
 class Target;
 
 class PROJECTEXPLORER_EXPORT CustomParserExpression
@@ -73,6 +74,7 @@ public:
 
     Utils::Id id;
     QString displayName;
+    const Project *project = nullptr;
     bool buildDefault = false;
     bool runDefault = false;
     bool readOnly = false;
@@ -130,7 +132,7 @@ class CustomParsersSelectionWidget : public Utils::DetailsWidget
 public:
     enum Embedded { InRunConfig, InBuildConfig };
 
-    CustomParsersSelectionWidget(Embedded where, QWidget *parent = nullptr);
+    CustomParsersSelectionWidget(Embedded where, Project *project, QWidget *parent = nullptr);
 
     void setSelectedParsers(const QList<Utils::Id> &parsers);
     QList<Utils::Id> selectedParsers() const;
@@ -152,6 +154,7 @@ public:
     static void add(const CustomParserSettings &settings);
     static void remove(Utils::Id id);
     static const QList<CustomParserSettings> get();
+    static const QList<CustomParserSettings> parsersAvailableInProject(const Project *project);
     static const QList<CustomParserSettings> modifiableParsers();
 
     static void load(const Utils::QtcSettings &s);

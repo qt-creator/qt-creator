@@ -281,8 +281,9 @@ void CppEditorPlugin::initialize()
             return oldHighlighter(code, mimeType);
         });
 
-
-    const auto loader = [](const Utils::FilePath &codeStyleFile) -> Result<QVariant> {
+    const auto loader = [](const Utils::FilePath &codeStyleFile,
+                           const Project &project) -> Result<QVariant> {
+        Q_UNUSED(project) // TODO
         CodeStylePool * const pool = CppToolsSettings::cppCodeStyle()->delegatingPool();
         QTC_ASSERT(pool, return ResultError(Tr::tr("Internal error: No code style pool")));
         if (const ICodeStylePreferences * const style = pool->loadCodeStyle(codeStyleFile, true))

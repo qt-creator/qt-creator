@@ -32,7 +32,7 @@ class CustomProjectSettingsHandler
 {
 public:
     enum class FileType { File, Dir };
-    using Loader = std::function<Utils::Result<QVariant>(const Utils::FilePath &)>;
+    using Loader = std::function<Utils::Result<QVariant>(const Utils::FilePath &, const Project &)>;
     using Unloader = std::function<void(const QVariant &)>;
 
     CustomProjectSettingsHandler(
