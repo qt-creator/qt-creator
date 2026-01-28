@@ -234,9 +234,20 @@ public:
                 &m_timerUpdate, start);
         connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
                 &m_timerUpdate, start);
+        connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+                this, &RelativeNumbersColumn::updateFontSettings);
+        connect(m_editor->document()->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged,
+                this, &RelativeNumbersColumn::updateFontSettings);
 
         m_editor->installEventFilter(this);
 
+        followEditorLayout();
+    }
+
+    void updateFontSettings()
+    {
+        QTextCursor tc = m_editor->cursorForPosition(QPoint(0, 0));
+        m_newLineSpacing = m_editor->document()->documentLayout()->blockBoundingRect(tc.block()).height();
         followEditorLayout();
     }
 
@@ -302,10 +313,12 @@ protected:
 private:
     void followEditorLayout()
     {
-        QTextCursor tc = m_editor->textCursor();
-        m_currentPos = tc.position();
-        m_lineSpacing = m_editor->document()->documentLayout()->blockBoundingRect(tc.block()).height();
-        setFont(m_editor->extraArea()->font());
+        QFont font = m_editor->font();
+        if (m_font != font || m_lineSpacing != m_newLineSpacing) {
+            m_font = font;
+            m_lineSpacing = m_newLineSpacing;
+            setFont(m_font);
+        }
 
         // Follow geometry of normal line numbers if visible,
         // otherwise follow geometry of marks (breakpoints etc.).
@@ -322,8 +335,9 @@ private:
         update();
     }
 
-    int m_currentPos = 0;
     int m_lineSpacing = 0;
+    int m_newLineSpacing = 0;
+    QFont m_font;
     TextEditorWidget *m_editor;
     QTimer m_timerUpdate;
 };
