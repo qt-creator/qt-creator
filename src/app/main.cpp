@@ -923,10 +923,7 @@ int main(int argc, char **argv)
                      &pluginManager, &PluginManager::remoteArguments);
 
     // shutdown plugin manager on the exit
-    QObject::connect(&app, &QCoreApplication::aboutToQuit, &pluginManager, [] {
-        PluginManager::shutdown();
-        SettingsSetup::destroySettings();
-    });
+    QObject::connect(&app, &QCoreApplication::aboutToQuit, &pluginManager, &PluginManager::shutdown);
 
     if (Utils::HostOsInfo::isWindowsHost()) {
         // Workaround for QTBUG-130696 and QTCREATORBUG-31890
@@ -938,5 +935,6 @@ int main(int argc, char **argv)
 
     const int exitCode = restarter.restartOrExit(app.exec());
     Utils::shutdownCrashReporting();
+    SettingsSetup::destroySettings();
     return exitCode;
 }

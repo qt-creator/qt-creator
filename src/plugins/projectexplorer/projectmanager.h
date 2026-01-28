@@ -31,12 +31,14 @@ class Target;
 class CustomProjectSettingsHandler
 {
 public:
+    enum class FileType { File, Dir };
     using Loader = std::function<Utils::Result<QVariant>(const Utils::FilePath &)>;
     using Unloader = std::function<void(const QVariant &)>;
 
     CustomProjectSettingsHandler(
-        const QString &fileName, const Loader &loader, const Unloader &unloader)
+        const QString &fileName, FileType fileType, const Loader &loader, const Unloader &unloader)
         : m_fileName(fileName)
+        , m_fileType(fileType)
         , m_loader(loader)
         , m_unloader(unloader)
     {}
@@ -47,6 +49,7 @@ public:
 private:
     Utils::Key m_key = Utils::Id::generate().toKey();
     QString m_fileName;
+    FileType m_fileType;
     Loader m_loader;
     Unloader m_unloader;
 };

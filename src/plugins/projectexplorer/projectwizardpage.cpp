@@ -596,7 +596,7 @@ void ProjectWizardPage::projectChanged(int index)
 
 void ProjectWizardPage::manageVcs()
 {
-    ICore::showOptionsDialog(VcsBase::Constants::VCS_COMMON_SETTINGS_ID, this);
+    ICore::showOptionsDialog(VcsBase::Constants::VCS_COMMON_SETTINGS_ID);
 }
 
 void ProjectWizardPage::setVersionControlUiElementsVisible(bool visible)

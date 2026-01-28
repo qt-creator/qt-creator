@@ -214,6 +214,8 @@ DeviceSettingsWidget::DeviceSettingsWidget()
 
     m_configurationLabel = new QLabel(Tr::tr("&Device:"));
     m_configurationComboBox = new QComboBox;
+    setIgnoreForDirtyHook(m_configurationComboBox);
+
     m_configurationComboBox->setModel(&m_deviceProxyModel);
     m_configurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_generalGroupBox = new QGroupBox(Tr::tr("General"));
@@ -531,8 +533,10 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
 
     if (didChangeDevice) {
         m_configWidget = DeviceManager::mutableDevice(device->id())->createWidget();
-        if (m_configWidget)
+        if (m_configWidget) {
+            setupDirtyHook(m_configWidget);
             m_osSpecificGroupBox->layout()->addWidget(m_configWidget);
+        }
     }
     displayCurrent();
 }

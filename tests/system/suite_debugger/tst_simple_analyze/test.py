@@ -42,7 +42,7 @@ def performTest(workingDir, projectName, availableConfigs):
     for kit, config in availableConfigs:
         # switching from MSVC to MinGW build will fail on the clean step of 'Rebuild All Projects'
         # because of differences between MSVC's and MinGW's Makefile (so clean before changing kit)
-        selectFromLocator("t clean", "Clean Project")
+        selectFromLocator("t clean", "Clean Active Project")
         verifyBuildConfig(kit, config, True, True, True)
         test.log("Selected kit '%s'" % Targets.getStringForTarget(kit))
         # explicitly build before start debugging for adding the executable as allowed program to WinFW

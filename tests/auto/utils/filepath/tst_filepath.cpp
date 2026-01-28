@@ -156,11 +156,14 @@ private slots:
     void parentsWithDrive();
     void parentsWithUncPath();
     void parentsWithLastPath();
+    void parentsWithMacros();
     void exists();
     void isNewerThan();
     void watch();
 
     void coroTest();
+
+    void macrosInPaths();
 
 private:
     QTemporaryDir tempDir;
@@ -345,6 +348,13 @@ void tst_filepath::parentDir_data()
     QTest::newRow("D:/") << "D:/"
                          << "D:/"
                          << "";
+
+    QTest::newRow("macro") << "/Test/%{ActiveProject:FileName}"
+                           << "/Test/%{ActiveProject:FileName}/.."
+                           << "";
+    QTest::newRow("macro-again") << "/Test/%{ActiveProject:FileName}/.."
+                                 << "/Test/%{ActiveProject:FileName}/../.."
+                                 << "";
 }
 
 void tst_filepath::parentDir()
@@ -1662,6 +1672,10 @@ void tst_filepath::cleanPath_data()
                          << "ssh://host/foo.bar";
     QTest::newRow("ssh2") << "ssh://host/../foo.bar"
                           << "ssh://host/../foo.bar";
+
+    QTest::newRow("cannot-change-path-with-macros") << "/a/%{MACRO}/b/../c" << "/a/%{MACRO}/b/../c";
+    QTest::newRow("keep-macros-at-start")
+        << "%{CurrentProject:Path}/../.." << "%{CurrentProject:Path}/../..";
 }
 
 void tst_filepath::cleanPath()
@@ -2326,6 +2340,22 @@ void tst_filepath::parentsWithLastPath()
     QCOMPARE(it, std::end(emptyLast));
 }
 
+void tst_filepath::parentsWithMacros()
+{
+    const FilePath path = FilePath::fromUserInput("%{MACRO1}/a/b/c");
+    const PathAndParents parentPaths(path);
+    auto it = std::begin(parentPaths);
+    QCOMPARE(*it, FilePath::fromUserInput("%{MACRO1}/a/b/c"));
+    ++it;
+    QCOMPARE(it, std::end(parentPaths));
+
+    const PathAndParents parentPaths2(path, FilePath::fromUserInput("%{MACRO1}/a"));
+    it = std::begin(parentPaths);
+    QCOMPARE(*it, FilePath::fromUserInput("%{MACRO1}/a/b/c"));
+    ++it;
+    QCOMPARE(it, std::end(parentPaths));
+}
+
 void tst_filepath::exists()
 {
     const Result<FilePath> tmpPath = FilePath().tmpDir();
@@ -2455,6 +2485,19 @@ void tst_filepath::watch()
     QVERIFY_RESULT(fileName(0).writeFileContents("change after replace"));
     QVERIFY(spy2.wait(3000));
     QCOMPARE(spy2.count(), 1);
+}
+
+void tst_filepath::macrosInPaths()
+{
+    FilePath path = FilePath::fromUserInput(rootPath) / "macrosInPaths";
+    const FilePath existingMacroLikePath = path / "%{existing}";
+    QVERIFY_RESULT(existingMacroLikePath.ensureWritableDir());
+
+    const FilePath nonExistingMacroLikePath = path / "%{nonexisting}";
+    QVERIFY(!nonExistingMacroLikePath.exists());
+
+    QCOMPARE(existingMacroLikePath.parentDir(), path);
+    QCOMPARE(nonExistingMacroLikePath.parentDir(), nonExistingMacroLikePath / "..");
 }
 
 } // Utils

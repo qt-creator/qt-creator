@@ -70,14 +70,35 @@ void CustomProjectSettingsHandler::load(Project &project) const
         = project.projectDirectory().pathAppended(".qtcreator").pathAppended(m_fileName);
     if (!candidate.exists())
         return;
-    const auto result = m_loader(candidate);
-    if (!result) {
+    const auto showError = [](const FilePath &file, const QString &error) {
         MessageManager::writeFlashing(
-            Tr::tr("Failed to load settings from \"%1\": %2")
-                .arg(candidate.toUserOutput(), result.error()));
-        return;
+            Tr::tr("Failed to load settings from \"%1\": %2").arg(file.toUserOutput(), error));
+    };
+    QVariant data;
+    const bool dirExpected = m_fileType == FileType::Dir;
+    if (candidate.isDir()) {
+        if (!dirExpected)
+            return showError(candidate, Tr::tr("Is a directory, but must be a file."));
+        QVariantList list;
+        for (const FilePaths &entries = candidate.dirEntries(QDir::Files);
+             const FilePath &entry : entries) {
+            const auto result = m_loader(entry);
+            if (!result) {
+                showError(entry, result.error());
+                continue;
+            }
+            list << *result;
+        }
+        data = list;
+    } else {
+        if (dirExpected)
+            return showError(candidate, Tr::tr("Is a file, but must be a directory."));
+        const auto result = m_loader(candidate);
+        if (!result)
+            return showError(candidate, result.error());
+        data = *result;
     }
-    project.setExtraData(m_key, *result);
+    project.setExtraData(m_key, data);
 }
 
 void CustomProjectSettingsHandler::unload(const Project &project) const

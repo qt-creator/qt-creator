@@ -3,41 +3,24 @@
 
 #pragma once
 
-#include <QList>
-
 #include <utils/filepath.h>
 
-#include "../core_global.h"
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Core {
+namespace Core {  class IWizardFactory; }
 
-class IWizardFactory;
+namespace Core::Internal {
 
-class CORE_EXPORT NewDialog
-{
-public:
-    NewDialog();
-    virtual ~NewDialog() = 0;
-    virtual QWidget *widget() = 0;
-    virtual void setWizardFactories(QList<IWizardFactory *> factories,
-                                    const Utils::FilePath &defaultLocation,
-                                    const QVariantMap &extraVariables) = 0;
-    virtual void setWindowTitle(const QString &title) = 0;
-    virtual void showDialog() = 0;
+void showNewDialog(
+    const QString &title,
+    QList<IWizardFactory *> factories,
+    const Utils::FilePath &defaultLocation,
+    const QVariantMap &extraVariables);
 
-    static QWidget *currentDialog()
-    {
-        return m_currentDialog ? m_currentDialog->widget() : nullptr;
-    }
+QWidget *currentNewDialog();
 
-private:
-    inline static NewDialog *m_currentDialog = nullptr;
-};
-
-namespace Internal { NewDialog *createDefaultNewDialog(QWidget *parent); }
-
-} // namespace Core
+} // namespace Core::Internal

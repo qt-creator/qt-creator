@@ -50,9 +50,10 @@
         \li In \uicontrol {Formatter Selection}, select \uicontrol {QMLFormat}.
             \image {qtcreator-preferences-qtquick-code-style-qmlformat.webp} {qmlformatter preferences in the Code Style tab in Qt Quick preferences}
         \li In \uicontrol {Global qmlformat Configuration}, set the code style.
-            This field uses the same format as a \c .qmlformat.ini file and
-            overrides the \c .qmlformat.ini file in the generic configuration
-            location (\l{QStandardPaths::GenericConfigLocation}).
+            The changes you make override the \c .qmlformat.ini file in the
+            generic configuration location (\l{QStandardPaths::GenericConfigLocation}).
+        \li To add a copy of the global \c qmlformat configuration file to your
+            project, select \uicontrol {Deploy INI File to Current Project}.
     \endlist
 
     The \l {qmlformat} tool searches for a \c .qmlformat.ini file in the same directory as the

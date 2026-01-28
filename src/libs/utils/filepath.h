@@ -439,7 +439,8 @@ Q_REQUIRED_RESULT
 
 
 // For testing
-QTCREATOR_UTILS_EXPORT QString doCleanPath(const QString &input);
+QTCREATOR_UTILS_EXPORT
+QString doCleanPath(const QString &input, bool normalizeMacroContainingPaths = false);
 
 } // Utils
 

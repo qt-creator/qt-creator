@@ -11,6 +11,8 @@
 #include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
@@ -255,7 +257,7 @@ void DeviceManager::setDeviceState(Id deviceId, IDevice::DeviceState newState, b
         lockedStates->insert(deviceId, newState);
     }
 
-    if (announce) {
+    if (announce && !ExtensionSystem::PluginManager::isShuttingDown()) {
         emit s_instance->deviceUpdated(deviceId);
         emit s_instance->updated();
     }

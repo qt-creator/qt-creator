@@ -1149,11 +1149,14 @@ int FilePath::schemeAndHostLength(const QStringView path)
     return pos + 1;  // scheme://host/ plus something
 }
 
-static QString normalizePathSegmentHelper(const QString &name)
+static QString normalizePathSegmentHelper(const QString &name, bool normalizeMacroContainingPaths)
 {
     const int len = name.size();
 
-    if (len == 0 || name.contains("%{"))
+    if (len == 0)
+        return name;
+
+    if (name.contains("%{") && !normalizeMacroContainingPaths)
         return name;
 
     int i = len - 1;
@@ -1259,7 +1262,7 @@ static QString normalizePathSegmentHelper(const QString &name)
     return QString::fromUtf16(out + used, len - used);
 }
 
-QString doCleanPath(const QString &input_)
+QString doCleanPath(const QString &input_, bool normalizeMacroContainingPaths /*= false*/)
 {
     QString input = input_;
     if (input.contains('\\'))
@@ -1288,7 +1291,7 @@ QString doCleanPath(const QString &input_)
     if (shLen > 0 && path.startsWith("./"))
         reAddDotSlash = true;
 
-    path = normalizePathSegmentHelper(path);
+    path = normalizePathSegmentHelper(path, normalizeMacroContainingPaths);
 
     if (reAddDotSlash) {
         if (!path.startsWith("./"))
@@ -1320,7 +1323,17 @@ FilePath FilePath::parentDir() const
 
     const QString path = basePath
                          + (basePath.endsWith('/') ? QLatin1String("..") : QLatin1String("/.."));
-    const QString parent = doCleanPath(path);
+
+    bool normalizeMacroContainingPaths = false;
+
+    if (path.contains("%{")) {
+        if (exists())
+            normalizeMacroContainingPaths = true;
+        else
+            return withNewPath(path);
+    }
+
+    const QString parent = doCleanPath(path, normalizeMacroContainingPaths);
     if (parent == path)
         return *this;
 
@@ -3222,6 +3235,8 @@ PathAndParents::iterator &PathAndParents::iterator::operator++()
     const FilePath newParent = current.parentDir();
     if (newParent == current)
         current = FilePath(); // Reached the root, stop iterating.
+    else if (newParent.endsWith("/.."))
+        current = FilePath(); // resolving the parentDir failed, stop iterating.
     else
         current = newParent;
     return *this;

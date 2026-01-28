@@ -147,9 +147,11 @@ Editing
 * Added the option to rename all usages of a QML component when renaming the
   file
   ([QTCREATORBUG-33195](https://bugreports.qt.io/browse/QTCREATORBUG-33195))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-rename-symbols.html))
 * Improved the performance of scanning for QML files
 * Improved the `qmlformat` settings
   ([QTCREATORBUG-33305](https://bugreports.qt.io/browse/QTCREATORBUG-33305))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-preferences-qtquick-code-style.html))
 * Fixed a wrong warning `Duplicate Id. (M15)`
   ([QTCREATORBUG-32418](https://bugreports.qt.io/browse/QTCREATORBUG-32418))
 * Fixed that `Split Initializer` did not remove unneeded semicolons
@@ -203,12 +205,14 @@ Projects
 * Added `Re-detect` to `Preferences > Kits > Qt Versions`
 * Added the option to run applications as a different user
   ([QTCREATORBUG-33655](https://bugreports.qt.io/browse/QTCREATORBUG-33655))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-run-settings-desktop-devices.html))
 * Added the option to search in generated files with the project related
   `Advanced Find` filters
   ([QTCREATORBUG-33579](https://bugreports.qt.io/browse/QTCREATORBUG-33579))
 * Added support for Qt Creator variables in the build directory setting
   ([QTCREATORBUG-24121](https://bugreports.qt.io/browse/QTCREATORBUG-24121))
 * Added `Bulk Remove` to run configuration settings
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-run-settings.html))
 * Added the option to export and import custom output parsers
 * Fixed that local paths in the device tool settings were not interpreted as
   paths on the device
@@ -223,6 +227,7 @@ Projects
     * Removed the automatic execution of the Qt Online Installer
     * Added informative CMake output and a task with a link that starts the
       installation process on user request
+    ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-edit-cmake-config-files.html#install-missing-qt-packages))
 * Improved the performance of parsing projects
 * Improved the `QML debugging and profiling` setting for build configurations
   by not relying on `CMAKE_CXX_FLAGS_INIT`
@@ -230,6 +235,7 @@ Projects
    [QTBUG-139293](https://bugreports.qt.io/browse/QTBUG-139293))
 * Added `Preferences > CMake > General > Clear old CMake output on a new run`
   ([QTCREATORBUG-33838](https://bugreports.qt.io/browse/QTCREATORBUG-33838))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-build-settings-cmake.html#viewing-cmake-output))
 * Removed the special `CMake From Build Device` setting for kits that is no
   longer needed
 * Fixed that building a single target always built everything if

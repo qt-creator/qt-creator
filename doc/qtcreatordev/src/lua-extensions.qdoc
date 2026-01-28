@@ -15,6 +15,16 @@
     To test your new extension, start your project. Your \uicontrol {Application Output}
     should show \e {Hello from Lua!}.
 
+    \section1 Extension Locations
+
+    Lua extensions can be located in any of the normal plugin locations of \QC. To find out
+    which folders \QC scans for plugins, set the environment variable \c QT_LOGGING_RULES
+    to \c {qtc.extensionsystem*=true}. This enables debug output from the plugin manager, which
+    lists the plugin search paths when \QC starts.
+
+    To add search paths, use the \c{-pluginpath} command line argument
+    when starting \QC.
+
     \section1 Lua Extension Specification
 
     A Lua extension consists of a Lua script with the same name as the folder it is in.

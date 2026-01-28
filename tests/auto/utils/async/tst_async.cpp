@@ -427,14 +427,6 @@ void tst_Async::onResultReady()
         QCOMPARE(obj.value, QString("there"));
     }
 #endif
-    { // member
-        QFuture<QString> f = Utils::asyncRun([] { return QString("Hi"); });
-        ObjWithProperty obj;
-        Utils::onResultReady(f, &obj, &ObjWithProperty::setValue);
-        f.waitForFinished();
-        QCoreApplication::processEvents();
-        QCOMPARE(obj.value, QString("Hi"));
-    }
 }
 
 void tst_Async::futureSynchonizer()

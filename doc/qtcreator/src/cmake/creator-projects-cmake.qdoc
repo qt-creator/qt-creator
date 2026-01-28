@@ -164,6 +164,9 @@
 
     \endlist
 
+    To refresh the list of automatically detected CMake executables, select
+    \uicontrol {Re-detect}.
+
     \section2 Add or remove CMake tools
 
     To add a path to a CMake executable that \QC does not detect automatically,
@@ -250,12 +253,17 @@
     \section1 Install missing Qt packages
 
     If you add a Qt module in \c find_package that you did not install, \QC
-    creates an entry in the \c Issues view with the option to install the missing
-    component with \QOI.
+    creates an entry in the \uicontrol Issues view with the option to install
+    the missing component with \QOI.
 
     \image {qtcreator-install-packages.webp} {Installing missing Qt packages}
 
     Click the link to install the package with \QOI.
+
+    To turn off the messages, go to \preferences > \uicontrol CMake >
+    \uicontrol General and clear \uicontrol {Maintenance Tool dependency provider}.
+
+    \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
 
     \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
     {Snippets}

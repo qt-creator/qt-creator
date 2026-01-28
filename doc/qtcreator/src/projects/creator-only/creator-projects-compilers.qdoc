@@ -28,6 +28,9 @@
 
     \image {qtcreator-preferences-compilers.webp} {Compilers tab in Kits preferences}
 
+    To refresh the list of automatically detected compilers, select
+    \uicontrol {Re-detect}.
+
     \note On \macos, the \c ccache C/C++ compiler cache is detected
     automatically only if you installed it using Homebrew or MacPorts.
     When using MacPorts, you also need to create symlinks, as instructed in

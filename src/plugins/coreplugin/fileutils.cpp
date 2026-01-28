@@ -107,7 +107,7 @@ static void showGraphicalShellError(const QString &app, const QString &error)
                                                      QMessageBox::ActionRole);
     mbox.exec();
     if (mbox.clickedButton() == settingsButton)
-        ICore::showOptionsDialog(Constants::SETTINGS_ID_INTERFACE, ICore::dialogParent());
+        ICore::showOptionsDialog(Constants::SETTINGS_ID_INTERFACE);
 }
 
 void showInGraphicalShell(const FilePath &pathIn)

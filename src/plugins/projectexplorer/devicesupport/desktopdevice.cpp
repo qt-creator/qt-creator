@@ -232,13 +232,15 @@ public:
         connect(autoDetectButton, &QPushButton::clicked, autoDetectButton, [device, autoDetectButton] {
             autoDetectButton->setEnabled(false);
 
+            // clang-format off
             GlobalTaskTree::start(Group {
-                device->autoDetectDeviceToolsRecipe().recipe,
+                device->autoDetectDeviceToolsRecipe(),
                 QSyncTask([btn = QPointer<QWidget>(autoDetectButton)] {
                     if (btn)
                         btn->setEnabled(true);
                 })
             });
+            // clang-format on
         });
 
         using namespace Layouting;
@@ -431,7 +433,7 @@ FilePath DesktopDevice::rootPath() const
 void DesktopDevice::initDeviceToolAspects()
 {
     IDevice::initDeviceToolAspects();
-    GlobalTaskTree::start(autoDetectDeviceToolsRecipe().recipe);
+    GlobalTaskTree::start(autoDetectDeviceToolsRecipe());
 }
 
 } // namespace ProjectExplorer

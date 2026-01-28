@@ -104,7 +104,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 const auto log = [logView](const QString &msg) { logView->append(msg); };
                 // clang-format off
                 const QtTaskTree::Group recipe {
-                    dockerDevice->autoDetectDeviceToolsRecipe().recipe,
+                    dockerDevice->autoDetectDeviceToolsRecipe(),
                     ProjectExplorer::removeDetectedKitsRecipe(dockerDevice, log),
                     ProjectExplorer::kitDetectionRecipe(dockerDevice, DetectionSource::FromSystem, log)
                 };

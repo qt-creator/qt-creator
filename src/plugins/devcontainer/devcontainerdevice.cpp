@@ -47,8 +47,7 @@ using namespace Utils;
 
 namespace DevContainer {
 
-Device::Device(Project *project)
-    : m_project(project)
+Device::Device()
 {
     setDisplayType(Tr::tr("Development Container"));
     setOsType(OsTypeLinux);
@@ -204,6 +203,8 @@ void Device::onConfigChanged()
 
 Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progressStorage)
 {
+    QTC_ASSERT(m_project, return {});
+
     struct Options
     {
         bool mountLibExec = true;
@@ -512,6 +513,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         QSyncTask(setupProcessInterfaceCreator),
         QSyncTask(setupCmdBridge),
         QTaskTreeTask(setupManualKits),
+        autoDetectDeviceToolsRecipe(),
         If (autoDetectKitsEnabled) >> Then {
             kitDetectionRecipe(shared_from_this(), DetectionSource::Temporary, instanceConfig.logFunction)
         },
@@ -542,6 +544,8 @@ Group Device::downRecipe(bool forceDown)
 
 void Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)> callback)
 {
+    QTC_ASSERT(m_project, return);
+
     const auto onDone = [callback](DoneWith doneWith) {
         const Result<> result = (doneWith != DoneWith::Error)
                                     ? ResultOk

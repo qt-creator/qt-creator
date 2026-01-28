@@ -240,6 +240,8 @@
 	<string>${IDE_COPYRIGHT}</string>
 	<key>CFBundleIconFile</key>
 	<string>qtcreator</string>
+	<key>CFBundleIconName</key>
+	<string>qtcreator</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>

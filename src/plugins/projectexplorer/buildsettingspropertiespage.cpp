@@ -16,6 +16,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/guiutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
@@ -66,7 +67,7 @@ private:
     QComboBox *m_buildConfigurationComboBox = nullptr;
     QMenu *m_addButtonMenu = nullptr;
 
-    QList<QWidget *> m_subWidgets;
+    QWidgetList m_subWidgets;
     QVBoxLayout *m_layout = nullptr;
 };
 
@@ -75,8 +76,14 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target)
 {
     setWindowTitle(Tr::tr("Build Settings"));
 
-    m_layout = new QVBoxLayout(this);
-    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout = new QVBoxLayout;
+
+    auto topLayout = new QVBoxLayout(this);
+    topLayout->setContentsMargins(0, StyleHelper::SpacingTokens::PaddingVXl, 0, 0);
+    topLayout->setSpacing(StyleHelper::SpacingTokens::GapVXxl);
+    topLayout->addLayout(m_layout);
+    topLayout->addStretch(1);
+    setLayout(topLayout);
 
     if (!BuildConfigurationFactory::find(m_target)) {
         auto noSettingsLabel = new QLabel(this);
@@ -101,18 +108,21 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target)
         m_renameButton = new QPushButton(Tr::tr("Rename..."), this);
         m_cloneButton = new QPushButton(Tr::tr("Clone..."), this);
 
-        auto hbox = new QHBoxLayout();
-        hbox->setContentsMargins(0, 20, 0, 0);
-        hbox->addWidget(new QLabel(Tr::tr("Active build configuration:"), this));
-        hbox->addWidget(m_buildConfigurationComboBox);
-        hbox->addWidget(m_addButton);
-        hbox->addWidget(m_removeButton);
-        hbox->addWidget(m_renameButton);
-        hbox->addWidget(m_cloneButton);
-        hbox->addStretch();
-        m_layout->addLayout(hbox);
+        using namespace Layouting;
+        Form actionsLayout {
+            noMargin,
+            Tr::tr("Active build configuration:"),
+            Flow {
+                spacing(StyleHelper::SpacingTokens::GapHS),
+                m_buildConfigurationComboBox,
+                m_addButton,
+                m_removeButton,
+                m_renameButton,
+                m_cloneButton,
+            },
+        };
+        m_layout->addWidget(actionsLayout.emerge());
     }
-    m_layout->addStretch(1);
 
     m_buildConfiguration = m_target->activeBuildConfiguration();
     m_buildConfigurationComboBox->setCurrentIndex(
@@ -141,21 +151,18 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target)
 
 void BuildSettingsWidget::addSubWidget(QWidget *widget)
 {
-    widget->setParent(this);
-    widget->setContentsMargins(0, 2, 0, 0);
-
-    auto label = new QLabel(this);
-    label->setText(widget->windowTitle());
+    auto label = new QLabel(widget->windowTitle());
     label->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
-    label->setContentsMargins(0, 18, 0, 0);
 
-    const int count = m_layout->count(); // last one is the stretch.
-    QTC_CHECK(count >= 1);
-    m_layout->insertWidget(count - 1, label);
-    m_layout->insertWidget(count, widget);
+    using namespace Layouting;
+    QWidget *subWidget = Column {
+        label,
+        widget,
+        noMargin,
+    }.emerge();
 
-    m_subWidgets.append(label);
-    m_subWidgets.append(widget);
+    m_layout->addWidget(subWidget);
+    m_subWidgets.append(subWidget);
 }
 
 void BuildSettingsWidget::clearWidgets()

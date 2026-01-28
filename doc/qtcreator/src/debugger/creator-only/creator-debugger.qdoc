@@ -55,11 +55,16 @@
     parameters in the cloned kit. Make sure to enable the cloned kit
     for your project.
 
+    \section2 Show more debuggers
+
     If the debugger you want to use is not automatically detected, go to
     \preferences > \uicontrol Kits >
     \uicontrol Debuggers > \uicontrol Add to add it.
 
     \image {qtcreator-preferences-kits-debuggers.webp} {Debuggers tab in Kits preferences}
+
+    To refresh the list of automatically detected debuggers, select
+    \uicontrol {Re-detect}.
 
     To use the debugging tools for Windows, you must install them.
     Optionally, you can set up the Microsoft Symbol Server if you need

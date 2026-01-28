@@ -3,33 +3,33 @@
 
 #include "progressmanager_p.h"
 
-void Core::Internal::ProgressManagerPrivate::initInternal()
-{
-}
-
-void Core::Internal::ProgressManagerPrivate::cleanup()
-{
-}
+#include "../icore.h"
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
-#import <AppKit/NSDockTile.h>
 #import <AppKit/NSApplication.h>
-#import <AppKit/NSImageView.h>
-#import <AppKit/NSCIImageRep.h>
 #import <AppKit/NSBezierPath.h>
+#import <AppKit/NSCIImageRep.h>
 #import <AppKit/NSColor.h>
+#import <AppKit/NSDockTile.h>
+#import <AppKit/NSImage.h>
+#import <AppKit/NSImageView.h>
 #import <Foundation/NSString.h>
 
 @interface ApplicationProgressView : NSView {
     int min;
     int max;
     int value;
+    bool visible;
+    NSImage *dockIcon;
 }
 
 + (ApplicationProgressView *)sharedProgressView;
 
+- (void)dealloc;
+
 - (void)setRangeMin:(int)v1 max:(int)v2;
 - (void)setValue:(int)v;
+- (void)setProgressVisible:(bool)v;
 - (void)updateBadge;
 
 @end
@@ -46,6 +46,13 @@ static ApplicationProgressView *sharedProgressView = nil;
     return sharedProgressView;
 }
 
+- (void)dealloc
+{
+    [dockIcon release];
+    dockIcon = nil;
+    [super dealloc];
+}
+
 - (void)setRangeMin:(int)v1 max:(int)v2
 {
     min = v1;
@@ -59,6 +66,12 @@ static ApplicationProgressView *sharedProgressView = nil;
     [self updateBadge];
 }
 
+- (void)setProgressVisible:(bool)v
+{
+    visible = v;
+    [self updateBadge];
+}
+
 - (void)updateBadge
 {
     [[NSApp dockTile] display];
@@ -67,11 +80,27 @@ static ApplicationProgressView *sharedProgressView = nil;
 - (void)drawRect:(NSRect)rect
 {
     Q_UNUSED(rect)
+    if (dockIcon == nil) {
+        dockIcon = [[NSImage alloc]
+            initByReferencingFile:(Core::ICore::resourcePath("icon.png").path().toNSString())];
+    }
     NSRect boundary = [self bounds];
-    [[NSApp applicationIconImage] drawInRect:boundary
-                                    fromRect:NSZeroRect
-                                   operation:NSCompositingOperationCopy
-                                    fraction:1.0];
+    // static CGFloat scale = .65;
+    static CGFloat scale = .78;
+    CGFloat xShrink = boundary.size.width * (1 - scale);
+    CGFloat yShrink = boundary.size.height * (1 - scale);
+    NSRect iconRect = NSMakeRect(boundary.origin.x + xShrink / 2,
+                                 boundary.origin.y + yShrink / 2,
+                                 boundary.size.width - xShrink,
+                                 boundary.size.height - yShrink);
+    [dockIcon drawInRect:iconRect
+                fromRect:NSZeroRect
+               operation:NSCompositingOperationCopy
+                fraction:1.0];
+
+    if (!visible)
+        return;
+
     NSRect progressBoundary = boundary;
     progressBoundary.size.height *= 0.13;
     progressBoundary.size.width *= 0.8;
@@ -99,6 +128,19 @@ static ApplicationProgressView *sharedProgressView = nil;
 
 @end
 
+void Core::Internal::ProgressManagerPrivate::initInternal()
+{
+    [[NSApp dockTile] setContentView:[ApplicationProgressView sharedProgressView]];
+    [[NSApp dockTile] display];
+}
+
+void Core::Internal::ProgressManagerPrivate::cleanup()
+{
+    [[NSApp dockTile] setContentView:nil];
+    if (sharedProgressView)
+        [sharedProgressView release];
+}
+
 void Core::Internal::ProgressManagerPrivate::updateApplicationLabelNow()
 {
     NSString *cocoaString = [[NSString alloc] initWithUTF8String:m_appLabelText.toUtf8().constData()];
@@ -118,15 +160,14 @@ void Core::Internal::ProgressManagerPrivate::setApplicationProgressValue(int val
 
 void Core::Internal::ProgressManagerPrivate::setApplicationProgressVisible(bool visible)
 {
-    if (visible) {
-        [[NSApp dockTile] setContentView:[ApplicationProgressView sharedProgressView]];
-    } else {
-        [[NSApp dockTile] setContentView:nil];
-    }
-    [[NSApp dockTile] display];
+    [[ApplicationProgressView sharedProgressView] setProgressVisible:visible];
 }
 
 #else
+
+void Core::Internal::ProgressManagerPrivate::initInternal() {}
+
+void Core::Internal::ProgressManagerPrivate::cleanup() {}
 
 void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &text)
 {
