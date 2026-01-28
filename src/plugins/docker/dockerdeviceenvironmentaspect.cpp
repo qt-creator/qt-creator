@@ -88,7 +88,7 @@ Utils::Environment DockerDeviceEnvironmentAspect::operator()() const
     result.modify(EnvironmentItem::fromStringList(value()));
     return result;
 }
-bool DockerDeviceEnvironmentAspect::guiToBuffer()
+bool DockerDeviceEnvironmentAspect::guiToVolatileValue()
 {
     const QStringList newValue = undoable.get();
     if (newValue != m_volatileValue) {
@@ -97,7 +97,7 @@ bool DockerDeviceEnvironmentAspect::guiToBuffer()
     }
     return false;
 }
-void DockerDeviceEnvironmentAspect::bufferToGui()
+void DockerDeviceEnvironmentAspect::volatileValueToGui()
 {
     undoable.setWithoutUndo(m_volatileValue);
 }

@@ -75,8 +75,8 @@ public:
     void setFillCallback(FillCallback callback) { m_fillCallback = callback; }
     void refill() { emit refillRequested(); }
 
-    void bufferToGui() override;
-    bool guiToBuffer() override;
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
 
     QVariant variantValue() const override;
     QVariant volatileVariantValue() const override;

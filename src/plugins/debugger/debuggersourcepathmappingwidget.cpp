@@ -465,7 +465,7 @@ void SourcePathMapAspect::toMap(Store &) const
 
 bool SourcePathMapAspect::isDirty() const
 {
-    const_cast<SourcePathMapAspect *>(this)->guiToBuffer();
+    const_cast<SourcePathMapAspect *>(this)->guiToVolatileValue();
     return m_value != m_volatileValue;
 }
 
@@ -477,7 +477,7 @@ void SourcePathMapAspect::addToLayoutImpl(Layouting::Layout &parent)
     parent.addItem(d->m_widget.data());
 }
 
-bool SourcePathMapAspect::guiToBuffer()
+bool SourcePathMapAspect::guiToVolatileValue()
 {
     const SourcePathMap old = m_volatileValue;
     if (d->m_widget)
@@ -485,7 +485,7 @@ bool SourcePathMapAspect::guiToBuffer()
     return m_volatileValue != old;
 }
 
-void SourcePathMapAspect::bufferToGui()
+void SourcePathMapAspect::volatileValueToGui()
 {
     if (d->m_widget)
         d->m_widget->setSourcePathMap(m_volatileValue);

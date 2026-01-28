@@ -22,7 +22,7 @@ LibrarySelectionAspect::LibrarySelectionAspect(AspectContainer *container)
     : TypedAspect<QMap<QString, QString>>(container)
 {}
 
-void LibrarySelectionAspect::bufferToGui()
+void LibrarySelectionAspect::volatileValueToGui()
 {
     if (!m_model)
         return;
@@ -39,7 +39,7 @@ void LibrarySelectionAspect::bufferToGui()
     handleGuiChanged();
 }
 
-bool LibrarySelectionAspect::guiToBuffer()
+bool LibrarySelectionAspect::guiToVolatileValue()
 {
     if (!m_model)
         return false;
@@ -99,7 +99,7 @@ void LibrarySelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         for (QStandardItem *item : items)
             m_model->appendRow(item);
 
-        bufferToGui();
+        volatileValueToGui();
     };
 
     if (!m_model) {

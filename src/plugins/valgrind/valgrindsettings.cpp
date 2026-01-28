@@ -156,7 +156,7 @@ void SuppressionAspect::toMap(Store &map) const
     BaseAspect::toMap(map);
 }
 
-bool SuppressionAspect::guiToBuffer()
+bool SuppressionAspect::guiToVolatileValue()
 {
     const FilePaths old = m_volatileValue;
     m_volatileValue.clear();
@@ -165,7 +165,7 @@ bool SuppressionAspect::guiToBuffer()
     return m_volatileValue != old;
 }
 
-void SuppressionAspect::bufferToGui()
+void SuppressionAspect::volatileValueToGui()
 {
     d->m_model.clear();
     for (const FilePath &file : std::as_const(m_volatileValue))

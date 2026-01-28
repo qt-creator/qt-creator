@@ -151,11 +151,11 @@ public:
     {
         Changes();
 
-        unsigned internalFromOutside : 1;
-        unsigned internalFromBuffer : 1;
-        unsigned bufferFromOutside : 1;
-        unsigned bufferFromInternal : 1;
-        unsigned bufferFromGui : 1;
+        unsigned valueFromOutside : 1;
+        unsigned valueFromVolatileValue : 1;
+        unsigned volatileValueFromOutside : 1;
+        unsigned volatileValueFromValue : 1;
+        unsigned volatileValueFromGui : 1;
     };
 
     virtual void announceChanges(Changes changes, Announcement howToAnnounce = DoEmit);
@@ -231,10 +231,15 @@ signals:
 
 protected:
     virtual void addToLayoutImpl(Layouting::Layout &parent);
-    virtual bool internalToBuffer();
-    virtual bool bufferToInternal();
-    virtual void bufferToGui();
-    virtual bool guiToBuffer();
+    [[deprecated("Use valueToVolatileValue()")]] bool internalToBuffer() { return valueToVolatileValue(); }
+    [[deprecated("Use valueToVolatileValue()")]] bool bufferToInternal() { return volatileValueToValue(); }
+    [[deprecated("Use valueToVolatileValue()")]] void bufferToGui() { volatileValueToGui(); }
+    [[deprecated("Use valueToVolatileValue()")]] bool guiToBuffer() { return guiToVolatileValue(); }
+
+    virtual bool valueToVolatileValue();
+    virtual bool volatileValueToValue();
+    virtual void volatileValueToGui();
+    virtual bool guiToVolatileValue();
 
     virtual void handleGuiChanged();
 
@@ -329,8 +334,8 @@ public:
     {
         m_default = value;
         m_value = value;
-        if (internalToBuffer()) // Might be more than a plain copy.
-            bufferToGui();
+        if (valueToVolatileValue()) // Might be more than a plain copy.
+            volatileValueToGui();
     }
 
     bool isDefaultValue() const override
@@ -341,10 +346,10 @@ public:
     void setValue(const ValueType &value, Announcement howToAnnounce = DoEmit)
     {
         Changes changes;
-        changes.internalFromOutside = updateStorage(m_value, value);
-        if (internalToBuffer()) {
-            changes.bufferFromInternal = true;
-            bufferToGui();
+        changes.valueFromOutside = updateStorage(m_value, value);
+        if (valueToVolatileValue()) {
+            changes.volatileValueFromValue = true;
+            volatileValueToGui();
         }
         announceChanges(changes, howToAnnounce);
     }
@@ -353,11 +358,11 @@ public:
     {
         Changes changes;
         if (updateStorage(m_volatileValue, value)) {
-            changes.bufferFromOutside = true;
-            bufferToGui();
+            changes.volatileValueFromOutside = true;
+            volatileValueToGui();
         }
-        if (isAutoApply() && bufferToInternal())
-            changes.internalFromBuffer = true;
+        if (isAutoApply() && volatileValueToValue())
+            changes.valueFromVolatileValue = true;
         announceChanges(changes, howToAnnounce);
     }
 
@@ -367,12 +372,12 @@ public:
     }
 
 protected:
-    bool internalToBuffer() override
+    bool valueToVolatileValue() override
     {
         return updateStorage(m_volatileValue, m_value);
     }
 
-    bool bufferToInternal() override
+    bool volatileValueToValue() override
     {
         return updateStorage(m_value, m_volatileValue);
     }
@@ -475,8 +480,8 @@ public:
 private:
     void addToLayoutHelper(Layouting::Layout &parent, QAbstractButton *button);
 
-    void bufferToGui() override;
-    bool guiToBuffer() override;
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
 
     std::unique_ptr<Internal::BoolAspectPrivate> d;
 };
@@ -526,8 +531,8 @@ public:
     void setMinimumSize(const QSize &size);
 
 private:
-    void bufferToGui() override;
-    bool guiToBuffer() override;
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
 
     std::unique_ptr<Internal::ColorAspectPrivate> d;
 };
@@ -593,8 +598,8 @@ public:
 protected:
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
-    void bufferToGui() override;
-    bool guiToBuffer() override;
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
 
     std::unique_ptr<Internal::SelectionAspectPrivate> d;
 };
@@ -633,8 +638,8 @@ public:
 protected:
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
-    void bufferToGui() override;
-    bool guiToBuffer() override;
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
 
 private:
     std::unique_ptr<Internal::MultiSelectionAspectPrivate> d;
@@ -702,11 +707,11 @@ signals:
 protected:
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
-    void bufferToGui() override;
-    bool guiToBuffer() override;
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
 
-    bool internalToBuffer() override;
-    bool bufferToInternal() override;
+    bool valueToVolatileValue() override;
+    bool volatileValueToValue() override;
 
     std::unique_ptr<Internal::StringAspectPrivate> d;
 };
@@ -779,11 +784,11 @@ signals:
 protected:
     bool isCheckable() const;
 
-    void bufferToGui() override;
-    bool guiToBuffer() override;
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
 
-    bool internalToBuffer() override;
-    bool bufferToInternal() override;
+    bool valueToVolatileValue() override;
+    bool volatileValueToValue() override;
 
     std::unique_ptr<Internal::FilePathAspectPrivate> d;
 };
@@ -810,8 +815,8 @@ public:
     struct Data : BaseAspect::Data { qint64 value = 0; };
 
 protected:
-    void bufferToGui() override;
-    bool guiToBuffer() override;
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
 
 private:
     std::unique_ptr<Internal::IntegerAspectPrivate> d;
@@ -834,8 +839,8 @@ public:
     void setSingleStep(double step);
 
 protected:
-    void bufferToGui() override;
-    bool guiToBuffer() override;
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
 
 private:
     std::unique_ptr<Internal::DoubleAspectPrivate> d;
@@ -897,8 +902,8 @@ public:
     StringListAspect(AspectContainer *container = nullptr);
     ~StringListAspect() override;
 
-    bool guiToBuffer() override;
-    void bufferToGui() override;
+    bool guiToVolatileValue() override;
+    void volatileValueToGui() override;
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
@@ -929,8 +934,8 @@ public:
 
     FilePaths operator()() const;
 
-    bool guiToBuffer() override;
-    void bufferToGui() override;
+    bool guiToVolatileValue() override;
+    void volatileValueToGui() override;
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
     void setPlaceHolderText(const QString &placeHolderText);
@@ -1239,8 +1244,8 @@ public:
 
     void refill() { emit refillRequested(); }
 
-    void bufferToGui() override;
-    bool guiToBuffer() override;
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
 
     void setComboBoxEditable(bool editable) { m_comboBoxEditable = editable; }
 

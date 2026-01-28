@@ -584,13 +584,13 @@ void BaseAspect::apply()
 {
     // We assume m_buffer to reflect current gui state as invariant after signalling settled down.
     // It's an aspect (-subclass) implementation problem if this doesn't hold. Fix it up and bark.
-    QTC_CHECK(!guiToBuffer());
+    QTC_CHECK(!guiToVolatileValue());
 
-    if (!bufferToInternal()) // Nothing to do.
+    if (!volatileValueToValue()) // Nothing to do.
         return;
 
     Changes changes;
-    changes.internalFromBuffer = true;
+    changes.valueFromVolatileValue = true;
     announceChanges(changes);
 }
 
@@ -602,8 +602,8 @@ void BaseAspect::apply()
 */
 void BaseAspect::cancel()
 {
-    internalToBuffer();
-    bufferToGui();
+    valueToVolatileValue();
+    volatileValueToGui();
 }
 
 void BaseAspect::finish()
@@ -620,10 +620,10 @@ void BaseAspect::announceChanges(Changes changes, Announcement howToAnnounce)
     if (howToAnnounce == BeQuiet)
         return;
 
-    if (changes.bufferFromInternal || changes.bufferFromOutside || changes.bufferFromGui)
+    if (changes.volatileValueFromValue || changes.volatileValueFromOutside || changes.volatileValueFromGui)
         emit volatileValueChanged();
 
-    if (changes.internalFromOutside || changes.internalFromBuffer) {
+    if (changes.valueFromOutside || changes.valueFromVolatileValue) {
         emit changed();
         if (hasAction())
             emit action()->triggered(variantValue().toBool());
@@ -938,19 +938,19 @@ public:
         m_checked->setSettingsKey(checkerKey);
         m_checked->addOnChanged(aspect, [aspect] {
             // FIXME: Check.
-            aspect->internalToBuffer();
-            aspect->bufferToGui();
+            aspect->valueToVolatileValue();
+            aspect->volatileValueToGui();
             emit aspect->changed();
             aspect->checkedChanged();
         });
         m_checked->addOnVolatileValueChanged(aspect, [aspect] {
             // FIXME: Check.
-            aspect->internalToBuffer();
-            aspect->bufferToGui();
+            aspect->valueToVolatileValue();
+            aspect->volatileValueToGui();
         });
 
-        aspect->internalToBuffer();
-        aspect->bufferToGui();
+        aspect->valueToVolatileValue();
+        aspect->volatileValueToGui();
     }
 
     void addToLayoutFirst(Layout &parent)
@@ -1152,7 +1152,7 @@ void StringAspect::volatileToMap(Store &map) const
 void StringAspect::setShowToolTipOnLabel(bool show)
 {
     d->m_showToolTipOnLabel = show;
-    bufferToGui();
+    volatileValueToGui();
 }
 
 /*!
@@ -1317,7 +1317,7 @@ void StringAspect::addToLayoutImpl(Layout &parent)
             parent.addItem(resetButton);
         }
         connect(lineEditDisplay, &FancyLineEdit::validChanged, this, &StringAspect::validChanged);
-        bufferToGui();
+        volatileValueToGui();
         if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
             connect(lineEditDisplay, &FancyLineEdit::editingFinished, this, [this, lineEditDisplay] {
                 if (lineEditDisplay->text() != d->undoable.get()) {
@@ -1378,7 +1378,7 @@ void StringAspect::addToLayoutImpl(Layout &parent)
         }
 
         addLabeledItem(parent, textEditDisplay);
-        bufferToGui();
+        volatileValueToGui();
         connect(this,
                 &StringAspect::acceptRichTextChanged,
                 textEditDisplay,
@@ -1439,12 +1439,12 @@ QString StringAspect::operator()() const
     return m_value;
 }
 
-bool StringAspect::guiToBuffer()
+bool StringAspect::guiToVolatileValue()
 {
     return updateStorage(m_volatileValue, d->undoable.get());
 }
 
-bool StringAspect::bufferToInternal()
+bool StringAspect::volatileValueToValue()
 {
     if (d->m_valueAcceptor) {
         if (const std::optional<QString> tmp = d->m_valueAcceptor(m_value, m_volatileValue))
@@ -1454,13 +1454,13 @@ bool StringAspect::bufferToInternal()
     return updateStorage(m_value, m_volatileValue);
 }
 
-bool StringAspect::internalToBuffer()
+bool StringAspect::valueToVolatileValue()
 {
     const QString val = d->m_displayFilter ? d->m_displayFilter(m_value) : m_value;
     return updateStorage(m_volatileValue, val);
 }
 
-void StringAspect::bufferToGui()
+void StringAspect::volatileValueToGui()
 {
     d->undoable.setWithoutUndo(m_volatileValue);
 }
@@ -1684,14 +1684,14 @@ bool FilePathAspect::isCheckable() const
     return d->m_checkerImpl.isCheckable();
 }
 
-bool FilePathAspect::guiToBuffer()
+bool FilePathAspect::guiToVolatileValue()
 {
     if (d->m_pathChooserDisplay)
         return updateStorage(m_volatileValue, d->m_pathChooserDisplay->lineEdit()->text());
     return false;
 }
 
-bool FilePathAspect::bufferToInternal()
+bool FilePathAspect::volatileValueToValue()
 {
     if (d->m_valueAcceptor) {
         if (const std::optional<QString> tmp = d->m_valueAcceptor(m_value, m_volatileValue))
@@ -1701,13 +1701,13 @@ bool FilePathAspect::bufferToInternal()
     return updateStorage(m_value, m_volatileValue);
 }
 
-bool FilePathAspect::internalToBuffer()
+bool FilePathAspect::valueToVolatileValue()
 {
     const QString val = d->m_displayFilter ? d->m_displayFilter(m_value) : m_value;
     return updateStorage(m_volatileValue, val);
 }
 
-void FilePathAspect::bufferToGui()
+void FilePathAspect::volatileValueToGui()
 {
     if (d->m_pathChooserDisplay) {
         d->m_pathChooserDisplay->lineEdit()->setText(m_volatileValue);
@@ -1757,7 +1757,7 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
     d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
     addLabeledItem(parent, d->m_pathChooserDisplay);
     connect(d->m_pathChooserDisplay, &PathChooser::validChanged, this, &FilePathAspect::validChanged);
-    bufferToGui();
+    volatileValueToGui();
     if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
         connect(d->m_pathChooserDisplay, &PathChooser::editingFinished, this, [this] {
             if (d->m_editFinishedGuard.isLocked())
@@ -1844,7 +1844,7 @@ void FilePathAspect::setValidatePlaceHolder(bool validatePlaceHolder)
 void FilePathAspect::setShowToolTipOnLabel(bool show)
 {
     d->m_showToolTipOnLabel = show;
-    bufferToGui();
+    volatileValueToGui();
 }
 
 void FilePathAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
@@ -1960,7 +1960,7 @@ void ColorAspect::addToLayoutImpl(Layouting::Layout &parent)
         d->m_colorButton->setMinimumSize(d->m_size);
     parent.addItem(d->m_colorButton.data());
 
-    bufferToGui();
+    volatileValueToGui();
     connect(d->m_colorButton.data(), &QtColorButton::colorChanged,
             this, &ColorAspect::handleGuiChanged);
 }
@@ -1970,14 +1970,14 @@ void ColorAspect::setMinimumSize(const QSize &size)
     d->m_size = size;
 }
 
-bool ColorAspect::guiToBuffer()
+bool ColorAspect::guiToVolatileValue()
 {
     if (d->m_colorButton)
         return updateStorage(m_volatileValue, d->m_colorButton->color());
     return false;
 }
 
-void ColorAspect::bufferToGui()
+void ColorAspect::volatileValueToGui()
 {
     if (d->m_colorButton)
         d->m_colorButton->setColor(m_volatileValue);
@@ -2144,7 +2144,7 @@ QString ToggleAspect::offText() const
 
 void ToggleAspect::announceChanges(Changes changes, Announcement howToAnnounce)
 {
-    if (changes.internalFromBuffer || changes.internalFromOutside)
+    if (changes.valueFromVolatileValue || changes.valueFromOutside)
         updateToggleAction(*this, d);
     BoolAspect::announceChanges(changes, howToAnnounce);
 }
@@ -2233,7 +2233,7 @@ std::function<void(Layouting::Layout *)> BoolAspect::adoptButton(QAbstractButton
 {
     return [this, button](Layouting::Layout *layout) {
         addToLayoutHelper(*layout, button);
-        bufferToGui();
+        volatileValueToGui();
     };
 }
 
@@ -2244,7 +2244,7 @@ void BoolAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     QCheckBox *checkBox = createSubWidget<QCheckBox>();
     addToLayoutHelper(parent, checkBox);
-    bufferToGui();
+    volatileValueToGui();
 }
 
 std::function<void (QObject *)> BoolAspect::groupChecker()
@@ -2264,7 +2264,7 @@ std::function<void (QObject *)> BoolAspect::groupChecker()
             groupBox->setChecked(d->m_undoable.get());
             handleGuiChanged();
         });
-        bufferToGui();
+        volatileValueToGui();
     };
 }
 
@@ -2284,12 +2284,12 @@ QAction *BoolAspect::action()
     return act;
 }
 
-bool BoolAspect::guiToBuffer()
+bool BoolAspect::guiToVolatileValue()
 {
     return updateStorage(m_volatileValue, d->m_undoable.get());
 }
 
-void BoolAspect::bufferToGui()
+void BoolAspect::volatileValueToGui()
 {
     d->m_undoable.setWithoutUndo(m_volatileValue);
 }
@@ -2363,7 +2363,7 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
             parent.addItem(button);
             buttonGroup->addButton(button, i);
         }
-        bufferToGui();
+        volatileValueToGui();
         connect(&d->m_undoable.m_signal, &UndoSignaller::changed, buttonGroup, [buttonGroup, this] {
             QAbstractButton *button = buttonGroup->button(d->m_undoable.get());
             QTC_ASSERT(button, return);
@@ -2395,12 +2395,12 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
     }
 }
 
-bool SelectionAspect::guiToBuffer()
+bool SelectionAspect::guiToVolatileValue()
 {
     return updateStorage(m_volatileValue, d->m_undoable.get());
 }
 
-void SelectionAspect::bufferToGui()
+void SelectionAspect::volatileValueToGui()
 {
     return d->m_undoable.setWithoutUndo(m_volatileValue);
 }
@@ -2535,7 +2535,7 @@ void MultiSelectionAspect::addToLayoutImpl(Layout &builder)
             (void) new QListWidgetItem(val, d->m_listView);
         addLabeledItem(builder, d->m_listView);
 
-        bufferToGui();
+        volatileValueToGui();
         connect(d->m_listView, &QListWidget::itemChanged,
                 this, &MultiSelectionAspect::handleGuiChanged);
     }
@@ -2572,7 +2572,7 @@ void MultiSelectionAspect::setDisplayStyle(MultiSelectionAspect::DisplayStyle st
     d->m_displayStyle = style;
 }
 
-void MultiSelectionAspect::bufferToGui()
+void MultiSelectionAspect::volatileValueToGui()
 {
     if (d->m_listView) {
         const int n = d->m_listView->count();
@@ -2584,7 +2584,7 @@ void MultiSelectionAspect::bufferToGui()
     }
 }
 
-bool MultiSelectionAspect::guiToBuffer()
+bool MultiSelectionAspect::guiToVolatileValue()
 {
     if (d->m_listView) {
         QStringList val;
@@ -2643,20 +2643,20 @@ void IntegerAspect::addToLayoutImpl(Layouting::Layout &parent)
     if (d->m_minimumValue && d->m_maximumValue)
         d->m_spinBox->setRange(int(d->m_minimumValue.value() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.value() / d->m_displayScaleFactor));
-    bufferToGui();
+    volatileValueToGui();
     addLabeledItem(parent, d->m_spinBox);
     connect(d->m_spinBox.data(), &QSpinBox::valueChanged,
             this, &IntegerAspect::handleGuiChanged);
 }
 
-bool IntegerAspect::guiToBuffer()
+bool IntegerAspect::guiToVolatileValue()
 {
     if (d->m_spinBox)
         return updateStorage(m_volatileValue, d->m_spinBox->value() * d->m_displayScaleFactor);
     return false;
 }
 
-void IntegerAspect::bufferToGui()
+void IntegerAspect::volatileValueToGui()
 {
     if (d->m_spinBox)
         d->m_spinBox->setValue(m_volatileValue / d->m_displayScaleFactor);
@@ -2743,20 +2743,20 @@ void DoubleAspect::addToLayoutImpl(Layout &builder)
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
     if (d->m_minimumValue && d->m_maximumValue)
         d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
-    bufferToGui(); // Must happen after setRange()!
+    volatileValueToGui(); // Must happen after setRange()!
     addLabeledItem(builder, d->m_spinBox);
     connect(d->m_spinBox.data(), &QDoubleSpinBox::valueChanged,
             this, &DoubleAspect::handleGuiChanged);
 }
 
-bool DoubleAspect::guiToBuffer()
+bool DoubleAspect::guiToVolatileValue()
 {
     if (d->m_spinBox)
         return updateStorage(m_volatileValue, d->m_spinBox->value());
     return false;
 }
 
-void DoubleAspect::bufferToGui()
+void DoubleAspect::volatileValueToGui()
 {
     if (d->m_spinBox)
         d->m_spinBox->setValue(m_volatileValue);
@@ -2887,7 +2887,7 @@ StringListAspect::StringListAspect(AspectContainer *container)
 */
 StringListAspect::~StringListAspect() = default;
 
-bool StringListAspect::guiToBuffer()
+bool StringListAspect::guiToVolatileValue()
 {
     const QStringList newValue = d->undoable.get();
     if (newValue != m_volatileValue) {
@@ -2897,7 +2897,7 @@ bool StringListAspect::guiToBuffer()
     return false;
 }
 
-void StringListAspect::bufferToGui()
+void StringListAspect::volatileValueToGui()
 {
     d->undoable.setWithoutUndo(m_volatileValue);
 }
@@ -3081,7 +3081,7 @@ FilePaths FilePathListAspect::operator()() const
     });
 }
 
-bool FilePathListAspect::guiToBuffer()
+bool FilePathListAspect::guiToVolatileValue()
 {
     const QStringList newValue = d->undoable.get();
     if (newValue != m_volatileValue) {
@@ -3091,7 +3091,7 @@ bool FilePathListAspect::guiToBuffer()
     return false;
 }
 
-void FilePathListAspect::bufferToGui()
+void FilePathListAspect::volatileValueToGui()
 {
     d->undoable.setWithoutUndo(m_volatileValue);
 }
@@ -3523,7 +3523,7 @@ BaseAspect::Data::Ptr BaseAspect::extractData() const
 
     No-op otherwise.
 */
-void BaseAspect::bufferToGui()
+void BaseAspect::volatileValueToGui()
 {
 }
 
@@ -3535,7 +3535,7 @@ void BaseAspect::bufferToGui()
 
     \return true when the buffered volatile value changed.
 */
-bool BaseAspect::guiToBuffer()
+bool BaseAspect::guiToVolatileValue()
 {
     return false;
 }
@@ -3547,20 +3547,19 @@ bool BaseAspect::guiToBuffer()
     \return true when the internal value changed.
 */
 
-bool BaseAspect::bufferToInternal()
+bool BaseAspect::volatileValueToValue()
 {
     return false;
 }
 
-
-bool BaseAspect::internalToBuffer()
+bool BaseAspect::valueToVolatileValue()
 {
     return false;
 }
 
 void BaseAspect::handleGuiChanged()
 {
-    if (guiToBuffer())
+    if (guiToVolatileValue())
         volatileValueChanged();
     if (isAutoApply())
         apply();
@@ -3943,7 +3942,7 @@ QStandardItem *StringSelectionAspect::itemById(const QString &id)
     return nullptr;
 }
 
-void StringSelectionAspect::bufferToGui()
+void StringSelectionAspect::volatileValueToGui()
 {
     if (!m_model) {
         m_undoable.setSilently(m_volatileValue);
@@ -3970,7 +3969,7 @@ void StringSelectionAspect::bufferToGui()
     handleGuiChanged();
 }
 
-bool StringSelectionAspect::guiToBuffer()
+bool StringSelectionAspect::guiToVolatileValue()
 {
     if (!m_model)
         return false;
@@ -3991,7 +3990,7 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         for (QStandardItem *item : items)
             m_model->appendRow(item);
 
-        bufferToGui();
+        volatileValueToGui();
     };
 
     if (!m_model) {
@@ -4037,7 +4036,7 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
             return;
 
         m_undoable.set(undoStack(), newValue);
-        bufferToGui();
+        volatileValueToGui();
     });
 
     connect(&m_undoable.m_signal, &UndoSignaller::changed, comboBox, [this, comboBox] {
