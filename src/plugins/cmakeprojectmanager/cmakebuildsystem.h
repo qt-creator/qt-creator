@@ -299,5 +299,7 @@ private:
 QObject *createAddDependenciesTest();
 #endif
 
+QString quoteString(const QString &fileName);
+
 } // namespace Internal
 } // namespace CMakeProjectManager

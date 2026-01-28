@@ -25,11 +25,6 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-static QString quoteString(const QString &str)
-{
-    return str.contains(QChar::Space) ? ("\"" + str + "\"") : str;
-}
-
 static bool addSubdirectory(const Utils::FilePath &projectPathDir, const Utils::FilePath & subProjectFilePath)
 {
     TextEditor::BaseTextEditor *editor = qobject_cast<TextEditor::BaseTextEditor *>(
