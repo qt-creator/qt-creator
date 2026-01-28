@@ -2400,9 +2400,21 @@ FilePath toHostPath(const FilePath serverDeviceTemplate, const FilePath localCli
 
 DocumentUri::PathMapper Client::hostPathMapper() const
 {
-    return [serverDeviceTemplate = d->m_serverDeviceTemplate](const Utils::FilePath &serverPath) {
-        return toHostPath(serverDeviceTemplate, serverPath);
-    };
+    using namespace std::placeholders;
+
+    // If the server is local, no mapping is needed
+    if (d->m_serverDeviceTemplate.isLocal())
+        return std::identity{};
+
+    // If both server and project are on the same device, map the paths to the remote device.
+    if (project() && project()->projectFilePath().isSameDevice(d->m_serverDeviceTemplate)) {
+        return [this](const FilePath &serverPath) {
+            return d->m_serverDeviceTemplate.withNewPath(serverPath.path());
+        };
+    }
+
+    // If the server is remote, but the project is local, map server paths to host paths
+    return std::bind(&toHostPath, d->m_serverDeviceTemplate, _1);
 }
 
 FilePath Client::serverUriToHostPath(const LanguageServerProtocol::DocumentUri &uri) const
