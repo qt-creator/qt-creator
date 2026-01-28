@@ -28,8 +28,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 
-#include <QtTaskTree/QSingleTaskTreeRunner>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/devicefileaccess.h>
@@ -321,8 +319,6 @@ public:
 private:
     void createNewKey();
     void updateDeviceFromUi() override {}
-
-    QSingleTaskTreeRunner m_detectionRunner;
 };
 
 LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
@@ -351,13 +347,6 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
     connect(&device->freePortsAspect, &PortListAspect::volatileValueChanged, this, updatePortWarningLabel);
 
     auto autoDetectButton = new QPushButton(Tr::tr("Run Auto-Detection Now"));
-
-    connect(&m_detectionRunner, &QSingleTaskTreeRunner::aboutToStart, [=] {
-        autoDetectButton->setEnabled(false);
-    });
-    connect(&m_detectionRunner, &QSingleTaskTreeRunner::done, [=] {
-        autoDetectButton->setEnabled(true);
-    });
 
     connect(autoDetectButton, &QPushButton::clicked, this, [linuxDevice, autoDetectButton] {
         autoDetectButton->setEnabled(false);
