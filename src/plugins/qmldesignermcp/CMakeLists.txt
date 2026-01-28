@@ -50,4 +50,5 @@ extend_qtc_plugin(QmlDesignerMcp
   SOURCES_PREFIX mcp
   SOURCES
     mcpclient.cpp mcpclient.h
+    mcphost.cpp mcphost.h
 )
