@@ -294,7 +294,7 @@ private:
                 prompt = prompt.arg(QString::fromUtf8(*contents), task.file().toUserOutput());
             }
         }
-        const auto process = new Process;
+        const auto process = new Process(this);
         process->setCommand(cmdLine);
         process->setProcessMode(ProcessMode::Writer);
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
