@@ -6,7 +6,7 @@ import qbs.Utilities
 Module {
     Depends { name: "cpp" }
 
-    property string qtcreator_display_version: '19.0.0-beta2
+    property string qtcreator_display_version: '19.0.0-beta2'
     property string ide_version_major: '18'
     property string ide_version_minor: '0'
     property string ide_version_release: '83'
