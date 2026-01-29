@@ -265,8 +265,10 @@ QIcon Icon::fromTheme(const QString &name)
         return *found;
 
     QIcon icon;
-    const bool avoidIconFromTheme = HostOsInfo::isLinuxHost() &&
-                                    creatorTheme()->colorScheme() != Theme::systemColorScheme();
+    const bool avoidIconFromTheme =
+        HostOsInfo::isWindowsHost() // Temporary workaround for QTBUG-140898
+        || (HostOsInfo::isLinuxHost()
+            && creatorTheme()->colorScheme() != Theme::systemColorScheme());
     if (!avoidIconFromTheme)
         icon = QIcon::fromTheme(name);
     const bool useIconFromTheme = !avoidIconFromTheme && !icon.isNull();
