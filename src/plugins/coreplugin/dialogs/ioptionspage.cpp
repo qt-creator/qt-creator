@@ -254,10 +254,10 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
     if (widget->property(IGNORE_FOR_DIRTY_HOOK).toBool())
         return;
 
-    if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(widget)) {
-        connectAspect(widget, aspect.data());
-        return;
-    }
+    // if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(widget)) {
+    //     connectAspect(widget, aspect.data());
+    //     return;
+    // }
 
     QList<QWidget *> children = {widget};
 
@@ -266,10 +266,10 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
         if (child->property(IGNORE_FOR_DIRTY_HOOK).toBool())
             continue;
 
-        if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(child)) {
-            connectAspect(child, aspect.data());
-            continue;
-        }
+        // if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(child)) {
+        //     connectAspect(child, aspect.data());
+        //     continue;
+        // }
 
         children += child->findChildren<QWidget *>(Qt::FindDirectChildrenOnly);
 
