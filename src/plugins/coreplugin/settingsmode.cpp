@@ -457,11 +457,18 @@ public:
     void setupDirtyHook(QWidget *widget);
 
     void switchBackIfNeeded();
+    void switchBackLater()
+    {
+        m_currentlySwitching = true;
+        QTimer::singleShot(0, this, &SettingsWidget::switchBack);
+
+    }
     void switchBack()
     {
         Id previousPage = m_previousPage;
         m_previousPage = {};
         showPage(previousPage);
+        m_currentlySwitching = false;
     };
 
     bool askToLeave(); // returns true if ok to leave.
@@ -779,12 +786,9 @@ void SettingsWidget::switchBackIfNeeded()
 
     QPushButton *backButton
         = dialog.addButton(Tr::tr("Return to Previous Page"), QMessageBox::RejectRole);
-    connect(backButton, &QAbstractButton::clicked, this, &SettingsWidget::switchBack,
-            Qt::QueuedConnection);
+    connect(backButton, &QAbstractButton::clicked, this, &SettingsWidget::switchBackLater);
 
-    m_currentlySwitching = true;
     dialog.exec();
-    m_currentlySwitching = false;
 }
 
 bool SettingsWidget::askToLeave()
@@ -807,12 +811,7 @@ bool SettingsWidget::askToLeave()
     });
 
     dialog.addButton(Tr::tr("Stay in Settings Mode"), QMessageBox::AcceptRole);
-
-    m_currentlySwitching = true;
-
     dialog.exec();
-
-    m_currentlySwitching = false;
 
     return okToSwitch;
 }
