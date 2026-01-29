@@ -296,7 +296,7 @@ private:
         }
         const auto process = new Process(this);
         process->setCommand(cmdLine);
-        process->setProcessMode(ProcessMode::Writer);
+        process->setWriteData(prompt.toUtf8());
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
         process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
         connect(process, &Process::textOnStandardOutput,
@@ -305,10 +305,6 @@ private:
             MessageManager::writeSilently(
                 process->exitMessage(Process::FailureMessageFormat::WithStdErr));
             process->deleteLater();
-        });
-        connect(process, &Process::started, [process, prompt] {
-            process->write(prompt);
-            process->closeWriteChannel();
         });
         QTimer::singleShot(60000, process, [process] { process->kill(); });
         MessageManager::writeDisrupting(Tr::tr("Querying %1...").arg(m_model));
