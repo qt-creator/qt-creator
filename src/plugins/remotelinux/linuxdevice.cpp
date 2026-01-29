@@ -606,10 +606,11 @@ public:
     }
 
     void setupShell(const SshParameters &sshParameters, const Continuation<> &cont);
-    void setupShellPhase2(const Result<> &result, const Continuation<> &cont);
-    void setupShellPhase3(
+    void setupShellPhase2(
         const Result<DeviceFileAccessPtr> &res,
+        const SshParameters &sshParameters,
         const Continuation<> &cont);
+    void setupShellPhase3(const Result<> &result, const Continuation<> &cont);
     void setupShellFinalize(const Result<> &result, const Continuation<> &cont);
 
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
@@ -621,7 +622,6 @@ public:
     void announceConnectionLoss();
     Id announceId() const { return q->id().withPrefix("announce_"); }
 
-    CommandLine unameCommand() const { return {"uname", {"-s"}, OsType::OsTypeLinux}; }
     void setOsTypeFromUnameResult(const RunResult &result);
 
     Environment getEnvironment();
@@ -1005,9 +1005,9 @@ void SshProcessInterfacePrivate::start()
     QTC_ASSERT(linuxDevice, handleDone(); return);
     if (linuxDevice->isDisconnected() && !linuxDevice->isTesting())
         return handleDone();
-    const bool useConnectionSharing = !linuxDevice->isDisconnected()
-            && sshSettings().useConnectionSharing()
-            && !q->m_setup.m_extraData.value(Constants::DisableSharing).toBool();
+    const bool useConnectionSharing
+        = sshSettings().useConnectionSharing()
+          && !q->m_setup.m_extraData.value(Constants::DisableSharing).toBool();
 
     // TODO: Do we really need it for master process?
     m_sshParameters.setX11DisplayName(
@@ -1487,6 +1487,14 @@ void LinuxDevicePrivate::setOsTypeFromUnameResult(const RunResult &result)
         setOsType(OsTypeLinux);
 }
 
+static RunResult runUnameCommand(const FilePath &rootPath)
+{
+    Process p;
+    p.setCommand({rootPath.withNewPath("uname"), {"-s"}, OsType::OsTypeLinux});
+    p.runBlocking();
+    return {p.exitCode(), p.readAllRawStandardOutput(), p.readAllRawStandardError()};
+}
+
 void LinuxDevicePrivate::setupShell(const SshParameters &sshParameters,
                                     const Continuation<> &cont)
 {
@@ -1498,51 +1506,18 @@ void LinuxDevicePrivate::setupShell(const SshParameters &sshParameters,
     // Remove previous access first.
     closeConnection(true);
 
-    m_scriptAccess = std::make_shared<LinuxDeviceAccess>(this);
     m_sharedConnectionHandler.reset(new SshConnectionHandler);
     m_sharedConnectionHandler->setSshParameters(sshParameters);
 
-    m_shellMutex.lock();
-
     invalidateEnvironmentCache();
 
-    QObject::connect(
-        m_scriptAccess->m_handler,
-        &ShellThreadHandler::threadHandlerStarted,
-        q,
-        [this, cont](const Result<> &res) { setupShellPhase2(res, cont); },
-        Qt::SingleShotConnection
-    );
+    // Make the process interface work even though we are not "connected". Must be reset in phase2
+    q->setIsTesting(true);
 
-    QMetaObject::invokeMethod(m_scriptAccess->m_handler, [this, sshParameters] {
-        return m_scriptAccess->m_handler->startThreadHandler(sshParameters);
-    });
-}
-
-void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
-                                          const Continuation<> &cont)
-{
-    if (!result) {
-        DEBUG("Failed to setup state");
-        q->setFileAccess(nullptr);
-        m_sharedConnectionHandler.reset();
-        m_shellMutex.unlock();
-        q->setDeviceState(IDevice::DeviceDisconnected);
-        setupShellFinalize(result, cont);
-        return;
-    }
-
-    // Shell setup is ok.
-    q->setFileAccess(m_scriptAccess);
-    m_shellMutex.unlock();
-    q->setDeviceState(IDevice::DeviceConnected);
-
-    setOsTypeFromUnameResult(m_scriptAccess->m_handler->runInShell(unameCommand()));
-
-    // We have good shell access now, try to get bridge access, too:
-
+    // update OsType and try using the cmdbridge first
     QFuture<Result<DeviceFileAccessPtr>> future = Utils::asyncRun(
-        [this, rootPath = q->rootPath()]() -> Result<DeviceFileAccessPtr>{
+        [this, rootPath = q->rootPath()]() -> Result<DeviceFileAccessPtr> {
+            setOsTypeFromUnameResult(runUnameCommand(rootPath));
             auto fileAccess = std::make_unique<CmdBridge::FileAccess>([&] {
                 QMetaObject::invokeMethod(
                     this->q, [this] { announceConnectionLoss(); }, Qt::QueuedConnection);
@@ -1552,26 +1527,62 @@ void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
             if (deployAndInitResult)
                 return DeviceFileAccessPtr(std::move(fileAccess));
             return ResultError(deployAndInitResult.error());
+            return ResultError("");
         });
-    Utils::onResultReady(future, q, [this, cont](const Result<DeviceFileAccessPtr> &res) {
-        setupShellPhase3(res, cont);
+    future.then(q, [this, cont, sshParameters](const Result<DeviceFileAccessPtr> &res) {
+        setupShellPhase2(res, sshParameters, cont);
     });
     Utils::futureSynchronizer()->addFuture(future);
 }
 
-void LinuxDevicePrivate::setupShellPhase3(
-    const Result<DeviceFileAccessPtr> &initResult, const Continuation<> &cont)
+void LinuxDevicePrivate::setupShellPhase2(
+    const Result<DeviceFileAccessPtr> &initResult,
+    const SshParameters &sshParameters,
+    const Continuation<> &cont)
 {
+    q->setIsTesting(false);
+
     if (initResult) {
         DEBUG("Bridge ok to use");
         q->setFileAccess(initResult.value());
         q->setDeviceState(IDevice::DeviceReadyToUse);
-    } else {
-        DEBUG("Failed to start CmdBridge:" << initResult.error()
-              << ", falling back to slow shell access");
+        setupShellFinalize(ResultOk, cont);
+        return;
+    }
+    DEBUG(
+        "Failed to start CmdBridge:" << initResult.error() << ", falling back to slow shell access");
+
+    m_scriptAccess = std::make_shared<LinuxDeviceAccess>(this);
+    m_shellMutex.lock();
+
+    QObject::connect(
+        m_scriptAccess->m_handler,
+        &ShellThreadHandler::threadHandlerStarted,
+        q,
+        [this, cont](const Result<> &res) { setupShellPhase3(res, cont); },
+        Qt::SingleShotConnection);
+
+    QMetaObject::invokeMethod(m_scriptAccess->m_handler, [this, sshParameters] {
+        return m_scriptAccess->m_handler->startThreadHandler(sshParameters);
+    });
+}
+
+void LinuxDevicePrivate::setupShellPhase3(const Result<> &result, const Continuation<> &cont)
+{
+    m_shellMutex.unlock();
+
+    if (!result) {
+        DEBUG("Failed to setup state");
+        q->setFileAccess(nullptr);
+        m_sharedConnectionHandler.reset();
+        q->setDeviceState(IDevice::DeviceDisconnected);
+        setupShellFinalize(result, cont);
+        return;
     }
 
-    // Either "script access" and "cmdbridge access" is good enough to continue.
+    // Shell setup is ok.
+    q->setFileAccess(m_scriptAccess);
+    q->setDeviceState(IDevice::DeviceConnected);
     setupShellFinalize(ResultOk, cont);
 }
 
@@ -1702,7 +1713,7 @@ void LinuxDevice::attachToSharedConnection(SshConnectionHandle *sshConnectionHan
 
 void LinuxDevice::checkOsType()
 {
-    d->setOsTypeFromUnameResult(d->runInShell(d->unameCommand()));
+    d->setOsTypeFromUnameResult(runUnameCommand(rootPath()));
 }
 
 QString LinuxDevice::deviceStateToString() const

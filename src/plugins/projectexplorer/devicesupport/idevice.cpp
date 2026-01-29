@@ -195,7 +195,7 @@ public:
     IDevice::Origin origin = IDevice::AutoDetected;
     Id id;
     IDevice::MachineType machineType = IDevice::Hardware;
-    OsType osType = OsTypeOther;
+    SynchronizedValue<OsType> osType = OsTypeOther;
     SynchronizedValue<DeviceFileAccessPtr> fileAccess;
     std::function<DeviceFileAccessPtr()> fileAccessFactory;
     int version = 0; // This is used by devices that have been added by the SDK.
@@ -854,7 +854,7 @@ bool IDevice::canMount(const FilePath &) const
 
 OsType IDevice::osType() const
 {
-    return d->osType;
+    return d->osType.get();
 }
 
 ExecutableItem IDevice::signalOperationRecipe(
@@ -989,7 +989,7 @@ void IDevice::toMap(Store &map) const
     AspectContainer::toMap(map);
 
     map.insert(TypeKey, d->type.toString());
-    map.insert(ClientOsTypeKey, osTypeToString(d->osType));
+    map.insert(ClientOsTypeKey, osTypeToString(d->osType.get()));
     map.insert(IdKey, d->id.toSetting());
     map.insert(OriginKey, d->origin);
 

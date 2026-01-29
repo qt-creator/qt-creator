@@ -81,6 +81,8 @@ Result<> FileAccess::deployAndInit(
     const FilePath &remoteRootPath,
     const Environment &environment)
 {
+    if (qtcEnvironmentVariableIsSet("QTC_DISABLE_CMDBRIDGE"))
+        return ResultError("Disabled for testing!");
     if (remoteRootPath.isEmpty())
         return logError(Tr::tr("The remote root path is empty."));
 
