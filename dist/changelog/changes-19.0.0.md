@@ -324,6 +324,7 @@ Version Control Systems
 
 ### Git
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-vcs-git.html))
 * Submit Editor
     * Added `Stage`, `Mark Untracked`, and `Remove` to added files
     * Added `Revert Renaming` to renamed files

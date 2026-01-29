@@ -495,6 +495,10 @@
 
     \image {qtcreator-git-blame.webp} {Git Blame view}
 
+    To hide the path information in the view, select \uicontrol {Omit Path}.
+
+    To hide the author information in the view, select \uicontrol {Omit Author}.
+
     To hide the date and time information in the view, select
     \uicontrol {Omit Date}.
 
@@ -729,24 +733,70 @@
     \uicontrol {Open in Editor} and \uicontrol {Show in File System} are provided for all
     files. The availability of other actions depends on the state of the selected file.
 
-    \list
-        \li To add untracked files to the version control, select \uicontrol Stage.
-            To delete them, select \uicontrol Remove. To add them to the ignore list,
-            select \uicontrol {Add to .gitignore}.
-        \li To revert modified files to the previous state, select
-            \uicontrol {Revert Unstaged Changes to <file>} or
-            \uicontrol {Revert All Changes to <file>}. To stage the whole file for commit,
-            select \uicontrol Stage. To unstage it, select \uicontrol Unstage.
-        \li Select \uicontrol {Recover <file>} to restore files deleted from
-            version control.
-        \li Conflicted files provide actions to \uicontrol {Run Merge Tool} for conflict
-            resolution. For deleted files, select \uicontrol {Resolve by Recovering} to
-            restore them or \uicontrol {Resolve by Removing} to delete the file.
-            To resolve other merge conflicts, select \uicontrol {Resolve Conflicts with Ours}
-            to choose \e our version or \uicontrol {Resolve Conflicts with Theirs} to choose
-            \e their version. If you resolved the conflicts manually, select
-            \uicontrol {Mark Conflicts Resolved} to move the file out of conflicted state.
-    \endlist
+    \table
+    \header
+        \li Menu Item
+        \li Description
+    \row
+        \li \uicontrol Add
+        \li Add untracked files to version control.
+    \row
+        \li \uicontrol Stage
+        \li Stage a modified file for commit.
+    \row
+        \li \uicontrol Unstage
+        \li Unstage a modified file.
+    \row
+        \li \uicontrol Remove
+        \li Delete untracked files.
+    \row
+        \li \uicontrol {Add to .gitignore}
+        \li Add untracked files to the ignore list.
+    \row
+        \li \uicontrol {Mark Untracked}
+        \li Mark added files as untracked.
+    \row
+        \li \uicontrol {Revert Unstaged Changes to <file>}
+        \li Revert unstaged changes in modified files to the previous state.
+    \row
+        \li \uicontrol {Revert All Changes to <file>}
+        \li Revert all changes in modified files to the previous state.
+    \row
+        \li \uicontrol {Recover <file>}
+        \li Restore files deleted from version control.
+    \row
+        \li \uicontrol {Run Merge Tool}
+        \li Launch the merge tool to resolve conflicts in the file.
+    \row
+        \li \uicontrol {Revert Renaming}
+        \li Revert renamed files to their previous names.
+    \endtable
+
+    \section2 Resolve conflicts
+
+    To resolve conflicts, select \uicontrol {Run Merge Tool} in the context
+    menu of a conflicted file and then select one of the following options:
+
+    \table
+    \header
+        \li Menu Item
+        \li Description
+    \row
+        \li \uicontrol {Resolve by Recovering}
+        \li Restore deleted files from version control.
+    \row
+        \li \uicontrol {Resolve by Removing}
+        \li Delete files from version control.
+    \row
+        \li \uicontrol {Resolve Conflicts with Ours}
+        \li Choose \e our version of the file to resolve merge conflicts.
+    \row
+        \li \uicontrol {Resolve Conflicts with Theirs}
+        \li Choose \e their version of the file to resolve merge conflicts.
+    \row
+        \li \uicontrol {Mark Conflicts Resolved}
+        \li Mark the file as resolved after manually resolving the conflicts.
+    \endtable
 
     \sa {Use Git}{How to: Use Git}, {Using Git}
 */
