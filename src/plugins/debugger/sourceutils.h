@@ -34,6 +34,4 @@ QStringList getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
 
 ContextData getLocationContext(TextEditor::TextDocument *document, int lineNumber);
 
-void setValueAnnotations(const Location &loc, const QMap<QString, QString> &values);
-
 } // Debugger::Internal
