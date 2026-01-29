@@ -128,7 +128,7 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
         test.log("Using build system '%s'" % buildSystem)
 
         if buildSystem == "CMake" and "CMake with Qt 5 Compatibility" in fixedBuildSystems:
-            __removeKitsBeforeQt65__(displayedPlatforms)
+            Targets.removeTargetsBefore(displayedPlatforms, '6.5')
         selectFromCombo(combo, buildSystem)
         clickButton(waitForObject(":Next_QPushButton"))
         if specialHandlingFunc:
@@ -139,14 +139,6 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
         safeClickButton("Cancel")
         if counter < len(fixedBuildSystems) - 1:
             displayedPlatforms = __createProject__(category, template)
-
-
-def __removeKitsBeforeQt65__(displayedPlatforms):
-    copyOfDP = set(displayedPlatforms)
-    for dp in copyOfDP:
-        qtVersion = re.match("Desktop ([56]\.\d+\.\d+).*", dp)
-        if qtVersion and qtVersion.group(1) < "6.5":
-            displayedPlatforms.remove(dp)
 
 
 def __createProject__(category, template):
