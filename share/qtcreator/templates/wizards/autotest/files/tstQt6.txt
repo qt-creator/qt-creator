@@ -25,8 +25,9 @@ find_package(Qt6 REQUIRED COMPONENTS QuickTest)
 @endif
 
 @if "%{TestFrameWork}" == "QtTest"
-qt_standard_project_setup()
+qt_standard_project_setup(REQUIRES 6.5)
 @endif
+
 @if "%{TestFrameWork}" == "QtQuickTest"
 @if %{HasQSPSetup}
 @if %{UsesAutoResourcePrefix}
@@ -54,8 +55,14 @@ add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 # no need to copy around qml test files for shadow builds - just set the respective define
 add_definitions(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
-file(GLOB_RECURSE QML_FILES *.qml)
-add_custom_target(%{TestCaseName}_qmlfiles SOURCES ${QML_FILES})
+qt_add_qml_module(%{TestCaseName}
+    URI Tests.%{TestCaseName}.QuickTest
+    QML_FILES %{TestCaseFileWithQmlSuffix}
+@if !%{UsesAutoResourcePrefix}
+    RESOURCE_PREFIX "/qt/qml"
+@endif
+)
+
 @endif
 
 set_target_properties(%{TestCaseName} PROPERTIES
