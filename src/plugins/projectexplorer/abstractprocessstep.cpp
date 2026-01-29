@@ -213,6 +213,8 @@ bool AbstractProcessStep::setupProcess(Process &process)
         emit addOutput(s, OutputFormat::Stderr, DontAppendNewline);
     });
 
+    process.setDisableUnixTerminal();
+
     connect(&process, &Process::started, this, [this] {
         ProcessParameters *params = d->m_displayedParams;
         emit addOutput(Tr::tr("Starting: \"%1\" %2")
