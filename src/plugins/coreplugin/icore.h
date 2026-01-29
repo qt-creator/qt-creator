@@ -63,11 +63,6 @@ public:
     static void showWarningWithOptions(const QString &title, const QString &text,
                                        const QString &details = QString(),
                                        Utils::Id settingsId = {});
-    [[deprecated("Drop the parent parameter")]]
-    static bool showWarningWithOptions(const QString &title, const QString &text,
-                                       const QString &details,
-                                       Utils::Id settingsId,
-                                       QWidget *parent);
 
     static Utils::QtcSettings *settings(QSettings::Scope scope = QSettings::UserScope);
     static QPrinter *printer();

@@ -510,13 +510,6 @@ void ICore::showWarningWithOptions(const QString &title, const QString &text,
         showSettings(settingsId);
 }
 
-bool ICore::showWarningWithOptions(const QString &title, const QString &text,
-                                   const QString &details, Id settingsId, QWidget *)
-{
-    showWarningWithOptions(title, text, details, settingsId);
-    return true;
-}
-
 /*!
     Returns the application's main settings object.
 
