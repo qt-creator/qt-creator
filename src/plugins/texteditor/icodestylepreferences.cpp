@@ -23,6 +23,7 @@ public:
     TabSettings m_tabSettings;
     QByteArray m_id;
     QString m_displayName;
+    const void *project = nullptr;
     bool m_readOnly = false;
     Key m_settingsSuffix;
 };
@@ -218,6 +219,16 @@ void ICodeStylePreferences::fromMap(const Store &map)
         if (!delegateId.isEmpty() && delegate)
             setCurrentDelegate(delegate);
     }
+}
+
+void ICodeStylePreferences::setProject(const void *project)
+{
+    d->project = project;
+}
+
+const void *ICodeStylePreferences::project() const
+{
+    return d->project;
 }
 
 Id ICodeStylePreferences::globalSettingsCategory()

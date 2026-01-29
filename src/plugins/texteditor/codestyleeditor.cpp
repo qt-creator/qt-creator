@@ -29,7 +29,7 @@ void CodeStyleEditor::init(
     const ProjectWrapper &project,
     ICodeStylePreferences *codeStyle)
 {
-    m_selector = createCodeStyleSelectorWidget(codeStyle);
+    m_selector = createCodeStyleSelectorWidget(codeStyle, project.project());
     m_layout->addWidget(m_selector);
     if (!project) {
         m_editor = createEditorWidget(project.project(), codeStyle);
@@ -54,9 +54,9 @@ void CodeStyleEditor::init(
 }
 
 CodeStyleSelectorWidget *CodeStyleEditor::createCodeStyleSelectorWidget(
-    ICodeStylePreferences *codeStyle, QWidget *parent) const
+    ICodeStylePreferences *codeStyle, const void *project, QWidget *parent) const
 {
-    auto selector = new CodeStyleSelectorWidget{parent};
+    auto selector = new CodeStyleSelectorWidget{project, parent};
     selector->setCodeStyle(codeStyle);
     return selector;
 }

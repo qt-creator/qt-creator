@@ -45,7 +45,8 @@ public:
 
     ICodeStylePreferences *importCodeStyle(const Utils::FilePath &fileName);
     void exportCodeStyle(const Utils::FilePath &fileName, ICodeStylePreferences *codeStyle) const;
-    ICodeStylePreferences *loadCodeStyle(const Utils::FilePath &fileName, bool readOnly = false);
+    ICodeStylePreferences *loadCodeStyle(
+        const Utils::FilePath &fileName, bool readOnly = false, const void *project = nullptr);
 
 signals:
     void codeStyleAdded(ICodeStylePreferences *);

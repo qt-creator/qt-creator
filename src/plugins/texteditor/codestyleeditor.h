@@ -72,7 +72,7 @@ protected:
 
 private:
     virtual CodeStyleSelectorWidget *createCodeStyleSelectorWidget(
-        ICodeStylePreferences *codeStyle, QWidget *parent = nullptr) const;
+        ICodeStylePreferences *codeStyle, const void *project, QWidget *parent = nullptr) const;
     virtual SnippetEditorWidget *createPreviewWidget(
         const ICodeStylePreferencesFactory *factory,
         const ProjectWrapper &project,

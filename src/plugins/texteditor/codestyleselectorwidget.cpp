@@ -26,8 +26,8 @@ using namespace Utils;
 
 namespace TextEditor {
 
-CodeStyleSelectorWidget::CodeStyleSelectorWidget(QWidget *parent)
-    : QWidget(parent)
+CodeStyleSelectorWidget::CodeStyleSelectorWidget(const void *project, QWidget *parent)
+    : QWidget(parent), m_project(project)
 {
     m_delegateComboBox = new QComboBox(this);
     m_delegateComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -226,6 +226,9 @@ void CodeStyleSelectorWidget::slotCodeStyleAdded(ICodeStylePreferences *codeStyl
 {
     if (codeStylePreferences == m_codeStyle
             || codeStylePreferences->id() == m_codeStyle->id())
+        return;
+
+    if (codeStylePreferences->project() && codeStylePreferences->project() != m_project)
         return;
 
     const QVariant data = QVariant::fromValue(codeStylePreferences);
