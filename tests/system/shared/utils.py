@@ -675,7 +675,7 @@ class SettingsAction:
 
 def handleUnsavedSettings(settingsAction):
     try:
-        mBox = "{type='QMessageBox' unnamed='1' visible='1' windowTitle='Unapplied Changes'}"
+        mBox = "{type='QMessageBox' unnamed='1' visible='1' text~='.*contains unsaved changes\.$'}"
         if settingsAction == SettingsAction.Abandon:
             text = 'Abandon Unsaved Changes'
         elif settingsAction == SettingsAction.Apply:
