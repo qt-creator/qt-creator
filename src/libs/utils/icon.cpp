@@ -282,6 +282,8 @@ QIcon Icon::fromTheme(const QString &name)
         cache.insert(name, useIconFromTheme ? icon : Icons::NEWFILE.icon());
     } else if (name == "document-save") {
         cache.insert(name, useIconFromTheme ? icon : Icons::SAVEFILE.icon());
+    } else if (name == "document-revert") {
+        cache.insert(name, useIconFromTheme ? icon : Icons::UNDO.icon());
     } else if (name == "edit-undo") {
         cache.insert(name, useIconFromTheme ? icon : Icons::UNDO.icon());
     } else if (name == "edit-redo") {
@@ -296,6 +298,10 @@ QIcon Icon::fromTheme(const QString &name)
         cache.insert(name, useIconFromTheme ? icon : Icons::ZOOMOUT_TOOLBAR.icon());
     } else if (name == "zoom-original") {
         cache.insert(name, useIconFromTheme ? icon : Icons::EYE_OPEN_TOOLBAR.icon());
+    } else if (name == "help-about") {
+        cache.insert(name, useIconFromTheme ? icon : Icons::INFO.icon());
+    } else if (name == "application-exit") {
+        cache.insert(name, useIconFromTheme ? icon : Icons::CLOSE.icon());
     } else if (name == "edit-clear") {
         cache.insert(name, useIconFromTheme ? icon : Icons::EDIT_CLEAR.icon());
     } else if (name == "edit-clear-locationbar-rtl") {
