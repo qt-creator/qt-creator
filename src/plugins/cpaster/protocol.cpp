@@ -78,16 +78,11 @@ static void showConfigurationError(const Protocol *p, const QString &message)
 
 bool Protocol::ensureConfiguration(Protocol *p)
 {
-    while (true) {
-        const auto res = p->checkConfiguration();
-        if (res)
-            return true;
-        // Cancel returns empty error message.
-        if (res.error().isEmpty()) {
-            showConfigurationError(p, res.error());
-            break;
-        }
-    }
+    const auto res = p->checkConfiguration();
+    if (res)
+        return true;
+
+    showConfigurationError(p, res.error());
     return false;
 }
 
