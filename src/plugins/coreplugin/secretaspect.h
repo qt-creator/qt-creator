@@ -20,7 +20,7 @@ public:
     explicit SecretAspect(Utils::AspectContainer *container = nullptr);
     ~SecretAspect() override;
 
-    bool isDirty() override;
+    bool isDirty() const override;
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
 

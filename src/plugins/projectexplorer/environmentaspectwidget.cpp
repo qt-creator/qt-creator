@@ -67,7 +67,7 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
             connect(printOnRunCheckBox, &QCheckBox::toggled,
                     m_aspect, &EnvironmentAspect::setPrintOnRun);
             return printOnRunCheckBox;
-        }()},
+        }},
     };
 
     const EnvironmentWidget::Type widgetType = aspect->isLocal()

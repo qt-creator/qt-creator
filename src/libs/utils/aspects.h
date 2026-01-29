@@ -142,7 +142,7 @@ public:
     virtual void apply();
     virtual void cancel();
     virtual void finish();
-    virtual bool isDirty();
+    virtual bool isDirty() const;
     bool hasAction() const;
 
     struct QTCREATOR_UTILS_EXPORT Changes
@@ -359,7 +359,7 @@ public:
         announceChanges(changes, howToAnnounce);
     }
 
-    bool isDirty() override
+    bool isDirty() const override
     {
         return m_internal != m_buffer;
     }
@@ -541,7 +541,7 @@ public:
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
 private:
-    bool isDirty() override;
+    bool isDirty() const override;
 
     std::unique_ptr<Internal::FontFamilyAspectPrivate> d;
 };
@@ -1042,7 +1042,7 @@ public:
     bool equals(const AspectContainer &other) const;
     void copyFrom(const AspectContainer &other);
     void setAutoApply(bool on) override;
-    bool isDirty() override;
+    bool isDirty() const override;
     void setUndoStack(QUndoStack *undoStack) override;
     void setEnabled(bool enabled) override;
 
@@ -1211,7 +1211,7 @@ public:
     }
 
     qsizetype size() const;
-    bool isDirty() override;
+    bool isDirty() const override;
 
     QVariant variantValue() const override { return toList(false); }
     void setVariantValue(const QVariant &value, Announcement howToAnnounce = DoEmit) override;

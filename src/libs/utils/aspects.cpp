@@ -623,7 +623,7 @@ void BaseAspect::announceChanges(Changes changes, Announcement howToAnnounce)
     }
 }
 
-bool BaseAspect::isDirty()
+bool BaseAspect::isDirty() const
 {
     return false;
 }
@@ -2007,7 +2007,7 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
     });
 }
 
-bool FontFamilyAspect::isDirty()
+bool FontFamilyAspect::isDirty() const
 {
     const QString resolved = QFontInfo(QFont(m_internal)).family();
     return resolved != m_buffer;
@@ -3440,7 +3440,7 @@ void AspectContainer::setAutoApply(bool on)
         aspect->setAutoApply(on);
 }
 
-bool AspectContainer::isDirty()
+bool AspectContainer::isDirty() const
 {
     for (BaseAspect *aspect : std::as_const(d->m_items)) {
         if (aspect->isDirty())
@@ -3816,7 +3816,7 @@ qsizetype AspectList::size() const
     return d->volatileItems.size();
 }
 
-bool AspectList::isDirty()
+bool AspectList::isDirty() const
 {
     if (d->items != d->volatileItems)
         return true;

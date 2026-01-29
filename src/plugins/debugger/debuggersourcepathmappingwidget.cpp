@@ -463,9 +463,9 @@ void SourcePathMapAspect::toMap(Store &) const
     QTC_CHECK(false);
 }
 
-bool SourcePathMapAspect::isDirty()
+bool SourcePathMapAspect::isDirty() const
 {
-    guiToBuffer();
+    const_cast<SourcePathMapAspect *>(this)->guiToBuffer();
     return m_internal != m_buffer;
 }
 
