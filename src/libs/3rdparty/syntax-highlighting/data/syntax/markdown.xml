@@ -94,7 +94,7 @@
 <!ENTITY checkbox "\[[ x]\](?=\s)">
 ]>
 
-<language name="Markdown" version="31" kateversion="5.79" section="Markup" extensions="*.md;*.mmd;*.markdown;*.md.html" mimetype="text/markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
+<language name="Markdown" version="32" kateversion="5.79" section="Markup" extensions="*.md;*.mmd;*.markdown;*.md.html" mimetype="text/markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
   <highlighting>
     <contexts>
       <!-- Start of the Markdown document: find metadata or code block -->
@@ -376,6 +376,9 @@
         <RegExpr attribute="Fenced Code" context="#pop!nim-code" String="&fcode;\s*(?:nims?)&end;" insensitive="true" beginRegion="code-block"/>
         <RegExpr attribute="Fenced Code" context="#pop!typescript-code" String="&fcode;\s*(?:typescript|ts)&end;" insensitive="true" beginRegion="code-block"/>
         <RegExpr attribute="Fenced Code" context="#pop!xml-code" String="&fcode;\s*(?:xml|xsd|xspf|tld|jsp|c?pt|dtml|rss|opml|svg|daml|rdf|ui|kcfg|qrc|wsdl|scxml|xbel|dae|sch|brd|docbook)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!toml-code" String="&fcode;\s*toml&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!ini-code" String="&fcode;\s*ini&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!desktop-code" String="&fcode;\s*desktop&end;" insensitive="true" beginRegion="code-block"/>
         <RegExpr attribute="Fenced Code" context="#pop!code" String="&fcode;.*$" beginRegion="code-block"/>
       </context>
       <context name="code" attribute="Code" lineEndContext="#stay"> <!-- Unknown language -->
@@ -520,6 +523,18 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="xml-code">
         <IncludeRules context="code"/>
         <IncludeRules context="##XML" includeAttrib="true"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="toml-code">
+        <IncludeRules context="code"/>
+        <IncludeRules context="##TOML" includeAttrib="true"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="ini-code">
+        <IncludeRules context="code"/>
+        <IncludeRules context="##INI Files" includeAttrib="true"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="desktop-code">
+        <IncludeRules context="code"/>
+        <IncludeRules context="Normal##.desktop" includeAttrib="true"/>
       </context>
 
       <!-- Common -->

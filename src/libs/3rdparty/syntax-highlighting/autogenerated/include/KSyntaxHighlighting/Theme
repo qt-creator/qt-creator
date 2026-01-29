@@ -1,1 +1,2 @@
-#include "theme.h"
+// Forwarding header, use by: #include <KSyntaxHighlighting/Theme>
+#include "theme.h" // IWYU pragma: export

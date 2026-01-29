@@ -17,7 +17,7 @@ QT_END_NAMESPACE
 
 namespace KSyntaxHighlighting
 {
-/**
+/*
  * Represents the raw xml data of a context and its rules.
  * After resolving contexts, members of this class are no longer
  * use and the instance can be freed to recover used memory.
@@ -176,7 +176,7 @@ public:
 
     QString name;
 
-    /**
+    /*
      * attribute name, to lookup our format
      */
     QString attribute;

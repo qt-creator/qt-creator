@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language
+[
+  <!ENTITY axisname "ancestor|ancestor-or-self|attribute|child|descendant|descendant-or-self|following|following-sibling|namespace|parent|preceding|preceding-sibling|self">
+]>
+
+<!--
+  This file contains XSLT-specific rules that are not in XML.
+  The `generate-xslt.pl` script merges this file with the XML syntax
+  to produce a complete XSLT syntax.
+-->
+
+<!--
+  Kate syntax highlighting for XSLT 1 and 2
+  2004 by Peter Lammich (views@gmx.de)
+  Published under the LGPL
+  
+  TODO/FIXME
+
+    - XSLT 3.0
+
+    - highlight functions only if they are followed by a '('. (How to do that ??)
+    - use <IncludeRules> to make things a bit more modular and cleaner 
+      
+    - Define own highlighting rules for patterns (Currently a pattern is highlighted as XPath)
+    
+    - Highlight also XPath keywords, such as 'cast as'
+      
+    FIXED: axis highlighting does not work, if identifier continues directly behind axis: (self::someWord)
+    
+    FIXED axis-names are even highlighted if there are characters in front of them, i.e. in "xxxself::", "self::" would 
+      be highlighted.
+        Now matching any names in XPath by own matcher
+
+-->
+
+<language version="11" kateversion="5.79" name="xslt" section="Markup" extensions="*.xsl;*.xslt" license="LGPL" author="Peter Lammich (views@gmx.de)">
+  <highlighting>
+    <list name="keytags">
+      <item>xsl:apply-imports</item>
+      <item>xsl:apply-templates</item>
+      <item>xsl:attribute-set</item>
+      <item>xsl:attribute</item>
+      <item>xsl:call-template</item>
+      <item>xsl:choose</item>
+      <item>xsl:comment</item>
+      <item>xsl:copy-of</item>
+      <item>xsl:copy</item>
+      <item>xsl:decimal-format</item>
+      <item>xsl:element</item>
+      <item>xsl:fallback</item>
+      <item>xsl:for-each</item>
+      <item>xsl:if</item>
+      <item>xsl:import</item>
+      <item>xsl:include</item>
+      <item>xsl:key</item>
+      <item>xsl:message</item>
+      <item>xsl:namespace-alias</item>
+      <item>xsl:number</item>
+      <item>xsl:otherwise</item>
+      <item>xsl:output</item>
+      <item>xsl:param</item>
+      <item>xsl:preserve-space</item>
+      <item>xsl:processing-instruction</item>
+      <item>xsl:sort</item>
+      <item>xsl:strip-space</item>
+      <item>xsl:stylesheet</item>
+      <item>xsl:template</item>
+      <item>xsl:text</item>
+      <item>xsl:transform</item>
+      <item>xsl:value-of</item>
+      <item>xsl:variable</item>
+      <item>xsl:when</item>
+      <item>xsl:with-param</item>
+    </list>
+  
+    <list name="keytags_2.0">
+      <item>xsl:analyze-string</item>
+      <item>xsl:character-map</item>
+      <item>xsl:document</item>
+      <item>xsl:for-each-group</item>
+      <item>xsl:function</item>
+      <item>xsl:import-schema</item>
+      <item>xsl:matching-substring</item>
+      <item>xsl:namespace</item>
+      <item>xsl:next-match</item>
+      <item>xsl:non-matching-substring</item>
+      <item>xsl:output-character</item>
+      <item>xsl:perform-sort</item>
+      <item>xsl:result-document</item>
+      <item>xsl:sequence</item>
+    </list>
+    
+    <list name="functions">    
+      <item>boolean</item>
+      <item>ceiling</item>
+      <item>concat</item>
+      <item>contains</item>
+      <item>count</item>
+      <item>current</item>
+      <item>document</item>
+      <item>element-available</item>
+      <item>false</item>
+      <item>floor</item>
+      <item>format-number</item>
+      <item>function-available</item>
+      <item>generate-id</item>
+      <item>id</item>
+      <item>key</item>
+      <item>lang</item>
+      <item>last</item>
+      <item>local-name</item>
+      <item>name</item>
+      <item>namespace-uri</item>
+      <item>normalize-space</item>
+      <item>not</item>
+      <item>number</item>
+      <item>position</item>
+      <item>round</item>
+      <item>starts-with</item>
+      <item>string-length</item>
+      <item>string</item>
+      <item>substring-after</item>
+      <item>substring-before</item>
+      <item>substring</item>
+      <item>sum</item>
+      <item>system-property</item>
+      <item>text</item>
+      <item>translate</item>
+      <item>true</item>
+      <item>unparsed-entity-uri</item>
+    </list>
+
+    <list name="functions_2.0">
+      <item>QName</item>
+      <item>abs</item>
+      <item>adjust-date-to-timezone</item>
+      <item>adjust-dateTime-to-timezone</item>
+      <item>adjust-time-to-timezone</item>
+      <item>avg</item>
+      <item>base-uri</item>
+      <item>codepoints-to-string</item>
+      <item>collection</item>
+      <item>compare</item>
+      <item>current-date</item>
+      <item>current-dateTime</item>
+      <item>current-group</item>
+      <item>current-grouping-key</item>
+      <item>current-time</item>
+      <item>data</item>
+      <item>dateTime</item>
+      <item>day-from-date</item>
+      <item>day-from-dateTime</item>
+      <item>days-from-duration</item>
+      <item>deep-equal</item>
+      <item>default-collation</item>
+      <item>distinct-values</item>
+      <item>doc</item>
+      <item>document-uri</item>
+      <item>empty</item>
+      <item>ends-with</item>
+      <item>error</item>
+      <item>escape-uri</item>
+      <item>exactly-one</item>
+      <item>exists</item>
+      <item>expanded-QName</item>
+      <item>format-date</item>
+      <item>format-dateTime</item>
+      <item>format-time</item>
+      <item>hours-from-dateTime</item>
+      <item>hours-from-duration</item>
+      <item>hours-from-time</item>
+      <item>idref</item>
+      <item>implicit-timezone</item>
+      <item>in-scope-prefixes</item>
+      <item>index-of</item>
+      <item>input</item>
+      <item>insert-before</item>
+      <item>local-name-from-QName</item>
+      <item>lower-case</item>
+      <item>matches</item>
+      <item>max</item>
+      <item>min</item>
+      <item>minutes-from-dateTime</item>
+      <item>minutes-from-duration</item>
+      <item>minutes-from-time</item>
+      <item>month-from-date</item>
+      <item>month-from-dateTime</item>
+      <item>months-from-duration</item>
+      <item>namespace-uri-for-prefix</item>
+      <item>namespace-uri-from-QName</item>
+      <item>node-kind</item>
+      <item>node-name</item>
+      <item>normalize-unicode</item>
+      <item>one-or-more</item>
+      <item>regex-group</item>
+      <item>remove</item>
+      <item>replace</item>
+      <item>resolve-QName</item>
+      <item>resolve-uri</item>
+      <item>reverse</item>
+      <item>root</item>
+      <item>round-half-to-even</item>
+      <item>seconds-from-dateTime</item>
+      <item>seconds-from-duration</item>
+      <item>seconds-from-time</item>
+      <item>sequence-node-identical</item>
+      <item>static-base-uri</item>
+      <item>string-join</item>
+      <item>string-to-codepoints</item>
+      <item>subsequence</item>
+      <item>subtract-dateTimes-yielding-dayTimeDuration</item>
+      <item>subtract-dateTimes-yielding-yearMonthDuration</item>
+      <item>subtract-dates-yielding-dayTimeDuration</item>
+      <item>subtract-dates-yielding-yearMonthDuration</item>
+      <item>timezone-from-date</item>
+      <item>timezone-from-dateTime</item>
+      <item>timezone-from-time</item>
+      <item>tokenize</item>
+      <item>trace</item>
+      <item>unordered</item>
+      <item>unparsed-entity-public-id</item>
+      <item>unparsed-text</item>
+      <item>upper-case</item>
+      <item>year-from-date</item>
+      <item>year-from-dateTime</item>
+      <item>years-from-duration</item>
+      <item>zero-or-one</item>
+    </list>
+
+    <list name="xsl-attributes">
+      <item>select</item>
+      <item>test</item>
+      <item>match</item>
+    </list>
+    
+    <contexts>
+
+      <context name="xpathDQ" attribute="XPath" lineEndContext="#stay">
+        <keyword attribute="XPath/ XSLT Function" context="#stay" String="functions" />
+        <keyword attribute="XPath 2.0/ XSLT 2.0 Function" context="#stay" String="functions_2.0" />
+        <RegExpr attribute="XPath Axis" context="#stay" String="(&axisname;)::" />
+        <DetectChar attribute="XPath" context="#pop" char="}" />
+        <DetectChar attribute="XPath String" context="xpathStringSQ" char="'" />
+        <DetectChar attribute="XPath" context="#pop#pop" char="&quot;" />
+        <RegExpr attribute="XPath Attribute" context="#stay" String="@&name;" />
+        <RegExpr attribute="Variable" context="#stay" String="\$&name;" />
+        <RegExpr attribute="XPath" context="#stay" String="&name;" />
+        <DetectIdentifier />
+        <IncludeRules context="FindEntityRefs" />
+        <AnyChar attribute="Invalid" context="#stay" String="$&amp;&lt;" />
+      </context>
+
+      <context name="xpathSQ" attribute="XPath" lineEndContext="#stay">
+        <keyword attribute="XPath/ XSLT Function" context="#stay" String="functions" />
+        <keyword attribute="XPath 2.0/ XSLT 2.0 Function" context="#stay" String="functions_2.0" />
+        <RegExpr attribute="XPath Axis" context="#stay" String="(&axisname;)::" />
+        <DetectChar attribute="XPath" context="#pop" char="}" />
+        <DetectChar attribute="XPath String" context="xpathStringDQ" char="&quot;" />
+        <DetectChar attribute="XPath" context="#pop#pop" char="'" />
+        <RegExpr attribute="XPath Attribute" context="#stay" String="@&name;" />
+        <RegExpr attribute="Variable" context="#stay" String="\$&name;" />
+        <RegExpr attribute="XPath" context="#stay" String="&name;" />
+        <DetectIdentifier />
+        <IncludeRules context="FindEntityRefs" />
+        <AnyChar attribute="Invalid" context="#stay" String="$&amp;&lt;" />
+      </context>
+
+      <context name="xpathStringSQ" attribute="XPath String" lineEndContext="#stay">
+        <DetectChar attribute="XPath String" context="#pop" char="'" />
+        <DetectIdentifier />
+        <IncludeRules context="FindEntityRefs" />
+        <IncludeRules context="FindReservedChar" />
+      </context>
+
+      <context name="xpathStringDQ" attribute="XPath String" lineEndContext="#stay">
+        <DetectChar attribute="XPath String" context="#pop" char="&quot;" />
+        <DetectIdentifier />
+        <IncludeRules context="FindEntityRefs" />
+        <IncludeRules context="FindReservedChar" />
+      </context>
+       
+    </contexts>
+
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal"/>
+      <itemData name="Other Text" defStyleNum="dsNormal" />
+      <itemData name="Tag" defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="Tag Symbols" defStyleNum="dsKeyword" spellChecking="false" />
+      <itemData name="Attribute" defStyleNum="dsOthers" spellChecking="false"/>
+      <itemData name="XSLT XPath Attribute" defStyleNum="dsOthers" spellChecking="false"/>
+      <itemData name="Attribute Separator" defStyleNum="dsOthers" spellChecking="false"/>
+      <itemData name="Value" defStyleNum="dsAttribute"/>
+      <itemData name="Invalid" defStyleNum="dsError" spellChecking="false"/>
+      <itemData name="Attribute Value" defStyleNum="dsString"/>
+      <itemData name="XPath" defStyleNum="dsVariable" bold="0" italic="0"/>
+      <itemData name="XPath String" defStyleNum="dsString"/>
+      <itemData name="XPath Axis" defStyleNum="dsVariable" bold="0" italic="1"/>
+      <itemData name="XPath/ XSLT Function" defStyleNum="dsVariable" bold="1" italic="0" spellChecking="false"/>
+      <itemData name="XPath 2.0/ XSLT 2.0 Function" defStyleNum="dsVariable" bold="1" italic="0" spellChecking="false"/>
+      <itemData name="XPath Attribute" defStyleNum="dsVariable" bold="0" italic="1" spellChecking="false"/>
+      <itemData name="Variable" defStyleNum="dsVariable" bold="0" italic="1" spellChecking="false"/>
+      <itemData name="Comment" defStyleNum="dsComment"/>
+      <itemData name="XSLT Tag" defStyleNum="dsBuiltIn" bold="1" spellChecking="false"/>
+      <itemData name="XSLT 2.0 Tag" defStyleNum="dsBuiltIn" bold="1" spellChecking="false"/>
+      <itemData name="Entity Reference" defStyleNum="dsDecVal" spellChecking="false"/>
+
+      <itemData name="CDATA" defStyleNum="dsBaseN" bold="1" spellChecking="false"/>
+      <itemData name="CDATA Symbols"   defStyleNum="dsBaseN"    bold="0" italic="0" spellChecking="false" />
+      <itemData name="Processing Instruction" defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="PI Symbols" defStyleNum="dsFunction" bold="0" italic="0" spellChecking="false" />
+      <itemData name="Doctype" defStyleNum="dsDataType" bold="1" spellChecking="false"/>
+      <itemData name="Doctype Name" defStyleNum="dsDataType" bold="0" italic="0" spellChecking="false" />
+      <itemData name="Doctype Symbols" defStyleNum="dsDataType" bold="0" italic="0" spellChecking="false" />
+      <itemData name="PEntity Reference" defStyleNum="dsDecVal" spellChecking="false"/>
+    </itemDatas>
+
+  </highlighting>
+  <general>
+    <comments>
+      <comment name="multiLine" start="&lt;!--" end="--&gt;" region="comment" />
+    </comments>
+    <keywords casesensitive="0" weakDeliminator="-:" additionalDeliminator="&quot;{}"/>
+  </general>
+</language>
+<!-- kate: space-indent on; replace-tabs on; tab-width 2; indent-width 2; -->

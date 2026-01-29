@@ -17,165 +17,178 @@ namespace KSyntaxHighlighting
 {
 class FormatPrivate;
 
-/** Describes the format to be used for a specific text fragment.
- *  The actual format used for displaying is merged from the format information
- *  in the syntax definition file, and a theme.
+/*!
+ * \class KSyntaxHighlighting::Format
  *
- *  @see Theme
- *  @since 5.28
+ * \inmodule KSyntaxHighlighting
+ *
+ * \brief Describes the format to be used for a specific text fragment.
+ * The actual format used for displaying is merged from the format information
+ * in the syntax definition file, and a theme.
+ *
+ * \sa Theme
+ * \since 5.28
  */
 class KSYNTAXHIGHLIGHTING_EXPORT Format
 {
 public:
-    /** Creates an empty/invalid format. */
+    /*! Creates an empty/invalid format. */
     Format();
+    /*!
+     */
     Format(const Format &other);
     ~Format();
 
     Format &operator=(const Format &other);
 
-    /** Returns @c true if this is a valid format, ie. one that
+    /*! Returns \c true if this is a valid format, ie. one that
      *  was read from a syntax definition file.
      */
     bool isValid() const;
 
-    /** The name of this format as used in the syntax definition file. */
+    /*! The name of this format as used in the syntax definition file. */
     QString name() const;
 
-    /** Returns a unique identifier of this format.
-     *  This is useful for efficient storing of formats in a text line. The
+    /*!
+     * Returns a unique identifier of this format.
+     *
+     * This is useful for efficient storing of formats in a text line. The
      *  identifier is unique per Repository instance, but will change when
      *  the repository is reloaded (which also invalidatess the corresponding
      *  Definition anyway).
      */
     int id() const;
 
-    /** Returns the underlying TextStyle of this Format.
-     *  Every Theme::TextStyle is visually defined by a Theme. A Format uses one
+    /*!
+     * Returns the underlying TextStyle of this Format.
+     *
+     * Every Theme::TextStyle is visually defined by a Theme. A Format uses one
      *  of the Theme::TextStyle%s and on top allows modifications such as setting
      *  a different foreground color etc.
-     *  @see Theme::TextStyle
-     *  @since 5.49
+     *  \sa Theme::TextStyle
+     *  \since 5.49
      */
     Theme::TextStyle textStyle() const;
 
-    /** Returns @c true if the combination of this format and the theme @p theme
+    /*!
+     * Returns \c true if the combination of this format and the theme \a theme
      *  do not change the default text format in any way.
-     *  This is useful for output formats where changing formatting implies cost,
+     *
+     * This is useful for output formats where changing formatting implies cost,
      *  and thus benefit from optimizing the default case of not having any format
      *  applied. If you make use of this, make sure to set the default text style
      *  to what the corresponding theme sets for Theme::Normal.
      */
     bool isDefaultTextStyle(const Theme &theme) const;
 
-    /** Returns @c true if the combination of this format and the theme @p theme
+    /*! Returns \c true if the combination of this format and the theme \a theme
      *  change the foreground color compared to the default format.
      */
     bool hasTextColor(const Theme &theme) const;
-    /** Returns the foreground color of the combination of this format and the
+    /*! Returns the foreground color of the combination of this format and the
      *  given theme.
      */
     QColor textColor(const Theme &theme) const;
-    /** Returns the foreground color for selected text of the combination of
+    /*! Returns the foreground color for selected text of the combination of
      *  this format and the given theme.
      */
     QColor selectedTextColor(const Theme &theme) const;
-    /** Returns @c true if the combination of this format and the theme @p theme
+    /*! Returns \c true if the combination of this format and the theme \a theme
      *  change the background color compared to the default format.
      */
     bool hasBackgroundColor(const Theme &theme) const;
-    /** Returns the background color of the combination of this format and the
+    /*! Returns the background color of the combination of this format and the
      *  given theme.
      */
     QColor backgroundColor(const Theme &theme) const;
-    /** Returns the background color of selected text of the combination of
+    /*! Returns the background color of selected text of the combination of
      *  this format and the given theme.
      */
     QColor selectedBackgroundColor(const Theme &theme) const;
 
-    /** Returns @c true if the combination of this format and the given theme
+    /*! Returns \c true if the combination of this format and the given theme
      *  results in bold text formatting.
      */
     bool isBold(const Theme &theme) const;
-    /** Returns @c true if the combination of this format and the given theme
+    /*! Returns \c true if the combination of this format and the given theme
      *  results in italic text formatting.
      */
     bool isItalic(const Theme &theme) const;
-    /** Returns @c true if the combination of this format and the given theme
+    /*! Returns \c true if the combination of this format and the given theme
      *  results in underlined text.
      */
     bool isUnderline(const Theme &theme) const;
-    /** Returns @c true if the combination of this format and the given theme
+    /*! Returns \c true if the combination of this format and the given theme
      *  results in struck through text.
      */
     bool isStrikeThrough(const Theme &theme) const;
 
-    /**
+    /*!
      * Returns whether characters with this format should be spell checked.
      */
     bool spellCheck() const;
 
-    /** Returns @c true if the syntax definition file sets a value for the bold text
+    /*! Returns \c true if the syntax definition file sets a value for the bold text
      *  attribute and, therefore, overrides the theme and the default formatting
-     *  style. If the return is @p true, this value is obtained by isBold().
-     *  @see isBold()
-     *  @since 5.62
+     *  style. If the return is \a true, this value is obtained by isBold().
+     *  \sa isBold()
+     *  \since 5.62
      */
     bool hasBoldOverride() const;
 
-    /** Returns @c true if the syntax definition file sets a value for the italic text
+    /*! Returns \c true if the syntax definition file sets a value for the italic text
      *  attribute and, therefore, overrides the theme and the default formatting style.
-     *  If the return is @p true, this value is obtained by isItalic().
-     *  @see isItalic()
-     *  @since 5.62
+     *  If the return is \a true, this value is obtained by isItalic().
+     *  \sa isItalic()
+     *  \since 5.62
      */
     bool hasItalicOverride() const;
 
-    /** Returns @c true if the syntax definition file sets a value for the underlined
+    /*! Returns \c true if the syntax definition file sets a value for the underlined
      *  text attribute and, therefore, overrides the theme and the default formatting
-     *  style. If the return is @p true, this value is obtained by isUnderline().
-     *  @see isUnderline()
-     *  @since 5.62
+     *  style. If the return is \a true, this value is obtained by isUnderline().
+     *  \sa isUnderline()
+     *  \since 5.62
      */
     bool hasUnderlineOverride() const;
 
-    /** Returns @c true if the syntax definition file specifies a value for the
-     *  struck through text attribute. If the return is @p true, this value
+    /*! Returns \c true if the syntax definition file specifies a value for the
+     *  struck through text attribute. If the return is \a true, this value
      *  is obtained by isStrikeThrough().
-     *  @see isStrikeThrough()
-     *  @since 5.62
+     *  \sa isStrikeThrough()
+     *  \since 5.62
      */
     bool hasStrikeThroughOverride() const;
 
-    /** Returns @c true if the syntax definition file sets a value for the foreground
+    /*! Returns \c true if the syntax definition file sets a value for the foreground
      *  text color attribute and, therefore, overrides the theme and the default formatting
-     *  style. If the return is @p true, this value is obtained  by textColor().
-     *  @see textColor(), hasTextColor()
-     *  @since 5.62
+     *  style. If the return is \a true, this value is obtained  by textColor().
+     *  \sa textColor(), hasTextColor()
+     *  \since 5.62
      */
     bool hasTextColorOverride() const;
 
-    /** Returns @c true if the syntax definition file sets a value for the background
+    /*! Returns \c true if the syntax definition file sets a value for the background
      *  color attribute and, therefore, overrides the theme and the default formatting
-     *  style. If the return is @p true, this value is obtained by backgroundColor().
-     *  @see backgroundColor(), hasBackgroundColor()
-     *  @since 5.62
+     *  style. If the return is \a true, this value is obtained by backgroundColor().
+     *  \sa backgroundColor(), hasBackgroundColor()
+     *  \since 5.62
      */
     bool hasBackgroundColorOverride() const;
 
-    /** Returns @c true if the syntax definition file specifies a value for the
-     *  selected text color attribute. If the return is @p true, this value is
+    /*! Returns \c true if the syntax definition file specifies a value for the
+     *  selected text color attribute. If the return is \a true, this value is
      *  obtained by selectedTextColor().
-     *  @see selectedTextColor()
-     *  @since 5.62
+     *  \sa selectedTextColor()
+     *  \since 5.62
      */
     bool hasSelectedTextColorOverride() const;
 
-    /** Returns @c true if the syntax definition file specifies a value for the
-     *  selected background color attribute. If the return is @p true, this
+    /*! Returns \c true if the syntax definition file specifies a value for the
+     *  selected background color attribute. If the return is \a true, this
      *  value is obtained by selectedBackgroundColor().
-     *  @see selectedBackgroundColor()
-     *  @since 5.62
+     *  \sa selectedBackgroundColor()
+     *  \since 5.62
      */
     bool hasSelectedBackgroundColorOverride() const;
 

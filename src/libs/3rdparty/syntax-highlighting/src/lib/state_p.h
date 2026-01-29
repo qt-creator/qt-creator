@@ -39,7 +39,11 @@ public:
         return m_contextStack.size();
     }
 
-    void push(Context *context, QStringList &&captures);
+    /**
+     * Push contexts to top of the current stack.
+     * Captures is inserted with the latest context.
+     */
+    void push(const Context *const *firstContext, const Context *const *lastContext, QStringList &&captures);
 
     /**
      * Pop the number of elements given from the top of the current stack.
@@ -49,7 +53,7 @@ public:
      */
     bool pop(int popCount);
 
-    Context *topContext() const
+    const Context *topContext() const
     {
         return m_contextStack.back().context;
     }
@@ -60,7 +64,7 @@ public:
     }
 
     struct StackValue {
-        Context *context;
+        const Context *context;
         QStringList captures;
 
         bool operator==(const StackValue &other) const

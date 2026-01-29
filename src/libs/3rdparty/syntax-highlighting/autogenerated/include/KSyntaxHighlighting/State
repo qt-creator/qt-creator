@@ -1,1 +1,2 @@
-#include "state.h"
+// Forwarding header, use by: #include <KSyntaxHighlighting/State>
+#include "state.h" // IWYU pragma: export

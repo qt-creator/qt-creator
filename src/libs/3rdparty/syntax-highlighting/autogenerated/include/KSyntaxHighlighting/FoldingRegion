@@ -1,1 +1,2 @@
-#include "foldingregion.h"
+// Forwarding header, use by: #include <KSyntaxHighlighting/FoldingRegion>
+#include "foldingregion.h" // IWYU pragma: export

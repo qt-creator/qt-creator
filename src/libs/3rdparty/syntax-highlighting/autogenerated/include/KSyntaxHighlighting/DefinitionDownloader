@@ -1,1 +1,2 @@
-#include "definitiondownloader.h"
+// Forwarding header, use by: #include <KSyntaxHighlighting/DefinitionDownloader>
+#include "definitiondownloader.h" // IWYU pragma: export

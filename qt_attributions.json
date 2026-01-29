@@ -330,6 +330,19 @@
         "Copyright": "Copyright (C) Dr Orlovsky MA (dr.orlovsky@gmail.com), Nibaldo González (nibgonz@gmail.com)"
     },
     {
+        "Id": "ksyntaxhighlighting-jinja",
+        "Name": "KSyntaxHighlighting: jinja.xml",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for the generic highlighter for Jinja files.",
+        "Path": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/data/syntax",
+        "Description": "Syntax highlighting definition Jinja files",
+        "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
+        "License": "MIT License",
+        "LicenseFile": "@SOURCE_DIR@/src/libs/3rdparty/syntax-highlighting/COPYING",
+        "Copyright": "Author: Zoltan Gera (zoltan.gera@qt.io)."
+    },
+    {
         "Id": "std-span-martinmoene",
         "Name": "std::span Implementation for C++11 and Later",
         "QDocModule": "qtcreator",

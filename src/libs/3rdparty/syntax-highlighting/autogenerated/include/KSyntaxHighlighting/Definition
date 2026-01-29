@@ -1,1 +1,2 @@
-#include "definition.h"
+// Forwarding header, use by: #include <KSyntaxHighlighting/Definition>
+#include "definition.h" // IWYU pragma: export

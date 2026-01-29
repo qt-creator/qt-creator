@@ -39,8 +39,9 @@ static void applyHighlighter(Highlighter &highlighter,
         highlighter.highlightFile(inFileName, highlightParams...);
     } else {
         QFile inFile;
-        inFile.open(stdin, QIODevice::ReadOnly);
-        highlighter.highlightData(&inFile, highlightParams...);
+        if (inFile.open(stdin, QIODevice::ReadOnly)) {
+            highlighter.highlightData(&inFile, highlightParams...);
+        }
     }
 }
 

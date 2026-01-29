@@ -1,1 +1,2 @@
-#include "format.h"
+// Forwarding header, use by: #include <KSyntaxHighlighting/Format>
+#include "format.h" // IWYU pragma: export

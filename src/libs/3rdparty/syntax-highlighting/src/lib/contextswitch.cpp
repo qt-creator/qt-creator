@@ -8,6 +8,7 @@
 #include "contextswitch_p.h"
 #include "definition_p.h"
 #include "ksyntaxhighlighting_logging.h"
+#include <QStringTokenizer>
 
 using namespace KSyntaxHighlighting;
 
@@ -32,15 +33,19 @@ void ContextSwitch::resolve(DefinitionData &def, QStringView context)
         return;
     }
 
-    const qsizetype defNameIndex = context.indexOf(QStringLiteral("##"));
-    auto defName = (defNameIndex <= -1) ? QStringView() : context.sliced(defNameIndex + 2);
-    auto contextName = (defNameIndex <= -1) ? context : context.sliced(0, defNameIndex);
+    for (auto contextPart : QStringTokenizer{context, u'!'}) {
+        const qsizetype defNameIndex = contextPart.indexOf(QStringLiteral("##"));
+        auto defName = (defNameIndex <= -1) ? QStringView() : contextPart.sliced(defNameIndex + 2);
+        auto contextName = (defNameIndex <= -1) ? contextPart : contextPart.sliced(0, defNameIndex);
 
-    m_context = def.resolveIncludedContext(defName, contextName).context;
-
-    if (m_context) {
-        m_isStay = false;
-    } else {
-        qCWarning(Log) << "cannot find context" << contextName << "in" << def.name;
+        auto resolvedCtx = def.resolveIncludedContext(defName, contextName);
+        if (resolvedCtx.context) {
+            m_contexts.append(resolvedCtx.context);
+        } else {
+            auto part = (defName.isEmpty() || resolvedCtx.def) ? "context" : "definition in";
+            qCWarning(Log) << "cannot find" << part << contextPart << "in" << def.name;
+        }
     }
+
+    m_isStay = m_contexts.isEmpty();
 }

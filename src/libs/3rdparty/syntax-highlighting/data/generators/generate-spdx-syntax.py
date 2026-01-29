@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Generate SPDX-Comments syntax file
-#
-# SPDX-FileCopyrightText: 2020 Alex Turbov <i.zaufi@gmail.com>
+# SPDX-FileCopyrightText: 2020-2025 Alex Turbov <i.zaufi@gmail.com>
 # SPDX-License-Identifier: MIT
 #
-# To install prerequisites:
+# /// script
+# dependencies = [
+#   "click",
+#   "jinja2"
+# ]
+# ///
 #
-#   $ pip install --user click jinja2
+# Generate SPDX-Comments syntax file.
 #
-# To use:
+# Run with [uv] or [pipx]:
 #
-#   $ ./generate-spdx-syntax.py > ../syntax/spdx-comments.xml
+#   $ uv run generate-spdx-syntax.py > ../syntax/spdx-comments.xml
+#
+# or install dependencies manually and run "normally".
+#
+# [uv]: https://docs.astral.sh/uv
+# [pipx]: https://pipx.pypa.io/stable
 #
 
 import json

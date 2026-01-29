@@ -12,7 +12,6 @@
 #include "format.h"
 #include "ksyntaxhighlighting_logging.h"
 #include "state.h"
-#include "theme.h"
 
 #include <QFile>
 #include <QFileInfo>

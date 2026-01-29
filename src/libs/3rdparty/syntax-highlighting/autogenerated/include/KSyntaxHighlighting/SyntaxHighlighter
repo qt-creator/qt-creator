@@ -1,1 +1,2 @@
-#include "syntaxhighlighter.h"
+// Forwarding header, use by: #include <KSyntaxHighlighting/SyntaxHighlighter>
+#include "syntaxhighlighter.h" // IWYU pragma: export

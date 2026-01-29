@@ -1,0 +1,33 @@
+include($KDE_DOCS/global/qt-module-defaults.qdocconf)
+
+project = KSyntaxHighlightingQml
+description = Syntax highlighting engine for Kate syntax definitions
+
+documentationinheaders = true
+
+headerdirs += .
+sourcedirs += .
+
+imagedirs = ../docs/pics
+
+outputformats = HTML
+
+navigation.landingpage = "SyntaxHighlighting"
+
+depends += kde qtcore qtnetwork qttest qtgui qtqml qtprintsupport qtwidgets qtquick ksyntaxhighlighting
+
+qhp.projects            = KSyntaxHighlightingQml
+
+qhp.KSyntaxHighlightingQml.file                = ksyntaxhighlightingqml.qhp
+qhp.KSyntaxHighlightingQml.namespace           = org.kde.ksyntaxhighlightingqml.$QT_VERSION_TAG
+qhp.KSyntaxHighlightingQml.virtualFolder       = ksyntaxhighlightingqml
+qhp.KSyntaxHighlightingQml.indexTitle          = KSyntaxHighlighting QML
+qhp.KSyntaxHighlightingQml.indexRoot           =
+
+qhp.KSyntaxHighlightingQml.subprojects         = qmltypes
+qhp.KSyntaxHighlightingQml.subprojects.qmltypes.title = QML Types
+qhp.KSyntaxHighlightingQml.subprojects.qmltypes.indexTitle = KSyntaxHighlighting QML Types
+qhp.KSyntaxHighlightingQml.subprojects.qmltypes.selectors = qmltype
+qhp.KSyntaxHighlightingQml.subprojects.qmltypes.sortPages = true
+
+tagfile = ksyntaxhighlightingqml.tags

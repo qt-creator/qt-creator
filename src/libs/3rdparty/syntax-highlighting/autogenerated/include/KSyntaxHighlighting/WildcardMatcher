@@ -1,1 +1,2 @@
-#include "wildcardmatcher.h"
+// Forwarding header, use by: #include <KSyntaxHighlighting/WildcardMatcher>
+#include "wildcardmatcher.h" // IWYU pragma: export
