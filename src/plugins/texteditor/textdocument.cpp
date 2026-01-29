@@ -102,6 +102,7 @@ public:
     Utils::Guard m_modificationChangedGuard;
 
     SyntaxHighlighter *m_highlighter = nullptr;
+    bool m_externalFoldingIndent = false;
 };
 
 MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cursors,
@@ -412,6 +413,18 @@ QAction *TextDocument::createDiffAgainstCurrentFileAction(
     auto diffAction = new QAction(Tr::tr("Diff Against Current File"), parent);
     QObject::connect(diffAction, &QAction::triggered, parent, diffAgainstCurrentFile);
     return diffAction;
+}
+
+void TextDocument::setFoldingIndentExternallyProvided(bool ext)
+{
+    d->m_externalFoldingIndent = ext;
+    if (d->m_highlighter)
+        d->m_highlighter->setIgnoreFolding(ext);
+}
+
+bool TextDocument::isFoldingIndentExternallyProvided() const
+{
+    return d->m_externalFoldingIndent;
 }
 
 #ifdef WITH_TESTS
@@ -898,6 +911,7 @@ void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter 
     d->m_highlighter->setDocument(this->document());
     d->m_highlighter->setFontSettings(TextEditorSettings::fontSettings());
     d->m_highlighter->setMimeType(mimeType());
+    d->m_highlighter->setIgnoreFolding(d->m_externalFoldingIndent);
 }
 
 SyntaxHighlighter *TextDocument::syntaxHighlighter() const

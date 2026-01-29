@@ -525,7 +525,8 @@ void CppEditorDocument::Private::applyIfdefedOutBlocks()
             if (currentBraceDepth != previousBraceDepth
                 || currentFoldingIndent != previousBraceDepth) {
                 TextBlockUserData::setBraceDepth(block, previousBraceDepth);
-                TextBlockUserData::setFoldingIndent(block, previousBraceDepth);
+                if (!q->syntaxHighlighter()->ignoresFolding())
+                    TextBlockUserData::setFoldingIndent(block, previousBraceDepth);
                 needUpdate = true;
                 qCDebug(highlighterLog)
                     << "changing brace depth and folding indent to" << previousBraceDepth

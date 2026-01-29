@@ -97,8 +97,8 @@ void Highlighter::highlightBlock(const QString &text)
     TextBlockUserData::setBraceDepth(block, TextBlockUserData::braceDepth(previousBlock));
     KSyntaxHighlighting::State previousLineState = TextBlockUserData::syntaxState(previousBlock);
     KSyntaxHighlighting::State oldState = TextBlockUserData::syntaxState(block);
-    TextBlockUserData::setFoldingStartIncluded(block, false);
-    TextBlockUserData::setFoldingEndIncluded(block, false);
+    setFoldingStartIncluded(block, false);
+    setFoldingEndIncluded(block, false);
     KSyntaxHighlighting::State state = highlightLine(text, previousLineState);
     if (oldState != state) {
         TextBlockUserData::setSyntaxState(block, state);
@@ -119,7 +119,7 @@ void Highlighter::highlightBlock(const QString &text)
 
     const QTextBlock nextBlock = block.next();
     if (nextBlock.isValid())
-        TextBlockUserData::setFoldingIndent(nextBlock, TextBlockUserData::braceDepth(block));
+        setFoldingIndent(nextBlock, TextBlockUserData::braceDepth(block));
 
     formatSpaces(text);
 }
@@ -180,8 +180,8 @@ void Highlighter::applyFolding(int offset,
         qCDebug(highlighterLog) << text;
         // if there is only a folding begin marker in the line move the current block into the fold
         if (fromStart && toEnd && length <= 1) {
-            TextBlockUserData::setFoldingIndent(block, TextBlockUserData::braceDepth(block));
-            TextBlockUserData::setFoldingStartIncluded(block, true);
+            setFoldingIndent(block, TextBlockUserData::braceDepth(block));
+            setFoldingStartIncluded(block, true);
         }
     } else if (region.type() == KSyntaxHighlighting::FoldingRegion::End) {
         const int newBraceDepth = qMax(0, TextBlockUserData::braceDepth(block) - 1);
@@ -191,9 +191,9 @@ void Highlighter::applyFolding(int offset,
         TextBlockUserData::setBraceDepth(block, newBraceDepth);
         // if the folding end is at the end of the line move the current block into the fold
         if (toEnd)
-            TextBlockUserData::setFoldingEndIncluded(block, true);
+            setFoldingEndIncluded(block, true);
         else
-            TextBlockUserData::setFoldingIndent(block, TextBlockUserData::braceDepth(block));
+            setFoldingIndent(block, TextBlockUserData::braceDepth(block));
     }
 }
 

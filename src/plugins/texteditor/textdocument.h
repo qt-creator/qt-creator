@@ -149,6 +149,9 @@ public:
     static QAction *createDiffAgainstCurrentFileAction(QObject *parent,
         const std::function<Utils::FilePath()> &filePath);
 
+    void setFoldingIndentExternallyProvided(bool ext);
+    bool isFoldingIndentExternallyProvided() const;
+
 #ifdef WITH_TESTS
     void setSilentReload();
 #endif

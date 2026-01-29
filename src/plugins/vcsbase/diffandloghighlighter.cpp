@@ -184,33 +184,33 @@ void DiffAndLogHighlighter::highlightBlock(const QString &text)
     case Internal::Header:
         if (format == TextEditor::C_DIFF_FILE) {
             d->m_foldingState = Internal::File;
-            TextEditor::TextBlockUserData::setFoldingIndent(currentBlock(), BASE_LEVEL);
+            setFoldingIndent(currentBlock(), BASE_LEVEL);
         } else if (format == TextEditor::C_DIFF_LOCATION) {
             d->m_foldingState = Internal::Location;
-            TextEditor::TextBlockUserData::setFoldingIndent(currentBlock(), FILE_LEVEL);
+            setFoldingIndent(currentBlock(), FILE_LEVEL);
         } else {
             d->m_foldingState = Internal::Header;
-            TextEditor::TextBlockUserData::setFoldingIndent(currentBlock(), BASE_LEVEL);
+            setFoldingIndent(currentBlock(), BASE_LEVEL);
         }
         break;
     case Internal::File:
         if (format == TextEditor::C_DIFF_FILE) {
-            TextEditor::TextBlockUserData::setFoldingIndent(currentBlock(), FILE_LEVEL);
+            setFoldingIndent(currentBlock(), FILE_LEVEL);
         } else if (format == TextEditor::C_DIFF_LOCATION) {
             d->m_foldingState = Internal::Location;
-            TextEditor::TextBlockUserData::setFoldingIndent(currentBlock(), FILE_LEVEL);
+            setFoldingIndent(currentBlock(), FILE_LEVEL);
         } else {
-            TextEditor::TextBlockUserData::setFoldingIndent(currentBlock(), FILE_LEVEL);
+            setFoldingIndent(currentBlock(), FILE_LEVEL);
         }
         break;
     case Internal::Location:
         if (format == TextEditor::C_DIFF_FILE) {
             d->m_foldingState = Internal::File;
-            TextEditor::TextBlockUserData::setFoldingIndent(currentBlock(), BASE_LEVEL);
+            setFoldingIndent(currentBlock(), BASE_LEVEL);
         } else if (format == TextEditor::C_DIFF_LOCATION) {
-            TextEditor::TextBlockUserData::setFoldingIndent(currentBlock(), FILE_LEVEL);
+            setFoldingIndent(currentBlock(), FILE_LEVEL);
         } else {
-            TextEditor::TextBlockUserData::setFoldingIndent(currentBlock(), LOCATION_LEVEL);
+            setFoldingIndent(currentBlock(), LOCATION_LEVEL);
         }
         break;
     }

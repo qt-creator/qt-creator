@@ -261,9 +261,9 @@ int QmlJSHighlighter::onBlockStart()
 {
     m_currentBlockParentheses.clear();
     m_inMultilineComment = false;
-    TextBlockUserData::setFoldingIndent(currentBlock(), 0);
-    TextBlockUserData::setFoldingStartIncluded(currentBlock(), false);
-    TextBlockUserData::setFoldingEndIncluded(currentBlock(), false);
+    setFoldingIndent(currentBlock(), 0);
+    setFoldingStartIncluded(currentBlock(), false);
+    setFoldingEndIncluded(currentBlock(), false);
     m_braceDepth = TextBlockUserData::braceDepth(currentBlock().previous());
     m_foldingIndent = m_braceDepth;
 
@@ -282,7 +282,7 @@ void QmlJSHighlighter::onBlockEnd(int state)
     setCurrentBlockState(state);
     TextBlockUserData::setBraceDepth(currentBlock(), m_braceDepth);
     TextBlockUserData::setParentheses(currentBlock(), m_currentBlockParentheses);
-    TextBlockUserData::setFoldingIndent(currentBlock(), m_foldingIndent);
+    setFoldingIndent(currentBlock(), m_foldingIndent);
 }
 
 void QmlJSHighlighter::onOpeningParenthesis(QChar parenthesis, int pos, bool atStart)
@@ -292,7 +292,7 @@ void QmlJSHighlighter::onOpeningParenthesis(QChar parenthesis, int pos, bool atS
         // if a folding block opens at the beginning of a line, treat the entire line
         // as if it were inside the folding block
         if (atStart)
-            TextBlockUserData::setFoldingStartIncluded(currentBlock(), true);
+            setFoldingStartIncluded(currentBlock(), true);
     }
     m_currentBlockParentheses.push_back(Parenthesis(Parenthesis::Opened, parenthesis, pos));
 }
@@ -302,7 +302,7 @@ void QmlJSHighlighter::onClosingParenthesis(QChar parenthesis, int pos, bool atE
     if (parenthesis == QLatin1Char('}') || parenthesis == QLatin1Char(']') || parenthesis == QLatin1Char('-')) {
         --m_braceDepth;
         if (atEnd)
-            TextBlockUserData::setFoldingEndIncluded(currentBlock(), true);
+            setFoldingEndIncluded(currentBlock(), true);
         else
             m_foldingIndent = qMin(m_braceDepth, m_foldingIndent); // folding indent is the minimum brace depth of a block
     }

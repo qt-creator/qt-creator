@@ -66,6 +66,7 @@ public:
     QString mimeType;
     bool syntaxInfoUpToDate = false;
     bool continueRehighlightScheduled = false;
+    bool ignoreFolding = false;
     int highlightStartBlock = 0;
     int highlightEndBlock = 0;
     QSet<int> forceRehighlightBlocks;
@@ -737,6 +738,24 @@ void SyntaxHighlighter::forceRehighlightBlock(const QTextBlock &block)
     d->forceRehighlightBlocks << block.blockNumber();
 }
 
+void SyntaxHighlighter::setFoldingIndent(const QTextBlock &block, int indent)
+{
+    if (!ignoresFolding())
+        TextBlockUserData::setFoldingIndent(block, indent);
+}
+
+void SyntaxHighlighter::setFoldingStartIncluded(const QTextBlock &block, bool included)
+{
+    if (!ignoresFolding())
+        TextBlockUserData::setFoldingStartIncluded(block, included);
+}
+
+void SyntaxHighlighter::setFoldingEndIncluded(const QTextBlock &block, bool included)
+{
+    if (!ignoresFolding())
+        TextBlockUserData::setFoldingEndIncluded(block, included);
+}
+
 static bool byStartOfRange(const QTextLayout::FormatRange &range, const QTextLayout::FormatRange &other)
 {
     return range.start < other.start;
@@ -801,6 +820,19 @@ void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
 bool SyntaxHighlighter::syntaxHighlighterUpToDate() const
 {
     return d->syntaxInfoUpToDate;
+}
+
+void SyntaxHighlighter::setIgnoreFolding(bool ignore)
+{
+    if (d->ignoreFolding == ignore)
+        return;
+    d->ignoreFolding = ignore;
+    rehighlight();
+}
+
+bool SyntaxHighlighter::ignoresFolding() const
+{
+    return d->ignoreFolding;
 }
 
 void SyntaxHighlighter::clearExtraFormats(const QTextBlock &block)

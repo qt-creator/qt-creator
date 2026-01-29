@@ -15,6 +15,7 @@ add_qtc_plugin(LanguageClient
     diagnosticmanager.cpp diagnosticmanager.h
     documentsymbolcache.cpp documentsymbolcache.h
     dynamiccapabilities.cpp dynamiccapabilities.h
+    foldingrangesupport.cpp foldingrangesupport.h
     languageclientcompletionassist.cpp languageclientcompletionassist.h
     languageclientfunctionhint.cpp languageclientfunctionhint.h
     languageclientformatter.cpp languageclientformatter.h

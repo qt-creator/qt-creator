@@ -118,13 +118,6 @@ static int indent(const QString &line)
     return -1;
 }
 
-static void setFoldingIndent(const QTextBlock &block, int indent)
-{
-    TextEditor::TextBlockUserData::setFoldingIndent(block, indent);
-    TextEditor::TextBlockUserData::setFoldingStartIncluded(block, false);
-    TextEditor::TextBlockUserData::setFoldingEndIncluded(block, false);
-}
-
 /**
  * @brief Highlight line of code, returns new block state
  * @param text Source code to highlight
@@ -136,19 +129,25 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
     Scanner scanner(text.constData(), text.size());
     scanner.setState(initialState);
 
+    const auto setFolding = [&](int indent) {
+        setFoldingIndent(currentBlock(), indent);
+        setFoldingStartIncluded(currentBlock(), false);
+        setFoldingEndIncluded(currentBlock(), false);
+    };
+
     const int pos = indent(text);
     if (pos < 0) {
         // Empty lines do not change folding indent
-        setFoldingIndent(currentBlock(), m_lastIndent);
+        setFolding(m_lastIndent);
     } else {
         m_lastIndent = pos;
         if (pos == 0 && text.startsWith('#') && !text.startsWith("#!")) {
             // A comment block at indentation 0. Fold on first line.
-            setFoldingIndent(currentBlock(), withinLicenseHeader ? 1 : 0);
+            setFolding(withinLicenseHeader ? 1 : 0);
             withinLicenseHeader = true;
         } else {
             // Normal Python code. Line indentation can be used as folding indent.
-            setFoldingIndent(currentBlock(), m_lastIndent);
+            setFolding(m_lastIndent);
             withinLicenseHeader = false;
         }
     }

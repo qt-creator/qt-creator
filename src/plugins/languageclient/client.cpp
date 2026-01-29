@@ -6,6 +6,7 @@
 #include "callandtypehierarchy.h"
 #include "diagnosticmanager.h"
 #include "documentsymbolcache.h"
+#include "foldingrangesupport.h"
 #include "languageclientcompletionassist.h"
 #include "languageclientformatter.h"
 #include "languageclientfunctionhint.h"
@@ -350,6 +351,7 @@ public:
     MessageId m_runningFindLinkRequest;
     ProgressManager m_progressManager;
     SemanticTokenSupport m_tokenSupport;
+    Internal::FoldingRangeSupport m_foldingSupport{q};
     QString m_serverName;
     QString m_serverVersion;
     Client::LogTarget m_logTarget = Client::LogTarget::Ui;
@@ -1013,6 +1015,7 @@ void Client::activateDocument(TextEditor::TextDocument *document)
     if (d->m_diagnosticManager)
         d->m_diagnosticManager->showDiagnostics(filePath, d->m_documentVersions.value(filePath));
     d->m_tokenSupport.updateSemanticTokens(document);
+    d->m_foldingSupport.requestFoldingRanges(document);
     // only replace the assist provider if the language server support it
     d->updateCompletionProvider(document);
     d->updateFunctionHintProvider(document);
@@ -1063,6 +1066,7 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
     d->resetAssistProviders(document);
     document->setFormatter(nullptr);
     d->m_tokenSupport.deactivateDocument(document);
+    d->m_foldingSupport.deactivate(document);
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document))
         deactivateEditor(editor);
 }
@@ -2016,12 +2020,15 @@ void ClientPrivate::sendPostponedDocumentUpdates(Schedule semanticTokensSchedule
         switch (semanticTokensSchedule) {
         case Schedule::Now:
             m_tokenSupport.updateSemanticTokens(update.document);
+            m_foldingSupport.requestFoldingRanges(update.document);
             break;
         case Schedule::Delayed:
             QTimer::singleShot(m_documentUpdateTimer.interval(), this,
                                [this, doc = QPointer(update.document)] {
-                if (doc && m_documentsToUpdate.find(doc) == m_documentsToUpdate.end())
+                if (doc && m_documentsToUpdate.find(doc) == m_documentsToUpdate.end()) {
                     m_tokenSupport.updateSemanticTokens(doc);
+                    m_foldingSupport.requestFoldingRanges(doc);
+                }
             });
             break;
         }

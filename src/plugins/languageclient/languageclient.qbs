@@ -29,6 +29,8 @@ QtcPlugin {
         "documentsymbolcache.h",
         "dynamiccapabilities.cpp",
         "dynamiccapabilities.h",
+        "foldingrangesupport.cpp",
+        "foldingrangesupport.h",
         "languageclient_global.h",
         "languageclienttr.h",
         "languageclientformatter.cpp",

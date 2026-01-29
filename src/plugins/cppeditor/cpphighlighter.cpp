@@ -83,9 +83,10 @@ void CppHighlighter::highlightBlock(const QString &text)
     int foldingIndent = initialBraceDepth;
     qCDebug(highlighterLog) << "folding indent initialized to brace depth" << foldingIndent;
     qCDebug(highlighterLog) << "resetting stored folding data for current block";
-    TextBlockUserData::setFoldingIndent(currentBlock(), 0);
-    TextBlockUserData::setFoldingStartIncluded(currentBlock(), false);
-    TextBlockUserData::setFoldingEndIncluded(currentBlock(), false);
+    setFoldingIndent(currentBlock(), 0);
+    setFoldingStartIncluded(currentBlock(), false);
+    setFoldingEndIncluded(currentBlock(), false);
+
     AttributeState attrState;
     attrState.state = TextBlockUserData::attributeState(prevBlock);
 
@@ -101,7 +102,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             else
                 setFormat(0, text.size(), formatForCategory(C_VISUAL_WHITESPACE));
         }
-        TextBlockUserData::setFoldingIndent(currentBlock(), foldingIndent);
+        setFoldingIndent(currentBlock(), foldingIndent);
         TextBlockUserData::setExpectedRawStringSuffix(currentBlock(), inheritedRawStringSuffix);
         TextBlockUserData::setAttributeState(currentBlock(), attrState.state);
         qCDebug(highlighterLog) << "no tokens, storing brace depth" << braceDepth << "and foldingIndent"
@@ -158,7 +159,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                     && !prevBlockText.endsWith("*/") && !prevBlockText.endsWith(";")
                     && tk.utf16charsBegin() == firstNonSpace) {
                     ++foldingIndent;
-                    TextBlockUserData::setFoldingStartIncluded(currentBlock(), true);
+                    setFoldingStartIncluded(currentBlock(), true);
                     qCDebug(highlighterLog)
                         << "folding character is first on one line, increase folding indent to"
                         << foldingIndent << "and set foldingStartIncluded in stored data";
@@ -175,7 +176,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                     if (isLastToken || tokens.at(i + 1).is(T_SEMICOLON)) {
                         qCDebug(highlighterLog) << "token is last token in statement or line, setting "
                                         "foldingEndIncluded in stored data";
-                        TextBlockUserData::setFoldingEndIncluded(currentBlock(), true);
+                        setFoldingEndIncluded(currentBlock(), true);
                     } else {
                         foldingIndent = qMin(braceDepth, foldingIndent);
                         qCDebug(highlighterLog) << "setting folding indent to minimum of current value and "
@@ -260,7 +261,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 if (isLastToken) {
                     qCDebug(highlighterLog) << "token is last token on line, setting "
                                     "foldingEndIncluded in stored data";
-                    TextBlockUserData::setFoldingEndIncluded(currentBlock(), true);
+                    setFoldingEndIncluded(currentBlock(), true);
                 } else {
                     foldingIndent = qMin(braceDepth, foldingIndent);
                     qCDebug(highlighterLog) << "setting folding indent to minimum of current value and "
@@ -324,7 +325,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     TextBlockUserData::setParentheses(currentBlock(), parentheses);
     TextBlockUserData::setAttributeState(currentBlock(), attrState.state);
 
-    TextBlockUserData::setFoldingIndent(currentBlock(), foldingIndent);
+    setFoldingIndent(currentBlock(), foldingIndent);
     TextBlockUserData::setBraceDepth(currentBlock(), braceDepth);
     setCurrentBlockState(tokenize.state());
     qCDebug(highlighterLog) << "storing brace depth" << braceDepth << "and folding indent" << foldingIndent;
