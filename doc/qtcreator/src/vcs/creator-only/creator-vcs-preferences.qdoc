@@ -35,6 +35,9 @@
     \image {qtcreator-preferences-vcs-general.webp} {General tab in Version Control preferences}
 
     \list
+        \li \uicontrol {Show VCS file status with refresh interval} sets the
+            interval in seconds at which \QC requests file status updates
+            from Git. For more information, see \l {Show file status}.
         \li \uicontrol{Wrap submit messages at} limits the line length of a
             submit message to the specified number of characters.
         \li \uicontrol{Submit message check script} is a script or program that

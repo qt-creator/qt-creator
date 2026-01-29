@@ -125,6 +125,10 @@
     functions and options available for a particular version control system
     are described in separate topics.
 
+    You can also access common version control system functions from the
+    context menu by right-clicking a file or directory in the \l {Projects}
+    and \l {File System} view.
+
     \sa {Bazaar and Breezy}, {ClearCase}, {CVS}, {Fossil}, {Using Git}, {GitLab}, {Mercurial},
     {Perforce}, {Subversion}
 

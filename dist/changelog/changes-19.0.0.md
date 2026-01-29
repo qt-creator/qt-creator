@@ -320,12 +320,14 @@ Version Control Systems
   `File System` views
   ([QTCREATORBUG-32540](https://bugreports.qt.io/browse/QTCREATORBUG-32540),
    [QTCREATORBUG-33687](https://bugreports.qt.io/browse/QTCREATORBUG-33687))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-use-common-vcs-functions.html))
 * Added the version control state information to the `Open Documents` view
   and the editor tabs
  ([QTCREATORBUG-33688](https://bugreports.qt.io/browse/QTCREATORBUG-33688))
 * Added an explicit `Refresh` button to the submit editor
 * Added an update interval setting to
-  `Preferences > Version Control > Show VCS file status`
+  `Preferences > Version Control > Show VCS file status` for Git
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-git-stage-changes.html))
 
 ### Git
 

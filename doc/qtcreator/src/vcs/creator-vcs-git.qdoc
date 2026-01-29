@@ -202,6 +202,8 @@
         \li To view changes in the current file, go to \uicontrol Tools >
             \uicontrol Git > \uicontrol {Current File} and select
             \uicontrol {Diff of <file>}.
+        \li To view changes in a specific file, right-click it in \l {Projects} or
+            \l {File System} and select \uicontrol Git > \uicontrol Diff.
         \li To view changes in the current project directory, go to
             \uicontrol Tools > \uicontrol Git >
             \uicontrol {Current Project Directory} and select
@@ -311,8 +313,9 @@
         \li To view the versioning history of the local repository, go to
             \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} and
             select \uicontrol {Log}.
-        \li To view the log of a directory and its subdirectories, right-click it
-            in \l Projects.
+        \li To view the log of a directory and its subdirectories or a specific
+            file, right-click it in \l Projects or \l {File System} and select
+            \uicontrol Git > \uicontrol Log.
     \endlist
 
     The \uicontrol {Git Log} view shows the commit identifier, author, date, and
@@ -544,13 +547,52 @@
     Stage your changes to commit them, so that you can push them to the remote
     repository or send them to Gerrit for review.
 
+    \section1 Show file status
+
+    By default, \QC displays the file status in the \l {Projects}, \l {File System},
+    and \l {Open Documents} views. The status is refreshed automatically every
+    10 seconds.
+
+    To customize how often the file status is updated:
+
+    \list 1
+        \li Go to \preferences > \uicontrol {Version Control} >
+            \uicontrol General.
+        \li Ensure \uicontrol {Show VCS file status with refresh interval}
+            is selected.
+        \li Set the interval (in seconds) at which \QC requests file status
+            updates from Git.
+    \endlist
+
     \section1 Stage the current file
 
-    To mark a new or modified file for committing it to the repository, go to
-    \uicontrol Tools > \uicontrol Git > \uicontrol {Current File} and select
-    \uicontrol {Stage <file> for Commit}.
+    To mark a new or modified file for committing it to the repository, stage
+    the file in one of the following ways:
 
-    To undo this action, select \uicontrol {Unstage <file> from Commit}.
+    \list
+        \li Go to \uicontrol Tools > \uicontrol Git > \uicontrol {Current File}
+            and select \uicontrol {Stage <file> for Commit}.
+        \li Right-click the file in \l {Projects} or \l {File System}
+            and select \uicontrol Git > \uicontrol Stage.
+        \li Go to \uicontrol Tools > \uicontrol Git >
+            \uicontrol {Local Repository} > \uicontrol Commit, right-click
+            the file in \uicontrol Files and select \uicontrol Stage.
+    \endlist
+
+    \section1 Unstage the current file
+
+    To remove the current file from the staged changes, unstage the file in
+    one of the following ways:
+
+    \list
+        \li Go to \uicontrol Tools > \uicontrol Git > \uicontrol {Current File}
+            and select \uicontrol {Unstage <file> from Commit}.
+        \li Right-click the file in \l {Projects} or \l {File System}
+            and select \uicontrol Git > \uicontrol Unstage.
+        \li Go to \uicontrol Tools > \uicontrol Git >
+            \uicontrol {Local Repository} > \uicontrol Commit, right-click
+            the file in \uicontrol Files and select \uicontrol Unstage.
+    \endlist
 
     \section1 Stage chunks or lines
 
