@@ -115,7 +115,7 @@ public:
             QTC_CHECK(!m_process->isRunning());
             delete m_process;
         }
-        m_process = new Process;
+        m_process = new Process(this);
         m_process->setProcessMode(ProcessMode::Writer);
         connect(
             m_process,
