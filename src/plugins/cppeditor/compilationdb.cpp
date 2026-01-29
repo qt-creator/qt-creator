@@ -109,7 +109,8 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                                     bool clStyle)
 {
     QJsonObject fileObject;
-    fileObject["file"] = projFile.path.path();
+    const FilePath pathOnBuildDevice = buildDir.withNewMappedPath(projFile.path);
+    fileObject["file"] = pathOnBuildDevice.path();
     QJsonArray args;
 
     if (purpose == CompilationDbPurpose::Project) {
@@ -139,7 +140,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
         args.prepend("clang"); // TODO: clang-cl for MSVC targets? Does it matter at all what we put here?
     }
 
-    args.append(projFile.path.path());
+    args.append(pathOnBuildDevice.path());
     fileObject["arguments"] = args;
     fileObject["directory"] = buildDir.path();
     return fileObject;
