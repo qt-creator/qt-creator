@@ -207,6 +207,7 @@ void KitAspect::refresh()
         return;
 
     for (const Private::ListAspect &la : std::as_const(d->listAspects)) {
+        // Prevent dirtying by the QComboBox::model()::reset and setCurrentIndex below.
         const bool prev = IOptionsPageWidget::setIgnoreForDirtyHook(la.comboBox, true);
 
         la.spec.resetModel();

@@ -39,6 +39,7 @@ public:
     void setupDirtyHook(QWidget *widget);
     void gotDirty();
 
+    // returns previous value
     static bool setIgnoreForDirtyHook(QWidget *widget, bool ignore = true);
 
     void connectAspect(QWidget *widget, const Utils::BaseAspect *aspect);

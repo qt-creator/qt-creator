@@ -517,6 +517,8 @@ public:
 
 KitOptionsPageWidget::KitOptionsPageWidget()
 {
+    setUseDirtyHook(false);
+
     m_kitsView = new QTreeView(this);
     m_kitsView->setUniformRowHeights(true);
     m_kitsView->header()->setStretchLastSection(true);

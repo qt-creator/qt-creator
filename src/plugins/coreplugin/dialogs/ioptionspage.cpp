@@ -199,6 +199,7 @@ const char DirtyOnMouseButtonRelease[] = "DirtyOnMouseButtonRelease";
 static bool makesDirty(QObject *watched, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonRelease
+            && !watched->property(IGNORE_FOR_DIRTY_HOOK).toBool()
             && watched->property(DirtyOnMouseButtonRelease).isValid()) {
         return true;
     }
@@ -284,28 +285,34 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
         if (child->metaObject() == &QMenu::staticMetaObject)
             continue;
 
+        auto markDirty = [this, child] {
+            if (child->property(IGNORE_FOR_DIRTY_HOOK).toBool())
+                return;
+            gotDirty();
+        };
+
         if (auto ob = qobject_cast<QPushButton *>(child)) {
-            connect(ob, &QPushButton::pressed, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QPushButton::pressed, this, markDirty);
             continue;
         }
         if (auto ob = qobject_cast<QLineEdit *>(child)) {
-            connect(ob, &QLineEdit::textEdited, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QLineEdit::textEdited, this, markDirty);
             continue;
         }
         if (auto ob = qobject_cast<QComboBox *>(child)) {
-            connect(ob, &QComboBox::currentIndexChanged, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QComboBox::currentIndexChanged, markDirty);
             continue;
         }
         if (auto ob = qobject_cast<QSpinBox *>(child)) {
-            connect(ob, &QSpinBox::valueChanged, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QSpinBox::valueChanged, this, markDirty);
             continue;
         }
         if (auto ob = qobject_cast<QGroupBox *>(child)) {
-            connect(ob, &QGroupBox::toggled, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QGroupBox::toggled, this, markDirty);
             continue;
         }
         if (auto ob = qobject_cast<QCheckBox *>(child)) {
-            connect(ob, &QCheckBox::toggled, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QCheckBox::toggled, this, markDirty);
             continue;
         }
     }
