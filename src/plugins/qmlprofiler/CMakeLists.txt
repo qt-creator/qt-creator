@@ -41,6 +41,7 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilereventsview.h
   qmlprofilermodelmanager.cpp qmlprofilermodelmanager.h
   qmlprofilernotesmodel.cpp qmlprofilernotesmodel.h
+  qmlprofilerplainviewmanager.cpp qmlprofilerplainviewmanager.h
   qmlprofilerplugin.cpp
   qmlprofilerrangemodel.cpp qmlprofilerrangemodel.h
   qmlprofilerrunconfigurationaspect.cpp qmlprofilerrunconfigurationaspect.h
