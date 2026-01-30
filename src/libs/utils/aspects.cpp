@@ -3986,12 +3986,20 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     QTC_ASSERT(m_fillCallback, return);
 
-    auto cb = [this](const QList<QStandardItem *> &items) {
+    QComboBox *comboBox = createSubWidget<QComboBox>();
+    auto cb = [this, comboBox](const QList<QStandardItem *> &items) {
+        comboBox->blockSignals(true);
+        QString oldValue = m_volatileValue;
         m_model->clear();
         for (QStandardItem *item : items)
             m_model->appendRow(item);
 
         volatileValueToGui();
+        comboBox->blockSignals(false);
+        if (oldValue != m_volatileValue) {
+            emit comboBox->currentIndexChanged(comboBox->currentIndex());
+            emit comboBox->currentTextChanged(comboBox->currentText());
+        }
     };
 
     if (!m_model) {
@@ -4005,7 +4013,6 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         m_fillCallback(cb);
     }
 
-    QComboBox *comboBox = createSubWidget<QComboBox>();
     comboBox->setInsertPolicy(QComboBox::InsertPolicy::NoInsert);
     comboBox->setEditable(m_comboBoxEditable);
     if (m_comboBoxEditable) {
