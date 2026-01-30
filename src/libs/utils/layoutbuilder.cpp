@@ -6,6 +6,7 @@
 #include "completingtextedit.h"
 #include "fancylineedit.h"
 #include "filepath.h"
+#include "guiutils.h"
 #include "icon.h"
 #include "icondisplay.h"
 #include "markdownbrowser.h"
@@ -510,6 +511,11 @@ void addToWidget(Widget *widget, const Layout &layout)
 {
     layout.flush_();
     access(widget)->setLayout(access(&layout));
+}
+
+void addToWidget(Widget *widget, const WidgetModifier &inner)
+{
+    inner(widget);
 }
 
 void addToLayout(Layout *layout, const Widget &inner)
@@ -1571,6 +1577,12 @@ void tight(Layout *layout)
     layout->setNoMargins();
     layout->setSpacing(0);
 }
+
+void ignoreDirtyHooks(Widget *widget)
+{
+    Utils::setIgnoreForDirtyHook(widget->emerge());
+}
+
 
 class LineEditImpl : public Utils::FancyLineEdit
 {

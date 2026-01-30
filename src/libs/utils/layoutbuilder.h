@@ -275,6 +275,8 @@ public:
 // Widgets
 //
 
+using WidgetModifier = std::function<void(class Widget *)>;
+
 class QTCREATOR_UTILS_EXPORT Widget : public Object
 {
 public:
@@ -746,6 +748,7 @@ void addToLayout(Layout *layout, T inner)
 // ... can be added to anywhere later to support "user types"
 
 QTCREATOR_UTILS_EXPORT void addToWidget(Widget *widget, const Layout &layout);
+QTCREATOR_UTILS_EXPORT void addToWidget(Widget *layout, const WidgetModifier &inner);
 
 QTCREATOR_UTILS_EXPORT void addToTabWidget(TabWidget *tabWidget, const Tab &inner);
 
@@ -808,6 +811,7 @@ QTCREATOR_UTILS_EXPORT void normalMargin(Layout *);
 QTCREATOR_UTILS_EXPORT void withFormAlignment(Layout *);
 QTCREATOR_UTILS_EXPORT void hr(Layout *);
 QTCREATOR_UTILS_EXPORT void tight(Layout *); // noMargin + spacing(0)
+QTCREATOR_UTILS_EXPORT void ignoreDirtyHooks(Widget *);
 
 QTCREATOR_UTILS_EXPORT LayoutModifier spacing(int space);
 QTCREATOR_UTILS_EXPORT LayoutModifier stretch(int index, int stretch);

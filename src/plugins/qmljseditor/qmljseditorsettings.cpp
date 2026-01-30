@@ -321,6 +321,7 @@ public:
                 title(Tr::tr("QML Language Server")),
                 Row {
                     PushButton {
+                        ignoreDirtyHooks,
                         text(Tr::tr("Open Language Server preferences...")),
                         onClicked(this, [] { Core::ICore::showSettings(LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PAGE); })
                     },
