@@ -69,8 +69,6 @@ static FilePath appBundleExpandedPath(const FilePath &path)
     return path;
 }
 
-PathChooser::AboutToShowContextMenuHandler PathChooser::s_aboutToShowContextMenuHandler;
-
 // ------------------ BinaryVersionToolTipEventFilter
 // Event filter to be installed on a lineedit used for entering
 // executables, taking the arguments to print the version ('--version').
@@ -500,6 +498,8 @@ void PathChooser::slotBrowse(bool remote)
     emit browsingFinished();
     triggerChanged();
 }
+
+static PathChooser::AboutToShowContextMenuHandler s_aboutToShowContextMenuHandler;
 
 void PathChooser::contextMenuRequested(const QPoint &pos)
 {
