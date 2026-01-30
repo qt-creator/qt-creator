@@ -83,9 +83,9 @@ static void setupCSharpLanguageServer(IDocument *document)
 
     const QString message
         = install ? Tr::tr("Install C# language server via dotnet.")
-                  : Tr::tr("Setup C# language server (%1).").arg(csharpLs.toUserOutput());
+                  : Tr::tr("Set up C# language server (%1).").arg(csharpLs.toUserOutput());
     InfoBarEntry info(setupCSharpLsInfoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
-    info.addCustomButton(install ? Tr::tr("Install") : Tr::tr("Setup"), [=]() {
+    info.addCustomButton(install ? Tr::tr("Install") : Tr::tr("Set Up"), [=]() {
         const QList<IDocument *> &openedDocuments = DocumentModel::openedDocuments();
         for (IDocument *doc : openedDocuments)
             doc->infoBar()->removeInfo(setupCSharpLsInfoBarId);

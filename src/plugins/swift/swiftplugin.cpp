@@ -73,9 +73,9 @@ static void setupSwiftLanguageServer(IDocument *document)
         return;
 
     const QString message
-        = Tr::tr("Setup Swift language server (%1).").arg(sourcekitLsp.toUserOutput());
+        = Tr::tr("Set up Swift language server (%1).").arg(sourcekitLsp.toUserOutput());
     InfoBarEntry info(setupSwiftLsInfoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
-    info.addCustomButton(Tr::tr("Setup"), [=]() {
+    info.addCustomButton(Tr::tr("Set Up"), [=]() {
         const QList<IDocument *> &openedDocuments = DocumentModel::openedDocuments();
         for (IDocument *doc : openedDocuments)
             doc->infoBar()->removeInfo(setupSwiftLsInfoBarId);

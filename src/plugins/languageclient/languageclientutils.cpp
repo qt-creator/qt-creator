@@ -458,11 +458,11 @@ static void setupNpmServer(
     const bool install = !lsExecutable.isExecutableFile();
 
     const QString message = install ? Tr::tr("Install %1 language server via npm.").arg(language)
-                                    : Tr::tr("Setup %1 language server (%2).")
+                                    : Tr::tr("Set up %1 language server (%2).")
                                           .arg(language)
                                           .arg(lsExecutable.toUserOutput());
     InfoBarEntry info(infoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
-    info.addCustomButton(install ? Tr::tr("Install") : Tr::tr("Setup"), [=]() {
+    info.addCustomButton(install ? Tr::tr("Install") : Tr::tr("Set Up"), [=]() {
         const QList<IDocument *> &openedDocuments = DocumentModel::openedDocuments();
         for (IDocument *doc : openedDocuments)
             doc->infoBar()->removeInfo(infoBarId);
