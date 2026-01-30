@@ -14,7 +14,10 @@
 #include "texteditortr.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/filepath.h>
+#include <utils/guiutils.h>
+#include <utils/infolabel.h>
 
 #include <QChar>
 #include <QFont>
@@ -29,6 +32,12 @@ void CodeStyleEditor::init(
     const ProjectWrapper &project,
     ICodeStylePreferences *codeStyle)
 {
+    Utils::setIgnoreForDirtyHook(this);
+    auto infoLabel = new Utils::InfoLabel(
+        Tr::tr("All changes on this page take effect immediately."));
+    infoLabel->setFilled(true);
+    m_layout->addWidget(infoLabel);
+
     m_selector = createCodeStyleSelectorWidget(codeStyle, project.project());
     m_layout->addWidget(m_selector);
     if (!project) {
