@@ -582,8 +582,9 @@ void addToLayout(Layouting::Layout *layout, const BaseAspect *aspect)
 */
 void BaseAspect::apply()
 {
-    // We assume m_buffer to reflect current gui state as invariant after signalling settled down.
-    // It's an aspect (-subclass) implementation problem if this doesn't hold. Fix it up and bark.
+    // We assume m_volatileValue to reflect current gui state as invariant after
+    // signalling settled down. It's an aspect (-subclass) implementation problem
+    // if this doesn't hold. Fix it up and bark.
     QTC_CHECK(!guiToVolatileValue());
 
     if (!volatileValueToValue()) // Nothing to do.
