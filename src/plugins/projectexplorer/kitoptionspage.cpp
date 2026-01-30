@@ -57,8 +57,8 @@ class KitManagerConfigWidget;
 class KitNode : public TreeItem
 {
 public:
-    KitNode(Kit *k, KitModel *m, QBoxLayout *parentLayout, IOptionsPageWidget *pageWidget)
-        : m_kit(k), m_model(m), m_parentLayout(parentLayout), m_pageWidget(pageWidget)
+    KitNode(Kit *k, KitModel *m, IOptionsPageWidget *pageWidget)
+        : m_kit(k), m_model(m), m_pageWidget(pageWidget)
     {}
 
     ~KitNode() override { delete m_widget; }
@@ -162,7 +162,6 @@ private:
     Kit * const m_kit;
     KitModel * const m_model;
     KitManagerConfigWidget *m_widget = nullptr;
-    QBoxLayout * const m_parentLayout;
     Core::IOptionsPageWidget * const m_pageWidget;
     bool m_isDefaultKit = false;
     bool m_hasUniqueName = true;
@@ -175,10 +174,10 @@ class KitModel : public TreeModel<TreeItem, TreeItem, KitNode>
     Q_OBJECT
 
 public:
-    explicit KitModel(QBoxLayout *parentLayout, IOptionsPageWidget *pageWidget, QObject *parent);
+    explicit KitModel(IOptionsPageWidget *pageWidget);
 
-    Kit *kit(const QModelIndex &);
-    KitNode *kitNode(const QModelIndex &);
+    Kit *kit(const QModelIndex &) const;
+    KitNode *kitNode(const QModelIndex &) const;
     QModelIndex indexOf(Kit *k) const;
     QModelIndex indexOf(Id kitId) const;
 
@@ -219,15 +218,13 @@ private:
 
     QList<KitNode *> m_toRemoveList;
 
-    QBoxLayout * const  m_parentLayout;
     IOptionsPageWidget * const m_pageWidget;
     KitNode *m_defaultNode = nullptr;
     Guard m_widgetConstructionGuard;
 };
 
-KitModel::KitModel(QBoxLayout *parentLayout, IOptionsPageWidget *pageWidget, QObject *parent)
-    : TreeModel<TreeItem, TreeItem, KitNode>(parent),
-    m_parentLayout(parentLayout), m_pageWidget(pageWidget)
+KitModel::KitModel(IOptionsPageWidget *pageWidget)
+    : m_pageWidget(pageWidget)
 {
     setHeader(QStringList(Tr::tr("Name")));
     m_autoRoot = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
@@ -254,13 +251,13 @@ KitModel::KitModel(QBoxLayout *parentLayout, IOptionsPageWidget *pageWidget, QOb
             this, &KitModel::changeDefaultKit);
 }
 
-Kit *KitModel::kit(const QModelIndex &index)
+Kit *KitModel::kit(const QModelIndex &index) const
 {
     KitNode *n = kitNode(index);
     return n ? n->widget()->workingCopy() : nullptr;
 }
 
-KitNode *KitModel::kitNode(const QModelIndex &index)
+KitNode *KitModel::kitNode(const QModelIndex &index) const
 {
     TreeItem *n = itemForIndex(index);
     return (n && n->level() == 2) ? static_cast<KitNode *>(n) : nullptr;
@@ -402,7 +399,7 @@ KitNode *KitModel::findWorkingCopy(Kit *k) const
 
 KitNode *KitModel::createNode(Kit *k)
 {
-    auto node = new KitNode(k, this, m_parentLayout, m_pageWidget);
+    auto node = new KitNode(k, this, m_pageWidget);
     return node;
 }
 
@@ -498,75 +495,70 @@ public:
 
     void scrollToSelectedKit();
 
-    void apply() final { m_model->apply(); }
+    void apply() final { m_model.apply(); }
 
 public:
-    QTreeView *m_kitsView = nullptr;
-    QPushButton *m_addButton = nullptr;
-    QPushButton *m_cloneButton = nullptr;
-    QPushButton *m_delButton = nullptr;
-    QPushButton *m_makeDefaultButton = nullptr;
-    QPushButton *m_filterButton = nullptr;
-    QPushButton *m_defaultFilterButton = nullptr;
+    QTreeView m_kitsView;
+    QPushButton m_addButton;
+    QPushButton m_cloneButton;
+    QPushButton m_delButton;
+    QPushButton m_makeDefaultButton;
+    QPushButton m_filterButton;
+    QPushButton m_defaultFilterButton;
 
-    KitModel *m_model = nullptr;
+    KitModel m_model{this};
     KitSettingsSortModel m_sortModel;
-    QItemSelectionModel *m_selectionModel = nullptr;
+
     KitManagerConfigWidget *m_currentWidget = nullptr;
 };
 
 KitOptionsPageWidget::KitOptionsPageWidget()
 {
-    m_kitsView = new QTreeView(this);
-    m_kitsView->setUniformRowHeights(true);
-    m_kitsView->header()->setStretchLastSection(true);
-    m_kitsView->setSizePolicy(m_kitsView->sizePolicy().horizontalPolicy(),
+    m_kitsView.setUniformRowHeights(true);
+    m_kitsView.header()->setStretchLastSection(true);
+    m_kitsView.setSizePolicy(m_kitsView.sizePolicy().horizontalPolicy(),
                               QSizePolicy::Ignored);
 
-    m_addButton = new QPushButton(Tr::tr("Add"), this);
-    m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
-    m_delButton = new QPushButton(Tr::tr("Remove"), this);
-    m_makeDefaultButton = new QPushButton(Tr::tr("Make Default"), this);
-    m_filterButton = new QPushButton(Tr::tr("Settings Filter..."), this);
-    m_filterButton->setToolTip(Tr::tr("Choose which settings to display for this kit."));
-    m_defaultFilterButton = new QPushButton(Tr::tr("Default Settings Filter..."), this);
-    m_defaultFilterButton->setToolTip(Tr::tr("Choose which kit settings to display by default."));
+    m_addButton.setText(Tr::tr("Add"));
+    m_cloneButton.setText(Tr::tr("Clone"));
+    m_delButton.setText(Tr::tr("Remove"));
+    m_makeDefaultButton.setText(Tr::tr("Make Default"));
+    m_filterButton.setText(Tr::tr("Settings Filter..."));
+    m_filterButton.setToolTip(Tr::tr("Choose which settings to display for this kit."));
+    m_defaultFilterButton.setText(Tr::tr("Default Settings Filter..."));
+    m_defaultFilterButton.setToolTip(Tr::tr("Choose which kit settings to display by default."));
 
-    auto buttonLayout = new QVBoxLayout;
-    buttonLayout->setSpacing(6);
-    buttonLayout->setContentsMargins(0, 0, 0, 0);
-    buttonLayout->addWidget(m_addButton);
-    buttonLayout->addWidget(m_cloneButton);
-    buttonLayout->addWidget(m_delButton);
-    buttonLayout->addWidget(m_makeDefaultButton);
-    buttonLayout->addWidget(m_filterButton);
-    buttonLayout->addWidget(m_defaultFilterButton);
-    buttonLayout->addStretch();
-
-    auto horizontalLayout = new QHBoxLayout;
-    horizontalLayout->addWidget(m_kitsView);
-    horizontalLayout->addLayout(buttonLayout);
-
-    auto verticalLayout = new QVBoxLayout(this);
-    verticalLayout->addLayout(horizontalLayout);
-
-    m_model = new Internal::KitModel(verticalLayout, this, this);
-    connect(m_model, &Internal::KitModel::kitStateChanged,
+    connect(&m_model, &Internal::KitModel::kitStateChanged,
             this, &KitOptionsPageWidget::updateState);
-    verticalLayout->setStretch(0, 1);
-    verticalLayout->setStretch(1, 0);
 
     m_sortModel.setSortedCategories({Constants::msgAutoDetected(), Constants::msgManual()});
-    m_sortModel.setSourceModel(m_model);
+    m_sortModel.setSourceModel(&m_model);
 
-    m_kitsView->setModel(&m_sortModel);
-    m_kitsView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    m_kitsView->expandAll();
-    m_kitsView->setSortingEnabled(true);
-    m_kitsView->sortByColumn(0, Qt::AscendingOrder);
+    m_kitsView.setModel(&m_sortModel);
+    m_kitsView.header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_kitsView.expandAll();
+    m_kitsView.setSortingEnabled(true);
+    m_kitsView.sortByColumn(0, Qt::AscendingOrder);
 
-    m_selectionModel = m_kitsView->selectionModel();
-    connect(m_selectionModel, &QItemSelectionModel::selectionChanged,
+    using namespace Layouting;
+    Column {
+        Row {
+            m_kitsView,
+            Column {
+                noMargin,
+                m_addButton,
+                m_cloneButton,
+                m_delButton,
+                m_makeDefaultButton,
+                m_filterButton,
+                m_defaultFilterButton,
+                st,
+            }
+        }
+        // KitAspects will fill in here.
+    }.attachTo(this);
+
+    connect(m_kitsView.selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &KitOptionsPageWidget::kitSelectionChanged);
     connect(KitManager::instance(), &KitManager::kitAdded,
             this, &KitOptionsPageWidget::kitSelectionChanged);
@@ -575,16 +567,15 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     connect(KitManager::instance(), &KitManager::kitUpdated,
             this, &KitOptionsPageWidget::kitSelectionChanged);
 
-    // Set up add menu:
-    connect(m_addButton, &QAbstractButton::clicked,
+    connect(&m_addButton, &QAbstractButton::clicked,
             this, &KitOptionsPageWidget::addNewKit);
-    connect(m_cloneButton, &QAbstractButton::clicked,
+    connect(&m_cloneButton, &QAbstractButton::clicked,
             this, &KitOptionsPageWidget::cloneKit);
-    connect(m_delButton, &QAbstractButton::clicked,
+    connect(&m_delButton, &QAbstractButton::clicked,
             this, &KitOptionsPageWidget::removeKit);
-    connect(m_makeDefaultButton, &QAbstractButton::clicked,
+    connect(&m_makeDefaultButton, &QAbstractButton::clicked,
             this, &KitOptionsPageWidget::makeDefaultKit);
-    connect(m_filterButton, &QAbstractButton::clicked, this, [this] {
+    connect(&m_filterButton, &QAbstractButton::clicked, this, [this] {
         QTC_ASSERT(m_currentWidget, return);
         FilterKitAspectsDialog dlg(m_currentWidget->workingCopy(), this);
         if (dlg.exec() == QDialog::Accepted) {
@@ -592,11 +583,11 @@ KitOptionsPageWidget::KitOptionsPageWidget()
             m_currentWidget->updateVisibility();
         }
     });
-    connect(m_defaultFilterButton, &QAbstractButton::clicked, this, [this] {
+    connect(&m_defaultFilterButton, &QAbstractButton::clicked, this, [this] {
         FilterKitAspectsDialog dlg(nullptr, this);
         if (dlg.exec() == QDialog::Accepted) {
             KitManager::setIrrelevantAspects(dlg.irrelevantAspects());
-            m_model->updateVisibility();
+            m_model.updateVisibility();
         }
     });
 
@@ -605,27 +596,26 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     updateState();
 
     setUseDirtyHook(false);
-    setupDirtyHook(m_addButton);
-    setupDirtyHook(m_cloneButton);
-    setupDirtyHook(m_delButton);
-    setupDirtyHook(m_makeDefaultButton);
+    setupDirtyHook(&m_addButton);
+    setupDirtyHook(&m_cloneButton);
+    setupDirtyHook(&m_delButton);
+    setupDirtyHook(&m_makeDefaultButton);
 }
 
 void KitOptionsPageWidget::scrollToSelectedKit()
 {
     QModelIndex index = m_sortModel.mapFromSource(
-        m_model->indexOf(Core::preselectedOptionsPageItem(Constants::KITS_SETTINGS_PAGE_ID)));
-    m_selectionModel->select(index,
-                             QItemSelectionModel::Clear
-                                 | QItemSelectionModel::SelectCurrent
-                                 | QItemSelectionModel::Rows);
-    m_kitsView->scrollTo(index);
+        m_model.indexOf(Core::preselectedOptionsPageItem(Constants::KITS_SETTINGS_PAGE_ID)));
+    m_kitsView.selectionModel()->select(index, QItemSelectionModel::Clear
+                                             | QItemSelectionModel::SelectCurrent
+                                             | QItemSelectionModel::Rows);
+    m_kitsView.scrollTo(index);
 }
 
 void KitOptionsPageWidget::kitSelectionChanged()
 {
     QModelIndex current = currentIndex();
-    KitManagerConfigWidget * const newWidget = m_model->widget(m_sortModel.mapToSource(current));
+    KitManagerConfigWidget * const newWidget = m_model.widget(m_sortModel.mapToSource(current));
     if (newWidget == m_currentWidget)
         return;
 
@@ -636,7 +626,7 @@ void KitOptionsPageWidget::kitSelectionChanged()
 
     if (m_currentWidget) {
         m_currentWidget->setVisible(true);
-        m_kitsView->scrollTo(current);
+        m_kitsView.scrollTo(current);
     }
 
     updateState();
@@ -644,13 +634,12 @@ void KitOptionsPageWidget::kitSelectionChanged()
 
 void KitOptionsPageWidget::addNewKit()
 {
-    Kit *k = m_model->markForAddition(nullptr);
+    Kit *k = m_model.markForAddition(nullptr);
 
-    QModelIndex newIdx = m_sortModel.mapFromSource(m_model->indexOf(k));
-    m_selectionModel->select(newIdx,
-                             QItemSelectionModel::Clear
-                             | QItemSelectionModel::SelectCurrent
-                             | QItemSelectionModel::Rows);
+    QModelIndex newIdx = m_sortModel.mapFromSource(m_model.indexOf(k));
+    m_kitsView.selectionModel()->select(newIdx, QItemSelectionModel::Clear
+                                              | QItemSelectionModel::SelectCurrent
+                                              | QItemSelectionModel::Rows);
 
     if (m_currentWidget)
         m_currentWidget->setFocusToName();
@@ -658,7 +647,7 @@ void KitOptionsPageWidget::addNewKit()
 
 Kit *KitOptionsPageWidget::currentKit() const
 {
-    return m_model->kit(m_sortModel.mapToSource(currentIndex()));
+    return m_model.kit(m_sortModel.mapToSource(currentIndex()));
 }
 
 void KitOptionsPageWidget::cloneKit()
@@ -667,13 +656,12 @@ void KitOptionsPageWidget::cloneKit()
     if (!current)
         return;
 
-    Kit *k = m_model->markForAddition(current);
-    QModelIndex newIdx = m_sortModel.mapFromSource(m_model->indexOf(k));
-    m_kitsView->scrollTo(newIdx);
-    m_selectionModel->select(newIdx,
-                             QItemSelectionModel::Clear
-                             | QItemSelectionModel::SelectCurrent
-                             | QItemSelectionModel::Rows);
+    Kit *k = m_model.markForAddition(current);
+    QModelIndex newIdx = m_sortModel.mapFromSource(m_model.indexOf(k));
+    m_kitsView.scrollTo(newIdx);
+    m_kitsView.selectionModel()->select(newIdx, QItemSelectionModel::Clear
+                                              | QItemSelectionModel::SelectCurrent
+                                              | QItemSelectionModel::Rows);
 
     if (m_currentWidget)
         m_currentWidget->setFocusToName();
@@ -682,20 +670,17 @@ void KitOptionsPageWidget::cloneKit()
 void KitOptionsPageWidget::removeKit()
 {
     if (Kit *k = currentKit())
-        m_model->markForRemoval(k);
+        m_model.markForRemoval(k);
 }
 
 void KitOptionsPageWidget::makeDefaultKit()
 {
-    m_model->setDefaultKit(m_sortModel.mapToSource(currentIndex()));
+    m_model.setDefaultKit(m_sortModel.mapToSource(currentIndex()));
     updateState();
 }
 
 void KitOptionsPageWidget::updateState()
 {
-    if (!m_kitsView)
-        return;
-
     bool canCopy = false;
     bool canDelete = false;
     bool canMakeDefault = false;
@@ -703,21 +688,18 @@ void KitOptionsPageWidget::updateState()
     if (Kit *k = currentKit()) {
         canCopy = true;
         canDelete = !k->detectionSource().isSdkProvided();
-        canMakeDefault = !m_model->isDefaultKit(k);
+        canMakeDefault = !m_model.isDefaultKit(k);
     }
 
-    m_cloneButton->setEnabled(canCopy);
-    m_delButton->setEnabled(canDelete);
-    m_makeDefaultButton->setEnabled(canMakeDefault);
-    m_filterButton->setEnabled(canCopy);
+    m_cloneButton.setEnabled(canCopy);
+    m_delButton.setEnabled(canDelete);
+    m_makeDefaultButton.setEnabled(canMakeDefault);
+    m_filterButton.setEnabled(canCopy);
 }
 
 QModelIndex KitOptionsPageWidget::currentIndex() const
 {
-    if (!m_selectionModel)
-        return {};
-
-    QModelIndexList idxs = m_selectionModel->selectedRows();
+    QModelIndexList idxs = m_kitsView.selectionModel()->selectedRows();
     if (idxs.count() != 1)
         return {};
     return idxs.at(0);
@@ -744,7 +726,8 @@ void KitNode::ensureWidget()
             newParent->appendChild(this);
         }
     });
-    m_parentLayout->addWidget(m_widget);
+
+    m_pageWidget->layout()->addWidget(m_widget);
 
     m_model->handleWidgetConstructionEnd();
 }
