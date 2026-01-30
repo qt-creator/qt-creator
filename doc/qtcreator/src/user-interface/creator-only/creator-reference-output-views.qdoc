@@ -219,7 +219,7 @@
 
     If you specify command-line arguments in the run settings that are passed
     to the application when running it, they are displayed as a part of the
-    application output. For more information, see \l{Desktop Device Run Settings}.
+    application output. For more information, see \l{Run on the desktop}.
 
     Select toolbar buttons to run applications, to attach the debugger to the
     running application, and to stop running or debugging.

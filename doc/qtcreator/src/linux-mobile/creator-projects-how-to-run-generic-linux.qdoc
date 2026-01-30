@@ -10,7 +10,7 @@
 
     \title Run on remote Linux devices
 
-    To build an application and run it on a device:
+    To build an application and run it on a Linux-based device:
 
         \list 1
 
@@ -27,15 +27,17 @@
     displayed on the device. Command-line output is visible in the \QC
     \uicontrol {Application Output} view.
 
-    In the \uicontrol {Projects} mode, select the remote Linux kit and go to
-    \uicontrol {Deploy Settings} to view the settings for deploying the
-    application to the connected device. For more information, see
-    \l{Remote Linux Run Settings}.
+    Go to \uicontrol Projects > \uicontrol {Run Settings} to specify settings
+    for running the application.
+
+    Go to \uicontrol Projects > \uicontrol {Deploy Settings} to view the
+    settings for deploying the application to the connected device.
 
     Debugging works transparently if GDB server is installed on the device and
     it is compatible with the GDB on the host.
 
     \sa {Remote Linux}{How To: Develop for remote Linux},
     {Debug remotely with GDB}, {Running applications}, {Compilers},
-    {Embedded Platforms}, {Managing kits}
+    {Embedded Platforms}, {Managing kits}, {Remote Linux Deploy Configuration},
+    {Specify remote Linux run settings}
 */

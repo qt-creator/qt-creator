@@ -207,7 +207,8 @@ Projects
       ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-configure-tools-on-devices.html))
   ([QTCREATORBUG-33677](https://bugreports.qt.io/browse/QTCREATORBUG-33677))
 * Added `Re-detect` to `Preferences > Kits > Qt Versions`
-* Added the option to run applications as a different user
+* Changed the option to run applications as root to run them as a different user:
+  `Projects > Run Settings > Run as user`
   ([QTCREATORBUG-33655](https://bugreports.qt.io/browse/QTCREATORBUG-33655))
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-run-settings-desktop-devices.html))
 * Added the option to search in generated files with the project related
@@ -388,7 +389,9 @@ Platforms
 
 ### Remote Linux
 
-* Added support for `Run as root`
+* Changed the option to run applications as root to run them as a different user:
+  `Projects > Run Settings > Run as user`
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-run-settings-remote-linux.html))
 * Added fast file access support for 32-bit ARM Linux devices
 * Added the `Preferences > Devices > Create kits` option to create kits for
   auto-detected device build tools

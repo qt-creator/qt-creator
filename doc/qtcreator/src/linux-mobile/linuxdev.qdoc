@@ -58,7 +58,7 @@
 
     \sa {Add Docker devices}, {Remote Linux}{How to: Develop for remote Linux},
     {Run in Qt Application Manager}, {Remote Linux Deploy Configuration},
-    {Remote Linux Run Settings}
+    {Specify remote Linux run settings}
 */
 
 /*!
@@ -125,7 +125,7 @@
 
     \sa {Remote Linux}{How to: Develop for remote Linux},
     {Manage kits}{How to: Manage kits}, {Developing for Remote Linux Devices},
-    {Remote Linux Deploy Configuration}, {Remote Linux Run Settings}
+    {Remote Linux Deploy Configuration}, {Specify remote Linux run settings}
 */
 
 /*!
@@ -164,5 +164,5 @@
 
     \sa {Add CMake tools}, {Remote Linux}{How to: Develop for remote Linux},
     {Manage kits}{How to: Manage kits}, {Developing for Remote Linux Devices},
-    {Remote Linux Deploy Configuration}, {Remote Linux Run Settings}
+    {Remote Linux Deploy Configuration}, {Specify remote Linux run settings}
 */

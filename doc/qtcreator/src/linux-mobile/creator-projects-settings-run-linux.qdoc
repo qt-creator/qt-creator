@@ -3,13 +3,12 @@
 
 /*!
     \page creator-run-settings-remote-linux.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
     \ingroup creator-reference-run-configurations
+    \ingroup creator-how-to-remote-linux
 
-    \title Remote Linux Run Settings
-
-    \brief Settings for running applications on Linux-based devices.
+    \title Specify remote Linux run settings
 
     To specify run settings for the selected \l{Managing kits}{kit}, go to
     \uicontrol Projects > \uicontrol {Run Settings}.
@@ -17,8 +16,7 @@
     To run and debug an application on a Linux-based device, you must create
     connections from the development host to the device and add the device
     configurations to kits. Select \uicontrol {Manage Kits} to add devices
-    to kits. For more information, see
-    \l {Remote Linux}{How to: Develop for remote Linux}.
+    to kits.
 
     When you run the application, \QC copies the files to the connected device.
 
@@ -35,6 +33,8 @@
 
     Select \uicontrol {Forward to local display} to show a remotely
     running X11 client on a local display.
+
+    \include {creator-projects-settings-run-desktop.qdoc} {run-as-user}
 
     \sa {Activate kits for a project}, {Configure projects for running}, {Managing kits},
     {Remote Linux}{How to: Develop for remote Linux}
