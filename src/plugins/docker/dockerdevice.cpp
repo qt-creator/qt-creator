@@ -1154,36 +1154,35 @@ DockerDevice::DockerDevice()
     network.setSettingsKey("Network");
     network.setLabelText(Tr::tr("Network:"));
     network.setDefaultValue("bridge");
-    network.setFillCallback([this](const StringSelectionAspect::ResultCallback &cb) {
-        auto future = DockerApi::instance()->networks();
+    network.setComboBoxEditable(false);
+    network.setFillCallback([](const StringSelectionAspect::ResultCallback &cb) {
+        auto networks = DockerApi::instance()->networks();
 
-        auto watcher = new QFutureWatcher<Result<QList<Network>>>(this);
-        QObject::connect(watcher,
-                         &QFutureWatcher<Result<QList<Network>>>::finished,
-                         this,
-                         [watcher, cb]() {
-                             Result<QList<Network>> result = watcher->result();
-                             if (result) {
-                                 auto items = transform(*result, [](const Network &network) {
-                                     QStandardItem *item = new QStandardItem(network.name);
-                                     item->setData(network.name);
-                                     item->setToolTip(network.toString());
-                                     return item;
-                                 });
-                                 cb(items);
-                             } else {
-                                 QStandardItem *errorItem = new QStandardItem(Tr::tr("Error"));
-                                 errorItem->setToolTip(result.error());
-                                 cb({errorItem});
-                             }
-                         });
-        watcher->setFuture(future);
+        if (networks) {
+            auto items = transform(*networks, [](const Network &network) {
+                QStandardItem *item = new QStandardItem(network.name);
+                item->setData(network.name);
+                item->setToolTip(network.toString());
+                return item;
+            });
+            cb(items);
+        } else {
+            QStandardItem *errorItem = new QStandardItem(
+                networks.error().mid(0, networks.error().indexOf('\n')));
+            errorItem->setToolTip(networks.error());
+            cb({errorItem});
+        }
     });
 
     connect(DockerApi::instance(),
             &DockerApi::dockerDaemonAvailableChanged,
             &network,
             &StringSelectionAspect::refill);
+    connect(
+        DockerApi::instance(),
+        &DockerApi::networksChanged,
+        &network,
+        &StringSelectionAspect::refill);
 
     allowEmptyCommand.setValue(true);
 

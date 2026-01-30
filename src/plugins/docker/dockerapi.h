@@ -42,13 +42,16 @@ public:
     bool canConnect();
     void checkCanConnect(bool async = true);
     static void recheckDockerDaemon();
-    QFuture<Utils::Result<QList<Network>>> networks();
+
+    Utils::Result<QList<Network>> networks() const { return m_networks; }
+    void refreshNetworks();
 
     bool isContainerRunning(const QString &containerId);
     bool imageExists(const QString &imageId);
 
 signals:
     void dockerDaemonAvailableChanged();
+    void networksChanged();
 
 public:
     std::optional<bool> dockerDaemonAvailable(bool async = true);
@@ -61,6 +64,7 @@ private:
     QMutex m_daemonCheckGuard;
 
     Utils::SynchronizedValue<Utils::FilePath> m_dockerClientBinary;
+    Utils::Result<QList<Network>> m_networks;
 };
 
 } // Docker::Internal
