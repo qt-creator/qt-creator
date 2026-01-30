@@ -299,7 +299,7 @@ CodeStyleEditorWidget *ClangFormatCodeStyleEditor::createEditorWidget(
 CodeStyleSelectorWidget *ClangFormatCodeStyleEditor::createCodeStyleSelectorWidget(
     ICodeStylePreferences *codeStyle, const void *project, QWidget *parent) const
 {
-    auto selector = new ClangFormatSelectorWidget{parent};
+    auto selector = new ClangFormatSelectorWidget{project, parent};
     selector->setCodeStyle(codeStyle);
     return selector;
 }
