@@ -72,9 +72,14 @@ public:
         definitionsInfolabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
         definitionsInfolabel->setWordWrap(true);
         definitionsInfolabel->setOpenExternalLinks(true);
-        definitionsInfolabel->setText(Tr::tr("<html><head/><body><p>Highlight definitions are provided by the "
-                                             "<a href=\"https://invent.kde.org/frameworks/syntax-highlighting\">"
-                                             "KSyntaxHighlighting</a> engine.</p></body></html>"));
+        definitionsInfolabel->setText(
+            "<html><head/><body><p>"
+            + Tr::tr("Highlight definitions are provided by the %1 engine.")
+                  .arg(
+                      "<a "
+                      "href=\"https://invent.kde.org/frameworks/"
+                      "syntax-highlighting\">KSyntaxHighlighting</a>")
+            + "</p></body></html>");
 
         auto downloadDefinitions = new QPushButton(Tr::tr("Download Definitions"));
         downloadDefinitions->setToolTip(Tr::tr("Download missing and update existing syntax definition files."));

@@ -630,8 +630,10 @@ void SettingsWidget::createGui()
 
     m_okButton.setToolTip(Tr::tr("Apply all changes and return to previous mode."));
     m_applyButton.setToolTip(Tr::tr("Apply all changes and stay here."));
-    m_cancelButton.setToolTip(Tr::tr("Discard all changes. Hold <Shift> to stay here, "
-                                     "otherwise return to previous mode."));
+    m_cancelButton.setToolTip(
+        Tr::tr(
+            "Discard all changes. Hold the SHIFT key to stay here, "
+            "otherwise return to previous mode."));
 
     auto buttonBox = new QDialogButtonBox;
     buttonBox->addButton(&m_okButton, QDialogButtonBox::ActionRole);

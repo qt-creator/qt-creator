@@ -424,6 +424,7 @@ void KitManager::createKitsFromToolchains(
         const Id runDeviceType = runDeviceTypeForKit(kit.get());
         const QString abiString = it.key().toString();
         RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), runDeviceType);
+        //: <abi> on <device display name>
         const QString displayName = dev ? Tr::tr("%1 on %2").arg(abiString, dev->displayName())
                                         : runDeviceType == Constants::DESKTOP_DEVICE_TYPE
                                         ? Tr::tr("Desktop (%1)").arg(abiString)

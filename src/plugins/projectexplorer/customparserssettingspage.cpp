@@ -171,7 +171,7 @@ QVariant CustomParsersModel::data(const QModelIndex &index, int role) const
 
     case Qt::ToolTipRole:
         if (s.readOnly)
-            return Tr::tr("Parser is not modifiable, because it was auto-imported.");
+            return Tr::tr("Cannot modify parser because it was auto-imported.");
         return {};
 
     case Qt::UserRole:

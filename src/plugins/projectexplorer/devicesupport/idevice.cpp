@@ -863,7 +863,8 @@ ExecutableItem IDevice::signalOperationRecipe(
 {
     Q_UNUSED(data)
     return QSyncTask([resultStorage] {
-        *resultStorage = ResultError(Tr::tr("No signal operation recipe available for this device."));
+        *resultStorage = ResultError(
+            Tr::tr("No signal operation recipe is available for this device."));
         return DoneResult::Error;
     });
 }
@@ -1242,7 +1243,7 @@ Result<> SignalOperationData::isValid() const
     case SignalOperationMode::KillByPid:
     case SignalOperationMode::InterruptByPid:
         if (pid <= 0)
-            return ResultError(Tr::tr("No valid pid specified for SignalOperationData."));
+            return ResultError(Tr::tr("No valid PID specified for SignalOperationData."));
         break;
     }
     return ResultOk;

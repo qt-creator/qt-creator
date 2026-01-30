@@ -342,7 +342,7 @@ void CustomParsers::load(const Utils::QtcSettings &s)
         const auto parsers = parsersFromFile(importFile);
         if (!parsers) {
             Core::MessageManager::writeFlashing(
-                Tr::tr("Failure reading custom output parsers from \"%1\": %2")
+                Tr::tr("Failed to read custom output parsers from \"%1\": %2")
                     .arg(importFile.toUserOutput(), parsers.error()));
             return;
         }

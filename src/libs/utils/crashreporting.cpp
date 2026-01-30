@@ -187,7 +187,7 @@ void addCrashReportSetting(
     BoolAspect *setting = &theCrashReportSetting();
     theCrashReportSetting().addOnChanged(setting, [askForRestart] {
         if (!setUpCrashReporting())
-            askForRestart(Tr::tr("The crash reporting state will take effect after restart."));
+            askForRestart(Tr::tr("The crash reporting change will take effect after restart."));
     });
     container->registerAspect(setting);
 }

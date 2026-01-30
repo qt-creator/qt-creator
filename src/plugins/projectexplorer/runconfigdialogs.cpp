@@ -181,7 +181,7 @@ RemoveRunConfigsDialog::RemoveRunConfigsDialog(BuildConfiguration *bc, QWidget *
     m_view->setModel(sortModel);
     m_view->sortByColumn(0, Qt::AscendingOrder);
     const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    buttonBox->button(QDialogButtonBox::Ok)->setText(Tr::tr("Remove selected"));
+    buttonBox->button(QDialogButtonBox::Ok)->setText(Tr::tr("Remove Selected"));
 
     connect(filterEdit, &FancyLineEdit::textChanged, this, [sortModel](const QString &text) {
         sortModel->setFilterRegularExpression(FuzzyMatcher::createRegExp(text));

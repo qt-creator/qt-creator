@@ -364,6 +364,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
 
     const auto onUpdateDone = [](QString &output) {
         return [&output](const Process &process) {
+            //: %1=command, %2=error
             const QString errorMessage = Tr::tr("Failed to get update information (%1): %2")
                                              .arg(process.commandLine().toUserOutput());
             if (process.error() != QProcess::UnknownError) {

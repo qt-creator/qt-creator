@@ -25,19 +25,19 @@ Protocol::~Protocol() = default;
 
 QtTaskTree::ExecutableItem Protocol::fetchRecipe(const QString &, const FetchHandler &) const
 {
-    reportError(Tr::tr("Fetch cabability not supported."));
+    reportError(Tr::tr("Fetching is not supported."));
     return QtTaskTree::errorItem;
 }
 
 QtTaskTree::ExecutableItem Protocol::listRecipe(const ListHandler &) const
 {
-    reportError(Tr::tr("List cabability not supported."));
+    reportError(Tr::tr("Listing is not supported."));
     return QtTaskTree::errorItem;
 }
 
 QtTaskTree::ExecutableItem Protocol::pasteRecipe(const PasteInputData &, const PasteHandler &) const
 {
-    reportError(Tr::tr("Paste cabability not supported."));
+    reportError(Tr::tr("Pasting is not supported."));
     return QtTaskTree::errorItem;
 }
 

@@ -104,7 +104,8 @@ void AndroidManifestHoverHandler::identifyMatch(
 
     if (manifestSectionKeywords.contains(keyword)) {
         QStringList helpIds;
-        m_helpToolTip = Tr::tr("&lt;%1&gt; online docs").arg(keyword);
+        //: %1 is an AndroidManifest keyword
+        m_helpToolTip = Tr::tr("Open online documentation for %1.").arg("&lt;" + keyword + "&gt;");
         const QString docMark = keyword;
         const QString internalHelpId = keyword;
         const QUrl finalUrl = QUrl(MANIFEST_GUIDE_BASE + keyword + "-element");
