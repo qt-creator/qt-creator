@@ -27,6 +27,8 @@
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
+#include <QGuiApplication>
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -105,15 +107,16 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     if (!ideCMakeHelperDir.isDir()) {
         BuildSystem::appendBuildSystemOutput(
-            Tr::tr("Qt Creator installation is missing the "
-                   "cmake-helper directory. It was expected here: \"%1\".")
-                .arg(ideCMakeHelperDir.toUserOutput()));
+            //: %1 applicationDisplayName
+            Tr::tr(
+                "The %1 installation is missing the "
+                "\"cmake-helper\" directory. It was expected here: \"%2\".")
+                .arg(QGuiApplication::applicationDisplayName(), ideCMakeHelperDir.toUserOutput()));
     } else if (!localCMakeHelperDir.exists()) {
         const auto result = ideCMakeHelperDir.copyRecursively(localCMakeHelperDir);
         if (!result) {
             BuildSystem::appendBuildSystemOutput(
-                addCMakePrefix(
-                    {Tr::tr("Failed to copy cmake-helper folder:"), result.error()})
+                addCMakePrefix({Tr::tr("Failed to copy \"cmake-helper\" folder:"), result.error()})
                     .join('\n'));
         }
     }

@@ -18,6 +18,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
+#include <QGuiApplication>
 #include <QVBoxLayout>
 
 using namespace ProjectExplorer;
@@ -84,15 +85,18 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
     packageManagerAutoSetup.setDefaultValue(true);
     packageManagerAutoSetup.setLabelText(::CMakeProjectManager::Tr::tr("Package manager auto setup"));
     packageManagerAutoSetup.setToolTip(
+        //: %1 = applicationDisplayName
         ::CMakeProjectManager::Tr::tr(
-            "Enables Qt Creator to install dependencies from the conanfile.txt, "
-            "conanfile.py, or vcpkg.json file from the project source directory."));
+            "Enables %1 to install dependencies from the conanfile.txt, "
+            "conanfile.py, or vcpkg.json file from the project source directory.")
+            .arg(QGuiApplication::applicationDisplayName()));
 
     maintenanceToolDependencyProvider.setSettingsKey("MaintenanceToolDependencyProvider");
     maintenanceToolDependencyProvider.setDefaultValue(true);
-    maintenanceToolDependencyProvider.setLabelText(::CMakeProjectManager::Tr::tr("MaintenanceTool dependency provider"));
+    maintenanceToolDependencyProvider.setLabelText(
+        ::CMakeProjectManager::Tr::tr("Qt Online Installer dependency provider"));
     maintenanceToolDependencyProvider.setToolTip(
-        ::CMakeProjectManager::Tr::tr("Use Qt MaintenanceTool to install missing Qt components."));
+        ::CMakeProjectManager::Tr::tr("Use Qt Online Installer to install missing Qt components."));
 
     askBeforeReConfigureInitialParams.setSettingsKey("AskReConfigureInitialParams");
     askBeforeReConfigureInitialParams.setDefaultValue(true);
