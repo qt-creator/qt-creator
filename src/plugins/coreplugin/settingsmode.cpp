@@ -810,6 +810,13 @@ bool SettingsWidget::askToLeave()
         okToSwitch = true;
     });
 
+    QPushButton *abandonButton
+        = dialog.addButton(Tr::tr("Abandon Unsaved Changes"), QMessageBox::AcceptRole);
+    connect(abandonButton, &QAbstractButton::clicked, this, [this, &okToSwitch] {
+        cancel();
+        okToSwitch = true;
+    });
+
     dialog.addButton(Tr::tr("Stay in Settings Mode"), QMessageBox::AcceptRole);
     dialog.exec();
 
