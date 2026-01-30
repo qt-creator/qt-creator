@@ -1390,7 +1390,7 @@ QString DockerDevice::deviceStateToString() const
     case IDevice::DeviceDisconnected:
         if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
             return Tr::tr("Docker system is not reachable.");
-        return Tr::tr("Ready (Waiting for access to container...)");
+        return Tr::tr("Ready (waiting for access to container...)");
     default:
         return IDevice::deviceStateToString();
     }

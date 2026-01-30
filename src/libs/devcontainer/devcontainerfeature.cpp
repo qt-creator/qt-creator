@@ -20,11 +20,12 @@ Result<Feature> Feature::fromJson(
     QJsonDocument doc = QJsonDocument::fromJson(cleanedInput, &error);
     if (error.error != QJsonParseError::NoError) {
         return ResultError(
-            Tr::tr("Failed to parse devcontainer feature file: %1").arg(error.errorString()));
+            Tr::tr("Failed to parse the development container feature file: %1")
+                .arg(error.errorString()));
     }
 
     if (!doc.isObject())
-        return ResultError(Tr::tr("Invalid devcontainer feature json file: expected an object"));
+        return ResultError(Tr::tr("Invalid development container JSON file: expected an object."));
 
     QJsonObject json = doc.object();
     return Feature::fromJson(json, jsonStringToString);

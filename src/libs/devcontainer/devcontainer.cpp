@@ -402,7 +402,7 @@ static ProcessTask inspectContainerTask(
         process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
         instanceConfig.logFunction(
-            QString(Tr::tr("Inspecting Container: %1")).arg(process.commandLine().toUserOutput()));
+            Tr::tr("Inspecting container: %1").arg(process.commandLine().toUserOutput()));
     };
 
     const auto doneInspectContainer = [containerDetails](const Process &process) -> DoneResult {
@@ -551,7 +551,7 @@ static ProcessTask inspectImageTask(
         process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
         instanceConfig.logFunction(
-            QString(Tr::tr("Inspecting Image: %1")).arg(process.commandLine().toUserOutput()));
+            Tr::tr("Inspecting image: %1").arg(process.commandLine().toUserOutput()));
     };
 
     const auto doneInspectImage =
@@ -726,7 +726,7 @@ while sleep 1 & wait $!; do :; done
     process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
     instanceConfig.logFunction(
-        QString(Tr::tr("Creating Container: %1")).arg(process.commandLine().toUserOutput()));
+        Tr::tr("Creating container: %1").arg(process.commandLine().toUserOutput()));
 }
 
 static ProcessTask eventMonitor(const QString &eventType, const InstanceConfig &instanceConfig)
@@ -742,7 +742,7 @@ static ProcessTask eventMonitor(const QString &eventType, const InstanceConfig &
         process.setCommand(eventsCmdLine);
 
         instanceConfig.logFunction(
-            QString(Tr::tr("Waiting for Container to Start: %1")).arg(eventsCmdLine.toUserOutput()));
+            Tr::tr("Waiting for container to start: %1").arg(eventsCmdLine.toUserOutput()));
 
         process.setTextChannelMode(Channel::Output, TextChannelMode::SingleLine);
         process.setTextChannelMode(Channel::Error, TextChannelMode::SingleLine);
@@ -831,7 +831,7 @@ static ExecutableItem execInContainerTask(
         process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
         instanceConfig.logFunction(
-            QString(Tr::tr("Executing in Container: %1")).arg(process.commandLine().toUserOutput()));
+            Tr::tr("Executing in container: %1").arg(process.commandLine().toUserOutput()));
     };
 
     return ProcessTask{setupExec, doneHandler};
@@ -1142,8 +1142,8 @@ static ExecutableItem containerDoesNotExistTask(const InstanceConfig &instanceCo
 {
     return ProcessTask(
         [instanceConfig](Process &process) {
-            instanceConfig.logFunction(QString(Tr::tr("Checking if container exists: %1"))
-                                           .arg(containerName(instanceConfig)));
+            instanceConfig.logFunction(
+                Tr::tr("Checking if container exists: %1").arg(containerName(instanceConfig)));
 
             connectProcessToLog(process, instanceConfig, "Check Container Existence");
 
@@ -1167,13 +1167,12 @@ static ExecutableItem containerDoesNotExistTask(const InstanceConfig &instanceCo
             }
             const QString output = process.cleanedStdOut().trimmed();
             if (output == containerName(instanceConfig)) {
-                instanceConfig.logFunction(
-                    QString(Tr::tr("Container already exists: %1")).arg(output));
+                instanceConfig.logFunction(Tr::tr("Container already exists: %1").arg(output));
                 return DoneResult::Error;
             }
 
             instanceConfig.logFunction(
-                QString(Tr::tr("Container does not exist, proceeding to create: %1")).arg(output));
+                Tr::tr("Container does not exist, proceeding to create: %1").arg(output));
 
             return DoneResult::Success;
         });
@@ -1241,7 +1240,7 @@ static ExecutableItem startContainerRecipe(const InstanceConfig &instanceConfig)
             process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
             instanceConfig.logFunction(
-                QString(Tr::tr("Starting Container: %1")).arg(process.commandLine().toUserOutput()));
+                Tr::tr("Starting container: %1").arg(process.commandLine().toUserOutput()));
         });
     };
 
@@ -1255,7 +1254,7 @@ static ExecutableItem startContainerRecipe(const InstanceConfig &instanceConfig)
             process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
             instanceConfig.logFunction(
-                QString(Tr::tr("Resuming Container: %1")).arg(process.commandLine().toUserOutput()));
+                Tr::tr("Resuming container: %1").arg(process.commandLine().toUserOutput()));
         });
     };
 
@@ -1367,7 +1366,7 @@ static Result<Group> prepareContainerRecipe(
             process.setTerminalMode(TerminalMode::Run);
 
         instanceConfig.logFunction(
-            QString(Tr::tr("Building Dockerfile: %1")).arg(process.commandLine().toUserOutput()));
+            Tr::tr("Building Dockerfile: %1").arg(process.commandLine().toUserOutput()));
     };
 
     Storage<ImageDetails> imageDetails;
@@ -1558,7 +1557,7 @@ static void setupRemoveContainer(const InstanceConfig &instanceConfig, Process &
     process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
     instanceConfig.logFunction(
-        QString(Tr::tr("Removing Container: %1")).arg(process.commandLine().toUserOutput()));
+        Tr::tr("Removing container: %1").arg(process.commandLine().toUserOutput()));
 }
 
 static Result<Group> downContainerRecipe(
@@ -1592,7 +1591,7 @@ static Result<Group> downContainerRecipe(
         process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
         instanceConfig.logFunction(
-            QString(Tr::tr("Removing Image: %1")).arg(process.commandLine().toUserOutput()));
+            Tr::tr("Removing image: %1").arg(process.commandLine().toUserOutput()));
     };
 
     const auto setupRMContainer = [imageConfig, instanceConfig](Process &process) {
