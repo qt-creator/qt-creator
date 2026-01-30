@@ -74,7 +74,6 @@ public:
     QString displayCategory() const;
     Utils::FilePath categoryIconPath() const;
     bool recreateOnCancel() const;
-    bool useDirtyHook() const;
 
     std::optional<Utils::AspectContainer *> aspects() const;
     bool matches(const QRegularExpression &regexp) const;
@@ -88,7 +87,6 @@ protected:
     void setFixedKeywords(const QStringList &);
     void setRecreateOnCancel(bool on);
     void setAutoApply();
-    void setUseDirtyHook(bool on);
 
 private:
     std::unique_ptr<Internal::IOptionsPagePrivate> d;

@@ -517,8 +517,6 @@ public:
 
 KitOptionsPageWidget::KitOptionsPageWidget()
 {
-    setUseDirtyHook(false);
-
     m_kitsView = new QTreeView(this);
     m_kitsView->setUniformRowHeights(true);
     m_kitsView->header()->setStretchLastSection(true);
@@ -606,6 +604,7 @@ KitOptionsPageWidget::KitOptionsPageWidget()
 
     updateState();
 
+    setUseDirtyHook(false);
     setupDirtyHook(m_addButton);
     setupDirtyHook(m_cloneButton);
     setupDirtyHook(m_delButton);
@@ -761,7 +760,6 @@ public:
         setDisplayName(Tr::tr("Kits"));
         setCategory(Constants::KITS_SETTINGS_CATEGORY);
         setWidgetCreator([] { return new Internal::KitOptionsPageWidget; });
-        setUseDirtyHook(false);
     }
 };
 
