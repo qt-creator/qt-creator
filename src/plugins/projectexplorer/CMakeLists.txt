@@ -101,7 +101,6 @@ add_qtc_plugin(ProjectExplorer
     kitchooser.cpp kitchooser.h
     kitfeatureprovider.h
     kitmanager.cpp kitmanager.h
-    kitmanagerconfigwidget.cpp kitmanagerconfigwidget.h
     kitoptionspage.cpp kitoptionspage.h
     ldparser.cpp ldparser.h
     lldparser.cpp lldparser.h
