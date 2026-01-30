@@ -42,10 +42,9 @@ std::optional<DataFromProcessSettingsCache::ProcessOutput> DataFromProcessSettin
     const QString &key)
 {
     const QString fixedKey = replaceSlashes(key);
-    auto result = m_newValuesCache.get<std::optional<ProcessOutput>>(
-        [fixedKey](const QHash<QString, QVariant> &cache) {
-            return ProcessOutput::fromVariant(cache.value(fixedKey));
-        });
+    auto result = m_newValuesCache.get([fixedKey](const QHash<QString, QVariant> &cache) {
+        return ProcessOutput::fromVariant(cache.value(fixedKey));
+    });
     if (!result) {
         QTC_ASSERT(Utils::isMainThread(), return result);
         SettingsDatabase::beginGroup(settingsGroup);
