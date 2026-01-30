@@ -553,6 +553,11 @@ SettingsWidget::SettingsWidget()
     connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
             this, &SettingsWidget::filter);
     m_categoryList->setFocus();
+
+    Utils::Internal::setMarkSettingsDirtyHook([widget = QPointer<SettingsWidget>(this), this](bool dirty) {
+        QTC_ASSERT(widget, return);
+        setDirty(dirty);
+    });
 }
 
 void SettingsWidget::showPage(const Id pageId)

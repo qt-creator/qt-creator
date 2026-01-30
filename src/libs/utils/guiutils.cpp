@@ -73,4 +73,21 @@ bool isIgnoredForDirtyHook(const QObject *object)
     return object->property(IGNORE_FOR_DIRTY_HOOK).toBool();
 }
 
+static std::function<void (bool)> s_markSettingDirtyHook;
+
+namespace Internal {
+
+void setMarkSettingsDirtyHook(const std::function<void (bool)> &hook)
+{
+    s_markSettingDirtyHook = hook;
+}
+
+} // Internal
+
+void markSettingsDirty(bool dirty)
+{
+    QTC_ASSERT(s_markSettingDirtyHook, return);
+    s_markSettingDirtyHook(dirty);
+}
+
 } // namespace Utils

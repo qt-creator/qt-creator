@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QObject;
 class QWidget;
@@ -20,5 +22,12 @@ QTCREATOR_UTILS_EXPORT void setDialogParentGetter(QWidget *(*getter)());
 // returns previous value
 QTCREATOR_UTILS_EXPORT bool setIgnoreForDirtyHook(QWidget *widget, bool ignore = true);
 QTCREATOR_UTILS_EXPORT bool isIgnoredForDirtyHook(const QObject *object);
+
+
+QTCREATOR_UTILS_EXPORT void markSettingsDirty(bool dirty = true);
+
+namespace Internal {
+QTCREATOR_UTILS_EXPORT void setMarkSettingsDirtyHook(const std::function<void (bool)> &hook);
+}
 
 } // namespace Utils

@@ -57,9 +57,14 @@ public:
         if (HostOsInfo::isWindowsHost())
             initMSVCOutputSwitch();
         refresh();
+
         m_buildEnvButton->setText(Tr::tr("Edit Build Environment..."));
         m_buildEnvButton->setIcon({});
+        setIgnoreForDirtyHook(m_buildEnvButton);
+
         m_runEnvButton->setText(Tr::tr("Edit Run Environment..."));
+        setIgnoreForDirtyHook(m_runEnvButton);
+
         connect(m_buildEnvButton, &QAbstractButton::clicked,
                 this, &EnvironmentKitAspectImpl::editBuildEnvironmentChanges);
         connect(m_runEnvButton, &QAbstractButton::clicked,
@@ -92,10 +97,34 @@ private:
         const auto toString = [](const EnvironmentItems &changes) {
             return EnvironmentItem::toStringList(changes).join("\n");
         };
-        m_buildEnvButton->setToolTip(toString(EnvironmentKitAspect::buildEnvChanges(kit())));
-        m_runEnvButton->setToolTip(toString(EnvironmentKitAspect::runEnvChanges(kit())));
+        m_buildEnvButton->setToolTip(toString(m_buildEnvChanges));
+        m_runEnvButton->setToolTip(toString(m_runEnvChanges));
 
         // TODO: Set an icon on the button representing whether there are changes or not.
+    }
+
+    bool isDirty() const final
+    {
+        return m_buildEnvChanges != EnvironmentKitAspect::buildEnvChanges(kit())
+            || m_runEnvChanges != EnvironmentKitAspect::runEnvChanges(kit());
+    }
+
+    bool valueToVolatileValue() final
+    {
+        bool res1 = updateStorage(m_buildEnvChanges, EnvironmentKitAspect::buildEnvChanges(kit()));
+        bool res2 = updateStorage(m_runEnvChanges, EnvironmentKitAspect::runEnvChanges(kit()));
+        return res1 || res2;
+    }
+
+    bool volatileValueToValue() final
+    {
+        bool res1 = m_buildEnvChanges == EnvironmentKitAspect::buildEnvChanges(kit());
+        if (res1)
+            EnvironmentKitAspect::setBuildEnvChanges(kit(), m_buildEnvChanges);
+        bool res2 = m_runEnvChanges == EnvironmentKitAspect::runEnvChanges(kit());
+        if (res2)
+            EnvironmentKitAspect::setRunEnvChanges(kit(), m_runEnvChanges);
+        return res1 || res2;
     }
 
     void editBuildEnvironmentChanges()
@@ -103,7 +132,7 @@ private:
         std::optional<EnvironmentItems> changes =
             runEnvironmentItemsDialog(
                 m_mainWidget,
-                EnvironmentKitAspect::buildEnvChanges(kit()),
+                m_buildEnvChanges,
                 QString(),
                 polisher(),
                 Tr::tr("Edit Build Environment"));
@@ -118,7 +147,12 @@ private:
             else if (enforcesMSVCEnglish(*changes))
                 m_vslangCheckbox->setChecked(true);
         }
-        EnvironmentKitAspect::setBuildEnvChanges(kit(), *changes);
+
+        if (updateStorage(m_buildEnvChanges, *changes)) {
+            emit volatileValueChanged();
+            refresh();
+            markSettingsDirty();
+        }
     }
 
     void editRunEnvironmentChanges()
@@ -126,12 +160,18 @@ private:
         const std::optional<EnvironmentItems> changes =
                 runEnvironmentItemsDialog(
                 m_mainWidget,
-                EnvironmentKitAspect::runEnvChanges(kit()),
+                m_runEnvChanges,
                 QString(),
                 polisher(),
                 Tr::tr("Edit Run Environment"));
-        if (changes)
-            EnvironmentKitAspect::setRunEnvChanges(kit(), *changes);
+        if (!changes)
+            return;
+
+        if (updateStorage(m_runEnvChanges, *changes)) {
+            emit volatileValueChanged();
+            refresh();
+            markSettingsDirty();
+        }
     }
 
     NameValuesDialog::Polisher polisher() const
@@ -147,16 +187,13 @@ private:
         m_vslangCheckbox->setToolTip(Tr::tr("Either switches MSVC to English or keeps the language and "
                                         "just forces UTF-8 output (may vary depending on the used MSVC "
                                         "compiler)."));
-        m_vslangCheckbox->setChecked(
-            enforcesMSVCEnglish(EnvironmentKitAspect::buildEnvChanges(kit())));
+        m_vslangCheckbox->setChecked(enforcesMSVCEnglish(m_buildEnvChanges));
         connect(m_vslangCheckbox, &QCheckBox::clicked, this, [this](bool checked) {
-            EnvironmentItems changes = EnvironmentKitAspect::buildEnvChanges(kit());
-            const bool hasVsLangEntry = enforcesMSVCEnglish(changes);
+            const bool hasVsLangEntry = enforcesMSVCEnglish(m_buildEnvChanges);
             if (checked && !hasVsLangEntry)
-                changes.append(forceMSVCEnglishItem());
+                m_buildEnvChanges.append(forceMSVCEnglishItem());
             else if (!checked && hasVsLangEntry)
-                changes.removeAll(forceMSVCEnglishItem());
-            EnvironmentKitAspect::setBuildEnvChanges(kit(), changes);
+                m_buildEnvChanges.removeAll(forceMSVCEnglishItem());
         });
     }
 
@@ -164,6 +201,10 @@ private:
     QPushButton * const m_buildEnvButton;
     QPushButton * const m_runEnvButton;
     QCheckBox *m_vslangCheckbox = nullptr;
+
+    // Used as "volatile value" of the aspect.
+    EnvironmentItems m_runEnvChanges;
+    EnvironmentItems m_buildEnvChanges;
 };
 
 class EnvironmentKitAspectFactory : public KitAspectFactory
