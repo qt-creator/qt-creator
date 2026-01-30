@@ -37,6 +37,7 @@
 #include <texteditor/displaysettings.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/indenter.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
@@ -217,6 +218,7 @@ public:
     RelativeNumbersColumn(TextEditorWidget *baseTextEditor)
         : QWidget(baseTextEditor)
         , m_editor(baseTextEditor)
+        , m_documentLayout(m_editor->document()->documentLayout())
     {
         setAttribute(Qt::WA_TransparentForMouseEvents, true);
 
@@ -235,19 +237,14 @@ public:
         connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
                 &m_timerUpdate, start);
         connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-                this, &RelativeNumbersColumn::updateFontSettings);
-        connect(m_editor->document()->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged,
-                this, &RelativeNumbersColumn::updateFontSettings);
+                this, &RelativeNumbersColumn::followEditorLayout);
+        connect(m_documentLayout, &QAbstractTextDocumentLayout::documentSizeChanged,
+                this, &RelativeNumbersColumn::followEditorLayout);
+        connect(m_editor, &TextEditorWidget::resized,
+                this, &RelativeNumbersColumn::followEditorLayout);
 
         m_editor->installEventFilter(this);
 
-        followEditorLayout();
-    }
-
-    void updateFontSettings()
-    {
-        QTextCursor tc = m_editor->cursorForPosition(QPoint(0, 0));
-        m_newLineSpacing = m_editor->document()->documentLayout()->blockBoundingRect(tc.block()).height();
         followEditorLayout();
     }
 
@@ -279,7 +276,8 @@ protected:
         p.setPen(fg);
 
         // Draw relative line numbers.
-        QRect rect(0, m_editor->cursorRect(firstVisibleCursor).y(), width(), m_lineSpacing);
+        QRectF boundingRect = m_documentLayout->blockBoundingRect(block);
+        QRect rect(0, m_editor->cursorRect(firstVisibleCursor).y(), width(), boundingRect.height());
         bool hideLineNumbers = m_editor->lineNumbersVisible();
         while (block.isValid()) {
             if (block.isVisible()) {
@@ -289,10 +287,10 @@ protected:
                     if (hideLineNumbers)
                         p.fillRect(rect, bg);
                     if (hideLineNumbers || line < 100)
-                        p.drawText(rect, Qt::AlignRight | Qt::AlignVCenter, number);
+                        p.drawText(rect, Qt::AlignRight, number);
                 }
 
-                rect.translate(0, m_lineSpacing * block.lineCount());
+                rect.translate(0, boundingRect.height() * block.lineCount());
                 if (rect.y() > height())
                     break;
 
@@ -314,31 +312,40 @@ private:
     void followEditorLayout()
     {
         QFont font = m_editor->font();
-        if (m_font != font || m_lineSpacing != m_newLineSpacing) {
+        if (m_font != font ) {
             m_font = font;
-            m_lineSpacing = m_newLineSpacing;
             setFont(m_font);
         }
 
         // Follow geometry of normal line numbers if visible,
         // otherwise follow geometry of marks (breakpoints etc.).
-        QRect rect = m_editor->extraArea()->geometry().adjusted(0, 0, -3, 0);
+        // See TextEditorWidget::extraAreaWidth() how to calculate space.
+        QRect rect = m_editor->extraArea()->geometry().adjusted(0, 0, -4, 0);
         bool marksVisible = m_editor->marksVisible();
         bool lineNumbersVisible = m_editor->lineNumbersVisible();
         bool foldMarksVisible = m_editor->codeFoldingVisible();
-        if (marksVisible && lineNumbersVisible)
-            rect.setLeft(m_lineSpacing);
-        if (foldMarksVisible && (marksVisible || lineNumbersVisible))
-            rect.setRight(rect.right() - (m_lineSpacing + m_lineSpacing % 2));
+
+        if (marksVisible && lineNumbersVisible) {
+            const TextEditor::FontSettings &fs = m_editor->textDocument()->fontSettings();
+            int lineSpacing = (fs.relativeLineSpacing() == 100)
+                                ? m_editor->fontMetrics().lineSpacing()
+                                : fs.lineSpacing();
+            rect.setLeft(lineSpacing + 2);
+        }
+
+        if (foldMarksVisible && (marksVisible || lineNumbersVisible)) {
+            int lineSpacing = m_editor->fontMetrics().lineSpacing();
+            rect.setRight(rect.right() - lineSpacing + lineSpacing % 2 + 1);
+        }
+
         setGeometry(rect);
 
         update();
     }
 
-    int m_lineSpacing = 0;
-    int m_newLineSpacing = 0;
-    QFont m_font;
     TextEditorWidget *m_editor;
+    QAbstractTextDocumentLayout *m_documentLayout;
+    QFont m_font;
     QTimer m_timerUpdate;
 };
 
