@@ -36,6 +36,7 @@ OutputPanes_TestSkipTextColor=ff787878
 OutputPanes_TestWarnTextColor=ffd0bb00
 OutputPanes_TestFatalTextColor=ff640000
 OutputPanes_TestDebugTextColor=ff329696
+OutputPanes_SearchResultBackgroundColor=fffff23f
 
 Debugger_LogWindow_LogInput=ff00acac
 Debugger_LogWindow_LogStatus=ff00875a

@@ -8,6 +8,7 @@
 #include "coreplugintr.h"
 #include "editormanager/editormanager.h"
 #include "find/basetextfind.h"
+#include "find/searchresulthighlighter.h"
 #include "icore.h"
 #include "messagemanager.h"
 
@@ -17,6 +18,7 @@
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QCursor>
@@ -29,6 +31,7 @@
 #include <QPointer>
 #include <QRegularExpression>
 #include <QScrollBar>
+#include <QSyntaxHighlighter>
 #include <QTextBlock>
 #include <QTimer>
 
@@ -57,6 +60,7 @@ class OutputWindowPrivate
 public:
     explicit OutputWindowPrivate(QTextDocument *document)
         : cursor(document)
+        , highlighter(new SearchResultHighlighter(document))
     {
     }
 
@@ -101,6 +105,7 @@ public:
     QTimer scrollTimer;
     QElapsedTimer lastMessage;
     QHash<unsigned int, QPair<int, int>> taskPositions;
+    SearchResultHighlighter *highlighter = nullptr; // owned by QTextDocument
 };
 
 } // namespace Internal
@@ -198,7 +203,13 @@ OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *par
     p.setColor(QPalette::HighlightedText, activeHighlightedText);
     setPalette(p);
 
-    Aggregation::aggregate({this, new BaseTextFind(this)});
+    auto find = new BaseTextFind(this);
+    connect(
+        find,
+        &BaseTextFindBase::highlightAllRequested,
+        this,
+        &OutputWindow::highlightSearchResultsSlot);
+    Aggregation::aggregate({this, find});
 }
 
 OutputWindow::~OutputWindow()
@@ -674,6 +685,11 @@ qsizetype OutputWindow::totalQueuedSize() const
 qsizetype OutputWindow::totalQueuedLines() const
 {
     return d->totalQueuedValue([](const QString &s) { return s.count('\n'); });
+}
+
+void OutputWindow::highlightSearchResultsSlot(const QString &txt, Utils::FindFlags findFlags)
+{
+    d->highlighter->setSearchExpression(BaseTextFindBase::regularExpression(txt, findFlags));
 }
 
 void OutputWindow::setMaxCharCount(qsizetype count)

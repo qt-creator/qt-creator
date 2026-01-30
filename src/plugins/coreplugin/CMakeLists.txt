@@ -127,6 +127,8 @@ add_qtc_plugin(Core
     find/minimapoverlay.h
     find/optionspopup.cpp
     find/optionspopup.h
+    find/searchresulthighlighter.cpp
+    find/searchresulthighlighter.h
     find/searchresulttreeitemdelegate.cpp
     find/searchresulttreeitemdelegate.h
     find/searchresulttreeitemroles.h

@@ -190,6 +190,7 @@ public:
         OutputPanes_TestWarnTextColor,
         OutputPanes_TestFatalTextColor,
         OutputPanes_TestDebugTextColor,
+        OutputPanes_SearchResultBackgroundColor,
 
         /* Debugger Log Window */
 

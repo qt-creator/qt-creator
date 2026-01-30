@@ -6,8 +6,9 @@
 #include "core_global.h"
 #include "icontext.h"
 
-#include <utils/storekey.h>
+#include <utils/filesearch.h>
 #include <utils/outputformat.h>
+#include <utils/storekey.h>
 
 #include <QPlainTextEdit>
 
@@ -119,6 +120,7 @@ private:
     void updateAutoScroll();
     qsizetype totalQueuedSize() const;
     qsizetype totalQueuedLines() const;
+    void highlightSearchResultsSlot(const QString &txt, Utils::FindFlags findFlags);
 
     Internal::OutputWindowPrivate *d = nullptr;
 };

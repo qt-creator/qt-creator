@@ -310,6 +310,8 @@ QtcPlugin {
             "minimapoverlay.h",
             "optionspopup.cpp",
             "optionspopup.h",
+            "searchresulthighlighter.cpp",
+            "searchresulthighlighter.h",
             "searchresulttreeitemdelegate.cpp",
             "searchresulttreeitemdelegate.h",
             "searchresulttreeitemroles.h",
