@@ -32,15 +32,19 @@
 
         \li Select an existing device from \uicontrol Device.
 
-        \li In \uicontrol {Type Specific} > \uicontrol {Run tools on this device}
-            or \uicontrol {Source and build tools on this device}, specify the paths
+        \li In \uicontrol {Type Specific} > \uicontrol {Run Tools on This Device}
+            or \uicontrol {Source and Build Tools on This Device}, specify the paths
             to the tools.
 
-            Or, in \uicontrol {Auto-detection}, configure the auto-detection options
-            and then select \uicontrol {Run auto-detection now}.
+            Or, in \uicontrol {Auto-Detection}, configure the auto-detection options
+            and then select \uicontrol {Run Auto-Detection Now}.
+
+        \li For remote Linux devices, select \uicontrol {Create kits} to create
+            a kit for using the automatically detected development tools.
 
     \endlist
 
     \sa {Use \QC variables}, {Build and Run}{How To: Build and Run},
-    {Docker}{How To: Develop for Docker}, {Remote Linux}{How To: Develop for remote Linux}
+    {Docker}{How To: Develop for Docker},
+    {Remote Linux}{How To: Develop for remote Linux}, {Managing kits}
 */

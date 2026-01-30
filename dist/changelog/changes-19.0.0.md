@@ -388,7 +388,9 @@ Platforms
 
 * Added support for `Run as root`
 * Added fast file access support for 32-bit ARM Linux devices
-* Added the option to `Create kits` when auto-detecting device build tools
+* Added the `Preferences > Devices > Create kits` option to create kits for
+  auto-detected device build tools
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-configure-tools-on-devices.html))
 
 ### Development Container
 
