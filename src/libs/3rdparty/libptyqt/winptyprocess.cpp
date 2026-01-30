@@ -31,7 +31,6 @@ WinPtyProcess::WinPtyProcess()
 
 WinPtyProcess::~WinPtyProcess()
 {
-    kill();
 }
 
 bool WinPtyProcess::startProcess(const QString &executable,

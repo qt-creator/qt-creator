@@ -316,7 +316,11 @@ bool DefaultImpl::ensureProgramExists(const QString &program)
 class PtyProcessImpl final : public DefaultImpl
 {
 public:
-    ~PtyProcessImpl() { QTC_CHECK(m_setup.m_ptyData); m_setup.m_ptyData->setResizeHandler({}); }
+    ~PtyProcessImpl() {
+        QTC_CHECK(m_setup.m_ptyData);
+        m_setup.m_ptyData->setResizeHandler({});
+        m_ptyProcess->kill();
+    }
 
     qint64 write(const QByteArray &data) final
     {

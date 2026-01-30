@@ -881,7 +881,6 @@ ConPtyProcess::ConPtyProcess()
 
 ConPtyProcess::~ConPtyProcess()
 {
-    kill();
 }
 
 bool ConPtyProcess::startProcess(const QString &executable,
@@ -1052,22 +1051,28 @@ bool ConPtyProcess::kill()
         m_readThread = nullptr;
     }
 
-    delete m_shellCloseWaitNotifier;
-    m_shellCloseWaitNotifier = nullptr;
-
-    m_pid = 0;
-    m_ptyHandler = INVALID_HANDLE_VALUE;
-    m_hPipeIn = INVALID_HANDLE_VALUE;
-    m_hPipeOut = INVALID_HANDLE_VALUE;
-
-    CloseHandle(m_shellProcessInformation.hThread);
-    CloseHandle(m_shellProcessInformation.hProcess);
+    if (INVALID_HANDLE_VALUE != m_shellProcessInformation.hThread)
+      CloseHandle(m_shellProcessInformation.hThread);
+    if (INVALID_HANDLE_VALUE != m_shellProcessInformation.hProcess)
+      CloseHandle(m_shellProcessInformation.hProcess);
 
     // Cleanup attribute list
     if (m_shellStartupInfo.lpAttributeList) {
         DeleteProcThreadAttributeList(m_shellStartupInfo.lpAttributeList);
         HeapFree(GetProcessHeap(), 0, m_shellStartupInfo.lpAttributeList);
     }
+
+    m_pid = 0;
+    m_ptyHandler = INVALID_HANDLE_VALUE;
+    m_hPipeIn = INVALID_HANDLE_VALUE;
+    m_hPipeOut = INVALID_HANDLE_VALUE;
+
+    m_shellProcessInformation.hThread = INVALID_HANDLE_VALUE;
+    m_shellProcessInformation.hProcess = INVALID_HANDLE_VALUE;
+    m_shellStartupInfo.lpAttributeList = nullptr;
+
+    delete m_shellCloseWaitNotifier;
+    m_shellCloseWaitNotifier = nullptr;
 
     return true;
 }
