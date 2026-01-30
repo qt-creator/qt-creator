@@ -315,6 +315,7 @@ void KitAspect::addManageButtonToLayout(Layouting::Layout &layout)
 {
     if (d->managingPageId.isValid()) {
         d->manageButton = createSubWidget<QPushButton>(msgManage());
+        Core::IOptionsPageWidget::setIgnoreForDirtyHook(d->manageButton);
         connect(d->manageButton, &QPushButton::clicked, [this] {
             Core::ICore::showSettings(d->managingPageId, settingsPageItemToPreselect());
         });
@@ -352,13 +353,25 @@ QList<KitAspect *> KitAspect::aspectsToEmbed() const
     return d->aspectsToEmbed;
 }
 
-QString KitAspect::msgManage() { return Tr::tr("Manage..."); }
+QString KitAspect::msgManage()
+{
+    return Tr::tr("Manage...");
+}
+
 Kit *KitAspect::kit() const
 {
     return d->kit;
 }
-const KitAspectFactory *KitAspect::factory() const { return d->factory; }
-QAction *KitAspect::mutableAction() const { return d->mutableAction; }
+
+const KitAspectFactory *KitAspect::factory() const
+{
+    return d->factory;
+}
+
+QAction *KitAspect::mutableAction() const
+{
+    return d->mutableAction;
+}
 
 KitAspectFactory::KitAspectFactory()
 {
