@@ -48,7 +48,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguratio
     : m_buildConfiguration(bc)
 {
     setId("DebuggerAspect");
-    setDisplayName(Tr::tr("Debugger settings"));
+    setDisplayName(Tr::tr("Debugger Settings"));
 
     setConfigWidgetCreator([this] {
         Layouting::Grid builder;
