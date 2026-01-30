@@ -28,7 +28,6 @@ using namespace Utils;
 using namespace Core::Internal;
 
 static QHash<Id, std::pair<QString, FilePath>> g_categories;
-const char IGNORE_FOR_DIRTY_HOOK[] = "qtcIgnoreForDirtyHook";
 
 namespace Core {
 namespace Internal {
@@ -199,7 +198,7 @@ const char DirtyOnMouseButtonRelease[] = "DirtyOnMouseButtonRelease";
 static bool makesDirty(QObject *watched, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonRelease
-            && !watched->property(IGNORE_FOR_DIRTY_HOOK).toBool()
+            && !isIgnoredForDirtyHook(watched)
             && watched->property(DirtyOnMouseButtonRelease).isValid()) {
         return true;
     }
@@ -251,7 +250,7 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
     QTC_ASSERT(!d->m_aspects, return);
     QTC_ASSERT(widget, return);
 
-    if (widget->property(IGNORE_FOR_DIRTY_HOOK).toBool())
+    if (isIgnoredForDirtyHook(widget))
         return;
 
     // if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(widget)) {
@@ -263,7 +262,7 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
 
     while (!children.isEmpty()) {
         QWidget *child = children.takeLast();
-        if (child->property(IGNORE_FOR_DIRTY_HOOK).toBool())
+        if (isIgnoredForDirtyHook(child))
             continue;
 
         // if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(child)) {
@@ -286,7 +285,7 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
             continue;
 
         auto markDirty = [this, child] {
-            if (child->property(IGNORE_FOR_DIRTY_HOOK).toBool())
+            if (isIgnoredForDirtyHook(child))
                 return;
             gotDirty();
         };
@@ -343,14 +342,6 @@ void IOptionsPageWidget::gotDirty()
 {
     d->m_dirtyCount++;
     emit dirtyChanged(d->m_dirtyCount > 0);
-}
-
-bool IOptionsPageWidget::setIgnoreForDirtyHook(QWidget *widget, bool ignore)
-{
-    const bool prev = widget->property(IGNORE_FOR_DIRTY_HOOK).toBool();
-    if (prev != ignore)
-        widget->setProperty(IGNORE_FOR_DIRTY_HOOK, ignore);
-    return prev;
 }
 
 /*!

@@ -1082,7 +1082,7 @@ public:
     {
         refresh();
         m_manageButton->setText(Tr::tr("Change..."));
-        Core::IOptionsPageWidget::setIgnoreForDirtyHook(m_manageButton);
+        setIgnoreForDirtyHook(m_manageButton);
         connect(m_manageButton, &QAbstractButton::clicked,
                 this, &CMakeConfigurationKitAspectImpl::editConfigurationChanges);
     }

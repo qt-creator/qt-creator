@@ -208,7 +208,7 @@ void KitAspect::refresh()
 
     for (const Private::ListAspect &la : std::as_const(d->listAspects)) {
         // Prevent dirtying by the QComboBox::model()::reset and setCurrentIndex below.
-        const bool prev = IOptionsPageWidget::setIgnoreForDirtyHook(la.comboBox, true);
+        const bool prev = setIgnoreForDirtyHook(la.comboBox, true);
 
         la.spec.resetModel();
         la.comboBox->model()->sort(0);
@@ -225,7 +225,7 @@ void KitAspect::refresh()
         la.comboBox->setCurrentIndex(idx);
         la.comboBox->setEnabled(!d->readOnly && la.comboBox->count() > 1);
 
-        IOptionsPageWidget::setIgnoreForDirtyHook(la.comboBox, prev);
+        setIgnoreForDirtyHook(la.comboBox, prev);
     }
 }
 
@@ -315,7 +315,7 @@ void KitAspect::addManageButtonToLayout(Layouting::Layout &layout)
 {
     if (d->managingPageId.isValid()) {
         d->manageButton = createSubWidget<QPushButton>(msgManage());
-        Core::IOptionsPageWidget::setIgnoreForDirtyHook(d->manageButton);
+        setIgnoreForDirtyHook(d->manageButton);
         connect(d->manageButton, &QPushButton::clicked, [this] {
             Core::ICore::showSettings(d->managingPageId, settingsPageItemToPreselect());
         });

@@ -58,4 +58,19 @@ QWidget *dialogParent()
     return s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
 }
 
+const char IGNORE_FOR_DIRTY_HOOK[] = "qtcIgnoreForDirtyHook";
+
+bool setIgnoreForDirtyHook(QWidget *widget, bool ignore)
+{
+    const bool prev = widget->property(IGNORE_FOR_DIRTY_HOOK).toBool();
+    if (prev != ignore)
+        widget->setProperty(IGNORE_FOR_DIRTY_HOOK, ignore);
+    return prev;
+}
+
+bool isIgnoredForDirtyHook(const QObject *object)
+{
+    return object->property(IGNORE_FOR_DIRTY_HOOK).toBool();
+}
+
 } // namespace Utils

@@ -235,7 +235,7 @@ public:
 
         m_deviceManagerModel.showAllEntry();
         m_deviceComboBox = new QComboBox;
-        Core::IOptionsPageWidget::setIgnoreForDirtyHook(m_deviceComboBox);
+        setIgnoreForDirtyHook(m_deviceComboBox);
         m_deviceComboBox->setModel(&m_deviceManagerModel);
 
         m_model.setHeader({Tr::tr("Name"), Tr::tr("Type")});

@@ -5,7 +5,10 @@
 
 #include "utils_global.h"
 
+QT_BEGIN_NAMESPACE
+class QObject;
 class QWidget;
+QT_END_NAMESPACE
 
 namespace Utils {
 
@@ -13,5 +16,9 @@ QTCREATOR_UTILS_EXPORT void setWheelScrollingWithoutFocusBlocked(QWidget *widget
 
 QTCREATOR_UTILS_EXPORT QWidget *dialogParent();
 QTCREATOR_UTILS_EXPORT void setDialogParentGetter(QWidget *(*getter)());
+
+// returns previous value
+QTCREATOR_UTILS_EXPORT bool setIgnoreForDirtyHook(QWidget *widget, bool ignore = true);
+QTCREATOR_UTILS_EXPORT bool isIgnoredForDirtyHook(const QObject *object);
 
 } // namespace Utils
