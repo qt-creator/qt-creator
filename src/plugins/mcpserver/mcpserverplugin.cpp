@@ -50,7 +50,7 @@ public:
         : QDialog(parent)
         , m_serverP(server)
     {
-        setWindowTitle(QString("MCP Server Status"));
+        setWindowTitle(Tr::tr("MCP Server Status"));
         setModal(true);
         resize(400, 200);
 
@@ -63,7 +63,7 @@ public:
         iconLabel->setPixmap(icon().pixmap());
         titleLayout->addWidget(iconLabel);
 
-        QLabel *titleLabel = new QLabel(QString("QtCreator MCP Server"));
+        QLabel *titleLabel = new QLabel(Tr::tr("MCP Server"));
         QFont titleFont = titleLabel->font();
         titleFont.setPointSize(14);
         titleFont.setBold(true);
@@ -144,23 +144,19 @@ private:
         if (isRunning) {
             // Green checkmark
             m_statusIcon->setText("✓");
-            m_statusIcon->setStyleSheet(
-                "QLabel { color: green; font-size: 18px; font-weight: bold; }");
             m_statusLabel->setText(Tr::tr("MCP Server is Running"));
             m_statusLabel->setStyleSheet("QLabel { color: green; }");
 
             // Get the actual port from the server
             quint16 port = m_serverP->getPort();
             QString portInfo
-                = Tr::tr("Server is active on port %1 and accepting connections.").arg(port);
+                = Tr::tr("The MCP server is active on port %1 and accepting connections.").arg(port);
             m_detailsLabel->setText(portInfo);
 
             m_restartButton->setEnabled(false);
         } else {
             // Red X
             m_statusIcon->setText("✗");
-            m_statusIcon->setStyleSheet(
-                "QLabel { color: red; font-size: 18px; font-weight: bold; }");
             m_statusLabel->setText(Tr::tr("MCP Server is Not Running"));
             m_statusLabel->setStyleSheet("QLabel { color: red; }");
 
@@ -214,12 +210,15 @@ public:
         if (!m_serverP->start()) {
             qCCritical(mcpPlugin) << "Failed to start MCP server";
             QMessageBox::warning(
-                ICore::dialogParent(), Tr::tr("MCP Server"), Tr::tr("Failed to start MCP server"));
+                ICore::dialogParent(),
+                Tr::tr("MCP Server"),
+                Tr::tr("Failed to start the MCP server."));
         } else {
             qCInfo(mcpPlugin) << "MCP server started successfully on port" << m_serverP->getPort();
             // Show startup message in General Messages panel
             outputMessage(
-                QString("MCP Server loaded and functioning - MCP server running on port %1")
+                Tr::tr(
+                    "The MCP server is loaded and functioning - the server is running on port %1.")
                     .arg(m_serverP->getPort()));
         }
 
@@ -235,7 +234,7 @@ public:
         // About action (shows the existing status dialog)
         ActionBuilder(this, Constants::ABOUT_ACTION_ID)
             .addToContainer(Constants::MENU_ID)
-            .setText(QString("ℹ️ About MCP Server"))
+            .setText(Tr::tr("About MCP Server"))
             .addOnTriggered(this, &McpServerPlugin::showAbout);
     }
 
