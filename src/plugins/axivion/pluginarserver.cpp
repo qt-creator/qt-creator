@@ -104,12 +104,12 @@ static void handleMessage(const QByteArray &msg, const FilePath &bauhausSuite,
     QJsonParseError error;
     QJsonDocument json = QJsonDocument::fromJson(msg, &error);
     if (error.error != QJsonParseError::NoError) {
-        writeError(Tr::tr("Failed to parse json '%1': %2")
-                       .arg(QString::fromUtf8(msg)).arg(error.error));
+        writeError(
+            Tr::tr("Cannot parse JSON data \"%1\": %2").arg(QString::fromUtf8(msg)).arg(error.error));
         return;
     }
     if (!json.isObject()) {
-        writeError(Tr::tr("Not a json object: %1").arg(QString::fromUtf8(msg)));
+        writeError(Tr::tr("Not a JSON object: %1").arg(QString::fromUtf8(msg)));
         return;
     }
     const QJsonObject obj = json.object();
@@ -134,7 +134,7 @@ static void handleMessage(const QByteArray &msg, const FilePath &bauhausSuite,
         const int inReplyTo = obj.value("inReplyTo").toInt();
         QTC_CHECK(inReplyTo == data->m_msgCounter); // should we handle this?
         if (obj.value("subject").toString() != "Response: OK") {
-            writeError(Tr::tr("Unexpected response for HTTP Server start request."));
+            writeError(Tr::tr("Unexpected response for HTTP server start request."));
             QMetaObject::invokeMethod(process,
                 [bauhausSuite] { shutdownPluginArServer(bauhausSuite); }, Qt::QueuedConnection);
             return;

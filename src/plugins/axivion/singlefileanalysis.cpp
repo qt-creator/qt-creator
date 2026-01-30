@@ -56,15 +56,23 @@ public:
         auto okButton = buttons->button(QDialogButtonBox::Ok);
         okButton->setText(Tr::tr("Start"));
         auto hint = new QLabel(this);
-        auto warning = new InfoLabel(Tr::tr("No active project. "
-                                            "Referring %{ActiveProject:...} will fail."),
-                                     InfoLabel::Warning, this);
+        auto warning = new InfoLabel(
+            //: %1 is a Qt Creator variable string
+            Tr::tr(
+                "No active project. "
+                "Referring to %1 will fail.")
+                .arg("<code>%{ActiveProject:...}<code>"),
+            InfoLabel::Warning,
+            this);
         if (!ProjectExplorer::ProjectManager::projects().isEmpty())
             warning->setVisible(false);
-        hint->setText(Tr::tr("build_compile_commands --single_file %{CurrentDocument:FilePath} "
-                             "%{ActiveProject:BuildConfig:Path}/compile_commands.json\n"
-                             "or some shell/batch script holding cafeCC / axivion_analysis commands"
-                             " to execute."));
+        hint->setText(
+            "build_compile_commands --single_file %{CurrentDocument:FilePath} "
+            "%{ActiveProject:BuildConfig:Path}/compile_commands.json\n"
+            //: the text is preceded by a command to execute
+            + Tr::tr(
+                "or some shell/batch script holding cafeCC / axivion_analysis commands"
+                " to execute."));
         // for now only build_compile_commands...
         // Makefile alternative..
         // ActiveProject may be empty if no project is opened or different from current Axivion's
@@ -74,7 +82,7 @@ public:
             Layouting::Group {
                 title(Tr::tr("BAUHAUS_CONFIG Directory")), // could this be multiple directories?
                 Column {
-                    Row { Tr::tr("Usually the directory containing the axivion_config.json file.") },
+                    Row { Tr::tr("Usually the directory containing the file \"axivion_config.json\".") },
                     Row { bauhausConfig }
                 }
             },
@@ -292,15 +300,21 @@ void startSingleFileAnalysis(const FilePath &file, const QString &projectName)
     QTC_ASSERT(!file.isEmpty(), return);
 
     if (hasRunningLocalBuild(projectName)) {
-        QMessageBox::information(Core::ICore::dialogParent(), Tr::tr("Single File Analysis"),
-                                 Tr::tr("There is a local build running for '%1'.\n"
-                                        "Try again when this has finished."));
+        QMessageBox::information(
+            Core::ICore::dialogParent(),
+            Tr::tr("Single File Analysis"),
+            Tr::tr(
+                "There is a local build running for \"%1\".\n"
+                "Try again when it has finished."));
         return;
     }
     if (s_sfaInstance.hasRunningAnalysisFor(projectName)) {
-        QMessageBox::information(Core::ICore::dialogParent(), Tr::tr("Single File Analysis"),
-                                 Tr::tr("There is already a single file analysis running for '%1'."
-                                        "\nTry again when this has finished."));
+        QMessageBox::information(
+            Core::ICore::dialogParent(),
+            Tr::tr("Single File Analysis"),
+            Tr::tr(
+                "There already is a single file analysis running for \"%1\"."
+                "\nTry again when it has finished."));
         return;
     }
 
