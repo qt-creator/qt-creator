@@ -305,6 +305,8 @@ public:
             });
             for (ExtendedToolchainTreeItem * const tcItem : std::as_const(itemsToRemove))
                 markForRemoval(tcItem);
+            if (!itemsToRemove.isEmpty())
+                gotDirty();
         });
 
         m_redetectButton = new QPushButton(Tr::tr("Re-detect"), this);
@@ -315,8 +317,12 @@ public:
         connect(m_detectionSettingsButton, &QAbstractButton::clicked, this,
                 [this] {
             DetectionSettingsDialog dlg(m_detectionSettings, this);
-            if (dlg.exec() == QDialog::Accepted)
+            if (dlg.exec() == QDialog::Accepted) {
+                bool old = m_detectionSettings.detectX64AsX32;
                 m_detectionSettings = dlg.settings();
+                if (m_detectionSettings.detectX64AsX32 != old)
+                    gotDirty();
+            }
         });
 
         m_container = new DetailsWidget(this);
@@ -373,8 +379,10 @@ public:
                 this, &ToolChainOptionsWidget::toolChainSelectionChanged);
 
         connect(m_delButton, &QAbstractButton::clicked, this, [this] {
-            if (ExtendedToolchainTreeItem *item = currentTreeItem())
+            if (ExtendedToolchainTreeItem *item = currentTreeItem()) {
                 markForRemoval(item);
+                gotDirty();
+            }
         });
 
         const auto updateDevice = [this](int index) {
@@ -624,6 +632,9 @@ void ToolChainOptionsWidget::redetectToolchains()
         = ToolchainBundle::collectBundles(toAdd, ToolchainBundle::HandleMissing::CreateOnly);
     for (const ToolchainBundle &bundle : newBundles)
         m_toAddList << insertBundle(bundle, true);
+
+    if (!itemsToRemove.isEmpty() || !toAdd.isEmpty())
+        gotDirty();
 }
 
 QModelIndex ToolChainOptionsWidget::mapFromSource(const QModelIndex &idx)
@@ -738,6 +749,7 @@ void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const Q
     ExtendedToolchainTreeItem * const item = insertBundle(bundle, true);
     m_toAddList << item;
     m_toolChainView->setCurrentIndex(mapFromSource(m_model.indexForItem(item)));
+    gotDirty();
 }
 
 void ToolChainOptionsWidget::cloneToolchains()
@@ -753,6 +765,7 @@ void ToolChainOptionsWidget::cloneToolchains()
     ExtendedToolchainTreeItem * const item = insertBundle(bundle, true);
     m_toAddList << item;
     m_toolChainView->setCurrentIndex(mapFromSource(m_model.indexForItem(item)));
+    gotDirty();
 }
 
 void ToolChainOptionsWidget::updateState()
