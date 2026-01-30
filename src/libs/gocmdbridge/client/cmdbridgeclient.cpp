@@ -397,11 +397,11 @@ Result<> Client::start(bool deleteOnExit)
             d->process->start();
 
             if (!d->process)
-                return ResultError(Tr::tr("Failed starting bridge process"));
+                return ResultError(Tr::tr("Cannot start bridge process."));
 
             if (!d->process->waitForStarted())
                 return ResultError(
-                    Tr::tr("Failed starting bridge process: %1").arg(d->process->errorString()));
+                    Tr::tr("Cannot start bridge process: %1").arg(d->process->errorString()));
             return ResultOk;
         },
         Qt::BlockingQueuedConnection,
@@ -423,7 +423,7 @@ static Utils::Result<QFuture<R>> createJob(
     Errors handleErrors = Errors::Handle)
 {
     if (!d->process || !d->process->isRunning())
-        return ResultError(Tr::tr("Bridge process not running"));
+        return ResultError(Tr::tr("The bridge process is not running."));
 
     std::shared_ptr<QPromise<R>> promise = std::make_shared<QPromise<R>>();
     QFuture<R> future = promise->future();
@@ -519,7 +519,7 @@ Result<QFuture<Client::FindData>> Client::find(
 {
     // TODO: golang's walkDir does not support automatically following symlinks.
     if (filter.iteratorFlags.testFlag(QDirIterator::FollowSymlinks))
-        return ResultError(Tr::tr("FollowSymlinks is not supported"));
+        return ResultError(Tr::tr("FollowSymlinks is not supported."));
 
     QCborMap findArgs{
         {"Type", "find"},
@@ -870,9 +870,9 @@ Utils::Result<QFuture<void>> Client::signalProcess(int pid, Utils::ControlSignal
         signalString = "kill";
         break;
     case ControlSignal::KickOff:
-        return ResultError(Tr::tr("Kickoff signal is not supported"));
+        return ResultError(Tr::tr("The KickOff signal is not supported."));
     case ControlSignal::CloseWriteChannel:
-        return ResultError(Tr::tr("CloseWriteChannel signal is not supported"));
+        return ResultError(Tr::tr("The CloseWriteChannel signal is not supported."));
     }
 
     return createVoidJob(
@@ -1029,7 +1029,7 @@ Result<FilePath> Client::getCmdBridgePath(
         return result;
 
     return ResultError(
-        QString(Tr::tr("No command bridge found for architecture %1-%2")).arg(type, arch));
+        QString(Tr::tr("No command bridge available for architecture \"%1-%2\".")).arg(type, arch));
 }
 
 } // namespace CmdBridge
