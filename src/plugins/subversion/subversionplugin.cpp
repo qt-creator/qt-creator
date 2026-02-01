@@ -87,24 +87,23 @@ const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
 // Parse "svn status" output for added/conflicted/deleted/modified files
 // "M<7blanks>file"
-using StatusList = QList<SubversionSubmitEditor::StatusFilePair>;
+using StatusPair = SubversionSubmitEditor::StatusFilePair;
+using StatusList = QList<StatusPair>;
 
-StatusList parseStatusOutput(const QString &output)
+static StatusList parseStatusOutput(const QString &output)
 {
     StatusList changeSet;
-    const QString newLine = QString(QLatin1Char('\n'));
-    const QStringList list = output.split(newLine, Qt::SkipEmptyParts);
+    const QStringList list = output.split('\n', Qt::SkipEmptyParts);
     for (const QString &l : list) {
-        const QString line =l.trimmed();
-        if (line.size() > 8) {
-            const QByteArray state = line.left(1).toLatin1();
-            if (state == FileUntrackedC || state == FileAddedC || state == FileConflictedC
-                    || state == FileDeletedC || state == FileModifiedC) {
-                const QString fileName = line.mid(7); // Column 8 starting from svn 1.6
-                changeSet.push_back(SubversionSubmitEditor::StatusFilePair(QLatin1String(state),
-                                                                           fileName.trimmed()));
-            }
+        const QString line = l.trimmed();
+        if (line.size() <= 8)
+            continue;
 
+        const QByteArray state = line.left(1).toLatin1();
+        if (state == FileUntrackedC || state == FileAddedC || state == FileConflictedC
+            || state == FileDeletedC || state == FileModifiedC) {
+            const QString fileName = line.mid(7); // Column 8 starting from svn 1.6
+            changeSet.append(StatusPair(QLatin1String(state), fileName.trimmed()));
         }
     }
     return changeSet;
