@@ -407,9 +407,7 @@ void ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged()
 void ProjectExplorerSettingsWidget::updateAppEnvChangesLabel()
 {
     const EnvironmentItems changes = globalProjectExplorerSettings().appEnvChanges.volatileValue();
-    const QString shortSummary = EnvironmentItem::toStringList(changes).join("; ");
-    m_appEnvLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.")
-                                                  : shortSummary);
+    m_appEnvLabel->setText(EnvironmentItem::toShortSummary(changes));
 }
 
 // ProjectExplorerSettingsPage

@@ -529,7 +529,7 @@ ExternalToolConfig::ExternalToolConfig()
     m_errorOutputBehavior->addItem(Tr::tr("Show in General Messages"));
     m_errorOutputBehavior->addItem(Tr::tr("Replace Selection"));
 
-    m_environmentLabel = new QLabel(Tr::tr("No changes to apply."));
+    m_environmentLabel = new QLabel;
     m_environmentLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     auto environmentButton = new QPushButton(Tr::tr("Change..."));
@@ -641,6 +641,8 @@ ExternalToolConfig::ExternalToolConfig()
     showInfoForItem(QModelIndex());
 
     setTools(ExternalToolManager::toolsByCategory());
+
+    updateEnvironmentLabel();
 }
 
 void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &tools)
@@ -946,10 +948,10 @@ void ExternalToolConfig::editEnvironmentChanges()
 
 void ExternalToolConfig::updateEnvironmentLabel()
 {
-    QString shortSummary = EnvironmentItem::toStringList(m_environment).join("; ");
+    QString shortSummary = EnvironmentItem::toShortSummary(m_environment);
     QFontMetrics fm(m_environmentLabel->font());
     shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, m_environmentLabel->width());
-    m_environmentLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.") : shortSummary);
+    m_environmentLabel->setText(shortSummary);
 }
 
 // ExternalToolSettings

@@ -94,11 +94,8 @@ private:
 
     void refresh() override
     {
-        const auto toString = [](const EnvironmentItems &changes) {
-            return EnvironmentItem::toStringList(changes).join("\n");
-        };
-        m_buildEnvButton->setToolTip(toString(m_buildEnvChanges));
-        m_runEnvButton->setToolTip(toString(m_runEnvChanges));
+        m_buildEnvButton->setToolTip(EnvironmentItem::toShortSummary(m_buildEnvChanges, true));
+        m_runEnvButton->setToolTip(EnvironmentItem::toShortSummary(m_runEnvChanges, true));
 
         // TODO: Set an icon on the button representing whether there are changes or not.
     }

@@ -519,10 +519,7 @@ void SystemSettingsWidget::updatePath()
 
 void SystemSettingsWidget::updateEnvironmentChangesLabel()
 {
-    const QString shortSummary = Utils::EnvironmentItem::toStringList(m_environmentChanges)
-                                     .join("; ");
-    m_environmentChangesLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.")
-                                                              : shortSummary);
+    m_environmentChangesLabel->setText(EnvironmentItem::toShortSummary(m_environmentChanges));
 }
 
 void SystemSettingsWidget::updateEnvVarSeparatorsLabel()
