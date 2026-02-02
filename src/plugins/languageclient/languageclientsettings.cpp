@@ -213,6 +213,12 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
     , m_settings(settings)
     , m_changedSettings(changedSettings)
 {
+    QObject::connect(
+        &m_settings,
+        &LanguageClientSettingsModel::dataChanged,
+        this,
+        &Core::IOptionsPageWidget::gotDirty);
+
     auto mainLayout = new QVBoxLayout();
     auto layout = new QHBoxLayout();
 
@@ -228,6 +234,7 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
             this, &LanguageClientSettingsPageWidget::currentChanged);
     auto buttonLayout = new QVBoxLayout();
     auto addButton = new QPushButton(Tr::tr("&Add"));
+    setIgnoreForDirtyHook(addButton);
     auto addMenu = new QMenu(this);
     addMenu->clear();
     for (const ClientType &type : clientTypes()) {
@@ -308,6 +315,7 @@ BaseSettings *generateSettings(const Id &clientTypeId)
 
 void LanguageClientSettingsPageWidget::addItem(const Id &clientTypeId)
 {
+    gotDirty();
     auto newSettings = generateSettings(clientTypeId);
     QTC_ASSERT(newSettings, return);
     m_view->setCurrentIndex(m_settings.insertSettings(newSettings));
