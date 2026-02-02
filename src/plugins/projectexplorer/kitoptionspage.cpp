@@ -404,6 +404,7 @@ void KitManagerConfigWidget::resetIcon()
 {
     m_modifiedKit->setIconPath({});
     emit dirty();
+    markSettingsDirty();
 }
 
 void KitManagerConfigWidget::setDisplayName()
@@ -412,6 +413,7 @@ void KitManagerConfigWidget::setDisplayName()
     m_cachedDisplayName.clear();
     m_modifiedKit->setUnexpandedDisplayName(m_nameEdit->text());
     m_nameEdit->setCursorPosition(pos);
+    markSettingsDirty();
 }
 
 void KitManagerConfigWidget::setFileSystemFriendlyName()
@@ -419,6 +421,7 @@ void KitManagerConfigWidget::setFileSystemFriendlyName()
     const int pos = m_fileSystemFriendlyNameLineEdit->cursorPosition();
     m_modifiedKit->setCustomFileSystemFriendlyName(m_fileSystemFriendlyNameLineEdit->text());
     m_fileSystemFriendlyNameLineEdit->setCursorPosition(pos);
+    markSettingsDirty();
 }
 
 void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
@@ -1009,10 +1012,6 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     updateState();
 
     setUseDirtyHook(false);
-    setupDirtyHook(&m_addButton);
-    setupDirtyHook(&m_cloneButton);
-    setupDirtyHook(&m_delButton);
-    setupDirtyHook(&m_makeDefaultButton);
 }
 
 void KitOptionsPageWidget::scrollToSelectedKit()
@@ -1056,6 +1055,8 @@ void KitOptionsPageWidget::addNewKit()
 
     if (m_currentWidget)
         m_currentWidget->setFocusToName();
+
+    markSettingsDirty();
 }
 
 Kit *KitOptionsPageWidget::currentKit() const
@@ -1078,18 +1079,24 @@ void KitOptionsPageWidget::cloneKit()
 
     if (m_currentWidget)
         m_currentWidget->setFocusToName();
+
+    markSettingsDirty();
 }
 
 void KitOptionsPageWidget::removeKit()
 {
     if (Kit *k = currentKit())
         m_model.markForRemoval(k);
+
+    markSettingsDirty();
 }
 
 void KitOptionsPageWidget::makeDefaultKit()
 {
     m_model.setDefaultKit(m_sortModel.mapToSource(currentIndex()));
     updateState();
+
+    markSettingsDirty();
 }
 
 void KitOptionsPageWidget::updateState()
@@ -1126,9 +1133,11 @@ void KitNode::ensureWidget()
     m_model->handleWidgetConstructionStart();
 
     m_widget = new KitManagerConfigWidget(m_kit, m_isDefaultKit, m_hasUniqueName);
-    m_pageWidget->setupDirtyHook(m_widget);
 
-    QObject::connect(m_widget, &KitManagerConfigWidget::dirty, m_model, [this] { update(); });
+    QObject::connect(m_widget, &KitManagerConfigWidget::dirty, m_model, [this] {
+        update();
+        markSettingsDirty();
+    });
 
     QObject::connect(m_widget, &KitManagerConfigWidget::isAutoDetectedChanged, m_model, [this] {
         TreeItem *oldParent = parent();

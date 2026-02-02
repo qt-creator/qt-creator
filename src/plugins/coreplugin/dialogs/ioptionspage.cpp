@@ -51,7 +51,6 @@ public:
     std::function<void()> m_onFinish;
 
     AspectContainer *m_aspects = nullptr;
-    int m_dirtyCount = 0;
     bool m_useDirtyHook = true;
 };
 
@@ -120,9 +119,6 @@ IOptionsPageWidget::IOptionsPageWidget()
 
 IOptionsPageWidget::~IOptionsPageWidget()
 {
-    for (const QMetaObject::Connection &con : m_connections)
-        QObject::disconnect(con);
-
     d.reset();
 }
 
@@ -186,11 +182,18 @@ void IOptionsPageWidget::cancel()
 
     if (d->m_aspects) {
         AspectContainer *container = d->m_aspects;
-        QTC_ASSERT(container, return);
         if (container->isDirty())
             container->cancel();
         return;
     }
+}
+
+bool IOptionsPageWidget::isDirty() const
+{
+    if (d->m_aspects)
+        return d->m_aspects->isDirty();
+
+    return true;
 }
 
 const char DirtyOnMouseButtonRelease[] = "DirtyOnMouseButtonRelease";
@@ -204,45 +207,6 @@ static bool makesDirty(QObject *watched, QEvent *event)
     }
 
     return false;
-}
-
-void IOptionsPageWidget::connectAspect(QWidget *widget, const BaseAspect *aspect)
-{
-    QTC_ASSERT(widget, return);
-    QTC_ASSERT(aspect, return);
-
-    while (aspect->container())
-        aspect = aspect->container();
-
-    if (m_trackedAspects.contains(aspect))
-        return;
-
-    m_trackedAspects.insert(aspect);
-
-    const auto dirtyStateMachine = [this, aspect, countedAsDirty = false]() mutable {
-        int oldDirtyCount = d->m_dirtyCount;
-        if (aspect->isDirty() && !countedAsDirty) {
-            d->m_dirtyCount++;
-            countedAsDirty = true;
-        } else if (!aspect->isDirty() && countedAsDirty) {
-            d->m_dirtyCount--;
-            countedAsDirty = false;
-        }
-        if (oldDirtyCount != d->m_dirtyCount)
-            emit dirtyChanged(d->m_dirtyCount > 0);
-    };
-
-    QMetaObject::Connection dirtyCon
-        = connect(aspect, &BaseAspect::volatileValueChanged, this, dirtyStateMachine);
-
-    QMetaObject::Connection disco
-        = connect(widget, &QObject::destroyed, this, [aspect, this, dirtyCon] {
-              QObject::disconnect(dirtyCon);
-              m_trackedAspects.remove(aspect);
-          });
-
-    m_connections.append(dirtyCon);
-    m_connections.append(disco);
 }
 
 void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
@@ -325,8 +289,8 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
 void IOptionsPageWidgetPrivate::setAspects(AspectContainer *aspects)
 {
     m_aspects = aspects;
-    connect(m_aspects, &AspectContainer::volatileValueChanged, [this] {
-        emit q->dirtyChanged(m_aspects->isDirty());
+    connect(m_aspects, &AspectContainer::volatileValueChanged, [] {
+        checkSettingsDirty();
     });
 }
 
@@ -340,8 +304,7 @@ bool IOptionsPageWidgetPrivate::eventFilter(QObject *watched, QEvent *event)
 
 void IOptionsPageWidget::gotDirty()
 {
-    d->m_dirtyCount++;
-    emit dirtyChanged(d->m_dirtyCount > 0);
+    markSettingsDirty(true);
 }
 
 /*!

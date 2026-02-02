@@ -25,9 +25,11 @@ QTCREATOR_UTILS_EXPORT bool isIgnoredForDirtyHook(const QObject *object);
 
 
 QTCREATOR_UTILS_EXPORT void markSettingsDirty(bool dirty = true);
+QTCREATOR_UTILS_EXPORT void checkSettingsDirty();
 
 namespace Internal {
 QTCREATOR_UTILS_EXPORT void setMarkSettingsDirtyHook(const std::function<void (bool)> &hook);
+QTCREATOR_UTILS_EXPORT void setCheckSettingsDirtyHook(const std::function<void ()> &hook);
 }
 
 } // namespace Utils

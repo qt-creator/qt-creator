@@ -365,8 +365,6 @@ void setWheelScrollingWithoutFocusBlockedForChildren(QWidget *widget)
 
 class SettingsTab : public QScrollArea
 {
-    Q_OBJECT
-
 public:
     explicit SettingsTab(IOptionsPage *page)
         : m_page(page)
@@ -401,8 +399,10 @@ public:
         }
     }
 
-signals:
-    void dirtyChanged(bool dirty);
+    bool isDirty() const
+    {
+        return m_inner && m_inner->isDirty();
+    }
 
 private:
     void createInner()
@@ -413,10 +413,6 @@ private:
         setWheelScrollingWithoutFocusBlockedForChildren<QAbstractSpinBox *>(m_inner);
         setWidget(m_inner);
         m_inner->setAutoFillBackground(false);
-
-        if (auto w = qobject_cast<IOptionsPageWidget *>(m_inner)) {
-            connect(w, &IOptionsPageWidget::dirtyChanged, this, &SettingsTab::dirtyChanged);
-        }
     }
 
     void showEvent(QShowEvent *event) final
@@ -449,6 +445,7 @@ public:
 
     bool isDirty() const { return m_isDirty; }
     void setDirty(bool dirty);
+
     void createGui();
     void showCategory(int index);
     void updateEnabledTabs(Category *category, const QString &searchText);
@@ -554,6 +551,11 @@ SettingsWidget::SettingsWidget()
             this, &SettingsWidget::filter);
     m_categoryList->setFocus();
 
+    Utils::Internal::setCheckSettingsDirtyHook([widget = QPointer<SettingsWidget>(this), this] {
+        QTC_ASSERT(widget, return);
+        SettingsTab *tab = s_tabForPage.value(m_currentPage);
+        setDirty(tab->isDirty());
+    });
     Utils::Internal::setMarkSettingsDirtyHook([widget = QPointer<SettingsWidget>(this), this](bool dirty) {
         QTC_ASSERT(widget, return);
         setDirty(dirty);
@@ -734,7 +736,6 @@ void SettingsWidget::ensureCategoryWidget(Category *category)
     tabWidget->tabBar()->setObjectName("qc_settings_main_tabbar"); // easier lookup in Squish
     for (IOptionsPage *page : std::as_const(category->pages)) {
         auto tab = new SettingsTab(page);
-        connect(tab, &SettingsTab::dirtyChanged, this, &SettingsWidget::setDirty);
         tabWidget->addTab(tab, page->displayName());
     }
 
@@ -986,5 +987,3 @@ void SettingsMode::open(Id initialPage)
 }
 
 } // namespace Core::Internal
-
-#include "settingsmode.moc"
