@@ -226,6 +226,7 @@ void TestSettingsWidget::testToolsSettings(NonAspectSettings &settings) const
 
 void TestSettingsWidget::onFrameworkItemChanged()
 {
+    gotDirty();
     bool atLeastOneEnabled = false;
     int mixed = ITestBase::None;
     if (QAbstractItemModel *model = m_frameworkTreeWidget->model()) {
