@@ -309,6 +309,171 @@ QStringList SshSharedConnection::connectionArgs(const FilePath &binary) const
                                                      << m_sshParameters.host();
 }
 
+// public methods are thread-safe
+// Starts a new thread and manages shared connections there.
+// The new thread is needed since SshSharedConnection is not thread-safe itself,
+// and it uses deleteLater, so we need an event loop to run things on that is never blocked even
+// if some thread waits for e.g. a device process to finish.
+class SshConnectionHandler : public QThread
+{
+public:
+    SshConnectionHandler()
+    {
+        setObjectName("SshConnectionHandler");
+        m_guard.moveToThread(this);
+    }
+    ~SshConnectionHandler()
+    {
+        quit();
+        wait();
+    }
+
+    void attachToSharedConnection(
+        SshConnectionHandle *connectionHandle, const SshParameters &sshParameters);
+
+    void setSshParameters(const SshParameters &sshParameters);
+
+private:
+    void ensureRunning();
+    void run() final;
+    QString attachToSharedConnectionImpl(
+        SshConnectionHandle *connectionHandle, const SshParameters &sshParameters);
+
+    QObject m_guard;
+    mutable QMutex m_mutex;
+    SshParameters m_displaylessSshParameters;
+    QList<SshSharedConnection *> m_connections;
+};
+
+void SshConnectionHandler::ensureRunning()
+{
+    QMutexLocker locker(&m_mutex);
+    if (isRunning())
+        return;
+    start();
+}
+
+void SshConnectionHandler::run()
+{
+    exec();
+    QMutexLocker locker(&m_mutex);
+    qDeleteAll(m_connections);
+    m_connections.clear();
+}
+
+void SshConnectionHandler::attachToSharedConnection(
+    SshConnectionHandle *connectionHandle, const SshParameters &sshParameters)
+{
+    ensureRunning();
+    QString socketFilePath;
+    const Qt::ConnectionType connectionType = QThread::currentThread() == m_guard.thread()
+                                                  ? Qt::DirectConnection
+                                                  : Qt::BlockingQueuedConnection;
+    QTC_CHECK(connectionType != Qt::DirectConnection); // should never happen
+    QMetaObject::invokeMethod(
+        &m_guard,
+        [this, connectionHandle, sshParameters] {
+            return attachToSharedConnectionImpl(connectionHandle, sshParameters);
+        },
+        connectionType,
+        &socketFilePath);
+
+    if (!socketFilePath.isEmpty())
+        emit connectionHandle->connected(socketFilePath);
+}
+
+// always runs in handler thread
+QString SshConnectionHandler::attachToSharedConnectionImpl(
+    SshConnectionHandle *connectionHandle, const SshParameters &sshParameters)
+{
+    setSshParameters(sshParameters);
+
+    QMutexLocker locker(&m_mutex);
+    SshSharedConnection *matchingConnection = nullptr;
+
+    // Find the matching connection
+    for (SshSharedConnection *connection : std::as_const(m_connections)) {
+        if (connection->sshParameters() == sshParameters) {
+            matchingConnection = connection;
+            break;
+        }
+    }
+
+    // If no matching connection has been found, create a new one
+    if (!matchingConnection) {
+        matchingConnection = new SshSharedConnection(sshParameters);
+        connect(
+            matchingConnection,
+            &SshSharedConnection::autoDestructRequested,
+            &m_guard,
+            [that = QPointer(this), matchingConnection = QPointer(matchingConnection)] {
+                QTC_ASSERT(that && matchingConnection, return);
+                // This slot is just for removing the matchingConnection from the connection list.
+                // The SshSharedConnection could have deleted itself otherwise.
+                QMutexLocker locker(&that->m_mutex);
+                that->m_connections.removeOne(matchingConnection);
+                matchingConnection->deleteLater();
+            });
+        m_connections.append(matchingConnection);
+    }
+
+    matchingConnection->ref();
+
+    connect(
+        matchingConnection,
+        &SshSharedConnection::connected,
+        connectionHandle,
+        &SshConnectionHandle::connected);
+    connect(
+        matchingConnection,
+        &SshSharedConnection::disconnected,
+        connectionHandle,
+        &SshConnectionHandle::disconnected);
+
+    connect(
+        connectionHandle,
+        &SshConnectionHandle::detachFromSharedConnection,
+        matchingConnection,
+        &SshSharedConnection::deref,
+        // Ensure the signal is delivered before sender's
+        // destruction, otherwise we may get out of sync
+        // with ref count.
+        Qt::BlockingQueuedConnection);
+
+    if (matchingConnection->state() == QProcess::Running)
+        return matchingConnection->socketFilePath();
+
+    if (matchingConnection->state() == QProcess::NotRunning)
+        matchingConnection->connectToHost();
+
+    return {};
+}
+
+static SshParameters displayless(const SshParameters &sshParameters)
+{
+    SshParameters parameters = sshParameters;
+    parameters.setX11DisplayName({});
+    return parameters;
+}
+
+void SshConnectionHandler::setSshParameters(const SshParameters &sshParameters)
+{
+    const SshParameters displaylessSshParameters = displayless(sshParameters);
+
+    if (m_displaylessSshParameters == displaylessSshParameters)
+        return;
+
+    // If displayless sshParameters don't match the old connections' sshParameters, then stale
+    // old connections (don't delete, as the last deref() to each one will delete them).
+    {
+        QMutexLocker locker(&m_mutex);
+        for (SshSharedConnection *connection : std::as_const(m_connections))
+            connection->makeStale();
+        m_connections.clear();
+    }
+    m_displaylessSshParameters = displaylessSshParameters;
+}
+
 // LinuxDeviceConfigurationWidget
 
 class LinuxDeviceConfigurationWidget final : public IDeviceWidget
@@ -420,9 +585,6 @@ public:
 
     Result<Environment> deviceEnvironment() const final;
 
-    void attachToSharedConnection(SshConnectionHandle *connectionHandle,
-                                  const SshParameters &sshParameters);
-
     LinuxDevicePrivate *m_devicePrivate = nullptr;
     ShellThreadHandler *m_handler = nullptr;
 
@@ -471,10 +633,12 @@ public:
         DeviceManager::setDeviceState(q->id(), IDevice::DeviceDisconnected, announce);
         q->setFileAccess(nullptr, announce);
         m_scriptAccess.reset();
+        m_sharedConnectionHandler.reset();
     }
 
     LinuxDevice *q = nullptr;
 
+    std::unique_ptr<SshConnectionHandler> m_sharedConnectionHandler;
     std::shared_ptr<LinuxDeviceAccess> m_scriptAccess;
 
     QRecursiveMutex m_shellMutex;
@@ -993,13 +1157,6 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
 
 // ShellThreadHandler
 
-static SshParameters displayless(const SshParameters &sshParameters)
-{
-    SshParameters parameters = sshParameters;
-    parameters.setX11DisplayName({});
-    return parameters;
-}
-
 class ShellThreadHandler : public QObject
 {
     Q_OBJECT
@@ -1040,7 +1197,6 @@ public:
     ~ShellThreadHandler()
     {
         closeShell();
-        qDeleteAll(m_connections);
     }
 
     void closeShell()
@@ -1055,12 +1211,11 @@ public:
     void startThreadHandler(const SshParameters &parameters)
     {
         closeShell();
-        setSshParameters(parameters);
 
         const FilePath sshPath = sshSettings().sshFilePath();
         CommandLine cmd { sshPath };
-        cmd.addArgs(m_displaylessSshParameters.connectionOptions(sshPath)
-                    << m_displaylessSshParameters.host());
+        cmd.addArgs(
+            displayless(parameters).connectionOptions(sshPath) << displayless(parameters).host());
         cmd.addArg("/bin/sh");
 
         m_shell = new LinuxDeviceShell(cmd,
@@ -1083,79 +1238,10 @@ public:
         return m_shell->runInShell(cmd, data);
     }
 
-    void setSshParameters(const SshParameters &sshParameters)
-    {
-        QMutexLocker locker(&m_mutex);
-        const SshParameters displaylessSshParameters = displayless(sshParameters);
-
-        if (m_displaylessSshParameters == displaylessSshParameters)
-            return;
-
-        // If displayless sshParameters don't match the old connections' sshParameters, then stale
-        // old connections (don't delete, as the last deref() to each one will delete them).
-        for (SshSharedConnection *connection : std::as_const(m_connections))
-            connection->makeStale();
-        m_connections.clear();
-        m_displaylessSshParameters = displaylessSshParameters;
-    }
-
-    QString attachToSharedConnection(SshConnectionHandle *connectionHandle,
-                                     const SshParameters &sshParameters)
-    {
-        setSshParameters(sshParameters);
-
-        SshSharedConnection *matchingConnection = nullptr;
-
-        // Find the matching connection
-        for (SshSharedConnection *connection : std::as_const(m_connections)) {
-            if (connection->sshParameters() == sshParameters) {
-                matchingConnection = connection;
-                break;
-            }
-        }
-
-        // If no matching connection has been found, create a new one
-        if (!matchingConnection) {
-            matchingConnection = new SshSharedConnection(sshParameters);
-            connect(matchingConnection, &SshSharedConnection::autoDestructRequested,
-                    this, [this, matchingConnection] {
-                // This slot is just for removing the matchingConnection from the connection list.
-                // The SshSharedConnection could have deleted itself otherwise.
-                m_connections.removeOne(matchingConnection);
-                matchingConnection->deleteLater();
-            });
-            m_connections.append(matchingConnection);
-        }
-
-        matchingConnection->ref();
-
-        connect(matchingConnection, &SshSharedConnection::connected,
-                connectionHandle, &SshConnectionHandle::connected);
-        connect(matchingConnection, &SshSharedConnection::disconnected,
-                connectionHandle, &SshConnectionHandle::disconnected);
-
-        connect(connectionHandle, &SshConnectionHandle::detachFromSharedConnection,
-                matchingConnection, &SshSharedConnection::deref,
-                Qt::BlockingQueuedConnection); // Ensure the signal is delivered before sender's
-                                               // destruction, otherwise we may get out of sync
-                                               // with ref count.
-
-        if (matchingConnection->state() == QProcess::Running)
-            return matchingConnection->socketFilePath();
-
-        if (matchingConnection->state() == QProcess::NotRunning)
-            matchingConnection->connectToHost();
-
-        return {};
-    }
-
 signals:
     void threadHandlerStarted(const Result<> &res);
 
 private:
-    mutable QMutex m_mutex;
-    SshParameters m_displaylessSshParameters;
-    QList<SshSharedConnection *> m_connections;
     QPointer<LinuxDeviceShell> m_shell;
 };
 
@@ -1413,6 +1499,8 @@ void LinuxDevicePrivate::setupShell(const SshParameters &sshParameters,
     closeConnection(true);
 
     m_scriptAccess = std::make_shared<LinuxDeviceAccess>(this);
+    m_sharedConnectionHandler.reset(new SshConnectionHandler);
+    m_sharedConnectionHandler->setSshParameters(sshParameters);
 
     m_shellMutex.lock();
 
@@ -1437,6 +1525,7 @@ void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
     if (!result) {
         DEBUG("Failed to setup state");
         q->setFileAccess(nullptr);
+        m_sharedConnectionHandler.reset();
         m_shellMutex.unlock();
         q->setDeviceState(IDevice::DeviceDisconnected);
         setupShellFinalize(result, cont);
@@ -1599,21 +1688,6 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
     return true;
 }
 
-void LinuxDeviceAccess::attachToSharedConnection(SshConnectionHandle *connectionHandle,
-                                                  const SshParameters &sshParameters)
-{
-    QString socketFilePath;
-
-    Qt::ConnectionType connectionType = QThread::currentThread() == m_handler->thread() ? Qt::DirectConnection : Qt::BlockingQueuedConnection;
-
-    QMetaObject::invokeMethod(m_handler, [this, connectionHandle, sshParameters] {
-        return m_handler->attachToSharedConnection(connectionHandle, sshParameters);
-    }, connectionType, &socketFilePath);
-
-    if (!socketFilePath.isEmpty())
-        emit connectionHandle->connected(socketFilePath);
-}
-
 FileTransferInterface *LinuxDevice::createFileTransferInterface(
         const FileTransferSetupData &setup) const
 {
@@ -1623,8 +1697,7 @@ FileTransferInterface *LinuxDevice::createFileTransferInterface(
 void LinuxDevice::attachToSharedConnection(SshConnectionHandle *sshConnectionHandle,
                                            const SshParameters &sshParams) const
 {
-    QTC_ASSERT(d->m_scriptAccess, return);
-    return d->m_scriptAccess->attachToSharedConnection(sshConnectionHandle, sshParams);
+    d->m_sharedConnectionHandler->attachToSharedConnection(sshConnectionHandle, sshParams);
 }
 
 void LinuxDevice::checkOsType()
