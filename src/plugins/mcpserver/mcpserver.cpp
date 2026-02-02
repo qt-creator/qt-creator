@@ -55,64 +55,75 @@ McpServer::McpServer(QObject *parent)
         m_methods.insert(name, std::move(handler));
     };
 
-    addMethod("initialize", [this](const QJsonObject &, const QJsonValue &id) {
-        QJsonObject capabilities;
-        QJsonObject toolsCapability;
-        toolsCapability["listChanged"] = false;
-        capabilities["tools"] = toolsCapability;
+    addMethod(
+        "initialize", [this](const QJsonObject &, const QJsonValue &id, const Callback &callback) {
+            QJsonObject capabilities;
+            QJsonObject toolsCapability;
+            toolsCapability["listChanged"] = false;
+            capabilities["tools"] = toolsCapability;
 
-        QJsonObject serverInfo;
-        serverInfo["name"] = "Qt Creator MCP Server";
-        serverInfo["version"] = m_commands.getVersion();
+            QJsonObject serverInfo;
+            serverInfo["name"] = "Qt Creator MCP Server";
+            serverInfo["version"] = m_commands.getVersion();
 
-        QJsonObject initResult;
-        initResult["protocolVersion"] = "2024-11-05";
-        initResult["capabilities"] = capabilities;
-        initResult["serverInfo"] = serverInfo;
-        initResult["instructions"]
-            = "Use the listed tools to interact with the current Qt Creator session.";
+            QJsonObject initResult;
+            initResult["protocolVersion"] = "2024-11-05";
+            initResult["capabilities"] = capabilities;
+            initResult["serverInfo"] = serverInfo;
+            initResult["instructions"]
+                = "Use the listed tools to interact with the current Qt Creator session.";
 
-        // optional meta
-        QJsonObject meta;
-        meta["timestamp"] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
-        initResult["_meta"] = meta;
+            // optional meta
+            QJsonObject meta;
+            meta["timestamp"] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+            initResult["_meta"] = meta;
 
-        return createSuccessResponse(initResult, id);
-    });
+            callback(createSuccessResponse(initResult, id));
+        });
 
-    addMethod("tools/list", [this](const QJsonObject &, const QJsonValue &id) {
-        return createSuccessResponse(QJsonObject{{"tools", m_toolList}}, id);
-    });
+    addMethod(
+        "tools/list", [this](const QJsonObject &, const QJsonValue &id, const Callback &callback) {
+            callback(createSuccessResponse(QJsonObject{{"tools", m_toolList}}, id));
+        });
 
-    addMethod("tools/call", [this](const QJsonObject &params, const QJsonValue &id) {
-        const QString toolName = params.value("name").toString();
-        const QJsonObject arguments = params.value("arguments").toObject();
+    addMethod(
+        "tools/call",
+        [this](const QJsonObject &params, const QJsonValue &id, const Callback &callback) {
+            const QString toolName = params.value("name").toString();
+            const QJsonObject arguments = params.value("arguments").toObject();
 
-        auto it = m_toolHandlers.find(toolName);
-        if (it == m_toolHandlers.end())
-            return createErrorResponse(-32601, QStringLiteral("Unknown tool: %1").arg(toolName), id);
+            auto it = m_toolHandlers.find(toolName);
+            if (it == m_toolHandlers.end()) {
+                callback(createErrorResponse(
+                    -32601,
+                    QStringLiteral("Unknown tool: %1").arg(toolName),
+                    id));
+            }
 
-        QJsonObject rawResult = it.value()(arguments);
+            it.value()(arguments, [callback, id](const QJsonObject &rawResult) {
+                // Build the CallToolResult payload as required by the spec.
+                QJsonObject result;
+                result.insert("structuredContent", rawResult);
+                QJsonObject textBlock{
+                                      {"type", "text"},
+                                      {"text",
+                                       QString::fromUtf8(QJsonDocument(rawResult).toJson(QJsonDocument::Compact))}};
+                result.insert("content", QJsonArray{textBlock});
+                result.insert("isError", false);
+                callback(createSuccessResponse(result, id));
+            });
 
-        // Build the CallToolResult payload as required by the spec.
-        QJsonObject result;
-        result.insert("structuredContent", rawResult);
-        QJsonObject textBlock{
-            {"type", "text"},
-            {"text", QString::fromUtf8(QJsonDocument(rawResult).toJson(QJsonDocument::Compact))}};
-        result.insert("content", QJsonArray{textBlock});
-        result.insert("isError", false);
+        });
 
-        return createSuccessResponse(result, id);
-    });
+    addMethod(
+        "resources/list",
+        [](const QJsonObject &, const QJsonValue &id, const Callback &callback) {
+            QJsonArray emptyResources;
+            QJsonObject result;
+            result.insert("resources", emptyResources);
 
-    addMethod("resources/list", [this](const QJsonObject &, const QJsonValue &id) {
-        QJsonArray emptyResources;
-        QJsonObject result;
-        result.insert("resources", emptyResources);
-
-        return createSuccessResponse(result, id);
-    });
+            callback(createSuccessResponse(result, id));
+        });
 
     addTool(
         {{"name", "get_build_status"},
@@ -125,10 +136,10 @@ McpServer::McpServer(QObject *parent)
               {"properties", QJsonObject{{"result", QJsonObject{{"type", "string"}}}}},
               {"required", QJsonArray{"result"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
             QString status = runOnGuiThread([this] { return m_commands.getBuildStatus(); });
-            return QJsonObject{{"result", status}};
+            callback(QJsonObject{{"result", status}});
         });
 
     addTool(
@@ -152,10 +163,10 @@ McpServer::McpServer(QObject *parent)
                       {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
                       {"required", QJsonArray{"success"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             const QString path = p.value("path").toString();
             bool ok = runOnGuiThread([this, path] { return m_commands.openFile(path); });
-            return QJsonObject{{"success", ok}};
+            callback(QJsonObject{{"success", ok}});
         });
 
     addTool(
@@ -179,10 +190,10 @@ McpServer::McpServer(QObject *parent)
                       {"properties", QJsonObject{{"text", QJsonObject{{"type", "string"}}}}},
                       {"required", QJsonArray{"text"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             const QString path = p.value("path").toString();
             const QString text = runOnGuiThread([this, path] { return m_commands.getFilePlainText(path); });
-            return QJsonObject{{"text", text}};
+            callback(QJsonObject{{"text", text}});
         });
 
     addTool(
@@ -210,12 +221,12 @@ McpServer::McpServer(QObject *parent)
                       {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
                       {"required", QJsonArray{"success"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             const QString path = p.value("path").toString();
             const QString text = p.value("plainText").toString();
             bool ok = runOnGuiThread(
                 [this, path, text] { return m_commands.setFilePlainText(path, text); });
-            return QJsonObject{{"success", ok}};
+            callback(QJsonObject{{"success", ok}});
         });
 
     addTool(
@@ -239,10 +250,10 @@ McpServer::McpServer(QObject *parent)
               {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
               {"required", QJsonArray{"success"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             const QString path = p.value("path").toString();
             bool ok = runOnGuiThread([this, path] { return m_commands.saveFile(path); });
-            return QJsonObject{{"success", ok}};
+            callback(QJsonObject{{"success", ok}});
         });
 
     addTool(
@@ -266,10 +277,10 @@ McpServer::McpServer(QObject *parent)
                       {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
                       {"required", QJsonArray{"success"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             const QString path = p.value("path").toString();
             bool ok = runOnGuiThread([this, path] { return m_commands.closeFile(path); });
-            return QJsonObject{{"success", ok}};
+            callback(QJsonObject{{"success", ok}});
         });
 
     addTool(
@@ -286,14 +297,14 @@ McpServer::McpServer(QObject *parent)
                     QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
               {"required", QJsonArray{"projects"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
             const QStringList projects = runOnGuiThread(
                 [this] { return m_commands.listProjects(); });
             QJsonArray arr;
             for (const QString &pr : projects)
                 arr.append(pr);
-            return QJsonObject{{"projects", arr}};
+            callback(QJsonObject{{"projects", arr}});
         });
 
     addTool(
@@ -310,14 +321,14 @@ McpServer::McpServer(QObject *parent)
                     QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
               {"required", QJsonArray{"buildConfigs"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
             const QStringList configs = runOnGuiThread(
                 [this] { return m_commands.listBuildConfigs(); });
             QJsonArray arr;
             for (const QString &c : configs)
                 arr.append(c);
-            return QJsonObject{{"buildConfigs", arr}};
+            callback(QJsonObject{{"buildConfigs", arr}});
         });
 
     addTool(
@@ -340,11 +351,11 @@ McpServer::McpServer(QObject *parent)
               {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
               {"required", QJsonArray{"success"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             const QString name = p.value("name").toString();
             bool ok = runOnGuiThread(
                 [this, name] { return m_commands.switchToBuildConfig(name); });
-            return QJsonObject{{"success", ok}};
+            callback(QJsonObject{{"success", ok}});
         });
 
     addTool(
@@ -361,14 +372,14 @@ McpServer::McpServer(QObject *parent)
                     QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
               {"required", QJsonArray{"openFiles"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
             const QStringList files = runOnGuiThread(
                 [this] { return m_commands.listOpenFiles(); });
             QJsonArray arr;
             for (const QString &f : files)
                 arr.append(f);
-            return QJsonObject{{"openFiles", arr}};
+            callback(QJsonObject{{"openFiles", arr}});
         });
 
     addTool(
@@ -385,14 +396,14 @@ McpServer::McpServer(QObject *parent)
                     QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
               {"required", QJsonArray{"sessions"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
             const QStringList sessions = runOnGuiThread(
                 [this] { return m_commands.listSessions(); });
             QJsonArray arr;
             for (const QString &s : sessions)
                 arr.append(s);
-            return QJsonObject{{"sessions", arr}};
+            callback(QJsonObject{{"sessions", arr}});
         });
 
     addTool(
@@ -413,10 +424,10 @@ McpServer::McpServer(QObject *parent)
               {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
               {"required", QJsonArray{"success"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             const QString name = p.value("sessionName").toString();
             bool ok = runOnGuiThread([this, name] { return m_commands.loadSession(name); });
-            return QJsonObject{{"success", ok}};
+            callback(QJsonObject{{"success", ok}});
         });
 
     addTool(
@@ -433,13 +444,13 @@ McpServer::McpServer(QObject *parent)
                     QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
               {"required", QJsonArray{"issues"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
             const QStringList issues = runOnGuiThread([this] { return m_commands.listIssues(); });
             QJsonArray arr;
             for (const QString &i : issues)
                 arr.append(i);
-            return QJsonObject{{"issues", arr}};
+            callback(QJsonObject{{"issues", arr}});
         });
 
     addTool(
@@ -453,10 +464,10 @@ McpServer::McpServer(QObject *parent)
               {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
               {"required", QJsonArray{"success"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
             bool ok = runOnGuiThread([this] { return m_commands.quit(); });
-            return QJsonObject{{"success", ok}};
+            callback(QJsonObject{{"success", ok}});
         });
 
     addTool(
@@ -470,10 +481,10 @@ McpServer::McpServer(QObject *parent)
               {"properties", QJsonObject{{"project", QJsonObject{{"type", "string"}}}}},
               {"required", QJsonArray{"project"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
             QString proj = runOnGuiThread([this] { return m_commands.getCurrentProject(); });
-            return QJsonObject{{"project", proj}};
+            callback(QJsonObject{{"project", proj}});
         });
 
     addTool(
@@ -487,10 +498,10 @@ McpServer::McpServer(QObject *parent)
               {"properties", QJsonObject{{"buildConfig", QJsonObject{{"type", "string"}}}}},
               {"required", QJsonArray{"buildConfig"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
             QString cfg = runOnGuiThread([this] { return m_commands.getCurrentBuildConfig(); });
-            return QJsonObject{{"buildConfig", cfg}};
+            callback(QJsonObject{{"buildConfig", cfg}});
         });
 
     addTool(
@@ -504,10 +515,10 @@ McpServer::McpServer(QObject *parent)
               {"properties", QJsonObject{{"session", QJsonObject{{"type", "string"}}}}},
               {"required", QJsonArray{"session"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
             QString sess = runOnGuiThread([this] { return m_commands.getCurrentSession(); });
-            return QJsonObject{{"session", sess}};
+            callback(QJsonObject{{"session", sess}});
         });
 
     addTool(
@@ -521,11 +532,29 @@ McpServer::McpServer(QObject *parent)
               {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
               {"required", QJsonArray{"success"}}}},
          {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-        [this](const QJsonObject &p) {
+        [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
             bool ok = runOnGuiThread([this] { return m_commands.saveSession(); });
-            return QJsonObject{{"success", ok}};
+            callback(QJsonObject{{"success", ok}});
         });
+
+    addTool(
+        {{"name", "save_session"},
+         {"title", "Save the current session"},
+         {"description", "Save the current session"},
+         {"inputSchema", QJsonObject{{"type", "object"}}},
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
+                      {"required", QJsonArray{"success"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            Q_UNUSED(p);
+            bool ok = runOnGuiThread([this] { return m_commands.saveSession(); });
+            callback(QJsonObject{{"success", ok}});
+        });
+
 }
 
 McpServer::~McpServer()
@@ -622,14 +651,19 @@ void McpServer::onHttpPost(QTcpSocket *client, const HttpParser::HttpRequest &re
         sendResponse(client, errorResponse);
     }
 
-    const QJsonObject response = callMCPMethod(method, params, id);
+    auto responseHandler = [self = QPointer<McpServer>(this), client = QPointer(client)](const QJsonObject &response) {
+        // Responses are sent as SSE events.
+        if (!self || !client)
+            return;
 
-    // Responses are sent as SSE events.
-    broadcastSseMessage(response);
+        self->broadcastSseMessage(response);
+        static QByteArray noContent
+            = HttpResponse::createCorsResponse(QByteArray(), HttpResponse::NO_CONTENT);
+        // The HTTP POST itself gets a 204 No Content response (nothing in body).
+        sendHttpResponse(client, noContent);
+    };
+    callMCPMethod(method, responseHandler, params, id);
 
-    // The HTTP POST itself gets a 204 No Content response (nothing in body).
-    QByteArray noContent = HttpResponse::createCorsResponse(QByteArray(), HttpResponse::NO_CONTENT);
-    sendHttpResponse(client, noContent);
 }
 
 void McpServer::onHttpOptions(QTcpSocket *client, const HttpParser::HttpRequest &request)
@@ -764,26 +798,25 @@ quint16 McpServer::getPort() const
     return m_port;
 }
 
-QJsonObject McpServer::callMCPMethod(
-    const QString &method, const QJsonObject &params, const QJsonValue &id)
+void McpServer::callMCPMethod(
+    const QString &method, const Callback &callback, const QJsonObject &params, const QJsonValue &id)
 {
-    if (method.isEmpty())
-        return createErrorResponse(-32600, "Invalid Request: method is required", id);
+    if (method.isEmpty()) {
+        callback(createErrorResponse(-32600, "Invalid Request: method is required", id));
+        return;
+    }
 
     // Find the handler
     auto it = m_methods.find(method);
-    QJsonObject reply;
-    if (it == m_methods.end())
-        reply = createErrorResponse(-32601, QStringLiteral("Method not found: %1").arg(method), id);
-    else {
+    if (it == m_methods.end()) {
+        callback(createErrorResponse(-32601, QStringLiteral("Method not found: %1").arg(method), id));
+    } else {
         try {
-            reply = it.value()(params, id);
+            it.value()(params, id, callback);
         } catch (const std::exception &e) {
-            reply = createErrorResponse(-32603, QString::fromStdString(e.what()), id);
+            callback(createErrorResponse(-32603, QString::fromStdString(e.what()), id));
         }
     }
-
-    return reply;
 }
 
 void McpServer::addTool(const QJsonObject &tool, ToolHandler handler)
@@ -835,10 +868,10 @@ void McpServer::initializeToolsForCommands()
                           {"properties", QJsonObject{{"success", QJsonObject{{"type", "boolean"}}}}},
                           {"required", QJsonArray{"success"}}}},
              {"annotations", QJsonObject{{"readOnlyHint", false}}}},
-            [commandId, name](const QJsonObject &p) {
+            [commandId, name](const QJsonObject &p, const Callback &callback) {
                 Q_UNUSED(p);
                 const bool ok = triggerCommand(name, commandId);
-                return QJsonObject{{"success", ok}};
+                callback(QJsonObject{{"success", ok}});
             });
     };
 
@@ -966,8 +999,12 @@ void McpServer::handleClientData()
         return;
     }
 
-    const QJsonObject response = callMCPMethod(method, params, id);
-    sendResponse(client, response);
+    auto responseHandler = [self = QPointer(this),
+                            client = QPointer(client)](const QJsonObject &response) {
+        if (self && client)
+            self->sendResponse(client, response);
+    };
+    callMCPMethod(method, responseHandler, params, id);
 }
 
 void McpServer::handleClientDisconnected()

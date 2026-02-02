@@ -31,10 +31,14 @@ public:
     quint16 getPort() const;
 
     // Public method to call MCP methods directly
-    QJsonObject callMCPMethod(
-        const QString &method, const QJsonObject &params = {}, const QJsonValue &id = {});
+    using Callback = std::function<void(const QJsonObject &response)>;
+    void callMCPMethod(
+        const QString &method,
+        const Callback &callback,
+        const QJsonObject &params = {},
+        const QJsonValue &id = {});
 
-    using ToolHandler = std::function<QJsonObject(const QJsonObject &params)>;
+    using ToolHandler = std::function<void(const QJsonObject &params, const Callback &callback)>;
     void addTool(const QJsonObject &tool, ToolHandler handler);
     void initializeToolsForCommands();
 
@@ -46,14 +50,14 @@ private slots:
 private:
     QJsonObject createErrorResponse(
         int code, const QString &message, const QJsonValue &id = QJsonValue::Null);
-    QJsonObject createSuccessResponse(
+    static QJsonObject createSuccessResponse(
         const QJsonValue &result, const QJsonValue &id = QJsonValue::Null);
     void sendResponse(QTcpSocket *client, const QJsonObject &response);
 
     // HTTP handling methods
     bool isHttpRequest(const QByteArray &data);
     void handleHttpRequest(QTcpSocket *client, const HttpParser::HttpRequest &request);
-    void sendHttpResponse(QTcpSocket *client, const QByteArray &httpResponse);
+    static void sendHttpResponse(QTcpSocket *client, const QByteArray &httpResponse);
     void onHttpGet(QTcpSocket *client, const HttpParser::HttpRequest &request);
     void onHttpPost(QTcpSocket *client, const HttpParser::HttpRequest &request);
     void onHttpOptions(QTcpSocket *client, const HttpParser::HttpRequest &request);
@@ -62,8 +66,8 @@ private:
     void handleSseClient(QTcpSocket *client);
     void broadcastSseMessage(const QJsonObject &msg);
 private:
-    using MethodHandler
-        = std::function<QJsonObject(const QJsonObject &params, const QJsonValue &id)>;
+    using MethodHandler = std::function<
+        void(const QJsonObject &params, const QJsonValue &id, const Callback &callback)>;
     QHash<QString, MethodHandler> m_methods;
 
     QHash<QString, ToolHandler> m_toolHandlers;
