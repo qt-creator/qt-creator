@@ -281,7 +281,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     m_addToVersionControlLabel = new QLabel(Tr::tr("Add to &version control:"));
     m_addToVersionControlComboBox = new QComboBox;
     m_addToVersionControlComboBox->setObjectName("addToVersionControlComboBox");
-    m_vcsManageButton = new QPushButton(ICore::msgShowOptionsDialog());
+    m_vcsManageButton = new QPushButton(ICore::msgShowSettings());
     m_vcsManageButton
         ->setSizePolicy(QSizePolicy::Maximum, m_vcsManageButton->sizePolicy().verticalPolicy());
     m_filesLabel = new QLabel;
@@ -596,7 +596,7 @@ void ProjectWizardPage::projectChanged(int index)
 
 void ProjectWizardPage::manageVcs()
 {
-    ICore::showOptionsDialog(VcsBase::Constants::VCS_COMMON_SETTINGS_ID);
+    ICore::showSettings(VcsBase::Constants::VCS_COMMON_SETTINGS_ID);
 }
 
 void ProjectWizardPage::setVersionControlUiElementsVisible(bool visible)

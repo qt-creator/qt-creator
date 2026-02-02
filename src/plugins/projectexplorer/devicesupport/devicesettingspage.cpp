@@ -229,7 +229,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
     m_defaultDeviceButton = new QPushButton(Tr::tr("Set As Default"));
 
     OptionPushButton *addButton = new OptionPushButton(Tr::tr("&Add..."));
-    IOptionsPageWidget::setIgnoreForDirtyHook(addButton);
+    setIgnoreForDirtyHook(addButton);
     connect(addButton, &OptionPushButton::clicked, this, &DeviceSettingsWidget::addDevice);
 
     QMenu *deviceTypeMenu = new QMenu(addButton);
@@ -508,7 +508,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
 
     if (device->canCreateProcessModel()) {
         QPushButton * const button = new QPushButton(Tr::tr("Show Running Processes..."));
-        IOptionsPageWidget::setIgnoreForDirtyHook(button);
+        setIgnoreForDirtyHook(button);
         m_additionalActionButtons << button;
         connect(button, &QAbstractButton::clicked,
                 this, &DeviceSettingsWidget::handleProcessListRequested);

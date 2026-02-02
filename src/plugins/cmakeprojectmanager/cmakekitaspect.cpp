@@ -13,6 +13,7 @@
 
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <ios/iosconstants.h>
 
@@ -1081,6 +1082,7 @@ public:
     {
         refresh();
         m_manageButton->setText(Tr::tr("Change..."));
+        setIgnoreForDirtyHook(m_manageButton);
         connect(m_manageButton, &QAbstractButton::clicked,
                 this, &CMakeConfigurationKitAspectImpl::editConfigurationChanges);
     }

@@ -364,6 +364,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
 
     const auto onUpdateDone = [](QString &output) {
         return [&output](const Process &process) {
+            //: %1=command, %2=error
             const QString errorMessage = Tr::tr("Failed to get update information (%1): %2")
                                              .arg(process.commandLine().toUserOutput());
             if (process.error() != QProcess::UnknownError) {
@@ -432,7 +433,7 @@ static void showUpdateInfo(const QList<Update> &updates,
     info.setInfoType(InfoLabel::Information);
     info.addCustomButton(
         Tr::tr("Open Settings"),
-        [] { ICore::showOptionsDialog(FILTER_OPTIONS_PAGE_ID); },
+        [] { ICore::showSettings(FILTER_OPTIONS_PAGE_ID); },
         {},
         InfoBarEntry::ButtonAction::Hide);
     if (newQt) {

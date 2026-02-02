@@ -343,7 +343,9 @@ void DevContainerPlugin::onProjectTreeChanged(FolderNode *fn)
     for (const auto &watchResult : watchMapEntry) {
         if (!watchResult) {
             Core::MessageManager::writeSilently(
-                Tr::tr("Failed to watch devcontainer config files for project %1: %2")
+                Tr::tr(
+                    "Failed to watch the configuration files for the development container for "
+                    "project %1: %2")
                     .arg(project->displayName(), watchResult.error()));
             continue;
         }

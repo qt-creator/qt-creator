@@ -85,7 +85,7 @@ VcsConfigurationPage::VcsConfigurationPage() : d(new Internal::VcsConfigurationP
     setTitle(Tr::tr("Configuration"));
 
     d->m_versionControl = nullptr;
-    d->m_configureButton = new QPushButton(ICore::msgShowOptionsDialog(), this);
+    d->m_configureButton = new QPushButton(ICore::msgShowSettings(), this);
     d->m_configureButton->setEnabled(false);
 
     auto verticalLayout = new QVBoxLayout(this);
@@ -157,7 +157,7 @@ bool VcsConfigurationPage::isComplete() const
 
 void VcsConfigurationPage::openConfiguration()
 {
-    ICore::showOptionsDialog(d->m_versionControl->id());
+    ICore::showSettings(d->m_versionControl->id());
 }
 
 } // namespace VcsBase

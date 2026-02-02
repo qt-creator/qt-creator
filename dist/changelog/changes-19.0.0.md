@@ -20,6 +20,8 @@ Implements a basic
 for Qt Creator that allows opening files and projects, as well as building,
 running, and debugging, and a few other actions.
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-mcp-server.html))
+
 ### Ant
 
 Adds lightweight support for projects using the
@@ -119,6 +121,7 @@ Editing
 * Added an image preview when hovering over references to image resources
   ([QTCREATORBUG-29727](https://bugreports.qt.io/browse/QTCREATORBUG-29727),
    [QTCREATORBUG-29819](https://bugreports.qt.io/browse/QTCREATORBUG-29819))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-preview-images.html))
 * Fixed issues with parameter packs when refactoring
   ([QTCREATORBUG-32597](https://bugreports.qt.io/browse/QTCREATORBUG-32597))
 * Fixed that `Add Definition` was not available for `friend` functions
@@ -144,6 +147,7 @@ Editing
 * Added an image preview when hovering over references to image resources
   ([QTCREATORBUG-29727](https://bugreports.qt.io/browse/QTCREATORBUG-29727),
    [QTCREATORBUG-29819](https://bugreports.qt.io/browse/QTCREATORBUG-29819))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-preview-images.html))
 * Added the option to rename all usages of a QML component when renaming the
   file
   ([QTCREATORBUG-33195](https://bugreports.qt.io/browse/QTCREATORBUG-33195))
@@ -244,6 +248,7 @@ Projects
 * Presets
     * Added support for `graphviz` and `trace`
       ([QTCREATORBUG-33943](https://bugreports.qt.io/browse/QTCREATORBUG-33943))
+      ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-build-settings-cmake-presets.html))
 
 ### qmake
 
@@ -279,6 +284,7 @@ Analyzer
 
 * Added the option to resize the category column in the timeline view
   ([QTCREATORBUG-33045](https://bugreports.qt.io/browse/QTCREATORBUG-33045))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-profile-qml.html))
 
 ### Coco
 
@@ -292,6 +298,7 @@ Analyzer
 * Added support for protocol versions 5 and 6
   ([QTCREATORBUG-33759](https://bugreports.qt.io/browse/QTCREATORBUG-33759))
 * Added the option to show `Size and Alignment Errors` and `Other` issues
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-memcheck.html))
 
 Terminal
 --------
@@ -322,6 +329,7 @@ Version Control Systems
 
 ### Git
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-vcs-git.html))
 * Submit Editor
     * Added `Stage`, `Mark Untracked`, and `Remove` to added files
     * Added `Revert Renaming` to renamed files
@@ -380,7 +388,9 @@ Platforms
 
 * Added support for `Run as root`
 * Added fast file access support for 32-bit ARM Linux devices
-* Added the option to `Create kits` when auto-detecting device build tools
+* Added the `Preferences > Devices > Create kits` option to create kits for
+  auto-detected device build tools
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-configure-tools-on-devices.html))
 
 ### Development Container
 

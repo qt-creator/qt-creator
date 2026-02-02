@@ -158,7 +158,7 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
         return dev ? dev->id().toSetting() : QVariant();
     case Qt::DisplayRole:
         if (!dev)
-            return Tr::tr("All");
+            return Tr::tr("All", "All devices");
         if (DeviceManager::defaultDevice(dev->type()) == dev)
             return Tr::tr("%1 (default for %2)").arg(dev->displayName(), dev->displayType());
         return dev->displayName();

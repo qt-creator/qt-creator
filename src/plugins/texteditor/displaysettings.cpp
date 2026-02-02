@@ -139,7 +139,7 @@ QLabel *DisplaySettings::createAnnotationSettingsLink()
     auto label = new QLabel("<small><i><a href>Annotation Settings</a></i></small>");
     QObject::connect(label, &QLabel::linkActivated, []() {
         Utils::ToolTip::hideImmediately();
-        Core::ICore::showOptionsDialog(Constants::TEXT_EDITOR_DISPLAY_SETTINGS);
+        Core::ICore::showSettings(Constants::TEXT_EDITOR_DISPLAY_SETTINGS);
     });
     return label;
 }

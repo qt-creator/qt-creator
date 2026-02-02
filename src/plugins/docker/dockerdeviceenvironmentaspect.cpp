@@ -88,18 +88,18 @@ Utils::Environment DockerDeviceEnvironmentAspect::operator()() const
     result.modify(EnvironmentItem::fromStringList(value()));
     return result;
 }
-bool DockerDeviceEnvironmentAspect::guiToBuffer()
+bool DockerDeviceEnvironmentAspect::guiToVolatileValue()
 {
     const QStringList newValue = undoable.get();
-    if (newValue != m_buffer) {
-        m_buffer = newValue;
+    if (newValue != m_volatileValue) {
+        m_volatileValue = newValue;
         return true;
     }
     return false;
 }
-void DockerDeviceEnvironmentAspect::bufferToGui()
+void DockerDeviceEnvironmentAspect::volatileValueToGui()
 {
-    undoable.setWithoutUndo(m_buffer);
+    undoable.setWithoutUndo(m_volatileValue);
 }
 
 void DockerDeviceEnvironmentAspect::fromMap(const Utils::Store &map)

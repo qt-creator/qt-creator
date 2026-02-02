@@ -231,16 +231,11 @@ public:
 
         connect(autoDetectButton, &QPushButton::clicked, autoDetectButton, [device, autoDetectButton] {
             autoDetectButton->setEnabled(false);
-
-            // clang-format off
-            GlobalTaskTree::start(Group {
-                device->autoDetectDeviceToolsRecipe(),
-                QSyncTask([btn = QPointer<QWidget>(autoDetectButton)] {
-                    if (btn)
-                        btn->setEnabled(true);
-                })
-            });
-            // clang-format on
+            const auto onDone = [btn = QPointer<QWidget>(autoDetectButton)] {
+                if (btn)
+                    btn->setEnabled(true);
+            };
+            GlobalTaskTree::start(device->autoDetectDeviceToolsRecipe(), {}, onDone);
         });
 
         using namespace Layouting;

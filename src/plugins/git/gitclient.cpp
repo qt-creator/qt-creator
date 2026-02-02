@@ -1166,9 +1166,8 @@ void GitClient::diffPath(const FilePath &workingDirectory, const QString &relati
                          DiffMode diffMode, QString title) const
 {
     if (title.isEmpty()) {
-        title = (diffMode == Staged)
-            ? Tr::tr("Git Diff Staged %1").arg(relativePath)
-            : Tr::tr("Git Diff %1").arg(relativePath);
+        title = (diffMode == Staged) ? Tr::tr("Git Diff Staged \"%1\"").arg(relativePath)
+                                     : Tr::tr("Git Diff \"%1\"").arg(relativePath);
     }
     const QString documentId = gitDocumentId(".DiffPath.", workingDirectory.pathAppended(relativePath));
     const QStringList args = diffModeArguments(diffMode, {"--", relativePath});

@@ -217,9 +217,9 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->buttonLayout->setContentsMargins(0, -1, -1, -1);
     auto openSettingsButton = new QToolButton;
     openSettingsButton->setIcon(Utils::Icons::SETTINGS.icon());
-    openSettingsButton->setToolTip(ICore::msgShowOptionsDialog());
+    openSettingsButton->setToolTip(ICore::msgShowSettings());
     connect(openSettingsButton, &QToolButton::clicked,  this, [] {
-        ICore::showOptionsDialog(Constants::VCS_COMMON_SETTINGS_ID);
+        ICore::showSettings(Constants::VCS_COMMON_SETTINGS_ID);
     });
     d->buttonLayout->addWidget(openSettingsButton);
     d->buttonLayout->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));

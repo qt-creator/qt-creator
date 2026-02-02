@@ -139,7 +139,7 @@ public:
         if (aspect->settingsPage().isValid()) {
             useGlobalLabel->setText(Tr::tr("Use <a href=\"dummy\">global settings</a>"));
             connect(useGlobalLabel, &QLabel::linkActivated, aspect, [aspect] {
-                Core::ICore::showOptionsDialog(aspect->settingsPage());
+                Core::ICore::showSettings(aspect->settingsPage());
             });
         } else {
             useGlobalLabel->setText(Tr::tr("Use global settings"));

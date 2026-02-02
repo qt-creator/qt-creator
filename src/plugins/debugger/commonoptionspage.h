@@ -33,8 +33,8 @@ public:
     bool isDirty() const override;
 
 private:
-    bool guiToBuffer() override;
-    void bufferToGui() override;
+    bool guiToVolatileValue() override;
+    void volatileValueToGui() override;
 
     SourcePathMapAspectPrivate *d = nullptr;
 };

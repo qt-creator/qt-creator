@@ -10,6 +10,7 @@
 #include "projectexplorertr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -24,6 +25,7 @@
 
 #include <utility>
 
+using namespace Core;
 using namespace Utils;
 
 static const char DETECTIONSOURCETYPE[] = "DetectionSource.type";
@@ -205,6 +207,9 @@ void KitAspect::refresh()
         return;
 
     for (const Private::ListAspect &la : std::as_const(d->listAspects)) {
+        // Prevent dirtying by the QComboBox::model()::reset and setCurrentIndex below.
+        const bool prev = setIgnoreForDirtyHook(la.comboBox, true);
+
         la.spec.resetModel();
         la.comboBox->model()->sort(0);
         const QVariant itemId = la.spec.getter(*k);
@@ -219,6 +224,8 @@ void KitAspect::refresh()
         }
         la.comboBox->setCurrentIndex(idx);
         la.comboBox->setEnabled(!d->readOnly && la.comboBox->count() > 1);
+
+        setIgnoreForDirtyHook(la.comboBox, prev);
     }
 }
 
@@ -308,8 +315,9 @@ void KitAspect::addManageButtonToLayout(Layouting::Layout &layout)
 {
     if (d->managingPageId.isValid()) {
         d->manageButton = createSubWidget<QPushButton>(msgManage());
+        setIgnoreForDirtyHook(d->manageButton);
         connect(d->manageButton, &QPushButton::clicked, [this] {
-            Core::ICore::showOptionsDialog(d->managingPageId, settingsPageItemToPreselect());
+            Core::ICore::showSettings(d->managingPageId, settingsPageItemToPreselect());
         });
         layout.addItem(d->manageButton);
     }
@@ -345,13 +353,25 @@ QList<KitAspect *> KitAspect::aspectsToEmbed() const
     return d->aspectsToEmbed;
 }
 
-QString KitAspect::msgManage() { return Tr::tr("Manage..."); }
+QString KitAspect::msgManage()
+{
+    return Tr::tr("Manage...");
+}
+
 Kit *KitAspect::kit() const
 {
     return d->kit;
 }
-const KitAspectFactory *KitAspect::factory() const { return d->factory; }
-QAction *KitAspect::mutableAction() const { return d->mutableAction; }
+
+const KitAspectFactory *KitAspect::factory() const
+{
+    return d->factory;
+}
+
+QAction *KitAspect::mutableAction() const
+{
+    return d->mutableAction;
+}
 
 KitAspectFactory::KitAspectFactory()
 {

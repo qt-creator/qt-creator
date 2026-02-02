@@ -321,7 +321,7 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
         settingsAction->setIcon(Utils::Icons::SETTINGS.icon());
         settingsAction->setToolTip(Tr::tr("Show Diagnostic Settings"));
         QObject::connect(settingsAction, &QAction::triggered, Core::ICore::instance(),
-            [id = m_settingsPage] { Core::ICore::showOptionsDialog(id); },
+            [id = m_settingsPage] { Core::ICore::showSettings(id); },
             Qt::QueuedConnection);
         actions.append(settingsAction);
     }

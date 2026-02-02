@@ -28,8 +28,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 
-#include <QtTaskTree/QSingleTaskTreeRunner>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/devicefileaccess.h>
@@ -321,8 +319,6 @@ public:
 private:
     void createNewKey();
     void updateDeviceFromUi() override {}
-
-    QSingleTaskTreeRunner m_detectionRunner;
 };
 
 LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
@@ -352,31 +348,21 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
 
     auto autoDetectButton = new QPushButton(Tr::tr("Run Auto-Detection Now"));
 
-    connect(&m_detectionRunner, &QSingleTaskTreeRunner::aboutToStart, [=] {
-        autoDetectButton->setEnabled(false);
-    });
-    connect(&m_detectionRunner, &QSingleTaskTreeRunner::done, [=] {
-        autoDetectButton->setEnabled(true);
-    });
-
     connect(autoDetectButton, &QPushButton::clicked, this, [linuxDevice, autoDetectButton] {
         autoDetectButton->setEnabled(false);
         linuxDevice->tryToConnect(
             {linuxDevice.get(), [linuxDevice, autoDetectButton](const Result<> &res) {
-                 if (res) {
-                     const QtTaskTree::Group recipe = linuxDevice->autoDetectDeviceToolsRecipe();
-                     linuxDevice->requestToolDetection(linuxDevice->toolSearchPaths());
-                     GlobalTaskTree::start(
-                         QtTaskTree::Group {
-                             recipe,
-                             QSyncTask([btn = QPointer<QWidget>(autoDetectButton)] {
-                                 if (btn)
-                                     btn->setEnabled(true);
-                             })
-                         });
+                 if (!res) {
+                     autoDetectButton->setEnabled(true);
                      return;
                  }
-                 autoDetectButton->setEnabled(true);
+
+                 linuxDevice->requestToolDetection(linuxDevice->toolSearchPaths());
+                 const auto onDone = [btn = QPointer<QWidget>(autoDetectButton)] {
+                     if (btn)
+                         btn->setEnabled(true);
+                 };
+                 GlobalTaskTree::start(linuxDevice->autoDetectDeviceToolsRecipe(), {}, onDone);
              }});
     });
 
@@ -1603,7 +1589,7 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
                 "<a href=\"dummy\">settings page</a>."));
             label->setWordWrap(true);
             QObject::connect(label, &QLabel::linkActivated, [] {
-                Core::ICore::showOptionsDialog(ProjectExplorer::Constants::DEVICE_SETTINGS_PAGE_ID);
+                Core::ICore::showSettings(ProjectExplorer::Constants::DEVICE_SETTINGS_PAGE_ID);
             });
             return label;
         });

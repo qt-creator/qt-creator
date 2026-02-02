@@ -87,14 +87,26 @@
 
     \image {qtcreator-python-interpreters.webp} {Interpreters tab in Python preferences}
 
+    \section2 Manage Python versions
+
     You can add and remove Python versions and clean up references to Python
     versions that you uninstalled, but that still appear in the list.
 
     To use the selected Python version when opening \c {.py} files that don't
     belong to a project, select \uicontrol {Make Default}.
 
+    \section2 Use virtual environments as kits
+
     To use a virtual environment as a kit, select it in \uicontrol Interpreters,
     and then select \uicontrol {Generate Kit}.
+
+    \section2 Change the debugger for a Python kit
+
+    To change the debugger for a Python kit, select the kit in
+    \preferences > \uicontrol Kits. Then, in the \uicontrol Debugger field,
+    select the debugger to use from the list of available debuggers.
+
+    \image {qtcreator-preferences-kits.webp} {Kits preferences}
 
     \section1 Use Python interactive shell
 

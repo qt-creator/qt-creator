@@ -73,6 +73,11 @@ namespace CMakeProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarningMsg);
 
+QString quoteString(const QString &fileName)
+{
+    return fileName.contains(QChar::Space) ? QString(R"("%1")").arg(fileName) : fileName;
+}
+
 // --------------------------------------------------------------------
 // CMakeBuildSystem:
 // --------------------------------------------------------------------
@@ -248,7 +253,7 @@ static QString relativeFilePaths(const FilePaths &filePaths, const FilePath &pro
     return Utils::transform(
                filePaths,
                [projectDir](const FilePath &path) {
-                   return path.canonicalPath().relativePathFromDir(projectDir);
+                   return quoteString(path.canonicalPath().relativePathFromDir(projectDir));
                })
         .join(' ');
 };
@@ -394,7 +399,7 @@ static CMakeBuildSystem::SnippetAndLocation generateSnippetAndLocationForSources
         }
     }
     if (extraChars)
-        result.line += extraChars;
+        result.column += extraChars;
     return result;
 }
 
@@ -1114,7 +1119,7 @@ bool CMakeBuildSystem::renameFile(
         bool &shouldRunCMake)
 {
     const FilePath projDir = context->filePath();
-    const QString newRelPathName = newFilePath.relativePathFromDir(projDir);
+    const QString newRelPathNameRaw = newFilePath.relativePathFromDir(projDir);
     const QString oldRelPathName = oldFilePath.relativePathFromDir(projDir);
 
     const QString targetName = context->buildKey();
@@ -1122,6 +1127,10 @@ bool CMakeBuildSystem::renameFile(
     auto fileToRename = projectFileArgumentPosition(targetName, oldRelPathName);
     QTC_ASSERT_RESULT(fileToRename, return false);
 
+    const QString newRelPathName = fileToRename->argumentPosition.Delim
+                                           == cmListFileArgument::Quoted
+                                       ? newRelPathNameRaw
+                                       : quoteString(newRelPathNameRaw);
     bool haveGlobbing = false;
     do {
         if (!fileToRename->fromGlobbing) {

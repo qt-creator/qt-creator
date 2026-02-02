@@ -62,7 +62,8 @@ Result<> QmlModuleWizardFieldPageFactory::validateData(Id typeId, const QVariant
     }
     if (!list->size()) {
         return ResultError(Tr::tr("When parsing fields of page \"%1\": %2")
-                               .arg(typeId.toString()).arg(Tr::tr("No entries found")));
+                               .arg(typeId.toString())
+                               .arg(Tr::tr("No entries found.")));
     }
 
     for (const QVariant &v : *list) {
@@ -115,8 +116,8 @@ Core::GeneratedFiles QmlModuleWizardGenerator::fileList(Utils::MacroExpander *ex
     const auto processedResult = Utils::TemplateEngine::processText(expander,
                                                                     QString::fromUtf8(*fileReadResult));
     if (!processedResult) {
-        return fail(Tr::tr("When processing \"%1\":<br>%2")
-                        .arg(sourcePath.toUserOutput(), processedResult.error()));
+        return fail(Tr::tr("When processing \"%1\":").arg(sourcePath.toUserOutput()) + "<br>"
+                    + processedResult.error());
     }
 
     Core::GeneratedFile file(targetPath);

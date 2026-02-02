@@ -227,7 +227,7 @@ private:
 
 static void openQtVersionsOptions()
 {
-    Core::ICore::showOptionsDialog(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
+    Core::ICore::showSettings(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 
 static UpdateInfo::Service *updateInfoService()
@@ -322,7 +322,7 @@ public:
                 Row {
                     PushButton {
                         text(Tr::tr("Open Language Server preferences...")),
-                        onClicked(this, [] { Core::ICore::showOptionsDialog(LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PAGE); })
+                        onClicked(this, [] { Core::ICore::showSettings(LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PAGE); })
                     },
                     st
                 },

@@ -945,7 +945,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     //mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = ActionManager::registerAction(&m_startAction, DEBUGGER_START);
-    cmd->setDescription(Tr::tr("Start Debugging the current project"));
+    cmd->setDescription(Tr::tr("Start Debugging the Current Project"));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultKeySequence(startShortcut);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
@@ -1242,7 +1242,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     // Application interaction
     // Use a queued connection so the dialog isn't triggered in the same event.
     connect(settings().settingsDialog.action(), &QAction::triggered, this,
-            [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); }, Qt::QueuedConnection);
+            [] { ICore::showSettings(DEBUGGER_COMMON_SETTINGS_ID); }, Qt::QueuedConnection);
 
     EngineManager::registerDefaultPerspective(Tr::tr("Debugger Preset"),
                                               {},

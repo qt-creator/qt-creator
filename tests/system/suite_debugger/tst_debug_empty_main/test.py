@@ -24,6 +24,8 @@ def main():
     if not startedWithoutPluginError():
         return
     targets = Targets.desktopTargetClasses()
+    if platform.system() == 'Darwin' and platform.mac_ver()[0] >= '26.1':
+        Targets.removeTargetsBefore(targets, '6.8')
 
     # empty Qt
     workingDir = tempDir()

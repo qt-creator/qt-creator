@@ -141,6 +141,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
         Tr::tr("Re-enable warnings that were suppressed by selecting \"Do Not "
            "Show Again\" (for example, missing highlighter).",
            nullptr));
+    setIgnoreForDirtyHook(m_resetWarningsButton);
 
     m_toolbarStyleBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 

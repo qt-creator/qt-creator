@@ -79,6 +79,7 @@ TestSettingsWidget::TestSettingsWidget()
                        "tests where the executable could not be deduced.")),
         onClicked(this, &clearChoiceCache)
     };
+    setIgnoreForDirtyHook(Tools::access(&resetChoicesButton));
 
     TestSettings &s = Internal::testSettings();
     Group generalGroup {

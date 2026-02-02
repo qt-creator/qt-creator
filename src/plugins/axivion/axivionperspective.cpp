@@ -575,7 +575,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_errorEdit->setPalette(palette);
     QPushButton *openPref = new QPushButton(Tr::tr("Open Preferences..."), errorWidget);
     connect(openPref, &QPushButton::clicked,
-            this, []{ ICore::showOptionsDialog("Analyzer.Axivion.Settings"); });
+            this, []{ ICore::showSettings("Analyzer.Axivion.Settings"); });
     using namespace Layouting;
     Column {
         m_errorEdit,

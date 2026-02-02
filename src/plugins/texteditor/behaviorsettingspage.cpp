@@ -89,10 +89,10 @@ public:
                 this, [] (TabSettingsWidget::CodingStyleLink link) {
             switch (link) {
             case TabSettingsWidget::CppLink:
-                Core::ICore::showOptionsDialog(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
+                Core::ICore::showSettings(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
                 break;
             case TabSettingsWidget::QtQuickLink:
-                Core::ICore::showOptionsDialog(QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
+                Core::ICore::showSettings(QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
                 break;
             }
         });

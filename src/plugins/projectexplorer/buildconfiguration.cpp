@@ -123,8 +123,8 @@ public:
         pasteStdOutCB->setChecked(bc->parseStdOut());
         connect(pasteStdOutCB, &QCheckBox::clicked, bc, &BuildConfiguration::setParseStdOut);
 
-        const auto selectionWidget =
-                new CustomParsersSelectionWidget(CustomParsersSelectionWidget::InBuildConfig, this);
+        const auto selectionWidget = new CustomParsersSelectionWidget(
+            CustomParsersSelectionWidget::InBuildConfig, bc->project(), this);
 
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
@@ -132,7 +132,7 @@ public:
         layout->addWidget(selectionWidget);
 
         QList<Id> parsers = bc->customParsers();
-        for (const auto &s : CustomParsers::get()) {
+        for (const auto &s : CustomParsers::parsersAvailableInProject(bc->project())) {
             if (s.buildDefault && !parsers.contains(s.id))
                 parsers.append(s.id);
         }

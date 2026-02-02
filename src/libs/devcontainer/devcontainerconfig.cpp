@@ -602,7 +602,7 @@ Result<std::variant<Mount, QString>> Mount::fromJsonVariant(
         return Mount::fromJson(value.toObject(), jsonStringToString);
 
     return ResultError(
-        Tr::tr("Invalid mount format: expected string or object, found %1").arg(value.type()));
+        Tr::tr("Invalid mount format: expected string or object, found \"%1\".").arg(value.type()));
 }
 
 Result<Mount> Mount::fromJson(const QJsonObject &json, const JsonStringToString &jsonStringToString)
@@ -610,9 +610,10 @@ Result<Mount> Mount::fromJson(const QJsonObject &json, const JsonStringToString 
     Mount mount;
 
     if (!json.contains("type"))
-        return ResultError(Tr::tr("Invalid mount format: missing 'type' field in mount object"));
+        return ResultError(Tr::tr("Invalid mount format: missing \"type\" field in mount object."));
     if (!json.contains("target"))
-        return ResultError(Tr::tr("Invalid mount format: missing 'target' field in mount object"));
+        return ResultError(
+            Tr::tr("Invalid mount format: missing \"target\" field in mount object."));
 
     static const std::map<QString, MountType> mountTypeMap
         = {{"bind", MountType::Bind}, {"volume", MountType::Volume}};
@@ -1318,11 +1319,11 @@ Utils::Result<FeatureDependency> FeatureDependency::fromJson(
     FeatureDependency dep;
 
     if (key.isEmpty())
-        return ResultError(Tr::tr("Feature dependency key cannot be empty"));
+        return ResultError(Tr::tr("Feature dependency key cannot be empty."));
 
     auto [id, version] = Utils::splitAtFirst(key, ':');
     if (id.isEmpty())
-        return ResultError(Tr::tr("Feature dependency key must contain an ID"));
+        return ResultError(Tr::tr("Feature dependency key must contain an ID."));
 
     dep.id = id.toString();
     if (!version.isEmpty())

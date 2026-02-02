@@ -231,6 +231,7 @@ void WorkspaceBuildSystem::reparse(bool force)
         bti.projectFilePath = projectPath;
         bti.workingDirectory = workingDirectory;
         bti.additionalData = QVariantMap{{"arguments", arguments}};
+        bti.usesTerminal = targetObject["useTerminal"].toBool(false);
 
         targetInfos << bti;
     }
@@ -411,6 +412,13 @@ public:
             arguments.setArguments(argumentsAsString());
             if (!bti.workingDirectory.isEmpty())
                 workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
+
+            // Workaround: TerminalAspect::setUseTerminalHint will only enable if the project settings
+            // allow it. So instead we fake the user having set the value via "fromMap" here.
+            static_cast<BaseAspect *>(&terminal)->fromMap(
+                Utils::storeFromVariant(
+                    QVariantMap{{"RunConfiguration.UseTerminal", bti.usesTerminal}}));
+            // terminal.setUseTerminalHint(bti.usesTerminal);
         });
 
         auto enabledUpdater = [this] { setEnabled(enabled.value()); };
@@ -433,6 +441,7 @@ public:
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDirectory{this};
     BoolAspect enabled{this};
+    TerminalAspect terminal{this};
 };
 
 class WorkspaceProjectRunConfigurationFactory : public RunConfigurationFactory
@@ -547,16 +556,22 @@ public:
 
         setBuildGenerator([this](const Kit *, const FilePath &projectPath, bool forSetup) {
             QList<BuildInfo> result = parseBuildConfigurations(projectPath, forSetup);
-            if (!forSetup || result.isEmpty()) {
-                BuildInfo info;
-                info.buildSystemName = WorkspaceBuildSystem::name();
-                info.factory = this;
-                info.typeName = msgBuildConfigurationBuild();
-                info.projectDirectory = projectPath.parentDir().parentDir();
-                info.buildDirectory = info.projectDirectory.pathAppended("build");
-                info.displayName = msgBuildConfigurationDefault();
-                result << info;
-            }
+
+            // We always add a default empty build configuration. This fixes several issues:
+            // - If there are no build configurations defined in the project.json file,
+            //   there is at least one build configuration to select.
+            // - If the user changes all build configurations at once, there is always one
+            //   that remains valid. The rest of the application cannot cope with there being
+            //   a target without any build configurations.
+            BuildInfo info;
+            info.buildSystemName = WorkspaceBuildSystem::name();
+            info.factory = this;
+            info.typeName = Tr::tr("Empty");
+            info.projectDirectory = projectPath.parentDir().parentDir();
+            info.buildDirectory = info.projectDirectory.pathAppended("build");
+            info.displayName = msgBuildConfigurationDefault();
+            result << info;
+
             return result;
         });
     }
@@ -574,7 +589,7 @@ public:
             buildInfo.displayName = buildConfigObject["name"].toString();
             if (buildInfo.displayName.isEmpty())
                 continue;
-            buildInfo.typeName = buildInfo.displayName;
+            buildInfo.typeName = Tr::tr("Copy of %1").arg(buildInfo.displayName);
             buildInfo.factory = m_instance;
             buildInfo.buildDirectory = FilePath::fromUserInput(
                 buildConfigObject["buildDirectory"].toString());

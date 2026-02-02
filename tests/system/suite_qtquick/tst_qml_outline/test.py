@@ -19,6 +19,7 @@ def main():
         return
     openQmakeProject(os.path.join(templateDir, proFile), [Targets.DESKTOP_5_14_1_DEFAULT])
     qmlFiles = [treebase + "focus\\.qml", treebase + "Core.ListMenu\\.qml"]
+    waitForProjectParsing(5000)
     checkOutlineFor(qmlFiles)
     testModify()
     saveAndExit()

@@ -90,7 +90,7 @@ TerminalPane::TerminalPane(QObject *parent)
     m_openSettingsButton->setIcon(Icons::SETTINGS_TOOLBAR.icon());
 
     connect(m_openSettingsButton, &QToolButton::clicked, m_openSettingsButton, []() {
-        ICore::showOptionsDialog("Terminal.General");
+        ICore::showSettings("Terminal.General");
     });
 
     m_escSettingButton = new QToolButton();

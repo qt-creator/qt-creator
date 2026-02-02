@@ -284,7 +284,7 @@ LocalsAndExpressionsSettings::LocalsAndExpressionsSettings()
 
     showQObjectNames.setSettingsKey(debugModeGroup, "ShowQObjectNames2");
     showQObjectNames.setDefaultValue(true);
-    showQObjectNames.setDisplayName(Tr::tr("Show QObject names if available"));
+    showQObjectNames.setDisplayName(Tr::tr("Show QObject Names if Available"));
     showQObjectNames.setLabelText(Tr::tr("Show QObject names if available"));
     showQObjectNames.setToolTip(
         "<p>"

@@ -23,7 +23,7 @@ class TEXTEDITOR_EXPORT CodeStyleSelectorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CodeStyleSelectorWidget(QWidget *parent = nullptr);
+    explicit CodeStyleSelectorWidget(const void *project, QWidget *parent = nullptr);
     ~CodeStyleSelectorWidget() override;
 
     void setCodeStyle(ICodeStylePreferences *codeStyle);
@@ -33,6 +33,7 @@ protected:
     virtual void slotExportClicked();
 
     ICodeStylePreferences *m_codeStyle = nullptr;
+    const void * const m_project;
 
 private:
     void slotComboBoxActivated(int index);

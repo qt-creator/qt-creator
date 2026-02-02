@@ -49,7 +49,7 @@ GitSettings::GitSettings()
 
     updateRefs.setSettingsKey("UpdateRefs");
     updateRefs.setDefaultValue(false);
-    updateRefs.setLabelText(Tr::tr("Allow updating refs"));
+    updateRefs.setLabelText(Tr::tr("Allow updating references"));
     updateRefs.setToolTip(
         Tr::tr("Allow updating references in interactive rebase.\nRequires Git %1.").arg("2.38"));
 

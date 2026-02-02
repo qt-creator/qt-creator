@@ -26,8 +26,13 @@
 #include <coreplugin/messagebox.h>
 #include <coreplugin/session.h>
 
-#include <texteditor/syntaxhighlighter.h>
+#include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/CppDocument.h>
 
+#include <texteditor/syntaxhighlighter.h>
+#include <texteditor/texteditor.h>
+
+#include <cppeditor/cppmodelmanager.h>
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
@@ -65,8 +70,11 @@
 
 #include <ctype.h>
 
+using namespace CPlusPlus;
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace TextEditor;
+using namespace Utils;
 using namespace Utils;
 
 namespace Debugger {
@@ -250,6 +258,47 @@ static void loadSessionData()
     // Handled by loadSesseionDataForEngine.
 }
 
+//
+// Annotations
+//
+class DebuggerValueMark : public TextEditor::TextMark
+{
+public:
+    DebuggerValueMark(const FilePath &fileName, int lineNumber, const QString &value)
+        : TextMark(fileName,
+                   lineNumber,
+                   {Tr::tr("Debugger Value"), Constants::TEXT_MARK_CATEGORY_VALUE})
+    {
+        setPriority(TextEditor::TextMark::HighPriority);
+        setToolTipProvider([] { return QString(); });
+        setLineAnnotation(value);
+        setAnnotationTextFormat(Qt::PlainText);
+    }
+};
+
+// Stolen from CPlusPlus::Document::functionAt(...)
+static int firstRelevantLine(const Document::Ptr document, int line, int column)
+{
+    QTC_ASSERT(line > 0 && column > 0, return 0);
+    CPlusPlus::Symbol *symbol = document->lastVisibleSymbolAt(line, column);
+    if (!symbol)
+        return 0;
+
+    // Find the enclosing function scope (which might be several levels up,
+    // or we might be standing on it)
+    Scope *scope = symbol->asScope();
+    if (!scope)
+        scope = symbol->enclosingScope();
+
+    while (scope && !scope->asFunction() )
+        scope = scope->enclosingScope();
+
+    if (!scope)
+        return 0;
+
+    return scope->line();
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // SeparatedView
@@ -400,6 +449,12 @@ class WatchModel : public WatchModelBase
 public:
     WatchModel(WatchHandler *handler, DebuggerEngine *engine);
 
+    ~WatchModel()
+    {
+        qDeleteAll(m_valueMarks);
+        m_valueMarks.clear();
+    }
+
     static QString nameForFormat(int format);
 
     QVariant data(const QModelIndex &idx, int role) const override;
@@ -447,10 +502,63 @@ public:
     void grabWidget();
     void ungrabWidget();
     void timerEvent(QTimerEvent *event) override;
+
+    void setValueAnnotationsHelper(BaseTextEditor *textEditor,
+                                   const Location &loc,
+                                   QMap<QString, QString> values)
+    {
+        TextEditorWidget *widget = textEditor->editorWidget();
+        TextDocument *textDocument = widget->textDocument();
+        const FilePath filePath = loc.fileName();
+        const Snapshot snapshot = CppEditor::CppModelManager::snapshot();
+        const Document::Ptr cppDocument = snapshot.document(filePath);
+        if (!cppDocument) // For non-C++ documents.
+            return;
+
+        const int firstLine = firstRelevantLine(cppDocument, loc.textPosition().line, 1);
+        if (firstLine < 1)
+            return;
+
+        CPlusPlus::ExpressionUnderCursor expressionUnderCursor(cppDocument->languageFeatures());
+        QTextCursor tc = widget->textCursor();
+        for (int lineNumber = loc.textPosition().line; lineNumber >= firstLine; --lineNumber) {
+            const QTextBlock block = textDocument->document()->findBlockByNumber(lineNumber - 1);
+            tc.setPosition(block.position());
+            for (; !tc.atBlockEnd(); tc.movePosition(QTextCursor::NextCharacter)) {
+                const QString expression = expressionUnderCursor(tc);
+                if (expression.isEmpty())
+                    continue;
+                const QString value = escapeUnprintable(values.take(expression)); // Show value one only once.
+                if (value.isEmpty())
+                    continue;
+                const QString annotation = QString("%1: %2").arg(expression, value);
+                m_valueMarks.append(new DebuggerValueMark(filePath, lineNumber, annotation));
+            }
+        }
+    }
+
+    void setValueAnnotations(const QMap<QString, QString> &values)
+    {
+        qDeleteAll(m_valueMarks);
+        m_valueMarks.clear();
+        if (values.isEmpty())
+            return;
+
+        const QList<Core::IEditor *> editors = Core::EditorManager::visibleEditors();
+        for (Core::IEditor *editor : editors) {
+            if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
+                if (textEditor->textDocument()->filePath() == m_location.fileName())
+                    setValueAnnotationsHelper(textEditor, m_location, values);
+            }
+        }
+    }
+
 private:
     QMenu *createFormatMenuForManySelected(const WatchItemSet &item, QWidget *parent);
     void setItemsFormat(const WatchItemSet &items, const DisplayFormat &format);
     void addCharsPrintableMenu(QMenu *menu);
+
+    void separatedViewTabBarContextMenuRequested(const QPoint &point, const QString &iname);
 
 public:
     int m_grabWidgetTimerId = -1;
@@ -477,8 +585,7 @@ public:
 
     Location m_location;
 
-private:
-    void separatedViewTabBarContextMenuRequested(const QPoint &point, const QString &iname);
+    QList<DebuggerValueMark *> m_valueMarks;
 };
 
 WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
@@ -2174,7 +2281,7 @@ void WatchHandler::cleanup()
     theTemporaryWatchers.clear();
     saveWatchers();
     m_model->reinitialize();
-    Internal::setValueAnnotations(m_model->m_location, {});
+    m_model->setValueAnnotations({});
     emit m_model->updateFinished();
     m_model->m_separatedView->hide();
 }
@@ -2338,7 +2445,7 @@ void WatchHandler::notifyUpdateFinished()
                 values[expr] = item->value;
         });
     }
-    Internal::setValueAnnotations(m_model->m_location, values);
+    m_model->setValueAnnotations(values);
 
     m_model->m_contentsValid = true;
     updateLocalsWindow();

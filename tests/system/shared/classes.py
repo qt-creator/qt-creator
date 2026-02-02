@@ -71,6 +71,27 @@ class Targets:
     def getDefaultKit():
         return Targets.DESKTOP_5_14_1_DEFAULT
 
+
+    # targets: set or list of targets, represented either by their int value or display string
+    # qtVersion: version string (major.minor) to be used as minimum target
+    @staticmethod
+    def removeTargetsBefore(targets, qtVersion):
+        if not isinstance(targets, (list, set)):
+            test.fatal("Expected list or set of targets, got %s." % className(targets))
+            return
+        copyOfTargets = list(targets)
+        for t in copyOfTargets:
+            if isinstance(t, str):
+                targetStr = t
+            else:
+                targetStr = Targets.getStringForTarget(t)
+            targetVersion = re.match("Desktop ([56]\.\d+\.\d+).*", targetStr)
+            if not targetVersion:
+                test.fatal("Unexpected version: '%s'" % qtVersion)
+            elif targetVersion.group(1) < qtVersion:
+                targets.remove(t)
+
+
 # this class holds some constants for easier usage inside the Projects view
 class ProjectSettings:
     BUILD = 1

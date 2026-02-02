@@ -330,6 +330,7 @@ private:
             break;
         }
         setText(QString("%1: %2").arg(policy).arg(ts.m_indentSize));
+        //: %1=policy, %1=size
         setToolTip(Tr::tr("Indentation settings: %1 (%2)").arg(policy).arg(ts.m_indentSize));
     }
 
@@ -395,7 +396,7 @@ private:
         if (!globalSettingsCategory.isValid())
             globalSettingsCategory = Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS;
         menu->addAction(Tr::tr("Global Settings..."), [globalSettingsCategory] {
-            Core::ICore::showOptionsDialog(globalSettingsCategory);
+            Core::ICore::showSettings(globalSettingsCategory);
         });
 
         menu->popup(QCursor::pos());

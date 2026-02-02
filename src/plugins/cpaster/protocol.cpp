@@ -25,19 +25,19 @@ Protocol::~Protocol() = default;
 
 QtTaskTree::ExecutableItem Protocol::fetchRecipe(const QString &, const FetchHandler &) const
 {
-    reportError(Tr::tr("Fetch cabability not supported."));
+    reportError(Tr::tr("Fetching is not supported."));
     return QtTaskTree::errorItem;
 }
 
 QtTaskTree::ExecutableItem Protocol::listRecipe(const ListHandler &) const
 {
-    reportError(Tr::tr("List cabability not supported."));
+    reportError(Tr::tr("Listing is not supported."));
     return QtTaskTree::errorItem;
 }
 
 QtTaskTree::ExecutableItem Protocol::pasteRecipe(const PasteInputData &, const PasteHandler &) const
 {
-    reportError(Tr::tr("Paste cabability not supported."));
+    reportError(Tr::tr("Pasting is not supported."));
     return QtTaskTree::errorItem;
 }
 
@@ -62,8 +62,7 @@ QString Protocol::fixNewLines(QString data)
 }
 
 // Show a configuration error and point user to settings.
-// Return true when settings changed.
-static bool showConfigurationError(const Protocol *p, const QString &message)
+static void showConfigurationError(const Protocol *p, const QString &message)
 {
     const bool showConfig = p->settingsPage();
 
@@ -71,24 +70,19 @@ static bool showConfigurationError(const Protocol *p, const QString &message)
     QMessageBox mb(QMessageBox::Warning, title, message, QMessageBox::Cancel, Core::ICore::dialogParent());
     QPushButton *settingsButton = nullptr;
     if (showConfig)
-        settingsButton = mb.addButton(Core::ICore::msgShowOptionsDialog(), QMessageBox::AcceptRole);
+        settingsButton = mb.addButton(Core::ICore::msgShowSettings(), QMessageBox::AcceptRole);
     mb.exec();
-    bool rc = false;
     if (mb.clickedButton() == settingsButton)
-        rc = Core::ICore::showOptionsDialog(p->settingsPage()->id());
-    return rc;
+        Core::ICore::showSettings(p->settingsPage()->id());
 }
 
 bool Protocol::ensureConfiguration(Protocol *p)
 {
-    while (true) {
-        const auto res = p->checkConfiguration();
-        if (res)
-            return true;
-        // Cancel returns empty error message.
-        if (res.error().isEmpty() || !showConfigurationError(p, res.error()))
-            break;
-    }
+    const auto res = p->checkConfiguration();
+    if (res)
+        return true;
+
+    showConfigurationError(p, res.error());
     return false;
 }
 

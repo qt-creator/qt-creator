@@ -71,6 +71,7 @@
 #include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/resourcepreviewhoverhandler.h>
 
+#include <texteditor/codestylepool.h>
 #include <texteditor/colorpreviewhoverhandler.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditor.h>
@@ -279,6 +280,24 @@ void CppEditorPlugin::initialize()
 
             return oldHighlighter(code, mimeType);
         });
+
+    const auto loader = [](const Utils::FilePath &codeStyleFile,
+                           const Project &project) -> Result<QVariant> {
+        CodeStylePool * const pool = CppToolsSettings::cppCodeStyle()->delegatingPool();
+        QTC_ASSERT(pool, return ResultError(Tr::tr("Internal error: No code style pool")));
+        if (ICodeStylePreferences * const style = pool->loadCodeStyle(codeStyleFile, true, &project))
+            return Id::fromName(style->id()).toSetting();
+        return ResultError(Tr::tr("No code style found in file."));
+    };
+    const auto unloader = [](const QVariant &data) {
+        for (const QVariantList &l = data.toList(); const QVariant &id : l) {
+            CodeStylePool * const pool = CppToolsSettings::cppCodeStyle()->delegatingPool();
+            QTC_ASSERT(pool, return);
+            pool->removeAutoImportedCodeStyle(Id::fromSetting(id));
+        }
+    };
+    ProjectManager::registerCustomProjectSettingsHandler(
+        {"codestyles", CustomProjectSettingsHandler::FileType::Dir, loader, unloader});
 }
 
 void CppEditorPlugin::extensionsInitialized()

@@ -156,19 +156,19 @@ void SuppressionAspect::toMap(Store &map) const
     BaseAspect::toMap(map);
 }
 
-bool SuppressionAspect::guiToBuffer()
+bool SuppressionAspect::guiToVolatileValue()
 {
-    const FilePaths old = m_buffer;
-    m_buffer.clear();
+    const FilePaths old = m_volatileValue;
+    m_volatileValue.clear();
     for (int i = 0; i < d->m_model.rowCount(); ++i)
-        m_buffer.append(FilePath::fromUserInput(d->m_model.item(i)->text()));
-    return m_buffer != old;
+        m_volatileValue.append(FilePath::fromUserInput(d->m_model.item(i)->text()));
+    return m_volatileValue != old;
 }
 
-void SuppressionAspect::bufferToGui()
+void SuppressionAspect::volatileValueToGui()
 {
     d->m_model.clear();
-    for (const FilePath &file : std::as_const(m_buffer))
+    for (const FilePath &file : std::as_const(m_volatileValue))
         d->m_model.appendRow(new QStandardItem(file.toUserOutput()));
 }
 

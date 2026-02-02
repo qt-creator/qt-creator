@@ -123,13 +123,13 @@ private:
     void handle(const Task &task) override
     {
         Q_UNUSED(task)
-        ICore::showOptionsDialog(m_targetPage);
+        ICore::showSettings(m_targetPage);
     }
 
     QAction *createAction() const
     {
-        auto action = new QAction(ICore::msgShowOptionsDialog());
-        action->setToolTip(ICore::msgShowOptionsDialogToolTip());
+        auto action = new QAction(ICore::msgShowSettings());
+        action->setToolTip(ICore::msgShowSettingsToolTip());
         return action;
     }
 
@@ -294,9 +294,9 @@ private:
                 prompt = prompt.arg(QString::fromUtf8(*contents), task.file().toUserOutput());
             }
         }
-        const auto process = new Process;
+        const auto process = new Process(this);
         process->setCommand(cmdLine);
-        process->setProcessMode(ProcessMode::Writer);
+        process->setWriteData(prompt.toUtf8());
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
         process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
         connect(process, &Process::textOnStandardOutput,
@@ -305,10 +305,6 @@ private:
             MessageManager::writeSilently(
                 process->exitMessage(Process::FailureMessageFormat::WithStdErr));
             process->deleteLater();
-        });
-        connect(process, &Process::started, [process, prompt] {
-            process->write(prompt);
-            process->closeWriteChannel();
         });
         QTimer::singleShot(60000, process, [process] { process->kill(); });
         MessageManager::writeDisrupting(Tr::tr("Querying %1...").arg(m_model));

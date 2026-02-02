@@ -241,6 +241,7 @@
             \image {qtcreator-edit-dashboard-configuration.webp} {Edit Dashboard Configuration dialog}
             \list
                 \li In \uicontrol {Dashboard URL}, enter the URL of the server.
+                \li Select {Anonymous authentication} to use anonymous authentication.
                 \li In \uicontrol Username, enter the username to access the server.
             \endlist
     \endlist

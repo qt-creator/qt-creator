@@ -1039,3 +1039,29 @@
 
     \sa {Edit code}{How to: Edit code}, {Search}{How to: Search}, {Editing code}
 */
+
+/*!
+    \page creator-how-to-preview-images.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-edit
+    \ingroup creator-how-to-ui
+    \ingroup creator-how-to-design
+
+    \title Preview images
+
+    When you hover the mouse cursor over an image reference in C++ or QML code,
+    \QC shows a thumbnail preview of the image in a tooltip. This helps you
+    verify that you are using the correct image without leaving the editor.
+
+    \image {qtcreator-image-preview.webp}{Preview of an image in an QML file}
+
+    To open the image in an external image viewer, select the file path in
+    the tooltip.
+
+    \QC shows the image preview when the image is referenced via a resource file
+    (\c .qrc) or directly by its absolute file path.
+
+    \sa {Create resource files}, {Edit code}{How to: Edit code}, {Editing code},
+    {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}
+*/

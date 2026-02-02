@@ -1156,7 +1156,7 @@ public:
         m_deviceModel.showAllEntry();
 
         m_deviceComboBox = new QComboBox(this);
-        Core::IOptionsPageWidget::setIgnoreForDirtyHook(m_deviceComboBox);
+        setIgnoreForDirtyHook(m_deviceComboBox);
         m_deviceComboBox->setModel(&m_deviceModel);
 
         m_debuggerView = new QTreeView(this);

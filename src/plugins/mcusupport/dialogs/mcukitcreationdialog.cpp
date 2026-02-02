@@ -100,7 +100,7 @@ McuKitCreationDialog::McuKitCreationDialog(const MessagesList &messages,
     connect(fixButton, &QPushButton::clicked, this, [this, settingsHandler] {
         // Open the MCU Options widget on the current platform
         settingsHandler->setInitialPlatformName(m_messages[m_currentIndex].platform);
-        Core::ICore::showOptionsDialog(Constants::SETTINGS_ID);
+        Core::ICore::showSettings(Constants::SETTINGS_ID);
         // reset the initial platform name
         settingsHandler->setInitialPlatformName("");
     });

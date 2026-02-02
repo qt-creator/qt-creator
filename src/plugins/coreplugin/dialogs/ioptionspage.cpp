@@ -28,7 +28,6 @@ using namespace Utils;
 using namespace Core::Internal;
 
 static QHash<Id, std::pair<QString, FilePath>> g_categories;
-const char IGNORE_FOR_DIRTY_HOOK[] = "qtcIgnoreForDirtyHook";
 
 namespace Core {
 namespace Internal {
@@ -52,6 +51,8 @@ public:
     std::function<void()> m_onFinish;
 
     AspectContainer *m_aspects = nullptr;
+    int m_dirtyCount = 0;
+    bool m_useDirtyHook = true;
 };
 
 class IOptionsPagePrivate
@@ -117,7 +118,23 @@ IOptionsPageWidget::IOptionsPageWidget()
     : d(new Internal::IOptionsPageWidgetPrivate(this))
 {}
 
-IOptionsPageWidget::~IOptionsPageWidget() = default;
+IOptionsPageWidget::~IOptionsPageWidget()
+{
+    for (const QMetaObject::Connection &con : m_connections)
+        QObject::disconnect(con);
+
+    d.reset();
+}
+
+bool IOptionsPageWidget::useDirtyHook() const
+{
+    return d->m_useDirtyHook;
+}
+
+void IOptionsPageWidget::setUseDirtyHook(bool on)
+{
+    d->m_useDirtyHook = on;
+}
 
 /*!
     Sets the function that is called by default on apply to \a func.
@@ -181,6 +198,7 @@ const char DirtyOnMouseButtonRelease[] = "DirtyOnMouseButtonRelease";
 static bool makesDirty(QObject *watched, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonRelease
+            && !isIgnoredForDirtyHook(watched)
             && watched->property(DirtyOnMouseButtonRelease).isValid()) {
         return true;
     }
@@ -188,18 +206,69 @@ static bool makesDirty(QObject *watched, QEvent *event)
     return false;
 }
 
-void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
+void IOptionsPageWidget::connectAspect(QWidget *widget, const BaseAspect *aspect)
 {
     QTC_ASSERT(widget, return);
-    if (widget->property(IGNORE_FOR_DIRTY_HOOK).toBool())
+    QTC_ASSERT(aspect, return);
+
+    while (aspect->container())
+        aspect = aspect->container();
+
+    if (m_trackedAspects.contains(aspect))
         return;
 
-    QList<QWidget *> children = { widget };
+    m_trackedAspects.insert(aspect);
+
+    const auto dirtyStateMachine = [this, aspect, countedAsDirty = false]() mutable {
+        int oldDirtyCount = d->m_dirtyCount;
+        if (aspect->isDirty() && !countedAsDirty) {
+            d->m_dirtyCount++;
+            countedAsDirty = true;
+        } else if (!aspect->isDirty() && countedAsDirty) {
+            d->m_dirtyCount--;
+            countedAsDirty = false;
+        }
+        if (oldDirtyCount != d->m_dirtyCount)
+            emit dirtyChanged(d->m_dirtyCount > 0);
+    };
+
+    QMetaObject::Connection dirtyCon
+        = connect(aspect, &BaseAspect::volatileValueChanged, this, dirtyStateMachine);
+
+    QMetaObject::Connection disco
+        = connect(widget, &QObject::destroyed, this, [aspect, this, dirtyCon] {
+              QObject::disconnect(dirtyCon);
+              m_trackedAspects.remove(aspect);
+          });
+
+    m_connections.append(dirtyCon);
+    m_connections.append(disco);
+}
+
+void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
+{
+    QTC_ASSERT(!d->m_aspects, return);
+    QTC_ASSERT(widget, return);
+
+    if (isIgnoredForDirtyHook(widget))
+        return;
+
+    // if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(widget)) {
+    //     connectAspect(widget, aspect.data());
+    //     return;
+    // }
+
+    QList<QWidget *> children = {widget};
 
     while (!children.isEmpty()) {
         QWidget *child = children.takeLast();
-        if (child->property(IGNORE_FOR_DIRTY_HOOK).toBool())
+        if (isIgnoredForDirtyHook(child))
             continue;
+
+        // if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(child)) {
+        //     connectAspect(child, aspect.data());
+        //     continue;
+        // }
 
         children += child->findChildren<QWidget *>(Qt::FindDirectChildrenOnly);
 
@@ -215,35 +284,41 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
         if (child->metaObject() == &QMenu::staticMetaObject)
             continue;
 
-        if (auto ob = qobject_cast<QPushButton *>(child)) {
-            connect(ob, &QPushButton::pressed, this, &IOptionsPageWidget::gotDirty);
+        auto markDirty = [this, child] {
+            if (isIgnoredForDirtyHook(child))
+                return;
+            gotDirty();
+        };
+
+        if (auto ob = qobject_cast<QAbstractButton *>(child)) {
+            connect(ob, &QAbstractButton::pressed, this, markDirty);
             continue;
         }
         if (auto ob = qobject_cast<QLineEdit *>(child)) {
-            connect(ob, &QLineEdit::textChanged, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QLineEdit::textEdited, this, markDirty);
             continue;
         }
         if (auto ob = qobject_cast<QComboBox *>(child)) {
-            connect(ob, &QComboBox::currentIndexChanged, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QComboBox::currentIndexChanged, markDirty);
             continue;
         }
         if (auto ob = qobject_cast<QSpinBox *>(child)) {
-            connect(ob, &QSpinBox::valueChanged, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QSpinBox::valueChanged, this, markDirty);
             continue;
         }
         if (auto ob = qobject_cast<QGroupBox *>(child)) {
-            connect(ob, &QGroupBox::toggled, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QGroupBox::toggled, this, markDirty);
             continue;
         }
         if (auto ob = qobject_cast<QCheckBox *>(child)) {
-            connect(ob, &QCheckBox::toggled, this, &IOptionsPageWidget::gotDirty);
+            connect(ob, &QCheckBox::toggled, this, markDirty);
             continue;
         }
-        if (auto ob = qobject_cast<QAbstractItemView *>(child)) {
-            ob->viewport()->setProperty(DirtyOnMouseButtonRelease, true);
-            ob->viewport()->installEventFilter(d.get());
-            continue;
-        }
+    }
+
+    if (auto ob = qobject_cast<QAbstractItemView *>(widget)) {
+        ob->viewport()->setProperty(DirtyOnMouseButtonRelease, true);
+        ob->viewport()->installEventFilter(d.get());
     }
 }
 
@@ -265,12 +340,8 @@ bool IOptionsPageWidgetPrivate::eventFilter(QObject *watched, QEvent *event)
 
 void IOptionsPageWidget::gotDirty()
 {
-    emit dirtyChanged(true);
-}
-
-void IOptionsPageWidget::setIgnoreForDirtyHook(QWidget *widget, bool ignore)
-{
-    widget->setProperty(IGNORE_FOR_DIRTY_HOOK, ignore);
+    d->m_dirtyCount++;
+    emit dirtyChanged(d->m_dirtyCount > 0);
 }
 
 /*!
@@ -528,7 +599,7 @@ IOptionsPageWidget *IOptionsPagePrivate::createWidget()
     if (m_widgetCreator) {
         m_widget = m_widgetCreator();
         QTC_ASSERT(m_widget, return nullptr);
-        if (!m_autoApply)
+        if (!m_autoApply && m_widget->useDirtyHook())
             m_widget->setupDirtyHook(m_widget);
         return m_widget;
     }

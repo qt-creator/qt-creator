@@ -312,8 +312,9 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
                     QMessageBox::warning(
                         this,
                         Tr::tr("Project File Update Failed"),
-                        Tr::tr("Could not automatically update the project file for %1.\n"
-                               "Set the %2 property manually.")
+                        Tr::tr(
+                            "Cannot automatically update the project file \"%1\".\n"
+                            "Set the property \"%2\" manually.")
                             .arg(bti.projectFilePath.toUserOutput(), androidPackageSrcDir));
                 }
             }

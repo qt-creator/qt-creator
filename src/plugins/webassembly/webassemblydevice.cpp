@@ -78,7 +78,7 @@ static void askUserAboutEmSdkSetup()
     info.setInfoType(InfoLabel::Information);
     info.addCustomButton(
         Tr::tr("Setup Emscripten SDK"),
-        [] { QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); }); },
+        [] { QTimer::singleShot(0, []() { ICore::showSettings(Constants::SETTINGS_ID); }); },
         {},
         InfoBarEntry::ButtonAction::Hide);
     infoBar->addInfo(info);

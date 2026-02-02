@@ -20,8 +20,8 @@ public:
     void setRemoteEnvironment(const Utils::Environment &env);
     bool isRemoteEnvironmentSet() const { return m_remoteEnvironment.has_value(); }
 
-    bool guiToBuffer() override;
-    void bufferToGui() override;
+    bool guiToVolatileValue() override;
+    void volatileValueToGui() override;
 
     Utils::Environment operator()() const;
 

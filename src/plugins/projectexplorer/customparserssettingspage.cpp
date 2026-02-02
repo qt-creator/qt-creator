@@ -54,7 +54,7 @@ protected:
 
 CustomParsersModel::CustomParsersModel(QObject *parent)
     : QAbstractTableModel(parent)
-    , m_customParsers(CustomParsers::get())
+    , m_customParsers(CustomParsers::parsersAvailableInProject(nullptr))
 {
     connect(
         &CustomParsers::instance(),
@@ -62,7 +62,7 @@ CustomParsersModel::CustomParsersModel(QObject *parent)
         this,
         [this] {
             beginResetModel();
-            m_customParsers = CustomParsers::get();
+            m_customParsers = CustomParsers::parsersAvailableInProject(nullptr);
             endResetModel();
         });
 }
@@ -171,7 +171,7 @@ QVariant CustomParsersModel::data(const QModelIndex &index, int role) const
 
     case Qt::ToolTipRole:
         if (s.readOnly)
-            return Tr::tr("Parser is not modifiable, because it was auto-imported.");
+            return Tr::tr("Cannot modify parser because it was auto-imported.");
         return {};
 
     case Qt::UserRole:

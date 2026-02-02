@@ -63,7 +63,7 @@ public:
                 this, updateWrapping);
 
         connect(enableTextWrappingHintLabel, &QLabel::linkActivated, [] {
-            Core::ICore::showOptionsDialog(Constants::TEXT_EDITOR_FONT_SETTINGS); } );
+            Core::ICore::showSettings(Constants::TEXT_EDITOR_FONT_SETTINGS); } );
 
         showWrapColumn = new QCheckBox(Tr::tr("Display right &margin after column:"));
         tintMarginArea = new QCheckBox(Tr::tr("Tint whole margin area"));

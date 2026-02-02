@@ -633,7 +633,7 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
         const QStringList lines = editor->toPlainText().split('\n', Qt::SkipEmptyParts);
         const QStringList expandedLines = Utils::transform(lines,
                                            [expander](const QString &s) {
-                                               return expander->expand(s);
+                                               return expander->expand(s).trimmed();
                                            });
         const bool isInitial = isInitialConfiguration();
         QStringList unknownOptions;
@@ -1242,7 +1242,7 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
                       = ConfigModel::dataItemFromIndex(index).toCMakeConfigItem().toArgument(
                           isInitialConfiguration() ? nullptr : m_buildConfig->macroExpander());
 
-                  return value.contains(QChar::Space) ? QString(R"("%1")").arg(value) : value;
+                  return quoteString(value);
               });
 
         setClipboardAndSelection(variableList.join('\n'));

@@ -160,7 +160,6 @@ private:
     void contextMenuRequested(const QPoint &pos);
 
     PathChooserPrivate *d = nullptr;
-    static AboutToShowContextMenuHandler s_aboutToShowContextMenuHandler;
 };
 
 } // namespace Utils

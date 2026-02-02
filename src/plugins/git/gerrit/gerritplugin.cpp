@@ -232,8 +232,8 @@ void GerritPlugin::openView()
         if (!gerritSettings().isValid()) {
             QMessageBox::warning(Core::ICore::dialogParent(), Git::Tr::tr("Error"),
                                  Git::Tr::tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
-            if (!ICore::showOptionsDialog("Gerrit"))
-                return;
+            ICore::showSettings("Gerrit");
+            return;
         }
         GerritDialog *gd = new GerritDialog(m_server, currentRepository(), ICore::dialogParent());
         gd->setModal(false);

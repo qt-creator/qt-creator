@@ -432,10 +432,15 @@ void ModeManager::addProjectSelector(QAction *action)
     d->m_actions.insert(0, INT_MAX);
 }
 
-void ModeManager::currentTabAboutToChange(int index)
+void ModeManager::currentTabAboutToChange(int index, bool *okToSwitch)
 {
+    IMode *oldMode = nullptr;
+    if (d->m_oldCurrent >= 0)
+        oldMode = d->m_modes.at(d->m_oldCurrent);
+    Id oldModeId = oldMode ? oldMode->id() : Id();
+
     IMode *mode = d->m_modes.value(index, nullptr);
-    emit currentModeAboutToChange(mode ? mode->id() : Id());
+    emit currentModeAboutToChange(mode ? mode->id() : Id(), oldModeId, okToSwitch);
 }
 
 void ModeManager::currentTabChanged(int index)

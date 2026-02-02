@@ -1062,7 +1062,7 @@ void ClangTool::updateForInitialState()
     switch (result.kind)
     case CheckResult::InvalidExecutable: {
         m_infoBarWidget->setError(InfoBarWidget::Warning, makeLink(result.errorText),
-                                  [] { ICore::showOptionsDialog(Constants::SETTINGS_PAGE_ID); });
+                                  [] { ICore::showSettings(Constants::SETTINGS_PAGE_ID); });
         break;
     case CheckResult::ProjectNotSuitable:
     case CheckResult::ProjectNotOpen:

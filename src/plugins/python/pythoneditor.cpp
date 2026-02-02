@@ -263,7 +263,7 @@ void PythonEditorWidget::updateInterpretersSelector()
     }
     auto settingsAction = menu->addAction(Tr::tr("Manage Python Interpreters"));
     connect(settingsAction, &QAction::triggered, this, []() {
-        Core::ICore::showOptionsDialog(Constants::C_PYTHONOPTIONS_PAGE_ID);
+        Core::ICore::showSettings(Constants::C_PYTHONOPTIONS_PAGE_ID);
     });
 }
 

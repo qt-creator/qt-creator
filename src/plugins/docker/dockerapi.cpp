@@ -9,8 +9,9 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/async.h>
-#include <utils/qtcprocess.h>
+#include <utils/globaltasktree.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QJsonDocument>
 #include <QJsonParseError>
@@ -34,9 +35,12 @@ DockerApi::DockerApi()
 
     connect(&settings().dockerBinaryPath, &FilePathAspect::changed, this, [this]() {
         *m_dockerClientBinary.writeLocked() = settings().dockerBinaryPath.effectiveBinary();
+        refreshNetworks();
     });
 
     s_instance = this;
+
+    refreshNetworks();
 }
 
 DockerApi *DockerApi::instance()
@@ -153,54 +157,6 @@ FilePath DockerApi::dockerClient()
     return m_dockerClientBinary.get();
 }
 
-QFuture<Utils::Result<QList<Network>>> DockerApi::networks()
-{
-    return Utils::asyncRun([this]() -> Utils::Result<QList<Network>> {
-        QList<Network> result;
-
-        Process process;
-        FilePath dockerExe = dockerClient();
-        if (dockerExe.isEmpty() || !dockerExe.isExecutableFile())
-            return make_unexpected(Tr::tr("Docker executable not found"));
-
-        process.setCommand({dockerExe, {"network", "ls", "--format", "{{json .}}"}});
-        process.runBlocking();
-
-        if (process.result() != ProcessResult::FinishedWithSuccess) {
-            return make_unexpected(
-                Tr::tr("Failed to retrieve docker networks: %1").arg(process.verboseExitMessage()));
-        }
-
-        for (const auto &line : process.readAllStandardOutput().split('\n')) {
-            if (line.isEmpty())
-                continue;
-
-            QJsonParseError error;
-            QJsonDocument doc = QJsonDocument::fromJson(line.toUtf8(), &error);
-
-            if (error.error != QJsonParseError::NoError) {
-                qCWarning(dockerApiLog)
-                    << "Failed to parse docker network info:" << error.errorString();
-                continue;
-            }
-
-            Network network;
-            network.id = doc["ID"].toString();
-            network.name = doc["Name"].toString();
-            network.driver = doc["Driver"].toString();
-            network.scope = doc["Scope"].toString();
-            network.internal = doc["Internal"].toString() == "true";
-            network.ipv6 = doc["IPv6"].toString() == "true";
-            network.createdAt = QDateTime::fromString(doc["CreatedAt"].toString(), Qt::ISODate);
-            network.labels = doc["Labels"].toString();
-
-            result.append(network);
-        }
-
-        return result;
-    });
-}
-
 QString Network::toString() const
 {
     return QString(R"(ID: "%1"
@@ -220,6 +176,61 @@ Labels: "%8"
         .arg(ipv6)
         .arg(createdAt.toString(Qt::ISODate))
         .arg(labels);
+}
+
+void DockerApi::refreshNetworks()
+{
+    FilePath dockerExe = DockerApi::instance()->dockerClient();
+    if (dockerExe.isEmpty() || !dockerExe.isExecutableFile()) {
+        qCWarning(dockerApiLog) << Tr::tr("Docker executable not found");
+        return;
+    }
+
+    const auto setupNetworkFetch = [dockerExe](Process &process) {
+        process.setCommand({dockerExe, {"network", "ls", "--format", "{{json .}}"}});
+    };
+
+    const auto onDone = [this](const Process &process) {
+        if (process.exitCode() != 0) {
+            m_networks = Utils::ResultError(
+                Tr::tr("Failed to list docker networks: %1").arg(process.verboseExitMessage()));
+            emit networksChanged();
+            return;
+        }
+
+        QList<Network> result;
+        for (const auto &line : process.cleanedStdOut().split('\n')) {
+            if (line.isEmpty())
+                continue;
+
+            QJsonParseError error;
+            QJsonDocument doc = QJsonDocument::fromJson(line.toUtf8(), &error);
+
+            if (error.error != QJsonParseError::NoError) {
+                m_networks = Utils::ResultError(
+                    Tr::tr("Failed to parse docker network info: %1").arg(error.errorString()));
+                emit networksChanged();
+                return;
+            }
+
+            Network network;
+            network.id = doc["ID"].toString();
+            network.name = doc["Name"].toString();
+            network.driver = doc["Driver"].toString();
+            network.scope = doc["Scope"].toString();
+            network.internal = doc["Internal"].toString() == "true";
+            network.ipv6 = doc["IPv6"].toString() == "true";
+            network.createdAt = QDateTime::fromString(doc["CreatedAt"].toString(), Qt::ISODate);
+            network.labels = doc["Labels"].toString();
+
+            result.append(network);
+        }
+
+        m_networks = result;
+        emit networksChanged();
+    };
+
+    Utils::GlobalTaskTree::start({ProcessTask(setupNetworkFetch, onDone)});
 }
 
 } // Docker::Internal

@@ -23,7 +23,6 @@ UnixPtyProcess::UnixPtyProcess()
 
 UnixPtyProcess::~UnixPtyProcess()
 {
-    kill();
 }
 
 bool UnixPtyProcess::startProcess(const QString &shellPath,

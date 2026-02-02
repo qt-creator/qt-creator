@@ -1992,7 +1992,7 @@ static void addToGitignore(const FilePath &topLevel, const FilePath &relativePat
     if (!gitignorePath.exists()) {
         // Probably not existing, offer to create an empty or templated version
         QMessageBox mb(ICore::dialogParent());
-        mb.setWindowTitle(Tr::tr("File not found"));
+        mb.setWindowTitle(Tr::tr("File Not Found"));
         mb.setIcon(QMessageBox::Question);
         mb.setText(Tr::tr("File \"%1\" not found. Create an empty or templated .gitignore?")
                        .arg(gitignorePath.toUserOutput()));

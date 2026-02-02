@@ -131,7 +131,7 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
     d->genericProblemLabel = new InfoLabel({}, InfoLabel::Warning);
     d->genericProblemLabel->setElideMode(Qt::ElideNone);
     connect(d->genericProblemLabel, &QLabel::linkActivated, this, [] {
-        Core::ICore::showOptionsDialog(Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
+        Core::ICore::showSettings(Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
     });
     d->specialProblemLabel = new InfoLabel({}, InfoLabel::Warning);
     d->specialProblemLabel->setElideMode(Qt::ElideNone);
@@ -159,7 +159,7 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
 
 void BuildDirectoryAspect::announceChanges(Changes changes, Announcement howToAnnounce)
 {
-    if (changes.bufferFromInternal && isCheckable())
+    if (changes.volatileValueFromValue && isCheckable())
         setChecked(d->sourceDir != expandedValue());
     FilePathAspect::announceChanges(changes, howToAnnounce);
 }

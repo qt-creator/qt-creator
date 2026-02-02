@@ -109,7 +109,8 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                                     bool clStyle)
 {
     QJsonObject fileObject;
-    fileObject["file"] = projFile.path.path();
+    const FilePath pathOnBuildDevice = buildDir.withNewMappedPath(projFile.path);
+    fileObject["file"] = pathOnBuildDevice.path();
     QJsonArray args;
 
     if (purpose == CompilationDbPurpose::Project) {
@@ -139,7 +140,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
         args.prepend("clang"); // TODO: clang-cl for MSVC targets? Does it matter at all what we put here?
     }
 
-    args.append(projFile.path.path());
+    args.append(pathOnBuildDevice.path());
     fileObject["arguments"] = args;
     fileObject["directory"] = buildDir.path();
     return fileObject;
@@ -169,41 +170,49 @@ void generateCompilationDB(
     }
     compileCommandsFile.write("[");
 
+    bool skipHeaders = purpose == CompilationDbPurpose::CodeModel;
+    bool hasEntries = false;
     const QJsonArray jsonProjectOptions = QJsonArray::fromStringList(projectOptions);
-    for (bool hasEntries = false;
-         const ProjectInfo::ConstPtr &projectInfo : std::as_const(projectInfoList)) {
-        QTC_ASSERT(projectInfo, continue);
-        for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
-            QTC_ASSERT(projectPart, continue);
-            QStringList args;
-            const CompilerOptionsBuilder optionsBuilder = getOptionsBuilder(*projectPart);
-            QJsonArray ppOptions;
-            if (purpose == CompilationDbPurpose::Project) {
-                args = projectPartArguments(*projectPart);
-            } else {
-                ppOptions = fullProjectPartOptions(projectPartOptions(optionsBuilder),
-                                                   jsonProjectOptions);
-            }
-            for (const ProjectFile &projFile : projectPart->files) {
-                if (promise.isCanceled())
-                    return;
-                if (purpose == CompilationDbPurpose::CodeModel && projFile.isHeader())
-                    continue;
-                const QJsonObject json
-                    = createFileObject(baseDir,
-                                       args,
-                                       *projectPart,
-                                       projFile,
-                                       purpose,
-                                       ppOptions,
-                                       projectInfo->settings().usePrecompiledHeaders(),
-                                       optionsBuilder.isClStyle());
-                if (hasEntries)
-                    compileCommandsFile.write(",");
-                compileCommandsFile.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
-                hasEntries = true;
+    const auto writeEntries = [&] {
+        for (const ProjectInfo::ConstPtr &projectInfo : std::as_const(projectInfoList)) {
+            QTC_ASSERT(projectInfo, continue);
+            for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
+                QTC_ASSERT(projectPart, continue);
+                QStringList args;
+                const CompilerOptionsBuilder optionsBuilder = getOptionsBuilder(*projectPart);
+                QJsonArray ppOptions;
+                if (purpose == CompilationDbPurpose::Project) {
+                    args = projectPartArguments(*projectPart);
+                } else {
+                    ppOptions = fullProjectPartOptions(
+                        projectPartOptions(optionsBuilder), jsonProjectOptions);
+                }
+                for (const ProjectFile &projFile : projectPart->files) {
+                    if (promise.isCanceled())
+                        return;
+                    if (skipHeaders && projFile.isHeader())
+                        continue;
+                    const QJsonObject json = createFileObject(
+                        baseDir,
+                        args,
+                        *projectPart,
+                        projFile,
+                        purpose,
+                        ppOptions,
+                        projectInfo->settings().usePrecompiledHeaders(),
+                        optionsBuilder.isClStyle());
+                    if (hasEntries)
+                        compileCommandsFile.write(",");
+                    compileCommandsFile.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
+                    hasEntries = true;
+                }
             }
         }
+    };
+    writeEntries();
+    if (!hasEntries) {
+        skipHeaders = false;
+        writeEntries();
     }
 
     compileCommandsFile.write("]");

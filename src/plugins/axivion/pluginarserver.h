@@ -10,9 +10,11 @@ namespace Utils { class FilePath; }
 namespace Axivion::Internal {
 
 using OnServerStarted = std::function<void()>;
+using OnServerStartFailed = std::function<void()>;
 using OnSessionStarted = std::function<void(int)>;
 
-void startPluginArServer(const Utils::FilePath &bauhausSuite, const OnServerStarted &onRunning);
+void startPluginArServer(const Utils::FilePath &bauhausSuite, const OnServerStarted &onRunning,
+                         const OnServerStartFailed &onFailed);
 void cleanShutdownPluginArServer(const Utils::FilePath &bauhausSuite);
 void shutdownPluginArServer(const Utils::FilePath &bauhausSuite);
 void shutdownAllPluginArServers();

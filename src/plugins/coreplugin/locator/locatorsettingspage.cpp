@@ -279,6 +279,7 @@ public:
                         nameDelegate->setMaxWidth(updated);
                 });
         m_filterList->setItemDelegateForColumn(0, nameDelegate);
+        setupDirtyHook(m_filterList);
 
         m_model = new TreeModel<>(m_filterList);
         initializeModel();

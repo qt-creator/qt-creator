@@ -70,7 +70,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
             Utils::ProxyAction::proxyActionWithIcon(cancelBuildAction,
                                                     Utils::Icons::STOP_SMALL_TOOLBAR.icon());
     m_cancelBuildButton->setDefaultAction(cancelBuildProxyButton);
-    m_settingsButton->setToolTip(Core::ICore::msgShowOptionsDialog());
+    m_settingsButton->setToolTip(Core::ICore::msgShowSettings());
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
 
     auto updateFontSettings = [this] {
@@ -96,7 +96,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
             this, updateZoomEnabled);
 
     connect(m_settingsButton, &QToolButton::clicked, this, [] {
-        Core::ICore::showOptionsDialog(OPTIONS_PAGE_ID);
+        Core::ICore::showSettings(OPTIONS_PAGE_ID);
     });
 
     qRegisterMetaType<QTextCharFormat>("QTextCharFormat");

@@ -9,6 +9,7 @@
 #include "filepath.h"
 #include "qtcprocess.h"
 #include "settingsdatabase.h"
+#include "synchronizedvalue.h"
 
 #include <QDateTime>
 #include <QHash>
@@ -70,8 +71,7 @@ private:
                                                      const Key &cacheKey,
                                                      const std::shared_ptr<Process> &process);
 
-    static inline QHash<Key, Value> m_cache;
-    static inline QMutex m_cacheMutex;
+    static inline SynchronizedValue<QHash<Key, Value>> m_cache;
 };
 
 template<typename Data>
@@ -101,12 +101,17 @@ inline std::optional<Data> DataFromProcess<Data>::getOrProvideData(const Paramet
                                      params.environment.toStringList(),
                                      params.commandLine.arguments());
     const QDateTime exeTimestamp = params.commandLine.executable().lastModified();
-    {
-        QMutexLocker<QMutex> cacheLocker(&m_cacheMutex);
-        const auto it = m_cache.constFind(key);
-        if (it != m_cache.constEnd() && it.value().second == exeTimestamp)
-            return it.value().first;
-    }
+
+    const auto cachedValue = m_cache.template get<std::optional<Data>>(
+        [&key, &exeTimestamp](const QHash<Key, Value> &cache) -> std::optional<Data> {
+            const auto it = cache.constFind(key);
+            if (it != cache.constEnd() && it.value().second == exeTimestamp)
+                return it.value().first;
+            return std::nullopt;
+        });
+
+    if (cachedValue)
+        return cachedValue;
 
     const auto outputRetriever = std::make_shared<Process>();
     outputRetriever->setCommand(params.commandLine);
@@ -126,8 +131,9 @@ inline std::optional<Data> DataFromProcess<Data>::getOrProvideData(const Paramet
                 const QString out = settingsObject["stdout"].toString();
                 const QString err = settingsObject["stderr"].toString();
                 std::optional<Data> data = params.parser(out, err);
-                QMutexLocker<QMutex> cacheLocker(&m_cacheMutex);
-                m_cache.insert(key, std::make_pair(data, exeTimestamp));
+
+                m_cache.writeLocked()->insert(key, std::make_pair(data, exeTimestamp));
+
                 QObject::connect(
                     outputRetriever.get(),
                     &Process::done,
@@ -188,16 +194,24 @@ inline std::optional<Data> DataFromProcess<Data>::handleProcessFinished(
     } else if (params.errorHandler) {
         params.errorHandler(*process);
     }
-    QMutexLocker<QMutex> cacheLocker(&m_cacheMutex);
+
     if (params.cachedValueChangedCallback) {
-        const auto it = m_cache.constFind(cacheKey);
-        if (it != m_cache.constEnd() && it.value().second == exeTimestamp) {
-            if (it.value().first != data)
-                params.cachedValueChangedCallback(data);
-        }
+        const bool valueChanged = m_cache.template get<bool>(
+            [&cacheKey, &exeTimestamp, &data](const auto &cache) {
+                const auto it = cache.constFind(cacheKey);
+                if (it != cache.constEnd() && it.value().second == exeTimestamp) {
+                    if (it.value().first != data)
+                        return true;
+                }
+                return false;
+            });
+
+        if (valueChanged)
+            params.cachedValueChangedCallback(data);
     }
 
-    m_cache.insert(cacheKey, std::make_pair(data, exeTimestamp));
+    m_cache.writeLocked()->insert(cacheKey, std::make_pair(data, exeTimestamp));
+
     if (params.callback) {
         params.callback(data);
         return {};

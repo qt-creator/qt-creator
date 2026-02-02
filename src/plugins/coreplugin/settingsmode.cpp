@@ -447,6 +447,7 @@ public:
     void currentTabChanged(int);
     void filter(const QString &text);
 
+    bool isDirty() const { return m_isDirty; }
     void setDirty(bool dirty);
     void createGui();
     void showCategory(int index);
@@ -456,13 +457,21 @@ public:
     void setupDirtyHook(QWidget *widget);
 
     void switchBackIfNeeded();
+    void switchBackLater()
+    {
+        m_currentlySwitching = true;
+        QTimer::singleShot(0, this, &SettingsWidget::switchBack);
+
+    }
     void switchBack()
     {
         Id previousPage = m_previousPage;
         m_previousPage = {};
         showPage(previousPage);
+        m_currentlySwitching = false;
     };
 
+    bool askToLeave(); // returns true if ok to leave.
 
 private:
     const QList<IOptionsPage *> m_pages;
@@ -621,8 +630,10 @@ void SettingsWidget::createGui()
 
     m_okButton.setToolTip(Tr::tr("Apply all changes and return to previous mode."));
     m_applyButton.setToolTip(Tr::tr("Apply all changes and stay here."));
-    m_cancelButton.setToolTip(Tr::tr("Discard all changes. Hold <Shift> to stay here, "
-                                     "otherwise return to previous mode."));
+    m_cancelButton.setToolTip(
+        Tr::tr(
+            "Discard all changes. Hold the SHIFT key to stay here, "
+            "otherwise return to previous mode."));
 
     auto buttonBox = new QDialogButtonBox;
     buttonBox->addButton(&m_okButton, QDialogButtonBox::ActionRole);
@@ -777,12 +788,41 @@ void SettingsWidget::switchBackIfNeeded()
 
     QPushButton *backButton
         = dialog.addButton(Tr::tr("Return to Previous Page"), QMessageBox::RejectRole);
-    connect(backButton, &QAbstractButton::clicked, this, &SettingsWidget::switchBack,
-            Qt::QueuedConnection);
+    connect(backButton, &QAbstractButton::clicked, this, &SettingsWidget::switchBackLater);
 
-    m_currentlySwitching = true;
     dialog.exec();
-    m_currentlySwitching = false;
+}
+
+bool SettingsWidget::askToLeave()
+{
+    QTC_ASSERT(!m_currentlySwitching, return false);
+
+    QMessageBox dialog(dialogParent());
+    dialog.setWindowTitle(Tr::tr("Unapplied Changes"));
+    dialog.setIcon(QMessageBox::Warning);
+    dialog.resize(400, 500);
+    dialog.setText(Tr::tr("There are unsaved changes."));
+
+    bool okToSwitch = false;
+
+    QPushButton *applyButton
+        = dialog.addButton(Tr::tr("Apply Unsaved Changes"), QMessageBox::AcceptRole);
+    connect(applyButton, &QAbstractButton::clicked, this, [this, &okToSwitch] {
+        apply();
+        okToSwitch = true;
+    });
+
+    QPushButton *abandonButton
+        = dialog.addButton(Tr::tr("Abandon Unsaved Changes"), QMessageBox::AcceptRole);
+    connect(abandonButton, &QAbstractButton::clicked, this, [this, &okToSwitch] {
+        cancel();
+        okToSwitch = true;
+    });
+
+    dialog.addButton(Tr::tr("Stay in Settings Mode"), QMessageBox::AcceptRole);
+    dialog.exec();
+
+    return okToSwitch;
 }
 
 void SettingsWidget::currentCategoryChanged(const QModelIndex &current)
@@ -865,6 +905,14 @@ class SettingsModeWidget final : public QWidget
 public:
     SettingsModeWidget()
     {
+        connect(ModeManager::instance(), &ModeManager::currentModeAboutToChange, this,
+                [this](Id mode, Id oldMode, bool *okToSwitch) {
+            Q_UNUSED(mode);
+            QTC_ASSERT(okToSwitch, return);
+            if (oldMode == Constants::MODE_SETTINGS && inner && inner->isDirty())
+                *okToSwitch = inner->askToLeave();
+        });
+
         connect(ModeManager::instance(), &ModeManager::currentModeChanged, this, [this](Id mode, Id oldMode) {
             QTC_ASSERT(mode != oldMode, return);
             if (mode == Constants::MODE_SETTINGS) {

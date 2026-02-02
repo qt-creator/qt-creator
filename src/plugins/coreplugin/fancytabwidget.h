@@ -110,7 +110,7 @@ public:
     int visibleIndex(int index) const;
 
 signals:
-    void currentAboutToChange(int index);
+    void currentAboutToChange(int index, bool *okToSwitch);
     void currentChanged(int index);
     void menuTriggered(int index, QMouseEvent *event);
 
@@ -154,7 +154,7 @@ public:
     bool isSelectionWidgetVisible() const;
 
 signals:
-    void currentAboutToShow(int index);
+    void currentAboutToShow(int index, bool *okToSwitch);
     void currentChanged(int index);
     void menuTriggered(int index, QMouseEvent *event);
     void topAreaClicked(QMouseEvent *event);

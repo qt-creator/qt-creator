@@ -33,10 +33,13 @@ public:
     virtual void apply();
     virtual void cancel();
 
+    bool useDirtyHook() const;
+    void setUseDirtyHook(bool on);
+
     void setupDirtyHook(QWidget *widget);
     void gotDirty();
 
-    static void setIgnoreForDirtyHook(QWidget *widget, bool ignore = true);
+    void connectAspect(QWidget *widget, const Utils::BaseAspect *aspect);
 
 signals:
     void dirtyChanged(bool dirty);
@@ -44,6 +47,8 @@ signals:
 private:
     friend class Internal::IOptionsPagePrivate;
     std::unique_ptr<Internal::IOptionsPageWidgetPrivate> d;
+    QSet<const Utils::BaseAspect *> m_trackedAspects;
+    QList<QMetaObject::Connection> m_connections;
 };
 
 class CORE_EXPORT IOptionsPage

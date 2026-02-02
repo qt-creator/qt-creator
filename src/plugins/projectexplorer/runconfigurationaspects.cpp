@@ -128,7 +128,7 @@ void TerminalAspect::calculateUseTerminal()
 */
 bool TerminalAspect::useTerminal() const
 {
-    return m_useTerminal && isEnabled();
+    return m_useTerminal;
 }
 
 /*!
@@ -801,7 +801,7 @@ RunAsRootAspect::RunAsRootAspect(AspectContainer *container)
 RunAsAspect::RunAsAspect(Utils::AspectContainer *container) : AspectContainer(container)
 {
     setId("RunAs");
-    setDisplayName(Tr::tr("Run as user"));
+    setDisplayName(Tr::tr("Run as User"));
     setLabelText(Tr::tr("Run as user:"));
 
     m_selection.setId("RunAsSelection");
