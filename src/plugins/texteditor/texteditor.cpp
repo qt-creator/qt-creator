@@ -9434,6 +9434,7 @@ void TextEditorWidget::setMarginSettings(const MarginSettings &ms)
 
     viewport()->update();
     extraArea()->update();
+    d->updateCenteringContentMargins();
 }
 
 void TextEditorWidget::setBehaviorSettings(const BehaviorSettings &bs)
