@@ -130,13 +130,7 @@ public:
     ClientPrivate(Client *client, BaseClientInterface *clientInterface, const Utils::Id &id)
         : q(client)
         , m_id(id.isValid() ? id : Id::generate())
-        , m_clientCapabilities(q->defaultClientCapabilities())
         , m_clientInterface(new InterfaceController(clientInterface))
-        , m_documentSymbolCache(q)
-        , m_hoverHandler(q)
-        , m_symbolSupport(q)
-        , m_progressManager(q)
-        , m_tokenSupport(q)
         , m_serverDeviceTemplate(clientInterface->serverDeviceTemplate())
     {
         using namespace ProjectExplorer;
@@ -321,8 +315,8 @@ public:
         m_documentsToUpdate;
     QHash<TextEditor::TextEditorWidget *, QTimer *> m_documentHighlightsTimer;
     QTimer m_documentUpdateTimer;
-    Utils::Id m_id;
-    LanguageServerProtocol::ClientCapabilities m_clientCapabilities;
+    const Utils::Id m_id;
+    LanguageServerProtocol::ClientCapabilities m_clientCapabilities{q->defaultClientCapabilities()};
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;
     struct AssistProviders
@@ -339,18 +333,18 @@ public:
     static const int MaxRestarts = 5;
     int m_restartsLeft = MaxRestarts;
     QTimer m_restartCountResetTimer;
-    InterfaceController *m_clientInterface = nullptr;
+    InterfaceController * const m_clientInterface;
     DiagnosticManager *m_diagnosticManager = nullptr;
-    DocumentSymbolCache m_documentSymbolCache;
-    HoverHandler m_hoverHandler;
+    DocumentSymbolCache m_documentSymbolCache{q};
+    HoverHandler m_hoverHandler{q};
     QSet<TextEditor::BaseTextEditor *> m_activeEditors;
     QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;
     QPointer<BuildConfiguration> m_bc;
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
-    SymbolSupport m_symbolSupport;
+    SymbolSupport m_symbolSupport{q};
     MessageId m_runningFindLinkRequest;
-    ProgressManager m_progressManager;
-    SemanticTokenSupport m_tokenSupport;
+    ProgressManager m_progressManager{q};
+    SemanticTokenSupport m_tokenSupport{q};
     Internal::FoldingRangeSupport m_foldingSupport{q};
     QString m_serverName;
     QString m_serverVersion;
