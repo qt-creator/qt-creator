@@ -39,11 +39,11 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
-#include <QDebug>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QInputDialog>
+#include <QLoggingCategory>
 #include <QMenu>
 #include <QMessageBox>
 #include <QProcessEnvironment>
@@ -63,6 +63,8 @@ using namespace VcsBase;
 using namespace std::placeholders;
 
 namespace Subversion::Internal {
+
+static Q_LOGGING_CATEGORY(Log, "qtc.vcs.svn", QtWarningMsg);
 
 const char CMD_ID_SUBVERSION_MENU[]    = "Subversion.Menu";
 const char CMD_ID_ADD[]                = "Subversion.Add";
@@ -866,8 +868,7 @@ void SubversionPluginPrivate::vcsDescribe(const FilePath &source, const QString 
     const bool manages = managesDirectory(fi.isDir() ? source : FilePath::fromString(fi.absolutePath()), &topLevel);
     if (!manages || topLevel.isEmpty())
         return;
-    if (Subversion::Constants::debug)
-        qDebug() << Q_FUNC_INFO << source << topLevel << changeNr;
+    qCDebug(Log) << Q_FUNC_INFO << source << topLevel << changeNr;
     // Number must be >= 1
     bool ok;
 
@@ -912,8 +913,7 @@ IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const
                                                      Id id, const FilePath &source,
                                                      const TextEncoding &encoding)
 {
-    if (Subversion::Constants::debug)
-        qDebug() << "SubversionPlugin::showOutputInEditor" << title << id.toString()
+    qCDebug(Log) << "SubversionPlugin::showOutputInEditor" << title << id.toString()
                  <<  "Size= " << output.size() <<  " Type=" << id << encoding.name();
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());

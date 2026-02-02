@@ -23,8 +23,8 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QLoggingCategory>
 #include <QTextStream>
-#include <QDebug>
 
 using namespace Core;
 using namespace DiffEditor;
@@ -33,6 +33,8 @@ using namespace VcsBase;
 
 namespace Subversion {
 namespace Internal {
+
+static Q_LOGGING_CATEGORY(Log, "qtc.vcs.svn", QtWarningMsg);
 
 class SubversionLogConfig : public VcsBaseEditorConfig
 {
@@ -75,8 +77,7 @@ void SubversionClient::commit(const FilePath &repositoryRoot,
                               const QString &commitMessageFile,
                               const QStringList &extraOptions)
 {
-    if (Subversion::Constants::debug)
-        qDebug() << Q_FUNC_INFO << commitMessageFile << files;
+    qCDebug(Log) << Q_FUNC_INFO << commitMessageFile << files;
 
     doCommit(repositoryRoot, files, commitMessageFile, extraOptions);
 }

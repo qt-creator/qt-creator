@@ -8,7 +8,6 @@ namespace Subversion::Constants {
 const char SUBVERSION_PLUGIN[] = "SubversionPlugin";
 
 const char NON_INTERACTIVE_OPTION[] = "--non-interactive";
-enum { debug = 0 };
 
 const char SUBVERSION_CONTEXT[]        = "Subversion Context";
 
