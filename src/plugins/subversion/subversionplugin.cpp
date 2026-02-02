@@ -33,6 +33,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#include <vcsbase/commonvcssettings.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseplugin.h>
@@ -47,6 +48,8 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QProcessEnvironment>
+#include <QQueue>
+#include <QTimer>
 #include <QUrl>
 #include <QXmlStreamReader>
 
@@ -65,6 +68,7 @@ using namespace std::placeholders;
 namespace Subversion::Internal {
 
 static Q_LOGGING_CATEGORY(Log, "qtc.vcs.svn", QtWarningMsg);
+static Q_LOGGING_CATEGORY(Status, "qtc.vcs.svn.status", QtWarningMsg);
 
 const char CMD_ID_SUBVERSION_MENU[]    = "Subversion.Menu";
 const char CMD_ID_ADD[]                = "Subversion.Add";
@@ -121,6 +125,18 @@ static inline QStringList svnDirectories()
     return rc;
 }
 
+/*!
+ * Describes one svn:externals subproject.
+ */
+struct SubversionExternal {
+    QString revision;  ///< Revision, empty if none, e.g. 123
+    QString url;       ///< URL to external repo, e.g. http://svn.example.com/repo
+    QString directory; ///< Local repo subdirectory, e.g. externals/repo
+};
+
+using SubversionExternals = QList<SubversionExternal>;
+using SubversionExternalsMap = QMap<Utils::FilePath, SubversionExternals>;
+
 class SubversionPluginPrivate final : public VcsBase::VersionControlBase
 {
 public:
@@ -152,6 +168,10 @@ public:
     bool managesFile(const FilePath &workingDirectory, const QString &fileName) const final;
 
     bool isConfigured() const final;
+    FilePaths monitorDirectory(const FilePath &path, bool monitor) final;
+    void updateModificationInfos();
+    void updateNextModificationInfo();
+
     bool supportsOperation(Operation operation) const final;
     bool vcsOpen(const FilePath &filePath) final;
     bool vcsAdd(const FilePath &filePath) final;
@@ -186,6 +206,7 @@ public:
                          int timeoutMutiplier = 1) const;
     void vcsAnnotateHelper(const FilePath &workingDir, const QString &file,
                            const QString &revision = {}, int lineNumber = -1);
+    SubversionExternals subversionExternals(const FilePath &directory);
 
 protected:
     void updateActions(VcsBase::VersionControlBase::ActionState) override;
@@ -193,6 +214,9 @@ protected:
     void discardCommit() override { cleanCommitMessageFile(); }
 
 private:
+    QString synchronousProperty(const FilePath &workingDirectory,
+                                const QString &property,
+                                const QString &fileName = {});
     void addCurrentFile();
     void revertCurrentFile();
     void diffProjectDirectory();
@@ -255,6 +279,11 @@ private:
     QAction *m_describeAction = nullptr;
 
     QAction *m_menuAction = nullptr;
+
+    QSet<Utils::FilePath> m_monitoredPaths;
+    QQueue<Utils::FilePath> m_statusUpdateQueue;
+    QTimer m_timer;
+    SubversionExternalsMap m_externalsMap;
 };
 
 
@@ -483,6 +512,39 @@ SubversionPluginPrivate::SubversionPluginPrivate()
             VcsBaseSubmitEditorParameters::DiffFiles,
             [] { return new SubversionSubmitEditor; },
         });
+
+    connect(&m_timer, &QTimer::timeout, this, &SubversionPluginPrivate::updateModificationInfos);
+
+    auto setInterval = [this] {
+        const int seconds = VcsBase::Internal::commonSettings().vcsShowStatusInterval();
+        m_timer.setInterval(std::chrono::seconds(seconds));
+    };
+
+    setInterval();
+    m_timer.setSingleShot(true);
+
+    if (VcsBase::Internal::commonSettings().vcsShowStatus())
+        m_timer.start();
+
+    connect(&VcsBase::Internal::commonSettings().vcsShowStatus, &Utils::BaseAspect::changed,
+            this, [this] {
+        if (VcsBase::Internal::commonSettings().vcsShowStatus())
+            m_timer.start();
+        else
+            m_timer.stop();
+
+        for (const FilePath &path : std::as_const(m_monitoredPaths))
+            VcsManager::emitClearFileState(path);
+    });
+    connect(&VcsBase::Internal::commonSettings().vcsShowStatusInterval, &Utils::BaseAspect::changed,
+            this, setInterval);
+    connect(qApp, &QApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+        if (!VcsBase::Internal::commonSettings().vcsShowStatus())
+            return;
+
+        if (state == Qt::ApplicationActive)
+            updateModificationInfos();
+    });
 }
 
 bool SubversionPluginPrivate::isVcsDirectory(const FilePath &fileName) const
@@ -520,6 +582,18 @@ bool SubversionPluginPrivate::activateCommit()
             cleanCommitMessageFile();
     }
     return closeEditor;
+}
+
+QString SubversionPluginPrivate::synchronousProperty(const Utils::FilePath &workingDirectory,
+                                                     const QString &property,
+                                                     const QString &fileName)
+{
+    QStringList args = {"propget", property};
+    if (!fileName.isEmpty())
+        args.append(fileName);
+    const CommandLine commandLine{settings().binaryPath(), args};
+    const CommandResult result = runSvn(workingDirectory, commandLine, RunFlags::NoOutput);
+    return result.cleanedStdOut();
 }
 
 void SubversionPluginPrivate::diffCommitFiles(const QStringList &files)
@@ -1011,6 +1085,191 @@ bool SubversionPluginPrivate::isConfigured() const
         return false;
     QFileInfo fi = binary.toFileInfo();
     return fi.exists() && fi.isFile() && fi.isExecutable();
+}
+
+/*!
+ * Splits the externals \a line at spaces, preserving spaces within quotes.
+ */
+static QStringList splitExternalsLineParts(const QString &line)
+{
+    QStringList parts;
+    QString current;
+    bool inQuotes = false;
+
+    for (QChar c : line) {
+        if (c == '"' && !inQuotes) {
+            inQuotes = true;
+        } else if (c == '"' && inQuotes) {
+            inQuotes = false;
+            parts << current;
+            current.clear();
+        } else if (c.isSpace() && !inQuotes) {
+            if (!current.isEmpty()) {
+                parts << current;
+                current.clear();
+            }
+        } else {
+            current += c;
+        }
+    }
+
+    if (!current.isEmpty())
+        parts << current;
+
+    return parts;
+}
+
+/*!
+ * Returns a SubversionExternal from the svn:externals \a line.
+ *
+ * The external line has one of the following formats, while URL
+ * and local directory can contain quoted spaces:
+ *
+ * `http://svn.example.com/repo repo`
+ * `-r 123 http://svn.example.com/repo "local path"`
+ */
+static SubversionExternal parseExternalLine(const QString &line)
+{
+    const QString trimmed = line.trimmed();
+    SubversionExternal result;
+
+    if (trimmed.isEmpty() || trimmed.startsWith('#'))
+        return result; // Skip comments
+
+    const QStringList parts = splitExternalsLineParts(trimmed);
+
+    if (parts.size() == 2) {
+        result.url = parts.at(0);
+        result.directory = parts.at(1);
+    } else if (parts.size() == 3 && parts.at(0).startsWith("-r")) {
+        result.revision = parts.at(0).mid(2); // Extract revision number from `-r123`
+        result.url = parts.at(1);
+        result.directory = parts.at(2);
+    }
+    return result;
+}
+
+/*!
+ * Returns a list of all SubversionExternal subprojects for \a directory.
+ */
+SubversionExternals SubversionPluginPrivate::subversionExternals(const FilePath &directory)
+{
+    if (m_externalsMap.contains(directory))
+        return m_externalsMap.value(directory);
+
+    SubversionExternals result;
+    const QStringList externals = synchronousProperty(directory, "svn:externals").split('\n');
+    for (const QString &externalLine : externals) {
+        const SubversionExternal external = parseExternalLine(externalLine);
+        if (external.directory.isEmpty())
+            continue;
+
+        result.append(external);
+    }
+
+    m_externalsMap.insert(directory, result);
+    return result;
+}
+
+FilePaths SubversionPluginPrivate::monitorDirectory(const FilePath &path, bool monitor)
+{
+    qCDebug(Status).nospace() << "monitorDirectory(" << path << ", " << monitor << ")";
+
+    const QStringList filesToCheck = transform(m_svnDirectories, [](const QString &s) {
+        return QString(s + "/wc.db");
+    });
+
+    const FilePath directory = VcsManager::findRepositoryForFiles(path, filesToCheck);
+    if (directory.isEmpty())
+        return {};
+
+    FilePaths result;
+    const bool monitored = m_monitoredPaths.contains(directory);
+    if (monitor && !monitored) {
+        qCDebug(Status) << "Start monitoring:" << directory;
+        m_monitoredPaths.insert(directory);
+        result.append(directory);
+    } else if (!monitor && monitored) {
+        qCDebug(Status) << "Stop monitoring:" << directory;
+        m_monitoredPaths.remove(directory);
+        result.append(directory);
+    } else {
+        return {};
+    }
+
+    // svn:externals management
+    const SubversionExternals externals = subversionExternals(directory);
+    for (const SubversionExternal &external : externals) {
+        const Utils::FilePath externalPath = directory.pathAppended(external.directory);
+        result.append(externalPath);
+        if (monitor && !monitored) {
+            qCDebug(Status) << "Start monitoring external:" << externalPath;
+            m_monitoredPaths.insert(externalPath);
+        } else {
+            qCDebug(Status) << "Stop monitoring external:" << externalPath;
+            m_monitoredPaths.remove(externalPath);
+        }
+    }
+
+    if (m_monitoredPaths.isEmpty())
+        m_timer.stop();
+    else if (VcsBase::Internal::commonSettings().vcsShowStatus())
+        updateModificationInfos();
+
+    return result;
+}
+
+void SubversionPluginPrivate::updateModificationInfos()
+{
+    for (const FilePath &path : std::as_const(m_monitoredPaths))
+        m_statusUpdateQueue.append(path);
+
+    updateNextModificationInfo();
+}
+
+void SubversionPluginPrivate::updateNextModificationInfo()
+{
+    using FileState = Core::VcsFileState;
+
+    if (qApp->applicationState() != Qt::ApplicationActive)
+        return;
+
+    if (m_statusUpdateQueue.isEmpty()) {
+        m_timer.start();
+        return;
+    }
+
+    const FilePath path = m_statusUpdateQueue.dequeue();
+
+    const auto command = [path, this](const CommandResult &result) {
+        updateNextModificationInfo();
+
+        if (!m_monitoredPaths.contains(path))
+            return;
+
+        const QStringList res = result.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
+        FileStateHash modifiedFiles;
+        for (const QString &line : res) {
+            if (line.size() <= 8)
+                continue;
+
+            static const QHash<QChar, FileState> svnStates {
+                {FileModifiedC,   FileState::Modified},
+                {FileUntrackedC,  FileState::Untracked},
+                {FileAddedC,      FileState::Added},
+                {FileDeletedC,    FileState::Deleted},
+                {FileConflictedC, FileState::Unmerged},
+                // Renamed is Deleted+Added in Subversion
+            };
+
+            const FileState modification = svnStates.value(line.at(0), FileState::Unknown);
+            if (modification != FileState::Unknown)
+                modifiedFiles.insert(line.mid(7).trimmed(), modification);
+        }
+
+        VcsManager::updateModifiedFiles(path, modifiedFiles);
+    };
+    subversionClient().enqueueCommand({path, {"status"}, RunFlags::NoOutput, {}, {}, command});
 }
 
 bool SubversionPluginPrivate::supportsOperation(Operation operation) const
