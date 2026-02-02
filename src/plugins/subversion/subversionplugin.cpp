@@ -220,6 +220,8 @@ private:
     void filelog(const FilePath &workingDir,
                  const QString &file = {},
                  bool enableAnnotationContextMenu = false);
+    CommandResult runSvnStatus(const FilePath &workingDir, const QStringList &relativePaths,
+                               RunFlags flags = RunFlags::None) const;
     void svnStatus(const FilePath &workingDir, const QString &relativePath = {});
     void svnUpdate(const FilePath &workingDir, const QString &relativePath = {});
     void startCommit(const FilePath &workingDir, const QStringList &files = {});
@@ -686,11 +688,7 @@ void SubversionPluginPrivate::startCommit(const FilePath &workingDir, const QStr
         return;
     }
 
-    CommandLine args{settings().binaryPath(), {"status"}};
-    args << SubversionClient::AddAuthOptions();
-    args << SubversionClient::escapeFiles(files);
-
-    const auto response = runSvn(workingDir, args);
+    const auto response = runSvnStatus(workingDir, files);
     if (response.result() != ProcessResult::FinishedWithSuccess)
         return;
 
@@ -761,15 +759,22 @@ void SubversionPluginPrivate::updateRepository()
     svnUpdate(state.topLevel());
 }
 
-void SubversionPluginPrivate::svnStatus(const FilePath &workingDir, const QString &relativePath)
+CommandResult SubversionPluginPrivate::runSvnStatus(const FilePath &workingDir,
+                                                    const QStringList &relativePaths,
+                                                    RunFlags flags) const
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return);
+    QTC_ASSERT(state.hasTopLevel(), return {});
     CommandLine args{settings().binaryPath(), {"status"}};
     args << SubversionClient::AddAuthOptions();
-    if (!relativePath.isEmpty())
-        args << SubversionClient::escapeFile(relativePath);
-    runSvn(workingDir, args, RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
+    if (!relativePaths.isEmpty())
+        args << SubversionClient::escapeFiles(relativePaths);
+    return runSvn(workingDir, args, flags);
+}
+
+void SubversionPluginPrivate::svnStatus(const FilePath &workingDir, const QString &relativePath)
+{
+    runSvnStatus(workingDir, {relativePath}, RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
 }
 
 void SubversionPluginPrivate::filelog(const FilePath &workingDir,
@@ -990,10 +995,7 @@ bool SubversionPluginPrivate::managesDirectory(const FilePath &directory, FilePa
 
 bool SubversionPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    CommandLine args{settings().binaryPath()};
-    args << "status" << SubversionClient::AddAuthOptions()
-         << QDir::toNativeSeparators(SubversionClient::escapeFile(fileName));
-    const QString output = runSvn(workingDirectory, args).cleanedStdOut();
+    const QString output = runSvnStatus(workingDirectory, {fileName}).cleanedStdOut();
     return output.isEmpty() || output.front() != QLatin1Char('?');
 }
 
