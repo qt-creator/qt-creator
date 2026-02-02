@@ -62,10 +62,10 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
     args << vcsCommandString(CommitCommand)
          << extraOptions
          << AddAuthOptions()
-         << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
-         << QLatin1String("--encoding")
-         << QLatin1String("UTF-8")
-         << QLatin1String("--file")
+         << Constants::NON_INTERACTIVE_OPTION
+         << "--encoding"
+         << "UTF-8"
+         << "--file"
          << commitMessageFile
          << escapeFiles(files);
     const CommandResult result = vcsSynchronousExec(repositoryRoot, args, RunFlags::ShowStdOut);
@@ -248,7 +248,7 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
 void SubversionClient::showDiffEditor(const FilePath &workingDirectory, const QStringList &files)
 {
     const QString vcsCmdString = vcsCommandString(DiffCommand);
-    const QString documentId = QLatin1String(Constants::SUBVERSION_PLUGIN)
+    const QString documentId = Constants::SUBVERSION_PLUGIN
             + QLatin1String(".Diff.") + VcsBaseEditor::getTitleId(workingDirectory, files);
     const QString title = vcsEditorTitle(vcsCmdString, documentId);
 
@@ -267,7 +267,7 @@ void SubversionClient::log(const FilePath &workingDir,
     const int logCount = settings().logCount();
     QStringList svnExtraOptions = extraOptions;
     if (logCount > 0)
-        svnExtraOptions << QLatin1String("-l") << QString::number(logCount);
+        svnExtraOptions << "-l" << QString::number(logCount);
 
     // subversion stores log in UTF-8 and returns it back in user system locale.
     // So we do not need to encode it.
@@ -281,7 +281,7 @@ void SubversionClient::log(const FilePath &workingDir,
 void SubversionClient::describe(const FilePath &workingDirectory, int changeNumber,
                                 const QString &title)
 {
-    const QString documentId = QLatin1String(Constants::SUBVERSION_PLUGIN)
+    const QString documentId = Constants::SUBVERSION_PLUGIN
         + QLatin1String(".Describe.") + VcsBaseEditor::editorTag(DiffOutput,
                                         workingDirectory, {}, QString::number(changeNumber));
 

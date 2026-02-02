@@ -114,10 +114,10 @@ static StatusList parseStatusOutput(const QString &output)
 // Return a list of names for the internal svn directories
 static inline QStringList svnDirectories()
 {
-    QStringList rc(QLatin1String(".svn"));
+    QStringList rc(".svn");
     if (HostOsInfo::isWindowsHost())
         // Option on Windows systems to avoid hassle with some IDEs
-        rc.push_back(QLatin1String("_svn"));
+        rc.push_back("_svn");
     return rc;
 }
 
@@ -296,9 +296,9 @@ SubversionPluginPrivate::SubversionPluginPrivate()
 
     using namespace Constants;
     using namespace Core::Constants;
-    Context context(SUBVERSION_CONTEXT);
+    const Context context(SUBVERSION_CONTEXT);
 
-    const QString prefix = QLatin1String("svn");
+    const QString prefix = "svn";
     m_commandLocator = new CommandLocator("Subversion", prefix, prefix, this);
     m_commandLocator->setDescription(Tr::tr("Triggers a Subversion version control operation."));
 
@@ -595,7 +595,7 @@ void SubversionPluginPrivate::revertAll()
     // NoteL: Svn "revert ." doesn not work.
     CommandLine args{settings().binaryPath(), {"revert"}};
     args << SubversionClient::AddAuthOptions();
-    args << QLatin1String("--recursive") << state.topLevel().toUrlishString();
+    args << "--recursive" << state.topLevel().toUrlishString();
     const auto revertResponse = runSvn(state.topLevel(), args, RunFlags::ShowStdOut);
     if (revertResponse.result() != ProcessResult::FinishedWithSuccess) {
         QMessageBox::warning(ICore::dialogParent(), title, Tr::tr("Revert failed: %1")
@@ -619,7 +619,7 @@ void SubversionPluginPrivate::revertCurrentFile()
         return;
     if (diffResponse.cleanedStdOut().isEmpty())
         return;
-    if (QMessageBox::warning(ICore::dialogParent(), QLatin1String("svn revert"),
+    if (QMessageBox::warning(ICore::dialogParent(), Tr::tr("Revert"),
                              Tr::tr("The file has been changed. Do you want to revert it?"),
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
         return;
@@ -923,7 +923,7 @@ IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const
     connect(e, &VcsBaseEditorWidget::annotateRevisionRequested,
             this, &SubversionPluginPrivate::vcsAnnotateHelper);
     e->setForceReadOnly(true);
-    s.replace(QLatin1Char(' '), QLatin1Char('_'));
+    s.replace(' ', '_');
     e->textDocument()->setFallbackSaveAsFileName(s);
     if (!source.isEmpty())
         e->setSource(source);
@@ -934,11 +934,11 @@ IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const
 
 QString SubversionPluginPrivate::monitorFile(const FilePath &repository) const
 {
-    QTC_ASSERT(!repository.isEmpty(), return QString());
+    QTC_ASSERT(!repository.isEmpty(), return {});
     QDir repoDir(repository.toUrlishString());
     for (const QString &svnDir : std::as_const(m_svnDirectories)) {
         if (repoDir.exists(svnDir)) {
-            QFileInfo fi(repoDir.absoluteFilePath(svnDir + QLatin1String("/wc.db")));
+            QFileInfo fi(repoDir.absoluteFilePath(svnDir + "/wc.db"));
             if (fi.exists() && fi.isFile())
                 return fi.absoluteFilePath();
         }
@@ -995,7 +995,7 @@ bool SubversionPluginPrivate::managesDirectory(const FilePath &directory, FilePa
 bool SubversionPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     const QString output = runSvnStatus(workingDirectory, {fileName}).cleanedStdOut();
-    return output.isEmpty() || output.front() != QLatin1Char('?');
+    return output.isEmpty() || output.front() != '?';
 }
 
 Utils::Id SubversionPluginPrivate::id() const
@@ -1065,7 +1065,7 @@ bool SubversionPluginPrivate::vcsCreateRepository(const FilePath &)
 
 void SubversionPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    vcsAnnotateHelper(filePath.parentDir(), filePath.fileName(), QString(), line);
+    vcsAnnotateHelper(filePath.parentDir(), filePath.fileName(), {}, line);
 }
 
 ExecutableItem SubversionPluginPrivate::cloneTask(const CloneTaskData &data) const

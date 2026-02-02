@@ -57,10 +57,10 @@ QString SubversionEditorWidget::changeUnderCursor(const QTextCursor &c) const
 
     // We may have several matches of our regexp and we way have
     // several () in the regexp
-    const QString areaName = QLatin1String("area");
+    const QString areaName = "area";
     while (matchIter.hasNext()) {
         auto match = matchIter.next();
-        const QString rev = match.captured(QLatin1String("rev"));
+        const QString rev = match.captured("rev");
         if (rev.isEmpty())
             continue;
 
@@ -86,5 +86,5 @@ QStringList SubversionEditorWidget::annotationPreviousVersions(const QString &v)
     const int revision = v.toInt(&ok);
     if (!ok || revision < 2)
         return {};
-    return QStringList(QString::number(revision - 1));
+    return {QString::number(revision - 1)};
 }

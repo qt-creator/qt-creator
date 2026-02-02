@@ -8,7 +8,7 @@ using namespace Subversion::Internal;
 
 SubversionAnnotationHighlighter::SubversionAnnotationHighlighter(const VcsBase::Annotation &annotation)
     : VcsBase::BaseAnnotationHighlighter(annotation)
-    , m_blank(QLatin1Char(' '))
+    , m_blank(' ')
 {}
 
 QString SubversionAnnotationHighlighter::changeNumber(const QString &block) const
