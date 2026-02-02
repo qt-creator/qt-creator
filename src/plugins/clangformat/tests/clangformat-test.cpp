@@ -97,6 +97,7 @@ private slots:
     void testFormatBasicFile();
     void testFormatEmptyLine();
     void testFormatLambda();
+    void testIndentTwoLambdas();
     void testFormatInitializerListInArguments();
     void testFormatFunctionArgumentLambdaWithScope();
     void testFormatScopeAsFunctionArgument();
@@ -632,6 +633,32 @@ void ClangFormatTest::testFormatLambda()
     insertLines({"int b = foo([](){", "", "});"});
     m_indenter->format({{1, 3}});
     QCOMPARE(documentLines(), (std::vector<QString>{"int b = foo([]() {", "", "});"}));
+}
+
+void ClangFormatTest::testIndentTwoLambdas()
+{
+    insertLines({
+        "void SomeTool::reloadModels()",
+        "{",
+        "m_client->listModels([this](QStringList newModels) {",
+        "newModels.sort();",
+        "setSupportedModels(std::move(newModels));",
+        "}, [this](QString error) {",
+        "reportListModelsError(error);",
+        "});",
+        "}"});
+    m_indenter->indent(*m_cursor, {}, {});
+    QEXPECT_FAIL(nullptr, "QTCREATORBUG-34031", Abort);
+    QCOMPARE(documentLines(), (std::vector<QString>{
+        "void SomeTool::reloadModels()",
+        "{",
+        "    m_client->listModels([this](QStringList newModels) {",
+        "            newModels.sort();",
+        "            setSupportedModels(std::move(newModels));",
+        "        }, [this](QString error) {",
+        "            reportListModelsError(error);",
+        "        });",
+        "}"}));
 }
 
 void ClangFormatTest::testFormatInitializerListInArguments()
