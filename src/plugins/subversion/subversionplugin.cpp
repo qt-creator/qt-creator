@@ -99,11 +99,11 @@ static StatusList parseStatusOutput(const QString &output)
         if (line.size() <= 8)
             continue;
 
-        const QByteArray state = line.left(1).toLatin1();
+        const char state = line.at(0).toLatin1();
         if (state == FileUntrackedC || state == FileAddedC || state == FileConflictedC
             || state == FileDeletedC || state == FileModifiedC) {
             const QString fileName = line.mid(7); // Column 8 starting from svn 1.6
-            changeSet.append(StatusPair(QLatin1String(state), fileName.trimmed()));
+            changeSet.append(StatusPair(state, fileName.trimmed()));
         }
     }
     return changeSet;

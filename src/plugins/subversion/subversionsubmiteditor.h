@@ -18,7 +18,7 @@ public:
     static QString fileFromStatusLine(const QString &statusLine);
 
     // A list of ( 'A','C','D','M') status indicators and file names.
-    using StatusFilePair = QPair<QString, QString>;
+    using StatusFilePair = QPair<char, QString>;
 
     void setStatusList(const QList<StatusFilePair> &statusOutput);
 

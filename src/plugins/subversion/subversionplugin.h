@@ -5,10 +5,10 @@
 
 namespace Subversion::Internal {
 
-const char FileUntrackedC[]  = "?";
-const char FileAddedC[]      = "A";
-const char FileConflictedC[] = "C";
-const char FileDeletedC[]    = "D";
-const char FileModifiedC[]   = "M";
+const char FileUntrackedC  = '?';
+const char FileAddedC      = 'A';
+const char FileConflictedC = 'C';
+const char FileDeletedC    = 'D';
+const char FileModifiedC   = 'M';
 
 } // SubVersion::Internal
