@@ -287,6 +287,7 @@ private:
 SnippetsSettingsWidget::SnippetsSettingsWidget()
 {
     m_groupCombo = new QComboBox;
+    setIgnoreForDirtyHook(m_groupCombo);
     m_snippetsEditorStack = new QStackedWidget;
     for (const SnippetProvider &provider : SnippetProvider::snippetProviders()) {
         m_groupCombo->addItem(provider.displayName(), provider.groupId());
