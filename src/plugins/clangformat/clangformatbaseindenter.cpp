@@ -85,29 +85,28 @@ static clang::tooling::Replacements filteredReplacements(const QByteArray &buffe
                                                          const clang::tooling::Replacements &replacements,
                                                          int utf8Offset,
                                                          int utf8Length,
-                                                         ReplacementsToKeep replacementsToKeep)
+                                                         bool indentOnly)
 {
     clang::tooling::Replacements filtered;
     for (const clang::tooling::Replacement &replacement : replacements) {
-        int replacementOffset = static_cast<int>(replacement.getOffset());
+        const int replacementOffset = static_cast<int>(replacement.getOffset());
 
         // Skip everything after.
         if (replacementOffset >= utf8Offset + utf8Length)
             return filtered;
 
-        const bool isNotIndentOrInRange = replacementOffset < utf8Offset - 1
-                                          || buffer.at(replacementOffset) != '\n';
-        if (isNotIndentOrInRange && replacementsToKeep == ReplacementsToKeep::OnlyIndent)
-            continue;
-
-        llvm::StringRef text = replacementsToKeep == ReplacementsToKeep::OnlyIndent
-                                   ? clearExtraNewline(replacement.getReplacementText())
-                                   : replacement.getReplacementText();
-        if (replacementsToKeep == ReplacementsToKeep::OnlyIndent && int(text.count('\n'))
-                != buffer.mid(replacementOffset, replacement.getLength()).count('\n')) {
+        if (indentOnly
+            && (replacementOffset < utf8Offset - 1 || buffer.at(replacementOffset) != '\n')) {
             continue;
         }
 
+        const llvm::StringRef text = indentOnly
+                                   ? clearExtraNewline(replacement.getReplacementText())
+                                   : replacement.getReplacementText();
+        if (indentOnly && int(text.count('\n'))
+                != buffer.mid(replacementOffset, replacement.getLength()).count('\n')) {
+            continue;
+        }
 
         llvm::Error error = filtered.add(
             clang::tooling::Replacement(replacement.getFilePath(),
@@ -678,7 +677,7 @@ ChangeSet ClangFormatBaseIndenterPrivate::replacements(QByteArray buffer,
                                         clangReplacements,
                                         utf8Offset,
                                         utf8Length,
-                                        replacementsToKeep);
+                                        replacementsToKeep == ReplacementsToKeep::OnlyIndent);
     }
 
     printDebugInfo(buffer, filtered, "filtered");
