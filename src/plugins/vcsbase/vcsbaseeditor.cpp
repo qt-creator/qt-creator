@@ -393,7 +393,7 @@ private:
 UrlTextCursorHandler::UrlTextCursorHandler(VcsBaseEditorWidget *editorWidget)
     : AbstractTextCursorHandler(editorWidget)
 {
-    setUrlPattern(QLatin1String("https?\\://[^\\s]+"));
+    setUrlPattern("https?\\://[^\\s]+");
 
     m_jiraPattern = QRegularExpression("(Fixes|Task-number): ([A-Z]+-[0-9]+)");
     m_gerritPattern = QRegularExpression("Change-Id: (I[a-f0-9]{40})");
@@ -526,7 +526,7 @@ protected slots:
 EmailTextCursorHandler::EmailTextCursorHandler(VcsBaseEditorWidget *editorWidget)
     : UrlTextCursorHandler(editorWidget)
 {
-    setUrlPattern(QLatin1String("[a-zA-Z0-9_\\.-]+@[^@ ]+\\.[a-zA-Z]+"));
+    setUrlPattern("[a-zA-Z0-9_\\.-]+@[^@ ]+\\.[a-zA-Z]+");
 }
 
 void EmailTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type) const
@@ -539,7 +539,7 @@ void EmailTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type
 
 void EmailTextCursorHandler::slotOpenUrl()
 {
-    QDesktopServices::openUrl(QUrl(QLatin1String("mailto:") + currentContents()));
+    QDesktopServices::openUrl(QUrl("mailto:" + currentContents()));
 }
 
 class VcsBaseEditorWidgetPrivate
@@ -903,9 +903,9 @@ void VcsBaseEditorWidget::slotPopulateLogBrowser()
             if (!subject.isEmpty()) {
                 if (subject.size() > 100) {
                     subject.truncate(97);
-                    subject.append(QLatin1String("..."));
+                    subject.append("...");
                 }
-                entry.append(QLatin1String(" - ")).append(subject);
+                entry.append(" - ").append(subject);
             }
             entriesComboBox->addItem(entry);
         }
@@ -1125,20 +1125,20 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
 // Note that git appends stuff after "  @@"/" @@@" (function names, etc.).
 static inline bool checkChunkLine(const QString &line, int *modifiedLineNumber, int numberOfAts)
 {
-    const QString ats(numberOfAts, QLatin1Char('@'));
-    if (!line.startsWith(ats + QLatin1Char(' ')))
+    const QString ats(numberOfAts, '@');
+    if (!line.startsWith(ats + ' '))
         return false;
     const int len = ats.size() + 1;
-    const int endPos = line.indexOf(QLatin1Char(' ') + ats, len);
+    const int endPos = line.indexOf(' ' + ats, len);
     if (endPos == -1)
         return false;
     // the first chunk range applies to the original file, the second one to
     // the modified file, the one we're interested in
-    const int plusPos = line.indexOf(QLatin1Char('+'), len);
+    const int plusPos = line.indexOf('+', len);
     if (plusPos == -1 || plusPos > endPos)
         return false;
     const int lineNumberPos = plusPos + 1;
-    const int commaPos = line.indexOf(QLatin1Char(','), lineNumberPos);
+    const int commaPos = line.indexOf(',', lineNumberPos);
     if (commaPos == -1 || commaPos > endPos) {
         // Git submodule appears as "@@ -1 +1 @@"
         *modifiedLineNumber = 1;
@@ -1161,7 +1161,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
 {
     int chunkStart = 0;
     int lineCount = -1;
-    const QChar deletionIndicator = QLatin1Char('-');
+    const QChar deletionIndicator = '-';
     // find nearest change hunk
     QTextBlock block = cursor.block();
     if (TextBlockUserData::foldingIndent(block) <= 1) {
@@ -1224,8 +1224,8 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
         return rc;
     // Concatenate chunk and convert
     QString unicode = block.text();
-    if (!unicode.endsWith(QLatin1Char('\n'))) // Missing in case of hg.
-        unicode.append(QLatin1Char('\n'));
+    if (!unicode.endsWith('\n')) // Missing in case of hg.
+        unicode.append('\n');
     for (block = block.next() ; block.isValid() ; block = block.next()) {
         const QString line = block.text();
         if (checkChunkLine(line, &chunkStart)
@@ -1233,7 +1233,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
             break;
         } else {
             unicode += line;
-            unicode += QLatin1Char('\n');
+            unicode += '\n';
         }
     }
     const TextEncoding encoding = textDocument()->encoding();
@@ -1349,7 +1349,7 @@ QString VcsBaseEditor::getTitleId(const FilePath &workingDirectory,
                                   const QString &revision)
 {
     QStringList nonEmptyFileNames;
-    for (const QString& fileName : fileNames) {
+    for (const QString &fileName : fileNames) {
         if (!fileName.trimmed().isEmpty())
             nonEmptyFileNames.append(fileName);
     }
@@ -1363,11 +1363,11 @@ QString VcsBaseEditor::getTitleId(const FilePath &workingDirectory,
         rc = nonEmptyFileNames.front();
         break;
     default:
-        rc = nonEmptyFileNames.join(QLatin1String(", "));
+        rc = nonEmptyFileNames.join(", ");
         break;
     }
     if (!revision.isEmpty()) {
-        rc += QLatin1Char(':');
+        rc += ':';
         rc += revision;
     }
     return rc;
@@ -1472,7 +1472,7 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
     // 4) remove trailing tab char and try again: At least git appends \t when the
     //    filename contains spaces. Since the diff command does use \t all of a sudden,
     //    too, when seeing spaces in a filename, I expect the same behavior in other VCS.
-    if (f.endsWith(QLatin1Char('\t')))
+    if (f.endsWith('\t'))
         return findDiffFile(f.left(f.size() - 1));
 
     return {};
@@ -1534,7 +1534,7 @@ QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inB
         if (match.hasMatch()) {
             const QString cap = match.captured(1);
             if (header)
-                header->prepend(line + QLatin1String("\n"));
+                header->prepend(line + "\n");
             if (fileName.isEmpty() && !cap.isEmpty())
                 fileName = cap;
         } else if (!fileName.isEmpty()) {
@@ -1618,7 +1618,7 @@ void VcsBaseEditorWidget::slotApplyDiffChunk(const DiffChunk &chunk, PatchAction
 QString VcsBaseEditor::editorTag(EditorContentType t, const FilePath &workingDirectory,
                                  const QStringList &files, const QString &revision)
 {
-    const QChar colon = QLatin1Char(':');
+    const QChar colon = ':';
     QString rc = QString::number(t);
     rc += colon;
     if (!revision.isEmpty()) {
@@ -1628,7 +1628,7 @@ QString VcsBaseEditor::editorTag(EditorContentType t, const FilePath &workingDir
     rc += workingDirectory.toUrlishString();
     if (!files.isEmpty()) {
         rc += colon;
-        rc += files.join(QString(colon));
+        rc += files.join(colon);
     }
     return rc;
 }
