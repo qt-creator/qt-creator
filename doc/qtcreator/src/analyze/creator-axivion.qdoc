@@ -210,6 +210,50 @@
     Depending on the local build result you may limit the issue table to
     local issues or changed issues.
 
+    \section1 Single file analysis
+
+    To check whether your changes fix style issues or cause new ones, analyze
+    a single file.
+
+    You need:
+    \list
+        \li An active dashboard.
+        \li A valid path mapping for the project.
+        \li A file opened from this dashboard.
+    \endlist
+
+    To start a  single file analysis, go to
+    \uicontrol Analyze > \uicontrol {Single File Analysis} or use the
+    respective item inside the context menu of the file's editor.
+
+    \image {qtcreator-axivion-startsfa.webp} {Single File Analysis dialog}
+
+    In \uicontrol {BAUHAUS_CONFIG Directory}, specify the directory containing the
+    Axivion configuration for this project.
+    In \uicontrol {Analysis Command}, specify a command performing the build and the
+    analysis.
+
+    \note The analysis command usually is a call to \c build_compile_commands provided
+    by the Axivion suite in use, but may also be a script file consisting of commands
+    to build the respective file using \c cafeCC and analyze it.
+    \c build_compile_commands can make use of a generated \c compile_commands.json file
+    representing the build instructions of the project.
+    For more information, see \l {Use compilation databases}.
+    Put more complex commands into a script file to set up a special environment,
+    for example.
+
+    \note For more information about the commands and creating the script file,
+    see \c {IDE Integration} and \c {Local Analyses} in the official Axivion documentation.
+
+    You can see the progress of a running single file analysis in
+    \uicontrol {Local Build Progress}. It will have the prefix \c {SFA:}.
+
+    When the single file analysis finishes, additional color-coded line markers might
+    be added to the opened file. Color-coded line markers originate from a single
+    file analysis while others where fetched from the global dashboard.
+    In case of a failed analysis, you can inspect the Axivion log or the build log,
+    similar to local builds in general.
+
     \sa {Connect to Axivion dashboard servers},
     {View Axivion static code analysis results},
     {Enable and disable plugins}, {Analyze}{How To: Analyze}, {Analyzers},
