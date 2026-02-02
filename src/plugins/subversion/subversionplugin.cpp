@@ -766,7 +766,6 @@ CommandResult SubversionPluginPrivate::runSvnStatus(const FilePath &workingDir,
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return {});
     CommandLine args{settings().binaryPath(), {"status"}};
-    args << SubversionClient::AddAuthOptions();
     if (!relativePaths.isEmpty())
         args << SubversionClient::escapeFiles(relativePaths);
     return runSvn(workingDir, args, flags);
