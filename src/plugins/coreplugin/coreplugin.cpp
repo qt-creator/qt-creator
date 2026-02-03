@@ -36,6 +36,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
 #include <utils/crashreporting.h>
+#include <utils/datafromprocess.h>
 #include <utils/environment.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
@@ -612,6 +613,7 @@ ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
     Find::aboutToShutdown();
     m_locator->aboutToShutdown();
     ICore::aboutToShutdown();
+    DataFromProcessSettingsCache::writeToSettings();
     return SynchronousShutdown;
 }
 
