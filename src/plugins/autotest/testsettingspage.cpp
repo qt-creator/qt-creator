@@ -154,6 +154,8 @@ TestSettingsWidget::TestSettingsWidget()
     });
 
     setOnCancel([] { Internal::testSettings().cancel(); });
+
+    setupDirtyHook(this);
 }
 
 enum TestBaseInfo

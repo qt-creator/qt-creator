@@ -1232,6 +1232,8 @@ public:
         m_itemConfigWidget = new DebuggerItemConfigWidget;
         m_container->setWidget(m_itemConfigWidget);
         updateButtons();
+
+        setupDirtyHook(this);
     }
 
     void apply() final

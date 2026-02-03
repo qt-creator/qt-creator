@@ -114,6 +114,8 @@ public:
                 this, &UpdateInfoSettingsPageWidget::checkRunningChanged);
         connect(m_plugin, &UpdateInfoPlugin::newUpdatesAvailable,
                 this, &UpdateInfoSettingsPageWidget::newUpdatesAvailable);
+
+        setupDirtyHook(this);
     }
 
     void apply() final;

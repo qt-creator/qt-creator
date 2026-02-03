@@ -163,6 +163,8 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget()
     connect(QbsProfileManager::instance(), &QbsProfileManager::qbsProfilesUpdated,
             this, &QbsProfilesSettingsWidget::refreshKitsList);
     refreshKitsList();
+
+    setupDirtyHook(this);
 }
 
 void QbsProfilesSettingsWidget::refreshKitsList()

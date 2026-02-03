@@ -279,6 +279,8 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
         viewerBackend->setEnabled(false);
 
     installMarkSettingsDirtyTrigger(homePageLineEdit);
+
+    setupDirtyHook(this);
 }
 
 void GeneralSettingsPageWidget::apply()

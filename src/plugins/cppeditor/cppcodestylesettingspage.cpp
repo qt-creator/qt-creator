@@ -353,6 +353,8 @@ public:
 
         auto hbox = new QVBoxLayout(this);
         hbox->addWidget(m_codeStyleEditor);
+
+        setupDirtyHook(this);
     }
 
     void apply() final

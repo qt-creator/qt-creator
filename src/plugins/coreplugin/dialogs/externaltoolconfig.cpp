@@ -643,6 +643,8 @@ ExternalToolConfig::ExternalToolConfig()
     setTools(ExternalToolManager::toolsByCategory());
 
     updateEnvironmentLabel();
+
+    setupDirtyHook(this);
 }
 
 void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &tools)

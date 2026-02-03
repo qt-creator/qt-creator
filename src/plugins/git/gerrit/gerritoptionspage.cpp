@@ -93,6 +93,8 @@ public:
             s.toSettings();
             emit onChanged();
         });
+
+        setupDirtyHook(this);
     }
 };
 

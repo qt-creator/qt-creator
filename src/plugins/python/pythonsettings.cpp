@@ -269,6 +269,8 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
             this, &InterpreterOptionsWidget::detailsChanged);
     connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,
             this, &InterpreterOptionsWidget::currentChanged);
+
+    setupDirtyHook(this);
 }
 
 void InterpreterModel::addInterpreter(const Interpreter &interpreter)
@@ -438,6 +440,7 @@ public:
                 this,
                 &PyLSConfigureWidget::setAdvanced);
 
+        setupDirtyHook(this);
     }
 
     void apply() override
@@ -510,7 +513,7 @@ public:
         setId(Constants::C_PYLSCONFIGURATION_PAGE_ID);
         setDisplayName(Tr::tr("Language Server Configuration"));
         setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
-        setWidgetCreator([]() {return new PyLSConfigureWidget();});
+        setWidgetCreator([] {return new PyLSConfigureWidget();});
     }
 };
 

@@ -785,6 +785,8 @@ AxivionSettingsWidget::AxivionSettingsWidget()
 
     updateEnabledStates();
     settings().validatePath();
+
+    setupDirtyHook(this);
 }
 
 void AxivionSettingsWidget::apply()

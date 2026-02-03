@@ -413,6 +413,8 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
     connect(&m_headerGuardAspect, &StringAspect::changed,
             this, &CppFileSettingsWidget::userChange);
     updateHeaderGuardAspectState();
+
+    setupDirtyHook(this);
 }
 
 FilePath CppFileSettingsWidget::licenseTemplatePath() const

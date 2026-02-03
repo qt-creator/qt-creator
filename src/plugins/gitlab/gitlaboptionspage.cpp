@@ -217,6 +217,8 @@ GitLabOptionsWidget::GitLabOptionsWidget()
             emit m_parameters->changed();
         }
     });
+
+    setupDirtyHook(this);
 }
 
 void GitLabOptionsWidget::showEditServerDialog()

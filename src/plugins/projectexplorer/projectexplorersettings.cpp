@@ -373,6 +373,8 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     setProjectsDirectory(DocumentManager::projectsDirectory());
     setUseProjectsDirectory(DocumentManager::useProjectsDirectory());
     updateAppEnvChangesLabel();
+
+    setupDirtyHook(this);
 }
 
 FilePath ProjectExplorerSettingsWidget::projectsDirectory() const

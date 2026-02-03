@@ -212,6 +212,8 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
 
     }.attachTo(this);
     // clang-format on
+
+    setupDirtyHook(this);
 }
 
 void CdbOptionsPageWidget::apply()
@@ -265,6 +267,8 @@ CdbPathsPageWidget::CdbPathsPageWidget()
         Group { title(Tr::tr("Source Paths")), Column { m_sourcePaths } },
         st
     }.attachTo(this);
+
+    setupDirtyHook(this);
 }
 
 void CdbPathsPageWidget::apply()

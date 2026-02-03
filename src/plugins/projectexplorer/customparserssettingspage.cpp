@@ -377,6 +377,8 @@ public:
         connect(parserView->selectionModel(), &QItemSelectionModel::selectionChanged,
             updateButtons);
         connect(&m_model, &QAbstractItemModel::modelReset, updateButtons);
+
+        setupDirtyHook(this);
     }
 
 private:

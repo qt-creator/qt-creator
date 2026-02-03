@@ -558,8 +558,6 @@ IOptionsPageWidget *IOptionsPagePrivate::createWidget()
     if (m_widgetCreator) {
         m_widget = m_widgetCreator();
         QTC_ASSERT(m_widget, return nullptr);
-        if (!m_autoApply && m_widget->useDirtyHook())
-            m_widget->setupDirtyHook(m_widget);
         return m_widget;
     }
 

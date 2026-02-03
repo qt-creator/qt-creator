@@ -172,6 +172,8 @@ SettingsPageWidget::SettingsPageWidget()
     disableIndexerCheckBox->setChecked(s.disableIndexer);
     diffArgsEdit->setText(s.diffArgs);
     indexOnlyVOBsEdit->setText(s.indexOnlyVOBs);
+
+    setupDirtyHook(this);
 }
 
 void SettingsPageWidget::apply()

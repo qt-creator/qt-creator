@@ -254,6 +254,8 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
     buttonLayout->addWidget(addButton);
     buttonLayout->addWidget(deleteButton);
     buttonLayout->addStretch(10);
+
+    setupDirtyHook(this);
 }
 
 void LanguageClientSettingsPageWidget::currentChanged(const QModelIndex &index)

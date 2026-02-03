@@ -328,6 +328,8 @@ DeviceSettingsWidget::DeviceSettingsWidget()
             this, &DeviceSettingsWidget::removeDevice);
     connect(DeviceManager::instance(), &DeviceManager::deviceUpdated,
             this, &DeviceSettingsWidget::handleDeviceUpdated);
+
+    setupDirtyHook(this);
 }
 
 void DeviceSettingsWidget::addDevice()

@@ -106,6 +106,8 @@ public:
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(editor);
+
+        setupDirtyHook(this);
     }
 
     void apply() final

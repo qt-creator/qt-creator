@@ -62,6 +62,8 @@ IosSettingsWidget::IosSettingsWidget()
         st
     }.attachTo(this);
     // clang-format on
+
+    setupDirtyHook(this);
 }
 
 IosSettingsWidget::~IosSettingsWidget() = default;

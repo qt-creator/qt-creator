@@ -228,6 +228,8 @@ public:
         });
 
         setOnCancel([] { settings().cancel(); });
+
+        setupDirtyHook(this);
     }
 };
 

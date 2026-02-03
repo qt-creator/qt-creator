@@ -909,6 +909,8 @@ public:
         vbox->setContentsMargins(0, 0, 0, 0);
 
         setOnApply([inner] { inner->apply(); });
+
+        setupDirtyHook(this);
     }
 };
 

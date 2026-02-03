@@ -206,6 +206,8 @@ public:
         connect(&m_resetQbsExeButton, &QPushButton::clicked, this, [this] {
             m_qbsExePathChooser.setFilePath(QbsSettings::defaultQbsExecutableFilePath());
         });
+
+        setupDirtyHook(this);
     }
 
     void apply() final

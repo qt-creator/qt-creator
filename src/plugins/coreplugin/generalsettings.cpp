@@ -220,6 +220,8 @@ GeneralSettingsWidget::GeneralSettingsWidget()
             &GeneralSettingsWidget::resetWarnings);
 
     setOnCancel([] { generalSettings().cancel(); });
+
+    setupDirtyHook(this);
 }
 
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)

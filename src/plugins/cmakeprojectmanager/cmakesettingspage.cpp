@@ -606,6 +606,8 @@ public:
         connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
         m_deviceComboBox->setCurrentIndex(0);
         updateDevice(m_deviceComboBox->currentIndex());
+
+        setupDirtyHook(this);
     }
 
 private:

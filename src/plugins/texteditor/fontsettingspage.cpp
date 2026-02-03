@@ -206,6 +206,8 @@ public:
 
         updatePointSizes();
         refreshColorSchemeList();
+
+        setupDirtyHook(this);
     }
 
     void apply() final;

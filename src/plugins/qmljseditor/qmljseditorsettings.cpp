@@ -361,6 +361,8 @@ public:
                                       MacroExpanderProvider(globalMacroExpander()));
 
         populateAnalyzerMessages(s.disabledMessages(), s.disabledMessagesForNonQuickUi());
+
+        setupDirtyHook(this);
     }
 
     void apply() final

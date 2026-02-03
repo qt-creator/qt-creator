@@ -393,6 +393,8 @@ public:
         updateDevice(m_deviceComboBox->currentIndex());
 
         updateState();
+
+        setupDirtyHook(this);
     }
 
     QModelIndex mapFromSource(const QModelIndex &idx);

@@ -1399,6 +1399,8 @@ public:
         layout->addLayout(maxCharsLayout);
         layout->addLayout(bgColorLayout);
         layout->addStretch(1);
+
+        setupDirtyHook(this);
     }
 
     void apply() final

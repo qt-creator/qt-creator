@@ -368,6 +368,8 @@ SnippetsSettingsWidget::SnippetsSettingsWidget()
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
             this, &SnippetsSettingsWidget::decorateEditors);
+
+    setupDirtyHook(this);
 }
 
 SnippetEditorWidget *SnippetsSettingsWidget::currentEditor() const

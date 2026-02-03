@@ -432,6 +432,8 @@ public:
                 this, &SystemSettingsWidget::updatePath);
 
         setOnCancel([] { systemSettings().cancel(); });
+
+        setupDirtyHook(this);
     }
 
 private:

@@ -242,6 +242,8 @@ WindowsSettingsWidget::WindowsSettingsWidget()
         });
 
     setOnApply([] { windowsAppSdkSettings().writeSettings(); });
+
+    setupDirtyHook(this);
 }
 
 void WindowsSettingsWidget::showEvent(QShowEvent *event)

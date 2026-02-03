@@ -236,6 +236,8 @@ OptionsDialog::OptionsDialog()
             this, &OptionsDialog::setKeywordsButtonsEnabled);
 
     setSettings(todoSettings());
+
+    setupDirtyHook(this);
 }
 
 void OptionsDialog::addToKeywordsList(const Keyword &keyword)

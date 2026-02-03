@@ -695,6 +695,8 @@ public:
         auto exCommands = new FakeVimExCommandsMappings;
         setOnApply([exCommands] { exCommands->apply(); });
         Layouting::Column { exCommands, Layouting::noMargin }.attachTo(this);
+
+        setupDirtyHook(this);
     }
 };
 
@@ -793,6 +795,8 @@ public:
         auto layout = new QGridLayout(this);
         layout->addWidget(widget, 0, 0);
         setLayout(layout);
+
+        setupDirtyHook(this);
     }
 
 private:

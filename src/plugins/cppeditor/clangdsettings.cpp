@@ -981,6 +981,8 @@ public:
     {
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_widget);
+
+        setupDirtyHook(this);
     }
 
 private:

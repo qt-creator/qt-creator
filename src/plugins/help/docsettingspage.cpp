@@ -209,6 +209,8 @@ DocSettingsPageWidget::DocSettingsPageWidget()
     });
 
     m_docsListView->installEventFilter(this);
+
+    setupDirtyHook(this);
 }
 
 void DocSettingsPageWidget::addDocumentation()

@@ -182,6 +182,8 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
             &McuSupportOptionsWidget::updateStatus);
 
     showMcuTargetPackages();
+
+    setupDirtyHook(this);
 }
 
 void McuSupportOptionsWidget::updateStatus()

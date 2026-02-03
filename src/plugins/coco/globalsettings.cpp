@@ -220,6 +220,8 @@ public:
             else
                 m_messageLabel.setIconType(InfoLabel::Error);
         });
+
+        setupDirtyHook(this);
     }
 
 private:

@@ -26,6 +26,8 @@ public:
         auto vbox = new QVBoxLayout(this);
         vbox->addWidget(m_designerPage->createPage(nullptr));
         vbox->setContentsMargins({});
+
+        setupDirtyHook(this);
     }
 
     void apply() { m_designerPage->apply(); }

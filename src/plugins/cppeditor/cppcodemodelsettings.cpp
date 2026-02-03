@@ -373,6 +373,8 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSetting
     connect(timer, &QTimer::timeout, this, &CppCodeModelSettingsWidget::settingsDataChanged);
     connect(m_ignorePatternTextEdit, &QPlainTextEdit::textChanged,
             timer, qOverload<>(&QTimer::start));
+
+    setupDirtyHook(this);
 }
 
 CppCodeModelSettings CppCodeModelSettingsWidget::settings() const

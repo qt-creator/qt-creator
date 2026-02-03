@@ -348,6 +348,8 @@ public:
         addButton->setMenu(addMenu);
 
         saveFilterStates();
+
+        setupDirtyHook(this);
     }
 
     void apply() final;

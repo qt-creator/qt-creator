@@ -132,6 +132,8 @@ public:
         connect(resetCache, &QPushButton::clicked, this, [] {
             HighlighterHelper::clearDefinitionForDocumentCache();
         });
+
+        setupDirtyHook(this);
     }
 
     void apply() final

@@ -171,6 +171,8 @@ public:
         }.attachTo(this);
 
         settingsToUI();
+
+        setupDirtyHook(this);
     }
 
     void apply() final;

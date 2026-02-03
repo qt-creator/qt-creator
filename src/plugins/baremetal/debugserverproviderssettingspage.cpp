@@ -354,6 +354,8 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
     updateState();
 
     setOnApply([this] { m_model.apply(); });
+
+    setupDirtyHook(this);
 }
 
 void DebugServerProvidersSettingsWidget::providerSelectionChanged()

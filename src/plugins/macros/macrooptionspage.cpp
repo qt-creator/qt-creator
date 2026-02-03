@@ -106,6 +106,8 @@ MacroOptionsWidget::MacroOptionsWidget()
             this, &MacroOptionsWidget::changeDescription);
 
     initialize();
+
+    setupDirtyHook(this);
 }
 
 void MacroOptionsWidget::initialize()

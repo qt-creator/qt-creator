@@ -392,6 +392,8 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
     connect(m_radioButton_rewriteTypes, &QRadioButton::clicked, then);
 
     loadSettings(CppQuickFixSettings::instance());
+
+    setupDirtyHook(this);
 }
 
 void CppQuickFixSettingsWidget::loadSettings(CppQuickFixSettings *settings)
