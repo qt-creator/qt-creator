@@ -3,7 +3,6 @@
 # add_subdirectory(cplusplus-tools)
 # add_subdirectory(cppquickfix)
 add_subdirectory(debugger)
-add_subdirectory(deviceshell)
 # add_subdirectory(distribution)
 # add_subdirectory(dockwidgets)
 add_subdirectory(fakevim)

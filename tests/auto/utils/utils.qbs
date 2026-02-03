@@ -6,7 +6,6 @@ Project {
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
         "async/async.qbs",
         "commandline/commandline.qbs",
-        "deviceshell/deviceshell.qbs",
         "expander/expander.qbs",
         "expected/expected.qbs",
         "filepath/filepath.qbs",

@@ -260,8 +260,7 @@
         <file>images/message.png</file>
         <file>images/message@2x.png</file>
         <file>images/help.png</file>
-        <file alias="mimetypes/tika-mimetypes.xml" compression-algorithm="best">../3rdparty/tika/tika-mimetypes.xml</file>
-        <file>scripts/deviceshell.sh</file>
+        <file alias="mimetypes/tika-mimetypes.xml">../3rdparty/tika/tika-mimetypes.xml</file>
     </qresource>
     <qresource prefix="/codemodel">
         <file>images/enum.png</file>

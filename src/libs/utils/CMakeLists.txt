@@ -42,7 +42,6 @@ add_qtc_library(Utils
     detailsbutton.cpp detailsbutton.h
     detailswidget.cpp detailswidget.h
     devicefileaccess.cpp devicefileaccess.h
-    deviceshell.cpp deviceshell.h
     differ.cpp differ.h
     displayname.cpp displayname.h
     dropsupport.cpp dropsupport.h

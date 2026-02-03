@@ -32,7 +32,6 @@
 #include <utils/async.h>
 #include <utils/basetreeview.h>
 #include <utils/devicefileaccess.h>
-#include <utils/deviceshell.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
@@ -746,7 +745,7 @@ public:
         m_log = new QTextBrowser;
         m_log->setVisible(dockerDeviceLog().isDebugEnabled());
 
-        const QString fail = QString{"Docker: "} + msgProcessFailedToStart();
+        const QString fail = QString{"Docker: "} + Tr::tr("The process failed to start.");
         auto errorLabel = new InfoLabel(fail, InfoLabel::Error, this);
         errorLabel->setVisible(false);
 

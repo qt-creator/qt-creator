@@ -100,8 +100,6 @@ QtcLibrary {
         "detailswidget.h",
         "devicefileaccess.cpp",
         "devicefileaccess.h",
-        "deviceshell.cpp",
-        "deviceshell.h",
         "differ.cpp",
         "differ.h",
         "displayname.cpp",

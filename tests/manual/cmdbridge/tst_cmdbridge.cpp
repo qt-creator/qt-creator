@@ -452,7 +452,7 @@ The end.
                 return IterationPolicy::Continue;
             },
             FileFilter({}, QDir::AllEntries, QDirIterator::NoIteratorFlags));
-        qDebug() << "DeviceShell Find took:" << timer.elapsed();
+        qDebug() << "Fallback Find took:" << timer.elapsed();
     }
 
     void testInit()
