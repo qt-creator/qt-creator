@@ -292,6 +292,7 @@ SnippetsSettingsWidget::SnippetsSettingsWidget()
     for (const SnippetProvider &provider : SnippetProvider::snippetProviders()) {
         m_groupCombo->addItem(provider.displayName(), provider.groupId());
         auto snippetEditor = new SnippetEditorWidget(this);
+        installMarkSettingsDirtyTrigger(snippetEditor);
         SnippetProvider::decorateEditor(snippetEditor, provider.groupId());
         m_snippetsEditorStack->insertWidget(m_groupCombo->count() - 1, snippetEditor);
         connect(snippetEditor, &SnippetEditorWidget::snippetContentChanged,
@@ -368,8 +369,6 @@ SnippetsSettingsWidget::SnippetsSettingsWidget()
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
             this, &SnippetsSettingsWidget::decorateEditors);
-
-    setupDirtyHook(this);
 }
 
 SnippetEditorWidget *SnippetsSettingsWidget::currentEditor() const
@@ -447,8 +446,8 @@ void SnippetsSettingsWidget::loadSnippetGroup(int index)
 
 void SnippetsSettingsWidget::markSnippetsCollection()
 {
-    if (!m_snippetsCollectionChanged)
-        m_snippetsCollectionChanged = true;
+    m_snippetsCollectionChanged = true;
+    markSettingsDirty();
 }
 
 void SnippetsSettingsWidget::addSnippet()

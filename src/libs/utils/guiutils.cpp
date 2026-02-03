@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "guiutils.h"
+
 #include "hostosinfo.h"
 #include "pathchooser.h"
+#include "plaintextedit.h"
 
 #include <QAbstractButton>
 #include <QComboBox>
@@ -126,16 +128,20 @@ static void installDirtyTriggerHelper(QWidget *widget, bool check)
         QObject::connect(ob, &QComboBox::currentIndexChanged, action);
         return;
     }
-    if (auto ob = qobject_cast<PathChooser *>(widget)) {
-        QObject::connect(ob, &PathChooser::textChanged, action);
-        return;
-    }
     if (auto ob = qobject_cast<QSpinBox *>(widget)) {
         QObject::connect(ob, &QSpinBox::valueChanged, action);
         return;
     }
     if (auto ob = qobject_cast<QPlainTextEdit *>(widget)) {
         QObject::connect(ob, &QPlainTextEdit::textChanged, action);
+        return;
+    }
+    if (auto ob = qobject_cast<PathChooser *>(widget)) {
+        QObject::connect(ob, &PathChooser::textChanged, action);
+        return;
+    }
+    if (auto ob = qobject_cast<PlainTextEdit *>(widget)) {
+        QObject::connect(ob, &PlainTextEdit::textChanged, action);
         return;
     }
 
