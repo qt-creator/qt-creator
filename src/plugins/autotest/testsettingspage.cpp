@@ -118,10 +118,10 @@ TestSettingsWidget::TestSettingsWidget()
         st
     }.attachTo(this);
 
+    populateFrameworksListWidget(s.frameworks, s.tools);
+
     connect(m_frameworkTreeWidget, &QTreeWidget::itemChanged,
             this, &TestSettingsWidget::onFrameworkItemChanged);
-
-    populateFrameworksListWidget(s.frameworks, s.tools);
 
     setOnApply([this] {
         TestSettings &s = Internal::testSettings();
