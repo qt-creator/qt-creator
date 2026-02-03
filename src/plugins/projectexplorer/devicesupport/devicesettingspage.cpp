@@ -366,6 +366,7 @@ void DeviceSettingsWidget::addDevice()
 void DeviceSettingsWidget::removeDevice()
 {
     m_deviceProxyModel.toggleMarkForDeletion(currentDevice()->id());
+    markSettingsDirty();
     updateButtons();
 }
 
@@ -449,6 +450,7 @@ IDevice::ConstPtr DeviceSettingsWidget::currentDevice() const
 void DeviceSettingsWidget::setDefaultDevice()
 {
     DeviceManager::setDefaultDevice(currentDevice()->id());
+    markSettingsDirty();
     m_defaultDeviceButton->setEnabled(false);
 }
 
