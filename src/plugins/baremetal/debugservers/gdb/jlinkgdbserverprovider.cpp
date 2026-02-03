@@ -315,23 +315,6 @@ JLinkGdbServerProviderConfigWidget::JLinkGdbServerProviderConfigWidget(
             this, &JLinkGdbServerProviderConfigWidget::updateAllowedControls);
     connect(m_targetInterfaceSpeedComboBox, &QComboBox::currentIndexChanged,
             this, &JLinkGdbServerProviderConfigWidget::updateAllowedControls);
-
-    installMarkSettingsDirtyTrigger(m_executableFileChooser);
-
-    installMarkSettingsDirtyTrigger(m_hostInterfaceWidget);
-    installMarkSettingsDirtyTrigger(m_hostInterfaceComboBox);
-    installMarkSettingsDirtyTrigger(m_hostInterfaceAddressLabel);
-    installMarkSettingsDirtyTrigger(m_hostInterfaceAddressLineEdit);
-
-    installMarkSettingsDirtyTrigger(m_targetInterfaceWidget);
-    installMarkSettingsDirtyTrigger(m_targetInterfaceComboBox);
-    installMarkSettingsDirtyTrigger(m_targetInterfaceSpeedLabel);
-    installMarkSettingsDirtyTrigger(m_targetInterfaceSpeedComboBox);
-
-    installMarkSettingsDirtyTrigger(m_jlinkDeviceLineEdit);
-    installMarkSettingsDirtyTrigger(m_additionalArgumentsTextEdit);
-    installMarkSettingsDirtyTrigger(m_initCommandsTextEdit);
-    installMarkSettingsDirtyTrigger(m_resetCommandsTextEdit);
 }
 
 void JLinkGdbServerProviderConfigWidget::apply()

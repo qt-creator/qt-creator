@@ -119,13 +119,6 @@ GenericGdbServerProviderConfigWidget::GenericGdbServerProviderConfigWidget(
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_resetCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-
-    installMarkSettingsDirtyTrigger(m_hostWidget);
-    installMarkSettingsDirtyTrigger(m_executableFileChooser);
-    installMarkSettingsDirtyTrigger(m_additionalArgumentsLineEdit);
-    installMarkSettingsDirtyTrigger(m_useExtendedRemoteCheckBox);
-    installMarkSettingsDirtyTrigger(m_initCommandsTextEdit);
-    installMarkSettingsDirtyTrigger(m_resetCommandsTextEdit);
 }
 
 void GenericGdbServerProviderConfigWidget::apply()

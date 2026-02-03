@@ -264,8 +264,6 @@ IDebugServerProviderConfigWidget::IDebugServerProviderConfigWidget(
 
     connect(m_nameLineEdit, &QLineEdit::textChanged,
             this, &IDebugServerProviderConfigWidget::dirty);
-
-    installMarkSettingsDirtyTrigger(m_nameLineEdit);
 }
 
 void IDebugServerProviderConfigWidget::apply()
@@ -332,9 +330,6 @@ HostWidget::HostWidget(QWidget *parent)
 
     connect(m_hostLineEdit, &QLineEdit::textChanged, this, &HostWidget::dataChanged);
     connect(m_portSpinBox, &QSpinBox::valueChanged, this, &HostWidget::dataChanged);
-
-    installMarkSettingsDirtyTrigger(m_hostLineEdit);
-    installMarkSettingsDirtyTrigger(m_portSpinBox);
 }
 
 void HostWidget::setChannel(const QUrl &channel)

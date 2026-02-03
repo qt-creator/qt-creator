@@ -218,9 +218,6 @@ GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(GdbServerProvider *
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_peripheralDescriptionFileChooser, &PathChooser::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-
-    installMarkSettingsDirtyTrigger(m_startupModeComboBox);
-    installMarkSettingsDirtyTrigger(m_peripheralDescriptionFileChooser);
 }
 
 void GdbServerProviderConfigWidget::apply()

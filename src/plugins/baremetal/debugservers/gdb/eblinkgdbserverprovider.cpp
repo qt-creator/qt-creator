@@ -344,19 +344,6 @@ EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_resetCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-
-    installMarkSettingsDirtyTrigger(m_gdbHostWidget);
-    installMarkSettingsDirtyTrigger(m_executableFileChooser);
-    installMarkSettingsDirtyTrigger(m_verboseLevelSpinBox);
-    installMarkSettingsDirtyTrigger(m_resetOnConnectCheckBox);
-    installMarkSettingsDirtyTrigger(m_notUseCacheCheckBox);
-    installMarkSettingsDirtyTrigger(m_shutDownAfterDisconnectCheckBox);
-    installMarkSettingsDirtyTrigger(m_interfaceTypeComboBox);
-    //installMarkSettingsDirtyTrigger(m_deviceScriptLineEdit);
-    installMarkSettingsDirtyTrigger(m_scriptFileChooser);
-    installMarkSettingsDirtyTrigger(m_interfaceSpeedSpinBox);
-    installMarkSettingsDirtyTrigger(m_initCommandsTextEdit);
-    installMarkSettingsDirtyTrigger(m_resetCommandsTextEdit);
 }
 
 InterfaceType EBlinkGdbServerProviderConfigWidget::interfaceTypeToWidget(int idx) const

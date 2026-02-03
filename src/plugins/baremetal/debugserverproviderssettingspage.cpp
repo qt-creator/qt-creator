@@ -223,6 +223,7 @@ DebugServerProviderNode *DebugServerProviderModel::createNode(
     const auto node = new DebugServerProviderNode(provider, changed);
     node->widget = provider->configurationWidget();
     connect(node->widget, &IDebugServerProviderConfigWidget::dirty, this, [node] {
+        markSettingsDirty();
         node->changed = true;
         node->update();
     });
