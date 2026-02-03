@@ -5,7 +5,7 @@
     \page creator-build-settings-qbs.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-build-configurations
+    \ingroup creator-reference-build-systems
 
     \title Qbs Build Configuration
 
@@ -26,8 +26,7 @@
     You can enter a name for the build configuration in
     \uicontrol {Configuration name}.
 
-    For more information about configuring Qbs, see \l{qbs-preferences}
-    {Preferences: Qbs}.
+    For more information about configuring Qbs, see \l{Set Qbs profile directory}.
 
     \include {creator-build-settings-qmake.qdoc} {qmake-qbs-common-settings}
 
@@ -125,6 +124,6 @@
     \uicontrol {Equivalent command line} displays the clean command
     that is constructed based on the selected options.
 
-    \sa {qbs-build-system}{Build Systems: Qbs},
-    {qbs-preferences}{Preferences: Qbs}, {Setting Up QML Debugging}
+    \sa {Set Qbs profile directory}, {qbs-build-system}{Qbs},
+    {Setting Up QML Debugging}
 */

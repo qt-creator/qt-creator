@@ -5,7 +5,7 @@
     \page creator-reference-to-do-entries-view.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-output-views
+    \ingroup creator-reference-editors
 
     \title To-Do Entries
 
@@ -31,23 +31,24 @@
     \uicontrol {Project Settings} > \uicontrol {To-Do}.
 
     \sa {Enable and disable plugins}, {Exclude files from to-do lists},
-    {Show task list files in Issues}, {To-Do}
+    {Show task list files in Issues}, {Add to-do keywords}
 */
 
 /*!
     \page creator-reference-preferences-to-do.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-preferences
+    \ingroup creator-how-to-edit
 
-    \title To-Do
+    \title Add to-do keywords
 
-    \brief Add keywords for listing to-do entries.
+    To add keywords for listing to-do entries:
 
-    To add keywords for listing to-do entries, go to \preferences >
-    \uicontrol {To-Do} and select \uicontrol Add.
-
-    Set an icon and a line background color for the keyword.
+    \list 1
+        \li Go to \preferences > \uicontrol {To-Do}.
+        \li Select \uicontrol Add.
+        \li Set an icon and a line background color for the keyword.
+    \endlist
 
     \image {qtcreator-todo-options.png} {To-Do preferences}
 
@@ -91,5 +92,5 @@
     Select the link in \uicontrol {Use global settings} to open global
     To-Do preferences.
 
-    \sa {To-Do}, {To-Do Entries}
+    \sa {Add to-do keywords}, {To-Do Entries}
 */

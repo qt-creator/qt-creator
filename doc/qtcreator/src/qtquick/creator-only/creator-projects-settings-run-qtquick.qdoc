@@ -9,7 +9,7 @@
 
     \title Qt Quick UI Prototype Run Settings
 
-    \summary {Settings for running Qt Quick UI Prototype projects (\c {.qmlproject}).}
+    \brief Settings for running Qt Quick UI Prototype projects.
 
     To specify settings for running applications on the \l {Managing kits}{Run device} that
     you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.

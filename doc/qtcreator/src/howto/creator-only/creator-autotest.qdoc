@@ -52,7 +52,7 @@
     \c filename is not allowed as \QC is using this output channel.
 
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
-    {Test Results}, {Qt Test Overview#Logging Options}{Logging Options}
+    {Qt Test Overview#Logging Options}{Logging Options}
 */
 
 /*!
@@ -103,8 +103,7 @@
     Use the output format option \c {-o filename,format} to do so. Using standard out for
     \c filename is not supported as \QC is using this output channel.
 
-    \sa {Test}{How To: Test}, {Select the build system}, {Testing},
-    {Test Results}
+    \sa {Test}{How To: Test}, {Select the build system}, {Testing}
 */
 
 /*!
@@ -167,8 +166,7 @@
     directly or indirectly include \c {gtest/gtest.h}. Files that currently will
     not be built will be ignored.
 
-    \sa {Test}{How To: Test}, {Select the build system}, {Testing},
-    {Test Results}
+    \sa {Test}{How To: Test}, {Select the build system}, {Testing}
 */
 
 /*!
@@ -226,8 +224,7 @@
     starting with \c {boost/test/} and having the \c {.hpp} suffix).
     Files that currently will not be built will be ignored.
 
-    \sa {Test}{How To: Test}, {Select the build system}, {Testing},
-    {Test Results}
+    \sa {Test}{How To: Test}, {Select the build system}, {Testing}
 */
 
 /*!
@@ -286,8 +283,7 @@
     (\c {catch2.hpp}, \c {catch_all.hpp}, and some more).
     Files that currently will not be built will be ignored.
 
-    \sa {Test}{How To: Test}, {Select the build system}, {Testing},
-    {Test Results}
+    \sa {Test}{How To: Test}, {Select the build system}, {Testing}
 */
 
 /*!
@@ -315,8 +311,7 @@
     \l{https://gitlab.kitware.com/cmake/community/-/wikis/doc/ctest/Testing-With-CTest}
     {Testing with CTest}.
 
-    \sa {Test}{How to: Test}, {Select the build system}, {Testing},
-    {Test Results}
+    \sa {Test}{How to: Test}, {Select the build system}, {Testing}
 */
 
 /*!
@@ -346,7 +341,7 @@
     inside a single Qt test application, and it is better to create
     a separate test sub project for each test case.
 
-    \sa {Test}{How to: Test}, {Testing}, {Test Results}
+    \sa {Test}{How to: Test}, {Testing}
 */
 
 /*!
@@ -469,16 +464,13 @@
         \li Enter \c qdt, followed by a space.
     \endlist
 
-    \sa {Test}{How to: Test}, {Select the build system}, {Testing},
-    {Test Results}
+    \sa {Test}{How to: Test}, {Select the build system}, {Testing}
 */
 
 /*!
     \page creator-preferences-testing.html
     \previouspage creator-reference.html
     \nextpage creator-vcs-git.html
-
-    \ingroup creator-reference-preferences
 
     \title Testing
 
@@ -804,18 +796,16 @@
             CPU load to pass the threshold set in \uicontrol {Threshold}.
     \endtable
 
-    \sa {Test}{How to: Test}, {Test Results}
+    \sa {Test}{How to: Test}
 */
 
 /*!
     \page creator-test-results.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-output-views
+    \ingroup creator-how-to-test
 
-    \title Test Results
-
-    \brief View test results.
+    \title View test results
 
     View and filter test results in the \uicontrol{Test Results} view.
 
@@ -825,7 +815,7 @@
     show and hide duration information, select
     \inlineimage {icons/stopwatch.png} {Duration}.
 
-    \section1 Qt Test Output
+    \section1 View Qt test output
 
     The \uicontrol{Test Results} view shows Qt and Qt Quick test results
     in XML format and other test results in plain text format.
@@ -835,14 +825,19 @@
     code that can be parsed, which might lead to information loss. You might see
     the lost information when viewing the results as plain text.
 
-    To view the results of Qt and Qt Quick tests as plain text, go to
-    \preferences > \uicontrol {Testing} > \uicontrol {Qt Test} and then clear
-    \uicontrol {Use XML output}. Then select
-    \inlineimage {icons/text.png} {Switch Between Visual and Text Display}
-    (\uicontrol {Switch Between Visual and Text Display}) in
-    \uicontrol {Test Results} to switch to the text display.
+    To view the results of Qt and Qt Quick tests as plain text:
 
-    \section1 Summary of Messages
+    \list 1
+        \li Go to \preferences > \uicontrol {Testing} > \uicontrol {Qt Test}.
+        \li Clear \uicontrol {Use XML output}.
+        \li Go to \uicontrol {Test Results}.
+        \li Select
+            \inlineimage {icons/text.png} {Switch Between Visual and Text Display}
+            (\uicontrol {Switch Between Visual and Text Display}) to switch to
+            the text display.
+    \endlist
+
+    \section1 Summary of messages
 
     The following table lists the messages that \uicontrol {Test Results} shows.
 
@@ -892,39 +887,43 @@
 
     \endtable
 
-    \section1 Filtering Test Results
+    \section1 Filter test results
 
-    To view only messages of a particular type, select
-    \inlineimage {icons/filtericon.png} {Filter Test Results}
-    (\uicontrol {Filter Test Results}), and then select the
-    types of messages to show.
+    To view only messages of a particular type:
+
+    \list 1
+        \li Go to \uicontrol {Test Results}.
+        \li Select \inlineimage {icons/filtericon.png} {Filter Test Results}
+            (\uicontrol {Filter Test Results}).
+        \li Select the types of messages to show.
+    \endlist
 
     To show all messages, select \uicontrol {Check All Filters}.
 
     To clear all message types, select \uicontrol {Uncheck All Filters}.
 
-    \section1 Blacklisting Tests
+    \section1 Blacklist tests
 
-    A BLACKLIST file for tests is mainly used internally by the Qt CI system.
+    A \c BLACKLIST file for tests is mainly used internally by the Qt CI system.
 
     \table
         \header
             \li Result
             \li Description
         \row
-            \li BFAIL
+            \li \c {BFAIL}
             \li Blacklisted test case failed.
         \row
-            \li BPASS
+            \li \c {BPASS}
             \li Blacklisted test case passed.
         \row
-            \li BXFAIL
+            \li \c {BXFAIL}
             \li Blacklisted test case failed but was marked to be expected to fail.
         \row
-            \li BXPASS
+            \li \c {BXPASS}
             \li Blacklisted test case passed even though it was expected to fail.
 
     \endtable
 
-    \sa {Test}{How to: Test}
+    \sa {Test}{How to: Test}, {Testing}
 */

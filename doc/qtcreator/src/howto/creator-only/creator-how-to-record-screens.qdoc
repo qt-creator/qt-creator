@@ -82,18 +82,16 @@
     Select \inlineimage {icons/reset.png} {Reset}
     to reset the crop area and trim range.
 
-    \sa {Screen Recording}, {Enable and disable plugins}
+    \sa {Set up screen recording}, {Enable and disable plugins}
 */
 
 /*!
     \page creator-preferences-screen-recording.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-preferences
+    \ingroup creator-how-to-use
 
-    \title Screen Recording
-
-    \brief Set preferences for recording screens with FFmpeg.
+    \title Set up screen recording
 
     With \l{https://ffmpeg.org/download.html}{FFmpeg}, you can record your
     screens and save the recordings as animated images or videos. You have

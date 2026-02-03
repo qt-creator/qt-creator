@@ -5,8 +5,6 @@
     \page creator-developing-b2qt.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-devices
-
     \title Developing for \B2Q devices
 
     \quotation
@@ -93,7 +91,7 @@
     \sa {Configure SSH connections}, {Generate SSH keys},
     {Enable and disable plugins}, {\B2Q}{How to: Develop for \B2Q},
     {Manage kits}{How to: Manage kits}, {\B2Q Deploy Configuration},
-    {\B2Q Run Settings}, {Developing for \B2Q Devices}
+    {\B2Q Run Settings}, {Developing for \B2Q devices}
 */
 
 /*!
@@ -147,6 +145,6 @@
     \uicontrol {Restore Default App}.
 
     \sa {Enable and disable plugins}, {\B2Q}{How To: Develop for \B2Q},
-    {Remote Debugging}, {Developing for \B2Q Devices},
+    {Remote Debugging}, {Developing for \B2Q devices},
     {\B2Q: Setting Up USB Access to Embedded Devices}
 */

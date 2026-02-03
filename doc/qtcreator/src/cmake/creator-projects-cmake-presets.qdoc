@@ -5,7 +5,7 @@
     \page creator-build-settings-cmake-presets.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-build-configurations
+    \ingroup creator-reference-build-systems
 
     \title CMake Presets
 
@@ -328,7 +328,7 @@
     \page creator-build-settings-cmake-presets-qt-vendor.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-build-configurations
+    \ingroup creator-reference-build-systems
 
     \title CMake Qt Vendor Presets
 

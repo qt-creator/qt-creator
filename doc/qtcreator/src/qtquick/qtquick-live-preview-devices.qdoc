@@ -18,7 +18,7 @@
     predefined, but you need to select the one appropriate for your current
     project.
 
-    \e {Deploy configurations} handle the packaging and copying of the
+    \e {Deploy settings} handle the packaging and copying of the
     necessary files to a location in a device where you want to run the
     executable at.
 

@@ -28,5 +28,5 @@
     When the application stops at a breakpoint, you can examine data in the
     \uicontrol Debug mode views.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}, {CMake}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {CMake}
 */

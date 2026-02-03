@@ -106,7 +106,7 @@
     \page creator-preferences-memcheck.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-preferences-analyzer
+    \ingroup creator-reference-analyzer
 
     \title Valgrind Memcheck
 
@@ -313,7 +313,7 @@
     \page creator-preferences-callgrind.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-preferences-analyzer
+    \ingroup creator-reference-analyzer
 
     \title Valgrind Callgrind
 

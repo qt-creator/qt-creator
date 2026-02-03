@@ -37,5 +37,5 @@
     Select \uicontrol {Restore Global} to revert to the global settings.
 
     \sa {Configuring fonts}, {Change text encoding}, {Indent text or code},
-    {View function tooltips}, {Text Editor}
+    {View function tooltips}, {Configuring editors}
 */
