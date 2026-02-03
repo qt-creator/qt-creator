@@ -3231,6 +3231,16 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
         emit m_instance->findOnFileSystemRequest(filePath);
     });
 
+    // Version Control
+    FilePath topLevel;
+    if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
+        QMenu *subMenu = contextMenu->addMenu(vc->displayName());
+        const FilePath relativePath = filePath.relativeChildPath(topLevel);
+        const VcsFileState vcsFileState = VcsManager::fileState(filePath);
+        vc->fillDefaultFileActionMenu(subMenu, vc, topLevel, relativePath);
+        vc->vcsFillFileActionMenu(subMenu, topLevel, relativePath, vcsFileState);
+    }
+
     // Properties
     addMenuAction(contextMenu, ::Core::Tr::tr("Properties..."), enabled, d, [filePath] {
         DocumentManager::showFilePropertiesDialog(filePath);

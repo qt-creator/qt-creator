@@ -746,20 +746,6 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
 
     if (hasCurrentItem) {
-        FilePath topLevel;
-        if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
-            QMenu *subMenu = menu.addMenu(vc->displayName());
-            const FilePath relativePath = filePath.relativeChildPath(topLevel);
-            vc->fillDefaultFileActionMenu(subMenu, vc, topLevel, relativePath);
-
-            if (!isDir) {
-                const VcsFileState vcsFileState = VcsManager::fileState(filePath);
-                vc->vcsFillFileActionMenu(subMenu, topLevel, relativePath, vcsFileState);
-            }
-
-            menu.addSeparator();
-        }
-
         menu.addAction(ActionManager::command(ADDNEWFILE)->action());
         newFolder = menu.addAction(Tr::tr("New Folder"));
         if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
