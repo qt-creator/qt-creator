@@ -123,6 +123,11 @@ ThemeChooser::~ThemeChooser()
     delete d;
 }
 
+QComboBox *ThemeChooser::themeComboBox() const
+{
+    return d->m_themeComboBox;
+}
+
 static QString defaultThemeId()
 {
     switch (Theme::systemColorScheme()) {

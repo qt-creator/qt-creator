@@ -6,6 +6,7 @@
 #include "hostosinfo.h"
 #include "pathchooser.h"
 #include "plaintextedit/plaintextedit.h"
+#include "qtcolorbutton.h"
 
 #include <QAbstractButton>
 #include <QCheckBox>
@@ -127,6 +128,11 @@ static void installDirtyTriggerHelper(QWidget *widget, bool check)
 
     const auto action = check ? checkSettingsDirty : markSettingsDirty;
 
+    // Keep this before QAbstractButton
+    if (auto ob = qobject_cast<QtColorButton *>(widget)) {
+        QObject::connect(ob, &QtColorButton::colorChanged, action);
+        return;
+    }
     if (auto ob = qobject_cast<QAbstractButton *>(widget)) {
         QObject::connect(ob, &QAbstractButton::pressed, action);
         return;

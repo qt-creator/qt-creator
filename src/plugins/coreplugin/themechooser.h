@@ -5,7 +5,7 @@
 
 #include <utils/id.h>
 
-#include <QWidget>
+#include <QComboBox>
 
 namespace Utils { class Theme; }
 
@@ -37,6 +37,8 @@ public:
     ~ThemeChooser() final;
 
     void apply();
+
+    QComboBox *themeComboBox() const;
 
 private:
     class ThemeChooserPrivate *d;
