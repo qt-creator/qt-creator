@@ -510,16 +510,20 @@ bool Kit::isDataEqual(const Kit *other) const
     return d->m_data == other->d->m_data;
 }
 
+bool Kit::isMetaDataEqual(const Kit *other) const
+{
+    return d->m_iconPath == other->d->m_iconPath
+        && d->m_deviceTypeForIcon == other->d->m_deviceTypeForIcon
+        && d->m_unexpandedDisplayName == other->d->m_unexpandedDisplayName
+        && d->m_fileSystemFriendlyName == other->d->m_fileSystemFriendlyName
+        && d->m_relevantAspects == other->d->m_relevantAspects
+        && d->m_irrelevantAspects == other->d->m_irrelevantAspects
+        && d->m_mutable == other->d->m_mutable;
+}
+
 bool Kit::isEqual(const Kit *other) const
 {
-    return isDataEqual(other)
-            && d->m_iconPath == other->d->m_iconPath
-            && d->m_deviceTypeForIcon == other->d->m_deviceTypeForIcon
-            && d->m_unexpandedDisplayName == other->d->m_unexpandedDisplayName
-            && d->m_fileSystemFriendlyName == other->d->m_fileSystemFriendlyName
-            && d->m_relevantAspects == other->d->m_relevantAspects
-            && d->m_irrelevantAspects == other->d->m_irrelevantAspects
-            && d->m_mutable == other->d->m_mutable;
+    return isDataEqual(other) && isMetaDataEqual(other);
 }
 
 Store Kit::toMap() const

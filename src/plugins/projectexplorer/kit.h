@@ -96,6 +96,7 @@ public:
     bool isSticky(Utils::Id id) const;
 
     bool isDataEqual(const Kit *other) const;
+    bool isMetaDataEqual(const Kit *other) const;
     bool isEqual(const Kit *other) const;
 
     void addToBuildEnvironment(Utils::Environment &env) const;
