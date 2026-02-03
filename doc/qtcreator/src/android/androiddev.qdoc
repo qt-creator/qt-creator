@@ -47,7 +47,8 @@
             automatically download, install, and configure for you.
     \endlist
 
-    \sa {Android}{How to: Develop for Android}, {Get and Install Qt}
+    \sa {Android}{How to: Develop for Android}, {Android Deploy Settings},
+    {Android Run Settings}, {Get and Install Qt}
 */
 
 /*!
@@ -108,7 +109,7 @@
 
             For Qt applications that require OpenSSL support, add
             \l {Android OpenSSL support} to your project, as instructed in
-            \l{Adding External Libraries}.
+            \l{Add external libraries to Android packages}.
         \li Select \uicontrol {Download OpenSSL} to download the OpenSSL
             repository to the selected path. If the automatic download fails,
             the download web page opens for manual download.
@@ -275,7 +276,7 @@
 
     To start an AVD, select \uicontrol {Start AVD}. Usually, \QC starts an AVD
     when you select it in the \l{Build for many platforms}{kit selector} to
-    \l{Android Deploy Configuration}{deploy applications} to it.
+    \l{Android Deploy Settings}{deploy applications} to it.
 
     \section1 Set preferences for starting AVDs
 
@@ -347,7 +348,7 @@
     For more advanced options for creating a new AVD, use the command-line tool
     \l{avdmanager} or the Android Studio's native AVD Manager UI.
 
-    \sa {Android}{How to: Develop for Android}, {Android Deploy Configuration},
+    \sa {Android}{How to: Develop for Android}, {Android Deploy Settings},
     {Developing for Android}
 */
 
@@ -376,21 +377,31 @@
 
     \image {qtcreator-preferences-debugger-gdb.webp} {GDB tab in Debugger preferences}
 
+    \section1 Enable debugging on devices
+
     You enable debugging in different ways on different Android devices.
     Look for \uicontrol {USB Debugging} under \uicontrol {Developer Options}.
     Tap \uicontrol {Build number} in \uicontrol Settings > \uicontrol About
     several times to show \uicontrol {Developer Options}.
 
-    Select a \l{glossary-build-config}{debug build configuration} to build
-    the application for debugging.
+    \section1 Select a debug build configuration
 
-    \note \QC cannot debug applications on Android devices if Android Studio is
+    Go to \uicontrol Projects > \uicontrol {Build Settings}, and
+    select a \l{glossary-build-config}{debug build configuration}
+    in \uicontrol {Active build configuration} to build the
+    application for debugging.
+
+    \section1 Resolve conflicts with a second debugger
+
+    \QC cannot debug applications on Android devices if Android Studio is
     running. If the following message appears in \l {Application Output},
     close Android Studio and try again:
 
     \badcode
     Ignoring second debugger -accepting and dropping.
     \endcode
+
+    \section1 Use Android Emulator
 
     \include {androiddev.qdoc} {android-emulator-info}
 

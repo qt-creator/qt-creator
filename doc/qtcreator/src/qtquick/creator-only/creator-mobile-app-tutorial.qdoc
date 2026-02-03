@@ -122,7 +122,7 @@
 
     To lock the orientation to portrait or landscape on Android, specify it in
     an \c AndroidManifest.xml that you can generate in \QC. For more information,
-    see \l{Editing Manifest Files}.
+    see \l{Edit Android manifest files}.
 
     \image {qtquick-mobile-tutorial-manifest.png} {Accelbubble manifest file}
 

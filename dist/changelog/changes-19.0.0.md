@@ -379,6 +379,7 @@ Platforms
 * Added auto-completion to the text based Android Manifest editor
 * Removed the graphical `AndroidManifest.xml` editor
   ([QTCREATORBUG-33267](https://bugreports.qt.io/browse/QTCREATORBUG-33267))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-android-manifest.html))
 * Fixed the insert location of the `target_properties` call when creating
   template files
   ([QTCREATORBUG-33360](https://bugreports.qt.io/browse/QTCREATORBUG-33360))
