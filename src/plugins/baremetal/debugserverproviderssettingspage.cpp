@@ -383,12 +383,16 @@ void DebugServerProvidersSettingsWidget::addProviderToModel(IDebugServerProvider
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
                              | QItemSelectionModel::Rows);
+
+    markSettingsDirty();
 }
 
 void DebugServerProvidersSettingsWidget::removeProvider()
 {
     if (IDebugServerProvider *p = m_model.provider(currentIndex()))
         m_model.markForRemoval(p);
+
+    markSettingsDirty();
 }
 
 void DebugServerProvidersSettingsWidget::updateState()

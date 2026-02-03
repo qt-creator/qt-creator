@@ -3,11 +3,15 @@
 
 #include "guiutils.h"
 #include "hostosinfo.h"
+#include "pathchooser.h"
 
 #include <QAbstractButton>
+#include <QComboBox>
 #include <QEvent>
 #include <QGuiApplication>
 #include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QSpinBox>
 #include <QWidget>
 
 namespace Utils {
@@ -116,6 +120,22 @@ static void installDirtyTriggerHelper(QWidget *widget, bool check)
     }
     if (auto ob = qobject_cast<QLineEdit *>(widget)) {
         QObject::connect(ob, &QLineEdit::textChanged, action);
+        return;
+    }
+    if (auto ob = qobject_cast<QComboBox *>(widget)) {
+        QObject::connect(ob, &QComboBox::currentIndexChanged, action);
+        return;
+    }
+    if (auto ob = qobject_cast<PathChooser *>(widget)) {
+        QObject::connect(ob, &PathChooser::textChanged, action);
+        return;
+    }
+    if (auto ob = qobject_cast<QSpinBox *>(widget)) {
+        QObject::connect(ob, &QSpinBox::valueChanged, action);
+        return;
+    }
+    if (auto ob = qobject_cast<QPlainTextEdit *>(widget)) {
+        QObject::connect(ob, &QPlainTextEdit::textChanged, action);
         return;
     }
 

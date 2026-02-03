@@ -9,6 +9,7 @@
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
+#include <utils/guiutils.h>
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
@@ -253,6 +254,13 @@ OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
 
     connect(m_startupModeComboBox, &QComboBox::currentIndexChanged,
             this, &OpenOcdGdbServerProviderConfigWidget::startupModeChanged);
+
+    installMarkSettingsDirtyTrigger(m_executableFileChooser);
+    installMarkSettingsDirtyTrigger(m_rootScriptsDirChooser);
+    installMarkSettingsDirtyTrigger(m_configurationFileChooser);
+    installMarkSettingsDirtyTrigger(m_additionalArgumentsLineEdit);
+    installMarkSettingsDirtyTrigger(m_initCommandsTextEdit);
+    installMarkSettingsDirtyTrigger(m_resetCommandsTextEdit);
 }
 
 void OpenOcdGdbServerProviderConfigWidget::apply()

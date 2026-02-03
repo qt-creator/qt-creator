@@ -9,6 +9,7 @@
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
+#include <utils/guiutils.h>
 #include <utils/filepath.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -274,6 +275,15 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_resetOnConnectCheckBox, &QAbstractButton::clicked,
             this, &GdbServerProviderConfigWidget::dirty);
+
+    installMarkSettingsDirtyTrigger(m_executableFileChooser);
+    installMarkSettingsDirtyTrigger(m_verboseLevelSpinBox);
+    installMarkSettingsDirtyTrigger(m_extendedModeCheckBox);
+    installMarkSettingsDirtyTrigger(m_resetOnConnectCheckBox);
+    installMarkSettingsDirtyTrigger(m_resetBoardCheckBox);
+    installMarkSettingsDirtyTrigger(m_transportLayerComboBox);
+    installMarkSettingsDirtyTrigger(m_initCommandsTextEdit);
+    installMarkSettingsDirtyTrigger(m_resetCommandsTextEdit);
 }
 
 void StLinkUtilGdbServerProviderConfigWidget::apply()

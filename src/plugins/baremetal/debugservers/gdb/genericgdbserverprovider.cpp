@@ -9,6 +9,7 @@
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
+#include <utils/guiutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
@@ -16,6 +17,8 @@
 #include <QCheckBox>
 #include <QFormLayout>
 #include <QPlainTextEdit>
+
+using namespace Utils;
 
 namespace BareMetal::Internal {
 
@@ -116,6 +119,13 @@ GenericGdbServerProviderConfigWidget::GenericGdbServerProviderConfigWidget(
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_resetCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
+
+    installMarkSettingsDirtyTrigger(m_hostWidget);
+    installMarkSettingsDirtyTrigger(m_executableFileChooser);
+    installMarkSettingsDirtyTrigger(m_additionalArgumentsLineEdit);
+    installMarkSettingsDirtyTrigger(m_useExtendedRemoteCheckBox);
+    installMarkSettingsDirtyTrigger(m_initCommandsTextEdit);
+    installMarkSettingsDirtyTrigger(m_resetCommandsTextEdit);
 }
 
 void GenericGdbServerProviderConfigWidget::apply()
