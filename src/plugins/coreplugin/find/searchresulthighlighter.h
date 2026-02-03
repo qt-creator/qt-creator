@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "core_global.h"
+#include "../core_global.h"
 
 #include <QRegularExpression>
 #include <QSyntaxHighlighter>
