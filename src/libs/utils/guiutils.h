@@ -23,9 +23,11 @@ QTCREATOR_UTILS_EXPORT void setDialogParentGetter(QWidget *(*getter)());
 QTCREATOR_UTILS_EXPORT bool setIgnoreForDirtyHook(QWidget *widget, bool ignore = true);
 QTCREATOR_UTILS_EXPORT bool isIgnoredForDirtyHook(const QObject *object);
 
-
 QTCREATOR_UTILS_EXPORT void markSettingsDirty(bool dirty = true);
 QTCREATOR_UTILS_EXPORT void checkSettingsDirty();
+
+QTCREATOR_UTILS_EXPORT void installMarkSettingsDirtyTrigger(QWidget *widget);
+QTCREATOR_UTILS_EXPORT void installCheckSettingsDirtyTrigger(QWidget *widget);
 
 namespace Internal {
 QTCREATOR_UTILS_EXPORT void setMarkSettingsDirtyHook(const std::function<void (bool)> &hook);

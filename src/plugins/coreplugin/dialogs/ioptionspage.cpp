@@ -254,10 +254,6 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
             gotDirty();
         };
 
-        if (auto ob = qobject_cast<QAbstractButton *>(child)) {
-            connect(ob, &QAbstractButton::pressed, this, markDirty);
-            continue;
-        }
         if (auto ob = qobject_cast<QLineEdit *>(child)) {
             connect(ob, &QLineEdit::textEdited, this, markDirty);
             continue;

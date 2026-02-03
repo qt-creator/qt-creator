@@ -4,8 +4,10 @@
 #include "guiutils.h"
 #include "hostosinfo.h"
 
+#include <QAbstractButton>
 #include <QEvent>
 #include <QGuiApplication>
+#include <QLineEdit>
 #include <QWidget>
 
 namespace Utils {
@@ -100,6 +102,34 @@ void checkSettingsDirty()
 {
     QTC_ASSERT(s_checkSettingDirtyHook, return);
     s_checkSettingDirtyHook();
+}
+
+static void installDirtyTriggerHelper(QWidget *widget, bool check)
+{
+    QTC_ASSERT(widget, return);
+
+    const auto action = check ? [] { checkSettingsDirty(); } : []  { markSettingsDirty(true); };
+
+    if (auto ob = qobject_cast<QAbstractButton *>(widget)) {
+        QObject::connect(ob, &QAbstractButton::pressed, action);
+        return;
+    }
+    if (auto ob = qobject_cast<QLineEdit *>(widget)) {
+        QObject::connect(ob, &QLineEdit::textChanged, action);
+        return;
+    }
+
+    QTC_CHECK(false);
+}
+
+void installMarkSettingsDirtyTrigger(QWidget *widget)
+{
+    installDirtyTriggerHelper(widget, false);
+}
+
+void installCheckSettingsDirtyTrigger(QWidget *widget)
+{
+    installDirtyTriggerHelper(widget, true);
 }
 
 } // namespace Utils

@@ -277,6 +277,8 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     }
     if (backends.size() == 1)
         viewerBackend->setEnabled(false);
+
+    installMarkSettingsDirtyTrigger(homePageLineEdit);
 }
 
 void GeneralSettingsPageWidget::apply()
