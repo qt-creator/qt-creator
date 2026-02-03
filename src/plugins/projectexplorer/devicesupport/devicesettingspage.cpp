@@ -330,7 +330,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
     connect(DeviceManager::instance(), &DeviceManager::deviceUpdated,
             this, &DeviceSettingsWidget::handleDeviceUpdated);
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTrigger(m_deviceNameEditWidget);
 }
 
 void DeviceSettingsWidget::addDevice()
@@ -445,7 +445,6 @@ IDevice::ConstPtr DeviceSettingsWidget::currentDevice() const
     Q_ASSERT(currentIndex() != -1);
     return m_deviceManagerModel.device(currentIndex());
 }
-
 
 void DeviceSettingsWidget::setDefaultDevice()
 {

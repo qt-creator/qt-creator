@@ -389,6 +389,10 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         &QAbstractButton::clicked,
         this,
         &LinuxDeviceConfigurationWidget::createNewKey);
+
+    connect(&device->sshParametersAspectContainer(), &AspectContainer::volatileValueChanged, [] {
+        markSettingsDirty(true);
+    });
 }
 
 void LinuxDeviceConfigurationWidget::createNewKey()

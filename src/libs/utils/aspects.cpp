@@ -8,6 +8,7 @@
 #include "environment.h"
 #include "fancylineedit.h"
 #include "guard.h"
+#include "guiutils.h"
 #include "layoutbuilder.h"
 #include "macroexpander.h"
 #include "passworddialog.h"
