@@ -8291,15 +8291,10 @@ void TextEditorWidgetPrivate::clearLink()
 
 void TextEditorWidgetPrivate::highlightSearchResultsSlot(const QString &txt, FindFlags findFlags)
 {
-    const QString pattern = (findFlags & FindRegularExpression) ? txt
-                                                                : QRegularExpression::escape(txt);
-    const QRegularExpression::PatternOptions options
-        = (findFlags & FindCaseSensitively) ? QRegularExpression::NoPatternOption
-                                            : QRegularExpression::CaseInsensitiveOption;
-    if (m_searchExpr.pattern() == pattern && m_searchExpr.patternOptions() == options)
+    const QRegularExpression newExpression = BaseTextFindBase::regularExpression(txt, findFlags);
+    if (m_searchExpr == newExpression)
         return;
-    m_searchExpr.setPattern(pattern);
-    m_searchExpr.setPatternOptions(options);
+    m_searchExpr = newExpression;
     m_findText = txt;
     m_findFlags = findFlags;
 
