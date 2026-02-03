@@ -51,7 +51,6 @@ public:
     std::function<void()> m_onFinish;
 
     AspectContainer *m_aspects = nullptr;
-    bool m_useDirtyHook = true;
 };
 
 class IOptionsPagePrivate
@@ -120,16 +119,6 @@ IOptionsPageWidget::IOptionsPageWidget()
 IOptionsPageWidget::~IOptionsPageWidget()
 {
     d.reset();
-}
-
-bool IOptionsPageWidget::useDirtyHook() const
-{
-    return d->m_useDirtyHook;
-}
-
-void IOptionsPageWidget::setUseDirtyHook(bool on)
-{
-    d->m_useDirtyHook = on;
 }
 
 /*!

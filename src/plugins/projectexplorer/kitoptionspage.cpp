@@ -1010,8 +1010,6 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     scrollToSelectedKit();
 
     updateState();
-
-    setUseDirtyHook(false);
 }
 
 void KitOptionsPageWidget::scrollToSelectedKit()

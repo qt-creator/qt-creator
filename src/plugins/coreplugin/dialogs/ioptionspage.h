@@ -34,9 +34,6 @@ public:
     virtual void cancel();
     virtual bool isDirty() const;
 
-    bool useDirtyHook() const;
-    void setUseDirtyHook(bool on);
-
     void setupDirtyHook(QWidget *widget);
 
 private:
