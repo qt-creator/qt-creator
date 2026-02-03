@@ -207,7 +207,13 @@ public:
         updatePointSizes();
         refreshColorSchemeList();
 
-        installMarkSettingsDirtyTriggerRecursively(this);
+        installMarkSettingsDirtyTrigger(m_antialias);
+        installMarkSettingsDirtyTrigger(m_zoomSpinBox);
+        installMarkSettingsDirtyTrigger(m_lineSpacingSpinBox);
+        installMarkSettingsDirtyTrigger(m_fontComboBox);
+        installMarkSettingsDirtyTrigger(m_sizeComboBox);
+        installMarkSettingsDirtyTrigger(m_schemeComboBox);
+        connect(m_schemeEdit, &ColorSchemeEdit::dirty, [] { markSettingsDirty(); });
     }
 
     void apply() final;
@@ -558,6 +564,7 @@ void FontSettingsPageWidget::copyColorScheme(const QString &name)
             m_value.setColorSchemeFileName(filePath);
 
         refreshColorSchemeList();
+        markSettingsDirty();
     }
 }
 
