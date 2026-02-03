@@ -306,7 +306,7 @@ public:
             for (ExtendedToolchainTreeItem * const tcItem : std::as_const(itemsToRemove))
                 markForRemoval(tcItem);
             if (!itemsToRemove.isEmpty())
-                gotDirty();
+                markSettingsDirty();
         });
 
         m_redetectButton = new QPushButton(Tr::tr("Re-detect"), this);
@@ -321,7 +321,7 @@ public:
                 bool old = m_detectionSettings.detectX64AsX32;
                 m_detectionSettings = dlg.settings();
                 if (m_detectionSettings.detectX64AsX32 != old)
-                    gotDirty();
+                    markSettingsDirty();
             }
         });
 
@@ -381,7 +381,7 @@ public:
         connect(m_delButton, &QAbstractButton::clicked, this, [this] {
             if (ExtendedToolchainTreeItem *item = currentTreeItem()) {
                 markForRemoval(item);
-                gotDirty();
+                markSettingsDirty();
             }
         });
 
@@ -636,7 +636,7 @@ void ToolChainOptionsWidget::redetectToolchains()
         m_toAddList << insertBundle(bundle, true);
 
     if (!itemsToRemove.isEmpty() || !toAdd.isEmpty())
-        gotDirty();
+        markSettingsDirty();
 }
 
 QModelIndex ToolChainOptionsWidget::mapFromSource(const QModelIndex &idx)
@@ -751,7 +751,7 @@ void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const Q
     ExtendedToolchainTreeItem * const item = insertBundle(bundle, true);
     m_toAddList << item;
     m_toolChainView->setCurrentIndex(mapFromSource(m_model.indexForItem(item)));
-    gotDirty();
+    markSettingsDirty();
 }
 
 void ToolChainOptionsWidget::cloneToolchains()
@@ -767,7 +767,7 @@ void ToolChainOptionsWidget::cloneToolchains()
     ExtendedToolchainTreeItem * const item = insertBundle(bundle, true);
     m_toAddList << item;
     m_toolChainView->setCurrentIndex(mapFromSource(m_model.indexForItem(item)));
-    gotDirty();
+    markSettingsDirty();
 }
 
 void ToolChainOptionsWidget::updateState()

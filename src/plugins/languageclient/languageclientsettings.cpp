@@ -217,7 +217,7 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
         &m_settings,
         &LanguageClientSettingsModel::dataChanged,
         this,
-        &Core::IOptionsPageWidget::gotDirty);
+        [] { markSettingsDirty(); });
 
     auto mainLayout = new QVBoxLayout();
     auto layout = new QHBoxLayout();
@@ -317,7 +317,7 @@ BaseSettings *generateSettings(const Id &clientTypeId)
 
 void LanguageClientSettingsPageWidget::addItem(const Id &clientTypeId)
 {
-    gotDirty();
+    markSettingsDirty();
     auto newSettings = generateSettings(clientTypeId);
     QTC_ASSERT(newSettings, return);
     m_view->setCurrentIndex(m_settings.insertSettings(newSettings));

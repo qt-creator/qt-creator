@@ -217,22 +217,12 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
     if (isIgnoredForDirtyHook(widget))
         return;
 
-    // if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(widget)) {
-    //     connectAspect(widget, aspect.data());
-    //     return;
-    // }
-
     QList<QWidget *> children = {widget};
 
     while (!children.isEmpty()) {
         QWidget *child = children.takeLast();
         if (isIgnoredForDirtyHook(child))
             continue;
-
-        // if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(child)) {
-        //     connectAspect(child, aspect.data());
-        //     continue;
-        // }
 
         children += child->findChildren<QWidget *>(Qt::FindDirectChildrenOnly);
 
@@ -248,10 +238,10 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
         if (child->metaObject() == &QMenu::staticMetaObject)
             continue;
 
-        auto markDirty = [this, child] {
+        auto markDirty = [child] {
             if (isIgnoredForDirtyHook(child))
                 return;
-            gotDirty();
+            markSettingsDirty();
         };
 
         if (auto ob = qobject_cast<QLineEdit *>(child)) {
@@ -293,14 +283,9 @@ void IOptionsPageWidgetPrivate::setAspects(AspectContainer *aspects)
 bool IOptionsPageWidgetPrivate::eventFilter(QObject *watched, QEvent *event)
 {
     if (makesDirty(watched, event))
-        q->gotDirty();
+        markSettingsDirty();
 
     return false;
-}
-
-void IOptionsPageWidget::gotDirty()
-{
-    markSettingsDirty(true);
 }
 
 /*!

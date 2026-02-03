@@ -38,7 +38,6 @@ public:
     void setUseDirtyHook(bool on);
 
     void setupDirtyHook(QWidget *widget);
-    void gotDirty();
 
 private:
     friend class Internal::IOptionsPagePrivate;
