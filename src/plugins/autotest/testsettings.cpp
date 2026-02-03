@@ -25,6 +25,8 @@ TestSettings &testSettings()
 
 TestSettings::TestSettings()
 {
+    setAutoApply(false);
+
     setSettingsGroup(Constants::SETTINGSGROUP);
 
     scanThreadLimit.setSettingsKey("ScanThreadLimit");
