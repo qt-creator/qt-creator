@@ -29,6 +29,8 @@ QTCREATOR_UTILS_EXPORT void checkSettingsDirty();
 QTCREATOR_UTILS_EXPORT void installMarkSettingsDirtyTrigger(QWidget *widget);
 QTCREATOR_UTILS_EXPORT void installCheckSettingsDirtyTrigger(QWidget *widget);
 
+QTCREATOR_UTILS_EXPORT bool suppressSettingsDirtyTrigger(bool suppress);
+
 namespace Internal {
 QTCREATOR_UTILS_EXPORT void setMarkSettingsDirtyHook(const std::function<void (bool)> &hook);
 QTCREATOR_UTILS_EXPORT void setCheckSettingsDirtyHook(const std::function<void ()> &hook);

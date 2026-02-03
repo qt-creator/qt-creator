@@ -84,6 +84,8 @@ bool isIgnoredForDirtyHook(const QObject *object)
 static std::function<void (bool)> s_markSettingDirtyHook;
 static std::function<void ()> s_checkSettingDirtyHook;
 
+static bool s_suppressSettingsDirtyTrigger = false;
+
 namespace Internal {
 
 void setMarkSettingsDirtyHook(const std::function<void (bool)> &hook)
@@ -101,12 +103,16 @@ void setCheckSettingsDirtyHook(const std::function<void ()> &hook)
 void markSettingsDirty(bool dirty)
 {
     QTC_ASSERT(s_markSettingDirtyHook, return);
+    if (s_suppressSettingsDirtyTrigger)
+        return;
     s_markSettingDirtyHook(dirty);
 }
 
 void checkSettingsDirty()
 {
     QTC_ASSERT(s_checkSettingDirtyHook, return);
+    if (s_suppressSettingsDirtyTrigger)
+        return;
     s_checkSettingDirtyHook();
 }
 
@@ -156,6 +162,13 @@ void installMarkSettingsDirtyTrigger(QWidget *widget)
 void installCheckSettingsDirtyTrigger(QWidget *widget)
 {
     installDirtyTriggerHelper(widget, true);
+}
+
+bool suppressSettingsDirtyTrigger(bool suppress)
+{
+    const bool prev = s_suppressSettingsDirtyTrigger;
+    s_suppressSettingsDirtyTrigger = suppress;
+    return prev;
 }
 
 } // namespace Utils
