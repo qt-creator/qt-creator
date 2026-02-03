@@ -251,6 +251,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
         connect(action, &QAction::triggered, this, [factory, this] {
             IDevice::Ptr device = factory->construct();
             QTC_ASSERT(device, return);
+            markSettingsDirty();
             DeviceManager::addDevice(device);
             m_deviceProxyModel.markAsNew(device->id());
             updateButtons();
@@ -347,6 +348,8 @@ void DeviceSettingsWidget::addDevice()
     IDevice::Ptr device = factory->create();
     if (!device)
         return;
+
+    markSettingsDirty();
 
     Utils::asyncRun([device] { device->checkOsType(); });
 
