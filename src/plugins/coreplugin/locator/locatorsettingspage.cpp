@@ -14,6 +14,7 @@
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
 #include <utils/fancylineedit.h>
+#include <utils/guiutils.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
@@ -125,6 +126,8 @@ bool FilterItem::setData(int column, const QVariant &data, int role)
         break;
     case FilterPrefix:
         if (role == Qt::EditRole && data.canConvert<QString>()) {
+            if (m_filter->shortcutString() == data.toString())
+                return false;
             m_filter->setShortcutString(data.toString());
             return true;
         }
@@ -279,8 +282,6 @@ public:
                         nameDelegate->setMaxWidth(updated);
                 });
         m_filterList->setItemDelegateForColumn(0, nameDelegate);
-        setupDirtyHook(m_filterList);
-
         m_model = new TreeModel<>(m_filterList);
         initializeModel();
         m_proxyModel = new CategorySortFilterModel(m_filterList);
@@ -325,6 +326,10 @@ public:
                 &Utils::TreeView::activated,
                 this,
                 &LocatorSettingsWidget::configureFilter);
+        connect(m_model,
+                &QAbstractItemModel::dataChanged,
+                this,
+                [this] { markSettingsDirty(); });
         connect(m_editButton, &QPushButton::clicked, this, [this] {
             configureFilter(m_filterList->currentIndex());
         });
@@ -506,6 +511,7 @@ void LocatorSettingsWidget::addCustomFilter(ILocatorFilter *filter)
         m_customFilters.append(filter);
         m_refreshFilters.append(filter);
         m_customFilterRoot->appendChild(new FilterItem(filter));
+        markSettingsDirty();
     }
 }
 
@@ -527,6 +533,7 @@ void LocatorSettingsWidget::removeCustomFilter()
     } else {
         m_removedFilters.append(filter);
     }
+    markSettingsDirty();
 }
 
 // LocatorSettingsPage
