@@ -255,7 +255,6 @@ void DeviceToolAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     FilePathAspect::addToLayoutImpl(parent);
     parent.flush();
-    installMarkSettingsDirtyTrigger(pathChooser());
 }
 
 // DeviceToolFactory

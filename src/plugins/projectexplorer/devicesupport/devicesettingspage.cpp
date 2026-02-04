@@ -329,8 +329,6 @@ DeviceSettingsWidget::DeviceSettingsWidget()
             this, &DeviceSettingsWidget::removeDevice);
     connect(DeviceManager::instance(), &DeviceManager::deviceUpdated,
             this, &DeviceSettingsWidget::handleDeviceUpdated);
-
-    installMarkSettingsDirtyTrigger(m_deviceNameEditWidget);
 }
 
 void DeviceSettingsWidget::addDevice()
