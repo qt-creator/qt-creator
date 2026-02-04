@@ -142,10 +142,6 @@ static void installDirtyTriggerHelper(QWidget *widget, bool check)
         QObject::connect(ob, &QPlainTextEdit::textChanged, action);
         return;
     }
-    if (auto ob = qobject_cast<PathChooser *>(widget)) {
-        QObject::connect(ob, &PathChooser::textChanged, action);
-        return;
-    }
     if (auto ob = qobject_cast<PlainTextEdit *>(widget)) {
         QObject::connect(ob, &PlainTextEdit::textChanged, action);
         return;

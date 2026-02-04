@@ -493,6 +493,7 @@ void PathChooser::slotBrowse(bool remote)
         if (newPath.endsWith("/") && newPath.path().size() > 1)
             newPath = newPath.withNewPath(newPath.path().chopped(1));
         setFilePath(newPath);
+        emit d->m_lineEdit->textEdited(newPath.path());
     }
 
     emit browsingFinished();
