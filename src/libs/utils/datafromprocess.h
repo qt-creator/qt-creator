@@ -10,6 +10,8 @@
 #include "qtcprocess.h"
 #include "settingsdatabase.h"
 #include "synchronizedvalue.h"
+#include "threadutils.h"
+#include "shutdownguard.h"
 
 #include <QDateTime>
 #include <QHash>
@@ -69,7 +71,7 @@ private:
     static std::optional<Data> handleProcessFinished(const Parameters &params,
                                                      const QDateTime &exeTimestamp,
                                                      const Key &cacheKey,
-                                                     const std::shared_ptr<Process> &process);
+                                                     const Process *process);
 
     static inline SynchronizedValue<QHash<Key, Value>> m_cache;
 };
@@ -113,51 +115,62 @@ inline std::optional<Data> DataFromProcess<Data>::getOrProvideData(const Paramet
     if (cachedValue)
         return cachedValue;
 
-    const auto outputRetriever = std::make_shared<Process>();
+    const auto outputRetriever = new Process();
     outputRetriever->setCommand(params.commandLine);
     outputRetriever->setEnvironment(params.environment);
     if (params.disableUnixTerminal)
         outputRetriever->setDisableUnixTerminal();
 
-    if (params.persistValue && !params.callback) {
-        const QChar separator = params.commandLine.executable().pathListSeparator();
-        const QString stringKey = params.commandLine.executable().toUrlishString() + separator
-                                  + params.commandLine.arguments() + separator
-                                  + params.environment.toStringList().join(separator);
-        if (const QByteArray json = SettingsDatabase::value(stringKey).toByteArray();
-            !json.isEmpty()) {
-            if (const auto doc = QJsonDocument::fromJson(json); doc.isObject()) {
-                const QJsonObject settingsObject = doc.object();
-                const QString out = settingsObject["stdout"].toString();
-                const QString err = settingsObject["stderr"].toString();
-                std::optional<Data> data = params.parser(out, err);
+    if (Utils::isMainThread()) {
+        outputRetriever->setParent(Utils::shutdownGuard());
+        if (params.persistValue && !params.callback) {
+            const QChar separator = params.commandLine.executable().pathListSeparator();
+            const QString stringKey = params.commandLine.executable().toUrlishString() + separator
+                                      + params.commandLine.arguments() + separator
+                                      + params.environment.toStringList().join(separator);
+            if (const QByteArray json = SettingsDatabase::value(stringKey).toByteArray();
+                !json.isEmpty()) {
+                if (const auto doc = QJsonDocument::fromJson(json); doc.isObject()) {
+                    const QJsonObject settingsObject = doc.object();
+                    const QString out = settingsObject["stdout"].toString();
+                    const QString err = settingsObject["stderr"].toString();
+                    std::optional<Data> data = params.parser(out, err);
 
-                m_cache.writeLocked()->insert(key, std::make_pair(data, exeTimestamp));
+                    m_cache.writeLocked()->insert(key, std::make_pair(data, exeTimestamp));
 
-                QObject::connect(
-                    outputRetriever.get(),
-                    &Process::done,
-                    [params, exeTimestamp, key, outputRetriever] {
-                        handleProcessFinished(params, exeTimestamp, key, outputRetriever);
-                    });
-                outputRetriever->start();
-                return data;
+                    QObject::connect(
+                        outputRetriever,
+                        &Process::done,
+                        Utils::shutdownGuard(),
+                        [params, exeTimestamp, key, outputRetriever] {
+                            handleProcessFinished(params, exeTimestamp, key, outputRetriever);
+                            outputRetriever->deleteLater();
+                        });
+                    outputRetriever->start();
+                    return data;
+                }
             }
+        }
+
+        if (params.callback) {
+            QObject::connect(
+                outputRetriever,
+                &Process::done,
+                Utils::shutdownGuard(),
+                [params, exeTimestamp, key, outputRetriever] {
+                    handleProcessFinished(params, exeTimestamp, key, outputRetriever);
+                    outputRetriever->deleteLater();
+                });
+            outputRetriever->start();
+            return {};
         }
     }
 
-    if (params.callback) {
-        QObject::connect(outputRetriever.get(),
-                         &Process::done,
-                         [params, exeTimestamp, key, outputRetriever] {
-                             handleProcessFinished(params, exeTimestamp, key, outputRetriever);
-                         });
-        outputRetriever->start();
-        return {};
-    }
-
     outputRetriever->runBlocking(params.timeout);
-    return handleProcessFinished(params, exeTimestamp, key, outputRetriever);
+    const std::optional<Data> result
+        = handleProcessFinished(params, exeTimestamp, key, outputRetriever);
+    delete outputRetriever;
+    return result;
 }
 
 template<typename Data>
@@ -165,7 +178,7 @@ inline std::optional<Data> DataFromProcess<Data>::handleProcessFinished(
     const Parameters &params,
     const QDateTime &exeTimestamp,
     const Key &cacheKey,
-    const std::shared_ptr<Process> &process)
+    const Process *process)
 {
     // Do not store into cache: The next call might succeed.
     if (process->result() == ProcessResult::Canceled) {
