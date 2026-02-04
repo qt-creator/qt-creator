@@ -187,10 +187,10 @@ static QVersionNumber estimateVersionOfOverridenQmlls()
 
     if (!output.contains("qmlls")) {
         Core::MessageManager::writeFlashing(
-                    Tr::tr(
-                        "Custom qmlls executable \"%1\" does not seem to be a qmlls executable and was "
-                        "disabled")
-                    .arg(qmllsSettings()->m_executable.path()));
+            Tr::tr(
+                "Custom qmlls executable \"%1\" does not seem to be a qmlls executable and was "
+                "disabled.")
+                .arg(qmllsSettings()->m_executable.path()));
         return {};
     }
 

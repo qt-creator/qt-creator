@@ -56816,8 +56816,8 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
 %2</translation>
     </message>
     <message>
-        <source>Custom qmlls executable &quot;%1&quot; does not seem to be a qmlls executable and was disabled</source>
-        <translation>L&apos;exécutable personnalisé qmlls «&#xa0;%1&#xa0;» ne semble pas être un exécutable qmlls et a été désactivé</translation>
+        <source>Custom qmlls executable &quot;%1&quot; does not seem to be a qmlls executable and was disabled.</source>
+        <translation>L&apos;exécutable personnalisé qmlls «&#xa0;%1&#xa0;» ne semble pas être un exécutable qmlls et a été désactivé.</translation>
     </message>
     <message>
         <source>Current kit does not have a valid Qt version, disabling QML Language Server.</source>
