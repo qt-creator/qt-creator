@@ -413,9 +413,6 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
         Tr::tr("Working directory:"), m_workingDirectoryChooser, br,
     }.attachTo(this);
     // clang-format on
-
-    installMarkSettingsDirtyTrigger(m_binaryChooser);
-    installMarkSettingsDirtyTrigger(m_workingDirectoryChooser);
 }
 
 DebuggerItem DebuggerItemConfigWidget::item() const
