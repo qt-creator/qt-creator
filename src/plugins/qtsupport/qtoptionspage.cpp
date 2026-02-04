@@ -546,7 +546,10 @@ std::pair<bool, QString> QtSettingsPageWidget::checkAlreadyExists(
 {
     for (int i = 0; i < parent->childCount(); ++i) {
         auto item = static_cast<QtVersionItem *>(parent->childAt(i));
-        if (item->version()->qmakeFilePath() == qtVersion) {
+        const FilePath &itemPath = item->version()->qmakeFilePath();
+        if (itemPath.isSameExecutable(qtVersion)
+            || (itemPath.parentDir() == qtVersion.parentDir()
+                && itemPath.fileSize() == qtVersion.fileSize())) {
             return {true, item->version()->displayName()};
         }
     }
