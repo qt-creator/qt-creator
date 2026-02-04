@@ -655,6 +655,8 @@ void ShortcutSettingsWidget::setupShortcutBox(ShortcutItem *scitem)
                 &ShortcutSettingsWidget::showConflicts);
         connect(input.get(), &ShortcutInput::changed, this, updateAddButton);
         input->setKeySequence(key);
+        // do not merge with preceding connect, first setKeySequence() should not mark dirty
+        connect(input.get(), &ShortcutInput::changed, this, [] { markSettingsDirty(); });
         m_shortcutInputs.push_back(std::move(input));
     };
     const auto addButtonToLayout = [this, updateAddButton] {
@@ -909,8 +911,6 @@ public:
         vbox->setContentsMargins(0, 0, 0, 0);
 
         setOnApply([inner] { inner->apply(); });
-
-        setupDirtyHook(this);
     }
 };
 
