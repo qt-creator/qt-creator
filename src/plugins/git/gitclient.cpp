@@ -1167,6 +1167,8 @@ void GitClient::diffIncoming(const Utils::FilePath &workingDirectory, const QStr
     } else if (command == GitClient::CherryPick) {
         left = "CHERRY_PICK_HEAD^";
         right = "CHERRY_PICK_HEAD";
+    } else if (command == GitClient::Rebase || command == GitClient::RebaseMerge) {
+        right = "...REBASE_HEAD";
     } else {
         right = "...MERGE_HEAD";
     }
