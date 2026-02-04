@@ -24,6 +24,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/stylehelper.h>
 #include <utils/summarywidget.h>
 #include <utils/utilsicons.h>
 
@@ -137,6 +138,9 @@ WindowsSettingsWidget::WindowsSettingsWidget()
 {
     setWindowTitle(Tr::tr("Windows Configuration"));
 
+    auto infoLabel = new InfoLabel(Tr::tr("All changes on this page take effect immediately."));
+    infoLabel->setFilled(true);
+
     auto winAppSdkDetailsWidget = new DetailsWidget;
 
     m_downloadPathChooser = new PathChooser;
@@ -185,6 +189,8 @@ WindowsSettingsWidget::WindowsSettingsWidget()
     using namespace Layouting;
 
     Column {
+        infoLabel,
+        Space(StyleHelper::SpacingTokens::GapVM),
         Layouting::Group {
             title(Tr::tr("Download Path")),
             Grid {
@@ -242,8 +248,6 @@ WindowsSettingsWidget::WindowsSettingsWidget()
         });
 
     setOnApply([] { windowsAppSdkSettings().writeSettings(); });
-
-    setupDirtyHook(this);
 }
 
 void WindowsSettingsWidget::showEvent(QShowEvent *event)
