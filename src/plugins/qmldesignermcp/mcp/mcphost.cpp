@@ -202,44 +202,44 @@ QSharedPointer<McpClient> McpHost::client(const QString &serverName) const
 
 void McpHost::wireClientSignals(const QString &name, const QSharedPointer<McpClient> &c)
 {
-    connect(c.get(), &McpClient::connected, [&](const McpServerInfo &info) {
+    connect(c.get(), &McpClient::connected, [this, name](const McpServerInfo &info) {
         emit serverStarted(name, info);
     });
 
-    connect(c.get(), &McpClient::exited, [&](int ec, QProcess::ExitStatus st) {
+    connect(c.get(), &McpClient::exited, [this, name](int ec, QProcess::ExitStatus st) {
         emit serverExited(name, ec, st);
         // schedule restart if it crashed
         if (st == QProcess::CrashExit)
             scheduleRestart(name);
     });
 
-    connect(c.get(), &McpClient::errorOccurred, [&](const QString &msg) {
+    connect(c.get(), &McpClient::errorOccurred, [this, name](const QString &msg) {
         emit errorOccurred(name, msg);
     });
 
-    connect(c.get(), &McpClient::logMessage, [&](const QString &line) {
+    connect(c.get(), &McpClient::logMessage, [this, name](const QString &line) {
         emit logMessage(name, line);
     });
 
-    connect(c.get(), &McpClient::toolsListed, [&](const QList<McpTool> &tools, qint64 reqId) {
+    connect(c.get(), &McpClient::toolsListed, [this, name](const QList<McpTool> &tools, qint64 reqId) {
         emit toolsListed(name, tools, reqId);
     });
 
-    connect(c.get(), &McpClient::toolCallSucceeded, [&](const QJsonObject &res, qint64 id) {
+    connect(c.get(), &McpClient::toolCallSucceeded, [this, name](const QJsonObject &res, qint64 id) {
         emit toolCallSucceeded(name, res, id);
     });
 
     connect(
         c.get(),
         &McpClient::toolCallFailed,
-        [&](const QString &msg, const QJsonObject &err, qint64 id) {
+        [this, name](const QString &msg, const QJsonObject &err, qint64 id) {
             emit toolCallFailed(name, msg, err, id);
         });
 
     connect(
         c.get(),
         &McpClient::notificationReceived,
-        [&](const QString &method, const QJsonObject &params) {
+        [this, name](const QString &method, const QJsonObject &params) {
             emit notificationReceived(name, method, params);
         });
 }
