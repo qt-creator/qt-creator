@@ -18,6 +18,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
@@ -416,6 +417,7 @@ public:
                 = runEnvironmentItemsDialog(environmentButton, m_environmentChanges);
             if (!changes)
                 return;
+            markSettingsDirty();
             m_environmentChanges = *changes;
             updateEnvironmentChangesLabel();
             updatePath();
@@ -423,6 +425,9 @@ public:
         connect(envVarSeparatorsButton, &QPushButton::clicked, [this] {
             EnvVarSeparatorsDialog dlg(m_envVarSeparators, this);
             if (dlg.exec() == QDialog::Accepted) {
+                if (m_envVarSeparators == dlg.separators())
+                    return;
+                markSettingsDirty();
                 m_envVarSeparators = dlg.separators();
                 updateEnvVarSeparatorsLabel();
             }
