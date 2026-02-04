@@ -5,7 +5,7 @@
 
 #include "hostosinfo.h"
 #include "pathchooser.h"
-#include "plaintextedit.h"
+#include "plaintextedit/plaintextedit.h"
 
 #include <QAbstractButton>
 #include <QComboBox>
