@@ -316,7 +316,10 @@ void McpClient::confirmClientInitialized()
         return;
 
     m_initializedConfirmed = true;
-    QJsonObject notif{{"jsonrpc", "2.0"}, {"method", "initialized"}};
+    QJsonObject notif{
+        {"jsonrpc", "2.0"},
+        {"method", "notifications/initialized"},
+    };
     sendRpcToServer(notif);
 }
 
