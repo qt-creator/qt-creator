@@ -29,6 +29,8 @@
 #include <QPainter>
 #include <QTabWidget>
 #include <QToolButton>
+#include <QGuiApplication>
+#include <QScreen>
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -58,8 +60,7 @@ const QSize highDpiImageSize{480, 800};
 const QSize extraHighDpiImageSize{720, 1280};
 const QSize extraExtraHighDpiImageSize{960, 1600};
 const QSize extraExtraExtraHighDpiImageSize{1280, 1920};
-const QSize displaySize{192, 288};
-const QSize landscapeDisplaySize{288, 192};
+
 // https://developer.android.com/training/multiscreen/screendensities#TaskProvideAltBmp
 const int extraExtraExtraHighDpiScalingRatio = 16;
 const int extraExtraHighDpiScalingRatio = 12;
@@ -339,21 +340,17 @@ void SplashScreenWidget::setImageFileName(const QString &imageFileName)
     m_imageFileName = imageFileName;
 }
 
-static SplashScreenWidget *addWidgetToPage(QWidget *page,
-                                           const QSize &size, const QSize &screenSize,
-                                           const QString &title, const QString &tooltip,
-                                           TextEditor::TextEditorWidget *textEditorWidget,
-                                           const QString &splashScreenPath,
-                                           int scalingRatio, int maxScalingRatio,
-                                           QHBoxLayout *pageLayout,
-                                           QList<SplashScreenWidget *> &widgetContainer)
+static QSize preferredSplashViewSize()
 {
-    auto splashScreenWidget = new SplashScreenWidget(page, size, screenSize, title, tooltip,
-                                                     splashScreenPath, scalingRatio,
-                                                     maxScalingRatio, textEditorWidget);
-    pageLayout->addWidget(splashScreenWidget);
-    widgetContainer.push_back(splashScreenWidget);
-    return splashScreenWidget;
+    const QScreen  *screen = QGuiApplication::screenAt(QCursor::pos());
+    if (!screen)
+        screen = QGuiApplication::primaryScreen();
+
+    const QSize screenSize = screen->availableSize();
+    const int baseHeight = screenSize.height() / 4;
+    const int baseWidth = baseHeight * 2 / 3; // ~2:3 portrait aspect ratio
+
+    return QSize(baseWidth, baseHeight);
 }
 
 static QWidget *createPage(TextEditor::TextEditorWidget *textEditorWidget,
@@ -366,51 +363,47 @@ static QWidget *createPage(TextEditor::TextEditorWidget *textEditorWidget,
     auto sizeToStr = [](const QSize &size) { return QString(" (%1x%2)").arg(size.width()).arg(size.height()); };
     QWidget *page = new QWidget();
     auto mainPageLayout = new QVBoxLayout(page);
-    mainPageLayout->setAlignment(Qt::AlignCenter);
 
-    auto widgetsLayout = new QHBoxLayout();
-    widgetsLayout->setAlignment(Qt::AlignBottom);
-    widgetsLayout->setSpacing(25);
+    auto widgetsGrid = new QGridLayout();
 
-    auto genericWidget= addWidgetToPage(page,
-                                        displaySize, size,
-                                        Tr::tr("Master"),
-                                        Tr::tr("Select splash screen image")
-                                        + sizeToStr(size),
-                                        textEditorWidget,
-                                        path,
-                                        scalingRatio, extraExtraExtraHighDpiScalingRatio,
-                                        widgetsLayout,
-                                        widgetContainer);
+    const QSize displaySize = preferredSplashViewSize();
+    const QSize landscapeDisplaySize = displaySize.transposed();
 
-    auto portraitWidget = addWidgetToPage(page,
-                                          displaySize, portraitSize,
-                                          Tr::tr("Portrait"),
-                                          Tr::tr("Select portrait splash screen image")
-                                          + sizeToStr(portraitSize),
-                                          textEditorWidget,
-                                          path,
-                                          scalingRatio, extraExtraExtraHighDpiScalingRatio,
-                                          widgetsLayout,
-                                          portraitWidgetContainer);
+    widgetsGrid->setRowStretch(0, 1);
+    widgetsGrid->setColumnStretch(0, 1);
 
-    auto landscapeWidget = addWidgetToPage(page,
-                                           landscapeDisplaySize, landscapeSize,
-                                           Tr::tr("Landscape"),
-                                           Tr::tr("Select landscape splash screen image")
-                                           + sizeToStr(landscapeSize),
-                                           textEditorWidget,
-                                           path,
-                                           scalingRatio, extraExtraExtraHighDpiScalingRatio,
-                                           widgetsLayout,
-                                           landscapeWidgetContainer);
+    auto genericWidget = new SplashScreenWidget(page, displaySize, size,
+                        Tr::tr("Master"), Tr::tr("Select splash screen image") + sizeToStr(size),
+                        path, scalingRatio, extraExtraExtraHighDpiScalingRatio, textEditorWidget);
+    widgetContainer.push_back(genericWidget);
+    widgetsGrid->addWidget(genericWidget, 1, 1, Qt::AlignBottom);
 
-    mainPageLayout->addLayout(widgetsLayout);
+    widgetsGrid->setColumnStretch(2, 1);
+
+    auto portraitWidget = new SplashScreenWidget(page, displaySize, portraitSize,
+                         Tr::tr("Portrait"),
+                         Tr::tr("Select portrait splash screen image") + sizeToStr(portraitSize),
+                         path, scalingRatio, extraExtraExtraHighDpiScalingRatio, textEditorWidget);
+    portraitWidgetContainer.push_back(portraitWidget);
+    widgetsGrid->addWidget(portraitWidget, 1, 3, Qt::AlignBottom);
+
+    widgetsGrid->setColumnStretch(4, 1);
+
+    auto landscapeWidget = new SplashScreenWidget(page, landscapeDisplaySize, landscapeSize,
+                          Tr::tr("Landscape"),
+                          Tr::tr("Select landscape splash screen image") + sizeToStr(landscapeSize),
+                          path, scalingRatio, extraExtraExtraHighDpiScalingRatio, textEditorWidget);
+    landscapeWidgetContainer.push_back(landscapeWidget);
+    widgetsGrid->addWidget(landscapeWidget, 1, 5, Qt::AlignBottom);
+
+    widgetsGrid->setColumnStretch(6, 1);
 
     auto clearButton = new QToolButton(page);
     clearButton->setText(Tr::tr("Clear %1").arg(tabTitle));
-    mainPageLayout->addWidget(clearButton);
-    mainPageLayout->setAlignment(clearButton, Qt::AlignCenter);
+    widgetsGrid->addWidget(clearButton, 3, 3, Qt::AlignHCenter | Qt::AlignTop);
+
+    mainPageLayout->addLayout(widgetsGrid);
+
     SplashScreenContainerWidget::connect(clearButton, &QAbstractButton::clicked,
                                        genericWidget, &SplashScreenWidget::clearImage);
     SplashScreenContainerWidget::connect(clearButton, &QAbstractButton::clicked,
@@ -480,7 +473,7 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
     auto *mainLayout = new QVBoxLayout(containerWidget);
 
     QTabWidget *tab = new QTabWidget(this);
-    tab->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    tab->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     tab->addTab(createPage(textEditorWidget, m_imageWidgets, m_portraitImageWidgets,
                            m_landscapeImageWidgets, lowDpiScalingRatio, lowDpiImageSize,
