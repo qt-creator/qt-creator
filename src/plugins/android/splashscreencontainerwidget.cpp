@@ -400,6 +400,8 @@ static QWidget *createPage(TextEditor::TextEditorWidget *textEditorWidget,
 
     auto clearButton = new QToolButton(page);
     clearButton->setText(Tr::tr("Clear %1").arg(tabTitle));
+    clearButton->setIcon(Utils::Icon::fromTheme("edit-clear-locationbar-ltr"));
+    clearButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     widgetsGrid->addWidget(clearButton, 3, 3, Qt::AlignHCenter | Qt::AlignTop);
 
     mainPageLayout->addLayout(widgetsGrid);
@@ -464,6 +466,8 @@ bool SplashScreenContainerWidget::initialize(TextEditor::TextEditorWidget *textE
 
     auto *clearAllButton = new QToolButton(this);
     clearAllButton->setText(Tr::tr("Clear All"));
+    clearAllButton->setIcon(Utils::Icon::fromTheme("edit-clear-locationbar-ltr"));
+    clearAllButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
     auto *warningLabel = new QLabel(this);
     warningLabel->setAlignment(Qt::AlignHCenter);
