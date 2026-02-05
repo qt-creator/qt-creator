@@ -265,7 +265,6 @@ std::unique_ptr<QmakeProFileNode> QmakeNodeTreeBuilder::buildTree(QmakeBuildSyst
                                                    buildSystem->rootProFile());
     root->setIcon(iconForProfile(buildSystem->rootProFile()));
     createTree(buildSystem, buildSystem->rootProFile(), root.get(), toExclude);
-    root->compress();
 
     return root;
 }

@@ -132,6 +132,7 @@ public:
     bool isEnabled() const;
     bool listInProject() const;
     bool isGenerated() const;
+    bool isCompressable() const { return m_isCompressable; }
 
     virtual bool supportsAction(ProjectAction action, const Node *node) const;
 
@@ -169,6 +170,7 @@ protected:
     bool operator=(const Node &other) = delete;
 
     void setFilePath(const Utils::FilePath &filePath);
+    void setCompressable(bool compressable) { m_isCompressable = compressable; }
 
 private:
     Utils::FilePath pathOrDirectory(bool dir) const;
@@ -185,6 +187,8 @@ private:
         FlagListInProject = 1 << 2,
     };
     NodeFlag m_flags = FlagIsEnabled;
+
+    bool m_isCompressable = false;
 };
 
 class PROJECTEXPLORER_EXPORT FileNode : public Node
@@ -261,7 +265,6 @@ public:
                        const Utils::FilePath &overrideBaseDir = Utils::FilePath(),
                        const FolderNodeFactory &factory
                        = [](const Utils::FilePath &fn) { return std::make_unique<FolderNode>(fn); });
-    virtual void compress();
 
     // takes ownership of newNode.
     // Will delete newNode if oldNode is not a child of this node.

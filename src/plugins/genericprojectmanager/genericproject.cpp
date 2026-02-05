@@ -501,7 +501,6 @@ void GenericBuildSystem::refresh(RefreshOptions options)
         newRoot->addNestedNode(std::make_unique<FileNode>(m_cxxflagsFilePath, FileType::Project));
         newRoot->addNestedNode(std::make_unique<FileNode>(m_cflagsFilePath, FileType::Project));
 
-        newRoot->compress();
         setRootProjectNode(std::move(newRoot));
     }
 

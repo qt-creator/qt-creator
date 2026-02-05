@@ -73,7 +73,6 @@ static void setupArtifactsForGroup(FolderNode *root, const QJsonObject &group, c
     forAllArtifacts(group, [root, top](const QJsonObject &artifact) {
         setupArtifact(root, artifact, top);
     });
-    root->compress();
 }
 
 static void setupGeneratedArtifacts(FolderNode *root, const QJsonObject &product, const FilePath &top)
@@ -81,7 +80,6 @@ static void setupGeneratedArtifacts(FolderNode *root, const QJsonObject &product
     forAllArtifacts(product, ArtifactType::Generated, [root, top](const QJsonObject &artifact) {
         setupArtifact(root, artifact, top);
     });
-    root->compress();
 }
 
 static std::unique_ptr<QbsGroupNode> buildGroupNodeTree(const QJsonObject &grp, const FilePath &top)
@@ -211,7 +209,6 @@ BuildTreeResult buildQbsProjectTree(const QString &projectName, const FilePath &
             buildSystemFiles->addNestedNode(std::move(fileNode));
         }
     }
-    buildSystemFiles->compress();
     root->addNode(std::move(buildSystemFiles));
     ProjectTree::applyTreeManager(root.get(), ProjectTree::AsyncPhase); // QRC nodes
     return root;

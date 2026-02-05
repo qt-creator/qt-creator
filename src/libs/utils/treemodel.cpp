@@ -798,6 +798,20 @@ TreeItem *TreeItem::lastChild() const
     return childCount() == 0 ? nullptr : *(end() - 1);
 }
 
+TreeItem *TreeItem::takeChildAt(int pos)
+{
+    TreeItem * const child = childAt(pos);
+    QTC_ASSERT(child, return nullptr);
+    if (model()) {
+        static_cast<BaseTreeModel *>(model())->takeItem(childAt(pos));
+    } else {
+        child->m_parent = nullptr;
+        child->m_model = nullptr;
+        m_children.removeAt(pos);
+    }
+    return child;
+}
+
 int TreeItem::level() const
 {
     int l = 0;

@@ -18,19 +18,21 @@
 #include <coreplugin/session.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <utils/utilsicons.h>
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
+#include <utils/environment.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QButtonGroup>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QElapsedTimer>
 #include <QFileInfo>
 #include <QFont>
 #include <QGuiApplication>
@@ -53,6 +55,9 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
+
+static Q_LOGGING_CATEGORY(projectModelLog, "qtc.pm.projectModel", QtWarningMsg)
+static Q_LOGGING_CATEGORY(projectModelTimingLog, "qtc.pm.projectModelTiming", QtWarningMsg)
 
 /// An output iterator whose assignment operator appends a clone of the operand to the list of
 /// children of the WrapperNode passed to the constructor.
@@ -160,12 +165,62 @@ static void mergeDuplicates(WrapperNode *parent)
     }
 }
 
+WrapperNode::WrapperNode(Node *node) : m_node(node)
+{
+    if (m_node)
+        m_displayName = m_node->displayName();
+}
+
 void WrapperNode::appendClone(const WrapperNode &node)
 {
     WrapperNode *clone = new WrapperNode(node.m_node);
     appendChild(clone);
     for (const WrapperNode *child : node)
         clone->appendClone(*child);
+}
+
+// "Compress" a tree of folder nodes such that those with exactly one folder node as a child
+// are merged into one. This e.g. turns a sequence of FolderNodes "foo" "bar" "baz" into one
+// FolderNode named "foo/bar/baz", saving a lot of clicks in the Project View to get to the actual
+// files.
+void WrapperNode::compress()
+{
+    qCDebug(projectModelLog) << "visiting node" << m_node << m_node->displayName() << "with"
+                             << childCount() << "children";
+
+    // Child nodes need to be compressed first.
+    forFirstLevelChildren([](WrapperNode *n) { n->compress(); });
+
+    if (!m_node->isCompressable())
+        return;
+
+    // There must be exactly one child node, which has to be of the same type as this node.
+    if (childCount() != 1)
+        return;
+    WrapperNode * const childWrapper = childAt(0);
+    const auto subFolder = childWrapper->m_node->asFolderNode();
+    if (!subFolder)
+        return;
+    const bool sameType = (m_node->isFolderNodeType() && subFolder->isFolderNodeType())
+                          || (m_node->isProjectNodeType() && subFolder->isProjectNodeType())
+                          || (m_node->isVirtualFolderType() && subFolder->isVirtualFolderType());
+    if (!sameType)
+        return;
+
+    qCDebug(projectModelLog) << "merging sole child node" << childAt(0)->displayName() << "into"
+                             << displayName();
+
+    // Now do the compression by moving the child node's children into this node
+    // and removing the child node.
+    while (childWrapper->hasChildren()) {
+        WrapperNode * const toMove = childWrapper->takeChildAt(0);
+        appendChild(toMove);
+        qCDebug(projectModelLog) << "  moving node" << toMove->displayName() << "here";
+    }
+    m_displayName = QDir::toNativeSeparators(displayName() + "/" + subFolder->displayName());
+    m_node = subFolder;
+    removeChildAt(0);
+    qCDebug(projectModelLog) << "now have" << childCount() << "children";
 }
 
 FlatModel::FlatModel(QObject *parent)
@@ -193,7 +248,10 @@ FlatModel::FlatModel(QObject *parent)
 
 QVariant FlatModel::data(const QModelIndex &index, int role) const
 {
-    const Node * const node = nodeForIndex(index);
+    WrapperNode * const wrapperNode = itemForIndex(index);
+    if (!wrapperNode)
+        return {};
+    const Node * const node = wrapperNode->m_node;
     if (!node)
         return {};
 
@@ -205,7 +263,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DisplayRole:
-        return node->displayName();
+        return wrapperNode->displayName();
     case Qt::EditRole:
         return node->filePath().fileName();
     case Qt::ToolTipRole: {
@@ -345,6 +403,7 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
         = ProjectExplorerPlugin::renameFiles(renameList);
     for (const auto &[oldFilePath, newFilePath] : renamedList)
         emit renamed(oldFilePath, newFilePath);
+
     return true;
 }
 
@@ -373,6 +432,12 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
 
     if (ProjectNode *projectNode = project->rootProjectNode()) {
         addFolderNode(container, projectNode, &seen);
+        if (!qtcEnvironmentVariableIsSet("QTC_PROJECT_NO_COMPRESS")) {
+            QElapsedTimer t;
+            t.start();
+            container->compress();
+            qCDebug(projectModelTimingLog) << "node compression took" << t.elapsed() << "ms";
+        }
         if (m_trimEmptyDirectories)
             trimEmptyDirectories(container);
     }

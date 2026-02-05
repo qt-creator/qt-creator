@@ -75,7 +75,6 @@ void addCMakeVFolder(FolderNode *base,
             (*it)->setListInProject(false);
     }
     folder->addNestedNodes(std::move(files));
-    folder->forEachFolderNode([] (FolderNode *fn) { fn->compress(); });
 }
 
 std::vector<std::unique_ptr<FileNode>> &&removeKnownNodes(
@@ -170,7 +169,6 @@ QHash<Utils::FilePath, ProjectNode *> addCMakeLists(
 
                              return std::make_unique<FolderNode>(fp);
                          });
-    root->compress();
     return cmakeListsNodes;
 }
 

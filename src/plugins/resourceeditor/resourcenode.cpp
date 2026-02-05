@@ -228,6 +228,7 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FilePath &filePath,
     setListInProject(true);
     setAddFileFilter("*.png; *.jpg; *.gif; *.svg; *.ico; *.qml; *.qml.ui");
     setShowWhenEmpty(true);
+    setCompressable(false);
 
     if (!filePath.isEmpty()) {
         if (filePath.isReadableFile())
@@ -260,15 +261,6 @@ ResourceTopLevelNode::~ResourceTopLevelNode()
     if (m_document)
         DocumentManager::removeDocument(m_document);
     delete m_document;
-}
-
-static void compressTree(FolderNode *n)
-{
-    if (const auto compressable = dynamic_cast<SimpleResourceFolderNode *>(n)) {
-        compressable->compress();
-        return;
-    }
-    n->forEachFolderNode([](FolderNode *c) { compressTree(c); });
 }
 
 void ResourceTopLevelNode::addInternalNodes()
@@ -355,7 +347,6 @@ void ResourceTopLevelNode::addInternalNodes()
                 fn->addNode(std::make_unique<ResourceFileNode>(fileName, qrcPath, displayName));
         }
     }
-    compressTree(this);
 }
 
 bool ResourceTopLevelNode::supportsAction(ProjectAction action, const Node *node) const

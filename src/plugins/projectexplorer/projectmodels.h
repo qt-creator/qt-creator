@@ -11,6 +11,8 @@
 #include <QSet>
 #include <QTimer>
 
+#include <optional>
+
 namespace ProjectExplorer {
 
 class Node;
@@ -25,10 +27,17 @@ bool compareNodes(const Node *n1, const Node *n2);
 class WrapperNode : public Utils::TypedTreeItem<WrapperNode>
 {
 public:
-    explicit WrapperNode(Node *node) : m_node(node) {}
-    Node *m_node = nullptr;
+    explicit WrapperNode(Node *node);
 
     void appendClone(const WrapperNode &node);
+    void compress();
+
+    QString displayName() const { return m_displayName; }
+
+    Node *m_node = nullptr;
+
+private:
+    QString m_displayName;
 };
 
 class FlatModel : public Utils::TreeModel<WrapperNode, WrapperNode>

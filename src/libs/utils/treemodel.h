@@ -52,6 +52,7 @@ public:
     void collapse();
     TreeItem *firstChild() const;
     TreeItem *lastChild() const;
+    TreeItem *takeChildAt(int pos);
     int level() const;
 
     using const_iterator = QList<TreeItem *>::const_iterator;
@@ -99,6 +100,7 @@ public:
     using BaseType::BaseType;
 
     ChildType *childAt(int index) const { return childItemCast(TreeItem::childAt(index)); }
+    ChildType *takeChildAt(int index) { return childItemCast(TreeItem::takeChildAt(index)); }
 
     void sortChildren(const std::function<bool(const ChildType *, const ChildType *)> &lessThan)
     {
@@ -197,6 +199,9 @@ class QTCREATOR_UTILS_EXPORT BaseTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 
+public:
+    TreeItem *takeItem(TreeItem *item); // item is not destroyed.
+
 protected:
     explicit BaseTreeModel(QObject *parent = nullptr);
     explicit BaseTreeModel(TreeItem *root, QObject *parent = nullptr);
@@ -227,7 +232,6 @@ protected:
     bool canFetchMore(const QModelIndex &idx) const override;
     void fetchMore(const QModelIndex &idx) override;
 
-    TreeItem *takeItem(TreeItem *item); // item is not destroyed.
     void destroyItem(TreeItem *item); // item is destroyed.
 
 signals:

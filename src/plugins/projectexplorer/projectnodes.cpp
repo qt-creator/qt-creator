@@ -460,6 +460,7 @@ FolderNode::FolderNode(const Utils::FilePath &folderPath)
     setPriority(DefaultFolderPriority);
     setListInProject(false);
     setIsGenerated(false);
+    setCompressable(true);
     m_displayName = folderPath.toUserOutput();
 }
 
@@ -682,39 +683,6 @@ void FolderNode::addNestedNodes(std::vector<std::unique_ptr<FileNode> > &&files,
         for (auto &f : dirWithNodes.second)
             folderNode->addNode(std::move(f));
     }
-}
-
-// "Compress" a tree of foldernodes such that foldernodes with exactly one foldernode as a child
-// are merged into one. This e.g. turns a sequence of FolderNodes "foo" "bar" "baz" into one
-// FolderNode named "foo/bar/baz", saving a lot of clicks in the Project View to get to the actual
-// files.
-void FolderNode::compress()
-{
-    // Child nodes need to be compressed first.
-    forEachFolderNode([&](FolderNode *fn) { fn->compress(); });
-
-    // There must be exactly one child node, which has to be of the same type as this node.
-    if (m_nodes.size() != 1)
-        return;
-    const auto subFolder = m_nodes.front()->asFolderNode();
-    if (!subFolder)
-        return;
-    const bool sameType = (isFolderNodeType() && subFolder->isFolderNodeType())
-                          || (isProjectNodeType() && subFolder->isProjectNodeType())
-                          || (isVirtualFolderType() && subFolder->isVirtualFolderType());
-    if (!sameType)
-        return;
-
-    // Now do the compression by moving the child node's children into this node
-    // and removing the child node.
-    for (Node *n : subFolder->nodes()) {
-        std::unique_ptr<Node> toMove = subFolder->takeNode(n);
-        toMove->setParentFolderNode(nullptr);
-        addNode(std::move(toMove));
-    }
-    setDisplayName(QDir::toNativeSeparators(displayName() + "/" + subFolder->displayName()));
-    setAbsoluteFilePathAndLine(subFolder->filePath(), -1);
-    takeNode(subFolder);
 }
 
 bool FolderNode::replaceSubtree(Node *oldNode, std::unique_ptr<Node> &&newNode)
