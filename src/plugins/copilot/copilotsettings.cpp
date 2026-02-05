@@ -177,7 +177,7 @@ CopilotSettings::CopilotSettings()
                 "file from the Copilot neovim plugin.",
                 "Markdown text for the copilot instruction label")
                        .arg("[README.md](https://github.com/github/copilot.vim)")
-                       .arg("[language-server.js](https://github.com/github/copilot.vim/tree/release/dist)")
+                       .arg("[language-server.js](https://github.com/github/copilot.vim/tree/release/copilot-language-server/dist)")
                        .arg(entryPointFileName)),
         };
 
