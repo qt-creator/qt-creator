@@ -548,6 +548,12 @@ public:
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
 private:
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
+
+    bool valueToVolatileValue() override;
+    bool volatileValueToValue() override;
+
     bool isDirty() const override;
 
     std::unique_ptr<Internal::FontFamilyAspectPrivate> d;

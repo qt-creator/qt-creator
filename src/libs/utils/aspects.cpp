@@ -1989,11 +1989,11 @@ void ColorAspect::volatileValueToGui()
     \class Utils::FontAspect
     \inmodule QtCreator
 
-    \brief A color aspect is a color property of some object, together with
+    \brief A font aspect is a font property of some object, together with
     a description of its behavior for common operations like visualizing or
     persisting.
 
-    The color aspect is displayed using a QtColorButton.
+    The font aspect is displayed using a QFontComboBox.
 */
 
 FontFamilyAspect::FontFamilyAspect(AspectContainer *container)
@@ -2017,7 +2017,7 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
     fontComboBox->setCurrentFont(QFontInfo(QFont(value())).family());
     parent.addItem(fontComboBox);
 
-    connect(fontComboBox, &QFontComboBox::currentFontChanged, [fontComboBox, this] {
+    connect(fontComboBox, &QFontComboBox::currentTextChanged, [fontComboBox, this] {
         const QString val = fontComboBox->currentFont().family();
         d->m_undoable.set(undoStack(), val);
         updateStorage(m_volatileValue, val);
@@ -2029,12 +2029,31 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
     });
 }
 
+void FontFamilyAspect::volatileValueToGui()
+{
+    d->m_undoable.setWithoutUndo(m_volatileValue);
+}
+
+bool FontFamilyAspect::guiToVolatileValue()
+{
+    return updateStorage(m_volatileValue, d->m_undoable.get());
+}
+
+bool FontFamilyAspect::valueToVolatileValue()
+{
+    return updateStorage(m_volatileValue, m_value);
+}
+
+bool FontFamilyAspect::volatileValueToValue()
+{
+    return updateStorage(m_value, m_volatileValue);
+}
+
 bool FontFamilyAspect::isDirty() const
 {
     const QString resolved = QFontInfo(QFont(m_value)).family();
     return resolved != m_volatileValue;
 }
-
 
 // !internal
 
