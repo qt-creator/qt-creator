@@ -160,6 +160,8 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
                              .setText(Tr::tr("Reformat Document"))
                              .addToContainer(Core::Constants::M_EDIT_ADVANCED, Core::Constants::G_EDIT_FORMAT)
                              .contextAction();
+    checkCurrentEditorSemanticInfoUpToDate();
+
     cmd = ActionManager::command(TextEditor::Constants::REFORMAT_FILE);
     qmlToolsMenu->addAction(cmd);
 
@@ -451,6 +453,11 @@ void QmlJSEditorPluginPrivate::runSemanticScan()
 
 void QmlJSEditorPluginPrivate::checkCurrentEditorSemanticInfoUpToDate()
 {
+    if (QmlJSTools::globalQmlJSCodeStyle()->currentCodeStyleSettings().formatter
+        != QmlJSTools::QmlJSCodeStyleSettings::Builtin) {
+        m_reformatFileAction->setEnabled(true);
+        return;
+    }
     const bool semanticInfoUpToDate = m_currentDocument && !m_currentDocument->isSemanticInfoOutdated();
     m_reformatFileAction->setEnabled(semanticInfoUpToDate);
 }
