@@ -42,8 +42,6 @@ public:
 
     void setAspects(Utils::AspectContainer *aspects);
 
-    bool eventFilter(QObject *watched, QEvent *event);
-
     IOptionsPageWidget *q;
 
     std::function<void()> m_onApply;
@@ -185,19 +183,6 @@ bool IOptionsPageWidget::isDirty() const
     return true;
 }
 
-const char DirtyOnMouseButtonRelease[] = "DirtyOnMouseButtonRelease";
-
-static bool makesDirty(QObject *watched, QEvent *event)
-{
-    if (event->type() == QEvent::MouseButtonRelease
-            && !isIgnoredForDirtyHook(watched)
-            && watched->property(DirtyOnMouseButtonRelease).isValid()) {
-        return true;
-    }
-
-    return false;
-}
-
 void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
 {
     QTC_ASSERT(!d->m_aspects, return);
@@ -254,11 +239,6 @@ void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
             continue;
         }
     }
-
-    if (auto ob = qobject_cast<QAbstractItemView *>(widget)) {
-        ob->viewport()->setProperty(DirtyOnMouseButtonRelease, true);
-        ob->viewport()->installEventFilter(d.get());
-    }
 }
 
 void IOptionsPageWidgetPrivate::setAspects(AspectContainer *aspects)
@@ -267,14 +247,6 @@ void IOptionsPageWidgetPrivate::setAspects(AspectContainer *aspects)
     connect(m_aspects, &AspectContainer::volatileValueChanged, [] {
         checkSettingsDirty();
     });
-}
-
-bool IOptionsPageWidgetPrivate::eventFilter(QObject *watched, QEvent *event)
-{
-    if (makesDirty(watched, event))
-        markSettingsDirty();
-
-    return false;
 }
 
 /*!
