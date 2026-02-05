@@ -88,7 +88,7 @@ CocoProjectWidget::CocoProjectWidget(Project *project, BuildConfiguration *build
     connect(&m_revertButton, &QPushButton::clicked, this, &CocoProjectWidget::onRevertButtonClicked);
     connect(&m_saveButton, &QPushButton::clicked, this, &CocoProjectWidget::onSaveButtonClicked);
 
-    connect(&cocoSettings(), &CocoSettings::updateCocoDir, this, &CocoProjectWidget::reloadSettings);
+    connect(&cocoSettings().cocoPath, &FilePathAspect::changed, this, &CocoProjectWidget::reloadSettings);
 }
 
 // Read the build settings again and show them in the widget.
@@ -109,7 +109,7 @@ void CocoProjectWidget::reloadSettings()
     m_configerrorLabel.setVisible(!valid);
     if (!valid) {
         m_configerrorLabel.setText(
-            Tr::tr("Coco is not installed correctly: %1").arg(cocoSettings().errorMessage()));
+            Tr::tr("Coco is not installed correctly: %1").arg(cocoSettings().messageLabel.text()));
     }
 }
 

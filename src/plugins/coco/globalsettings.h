@@ -11,8 +11,6 @@ namespace Coco::Internal {
 
 class CocoSettings final : public Utils::AspectContainer
 {
-    Q_OBJECT
-
     friend CocoSettings &cocoSettings();
     CocoSettings();
 
@@ -20,17 +18,15 @@ public:
     Utils::FilePath coverageBrowserPath() const;
 
     bool isValid() const;
-    QString errorMessage() const;
 
+    void cancel() final;
     void apply() final;
 
     Utils::FilePathAspect cocoPath{this};
-
-signals:
-    void updateCocoDir();
+    Utils::TextDisplay messageLabel{this};
 
 private:
-    void setDirectoryVars(const Utils::FilePath &dir);
+    void updateLabel(const Utils::FilePath &dir);
     void findDefaultDirectory();
 
     void logError(const QString &msg);
@@ -39,7 +35,6 @@ private:
     void tryPath(const QString &path);
 
     bool m_isValid = false;
-    QString m_errorMessage;
 };
 
 CocoSettings &cocoSettings();

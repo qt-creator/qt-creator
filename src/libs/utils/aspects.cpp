@@ -3292,6 +3292,11 @@ void TextDisplay::setWordWrap(bool on)
         d->m_label->setWordWrap(on);
 }
 
+QString TextDisplay::text() const
+{
+    return d->m_message;
+}
+
 /*!
     \class Utils::AspectContainer
     \inmodule QtCreator

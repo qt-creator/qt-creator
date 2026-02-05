@@ -985,6 +985,8 @@ public:
     void setText(const QString &message);
     void setWordWrap(bool on);
 
+    QString text() const;
+
 private:
     std::unique_ptr<Internal::TextDisplayPrivate> d;
 };
