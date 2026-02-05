@@ -317,9 +317,9 @@ BaseSettings *generateSettings(const Id &clientTypeId)
 
 void LanguageClientSettingsPageWidget::addItem(const Id &clientTypeId)
 {
-    markSettingsDirty();
     auto newSettings = generateSettings(clientTypeId);
     QTC_ASSERT(newSettings, return);
+    markSettingsDirty();
     m_view->setCurrentIndex(m_settings.insertSettings(newSettings));
 }
 
@@ -330,6 +330,7 @@ void LanguageClientSettingsPageWidget::deleteItem()
         return;
 
     m_settings.removeRow(index.row());
+    markSettingsDirty();
 }
 
 class LanguageClientSettingsPage : public Core::IOptionsPage
@@ -1075,6 +1076,8 @@ void BaseSettingsWidget::showAddMimeTypeDialog()
                           Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Rejected)
         return;
+    if (m_mimeTypes->text() != dialog.mimeTypes().join(filterSeparator))
+        markSettingsDirty();
     m_mimeTypes->setText(dialog.mimeTypes().join(filterSeparator));
 }
 
