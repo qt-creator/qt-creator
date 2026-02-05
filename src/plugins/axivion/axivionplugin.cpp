@@ -770,8 +770,8 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
         bool ok = false;
         const AxivionServer server = settings().serverForId(serverId);
         if (server.username == "anon_auth" || server.username.isEmpty()) {
-            showErrorMessage(Tr::tr("Dashboard server '%1' does not support unauthenticated access.\n"
-                                    "Change its configuration inside the preferences.")
+            showErrorMessage(Tr::tr("Dashboard server \"%1\" does not support unauthenticated access.\n"
+                                    "Change its configuration in the preferences.")
                              .arg(server.displayString()));
             return SetupResult::StopWithError;
         }

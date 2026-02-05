@@ -144,7 +144,7 @@ private:
         if (isRunning) {
             // Green checkmark
             m_statusIcon->setText("✓");
-            m_statusLabel->setText(Tr::tr("MCP Server is Running"));
+            m_statusLabel->setText(Tr::tr("MCP Server is running"));
             m_statusLabel->setStyleSheet("QLabel { color: green; }");
 
             // Get the actual port from the server
@@ -157,12 +157,12 @@ private:
         } else {
             // Red X
             m_statusIcon->setText("✗");
-            m_statusLabel->setText(Tr::tr("MCP Server is Not Running"));
+            m_statusLabel->setText(Tr::tr("MCP Server is not running"));
             m_statusLabel->setStyleSheet("QLabel { color: red; }");
 
             m_detailsLabel->setText(
                 Tr::tr(
-                    "The MCP server is not active. Click 'Restart Server' to try starting it "
+                    "The MCP server is not active. Select \"Restart Server\" to try starting it "
                     "again."));
 
             m_restartButton->setEnabled(true);

@@ -69,7 +69,7 @@ SystemSettings::SystemSettings()
     useDbusFileManagers.setToolTip(
         Tr::tr(
             "Uses the <a href=\"%1\">freedesktop.org D-Bus interface</a> for <i>Open in File "
-            "Manager</i>, if available. Otherwise falls back onto the \"External file browser\" "
+            "Manager</i>, if available. Otherwise falls back to the \"External file browser\" "
             "above.")
             .arg("https://freedesktop.org/wiki/Specifications/file-manager-interface"));
 
@@ -204,7 +204,7 @@ public:
         const QString explanation = Tr::tr(
             "For environment variables with list semantics that do not use the standard path list\n"
             "separator, you need to configure the respective separators here if you plan to\n"
-            "aggregate them from several places (for instance from the Kit and from the project).");
+            "aggregate them from several places (for instance from the kit and from the project).");
 
         m_model.setHeader({Tr::tr("Variable"), Tr::tr("Separator")});
         for (auto it = separators.begin(); it != separators.end(); ++it)
