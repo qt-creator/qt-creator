@@ -177,6 +177,28 @@ qint64 McpHost::callTool(
     return client->callTool(toolName, arguments);
 }
 
+qint64 McpHost::listResources(const QString &serverName)
+{
+    QSharedPointer<McpClient> client = this->client(serverName);
+    if (!client) {
+        emit errorOccurred(
+            serverName, QStringLiteral("listResources: no client for '%1'").arg(serverName));
+        return -1;
+    }
+    return client->listResources();
+}
+
+qint64 McpHost::readResource(const QString &serverName, const QString &uri)
+{
+    QSharedPointer<McpClient> client = this->client(serverName);
+    if (!client) {
+        emit errorOccurred(
+            serverName, QStringLiteral("readResource: no client for '%1'").arg(serverName));
+        return -1;
+    }
+    return client->readResource(uri);
+}
+
 qint64 McpHost::sendRequest(
     const QString &serverName,
     const QString &method,
@@ -202,42 +224,61 @@ QSharedPointer<McpClient> McpHost::client(const QString &serverName) const
 
 void McpHost::wireClientSignals(const QString &name, const QSharedPointer<McpClient> &c)
 {
-    connect(c.get(), &McpClient::connected, [this, name](const McpServerInfo &info) {
+    McpClient *client = c.get();
+    connect(client, &McpClient::connected, [this, name](const McpServerInfo &info) {
         emit serverStarted(name, info);
     });
 
-    connect(c.get(), &McpClient::exited, [this, name](int ec, QProcess::ExitStatus st) {
+    connect(client, &McpClient::exited, [this, name](int ec, QProcess::ExitStatus st) {
         emit serverExited(name, ec, st);
         // schedule restart if it crashed
         if (st == QProcess::CrashExit)
             scheduleRestart(name);
     });
 
-    connect(c.get(), &McpClient::errorOccurred, [this, name](const QString &msg) {
+    connect(client, &McpClient::errorOccurred, [this, name](const QString &msg) {
         emit errorOccurred(name, msg);
     });
 
-    connect(c.get(), &McpClient::logMessage, [this, name](const QString &line) {
+    connect(client, &McpClient::logMessage, [this, name](const QString &line) {
         emit logMessage(name, line);
     });
 
-    connect(c.get(), &McpClient::toolsListed, [this, name](const QList<McpTool> &tools, qint64 reqId) {
+    connect(client, &McpClient::toolsListed, [this, name](const QList<McpTool> &tools, qint64 reqId) {
         emit toolsListed(name, tools, reqId);
     });
 
-    connect(c.get(), &McpClient::toolCallSucceeded, [this, name](const QJsonObject &res, qint64 id) {
+    connect(client, &McpClient::toolCallSucceeded, [this, name](const QJsonObject &res, qint64 id) {
         emit toolCallSucceeded(name, res, id);
     });
 
     connect(
-        c.get(),
+        client,
         &McpClient::toolCallFailed,
         [this, name](const QString &msg, const QJsonObject &err, qint64 id) {
             emit toolCallFailed(name, msg, err, id);
         });
 
     connect(
-        c.get(),
+        client,
+        &McpClient::resourcesListed,
+        [this, name](const QList<McpResource> &resources, qint64 reqId) {
+            emit resourcesListed(name, resources, reqId);
+        });
+
+    connect(client, &McpClient::resourceReadSucceeded, [this, name](const QJsonObject &res, qint64 id) {
+        emit resourceReadSucceeded(name, res, id);
+    });
+
+    connect(
+        client,
+        &McpClient::resourceReadFailed,
+        [this, name](const QString &msg, const QJsonObject &err, qint64 id) {
+            emit resourceReadFailed(name, msg, err, id);
+        });
+
+    connect(
+        client,
         &McpClient::notificationReceived,
         [this, name](const QString &method, const QJsonObject &params) {
             emit notificationReceived(name, method, params);

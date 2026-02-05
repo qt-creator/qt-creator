@@ -27,6 +27,14 @@ struct McpTool
     QJsonObject inputSchema; // JSON Schema object if provided
 };
 
+struct McpResource
+{
+    QString name;
+    QString description;
+    QString uri;
+    QString mimeType;
+};
+
 /*!
  * \class McpClient
  * \brief Host-side connector that talks to a single MCP server via STDIO.
@@ -60,6 +68,9 @@ public:
     qint64 listTools();
     qint64 callTool(const QString &toolName, const QJsonObject &arguments);
 
+    qint64 listResources();
+    qint64 readResource(const QString &uri);
+
     using ResponseHandler
         = std::function<void(qint64 requestId, const QJsonObject &result, const QJsonObject &error)>;
 
@@ -82,6 +93,11 @@ signals:
     void toolsListed(const QList<QmlDesigner::McpTool> &tools, qint64 requestId);
     void toolCallSucceeded(const QJsonObject &result, qint64 requestId);
     void toolCallFailed(const QString &errorMessage, const QJsonObject &errorObj, qint64 requestId);
+
+    void resourcesListed(const QList<QmlDesigner::McpResource> &resources, qint64 requestId);
+    void resourceReadSucceeded(const QJsonObject &result, qint64 requestId);
+    void resourceReadFailed(
+        const QString &errorMessage, const QJsonObject &errorObj, qint64 requestId);
 
     // Any JSON-RPC notification
     void notificationReceived(const QString &method, const QJsonObject &params);

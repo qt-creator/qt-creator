@@ -198,6 +198,47 @@ qint64 McpClient::callTool(const QString &toolName, const QJsonObject &arguments
         });
 }
 
+qint64 McpClient::listResources()
+{
+    return sendRequest(
+        QStringLiteral("resources/list"),
+        QJsonObject(),
+        [this](int requestId, const QJsonObject &result, const QJsonObject &error) {
+            if (!error.isEmpty()) {
+                emit errorOccurred(
+                    tr("resources/list failed: %1").arg(error.value("message").toString()));
+                return;
+            }
+            QList<McpResource> mcpResource;
+            const QJsonArray resourcesArray = result.value("resources").toArray();
+            mcpResource.reserve(resourcesArray.size());
+            for (const QJsonValue &v : resourcesArray) {
+                const QJsonObject obj = v.toObject();
+                mcpResource.append({
+                    .name = obj.value("name").toString(),
+                    .description = obj.value("description").toString(),
+                    .uri = obj.value("uri").toString(),
+                    .mimeType = obj.value("mimeType").toString(),
+                });
+            }
+            emit resourcesListed(mcpResource, requestId);
+        });
+}
+
+qint64 McpClient::readResource(const QString &uri)
+{
+    QJsonObject params{{"uri", uri}};
+    return sendRequest(
+        QStringLiteral("resources/read"),
+        params,
+        [this](int requestId, const QJsonObject &result, const QJsonObject &error) {
+            if (error.isEmpty())
+                emit resourceReadSucceeded(result, requestId);
+            else
+                emit resourceReadFailed(error.value("message").toString(), error, requestId);
+        });
+}
+
 // Returns request id. If callback is empty, you will only get signals.
 qint64 McpClient::sendRequest(
     const QString &method, const QJsonObject &params, ResponseHandler callback)

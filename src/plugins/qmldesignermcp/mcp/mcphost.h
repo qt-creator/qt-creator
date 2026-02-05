@@ -80,6 +80,9 @@ public:
     qint64 listTools(const QString &serverName);
     qint64 callTool(const QString &serverName, const QString &toolName, const QJsonObject &arguments);
 
+    qint64 listResources(const QString &serverName);
+    qint64 readResource(const QString &serverName, const QString &uri);
+
     // Generic request routing
     qint64 sendRequest(
         const QString &serverName,
@@ -104,6 +107,18 @@ signals:
         const QString &serverName, const QList<QmlDesigner::McpTool> &tools, qint64 requestId);
     void toolCallSucceeded(const QString &serverName, const QJsonObject &result, qint64 requestId);
     void toolCallFailed(
+        const QString &serverName,
+        const QString &message,
+        const QJsonObject &errorObj,
+        qint64 requestId);
+
+    void resourcesListed(
+        const QString &serverName,
+        const QList<QmlDesigner::McpResource> &resources,
+        qint64 requestId);
+    void resourceReadSucceeded(
+        const QString &serverName, const QJsonObject &result, qint64 requestId);
+    void resourceReadFailed(
         const QString &serverName,
         const QString &message,
         const QJsonObject &errorObj,
