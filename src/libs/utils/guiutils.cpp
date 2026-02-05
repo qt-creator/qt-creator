@@ -100,12 +100,12 @@ void setCheckSettingsDirtyHook(const std::function<void ()> &hook)
 
 } // Internal
 
-void markSettingsDirty(bool dirty)
+void markSettingsDirty()
 {
     QTC_ASSERT(s_markSettingDirtyHook, return);
     if (s_suppressSettingsDirtyTrigger)
         return;
-    s_markSettingDirtyHook(dirty);
+    s_markSettingDirtyHook(true);
 }
 
 void checkSettingsDirty()
@@ -120,7 +120,7 @@ static void installDirtyTriggerHelper(QWidget *widget, bool check)
 {
     QTC_ASSERT(widget, return);
 
-    const auto action = check ? [] { checkSettingsDirty(); } : []  { markSettingsDirty(true); };
+    const auto action = check ? checkSettingsDirty : markSettingsDirty;
 
     if (auto ob = qobject_cast<QAbstractButton *>(widget)) {
         QObject::connect(ob, &QAbstractButton::pressed, action);

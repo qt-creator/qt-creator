@@ -384,15 +384,11 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
     }.attachTo(this);
     // clang-format on
 
-    connect(
-        createKeyButton,
-        &QAbstractButton::clicked,
-        this,
-        &LinuxDeviceConfigurationWidget::createNewKey);
+    connect(createKeyButton, &QAbstractButton::clicked,
+            this, &LinuxDeviceConfigurationWidget::createNewKey);
 
-    connect(&device->sshParametersAspectContainer(), &AspectContainer::volatileValueChanged, [] {
-        markSettingsDirty(true);
-    });
+    connect(&device->sshParametersAspectContainer(), &AspectContainer::volatileValueChanged,
+            this, &markSettingsDirty);
 }
 
 void LinuxDeviceConfigurationWidget::createNewKey()

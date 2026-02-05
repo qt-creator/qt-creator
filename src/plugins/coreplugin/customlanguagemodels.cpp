@@ -130,10 +130,9 @@ CustomLanguageModel::CustomLanguageModel()
     arguments.setLabelText(Tr::tr("Arguments:"));
     arguments.setDisplayStyle(StringAspect::LineEditDisplay);
 
-    auto markDirty = []{ Utils::markSettingsDirty(); };
-    name.addOnVolatileValueChanged(this, markDirty);
-    executable.addOnVolatileValueChanged(this, markDirty);
-    arguments.addOnVolatileValueChanged(this, markDirty);
+    name.addOnVolatileValueChanged(this, markSettingsDirty);
+    executable.addOnVolatileValueChanged(this, markSettingsDirty);
+    arguments.addOnVolatileValueChanged(this, markSettingsDirty);
 
     using namespace Layouting;
     setLayouter([this] { return Form{name, br, executable, br, arguments}; });
