@@ -26,29 +26,48 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
     // Hack to allow completion in "description" field : completion needs a root repository, the
     // checkScriptWorkingDirectory property is fine (at this point it was set by SubversionPlugin)
     model->setRepositoryRoot(checkScriptWorkingDirectory());
-    model->setFileStatusQualifier([](const QString &status, const QVariant &) {
-        if (status.isEmpty())
-            return Core::VcsFileState::Unknown;
-        const char statusC = status.at(0).toLatin1();
-        if (statusC == FileConflictedC)
+    model->setFileStatusQualifier([](const QString & , const QVariant &extraData) {
+        const int status = extraData.toInt();
+        switch (status) {
+        case FileConflictedC:
             return Core::VcsFileState::Unmerged;
-        if (statusC == FileUntrackedC)
+        case FileUntrackedC:
             return Core::VcsFileState::Untracked;
-        if (statusC == FileAddedC)
+        case FileAddedC:
             return Core::VcsFileState::Added;
-        if (statusC == FileModifiedC)
+        case FileModifiedC:
             return Core::VcsFileState::Modified;
-        if (statusC == FileDeletedC)
+        case FileDeletedC:
             return Core::VcsFileState::Deleted;
-        return Core::VcsFileState::Unknown;
-    } );
+        default:
+            return Core::VcsFileState::Unknown;
+        }
+    });
+
+    auto statusText = [](char status) {
+        switch (status) {
+        case FileConflictedC:
+            return Tr::tr("conflicted");
+        case FileUntrackedC:
+            return Tr::tr("untracked");
+        case FileAddedC:
+            return Tr::tr("added");
+        case FileModifiedC:
+            return Tr::tr("modified");
+        case FileDeletedC:
+            return Tr::tr("deleted");
+        default:
+            return Tr::tr("unknown");
+        }
+    };
 
     for (const StatusFilePair &pair : statusOutput) {
         const VcsBase::CheckMode checkMode =
                 (pair.first == FileConflictedC)
                     ? VcsBase::Uncheckable
                     : VcsBase::Unchecked;
-        model->addFile(pair.second, QChar::fromLatin1(pair.first), checkMode);
+        model->addFile(pair.second, statusText(pair.first), checkMode,
+                       QVariant(static_cast<int>(pair.first)));
     }
     setFileModel(model);
 }
