@@ -322,6 +322,13 @@ AxivionSettings::AxivionSettings()
         m_defaultServerId.setValue(m_allServers.first().id.toString());
 
     connect(&axivionSuitePath, &BaseAspect::changed, this, [this] { m_versionInfo.reset(); });
+
+    axivionSuitePath.addOnVolatileValueChanged(this, markSettingsDirty);
+    bauhausPython.addOnVolatileValueChanged(this, markSettingsDirty);
+    javaHome.addOnVolatileValueChanged(this, markSettingsDirty);
+    highlightMarks.addOnVolatileValueChanged(this, markSettingsDirty);
+    saveOpenFiles.addOnVolatileValueChanged(this, markSettingsDirty);
+    // m_defaultServerId.addOnVolatileValueChanged(this, markSettingsDirty); // TODO
 }
 
 void AxivionSettings::toSettings() const
@@ -618,6 +625,10 @@ public:
                         &m_localPath,
                         noMargin};
         });
+
+        m_projectName.addOnVolatileValueChanged(this, markSettingsDirty);
+        m_analysisPath.addOnVolatileValueChanged(this, markSettingsDirty);
+        m_localPath.addOnVolatileValueChanged(this, markSettingsDirty);
     }
 
     void updateContent(const PathMapping &mapping)
@@ -785,8 +796,6 @@ AxivionSettingsWidget::AxivionSettingsWidget()
 
     updateEnabledStates();
     settings().validatePath();
-
-    setupDirtyHook(this);
 }
 
 void AxivionSettingsWidget::apply()
@@ -857,6 +866,7 @@ void AxivionSettingsWidget::removeCurrentServerConfig()
         return;
     }
     m_dashboardServers->removeItem(m_dashboardServers->currentIndex());
+    markSettingsDirty();
     updateEnabledStates();
 }
 
@@ -895,6 +905,7 @@ void AxivionSettingsWidget::showServerDialog(bool add)
                                             QVariant::fromValue(server));
             m_dashboardServers->setItemData(m_dashboardServers->currentIndex(),
                                             server.displayString(), Qt::DisplayRole);
+            markSettingsDirty();
         }
     }
     updateEnabledStates();
@@ -915,6 +926,7 @@ void AxivionSettingsWidget::deleteMapping()
     if (!index.isValid())
         return;
     m_mappingTree.model()->removeRow(index.row());
+    markSettingsDirty();
 }
 
 void AxivionSettingsWidget::mappingChanged()
@@ -958,6 +970,7 @@ void AxivionSettingsWidget::moveCurrentMapping(bool up)
     QTreeWidgetItem *item = m_mappingTree.takeTopLevelItem(row);
     m_mappingTree.insertTopLevelItem(up ? row - 1 : row + 1, item);
     m_mappingTree.setCurrentItem(item);
+    markSettingsDirty();
 }
 
 void AxivionSettingsWidget::updateVersionAndBuildDate(QLabel *version, QLabel *buildDate)
