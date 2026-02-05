@@ -789,6 +789,10 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     };
     // clang-format on
 
+    connect(m_useDefaultQmlls, &QCheckBox::toggled, this, markSettingsDirty);
+    connect(m_useLatestQmlls, &QCheckBox::toggled, this, markSettingsDirty);
+    connect(m_overrideExecutable, &QCheckBox::toggled, this, markSettingsDirty);
+
     form.attachTo(this);
 }
 bool QmllsClientSettingsWidget::useLatestQmlls() const
