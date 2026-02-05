@@ -483,7 +483,7 @@ private:
     QListView *m_categoryList;
     QLabel *m_headerLabel;
 
-    QtcButton m_okButton{Tr::tr("Ok"), QtcButton::MediumPrimary};
+    QtcButton m_okButton{Tr::tr("OK"), QtcButton::MediumPrimary};
     QtcButton m_applyButton{Tr::tr("Apply"), QtcButton::MediumSecondary};
     QtcButton m_cancelButton{Tr::tr("Cancel"), QtcButton::MediumSecondary};
 
