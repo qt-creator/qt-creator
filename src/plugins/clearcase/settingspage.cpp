@@ -174,6 +174,8 @@ SettingsPageWidget::SettingsPageWidget()
     indexOnlyVOBsEdit->setText(s.indexOnlyVOBs);
 
     setupDirtyHook(this);
+    installMarkSettingsDirtyTrigger(graphicalDiffRadioButton);
+    installMarkSettingsDirtyTrigger(externalDiffRadioButton);
 }
 
 void SettingsPageWidget::apply()
