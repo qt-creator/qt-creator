@@ -62,9 +62,11 @@ private:
     void updateManifestIcon();
     QString iconFileName() const { return m_iconFileName; }
     void setIconFileName(const QString &name) { m_iconFileName = name; }
+    void clearAll();
 
     QList<IconWidget *> m_iconButtons;
     QToolButton *m_masterIconButton = nullptr;
+    QToolButton *m_clearIconButton = nullptr;
     QGridLayout * m_iconLayout = nullptr;
     QPointer<TextEditor::TextEditorWidget> m_textEditor = nullptr;
     QString m_iconFileName = QLatin1String("icon");

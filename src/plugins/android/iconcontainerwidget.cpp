@@ -49,8 +49,6 @@ signals:
 
 public slots:
     void setIconFromPath();
-
-private slots:
     void removeIcon();
 
 protected:
@@ -272,9 +270,19 @@ Android::Internal::IconContainerWidget::IconContainerWidget(QWidget *parent)
     m_masterIconButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     m_masterIconButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
+    m_clearIconButton = new QToolButton(this);
+
+    const QString clearIconLabel = Tr::tr("Clear icon");
+    m_clearIconButton->setText(clearIconLabel);
+    m_clearIconButton->setToolTip(Tr::tr("Clear set icons."));
+    m_clearIconButton->setIconSize(QSize(24, 24));
+    m_clearIconButton->setIcon(Utils::Icon::fromTheme("edit-clear-locationbar-ltr"));
+    m_clearIconButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+
     auto *buttonLayout = new QHBoxLayout();
     buttonLayout->setAlignment(Qt::AlignCenter);
     buttonLayout->addWidget(m_masterIconButton);
+    buttonLayout->addWidget(m_clearIconButton);
     mainLayout->addLayout(buttonLayout);
 }
 
@@ -294,6 +302,13 @@ static const IconConfig iconConfigs[] = {
     {extraExtraHighDpiIconDisplaySize, extraExtraHighDpiIconSize, "XXHDPI", "Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi).", extraExtraHighDpiIconPath},
     {extraExtraExtraHighDpiIconDisplaySize, extraExtraExtraHighDpiIconSize, "XXXHDPI", "Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi).", extraExtraExtraHighDpiIconPath},
     };
+
+void Android::Internal::IconContainerWidget::clearAll()
+{
+    for (auto iconButton : m_iconButtons)
+        iconButton->removeIcon();
+    updateManifestIcon();
+}
 
 bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWidget *textEditorWidget)
 {
@@ -373,6 +388,13 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
             return;
         });
     }
+    if (m_clearIconButton) {
+        connect(m_clearIconButton, &QAbstractButton::clicked, this, [this]() {
+            const FilePath currentManifestDir = manifestDir(m_textEditor, true);
+            if (currentManifestDir.exists())
+                clearAll();
+        });
+    }
     loadIcons();
     return true;
 }
@@ -390,10 +412,17 @@ Utils::FilePath IconContainerWidget::iconFile(const Utils::FilePath &path)
 void IconContainerWidget::loadIcons()
 {
     const FilePath currentManifestDir = manifestDir(m_textEditor, false);
+
+    Utils::FilePath manifestPath = currentManifestDir / "AndroidManifest.xml";
+    Result<AndroidManifestParser::ManifestData> manifestResult = AndroidManifestParser::readManifest(manifestPath);
+    if (!manifestResult || !manifestResult->hasIcon) {
+        m_hasIcons = false;
+        return;
+    }
+
     for (auto &&iconButton : m_iconButtons) {
         iconButton->setTargetIconFileName(m_iconFileName + imageSuffix);
-        if (!currentManifestDir.isEmpty() && currentManifestDir.exists())
-            iconButton->loadIcon(currentManifestDir);
+        iconButton->loadIcon(currentManifestDir);
     }
     m_hasIcons = hasIcons();
 }

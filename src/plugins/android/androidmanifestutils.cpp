@@ -79,6 +79,9 @@ static void extractIconInfo(const QDomElement &manifest, AndroidManifestParser::
 
 Result<AndroidManifestParser::ManifestData> AndroidManifestParser::readManifest(const FilePath &manifestPath)
 {
+    if (manifestPath.isReadableFile())
+        return ResultError("Could not read manifest file");
+
     auto docResult = loadManifestDocument(manifestPath);
     if (!docResult)
         return ResultError(docResult.error());
