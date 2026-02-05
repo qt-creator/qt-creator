@@ -39,7 +39,7 @@ public:
 
     int lineLength = 80;
     QString qmlformatIniContent;
-    Formatter formatter = Builtin;
+    Formatter formatter = QmlFormat;
     Utils::FilePath customFormatterPath;
     QString customFormatterArguments;
 
