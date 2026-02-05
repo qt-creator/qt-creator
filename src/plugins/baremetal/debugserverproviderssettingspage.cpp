@@ -364,7 +364,7 @@ void DebugServerProvidersSettingsWidget::providerSelectionChanged()
     if (!m_container)
         return;
     const QModelIndex current = currentIndex();
-    QWidget *w = m_container->takeWidget(); // Prevent deletion.
+    QWidget *w = m_container->widget() ? m_container->takeWidget() : nullptr; // Prevent deletion.
     if (w)
         w->setVisible(false);
 
