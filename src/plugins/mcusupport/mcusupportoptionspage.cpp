@@ -183,7 +183,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
 
     showMcuTargetPackages();
 
-    setupDirtyHook(this);
+    Utils::installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void McuSupportOptionsWidget::updateStatus()

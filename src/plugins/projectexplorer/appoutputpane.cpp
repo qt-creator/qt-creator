@@ -1400,7 +1400,7 @@ public:
         layout->addLayout(bgColorLayout);
         layout->addStretch(1);
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final

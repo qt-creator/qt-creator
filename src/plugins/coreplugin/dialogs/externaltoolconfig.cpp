@@ -644,7 +644,7 @@ ExternalToolConfig::ExternalToolConfig()
 
     updateEnvironmentLabel();
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &tools)

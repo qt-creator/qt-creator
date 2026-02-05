@@ -332,7 +332,7 @@ public:
         m_widgetStack = new StackedWidget;
         m_container->setWidget(m_widgetStack);
         connect(m_widgetStack, &StackedWidget::widgetAdded, this, [this](int index) {
-            setupDirtyHook(m_widgetStack->widget(index));
+            installMarkSettingsDirtyTriggerRecursively(m_widgetStack->widget(index));
         });
 
         const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
@@ -394,7 +394,7 @@ public:
 
         updateState();
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     QModelIndex mapFromSource(const QModelIndex &idx);

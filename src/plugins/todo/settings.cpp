@@ -237,7 +237,7 @@ OptionsDialog::OptionsDialog()
 
     setSettings(todoSettings());
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
     installMarkSettingsDirtyTrigger(m_scanInProjectRadioButton);
     installMarkSettingsDirtyTrigger(m_scanInCurrentFileRadioButton);
     installMarkSettingsDirtyTrigger(m_scanInSubprojectRadioButton);

@@ -438,7 +438,7 @@ public:
 
         setOnCancel([] { systemSettings().cancel(); });
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
 private:

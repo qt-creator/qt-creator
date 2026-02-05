@@ -374,7 +374,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSetting
     connect(m_ignorePatternTextEdit, &QPlainTextEdit::textChanged,
             timer, qOverload<>(&QTimer::start));
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 CppCodeModelSettings CppCodeModelSettingsWidget::settings() const

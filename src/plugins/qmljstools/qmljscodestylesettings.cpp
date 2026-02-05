@@ -361,7 +361,7 @@ public:
             TextEditorSettings::codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID)
                 ->createCodeStyleEditor({}, &m_preferences));
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final

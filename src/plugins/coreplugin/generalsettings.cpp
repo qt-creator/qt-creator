@@ -221,7 +221,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
 
     setOnCancel([] { generalSettings().cancel(); });
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)

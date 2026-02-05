@@ -696,7 +696,7 @@ public:
         setOnApply([exCommands] { exCommands->apply(); });
         Layouting::Column { exCommands, Layouting::noMargin }.attachTo(this);
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 };
 
@@ -796,7 +796,7 @@ public:
         layout->addWidget(widget, 0, 0);
         setLayout(layout);
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
 private:

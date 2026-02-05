@@ -280,7 +280,7 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
 
     installMarkSettingsDirtyTrigger(homePageLineEdit);
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void GeneralSettingsPageWidget::apply()

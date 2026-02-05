@@ -132,7 +132,7 @@ if the comment starts with "/*!" or "//!".)");
     connect(&d->m_commandPrefixComboBox, &QComboBox::currentIndexChanged,
             this, &CommentsSettingsWidget::settingsChanged);
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 CommentsSettingsWidget::~CommentsSettingsWidget() { delete d; }

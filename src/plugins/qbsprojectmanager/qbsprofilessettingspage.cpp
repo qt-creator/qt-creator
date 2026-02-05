@@ -164,7 +164,7 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget()
             this, &QbsProfilesSettingsWidget::refreshKitsList);
     refreshKitsList();
 
-    setupDirtyHook(this);
+    Utils::installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void QbsProfilesSettingsWidget::refreshKitsList()

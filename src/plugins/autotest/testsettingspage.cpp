@@ -155,7 +155,7 @@ TestSettingsWidget::TestSettingsWidget()
 
     setOnCancel([] { Internal::testSettings().cancel(); });
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 enum TestBaseInfo

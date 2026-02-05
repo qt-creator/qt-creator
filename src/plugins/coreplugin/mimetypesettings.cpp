@@ -429,7 +429,7 @@ MimeTypeSettingsWidget::MimeTypeSettingsWidget(MimeTypeSettingsPage *settings)
 
     updatePatternEditAndMagicButtons();
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void MimeTypeSettingsWidget::syncData(const QModelIndex &current,

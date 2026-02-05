@@ -512,7 +512,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     m_deviceComboBox->setCurrentIndex(0);
     updateDevice(m_deviceComboBox->currentIndex());
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 QtVersion *QtSettingsPageWidget::currentVersion() const

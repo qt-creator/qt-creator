@@ -400,7 +400,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     });
 
     setOnApply([] { AndroidConfigurations::applyConfig(); });
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void AndroidSettingsWidget::showEvent(QShowEvent *event)

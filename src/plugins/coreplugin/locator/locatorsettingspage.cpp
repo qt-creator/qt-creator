@@ -354,7 +354,7 @@ public:
 
         saveFilterStates();
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final;

@@ -378,7 +378,7 @@ public:
             updateButtons);
         connect(&m_model, &QAbstractItemModel::modelReset, updateButtons);
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
 private:

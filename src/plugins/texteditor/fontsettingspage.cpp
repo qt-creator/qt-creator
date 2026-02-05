@@ -207,7 +207,7 @@ public:
         updatePointSizes();
         refreshColorSchemeList();
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final;

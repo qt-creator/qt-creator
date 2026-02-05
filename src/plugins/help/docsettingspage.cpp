@@ -210,7 +210,7 @@ DocSettingsPageWidget::DocSettingsPageWidget()
 
     m_docsListView->installEventFilter(this);
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void DocSettingsPageWidget::addDocumentation()

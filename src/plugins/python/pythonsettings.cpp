@@ -270,7 +270,7 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
     connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,
             this, &InterpreterOptionsWidget::currentChanged);
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void InterpreterModel::addInterpreter(const Interpreter &interpreter)
@@ -440,7 +440,7 @@ public:
                 this,
                 &PyLSConfigureWidget::setAdvanced);
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() override

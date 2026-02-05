@@ -374,7 +374,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     setUseProjectsDirectory(DocumentManager::useProjectsDirectory());
     updateAppEnvChangesLabel();
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 FilePath ProjectExplorerSettingsWidget::projectsDirectory() const

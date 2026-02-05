@@ -213,7 +213,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
     }.attachTo(this);
     // clang-format on
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void CdbOptionsPageWidget::apply()
@@ -268,7 +268,7 @@ CdbPathsPageWidget::CdbPathsPageWidget()
         st
     }.attachTo(this);
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void CdbPathsPageWidget::apply()

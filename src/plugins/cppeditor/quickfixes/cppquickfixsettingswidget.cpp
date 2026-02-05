@@ -393,7 +393,7 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
 
     loadSettings(CppQuickFixSettings::instance());
 
-    setupDirtyHook(this);
+    Utils::installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void CppQuickFixSettingsWidget::loadSettings(CppQuickFixSettings *settings)

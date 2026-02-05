@@ -27,7 +27,7 @@ public:
         vbox->addWidget(m_designerPage->createPage(nullptr));
         vbox->setContentsMargins({});
 
-        setupDirtyHook(this);
+        Utils::installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() { m_designerPage->apply(); }

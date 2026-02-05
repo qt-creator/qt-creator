@@ -356,7 +356,7 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
 
     setOnApply([this] { m_model.apply(); });
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void DebugServerProvidersSettingsWidget::providerSelectionChanged()

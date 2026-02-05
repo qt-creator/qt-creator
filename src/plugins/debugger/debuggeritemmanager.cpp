@@ -1233,7 +1233,7 @@ public:
         m_container->setWidget(m_itemConfigWidget);
         updateButtons();
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final

@@ -414,7 +414,7 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
             this, &CppFileSettingsWidget::userChange);
     updateHeaderGuardAspectState();
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 FilePath CppFileSettingsWidget::licenseTemplatePath() const

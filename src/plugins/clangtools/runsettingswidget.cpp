@@ -97,7 +97,7 @@ SettingsWidget::SettingsWidget()
         st
     }.attachTo(this);
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void SettingsWidget::apply()

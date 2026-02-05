@@ -23,6 +23,8 @@
 #include <QPointer>
 #include <QPushButton>
 
+using namespace Utils;
+
 namespace UpdateInfo::Internal {
 
 class UpdateInfoSettingsPageWidget final : public Core::IOptionsPageWidget
@@ -115,7 +117,7 @@ public:
         connect(m_plugin, &UpdateInfoPlugin::newUpdatesAvailable,
                 this, &UpdateInfoSettingsPageWidget::newUpdatesAvailable);
 
-        setupDirtyHook(this);
+        Utils::installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final;

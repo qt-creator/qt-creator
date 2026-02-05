@@ -586,7 +586,7 @@ QnxSettingsWidget::QnxSettingsWidget()
     connect(m_configsCombo, &QComboBox::currentIndexChanged,
             this, &QnxSettingsWidget::updateInformation);
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void QnxSettingsWidget::addConfiguration()

@@ -168,7 +168,7 @@ public:
         QWriteLocker locker(&sshSettings().m_lock);
         sshSettings().layouter()().attachTo(this);
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply()

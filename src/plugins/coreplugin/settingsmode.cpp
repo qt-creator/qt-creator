@@ -451,7 +451,7 @@ public:
     void updateEnabledTabs(Category *category, const QString &searchText);
     void ensureCategoryWidget(Category *category);
 
-    void setupDirtyHook(QWidget *widget);
+    void installMarkSettingsDirtyTriggerRecursively(QWidget *widget);
 
     void switchBackIfNeeded();
     void switchBackLater()

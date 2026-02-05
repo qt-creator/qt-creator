@@ -229,7 +229,7 @@ public:
 
         setOnCancel([] { settings().cancel(); });
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 };
 

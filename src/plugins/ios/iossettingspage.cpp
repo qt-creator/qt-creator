@@ -63,7 +63,7 @@ IosSettingsWidget::IosSettingsWidget()
     }.attachTo(this);
     // clang-format on
 
-    setupDirtyHook(this);
+    Utils::installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 IosSettingsWidget::~IosSettingsWidget() = default;

@@ -107,7 +107,7 @@ MacroOptionsWidget::MacroOptionsWidget()
 
     initialize();
 
-    setupDirtyHook(this);
+    Utils::installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void MacroOptionsWidget::initialize()

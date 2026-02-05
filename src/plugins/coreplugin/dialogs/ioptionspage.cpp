@@ -11,16 +11,11 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QAbstractItemView>
 #include <QCheckBox>
-#include <QEvent>
 #include <QGroupBox>
 #include <QHash>
-#include <QMenu>
 #include <QPointer>
 #include <QPushButton>
-#include <QScrollBar>
-#include <QSpinBox>
 
 #include <utility>
 
@@ -181,64 +176,6 @@ bool IOptionsPageWidget::isDirty() const
         return d->m_aspects->isDirty();
 
     return true;
-}
-
-void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
-{
-    QTC_ASSERT(!d->m_aspects, return);
-    QTC_ASSERT(widget, return);
-
-    if (isIgnoredForDirtyHook(widget))
-        return;
-
-    QList<QWidget *> children = {widget};
-
-    while (!children.isEmpty()) {
-        QWidget *child = children.takeLast();
-        if (isIgnoredForDirtyHook(child))
-            continue;
-
-        children += child->findChildren<QWidget *>(Qt::FindDirectChildrenOnly);
-
-        if (child->metaObject() == &QWidget::staticMetaObject)
-            continue;
-
-        if (child->metaObject() == &QLabel::staticMetaObject)
-            continue;
-
-        if (child->metaObject() == &QScrollBar::staticMetaObject)
-            continue;
-
-        if (child->metaObject() == &QMenu::staticMetaObject)
-            continue;
-
-        auto markDirty = [child] {
-            if (isIgnoredForDirtyHook(child))
-                return;
-            markSettingsDirty();
-        };
-
-        if (auto ob = qobject_cast<QLineEdit *>(child)) {
-            connect(ob, &QLineEdit::textEdited, this, markDirty);
-            continue;
-        }
-        if (auto ob = qobject_cast<QComboBox *>(child)) {
-            connect(ob, &QComboBox::currentIndexChanged, markDirty);
-            continue;
-        }
-        if (auto ob = qobject_cast<QSpinBox *>(child)) {
-            connect(ob, &QSpinBox::valueChanged, this, markDirty);
-            continue;
-        }
-        if (auto ob = qobject_cast<QGroupBox *>(child)) {
-            connect(ob, &QGroupBox::toggled, this, markDirty);
-            continue;
-        }
-        if (auto ob = qobject_cast<QCheckBox *>(child)) {
-            connect(ob, &QCheckBox::toggled, this, markDirty);
-            continue;
-        }
-    }
 }
 
 void IOptionsPageWidgetPrivate::setAspects(AspectContainer *aspects)

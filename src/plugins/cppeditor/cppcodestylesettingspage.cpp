@@ -354,7 +354,7 @@ public:
         auto hbox = new QVBoxLayout(this);
         hbox->addWidget(m_codeStyleEditor);
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final

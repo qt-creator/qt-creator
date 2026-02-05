@@ -8,11 +8,16 @@
 #include "plaintextedit/plaintextedit.h"
 
 #include <QAbstractButton>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QEvent>
+#include <QGroupBox>
 #include <QGuiApplication>
+#include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QPlainTextEdit>
+#include <QScrollBar>
 #include <QSpinBox>
 #include <QWidget>
 
@@ -165,6 +170,63 @@ bool suppressSettingsDirtyTrigger(bool suppress)
     const bool prev = s_suppressSettingsDirtyTrigger;
     s_suppressSettingsDirtyTrigger = suppress;
     return prev;
+}
+
+void installMarkSettingsDirtyTriggerRecursively(QWidget *widget)
+{
+    QTC_ASSERT(widget, return);
+
+    if (isIgnoredForDirtyHook(widget))
+        return;
+
+    QList<QWidget *> children = {widget};
+
+    while (!children.isEmpty()) {
+        QWidget *child = children.takeLast();
+        if (isIgnoredForDirtyHook(child))
+            continue;
+
+        children += child->findChildren<QWidget *>(Qt::FindDirectChildrenOnly);
+
+        if (child->metaObject() == &QWidget::staticMetaObject)
+            continue;
+
+        if (child->metaObject() == &QLabel::staticMetaObject)
+            continue;
+
+        if (child->metaObject() == &QScrollBar::staticMetaObject)
+            continue;
+
+        if (child->metaObject() == &QMenu::staticMetaObject)
+            continue;
+
+        auto markDirty = [child] {
+            if (isIgnoredForDirtyHook(child))
+                return;
+            markSettingsDirty();
+        };
+
+        if (auto ob = qobject_cast<QLineEdit *>(child)) {
+            QObject::connect(ob, &QLineEdit::textEdited, markDirty);
+            continue;
+        }
+        if (auto ob = qobject_cast<QComboBox *>(child)) {
+            QObject::connect(ob, &QComboBox::currentIndexChanged, markDirty);
+            continue;
+        }
+        if (auto ob = qobject_cast<QSpinBox *>(child)) {
+            QObject::connect(ob, &QSpinBox::valueChanged, markDirty);
+            continue;
+        }
+        if (auto ob = qobject_cast<QGroupBox *>(child)) {
+            QObject::connect(ob, &QGroupBox::toggled, markDirty);
+            continue;
+        }
+        if (auto ob = qobject_cast<QCheckBox *>(child)) {
+            QObject::connect(ob, &QCheckBox::toggled, markDirty);
+            continue;
+        }
+    }
 }
 
 } // namespace Utils

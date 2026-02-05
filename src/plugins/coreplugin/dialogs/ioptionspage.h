@@ -34,8 +34,6 @@ public:
     virtual void cancel();
     virtual bool isDirty() const;
 
-    void setupDirtyHook(QWidget *widget);
-
 private:
     friend class Internal::IOptionsPagePrivate;
     std::unique_ptr<Internal::IOptionsPageWidgetPrivate> d;

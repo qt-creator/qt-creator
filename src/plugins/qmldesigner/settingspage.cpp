@@ -251,7 +251,7 @@ SettingsPageWidget::SettingsPageWidget()
 
     readSettings();
 
-    setupDirtyHook(this);
+    Utils::installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const

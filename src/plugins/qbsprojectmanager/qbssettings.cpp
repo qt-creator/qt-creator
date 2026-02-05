@@ -207,7 +207,7 @@ public:
             m_qbsExePathChooser.setFilePath(QbsSettings::defaultQbsExecutableFilePath());
         });
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final

@@ -307,7 +307,7 @@ public:
         connect(s.command.pathChooser(), &PathChooser::validChanged, options, &QWidget::setEnabled);
         options->setEnabled(s.command.pathChooser()->isValid());
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 };
 

@@ -94,7 +94,7 @@ public:
             emit onChanged();
         });
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 };
 

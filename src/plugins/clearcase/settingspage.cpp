@@ -173,7 +173,7 @@ SettingsPageWidget::SettingsPageWidget()
     diffArgsEdit->setText(s.diffArgs);
     indexOnlyVOBsEdit->setText(s.indexOnlyVOBs);
 
-    setupDirtyHook(this);
+    installMarkSettingsDirtyTriggerRecursively(this);
     installMarkSettingsDirtyTrigger(graphicalDiffRadioButton);
     installMarkSettingsDirtyTrigger(externalDiffRadioButton);
 }

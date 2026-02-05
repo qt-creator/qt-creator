@@ -26,10 +26,12 @@ QTCREATOR_UTILS_EXPORT bool isIgnoredForDirtyHook(const QObject *object);
 QTCREATOR_UTILS_EXPORT void markSettingsDirty();
 QTCREATOR_UTILS_EXPORT void checkSettingsDirty();
 
-QTCREATOR_UTILS_EXPORT void installMarkSettingsDirtyTrigger(QWidget *widget);
+QTCREATOR_UTILS_EXPORT bool suppressSettingsDirtyTrigger(bool suppress);
+
 QTCREATOR_UTILS_EXPORT void installCheckSettingsDirtyTrigger(QWidget *widget);
 
-QTCREATOR_UTILS_EXPORT bool suppressSettingsDirtyTrigger(bool suppress);
+QTCREATOR_UTILS_EXPORT void installMarkSettingsDirtyTrigger(QWidget *widget);
+QTCREATOR_UTILS_EXPORT void installMarkSettingsDirtyTriggerRecursively(QWidget *widget); // Avoid.
 
 namespace Internal {
 QTCREATOR_UTILS_EXPORT void setMarkSettingsDirtyHook(const std::function<void (bool)> &hook);

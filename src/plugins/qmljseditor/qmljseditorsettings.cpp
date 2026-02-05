@@ -362,7 +362,7 @@ public:
 
         populateAnalyzerMessages(s.disabledMessages(), s.disabledMessagesForNonQuickUi());
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final

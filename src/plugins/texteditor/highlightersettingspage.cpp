@@ -133,7 +133,7 @@ public:
             HighlighterHelper::clearDefinitionForDocumentCache();
         });
 
-        setupDirtyHook(this);
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final
