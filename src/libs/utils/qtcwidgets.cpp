@@ -9,7 +9,7 @@
 #include "qtdesignsystemstyle.h"
 
 #include <QtTaskTree/QNetworkReplyWrapper>
-#include <QtTaskTree/QSingleTaskTreeRunner>
+#include <QtTaskTree/QTaskTree>
 
 #include <QCache>
 #include <QEvent>
@@ -746,8 +746,8 @@ public:
                 emit imageError();
             };
 
-            QSingleTaskTreeRunner *taskTreeRunner = new QSingleTaskTreeRunner(this);
-            taskTreeRunner->start({ QNetworkReplyWrapperTask(onSetup, onDone) });
+            taskTree.setRecipe({ QNetworkReplyWrapperTask(onSetup, onDone) });
+            taskTree.start();
         }
     }
     QPixmap pixmap() const { return px; }
@@ -758,6 +758,7 @@ signals:
 
 private:
     QPixmap px;
+    QTaskTree taskTree;
 };
 
 class ImageCache
