@@ -112,7 +112,6 @@ IconWidget::IconWidget(QWidget *parent, const QSize &displaySize, const QSize &p
 
     initDefaults();
     setToolTip(m_tooltip);
-    setFixedSize(m_displaySize);
 }
 
 void IconWidget::initDefaults()
@@ -126,6 +125,7 @@ void IconWidget::initDefaults()
     setCursor(Qt::PointingHandCursor);
     m_displaySize = m_displaySize.isEmpty() ? QSize(64, 64) : m_displaySize;
     m_pixmapSize = m_pixmapSize.isEmpty() ? m_displaySize : m_pixmapSize;
+    setFixedSize(m_displaySize);
 }
 
 void IconWidget::setIconFromPath()
@@ -258,7 +258,7 @@ Android::Internal::IconContainerWidget::IconContainerWidget(QWidget *parent)
 
     m_iconLayout = new QGridLayout();
     m_iconLayout->setAlignment(Qt::AlignCenter);
-    m_iconLayout->setHorizontalSpacing(20);
+    m_iconLayout->setHorizontalSpacing(10);
     m_iconLayout->setVerticalSpacing(5);
     mainLayout->addLayout(m_iconLayout);
 
@@ -302,7 +302,15 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
 
     const QString iconFileName = m_iconFileName + imageSuffix;
 
-    int column = 0;
+    auto addHSpacer = [&](int col, int minWidth) {
+        m_iconLayout->addItem(
+            new QSpacerItem(minWidth, 0, QSizePolicy::Expanding, QSizePolicy::Minimum),
+            0, col);
+    };
+
+    addHSpacer(0, 80);
+
+    int column = 1;
     for (const auto &config : iconConfigs) {
         auto iconButton = new IconWidget(this, config.displaySize, config.size,
                                          Tr::tr(config.title), Tr::tr(config.tooltip),
@@ -314,6 +322,8 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
         label->setAlignment(Qt::AlignCenter);
         m_iconLayout->addWidget(label, 1, column, Qt::AlignCenter);
 
+        column++;
+        addHSpacer(column, 80);
         column++;
     }
 
