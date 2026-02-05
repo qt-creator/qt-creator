@@ -9,6 +9,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
+#include <utils/guiutils.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
@@ -69,6 +70,12 @@ class CustomLanguageModels : public AspectContainer
 public:
     CustomLanguageModels();
 
+    void apply() override
+    {
+        AspectContainer::apply();
+        emit listModel.layoutChanged();
+    }
+
     AspectList models{this};
     LanguageModelsListModel listModel{models};
 };
@@ -122,6 +129,11 @@ CustomLanguageModel::CustomLanguageModel()
     arguments.setDisplayName(Tr::tr("Arguments"));
     arguments.setLabelText(Tr::tr("Arguments:"));
     arguments.setDisplayStyle(StringAspect::LineEditDisplay);
+
+    auto markDirty = []{ Utils::markSettingsDirty(); };
+    name.addOnVolatileValueChanged(this, markDirty);
+    executable.addOnVolatileValueChanged(this, markDirty);
+    arguments.addOnVolatileValueChanged(this, markDirty);
 
     using namespace Layouting;
     setLayouter([this] { return Form{name, br, executable, br, arguments}; });
