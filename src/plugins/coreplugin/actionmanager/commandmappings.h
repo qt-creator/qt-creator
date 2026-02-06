@@ -26,12 +26,13 @@ public:
 
     QWidget *widget() const;
 
-    virtual bool filterColumn(const QString &filterString, QTreeWidgetItem *item, int column) const;
-
     void filterChanged(const QString &f);
 
     void setImportExportEnabled(bool enabled);
     void setResetVisible(bool visible);
+
+    using ColumnFilter = std::function<bool(const QString &filter, QTreeWidgetItem *item, int column)>;
+    void setColumnFilter(const ColumnFilter &filter);
 
     QTreeWidget *commandList() const;
     QString filterText() const;

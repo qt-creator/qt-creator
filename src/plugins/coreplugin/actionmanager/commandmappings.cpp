@@ -82,6 +82,16 @@ public:
                    q, &CommandMappings::currentCommandChanged);
 
         new HeaderViewStretcher(commandList->header(), 1);
+
+        m_columnFilter = [](const QString &filterString, QTreeWidgetItem *item, int column) {
+                return !item->text(column).contains(filterString, Qt::CaseInsensitive);
+        };
+    }
+
+    bool filterColumn(const QString &filterString, QTreeWidgetItem *item, int column) const
+    {
+        QTC_ASSERT(m_columnFilter, return false);
+        return m_columnFilter(filterString, item, column);
     }
 
     CommandMappings *q;
@@ -93,6 +103,8 @@ public:
     QPushButton *resetButton;
     QPushButton *importButton;
     QPushButton *exportButton;
+
+    CommandMappings::ColumnFilter m_columnFilter;
 };
 
 } // namespace Internal
@@ -129,6 +141,11 @@ void CommandMappings::setResetVisible(bool visible)
     d->resetButton->setVisible(visible);
 }
 
+void CommandMappings::setColumnFilter(const ColumnFilter &filter)
+{
+    d->m_columnFilter = filter;
+}
+
 QTreeWidget *CommandMappings::commandList() const
 {
     return d->commandList;
@@ -157,7 +174,7 @@ bool CommandMappings::filter(const QString &filterString, QTreeWidgetItem *item)
     bool visible = filterString.isEmpty();
     int columnCount = item->columnCount();
     for (int i = 0; !visible && i < columnCount; ++i)
-        visible |= !filterColumn(filterString, item, i);
+        visible |= !d->filterColumn(filterString, item, i);
 
     int childCount = item->childCount();
     if (childCount > 0) {
@@ -170,12 +187,6 @@ bool CommandMappings::filter(const QString &filterString, QTreeWidgetItem *item)
     }
     item->setHidden(!visible);
     return !visible;
-}
-
-bool CommandMappings::filterColumn(const QString &filterString, QTreeWidgetItem *item,
-                                   int column) const
-{
-    return !item->text(column).contains(filterString, Qt::CaseInsensitive);
 }
 
 void CommandMappings::setModified(QTreeWidgetItem *item , bool modified)
