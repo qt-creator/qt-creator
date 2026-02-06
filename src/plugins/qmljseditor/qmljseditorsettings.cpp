@@ -363,6 +363,7 @@ public:
         populateAnalyzerMessages(s.disabledMessages(), s.disabledMessagesForNonQuickUi());
 
         installMarkSettingsDirtyTriggerRecursively(this);
+        connect(&analyzerMessageModel, &QAbstractItemModel::dataChanged, this, markSettingsDirty);
     }
 
     void apply() final
@@ -387,7 +388,11 @@ public:
 
     void cancel() final
     {
-        settings().cancel();
+        QmlJsEditingSettings &s = settings();
+        s.cancel();
+        analyzerMessageModel.clear();
+        populateAnalyzerMessages(s.disabledMessages(), s.disabledMessagesForNonQuickUi());
+        analyzerMessagesView->setEnabled(s.useCustomAnalyzer());
         Core::IOptionsPageWidget::cancel();
     }
 
@@ -418,7 +423,7 @@ private:
             analyzerMessageModel.clear();
             populateAnalyzerMessages(defaultDisabledMessages(),
                                      defaultDisabledMessagesNonQuickUi());
-
+            markSettingsDirty();
         });
         menu.exec(analyzerMessagesView->mapToGlobal(position));
     }
