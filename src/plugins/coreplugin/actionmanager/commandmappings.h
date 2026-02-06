@@ -26,14 +26,6 @@ public:
 
     QWidget *widget() const;
 
-signals:
-    void currentCommandChanged(QTreeWidgetItem *current);
-    void resetRequested();
-    void importRequested();
-    void exportRequested();
-    void defaultRequested();
-
-protected:
     virtual bool filterColumn(const QString &filterString, QTreeWidgetItem *item, int column) const;
 
     void filterChanged(const QString &f);
@@ -47,6 +39,13 @@ protected:
     void setPageTitle(const QString &s);
     void setTargetHeader(const QString &s);
     static void setModified(QTreeWidgetItem *item, bool modified);
+
+signals:
+    void currentCommandChanged(QTreeWidgetItem *current);
+    void resetRequested();
+    void importRequested();
+    void exportRequested();
+    void defaultRequested();
 
 private:
     bool filter(const QString &filterString, QTreeWidgetItem *item);

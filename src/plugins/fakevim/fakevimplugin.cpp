@@ -475,13 +475,12 @@ const char reKey[] = "RegEx";
 const char cmdKey[] = "Cmd";
 const char idKey[] = "Command";
 
-class FakeVimExCommandsMappings : public CommandMappings
+class FakeVimExCommandsPageWidget final : public IOptionsPageWidget
 {
 public:
-    FakeVimExCommandsMappings();
-    void apply();
+    FakeVimExCommandsPageWidget();
+    void apply() final;
 
-protected:
     ExCommandMap exCommandMapFromWidget();
 
     void commandChanged();
@@ -490,21 +489,23 @@ protected:
 
     void handleCurrentCommandChanged(QTreeWidgetItem *current);
 
-private:
+    CommandMappings m_mappings;
     QGroupBox *m_commandBox;
     FancyLineEdit *m_commandEdit;
 };
 
-FakeVimExCommandsMappings::FakeVimExCommandsMappings()
+FakeVimExCommandsPageWidget::FakeVimExCommandsPageWidget()
 {
-    setPageTitle(Tr::tr("Ex Command Mapping"));
-    setTargetHeader(Tr::tr("Ex Trigger Expression"));
-    setImportExportEnabled(false);
+    installMarkSettingsDirtyTriggerRecursively(this);
 
-    connect(this, &FakeVimExCommandsMappings::currentCommandChanged,
-            this, &FakeVimExCommandsMappings::handleCurrentCommandChanged);
+    m_mappings.setPageTitle(Tr::tr("Ex Command Mapping"));
+    m_mappings.setTargetHeader(Tr::tr("Ex Trigger Expression"));
+    m_mappings.setImportExportEnabled(false);
 
-    m_commandBox = new QGroupBox(Tr::tr("Ex Command"), widget());
+    connect(&m_mappings, &CommandMappings::currentCommandChanged,
+            this, &FakeVimExCommandsPageWidget::handleCurrentCommandChanged);
+
+    m_commandBox = new QGroupBox(Tr::tr("Ex Command"), m_mappings.widget());
     m_commandBox->setEnabled(false);
     auto commandBoxLayout = new QVBoxLayout(m_commandBox);
     auto boxLayout = new QHBoxLayout;
@@ -513,7 +514,7 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
     m_commandEdit->setFiltering(true);
     m_commandEdit->setPlaceholderText(QString());
     connect(m_commandEdit, &FancyLineEdit::textChanged,
-            this, &FakeVimExCommandsMappings::commandChanged);
+            this, &FakeVimExCommandsPageWidget::commandChanged);
     m_commandEdit->setValidationFunction([](const QString &text) -> Result<> {
         if (QRegularExpression(text).isValid())
             return ResultOk;
@@ -522,7 +523,7 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
     auto resetButton = new QPushButton(Tr::tr("Reset"), m_commandBox);
     resetButton->setToolTip(Tr::tr("Reset to default."));
     connect(resetButton, &QPushButton::clicked,
-            this, &FakeVimExCommandsMappings::resetToDefault);
+            this, &FakeVimExCommandsPageWidget::resetToDefault);
     boxLayout->addWidget(new QLabel(Tr::tr("Regular expression:")));
     boxLayout->addWidget(m_commandEdit);
     boxLayout->addWidget(resetButton);
@@ -533,7 +534,6 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
         infoLabel->setVisible(!valid);
     });
     commandBoxLayout->addWidget(infoLabel);
-    widget()->layout()->addWidget(m_commandBox);
 
     QMap<QString, QTreeWidgetItem *> sections;
 
@@ -550,12 +550,12 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
         item->setData(0, CommandRole, name);
 
         if (!sections.contains(section)) {
-            auto categoryItem = new QTreeWidgetItem(commandList(), { section });
+            auto categoryItem = new QTreeWidgetItem(m_mappings.commandList(), { section });
             QFont f = categoryItem->font(0);
             f.setBold(true);
             categoryItem->setFont(0, f);
             sections.insert(section, categoryItem);
-            commandList()->expandItem(categoryItem);
+            m_mappings.commandList()->expandItem(categoryItem);
         }
         sections[section]->addChild(item);
 
@@ -568,21 +568,27 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
         item->setText(2, regex);
 
         if (regex != dd->m_defaultExCommandMap[name].pattern())
-            setModified(item, true);
+            m_mappings.setModified(item, true);
     }
 
     handleCurrentCommandChanged(nullptr);
 
-    connect(this, &CommandMappings::defaultRequested,
-            this, &FakeVimExCommandsMappings::defaultAction);
+    using namespace Layouting;
+    Column {
+        m_mappings.widget(),
+        m_commandBox
+    }.attachTo(this);
+
+    connect(&m_mappings, &CommandMappings::defaultRequested,
+            this, &FakeVimExCommandsPageWidget::defaultAction);
 }
 
-ExCommandMap FakeVimExCommandsMappings::exCommandMapFromWidget()
+ExCommandMap FakeVimExCommandsPageWidget::exCommandMapFromWidget()
 {
     ExCommandMap map;
-    int n = commandList()->topLevelItemCount();
+    int n = m_mappings.commandList()->topLevelItemCount();
     for (int i = 0; i != n; ++i) {
-        QTreeWidgetItem *section = commandList()->topLevelItem(i);
+        QTreeWidgetItem *section = m_mappings.commandList()->topLevelItem(i);
         int m = section->childCount();
         for (int j = 0; j != m; ++j) {
             QTreeWidgetItem *item = section->child(j);
@@ -600,7 +606,7 @@ ExCommandMap FakeVimExCommandsMappings::exCommandMapFromWidget()
     return map;
 }
 
-void FakeVimExCommandsMappings::handleCurrentCommandChanged(QTreeWidgetItem *current)
+void FakeVimExCommandsPageWidget::handleCurrentCommandChanged(QTreeWidgetItem *current)
 {
     if (current) {
         m_commandEdit->setText(current->text(2));
@@ -611,9 +617,9 @@ void FakeVimExCommandsMappings::handleCurrentCommandChanged(QTreeWidgetItem *cur
     }
 }
 
-void FakeVimExCommandsMappings::commandChanged()
+void FakeVimExCommandsPageWidget::commandChanged()
 {
-    QTreeWidgetItem *current = commandList()->currentItem();
+    QTreeWidgetItem *current = m_mappings.commandList()->currentItem();
     if (!current)
         return;
 
@@ -623,12 +629,12 @@ void FakeVimExCommandsMappings::commandChanged()
     if (current->data(0, Qt::UserRole).isValid())
         current->setText(2, regex);
 
-    setModified(current, regex != dd->m_defaultExCommandMap[name].pattern());
+    m_mappings.setModified(current, regex != dd->m_defaultExCommandMap[name].pattern());
 }
 
-void FakeVimExCommandsMappings::resetToDefault()
+void FakeVimExCommandsPageWidget::resetToDefault()
 {
-    QTreeWidgetItem *current = commandList()->currentItem();
+    QTreeWidgetItem *current = m_mappings.commandList()->currentItem();
     if (!current)
         return;
     const QString name = current->data(0, CommandRole).toString();
@@ -638,11 +644,11 @@ void FakeVimExCommandsMappings::resetToDefault()
     m_commandEdit->setText(regex);
 }
 
-void FakeVimExCommandsMappings::defaultAction()
+void FakeVimExCommandsPageWidget::defaultAction()
 {
-    const int n = commandList()->topLevelItemCount();
+    const int n = m_mappings.commandList()->topLevelItemCount();
     for (int i = 0; i != n; ++i) {
-        QTreeWidgetItem *section = commandList()->topLevelItem(i);
+        QTreeWidgetItem *section = m_mappings.commandList()->topLevelItem(i);
         const int m = section->childCount();
         for (int j = 0; j != m; ++j) {
             QTreeWidgetItem *item = section->child(j);
@@ -650,15 +656,15 @@ void FakeVimExCommandsMappings::defaultAction()
             QString regex;
             if (dd->m_defaultExCommandMap.contains(name))
                 regex = dd->m_defaultExCommandMap[name].pattern();
-            setModified(item, false);
+            m_mappings.setModified(item, false);
             item->setText(2, regex);
-            if (item == commandList()->currentItem())
-                emit currentCommandChanged(item);
+            if (item == m_mappings.commandList()->currentItem())
+                emit m_mappings.currentCommandChanged(item);
         }
     }
 }
 
-void FakeVimExCommandsMappings::apply()
+void FakeVimExCommandsPageWidget::apply()
 {
     // now save the mappings if necessary
     const ExCommandMap &newMapping = exCommandMapFromWidget();
@@ -689,22 +695,6 @@ void FakeVimExCommandsMappings::apply()
         globalCommandMapping.insert(newMapping);
     }
 }
-
-class FakeVimExCommandsPageWidget : public IOptionsPageWidget
-{
-public:
-    FakeVimExCommandsPageWidget()
-    {
-        setOnApply([this] { exCommands.apply(); });
-
-        using namespace Layouting;
-        Column { exCommands.widget(), noMargin }.attachTo(this);
-
-        installMarkSettingsDirtyTriggerRecursively(this);
-    }
-
-    FakeVimExCommandsMappings exCommands;
-};
 
 class FakeVimExCommandsPage : public IOptionsPage
 {
