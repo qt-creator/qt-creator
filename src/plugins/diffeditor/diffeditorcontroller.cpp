@@ -25,13 +25,6 @@ DiffEditorController::DiffEditorController(IDocument *document)
 {
     QTC_ASSERT(m_document, return);
     m_document->setController(this);
-    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::aboutToStart, this, [this](QTaskTree *taskTree) {
-        auto progress = new TaskProgress(taskTree);
-        progress->setDisplayName(m_displayName);
-    });
-    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [this](DoneWith result) {
-        m_document->endReload(result == DoneWith::Success);
-    });
 }
 
 FilePath DiffEditorController::workingDirectory() const
@@ -117,7 +110,14 @@ IDocument *DiffEditorController::document() const
 void DiffEditorController::requestReload()
 {
     m_document->beginReload();
-    m_taskTreeRunner.start(m_reloadRecipe);
+    const auto onTaskTreeSetup = [this](QTaskTree &taskTree) {
+        auto progress = new TaskProgress(&taskTree);
+        progress->setDisplayName(m_displayName);
+    };
+    const auto onTaskTreeDone = [this](DoneWith result) {
+        m_document->endReload(result == DoneWith::Success);
+    };
+    m_taskTreeRunner.start(m_reloadRecipe, onTaskTreeSetup, onTaskTreeDone);
 }
 
 void DiffEditorController::addExtraActions(QMenu *menu, int fileIndex, int chunkIndex,
