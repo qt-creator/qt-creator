@@ -16,13 +16,15 @@ namespace Core {
 
 namespace Internal { class CommandMappingsPrivate; }
 
-class CORE_EXPORT CommandMappings : public QWidget
+class CORE_EXPORT CommandMappings : public QObject
 {
     Q_OBJECT
 
 public:
     CommandMappings(QWidget *parent = nullptr);
     ~CommandMappings() override;
+
+    QWidget *widget() const;
 
 signals:
     void currentCommandChanged(QTreeWidgetItem *current);

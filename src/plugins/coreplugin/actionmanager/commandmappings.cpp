@@ -23,7 +23,7 @@ using namespace Utils;
 namespace Core {
 namespace Internal {
 
-class CommandMappingsPrivate
+class CommandMappingsPrivate : public QWidget
 {
 public:
     CommandMappingsPrivate(CommandMappings *parent)
@@ -64,7 +64,7 @@ public:
                     Row { defaultButton, resetButton, st, importButton, exportButton },
                 },
             },
-        }.attachTo(parent);
+        }.attachTo(this);
 
         q->connect(exportButton, &QPushButton::clicked,
                    q, &CommandMappings::exportAction);
@@ -104,13 +104,18 @@ public:
 */
 
 CommandMappings::CommandMappings(QWidget *parent)
-    : QWidget(parent), d(new Internal::CommandMappingsPrivate(this))
+    : QObject(parent), d(new Internal::CommandMappingsPrivate(this))
 {
 }
 
 CommandMappings::~CommandMappings()
 {
    delete d;
+}
+
+QWidget *CommandMappings::widget() const
+{
+    return d;
 }
 
 void CommandMappings::setImportExportEnabled(bool enabled)

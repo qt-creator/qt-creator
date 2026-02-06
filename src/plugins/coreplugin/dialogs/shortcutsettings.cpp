@@ -594,11 +594,11 @@ ShortcutSettingsWidget::ShortcutSettingsWidget()
     connect(this, &ShortcutSettingsWidget::resetRequested,
             this, &ShortcutSettingsWidget::resetToDefault);
 
-    m_shortcutBox = new QGroupBox(Tr::tr("Shortcut"), this);
+    m_shortcutBox = new QGroupBox(Tr::tr("Shortcut"), widget());
     m_shortcutBox->setEnabled(false);
     m_shortcutLayout = new QGridLayout(m_shortcutBox);
     m_shortcutBox->setLayout(m_shortcutLayout);
-    layout()->addWidget(m_shortcutBox);
+    widget()->layout()->addWidget(m_shortcutBox);
 
     initialize();
 }
@@ -667,7 +667,7 @@ void ShortcutSettingsWidget::setupShortcutBox(ShortcutItem *scitem)
     };
     m_shortcutInputs.clear();
     delete m_addButton;
-    m_addButton = new QPushButton(Tr::tr("Add"), this);
+    m_addButton = new QPushButton(Tr::tr("Add"), widget());
     for (int i = 0; i < qMax(1, scitem->m_keys.size()); ++i)
         addShortcutInput(i, scitem->m_keys.value(i));
     connect(m_addButton, &QPushButton::clicked, this, [this, addShortcutInput, addButtonToLayout] {
@@ -914,13 +914,14 @@ class ShortcutSettingsPageWidget final : public IOptionsPageWidget
 public:
     ShortcutSettingsPageWidget()
     {
-        auto inner = new ShortcutSettingsWidget;
         auto vbox = new QVBoxLayout(this);
-        vbox->addWidget(inner);
+        vbox->addWidget(inner.widget());
         vbox->setContentsMargins(0, 0, 0, 0);
 
-        setOnApply([inner] { inner->apply(); });
+        setOnApply([this] { inner.apply(); });
     }
+
+    ShortcutSettingsWidget inner;
 };
 
 // ShortcutSettings

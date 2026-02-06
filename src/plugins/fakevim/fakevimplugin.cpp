@@ -504,7 +504,7 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
     connect(this, &FakeVimExCommandsMappings::currentCommandChanged,
             this, &FakeVimExCommandsMappings::handleCurrentCommandChanged);
 
-    m_commandBox = new QGroupBox(Tr::tr("Ex Command"), this);
+    m_commandBox = new QGroupBox(Tr::tr("Ex Command"), widget());
     m_commandBox->setEnabled(false);
     auto commandBoxLayout = new QVBoxLayout(m_commandBox);
     auto boxLayout = new QHBoxLayout;
@@ -533,7 +533,7 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
         infoLabel->setVisible(!valid);
     });
     commandBoxLayout->addWidget(infoLabel);
-    layout()->addWidget(m_commandBox);
+    widget()->layout()->addWidget(m_commandBox);
 
     QMap<QString, QTreeWidgetItem *> sections;
 
@@ -692,12 +692,15 @@ class FakeVimExCommandsPageWidget : public IOptionsPageWidget
 public:
     FakeVimExCommandsPageWidget()
     {
-        auto exCommands = new FakeVimExCommandsMappings;
-        setOnApply([exCommands] { exCommands->apply(); });
-        Layouting::Column { exCommands, Layouting::noMargin }.attachTo(this);
+        setOnApply([this] { exCommands.apply(); });
+
+        using namespace Layouting;
+        Column { exCommands.widget(), noMargin }.attachTo(this);
 
         installMarkSettingsDirtyTriggerRecursively(this);
     }
+
+    FakeVimExCommandsMappings exCommands;
 };
 
 class FakeVimExCommandsPage : public IOptionsPage
