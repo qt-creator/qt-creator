@@ -26,7 +26,19 @@ QTCREATOR_UTILS_EXPORT bool isIgnoredForDirtyHook(const QObject *object);
 QTCREATOR_UTILS_EXPORT void markSettingsDirty();
 QTCREATOR_UTILS_EXPORT void checkSettingsDirty();
 
+// Prefer DirtySettingsGuard RAII-objects.
 QTCREATOR_UTILS_EXPORT bool suppressSettingsDirtyTrigger(bool suppress);
+
+// Disables use of dirty hooks while active
+class QTCREATOR_UTILS_EXPORT DirtySettingsGuard
+{
+public:
+    DirtySettingsGuard() : m_prev(suppressSettingsDirtyTrigger(true)) {}
+    ~DirtySettingsGuard() { suppressSettingsDirtyTrigger(m_prev); }
+
+private:
+    const bool m_prev;
+};
 
 QTCREATOR_UTILS_EXPORT void installCheckSettingsDirtyTrigger(QWidget *widget);
 

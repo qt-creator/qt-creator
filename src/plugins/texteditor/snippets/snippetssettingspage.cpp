@@ -439,13 +439,11 @@ void SnippetsSettingsWidget::loadSnippetGroup(int index)
     if (index == -1)
         return;
 
-    const bool prev = suppressSettingsDirtyTrigger(true);
+    DirtySettingsGuard suppressor;
 
     m_snippetsEditorStack->setCurrentIndex(index);
     currentEditor()->clear();
     m_model.load(m_groupCombo->itemData(index).toString());
-
-    suppressSettingsDirtyTrigger(prev);
 }
 
 void SnippetsSettingsWidget::markSnippetsCollection()
@@ -513,7 +511,7 @@ void SnippetsSettingsWidget::selectMovedSnippet(const QModelIndex &,
 
 void SnippetsSettingsWidget::updateCurrentSnippetDependent(const QModelIndex &modelIndex)
 {
-    const bool prev = suppressSettingsDirtyTrigger(true);
+    DirtySettingsGuard suppressor;
     if (modelIndex.isValid()) {
         const Snippet &snippet = m_model.snippetAt(modelIndex);
         currentEditor()->setPlainText(snippet.content());
@@ -522,7 +520,6 @@ void SnippetsSettingsWidget::updateCurrentSnippetDependent(const QModelIndex &mo
         currentEditor()->clear();
         m_revertButton->setEnabled(false);
     }
-    suppressSettingsDirtyTrigger(prev);
 }
 
 void SnippetsSettingsWidget::setSnippetContent()
