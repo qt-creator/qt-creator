@@ -658,6 +658,7 @@ void CMakeToolConfigWidget::cloneCMakeTool()
         DetectionSource{DetectionSource::Manual, m_currentItem->m_detectionSource.id});
 
     m_cmakeToolsView->setCurrentIndex(mapFromSource(newItem));
+    markSettingsDirty();
 }
 
 void CMakeToolConfigWidget::addCMakeTool()
@@ -670,6 +671,7 @@ void CMakeToolConfigWidget::addCMakeTool()
         DetectionSource::Manual);
 
     m_cmakeToolsView->setCurrentIndex(mapFromSource(newItem));
+    markSettingsDirty();
 }
 
 void CMakeToolConfigWidget::removeCMakeTool()
@@ -677,6 +679,7 @@ void CMakeToolConfigWidget::removeCMakeTool()
     bool delDef = m_model.defaultItemId() == m_currentItem->m_id;
     m_model.removeCMakeTool(m_currentItem->m_id);
     m_currentItem = nullptr;
+    markSettingsDirty();
 
     if (delDef) {
         auto it = static_cast<CMakeToolTreeItem *>(m_model.autoGroupItem()->firstChild());
@@ -701,6 +704,7 @@ void CMakeToolConfigWidget::setDefaultCMakeTool()
 
     m_model.setDefaultItemId(m_currentItem->m_id);
     m_makeDefButton->setEnabled(false);
+    markSettingsDirty();
 }
 
 void CMakeToolConfigWidget::redetect()
@@ -743,6 +747,9 @@ void CMakeToolConfigWidget::redetect()
     // Step 4: Add newly detected that haven't been present so far.
     for (const auto &tool : toAdd)
         m_model.addCMakeTool(tool.get(), true);
+
+    if (!toRemove.isEmpty() || !toAdd.empty())
+        markSettingsDirty();
 }
 
 void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurrent)
