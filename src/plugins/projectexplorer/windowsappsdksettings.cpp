@@ -236,16 +236,6 @@ WindowsSettingsWidget::WindowsSettingsWidget()
             this, &WindowsSettingsWidget::downloadNuget);
     connect(downloadWindowsAppSdk, &QAbstractButton::clicked,
             this, &WindowsSettingsWidget::downloadWindowsAppSdk);
-    connect(&m_nugetDownloader, &QSingleTaskTreeRunner::done, this,
-        [this](DoneWith result) {
-            if (result != DoneWith::Success)
-                return;
-
-            validateNuget();
-            m_nugetPathChooser->triggerChanged(); // After cloning, the path exists
-            updateUI();
-            apply();
-        });
 
     setOnApply([] { windowsAppSdkSettings().writeSettings(); });
 }
@@ -428,7 +418,14 @@ void WindowsSettingsWidget::downloadNuget()
         return;
     }
 
-    m_nugetDownloader.start({downloadNugetRecipe()});
+    m_nugetDownloader.start({downloadNugetRecipe()}, {}, [this](DoneWith result) {
+        if (result != DoneWith::Success)
+            return;
+        validateNuget();
+        m_nugetPathChooser->triggerChanged(); // After cloning, the path exists
+        updateUI();
+        apply();
+    });
 }
 
 void WindowsSettingsWidget::downloadWindowsAppSdk()
