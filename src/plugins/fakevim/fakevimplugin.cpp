@@ -584,6 +584,8 @@ FakeVimExCommandsPageWidget::FakeVimExCommandsPageWidget()
     connect(&m_commandEdit, &FancyLineEdit::validChanged, this, [this](bool valid) {
         m_infoLabel.setVisible(!valid);
     });
+
+    connect(m_mappings.commandList()->model(), &QAbstractItemModel::dataChanged, checkSettingsDirty);
 }
 
 ExCommandMap FakeVimExCommandsPageWidget::exCommandMapFromWidget()
