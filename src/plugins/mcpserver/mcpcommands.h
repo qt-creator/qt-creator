@@ -66,7 +66,11 @@ public:
     void performDebuggingCleanup();
     bool performDebuggingCleanupSync();
 
-    // TODO: execute command in terminal
+    void executeCommand(
+        const QString &command,
+        const QString &arguments,
+        const QString &workingDirectory,
+        std::function<void(const QJsonObject &response)> callback);
 
 private:
     // Issues management

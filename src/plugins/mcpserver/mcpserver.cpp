@@ -555,6 +555,38 @@ McpServer::McpServer(QObject *parent)
             callback(QJsonObject{{"success", ok}});
         });
 
+    const QJsonObject commandInputSchema = QJsonObject{
+        {"type", "object"},
+        {"properties",
+         QJsonObject{
+             {"command", QJsonObject{{"type", "string"}, {"description", "Command to execute"}}},
+             {"arguments", QJsonObject{{"type", "string"}, {"description", "arguments passed to the command"}}},
+             {"workingDir", QJsonObject{{"type", "string"}, {"description", "directory in which the command is executed"}}}}},
+        {"required", QJsonArray{"command"}}};
+
+    const QJsonObject commandOutputSchema = QJsonObject{
+        {"type", "object"},
+        {"properties",
+         QJsonObject{
+             {"exitCode", QJsonObject{{"type", "integer"}}},
+             {"stdout", QJsonObject{{"type", "string"}}},
+             {"stderr", QJsonObject{{"type", "string"}}}}},
+        {"required", QJsonArray{"exitCode"}}};
+
+    addTool(
+        {{"name", "execut_command"},
+         {"title", "executes the command"},
+         {"description",
+          "executes the command and returns the exit code as well as standart output and error"},
+         {"inputSchema", commandInputSchema},
+         {"outputSchema", commandOutputSchema}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            m_commands.executeCommand(
+                p["command"].toString(),
+                p["arguments"].toString(),
+                p["workingDir"].toString(),
+                callback);
+        });
 }
 
 McpServer::~McpServer()

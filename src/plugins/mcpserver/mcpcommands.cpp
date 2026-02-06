@@ -492,6 +492,28 @@ bool McpCommands::performDebuggingCleanupSync()
     }
 }
 
+void McpCommands::executeCommand(
+    const QString &command,
+    const QString &arguments,
+    const QString &workingDirectory,
+    std::function<void(const QJsonObject &)> callback)
+{
+    CommandLine cmd(FilePath::fromUserInput(command), arguments, CommandLine::Raw);
+    auto process = new Process(this);
+    connect(process, &Process::done, this, [process, callback]() {
+        QJsonObject response;
+        response["exitCode"] = process->exitCode();
+        response["output"] = process->readAllStandardOutput();
+        response["errorOutput"] = process->readAllStandardError();
+        callback(response);
+        process->deleteLater();
+    });
+    process->setCommand(cmd);
+    if (!workingDirectory.isEmpty())
+        process->setWorkingDirectory(FilePath::fromUserInput(workingDirectory));
+    process->start();
+}
+
 void McpCommands::performDebuggingCleanup()
 {
     // This method is kept for backward compatibility but should not be used
