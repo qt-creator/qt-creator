@@ -307,6 +307,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
             return;
         s.appEnvChanges.setVolatileValue(*changes);
         updateAppEnvChangesLabel();
+        markSettingsDirty();
     });
 
     using namespace Layouting;
@@ -375,6 +376,8 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     updateAppEnvChangesLabel();
 
     installMarkSettingsDirtyTriggerRecursively(this);
+    installMarkSettingsDirtyTrigger(m_currentDirectoryRadioButton);
+    installMarkSettingsDirtyTrigger(m_directoryRadioButton);
 }
 
 FilePath ProjectExplorerSettingsWidget::projectsDirectory() const
