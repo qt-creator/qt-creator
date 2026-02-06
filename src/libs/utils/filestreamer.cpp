@@ -31,16 +31,13 @@ class FileStreamBase : public QObject
     Q_OBJECT
 
 public:
-    FileStreamBase()
-    {
-        connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [this](DoneWith result) {
-            emit done(toDoneResult(result == DoneWith::Success));
-        });
-    }
     void setFilePath(const FilePath &filePath) { m_filePath = filePath; }
     void start() {
         QTC_ASSERT(!m_taskTreeRunner.isRunning(), return);
-        m_taskTreeRunner.start({m_filePath.isLocal() ? localTask() : remoteTask()});
+        m_taskTreeRunner.start({m_filePath.isLocal() ? localTask() : remoteTask()}, {},
+                               [this](DoneWith result) {
+            emit done(toDoneResult(result == DoneWith::Success));
+        });
     }
 
 signals:
@@ -423,12 +420,7 @@ private:
 FileStreamer::FileStreamer(QObject *parent)
     : QObject(parent)
     , d(new FileStreamerPrivate)
-{
-    connect(&d->m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [this](DoneWith result) {
-        d->m_streamResult = toDoneResult(result == DoneWith::Success);
-        emit done(d->m_streamResult);
-    });
-}
+{}
 
 FileStreamer::~FileStreamer()
 {
@@ -469,7 +461,10 @@ void FileStreamer::start()
 {
     // TODO: Preliminary check if local source exists?
     QTC_ASSERT(!d->m_taskTreeRunner.isRunning(), return);
-    d->m_taskTreeRunner.start({d->task()});
+    d->m_taskTreeRunner.start({d->task()}, {}, [this](DoneWith result) {
+        d->m_streamResult = toDoneResult(result == DoneWith::Success);
+        emit done(d->m_streamResult);
+    });
 }
 
 void FileStreamer::stop()
