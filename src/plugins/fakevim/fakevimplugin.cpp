@@ -490,8 +490,9 @@ public:
     void handleCurrentCommandChanged(QTreeWidgetItem *current);
 
     CommandMappings m_mappings;
-    QGroupBox *m_commandBox;
-    FancyLineEdit *m_commandEdit;
+    QGroupBox m_commandBox;
+    FancyLineEdit m_commandEdit;
+    InfoLabel m_infoLabel{Tr::tr("Invalid regular expression."), InfoLabel::Error};
 };
 
 FakeVimExCommandsPageWidget::FakeVimExCommandsPageWidget()
@@ -502,38 +503,18 @@ FakeVimExCommandsPageWidget::FakeVimExCommandsPageWidget()
     m_mappings.setTargetHeader(Tr::tr("Ex Trigger Expression"));
     m_mappings.setImportExportEnabled(false);
 
-    connect(&m_mappings, &CommandMappings::currentCommandChanged,
-            this, &FakeVimExCommandsPageWidget::handleCurrentCommandChanged);
+    m_commandBox.setTitle(Tr::tr("Ex Command"));
+    m_commandBox.setEnabled(false);
 
-    m_commandBox = new QGroupBox(Tr::tr("Ex Command"), m_mappings.widget());
-    m_commandBox->setEnabled(false);
-    auto commandBoxLayout = new QVBoxLayout(m_commandBox);
-    auto boxLayout = new QHBoxLayout;
-    commandBoxLayout->addLayout(boxLayout);
-    m_commandEdit = new FancyLineEdit(m_commandBox);
-    m_commandEdit->setFiltering(true);
-    m_commandEdit->setPlaceholderText(QString());
-    connect(m_commandEdit, &FancyLineEdit::textChanged,
-            this, &FakeVimExCommandsPageWidget::commandChanged);
-    m_commandEdit->setValidationFunction([](const QString &text) -> Result<> {
+    m_commandEdit.setFiltering(true);
+    m_commandEdit.setPlaceholderText({});
+    m_commandEdit.setValidationFunction([](const QString &text) -> Result<> {
         if (QRegularExpression(text).isValid())
             return ResultOk;
         return ResultError(Tr::tr("The pattern \"%1\" is no valid regular expression.").arg(text));
     });
-    auto resetButton = new QPushButton(Tr::tr("Reset"), m_commandBox);
-    resetButton->setToolTip(Tr::tr("Reset to default."));
-    connect(resetButton, &QPushButton::clicked,
-            this, &FakeVimExCommandsPageWidget::resetToDefault);
-    boxLayout->addWidget(new QLabel(Tr::tr("Regular expression:")));
-    boxLayout->addWidget(m_commandEdit);
-    boxLayout->addWidget(resetButton);
 
-    auto infoLabel = new InfoLabel(Tr::tr("Invalid regular expression."), InfoLabel::Error);
-    infoLabel->setVisible(false);
-    connect(m_commandEdit, &FancyLineEdit::validChanged, this, [infoLabel](bool valid){
-        infoLabel->setVisible(!valid);
-    });
-    commandBoxLayout->addWidget(infoLabel);
+    m_infoLabel.setVisible(false);
 
     QMap<QString, QTreeWidgetItem *> sections;
 
@@ -574,6 +555,20 @@ FakeVimExCommandsPageWidget::FakeVimExCommandsPageWidget()
     handleCurrentCommandChanged(nullptr);
 
     using namespace Layouting;
+
+    Column {
+        Row {
+            Tr::tr("Regular expression:"),
+            &m_commandEdit,
+            PushButton {
+                text(Tr::tr("Reset")),
+                Layouting::toolTip(Tr::tr("Reset to default.")),
+                onClicked(this, [this] { resetToDefault(); })
+            }
+        },
+        &m_infoLabel
+    }.attachTo(&m_commandBox);
+
     Column {
         m_mappings.widget(),
         m_commandBox
@@ -581,6 +576,14 @@ FakeVimExCommandsPageWidget::FakeVimExCommandsPageWidget()
 
     connect(&m_mappings, &CommandMappings::defaultRequested,
             this, &FakeVimExCommandsPageWidget::defaultAction);
+    connect(&m_mappings, &CommandMappings::currentCommandChanged,
+            this, &FakeVimExCommandsPageWidget::handleCurrentCommandChanged);
+
+    connect(&m_commandEdit, &FancyLineEdit::textChanged,
+            this, &FakeVimExCommandsPageWidget::commandChanged);
+    connect(&m_commandEdit, &FancyLineEdit::validChanged, this, [this](bool valid) {
+        m_infoLabel.setVisible(!valid);
+    });
 }
 
 ExCommandMap FakeVimExCommandsPageWidget::exCommandMapFromWidget()
@@ -609,11 +612,11 @@ ExCommandMap FakeVimExCommandsPageWidget::exCommandMapFromWidget()
 void FakeVimExCommandsPageWidget::handleCurrentCommandChanged(QTreeWidgetItem *current)
 {
     if (current) {
-        m_commandEdit->setText(current->text(2));
-        m_commandBox->setEnabled(true);
+        m_commandEdit.setText(current->text(2));
+        m_commandBox.setEnabled(true);
     } else {
-        m_commandEdit->clear();
-        m_commandBox->setEnabled(false);
+        m_commandEdit.clear();
+        m_commandBox.setEnabled(false);
     }
 }
 
@@ -624,7 +627,7 @@ void FakeVimExCommandsPageWidget::commandChanged()
         return;
 
     const QString name =  current->data(0, CommandRole).toString();
-    const QString regex = m_commandEdit->text();
+    const QString regex = m_commandEdit.text();
 
     if (current->data(0, Qt::UserRole).isValid())
         current->setText(2, regex);
@@ -641,7 +644,7 @@ void FakeVimExCommandsPageWidget::resetToDefault()
     QString regex;
     if (dd->m_defaultExCommandMap.contains(name))
         regex = dd->m_defaultExCommandMap[name].pattern();
-    m_commandEdit->setText(regex);
+    m_commandEdit.setText(regex);
 }
 
 void FakeVimExCommandsPageWidget::defaultAction()
@@ -783,7 +786,8 @@ public:
         m_view.resizeColumnToContents(0);
         m_view.setItemDelegateForColumn(1, &m_delegate);
 
-        m_layout.addWidget(&m_view);
+        using namespace Layouting;
+        Column { m_view }.attachTo(this);
 
         connect(&m_model, &QAbstractItemModel::dataChanged, checkSettingsDirty);
     }
@@ -828,7 +832,6 @@ private:
 
     FakeVimUserCommandsModel m_model;
     FakeVimUserCommandsDelegate m_delegate;
-    QVBoxLayout m_layout{this};
     QTreeView m_view;
 };
 
