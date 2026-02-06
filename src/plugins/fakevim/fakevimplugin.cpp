@@ -759,15 +759,13 @@ Qt::ItemFlags FakeVimUserCommandsModel::flags(const QModelIndex &index) const
     return QAbstractTableModel::flags(index);
 }
 
-class FakeVimUserCommandsDelegate : public QItemDelegate
+class FakeVimUserCommandsDelegate final : public QItemDelegate
 {
 public:
-    explicit FakeVimUserCommandsDelegate(QObject *parent)
-        : QItemDelegate(parent)
-    {}
+    FakeVimUserCommandsDelegate() = default;
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
-        const QModelIndex &) const override
+                          const QModelIndex &) const final
     {
         auto lineEdit = new QLineEdit(parent);
         lineEdit->setFrame(false);
@@ -775,7 +773,7 @@ public:
     }
 
     void setModelData(QWidget *editor, QAbstractItemModel *model,
-                      const QModelIndex &index) const override
+                      const QModelIndex &index) const final
     {
         auto lineEdit = qobject_cast<QLineEdit *>(editor);
         QTC_ASSERT(lineEdit, return);
@@ -783,21 +781,16 @@ public:
     }
 };
 
-class FakeVimUserCommandsPageWidget : public IOptionsPageWidget
+class FakeVimUserCommandsPageWidget final : public IOptionsPageWidget
 {
 public:
     FakeVimUserCommandsPageWidget()
     {
-        auto widget = new QTreeView;
-        widget->setModel(&m_model);
-        widget->resizeColumnToContents(0);
+        m_view.setModel(&m_model);
+        m_view.resizeColumnToContents(0);
+        m_view.setItemDelegateForColumn(1, &m_delegate);
 
-        auto delegate = new FakeVimUserCommandsDelegate(widget);
-        widget->setItemDelegateForColumn(1, delegate);
-
-        auto layout = new QGridLayout(this);
-        layout->addWidget(widget, 0, 0);
-        setLayout(layout);
+        m_layout.addWidget(&m_view);
 
         connect(&m_model, &QAbstractItemModel::dataChanged, checkSettingsDirty);
     }
@@ -841,6 +834,9 @@ private:
     }
 
     FakeVimUserCommandsModel m_model;
+    FakeVimUserCommandsDelegate m_delegate;
+    QVBoxLayout m_layout{this};
+    QTreeView m_view;
 };
 
 class FakeVimUserCommandsPage : public IOptionsPage
