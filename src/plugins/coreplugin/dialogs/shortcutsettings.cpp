@@ -738,7 +738,10 @@ void ShortcutSettingsWidget::resetToDefault()
     ShortcutItem *scitem = shortcutItem(current);
     if (scitem) {
         scitem->m_keys = scitem->m_cmd->defaultKeySequences();
+        const QString origText = current->text(2);
         current->setText(2, keySequencesToNativeString(scitem->m_keys));
+        if (origText != current->text(2))
+            markSettingsDirty();
         CommandMappings::setModified(current, false);
         setupShortcutBox(scitem);
         markAllCollisions();
@@ -774,13 +777,19 @@ void ShortcutSettingsWidget::importAction()
 
 void ShortcutSettingsWidget::defaultAction()
 {
+    bool dirty = false;
     for (ShortcutItem *item : std::as_const(m_scitems)) {
         item->m_keys = item->m_cmd->defaultKeySequences();
+        const QString origText = item->m_item->text(2);
         item->m_item->setText(2, keySequencesToNativeString(item->m_keys));
+        if (!dirty && origText != item->m_item->text(2))
+            dirty = true;
         setModified(item->m_item, false);
         if (item->m_item == commandList()->currentItem())
             emit currentCommandChanged(item->m_item);
     }
+    if (dirty)
+        markSettingsDirty();
     markAllCollisions();
 }
 
