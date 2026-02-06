@@ -441,28 +441,6 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
             this, &BuildManager::cancel);
     connect(&d->m_progressWatcher, &QFutureWatcherBase::finished,
             this, &BuildManager::finish);
-
-    connect(&d->m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [](DoneWith result) {
-        const bool success = result == DoneWith::Success;
-
-        if (!success && d->m_progressFutureInterface)
-            d->m_progressFutureInterface->reportCanceled();
-
-        cleanupBuild();
-
-        if (d->m_pendingQueue.isEmpty()) {
-            d->m_poppedUpTaskWindow = false;
-            d->m_isDeploying = false;
-        }
-
-        emit m_instance->buildQueueFinished(success);
-
-        if (!d->m_pendingQueue.isEmpty()) {
-            d->m_buildQueue = d->m_pendingQueue;
-            d->m_pendingQueue.clear();
-            startBuildQueue();
-        }
-    });
 }
 
 BuildManager *BuildManager::instance()
@@ -856,7 +834,30 @@ void BuildManager::startBuildQueue()
     d->m_progressFutureInterface->reportStarted();
 
     d->m_elapsed.start();
-    d->m_taskTreeRunner.start(topLevel);
+
+    const auto onTaskTreeeDone = [](DoneWith result) {
+        const bool success = result == DoneWith::Success;
+
+        if (!success && d->m_progressFutureInterface)
+            d->m_progressFutureInterface->reportCanceled();
+
+        cleanupBuild();
+
+        if (d->m_pendingQueue.isEmpty()) {
+            d->m_poppedUpTaskWindow = false;
+            d->m_isDeploying = false;
+        }
+
+        emit m_instance->buildQueueFinished(success);
+
+        if (!d->m_pendingQueue.isEmpty()) {
+            d->m_buildQueue = d->m_pendingQueue;
+            d->m_pendingQueue.clear();
+            startBuildQueue();
+        }
+    };
+
+    d->m_taskTreeRunner.start(topLevel, {}, onTaskTreeeDone);
 }
 
 void BuildManager::showBuildResults()
