@@ -36,8 +36,7 @@ using namespace Utils;
 
 static const int SortRole = Qt::UserRole + 1;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 enum FilterItemColumn
 {
@@ -329,7 +328,7 @@ public:
         connect(m_model,
                 &QAbstractItemModel::dataChanged,
                 this,
-                [this] { markSettingsDirty(); });
+                &markSettingsDirty);
         connect(m_editButton, &QPushButton::clicked, this, [this] {
             configureFilter(m_filterList->currentIndex());
         });
@@ -354,7 +353,7 @@ public:
 
         saveFilterStates();
 
-        installMarkSettingsDirtyTriggerRecursively(this);
+        connect(&settings, &BaseAspect::volatileValueChanged, &markSettingsDirty);
     }
 
     void apply() final;
@@ -494,8 +493,10 @@ void LocatorSettingsWidget::configureFilter(const QModelIndex &proxyIndex)
     QString shortcutString = filter->shortcutString();
     bool needsRefresh = false;
     filter->openConfigDialog(this, needsRefresh);
-    if (needsRefresh && !m_refreshFilters.contains(filter))
+    if (needsRefresh && !m_refreshFilters.contains(filter)) {
         m_refreshFilters.append(filter);
+        markSettingsDirty();
+    }
     if (filter->isIncludedByDefault() != includedByDefault)
         item->updateColumn(FilterIncludedByDefault);
     if (filter->shortcutString() != shortcutString)
@@ -546,5 +547,4 @@ LocatorSettingsPage::LocatorSettingsPage()
     setWidgetCreator([] { return new LocatorSettingsWidget; });
 }
 
-} // Internal
-} // Core
+} // Core::Internal
