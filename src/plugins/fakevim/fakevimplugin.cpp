@@ -799,7 +799,7 @@ public:
         layout->addWidget(widget, 0, 0);
         setLayout(layout);
 
-        installMarkSettingsDirtyTriggerRecursively(this);
+        connect(&m_model, &QAbstractItemModel::dataChanged, checkSettingsDirty);
     }
 
 private:
@@ -833,6 +833,11 @@ private:
             userMap.insert(dd->m_defaultUserCommandMap);
             userMap.insert(current);
         }
+    }
+
+    bool isDirty() const final
+    {
+        return m_model.commandMap() != dd->m_userCommandMap;
     }
 
     FakeVimUserCommandsModel m_model;
@@ -1022,13 +1027,16 @@ QVariant FakeVimUserCommandsModel::data(const QModelIndex &index, int role) cons
     return QVariant();
 }
 
-bool FakeVimUserCommandsModel::setData(const QModelIndex &index,
-    const QVariant &data, int role)
+bool FakeVimUserCommandsModel::setData(const QModelIndex &index, const QVariant &data, int role)
 {
-    if (role == Qt::DisplayRole || role == Qt::EditRole)
-        if (index.column() == 1)
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
+        if (index.column() == 1) {
             m_commandMap[index.row() + 1] = data.toString();
-    return true;
+            emit dataChanged(index, index);
+            return true;
+        }
+    }
+    return false;
 }
 
 #ifdef WITH_TESTS
