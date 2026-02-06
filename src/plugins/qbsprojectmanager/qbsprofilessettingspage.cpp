@@ -163,8 +163,6 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget()
     connect(QbsProfileManager::instance(), &QbsProfileManager::qbsProfilesUpdated,
             this, &QbsProfilesSettingsWidget::refreshKitsList);
     refreshKitsList();
-
-    Utils::installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void QbsProfilesSettingsWidget::refreshKitsList()

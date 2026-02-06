@@ -204,7 +204,10 @@ public:
             m_versionLabel.setText(getQbsVersionString());
         });
         connect(&m_resetQbsExeButton, &QPushButton::clicked, this, [this] {
+            if (m_qbsExePathChooser.filePath() == QbsSettings::defaultQbsExecutableFilePath())
+                return;
             m_qbsExePathChooser.setFilePath(QbsSettings::defaultQbsExecutableFilePath());
+            markSettingsDirty();
         });
 
         installMarkSettingsDirtyTriggerRecursively(this);
