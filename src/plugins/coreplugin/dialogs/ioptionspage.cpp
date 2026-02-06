@@ -42,6 +42,7 @@ public:
     std::function<void()> m_onApply;
     std::function<void()> m_onCancel;
     std::function<void()> m_onFinish;
+    std::function<bool()> m_dirtyChecker;
 
     AspectContainer *m_aspects = nullptr;
 };
@@ -127,6 +128,11 @@ void IOptionsPageWidget::setOnCancel(const std::function<void()> &func)
     d->m_onCancel = func;
 }
 
+void IOptionsPageWidget::setDirtyChecker(const std::function<bool ()> &func)
+{
+    d->m_dirtyChecker = func;
+}
+
 /*!
     Calls the apply function, if set.
     \sa setOnApply
@@ -172,6 +178,9 @@ void IOptionsPageWidget::cancel()
 
 bool IOptionsPageWidget::isDirty() const
 {
+    if (d->m_dirtyChecker)
+        return d->m_dirtyChecker();
+
     if (d->m_aspects)
         return d->m_aspects->isDirty();
 

@@ -29,6 +29,7 @@ public:
 
     void setOnApply(const std::function<void()> &func);
     void setOnCancel(const std::function<void()> &func);
+    void setDirtyChecker(const std::function<bool()> &func);
 
     virtual void apply();
     virtual void cancel();
