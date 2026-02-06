@@ -74,24 +74,12 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     auto autoDetectButton = new QPushButton(Tr::tr("Auto-detect Kit Items"));
     auto undoAutoDetectButton = new QPushButton(Tr::tr("Remove Auto-Detected Kit Items"));
     auto listAutoDetectedButton = new QPushButton(Tr::tr("List Auto-Detected Kit Items"));
-
-    connect(&m_detectionRunner, &QSingleTaskTreeRunner::aboutToStart, [=] {
-        autoDetectButton->setEnabled(false);
-        undoAutoDetectButton->setEnabled(false);
-        listAutoDetectedButton->setEnabled(false);
-        logView->append(Tr::tr("Starting auto-detection..."));
-    });
-    connect(&m_detectionRunner, &QSingleTaskTreeRunner::done, [=] {
-        autoDetectButton->setEnabled(true);
-        undoAutoDetectButton->setEnabled(true);
-        listAutoDetectedButton->setEnabled(true);
-        logView->append(Tr::tr("Done."));
-    });
-
+    const QList<QWidget *> tempDisabledWidgets = {autoDetectButton, undoAutoDetectButton,
+                                                  listAutoDetectedButton};
     connect(autoDetectButton,
             &QPushButton::clicked,
             this,
-            [this, logView, dockerDevice] {
+            [this, logView, dockerDevice, tempDisabledWidgets] {
                 logView->clear();
                 Result<> startResult = dockerDevice->updateContainerAccess();
 
@@ -110,7 +98,19 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 };
                 // clang-format on
 
-                m_detectionRunner.start(recipe);
+                const auto onTaskTreeSetup = [logView, tempDisabledWidgets] {
+                    for (QWidget *widget : tempDisabledWidgets)
+                        widget->setEnabled(false);
+                    logView->append(Tr::tr("Starting auto-detection..."));
+                };
+
+                const auto onTaskTreeDone = [logView, tempDisabledWidgets] {
+                    for (QWidget *widget : tempDisabledWidgets)
+                        widget->setEnabled(true);
+                    logView->append(Tr::tr("Done."));
+                };
+
+                m_detectionRunner.start(recipe, onTaskTreeSetup, onTaskTreeDone);
 
                 if (DockerApi::instance()->dockerDaemonAvailable().value_or(false) == false)
                     logView->append(Tr::tr("Docker daemon appears to be stopped."));
