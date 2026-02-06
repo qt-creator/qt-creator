@@ -29,13 +29,11 @@ public:
 signals:
     void currentCommandChanged(QTreeWidgetItem *current);
     void resetRequested();
+    void importRequested();
+    void exportRequested();
+    void defaultRequested();
 
 protected:
-    virtual void defaultAction() = 0;
-
-    virtual void exportAction() {}
-    virtual void importAction() {}
-
     virtual bool filterColumn(const QString &filterString, QTreeWidgetItem *item, int column) const;
 
     void filterChanged(const QString &f);

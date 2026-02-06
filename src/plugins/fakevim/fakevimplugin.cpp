@@ -486,7 +486,7 @@ protected:
 
     void commandChanged();
     void resetToDefault();
-    void defaultAction() override;
+    void defaultAction();
 
     void handleCurrentCommandChanged(QTreeWidgetItem *current);
 
@@ -572,6 +572,9 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
     }
 
     handleCurrentCommandChanged(nullptr);
+
+    connect(this, &CommandMappings::defaultRequested,
+            this, &FakeVimExCommandsMappings::defaultAction);
 }
 
 ExCommandMap FakeVimExCommandsMappings::exCommandMapFromWidget()

@@ -552,9 +552,9 @@ public:
     void apply();
 
 private:
-    void importAction() final;
-    void exportAction() final;
-    void defaultAction() final;
+    void importAction();
+    void exportAction();
+    void defaultAction();
     bool filterColumn(const QString &filterString, QTreeWidgetItem *item, int column) const final;
 
     void initialize();
@@ -585,15 +585,6 @@ ShortcutSettingsWidget::ShortcutSettingsWidget()
     m_updateTimer.setSingleShot(true);
     m_updateTimer.setInterval(100);
 
-    connect(ActionManager::instance(), &ActionManager::commandListChanged,
-            &m_updateTimer, qOverload<>(&QTimer::start));
-    connect(&m_updateTimer, &QTimer::timeout,
-            this, &ShortcutSettingsWidget::initialize);
-    connect(this, &ShortcutSettingsWidget::currentCommandChanged,
-            this, &ShortcutSettingsWidget::handleCurrentCommandChanged);
-    connect(this, &ShortcutSettingsWidget::resetRequested,
-            this, &ShortcutSettingsWidget::resetToDefault);
-
     m_shortcutBox = new QGroupBox(Tr::tr("Shortcut"), widget());
     m_shortcutBox->setEnabled(false);
     m_shortcutLayout = new QGridLayout(m_shortcutBox);
@@ -601,6 +592,22 @@ ShortcutSettingsWidget::ShortcutSettingsWidget()
     widget()->layout()->addWidget(m_shortcutBox);
 
     initialize();
+
+    connect(ActionManager::instance(), &ActionManager::commandListChanged,
+            &m_updateTimer, qOverload<>(&QTimer::start));
+    connect(&m_updateTimer, &QTimer::timeout,
+            this, &ShortcutSettingsWidget::initialize);
+
+    connect(this, &CommandMappings::currentCommandChanged,
+            this, &ShortcutSettingsWidget::handleCurrentCommandChanged);
+    connect(this, &CommandMappings::resetRequested,
+            this, &ShortcutSettingsWidget::resetToDefault);
+    connect(this, &CommandMappings::importRequested,
+            this, &ShortcutSettingsWidget::importAction);
+    connect(this, &CommandMappings::exportRequested,
+            this, &ShortcutSettingsWidget::exportAction);
+    connect(this, &CommandMappings::defaultRequested,
+            this, &ShortcutSettingsWidget::defaultAction);
 }
 
 ShortcutSettingsWidget::~ShortcutSettingsWidget()

@@ -67,11 +67,11 @@ public:
         }.attachTo(this);
 
         q->connect(exportButton, &QPushButton::clicked,
-                   q, &CommandMappings::exportAction);
+                   q, &CommandMappings::exportRequested);
         q->connect(importButton, &QPushButton::clicked,
-                   q, &CommandMappings::importAction);
+                   q, &CommandMappings::importRequested);
         q->connect(defaultButton, &QPushButton::clicked,
-                   q, &CommandMappings::defaultAction);
+                   q, &CommandMappings::defaultRequested);
         q->connect(resetButton, &QPushButton::clicked, q, &CommandMappings::resetRequested);
 
         commandList->sortByColumn(0, Qt::AscendingOrder);
