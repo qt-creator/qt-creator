@@ -35,6 +35,8 @@
 #include <QThread>
 #include <QTimer>
 
+using namespace Utils;
+
 Q_LOGGING_CATEGORY(mcpCommands, "qtc.mcpserver.commands", QtWarningMsg)
 
 namespace Mcp::Internal {
@@ -70,7 +72,7 @@ QString McpCommands::stopDebug()
     for (const QString &actionId : stopActionIds) {
         results.append("Trying stop debug action: " + actionId);
 
-        Core::Command *command = actionManager->command(Utils::Id::fromString(actionId));
+        Core::Command *command = actionManager->command(Id::fromString(actionId));
         if (command && command->action()) {
             results.append("Found stop debug action, triggering...");
             command->action()->trigger();
@@ -129,7 +131,7 @@ bool McpCommands::openFile(const QString &path)
         return false;
     }
 
-    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+    FilePath filePath = FilePath::fromUserInput(path);
 
     if (!filePath.exists()) {
         qCDebug(mcpCommands) << "File does not exist:" << path;
@@ -151,7 +153,7 @@ QString McpCommands::getFilePlainText(const QString &path)
     }
 
 
-    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+    FilePath filePath = FilePath::fromUserInput(path);
 
     if (!filePath.exists()) {
         qCDebug(mcpCommands) << "File does not exist:" << path;
@@ -161,14 +163,14 @@ QString McpCommands::getFilePlainText(const QString &path)
     if (auto doc = TextEditor::TextDocument::textDocumentForFilePath(filePath))
         return doc->plainText();
 
-    Utils::MimeType mime = Utils::mimeTypeForFile(filePath);
+    MimeType mime = mimeTypeForFile(filePath);
     if (!mime.inherits("text/plain")) {
         qCDebug(mcpCommands) << "File is not a plain text document:" << path
                              << "MIME type:" << mime.name();
         return QString();
     }
 
-    Utils::Result<QByteArray> contents = filePath.fileContents();
+    Result<QByteArray> contents = filePath.fileContents();
     if (contents.has_value())
         return Core::EditorManager::defaultTextEncoding().decode(*contents);
 
@@ -183,7 +185,7 @@ bool McpCommands::setFilePlainText(const QString &path, const QString &contents)
         return false;
     }
 
-    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+    FilePath filePath = FilePath::fromUserInput(path);
 
     if (!filePath.exists()) {
         qCDebug(mcpCommands) << "File does not exist:" << path;
@@ -202,7 +204,7 @@ bool McpCommands::setFilePlainText(const QString &path, const QString &contents)
         return true;
     }
 
-    Utils::MimeType mime = Utils::mimeTypeForFile(filePath);
+    MimeType mime = mimeTypeForFile(filePath);
     if (!mime.inherits("text/plain")) {
         qCDebug(mcpCommands) << "File is not a plain text document:" << path
                              << "MIME type:" << mime.name();
@@ -211,7 +213,7 @@ bool McpCommands::setFilePlainText(const QString &path, const QString &contents)
 
     qCDebug(mcpCommands) << "Setting plain text for file:" << path;
 
-    Utils::Result<qint64> result = filePath.writeFileContents(
+    Result<qint64> result = filePath.writeFileContents(
         Core::EditorManager::defaultTextEncoding().encode(contents));
 
     if (!result)
@@ -226,7 +228,7 @@ bool McpCommands::saveFile(const QString &path)
         return false;
     }
 
-    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+    FilePath filePath = FilePath::fromUserInput(path);
 
     auto doc = Core::DocumentModel::documentForFilePath(filePath);
 
@@ -242,7 +244,7 @@ bool McpCommands::saveFile(const QString &path)
 
     qCDebug(mcpCommands) << "Saving file:" << path;
 
-    Utils::Result<> res = doc->save();
+    Result<> res = doc->save();
     if (!res)
         qCDebug(mcpCommands) << "Failed to save document:" << path << "Error:" << res.error();
 
@@ -256,7 +258,7 @@ bool McpCommands::closeFile(const QString &path)
         return false;
     }
 
-    Utils::FilePath filePath = Utils::FilePath::fromUserInput(path);
+    FilePath filePath = FilePath::fromUserInput(path);
 
     auto doc = Core::DocumentModel::documentForFilePath(filePath);
 
@@ -509,7 +511,7 @@ bool McpCommands::isDebuggingActive()
         = {"Debugger.Stop", "Debugger.StopDebugger", "ProjectExplorer.StopDebugging"};
 
     for (const QString &actionId : stopActionIds) {
-        Core::Command *command = actionManager->command(Utils::Id::fromString(actionId));
+        Core::Command *command = actionManager->command(Id::fromString(actionId));
         if (command && command->action() && command->action()->isEnabled()) {
             qCDebug(mcpCommands) << "Debug session is active (Stop action enabled):" << actionId;
             return true;
@@ -521,7 +523,7 @@ bool McpCommands::isDebuggingActive()
         = {"Debugger.Abort", "Debugger.AbortDebugger", "ProjectExplorer.AbortDebugging"};
 
     for (const QString &actionId : abortActionIds) {
-        Core::Command *command = actionManager->command(Utils::Id::fromString(actionId));
+        Core::Command *command = actionManager->command(Id::fromString(actionId));
         if (command && command->action() && command->action()->isEnabled()) {
             qCDebug(mcpCommands) << "Debug session is active (Abort action enabled):" << actionId;
             return true;
@@ -552,7 +554,7 @@ QString McpCommands::abortDebug()
     for (const QString &actionId : abortActionIds) {
         qCDebug(mcpCommands) << "Trying abort debug action:" << actionId;
 
-        Core::Command *command = actionManager->command(Utils::Id::fromString(actionId));
+        Core::Command *command = actionManager->command(Id::fromString(actionId));
         if (command && command->action() && command->action()->isEnabled()) {
             qCDebug(mcpCommands) << "Found abort debug action, triggering...";
             command->action()->trigger();
