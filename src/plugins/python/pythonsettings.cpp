@@ -197,6 +197,7 @@ public:
 
     void cancel() override
     {
+        interpreterModel().setInterpreters(PythonSettings::interpreters());
         s_defaultId = PythonSettings::defaultInterpreterId();
     }
 
@@ -285,6 +286,13 @@ void InterpreterModel::removeInterpreterFrom(const QString &detectionSource)
     });
 }
 
+void InterpreterModel::setInterpreters(const QList<Interpreter> &interpreters)
+{
+    clear();
+    for (const Interpreter &interpreter : interpreters)
+        appendItem(interpreter);
+}
+
 QList<Interpreter> InterpreterModel::interpreters() const
 {
     QList<Interpreter> interpreters;
@@ -352,13 +360,16 @@ void InterpreterOptionsWidget::addItem()
     QTC_ASSERT(index.isValid(), return);
     m_view.setCurrentIndex(index);
     updateCleanButton();
+    markSettingsDirty();
 }
 
 void InterpreterOptionsWidget::deleteItem()
 {
     const QModelIndex &index = m_view.currentIndex();
-    if (index.isValid())
+    if (index.isValid()) {
         interpreterModel().destroyItem(interpreterModel().itemAt(index.row()));
+        markSettingsDirty();
+    }
     updateCleanButton();
 }
 
@@ -420,6 +431,7 @@ public:
         mainGroupLayout->addStretch();
 
         auto advanced = new QCheckBox(Tr::tr("Advanced"));
+        setIgnoreForDirtyHook(advanced);
         advanced->setChecked(false);
         mainGroupLayout->addWidget(advanced);
 
@@ -441,6 +453,8 @@ public:
                 &PyLSConfigureWidget::setAdvanced);
 
         installMarkSettingsDirtyTriggerRecursively(this);
+        connect(m_editor->textDocument(), &TextEditor::TextDocument::contentsChangedWithPosition,
+                this, markSettingsDirty);
     }
 
     void apply() override
@@ -534,6 +548,8 @@ void InterpreterOptionsWidget::makeDefault()
         emit interpreterModel().dataChanged(index, index, {Qt::FontRole});
         if (defaultIndex.isValid())
             emit interpreterModel().dataChanged(defaultIndex, defaultIndex, {Qt::FontRole});
+        if (!defaultIndex.isValid() || defaultIndex != index)
+            markSettingsDirty();
     }
 }
 
@@ -550,6 +566,7 @@ void InterpreterOptionsWidget::cleanUp()
     interpreterModel().destroyItems(
         [](const Interpreter &interpreter) { return !interpreter.command.isExecutableFile(); });
     updateCleanButton();
+    markSettingsDirty();
 }
 
 constexpr char settingsGroupKey[] = "Python";
@@ -882,6 +899,7 @@ Interpreter PythonSettings::addInterpreter(const FilePath &interpreterPath,
 {
     const Interpreter interpreter = createInterpreter(interpreterPath, {}, nameSuffix);
     addInterpreter(interpreter, isDefault);
+    markSettingsDirty();
     return interpreter;
 }
 
