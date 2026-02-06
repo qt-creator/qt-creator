@@ -90,23 +90,6 @@ TestRunner::TestRunner()
     connect(this, &TestRunner::requestStopTestRun, this, [this] { cancelCurrent(UserCanceled); });
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &TestRunner::onBuildQueueFinished);
-    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::aboutToStart, this, [this](QTaskTree *taskTree) {
-        auto progress = new TaskProgress(taskTree);
-        progress->setDisplayName(Tr::tr("Running Tests"));
-        progress->setAutoStopOnCancel(false);
-        using namespace std::chrono_literals;
-        progress->setHalfLifeTimePerTask(10s);
-        connect(progress, &TaskProgress::canceled, this, [this, progress] {
-            // Progress was a child of task tree which is going to be deleted directly.
-            // Unwind properly.
-            progress->setParent(nullptr);
-            progress->deleteLater();
-            cancelCurrent(UserCanceled);
-        });
-        if (testSettings().popupOnStart())
-            popupResultsPane();
-    });
-    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, &TestRunner::onFinished);
 }
 
 TestRunner::~TestRunner()
@@ -486,7 +469,26 @@ void TestRunner::runTestsHelper()
             ProcessTask(onSetup, onDone)
         }
     };
-    m_taskTreeRunner.start(recipe);
+
+    const auto onTaskTreeSetup = [this](QTaskTree &taskTree) {
+        auto progress = new TaskProgress(&taskTree);
+        progress->setDisplayName(Tr::tr("Running Tests"));
+        progress->setAutoStopOnCancel(false);
+        using namespace std::chrono_literals;
+        progress->setHalfLifeTimePerTask(10s);
+        connect(progress, &TaskProgress::canceled, this, [this, progress] {
+            // Progress was a child of task tree which is going to be deleted directly.
+            // Unwind properly.
+            progress->setParent(nullptr);
+            progress->deleteLater();
+            cancelCurrent(UserCanceled);
+        });
+        if (testSettings().popupOnStart())
+            popupResultsPane();
+    };
+    const auto onTaskTreeDone = [this] { onFinished(); };
+
+    m_taskTreeRunner.start(recipe, onTaskTreeSetup, onTaskTreeDone);
 }
 
 static void processOutput(TestOutputReader *outputreader, const QString &msg, OutputFormat format)
