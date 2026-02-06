@@ -11,6 +11,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QHeaderView>
 #include <QGroupBox>
 #include <QLabel>
 #include <QPointer>
@@ -78,7 +79,7 @@ public:
         connect(&commandList, &QTreeWidget::currentItemChanged,
                 q, &CommandMappings::currentCommandChanged);
 
-        new HeaderViewStretcher(commandList.header(), 1);
+        new HeaderViewStretcher(commandList.header(), 2);
 
         m_columnFilter = [](const QString &filterString, QTreeWidgetItem *item, int column) {
                 return !item->text(column).contains(filterString, Qt::CaseInsensitive);
