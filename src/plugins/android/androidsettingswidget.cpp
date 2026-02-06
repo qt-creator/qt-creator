@@ -380,24 +380,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     connect(sdkManagerToolButton, &QAbstractButton::clicked, this, &executeAndroidSdkManagerDialog);
     connect(sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
-    connect(&m_sdkDownloader, &QSingleTaskTreeRunner::done, this, [this](QtTaskTree::DoneWith result) {
-        if (result != QtTaskTree::DoneWith::Success)
-            return;
-        // Make sure the sdk path is created before installing packages
-        const FilePath sdkPath = AndroidConfig::sdkLocation();
-        if (!sdkPath.createDir()) {
-            QMessageBox::warning(this, Android::Internal::dialogTitle(),
-                                 Tr::tr("Failed to create the SDK Tools path %1.")
-                                 .arg("\n\"" + sdkPath.toUserOutput() + "\""));
-        }
-        sdkManager().reloadPackages();
-        updateUI();
-        apply();
-
-        connect(&sdkManager(), &AndroidSdkManager::packagesReloaded, this, [this] {
-            downloadOpenSslRepo(true);
-        }, Qt::SingleShotConnection);
-    });
 
     setOnApply([] { AndroidConfigurations::applyConfig(); });
     installMarkSettingsDirtyTriggerRecursively(this);
@@ -726,10 +708,29 @@ void AndroidSettingsWidget::downloadSdk()
     const QString message = Tr::tr("Download and install Android SDK Tools to %1?")
             .arg("\n\"" + m_sdkLocationPathChooser->filePath().cleanPath().toUserOutput()
                  + "\"");
-    auto userInput = QMessageBox::information(this, Android::Internal::dialogTitle(),
-                                              message, QMessageBox::Yes | QMessageBox::No);
-    if (userInput == QMessageBox::Yes)
-        m_sdkDownloader.start({Android::Internal::downloadSdkRecipe()});
+    if (QMessageBox::information(this, Android::Internal::dialogTitle(),
+                                 message, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
+        return;
+    }
+    m_sdkDownloader.start({Android::Internal::downloadSdkRecipe()}, {},
+                          [this](QtTaskTree::DoneWith result) {
+        if (result != QtTaskTree::DoneWith::Success)
+            return;
+        // Make sure the sdk path is created before installing packages
+        const FilePath sdkPath = AndroidConfig::sdkLocation();
+        if (!sdkPath.createDir()) {
+            QMessageBox::warning(this, Android::Internal::dialogTitle(),
+                                 Tr::tr("Failed to create the SDK Tools path %1.")
+                                     .arg("\n\"" + sdkPath.toUserOutput() + "\""));
+        }
+        sdkManager().reloadPackages();
+        updateUI();
+        apply();
+
+        connect(&sdkManager(), &AndroidSdkManager::packagesReloaded, this, [this] {
+            downloadOpenSslRepo(true);
+        }, Qt::SingleShotConnection);
+    });
 }
 
 // AndroidSettingsPage
