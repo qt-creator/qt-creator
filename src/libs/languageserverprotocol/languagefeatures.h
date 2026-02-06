@@ -433,6 +433,15 @@ public:
     constexpr static const char methodName[] = "textDocument/foldingRange";
 };
 
+class LANGUAGESERVERPROTOCOL_EXPORT FoldingRangeRefreshRequest
+    : public Request<std::nullptr_t, std::nullptr_t, std::nullptr_t>
+{
+public:
+    explicit FoldingRangeRefreshRequest() : Request(methodName, nullptr) {}
+    using Request::Request;
+    constexpr static const char methodName[] = "workspace/foldingRange/refresh";
+};
+
 /**
  * The kind of a code action.
  *

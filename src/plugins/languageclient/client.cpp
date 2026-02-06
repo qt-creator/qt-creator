@@ -423,6 +423,9 @@ static ClientCapabilities generateClientCapabilities()
     SemanticTokensWorkspaceClientCapabilities semanticTokensWorkspaceClientCapabilities;
     semanticTokensWorkspaceClientCapabilities.setRefreshSupport(true);
     workspaceCapabilities.setSemanticTokens(semanticTokensWorkspaceClientCapabilities);
+    FoldingRangeWorkspaceClientCapabilities foldingRangeWorkspaceClientCapabilities;
+    foldingRangeWorkspaceClientCapabilities.setRefreshSupport(true);
+    workspaceCapabilities.setFoldingRange(foldingRangeWorkspaceClientCapabilities);
     capabilities.setWorkspace(workspaceCapabilities);
 
     TextDocumentClientCapabilities documentCapabilities;
@@ -2178,6 +2181,9 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
         sendResponse(createDefaultResponse());
     } else if (method == SemanticTokensRefreshRequest::methodName) {
         m_tokenSupport.refresh();
+        sendResponse(createDefaultResponse());
+    } else if (method == FoldingRangeRefreshRequest::methodName) {
+        m_foldingSupport.refresh();
         sendResponse(createDefaultResponse());
     } else if (method == ProgressNotification::methodName) {
         if (std::optional<ProgressParams> params

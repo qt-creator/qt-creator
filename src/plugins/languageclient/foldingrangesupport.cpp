@@ -152,6 +152,14 @@ void FoldingRangeSupport::deactivate(TextEditor::TextDocument *doc)
     doc->setFoldingIndentExternallyProvided(false);
 }
 
+void FoldingRangeSupport::refresh()
+{
+    for (IEditor *editor : EditorManager::visibleEditors()) {
+        if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
+            requestFoldingRanges(textEditor->textDocument());
+    }
+}
+
 } // namespace LanguageClient::Internal
 
 #include <foldingrangesupport.moc>

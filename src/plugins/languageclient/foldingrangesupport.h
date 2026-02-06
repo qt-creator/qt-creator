@@ -19,6 +19,7 @@ public:
 
     void requestFoldingRanges(TextEditor::TextDocument *doc);
     void deactivate(TextEditor::TextDocument *doc);
+    void refresh();
 
 private:
     FoldingRangeSupportImpl * const d;

@@ -653,6 +653,27 @@ public:
     void clearRefreshSupport() { remove(refreshSupportKey); }
 };
 
+class LANGUAGESERVERPROTOCOL_EXPORT FoldingRangeWorkspaceClientCapabilities : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+    /**
+     * Whether the client implementation supports a refresh request sent from the
+     * server to the client.
+     *
+     * Note that this event is global and will force the client to refresh all
+     * folding ranges currently shown. It should be used with absolute care and is
+     * useful for situation where a server, for example, detects a project wide
+     * change that requires such a calculation.
+     *
+     * @since 3.18.0
+     * @proposed
+     */
+    std::optional<bool> refreshSupport() const { return optionalValue<bool>(refreshSupportKey); }
+    void setRefreshSupport(bool refreshSupport) { insert(refreshSupportKey, refreshSupport); }
+    void clearRefreshSupport() { remove(refreshSupportKey); }
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceClientCapabilities : public JsonObject
 {
 public:
@@ -739,6 +760,12 @@ public:
     void setSemanticTokens(const SemanticTokensWorkspaceClientCapabilities &semanticTokens)
     { insert(semanticTokensKey, semanticTokens); }
     void clearSemanticTokens() { remove(semanticTokensKey); }
+
+    std::optional<FoldingRangeWorkspaceClientCapabilities> foldingRange() const
+    { return optionalValue<FoldingRangeWorkspaceClientCapabilities>(foldingRangeKey); }
+    void setFoldingRange(const FoldingRangeWorkspaceClientCapabilities &foldingRange)
+    { insert(foldingRangeKey, foldingRange); }
+    void clearFoldingRange() { remove(foldingRangeKey); }
 };
 
 class WindowClientClientCapabilities : public JsonObject
