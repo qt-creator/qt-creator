@@ -69,7 +69,6 @@ DocumentClangToolRunner::DocumentClangToolRunner(IDocument *document)
     });
 
     connect(&m_runTimer, &QTimer::timeout, this, &DocumentClangToolRunner::run);
-    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, &DocumentClangToolRunner::finalize);
     run();
 }
 
@@ -269,7 +268,7 @@ void DocumentClangToolRunner::run()
         return;
 
     cleanup.dismiss();
-    m_taskTreeRunner.start({parallel, tasks});
+    m_taskTreeRunner.start({parallel, tasks}, {}, [this] { finalize(); });
 }
 
 static void updateLocation(Link &location)
