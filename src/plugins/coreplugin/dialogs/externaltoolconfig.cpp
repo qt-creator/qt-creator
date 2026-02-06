@@ -645,6 +645,7 @@ ExternalToolConfig::ExternalToolConfig()
     updateEnvironmentLabel();
 
     installMarkSettingsDirtyTriggerRecursively(this);
+    installMarkSettingsDirtyTrigger(m_inputText);
 }
 
 void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &tools)
@@ -730,6 +731,9 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
         m_environment.clear();
         return;
     }
+
+    DirtySettingsGuard suppressor;
+
     m_infoWidget->setEnabled(true);
     m_description->setText(tool->description());
     m_executable->setFilePath(tool->executables().isEmpty() ? FilePath()
