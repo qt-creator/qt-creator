@@ -754,12 +754,10 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     m_executable->setEnabled(m_overrideExecutable->isChecked());
     m_executable->setHistoryCompleter("Qmlls.Executable.History");
     m_executable->addButton(Tr::tr("Download latest standalone qmlls"), this, [this] {
-        m_qmllsDownloader.start({downloadGithubQmlls()});
-    });
-
-    QObject::connect(&m_qmllsDownloader, &QSingleTaskTreeRunner::done, this, [this] {
-        if (const Utils::FilePath path = evaluateGithubQmlls().first; !path.isEmpty())
-            m_executable->setFilePath(path);
+        m_qmllsDownloader.start({downloadGithubQmlls()}, {}, [this] {
+            if (const Utils::FilePath path = evaluateGithubQmlls().first; !path.isEmpty())
+                m_executable->setFilePath(path);
+        });
     });
 
     using namespace Layouting;
