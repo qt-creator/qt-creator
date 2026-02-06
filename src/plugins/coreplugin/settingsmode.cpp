@@ -486,6 +486,7 @@ private:
     QtcButton m_okButton{Tr::tr("OK"), QtcButton::MediumPrimary};
     QtcButton m_applyButton{Tr::tr("Apply"), QtcButton::MediumSecondary};
     QtcButton m_cancelButton{Tr::tr("Cancel"), QtcButton::MediumSecondary};
+    QtcButton m_discardButton{Tr::tr("Discard"), QtcButton::MediumSecondary};
 
     bool m_isDirty = false;
     bool m_currentlySwitching = false;
@@ -497,6 +498,7 @@ void SettingsWidget::setDirty(bool dirty)
     m_isDirty = dirty;
     m_okButton.setEnabled(dirty);
     m_applyButton.setEnabled(dirty);
+    m_discardButton.setEnabled(dirty);
 }
 
 SettingsWidget::SettingsWidget()
@@ -637,14 +639,13 @@ void SettingsWidget::createGui()
 
     m_okButton.setToolTip(Tr::tr("Apply all changes and return to previous mode."));
     m_applyButton.setToolTip(Tr::tr("Apply all changes and stay here."));
-    m_cancelButton.setToolTip(
-        Tr::tr(
-            "Discard all changes. Hold the SHIFT key to stay here, "
-            "otherwise return to previous mode."));
+    m_discardButton.setToolTip(Tr::tr("Discard all changes and stay here."));
+    m_cancelButton.setToolTip(Tr::tr("Discard all changes and return to previous mode."));
 
     auto buttonBox = new QDialogButtonBox;
     buttonBox->addButton(&m_okButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(&m_applyButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(&m_discardButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(&m_cancelButton, QDialogButtonBox::ActionRole);
 
     connect(&m_okButton, &QAbstractButton::clicked, this, [this] {
@@ -654,10 +655,11 @@ void SettingsWidget::createGui()
 
     connect(&m_applyButton, &QAbstractButton::clicked, this, &SettingsWidget::apply);
 
+    connect(&m_discardButton, &QAbstractButton::clicked, this, &SettingsWidget::cancel);
+
     connect(&m_cancelButton, &QAbstractButton::clicked, this, [this] {
         cancel();
-        if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier))
-            ModeManager::activatePreviousMode();
+        ModeManager::activatePreviousMode();
     });
 
     m_stackedLayout->setContentsMargins(0, 0, 0, 0);
