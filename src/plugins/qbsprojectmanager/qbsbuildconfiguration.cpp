@@ -212,7 +212,7 @@ QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &ste
     if (!dev)
         return Tr::tr("<No build device>");
     CommandLine commandLine;
-    commandLine.addArg(QbsSettings::qbsExecutableFilePath(dev).nativePath());
+    commandLine.addArg(QbsSettings::qbsExecutableFilePathForDevice(dev).nativePath());
     commandLine.addArg(stepData.command);
     const QString buildDir = buildDirectory().nativePath();
     commandLine.addArgs({"-d", buildDir});

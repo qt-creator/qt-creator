@@ -681,7 +681,7 @@ void QbsBuildSystem::startParsing(const QVariantMap &extraConfig)
     QString installRoot = config.value(Constants::QBS_INSTALL_ROOT_KEY).toString();
     if (installRoot.isEmpty()) {
         installRoot = buildConfiguration()->macroExpander()->expand(
-            QbsSettings::defaultInstallDirTemplate());
+            QbsSettings::instance().defaultInstallDirTemplate());
     }
     config.insert(Constants::QBS_INSTALL_ROOT_KEY, FilePath::fromUserInput(installRoot).path());
     config.insert(Constants::QBS_RESTORE_BEHAVIOR_KEY, "restore-and-track-changes");

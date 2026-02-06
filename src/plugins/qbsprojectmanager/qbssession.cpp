@@ -197,7 +197,7 @@ void QbsSession::initialize()
     d->state = State::Initializing;
     const IDeviceConstPtr device = d->device.lock();
     QTC_ASSERT(device, return);
-    const FilePath qbsExe = QbsSettings::qbsExecutableFilePath(device);
+    const FilePath qbsExe = QbsSettings::qbsExecutableFilePathForDevice(device);
     if (qbsExe.isEmpty()) {
         QTimer::singleShot(0, this, [this] {
             setError(Tr::tr("No qbs executable was found, please set the path in the settings."));
