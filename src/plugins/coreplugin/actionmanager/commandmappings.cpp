@@ -4,7 +4,6 @@
 #include "commandmappings.h"
 
 #include "../coreplugintr.h"
-#include "../dialogs/shortcutsettings.h"
 
 #include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>
@@ -29,29 +28,27 @@ public:
     CommandMappingsPrivate(CommandMappings *parent)
         : q(parent)
     {
-        filterEdit = new FancyLineEdit;
-        filterEdit->setFiltering(true);
+        filterEdit.setFiltering(true);
 
-        commandList = new QTreeWidget;
-        commandList->setRootIsDecorated(false);
-        commandList->setUniformRowHeights(true);
-        commandList->setSortingEnabled(true);
-        commandList->setColumnCount(3);
+        commandList.setRootIsDecorated(false);
+        commandList.setUniformRowHeights(true);
+        commandList.setSortingEnabled(true);
+        commandList.setColumnCount(3);
 
-        QTreeWidgetItem *item = commandList->headerItem();
+        QTreeWidgetItem *item = commandList.headerItem();
         item->setText(2, ::Core::Tr::tr("Target"));
         item->setText(1, ::Core::Tr::tr("Label"));
         item->setText(0, ::Core::Tr::tr("Command"));
 
-        defaultButton = new QPushButton(::Core::Tr::tr("Reset All"));
-        defaultButton->setToolTip(::Core::Tr::tr("Reset all to default."));
+        defaultButton.setText(::Core::Tr::tr("Reset All"));
+        defaultButton.setToolTip(::Core::Tr::tr("Reset all to default."));
 
-        resetButton = new QPushButton(::Core::Tr::tr("Reset"));
-        resetButton->setToolTip(::Core::Tr::tr("Reset to default."));
-        resetButton->setVisible(false);
+        resetButton.setText(::Core::Tr::tr("Reset"));
+        resetButton.setToolTip(::Core::Tr::tr("Reset to default."));
+        resetButton.setVisible(false);
 
-        importButton = new QPushButton(::Core::Tr::tr("Import..."));
-        exportButton = new QPushButton(::Core::Tr::tr("Export..."));
+        importButton.setText(::Core::Tr::tr("Import..."));
+        exportButton.setText(::Core::Tr::tr("Export..."));
 
         using namespace Layouting;
         Column {
@@ -66,22 +63,22 @@ public:
             },
         }.attachTo(this);
 
-        q->connect(exportButton, &QPushButton::clicked,
-                   q, &CommandMappings::exportRequested);
-        q->connect(importButton, &QPushButton::clicked,
-                   q, &CommandMappings::importRequested);
-        q->connect(defaultButton, &QPushButton::clicked,
-                   q, &CommandMappings::defaultRequested);
-        q->connect(resetButton, &QPushButton::clicked, q, &CommandMappings::resetRequested);
+        connect(&exportButton, &QPushButton::clicked,
+                q, &CommandMappings::exportRequested);
+        connect(&importButton, &QPushButton::clicked,
+                q, &CommandMappings::importRequested);
+        connect(&defaultButton, &QPushButton::clicked,
+                q, &CommandMappings::defaultRequested);
+        connect(&resetButton, &QPushButton::clicked, q, &CommandMappings::resetRequested);
 
-        commandList->sortByColumn(0, Qt::AscendingOrder);
+        commandList.sortByColumn(0, Qt::AscendingOrder);
 
-        q->connect(filterEdit, &FancyLineEdit::textChanged,
-                   q, &CommandMappings::filterChanged);
-        q->connect(commandList, &QTreeWidget::currentItemChanged,
-                   q, &CommandMappings::currentCommandChanged);
+        connect(&filterEdit, &FancyLineEdit::textChanged,
+                q, &CommandMappings::filterChanged);
+        connect(&commandList, &QTreeWidget::currentItemChanged,
+                q, &CommandMappings::currentCommandChanged);
 
-        new HeaderViewStretcher(commandList->header(), 1);
+        new HeaderViewStretcher(commandList.header(), 1);
 
         m_columnFilter = [](const QString &filterString, QTreeWidgetItem *item, int column) {
                 return !item->text(column).contains(filterString, Qt::CaseInsensitive);
@@ -97,12 +94,12 @@ public:
     CommandMappings *q;
 
     QGroupBox *groupBox;
-    FancyLineEdit *filterEdit;
-    QTreeWidget *commandList;
-    QPushButton *defaultButton;
-    QPushButton *resetButton;
-    QPushButton *importButton;
-    QPushButton *exportButton;
+    FancyLineEdit filterEdit;
+    QTreeWidget commandList;
+    QPushButton defaultButton;
+    QPushButton resetButton;
+    QPushButton importButton;
+    QPushButton exportButton;
 
     CommandMappings::ColumnFilter m_columnFilter;
 };
@@ -132,13 +129,13 @@ QWidget *CommandMappings::widget() const
 
 void CommandMappings::setImportExportEnabled(bool enabled)
 {
-    d->importButton->setVisible(enabled);
-    d->exportButton->setVisible(enabled);
+    d->importButton.setVisible(enabled);
+    d->exportButton.setVisible(enabled);
 }
 
 void CommandMappings::setResetVisible(bool visible)
 {
-    d->resetButton->setVisible(visible);
+    d->resetButton.setVisible(visible);
 }
 
 void CommandMappings::setColumnFilter(const ColumnFilter &filter)
@@ -148,7 +145,7 @@ void CommandMappings::setColumnFilter(const ColumnFilter &filter)
 
 QTreeWidget *CommandMappings::commandList() const
 {
-    return d->commandList;
+    return &d->commandList;
 }
 
 void CommandMappings::setPageTitle(const QString &s)
@@ -158,13 +155,13 @@ void CommandMappings::setPageTitle(const QString &s)
 
 void CommandMappings::setTargetHeader(const QString &s)
 {
-    d->commandList->setHeaderLabels({::Core::Tr::tr("Command"), ::Core::Tr::tr("Label"), s});
+    d->commandList.setHeaderLabels({::Core::Tr::tr("Command"), ::Core::Tr::tr("Label"), s});
 }
 
 void CommandMappings::filterChanged(const QString &f)
 {
-    for (int i = 0; i < d->commandList->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *item = d->commandList->topLevelItem(i);
+    for (int i = 0; i < d->commandList.topLevelItemCount(); ++i) {
+        QTreeWidgetItem *item = d->commandList.topLevelItem(i);
         filter(f, item);
     }
 }
@@ -201,12 +198,12 @@ void CommandMappings::setModified(QTreeWidgetItem *item , bool modified)
 
 QString CommandMappings::filterText() const
 {
-    return d->filterEdit->text();
+    return d->filterEdit.text();
 }
 
 void CommandMappings::setFilterText(const QString &text)
 {
-    d->filterEdit->setText(text);
+    d->filterEdit.setText(text);
 }
 
 } // namespace Core
