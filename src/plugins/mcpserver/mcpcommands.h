@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include <utils/result.h>
+
 #include <QMap>
 #include <QObject>
 #include <QStringList>
@@ -44,7 +46,7 @@ public:
     QString getCurrentProject();
     QString getCurrentBuildConfig();
     QStringList listOpenFiles();
-    // TODO: list project dependencies
+    Utils::Result<QStringList> projectDependencies(const QString &projectName);
     // TODO: add a new File to the project
     // TODO: get repositories in project
 

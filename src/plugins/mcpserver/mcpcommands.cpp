@@ -734,6 +734,22 @@ QStringList McpCommands::listIssues()
     return issues;
 }
 
+Utils::Result<QStringList> McpCommands::projectDependencies(const QString &projectName)
+{
+    for (ProjectExplorer::Project * candidate : ProjectExplorer::ProjectManager::projects()) {
+        if (candidate->displayName() == projectName) {
+            QStringList projects;
+            const QList<ProjectExplorer::Project *> projectList
+                = ProjectExplorer::ProjectManager::dependencies(candidate);
+            for (ProjectExplorer::Project *project : projectList)
+                projects.append(project->displayName());
+            return projects;
+        }
+    }
+
+    return Utils::ResultError("No project found with name: " + projectName);
+}
+
 // handleSessionLoadRequest method removed - using direct session loading instead
 
 } // namespace Mcp::Internal

@@ -308,6 +308,38 @@ McpServer::McpServer(QObject *parent)
         });
 
     addTool(
+        {{"name", "project_dependencies"},
+         {"title", "List project dependencies for a project"},
+         {"description", "List project dependencies for a project"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"name",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"description", "Name of the project to query dependencies for"}}}}},
+                      {"required", QJsonArray{"name"}}}},
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"dependencies",
+                                    QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
+                      {"required", QJsonArray{"dependencies"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            const Utils::Result<QStringList> projects = runOnGuiThread(
+                [this, p] { return m_commands.projectDependencies(p["name"].toString()); });
+            QJsonArray arr;
+            for (const QString &pr : projects.value_or(QStringList{})) // TODO: proper error handling
+                arr.append(pr);
+            callback(QJsonObject{{"dependencies", arr}});
+        });
+
+    addTool(
         {{"name", "list_build_configs"},
          {"title", "List available build configurations"},
          {"description", "List available build configurations"},
