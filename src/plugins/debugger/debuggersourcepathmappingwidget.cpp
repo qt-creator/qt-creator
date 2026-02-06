@@ -302,6 +302,9 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget() :
     mainLayout->addLayout(editLayout);
     setLayout(mainLayout);
     updateEnabled();
+
+    connect(m_sourceLineEdit, &QLineEdit::textEdited, this, markSettingsDirty);
+    connect(m_targetChooser->lineEdit(), &QLineEdit::textEdited, this, markSettingsDirty);
 }
 
 QString DebuggerSourcePathMappingWidget::editSourceField() const
@@ -377,6 +380,7 @@ void DebuggerSourcePathMappingWidget::slotAdd()
 {
     m_model->addNewMappingPlaceHolder();
     setCurrentRow(m_model->rowCount() - 1);
+    markSettingsDirty();
 }
 
 void DebuggerSourcePathMappingWidget::slotAddQt()
@@ -389,13 +393,16 @@ void DebuggerSourcePathMappingWidget::slotAddQt()
         m_model->addMapping(buildPath, qtSourcesPath.toUrlishString());
     resizeColumns();
     setCurrentRow(m_model->rowCount() - 1);
+    markSettingsDirty();
 }
 
 void DebuggerSourcePathMappingWidget::slotRemove()
 {
     const int row = currentRow();
-    if (row >= 0)
+    if (row >= 0) {
         m_model->removeRow(row);
+        markSettingsDirty();
+    }
 }
 
 void DebuggerSourcePathMappingWidget::slotEditSourceFieldChanged()
