@@ -5,6 +5,7 @@
 
 #include "../coreplugintr.h"
 #include "../editormanager/ieditorfactory.h"
+#include "../vcsmanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -46,6 +47,7 @@ private:
     QLabel *m_size;
     QLabel *m_lastRead;
     QLabel *m_lastModified;
+    QLabel *m_vcsStatus;
     QCheckBox *m_readable;
     QCheckBox *m_writable;
     QCheckBox *m_executable;
@@ -66,6 +68,7 @@ FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath)
     , m_size(new QLabel)
     , m_lastRead(new QLabel)
     , m_lastModified(new QLabel)
+    , m_vcsStatus(new QLabel)
     , m_readable(new QCheckBox)
     , m_writable(new QCheckBox)
     , m_executable(new QCheckBox)
@@ -85,6 +88,7 @@ FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath)
     m_size->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_lastRead->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_lastModified->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_vcsStatus->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
     m_symLink->setEnabled(false);
 
@@ -106,6 +110,7 @@ FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath)
             Tr::tr("Size:"), m_size, br,
             Tr::tr("Last read:"), m_lastRead, br,
             Tr::tr("Last modified:"), m_lastModified, br,
+            Tr::tr("Version control state:"), m_vcsStatus, br,
             Tr::tr("Readable:"), m_readable, br,
             Tr::tr("Writable:"), m_writable, br,
             Tr::tr("Executable:", "adjective"), m_executable, br,
@@ -230,6 +235,18 @@ void FilePropertiesDialog::refresh()
         m_symLink->setChecked(fileInfo.isSymLink());
         m_lastRead->setText(fileInfo.lastRead().toString(locale.dateTimeFormat()));
         m_lastModified->setText(fileInfo.lastModified().toString(locale.dateTimeFormat()));
+        m_vcsStatus->setText([this] {
+            switch (VcsManager::fileState(m_filePath)) {
+            case VcsFileState::Added:     return Tr::tr("added");
+            case VcsFileState::Modified:  return Tr::tr("modified");
+            case VcsFileState::Deleted:   return Tr::tr("deleted");
+            case VcsFileState::Renamed:   return Tr::tr("renamed");
+            case VcsFileState::Untracked: return Tr::tr("untracked");
+            case VcsFileState::Unmerged:  return Tr::tr("unmerged");
+            default:                      return Tr::tr("unknown");
+            }
+        }());
+
         if (mimeType.inherits("text/plain")) {
             detectTextFileSettings();
         } else {
