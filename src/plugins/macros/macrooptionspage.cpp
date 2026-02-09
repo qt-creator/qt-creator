@@ -15,6 +15,7 @@
 
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QAction>
@@ -105,9 +106,10 @@ MacroOptionsWidget::MacroOptionsWidget()
     connect(m_description, &QLineEdit::textChanged,
             this, &MacroOptionsWidget::changeDescription);
 
-    initialize();
+    connect(MacroManager::instance(), &MacroManager::macroAdded,
+            this, &MacroOptionsWidget::initialize);
 
-    Utils::installMarkSettingsDirtyTriggerRecursively(this);
+    initialize();
 }
 
 void MacroOptionsWidget::initialize()
@@ -163,6 +165,7 @@ void MacroOptionsWidget::remove()
     QTreeWidgetItem *current = m_treeWidget->currentItem();
     m_macroToRemove.append(current->data(0, NAME_ROLE).toString());
     delete current;
+    Utils::markSettingsDirty();
 }
 
 void MacroOptionsWidget::apply()

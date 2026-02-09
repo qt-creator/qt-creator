@@ -261,6 +261,7 @@ void MacroManagerPrivate::showSaveDialog()
         currentMacro->setDescription(dialog.description());
         currentMacro->save(fileName);
         addMacro(currentMacro);
+        emit q->macroAdded();
     }
 }
 
