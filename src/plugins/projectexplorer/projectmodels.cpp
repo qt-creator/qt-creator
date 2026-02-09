@@ -419,13 +419,15 @@ static bool compareProjectNames(const WrapperNode *lhs, const WrapperNode *rhs)
 
 void FlatModel::addOrRebuildProjectModel(Project *project)
 {
+    QElapsedTimer timer;
+    timer.start();
     WrapperNode *container = nodeForProject(project);
     if (container) {
+        takeItem(container);
         container->removeChildren();
         project->containerNode()->removeAllChildren();
     } else {
         container = new WrapperNode(project->containerNode());
-        rootItem()->insertOrderedChild(container, &compareProjectNames);
     }
 
     QSet<Node *> seen;
@@ -441,6 +443,8 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
         if (m_trimEmptyDirectories)
             trimEmptyDirectories(container);
     }
+
+    rootItem()->insertOrderedChild(container, &compareProjectNames);
 
     if (project->needsInitialExpansion())
         m_toExpand.insert(expandDataForNode(container->m_node));
@@ -464,9 +468,10 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
         }
     });
 
-
     if (m_toExpand.contains(expandDataForNode(container->m_node)))
         emit requestExpansion(container->index());
+
+    qCDebug(projectModelTimingLog) << "re-building model took" << timer.elapsed() << "ms";
 }
 
 void FlatModel::parsingStateChanged(Project *project)
