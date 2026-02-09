@@ -10,6 +10,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
+#include <utils/algorithm.h>
 #include <utils/id.h>
 
 #include <QFile>
@@ -34,88 +35,12 @@ IssuesManager::IssuesManager(QObject *parent)
 
 QJsonObject IssuesManager::getCurrentIssues() const
 {
-    QJsonObject result;
+    return getCurrentIssues([](const ProjectExplorer::Task &) { return true; });
+}
 
-    // Check accessibility first
-    if (!m_accessible) {
-        result["errorMessage"] = QString("Issues panel not accessible - cannot retrieve current issues");
-        result["issues"] = QJsonArray();
-        result["summary"] = QJsonObject{
-            {"totalTasks", 0},
-            {"errorCount", 0},
-            {"warningCount", 0},
-            {"otherCount", 0}
-        };
-        result["status"] = QJsonObject{
-            {"accessible", false},
-            {"signalsConnected", false},
-            {"taskWindowFound", false},
-            {"buildManagerAvailable", false}
-        };
-        return result;
-    }
-
-    // Build issues array
-    QJsonArray issuesArray;
-    int errorCount = 0;
-    int warningCount = 0;
-    int otherCount = 0;
-
-    for (const ProjectExplorer::Task &task : m_trackedTasks) {
-        QJsonObject issueObj;
-
-        // Determine type
-        QString taskType;
-        if (task.type() == ProjectExplorer::Task::Error) {
-            taskType = "ERROR";
-            errorCount++;
-        } else if (task.type() == ProjectExplorer::Task::Warning) {
-            taskType = "WARNING";
-            warningCount++;
-        } else {
-            taskType = "INFO";
-            otherCount++;
-        }
-
-        issueObj["type"] = taskType;
-        issueObj["description"] = task.description();
-
-        // Add optional fields
-        if (!task.file().isEmpty())
-            issueObj["file"] = task.file().toUserOutput();
-
-        if (task.line() > 0)
-            issueObj["line"] = task.line();
-
-        issueObj["id"] = static_cast<int>(task.id());
-
-        issuesArray.append(issueObj);
-    }
-
-    // Build summary object
-    QJsonObject summary;
-    summary["totalTasks"] = m_trackedTasks.size();
-    summary["errorCount"] = errorCount;
-    summary["warningCount"] = warningCount;
-    summary["otherCount"] = otherCount;
-
-    // Add buildManagerErrorCount if no tasks tracked but BuildManager has data
-    if (m_trackedTasks.isEmpty() && ProjectExplorer::BuildManager::tasksAvailable())
-        summary["buildManagerErrorCount"] = ProjectExplorer::BuildManager::getErrorTaskCount();
-
-    // Build status object
-    QJsonObject status;
-    status["accessible"] = m_accessible;
-    status["signalsConnected"] = m_signalsConnected;
-    status["taskWindowFound"] = m_taskWindow != nullptr;
-    status["buildManagerAvailable"] = ProjectExplorer::BuildManager::tasksAvailable();
-
-    // Assemble final result
-    result["issues"] = issuesArray;
-    result["summary"] = summary;
-    result["status"] = status;
-
-    return result;
+QJsonObject IssuesManager::getCurrentIssues(const Utils::FilePath &path) const
+{
+    return getCurrentIssues(Utils::equal(&ProjectExplorer::Task::file, path));
 }
 
 QJsonObject IssuesManager::issuesSchema()
@@ -183,6 +108,97 @@ bool IssuesManager::initializeAccess()
 
     qCDebug(mcpIssues) << "IssuesManager: Failed to initialize - BuildManager not accessible";
     return false;
+}
+
+QJsonObject IssuesManager::getCurrentIssues(
+    std::function<bool(const ProjectExplorer::Task &)> filter) const
+{
+    QJsonObject result;
+
+    // Check accessibility first
+    if (!m_accessible) {
+        result["errorMessage"] = QString("Issues panel not accessible - cannot retrieve current issues");
+        result["issues"] = QJsonArray();
+        result["summary"] = QJsonObject{
+            {"totalTasks", 0},
+            {"errorCount", 0},
+            {"warningCount", 0},
+            {"otherCount", 0}
+        };
+        result["status"] = QJsonObject{
+            {"accessible", false},
+            {"signalsConnected", false},
+            {"taskWindowFound", false},
+            {"buildManagerAvailable", false}
+        };
+        return result;
+    }
+
+    // Build issues array
+    QJsonArray issuesArray;
+    int taskCount = 0;
+    int errorCount = 0;
+    int warningCount = 0;
+    int otherCount = 0;
+
+    for (const ProjectExplorer::Task &task : m_trackedTasks) {
+        if (filter && !filter(task))
+            continue; // Skip tasks that don't match the filter
+        ++taskCount;
+        QJsonObject issueObj;
+
+        // Determine type
+        QString taskType;
+        if (task.type() == ProjectExplorer::Task::Error) {
+            taskType = "ERROR";
+            errorCount++;
+        } else if (task.type() == ProjectExplorer::Task::Warning) {
+            taskType = "WARNING";
+            warningCount++;
+        } else {
+            taskType = "INFO";
+            otherCount++;
+        }
+
+        issueObj["type"] = taskType;
+        issueObj["description"] = task.description();
+
+        // Add optional fields
+        if (!task.file().isEmpty())
+            issueObj["file"] = task.file().toUserOutput();
+
+        if (task.line() > 0)
+            issueObj["line"] = task.line();
+
+        issueObj["id"] = static_cast<int>(task.id());
+
+        issuesArray.append(issueObj);
+    }
+
+    // Build summary object
+    QJsonObject summary;
+    summary["totalTasks"] = taskCount;
+    summary["errorCount"] = errorCount;
+    summary["warningCount"] = warningCount;
+    summary["otherCount"] = otherCount;
+
+    // Add buildManagerErrorCount if no tasks tracked but BuildManager has data
+    if (m_trackedTasks.isEmpty() && ProjectExplorer::BuildManager::tasksAvailable())
+        summary["buildManagerErrorCount"] = ProjectExplorer::BuildManager::getErrorTaskCount();
+
+    // Build status object
+    QJsonObject status;
+    status["accessible"] = m_accessible;
+    status["signalsConnected"] = m_signalsConnected;
+    status["taskWindowFound"] = m_taskWindow != nullptr;
+    status["buildManagerAvailable"] = ProjectExplorer::BuildManager::tasksAvailable();
+
+    // Assemble final result
+    result["issues"] = issuesArray;
+    result["summary"] = summary;
+    result["status"] = status;
+
+    return result;
 }
 
 void IssuesManager::connectSignals()

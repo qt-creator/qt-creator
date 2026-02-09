@@ -716,6 +716,11 @@ QJsonObject McpCommands::listIssues()
     return m_issuesManager.getCurrentIssues();
 }
 
+QJsonObject McpCommands::listIssues(const QString &path)
+{
+    return m_issuesManager.getCurrentIssues(Utils::FilePath::fromUserInput(path));
+}
+
 Utils::Result<QStringList> McpCommands::projectDependencies(const QString &projectName)
 {
     for (ProjectExplorer::Project * candidate : ProjectExplorer::ProjectManager::projects()) {

@@ -60,6 +60,7 @@ public:
 
     // Issue management commands
     QJsonObject listIssues();
+    QJsonObject listIssues(const QString &path);
 
     // TODO: list issues for a File
 

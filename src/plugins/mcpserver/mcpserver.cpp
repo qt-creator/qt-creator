@@ -478,6 +478,28 @@ McpServer::McpServer(QObject *parent)
         });
 
     addTool(
+        {{"name", "list_file_issues"},
+         {"title", "List current issues for file (warnings and errors)"},
+         {"description", "List current issues for file (warnings and errors)"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+                      {"properties",
+                       QJsonObject{
+                                   {"path",
+                                    QJsonObject{
+                                                {"type", "string"},
+                                                {"format", "uri"},
+                                                {"description", "Absolute path of the file to open"}}}}},
+                      {"required", QJsonArray{"path"}}}},
+         {"outputSchema", IssuesManager::issuesSchema()},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            callback(runOnGuiThread(
+                [this, path = p["path"].toString()] {return m_commands.listIssues(path);}));
+        });
+
+    addTool(
         {{"name", "quit"},
          {"title", "Quit Qt Creator"},
          {"description", "Quit Qt Creator"},

@@ -35,6 +35,13 @@ public:
     QJsonObject getCurrentIssues() const;
 
     /**
+     * @brief Retrieves current issues filtered by file path
+     * @param path File path to filter issues by
+     * @return JSON object containing the filtered issues and summary
+     */
+    QJsonObject getCurrentIssues(const Utils::FilePath &path) const;
+
+    /**
      * @brief Retrieves the issues schema from resources
      * @return JSON object containing the schema, or empty object on error
      */
@@ -82,6 +89,13 @@ private:
      * @return true if successful, false otherwise
      */
     bool initializeAccess();
+
+     /**
+     * @brief Retrieves current issues with filtering
+     * @param filter filter function to select specific tasks
+     * @return JSON object containing the filtered issues and summary
+     */
+    QJsonObject getCurrentIssues(std::function<bool(const ProjectExplorer::Task &)> filter) const;
 
     /**
      * @brief Formats a task into a readable string
