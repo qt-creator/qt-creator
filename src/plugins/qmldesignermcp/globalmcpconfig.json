@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "qds_mcp_server": {
+      "workingDir": "../share/qtcreator/mcp",
+      "command": "Python",
+      "disabled": false,
+      "args": [
+        "qds_mcp_server.py",
+        "${PROJECT_PATH}"
+      ],
+      "transport": "stdio"
+    }
+  }
+}

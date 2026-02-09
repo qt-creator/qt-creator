@@ -7,6 +7,8 @@
 
 #include <projectexplorer/projecttree.h>
 
+#include <qmldesignerplugin.h>
+
 namespace QmlDesigner {
 
 AiAssistantView::AiAssistantView(ExternalDependenciesInterface &externalDependencies)
@@ -53,6 +55,8 @@ void AiAssistantView::modelAttached(Model *model)
 
     m_widget->initManifest();
     m_widget->clear();
+    m_widget->setProjectPath(
+        QmlDesignerPlugin::instance()->currentDesignDocument()->projectFolder().toFSPathString());
 }
 
 void AiAssistantView::handleProjectTreeChanges()

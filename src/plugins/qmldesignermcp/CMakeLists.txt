@@ -53,3 +53,8 @@ extend_qtc_plugin(QmlDesignerMcp
     mcpconfigloader.cpp mcpconfigloader.h
     mcphost.cpp mcphost.h
 )
+
+qtc_copy_to_builddir(copy_mcpserver_py_file_to_builddir
+  FILES mcp/qds_mcp_server.py
+  DESTINATION ${IDE_DATA_PATH}
+)

@@ -20,6 +20,7 @@ class AiAssistantView;
 class AiModelsModel;
 class AiResponse;
 class AiApiManager;
+class McpHost;
 
 class AiAssistantWidget : public QFrame
 {
@@ -45,6 +46,7 @@ public:
     void initManifest();
     void updateModelConfig();
     void removeMissingAttachedImage();
+    void setProjectPath(const QString &projectPath);
 
     QSize sizeHint() const override;
 
@@ -77,6 +79,7 @@ protected:
 
 private: // functions
     void connectApiManager();
+    void restartMcpHost();
     void reloadQmlSource();
     void setIsGenerating(bool val);
     void setHasValidModel(bool val);
@@ -86,11 +89,13 @@ private: // variables
     Utils::UniqueObjectPtr<AiApiManager> m_apiManager;
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
     Utils::UniqueObjectPtr<AiModelsModel> m_modelsModel;
+    Utils::UniqueObjectPtr<McpHost> m_mcpHost;
 
     QPointer<AiAssistantView> m_view;
     QStringList m_inputHistory;
     AiTransaction m_lastTransaction;
     QString m_attachedImageSource;
+    QString m_projectPath;
     Manifest m_manifest;
     int m_historyIndex = -1;
     bool m_termsAccepted = false;

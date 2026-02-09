@@ -10,6 +10,8 @@
 #include "aiassistantview.h"
 #include "aimodelsmodel.h"
 #include "airesponse.h"
+#include "mcpconfigloader.h"
+#include "mcphost.h"
 
 #include <asset.h>
 #include <designersettings.h>
@@ -70,6 +72,7 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     : m_apiManager(Utils::makeUniqueObjectPtr<AiApiManager>())
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
     , m_modelsModel(Utils::makeUniqueObjectPtr<AiModelsModel>())
+    , m_mcpHost(Utils::makeUniqueObjectPtr<McpHost>("2025-11-25", "QtDesignStudio", "1.0.0"))
     , m_view(view)
     , m_termsAccepted(
           Core::ICore::settings()->value(Constants::aiAssistantTermsAcceptedKey, false).toBool())
@@ -139,6 +142,14 @@ void AiAssistantWidget::removeMissingAttachedImage()
 
     if (Utils::FilePath file = Utils::FilePath::fromUrl(imageUrl); !file.exists())
         setAttachedImageSource({});
+}
+
+void AiAssistantWidget::setProjectPath(const QString &projectPath)
+{
+    if (m_projectPath == projectPath)
+        return;
+    m_projectPath = projectPath;
+    restartMcpHost();
 }
 
 QSize AiAssistantWidget::sizeHint() const
@@ -303,6 +314,17 @@ void AiAssistantWidget::connectApiManager()
         [this](const auto &, const auto &, const AiResponse &response) {
             handleAiResponse(response);
         });
+}
+
+void AiAssistantWidget::restartMcpHost()
+{
+    m_mcpHost->stopAll();
+
+    McpConfigLoader loader;
+    loader.setResolveMap({{"${PROJECT_PATH}", m_projectPath}});
+    loader.loadFile(m_mcpHost.get(), ":/AiAssistant/globalmcpconfig.json");
+
+    m_mcpHost->startAll();
 }
 
 void AiAssistantWidget::reloadQmlSource()
