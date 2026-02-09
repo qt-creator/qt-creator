@@ -59,7 +59,9 @@ public:
     Utils::TypedSelectionAspect<KitFilter> kitFilter{this};
     Utils::TypedSelectionAspect<StopBeforeBuild> stopBeforeBuild{this};
     Utils::TypedSelectionAspect<TerminalMode> terminalMode{this};
-    Utils::TypedAspect<Utils::EnvironmentItems> appEnvChanges{this};
+    // FIXME: Use EnvironmentItems once theire interaction with QVariant/<<() works.
+    Utils::TypedAspect<QStringList> appEnvChanges{this};
+    Utils::StringAspect appEnvChangeDisplay{this};
 
     // Add a UUid which is used to identify the development environment.
     // This is used to warn the user when he is trying to open a .user file that was created
@@ -68,6 +70,7 @@ public:
 
 private:
     static Project *projectForContext(QObject *context);
+    void apply() final;
 };
 
 PROJECTEXPLORER_EXPORT ProjectExplorerSettings &globalProjectExplorerSettings();
