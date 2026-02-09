@@ -604,8 +604,10 @@ void BaseAspect::apply()
 */
 void BaseAspect::cancel()
 {
-    valueToVolatileValue();
+    Changes changes;
+    changes.volatileValueFromValue = valueToVolatileValue();
     volatileValueToGui();
+    announceChanges(changes);
 }
 
 void BaseAspect::finish()
