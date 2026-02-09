@@ -26,7 +26,7 @@ Project {
         "tracing/tracing.qbs",
         "utils/process_ctrlc_stub.qbs",
         "utils/utils.qbs",
-        "qttasktree/QtTaskTree/QtTaskTree.qbs",
+        "QtTaskTree/QtTaskTree/QtTaskTree.qbs",
         "3rdparty/bzip2/bzip2.qbs",
         "3rdparty/libarchive/libarchive.qbs",
         "3rdparty/libptyqt/ptyqt.qbs",
