@@ -38,6 +38,5 @@
 
     \sa {Remote Linux}{How To: Develop for remote Linux},
     {Debug remotely with GDB}, {Running applications}, {Set compiler preferences},
-    {Embedded Platforms}, {Managing kits}, {Remote Linux Deploy Configuration},
-    {Specify remote Linux run settings}
+    {Embedded Platforms}, {Managing kits}, {Remote Linux Deploy Configuration}
 */

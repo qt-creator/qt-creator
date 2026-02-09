@@ -12,7 +12,7 @@
     \brief Use C++ plugins to expose custom components to Qt Quick
     applications.
 
-    \l{Defining a QML Module}{QML modules} may use \l{Creating C++ Plugins for QML}
+    \l{QML Modules}{QML modules} may use \l{Creating C++ Plugins for QML}
     {C++ plugins} to expose components defined in C++ to Qt Quick applications.
 
     To create a QML module:

@@ -55,8 +55,7 @@
     //! [openssh]
 
     \sa {Add Docker devices}, {Remote Linux}{How to: Develop for remote Linux},
-    {Run in Qt Application Manager}, {Remote Linux Deploy Configuration},
-    {Specify remote Linux run settings}
+    {Run in Qt Application Manager}, {Remote Linux Deploy Configuration}
 */
 
 /*!
@@ -123,7 +122,7 @@
 
     \sa {Remote Linux}{How to: Develop for remote Linux},
     {Manage kits}{How to: Manage kits}, {Developing for Remote Linux Devices},
-    {Remote Linux Deploy Configuration}, {Specify remote Linux run settings}
+    {Remote Linux Deploy Configuration}
 */
 
 /*!
@@ -162,5 +161,5 @@
 
     \sa {Add CMake tools}, {Remote Linux}{How to: Develop for remote Linux},
     {Manage kits}{How to: Manage kits}, {Developing for Remote Linux Devices},
-    {Remote Linux Deploy Configuration}, {Specify remote Linux run settings}
+    {Remote Linux Deploy Configuration}
 */

@@ -303,7 +303,7 @@
     To remove template parameter lists when displaying function names, select
     \uicontrol <>.
 
-    \sa {Detect memory leaks with Memcheck}, {Profile function execution},
+    \sa {Detect memory leaks with Memcheck},
     {Run Valgrind tools on external applications},
     {Specify Valgrind settings for a project}, {Valgrind Callgrind},
     {Valgrind Memcheck}
@@ -380,7 +380,8 @@
     \endlist
 
     \sa {Analyzing CPU Usage}, {Detect memory leaks with Memcheck},
-    {Detach views}, {Run Valgrind tools on external applications},
+    {Detach views}, {Profile function execution},
+    {Run Valgrind tools on external applications},
     {Specify Valgrind settings for a project},
     {Valgrind Memcheck}
 */

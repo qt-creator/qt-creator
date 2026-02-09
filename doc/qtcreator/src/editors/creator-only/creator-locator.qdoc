@@ -276,6 +276,5 @@
             show relative paths.
     \endlist
 
-    \sa {Navigate with locator}, {Search}{How to: Search}, {Perform calculations},
-    {Locator}
+    \sa {Navigate with locator}, {Search}{How to: Search}, {Perform calculations}
 */
