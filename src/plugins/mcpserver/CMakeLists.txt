@@ -33,3 +33,10 @@ qtc_add_resources(mcpserver "images"
     images/mcpicon.png
     images/mcpicon@2x.png
 )
+
+qtc_add_resources(mcpserver "schemas"
+  PREFIX "/mcpserver"
+  BASE "."
+  FILES
+    issues-schema.json
+)

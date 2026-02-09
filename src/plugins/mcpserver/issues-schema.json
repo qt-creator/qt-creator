@@ -1,0 +1,170 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://qt.io/qtcreator/mcpserver/issues-manager-output.schema.json",
+  "title": "Qt Creator Issues Manager Output",
+  "description": "Schema for issues passed to the MCP server from the IssuesManager, representing the current state of tracked issues and connection status to Qt Creator internals.",
+  "type": "object",
+  "required": ["issues", "summary", "status"],
+  "properties": {
+    "issues": {
+      "description": "Array of current issues/tasks tracked by Qt Creator",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "description"],
+        "properties": {
+          "type": {
+            "description": "The severity/type of the issue",
+            "type": "string",
+            "enum": ["ERROR", "WARNING", "INFO"]
+          },
+          "description": {
+            "description": "The issue description/message",
+            "type": "string",
+            "minLength": 1
+          },
+          "file": {
+            "description": "File path where the issue occurred (optional)",
+            "type": "string"
+          },
+          "line": {
+            "description": "Line number where the issue occurred (optional, -1 or absent means not specified)",
+            "type": "integer",
+            "minimum": -1
+          },
+          "id": {
+            "description": "Internal task ID (if available)",
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "summary": {
+      "description": "Summary statistics of all issues",
+      "type": "object",
+      "required": ["totalTasks", "errorCount", "warningCount", "otherCount"],
+      "properties": {
+        "totalTasks": {
+          "description": "Total number of tracked tasks",
+          "type": "integer",
+          "minimum": 0
+        },
+        "errorCount": {
+          "description": "Number of error-level issues",
+          "type": "integer",
+          "minimum": 0
+        },
+        "warningCount": {
+          "description": "Number of warning-level issues",
+          "type": "integer",
+          "minimum": 0
+        },
+        "otherCount": {
+          "description": "Number of info/other-level issues",
+          "type": "integer",
+          "minimum": 0
+        },
+        "buildManagerErrorCount": {
+          "description": "Error count from BuildManager (fallback when no tasks tracked)",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "status": {
+      "description": "Status of the IssuesManager's connection to Qt Creator internals",
+      "type": "object",
+      "required": ["accessible", "signalsConnected", "taskWindowFound"],
+      "properties": {
+        "accessible": {
+          "description": "Whether the Issues panel is accessible",
+          "type": "boolean"
+        },
+        "signalsConnected": {
+          "description": "Whether TaskHub signals are connected",
+          "type": "boolean"
+        },
+        "taskWindowFound": {
+          "description": "Whether the TaskWindow object was found",
+          "type": "boolean"
+        },
+        "buildManagerAvailable": {
+          "description": "Whether BuildManager tasks are available",
+          "type": "boolean"
+        }
+      }
+    },
+    "errorMessage": {
+      "description": "Error message if the Issues panel is not accessible",
+      "type": "string"
+    }
+  },
+  "examples": [
+    {
+      "issues": [
+        {
+          "type": "ERROR",
+          "description": "undefined reference to 'MyClass::myMethod()'",
+          "file": "/path/to/project/main.cpp",
+          "line": 42
+        },
+        {
+          "type": "WARNING",
+          "description": "unused variable 'foo'",
+          "file": "/path/to/project/utils.cpp",
+          "line": 15
+        },
+        {
+          "type": "INFO",
+          "description": "Build completed",
+          "file": "",
+          "line": -1
+        }
+      ],
+      "summary": {
+        "totalTasks": 3,
+        "errorCount": 1,
+        "warningCount": 1,
+        "otherCount": 1
+      },
+      "status": {
+        "accessible": true,
+        "signalsConnected": true,
+        "taskWindowFound": true,
+        "buildManagerAvailable": true
+      }
+    },
+    {
+      "issues": [],
+      "summary": {
+        "totalTasks": 0,
+        "errorCount": 0,
+        "warningCount": 0,
+        "otherCount": 0,
+        "buildManagerErrorCount": 0
+      },
+      "status": {
+        "accessible": true,
+        "signalsConnected": true,
+        "taskWindowFound": true,
+        "buildManagerAvailable": true
+      }
+    },
+    {
+      "issues": [],
+      "summary": {
+        "totalTasks": 0,
+        "errorCount": 0,
+        "warningCount": 0,
+        "otherCount": 0
+      },
+      "status": {
+        "accessible": false,
+        "signalsConnected": false,
+        "taskWindowFound": false,
+        "buildManagerAvailable": false
+      },
+      "errorMessage": "ERROR:Issues panel not accessible - cannot retrieve current issues"
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include <QJsonObject>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -29,9 +30,15 @@ public:
 
     /**
      * @brief Retrieves all current issues from the Issues panel
-     * @return List of formatted issue strings
+     * @return JSON object conforming to issues-schema.json
      */
-    QStringList getCurrentIssues() const;
+    QJsonObject getCurrentIssues() const;
+
+    /**
+     * @brief Retrieves the issues schema from resources
+     * @return JSON object containing the schema, or empty object on error
+     */
+    static QJsonObject issuesSchema();
 
     /**
      * @brief Tests multiple approaches to access Qt Creator's task data

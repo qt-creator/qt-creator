@@ -30,10 +30,19 @@ QtcPlugin {
 
     Group {
         name: "images"
-        prefix: "images/"
+        prefix: "mcpserver/"
         files: [
             "mcpicon.png",
             "mcpicon@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
+    }
+
+    Group {
+        name: "schemas"
+        prefix: "mcpserver/"
+        files: [
+            "issues-schema.json",
         ]
         fileTags: "qt.core.resource_data"
     }

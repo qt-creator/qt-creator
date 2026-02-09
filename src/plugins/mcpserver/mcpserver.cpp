@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcpserver.h"
+#include "issuesmanager.h"
 #include "utils/qtcassert.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -462,27 +463,18 @@ McpServer::McpServer(QObject *parent)
             callback(QJsonObject{{"success", ok}});
         });
 
+
+
     addTool(
         {{"name", "list_issues"},
          {"title", "List current issues (warnings and errors)"},
          {"description", "List current issues (warnings and errors)"},
          {"inputSchema", QJsonObject{{"type", "object"}}},
-         {"outputSchema",
-          QJsonObject{
-              {"type", "object"},
-              {"properties",
-               QJsonObject{
-                   {"issues",
-                    QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
-              {"required", QJsonArray{"issues"}}}},
+         {"outputSchema", IssuesManager::issuesSchema()},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
         [this](const QJsonObject &p, const Callback &callback) {
             Q_UNUSED(p);
-            const QStringList issues = runOnGuiThread([this] { return m_commands.listIssues(); });
-            QJsonArray arr;
-            for (const QString &i : issues)
-                arr.append(i);
-            callback(QJsonObject{{"issues", arr}});
+            callback(runOnGuiThread([this] { return m_commands.listIssues(); }));
         });
 
     addTool(

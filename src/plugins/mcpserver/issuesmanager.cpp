@@ -12,6 +12,10 @@
 #include <projectexplorer/taskhub.h>
 #include <utils/id.h>
 
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLoggingCategory>
 #include <QMetaMethod>
 #include <QMetaObject>
@@ -28,69 +32,115 @@ IssuesManager::IssuesManager(QObject *parent)
     connectSignals();
 }
 
-QStringList IssuesManager::getCurrentIssues() const
+QJsonObject IssuesManager::getCurrentIssues() const
 {
-    QStringList issues;
+    QJsonObject result;
 
+    // Check accessibility first
     if (!m_accessible) {
-        issues.append("ERROR:Issues panel not accessible - cannot retrieve current issues");
-        return issues;
+        result["errorMessage"] = QString("Issues panel not accessible - cannot retrieve current issues");
+        result["issues"] = QJsonArray();
+        result["summary"] = QJsonObject{
+            {"totalTasks", 0},
+            {"errorCount", 0},
+            {"warningCount", 0},
+            {"otherCount", 0}
+        };
+        result["status"] = QJsonObject{
+            {"accessible", false},
+            {"signalsConnected", false},
+            {"taskWindowFound", false},
+            {"buildManagerAvailable", false}
+        };
+        return result;
     }
 
-    // Report on tracked tasks from signals
-    issues.append(QString("=== CURRENT ISSUES (Signal-Based Tracking) ==="));
-    issues.append(QString("Total tracked tasks: %1").arg(m_trackedTasks.size()));
-
+    // Build issues array
+    QJsonArray issuesArray;
     int errorCount = 0;
     int warningCount = 0;
     int otherCount = 0;
 
     for (const ProjectExplorer::Task &task : m_trackedTasks) {
-        QString taskType = task.type() == ProjectExplorer::Task::Error     ? QString("ERROR")
-                           : task.type() == ProjectExplorer::Task::Warning ? QString("WARNING")
-                                                                           : QString("INFO");
-        QString taskInfo
-            = formatTask(taskType, task.description(), task.file().toUserOutput(), task.line());
+        QJsonObject issueObj;
 
-        issues.append(taskInfo);
-
+        // Determine type
+        QString taskType;
         if (task.type() == ProjectExplorer::Task::Error) {
+            taskType = "ERROR";
             errorCount++;
         } else if (task.type() == ProjectExplorer::Task::Warning) {
+            taskType = "WARNING";
             warningCount++;
         } else {
+            taskType = "INFO";
             otherCount++;
         }
+
+        issueObj["type"] = taskType;
+        issueObj["description"] = task.description();
+
+        // Add optional fields
+        if (!task.file().isEmpty())
+            issueObj["file"] = task.file().toUserOutput();
+
+        if (task.line() > 0)
+            issueObj["line"] = task.line();
+
+        issueObj["id"] = static_cast<int>(task.id());
+
+        issuesArray.append(issueObj);
     }
 
-    if (m_trackedTasks.isEmpty()) {
-        issues.append("No issues currently tracked via signals");
+    // Build summary object
+    QJsonObject summary;
+    summary["totalTasks"] = m_trackedTasks.size();
+    summary["errorCount"] = errorCount;
+    summary["warningCount"] = warningCount;
+    summary["otherCount"] = otherCount;
 
-        // Fallback to BuildManager information
-        if (ProjectExplorer::BuildManager::tasksAvailable()) {
-            int buildErrorCount = ProjectExplorer::BuildManager::getErrorTaskCount();
-            if (buildErrorCount > 0) {
-                issues.append(QString("INFO:BuildManager reports %1 error(s)").arg(buildErrorCount));
-            } else {
-                issues.append("INFO:BuildManager reports no errors");
-            }
-        } else {
-            issues.append("INFO:No build tasks available via BuildManager");
+    // Add buildManagerErrorCount if no tasks tracked but BuildManager has data
+    if (m_trackedTasks.isEmpty() && ProjectExplorer::BuildManager::tasksAvailable())
+        summary["buildManagerErrorCount"] = ProjectExplorer::BuildManager::getErrorTaskCount();
+
+    // Build status object
+    QJsonObject status;
+    status["accessible"] = m_accessible;
+    status["signalsConnected"] = m_signalsConnected;
+    status["taskWindowFound"] = m_taskWindow != nullptr;
+    status["buildManagerAvailable"] = ProjectExplorer::BuildManager::tasksAvailable();
+
+    // Assemble final result
+    result["issues"] = issuesArray;
+    result["summary"] = summary;
+    result["status"] = status;
+
+    return result;
+}
+
+QJsonObject IssuesManager::issuesSchema()
+{
+    static QJsonObject cachedSchema = [] {
+        QFile schemaFile(":/mcpserver/issues-schema.json");
+        if (!schemaFile.open(QIODevice::ReadOnly)) {
+            qCWarning(mcpIssues) << "Failed to open issues-schema.json from resources:"
+                                 << schemaFile.errorString();
+            return QJsonObject();
         }
-    } else {
-        issues.append("");
-        issues.append("=== SUMMARY ===");
-        issues.append(QString("Errors: %1").arg(errorCount));
-        issues.append(QString("Warnings: %1").arg(warningCount));
-        issues.append(QString("Other: %1").arg(otherCount));
-    }
 
-    // Add connection status
-    issues.append("");
-    issues.append(QString("Signal connections: %1").arg(m_signalsConnected ? QStringLiteral("Active") : "Inactive"));
-    issues.append(QString("TaskWindow found: %1").arg(m_taskWindow ? QStringLiteral("Yes") : "No"));
+        QJsonParseError parseError;
+        QJsonDocument doc = QJsonDocument::fromJson(schemaFile.readAll(), &parseError);
+        schemaFile.close();
 
-    return issues;
+        if (parseError.error != QJsonParseError::NoError) {
+            qCWarning(mcpIssues) << "Failed to parse issues-schema.json:"
+                                 << parseError.errorString();
+            return QJsonObject();
+        }
+
+        return doc.object();
+    }();
+    return cachedSchema;
 }
 
 bool IssuesManager::isAccessible() const
