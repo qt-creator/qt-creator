@@ -829,6 +829,7 @@ class BoolAspectPrivate
 {
 public:
     BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
+    BoolAspect::DisplayStyle m_displayStyle = BoolAspect::DisplayStyle::CheckBox;
     UndoableValue<bool> m_undoable;
 };
 
@@ -2265,8 +2266,10 @@ std::function<void(Layouting::Layout *)> BoolAspect::adoptButton(QAbstractButton
 */
 void BoolAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    QCheckBox *checkBox = createSubWidget<QCheckBox>();
-    addToLayoutHelper(parent, checkBox);
+    if (d->m_displayStyle == DisplayStyle::CheckBox)
+        addToLayoutHelper(parent, createSubWidget<QCheckBox>());
+    else
+        addToLayoutHelper(parent, createSubWidget<QRadioButton>());
     volatileValueToGui();
 }
 
@@ -2326,6 +2329,11 @@ void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacemen
 void BoolAspect::setLabelPlacement(BoolAspect::LabelPlacement labelPlacement)
 {
     d->m_labelPlacement = labelPlacement;
+}
+
+void BoolAspect::setDisplayStyle(DisplayStyle displayStyle)
+{
+    d->m_displayStyle = displayStyle;
 }
 
 CheckableDecider BoolAspect::askAgainCheckableDecider()

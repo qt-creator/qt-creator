@@ -475,6 +475,9 @@ public:
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
     void setLabelPlacement(LabelPlacement labelPlacement);
 
+    enum class DisplayStyle { CheckBox, RadionButton };
+    void setDisplayStyle(DisplayStyle displayStyle);
+
     std::function<void(Layouting::Layout *)> adoptButton(QAbstractButton *button);
 
 private:
