@@ -32,7 +32,12 @@ private:
     void volatileValueToGui() override;
     bool guiToVolatileValue() override;
 
+    QVariant variantValue() const override;
+    void setVariantValue(const QVariant &value, Announcement howToAnnounce) override;
+    QVariant volatileVariantValue() const override;
+
     friend class ValgrindSettings;
+    friend class SuppressionAspectPrivate;
     SuppressionAspectPrivate *d = nullptr;
 };
 
