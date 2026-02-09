@@ -836,6 +836,7 @@ public:
 protected:
     void volatileValueToGui() override;
     bool guiToVolatileValue() override;
+    QVariant fromSettingsValue(const QVariant &savedValue) const override;
 
 private:
     std::unique_ptr<Internal::IntegerAspectPrivate> d;

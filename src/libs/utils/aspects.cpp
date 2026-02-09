@@ -2709,6 +2709,16 @@ void IntegerAspect::volatileValueToGui()
         d->m_spinBox->setValue(m_volatileValue / d->m_displayScaleFactor);
 }
 
+QVariant IntegerAspect::fromSettingsValue(const QVariant &savedValue) const
+{
+    qint64 v = savedValue.value<qint64>();
+    if (d->m_minimumValue && v < *d->m_minimumValue)
+        v = *d->m_minimumValue;
+    if (d->m_maximumValue && v > *d->m_maximumValue)
+        v = *d->m_maximumValue;
+    return v;
+}
+
 void IntegerAspect::setRange(qint64 min, qint64 max)
 {
     d->m_minimumValue = min;
