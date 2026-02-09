@@ -7,6 +7,7 @@
 #include "beautifiertr.h"
 #include "configurationdialog.h"
 
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QComboBox>
@@ -65,6 +66,7 @@ void ConfigurationPanel::remove()
 {
     m_settings->removeStyle(m_configurations->currentText());
     populateConfigurations();
+    Utils::markSettingsDirty();
 }
 
 void ConfigurationPanel::add()
@@ -76,6 +78,7 @@ void ConfigurationPanel::add()
         const QString key = dialog.key();
         m_settings->setStyle(key, dialog.value());
         populateConfigurations(key);
+        Utils::markSettingsDirty();
     }
 }
 
@@ -94,6 +97,7 @@ void ConfigurationPanel::edit()
             m_settings->replaceStyle(key, newKey, dialog.value());
             m_configurations->setItemText(m_configurations->currentIndex(), newKey);
         }
+        Utils::markSettingsDirty();
     }
 }
 

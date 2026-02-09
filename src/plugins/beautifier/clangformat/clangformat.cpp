@@ -300,7 +300,12 @@ public:
             settings().apply();
             settings().save();
         });
-        setOnCancel([] { settings().cancel(); });
+        setOnCancel([configurations] {
+            settings().cancel();
+            settings().read();
+            configurations->setSettings(&settings());
+            configurations->setCurrentConfiguration(settings().customStyle());
+        });
 
         s.read();
 
@@ -308,6 +313,8 @@ public:
         options->setEnabled(s.command.pathChooser()->isValid());
 
         installMarkSettingsDirtyTriggerRecursively(this);
+        installMarkSettingsDirtyTrigger(predefinedStyleButton);
+        installMarkSettingsDirtyTrigger(customizedStyleButton);
     }
 };
 
