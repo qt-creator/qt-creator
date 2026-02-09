@@ -155,6 +155,6 @@
     {\B2Q}{How to: Develop for \B2Q},
     {Remote Linux}{How to: Develop for remote Linux},
     {Running applications}, {Debugging}, {Debuggers},
-    {Developing for \B2Q Devices}, {Developing for Remote Linux Devices},
+    {Developing for \B2Q devices}, {Developing for remote Linux devices},
     {Profiling QML applications}, {Managing kits}
 */

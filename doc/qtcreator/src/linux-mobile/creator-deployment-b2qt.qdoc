@@ -3,13 +3,11 @@
 
 /*!
     \page creator-deployment-b2qt.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-deploy-configurations
+    \ingroup creator-how-to-b2qt
 
-    \title \B2Q Deploy Configuration
-
-    \brief Copy application files to \B2Q devices.
+    \title Copy application files to \B2Q devices
 
     Specify settings for deploying applications to \l{\B2Q: Documentation}
     {\B2Q} devices in the project configuration file and in \uicontrol Projects
@@ -18,15 +16,14 @@
     \image {qtcreator-boot2qt-deployment-steps.png} {Boot to Qt deployment settings}
 
     The deployment process is described in more detail in
-    \l{Remote Linux Deploy Configuration}.
+    \l{Deploy applications to remote Linux devices}.
 
-    \section1 Launching Applications on Boot
+    \section1 Launch applications on boot
 
     To have your application launch on boot, select
     \uicontrol {Add Deploy Step} > \uicontrol {Change default application}
     > \uicontrol {Set this application to start by default}.
 
     \sa {Build and Run}{How to: Build and Run},
-    {\B2Q}{How to: Develop for \B2Q}, {\B2Q Run Settings},
-    {Developing for \B2Q Devices}
+    {\B2Q}{How to: Develop for \B2Q}, {Developing for \B2Q devices}
 */

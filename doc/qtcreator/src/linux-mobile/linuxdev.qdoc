@@ -55,7 +55,7 @@
     //! [openssh]
 
     \sa {Add Docker devices}, {Remote Linux}{How to: Develop for remote Linux},
-    {Run in Qt Application Manager}, {Remote Linux Deploy Configuration}
+    {Run in Qt Application Manager}
 */
 
 /*!
@@ -121,8 +121,7 @@
     \endlist
 
     \sa {Remote Linux}{How to: Develop for remote Linux},
-    {Manage kits}{How to: Manage kits}, {Developing for Remote Linux Devices},
-    {Remote Linux Deploy Configuration}
+    {Manage kits}{How to: Manage kits}, {Developing for remote Linux devices}
 */
 
 /*!
@@ -142,8 +141,7 @@
     \include qtcreator-add-linux-device.qdocinc {add linux device} {Remote Linux Device}
 
     \sa {Remote Linux}{How to: Develop for remote Linux},
-    {Debug remotely with GDB}, {Developing for Remote Linux Devices},
-    {Remote Linux Deploy Configuration}
+    {Developing for remote Linux devices}
 */
 
 /*!
@@ -160,6 +158,5 @@
     \include creator-how-to-build-on-remote-devices.qdocinc {build on remote devices} {remote Linux device}
 
     \sa {Add CMake tools}, {Remote Linux}{How to: Develop for remote Linux},
-    {Manage kits}{How to: Manage kits}, {Developing for Remote Linux Devices},
-    {Remote Linux Deploy Configuration}
+    {Manage kits}{How to: Manage kits}, {Developing for remote Linux devices}
 */

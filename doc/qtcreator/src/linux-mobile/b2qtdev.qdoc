@@ -31,7 +31,6 @@
 
     \sa {\B2Q}{How to: Develop for \B2Q},
     {Manage kits}{How to: Manage kits}, {Run in Qt Application Manager},
-    {\B2Q Deploy Configuration}, {\B2Q Run Settings},
     {\B2Q: Documentation}
 */
 
@@ -90,8 +89,7 @@
 
     \sa {Configure SSH connections}, {Generate SSH keys},
     {Enable and disable plugins}, {\B2Q}{How to: Develop for \B2Q},
-    {Manage kits}{How to: Manage kits}, {\B2Q Deploy Configuration},
-    {\B2Q Run Settings}, {Developing for \B2Q devices}
+    {Manage kits}{How to: Manage kits}, {Developing for \B2Q devices}
 */
 
 /*!
@@ -145,6 +143,6 @@
     \uicontrol {Restore Default App}.
 
     \sa {Enable and disable plugins}, {\B2Q}{How To: Develop for \B2Q},
-    {Remote Debugging}, {Developing for \B2Q devices},
+    {Developing for \B2Q devices}, {Remote Debugging},
     {\B2Q: Setting Up USB Access to Embedded Devices}
 */

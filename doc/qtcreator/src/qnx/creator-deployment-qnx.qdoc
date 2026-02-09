@@ -25,7 +25,7 @@
     \image {qtcreator-qnx-deployment.png} {Deploy to device}
 
     The deployment process is described in more detail in
-    \l{Remote Linux Deploy Configuration}.
+    \l{Deploy applications to remote Linux devices}.
 
     \section1 Finding Configured Devices
 
@@ -35,5 +35,5 @@
     \sa {Build and Run}{How to: Build and Run},
     {QNX Neutrino}{How to: Develop for QNX},
     {Developing for QNX Neutrino devices}, {QNX Run Settings},
-    {Remote Linux Deploy Configuration}, {Specify remote Linux run settings}
+    {Deploy applications to remote Linux devices}, {Specify remote Linux run settings}
 */

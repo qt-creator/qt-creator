@@ -35,6 +35,7 @@
 
     \include {creator-projects-settings-run-desktop.qdoc} {run-as-user}
 
-    \sa {Activate kits for a project}, {Configure projects for running}, {Managing kits},
-    {Remote Linux}{How to: Develop for remote Linux}
+    \sa {Activate kits for a project}, {Configure projects for running},
+    {Remote Linux}{How to: Develop for remote Linux},
+    {Developing for remote Linux devices}, {Managing kits}
 */
