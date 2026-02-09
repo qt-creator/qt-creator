@@ -38,6 +38,16 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
     setSettingsGroups("ProjectExplorer", "Settings");
     setAutoApply(false);
 
+    useCurrentDirectory.setLabelText(Tr::tr("Current directory"));
+    useCurrentDirectory.setDisplayStyle(BoolAspect::DisplayStyle::RadionButton);
+    useCurrentDirectory.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+
+    useProjectDirectory.setLabelText(Tr::tr("Directory"));
+    useProjectDirectory.setDisplayStyle(BoolAspect::DisplayStyle::RadionButton);
+    useProjectDirectory.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+
+    projectsDirectory.setExpectedKind(PathChooser::ExistingDirectory);
+
     closeSourceFilesWithProject.setSettingsKey("CloseFilesWithProject");
     closeSourceFilesWithProject.setDefaultValue(true);
     closeSourceFilesWithProject.setLabel(Tr::tr("Close source files along with project"));
@@ -247,21 +257,16 @@ class ProjectExplorerSettingsWidget : public IOptionsPageWidget
 public:
     ProjectExplorerSettingsWidget();
 
-    FilePath projectsDirectory() const;
-    void setProjectsDirectory(const FilePath &pd);
-
-    bool useProjectsDirectory();
-    void setUseProjectsDirectory(bool v);
-
     void apply() final
     {
-        if (globalProjectExplorerSettings().isDirty()) {
-            globalProjectExplorerSettings().apply();
-            globalProjectExplorerSettings().writeSettings();
+        ProjectExplorerSettings &settings = globalProjectExplorerSettings();
+        if (settings.isDirty()) {
+            settings.apply();
+            settings.writeSettings();
         }
 
-        DocumentManager::setProjectsDirectory(projectsDirectory());
-        DocumentManager::setUseProjectsDirectory(useProjectsDirectory());
+        DocumentManager::setProjectsDirectory(settings.projectsDirectory());
+        DocumentManager::setUseProjectsDirectory(settings.useProjectDirectory());
     }
 
     void cancel() final
@@ -269,26 +274,20 @@ public:
         globalProjectExplorerSettings().cancel();
     }
 
+    bool isDirty() const final
+    {
+        return globalProjectExplorerSettings().isDirty();
+    }
+
 private:
-    void slotDirectoryButtonGroupChanged();
     void updateAppEnvChangesLabel();
 
-    QRadioButton *m_currentDirectoryRadioButton;
-    QRadioButton *m_directoryRadioButton;
-    PathChooser *m_projectsDirectoryPathChooser;
-
     ElidingLabel *m_appEnvLabel;
-
-    QButtonGroup *m_directoryButtonGroup;
 };
 
 ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
 {
     ProjectExplorerSettings &s = globalProjectExplorerSettings();
-
-    m_currentDirectoryRadioButton = new QRadioButton(Tr::tr("Current directory"));
-    m_directoryRadioButton = new QRadioButton(Tr::tr("Directory"));
-    m_projectsDirectoryPathChooser = new PathChooser;
 
     const QString appEnvToolTip = Tr::tr("Environment changes to apply to run configurations, "
                                          "but not build configurations.");
@@ -297,6 +296,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     m_appEnvLabel = new Utils::ElidingLabel;
     m_appEnvLabel->setElideMode(Qt::ElideRight);
     m_appEnvLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
     const auto appEnvButton = new QPushButton(Tr::tr("Change..."));
     appEnvButton->setSizePolicy(QSizePolicy::Fixed, appEnvButton->sizePolicy().verticalPolicy());
     appEnvButton->setToolTip(appEnvToolTip);
@@ -307,7 +307,6 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
             return;
         s.appEnvChanges.setVolatileValue(*changes);
         updateAppEnvChangesLabel();
-        markSettingsDirty();
     });
 
     using namespace Layouting;
@@ -315,9 +314,9 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
         Group {
             title(Tr::tr("Projects Directory")),
             Column {
-                m_currentDirectoryRadioButton,
-                Row { m_directoryRadioButton, m_projectsDirectoryPathChooser },
-            },
+                s.useCurrentDirectory,
+                Row { s.useProjectDirectory, s.projectsDirectory },
+            }
         },
         Group {
             title(Tr::tr("Closing Projects")),
@@ -363,50 +362,26 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
         st,
     }.attachTo(this);
 
-    m_directoryButtonGroup = new QButtonGroup(this);
-    m_directoryButtonGroup->setExclusive(true);
-    m_directoryButtonGroup->addButton(m_currentDirectoryRadioButton, UseCurrentDirectory);
-    m_directoryButtonGroup->addButton(m_directoryRadioButton, UseProjectDirectory);
+    s.useCurrentDirectory.addOnVolatileValueChanged(this, [&s] {
+        const bool useCurrent = s.useCurrentDirectory.volatileValue();
+        s.useProjectDirectory.setVolatileValue(!useCurrent);
+        s.projectsDirectory.setEnabled(!useCurrent);
+    });
+    s.useProjectDirectory.addOnVolatileValueChanged(this, [&s] {
+        const bool useProject = s.useProjectDirectory.volatileValue();
+        s.useCurrentDirectory.setVolatileValue(!useProject);
+        s.projectsDirectory.setEnabled(useProject);
+    });
 
-    connect(m_directoryButtonGroup, &QButtonGroup::buttonClicked,
-            this, &ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged);
+    const bool useProjectDirs = DocumentManager::useProjectsDirectory();
+    s.useCurrentDirectory.setValue(!useProjectDirs);
+    s.useProjectDirectory.setValue(useProjectDirs);
 
-    setProjectsDirectory(DocumentManager::projectsDirectory());
-    setUseProjectsDirectory(DocumentManager::useProjectsDirectory());
+    s.projectsDirectory.setValue(DocumentManager::projectsDirectory());
+
     updateAppEnvChangesLabel();
 
-    installMarkSettingsDirtyTriggerRecursively(this);
-    installMarkSettingsDirtyTrigger(m_currentDirectoryRadioButton);
-    installMarkSettingsDirtyTrigger(m_directoryRadioButton);
-}
-
-FilePath ProjectExplorerSettingsWidget::projectsDirectory() const
-{
-    return m_projectsDirectoryPathChooser->filePath();
-}
-
-void ProjectExplorerSettingsWidget::setProjectsDirectory(const FilePath &pd)
-{
-    m_projectsDirectoryPathChooser->setFilePath(pd);
-}
-
-bool ProjectExplorerSettingsWidget::useProjectsDirectory()
-{
-    return m_directoryButtonGroup->checkedId() == UseProjectDirectory;
-}
-
-void ProjectExplorerSettingsWidget::setUseProjectsDirectory(bool b)
-{
-    if (useProjectsDirectory() != b) {
-        (b ? m_directoryRadioButton : m_currentDirectoryRadioButton)->setChecked(true);
-        slotDirectoryButtonGroupChanged();
-    }
-}
-
-void ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged()
-{
-    bool enable = useProjectsDirectory();
-    m_projectsDirectoryPathChooser->setEnabled(enable);
+    connect(&s, &AspectContainer::volatileValueChanged, &checkSettingsDirty);
 }
 
 void ProjectExplorerSettingsWidget::updateAppEnvChangesLabel()

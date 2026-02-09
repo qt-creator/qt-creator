@@ -38,6 +38,10 @@ public:
         Aspect ProjectExplorerSettings::*aspect,
         const Utils::BaseAspect::Callback &callback);
 
+    Utils::BoolAspect useCurrentDirectory{this};
+    Utils::BoolAspect useProjectDirectory{this};
+    Utils::FilePathAspect projectsDirectory{this};
+
     Utils::TypedSelectionAspect<BuildBeforeRunMode> buildBeforeDeploy{this};
     Utils::IntegerAspect reaperTimeoutInSeconds{this};
     Utils::BoolAspect deployBeforeRun{this};
