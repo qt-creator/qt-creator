@@ -16,9 +16,9 @@ add_qtc_library(QmlDesignerCore
     Qt::Quick
     QmlJS
     TextEditorSupport
-    QmlDesignerSettings
     AstCheck
   PUBLIC_DEPENDS
+    QmlDesignerSettings
     QmlPuppetCommunication
     QmlDesignerUtils
     Sqlite

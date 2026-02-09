@@ -258,7 +258,7 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->statesEditorView,
                                   &d->designerActionManagerView};
 
-    if (designerSettings().value(DesignerSettingsKey::EnableQtQuickDesignerDebugView).toBool())
+    if (designerSettings().enableDebugView())
         list.append(&d->debugView);
 
     return list;
@@ -428,7 +428,7 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
     NanotraceHR::Tracer tracer{"view manager attach views except rewriter and component view",
                                category()};
 
-    if (designerSettings().value(DesignerSettingsKey::EnableQtQuickDesignerDebugView).toBool())
+    if (designerSettings().enableDebugView())
         currentModel()->attachView(&d->debugView);
 
     attachNodeInstanceView();

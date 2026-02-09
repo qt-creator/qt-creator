@@ -18,6 +18,8 @@ inline constexpr AuxiliaryDataKeyView edit3dGridColorProperty{AuxiliaryDataType:
 inline constexpr AuxiliaryDataKeyView edit3dBgColorProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
                                                             "edit3dBgColor"};
 
+enum class ColorType { BackGroundColor, LineColor };
+
 class BackgroundColorSelection : public QObject
 {
     Q_OBJECT
@@ -28,14 +30,14 @@ public:
     {}
 
     static void showBackgroundColorSelectionWidget(QWidget *parent,
-                                                   const QByteArray &key,
+                                                   ColorType colorType,
                                                    AbstractView *view,
                                                    const AuxiliaryDataKeyView &auxProp,
                                                    const std::function<void()> &colorSelected = {});
 
 private:
     static QColorDialog *createColorDialog(QWidget *parent,
-                                           const QByteArray &key,
+                                           ColorType colorType,
                                            AbstractView *view,
                                            const AuxiliaryDataKeyView &auxProp,
                                            const std::function<void ()> &colorSelected);

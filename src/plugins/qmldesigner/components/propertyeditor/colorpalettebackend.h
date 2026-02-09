@@ -74,21 +74,21 @@ private:
     QPoint m_lastPosition;
 };
 
+enum PaletteType { Recent, Favorite };
+
 struct Palette
 {
-    Palette()
-        : m_settingsKey()
-        , m_colors()
-    {}
+    Palette() = default;
 
-    Palette(const QByteArray &key)
-        : m_settingsKey(key)
-        , m_colors()
+    Palette(PaletteType paletteType)
+        : m_paletteType(paletteType)
     {}
 
     bool read()
     {
-        QStringList data = designerSettings().value(m_settingsKey).toStringList();
+        QStringList data = m_paletteType == PaletteType::Recent
+                ? designerSettings().colorPaletteRecent()
+                : designerSettings().colorPaletteFavorite();
         if (data.isEmpty())
             return false;
 
@@ -100,10 +100,13 @@ struct Palette
 
     void write() const
     {
-        designerSettings().insert(m_settingsKey, m_colors);
+        if (m_paletteType == PaletteType::Recent)
+            designerSettings().colorPaletteRecent.setValue(m_colors);
+        else
+            designerSettings().colorPaletteFavorite.setValue(m_colors);
     }
 
-    QByteArray m_settingsKey;
+    PaletteType m_paletteType;
     QStringList m_colors;
 };
 

@@ -121,8 +121,7 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
     NanotraceHR::Tracer tracer{"property editor qml backend constructor", category()};
 
     m_contextObject->setQuickWidget(m_view.get());
-    m_view->engine()->setOutputWarningsToStandardError(
-        designerSettings().value(DesignerSettingsKey::ShowPropertyEditorWarnings).toBool());
+    m_view->engine()->setOutputWarningsToStandardError(designerSettings().showPropertyEditorWarnings());
 
     m_view->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_view->engine()->addImportPath(scriptsEditorResourcesPath() + "/imports");

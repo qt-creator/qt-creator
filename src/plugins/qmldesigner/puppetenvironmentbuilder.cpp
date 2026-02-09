@@ -139,7 +139,7 @@ void PuppetEnvironmentBuilder::addRendering() const
     if (!m_environment.hasKey("QT_SCREEN_SCALE_FACTORS") && !m_environment.hasKey("QT_SCALE_FACTOR"))
         m_environment.set("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
 
-    const bool smoothRendering = m_designerSettings.value(DesignerSettingsKey::SmoothRendering).toBool();
+    const bool smoothRendering = m_designerSettings.smoothRendering();
 
     if (smoothRendering)
         m_environment.set("QMLPUPPET_SMOOTH_RENDERING", "true");
@@ -147,7 +147,7 @@ void PuppetEnvironmentBuilder::addRendering() const
 
 void PuppetEnvironmentBuilder::addControls() const
 {
-    const QString controlsStyle = m_designerSettings.value(DesignerSettingsKey::ControlsStyle).toString();
+    const QString controlsStyle = m_designerSettings.controlsStyle();
 
     if (!controlsStyle.isEmpty()) {
         m_environment.set("QT_QUICK_CONTROLS_STYLE", controlsStyle);
@@ -185,7 +185,7 @@ void PuppetEnvironmentBuilder::addQuick3D() const
     if (m_model.hasImport(import, true, true))
         m_environment.set("QMLDESIGNER_QUICK3D_PARTICLES3D_MODE", "true");
 
-    bool particlemode = m_designerSettings.value("particleMode").toBool();
+    bool particlemode = m_designerSettings.particleMode();
     if (!particlemode)
         m_environment.set("QT_QUICK3D_DISABLE_PARTICLE_SYSTEMS", "1");
     else

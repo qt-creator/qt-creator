@@ -148,7 +148,7 @@ QList<CrumbleBarInfo> CrumbleBar::infos() const
 bool CrumbleBar::showSaveDialog()
 {
     bool canceled = false;
-    bool alwaysSave = designerSettings().value(DesignerSettingsKey::AlwaysSaveInCrumbleBar).toBool();
+    bool alwaysSave = designerSettings().alwaysSaveInCrumbleBar();
     if (alwaysSave) {
         Core::DocumentManager::saveModifiedDocumentSilently(currentDesignDocument()->editor()->document());
     } else {
@@ -158,7 +158,7 @@ bool CrumbleBar::showSaveDialog()
                                                     tr("Always save when leaving subcomponent"),
                                                     &alwaysSave);
 
-        designerSettings().insert(DesignerSettingsKey::AlwaysSaveInCrumbleBar, alwaysSave);
+        designerSettings().alwaysSaveInCrumbleBar.setValue(alwaysSave);
     }
     return !canceled;
 }

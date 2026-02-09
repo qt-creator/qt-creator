@@ -542,14 +542,14 @@ double FormEditorWidget::spacing() const
 {
     NanotraceHR::Tracer tracer{"form editor widget spacing", category()};
 
-    return designerSettings().value(DesignerSettingsKey::ItemSpacing).toDouble();
+    return designerSettings().itemSpacing();
 }
 
 double FormEditorWidget::containerPadding() const
 {
     NanotraceHR::Tracer tracer{"form editor widget container padding", category()};
 
-    return designerSettings().value(DesignerSettingsKey::ContainerPadding).toDouble();
+    return designerSettings().containerPadding();
 }
 
 void FormEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

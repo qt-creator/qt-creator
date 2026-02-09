@@ -142,9 +142,7 @@ QtQuickDesignerFactory::QtQuickDesignerFactory()
     addMimeType(Utils::Constants::QMLUI_MIMETYPE);
     setDocumentCreator([this]() {
         auto document = new QmlJSEditor::QmlJSEditorDocument(id());
-        document->setIsDesignModePreferred(
-                    QmlDesigner::designerSettings().value(
-                        QmlDesigner::DesignerSettingsKey::AlwaysDesignMode).toBool());
+        document->setIsDesignModePreferred(designerSettings().alwaysDesignMode());
         return document;
     });
 }
@@ -244,7 +242,7 @@ static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor 
 
 static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
 {
-    return designerSettings().value(DesignerSettingsKey::WarnAboutQmlFilesInsteadOfUiQmlFiles).toBool();
+    return designerSettings().warningForQmlFilesInsteadOfUiQmlFiles();
 }
 
 QmlDesignerPlugin::QmlDesignerPlugin()
@@ -296,9 +294,7 @@ Utils::Result<> QmlDesignerPlugin::initialize(const QStringList &)
     Quick2PropertyEditorView::registerQmlTypes();
     StudioQuickWidget::registerDeclarativeType();
 
-    Exception::setWarnAboutException(!designerSettings()
-                                          .value(DesignerSettingsKey::WarnException)
-                                          .toBool());
+    Exception::setWarnAboutException(!designerSettings().enableModelExceptionOutput());
 
     Exception::setShowExceptionCallback([&](QStringView title, QStringView description) {
         const QString composedTitle = title.isEmpty() ? Tr::tr("Error") : title.toString();
@@ -742,7 +738,7 @@ double QmlDesignerPlugin::formEditorDevicePixelRatio()
 {
     NanotraceHR::Tracer tracer{"qml designer plugin form editor device pixel ratio", category()};
 
-    if (designerSettings().value(DesignerSettingsKey::IgnoreDevicePixelRatio).toBool())
+    if (designerSettings().ignoreDevicePixelRatio())
         return 1;
 
     const QList<QWindow *> topLevelWindows = QApplication::topLevelWindows();

@@ -271,7 +271,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
                 return ::Utils::Icons::WARNING.icon();
             if (isReference(index))
                 return ::Utils::Icons::LINK_TOOLBAR.icon();
-            if (designerSettings().value(DesignerSettingsKey::NavigatorColorizeIcons).toBool())
+            if (designerSettings().navigatorColorizeIcons())
                 return colorizeIcon(modelNode.typeIcon(), nodeColor(modelNode));
             return modelNode.typeIcon();
         } else if (role == Qt::ToolTipRole) {

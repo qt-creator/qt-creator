@@ -11,7 +11,7 @@
 using namespace QmlDesigner;
 
 void BackgroundColorSelection::showBackgroundColorSelectionWidget(QWidget *parent,
-                                                                  const QByteArray &key,
+                                                                  ColorType colorType,
                                                                   AbstractView *view,
                                                                   const AuxiliaryDataKeyView &auxProp,
                                                                   const std::function<void()> &colorSelected)
@@ -19,7 +19,7 @@ void BackgroundColorSelection::showBackgroundColorSelectionWidget(QWidget *paren
     if (m_dialog)
         return;
 
-    m_dialog = BackgroundColorSelection::createColorDialog(parent, key, view, auxProp, colorSelected);
+    m_dialog = BackgroundColorSelection::createColorDialog(parent, colorType, view, auxProp, colorSelected);
     QTC_ASSERT(m_dialog, return);
 
     QObject::connect(m_dialog, &QWidget::destroyed, m_dialog, [&]() {
@@ -28,7 +28,7 @@ void BackgroundColorSelection::showBackgroundColorSelectionWidget(QWidget *paren
 }
 
 QColorDialog *BackgroundColorSelection::createColorDialog(QWidget *parent,
-                                                          const QByteArray &key,
+                                                          ColorType colorType,
                                                           AbstractView *view,
                                                           const AuxiliaryDataKeyView &auxProp,
                                                           const std::function<void()> &colorSelected)
@@ -38,9 +38,15 @@ QColorDialog *BackgroundColorSelection::createColorDialog(QWidget *parent,
     dialog->setModal(true);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-    QList<QColor> oldColorConfig = Edit3DViewConfig::loadColors(key);
+    QStringList colorNames;
+    if (colorType == ColorType::BackGroundColor)
+        colorNames = designerSettings().edit3DViewBackgroundColor();
+    else
+        colorNames = {designerSettings().edit3DViewGridLineColor()};
 
-    if (Edit3DViewConfig::colorsValid(oldColorConfig)) {
+    QList<QColor> oldColorConfig = Utils::transform(colorNames, &QColor::fromString);
+
+    if (!oldColorConfig.isEmpty()) {
         dialog->setCurrentColor(oldColorConfig.first());
         QObject::connect(dialog, &QColorDialog::rejected, dialog,
                          [auxProp, oldColorConfig, view]() {
@@ -56,11 +62,14 @@ QColorDialog *BackgroundColorSelection::createColorDialog(QWidget *parent,
                      });
 
     QObject::connect(dialog, &QColorDialog::colorSelected, dialog,
-                     [key, colorSelected](const QColor &color) {
+                     [colorType, colorSelected](const QColor &color) {
                          if (colorSelected)
                              colorSelected();
 
-                         Edit3DViewConfig::saveColors(key, {color});
+                        if (colorType == ColorType::BackGroundColor)
+                            designerSettings().edit3DViewBackgroundColor.setValue({color.name()});
+                        else
+                            designerSettings().edit3DViewGridLineColor.setValue(color.name());
                      });
 
     return dialog;

@@ -26,14 +26,12 @@ const QString lineBreak = QStringLiteral("<br>");
 
 bool isDebugViewEnabled()
 {
-    return QmlDesigner::designerSettings().value(
-        QmlDesigner::DesignerSettingsKey::EnableQtQuickDesignerDebugView).toBool();
+    return QmlDesigner::designerSettings().enableDebugView();
 }
 
 bool isDebugViewShown()
 {
-    return QmlDesigner::designerSettings().value(
-        QmlDesigner::DesignerSettingsKey::ShowQtQuickDesignerDebugView).toBool();
+    return QmlDesigner::designerSettings().showDebugView();
 }
 
 }

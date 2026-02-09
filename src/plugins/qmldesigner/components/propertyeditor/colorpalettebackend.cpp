@@ -35,8 +35,8 @@ ColorPaletteBackend::ColorPaletteBackend()
 {
     NanotraceHR::Tracer tracer{"color palette backend constructor", category()};
 
-    m_data.insert(g_recent, Palette(QmlDesigner::DesignerSettingsKey::ColorPaletteRecent));
-    m_data.insert(g_favorite, Palette(QmlDesigner::DesignerSettingsKey::ColorPaletteFavorite));
+    m_data.insert(g_recent, Palette(PaletteType::Recent));
+    m_data.insert(g_favorite, Palette(PaletteType::Favorite));
 
     readPalettes();
 

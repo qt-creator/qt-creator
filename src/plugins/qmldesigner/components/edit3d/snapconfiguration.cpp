@@ -54,20 +54,14 @@ SnapConfiguration::~SnapConfiguration()
 void SnapConfiguration::apply()
 {
     if (m_changes) {
-        Edit3DViewConfig::save(DesignerSettingsKey::Edit3DViewSnapPosition,
-                               m_positionEnabled);
-        Edit3DViewConfig::save(DesignerSettingsKey::Edit3DViewSnapRotation,
-                               m_rotationEnabled);
-        Edit3DViewConfig::save(DesignerSettingsKey::Edit3DViewSnapScale,
-                               m_scaleEnabled);
-        Edit3DViewConfig::save(DesignerSettingsKey::Edit3DViewSnapAbsolute,
-                               m_absolute);
-        Edit3DViewConfig::save(DesignerSettingsKey::Edit3DViewSnapPositionInterval,
-                               m_positionInterval);
-        Edit3DViewConfig::save(DesignerSettingsKey::Edit3DViewSnapRotationInterval,
-                               m_rotationInterval);
-        Edit3DViewConfig::save(DesignerSettingsKey::Edit3DViewSnapScaleInterval,
-                               m_scaleInterval);
+        designerSettings().edit3DViewSnapPosition.setValue(m_positionEnabled);
+        designerSettings().edit3DViewSnapRotation.setValue(m_rotationEnabled);
+        designerSettings().edit3DViewSnapScale.setValue(m_scaleEnabled);
+        designerSettings().edit3DViewSnapAbsolute.setValue(m_absolute);
+        designerSettings().edit3DViewSnapPositionInterval.setValue(m_positionInterval);
+        designerSettings().edit3DViewSnapRotationInterval.setValue(m_rotationInterval);
+        designerSettings().edit3DViewSnapScaleInterval.setValue(m_scaleInterval);
+
         if (!m_view.isNull())
             m_view->syncSnapAuxPropsToSettings();
     }
@@ -130,16 +124,14 @@ int SnapConfiguration::devicePixelRatio()
 
 void SnapConfiguration::showConfigDialog(const QPoint &pos)
 {
-    bool posEnabled = Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapPosition, true).toBool();
-    bool rotEnabled = Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapRotation, true).toBool();
-    bool scaleEnabled = Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapScale, true).toBool();
-    bool absolute = Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapAbsolute, true).toBool();
-    double posInt = Edit3DViewConfig::load(
-                        DesignerSettingsKey::Edit3DViewSnapPositionInterval, defaultPosInt).toDouble();
-    double rotInt = Edit3DViewConfig::load(
-                        DesignerSettingsKey::Edit3DViewSnapRotationInterval, defaultRotInt).toDouble();
-    double scaleInt = Edit3DViewConfig::load(
-                        DesignerSettingsKey::Edit3DViewSnapScaleInterval, defaultScaleInt).toDouble();
+    DesignerSettings &s = designerSettings();
+    bool posEnabled = s.edit3DViewSnapPosition();
+    bool rotEnabled = s.edit3DViewSnapRotation();
+    bool scaleEnabled = s.edit3DViewSnapScale();
+    bool absolute = s.edit3DViewSnapAbsolute();
+    double posInt = s.edit3DViewSnapPositionInterval();
+    double rotInt = s.edit3DViewSnapRotationInterval();
+    double scaleInt = s.edit3DViewSnapScaleInterval();
 
     setPosEnabled(posEnabled);
     setRotEnabled(rotEnabled);

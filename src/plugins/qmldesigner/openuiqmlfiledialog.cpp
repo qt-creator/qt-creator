@@ -55,9 +55,8 @@ OpenUiQmlFileDialog::OpenUiQmlFileDialog(QWidget *parent) :
         }
         close();
     });
-    connect(checkBox, &QCheckBox::toggled, this, [](bool b){
-        designerSettings().insert(
-            DesignerSettingsKey::WarnAboutQmlFilesInsteadOfUiQmlFiles, !b);
+    connect(checkBox, &QCheckBox::toggled, this, [](bool b) {
+        designerSettings().warningForQmlFilesInsteadOfUiQmlFiles.setValue(b);
     });
 }
 

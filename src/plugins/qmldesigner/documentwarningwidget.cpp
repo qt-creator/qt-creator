@@ -176,12 +176,12 @@ void DocumentWarningWidget::emitGotoCodeClicked(const DocumentMessage &message)
 
 bool DocumentWarningWidget::warningsEnabled() const
 {
-    return designerSettings().value(DesignerSettingsKey::WarnAboutQtQuickFeaturesInDesigner).toBool();
+    return designerSettings().warningForFeaturesInDesigner();
 }
 
 void DocumentWarningWidget::ignoreCheckBoxToggled(bool b)
 {
-    designerSettings().value(DesignerSettingsKey::WarnAboutQtQuickFeaturesInDesigner, !b);
+    designerSettings().warningForFeaturesInDesigner.setValue(!b);
 }
 
 void DocumentWarningWidget::setErrors(const QList<DocumentMessage> &errors)

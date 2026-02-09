@@ -930,12 +930,8 @@ void FormEditorView::setupRootItemSize()
     NanotraceHR::Tracer tracer{"form editor view setup root item size", category()};
 
     if (const QmlItemNode rootQmlNode = rootModelNode()) {
-        int rootElementInitWidth = designerSettings()
-                                             .value(DesignerSettingsKey::RootElementInitWidth)
-                                             .toInt();
-        int rootElementInitHeight = designerSettings()
-                                              .value(DesignerSettingsKey::RootElementInitHeight)
-                                              .toInt();
+        int rootElementInitWidth = designerSettings().rootElementInitWidth();
+        int rootElementInitHeight = designerSettings().rootElementInitHeight();
 
         if (rootModelNode().hasAuxiliaryData(defaultWidthProperty))
             rootElementInitWidth = rootModelNode().auxiliaryData(defaultWidthProperty).value().toInt();

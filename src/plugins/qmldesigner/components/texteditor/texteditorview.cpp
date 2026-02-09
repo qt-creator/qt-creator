@@ -522,7 +522,7 @@ void TextEditorView::reformatFile()
 
     // Reformat document if we have a .ui.qml file
     if (document && document->filePath().toUrlishString().endsWith(".ui.qml")
-                 && designerSettings().value(DesignerSettingsKey::ReformatUiQmlFiles).toBool()) {
+                 && designerSettings().reformatUiQmlFiles()) {
 
         QmlJS::Document::Ptr currentDocument(document->semanticInfo().document);
         QmlJS::Snapshot snapshot = QmlJS::ModelManagerInterface::instance()->snapshot();

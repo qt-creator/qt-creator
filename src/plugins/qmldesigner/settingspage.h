@@ -5,9 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace QmlDesigner {
-
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class SettingsPage final : public Core::IOptionsPage
 {
@@ -15,5 +13,4 @@ public:
     SettingsPage();
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // namespace QmlDesigner::Internal

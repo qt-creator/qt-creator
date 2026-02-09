@@ -78,7 +78,7 @@ void DebugViewWidget::setDebugViewEnabled(bool b)
 
 void DebugViewWidget::enabledCheckBoxToggled(bool b)
 {
-    designerSettings().insert(DesignerSettingsKey::WarnAboutQtQuickFeaturesInDesigner, b);
+    designerSettings().warningForFeaturesInDesigner.setValue(b);
 }
 
 } //namespace Internal

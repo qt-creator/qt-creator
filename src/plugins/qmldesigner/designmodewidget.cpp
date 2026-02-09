@@ -185,7 +185,7 @@ void DesignModeWidget::setup()
     //ADS::DockManager::setAutoHideConfigFlags(ADS::DockManager::DefaultAutoHideConfig);
 
     auto designerSettings = DesignerSettings();
-    if (designerSettings.value(DesignerSettingsKey::EnableDockWidgetContentMinSize).toBool())
+    if (designerSettings.enableDockWidgetContentMinSize())
         m_minimumSizeHintMode = ADS::DockWidget::MinimumSizeHintFromContentMinimumSize;
 
     m_dockManager = new ADS::DockManager(this);
