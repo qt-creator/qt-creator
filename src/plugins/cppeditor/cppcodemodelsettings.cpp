@@ -322,6 +322,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSetting
     connect(m_ignoreFilesCheckBox, &QCheckBox::stateChanged, this, [this] {
         m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
     });
+    connect(m_ignorePatternTextEdit, &QPlainTextEdit::textChanged, this, markSettingsDirty);
 
     m_ignorePchCheckBox = new QCheckBox(Tr::tr("Ignore precompiled headers"));
     m_ignorePchCheckBox->setToolTip(Tr::tr(
