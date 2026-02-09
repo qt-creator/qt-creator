@@ -296,6 +296,7 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
             FSEngine::addDevice(device->rootPath());
     }
 
+    d->initDeviceState(device->id());
     emit s_instance->updated();
 }
 
