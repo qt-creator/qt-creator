@@ -967,7 +967,7 @@ void AppOutputPane::appendMessage(RunControl *rc, const QString &out, OutputForm
             tab->behaviorOnOutput = AppOutputPaneMode::FlashOnOutput;
             Q_FALLTHROUGH();
         case AppOutputPaneMode::PopupOnOutput:
-            popup(NoModeSwitch);
+            popup(NoModeSwitch | IOutputPane::WithFocus);
             break;
         }
     }
