@@ -167,7 +167,7 @@
     To refresh the list of automatically detected CMake executables, select
     \uicontrol {Re-detect}.
 
-    \section2 Add or remove CMake tools
+    \section1 Add or remove CMake tools
 
     To add a path to a CMake executable that \QC does not detect automatically,
     and to specify settings for it, select \uicontrol Add.
@@ -182,13 +182,13 @@
     To remove the selected CMake executable from the list, select
     \uicontrol Remove.
 
-    \section2 Set the default CMake tool
+    \section1 Set the default CMake tool
 
     \QC uses the \e {default CMake} if it does not have enough information
     to choose the CMake to use. To set the selected CMake executable as the
     default, select \uicontrol {Make Default}.
 
-    \section2 Add CMake tools to kits
+    \section1 Add CMake tools to kits
 
     To add the CMake tool to a build and run kit, select \preferences >
     \uicontrol Kits.
