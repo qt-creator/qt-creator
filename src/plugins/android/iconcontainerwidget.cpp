@@ -338,17 +338,17 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
         connect(m_masterIconButton, &QAbstractButton::clicked, this, [this, handleIconModification]() {
             const FilePath currentManifestDir = manifestDir(m_textEditor, true);
             if (currentManifestDir.isEmpty() || !currentManifestDir.exists())
-                return false;
+                return;
 
             const auto iconFile = IconContainerWidget::iconFile(lowDpiIconPath);
             if (iconFile.isEmpty())
-                return false;
+                return;
 
             const QString filePath = iconFile.toUrlishString();
             QPixmap basePix(filePath);
             if (basePix.isNull()) {
                 qWarning() << "Selected master icon could not be loaded:" << filePath;
-                return false;
+                return;
             }
 
             for (auto &&iconButton : m_iconButtons) {
@@ -360,7 +360,7 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
                 }
             }
             handleIconModification();
-            return true;
+            return;
         });
     }
     loadIcons();
