@@ -89,6 +89,9 @@ public:
 
     static void monitorDirectory(const Utils::FilePath &path, bool monitor);
     static Core::VcsFileState fileState(const Utils::FilePath &path);
+    static QColor fileStateColor(const VcsFileState &state);
+    static QString fileStateText(const VcsFileState &state);
+    static QString fileStateDescription(const VcsFileState &state);
 
     static void updateModifiedFiles(const Utils::FilePath &repository, const FileStateHash &modifiedFiles);
     static void emitClearFileState(const Utils::FilePath &repository);

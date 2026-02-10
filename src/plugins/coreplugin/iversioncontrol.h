@@ -267,9 +267,6 @@ public:
     using TopicRefresher = std::function<QString(const Utils::FilePath &)>;
     void setTopicRefresher(const TopicRefresher &topicRefresher);
 
-    static QColor vcStateToColor(const Core::VcsFileState &state);
-    static QString modificationToText(const Core::VcsFileState &state);
-
 signals:
     void repositoryChanged(const Utils::FilePath &repository);
     void filesChanged(const Utils::FilePaths &files);

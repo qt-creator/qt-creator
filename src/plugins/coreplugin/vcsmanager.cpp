@@ -18,6 +18,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QDialogButtonBox>
 #include <QJsonArray>
@@ -617,6 +618,60 @@ Core::VcsFileState VcsManager::fileState(const Utils::FilePath &filePath)
     const QString relativePath = filePath.relativeChildPath(repository).path();
 
     return d->m_fileStates.value(repository).value(relativePath, VcsFileState::Unknown);
+}
+
+QColor VcsManager::fileStateColor(const VcsFileState &state)
+{
+    using UT = Utils::Theme;
+    switch (state) {
+    case VcsFileState::Modified:
+        return Utils::creatorColor(UT::VcsBase_FileModified_TextColor);
+    case VcsFileState::Added:
+        return Utils::creatorColor(UT::VcsBase_FileAdded_TextColor);
+    case VcsFileState::Renamed:
+        return Utils::creatorColor(UT::VcsBase_FileRenamed_TextColor);
+    case VcsFileState::Deleted:
+        return Utils::creatorColor(UT::VcsBase_FileDeleted_TextColor);
+    case VcsFileState::Untracked:
+        return Utils::creatorColor(UT::VcsBase_FileUntracked_TextColor);
+    case VcsFileState::Unmerged:
+        return Utils::creatorColor(UT::VcsBase_FileUnmerged_TextColor);
+    default:
+        return Utils::creatorColor(UT::PaletteText);
+    }
+}
+
+QString VcsManager::fileStateText(const VcsFileState &state)
+{
+    switch (state) {
+    case VcsFileState::Added:     return Tr::tr("added");
+    case VcsFileState::Modified:  return Tr::tr("modified");
+    case VcsFileState::Deleted:   return Tr::tr("deleted");
+    case VcsFileState::Renamed:   return Tr::tr("renamed");
+    case VcsFileState::Untracked: return Tr::tr("untracked");
+    case VcsFileState::Unmerged:  return Tr::tr("unmerged");
+    default:                      return Tr::tr("unknown");
+    }
+}
+
+QString VcsManager::fileStateDescription(const VcsFileState &state)
+{
+    switch (state) {
+    case VcsFileState::Added:
+        return Tr::tr("Version control state: added.");
+    case VcsFileState::Modified:
+        return Tr::tr("Version control state: modified.");
+    case VcsFileState::Deleted:
+        return Tr::tr("Version control state: deleted.");
+    case VcsFileState::Renamed:
+        return Tr::tr("Version control state: renamed.");
+    case VcsFileState::Untracked:
+        return Tr::tr("Version control state: untracked.");
+    case VcsFileState::Unmerged:
+        return Tr::tr("Version control state: unmerged.");
+    default:
+        return {};
+    }
 }
 
 void VcsManager::updateModifiedFiles(const Utils::FilePath &repository, const FileStateHash &modifiedFiles)

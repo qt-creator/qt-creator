@@ -221,7 +221,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             }
         } else if (fileNode) {
             const QString &stateText =
-                IVersionControl::modificationToText(fileNode->modificationState());
+                VcsManager::fileStateDescription(fileNode->modificationState());
             if (!stateText.isEmpty())
                 tooltip += "<p>" + stateText;
         }
@@ -254,7 +254,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         if (fileNode) {
             Core::VcsFileState state = fileNode->modificationState();
             if (state != Core::VcsFileState::Unknown)
-                return Core::IVersionControl::vcStateToColor(state);
+                return VcsManager::fileStateColor(state);
         }
         return node->isEnabled() ? QVariant()
                                  : Utils::creatorColor(Utils::Theme::TextColorDisabled);

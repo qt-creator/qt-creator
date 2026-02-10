@@ -235,17 +235,7 @@ void FilePropertiesDialog::refresh()
         m_symLink->setChecked(fileInfo.isSymLink());
         m_lastRead->setText(fileInfo.lastRead().toString(locale.dateTimeFormat()));
         m_lastModified->setText(fileInfo.lastModified().toString(locale.dateTimeFormat()));
-        m_vcsStatus->setText([this] {
-            switch (VcsManager::fileState(m_filePath)) {
-            case VcsFileState::Added:     return Tr::tr("added");
-            case VcsFileState::Modified:  return Tr::tr("modified");
-            case VcsFileState::Deleted:   return Tr::tr("deleted");
-            case VcsFileState::Renamed:   return Tr::tr("renamed");
-            case VcsFileState::Untracked: return Tr::tr("untracked");
-            case VcsFileState::Unmerged:  return Tr::tr("unmerged");
-            default:                      return Tr::tr("unknown");
-            }
-        }());
+        m_vcsStatus->setText(VcsManager::fileStateText(VcsManager::fileState(m_filePath)));
 
         if (mimeType.inherits("text/plain")) {
             detectTextFileSettings();

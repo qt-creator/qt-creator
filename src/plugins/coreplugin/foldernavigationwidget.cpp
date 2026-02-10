@@ -210,14 +210,14 @@ QVariant FolderNavigationModel::data(const QModelIndex &index, int role) const
         QString tooltip = QDir::toNativeSeparators(QDir::cleanPath(filePath(index)));
         const VcsFileState state = VcsManager::fileState(file);
         if (state != VcsFileState::Unknown) {
-            const QString stateText = IVersionControl::modificationToText(state);
+            const QString stateText = VcsManager::fileStateDescription(state);
             tooltip += "<p>" + stateText;
         }
         return tooltip;
     } else if (role == IsFolderRole) {
         return isDir(index);
     } else if (role == Qt::ForegroundRole) {
-        return IVersionControl::vcStateToColor(VcsManager::fileState(file));
+        return VcsManager::fileStateColor(VcsManager::fileState(file));
     }
 
     return QFileSystemModel::data(index, role);

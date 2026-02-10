@@ -146,11 +146,11 @@ static void updateTabUi(QTabBar *tabBar, int index, IDocument *document)
     tabBar->setTabText(index, title);
     const Utils::FilePath fullPath = document->filePath();
     const VcsFileState state = VcsManager::fileState(fullPath);
-    const QColor color = Core::IVersionControl::vcStateToColor(state);
+    const QColor color = VcsManager::fileStateColor(state);
     tabBar->setTabTextColor(index, color);
     QString toolTip = document->toolTip();
     if (state != VcsFileState::Unknown)
-        toolTip += "<p>" + Core::IVersionControl::modificationToText(state);
+        toolTip += "<p>" + VcsManager::fileStateDescription(state);
     tabBar->setTabToolTip(index, toolTip);
 
     // HACK:

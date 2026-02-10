@@ -295,13 +295,13 @@ QVariant ProxyModel::data(const QModelIndex &index, int role) const
         return FileIconProvider::icon(filePath());
     } else if (role == Qt::ForegroundRole) {
         const VcsFileState state = VcsManager::fileState(filePath());
-        return Core::IVersionControl::vcStateToColor(state);
+        return VcsManager::fileStateColor(state);
     } else if (role == Qt::ToolTipRole) {
         const FilePath path = filePath();
         const VcsFileState state = VcsManager::fileState(path);
         QString toolTip = path.toUserOutput();
         if (state != VcsFileState::Unknown) {
-            const QString stateText = IVersionControl::modificationToText(state);
+            const QString stateText = VcsManager::fileStateDescription(state);
             toolTip += "<p>" + stateText;
         }
         return toolTip;
