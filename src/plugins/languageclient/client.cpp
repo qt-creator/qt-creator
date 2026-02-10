@@ -1881,6 +1881,11 @@ int Client::completionResultsLimit() const
     return d->m_completionResultsLimit;
 }
 
+void Client::foldOrUnfoldCommentBlocks(TextEditor::BaseTextEditor *editor, bool fold)
+{
+    d->m_foldingSupport.foldOrUnfoldCommentBlocks(editor, fold);
+}
+
 const ServerCapabilities &Client::capabilities() const
 {
     return d->m_serverCapabilities;

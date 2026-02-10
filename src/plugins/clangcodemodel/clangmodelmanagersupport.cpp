@@ -22,7 +22,6 @@
 #include <cppeditor/clangdsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
-#include <cppeditor/cppfollowsymbolundercursor.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
@@ -30,8 +29,6 @@
 
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/locatorfilter.h>
-
-#include <texteditor/quickfix.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
@@ -416,6 +413,23 @@ void ClangModelManagerSupport::switchHeaderSource(const FilePath &filePath, bool
         }
     }
     CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
+}
+
+void ClangModelManagerSupport::foldOrUnfoldComments(TextEditor::BaseTextEditor *editor, bool fold)
+{
+    TextEditor::TextDocument * const doc = editor->textDocument();
+    if (!doc)
+        return;
+    if (doc->isFoldingIndentExternallyProvided()) {
+        if (ClangdClient * const client = clientForFile(doc->filePath())) {
+            client->foldOrUnfoldCommentBlocks(editor, fold);
+            return;
+        }
+    }
+    if (fold)
+        CppModelManager::foldComments(CppModelManager::Backend::Builtin);
+    else
+        CppModelManager::unfoldComments(CppModelManager::Backend::Builtin);
 }
 
 void ClangModelManagerSupport::checkUnused(const Link &link, SearchResult *search,

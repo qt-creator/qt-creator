@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-namespace TextEditor { class TextDocument; }
+namespace TextEditor {
+class BaseTextEditor;
+class TextDocument;
+}
 
 namespace LanguageClient {
 class Client;
@@ -18,6 +21,7 @@ public:
     ~FoldingRangeSupport();
 
     void requestFoldingRanges(TextEditor::TextDocument *doc);
+    void foldOrUnfoldCommentBlocks(TextEditor::BaseTextEditor *editor, bool fold);
     void deactivate(TextEditor::TextDocument *doc);
     void refresh();
 

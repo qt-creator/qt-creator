@@ -59,11 +59,9 @@
 #include <projectexplorer/toolchainkitaspect.h>
 
 #include <texteditor/textdocument.h>
-#include <texteditor/textdocumentlayout.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -481,52 +479,21 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
     compiler->start();
 }
 
-static void foldOrUnfoldComments(bool unfold)
+void CppModelManager::foldComments(Backend backend)
 {
-    IEditor * const currentEditor = EditorManager::currentEditor();
-    if (!currentEditor)
-        return;
-    const auto editorWidget = qobject_cast<CppEditorWidget*>(currentEditor->widget());
-    if (!editorWidget)
-        return;
-    TextEditor::TextDocument * const textDoc = editorWidget->textDocument();
-    QTC_ASSERT(textDoc, return);
-
-    const Document::Ptr cppDoc = CppModelManager::snapshot().preprocessedDocument(
-        textDoc->contents(), textDoc->filePath());
-    QTC_ASSERT(cppDoc, return);
-    cppDoc->tokenize();
-    TranslationUnit * const tu = cppDoc->translationUnit();
-    if (!tu || !tu->isTokenized())
-        return;
-
-    for (int commentTokIndex = 0; commentTokIndex < tu->commentCount(); ++commentTokIndex) {
-        const Token &tok = tu->commentAt(commentTokIndex);
-        if (tok.kind() != T_COMMENT && tok.kind() != T_DOXY_COMMENT)
-            continue;
-        const int tokenPos = tu->getTokenPositionInDocument(tok, textDoc->document());
-        const int tokenEndPos = tu->getTokenEndPositionInDocument(tok, textDoc->document());
-        const QTextBlock tokenBlock = textDoc->document()->findBlock(tokenPos);
-        if (!tokenBlock.isValid())
-            continue;
-        const QTextBlock nextBlock = tokenBlock.next();
-        if (!nextBlock.isValid())
-            continue;
-        if (tokenEndPos < nextBlock.position())
-            continue;
-        if (TextEditor::TextBlockUserData::foldingIndent(tokenBlock)
-            >= TextEditor::TextBlockUserData::foldingIndent(nextBlock)) {
-            continue;
-        }
-        if (unfold)
-            editorWidget->unfold(tokenBlock);
-        else
-            editorWidget->fold(tokenBlock);
+    if (const auto currentEditor = qobject_cast<TextEditor::BaseTextEditor *>(
+            EditorManager::currentEditor())) {
+        modelManagerSupport(backend)->foldOrUnfoldComments(currentEditor, true);
     }
 }
 
-void CppModelManager::foldComments() { foldOrUnfoldComments(false); }
-void CppModelManager::unfoldComments() { foldOrUnfoldComments(true); }
+void CppModelManager::unfoldComments(Backend backend)
+{
+    if (const auto currentEditor = qobject_cast<TextEditor::BaseTextEditor *>(
+            EditorManager::currentEditor())) {
+        modelManagerSupport(backend)->foldOrUnfoldComments(currentEditor, false);
+    }
+}
 
 class FindUnusedActionsEnabledSwitcher
 {

@@ -14,7 +14,10 @@
 #include "symbolfinder.h"
 
 #include <coreplugin/messagemanager.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/TranslationUnit.h>
 #include <texteditor/basehoverhandler.h>
+#include <texteditor/textdocumentlayout.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
 
@@ -24,6 +27,7 @@
 #include <QTextDocument>
 
 using namespace Core;
+using namespace CPlusPlus;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -206,6 +210,47 @@ void BuiltinModelManagerSupport::switchHeaderSource(const FilePath &filePath,
     const FilePath otherFile = correspondingHeaderOrSource(filePath);
     if (!otherFile.isEmpty())
         openEditor(otherFile, inNextSplit);
+}
+
+void BuiltinModelManagerSupport::foldOrUnfoldComments(BaseTextEditor *editor, bool fold)
+{
+    const auto editorWidget = qobject_cast<CppEditorWidget*>(editor->widget());
+    if (!editorWidget)
+        return;
+    TextEditor::TextDocument * const textDoc = editorWidget->textDocument();
+    QTC_ASSERT(textDoc, return);
+
+    const Document::Ptr cppDoc = CppModelManager::snapshot().preprocessedDocument(
+        textDoc->contents(), textDoc->filePath());
+    QTC_ASSERT(cppDoc, return);
+    cppDoc->tokenize();
+    TranslationUnit * const tu = cppDoc->translationUnit();
+    if (!tu || !tu->isTokenized())
+        return;
+
+    for (int commentTokIndex = 0; commentTokIndex < tu->commentCount(); ++commentTokIndex) {
+        const Token &tok = tu->commentAt(commentTokIndex);
+        if (tok.kind() != T_COMMENT && tok.kind() != T_DOXY_COMMENT)
+            continue;
+        const int tokenPos = tu->getTokenPositionInDocument(tok, textDoc->document());
+        const int tokenEndPos = tu->getTokenEndPositionInDocument(tok, textDoc->document());
+        const QTextBlock tokenBlock = textDoc->document()->findBlock(tokenPos);
+        if (!tokenBlock.isValid())
+            continue;
+        const QTextBlock nextBlock = tokenBlock.next();
+        if (!nextBlock.isValid())
+            continue;
+        if (tokenEndPos < nextBlock.position())
+            continue;
+        if (TextEditor::TextBlockUserData::foldingIndent(tokenBlock)
+            >= TextEditor::TextBlockUserData::foldingIndent(nextBlock)) {
+            continue;
+        }
+        if (fold)
+            editorWidget->fold(tokenBlock);
+        else
+            editorWidget->unfold(tokenBlock);
+    }
 }
 
 void BuiltinModelManagerSupport::checkUnused(const Link &link, SearchResult *search,

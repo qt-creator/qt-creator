@@ -195,8 +195,8 @@ public:
     static void findUsages(const CursorInEditor &data, Backend backend = Backend::Best);
     static void switchHeaderSource(bool inNextSplit, Backend backend = Backend::Best);
     static void showPreprocessedFile(bool inNextSplit);
-    static void foldComments();
-    static void unfoldComments();
+    static void foldComments(Backend backend = Backend::Best);
+    static void unfoldComments(Backend backend = Backend::Best);
     static void findUnusedFunctions(const Utils::FilePath &folder);
     static void checkForUnusedSymbol(Core::SearchResult *search, const Utils::Link &link,
                                      CPlusPlus::Symbol *symbol,

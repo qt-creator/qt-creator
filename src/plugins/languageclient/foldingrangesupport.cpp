@@ -12,6 +12,8 @@
 
 #include <QSet>
 
+#include <utility>
+
 using namespace Core;
 using namespace LanguageServerProtocol;
 using namespace TextEditor;
@@ -44,6 +46,29 @@ public:
         connect(m_client, &Client::initialized, this,
             [this, doc = QPointer<TextDocument>(doc)]() { if (doc) doRequestRanges(doc); },
             Qt::QueuedConnection);
+    }
+
+    void foldOrUnfoldCommentBlocks(BaseTextEditor *editor, bool fold)
+    {
+        if (m_client->documentVersion(editor->document()->filePath()) != m_savedRanges.first)
+            return;
+
+        QTC_ASSERT(editor->editorWidget(), return);
+        QTextDocument * const doc = editor->textDocument()->document();
+
+        for (const FoldingRange &r : std::as_const(m_savedRanges.second)) {
+            if (r.kind() != "comment")
+                continue;
+
+            const QTextBlock start = doc->findBlockByNumber(r.startLine() + 1);
+            const QTextBlock end = doc->findBlockByNumber(r.endLine() + 1);
+            for (QTextBlock b = start; b != end; b = b.next()) {
+                if (fold)
+                    editor->editorWidget()->fold(b);
+                else
+                    editor->editorWidget()->unfold(b);
+            }
+        }
     }
 
 private:
@@ -106,12 +131,16 @@ private:
         TextDocument * const doc = TextDocument::textDocumentForFilePath(filePath);
         if (!doc || LanguageClientManager::clientForDocument(doc) != m_client)
             return;
+
         if (m_client->documentVersion(filePath) != documentVersion)
             return;
 
         const auto ranges = std::get_if<QList<FoldingRange>>(&result);
-        if (!ranges)
+        const auto newRanges = ranges ? *ranges : QList<FoldingRange>();
+        m_savedRanges.first = documentVersion;
+        if (newRanges == m_savedRanges.second)
             return;
+        m_savedRanges.second = newRanges;
 
         QTextDocument * const docdoc = doc->document();
         for (QTextBlock b = docdoc->begin(); b != docdoc->end(); b = b.next()) {
@@ -130,6 +159,7 @@ private:
     Client * const m_client;
     QSet<TextDocument *> m_queued;
     QHash<Utils::FilePath, LanguageServerProtocol::MessageId> m_runningRequests;
+    std::pair<int, QList<FoldingRange>> m_savedRanges;
 };
 
 FoldingRangeSupport::FoldingRangeSupport(Client *client) : d(new FoldingRangeSupportImpl(client))
@@ -145,6 +175,11 @@ FoldingRangeSupport::~FoldingRangeSupport()
 void FoldingRangeSupport::requestFoldingRanges(TextEditor::TextDocument *doc)
 {
     d->requestFoldingRanges(doc);
+}
+
+void FoldingRangeSupport::foldOrUnfoldCommentBlocks(BaseTextEditor *editor, bool fold)
+{
+    d->foldOrUnfoldCommentBlocks(editor, fold);
 }
 
 void FoldingRangeSupport::deactivate(TextEditor::TextDocument *doc)
