@@ -335,11 +335,7 @@ bool CvsPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &filePath) con
 
 bool CvsPluginPrivate::isConfigured() const
 {
-    const FilePath binary = settings().binaryPath.effectiveBinary();
-    if (binary.isEmpty())
-        return false;
-    QFileInfo fi = binary.toFileInfo();
-    return fi.exists() && fi.isFile() && fi.isExecutable();
+    return settings().binaryPath.effectiveBinary().isExecutableFile();
 }
 
 bool CvsPluginPrivate::supportsOperation(Operation operation) const
