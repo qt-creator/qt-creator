@@ -187,7 +187,7 @@ HelpPluginPrivate::HelpPluginPrivate()
         ICore::removeAdditionalContext(Context(kToolTipHelpContext));
     });
 
-    helpSettings().viewerBackendId.addOnChanged(this, [this] {
+    helpSettings().viewerBackend.addOnChanged(this, [this] {
         if (m_centralWidget)
             m_centralWidget->reloadAll();
         if (m_rightPaneSideBarWidget)
@@ -381,7 +381,7 @@ void HelpPluginPrivate::setupHelpEngineIfNeeded()
 {
     LocalHelpManager::setEngineNeedsUpdate();
     if (ModeManager::currentModeId() == m_mode.id()
-            || LocalHelpManager::contextHelpOption() == Core::HelpManager::ExternalHelpAlways)
+            || helpSettings().contextHelpOption() == Core::HelpManager::ExternalHelpAlways)
         LocalHelpManager::setupGuiHelpEngine();
 }
 
@@ -503,7 +503,7 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
     if (links.empty()) {
         // No link found or no context object
         HelpViewer *viewer = showHelpUrl(QUrl(Help::Constants::AboutBlank),
-                                         LocalHelpManager::contextHelpOption());
+                                         helpSettings().contextHelpOption());
         if (viewer) {
             viewer->setHtml(QString("<html><head><title>%1</title>"
                                     "</head><body bgcolor=\"%2\"><br/><center>"
@@ -517,7 +517,7 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
                                 .arg(Tr::tr("No documentation available.")));
         }
     } else if (links.size() == 1 && !contextHelp.isFuzzyMatch()) {
-        showHelpUrl(links.front().second, LocalHelpManager::contextHelpOption());
+        showHelpUrl(links.front().second, helpSettings().contextHelpOption());
     } else {
         QMultiMap<QString, QUrl> map;
         for (const HelpItem::Link &link : links)
@@ -525,7 +525,7 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
         auto tc = new TopicChooser(ICore::dialogParent(), contextHelp.keyword(), map);
         tc->setModal(true);
         connect(tc, &QDialog::accepted, this, [this, tc] {
-            showHelpUrl(tc->link(), LocalHelpManager::contextHelpOption());
+            showHelpUrl(tc->link(), helpSettings().contextHelpOption());
         });
         connect(tc, &QDialog::finished, tc, [tc] { tc->deleteLater(); });
         tc->show();

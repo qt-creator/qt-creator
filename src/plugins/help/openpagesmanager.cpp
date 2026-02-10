@@ -88,20 +88,20 @@ QComboBox *OpenPagesManager::openPagesComboBox() const
 void OpenPagesManager::setupInitialPages()
 {
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    const LocalHelpManager::StartOption option = LocalHelpManager::startOption();
+    const HelpSettings::StartOption option = helpSettings().startOption();
     const QString homePage = helpSettings().homePage();
 
     int initialPage = 0;
     switch (option) {
-    case LocalHelpManager::ShowHomePage:
+    case HelpSettings::ShowHomePage:
         m_helpWidget->addViewer(homePage);
         break;
 
-    case LocalHelpManager::ShowBlankPage:
+    case HelpSettings::ShowBlankPage:
         m_helpWidget->addViewer(QUrl(Help::Constants::AboutBlank));
         break;
 
-    case LocalHelpManager::ShowLastPages: {
+    case HelpSettings::ShowLastPages: {
         const QStringList lastShownPageList =
             helpSettings().lastShownPages().split(Constants::ListSeparator, Qt::SkipEmptyParts);
         const int pageCount = lastShownPageList.size();

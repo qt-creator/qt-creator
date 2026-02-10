@@ -609,6 +609,7 @@ public:
 
     void addOption(const QString &displayName, const QString &toolTip = {});
     void addOption(const Option &option);
+    int optionCount() const;
     int indexForDisplay(const QString &displayName) const;
     QString displayForIndex(int index) const;
     int indexForItemValue(const QVariant &value) const;

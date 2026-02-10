@@ -144,6 +144,7 @@ static void installDirtyTriggerHelper(QWidget *widget, bool check)
     }
     if (auto ob = qobject_cast<QComboBox *>(widget)) {
         QObject::connect(ob, &QComboBox::currentIndexChanged, action);
+        QObject::connect(ob, &QComboBox::currentTextChanged, action);
         return;
     }
     if (auto ob = qobject_cast<QSpinBox *>(widget)) {

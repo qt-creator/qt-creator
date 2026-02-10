@@ -109,7 +109,7 @@ static bool isBookmarkable(const QUrl &url)
 
 static bool isTargetOfContextHelp(HelpWidget::WidgetStyle style)
 {
-    const Core::HelpManager::HelpViewerLocation option = LocalHelpManager::contextHelpOption();
+    const Core::HelpManager::HelpViewerLocation option = helpSettings().contextHelpOption();
     switch (style) {
     case HelpWidget::ModeWidget:
         return option == Core::HelpManager::HelpModeAlways;
@@ -165,15 +165,15 @@ static QMenu *createHelpTargetMenu(QWidget *parent)
     const auto addAction = [menu](Core::HelpManager::HelpViewerLocation option) {
         QAction *action = menu->addAction(helpTargetActionText(option));
         action->setCheckable(true);
-        action->setChecked(LocalHelpManager::contextHelpOption() == option);
+        action->setChecked(helpSettings().contextHelpOption() == option);
         QObject::connect(action, &QAction::triggered, menu, [option] {
-            LocalHelpManager::setContextHelpOption(option);
+            helpSettings().contextHelpOption.setValue(option);
         });
-        QObject::connect(LocalHelpManager::instance(),
-                         &LocalHelpManager::contextHelpOptionChanged,
+        QObject::connect(&helpSettings().contextHelpOption,
+                         &Utils::BaseAspect::changed,
                          menu,
-                         [action, option](Core::HelpManager::HelpViewerLocation newOption) {
-                             action->setChecked(newOption == option);
+                         [action, option] {
+                             action->setChecked(helpSettings().contextHelpOption() == option);
                          });
     };
     addAction(Core::HelpManager::SideBySideIfPossible);
@@ -342,14 +342,14 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     helpTargetButton->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
     helpTargetButton->setPopupMode(QToolButton::DelayedPopup);
     helpTargetButton->setMenu(createHelpTargetMenu(helpTargetButton));
-    connect(LocalHelpManager::instance(), &LocalHelpManager::contextHelpOptionChanged, this,
+    connect(&helpSettings().contextHelpOption, &Utils::BaseAspect::changed, this,
             [this, helpTargetAction] {
                 helpTargetAction->setChecked(isTargetOfContextHelp(m_style));
             });
     connect(helpTargetAction, &QAction::triggered, this,
             [this, helpTargetAction, helpTargetButton](bool checked) {
                 if (checked) {
-                    LocalHelpManager::setContextHelpOption(optionForStyle(m_style));
+                    helpSettings().contextHelpOption.setValue(optionForStyle(m_style));
                 } else {
                     helpTargetAction->setChecked(true);
                     helpTargetButton->showMenu();

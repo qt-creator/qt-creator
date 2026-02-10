@@ -29,10 +29,27 @@ struct HelpViewerFactory
     std::function<HelpViewer *()> create;
 };
 
+class ViewerBackendAspect final : public Utils::SelectionAspect
+{
+public:
+    using Utils::SelectionAspect::SelectionAspect;
+
+    QVariant fromSettingsValue(const QVariant &savedValue) const final;
+    QVariant toSettingsValue(const QVariant &valueToSave) const final;
+
+    QByteArray operator()() const;
+};
+
 class HelpSettings final : public Utils::AspectContainer
 {
 public:
     HelpSettings();
+
+    enum StartOption {
+        ShowHomePage = 0,
+        ShowBlankPage = 1,
+        ShowLastPages = 2,
+    };
 
     Utils::StringAspect homePage{this};
     Utils::IntegerAspect fontZoom{this}; // percentages
@@ -41,7 +58,9 @@ public:
     Utils::BoolAspect returnOnClose{this};
     Utils::StringAspect lastShownPages{this};
     Utils::IntegerAspect lastSelectedTab{this};
-    Utils::TypedAspect<QByteArray> viewerBackendId{this};
+    ViewerBackendAspect viewerBackend{this};
+    Utils::TypedSelectionAspect<StartOption> startOption{this};
+    Utils::TypedSelectionAspect<Core::HelpManager::HelpViewerLocation> contextHelpOption{this};
 };
 
 HelpSettings &helpSettings();
@@ -57,12 +76,6 @@ public:
         QString mimeType;
     };
 
-    enum StartOption {
-        ShowHomePage = 0,
-        ShowBlankPage = 1,
-        ShowLastPages = 2,
-    };
-
     LocalHelpManager(QObject *parent = nullptr);
     ~LocalHelpManager() override;
 
@@ -70,12 +83,6 @@ public:
 
     static QFont fallbackFont();
     static void setFallbackFont(const QFont &font);
-
-    static StartOption startOption();
-    static void setStartOption(StartOption option);
-
-    static Core::HelpManager::HelpViewerLocation contextHelpOption();
-    static void setContextHelpOption(Core::HelpManager::HelpViewerLocation location);
 
     static HelpViewerFactory defaultViewerBackend();
     static QVector<HelpViewerFactory> viewerBackends();
@@ -103,7 +110,6 @@ public:
 
 signals:
     void fallbackFontChanged(const QFont &font);
-    void contextHelpOptionChanged(Core::HelpManager::HelpViewerLocation option);
 };
 
 } // namespace Help::Internal

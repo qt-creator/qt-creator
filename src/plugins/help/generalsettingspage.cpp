@@ -50,6 +50,11 @@ private:
     void apply() final;
     void cancel() final { helpSettings().cancel(); }
 
+    bool isDirty() const final
+    {
+        return helpSettings().isDirty() || m_font != LocalHelpManager::fallbackFont();
+    }
+
     void setCurrentPage();
     void setBlankPage();
     void setDefaultPage();
@@ -63,23 +68,12 @@ private:
 
     QFont m_font;
 
-    QString m_homePage;
-    int m_contextOption;
-
-    int m_startOption;
-
     QFontComboBox *familyComboBox;
     QComboBox *sizeComboBox;
-    QLineEdit *homePageLineEdit;
-    QComboBox *helpStartComboBox;
-    QComboBox *contextHelpComboBox;
     QPushButton *currentPageButton;
     QPushButton *blankPageButton;
     QPushButton *defaultPageButton;
     QLabel *errorLabel;
-    QPushButton *importButton;
-    QPushButton *exportButton;
-    QComboBox *viewerBackend;
 };
 
 GeneralSettingsPageWidget::GeneralSettingsPageWidget()
@@ -103,26 +97,10 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     }.attachTo(fontGroupBox);
     // clang-format on
 
-    // startup group box
-    contextHelpComboBox = new QComboBox;
-    contextHelpComboBox->setObjectName("contextHelpComboBox");
-    contextHelpComboBox->addItem(Tr::tr("Show Side-by-Side if Possible"));
-    contextHelpComboBox->addItem(Tr::tr("Always Show Side-by-Side"));
-    contextHelpComboBox->addItem(Tr::tr("Always Show in Help Mode"));
-    contextHelpComboBox->addItem(Tr::tr("Always Show in External Window"));
-
-    helpStartComboBox = new QComboBox;
-    helpStartComboBox->addItem(Tr::tr("Show My Home Page"));
-    helpStartComboBox->addItem(Tr::tr("Show a Blank Page"));
-    helpStartComboBox->addItem(Tr::tr("Show My Tabs from Last Session"));
-
-    homePageLineEdit = new QLineEdit;
     currentPageButton = new QPushButton(Tr::tr("Use &Current Page"));
     blankPageButton = new QPushButton(Tr::tr("Use &Blank Page"));
     defaultPageButton = new QPushButton(Tr::tr("Reset"));
     defaultPageButton->setToolTip(Tr::tr("Reset to default."));
-
-    viewerBackend = new QComboBox;
 
     // bookmarks
     errorLabel = new QLabel(this);
@@ -136,9 +114,6 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     palette.setBrush(QPalette::Disabled, QPalette::Text, brush1);
     errorLabel->setPalette(palette);
 
-    importButton = new QPushButton(Tr::tr("Import Bookmarks..."));
-    exportButton = new QPushButton(Tr::tr("Export Bookmarks..."));
-
     Column {
         fontGroupBox,
         Group {
@@ -146,11 +121,9 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
             Layouting::objectName("startupGroupBox"),
             Form {
                 fieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow),
-                Tr::tr("On context help:"), contextHelpComboBox, br,
-                Tr::tr("On help start:"), helpStartComboBox, br,
-                Tr::tr("Home page:"),  Row {
-                    homePageLineEdit, currentPageButton, blankPageButton, defaultPageButton
-                }
+                s.contextHelpOption, br,
+                s.startOption, br,
+                s.homePage, currentPageButton, blankPageButton, defaultPageButton
             }
         },
         Group {
@@ -158,10 +131,21 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
             Column {
                 s.scrollWheelZooming,
                 s.returnOnClose,
-                Row { Tr::tr("Viewer backend:"), viewerBackend, st }
+                Row { Tr::tr("Viewer backend:"), s.viewerBackend, st }
             }
         },
-        Row { st, errorLabel, importButton, exportButton },
+        Row {
+            st,
+            errorLabel,
+            PushButton {
+                text(Tr::tr("Import Bookmarks...")),
+                onClicked(this, [this] { importBookmarks(); })
+            },
+            PushButton {
+                text(Tr::tr("Export Bookmarks...")),
+                onClicked(this, [this] { exportBookmarks(); })
+            },
+        },
         st
     }.attachTo(this);
 
@@ -179,15 +163,6 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     connect(sizeComboBox, &QComboBox::currentIndexChanged,
             this, &GeneralSettingsPageWidget::updateFont);
 
-    m_homePage = helpSettings().homePage();
-    homePageLineEdit->setText(m_homePage);
-
-    m_startOption = LocalHelpManager::startOption();
-    helpStartComboBox->setCurrentIndex(m_startOption);
-
-    m_contextOption = LocalHelpManager::contextHelpOption();
-    contextHelpComboBox->setCurrentIndex(m_contextOption);
-
     connect(currentPageButton, &QPushButton::clicked,
             this, &GeneralSettingsPageWidget::setCurrentPage);
     connect(blankPageButton, &QPushButton::clicked,
@@ -200,27 +175,11 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
         currentPageButton->setEnabled(false);
 
     errorLabel->setVisible(false);
-    connect(importButton, &QPushButton::clicked,
-            this, &GeneralSettingsPageWidget::importBookmarks);
-    connect(exportButton, &QPushButton::clicked,
-            this, &GeneralSettingsPageWidget::exportBookmarks);
 
-    viewerBackend->addItem(
-        Tr::tr("Default (%1)", "Default viewer backend")
-            .arg(LocalHelpManager::defaultViewerBackend().displayName));
-    const QByteArray currentBackend = helpSettings().viewerBackendId();
-    const QVector<HelpViewerFactory> backends = LocalHelpManager::viewerBackends();
-    for (const HelpViewerFactory &f : backends) {
-        viewerBackend->addItem(f.displayName, f.id);
-        if (f.id == currentBackend)
-            viewerBackend->setCurrentIndex(viewerBackend->count() - 1);
-    }
-    if (backends.size() == 1)
-        viewerBackend->setEnabled(false);
-
-    installMarkSettingsDirtyTrigger(homePageLineEdit);
-
-    installMarkSettingsDirtyTriggerRecursively(this);
+    connect(&helpSettings(), &AspectContainer::volatileValueChanged, &checkSettingsDirty);
+    connect(familyComboBox, &QComboBox::currentIndexChanged, &helpSettings(), checkSettingsDirty);
+    connect(familyComboBox, &QComboBox::currentTextChanged, &helpSettings(), checkSettingsDirty);
+    installCheckSettingsDirtyTrigger(sizeComboBox);
 }
 
 void GeneralSettingsPageWidget::apply()
@@ -230,46 +189,26 @@ void GeneralSettingsPageWidget::apply()
 
     helpSettings().apply();
 
-    QString homePage = QUrl::fromUserInput(homePageLineEdit->text()).toString();
-    if (homePage.isEmpty())
-        homePage = Help::Constants::AboutBlank;
-    homePageLineEdit->setText(homePage);
-    if (m_homePage != homePage) {
-        m_homePage = homePage;
-        helpSettings().homePage.setValue(homePage);
-    }
+    if (helpSettings().homePage().isEmpty())
+        helpSettings().homePage.setValue(Help::Constants::AboutBlank);
 
-    const int startOption = helpStartComboBox->currentIndex();
-    if (m_startOption != startOption) {
-        m_startOption = startOption;
-        LocalHelpManager::setStartOption(LocalHelpManager::StartOption(m_startOption));
-    }
-
-    const int helpOption = contextHelpComboBox->currentIndex();
-    if (m_contextOption != helpOption) {
-        m_contextOption = helpOption;
-        LocalHelpManager::setContextHelpOption(HelpManager::HelpViewerLocation(m_contextOption));
-    }
-
-    const QByteArray viewerBackendId = viewerBackend->currentData().toByteArray();
-    helpSettings().viewerBackendId.setValue(viewerBackendId);
     helpSettings().writeSettings();
 }
 
 void GeneralSettingsPageWidget::setCurrentPage()
 {
     if (HelpViewer *viewer = modeHelpWidget()->currentViewer())
-        homePageLineEdit->setText(viewer->source().toString());
+        helpSettings().homePage.setVolatileValue(viewer->source().toString());
 }
 
 void GeneralSettingsPageWidget::setBlankPage()
 {
-    homePageLineEdit->setText(Help::Constants::AboutBlank);
+    helpSettings().homePage.setVolatileValue(Help::Constants::AboutBlank);
 }
 
 void GeneralSettingsPageWidget::setDefaultPage()
 {
-    homePageLineEdit->setText(helpSettings().homePage.defaultValue());
+    helpSettings().homePage.setVolatileValue(helpSettings().homePage.defaultValue());
 }
 
 void GeneralSettingsPageWidget::importBookmarks()
