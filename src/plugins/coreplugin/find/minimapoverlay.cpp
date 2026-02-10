@@ -4,6 +4,7 @@
 #include "minimapoverlay.h"
 
 #include <utils/plaintextedit/plaintextedit.h>
+#include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
@@ -136,7 +137,7 @@ void MinimapOverlay::updateImage()
     if (!m_editor || !m_editor->isVisible())
         return;
 
-    const int docLineCount = [this]() {
+    int docLineCount = [this]() {
         int lineCount = 0;
         for (QTextBlock block = m_doc->firstBlock(); block.isValid(); block = block.next()) {
             if (!block.isVisible())
@@ -145,6 +146,14 @@ void MinimapOverlay::updateImage()
         }
         return lineCount;
     }();
+
+    if (m_editor->centerOnScroll()) {
+        // if center cursor on scroll is enabled, it is possible to scroll past the end of the
+        // document, so we need to add enough lines to fill the viewport
+        auto viewportHeight = m_editor->viewport()->height();
+        auto lineSpacing = m_editor->editorLayout()->lineSpacing();
+        docLineCount += viewportHeight / lineSpacing;
+    }
 
     const int imageWidth = m_minimapWidth - 2;
     const int lineDup = m_pixelsPerLine;
