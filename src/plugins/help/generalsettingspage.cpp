@@ -56,7 +56,6 @@ private:
     void exportBookmarks();
 
     void updateFontSizeSelector();
-    void updateFontStyleSelector();
     void updateFontFamilySelector();
     void updateFont();
     int closestPointSizeIndex(int desiredPointSize) const;
@@ -73,7 +72,6 @@ private:
 
     QSpinBox *zoomSpinBox;
     QFontComboBox *familyComboBox;
-    QComboBox *styleComboBox;
     QComboBox *sizeComboBox;
     QCheckBox *antialiasCheckBox;
     QLineEdit *homePageLineEdit;
@@ -96,7 +94,6 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
 
     // font group box
     familyComboBox = new QFontComboBox;
-    styleComboBox = new QComboBox;
     sizeComboBox = new QComboBox;
     zoomSpinBox = new QSpinBox;
     zoomSpinBox->setMinimum(10);
@@ -110,7 +107,6 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     // clang-format off
     Column {
         Row { Tr::tr("Family:"), familyComboBox,
-              Tr::tr("Style:"), styleComboBox,
               Tr::tr("Size:"), sizeComboBox, st },
         Row { Tr::tr("Note: The above setting takes effect only if the "
                      "HTML file does not use a style sheet.") },
@@ -211,17 +207,9 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     antialiasCheckBox->setChecked(helpSettings().antiAlias());
 
     updateFontSizeSelector();
-    updateFontStyleSelector();
     updateFontFamilySelector();
 
     connect(familyComboBox, &QFontComboBox::currentFontChanged, this, [this] {
-        updateFont();
-        updateFontStyleSelector();
-        updateFontSizeSelector();
-        updateFont(); // changes that might have happened when updating the selectors
-    });
-
-    connect(styleComboBox, &QComboBox::currentIndexChanged, this, [this] {
         updateFont();
         updateFontSizeSelector();
         updateFont(); // changes that might have happened when updating the selectors
@@ -419,35 +407,6 @@ void GeneralSettingsPageWidget::updateFontSizeSelector()
     }
 }
 
-void GeneralSettingsPageWidget::updateFontStyleSelector()
-{
-    const QString &fontStyle = QFontDatabase::styleString(m_font);
-    const QStringList &styles = QFontDatabase::styles(m_font.family());
-
-    QSignalBlocker blocker(styleComboBox);
-    styleComboBox->clear();
-    styleComboBox->setCurrentIndex(-1);
-    styleComboBox->setEnabled(!styles.empty());
-
-    if (!styles.empty()) {
-        int normalIndex = -1;
-        const QString normalStyle = "Normal";
-        for (const QString &style : styles) {
-            // try to maintain selection or select 'normal' preferably
-            const int newIndex = styleComboBox->count();
-            styleComboBox->addItem(style);
-            if (fontStyle == style) {
-                styleComboBox->setCurrentIndex(newIndex);
-            } else {
-                if (fontStyle ==  normalStyle)
-                    normalIndex = newIndex;
-            }
-        }
-        if (styleComboBox->currentIndex() == -1 && normalIndex != -1)
-            styleComboBox->setCurrentIndex(normalIndex);
-    }
-}
-
 void GeneralSettingsPageWidget::updateFontFamilySelector()
 {
     familyComboBox->setCurrentFont(m_font);
@@ -463,10 +422,6 @@ void GeneralSettingsPageWidget::updateFont()
     if (currentIndex != -1)
         fontSize = sizeComboBox->itemData(currentIndex).toInt();
     m_font.setPointSize(fontSize);
-
-    currentIndex = styleComboBox->currentIndex();
-    if (currentIndex != -1)
-        m_font.setStyleName(styleComboBox->itemText(currentIndex));
 }
 
 int GeneralSettingsPageWidget::closestPointSizeIndex(int desiredPointSize) const
