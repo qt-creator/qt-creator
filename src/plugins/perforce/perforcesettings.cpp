@@ -66,12 +66,7 @@ PerforceSettings::PerforceSettings()
     logCount.setDefaultValue(1000);
     logCount.setLabelText(Tr::tr("Log count:"));
 
-    // The settings value has been stored with the opposite meaning for a while.
-    // Avoid changing the stored value, but flip it on read/write:
     customEnv.setSettingsKey("Default");
-    const auto invertBoolVariant = [](const QVariant &v) { return QVariant(!v.toBool()); };
-    customEnv.setFromSettingsTransformation(invertBoolVariant);
-    customEnv.setToSettingsTransformation(invertBoolVariant);
 
     timeOutS.setSettingsKey("TimeOut");
     timeOutS.setRange(1, 360);

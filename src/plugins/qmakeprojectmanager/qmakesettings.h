@@ -16,7 +16,7 @@ public:
 
     Utils::BoolAspect warnAgainstUnalignedBuildDir{this};
     Utils::BoolAspect alwaysRunQmake{this};
-    Utils::BoolAspect ignoreSystemFunction{this};
+    Utils::InvertedSavedBoolAspect ignoreSystemFunction{this};
 };
 
 QmakeSettings &settings();

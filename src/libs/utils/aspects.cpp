@@ -86,9 +86,6 @@ public:
     }
 
     Id m_id;
-    std::function<QVariant(const QVariant &)> m_toSettings;
-    std::function<QVariant(const QVariant &)> m_fromSettings;
-
     QString m_displayName;
     Key m_settingsKey; // Name of data in settings.
     QString m_tooltip;
@@ -749,24 +746,14 @@ void BaseAspect::writeSettings() const
                                               toSettingsValue(defaultVariantValue()));
 }
 
-void BaseAspect::setFromSettingsTransformation(const SavedValueTransformation &transform)
+QVariant BaseAspect::toSettingsValue(const QVariant &valueToSave) const
 {
-    d->m_fromSettings = transform;
+    return valueToSave;
 }
 
-void BaseAspect::setToSettingsTransformation(const SavedValueTransformation &transform)
+QVariant BaseAspect::fromSettingsValue(const QVariant &savedValue) const
 {
-    d->m_toSettings = transform;
-}
-
-QVariant BaseAspect::toSettingsValue(const QVariant &val) const
-{
-    return d->m_toSettings ? d->m_toSettings(val) : val;
-}
-
-QVariant BaseAspect::fromSettingsValue(const QVariant &val) const
-{
-    return d->m_fromSettings ? d->m_fromSettings(val) : val;
+    return savedValue;
 }
 
 void BaseAspect::setMacroExpander(MacroExpander *expander)
@@ -863,6 +850,7 @@ public:
     SelectionAspect::DisplayStyle m_displayStyle = SelectionAspect::DisplayStyle::RadioButtons;
     QList<SelectionAspect::Option> m_options;
     UndoableValue<int> m_undoable;
+    bool m_useDataAsSavedValue = false;
 };
 
 class MultiSelectionAspectPrivate
@@ -2353,6 +2341,22 @@ CheckableDecider BoolAspect::doNotAskAgainCheckableDecider()
 }
 
 /*!
+ \internal
+*/
+QVariant InvertedSavedBoolAspect::fromSettingsValue(const QVariant &savedValue) const
+{
+    return !savedValue.toBool();
+}
+
+/*!
+ \internal
+*/
+QVariant InvertedSavedBoolAspect::toSettingsValue(const QVariant &valueToSave) const
+{
+    return !valueToSave.toBool();
+}
+
+/*!
     \class Utils::SelectionAspect
     \inmodule QtCreator
 
@@ -2446,15 +2450,26 @@ void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
     d->m_displayStyle = style;
 }
 
+QVariant SelectionAspect::toSettingsValue(const QVariant &valueToSave) const
+{
+    if (!d->m_useDataAsSavedValue)
+        return valueToSave;
+
+    return itemValueForIndex(valueToSave.toInt());
+}
+
+QVariant SelectionAspect::fromSettingsValue(const QVariant &savedValue) const
+{
+    if (!d->m_useDataAsSavedValue)
+        return savedValue;
+
+    const int index = indexForItemValue(savedValue);
+    return index >= 0 ? index : defaultVariantValue();
+}
+
 void SelectionAspect::setUseDataAsSavedValue()
 {
-    setFromSettingsTransformation([this](const QVariant &savedValue) {
-        const int index = indexForItemValue(savedValue);
-        return index >= 0 ? index : defaultVariantValue();
-    });
-    setToSettingsTransformation([this](const QVariant &valueToSave) {
-        return itemValueForIndex(valueToSave.toInt());
-    });
+    d->m_useDataAsSavedValue = true;
 }
 
 void SelectionAspect::setStringValue(const QString &val)

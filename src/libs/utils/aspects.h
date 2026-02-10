@@ -135,11 +135,8 @@ public:
     virtual void readSettings();
     virtual void writeSettings() const;
 
-    using SavedValueTransformation = std::function<QVariant(const QVariant &)>;
-    void setFromSettingsTransformation(const SavedValueTransformation &transform);
-    void setToSettingsTransformation(const SavedValueTransformation &transform);
-    QVariant toSettingsValue(const QVariant &val) const;
-    QVariant fromSettingsValue(const QVariant &val) const;
+    virtual QVariant toSettingsValue(const QVariant &valueToSave) const;
+    virtual QVariant fromSettingsValue(const QVariant &savedValue) const;
 
     virtual void apply();
     virtual void cancel();
@@ -489,6 +486,16 @@ private:
     std::unique_ptr<Internal::BoolAspectPrivate> d;
 };
 
+// For bool values that have changed their saved representation
+class QTCREATOR_UTILS_EXPORT InvertedSavedBoolAspect : public BoolAspect
+{
+public:
+    using BoolAspect::BoolAspect;
+
+    QVariant fromSettingsValue(const QVariant &savedValue) const override;
+    QVariant toSettingsValue(const QVariant &valueToSave) const override;
+};
+
 class QTCREATOR_UTILS_EXPORT ToggleAspect : public BoolAspect
 {
 public:
@@ -582,6 +589,9 @@ public:
 
     enum class DisplayStyle { RadioButtons, ComboBox };
     void setDisplayStyle(DisplayStyle style);
+
+    QVariant toSettingsValue(const QVariant &valueToSave) const override;
+    QVariant fromSettingsValue(const QVariant &savedValue) const override;
 
     void setUseDataAsSavedValue();
 

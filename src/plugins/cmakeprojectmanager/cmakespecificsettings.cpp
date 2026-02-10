@@ -39,6 +39,21 @@ CMakeSpecificSettings &settings(Project *project)
     return cmakeProject->settings();
 }
 
+QVariant NinjaPathAspect::fromSettingsValue(const QVariant &savedValue) const
+{
+   // Sometimes the installer appends the same ninja path to the qtcreator.ini file
+   const QString path = savedValue.canConvert<QStringList>()
+           ? savedValue.toStringList().last() : savedValue.toString();
+   return FilePath::fromUserInput(path).toVariant();
+}
+
+QVariant NinjaPathAspect::toSettingsValue(const QVariant &valueToSave) const
+{
+    // never save this to the settings:
+    Q_UNUSED(valueToSave);
+    return QVariant::fromValue(QString());
+}
+
 CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
     : project(p)
 {
@@ -71,15 +86,6 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
         "Automatically run CMake after changes to CMake project files."));
 
     ninjaPath.setSettingsKey("NinjaPath");
-    // never save this to the settings:
-    ninjaPath.setToSettingsTransformation(
-        [](const QVariant &) { return QVariant::fromValue(QString()); });
-    ninjaPath.setFromSettingsTransformation([](const QVariant &from) {
-        // Sometimes the installer appends the same ninja path to the qtcreator.ini file
-        const QString path = from.canConvert<QStringList>() ? from.toStringList().last()
-                                                            : from.toString();
-        return FilePath::fromUserInput(path).toVariant();
-    });
 
     packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");
     packageManagerAutoSetup.setDefaultValue(true);

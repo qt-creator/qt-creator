@@ -15,6 +15,15 @@
 
 namespace QmlJSEditor::Internal {
 
+class DisabledMessagesAspect : public Utils::IntegersAspect
+{
+public:
+    using Utils::IntegersAspect::IntegersAspect;
+
+    QVariant fromSettingsValue(const QVariant &savedValue) const override;
+    QVariant toSettingsValue(const QVariant &valueToSave) const override;
+};
+
 class QmlJsEditingSettings final : public Utils::AspectContainer
 {
 public:
@@ -29,8 +38,8 @@ public:
     Utils::BoolAspect foldAuxData{this};
     Utils::BoolAspect useCustomAnalyzer{this};
     Utils::SelectionAspect uiQmlOpenMode{this};
-    Utils::IntegersAspect disabledMessages{this};
-    Utils::IntegersAspect disabledMessagesForNonQuickUi{this};
+    DisabledMessagesAspect disabledMessages{this};
+    DisabledMessagesAspect disabledMessagesForNonQuickUi{this};
     Utils::FilePathAspect qdsCommand{this};
 };
 
