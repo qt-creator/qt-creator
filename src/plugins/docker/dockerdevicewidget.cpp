@@ -180,6 +180,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     connect(&*dockerDevice, &AspectContainer::applied, this, [createLineLabel, dockerDevice] {
         createLineLabel->setText(dockerDevice->createCommandLine().toUserOutput());
     });
+    connect(&dockerDevice->mounts, &FilePathListAspect::volatileValueChanged,
+            this, checkSettingsDirty);
 }
 
 void DockerDeviceWidget::updateDaemonStateTexts()

@@ -3157,6 +3157,7 @@ void FilePathListAspect::addToLayoutImpl(Layout &parent)
 
         handleGuiChanged();
     });
+    connect(editor, &PathListEditor::changed, this, &FilePathListAspect::volatileValueChanged);
 
     editor->setToolTip(toolTip());
     editor->setMaximumHeight(100);
