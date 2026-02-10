@@ -318,6 +318,11 @@ Object::Object(std::initializer_list<I> ps)
     apply(this, ps);
 }
 
+void Object::setObjectName(const QString &objectName)
+{
+    access(this)->setObjectName(objectName);
+}
+
 void Object::onDestroyed(QObject *guard, const std::function<void()> &func)
 {
     QObject::connect(access(this), &QObject::destroyed, guard, func);

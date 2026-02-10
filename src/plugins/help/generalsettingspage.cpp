@@ -139,14 +139,11 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     importButton = new QPushButton(Tr::tr("Import Bookmarks..."));
     exportButton = new QPushButton(Tr::tr("Export Bookmarks..."));
 
-    QGroupBox *startupGroupBox = nullptr;
-
-    using namespace Layouting;
     Column {
         fontGroupBox,
         Group {
             title(Tr::tr("Startup")),
-            bindTo(&startupGroupBox),
+            Layouting::objectName("startupGroupBox"),
             Form {
                 fieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow),
                 Tr::tr("On context help:"), contextHelpComboBox, br,
@@ -167,8 +164,6 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
         Row { st, errorLabel, importButton, exportButton },
         st
     }.attachTo(this);
-
-    startupGroupBox->setObjectName("startupGroupBox");
 
     m_font = LocalHelpManager::fallbackFont();
 

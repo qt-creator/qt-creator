@@ -77,6 +77,7 @@ public:
     Object() = default;
     Object(std::initializer_list<I> ps);
 
+    void setObjectName(const QString &objectName);
     void onDestroyed(QObject *guard, const std::function<void()> &func);
 
     QObject *product() const { return ptr; }
@@ -668,6 +669,7 @@ QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
 QTC_DEFINE_BUILDER_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy)
 QTC_DEFINE_BUILDER_SETTER(groupChecker, setGroupChecker)
 QTC_DEFINE_BUILDER_SETTER(icon, setIcon)
+QTC_DEFINE_BUILDER_SETTER(objectName, setObjectName)
 QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
 QTC_DEFINE_BUILDER_SETTER(onDestroyed, onDestroyed)
 QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
