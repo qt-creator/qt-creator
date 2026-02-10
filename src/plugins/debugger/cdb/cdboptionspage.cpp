@@ -269,6 +269,8 @@ CdbPathsPageWidget::CdbPathsPageWidget()
     }.attachTo(this);
 
     installMarkSettingsDirtyTriggerRecursively(this);
+    connect(m_symbolPaths, &PathListEditor::changed, this, checkSettingsDirty);
+    connect(m_sourcePaths, &PathListEditor::changed, this, checkSettingsDirty);
 }
 
 void CdbPathsPageWidget::apply()
