@@ -30,7 +30,7 @@ QtcPlugin {
 
     Group {
         name: "images"
-        prefix: "mcpserver/"
+        prefix: "images/"
         files: [
             "mcpicon.png",
             "mcpicon@2x.png",
@@ -40,7 +40,6 @@ QtcPlugin {
 
     Group {
         name: "schemas"
-        prefix: "mcpserver/"
         files: [
             "issues-schema.json",
         ]
