@@ -690,10 +690,10 @@ protected:
                 return true;
             }
             if (button == Qt::RightButton) {
-                QMenu contextMenu;
-                QAction *action = new QAction(Tr::tr("Remove Project from Recent Projects"));
                 const auto projectModel = dynamic_cast<ProjectModel *>(model);
                 QTC_ASSERT(projectModel, return false);
+                QMenu contextMenu;
+                QAction *action = new QAction(Tr::tr("Remove Project from Recent Projects"));
                 contextMenu.addAction(action);
                 connect(action, &QAction::triggered, this, [idx, projectModel] {
                     const QVariant projectFile = idx.data(FilePathRole);
