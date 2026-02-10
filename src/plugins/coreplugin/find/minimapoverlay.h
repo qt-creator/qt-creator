@@ -45,6 +45,14 @@ private:
     void doMove();
     void doResize();
 
+    struct ThumbGeometry
+    {
+        qreal scrollFraction;
+        QRect rect;
+    };
+    ThumbGeometry computeThumbGeometry() const;
+    int minimapPixelPosToRangeValue(int pos) const;
+
     QPointer<Utils::PlainTextEdit> m_editor;
     QPointer<QTextDocument> m_doc;
     QPointer<QScrollBar> m_vScroll;
@@ -54,6 +62,10 @@ private:
     const int m_pixelsPerLine = 2;
     const int m_lineGap = 1;
     int m_scrollbarDefaultWidth;
+
+    bool m_dragging = false;
+    int m_dragOffset = 0;
+    int m_dragStartValue = 0;
 
     QImage m_minimap;
     QTimer m_updateTimer;

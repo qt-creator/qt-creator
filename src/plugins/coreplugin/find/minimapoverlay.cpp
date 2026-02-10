@@ -59,10 +59,9 @@ void MinimapOverlay::paintMinimap(QPainter *painter) const
 
     const QRect geo = rect().adjusted(1, 0, 1, 0);
 
-    const qreal scale = miniLineHeight() / qreal(m_vScroll->singleStep());
-    const qreal scrollFraction = m_vScroll->maximum() > 0
-                                     ? qreal(m_vScroll->value()) / m_vScroll->maximum()
-                                     : qreal(m_vScroll->value()) / m_vScroll->pageStep();
+    ThumbGeometry tg = computeThumbGeometry();
+    const qreal &scrollFraction = tg.scrollFraction;
+    const QRect &thumbRect = tg.rect;
 
     if (m_minimap.height() > geo.height()) {
         int srcY = qRound(scrollFraction * (m_minimap.height() - geo.height()));
@@ -73,17 +72,11 @@ void MinimapOverlay::paintMinimap(QPainter *painter) const
         painter->drawImage(geo.topLeft(), m_minimap);
     }
 
-    const int thumbHeight = qRound(m_vScroll->pageStep() * scale);
-    const int thumbTop
-        = geo.top()
-          + qRound(scrollFraction * (qMin(m_minimap.height(), geo.height()) - thumbHeight));
-    QRect thumbRect(rect().left(), thumbTop, m_minimapWidth, thumbHeight);
-
     QColor overlay = creatorColor(Theme::Token_Foreground_Default);
     overlay.setAlphaF(m_minimapAlpha);
-    painter->setCompositionMode(creatorTheme()->colorScheme() == Qt::ColorScheme::Dark
-                                    ? QPainter::CompositionMode_Lighten
-                                    : QPainter::CompositionMode_Darken);
+    painter->setCompositionMode(
+        creatorTheme()->colorScheme() == Qt::ColorScheme::Dark ? QPainter::CompositionMode_Lighten
+                                                               : QPainter::CompositionMode_Darken);
     painter->fillRect(thumbRect, overlay);
 
     QPen pen;
@@ -277,87 +270,59 @@ void MinimapOverlay::doResize()
     resize(m_minimapWidth, m_editor->height());
 }
 
+MinimapOverlay::ThumbGeometry MinimapOverlay::computeThumbGeometry() const
+{
+    const qreal scale = miniLineHeight() / qreal(m_vScroll->singleStep());
+    const qreal scrollFraction = m_vScroll->maximum() > 0
+                                     ? qreal(m_vScroll->value()) / m_vScroll->maximum()
+                                     : qreal(m_vScroll->value()) / m_vScroll->pageStep();
+
+    const QRect geo = rect().adjusted(1, 0, 1, 0);
+    const int thumbHeight = qRound(m_vScroll->pageStep() * scale);
+    const int thumbTop
+        = geo.top()
+          + qRound(scrollFraction * (qMin(m_minimap.height(), geo.height()) - thumbHeight));
+
+    ThumbGeometry tg;
+    tg.scrollFraction = scrollFraction;
+    tg.rect = QRect(rect().left(), thumbTop, m_minimapWidth, thumbHeight);
+    return tg;
+}
+
 void MinimapOverlay::mousePressEvent(QMouseEvent *event)
 {
     if (!m_vScroll)
         return;
 
-    QPoint mappedPos = m_vScroll->mapFromGlobal(event->globalPosition()).toPoint();
-    mappedPos.setX(m_scrollbarDefaultWidth / 2);
+    const QPoint clickPos = event->pos();
 
-    // Compute the minimap thumb rect
-    const QRect geo = rect().adjusted(1, 0, 1, 0);
-    const qreal scale = miniLineHeight() / qreal(m_vScroll->singleStep());
-    const qreal scrollFraction = m_vScroll->maximum() > 0
-                                     ? qreal(m_vScroll->value()) / m_vScroll->maximum()
-                                     : qreal(m_vScroll->value()) / m_vScroll->pageStep();
-    const int thumbHeight = qRound(m_vScroll->pageStep() * scale);
-    const int thumbTop
-        = geo.top()
-          + qRound(scrollFraction * (qMin(m_minimap.height(), geo.height()) - thumbHeight));
-    const QRect minimapThumbRect(rect().left(), thumbTop, rect().width(), thumbHeight);
+    const ThumbGeometry tg = computeThumbGeometry();
+    const QRect &thumb = tg.rect;
 
-    // Get the scrollbar thumb rect
-    QStyleOptionSlider opt;
-    opt.initFrom(m_vScroll);
-    opt.orientation = m_vScroll->orientation();
-    opt.minimum = m_vScroll->minimum();
-    opt.maximum = m_vScroll->maximum();
-    opt.pageStep = m_vScroll->pageStep();
-    opt.singleStep = m_vScroll->singleStep();
-    opt.sliderPosition = m_vScroll->value();
-    opt.sliderValue = m_vScroll->value();
-    opt.rect = m_vScroll->rect();
+    if (thumb.contains(clickPos)) {
+        m_dragging = true;
+        m_dragStartValue = m_vScroll->value();
+        m_dragOffset = clickPos.y() - thumb.top();
 
-    const QRect thumbRect = m_vScroll->style()->subControlRect(
-        QStyle::CC_ScrollBar,
-        &opt,
-        QStyle::SC_ScrollBarSlider,
-        m_vScroll);
-
-    if (thumbRect.contains(mappedPos) || !minimapThumbRect.contains(mappedPos)) {
-        QMouseEvent forwarded(
-            event->type(),
-            mappedPos,
-            event->globalPosition(),
-            event->button(),
-            event->buttons(),
-            event->modifiers());
-
-        QApplication::sendEvent(m_vScroll, &forwarded);
-    } else {
-        // Inside the minimap thumb rect, but outside the real thumb
-        QPoint fakePos = thumbRect.center();
-        QMouseEvent fakePress(
-            event->type(),
-            fakePos,
-            event->globalPosition(),
-            event->button(),
-            event->buttons(),
-            event->modifiers());
-
-        QApplication::sendEvent(m_vScroll, &fakePress);
+        event->accept();
+        return;
     }
+
+    const int delta = (clickPos.y() < thumb.top()) ? -m_vScroll->pageStep() : m_vScroll->pageStep();
+    const int scrollPosition = m_vScroll->value() + delta;
+    m_vScroll->setValue(qBound(m_vScroll->minimum(), scrollPosition, m_vScroll->maximum()));
 
     event->accept();
 }
 
 void MinimapOverlay::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!m_vScroll)
+    if (!m_vScroll || !m_dragging)
         return;
 
-    QPointF mappedPos = m_vScroll->mapFromGlobal(event->globalPosition());
-    mappedPos.setX(m_scrollbarDefaultWidth / 2);
-    QMouseEvent forwarded(
-        event->type(),
-        mappedPos,
-        event->globalPosition(),
-        event->button(),
-        event->buttons(),
-        event->modifiers());
+    const int scrollPosition = minimapPixelPosToRangeValue(event->pos().y() - m_dragOffset);
+    m_vScroll->setValue(qBound(m_vScroll->minimum(), scrollPosition, m_vScroll->maximum()));
 
-    QApplication::sendEvent(m_vScroll, &forwarded);
     event->accept();
 }
 
@@ -365,19 +330,24 @@ void MinimapOverlay::mouseReleaseEvent(QMouseEvent *event)
 {
     if (!m_vScroll)
         return;
+    if (!m_dragging)
+        return;
 
-    QPointF mappedPos = m_vScroll->mapFromGlobal(event->globalPosition());
-    mappedPos.setX(m_scrollbarDefaultWidth / 2);
-    QMouseEvent forwarded(
-        event->type(),
-        mappedPos,
-        event->globalPosition(),
-        event->button(),
-        event->buttons(),
-        event->modifiers());
-
-    QApplication::sendEvent(m_vScroll, &forwarded);
+    m_dragging = false;
     event->accept();
+}
+
+int MinimapOverlay::minimapPixelPosToRangeValue(int pos) const
+{
+    const QRect geo = rect().adjusted(1, 0, 1, 0);
+    const ThumbGeometry tg = computeThumbGeometry();
+    const QRect &thumb = tg.rect;
+
+    const int thumbMin = geo.top();
+    const int thumbMax = geo.top() + qMin(m_minimap.height(), geo.height()) - thumb.height() + 1;
+
+    return QStyle::sliderValueFromPosition(
+        m_vScroll->minimum(), m_vScroll->maximum(), pos - thumbMin, thumbMax - thumbMin, false);
 }
 
 void MinimapOverlay::wheelEvent(QWheelEvent *event)
