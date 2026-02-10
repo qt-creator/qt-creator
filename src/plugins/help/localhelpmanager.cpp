@@ -89,6 +89,8 @@ static QString defaultFallbackFontStyleName(const QString &fontFamily)
 
 HelpSettings::HelpSettings()
 {
+    setAutoApply(false);
+
     const auto version = QVersionNumber::fromString(QCoreApplication::applicationVersion());
     const QString defaultHomePage =
         QString("qthelp://org.qt-project.qtcreator.%1%2%3/doc/index.html")
@@ -100,17 +102,24 @@ HelpSettings::HelpSettings()
     homePage.setDefaultValue(defaultHomePage);
 
     fontZoom.setSettingsKey("Help/FontZoom");
-    fontZoom.setRange(10, 30000);
+    fontZoom.setRange(10, 3000);
     fontZoom.setDefaultValue(100);
+    fontZoom.setSingleStep(10);
+    fontZoom.setSuffix(Tr::tr("%"));
 
     antiAlias.setSettingsKey("Help/FontAntialias");
     antiAlias.setDefaultValue(true);
+    antiAlias.setLabelText(Tr::tr("Antialias"));
 
     scrollWheelZooming.setSettingsKey("Help/UseScrollWheelZooming");
     scrollWheelZooming.setDefaultValue(true);
+    scrollWheelZooming.setLabelText(Tr::tr("Enable scroll wheel zooming"));
 
     returnOnClose.setSettingsKey("Help/ReturnOnClose");
     returnOnClose.setDefaultValue(true);
+    returnOnClose.setLabelText(Tr::tr("Return to editor on closing the last page"));
+    returnOnClose.setToolTip(
+        Tr::tr("Switches to editor context after last help page is closed."));
 
     lastShownPages.setSettingsKey("Help/LastShownPages");
 
