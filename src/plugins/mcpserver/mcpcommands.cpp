@@ -36,6 +36,7 @@
 #include <QTimer>
 
 using namespace Utils;
+using namespace ProjectExplorer;
 
 Q_LOGGING_CATEGORY(mcpCommands, "qtc.mcpserver.commands", QtWarningMsg)
 
@@ -105,7 +106,7 @@ QString McpCommands::getBuildStatus()
     results.append("=== BUILD STATUS ===");
 
     // Check if build is currently running
-    if (ProjectExplorer::BuildManager::isBuilding()) {
+    if (BuildManager::isBuilding()) {
         results.append("Building: 50%");
         results.append("Status: Build in progress");
         results.append("Current step: Compiling");
@@ -277,8 +278,8 @@ QStringList McpCommands::listProjects()
 {
     QStringList projects;
 
-    QList<ProjectExplorer::Project *> projectList = ProjectExplorer::ProjectManager::projects();
-    for (ProjectExplorer::Project *project : projectList) {
+    QList<Project *> projectList = ProjectManager::projects();
+    for (Project *project : projectList) {
         projects.append(project->displayName());
     }
 
@@ -291,20 +292,20 @@ QStringList McpCommands::listBuildConfigs()
 {
     QStringList configs;
 
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (!project) {
         qCDebug(mcpCommands) << "No current project";
         return configs;
     }
 
-    ProjectExplorer::Target *target = project->activeTarget();
+    Target *target = project->activeTarget();
     if (!target) {
         qCDebug(mcpCommands) << "No active target";
         return configs;
     }
 
-    QList<ProjectExplorer::BuildConfiguration *> buildConfigs = target->buildConfigurations();
-    for (ProjectExplorer::BuildConfiguration *config : buildConfigs) {
+    QList<BuildConfiguration *> buildConfigs = target->buildConfigurations();
+    for (BuildConfiguration *config : buildConfigs) {
         configs.append(config->displayName());
     }
 
@@ -320,23 +321,23 @@ bool McpCommands::switchToBuildConfig(const QString &name)
         return false;
     }
 
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (!project) {
         qCDebug(mcpCommands) << "No current project";
         return false;
     }
 
-    ProjectExplorer::Target *target = project->activeTarget();
+    Target *target = project->activeTarget();
     if (!target) {
         qCDebug(mcpCommands) << "No active target";
         return false;
     }
 
-    QList<ProjectExplorer::BuildConfiguration *> buildConfigs = target->buildConfigurations();
-    for (ProjectExplorer::BuildConfiguration *config : buildConfigs) {
+    QList<BuildConfiguration *> buildConfigs = target->buildConfigurations();
+    for (BuildConfiguration *config : buildConfigs) {
         if (config->displayName() == name) {
             qCDebug(mcpCommands) << "Switching to build configuration:" << name;
-            target->setActiveBuildConfiguration(config, ProjectExplorer::SetActive::Cascade);
+            target->setActiveBuildConfiguration(config, SetActive::Cascade);
             return true;
         }
     }
@@ -607,7 +608,7 @@ bool McpCommands::killDebuggedProcesses()
 
 QString McpCommands::getCurrentProject()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (project) {
         return project->displayName();
     }
@@ -616,17 +617,17 @@ QString McpCommands::getCurrentProject()
 
 QString McpCommands::getCurrentBuildConfig()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (!project) {
         return QString();
     }
 
-    ProjectExplorer::Target *target = project->activeTarget();
+    Target *target = project->activeTarget();
     if (!target) {
         return QString();
     }
 
-    ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
+    BuildConfiguration *buildConfig = target->activeBuildConfiguration();
     if (buildConfig) {
         return buildConfig->displayName();
     }
@@ -723,12 +724,11 @@ QJsonObject McpCommands::listIssues(const QString &path)
 
 Utils::Result<QStringList> McpCommands::projectDependencies(const QString &projectName)
 {
-    for (ProjectExplorer::Project * candidate : ProjectExplorer::ProjectManager::projects()) {
+    for (Project * candidate : ProjectManager::projects()) {
         if (candidate->displayName() == projectName) {
             QStringList projects;
-            const QList<ProjectExplorer::Project *> projectList
-                = ProjectExplorer::ProjectManager::dependencies(candidate);
-            for (ProjectExplorer::Project *project : projectList)
+            const QList<Project *> projectList = ProjectManager::dependencies(candidate);
+            for (Project *project : projectList)
                 projects.append(project->displayName());
             return projects;
         }
