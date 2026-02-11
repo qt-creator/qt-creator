@@ -52,9 +52,9 @@ private:
         };
         const auto onDone = [this](DoneWith result) {
             if (result == DoneWith::Success)
-                addOutput(Tr::tr("Copying finished."), OutputFormat::NormalMessage);
+                emit addOutput(Tr::tr("Copying finished."), OutputFormat::NormalMessage);
             else
-                addOutput(Tr::tr("Copying failed."), OutputFormat::ErrorMessage);
+                emit addOutput(Tr::tr("Copying failed."), OutputFormat::ErrorMessage);
         };
         return FileStreamerTask(onSetup, onDone);
     }
