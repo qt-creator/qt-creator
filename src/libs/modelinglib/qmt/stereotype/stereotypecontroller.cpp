@@ -109,7 +109,7 @@ QList<Toolbar> StereotypeController::findToolbars(const QString &elementType) co
 QStringList StereotypeController::knownStereotypes(StereotypeIcon::Element stereotypeElement) const
 {
     QSet<QString> stereotypes;
-    for (const StereotypeIcon &icon : d->m_iconIdToStereotypeIconsMap) {
+    for (const StereotypeIcon &icon : std::as_const(d->m_iconIdToStereotypeIconsMap)) {
         if (icon.elements().isEmpty() || icon.elements().contains(stereotypeElement))
             stereotypes += icon.stereotypes();
     }
