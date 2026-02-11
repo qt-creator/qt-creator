@@ -931,10 +931,10 @@ void FormEditorView::setupRootItemSize()
 
     if (const QmlItemNode rootQmlNode = rootModelNode()) {
         int rootElementInitWidth = designerSettings()
-                                             .value(DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH)
+                                             .value(DesignerSettingsKey::RootElementInitWidth)
                                              .toInt();
         int rootElementInitHeight = designerSettings()
-                                              .value(DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT)
+                                              .value(DesignerSettingsKey::RootElementInitHeight)
                                               .toInt();
 
         if (rootModelNode().hasAuxiliaryData(defaultWidthProperty))

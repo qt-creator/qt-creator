@@ -149,7 +149,7 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     button->setIcon(cIcon);
     button->setCheckable(true);
     bool colorizeFlag = designerSettings()
-                           .value(DesignerSettingsKey::NAVIGATOR_COLORIZE_ICONS)
+                           .value(DesignerSettingsKey::NavigatorColorizeIcons)
                            .toBool();
     button->setChecked(colorizeFlag);
     button->setToolTip(tr("Colorize Component Icons"));
@@ -168,7 +168,7 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     button->setIcon(refIcon);
     button->setCheckable(true);
     bool referenceFlag = designerSettings()
-                             .value(DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES)
+                             .value(DesignerSettingsKey::NavigatorShowReferenceNodes)
                              .toBool();
     button->setChecked(referenceFlag);
     button->setToolTip(tr("Show reference nodes"));
@@ -187,7 +187,7 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     button->setIcon(vIcon);
     button->setCheckable(true);
     bool visibleFlag = designerSettings()
-                           .value(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS)
+                           .value(DesignerSettingsKey::NavigatorShowOnlyVisibleItems)
                            .toBool();
     button->setChecked(visibleFlag);
     button->setToolTip(tr("Show Only Visible Components"));
@@ -206,7 +206,7 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     button->setIcon(rIcon);
     button->setCheckable(true);
     bool reverseFlag = designerSettings()
-                           .value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER)
+                           .value(DesignerSettingsKey::NavigatorReverseItemOrder)
                            .toBool();
     button->setChecked(reverseFlag);
     button->setToolTip(tr("Reverse Component Order"));

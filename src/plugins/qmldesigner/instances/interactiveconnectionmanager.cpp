@@ -32,14 +32,14 @@ void InteractiveConnectionManager::setUp(NodeInstanceServerInterface *nodeInstan
     ConnectionManager::setUp(nodeInstanceServer, qrcMappingString, target, view, externalDependencies);
 
     int timeOutTime = designerSettings()
-            .value(DesignerSettingsKey::PUPPET_KILL_TIMEOUT).toInt();
+            .value(DesignerSettingsKey::PuppetKillTimeout).toInt();
     for (Connection &connection : connections()) {
         connection.timer.reset(new QTimer);
         connection.timer->setInterval(timeOutTime);
     }
 
     if (designerSettings()
-            .value(DesignerSettingsKey::DEBUG_PUPPET)
+            .value(DesignerSettingsKey::DebugPuppet)
             .toString()
             .isEmpty()) {
         for (Connection &connection : connections()) {

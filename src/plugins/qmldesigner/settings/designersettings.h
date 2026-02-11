@@ -15,60 +15,57 @@ namespace Utils { class QtcSettings; }
 namespace QmlDesigner {
 
 namespace DesignerSettingsKey {
-inline constexpr char ITEMSPACING[] = "ItemSpacing";
-inline constexpr char CONTAINERPADDING[] = "ContainerPadding";
-inline constexpr char CANVASWIDTH[] = "CanvasWidth";
-inline constexpr char CANVASHEIGHT[] = "CanvasHeight";
-inline constexpr char ROOT_ELEMENT_INIT_WIDTH[] = "RootElementInitWidth";
-inline constexpr char ROOT_ELEMENT_INIT_HEIGHT[] = "RootElementInitHeight";
-inline constexpr char WARNING_FOR_FEATURES_IN_DESIGNER[] = "WarnAboutQtQuickFeaturesInDesigner";
-inline constexpr char WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES[]
-    = "WarnAboutQmlFilesInsteadOfUiQmlFiles";
-inline constexpr char WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR[]
-    = "WarnAboutQtQuickDesignerFeaturesInCodeEditor";
-inline constexpr char SHOW_DEBUGVIEW[] = "ShowQtQuickDesignerDebugView";
-inline constexpr char ENABLE_DEBUGVIEW[] = "EnableQtQuickDesignerDebugView";
-inline constexpr char EDIT3DVIEW_BACKGROUND_COLOR[] = "Edit3DViewBackgroundColor";
-inline constexpr char EDIT3DVIEW_GRID_COLOR[] = "Edit3DViewGridLineColor";
-inline constexpr char EDIT3DVIEW_SNAP_ABSOLUTE[] = "Edit3DViewSnapAbsolute";
-inline constexpr char EDIT3DVIEW_SNAP_ENABLED[] = "Edit3DViewSnapEnabled";
-inline constexpr char EDIT3DVIEW_SNAP_POSITION[] = "Edit3DViewSnapPosition";
-inline constexpr char EDIT3DVIEW_SNAP_POSITION_INTERVAL[] = "Edit3DViewSnapPositionInterval";
-inline constexpr char EDIT3DVIEW_SNAP_ROTATION[] = "Edit3DViewSnapRotation";
-inline constexpr char EDIT3DVIEW_SNAP_ROTATION_INTERVAL[] = "Edit3DViewSnapRotationInterval";
-inline constexpr char EDIT3DVIEW_SNAP_SCALE[] = "Edit3DViewSnapScale";
-inline constexpr char EDIT3DVIEW_SNAP_SCALE_INTERVAL[] = "Edit3DViewSnapScaleInterval";
-inline constexpr char ALWAYS_SAVE_IN_CRUMBLEBAR[] = "AlwaysSaveInCrumbleBar";
-inline constexpr char CONTROLS_STYLE[] = "ControlsStyle";
-inline constexpr char TYPE_OF_QSTR_FUNCTION[] = "TypeOfQsTrFunction";
-inline constexpr char SHOW_PROPERTYEDITOR_WARNINGS[] = "ShowPropertyEditorWarnings";
-inline constexpr char ENABLE_MODEL_EXCEPTION_OUTPUT[] = "WarnException";
-inline constexpr char PUPPET_KILL_TIMEOUT[] = "PuppetKillTimeout";
-inline constexpr char DEBUG_PUPPET[] = "DebugPuppet";
-inline constexpr char FORWARD_PUPPET_OUTPUT[] = "ForwardPuppetOutput";
-inline constexpr char NAVIGATOR_SHOW_REFERENCE_NODES[] = "NavigatorShowReferenceNodes";
-inline constexpr char NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS[] = "NavigatorShowOnlyVisibleItems";
-inline constexpr char NAVIGATOR_REVERSE_ITEM_ORDER[] = "NavigatorReverseItemOrder";
-inline constexpr char NAVIGATOR_COLORIZE_ICONS[] = "NavigatorColorizeIcons";
-inline constexpr char REFORMAT_UI_QML_FILES[]
-    = "ReformatUiQmlFiles"; /* These settings are not exposed in ui. */
-inline constexpr char IGNORE_DEVICE_PIXEL_RATIO[]
+inline constexpr char ItemSpacing[] = "ItemSpacing";
+inline constexpr char ContainerPadding[] = "ContainerPadding";
+inline constexpr char CanvasWidth[] = "CanvasWidth";
+inline constexpr char CanvasHeight[] = "CanvasHeight";
+inline constexpr char RootElementInitWidth[] = "RootElementInitWidth";
+inline constexpr char RootElementInitHeight[] = "RootElementInitHeight";
+inline constexpr char WarnAboutQtQuickFeaturesInDesigner[] = "WarnAboutQtQuickFeaturesInDesigner";
+inline constexpr char WarnAboutQmlFilesInsteadOfUiQmlFiles[] = "WarnAboutQmlFilesInsteadOfUiQmlFiles";
+inline constexpr char WarnAboutQtQuickDesignerFeaturesInCodeEditor[] = "WarnAboutQtQuickDesignerFeaturesInCodeEditor";
+inline constexpr char ShowQtQuickDesignerDebugView[] = "ShowQtQuickDesignerDebugView";
+inline constexpr char EnableQtQuickDesignerDebugView[] = "EnableQtQuickDesignerDebugView";
+inline constexpr char Edit3DViewBackgroundColor[] = "Edit3DViewBackgroundColor";
+inline constexpr char Edit3DViewGridLineColor[] = "Edit3DViewGridLineColor";
+inline constexpr char Edit3DViewSnapAbsolute[] = "Edit3DViewSnapAbsolute";
+inline constexpr char Edit3DViewSnapEnabled[] = "Edit3DViewSnapEnabled";
+inline constexpr char Edit3DViewSnapPosition[] = "Edit3DViewSnapPosition";
+inline constexpr char Edit3DViewSnapPositionInterval[] = "Edit3DViewSnapPositionInterval";
+inline constexpr char Edit3DViewSnapRotation[] = "Edit3DViewSnapRotation";
+inline constexpr char Edit3DViewSnapRotationInterval[] = "Edit3DViewSnapRotationInterval";
+inline constexpr char Edit3DViewSnapScale[] = "Edit3DViewSnapScale";
+inline constexpr char Edit3DViewSnapScaleInterval[] = "Edit3DViewSnapScaleInterval";
+inline constexpr char AlwaysSaveInCrumbleBar[] = "AlwaysSaveInCrumbleBar";
+inline constexpr char ControlsStyle[] = "ControlsStyle";
+inline constexpr char TypeOfQsTrFunction[] = "TypeOfQsTrFunction";
+inline constexpr char ShowPropertyEditorWarnings[] = "ShowPropertyEditorWarnings";
+inline constexpr char WarnException[] = "WarnException";
+inline constexpr char PuppetKillTimeout[] = "PuppetKillTimeout";
+inline constexpr char DebugPuppet[] = "DebugPuppet";
+inline constexpr char ForwardPuppetOutput[] = "ForwardPuppetOutput";
+inline constexpr char NavigatorShowReferenceNodes[] = "NavigatorShowReferenceNodes";
+inline constexpr char NavigatorShowOnlyVisibleItems[] = "NavigatorShowOnlyVisibleItems";
+inline constexpr char NavigatorReverseItemOrder[] = "NavigatorReverseItemOrder";
+inline constexpr char NavigatorColorizeIcons[] = "NavigatorColorizeIcons";
+inline constexpr char ReformatUiQmlFiles[] = "ReformatUiQmlFiles"; /* These settings are not exposed in ui. */
+inline constexpr char IgnoreDevicePixelRatio[]
     = "IgnoreDevicePixelRaio"; /* The settings can be used to turn off the feature, if there are serious issues */
-inline constexpr char SHOW_DEBUG_SETTINGS[] = "ShowDebugSettings";
-inline constexpr char ENABLE_TIMELINEVIEW[] = "EnableTimelineView";
-inline constexpr char ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE[] = "EnableDockWidgetContentMinSize";
-inline constexpr char COLOR_PALETTE_RECENT[] = "ColorPaletteRecent";
-inline constexpr char COLOR_PALETTE_FAVORITE[] = "ColorPaletteFavorite";
-inline constexpr char ALWAYS_DESIGN_MODE[] = "AlwaysDesignMode";
-inline constexpr char DISABLE_ITEM_LIBRARY_UPDATE_TIMER[] = "DisableItemLibraryUpdateTimer";
-inline constexpr char ASK_BEFORE_DELETING_ASSET[] = "AskBeforeDeletingAsset";
-inline constexpr char ASK_BEFORE_DELETING_CONTENTLIB_FILE[] = "AskBeforeDeletingContentLibFile";
-inline constexpr char SMOOTH_RENDERING[] = "SmoothRendering";
-inline constexpr char EDITOR_ZOOM_FACTOR[] = "EditorZoomFactor";
-inline constexpr char ACTIONS_MERGE_TEMPLATE_ENABLED[] = "ActionsMergeTemplateEnabled";
-inline constexpr char DOWNLOADABLE_BUNDLES_URL[] = "DownloadableBundlesLocation";
-inline constexpr char CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS[] = "ContentLibraryNewFlagExpirationInDays";
-inline constexpr char GROQ_API_KEY[] = "GroqApiKey";
+inline constexpr char ShowDebugSettings[] = "ShowDebugSettings";
+inline constexpr char EnableTimelineView[] = "EnableTimelineView";
+inline constexpr char EnableDockWidgetContentMinSize[] = "EnableDockWidgetContentMinSize";
+inline constexpr char ColorPaletteRecent[] = "ColorPaletteRecent";
+inline constexpr char ColorPaletteFavorite[] = "ColorPaletteFavorite";
+inline constexpr char AlwaysDesignMode[] = "AlwaysDesignMode";
+inline constexpr char DisableItemLibraryUpdateTimer[] = "DisableItemLibraryUpdateTimer";
+inline constexpr char AskBeforeDeletingAsset[] = "AskBeforeDeletingAsset";
+inline constexpr char AskBeforeDeletingContentLibFile[] = "AskBeforeDeletingContentLibFile";
+inline constexpr char SmoothRendering[] = "SmoothRendering";
+inline constexpr char EditorZoomFactor[] = "EditorZoomFactor";
+inline constexpr char ActionsMergeTemplateEnabled[] = "ActionsMergeTemplateEnabled";
+inline constexpr char DownloadableBundlesLocation[] = "DownloadableBundlesLocation";
+inline constexpr char ContentLibraryNewFlagExpirationInDays[] = "ContentLibraryNewFlagExpirationInDays";
+inline constexpr char GroqApiKey[] = "GroqApiKey";
 }
 
 class QMLDESIGNERSETTINGS_EXPORT DesignerSettings

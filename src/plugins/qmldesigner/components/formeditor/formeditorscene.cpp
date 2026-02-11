@@ -93,14 +93,14 @@ double FormEditorScene::canvasWidth() const
 {
     NanotraceHR::Tracer tracer{"form editor scene canvas width", category()};
 
-    return designerSettings().value(DesignerSettingsKey::CANVASWIDTH).toDouble();
+    return designerSettings().value(DesignerSettingsKey::CanvasWidth).toDouble();
 }
 
 double FormEditorScene::canvasHeight() const
 {
     NanotraceHR::Tracer tracer{"form editor scene canvas height", category()};
 
-    return designerSettings().value(DesignerSettingsKey::CANVASHEIGHT).toDouble();
+    return designerSettings().value(DesignerSettingsKey::CanvasHeight).toDouble();
 }
 
 QList<FormEditorItem *> FormEditorScene::itemsForQmlItemNodes(

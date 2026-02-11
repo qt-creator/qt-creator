@@ -95,7 +95,7 @@ void ConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitS
     qWarning() << "Process" << connectionName <<(exitStatus == QProcess::CrashExit ? "crashed:" : "finished:")
                << "with exitCode:" << exitCode;
 
-    if (designerSettings().value(DesignerSettingsKey::DEBUG_PUPPET).toString().isEmpty()) {
+    if (designerSettings().value(DesignerSettingsKey::DebugPuppet).toString().isEmpty()) {
         writeCommand(QVariant::fromValue(EndPuppetCommand()));
 
         closeSocketsAndKillProcesses();
