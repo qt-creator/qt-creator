@@ -365,14 +365,14 @@ GerritChangePtr GerritModel::change(const QModelIndex &index) const
 }
 
 QString GerritModel::dependencyHtml(const QString &header, const int changeNumber,
-                                    const QString &serverPrefix) const
+                                    const QString &projectPrefix) const
 {
     QString res;
     if (!changeNumber)
         return res;
     QTextStream str(&res);
     str << "<tr><td>" << header << "</td><td><a href="
-        << serverPrefix << "r/" << changeNumber << '>' << changeNumber << "</a>";
+        << projectPrefix << changeNumber << '>' << changeNumber << "</a>";
     if (const QStandardItem *item = itemForNumber(changeNumber))
         str << " (" << changeFromItem(item)->fullTitle() << ')';
     str << "</td></tr>";
@@ -394,7 +394,7 @@ QString GerritModel::toHtml(const QModelIndex& index) const
     if (!index.isValid())
         return {};
     const GerritChangePtr c = change(index);
-    const QString serverPrefix = c->url.left(c->url.lastIndexOf('/') + 1);
+    const QString projectPrefix = c->url.left(c->url.lastIndexOf('/') + 1);
     QString result;
     QTextStream str(&result);
     str << "<html><head/><body><table>"
@@ -403,8 +403,8 @@ QString GerritModel::toHtml(const QModelIndex& index) const
         << "<tr><td>" << ownerHeader << "</td><td>" << c->owner.fullName << ' '
         << "<a href=\"mailto:" << c->owner.email << "\">" << c->owner.email << "</a></td></tr>"
         << "<tr><td>" << projectHeader << "</td><td>" << c->project << " (" << c->branch << ")</td></tr>"
-        << dependencyHtml(dependsOnHeader, c->dependsOnNumber, serverPrefix)
-        << dependencyHtml(neededByHeader, c->neededByNumber, serverPrefix)
+        << dependencyHtml(dependsOnHeader, c->dependsOnNumber, projectPrefix)
+        << dependencyHtml(neededByHeader, c->neededByNumber, projectPrefix)
         << "<tr><td>" << statusHeader << "</td><td>" << c->status
         << ", " << QLocale::system().toString(c->lastUpdated, QLocale::ShortFormat) << "</td></tr>"
         << "<tr><td>" << patchSetHeader << "</td><td>" << "</td></tr>" << c->currentPatchSet.patchSetNumber << "</td></tr>"
