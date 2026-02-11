@@ -3,6 +3,7 @@
 
 #include "settingsmode.h"
 
+#include "actionmanager/actionmanager.h"
 #include "coreconstants.h"
 #include "coreicons.h"
 #include "coreplugintr.h"
@@ -965,6 +966,9 @@ SettingsMode::SettingsMode()
     setWidgetCreator([this]() -> QWidget * {
         m_settingsModeWidget = new SettingsModeWidget;
         return m_settingsModeWidget;
+    });
+    ActionBuilder(this, Core::Constants::S_RETURNTOEDITOR).setContext(context()).addOnTriggered([] {
+        ModeManager::activatePreviousMode();
     });
 }
 
