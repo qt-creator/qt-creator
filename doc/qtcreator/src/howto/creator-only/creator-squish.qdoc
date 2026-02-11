@@ -295,13 +295,15 @@
 
 /*!
     \page creator-reference-squish-output.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-output-views
+    \ingroup creator-how-to-ui
+    \ingroup creator-how-to-test
 
-    \title Squish
+    \target Squish
+    \title View Squish output
 
-    \brief View Squish test, runner, and server logs.
+    Use the \uicontrol Squish view to see test, runner, and server logs.
 
     Squish uses compare, verify, and exception functions to record the results of
     tests applied to a running application under test (AUT) in the test log as

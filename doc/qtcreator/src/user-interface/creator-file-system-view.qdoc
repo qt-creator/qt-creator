@@ -3,14 +3,15 @@
 
 /*!
     \page creator-file-system-view.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-views
-    \ingroup creator-reference-sidebar-views
+    \ingroup creator-how-to-ui
 
-    \title File System
+    \target {File System}
+    \title View file system
 
-    \summary {Shows all the files in the current directory.}
+    Use the \uicontrol {File System} view to see all the files in the current directory.
+
     \note Usually, \l{Navigate with locator}{searching with the locator}
     is the fastest way to find a particular project, file, class, or function,
     or almost anything else in your project. Use the \e {file system (f)} filter
@@ -46,7 +47,7 @@
     The view displays the path to the active file as bread crumbs. You can move
     to any directory along the path by clicking it.
 
-    \section1 File System Context Menu
+    \section1 File System context menu
 
     Use the context menu functions to:
 
@@ -78,7 +79,7 @@
         \li Collapse all open folders.
     \endlist
 
-    \section1 File System View Toolbar
+    \section1 File System view toolbar
 
     The toolbar in the \uicontrol {File System} view has additional
     options.

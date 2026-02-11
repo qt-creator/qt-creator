@@ -138,8 +138,6 @@
                     \li \l{Technical support}
                     \li \l{Version Control Systems}
                         \generatelist creator-reference-vcs
-                    \li \l{Views}
-                        \generatelist creator-reference-views
                 \endlist
     \endlist
 */

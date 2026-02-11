@@ -57,7 +57,7 @@
 
     \list
         \li Locate them with the locator.
-        \li Use the \l{Sidebar Views}{views} in the sidebar.
+        \li Use the \l{Show and hide sidebars}{views} in the sidebar.
         \li Go to the \uicontrol Edit and \uicontrol Window menu.
         \li Use keyboard shortcuts.
         \li Bookmark code.
@@ -222,7 +222,7 @@
 
     \sa {Edit code}{How to: Edit code},
     {Manage language servers}{How to: Manage language servers},
-    {Navigate with locator}, {Keyboard Shortcuts}, {Sidebar Views}
+    {Navigate with locator}, {Keyboard Shortcuts}, {Show and hide sidebars}
 */
 
 /*!
@@ -238,7 +238,7 @@
 
     \image {qtcreator-editor-open-files.webp} {Current file shown on Edit mode toolbar}
 
-    Use the locator, \l{Sidebar Views}{sidebar views}, \uicontrol Window menu
+    Use the locator, \l{Show and hide sidebars}{sidebar views}, \uicontrol Window menu
     items, \l{General Keyboard Shortcuts}{keyboard shortcuts}, or
     \l{Editor Toolbar}{editor toolbar} to move between files.
 
@@ -328,7 +328,7 @@
     in the file. Right-click the field and go to \uicontrol {Sort Alphabetically}
     to arrange the symbols in alphabetic order.
 
-    Use the locator, \l{Sidebar Views}{views}, \uicontrol Window menu items,
+    Use the locator, \l{Show and hide sidebars}{views}, \uicontrol Window menu items,
     \l{General Keyboard Shortcuts} {keyboard shortcuts}, or \l{Editor Toolbar}
     {editor toolbar}, to navigate between symbols in open files.
 

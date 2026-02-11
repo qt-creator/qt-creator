@@ -9,14 +9,14 @@
 
 /*!
     \page creator-reference-issues-view.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-views
-    \ingroup creator-reference-output-views
+    \ingroup creator-how-to-ui
 
-    \title Issues
+    \target Issues
+    \title View issues
 
-    \brief Lists issues from different sources.
+    Use the \uicontrol Issues view to see issues from different sources.
 
     The \uicontrol Issues view filters out irrelevant output from the build tools
     and presents the issues in an organized way.
@@ -110,15 +110,18 @@
 
 /*!
     \page creator-reference-search-results-view.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-views
-    \ingroup creator-reference-output-views
+    \ingroup creator-how-to-ui
+    \ingroup creator-how-to-search
 
-    \title Search Results View
+    \target {Search Results view}
+    \title View search results
 
-    \brief Search through projects, files on a file system or the
-    currently open files and view search results.
+    Use the \uicontrol {Search Results} view to search through projects, files
+    on a file system, or the currently open files, and view search results.
+
+    \section1 Define a search scope
 
     The search scope determines where \QC searches for the search string:
 
@@ -137,6 +140,8 @@
     In \uicontrol {File pattern} and \uicontrol {Exclusion pattern}, specify
     file patterns to further restrict the search scope.
 
+    \section1 Define search criteria
+
     The search criteria determine how \QC matches the search
     string with text and which results it shows:
 
@@ -154,7 +159,7 @@
 
     \image {qtcreator-search-file-system.webp} {Search Results view with search options}
 
-    \section1 Viewing Search Results
+    \section1 View the search results
 
     After you select \uicontrol Search or \uicontrol {Search & Replace}, the view
     shows a list of files that have search hits.
@@ -174,7 +179,7 @@
     To repeat the search after you have made changes to the listed files,
     for example, select \uicontrol {Search Again}.
 
-    \section1 Search Results View Toolbar
+    \section1 Use the Search Results view toolbar
 
     The toolbar contains options for searching again and navigating search
     results:
@@ -206,17 +211,19 @@
     \sa {View output}, {Search}{How to: Search}
 */
 
+
 /*!
     \page creator-reference-application-output-view.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-views
-    \ingroup creator-reference-output-views
+    \ingroup creator-how-to-ui
+    \ingroup creator-how-to-run
 
-    \title Application Output
+    \target {Application Output}
+    \title View application output
 
-    \summary {Displays the status of a program when you execute it, and the debug
-    output.}
+    Use the \uicontrol {Application Output} view to see the status of a program when
+    you execute it or the debug output.
 
     \image {qtcreator-application-output.webp} {Application Output}
 
@@ -249,12 +256,13 @@
 
 /*!
     \page creator-reference-compile-output-view.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-views
-    \ingroup creator-reference-output-views
+    \ingroup creator-how-to-ui
+    \ingroup creator-how-to-build
 
-    \title Compile Output
+    \target {Compile Output}
+    \title View compile output
 
     \brief Shows all output from the compiler.
 
