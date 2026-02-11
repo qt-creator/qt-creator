@@ -56,7 +56,6 @@ QtcLibrary {
         prefix: "parser/"
         files: [
             "qmldirparser.cpp", "qmldirparser_p.h",
-            "qmlimportresolver.cpp", "qmlimportresolver_p.h",
             "qmljsast.cpp", "qmljsast_p.h",
             "qmljsastfwd_p.h",
             "qmljsastvisitor.cpp", "qmljsastvisitor_p.h",
