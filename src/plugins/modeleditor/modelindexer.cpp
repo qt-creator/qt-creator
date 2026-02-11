@@ -344,6 +344,8 @@ void ModelIndexer::scanProject(Project *project)
                     d->queuedFilesSet.remove(d->filesQueue.at(i));
                     d->filesQueue.removeAt(i);
                 }
+            } else {
+                ++i;
             }
         }
 
