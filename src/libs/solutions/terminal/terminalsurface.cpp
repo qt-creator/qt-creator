@@ -325,7 +325,7 @@ struct TerminalSurfacePrivate
         case VTERM_PROP_CURSORVISIBLE: {
             Cursor old = q->cursor();
             m_cursor.visible = val->boolean;
-            q->cursorChanged(old, q->cursor());
+            emit q->cursorChanged(old, q->cursor());
             break;
         }
         case VTERM_PROP_CURSORBLINK: {
@@ -369,7 +369,7 @@ struct TerminalSurfacePrivate
         Cursor oldCursor = q->cursor();
         m_cursor.position = {pos.col, pos.row};
         m_cursor.visible = visible > 0;
-        q->cursorChanged(oldCursor, q->cursor());
+        emit q->cursorChanged(oldCursor, q->cursor());
         return 1;
     }
 
