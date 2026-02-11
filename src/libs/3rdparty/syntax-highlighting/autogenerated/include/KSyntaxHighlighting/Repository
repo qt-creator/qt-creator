@@ -1,1 +1,2 @@
-#include "repository.h"
+// Forwarding header, use by: #include <KSyntaxHighlighting/Repository>
+#include "repository.h" // IWYU pragma: export

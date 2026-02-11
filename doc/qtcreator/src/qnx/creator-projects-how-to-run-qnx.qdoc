@@ -52,6 +52,7 @@
     \c cat.
 
     \sa {QNX Neutrino}{How to: Develop for QNX},
-    {Developing for QNX Neutrino devices}, {Running applications},
-    {Compilers}, {Managing kits}
+    {Manage kits}{How to: Manage kits},
+    {Developing for QNX Neutrino devices}, {Managing kits},
+    {Running applications},
 */

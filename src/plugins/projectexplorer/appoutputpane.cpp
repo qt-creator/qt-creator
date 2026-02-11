@@ -967,7 +967,7 @@ void AppOutputPane::appendMessage(RunControl *rc, const QString &out, OutputForm
             tab->behaviorOnOutput = AppOutputPaneMode::FlashOnOutput;
             Q_FALLTHROUGH();
         case AppOutputPaneMode::PopupOnOutput:
-            popup(NoModeSwitch);
+            popup(NoModeSwitch | IOutputPane::WithFocus);
             break;
         }
     }
@@ -1366,13 +1366,17 @@ public:
         resetColorButton->setToolTip(Tr::tr("Reset to default.", "Color"));
         resetColorButton->setEnabled(m_overwriteColor.isChecked());
         connect(resetColorButton, &QPushButton::clicked, this, [this] {
+            if (!m_backgroundColor.color().isValid())
+                return;
             m_backgroundColor.setColor({});
+            markSettingsDirty();
         });
         connect(&m_overwriteColor, &QCheckBox::clicked,
                 this, [this, resetColorButton](bool checked) {
                 m_backgroundColor.setEnabled(checked);
                 resetColorButton->setEnabled(checked);
         });
+        connect(&m_backgroundColor, &QtColorButton::colorChanged, this, markSettingsDirty);
 
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_wrapOutputCheckBox);
@@ -1399,6 +1403,8 @@ public:
         layout->addLayout(maxCharsLayout);
         layout->addLayout(bgColorLayout);
         layout->addStretch(1);
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final

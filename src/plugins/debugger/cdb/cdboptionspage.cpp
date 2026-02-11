@@ -212,6 +212,8 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
 
     }.attachTo(this);
     // clang-format on
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void CdbOptionsPageWidget::apply()
@@ -265,6 +267,10 @@ CdbPathsPageWidget::CdbPathsPageWidget()
         Group { title(Tr::tr("Source Paths")), Column { m_sourcePaths } },
         st
     }.attachTo(this);
+
+    installMarkSettingsDirtyTriggerRecursively(this);
+    connect(m_symbolPaths, &PathListEditor::changed, this, checkSettingsDirty);
+    connect(m_sourcePaths, &PathListEditor::changed, this, checkSettingsDirty);
 }
 
 void CdbPathsPageWidget::apply()

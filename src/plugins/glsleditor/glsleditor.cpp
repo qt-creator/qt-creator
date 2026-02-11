@@ -423,15 +423,18 @@ GlslEditorWidget::GlslEditorWidget()
     m_vulkanSupport->setCheckable(true);
     m_vulkanSupport->setChecked(true);
     m_vulkanSupport->setIcon(vulkanIcon.icon());
-    m_vulkanSupport->setToolTip(Tr::tr("Vulkan support enabled"));
+    const auto updateVulkanToolTip = [this] {
+        m_vulkanSupport->setToolTip(
+            m_vulkanSupport->isChecked() ? Tr::tr("Vulkan support is enabled.")
+                                         : Tr::tr("Vulkan support is disabled."));
+    };
+    updateVulkanToolTip();
 
     insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
     insertExtraToolBarWidget(TextEditorWidget::Right, m_vulkanSupport);
 
-    connect(m_vulkanSupport, &QToolButton::clicked,
-            this, [this](bool checked) {
-        m_vulkanSupport->setToolTip(checked ? Tr::tr("Vulkan support enabled")
-                                            : Tr::tr("Vulkan support disabled"));
+    connect(m_vulkanSupport, &QToolButton::clicked, this, [this, &updateVulkanToolTip] {
+        updateVulkanToolTip();
         m_updateDocumentTimer.start();
     });
     connect(this, &TextEditorWidget::tooltipRequested, this, &GlslEditorWidget::onTooltipRequested);

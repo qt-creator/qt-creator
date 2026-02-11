@@ -251,5 +251,5 @@
     in the \uicontrol Locals or \uicontrol Expression view, they are immediately
     updated in the running application, but not in the source code.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Managing kits}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Managing kits}
 */

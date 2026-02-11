@@ -46,6 +46,7 @@ public:
 
 signals:
     void copyScheme();
+    void dirty();
 
 private:
     void currentItemChanged(const QModelIndex &index);

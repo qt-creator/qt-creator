@@ -187,10 +187,10 @@ static QVersionNumber estimateVersionOfOverridenQmlls()
 
     if (!output.contains("qmlls")) {
         Core::MessageManager::writeFlashing(
-                    Tr::tr(
-                        "Custom qmlls executable \"%1\" does not seem to be a qmlls executable and was "
-                        "disabled")
-                    .arg(qmllsSettings()->m_executable.path()));
+            Tr::tr(
+                "Custom qmlls executable \"%1\" does not seem to be a qmlls executable and was "
+                "disabled.")
+                .arg(qmllsSettings()->m_executable.path()));
         return {};
     }
 
@@ -511,7 +511,7 @@ static QString githubQmllsMetadataUrl()
 
 static QString dialogTitle()
 {
-    return Tr::tr("Download Standalone QMLLS");
+    return Tr::tr("Download Standalone QML Language Server");
 }
 
 static GroupItem downloadGithubQmlls()
@@ -520,8 +520,8 @@ static GroupItem downloadGithubQmlls()
     {
         StorageStruct()
         {
-            progressDialog.reset(
-                createProgressDialog(100, dialogTitle(), Tr::tr("Downloading standalone QMLLS...")));
+            progressDialog.reset(createProgressDialog(
+                100, dialogTitle(), Tr::tr("Downloading standalone QML Language Server...")));
         }
 
         void logWarning(const QString &error)
@@ -626,7 +626,8 @@ static GroupItem downloadGithubQmlls()
             }
         }
 
-        storage->logWarning(Tr::tr("Could not find a suitable QMLLS binary for this platform."));
+        storage->logWarning(
+            Tr::tr("Could not find a suitable QML Language Server binary for this platform."));
         return DoneResult::Error;
     };
 
@@ -637,7 +638,8 @@ static GroupItem downloadGithubQmlls()
         if (auto [qmllsPath, lastVersion] = evaluateGithubQmlls();
             storage->latestVersion <= lastVersion) {
             storage->logWarning(
-                Tr::tr("Latest standalone QMLLS already exists at %1").arg(qmllsPath.path()));
+                Tr::tr("Latest standalone QML Language Server already exists at %1")
+                    .arg(qmllsPath.path()));
             return SetupResult::StopWithError;
         }
 
@@ -675,7 +677,7 @@ static GroupItem downloadGithubQmlls()
     const auto onUnarchiveSetup = [storage](Unarchiver &task) {
         storage->progressDialog->setRange(0, 0);
         storage->progressDialog->setValue(0);
-        storage->progressDialog->setLabelText(Tr::tr("Unarchiving QMLLS..."));
+        storage->progressDialog->setLabelText(Tr::tr("Unarchiving QML Language Server..."));
         task.setArchive(storage->downloadPath);
         task.setDestination(storage->downloadPath.parentDir());
     };
@@ -690,12 +692,15 @@ static GroupItem downloadGithubQmlls()
         const FilePath expectedQmllsLocation = evaluateGithubQmlls().first;
         if (!expectedQmllsLocation.exists() || expectedQmllsLocation.parentDir() != qmllsDirectory) {
             storage->logWarning(
-                Tr::tr("Could not find QMLLS in the extracted archive. Please create a bugreport."));
+                Tr::tr(
+                    "Could not find \"qmlls\" in the extracted archive. Please create a "
+                    "bugreport."));
             return;
         }
 
         storage->logInformation(
-            Tr::tr("Standalone qmlls succesfully downloaded in %1").arg(qmllsDirectory.path()));
+            Tr::tr("Standalone QML Language Server succesfully downloaded in %1")
+                .arg(qmllsDirectory.path()));
     };
 
     // clang-format off
@@ -749,12 +754,10 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     m_executable->setEnabled(m_overrideExecutable->isChecked());
     m_executable->setHistoryCompleter("Qmlls.Executable.History");
     m_executable->addButton(Tr::tr("Download latest standalone qmlls"), this, [this] {
-        m_qmllsDownloader.start({downloadGithubQmlls()});
-    });
-
-    QObject::connect(&m_qmllsDownloader, &QSingleTaskTreeRunner::done, this, [this] {
-        if (const Utils::FilePath path = evaluateGithubQmlls().first; !path.isEmpty())
-            m_executable->setFilePath(path);
+        m_qmllsDownloader.start({downloadGithubQmlls()}, {}, [this] {
+            if (const Utils::FilePath path = evaluateGithubQmlls().first; !path.isEmpty())
+                m_executable->setFilePath(path);
+        });
     });
 
     using namespace Layouting;
@@ -783,6 +786,10 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
         },
     };
     // clang-format on
+
+    connect(m_useDefaultQmlls, &QCheckBox::toggled, this, markSettingsDirty);
+    connect(m_useLatestQmlls, &QCheckBox::toggled, this, markSettingsDirty);
+    connect(m_overrideExecutable, &QCheckBox::toggled, this, markSettingsDirty);
 
     form.attachTo(this);
 }

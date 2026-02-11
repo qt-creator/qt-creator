@@ -217,6 +217,8 @@ GitLabOptionsWidget::GitLabOptionsWidget()
             emit m_parameters->changed();
         }
     });
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void GitLabOptionsWidget::showEditServerDialog()

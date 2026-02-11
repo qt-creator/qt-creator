@@ -187,7 +187,7 @@ HelpPluginPrivate::HelpPluginPrivate()
         ICore::removeAdditionalContext(Context(kToolTipHelpContext));
     });
 
-    connect(LocalHelpManager::instance(), &LocalHelpManager::backendChanged, this, [this] {
+    helpSettings().viewerBackendId.addOnChanged(this, [this] {
         if (m_centralWidget)
             m_centralWidget->reloadAll();
         if (m_rightPaneSideBarWidget)
@@ -273,14 +273,12 @@ HelpWidget *HelpPluginPrivate::createHelpWidget(const Context &context, HelpWidg
     auto widget = new HelpWidget(context, style);
 
     connect(widget, &HelpWidget::requestShowHelpUrl, this, &HelpPluginPrivate::showHelpUrl);
-    connect(LocalHelpManager::instance(),
-            &LocalHelpManager::returnOnCloseChanged,
-            widget,
-            &HelpWidget::updateCloseButton);
+    helpSettings().returnOnClose.addOnChanged(widget, [widget] { widget->updateCloseButton(); });
+
     connect(widget, &HelpWidget::closeButtonClicked, this, [widget] {
         if (widget->widgetStyle() == HelpWidget::SideBarWidget)
             RightPaneWidget::instance()->setShown(false);
-        else if (widget->viewerCount() == 1 && LocalHelpManager::returnOnClose())
+        else if (widget->viewerCount() == 1 && helpSettings().returnOnClose())
             ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
     connect(widget, &HelpWidget::aboutToClose,
@@ -334,18 +332,21 @@ HelpViewer *createHelpViewer()
                      viewer, &HelpViewer::setViewerFont);
 
     // initialize zoom
-    viewer->setFontZoom(LocalHelpManager::fontZoom());
-    QObject::connect(LocalHelpManager::instance(), &LocalHelpManager::fontZoomChanged,
-                     viewer, &HelpViewer::setFontZoom);
+    viewer->setFontZoom(helpSettings().fontZoom());
+    helpSettings().fontZoom.addOnChanged(viewer, [viewer] {
+        viewer->setFontZoom(helpSettings().fontZoom());
+    });
 
     // initialize antialias
-    viewer->setAntialias(LocalHelpManager::antialias());
-    QObject::connect(LocalHelpManager::instance(), &LocalHelpManager::antialiasChanged,
-                     viewer, &HelpViewer::setAntialias);
+    viewer->setAntialias(helpSettings().antiAlias());
+    helpSettings().antiAlias.addOnChanged(viewer, [viewer] {
+        viewer->setAntialias(helpSettings().antiAlias());
+    });
 
-    viewer->setScrollWheelZoomingEnabled(LocalHelpManager::isScrollWheelZoomingEnabled());
-    QObject::connect(LocalHelpManager::instance(), &LocalHelpManager::scrollWheelZoomingEnabledChanged,
-                     viewer, &HelpViewer::setScrollWheelZoomingEnabled);
+    viewer->setScrollWheelZoomingEnabled(helpSettings().scrollWheelZooming());
+    helpSettings().scrollWheelZooming.addOnChanged(viewer, [viewer] {
+        viewer->setScrollWheelZoomingEnabled(helpSettings().scrollWheelZooming());
+    });
 
     // add find support
     Aggregation::aggregate({viewer, new HelpViewerFindSupport(viewer)});
@@ -534,14 +535,14 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
 void HelpPluginPrivate::activateIndex()
 {
     activateHelpMode();
-    showHelpUrl(LocalHelpManager::homePage(), Core::HelpManager::HelpModeAlways);
+    showHelpUrl(helpSettings().homePage(), Core::HelpManager::HelpModeAlways);
     m_centralWidget->activateSideBarItem(Constants::HELP_INDEX);
 }
 
 void HelpPluginPrivate::activateContents()
 {
     activateHelpMode();
-    showHelpUrl(LocalHelpManager::homePage(), Core::HelpManager::HelpModeAlways);
+    showHelpUrl(helpSettings().homePage(), Core::HelpManager::HelpModeAlways);
     m_centralWidget->activateSideBarItem(Constants::HELP_CONTENTS);
 }
 

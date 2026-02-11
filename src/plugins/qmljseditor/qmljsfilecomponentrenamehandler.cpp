@@ -88,12 +88,12 @@ void FileComponentRenameHandler::onUsageResultsReady(
 
     fileNames.removeDuplicates();
 
+    static const char indent[] = "\n    ";
     const QMessageBox::StandardButton reply = QMessageBox::question(
-        Core::ICore::dialogParent(), Tr::tr("Rename usages in Files?"),
-        Tr::tr("Would you like to rename '%1' to '%2' in these files as well?\n    %3")
-            .arg(oldBaseName)
-            .arg(newBaseName)
-            .arg(fileNames.join("\n    ")),
+        Core::ICore::dialogParent(),
+        Tr::tr("Rename Usages in Files?"),
+        Tr::tr("Rename \"%1\" to \"%2\" in these files as well?").arg(oldBaseName, newBaseName)
+            + indent + fileNames.join(indent),
         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
         QMessageBox::Yes);
     switch (reply) {

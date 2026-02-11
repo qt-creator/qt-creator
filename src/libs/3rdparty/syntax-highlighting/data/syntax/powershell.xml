@@ -4,7 +4,7 @@
 ]>
 <language
   name="PowerShell"
-  version="14"
+  version="15"
   kateversion="5.79"
   extensions="*.ps1;*.psm1;*.psd1"
   section="Scripts"
@@ -104,7 +104,6 @@
       <item>Add-ClusterSharedVolume</item>
       <item>Add-ClusterVirtualMachineRole</item>
       <item>Add-Computer</item>
-      <item>Add-Content</item>
       <item>Add-History</item>
       <item>Add-JobTrigger</item>
       <item>Add-Member</item>

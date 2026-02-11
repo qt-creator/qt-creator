@@ -99,5 +99,5 @@
     \inlineimage {icons/debugger_stepout_small.png} {Step Out}
     (\uicontrol {Step Out}).
 
-    \sa {Tutorial: Qt Widgets application}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Tutorial: Qt Widgets application}, {Debugging}, {Debuggers}
 */

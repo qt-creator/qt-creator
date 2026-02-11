@@ -213,6 +213,12 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
     , m_settings(settings)
     , m_changedSettings(changedSettings)
 {
+    QObject::connect(
+        &m_settings,
+        &LanguageClientSettingsModel::dataChanged,
+        this,
+        [] { markSettingsDirty(); });
+
     auto mainLayout = new QVBoxLayout();
     auto layout = new QHBoxLayout();
 
@@ -228,6 +234,7 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
             this, &LanguageClientSettingsPageWidget::currentChanged);
     auto buttonLayout = new QVBoxLayout();
     auto addButton = new QPushButton(Tr::tr("&Add"));
+    setIgnoreForDirtyHook(addButton);
     auto addMenu = new QMenu(this);
     addMenu->clear();
     for (const ClientType &type : clientTypes()) {
@@ -247,6 +254,8 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
     buttonLayout->addWidget(addButton);
     buttonLayout->addWidget(deleteButton);
     buttonLayout->addStretch(10);
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void LanguageClientSettingsPageWidget::currentChanged(const QModelIndex &index)
@@ -261,7 +270,7 @@ void LanguageClientSettingsPageWidget::currentChanged(const QModelIndex &index)
         m_currentSettings.setting = m_settings.settingForIndex(index);
         m_currentSettings.widget = m_currentSettings.setting->createSettingsWidget(this);
         layout()->addWidget(m_currentSettings.widget);
-        setupDirtyHook(m_currentSettings.widget);
+        installMarkSettingsDirtyTriggerRecursively(m_currentSettings.widget);
     } else {
         m_currentSettings.setting = nullptr;
         m_currentSettings.widget = nullptr;
@@ -310,6 +319,7 @@ void LanguageClientSettingsPageWidget::addItem(const Id &clientTypeId)
 {
     auto newSettings = generateSettings(clientTypeId);
     QTC_ASSERT(newSettings, return);
+    markSettingsDirty();
     m_view->setCurrentIndex(m_settings.insertSettings(newSettings));
 }
 
@@ -320,6 +330,7 @@ void LanguageClientSettingsPageWidget::deleteItem()
         return;
 
     m_settings.removeRow(index.row());
+    markSettingsDirty();
 }
 
 class LanguageClientSettingsPage : public Core::IOptionsPage
@@ -1065,6 +1076,8 @@ void BaseSettingsWidget::showAddMimeTypeDialog()
                           Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Rejected)
         return;
+    if (m_mimeTypes->text() != dialog.mimeTypes().join(filterSeparator))
+        markSettingsDirty();
     m_mimeTypes->setText(dialog.mimeTypes().join(filterSeparator));
 }
 

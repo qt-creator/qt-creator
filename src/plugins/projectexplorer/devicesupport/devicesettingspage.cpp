@@ -251,6 +251,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
         connect(action, &QAction::triggered, this, [factory, this] {
             IDevice::Ptr device = factory->construct();
             QTC_ASSERT(device, return);
+            markSettingsDirty();
             DeviceManager::addDevice(device);
             m_deviceProxyModel.markAsNew(device->id());
             updateButtons();
@@ -346,6 +347,8 @@ void DeviceSettingsWidget::addDevice()
     if (!device)
         return;
 
+    markSettingsDirty();
+
     Utils::asyncRun([device] { device->checkOsType(); });
 
     DeviceManager::addDevice(device);
@@ -361,6 +364,7 @@ void DeviceSettingsWidget::addDevice()
 void DeviceSettingsWidget::removeDevice()
 {
     m_deviceProxyModel.toggleMarkForDeletion(currentDevice()->id());
+    markSettingsDirty();
     updateButtons();
 }
 
@@ -440,10 +444,10 @@ IDevice::ConstPtr DeviceSettingsWidget::currentDevice() const
     return m_deviceManagerModel.device(currentIndex());
 }
 
-
 void DeviceSettingsWidget::setDefaultDevice()
 {
     DeviceManager::setDefaultDevice(currentDevice()->id());
+    markSettingsDirty();
     m_defaultDeviceButton->setEnabled(false);
 }
 
@@ -534,7 +538,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     if (didChangeDevice) {
         m_configWidget = DeviceManager::mutableDevice(device->id())->createWidget();
         if (m_configWidget) {
-            setupDirtyHook(m_configWidget);
+            installMarkSettingsDirtyTriggerRecursively(m_configWidget);
             m_osSpecificGroupBox->layout()->addWidget(m_configWidget);
         }
     }

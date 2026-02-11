@@ -64,13 +64,7 @@ class ValgrindProcessPrivate : public QObject
     Q_OBJECT
 
 public:
-    ValgrindProcessPrivate(ValgrindProcess *owner)
-        : q(owner)
-    {
-        connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [this](DoneWith result) {
-            emit q->done(toDoneResult(result == DoneWith::Success));
-        });
-    }
+    ValgrindProcessPrivate(ValgrindProcess *owner) : q(owner) {}
 
     Group runRecipe() const;
 
@@ -219,7 +213,9 @@ Group ValgrindProcessPrivate::runRecipe() const
 
 bool ValgrindProcessPrivate::run()
 {
-    m_taskTreeRunner.start(runRecipe());
+    m_taskTreeRunner.start(runRecipe(), {}, [this](DoneWith result) {
+        emit q->done(toDoneResult(result == DoneWith::Success));
+    });
     return m_taskTreeRunner.isRunning();
 }
 

@@ -305,6 +305,8 @@ public:
             });
             for (ExtendedToolchainTreeItem * const tcItem : std::as_const(itemsToRemove))
                 markForRemoval(tcItem);
+            if (!itemsToRemove.isEmpty())
+                markSettingsDirty();
         });
 
         m_redetectButton = new QPushButton(Tr::tr("Re-detect"), this);
@@ -315,8 +317,12 @@ public:
         connect(m_detectionSettingsButton, &QAbstractButton::clicked, this,
                 [this] {
             DetectionSettingsDialog dlg(m_detectionSettings, this);
-            if (dlg.exec() == QDialog::Accepted)
+            if (dlg.exec() == QDialog::Accepted) {
+                bool old = m_detectionSettings.detectX64AsX32;
                 m_detectionSettings = dlg.settings();
+                if (m_detectionSettings.detectX64AsX32 != old)
+                    markSettingsDirty();
+            }
         });
 
         m_container = new DetailsWidget(this);
@@ -326,7 +332,7 @@ public:
         m_widgetStack = new StackedWidget;
         m_container->setWidget(m_widgetStack);
         connect(m_widgetStack, &StackedWidget::widgetAdded, this, [this](int index) {
-            setupDirtyHook(m_widgetStack->widget(index));
+            installMarkSettingsDirtyTriggerRecursively(m_widgetStack->widget(index));
         });
 
         const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
@@ -373,8 +379,10 @@ public:
                 this, &ToolChainOptionsWidget::toolChainSelectionChanged);
 
         connect(m_delButton, &QAbstractButton::clicked, this, [this] {
-            if (ExtendedToolchainTreeItem *item = currentTreeItem())
+            if (ExtendedToolchainTreeItem *item = currentTreeItem()) {
                 markForRemoval(item);
+                markSettingsDirty();
+            }
         });
 
         const auto updateDevice = [this](int index) {
@@ -385,6 +393,8 @@ public:
         updateDevice(m_deviceComboBox->currentIndex());
 
         updateState();
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     QModelIndex mapFromSource(const QModelIndex &idx);
@@ -624,6 +634,9 @@ void ToolChainOptionsWidget::redetectToolchains()
         = ToolchainBundle::collectBundles(toAdd, ToolchainBundle::HandleMissing::CreateOnly);
     for (const ToolchainBundle &bundle : newBundles)
         m_toAddList << insertBundle(bundle, true);
+
+    if (!itemsToRemove.isEmpty() || !toAdd.isEmpty())
+        markSettingsDirty();
 }
 
 QModelIndex ToolChainOptionsWidget::mapFromSource(const QModelIndex &idx)
@@ -738,6 +751,7 @@ void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const Q
     ExtendedToolchainTreeItem * const item = insertBundle(bundle, true);
     m_toAddList << item;
     m_toolChainView->setCurrentIndex(mapFromSource(m_model.indexForItem(item)));
+    markSettingsDirty();
 }
 
 void ToolChainOptionsWidget::cloneToolchains()
@@ -753,6 +767,7 @@ void ToolChainOptionsWidget::cloneToolchains()
     ExtendedToolchainTreeItem * const item = insertBundle(bundle, true);
     m_toAddList << item;
     m_toolChainView->setCurrentIndex(mapFromSource(m_model.indexForItem(item)));
+    markSettingsDirty();
 }
 
 void ToolChainOptionsWidget::updateState()

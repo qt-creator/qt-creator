@@ -92,7 +92,7 @@ void FileSystemAccessTest::initTestCase()
     timer.setSingleShot(true);
     timer.start(30 * 1000);
     const auto handler = [&](const Result<> &res) { loop.exit(res.has_value() ? 0 : 1); };
-    std::static_pointer_cast<LinuxDevice>(device)->tryToConnect(Continuation<>(this, handler));
+    device->tryToConnect(Continuation<>(this, handler));
     QCOMPARE(loop.exec(), 0);
     QVERIFY(timer.isActive());
     timer.stop();

@@ -302,7 +302,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
                     = isCmakeProject() ? QString(Android::Constants::QT_ANDROID_PACKAGE_SOURCE_DIR)
                                        : QString(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR);
                 const QString relativePath = m_directory.relativePathFromDir(
-                    m_buildSystem->buildTarget(m_buildKey).projectFilePath);
+                    m_buildSystem->buildTarget(m_buildKey).projectFilePath.parentDir());
                 androidPackageDir = QString("%1/%2").arg(
                     CMakeProjectManager::Constants::CMAKE_CURRENT_SOURCE_DIR, relativePath);
                 bool result = m_buildSystem->addTargetProperty(

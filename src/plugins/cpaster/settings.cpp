@@ -32,12 +32,7 @@ Settings::Settings()
     protocols.setSettingsKey("DefaultProtocol");
     protocols.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     protocols.setLabelText(Tr::tr("Default protocol:"));
-    protocols.setToSettingsTransformation([this](const QVariant &val) {
-        return protocols.displayForIndex(val.toInt());
-    });
-    protocols.setFromSettingsTransformation([this](const QVariant &val) {
-        return protocols.indexForDisplay(val.toString());
-    });
+    protocols.setUseDataAsSavedValue();
 
     expiryDays.setSettingsKey("ExpiryDays");
     expiryDays.setDefaultValue(1);

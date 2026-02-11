@@ -67,10 +67,13 @@ void SuppressionAspectPrivate::slotAddSuppression()
     if (!files.isEmpty()) {
         for (const FilePath &file : files)
             m_model.appendRow(new QStandardItem(file.toUrlishString()));
+        q->guiToVolatileValue();
         globalSettings().lastSuppressionDirectory.setValue(files.at(0).absolutePath());
         //conf->setLastSuppressionDialogHistory(dialog.history());
         if (!isGlobal)
             q->apply();
+        else
+            markSettingsDirty();
     }
 }
 
@@ -90,9 +93,12 @@ void SuppressionAspectPrivate::slotRemoveSuppression()
 
     for (int row : std::as_const(rows))
         m_model.removeRow(row);
+    q->guiToVolatileValue();
 
     if (!isGlobal)
         q->apply();
+    else
+        markSettingsDirty();
 }
 
 void SuppressionAspectPrivate::slotSuppressionSelectionChanged()
@@ -170,6 +176,21 @@ void SuppressionAspect::volatileValueToGui()
     d->m_model.clear();
     for (const FilePath &file : std::as_const(m_volatileValue))
         d->m_model.appendRow(new QStandardItem(file.toUserOutput()));
+}
+
+QVariant SuppressionAspect::variantValue() const
+{
+    return m_value.toSettings();
+}
+
+void SuppressionAspect::setVariantValue(const QVariant &value, Announcement howToAnnounce)
+{
+    setValue(FilePaths::fromSettings(value), howToAnnounce);
+}
+
+QVariant SuppressionAspect::volatileVariantValue() const
+{
+    return m_volatileValue.toSettings();
 }
 
 //////////////////////////////////////////////////////////////////

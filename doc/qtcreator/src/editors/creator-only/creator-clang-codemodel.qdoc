@@ -158,7 +158,7 @@
     \page creator-preferences-cpp-code-model.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-preferences-cpp
+    \ingroup creator-reference-editors
 
     \title Code Model
 
@@ -227,7 +227,7 @@
     \page creator-preferences-cpp-clangd.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-preferences-cpp
+    \ingroup creator-reference-editors
 
     \title Clangd
 

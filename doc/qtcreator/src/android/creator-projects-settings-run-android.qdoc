@@ -65,5 +65,6 @@
     \endcode
 
     \sa {Activate kits for a project}, {Configure projects for running},
-    {Android}{How to: Develop for Android}, {Managing kits}
+    {Android}{How to: Develop for Android}, {Android Deploy Settings},
+    {Managing kits}
 */

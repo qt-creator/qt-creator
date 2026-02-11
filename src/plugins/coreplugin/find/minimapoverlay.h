@@ -53,6 +53,7 @@ private:
     const qreal m_minimapAlpha = 0.5;
     const int m_pixelsPerLine = 2;
     const int m_lineGap = 1;
+    int m_scrollbarDefaultWidth;
 
     QImage m_minimap;
     QTimer m_updateTimer;

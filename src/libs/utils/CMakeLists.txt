@@ -37,7 +37,7 @@ add_qtc_library(Utils
     cpplanguage_details.h
     crashreporting.cpp crashreporting.h
     crumblepath.cpp crumblepath.h
-    datafromprocess.h
+    datafromprocess.cpp datafromprocess.h
     delegates.cpp delegates.h
     detailsbutton.cpp detailsbutton.h
     detailswidget.cpp detailswidget.h

@@ -14,6 +14,7 @@
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
 #include <utils/fancylineedit.h>
+#include <utils/guiutils.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
@@ -35,8 +36,7 @@ using namespace Utils;
 
 static const int SortRole = Qt::UserRole + 1;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 enum FilterItemColumn
 {
@@ -125,6 +125,8 @@ bool FilterItem::setData(int column, const QVariant &data, int role)
         break;
     case FilterPrefix:
         if (role == Qt::EditRole && data.canConvert<QString>()) {
+            if (m_filter->shortcutString() == data.toString())
+                return false;
             m_filter->setShortcutString(data.toString());
             return true;
         }
@@ -279,8 +281,6 @@ public:
                         nameDelegate->setMaxWidth(updated);
                 });
         m_filterList->setItemDelegateForColumn(0, nameDelegate);
-        setupDirtyHook(m_filterList);
-
         m_model = new TreeModel<>(m_filterList);
         initializeModel();
         m_proxyModel = new CategorySortFilterModel(m_filterList);
@@ -325,6 +325,10 @@ public:
                 &Utils::TreeView::activated,
                 this,
                 &LocatorSettingsWidget::configureFilter);
+        connect(m_model,
+                &QAbstractItemModel::dataChanged,
+                this,
+                &markSettingsDirty);
         connect(m_editButton, &QPushButton::clicked, this, [this] {
             configureFilter(m_filterList->currentIndex());
         });
@@ -348,6 +352,8 @@ public:
         addButton->setMenu(addMenu);
 
         saveFilterStates();
+
+        connect(&settings, &BaseAspect::volatileValueChanged, &markSettingsDirty);
     }
 
     void apply() final;
@@ -487,8 +493,10 @@ void LocatorSettingsWidget::configureFilter(const QModelIndex &proxyIndex)
     QString shortcutString = filter->shortcutString();
     bool needsRefresh = false;
     filter->openConfigDialog(this, needsRefresh);
-    if (needsRefresh && !m_refreshFilters.contains(filter))
+    if (needsRefresh && !m_refreshFilters.contains(filter)) {
         m_refreshFilters.append(filter);
+        markSettingsDirty();
+    }
     if (filter->isIncludedByDefault() != includedByDefault)
         item->updateColumn(FilterIncludedByDefault);
     if (filter->shortcutString() != shortcutString)
@@ -504,6 +512,7 @@ void LocatorSettingsWidget::addCustomFilter(ILocatorFilter *filter)
         m_customFilters.append(filter);
         m_refreshFilters.append(filter);
         m_customFilterRoot->appendChild(new FilterItem(filter));
+        markSettingsDirty();
     }
 }
 
@@ -525,6 +534,7 @@ void LocatorSettingsWidget::removeCustomFilter()
     } else {
         m_removedFilters.append(filter);
     }
+    markSettingsDirty();
 }
 
 // LocatorSettingsPage
@@ -537,5 +547,4 @@ LocatorSettingsPage::LocatorSettingsPage()
     setWidgetCreator([] { return new LocatorSettingsWidget; });
 }
 
-} // Internal
-} // Core
+} // Core::Internal

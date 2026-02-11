@@ -5,7 +5,7 @@
     \page creator-stack-view.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
     \title Viewing call stack trace
 
@@ -41,7 +41,7 @@
     should it find any. You can select a frame in the QML stack to open the QML
     file in the editor.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers},
     {Setting breakpoints}
 */
 
@@ -49,7 +49,7 @@
     \page creator-breakpoints-view.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
     \title Setting breakpoints
 
@@ -130,8 +130,7 @@
 
     \image {qtcreator-debug-breakpoints.webp} {Breakpoints view}
 
-    \sa {Add breakpoints}, {Debug}{How to: Debug}, {Debugging}, {Debuggers},
-    {Debugger}
+    \sa {Add breakpoints}, {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
@@ -228,7 +227,7 @@
         \li The tracepoint message to show in \l {Application Output}.
     \endtable
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers},
     {Setting breakpoints}
 */
 
@@ -302,7 +301,7 @@
     Other than data breakpoints retain their enabled or disabled state when the
     debugged application is restarted.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers},
     {Setting breakpoints}
 */
 
@@ -344,7 +343,7 @@
     launch. If you really want a data breakpoint to be active again, re-enable
     it manually.
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers},
     {Setting breakpoints}
 */
 
@@ -352,7 +351,7 @@
     \page creator-locals-view.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
     \title Local variables and function parameters
 
@@ -403,14 +402,14 @@
     display} in the context menu. Keep in mind that choosing the dynamic type
     might be slower.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
     \page creator-expressions-view.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
     \title Evaluating expressions
 
@@ -527,5 +526,5 @@
 
     \include creator-debug-views.qdoc 0
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */

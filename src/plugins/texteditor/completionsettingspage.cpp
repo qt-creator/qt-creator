@@ -238,6 +238,8 @@ CompletionSettingsPageWidget::CompletionSettingsPageWidget(CompletionSettingsPag
 
     connect(m_highlightAutoComplete, &QCheckBox::toggled, m_skipAutoComplete, &QCheckBox::setEnabled);
     connect(m_highlightAutoComplete, &QCheckBox::toggled, m_removeAutoComplete, &QCheckBox::setEnabled);
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void CompletionSettingsPageWidget::apply()

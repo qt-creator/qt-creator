@@ -14,6 +14,7 @@ class MacroOptionsWidget;
 
 class MacroManager final : public QObject
 {
+    Q_OBJECT
 public:
     MacroManager();
     ~MacroManager() final;
@@ -31,6 +32,9 @@ public:
     void saveLastMacro();
     bool executeMacro(const QString &name);
     void endMacro();
+
+signals:
+    void macroAdded();
 
 private:
     friend class Internal::MacroOptionsWidget;

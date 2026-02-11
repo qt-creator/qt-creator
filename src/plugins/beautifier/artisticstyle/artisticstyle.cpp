@@ -225,12 +225,19 @@ public:
             s.apply();
             s.save();
         });
-        setOnCancel([&s] { s.cancel(); });
+        setOnCancel([&s, configurations] {
+            s.cancel();
+            s.read();
+            configurations->setSettings(&s);
+            configurations->setCurrentConfiguration(s.customStyle());
+        });
 
         s.read();
 
         connect(s.command.pathChooser(), &PathChooser::validChanged, options, &QWidget::setEnabled);
         options->setEnabled(s.command.pathChooser()->isValid());
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 };
 

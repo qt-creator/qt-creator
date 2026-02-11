@@ -5,8 +5,6 @@
     \page creator-reference-docker.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-devices
-
     \title Developing for Docker
 
     \quotation
@@ -85,7 +83,7 @@
     that the automatically generated kits point to the appropriate kit items.
 
     \sa {Enable and disable plugins}, {Docker}{How to: Develop for Docker},
-    {Manage kits}{How to: Manage kits}
+    {Manage kits}{How to: Manage kits}, {Developing for Docker}
 */
 
 /*!
@@ -203,7 +201,7 @@
     them, select \uicontrol {Remove Auto-Detected Kit Items}.
 
     \sa {Enable and disable plugins}, {Docker}{How to: Develop for Docker},
-    {Manage kits}{How to: Manage kits}
+    {Manage kits}{How to: Manage kits}, {Developing for Docker}
 */
 
 /*!
@@ -232,7 +230,7 @@
     the default settings.
 
     \sa {Enable and disable plugins}, {Docker}{How to: Develop for Docker},
-    {Manage kits}{How to: Manage kits}
+    {Manage kits}{How to: Manage kits}, {Developing for Docker}
 */
 
 /*!
@@ -254,5 +252,6 @@
     \include linux-mobile/creator-how-to-build-on-remote-devices.qdocinc {build on remote devices} {Docker device}
 
     \sa {Add CMake tools}, {Enable and disable plugins},
-    {Docker}{How to: Develop for Docker}, {Manage kits}{How to: Manage kits}
+    {Docker}{How to: Develop for Docker}, {Manage kits}{How to: Manage kits},
+    {Developing for Docker}
 */

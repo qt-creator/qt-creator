@@ -128,7 +128,8 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
     }
     if (Q_UNLIKELY(!stateData)) {
         stateData = StateData::reset(newState);
-        stateData->push(defData->initialContext(), QStringList());
+        auto *initialContext = defData->initialContext();
+        stateData->push(&initialContext, &initialContext + 1, QStringList());
         stateData->m_defId = defData->id;
         isSharedData = false;
     }
@@ -406,9 +407,7 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
 
 bool AbstractHighlighterPrivate::switchContext(StateData *&data, const ContextSwitch &contextSwitch, QStringList &&captures, State &state, bool &isSharedData)
 {
-    const auto popCount = contextSwitch.popCount();
-    const auto context = contextSwitch.context();
-    if (popCount <= 0 && !context) {
+    if (contextSwitch.isStay()) {
         return true;
     }
 
@@ -418,13 +417,15 @@ bool AbstractHighlighterPrivate::switchContext(StateData *&data, const ContextSw
         isSharedData = false;
     }
 
-    // kill as many items as requested from the stack, will always keep the initial context alive!
-    const bool initialContextSurvived = data->pop(popCount);
+    const auto &contexts = contextSwitch.contexts();
 
-    // if we have a new context to add, push it
+    // kill as many items as requested from the stack, will always keep the initial context alive!
+    const bool initialContextSurvived = data->pop(contextSwitch.popCount());
+
+    // if we have new contexts to add, push it
     // then we always "succeed"
-    if (context) {
-        data->push(context, std::move(captures));
+    if (!contexts.isEmpty()) {
+        data->push(contexts.begin(), contexts.end(), std::move(captures));
         return true;
     }
 

@@ -110,7 +110,6 @@ public:
 
     SubmitEditorWidget *m_widget = nullptr;
     VcsBaseSubmitEditorParameters m_parameters;
-    QString m_displayName;
     FilePath m_checkScriptWorkingDirectory;
     SubmitEditorFile m_file;
 

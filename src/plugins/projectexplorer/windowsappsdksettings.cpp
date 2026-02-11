@@ -24,6 +24,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/stylehelper.h>
 #include <utils/summarywidget.h>
 #include <utils/utilsicons.h>
 
@@ -137,6 +138,9 @@ WindowsSettingsWidget::WindowsSettingsWidget()
 {
     setWindowTitle(Tr::tr("Windows Configuration"));
 
+    auto infoLabel = new InfoLabel(Tr::tr("All changes on this page take effect immediately."));
+    infoLabel->setFilled(true);
+
     auto winAppSdkDetailsWidget = new DetailsWidget;
 
     m_downloadPathChooser = new PathChooser;
@@ -185,6 +189,8 @@ WindowsSettingsWidget::WindowsSettingsWidget()
     using namespace Layouting;
 
     Column {
+        infoLabel,
+        Space(StyleHelper::SpacingTokens::GapVM),
         Layouting::Group {
             title(Tr::tr("Download Path")),
             Grid {
@@ -230,16 +236,6 @@ WindowsSettingsWidget::WindowsSettingsWidget()
             this, &WindowsSettingsWidget::downloadNuget);
     connect(downloadWindowsAppSdk, &QAbstractButton::clicked,
             this, &WindowsSettingsWidget::downloadWindowsAppSdk);
-    connect(&m_nugetDownloader, &QSingleTaskTreeRunner::done, this,
-        [this](DoneWith result) {
-            if (result != DoneWith::Success)
-                return;
-
-            validateNuget();
-            m_nugetPathChooser->triggerChanged(); // After cloning, the path exists
-            updateUI();
-            apply();
-        });
 
     setOnApply([] { windowsAppSdkSettings().writeSettings(); });
 }
@@ -422,7 +418,14 @@ void WindowsSettingsWidget::downloadNuget()
         return;
     }
 
-    m_nugetDownloader.start({downloadNugetRecipe()});
+    m_nugetDownloader.start({downloadNugetRecipe()}, {}, [this](DoneWith result) {
+        if (result != DoneWith::Success)
+            return;
+        validateNuget();
+        m_nugetPathChooser->triggerChanged(); // After cloning, the path exists
+        updateUI();
+        apply();
+    });
 }
 
 void WindowsSettingsWidget::downloadWindowsAppSdk()

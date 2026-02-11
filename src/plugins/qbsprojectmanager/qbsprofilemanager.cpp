@@ -116,7 +116,7 @@ QbsProfileManager::QbsProfileManager()
             &QbsProfileManager::handleKitUpdate);
     connect(KitManager::instance(), &KitManager::kitRemoved, this,
             &QbsProfileManager::handleKitRemoval);
-    connect(&QbsSettings::instance(), &QbsSettings::settingsChanged,
+    connect(&QbsSettings::instance(), &QbsSettings::changed,
             this, &QbsProfileManager::updateAllProfiles);
 }
 

@@ -15,14 +15,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en">
 
-<context>
-    <name>QtC::QmlJSEditor</name>
-    <message>
-        <source>Custom qmlls executable &quot;%1&quot; does not seem to be a qmlls executable and was disabled</source>
-        <translation>Custom qmlls executable &quot;%1&quot; does not seem to be a qmlls executable and was disabled.</translation>
-    </message>
-</context>
-
 <!-- test entry
 <context>
     <name>QtC::Core</name>

@@ -103,6 +103,8 @@ public:
         d->m_behaviorWidget->setAssignedExtraEncodingSettings(globalExtraEncodingSettings());
         d->m_behaviorWidget->setAssignedEncoding(Core::EditorManager::defaultTextEncoding());
         d->m_behaviorWidget->setAssignedLineEnding(Core::EditorManager::defaultLineEnding());
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final;

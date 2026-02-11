@@ -12,6 +12,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QApplication>
@@ -183,6 +184,8 @@ public:
         }.attachTo(this);
 
         settingsToUI();
+
+        Utils::installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final;

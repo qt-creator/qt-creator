@@ -549,11 +549,11 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
     }.attachTo(this);
     // clang-format on
 
-    connect(
-        createKeyButton,
-        &QAbstractButton::clicked,
-        this,
-        &LinuxDeviceConfigurationWidget::createNewKey);
+    connect(createKeyButton, &QAbstractButton::clicked,
+            this, &LinuxDeviceConfigurationWidget::createNewKey);
+
+    connect(&device->sshParametersAspectContainer(), &AspectContainer::volatileValueChanged,
+            this, &markSettingsDirty);
 }
 
 void LinuxDeviceConfigurationWidget::createNewKey()
@@ -1723,7 +1723,7 @@ QString LinuxDevice::deviceStateToString() const
     // is up and running.
     switch (deviceState()) {
         case IDevice::DeviceDisconnected:
-            return Tr::tr("Device is considered unconnected. Re-run device test to reset state.");
+            return Tr::tr("Device is considered unconnected. Re-connect to use it.");
         case IDevice::DeviceReadyToUse:
             return Tr::tr("Connected");
         case IDevice::DeviceConnected:

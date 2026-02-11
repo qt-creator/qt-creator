@@ -287,10 +287,12 @@ private:
 SnippetsSettingsWidget::SnippetsSettingsWidget()
 {
     m_groupCombo = new QComboBox;
+    setIgnoreForDirtyHook(m_groupCombo);
     m_snippetsEditorStack = new QStackedWidget;
     for (const SnippetProvider &provider : SnippetProvider::snippetProviders()) {
         m_groupCombo->addItem(provider.displayName(), provider.groupId());
         auto snippetEditor = new SnippetEditorWidget(this);
+        installMarkSettingsDirtyTrigger(snippetEditor);
         SnippetProvider::decorateEditor(snippetEditor, provider.groupId());
         m_snippetsEditorStack->insertWidget(m_groupCombo->count() - 1, snippetEditor);
         connect(snippetEditor, &SnippetEditorWidget::snippetContentChanged,
@@ -437,6 +439,8 @@ void SnippetsSettingsWidget::loadSnippetGroup(int index)
     if (index == -1)
         return;
 
+    DirtySettingsGuard suppressor;
+
     m_snippetsEditorStack->setCurrentIndex(index);
     currentEditor()->clear();
     m_model.load(m_groupCombo->itemData(index).toString());
@@ -444,8 +448,8 @@ void SnippetsSettingsWidget::loadSnippetGroup(int index)
 
 void SnippetsSettingsWidget::markSnippetsCollection()
 {
-    if (!m_snippetsCollectionChanged)
-        m_snippetsCollectionChanged = true;
+    m_snippetsCollectionChanged = true;
+    markSettingsDirty();
 }
 
 void SnippetsSettingsWidget::addSnippet()
@@ -507,6 +511,7 @@ void SnippetsSettingsWidget::selectMovedSnippet(const QModelIndex &,
 
 void SnippetsSettingsWidget::updateCurrentSnippetDependent(const QModelIndex &modelIndex)
 {
+    DirtySettingsGuard suppressor;
     if (modelIndex.isValid()) {
         const Snippet &snippet = m_model.snippetAt(modelIndex);
         currentEditor()->setPlainText(snippet.content());

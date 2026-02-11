@@ -438,9 +438,10 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
             if (!allLinks.contains(link)) {
                 allLinks << link;
 
-                // We must do this recursively, because clangd reports only the first
-                // level of overrides.
-                sendGotoImplementationRequest(link);
+                // For older clangd versions we must do this recursively, because they report
+                // only the first level of overrides.
+                if (client->versionNumber().majorVersion() < 23)
+                    sendGotoImplementationRequest(link);
             }
         }
     }

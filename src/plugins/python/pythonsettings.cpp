@@ -197,6 +197,7 @@ public:
 
     void cancel() override
     {
+        interpreterModel().setInterpreters(PythonSettings::interpreters());
         s_defaultId = PythonSettings::defaultInterpreterId();
     }
 
@@ -269,6 +270,8 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
             this, &InterpreterOptionsWidget::detailsChanged);
     connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,
             this, &InterpreterOptionsWidget::currentChanged);
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void InterpreterModel::addInterpreter(const Interpreter &interpreter)
@@ -281,6 +284,13 @@ void InterpreterModel::removeInterpreterFrom(const QString &detectionSource)
     destroyItems([&detectionSource](const Interpreter &interpreter) {
         return interpreter.detectionSource.id == detectionSource;
     });
+}
+
+void InterpreterModel::setInterpreters(const QList<Interpreter> &interpreters)
+{
+    clear();
+    for (const Interpreter &interpreter : interpreters)
+        appendItem(interpreter);
 }
 
 QList<Interpreter> InterpreterModel::interpreters() const
@@ -350,13 +360,16 @@ void InterpreterOptionsWidget::addItem()
     QTC_ASSERT(index.isValid(), return);
     m_view.setCurrentIndex(index);
     updateCleanButton();
+    markSettingsDirty();
 }
 
 void InterpreterOptionsWidget::deleteItem()
 {
     const QModelIndex &index = m_view.currentIndex();
-    if (index.isValid())
+    if (index.isValid()) {
         interpreterModel().destroyItem(interpreterModel().itemAt(index.row()));
+        markSettingsDirty();
+    }
     updateCleanButton();
 }
 
@@ -418,6 +431,7 @@ public:
         mainGroupLayout->addStretch();
 
         auto advanced = new QCheckBox(Tr::tr("Advanced"));
+        setIgnoreForDirtyHook(advanced);
         advanced->setChecked(false);
         mainGroupLayout->addWidget(advanced);
 
@@ -438,6 +452,9 @@ public:
                 this,
                 &PyLSConfigureWidget::setAdvanced);
 
+        installMarkSettingsDirtyTriggerRecursively(this);
+        connect(m_editor->textDocument(), &TextEditor::TextDocument::contentsChangedWithPosition,
+                this, markSettingsDirty);
     }
 
     void apply() override
@@ -510,7 +527,7 @@ public:
         setId(Constants::C_PYLSCONFIGURATION_PAGE_ID);
         setDisplayName(Tr::tr("Language Server Configuration"));
         setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
-        setWidgetCreator([]() {return new PyLSConfigureWidget();});
+        setWidgetCreator([] {return new PyLSConfigureWidget();});
     }
 };
 
@@ -531,6 +548,8 @@ void InterpreterOptionsWidget::makeDefault()
         emit interpreterModel().dataChanged(index, index, {Qt::FontRole});
         if (defaultIndex.isValid())
             emit interpreterModel().dataChanged(defaultIndex, defaultIndex, {Qt::FontRole});
+        if (!defaultIndex.isValid() || defaultIndex != index)
+            markSettingsDirty();
     }
 }
 
@@ -547,6 +566,7 @@ void InterpreterOptionsWidget::cleanUp()
     interpreterModel().destroyItems(
         [](const Interpreter &interpreter) { return !interpreter.command.isExecutableFile(); });
     updateCleanButton();
+    markSettingsDirty();
 }
 
 constexpr char settingsGroupKey[] = "Python";
@@ -879,6 +899,7 @@ Interpreter PythonSettings::addInterpreter(const FilePath &interpreterPath,
 {
     const Interpreter interpreter = createInterpreter(interpreterPath, {}, nameSuffix);
     addInterpreter(interpreter, isDefault);
+    markSettingsDirty();
     return interpreter;
 }
 

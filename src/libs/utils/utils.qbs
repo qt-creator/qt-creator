@@ -91,6 +91,7 @@ QtcLibrary {
         "crumblepath.cpp",
         "crumblepath.h",
         "datafromprocess.h",
+        "datafromprocess.cpp",
         "delegates.cpp",
         "delegates.h",
         "detailsbutton.cpp",

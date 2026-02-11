@@ -12,8 +12,6 @@
     \page creator-debugging.html
     \nextpage creator-debugger-engines.html
 
-    \ingroup creator-reference-debugger
-
     \title Debugging
 
     \quotation
@@ -55,7 +53,7 @@
     parameters in the cloned kit. Make sure to enable the cloned kit
     for your project.
 
-    \section2 Show more debuggers
+    \section2 Showing more debuggers
 
     If the debugger you want to use is not automatically detected, go to
     \preferences > \uicontrol Kits >
@@ -215,7 +213,7 @@
     \l{Tutorial: Qt Quick debugging}.
 
     \sa {Tutorial: C++ debugging}, {Debug}{How to: Debug}, {Debuggers},
-    {Debugger}, {Managing kits}
+    {Managing kits}
 */
 
 /*!
@@ -293,7 +291,7 @@
     override the console set in the Windows system environment variables.
     Note that the native console does not prompt on application exit.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
@@ -347,7 +345,7 @@
     \endlist
 
     \sa {Activate kits for a project}, {Debug}{How to: Debug}, {Debugging},
-    {Debuggers}, {Debugger}
+    {Debuggers}
 */
 
 /*!
@@ -381,7 +379,7 @@
     You can specify breakpoints before or after attaching the debugger to the
     application. For more information, see \l{Setting breakpoints}.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
@@ -412,7 +410,7 @@
     \endlist
 
     \sa {Activate kits for a project}, {Debug}{How to: Debug}, {Debugging},
-    {Debuggers}, {Debugger}
+    {Debuggers}
 */
 
 /*!
@@ -474,7 +472,7 @@
     To attach to the latest core file, go to \uicontrol Debug >
     \uicontrol {Start Debugging}, and then select \uicontrol {Load Last Core File}.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Managing kits}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Managing kits}
 */
 
 /*!
@@ -498,7 +496,7 @@
 
     \image {qtcreator-preferences-debugger-general.webp} {General tab in Debugger preferences}
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
@@ -527,7 +525,7 @@
 
     \endlist
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers},
     {Command-Line Options}
 */
 
@@ -663,7 +661,7 @@
     \endlist
 
     \sa {Debug}{How to: Debug}, {Remote Linux}{How to: Develop for remote Linux},
-    {GDB}, {Debugging}, {Debuggers}, {Debugger}, {Managing kits}
+    {GDB}, {Debugging}, {Debuggers}, {Managing kits}
 */
 
 /*!
@@ -745,7 +743,7 @@
     To specify settings for managing the CDB process, go to \preferences >
     \uicontrol Debugger > \uicontrol CDB.
 
-    \sa {Debug}{How to: Debug}, {CDB}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {CDB}, {Debugging}, {Debuggers}
 */
 
 
@@ -753,9 +751,9 @@
     \page creator-debug-mode.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
-    \title Debug Mode Views
+    \title Debug mode views
 
     \brief Inspect the state of your application while debugging.
 
@@ -863,7 +861,7 @@
     \note The \uicontrol Views menu shows some views only while you are
     debugging.
 
-    \section1 Managing Debug Views
+    \section1 Managing Debug views
 
     When you are not debugging, the \uicontrol Debug mode shows the
     \uicontrol {Debugger Preset} perspective:
@@ -882,7 +880,7 @@
     To show and hide columns in views, toggle \uicontrol {Show Column} in
     the context menu.
 
-    \section1 Customizing Debug Views
+    \section1 Customizing Debug views
 
     To change the appearance and behavior of the debug views, set preferences
     in \preferences > \uicontrol Debugger > \uicontrol General.
@@ -901,8 +899,7 @@
             interrupted.
     \endlist
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
-    {Debugger Views}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
@@ -929,8 +926,7 @@
     \uicontrol Debugger > \uicontrol General >
     \uicontrol {Use tooltips in main editor when debugging}.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
-    {Debugger Views}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
@@ -986,8 +982,7 @@
     requested when expanding entries, go to \preferences > \uicontrol {Debugger}
     > \uicontrol {Locals & Expressions} > \uicontrol {Default array size}.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
-    {Debugger Views}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
@@ -1073,8 +1068,7 @@
     \uicontrol {Use debug versions of Frameworks} option in the project run
     settings.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger},
-    {Debugger Views}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
@@ -1182,14 +1176,14 @@
 
     \endomit
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
     \page creator-threads-view.html
     \previouspage creator-debug-mode.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
     \title Viewing Threads
 
@@ -1214,14 +1208,14 @@
     The \l {Viewing call stack trace}{Stack} view adjusts its contents
     accordingly.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
     \page creator-modules-view.html
     \previouspage creator-debug-mode.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
     \title Viewing Modules
 
@@ -1264,7 +1258,7 @@
 
         \li Show sections in modules
 
-        \li Set \l{Debugger}{debugger preferences}
+        \li Set \l{Debuggers}{debugger preferences}
 
     \endlist
 
@@ -1282,14 +1276,14 @@
 
     For more information, see \l{CDB}.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
     \page creator-source-files-view.html
     \previouspage creator-debug-mode.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
     \title Viewing Source Files
 
@@ -1307,7 +1301,7 @@
     \list
         \li Reload data
         \li Open the selected file
-        \li Set \l{Debugger}{debugger preferences}
+        \li Set \l{Debuggers}{debugger preferences}
     \endlist
 
     By default, the \uicontrol {Source Files} view is hidden. To show it, select
@@ -1324,14 +1318,14 @@
 
     For more information, see \l{Source Paths Mapping}.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
     \page creator-registers-view.html
     \previouspage creator-debug-mode.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
     \title Viewing and Editing Register State
 
@@ -1364,7 +1358,7 @@
         \li Open \l {Examining Memory}{Memory Editor} at the selected value.
         \li Open the \l {Viewing Disassembled Code}{Disassembler} view.
         \li Display a value in hexadecimal, decimal, octal, or binary format.
-        \li Set \l{Debugger}{debugger preferences}.
+        \li Set \l{Debuggers}{debugger preferences}.
     \endlist
 
     By default, the \uicontrol Registers view is hidden. To show it, select it in
@@ -1391,14 +1385,14 @@
         \li Jump to the selected address in the current data view or a new one.
     \endlist
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
     \page creator-peripheral-registers-view.html
     \previouspage creator-debug-mode.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
     \title Peripheral Registers
 
@@ -1424,20 +1418,20 @@
 
     \list
         \li View register groups.
-        \li Set \l{Debugger}{debugger preferences}.
+        \li Set \l{Debuggers}{debugger preferences}.
     \endlist
 
     By default, the \uicontrol {Peripheral Registers} view is hidden. To show it,
     select it in \uicontrol Views on the debugger toolbar.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
     \page creator-debugger-log-view.html
     \previouspage creator-debug-mode.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
     \title Debugger Log
 
@@ -1463,7 +1457,7 @@
         \li Log time stamps.
         \li Reload debugging helpers after \l{Adding Custom Debugging Helpers}
             {adding custom debugging helpers}.
-        \li Set \l{Debugger}{debugger preferences}.
+        \li Set \l{Debuggers}{debugger preferences}.
     \endlist
 
     \section1 Directly Interacting with Debuggers
@@ -1481,14 +1475,14 @@
     \c print command from the command line, you can evaluate an expression in
     the \l {Evaluating expressions}{Expressions} view.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
     \page creator-disassembler-view.html
     \previouspage creator-debug-mode.html
 
-    \ingroup creator-reference-debugger-views
+    \ingroup creator-reference-debugger
 
     \title Viewing Disassembled Code
 
@@ -1527,7 +1521,7 @@
 
     \image {qcreator-debugger-select-start-address.webp} {Select Start Address dialog}
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
@@ -2130,7 +2124,7 @@
             d.putSubItem("value", value)
     \endcode
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 
@@ -2284,5 +2278,5 @@
     calls \c{prctl(0x59616d61, getppid(), 0, 0, 0);}, such as the one in
     \c{$QTCREATORDIR/lib/libptracepreload.so} to the LD_PRELOAD environment.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */

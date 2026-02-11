@@ -221,6 +221,7 @@ void MimeTypeSettingsModel::resetUserDefaults()
     beginResetModel();
     m_userDefault.clear();
     endResetModel();
+    markSettingsDirty();
 }
 
 class MimeFilterModel : public QSortFilterProxyModel
@@ -428,6 +429,11 @@ MimeTypeSettingsWidget::MimeTypeSettingsWidget(MimeTypeSettingsPage *settings)
             this, &MimeTypeSettingsWidget::updatePatternEditAndMagicButtons);
 
     updatePatternEditAndMagicButtons();
+
+    setIgnoreForDirtyHook(filterLineEdit);
+    installMarkSettingsDirtyTriggerRecursively(this);
+    connect(m_mimeTypesTreeView->model(), &QAbstractItemModel::dataChanged,
+            this, markSettingsDirty);
 }
 
 void MimeTypeSettingsWidget::syncData(const QModelIndex &current,
@@ -515,6 +521,7 @@ void MimeTypeSettingsWidget::addMagicHeader()
         ensurePendingMimeType(mt);
         d->m_pendingModifiedMimeTypes[mt.name()].rules[data.m_priority].append(data.m_rule);
         addMagicHeaderRow(data);
+        markSettingsDirty();
     }
 }
 
@@ -536,6 +543,7 @@ void MimeTypeSettingsWidget::removeMagicHeader()
     ensurePendingMimeType(mt);
     d->m_pendingModifiedMimeTypes[mt.name()].rules[data.m_priority].removeOne(data.m_rule);
     syncData(mimeTypeIndex, mimeTypeIndex);
+    markSettingsDirty();
 }
 
 void MimeTypeSettingsWidget::editMagicHeader()
@@ -567,6 +575,7 @@ void MimeTypeSettingsWidget::editMagicHeader()
                 d->m_pendingModifiedMimeTypes[mt.name()].rules[oldData.m_priority][ruleIndex] = dialogData.m_rule;
             }
             editMagicHeaderRowData(magicIndex.row(), dialogData);
+            markSettingsDirty();
         }
     }
 }
@@ -578,6 +587,7 @@ void MimeTypeSettingsWidget::resetMimeTypes()
     QMessageBox::information(ICore::dialogParent(),
                              Tr::tr("Reset MIME Types"),
                              Tr::tr("Changes will take effect after restart."));
+    markSettingsDirty();
 }
 
 void MimeTypeSettingsWidget::setFilterPattern(const QString &pattern)

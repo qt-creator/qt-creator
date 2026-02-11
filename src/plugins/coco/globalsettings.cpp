@@ -30,13 +30,22 @@ CocoSettings &cocoSettings()
 
 CocoSettings::CocoSettings()
 {
-    m_errorMessage = Tr::tr("Error: Coco installation directory not set. (This can't happen.)");
-
     setAutoApply(false);
 
     cocoPath.setSettingsKey(Constants::COCO_SETTINGS_GROUP, Constants::COCO_DIR_KEY);
     cocoPath.setExpectedKind(Utils::PathChooser::ExistingDirectory);
     cocoPath.setPromptDialogTitle(Tr::tr("Coco Installation Directory"));
+    cocoPath.addOnVolatileValueChanged(this, [this] {
+        updateLabel(FilePath::fromUserInput(cocoPath.volatileValue()));
+    });
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Form {
+            Tr::tr("Coco Directory"), cocoPath , br,
+            Span(2, messageLabel),
+        };
+    });
 
     readSettings();
 
@@ -45,7 +54,7 @@ CocoSettings::CocoSettings()
         writeSettings();
     }
 
-    setDirectoryVars(cocoPath());
+    updateLabel(cocoPath());
 }
 
 FilePath CocoSettings::coverageBrowserPath() const
@@ -62,27 +71,30 @@ FilePath CocoSettings::coverageBrowserPath() const
     return cocoPath().resolvePath(browserPath);
 }
 
-void CocoSettings::setDirectoryVars(const FilePath &dir)
+void CocoSettings::updateLabel(const FilePath &dir)
 {
     if (isCocoDirectory(dir) && verifyCocoDirectory(dir)) {
-        cocoPath.setValue(dir);
         m_isValid = true;
-        m_errorMessage.clear();
+        messageLabel.setIconType(InfoLabel::None);
+        messageLabel.setText({});
     } else {
-        cocoPath.setValue(FilePath());
         m_isValid = false;
-        m_errorMessage
-            = Tr::tr("Error: Coco installation directory not found at \"%1\".").arg(dir.nativePath());
+        messageLabel.setIconType(InfoLabel::Error);
+        messageLabel.setText(Tr::tr("Error: Coco installation directory not found at \"%1\".")
+                                 .arg(dir.toUserOutput()));
     }
-
-    writeSettings();
-    emit updateCocoDir();
 }
 
 void CocoSettings::apply()
 {
     AspectContainer::apply();
-    setDirectoryVars(cocoPath());
+    updateLabel(cocoPath());
+}
+
+void CocoSettings::cancel()
+{
+    AspectContainer::cancel();
+    updateLabel(cocoPath());
 }
 
 static FilePath coverageScannerPath(const FilePath &cocoDir)
@@ -108,7 +120,8 @@ void CocoSettings::logError(const QString &msg)
 {
     logFlashing(msg);
     m_isValid = false;
-    m_errorMessage = msg;
+    messageLabel.setIconType(InfoLabel::Error);
+    messageLabel.setText(msg);
 }
 
 bool CocoSettings::verifyCocoDirectory(const FilePath &cocoDir)
@@ -155,11 +168,6 @@ bool CocoSettings::isValid() const
     return m_isValid;
 }
 
-QString CocoSettings::errorMessage() const
-{
-    return m_errorMessage;
-}
-
 void CocoSettings::tryPath(const QString &path)
 {
     if (m_isValid)
@@ -169,7 +177,8 @@ void CocoSettings::tryPath(const QString &path)
     const QString nativePath = fpath.nativePath();
     if (isCocoDirectory(fpath)) {
         logSilently(Tr::tr("Found Coco directory \"%1\".").arg(nativePath));
-        setDirectoryVars(fpath);
+        cocoPath.setValue(nativePath);
+        updateLabel(fpath);
     } else {
         logSilently(Tr::tr("Checked Coco directory \"%1\".").arg(nativePath));
     }
@@ -197,36 +206,6 @@ void CocoSettings::findDefaultDirectory()
     }
 }
 
-class GlobalSettingsWidget : public Core::IOptionsPageWidget
-{
-public:
-    GlobalSettingsWidget()
-    {
-        setOnApply([] { cocoSettings().apply(); });
-        setOnCancel([] { cocoSettings().cancel(); });
-
-        using namespace Layouting;
-        Form {
-            Column {
-                Row { Tr::tr("Coco Directory"), cocoSettings().cocoPath },
-                Row { m_messageLabel }
-            }
-        }.attachTo(this);
-
-        connect(&cocoSettings(), &CocoSettings::updateCocoDir, this, [this] {
-            m_messageLabel.setText(cocoSettings().errorMessage());
-            if (cocoSettings().isValid())
-                m_messageLabel.setIconType(InfoLabel::None);
-            else
-                m_messageLabel.setIconType(InfoLabel::Error);
-        });
-    }
-
-private:
-    TextDisplay m_messageLabel;
-};
-
-
 class GlobalSettingsPage : public Core::IOptionsPage
 {
 public:
@@ -235,7 +214,7 @@ public:
         setId(Constants::COCO_SETTINGS_PAGE_ID);
         setDisplayName(Tr::tr("Coco"));
         setCategory("I.Coco"); // Category I contains also the C++ settings.
-        setWidgetCreator([] { return new GlobalSettingsWidget; });
+        setSettingsProvider([] { return &cocoSettings(); });
     }
 };
 

@@ -8,6 +8,7 @@
 #define KSYNTAXHIGHLIGHTING_CONTEXTSWITCH_P_H
 
 #include <QStringView>
+#include <QVarLengthArray>
 
 namespace KSyntaxHighlighting
 {
@@ -17,6 +18,8 @@ class DefinitionData;
 class ContextSwitch
 {
 public:
+    using ContextList = QVarLengthArray<Context *, 2>;
+
     ContextSwitch() = default;
     ~ContextSwitch() = default;
 
@@ -30,17 +33,17 @@ public:
         return m_popCount;
     }
 
-    Context *context() const
+    const ContextList &contexts() const
     {
-        return m_context;
+        return m_contexts;
     }
 
     void resolve(DefinitionData &def, QStringView context);
 
 private:
-    Context *m_context = nullptr;
-    int m_popCount = 0;
     bool m_isStay = true;
+    int m_popCount = 0;
+    ContextList m_contexts;
 };
 }
 

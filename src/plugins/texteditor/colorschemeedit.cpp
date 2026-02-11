@@ -264,6 +264,33 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     connect(m_underlineComboBox, &QComboBox::currentIndexChanged,
             this, &ColorSchemeEdit::changeUnderlineStyle);
     connect(m_builtinSchemeLabel, &QLabel::linkActivated, this, &ColorSchemeEdit::copyScheme);
+
+    connect(m_foregroundToolButton, &Utils::QtColorButton::colorChanged,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_backgroundToolButton, &Utils::QtColorButton::colorChanged,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_eraseBackgroundToolButton, &QAbstractButton::clicked,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_eraseForegroundToolButton, &QAbstractButton::clicked,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_foregroundSaturationSpinBox, &QDoubleSpinBox::valueChanged,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_foregroundLightnessSpinBox, &QDoubleSpinBox::valueChanged,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_backgroundSaturationSpinBox, &QDoubleSpinBox::valueChanged,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_backgroundLightnessSpinBox, &QDoubleSpinBox::valueChanged,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_boldCheckBox, &QAbstractButton::toggled,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_italicCheckBox, &QAbstractButton::toggled,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_underlineColorToolButton, &Utils::QtColorButton::colorChanged,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_eraseUnderlineColorToolButton, &QToolButton::clicked,
+            this, &ColorSchemeEdit::dirty);
+    connect(m_underlineComboBox, &QComboBox::currentIndexChanged,
+            this, &ColorSchemeEdit::dirty);
 }
 
 ColorSchemeEdit::~ColorSchemeEdit() = default;

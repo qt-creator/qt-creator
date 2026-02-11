@@ -11,16 +11,11 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QAbstractItemView>
 #include <QCheckBox>
-#include <QEvent>
 #include <QGroupBox>
 #include <QHash>
-#include <QMenu>
 #include <QPointer>
 #include <QPushButton>
-#include <QScrollBar>
-#include <QSpinBox>
 
 #include <utility>
 
@@ -42,17 +37,14 @@ public:
 
     void setAspects(Utils::AspectContainer *aspects);
 
-    bool eventFilter(QObject *watched, QEvent *event);
-
     IOptionsPageWidget *q;
 
     std::function<void()> m_onApply;
     std::function<void()> m_onCancel;
     std::function<void()> m_onFinish;
+    std::function<bool()> m_dirtyChecker;
 
     AspectContainer *m_aspects = nullptr;
-    int m_dirtyCount = 0;
-    bool m_useDirtyHook = true;
 };
 
 class IOptionsPagePrivate
@@ -120,20 +112,7 @@ IOptionsPageWidget::IOptionsPageWidget()
 
 IOptionsPageWidget::~IOptionsPageWidget()
 {
-    for (const QMetaObject::Connection &con : m_connections)
-        QObject::disconnect(con);
-
     d.reset();
-}
-
-bool IOptionsPageWidget::useDirtyHook() const
-{
-    return d->m_useDirtyHook;
-}
-
-void IOptionsPageWidget::setUseDirtyHook(bool on)
-{
-    d->m_useDirtyHook = on;
 }
 
 /*!
@@ -147,6 +126,11 @@ void IOptionsPageWidget::setOnApply(const std::function<void()> &func)
 void IOptionsPageWidget::setOnCancel(const std::function<void()> &func)
 {
     d->m_onCancel = func;
+}
+
+void IOptionsPageWidget::setDirtyChecker(const std::function<bool ()> &func)
+{
+    d->m_dirtyChecker = func;
 }
 
 /*!
@@ -186,162 +170,29 @@ void IOptionsPageWidget::cancel()
 
     if (d->m_aspects) {
         AspectContainer *container = d->m_aspects;
-        QTC_ASSERT(container, return);
         if (container->isDirty())
             container->cancel();
         return;
     }
 }
 
-const char DirtyOnMouseButtonRelease[] = "DirtyOnMouseButtonRelease";
-
-static bool makesDirty(QObject *watched, QEvent *event)
+bool IOptionsPageWidget::isDirty() const
 {
-    if (event->type() == QEvent::MouseButtonRelease
-            && !isIgnoredForDirtyHook(watched)
-            && watched->property(DirtyOnMouseButtonRelease).isValid()) {
-        return true;
-    }
+    if (d->m_dirtyChecker)
+        return d->m_dirtyChecker();
 
-    return false;
-}
+    if (d->m_aspects)
+        return d->m_aspects->isDirty();
 
-void IOptionsPageWidget::connectAspect(QWidget *widget, const BaseAspect *aspect)
-{
-    QTC_ASSERT(widget, return);
-    QTC_ASSERT(aspect, return);
-
-    while (aspect->container())
-        aspect = aspect->container();
-
-    if (m_trackedAspects.contains(aspect))
-        return;
-
-    m_trackedAspects.insert(aspect);
-
-    const auto dirtyStateMachine = [this, aspect, countedAsDirty = false]() mutable {
-        int oldDirtyCount = d->m_dirtyCount;
-        if (aspect->isDirty() && !countedAsDirty) {
-            d->m_dirtyCount++;
-            countedAsDirty = true;
-        } else if (!aspect->isDirty() && countedAsDirty) {
-            d->m_dirtyCount--;
-            countedAsDirty = false;
-        }
-        if (oldDirtyCount != d->m_dirtyCount)
-            emit dirtyChanged(d->m_dirtyCount > 0);
-    };
-
-    QMetaObject::Connection dirtyCon
-        = connect(aspect, &BaseAspect::volatileValueChanged, this, dirtyStateMachine);
-
-    QMetaObject::Connection disco
-        = connect(widget, &QObject::destroyed, this, [aspect, this, dirtyCon] {
-              QObject::disconnect(dirtyCon);
-              m_trackedAspects.remove(aspect);
-          });
-
-    m_connections.append(dirtyCon);
-    m_connections.append(disco);
-}
-
-void IOptionsPageWidget::setupDirtyHook(QWidget *widget)
-{
-    QTC_ASSERT(!d->m_aspects, return);
-    QTC_ASSERT(widget, return);
-
-    if (isIgnoredForDirtyHook(widget))
-        return;
-
-    // if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(widget)) {
-    //     connectAspect(widget, aspect.data());
-    //     return;
-    // }
-
-    QList<QWidget *> children = {widget};
-
-    while (!children.isEmpty()) {
-        QWidget *child = children.takeLast();
-        if (isIgnoredForDirtyHook(child))
-            continue;
-
-        // if (QPointer<const BaseAspect> aspect = BaseAspect::aspectForWidget(child)) {
-        //     connectAspect(child, aspect.data());
-        //     continue;
-        // }
-
-        children += child->findChildren<QWidget *>(Qt::FindDirectChildrenOnly);
-
-        if (child->metaObject() == &QWidget::staticMetaObject)
-            continue;
-
-        if (child->metaObject() == &QLabel::staticMetaObject)
-            continue;
-
-        if (child->metaObject() == &QScrollBar::staticMetaObject)
-            continue;
-
-        if (child->metaObject() == &QMenu::staticMetaObject)
-            continue;
-
-        auto markDirty = [this, child] {
-            if (isIgnoredForDirtyHook(child))
-                return;
-            gotDirty();
-        };
-
-        if (auto ob = qobject_cast<QAbstractButton *>(child)) {
-            connect(ob, &QAbstractButton::pressed, this, markDirty);
-            continue;
-        }
-        if (auto ob = qobject_cast<QLineEdit *>(child)) {
-            connect(ob, &QLineEdit::textEdited, this, markDirty);
-            continue;
-        }
-        if (auto ob = qobject_cast<QComboBox *>(child)) {
-            connect(ob, &QComboBox::currentIndexChanged, markDirty);
-            continue;
-        }
-        if (auto ob = qobject_cast<QSpinBox *>(child)) {
-            connect(ob, &QSpinBox::valueChanged, this, markDirty);
-            continue;
-        }
-        if (auto ob = qobject_cast<QGroupBox *>(child)) {
-            connect(ob, &QGroupBox::toggled, this, markDirty);
-            continue;
-        }
-        if (auto ob = qobject_cast<QCheckBox *>(child)) {
-            connect(ob, &QCheckBox::toggled, this, markDirty);
-            continue;
-        }
-    }
-
-    if (auto ob = qobject_cast<QAbstractItemView *>(widget)) {
-        ob->viewport()->setProperty(DirtyOnMouseButtonRelease, true);
-        ob->viewport()->installEventFilter(d.get());
-    }
+    return true;
 }
 
 void IOptionsPageWidgetPrivate::setAspects(AspectContainer *aspects)
 {
     m_aspects = aspects;
-    connect(m_aspects, &AspectContainer::volatileValueChanged, [this] {
-        emit q->dirtyChanged(m_aspects->isDirty());
+    connect(m_aspects, &AspectContainer::volatileValueChanged, [] {
+        checkSettingsDirty();
     });
-}
-
-bool IOptionsPageWidgetPrivate::eventFilter(QObject *watched, QEvent *event)
-{
-    if (makesDirty(watched, event))
-        q->gotDirty();
-
-    return false;
-}
-
-void IOptionsPageWidget::gotDirty()
-{
-    d->m_dirtyCount++;
-    emit dirtyChanged(d->m_dirtyCount > 0);
 }
 
 /*!
@@ -599,8 +450,6 @@ IOptionsPageWidget *IOptionsPagePrivate::createWidget()
     if (m_widgetCreator) {
         m_widget = m_widgetCreator();
         QTC_ASSERT(m_widget, return nullptr);
-        if (!m_autoApply && m_widget->useDirtyHook())
-            m_widget->setupDirtyHook(m_widget);
         return m_widget;
     }
 

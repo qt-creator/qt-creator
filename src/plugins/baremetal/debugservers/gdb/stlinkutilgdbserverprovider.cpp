@@ -9,6 +9,7 @@
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
+#include <utils/guiutils.h>
 #include <utils/filepath.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>

@@ -250,6 +250,8 @@ SettingsPageWidget::SettingsPageWidget()
     m_debugPuppetComboBox->addItems(puppetModes());
 
     readSettings();
+
+    Utils::installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const

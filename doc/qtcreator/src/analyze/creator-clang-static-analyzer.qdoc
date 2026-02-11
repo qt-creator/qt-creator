@@ -134,8 +134,8 @@
     using the \c {-export fixes} option.
 
     \sa {Check code syntax}, {Configure Clang Diagnostics},
-    {Analyze}{How to: Analyze}, {Specify Clang tools settings}, {Analyzers},
-    {Clang Tools}
+    {Analyze}{How to: Analyze}, {Specify Clang tools settings},
+    {Set global preferences for Clang tools}, {Analyzers}
 */
 
 /*!
@@ -165,18 +165,17 @@
     To open the \uicontrol Clang-Tidy view, select \uicontrol {Go to Clang-Tidy}.
     To open the \uicontrol Clazy view, select \uicontrol {Go to Clazy}.
 
-    \sa {Configure Clang diagnostics}, {Analyze code with Clang-Tidy and Clazy}, {Clang Tools}
+    \sa {Analyze code with Clang-Tidy and Clazy}, {Configure Clang diagnostics},
+    {Set global preferences for Clang tools}
 */
 
 /*!
     \page creator-preferences-analyzer-clang-tools.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-preferences-analyzer
+    \ingroup creator-how-to-analyze
 
-    \title Clang Tools
-
-    \brief Set preferences for Clang-Tidy and Clazy.
+    \title Set global preferences for Clang tools
 
     Detect problems in C, C++, and Objective-C programs with Clang-Tidy
     and Clazy.
@@ -299,7 +298,7 @@
 
     \endlist
 
-    \section2 Selecting Clazy Check Levels
+    \section2 Select Clazy check levels
 
     The Clazy checks are divided into levels from 0 to 3. The checks at level 0
     are very stable and show hardly any false positives, while the checks at
@@ -307,7 +306,7 @@
     at each level. To include the checks from the lower levels automatically,
     select \uicontrol {Enable lower levels automatically}.
 
-    \section2 Creating Clang-Tidy Configuration Files
+    \section2 Create Clang-Tidy configuration files
 
     Clang-Tidy reads the configuration for each source file from a .clang-tidy
     file located in the closest parent directory of the source file. If any
@@ -332,5 +331,6 @@
     file into the \uicontrol {Edit Checks as String} field, select additional
     checks, and copy-paste the contents of the field to the .clang-tidy file.
 
-    \sa {Analyze code with Clang-Tidy and Clazy}, {Specify Clang tools settings}, {Clang Tools}
+    \sa {Analyze code with Clang-Tidy and Clazy}, {Specify Clang tools settings},
+    {Set global preferences for Clang tools}
 */

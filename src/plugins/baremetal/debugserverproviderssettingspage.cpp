@@ -223,6 +223,7 @@ DebugServerProviderNode *DebugServerProviderModel::createNode(
     const auto node = new DebugServerProviderNode(provider, changed);
     node->widget = provider->configurationWidget();
     connect(node->widget, &IDebugServerProviderConfigWidget::dirty, this, [node] {
+        markSettingsDirty();
         node->changed = true;
         node->update();
     });
@@ -354,6 +355,8 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
     updateState();
 
     setOnApply([this] { m_model.apply(); });
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void DebugServerProvidersSettingsWidget::providerSelectionChanged()
@@ -361,7 +364,7 @@ void DebugServerProvidersSettingsWidget::providerSelectionChanged()
     if (!m_container)
         return;
     const QModelIndex current = currentIndex();
-    QWidget *w = m_container->takeWidget(); // Prevent deletion.
+    QWidget *w = m_container->widget() ? m_container->takeWidget() : nullptr; // Prevent deletion.
     if (w)
         w->setVisible(false);
 
@@ -381,12 +384,16 @@ void DebugServerProvidersSettingsWidget::addProviderToModel(IDebugServerProvider
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
                              | QItemSelectionModel::Rows);
+
+    markSettingsDirty();
 }
 
 void DebugServerProvidersSettingsWidget::removeProvider()
 {
     if (IDebugServerProvider *p = m_model.provider(currentIndex()))
         m_model.markForRemoval(p);
+
+    markSettingsDirty();
 }
 
 void DebugServerProvidersSettingsWidget::updateState()

@@ -65,6 +65,7 @@ GeneralSettings::GeneralSettings()
         QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus,
                                        !showShortcutsInContextMenus());
     });
+    showShortcutsInContextMenus.addOnVolatileValueChanged(this, markSettingsDirty);
 
     provideSplitterCursors.setSettingsKey("General/OverrideSplitterCursors");
     provideSplitterCursors.setDefaultValue(false);
@@ -73,10 +74,12 @@ GeneralSettings::GeneralSettings()
         Tr::tr("Provide cursors for resizing views.\nIf the system cursors for resizing views are "
                "not displayed properly, you can use the cursors provided by %1.")
             .arg(QGuiApplication::applicationDisplayName()));
+    provideSplitterCursors.addOnVolatileValueChanged(this, markSettingsDirty);
 
     preferInfoBarOverPopup.setSettingsKey("General/PreferInfoBarOverPopup");
     preferInfoBarOverPopup.setDefaultValue(false);
     preferInfoBarOverPopup.setLabelText(Tr::tr("Prefer banner style info bars over pop-ups"));
+    preferInfoBarOverPopup.addOnVolatileValueChanged(this, markSettingsDirty);
 
     useTabsInEditorViews.setSettingsKey("General/UseTabsInEditorViews");
     useTabsInEditorViews.setDefaultValue(false);
@@ -84,6 +87,7 @@ GeneralSettings::GeneralSettings()
     useTabsInEditorViews.addOnChanged(EditorManagerPrivate::instance(), [this] {
         EditorManagerPrivate::setShowingTabs(useTabsInEditorViews.value());
     });
+    useTabsInEditorViews.addOnVolatileValueChanged(this, markSettingsDirty);
 
     readSettings();
 }
@@ -141,7 +145,6 @@ GeneralSettingsWidget::GeneralSettingsWidget()
         Tr::tr("Re-enable warnings that were suppressed by selecting \"Do Not "
            "Show Again\" (for example, missing highlighter).",
            nullptr));
-    setIgnoreForDirtyHook(m_resetWarningsButton);
 
     m_toolbarStyleBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
@@ -220,6 +223,14 @@ GeneralSettingsWidget::GeneralSettingsWidget()
             &GeneralSettingsWidget::resetWarnings);
 
     setOnCancel([] { generalSettings().cancel(); });
+
+    installMarkSettingsDirtyTrigger(m_languageBox);
+    installMarkSettingsDirtyTrigger(m_codecBox);
+    installMarkSettingsDirtyTrigger(m_colorButton);
+    installMarkSettingsDirtyTrigger(m_themeChooser->themeComboBox());
+    installMarkSettingsDirtyTrigger(m_toolbarStyleBox);
+    installMarkSettingsDirtyTrigger(m_policyComboBox);
+    installMarkSettingsDirtyTrigger(resetColorButton);
 }
 
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)

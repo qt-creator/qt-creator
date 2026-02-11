@@ -50,7 +50,7 @@ public:
 
 QbsLanguageClient::QbsLanguageClient(const QString &serverPath, QbsBuildSystem *buildSystem)
     : Client(new QbsLanguageClientInterface(
-                 serverPath, QbsSettings::qbsExecutableFilePath(*buildSystem->kit())))
+                 serverPath, QbsSettings::qbsExecutableFilePathForKit(*buildSystem->kit())))
     , d(new Private(this))
 {
     d->buildSystem = buildSystem;

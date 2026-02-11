@@ -206,9 +206,13 @@ DocSettingsPageWidget::DocSettingsPageWidget()
     connect(addButton, &QAbstractButton::clicked, this, &DocSettingsPageWidget::addDocumentation);
     connect(removeButton, &QAbstractButton::clicked, this, [this] {
         removeDocumentation(currentSelection());
+        markSettingsDirty();
     });
 
     m_docsListView->installEventFilter(this);
+
+    setIgnoreForDirtyHook(filterLineEdit);
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void DocSettingsPageWidget::addDocumentation()
@@ -239,6 +243,7 @@ void DocSettingsPageWidget::addDocumentation()
 
         m_filesToRegister.insert(nameSpace, filePath);
         m_filesToRegisterUserManaged.insert(nameSpace, true/*user managed*/);
+        markSettingsDirty();
 
         // If the files to unregister contains the namespace, grab a copy of all paths added and try to
         // remove the current file path. Afterwards remove the whole entry and add the clean list back.

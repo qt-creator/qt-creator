@@ -1,11 +1,12 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "environment.h"
-#include "namevalueitem.h"
 #include "algorithm.h"
+#include "environment.h"
 #include "namevaluedictionary.h"
+#include "namevalueitem.h"
 #include "qtcassert.h"
+#include "utilstr.h"
 
 #include <QDebug>
 
@@ -97,6 +98,13 @@ EnvironmentItem EnvironmentItem::itemFromVariantList(const QVariantList &list)
 QVariantList EnvironmentItem::toVariantList(const EnvironmentItem &item)
 {
     return QVariantList() << item.name << item.operation << item.value;
+}
+
+QString EnvironmentItem::toShortSummary(const EnvironmentItems &list, bool multiLine)
+{
+    return list.empty() ? Tr::tr("No changes to apply.")
+                        : EnvironmentItem::toStringList(list).join(
+                              QLatin1String(multiLine ? "\n" : "; "));
 }
 
 QString EnvironmentItem::separator() const

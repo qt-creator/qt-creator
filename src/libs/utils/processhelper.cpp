@@ -117,9 +117,9 @@ void ProcessHelper::setLowPriority()
 
 void ProcessHelper::setUnixTerminalDisabled()
 {
+    m_unixTerminalDisabled = true;
 #if defined(Q_OS_UNIX)
 #  if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
-    m_unixTerminalDisabled = true;
     enableChildProcessModifier();
 #  else
     UnixProcessParameters params = unixProcessParameters();
@@ -173,7 +173,14 @@ void ProcessHelper::terminateProcess()
     else
         terminate();
 #else
-    terminate();
+    if (m_unixTerminalDisabled) {
+        // We started a new session (see setUnixTerminalDisabled() above); when
+        // PID < 0, kill(2) will send the signal to all processes in a process
+        // group identified by -PID.
+        ::kill(-processId(), SIGTERM);
+    } else {
+        terminate();
+    }
 #endif
 }
 

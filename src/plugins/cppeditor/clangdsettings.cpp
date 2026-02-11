@@ -836,6 +836,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             const QItemSelection selection = sessionsView->selectionModel()->selection();
             QTC_ASSERT(!selection.isEmpty(), return);
             m_sessionsModel.removeRow(selection.indexes().first().row());
+            markSettingsDirty();
         });
 
         connect(addButton, &QPushButton::clicked, this, [this, sessionsView] {
@@ -853,6 +854,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
                 currentSessions << dlg.textValue();
                 m_sessionsModel.setStringList(currentSessions);
                 m_sessionsModel.sort(0);
+                markSettingsDirty();
             }
         });
     }
@@ -981,6 +983,8 @@ public:
     {
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_widget);
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
 private:

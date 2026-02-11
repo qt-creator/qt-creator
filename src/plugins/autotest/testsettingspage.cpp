@@ -118,10 +118,10 @@ TestSettingsWidget::TestSettingsWidget()
         st
     }.attachTo(this);
 
+    populateFrameworksListWidget(s.frameworks, s.tools);
+
     connect(m_frameworkTreeWidget, &QTreeWidget::itemChanged,
             this, &TestSettingsWidget::onFrameworkItemChanged);
-
-    populateFrameworksListWidget(s.frameworks, s.tools);
 
     setOnApply([this] {
         TestSettings &s = Internal::testSettings();
@@ -154,6 +154,8 @@ TestSettingsWidget::TestSettingsWidget()
     });
 
     setOnCancel([] { Internal::testSettings().cancel(); });
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 enum TestBaseInfo
@@ -226,6 +228,7 @@ void TestSettingsWidget::testToolsSettings(NonAspectSettings &settings) const
 
 void TestSettingsWidget::onFrameworkItemChanged()
 {
+    markSettingsDirty();
     bool atLeastOneEnabled = false;
     int mixed = ITestBase::None;
     if (QAbstractItemModel *model = m_frameworkTreeWidget->model()) {

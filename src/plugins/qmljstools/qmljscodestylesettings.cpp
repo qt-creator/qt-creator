@@ -360,6 +360,8 @@ public:
         vbox->addWidget(
             TextEditorSettings::codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID)
                 ->createCodeStyleEditor({}, &m_preferences));
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final

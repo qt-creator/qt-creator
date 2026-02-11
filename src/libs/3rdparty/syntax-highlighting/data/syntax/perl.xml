@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language>
+<!DOCTYPE language [
+  <!-- https://perldoc.perl.org/perlre#Overview -->
+  <!ENTITY subst_flags "[msixpadluncgeor]*">
+]>
 <!--
    This file is part of the KDE project
    Copyright (C) 2001, 2002, 2003, 2004 Anders Lund <anders@alweb.dk>
@@ -39,9 +42,9 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" alternativeNames="PL" version="20" kateversion="5.0" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
+<language name="Perl" alternativeNames="PL" version="22" kateversion="5.0" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
   <highlighting>
-    <list name="keywords">
+    <list name="control_flow">
       <item>if</item>
       <item>unless</item>
       <item>else</item>
@@ -51,11 +54,18 @@
       <item>for</item>
       <item>each</item>
       <item>foreach</item>
-      <item>next</item>
-      <item>last</item>
       <item>break</item>
       <item>continue</item>
+      <item>next</item>
+      <item>last</item>
+      <item>redo</item>
       <item>return</item>
+      <item>when</item>
+      <item>given</item>
+      <item>default</item>
+      <item>defer</item>
+    </list>
+    <list name="keywords">
       <item>my</item>
       <item>our</item>
       <item>local</item>
@@ -65,9 +75,6 @@
       <item>package</item>
       <item>sub</item>
       <item>do</item>
-      <item>given</item>
-      <item>when</item>
-      <item>default</item>
       <item>__END__</item>
       <item>__DATA__</item>
       <item>__FILE__</item>
@@ -75,42 +82,6 @@
       <item>__PACKAGE__</item>
     </list>
     <list name="operators">
-      <item>=</item>
-      <item>!=</item>
-      <item>~=</item>
-      <item>+=</item>
-      <item>-=</item>
-      <item>*=</item>
-      <item>/=</item>
-      <item>**=</item>
-      <item>|=</item>
-      <item>||=</item>
-      <item>//=</item>
-      <item>&amp;=</item>
-      <item>&amp;&amp;=</item>
-      <item>?=</item>
-      <item>+</item>
-      <item>-</item>
-      <item>*</item>
-      <!-- <item>/</item>//-->
-      <item>%</item>
-      <item>||</item>
-      <item>//</item>
-      <item>&amp;&amp;</item>
-      <item>|</item>
-      <item>&amp;</item>
-      <item>&lt;</item>
-      <item>&lt;&lt;</item>
-      <item>&gt;</item>
-      <item>&gt;&gt;</item>
-      <item>^</item>
-      <item>-&gt;</item>
-      <item>=&gt;</item>
-      <item>.</item>
-      <item>,</item>
-      <item>;</item>
-      <item>::</item>
-      <item>\</item>
       <item>and</item>
       <item>or</item>
       <item>not</item>
@@ -242,7 +213,6 @@
       <item>readline</item>
       <item>readlink</item>
       <item>recv</item>
-      <item>redo</item>
       <item>ref</item>
       <item>rename</item>
       <item>require</item>
@@ -339,25 +309,27 @@
     </list>
     <contexts>
       <context name="normal" attribute="Normal Text" lineEndContext="#stay">
-        <RegExpr attribute="Keyword" context="#stay" String="^#!\/.*" column="0" />
+        <DetectSpaces />
+
         <StringDetect attribute="Keyword" context="data_handle" String="__DATA__" firstNonSpace="true" />
         <StringDetect attribute="Keyword" context="#stay" String="__END__" firstNonSpace="true"/>
         <RegExpr attribute="Keyword" context="sub_name_def" String="\bsub\s+" />
         <keyword attribute="Keyword" context="#stay" String="keywords" />
+        <keyword attribute="Control Flow" context="#stay" String="control_flow" />
         <keyword attribute="Operator" context="#stay" String="operators" />
         <keyword attribute="Function" context="#stay" String="functions" />
         <keyword attribute="Pragma" context="#stay" String="pragmas" />
         <RegExpr attribute="Pod" context="pod" String="^\=\w+(\s|$)" column="0" beginRegion="POD"/>
-        <DetectSpaces />
+
+        <RegExpr attribute="Keyword" context="#stay" String="^#!/.*" column="0" />
         <DetectChar attribute="Comment" context="comment" char="#" />
 
         <!-- Numeric values. Note that we have to allow underscores between two digits (thus the creepy regular expressions). -->
-        <RegExpr attribute="Hex" String="\b\-?0[xX]([0-9a-fA-F]|_[0-9a-fA-F])+" context="slash_safe_escape"/>
-        <RegExpr attribute="Bin" String="\b\-?0[bB]([01]|_[01])+" context="slash_safe_escape"/>
-        <RegExpr attribute="Octal" String="\b\-?0[1-7]([0-7]|_[0-7])*" context="slash_safe_escape"/>
-        <RegExpr attribute="Float" String="\b\-?[0-9]([0-9]|_[0-9])*\.[0-9]([0-9]|_[0-9])*([eE]\-?[1-9]([0-9]|_[0-9])*(\.[0-9]*)?)?" context="slash_safe_escape"/>
-        <RegExpr attribute="Decimal" String="\b\-?[1-9]([0-9]|_[0-9])*\b" context="slash_safe_escape"/>
-        <Int attribute="Decimal" context="slash_safe_escape" />
+        <RegExpr attribute="Float" String="\b\-?((0+|[1-9][_0-9]*)(\.([_0-9]*([eE][-+]?_*[0-9][_0-9]*)?)?|[eE][-+]?_*[0-9][_0-9]*)|0[xX]_*[0-9a-fA-F][_0-9a-fA-F]*[pP][-+]?[0-9][_0-9]*)" context="slash_safe_escape"/>
+        <RegExpr attribute="Hex" String="\b\-?0[xX]_*[0-9a-fA-F][_0-9a-fA-F]*" context="slash_safe_escape"/>
+        <RegExpr attribute="Bin" String="\b\-?0[bB]_*[01][_01]*" context="slash_safe_escape"/>
+        <RegExpr attribute="Octal" String="\b\-?0_*[1-7][_0-7]*" context="slash_safe_escape"/>
+        <RegExpr attribute="Decimal" String="\b\-?([1-9][_0-9]*|0+)" context="slash_safe_escape"/>
 
         <!-- Allow strings as scalar references (ex: \'string') (see bug #348765). -->
         <!-- <RegExpr attribute="Normal Text" context="#stay" String="\\([&quot;'])[^\1]" /> -->
@@ -370,10 +342,10 @@
 
         <RegExpr attribute="Keyword" context="#stay" String="&lt;[A-Z0-9_]+&gt;" />
 
-        <RegExpr attribute="Operator" context="find_here_document" String="\s*&lt;&lt;(?=\w+|\s*[&quot;'])" beginRegion="HereDocument" />
+        <RegExpr attribute="Operator" context="find_here_document" String="&lt;&lt;(?=\w+|\s*[&quot;'])" beginRegion="HereDocument" />
 
-        <RegExpr attribute="Normal Text" context="#stay" String="\s*\}\s*/{1,2}" endRegion="Block"/>
-        <RegExpr attribute="Normal Text" context="#stay" String="\s*[)\]]\s*/{1,2}" />
+        <RegExpr attribute="Normal Text" context="#stay" String="\}\s*/{1,2}" endRegion="Block"/>
+        <RegExpr attribute="Normal Text" context="#stay" String="[)\]]\s*/{1,2}" />
 
         <RegExpr attribute="Function" context="sub_name_def" String="\w+::" />
         <RegExpr attribute="Normal Text" context="#stay" String="\w+[=]" />
@@ -385,6 +357,8 @@
         <RegExpr attribute="Operator" context="find_pattern" String="\b(?:m|qr)(?=\s*[^\w\s\]})])" />
 
         <RegExpr attribute="Normal Text" context="#stay" String="[\w_]+\s*//?\=?|[&lt;&gt;&quot;':]//?\=?" />
+        <DetectIdentifier/>
+
         <!-- Avoid conflicts between operators / and // -->
         <StringDetect attribute="Normal Text" context="#stay" String="//=" />
         <Detect2Chars attribute="Normal Text" context="#stay" char="/" char1="/" />
@@ -426,11 +400,14 @@
       </context>
 
       <!-- ====== Contexts for strings ===== -->
-      <context name="ipstring_internal" attribute="String (interpolated)" lineEndContext="#stay">
-        <DetectIdentifier />
+      <context name="ipstring_internal_without_identifier" attribute="String (interpolated)" lineEndContext="#stay">
         <RegExpr attribute="String Special Character" context="#stay" String="\\c[^\s\\]|\\g(\{(\w+|\-\d+)\}|\d+)|\\k(\{\w+\}|&lt;\w+&gt;|'\w+')|\\N\{[^\{\}]*\}|\\o\{[0-7]+\}|\\[pP](\{\w+\}|P)|\\x([0-9a-fA-F]{2}|\{[0-9a-fA-F]+\})|\\[0-7]{3}|\\[1aAbBdDeEfFGhHKlLnNQrRsStuUvVwWXzZ]" />
         <RegExpr attribute="String (interpolated)" context="#stay" String="\\." />
         <RegExpr attribute="Normal Text" context="find_variable_unsafe" String="(?:[\$@]\S|%([\w\{\-\+!]|\^H))" lookAhead="true" />
+      </context>
+      <context name="ipstring_internal" attribute="String (interpolated)" lineEndContext="#stay">
+        <DetectIdentifier />
+        <IncludeRules context="ipstring_internal_without_identifier" />
       </context>
       <context name="ip_string" attribute="String (interpolated)" lineEndContext="#stay">
         <DetectChar attribute="Operator" context="#pop" char="&quot;" endRegion="String"/>
@@ -506,7 +483,7 @@
 
       <!-- ====== contexts for  s/// ====== -->
       <context name="find_subst" attribute="Normal Text" lineEndContext="#stay" >
-        <RegExpr attribute="Comment" context="#stay" String="\s+#.*" /><!-- s # == comment, look for the delim on the next line -->
+        <RegExpr attribute="Comment" context="comment" String="\s+#" /><!-- s # == comment, look for the delim on the next line -->
         <DetectChar attribute="Operator" context="subst_curlybrace_pattern" char="{" beginRegion="Pattern" />
         <DetectChar attribute="Operator" context="subst_paren_pattern" char="(" beginRegion="Pattern" />
         <DetectChar attribute="Operator" context="subst_bracket_pattern" char="[" beginRegion="Pattern" />
@@ -521,23 +498,9 @@
       <context name="subst_curlybrace_pattern" attribute="Pattern" lineEndContext="#stay">
         <RegExpr attribute="Comment" context="#stay" String="\s+#.*$" />
         <IncludeRules context="regex_pattern_internal_ip" />
-        <DetectChar attribute="Operator" context="subst_curlybrace_middle" char="}" endRegion="Pattern" />
+        <DetectChar attribute="Operator" context="subst_middle" char="}" endRegion="Pattern" />
         <!-- Recursive brackets. Avoid closing brackets incorrectly (bug #364866). -->
         <DetectChar attribute="Pattern" context="subst_curlybrace_pattern_recursive" char="{" />
-      </context>
-      <context name="subst_curlybrace_middle" attribute="Normal Text" lineEndContext="#stay" >
-        <DetectChar attribute="Comment" context="comment" char="#" />
-        <DetectChar attribute="Operator" context="subst_curlybrace_replace" char="{" beginRegion="Replacement" />
-      </context>
-      <context name="subst_curlybrace_replace" attribute="String (interpolated)" lineEndContext="#stay">
-        <IncludeRules context="ipstring_internal" />
-        <DetectChar attribute="Normal Text" context="subst_curlybrace_replace_recursive" char="{" beginRegion="Block" />
-        <RegExpr attribute="Operator" context="#pop#pop#pop#pop" String="\}[cegimosx]*" endRegion="Replacement" />
-      </context>
-      <context name="subst_curlybrace_replace_recursive" attribute="String (interpolated)" lineEndContext="#stay" >
-        <DetectChar attribute="String (interpolated)" context="subst_curlybrace_replace_recursive" char="{" beginRegion="Block" />
-        <DetectChar attribute="Normal Text" context="#pop" char="}" endRegion="Block" />
-        <IncludeRules context="ipstring_internal" />
       </context>
       <context name="subst_curlybrace_pattern_recursive" attribute="Pattern" lineEndContext="#stay">
         <DetectChar attribute="Pattern" context="#pop" char="}" />
@@ -548,52 +511,97 @@
         <DetectChar attribute="Comment" context="#pop!comment" char="#" />
       </context>
 
+      <!-- Fully parse s () (). -->
       <context name="subst_paren_pattern" attribute="Pattern" lineEndContext="#stay">
         <DetectSpaces attribute="Pattern" context="subst_maybe_comment" />
-        <DetectChar attribute="Operator" context="subst_paren_replace" char=")" endRegion="Pattern" />
+        <DetectChar attribute="Operator" context="subst_middle" char=")" endRegion="Pattern" />
         <!-- Round brackets of RegExp pattern inside -->
         <DetectChar attribute="Pattern Internal Operator" context="subst_paren_pattern_internal_recursive" char="(" />
         <IncludeRules context="regex_pattern_internal_ip" />
-      </context>
-      <context name="subst_paren_replace" attribute="String (interpolated)" lineEndContext="#stay">
-        <IncludeRules context="ipstring_internal" />
-        <DetectChar attribute="Operator" context="#stay" char="(" beginRegion="Replacement" />
-        <RegExpr attribute="Operator" context="#pop#pop#pop" String="\)[cegimosx]*" endRegion="Replacement" />
       </context>
       <context name="subst_paren_pattern_internal_recursive" attribute="Pattern" lineEndContext="#stay">
         <DetectChar attribute="Pattern Internal Operator" context="#pop" char=")" />
         <IncludeRules context="subst_paren_pattern" />
       </context>
 
+      <!-- Fully parse s [] []. -->
       <context name="subst_bracket_pattern" attribute="Pattern" lineEndContext="#stay">
         <DetectSpaces attribute="Pattern" context="subst_maybe_comment" />
         <IncludeRules context="regex_pattern_internal_ip" />
-        <DetectChar attribute="Operator" context="subst_bracket_replace" char="]" endRegion="Pattern" />
-      </context>
-      <context name="subst_bracket_replace" attribute="String (interpolated)" lineEndContext="#stay">
-        <IncludeRules context="ipstring_internal" />
-        <DetectChar attribute="Operator" context="#stay" char="[" beginRegion="Replacement" />
-        <RegExpr attribute="Operator" context="#pop#pop#pop" String="\][cegimosx]*" endRegion="Replacement" />
+        <DetectChar attribute="Operator" context="subst_middle" char="]" endRegion="Pattern" />
       </context>
 
+      <context name="subst_middle" attribute="Normal Text" lineEndContext="#stay" >
+        <DetectChar attribute="Comment" context="comment" char="#" />
+        <DetectChar attribute="Operator" context="subst_curlybrace_replace" char="{" beginRegion="Replacement" />
+        <DetectChar attribute="Operator" context="subst_bracket_replace" char="[" beginRegion="Replacement" />
+        <DetectChar attribute="Operator" context="subst_paren_replace" char="(" beginRegion="Replacement" />
+        <DetectChar attribute="Operator" context="#pop!subst_sq_replace" char="'" beginRegion="Replacement" />
+        <DetectSpaces/>
+        <RegExpr attribute="Operator" context="#pop!subst_slash_replace" String="([^\w])" beginRegion="Replacement" />
+        <!-- partially buggy if the character is in a set, a variable, etc. -->
+        <RegExpr attribute="Operator" context="#pop!subst_any_replace" String="(.)" beginRegion="Replacement" />
+      </context>
+      <context name="subst_any_replace" attribute="String (interpolated)" lineEndContext="#stay" dynamic="true">
+        <RegExpr attribute="Operator" context="#pop#pop#pop" String="%1&subst_flags;" dynamic="true" endRegion="Replacement" />
+        <IncludeRules context="ipstring_internal_without_identifier" />
+      </context>
+
+      <!-- {} replacement -->
+      <context name="subst_curlybrace_replace" attribute="String (interpolated)" lineEndContext="#stay">
+        <IncludeRules context="ipstring_internal" />
+        <DetectChar attribute="Normal Text" context="subst_curlybrace_replace_recursive" char="{" beginRegion="Block" />
+        <RegExpr attribute="Operator" context="#pop#pop#pop#pop" String="\}&subst_flags;" endRegion="Replacement" />
+      </context>
+      <context name="subst_curlybrace_replace_recursive" attribute="String (interpolated)" lineEndContext="#stay" >
+        <DetectChar attribute="String (interpolated)" context="subst_curlybrace_replace_recursive" char="{" beginRegion="Block" />
+        <DetectChar attribute="Normal Text" context="#pop" char="}" endRegion="Block" />
+        <IncludeRules context="ipstring_internal" />
+      </context>
+
+      <!-- () replacement -->
+      <context name="subst_paren_replace" attribute="String (interpolated)" lineEndContext="#stay">
+        <IncludeRules context="ipstring_internal" />
+        <DetectChar attribute="Normal Text" context="subst_paren_replace_recursive" char="(" beginRegion="Block" />
+        <RegExpr attribute="Operator" context="#pop#pop#pop#pop" String="\)&subst_flags;" endRegion="Replacement" />
+      </context>
+      <context name="subst_paren_replace_recursive" attribute="String (interpolated)" lineEndContext="#stay" >
+        <DetectChar attribute="String (interpolated)" context="subst_paren_replace_recursive" char="(" beginRegion="Block" />
+        <DetectChar attribute="Normal Text" context="#pop" char=")" endRegion="Block" />
+        <IncludeRules context="ipstring_internal" />
+      </context>
+
+      <!-- [] replacement -->
+      <context name="subst_bracket_replace" attribute="String (interpolated)" lineEndContext="#stay">
+        <IncludeRules context="ipstring_internal" />
+        <DetectChar attribute="Normal Text" context="subst_bracket_replace_recursive" char="[" beginRegion="Block" />
+        <RegExpr attribute="Operator" context="#pop#pop#pop#pop" String="\]&subst_flags;" endRegion="Replacement" />
+      </context>
+      <context name="subst_bracket_replace_recursive" attribute="String (interpolated)" lineEndContext="#stay" >
+        <DetectChar attribute="String (interpolated)" context="subst_bracket_replace_recursive" char="[" beginRegion="Block" />
+        <DetectChar attribute="Normal Text" context="#pop" char="]" endRegion="Block" />
+        <IncludeRules context="ipstring_internal" />
+      </context>
+
+      <!-- Fully parse s / / /. -->
       <context name="subst_slash_pattern" attribute="Pattern" lineEndContext="#stay" dynamic="true">
         <RegExpr attribute="Pattern Internal Operator" context="#stay" String="\$(?=%1)" dynamic="true" />
         <RegExpr attribute="Operator" context="subst_slash_replace" String="(%1)" dynamic="true" endRegion="Pattern" beginRegion="Replacement" />
         <IncludeRules context="regex_pattern_internal_ip" />
       </context>
       <context name="subst_slash_replace" attribute="String (interpolated)" lineEndContext="#stay" dynamic="true">
-        <RegExpr attribute="Operator" context="#pop#pop#pop" String="%1[cegimosx]*" dynamic="true" endRegion="Replacement" />
+        <RegExpr attribute="Operator" context="#pop#pop#pop" String="%1&subst_flags;" dynamic="true" endRegion="Replacement" />
         <IncludeRules context="ipstring_internal" />
-
       </context>
 
+      <!-- Fully parse s ' ' '. -->
       <context name="subst_sq_pattern" attribute="Pattern" lineEndContext="#stay">
         <DetectSpaces attribute="Pattern" context="subst_maybe_comment" />
         <IncludeRules context="regex_pattern_internal" />
         <DetectChar attribute="Operator" context="subst_sq_replace" char="'" endRegion="Pattern" beginRegion="Pattern" />
       </context>
       <context name="subst_sq_replace" attribute="String" lineEndContext="#stay">
-        <RegExpr attribute="Operator" context="#pop#pop#pop" String="'[cegimosx]*" endRegion="Replacement" />
+        <RegExpr attribute="Operator" context="#pop#pop#pop" String="'&subst_flags;" endRegion="Replacement" />
       </context>
 
       <context name="tr" attribute="Pattern" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop" >
@@ -715,14 +723,11 @@
         <AnyChar attribute="Operator" context="#pop" String="$@%*" />
       </context>
       <context name="var_detect"  attribute="Data Type" lineEndContext="#pop#pop" fallthrough="true" fallthroughContext="#pop#pop">
-        <IncludeRules context="var_detect_rules" />
+        <IncludeRules context="var_detect_unsafe" />
         <IncludeRules context="slash_safe_escape" />
       </context>
       <context name="var_detect_unsafe"  attribute="Data Type" lineEndContext="#pop#pop" fallthrough="true" fallthroughContext="#pop#pop">
-        <IncludeRules context="var_detect_rules" />
-      </context>
-      <context name="var_detect_rules" attribute="Data Type" lineEndContext="#pop#pop" >
-        <RegExpr attribute="Data Type" context="#stay" String="[\w_]+" />
+        <RegExpr attribute="Data Type" context="#stay" String="(?&lt;![0-9])[\w_]+" />
         <Detect2Chars attribute="Normal Text" context="#stay" char=":" char1=":" />
         <DetectChar attribute="Operator" context="#stay" char="'" />
         <Detect2Chars attribute="Normal Text" context="#stay" char="-" char1="&gt;" />
@@ -799,9 +804,10 @@
       </context>
 
       <context name="sub_name_def" attribute="Normal Text" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <DetectChar attribute="Normal Text" context="sub_arg_definition" char="(" />
         <RegExpr attribute="Function" context="#stay" String="\w+" />
         <RegExpr attribute="Normal Text" context="find_variable" String="\$\S" lookAhead="true" />
-        <RegExpr attribute="Normal Text" context="sub_arg_definition" String="\s*\(" />
         <Detect2Chars attribute="Normal Text" context="#stay" char=":" char1=":" />
       </context>
 
@@ -829,6 +835,7 @@
     </contexts>
     <itemDatas>
       <itemData name="Normal Text"               defStyleNum="dsNormal" />
+      <itemData name="Control Flow"              defStyleNum="dsControlFlow" spellChecking="false"/>
       <itemData name="Keyword"                   defStyleNum="dsKeyword" spellChecking="false"/>
       <itemData name="Pragma"                    defStyleNum="dsKeyword" spellChecking="false"/>
       <itemData name="Function"                  defStyleNum="dsFunction" spellChecking="false"/>

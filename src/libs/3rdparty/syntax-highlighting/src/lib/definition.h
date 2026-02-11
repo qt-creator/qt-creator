@@ -24,23 +24,26 @@ class KeywordList;
 
 class DefinitionData;
 
-/**
+/*!
  * Defines the insert position when commenting code.
- * @since 5.50
- * @see Definition::singleLineCommentPosition()
+ *
+ * \since 5.50
+ * \sa Definition::singleLineCommentPosition()
+ *
+ * \value StartOfLine
+ * \value AfterWhitespace
  */
 enum class CommentPosition {
-    //! The comment marker is inserted at the beginning of a line at column 0
     StartOfLine = 0,
-    //! The comment marker is inserted after leading whitespaces right befire
-    //! the first non-whitespace character.
     AfterWhitespace
 };
 
-/**
- * Represents a syntax definition.
+/*!
+ * \class KSyntaxHighlighting::Definition
+ * \inheaderfile KSyntaxHighlighting/Definition
+ * \inmodule KSyntaxHighlighting
  *
- * @section def_intro Introduction to Definitions
+ * Represents a syntax definition.
  *
  * A Definition is the short term for a syntax highlighting definition. It
  * typically is defined in terms of an XML syntax highlighting file, containing
@@ -48,12 +51,10 @@ enum class CommentPosition {
  * highlighting of keywords, information about code folding regions, and
  * indentation preferences.
  *
- * @section def_info General Header Data
- *
  * Each Definition contains a non-translated unique name() and a section().
  * In addition, for putting this information e.g. into menus, the functions
  * translatedName() and translatedSection() are provided. However, if isHidden()
- * returns @e true, the Definition should not be visible in the UI. The location
+ * returns \c true, the Definition should not be visible in the UI. The location
  * of the Definition can be obtained through filePath(), which either is the
  * location on disk or a path to a compiled-in Qt resource.
  *
@@ -62,8 +63,6 @@ enum class CommentPosition {
  * wildcards that need to be matched against the filename of the file that
  * requires highlighting. If multiple Definition%s match the file, then the one
  * with higher priority() wins.
- *
- * @section def_metadata Advanced Definition Data
  *
  * Advanced text editors such as Kate require additional information from a
  * Definition. For instance, foldingEnabled() defines whether a Definition has
@@ -76,178 +75,192 @@ enum class CommentPosition {
  * the rule IncludeRules, which is useful for displaying all Format items for
  * color configuration in the user interface.
  *
- * @see Repository
- * @since 5.28
+ * \sa Repository
+ * \since 5.28
  */
 class KSYNTAXHIGHLIGHTING_EXPORT Definition
 {
     Q_GADGET
+
+    /*!
+     * \property KSyntaxHighlighting::Definition::name
+     */
     Q_PROPERTY(QString name READ name)
+
+    /*!
+     * \property KSyntaxHighlighting::Definition::translatedName
+     */
     Q_PROPERTY(QString translatedName READ translatedName)
+
+    /*!
+     * \property KSyntaxHighlighting::Definition::section
+     */
     Q_PROPERTY(QString section READ section)
+
+    /*!
+     * \property KSyntaxHighlighting::Definition::translatedSection
+     */
     Q_PROPERTY(QString translatedSection READ translatedSection)
+
+    /*!
+     * \property KSyntaxHighlighting::Definition::author
+     */
     Q_PROPERTY(QString author READ author)
+
+    /*!
+     * \property KSyntaxHighlighting::Definition::license
+     */
     Q_PROPERTY(QString license READ license)
 public:
-    /**
+    /*!
      * Default constructor, creating an empty (invalid) Definition instance.
-     * isValid() for this instance returns @e false.
+     * isValid() for this instance returns \c false.
      *
      * Use the Repository instead to obtain valid instances.
      */
     Definition();
 
-    /**
+    /*!
      * Move constructor.
-     * This definition takes the Definition data from @p other.
-     * @note @p other may only be assigned to or destroyed afterwards.
-     * @since 5.86
+     * This definition takes the Definition data from \a other.
+     *
+     * \note \a other may only be assigned to or destroyed afterwards.
+     * \since 5.86
      */
     Definition(Definition &&other) noexcept;
 
-    /**
+    /*!
      * Copy constructor.
-     * Both this definition as well as @p other share the Definition data.
+     *
+     * Both this definition as well as \a other share the Definition data.
      */
     Definition(const Definition &other);
 
-    /**
-     * Destructor.
-     */
     ~Definition();
 
-    /**
+    /*!
      * Move assignment operator.
-     * This definition takes the Definition data from @p other.
-     * @note @p other may only be assigned to or destroyed afterwards.
-     * @since 5.86
+     *
+     * This definition takes the Definition data from \a other.
+     *
+     * \note \a other may only be assigned to or destroyed afterwards.
+     * \since 5.86
      */
     Definition &operator=(Definition &&other) noexcept;
 
-    /**
+    /*!
      * Copy assignment operator.
-     * Both this definition as well as @p rhs share the Definition data.
+     *
+     * Both this definition as well as \a rhs share the Definition data.
      */
     Definition &operator=(const Definition &rhs);
 
-    /**
+    /*!
      * Checks two definitions for equality.
      */
     bool operator==(const Definition &other) const;
 
-    /**
+    /*!
      * Checks two definitions for inequality.
      */
     bool operator!=(const Definition &other) const;
 
-    /**
-     * @name General Header Data
-     *
-     * @{
-     */
-
-    /**
+    /*!
      * Checks whether this object refers to a valid syntax definition.
      */
     bool isValid() const;
 
-    /**
+    /*!
      * Returns the full path to the definition XML file containing
      * the syntax definition. Note that this can be a path to QRC content.
      */
     QString filePath() const;
 
-    /** Name of the syntax.
+    /*! Name of the syntax.
      *  Used for internal references, prefer translatedName() for display.
      */
     QString name() const;
 
-    /**
+    /*!
      * Alternate names the syntax can be referred to by.
      *
-     * @since 6.1
+     * \since 6.1
      */
     QStringList alternativeNames() const;
 
-    /**
+    /*!
      * Translated name for display.
      */
     QString translatedName() const;
 
-    /**
+    /*!
      * The group this syntax definition belongs to.
      * For display, consider translatedSection().
      */
     QString section() const;
 
-    /**
+    /*!
      * Translated group name for display.
      */
     QString translatedSection() const;
 
-    /**
+    /*!
      * Mime types associated with this syntax definition.
      */
     QList<QString> mimeTypes() const;
 
-    /**
+    /*!
      * File extensions associated with this syntax definition.
      * The returned list contains wildcards.
      */
     QList<QString> extensions() const;
 
-    /**
+    /*!
      * Returns the definition version.
      */
     int version() const;
 
-    /**
+    /*!
      * Returns the definition priority.
      * A Definition with higher priority wins over Definitions with lower priorities.
      */
     int priority() const;
 
-    /**
-     * Returns @c true if this is an internal definition that should not be
+    /*!
+     * Returns \c true if this is an internal definition that should not be
      * displayed to the user.
      */
     bool isHidden() const;
 
-    /**
+    /*!
      * Generalized language style, used for indentation.
      */
     QString style() const;
 
-    /**
+    /*!
      * Indentation style to be used for this syntax.
      */
     QString indenter() const;
 
-    /**
+    /*!
      * Name and email of the author of this syntax definition.
      */
     QString author() const;
 
-    /**
+    /*!
      * License of this syntax definition.
      */
     QString license() const;
 
-    /**
-     * @}
-     *
-     * @name Advanced Definition Data
-     */
-
-    /**
-     * Returns whether the character @p c is a word delimiter.
+    /*!
+     * Returns whether the character \a c is a word delimiter.
      * A delimiter defines whether a characters is a word boundary. Internally,
      * delimiters are used for matching keyword lists. As example, typically the
      * dot '.' is a word delimiter. However, if you have a keyword in a keyword
      * list that contains a dot, you have to add the dot to the
-     * @e weakDeliminator attribute of the @e general section in your
+     * weakDeliminator attribute of the general section in your
      * highlighting definition. Similarly, sometimes additional delimiters are
-     * required, which can be specified in @e additionalDeliminator.
+     * required, which can be specified in additionalDeliminator.
      *
      * Checking whether a character is a delimiter is useful for instance if
      * text is selected with double click. Typically, the whole word should be
@@ -256,92 +269,92 @@ public:
      * implement text selection in such a way that keyword lists are correctly
      * selected.
      *
-     * @note By default, the list of delimiters contains the following
+     * \note By default, the list of delimiters contains the following
      *       characters: \\t !%&()*+,-./:;<=>?[\\]^{|}~
      *
-     * @since 5.50
-     * @see isWordWrapDelimiter()
+     * \since 5.50
+     * \sa isWordWrapDelimiter()
      */
     bool isWordDelimiter(QChar c) const;
 
-    /**
-     * Returns whether it is safe to break a line at before the character @c.
+    /*!
+     * Returns whether it is safe to break a line at before the character \c.
      * This is useful when wrapping a line e.g. by applying static word wrap.
      *
      * As example, consider the LaTeX code
-     * @code
+     * \code
      * \command1\command2
-     * @endcode
+     * \endcode
      * Applying static word wrap could lead to the following code:
-     * @code
+     * \code
      * \command1\
      * command2
-     * @endcode
+     * \endcode
      * command2 without a leading backslash is invalid in LaTeX. If '\\' is set
      * as word wrap delimiter, isWordWrapDelimiter('\\') then returns true,
-     * meaning that it is safe to break the line before @c. The resulting code
+     * meaning that it is safe to break the line before \c. The resulting code
      * then would be
-     * @code
+     * \code
      * \command1
      * \command2
-     * @endcode
+     * \endcode
      *
-     * @note By default, the word wrap delimiters are equal to the word
+     * \note By default, the word wrap delimiters are equal to the word
      *       delimiters in isWordDelimiter().
      *
-     * @since 5.50
-     * @see isWordDelimiter()
+     * \since 5.50
+     * \sa isWordDelimiter()
      */
     bool isWordWrapDelimiter(QChar c) const;
 
-    /**
+    /*!
      * Returns whether the highlighting supports code folding.
      * Code folding is supported either if the highlighting defines code folding
-     * regions or if indentationBasedFoldingEnabled() returns @e true.
-     * @since 5.50
-     * @see indentationBasedFoldingEnabled()
+     * regions or if indentationBasedFoldingEnabled() returns \c true.
+     * \since 5.50
+     * \sa indentationBasedFoldingEnabled()
      */
     bool foldingEnabled() const;
 
-    /**
+    /*!
      * Returns whether indentation-based folding is enabled.
      * An example for indentation-based folding is Python.
      * When indentation-based folding is enabled, make sure to also check
      * foldingIgnoreList() for lines that should be treated as empty.
      *
-     * @see foldingIgnoreList(), State::indentationBasedFoldingEnabled()
+     * \sa foldingIgnoreList(), State::indentationBasedFoldingEnabled()
      */
     bool indentationBasedFoldingEnabled() const;
 
-    /**
-     * If indentationBasedFoldingEnabled() returns @c true, this function returns
+    /*!
+     * If indentationBasedFoldingEnabled() returns \c true, this function returns
      * a list of regular expressions that represent empty lines. That is, all
      * lines matching entirely one of the regular expressions should be treated
      * as empty lines when calculating the indentation-based folding ranges.
      *
-     * @note This list is only of relevance, if indentationBasedFoldingEnabled()
-     *       returns @c true.
+     * \note This list is only of relevance, if indentationBasedFoldingEnabled()
+     *       returns \c true.
      *
-     * @see indentationBasedFoldingEnabled()
+     * \sa indentationBasedFoldingEnabled()
      */
     QStringList foldingIgnoreList() const;
 
-    /**
+    /*!
      * Returns the section names of keywords.
-     * @since 5.49
-     * @see keywordList()
+     * \since 5.49
+     * \sa keywordList()
      */
     QStringList keywordLists() const;
 
-    /**
-     * Returns the list of keywords for the keyword list @p name.
-     * @since 5.49
-     * @see keywordLists(), setKeywordList()
+    /*!
+     * Returns the list of keywords for the keyword list \a name.
+     * \since 5.49
+     * \sa keywordLists(), setKeywordList()
      */
     QStringList keywordList(const QString &name) const;
 
-    /**
-     * Set the contents of the keyword list @p name to @p content.
+    /*!
+     * Set the contents of the keyword list \a name to \a content.
      * Only existing keywordLists() can be changed. For non-existent keyword lists,
      * false is returned.
      *
@@ -349,65 +362,61 @@ public:
      * your documents. In case you are using QSyntaxHighlighter via SyntaxHighlighter,
      * this can be done by calling SyntaxHighlighter::rehighlight().
      *
-     * @note In general, changing keyword lists via setKeywordList() is discouraged,
+     * \note In general, changing keyword lists via setKeywordList() is discouraged,
      *       since if a keyword list name in the syntax highlighting definition
      *       file changes, the call setKeywordList() may suddenly fail.
      *
-     * @see keywordList(), keywordLists()
-     * @since 5.62
+     * \sa keywordList(), keywordLists()
+     * \since 5.62
      */
     bool setKeywordList(const QString &name, const QStringList &content);
 
-    /**
+    /*!
      * Returns a list of all Format items used by this definition.
      * The order of the Format items equals the order of the itemDatas in the xml file.
-     * @since 5.49
+     * \since 5.49
      */
     QList<Format> formats() const;
 
-    /**
+    /*!
      * Returns a list of Definitions that are referenced with the IncludeRules rule.
      * The returned list does not include this Definition. In case no other
      * Definitions are referenced via IncludeRules, the returned list is empty.
      *
-     * @since 5.49
+     * \since 5.49
      */
     QList<Definition> includedDefinitions() const;
 
-    /**
+    /*!
      * Returns the marker that starts a single line comment.
      * For instance, in C++ the single line comment marker is "//".
-     * @since 5.50
-     * @see singleLineCommentPosition();
+     * \since 5.50
+     * \sa singleLineCommentPosition()
      */
     QString singleLineCommentMarker() const;
 
-    /**
+    /*!
      * Returns the insert position of the comment marker for sinle line
      * comments.
-     * @since 5.50
-     * @see singleLineCommentMarker();
+     * \since 5.50
+     * \sa singleLineCommentMarker()
      */
     CommentPosition singleLineCommentPosition() const;
 
-    /**
+    /*!
      * Returns the markers that start and end multiline comments.
      * For instance, in XML this is defined as "<!--" and "-->".
-     * @since 5.50
+     * \since 5.50
      */
     QPair<QString, QString> multiLineCommentMarker() const;
 
-    /**
+    /*!
      * Returns a list of character/string mapping that can be used for spell
      * checking. This is useful for instance when spell checking LaTeX, where
      * the string \"{A} represents the character Ä.
-     * @since 5.50
+     * \since 5.50
      */
     QList<QPair<QChar, QString>> characterEncodings() const;
-
-    /**
-     * @}
-     */
 
 private:
     friend class DefinitionData;

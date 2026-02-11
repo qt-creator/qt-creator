@@ -98,6 +98,7 @@ public:
 
     void addInterpreter(const PythonSettings::Interpreter &interpreter);
     void removeInterpreterFrom(const QString &detectionSource);
+    void setInterpreters(const QList<PythonSettings::Interpreter> &interpreters);
     QList<PythonSettings::Interpreter> interpreters() const;
     QList<PythonSettings::Interpreter> interpreterFrom(const QString &detectionSource) const;
 };

@@ -153,6 +153,8 @@ ToolsSettingsWidget::ToolsSettingsWidget()
     connect(addButton, &QPushButton::clicked, &m_model, &ToolsModel::addMesonTool);
     connect(m_cloneButton, &QPushButton::clicked, this, &ToolsSettingsWidget::cloneMesonTool);
     connect(m_removeButton, &QPushButton::clicked, this, &ToolsSettingsWidget::removeMesonTool);
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void ToolsSettingsWidget::cloneMesonTool()

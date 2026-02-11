@@ -22,5 +22,6 @@
             \uicontrol {Kill Process}.
     \endlist
 
-    \sa {Develop for devices}{How to: Develop for devices}, {Devices}
+    \sa {Develop for devices}{How to: Develop for devices},
+    {Developing for devices}
 */

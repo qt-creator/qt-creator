@@ -335,7 +335,7 @@ FilePath QbsBuildStep::installRoot(VariableHandling variableHandling) const
             qbsConfiguration(variableHandling).value(Constants::QBS_INSTALL_ROOT_KEY).toString();
     if (!root.isNull())
         return FilePath::fromUserInput(root);
-    QString defaultInstallDir = QbsSettings::defaultInstallDirTemplate();
+    QString defaultInstallDir = QbsSettings::instance().defaultInstallDirTemplate();
     if (variableHandling == VariableHandling::ExpandVariables)
         defaultInstallDir = macroExpander()->expand(defaultInstallDir);
     return FilePath::fromUserInput(defaultInstallDir);
@@ -475,7 +475,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
             this, &QbsBuildStepConfigWidget::updateState);
     connect(step->qbsBuildConfiguration(), &QbsBuildConfiguration::qbsConfigurationChanged,
             this, &QbsBuildStepConfigWidget::updateState);
-    connect(&QbsSettings::instance(), &QbsSettings::settingsChanged,
+    connect(&QbsSettings::instance(), &QbsSettings::changed,
             this, &QbsBuildStepConfigWidget::updateState);
     connect(step->buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
             this, &QbsBuildStepConfigWidget::updateState);

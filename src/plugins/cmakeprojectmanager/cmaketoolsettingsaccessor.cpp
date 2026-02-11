@@ -60,10 +60,7 @@ mergeTools(std::vector<std::unique_ptr<CMakeTool>> &sdkTools,
             // also checking the actual executable.
             return userTool->id() == tool->id() && userTool->cmakeExecutable() == tool->cmakeExecutable();
         });
-        if (userToolIndex >= 0) {
-            // Replace the sdk tool with the user tool, so any user changes do not get lost
-            result[userToolIndex] = std::move(userTool);
-        } else {
+        if (userToolIndex == -1) {
             const bool wasOriginallyAutoDetected = userTool->detectionSource().isAutoDetected();
             const bool isAutoDetectedAgain = Utils::contains(
                 autoDetectedTools,

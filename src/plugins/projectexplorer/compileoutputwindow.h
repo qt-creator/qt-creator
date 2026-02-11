@@ -26,6 +26,23 @@ namespace Internal {
 class ShowOutputTaskHandler;
 class CompileOutputTextEdit;
 
+class CompileOutputColorAspect : public Utils::ColorAspect
+{
+public:
+    using Utils::ColorAspect::ColorAspect;
+
+    QVariant fromSettingsValue(const QVariant &savedValue) const override;
+};
+
+class CompileOutputMaxCharCountAspect : public Utils::IntegerAspect
+{
+public:
+    using Utils::IntegerAspect::IntegerAspect;
+
+    QVariant fromSettingsValue(const QVariant &savedValue) const override;
+    QVariant toSettingsValue(const QVariant &valueToSave) const override;
+};
+
 class CompileOutputSettings final : public Utils::AspectContainer
 {
 public:
@@ -35,8 +52,8 @@ public:
     Utils::BoolAspect wrapOutput{this};
     Utils::BoolAspect discardOutput{this};
     Utils::BoolAspect overwriteColor{this};
-    Utils::IntegerAspect maxCharCount{this};
-    Utils::ColorAspect backgroundColor{this};
+    CompileOutputMaxCharCountAspect maxCharCount{this};
+    CompileOutputColorAspect backgroundColor{this};
 };
 
 CompileOutputSettings &compileOutputSettings();

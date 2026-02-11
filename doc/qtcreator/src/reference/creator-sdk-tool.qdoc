@@ -9,8 +9,8 @@
 
     \title SDK Tool
 
-    \brief Configure CMake and set up compilers, debuggers, devices, Qt versions,
-    and kits from the command line.
+    \brief A command-line tool for configuring CMake and setting up compilers,
+    debuggers, devices, Qt versions, and kits.
 
     \l{Get and Install Qt}{\QOI} uses the SDK Tool (\c sdktool) to configure
     CMake and set \l {Managing kits}{Kit}

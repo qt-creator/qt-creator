@@ -71,7 +71,7 @@ current: bash-5.2
 
 <language
     name="Bash"
-    version="53"
+    version="54"
     kateversion="5.79"
     section="Scripts"
     extensions="*.sh;*.bash;*.ebuild;*.eclass;*.exlib;*.exheres-0;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD;APKBUILD"
@@ -1276,10 +1276,21 @@ current: bash-5.2
       </context>
 
       <!-- VarBraceStart is called as soon as ${ is encoutered -->
-      <context attribute="Variable" lineEndContext="#pop!VarBrace" name="VarBraceStart" fallthroughContext="#pop!VarBrace">
+      <context attribute="Variable" lineEndContext="SubstBraceCommand" name="VarBraceStart" fallthroughContext="#pop!VarBrace">
+        <!-- '${!}' as process ID variable, not a Parameter Expansion -->
         <StringDetect context="#pop!VarBrace" String="!}" lookAhead="1"/>
         <DetectChar attribute="Parameter Expansion Operator" context="#pop!VarBracePrefix" char="!"/>
         <DetectChar attribute="Parameter Expansion Operator" context="#pop!VarBrace" char="#"/>
+        <!-- Bash-5.3: ${ cmd; } -->
+        <DetectSpaces attribute="Normal Text" context="SubstBraceCommand"/>
+        <!-- Bash-5.3: ${|cmd;} -->
+        <DetectChar attribute="Control" context="SubstBraceCommand" char="|"/>
+      </context>
+
+      <!-- SubstBraceCommand is called after a '${ ' are '${|' are encountered -->
+      <context attribute="Normal Text" lineEndContext="#stay" name="SubstBraceCommand" fallthroughContext="Command">
+        <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
+        <IncludeRules context="Start"/>
       </context>
 
       <!-- VarBracePrefix called as soon as ${! is encoutered -->
@@ -1928,3 +1939,4 @@ current: bash-5.2
     <keywords casesensitive="1" weakDeliminator="_&weakDeliminatorSymbols;" additionalDeliminator="`"/>
   </general>
 </language>
+<!-- kate: replace-tabs on; tab-width 2; indent-width 2; -->

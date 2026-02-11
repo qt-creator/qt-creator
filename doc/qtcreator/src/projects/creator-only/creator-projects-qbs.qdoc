@@ -41,20 +41,17 @@
     \endlist
 
     \sa {Select the build system}, {Open projects},
-    {qbs-preferences}{Preferences: Qbs}, {Qbs Build Configuration},
+    {Set Qbs profile directory}, {Qbs Build Configuration},
     {Specifying Run Settings}
 */
 
 /*!
     \page creator-preferences-qbs.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-preferences
+    \ingroup creator-how-to-build
 
-    \target qbs-preferences
-    \title Qbs
-
-    \brief Set preferences for Qbs and Qbs profiles.
+    \title Set Qbs profile directory
 
     By default, Qbs profiles are stored in the \c qbs directory in the \QC
     settings directory to ensure that different \QC instances do not overwrite
@@ -83,6 +80,6 @@
             For more information, see \l{Edit Qbs profiles}.
     \endlist
 
-    \sa {Open projects}, {qbs-build-system}{Build Systems: Qbs},
+    \sa {Open projects}, {qbs-build-system}{Qbs},
     {Qbs Build Configuration}, {Specifying Run Settings}
 */

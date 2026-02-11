@@ -12,186 +12,186 @@
     integrated tools.
 
     \annotatedlist creator-reference
+*/
 
-    \section1 Analyzers
+/*!
+    \page creator-reference-analyzers.html
+    \previouspage creator-reference.html
 
-    Use integrated code analysis tools to improve your C++ or QML code.
+    \ingroup creator-reference
 
-    \details {Reference topics}
+    \title Analyzers
+
+    \summary {Code analysis tools that you can use from \QC to improve your C++
+    or QML code.}
+
     \annotatedlist creator-reference-analyzer
-    \enddetails
 
-    \section1 Build Systems
+    \sa {Analyze}{How to: Analyze}, {Analyzing code}
+*/
+
+/*!
+    \page creator-reference-build-systems.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
+
+    \title Build systems
+
+    \brief Supported build systems and build configurations.
 
     When you create projects, you can choose the build system to use for
-    building the project: CMake, qmake, Meson, or Qbs. qmake is installed and
-    configured when you install Qt. To use one of the other supported build
-    systems, you need to set it up.
+    building the project: CMake, qmake, Meson, or Qbs.
 
-    \details {Reference topics}
-    \annotatedlist creator-reference-build-systems
-    \enddetails
-
-    \section2 Build Configurations
+    qmake is installed and configured when you install Qt. To use one of the
+    other supported build systems, you need to set it up.
 
     Build configurations have everything you need to compile the sources into
     binaries. Build configurations use the tools and settings defined in their
     corresponding kit.
 
-    \details {Reference topics}
-    \annotatedlist creator-reference-build-configurations
-    \enddetails
+    \annotatedlist creator-reference-build-systems
 
-    \section1 Debuggers
+    \sa {Build and Run}{How to: Build and Run}, {Building and running projects},
+    {Managing kits}
+*/
+
+/*!
+    \page creator-reference-debuggers.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
+
+    \title Debuggers
+
+    \brief Supported debuggers.
 
     Set up and use debuggers to debug executable binary files, as well as
     QML, Java, and Python source code.
 
-    \details {Reference topics}
     \annotatedlist creator-reference-debugger
-    \enddetails
 
-    \section2 Debugger Views
+    \sa {Debug}{How to: Debug}, {Debugging}
+*/
 
-    Inspect the state of your application while debugging in the
-    \uicontrol Debug mode.
+/*!
+    \page creator-reference-deploy-settings.html
+    \previouspage creator-reference.html
 
-    \details {Reference topics}
-    \annotatedlist creator-reference-debugger-views
-    \enddetails
+    \ingroup creator-reference
 
-    \section1 Devices
+    \title Deploy settings
 
-    Connect devices to the computer to run, debug, and analyze applications
-    built for them from \QC. When you install Qt for a target platform, such
-    as Android or QNX, the build, deploy, and run configurations for the
-    development targets might be set up automatically in \QC.
+    \summary {Settings for packaging the application as an executable and copying
+    it to a location you want to run the executable at.}
 
-    \details {Reference topics}
-    \annotatedlist creator-reference-devices
-    \enddetails
-
-    \section2 Deploy Configurations
-
-    Deploy configurations handle the packaging of the application as an
-    executable and copying it to a location you want to run the executable at.
     The files can be copied to a location in the file system of the computer
     or a device.
 
-    \details {Reference topics}
     \annotatedlist creator-reference-deploy-configurations
-    \enddetails
 
-    \section2 Run Configurations
+    \sa {Run projects}{How to: Run projects}, {Running applications}
+*/
 
-    Run configurations start the application in the location where the
-    deploy configuration copied it. By default, when you select
-    \uicontrol Run, \QC builds the project, deploys it to the device
-    defined in the kit, and runs it there. If you did not make changes
-    to the project since you last built and deployed it, \QC simply runs
+/*!
+    \page creator-reference-run-settings.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
+
+    \title Run settings
+
+    \summary {Settings for starting the application in the location where the
+    deploy settings copied it.}
+
+    By default, when you select \uicontrol Run, \QC builds the project, deploys
+    it to the device defined in the kit, and runs it there. If you did not make
+    changes to the project since you last built and deployed it, \QC simply runs
     it again.
 
-    \details {Reference topics}
     \annotatedlist creator-reference-run-configurations
-    \enddetails
 
-    \section1 Editors
+    \sa {Run projects}{How to: Run projects}, {Running applications}
+*/
+
+/*!
+    \page creator-reference-editors.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
+
+    \title Editors
+
+    \brief Available editors.
 
     When you open files, \QC chooses a suitable editor according to the file
     type.
 
-    \details {Reference topics}
     \annotatedlist creator-reference-editors
-    \enddetails
 
-    \section1 Platforms
+    \sa {Edit code}{How to: Edit code}, {Editing code}
+*/
+
+/*!
+    \page creator-reference-platforms.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
+
+    \title Platforms
+
+    \brief Supported platforms.
 
     You can install and run \QC on several operating systems to create
     applications for multiple desktop, embedded, and mobile device platforms.
 
-    \details {Reference topics}
     \annotatedlist creator-reference-platforms
-    \enddetails
+*/
 
-    \section1 Preferences
+/*!
+    \page creator-reference-qt-quick-ui-design.html
+    \previouspage creator-reference.html
 
-    You can set preferences that apply globally to all projects and override
-    them for particular projects.
+    \ingroup creator-reference
 
-    \details {Reference topics}
-    \annotatedlist creator-reference-preferences
-    \enddetails
+    \title Qt Quick UI design
 
-    \section2 Analyzer
-
-    Preferences for code analysis tools.
-
-    \details {Reference topics}
-    \annotatedlist creator-reference-preferences-analyzer
-    \enddetails
-
-    \section2 C++
-
-    Preferences for editing C++ code.
-
-    \details {Reference topics}
-    \annotatedlist creator-reference-preferences-cpp
-    \enddetails
-
-    \section2 Debugger
-
-    Preferences for debugging.
-
-    \details {Reference topics}
-    \annotatedlist creator-reference-preferences-debugger
-    \enddetails
-
-    \section2 Kits
-
-    Preferences for build and run kits.
-
-    \details {Reference topics}
-    \annotatedlist creator-reference-preferences-kits
-    \enddetails
-
-    \section2 Text Editor
-
-    Preferences for the behavior and appearance of text and code editors.
-
-    \details {Reference topics}
-    \annotatedlist creator-reference-preferences-text-editor
-    \enddetails
-
-    \section1 Qt Quick UI Design
+    \brief Guidelines for designing Qt Quick based UIs.
 
     You can use \QMLD to design Qt Quick based UIs in the \uicontrol Design mode.
 
-    \details {Reference topics}
     \annotatedlist creator-reference-ui-design-qtquick
-    \enddetails
 
-    \section1 Views
+    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs},
+    {Designing Qt Quick UIs}
+*/
+
+/*!
+    \page creator-reference-views.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
+
+    \title Views
+
+    \brief \QC output and sidebar views.
 
     When you switch modes or trigger actions, \QC opens views for viewing
     output and organizing project contents.
 
-    \section2 Output views
+    \section1 Output views
 
     You can view output from several sources, such as a list of errors and
     warnings encountered during a build, detailed output from the compiler,
     status of a program when it is executed, debug output, or search results.
 
-    \details {Reference topics}
     \annotatedlist creator-reference-output-views
-    \enddetails
 
-    \section2 Sidebar Views
+    \section1 Sidebar views
 
     In some modes, you can use a left and right sidebar to organize different
     views into project contents. Only views that are relevant to the mode you
     are working in are available in it.
 
-    \details {Reference topics}
     \annotatedlist creator-reference-sidebar-views
-    \enddetails
 */

@@ -8,6 +8,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/guiutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
@@ -145,6 +146,7 @@ void ToolsModel::updateItem(const Id &itemId, const QString &name, const FilePat
 void ToolsModel::addMesonTool()
 {
     manualGroup()->appendChild(new ToolTreeItem{uniqueName(Tr::tr("New Meson"))});
+    markSettingsDirty();
 }
 
 void ToolsModel::removeMesonTool(ToolTreeItem *item)
@@ -153,6 +155,7 @@ void ToolsModel::removeMesonTool(ToolTreeItem *item)
     const Id id = item->id();
     destroyItem(item);
     m_itemsToRemove.enqueue(id);
+    markSettingsDirty();
 }
 
 ToolTreeItem *ToolsModel::cloneMesonTool(ToolTreeItem *item)
@@ -160,6 +163,7 @@ ToolTreeItem *ToolsModel::cloneMesonTool(ToolTreeItem *item)
     QTC_ASSERT(item, return nullptr);
     auto newItem = new ToolTreeItem(*item);
     manualGroup()->appendChild(newItem);
+    markSettingsDirty();
     return item;
 }
 

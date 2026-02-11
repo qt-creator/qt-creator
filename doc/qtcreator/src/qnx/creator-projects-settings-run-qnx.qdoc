@@ -24,6 +24,6 @@
     \sa {QNX Neutrino}{How to: Develop for QNX},
     {Developing for QNX Neutrino devices},
     {Manage kits}{How to: Manage kits},
-    {Remote Linux Run Settings}, {Configure projects for running},
+    {Specify remote Linux run settings}, {Configure projects for running},
     {Managing kits}
 */

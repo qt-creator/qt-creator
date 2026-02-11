@@ -26,6 +26,8 @@ public:
         auto vbox = new QVBoxLayout(this);
         vbox->addWidget(m_designerPage->createPage(nullptr));
         vbox->setContentsMargins({});
+
+        Utils::installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() { m_designerPage->apply(); }

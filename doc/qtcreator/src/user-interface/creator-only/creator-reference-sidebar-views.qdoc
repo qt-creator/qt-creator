@@ -4,6 +4,8 @@
 /*!
     \page creator-outline-view.html
     \previouspage creator-reference.html
+
+    \ingroup creator-reference-views
     \ingroup creator-reference-sidebar-views
 
     \title Outline
@@ -30,6 +32,8 @@
 /*!
     \page creator-class-view.html
     \previouspage creator-reference.html
+
+    \ingroup creator-reference-views
     \ingroup creator-reference-sidebar-views
 
     \title Class View
@@ -50,6 +54,8 @@
 /*!
     \page creator-call-hierarchy-view.html
     \previouspage creator-reference.html
+
+    \ingroup creator-reference-views
     \ingroup creator-reference-sidebar-views
 
     \title Call Hierarchy
@@ -74,6 +80,8 @@
 /*!
     \page creator-type-hierarchy.html
     \previouspage creator-reference.html
+
+    \ingroup creator-reference-views
     \ingroup creator-reference-sidebar-views
 
     \title Type Hierarchy
@@ -106,6 +114,8 @@
 /*!
     \page creator-include-hierarchy-view.html
     \previouspage creator-reference.html
+
+    \ingroup creator-reference-views
     \ingroup creator-reference-sidebar-views
 
     \title Include Hierarchy

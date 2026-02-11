@@ -162,7 +162,7 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
 
 void HelpViewer::home()
 {
-    setSource(LocalHelpManager::homePage());
+    setSource(helpSettings().homePage());
 }
 
 void HelpViewer::scaleUp()
@@ -212,16 +212,15 @@ bool HelpViewer::event(QEvent *e)
 void HelpViewer::incrementZoom(int steps)
 {
     const int incrementPercentage = 10 * steps; // 10 percent increase by single step
-    const int previousZoom = LocalHelpManager::fontZoom();
+    const int previousZoom = helpSettings().fontZoom();
     applyZoom(previousZoom + incrementPercentage);
 }
 
 void HelpViewer::applyZoom(int percentage)
 {
-    const int newZoom = LocalHelpManager::setFontZoom(percentage);
-    Utils::FadingIndicator::showText(this,
-                                     Tr::tr("Zoom: %1%").arg(newZoom),
-                                     Utils::FadingIndicator::SmallText);
+    helpSettings().fontZoom.setValue(percentage);
+    FadingIndicator::showText(this, Tr::tr("Zoom: %1%").arg(helpSettings().fontZoom()),
+                              FadingIndicator::SmallText);
 }
 
 void HelpViewer::slotLoadStarted()

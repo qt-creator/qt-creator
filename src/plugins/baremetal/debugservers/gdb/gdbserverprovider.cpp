@@ -194,8 +194,7 @@ void GdbServerProvider::fromMap(const Store &data)
 
 // GdbServerProviderConfigWidget
 
-GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
-        GdbServerProvider *provider)
+GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(GdbServerProvider *provider)
     : IDebugServerProviderConfigWidget(provider)
 {
     m_startupModeComboBox = new QComboBox(this);

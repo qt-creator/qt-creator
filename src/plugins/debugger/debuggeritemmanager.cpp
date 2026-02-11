@@ -1232,6 +1232,8 @@ public:
         m_itemConfigWidget = new DebuggerItemConfigWidget;
         m_container->setWidget(m_itemConfigWidget);
         updateButtons();
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final
@@ -1311,6 +1313,7 @@ void DebuggerSettingsPageWidget::addDebugger()
     item.setUnexpandedDisplayName(itemModel().uniqueDisplayName(Tr::tr("New Debugger")));
     auto addedItem = itemModel().addDebuggerItem(item, true);
     m_debuggerView->setCurrentIndex(mapFromSource(itemModel().indexForItem(addedItem)));
+    markSettingsDirty();
 }
 
 void DebuggerSettingsPageWidget::removeDebugger()
@@ -1320,6 +1323,7 @@ void DebuggerSettingsPageWidget::removeDebugger()
     treeItem->m_removed = !treeItem->m_removed;
     treeItem->update();
     updateButtons();
+    markSettingsDirty(); // TODO restore should maybe undo dirtying
 }
 
 void DebuggerSettingsPageWidget::currentDebuggerChanged(const QModelIndex &newCurrent)

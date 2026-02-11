@@ -511,6 +511,8 @@ QtSettingsPageWidget::QtSettingsPageWidget()
     connect(m_deviceComboBox, &QComboBox::currentIndexChanged, this, updateDevice);
     m_deviceComboBox->setCurrentIndex(0);
     updateDevice(m_deviceComboBox->currentIndex());
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 QtVersion *QtSettingsPageWidget::currentVersion() const
@@ -544,7 +546,10 @@ std::pair<bool, QString> QtSettingsPageWidget::checkAlreadyExists(
 {
     for (int i = 0; i < parent->childCount(); ++i) {
         auto item = static_cast<QtVersionItem *>(parent->childAt(i));
-        if (item->version()->qmakeFilePath() == qtVersion) {
+        const FilePath &itemPath = item->version()->qmakeFilePath();
+        if (itemPath.isSameExecutable(qtVersion)
+            || (itemPath.parentDir() == qtVersion.parentDir()
+                && itemPath.fileSize() == qtVersion.fileSize())) {
             return {true, item->version()->displayName()};
         }
     }
@@ -579,6 +584,7 @@ void QtSettingsPageWidget::cleanUpQtVersions()
     for (QtVersionItem *item : std::as_const(toRemove))
         m_model.destroyItem(item);
 
+    markSettingsDirty();
     updateCleanUpButton();
 }
 
@@ -775,6 +781,7 @@ void QtSettingsPageWidget::addQtDir()
         m_qtdirList->setCurrentIndex(mapFromSource(m_model.indexForItem(item))); // should update the rest of the ui
         m_nameEdit->setFocus();
         m_nameEdit->selectAll();
+        markSettingsDirty();
     } else {
         QMessageBox::warning(this, Tr::tr("Qmake Not Executable"),
                              Tr::tr("The qmake executable %1 could not be added: %2").arg(qtVersion.toUserOutput()).arg(error));
@@ -790,6 +797,7 @@ void QtSettingsPageWidget::removeQtDir()
         return;
 
     m_model.destroyItem(item);
+    markSettingsDirty();
 
     updateCleanUpButton();
 }
@@ -818,6 +826,7 @@ void QtSettingsPageWidget::redetect()
                 auto item = new QtVersionItem(version);
                 item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
                 m_manualItem->appendChild(item);
+                markSettingsDirty();
             }
         }
     }
@@ -857,6 +866,7 @@ void QtSettingsPageWidget::editPath()
     if (QtVersionItem *item = currentItem())
         item->setVersion(version);
 
+    markSettingsDirty();
     userChangedCurrentVersion();
 
     delete current;

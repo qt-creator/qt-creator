@@ -308,10 +308,12 @@ public:
             newParser.id = Utils::Id::generate();
             newParser.displayName = Tr::tr("New Parser");
             m_model.add(newParser);
+            markSettingsDirty();
         });
 
         connect(removeButton, &QPushButton::clicked, this, [this, parserView] {
             m_model.remove(parserView->selectionModel()->selectedRows());
+            markSettingsDirty();
         });
 
         connect(editButton, &QPushButton::clicked, this, [this, parserView] {
@@ -320,6 +322,9 @@ public:
             dlg.setSettings(s);
             if (dlg.exec() != QDialog::Accepted)
                 return;
+            if (s.error == dlg.settings().error && s.warning == dlg.settings().warning)
+                return;
+
             s.error = dlg.settings().error;
             s.warning = dlg.settings().warning;
             m_model.setData(parserView->currentIndex(), QVariant::fromValue<CustomParserSettings>(s), Qt::UserRole);
@@ -359,6 +364,7 @@ public:
             }
             for (const CustomParserSettings &parser : *parsersRead)
                 m_model.add(parser);
+            markSettingsDirty();
         });
 
         const auto updateButtons = [editButton, parserView, removeButton, exportButton, this] {
@@ -377,6 +383,9 @@ public:
         connect(parserView->selectionModel(), &QItemSelectionModel::selectionChanged,
             updateButtons);
         connect(&m_model, &QAbstractItemModel::modelReset, updateButtons);
+
+        installMarkSettingsDirtyTriggerRecursively(this);
+        connect(&m_model, &QAbstractItemModel::dataChanged, this, markSettingsDirty);
     }
 
 private:

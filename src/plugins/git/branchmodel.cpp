@@ -321,7 +321,6 @@ BranchModel::BranchModel(QObject *parent) :
     // Abuse the hash field for ref prefix
     d->rootNode->append(new BranchNode(Tr::tr("Local Branches"), "refs/heads"));
     d->rootNode->append(new BranchNode(Tr::tr("Remote Branches"), "refs/remotes"));
-    connect(&d->taskTreeRunner, &QSingleTaskTreeRunner::done, this, &BranchModel::endResetModel);
 }
 
 BranchModel::~BranchModel()
@@ -587,7 +586,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         topRevisionProc,
         ProcessTask(onForEachRefSetup, onForEachRefDone)
     };
-    d->taskTreeRunner.start(recipe);
+    d->taskTreeRunner.start(recipe, {}, [this] { endResetModel(); });
 }
 
 void BranchModel::setCurrentBranch()

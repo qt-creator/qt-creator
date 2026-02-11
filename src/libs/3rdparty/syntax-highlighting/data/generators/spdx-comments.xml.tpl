@@ -6,7 +6,7 @@
   ./generate-spdx-syntax.py > ../syntax/spdx-comments.xml
 -->
 <language
-    version="6"
+    version="7"
     kateversion="3.1"
     name="SPDX-Comments"
     section="Other"

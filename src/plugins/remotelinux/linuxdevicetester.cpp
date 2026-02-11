@@ -324,11 +324,7 @@ using namespace Internal;
 
 GenericLinuxDeviceTester::GenericLinuxDeviceTester(const IDevice::Ptr &device, QObject *parent)
     : DeviceTester(device, parent), d(new GenericLinuxDeviceTesterPrivate(this))
-{
-    connect(&d->m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [this](DoneWith result) {
-        emit finished(result == DoneWith::Success ? TestSuccess : TestFailure);
-    });
-}
+{}
 
 GenericLinuxDeviceTester::~GenericLinuxDeviceTester() = default;
 
@@ -358,7 +354,9 @@ void GenericLinuxDeviceTester::testDevice()
         d->m_extraTests,
         d->commandTasks()
     };
-    d->m_taskTreeRunner.start(recipe);
+    d->m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
+        emit finished(result == DoneWith::Success ? TestSuccess : TestFailure);
+    });
 }
 
 void GenericLinuxDeviceTester::stopTest()

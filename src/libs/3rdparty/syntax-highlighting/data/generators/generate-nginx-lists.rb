@@ -3,7 +3,7 @@
 # Generates the keyword lists for directives and variables used in nginx and
 # prints them to stdout, ready to be copy & pasted into nginx.xml.
 #
-# SPDX-FileCopyrightText: 2023 Georg Gadinger <nilsding@nilsding.org>
+# SPDX-FileCopyrightText: 2023 Jyrki Gadinger <nilsding@nilsding.org>
 # SPDX-License-Identifier: MIT
 #
 # Usage:

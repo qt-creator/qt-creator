@@ -99,6 +99,7 @@ else
   }
   $file =~ s/<language([^>]+)mimetype="[^"]*"/<language$1mimetype="$mimetype"/s;
   $file =~ s/<language([^>]+)name="([^"]*)"/<language$1name="$2\/$language"$extra/s;
+  $file =~ s/<language([^>]+)alternativeNames="([^"]*)"/<language$1alternativeNames="$2\/$language"/s;
   $file =~ s/<language([^>]+)extensions="[^"]*"/<language$1extensions="$extensions"/s;
 }
 
@@ -129,12 +130,36 @@ if ($language eq "PHP")
   $find_language = "FindPHP";
 }
 
+# add IncludeRules only when the name of the context does not start with 'Find'
+sub insert_find_language
+{
+    my $ctx = $_[0];
+
+    if (not $ctx =~ /name="Find/)
+    {
+        if ($_[1])
+        {
+            return "$ctx\n<IncludeRules context=\"$find_language\" />";
+        }
+        return "$ctx>\n<IncludeRules context=\"$find_language\" />\n</context>";
+    }
+
+    if ($_[1])
+    {
+        return $ctx;
+    }
+
+    return $ctx . '/>';
+}
+
 $file =~ s/<IncludeRules\s([^>]*)context="([^"#]*)##(?!Alerts|Comments|Doxygen|Modelines)([^"]+)"/<IncludeRules $1context="$2##$3$language_suffix"/g;
-$file =~ s/(<context\s[^>]*[^>\/]>)/$1\n<IncludeRules context="$find_language" \/>/g;
-$file =~ s/(<context\s[^>]*[^>\/])\s*\/>/$1>\n<IncludeRules context="$find_language" \/>\n<\/context>/g;
+$file =~ s/(<context\s[^>]*[^>\/]>)/insert_find_language($1, 1)/ge;
+$file =~ s/(<context\s[^>]*[^>\/])\/>/insert_find_language($1, 0)/ge;
 
 if ($language eq "PHP")
 {
+  $file =~ s/<StringDetect\b.*String="&lt;\?"[^>]*>//g;
+
   $findphp = "<context name=\"FindPHP\" attribute=\"Normal Text\" lineEndContext=\"#stay\">\n<Detect2Chars context=\"##PHP/PHP\" char=\"&lt;\" char1=\"?\" lookAhead=\"true\" />\n</context>\n";
   $file =~ s/(?=<\/contexts\s*>)/$findphp/;
 }

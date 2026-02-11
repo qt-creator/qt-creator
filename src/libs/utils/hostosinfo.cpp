@@ -7,6 +7,7 @@
 #include "utilstr.h"
 
 #include <QDir>
+#include <QtProcessorDetection>
 
 #if !defined(QT_NO_OPENGL) && defined(QT_GUI_LIB)
 #include <QOpenGLContext>
@@ -102,28 +103,15 @@ Qt::CaseSensitivity fileNameCaseSensitivity()
 
 OsArch binaryArchitecture()
 {
-// MSVC:
-#if defined(_M_X64)
+#if defined(Q_PROCESSOR_X86_64)
     return OsArchAMD64;
-#elif defined(_M_IX86)
+#elif defined(Q_PROCESSOR_X86_32)
     return OsArchX86;
-#elif defined(_M_ARM64)
+#elif defined(Q_PROCESSOR_ARM_64)
     return OsArchArm64;
-#elif defined(_M_ARM)
+#elif defined(Q_PROCESSOR_ARM_32)
     return OsArchArm;
-#elif defined(_M_IA64)
-    return OsArchItanium;
-// GCC / Clang:
-#elif defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64)
-    return OsArchAMD64;
-#elif defined(__i386__) || defined(__i386) || defined(__i486__) || defined(__i586__) \
-    || defined(__i686__)
-        return OsArchX86;
-#elif defined(__aarch64__)
-    return OsArchArm64;
-#elif defined(__arm__)
-    return OsArchArm;
-#elif defined(__ia64__) || defined(__itanium__)
+#elif defined(Q_PROCESSOR_IA64)
     return OsArchItanium;
 #else
     static_assert(false, "Unknown architecture, please add detection.");

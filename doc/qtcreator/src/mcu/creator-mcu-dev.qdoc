@@ -5,8 +5,6 @@
     \page creator-developing-mcu.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-devices
-
     \title Developing for MCUs
 
     \quotation
@@ -188,7 +186,7 @@
     \endlist
 
     \sa {Enable and disable plugins}, {MCUs}{How to: Develop for MCUs},
-    {Developing for MCUs}
+    {Developing for MCUs}, {\QMCU}
 */
 
 /*!
@@ -219,7 +217,7 @@
        \endlist
 
     \sa {Enable and disable plugins}, {MCUs}{How to: Develop for MCUs},
-    {Developing for MCUs}
+    {Developing for MCUs}, {\QMCU}
 */
 
 /*!
@@ -261,7 +259,7 @@
     party software needed for MCU development with the selected kit.
 
     \sa {Enable and disable plugins}, {MCUs}{How to: Develop for MCUs},
-    {Manage kits}{How to: Manage kits}, {Developing for MCUs}
+    {Manage kits}{How to: Manage kits}, {Developing for MCUs}, {\QMCU}
 */
 
 /*!
@@ -299,5 +297,5 @@
 
     \sa {Configure projects for running}, {Enable and disable plugins},
     {MCUs}{How to: Develop for MCUs}, {Use project wizards},
-    {Developing for MCUs}
+    {Developing for MCUs}, {\QMCU}
 */

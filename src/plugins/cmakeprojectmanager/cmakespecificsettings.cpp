@@ -18,6 +18,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
+#include <QGuiApplication>
 #include <QVBoxLayout>
 
 using namespace ProjectExplorer;
@@ -36,6 +37,21 @@ CMakeSpecificSettings &settings(Project *project)
         return theSettings;
 
     return cmakeProject->settings();
+}
+
+QVariant NinjaPathAspect::fromSettingsValue(const QVariant &savedValue) const
+{
+   // Sometimes the installer appends the same ninja path to the qtcreator.ini file
+   const QString path = savedValue.canConvert<QStringList>()
+           ? savedValue.toStringList().last() : savedValue.toString();
+   return FilePath::fromUserInput(path).toVariant();
+}
+
+QVariant NinjaPathAspect::toSettingsValue(const QVariant &valueToSave) const
+{
+    // never save this to the settings:
+    Q_UNUSED(valueToSave);
+    return QVariant::fromValue(QString());
 }
 
 CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
@@ -70,29 +86,23 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
         "Automatically run CMake after changes to CMake project files."));
 
     ninjaPath.setSettingsKey("NinjaPath");
-    // never save this to the settings:
-    ninjaPath.setToSettingsTransformation(
-        [](const QVariant &) { return QVariant::fromValue(QString()); });
-    ninjaPath.setFromSettingsTransformation([](const QVariant &from) {
-        // Sometimes the installer appends the same ninja path to the qtcreator.ini file
-        const QString path = from.canConvert<QStringList>() ? from.toStringList().last()
-                                                            : from.toString();
-        return FilePath::fromUserInput(path).toVariant();
-    });
 
     packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");
     packageManagerAutoSetup.setDefaultValue(true);
     packageManagerAutoSetup.setLabelText(::CMakeProjectManager::Tr::tr("Package manager auto setup"));
     packageManagerAutoSetup.setToolTip(
+        //: %1 = applicationDisplayName
         ::CMakeProjectManager::Tr::tr(
-            "Enables Qt Creator to install dependencies from the conanfile.txt, "
-            "conanfile.py, or vcpkg.json file from the project source directory."));
+            "Enables %1 to install dependencies from the conanfile.txt, "
+            "conanfile.py, or vcpkg.json file from the project source directory.")
+            .arg(QGuiApplication::applicationDisplayName()));
 
     maintenanceToolDependencyProvider.setSettingsKey("MaintenanceToolDependencyProvider");
     maintenanceToolDependencyProvider.setDefaultValue(true);
-    maintenanceToolDependencyProvider.setLabelText(::CMakeProjectManager::Tr::tr("MaintenanceTool dependency provider"));
+    maintenanceToolDependencyProvider.setLabelText(
+        ::CMakeProjectManager::Tr::tr("Qt Online Installer dependency provider"));
     maintenanceToolDependencyProvider.setToolTip(
-        ::CMakeProjectManager::Tr::tr("Use Qt MaintenanceTool to install missing Qt components."));
+        ::CMakeProjectManager::Tr::tr("Use Qt Online Installer to install missing Qt components."));
 
     askBeforeReConfigureInitialParams.setSettingsKey("AskReConfigureInitialParams");
     askBeforeReConfigureInitialParams.setDefaultValue(true);

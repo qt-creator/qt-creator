@@ -27,10 +27,16 @@ StateData *StateData::detach(State &state)
     return state.d.data();
 }
 
-void StateData::push(Context *context, QStringList &&captures)
+void StateData::push(const Context *const *firstContext, const Context *const *lastContext, QStringList &&captures)
 {
-    Q_ASSERT(context);
-    m_contextStack.push_back(StackValue{context, std::move(captures)});
+    Q_ASSERT(firstContext < lastContext);
+    if (lastContext - firstContext > 1) [[unlikely]] {
+        --lastContext;
+        for (; firstContext < lastContext; ++firstContext) {
+            m_contextStack.push_back(StackValue{*firstContext, captures});
+        }
+    }
+    m_contextStack.push_back(StackValue{*firstContext, std::move(captures)});
 }
 
 bool StateData::pop(int popCount)

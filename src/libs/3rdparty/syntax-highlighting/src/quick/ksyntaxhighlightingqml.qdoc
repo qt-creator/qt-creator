@@ -1,0 +1,6 @@
+/*!
+  \qmlmodule org.kde.syntaxhighlighting
+  \title KSyntaxHighlighting QML Types
+  \ingroup qmlmodules
+  \brief Syntax highlighting engine for Kate syntax definitions.
+ */

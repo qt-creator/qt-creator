@@ -6,8 +6,6 @@
     \previouspage creator-reference.html
     \nextpage creator-running-targets.html
 
-    \ingroup creator-reference-build-configurations
-
     \title Building projects with qmake
 
     \quotation

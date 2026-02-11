@@ -93,13 +93,16 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
     connect(addEventButton, &QPushButton::pressed, this, [this] {
         auto model = eventsView->model();
         model->insertRow(model->rowCount());
+        markSettingsDirty();
     });
 
     auto removeEventButton = new QPushButton(Tr::tr("Remove Event"), this);
     connect(removeEventButton, &QPushButton::pressed, this, [this] {
         QModelIndex index = eventsView->currentIndex();
-        if (index.isValid())
-            eventsView->model()->removeRow(index.row());
+        if (!index.isValid())
+            return;
+        eventsView->model()->removeRow(index.row());
+        markSettingsDirty();
     });
 
     auto resetButton = new QPushButton(Tr::tr("Reset"), this);

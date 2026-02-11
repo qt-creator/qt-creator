@@ -6,6 +6,7 @@
 #include "../cppeditortr.h"
 #include "cppquickfixsettings.h"
 
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QBoxLayout>
@@ -274,9 +275,11 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
     });
     connect(m_pushButton_removeCustomTemplate, &QPushButton::clicked, this, [this] {
         delete m_listWidget_customTemplates->currentItem();
+        Utils::markSettingsDirty();
     });
     connect(pushButton_removeValueType, &QPushButton::clicked, this, [this] {
         delete m_valueTypes->currentItem();
+        Utils::markSettingsDirty();
     });
 
     setEnabled(false);
@@ -392,6 +395,8 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
     connect(m_radioButton_rewriteTypes, &QRadioButton::clicked, then);
 
     loadSettings(CppQuickFixSettings::instance());
+
+    Utils::installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void CppQuickFixSettingsWidget::loadSettings(CppQuickFixSettings *settings)
@@ -429,6 +434,7 @@ void CppQuickFixSettingsWidget::loadSettings(CppQuickFixSettings *settings)
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled
                        | Qt::ItemNeverHasChildren);
     }
+    connect(m_valueTypes, &QListWidget::itemChanged, this, Utils::markSettingsDirty);
     m_returnByConstRefCheckBox->setChecked(settings->returnByConstRef);
     m_listWidget_customTemplates->clear();
     for (const auto &customTemplate : settings->customTemplates) {

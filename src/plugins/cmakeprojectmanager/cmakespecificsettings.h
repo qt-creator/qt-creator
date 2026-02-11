@@ -11,6 +11,15 @@ class Project;
 
 namespace CMakeProjectManager::Internal {
 
+class NinjaPathAspect : public Utils::FilePathAspect
+{
+public:
+    using Utils::FilePathAspect::FilePathAspect;
+
+    QVariant fromSettingsValue(const QVariant &savedValue) const override;
+    QVariant toSettingsValue(const QVariant &valueToSave) const override;
+};
+
 class CMakeSpecificSettings final : public Utils::AspectContainer
 {
     ProjectExplorer::Project *project{nullptr};

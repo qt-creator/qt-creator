@@ -9,6 +9,14 @@
 
 namespace Autotest::Internal {
 
+class GTestFilterAspect : public Utils::StringAspect
+{
+public:
+    using Utils::StringAspect::StringAspect;
+
+    QVariant fromSettingsValue(const QVariant &savedValue) const override;
+};
+
 class GTestFramework : public ITestFramework
 {
 public:
@@ -22,7 +30,7 @@ public:
     Utils::BoolAspect throwOnFailure{this};
     Utils::BoolAspect breakOnFailure{this};
     Utils::SelectionAspect groupMode{this};
-    Utils::StringAspect gtestFilter{this};
+    GTestFilterAspect gtestFilter{this};
 
     static GTest::Constants::GroupMode staticGroupMode();
     static QString currentGTestFilter();

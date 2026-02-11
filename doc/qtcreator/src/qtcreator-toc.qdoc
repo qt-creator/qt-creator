@@ -110,57 +110,36 @@
                 \generatelist creator-how-to-git
             \endlist
             \li \l{Reference}
-                \generatelist creator-reference
                 \list
-                    \li Analyzers
+                    \li \l{Analyzers}
                         \generatelist creator-reference-analyzer
-                    \li Build Systems
+                    \li \l{Build systems}
                         \generatelist creator-reference-build-systems
-                        \list
-                            \li Build Configurations
-                                \generatelist creator-reference-build-configurations
-                        \endlist
-                    \li Devices
-                        \generatelist creator-reference-devices
-                        \list
-                            \li Deploy Configurations
-                                \generatelist creator-reference-deploy-configurations
-                            \li Run Configurations
-                                \generatelist creator-reference-run-configurations
-                        \endlist
-                    \li Debugger
+                    \li \l{Command-Line Options}
+                    \li \l{Custom Wizards}
+                    \li \l{Debuggers}
                         \generatelist creator-reference-debugger
-                        \list
-                            \li Debugger Views
-                                \generatelist creator-reference-debugger-views
-                        \endlist
-                    \li Editors
+                    \li \l{Deploy settings}
+                        \generatelist creator-reference-deploy-configurations
+                    \li \l{Editors}
                         \generatelist creator-reference-editors
-                    \li Platforms
+                    \li \l{FAQ}
+                    \li \l{Glossary}
+                    \li \l{Keyboard Shortcuts}
+                    \li \l{Known Issues}
+                    \li \l{Licenses and acknowledgments}
+                    \li \l{Platforms}
                         \generatelist creator-reference-platforms
-                    \li Preferences
-                        \generatelist creator-reference-preferences
-                        \list
-                            \li Analyzer
-                                \generatelist creator-reference-preferences-analyzer
-                            \li C++
-                                \generatelist creator-reference-preferences-cpp
-                            \li Kits
-                                \generatelist creator-reference-preferences-kits
-                            \li Text editor
-                                \generatelist creator-reference-preferences-text-editor
-                        \endlist
-                    \li UI Design
+                    \li \l{Qt Quick UI Design}
                         \generatelist creator-reference-ui-design-qtquick
-                    \li Version Control Systems
+                    \li \l{Run settings}
+                        \generatelist creator-reference-run-configurations
+                    \li \l{SDK Tool}
+                    \li \l{Technical support}
+                    \li \l{Version Control Systems}
                         \generatelist creator-reference-vcs
-                    \li Views
-                    \list
-                        \li Output views
-                            \generatelist creator-reference-output-views
-                        \li Sidebar views
-                            \generatelist creator-reference-sidebar-views
-                    \endlist
+                    \li \l{Views}
+                        \generatelist creator-reference-views
                 \endlist
     \endlist
 */

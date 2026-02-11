@@ -18,6 +18,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
@@ -68,7 +69,7 @@ SystemSettings::SystemSettings()
     useDbusFileManagers.setToolTip(
         Tr::tr(
             "Uses the <a href=\"%1\">freedesktop.org D-Bus interface</a> for <i>Open in File "
-            "Manager</i>, if available. Otherwise falls back onto the \"External file browser\" "
+            "Manager</i>, if available. Otherwise falls back to the \"External file browser\" "
             "above.")
             .arg("https://freedesktop.org/wiki/Specifications/file-manager-interface"));
 
@@ -203,7 +204,7 @@ public:
         const QString explanation = Tr::tr(
             "For environment variables with list semantics that do not use the standard path list\n"
             "separator, you need to configure the respective separators here if you plan to\n"
-            "aggregate them from several places (for instance from the Kit and from the project).");
+            "aggregate them from several places (for instance from the kit and from the project).");
 
         m_model.setHeader({Tr::tr("Variable"), Tr::tr("Separator")});
         for (auto it = separators.begin(); it != separators.end(); ++it)
@@ -416,6 +417,7 @@ public:
                 = runEnvironmentItemsDialog(environmentButton, m_environmentChanges);
             if (!changes)
                 return;
+            markSettingsDirty();
             m_environmentChanges = *changes;
             updateEnvironmentChangesLabel();
             updatePath();
@@ -423,6 +425,9 @@ public:
         connect(envVarSeparatorsButton, &QPushButton::clicked, [this] {
             EnvVarSeparatorsDialog dlg(m_envVarSeparators, this);
             if (dlg.exec() == QDialog::Accepted) {
+                if (m_envVarSeparators == dlg.separators())
+                    return;
+                markSettingsDirty();
                 m_envVarSeparators = dlg.separators();
                 updateEnvVarSeparatorsLabel();
             }
@@ -432,6 +437,8 @@ public:
                 this, &SystemSettingsWidget::updatePath);
 
         setOnCancel([] { systemSettings().cancel(); });
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
 private:
@@ -519,10 +526,7 @@ void SystemSettingsWidget::updatePath()
 
 void SystemSettingsWidget::updateEnvironmentChangesLabel()
 {
-    const QString shortSummary = Utils::EnvironmentItem::toStringList(m_environmentChanges)
-                                     .join("; ");
-    m_environmentChangesLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.")
-                                                              : shortSummary);
+    m_environmentChangesLabel->setText(EnvironmentItem::toShortSummary(m_environmentChanges));
 }
 
 void SystemSettingsWidget::updateEnvVarSeparatorsLabel()

@@ -58,7 +58,7 @@
         \li Select \uicontrol Add to add a new compiler or \uicontrol Clone to
             add another version of the selected compiler.
         \li Select a compiler in the list.
-        \li Set \l{Compilers}{preferences} according to the selected compiler.
+        \li \l{Set compiler preferences} according to the selected compiler.
     \endlist
 
     \section1 Supported compilers
@@ -170,20 +170,20 @@
 
     You can use the shell link to run the tools in the third-party toolchains.
 
-    \sa {Compilers}, {Add Nim compilers}, {Add custom compilers},
+    \sa {Manage kits}{How to: Manage kits}, {Managing kits},
     {Developing for Bare Metal Devices}, {Supported Platforms}
 */
 
 /*!
     \page creator-preferences-kits-compilers.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-preferences-kits
+    \ingroup creator-how-to-manage-kits
 
-    \title Compilers
+    \title Set compiler preferences
 
-    \summary {Lists the registered compilers. You can add custom compilers to the
-    list.}
+    Go to \preferences > \uicontrol Kits > \uicontrol Compilers, to view the
+    registered compilers. You can add custom compilers to the list.
 
     To build an application using GCC, \MinGW, Clang, or QCC, specify the path
     to the directory where the compiler is located and select
@@ -266,7 +266,7 @@
     \endlist
     \endlist
 
-    \sa {Add compilers}, {Add custom compilers}, {Add Nim compilers},
+    \sa {Manage kits}{How to: Manage kits}, {Managing kits},
     {Supported Platforms}
 */
 
@@ -333,6 +333,6 @@
             \uicontrol {Custom Parser Settings} to view and edit their preferences.
     \endlist
 
-    \sa {Add compilers}, {Add Nim compilers}, {Compilers},
+    \sa {Manage kits}{How to: Manage kits}, {Managing kits},
     {Add custom output parsers}
 */

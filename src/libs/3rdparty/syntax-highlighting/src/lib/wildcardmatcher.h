@@ -13,17 +13,24 @@
 
 namespace KSyntaxHighlighting
 {
+/*!
+ * \namespace KSyntaxHighlighting::WildcardMatcher
+ * \inheaderfile KSyntaxHighlighting/WildcardMatcher
+ * \inmodule KSyntaxHighlighting
+ */
 namespace WildcardMatcher
 {
-/**
+/*!
  * Matches a string against a given wildcard case-sensitively.
  * The wildcard supports '*' (".*" in regex) and '?' ("." in regex), not more.
  *
- * @param candidate       Text to match
- * @param wildcard        Wildcard to use
- * @return                True for an exact match, false otherwise
+ * \a candidate Text to match
  *
- * @since 5.86
+ * \a wildcard Wildcard to use
+ *
+ * Returns \c true for an exact match, false otherwise
+ *
+ * \since 5.86
  */
 KSYNTAXHIGHLIGHTING_EXPORT bool exactMatch(QStringView candidate, QStringView wildcard);
 }

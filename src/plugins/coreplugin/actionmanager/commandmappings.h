@@ -16,7 +16,7 @@ namespace Core {
 
 namespace Internal { class CommandMappingsPrivate; }
 
-class CORE_EXPORT CommandMappings : public QWidget
+class CORE_EXPORT CommandMappings : public QObject
 {
     Q_OBJECT
 
@@ -24,22 +24,15 @@ public:
     CommandMappings(QWidget *parent = nullptr);
     ~CommandMappings() override;
 
-signals:
-    void currentCommandChanged(QTreeWidgetItem *current);
-    void resetRequested();
-
-protected:
-    virtual void defaultAction() = 0;
-
-    virtual void exportAction() {}
-    virtual void importAction() {}
-
-    virtual bool filterColumn(const QString &filterString, QTreeWidgetItem *item, int column) const;
+    QWidget *widget() const;
 
     void filterChanged(const QString &f);
 
     void setImportExportEnabled(bool enabled);
     void setResetVisible(bool visible);
+
+    using ColumnFilter = std::function<bool(const QString &filter, QTreeWidgetItem *item, int column)>;
+    void setColumnFilter(const ColumnFilter &filter);
 
     QTreeWidget *commandList() const;
     QString filterText() const;
@@ -47,6 +40,13 @@ protected:
     void setPageTitle(const QString &s);
     void setTargetHeader(const QString &s);
     static void setModified(QTreeWidgetItem *item, bool modified);
+
+signals:
+    void currentCommandChanged(QTreeWidgetItem *current);
+    void resetRequested();
+    void importRequested();
+    void exportRequested();
+    void defaultRequested();
 
 private:
     bool filter(const QString &filterString, QTreeWidgetItem *item);

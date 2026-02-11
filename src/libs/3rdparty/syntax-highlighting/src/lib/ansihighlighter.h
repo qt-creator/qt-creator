@@ -52,6 +52,7 @@ public:
     void highlightData(QIODevice *device, AnsiFormat format = AnsiFormat::TrueColor, Options options = Option::UseEditorBackground);
 
     void setOutputFile(const QString &fileName);
+
     void setOutputFile(FILE *fileHandle);
 
     void setBackgroundRole(Theme::EditorColorRole bgRole);

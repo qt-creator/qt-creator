@@ -56826,7 +56826,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
 %2</translation>
     </message>
     <message>
-        <source>Custom qmlls executable &quot;%1&quot; does not seem to be a qmlls executable and was disabled</source>
+        <source>Custom qmlls executable &quot;%1&quot; does not seem to be a qmlls executable and was disabled.</source>
         <translation>Benutzerdefinierte ausführbare qmlls-Datei &quot;%1&quot; scheint nicht gültig zu sein und wurde deaktiviert.</translation>
     </message>
     <message>

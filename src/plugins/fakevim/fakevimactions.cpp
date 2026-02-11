@@ -194,14 +194,14 @@ FakeVimSettings::FakeVimSettings()
                     onClicked(this, [this] {
                         TabSettings ts = TextEditorSettings::codeStyle()->tabSettings();
                         TypingSettings tps = globalTypingSettings();
-                        expandTab.setValue(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
-                        tabStop.setValue(ts.m_tabSize);
-                        shiftWidth.setValue(ts.m_indentSize);
-                        smartTab.setValue(tps.m_smartBackspaceBehavior
-                                          == TypingSettings::BackspaceFollowsPreviousIndents);
-                        autoIndent.setValue(true);
-                        smartIndent.setValue(tps.m_autoIndent);
-                        incSearch.setValue(true);
+                        expandTab.setVolatileValue(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
+                        tabStop.setVolatileValue(ts.m_tabSize);
+                        shiftWidth.setVolatileValue(ts.m_indentSize);
+                        smartTab.setVolatileValue(tps.m_smartBackspaceBehavior
+                                                  == TypingSettings::BackspaceFollowsPreviousIndents);
+                        autoIndent.setVolatileValue(true);
+                        smartIndent.setVolatileValue(tps.m_autoIndent);
+                        incSearch.setVolatileValue(true);
                     }),
                 },
                 PushButton {

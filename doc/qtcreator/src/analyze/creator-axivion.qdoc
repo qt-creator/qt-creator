@@ -143,7 +143,8 @@
     you will be prompted to set up a valid path mapping as jumping to the
     issue relies on having a valid path mapping configured.
 
-    \sa {Axivion}{Axivion Preferences}, {Local analysis with Axivion}{Local Analysis},
+    \sa {Connect to Axivion dashboard servers},
+    {Local analysis with Axivion}{Local Analysis},
     {Enable and disable plugins},{Analyze}{How To: Analyze}, {Analyzers},
     {Analyzing code}
 */
@@ -209,27 +210,24 @@
     Depending on the local build result you may limit the issue table to
     local issues or changed issues.
 
-    \sa {Axivion}{Axivion Preferences}, {View Axivion static code analysis results},
+    \sa {Connect to Axivion dashboard servers},
+    {View Axivion static code analysis results},
     {Enable and disable plugins}, {Analyze}{How To: Analyze}, {Analyzers},
     {Analyzing code}
 */
 
 /*!
     \page creator-preferences-axivion.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-preferences
+    \ingroup creator-how-to-analyze
 
-    \title Axivion
-
-    \brief Create a connection to an Axivion dashboard server.
+    \title Connect to Axivion dashboard servers
 
     You can connect to an Axivion dashboard server and map dashboard projects to
     local projects.
 
     \note Enable the Axivion plugin to use it.
-
-    \section1 Connecting to a Dashboard Server
 
     To connect to an Axivion dashboard server:
 
@@ -241,13 +239,11 @@
             \image {qtcreator-edit-dashboard-configuration.webp} {Edit Dashboard Configuration dialog}
             \list
                 \li In \uicontrol {Dashboard URL}, enter the URL of the server.
-                \li Select {Anonymous authentication} to use anonymous authentication.
+                \li Select \uicontrol {Anonymous authentication} to use anonymous
+                    authentication.
                 \li In \uicontrol Username, enter the username to access the server.
             \endlist
     \endlist
-
-    Select \uicontrol Remove to remove the current selected connection to an
-    Axivion dashboard server.
 
     The first time you access the server, you must enter the password that
     matches the username. It is stored safely in your keychain that is provided
@@ -256,7 +252,10 @@
     Select \uicontrol {Highlight marks} to highlight found issues on the
     scrollbar in the editor.
 
-    \section1 Mapping Paths
+    Select \uicontrol Remove to remove the current selected connection to an
+    Axivion dashboard server.
+
+    \section1 Map paths
 
     Projects on the dashboard might have subprojects that also appear on the
     dashboard because they are analyzed separately.
@@ -272,7 +271,7 @@
             computer.
     \endlist
 
-    \section1 Local Analyses
+    \section1 Local analyses
 
     To perform local analyses, specify additional settings.
 

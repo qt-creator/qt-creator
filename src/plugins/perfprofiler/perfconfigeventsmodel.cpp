@@ -39,7 +39,7 @@ QVariant PerfConfigEventsModel::data(const QModelIndex &index, int role) const
         return QVariant(); // ignore
     }
 
-    QString event = m_settings->events().value(index.row());
+    QString event = m_settings->events.volatileValue().value(index.row());
     const EventDescription description = parseEvent(event);
     switch (index.column()) {
     case ColumnEventType: {
@@ -123,7 +123,7 @@ bool PerfConfigEventsModel::setData(const QModelIndex &dataIndex, const QVariant
     const int row = dataIndex.row();
     const int column = dataIndex.column();
 
-    QStringList events = m_settings->events();
+    QStringList events = m_settings->events.volatileValue();
     EventDescription description = parseEvent(events[row]);
     switch (column) {
     case ColumnEventType:
@@ -157,7 +157,7 @@ bool PerfConfigEventsModel::setData(const QModelIndex &dataIndex, const QVariant
         break;
     }
     events[row] = generateEvent(description);
-    m_settings->events.setValue(events);
+    m_settings->events.setVolatileValue(events);
     emit dataChanged(index(row, ColumnEventType), index(row, ColumnResult));
     return true;
 }

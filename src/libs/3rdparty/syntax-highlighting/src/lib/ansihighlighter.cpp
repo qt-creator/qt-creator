@@ -13,7 +13,6 @@
 #include "ksyntaxhighlighting_logging.h"
 #include "state.h"
 #include "state_p.h"
-#include "theme.h"
 
 #include <QColor>
 #include <QFile>
@@ -1239,7 +1238,10 @@ void AnsiHighlighter::setOutputFile(const QString &fileName)
 void AnsiHighlighter::setOutputFile(FILE *fileHandle)
 {
     Q_D(AnsiHighlighter);
-    d->file.open(fileHandle, QIODevice::WriteOnly);
+    if (!d->file.open(fileHandle, QIODevice::WriteOnly)) {
+        qCWarning(Log) << "Failed to open output file" << fileHandle << ":" << d->file.errorString();
+        return;
+    }
     d->out.setDevice(&d->file);
 }
 

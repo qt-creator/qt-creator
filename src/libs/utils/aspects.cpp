@@ -8,6 +8,7 @@
 #include "environment.h"
 #include "fancylineedit.h"
 #include "guard.h"
+#include "guiutils.h"
 #include "layoutbuilder.h"
 #include "macroexpander.h"
 #include "passworddialog.h"
@@ -85,9 +86,6 @@ public:
     }
 
     Id m_id;
-    std::function<QVariant(const QVariant &)> m_toSettings;
-    std::function<QVariant(const QVariant &)> m_fromSettings;
-
     QString m_displayName;
     Key m_settingsKey; // Name of data in settings.
     QString m_tooltip;
@@ -603,8 +601,10 @@ void BaseAspect::apply()
 */
 void BaseAspect::cancel()
 {
-    valueToVolatileValue();
+    Changes changes;
+    changes.volatileValueFromValue = valueToVolatileValue();
     volatileValueToGui();
+    announceChanges(changes);
 }
 
 void BaseAspect::finish()
@@ -746,24 +746,14 @@ void BaseAspect::writeSettings() const
                                               toSettingsValue(defaultVariantValue()));
 }
 
-void BaseAspect::setFromSettingsTransformation(const SavedValueTransformation &transform)
+QVariant BaseAspect::toSettingsValue(const QVariant &valueToSave) const
 {
-    d->m_fromSettings = transform;
+    return valueToSave;
 }
 
-void BaseAspect::setToSettingsTransformation(const SavedValueTransformation &transform)
+QVariant BaseAspect::fromSettingsValue(const QVariant &savedValue) const
 {
-    d->m_toSettings = transform;
-}
-
-QVariant BaseAspect::toSettingsValue(const QVariant &val) const
-{
-    return d->m_toSettings ? d->m_toSettings(val) : val;
-}
-
-QVariant BaseAspect::fromSettingsValue(const QVariant &val) const
-{
-    return d->m_fromSettings ? d->m_fromSettings(val) : val;
+    return savedValue;
 }
 
 void BaseAspect::setMacroExpander(MacroExpander *expander)
@@ -826,6 +816,7 @@ class BoolAspectPrivate
 {
 public:
     BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
+    BoolAspect::DisplayStyle m_displayStyle = BoolAspect::DisplayStyle::CheckBox;
     UndoableValue<bool> m_undoable;
 };
 
@@ -859,6 +850,7 @@ public:
     SelectionAspect::DisplayStyle m_displayStyle = SelectionAspect::DisplayStyle::RadioButtons;
     QList<SelectionAspect::Option> m_options;
     UndoableValue<int> m_undoable;
+    bool m_useDataAsSavedValue = false;
 };
 
 class MultiSelectionAspectPrivate
@@ -1988,11 +1980,11 @@ void ColorAspect::volatileValueToGui()
     \class Utils::FontAspect
     \inmodule QtCreator
 
-    \brief A color aspect is a color property of some object, together with
+    \brief A font aspect is a font property of some object, together with
     a description of its behavior for common operations like visualizing or
     persisting.
 
-    The color aspect is displayed using a QtColorButton.
+    The font aspect is displayed using a QFontComboBox.
 */
 
 FontFamilyAspect::FontFamilyAspect(AspectContainer *container)
@@ -2016,7 +2008,7 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
     fontComboBox->setCurrentFont(QFontInfo(QFont(value())).family());
     parent.addItem(fontComboBox);
 
-    connect(fontComboBox, &QFontComboBox::currentFontChanged, [fontComboBox, this] {
+    connect(fontComboBox, &QFontComboBox::currentTextChanged, [fontComboBox, this] {
         const QString val = fontComboBox->currentFont().family();
         d->m_undoable.set(undoStack(), val);
         updateStorage(m_volatileValue, val);
@@ -2028,12 +2020,31 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
     });
 }
 
+void FontFamilyAspect::volatileValueToGui()
+{
+    d->m_undoable.setWithoutUndo(m_volatileValue);
+}
+
+bool FontFamilyAspect::guiToVolatileValue()
+{
+    return updateStorage(m_volatileValue, d->m_undoable.get());
+}
+
+bool FontFamilyAspect::valueToVolatileValue()
+{
+    return updateStorage(m_volatileValue, m_value);
+}
+
+bool FontFamilyAspect::volatileValueToValue()
+{
+    return updateStorage(m_value, m_volatileValue);
+}
+
 bool FontFamilyAspect::isDirty() const
 {
     const QString resolved = QFontInfo(QFont(m_value)).family();
     return resolved != m_volatileValue;
 }
-
 
 // !internal
 
@@ -2243,8 +2254,10 @@ std::function<void(Layouting::Layout *)> BoolAspect::adoptButton(QAbstractButton
 */
 void BoolAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    QCheckBox *checkBox = createSubWidget<QCheckBox>();
-    addToLayoutHelper(parent, checkBox);
+    if (d->m_displayStyle == DisplayStyle::CheckBox)
+        addToLayoutHelper(parent, createSubWidget<QCheckBox>());
+    else
+        addToLayoutHelper(parent, createSubWidget<QRadioButton>());
     volatileValueToGui();
 }
 
@@ -2306,6 +2319,11 @@ void BoolAspect::setLabelPlacement(BoolAspect::LabelPlacement labelPlacement)
     d->m_labelPlacement = labelPlacement;
 }
 
+void BoolAspect::setDisplayStyle(DisplayStyle displayStyle)
+{
+    d->m_displayStyle = displayStyle;
+}
+
 CheckableDecider BoolAspect::askAgainCheckableDecider()
 {
     return CheckableDecider(
@@ -2320,6 +2338,22 @@ CheckableDecider BoolAspect::doNotAskAgainCheckableDecider()
         [this] { return !value(); },
         [this] { setValue(true); }
     );
+}
+
+/*!
+ \internal
+*/
+QVariant InvertedSavedBoolAspect::fromSettingsValue(const QVariant &savedValue) const
+{
+    return !savedValue.toBool();
+}
+
+/*!
+ \internal
+*/
+QVariant InvertedSavedBoolAspect::toSettingsValue(const QVariant &valueToSave) const
+{
+    return !valueToSave.toBool();
 }
 
 /*!
@@ -2416,15 +2450,26 @@ void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
     d->m_displayStyle = style;
 }
 
+QVariant SelectionAspect::toSettingsValue(const QVariant &valueToSave) const
+{
+    if (!d->m_useDataAsSavedValue)
+        return valueToSave;
+
+    return itemValueForIndex(valueToSave.toInt());
+}
+
+QVariant SelectionAspect::fromSettingsValue(const QVariant &savedValue) const
+{
+    if (!d->m_useDataAsSavedValue)
+        return savedValue;
+
+    const int index = indexForItemValue(savedValue);
+    return index >= 0 ? index : defaultVariantValue();
+}
+
 void SelectionAspect::setUseDataAsSavedValue()
 {
-    setFromSettingsTransformation([this](const QVariant &savedValue) {
-        const int index = indexForItemValue(savedValue);
-        return index >= 0 ? index : defaultVariantValue();
-    });
-    setToSettingsTransformation([this](const QVariant &valueToSave) {
-        return itemValueForIndex(valueToSave.toInt());
-    });
+    d->m_useDataAsSavedValue = true;
 }
 
 void SelectionAspect::setStringValue(const QString &val)
@@ -3112,6 +3157,7 @@ void FilePathListAspect::addToLayoutImpl(Layout &parent)
 
         handleGuiChanged();
     });
+    connect(editor, &PathListEditor::changed, this, &FilePathListAspect::volatileValueChanged);
 
     editor->setToolTip(toolTip());
     editor->setMaximumHeight(100);
@@ -3270,6 +3316,11 @@ void TextDisplay::setWordWrap(bool on)
     d->m_wordWrap = on;
     if (d->m_label)
         d->m_label->setWordWrap(on);
+}
+
+QString TextDisplay::text() const
+{
+    return d->m_message;
 }
 
 /*!

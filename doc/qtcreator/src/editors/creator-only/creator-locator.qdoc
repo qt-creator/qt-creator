@@ -136,7 +136,7 @@
     \page creator-preferences-locator.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-preferences
+    \ingroup creator-reference-editors
 
     \title Locator
 
@@ -276,6 +276,5 @@
             show relative paths.
     \endlist
 
-    \sa {Navigate with locator}, {Search}{How to: Search}, {Perform calculations},
-    {Locator}
+    \sa {Navigate with locator}, {Search}{How to: Search}, {Perform calculations}
 */

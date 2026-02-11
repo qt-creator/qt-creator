@@ -77,7 +77,8 @@ public:
     Command *addToolAction(QAction *a, Context &context, Id id,
                            ActionContainer *c1, const QString &keySequence);
 
-    FormatResult reformatFile();
+    enum ReformatOption { Normal, OnSave };
+    FormatResult reformatFile(ReformatOption option = Normal);
 
     QmlJS::JsonSchemaManager *jsonManager() { return &m_jsonManager;}
     QmlJSQuickFixAssistProvider *quickFixAssistProvider() { return &m_quickFixAssistProvider; }
@@ -159,6 +160,8 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
                              .setText(Tr::tr("Reformat Document"))
                              .addToContainer(Core::Constants::M_EDIT_ADVANCED, Core::Constants::G_EDIT_FORMAT)
                              .contextAction();
+    checkCurrentEditorSemanticInfoUpToDate();
+
     cmd = ActionManager::command(TextEditor::Constants::REFORMAT_FILE);
     qmlToolsMenu->addAction(cmd);
 
@@ -369,7 +372,7 @@ static FormatResult reformatByCustomFormatter(
     return FormatResult::Failed;
 }
 
-FormatResult QmlJSEditorPluginPrivate::reformatFile()
+FormatResult QmlJSEditorPluginPrivate::reformatFile(ReformatOption option)
 {
     if (!m_currentDocument) {
         MessageManager::writeSilently(Tr::tr("Error: No current document to format."));
@@ -391,8 +394,9 @@ FormatResult QmlJSEditorPluginPrivate::reformatFile()
 
     switch (settings.formatter) {
     case QmlJSCodeStyleSettings::Formatter::QmlFormat:
-        return tryReformat([](auto doc) {
-            return LanguageClient::LanguageClientManager::clientForDocument(doc)
+        return tryReformat([option](auto doc) {
+            // the LSP can't format the file on save, use qmlformat instead.
+            return option != OnSave && LanguageClient::LanguageClientManager::clientForDocument(doc)
                        ? reformatUsingLanguageServer(doc)
                        : reformatByQmlFormat(doc);
         });
@@ -449,6 +453,11 @@ void QmlJSEditorPluginPrivate::runSemanticScan()
 
 void QmlJSEditorPluginPrivate::checkCurrentEditorSemanticInfoUpToDate()
 {
+    if (QmlJSTools::globalQmlJSCodeStyle()->currentCodeStyleSettings().formatter
+        != QmlJSTools::QmlJSCodeStyleSettings::Builtin) {
+        m_reformatFileAction->setEnabled(true);
+        return;
+    }
     const bool semanticInfoUpToDate = m_currentDocument && !m_currentDocument->isSemanticInfoOutdated();
     m_reformatFileAction->setEnabled(semanticInfoUpToDate);
 }
@@ -470,7 +479,7 @@ void QmlJSEditorPluginPrivate::autoFormatOnSave(IDocument *document, IDocument::
             return;
     }
 
-    reformatFile();
+    reformatFile(OnSave);
 }
 
 class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin

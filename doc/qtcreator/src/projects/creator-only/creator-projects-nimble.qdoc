@@ -56,7 +56,8 @@
             \endlist
     \endlist
 
-    \sa {Add compilers}, {Compilers}, {Create Nimble projects}, {Nim}, {Nimble}
+    \sa {Add compilers}, {Set compiler preferences}, {Create Nimble projects},
+    {Nim}, {Nimble}
 */
 
 /*!

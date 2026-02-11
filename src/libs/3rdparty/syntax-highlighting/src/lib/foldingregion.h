@@ -13,42 +13,49 @@
 
 namespace KSyntaxHighlighting
 {
-/** Represents a begin or end of a folding region.
- *  @since 5.28 */
+/*!
+ * \class KSyntaxHighlighting::FoldingRegion
+ * \inheaderfile KSyntaxHighlighting/FoldingRegion
+ * \inmodule KSyntaxHighlighting
+ *
+ * \brief Represents a begin or end of a folding region.
+ * \since 5.28
+ */
 class KSYNTAXHIGHLIGHTING_EXPORT FoldingRegion
 {
 public:
-    /**
+    /*!
      * Defines whether a FoldingRegion starts or ends a folding region.
+     *
+     * \value None
+     * \value Begin
+     * \value End
      */
     enum Type {
-        //! Used internally as indicator for an invalid FoldingRegion.
         None,
-        //! Indicates the start of a FoldingRegion.
         Begin,
-        //! Indicates the end of a FoldingRegion.
         End
     };
 
-    /**
-     * Constructs an invalid folding region, meaning that isValid() returns @e false.
+    /*!
+     * Constructs an invalid folding region, meaning that isValid() returns \c false.
      * To obtain valid instances, see AbstractHighlighter::applyFolding().
      */
     FoldingRegion();
 
-    /** Compares two FoldingRegion instances for equality. */
+    /*! Compares two FoldingRegion instances for equality. */
     bool operator==(const FoldingRegion &other) const;
 
-    /**
-     * Returns @c true if this is a valid folding region.
+    /*!
+     * Returns \c true if this is a valid folding region.
      * A valid FoldingRegion is defined by a type() other than Type::None.
      *
-     * @note The FoldingRegion%s passed in AbstractHighlighter::applyFolding()
+     * \note The FoldingRegion%s passed in AbstractHighlighter::applyFolding()
      *       are always valid.
      */
     bool isValid() const;
 
-    /**
+    /*!
      * Returns a unique identifier for this folding region.
      *
      * As example, the C/C++ highlighter starts and ends a folding region for
@@ -66,20 +73,20 @@ public:
      */
     int id() const;
 
-    /**
+    /*!
      * Returns whether this is the begin or end of a region.
      *
-     * @note The FoldingRegion%s passed in AbstractHighlighter::applyFolding()
+     * \note The FoldingRegion%s passed in AbstractHighlighter::applyFolding()
      *       are always valid, i.e. either Type::Begin or Type::End.
      */
     Type type() const;
 
-    /**
+    /*!
      * Returns the matching start or end region.
      *
-     * @note Will return invalid region for an invalid region.
+     * \note Will return invalid region for an invalid region.
      *
-     * @since 6.0
+     * \since 6.0
      */
     FoldingRegion sibling() const;
 

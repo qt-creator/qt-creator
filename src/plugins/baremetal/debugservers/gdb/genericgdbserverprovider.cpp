@@ -9,6 +9,7 @@
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
+#include <utils/guiutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
@@ -16,6 +17,8 @@
 #include <QCheckBox>
 #include <QFormLayout>
 #include <QPlainTextEdit>
+
+using namespace Utils;
 
 namespace BareMetal::Internal {
 

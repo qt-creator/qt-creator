@@ -10,6 +10,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/guiutils.h>
+
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -91,11 +93,15 @@ void ClangDiagnosticConfigsSelectionWidget::onButtonClicked()
     connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
     if (dialog.exec() == QDialog::Accepted) {
+        const Utils::Id origId = m_currentConfigId;
         m_diagnosticConfigsModel = ClangDiagnosticConfigsModel(widget->configs());
         m_currentConfigId = widget->currentConfig().id();
+        const QString origDisplayName = m_button->text();
         m_button->setText(widget->currentConfig().displayName());
 
         emit changed();
+        if (origId != m_currentConfigId || origDisplayName != m_button->text())
+            Utils::markSettingsDirty();
     }
 }
 

@@ -165,7 +165,8 @@ QVariant QmlFormatOptionsModel::data(const QModelIndex &index, int role) const
         // Show hidden options in gray
         return QColor(Qt::gray);
     } else if (role == Qt::ToolTipRole && option.hidden) {
-        return Tr::tr("This option was found in the INI file but is not a standard qmlformat option");
+        return Tr::tr(
+            "This option was found in the INI file but is not a standard qmlformat option.");
     }
 
     return QVariant();
@@ -578,15 +579,18 @@ void QmlFormatSettingsWidget::initOptions()
     process.setUtf8StdOutCodec();
     process.start();
     if (!process.waitForFinished(5s)) {
-        MessageManager::writeFlashing(Tr::tr("Cannot call %1 or some other error occurred. Using fallback output options.")
-                                          .arg(executable.toUserOutput()));
+        MessageManager::writeFlashing(
+            Tr::tr("Cannot run \"%1\" or some other error occurred. Using fallback output options.")
+                .arg(executable.toUserOutput()));
         m_optionsModel->setOptionsFromJson(m_fallbackJson);
         return;
     }
     const QString errorText = process.readAllStandardError();
     if (!errorText.isEmpty()) {
-        MessageManager::writeFlashing(Tr::tr("%1: %2. Using fallback output options.").arg(executable.toUserOutput(),
-                                                            errorText));
+        //: %1=exceutable, %2=error
+        MessageManager::writeFlashing(
+            Tr::tr("\"%1\": %2. Using fallback output options.")
+                .arg(executable.toUserOutput(), errorText));
         m_optionsModel->setOptionsFromJson(m_fallbackJson);
         return;
     }

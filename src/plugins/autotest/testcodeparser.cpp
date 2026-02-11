@@ -59,17 +59,6 @@ TestCodeParser::TestCodeParser()
     m_reparseTimer.setSingleShot(true);
     m_reparseTimer.setInterval(1000);
     connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
-    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::aboutToStart, this, [this](QTaskTree *taskTree) {
-        if (m_withTaskProgress) {
-            auto progress = new TaskProgress(taskTree);
-            progress->setDisplayName(Tr::tr("Scanning for Tests"));
-            progress->setId(Constants::TASK_PARSE);
-        }
-        emit parsingStarted();
-    });
-    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done, this, [this](DoneWith result) {
-        onFinished(result == DoneWith::Success);
-    });
 }
 
 TestCodeParser::~TestCodeParser() = default;
@@ -423,7 +412,18 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
         onGroupSetup([storage, filteredFiles] { *storage = filteredFiles.cbegin(); }),
         AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDone::OnSuccess)
     };
-    m_taskTreeRunner.start(recipe);
+    const auto onTaskTreeSetup = [this](QTaskTree &taskTree) {
+        if (m_withTaskProgress) {
+            auto progress = new TaskProgress(&taskTree);
+            progress->setDisplayName(Tr::tr("Scanning for Tests"));
+            progress->setId(Constants::TASK_PARSE);
+        }
+        emit parsingStarted();
+    };
+    const auto onTaskTreeDone = [this](DoneWith result) {
+        onFinished(result == DoneWith::Success);
+    };
+    m_taskTreeRunner.start(recipe, onTaskTreeSetup, onTaskTreeDone);
 }
 
 void TestCodeParser::onTaskStarted(Id type)

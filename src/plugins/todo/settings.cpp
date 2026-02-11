@@ -236,6 +236,11 @@ OptionsDialog::OptionsDialog()
             this, &OptionsDialog::setKeywordsButtonsEnabled);
 
     setSettings(todoSettings());
+
+    installMarkSettingsDirtyTriggerRecursively(this);
+    installMarkSettingsDirtyTrigger(m_scanInProjectRadioButton);
+    installMarkSettingsDirtyTrigger(m_scanInCurrentFileRadioButton);
+    installMarkSettingsDirtyTrigger(m_scanInSubprojectRadioButton);
 }
 
 void OptionsDialog::addToKeywordsList(const Keyword &keyword)
@@ -264,6 +269,7 @@ void OptionsDialog::addKeywordButtonClicked()
     if (keywordDialog.exec() == QDialog::Accepted) {
         keyword = keywordDialog.keyword();
         addToKeywordsList(keyword);
+        markSettingsDirty();
     }
 }
 
@@ -275,17 +281,19 @@ void OptionsDialog::editKeywordButtonClicked()
 
 void OptionsDialog::editKeyword(QListWidgetItem *item)
 {
-    Keyword keyword;
-    keyword.name = item->text();
-    keyword.iconType = static_cast<IconType>(item->data(Qt::UserRole).toInt());
-    keyword.color = item->foreground().color();
+    Keyword originalKeyword;
+    originalKeyword.name = item->text();
+    originalKeyword.iconType = static_cast<IconType>(item->data(Qt::UserRole).toInt());
+    originalKeyword.color = item->foreground().color();
 
     QSet<QString> keywordNamesButThis = keywordNames();
-    keywordNamesButThis.remove(keyword.name);
+    keywordNamesButThis.remove(originalKeyword.name);
 
-    KeywordDialog keywordDialog(keyword, keywordNamesButThis, this);
+    KeywordDialog keywordDialog(originalKeyword, keywordNamesButThis, this);
     if (keywordDialog.exec() == QDialog::Accepted) {
-        keyword = keywordDialog.keyword();
+        Keyword keyword = keywordDialog.keyword();
+        if (keyword != originalKeyword)
+            markSettingsDirty();
         item->setIcon(icon(keyword.iconType));
         item->setText(keyword.name);
         item->setData(Qt::UserRole, static_cast<int>(keyword.iconType));
@@ -296,13 +304,17 @@ void OptionsDialog::editKeyword(QListWidgetItem *item)
 void OptionsDialog::removeKeywordButtonClicked()
 {
     delete m_keywordsList->takeItem(m_keywordsList->currentRow());
+    markSettingsDirty();
 }
 
 void OptionsDialog::resetKeywordsButtonClicked()
 {
+    const Settings original = todoSettings();
     Settings newSettings;
     newSettings.setDefault();
     setSettings(newSettings);
+    if (original != newSettings)
+        markSettingsDirty();
 }
 
 void OptionsDialog::setKeywordsButtonsEnabled()

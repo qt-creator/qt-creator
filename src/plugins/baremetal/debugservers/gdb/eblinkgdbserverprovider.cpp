@@ -10,6 +10,7 @@
 #include <baremetal/debugserverprovidermanager.h>
 
 #include <utils/fileutils.h>
+#include <utils/guiutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>

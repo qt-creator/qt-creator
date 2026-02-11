@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
     /*!
@@ -7,7 +7,7 @@
 
     \ingroup creator-reference-deploy-configurations
 
-    \title Android Deploy Configuration
+    \title Android Deploy Settings
 
     \brief Create packages to deploy to devices or to submit to the Google Play
     store, or create libraries for Android app modules.
@@ -38,14 +38,24 @@
             \l{Deploying an Application on Android}.
     \endlist
 
-    To \l{Specifying Settings for Packages}{specify settings} for application
-    packages, go to \uicontrol Projects > \uicontrol {Build Settings} >
-    \uicontrol {Build Android APK} and select \uicontrol Details.
+    To specify settings for application packages, go to \uicontrol Projects >
+    \uicontrol {Build Settings} > \uicontrol {Build Android APK} and select
+    \uicontrol Details.
 
     For more information about the options that you have for running applications,
     see \l {Android Run Settings}.
 
-    \section1 Packaging Applications
+    \sa {Android}{How to: Develop for Android}, {Developing for Android},
+    {Android Run Settings}
+*/
+
+/*!
+    \page creator-how-to-deploy-android-apps.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-android
+
+    \title Deploy applications to Android
 
     Because bundling applications as APK packages is not simple, Qt has the
     \l {The androiddeployqt Tool}{androiddeployqt} tool. When you deploy an
@@ -56,7 +66,7 @@
     To view the packages that the \c androiddeployqt tool created, select
     \uicontrol {Open package location after build}.
 
-    \section2 Specifying Deployment Settings
+    \section1 Specify deployment settings
 
     To specify settings for deploying applications, go to \uicontrol Projects >
     \uicontrol {Deploy Settings} and select a deploy configuration in
@@ -70,26 +80,45 @@
 
     To remove the current deployment method, select \uicontrol Remove.
 
-    \QC deploys the packages on the Android device that you select in the
-    \l{Build for many platforms}{kit selector}. To add devices, select
-    \uicontrol Manage.
-
     For more information about specifying additional start options for
     applications, see \l{Android Run Settings}.
 
-    To remove previously installed files from the device, select
+    \section1 Select a device for deployment
+
+    \QC deploys the packages on the Android device that you select in the
+    kit selector. To add devices, select \uicontrol Manage.
+
+    \image {qtcreator-kit-selector.webp} {Kit selector}
+
+    \section1 Remove previous installations
+
+    To remove previously installed files from the device, go to
+    \uicontrol Projects > \uicontrol {Deploy Settings} and select
     \uicontrol {Uninstall the existing app before deployment}.
 
-    To install a pre-built APK, such as a 3rd-party application, on a device,
-    select \uicontrol {Install an APK File}.
+    \section1 Install pre-built APKs
 
-    \section2 Specifying Settings for Packages
+    To install a pre-built APK, such as a 3rd-party application, on a device,
+    go to \uicontrol Projects > \uicontrol {Deploy Settings} and select
+    \uicontrol {Install an APK File}.
+
+    \sa {Android}{How to: Develop for Android}, {Developing for Android},
+    {Android Deploy Settings}, {Android Run Settings}
+*/
+
+/*!
+    \page creator-how-to-package-android-apps.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-android
+
+    \title Create Android packages
 
     To specify settings for the \c androiddeployqt tool, go to
     \uicontrol Projects > \uicontrol {Build Settings} >
     \uicontrol {Build Android APK} and select \uicontrol Details.
 
-    \image {qtcreator-build-settings-android-apk.webp} {Build Android APK step}
+    \image {qtcreator-build-settings-android-apk.webp} {Build Android APK step in the Build Settings tab in Projects}
 
     The \c androiddeployqt tool creates APKs based on the settings. For more
     information about the available options, see \l{androiddeployqt}.
@@ -101,7 +130,7 @@
     Select \uicontrol {Add debug server} to include the debug server binary
     into a package.
 
-    \section3 Selecting API Level
+    \section1 Select API Level
 
     In the \uicontrol {Android build platform SDK} field, select the
     \l{What is API Level?}{API level} to use for building the application.
@@ -111,7 +140,7 @@
     build tools for building. If necessary, select another version
     in the \uicontrol {Android build-tools version} field.
 
-    \section3 Building AABs
+    \section1 Build AABs
 
     For testing the application locally, use the APK format because
     \QC can install and run the package on the device. For distribution
@@ -129,13 +158,23 @@
 
     \image {qtcreator-android-build-steps.png} {qmake settings for building AABs}
 
-    \section3 Building AARs
+    \section1 Build AARs
 
     Select the AAR target in the \uicontrol {Build Steps} section.
 
     \image {qt-creator-android-build-aar.webp} {Selecting the AAR target}
 
-    \section3 Signing Android Packages
+    \sa {Android}{How to: Develop for Android}, {Developing for Android},
+    {Android Deploy Settings}
+*/
+
+/*!
+    \page creator-how-to-sign-android-apps.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-android
+
+    \title Sign Android packages
 
     To publish your application, you must sign it by using a \e {public-private
     key pair} that consists of a \e certificate and a corresponding
@@ -163,9 +202,16 @@
     has certificates and a certificate alias from the keystore. The signing
     process embeds the public key (certificate) for the alias into the APK.
 
+    \section2 Create a keystore and certificate
+
     To create a keystore and a self-signed certificate:
 
     \list 1
+
+        \li Go to \uicontrol Projects > \uicontrol {Build Settings} >
+            \uicontrol {Build Android APK} and select \uicontrol Details.
+
+            \image {qtcreator-build-settings-android-apk.webp} {Build Android APK step in the Build Settings tab in Projects}
 
         \li In the \uicontrol Keystore field, select \uicontrol Create to create
             a new keystore that has one key pair in the
@@ -194,10 +240,14 @@
 
     \endlist
 
-    To sign an Android package by using a key pair, set the \uicontrol {Sign package}
-    group settings described in \l{Specifying Settings for Packages}:
+    \section2 Sign a package
+
+    To sign an Android package by using a key pair:
 
     \list 1
+
+        \li Go to \uicontrol Projects > \uicontrol {Build Settings} >
+            \uicontrol {Build Android APK} and select \uicontrol Details.
 
         \li In the \uicontrol Keystore field, select \uicontrol Choose to select an existing
             keystore.
@@ -210,41 +260,77 @@
 
     \endlist
 
-    \section3 Adding External Libraries
+    \sa {Android}{How to: Develop for Android}, {Developing for Android},
+    {Android Deploy Settings}
+*/
 
-    \QC automatically detects which Qt libraries the application uses and adds
-    them as dependencies. If the application needs external libraries, go to
-    \uicontrol Projects > \uicontrol {Build Settings} >
-    \uicontrol {Build Android APK} and specify them in
-    \uicontrol {Additional Libraries}. The libraries are copied into
-    your application's library folder and loaded on startup.
+/*!
+    \page creator-how-to-add-libraries-to-android-packages.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-android
+
+    \title Add external libraries to Android packages
+
+    \QC automatically detects which Qt libraries an application uses and adds
+    them as dependencies.
+
+    To copy external libraries into the application's library folder and load
+    them on startup:
+
+    \list 1
+        \li Go to \uicontrol Projects > \uicontrol {Build Settings} >
+            \uicontrol {Build Android APK}, and select \uicontrol Details.
+            \image {qtcreator-build-settings-android-apk.webp} {Build Android APK step in the Build Settings tab in Projects}
+        \li In \uicontrol {Additional Libraries}, select the libraries to add.
+    \endlist
+
+    \section1 Add OpenSSL libraries
 
     To add OpenSSL libraries, select \uicontrol {Include prebuilt OpenSSL libraries}
-    in the \uicontrol {Additional Libraries} group. This will add the OpenSSL
-    include project defined in \l{Set up Android development environment}
-    {device settings}
-    in \uicontrol {Android OpenSSL} group. This can be used for qmake and CMake
-    projects.
+    in the \uicontrol {Additional Libraries} group.
 
-    Otherwise, you can manually add the paths to the required \c libssl.so and
+    This adds the OpenSSL include project that you specify in \preferences >
+    \uicontrol SDKs > \uicontrol {Android OpenSSL Settings}. This works for both
+    qmake and CMake projects.
+
+    \image {qtcreator-preferences-android.webp} {Android tab in SDKs preferences}
+
+    You can also manually add the paths to the required \c libssl.so and
     \c libcrypto.so libraries to the \uicontrol {Additional Libraries} field.
 
-    \section1 Editing Manifest Files
+    \sa {Android}{How to: Develop for Android}, {Developing for Android},
+    {Android Deploy Settings}
+*/
 
-    You can use the configuration options to specify all the settings you need
-    for the \c androiddeployqt tool. You only need an Android manifest file
-    to specify Android-specific settings, such as the application icon.
+/*!
+    \page creator-how-to-android-manifest.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-android
+
+    \title Edit Android manifest files
+
+    You can use the configuration options in \uicontrol Projects >
+    \uicontrol {Build Settings} > \uicontrol {Build Android APK} to specify all
+    the settings you need for the \c androiddeployqt tool during application
+    development.
+
+    \image {qtcreator-build-settings-android-apk.webp} {Build Android APK step in the Build Settings tab in Projects}
+
+    You only need an Android manifest file to specify Android-specific settings,
+    such as the application icon or a splash screen.
+
     However, you need the manifest file to publish the package in the Play Store.
-    For more information about manifest files, see
-    \l {Qt for Android Manifest File Configuration}.
 
     If you use CMake as the build system, you must specify the Android package
     source directory, \c QT_ANDROID_PACKAGE_SOURCE_DIR, in the \c CMakeList.txt
     file, as instructed in the \l{Lock device orientation}
     {mobile device tutorial}.
 
-    To use \QC to create an Android manifest file and to open it in the Android
-    Manifest Editor:
+    \section1 Create a manifest file
+
+    To use \QC to create an Android manifest file:
 
     \list 1
 
@@ -259,91 +345,20 @@
         plan to extend the Java part of your Qt application.
 
     \li Select \uicontrol Finish to copy the template files to the \c android
-        directory and to open the manifest file for editing.
-
-        \image {qtcreator-android-manifest-editor-package.webp} {Package info in Android Manifest Editor}
+        directory and to open the manifest file in text format for editing.
 
     \endlist
 
-    The following table summarizes the options you can set.
+    \section1 Set manifest file options
 
-    \table
-    \header
-        \li Option
-        \li Value
-    \row
-        \li \uicontrol {Package name}
-        \li A valid \l{Package Names}{package name} for the application.
-            For example, \c {org.example.myapplication}.
-            An automatically generated Java launcher that is packaged with the
-            application into an APK launches the application.
-    \row
-        \li \uicontrol {Version code}
-        \li An internal version number for the package that determines whether
-            one version of the application is more recent than another.
-    \row
-        \li \uicontrol {Version name}
-        \li The version number that is visible to users.
-    \row
-        \li \uicontrol {Minimum required SDK}
-        \li The minimum API level required to run the application if you set it
-            manually in the manifest file.
-    \row
-        \li \uicontrol {Target SDK}
-        \li The targeted API level of the application, if you set it manually in
-            the manifest file.
-    \row
-        \li \uicontrol {Application name}
-        \li The application's name.
-    \row
-        \li \uicontrol {Activity name}
-        \li An activity name.
-    \row
-        \li \uicontrol {Style extraction}
-        \li The method that Qt uses to determine which \l{Styling}{UI style}
-            to use. For more information about package names, see
-            \l{Style Extraction}.
-    \row
-        \li \uicontrol {Screen orientation}
-        \li How to determine \l{Screen Orientation}{screen orientation}.
-    \row
-        \li \uicontrol {Application icon}
-        \li Images to use as \l{Icons}{application icons} depending on screen
-            resolution.
-    \row
-        \li \uicontrol {Splash screen}
-        \li Images to display as \l{Splash Screens}{splash screens} depending on
-            the screen orientation and resolution.
-    \row
-        \li \uicontrol Permissions
-        \li The \l{Setting Permissions}{permissions} that the application needs.
-    \endtable
-
-    On the top header, select the \uicontrol {XML Source} tab to edit the file
-    in XML format.
-
-    \section2 Package Names
-
-    Android application packages are usually named using a hierarchical
-    pattern with the levels in the hierarchy separated by periods (.). In
-    general, a package name begins with the top-level domain name of the
-    organization, followed by the organization's domain name and any subdomain
-    names listed in reverse order. The organization can then choose a specific
-    name for its package. Package names should be written in all lowercase
-    characters whenever possible. For example, \c {org.qtproject.example}.
-
-    Complete conventions for disambiguating package names and rules for naming
-    packages when the Internet domain name cannot be directly used as a package
-    name are described in section 7.7 of the Java Language Specification.
-
-    For more information about package names, see
-    \l{Android Application Fundamentals}.
+    For more information about setting options in Android manifest files, see
+    \l {Qt for Android Manifest File Configuration}.
 
     \section2 Screen Orientation
 
-    You can specify different options for determining screen orientation,
-    depending on sensor readings or user preferences. The following table
-    lists the options available.
+    In \c screenOrientation, set options for determining screen orientation,
+    depending on sensor readings or user preferences. The following table lists
+    the options available.
 
     \table
         \header
@@ -428,7 +443,15 @@
             \li Locks the orientation to its current rotation, whatever that is.
     \endtable
 
+    \omit
+    Some of this information will be needed in version 20.0, when the visual
+    manifest editor makes a comeback. Everything until \c endomit is hidden in
+    the HTML file for now.
+
     \section2 Icons
+
+    In \uicontrol {Icon}, set images to use as application icons depending on screen
+    density.
 
     You can set different images to be shown as application icons and splash
     screens on low, medium, high, and extra high DPI displays. The following
@@ -443,12 +466,18 @@
         \li Extra-extra-extra-high-density (XXXHDPI): ~640dpi
     \endlist
 
-    Specify settings for icons in the \uicontrol {Application icon} tab. Select
-    the image with the highest resolution as the \uicontrol {Master icon}.
-    \QC generates and sets resized versions for low, medium, high, and extra high-DPI
-    displays, as needed. Alternatively, set the icons for each resolution separately.
+    \section2 Permissions
 
-    \image {qtcreator-android-manifest-editor-app-icon.webp} {Application icons in Android Manifest Editor}
+    Starting from Android 6.0 (API 23), applications have to request permissions
+    at runtime (see \l{QCoreApplication::requestPermission()}). Users must grant
+    these permissions when installing the application for lower Android API levels.
+    The Android OS then grants the application access to the appropriate data and
+    features.
+
+    Select \uicontrol {Include default permissions for Qt modules} and
+    \uicontrol {Include default features for Qt modules} to add the
+    permissions needed by Qt libraries, such as
+    \c {android.permission.ACCESS_BACKGROUND_LOCATION} for \l{Qt Positioning}.
 
     \section2 Splash Screens
 
@@ -473,25 +502,9 @@
     and \uicontrol {Landscape master image}.
 
     Select \uicontrol {Clear All} to reset all settings or remove all images.
+    \endomit
 
-    \section2 Setting Permissions
-
-    Starting from Android 6.0 (API 23), applications have to request permissions
-    at runtime (see \l{QCoreApplication::requestPermission()}). Users must grant
-    these permissions when installing the application for lower Android API levels.
-    The Android OS then grants the application access to the appropriate data and
-    features.
-
-    \image {qtcreator-android-manifest-editor-permissions.webp} {Permissions in Android Manifest Editor}
-
-    Select \uicontrol {Include default permissions for Qt modules} and
-    \uicontrol {Include default features for Qt modules} to add the
-    permissions needed by Qt libraries, such as
-    \c {android.permission.ACCESS_BACKGROUND_LOCATION} for \l{Qt Positioning}.
-
-    To add a permission, select it from the list, and then select \uicontrol Add.
-
-    \sa {Build and Run}{How to: Build and Run},
-    {Android}{How to: Develop for Android}, {Android Run Settings}, {Managing kits}
+    \sa {Android}{How to: Develop for Android}, {Developing for Android},
+    {Android Deploy Settings}, {Qt for Android Manifest File Configuration}
 */
 

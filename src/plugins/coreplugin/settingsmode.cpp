@@ -3,6 +3,7 @@
 
 #include "settingsmode.h"
 
+#include "actionmanager/actionmanager.h"
 #include "coreconstants.h"
 #include "coreicons.h"
 #include "coreplugintr.h"
@@ -365,8 +366,6 @@ void setWheelScrollingWithoutFocusBlockedForChildren(QWidget *widget)
 
 class SettingsTab : public QScrollArea
 {
-    Q_OBJECT
-
 public:
     explicit SettingsTab(IOptionsPage *page)
         : m_page(page)
@@ -401,8 +400,10 @@ public:
         }
     }
 
-signals:
-    void dirtyChanged(bool dirty);
+    bool isDirty() const
+    {
+        return m_inner && m_inner->isDirty();
+    }
 
 private:
     void createInner()
@@ -413,10 +414,6 @@ private:
         setWheelScrollingWithoutFocusBlockedForChildren<QAbstractSpinBox *>(m_inner);
         setWidget(m_inner);
         m_inner->setAutoFillBackground(false);
-
-        if (auto w = qobject_cast<IOptionsPageWidget *>(m_inner)) {
-            connect(w, &IOptionsPageWidget::dirtyChanged, this, &SettingsTab::dirtyChanged);
-        }
     }
 
     void showEvent(QShowEvent *event) final
@@ -449,12 +446,13 @@ public:
 
     bool isDirty() const { return m_isDirty; }
     void setDirty(bool dirty);
+
     void createGui();
     void showCategory(int index);
     void updateEnabledTabs(Category *category, const QString &searchText);
     void ensureCategoryWidget(Category *category);
 
-    void setupDirtyHook(QWidget *widget);
+    void installMarkSettingsDirtyTriggerRecursively(QWidget *widget);
 
     void switchBackIfNeeded();
     void switchBackLater()
@@ -486,9 +484,10 @@ private:
     QListView *m_categoryList;
     QLabel *m_headerLabel;
 
-    QtcButton m_okButton{Tr::tr("Ok"), QtcButton::MediumPrimary};
+    QtcButton m_okButton{Tr::tr("OK"), QtcButton::MediumPrimary};
     QtcButton m_applyButton{Tr::tr("Apply"), QtcButton::MediumSecondary};
     QtcButton m_cancelButton{Tr::tr("Cancel"), QtcButton::MediumSecondary};
+    QtcButton m_discardButton{Tr::tr("Discard"), QtcButton::MediumSecondary};
 
     bool m_isDirty = false;
     bool m_currentlySwitching = false;
@@ -500,6 +499,7 @@ void SettingsWidget::setDirty(bool dirty)
     m_isDirty = dirty;
     m_okButton.setEnabled(dirty);
     m_applyButton.setEnabled(dirty);
+    m_discardButton.setEnabled(dirty);
 }
 
 SettingsWidget::SettingsWidget()
@@ -553,6 +553,16 @@ SettingsWidget::SettingsWidget()
     connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
             this, &SettingsWidget::filter);
     m_categoryList->setFocus();
+
+    Utils::Internal::setCheckSettingsDirtyHook([widget = QPointer<SettingsWidget>(this), this] {
+        QTC_ASSERT(widget, return);
+        SettingsTab *tab = s_tabForPage.value(m_currentPage);
+        setDirty(tab->isDirty());
+    });
+    Utils::Internal::setMarkSettingsDirtyHook([widget = QPointer<SettingsWidget>(this), this](bool dirty) {
+        QTC_ASSERT(widget, return);
+        setDirty(dirty);
+    });
 }
 
 void SettingsWidget::showPage(const Id pageId)
@@ -630,14 +640,13 @@ void SettingsWidget::createGui()
 
     m_okButton.setToolTip(Tr::tr("Apply all changes and return to previous mode."));
     m_applyButton.setToolTip(Tr::tr("Apply all changes and stay here."));
-    m_cancelButton.setToolTip(
-        Tr::tr(
-            "Discard all changes. Hold the SHIFT key to stay here, "
-            "otherwise return to previous mode."));
+    m_discardButton.setToolTip(Tr::tr("Discard all changes and stay here."));
+    m_cancelButton.setToolTip(Tr::tr("Discard all changes and return to previous mode."));
 
     auto buttonBox = new QDialogButtonBox;
     buttonBox->addButton(&m_okButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(&m_applyButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(&m_discardButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(&m_cancelButton, QDialogButtonBox::ActionRole);
 
     connect(&m_okButton, &QAbstractButton::clicked, this, [this] {
@@ -647,10 +656,11 @@ void SettingsWidget::createGui()
 
     connect(&m_applyButton, &QAbstractButton::clicked, this, &SettingsWidget::apply);
 
+    connect(&m_discardButton, &QAbstractButton::clicked, this, &SettingsWidget::cancel);
+
     connect(&m_cancelButton, &QAbstractButton::clicked, this, [this] {
         cancel();
-        if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier))
-            ModeManager::activatePreviousMode();
+        ModeManager::activatePreviousMode();
     });
 
     m_stackedLayout->setContentsMargins(0, 0, 0, 0);
@@ -729,7 +739,6 @@ void SettingsWidget::ensureCategoryWidget(Category *category)
     tabWidget->tabBar()->setObjectName("qc_settings_main_tabbar"); // easier lookup in Squish
     for (IOptionsPage *page : std::as_const(category->pages)) {
         auto tab = new SettingsTab(page);
-        connect(tab, &SettingsTab::dirtyChanged, this, &SettingsWidget::setDirty);
         tabWidget->addTab(tab, page->displayName());
     }
 
@@ -958,6 +967,9 @@ SettingsMode::SettingsMode()
         m_settingsModeWidget = new SettingsModeWidget;
         return m_settingsModeWidget;
     });
+    ActionBuilder(this, Core::Constants::S_RETURNTOEDITOR).setContext(context()).addOnTriggered([] {
+        ModeManager::activatePreviousMode();
+    });
 }
 
 SettingsMode::~SettingsMode()
@@ -981,5 +993,3 @@ void SettingsMode::open(Id initialPage)
 }
 
 } // namespace Core::Internal
-
-#include "settingsmode.moc"

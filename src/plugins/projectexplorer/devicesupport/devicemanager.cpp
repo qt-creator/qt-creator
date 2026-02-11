@@ -296,6 +296,7 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
             FSEngine::addDevice(device->rootPath());
     }
 
+    d->initDeviceState(device->id());
     emit s_instance->updated();
 }
 
@@ -631,16 +632,16 @@ private slots:
         QCOMPARE(deviceAddedSpy.count(), 0);
         QCOMPARE(deviceAboutToBeRemovedSpy.count(), 0);
         QCOMPARE(deviceRemovedSpy.count(), 0);
-        QCOMPARE(deviceUpdatedSpy.count(), 0);
-        QCOMPARE(updatedSpy.count(), 0);
+        QCOMPARE(deviceUpdatedSpy.count(), 1);
+        QCOMPARE(updatedSpy.count(), 1);
 
         DeviceManager::setDeviceState(dev->id(), IDevice::DeviceReadyToUse);
         QCOMPARE(DeviceManager::find(dev->id())->deviceState(), IDevice::DeviceReadyToUse);
         QCOMPARE(deviceAddedSpy.count(), 0);
         QCOMPARE(deviceAboutToBeRemovedSpy.count(), 0);
         QCOMPARE(deviceRemovedSpy.count(), 0);
-        QCOMPARE(deviceUpdatedSpy.count(), 1);
-        QCOMPARE(updatedSpy.count(), 1);
+        QCOMPARE(deviceUpdatedSpy.count(), 2);
+        QCOMPARE(updatedSpy.count(), 2);
         deviceUpdatedSpy.clear();
         updatedSpy.clear();
 

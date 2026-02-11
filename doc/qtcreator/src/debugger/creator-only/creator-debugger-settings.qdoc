@@ -5,7 +5,7 @@
     \page creator-debugger-preferences.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-preferences-debugger
+    \ingroup creator-reference-debugger
 
     \title General
 
@@ -80,14 +80,14 @@
             of the source tree on the local machine.
     \endlist
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
     \page creator-preferences-debugger-gdb.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-preferences-debugger
+    \ingroup creator-reference-debugger
 
     \title GDB
 
@@ -209,14 +209,14 @@
         \li Keeps debugging all children after a fork.
     \endtable
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
     \page creator-preferences-debugger-cdb.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-preferences-debugger
+    \ingroup creator-reference-debugger
 
     \title CDB
 
@@ -283,14 +283,14 @@
             in \l Issues.
     \endtable
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
 /*!
     \page creator-preferences-debugger-cdb-paths.html
     \previouspage creator-reference.html
 
-    \ingroup creator-reference-preferences-debugger
+    \ingroup creator-reference-debugger
 
     \title CDB Paths
 
@@ -318,5 +318,5 @@
     directly from version control or the web, enter the following string in
     \uicontrol {Source Paths}: \c srv*.
 
-    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */

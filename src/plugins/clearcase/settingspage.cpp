@@ -172,6 +172,10 @@ SettingsPageWidget::SettingsPageWidget()
     disableIndexerCheckBox->setChecked(s.disableIndexer);
     diffArgsEdit->setText(s.diffArgs);
     indexOnlyVOBsEdit->setText(s.indexOnlyVOBs);
+
+    installMarkSettingsDirtyTriggerRecursively(this);
+    installMarkSettingsDirtyTrigger(graphicalDiffRadioButton);
+    installMarkSettingsDirtyTrigger(externalDiffRadioButton);
 }
 
 void SettingsPageWidget::apply()

@@ -21,6 +21,7 @@
 		<!-- https://docs.ruby-lang.org/en/master/globals_rdoc.html -->
 		<!-- $= $, $; are deprecated -->
 		<!ENTITY global_var "\$([!@~&amp;`'+/\\&lt;>._*$?:&quot;=,;]|[0-9]+|-\w|[[:alpha:]]\w*)">
+		<!ENTITY named_global_var "\$((?!(stdin|stdout|stderr|_|LOAD_PATH|LOADED_FEATURES|FILENAME|DEBUG|VERBOSE)\b)[[:alpha:]]\w*|[0-9]+|-(?![ailpFIvWwdx])\w)">
 
 		<!-- without ? : % / < = -->
 		<!ENTITY safe_op "(?:[-+*~^|&amp;]+|===?|&lt;(=>?|(?!&lt;))|[!>]=?|\.\.\.?)">
@@ -29,10 +30,11 @@
 		<!-- / spaces -->
 		<!-- % which is not gld -->
 		<!-- << which is not heredoc -->
+		<!-- / or % not preceded with [ -->
 		<!-- nospace / -->
 		<!-- nospace % -->
 		<!-- nospace << -->
-		<!ENTITY op2 "&safe_op;++|[?:](?=\s|$)|([/&#37;]|&lt;&lt;)(?=[\s=]|$)|&#37;(?!&percent_lit;)|&lt;&lt;(?=\s|$|[^-~\w'&quot;`]|[-~][^\w'&quot;`])|(?&lt;!\s)([/&#37;]|&lt;&lt;)&safe_op;*+">
+		<!ENTITY op2 "&safe_op;++|[?:](?=\s|$)|([/&#37;]|&lt;&lt;)(?=[\s=]|$)|&#37;(?!&percent_lit;)|&lt;&lt;(?=\s|$|[^-~\w'&quot;`]|[-~][^\w'&quot;`])|(?&lt;![\[\s])([/&#37;]|&lt;&lt;)&safe_op;*+">
 
 		<!ENTITY sym_op "\[\]=?|[-+~]@?|![=~@]?|[/&#37;|^&amp;]|&lt;(=>?)?|>=?|=~|===?|\*\*?">
 		<!ENTITY symbol "&ident;[=?!]?:(?!:)|\[\]=?:">
@@ -114,7 +116,7 @@ Notes:
 -->
 
 <language name="Ruby" alternativeNames="RB;JRuby" section="Scripts"
-	  version="20" kateversion="5.79"
+	  version="21" kateversion="5.79"
 	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb;*.rake;Rakefile;Gemfile;*.gemspec;Vagrantfile"
 	  mimetype="application/x-ruby"
 	  style="ruby" indenter="ruby"
@@ -333,6 +335,15 @@ Notes:
 
 				<DetectChar attribute="Comment" char="#" context="General Comment"/>
 
+				<DetectChar char="@" context="AtVarMsgParamOrOp2" lookAhead="1"/>
+				<DetectChar char="$" context="VarMsgParamOrOp2" lookAhead="1"/>
+
+				<HlCChar attribute="Char"/>
+				<DetectChar attribute="String" char='"' context="DQuote"/>
+				<DetectChar attribute="Raw String" char="'" context="SQuote"/>
+				<DetectChar attribute="Command" char="`" context="Command String"/>
+				<DetectChar  lookAhead="1" char="." context="MsgParamOrOp2"/>
+
 				<RegExpr attribute="Normal Text" String="&ident_not_kw;" context="MsgParamOrOp2"/>
 
 				<!-- Detects key symbol in a hash
@@ -519,8 +530,8 @@ Notes:
 				<keyword attribute="Definition" String="definitions"/>
 
 				<!-- Generally a module or class name like "File", "MyModule_1", .. -->
-				<RegExpr attribute="Constant" String="&constant;" context="Op1"/>
-				<RegExpr attribute="Global Constant" String="&global_constant;" context="Op1"/>
+				<RegExpr attribute="Constant" String="&constant;" context="ExprSubClass"/>
+				<RegExpr attribute="Global Constant" String="&global_constant;" context="ExprSubClass"/>
 
 				<RegExpr attribute="Symbol" String=":((@@?|\$)&ident;|&ident;([?]|!(?!=)|=(?![=>~]))?|&sym_op;|(?=['&quot;])|&global_var;)" context="Op1"/>
 
@@ -619,16 +630,30 @@ Notes:
 
 			<context name="Var" attribute="Normal Text" lineEndContext="#pop#pop">
 				<!-- (global) vars starting with $ -->
-				<RegExpr attribute="Global Variable" String="\$((?!(stdin|stdout|stderr|_|LOAD_PATH|LOADED_FEATURES|FILENAME|DEBUG|VERBOSE)\b)[[:alpha:]]\w*|[0-9]+|-(?![ailpFIvWwdx])\w)" context="#pop!Op1"/>
+				<RegExpr attribute="Global Variable" String="&named_global_var;" context="#pop!Op1"/>
 				<!-- special-character globals and other predefined variables -->
 				<RegExpr attribute="Default globals" String="&global_var;" context="#pop!Op1"/>
 				<DetectChar attribute="Error" char="$" context="#pop!Op1"/>
 			</context>
 
+			<context name="VarMsgParamOrOp2" attribute="Normal Text" lineEndContext="#pop">
+				<!-- (global) vars starting with $ -->
+				<RegExpr attribute="Global Variable" String="&named_global_var;" context="#pop!MsgParamOrOp2"/>
+				<!-- special-character globals and other predefined variables -->
+				<RegExpr attribute="Default globals" String="&global_var;" context="#pop!MsgParamOrOp2"/>
+				<DetectChar attribute="Error" char="$" context="#pop!MsgParamOrOp2"/>
+			</context>
+
 			<context name="AtVar" attribute="Normal Text" lineEndContext="#pop#pop">
 				<RegExpr attribute="Instance Variable" String="@&ident;" context="#pop!Op1"/>
 				<RegExpr attribute="Class Variable" String="@@&ident;" context="#pop!Op1"/>
-				<DetectChar attribute="Error" char="@"/>
+				<DetectChar attribute="Error" char="@" context="#pop!Op1"/>
+			</context>
+
+			<context name="AtVarMsgParamOrOp2" attribute="Normal Text" lineEndContext="#pop">
+				<RegExpr attribute="Instance Variable" String="@&ident;" context="#pop!MsgParamOrOp2"/>
+				<RegExpr attribute="Class Variable" String="@@&ident;" context="#pop!MsgParamOrOp2"/>
+				<DetectChar attribute="Error" char="@" context="#pop!MsgParamOrOp2"/>
 			</context>
 
 			<!-- def foo() block-statement
@@ -796,19 +821,29 @@ Notes:
 			<context name="MemberAccess" attribute="Member" fallthroughContext="#pop!Op1">
 				<DetectSpaces attribute="Normal Text"/>
 				<!-- marks a message (being sent, not defined) -->
-				<RegExpr attribute="Message" String="&msg;" context="#pop!Op1"/>
-				<RegExpr attribute="Constant" String="&constant;" context="#pop!Op1"/>
-				<RegExpr attribute="Constant Value" String="&global_constant;" context="#pop!Op1"/>
+				<RegExpr attribute="Message" String="&msg;" context="SubClass"/>
+				<RegExpr attribute="Constant" String="&constant;" context="SubClass"/>
+				<RegExpr attribute="Constant Value" String="&global_constant;" context="SubClass"/>
 				<RegExpr attribute="Operator" String="&sym_op;" context="#pop"/>
+			</context>
+			<context name="SubClass" attribute="Normal Text" fallthroughContext="#pop#pop!Op1" lineEndContext="#pop#pop">
+				<StringDetect attribute="Operator" String="::" context="#pop"/>
+			</context>
+
+			<context name="ExprSubClass" attribute="Normal Text" fallthroughContext="#pop!Op1" lineEndContext="#pop">
+				<StringDetect attribute="Operator" String="::" context="#pop!MemberAccess"/>
 			</context>
 
 			<context name="MemberAccessCall" attribute="Member" fallthroughContext="#pop">
 				<DetectSpaces attribute="Normal Text"/>
 				<!-- marks a message (being sent, not defined) -->
-				<RegExpr attribute="Message" String="&msg;" context="#pop"/>
-				<RegExpr attribute="Constant" String="&constant;" context="#pop"/>
-				<RegExpr attribute="Constant Value" String="&global_constant;" context="#pop"/>
+				<RegExpr attribute="Message" String="&msg;" context="SubClassCall"/>
+				<RegExpr attribute="Constant" String="&constant;" context="SubClassCall"/>
+				<RegExpr attribute="Constant Value" String="&global_constant;" context="SubClassCall"/>
 				<RegExpr attribute="Operator" String="&sym_op;" context="#pop"/>
+			</context>
+			<context name="SubClassCall" attribute="Normal Text" fallthroughContext="#pop#pop" lineEndContext="#pop#pop">
+				<StringDetect attribute="Operator" String="::" context="#pop"/>
 			</context>
 
 			<context name="General Comment" attribute="Comment" lineEndContext="#pop">

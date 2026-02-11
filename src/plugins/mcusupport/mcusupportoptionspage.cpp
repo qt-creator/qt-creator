@@ -182,6 +182,8 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
             &McuSupportOptionsWidget::updateStatus);
 
     showMcuTargetPackages();
+
+    Utils::installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void McuSupportOptionsWidget::updateStatus()

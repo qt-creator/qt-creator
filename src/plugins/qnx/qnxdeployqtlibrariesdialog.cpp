@@ -256,7 +256,7 @@ void QnxDeployQtLibrariesDialog::start()
     m_deployableFiles = gatherFiles();
     m_deployProgress->setRange(0, m_deployableFiles.count());
 
-    m_taskTreeRunner.start(deployRecipe());
+    m_taskTreeRunner.start(deployRecipe(), {}, [this] { handleUploadFinished(); });
 }
 
 void QnxDeployQtLibrariesDialog::stop()
@@ -311,8 +311,6 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &
             this, &QnxDeployQtLibrariesDialog::start);
     connect(m_closeButton, &QAbstractButton::clicked,
             this, &QWidget::close);
-    connect(&m_taskTreeRunner, &QSingleTaskTreeRunner::done,
-            this, &QnxDeployQtLibrariesDialog::handleUploadFinished);
 }
 
 void QnxDeployQtLibrariesDialog::closeEvent(QCloseEvent *event)

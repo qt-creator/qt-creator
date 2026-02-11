@@ -109,6 +109,7 @@
   <!--
     Language specification
       name:        The name of this syntax description. Used in the Highlightning Mode menu
+      alternativeNames:    A list of alternative names to match the language on. [optional]
       section:     The logical group to which this syntax description belongs. Used for sub menus
       extensions:  A file glob or pattern to decide for which documents to use this syntax description
       style:       The style that this highlighter provides. It is used through required-syntax-style by the indenters. [optional]
@@ -121,6 +122,7 @@
       license:     License for this hl file [optional]
       indenter:    Name of the Indenter to use for this highlighting mode per default, like "cstyle" [optional]
       hidden:      Should it be hidden in menu [boolean, optional, default=false]
+      generated:   The syntax description was generated [boolean, optional, default=false]
   -->
   <xs:element name="language">
     <xs:complexType>
@@ -130,6 +132,7 @@
         <xs:element minOccurs="0" ref="spellchecking"/>
       </xs:sequence>
       <xs:attribute name="name" use="required"/>
+      <xs:attribute name="alternativeNames"/>
       <xs:attribute name="section" use="required" type="xs:NMTOKEN"/>
       <xs:attribute name="extensions" use="required"/>
       <xs:attribute name="version" use="required" type="xs:integer"/>
@@ -143,6 +146,7 @@
       <xs:attribute name="license"/>
       <xs:attribute name="indenter"/>
       <xs:attribute name="hidden" type="xs:boolean"/>
+      <xs:attribute name="generated" type="xs:boolean"/>
     </xs:complexType>
   </xs:element>
   <!-- General options -->

@@ -97,17 +97,17 @@ static QList<int> defaultDisabledMessagesNonQuickUi()
     return disabledForNonQuickUi;
 }
 
-static QVariant toSettingsTransformation(const QVariant &v)
+QVariant DisabledMessagesAspect::fromSettingsValue(const QVariant &savedValue) const
 {
-    QList<int> list = v.value<QList<int>>();
-    QStringList result = Utils::transform<QStringList>(list, [](int i) { return QString::number(i); });
+    QStringList list = savedValue.value<QStringList>();
+    QList<int> result =  Utils::transform<QList<int>>(list, [](const QString &s) { return s.toInt(); });
     return QVariant::fromValue(result);
 }
 
-static QVariant fromSettingsTransformation(const QVariant &v)
+QVariant DisabledMessagesAspect::toSettingsValue(const QVariant &valueToSave) const
 {
-    QStringList list = v.value<QStringList>();
-    QList<int> result =  Utils::transform<QList<int>>(list, [](const QString &s) { return s.toInt(); });
+    QList<int> list = valueToSave.value<QList<int>>();
+    QStringList result = Utils::transform<QStringList>(list, [](int i) { return QString::number(i); });
     return QVariant::fromValue(result);
 }
 
@@ -146,13 +146,9 @@ QmlJsEditingSettings::QmlJsEditingSettings()
 
     disabledMessages.setSettingsKey(group, DISABLED_MESSAGES);
     disabledMessages.setDefaultValue(defaultDisabledMessages());
-    disabledMessages.setFromSettingsTransformation(&fromSettingsTransformation);
-    disabledMessages.setToSettingsTransformation(&toSettingsTransformation);
 
     disabledMessagesForNonQuickUi.setSettingsKey(group, DISABLED_MESSAGES_NONQUICKUI);
     disabledMessagesForNonQuickUi.setDefaultValue(defaultDisabledMessagesNonQuickUi());
-    disabledMessagesForNonQuickUi.setFromSettingsTransformation(&fromSettingsTransformation);
-    disabledMessagesForNonQuickUi.setToSettingsTransformation(&toSettingsTransformation);
 
     qdsCommand.setSettingsKey(group, QDS_COMMAND);
     qdsCommand.setPlaceHolderText(defaultQdsCommand().toUserOutput());
@@ -321,6 +317,7 @@ public:
                 title(Tr::tr("QML Language Server")),
                 Row {
                     PushButton {
+                        ignoreDirtyHooks,
                         text(Tr::tr("Open Language Server preferences...")),
                         onClicked(this, [] { Core::ICore::showSettings(LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PAGE); })
                     },
@@ -360,6 +357,9 @@ public:
                                       MacroExpanderProvider(globalMacroExpander()));
 
         populateAnalyzerMessages(s.disabledMessages(), s.disabledMessagesForNonQuickUi());
+
+        installMarkSettingsDirtyTriggerRecursively(this);
+        connect(&analyzerMessageModel, &QAbstractItemModel::dataChanged, this, markSettingsDirty);
     }
 
     void apply() final
@@ -384,7 +384,11 @@ public:
 
     void cancel() final
     {
-        settings().cancel();
+        QmlJsEditingSettings &s = settings();
+        s.cancel();
+        analyzerMessageModel.clear();
+        populateAnalyzerMessages(s.disabledMessages(), s.disabledMessagesForNonQuickUi());
+        analyzerMessagesView->setEnabled(s.useCustomAnalyzer());
         Core::IOptionsPageWidget::cancel();
     }
 
@@ -415,7 +419,7 @@ private:
             analyzerMessageModel.clear();
             populateAnalyzerMessages(defaultDisabledMessages(),
                                      defaultDisabledMessagesNonQuickUi());
-
+            markSettingsDirty();
         });
         menu.exec(analyzerMessagesView->mapToGlobal(position));
     }

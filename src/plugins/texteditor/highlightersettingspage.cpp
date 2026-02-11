@@ -132,6 +132,8 @@ public:
         connect(resetCache, &QPushButton::clicked, this, [] {
             HighlighterHelper::clearDefinitionForDocumentCache();
         });
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final

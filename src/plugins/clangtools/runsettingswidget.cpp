@@ -96,6 +96,8 @@ SettingsWidget::SettingsWidget()
         m_runSettingsWidget,
         st
     }.attachTo(this);
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void SettingsWidget::apply()

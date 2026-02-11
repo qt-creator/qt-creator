@@ -72,7 +72,7 @@ public:
     Utils::StringAspect p4Client{this};
     Utils::StringAspect p4User{this};
     Utils::IntegerAspect logCount{this};
-    Utils::BoolAspect customEnv{this};
+    Utils::InvertedSavedBoolAspect customEnv{this};
     Utils::IntegerAspect timeOutS{this};
     Utils::BoolAspect autoOpen{this};
 

@@ -3,32 +3,75 @@
 [
 	<!ENTITY name          "[A-Za-z_:][\w.:_-]*">
 	<!ENTITY attributeName "[A-Za-z_:*#\(\[][\)\]\w.:_-]*">
-	<!ENTITY entref        "&amp;(?:#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
+  <!-- https://html.spec.whatwg.org/#named-character-references -->
+	<!ENTITY entname_without_semicolon "([AaEeIiOoUuYy]?acute|[AaEeIiOoUu]circ|[AaEeIiOoUu]grave|AElig|aelig|AMP|amp|[Aa]ring|brvbar|[Cc]?cedil|cent|COPY|copy|curren|deg|divide|ETH|eth|frac1[24]|frac34|GT|gt|iexcl|iquest|laquo|LT|lt|macr|micro|middot|nbsp|not|[AaNnOo]tilde|ord[fm]|[Oo]slash|[AaEeIiOoUuy]?uml|para|plusmn|pound|QUOT|quot|raquo|REG|reg|sect|shy|sup[123]|szlig|THORN|thorn|times|yen)">
+  <!-- https://html.spec.whatwg.org/#named-character-reference-state -->
+  <!-- Longest entity: CounterClockwiseContourIntegral (len=31) -->
+  <!ENTITY entref "&amp;(?:#[0-9]+|#[xX][0-9A-Fa-f]+|[A-Za-z][A-Za-z0-9]{1,30});|&amp;&entname_without_semicolon;(?=[^;]|$)">
 ]>
-<language name="HTML" version="18" kateversion="5.79" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm;*.aspx" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="HTML" version="20" kateversion="5.79" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm;*.aspx" mimetype="text/html" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
 <highlighting>
 <contexts>
+
+  <!-- https://html.spec.whatwg.org/#syntax -->
+
   <context name="Start" attribute="Normal Text" lineEndContext="#stay">
+    <IncludeRules context="FindText" />
     <IncludeRules context="FindHTML" />
   </context>
 
-  <context name="FindHTML" attribute="Normal Text" lineEndContext="#stay">
+  <context name="FindText" attribute="Normal Text" lineEndContext="#stay">
     <DetectSpaces/>
     <DetectIdentifier/>
-    <StringDetect attribute="Comment" context="Comment" String="&lt;!--" beginRegion="comment" />
-    <StringDetect attribute="CDATA" context="CDATA" String="&lt;![CDATA[" beginRegion="cdata" />
-    <WordDetect attribute="Doctype" context="Doctype" String="&lt;!DOCTYPE" insensitive="true" beginRegion="doctype" />
-    <IncludeRules context="FindElements" />
-    <RegExpr attribute="Processing Instruction" context="PI" String="&lt;\?[\w:-]*" beginRegion="pi" />
+  </context>
 
-    <!-- as long as kde gives DTDs the text/html mimetype--><IncludeRules context="FindDTDRules" />
-    <IncludeRules context="FindEntityRefs" />
+  <context name="FindComment" attribute="Normal Text" lineEndContext="#stay">
+    <StringDetect attribute="Comment" context="Comment" String="&lt;!--" beginRegion="comment" />
+  </context>
+
+  <context name="FindHTML" attribute="Normal Text" lineEndContext="#stay">
+    <IncludeRules context="FindElements" />
+    <IncludeRules context="FindComment" />
+
+    <!-- TODO -->
+    <!-- as long as kde gives DTDs the text/html mimetype--><!-- <IncludeRules context="FindDTDRules" /> -->
+    <WordDetect attribute="Doctype" context="Doctype" String="&lt;!DOCTYPE" insensitive="true"/>
+
+    <IncludeRules context="FindEntity" />
+    <IncludeRules context="FindErrors" />
+  </context>
+
+  <context name="FindForeign" attribute="Normal Text" lineEndContext="#stay">
+    <IncludeRules context="FindElements" />
+    <IncludeRules context="FindComment" />
+    <IncludeRules context="FindCDATA" />
+    <IncludeRules context="FindEntity" />
+    <IncludeRules context="FindErrors" />
   </context>
 
   <context name="FindElements" attribute="Other Text" lineEndContext="#pop">
     <RegExpr attribute="Element Symbols" context="ElementTagName" String="&lt;(?=(&name;))" />
     <RegExpr attribute="Element Symbols" context="ElementTagNameClose" String="&lt;/(?=(&name;))" />
+  </context>
+
+  <context name="FindErrors" attribute="Other Text" lineEndContext="#pop">
+    <!--
+    (error) incorrectly-opened-comment
+      "<!" not immediately followed by two "-"
+      All content that follows up to a ">" is treated as a comment.
+    (error) cdata-in-html-content
+      CDATA section outside of foreign content (SVG or MathML).
+      The parser treats such CDATA sections as comments.
+    -->
+    <StringDetect attribute="Error" context="Bogus Comment" String="&lt;!"/>
+    <!-- (error) unexpected-question-mark-instead-of-tag-name: treated as a comment. -->
+    <StringDetect attribute="Error" context="Bogus Comment" String="&lt;?"/>
+    <AnyChar attribute="Error" context="#stay" String="&amp;&lt;" />
+  </context>
+
+  <context name="FindCDATA" attribute="Other Text" lineEndContext="#pop">
+    <StringDetect attribute="CDATA" context="CDATA" String="&lt;![CDATA[" beginRegion="cdata" />
   </context>
 
   <context name="ElementTagName" attribute="Other Text" lineEndContext="#pop">
@@ -44,8 +87,15 @@
 
   <!-- This allows you to insert HTML tags in other syntax definitions -->
   <context name="FindSpecialHTMLTags" attribute="Normal Text" lineEndContext="#stay">
+    <!-- Raw text elements -->
     <WordDetect attribute="Element" context="#pop!CSS" String="style" insensitive="true" beginRegion="style" />
     <WordDetect attribute="Element" context="#pop!JS" String="script" insensitive="true" beginRegion="script" />
+    <!-- Foreign Elements (CDATA sections can only be used in foreign content) -->
+    <WordDetect attribute="Element" context="#pop!SVG" String="svg" insensitive="true" beginRegion="svg"/>
+    <WordDetect attribute="Element" context="#pop!MATH" String="math" insensitive="true" beginRegion="math"/>
+    <!-- Escapable raw text elements -->
+    <WordDetect attribute="Element" context="#pop!Textarea" String="textarea" insensitive="true" beginRegion="textarea"/>
+    <WordDetect attribute="Element" context="#pop!Title" String="title" insensitive="true"/>
   </context>
 
   <context name="FindHTMLTags" attribute="Normal Text" lineEndContext="#stay">
@@ -85,14 +135,11 @@
   </context>
 
   <context name="FindEntityRefs" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="EntityRef" context="#stay" String="&entref;" />
+    <IncludeRules context="FindEntity" />
     <AnyChar attribute="Error" context="#stay" String="&amp;&lt;" />
   </context>
-
-  <context name="FindPEntityRefs" attribute="Other Text" lineEndContext="#stay">
+  <context name="FindEntity" attribute="Other Text" lineEndContext="#stay">
     <RegExpr attribute="EntityRef" context="#stay" String="&entref;" />
-    <RegExpr attribute="PEntityRef" context="#stay" String="%&name;;" />
-    <AnyChar attribute="Error" context="#stay" String="&amp;%" />
   </context>
 
   <context name="FindAttributes" attribute="Other Text" lineEndContext="#stay">
@@ -100,58 +147,90 @@
     <RegExpr attribute="Attribute" context="#stay" String="(^|\s+)&attributeName;(\s+&attributeName;)*\s*|\s+" />
   </context>
 
-  <context name="FindDTDRules" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Doctype" context="Doctype Markupdecl" String="&lt;!(?:ELEMENT|ENTITY|ATTLIST|NOTATION)\b" />
+  <!--
+  Comments must have the following format:
+
+  - The string "<!-""-".
+  - Optionally, text, with the additional restriction that the text must not
+    start with the string ">", nor start with the string "->", nor contain
+    the strings "<!-"""-", "-""->", or "-""-!>", nor end with the string "<!-".
+  - The string "-""->".
+
+  The text is allowed to end with the string "<!", as in "<!-""- bla <!-""->".
+
+  - https://html.spec.whatwg.org/#parse-error-nested-comment
+      ignore "<!-""-"
+  - https://html.spec.whatwg.org/#parse-error-abrupt-closing-of-empty-comment
+      with "<!-""->" or "<!-""-""->") the comment is closed
+
+  comment := start ( ">" | "->" | (* - end) end )
+  start := "<!-" "-"
+  end := "-" "->"
+  -->
+  <context name="Comment" attribute="Comment" lineEndContext="Comment content" fallthroughContext="Comment content">
+    <StringDetect attribute="Error" context="#pop" String="&gt;" endRegion="comment" />
+    <StringDetect attribute="Error" context="#pop" String="-&gt;" endRegion="comment" />
   </context>
-
-
-  <context name="Comment" attribute="Comment" lineEndContext="#stay">
+  <context name="Comment content" attribute="Comment" lineEndContext="#stay">
     <DetectSpaces/>
-    <StringDetect attribute="Comment" context="#pop" String="--&gt;" endRegion="comment" />
+    <StringDetect attribute="Comment" context="#pop#pop" String="--&gt;" endRegion="comment" />
     <IncludeRules context="##Comments" />
     <DetectIdentifier/>
-    <RegExpr attribute="Error" context="#stay" String="-(?:-(?!-&gt;))+" />
+  </context>
+
+  <context name="Bogus Comment" attribute="Comment" lineEndContext="#stay">
+    <DetectChar attribute="Comment" context="#pop" char="&gt;" endRegion="comment" />
   </context>
 
   <context name="CDATA" attribute="Other Text" lineEndContext="#stay">
-    <DetectSpaces/>
-    <DetectIdentifier/>
+    <IncludeRules context="FindText" />
     <StringDetect attribute="CDATA" context="#pop" String="]]&gt;" endRegion="cdata" />
-    <StringDetect attribute="EntityRef" context="#stay" String="]]&amp;gt;" />
   </context>
 
-  <context name="PI" attribute="Other Text" lineEndContext="#stay">
-    <Detect2Chars attribute="Processing Instruction" context="#pop" char="?" char1="&gt;" endRegion="pi" />
-  </context>
+  <!--
+    DOCTYPE
+
+    https://html.spec.whatwg.org/#the-doctype
+    https://html.spec.whatwg.org/#after-doctype-name-state (for public identifier)
+
+    <!DOCTYPE html>
+    <!DOCTYPE html SYSTEM "about:legacy-compat">
+    <!DOCTYPE html SYSTEM 'about:legacy-compat'>
+
+    HTML does not support Internal Subset (e.g. <!ENTITY ...>)
+
+    @{
+  -->
 
   <context name="Doctype" attribute="Other Text" lineEndContext="#stay">
-    <DetectChar attribute="Doctype" context="#pop" char="&gt;" endRegion="doctype" />
-    <DetectChar attribute="Doctype" context="Doctype Internal Subset" char="[" beginRegion="int_subset" />
-  </context>
-
-  <context name="Doctype Internal Subset" attribute="Other Text" lineEndContext="#stay">
-    <DetectChar attribute="Doctype" context="#pop" char="]" endRegion="int_subset" />
-    <IncludeRules context="FindDTDRules" />
-    <StringDetect attribute="Comment" context="Comment" String="&lt;!--" beginRegion="comment" />
-    <RegExpr attribute="Processing Instruction" context="PI" String="&lt;\?[\w:-]*" beginRegion="pi" />
-    <IncludeRules context="FindPEntityRefs" />
-  </context>
-
-  <context name="Doctype Markupdecl" attribute="Other Text" lineEndContext="#stay">
     <DetectChar attribute="Doctype" context="#pop" char="&gt;" />
-    <DetectChar attribute="Value" context="Doctype Markupdecl DQ" char="&quot;" />
-    <DetectChar attribute="Value" context="Doctype Markupdecl SQ" char="&apos;" />
+    <DetectChar attribute="Value" context="Doctype DQ" char="&quot;" />
+    <DetectChar attribute="Value" context="Doctype SQ" char="&apos;" />
   </context>
 
-  <context name="Doctype Markupdecl DQ" attribute="Value" lineEndContext="#stay">
+  <context name="Doctype DQ" attribute="Value" lineEndContext="#stay">
     <DetectChar attribute="Value" context="#pop" char="&quot;" />
-    <IncludeRules context="FindPEntityRefs" />
+    <IncludeRules context="Doctype Value" />
   </context>
 
-  <context name="Doctype Markupdecl SQ" attribute="Value" lineEndContext="#stay">
+  <context name="Doctype SQ" attribute="Value" lineEndContext="#stay">
     <DetectChar attribute="Value" context="#pop" char="&apos;" />
-    <IncludeRules context="FindPEntityRefs" />
+    <IncludeRules context="Doctype Value" />
   </context>
+
+  <context name="Doctype Value" attribute="Value" lineEndContext="#stay">
+    <!-- no entity, only predefined strings -->
+    <DetectChar attribute="Error" context="#pop" char="&amp;"/>
+    <!--
+      https://html.spec.whatwg.org/#parse-error-abrupt-doctype-public-identifier
+      https://html.spec.whatwg.org/#parse-error-abrupt-doctype-system-identifier
+    -->
+    <DetectChar attribute="Error" context="#pop#pop" char="&gt;"/>
+  </context>
+
+  <!--
+    @} DOCTYPE
+  -->
 
   <context name="El Open" attribute="Error" lineEndContext="#stay">
     <Detect2Chars attribute="Element Symbols" context="#pop" char="/" char1="&gt;" />
@@ -159,9 +238,67 @@
     <IncludeRules context="FindAttributes" />
   </context>
 
-  <context name="El Close" attribute="Other Text" lineEndContext="#stay">
+  <context name="El Close" attribute="Error" lineEndContext="#stay">
     <DetectChar attribute="Element Symbols" context="#pop" char="&gt;" />
-    <RegExpr attribute="Error" context="#stay" String="\S" />
+    <DetectSpaces attribute="Other Text"/>
+  </context>
+
+  <context name="SVG" attribute="Error" lineEndContext="#stay">
+    <Detect2Chars attribute="Element Symbols" context="#pop" char="/" char1="&gt;" endRegion="svg" />
+    <DetectChar attribute="Element Symbols" context="SVG content" char="&gt;" />
+    <IncludeRules context="FindAttributes" />
+  </context>
+  <context name="SVG content" attribute="Other Text" lineEndContext="#stay">
+    <IncludeRules context="FindText" />
+    <RegExpr attribute="Element Symbols" context="SVG content Close" String="&lt;/(?=svg\b)" insensitive="true" />
+    <IncludeRules context="FindForeign" />
+  </context>
+  <context name="SVG content Close" attribute="Other Text" lineEndContext="#stay">
+    <DetectIdentifier attribute="Element" context="#pop#pop#pop!El Close" endRegion="svg" />
+  </context>
+
+  <context name="MATH" attribute="Error" lineEndContext="#stay">
+    <Detect2Chars attribute="Element Symbols" context="#pop" char="/" char1="&gt;" endRegion="math" />
+    <DetectChar attribute="Element Symbols" context="MATH content" char="&gt;" />
+    <IncludeRules context="FindAttributes" />
+  </context>
+  <context name="MATH content" attribute="Other Text" lineEndContext="#stay">
+    <IncludeRules context="FindText" />
+    <RegExpr attribute="Element Symbols" context="MATH content Close" String="&lt;/(?=math\b)" insensitive="true" />
+    <IncludeRules context="FindForeign" />
+  </context>
+  <context name="MATH content Close" attribute="Other Text" lineEndContext="#stay">
+    <DetectIdentifier attribute="Element" context="#pop#pop#pop!El Close" endRegion="math" />
+  </context>
+
+  <context name="Textarea" attribute="Error" lineEndContext="#stay">
+    <Detect2Chars attribute="Element Symbols" context="#pop" char="/" char1="&gt;" endRegion="textarea" />
+    <DetectChar attribute="Element Symbols" context="Textarea content" char="&gt;" />
+    <IncludeRules context="FindAttributes" />
+  </context>
+  <context name="Textarea content" attribute="Other Text" lineEndContext="#stay">
+    <IncludeRules context="FindText" />
+    <RegExpr attribute="Element Symbols" context="Textarea content Close" String="&lt;/(?=textarea\b)" insensitive="true" />
+    <IncludeRules context="FindEntity" />
+    <DetectChar attribute="Error" context="#stay" char="&amp;" />
+  </context>
+  <context name="Textarea content Close" attribute="Other Text" lineEndContext="#stay">
+    <DetectIdentifier attribute="Element" context="#pop#pop#pop!El Close" endRegion="textarea" />
+  </context>
+
+  <context name="Title" attribute="Error" lineEndContext="#stay">
+    <Detect2Chars attribute="Element Symbols" context="#pop" char="/" char1="&gt;" />
+    <DetectChar attribute="Element Symbols" context="Title content" char="&gt;" />
+    <IncludeRules context="FindAttributes" />
+  </context>
+  <context name="Title content" attribute="Other Text" lineEndContext="#stay">
+    <IncludeRules context="FindText" />
+    <RegExpr attribute="Element Symbols" context="Title content Close" String="&lt;/(?=title\b)" insensitive="true" />
+    <IncludeRules context="FindEntity" />
+    <DetectChar attribute="Error" context="#stay" char="&amp;" />
+  </context>
+  <context name="Title content Close" attribute="Other Text" lineEndContext="#stay">
+    <DetectIdentifier attribute="Element" context="#pop#pop#pop!El Close" />
   </context>
 
   <context name="CSS" attribute="Error" lineEndContext="#stay">
@@ -195,7 +332,7 @@
   </context>
   <context name="Default JS content" attribute="Other Text" lineEndContext="#stay">
     <IncludeRules context="FindScriptTagClose" />
-    <RegExpr attribute="Comment" context="JS comment close" String="//(?=.*&lt;/script\b)" insensitive="true" />
+    <RegExpr attribute="Comment" context="#pop!JS comment close" String="//(?=.*?&lt;/script\b)" insensitive="true" />
   </context>
 
   <context name="FindScriptTagClose" attribute="Other Text" lineEndContext="#stay">
@@ -206,9 +343,10 @@
   </context>
 
   <context name="JS comment close" attribute="Comment" lineEndContext="#pop">
-    <RegExpr attribute="Element Symbols" context="#pop!ScriptTagClose" String="&lt;/(?=script\b)" insensitive="true" />
     <DetectSpaces />
+    <IncludeRules context="FindScriptTagClose" />
     <IncludeRules context="##Comments" />
+    <DetectIdentifier/>
   </context>
 
   <context name="Value" attribute="Other Text" lineEndContext="#stay" fallthroughContext="Value NQ">
@@ -220,8 +358,8 @@
   <context name="Value NQ" attribute="Other Text" lineEndContext="#pop#pop" fallthroughContext="#pop#pop">
     <!-- '{' and '}' are valid, but used with twig -->
     <RegExpr attribute="Value" String="[^&gt;&lt;&quot;&apos;&amp;\s=`{}]+" />
-    <IncludeRules context="FindEntityRefs" />
-    <AnyChar attribute="Error" String="&quot;&apos;`=" />
+    <IncludeRules context="FindEntity" />
+    <AnyChar attribute="Error" String="&amp;&lt;&quot;&apos;`=" />
     <AnyChar attribute="Value" String="{}" />
   </context>
 
@@ -302,10 +440,14 @@
     <IncludeRules context="DefaultJS" />
   </context>
   <context name="Script HTML template content" attribute="Other Text" lineEndContext="#stay">
+    <IncludeRules context="FindText" />
     <IncludeRules context="FindScriptTagClose" />
     <StringDetect attribute="Error" context="#stay" String="&lt;script&gt;" insensitive="true" />
     <WordDetect attribute="Error" context="#stay" String="&lt;script" insensitive="true" />
-    <IncludeRules context="FindHTML" />
+    <IncludeRules context="FindElements" />
+    <IncludeRules context="FindComment" />
+    <IncludeRules context="FindEntity" />
+    <IncludeRules context="FindErrors" />
   </context>
 
 </contexts>
@@ -314,7 +456,6 @@
   <itemData name="Other Text" defStyleNum="dsNormal" spellChecking="false" />
   <itemData name="Comment" defStyleNum="dsComment" />
   <itemData name="CDATA" defStyleNum="dsBaseN" bold="1" spellChecking="false" />
-  <itemData name="Processing Instruction" defStyleNum="dsKeyword" spellChecking="false" />
   <itemData name="Doctype" defStyleNum="dsDataType" bold="1" spellChecking="false" />
   <itemData name="Element" defStyleNum="dsKeyword" spellChecking="false" />
   <itemData name="Element Symbols" defStyleNum="dsDataType" spellChecking="false" />
@@ -322,7 +463,6 @@
   <itemData name="Attribute Separator" defStyleNum="dsOperator" spellChecking="false" />
   <itemData name="Value" defStyleNum="dsString" spellChecking="false" />
   <itemData name="EntityRef" defStyleNum="dsDecVal" spellChecking="false" />
-  <itemData name="PEntityRef" defStyleNum="dsDecVal" spellChecking="false" />
   <itemData name="Error" defStyleNum="dsError" spellChecking="false" />
 </itemDatas>
 

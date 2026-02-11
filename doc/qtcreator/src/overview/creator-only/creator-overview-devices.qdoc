@@ -45,7 +45,7 @@
     You can connect embedded devices to the computer and select the appropriate
     kit to run, debug, and analyze applications built for them from \QC.
 
-    \e {Deploy configurations} handle the packaging and copying of the necessary
+    \e {Deploy settings} handle the packaging and copying of the necessary
     files to a location you want to run the executable at, such as the file
     system of a device.
 
@@ -82,5 +82,5 @@
 
     \sa {Develop for devices}{How to: Develop for devices},
     {Optimizing Applications for Mobile Devices}, {Supported Platforms},
-    {Deploy Configurations}, {Devices}
+    {Deploy settings}, {Run settings}
 */

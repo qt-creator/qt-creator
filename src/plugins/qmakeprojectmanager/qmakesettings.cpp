@@ -42,11 +42,6 @@ QmakeSettings::QmakeSettings()
     ignoreSystemFunction.setLabelText(Tr::tr("Ignore qmake's system() function when parsing a project"));
     ignoreSystemFunction.setToolTip(Tr::tr("Checking this option avoids unwanted side effects, "
          "but may result in inexact parsing results."));
-    // The settings value has been stored with the opposite meaning for a while.
-    // Avoid changing the stored value, but flip it on read/write:
-    const auto invertBoolVariant = [](const QVariant &v) { return QVariant(!v.toBool()); };
-    ignoreSystemFunction.setFromSettingsTransformation(invertBoolVariant);
-    ignoreSystemFunction.setToSettingsTransformation(invertBoolVariant);
 
     setLayouter([this] {
         using namespace Layouting;

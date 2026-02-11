@@ -901,12 +901,8 @@ FilePath CMakeBuildStep::cmakeExecutable() const
 
 void CMakeBuildStep::updateDeploymentData()
 {
-    if (!useStaging())
-        return;
-
-    QString install = currentInstallPrefix();
-    FilePath rootDir = cmakeExecutable().withNewPath(stagingDir().path());
-    Q_UNUSED(install)
+    const FilePath rootDir = cmakeExecutable().withNewPath(
+        useStaging() ? stagingDir().path() : currentInstallPrefix());
 
     DeploymentData deploymentData;
     deploymentData.setLocalInstallRoot(rootDir);

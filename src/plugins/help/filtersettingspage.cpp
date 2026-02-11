@@ -46,9 +46,9 @@ public:
                 onChanged();
             widget->readSettings(LocalHelpManager::filterEngine());
         });
-    }
 
-    ~FilterSettingsPageWidget() = default;
+        Utils::installMarkSettingsDirtyTriggerRecursively(this);
+    }
 };
 
 FilterSettingsPage::FilterSettingsPage(const std::function<void ()> &onChanged)

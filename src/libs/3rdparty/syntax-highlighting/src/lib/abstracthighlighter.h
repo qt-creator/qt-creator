@@ -21,10 +21,12 @@ class Format;
 class State;
 class Theme;
 
-/**
- * Abstract base class for highlighters.
+/*!
+ * \class KSyntaxHighlighting::AbstractHighlighter
+ * \inheaderfile KSyntaxHighlighting/AbstractHighlighter
+ * \inmodule KSyntaxHighlighting
  *
- * @section abshl_intro Introduction
+ * \brief Abstract base class for highlighters.
  *
  * The AbstractHighlighter provides an interface to highlight text.
  *
@@ -36,8 +38,6 @@ class Theme;
  *
  * However, if you want to use the SyntaxHighlighting framework to implement
  * your own syntax highlighter, you need to sublcass from AbstractHighlighter.
- *
- * @section abshl_impl Implementing your own Syntax Highlighter
  *
  * In order to implement your own syntax highlighter, you need to inherit from
  * AbstractHighlighter. Then, pass each text line that needs to be highlighted
@@ -60,22 +60,22 @@ class Theme;
  * Optionally, you can also reimplement setTheme() and setDefinition() to get
  * notified whenever the Definition or the Theme changes.
  *
- * @see SyntaxHighlighter
- * @since 5.28
+ * \sa SyntaxHighlighter
+ * \since 5.28
  */
 class KSYNTAXHIGHLIGHTING_EXPORT AbstractHighlighter
 {
 public:
     virtual ~AbstractHighlighter();
 
-    /**
+    /*!
      * Returns the syntax definition used for highlighting.
      *
-     * @see setDefinition()
+     * \sa setDefinition()
      */
     Definition definition() const;
 
-    /**
+    /*!
      * Sets the syntax definition used for highlighting.
      *
      * Subclasses can re-implement this method to e.g. trigger
@@ -83,15 +83,15 @@ public:
      */
     virtual void setDefinition(const Definition &def);
 
-    /**
+    /*!
      * Returns the currently selected theme for highlighting.
      *
-     * @note If no Theme was set through setTheme(), the returned Theme will be
+     * \note If no Theme was set through setTheme(), the returned Theme will be
      *       invalid, see Theme::isValid().
      */
     Theme theme() const;
 
-    /**
+    /*!
      * Sets the theme used for highlighting.
      *
      * Subclasses can re-implement this method to e.g. trigger
@@ -100,56 +100,66 @@ public:
     virtual void setTheme(const Theme &theme);
 
 protected:
+    /*!
+     */
     AbstractHighlighter();
+
     KSYNTAXHIGHLIGHTING_NO_EXPORT explicit AbstractHighlighter(AbstractHighlighterPrivate *dd);
 
-    /**
+    /*!
      * Highlight the given line. Call this from your derived class
      * where appropriate. This will result in any number of applyFormat()
      * and applyFolding() calls as a result.
-     * @param text A string containing the text of the line to highlight.
-     * @param state The highlighting state handle returned by the call
+     *
+     * \a text A string containing the text of the line to highlight.
+     *
+     * \a state The highlighting state handle returned by the call
      *        to highlightLine() for the previous line. For the very first line,
      *        just pass a default constructed State().
-     * @returns The state of the highlighting engine after processing the
+     *
+     * Returns The state of the highlighting engine after processing the
      *        given line. This needs to passed into highlightLine() for the
      *        next line. You can store the state for efficient partial
      *        re-highlighting for example during editing.
      *
-     * @see applyFormat(), applyFolding()
+     * \sa applyFormat(), applyFolding()
      */
     State highlightLine(QStringView text, const State &state);
 
-    /**
-     * Reimplement this to apply formats to your output. The provided @p format
-     * is valid for the interval [@p offset, @p offset + @p length).
+    /*!
+     * Reimplement this to apply formats to your output. The provided \a format
+     * is valid for the interval [ \a offset, \a offset + \a length).
      *
-     * @param offset The start column of the interval for which @p format matches
-     * @param length The length of the matching text
-     * @param format The Format that applies to the range [offset, offset + length)
+     * \a offset The start column of the interval for which \a format matches
      *
-     * @note Make sure to set a valid Definition, otherwise the parameter
-     *       @p format is invalid for the entire line passed to highlightLine()
+     * \a length The length of the matching text
+     *
+     * \a format The Format that applies to the range [offset, offset + length)
+     *
+     * \note Make sure to set a valid Definition, otherwise the parameter
+     *       \a format is invalid for the entire line passed to highlightLine()
      *       (cf. Format::isValid()).
      *
-     * @see applyFolding(), highlightLine()
+     * \sa applyFolding(), highlightLine()
      */
     virtual void applyFormat(int offset, int length, const Format &format) = 0;
 
-    /**
+    /*!
      * Reimplement this to apply folding to your output. The provided
-     * FoldingRegion @p region either stars or ends a code folding region in the
-     * interval [@p offset, @p offset + @p length).
+     * FoldingRegion \a region either stars or ends a code folding region in the
+     * interval [ \a offset, \a offset + \a length).
      *
-     * @param offset The start column of the FoldingRegion
-     * @param length The length of the matching text that starts / ends a
+     * \a offset The start column of the FoldingRegion
+     *
+     * \a length The length of the matching text that starts / ends a
      *       folding region
-     * @param region The FoldingRegion that applies to the range [offset, offset + length)
      *
-     * @note The FoldingRegion @p region is @e always either of type
+     * \a region The FoldingRegion that applies to the range [offset, offset + length)
+     *
+     * \note The FoldingRegion \a region is @e always either of type
      *       FoldingRegion::Type::Begin or FoldingRegion::Type::End.
      *
-     * @see applyFormat(), highlightLine(), FoldingRegion
+     * \sa applyFormat(), highlightLine(), FoldingRegion
      */
     virtual void applyFolding(int offset, int length, FoldingRegion region);
 

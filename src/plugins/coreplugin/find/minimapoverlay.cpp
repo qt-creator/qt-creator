@@ -4,6 +4,7 @@
 #include "minimapoverlay.h"
 
 #include <utils/plaintextedit/plaintextedit.h>
+#include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
@@ -28,12 +29,11 @@ MinimapOverlay::MinimapOverlay(PlainTextEdit *editor)
     m_doc = editor->document();
     m_vScroll = editor->verticalScrollBar();
 
+    m_scrollbarDefaultWidth = editor->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+
     editor->setEditorTextMargin("Core.MinimapWidth", Qt::RightEdge, m_minimapWidth);
 
     editor->installEventFilter(this);
-    doResize();
-    doMove();
-    setVisible(m_vScroll->isVisible());
 
     connect(m_doc, &QTextDocument::contentsChange, this, &MinimapOverlay::onDocumentChanged);
     connect(
@@ -137,7 +137,7 @@ void MinimapOverlay::updateImage()
     if (!m_editor || !m_editor->isVisible())
         return;
 
-    const int docLineCount = [this]() {
+    int docLineCount = [this]() {
         int lineCount = 0;
         for (QTextBlock block = m_doc->firstBlock(); block.isValid(); block = block.next()) {
             if (!block.isVisible())
@@ -146,6 +146,14 @@ void MinimapOverlay::updateImage()
         }
         return lineCount;
     }();
+
+    if (m_editor->centerOnScroll()) {
+        // if center cursor on scroll is enabled, it is possible to scroll past the end of the
+        // document, so we need to add enough lines to fill the viewport
+        auto viewportHeight = m_editor->viewport()->height();
+        auto lineSpacing = m_editor->editorLayout()->lineSpacing();
+        docLineCount += viewportHeight / lineSpacing;
+    }
 
     const int imageWidth = m_minimapWidth - 2;
     const int lineDup = m_pixelsPerLine;
@@ -252,21 +260,18 @@ void MinimapOverlay::updateImage()
 
 void MinimapOverlay::doMove()
 {
-    QMetaObject::invokeMethod(this, [this] {
-        QPoint point = parentWidget()->mapFromGlobal(m_vScroll->mapToGlobal(m_vScroll->pos()));
-        point.setX(point.x() - m_minimapWidth);
-
-        move(point);
-    }, Qt::QueuedConnection);
+    QMetaObject::invokeMethod(
+        this,
+        [this] {
+            const int x = m_editor->width() - m_scrollbarDefaultWidth - m_minimapWidth;
+            move(x, 0);
+        },
+        Qt::QueuedConnection);
 }
 
 void MinimapOverlay::doResize()
 {
-    QSize size = m_vScroll->size();
-
-    const int h = m_editor->viewport()->height();
-    const int w = size.width() + m_minimapWidth;
-    resize(w, h);
+    resize(m_minimapWidth, m_editor->height());
 }
 
 void MinimapOverlay::mousePressEvent(QMouseEvent *event)
@@ -275,7 +280,7 @@ void MinimapOverlay::mousePressEvent(QMouseEvent *event)
         return;
 
     QPoint mappedPos = m_vScroll->mapFromGlobal(event->globalPosition()).toPoint();
-    mappedPos.setX(m_vScroll->width() / 2);
+    mappedPos.setX(m_scrollbarDefaultWidth / 2);
 
     // Compute the minimap thumb rect
     const QRect geo = rect().adjusted(1, 0, 1, 0);
@@ -340,7 +345,7 @@ void MinimapOverlay::mouseMoveEvent(QMouseEvent *event)
         return;
 
     QPointF mappedPos = m_vScroll->mapFromGlobal(event->globalPosition());
-    mappedPos.setX(m_vScroll->width() / 2);
+    mappedPos.setX(m_scrollbarDefaultWidth / 2);
     QMouseEvent forwarded(
         event->type(),
         mappedPos,
@@ -359,7 +364,7 @@ void MinimapOverlay::mouseReleaseEvent(QMouseEvent *event)
         return;
 
     QPointF mappedPos = m_vScroll->mapFromGlobal(event->globalPosition());
-    mappedPos.setX(m_vScroll->width() / 2);
+    mappedPos.setX(m_scrollbarDefaultWidth / 2);
     QMouseEvent forwarded(
         event->type(),
         mappedPos,
@@ -378,7 +383,7 @@ void MinimapOverlay::wheelEvent(QWheelEvent *event)
         return;
 
     QPointF mappedPos = m_vScroll->mapFromGlobal(event->globalPosition());
-    mappedPos.setX(m_vScroll->width() / 2);
+    mappedPos.setX(m_scrollbarDefaultWidth / 2);
     QWheelEvent forwarded(
         mappedPos,
         event->globalPosition(),

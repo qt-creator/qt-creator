@@ -891,8 +891,9 @@ void HelpWidget::saveState() const
             }
         }
 
-        LocalHelpManager::setLastShownPages(currentPages);
-        LocalHelpManager::setLastSelectedTab(currentIndex());
+        helpSettings().lastShownPages.setValue(currentPages.join(Constants::ListSeparator));
+        helpSettings().lastSelectedTab.setValue(currentIndex());
+        helpSettings().writeSettings();
     }
 }
 
@@ -922,7 +923,7 @@ void HelpWidget::reloadViewer(int index)
 void HelpWidget::updateCloseButton()
 {
     if (supportsPages()) {
-        const bool closeOnReturn = LocalHelpManager::returnOnClose() && m_style == ModeWidget;
+        const bool closeOnReturn = helpSettings().returnOnClose() && m_style == ModeWidget;
         const bool hasMultiplePages = m_viewerStack->count() > 1;
         m_closeAction->setEnabled(closeOnReturn || hasMultiplePages);
         m_gotoPrevious->setEnabled(hasMultiplePages);

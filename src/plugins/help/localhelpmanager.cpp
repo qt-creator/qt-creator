@@ -55,27 +55,21 @@ static BookmarkManager *m_bookmarkManager = nullptr;
 
 QList<Core::HelpManager::OnlineHelpHandler> m_onlineHelpHandlerList;
 
-const char kHelpHomePageKey[] = "Help/HomePage";
 const char kFontFamilyKey[] = "Help/FallbackFontFamily";
 const char kFontStyleNameKey[] = "Help/FallbackFontStyleName";
 const char kFontSizeKey[] = "Help/FallbackFontSize";
-const char kFontZoomKey[] = "Help/FontZoom";
-const char kAntialiasKey[] = "Help/FontAntialias";
 const char kStartOptionKey[] = "Help/StartOption";
 const char kContextHelpOptionKey[] = "Help/ContextHelpOption";
-const char kReturnOnCloseKey[] = "Help/ReturnOnClose";
-const char kUseScrollWheelZooming[] = "Help/UseScrollWheelZooming";
-const char kLastShownPagesKey[] = "Help/LastShownPages";
-const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
-const char kViewerBackend[] = "Help/ViewerBackend";
 
 const int kDefaultFallbackFontSize = 14;
-const int kDefaultFontZoom = 100;
-const bool kDefaultAntialias = true;
 const int kDefaultStartOption = LocalHelpManager::ShowLastPages;
 const int kDefaultContextHelpOption = Core::HelpManager::SideBySideIfPossible;
-const bool kDefaultReturnOnClose = false;
-const bool kDefaultUseScrollWheelZooming = true;
+
+HelpSettings &helpSettings()
+{
+    static HelpSettings theHelpSettings;
+    return theHelpSettings;
+}
 
 static QString defaultFallbackFontFamily()
 {
@@ -91,6 +85,47 @@ static QString defaultFallbackFontStyleName(const QString &fontFamily)
     const QStringList styles = QFontDatabase::styles(fontFamily);
     QTC_ASSERT(!styles.isEmpty(), return QString("Regular"));
     return styles.first();
+}
+
+HelpSettings::HelpSettings()
+{
+    setAutoApply(false);
+
+    const auto version = QVersionNumber::fromString(QCoreApplication::applicationVersion());
+    const QString defaultHomePage =
+        QString("qthelp://org.qt-project.qtcreator.%1%2%3/doc/index.html")
+                                   .arg(version.majorVersion())
+                                   .arg(version.minorVersion())
+                                   .arg(version.microVersion());
+
+    homePage.setSettingsKey("Help/HomePage");
+    homePage.setDefaultValue(defaultHomePage);
+
+    fontZoom.setSettingsKey("Help/FontZoom");
+    fontZoom.setRange(10, 3000);
+    fontZoom.setDefaultValue(100);
+    fontZoom.setSingleStep(10);
+    fontZoom.setSuffix(Tr::tr("%"));
+
+    antiAlias.setSettingsKey("Help/FontAntialias");
+    antiAlias.setDefaultValue(true);
+    antiAlias.setLabelText(Tr::tr("Antialias"));
+
+    scrollWheelZooming.setSettingsKey("Help/UseScrollWheelZooming");
+    scrollWheelZooming.setDefaultValue(true);
+    scrollWheelZooming.setLabelText(Tr::tr("Enable scroll wheel zooming"));
+
+    returnOnClose.setSettingsKey("Help/ReturnOnClose");
+    returnOnClose.setDefaultValue(true);
+    returnOnClose.setLabelText(Tr::tr("Return to editor on closing the last page"));
+    returnOnClose.setToolTip(
+        Tr::tr("Switches to editor context after last help page is closed."));
+
+    lastShownPages.setSettingsKey("Help/LastShownPages");
+
+    viewerBackendId.setSettingsKey("Help/ViewerBackend");
+
+    readSettings();
 }
 
 LocalHelpManager::LocalHelpManager(QObject *parent)
@@ -119,27 +154,6 @@ LocalHelpManager *LocalHelpManager::instance()
     return m_instance;
 }
 
-QString LocalHelpManager::defaultHomePage()
-{
-    const auto version = QVersionNumber::fromString(QCoreApplication::applicationVersion());
-    static const QString url = QString::fromLatin1("qthelp://org.qt-project.qtcreator."
-                                                   "%1%2%3/doc/index.html")
-                                   .arg(version.majorVersion())
-                                   .arg(version.minorVersion())
-                                   .arg(version.microVersion());
-    return url;
-}
-
-QString LocalHelpManager::homePage()
-{
-    return Core::ICore::settings()->value(kHelpHomePageKey, defaultHomePage()).toString();
-}
-
-void LocalHelpManager::setHomePage(const QString &page)
-{
-    Core::ICore::settings()->setValueWithDefault(kHelpHomePageKey, page, defaultHomePage());
-}
-
 QFont LocalHelpManager::fallbackFont()
 {
     Utils::QtcSettings *settings = Core::ICore::settings();
@@ -164,35 +178,6 @@ void LocalHelpManager::setFallbackFont(const QFont &font)
                                                  font.pointSize(),
                                                  kDefaultFallbackFontSize);
     emit m_instance->fallbackFontChanged(font);
-}
-
-int LocalHelpManager::fontZoom()
-{
-    return Core::ICore::settings()->value(kFontZoomKey, kDefaultFontZoom).toInt();
-}
-
-int LocalHelpManager::setFontZoom(int percentage)
-{
-    const int newZoom = qBound(10, percentage, 3000);
-    if (newZoom == fontZoom())
-        return newZoom;
-
-    Core::ICore::settings()->setValueWithDefault(kFontZoomKey, newZoom, kDefaultFontZoom);
-    emit m_instance->fontZoomChanged(newZoom);
-    return newZoom;
-}
-
-bool LocalHelpManager::antialias()
-{
-    return Core::ICore::settings()->value(kAntialiasKey, kDefaultAntialias).toBool();
-}
-
-void LocalHelpManager::setAntialias(bool on)
-{
-    if (on != antialias()) {
-        Core::ICore::settings()->setValueWithDefault(kAntialiasKey, on, kDefaultAntialias);
-        emit m_instance->antialiasChanged(on);
-    }
 }
 
 LocalHelpManager::StartOption LocalHelpManager::startOption()
@@ -251,58 +236,6 @@ void LocalHelpManager::setContextHelpOption(Core::HelpManager::HelpViewerLocatio
                                                  int(location),
                                                  kDefaultContextHelpOption);
     emit m_instance->contextHelpOptionChanged(location);
-}
-
-bool LocalHelpManager::returnOnClose()
-{
-    const QVariant value = Core::ICore::settings()->value(kReturnOnCloseKey, kDefaultReturnOnClose);
-    return value.toBool();
-}
-
-void LocalHelpManager::setReturnOnClose(bool returnOnClose)
-{
-    Core::ICore::settings()->setValueWithDefault(kReturnOnCloseKey,
-                                                 returnOnClose,
-                                                 kDefaultReturnOnClose);
-    emit m_instance->returnOnCloseChanged();
-}
-
-bool LocalHelpManager::isScrollWheelZoomingEnabled()
-{
-    return Core::ICore::settings()
-        ->value(kUseScrollWheelZooming, kDefaultUseScrollWheelZooming)
-        .toBool();
-}
-
-void LocalHelpManager::setScrollWheelZoomingEnabled(bool enabled)
-{
-    Core::ICore::settings()->setValueWithDefault(kUseScrollWheelZooming,
-                                                 enabled,
-                                                 kDefaultUseScrollWheelZooming);
-    emit m_instance->scrollWheelZoomingEnabledChanged(enabled);
-}
-
-QStringList LocalHelpManager::lastShownPages()
-{
-    const QVariant value = Core::ICore::settings()->value(kLastShownPagesKey, QVariant());
-    return value.toString().split(Constants::ListSeparator, Qt::SkipEmptyParts);
-}
-
-void LocalHelpManager::setLastShownPages(const QStringList &pages)
-{
-    Core::ICore::settings()->setValueWithDefault(kLastShownPagesKey,
-                                                 pages.join(Constants::ListSeparator));
-}
-
-int LocalHelpManager::lastSelectedTab()
-{
-    const QVariant value = Core::ICore::settings()->value(kLastSelectedTabKey, 0);
-    return value.toInt();
-}
-
-void LocalHelpManager::setLastSelectedTab(int index)
-{
-    Core::ICore::settings()->setValueWithDefault(kLastSelectedTabKey, index, -1);
 }
 
 static std::optional<HelpViewerFactory> backendForId(const QByteArray &id)
@@ -365,24 +298,10 @@ QVector<HelpViewerFactory> LocalHelpManager::viewerBackends()
 
 HelpViewerFactory LocalHelpManager::viewerBackend()
 {
-    const QByteArray id = Core::ICore::settings()->value(kViewerBackend).toByteArray();
+    const QByteArray id = helpSettings().viewerBackendId();
     if (!id.isEmpty())
         return backendForId(id).value_or(defaultViewerBackend());
     return defaultViewerBackend();
-}
-
-void LocalHelpManager::setViewerBackendId(const QByteArray &id)
-{
-    const QByteArray previous = viewerBackendId();
-    if (id != previous) {
-        Core::ICore::settings()->setValueWithDefault(kViewerBackend, id, {});
-        emit m_instance->backendChanged();
-    }
-}
-
-QByteArray LocalHelpManager::viewerBackendId()
-{
-    return Core::ICore::settings()->value(kViewerBackend).toByteArray();
 }
 
 void LocalHelpManager::setupGuiHelpEngine()

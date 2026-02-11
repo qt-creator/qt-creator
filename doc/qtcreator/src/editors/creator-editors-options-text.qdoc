@@ -40,8 +40,7 @@
     on the screen. Clear \uicontrol Antialias to turn off
     antialiasing.
 
-    \sa {Configure editors}{How to: Configure editors},
-    {Text Editor}{Preferences: Text Editor}
+    \sa {Configure editors}{How to: Configure editors}, {Editors}
 */
 
 /*!
@@ -104,5 +103,6 @@
     When you select \uicontrol OK, the color scheme is added to the list of
     color schemes in the \uicontrol {Font & Colors} tab.
 
-    \sa {Configure editors}{How to: Configure editors}
+    \sa {Configure editors}{How to: Configure editors}, {Configuring editors},
+    {Editors}
 */
