@@ -285,6 +285,76 @@ McpServer::McpServer(QObject *parent)
         });
 
     addTool(
+        {{"name", "find_files_in_projects"},
+         {"title", "Find files in projects"},
+         {"description", "Find all files matching the pattern in all open projects"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+              {"properties",
+               QJsonObject{
+                           {"pattern",
+                    QJsonObject{{"type", "string"}, {"description", "Pattern for finding the file"}}},
+                   {"regex",
+                    QJsonObject{
+                                {"type", "bool"}, {"description", "Whether the pattern is a regex"}}}}},
+              {"required", QJsonArray{"pattern"}}}},
+
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
+              {"properties",
+               QJsonObject{
+                           {"files",
+                    QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
+              {"required", QJsonArray{"files"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            const QString pattern = p.value("pattern").toString();
+            const bool isRegex = p.value("regex").toBool();
+            const QStringList files = runOnGuiThread([this, pattern, isRegex] {
+                return m_commands.findFilesInProjects(pattern, isRegex);
+            });
+            callback(QJsonObject{{"files", QJsonArray::fromStringList(files)}});
+        });
+
+    addTool(
+        {{"name", "find_files_in_project"},
+         {"title", "Find files in project"},
+         {"description", "Find all files matching the pattern in a given project"},
+         {"inputSchema",
+          QJsonObject{
+                      {"type", "object"},
+              {"properties",
+               QJsonObject{
+                           {"name", QJsonObject{{"type", "string"}, {"description", "name of the project"}}},
+                   {"pattern",
+                    QJsonObject{{"type", "string"}, {"description", "Pattern for finding the file"}}},
+                   {"regex",
+                    QJsonObject{
+                                {"type", "bool"}, {"description", "Whether the pattern is a regex"}}}}},
+              {"required", QJsonArray{"name, pattern"}}}},
+
+         {"outputSchema",
+          QJsonObject{
+                      {"type", "object"},
+              {"properties",
+               QJsonObject{
+                           {"files",
+                    QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}}}}},
+              {"required", QJsonArray{"files"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            const QString name = p.value("name").toString();
+            const QString pattern = p.value("pattern").toString();
+            const bool isRegex = p.value("regex").toBool();
+            const QStringList files = runOnGuiThread([this, name, pattern, isRegex] {
+                return m_commands.findFilesInProject(name, pattern, isRegex);
+            });
+            callback(QJsonObject{{"files", QJsonArray::fromStringList(files)}});
+        });
+
+    addTool(
         {{"name", "list_projects"},
          {"title", "List all available projects"},
          {"description", "List all available projects"},

@@ -37,7 +37,8 @@ public:
     bool setFilePlainText(const QString &path, const QString &contents);
     bool saveFile(const QString &path);
     bool closeFile(const QString &path);
-    // TODO: find file for pattern
+    QStringList findFilesInProject(const QString &name, const QString &pattern, bool regex);
+    QStringList findFilesInProjects(const QString &pattern, bool regex);
     // TODO: reformat file
     // TODO: search in File
     // TODO: replace text in file

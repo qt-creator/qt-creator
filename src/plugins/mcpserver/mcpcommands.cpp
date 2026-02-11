@@ -18,13 +18,14 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/textdocument.h>
 
-// #include <utils/fileutils.h>
+#include <utils/algorithm.h>
 #include <utils/id.h>
 #include <utils/mimeutils.h>
 
@@ -272,6 +273,32 @@ bool McpCommands::closeFile(const QString &path)
         qCDebug(mcpCommands) << "Failed to close document:" << path;
 
     return closed;
+}
+
+static QStringList findFiles(
+    const QList<Project *> &projects, const QString &pattern, bool regex)
+{
+    QStringList result;
+    const QRegularExpression r(regex ? pattern : QRegularExpression::escape(pattern));
+    for (auto project : projects) {
+        const FilePaths matches = project->files([&r](const Node *n) {
+            return !n->filePath().isEmpty() && r.match(n->filePath().toUserOutput()).hasMatch();
+        });
+        result.append(Utils::transform(matches, &FilePath::toUserOutput));
+    }
+    return result;
+}
+
+QStringList McpCommands::findFilesInProject(const QString &name, const QString &pattern, bool regex)
+{
+    const QList<Project *> projects
+        = Utils::filtered(ProjectManager::projects(), Utils::equal(&Project::displayName, name));
+    return findFiles(projects, pattern, regex);
+}
+
+QStringList McpCommands::findFilesInProjects(const QString &pattern, bool regex)
+{
+    return findFiles(ProjectManager::projects(), pattern, regex);
 }
 
 QStringList McpCommands::listProjects()
