@@ -301,7 +301,7 @@ Result<> Client::start(bool deleteOnExit)
                 }
 
                 auto j = d->jobs.writeLocked();
-                for (auto it = j->map.begin(); it != j->map.end();) {
+                for (auto it = j->map.cbegin(); it != j->map.cend();) {
                     auto func = it.value();
                     auto id = it.key();
                     it = j->map.erase(it);
