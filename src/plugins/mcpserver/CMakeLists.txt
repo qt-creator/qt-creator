@@ -38,6 +38,6 @@ qtc_add_resources(mcpserver "schemas"
   PREFIX "/mcpserver"
   BASE "."
   FILES
-    issues-schema.json
-    search-results-schema.json
+    schemas/issues-schema.json
+    schemas/search-results-schema.json
 )

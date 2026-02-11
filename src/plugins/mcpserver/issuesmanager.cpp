@@ -46,9 +46,9 @@ QJsonObject IssuesManager::getCurrentIssues(const Utils::FilePath &path) const
 QJsonObject IssuesManager::issuesSchema()
 {
     static QJsonObject cachedSchema = [] {
-        QFile schemaFile(":/mcpserver/issues-schema.json");
+        QFile schemaFile(":/mcpserver/schemas/issues-schema.json");
         if (!schemaFile.open(QIODevice::ReadOnly)) {
-            qCWarning(mcpIssues) << "Failed to open issues-schema.json from resources:"
+            qCWarning(mcpIssues) << "Failed to open schemas/issues-schema.json from resources:"
                                  << schemaFile.errorString();
             return QJsonObject();
         }

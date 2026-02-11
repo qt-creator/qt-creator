@@ -56,9 +56,9 @@ McpCommands::McpCommands(QObject *parent)
 QJsonObject McpCommands::searchResultsSchema()
 {
     static QJsonObject cachedSchema = [] {
-        QFile schemaFile(":/mcpserver/search-results-schema.json");
+        QFile schemaFile(":/mcpserver/schemas/search-results-schema.json");
         if (!schemaFile.open(QIODevice::ReadOnly)) {
-            qCWarning(mcpCommands) << "Failed to open search-results-schema.json from resources:"
+            qCWarning(mcpCommands) << "Failed to open schemas/search-results-schema.json from resources:"
                                    << schemaFile.errorString();
             return QJsonObject();
         }

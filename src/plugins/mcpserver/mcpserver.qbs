@@ -40,6 +40,7 @@ QtcPlugin {
 
     Group {
         name: "schemas"
+        prefix: "schemas/"
         files: [
             "issues-schema.json",
             "search-results-schema.json",
