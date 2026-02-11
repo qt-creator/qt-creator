@@ -382,7 +382,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::downloadSdk);
 
     setOnApply([] { AndroidConfigurations::applyConfig(); });
-    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void AndroidSettingsWidget::showEvent(QShowEvent *event)
