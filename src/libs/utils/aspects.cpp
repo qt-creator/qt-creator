@@ -2008,7 +2008,7 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
     fontComboBox->setCurrentFont(QFontInfo(QFont(value())).family());
     parent.addItem(fontComboBox);
 
-    connect(fontComboBox, &QFontComboBox::currentTextChanged, [fontComboBox, this] {
+    connect(fontComboBox, &QFontComboBox::currentTextChanged, this, [fontComboBox, this] {
         const QString val = fontComboBox->currentFont().family();
         d->m_undoable.set(undoStack(), val);
         updateStorage(m_volatileValue, val);
