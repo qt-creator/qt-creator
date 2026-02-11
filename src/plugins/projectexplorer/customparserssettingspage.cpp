@@ -330,7 +330,7 @@ public:
             m_model.setData(parserView->currentIndex(), QVariant::fromValue<CustomParserSettings>(s), Qt::UserRole);
         });
 
-        connect(exportButton, &QPushButton::clicked, [this, parserView] {
+        connect(exportButton, &QPushButton::clicked, this, [this, parserView] {
             const QModelIndexList selected = parserView->selectionModel()->selectedRows();
             QJsonArray jsonArray;
             for (const QModelIndex &idx : selected) {
@@ -350,7 +350,7 @@ public:
             }
         });
 
-        connect(importButton, &QPushButton::clicked, [this] {
+        connect(importButton, &QPushButton::clicked, this, [this] {
             const FilePath jsonFile
                 = FileUtils::getOpenFilePath(Tr::tr("Load Parsers"), {}, Tr::tr("*.json"));
             if (jsonFile.isEmpty())

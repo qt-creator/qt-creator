@@ -981,7 +981,7 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
         process.setExtraData(extra);
         process.setForceDefaultErrorModeOnWindows(true);
 
-        QObject::connect(&process, &Process::started, [this, process = &process] {
+        QObject::connect(&process, &Process::started, this, [this, process = &process] {
             const bool isDesktop = process->commandLine().executable().isLocal();
             if (isDesktop) {
                 // Console processes only know their pid after being started
