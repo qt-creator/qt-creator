@@ -634,6 +634,12 @@ void SettingsWidget::showPage(const Id pageId)
     }
 }
 
+class LargerDialogButtonBox : public QDialogButtonBox
+{
+public:
+    QSize sizeHint() const override { return QDialogButtonBox::sizeHint() + QSize(25, 0); }
+};
+
 void SettingsWidget::createGui()
 {
     m_headerLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
@@ -643,11 +649,11 @@ void SettingsWidget::createGui()
     m_discardButton.setToolTip(Tr::tr("Discard all changes and stay here."));
     m_cancelButton.setToolTip(Tr::tr("Discard all changes and return to previous mode."));
 
-    auto buttonBox = new QDialogButtonBox;
-    buttonBox->addButton(&m_okButton, QDialogButtonBox::ActionRole);
+    auto buttonBox = new LargerDialogButtonBox;
+    buttonBox->addButton(&m_okButton, QDialogButtonBox::AcceptRole);
     buttonBox->addButton(&m_applyButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(&m_discardButton, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(&m_cancelButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(&m_cancelButton, QDialogButtonBox::RejectRole);
 
     connect(&m_okButton, &QAbstractButton::clicked, this, [this] {
         apply();
