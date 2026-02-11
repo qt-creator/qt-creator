@@ -8,12 +8,14 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/find/findplugin.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/session.h>
 
 #include <debugger/debuggerruncontrol.h>
 
+#include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
@@ -26,11 +28,15 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
+#include <utils/filesearch.h>
 #include <utils/id.h>
 #include <utils/mimeutils.h>
 
 #include <QApplication>
 #include <QFile>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QLoggingCategory>
 #include <QProcess>
 #include <QThread>
@@ -46,6 +52,30 @@ namespace Mcp::Internal {
 McpCommands::McpCommands(QObject *parent)
     : QObject(parent)
 {}
+
+QJsonObject McpCommands::searchResultsSchema()
+{
+    static QJsonObject cachedSchema = [] {
+        QFile schemaFile(":/mcpserver/search-results-schema.json");
+        if (!schemaFile.open(QIODevice::ReadOnly)) {
+            qCWarning(mcpCommands) << "Failed to open search-results-schema.json from resources:"
+                                   << schemaFile.errorString();
+            return QJsonObject();
+        }
+
+        QJsonParseError parseError;
+        QJsonDocument doc = QJsonDocument::fromJson(schemaFile.readAll(), &parseError);
+        if (parseError.error != QJsonParseError::NoError) {
+            qCWarning(mcpCommands) << "Failed to parse search-results-schema.json:"
+                                   << parseError.errorString();
+            return QJsonObject();
+        }
+
+        return doc.object();
+    }();
+
+    return cachedSchema;
+}
 
 QString McpCommands::stopDebug()
 {
@@ -289,16 +319,136 @@ static QStringList findFiles(
     return result;
 }
 
+static QList<Project *> projectsForName(const QString &name)
+{
+    return Utils::filtered(ProjectManager::projects(), Utils::equal(&Project::displayName, name));
+}
+
 QStringList McpCommands::findFilesInProject(const QString &name, const QString &pattern, bool regex)
 {
-    const QList<Project *> projects
-        = Utils::filtered(ProjectManager::projects(), Utils::equal(&Project::displayName, name));
-    return findFiles(projects, pattern, regex);
+    return findFiles(projectsForName(name), pattern, regex);
 }
 
 QStringList McpCommands::findFilesInProjects(const QString &pattern, bool regex)
 {
     return findFiles(ProjectManager::projects(), pattern, regex);
+}
+
+static void findInFiles(
+    FileContainer fileContainer,
+    bool regex,
+    const QString &pattern,
+    QObject *guard,
+    const McpCommands::ResponseCallback &callback)
+{
+    FindFlags flags = regex ? FindRegularExpression : FindFlags();
+    const QFuture<SearchResultItems> future = Utils::findInFiles(
+        pattern, fileContainer, flags, TextEditor::TextDocument::openedTextDocumentContents());
+    Utils::onFinished(future, guard, [callback](const QFuture<SearchResultItems> &future) {
+        QJsonArray resultsArray;
+        for (Utils::SearchResultItems results : future.results()) {
+            for (const SearchResultItem &item : results) {
+                QJsonObject resultObj;
+                const Text::Range range = item.mainRange();
+                const QString lineText = item.lineText();
+                const int startCol = range.begin.column;
+                const int endCol = range.end.column;
+                const QString matchedText = lineText.mid(startCol, endCol - startCol);
+
+                resultObj["file"] = item.path().value(0, QString());
+                resultObj["line"] = range.begin.line;
+                resultObj["column"] = startCol + 1; // Convert 0-based to 1-based
+                resultObj["text"] = matchedText;
+                resultsArray.append(resultObj);
+            }
+        }
+
+        QJsonObject response;
+        response["results"] = resultsArray;
+        callback(response);
+    });
+}
+
+void McpCommands::searchInFile(
+    const QString &path, const QString &pattern, bool regex, const ResponseCallback &callback)
+{
+    const FilePath filePath = FilePath::fromUserInput(path);
+    if (!filePath.exists()) {
+        callback({});
+        qCDebug(mcpCommands) << "File does not exist:" << path;
+        return;
+    }
+
+    TextEncoding encoding;
+    if (auto doc = TextEditor::TextDocument::textDocumentForFilePath(filePath)) {
+        encoding = doc->encoding();
+    } else {
+        for (const Project *project : ProjectManager::projects()) {
+            const EditorConfiguration *config = project->editorConfiguration();
+            if (project->isKnownFile(filePath)) {
+                encoding = config->useGlobalSettings() ? Core::EditorManager::defaultTextEncoding()
+                                                       : config->textEncoding();
+                break;
+            }
+        }
+    }
+    if (!encoding.isValid())
+        encoding = Core::EditorManager::defaultTextEncoding();
+
+    FileListContainer fileContainer({filePath}, {encoding});
+
+    findInFiles(fileContainer, regex, pattern, this, callback);
+}
+
+void McpCommands::searchInFiles(
+    const QString &filePattern,
+    const std::optional<QString> &projectName,
+    const QString &path,
+    const QString &pattern,
+    bool regex,
+    const ResponseCallback &callback)
+{
+    const QList<Project *> projects = projectName ? projectsForName(*projectName)
+                                                  : ProjectManager::projects();
+
+    const FilterFilesFunction filterFiles
+        = Utils::filterFilesFunction({filePattern.isEmpty() ? "*" : filePattern}, {});
+    const QMap<FilePath, TextEncoding> openEditorEncodings
+        = TextEditor::TextDocument::openedTextDocumentEncodings();
+    QMap<FilePath, TextEncoding> encodings;
+    for (const Project *project : projects) {
+        const EditorConfiguration *config = project->editorConfiguration();
+        TextEncoding projectEncoding = config->useGlobalSettings()
+                                           ? Core::EditorManager::defaultTextEncoding()
+                                           : config->textEncoding();
+        const FilePaths filteredFiles = filterFiles(project->files(
+            Core::Find::hasFindFlag(DontFindGeneratedFiles) ? Project::SourceFiles
+                                                            : Project::AllFiles));
+        for (const FilePath &fileName : filteredFiles) {
+            TextEncoding encoding = openEditorEncodings.value(fileName);
+            if (!encoding.isValid())
+                encoding = projectEncoding;
+            encodings.insert(fileName, encoding);
+        }
+    }
+    FileListContainer fileContainer(encodings.keys(), encodings.values());
+
+    findInFiles(fileContainer, regex, pattern, this, callback);
+}
+
+void McpCommands::searchInDirectory(
+    const QString directory, const QString &pattern, bool regex, const ResponseCallback &callback)
+{
+    const FilePath dirPath = FilePath::fromUserInput(directory);
+    if (!dirPath.exists() || !dirPath.isDir()) {
+        callback({});
+        qCDebug(mcpCommands) << "Directory does not exist or is not a directory:" << directory;
+        return;
+    }
+
+    SubDirFileContainer fileContainer({dirPath}, {}, {}, {});
+
+    findInFiles(fileContainer, regex, pattern, this, callback);
 }
 
 QStringList McpCommands::listProjects()
@@ -521,7 +671,7 @@ void McpCommands::executeCommand(
     const QString &command,
     const QString &arguments,
     const QString &workingDirectory,
-    std::function<void(const QJsonObject &)> callback)
+    const ResponseCallback &callback)
 {
     CommandLine cmd(FilePath::fromUserInput(command), arguments, CommandLine::Raw);
     auto process = new Process(this);

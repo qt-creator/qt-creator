@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://qt.io/qtcreator/mcpserver/search-results-output.schema.json",
+  "title": "Qt Creator Search Results Output",
+  "description": "Schema for search results passed to the MCP server from the Search Manager, representing matches found in project files.",
+  "type": "object",
+  "required": ["results"],
+  "properties": {
+    "results": {
+      "description": "Array of search matches found in the project",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["file", "line", "column", "text"],
+        "properties": {
+          "file": {
+            "description": "File path where the match was found",
+            "type": "string",
+            "minLength": 1
+          },
+          "line": {
+            "description": "Line number where the match occurred (1-based)",
+            "type": "integer",
+            "minimum": 1
+          },
+          "column": {
+            "description": "Column number where the match starts (1-based)",
+            "type": "integer",
+            "minimum": 1
+          },
+          "text": {
+            "description": "The matched text content",
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "results": [
+        {
+          "file": "/path/to/project/main.cpp",
+          "line": 42,
+          "column": 10,
+          "text": "    QString result = myFunction();"
+        },
+        {
+          "file": "/path/to/project/utils.cpp",
+          "line": 15,
+          "column": 5,
+          "text": "void myFunction() {"
+        },
+        {
+          "file": "/path/to/project/utils.h",
+          "line": 8,
+          "column": 1,
+          "text": "QString myFunction();"
+        }
+      ]
+    }
+  ]
+}

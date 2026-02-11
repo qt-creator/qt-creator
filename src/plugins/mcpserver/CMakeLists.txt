@@ -39,4 +39,5 @@ qtc_add_resources(mcpserver "schemas"
   BASE "."
   FILES
     issues-schema.json
+    search-results-schema.json
 )

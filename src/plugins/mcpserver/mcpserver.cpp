@@ -355,6 +355,108 @@ McpServer::McpServer(QObject *parent)
         });
 
     addTool(
+        {{"name", "search_in_file"},
+         {"title", "Search for pattern in a single file"},
+         {"description", "Search for a text pattern in a single file and return all matches with line, column, and matched text"},
+         {"inputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"path",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"format", "uri"},
+                        {"description", "Absolute path of the file to search"}}},
+                   {"pattern",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Text pattern to search for"}}},
+                   {"regex",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the pattern is a regular expression"}}}}},
+              {"required", QJsonArray{"path", "pattern"}}}},
+         {"outputSchema", McpCommands::searchResultsSchema()},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            const QString path = p.value("path").toString();
+            const QString pattern = p.value("pattern").toString();
+            const bool isRegex = p.value("regex").toBool(false);
+            m_commands.searchInFile(path, pattern, isRegex, callback);
+        });
+
+    addTool(
+        {{"name", "search_in_files"},
+         {"title", "Search for pattern in project files"},
+         {"description", "Search for a text pattern in files matching a file pattern within a project (or all projects) and return all matches"},
+         {"inputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"filePattern",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "File pattern to filter which files to search (e.g., '*.cpp', '*.h')"}}},
+                   {"projectName",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Optional: name of the project to search in (searches all projects if not specified)"}}},
+                   {"pattern",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Text pattern to search for"}}},
+                   {"regex",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the pattern is a regular expression"}}}}},
+              {"required", QJsonArray{"filePattern", "pattern"}}}},
+         {"outputSchema", McpCommands::searchResultsSchema()},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            const QString filePattern = p.value("filePattern").toString();
+            const QString pattern = p.value("pattern").toString();
+            const bool isRegex = p.value("regex").toBool(false);
+            const std::optional<QString> projectName = p.contains("projectName")
+                ? std::optional<QString>(p.value("projectName").toString())
+                : std::nullopt;
+            m_commands.searchInFiles(filePattern, projectName, "", pattern, isRegex, callback);
+        });
+
+    addTool(
+        {{"name", "search_in_directory"},
+         {"title", "Search for pattern in a directory"},
+         {"description", "Search for a text pattern recursively in all files within a directory and return all matches"},
+         {"inputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"directory",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"format", "uri"},
+                        {"description", "Absolute path of the directory to search in"}}},
+                   {"pattern",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Text pattern to search for"}}},
+                   {"regex",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the pattern is a regular expression"}}}}},
+              {"required", QJsonArray{"directory", "pattern"}}}},
+         {"outputSchema", McpCommands::searchResultsSchema()},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            const QString directory = p.value("directory").toString();
+            const QString pattern = p.value("pattern").toString();
+            const bool isRegex = p.value("regex").toBool(false);
+            m_commands.searchInDirectory(directory, pattern, isRegex, callback);
+        });
+
+    addTool(
         {{"name", "list_projects"},
          {"title", "List all available projects"},
          {"description", "List all available projects"},

@@ -21,6 +21,8 @@ class McpCommands : public QObject
 public:
     explicit McpCommands(QObject *parent = nullptr);
 
+    using ResponseCallback = std::function<void(const QJsonObject &response)>;
+
     // Core MCP commands
     QString stopDebug();
 
@@ -40,7 +42,26 @@ public:
     QStringList findFilesInProject(const QString &name, const QString &pattern, bool regex);
     QStringList findFilesInProjects(const QString &pattern, bool regex);
     // TODO: reformat file
-    // TODO: search in File
+    void searchInFile(
+        const QString &path,
+        const QString &pattern,
+        bool regex,
+        const ResponseCallback &callback);
+    void searchInFiles(
+        const QString &filePattern,
+        const std::optional<QString> &projectName,
+        const QString &path,
+        const QString &pattern,
+        bool regex,
+        const ResponseCallback &callback);
+    void searchInDirectory(
+        const QString directory,
+        const QString &pattern,
+        bool regex,
+        const ResponseCallback &callback);
+
+    static QJsonObject searchResultsSchema();
+
     // TODO: replace text in file
     // TODO: get symbol info
     // TODO: rename symbol
@@ -76,7 +97,7 @@ public:
         const QString &command,
         const QString &arguments,
         const QString &workingDirectory,
-        std::function<void(const QJsonObject &response)> callback);
+        const ResponseCallback &callback);
 
 private:
     // Issues management
