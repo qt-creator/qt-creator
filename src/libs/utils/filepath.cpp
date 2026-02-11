@@ -2289,12 +2289,6 @@ FilePaths FilePath::devicePathEnvironmentVariable() const
     return result;
 }
 
-QString FilePath::formatFilePaths(const FilePaths &files, const QString &separator)
-{
-    const QStringList nativeFiles = transform(files, &FilePath::toUserOutput);
-    return nativeFiles.join(separator);
-}
-
 void FilePath::removeDuplicates(FilePaths &files)
 {
     files = Utils::filteredUnique(files);

@@ -878,7 +878,7 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
 
     // Summary for the user in case anything went wrong.
     const auto makeUserFileList = [](const FilePaths &files) {
-        return FilePath::formatFilePaths(files, "\n  ");
+        return files.toUserOutput("\n  ");
     };
     if (!failedAddToProject.empty() || !failedRemoveFromProject.empty()
             || !failedCopyOrMove.empty() || !failedDelete.empty() || !failedVcsOp.empty()) {

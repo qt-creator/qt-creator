@@ -190,7 +190,7 @@ Result<> ProjectFileWizardExtension::processProject(const QList<GeneratedFile> &
         if (!folder->addFiles(filePaths)) {
             return ResultError(Tr::tr("Failed to add one or more files to project\n\"%1\" (%2).")
                     .arg(folder->filePath().toUserOutput())
-                    .arg(FilePath::formatFilePaths(filePaths, ",")));
+                    .arg(filePaths.toUserOutput(",")));
         }
     }
     return ResultOk;

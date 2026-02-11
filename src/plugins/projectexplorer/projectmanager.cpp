@@ -676,7 +676,7 @@ void ProjectManagerPrivate::askUserAboutFailedProjects()
 {
     FilePaths failedProjects = m_failedProjects;
     if (!failedProjects.isEmpty()) {
-        QString fileList = FilePath::formatFilePaths(failedProjects, "<br>");
+        const QString fileList = failedProjects.toUserOutput("<br>");
         QMessageBox box(QMessageBox::Warning,
                                    Tr::tr("Failed to restore project files"),
                                    Tr::tr("Could not restore the following project files:<br><b>%1</b>").

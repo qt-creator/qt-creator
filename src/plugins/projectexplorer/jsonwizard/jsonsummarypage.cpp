@@ -222,7 +222,7 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
             QMessageBox::critical(wizard(), Tr::tr("Failed to Add to Project"),
                                   Tr::tr("Failed to add one or more files to project\n\"%1\" (%2).")
                                   .arg(folder->filePath().toUserOutput(),
-                                       FilePath::formatFilePaths(filePaths, ", ")));
+                                       filePaths.toUserOutput(", ")));
             return;
         }
         const QStringList dependencies = m_wizard->stringValue("Dependencies")

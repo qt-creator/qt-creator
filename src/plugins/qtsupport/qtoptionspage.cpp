@@ -1095,7 +1095,7 @@ static FancyLineEdit::AsyncValidationResult validateQtInstallDir(const QString &
             + ::QtSupport::Tr::tr("Qt installation information was not found in \"%1\". "
                                   "Choose a directory that contains one of the files %2")
                   .arg(qtDir.toUserOutput(), "<pre>" +
-                            FilePath::formatFilePaths(filesToCheck, "\n") + "</pre>"));
+                            filesToCheck.toUserOutput("\n") + "</pre>"));
     }
     return input;
 }

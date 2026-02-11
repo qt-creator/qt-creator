@@ -257,7 +257,6 @@ public:
 
     bool startsWithDriveLetter() const;
 
-    static QString formatFilePaths(const FilePaths &files, const QString &separator);
     static void removeDuplicates(FilePaths &files);
     static void sort(FilePaths &files);
 

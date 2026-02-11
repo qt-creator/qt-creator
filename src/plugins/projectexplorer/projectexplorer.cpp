@@ -3912,7 +3912,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
         const QString message = Tr::tr("The following subprojects could not be added to project "
                                    "\"%1\":").arg(projectNode->managingProject()->displayName());
         QMessageBox::warning(ICore::dialogParent(), Tr::tr("Adding Subproject Failed"),
-                             message + "\n  " + FilePath::formatFilePaths(failedProjects, "\n  "));
+                             message + "\n  " + failedProjects.toUserOutput("\n  "));
         return;
     }
     VcsManager::promptToAdd(dir, addedProjects);
@@ -3962,7 +3962,7 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const FileP
         const QString message = Tr::tr("Could not add following files to project %1:")
                 .arg(folderNode->managingProject()->displayName()) + QLatin1Char('\n');
         QMessageBox::warning(ICore::dialogParent(), Tr::tr("Adding Files to Project Failed"),
-                             message + FilePath::formatFilePaths(notAdded, "\n"));
+                             message + notAdded.toUserOutput("\n"));
         fileNames = Utils::filtered(fileNames,
                                     [&notAdded](const FilePath &f) { return !notAdded.contains(f); });
     }
