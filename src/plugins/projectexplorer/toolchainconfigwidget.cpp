@@ -57,10 +57,10 @@ ToolchainConfigWidget::ToolchainConfigWidget(const ToolchainBundle &bundle)
 void ToolchainConfigWidget::apply()
 {
     m_bundle.setDisplayName(m_nameLineEdit->text());
-    if (!bundle().detectionSource().isAutoDetected()) {
+    if (!m_bundle.detectionSource().isAutoDetected()) {
         for (const auto &[tc, pathChooser] : std::as_const(m_commands))
-            bundle().setCompilerCommand(tc->language(), pathChooser->filePath());
-        bundle().setCxxCompilerIsManuallyProvided(
+            m_bundle.setCompilerCommand(tc->language(), pathChooser->filePath());
+        m_bundle.setCxxCompilerIsManuallyProvided(
             m_manualCxxCompilerCheckBox && m_manualCxxCompilerCheckBox->isChecked());
     }
     applyImpl();
