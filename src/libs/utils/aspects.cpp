@@ -2012,7 +2012,7 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
         const QString val = fontComboBox->currentFont().family();
         d->m_undoable.set(undoStack(), val);
         updateStorage(m_volatileValue, val);
-        volatileValueChanged();
+        emit volatileValueChanged();
     });
 
     connect(&d->m_undoable.m_signal, &UndoSignaller::changed, fontComboBox, [fontComboBox, this] {
@@ -3612,7 +3612,7 @@ bool BaseAspect::valueToVolatileValue()
 void BaseAspect::handleGuiChanged()
 {
     if (guiToVolatileValue())
-        volatileValueChanged();
+        emit volatileValueChanged();
     if (isAutoApply())
         apply();
 }
