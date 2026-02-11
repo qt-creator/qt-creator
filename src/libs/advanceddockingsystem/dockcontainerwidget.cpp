@@ -796,7 +796,7 @@ void DockContainerWidgetPrivate::saveChildNodesState(QXmlStreamWriter &stream, Q
 
 void DockContainerWidgetPrivate::saveAutoHideWidgetsState(QXmlStreamWriter &s)
 {
-    for (const auto sideTabBar : m_sideTabBarWidgets.values()) {
+    for (const auto sideTabBar : std::as_const(m_sideTabBarWidgets)) {
         if (!sideTabBar->count())
             continue;
 
