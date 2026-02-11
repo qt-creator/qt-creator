@@ -499,6 +499,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     delete oldItem;
     delete m_deviceNameEditWidget;
     m_deviceNameEditWidget = newEdit;
+    installMarkSettingsDirtyTriggerRecursively(newEdit);
 
     setDeviceInfoWidgetsEnabled(true);
     updateButtons();
