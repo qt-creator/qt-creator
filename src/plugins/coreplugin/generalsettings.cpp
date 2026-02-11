@@ -85,6 +85,10 @@ GeneralSettings::GeneralSettings()
         EditorManagerPrivate::setShowingTabs(useTabsInEditorViews.value());
     });
 
+    showOkAndCancelInSettingsMode.setSettingsKey("General/ShowOkAndCancelInSettingsMode");
+    showOkAndCancelInSettingsMode.setDefaultValue(false);
+    showOkAndCancelInSettingsMode.setLabelText(Tr::tr("Show OK and Cancel buttons in Preferences mode"));
+
     readSettings();
 }
 
@@ -200,6 +204,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     form.addRow({empty, generalSettings().provideSplitterCursors});
     form.addRow({empty, generalSettings().preferInfoBarOverPopup});
     form.addRow({empty, generalSettings().useTabsInEditorViews});
+    form.addRow({empty, generalSettings().showOkAndCancelInSettingsMode});
     form.addRow({Row{m_resetWarningsButton, st}});
 
     Column {

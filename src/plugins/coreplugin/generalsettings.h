@@ -16,6 +16,7 @@ public:
     Utils::BoolAspect provideSplitterCursors{this};
     Utils::BoolAspect preferInfoBarOverPopup{this};
     Utils::BoolAspect useTabsInEditorViews{this};
+    Utils::BoolAspect showOkAndCancelInSettingsMode{this};
 
     static void applyToolbarStyleFromSettings();
 };
