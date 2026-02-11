@@ -105,7 +105,7 @@ bool compareNodes(const Node *n1, const Node *n2)
 
 static bool sortWrapperNodes(const WrapperNode *w1, const WrapperNode *w2)
 {
-    return compareNodes(w1->m_node, w2->m_node);
+    return compareNodes(w1->node(), w2->node());
 }
 
 /// Appends to `dest` clones of children of `first` and `second`, removing duplicates (recursively).
@@ -123,7 +123,7 @@ static void appendMergedChildren(const WrapperNode *first, const WrapperNode *se
                   -> const WrapperNode * {
                       if (childOfSecond->hasChildren()) {
                           if (childOfFirst->hasChildren()) {
-                              WrapperNode *mergeResult = new WrapperNode(childOfFirst->m_node);
+                              WrapperNode *mergeResult = new WrapperNode(childOfFirst->node());
                               dest->appendChild(mergeResult);
                               appendMergedChildren(childOfFirst, childOfSecond, mergeResult);
                               // mergeResult has already been appended to the parent's list of
@@ -153,7 +153,7 @@ static void mergeDuplicates(WrapperNode *parent)
         if (!sortWrapperNodes(child, nextChild)) {
             // child and nextChild must have the same priorities, display names and folder paths.
             // Replace them by a single node 'mergeResult` containing the union of their children.
-            auto mergeResult = new WrapperNode(child->m_node);
+            auto mergeResult = new WrapperNode(child->node());
             parent->insertChild(childIndex, mergeResult);
             appendMergedChildren(child, nextChild, mergeResult);
             // Now we can remove the original children
@@ -223,51 +223,26 @@ void WrapperNode::compress()
     qCDebug(projectModelLog) << "now have" << childCount() << "children";
 }
 
-FlatModel::FlatModel(QObject *parent)
-    : TreeModel<WrapperNode, WrapperNode>(new WrapperNode(nullptr), parent)
+QVariant WrapperNode::data(int column, int role) const
 {
-    ProjectTree *tree = ProjectTree::instance();
-    connect(tree, &ProjectTree::subtreeChanged, this, &FlatModel::updateSubtree);
+    Q_UNUSED(column)
 
-    ProjectManager *sm = ProjectManager::instance();
-    SessionManager *sb = SessionManager::instance();
-    connect(sm, &ProjectManager::projectRemoved, this, &FlatModel::handleProjectRemoved);
-    connect(sb, &SessionManager::aboutToLoadSession, this, &FlatModel::loadExpandData);
-    connect(sb, &SessionManager::aboutToSaveSession, this, &FlatModel::saveExpandData);
-    connect(sm, &ProjectManager::projectAdded, this, &FlatModel::handleProjectAdded);
-    connect(sm, &ProjectManager::startupProjectChanged, this, [this] { emit layoutChanged(); });
-
-    for (Project *project : ProjectManager::projects())
-        handleProjectAdded(project);
-
-    connect(VcsManager::instance(), &VcsManager::updateFileState,
-            this, &FlatModel::updateVCStatusFor);
-    connect(VcsManager::instance(), &VcsManager::clearFileState,
-            this, &FlatModel::clearVCStatusFor);
-}
-
-QVariant FlatModel::data(const QModelIndex &index, int role) const
-{
-    WrapperNode * const wrapperNode = itemForIndex(index);
-    if (!wrapperNode)
-        return {};
-    const Node * const node = wrapperNode->m_node;
-    if (!node)
+    if (!m_node)
         return {};
 
-    const FolderNode * const folderNode = node->asFolderNode();
-    const FileNode * const fileNode = node->asFileNode();
-    const ContainerNode * const containerNode = node->asContainerNode();
+    const FolderNode * const folderNode = m_node->asFolderNode();
+    const FileNode * const fileNode = m_node->asFileNode();
+    const ContainerNode * const containerNode = m_node->asContainerNode();
     const Project * const project = containerNode ? containerNode->project() : nullptr;
     const BuildSystem * const bs = activeBuildSystem(project);
 
     switch (role) {
     case Qt::DisplayRole:
-        return wrapperNode->displayName();
+        return displayName();
     case Qt::EditRole:
-        return node->filePath().fileName();
+        return m_node->filePath().fileName();
     case Qt::ToolTipRole: {
-        QString tooltip = node->tooltip();
+        QString tooltip = m_node->tooltip();
         if (project) {
             if (project->activeKit()) {
                 QString projectIssues = toHtml(project->projectIssues(project->activeKit()));
@@ -275,7 +250,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
                     tooltip += "<p>" + projectIssues;
             } else {
                 tooltip += "<p>" + Tr::tr("No kits are enabled for this project. "
-                                      "Enable kits in the \"Projects\" mode.");
+                                          "Enable kits in the \"Projects\" mode.");
             }
         } else if (fileNode) {
             const QString &stateText =
@@ -314,7 +289,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             if (state != Core::VcsFileState::Unknown)
                 return VcsManager::fileStateColor(state);
         }
-        return node->isEnabled() ? QVariant()
+        return m_node->isEnabled() ? QVariant()
                                  : Utils::creatorColor(Utils::Theme::TextColorDisabled);
     case Project::isParsingRole:
         return project && bs ? bs->isParsing() && !project->needsConfiguration() : false;
@@ -324,58 +299,57 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     return {};
 }
 
-Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
+Qt::ItemFlags WrapperNode::flags(int column) const
 {
-    if (!index.isValid())
-        return {};
+    Q_UNUSED(column)
+
     // We claim that everything is editable
     // That's slightly wrong
     // We control the only view, and that one does the checks
     Qt::ItemFlags f = Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsDragEnabled;
-    if (Node *node = nodeForIndex(index)) {
-        if (!node->asProjectNode()) {
+    if (m_node) {
+        if (!m_node->asProjectNode()) {
             // either folder or file node
-            if (node->supportsAction(Rename, node))
+            if (m_node->supportsAction(Rename, m_node))
                 f = f | Qt::ItemIsEditable;
-        } else if (node->supportsAction(ProjectAction::AddExistingFile, node)) {
+        } else if (m_node->supportsAction(ProjectAction::AddExistingFile, m_node)) {
             f |= Qt::ItemIsDropEnabled;
         }
     }
     return f;
 }
 
-bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool WrapperNode::setData(int column, const QVariant &value, int role)
 {
-    if (!index.isValid())
-        return false;
+    Q_UNUSED(column)
+
     if (role != Qt::EditRole)
         return false;
 
-    Node *node = nodeForIndex(index);
-    QTC_ASSERT(node, return false);
+    QTC_ASSERT(m_node, return false);
 
     std::vector<std::tuple<Node *, FilePath, FilePath>> toRename;
     const QString valuePath = value.toString();
-    const FilePath orgFilePath = node->filePath();
+    const FilePath orgFilePath = m_node->filePath();
     const FilePath newFilePath = orgFilePath.parentDir().pathAppended(valuePath);
-    toRename.emplace_back(std::make_tuple(node, orgFilePath, newFilePath));
+    toRename.emplace_back(std::make_tuple(m_node, orgFilePath, newFilePath));
 
     // The base name of the file was changed. Go look for other files with the same base name
     // and offer to rename them as well.
     if (!orgFilePath.equalsCaseSensitive(newFilePath)
         && orgFilePath.suffix() == newFilePath.suffix()) {
-        const QList<Node *> candidateNodes = ProjectTree::siblingsWithSameBaseName(node);
+        const QList<Node *> candidateNodes = ProjectTree::siblingsWithSameBaseName(m_node);
         if (!candidateNodes.isEmpty()) {
             QStringList fileNames = transform<QStringList>(candidateNodes, [](const Node *n) {
                 return n->filePath().fileName();
             });
             fileNames.removeDuplicates();
             const QMessageBox::StandardButton reply = QMessageBox::question(
-                        Core::ICore::dialogParent(), Tr::tr("Rename More Files?"),
-                        Tr::tr("Would you like to rename these files as well?\n    %1")
-                        .arg(fileNames.join("\n    ")),
-                        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-                        QMessageBox::Yes);
+                Core::ICore::dialogParent(), Tr::tr("Rename More Files?"),
+                Tr::tr("Would you like to rename these files as well?\n    %1")
+                    .arg(fileNames.join("\n    ")),
+                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                QMessageBox::Yes);
             switch (reply) {
             case QMessageBox::Yes: {
                 const FilePath dir = orgFilePath.parentDir();
@@ -401,16 +375,41 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
         renameList << std::make_pair(std::get<0>(f), std::get<2>(f));
     const QList<std::pair<FilePath, FilePath>> renamedList
         = ProjectExplorerPlugin::renameFiles(renameList);
-    for (const auto &[oldFilePath, newFilePath] : renamedList)
-        emit renamed(oldFilePath, newFilePath);
+    if (model()) {
+        for (const auto &[oldFilePath, newFilePath] : renamedList)
+            emit qobject_cast<FlatModel *>(model())->renamed(oldFilePath, newFilePath);
+    }
 
     return true;
 }
 
+FlatModel::FlatModel(QObject *parent)
+    : TreeModel<WrapperNode, WrapperNode>(new WrapperNode(nullptr), parent)
+{
+    ProjectTree *tree = ProjectTree::instance();
+    connect(tree, &ProjectTree::subtreeChanged, this, &FlatModel::updateSubtree);
+
+    ProjectManager *sm = ProjectManager::instance();
+    SessionManager *sb = SessionManager::instance();
+    connect(sm, &ProjectManager::projectRemoved, this, &FlatModel::handleProjectRemoved);
+    connect(sb, &SessionManager::aboutToLoadSession, this, &FlatModel::loadExpandData);
+    connect(sb, &SessionManager::aboutToSaveSession, this, &FlatModel::saveExpandData);
+    connect(sm, &ProjectManager::projectAdded, this, &FlatModel::handleProjectAdded);
+    connect(sm, &ProjectManager::startupProjectChanged, this, [this] { emit layoutChanged(); });
+
+    for (Project *project : ProjectManager::projects())
+        handleProjectAdded(project);
+
+    connect(VcsManager::instance(), &VcsManager::updateFileState,
+            this, &FlatModel::updateVCStatusFor);
+    connect(VcsManager::instance(), &VcsManager::clearFileState,
+            this, &FlatModel::clearVCStatusFor);
+}
+
 static bool compareProjectNames(const WrapperNode *lhs, const WrapperNode *rhs)
 {
-    Node *p1 = lhs->m_node;
-    Node *p2 = rhs->m_node;
+    Node *p1 = lhs->node();
+    Node *p2 = rhs->node();
     const int displayNameResult = caseFriendlyCompare(p1->displayName(), p2->displayName());
     if (displayNameResult != 0)
         return displayNameResult < 0;
@@ -447,7 +446,7 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
     rootItem()->insertOrderedChild(container, &compareProjectNames);
 
     if (project->needsInitialExpansion())
-        m_toExpand.insert(expandDataForNode(container->m_node));
+        m_toExpand.insert(expandDataForNode(container->node()));
 
     if (container->childCount() == 0) {
         auto projectFileNode = std::make_unique<FileNode>(project->projectFilePath(),
@@ -460,15 +459,15 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
     container->sortChildren(&sortWrapperNodes);
 
     container->forAllChildren([this](WrapperNode *node) {
-        if (node->m_node) {
-            if (m_toExpand.contains(expandDataForNode(node->m_node)))
+        if (node->node()) {
+            if (m_toExpand.contains(expandDataForNode(node->node())))
                 emit requestExpansion(node->index());
         } else {
             emit requestExpansion(node->index());
         }
     });
 
-    if (m_toExpand.contains(expandDataForNode(container->m_node)))
+    if (m_toExpand.contains(expandDataForNode(container->node())))
         emit requestExpansion(container->index());
 
     qCDebug(projectModelTimingLog) << "re-building model took" << timer.elapsed() << "ms";
@@ -477,7 +476,7 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
 void FlatModel::parsingStateChanged(Project *project)
 {
     const WrapperNode *const node = nodeForProject(project);
-    const QModelIndex nodeIdx = indexForNode(node->m_node);
+    const QModelIndex nodeIdx = indexForNode(node->node());
     emit dataChanged(nodeIdx, nodeIdx);
 }
 
@@ -585,7 +584,7 @@ WrapperNode *FlatModel::nodeForProject(const Project *project) const
     ContainerNode *containerNode = project->containerNode();
     QTC_ASSERT(containerNode, return nullptr);
     return rootItem()->findFirstLevelChild([containerNode](WrapperNode *node) {
-        return node->m_node == containerNode;
+        return node->node() == containerNode;
     });
 }
 
@@ -645,7 +644,7 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
 
 bool FlatModel::trimEmptyDirectories(WrapperNode *parent)
 {
-    const FolderNode *fn = parent->m_node->asFolderNode();
+    const FolderNode *fn = parent->node()->asFolderNode();
     if (!fn)
         return false;
 
@@ -985,7 +984,7 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
 WrapperNode *FlatModel::wrapperForNode(const Node *node) const
 {
     return findNonRootItem([node](WrapperNode *item) {
-        return item->m_node == node;
+        return item->node() == node;
     });
 }
 
@@ -1053,7 +1052,7 @@ bool FlatModel::trimEmptyDirectoriesEnabled()
 Node *FlatModel::nodeForIndex(const QModelIndex &index) const
 {
     WrapperNode *flatNode = itemForIndex(index);
-    return flatNode ? flatNode->m_node : nullptr;
+    return flatNode ? flatNode->node() : nullptr;
 }
 
 const QLoggingCategory &FlatModel::logger()

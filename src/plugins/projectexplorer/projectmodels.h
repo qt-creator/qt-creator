@@ -32,11 +32,15 @@ public:
     void appendClone(const WrapperNode &node);
     void compress();
 
+    Node * node() const { return m_node; }
     QString displayName() const { return m_displayName; }
 
-    Node *m_node = nullptr;
-
 private:
+    QVariant data(int column, int role) const override;
+    Qt::ItemFlags flags(int column) const override;
+    bool setData(int column, const QVariant &value, int role) override;
+
+    Node *m_node = nullptr;
     QString m_displayName;
 };
 
@@ -48,10 +52,6 @@ public:
     FlatModel(QObject *parent);
 
     // QAbstractItemModel
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
-
     Qt::DropActions supportedDragActions() const override;
     QStringList mimeTypes() const override;
     QMimeData *mimeData(const QModelIndexList &indexes) const override;
