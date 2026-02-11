@@ -1174,14 +1174,6 @@ void ICore::saveSettings(SaveSettingsReason reason)
     d->m_leftNavigationWidget->saveSettings(settings);
     d->m_rightNavigationWidget->saveSettings(settings);
 
-    // TODO Remove some time after Qt Creator 11
-    // Work around Qt Creator <= 10 writing the default terminal to the settings.
-    // TerminalCommand writes the terminal to the settings when changing it, which usually is
-    // enough. But because of the bug in Qt Creator <= 10 we want to clean up the settings
-    // even if the user never touched the terminal setting.
-    if (HostOsInfo::isMacHost())
-        TerminalCommand::setTerminalEmulator(TerminalCommand::terminalEmulator());
-
     ICore::settings(QSettings::SystemScope)->sync();
     ICore::settings(QSettings::UserScope)->sync();
 }
