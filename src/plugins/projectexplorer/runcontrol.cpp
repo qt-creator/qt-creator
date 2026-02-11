@@ -893,7 +893,7 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
                                     const ProcessSetupConfig &config)
 {
     const auto onSetup = [this, startModifier, config](Process &process) {
-        process.setProcessChannelMode(appOutputPane().settings().mergeChannels
+        process.setProcessChannelMode(appOutputPane().settings().mergeChannels()
                                           ? QProcess::MergedChannels : QProcess::SeparateChannels);
         process.setCommand(commandLine());
         process.setWorkingDirectory(workingDirectory());

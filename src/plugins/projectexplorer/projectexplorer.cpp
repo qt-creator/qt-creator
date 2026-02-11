@@ -735,7 +735,6 @@ public:
     ProjectFileWizardExtension m_projectFileWizardExtension;
 
     // Settings pages
-    AppOutputSettingsPage m_appOutputSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;
     CustomParsersSettingsPage m_customParsersSettingsPage;
 

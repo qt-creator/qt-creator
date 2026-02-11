@@ -35,26 +35,18 @@
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcolorbutton.h>
 #include <utils/storekey.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAbstractListModel>
 #include <QAction>
-#include <QCheckBox>
-#include <QComboBox>
-#include <QColorDialog>
-#include <QFormLayout>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
-#include <QSpinBox>
 #include <QSplitter>
-#include <QTabBar>
 #include <QTabWidget>
 #include <QTextBlock>
 #include <QTimer>
@@ -72,15 +64,6 @@ namespace Internal {
 const char OPTIONS_PAGE_ID[] = "B.ProjectExplorer.AppOutputOptions";
 const char SETTINGS_KEY[] = "ProjectExplorer/AppOutput/Zoom";
 const char C_APP_OUTPUT[] = "ProjectExplorer.ApplicationOutput";
-const char POP_UP_FOR_RUN_OUTPUT_KEY[] = "ProjectExplorer/Settings/ShowRunOutput";
-const char POP_UP_FOR_DEBUG_OUTPUT_KEY[] = "ProjectExplorer/Settings/ShowDebugOutput";
-const char CLEAN_OLD_OUTPUT_KEY[] = "ProjectExplorer/Settings/CleanOldAppOutput";
-const char MERGE_CHANNELS_KEY[] = "ProjectExplorer/Settings/MergeStdErrAndStdOut";
-const char WRAP_OUTPUT_KEY[] = "ProjectExplorer/Settings/WrapAppOutput";
-const char DISCARD_OUTPUT_KEY[] = "ProjectExplorer/Settings/DiscardAppOutput";
-const char MAX_LINES_KEY[] = "ProjectExplorer/Settings/MaxAppOutputLines";
-const char OVERWRITE_BG_KEY[] = "ProjectExplorer/Settings/OverwriteBackground";
-const char BACKGROUND_COLOR_KEY[] = "ProjectExplorer/Settings/BackgroundColor";
 
 static QObject *debuggerPlugin()
 {
@@ -449,7 +432,6 @@ AppOutputPane::AppOutputPane() :
     ExtensionSystem::PluginManager::addObject(m_handler);
 
     setObjectName("AppOutputPane"); // Used in valgrind engine
-    loadSettings();
 
     // Rerun
     m_reRunButton->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
@@ -493,8 +475,9 @@ AppOutputPane::AppOutputPane() :
     formatterWidgetsLayout->setContentsMargins(QMargins());
     m_formatterWidget->setLayout(formatterWidgetsLayout);
 
-    // Spacer (?)
+    updateFromSettings();
 
+    // Spacer (?)
     m_tabWidget->setDocumentMode(true);
     m_tabWidget->setTabsClosable(true);
     m_tabWidget->setMovable(true);
@@ -510,6 +493,11 @@ AppOutputPane::AppOutputPane() :
             this, &AppOutputPane::aboutToUnloadSession);
     connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
             this, &AppOutputPane::projectRemoved);
+
+    connect(&settings().overwriteBackground, &Utils::BaseAspect::changed,
+            this, &AppOutputPane::updateFromSettings);
+    connect(&settings().backgroundColor, &Utils::BaseAspect::changed,
+            this, &AppOutputPane::updateFromSettings);
 
     setupFilterUi("AppOutputPane.Filter", "ProjectExplorer::Internal::AppOutputPane");
     setFilteringEnabled(false);
@@ -741,11 +729,11 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     AppOutputWindow *ow = new AppOutputWindow(context, SETTINGS_KEY, m_tabWidget);
     ow->setWindowTitle(Tr::tr("Application Output Window"));
     ow->setWindowIcon(Icons::WINDOW.icon());
-    ow->setWordWrapEnabled(m_settings.wrapOutput);
-    ow->setMaxCharCount(m_settings.maxCharCount);
-    ow->setDiscardExcessiveOutput(m_settings.discardExcessiveOutput);
+    ow->setWordWrapEnabled(settings().wrapOutput());
+    ow->setMaxCharCount(settings().maxCharCount());
+    ow->setDiscardExcessiveOutput(settings().discardExcessiveOutput());
 
-    const QColor bgColor = m_settings.effectiveBackgroundColor();
+    const QColor bgColor = settings().effectiveBackgroundColor();
     ow->outputFormatter()->setExplicitBackgroundColor(bgColor);
     StyleHelper::modifyPaletteBase(ow, bgColor);
 
@@ -914,7 +902,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
 
 void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
 {
-    if (m_settings.cleanOldOutput)
+    if (settings().cleanOldOutput())
         window->clear();
     else
         window->grayOutOldContent();
@@ -924,11 +912,11 @@ void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
 
 void AppOutputPane::updateFromSettings()
 {
-    const QColor bgColor = m_settings.effectiveBackgroundColor();
+    const QColor bgColor = settings().effectiveBackgroundColor();
     for (const RunControlTab &tab : std::as_const(m_runControlTabs)) {
-        tab.window->setWordWrapEnabled(m_settings.wrapOutput);
-        tab.window->setMaxCharCount(m_settings.maxCharCount);
-        tab.window->setDiscardExcessiveOutput(m_settings.discardExcessiveOutput);
+        tab.window->setWordWrapEnabled(settings().wrapOutput());
+        tab.window->setMaxCharCount(settings().maxCharCount());
+        tab.window->setDiscardExcessiveOutput(settings().discardExcessiveOutput());
         tab.window->outputFormatter()->setExplicitBackgroundColor(bgColor);
         StyleHelper::modifyPaletteBase(tab.window, bgColor);
     }
@@ -973,13 +961,6 @@ void AppOutputPane::appendMessage(RunControl *rc, const QString &out, OutputForm
     }
 }
 
-void AppOutputPane::setSettings(const AppOutputSettings &settings)
-{
-    m_settings = settings;
-    storeSettings();
-    updateFromSettings();
-}
-
 void AppOutputPane::prepareRunControlStart(RunControl *runControl)
 {
     createNewOutputWindow(runControl);
@@ -987,9 +968,9 @@ void AppOutputPane::prepareRunControlStart(RunControl *runControl)
     showTabFor(runControl);
     Id runMode = runControl->runMode();
     const auto popupMode = runMode == Constants::NORMAL_RUN_MODE
-            ? settings().runOutputMode
+            ? AppOutputPaneMode(settings().runOutputMode())
             : runMode == Constants::DEBUG_RUN_MODE
-                ? settings().debugOutputMode
+                ? AppOutputPaneMode(settings().debugOutputMode())
                 : AppOutputPaneMode::FlashOnOutput;
     setBehaviorOnOutput(runControl, popupMode);
 }
@@ -1003,57 +984,6 @@ void AppOutputPane::showOutputPaneForRunControl(RunControl *runControl)
 void AppOutputPane::closeTabsWithoutPrompt()
 {
     closeTabs(CloseTabNoPrompt);
-}
-
-const AppOutputPaneMode kRunOutputModeDefault = AppOutputPaneMode::PopupOnFirstOutput;
-const AppOutputPaneMode kDebugOutputModeDefault = AppOutputPaneMode::FlashOnOutput;
-const bool kCleanOldOutputDefault = false;
-const bool kMergeChannelsDefault = false;
-const bool kWrapOutputDefault = true;
-const bool kDiscardOutputDefault = false;
-const bool kOverwriteBGDefault = false;
-
-void AppOutputPane::storeSettings() const
-{
-    QtcSettings *const s = Core::ICore::settings();
-    s->setValueWithDefault(POP_UP_FOR_RUN_OUTPUT_KEY,
-                           int(m_settings.runOutputMode),
-                           int(kRunOutputModeDefault));
-    s->setValueWithDefault(POP_UP_FOR_DEBUG_OUTPUT_KEY,
-                           int(m_settings.debugOutputMode),
-                           int(kDebugOutputModeDefault));
-    s->setValueWithDefault(CLEAN_OLD_OUTPUT_KEY, m_settings.cleanOldOutput, kCleanOldOutputDefault);
-    s->setValueWithDefault(MERGE_CHANNELS_KEY, m_settings.mergeChannels, kMergeChannelsDefault);
-    s->setValueWithDefault(WRAP_OUTPUT_KEY, m_settings.wrapOutput, kWrapOutputDefault);
-    s->setValueWithDefault(
-        DISCARD_OUTPUT_KEY, m_settings.discardExcessiveOutput, kDiscardOutputDefault);
-    s->setValueWithDefault(MAX_LINES_KEY,
-                           m_settings.maxCharCount / 100,
-                           Core::Constants::DEFAULT_MAX_CHAR_COUNT / 100);
-    s->setValueWithDefault(OVERWRITE_BG_KEY, m_settings.overwriteBackground, kOverwriteBGDefault);
-    s->setValueWithDefault(BACKGROUND_COLOR_KEY, m_settings.backgroundColor,
-                           AppOutputSettings::defaultBackgroundColor());
-}
-
-void AppOutputPane::loadSettings()
-{
-    QtcSettings * const s = Core::ICore::settings();
-    const auto modeFromSettings = [s](const Key key, AppOutputPaneMode defaultValue) {
-        return static_cast<AppOutputPaneMode>(s->value(key, int(defaultValue)).toInt());
-    };
-    m_settings.runOutputMode = modeFromSettings(POP_UP_FOR_RUN_OUTPUT_KEY, kRunOutputModeDefault);
-    m_settings.debugOutputMode = modeFromSettings(POP_UP_FOR_DEBUG_OUTPUT_KEY,
-                                                  kDebugOutputModeDefault);
-    m_settings.cleanOldOutput = s->value(CLEAN_OLD_OUTPUT_KEY, kCleanOldOutputDefault).toBool();
-    m_settings.mergeChannels = s->value(MERGE_CHANNELS_KEY, kMergeChannelsDefault).toBool();
-    m_settings.wrapOutput = s->value(WRAP_OUTPUT_KEY, kWrapOutputDefault).toBool();
-    m_settings.discardExcessiveOutput = s->value(DISCARD_OUTPUT_KEY, kDiscardOutputDefault).toBool();
-    m_settings.maxCharCount = s->value(MAX_LINES_KEY,
-                                       Core::Constants::DEFAULT_MAX_CHAR_COUNT / 100).toInt() * 100;
-    m_settings.overwriteBackground = s->value(OVERWRITE_BG_KEY, kOverwriteBGDefault).toBool();
-    const QColor background = s->value(BACKGROUND_COLOR_KEY, QColor()).value<QColor>();
-    m_settings.backgroundColor = background.isValid() ? background
-                                                      : AppOutputSettings::defaultBackgroundColor();
 }
 
 void AppOutputPane::showTabFor(RunControl *rc)
@@ -1118,6 +1048,12 @@ QList<RunControl *> AppOutputPane::allRunControls() const
         return tab.runControl.data();
     });
     return Utils::filtered(list, [](RunControl *rc) { return rc; });
+}
+
+AppOutputSettings &AppOutputPane::settings()
+{
+    static AppOutputSettings theSettings;
+    return theSettings;
 }
 
 void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
@@ -1320,134 +1256,6 @@ bool AppOutputPane::hasFilterContext() const
     return true;
 }
 
-class AppOutputSettingsWidget : public Core::IOptionsPageWidget
-{
-public:
-    AppOutputSettingsWidget()
-    {
-        const AppOutputSettings &settings = appOutputPane().settings();
-        m_wrapOutputCheckBox.setText(Tr::tr("Word-wrap output"));
-        m_wrapOutputCheckBox.setChecked(settings.wrapOutput);
-        m_discardOutputCheckBox.setText(Tr::tr("Discard excessive output"));
-        m_discardOutputCheckBox.setToolTip(
-            Tr::tr(
-                "If this option is enabled, application output will be discarded if it "
-                "continuously comes in faster than it can be handled."));
-        m_discardOutputCheckBox.setChecked(settings.discardExcessiveOutput);
-        m_cleanOldOutputCheckBox.setText(Tr::tr("Clear old output on a new run"));
-        m_cleanOldOutputCheckBox.setChecked(settings.cleanOldOutput);
-        m_mergeChannelsCheckBox.setText(Tr::tr("Merge stderr and stdout"));
-        m_mergeChannelsCheckBox.setChecked(settings.mergeChannels);
-        for (QComboBox * const modeComboBox
-             : {&m_runOutputModeComboBox, &m_debugOutputModeComboBox}) {
-            modeComboBox->addItem(Tr::tr("Always"), int(AppOutputPaneMode::PopupOnOutput));
-            modeComboBox->addItem(Tr::tr("Never"), int(AppOutputPaneMode::FlashOnOutput));
-            modeComboBox->addItem(Tr::tr("On First Output Only"),
-                                  int(AppOutputPaneMode::PopupOnFirstOutput));
-        }
-        m_runOutputModeComboBox.setCurrentIndex(m_runOutputModeComboBox
-                                                .findData(int(settings.runOutputMode)));
-        m_debugOutputModeComboBox.setCurrentIndex(m_debugOutputModeComboBox
-                                                  .findData(int(settings.debugOutputMode)));
-        m_maxCharsBox.setMaximum(100000000);
-        m_maxCharsBox.setValue(settings.maxCharCount);
-        m_overwriteColor.setText(Tr::tr("Overwrite background color"));
-        m_overwriteColor.setChecked(settings.overwriteBackground);
-        m_overwriteColor.setToolTip(Tr::tr("Customize background color of the application output.\n"
-                                           "Note: existing output will not get recolored."));
-        m_backgroundColor.setMinimumSize(QSize(64, 0));
-        m_backgroundColor.setAlphaAllowed(false);
-        QColor bgColor = settings.backgroundColor;
-        if (bgColor == AppOutputSettings::defaultBackgroundColor())
-            bgColor = QColor();
-        m_backgroundColor.setColor(bgColor);
-        m_backgroundColor.setEnabled(m_overwriteColor.isChecked());
-        auto resetColorButton = new QPushButton(Tr::tr("Reset"));
-        resetColorButton->setToolTip(Tr::tr("Reset to default.", "Color"));
-        resetColorButton->setEnabled(m_overwriteColor.isChecked());
-        connect(resetColorButton, &QPushButton::clicked, this, [this] {
-            if (!m_backgroundColor.color().isValid())
-                return;
-            m_backgroundColor.setColor({});
-            markSettingsDirty();
-        });
-        connect(&m_overwriteColor, &QCheckBox::clicked,
-                this, [this, resetColorButton](bool checked) {
-                m_backgroundColor.setEnabled(checked);
-                resetColorButton->setEnabled(checked);
-        });
-        connect(&m_backgroundColor, &QtColorButton::colorChanged, this, markSettingsDirty);
-
-        const auto layout = new QVBoxLayout(this);
-        layout->addWidget(&m_wrapOutputCheckBox);
-        layout->addWidget(&m_cleanOldOutputCheckBox);
-        layout->addWidget(&m_discardOutputCheckBox);
-        layout->addWidget(&m_mergeChannelsCheckBox);
-        const auto maxCharsLayout = new QHBoxLayout;
-        const QString msg = Tr::tr("Limit output to %1 characters");
-        const QStringList parts = msg.split("%1") << QString() << QString();
-        maxCharsLayout->addWidget(new QLabel(parts.at(0).trimmed()));
-        maxCharsLayout->addWidget(&m_maxCharsBox);
-        maxCharsLayout->addWidget(new QLabel(parts.at(1).trimmed()));
-        maxCharsLayout->addStretch(1);
-        const auto outputModeLayout = new QFormLayout;
-        outputModeLayout->addRow(Tr::tr("Open Application Output when running:"), &m_runOutputModeComboBox);
-        outputModeLayout->addRow(Tr::tr("Open Application Output when debugging:"),
-                                 &m_debugOutputModeComboBox);
-        const auto bgColorLayout = new QHBoxLayout;
-        bgColorLayout->addWidget(&m_overwriteColor);
-        bgColorLayout->addWidget(&m_backgroundColor);
-        bgColorLayout->addWidget(resetColorButton);
-        bgColorLayout->addStretch(1);
-        layout->addLayout(outputModeLayout);
-        layout->addLayout(maxCharsLayout);
-        layout->addLayout(bgColorLayout);
-        layout->addStretch(1);
-
-        installMarkSettingsDirtyTriggerRecursively(this);
-    }
-
-    void apply() final
-    {
-        AppOutputSettings s;
-        s.wrapOutput = m_wrapOutputCheckBox.isChecked();
-        s.discardExcessiveOutput = m_discardOutputCheckBox.isChecked();
-        s.cleanOldOutput = m_cleanOldOutputCheckBox.isChecked();
-        s.mergeChannels = m_mergeChannelsCheckBox.isChecked();
-        s.runOutputMode = static_cast<AppOutputPaneMode>(
-                    m_runOutputModeComboBox.currentData().toInt());
-        s.debugOutputMode = static_cast<AppOutputPaneMode>(
-                    m_debugOutputModeComboBox.currentData().toInt());
-        s.maxCharCount = m_maxCharsBox.value();
-        s.overwriteBackground = m_overwriteColor.isChecked();
-        QColor bgColor = m_backgroundColor.color();
-        if (!bgColor.isValid())
-            bgColor = AppOutputSettings::defaultBackgroundColor();
-        s.backgroundColor = bgColor;
-
-        appOutputPane().setSettings(s);
-    }
-
-private:
-    QCheckBox m_wrapOutputCheckBox;
-    QCheckBox m_discardOutputCheckBox;
-    QCheckBox m_cleanOldOutputCheckBox;
-    QCheckBox m_mergeChannelsCheckBox;
-    QCheckBox m_overwriteColor;
-    QComboBox m_runOutputModeComboBox;
-    QComboBox m_debugOutputModeComboBox;
-    QSpinBox m_maxCharsBox;
-    QtColorButton m_backgroundColor;
-};
-
-AppOutputSettingsPage::AppOutputSettingsPage()
-{
-    setId(OPTIONS_PAGE_ID);
-    setDisplayName(Tr::tr("Application Output"));
-    setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new AppOutputSettingsWidget; });
-}
-
 static QPointer<AppOutputPane> theAppOutputPane;
 
 AppOutputPane &appOutputPane()
@@ -1468,6 +1276,112 @@ void destroyAppOutputPane()
     delete theAppOutputPane;
 }
 
+QVariant OutputColorAspect::fromSettingsValue(const QVariant &savedValue) const
+{
+    const QColor color = savedValue.value<QColor>();
+    return color.isValid() ? color : Utils::creatorColor(Utils::Theme::PaletteBase);
+}
+
+QVariant OutputMaxCharCountAspect::fromSettingsValue(const QVariant &savedValue) const
+{
+    return savedValue.toInt() * 100;
+}
+
+QVariant OutputMaxCharCountAspect::toSettingsValue(const QVariant &valueToSave) const
+{
+    return valueToSave.toInt() / 100;
+}
+
+AppOutputSettings::AppOutputSettings()
+{
+    setAutoApply(false);
+
+    runOutputMode.setSettingsKey("ProjectExplorer/Settings/ShowRunOutput");
+    runOutputMode.setDefaultValue(int(AppOutputPaneMode::PopupOnFirstOutput));
+    runOutputMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    runOutputMode.setLabelText(Tr::tr("Open Application Output when running:"));
+
+    debugOutputMode.setSettingsKey("ProjectExplorer/Settings/ShowDebugOutput");
+    debugOutputMode.setDefaultValue(int(AppOutputPaneMode::FlashOnOutput));
+    debugOutputMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    debugOutputMode.setLabelText(Tr::tr("Open Application Output when debugging:"));
+
+    const QList<SelectionAspect::Option> options = {
+        {Tr::tr("Always"), {}, int(AppOutputPaneMode::PopupOnOutput)},
+        {Tr::tr("Never"), {}, int(AppOutputPaneMode::FlashOnOutput)},
+        {Tr::tr("On First Output Only"), {}, int(AppOutputPaneMode::PopupOnFirstOutput)},
+    };
+    for (const auto selection : {&runOutputMode, &debugOutputMode})
+        for (const auto &option : options)
+            selection->addOption(option);
+
+    cleanOldOutput.setSettingsKey("ProjectExplorer/Settings/CleanOldAppOutput");
+    cleanOldOutput.setDefaultValue(false);
+    cleanOldOutput.setLabelText(Tr::tr("Clear old output on a new run"));
+
+    mergeChannels.setSettingsKey("ProjectExplorer/Settings/MergeStdErrAndStdOut");
+    mergeChannels.setDefaultValue(false);
+    mergeChannels.setLabelText(Tr::tr("Merge stderr and stdout"));
+
+    wrapOutput.setSettingsKey("ProjectExplorer/Settings/WrapAppOutput");
+    wrapOutput.setDefaultValue(true);
+    wrapOutput.setLabelText(Tr::tr("Word-wrap output"));
+
+    discardExcessiveOutput.setSettingsKey("ProjectExplorer/Settings/DiscardAppOutput");
+    discardExcessiveOutput.setDefaultValue(false);
+    discardExcessiveOutput.setLabelText(Tr::tr("Discard excessive output"));
+
+    maxCharCount.setSettingsKey("ProjectExplorer/Settings/MaxAppOutputLines");
+    maxCharCount.setRange(1, Core::Constants::DEFAULT_MAX_CHAR_COUNT);
+    maxCharCount.setDefaultValue(Core::Constants::DEFAULT_MAX_CHAR_COUNT);
+
+    overwriteBackground.setSettingsKey("ProjectExplorer/Settings/OverwriteBackground");
+    overwriteBackground.setDefaultValue(false);
+    overwriteBackground.setLabelText(Tr::tr("Overwrite background color"));
+    overwriteBackground.setToolTip(Tr::tr("Customize background color of the application output.\n"
+                                          "Note: existing output will not get recolored."));
+
+    backgroundColor.setSettingsKey("ProjectExplorer/Settings/BackgroundColor");
+    backgroundColor.setDefaultValue(QColor{});
+    backgroundColor.setMinimumSize({64, 0});
+    backgroundColor.setEnabler(&overwriteBackground);
+
+    setLayouter([this] {
+        // clang-format off
+        using namespace Layouting;
+        const QString msg = Tr::tr("Limit output to %1 characters");
+        const QStringList parts = msg.split("%1") << QString() << QString();
+        auto resetColorButton = new QPushButton(Tr::tr("Reset"));
+        resetColorButton->setToolTip(Tr::tr("Reset to default.", "Color"));
+        connect(resetColorButton, &QPushButton::clicked, this, [this] {
+            backgroundColor.setVolatileValue(QColor{});
+        });
+        auto setResetButtonEnabled = [this, resetColorButton] {
+            resetColorButton->setEnabled(overwriteBackground.volatileValue());
+        };
+        connect(&overwriteBackground, &Utils::BoolAspect::volatileValueChanged,
+                resetColorButton, setResetButtonEnabled);
+        setResetButtonEnabled();
+
+        return Column {
+            wrapOutput,
+            cleanOldOutput,
+            discardExcessiveOutput,
+            mergeChannels,
+            Form {
+                runOutputMode, br,
+                debugOutputMode, br,
+            },
+            Row { parts.at(0).trimmed(), maxCharCount, parts.at(1).trimmed(), st },
+            Row { overwriteBackground, backgroundColor, resetColorButton, st },
+            st,
+        };
+        // clang-format on
+    });
+
+    readSettings();
+}
+
 QColor AppOutputSettings::defaultBackgroundColor()
 {
     return Utils::creatorColor(Theme::PaletteBase);
@@ -1475,8 +1389,22 @@ QColor AppOutputSettings::defaultBackgroundColor()
 
 QColor AppOutputSettings::effectiveBackgroundColor() const
 {
-    return overwriteBackground ? backgroundColor : defaultBackgroundColor();
+    return overwriteBackground() ? backgroundColor() : defaultBackgroundColor();
 }
+
+class AppOutputSettingsPage : public Core::IOptionsPage
+{
+public:
+    AppOutputSettingsPage()
+    {
+        setId(OPTIONS_PAGE_ID);
+        setDisplayName(Tr::tr("Application Output"));
+        setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &AppOutputPane::settings(); });
+    }
+};
+
+static const AppOutputSettingsPage settingsPage;
 
 } // namespace Internal
 } // namespace ProjectExplorer
