@@ -708,9 +708,6 @@ void SettingsWidget::createGui()
         rightColumn,
     }.attachTo(this);
 
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &SettingsWidget::apply);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &SettingsWidget::cancel);
-
     setDirty(false);
 }
 
