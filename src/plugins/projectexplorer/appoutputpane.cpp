@@ -32,6 +32,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/basetreeview.h>
+#include <utils/documenttabbar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
@@ -212,16 +213,13 @@ public:
     QWidget *filtersWidget(int index) const;
 
 private:
-    bool eventFilter(QObject *object, QEvent *event) override;
     QWidget *getActualWidget(QWidget *w, int splitterIndex) const;
-
-    int m_tabIndexForMiddleClick = -1;
 };
 
 TabWidget::TabWidget(QWidget *parent)
     : QTabWidget(parent)
 {
-    tabBar()->installEventFilter(this);
+    setTabBar(new DocumentTabBar);
     setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
@@ -265,31 +263,6 @@ QWidget *TabWidget::widget(int index) const
 QWidget *TabWidget::filtersWidget(int index) const
 {
     return getActualWidget(QTabWidget::widget(index), 1);
-}
-
-bool TabWidget::eventFilter(QObject *object, QEvent *event)
-{
-    if (object == tabBar()) {
-        if (event->type() == QEvent::MouseButtonPress) {
-            auto *me = static_cast<QMouseEvent *>(event);
-            if (me->button() == Qt::MiddleButton) {
-                m_tabIndexForMiddleClick = tabBar()->tabAt(me->pos());
-                event->accept();
-                return true;
-            }
-        } else if (event->type() == QEvent::MouseButtonRelease) {
-            auto *me = static_cast<QMouseEvent *>(event);
-            if (me->button() == Qt::MiddleButton) {
-                int tab = tabBar()->tabAt(me->pos());
-                if (tab != -1 && tab == m_tabIndexForMiddleClick)
-                    emit tabCloseRequested(tab);
-                m_tabIndexForMiddleClick = -1;
-                event->accept();
-                return true;
-            }
-        }
-    }
-    return QTabWidget::eventFilter(object, event);
 }
 
 QWidget *TabWidget::getActualWidget(QWidget *w, int splitterIndex) const

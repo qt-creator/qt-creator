@@ -106,6 +106,8 @@ QtcLibrary {
         "differ.h",
         "displayname.cpp",
         "displayname.h",
+        "documenttabbar.cpp",
+        "documenttabbar.h",
         "dropsupport.cpp",
         "dropsupport.h",
         "elfreader.cpp",
