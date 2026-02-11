@@ -133,7 +133,6 @@ std::optional<SettingsAccessor::Issue> SettingsAccessor::writeFile(const FilePat
                      Issue::Type::WARNING);
     }
 
-    QString errorMessage;
     if (!m_readOnly && (!m_writer || m_writer->fileName() != path))
         m_writer = std::make_unique<PersistentSettingsWriter>(path, m_docType);
 
