@@ -65,7 +65,6 @@ GeneralSettings::GeneralSettings()
         QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus,
                                        !showShortcutsInContextMenus());
     });
-    showShortcutsInContextMenus.addOnVolatileValueChanged(this, markSettingsDirty);
 
     provideSplitterCursors.setSettingsKey("General/OverrideSplitterCursors");
     provideSplitterCursors.setDefaultValue(false);
@@ -74,12 +73,10 @@ GeneralSettings::GeneralSettings()
         Tr::tr("Provide cursors for resizing views.\nIf the system cursors for resizing views are "
                "not displayed properly, you can use the cursors provided by %1.")
             .arg(QGuiApplication::applicationDisplayName()));
-    provideSplitterCursors.addOnVolatileValueChanged(this, markSettingsDirty);
 
     preferInfoBarOverPopup.setSettingsKey("General/PreferInfoBarOverPopup");
     preferInfoBarOverPopup.setDefaultValue(false);
     preferInfoBarOverPopup.setLabelText(Tr::tr("Prefer banner style info bars over pop-ups"));
-    preferInfoBarOverPopup.addOnVolatileValueChanged(this, markSettingsDirty);
 
     useTabsInEditorViews.setSettingsKey("General/UseTabsInEditorViews");
     useTabsInEditorViews.setDefaultValue(false);
@@ -87,7 +84,6 @@ GeneralSettings::GeneralSettings()
     useTabsInEditorViews.addOnChanged(EditorManagerPrivate::instance(), [this] {
         EditorManagerPrivate::setShowingTabs(useTabsInEditorViews.value());
     });
-    useTabsInEditorViews.addOnVolatileValueChanged(this, markSettingsDirty);
 
     readSettings();
 }
@@ -98,6 +94,7 @@ public:
     GeneralSettingsWidget();
 
     void apply() final;
+    bool isDirty() const final;
 
     void resetInterfaceColor();
     void resetWarnings();
@@ -204,7 +201,13 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     form.addRow({empty, generalSettings().preferInfoBarOverPopup});
     form.addRow({empty, generalSettings().useTabsInEditorViews});
     form.addRow({Row{m_resetWarningsButton, st}});
-    Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);
+
+    Column {
+        Group {
+            title(Tr::tr("User Interface")),
+            form
+        }
+    }.attachTo(this);
 
     fillLanguageBox();
     fillCodecBox();
@@ -224,13 +227,14 @@ GeneralSettingsWidget::GeneralSettingsWidget()
 
     setOnCancel([] { generalSettings().cancel(); });
 
-    installMarkSettingsDirtyTrigger(m_languageBox);
-    installMarkSettingsDirtyTrigger(m_codecBox);
-    installMarkSettingsDirtyTrigger(m_colorButton);
-    installMarkSettingsDirtyTrigger(m_themeChooser->themeComboBox());
-    installMarkSettingsDirtyTrigger(m_toolbarStyleBox);
-    installMarkSettingsDirtyTrigger(m_policyComboBox);
-    installMarkSettingsDirtyTrigger(resetColorButton);
+    installCheckSettingsDirtyTrigger(m_languageBox);
+    installCheckSettingsDirtyTrigger(m_codecBox);
+    installCheckSettingsDirtyTrigger(m_colorButton);
+    installCheckSettingsDirtyTrigger(m_themeChooser->themeComboBox());
+    installCheckSettingsDirtyTrigger(m_toolbarStyleBox);
+    installCheckSettingsDirtyTrigger(m_policyComboBox);
+
+    connect(&generalSettings(), &AspectContainer::volatileValueChanged, &checkSettingsDirty);
 }
 
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)
@@ -340,9 +344,54 @@ void GeneralSettingsWidget::apply()
     }
 }
 
+bool GeneralSettingsWidget::isDirty() const
+{
+    if (generalSettings().isDirty())
+        return true;
+
+    QtcSettings *settings = ICore::settings();
+
+    int currentIndex = m_languageBox->currentIndex();
+    QString selecetedLanguange = m_languageBox->itemData(currentIndex, Qt::UserRole).toString();
+    if (settings->value("General/OverrideLanguage").toString() != selecetedLanguange)
+        return true;
+
+    if (m_policyComboBox) {
+        const Qt::HighDpiScaleFactorRoundingPolicy selectedPolicy =
+            m_policyComboBox->currentData().value<Qt::HighDpiScaleFactorRoundingPolicy>();
+        using Policy = Qt::HighDpiScaleFactorRoundingPolicy;
+        const Policy previousPolicy = settings->value(
+                    settingsKeyDpiPolicy,
+                    int(StyleHelper::defaultHighDpiScaleFactorRoundingPolicy())).value<Policy>();
+        if (selectedPolicy != previousPolicy)
+            return true;
+    }
+
+    currentIndex = m_codecBox->currentIndex();
+    if (currentIndex != -1) {
+        QByteArray selectedCodec = m_codecBox->itemText(currentIndex).toLocal8Bit();
+        if (selectedCodec != settings->value(settingsKeyCodecForLocale).toByteArray())
+            return true;
+    }
+
+    if (m_colorButton->color() != StyleHelper::requestedBaseColor())
+        return true;
+
+    if (m_themeChooser->isDirty())
+        return true;
+
+    if (const auto newStyle = m_toolbarStyleBox->currentData().value<StyleHelper::ToolbarStyle>();
+            newStyle != StyleHelper::toolbarStyle()) {
+        return true;
+    }
+
+    return false;
+}
+
 void GeneralSettingsWidget::resetInterfaceColor()
 {
     m_colorButton->setColor(StyleHelper::DEFAULT_BASE_COLOR);
+    checkSettingsDirty();
 }
 
 void GeneralSettingsWidget::resetWarnings()

@@ -155,6 +155,16 @@ void ThemeChooser::apply()
     }
 }
 
+bool ThemeChooser::isDirty() const
+{
+    const int index = d->m_themeComboBox->currentIndex();
+    if (index == -1)
+        return false;
+    const QString themeId = d->m_themeListModel.themeAt(index).id().toString();
+    const QString currentThemeId = ThemeEntry::themeSetting().toString();
+    return currentThemeId != themeId;
+}
+
 static void addThemesFromPath(const QString &path, QList<ThemeEntry> *themes)
 {
     static const QLatin1String extension("*.creatortheme");

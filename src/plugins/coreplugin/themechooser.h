@@ -37,6 +37,7 @@ public:
     ~ThemeChooser() final;
 
     void apply();
+    bool isDirty() const;
 
     QComboBox *themeComboBox() const;
 
