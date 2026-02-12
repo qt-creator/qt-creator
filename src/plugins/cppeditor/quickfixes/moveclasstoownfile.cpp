@@ -326,7 +326,7 @@ private:
     {
         Overview ov;
         Project * const project = ProjectManager::projectForFile(state->originalFilePath);
-        const CppFileSettings fileSettings = cppFileSettingsForProject(project);
+        const CppFileSettingsData fileSettings = cppFileSettingsForProject(project);
         const auto constructDefaultFilePaths = [&] {
             const QString className = ov.prettyName(state->classAst->symbol->name());
             const QString baseFileName = fileSettings.lowerCaseFiles ? className.toLower() : className;
@@ -374,8 +374,9 @@ private:
         QList<QString *> commonContent{&headerContent};
         if (!mustNotCreateSourceFile)
             commonContent << &sourceContent;
+        const QString licenseTemplate = licenseTemplateForProject(project);
         for (QString *const content : std::as_const(commonContent)) {
-            content->append(fileSettings.licenseTemplate());
+            content->append(licenseTemplate);
             if (!content->isEmpty())
                 content->append('\n');
         }
@@ -384,7 +385,7 @@ private:
             = Utils::transform<QStringList>(state->namespacePath, [&](const Namespace *ns) {
                   return ov.prettyName(ns->name());
               });
-        const QString headerGuard = fileSettings.headerGuard(headerFilePath);
+        const QString headerGuard = headerGuardForProject(project, headerFilePath);
         if (fileSettings.headerPragmaOnce) {
             headerContent.append("#pragma once\n");
         } else {

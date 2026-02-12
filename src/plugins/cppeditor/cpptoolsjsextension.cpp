@@ -26,28 +26,31 @@
 #include <QStringList>
 #include <QTextStream>
 
+using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace CppEditor::Internal {
 
-static CppFileSettings fileSettings()
+static CppFileSettingsData fileSettings()
 {
     // Note that the user can set a different project in the wizard *after* the file names
     // have been determined. There's nothing we can do about that here.
-    return cppFileSettingsForProject(ProjectExplorer::ProjectTree::currentProject());
+    return cppFileSettingsForProject(ProjectTree::currentProject());
 }
 
 static QString fileName(const QString &path, const QString &extension)
 {
-    return Utils::FilePath::fromStringWithExtension(path, extension).toUrlishString();
+    return FilePath::fromStringWithExtension(path, extension).toUrlishString();
 }
 
 QString CppToolsJsExtension::headerGuard(const QString &in) const
 {
-    return fileSettings().headerGuard(Utils::FilePath::fromString(in));
+    return headerGuardForProject(ProjectTree::currentProject(), FilePath::fromString(in));
 }
 
 QString CppToolsJsExtension::licenseTemplate() const
 {
-    return fileSettings().licenseTemplate();
+    return licenseTemplateForProject(ProjectTree::currentProject());
 }
 
 bool CppToolsJsExtension::usePragmaOnce() const
@@ -81,7 +84,7 @@ QString CppToolsJsExtension::className(const QString &klass) const
 QString CppToolsJsExtension::classToFileName(const QString &klass, const QString &extension) const
 {
     const QString raw = fileName(className(klass), extension);
-    const CppFileSettings &settings = fileSettings();
+    const CppFileSettingsData settings = fileSettings();
     if (!settings.lowerCaseFiles)
         return raw;
 

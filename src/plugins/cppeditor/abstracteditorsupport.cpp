@@ -17,8 +17,8 @@ namespace CppEditor {
 QString licenseTemplate(ProjectExplorer::Project *project,
                         const FilePath &filePath, const QString &className)
 {
-    const QString license = Internal::cppFileSettingsForProject(project).licenseTemplate();
-    Utils::MacroExpander expander;
+    const QString license = Internal::licenseTemplateForProject(project);
+    MacroExpander expander;
     expander.registerVariable("Cpp:License:FileName", Tr::tr("The file name."),
                               [filePath] { return filePath.fileName(); });
     expander.registerVariable("Cpp:License:ClassName", Tr::tr("The class name."),

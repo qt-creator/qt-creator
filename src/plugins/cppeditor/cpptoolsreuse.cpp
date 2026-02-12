@@ -317,7 +317,7 @@ CppCompletionAssistProcessor *getCppCompletionAssistProcessor()
 
 QString deriveHeaderGuard(const Utils::FilePath &filePath, ProjectExplorer::Project *project)
 {
-    return Internal::cppFileSettingsForProject(project).headerGuard(filePath);
+    return Internal::headerGuardForProject(project, filePath);
 }
 
 bool fileSizeExceedsLimit(const FilePath &filePath, int sizeLimitInMb)
