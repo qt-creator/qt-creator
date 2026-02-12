@@ -53,7 +53,6 @@ class AppOutputSettings : public Utils::AspectContainer
 public:
     AppOutputSettings();
 
-    static QColor defaultBackgroundColor();
     QColor effectiveBackgroundColor() const;
 
     Utils::SelectionAspect runOutputMode{this};

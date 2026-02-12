@@ -1355,14 +1355,15 @@ AppOutputSettings::AppOutputSettings()
     readSettings();
 }
 
-QColor AppOutputSettings::defaultBackgroundColor()
-{
-    return Utils::creatorColor(Theme::PaletteBase);
-}
-
 QColor AppOutputSettings::effectiveBackgroundColor() const
 {
-    return overwriteBackground() ? backgroundColor() : defaultBackgroundColor();
+    QColor background;
+    if (overwriteBackground())
+        background = backgroundColor();
+    if (!background.isValid())
+        background = Utils::creatorColor(Utils::Theme::PaletteBase);
+
+    return background;
 }
 
 class AppOutputSettingsPage : public Core::IOptionsPage
