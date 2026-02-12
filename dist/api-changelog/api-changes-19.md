@@ -17,6 +17,8 @@ plugins.
 |                                                                       | Include file names and class names changed to the Qt naming style          |
 |                                                                       |                                                                            |
 | **Utils**                                                             |                                                                            |
+| onResultReady(QFuture, R *, void(R::*)(T))                            | Removed                                                                    |
+| onFinished(QFuture, R *, void(R::*)(QFuture))                         | Removed                                                                    |
 | **Utils::FilePath**                                                   |                                                                            |
 | bool ensureReachable                                                  | Result<> ensureReachable                                                   |
 | DeviceFileAccess *fileAccess                                          | std::shared_ptr\<DeviceFileAccess\> fileAccess                             |
