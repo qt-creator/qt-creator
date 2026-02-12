@@ -16,6 +16,11 @@ macro(qtc_auto_setup_compiler_standard toolchainFile)
     endforeach()
   endforeach()
 
+  # If the ENV{ANDROID_NDK_HOME} exists pass it via the ANDROID_NDK variable
+  if (DEFINED ENV{ANDROID_NDK_HOME})
+      set(ANDROID_NDK "$ENV{ANDROID_NDK_HOME}")
+  endif()
+
   # Forward important CMake variables to the package manager in the toolchain file
   foreach(fwd_var CMAKE_MSVC_RUNTIME_LIBRARY CMAKE_SYSROOT
                   CMAKE_OSX_SYSROOT CMAKE_OSX_ARCHITECTURES

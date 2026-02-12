@@ -1662,7 +1662,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             addUniqueKeyToCmd("-DANDROID_PLATFORM:STRING=",
                               bs->data(Android::Constants::AndroidNdkPlatform).toString());
             auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FilePath>();
-            cmd.addArg("-DANDROID_NDK:PATH=" + ndkLocation.path());
+            if (ndkLocation.exists())
+                cmd.addArg("-DANDROID_NDK:PATH=" + ndkLocation.path());
 
             cmd.addArg("-DCMAKE_TOOLCHAIN_FILE:FILEPATH="
                    + ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").path());
