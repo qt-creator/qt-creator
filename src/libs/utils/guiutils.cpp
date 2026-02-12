@@ -236,6 +236,8 @@ void installMarkSettingsDirtyTriggerRecursively(QWidget *widget)
         }
         if (auto ob = qobject_cast<QListWidget *>(child)) {
             QObject::connect(ob, &QListWidget::itemChanged, markDirty);
+            QObject::connect(ob->model(), &QAbstractItemModel::rowsInserted, markDirty);
+            QObject::connect(ob->model(), &QAbstractItemModel::rowsRemoved, markDirty);
             continue;
         }
     }
