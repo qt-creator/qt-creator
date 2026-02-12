@@ -428,6 +428,8 @@ void McpCommands::searchInFiles(
     bool caseSensitive,
     const ResponseCallback &callback)
 {
+    Q_UNUSED(path);
+
     const QList<Project *> projects = projectName ? projectsForName(*projectName)
                                                   : ProjectManager::projects();
 
