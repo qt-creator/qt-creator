@@ -2076,7 +2076,7 @@ void GitPluginPrivate::vcsFillFileActionMenu(QMenu *menu,
         const Utils::FilePath suffixMask = path->stringAppended("*." + suffix);
         QAction *act0 = menu->addAction(Tr::tr(message).arg("/" + suffixMask.path()));
         connect(act0, &QAction::triggered, this, [=, this] {
-            vcsFileAction(topLevel, relativePath, IVersionControl::FileAddGitignore);
+            vcsFileAction(topLevel, suffixMask, IVersionControl::FileAddGitignore);
         });
         const Utils::FilePath nameMask = path->stringAppended(baseName + ".*");
         QAction *act1 = menu->addAction(Tr::tr(message).arg("/" + nameMask.path()));
