@@ -322,8 +322,10 @@ void AiAssistantWidget::restartMcpHost()
 
     McpConfigLoader loader;
     loader.setResolveMap({{"${PROJECT_PATH}", m_projectPath}});
-    loader.loadFile(m_mcpHost.get(), ":/AiAssistant/globalmcpconfig.json");
+    bool success = loader.loadFile(":/AiAssistant/mcpconfig.json");
+    QTC_ASSERT(success, return);
 
+    m_mcpHost->addServers(loader.getConfigs());
     m_mcpHost->startAll();
 }
 

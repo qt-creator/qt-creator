@@ -53,10 +53,10 @@ public:
         QObject *parent = nullptr);
 
     // --- Configuration ---
-    void addServer(const McpServerConfig &cfg);
     bool hasServer(const QString &serverName) const;
     void removeServer(const QString &serverName);
     QStringList servers() const;
+    void addServers(const QList<McpServerConfig> &configs);
 
     // Allow-list management (optional)
     void setAllowedTools(const QString &serverName, const QSet<QString> &tools);
@@ -129,6 +129,7 @@ signals:
         const QString &serverName, const QString &method, const QJsonObject &params);
 
 private:
+    void addServer(const McpServerConfig &cfg);
     void wireClientSignals(const QString &name, const QSharedPointer<McpClient> &client);
     void scheduleRestart(const QString &name);
     void cancelRestart(const QString &name);

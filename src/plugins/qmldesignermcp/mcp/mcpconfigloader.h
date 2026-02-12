@@ -17,11 +17,8 @@ namespace QmlDesigner {
  * \class McpConfigLoader
  * \brief Loader for MCP server configuration files (.qds/mcp.json).
  *
- * Responsibilities:
- *  - Read and parse MCP configuration JSON (supports comments via jsonc stripping).
- *  - Build McpServerConfig entries for McpHost.
- *  - Apply precedence: global (~/.qds/mcp.json) + project (./.qds/mcp.json).
- *  - Configure allow-lists and expose require-consent sets per server.
+ *  - Read and parse MCP server configuration JSON file.
+ *  - Configure tools allow-lists and require-consent sets.
  */
 class McpConfigLoader
 {
@@ -38,12 +35,11 @@ public:
     void setResolveMap(const QMap<QString, QString> &map);
 
     /*!
-     * \brief Load a single configuration file and apply it to the host.
-     * \param host      Target host to configure.
+     * \brief Load a configuration file.
      * \param path      Path to JSON/JSONC configuration file.
      * \return true on success.
      */
-    bool loadFile(McpHost *host, const QString &path);
+    bool loadFile(const QString &path);
 
     /*!
      * \brief Load with precedence: global then project.
@@ -51,18 +47,19 @@ public:
      * - If both exist, project overrides/augments global server entries.
      * - Merges env and allowed/require lists; project wins on conflicts.
      *
-     * \param host            Target host to configure.
      * \param globalPath      e.g., "~/.qds/mcp.json"
      * \param projectPath     e.g., "./.qds/mcp.json"
      * \return true if at least one file loaded successfully; false otherwise.
      */
-    bool loadPrecedence(McpHost *host, const QString &globalPath, const QString &projectPath);
+    bool loadPrecedence(const QString &globalPath, const QString &projectPath);
+
+    QList<McpServerConfig> getConfigs() const;
 
 private:
-    void applyServers(McpHost *host, const QJsonObject &serversObj);
     QJsonObject loadJsonObject(const QString &path, QString *errOut = nullptr) const;
     QJsonValue resolveStringTokens(const QJsonValue &value) const;
 
+    QJsonObject m_serversObj;
     QMap<QString, QString> m_resolveMap;
 };
 

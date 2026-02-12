@@ -24,15 +24,6 @@ QStringList toStringList(const QJsonArray &arr)
     return list;
 }
 
-QSet<QString> toSet(const QJsonArray &arr)
-{
-    QSet<QString> set;
-    set.reserve(arr.size());
-    for (const auto &v : arr)
-        set.insert(v.toString());
-    return set;
-}
-
 QProcessEnvironment buildEnv(const QJsonObject &obj)
 {
     auto env = QProcessEnvironment::systemEnvironment();
@@ -85,11 +76,8 @@ void McpConfigLoader::setResolveMap(const QMap<QString, QString> &map)
     m_resolveMap = map;
 }
 
-bool McpConfigLoader::loadFile(McpHost *host, const QString &path)
+bool McpConfigLoader::loadFile(const QString &path)
 {
-    if (!host)
-        return false;
-
     QString err;
     const QJsonObject root = loadJsonObject(path, &err);
     if (root.isEmpty()) {
@@ -97,23 +85,18 @@ bool McpConfigLoader::loadFile(McpHost *host, const QString &path)
         return false;
     }
 
-    const QJsonObject serversObj = root.value("mcpServers").toObject();
-    if (serversObj.isEmpty()) {
+    m_serversObj = root.value("mcpServers").toObject();
+    if (m_serversObj.isEmpty()) {
         qWarning() << "[McpConfigLoader] No 'servers' object in" << path;
         return false;
     }
 
-    applyServers(host, serversObj);
     return true;
 }
 
 bool McpConfigLoader::loadPrecedence(
-    McpHost *host, const QString &globalPath, const QString &projectPath)
+    const QString &globalPath, const QString &projectPath)
 {
-    if (!host)
-        return false;
-    bool any = false;
-
     QString errGlobal, errProject;
     const QJsonObject glob = loadJsonObject(globalPath, &errGlobal);
     const QJsonObject proj = loadJsonObject(projectPath, &errProject);
@@ -137,16 +120,15 @@ bool McpConfigLoader::loadPrecedence(
         return false;
     }
 
-    applyServers(host, serversObj);
-    any = true;
-
-    return any;
+    return true;
 }
 
-void McpConfigLoader::applyServers(McpHost *host, const QJsonObject &serversObj)
+QList<McpServerConfig> McpConfigLoader::getConfigs() const
 {
+    QList<McpServerConfig> configs;
+
     // Iterate entries: name -> serverConf
-    for (auto it = serversObj.begin(); it != serversObj.end(); ++it) {
+    for (auto it = m_serversObj.begin(); it != m_serversObj.end(); ++it) {
         const QString serverName = it.key();
         QJsonObject cfg = it.value().toObject();
 
@@ -181,22 +163,11 @@ void McpConfigLoader::applyServers(McpHost *host, const QJsonObject &serversObj)
             }
         }
 
-        // Add server to host
-        host->addServer(serverConfig);
+        // TODO: handle allowedTools and requireConsent
 
-        // Allowed tools list
-        const QSet<QString> allowed = toSet(cfg.value("allowedTools").toArray());
-        if (!allowed.isEmpty())
-            host->setAllowedTools(serverName, allowed);
-
-        // Tools that require the user's consent to be used
-        QSet<QString> requireSet = toSet(cfg.value("requireConsent").toArray());
-        if (!requireSet.isEmpty()) {
-            QSet<QString> consents = host->requiredConsent(serverName);
-            consents.unite(requireSet);
-            host->setRequiredConsent(serverName, consents);
-        }
+        configs.append(serverConfig);
     }
+    return configs;
 }
 
 QJsonObject McpConfigLoader::loadJsonObject(const QString &path, QString *errOut) const

@@ -9,7 +9,7 @@ import asyncio
 import json
 
 # Create server instance
-server = Server("qds-server")
+server = Server("qml_server")
 
 # Project path will be set from command line
 PROJECT_PATH = None

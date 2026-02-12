@@ -5,7 +5,7 @@
         <file>manifests/ai_ui.manifest.json</file>
         <file>images/aiKitIcon.png</file>
         <file>termsandconditions.html</file>
-        <file>globalmcpconfig.json</file>
-        <file>mcp/qds_mcp_server.py</file>
+        <file>mcpconfig.json</file>
+        <file>mcp/qml_mcp_server.py</file>
     </qresource>
 </RCC>

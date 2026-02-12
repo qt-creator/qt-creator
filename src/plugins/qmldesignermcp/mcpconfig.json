@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "qml_server": {
+      "transport": "stdio",
+      "workingDir": "../share/qtcreator/mcp",
+      "command": "python",
+      "args": [
+        "qml_mcp_server.py",
+        "${PROJECT_PATH}"
+      ],
+
+      "allowedTools": [],
+      "requireConsent": []
+    }
+  }
+}

@@ -44,6 +44,12 @@ QStringList McpHost::servers() const
     return m_serverConfigs.keys();
 }
 
+void McpHost::addServers(const QList<McpServerConfig> &configs)
+{
+    for (const McpServerConfig &config : configs)
+        addServer(config);
+}
+
 void McpHost::setAllowedTools(const QString &serverName, const QSet<QString> &tools)
 {
     m_allowedTools.insert(serverName, tools);
@@ -225,61 +231,64 @@ QSharedPointer<McpClient> McpHost::client(const QString &serverName) const
 void McpHost::wireClientSignals(const QString &name, const QSharedPointer<McpClient> &c)
 {
     McpClient *client = c.get();
-    connect(client, &McpClient::connected, [this, name](const McpServerInfo &info) {
+    connect(client, &McpClient::connected, this, [this, name](const McpServerInfo &info) {
         emit serverStarted(name, info);
     });
 
-    connect(client, &McpClient::exited, [this, name](int ec, QProcess::ExitStatus st) {
+    connect(client, &McpClient::exited, this, [this, name](int ec, QProcess::ExitStatus st) {
         emit serverExited(name, ec, st);
         // schedule restart if it crashed
         if (st == QProcess::CrashExit)
             scheduleRestart(name);
     });
 
-    connect(client, &McpClient::errorOccurred, [this, name](const QString &msg) {
+    connect(client, &McpClient::errorOccurred, this, [this, name](const QString &msg) {
         emit errorOccurred(name, msg);
     });
 
-    connect(client, &McpClient::logMessage, [this, name](const QString &line) {
+    connect(client, &McpClient::logMessage, this, [this, name](const QString &line) {
         emit logMessage(name, line);
     });
 
-    connect(client, &McpClient::toolsListed, [this, name](const QList<McpTool> &tools, qint64 reqId) {
+    connect(client, &McpClient::toolsListed, this, [this, name](const QList<McpTool> &tools, qint64 reqId) {
         emit toolsListed(name, tools, reqId);
     });
 
-    connect(client, &McpClient::toolCallSucceeded, [this, name](const QJsonObject &res, qint64 id) {
+    connect(client, &McpClient::toolCallSucceeded, this, [this, name](const QJsonObject &res, qint64 id) {
         emit toolCallSucceeded(name, res, id);
     });
 
     connect(
         client,
-        &McpClient::toolCallFailed,
+        &McpClient::toolCallFailed, this,
         [this, name](const QString &msg, const QJsonObject &err, qint64 id) {
             emit toolCallFailed(name, msg, err, id);
         });
 
     connect(
         client,
-        &McpClient::resourcesListed,
+        &McpClient::resourcesListed, this,
         [this, name](const QList<McpResource> &resources, qint64 reqId) {
             emit resourcesListed(name, resources, reqId);
         });
 
-    connect(client, &McpClient::resourceReadSucceeded, [this, name](const QJsonObject &res, qint64 id) {
-        emit resourceReadSucceeded(name, res, id);
-    });
+    connect(
+        client,
+        &McpClient::resourceReadSucceeded, this,
+        [this, name](const QJsonObject &res, qint64 id) {
+            emit resourceReadSucceeded(name, res, id);
+        });
 
     connect(
         client,
-        &McpClient::resourceReadFailed,
+        &McpClient::resourceReadFailed, this,
         [this, name](const QString &msg, const QJsonObject &err, qint64 id) {
             emit resourceReadFailed(name, msg, err, id);
         });
 
     connect(
         client,
-        &McpClient::notificationReceived,
+        &McpClient::notificationReceived, this,
         [this, name](const QString &method, const QJsonObject &params) {
             emit notificationReceived(name, method, params);
         });
@@ -292,7 +301,7 @@ void McpHost::scheduleRestart(const QString &name)
         t = new QTimer(this);
         t->setSingleShot(true);
         m_restartTimers.insert(name, t);
-        connect(t, &QTimer::timeout, [this, name] {
+        connect(t, &QTimer::timeout, this, [this, name] {
             // Ensure client isn't already running
             if (auto client = this->client(name); !client.isNull() && client->isRunning())
                 return;

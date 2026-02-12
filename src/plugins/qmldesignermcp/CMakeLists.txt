@@ -1,5 +1,5 @@
 add_qtc_plugin(QmlDesignerMcp
-  CONDITION TARGET QtCreator::QmlDesigner AND USE_MCP
+  CONDITION TARGET QtCreator::QmlDesigner
   PLUGIN_DEPENDS
     QtCreator::QmlDesigner QtCreator::QmlDesignerBase
   DEPENDS
@@ -20,7 +20,6 @@ add_qtc_plugin(QmlDesignerMcp
 )
 
 extend_qtc_plugin(QmlDesignerMcp
-  CONDITION USE_MCP
   PUBLIC_INCLUDES settings
   SOURCES_PREFIX settings
   SOURCES
@@ -32,7 +31,6 @@ extend_qtc_plugin(QmlDesignerMcp
 )
 
 extend_qtc_plugin(QmlDesignerMcp
-  CONDITION USE_MCP
   PUBLIC_INCLUDES api
   SOURCES_PREFIX api
   SOURCES
@@ -45,7 +43,6 @@ extend_qtc_plugin(QmlDesignerMcp
 )
 
 extend_qtc_plugin(QmlDesignerMcp
-  CONDITION USE_MCP
   PUBLIC_INCLUDES mcp
   SOURCES_PREFIX mcp
   SOURCES
@@ -55,6 +52,6 @@ extend_qtc_plugin(QmlDesignerMcp
 )
 
 qtc_copy_to_builddir(copy_mcpserver_py_file_to_builddir
-  FILES mcp/qds_mcp_server.py
+  FILES mcp/qml_mcp_server.py
   DESTINATION ${IDE_DATA_PATH}
 )
