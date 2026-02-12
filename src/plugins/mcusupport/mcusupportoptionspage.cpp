@@ -180,7 +180,8 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
 
     showMcuTargetPackages();
 
-    Utils::installMarkSettingsDirtyTriggerRecursively(this);
+    Utils::installMarkSettingsDirtyTrigger(m_kitAutomaticCreationCheckBox);
+    Utils::installMarkSettingsDirtyTriggerRecursively(m_qtForMCUsSdkGroupBox);
 }
 
 void McuSupportOptionsWidget::updateStatus()
