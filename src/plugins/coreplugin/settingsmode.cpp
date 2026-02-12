@@ -992,14 +992,14 @@ SettingsMode::SettingsMode()
     setIcon(Core::Icons::MODE_SETTINGS.icon());
     setPriority(Constants::P_MODE_SETIINGS);
     setId(Constants::MODE_SETTINGS);
-    setContext(Context(Constants::C_SETTINGS_MODE, Constants::C_NAVIGATION_PANE));
+    setContext(Context(Constants::C_SETTINGS_MODE));
     setWidgetCreator([this]() -> QWidget * {
         m_settingsModeWidget = new SettingsModeWidget;
         return m_settingsModeWidget;
     });
-    ActionBuilder(this, Core::Constants::S_RETURNTOEDITOR).setContext(context()).addOnTriggered([] {
-        ModeManager::activatePreviousMode();
-    });
+    ActionBuilder(this, Core::Constants::S_RETURNTOEDITOR)
+        .setContext(Constants::C_SETTINGS_MODE)
+        .addOnTriggered([] { ModeManager::activatePreviousMode(); });
 }
 
 SettingsMode::~SettingsMode()
