@@ -9,3 +9,5 @@ enum struct Foo5;
 enum class Foo6 { A, B };
 enum struct Foo7 { A, B };
 enum struct Foo8 : long long;
+enum [[deprecated]] Foo9 { Foo9Val };
+enum __attribute__ ((__deprecated__("deprecated"))) Foo10 { Foo10Val };

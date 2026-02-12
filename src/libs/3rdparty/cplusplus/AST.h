@@ -1509,6 +1509,7 @@ class CPLUSPLUS_EXPORT EnumSpecifierAST: public SpecifierAST
 public:
     int enum_token = 0;
     int key_token = 0; // struct, class or 0
+    SpecifierListAST *attribute_list = nullptr;
     NameAST *name = nullptr;
     int colon_token = 0; // can be 0 if there is no enum-base
     SpecifierListAST *type_specifier_list = nullptr; // ditto
