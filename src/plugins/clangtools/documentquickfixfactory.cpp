@@ -77,7 +77,7 @@ void DocumentQuickFixFactory::doMatch(const CppEditor::Internal::CppQuickFixInte
 
         const int lineNumber = block.blockNumber() + 1;
 
-        for (Diagnostic diagnostic : runner->diagnosticsAtLine(lineNumber)) {
+        for (const Diagnostic &diagnostic : runner->diagnosticsAtLine(lineNumber)) {
             if (diagnostic.hasFixits)
                 result << new ClangToolQuickFixOperation(diagnostic);
         }
