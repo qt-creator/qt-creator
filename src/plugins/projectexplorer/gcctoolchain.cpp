@@ -1596,12 +1596,13 @@ Toolchains GccToolchainFactory::detectForImport(const ToolchainDescription &tcd)
     }
 
     bool isCCompiler = tcd.language == Constants::C_LANGUAGE_ID
-                             && ((fileName.startsWith("clang") && !fileName.startsWith("clang++"))
-                                 || (fileName == "cc" && resolvedSymlinksFileName.contains("clang")));
+                       && (((fileName.startsWith("clang") || fileName.endsWith("clang"))
+                            && !fileName.startsWith("clang++"))
+                           || (fileName == "cc" && resolvedSymlinksFileName.contains("clang")));
 
     bool isCxxCompiler = tcd.language == Constants::CXX_LANGUAGE_ID
-                               && (fileName.startsWith("clang++")
-                                   || (fileName == "c++" && resolvedSymlinksFileName.contains("clang")));
+                         && (fileName.startsWith("clang++") || fileName.endsWith("clang++")
+                             || (fileName == "c++" && resolvedSymlinksFileName.contains("clang")));
 
     if (isCCompiler || isCxxCompiler)
         result += autoDetectToolchain(tcd, GccToolchain::Clang);
@@ -1615,7 +1616,7 @@ Toolchains GccToolchainFactory::detectForImport(const ToolchainDescription &tcd)
 
     isCxxCompiler = tcd.language == Constants::CXX_LANGUAGE_ID
             && (fileName.startsWith("g++")
-                || fileName.endsWith("g++")
+                || (fileName.endsWith("g++") && !fileName.endsWith("clang++"))
                 || (fileName == "c++" && !resolvedSymlinksFileName.contains("clang")));
 
     if (isCCompiler || isCxxCompiler)
