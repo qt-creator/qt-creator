@@ -246,7 +246,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
             menu.exec(m_tabBar->mapToGlobal(pos));
         },
         Qt::QueuedConnection);
-    connect(m_tabBar, &QTabBar::tabMoved, [this] { ensurePinnedOrder(); });
+    connect(m_tabBar, &QTabBar::tabMoved, this, [this] { ensurePinnedOrder(); });
     // We cannot watch for IDocument changes, because the tab might refer
     // to a suspended document. And if a new editor for that is opened in another view,
     // this view will not know about that.

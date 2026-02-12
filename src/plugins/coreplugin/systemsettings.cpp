@@ -422,7 +422,7 @@ public:
             updateEnvironmentChangesLabel();
             updatePath();
         });
-        connect(envVarSeparatorsButton, &QPushButton::clicked, [this] {
+        connect(envVarSeparatorsButton, &QPushButton::clicked, this, [this] {
             EnvVarSeparatorsDialog dlg(m_envVarSeparators, this);
             if (dlg.exec() == QDialog::Accepted) {
                 if (m_envVarSeparators == dlg.separators())
