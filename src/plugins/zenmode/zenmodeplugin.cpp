@@ -217,7 +217,7 @@ void ZenModePlugin::restoreSidebars()
 
 ZenModePlugin::ModeStyle ZenModePlugin::activeModeSidebar()
 {
-    for (int i = 0; i < m_toggleModesStatesActions.size(); ++i) {
+    for (size_t i = 0; i < m_toggleModesStatesActions.size(); ++i) {
         auto action = m_toggleModesStatesActions[i];
         if (action && action->isChecked())
             return static_cast<ModeStyle>(i);
