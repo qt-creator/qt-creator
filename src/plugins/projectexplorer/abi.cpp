@@ -589,7 +589,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             if (flavor == UnknownFlavor)
                 flavor = GenericFlavor;
             format = ElfFormat;
-        } else if (p == "android" || p == "androideabi") {
+        } else if (p.startsWith("android") || p.startsWith("androideabi")) {
             flavor = AndroidLinuxFlavor;
         } else if (p.startsWith("freebsd")) {
             os = BsdOS;
