@@ -84,7 +84,7 @@ void generateCompilationDB(
     const QStringList &projectOptions,
     const FilePath &clangIncludeDir)
 {
-    return CppEditor::generateCompilationDB(
+    CppEditor::generateCompilationDB(
         promise, projectInfoList, baseDir, purpose, projectOptions, [&](const ProjectPart &pp) {
             return clangOptionsBuilder(pp, warningsConfig, clangIncludeDir, {});
         });
