@@ -740,7 +740,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         chooser->addMacroExpanderProvider({this, [] { return Utils::globalMacroExpander(); }});
 
         const auto resetButton = new QPushButton(Tr::tr("Reset"));
-        connect(resetButton, &QPushButton::clicked, [e = edit, v = defaultValue] { e->setText(v); });
+        connect(resetButton, &QPushButton::clicked, this, [e = edit, v = defaultValue] { e->setText(v); });
         const auto layout = new QHBoxLayout;
         const auto label = new QLabel(text);
         label->setToolTip(toolTip);
