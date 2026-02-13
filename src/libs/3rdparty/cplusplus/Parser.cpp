@@ -3531,7 +3531,8 @@ bool Parser::parseUnqualifiedName(NameAST *&node, bool acceptTemplateId)
                     && (! _templateArguments || (LA() == T_COMMA  || maybeSplitGreaterGreaterToken() || LA() == T_GREATER ||
                                                  LA() == T_LPAREN || LA() == T_RPAREN  ||
                                                  LA() == T_STAR || LA() == T_AMPER || // ptr-operators
-                                                 LA() == T_COLON_COLON || LA() == T_EQUAL))) {
+                                                 LA() == T_COLON_COLON || LA() == T_EQUAL ||
+                                                 LA() == T_AMPER_AMPER || LA() == T_PIPE_PIPE))) {
                 blockErrors(blocked);
                 return true;
             }
