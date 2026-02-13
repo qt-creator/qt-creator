@@ -224,9 +224,10 @@ private:
         QTcpSocket *socket = new QTcpSocket(this);
         socket->connectToHost(QHostAddress::LocalHost, 3001);
         if (!socket->waitForConnected(timeoutMs)) {
+            const QString errorString = socket->errorString();
             delete socket;
             throw std::runtime_error(
-                QStringLiteral("SSE connect failed: %1").arg(socket->errorString()).toStdString());
+                QStringLiteral("SSE connect failed: %1").arg(errorString).toStdString());
         }
 
         // Send the GET request for the SSE stream
@@ -237,9 +238,10 @@ private:
         request += "\r\n";
 
         if (socket->write(request) != request.size() || !socket->waitForBytesWritten(timeoutMs)) {
+            const QString errorString = socket->errorString();
             delete socket;
             throw std::runtime_error(
-                QStringLiteral("SSE write failed: %1").arg(socket->errorString()).toStdString());
+                QStringLiteral("SSE write failed: %1").arg(errorString).toStdString());
         }
 
         // Wait for the HTTP status line + headers + the first “endpoint” event.
