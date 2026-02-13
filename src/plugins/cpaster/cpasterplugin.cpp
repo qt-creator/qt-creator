@@ -154,7 +154,7 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
     // Connect protocols
     if (!m_protocols.isEmpty()) {
         for (Protocol *proto : m_protocols)
-            settings().protocols.addOption(proto->name());
+            settings().protocols.addOption({proto->name(), {}, proto->name()});
         settings().protocols.setDefaultValue(m_protocols.at(0)->name());
     }
 
