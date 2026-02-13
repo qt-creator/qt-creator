@@ -16217,7 +16217,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     <message>
         <source>Open online documentation for %1.</source>
         <extracomment>%1 is an AndroidManifest keyword</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Online-Dokumentation für %1 öffnen.</translation>
     </message>
     <message>
         <source>The structure of the Android manifest file is corrupted. Expected a top level &apos;manifest&apos; node.</source>
@@ -17002,7 +17002,8 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Android-Bu
     <message>
         <source>Cannot automatically update the project file &quot;%1&quot;.
 Set the property &quot;%2&quot; manually.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Projektdatei &quot;%1&quot; kann nicht automatisch aktualisiert werden.
+Setzen Sie die Eigenschaft &quot;%2&quot; manuell.</translation>
     </message>
     <message>
         <source>Android Clang</source>
@@ -18759,7 +18760,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Single File Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Einzeldatei-Analyse</translation>
     </message>
     <message>
         <source>Open Issue in Dashboard</source>
@@ -18779,7 +18780,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Cancel Single File Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Einzeldatei-Analyse abbrechen</translation>
     </message>
     <message>
         <source>See Axivion Log...</source>
@@ -18836,7 +18837,8 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <message>
         <source>Dashboard server &quot;%1&quot; does not support unauthenticated access.
 Change its configuration in the preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Server &quot;%1&quot; unterstützt keinen unauthentifizierten Zugriff.
+Ändern Sie seine Konfiguration in den Einstellungen.</translation>
     </message>
     <message>
         <source>Enter the password for:
@@ -18924,7 +18926,7 @@ Setzen Sie dies, um die globale Umgebung zu überschreiben oder wenn Axivion pyt
     </message>
     <message>
         <source>Anonymous authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Anonyme Authentifizierung</translation>
     </message>
     <message>
         <source>Project name must be non-empty.</source>
@@ -19198,68 +19200,71 @@ Inkrementeller Build: Setzt die Umgebungsvariable AXIVION_INCREMENTAL_BUILD=1</t
     </message>
     <message>
         <source>Cannot parse JSON data &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON-Daten &quot;%1&quot; können nicht ausgewertet werden: %2</translation>
     </message>
     <message>
         <source>Not a JSON object: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein JSON-Objekt: %1</translation>
     </message>
     <message>
         <source>Unexpected response when starting PluginArServer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartete Antwort beim Starten von PluginArServer.</translation>
     </message>
     <message>
         <source>Unexpected response for HTTP server start request.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartete Antwort auf die HTTP-Server-Startanfrage.</translation>
     </message>
     <message>
         <source>PluginArServer stopped with unknown error.</source>
-        <translation type="unfinished"></translation>
+        <translation>PluginArServer wurde mit unbekanntem Fehler beendet.</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Starten</translation>
     </message>
     <message>
         <source>No active project. Referring to %1 will fail.</source>
         <extracomment>%1 is a Qt Creator variable string</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kein aktives Projekt. Verweise auf %1 werden fehlschlagen.</translation>
     </message>
     <message>
         <source>or some shell/batch script holding cafeCC / axivion_analysis commands to execute.</source>
         <extracomment>the text is preceded by a command to execute</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>oder ein Shell-/Batch‑Skript, das cafeCC‑/axivion_analysis‑Befehle enthält, die ausgeführt werden sollen.</translation>
     </message>
     <message>
         <source>BAUHAUS_CONFIG Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>BAUHAUS_CONFIG‑Verzeichnis</translation>
     </message>
     <message>
         <source>Usually the directory containing the file &quot;axivion_config.json&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Normalerweise das Verzeichnis, das die Datei &quot;axivion_config.json&quot; enthält.</translation>
     </message>
     <message>
         <source>Analysis Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Analyse‑Befehl</translation>
     </message>
     <message>
         <source>Axivion Suite path is neither configured nor in PATH.
 Set it up in Preferences &gt; Analyzers &gt; Axivion to start a single file analysis.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad zur Axivion Suite ist weder konfiguriert noch im PATH.
+Richten Sie ihn in den Einstellungen &gt; Analyzer &gt; Axivion ein, um eine Einzeldatei-Analyse zu starten.</translation>
     </message>
     <message>
         <source>Preparing</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereite vor</translation>
     </message>
     <message>
         <source>There is a local build running for &quot;%1&quot;.
 Try again when it has finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein lokaler Build für &quot;%1&quot; läuft bereits.
+Versuchen Sie es erneut, wenn dieser abgeschlossen ist.</translation>
     </message>
     <message>
         <source>There already is a single file analysis running for &quot;%1&quot;.
 Try again when it has finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Einzeldatei-Analyse für &quot;%1&quot; läuft bereits.
+Versuchen Sie es erneut, wenn diese abgeschlossen ist.</translation>
     </message>
 </context>
 <context>
@@ -20892,11 +20897,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>The C++ compiler QML debugging define, if enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Das QML‑Debugging‑Define für den C++‑Compiler, falls aktiviert</translation>
     </message>
     <message>
         <source>The CMake boolean value for QML debugging: ON / OFF.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der boolesche Wert für QML-Debugging für CMake: ON / OFF.</translation>
     </message>
     <message>
         <source>Build Environment</source>
@@ -21213,11 +21218,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Re-detect</source>
-        <translation type="unfinished">Neu erkennen</translation>
+        <translation>Neu erkennen</translation>
     </message>
     <message>
         <source>Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät:</translation>
     </message>
     <message>
         <source>Clone of %1</source>
@@ -21299,16 +21304,16 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Install into staging directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>In Staging‑Verzeichnis installieren:</translation>
     </message>
     <message>
         <source>Implies the %1 target, but sets the %2 variable to install into the specified directory instead of into the default system directories. This does not affect the target location for deployment configurations.</source>
         <extracomment>%1 = the &quot;install&quot; CMake target, %2 = the DESTDIR environment variable</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Impliziert das %1‑Ziel, setzt jedoch die %2‑Variable, um in das angegebene Verzeichnis zu installieren, anstatt in die Standard‑Systemverzeichnisse. Dies hat keinen Einfluss auf den Zielort für Deployment‑Konfigurationen.</translation>
     </message>
     <message>
         <source>Use this option for example if you develop for a remote target device and do not want to install into the system directories of the build device, or to use separate installation directories on the build device for different build configurations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwenden Sie diese Option beispielsweise, wenn Sie für ein entferntes Zielgerät entwickeln und nicht in die Systemverzeichnisse des Build‑Geräts installieren möchten, oder um separate Installationsverzeichnisse auf dem Build‑Gerät für verschiedene Build‑Konfigurationen zu nutzen.</translation>
     </message>
     <message>
         <source>You asked to build the current Run Configuration&apos;s build target only, but it is not associated with a build target. Update the Make Step in your build settings.</source>
@@ -21399,15 +21404,15 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>Enables %1 to install dependencies from the conanfile.txt, conanfile.py, or vcpkg.json file from the project source directory.</source>
         <extracomment>%1 = applicationDisplayName</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ermöglicht %1, Abhängigkeiten aus der conanfile.txt, conanfile.py oder vcpkg.json Datei im Quellverzeichnis des Projekts zu installieren.</translation>
     </message>
     <message>
         <source>Qt Online Installer dependency provider</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Online Installer Dependency Provider</translation>
     </message>
     <message>
         <source>Use Qt Online Installer to install missing Qt components.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwenden Sie den Qt Online Installer, um fehlende Qt‑Komponenten zu installieren.</translation>
     </message>
     <message>
         <source>Ask before re-configuring with initial parameters</source>
@@ -21435,7 +21440,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Clear old CMake output on a new run</source>
-        <translation type="unfinished"></translation>
+        <translation>Alte CMake‑Ausgabe bei einem neuen Durchlauf bereinigen.</translation>
     </message>
     <message>
         <source>General</source>
@@ -21736,11 +21741,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>The %1 installation is missing the &quot;cmake-helper&quot; directory. It was expected here: &quot;%2&quot;.</source>
         <extracomment>%1 applicationDisplayName</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Der %1‑Installation fehlt das Verzeichnis &quot;cmake-helper&quot;. Es wurde hier erwartet: &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Failed to copy &quot;cmake-helper&quot; folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren des Ordners &quot;cmake-helper&quot; fehlgeschlagen:</translation>
     </message>
     <message>
         <source>Running %1 in %2.</source>
@@ -23720,155 +23725,155 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Could not start cmdbridge: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte cmdbridge nicht starten: %1</translation>
     </message>
     <message>
         <source>The remote root path is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der entfernte Root-Pfad ist leer.</translation>
     </message>
     <message>
         <source>The remote root path is not absolute.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der entfernte Root-Pfad ist nicht absolut.</translation>
     </message>
     <message>
         <source>Could not find &quot;dd&quot; on the remote host: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte &quot;dd&quot; nicht auf dem entfernten Host finden: %1</translation>
     </message>
     <message>
         <source>Could not determine the operating system on the remote host: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte das Betriebssystem auf dem entfernten Host nicht bestimmen: %1</translation>
     </message>
     <message>
         <source>Could not determine the architecture of the remote host: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die Architektur des entfernten Hosts nicht bestimmen: %1</translation>
     </message>
     <message>
         <source>Could not find a compatible cmdbridge for the remote host: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte keine kompatible cmdbridge für den entfernten Host finden: %1</translation>
     </message>
     <message>
         <source>Could not read the cmdbridge file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die cmdbridge-Datei nicht lesen: %1</translation>
     </message>
     <message>
         <source>Could not create a temporary file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte keine temporäre Datei erstellen: %1</translation>
     </message>
     <message>
         <source>Could not make the temporary file &quot;%1&quot; executable: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die temporäre Datei &quot;%1&quot; nicht ausführbar machen: %2</translation>
     </message>
     <message>
         <source>Could not get the file ID of &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die Datei-ID von &quot;%1&quot; nicht ermitteln: %2</translation>
     </message>
     <message>
         <source>Could not get the file path info of &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die Pfadinformationen für die Datei &quot;%1&quot; nicht erhalten: %2</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; is not a symlink.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; ist kein symbolischer Link.</translation>
     </message>
     <message>
         <source>Could not get the symlink target for &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte das Ziel des symbolischen Links für &quot;%1&quot; nicht ermitteln: %2</translation>
     </message>
     <message>
         <source>Could not set permissions for &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die Berechtigungen für &quot;%1&quot; nicht setzen: %2</translation>
     </message>
     <message>
         <source>Could not get the file owner of &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte den Eigentümer der Datei &quot;%1&quot; nicht ermitteln: %2</translation>
     </message>
     <message>
         <source>Could not get the file owner ID of &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die Eigentümer-ID der Datei &quot;%1&quot; nicht ermitteln: %2</translation>
     </message>
     <message>
         <source>Could not get the file group of &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die Gruppe der Datei &quot;%1&quot; nicht ermitteln: %2</translation>
     </message>
     <message>
         <source>Could not get the file group ID of &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die Gruppen-ID der Datei &quot;%1&quot; nicht ermitteln: %2</translation>
     </message>
     <message>
         <source>Could not read file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Datei &quot;%1&quot; nicht lesen: %2</translation>
     </message>
     <message>
         <source>Could not write file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Datei &quot;%1&quot; nicht schreiben: %2</translation>
     </message>
     <message>
         <source>Could not remove the file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die Datei &quot;%1&quot; nicht entfernen: %2</translation>
     </message>
     <message>
         <source>Could not remove &quot;%1&quot; recursively: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte &quot;%1&quot; nicht rekursiv entfernen: %2</translation>
     </message>
     <message>
         <source>Could not ensure that the file &quot;%1&quot; exists: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte nicht sicherstellen, dass die Datei &quot;%1&quot; existiert: %2</translation>
     </message>
     <message>
         <source>Could not create the directory &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte das Verzeichnis &quot;%1&quot; nicht erstellen: %2</translation>
     </message>
     <message>
         <source>Could not copy the file &quot;%1&quot; to &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die Datei &quot;%1&quot; nicht nach &quot;%2&quot; kopieren: %3</translation>
     </message>
     <message>
         <source>Could not create a symlink from &quot;%1&quot; to &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte keinen Symlink von &quot;%1&quot; nach &quot;%2&quot; erstellen: %3</translation>
     </message>
     <message>
         <source>Could not rename the file &quot;%1&quot; to &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die Datei &quot;%1&quot; nicht in &quot;%2&quot; umbenennen: %3</translation>
     </message>
     <message>
         <source>Could not kill the process with PID %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte den Prozess mit PID %1 nicht beenden: %2</translation>
     </message>
     <message>
         <source>Could not create a temporary file for &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte keine temporäre Datei für &quot;%1&quot; erstellen: %2</translation>
     </message>
     <message>
         <source>Cannot start bridge process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bridge-Prozess kann nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Cannot start bridge process: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bridge-Prozess kann nicht gestartet werden: %1</translation>
     </message>
     <message>
         <source>The bridge process is not running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Bridge-Prozess läuft nicht.</translation>
     </message>
     <message>
         <source>FollowSymlinks is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>FollowSymlinks wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>The KickOff signal is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das KickOff-Signal wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>The CloseWriteChannel signal is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das CloseWriteChannel-Signal wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>No command bridge available for architecture &quot;%1-%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Command Bridge für die Architektur &quot;%1-%2&quot; verfügbar.</translation>
     </message>
 </context>
 <context>
@@ -24114,7 +24119,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Fetch Snippet...</source>
-        <translation>Ausschnitt holen...</translation>
+        <translation>Ausschnitt abrufen...</translation>
     </message>
     <message>
         <source>Alt+C,Alt+F</source>
@@ -24126,11 +24131,11 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Fetch from URL...</source>
-        <translation>Von URL holen...</translation>
+        <translation>Von URL abrufen...</translation>
     </message>
     <message>
         <source>Fetch from URL</source>
-        <translation>Von URL holen</translation>
+        <translation>Von URL abrufen</translation>
     </message>
     <message>
         <source>Enter URL:</source>
@@ -24182,15 +24187,15 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Fetching is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrufen wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>Listing is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Auflisten wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>Pasting is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfügen wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>%1 - Configuration Error</source>
@@ -24222,11 +24227,11 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Waiting for items...</source>
-        <translation type="unfinished"></translation>
+        <translation>Warte auf Einträge...</translation>
     </message>
     <message>
         <source>Error while retrieving items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Abrufen von Einträgen.</translation>
     </message>
     <message>
         <source>Send to Codepaster</source>
@@ -24696,7 +24701,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Unpin &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; ablösen</translation>
+        <translation>&quot;%1&quot; lösen</translation>
     </message>
     <message>
         <source>Pin &quot;%1&quot;</source>
@@ -24760,7 +24765,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Drag to open the document in another split.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ziehen, um das Dokument in einer anderen Editor-Ansicht zu öffnen.</translation>
     </message>
     <message>
         <source>Close Document</source>
@@ -24802,7 +24807,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Show OK and Cancel buttons in Preferences mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaltflächen für OK und Abbrechen im Einstellungsmodus anzeigen</translation>
     </message>
     <message>
         <source>Toolbar style:</source>
@@ -25065,7 +25070,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     <message>
         <source>Open Preferences.</source>
         <comment>msgShowOptionsDialogToolTip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen öffnen.</translation>
     </message>
     <message>
         <source>Could not find %1 executable in %2</source>
@@ -25392,15 +25397,15 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Anwenden</translation>
+        <translation>Anwenden</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwerfen</translation>
     </message>
     <message>
         <source>Sort categories</source>
@@ -25408,47 +25413,47 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Apply all changes and return to previous mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Änderungen übernehmen und zum vorherigen Modus zurückkehren.</translation>
     </message>
     <message>
         <source>Apply all changes and stay here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Änderungen übernehmen und hier bleiben.</translation>
     </message>
     <message>
         <source>Discard all changes and stay here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Änderungen verwerfen und hier bleiben.</translation>
     </message>
     <message>
         <source>Discard all changes and return to previous mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Änderungen verwerfen und zum vorherigen Modus zurückkehren.</translation>
     </message>
     <message>
         <source>Unapplied Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht angewendete Änderungen.</translation>
     </message>
     <message>
         <source>The previous page contains unsaved changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die vorherige Seite enthält ungespeicherte Änderungen.</translation>
     </message>
     <message>
         <source>Apply Unsaved Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungespeicherte Änderungen übernehmen</translation>
     </message>
     <message>
         <source>Abandon Unsaved Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungespeicherte Änderungen verwerfen</translation>
     </message>
     <message>
         <source>Return to Previous Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Zur vorherigen Seite zurückkehren</translation>
     </message>
     <message>
         <source>There are unsaved changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es gibt ungespeicherte Änderungen.</translation>
     </message>
     <message>
         <source>Stay in Settings Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Einstellungsmodus bleiben</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -25711,7 +25716,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Version Control Detected</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionskontrolle erkannt</translation>
     </message>
     <message>
         <source>Enable %1</source>
@@ -26147,7 +26152,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Show in File Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Dateimanager anzeigen</translation>
     </message>
     <message>
         <source>Show Containing Folder</source>
@@ -26290,15 +26295,15 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Diff &quot;%1&quot;</source>
-        <translation type="unfinished">Diff für &quot;%1&quot;</translation>
+        <translation>Diff für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log &quot;%1&quot;</source>
-        <translation type="unfinished">Log für &quot;%1&quot;</translation>
+        <translation>Log für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Annotate &quot;%1&quot;</source>
-        <translation type="unfinished">Annotation für &quot;%1&quot;</translation>
+        <translation>Annotation für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Version control state: added.</source>
@@ -26366,7 +26371,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Ignore generated files</source>
-        <translation type="unfinished"></translation>
+        <translation>Generierte Dateien ignorieren</translation>
     </message>
     <message>
         <source>Use re&amp;gular expressions</source>
@@ -26778,11 +26783,11 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Ignore Generated Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Generierte Dateien ignorieren</translation>
     </message>
     <message>
         <source>Ignore generated files when using project related filters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Generierte Dateien ignorieren, wenn projektbezogene Filter verwendet werden.</translation>
     </message>
     <message>
         <source>Triggers a web search with the selected search engine.</source>
@@ -26896,7 +26901,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Copy Expanded Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Expandierten Wert kopieren</translation>
     </message>
     <message>
         <source>QStandardPaths::%1 location on the local filesystem.</source>
@@ -26972,7 +26977,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>.bat on windows, empty on all other platforms.</source>
-        <translation type="unfinished"></translation>
+        <translation>.bat unter Windows, leer auf allen anderen Plattformen.</translation>
     </message>
     <message>
         <source>The path to the running %1 itself.</source>
@@ -27204,11 +27209,11 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Close All Tabs</source>
-        <translation type="unfinished">Alle schließen</translation>
+        <translation>Alle Reiter schließen</translation>
     </message>
     <message>
         <source>Close Other Tabs</source>
-        <translation type="unfinished">Andere Reiter schließen</translation>
+        <translation>Andere Reiter schließen</translation>
     </message>
     <message>
         <source>Alt+Right</source>
@@ -27454,15 +27459,15 @@ Möchten Sie sie jetzt auschecken?</translation>
         <source>For environment variables with list semantics that do not use the standard path list
 separator, you need to configure the respective separators here if you plan to
 aggregate them from several places (for instance from the kit and from the project).</source>
-        <translation type="unfinished"></translation>
+        <translation>Für Umgebungsvariablen mit Listensemantik, die nicht das standardmäßige Pfadlistentrennzeichen verwenden, müssen Sie hier die jeweiligen Trennzeichen konfigurieren, wenn Sie planen, sie aus mehreren Quellen (z.B. aus dem Kit und aus dem Projekt) zu aggregieren.</translation>
     </message>
     <message>
         <source>Variable</source>
-        <translation type="unfinished">Variable</translation>
+        <translation>Variable</translation>
     </message>
     <message>
         <source>Separator</source>
-        <translation type="unfinished"></translation>
+        <translation>Trennzeichen</translation>
     </message>
     <message>
         <source>?</source>
@@ -27470,7 +27475,7 @@ aggregate them from several places (for instance from the kit and from the proje
     </message>
     <message>
         <source>Variable separators:</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen‑Trennzeichen:</translation>
     </message>
     <message>
         <source>External file browser:</source>
@@ -27495,11 +27500,11 @@ aggregate them from several places (for instance from the kit and from the proje
     </message>
     <message>
         <source>Use freedesktop.org file manager D-Bus interface</source>
-        <translation type="unfinished"></translation>
+        <translation>D-Bus‑Schnittstelle für freedesktop.org‑Dateimanager verwenden</translation>
     </message>
     <message>
         <source>Uses the &lt;a href=&quot;%1&quot;&gt;freedesktop.org D-Bus interface&lt;/a&gt; for &lt;i&gt;Open in File Manager&lt;/i&gt;, if available. Otherwise falls back to the &quot;External file browser&quot; above.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwendet die &lt;a href=&quot;%1&quot;&gt;D-Bus‑Schnittstelle von freedesktop.org&lt;/a&gt; für &lt;i&gt;Im Dateimanager anzeigen&lt;/i&gt;, falls verfügbar. Andernfalls wird auf den oben genannten &quot;externen Dateimanager&quot; zurückgegriffen.</translation>
     </message>
     <message>
         <source>Auto-suspend unmodified files</source>
@@ -27560,9 +27565,9 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message numerus="yes">
         <source>%n custom separators configured</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ein benutzerdefiniertes Trennzeichen konfiguriert</numerusform>
+            <numerusform>%n benutzerdefinierte Trennzeichen konfiguriert</numerusform>
         </translation>
     </message>
     <message>
@@ -28341,7 +28346,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Unpin</source>
-        <translation type="unfinished"></translation>
+        <translation>Lösen</translation>
     </message>
 </context>
 <context>
@@ -28671,11 +28676,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Internal error: No code style pool</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Kein Code-Stil-Pool</translation>
     </message>
     <message>
         <source>No code style found in file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Coding-Stil in der Datei gefunden.</translation>
     </message>
     <message>
         <source>Follow Virtual Function to Base Class Implementation</source>
