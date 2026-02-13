@@ -15,6 +15,8 @@
 
 #include <coreplugin/icore.h>
 #include <utils/filepath.h>
+#include <utils/guiutils.h>
+#include <utils/infolabel.h>
 
 #include <QChar>
 #include <QFont>
@@ -31,6 +33,11 @@ void CodeStyleEditor::init(
 {
     m_selector = createCodeStyleSelectorWidget(codeStyle, project.project());
     m_layout->addWidget(m_selector);
+    Utils::installMarkSettingsDirtyTriggerRecursively(m_selector);
+    auto infoLabel = new Utils::InfoLabel(Tr::tr("All changes below take effect immediately."),
+                                          Utils::InfoLabel::Information);
+    infoLabel->setFilled(true);
+    m_layout->addWidget(infoLabel);
     if (!project) {
         m_editor = createEditorWidget(project.project(), codeStyle);
         if (m_editor)
