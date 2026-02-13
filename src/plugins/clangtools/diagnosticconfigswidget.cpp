@@ -1278,14 +1278,14 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
 
     ClangToolsSettings * const settings = ClangToolsSettings::instance();
     ClangDiagnosticConfigs configs = settings->diagnosticConfigs();
-    Utils::Id activeConfigId = settings->runSettings().diagnosticConfigId();
+    Utils::Id activeConfigId = settings->runSettings.diagnosticConfigId();
     ClangToolsProjectSettings::ClangToolsProjectSettingsPtr projectSettings;
 
     if (ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
             diagnostics.first().location.targetFilePath)) {
         projectSettings = ClangToolsProjectSettings::getSettings(project);
         if (!projectSettings->useGlobalSettings())
-            activeConfigId = projectSettings->runSettings().diagnosticConfigId();
+            activeConfigId = projectSettings->runSettings.diagnosticConfigId();
     }
     ClangDiagnosticConfig config = Utils::findOrDefault(configs,
         [activeConfigId](const ClangDiagnosticConfig &c) { return c.id() == activeConfigId; });
@@ -1297,14 +1297,9 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
         config.setId(Id::generate());
         config.setDisplayName(Tr::tr("Custom Configuration"));
         configs << config;
-        RunSettings runSettings = settings->runSettings();
-        runSettings.setDiagnosticConfigId(config.id());
-        settings->setRunSettings(runSettings);
-        if (projectSettings && !projectSettings->useGlobalSettings()) {
-            runSettings = projectSettings->runSettings();
-            runSettings.setDiagnosticConfigId(config.id());
-            projectSettings->setRunSettings(runSettings);
-        }
+        settings->runSettings.diagnosticConfigId.setValue(config.id());
+        if (projectSettings && !projectSettings->useGlobalSettings())
+            settings->runSettings.diagnosticConfigId.setValue(config.id());
     }
 
     for (const Diagnostic &diag : diagnostics) {
@@ -1317,7 +1312,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
             }
             config.setChecks(ClangToolType::Clazy,
                              removeClazyCheck(config.checks(ClangToolType::Clazy), diag.name));
-        } else if (!settings->runSettings().preferConfigFile()){
+        } else if (!settings->runSettings.preferConfigFile()){
             if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseDefaultChecks) {
                 config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
                 const ClangTidyInfo tidyInfo(toolExecutable(ClangToolType::Tidy));

@@ -26,7 +26,7 @@ static const char SETTINGS_KEY_SUPPRESSED_DIAGS_MESSAGE[] = "ClangTools.Suppress
 static const char SETTINGS_KEY_SUPPRESSED_DIAGS_UNIQIFIER[] = "ClangTools.SuppressedDiagnosticUniquifier";
 
 ClangToolsProjectSettings::ClangToolsProjectSettings(ProjectExplorer::Project *project)
-    : m_project(project)
+    : runSettings(SETTINGS_PREFIX), m_project(project)
 {
     load();
     connect(this, &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
@@ -47,14 +47,6 @@ void ClangToolsProjectSettings::setUseGlobalSettings(bool useGlobalSettings)
     if (m_useGlobalSettings == useGlobalSettings)
         return;
     m_useGlobalSettings = useGlobalSettings;
-    emit changed();
-}
-
-void ClangToolsProjectSettings::setRunSettings(const RunSettings &settings)
-{
-    if (m_runSettings == settings)
-        return;
-    m_runSettings = settings;
     emit changed();
 }
 
@@ -163,7 +155,7 @@ void ClangToolsProjectSettings::load()
     }
     emit suppressedDiagnosticsChanged();
 
-    m_runSettings.fromMap(map, SETTINGS_PREFIX);
+    runSettings.fromMap(map);
 
     if (write)
         store(); // Store new settings format
@@ -191,7 +183,7 @@ void ClangToolsProjectSettings::store()
     }
     map.insert(SETTINGS_KEY_SUPPRESSED_DIAGS, list);
 
-    m_runSettings.toMap(map, SETTINGS_PREFIX);
+    runSettings.toMap(map);
 
     m_project->setNamedSettings(SETTINGS_KEY_MAIN, variantFromStore(map));
 }

@@ -352,14 +352,14 @@ static FileInfos sortedFileInfos(const CppCodeModelSettings &settings,
     return fileInfos;
 }
 
-static RunSettings runSettings()
+static RunSettings &runSettings()
 {
     if (Project *project = ProjectManager::startupProject()) {
         const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
         if (!projectSettings->useGlobalSettings())
-            return projectSettings->runSettings();
+            return projectSettings->runSettings;
     }
-    return ClangToolsSettings::instance()->runSettings();
+    return ClangToolsSettings::instance()->runSettings;
 }
 
 ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
@@ -588,8 +588,8 @@ void ClangTool::selectPerspective()
 
 void ClangTool::startTool(FileSelection fileSelection)
 {
-    const RunSettings theRunSettings = runSettings();
-    startTool(fileSelection, theRunSettings, diagnosticConfig(theRunSettings.diagnosticConfigId()));
+    const RunSettingsData runSettingsData = runSettings().data();
+    startTool(fileSelection, runSettingsData, diagnosticConfig(runSettings().diagnosticConfigId()));
 }
 
 static bool continueDespiteReleaseBuild(const QString &toolName)
@@ -616,7 +616,7 @@ static bool continueDespiteReleaseBuild(const QString &toolName)
            == QMessageBox::Yes;
 }
 
-Group ClangTool::runRecipe(const RunSettings &runSettings,
+Group ClangTool::runRecipe(const RunSettingsData &runSettings,
                            const ClangDiagnosticConfig &diagnosticConfig,
                            const FileInfos &fileInfos,
                            bool buildBeforeAnalysis)
@@ -763,7 +763,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
                 if (!diagnostics.isEmpty()) {
                     // do not generate marks when we always analyze open files since marks from that
                     // analysis should be more up to date
-                    const bool generateMarks = !runSettings.analyzeOpenFiles();
+                    const bool generateMarks = !runSettings.analyzeOpenFiles;
                     onNewDiagnosticsAvailable(diagnostics, generateMarks, RootItemUse::Existing);
                 }
             }
@@ -785,7 +785,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
                                              m_filesFailed), ErrorMessageFormat);
             if (buildConfiguration
                 && !buildConfiguration->buildDirectory().exists()
-                && !runSettings.buildBeforeAnalysis()) {
+                && !runSettings.buildBeforeAnalysis) {
                 m_runControl->postMessage(
                     Tr::tr("Note: You might need to build the project to generate or update "
                            "source files. To build automatically, enable "
@@ -804,7 +804,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
     return {topTasks};
 }
 
-void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSettings,
+void ClangTool::startTool(FileSelection fileSelection, const RunSettingsData &runSettings,
                           const ClangDiagnosticConfig &diagnosticConfig)
 {
     Project *project = ProjectManager::startupProject();
@@ -865,7 +865,7 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
     const bool preventBuild = std::holds_alternative<FilePath>(fileSelection)
                               || std::get<FileSelectionType>(fileSelection)
                                      == FileSelectionType::CurrentFile;
-    const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis();
+    const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis;
     m_runControl->setRunRecipe(runRecipe(runSettings, diagnosticConfig, fileInfos,
                                          buildBeforeAnalysis).withCancel(m_runControl->canceler()));
     m_runControl->start();

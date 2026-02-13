@@ -21,39 +21,32 @@ const char diagnosticConfigIdKey[] = "DiagnosticConfig";
 
 using VersionAndSuffix = QPair<QVersionNumber, QString>;
 
-class RunSettings
+class RunSettingsData
 {
 public:
-    RunSettings();
+    Utils::Id diagnosticConfigId;
+    int parallelJobs = -1;
+    bool preferConfigFile = true;
+    bool buildBeforeAnalysis = true;
+    bool analyzeOpenFiles = true;
+    bool hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) const;
+};
 
-    void fromMap(const Utils::Store &map, const Utils::Key &prefix = {});
-    void toMap(Utils::Store &map, const Utils::Key &prefix = {}) const;
+class RunSettings : public Utils::AspectContainer
+{
+public:
+    explicit RunSettings(const Utils::Key &prefix);
 
-    Utils::Id diagnosticConfigId() const;
-    void setDiagnosticConfigId(const Utils::Id &id) { m_diagnosticConfigId = id; }
+    RunSettingsData data() const;
 
-    bool preferConfigFile() const { return m_preferConfigFile; }
-    void setPreferConfigFile(bool yesno) { m_preferConfigFile = yesno; }
-
-    bool buildBeforeAnalysis() const { return m_buildBeforeAnalysis; }
-    void setBuildBeforeAnalysis(bool yesno) { m_buildBeforeAnalysis = yesno; }
-
-    int parallelJobs() const { return m_parallelJobs; }
-    void setParallelJobs(int jobs) { m_parallelJobs = jobs; }
-
-    bool analyzeOpenFiles() const { return m_analyzeOpenFiles; }
-    void setAnalyzeOpenFiles(bool analyzeOpenFiles) { m_analyzeOpenFiles = analyzeOpenFiles; }
-
-    bool operator==(const RunSettings &other) const;
-
+    Utils::Id safeDiagnosticConfigId() const;
     bool hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) const;
 
-private:
-    Utils::Id m_diagnosticConfigId;
-    int m_parallelJobs = -1;
-    bool m_preferConfigFile = true;
-    bool m_buildBeforeAnalysis = true;
-    bool m_analyzeOpenFiles = true;
+    Utils::TypedAspect<Utils::Id> diagnosticConfigId{this};
+    Utils::IntegerAspect parallelJobs{this};
+    Utils::BoolAspect preferConfigFile{this};
+    Utils::BoolAspect buildBeforeAnalysis{this};
+    Utils::BoolAspect analyzeOpenFiles{this};
 };
 
 class ClangToolsSettings : public Utils::AspectContainer
@@ -77,20 +70,17 @@ public:
     void setDiagnosticConfigs(const CppEditor::ClangDiagnosticConfigs &configs)
     { m_diagnosticConfigs = configs; }
 
-    RunSettings runSettings() const { return m_runSettings; }
-    void setRunSettings(const RunSettings &settings) { m_runSettings = settings; }
-
     static VersionAndSuffix clangTidyVersion();
     static QVersionNumber clazyVersion();
+
+    // Run settings
+    RunSettings runSettings{{}}; // no prefix.
 
 private:
     void readSettings() override;
 
     // Diagnostic Configs
     CppEditor::ClangDiagnosticConfigs m_diagnosticConfigs;
-
-    // Run settings
-    RunSettings m_runSettings;
 
     // Version info. Ephemeral.
     VersionAndSuffix m_clangTidyVersion;

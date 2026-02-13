@@ -81,7 +81,7 @@ SettingsWidget::SettingsWidget()
     m_clazyStandalonePathChooser = createPathChooser(ClangToolType::Clazy);
 
     m_runSettingsWidget = new RunSettingsWidget;
-    m_runSettingsWidget->fromSettings(m_settings->runSettings());
+    m_runSettingsWidget->fromSettings(m_settings->runSettings);
 
     using namespace Layouting;
 
@@ -107,7 +107,7 @@ void SettingsWidget::apply()
     m_settings->setExecutable(ClangToolType::Clazy, clazyStandalonePath());
 
     // Run options
-    m_settings->setRunSettings(m_runSettingsWidget->toSettings());
+    m_runSettingsWidget->toSettings(m_settings->runSettings);
 
     // Custom configs
     const ClangDiagnosticConfigs customConfigs
@@ -200,7 +200,7 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
     disconnect(m_diagnosticWidget, &ClangDiagnosticConfigsSelectionWidget::changed,
                this, &RunSettingsWidget::changed);
     m_diagnosticWidget->refresh(diagnosticConfigsModel(),
-                                s.diagnosticConfigId(),
+                                s.safeDiagnosticConfigId(),
                                 createEditWidget);
     connect(m_diagnosticWidget, &ClangDiagnosticConfigsSelectionWidget::changed,
             this, &RunSettingsWidget::changed);
@@ -226,16 +226,13 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
     connect(m_analyzeOpenFiles, &QCheckBox::toggled, this, &RunSettingsWidget::changed);
 }
 
-RunSettings RunSettingsWidget::toSettings() const
+void RunSettingsWidget::toSettings(RunSettings &s) const
 {
-    RunSettings s;
-    s.setDiagnosticConfigId(m_diagnosticWidget->currentConfigId());
-    s.setPreferConfigFile(m_preferConfigFile->isChecked());
-    s.setBuildBeforeAnalysis(m_buildBeforeAnalysis->checkState() == Qt::CheckState::Checked);
-    s.setParallelJobs(m_parallelJobsSpinBox->value());
-    s.setAnalyzeOpenFiles(m_analyzeOpenFiles->checkState() == Qt::CheckState::Checked);
-
-    return s;
+    s.diagnosticConfigId.setValue(m_diagnosticWidget->currentConfigId());
+    s.preferConfigFile.setValue(m_preferConfigFile->isChecked());
+    s.buildBeforeAnalysis.setValue(m_buildBeforeAnalysis->checkState() == Qt::CheckState::Checked);
+    s.parallelJobs.setValue(m_parallelJobsSpinBox->value());
+    s.analyzeOpenFiles.setValue(m_analyzeOpenFiles->checkState() == Qt::CheckState::Checked);
 }
 
 // ClangToolsOptionsPage

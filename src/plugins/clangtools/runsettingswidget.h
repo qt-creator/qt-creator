@@ -30,7 +30,7 @@ public:
     CppEditor::ClangDiagnosticConfigsSelectionWidget *diagnosticSelectionWidget();
 
     void fromSettings(const RunSettings &s);
-    RunSettings toSettings() const;
+    void toSettings(RunSettings &s) const;
 
 signals:
     void changed();

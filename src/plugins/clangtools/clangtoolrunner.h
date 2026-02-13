@@ -35,7 +35,7 @@ using AnalyzeUnits = QList<AnalyzeUnit>;
 struct AnalyzeInputData
 {
     CppEditor::ClangToolType tool = CppEditor::ClangToolType::Tidy;
-    RunSettings runSettings;
+    RunSettingsData runSettings;
     CppEditor::ClangDiagnosticConfig config;
     Utils::FilePath outputDirPath;
     Utils::Environment environment;

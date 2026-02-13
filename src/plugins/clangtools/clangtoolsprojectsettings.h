@@ -48,9 +48,6 @@ public:
     bool useGlobalSettings() const { return m_useGlobalSettings; }
     void setUseGlobalSettings(bool useGlobalSettings);
 
-    RunSettings runSettings() const { return m_runSettings; }
-    void setRunSettings(const RunSettings &settings);
-
     QSet<Utils::FilePath> selectedDirs() const { return m_selectedDirs; }
     void setSelectedDirs(const QSet<Utils::FilePath> &value);
 
@@ -66,6 +63,8 @@ public:
     using ClangToolsProjectSettingsPtr = std::shared_ptr<ClangToolsProjectSettings>;
     static ClangToolsProjectSettingsPtr getSettings(ProjectExplorer::Project *project);
 
+    RunSettings runSettings;
+
 signals:
     void suppressedDiagnosticsChanged();
     void changed();
@@ -77,8 +76,6 @@ private:
     ProjectExplorer::Project *m_project;
 
     bool m_useGlobalSettings = true;
-
-    RunSettings m_runSettings;
 
     QSet<Utils::FilePath> m_selectedDirs;
     QSet<Utils::FilePath> m_selectedFiles;

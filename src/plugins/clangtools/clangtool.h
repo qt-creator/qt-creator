@@ -27,7 +27,7 @@ class InfoBarWidget;
 class Diagnostic;
 class DiagnosticFilterModel;
 class DiagnosticView;
-class RunSettings;
+class RunSettingsData;
 class SelectFixitsCheckBox;
 
 class ClangTool : public QObject
@@ -46,7 +46,7 @@ public:
     using FileSelection = std::variant<FileSelectionType, Utils::FilePath>;
 
     void startTool(FileSelection fileSelection);
-    void startTool(FileSelection fileSelection, const RunSettings &runSettings,
+    void startTool(FileSelection fileSelection, const RunSettingsData &runSettings,
                    const CppEditor::ClangDiagnosticConfig &diagnosticConfig);
 
     FileInfos collectFileInfos(ProjectExplorer::Project *project,
@@ -71,7 +71,7 @@ protected:
     ClangTool(const QString &name, Utils::Id id, CppEditor::ClangToolType type);
 
 private:
-    QtTaskTree::Group runRecipe(const RunSettings &runSettings,
+    QtTaskTree::Group runRecipe(const RunSettingsData &runSettings,
                              const CppEditor::ClangDiagnosticConfig &diagnosticConfig,
                              const FileInfos &fileInfos, bool buildBeforeAnalysis);
 

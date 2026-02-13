@@ -104,7 +104,7 @@ void ClangToolsCompilationDb::Private::generate()
     const auto bc = static_cast<BuildConfiguration *>(q->parent());
     const auto projectSettings = ClangToolsProjectSettings::getSettings(bc->project());
     QTC_ASSERT(projectSettings, return);
-    const Id configId = projectSettings->runSettings().diagnosticConfigId();
+    const Id configId = projectSettings->runSettings.diagnosticConfigId();
     const ClangDiagnosticConfig config = Utils::findOrDefault(
         ClangToolsSettings::instance()->diagnosticConfigs(),
         [configId](const ClangDiagnosticConfig &c) { return c.id() == configId; });

@@ -106,7 +106,7 @@ void ClangToolsUnitTests::testProject()
     // Run tools
     for (ClangTool * const tool : {ClangTidyTool::instance(), ClazyTool::instance()}) {
         tool->startTool(ClangTool::FileSelectionType::AllFiles,
-                        ClangToolsSettings::instance()->runSettings(),
+                        ClangToolsSettings::instance()->runSettings.data(),
                         diagnosticConfig);
         QSignalSpy waitForFinishedTool(tool, &ClangTool::finished);
         QVERIFY(waitForFinishedTool.wait(m_timeout));

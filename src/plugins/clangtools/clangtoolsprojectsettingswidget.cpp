@@ -122,7 +122,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
             this, [this] { onGlobalCustomChanged(useGlobalSettings()); });
     connect(m_restoreGlobal, &QPushButton::clicked, this, [this] {
-        m_runSettingsWidget->fromSettings(ClangToolsSettings::instance()->runSettings());
+        m_runSettingsWidget->fromSettings(ClangToolsSettings::instance()->runSettings);
     });
 
     connect(gotoClangTidyModeLabel, &QLabel::linkActivated, [](const QString &) {
@@ -135,7 +135,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
     // Run options
     connect(m_runSettingsWidget, &RunSettingsWidget::changed, this, [this] {
         // Save project run settings
-        m_projectSettings->setRunSettings(m_runSettingsWidget->toSettings());
+        m_runSettingsWidget->toSettings(m_projectSettings->runSettings);
 
         // Save global custom configs
         const CppEditor::ClangDiagnosticConfigs configs
@@ -166,8 +166,8 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
 
 void ClangToolsProjectSettingsWidget::onGlobalCustomChanged(bool useGlobal)
 {
-    const RunSettings runSettings = useGlobal ? ClangToolsSettings::instance()->runSettings()
-                                              : m_projectSettings->runSettings();
+    const RunSettings &runSettings = useGlobal ? ClangToolsSettings::instance()->runSettings
+                                              : m_projectSettings->runSettings;
     m_runSettingsWidget->fromSettings(runSettings);
     m_runSettingsWidget->setEnabled(!useGlobal);
     m_restoreGlobal->setEnabled(!useGlobal);

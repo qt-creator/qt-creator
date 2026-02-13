@@ -181,7 +181,7 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
     };
 
     return For (iterator) >> Do {
-        ParallelLimit(qMax(1, input.runSettings.parallelJobs())),
+        ParallelLimit(qMax(1, input.runSettings.parallelJobs)),
         finishAllAndSuccess,
         Group {
             storage,

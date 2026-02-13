@@ -205,8 +205,8 @@ void DocumentClangToolRunner::run()
 
     const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
     const RunSettings &runSettings = projectSettings->useGlobalSettings()
-                                   ? ClangToolsSettings::instance()->runSettings()
-                                   : projectSettings->runSettings();
+                                   ? ClangToolsSettings::instance()->runSettings
+                                   : projectSettings->runSettings;
     m_suppressed = projectSettings->suppressedDiagnostics();
     m_lastProjectDirectory = project->projectDirectory();
     m_projectSettingsUpdate = connect(projectSettings.get(), &ClangToolsProjectSettings::changed,
@@ -235,7 +235,8 @@ void DocumentClangToolRunner::run()
                                &config, &env, &tasks](ClangToolType tool) {
         if (!toolEnabled(tool, config, runSettings))
             return;
-        if (!config.isEnabled(tool) && !runSettings.hasConfigFileForSourceFile(m_fileInfo.file))
+        const RunSettingsData runSettingsData = runSettings.data();
+        if (!config.isEnabled(tool) && !runSettingsData.hasConfigFileForSourceFile(m_fileInfo.file))
             return;
         const FilePath executable = toolExecutable(tool);
         if (executable.isEmpty() || !executable.isExecutableFile())
@@ -248,7 +249,7 @@ void DocumentClangToolRunner::run()
                                     const FilePath &path) { return path == mappedPath; };
         const AnalyzeInputData input{
             tool,
-            runSettings,
+            runSettingsData,
             config,
             m_temporaryDir.path(),
             env,

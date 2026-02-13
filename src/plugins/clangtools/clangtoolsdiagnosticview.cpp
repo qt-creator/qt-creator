@@ -396,12 +396,12 @@ bool DiagnosticView::disableChecksEnabled() const
 
     ClangToolsSettings * const settings = ClangToolsSettings::instance();
     const ClangDiagnosticConfigs configs = settings->diagnosticConfigs();
-    Utils::Id activeConfigId = settings->runSettings().diagnosticConfigId();
+    Utils::Id activeConfigId = settings->runSettings.diagnosticConfigId();
     if (ProjectExplorer::Project * const project
             = static_cast<DiagnosticFilterModel *>(model())->project()) {
         const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
         if (!projectSettings->useGlobalSettings())
-            activeConfigId = projectSettings->runSettings().diagnosticConfigId();
+            activeConfigId = projectSettings->runSettings.diagnosticConfigId();
     }
     const ClangDiagnosticConfig activeConfig = Utils::findOrDefault(configs,
         [activeConfigId](const ClangDiagnosticConfig &c) { return c.id() == activeConfigId; });
@@ -416,7 +416,7 @@ bool DiagnosticView::disableChecksEnabled() const
         return false;
 
     // If all selected diagnostics come from clang-tidy and we prefer a .clang-tidy file, then we do not offer the action.
-    if (!settings->runSettings().preferConfigFile())
+    if (!settings->runSettings.data().preferConfigFile)
         return true;
     return Utils::anyOf(indexes, [this](const QModelIndex &index) {
         return model()->data(index).toString().startsWith("clazy-");

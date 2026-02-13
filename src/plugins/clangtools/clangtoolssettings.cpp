@@ -23,60 +23,21 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
-
-const char parallelJobsKey[] = "ParallelJobs";
-const char preferConfigFileKey[] = "PreferConfigFile";
-const char buildBeforeAnalysisKey[] = "BuildBeforeAnalysis";
-const char analyzeOpenFilesKey[] = "AnalyzeOpenFiles";
-
 static Id defaultDiagnosticId()
 {
     return ClangTools::Constants::DIAG_CONFIG_TIDY_AND_CLAZY;
 }
 
-RunSettings::RunSettings()
-    : m_diagnosticConfigId(defaultDiagnosticId())
-    , m_parallelJobs(qMax(0, QThread::idealThreadCount() / 2))
+Id RunSettings::safeDiagnosticConfigId() const
 {
-}
-
-void RunSettings::fromMap(const Store &map, const Key &prefix)
-{
-    m_diagnosticConfigId = Id::fromSetting(map.value(prefix + diagnosticConfigIdKey));
-    m_parallelJobs = map.value(prefix + parallelJobsKey).toInt();
-    m_preferConfigFile = map.value(prefix + preferConfigFileKey).toBool();
-    m_buildBeforeAnalysis = map.value(prefix + buildBeforeAnalysisKey).toBool();
-    m_analyzeOpenFiles = map.value(prefix + analyzeOpenFilesKey).toBool();
-}
-
-void RunSettings::toMap(Store &map, const Key &prefix) const
-{
-    map.insert(prefix + diagnosticConfigIdKey, m_diagnosticConfigId.toSetting());
-    map.insert(prefix + parallelJobsKey, m_parallelJobs);
-    map.insert(prefix + preferConfigFileKey, m_preferConfigFile);
-    map.insert(prefix + buildBeforeAnalysisKey, m_buildBeforeAnalysis);
-    map.insert(prefix + analyzeOpenFilesKey, m_analyzeOpenFiles);
-}
-
-Id RunSettings::diagnosticConfigId() const
-{
-    if (!diagnosticConfigsModel().hasConfigWithId(m_diagnosticConfigId))
+    if (!diagnosticConfigsModel().hasConfigWithId(diagnosticConfigId()))
         return defaultDiagnosticId();
-    return m_diagnosticConfigId;
+    return diagnosticConfigId();
 }
 
-bool RunSettings::operator==(const RunSettings &other) const
+bool RunSettingsData::hasConfigFileForSourceFile(const FilePath &sourceFile) const
 {
-    return m_diagnosticConfigId == other.m_diagnosticConfigId
-           && m_parallelJobs == other.m_parallelJobs
-           && m_preferConfigFile == other.m_preferConfigFile
-           && m_buildBeforeAnalysis == other.m_buildBeforeAnalysis
-           && m_analyzeOpenFiles == other.m_analyzeOpenFiles;
-}
-
-bool RunSettings::hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) const
-{
-    if (!preferConfigFile())
+    if (!preferConfigFile)
         return false;
     return !sourceFile.searchHereAndInParents(".clang-tidy", QDir::Files).isEmpty();
 }
@@ -87,8 +48,46 @@ ClangToolsSettings *ClangToolsSettings::instance()
     return &instance;
 }
 
+RunSettings::RunSettings(const Key &prefix)
+{
+    diagnosticConfigId.setDefaultValue(defaultDiagnosticId());
+
+    parallelJobs.setSettingsKey(prefix + "ParallelJobs");
+    // parallelJobs.setDefaultValue(-1);
+    parallelJobs.setDefaultValue(qMax(0, QThread::idealThreadCount() / 2));
+
+    preferConfigFile.setSettingsKey(prefix + "PreferConfigFile");
+    preferConfigFile.setDefaultValue(true);
+
+    buildBeforeAnalysis.setSettingsKey(prefix + "BuildBeforeAnalysis");
+    buildBeforeAnalysis.setDefaultValue(true);
+
+    analyzeOpenFiles.setSettingsKey(prefix + "AnalyzeOpenFiles");
+    analyzeOpenFiles.setDefaultValue(true);
+}
+
+RunSettingsData RunSettings::data() const
+{
+    RunSettingsData d;
+    d.diagnosticConfigId = diagnosticConfigId();
+    d.parallelJobs = parallelJobs();
+    d.preferConfigFile = preferConfigFile();
+    d.buildBeforeAnalysis = buildBeforeAnalysis();
+    d.analyzeOpenFiles = analyzeOpenFiles();
+    return d;
+}
+
+bool RunSettings::hasConfigFileForSourceFile(const FilePath &sourceFile) const
+{
+    if (!preferConfigFile())
+        return false;
+    return !sourceFile.searchHereAndInParents(".clang-tidy", QDir::Files).isEmpty();
+}
+
 ClangToolsSettings::ClangToolsSettings()
 {
+    registerAspect(&runSettings);
+
     setSettingsGroup(Constants::SETTINGS_ID);
 
     clangTidyExecutable.setSettingsKey("ClangTidyExecutable");
@@ -113,12 +112,6 @@ void ClangToolsSettings::readSettings()
     Store map;
     map.insert(diagnosticConfigIdKey,
                s->value(diagnosticConfigIdKey, defaultDiagnosticId().toSetting()));
-    map.insert(parallelJobsKey, s->value(parallelJobsKey, m_runSettings.parallelJobs()));
-    map.insert(preferConfigFileKey, s->value(preferConfigFileKey, m_runSettings.preferConfigFile()));
-    map.insert(buildBeforeAnalysisKey,
-               s->value(buildBeforeAnalysisKey, m_runSettings.buildBeforeAnalysis()));
-    map.insert(analyzeOpenFilesKey, s->value(analyzeOpenFilesKey, m_runSettings.analyzeOpenFiles()));
-    m_runSettings.fromMap(map);
 
     s->endGroup();
 }
@@ -133,7 +126,6 @@ void ClangToolsSettings::writeSettings() const
     diagnosticConfigsToSettings(s, m_diagnosticConfigs);
 
     Store map;
-    m_runSettings.toMap(map);
     for (Store::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
         s->setValue(it.key(), it.value());
 
