@@ -43681,47 +43681,47 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     <name>QtC::MCP</name>
     <message>
         <source>MCP Server Status</source>
-        <translation type="unfinished"></translation>
+        <translation>MCP Serverstatus</translation>
     </message>
     <message>
         <source>MCP Server</source>
-        <translation type="unfinished"></translation>
+        <translation>MCP Server</translation>
     </message>
     <message>
         <source>Restart Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Server neu starten</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Schließen</translation>
+        <translation>Schließen</translation>
     </message>
     <message>
         <source>MCP Server is running</source>
-        <translation type="unfinished"></translation>
+        <translation>MCP Server läuft</translation>
     </message>
     <message>
         <source>The MCP server is active on port %1 and accepting connections.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der MCP Server ist auf Port %1 aktiv und akzeptiert Verbindungen.</translation>
     </message>
     <message>
         <source>MCP Server is not running</source>
-        <translation type="unfinished"></translation>
+        <translation>MCP Server läuft nicht</translation>
     </message>
     <message>
         <source>The MCP server is not active. Select &quot;Restart Server&quot; to try starting it again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der MCP Server ist nicht aktiv. Wählen Sie &quot;Server neu starten&quot;, um zu versuchen, ihn erneut zu starten.</translation>
     </message>
     <message>
         <source>Failed to start the MCP server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Starten des MCP Servers ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>The MCP server is loaded and functioning - the server is running on port %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der MCP Server ist geladen und funktionsfähig – der Server läuft auf Port %1.</translation>
     </message>
     <message>
         <source>About MCP Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Über MCP Server</translation>
     </message>
 </context>
 <context>
@@ -43839,7 +43839,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>File handling is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiverarbeitung wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>MCU Dependencies</source>
@@ -46861,7 +46861,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     <message>
         <source>%1 on %2</source>
         <extracomment>&lt;abi&gt; on &lt;device display name&gt;</extracomment>
-        <translation type="unfinished">%1 auf %2</translation>
+        <translation>%1 auf %2</translation>
     </message>
     <message>
         <source>Manage...</source>
@@ -46968,7 +46968,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Bulk Remove...</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehrere entfernen...</translation>
     </message>
     <message>
         <source>Clone into This...</source>
@@ -47370,7 +47370,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Build Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktives Projekt bauen</translation>
     </message>
     <message>
         <source>Build Project for All Configurations</source>
@@ -47386,7 +47386,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Clean Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktives Projekt bereinigen</translation>
     </message>
     <message>
         <source>Clean Project for All Configurations</source>
@@ -47402,7 +47402,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Run Active Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktives Projekt ausführen</translation>
     </message>
     <message>
         <source>Add Existing Projects...</source>
@@ -47491,7 +47491,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Cannot open project &quot;%1&quot;: Plugin is not loaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt &quot;%1&quot; kann nicht geöffnet werden: Plugin ist nicht geladen.</translation>
     </message>
     <message>
         <source>Open Project in &quot;%1&quot;</source>
@@ -47579,12 +47579,12 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>No executable configured in the custom run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine ausführbare Datei in der benutzerdefinierten Ausführungskonfiguration konfiguriert.</translation>
     </message>
     <message>
         <source>Go to the %1 run configuration and set up an executable.</source>
         <extracomment>%1 = display name of the run configuration</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zur %1 Ausführungskonfiguration und richte eine ausführbare Datei ein.</translation>
     </message>
     <message>
         <source>%1 in %2</source>
@@ -47629,11 +47629,11 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Enable %1 Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin %1 aktivieren</translation>
     </message>
     <message>
         <source>The plugin &quot;%1&quot; is required to open projects of type &quot;%2&quot; Do you want to enable it now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin &quot;%1&quot; wird benötigt, um Projekte vom Typ &quot;%2&quot; zu öffnen. Möchten Sie es jetzt aktivieren?</translation>
     </message>
     <message>
         <source>Switched run configuration to
@@ -47675,7 +47675,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Ninja executable:</source>
-        <translation type="unfinished">Ausführbare Ninja-Datei:</translation>
+        <translation>Ausführbare Ninja-Datei:</translation>
     </message>
     <message>
         <source>SDKs</source>
@@ -47815,15 +47815,15 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Failed to load settings from &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Laden der Einstellungen aus &quot;%1&quot; fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Is a directory, but must be a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ist ein Verzeichnis, muss aber eine Datei sein.</translation>
     </message>
     <message>
         <source>Is a file, but must be a directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ist eine Datei, muss aber ein Verzeichnis sein.</translation>
     </message>
     <message>
         <source>Failed to restore project files</source>
@@ -48024,7 +48024,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>The project root directory. May differ from Project:Path for some build systems.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzelverzeichnis des Projekts. Kann für einige Build-Systeme von Project:Path abweichen.</translation>
     </message>
     <message>
         <source>Build directory</source>
@@ -48583,7 +48583,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     <message>
         <source>All</source>
         <comment>All devices</comment>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>%1 (default for %2)</source>
@@ -48631,11 +48631,11 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>Search in Qt installation</source>
-        <translation type="unfinished"></translation>
+        <translation>In Qt-Installation suchen</translation>
     </message>
     <message>
         <source>Search in directories</source>
-        <translation type="unfinished"></translation>
+        <translation>In Verzeichnissen suchen</translation>
     </message>
     <message>
         <source>Semicolon-separated list of directories</source>
@@ -48647,11 +48647,11 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>Create kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Kits erstellen</translation>
     </message>
     <message>
         <source>Set up kits for this device&apos;s toolchains.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kits für die Toolchains dieses Geräts einrichten.</translation>
     </message>
     <message>
         <source>Enter lists and ranges like this: &quot;1024,1026-1028,1030&quot;.</source>
@@ -48663,7 +48663,7 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; cannot be handled by the device &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; kann vom Gerät &quot;%2&quot; nicht verarbeitet werden.</translation>
     </message>
     <message>
         <source>Device</source>
@@ -48671,7 +48671,7 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>No signal operation recipe is available for this device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für dieses Gerät ist kein Signaloperations-Rezept verfügbar.</translation>
     </message>
     <message>
         <source>Ready to use</source>
@@ -48707,11 +48707,11 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>No path specified for SignalOperationData.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Pfad für SignalOperationData angegeben.</translation>
     </message>
     <message>
         <source>No valid PID specified for SignalOperationData.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für SignalOperationData wurde keine gültige PID angegeben.</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -49128,11 +49128,11 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
     <message>
         <source>&quot;%1&quot; can only handle local files.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nur lokale Dateien verarbeiten.</translation>
     </message>
     <message>
         <source>Device &quot;%1&quot; is not ready to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät &quot;%1&quot; ist nicht einsatzbereit.</translation>
     </message>
     <message>
         <source>Cannot kill process with pid %1: %2</source>
@@ -50293,11 +50293,11 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Qt 6.10</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 6.10</translation>
     </message>
     <message>
         <source>Set QT_QML_GENERATE_QMLLS_INI to ON in CMake</source>
-        <translation type="unfinished"></translation>
+        <translation>Setze QT_QML_GENERATE_QMLLS_INI in CMake auf ON.</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Boost.</source>
@@ -50501,15 +50501,15 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Qt6 and higher</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt6 und höher</translation>
     </message>
     <message>
         <source>Qt5 and higher</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt5 und höher</translation>
     </message>
     <message>
         <source>Qt code compatibility:</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Code-Kompatibilität:</translation>
     </message>
     <message>
         <source>This wizard creates a Qt Interface Framework project.</source>
@@ -50613,7 +50613,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>CMake with Qt 5 Compatibility</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake mit Qt 5 Kompatibilität</translation>
     </message>
     <message>
         <source>Use existing directory</source>
@@ -51670,15 +51670,15 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Run as User</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Benutzer ausführen</translation>
     </message>
     <message>
         <source>Run as user:</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Benutzer ausführen:</translation>
     </message>
     <message>
         <source>root</source>
-        <translation type="unfinished"></translation>
+        <translation>root</translation>
     </message>
     <message>
         <source>Enable logging category filtering</source>
@@ -51824,15 +51824,15 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Remove Run Configurations</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfigurationen entfernen</translation>
     </message>
     <message>
         <source>Filter run configurations by name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfigurationen nach Namen filtern</translation>
     </message>
     <message>
         <source>Remove Selected</source>
-        <translation type="unfinished">Ausgewählte entfernen</translation>
+        <translation>Ausgewählte entfernen</translation>
     </message>
     <message>
         <source>Word-wrap output</source>
@@ -52493,7 +52493,7 @@ Hinweis: Existierende Ausgaben werden nicht neu eingefärbt.</translation>
     </message>
     <message>
         <source>Cannot modify parser because it was auto-imported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Parser kann nicht geändert werden, weil er automatisch importiert wurde.</translation>
     </message>
     <message>
         <source>Custom output parsers defined here can be enabled individually in the project&apos;s build or run settings.</source>
@@ -52501,11 +52501,11 @@ Hinweis: Existierende Ausgaben werden nicht neu eingefärbt.</translation>
     </message>
     <message>
         <source>Export...</source>
-        <translation type="unfinished">Exportieren...</translation>
+        <translation>Exportieren...</translation>
     </message>
     <message>
         <source>Import...</source>
-        <translation type="unfinished">Importieren...</translation>
+        <translation>Importieren...</translation>
     </message>
     <message>
         <source>New Parser</source>
@@ -52513,23 +52513,23 @@ Hinweis: Existierende Ausgaben werden nicht neu eingefärbt.</translation>
     </message>
     <message>
         <source>Save Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Parser speichern</translation>
     </message>
     <message>
         <source>Load Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Parser laden</translation>
     </message>
     <message>
         <source>*.json</source>
-        <translation type="unfinished"></translation>
+        <translation>*.json</translation>
     </message>
     <message>
         <source>Error Loading Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Laden der Parser</translation>
     </message>
     <message>
         <source>Error loading parsers: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Laden der Parser: %1</translation>
     </message>
     <message>
         <source>Custom Output Parsers</source>
@@ -52597,7 +52597,7 @@ Hinweis: Existierende Ausgaben werden nicht neu eingefärbt.</translation>
     </message>
     <message>
         <source>Failed to read custom output parsers from &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Lesen benutzerdefinierter Ausgabe-Parser von &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Custom output parsers scan command line output for user-provided error patterns&lt;br&gt;to create entries in Issues.&lt;br&gt;The parsers can be configured &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
@@ -52726,11 +52726,11 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>No device found for path &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Gerät für Pfad &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>No file access for device &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Dateizugriff für Gerät &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Profile</source>
@@ -52776,7 +52776,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Copy of %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopie von %1</translation>
     </message>
     <message>
         <source>Exclude from Project</source>
@@ -52849,7 +52849,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>All changes on this page take effect immediately.</source>
-        <translation type="unfinished">Alle Änderungen auf dieser Seite werden sofort wirksam.</translation>
+        <translation>Alle Änderungen auf dieser Seite werden sofort wirksam.</translation>
     </message>
     <message>
         <source>Select the download path of NuGet and Windows App SDK.</source>
@@ -53127,7 +53127,7 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>👉 Click here to install %1 (requires pip)</source>
-        <translation type="unfinished"></translation>
+        <translation>👉 Klicken Sie hier, um %1 zu installieren (benötigt pip)</translation>
     </message>
     <message>
         <source>PySide6</source>
