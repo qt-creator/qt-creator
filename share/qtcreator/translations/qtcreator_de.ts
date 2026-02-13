@@ -33171,7 +33171,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>Start Debugging the Current Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuggen des aktuellen Projekts starten</translation>
     </message>
     <message>
         <source>Attach to Running Application</source>
@@ -33733,7 +33733,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Debugger Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuggereinstellungen</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
@@ -34009,7 +34009,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Show QObject Names if Available</source>
-        <translation type="unfinished"></translation>
+        <translation>QObject-Namen anzeigen, falls verfügbar</translation>
     </message>
     <message>
         <source>Extra Debugging Helpers</source>
@@ -34556,11 +34556,11 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Re-detect</source>
-        <translation type="unfinished">Neu erkennen</translation>
+        <translation>Neu erkennen</translation>
     </message>
     <message>
         <source>Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät:</translation>
     </message>
     <message>
         <source>Clone of %1</source>
@@ -35684,43 +35684,43 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Inspecting container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Untersuche Container: %1</translation>
     </message>
     <message>
         <source>Inspecting image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Untersuche Image: %1</translation>
     </message>
     <message>
         <source>Creating container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle Container: %1</translation>
     </message>
     <message>
         <source>Waiting for container to start: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Warte auf den Start des Containers: %1</translation>
     </message>
     <message>
         <source>Executing in container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe im Container aus: %1</translation>
     </message>
     <message>
         <source>Checking if container exists: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Prüfe, ob Container existiert: %1</translation>
     </message>
     <message>
         <source>Container already exists: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Container existiert bereits: %1</translation>
     </message>
     <message>
         <source>Container does not exist, proceeding to create: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Container existiert nicht, führe mit dem Erstellen fort: %1</translation>
     </message>
     <message>
         <source>Starting container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Container: %1</translation>
     </message>
     <message>
         <source>Resuming container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Setze Container fort: %1</translation>
     </message>
     <message>
         <source>Build Dockerfile</source>
@@ -35736,11 +35736,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Removing container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Container: %1</translation>
     </message>
     <message>
         <source>Removing image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Image: %1</translation>
     </message>
     <message>
         <source>Remove Image</source>
@@ -35752,15 +35752,15 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Invalid mount format: expected string or object, found &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Mount-Format: Zeichenkette oder Objekt erwartet, gefunden &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid mount format: missing &quot;type&quot; field in mount object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Mount-Format: Feld &quot;type&quot; fehlt im Mountobjekt.</translation>
     </message>
     <message>
         <source>Invalid mount format: missing &quot;target&quot; field in mount object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Mount-Format: Feld &quot;target&quot; fehlt im Mountobjekt.</translation>
     </message>
     <message>
         <source>Cannot parse development container JSON file: %1</source>
@@ -35772,11 +35772,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Feature dependency key cannot be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlüssel der Feature-Abhängigkeit darf nicht leer sein.</translation>
     </message>
     <message>
         <source>Feature dependency key must contain an ID.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlüssel der Feature-Abhängigkeit muss eine ID enthalten.</translation>
     </message>
     <message>
         <source>Development Container</source>
@@ -35856,7 +35856,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Cannot reach &quot;%1&quot; from &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann &quot;%1&quot; von &quot;%2&quot; nicht erreichen.</translation>
     </message>
     <message>
         <source>File access is not available for this device.</source>
@@ -35868,7 +35868,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>The project directory &quot;%1&quot; is not inside the development container workspace folder &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projektverzeichnis &quot;%1&quot; befindet sich nicht im Arbeitsbereich des Development Containers &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Development Container Device</source>
@@ -35896,11 +35896,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Failed to watch the configuration files for the development container for project %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Überwachen der Konfigurationsdateien für den Development Container des Projekts %1: %2</translation>
     </message>
     <message>
         <source>Development Containers</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container</translation>
     </message>
     <message>
         <source>Start or Restart Development Container</source>
@@ -35916,7 +35916,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Failed to parse the development container feature file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Auswerten der Feature-Datei des Development Containers ist fehlgeschlagen: %1</translation>
     </message>
 </context>
 <context>
@@ -36011,11 +36011,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Unfold All</source>
-        <translation type="unfinished">Alle aufklappen</translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Fold All</source>
-        <translation type="unfinished">Alle einklappen</translation>
+        <translation>Alle einklappen</translation>
     </message>
     <message>
         <source>Could not parse patch file &quot;%1&quot;. The content is not of unified diff format.</source>
@@ -36074,7 +36074,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Copy Cleaned Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereinigten Text kopieren</translation>
     </message>
     <message>
         <source>Saved</source>
@@ -36129,11 +36129,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Failed to list docker networks: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Auflisten der Docker-Netzwerke ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Failed to parse docker network info: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswerten der Docker-Netzwerk-Info ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; is not a directory or does not exist.</source>
@@ -36217,11 +36217,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Cannot reach &quot;%1&quot; from &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann &quot;%1&quot; von &quot;%2&quot; nicht erreichen.</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; is not mounted in the Docker device &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; ist nicht im Docker-Gerät &quot;%2&quot; eingehängt.</translation>
     </message>
     <message>
         <source>Host IP address.</source>
@@ -36265,15 +36265,15 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Path is empty.</source>
-        <translation type="unfinished">Der Pfad ist leer.</translation>
+        <translation>Der Pfad ist leer.</translation>
     </message>
     <message>
         <source>Cannot reach remote path &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann den entfernten Pfad &quot;%1&quot; nicht erreichen.</translation>
     </message>
     <message>
         <source>Ready (waiting for access to container...)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereit (warte auf Zugriff auf den Container...)</translation>
     </message>
     <message>
         <source>Open Shell in Container</source>
@@ -36389,7 +36389,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Refresh Docker networks</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Netzwerke aktualisieren</translation>
     </message>
     <message>
         <source>Detection log:</source>
@@ -36436,43 +36436,43 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     <name>QtC::Dotnet</name>
     <message>
         <source>Install C# language server via dotnet.</source>
-        <translation type="unfinished"></translation>
+        <translation>C# Language Server über dotnet installieren.</translation>
     </message>
     <message>
         <source>Set up C# language server (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>C# Language Server (%1) einrichten.</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished">Installieren</translation>
+        <translation>Installieren</translation>
     </message>
     <message>
         <source>Set Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>C# Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>C# Language Server</translation>
     </message>
     <message>
         <source>Install C# Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>C# Language Server installieren</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; to install %2.</source>
-        <translation type="unfinished">Führe &quot;%1&quot; aus, um %2 zu installieren.</translation>
+        <translation>Führe &quot;%1&quot; aus, um %2 zu installieren.</translation>
     </message>
     <message>
         <source>Installing &quot;%1&quot; failed. Expected language server (%2) is either not found or not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation von &quot;%1&quot; fehlgeschlagen. Erwarteter Language Server (%2) wurde entweder nicht gefunden oder ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>Installing &quot;%1&quot; failed with exit code %2.</source>
-        <translation type="unfinished">Die Installation von &quot;%1&quot; ist mit dem Rückgabewert %2 fehlgeschlagen.</translation>
+        <translation>Die Installation von &quot;%1&quot; ist mit dem Rückgabewert %2 fehlgeschlagen.</translation>
     </message>
     <message>
         <source>The installation of &quot;%1&quot; was canceled by timeout.</source>
-        <translation type="unfinished">Die Installation von &quot;%1&quot; wurde wegen Zeitüberschreitung abgebrochen.</translation>
+        <translation>Die Installation von &quot;%1&quot; wurde wegen Zeitüberschreitung abgebrochen.</translation>
     </message>
 </context>
 <context>
@@ -38658,27 +38658,27 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Omit Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad weglassen</translation>
     </message>
     <message>
         <source>Hide the file path of a change from the output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateipfad der Änderung in der Ausgabe nicht anzeigen.</translation>
     </message>
     <message>
         <source>Omit Author</source>
-        <translation type="unfinished"></translation>
+        <translation>Autor weglassen</translation>
     </message>
     <message>
         <source>Hide the author of a change from the output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Den Autor der Änderung in der Ausgabe nicht anzeigen.</translation>
     </message>
     <message>
         <source>Git Diff Staged &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Diff der vorgemerkten Änderungen für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Git Diff Incoming &quot;%1&quot; Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff der eingehenden Änderungen für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Git Diff Branch &quot;%1&quot;</source>
@@ -38829,7 +38829,7 @@ Möchten Sie den Branch &quot;%1&quot; im entfernten Repository erzeugen und ihn
     </message>
     <message>
         <source>Edit Commit Message of %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung von %1 bearbeiten...</translation>
     </message>
     <message>
         <source>&amp;Reset to Change %1</source>
@@ -39162,21 +39162,23 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Allow rebasing merges</source>
-        <translation type="unfinished"></translation>
+        <translation>Rebase von Merge-Commits erlauben</translation>
     </message>
     <message>
         <source>Allow rebasing merges in interactive rebase.
 Requires Git %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rebase von Merge-Commits im interaktiven Rebase erlauben.
+Erfordert Git %1.</translation>
     </message>
     <message>
         <source>Allow updating references</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren von Referenzen erlauben</translation>
     </message>
     <message>
         <source>Allow updating references in interactive rebase.
 Requires Git %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren von Referenzen im interaktiven Rebase erlauben.
+Erfordert Git %1.</translation>
     </message>
     <message>
         <source>Set &quot;HOME&quot; environment variable</source>
@@ -39782,11 +39784,11 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
     <message>
         <source>Edit commit message</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung bearbeiten</translation>
     </message>
     <message>
         <source>Opens an editor to edit the final commit message.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnet einen Editor, um die finale Beschreibung zu bearbeiten.</translation>
     </message>
     <message>
         <source>&amp;Commit only</source>
@@ -39826,11 +39828,11 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
     <message>
         <source>Revert Renaming &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Umbenennen von &quot;%1&quot; rückgängig machen</translation>
     </message>
     <message>
         <source>Mark Untracked &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; als nicht verfolgt markieren</translation>
     </message>
     <message>
         <source>Confirm File Changes</source>
@@ -40104,7 +40106,7 @@ Nicht markiert - Die Änderung ist kein Entwurf.</translation>
     </message>
     <message>
         <source>Hint: Select or deselect a single commit with a mouse click and multiple commits by dragging the mouse over them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis: Einen einzelnen Commit mit einem Mausklick auswählen oder abwählen und mehrere Commits durch Ziehen der Maus auswählen.</translation>
     </message>
     <message>
         <source>Reset type:</source>
@@ -40137,11 +40139,11 @@ Nicht markiert - Die Änderung ist kein Entwurf.</translation>
     </message>
     <message>
         <source>Add &quot;%1&quot;</source>
-        <translation type="unfinished">&quot;%1&quot; hinzufügen</translation>
+        <translation>&quot;%1&quot; hinzufügen</translation>
     </message>
     <message>
         <source>Diff Incoming Changes for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff eingehender Änderungen für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; recovered.
@@ -40344,7 +40346,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Cherry-&amp;Pick...</source>
-        <translation type="unfinished"></translation>
+        <translation>Cherry-&amp;Pick...</translation>
     </message>
     <message>
         <source>&amp;Track</source>
@@ -40647,23 +40649,23 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>File Not Found</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei nicht gefunden</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; not found. Create an empty or templated .gitignore?</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; nicht gefunden. Leere oder vorgefertigte .gitignore erstellen?</translation>
     </message>
     <message>
         <source>&amp;Empty</source>
-        <translation type="unfinished"></translation>
+        <translation>L&amp;eer</translation>
     </message>
     <message>
         <source>&amp;Template</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vorlage</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Abbrechen</translation>
+        <translation>&amp;Abbrechen</translation>
     </message>
     <message>
         <source>&amp;Local Repository</source>
@@ -40888,7 +40890,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Cannot create reword commit for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann keinen Reword-Commit für %1 erstellen.</translation>
     </message>
     <message>
         <source>Another submit is currently being executed.</source>
@@ -40924,7 +40926,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Select Commits to Cherry-Pick</source>
-        <translation type="unfinished"></translation>
+        <translation>Commits für Cherry-Pick auswählen</translation>
     </message>
     <message>
         <source>Patches (*.patch *.diff)</source>
@@ -41328,11 +41330,11 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Vulkan support is enabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vulkan-Unterstützung ist aktiviert.</translation>
     </message>
     <message>
         <source>Vulkan support is disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vulkan-Unterstützung ist deaktiviert.</translation>
     </message>
     <message>
         <source>GLSL Editor</source>
@@ -42535,7 +42537,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Application install on Simulator failed. Could not find bundle at expected location &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendungsinstallation auf dem Simulator fehlgeschlagen. Konnte das Bundle am erwarteten Ort &quot;%1&quot; nicht finden.</translation>
     </message>
     <message>
         <source>Application install on simulator failed. Simulator not running.</source>
@@ -42915,11 +42917,11 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Set up %1 language server (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Server %1 (%2) einrichten.</translation>
     </message>
     <message>
         <source>Set Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>Install npm Package</source>
@@ -43391,11 +43393,11 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Recommend content</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalte empfehlen</translation>
     </message>
     <message>
         <source>Qt Creator suggests tutorials, courses and examples based on your experience and needs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Creator schlägt Tutorials, Kurse und Beispiele basierend auf Ihrer Erfahrung und Ihren Bedürfnissen vor.</translation>
     </message>
     <message>
         <source>Your experience level</source>
@@ -43459,7 +43461,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Open Project &quot;%1&quot;</source>
-        <translation type="unfinished">Projekt &quot;%1&quot; öffnen</translation>
+        <translation>Projekt &quot;%1&quot; öffnen</translation>
     </message>
     <message>
         <source>Create Project...</source>
