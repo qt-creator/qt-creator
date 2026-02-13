@@ -109,8 +109,6 @@ public:
     QJsonObject listIssues();
     QJsonObject listIssues(const QString &path);
 
-    // TODO: list issues for a File
-
     // Debugging management helpers
     bool isDebuggingActive();
     QString abortDebug();
