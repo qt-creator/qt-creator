@@ -330,7 +330,7 @@ private:
             break;
         }
         setText(QString("%1: %2").arg(policy).arg(ts.m_indentSize));
-        //: %1=policy, %1=size
+        //: %1=policy, %2=size
         setToolTip(Tr::tr("Indentation settings: %1 (%2)").arg(policy).arg(ts.m_indentSize));
     }
 

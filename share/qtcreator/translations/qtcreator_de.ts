@@ -56336,7 +56336,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
     <message>
         <source>Property object is missing a name script binding.</source>
-        <translation type="unfinished"></translation>
+        <translation>Property-Objekt hat keine Namens‑Skriptbindung.</translation>
     </message>
     <message>
         <source>Expected string after colon.</source>
@@ -57101,39 +57101,39 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Download Standalone QML Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenständigen QML Language Server herunterladen</translation>
     </message>
     <message>
         <source>Downloading standalone QML Language Server...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenständiger QML Language Server wird heruntergeladen...</translation>
     </message>
     <message>
         <source>Could not find a suitable QML Language Server binary for this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für diese Plattform konnte keine passende ausführbare QML Language Server-Datei gefunden werden.</translation>
     </message>
     <message>
         <source>Latest standalone QML Language Server already exists at %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuester eigenständiger QML Language Server ist bereits unter %1 vorhanden</translation>
     </message>
     <message>
         <source>Unarchiving QML Language Server...</source>
-        <translation type="unfinished"></translation>
+        <translation>QML Language Server wird entpackt...</translation>
     </message>
     <message>
         <source>Could not find &quot;qmlls&quot; in the extracted archive. Please create a bugreport.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;qmlls&quot; konnte im entpackten Archiv nicht gefunden werden. Bitte erstellen Sie einen Bugreport.</translation>
     </message>
     <message>
         <source>Standalone QML Language Server succesfully downloaded in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenständiger QML Language Server wurde erfolgreich in %1 heruntergeladen</translation>
     </message>
     <message>
         <source>Create .qmlls.ini files for new projects targeting Qt &lt; 6.10</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle .qmlls.ini-Dateien für neue Projekte, die Qt &lt; 6.10 anvisieren</translation>
     </message>
     <message>
         <source>Enable qmlls&apos;s CMake integration</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Integration von qmlls aktivieren</translation>
     </message>
     <message>
         <source>Use qmlls from project Qt kit</source>
@@ -57293,11 +57293,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Rename Usages in Files?</source>
-        <translation type="unfinished"></translation>
+        <translation>Referenzen in Dateien umbenennen?</translation>
     </message>
     <message>
         <source>Rename &quot;%1&quot; to &quot;%2&quot; in these files as well?</source>
-        <translation type="unfinished"></translation>
+        <translation>In diesen Dateien &quot;%1&quot; ebenfalls in &quot;%2&quot; umbenennen?</translation>
     </message>
 </context>
 <context>
@@ -57353,23 +57353,23 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>This option was found in the INI file but is not a standard qmlformat option.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Einstellung wurde in der INI-Datei gefunden, ist aber keine standardmäßige Einstellung für qmlformat.</translation>
     </message>
     <message>
         <source>Option</source>
-        <translation type="unfinished">Einstellung</translation>
+        <translation>Einstellung</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Wert</translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <source>Deploy INI File to Current Project</source>
-        <translation type="unfinished"></translation>
+        <translation>INI-Datei für aktuelles Projekt bereitstellen</translation>
     </message>
     <message>
         <source>Reset to Defaults</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf Vorgabe zurücksetzen</translation>
     </message>
     <message>
         <source>Global qmlformat Configuration</source>
@@ -57377,24 +57377,24 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Global formatting options are ignored by projects having their own deployed .qmlformat.ini files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale Formatierungseinstellungen werden von Projekten ignoriert, die ihre eigene bereitgestellte .qmlformat.ini-Datei besitzen.</translation>
     </message>
     <message>
         <source>QmlFormat not found. Using fallback output options.</source>
-        <translation type="unfinished"></translation>
+        <translation>QmlFormat nicht gefunden. Fallback-Ausgabeeinstellungen werden verwendet.</translation>
     </message>
     <message>
         <source>Cannot run &quot;%1&quot; or some other error occurred. Using fallback output options.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht ausgeführt werden oder ein anderer Fehler ist aufgetreten. Fallback-Ausgabeeinstellungen werden verwendet.</translation>
     </message>
     <message>
         <source>&quot;%1&quot;: %2. Using fallback output options.</source>
         <extracomment>%1=exceutable, %2=error</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;: %2. Fallback-Ausgabeeinstellungen werden verwendet.</translation>
     </message>
     <message>
         <source>Invalid JSON response from qmlformat. Using fallback output options.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige JSON-Antwort von qmlformat. Fallback-Ausgabeeinstellungen werden verwendet.</translation>
     </message>
     <message>
         <source>Built-in Formatter Settings</source>
@@ -57442,11 +57442,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorschau</translation>
     </message>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
-        <translation type="unfinished">Ändern Sie den Inhalt der Vorschau, um zu sehen wie sich die aktuellen Einstellungen auf die benutzerdefinierten Snippets auswirken. Änderungen der Vorschau haben keinen Einfluss auf die Einstellungen.</translation>
+        <translation>Ändern Sie den Inhalt der Vorschau, um zu sehen, wie sich die aktuellen Einstellungen auf die benutzerdefinierten Snippets auswirken. Änderungen der Vorschau haben keinen Einfluss auf die Einstellungen.</translation>
     </message>
 </context>
 <context>
@@ -58674,23 +58674,23 @@ Bitte überprüfen Sie die Allgemeinen Ausgaben für weitere Informationen.</tra
     </message>
     <message>
         <source>When parsing fields of page &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Bei der Auswertung der Felder der Seite &quot;%1&quot;: %2</translation>
+        <translation>Bei der Auswertung der Felder der Seite &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>No entries found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Einträge gefunden.</translation>
     </message>
     <message>
         <source>Source template not found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelltemplate nicht gefunden: %1</translation>
     </message>
     <message>
         <source>Target path is outside the project: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zielpfad liegt außerhalb des Projekts: %1</translation>
     </message>
     <message>
         <source>When processing &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Verarbeiten von &quot;%1&quot;:</translation>
     </message>
 </context>
 <context>
@@ -59144,11 +59144,11 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Re-detect</source>
-        <translation type="unfinished">Neu erkennen</translation>
+        <translation>Neu erkennen</translation>
     </message>
     <message>
         <source>Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät:</translation>
     </message>
     <message>
         <source>All</source>
@@ -59186,7 +59186,7 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>This functionality is only available for the Desktop device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Funktionalität ist nur für das Desktop-Gerät verfügbar.</translation>
     </message>
     <message>
         <source>%1&apos;s resource directory is not writable.</source>
@@ -60135,7 +60135,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Signal operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Signaloperation abgebrochen.</translation>
     </message>
     <message>
         <source>Device &quot;%1&quot; unexpectedly lost connection.</source>
@@ -60187,7 +60187,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Device is considered unconnected. Re-connect to use it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät gilt als nicht verbunden. Erneut verbinden, um es zu verwenden.</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -60282,7 +60282,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>No device for the path: &quot;%1&quot;.</source>
-        <translation type="unfinished">Kein Gerät für den Pfad: &quot;%1&quot;.</translation>
+        <translation>Kein Gerät für den Pfad: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
@@ -62754,15 +62754,15 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     <name>QtC::Swift</name>
     <message>
         <source>Set up Swift language server (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Swift Language Server (%1) einrichten.</translation>
     </message>
     <message>
         <source>Set Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>Swift Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Swift Language Server</translation>
     </message>
 </context>
 <context>
@@ -62825,7 +62825,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Insert Macro Variable</source>
-        <translation type="unfinished"></translation>
+        <translation>Makrovariable einfügen</translation>
     </message>
     <message>
         <source>Devices</source>
@@ -62833,7 +62833,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Current Value of %{%1}: %2</source>
-        <translation type="unfinished">Aktueller Wert von %{%1}: %2</translation>
+        <translation>Aktueller Wert von %{%1}: %2</translation>
     </message>
     <message>
         <source>The color used for %1.</source>
@@ -64110,7 +64110,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Enable minimap</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimap aktivieren</translation>
     </message>
     <message>
         <source>Margin</source>
@@ -64142,7 +64142,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Highlight definitions are provided by the %1 engine.</source>
-        <translation type="unfinished"></translation>
+        <translation>Definitionen für die Syntaxhervorhebung werden von der %1-Engine bereitgestellt.</translation>
     </message>
     <message>
         <source>Reset definitions remembered for files that can be associated with more than one highlighter definition.</source>
@@ -64388,8 +64388,8 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Indentation settings: %1 (%2)</source>
-        <extracomment>%1=policy, %1=size</extracomment>
-        <translation type="unfinished"></translation>
+        <extracomment>%1=policy, %2=size</extracomment>
+        <translation>Einrückungseinstellungen: %1 (%2)</translation>
     </message>
     <message>
         <source>Document Settings</source>
@@ -66463,11 +66463,11 @@ Die Trace-Daten sind verloren.</translation>
     <message>
         <source>Failed to get update information (%1): %2</source>
         <extracomment>%1=command, %2=error</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Abrufen der Aktualisierungsinformationen (%1): %2</translation>
     </message>
     <message>
         <source>Process finished with exit code %1.</source>
-        <translation type="unfinished">Der Prozess wurde mit dem Rückgabewert %1 beendet.</translation>
+        <translation>Der Prozess wurde mit dem Rückgabewert %1 beendet.</translation>
     </message>
     <message>
         <source>Update Details</source>
@@ -67177,7 +67177,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Internal DeviceFileAccess error: watch() did not return a result.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner DeviceFileAccess-Fehler: watch() hat kein Ergebnis zurückgegeben.</translation>
     </message>
     <message>
         <source>Could not find temporary directory on device %1</source>
@@ -67193,11 +67193,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>No device hook set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Geräte-Hook gesetzt.</translation>
     </message>
     <message>
         <source>Cannot reach remote path &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernter Pfad &quot;%1&quot; kann nicht erreicht werden.</translation>
     </message>
     <message>
         <source>%1 on %2</source>
@@ -67795,96 +67795,96 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</trans
     </message>
     <message>
         <source>Enable crash reporting</source>
-        <translation type="unfinished">Absturzberichte aktivieren</translation>
+        <translation>Absturzberichte aktivieren</translation>
     </message>
     <message>
         <source>Allow crashes to be automatically reported. Collected reports are used for the sole purpose of fixing bugs.</source>
-        <translation type="unfinished">Erlaubt Absturzberichte zu sammeln und zu senden. Gesammelte Absturzberichte werden nur zum Zweck der Fehlerbehebung genutzt.</translation>
+        <translation>Erlaubt Absturzberichte zu sammeln und zu senden. Gesammelte Absturzberichte werden nur zum Zweck der Fehlerbehebung genutzt.</translation>
     </message>
     <message>
         <source>Crash reports are saved in &quot;%1&quot;.</source>
-        <translation type="unfinished">Absturzberichte werden in &quot;%1&quot; gespeichert.</translation>
+        <translation>Absturzberichte werden in &quot;%1&quot; gespeichert.</translation>
     </message>
     <message>
         <source>%1 uses %2 for collecting crashes and sending them to Sentry for processing. %2 may capture arbitrary contents from crashed process’ memory, including user sensitive information, URLs, and whatever other content users have trusted %1 with. The collected crash reports are however only used for the sole purpose of fixing bugs.</source>
         <extracomment>%1 = application name, %2 crash backend name (Google Crashpad or Google Breakpad)</extracomment>
-        <translation type="unfinished">%1 verwendet %2, um Absturzberichte zu sammeln und diese zur Verarbeitung an Sentry zu senden. %2 kann beliebige Inhalte des Speichers des abgestürzten Prozesses erfassen. Dies kann persönliche Daten, URLs und andere Inhalte, die der Benutzer %1 anvertraut hat, beinhalten. Die gesammelten Absturzberichte werden allerdings nur zum Zweck der Fehlerbehebung verwendet.</translation>
+        <translation>%1 verwendet %2, um Absturzberichte zu sammeln und diese zur Verarbeitung an Sentry zu senden. %2 kann beliebige Inhalte des Speichers des abgestürzten Prozesses erfassen. Dies kann persönliche Daten, URLs und andere Inhalte, die der Benutzer %1 anvertraut hat, beinhalten. Die gesammelten Absturzberichte werden allerdings nur zum Zweck der Fehlerbehebung verwendet.</translation>
     </message>
     <message>
         <source>More information:</source>
-        <translation type="unfinished">Mehr Informationen:</translation>
+        <translation>Mehr Informationen:</translation>
     </message>
     <message>
         <source>%1 Overview</source>
-        <translation type="unfinished">Übersicht über %1</translation>
+        <translation>Übersicht über %1</translation>
     </message>
     <message>
         <source>%1 security policy</source>
-        <translation type="unfinished">Sicherheitsrichtlinien von %1</translation>
+        <translation>Sicherheitsrichtlinien von %1</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Bytes</translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>KiB</source>
-        <translation type="unfinished">KiB</translation>
+        <translation>KiB</translation>
     </message>
     <message>
         <source>MiB</source>
-        <translation type="unfinished">MiB</translation>
+        <translation>MiB</translation>
     </message>
     <message>
         <source>GiB</source>
-        <translation type="unfinished">GiB</translation>
+        <translation>GiB</translation>
     </message>
     <message>
         <source>TiB</source>
-        <translation type="unfinished">TiB</translation>
+        <translation>TiB</translation>
     </message>
     <message>
         <source>The crash reporting change will take effect after restart.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Änderung der Absturzberichterstattung wird nach einem Neustart wirksam.</translation>
     </message>
     <message>
         <source>Manage</source>
-        <translation type="unfinished">Verwalten</translation>
+        <translation>Verwalten</translation>
     </message>
     <message>
         <source>Go to Crash Reports</source>
-        <translation type="unfinished">Zu Absturzberichten gehen</translation>
+        <translation>Zu Absturzberichten gehen</translation>
     </message>
     <message>
         <source>Clear Crash Reports</source>
-        <translation type="unfinished">Absturzberichte löschen</translation>
+        <translation>Absturzberichte löschen</translation>
     </message>
     <message>
         <source>?</source>
-        <translation type="unfinished">?</translation>
+        <translation>?</translation>
     </message>
     <message>
         <source>Crash Reporting</source>
-        <translation type="unfinished">Absturzberichte</translation>
+        <translation>Absturzberichte</translation>
     </message>
     <message>
         <source>%1 collects crash reports for the sole purpose of fixing bugs. To disable this feature go to %2.</source>
-        <translation type="unfinished">Zum Zweck der Fehlerbehebung sammelt %1 Absturzberichte. Öffnen Sie %2, um diese Funktion zu deaktivieren.</translation>
+        <translation>Zum Zweck der Fehlerbehebung sammelt %1 Absturzberichte. Öffnen Sie %2, um diese Funktion zu deaktivieren.</translation>
     </message>
     <message>
         <source>%1 can collect crash reports for the sole purpose of fixing bugs. To enable this feature go to %2.</source>
-        <translation type="unfinished">Zum Zweck der Fehlerbehebung kann %1 Absturzberichte sammeln. Öfnen Sie %2, um diese Funktion zu aktivieren.</translation>
+        <translation>Zum Zweck der Fehlerbehebung kann %1 Absturzberichte sammeln. Öffnen Sie %2, um diese Funktion zu aktivieren.</translation>
     </message>
     <message>
         <source> &gt; Preferences &gt; Environment &gt; System</source>
-        <translation type="unfinished"> &gt; Einstellungen &gt; Umgebung &gt; System</translation>
+        <translation> &gt; Einstellungen &gt; Umgebung &gt; System</translation>
     </message>
     <message>
         <source>Edit &gt; Preferences &gt; Environment &gt; System</source>
-        <translation type="unfinished">Bearbeiten &gt; Einstellungen &gt; Umgebung &gt; System</translation>
+        <translation>Bearbeiten &gt; Einstellungen &gt; Umgebung &gt; System</translation>
     </message>
     <message>
         <source>No changes to apply.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Änderungen.</translation>
     </message>
 </context>
 <context>
@@ -67939,7 +67939,7 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</trans
     </message>
     <message>
         <source>XmlProtocol version %1 not supported (supported versions: %2-%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>XmlProtocol-Version %1 wird nicht unterstützt (unterstützte Versionen: %2-%3)</translation>
     </message>
     <message>
         <source>Valgrind tool &quot;%1&quot; not supported</source>
@@ -68351,15 +68351,15 @@ Mit Cache-Simulation werden weitere Ereigniszähler aktiviert:
     </message>
     <message>
         <source>Size and Alignment Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Größen- und Ausrichtungsfehler</translation>
     </message>
     <message>
         <source>File Descriptor Issues</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme mit Dateideskriptoren</translation>
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Andere</translation>
+        <translation>Andere</translation>
     </message>
     <message>
         <source>Load External XML Log File</source>
@@ -69257,15 +69257,15 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Check a&amp;ll</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle wäh&amp;len</translation>
     </message>
     <message>
         <source>Check selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Markierte auswählen</translation>
     </message>
     <message>
         <source>Refresh file list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiliste aktualisieren.</translation>
     </message>
     <message>
         <source>Cannot commit: %1</source>
@@ -69317,22 +69317,22 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     <message>
         <source>Check All</source>
         <extracomment>Check all for submit</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Alle wählen</translation>
     </message>
     <message>
         <source>Uncheck All</source>
         <extracomment>Uncheck all for submit</extracomment>
-        <translation type="unfinished">Alle abwählen</translation>
+        <translation>Alle abwählen</translation>
     </message>
     <message>
         <source>Check Selected</source>
         <extracomment>Check selected for submit</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Markierte auswählen</translation>
     </message>
     <message>
         <source>Uncheck Selected</source>
         <extracomment>Uncheck selected for submit</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Markierte abwählen</translation>
     </message>
     <message>
         <source>Select All</source>
@@ -69534,11 +69534,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Wrap submit message at</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilenumbruch der Beschreibung bei</translation>
     </message>
     <message>
         <source>Show VCS file status with refresh interval</source>
-        <translation type="unfinished"></translation>
+        <translation>VCS-Dateistatus anzeigen mit Aktualisierungsintervall</translation>
     </message>
     <message>
         <source> characters</source>
@@ -69550,11 +69550,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source> seconds</source>
-        <translation type="unfinished"></translation>
+        <translation> Sekunden</translation>
     </message>
     <message>
         <source>Specifies the file status update refresh interval.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gibt das Intervall für die Aktualisierung des Dateistatus an.</translation>
     </message>
     <message>
         <source>Reset VCS Cache</source>
@@ -69593,7 +69593,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>File handling is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiverarbeitung wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>Set up WebAssembly?</source>
@@ -69614,7 +69614,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>The activated SDK is not usable by %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das aktivierte SDK kann von %1 nicht verwendet werden.</translation>
     </message>
     <message>
         <source>Emscripten SDK environment:</source>
