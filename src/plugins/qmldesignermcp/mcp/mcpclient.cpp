@@ -12,6 +12,8 @@
 
 namespace {
 
+inline constexpr char mcpProtocolVersion[] = "2025-11-25";
+
 QString jsonToCompact(const QJsonObject &o)
 {
     return QString::fromUtf8(QJsonDocument(o).toJson(QJsonDocument::Compact));
@@ -21,8 +23,10 @@ QString jsonToCompact(const QJsonObject &o)
 
 namespace QmlDesigner {
 
-McpClient::McpClient(QObject *parent)
+McpClient::McpClient(const QString &clientName, const QString &clientVersion, QObject *parent)
     : QObject(parent)
+    , m_clientName(clientName)
+    , m_clientVersion(clientVersion)
 {}
 
 McpClient::~McpClient()
@@ -114,16 +118,13 @@ bool McpClient::isRunning() const
 
 /*!
  * \brief Kick off handshake. Emits connected(serverInfo) on success.
- * \param protocolVersion defaults to a recent MCP spec revision
  * \return request id
- *  For each MCP spec: client sends "initialize" then server responds, then client sends "initialized".
- *  Include capability hints; these can be expanded as your host adds features.
+ *  For each MCP server, client sends "initialize" then server responds, then client sends "initialized".
  */
-qint64 McpClient::initialize(
-    const QString &protocolVersion, const QString &clientName, const QString &clientVersion)
+qint64 McpClient::initialize()
 {
     QJsonObject params{
-        {"protocolVersion", protocolVersion},
+        {"protocolVersion", mcpProtocolVersion},
         {"capabilities",
          QJsonObject{
              {"roots", QJsonObject{{"listChanged", true}}},
@@ -131,9 +132,10 @@ qint64 McpClient::initialize(
          }},
         {"clientInfo",
          QJsonObject{
-             {"name", clientName},
-             {"version", clientVersion},
+             {"name", m_clientName},
+             {"version", m_clientVersion},
          }},
+        // TODO: add "capabilities"?
     };
 
     return sendRequest(
@@ -149,9 +151,9 @@ qint64 McpClient::initialize(
             m_serverInfo = {
                 .name = result.value("serverInfo").toObject().value("name").toString(),
                 .version = result.value("serverInfo").toObject().value("version").toString(),
-                .protocolVersion = result.value("protocolVersion").toString(),
-                // TODO: save server capabilities
             };
+
+            // TODO: get and save server capabilities
 
             emit connected(m_serverInfo);
             QTimer::singleShot(0, this, &McpClient::confirmClientInitialized);

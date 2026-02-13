@@ -17,7 +17,6 @@ struct McpServerInfo
 {
     QString name;
     QString version;
-    QString protocolVersion;
 };
 
 struct McpTool
@@ -48,7 +47,7 @@ class McpClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit McpClient(QObject *parent = nullptr);
+    explicit McpClient(const QString &clientName, const QString &clientVersion, QObject *parent = nullptr);
     ~McpClient() override;
 
     bool startProcess(
@@ -62,8 +61,7 @@ public:
 
     bool isRunning() const;
 
-    qint64 initialize(
-        const QString &protocolVersion, const QString &clientName, const QString &clientVersion);
+    qint64 initialize();
 
     qint64 listTools();
     qint64 callTool(const QString &toolName, const QJsonObject &arguments);
@@ -129,6 +127,8 @@ private:
     QHash<qint64, PendingResponse> m_pendingResponses;
     bool m_initializedConfirmed = false;
     McpServerInfo m_serverInfo;
+    QString m_clientName;
+    QString m_clientVersion;
 };
 
 } // namespace QmlDesigner

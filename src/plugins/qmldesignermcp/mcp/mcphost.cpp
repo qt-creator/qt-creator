@@ -5,15 +5,8 @@
 
 namespace QmlDesigner {
 
-McpHost::McpHost(
-    const QString &protocolVersion,
-    const QString &hostName,
-    const QString &hostVersion,
-    QObject *parent)
+McpHost::McpHost(QObject *parent)
     : QObject(parent)
-    , m_protocolVersion(protocolVersion)
-    , m_hostName(hostName)
-    , m_hostVersion(hostVersion)
 {}
 
 void McpHost::addServer(const McpServerConfig &cfg)
@@ -108,7 +101,8 @@ bool McpHost::startServer(const QString &serverName)
     emit serverStarting(serverName);
 
     // Start a client and wire it to the server
-    auto client = QSharedPointer<McpClient>::create();
+    auto [clientName, clientVersion] = getClientInfo(serverName);
+    auto client = QSharedPointer<McpClient>::create(clientName, clientVersion);
     m_clients.insert(serverName, client);
     wireClientSignals(serverName, client);
 
@@ -132,7 +126,7 @@ bool McpHost::startServer(const QString &serverName)
     }
 
     // Initialize session (sends initialized on success)
-    client->initialize(m_protocolVersion, m_hostName, m_hostVersion);
+    client->initialize();
     return true;
 }
 
@@ -316,6 +310,15 @@ void McpHost::cancelRestart(const QString &name)
 {
     if (QTimer *t = m_restartTimers.value(name, nullptr))
         t->stop();
+}
+
+QPair<QString, QString> McpHost::getClientInfo(const QString &serverName) const
+{
+    static const QHash<QString, QPair<QString, QString>> clientInfos {
+        { "qml_server", {"qml_client", "1.0.0" } } // server name -> {client name, client version}
+    };
+
+    return clientInfos.value(serverName);
 }
 
 bool McpHost::isToolAllowed(const QString &serverName, const QString &toolName) const

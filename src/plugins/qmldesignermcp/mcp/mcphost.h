@@ -46,11 +46,7 @@ class McpHost : public QObject
 {
     Q_OBJECT
 public:
-    explicit McpHost(
-        const QString &protocolVersion,
-        const QString &hostName,
-        const QString &hostVersion,
-        QObject *parent = nullptr);
+    explicit McpHost(QObject *parent = nullptr);
 
     // --- Configuration ---
     bool hasServer(const QString &serverName) const;
@@ -133,6 +129,7 @@ private:
     void wireClientSignals(const QString &name, const QSharedPointer<McpClient> &client);
     void scheduleRestart(const QString &name);
     void cancelRestart(const QString &name);
+    QPair<QString, QString> getClientInfo(const QString &serverName) const;
 
     // Policy checks
     bool isToolAllowed(const QString &serverName, const QString &toolName) const;
@@ -145,10 +142,6 @@ private:
     QMap<QString, QSet<QString>> m_allowedTools;        // key: server name
     QMap<QString, QSet<QString>> m_toolsRequireConsent; // key: server name
     ConsentHook m_consentHook;
-
-    const QString m_protocolVersion;
-    const QString m_hostName;
-    const QString m_hostVersion;
 };
 
 } // namespace QmlDesigner

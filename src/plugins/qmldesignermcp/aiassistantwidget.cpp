@@ -72,7 +72,7 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     : m_apiManager(Utils::makeUniqueObjectPtr<AiApiManager>())
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
     , m_modelsModel(Utils::makeUniqueObjectPtr<AiModelsModel>())
-    , m_mcpHost(Utils::makeUniqueObjectPtr<McpHost>("2025-11-25", "QtDesignStudio", "1.0.0"))
+    , m_mcpHost(Utils::makeUniqueObjectPtr<McpHost>())
     , m_view(view)
     , m_termsAccepted(
           Core::ICore::settings()->value(Constants::aiAssistantTermsAcceptedKey, false).toBool())
