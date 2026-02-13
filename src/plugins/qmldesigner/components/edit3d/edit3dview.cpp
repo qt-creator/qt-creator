@@ -313,10 +313,10 @@ void Edit3DView::modelAttached(Model *model)
 
     rootModelNode().setAuxiliaryData(edit3dGridColorProperty,
                                      QVariant::fromValue(Edit3DViewConfig::loadColor(
-                                         DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR)));
+                                         DesignerSettingsKey::Edit3DViewGridLineColor)));
     rootModelNode().setAuxiliaryData(edit3dBgColorProperty,
                                      QVariant::fromValue(Edit3DViewConfig::loadColors(
-                                         DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR)));
+                                         DesignerSettingsKey::Edit3DViewBackgroundColor)));
 
     checkImports();
     auto cachedImage = m_canvasCache.take(model);
@@ -626,7 +626,7 @@ void Edit3DView::createSelectBackgroundColorAction(QAction *syncEnvBackgroundAct
     auto operation = [this, syncEnvBackgroundAction](const SelectionContext &) {
         BackgroundColorSelection::showBackgroundColorSelectionWidget(
             edit3DWidget(),
-            DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
+            DesignerSettingsKey::Edit3DViewBackgroundColor,
             this,
             edit3dBgColorProperty,
             [this, syncEnvBackgroundAction]() {
@@ -658,7 +658,7 @@ void Edit3DView::createGridColorSelectionAction()
     auto operation = [this](const SelectionContext &) {
         BackgroundColorSelection::showBackgroundColorSelectionWidget(
             edit3DWidget(),
-            DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR,
+            DesignerSettingsKey::Edit3DViewGridLineColor,
             this,
             edit3dGridColorProperty);
     };
@@ -685,11 +685,11 @@ void Edit3DView::createResetColorAction(QAction *syncEnvBackgroundAction)
     auto operation = [this, syncEnvBackgroundAction](const SelectionContext &) {
         QList<QColor> bgColors = {QRgb(0x222222), QRgb(0x999999)};
         Edit3DViewConfig::setColors(this, edit3dBgColorProperty, bgColors);
-        Edit3DViewConfig::saveColors(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, bgColors);
+        Edit3DViewConfig::saveColors(DesignerSettingsKey::Edit3DViewBackgroundColor, bgColors);
 
         QColor gridColor{0xcccccc};
         Edit3DViewConfig::setColors(this, edit3dGridColorProperty, {gridColor});
-        Edit3DViewConfig::saveColors(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, {gridColor});
+        Edit3DViewConfig::saveColors(DesignerSettingsKey::Edit3DViewGridLineColor, {gridColor});
 
         if (syncEnvBackgroundAction->isChecked()) {
             emitView3DAction(View3DActionType::SyncEnvBackground, false);
@@ -866,22 +866,22 @@ void Edit3DView::syncSnapAuxPropsToSettings()
 
     bool snapToggle = m_snapToggleAction->action()->isChecked();
     rootModelNode().setAuxiliaryData(edit3dSnapPosProperty,
-                                     snapToggle ? Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION)
+                                     snapToggle ? Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapPosition)
                                                 : false);
     rootModelNode().setAuxiliaryData(edit3dSnapRotProperty,
-                                     snapToggle ? Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION)
+                                     snapToggle ? Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapRotation)
                                                 : false);
     rootModelNode().setAuxiliaryData(edit3dSnapScaleProperty,
-                                     snapToggle ? Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE)
+                                     snapToggle ? Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapScale)
                                                 : false);
     rootModelNode().setAuxiliaryData(edit3dSnapAbsProperty,
-                                     Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE));
+                                     Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapAbsolute));
     rootModelNode().setAuxiliaryData(edit3dSnapPosIntProperty,
-                                     Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL));
+                                     Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapPositionInterval));
     rootModelNode().setAuxiliaryData(edit3dSnapRotIntProperty,
-                                     Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL));
+                                     Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapRotationInterval));
     rootModelNode().setAuxiliaryData(edit3dSnapScaleIntProperty,
-                                     Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL));
+                                     Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapScaleInterval));
 }
 
 void Edit3DView::setCameraSpeedAuxData(double speed, double multiplier)
@@ -1350,7 +1350,7 @@ void Edit3DView::createEdit3DActions()
         bakeLightsTrigger);
 
     SelectionContextOperation snapToggleTrigger = [this](const SelectionContext &) {
-        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_ENABLED,
+        Edit3DViewConfig::save(DesignerSettingsKey::Edit3DViewSnapEnabled,
                                m_snapToggleAction->action()->isChecked());
         syncSnapAuxPropsToSettings();
     };
@@ -1361,7 +1361,7 @@ void Edit3DView::createEdit3DActions()
         Tr::tr("Toggle Snapping During Node Drag"),
         QKeySequence(Qt::SHIFT | Qt::Key_Tab),
         true,
-        Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ENABLED, false).toBool(),
+        Edit3DViewConfig::load(DesignerSettingsKey::Edit3DViewSnapEnabled, false).toBool(),
         toolbarIcon(DesignerIcons::SnappingIcon),
         this,
         snapToggleTrigger);

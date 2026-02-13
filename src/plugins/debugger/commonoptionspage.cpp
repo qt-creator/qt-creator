@@ -226,6 +226,7 @@ public:
         setDisplayName(Tr::tr("General"));
         setCategory(DEBUGGER_SETTINGS_CATEGORY);
         setSettingsProvider([] { return &commonSettings(); });
+        setRecreateOnCancel(true);
     }
 };
 

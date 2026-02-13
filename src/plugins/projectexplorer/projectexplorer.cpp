@@ -736,7 +736,6 @@ public:
     ProjectFileWizardExtension m_projectFileWizardExtension;
 
     // Settings pages
-    AppOutputSettingsPage m_appOutputSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;
     CustomParsersSettingsPage m_customParsersSettingsPage;
 
@@ -936,7 +935,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     setupJsonWizardFileGenerator();
     setupJsonWizardScannerGenerator();
     // new plugins might add new paths via the plugin spec
-    connect(PluginManager::instance(), &PluginManager::pluginsChanged, [] {
+    connect(PluginManager::instance(), &PluginManager::pluginsChanged, this, [] {
         JsonWizardFactory::resetSearchPaths();
         dd->resetUnloadedPluginProjectMimeTypes();
         dd->updateDocumentOpenerMimeTypes();

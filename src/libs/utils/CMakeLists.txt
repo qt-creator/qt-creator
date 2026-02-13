@@ -44,6 +44,8 @@ add_qtc_library(Utils
     devicefileaccess.cpp devicefileaccess.h
     differ.cpp differ.h
     displayname.cpp displayname.h
+    documenttabbar.cpp
+    documenttabbar.h
     dropsupport.cpp dropsupport.h
     elfreader.cpp elfreader.h
     elidinglabel.cpp elidinglabel.h

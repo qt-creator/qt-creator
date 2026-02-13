@@ -136,9 +136,9 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
     data.puppetPath = puppetPath;
     data.workingDirectoryPath = workingDirectory;
     data.environment = PuppetEnvironmentBuilder::createEnvironment(buildSystem, designerSettings(), model, qmlPuppetPath());
-    data.debugPuppet = designerSettings().value(DesignerSettingsKey::DEBUG_PUPPET).toString();
+    data.debugPuppet = designerSettings().value(DesignerSettingsKey::DebugPuppet).toString();
     data.freeTypeOption = createFreeTypeOption(buildSystem);
-    data.forwardOutput = designerSettings().value(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString();
+    data.forwardOutput = designerSettings().value(DesignerSettingsKey::ForwardPuppetOutput).toString();
 
     return data;
 }

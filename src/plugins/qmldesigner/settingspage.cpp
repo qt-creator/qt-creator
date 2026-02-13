@@ -257,22 +257,22 @@ SettingsPageWidget::SettingsPageWidget()
 QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
 {
     QHash<QByteArray, QVariant> settings;
-    settings.insert(DesignerSettingsKey::ITEMSPACING, m_spinItemSpacing->value());
-    settings.insert(DesignerSettingsKey::CONTAINERPADDING, m_spinSnapMargin->value());
-    settings.insert(DesignerSettingsKey::CANVASWIDTH, m_spinCanvasWidth->value());
-    settings.insert(DesignerSettingsKey::CANVASHEIGHT, m_spinCanvasHeight->value());
-    settings.insert(DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH, m_spinRootItemInitWidth->value());
-    settings.insert(DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT, m_spinRootItemInitHeight->value());
-    settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER,
+    settings.insert(DesignerSettingsKey::ItemSpacing, m_spinItemSpacing->value());
+    settings.insert(DesignerSettingsKey::ContainerPadding, m_spinSnapMargin->value());
+    settings.insert(DesignerSettingsKey::CanvasWidth, m_spinCanvasWidth->value());
+    settings.insert(DesignerSettingsKey::CanvasHeight, m_spinCanvasHeight->value());
+    settings.insert(DesignerSettingsKey::RootElementInitWidth, m_spinRootItemInitWidth->value());
+    settings.insert(DesignerSettingsKey::RootElementInitHeight, m_spinRootItemInitHeight->value());
+    settings.insert(DesignerSettingsKey::WarnAboutQtQuickFeaturesInDesigner,
                     m_designerWarningsCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES,
+    settings.insert(DesignerSettingsKey::WarnAboutQmlFilesInsteadOfUiQmlFiles,
                     m_designerWarningsUiQmlfiles->isChecked());
 
-    settings.insert(DesignerSettingsKey::WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR,
+    settings.insert(DesignerSettingsKey::WarnAboutQtQuickDesignerFeaturesInCodeEditor,
         m_designerWarningsInEditorCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::SHOW_DEBUGVIEW,
+    settings.insert(DesignerSettingsKey::ShowQtQuickDesignerDebugView,
         m_designerShowDebuggerCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::ENABLE_DEBUGVIEW,
+    settings.insert(DesignerSettingsKey::EnableQtQuickDesignerDebugView,
         m_designerEnableDebuggerCheckBox->isChecked());
 
     int typeOfQsTrFunction;
@@ -286,32 +286,32 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
     else
         typeOfQsTrFunction = 0;
 
-    settings.insert(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION, typeOfQsTrFunction);
-    settings.insert(DesignerSettingsKey::CONTROLS_STYLE, m_styleLineEdit->text());
-    settings.insert(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
+    settings.insert(DesignerSettingsKey::TypeOfQsTrFunction, typeOfQsTrFunction);
+    settings.insert(DesignerSettingsKey::ControlsStyle, m_styleLineEdit->text());
+    settings.insert(DesignerSettingsKey::ForwardPuppetOutput,
         m_forwardPuppetOutputComboBox->currentText());
-    settings.insert(DesignerSettingsKey::DEBUG_PUPPET,
+    settings.insert(DesignerSettingsKey::DebugPuppet,
         m_debugPuppetComboBox->currentText());
 
-    settings.insert(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR,
+    settings.insert(DesignerSettingsKey::AlwaysSaveInCrumbleBar,
         m_alwaysSaveSubcomponentsCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS,
+    settings.insert(DesignerSettingsKey::ShowPropertyEditorWarnings,
         m_showPropertyEditorWarningsCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
+    settings.insert(DesignerSettingsKey::WarnException,
         m_showWarnExceptionsCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::ENABLE_TIMELINEVIEW,
+    settings.insert(DesignerSettingsKey::EnableTimelineView,
                     m_featureTimelineEditorCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE,
+    settings.insert(DesignerSettingsKey::EnableDockWidgetContentMinSize,
                     m_featureDockWidgetContentMinSize->isChecked());
-    settings.insert(DesignerSettingsKey::ALWAYS_DESIGN_MODE,
+    settings.insert(DesignerSettingsKey::AlwaysDesignMode,
                     m_designerAlwaysDesignModeCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET,
+    settings.insert(DesignerSettingsKey::AskBeforeDeletingAsset,
                     m_askBeforeDeletingAssetCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE,
+    settings.insert(DesignerSettingsKey::AskBeforeDeletingContentLibFile,
                     m_askBeforeDeletingContentLibFileCheckBox->isChecked());
-    settings.insert(DesignerSettingsKey::SMOOTH_RENDERING, m_smoothRendering->isChecked());
+    settings.insert(DesignerSettingsKey::SmoothRendering, m_smoothRendering->isChecked());
 
-    settings.insert(DesignerSettingsKey::REFORMAT_UI_QML_FILES,
+    settings.insert(DesignerSettingsKey::ReformatUiQmlFiles,
                     m_alwaysAutoFormatUICheckBox->isChecked());
 
     return settings;
@@ -320,81 +320,81 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
 void SettingsPageWidget::readSettings()
 {
     const DesignerSettings &settings = designerSettings();
-    m_spinItemSpacing->setValue(settings.value(DesignerSettingsKey::ITEMSPACING).toInt());
+    m_spinItemSpacing->setValue(settings.value(DesignerSettingsKey::ItemSpacing).toInt());
     m_spinSnapMargin->setValue(settings.value(
-        DesignerSettingsKey::CONTAINERPADDING).toInt());
+        DesignerSettingsKey::ContainerPadding).toInt());
     m_spinCanvasWidth->setValue(settings.value(
-        DesignerSettingsKey::CANVASWIDTH).toInt());
+        DesignerSettingsKey::CanvasWidth).toInt());
     m_spinCanvasHeight->setValue(settings.value(
-        DesignerSettingsKey::CANVASHEIGHT).toInt());
+        DesignerSettingsKey::CanvasHeight).toInt());
     m_spinRootItemInitWidth->setValue(settings.value(
-        DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH).toInt());
+        DesignerSettingsKey::RootElementInitWidth).toInt());
     m_spinRootItemInitHeight->setValue(settings.value(
-        DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT).toInt());
+        DesignerSettingsKey::RootElementInitHeight).toInt());
     m_designerWarningsCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool());
+        DesignerSettingsKey::WarnAboutQtQuickFeaturesInDesigner).toBool());
     m_designerWarningsUiQmlfiles->setChecked(settings.value(
-        DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool());
+        DesignerSettingsKey::WarnAboutQmlFilesInsteadOfUiQmlFiles).toBool());
     m_designerWarningsInEditorCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR).toBool());
+        DesignerSettingsKey::WarnAboutQtQuickDesignerFeaturesInCodeEditor).toBool());
     m_designerShowDebuggerCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::SHOW_DEBUGVIEW).toBool());
+        DesignerSettingsKey::ShowQtQuickDesignerDebugView).toBool());
     m_designerEnableDebuggerCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool());
+        DesignerSettingsKey::EnableQtQuickDesignerDebugView).toBool());
     m_useQsTrFunctionRadioButton->setChecked(settings.value(
-        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 0);
+        DesignerSettingsKey::TypeOfQsTrFunction).toInt() == 0);
     m_useQsTrIdFunctionRadioButton->setChecked(settings.value(
-        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 1);
+        DesignerSettingsKey::TypeOfQsTrFunction).toInt() == 1);
     m_useQsTranslateFunctionRadioButton->setChecked(settings.value(
-        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 2);
+        DesignerSettingsKey::TypeOfQsTrFunction).toInt() == 2);
     m_styleLineEdit->setText(settings.value(
-        DesignerSettingsKey::CONTROLS_STYLE).toString());
+        DesignerSettingsKey::ControlsStyle).toString());
 
     m_forwardPuppetOutputComboBox->setCurrentText(settings.value(
-        DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString());
+        DesignerSettingsKey::ForwardPuppetOutput).toString());
     m_debugPuppetComboBox->setCurrentText(settings.value(
-        DesignerSettingsKey::DEBUG_PUPPET).toString());
+        DesignerSettingsKey::DebugPuppet).toString());
 
     m_alwaysSaveSubcomponentsCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR).toBool());
+        DesignerSettingsKey::AlwaysSaveInCrumbleBar).toBool());
     m_showPropertyEditorWarningsCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
+        DesignerSettingsKey::ShowPropertyEditorWarnings).toBool());
     m_showWarnExceptionsCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT).toBool());
+        DesignerSettingsKey::WarnException).toBool());
 
     m_controls2StyleComboBox->setCurrentText(m_styleLineEdit->text());
 
     m_designerAlwaysDesignModeCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::ALWAYS_DESIGN_MODE).toBool());
+        DesignerSettingsKey::AlwaysDesignMode).toBool());
     m_featureTimelineEditorCheckBox->setChecked(settings.value(
-        DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool());
+        DesignerSettingsKey::EnableTimelineView).toBool());
     m_featureDockWidgetContentMinSize->setChecked(
-        settings.value(DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE).toBool());
+        settings.value(DesignerSettingsKey::EnableDockWidgetContentMinSize).toBool());
 
     m_askBeforeDeletingAssetCheckBox->setChecked(
-        settings.value(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool());
+        settings.value(DesignerSettingsKey::AskBeforeDeletingAsset).toBool());
     m_askBeforeDeletingContentLibFileCheckBox->setChecked(
-        settings.value(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE).toBool());
+        settings.value(DesignerSettingsKey::AskBeforeDeletingContentLibFile).toBool());
 
     m_debugGroupBox->setVisible(true);
     m_featureTimelineEditorCheckBox->setVisible(false);
     m_featureDockWidgetContentMinSize->setVisible(false);
-    m_smoothRendering->setChecked(settings.value(DesignerSettingsKey::SMOOTH_RENDERING).toBool());
+    m_smoothRendering->setChecked(settings.value(DesignerSettingsKey::SmoothRendering).toBool());
 
     m_alwaysAutoFormatUICheckBox->setChecked(
-        settings.value(DesignerSettingsKey::REFORMAT_UI_QML_FILES).toBool());
+        settings.value(DesignerSettingsKey::ReformatUiQmlFiles).toBool());
 }
 
 void SettingsPageWidget::apply()
 {
     auto settings = newSettings();
 
-    const auto restartNecessaryKeys = {DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
-                                       DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
-                                       DesignerSettingsKey::DEBUG_PUPPET,
-                                       DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
-                                       DesignerSettingsKey::ENABLE_TIMELINEVIEW,
-                                       DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE};
+    const auto restartNecessaryKeys = {DesignerSettingsKey::WarnException,
+                                       DesignerSettingsKey::ForwardPuppetOutput,
+                                       DesignerSettingsKey::DebugPuppet,
+                                       DesignerSettingsKey::WarnException,
+                                       DesignerSettingsKey::EnableTimelineView,
+                                       DesignerSettingsKey::EnableDockWidgetContentMinSize};
 
     for (const char * const key : restartNecessaryKeys) {
         if (designerSettings().value(key) != settings.value(key)) {

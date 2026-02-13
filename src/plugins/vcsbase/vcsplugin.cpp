@@ -41,7 +41,7 @@ public:
     explicit VcsPluginPrivate(VcsPlugin *plugin)
         : q(plugin)
     {
-        QObject::connect(&commonSettings(), &AspectContainer::changed,
+        QObject::connect(&commonSettings(), &AspectContainer::changed, q,
                          [this] { slotSettingsChanged(); });
         slotSettingsChanged();
     }

@@ -8,6 +8,7 @@
 #include "coreicons.h"
 #include "coreplugintr.h"
 #include "dialogs/ioptionspage.h"
+#include "generalsettings.h"
 #include "icore.h"
 #include "iwizardfactory.h"
 #include "modemanager.h"
@@ -430,6 +431,12 @@ private:
 
 // ----------- SettingsWidget
 
+class LargerDialogButtonBox : public QDialogButtonBox
+{
+public:
+    QSize sizeHint() const override { return QDialogButtonBox::sizeHint() + QSize(25, 0); }
+};
+
 class SettingsWidget : public QWidget
 {
 public:
@@ -484,10 +491,16 @@ private:
     QListView *m_categoryList;
     QLabel *m_headerLabel;
 
-    QtcButton m_okButton{Tr::tr("OK"), QtcButton::MediumPrimary};
-    QtcButton m_applyButton{Tr::tr("Apply"), QtcButton::MediumSecondary};
-    QtcButton m_cancelButton{Tr::tr("Cancel"), QtcButton::MediumSecondary};
-    QtcButton m_discardButton{Tr::tr("Discard"), QtcButton::MediumSecondary};
+    LargerDialogButtonBox m_buttonBoxLong;
+    LargerDialogButtonBox m_buttonBoxShort;
+
+    QtcButton m_okButtonLong{Tr::tr("OK"), QtcButton::MediumPrimary};
+    QtcButton m_applyButtonLong{Tr::tr("Apply"), QtcButton::MediumSecondary};
+    QtcButton m_cancelButtonLong{Tr::tr("Cancel"), QtcButton::MediumSecondary};
+    QtcButton m_discardButtonLong{Tr::tr("Discard"), QtcButton::MediumSecondary};
+
+    QtcButton m_applyButtonShort{Tr::tr("Apply"), QtcButton::MediumPrimary};
+    QtcButton m_discardButtonShort{Tr::tr("Discard"), QtcButton::MediumSecondary};
 
     bool m_isDirty = false;
     bool m_currentlySwitching = false;
@@ -497,9 +510,13 @@ private:
 void SettingsWidget::setDirty(bool dirty)
 {
     m_isDirty = dirty;
-    m_okButton.setEnabled(dirty);
-    m_applyButton.setEnabled(dirty);
-    m_discardButton.setEnabled(dirty);
+
+    m_okButtonLong.setEnabled(dirty);
+    m_applyButtonLong.setEnabled(dirty);
+    m_discardButtonLong.setEnabled(dirty);
+
+    m_applyButtonShort.setEnabled(dirty);
+    m_discardButtonShort.setEnabled(dirty);
 }
 
 SettingsWidget::SettingsWidget()
@@ -638,27 +655,42 @@ void SettingsWidget::createGui()
 {
     m_headerLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
-    m_okButton.setToolTip(Tr::tr("Apply all changes and return to previous mode."));
-    m_applyButton.setToolTip(Tr::tr("Apply all changes and stay here."));
-    m_discardButton.setToolTip(Tr::tr("Discard all changes and stay here."));
-    m_cancelButton.setToolTip(Tr::tr("Discard all changes and return to previous mode."));
+    m_okButtonLong.setToolTip(Tr::tr("Apply all changes and return to previous mode."));
+    m_applyButtonLong.setToolTip(Tr::tr("Apply all changes and stay here."));
+    m_discardButtonLong.setToolTip(Tr::tr("Discard all changes and stay here."));
+    m_cancelButtonLong.setToolTip(Tr::tr("Discard all changes and return to previous mode."));
 
-    auto buttonBox = new QDialogButtonBox;
-    buttonBox->addButton(&m_okButton, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(&m_applyButton, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(&m_discardButton, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(&m_cancelButton, QDialogButtonBox::ActionRole);
+    m_buttonBoxLong.addButton(&m_okButtonLong, QDialogButtonBox::AcceptRole);
+    m_buttonBoxLong.addButton(&m_applyButtonLong, QDialogButtonBox::ActionRole);
+    m_buttonBoxLong.addButton(&m_discardButtonLong, QDialogButtonBox::ActionRole);
+    m_buttonBoxLong.addButton(&m_cancelButtonLong, QDialogButtonBox::RejectRole);
 
-    connect(&m_okButton, &QAbstractButton::clicked, this, [this] {
+    m_applyButtonShort.setToolTip(Tr::tr("Apply all changes and stay here."));
+    m_discardButtonShort.setToolTip(Tr::tr("Discard all changes and stay here."));
+
+    m_buttonBoxShort.addButton(&m_applyButtonShort, QDialogButtonBox::AcceptRole);
+    m_buttonBoxShort.addButton(&m_discardButtonShort, QDialogButtonBox::RejectRole);
+
+    auto setupButtonBoxes = [this] {
+        const bool isLong = generalSettings().showOkAndCancelInSettingsMode();
+        m_buttonBoxLong.setVisible(isLong);
+        m_buttonBoxShort.setVisible(!isLong);
+    };
+    setupButtonBoxes();
+    generalSettings().showOkAndCancelInSettingsMode.addOnChanged(this, setupButtonBoxes);
+
+    connect(&m_okButtonLong, &QAbstractButton::clicked, this, [this] {
         apply();
         ModeManager::activatePreviousMode();
     });
 
-    connect(&m_applyButton, &QAbstractButton::clicked, this, &SettingsWidget::apply);
+    connect(&m_applyButtonLong, &QAbstractButton::clicked, this, &SettingsWidget::apply);
+    connect(&m_applyButtonShort, &QAbstractButton::clicked, this, &SettingsWidget::apply);
 
-    connect(&m_discardButton, &QAbstractButton::clicked, this, &SettingsWidget::cancel);
+    connect(&m_discardButtonLong, &QAbstractButton::clicked, this, &SettingsWidget::cancel);
+    connect(&m_discardButtonShort, &QAbstractButton::clicked, this, &SettingsWidget::cancel);
 
-    connect(&m_cancelButton, &QAbstractButton::clicked, this, [this] {
+    connect(&m_cancelButtonLong, &QAbstractButton::clicked, this, [this] {
         cancel();
         ModeManager::activatePreviousMode();
     });
@@ -684,7 +716,8 @@ void SettingsWidget::createGui()
         Row {
             m_headerLabel,
             st,
-            buttonBox,
+            m_buttonBoxLong,
+            m_buttonBoxShort,
         },
         m_stackedLayout,
     }.emerge();
@@ -701,9 +734,6 @@ void SettingsWidget::createGui()
         Space(StyleHelper::SpacingTokens::GapHL),
         rightColumn,
     }.attachTo(this);
-
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &SettingsWidget::apply);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &SettingsWidget::cancel);
 
     setDirty(false);
 }
@@ -962,14 +992,14 @@ SettingsMode::SettingsMode()
     setIcon(Core::Icons::MODE_SETTINGS.icon());
     setPriority(Constants::P_MODE_SETIINGS);
     setId(Constants::MODE_SETTINGS);
-    setContext(Context(Constants::C_SETTINGS_MODE, Constants::C_NAVIGATION_PANE));
+    setContext(Context(Constants::C_SETTINGS_MODE));
     setWidgetCreator([this]() -> QWidget * {
         m_settingsModeWidget = new SettingsModeWidget;
         return m_settingsModeWidget;
     });
-    ActionBuilder(this, Core::Constants::S_RETURNTOEDITOR).setContext(context()).addOnTriggered([] {
-        ModeManager::activatePreviousMode();
-    });
+    ActionBuilder(this, Core::Constants::S_RETURNTOEDITOR)
+        .setContext(Constants::C_SETTINGS_MODE)
+        .addOnTriggered([] { ModeManager::activatePreviousMode(); });
 }
 
 SettingsMode::~SettingsMode()

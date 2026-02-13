@@ -172,14 +172,14 @@ void NavigatorView::modelAttached(Model *model)
     QTimer::singleShot(0, this, [this, treeView]() {
         m_currentModelInterface->showReferences(
             designerSettings()
-                .value(DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES)
+                .value(DesignerSettingsKey::NavigatorShowReferenceNodes)
                 .toBool());
 
         m_currentModelInterface->setFilter(
-                    designerSettings().value(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
+                    designerSettings().value(DesignerSettingsKey::NavigatorShowOnlyVisibleItems).toBool());
 
         m_currentModelInterface->setOrder(
-                    designerSettings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool());
+                    designerSettings().value(DesignerSettingsKey::NavigatorReverseItemOrder).toBool());
 
         // Expand everything to begin with to ensure model node to index cache is populated
         treeView->expandAll();
@@ -680,7 +680,7 @@ void NavigatorView::rightButtonClicked()
         return; //Semantics are unclear for multi selection.
 
     bool blocked = blockSelectionChangedSignal(true);
-    bool reverse = designerSettings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
+    bool reverse = designerSettings().value(DesignerSettingsKey::NavigatorReverseItemOrder).toBool();
 
     for (const ModelNode &node : selectedModelNodes()) {
         if (!node.isRootNode() && node.parentProperty().isNodeListProperty()
@@ -723,7 +723,7 @@ void NavigatorView::upButtonClicked()
     NanotraceHR::Tracer tracer{"navigator view up button clicked", category()};
 
     bool blocked = blockSelectionChangedSignal(true);
-    bool reverse = designerSettings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
+    bool reverse = designerSettings().value(DesignerSettingsKey::NavigatorReverseItemOrder).toBool();
 
     if (reverse)
         moveNodesDown(selectedModelNodes());
@@ -739,7 +739,7 @@ void NavigatorView::downButtonClicked()
     NanotraceHR::Tracer tracer{"navigator view down button clicked", category()};
 
     bool blocked = blockSelectionChangedSignal(true);
-    bool reverse = designerSettings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
+    bool reverse = designerSettings().value(DesignerSettingsKey::NavigatorReverseItemOrder).toBool();
 
     if (reverse)
         moveNodesUp(selectedModelNodes());
@@ -754,7 +754,7 @@ void NavigatorView::colorizeToggled(bool flag)
 {
     NanotraceHR::Tracer tracer{"navigator view colorize toggled", category()};
 
-    designerSettings().insert(DesignerSettingsKey::NAVIGATOR_COLORIZE_ICONS, flag);
+    designerSettings().insert(DesignerSettingsKey::NavigatorColorizeIcons, flag);
     m_currentModelInterface->notifyIconsChanged();
 }
 
@@ -764,7 +764,7 @@ void NavigatorView::referenceToggled(bool flag)
 
     m_currentModelInterface->showReferences(flag);
     treeWidget()->expandAll();
-    designerSettings().insert(DesignerSettingsKey::NAVIGATOR_SHOW_REFERENCE_NODES, flag);
+    designerSettings().insert(DesignerSettingsKey::NavigatorShowReferenceNodes, flag);
 }
 
 void NavigatorView::filterToggled(bool flag)
@@ -773,7 +773,7 @@ void NavigatorView::filterToggled(bool flag)
 
     m_currentModelInterface->setFilter(flag);
     treeWidget()->expandAll();
-    designerSettings().insert(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, flag);
+    designerSettings().insert(DesignerSettingsKey::NavigatorShowOnlyVisibleItems, flag);
 }
 
 void NavigatorView::reverseOrderToggled(bool flag)
@@ -782,7 +782,7 @@ void NavigatorView::reverseOrderToggled(bool flag)
 
     m_currentModelInterface->setOrder(flag);
     treeWidget()->expandAll();
-    designerSettings().insert(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, flag);
+    designerSettings().insert(DesignerSettingsKey::NavigatorReverseItemOrder, flag);
 }
 
 void NavigatorView::textFilterChanged(const QString &text)

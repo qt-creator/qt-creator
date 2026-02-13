@@ -17,6 +17,7 @@
 #include "editormanager_p.h"
 
 #include <utils/algorithm.h>
+#include <utils/documenttabbar.h>
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
 #include <utils/infobar.h>
@@ -47,13 +48,13 @@ using namespace Utils;
 
 namespace Core::Internal {
 
-class ViewTabBar : public QTabBar
+class ViewTabBar : public DocumentTabBar
 {
     Q_OBJECT
 
 public:
     explicit ViewTabBar(EditorView *parent)
-        : QTabBar(parent)
+        : DocumentTabBar(parent)
         , m_parentView(parent)
     {
         setProperty(StyleHelper::C_TABBAR_WHEELSCROLLING, true);
@@ -63,25 +64,27 @@ protected:
     void mousePressEvent(QMouseEvent *event) override
     {
         if (event->button() == Qt::LeftButton)
-            m_clickedIndex = tabAt(event->pos());
-        QTabBar::mousePressEvent(event);
+            m_leftClickedIndex = tabAt(event->pos());
+        else if (event->button() == Qt::RightButton)
+            return; // do not switch tabs when context menu is requested
+        DocumentTabBar::mousePressEvent(event);
     }
     void mouseReleaseEvent(QMouseEvent *event) override
     {
-        m_clickedIndex = -1;
-        QTabBar::mouseReleaseEvent(event);
+        m_leftClickedIndex = -1;
+        DocumentTabBar::mouseReleaseEvent(event);
     }
 
     void mouseMoveEvent(QMouseEvent *event) override
     {
         if (event->buttons() == Qt::NoButton) {
-            m_clickedIndex = -1;
-            QTabBar::mouseMoveEvent(event);
+            m_leftClickedIndex = -1;
+            DocumentTabBar::mouseMoveEvent(event);
             return;
         }
         QTC_ASSERT(m_parentView, return);
         const QPoint posInView = mapTo(m_parentView, event->pos());
-        if (m_clickedIndex >= 0
+        if (m_leftClickedIndex >= 0
             && (posInView.y() > m_parentView->height() || posInView.x() > m_parentView->width()
                 || posInView.x() < 0 || posInView.y() < 0)) {
             // Hack to stop the tab dragging.
@@ -95,7 +98,7 @@ protected:
                 Qt::NoButton,
                 Qt::NoModifier,
                 event->pointingDevice());
-            QTabBar::mouseMoveEvent(modEv.get());
+            DocumentTabBar::mouseMoveEvent(modEv.get());
             // Then do our own drag&drop that can go anywhere.
             // We are outside our rect() vertically, so look which top is above.
             const auto tabPos = QPoint(event->pos().x(), rect().center().y());
@@ -103,11 +106,11 @@ protected:
             const int tabIndex = tabAtPos >= 0 ? tabAtPos : (posInView.x() < 0 ? 0 : count() - 1);
             // Move it back to original position, otherwise a Drag-Copy operation also results
             // in moved original tab
-            if (tabIndex != m_clickedIndex)
-                moveTab(tabIndex, m_clickedIndex);
-            emit dragRequested(m_clickedIndex);
+            if (tabIndex != m_leftClickedIndex)
+                moveTab(tabIndex, m_leftClickedIndex);
+            emit dragRequested(m_leftClickedIndex);
         } else {
-            QTabBar::mouseMoveEvent(event);
+            DocumentTabBar::mouseMoveEvent(event);
         }
     }
 
@@ -120,7 +123,7 @@ protected:
         // Work around the issue by emitting tabBarClicked if the wheel event results in
         // a change.
         const int oldIndex = currentIndex();
-        QTabBar::wheelEvent(event);
+        DocumentTabBar::wheelEvent(event);
         if (currentIndex() != oldIndex)
             emit tabBarClicked(currentIndex());
     }
@@ -129,7 +132,7 @@ signals:
 
 private:
     EditorView *m_parentView = nullptr;
-    int m_clickedIndex = false;
+    int m_leftClickedIndex = false;
 };
 
 // EditorView
@@ -243,7 +246,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
             menu.exec(m_tabBar->mapToGlobal(pos));
         },
         Qt::QueuedConnection);
-    connect(m_tabBar, &QTabBar::tabMoved, [this] { ensurePinnedOrder(); });
+    connect(m_tabBar, &QTabBar::tabMoved, this, [this] { ensurePinnedOrder(); });
     // We cannot watch for IDocument changes, because the tab might refer
     // to a suspended document. And if a new editor for that is opened in another view,
     // this view will not know about that.
@@ -617,9 +620,9 @@ void EditorView::paintEvent(QPaintEvent *)
 
 void EditorView::mousePressEvent(QMouseEvent *e)
 {
-    if (e->button() != Qt::LeftButton)
-        return;
-    setFocus(Qt::MouseFocusReason);
+    if (e->button() == Qt::LeftButton)
+        setFocus(Qt::MouseFocusReason);
+    QWidget::mousePressEvent(e);
 }
 
 void EditorView::focusInEvent(QFocusEvent *)
@@ -642,16 +645,6 @@ bool EditorView::event(QEvent *e)
         }
     }
     return QWidget::event(e);
-}
-
-bool EditorView::eventFilter(QObject *obj, QEvent *e)
-{
-    if (obj == m_tabBar && e->type() == QEvent::MouseButtonPress) {
-        auto me = static_cast<QMouseEvent *>(e);
-        if (me->button() != Qt::LeftButton)
-            return true;
-    }
-    return QWidget::eventFilter(obj, e);
 }
 
 void EditorView::addEditor(IEditor *editor)

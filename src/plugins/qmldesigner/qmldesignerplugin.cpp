@@ -146,7 +146,7 @@ QtQuickDesignerFactory::QtQuickDesignerFactory()
         auto document = new QmlJSEditor::QmlJSEditorDocument(id());
         document->setIsDesignModePreferred(
                     QmlDesigner::designerSettings().value(
-                        QmlDesigner::DesignerSettingsKey::ALWAYS_DESIGN_MODE).toBool());
+                        QmlDesigner::DesignerSettingsKey::AlwaysDesignMode).toBool());
         return document;
     });
 }
@@ -248,7 +248,7 @@ static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor 
 
 static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
 {
-    return designerSettings().value(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
+    return designerSettings().value(DesignerSettingsKey::WarnAboutQmlFilesInsteadOfUiQmlFiles).toBool();
 }
 
 QmlDesignerPlugin::QmlDesignerPlugin()
@@ -301,7 +301,7 @@ Utils::Result<> QmlDesignerPlugin::initialize(const QStringList &)
     StudioQuickWidget::registerDeclarativeType();
 
     Exception::setWarnAboutException(!designerSettings()
-                                          .value(DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT)
+                                          .value(DesignerSettingsKey::WarnException)
                                           .toBool());
 
     Exception::setShowExceptionCallback([&](QStringView title, QStringView description) {
@@ -746,7 +746,7 @@ double QmlDesignerPlugin::formEditorDevicePixelRatio()
 {
     NanotraceHR::Tracer tracer{"qml designer plugin form editor device pixel ratio", category()};
 
-    if (designerSettings().value(DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO).toBool())
+    if (designerSettings().value(DesignerSettingsKey::IgnoreDevicePixelRatio).toBool())
         return 1;
 
     const QList<QWindow *> topLevelWindows = QApplication::topLevelWindows();

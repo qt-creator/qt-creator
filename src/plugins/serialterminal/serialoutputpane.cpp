@@ -19,6 +19,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
+#include <utils/documenttabbar.h>
 #include <utils/icon.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
@@ -48,46 +49,17 @@ public:
     explicit TabWidget(QWidget *parent = nullptr);
 signals:
     void contextMenuRequested(const QPoint &pos, int index);
-protected:
-    bool eventFilter(QObject *object, QEvent *event) final;
-private:
-    int m_tabIndexForMiddleClick = -1;
 };
 
 TabWidget::TabWidget(QWidget *parent) :
     QTabWidget(parent)
 {
-    tabBar()->installEventFilter(this);
+    setTabBar(new DocumentTabBar);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested,
             [this](const QPoint &pos) {
         emit contextMenuRequested(pos, tabBar()->tabAt(pos));
     });
-}
-
-bool TabWidget::eventFilter(QObject *object, QEvent *event)
-{
-    if (object == tabBar()) {
-        if (event->type() == QEvent::MouseButtonPress) {
-            const auto *me = static_cast<QMouseEvent *>(event);
-            if (me->button() == Qt::MiddleButton) {
-                m_tabIndexForMiddleClick = tabBar()->tabAt(me->pos());
-                event->accept();
-                return true;
-            }
-        } else if (event->type() == QEvent::MouseButtonRelease) {
-            const auto *me = static_cast<QMouseEvent *>(event);
-            if (me->button() == Qt::MiddleButton) {
-                int tabIndex = tabBar()->tabAt(me->pos());
-                if (tabIndex != -1 && tabIndex == m_tabIndexForMiddleClick)
-                    emit tabCloseRequested(tabIndex);
-                m_tabIndexForMiddleClick = -1;
-                event->accept();
-                return true;
-            }
-        }
-    }
-    return QTabWidget::eventFilter(object, event);
 }
 
 // QComboBox with a signal emitted before showPopup() to update on opening

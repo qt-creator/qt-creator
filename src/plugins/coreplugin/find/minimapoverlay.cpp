@@ -81,6 +81,9 @@ void MinimapOverlay::paintMinimap(QPainter *painter) const
 
     QColor overlay = creatorColor(Theme::Token_Foreground_Default);
     overlay.setAlphaF(m_minimapAlpha);
+    painter->setCompositionMode(creatorTheme()->colorScheme() == Qt::ColorScheme::Dark
+                                    ? QPainter::CompositionMode_Lighten
+                                    : QPainter::CompositionMode_Darken);
     painter->fillRect(thumbRect, overlay);
 
     QPen pen;

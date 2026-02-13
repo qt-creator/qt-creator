@@ -91,7 +91,7 @@ bool Navigation2dFilter::wheelEvent(QWheelEvent *event)
         } else if (QPointF delta = event->angleDelta(); !delta.isNull()) {
 
             const double globalMouseSpeed =
-                designerSettings().value(DesignerSettingsKey::EDITOR_ZOOM_FACTOR).toDouble();
+                designerSettings().value(DesignerSettingsKey::EditorZoomFactor).toDouble();
             speed = globalMouseSpeed / 20.0;
 
             constexpr double degreePerStep = 15.;

@@ -2008,11 +2008,11 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
     fontComboBox->setCurrentFont(QFontInfo(QFont(value())).family());
     parent.addItem(fontComboBox);
 
-    connect(fontComboBox, &QFontComboBox::currentTextChanged, [fontComboBox, this] {
+    connect(fontComboBox, &QFontComboBox::currentTextChanged, this, [fontComboBox, this] {
         const QString val = fontComboBox->currentFont().family();
         d->m_undoable.set(undoStack(), val);
         updateStorage(m_volatileValue, val);
-        volatileValueChanged();
+        emit volatileValueChanged();
     });
 
     connect(&d->m_undoable.m_signal, &UndoSignaller::changed, fontComboBox, [fontComboBox, this] {
@@ -2388,6 +2388,7 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons: {
         auto buttonGroup = new QButtonGroup(parent.product());
+        buttonGroup->setObjectName(objectName());
         buttonGroup->setExclusive(true);
         for (int i = 0, n = d->m_options.size(); i < n; ++i) {
             const Option &option = d->m_options.at(i);
@@ -2414,6 +2415,7 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
     case DisplayStyle::ComboBox:
         setLabelText(displayName());
         auto comboBox = createSubWidget<QComboBox>();
+        comboBox->setObjectName(objectName());
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
             comboBox->addItem(d->m_options.at(i).displayName);
         comboBox->setCurrentIndex(value());
@@ -2510,6 +2512,11 @@ void SelectionAspect::addOption(const QString &displayName, const QString &toolT
 void SelectionAspect::addOption(const Option &option)
 {
     d->m_options.append(option);
+}
+
+int SelectionAspect::optionCount() const
+{
+    return d->m_options.size();
 }
 
 int SelectionAspect::indexForDisplay(const QString &displayName) const
@@ -3612,7 +3619,7 @@ bool BaseAspect::valueToVolatileValue()
 void BaseAspect::handleGuiChanged()
 {
     if (guiToVolatileValue())
-        volatileValueChanged();
+        emit volatileValueChanged();
     if (isAutoApply())
         apply();
 }

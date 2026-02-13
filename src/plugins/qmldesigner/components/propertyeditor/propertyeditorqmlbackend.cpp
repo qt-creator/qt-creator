@@ -122,7 +122,7 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
 
     m_contextObject->setQuickWidget(m_view.get());
     m_view->engine()->setOutputWarningsToStandardError(
-        designerSettings().value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
+        designerSettings().value(DesignerSettingsKey::ShowPropertyEditorWarnings).toBool());
 
     m_view->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_view->engine()->addImportPath(scriptsEditorResourcesPath() + "/imports");

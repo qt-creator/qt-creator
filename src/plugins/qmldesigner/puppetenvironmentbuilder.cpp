@@ -139,7 +139,7 @@ void PuppetEnvironmentBuilder::addRendering() const
     if (!m_environment.hasKey("QT_SCREEN_SCALE_FACTORS") && !m_environment.hasKey("QT_SCALE_FACTOR"))
         m_environment.set("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
 
-    const bool smoothRendering = m_designerSettings.value(DesignerSettingsKey::SMOOTH_RENDERING).toBool();
+    const bool smoothRendering = m_designerSettings.value(DesignerSettingsKey::SmoothRendering).toBool();
 
     if (smoothRendering)
         m_environment.set("QMLPUPPET_SMOOTH_RENDERING", "true");
@@ -147,7 +147,7 @@ void PuppetEnvironmentBuilder::addRendering() const
 
 void PuppetEnvironmentBuilder::addControls() const
 {
-    const QString controlsStyle = m_designerSettings.value(DesignerSettingsKey::CONTROLS_STYLE).toString();
+    const QString controlsStyle = m_designerSettings.value(DesignerSettingsKey::ControlsStyle).toString();
 
     if (!controlsStyle.isEmpty()) {
         m_environment.set("QT_QUICK_CONTROLS_STYLE", controlsStyle);

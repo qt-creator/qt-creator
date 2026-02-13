@@ -316,7 +316,7 @@ void KitAspect::addManageButtonToLayout(Layouting::Layout &layout)
     if (d->managingPageId.isValid()) {
         d->manageButton = createSubWidget<QPushButton>(msgManage());
         setIgnoreForDirtyHook(d->manageButton);
-        connect(d->manageButton, &QPushButton::clicked, [this] {
+        connect(d->manageButton, &QPushButton::clicked, this, [this] {
             Core::ICore::showSettings(d->managingPageId, settingsPageItemToPreselect());
         });
         layout.addItem(d->manageButton);

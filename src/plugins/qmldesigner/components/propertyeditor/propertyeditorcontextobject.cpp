@@ -92,9 +92,9 @@ QString PropertyEditorContextObject::translateFunction()
 {
     NanotraceHR::Tracer tracer{"property editor context object translate function", category()};
 
-    if (designerSettings().value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
+    if (designerSettings().value(DesignerSettingsKey::TypeOfQsTrFunction).toInt())
 
-        switch (designerSettings().value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
+        switch (designerSettings().value(DesignerSettingsKey::TypeOfQsTrFunction).toInt()) {
         case 0: return QLatin1String("qsTr");
         case 1: return QLatin1String("qsTrId");
         case 2: return QLatin1String("qsTranslate");

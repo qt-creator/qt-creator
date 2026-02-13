@@ -50,7 +50,7 @@ private:
     QPointer<QScrollBar> m_vScroll;
 
     const int m_minimapWidth = 100;
-    const qreal m_minimapAlpha = 0.5;
+    const qreal m_minimapAlpha = 0.65;
     const int m_pixelsPerLine = 2;
     const int m_lineGap = 1;
     int m_scrollbarDefaultWidth;

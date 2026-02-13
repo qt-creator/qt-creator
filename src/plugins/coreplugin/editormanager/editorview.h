@@ -153,7 +153,6 @@ protected:
     void mousePressEvent(QMouseEvent *e) override;
     void focusInEvent(QFocusEvent *) override;
     bool event(QEvent *e) override;
-    bool eventFilter(QObject *obj, QEvent *e) override;
 
 private:
     friend class SplitterOrView; // for setParentSplitterOrView

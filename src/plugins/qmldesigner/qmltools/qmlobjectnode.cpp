@@ -739,8 +739,8 @@ QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &
 
     const QString escapedText = StringUtils::escape(text);
 
-    if (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
-        switch (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
+    if (settings.value(DesignerSettingsKey::TypeOfQsTrFunction).toInt())
+        switch (settings.value(DesignerSettingsKey::TypeOfQsTrFunction).toInt()) {
         case 0:
              return QStringView(u"qsTr(\"%1\")").arg(escapedText);
         case 1:

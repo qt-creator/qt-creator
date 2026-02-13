@@ -489,10 +489,10 @@ bool CMakeProjectImporter::filter(ProjectExplorer::Kit *k) const
         return false;
 
     const QString presetName = presetConfigItem.expandedValue(k);
-    return std::find_if(m_project->presetsData().configurePresets.cbegin(),
-                        m_project->presetsData().configurePresets.cend(),
+    const auto configurePresets = m_project->presetsData().configurePresets;
+    return std::find_if(configurePresets.cbegin(), configurePresets.cend(),
                         [&presetName](const auto &preset) { return presetName == preset.name; })
-           != m_project->presetsData().configurePresets.cend();
+           != configurePresets.cend();
 }
 
 static CMakeConfig configurationFromPresetProbe(

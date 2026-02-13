@@ -7,6 +7,7 @@
 
 #include <coreplugin/ioutputpane.h>
 
+#include <utils/documenttabbar.h>
 #include <utils/terminalhooks.h>
 
 #include <QAction>
@@ -20,15 +21,6 @@ class QComboBox;
 namespace Terminal {
 
 class TerminalWidget;
-
-class TabBar : public QTabBar
-{
-public:
-    using QTabBar::QTabBar;
-
-protected:
-    void mouseReleaseEvent(QMouseEvent *event) override;
-};
 
 class TabWidget : public QTabWidget
 {

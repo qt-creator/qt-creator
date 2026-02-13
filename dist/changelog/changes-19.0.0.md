@@ -149,7 +149,7 @@ Fixed
 * Missing `struct` keywords when generating code
   ([QTCREATORBUG-20838](https://bugreports.qt.io/browse/QTCREATORBUG-20838))
 * Built-in
-    * Improved the memory footprint of the index
+    * The memory footprint of the index
     * Indentation within lambda functions
       ([QTCREATORBUG-15156](https://bugreports.qt.io/browse/QTCREATORBUG-15156))
 * Clangd
@@ -189,7 +189,7 @@ Fixed
 * `Split Initializer` did not remove unneeded semicolons
   ([QTCREATORBUG-16207](https://bugreports.qt.io/browse/QTCREATORBUG-16207))
 * qmlls
-    * Custom indentation size was not respected when reformatting
+    * The handling of custom indentation sizes when reformatting
       ([QTCREATORBUG-33712](https://bugreports.qt.io/browse/QTCREATORBUG-33712))
 
 ### Diff Viewer
@@ -240,6 +240,11 @@ Added
 * The option to export and import custom output parsers:
   `Preferences > Build & Run > Custom Output Parsers`
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-custom-output-parsers.html))
+* The automatic import of project specific custom parsers and code styles from
+  the project source directory
+  (`.qtcreator/customparsers.json` and `.qtcreator/codestyles/`)
+  ([QTCREATORBUG-33839](https://bugreports.qt.io/browse/QTCREATORBUG-33839),
+   [QTCREATORBUG-28913](https://bugreports.qt.io/browse/QTCREATORBUG-28913))
 * Build device tools
     * A filter for the build device to the settings for Qt versions,
       compilers, debuggers, and CMake
@@ -248,7 +253,7 @@ Added
     * Auto-detection of the tools with individual settings pages when
       auto-detection is triggered in the device settings
       ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-configure-tools-on-devices.html))
-  ([QTCREATORBUG-33677](https://bugreports.qt.io/browse/QTCREATORBUG-33677))
+      ([QTCREATORBUG-33677](https://bugreports.qt.io/browse/QTCREATORBUG-33677))
 
 Changed
 
@@ -262,7 +267,7 @@ Changed
 
 Fixed
 
-* Local paths in the device tool settings were not interpreted as paths
+* That local paths in the device tool settings were not interpreted as paths
   on the device
 
 ### CMake
@@ -298,7 +303,7 @@ Changed
 
 Fixed
 
-* Building a single target always built everything if
+* That building a single target always built everything if
   `Install into staging directory` was enabled
   ([QTCREATORBUG-33580](https://bugreports.qt.io/browse/QTCREATORBUG-33580))
 
@@ -361,6 +366,13 @@ Fixed
 * Issues when `CMAKE_AR` is not set in some configurations
   ([QTCREATORBUG-33770](https://bugreports.qt.io/browse/QTCREATORBUG-33770))
 
+### Axivion
+
+Added
+
+* The explicit `Anonymous authentication` option
+  ([QTCREATORBUG-33949](https://bugreports.qt.io/browse/QTCREATORBUG-33949))
+
 ### Valgrind
 
 Added
@@ -373,9 +385,10 @@ Added
 Terminal
 --------
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-reference-terminal-view.html))
+
 Added
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-reference-terminal-view.html))
 * A `qtc` helper function that passes its arguments to the running
   Qt Creator instance, for example for opening files from the terminal
   ([QTCREATORBUG-33784](https://bugreports.qt.io/browse/QTCREATORBUG-33784))
@@ -406,6 +419,8 @@ Added
 
 ### Git
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-vcs-git.html))
+
 Added
 
 * Submit Editor ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-git-commit.html))
@@ -419,8 +434,6 @@ Added
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-git-blame.html))
 * Support for cherry-picking a list of commits from the `Branches` view
 * `Edit Commit Message` to the context menu on changes
-
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-vcs-git.html))
 
 Test Integration
 ----------------
@@ -450,15 +463,24 @@ Changed
 
 Fixed
 
-* `clang-cl` from Visual Studio installations was not detected
+* The detection of `clang-cl` from Visual Studio installations
   ([QTCREATORBUG-33600](https://bugreports.qt.io/browse/QTCREATORBUG-33600))
+
+### Linux
+
+Fixed
+
+* Issues with killing tool subprocesses
+  ([QTCREATORBUG-27567](https://bugreports.qt.io/browse/QTCREATORBUG-27567),
+   [QTCREATORBUG-32125](https://bugreports.qt.io/browse/QTCREATORBUG-32125))
 
 ### macOS
 
 Fixed
 
-* The cursor down key did not open the completion popup in input
-  fields that support completion
+* Opening the completion popup in input fields that support completion
+  with the cursor down key
+* The application icon on macOS 26 and later
 
 ### Android
 
@@ -504,11 +526,11 @@ Changed
 
 ### Development Container
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/devcontainer.html))
+
 Added
 
 * The configuration files to the project tree
-
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/devcontainer.html))
 
 Credits for these changes go to:
 --------------------------------
@@ -541,9 +563,11 @@ Marcus Tillmanns
 Markus Redeker  
 Mats Honkamaa  
 Miikka Heikkinen  
+Mike Jyu  
 Mitch Curtis  
 Olivier De Cannière  
 Orgad Shaneh  
+Pino Toscano  
 Pranta Dastider  
 Rafal Andrusieczko  
 Rami Potinkara  

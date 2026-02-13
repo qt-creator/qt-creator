@@ -40,6 +40,8 @@
 
 #include <optional>
 
+using namespace Utils;
+
 namespace Help::Internal {
 
 static LocalHelpManager *m_instance = nullptr;
@@ -58,11 +60,8 @@ QList<Core::HelpManager::OnlineHelpHandler> m_onlineHelpHandlerList;
 const char kFontFamilyKey[] = "Help/FallbackFontFamily";
 const char kFontStyleNameKey[] = "Help/FallbackFontStyleName";
 const char kFontSizeKey[] = "Help/FallbackFontSize";
-const char kStartOptionKey[] = "Help/StartOption";
-const char kContextHelpOptionKey[] = "Help/ContextHelpOption";
 
 const int kDefaultFallbackFontSize = 14;
-const int kDefaultStartOption = LocalHelpManager::ShowLastPages;
 const int kDefaultContextHelpOption = Core::HelpManager::SideBySideIfPossible;
 
 HelpSettings &helpSettings()
@@ -87,6 +86,21 @@ static QString defaultFallbackFontStyleName(const QString &fontFamily)
     return styles.first();
 }
 
+QVariant ViewerBackendAspect::fromSettingsValue(const QVariant &savedValue) const
+{
+    return indexForItemValue(savedValue);
+}
+
+QVariant ViewerBackendAspect::toSettingsValue(const QVariant &valueToSave) const
+{
+    return itemValueForIndex(valueToSave.toInt());
+}
+
+QByteArray ViewerBackendAspect::operator()() const
+{
+    return itemValueForIndex(value()).toByteArray();
+}
+
 HelpSettings::HelpSettings()
 {
     setAutoApply(false);
@@ -100,6 +114,8 @@ HelpSettings::HelpSettings()
 
     homePage.setSettingsKey("Help/HomePage");
     homePage.setDefaultValue(defaultHomePage);
+    homePage.setDisplayStyle(StringAspect::LineEditDisplay);
+    homePage.setLabelText(Tr::tr("Home page:"));
 
     fontZoom.setSettingsKey("Help/FontZoom");
     fontZoom.setRange(10, 3000);
@@ -123,7 +139,32 @@ HelpSettings::HelpSettings()
 
     lastShownPages.setSettingsKey("Help/LastShownPages");
 
-    viewerBackendId.setSettingsKey("Help/ViewerBackend");
+    viewerBackend.setSettingsKey("Help/ViewerBackend");
+    viewerBackend.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    viewerBackend.addOption(Tr::tr("Default (%1)", "Default viewer backend")
+                              .arg(LocalHelpManager::defaultViewerBackend().displayName));
+    const QVector<HelpViewerFactory> backends = LocalHelpManager::viewerBackends();
+    for (const HelpViewerFactory &f : backends)
+        viewerBackend.addOption(SelectionAspect::Option(f.displayName, {}, f.id));
+    viewerBackend.setEnabled(backends.size() != 1);
+
+    startOption.setSettingsKey("Help/StartOption");
+    startOption.setDefaultValue(ShowLastPages);
+    startOption.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    startOption.setLabelText(Tr::tr("On help start:"));
+    startOption.addOption(Tr::tr("Show My Home Page"));
+    startOption.addOption(Tr::tr("Show a Blank Page"));
+    startOption.addOption(Tr::tr("Show My Tabs from Last Session"));
+
+    contextHelpOption.setSettingsKey("Help/ContextHelpOption");
+    contextHelpOption.setObjectName("contextHelpComboBox");
+    contextHelpOption.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    contextHelpOption.setDefaultValue(Core::HelpManager::SideBySideIfPossible);
+    contextHelpOption.addOption(Tr::tr("Show Side-by-Side if Possible"));
+    contextHelpOption.addOption(Tr::tr("Always Show Side-by-Side"));
+    contextHelpOption.addOption(Tr::tr("Always Show in Help Mode"));
+    contextHelpOption.addOption(Tr::tr("Always Show in External Window"));
+    contextHelpOption.setLabelText(Tr::tr("On context help:"));
 
     readSettings();
 }
@@ -178,64 +219,6 @@ void LocalHelpManager::setFallbackFont(const QFont &font)
                                                  font.pointSize(),
                                                  kDefaultFallbackFontSize);
     emit m_instance->fallbackFontChanged(font);
-}
-
-LocalHelpManager::StartOption LocalHelpManager::startOption()
-{
-    const QVariant value = Core::ICore::settings()->value(kStartOptionKey, kDefaultStartOption);
-    bool ok;
-    int optionValue = value.toInt(&ok);
-    if (!ok)
-        optionValue = ShowLastPages;
-    switch (optionValue) {
-    case ShowHomePage:
-        return ShowHomePage;
-    case ShowBlankPage:
-        return ShowBlankPage;
-    case ShowLastPages:
-        return ShowLastPages;
-    default:
-        break;
-    }
-    return ShowLastPages;
-}
-
-void LocalHelpManager::setStartOption(LocalHelpManager::StartOption option)
-{
-    Core::ICore::settings()->setValueWithDefault(kStartOptionKey, int(option), kDefaultStartOption);
-}
-
-Core::HelpManager::HelpViewerLocation LocalHelpManager::contextHelpOption()
-{
-    const QVariant value = Core::ICore::settings()->value(kContextHelpOptionKey,
-                                                          kDefaultContextHelpOption);
-    bool ok;
-    int optionValue = value.toInt(&ok);
-    if (!ok)
-        optionValue = Core::HelpManager::SideBySideIfPossible;
-    switch (optionValue) {
-    case Core::HelpManager::SideBySideIfPossible:
-        return Core::HelpManager::SideBySideIfPossible;
-    case Core::HelpManager::SideBySideAlways:
-        return Core::HelpManager::SideBySideAlways;
-    case Core::HelpManager::HelpModeAlways:
-        return Core::HelpManager::HelpModeAlways;
-    case Core::HelpManager::ExternalHelpAlways:
-        return Core::HelpManager::ExternalHelpAlways;
-    default:
-        break;
-    }
-    return Core::HelpManager::SideBySideIfPossible;
-}
-
-void LocalHelpManager::setContextHelpOption(Core::HelpManager::HelpViewerLocation location)
-{
-    if (location == contextHelpOption())
-        return;
-    Core::ICore::settings()->setValueWithDefault(kContextHelpOptionKey,
-                                                 int(location),
-                                                 kDefaultContextHelpOption);
-    emit m_instance->contextHelpOptionChanged(location);
 }
 
 static std::optional<HelpViewerFactory> backendForId(const QByteArray &id)
@@ -298,7 +281,7 @@ QVector<HelpViewerFactory> LocalHelpManager::viewerBackends()
 
 HelpViewerFactory LocalHelpManager::viewerBackend()
 {
-    const QByteArray id = helpSettings().viewerBackendId();
+    const QByteArray id = helpSettings().viewerBackend();
     if (!id.isEmpty())
         return backendForId(id).value_or(defaultViewerBackend());
     return defaultViewerBackend();

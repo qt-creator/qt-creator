@@ -31,21 +31,40 @@ class TabWidget;
 
 enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput };
 
-class AppOutputSettings
+class OutputColorAspect : public Utils::ColorAspect
 {
 public:
+    using Utils::ColorAspect::ColorAspect;
+
+    QVariant fromSettingsValue(const QVariant &savedValue) const override;
+};
+
+class OutputMaxCharCountAspect : public Utils::IntegerAspect
+{
+public:
+    using Utils::IntegerAspect::IntegerAspect;
+
+    QVariant fromSettingsValue(const QVariant &savedValue) const override;
+    QVariant toSettingsValue(const QVariant &valueToSave) const override;
+};
+
+class AppOutputSettings : public Utils::AspectContainer
+{
+public:
+    AppOutputSettings();
+
     static QColor defaultBackgroundColor();
     QColor effectiveBackgroundColor() const;
 
-    AppOutputPaneMode runOutputMode = AppOutputPaneMode::PopupOnFirstOutput;
-    AppOutputPaneMode debugOutputMode = AppOutputPaneMode::FlashOnOutput;
-    bool cleanOldOutput = false;
-    bool mergeChannels = false;
-    bool wrapOutput = false;
-    bool discardExcessiveOutput = false;
-    bool overwriteBackground = false;
-    int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
-    QColor backgroundColor;
+    Utils::SelectionAspect runOutputMode{this};
+    Utils::SelectionAspect debugOutputMode{this};
+    Utils::BoolAspect cleanOldOutput{this};
+    Utils::BoolAspect mergeChannels{this};
+    Utils::BoolAspect wrapOutput{this};
+    Utils::BoolAspect discardExcessiveOutput{this};
+    OutputMaxCharCountAspect maxCharCount{this};
+    Utils::BoolAspect overwriteBackground{this};
+    OutputColorAspect backgroundColor{this};
 };
 
 class AppOutputPane final : public Core::IOutputPane
@@ -58,8 +77,7 @@ public:
 
     QList<RunControl *> allRunControls() const;
 
-    const AppOutputSettings &settings() const { return m_settings; }
-    void setSettings(const AppOutputSettings &settings);
+    static AppOutputSettings &settings();
 
     void prepareRunControlStart(RunControl *runControl);
     void showOutputPaneForRunControl(RunControl *runControl);
@@ -138,9 +156,6 @@ private:
     const QList<Core::OutputWindow *> outputWindows() const final;
     void ensureWindowVisible(Core::OutputWindow *ow) final;
 
-    void loadSettings();
-    void storeSettings() const;
-
     TabWidget *m_tabWidget;
     QList<RunControlTab> m_runControlTabs;
     QAction *m_stopAction;
@@ -153,13 +168,6 @@ private:
     QToolButton * const m_settingsButton;
     QWidget *m_formatterWidget;
     ShowOutputTaskHandler * const m_handler;
-    AppOutputSettings m_settings;
-};
-
-class AppOutputSettingsPage final : public Core::IOptionsPage
-{
-public:
-    AppOutputSettingsPage();
 };
 
 AppOutputPane &appOutputPane();
