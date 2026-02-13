@@ -108,7 +108,6 @@ static QByteArray getSource(const FilePath &fileName, const WorkingCopy &working
         return *source;
 
     TextFileFormat format;
-    QString error;
     TextFileFormat::ReadResult result = format.readFile(fileName, EditorManager::defaultTextEncoding());
     if (result.code != TextFileFormat::ReadSuccess)
         qWarning() << "Could not read " << fileName << ". Error: " << result.error;
