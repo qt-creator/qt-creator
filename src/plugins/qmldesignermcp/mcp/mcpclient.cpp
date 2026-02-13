@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #include "mcpclient.h"
 
+#include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
 
 #include <QJsonDocument>
@@ -81,7 +82,8 @@ bool McpClient::startProcess(
         &McpClient::onProcessFinished);
     connect(m_process, &QProcess::errorOccurred, this, &McpClient::onProcessError);
 
-    m_process->start(command, args, QIODevice::ReadWrite | QIODevice::Unbuffered);
+    QString commandFullPath = Core::ICore::libexecPath().pathAppended(command).toFSPathString();
+    m_process->start(commandFullPath, args, QIODevice::ReadWrite | QIODevice::Unbuffered);
     if (!m_process->waitForStarted(8000)) {
         emit errorOccurred(tr("Failed to start MCP server: %1").arg(m_process->errorString()));
         return false;

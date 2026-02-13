@@ -3,9 +3,8 @@
     "qml_server": {
       "transport": "stdio",
       "workingDir": "../share/qtcreator/mcp",
-      "command": "python",
+      "command": "qml_mcp_server.exe",
       "args": [
-        "qml_mcp_server.py",
         "${PROJECT_PATH}"
       ],
 
