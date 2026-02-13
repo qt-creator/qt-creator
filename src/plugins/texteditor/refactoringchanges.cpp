@@ -147,11 +147,13 @@ TextEditorWidget *RefactoringFile::editor() const
 
 int RefactoringFile::position(int line, int column) const
 {
-    QTC_ASSERT(line != 0, return -1);
-    QTC_ASSERT(column != 0, return -1);
-    if (const QTextDocument *doc = document())
-        return doc->findBlockByNumber(line - 1).position() + column - 1;
-    return -1;
+    return position(Text::Position{line, column - 1});
+}
+
+int RefactoringFile::position(const Text::Position &position) const
+{
+    QTC_ASSERT(position.isValid(), return -1);
+    return position.toPositionInDocument(document());
 }
 
 void RefactoringFile::lineAndColumn(int offset, int *line, int *column) const

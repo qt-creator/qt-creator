@@ -11,6 +11,7 @@
 #include <utils/filepath.h>
 #include <utils/id.h>
 #include <utils/textfileformat.h>
+#include <utils/textutils.h>
 
 #include <QList>
 #include <QPair>
@@ -50,6 +51,7 @@ public:
 
     // converts 1-based line and column into 0-based source offset
     int position(int line, int column) const;
+    int position(const Utils::Text::Position &position) const;
     // converts 0-based source offset into 1-based line and column
     void lineAndColumn(int offset, int *line, int *column) const;
 

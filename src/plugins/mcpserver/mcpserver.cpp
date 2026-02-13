@@ -473,6 +473,151 @@ McpServer::McpServer(QObject *parent)
         });
 
     addTool(
+        {{"name", "replace_in_file"},
+         {"title", "Replace pattern in a single file"},
+         {"description", "Replace all matches of a text pattern in a single file with replacement text"},
+         {"inputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"path",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"format", "uri"},
+                        {"description", "Absolute path of the file to modify"}}},
+                   {"pattern",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Text pattern to search for"}}},
+                   {"replacement",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Replacement text"}}},
+                   {"regex",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the pattern is a regular expression"}}},
+                   {"caseSensitive",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the search should be case sensitive"}}}}},
+              {"required", QJsonArray{"path", "pattern", "replacement"}}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"ok", QJsonObject{{"type", "boolean"}}}}},
+              {"required", QJsonArray{"ok"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            const QString path = p.value("path").toString();
+            const QString pattern = p.value("pattern").toString();
+            const QString replacement = p.value("replacement").toString();
+            const bool isRegex = p.value("regex").toBool(false);
+            const bool caseSensitive = p.value("caseSensitive").toBool(false);
+            m_commands.replaceInFile(path, pattern, replacement, isRegex, caseSensitive, callback);
+        });
+
+    addTool(
+        {{"name", "replace_in_files"},
+         {"title", "Replace pattern in project files"},
+         {"description", "Replace all matches of a text pattern in files matching a file pattern within a project (or all projects) with replacement text"},
+         {"inputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"filePattern",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "File pattern to filter which files to modify (e.g., '*.cpp', '*.h')"}}},
+                   {"projectName",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Optional: name of the project to search in (searches all projects if not specified)"}}},
+                   {"pattern",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Text pattern to search for"}}},
+                   {"replacement",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Replacement text"}}},
+                   {"regex",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the pattern is a regular expression"}}},
+                   {"caseSensitive",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the search should be case sensitive"}}}}},
+              {"required", QJsonArray{"filePattern", "pattern", "replacement"}}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"ok", QJsonObject{{"type", "boolean"}}}}},
+              {"required", QJsonArray{"ok"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            const QString filePattern = p.value("filePattern").toString();
+            const QString pattern = p.value("pattern").toString();
+            const QString replacement = p.value("replacement").toString();
+            const bool isRegex = p.value("regex").toBool(false);
+            const bool caseSensitive = p.value("caseSensitive").toBool(false);
+            const std::optional<QString> projectName = p.contains("projectName")
+                ? std::optional<QString>(p.value("projectName").toString())
+                : std::nullopt;
+            m_commands.replaceInFiles(
+                filePattern, projectName, "", pattern, replacement, isRegex, caseSensitive, callback);
+        });
+
+    addTool(
+        {{"name", "replace_in_directory"},
+         {"title", "Replace pattern in a directory"},
+         {"description", "Replace all matches of a text pattern recursively in all files within a directory with replacement text"},
+         {"inputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"directory",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"format", "uri"},
+                        {"description", "Absolute path of the directory to search in"}}},
+                   {"pattern",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Text pattern to search for"}}},
+                   {"replacement",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Replacement text"}}},
+                   {"regex",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the pattern is a regular expression"}}},
+                   {"caseSensitive",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the search should be case sensitive"}}}}},
+              {"required", QJsonArray{"directory", "pattern", "replacement"}}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties", QJsonObject{{"ok", QJsonObject{{"type", "boolean"}}}}},
+              {"required", QJsonArray{"ok"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", false}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            const QString directory = p.value("directory").toString();
+            const QString pattern = p.value("pattern").toString();
+            const QString replacement = p.value("replacement").toString();
+            const bool isRegex = p.value("regex").toBool(false);
+            const bool caseSensitive = p.value("caseSensitive").toBool(false);
+            m_commands.replaceInDirectory(directory, pattern, replacement, isRegex, caseSensitive, callback);
+        });
+
+    addTool(
         {{"name", "list_projects"},
          {"title", "List all available projects"},
          {"description", "List all available projects"},

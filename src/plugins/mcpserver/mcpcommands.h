@@ -65,7 +65,29 @@ public:
 
     static QJsonObject searchResultsSchema();
 
-    // TODO: replace text in file
+    void replaceInFile(
+        const QString &path,
+        const QString &pattern,
+        const QString &replacement,
+        bool regex,
+        bool caseSensitive,
+        const ResponseCallback &callback);
+    void replaceInFiles(
+        const QString &filePattern,
+        const std::optional<QString> &projectName,
+        const QString &path,
+        const QString &pattern,
+        const QString &replacement,
+        bool regex,
+        bool caseSensitive,
+        const ResponseCallback &callback);
+    void replaceInDirectory(
+        const QString directory,
+        const QString &pattern,
+        const QString &replacement,
+        bool regex,
+        bool caseSensitive,
+        const ResponseCallback &callback);
     // TODO: get symbol info
     // TODO: rename symbol
 

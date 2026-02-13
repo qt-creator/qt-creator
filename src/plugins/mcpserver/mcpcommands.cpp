@@ -32,6 +32,7 @@
 #include <utils/filesearch.h>
 #include <utils/id.h>
 #include <utils/mimeutils.h>
+#include <utils/savefile.h>
 
 #include <QApplication>
 #include <QFile>
@@ -334,6 +335,16 @@ QStringList McpCommands::findFilesInProjects(const QString &pattern, bool regex)
     return findFiles(ProjectManager::projects(), pattern, regex);
 }
 
+static FindFlags findFlags(bool regex, bool caseSensitive)
+{
+    FindFlags flags;
+    if (regex)
+        flags |= FindRegularExpression;
+    if (caseSensitive)
+        flags |= FindCaseSensitively;
+    return flags;
+}
+
 static void findInFiles(
     FileContainer fileContainer,
     bool regex,
@@ -342,13 +353,11 @@ static void findInFiles(
     QObject *guard,
     const McpCommands::ResponseCallback &callback)
 {
-    FindFlags flags;
-    if (regex)
-        flags |= FindRegularExpression;
-    if (caseSensitive)
-        flags |= FindCaseSensitively;
     const QFuture<SearchResultItems> future = Utils::findInFiles(
-        pattern, fileContainer, flags, TextEditor::TextDocument::openedTextDocumentContents());
+        pattern,
+        fileContainer,
+        findFlags(regex, caseSensitive),
+        TextEditor::TextDocument::openedTextDocumentContents());
     Utils::onFinished(future, guard, [callback](const QFuture<SearchResultItems> &future) {
         QJsonArray resultsArray;
         for (Utils::SearchResultItems results : future.results()) {
@@ -463,6 +472,152 @@ void McpCommands::searchInDirectory(
     SubDirFileContainer fileContainer({dirPath}, {}, {}, {});
 
     findInFiles(fileContainer, regex, caseSensitive, pattern, this, callback);
+}
+
+static void replace(
+    FileContainer fileContainer,
+    bool regex,
+    bool caseSensitive,
+    const QString &pattern,
+    const QString &replacement,
+    QObject *guard,
+    const McpCommands::ResponseCallback &callback)
+{
+    const QFuture<SearchResultItems> future = Utils::findInFiles(
+        pattern,
+        fileContainer,
+        findFlags(regex, caseSensitive),
+        TextEditor::TextDocument::openedTextDocumentContents());
+    Utils::onFinished(future, guard, [callback, replacement](const QFuture<SearchResultItems> &future) {
+        QJsonObject response;
+        bool success = true;
+
+        TextEditor::PlainRefactoringFileFactory changes;
+
+        QHash<Utils::FilePath, TextEditor::RefactoringFilePtr> refactoringFiles;
+        for (const SearchResultItems &results : future.results()) {
+            for (const SearchResultItem &item : results) {
+                Text::Range range = item.mainRange();
+                if (range.begin >= range.end)
+                    continue;
+                const FilePath filePath = FilePath::fromUserInput(item.path().value(0));
+                if (filePath.isEmpty())
+                    continue;
+                TextEditor::RefactoringFilePtr refactoringFile = refactoringFiles.value(filePath);
+                if (!refactoringFile)
+                    refactoringFile = refactoringFiles.insert(filePath, changes.file(filePath)).value();
+                const int start = refactoringFile->position(range.begin);
+                const int end = refactoringFile->position(range.end);
+                ChangeSet changeSet = refactoringFile->changeSet();
+                changeSet.replace(ChangeSet::Range(start, end), replacement);
+                refactoringFile->setChangeSet(changeSet);
+            }
+        }
+
+        for (auto refactoringFile : refactoringFiles) {
+            if (!refactoringFile->apply()) {
+                qCDebug(mcpCommands) << "Failed to apply changes for file:" << refactoringFile->filePath().toUserOutput();
+                success = false;
+            }
+        }
+
+        response["ok"] = success;
+        callback(response);
+    });
+}
+
+void McpCommands::replaceInFile(
+    const QString &path,
+    const QString &pattern,
+    const QString &replacement,
+    bool regex,
+    bool caseSensitive,
+    const ResponseCallback &callback)
+{
+     const FilePath filePath = FilePath::fromUserInput(path);
+    if (!filePath.exists()) {
+        callback({});
+        qCDebug(mcpCommands) << "File does not exist:" << path;
+        return;
+    }
+
+    TextEncoding encoding;
+    if (auto doc = TextEditor::TextDocument::textDocumentForFilePath(filePath)) {
+        encoding = doc->encoding();
+    } else {
+        for (const Project *project : ProjectManager::projects()) {
+            const EditorConfiguration *config = project->editorConfiguration();
+            if (project->isKnownFile(filePath)) {
+                encoding = config->useGlobalSettings() ? Core::EditorManager::defaultTextEncoding()
+                                                       : config->textEncoding();
+                break;
+            }
+        }
+    }
+    if (!encoding.isValid())
+        encoding = Core::EditorManager::defaultTextEncoding();
+
+    FileListContainer fileContainer({filePath}, {encoding});
+
+    replace(fileContainer, regex, caseSensitive, pattern, replacement, this, callback);
+}
+
+void McpCommands::replaceInFiles(
+    const QString &filePattern,
+    const std::optional<QString> &projectName,
+    const QString &path,
+    const QString &pattern,
+    const QString &replacement,
+    bool regex,
+    bool caseSensitive,
+    const ResponseCallback &callback)
+{
+     const QList<Project *> projects = projectName ? projectsForName(*projectName)
+                                                  : ProjectManager::projects();
+
+    const FilterFilesFunction filterFiles
+        = Utils::filterFilesFunction({filePattern.isEmpty() ? "*" : filePattern}, {});
+    const QMap<FilePath, TextEncoding> openEditorEncodings
+        = TextEditor::TextDocument::openedTextDocumentEncodings();
+    QMap<FilePath, TextEncoding> encodings;
+    for (const Project *project : projects) {
+        const EditorConfiguration *config = project->editorConfiguration();
+        TextEncoding projectEncoding = config->useGlobalSettings()
+                                           ? Core::EditorManager::defaultTextEncoding()
+                                           : config->textEncoding();
+        const FilePaths filteredFiles = filterFiles(project->files(
+            Core::Find::hasFindFlag(DontFindGeneratedFiles) ? Project::SourceFiles
+                                                            : Project::AllFiles));
+        for (const FilePath &fileName : filteredFiles) {
+            TextEncoding encoding = openEditorEncodings.value(fileName);
+            if (!encoding.isValid())
+                encoding = projectEncoding;
+            encodings.insert(fileName, encoding);
+        }
+    }
+    FileListContainer fileContainer(encodings.keys(), encodings.values());
+
+    replace(fileContainer, regex, caseSensitive, pattern, replacement, this, callback);
+}
+
+void McpCommands::replaceInDirectory(
+    const QString directory,
+    const QString &pattern,
+    const QString &replacement,
+    bool regex,
+    bool caseSensitive,
+    const ResponseCallback &callback)
+{
+    const FilePath dirPath = FilePath::fromUserInput(directory);
+    if (!dirPath.exists() || !dirPath.isDir()) {
+        callback({});
+        qCDebug(mcpCommands) << "Directory does not exist or is not a directory:" << directory;
+        return;
+    }
+
+    SubDirFileContainer fileContainer({dirPath}, {}, {}, {});
+
+    replace(fileContainer, regex, caseSensitive, pattern, replacement, this, callback);
 }
 
 QStringList McpCommands::listProjects()
