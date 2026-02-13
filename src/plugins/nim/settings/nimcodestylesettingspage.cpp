@@ -106,8 +106,6 @@ public:
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(editor);
-
-        Utils::installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void apply() final
