@@ -1705,8 +1705,8 @@ QString Process::stdOut() const
 QString Process::stdErr() const
 {
     QTC_CHECK(d->m_stdErr.keepRawData);
-    QTC_ASSERT(d->m_stdOutEncoding, return {}); // Process was not started
-    return d->m_stdOut.decoder.decode(d->m_stdErr.rawData);
+    QTC_ASSERT(d->m_stdErrEncoding, return {}); // Process was not started
+    return d->m_stdErr.decoder.decode(d->m_stdErr.rawData);
 }
 
 QString Process::cleanedStdOut() const
