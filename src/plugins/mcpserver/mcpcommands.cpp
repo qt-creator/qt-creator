@@ -337,11 +337,16 @@ QStringList McpCommands::findFilesInProjects(const QString &pattern, bool regex)
 static void findInFiles(
     FileContainer fileContainer,
     bool regex,
+    bool caseSensitive,
     const QString &pattern,
     QObject *guard,
     const McpCommands::ResponseCallback &callback)
 {
-    FindFlags flags = regex ? FindRegularExpression : FindFlags();
+    FindFlags flags;
+    if (regex)
+        flags |= FindRegularExpression;
+    if (caseSensitive)
+        flags |= FindCaseSensitively;
     const QFuture<SearchResultItems> future = Utils::findInFiles(
         pattern, fileContainer, flags, TextEditor::TextDocument::openedTextDocumentContents());
     Utils::onFinished(future, guard, [callback](const QFuture<SearchResultItems> &future) {
@@ -370,7 +375,11 @@ static void findInFiles(
 }
 
 void McpCommands::searchInFile(
-    const QString &path, const QString &pattern, bool regex, const ResponseCallback &callback)
+    const QString &path,
+    const QString &pattern,
+    bool regex,
+    bool caseSensitive,
+    const ResponseCallback &callback)
 {
     const FilePath filePath = FilePath::fromUserInput(path);
     if (!filePath.exists()) {
@@ -397,7 +406,7 @@ void McpCommands::searchInFile(
 
     FileListContainer fileContainer({filePath}, {encoding});
 
-    findInFiles(fileContainer, regex, pattern, this, callback);
+    findInFiles(fileContainer, regex, caseSensitive, pattern, this, callback);
 }
 
 void McpCommands::searchInFiles(
@@ -406,6 +415,7 @@ void McpCommands::searchInFiles(
     const QString &path,
     const QString &pattern,
     bool regex,
+    bool caseSensitive,
     const ResponseCallback &callback)
 {
     const QList<Project *> projects = projectName ? projectsForName(*projectName)
@@ -433,11 +443,15 @@ void McpCommands::searchInFiles(
     }
     FileListContainer fileContainer(encodings.keys(), encodings.values());
 
-    findInFiles(fileContainer, regex, pattern, this, callback);
+    findInFiles(fileContainer, regex, caseSensitive, pattern, this, callback);
 }
 
 void McpCommands::searchInDirectory(
-    const QString directory, const QString &pattern, bool regex, const ResponseCallback &callback)
+    const QString directory,
+    const QString &pattern,
+    bool regex,
+    bool caseSensitive,
+    const ResponseCallback &callback)
 {
     const FilePath dirPath = FilePath::fromUserInput(directory);
     if (!dirPath.exists() || !dirPath.isDir()) {
@@ -448,7 +462,7 @@ void McpCommands::searchInDirectory(
 
     SubDirFileContainer fileContainer({dirPath}, {}, {}, {});
 
-    findInFiles(fileContainer, regex, pattern, this, callback);
+    findInFiles(fileContainer, regex, caseSensitive, pattern, this, callback);
 }
 
 QStringList McpCommands::listProjects()

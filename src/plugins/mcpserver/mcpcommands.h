@@ -46,6 +46,7 @@ public:
         const QString &path,
         const QString &pattern,
         bool regex,
+        bool caseSensitive,
         const ResponseCallback &callback);
     void searchInFiles(
         const QString &filePattern,
@@ -53,11 +54,13 @@ public:
         const QString &path,
         const QString &pattern,
         bool regex,
+        bool caseSensitive,
         const ResponseCallback &callback);
     void searchInDirectory(
         const QString directory,
         const QString &pattern,
         bool regex,
+        bool caseSensitive,
         const ResponseCallback &callback);
 
     static QJsonObject searchResultsSchema();

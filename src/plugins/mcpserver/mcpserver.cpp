@@ -375,7 +375,11 @@ McpServer::McpServer(QObject *parent)
                    {"regex",
                     QJsonObject{
                         {"type", "boolean"},
-                        {"description", "Whether the pattern is a regular expression"}}}}},
+                        {"description", "Whether the pattern is a regular expression"}}},
+                   {"caseSensitive",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the search should be case sensitive"}}}}},
               {"required", QJsonArray{"path", "pattern"}}}},
          {"outputSchema", McpCommands::searchResultsSchema()},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
@@ -383,7 +387,8 @@ McpServer::McpServer(QObject *parent)
             const QString path = p.value("path").toString();
             const QString pattern = p.value("pattern").toString();
             const bool isRegex = p.value("regex").toBool(false);
-            m_commands.searchInFile(path, pattern, isRegex, callback);
+            const bool caseSensitive = p.value("caseSensitive").toBool(false);
+            m_commands.searchInFile(path, pattern, isRegex, caseSensitive, callback);
         });
 
     addTool(
@@ -410,7 +415,11 @@ McpServer::McpServer(QObject *parent)
                    {"regex",
                     QJsonObject{
                         {"type", "boolean"},
-                        {"description", "Whether the pattern is a regular expression"}}}}},
+                        {"description", "Whether the pattern is a regular expression"}}},
+                   {"caseSensitive",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the search should be case sensitive"}}}}},
               {"required", QJsonArray{"filePattern", "pattern"}}}},
          {"outputSchema", McpCommands::searchResultsSchema()},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
@@ -418,10 +427,12 @@ McpServer::McpServer(QObject *parent)
             const QString filePattern = p.value("filePattern").toString();
             const QString pattern = p.value("pattern").toString();
             const bool isRegex = p.value("regex").toBool(false);
+            const bool caseSensitive = p.value("caseSensitive").toBool(false);
             const std::optional<QString> projectName = p.contains("projectName")
                 ? std::optional<QString>(p.value("projectName").toString())
                 : std::nullopt;
-            m_commands.searchInFiles(filePattern, projectName, "", pattern, isRegex, callback);
+            m_commands.searchInFiles(
+                filePattern, projectName, "", pattern, isRegex, caseSensitive, callback);
         });
 
     addTool(
@@ -445,7 +456,11 @@ McpServer::McpServer(QObject *parent)
                    {"regex",
                     QJsonObject{
                         {"type", "boolean"},
-                        {"description", "Whether the pattern is a regular expression"}}}}},
+                        {"description", "Whether the pattern is a regular expression"}}},
+                   {"caseSensitive",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Whether the search should be case sensitive"}}}}},
               {"required", QJsonArray{"directory", "pattern"}}}},
          {"outputSchema", McpCommands::searchResultsSchema()},
          {"annotations", QJsonObject{{"readOnlyHint", true}}}},
@@ -453,7 +468,8 @@ McpServer::McpServer(QObject *parent)
             const QString directory = p.value("directory").toString();
             const QString pattern = p.value("pattern").toString();
             const bool isRegex = p.value("regex").toBool(false);
-            m_commands.searchInDirectory(directory, pattern, isRegex, callback);
+            const bool caseSensitive = p.value("caseSensitive").toBool(false);
+            m_commands.searchInDirectory(directory, pattern, isRegex, caseSensitive, callback);
         });
 
     addTool(
