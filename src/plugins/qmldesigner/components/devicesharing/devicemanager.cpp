@@ -306,7 +306,6 @@ void DeviceManager::initDevice(const DeviceInfo &deviceInfo, const DeviceSetting
                                                                       deviceInfo,
                                                                       deviceSettings},
                                                            &QObject::deleteLater);
-    QString deviceId = device->deviceSettings().deviceId();
     connect(device.data(), &Device::deviceInfoReady, this, &DeviceManager::deviceInfoReceived);
     connect(device.data(), &Device::disconnected, this, [this](const QString &deviceId) {
         qCDebug(deviceSharePluginLog) << "Device" << deviceId << "disconnected";
