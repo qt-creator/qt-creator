@@ -176,6 +176,13 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
     m_defaultFeaturesCheckBox->setText(Android::Tr::tr("Include default features for Qt modules"));
     layout->addWidget(m_defaultFeaturesCheckBox, 1, 0);
 
+    m_CMakePermissionsCheckBox = new QCheckBox(this);
+    m_CMakePermissionsCheckBox->setText(Android::Tr::tr("Manage permissions through CMake."));
+    m_CMakePermissionsCheckBox->setToolTip(
+        Tr::tr("Permissions will be added as qt_add_android_permission() calls in CMakeLists.txt "
+               "instead of AndroidManifest.xml. This requires Qt 6.9 or newer."));
+    layout->addWidget(m_CMakePermissionsCheckBox, 2, 0);
+
     m_permissionsComboBox = new QComboBox(permissionsGroupBox);
     m_permissionsComboBox->insertItems(0, {
               "android.permission.ACCESS_CHECKIN_PROPERTIES",
@@ -310,11 +317,11 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
               "android.permission.WRITE_USER_DICTIONARY",
           });
     m_permissionsComboBox->setEditable(true);
-    layout->addWidget(m_permissionsComboBox, 2, 0);
+    layout->addWidget(m_permissionsComboBox, 3, 0);
 
     m_addPermissionButton = new QPushButton(permissionsGroupBox);
     m_addPermissionButton->setText(Android::Tr::tr("Add"));
-    layout->addWidget(m_addPermissionButton, 2, 1);
+    layout->addWidget(m_addPermissionButton, 3, 1);
 
     m_permissionsModel = new PermissionsModel(this);
 
@@ -323,7 +330,6 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
     m_permissionsListView->header()->setStretchLastSection(true);
     m_permissionsListView->setModel(m_permissionsModel);
     m_permissionsListView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    m_permissionsListView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
     layout->addWidget(m_permissionsListView, 4, 0, 3, 1);
 
     m_editAttributesButton = new QPushButton(permissionsGroupBox);
