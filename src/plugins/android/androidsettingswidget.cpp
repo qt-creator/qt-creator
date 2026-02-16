@@ -382,6 +382,20 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::downloadSdk);
 
     setOnApply([] { AndroidConfigurations::applyConfig(); });
+
+    const QWidgetList dirtyTriggerWidgets = {
+        m_openJdkLocationPathChooser->lineEdit(),
+        m_sdkLocationPathChooser->lineEdit(),
+        sdkManagerToolButton,
+        addCustomNdkButton,
+        removeCustomNdkButton,
+        m_makeDefaultNdkButton,
+        m_createKitCheckBox,
+        m_openSslPathChooser->lineEdit(),
+    };
+    for (QWidget *widget : dirtyTriggerWidgets)
+        installMarkSettingsDirtyTrigger(widget);
+    connect(m_ndkListWidget, &QListWidget::itemChanged, this, markSettingsDirty);
 }
 
 void AndroidSettingsWidget::showEvent(QShowEvent *event)
@@ -411,6 +425,7 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
 
 void AndroidSettingsWidget::updateNdkList()
 {
+    DirtySettingsGuard suppressor;
     m_ndkListWidget->clear();
     const auto installedPkgs = sdkManager().installedNdkPackages();
     for (const Ndk *ndk : installedPkgs) {
