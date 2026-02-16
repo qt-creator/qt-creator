@@ -140,7 +140,6 @@ public:
 
     virtual void apply();
     virtual void cancel();
-    virtual void finish();
     virtual bool isDirty() const;
     bool hasAction() const;
 
@@ -576,8 +575,6 @@ class QTCREATOR_UTILS_EXPORT SelectionAspect : public TypedAspect<int>
 public:
     SelectionAspect(AspectContainer *container = nullptr);
     ~SelectionAspect() override;
-
-    void finish() override;
 
     QString stringValue() const;
     void setStringValue(const QString &val);
@@ -1065,7 +1062,6 @@ public:
 
     void apply() override;
     void cancel() override;
-    void finish() override;
 
     void reset();
     bool equals(const AspectContainer &other) const;

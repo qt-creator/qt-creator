@@ -607,10 +607,6 @@ void BaseAspect::cancel()
     announceChanges(changes);
 }
 
-void BaseAspect::finish()
-{
-}
-
 bool BaseAspect::hasAction() const
 {
     return d->m_action != nullptr;
@@ -2442,11 +2438,6 @@ void SelectionAspect::volatileValueToGui()
     return d->m_undoable.setWithoutUndo(m_volatileValue);
 }
 
-void SelectionAspect::finish()
-{
-    BaseAspect::finish();
-}
-
 void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
 {
     d->m_displayStyle = style;
@@ -3491,12 +3482,6 @@ void AspectContainer::cancel()
 {
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->cancel();
-}
-
-void AspectContainer::finish()
-{
-    for (BaseAspect *aspect : std::as_const(d->m_items))
-        aspect->finish();
 }
 
 void AspectContainer::reset()
