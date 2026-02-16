@@ -701,7 +701,6 @@ void SettingsWidget::createGui()
         m_buttonBoxLong.setVisible(isLong);
         m_buttonBoxShort.setVisible(!isLong);
     };
-    setupButtonBoxes();
     generalSettings().showOkAndCancelInSettingsMode.addOnChanged(this, setupButtonBoxes);
 
     connect(&m_okButtonLong, &Button::rawClicked, this, [this] {
@@ -760,6 +759,7 @@ void SettingsWidget::createGui()
         rightColumn,
     }.attachTo(this);
 
+    setupButtonBoxes();
     setDirty(false);
 }
 
