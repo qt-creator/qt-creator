@@ -104,7 +104,6 @@ TerminalPane::TerminalPane(QObject *parent)
     m_variablesComboBox->setModel(macroModel(m_variablesComboBox));
 
     connect(m_variablesComboBox, &QComboBox::activated, this, [this](int idx) {
-        const QString varName = m_variablesComboBox->itemText(idx);
         if (auto t = currentTerminal()) {
             QString txt = m_variablesComboBox->currentData(MacroModelRoles::ValueRole).toString();
             if (txt.contains(' '))
