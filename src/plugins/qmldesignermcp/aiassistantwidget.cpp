@@ -3,7 +3,6 @@
 
 #include "aiassistantwidget.h"
 
-#include "aiapimanager.h"
 #include "aiassistantconstants.h"
 #include "aiassistanttermsdialog.h"
 #include "aiassistantutils.h"
@@ -11,7 +10,10 @@
 #include "aimodelsmodel.h"
 #include "airesponse.h"
 #include "mcpconfigloader.h"
-#include "mcphost.h"
+#include "mcp/agenticrequestmanager.h"
+#include "mcp/conversationmanager.h"
+#include "mcp/mcphost.h"
+#include "mcp/toolregistry.h"
 
 #include <asset.h>
 #include <designersettings.h>
@@ -31,6 +33,8 @@
 namespace QmlDesigner {
 
 namespace {
+
+bool showAgenticDebug = false;
 
 QString propertyEditorResourcesPath()
 {
@@ -69,10 +73,15 @@ bool AiAssistantWidget::eventFilter(QObject *obj, QEvent *event)
 }
 
 AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
-    : m_apiManager(Utils::makeUniqueObjectPtr<AiApiManager>())
-    , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
+    : m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
     , m_modelsModel(Utils::makeUniqueObjectPtr<AiModelsModel>())
     , m_mcpHost(Utils::makeUniqueObjectPtr<McpHost>())
+    , m_toolRegistry(Utils::makeUniqueObjectPtr<ToolRegistry>())
+    , m_conversation(std::make_unique<ConversationManager>())
+    , m_requestManager(Utils::makeUniqueObjectPtr<AgenticRequestManager>(
+        m_mcpHost.get(),
+        m_toolRegistry.get(),
+        m_conversation.get()))
     , m_view(view)
     , m_termsAccepted(
           Core::ICore::settings()->value(Constants::aiAssistantTermsAcceptedKey, false).toBool())
@@ -80,6 +89,8 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     setWindowTitle(tr("AI Assistant", "Title of AI Assistant widget"));
     setMinimumWidth(240);
     setMinimumHeight(200);
+
+    connectRequestManager();
 
     auto vLayout = new QVBoxLayout(this);
     vLayout->setContentsMargins(0, 0, 0, 0);
@@ -101,7 +112,6 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     setFocusProxy(m_quickWidget->quickWidget());
     QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_AIASSISTANT);
 
-    connectApiManager();
     reloadQmlSource();
     updateModelConfig();
 }
@@ -149,7 +159,8 @@ void AiAssistantWidget::setProjectPath(const QString &projectPath)
     if (m_projectPath == projectPath)
         return;
     m_projectPath = projectPath;
-    restartMcpHost();
+
+    initializeMcp();
 }
 
 QSize AiAssistantWidget::sizeHint() const
@@ -205,14 +216,18 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
         return; // TODO: Notify error
     }
 
-    m_apiManager->request(
-        {
-            .manifest = m_manifest.toString(),
-            .qml = AiAssistantUtils::currentQmlText(),
-            .userPrompt = prompt,
-            .attachedImage = fullImageUrl(attachedImageSource()),
-        },
-        modelInfo);
+    RequestData reqData {
+        .manifest = m_manifest.toString(),
+        .userPrompt = prompt,
+        .currentQml = AiAssistantUtils::currentQmlText(),
+        .currentFilePath = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName()
+                               .relativePathFromDir(DocumentManager::currentResourcePath())
+                               .toFSPathString(), // Current file's path relative to resouces dir
+        .projectStructure = m_projectStructure,
+        .attachedImageUrl = fullImageUrl(attachedImageSource()),
+    };
+
+    m_requestManager->request(reqData, modelInfo);
 }
 
 QString AiAssistantWidget::getPreviousCommand()
@@ -283,50 +298,133 @@ void AiAssistantWidget::openTermsDialog()
     }
 }
 
-void AiAssistantWidget::connectApiManager()
+void AiAssistantWidget::initializeMcp()
 {
-    AiApiManager *apiManager = m_apiManager.get();
+    m_projectStructure.clear();
 
-    connect(
-        apiManager,
-        &AiApiManager::started,
-        this,
-        std::bind_front(&AiAssistantWidget::setIsGenerating, this, true));
-
-    connect(
-        apiManager,
-        &AiApiManager::finished,
-        this,
-        std::bind_front(&AiAssistantWidget::setIsGenerating, this, false));
-
-    connect(
-        apiManager,
-        &AiApiManager::responseError,
-        this,
-        [this](const auto &, const auto &, const QString &error) {
-            emit notifyAIResponseError(error);
-        });
-
-    connect(
-        apiManager,
-        &AiApiManager::responseReady,
-        this,
-        [this](const auto &, const auto &, const AiResponse &response) {
-            handleAiResponse(response);
-        });
-}
-
-void AiAssistantWidget::restartMcpHost()
-{
-    m_mcpHost->stopAll();
-
+    // Load server configs
     McpConfigLoader loader;
     loader.setResolveMap({{"${PROJECT_PATH}", m_projectPath}});
     bool success = loader.loadFile(":/AiAssistant/mcpconfig.json");
     QTC_ASSERT(success, return);
 
     m_mcpHost->addServers(loader.getConfigs());
-    m_mcpHost->startAll();
+
+    // Wire resource signals before starting so we don't miss the first fetch
+    connectMcpResourceSignals();
+
+    m_mcpHost->restart();
+
+    // Register tools
+    const QStringList serverConfigs = m_mcpHost->servers();
+    for (const QString &serverName : serverConfigs)
+        m_toolRegistry->registerServer(serverName, m_mcpHost->client(serverName));
+}
+
+void AiAssistantWidget::connectMcpResourceSignals()
+{
+    // Fetch the project structure as soon as the QML server is ready
+    connect(m_mcpHost.get(), &McpHost::serverStarted, this,
+            [this](const QString &serverName, const McpServerInfo &) {
+                if (serverName == QLatin1String(Constants::qmlServerName))
+                    fetchProjectStructure();
+            });
+
+    // Store the structure text when the read completes
+    connect(m_mcpHost.get(), &McpHost::resourceReadSucceeded, this,
+            [this](const QString &serverName, const QJsonObject &result, qint64) {
+                if (serverName != QLatin1String(Constants::qmlServerName))
+                    return;
+
+                // The MCP resource/read response wraps content in a "contents" array.
+                // Each entry has a "text" field for text/plain resources.
+                const QJsonArray contents = result.value("contents").toArray();
+                if (!contents.isEmpty())
+                    m_projectStructure = contents.first().toObject().value("text").toString();
+                else
+                    m_projectStructure = result.value("text").toString(); // fallback
+
+                if (showAgenticDebug) {
+                    qDebug() << "[Agentic] Log" << QString("[MCP] Project structure updated (%1 chars)")
+                                        .arg(m_projectStructure.size());
+                }
+            });
+
+    // Re-fetch structure after any tool call that changes the file structure
+    connect(m_mcpHost.get(), &McpHost::toolCallSucceeded, this,
+            [this](const QString &serverName, const QJsonObject &, qint64) {
+                Q_UNUSED(serverName)
+                // We check the last tool that was reported as started by the request manager
+                // via the toolCallStarted signal.
+                if (m_pendingStructureRefresh && serverName == Constants::qmlServerName)
+                    fetchProjectStructure();
+            });
+}
+
+void AiAssistantWidget::fetchProjectStructure()
+{
+    m_mcpHost->readResource(Constants::qmlServerName, Constants::structureResourceUri);
+}
+
+void AiAssistantWidget::connectRequestManager()
+{
+    AgenticRequestManager *reqManager = m_requestManager.get();
+
+    // Lifecycle signals
+    connect(reqManager, &AgenticRequestManager::started,
+            this, [this]() {
+                setIsGenerating(true);
+            });
+
+    connect(reqManager, &AgenticRequestManager::finished,
+            this, [this]() {
+                setIsGenerating(false);
+            });
+
+    // Error handling
+    connect(reqManager, &AgenticRequestManager::errorOccurred,
+            this, [this](const QString &error) {
+                emit notifyAIResponseError(error);
+            });
+
+    // Success - handle response
+    connect(reqManager, &AgenticRequestManager::responseReady,
+            this, [this](const AiResponse &response) {
+                handleAiResponse(response);
+            });
+
+    // Progress signals
+    connect(reqManager, &AgenticRequestManager::iterationStarted,
+            this, [](int iteration, int max) {
+                if (showAgenticDebug)
+                    qDebug() << "[Agentic] Iteration" << iteration << "of" << max;
+            });
+
+    // Track which tool is being called so we know whether to re-fetch structure on success
+    connect(reqManager, &AgenticRequestManager::toolCallStarted,
+            this, [this](const QString &server, const QString &tool) {
+                if (showAgenticDebug)
+                    qDebug() << "[Agentic] Calling tool:" << tool << "on" << server;
+
+                static const QSet<QString> structureMutatingTools = {
+                    "create_qml",
+                    "delete_qml",
+                    "move_qml",
+                };
+                m_pendingStructureRefresh = structureMutatingTools.contains(tool);
+            });
+
+    connect(reqManager, &AgenticRequestManager::toolCallFinished,
+            this, [](const QString &server, const QString &tool, bool success) {
+                if (showAgenticDebug)
+                    qDebug() << "[Agentic] Tool" << tool << (success ? "succeeded" : "failed");
+            });
+
+    connect(reqManager, &AgenticRequestManager::logMessage,
+            this, [](const QString &msg) {
+                if (showAgenticDebug)
+                    qDebug() << "[Agentic] Log" << msg;
+            });
 }
 
 void AiAssistantWidget::reloadQmlSource()

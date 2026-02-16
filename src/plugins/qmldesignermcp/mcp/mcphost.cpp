@@ -11,6 +11,8 @@ McpHost::McpHost(QObject *parent)
     : QObject(parent)
 {}
 
+McpHost::~McpHost() = default;
+
 void McpHost::addServer(const McpServerConfig &cfg)
 {
     if (cfg.name.isEmpty()) {
@@ -70,6 +72,12 @@ QSet<QString> McpHost::requiredConsent(const QString &serverName) const
     return m_toolsRequireConsent.value(serverName);
 }
 
+void McpHost::restart()
+{
+    stopAll();
+    startAll();
+}
+
 void McpHost::startAll()
 {
     const QStringList keys = m_serverConfigs.keys();
@@ -93,10 +101,11 @@ bool McpHost::startServer(const QString &serverName)
     }
 
     // Prevent duplicate starts
-    if (auto client = m_clients.value(serverName); !client.isNull()) {
+    if (auto client = m_clients.value(serverName); client) {
         if (client->isRunning())
             return true;
         m_clients.remove(serverName);
+        client->deleteLater();
     }
 
     const McpServerConfig &cfg = it.value();
@@ -104,7 +113,7 @@ bool McpHost::startServer(const QString &serverName)
 
     // Start a client and wire it to the server
     auto [clientName, clientVersion] = getClientInfo(serverName);
-    auto client = QSharedPointer<McpClient>::create(clientName, clientVersion);
+    auto client = new McpClient(clientName, clientVersion, this);
     m_clients.insert(serverName, client);
     wireClientSignals(serverName, client);
 
@@ -141,12 +150,13 @@ void McpHost::stopServer(const QString &serverName)
         return;
 
     it.value()->stop();
+    it.value()->deleteLater();
     m_clients.erase(it);
 }
 
 qint64 McpHost::listTools(const QString &serverName)
 {
-    QSharedPointer<McpClient> client = this->client(serverName);
+    McpClient *client = this->client(serverName);
     if (!client) {
         emit errorOccurred(
             serverName, QStringLiteral("listTools: no client for '%1'").arg(serverName));
@@ -171,7 +181,7 @@ qint64 McpHost::callTool(
         return -1;
     }
 
-    QSharedPointer<McpClient> client = this->client(serverName);
+    McpClient *client = this->client(serverName);
     if (!client) {
         emit errorOccurred(serverName, QStringLiteral("callTool: no client for '%1'").arg(serverName));
         return -1;
@@ -181,7 +191,7 @@ qint64 McpHost::callTool(
 
 qint64 McpHost::listResources(const QString &serverName)
 {
-    QSharedPointer<McpClient> client = this->client(serverName);
+    McpClient *client = this->client(serverName);
     if (!client) {
         emit errorOccurred(
             serverName, QStringLiteral("listResources: no client for '%1'").arg(serverName));
@@ -192,7 +202,7 @@ qint64 McpHost::listResources(const QString &serverName)
 
 qint64 McpHost::readResource(const QString &serverName, const QString &uri)
 {
-    QSharedPointer<McpClient> client = this->client(serverName);
+    McpClient *client = this->client(serverName);
     if (!client) {
         emit errorOccurred(
             serverName, QStringLiteral("readResource: no client for '%1'").arg(serverName));
@@ -207,7 +217,7 @@ qint64 McpHost::sendRequest(
     const QJsonObject &params,
     McpClient::ResponseHandler callback)
 {
-    QSharedPointer<McpClient> client = this->client(serverName);
+    McpClient *client = this->client(serverName);
     if (!client) {
         emit errorOccurred(
             serverName, QStringLiteral("sendRequest: no client for '%1'").arg(serverName));
@@ -216,7 +226,7 @@ qint64 McpHost::sendRequest(
     return client->sendRequest(method, params, std::move(callback));
 }
 
-QSharedPointer<McpClient> McpHost::client(const QString &serverName) const
+McpClient *McpHost::client(const QString &serverName) const
 {
     auto it = m_clients.find(serverName);
     if (it == m_clients.end())
@@ -224,9 +234,8 @@ QSharedPointer<McpClient> McpHost::client(const QString &serverName) const
     return it.value();
 }
 
-void McpHost::wireClientSignals(const QString &name, const QSharedPointer<McpClient> &c)
+void McpHost::wireClientSignals(const QString &name, McpClient *client)
 {
-    McpClient *client = c.get();
     connect(client, &McpClient::connected, this, [this, name](const McpServerInfo &info) {
         emit serverStarted(name, info);
     });
@@ -299,7 +308,7 @@ void McpHost::scheduleRestart(const QString &name)
         m_restartTimers.insert(name, t);
         connect(t, &QTimer::timeout, this, [this, name] {
             // Ensure client isn't already running
-            if (auto client = this->client(name); !client.isNull() && client->isRunning())
+            if (auto client = this->client(name); client && client->isRunning())
                 return;
             startServer(name);
         });

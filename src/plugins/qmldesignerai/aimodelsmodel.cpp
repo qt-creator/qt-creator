@@ -32,7 +32,7 @@ QVariant AiModelsModel::data(const QModelIndex &index, int role) const
     case Roles::SourceIndex:
         return row;
     case Roles::Provider:
-        return info.providerName;
+        return info.provider;
     case Roles::ModelId:
     default:
         return info.modelId;
@@ -55,7 +55,7 @@ void AiModelsModel::update()
     QString selectedProvider;
     QString selectedModelId;
     if (oldSelectedInfo.isValid()) {
-        selectedProvider = oldSelectedInfo.providerName;
+        selectedProvider = oldSelectedInfo.provider;
         selectedModelId = oldSelectedInfo.modelId;
     } else {
         auto settings = Core::ICore::settings();
@@ -103,7 +103,7 @@ void AiModelsModel::setSelectedIndex(int idx)
 
     auto settings = Core::ICore::settings();
     settings->beginGroup(Constants::aiAssistantSelectedModelKey);
-    settings->setValue("providerName", selectedInfo.providerName);
+    settings->setValue("providerName", selectedInfo.provider);
     settings->setValue("modelId", selectedInfo.modelId);
     settings->endGroup();
 }
@@ -120,7 +120,7 @@ int AiModelsModel::findIndex(const QString &providerName, const QString &modelId
     int idx = -1;
     for (const AiModelInfo &modelInfo : std::as_const(m_data)) {
         ++idx;
-        if (modelInfo.providerName == providerName && modelInfo.modelId == modelId)
+        if (modelInfo.provider == providerName && modelInfo.modelId == modelId)
             return idx;
     }
     return -1;

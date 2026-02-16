@@ -9,7 +9,7 @@ namespace QmlDesigner {
 
 struct AiModelInfo
 {
-    QString providerName;
+    QString provider;
     QUrl url;
     QString apiKey;
     QString modelId;

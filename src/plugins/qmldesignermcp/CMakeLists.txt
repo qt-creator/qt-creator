@@ -34,12 +34,9 @@ extend_qtc_plugin(QmlDesignerMcp
   PUBLIC_INCLUDES api
   SOURCES_PREFIX api
   SOURCES
-    abstractaiapi.h
-    aiapimanager.cpp aiapimanager.h
     aiapiutils.cpp aiapiutils.h
-    claudemessagesapi.cpp claudemessagesapi.h
-    openaicompletionsapi.cpp openaicompletionsapi.h
-    openairesponsesapi.cpp openairesponsesapi.h
+    aiapiadapter.h
+    claudeapiadapter.cpp claudeapiadapter.h
 )
 
 extend_qtc_plugin(QmlDesignerMcp
@@ -49,6 +46,9 @@ extend_qtc_plugin(QmlDesignerMcp
     mcpclient.cpp mcpclient.h
     mcpconfigloader.cpp mcpconfigloader.h
     mcphost.cpp mcphost.h
+    agenticrequestmanager.cpp agenticrequestmanager.h
+    conversationmanager.cpp conversationmanager.h
+    toolregistry.cpp toolregistry.h
 )
 
 qtc_copy_to_builddir(copy_mcpserver_py_file_to_builddir

@@ -12,15 +12,19 @@
 #include <QFrame>
 #include <QPointer>
 
+#include <memory>
+
 class StudioQuickWidget;
 
 namespace QmlDesigner {
 
+class AgenticRequestManager;
 class AiAssistantView;
 class AiModelsModel;
 class AiResponse;
-class AiApiManager;
+class ConversationManager;
 class McpHost;
+class ToolRegistry;
 
 class AiAssistantWidget : public QFrame
 {
@@ -78,26 +82,33 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private: // functions
-    void connectApiManager();
-    void restartMcpHost();
     void reloadQmlSource();
     void setIsGenerating(bool val);
     void setHasValidModel(bool val);
     void handleAiResponse(const AiResponse &response);
+    void initializeMcp();
+    void connectRequestManager();
+    void connectMcpResourceSignals();
+    void fetchProjectStructure();
 
 private: // variables
-    Utils::UniqueObjectPtr<AiApiManager> m_apiManager;
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
     Utils::UniqueObjectPtr<AiModelsModel> m_modelsModel;
+
     Utils::UniqueObjectPtr<McpHost> m_mcpHost;
+    Utils::UniqueObjectPtr<ToolRegistry> m_toolRegistry;
+    std::unique_ptr<ConversationManager> m_conversation;
+    Utils::UniqueObjectPtr<AgenticRequestManager> m_requestManager;
 
     QPointer<AiAssistantView> m_view;
     QStringList m_inputHistory;
     AiTransaction m_lastTransaction;
     QString m_attachedImageSource;
     QString m_projectPath;
+    QString m_projectStructure;
     Manifest m_manifest;
     int m_historyIndex = -1;
+    bool m_pendingStructureRefresh = false;
     bool m_termsAccepted = false;
     bool m_isGenerating = false;
     bool m_hasValidModel = false;

@@ -48,6 +48,7 @@ class McpHost : public QObject
     Q_OBJECT
 public:
     explicit McpHost(QObject *parent = nullptr);
+    ~McpHost();
 
     // --- Configuration ---
     bool hasServer(const QString &serverName) const;
@@ -67,8 +68,7 @@ public:
     QSet<QString> requiredConsent(const QString &serverName) const;
 
     // --- Lifecycle ---
-    void startAll();
-    void stopAll();
+    void restart();
 
     bool startServer(const QString &serverName);
     void stopServer(const QString &serverName);
@@ -87,7 +87,7 @@ public:
         const QJsonObject &params = QJsonObject(),
         McpClient::ResponseHandler callback = nullptr);
 
-    QSharedPointer<McpClient> client(const QString &serverName) const;
+    McpClient *client(const QString &serverName) const;
 
 signals:
     // Lifecycle / status
@@ -127,9 +127,11 @@ signals:
 
 private:
     void addServer(const McpServerConfig &cfg);
-    void wireClientSignals(const QString &name, const QSharedPointer<McpClient> &client);
+    void wireClientSignals(const QString &name, McpClient *client);
     void scheduleRestart(const QString &name);
     void cancelRestart(const QString &name);
+    void startAll();
+    void stopAll();
     QPair<QString, QString> getClientInfo(const QString &serverName) const;
 
     // Policy checks
@@ -138,7 +140,7 @@ private:
         const QString &serverName, const QString &toolName, const QJsonObject &args) const;
 
     QMap<QString, McpServerConfig> m_serverConfigs;     // key: server name
-    QMap<QString, QSharedPointer<McpClient>> m_clients; // key: server name
+    QMap<QString, McpClient *> m_clients;               // key: server name
     QMap<QString, QTimer *> m_restartTimers;            // key: server name
     QMap<QString, QSet<QString>> m_allowedTools;        // key: server name
     QMap<QString, QSet<QString>> m_toolsRequireConsent; // key: server name

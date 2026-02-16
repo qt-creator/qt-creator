@@ -14,5 +14,6 @@ inline constexpr QByteArrayView aiAssistantSelectedModelKey = "AiAssistant/Selec
 
 inline constexpr char aiAssistantSettingsPageCategory[] = "ZW.AiAssistant";
 inline constexpr char aiAssistantSettingsPageId[] = "AiAssistant.A.ProviderSettings";
-
+inline constexpr char structureResourceUri[] = "qmlproject://structure";
+inline constexpr char qmlServerName[] = "qml_server"; // qml MCP server name
 } // namespace QmlDesigner::Constants

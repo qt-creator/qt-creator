@@ -51,7 +51,7 @@ QList<AiModelInfo> AiProviderConfig::allValidModels() const
     infos.reserve(models.size());
 
     AiModelInfo info{
-        .providerName = providerName(),
+        .provider = providerName(),
         .url = url(),
         .apiKey = apiKey(),
     };
@@ -84,7 +84,7 @@ void AiProviderConfig::save(bool checked, const QString &url, const QString &api
 
 bool AiModelInfo::isValid() const
 {
-    return !providerName.isEmpty() && !url.isEmpty() && !apiKey.isEmpty() && !modelId.isEmpty();
+    return !provider.isEmpty() && !url.isEmpty() && !apiKey.isEmpty() && !modelId.isEmpty();
 }
 
 }; // namespace QmlDesigner
