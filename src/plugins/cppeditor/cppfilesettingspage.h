@@ -22,14 +22,13 @@ public:
     void pop();
 };
 
-class SuffixSelectionAspect final : public Utils::SelectionAspect
+class SuffixSelectionAspect final : public Utils::StringSelectionAspect
 {
 public:
     explicit SuffixSelectionAspect(Utils::AspectContainer *container);
 
-    QString operator ()() const;
-
     void setMimeType(const QString &mimeType);
+    void fixupComboBox(QComboBox *comboBox) final;
 };
 
 class CppFileSettings : public Utils::AspectContainer

@@ -31,6 +31,7 @@
 #include <QGuiApplication>
 #include <QLineEdit>
 #include <QLocale>
+#include <QStandardItem>
 #include <QTextStream>
 #include <QVBoxLayout>
 
@@ -104,25 +105,31 @@ void CommaSeparatedStringsAspect::pop()
 }
 
 SuffixSelectionAspect::SuffixSelectionAspect(AspectContainer *container)
-    : SelectionAspect(container)
+    : StringSelectionAspect(container)
 {
-    setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    setUseDataAsSavedValue();
+    setComboBoxEditable(false);
 }
 
-QString SuffixSelectionAspect::operator()() const
+void SuffixSelectionAspect::fixupComboBox(QComboBox *comboBox)
 {
-    return stringValue();
+    comboBox->setMinimumContentsLength(8); // Characters. We have plenty of room.
 }
 
 void SuffixSelectionAspect::setMimeType(const QString &mimeType)
 {
-    const MimeType sourceMt = Utils::mimeTypeForName(mimeType);
-    if (sourceMt.isValid()) {
-        const QStringList suffixes = sourceMt.suffixes();
-        for (const QString &suffix : suffixes)
-           addOption({suffix, {}, suffix});
-    }
+    setFillCallback([mimeType](const StringSelectionAspect::ResultCallback &cb) {
+        QList<QStandardItem *> items;
+        const MimeType sourceMt = Utils::mimeTypeForName(mimeType);
+        if (sourceMt.isValid()) {
+            const QStringList suffixes = sourceMt.suffixes();
+            for (const QString &suffix : suffixes) {
+                QStandardItem *newItem = new QStandardItem(suffix);
+                newItem->setData(suffix);
+                items.append(newItem);
+            }
+        }
+        cb(items);
+    });
 }
 
 CppFileSettings::CppFileSettings()

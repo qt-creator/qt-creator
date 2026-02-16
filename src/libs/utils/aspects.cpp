@@ -4069,6 +4069,8 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
     comboBox->setModel(m_model);
     setWheelScrollingWithoutFocusBlocked(comboBox);
 
+    fixupComboBox(comboBox);
+
     connect(m_selectionModel,
             &QItemSelectionModel::currentChanged,
             comboBox,

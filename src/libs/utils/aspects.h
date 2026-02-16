@@ -1248,6 +1248,7 @@ private:
     std::unique_ptr<Internal::AspectListPrivate> d;
 };
 
+// FIXME: Merge into SelectionAspect
 class QTCREATOR_UTILS_EXPORT StringSelectionAspect : public Utils::TypedAspect<QString>
 {
     Q_OBJECT
@@ -1255,6 +1256,7 @@ public:
     StringSelectionAspect(Utils::AspectContainer *container = nullptr);
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
+    virtual void fixupComboBox(QComboBox */*comboBox*/) {}
 
     using ResultCallback = std::function<void(QList<QStandardItem *> items)>;
     using FillCallback = std::function<void(ResultCallback)>;
