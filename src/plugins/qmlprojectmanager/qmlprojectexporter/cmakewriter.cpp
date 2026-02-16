@@ -113,7 +113,6 @@ CMakeWriter::Version CMakeWriter::versionFromString(const QString &versionString
 
 CMakeWriter::Version CMakeWriter::versionFromIgnoreFile(const Utils::FilePath &path)
 {
-    QString versionString;
     QFile ignoreFile(path.toFSPathString());
     if (ignoreFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream stream(&ignoreFile);
