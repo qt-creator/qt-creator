@@ -4248,7 +4248,7 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
         if (carrier)
             carrier->deleteLater();
         QAbstractTextDocumentLayout *layout = q->document()->documentLayout();
-        QTimer::singleShot(0, layout, [layout] { layout->update(); });
+        QTimer::singleShot(0, layout, [layout] { emit layout->update(); });
     });
 
     m_numEmbeddedWidgets++;

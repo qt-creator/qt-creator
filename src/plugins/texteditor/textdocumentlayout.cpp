@@ -705,7 +705,7 @@ void TextBlockUserData::doFoldOrUnfold(const QTextBlock &block, bool unfold, boo
         if (b.isVisible() != unfold) {
             b.setVisible(unfold);
             if (documentLayout)
-                documentLayout->blockSizeChanged(b);
+                emit documentLayout->blockSizeChanged(b);
         }
         b.setLineCount(unfold? qMax(1, b.layout()->lineCount()) : 0);
         if (recursive) {
