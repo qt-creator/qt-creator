@@ -5795,27 +5795,6 @@ bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
         }
         rewind(start);
 
-        // look for compound literals
-        if (LA() == T_LPAREN) {
-            int lparen_token = consumeToken();
-            ExpressionAST *type_id = nullptr;
-            if (parseTypeId(type_id) && LA() == T_RPAREN) {
-                int rparen_token = consumeToken();
-                if (LA() == T_LBRACE) {
-                    blockErrors(blocked);
-
-                    CompoundLiteralAST *ast = new (_pool) CompoundLiteralAST;
-                    ast->lparen_token = lparen_token;
-                    ast->type_id = type_id;
-                    ast->rparen_token = rparen_token;
-                    parseInitializerClause(ast->initializer);
-                    node = ast;
-                    return true;
-                }
-            }
-            rewind(start);
-        }
-
         blockErrors(blocked);
         return parsePrimaryExpression(node);
     } // default
@@ -6187,6 +6166,18 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
             }
 
             int rparen_token = consumeToken();
+
+            // look for compound literals
+            if (LA() == T_LBRACE) {
+                CompoundLiteralAST *ast = new (_pool) CompoundLiteralAST;
+                ast->lparen_token = lparen_token;
+                ast->type_id = type_id;
+                ast->rparen_token = rparen_token;
+                parseInitializerClause(ast->initializer);
+                node = ast;
+                return true;
+            }
+
             ExpressionAST *expression = nullptr;
             if (parseCastExpression(expression)) {
                 CastExpressionAST *ast = new (_pool) CastExpressionAST;
