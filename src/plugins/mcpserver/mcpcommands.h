@@ -97,6 +97,7 @@ public:
     QStringList listOpenFiles();
     Utils::Result<QStringList> projectDependencies(const QString &projectName);
     // TODO: add a new File to the project
+    QMap<QString, QSet<QString> > knownRepositoriesInProject(const QString &projectName);
     // TODO: get repositories in project
 
     // Session management commands

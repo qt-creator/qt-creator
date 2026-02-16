@@ -12,6 +12,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/session.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <debugger/debuggerruncontrol.h>
 
@@ -1081,6 +1082,28 @@ Utils::Result<QStringList> McpCommands::projectDependencies(const QString &proje
     }
 
     return Utils::ResultError("No project found with name: " + projectName);
+}
+
+QMap<QString, QSet<QString>> McpCommands::knownRepositoriesInProject(const QString &projectName)
+{
+    const FilePaths projectDirectories
+        = Utils::transform(projectsForName(projectName), &Project::projectDirectory);
+    if (projectDirectories.isEmpty())
+        return {};
+    QMap<QString, QSet<QString>> repos;
+    const QList<Core::IVersionControl *> versionControls = Core::VcsManager::versionControls();
+    for (const Core::IVersionControl *vcs : versionControls) {
+        const FilePaths repositories = Utils::filteredUnique(Core::VcsManager::repositories(vcs));
+        for (const FilePath &repo : repositories) {
+            if (Utils::anyOf(projectDirectories, [repo](const FilePath &projectDir) {
+                    return repo == projectDir || repo.isChildOf(projectDir);
+                })) {
+                repos[vcs->displayName()].insert(repo.toUserOutput());
+            }
+        }
+    }
+
+    return repos;
 }
 
 // handleSessionLoadRequest method removed - using direct session loading instead

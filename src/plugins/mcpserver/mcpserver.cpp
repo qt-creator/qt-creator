@@ -6,8 +6,9 @@
 #include "utils/qtcassert.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <debugger/debuggerconstants.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <utils/algorithm.h>
 #include <utils/threadutils.h>
 
 #include <QCoreApplication>
@@ -671,6 +672,49 @@ McpServer::McpServer(QObject *parent)
             for (const QString &pr : projects.value_or(QStringList{})) // TODO: proper error handling
                 arr.append(pr);
             callback(QJsonObject{{"dependencies", arr}});
+        });
+
+    addTool(
+        {{"name", "known_repositories_in_project"},
+         {"title", "Get known version control repositories in a project"},
+         {"description", "List all known version control repositories (e.g., Git, Subversion) that are within the specified project's directories"},
+         {"inputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"name",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Name of the project to query repositories for"}}}}},
+              {"required", QJsonArray{"name"}}}},
+         {"outputSchema",
+          QJsonObject{
+              {"type", "object"},
+              {"properties",
+               QJsonObject{
+                   {"repositories",
+                    QJsonObject{
+                        {"type", "object"},
+                        {"description", "Map of version control system names to lists of repository paths"},
+                        {"additionalProperties",
+                         QJsonObject{
+                             {"type", "array"},
+                             {"items", QJsonObject{{"type", "string"}}}}}}}}},
+              {"required", QJsonArray{"repositories"}}}},
+         {"annotations", QJsonObject{{"readOnlyHint", true}}}},
+        [this](const QJsonObject &p, const Callback &callback) {
+            const QString projectName = p.value("name").toString();
+            const QMap<QString, QSet<QString>> repos = runOnGuiThread(
+                [this, projectName] { return m_commands.knownRepositoriesInProject(projectName); });
+
+            // Convert QMap<QString, QStringList> to QJsonObject
+            QJsonObject reposJson;
+            for (auto it = repos.constBegin(); it != repos.constEnd(); ++it) {
+                reposJson[it.key()] = QJsonArray::fromStringList(Utils::toList(it.value()));
+            }
+
+            callback(QJsonObject{{"repositories", reposJson}});
         });
 
     addTool(
