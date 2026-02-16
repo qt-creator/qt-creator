@@ -543,4 +543,9 @@ void EnvironmentWidget::invalidateCurrentIndex()
     environmentCurrentIndexChanged(QModelIndex());
 }
 
+void EnvironmentWidget::setupDirtyHooks() const
+{
+    d->m_editor.setupDirtyHooks();
+}
+
 } // namespace ProjectExplorer

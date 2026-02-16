@@ -4,6 +4,7 @@
 #include "namevaluesdialog.h"
 
 #include "algorithm.h"
+#include "guiutils.h"
 #include "hostosinfo.h"
 #include "utilstr.h"
 
@@ -216,6 +217,11 @@ std::optional<EnvironmentItems> NameValuesDialog::getNameValueItems(QWidget *par
         return dialog.nameValueItems();
 
     return {};
+}
+
+void NameValueItemsWidget::setupDirtyHooks()
+{
+    QObject::connect(m_editor, &QPlainTextEdit::textChanged, []() { markSettingsDirty(); });
 }
 
 } // namespace Utils

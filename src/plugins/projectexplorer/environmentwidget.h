@@ -39,6 +39,7 @@ public:
     void expand();
 
     void forceUpdateCheck() const;
+    void setupDirtyHooks() const;
 
 signals:
     void userChangesChanged();
