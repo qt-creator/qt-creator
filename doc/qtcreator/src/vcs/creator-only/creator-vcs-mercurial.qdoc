@@ -23,7 +23,7 @@
 
     In addition to the standard version control system functions described in
     \l {Use common VCS Functions}, you can select the following functions in the
-    \uicontrol Tools > \uicontrol Mercurial submenu:
+    \uicontrol Tools > \uicontrol Mercurial submenu.
 
     \table
         \header
@@ -48,23 +48,35 @@
             \li Push changes to the remote repository.
      \endtable
 
-    \section1 Mercurial Preferences
+    \section1 Mercurial preferences
 
     To set preferences for Mercurial, select \preferences >
-    \uicontrol {Version Control} > \uicontrol Mercurial:
+    \uicontrol {Version Control} > \uicontrol Mercurial.
 
     \image {qtcreator-preferences-vcs-mercurial.webp} {Mercurial tab in Version Control preferences}
 
-    \list
-        \li \uicontrol Command specifies the path to the command-line client
-            executable.
-        \li \uicontrol {Default username} and \uicontrol {Default email}
-            specify the username and email address to use by default when
-            committing changes.
-        \li \uicontrol {Log count} sets the maximum number of lines the log can
-            have.
-        \li \uicontrol Timeout sets a timeout for version control operations.
-    \endlist
+    \table
+        \header
+            \li Preference
+            \li Description
+        \row
+            \li \uicontrol {Command}
+            \li Specifies the path to the command-line client executable.
+        \row
+            \li \uicontrol {Default username}
+            \li Specifies the username to use by default when committing
+                changes.
+        \row
+            \li \uicontrol {Default email}
+            \li Specifies the email address to use by default when committing
+                changes.
+        \row
+            \li \uicontrol {Log count}
+            \li Sets the maximum number of lines the log can have.
+        \row
+            \li \uicontrol {Timeout}
+            \li Sets a timeout for version control operations.
+    \endtable
 
     \sa {Enable and disable plugins}, {Set up version control systems},
     {Use common VCS functions}, {Version Control Systems}
