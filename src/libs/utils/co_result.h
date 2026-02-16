@@ -87,7 +87,14 @@ struct result_awaiter
 {
     Utils::Result<R> value;
     bool await_ready() { return value.has_value(); }
-    void await_suspend(auto &&h) { h.promise().value->emplace(Utils::ResultError{value.error()}); }
+#if __GNUC__ >= 15 // This seems to be a bug in GCC 15 (https://godbolt.org/z/6aE78qbjf)
+    void await_suspend(auto h)
+#else
+    void await_suspend(auto &&h)
+#endif
+    {
+        h.promise().value->emplace(Utils::ResultError{value.error()});
+    }
 
     template<typename R_ = R>
     requires(!std::is_void_v<R>) R await_resume()
