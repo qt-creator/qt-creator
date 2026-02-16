@@ -4,6 +4,8 @@
 #include "breakpoint.h"
 
 #include "debuggerprotocol.h"
+#include "debuggerengine.h"
+
 
 #include <projectexplorer/abi.h>
 
@@ -15,6 +17,8 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QDir>
+
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -112,7 +116,7 @@ bool BreakpointParameters::conditionsMatch(const QString &other) const
     return s1 == s2;
 }
 
-void BreakpointParameters::updateLocation(const Utils::FilePath &buildPath, const QString &location)
+void BreakpointParameters::updateLocation(const DebuggerRunParameters &rp, const QString &location)
 {
     if (!location.isEmpty()) {
         int pos = location.indexOf(':');
@@ -120,12 +124,7 @@ void BreakpointParameters::updateLocation(const Utils::FilePath &buildPath, cons
         QString file = location.left(pos);
         if (file.startsWith('"') && file.endsWith('"'))
             file = file.mid(1, file.size() - 2);
-
-        const Utils::FilePath path = buildPath.withNewPath(
-            Utils::FilePath::fromUserInput(file).path());
-
-        if (path.isReadableFile())
-            fileName = path.localSource().value_or(path);
+        fileName  = rp.mapToProjectPath(file);
     }
 }
 
@@ -270,7 +269,7 @@ static QString cleanupFullName(const QString &fileName)
     return cleanFilePath;
 }
 
-void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Utils::FilePath &buildPath)
+void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const DebuggerRunParameters &rp)
 {
     QTC_ASSERT(bkpt.isValid(), return);
 
@@ -364,7 +363,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Utils::F
     QString name;
     if (!fullName.isEmpty()) {
         name = cleanupFullName(fullName);
-        fileName = buildPath.withNewPath(name);
+        fileName = rp.mapToProjectPath(name);
         //if (data->markerFileName().isEmpty())
         //    data->setMarkerFileName(name);
     } else {
@@ -373,15 +372,13 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Utils::F
         // gdb's own. No point in assigning markerFileName for now.
     }
     if (!name.isEmpty())
-        fileName = buildPath.withNewPath(name);
+        fileName = rp.mapToProjectPath(name);
 
     if (fileName.isEmpty())
-        updateLocation(buildPath, reportedLocation);
+        updateLocation(rp, reportedLocation);
 
     if (fileName.isEmpty())
-        updateLocation(buildPath, originalLocation);
-
-    fileName = fileName.localSource().value_or(fileName);
+        updateLocation(rp, originalLocation);
 }
 
 } // namespace Internal

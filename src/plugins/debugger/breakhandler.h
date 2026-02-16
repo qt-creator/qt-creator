@@ -111,7 +111,7 @@ public:
         const Utils::FilePath &buildPath,
         DebuggerCommand *cmd,
         BreakpointPathUsage defaultPathUsage = BreakpointPathUsage::BreakpointUseFullPath) const;
-    void updateFromGdbOutput(const GdbMi &bkpt, const Utils::FilePath &fileRoot);
+    void updateFromGdbOutput(const GdbMi &bkpt, const DebuggerRunParameters &rp);
 
     int modelId() const;
     QString responseId() const { return m_responseId; }

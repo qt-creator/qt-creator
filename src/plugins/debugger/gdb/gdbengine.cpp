@@ -585,13 +585,13 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
                 // A sub-breakpoint.
                 QTC_ASSERT(bp, continue);
                 SubBreakpoint loc = bp->findOrCreateSubBreakpoint(nr);
-                loc->params.updateFromGdbOutput(bkpt, buildPath);
+                loc->params.updateFromGdbOutput(bkpt, runParameters());
                 loc->params.type = bp->type();
             } else {
                 // A primary breakpoint.
                 bp = handler->findBreakpointByResponseId(nr);
                 if (bp)
-                    bp->updateFromGdbOutput(bkpt, buildPath);
+                    bp->updateFromGdbOutput(bkpt, runParameters());
             }
         }
         if (bp)
@@ -607,7 +607,7 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
             const QString nr = bkpt["number"].data();
             BreakpointParameters br;
             br.type = BreakpointByFileAndLine;
-            br.updateFromGdbOutput(bkpt, runParameters().buildDirectory());
+            br.updateFromGdbOutput(bkpt, runParameters());
             handler->handleAlienBreakpoint(nr, br);
         }
     } else if (asyncClass == u"breakpoint-deleted") {
@@ -1227,7 +1227,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             lineNumber = lineNumberG.toInt();
             fileName = cleanupFullName(frame["fullname"].data());
             if (fileName.isEmpty())
-                fileName = runParameters().projectSourceDirectory().withNewPath(frame["file"].data());
+                fileName = runParameters().mapToProjectPath(frame["file"].data());
         } // found line number
     } else {
         showMessage("INVALID STOPPED REASON", LogWarning);
@@ -2112,7 +2112,7 @@ void GdbEngine::handleInsertInterpreterBreakpoint(const DebuggerResponse &respon
         notifyBreakpointInsertOk(bp);
     } else {
         bp->setResponseId(response.data["number"].data());
-        bp->updateFromGdbOutput(response.data, runParameters().buildDirectory());
+        bp->updateFromGdbOutput(response.data, runParameters());
         notifyBreakpointInsertOk(bp);
     }
 }
@@ -2122,7 +2122,7 @@ void GdbEngine::handleInterpreterBreakpointModified(const GdbMi &data)
     int modelId = data["modelid"].toInt();
     Breakpoint bp = breakHandler()->findBreakpointByModelId(modelId);
     QTC_ASSERT(bp, return);
-    bp->updateFromGdbOutput(data, runParameters().buildDirectory());
+    bp->updateFromGdbOutput(data, runParameters());
 }
 
 void GdbEngine::handleWatchInsert(const DebuggerResponse &response, const Breakpoint &bp)
@@ -2172,7 +2172,7 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
         // A sub-breakpoint.
         SubBreakpoint sub = bp->findOrCreateSubBreakpoint(nr);
         QTC_ASSERT(sub, return);
-        sub->params.updateFromGdbOutput(bkpt, runParameters().buildDirectory());
+        sub->params.updateFromGdbOutput(bkpt, runParameters());
         sub->params.type = bp->type();
         if (usePseudoTracepoints && bp->isTracepoint()) {
             sub->params.tracepoint = true;
@@ -2190,7 +2190,7 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
             const QString subnr = location["number"].data();
             SubBreakpoint sub = bp->findOrCreateSubBreakpoint(subnr);
             QTC_ASSERT(sub, return);
-            sub->params.updateFromGdbOutput(location, runParameters().buildDirectory());
+            sub->params.updateFromGdbOutput(location, runParameters());
             sub->params.type = bp->type();
             if (usePseudoTracepoints && bp->isTracepoint()) {
                 sub->params.tracepoint = true;
@@ -2201,7 +2201,7 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
 
     // A (the?) primary breakpoint.
     bp->setResponseId(nr);
-    bp->updateFromGdbOutput(bkpt, runParameters().buildDirectory());
+    bp->updateFromGdbOutput(bkpt, runParameters());
     if (usePseudoTracepoints && bp->isTracepoint())
         bp->setMessage(bp->requestedParameters().message);
 }
@@ -2484,7 +2484,7 @@ void GdbEngine::handleTracepointModified(const GdbMi &data)
             // A sub-breakpoint.
             QTC_ASSERT(bp, continue);
             SubBreakpoint loc = bp->findOrCreateSubBreakpoint(nr);
-            loc->params.updateFromGdbOutput(bkpt, runParameters().buildDirectory());
+            loc->params.updateFromGdbOutput(bkpt, runParameters());
             loc->params.type = bp->type();
             if (bp->isTracepoint()) {
                 loc->params.tracepoint = true;
@@ -2494,7 +2494,7 @@ void GdbEngine::handleTracepointModified(const GdbMi &data)
             // A primary breakpoint.
             bp = handler->findBreakpointByResponseId(nr);
             if (bp)
-                bp->updateFromGdbOutput(bkpt, runParameters().buildDirectory());
+                bp->updateFromGdbOutput(bkpt, runParameters());
         }
     }
     QTC_ASSERT(bp, return);
