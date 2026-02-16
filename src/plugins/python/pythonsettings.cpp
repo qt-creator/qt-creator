@@ -955,6 +955,19 @@ void PythonSettings::createVirtualEnvironmentInteractive(
     createVirtualEnvironment(interpreter.command, venvDir, callback);
 }
 
+static QSet<FilePath> &venvsCurrentlySettingUp()
+{
+    static QSet<FilePath> venvs;
+    return venvs;
+}
+
+bool PythonSettings::isRunningVirtualEnvironmentSetup(const FilePath &python)
+{
+    return Utils::anyOf(venvsCurrentlySettingUp(), [python](const FilePath &venv) {
+        return python.isChildOf(venv);
+    });
+}
+
 void PythonSettings::createVirtualEnvironment(
     const FilePath &python,
     const FilePath &directory,
@@ -964,11 +977,13 @@ void PythonSettings::createVirtualEnvironment(
     QTC_ASSERT(!directory.exists() || directory.isDir(), return);
 
     const CommandLine command(python, QStringList{"-m", "venv", directory.toUserOutput()});
+    venvsCurrentlySettingUp().insert(directory);
 
     auto process = new Process;
     auto progress = new Core::ProcessProgress(process);
     progress->setDisplayName(Tr::tr("Create Python venv"));
     QObject::connect(process, &Process::done, [directory, process, callback](){
+        venvsCurrentlySettingUp().remove(directory);
         if (process->result() == ProcessResult::FinishedWithSuccess) {
             FilePath venvPython = directory.osType() == Utils::OsTypeWindows ? directory / "Scripts"
                                                                              : directory / "bin";

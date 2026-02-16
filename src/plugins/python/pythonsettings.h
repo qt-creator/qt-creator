@@ -50,6 +50,7 @@ public:
         const Utils::FilePath &interpreter,
         const Utils::FilePath &directory,
         const std::function<void(const Utils::FilePath &)> &callback = {});
+    static bool isRunningVirtualEnvironmentSetup(const Utils::FilePath &python);
     static QList<Interpreter> detectPythonVenvs(const Utils::FilePath &path);
     static void addKitsForInterpreter(const Interpreter &interpreter, bool force);
     static void removeKitsForInterpreter(const Interpreter &interpreter);
