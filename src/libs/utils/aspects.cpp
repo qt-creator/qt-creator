@@ -3449,6 +3449,22 @@ void AspectContainer::writeSettings() const
         aspect->writeSettings();
 }
 
+void AspectContainer::volatileValueToGui()
+{
+    for (BaseAspect *aspect : std::as_const(d->m_items))
+        aspect->volatileValueToGui();
+}
+
+bool AspectContainer::guiToVolatileValue()
+{
+    bool result = true;
+    for (BaseAspect *aspect : std::as_const(d->m_items)) {
+        if (!aspect->guiToVolatileValue())
+            result = false;
+    }
+    return result;
+}
+
 void AspectContainer::setSettingsGroup(const QString &groupKey)
 {
     d->m_settingsGroup = QStringList{groupKey};

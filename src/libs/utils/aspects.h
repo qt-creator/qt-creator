@@ -1056,6 +1056,9 @@ public:
     void readSettings() override;
     void writeSettings() const override;
 
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
+
     void setSettingsGroup(const QString &groupKey);
     void setSettingsGroups(const QString &groupKey, const QString &subGroupKey);
     QStringList settingsGroups() const;
