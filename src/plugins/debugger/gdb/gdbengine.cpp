@@ -1214,7 +1214,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     const QString nr = data["bkptno"].data();
     int lineNumber = 0;
-    FilePath fullName;
+    FilePath fileName;
     QString function;
     QString language;
     if (frame.isValid()) {
@@ -1225,15 +1225,13 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         language = frame["language"].data();
         if (lineNumberG.isValid()) {
             lineNumber = lineNumberG.toInt();
-            fullName = cleanupFullName(frame["fullname"].data());
-            if (fullName.isEmpty())
-                fullName = runParameters().projectSourceDirectory().withNewPath(frame["file"].data());
+            fileName = cleanupFullName(frame["fullname"].data());
+            if (fileName.isEmpty())
+                fileName = runParameters().projectSourceDirectory().withNewPath(frame["file"].data());
         } // found line number
     } else {
         showMessage("INVALID STOPPED REASON", LogWarning);
     }
-
-    const FilePath fileName = fullName.localSource().value_or(fullName);
 
     if (!nr.isEmpty() && frame.isValid()) {
         // Use opportunity to update the breakpoint marker position.
