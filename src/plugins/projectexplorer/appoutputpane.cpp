@@ -941,9 +941,9 @@ void AppOutputPane::prepareRunControlStart(RunControl *runControl)
     showTabFor(runControl);
     Id runMode = runControl->runMode();
     const auto popupMode = runMode == Constants::NORMAL_RUN_MODE
-            ? AppOutputPaneMode(settings().runOutputMode())
+            ? settings().runOutputMode.itemValue().value<AppOutputPaneMode>()
             : runMode == Constants::DEBUG_RUN_MODE
-                ? AppOutputPaneMode(settings().debugOutputMode())
+                ? settings().debugOutputMode.itemValue().value<AppOutputPaneMode>()
                 : AppOutputPaneMode::FlashOnOutput;
     setBehaviorOnOutput(runControl, popupMode);
 }
@@ -1270,23 +1270,28 @@ AppOutputSettings::AppOutputSettings()
     setAutoApply(false);
 
     runOutputMode.setSettingsKey("ProjectExplorer/Settings/ShowRunOutput");
-    runOutputMode.setDefaultValue(int(AppOutputPaneMode::PopupOnFirstOutput));
     runOutputMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     runOutputMode.setLabelText(Tr::tr("Open Application Output when running:"));
+    runOutputMode.setUseDataAsSavedValue();
 
     debugOutputMode.setSettingsKey("ProjectExplorer/Settings/ShowDebugOutput");
-    debugOutputMode.setDefaultValue(int(AppOutputPaneMode::FlashOnOutput));
     debugOutputMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     debugOutputMode.setLabelText(Tr::tr("Open Application Output when debugging:"));
+    debugOutputMode.setUseDataAsSavedValue();
 
     const QList<SelectionAspect::Option> options = {
         {Tr::tr("Always"), {}, int(AppOutputPaneMode::PopupOnOutput)},
         {Tr::tr("Never"), {}, int(AppOutputPaneMode::FlashOnOutput)},
         {Tr::tr("On First Output Only"), {}, int(AppOutputPaneMode::PopupOnFirstOutput)},
     };
-    for (const auto selection : {&runOutputMode, &debugOutputMode})
+    for (const auto &[selection, defaultValue] : {std::tuple(&runOutputMode,
+                                                             AppOutputPaneMode::PopupOnFirstOutput),
+                                                  std::tuple(&debugOutputMode,
+                                                             AppOutputPaneMode::FlashOnOutput)}) {
         for (const auto &option : options)
             selection->addOption(option);
+        selection->setDefaultValue(selection->indexForItemValue((int)defaultValue));
+    }
 
     cleanOldOutput.setSettingsKey("ProjectExplorer/Settings/CleanOldAppOutput");
     cleanOldOutput.setDefaultValue(false);
