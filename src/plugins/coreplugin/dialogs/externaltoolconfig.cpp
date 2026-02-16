@@ -469,6 +469,12 @@ ExternalToolConfig::ExternalToolConfig()
     m_toolTree->header()->setVisible(false);
     m_toolTree->header()->setDefaultSectionSize(21);
 
+    setIgnoreForDirtyHook(m_toolTree);
+    connect(&m_model, &QAbstractItemModel::dataChanged, this, markSettingsDirty);
+    connect(&m_model, &QAbstractItemModel::rowsMoved, this, markSettingsDirty);
+    connect(&m_model, &QAbstractItemModel::rowsInserted, this, markSettingsDirty);
+    connect(&m_model, &QAbstractItemModel::rowsRemoved, this, markSettingsDirty);
+
     auto addButton = new QPushButton(Tr::tr("Add"));
     addButton->setToolTip(Tr::tr("Add tool."));
 
@@ -719,6 +725,8 @@ void ExternalToolConfig::updateItem(const QModelIndex &index)
 
 void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
 {
+    DirtySettingsGuard suppressor;
+
     updateButtons(index);
     const ExternalTool *tool = ExternalToolModel::toolForIndex(index);
     if (!tool) {
@@ -731,8 +739,6 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
         m_environment.clear();
         return;
     }
-
-    DirtySettingsGuard suppressor;
 
     m_infoWidget->setEnabled(true);
     m_description->setText(tool->description());
@@ -949,6 +955,7 @@ void ExternalToolConfig::editEnvironmentChanges()
     if (newItems) {
         m_environment = *newItems;
         updateEnvironmentLabel();
+        markSettingsDirty();
     }
 }
 
