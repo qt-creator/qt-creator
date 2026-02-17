@@ -868,6 +868,11 @@ int main() {                              // 1,0
         t.setSingleShot(true);
         connect(&t, &QTimer::timeout, &loop, [&] {loop.exit(1); });
         const auto check = [&] {
+            if (qobject_cast<TextDocument *>(testDocument.m_editor->document())
+                    ->isFoldingIndentExternallyProvided()) {
+                QSKIP("folding is done via clangd");
+            }
+
             const struct LoopHandler {
                 LoopHandler(QEventLoop &loop) : loop(loop) {}
                 ~LoopHandler() { loop.quit(); }
