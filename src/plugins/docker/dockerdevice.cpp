@@ -51,6 +51,7 @@
 #include <utils/terminalhooks.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
+#include <utils/url.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -253,6 +254,8 @@ public:
     bool m_isShutdown = false;
     SynchronizedValue<DeviceFileAccessPtr> m_fileAccess;
     SynchronizedValue<std::unique_ptr<DockerContainerThread>> m_deviceThread;
+
+    QUrl m_qmlDebuggerAccess;
 };
 
 static WrappedProcessInterface *makeProcessInterface(
@@ -619,6 +622,12 @@ CommandLine DockerDevicePrivate::createCommandLine()
     dockerCreate.addArgs(createMountArgs());
     dockerCreate.addArgs(q->portMappings.createArguments());
 
+    if (m_qmlDebuggerAccess.port() > 0) {
+        dockerCreate.addArg("-p");
+        dockerCreate.addArg(QString("0.0.0.0:%1:%2/tcp").arg(m_qmlDebuggerAccess.port())
+                            .arg(m_qmlDebuggerAccess.port()));
+    }
+
     if (!q->keepEntryPoint())
         dockerCreate.addArgs({"--entrypoint", "/bin/sh"});
 
@@ -644,6 +653,20 @@ Result<QString> DockerDevicePrivate::updateContainerAccess()
     auto lockedThread = m_deviceThread.writeLocked();
     if (*lockedThread)
         return (*lockedThread)->containerId();
+
+    // Try to find free unused ports locally and on container with the same number.
+    m_qmlDebuggerAccess.clear();
+    const QSet<int> usedContainerPorts = q->portMappings.usedContainerPorts();
+    for (int i = 0; i != 20; ++i) {
+        const QUrl url = urlFromLocalHostAndFreePort();
+        if (!usedContainerPorts.contains(url.port())) {
+            m_qmlDebuggerAccess = url;
+            break;
+        }
+    }
+
+    if (!m_qmlDebuggerAccess.isValid())
+        qCWarning(dockerDeviceLog) << "Failed to find a usable QML debugger port";
 
     DockerContainerThread::Init init;
     init.dockerBinaryPath = settings().dockerBinaryPath();
@@ -1056,6 +1079,17 @@ QStringList PortMappings::createArguments() const
     return cmds;
 }
 
+QSet<int> PortMappings::usedContainerPorts() const
+{
+    QSet<int> usedPorts;
+
+    forEachItem<PortMapping>([&usedPorts](const std::shared_ptr<PortMapping> &portMapping) {
+        usedPorts.insert(portMapping->containerPort());
+    });
+
+    return usedPorts;
+}
+
 } // namespace Internal
 
 // Used for "docker run"
@@ -1312,7 +1346,7 @@ DeviceTester *DockerDevice::createDeviceTester()
     return nullptr;
 }
 
-Utils::Result<> DockerDevice::handlesFile(const FilePath &filePath) const
+Result<> DockerDevice::handlesFile(const FilePath &filePath) const
 {
     const bool isDockerScheme = filePath.scheme() == Constants::DOCKER_DEVICE_SCHEME;
 
@@ -1406,6 +1440,12 @@ QPixmap DockerDevice::deviceStateIcon() const
     default:
         return IDevice::deviceStateIcon();
     }
+}
+
+QUrl DockerDevice::toolControlChannel(const ControlChannelHint &hint) const
+{
+    QTC_CHECK(hint == QmlControlChannel);
+    return d->m_qmlDebuggerAccess;
 }
 
 } // namespace Docker

@@ -25,6 +25,7 @@ public:
     explicit PortMappings(Utils::AspectContainer *container);
 
     QStringList createArguments() const;
+    QSet<int> usedContainerPorts() const;
 };
 
 } // namespace Internal
@@ -78,6 +79,8 @@ public:
 
     QString deviceStateToString() const override;
     QPixmap deviceStateIcon() const override;
+
+    QUrl toolControlChannel(const ControlChannelHint &) const override;
 
     Utils::StringAspect imageId{this};
     Utils::StringAspect repo{this};

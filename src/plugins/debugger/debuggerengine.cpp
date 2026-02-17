@@ -258,6 +258,10 @@ Result<> DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *run
                     return ResultError(Tr::tr("Not enough free ports for QML debugging."));
             }
         }
+        if (device && device->type() == "DockerDeviceType") {
+            if (m_qmlServer.port() <= 0)
+                m_qmlServer = device->toolControlChannel(IDevice::QmlControlChannel);
+        }
     }
 
     if (settings().autoEnrichParameters()) {
