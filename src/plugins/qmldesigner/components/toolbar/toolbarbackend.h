@@ -6,10 +6,6 @@
 #include <QAbstractListModel>
 #include <QObject>
 
-#ifdef DVCONNECTOR_ENABLED
-#  include <designviewer/dvconnector.h>
-#endif
-
 #include <memory>
 
 namespace QmlDesigner {
@@ -132,10 +128,6 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(int runManagerProgress READ runManagerProgress NOTIFY runManagerProgressChanged)
     Q_PROPERTY(QString runManagerError READ runManagerError NOTIFY runManagerErrorChanged)
 
-#ifdef DVCONNECTOR_ENABLED
-    Q_PROPERTY(DesignViewer::DVConnector *designViewerConnector READ designViewerConnector CONSTANT)
-#endif
-
 public:
     ToolBarBackend();
     static void registerDeclarativeType();
@@ -197,9 +189,6 @@ public:
     int runManagerProgress() const;
     QString runManagerError() const;
 
-#ifdef DVCONNECTOR_ENABLED
-    DesignViewer::DVConnector *designViewerConnector();
-#endif
     static void launchGlobalAnnotations();
 
 signals:
@@ -235,9 +224,6 @@ private:
     QStringList m_openDocuments;
     QMetaObject::Connection m_kitConnection;
     QMetaObject::Connection m_documentConnection;
-#ifdef DVCONNECTOR_ENABLED
-    std::shared_ptr<DesignViewer::DVConnector> m_designViewerConnector;
-#endif
 };
 
 } // namespace QmlDesigner

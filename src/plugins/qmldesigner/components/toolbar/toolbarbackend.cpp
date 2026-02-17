@@ -525,14 +525,6 @@ void ToolBarBackend::registerDeclarativeType()
                                            "RunManager shouldn't be instantiated.");
     qmlRegisterUncreatableType<DeviceShare::DeviceManagerModel>(
         "ToolBar", 1, 0, "DeviceManagerModel", "DeviceManagerModel shouldn't be instantiated.");
-
-#ifdef DVCONNECTOR_ENABLED
-    qmlRegisterUncreatableType<DesignViewer::DVConnector>("ToolBar",
-                                                          1,
-                                                          0,
-                                                          "DVConnector",
-                                                          "DVConnector shouldn't be instantiated.");
-#endif
 }
 
 void ToolBarBackend::triggerModeChange()
@@ -940,24 +932,6 @@ QString ToolBarBackend::runManagerError() const
 {
     return QmlDesignerPlugin::runManager().error();
 }
-
-#ifdef DVCONNECTOR_ENABLED
-DesignViewer::DVConnector *ToolBarBackend::designViewerConnector()
-{
-    if (!m_designViewerConnector) {
-        static constinit std::weak_ptr<DesignViewer::DVConnector> designViewerConnector;
-
-        if (designViewerConnector.use_count() > 0) {
-            m_designViewerConnector = designViewerConnector.lock();
-        } else {
-            m_designViewerConnector = std::make_shared<DesignViewer::DVConnector>();
-            designViewerConnector = m_designViewerConnector;
-        }
-    }
-
-    return m_designViewerConnector.get();
-}
-#endif
 
 void ToolBarBackend::launchGlobalAnnotations()
 {
