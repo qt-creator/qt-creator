@@ -154,8 +154,6 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
             } else {
                 match = m_qtPackageError.match(trimmedLine);
                 if (match.hasMatch() && !m_lastTask.isNull()) {
-                    const QString version = match.captured(1);
-                    const QString platform = match.captured(2);
                     packages = match.captured(3);
                     if (packages.isEmpty()) // CMake wrapped to the next line...
                         m_nextLineIsPackageSpec = true;
