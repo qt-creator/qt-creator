@@ -145,33 +145,33 @@ public:
         QTC_CHECK(!m_startedAnalysesRunner.isRunning());
     }
 
-    void startAnalysisFor(const FilePath &file, const QString &projectName,
+    void startAnalysisFor(const FilePath &file,
                           const FilePath &bauhausConf, const FilePath &analysisCmd);
-    void cancelAnalysisFor(const QString &fileName, const QString &projectName);
+    void cancelAnalysisFor(const FilePath &fileName);
     void removeFinishedAnalyses();
 
-    bool hasRunningAnalysisFor(const QString &projectName) const
+    bool hasRunningAnalysisFor(const FilePath &filePath) const
     {
-        return m_startedAnalysesRunner.isKeyRunning(projectName);
+        return m_startedAnalysesRunner.isKeyRunning(filePath);
     }
 
-    LocalBuildInfo localBuildInfoFor(const QString &projectName, const QString &/*fileName*/) const
+    LocalBuildInfo localBuildInfoFor(const FilePath &filePath) const
     {
-        return m_localBuildInfos.value(projectName);
+        return m_localBuildInfos.value(filePath);
     }
 
     void shutdownAll();
 
 private:
-    void onPluginArServerRunning(const QString &projectName);
-    void onSessionStarted(const QString &projectName, int sessionId);
+    void onPluginArServerRunning(const FilePath &filePath);
+    void onSessionStarted(const FilePath &filePath, int sessionId);
 
-    QHash<QString, SFAData> m_startedAnalyses;
-    QHash<QString, LocalBuildInfo> m_localBuildInfos;
-    QMappedTaskTreeRunner<QString> m_startedAnalysesRunner;
+    QHash<FilePath, SFAData> m_startedAnalyses;
+    QHash<FilePath, LocalBuildInfo> m_localBuildInfos;
+    QMappedTaskTreeRunner<FilePath> m_startedAnalysesRunner;
 };
 
-void SingleFileAnalysis::startAnalysisFor(const FilePath &filePath, const QString &projectName,
+void SingleFileAnalysis::startAnalysisFor(const FilePath &filePath,
                                           const FilePath &bauhausConf, const FilePath &analysisCmd)
 {
     // start pluginarserver if not running
@@ -195,30 +195,30 @@ void SingleFileAnalysis::startAnalysisFor(const FilePath &filePath, const QStrin
     data.bauhausConfig = bauhausConf;
     data.analysisCommand = analysisCmd;
 
-    auto onServerRunning = [this, projectName] { onPluginArServerRunning(projectName); };
-    auto onFailed = [this, projectName, filePath] {
-        m_startedAnalyses.remove(projectName);
-        updateSfaStateFor(projectName, filePath.fileName(), Tr::tr("Failed"), 100);
+    auto onServerRunning = [this, filePath] { onPluginArServerRunning(filePath); };
+    auto onFailed = [this, filePath] {
+        m_startedAnalyses.remove(filePath);
+        updateSfaStateFor(filePath, Tr::tr("Failed"), 100);
     };
     if (settings().saveOpenFiles()) {
-        if (!saveModifiedFiles(projectName))
+        if (!saveModifiedFiles(QString{}))
             return;
     }
 
     showLocalBuildProgress();
-    qCDebug(sfaLog) << "starting single file analysis for" << projectName << filePath;
-    updateSfaStateFor(projectName, filePath.fileName(), Tr::tr("Preparing"), 5);
-    m_startedAnalyses.insert(projectName, data);
+    qCDebug(sfaLog) << "starting single file analysis for" << filePath;
+    updateSfaStateFor(filePath, Tr::tr("Preparing"), 5);
+    m_startedAnalyses.insert(filePath, data);
     startPluginArServer(bauhausSuite, onServerRunning, onFailed);
 }
 
-void SingleFileAnalysis::onPluginArServerRunning(const QString &projectName)
+void SingleFileAnalysis::onPluginArServerRunning(const FilePath &filePath)
 {
-    QTC_ASSERT(m_startedAnalyses.contains(projectName), return);
-    SFAData data = m_startedAnalyses.value(projectName);
-    updateSfaStateFor(projectName, data.file.fileName(), Tr::tr("Preparing"), 10);
-    requestArSessionStart(data.bauhausSuite, [this, projectName](int sessionId) {
-        onSessionStarted(projectName, sessionId);
+    QTC_ASSERT(m_startedAnalyses.contains(filePath), return);
+    SFAData data = m_startedAnalyses.value(filePath);
+    updateSfaStateFor(filePath, Tr::tr("Preparing"), 10);
+    requestArSessionStart(data.bauhausSuite, [this, filePath](int sessionId) {
+        onSessionStarted(filePath, sessionId);
     });
 }
 
@@ -237,10 +237,10 @@ static Environment setupEnv(const SFAData &data)
     return env;
 }
 
-void SingleFileAnalysis::onSessionStarted(const QString &projectName, int sessionId)
+void SingleFileAnalysis::onSessionStarted(const FilePath &filePath, int sessionId)
 {
-    QTC_ASSERT(m_startedAnalyses.contains(projectName), return);
-    SFAData &analysis = m_startedAnalyses[projectName];
+    QTC_ASSERT(m_startedAnalyses.contains(filePath), return);
+    SFAData &analysis = m_startedAnalyses[filePath];
     analysis.sessionId = sessionId;
     analysis.pipeName = pluginArPipeOut(analysis.bauhausSuite, sessionId);
     const Environment env = setupEnv(analysis);
@@ -252,32 +252,32 @@ void SingleFileAnalysis::onSessionStarted(const QString &projectName, int sessio
         process.setEnvironment(env);
     };
     const SFAData data = analysis;
-    auto onDone = [data, projectName, this](const Process &process) {
-        m_localBuildInfos.insert(projectName, {LocalBuildState::Finished,
+    auto onDone = [data, filePath, this](const Process &process) {
+        m_localBuildInfos.insert(filePath, {LocalBuildState::Finished,
                                                process.cleanedStdOut(), process.cleanedStdErr()});
         const QString resultStr = (process.result() == ProcessResult::FinishedWithSuccess)
                 ? Tr::tr("Finished") : Tr::tr("Failed");
-        updateSfaStateFor(projectName, data.file.fileName(), resultStr, 100);
+        updateSfaStateFor(filePath, resultStr, 100);
 
         if (process.result() == ProcessResult::FinishedWithSuccess)
             qCDebug(sfaLog) << "Build succeeded";
         else
             qCDebug(sfaLog) << "Build failed" << process.error() << process.errorString();
 
-        m_startedAnalyses.remove(projectName); // output still in localBuildInfos, rest now useless?
+        m_startedAnalyses.remove(filePath); // output still in localBuildInfos, rest now useless?
         qCDebug(sfaLog) << "requesting session finish";
         requestArSessionFinish(data.bauhausSuite, data.sessionId, false);
     };
     clearAllMarks(LineMarkerType::SFA);
     qCDebug(sfaLog) << "starting analysis cmd" << analysis.analysisCommand;
-    m_startedAnalysesRunner.start(projectName, {ProcessTask(onSetup, onDone)});
-    m_localBuildInfos.insert(projectName, {LocalBuildState::Building});
-    updateSfaStateFor(projectName, data.file.fileName(), Tr::tr("Building"), 20);
+    m_startedAnalysesRunner.start(filePath, {ProcessTask(onSetup, onDone)});
+    m_localBuildInfos.insert(filePath, {LocalBuildState::Building});
+    updateSfaStateFor(filePath, Tr::tr("Building"), 20);
 }
 
-void SingleFileAnalysis::cancelAnalysisFor(const QString &/*fileName*/, const QString &projectName)
+void SingleFileAnalysis::cancelAnalysisFor(const FilePath &filePath)
 {
-    m_startedAnalysesRunner.cancelKey(projectName);
+    m_startedAnalysesRunner.cancelKey(filePath);
 }
 
 void SingleFileAnalysis::removeFinishedAnalyses()
@@ -300,30 +300,20 @@ void SingleFileAnalysis::shutdownAll()
 
 SingleFileAnalysis s_sfaInstance;
 
-void startSingleFileAnalysis(const FilePath &file, const QString &projectName)
+void startSingleFileAnalysis(const FilePath &file)
 {
     if (ExtensionSystem::PluginManager::isShuttingDown())
         return;
 
-    QTC_ASSERT(!projectName.isEmpty(), return);
     QTC_ASSERT(!file.isEmpty(), return);
 
-    if (hasRunningLocalBuild(projectName)) {
-        QMessageBox::information(
-            Core::ICore::dialogParent(),
-            Tr::tr("Single File Analysis"),
-            Tr::tr(
-                "There is a local build running for \"%1\".\n"
-                "Try again when it has finished."));
-        return;
-    }
-    if (s_sfaInstance.hasRunningAnalysisFor(projectName)) {
+    if (s_sfaInstance.hasRunningAnalysisFor(file)) {
         QMessageBox::information(
             Core::ICore::dialogParent(),
             Tr::tr("Single File Analysis"),
             Tr::tr(
                 "There already is a single file analysis running for \"%1\"."
-                "\nTry again when it has finished."));
+                "\nTry again when it has finished.").arg(file.toUserOutput()));
         return;
     }
 
@@ -335,7 +325,7 @@ void startSingleFileAnalysis(const FilePath &file, const QString &projectName)
     settings().lastSfaCommand.setValue(dia.command());
     settings().writeSettings();
 
-    s_sfaInstance.startAnalysisFor(file, projectName, dia.bauhausConfig(), dia.command());
+    s_sfaInstance.startAnalysisFor(file, dia.bauhausConfig(), dia.command());
 }
 
 
@@ -349,19 +339,14 @@ void shutdownAllAnalyses()
     s_sfaInstance.shutdownAll();
 }
 
-bool hasRunningSingleFileAnalysis(const QString &projectName)
+void cancelSingleFileAnalysis(const FilePath &filePath)
 {
-    return s_sfaInstance.hasRunningAnalysisFor(projectName);
+    s_sfaInstance.cancelAnalysisFor(filePath);
 }
 
-void cancelSingleFileAnalysis(const QString &fileName, const QString &projectName)
+LocalBuildInfo localBuildInfoFor(const FilePath &filePath)
 {
-    s_sfaInstance.cancelAnalysisFor(fileName, projectName);
-}
-
-LocalBuildInfo localBuildInfoFor(const QString &projectName, const QString &fileName)
-{
-    return s_sfaInstance.localBuildInfoFor(projectName, fileName);
+    return s_sfaInstance.localBuildInfoFor(filePath);
 }
 
 } // namespace Axivion::Internal

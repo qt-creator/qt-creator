@@ -9,14 +9,12 @@ namespace Utils { class FilePath; }
 
 namespace Axivion::Internal {
 
-void startSingleFileAnalysis(const Utils::FilePath &file, const QString &projectName);
-void cancelSingleFileAnalysis(const QString &fileName, const QString &projectName);
+void startSingleFileAnalysis(const Utils::FilePath &file);
+void cancelSingleFileAnalysis(const Utils::FilePath &filePath);
 
 void removeFinishedAnalyses();
 void shutdownAllAnalyses();
 
-bool hasRunningSingleFileAnalysis(const QString &projectName);
-
-LocalBuildInfo localBuildInfoFor(const QString &projectName, const QString &fileName);
+LocalBuildInfo localBuildInfoFor(const Utils::FilePath &filePath);
 
 } // namespace Axivion::Internal

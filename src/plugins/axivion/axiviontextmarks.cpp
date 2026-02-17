@@ -59,11 +59,11 @@ public:
                 });
             } else {
                 // only connect if we have valid parameters
-                if (auto pi = projectInfo(); pi && bauhausSuite && issue.issueUrl) {
+                if (bauhausSuite && issue.issueUrl) {
                     QObject::connect(action, &QAction::triggered,
                                      action,
-                                     [bs = *bauhausSuite, ii = *issue.issueUrl, pn = pi->name]{
-                        fetchIssueInfoFromPluginAr(bs, ii, pn);
+                                     [bs = *bauhausSuite, ii = *issue.issueUrl]{
+                        fetchIssueInfoFromPluginAr(bs, ii);
                     });
                 }
             }

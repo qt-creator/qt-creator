@@ -5,6 +5,8 @@
 
 #include <QObject>
 
+namespace Utils { class FilePath; }
+
 namespace Axivion::Internal {
 
 void updateDashboard();
@@ -15,8 +17,7 @@ void resetDashboard();
 void updateIssueDetails(const QString &html, const QString &projectName);
 void updateNamedFilters();
 void updateLocalBuildStateFor(const QString &projectName, const QString &state, int percent);
-void updateSfaStateFor(const QString &projectName, const QString &fileName,
-                       const QString &state, int percent);
+void updateSfaStateFor(const Utils::FilePath &fileName, const QString &state, int percent);
 
 void leaveOrEnterDashboardMode(bool byLocalBuildButton);
 bool currentIssueHasValidPathMapping();

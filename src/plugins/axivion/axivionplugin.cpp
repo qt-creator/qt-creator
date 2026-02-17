@@ -1220,13 +1220,11 @@ void AxivionPluginPrivate::onCurrentEditorChanged(IEditor *editor)
 {
     QAction *action = ActionManager::command("Axivion.SingleFile")->action();
     const IDocument *document = editor ? editor->document() : nullptr;
-    if (!m_currentProjectInfo || !document || document->filePath().isEmpty()) {
+    if (!document || document->filePath().isEmpty()) {
         action->setEnabled(false);
         return;
     }
-    const FilePath filePath = settings().mappedFilePath(document->filePath(),
-                                                        m_currentProjectInfo->name);
-    const QString suffix = filePath.suffix();
+    const QString suffix = document->filePath().suffix();
     // for now just hard-code common, also need to check for a running local analysis / build?
     static const QRegularExpression cSuffixes("^c(c|pp|xx)?$",
                                               QRegularExpression::CaseInsensitiveOption);
