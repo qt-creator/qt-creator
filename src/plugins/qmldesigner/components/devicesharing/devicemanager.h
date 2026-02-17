@@ -49,7 +49,6 @@ public:
 private:
     // Devices management
     QList<QSharedPointer<Device>> m_devices;
-    QList<QSharedPointer<QUdpSocket>> m_udpSockets;
 
     // settings
     QString m_settingsPath;
