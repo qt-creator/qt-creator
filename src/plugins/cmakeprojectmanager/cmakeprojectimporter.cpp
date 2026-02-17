@@ -572,42 +572,20 @@ static CMakeConfig configurationFromPresetProbe(
     }
 
     if (configurePreset.cacheVariables) {
-        const CMakeConfig cache = configurePreset.cacheVariables ? *configurePreset.cacheVariables
+        CMakeConfig cache = configurePreset.cacheVariables ? *configurePreset.cacheVariables
                                                                  : CMakeConfig();
+        // For the compiler probe we don't need VCPKG_MANIFEST_MODE
+        cache.remove("VCPKG_MANIFEST_MODE");
 
-        const QString cmakeMakeProgram = cache.stringValueOf("CMAKE_MAKE_PROGRAM");
-        const QString toolchainFile = cache.stringValueOf("CMAKE_TOOLCHAIN_FILE");
-        const QString prefixPath = cache.stringValueOf("CMAKE_PREFIX_PATH");
-        const QString findRootPath = cache.stringValueOf("CMAKE_FIND_ROOT_PATH");
-        const QString qtHostPath = cache.stringValueOf("QT_HOST_PATH");
-        const QString sysRoot = cache.stringValueOf("CMAKE_SYSROOT");
-
-        if (!cmakeMakeProgram.isEmpty()) {
-            args.emplace_back(
-                QStringLiteral("-DCMAKE_MAKE_PROGRAM=%1").arg(cmakeMakeProgram));
-        }
-        if (!toolchainFile.isEmpty()) {
-            args.emplace_back(
-                QStringLiteral("-DCMAKE_TOOLCHAIN_FILE=%1").arg(toolchainFile));
-        }
-        if (!prefixPath.isEmpty()) {
-            args.emplace_back(QStringLiteral("-DCMAKE_PREFIX_PATH=%1").arg(prefixPath));
-        }
-        if (!findRootPath.isEmpty()) {
-            args.emplace_back(QStringLiteral("-DCMAKE_FIND_ROOT_PATH=%1").arg(findRootPath));
-        }
-        if (!qtHostPath.isEmpty()) {
-            args.emplace_back(QStringLiteral("-DQT_HOST_PATH=%1").arg(qtHostPath));
-        }
-        if (!sysRoot.isEmpty()) {
-            args.emplace_back(QStringLiteral("-DCMAKE_SYSROOT=%1").arg(sysRoot));
-        }
+        args.append(cache.toArguments());
     }
 
     qCDebug(cmInputLog) << "CMake probing for compilers: " << cmakeExecutable.toUserOutput()
                         << args;
     cmake.setCommand({cmakeExecutable, args});
     cmake.runBlocking(30s);
+
+    qCDebug(cmInputLog).noquote() << cmake.readAllStandardOutput() << cmake.readAllStandardError();
 
     QString errorMessage;
     const CMakeConfig config = CMakeConfig::fromFile(importPath.pathAppended(
