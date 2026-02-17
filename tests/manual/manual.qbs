@@ -7,6 +7,7 @@ Project {
         "cmdbridge/cmdbridge.qbs",
         "debugger/gui/gui.qbs",
         "debugger/simple/simple.qbs",
+        "devcontainer/devcontainer.qbs",
         "deviceshell/deviceshell.qbs",
         "fakevim/fakevim.qbs",
         "pluginview/pluginview.qbs",
