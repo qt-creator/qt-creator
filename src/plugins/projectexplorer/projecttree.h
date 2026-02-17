@@ -9,6 +9,8 @@
 
 #include <functional>
 
+QT_FORWARD_DECLARE_CLASS(QAbstractItemModel)
+
 namespace Core { class IDocument; }
 namespace Utils { class FilePath; }
 
@@ -83,6 +85,8 @@ public:
 
     // for nodes to emit signals, do not call unless you are a node
     static void emitSubtreeChanged(FolderNode *node);
+
+    static QAbstractItemModel *createProjectsModel(QObject *parent);
 
 signals:
     void currentProjectChanged(ProjectExplorer::Project *project);

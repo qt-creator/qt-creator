@@ -35,7 +35,7 @@ private:
     void accept() override;
 
     QTreeView *m_fileView = nullptr;
-    std::unique_ptr<SelectableFilesModel> m_filesModel;
+    SelectableFilesModel * const m_filesModel;
 
     FileInfoProviders m_fileInfoProviders;
     int m_previousProviderIndex = -1;

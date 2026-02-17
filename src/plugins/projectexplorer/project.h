@@ -56,6 +56,7 @@ public:
     enum ModelRoles {
         isParsingRole = Qt::UserRole + 1,
         UseUnavailableMarkerRole,
+        NodeRole,
     };
 
     Project(const QString &mimeType, const Utils::FilePath &fileName);

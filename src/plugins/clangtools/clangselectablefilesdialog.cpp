@@ -8,16 +8,16 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/find/textfindconstants.h>
-#include <cppeditor/projectinfo.h>
-#include <projectexplorer/selectablefilesmodel.h>
-#include <texteditor/textdocument.h>
-
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QHash>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QStandardItem>
@@ -30,225 +30,245 @@ using namespace ProjectExplorer;
 namespace ClangTools {
 namespace Internal {
 
-class TreeWithFileInfo : public Tree
+class SelectableFilesModel : public QSortFilterProxyModel
 {
 public:
-    FileInfo info;
-};
+    SelectableFilesModel(const Project *project, QObject *parent)
+        : QSortFilterProxyModel(parent)
+        , m_project(project)
+    {
+        const auto saveSelection = [this] {
+            if (m_awaitsRestore)
+                return;
+            m_savedSelection = minimalSelection();
+            m_awaitsRestore = true;
+            beginResetModel();
+            m_checkStates.clear();
+            endResetModel();
+        };
+        const auto restoreSelection = [this] {
+            if (m_awaitsRestore) {
+                restoreMinimalSelection(m_savedSelection);
+                m_awaitsRestore = false;
+            }
+        };
+        connect(this, &QAbstractProxyModel::sourceModelChanged, this, [=, this] {
+            connect(sourceModel(), &QAbstractItemModel::layoutAboutToBeChanged, this, saveSelection);
+            connect(sourceModel(), &QAbstractItemModel::layoutChanged, this, restoreSelection);
+            connect(sourceModel(), &QAbstractItemModel::modelAboutToBeReset, this, saveSelection);
+            connect(sourceModel(), &QAbstractItemModel::modelReset, this, restoreSelection);
+            connect(sourceModel(), &QAbstractItemModel::rowsAboutToBeInserted, this, saveSelection);
+            connect(sourceModel(), &QAbstractItemModel::rowsInserted, this, restoreSelection);
+            connect(sourceModel(), &QAbstractItemModel::rowsAboutToBeMoved, this, saveSelection);
+            connect(sourceModel(), &QAbstractItemModel::rowsRemoved, this, restoreSelection);
+        });
+    }
 
-static void linkDirNode(Tree *parentNode, Tree *childNode)
-{
-    parentNode->childDirectories.append(childNode);
-    childNode->parent = parentNode;
-}
+    bool hasCheckedFiles() const
+    {
+        return Utils::anyOf(m_checkStates, [](Qt::CheckState state) {
+            return state == Qt::Checked;
+        });
+    }
 
-static void linkFileNode(Tree *parentNode, Tree *childNode)
-{
-    childNode->parent = parentNode;
-    parentNode->files.append(childNode);
-    parentNode->visibleFiles.append(childNode);
-}
-
-static Tree *createDirNode(const QString &name, const FilePath &filePath = FilePath())
-{
-    auto node = new Tree;
-    node->name = name;
-    node->fullPath = filePath;
-    node->isDir = true;
-
-    return node;
-}
-
-static Tree *createFileNode(const FileInfo &fileInfo, bool displayFullPath = false)
-{
-    auto node = new TreeWithFileInfo;
-    node->name = displayFullPath ? fileInfo.file.toUserOutput() : fileInfo.file.fileName();
-    node->fullPath = fileInfo.file;
-    node->info = fileInfo;
-
-    return node;
-}
-
-class SelectableFilesModel : public ProjectExplorer::SelectableFilesModel
-{
-    Q_OBJECT
-
-public:
-    SelectableFilesModel()
-        : ProjectExplorer::SelectableFilesModel(nullptr)
-    {}
-
-    void buildTree(ProjectExplorer::Project *project, const FileInfos &fileInfos)
+    void reset(const FileInfos &fileInfos)
     {
         beginResetModel();
-        m_root->fullPath = project->projectFilePath();
-        m_root->name = project->projectFilePath().fileName();
-        m_root->isDir = true;
-
-        FileInfos outOfBaseDirFiles;
-        Tree *projectDirTree = buildProjectDirTree(project->projectDirectory(),
-                                                   fileInfos,
-                                                   outOfBaseDirFiles);
-        if (outOfBaseDirFiles.empty()) {
-            // Showing the project file and beneath the project dir is pointless in this case,
-            // so get rid of the root node and modify the project dir node as the new root node.
-            projectDirTree->name = m_root->name;
-            projectDirTree->fullPath = m_root->fullPath;
-            projectDirTree->parent = m_root->parent;
-
-            // The m_root has no files / child dirs, so we delete it.
-            m_root.reset(projectDirTree);
-        } else {
-            // Set up project dir node as sub node of the project file node
-            linkDirNode(m_root.get(), projectDirTree);
-
-            // Add files outside of the base directory to a separate node
-            Tree *externalFilesNode = createDirNode(Tr::tr("Files outside of the base directory"),
-                                                    "/");
-            linkDirNode(m_root.get(), externalFilesNode);
-            for (const FileInfo &fileInfo : outOfBaseDirFiles)
-                linkFileNode(externalFilesNode, createFileNode(fileInfo, true));
-        }
+        m_fileInfos.clear();
+        m_checkStates.clear();
+        for (const FileInfo &fi : fileInfos)
+            m_fileInfos.insert(fi.file, fi);
         endResetModel();
     }
 
-    // Returns the minimal selection that can restore all selected files.
-    //
-    // For example, if a directory node if fully checked, there is no need to
-    // save all the children of that node.
-    void minimalSelection(FileInfoSelection &selection) const
+    void selectAllFiles()
     {
-        selection.dirs.clear();
-        selection.files.clear();
-        traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
-            auto node = static_cast<Tree *>(index.internalPointer());
+        beginResetModel();
+        for (int i = 0; i < rowCount(); ++i)
+            setData(index(i, 0), Qt::Checked, Qt::CheckStateRole);
+        endResetModel();
+    }
 
-            if (node->checked == Qt::Checked) {
-                if (node->isDir) {
-                    selection.dirs += node->fullPath;
-                    return false; // Do not descend further.
-                }
-
-                selection.files += node->fullPath;
-            }
-
-            return true;
-        });
+    FileInfoSelection minimalSelection() const
+    {
+        FileInfoSelection selection;
+        collectSelectedFiles(selection, {});
+        return selection;
     }
 
     void restoreMinimalSelection(const FileInfoSelection &selection)
     {
-        if (selection.dirs.isEmpty() && selection.files.isEmpty())
-            return;
-
-        traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
-            auto node = static_cast<Tree *>(index.internalPointer());
-
-            if (node->isDir && selection.dirs.contains(node->fullPath)) {
-                setData(index, Qt::Checked, Qt::CheckStateRole);
-                return false; // Do not descend further.
-            }
-
-            if (!node->isDir && selection.files.contains(node->fullPath))
-                setData(index, Qt::Checked, Qt::CheckStateRole);
-
-            return true;
-        });
+        m_checkStates.clear();
+        restoreMinimalSelection(selection, {});
     }
 
-    FileInfos selectedFileInfos() const
+    FileInfos selectedFiles() const
     {
-        FileInfos result;
-
-        traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
-            auto node = static_cast<Tree *>(index.internalPointer());
-
-            if (node->checked == Qt::Unchecked)
-                return false;
-
-            if (!node->isDir)
-                result.push_back(static_cast<TreeWithFileInfo *>(node)->info);
-
-            return true;
-        });
-
-        return result;
+        FileInfos files;
+        for (auto it = m_checkStates.cbegin(); it != m_checkStates.cend(); ++it) {
+            if (it.key()->asFileNode() && it.value() == Qt::Checked)
+                files.push_back(m_fileInfos.value(it.key()->filePath()));
+        }
+        return files;
     }
 
 private:
-    void traverse(const QModelIndex &index,
-                  const std::function<bool(const QModelIndex &)> &visit) const
+    void collectSelectedFiles(FileInfoSelection &selection, const QModelIndex &proxyIndex) const
     {
-        if (!index.isValid())
-            return;
-
-        if (!visit(index))
-            return;
-
-        if (!hasChildren(index))
-            return;
-
-        const int rows = rowCount(index);
-        const int cols = columnCount(index);
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j)
-                traverse(this->index(i, j, index), visit);
+        if (proxyIndex.isValid()
+            && data(proxyIndex, Qt::CheckStateRole).value<Qt::CheckState>() == Qt::Checked) {
+            Node * const node = nodeFromIndex(mapToSource(proxyIndex));
+            if (node->asFileNode())
+                selection.files << node->filePath();
+            else
+                selection.dirs << node->filePath();
+        } else {
+            for (int i = 0; i < rowCount(proxyIndex); ++i)
+                collectSelectedFiles(selection, index(i, 0, proxyIndex));
         }
     }
 
-    Tree *buildProjectDirTree(const FilePath &projectDir,
-                              const FileInfos &fileInfos,
-                              FileInfos &outOfBaseDirFiles) const
+    void restoreMinimalSelection(const FileInfoSelection &selection, const QModelIndex &proxyIndex)
     {
-        Tree *projectDirNode = createDirNode(projectDir.fileName(), projectDir);
-
-        QHash<FilePath, Tree *> dirsToNode;
-        dirsToNode.insert(projectDirNode->fullPath, projectDirNode);
-
-        for (const FileInfo &fileInfo : fileInfos) {
-            if (!fileInfo.file.isChildOf(projectDirNode->fullPath)) {
-                outOfBaseDirFiles.push_back(fileInfo);
-                continue; // Handle these separately.
+        if (proxyIndex.isValid()) {
+            const Node * const node = nodeFromIndex(mapToSource(proxyIndex));
+            if (selection.dirs.contains(node->filePath())
+                || selection.files.contains(node->filePath())) {
+                setData(proxyIndex, Qt::Checked, Qt::CheckStateRole);
             }
-
-            // Find or create parent nodes
-            FilePath parentDir = fileInfo.file.parentDir();
-            Tree *parentNode = dirsToNode[parentDir];
-            if (!parentNode) {
-                // Find nearest existing node
-                QStringList dirsToCreate;
-                while (!parentNode) {
-                    dirsToCreate.prepend(parentDir.fileName());
-                    parentDir = parentDir.parentDir();
-                    parentNode = dirsToNode[parentDir];
-                }
-
-                // Create needed extra dir nodes
-                FilePath currentDirPath = parentDir;
-                for (const QString &dirName : dirsToCreate) {
-                    currentDirPath = currentDirPath.pathAppended(dirName);
-
-                    Tree *newDirNode = createDirNode(dirName, currentDirPath);
-                    linkDirNode(parentNode, newDirNode);
-
-                    dirsToNode.insert(currentDirPath, newDirNode);
-                    parentNode = newDirNode;
-                }
-            }
-
-            // Create and link file node to dir node
-            linkFileNode(parentNode, createFileNode(fileInfo));
         }
-
-        return projectDirNode;
+        for (int i = 0; i < rowCount(proxyIndex); ++i)
+            restoreMinimalSelection(selection, index(i, 0, proxyIndex));
     }
+
+    Node *nodeFromIndex(const QModelIndex &sourceIndex) const
+    {
+        return sourceModel()->data(sourceIndex, Project::NodeRole).value<Node *>();
+    }
+
+    Qt::CheckState checkStateFromChildren(const QModelIndex &proxyIndex) const
+    {
+        const int childCount = rowCount(proxyIndex);
+        bool hasCheckedChildren = false;
+        bool hasUncheckedChildren = false;
+        for (int i = 0; i < childCount; ++i) {
+            const auto state
+                = data(index(i, 0, proxyIndex), Qt::CheckStateRole).value<Qt::CheckState>();
+            switch (state) {
+            case Qt::Checked:
+                hasCheckedChildren = true;
+                break;
+            case Qt::Unchecked:
+                hasUncheckedChildren = true;
+                break;
+            case Qt::PartiallyChecked:
+                return Qt::PartiallyChecked;
+            }
+            if (hasCheckedChildren && hasUncheckedChildren)
+                return Qt::PartiallyChecked;
+        }
+        if (hasCheckedChildren)
+            return Qt::Checked;
+        return Qt::Unchecked;
+    }
+
+    void propagateCheckStateToChildren(const QModelIndex &proxyIndex, Qt::CheckState state)
+    {
+        QTC_ASSERT(state != Qt::PartiallyChecked, return);
+        const int childCount = rowCount(proxyIndex);
+        for (int i = 0; i < childCount; ++i) {
+            const QModelIndex idx = index(i, 0, proxyIndex);
+            const Qt::CheckState prevState = data(idx, Qt::CheckStateRole).value<Qt::CheckState>();
+            if (prevState != state) {
+                Node * const node = nodeFromIndex(mapToSource(idx));
+                m_checkStates[node] = state;
+                if (!node->asFileNode())
+                    propagateCheckStateToChildren(idx, state);
+            }
+        }
+        if (childCount) {
+            emit dataChanged(
+                index(0, 0, proxyIndex), index(childCount - 1, 0, proxyIndex), {Qt::CheckStateRole});
+        }
+    }
+
+    void propagateCheckStateToParents(const QModelIndex &proxyIndex)
+    {
+        const QModelIndex parentIdx = parent(proxyIndex);
+        if (!parentIdx.isValid())
+            return;
+        const Qt::CheckState prevState = data(parentIdx, Qt::CheckStateRole).value<Qt::CheckState>();
+        const Qt::CheckState newState = checkStateFromChildren(parentIdx);
+        if (newState != prevState) {
+            m_checkStates[nodeFromIndex(mapToSource(parentIdx))] = newState;
+            propagateCheckStateToParents(parentIdx);
+            emit dataChanged(parentIdx, parentIdx, {Qt::CheckStateRole});
+        }
+    }
+
+    QVariant data(const QModelIndex &index, int role) const override
+    {
+        if (role != Qt::CheckStateRole)
+            return sourceModel()->data(mapToSource(index), role);
+
+        Node * const node = nodeFromIndex(mapToSource(index));
+        if (const auto state = m_checkStates.constFind(node); state != m_checkStates.constEnd())
+            return *state;
+
+        if (node->asFileNode())
+            return Qt::Unchecked;
+        return m_checkStates[node] = checkStateFromChildren(index);
+    }
+
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override
+    {
+        const QModelIndex sourceIndex = sourceModel()->index(source_row, 0, source_parent);
+        const Node * const node = nodeFromIndex(sourceIndex);
+        QTC_ASSERT(node, return false);
+        if (node->getProject() != m_project)
+            return false;
+        if (node->asFileNode())
+            return m_fileInfos.contains(node->filePath());
+
+        // Prevent directory-only hierarchies.
+        for (int i = 0; i < sourceModel()->rowCount(sourceIndex); ++i)
+            if (filterAcceptsRow(i, sourceIndex))
+                return true;
+        return false;
+    }
+
+    Qt::ItemFlags flags(const QModelIndex &index) const override
+    {
+        Q_UNUSED(index)
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+    }
+
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override
+    {
+        if (role != Qt::CheckStateRole)
+            return false;
+
+        const auto state = value.value<Qt::CheckState>();
+        Node * const node = nodeFromIndex(mapToSource(index));
+        m_checkStates.insert(node, state);
+        if (!node->asFileNode())
+            propagateCheckStateToChildren(index, state);
+        propagateCheckStateToParents(index);
+        return true;
+    }
+
+    const Project * const m_project;
+    QHash<FilePath, FileInfo> m_fileInfos;
+    FileInfoSelection m_savedSelection;
+    bool m_awaitsRestore = false;
+    mutable QHash<Node *, Qt::CheckState> m_checkStates;
 };
 
 SelectableFilesDialog::SelectableFilesDialog(Project *project,
                                              const FileInfoProviders &fileInfoProviders,
                                              int initialProviderIndex)
     : QDialog(nullptr)
-    , m_filesModel(new SelectableFilesModel)
+    , m_filesModel(new SelectableFilesModel(project, this))
     , m_fileInfoProviders(fileInfoProviders)
     , m_project(project)
 {
@@ -266,7 +286,8 @@ SelectableFilesDialog::SelectableFilesDialog(Project *project,
 
     m_fileView = new QTreeView;
     m_fileView->setHeaderHidden(true);
-    m_fileView->setModel(m_filesModel.get());
+    m_filesModel->setSourceModel(ProjectTree::createProjectsModel(this));
+    m_fileView->setModel(m_filesModel);
 
     // Filter combo box
     for (const FileInfoProvider &provider : m_fileInfoProviders) {
@@ -296,7 +317,7 @@ SelectableFilesDialog::SelectableFilesDialog(Project *project,
     buttons->setStandardButtons(QDialogButtonBox::Cancel);
     buttons->addButton(analyzeButton, QDialogButtonBox::AcceptRole);
 
-    connect(m_filesModel.get(), &QAbstractItemModel::dataChanged, this, [this, analyzeButton] {
+    connect(m_filesModel, &QAbstractItemModel::dataChanged, this, [this, analyzeButton] {
         analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
     });
 
@@ -316,7 +337,7 @@ SelectableFilesDialog::~SelectableFilesDialog() = default;
 
 FileInfos SelectableFilesDialog::fileInfos() const
 {
-    return m_filesModel->selectedFileInfos();
+    return m_filesModel->selectedFiles();
 }
 
 int SelectableFilesDialog::currentProviderIndex() const
@@ -328,30 +349,29 @@ void SelectableFilesDialog::onFileFilterChanged(int index)
 {
     // Remember previous filter/selection
     if (m_previousProviderIndex != -1)
-        m_filesModel->minimalSelection(m_fileInfoProviders[m_previousProviderIndex].selection);
+        m_fileInfoProviders[m_previousProviderIndex].selection = m_filesModel->minimalSelection();
     m_previousProviderIndex = index;
 
     // Reset model
     const FileInfoProvider &provider = m_fileInfoProviders[index];
-    m_filesModel->buildTree(m_project, provider.fileInfos);
-
-    // Expand
-    if (provider.expandPolicy == FileInfoProvider::All)
-        m_fileView->expandAll();
-    else
-        m_fileView->expandToDepth(2);
+    m_filesModel->reset(provider.fileInfos);
 
     // Handle selection
     if (provider.selection.dirs.isEmpty() && provider.selection.files.isEmpty())
         m_filesModel->selectAllFiles(); // Initially, all files are selected
     else
         m_filesModel->restoreMinimalSelection(provider.selection);
+
+    // Expand
+    if (provider.expandPolicy == FileInfoProvider::All)
+        m_fileView->expandAll();
+    else
+        m_fileView->expandToDepth(2);
 }
 
 void SelectableFilesDialog::accept()
 {
-    FileInfoSelection selection;
-    m_filesModel->minimalSelection(selection);
+    const FileInfoSelection selection = m_filesModel->minimalSelection();
     FileInfoProvider &provider = m_fileInfoProviders[m_fileFilterComboBox->currentIndex()];
     provider.onSelectionAccepted(selection);
 
@@ -360,5 +380,3 @@ void SelectableFilesDialog::accept()
 
 } // namespace Internal
 } // namespace ClangTools
-
-#include "clangselectablefilesdialog.moc"

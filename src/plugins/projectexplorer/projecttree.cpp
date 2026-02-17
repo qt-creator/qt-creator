@@ -8,6 +8,7 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
+#include "projectmodels.h"
 #include "projectnodes.h"
 #include "projecttreewidget.h"
 #include "target.h"
@@ -243,6 +244,16 @@ void ProjectTree::emitSubtreeChanged(FolderNode *node)
 {
     if (hasNode(node))
         emit s_instance->subtreeChanged(node);
+}
+
+QAbstractItemModel *ProjectTree::createProjectsModel(QObject *parent)
+{
+    const auto model = new FlatModel(parent);
+    model->setDisabledFilesFilterEnabled(true);
+    model->setGeneratedFilesFilterEnabled(true);
+    model->setHideSourceGroups(true);
+    model->setTrimEmptyDirectories(true);
+    return model;
 }
 
 void ProjectTree::sessionAndTreeChanged()

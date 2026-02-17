@@ -295,6 +295,8 @@ QVariant WrapperNode::data(int column, int role) const
         return project && bs ? bs->isParsing() && !project->needsConfiguration() : false;
     case Project::UseUnavailableMarkerRole:
         return fileNode ? fileNode->useUnavailableMarker() : false;
+    case Project::NodeRole:
+        return QVariant::fromValue(m_node);
     }
     return {};
 }
