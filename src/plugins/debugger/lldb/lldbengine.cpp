@@ -612,11 +612,7 @@ void LldbEngine::updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, b
     bp->setIgnoreCount(bkpt["ignorecount"].toInt());
     bp->setCondition(fromHex(bkpt["condition"].data()));
     bp->setHitCount(bkpt["hitcount"].toInt());
-
-    const FilePath file = runParameters().buildDirectory().withNewPath(
-        FilePath::fromUserInput(bkpt["file"].data()).path());
-
-    bp->setFileName(file.localSource().value_or(file));
+    bp->setFileName(runParameters().mapToProjectPath(bkpt["file"].data()));
     bp->setTextPosition({bkpt["line"].toInt(), -1});
 
     GdbMi locations = bkpt["locations"];
