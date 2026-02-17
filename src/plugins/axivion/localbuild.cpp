@@ -564,10 +564,12 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
     };
 
     const auto onDone = [this, projectName, createdPassFile](const Process &process) {
-        const FilePath fp = FilePath::fromUserInput(createdPassFile);
-        if (QTC_GUARD(fp.exists())) {
-            fp.removeFile();
-            qCDebug(localBuildLog) << "removed passfile: " << createdPassFile;
+        if (!createdPassFile.isEmpty()) {
+            const FilePath fp = FilePath::fromUserInput(createdPassFile);
+            if (QTC_GUARD(fp.exists())) {
+                fp.removeFile();
+                qCDebug(localBuildLog) << "removed passfile: " << createdPassFile;
+            }
         }
         const QString state = process.result() == ProcessResult::FinishedWithSuccess
                 ? Tr::tr("Finished") : Tr::tr("Failed");
