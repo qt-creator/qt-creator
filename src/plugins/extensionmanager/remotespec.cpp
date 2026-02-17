@@ -116,7 +116,8 @@ const QList<Source> RemoteSpec::sources() const
         return {};
 
     QList<Source> sources;
-    for (const QJsonValue &source : obj.value("sources").toArray()) {
+    const QJsonArray sourcesList = obj.value("sources").toArray();
+    for (const QJsonValue &source : sourcesList) {
         Source s;
         const QJsonObject platform = source.toObject().value("platform").toObject();
         if (!platform.isEmpty()) {

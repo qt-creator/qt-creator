@@ -377,7 +377,6 @@ public:
         const ItemType itemType = current.data(RoleItemType).value<ItemType>();
         const bool isPack = itemType == ItemTypePack;
         const bool isRemotePlugin = !(isPack || pluginSpec);
-        const QString downloadUrl = current.data(RoleDownloadUrl).toString();
         removeButton->setVisible(!isRemotePlugin && pluginSpec && !pluginSpec->isSystemPlugin());
 
         updateButton->setVisible(
@@ -513,7 +512,7 @@ public:
         if (!tags.empty()) {
             const auto tagToButton = [this](const QString &tag) {
                 auto btn = new QtcButton(tag, QtcButton::Tag);
-                connect(btn, &QAbstractButton::clicked, [tag, this] { emit tagSelected(tag); });
+                connect(btn, &QAbstractButton::clicked, this, [tag, this] { emit tagSelected(tag); });
                 return btn;
             };
 
