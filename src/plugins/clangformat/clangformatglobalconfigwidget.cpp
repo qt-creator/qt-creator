@@ -104,6 +104,13 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
     }
 
     globalSettingsGroupBoxWidget->show();
+
+    installMarkSettingsDirtyTrigger(m_useGlobalSettings);
+    installMarkSettingsDirtyTrigger(m_indentingOrFormatting);
+    installMarkSettingsDirtyTrigger(m_fileSizeThresholdSpinBox);
+    installMarkSettingsDirtyTrigger(m_formatWhileTyping);
+    installMarkSettingsDirtyTrigger(m_formatOnSave);
+    installMarkSettingsDirtyTrigger(m_useCustomSettingsCheckBox);
 }
 
 void ClangFormatGlobalConfigWidget::initCheckBoxes()
