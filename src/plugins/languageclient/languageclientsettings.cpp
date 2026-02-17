@@ -217,7 +217,11 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
         &m_settings,
         &LanguageClientSettingsModel::dataChanged,
         this,
-        [] { markSettingsDirty(); });
+        [](const QModelIndex &, const QModelIndex &, const QList<int> roles) {
+            if (roles.contains(Qt::CheckStateRole))
+                markSettingsDirty();
+        }
+    );
 
     auto mainLayout = new QVBoxLayout();
     auto layout = new QHBoxLayout();
@@ -234,7 +238,6 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
             this, &LanguageClientSettingsPageWidget::currentChanged);
     auto buttonLayout = new QVBoxLayout();
     auto addButton = new QPushButton(Tr::tr("&Add"));
-    setIgnoreForDirtyHook(addButton);
     auto addMenu = new QMenu(this);
     addMenu->clear();
     for (const ClientType &type : clientTypes()) {
@@ -254,8 +257,6 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
     buttonLayout->addWidget(addButton);
     buttonLayout->addWidget(deleteButton);
     buttonLayout->addStretch(10);
-
-    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void LanguageClientSettingsPageWidget::currentChanged(const QModelIndex &index)
