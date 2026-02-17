@@ -631,6 +631,9 @@ public:
         case Qt::DisplayRole:
             return m_project->displayName();
 
+        case Qt::ToolTipRole:
+            return m_project->projectDirectory().toUserOutput();
+
         case Qt::FontRole: {
             QFont font;
             font.setBold(m_project == ProjectManager::startupProject());
