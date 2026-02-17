@@ -1169,7 +1169,7 @@ private:
     }
 
 private:
-    T m_value;
+    T m_value{};
 };
 
 class QTCREATOR_UTILS_EXPORT AspectList : public Utils::BaseAspect

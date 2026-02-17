@@ -2188,8 +2188,6 @@ BoolAspect::BoolAspect(AspectContainer *container)
 {
     setDefaultValue(false);
     setSpan(2, 1);
-
-    d->m_undoable.setSilently(false);
 }
 
 /*!
@@ -2947,8 +2945,6 @@ void StringListAspect::volatileValueToGui()
 
 void StringListAspect::addToLayoutImpl(Layout &parent)
 {
-    d->undoable.setSilently(value());
-
     auto editor = createSubWidget<QTreeWidget>();
     editor->setHeaderHidden(true);
     editor->setRootIsDecorated(false);
@@ -3141,8 +3137,6 @@ void FilePathListAspect::volatileValueToGui()
 
 void FilePathListAspect::addToLayoutImpl(Layout &parent)
 {
-    d->undoable.setSilently(value());
-
     PathListEditor *editor = createSubWidget<PathListEditor>();
     editor->setPathList(value());
     connect(editor, &PathListEditor::changed, this, [this, editor] {
