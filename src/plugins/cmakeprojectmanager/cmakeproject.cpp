@@ -815,8 +815,8 @@ private slots:
         visibleOsMap[HostOsInfo::hostOs()].second = true;
 
         // Only the host os preset should evaluate the "condition" and not be hidden
-        for (auto os : visibleOsMap.keys()) {
-            const QString presetName = visibleOsMap[os].first;
+        for (const QPair<QString, bool> &os : visibleOsMap) {
+            const QString presetName = os.first;
 
             auto it = std::find_if(
                 pd.configurePresets.begin(),
@@ -829,7 +829,7 @@ private slots:
                 visible
                     = !it->hidden
                       && CMakePresets::Macros::evaluatePresetCondition(*it, presetsFiles.parentDir());
-            QCOMPARE(visibleOsMap[os].second, visible);
+            QCOMPARE(os.second, visible);
         }
     }
 };
