@@ -27,6 +27,15 @@ using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
+namespace Debugger {
+
+bool nativeDapDebuggersEnabled()
+{
+    static const bool enableNativeDapDebugger
+        = qtcEnvironmentVariableIntValue("QTC_ENABLE_NATIVE_DAP_DEBUGGERS") != 0;
+    return enableNativeDapDebugger;
+}
+
 static Result<QString> fetchVersionOutput(const FilePath &executable, Environment environment)
 {
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
@@ -173,8 +182,6 @@ static Utils::Result<DebuggerItem::TechnicalData> extractLldbTechnicalData(
     };
 }
 
-namespace Debugger {
-
 const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
 const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
 const char DEBUGGER_INFORMATION_ID[] = "Id";
@@ -197,7 +204,7 @@ Result<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
     DebuggerItem::addAndroidLldbPythonEnv(fromExecutable, env);
     DebuggerItem::fixupAndroidLlldbPythonDylib(fromExecutable);
 
-    if (qgetenv("QTC_ENABLE_NATIVE_DAP_DEBUGGERS").toInt() != 0) {
+    if (nativeDapDebuggersEnabled()) {
         for (const auto &dapServerSuffix : {QString{"-dap"}, QString{"-vscode"}}) {
             const QString dapServerName = QString{"lldb%1"}.arg(dapServerSuffix);
             if (fromExecutable.fileName().startsWith(dapServerName, Qt::CaseInsensitive)) {
