@@ -172,8 +172,6 @@ private:
     void tabCloseRequested(int index);
     void closeTab(int index);
     void ensurePinnedOrder();
-    void handleUpdateFileState(const Utils::FilePath &repository, const QStringList &files);
-    void handleClearFileState(const Utils::FilePath &repository);
 
     void setParentSplitterOrView(SplitterOrView *splitterOrView);
 

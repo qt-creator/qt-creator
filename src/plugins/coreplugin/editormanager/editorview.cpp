@@ -205,10 +205,6 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
         connect(m_toolBar, &EditorToolBar::verticalSplitClicked, this, &EditorView::splitVertically);
         connect(m_toolBar, &EditorToolBar::splitNewWindowClicked, this, &EditorView::splitNewWindow);
         connect(m_toolBar, &EditorToolBar::closeSplitClicked, this, &EditorView::closeSplit);
-        connect(VcsManager::instance(), &VcsManager::updateFileState,
-                this, &EditorView::handleUpdateFileState);
-        connect(VcsManager::instance(), &VcsManager::clearFileState,
-                this, &EditorView::handleClearFileState);
         m_toolBar->setMenuProvider([this](QMenu *menu) { fillListContextMenu(menu); });
         m_toolBar->setGoBackMenu(m_backMenu);
         m_toolBar->setGoForwardMenu(m_forwardMenu);
@@ -845,34 +841,6 @@ void EditorView::ensurePinnedOrder()
                 m_tabBar->moveTab(i, lastPinnedIndex + 1);
             ++lastPinnedIndex;
         }
-    }
-}
-
-void EditorView::handleUpdateFileState(const Utils::FilePath &repository, const QStringList &files)
-{
-    const Utils::FilePaths fullPaths = Utils::transform(files, [repository](const QString &file) {
-        return repository.pathAppended(file);
-    });
-
-    for (int i = 0; i < m_tabBar->count(); ++i) {
-        const auto data = m_tabBar->tabData(i).value<EditorView::TabData>();
-        IDocument *document = data.entry->document;
-        const Utils::FilePath fullEditorPath = document->filePath();
-
-        if (fullPaths.contains(fullEditorPath))
-            updateTabUi(m_tabBar, i, document);
-    }
-}
-
-void EditorView::handleClearFileState(const Utils::FilePath &repository)
-{
-    for (int i = 0; i < m_tabBar->count(); ++i) {
-        const auto data = m_tabBar->tabData(i).value<EditorView::TabData>();
-        IDocument *document = data.entry->document;
-        const Utils::FilePath fullEditorPath = document->filePath();
-
-        if (fullEditorPath.isChildOf(repository))
-            updateTabUi(m_tabBar, i, document);
     }
 }
 

@@ -20,6 +20,7 @@ class DocumentModelPrivate : public QAbstractItemModel
     Q_OBJECT
 
 public:
+    DocumentModelPrivate();
     ~DocumentModelPrivate() override;
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -60,6 +61,9 @@ public:
                                           = RemovePinnedFiles);
 
     void itemChanged(IDocument *document);
+
+    void handleUpdateFileState(const Utils::FilePath &repository, const QStringList &files);
+    void handleClearFileState(const Utils::FilePath &repository);
 
     QList<DocumentModel::Entry *> m_entries;
     QHash<IDocument *, QList<IEditor *>> m_editors;
