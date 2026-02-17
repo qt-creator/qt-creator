@@ -244,29 +244,18 @@ void HttpParser::parseHeaders(const QStringList &headerLines, HttpRequest &reque
     // Parse each header line: "Name: Value"
     // Handle continuation lines and malformed headers gracefully
     for (const QString &line : headerLines) {
-        QString trimmedLine = line.trimmed();
-        if (trimmedLine.isEmpty()) {
+        const QString trimmedLine = line.trimmed();
+        if (trimmedLine.isEmpty())
             continue; // Skip empty lines
-        }
 
-        // Handle header continuation (lines starting with space or tab)
-        if (trimmedLine.startsWith(' ') || trimmedLine.startsWith('\t')) {
-            // This is a continuation of the previous header
-            if (!request.headers.isEmpty()) {
-                QString lastKey = request.headers.keys().last();
-                request.headers[lastKey] += " " + trimmedLine.trimmed();
-                continue;
-            }
-        }
-
-        int colonPos = trimmedLine.indexOf(':');
+        const int colonPos = trimmedLine.indexOf(':');
         if (colonPos == -1) {
             qCDebug(mcpHttpParser) << "Invalid header line (no colon):" << trimmedLine;
             continue;
         }
 
-        QString headerName = trimmedLine.left(colonPos).trimmed();
-        QString headerValue = trimmedLine.mid(colonPos + 1).trimmed();
+        const QString headerName = trimmedLine.left(colonPos).trimmed();
+        const QString headerValue = trimmedLine.mid(colonPos + 1).trimmed();
 
         // Skip empty header names
         if (headerName.isEmpty()) {
@@ -275,7 +264,7 @@ void HttpParser::parseHeaders(const QStringList &headerLines, HttpRequest &reque
         }
 
         // Normalize header name for case-insensitive lookup
-        QString normalizedName = normalizeHeaderName(headerName);
+        const QString normalizedName = normalizeHeaderName(headerName);
         request.headers[normalizedName] = headerValue;
 
         qCDebug(mcpHttpParser) << "Parsed header:" << normalizedName << "=" << headerValue;
