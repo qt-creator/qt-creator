@@ -389,6 +389,8 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
 
     connect(&device->sshParametersAspectContainer(), &AspectContainer::volatileValueChanged,
             this, &markSettingsDirty);
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void LinuxDeviceConfigurationWidget::createNewKey()

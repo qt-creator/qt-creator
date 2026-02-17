@@ -182,6 +182,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     });
     connect(&dockerDevice->mounts, &FilePathListAspect::volatileValueChanged,
             this, checkSettingsDirty);
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 void DockerDeviceWidget::updateDaemonStateTexts()

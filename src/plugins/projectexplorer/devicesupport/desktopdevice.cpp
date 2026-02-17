@@ -260,6 +260,8 @@ public:
 
         m_freePortsLineEdit->setText(device->freePorts().toString());
         updateFreePorts();
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void updateDeviceFromUi() final
