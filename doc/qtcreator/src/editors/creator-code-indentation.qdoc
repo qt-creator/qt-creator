@@ -38,7 +38,7 @@
             \uicontrol {Auto-indent Selection} to automatically indent the
             selected text using the current settings.
         \li Go to \uicontrol Edit > \uicontrol Advanced, and select an
-            indentation option or use \l{Keyboard Shortcuts}{keyboard shortcuts}.
+            indentation option or use \l{Keyboard shortcuts}{keyboard shortcuts}.
     \endlist
 
     \section2 Indentation options
@@ -97,5 +97,5 @@
     option to set the margin, for example.
 
     \sa {C++ Code Style}, {Specify Qt Quick code style}, {Behavior},
-    {Keyboard Shortcuts}
+    {Keyboard shortcuts}
 */

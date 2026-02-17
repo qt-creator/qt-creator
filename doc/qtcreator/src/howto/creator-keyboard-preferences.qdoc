@@ -57,7 +57,7 @@
         \li Select \uicontrol {Stop Recording} when you are done.
     \endlist
 
-    \sa {Keyboard Shortcuts}, {Find keyboard shortcuts},
+    \sa {Keyboard shortcuts}, {Find keyboard shortcuts},
         {Import and export keyboard shortcuts},
         {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}
 */
@@ -85,7 +85,7 @@
 
     You can change the existing keyboard shortcuts or import and export them.
 
-    \sa {Keyboard Shortcuts}, {Assign keyboard shortcuts},
+    \sa {Keyboard shortcuts}, {Assign keyboard shortcuts},
         {Import and export keyboard shortcuts},
         {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}
 */
@@ -118,7 +118,7 @@
 
     \endlist
 
-    \sa {Keyboard Shortcuts}, {Assign keyboard shortcuts},
+    \sa {Keyboard shortcuts}, {Assign keyboard shortcuts},
         {Find keyboard shortcuts},
         {Adapt the UI}{How to: Adapt the UI}, {Adapting the UI}
 */

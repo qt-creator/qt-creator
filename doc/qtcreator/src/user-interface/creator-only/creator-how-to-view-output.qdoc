@@ -22,7 +22,7 @@
     \list
         \li Select the output view.
         \li Select \uicontrol View > \uicontrol Output.
-            The menu items also display the \l{Keyboard Shortcuts}
+            The menu items also display the \l{Keyboard shortcuts}
             {keyboard shortcuts} that you can use.
         \li Select \key Alt (\key Cmd on \macos) and the number of the view.
         \li Select \inlineimage {icons/output-pane-menu.png} {Output view menu},

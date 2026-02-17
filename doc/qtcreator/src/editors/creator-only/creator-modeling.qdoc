@@ -364,7 +364,7 @@
 
     Use a scratch model to quickly put a temporary diagram together. The wizard
     creates the model file in a temporary folder without any input from you.
-    Therefore, you can assign a \l{Keyboard Shortcuts}{keyboard shortcut} to the
+    Therefore, you can assign a \l{Keyboard shortcuts}{keyboard shortcut} to the
     wizard and use it to create and open models with empty diagrams.
 
     To create a scratch model, go to \uicontrol File > \uicontrol {New File} >
