@@ -901,7 +901,6 @@ void LearningTest::testFlagsMatching_data()
 
     const QString targetDesktop = QLatin1String(TARGET_PREFIX) + TARGET_DESKTOP;
     const QString targetiOS = QLatin1String(TARGET_PREFIX) + TARGET_IOS;
-    const QString targetAndroid = QLatin1String(TARGET_PREFIX) + TARGET_ANDROID;
     const QString expBasic = QLatin1String(EXPERIENCE_PREFIX) + EXPERIENCE_BASIC;
     const QString expAdvanced = QLatin1String(EXPERIENCE_PREFIX) + EXPERIENCE_ADVANCED;
 
