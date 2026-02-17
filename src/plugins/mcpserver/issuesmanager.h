@@ -57,18 +57,6 @@ private slots:
      */
     void onTasksChanged();
 
-    /**
-     * @brief Checks if the Issues panel is accessible
-     * @return true if accessible, false otherwise
-     */
-    bool isAccessible() const;
-
-    /**
-     * @brief Gets the count of current issues
-     * @return Number of issues, or -1 if not accessible
-     */
-    int getIssueCount() const;
-
 private:
     /**
      * @brief Attempts to access the Issues panel through various methods

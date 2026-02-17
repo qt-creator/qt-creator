@@ -93,24 +93,6 @@ QStringList IssuesManager::getCurrentIssues() const
     return issues;
 }
 
-bool IssuesManager::isAccessible() const
-{
-    return m_accessible;
-}
-
-int IssuesManager::getIssueCount() const
-{
-    if (!m_accessible) {
-        return -1;
-    }
-
-    if (ProjectExplorer::BuildManager::tasksAvailable()) {
-        return ProjectExplorer::BuildManager::getErrorTaskCount();
-    }
-
-    return 0;
-}
-
 bool IssuesManager::initializeAccess()
 {
     // Check if we can access the BuildManager
