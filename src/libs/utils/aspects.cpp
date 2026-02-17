@@ -2367,6 +2367,7 @@ SelectionAspect::SelectionAspect(AspectContainer *container)
     : TypedAspect(container), d(new Internal::SelectionAspectPrivate)
 {
     setSpan(2, 1);
+    d->m_undoable.setSilently(value());
 }
 
 /*!
@@ -2379,8 +2380,6 @@ SelectionAspect::~SelectionAspect() = default;
 */
 void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    d->m_undoable.setSilently(value());
-
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons: {
         auto buttonGroup = new QButtonGroup(parent.product());
