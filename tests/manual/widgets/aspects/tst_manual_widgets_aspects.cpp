@@ -16,6 +16,29 @@
 
 using namespace Layouting;
 
+static QString variantToString(const QVariant &v)
+{
+    QString asString;
+    const bool canConvertToString
+        = QMetaType::convert(v.metaType(), v.constData(), QMetaType::fromType<QString>(), &asString);
+
+    if (!canConvertToString) {
+        if (v.canConvert<QStringList>()) {
+            const QStringList sl = v.value<QStringList>();
+            const QStringList quoted
+                = Utils::transform<QStringList>(sl, [](const QString &s) -> QString {
+                      return '"' + s + '"';
+                  });
+
+            asString = "[ " + quoted.join(", ") + " ]";
+        } else {
+            asString = "<unable to convert to string>";
+        }
+    }
+
+    return "QVariant(" + QString::fromUtf8(v.metaType().name()) + "): " + asString;
+}
+
 struct AspectUI : public Column
 {
     AspectUI(Utils::BaseAspect *aspect, bool multipleInstances = false)
@@ -44,8 +67,9 @@ struct AspectUI : public Column
 
         const auto updateWidgets = [aspect, applyBtn, volatileLabel, valueLabel, storeLabel]() {
             applyBtn->setEnabled(aspect->isDirty());
-            volatileLabel->setText(QString("%1").arg(aspect->volatileVariantValue().toString()));
-            valueLabel->setText(QString("%1").arg(aspect->variantValue().toString()));
+            volatileLabel->setText(
+                QString("%1").arg(variantToString(aspect->volatileVariantValue())));
+            valueLabel->setText(QString("%1").arg(variantToString(aspect->variantValue())));
             Utils::Store map;
             aspect->toMap(map);
             storeLabel->setText(QString::fromUtf8(jsonFromStore(map)));
@@ -129,6 +153,7 @@ int main(int argc, char *argv[])
         selectionAspect->addOption("Option 1", "This is option 1");
         selectionAspect->addOption("Option 2", "This is option 2");
         selectionAspect->addOption("Option 3", "This is option 3");
+        selectionAspect->setValue(1);
         return selectionAspect;
     };
 
@@ -149,6 +174,13 @@ int main(int argc, char *argv[])
         stringAspect->setDefaultValue("Default Value");
         stringAspect->setPlaceHolderText("Placeholder text");
         return stringAspect;
+    };
+
+    auto filePathListAspect = [] {
+        auto aspect = new Utils::FilePathListAspect();
+        aspect->setSettingsKey("FilePathListAspectId");
+        aspect->setDefaultValue({"/path/to/file1", "/path/to/file2"});
+        return aspect;
     };
 
     auto integerAspect = [] {
@@ -177,6 +209,10 @@ int main(int argc, char *argv[])
         Tab {
             "Combo Selection Aspect",
             AspectUI(comboSelectionAspect(), true)
+        },
+        Tab {
+            "File Path List Aspect",
+            AspectUI(filePathListAspect(), true)
         },
         Tab {
             "String Aspect",
