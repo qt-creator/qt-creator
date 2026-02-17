@@ -6,6 +6,7 @@ endif()
 
 add_subdirectory(devcontainer)
 add_subdirectory(nanotrace)
+add_subdirectory(acp)
 add_subdirectory(advanceddockingsystem)
 add_subdirectory(aggregation)
 add_subdirectory(cplusplus)

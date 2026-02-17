@@ -6,6 +6,7 @@ Project {
     property string qlitehtmlQbs: path + "/qlitehtml/src/qlitehtml.qbs"
     property stringList qlitehtml: File.exists(qlitehtmlQbs) ? [qlitehtmlQbs] : []
     references: [
+        "acp/acp.qbs",
         "advanceddockingsystem/advanceddockingsystem.qbs",
         "aggregation/aggregation.qbs",
         "cplusplus/cplusplus.qbs",

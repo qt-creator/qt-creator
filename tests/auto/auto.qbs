@@ -3,6 +3,7 @@ import qbs
 Project {
     name: "QtcAutotests"
     references: [
+        "acp/acp.qbs",
         "aggregation/aggregation.qbs",
         "algorithm/algorithm.qbs",
         "android/android.qbs",
