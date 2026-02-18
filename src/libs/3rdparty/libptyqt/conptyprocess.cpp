@@ -990,8 +990,10 @@ bool ConPtyProcess::startProcess(const QString &executable,
 
             const bool needMoreData = !result && GetLastError() == ERROR_MORE_DATA;
             if (result || needMoreData) {
+              {
                 QMutexLocker locker(&m_bufferMutex);
                 m_buffer.m_readBuffer.append(szBuffer, dwBytesRead);
+              }
                 m_buffer.emitReadyRead();
             }
 
