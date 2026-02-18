@@ -4,6 +4,7 @@ Project {
     name: "Plugins"
 
     references: [
+        "acpclient/acpclient.qbs",
         "android/android.qbs",
         "ant/ant.qbs",
         "appstatisticsmonitor/appstatisticsmonitor.qbs",

@@ -157,6 +157,8 @@ const Icon TOGGLE_RIGHT_SIDEBAR({
         {":/utils/images/rightsidebaricon.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon TOGGLE_RIGHT_SIDEBAR_TOOLBAR({
         {":/utils/images/rightsidebaricon.png", Theme::IconsBaseColor}});
+const Icon MESSAGE_TOOLBAR({
+        {":/utils/images/message.png", Theme::IconsBaseColor}});
 const Icon CLOSE({
         {":/utils/images/close.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon CLOSE_TOOLBAR({
@@ -423,6 +425,7 @@ static QHash<QString, Icon> s_nameToIcon = {
     MAKE_ENTRY(TOGGLE_LEFT_SIDEBAR),
     MAKE_ENTRY(TOGGLE_PROGRESSDETAILS_TOOLBAR),
     MAKE_ENTRY(TOGGLE_RIGHT_SIDEBAR_TOOLBAR),
+    MAKE_ENTRY(MESSAGE_TOOLBAR),
     MAKE_ENTRY(TOGGLE_RIGHT_SIDEBAR),
     MAKE_ENTRY(TOOLBAR_EXTENSION),
     MAKE_ENTRY(UNDO_TOOLBAR),

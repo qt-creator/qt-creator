@@ -228,14 +228,7 @@ void IssuesManager::onTaskAdded(const ProjectExplorer::Task &task)
 void IssuesManager::onTaskRemoved(const ProjectExplorer::Task &task)
 {
     qCDebug(mcpIssues) << "IssuesManager: Task removed:" << task.description();
-
-    // Find and remove the task from our tracked list
-    for (int i = 0; i < m_trackedTasks.size(); ++i) {
-        if (m_trackedTasks[i].id() == task.id()) {
-            m_trackedTasks.removeAt(i);
-            break;
-        }
-    }
+    m_trackedTasks.removeIf(Utils::equal(&ProjectExplorer::Task::id, task.id()));
 }
 
 void IssuesManager::onTasksCleared(const Utils::Id &category)

@@ -35,6 +35,7 @@ add_subdirectory(saferenderer)
 add_subdirectory(terminal)
 add_subdirectory(vcpkg)
 add_subdirectory(languageclient)
+add_subdirectory(acpclient)
 
 # Level 4: (only depends on Level 3 and below)
 add_subdirectory(classview)
