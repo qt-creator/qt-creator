@@ -52,7 +52,8 @@ public:
         command.setExpectedKind(PathChooser::Any);
         command.setAllowPathFromDevice(false);
         command.setHistoryCompleter("Axivion.SFACommand");
-        if (const FilePath &last = settings().lastSfaCommand(); !last.isEmpty())
+        const FilePath &last = FilePath::fromString(settings().lastSfaCommand.value());
+        if (!last.isEmpty())
             command.setValue(last);
 
         QWidget *widget = new QWidget(this);
@@ -322,7 +323,7 @@ void startSingleFileAnalysis(const FilePath &file)
         return;
 
     settings().lastBauhausConfig.setValue(dia.bauhausConfig());
-    settings().lastSfaCommand.setValue(dia.command());
+    settings().lastSfaCommand.setValue(dia.command.value());
     settings().writeSettings();
 
     s_sfaInstance.startAnalysisFor(file, dia.bauhausConfig(), dia.command());
