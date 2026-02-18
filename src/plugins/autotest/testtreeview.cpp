@@ -14,7 +14,6 @@ namespace Internal {
 TestTreeView::TestTreeView(QWidget *parent)
     : NavigationTreeView(parent)
 {
-    setExpandsOnDoubleClick(false);
     Core::IContext::attach(this, Core::Context(Constants::AUTOTEST_CONTEXT));
 }
 
