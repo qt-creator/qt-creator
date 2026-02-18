@@ -13,7 +13,7 @@
 
     \ingroup creator-reference
 
-    \title Version Control Systems
+    \title Version control systems
 
     \brief Version control systems that you can use from \QC.
 
@@ -22,7 +22,7 @@
     configuration files. Do not store generated files. To use version control
     systems from \QC, you need to set them up.
 
-    \QC integrates the following version control systems:
+    \QC integrates the following version control systems.
     \table
         \header
             \li  Version Control System
@@ -45,11 +45,11 @@
             \li \l{https://fossil-scm.org/index.html/doc/trunk/www/index.wiki}
             \li Enable the plugin to use it.
              \row
-            \li \l{Using Git}
+            \li \l{Using Git}{Git}
             \li \l{https://git-scm.com/}
-            \li Git version 2.13.0, or later
+            \li Git version 2.13.0, or later.
 
-                Gerrit version 2.6, or later
+                Gerrit version 2.6, or later.
         \row
             \li \l{GitLab}
             \li \l{http://gitlab.com/}
@@ -61,13 +61,13 @@
         \row
             \li \l{Perforce}
             \li \l{http://www.perforce.com}
-            \li Server version 2006.1 and later
+            \li Server version 2006.1 and later.
 
                 Enable the plugin to use it.
         \row
             \li \l{Subversion}
             \li \l{http://subversion.apache.org/}
-            \li Subversion version 1.7.0 and later
+            \li Subversion version 1.7.0 and later.
 
                 Enable the plugin to use it.
     \endtable
@@ -128,9 +128,6 @@
     You can also access common version control system functions from the
     context menu by right-clicking a file or directory in the \l {Projects}
     and \l {File System} view.
-
-    \sa {Bazaar and Breezy}, {ClearCase}, {CVS}, {Fossil}, {Using Git}, {GitLab}, {Mercurial},
-    {Perforce}, {Subversion}
 
     The \uicontrol{Version Control} view displays the commands that are
     executed, a timestamp, and the relevant output. Select \uicontrol View >

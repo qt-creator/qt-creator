@@ -153,7 +153,7 @@ static Result<> unarchive(
                                  .arg(QString::fromUtf8(archive_error_string(a.get()))));
     }
 
-    if ((r = archive_read_open1(a.get())))
+    if ((archive_read_open1(a.get())))
         return ResultError(QString::fromUtf8(archive_error_string(a.get())));
 
     int fileNumber = 0;

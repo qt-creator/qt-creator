@@ -3,14 +3,15 @@
 
 /*!
     \page creator-projects-view.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-views
-    \ingroup creator-reference-sidebar-views
+    \ingroup creator-how-to-ui
 
-    \title Projects
+    \target Projects
+    \title View projects
 
-    \summary {Shows a list of projects in a project tree.}
+    Use the \uicontrol Projects view to see a list of projects in a project tree.
+
     The project tree has a list of all projects open in the current
     \l{Manage sessions}{session}. For each project, the tree visualizes
     the build system structure of the project and lists all files that
@@ -32,10 +33,10 @@
             Use the \l{Switch between modes} {mode selector} to open the current
             file in another editor.
         \li To open a
-            \l{Projects View Context Menu}{context menu}
+            \l{Projects view context menu}{context menu}
             that has the actions most commonly needed, right-click an
             item in the project tree. For example, through the menu of
-            the project root directory you can, among other actions, run
+            the project root directory, you can, among other actions, run
             and close the project.
         \li To see the absolute path of a file, move the mouse pointer over the
             file name.
@@ -47,7 +48,7 @@
     \note If you cannot see a file in the \l Projects view, switch to the
     \uicontrol {File System} view, which shows all the files in the file system.
 
-    \section1 Projects View Context Menu
+    \section1 Projects view context menu
 
     The \uicontrol Projects view has context menus for managing projects,
     subprojects, folders, and files. Use the following functions to manage
@@ -63,7 +64,7 @@
         \li Rename existing files. If you change the base name of a
             file, \QC displays a list of other files with the same base name
             and offers to rename them as well. If you rename a UI file (\c .ui),
-            \QC also changes corresponding include statements accordingly.
+            \QC also changes the corresponding include statements accordingly.
         \li Remove existing files.
         \li Remove existing directories from \l{Import an existing project}
             {generic projects}.
@@ -94,7 +95,7 @@
     the \l {File System} view. To view a project in it, select
     \uicontrol {Show in File System View}.
 
-    \section1 Projects View Toolbar
+    \section1 Projects view toolbar
 
     The toolbar in the \uicontrol Projects view has additional options.
 
@@ -107,7 +108,7 @@
         \li \uicontrol {Hide Generated Files} hides the source files that the
             build system automatically generates.
         \li \uicontrol {Hide Disabled Files} hides the source files that you
-            have not enabled for the current target,
+            have not enabled for the current target.
         \li \uicontrol {Hide Empty Directories} hides directories that do not
             have any files.
         \li \uicontrol {Show Source and Header Groups} shows source and header

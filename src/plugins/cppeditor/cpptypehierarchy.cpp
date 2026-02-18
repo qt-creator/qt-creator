@@ -201,11 +201,11 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget()
     connect(&m_futureWatcher, &QFutureWatcher<void>::finished,
             this, &CppTypeHierarchyWidget::displayHierarchy);
 
-    connect(ProgressManager::instance(), &ProgressManager::taskStarted, [this](Id type) {
+    connect(ProgressManager::instance(), &ProgressManager::taskStarted, this, [this](Id type) {
         if (type == Constants::TASK_INDEX)
             ++m_runningIndexers;
     });
-    connect(ProgressManager::instance(), &ProgressManager::allTasksFinished, [this](Id type) {
+    connect(ProgressManager::instance(), &ProgressManager::allTasksFinished, this, [this](Id type) {
         if (type == Constants::TASK_INDEX)
             --m_runningIndexers;
     });

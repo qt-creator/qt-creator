@@ -78,7 +78,7 @@
             Intelligent Input Bus (ibus). You can change either the shortcut in
             \QC or the conflicting shortcut in ibus.
 
-            To set another \l {Keyboard Shortcuts}{keyboard shortcut}
+            To set another \l {Keyboard shortcuts}{keyboard shortcut}
             in \QC, select \preferences >
             \uicontrol Environment > \uicontrol Keyboard.
 

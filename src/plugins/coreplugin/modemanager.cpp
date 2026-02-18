@@ -211,13 +211,9 @@ void ModeManagerPrivate::activateModeHelper(Id id)
     } else {
         const int currentIndex = m_modeStack->currentIndex();
         const int newIndex = id.isValid() ? indexOf(id) : -1;
-        if (newIndex != currentIndex) {
-            if (newIndex >= 0) {
-                m_modes.at(newIndex)->setVisible(true);
-                m_modeStack->setCurrentIndex(newIndex);
-            } else {
-                m_modeStack->setCurrentIndex(-1);
-            }
+        if (newIndex >= 0 && newIndex != currentIndex) {
+            m_modes.at(newIndex)->setVisible(true);
+            m_modeStack->setCurrentIndex(newIndex);
         }
     }
 }

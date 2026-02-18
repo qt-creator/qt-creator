@@ -84,11 +84,6 @@ static Result<DebuggerItem> makeAutoDetectedDebuggerItem(
     return makeAutoDetectedDebuggerItem(command, *technicalData, detectionSource);
 }
 
-static bool doEnableNativeDapDebuggers()
-{
-    return qgetenv("QTC_ENABLE_NATIVE_DAP_DEBUGGERS").toInt() != 0;
-}
-
 namespace Debugger {
 namespace Internal {
 
@@ -660,7 +655,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(
            "arm-none-eabi-gdb-py.exe",
            "*-*-*-gdb"};
 
-    if (doEnableNativeDapDebuggers()) {
+    if (nativeDapDebuggersEnabled()) {
         filters.append({
             "lldb-dap",
             "lldb-dap.exe",
@@ -714,7 +709,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(
             if (command.lastModified() != existingItem.lastModified())
                 existingItem.reinitializeFromFile();
 
-            if (doEnableNativeDapDebuggers()) {
+            if (nativeDapDebuggersEnabled()) {
                 if (existingItem.engineType() != GdbEngineType)
                     continue;
 
@@ -759,7 +754,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(
 
         addDebuggerItem(*item);
         logMessages.append(Tr::tr("Found: \"%1\".").arg(command.toUserOutput()));
-        if (doEnableNativeDapDebuggers()) {
+        if (nativeDapDebuggersEnabled()) {
             if (item->engineType() != GdbEngineType)
                 continue;
 
@@ -968,7 +963,7 @@ ExecutableItem autoDetectDebuggerRecipe(
            "arm-none-eabi-gdb-py.exe",
            "*-*-*-gdb"};
 
-    if (doEnableNativeDapDebuggers()) {
+    if (nativeDapDebuggersEnabled()) {
         searchFilters.append({
             "lldb-dap",
             "lldb-dap.exe",

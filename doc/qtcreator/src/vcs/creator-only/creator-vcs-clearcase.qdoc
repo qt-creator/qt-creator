@@ -46,56 +46,73 @@
 
     \endlist
 
-    \section1 Checking out and Checking in
+    \section1 Checking out and checking in
 
     In addition to the standard version control system functions described in
-    \l {Use common VCS Functions}, you can check out and check in files.
+    \l {Use common VCS Functions}, you can access additional functions in
+    \uicontrol Tools > \uicontrol ClearCase.
 
-    To create a writable copy of a file, select \uicontrol Tools >
-    \uicontrol ClearCase > \uicontrol {Check Out}. If you check out files in a
-    Unified Change Management (UCM) view, they are added to the change set of
-    a UCM activity. By default, the activities are automatically assigned names.
-    To disable this functionality, select \preferences >
-    \uicontrol {Version Control} > \uicontrol ClearCase, and then clear
-    \uicontrol {Auto assign activity names}.
+    \table
+    \header
+        \li Menu Item
+        \li Description
+    \row
+        \li \uicontrol {Check Out}
+        \li Create a writable copy of a file. If you check out files in a
+            Unified Change Management (UCM) view, they are added to the
+            change set of a UCM activity.
+    \row
+        \li \uicontrol {Undo Check Out}
+        \li Cancel the checkout for a file and delete the checked-out version.
+    \row
+        \li \uicontrol {Check In Activity}
+        \li Check in all checked-out versions of files in the change set of the
+            current UCM activity.
+    \row
+        \li \uicontrol {Check In}
+        \li Create a permanent new version of the current file or all files in the
+            versioned object base (VOB).
+    \row
+        \li \uicontrol {Undo Hijack}
+        \li Revert a hijacked file to its checked in version. A file is hijacked
+            if you change the read-only attribute of a file that is loaded into
+            a snapshot view and modify the file without checking it out.
+    \endtable
 
-    To automatically check out files when you edit them, select
-    \uicontrol {Automatically check out files on edit}.
+    \section1 ClearCase preferences
 
-    To cancel the checkout for a file and delete the checked-out version,
-    select \uicontrol Tools > \uicontrol ClearCase >
-    \uicontrol {Undo Check Out}.
+    To set ClearCase preferences, select \preferences >
+    \uicontrol {Version Control} > \uicontrol ClearCase.
 
-    To check in checked-out versions of files in the change set of the current
-    UCM activity, select \uicontrol Tools > \uicontrol ClearCase >
-    \uicontrol {Check In Activity}.
-
-    To create a permanent new version of the current file or all files in the
-    versioned object base (VOB), select \uicontrol Tools >
-    \uicontrol {ClearCase} > \uicontrol {Check In}. To confirm
-    that you want to check in the files, select \preferences >
-    \uicontrol {Version Control} > \uicontrol ClearCase,
-    and then select \uicontrol {Prompt on check-in}.
-
-    By default, you have to enter a comment when checking files out or in.
-    To suppress this prompt, select \preferences > \uicontrol {Version Control} >
-    \uicontrol ClearCase, and then select
-    \uicontrol {Do not prompt for comment during checkout or check-in}.
-
-    If you change the read-only attribute of a file that is loaded into a
-    snapshot view and modify the file without checking it out, you \e hijack the
-    file. To revert a hijacked file to its checked in version, select
-    \uicontrol Tools > \uicontrol ClearCase > \uicontrol {Undo Hijack}.
-
-    By default, the files in the VOBs are indexed for quick access to their
-    statuses. To disable indexing, select \preferences >
-    \uicontrol {Version Control} > \uicontrol ClearCase, and then select
-    \uicontrol {Disable indexer}. To only have some VOBs indexed,
-    specify them in the \uicontrol {Index only VOBs} field.
-
-    Specify the number of event records to show in \uicontrol {History count}.
-
-    Set a timeout for version control operations in \uicontrol Timeout.
+    \table
+    \header
+        \li Preference
+        \li Description
+    \row
+        \li \uicontrol {History count}
+        \li The number of event records to show in the history view.
+    \row
+        \li \uicontrol {Timeout}
+        \li The timeout in seconds for version control operations.
+    \row
+        \li \uicontrol {Automatically check out files on edit}
+        \li Automatically check out files when you edit them.
+    \row
+        \li \uicontrol {Auto assign activity names}
+        \li Automatically assign names to UCM activities.
+    \row
+        \li \uicontrol {Do not prompt for comment during checkout or check-in}
+        \li By default, you have to enter a comment when checking files out or
+            in. This option suppresses the prompt for comments.
+    \row
+        \li \uicontrol {Prompt on check-in}
+        \li Confirm that you want to check in files by showing a prompt when
+            you select \uicontrol {Check In}.
+    \row
+        \li \uicontrol {Disable indexer}
+        \li Disable indexing of files in VOBs. To only have some VOBs indexed,
+            specify them in the \uicontrol {Index only VOBs} field.
+    \endtable
 
     \sa {Enable and disable plugins}, {Set up version control systems},
     {Use common VCS functions}, {Version Control Systems}

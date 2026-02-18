@@ -165,33 +165,3 @@
     \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs},
     {Designing Qt Quick UIs}
 */
-
-/*!
-    \page creator-reference-views.html
-    \previouspage creator-reference.html
-
-    \ingroup creator-reference
-
-    \title Views
-
-    \brief \QC output and sidebar views.
-
-    When you switch modes or trigger actions, \QC opens views for viewing
-    output and organizing project contents.
-
-    \section1 Output views
-
-    You can view output from several sources, such as a list of errors and
-    warnings encountered during a build, detailed output from the compiler,
-    status of a program when it is executed, debug output, or search results.
-
-    \annotatedlist creator-reference-output-views
-
-    \section1 Sidebar views
-
-    In some modes, you can use a left and right sidebar to organize different
-    views into project contents. Only views that are relevant to the mode you
-    are working in are available in it.
-
-    \annotatedlist creator-reference-sidebar-views
-*/

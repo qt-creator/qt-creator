@@ -522,7 +522,7 @@ CommandLine CMakeBuildStep::cmakeCommand() const
         const QString path = target.left(separator);
         const QString operation = target.mid(separator + 1);
 
-        if (bs->cmakeGenerator().contains("Makefiles")) {
+        if (bs && bs->cmakeGenerator().contains("Makefiles")) {
             cmd.addArgs(
                 {"--build",
                  CMakeToolManager::mappedFilePath(project, buildDirectory.pathAppended(path))
@@ -565,6 +565,9 @@ CommandLine CMakeBuildStep::cmakeCommand() const
         // For the case when we have only one target to build, and this is an utility target
         // we don't need to do an "install" step when using staging
         auto isUtilityTarget = [bs, this]() -> bool {
+            if (bs == nullptr)
+                return false;
+
             if (m_buildTargets.size() != 1)
                 return false;
 

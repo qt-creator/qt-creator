@@ -3,10 +3,12 @@
 
 #include "layoutbuilder.h"
 
+#include "algorithm.h"
 #include "completingtextedit.h"
 #include "fancylineedit.h"
 #include "filepath.h"
 #include "guiutils.h"
+#include "hostosinfo.h"
 #include "icon.h"
 #include "icondisplay.h"
 #include "markdownbrowser.h"
@@ -149,6 +151,24 @@ private:
     {
         int left, top, right, bottom;
         getContentsMargins(&left, &top, &right, &bottom);
+        if (Utils::HostOsInfo::isMacHost() && Utils::anyOf(itemList, [](QLayoutItem *i) {
+                return qobject_cast<QPushButton *>(i->widget());
+            })) {
+            // TODO Find a more generic way, maybe through QBoxLayout::effectiveMargins?
+            // This prevents push buttons to be downgraded to square button style.
+            // QLayoutItem::setGeometry modifies the rect by
+            //   QWidgetPrivate::(left|right|top|bottom)LayoutItemMargin.
+            // That is set by QPushButton::resetLayoutItemMargins() via the style's
+            // subElementRect for QStyle::SE_PushButtonLayoutItem.
+            // That is -4 from the top and +8 to the bottom for normal (SizeLarge) QPushButton,
+            // which results in sizeHint 20 + 12 = 32, which is the value that is checked against
+            // for the decision if the QPushButton can remain a normal QPushButton or is changed
+            // to square button style.
+            // If the modified rect's y-position is < 0, then the rect is is moved down and cut
+            // smaller by that amount, which then results in a size != 32 and a square button.
+            top = std::max(top, 4);
+            bottom = std::max(bottom, 4); // no need to enforce the full 8, just go symmetric
+        }
         const QRect effectiveRect = rect.adjusted(+left, +top, -right, -bottom);
         int x = effectiveRect.x();
         int y = effectiveRect.y();

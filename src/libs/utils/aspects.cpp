@@ -607,10 +607,6 @@ void BaseAspect::cancel()
     announceChanges(changes);
 }
 
-void BaseAspect::finish()
-{
-}
-
 bool BaseAspect::hasAction() const
 {
     return d->m_action != nullptr;
@@ -2192,8 +2188,6 @@ BoolAspect::BoolAspect(AspectContainer *container)
 {
     setDefaultValue(false);
     setSpan(2, 1);
-
-    d->m_undoable.setSilently(false);
 }
 
 /*!
@@ -2371,6 +2365,7 @@ SelectionAspect::SelectionAspect(AspectContainer *container)
     : TypedAspect(container), d(new Internal::SelectionAspectPrivate)
 {
     setSpan(2, 1);
+    d->m_undoable.setSilently(value());
 }
 
 /*!
@@ -2383,8 +2378,6 @@ SelectionAspect::~SelectionAspect() = default;
 */
 void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    d->m_undoable.setSilently(value());
-
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons: {
         auto buttonGroup = new QButtonGroup(parent.product());
@@ -2440,11 +2433,6 @@ bool SelectionAspect::guiToVolatileValue()
 void SelectionAspect::volatileValueToGui()
 {
     return d->m_undoable.setWithoutUndo(m_volatileValue);
-}
-
-void SelectionAspect::finish()
-{
-    BaseAspect::finish();
 }
 
 void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
@@ -2957,8 +2945,6 @@ void StringListAspect::volatileValueToGui()
 
 void StringListAspect::addToLayoutImpl(Layout &parent)
 {
-    d->undoable.setSilently(value());
-
     auto editor = createSubWidget<QTreeWidget>();
     editor->setHeaderHidden(true);
     editor->setRootIsDecorated(false);
@@ -3151,8 +3137,6 @@ void FilePathListAspect::volatileValueToGui()
 
 void FilePathListAspect::addToLayoutImpl(Layout &parent)
 {
-    d->undoable.setSilently(value());
-
     PathListEditor *editor = createSubWidget<PathListEditor>();
     editor->setPathList(value());
     connect(editor, &PathListEditor::changed, this, [this, editor] {
@@ -3459,6 +3443,22 @@ void AspectContainer::writeSettings() const
         aspect->writeSettings();
 }
 
+void AspectContainer::volatileValueToGui()
+{
+    for (BaseAspect *aspect : std::as_const(d->m_items))
+        aspect->volatileValueToGui();
+}
+
+bool AspectContainer::guiToVolatileValue()
+{
+    bool result = true;
+    for (BaseAspect *aspect : std::as_const(d->m_items)) {
+        if (!aspect->guiToVolatileValue())
+            result = false;
+    }
+    return result;
+}
+
 void AspectContainer::setSettingsGroup(const QString &groupKey)
 {
     d->m_settingsGroup = QStringList{groupKey};
@@ -3491,12 +3491,6 @@ void AspectContainer::cancel()
 {
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->cancel();
-}
-
-void AspectContainer::finish()
-{
-    for (BaseAspect *aspect : std::as_const(d->m_items))
-        aspect->finish();
 }
 
 void AspectContainer::reset()
@@ -4083,6 +4077,8 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 
     comboBox->setModel(m_model);
     setWheelScrollingWithoutFocusBlocked(comboBox);
+
+    fixupComboBox(comboBox);
 
     connect(m_selectionModel,
             &QItemSelectionModel::currentChanged,

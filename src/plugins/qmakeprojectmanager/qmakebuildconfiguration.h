@@ -112,7 +112,7 @@ protected:
 private:
     void restrictNextBuild(const ProjectExplorer::RunConfiguration *rc) override;
 
-    void kitChanged();
+    void kitChangedSlot();
     void toolChainUpdated(ProjectExplorer::Toolchain *tc);
     void qtVersionsChanged(const QList<int> &, const QList<int> &, const QList<int> &changed);
     void updateProblemLabel();

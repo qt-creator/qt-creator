@@ -66,7 +66,6 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
     });
 
     registerCustomMethod("LogMessage", [](const LanguageServerProtocol::JsonRpcMessage &message) {
-        QString msg = message.toJsonObject().value("params").toObject().value("message").toString();
         qCDebug(copilotClientLog) << message.toJsonObject()
                                          .value("params")
                                          .toObject()

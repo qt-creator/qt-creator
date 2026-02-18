@@ -20,7 +20,7 @@
     \l {Use Git}{How to: Use Git}
     \endquotation
 
-    \summary {Additional Git functions.}
+    \brief {Additional Git functions.}
 
     \l{Git Downloads}{Git} is a fast decentralized version control system.
     Git is available for Windows, Linux, and \macos.
@@ -66,7 +66,7 @@
     \uicontrol {Manage Remotes}. Double-click the names and URLs of the remote
     repositories to edit them.
 
-    The following operations are supported:
+    The following table describes the supported operations.
 
     \table
         \header
@@ -91,7 +91,7 @@
     \endtable
 
     \sa {Use Git}{How to: Use Git}, {Compare files},
-    {Set up version control systems}, {Version Control Systems}
+    {Version Control Systems}
 */
 
 /*!

@@ -431,6 +431,31 @@ private:
 
 // ----------- SettingsWidget
 
+// Hack: Also emit when clicked in disabled state, so that in cases some
+// settings page does not handle dirtying properly, the user still has
+// a way to change settings.
+class Button final : public QtcButton
+{
+    Q_OBJECT
+
+public:
+    Button(const QString &text, Role role)
+        : QtcButton(text, role)
+    {
+       installEventFilter(this);
+    }
+
+    bool eventFilter(QObject *obj, QEvent *event)
+    {
+        if (obj == this && event->type() == QEvent::MouseButtonRelease)
+            emit rawClicked();
+        return QWidget::eventFilter(obj, event);
+    }
+
+signals:
+    void rawClicked();
+};
+
 class LargerDialogButtonBox : public QDialogButtonBox
 {
 public:
@@ -494,13 +519,13 @@ private:
     LargerDialogButtonBox m_buttonBoxLong;
     LargerDialogButtonBox m_buttonBoxShort;
 
-    QtcButton m_okButtonLong{Tr::tr("OK"), QtcButton::MediumPrimary};
-    QtcButton m_applyButtonLong{Tr::tr("Apply"), QtcButton::MediumSecondary};
-    QtcButton m_cancelButtonLong{Tr::tr("Cancel"), QtcButton::MediumSecondary};
-    QtcButton m_discardButtonLong{Tr::tr("Discard"), QtcButton::MediumSecondary};
+    Button m_okButtonLong{Tr::tr("OK"), Button::MediumPrimary};
+    Button m_applyButtonLong{Tr::tr("Apply"), Button::MediumSecondary};
+    Button m_cancelButtonLong{Tr::tr("Cancel"), Button::MediumSecondary};
+    Button m_discardButtonLong{Tr::tr("Discard"), Button::MediumSecondary};
 
-    QtcButton m_applyButtonShort{Tr::tr("Apply"), QtcButton::MediumPrimary};
-    QtcButton m_discardButtonShort{Tr::tr("Discard"), QtcButton::MediumSecondary};
+    Button m_applyButtonShort{Tr::tr("Apply"), Button::MediumPrimary};
+    Button m_discardButtonShort{Tr::tr("Discard"), Button::MediumSecondary};
 
     bool m_isDirty = false;
     bool m_currentlySwitching = false;
@@ -676,21 +701,20 @@ void SettingsWidget::createGui()
         m_buttonBoxLong.setVisible(isLong);
         m_buttonBoxShort.setVisible(!isLong);
     };
-    setupButtonBoxes();
     generalSettings().showOkAndCancelInSettingsMode.addOnChanged(this, setupButtonBoxes);
 
-    connect(&m_okButtonLong, &QAbstractButton::clicked, this, [this] {
+    connect(&m_okButtonLong, &Button::rawClicked, this, [this] {
         apply();
         ModeManager::activatePreviousMode();
     });
 
-    connect(&m_applyButtonLong, &QAbstractButton::clicked, this, &SettingsWidget::apply);
-    connect(&m_applyButtonShort, &QAbstractButton::clicked, this, &SettingsWidget::apply);
+    connect(&m_applyButtonLong, &Button::rawClicked, this, &SettingsWidget::apply);
+    connect(&m_applyButtonShort, &Button::rawClicked, this, &SettingsWidget::apply);
 
-    connect(&m_discardButtonLong, &QAbstractButton::clicked, this, &SettingsWidget::cancel);
-    connect(&m_discardButtonShort, &QAbstractButton::clicked, this, &SettingsWidget::cancel);
+    connect(&m_discardButtonLong, &Button::rawClicked, this, &SettingsWidget::cancel);
+    connect(&m_discardButtonShort, &Button::rawClicked, this, &SettingsWidget::cancel);
 
-    connect(&m_cancelButtonLong, &QAbstractButton::clicked, this, [this] {
+    connect(&m_cancelButtonLong, &Button::rawClicked, this, [this] {
         cancel();
         ModeManager::activatePreviousMode();
     });
@@ -735,6 +759,7 @@ void SettingsWidget::createGui()
         rightColumn,
     }.attachTo(this);
 
+    setupButtonBoxes();
     setDirty(false);
 }
 
@@ -1023,3 +1048,5 @@ void SettingsMode::open(Id initialPage)
 }
 
 } // namespace Core::Internal
+
+#include "settingsmode.moc"

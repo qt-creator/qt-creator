@@ -146,6 +146,7 @@ const Key changeTimeStamp("ChangeTimeStamp");
 
 const char sdkToolsVersionKey[] = "Pkg.Revision";
 const char ndkRevisionKey[] = "Pkg.Revision";
+const char androidConfigurationId[] = "AndroidConfiguration";
 
 static FilePath sdkSettingsFileName()
 {
@@ -1432,7 +1433,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             const auto initializeKit = [&bundle, qt](Kit *k) {
                 const auto source = qt->detectionSource().isAutoDetected() ?
                     DetectionSource::FromSystem : DetectionSource::Manual;
-                k->setDetectionSource({source, "AndroidConfiguration"});
+                k->setDetectionSource({source, androidConfigurationId});
                 RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
                 ToolchainKitAspect::setBundle(k, bundle);
                 QtKitAspect::setQtVersion(k, qt);
@@ -1465,6 +1466,9 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
     // cleanup any mess that might have existed before, by removing all Android kits that
     // existed before, but weren't re-used
+    unhandledKits = Utils::filtered(unhandledKits, [](Kit *k) {
+        return k->detectionSource().id == androidConfigurationId;
+    });
     KitManager::deregisterKits(unhandledKits);
 }
 

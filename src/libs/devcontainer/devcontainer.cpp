@@ -1738,7 +1738,6 @@ static WrappedProcessInterface *makeProcessInterface(
         if (inTerminal)
             dockerCmd.addArg("-t");
 
-        QStringList unsetKeys;
         Environment remoteEnv;
         for (const auto &[k, v] : config.common.remoteEnv) {
             if (v) {

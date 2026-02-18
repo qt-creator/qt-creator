@@ -39,6 +39,6 @@
     In some views, right-clicking opens a context menu that has functions
     for managing the objects listed in the view.
 
-    \sa {Adapt the UI}{How to: Adapt the UI}, {Sidebar Views},
-    {Show and hide the main menu}, {Switch between modes}, {Adapting the UI}
+    \sa {Adapt the UI}{How to: Adapt the UI}, {Show and hide the main menu},
+    {Switch between modes}, {Adapting the UI}
 */

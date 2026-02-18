@@ -734,7 +734,7 @@ bool FancyMainWindow::restoreFancyState(const QByteArray &state, int version)
     return result;
 }
 
-static void findDockChildren(QWidget *parent, QList<QDockWidget *> &result)
+static void findDockChildren(const QWidget *parent, QList<QDockWidget *> &result)
 {
     for (QObject *child : parent->children()) {
         QWidget *childWidget = qobject_cast<QWidget *>(child);
@@ -751,7 +751,7 @@ static void findDockChildren(QWidget *parent, QList<QDockWidget *> &result)
 const QList<QDockWidget *> FancyMainWindow::dockWidgets() const
 {
     QList<QDockWidget *> result;
-    findDockChildren((QWidget *) this, result);
+    findDockChildren(this, result);
     return result;
 }
 

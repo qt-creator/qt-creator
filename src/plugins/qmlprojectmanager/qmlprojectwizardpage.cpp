@@ -77,7 +77,6 @@ Result<> QmlModuleWizardFieldPageFactory::validateData(Id typeId, const QVariant
 
 Result<> QmlModuleWizardGenerator::setup(const QVariant &data)
 {
-    QString errorMessage;
     const Result<QVariantList> list = JsonWizardFactory::objectOrList(data);
     if (list->isEmpty())
         return ResultError(list.error());

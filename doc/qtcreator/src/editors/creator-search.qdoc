@@ -23,7 +23,7 @@
 
     \image {qtcreator-find-from-current-file.webp} {Search hits highlighted in the editor}
 
-    \sa {Search}{How to: Search}, {Search Results View}
+    \sa {Search}{How to: Search}
 */
 
 /*!
@@ -142,7 +142,7 @@
     you can search in currently open projects or files on the file system. Or,
     search for symbols to refactor code.
 
-    \sa {Search}{How to: Search}, {Search Results View}
+    \sa {Search}{How to: Search}
 
 */
 
@@ -245,5 +245,5 @@
     \l {Preserve case when replacing} apply here as well.
 
     \sa {Search}{How to: Search}, {Find symbols}, {Search in current file},
-    {Turn on Silver Searcher}, {Search Results View}
+    {Turn on Silver Searcher}
 */

@@ -23,23 +23,48 @@
 
     \note Enable the Bazaar plugin to use Bazaar or Breezy.
 
-    In addition to the standard version control system functions described in
-    \l {Use common VCS Functions}, you can select \uicontrol Tools >
-    \uicontrol Bazaar > \uicontrol Pull to turn a branch into a mirror of
-    another branch. To update the mirror of the branch, select \uicontrol Push.
+    \section1 Additional Bazaar and Breezy functions
 
-    \section1 Uncommitting Revisions
+    In addition to the standard version control system functions described in
+    \l {Use common VCS Functions}, you can select the following functions in
+    the \uicontrol Tools > \uicontrol Bazaar submenu.
+
+    \table
+    \header
+        \li Menu Item
+        \li Description
+    \row
+        \li \uicontrol {Pull}
+        \li Turn a branch into a mirror of another branch.
+    \row
+        \li \uicontrol {Push}
+        \li Update the mirror of a branch.
+    \row
+        \li \uicontrol {Uncommit}
+        \li Remove the last committed revision.
+    \endtable
+
+    \section2 Uncommitting revisions
 
     In Bazaar and Breezy, committing changes to a branch creates a new revision that holds
     a snapshot of the state of the working tree. To remove the last committed
-    revision, select \uicontrol Tools > \uicontrol Bazaar > \uicontrol Uncommit.
+    revision, select \uicontrol Tools > \uicontrol Bazaar > \uicontrol Uncommit
+    and select the options you want in the \uicontrol Uncommit dialog.
 
-    In the \uicontrol Uncommit dialog, select options to keep tags that point to
-    removed revisions and to only remove the commits from the local branch when
-    in a checkout.
-
-    To remove all commits up to an entry in the revision log, specify the
-    revision in the \uicontrol Revision field.
+    \table
+    \header
+        \li Option
+        \li Description
+    \row
+        \li \uicontrol {Keep tags that point to removed revisions}
+        \li Keeps the tags that point to the removed revisions.
+    \row
+        \li \uicontrol {Only remove the commits from the local branch when in a checkout}
+        \li Removes the commits only from the local branch.
+    \row
+        \li \uicontrol {Revision}
+        \li Removes all commits up to the specified entry in the revision log.
+    \endtable
 
     To test the outcome of the \uicontrol Uncommit command without actually
     removing anything, select \uicontrol {Dry Run}.
@@ -48,23 +73,33 @@
     change it might make is restoring pending merges that were present before
     the commit.
 
-    \section1 Bazaar and Breezy Preferences
+    \section1 Bazaar and Breezy preferences
 
     To set Bazaar or Breezy preferences, select \preferences >
-    \uicontrol {Version Control} > \uicontrol Bazaar:
+    \uicontrol {Version Control} > \uicontrol Bazaar.
 
     \image {qtcreator-preferences-vcs-bazaar.webp} {Bazaar tab in Version Control preferences}
 
-    \list
-        \li \uicontrol Command specifies the path to the command-line client
-            executable.
-        \li \uicontrol {Default username} and \uicontrol {Default email}
-            specify the username and email address to use by default when
-            committing changes.
-        \li \uicontrol {Log count} sets the maximum number of lines the log can
-            have.
-        \li \uicontrol Timeout sets a timeout for version control operations.
-    \endlist
+    \table
+    \header
+        \li Preference
+        \li Description
+    \row
+        \li \uicontrol {Command}
+        \li The path to the command-line client executable.
+    \row
+        \li \uicontrol {Default username}
+        \li The username to use by default when committing changes.
+    \row
+        \li \uicontrol {Default email}
+        \li The email address to use by default when committing changes.
+    \row
+        \li \uicontrol {Log count}
+        \li The maximum number of lines the log can have.
+    \row
+        \li \uicontrol {Timeout}
+        \li A timeout for version control operations.
+    \endtable
 
     \sa {Enable and disable plugins}, {Set up version control systems},
     {Use common VCS functions}, {Version Control Systems}

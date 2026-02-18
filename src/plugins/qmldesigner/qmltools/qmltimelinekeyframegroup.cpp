@@ -416,11 +416,8 @@ QList<QmlTimelineKeyframeGroup> QmlTimelineKeyframeGroup::allInvalidTimelineKeyf
                                keyValue("view", view),
                                keyValue("caller location", sl)};
 
-    QTC_CHECK(view);
-    QTC_CHECK(view->model());
-
-    if (!view || !view->model())
-        return {};
+    QTC_ASSERT(view, return {});
+    QTC_ASSERT(view->model(), return {});
 
     const auto groups = view->rootModelNode().subModelNodesOfType(
         view->model()->qtQuickTimelineKeyframeGroupMetaInfo());

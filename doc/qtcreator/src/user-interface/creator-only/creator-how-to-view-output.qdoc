@@ -22,7 +22,7 @@
     \list
         \li Select the output view.
         \li Select \uicontrol View > \uicontrol Output.
-            The menu items also display the \l{Keyboard Shortcuts}
+            The menu items also display the \l{Keyboard shortcuts}
             {keyboard shortcuts} that you can use.
         \li Select \key Alt (\key Cmd on \macos) and the number of the view.
         \li Select \inlineimage {icons/output-pane-menu.png} {Output view menu},
@@ -73,5 +73,5 @@
     \uicontrol {Copy Contents to Scratch Buffer}.
 
     \sa {Adapt the UI}{How to: Adapt the UI}, {Write down notes},
-    {Adapting the UI}, {Output Views}
+    {Adapting the UI}, {Issues}
 */

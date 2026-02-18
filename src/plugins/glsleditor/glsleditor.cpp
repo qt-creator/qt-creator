@@ -433,7 +433,7 @@ GlslEditorWidget::GlslEditorWidget()
     insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
     insertExtraToolBarWidget(TextEditorWidget::Right, m_vulkanSupport);
 
-    connect(m_vulkanSupport, &QToolButton::clicked, this, [this, &updateVulkanToolTip] {
+    connect(m_vulkanSupport, &QToolButton::clicked, this, [this, updateVulkanToolTip] {
         updateVulkanToolTip();
         m_updateDocumentTimer.start();
     });

@@ -161,10 +161,9 @@ void ClangToolsCompilationDb::Private::generate()
                 Tr::tr("Generating compilation database for %1 failed: %2")
                     .arg(toolName(), result.error()));
         }
-        emit q->generated(success);
     };
-    taskTreeRunner.start({
-        AsyncTask<GenerateCompilationDbResult>(onSetup, onDone)
+    taskTreeRunner.start({AsyncTask<GenerateCompilationDbResult>(onSetup, onDone)}, {}, [this] {
+        emit q->generated(readyAndUpToDate);
     });
 }
 

@@ -98,12 +98,12 @@ static QStringList baseNameWithAllSuffixes(const QString &baseName, const QStrin
     return result;
 }
 
-static QStringList baseNamesWithAllPrefixes(const CppFileSettings &settings,
+static QStringList baseNamesWithAllPrefixes(const CppFileSettingsData &settings,
                                             const QStringList &baseNames, bool isHeader)
 {
     QStringList result;
-    const QStringList &sourcePrefixes = settings.sourcePrefixes;
-    const QStringList &headerPrefixes = settings.headerPrefixes;
+    const QStringList sourcePrefixes = settings.sourcePrefixes;
+    const QStringList headerPrefixes = settings.headerPrefixes;
 
     for (const QString &name : baseNames) {
         for (const QString &prefix : isHeader ? headerPrefixes : sourcePrefixes) {
@@ -185,7 +185,7 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
     }
 
     Project * const projectForFile = ProjectManager::projectForFile(filePath);
-    const CppFileSettings settings = cppFileSettingsForProject(projectForFile);
+    const CppFileSettingsData settings = cppFileSettingsForProject(projectForFile);
 
     if (debug)
         qDebug() << Q_FUNC_INFO << filePath.fileName() <<  kind;
@@ -335,24 +335,25 @@ void HeaderSourceTest::initTestCase()
 {
     QDir(baseTestDir()).mkpath(_("."));
     CppFileSettings &fs = globalCppFileSettings();
-    fs.headerSearchPaths.append(QLatin1String("include"));
-    fs.headerSearchPaths.append(QLatin1String("../include"));
-    fs.sourceSearchPaths.append(QLatin1String("src"));
-    fs.sourceSearchPaths.append(QLatin1String("../src"));
-    fs.headerPrefixes.append(QLatin1String("testh_"));
-    fs.sourcePrefixes.append(QLatin1String("testc_"));
+    fs.headerSearchPaths.push("include");
+    fs.headerSearchPaths.push("../include");
+    fs.sourceSearchPaths.push("src");
+    fs.sourceSearchPaths.push("../src");
+    fs.headerPrefixes.push("testh_");
+    fs.sourcePrefixes.push("testc_");
 }
 
 void HeaderSourceTest::cleanupTestCase()
 {
     Utils::FilePath::fromString(baseTestDir()).removeRecursively();
     CppFileSettings &fs = globalCppFileSettings();
-    fs.headerSearchPaths.removeLast();
-    fs.headerSearchPaths.removeLast();
-    fs.sourceSearchPaths.removeLast();
-    fs.sourceSearchPaths.removeLast();
-    fs.headerPrefixes.removeLast();
-    fs.sourcePrefixes.removeLast();
+
+    fs.headerSearchPaths.pop();
+    fs.headerSearchPaths.pop();
+    fs.sourceSearchPaths.pop();
+    fs.sourceSearchPaths.pop();
+    fs.headerPrefixes.pop();
+    fs.sourcePrefixes.pop();
 }
 
 QObject *createCppHeaderSourceTest()

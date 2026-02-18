@@ -130,7 +130,6 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
 
     // Collect files to process
     FilePaths filesToOpen;
-    QList<QPointer<ProjectExplorer::Project> > projects;
     const QList<ProjectInfo::ConstPtr> projectInfos = CppModelManager::projectInfos();
 
    for (const ProjectInfo::ConstPtr &info : projectInfos) {

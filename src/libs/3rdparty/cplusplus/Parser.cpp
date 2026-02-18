@@ -2199,6 +2199,7 @@ bool Parser::parseEnumSpecifier(SpecifierListAST *&node)
         if (_languageFeatures.cxx11Enabled && (LA() == T_CLASS || LA() == T_STRUCT))
             ast->key_token = consumeToken();
 
+        parseOptionalAttributeSpecifierSequence(ast->attribute_list);
 
         if (tok().isKeyword()) {
             error(cursor(), "expected identifier before '%s'", tok().spell());
@@ -3530,7 +3531,8 @@ bool Parser::parseUnqualifiedName(NameAST *&node, bool acceptTemplateId)
                     && (! _templateArguments || (LA() == T_COMMA  || maybeSplitGreaterGreaterToken() || LA() == T_GREATER ||
                                                  LA() == T_LPAREN || LA() == T_RPAREN  ||
                                                  LA() == T_STAR || LA() == T_AMPER || // ptr-operators
-                                                 LA() == T_COLON_COLON || LA() == T_EQUAL))) {
+                                                 LA() == T_COLON_COLON || LA() == T_EQUAL ||
+                                                 LA() == T_AMPER_AMPER || LA() == T_PIPE_PIPE))) {
                 blockErrors(blocked);
                 return true;
             }

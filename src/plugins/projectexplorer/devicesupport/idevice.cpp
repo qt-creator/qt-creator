@@ -972,8 +972,12 @@ void IDevice::fromMap(const Store &map)
     ssh.setPrivateKeyFile(
         FilePath::fromSettings(map.value(KeyFileKey, defaultPrivateKeyFilePath())));
     ssh.setTimeout(map.value(TimeoutKey, DefaultTimeout).toInt());
-    ssh.setHostKeyCheckingMode(static_cast<SshHostKeyCheckingMode>(
-        map.value(HostKeyCheckingKey, SshHostKeyCheckingNone).toInt()));
+    SshHostKeyCheckingMode hostKeyCheckingMode = static_cast<SshHostKeyCheckingMode>(
+            map.value(HostKeyCheckingKey, SshHostKeyCheckingNone).toInt());
+    if (hostKeyCheckingMode < SshHostKeyCheckingNone || hostKeyCheckingMode > SshHostKeyCheckingAllowNoMatch)
+        hostKeyCheckingMode = SshHostKeyCheckingNone;
+    ssh.setHostKeyCheckingMode(hostKeyCheckingMode);
+
 
     d->sshParametersAspectContainer.setSshParameters(ssh);
 }

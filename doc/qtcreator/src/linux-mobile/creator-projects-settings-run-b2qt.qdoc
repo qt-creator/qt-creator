@@ -3,27 +3,42 @@
 
 /*!
     \page creator-run-settings-b2qt.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-run-configurations
+    \ingroup creator-how-to-b2qt
 
-    \title \B2Q Run Settings
-
-    \brief Settings for running applications on \B2Q devices.
-
-    To specify settings for running applications on the \l {Managing kits}{Run device} that
-    you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.
+    \title Run on \B2Q devices
 
     To run and debug an application on a \l{\B2Q: Documentation}{\B2Q} device
     (commercial only), create connections from the development host to the device
-    and add the device configurations to kits.
+    and add the device to kits.
 
-    Select \uicontrol {Manage Kits} to add devices to kits.
+    To build an application and run it on a \B2Q device:
+
+        \list 1
+            \li Connect the device to the computer with a USB cable.
+                \QC automatically adds the device to \preferences >
+                \uicontrol Devices and to suitable \B2Q kits in
+                \preferences > \uicontrol Kits.
+            \li Select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run).
+        \endlist
+
+    \QC uses the compiler from the kit (toolchain) to build the application.
+    It then copies the application files to the connected device and runs the
+    application. The application views are displayed on the device.
+
+    Command-line output is visible in the \QC \uicontrol {Application Output}
+    view.
+
+    \section1 Specify run settings for \B2Q devices
+
+    To specify settings for running applications on the \uicontrol {Run device} that
+    you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.
 
     The run settings display the path to the executable file on the development
     host and on the device.
 
     \sa {\B2Q}{How to: Develop for \B2Q}, {Manage kits}{How to: Manage kits},
-    {Configure projects for running}, {Managing kits},
-    {\B2Q Deploy Configuration}
+    {Configure projects for running}, {Developing for \B2Q devices},
+    {Managing kits}
 */

@@ -33,7 +33,7 @@
         \li iOS Simulator
         \li \l{Developing for MCUs}{MCU} (commercial only)
         \li \l{Add a QNX Neutrino device}{QNX}
-        \li \l{Developing for Remote Linux Devices}{Remote Linux}
+        \li \l{Developing for remote Linux devices}{Remote Linux}
         \li \l{Create kits for VxWorks devices}{VxWorks}
         \li \l{Building applications for the web}{WebAssembly Runtime}
     \endlist

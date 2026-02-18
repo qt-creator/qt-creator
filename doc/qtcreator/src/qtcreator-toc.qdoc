@@ -125,7 +125,7 @@
                         \generatelist creator-reference-editors
                     \li \l{FAQ}
                     \li \l{Glossary}
-                    \li \l{Keyboard Shortcuts}
+                    \li \l{Keyboard shortcuts}
                     \li \l{Known Issues}
                     \li \l{Licenses and acknowledgments}
                     \li \l{Platforms}
@@ -138,8 +138,6 @@
                     \li \l{Technical support}
                     \li \l{Version Control Systems}
                         \generatelist creator-reference-vcs
-                    \li \l{Views}
-                        \generatelist creator-reference-views
                 \endlist
     \endlist
 */

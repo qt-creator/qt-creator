@@ -54,6 +54,7 @@ void DockerDeviceEnvironmentAspect::addToLayoutImpl(Layouting::Layout &parent)
     auto envWidget = new EnvironmentWidget(nullptr, EnvironmentWidget::Type::TypeRemote, fetchBtn);
     envWidget->setOpenTerminalFunc(nullptr);
     envWidget->setUserChanges(EnvironmentItem::fromStringList(undoable.get()));
+    envWidget->setupDirtyHooks();
 
     connect(
         this, &DockerDeviceEnvironmentAspect::remoteEnvironmentChanged, envWidget, [this, envWidget] {

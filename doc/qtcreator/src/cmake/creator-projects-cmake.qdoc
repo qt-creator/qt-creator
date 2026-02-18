@@ -49,7 +49,7 @@
 
     \sa {Configure projects for building}, {Configure projects for running},
     {Build with CMake}{How to: Build with CMake}, {Building projects with CMake},
-    {Debug CMake project files}, {Remote Linux Deploy Configuration}, {Open projects},
+    {Debug CMake project files}, {Deploy applications to remote Linux devices}, {Open projects},
     {Use compilation databases}
 */
 

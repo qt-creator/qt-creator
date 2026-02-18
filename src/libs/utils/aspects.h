@@ -140,7 +140,6 @@ public:
 
     virtual void apply();
     virtual void cancel();
-    virtual void finish();
     virtual bool isDirty() const;
     bool hasAction() const;
 
@@ -576,8 +575,6 @@ class QTCREATOR_UTILS_EXPORT SelectionAspect : public TypedAspect<int>
 public:
     SelectionAspect(AspectContainer *container = nullptr);
     ~SelectionAspect() override;
-
-    void finish() override;
 
     QString stringValue() const;
     void setStringValue(const QString &val);
@@ -1059,13 +1056,15 @@ public:
     void readSettings() override;
     void writeSettings() const override;
 
+    void volatileValueToGui() override;
+    bool guiToVolatileValue() override;
+
     void setSettingsGroup(const QString &groupKey);
     void setSettingsGroups(const QString &groupKey, const QString &subGroupKey);
     QStringList settingsGroups() const;
 
     void apply() override;
     void cancel() override;
-    void finish() override;
 
     void reset();
     bool equals(const AspectContainer &other) const;
@@ -1170,7 +1169,7 @@ private:
     }
 
 private:
-    T m_value;
+    T m_value{};
 };
 
 class QTCREATOR_UTILS_EXPORT AspectList : public Utils::BaseAspect
@@ -1252,6 +1251,7 @@ private:
     std::unique_ptr<Internal::AspectListPrivate> d;
 };
 
+// FIXME: Merge into SelectionAspect
 class QTCREATOR_UTILS_EXPORT StringSelectionAspect : public Utils::TypedAspect<QString>
 {
     Q_OBJECT
@@ -1259,6 +1259,7 @@ public:
     StringSelectionAspect(Utils::AspectContainer *container = nullptr);
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
+    virtual void fixupComboBox(QComboBox */*comboBox*/) {}
 
     using ResultCallback = std::function<void(QList<QStandardItem *> items)>;
     using FillCallback = std::function<void(ResultCallback)>;

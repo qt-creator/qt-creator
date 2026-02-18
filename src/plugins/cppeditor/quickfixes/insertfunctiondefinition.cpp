@@ -2640,7 +2640,6 @@ foo::foo2::MyType<int> foo::foo2::bar()
         QList<TestDocumentPtr> testDocuments;
 
         QByteArray original;
-        QByteArray expected;
 
         // Header File
         original =

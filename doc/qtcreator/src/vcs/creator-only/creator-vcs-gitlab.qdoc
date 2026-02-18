@@ -22,7 +22,7 @@
 
     \note Enable the GitLab plugin to use it.
 
-    \section1 Connecting to GitLab Servers
+    \section1 Connecting to GitLab servers
 
     To connect to a GitLab server, specify the server host name and
     port number, as well as an access token that you create in GitLab for \QC.
@@ -58,7 +58,7 @@
 
     To remove the selected connection, select \uicontrol Remove.
 
-    \section1 Cloning Projects
+    \section1 Cloning projects
 
     You can clone projects from the connected GitLab servers. \QC reads your
     user name and ID from the access token and displays the available projects
@@ -75,7 +75,7 @@
         \li In \uicontrol Projects, select the project to clone.
         \li Select \uicontrol Clone to open the \uicontrol {Clone Repository}
             dialog.
-            {\image qtcreator-gitlab-clone-repository.png} {Clone Repository dialog}
+            \image {qtcreator-gitlab-clone-repository.png} {Clone Repository dialog}
         \li In \uicontrol Repository, specify the URL of the repository.
         \li In \uicontrol Path, specify the path where to clone the repository.
         \li In \uicontrol Directory, specify the name of the directory for the

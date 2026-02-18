@@ -29,25 +29,38 @@
     You can use Git as a client for a Subversion server. For more information,
     see \l{Use Git with Subversion}.
 
-    \section1 Subversion Preferences
+    \section1 Subversion preferences
 
     To set Subversion preferences, go to \preferences >
-    \uicontrol {Version Control} > \uicontrol Subversion:
+    \uicontrol {Version Control} > \uicontrol Subversion.
 
    \image {qtcreator-preferences-vcs-subversion.webp} {Subversion tab in Version Control preferences}
 
-    \list
-        \li \uicontrol {Subversion command} specifies the path to the command
-            line client executable.
-        \li \uicontrol {Username} and \uicontrol {Password} specify the user
-            credentials to access the repository if the server requires
-            \uicontrol Authentication.
-        \li \uicontrol {Log count} sets the maximum number of lines the log can
-            have.
-        \li \uicontrol Timeout sets a timeout for version control operations.
-        \li \uicontrol {Ignore whitespace changes in annotation} hides whitespace
-            changes in annotation views.
-    \endlist
+    \table
+        \header
+            \li Preference
+            \li Description
+        \row
+            \li \uicontrol {Subversion command}
+            \li Specifies the path to the command line client executable.
+        \row
+            \li \uicontrol {Username}
+            \li Specify the username to access the repository if the server
+                requires \uicontrol Authentication.
+        \row
+            \li \uicontrol {Password}
+            \li Specify the password to access the repository if the server
+                requires \uicontrol Authentication.
+        \row
+            \li \uicontrol {Log count}
+            \li Sets the maximum number of lines the log can have.
+        \row
+            \li \uicontrol {Timeout}
+            \li Sets a timeout for version control operations.
+        \row
+            \li \uicontrol {Ignore whitespace changes in annotation}
+            \li Hides whitespace changes in annotation views.
+    \endtable
 
     \sa {Enable and disable plugins}, {Set up version control systems},
     {Use common VCS functions}, {Version Control Systems}

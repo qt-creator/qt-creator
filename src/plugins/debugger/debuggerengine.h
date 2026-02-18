@@ -273,6 +273,8 @@ public:
     Utils::FilePaths findQmlFile(const QUrl &url) const;
     void populateQmlFileFinder(const ProjectExplorer::RunControl *runControl);
 
+    Utils::FilePath mapToProjectPath(const QString &debuggerOutput) const;
+
 private:
     Utils::ProcessHandle m_attachPid;
     Utils::ProcessHandle m_serverAttachPid;

@@ -123,7 +123,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
         updateCacheAndEmitEnvironmentChanged();
     });
 
-    connect(this, &BuildConfiguration::kitChanged, this, &QmakeBuildConfiguration::kitChanged);
+    connect(this, &BuildConfiguration::kitChanged, this, &QmakeBuildConfiguration::kitChangedSlot);
     MacroExpander *expander = macroExpander();
     expander->registerVariable("Qmake:Makefile", "Qmake makefile", [this]() -> QString {
         const FilePath file = makefile();
@@ -199,7 +199,7 @@ void QmakeBuildConfiguration::fromMap(const Store &map)
     m_lastKitState = LastKitState(kit());
 }
 
-void QmakeBuildConfiguration::kitChanged()
+void QmakeBuildConfiguration::kitChangedSlot()
 {
     LastKitState newState = LastKitState(kit());
     if (newState != m_lastKitState) {

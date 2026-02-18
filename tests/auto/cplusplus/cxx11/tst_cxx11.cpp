@@ -198,6 +198,7 @@ void tst_cxx11::parse_data()
     QTest::newRow("templatetemplate.1") << 2011;
     QTest::newRow("templatetemplate.2") << 2017;
     QTest::newRow("notatemplate") << 2011;
+    QTest::newRow("binaryExprAsTemplateArg") << 2011;
 }
 
 void tst_cxx11::parse()

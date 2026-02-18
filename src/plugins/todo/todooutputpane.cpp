@@ -167,7 +167,7 @@ void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
     item.iconType = static_cast<IconType>(index.sibling(row, Constants::OUTPUT_COLUMN_TEXT)
                                           .data(Qt::UserRole).toInt());
 
-    emit todoItemClicked(item);
+    todoItemClicked(item);
 }
 
 void TodoOutputPane::updateTodoCount()

@@ -9,14 +9,15 @@
 
 /*!
     \page creator-deployment-embedded-linux.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-deploy-configurations
+    \ingroup creator-how-to-remote-linux
+    \ingroup creator-how-to-b2qt
 
-    \title Remote Linux Deploy Configuration
+    \title Deploy applications to remote Linux devices
 
-    \summary {Copy application files to generic remote Linux devices or create a
-    tarball.}
+    Copy application files to generic remote Linux devices or create a
+    tarball.
 
     Specify settings for deploying applications to generic remote
     Linux devices in the project configuration file and in \uicontrol Projects >
@@ -36,12 +37,12 @@
     and then select \uicontrol Add to enter them manually. To remove the
     selected paths from \uicontrol {Files to deploy}, select \uicontrol Remove.
 
-    \section1 Adding Missing Files
+    \section1 Add missing files
 
     The process to add files to deploy depends on the build system you use.
     For more information, see \l{Specify project contents}.
 
-    \section2 CMake Builds
+    \section2 CMake builds
 
     When using CMake as the build system, use the \l{CMake: install command}
     {install} command in the \c CMakeLists.txt file to add the missing files.
@@ -59,7 +60,7 @@
     )
     \endcode
 
-    \section2 qmake Builds
+    \section2 qmake builds
 
     When using qmake, edit the \l{Variables#installs}{INSTALLS variable} in
     the project \c .pro file.
@@ -78,12 +79,12 @@
     To deploy additional files, add them to further targets that you also add
     to \c INSTALLS.
 
-    \section1 Deploy Steps
+    \section1 Deploy steps
 
     When you run the application on the device, \QC first uploads the
     necessary files to it, as specified by the deploy steps.
 
-    \section2 Uploading Files
+    \section2 Upload files
 
     By default, \QC copies the application files to the device by
     using the SSH file transfer protocol (SFTP), as specified by
@@ -103,7 +104,7 @@
     when you use another device with the same IP address, clear the checkbox
     once, to have \QC deploy all files again.
 
-    \section2 Creating a Tarball
+    \section2 Create a tarball
 
     To only create a tarball and not copy the files to the device, select
     \uicontrol {Add Deploy Step} > \uicontrol {Create tarball}. Then remove all
@@ -113,5 +114,6 @@
     uploads the tarball to the device and extracts it.
 
     \sa {Build and Run}{How to: Build and Run},
-    {Remote Linux}{How to: Develop for remote Linux}
+    {Remote Linux}{How to: Develop for remote Linux},
+    {Developing for remote Linux devices}
 */

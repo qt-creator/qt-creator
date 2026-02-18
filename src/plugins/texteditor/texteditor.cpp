@@ -330,7 +330,7 @@ private:
             break;
         }
         setText(QString("%1: %2").arg(policy).arg(ts.m_indentSize));
-        //: %1=policy, %1=size
+        //: %1=policy, %2=size
         setToolTip(Tr::tr("Indentation settings: %1 (%2)").arg(policy).arg(ts.m_indentSize));
     }
 
@@ -4267,7 +4267,7 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
         if (carrier)
             carrier->deleteLater();
         QAbstractTextDocumentLayout *layout = q->document()->documentLayout();
-        QTimer::singleShot(0, layout, [layout] { layout->update(); });
+        QTimer::singleShot(0, layout, [layout] { emit layout->update(); });
     });
 
     m_numEmbeddedWidgets++;

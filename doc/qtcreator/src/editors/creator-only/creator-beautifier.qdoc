@@ -74,7 +74,7 @@
     \uicontrol ClangFormat, or \uicontrol Uncrustify to select actions for
     formatting text in the current file.
 
-    You can \l{Keyboard Shortcuts}{create keyboard shortcuts} for the
+    You can \l{Keyboard shortcuts}{create keyboard shortcuts} for the
     actions.
 
     Go to \uicontrol {Format Current File} to format the currently open file.

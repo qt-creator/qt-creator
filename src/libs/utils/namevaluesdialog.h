@@ -30,6 +30,7 @@ public:
     bool editVariable(const QString &name, Selection selection);
 
     void forceUpdateCheck();
+    void setupDirtyHooks();
 
 signals:
     void userChangedItems(const EnvironmentItems &items);

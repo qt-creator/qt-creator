@@ -25,7 +25,7 @@
 
     \list
         \li \l {Android Run Settings}{Android}
-        \li \l {\B2Q Run Settings}{\B2Q}
+        \li \l {Run on \B2Q devices}{\B2Q}
         \li \l {Run on the desktop}{Desktop}
         \li \l {Python Run Settings}{Python}
         \li \l {QNX Run Settings}{QNX}

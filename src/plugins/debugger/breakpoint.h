@@ -10,6 +10,9 @@
 #include <utils/textutils.h>
 
 namespace Debugger {
+
+class DebuggerRunParameters;
+
 namespace Internal {
 
 class GdbMi;
@@ -128,8 +131,8 @@ public:
     bool isCppBreakpoint() const;
     bool isQmlFileAndLineBreakpoint() const;
     QString toString() const;
-    void updateLocation(const Utils::FilePath &buildPath, const QString &location); // file.cpp:42
-    void updateFromGdbOutput(const GdbMi &bkpt, const Utils::FilePath &fileRoot);
+    void updateLocation(const DebuggerRunParameters &rp, const QString &location); // file.cpp:42
+    void updateFromGdbOutput(const GdbMi &bkpt, const DebuggerRunParameters &rp);
 
     bool operator==(const BreakpointParameters &p) const { return equals(p); }
     bool operator!=(const BreakpointParameters &p) const { return !equals(p); }

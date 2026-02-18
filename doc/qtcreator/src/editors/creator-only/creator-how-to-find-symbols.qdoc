@@ -51,10 +51,10 @@
 
     \section1 View found symbols
 
-    \l{Search Results View} shows the location and number of search hits in the
+    \l{Search Results view} shows the location and number of search hits in the
     current project.
 
     \image {qtcreator-refactoring-find.webp} {Found symbols in the Search Results view}
 
-    \sa {Search}{How to: Search}, {Search Results View}
+    \sa {Search}{How to: Search}
 */

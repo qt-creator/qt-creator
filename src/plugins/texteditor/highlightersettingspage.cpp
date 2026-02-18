@@ -42,9 +42,9 @@ public:
     {
         QDir userDefinitionPath(m_settings.definitionFilesPath().toUrlishString());
         if (userDefinitionPath.mkdir("syntax")) {
-            const auto link = Utils::HostOsInfo::isAnyUnixHost()
-                                  ? static_cast<bool(*)(const QString &, const QString &)>(&QFile::link)
-                                  : static_cast<bool(*)(const QString &, const QString &)>(&QFile::copy);
+            auto do_link = [](const QString &src, const QString &tgt) { return QFile::link(src, tgt); };
+            auto do_copy = [](const QString &src, const QString &tgt) { return QFile::copy(src, tgt); };
+            const auto link = Utils::HostOsInfo::isAnyUnixHost() ? +do_link : +do_copy;
 
             for (const QFileInfo &file : userDefinitionPath.entryInfoList({"*.xml"}, QDir::Files))
                 link(file.filePath(), file.absolutePath() + "/syntax/" + file.fileName());

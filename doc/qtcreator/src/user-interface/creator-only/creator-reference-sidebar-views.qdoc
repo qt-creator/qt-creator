@@ -3,15 +3,15 @@
 
 /*!
     \page creator-outline-view.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-views
-    \ingroup creator-reference-sidebar-views
+    \ingroup creator-how-to-ui
 
-    \title Outline
+    \target Outline
+    \title View outline
 
-    \summary {Shows an overview of defined types and other symbols, as well as
-    their properties and hierarchy in a source file.}
+    Use the \uicontrol Outline view to see an overview of defined types and other
+    symbols, as well as their properties and hierarchy in a source file.
 
     \image {qtcreator-outline-view.webp} {Outline view}
 
@@ -31,14 +31,15 @@
 
 /*!
     \page creator-class-view.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-views
-    \ingroup creator-reference-sidebar-views
+    \ingroup creator-how-to-ui
 
-    \title Class View
+    \target {Class View}
+    \title View class hierarchy
 
-    \summary {Shows the class hierarchy of the currently open projects.}
+    Use \uicontrol Class View to see the class hierarchy of the currently open
+    projects.
 
     \image {qtcreator-class-view.webp} {Class View}
 
@@ -53,15 +54,15 @@
 
 /*!
     \page creator-call-hierarchy-view.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-views
-    \ingroup creator-reference-sidebar-views
+    \ingroup creator-how-to-ui
 
-    \title Call Hierarchy
+    \target {Call Hierarchy}
+    \title View call hierarchy
 
-    \summary {Shows information about incoming and outgoing function calls from a
-    language server.}
+    Use the \uicontrol {Call Hierarchy} view to see incoming and outgoing function calls
+    from a language server.
 
     Place the cursor on a function definition in the code editor to see lists
     of functions that call it and the functions it calls. This works recursively,
@@ -79,16 +80,16 @@
 
 /*!
     \page creator-type-hierarchy.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-views
-    \ingroup creator-reference-sidebar-views
+    \ingroup creator-how-to-ui
 
-    \title Type Hierarchy
+    \target {Type Hierarchy}
+    \title View type hierarchy
 
-    \summary {Shows the base classes and derived classes of a class.}
+    Use the \uicontrol {Type Hierarchy} view to see the type hierarchy of a class.
 
-    To view type hierarchy of a class:
+    To view the type hierarchy of a class:
 
     \list 1
         \li Right-click a class in the code editor.
@@ -97,31 +98,23 @@
 
     \image {qtcreator-type-hierarchy-view.webp} {Type Hierarchy view}
 
-    To navigate in the type hierarchy:
+    To navigate in the type hierarchy, double-click a class or select it.
+    The definition of the selected class opens in the code editor.
 
-    \list
-        \li Double-click a class or select it.
-        \li Select \uicontrol {Open Type Hierarchy} in the context menu.
-    \endlist
-
-    The view highlights the previous class.
-
-    The definition of the selected class opens in the code editor. You
-    can also select \uicontrol {Open in Editor} in the context menu to open
-    it.
+    The view highlights instances of the selected class.
 */
 
 /*!
     \page creator-include-hierarchy-view.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-views
-    \ingroup creator-reference-sidebar-views
+    \ingroup creator-how-to-ui
 
-    \title Include Hierarchy
+    \target {Include Hierarchy}
+    \title View include hierarchy
 
-    \summary {Shows the files that the current file includes and those that include
-    the current file.}
+    Use the \uicontrol {Include Hierarchy} view to see the files that the
+    current file includes and those that include the current file.
 
     To view the include hierarchy of a file:
 

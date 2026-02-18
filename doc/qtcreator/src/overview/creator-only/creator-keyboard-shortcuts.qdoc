@@ -13,7 +13,7 @@
 
     \ingroup creator-reference
 
-    \title Keyboard Shortcuts
+    \title Keyboard shortcuts
 
     \brief Default keyboard shortcuts.
 
@@ -26,7 +26,7 @@
     The tables in this topic list the default keyboard shortcuts. They are
     categorized by actions.
 
-    \section1 Conflicting Shortcuts
+    \section1 Conflicting shortcuts
 
     Shortcuts that are displayed in red are associated with several functions.
     \QC executes the function that is available in the current context.
@@ -43,7 +43,7 @@
     and therefore the default \QC keyboard shortcut \key F10 (Step Over) will not work on
     that system.
 
-    \section1 Showing Shortcuts in Menus
+    \section1 Showing shortcuts in menus
 
     To override the platform default value that determines whether
     keyboard shortcuts are shown in the labels of context menu items,
@@ -54,7 +54,7 @@
 
     \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}
 
-    \section1 Top 5 General Shortcuts
+    \section1 Top 5 general shortcuts
 
     \table
         \header
@@ -85,7 +85,7 @@
             \li Cmd+<number>
     \endtable
 
-    \section1 Top 5 Locator Shortcuts
+    \section1 Top 5 locator shortcuts
 
     \table
         \header
@@ -114,7 +114,7 @@
             \li Cmd+Shift+K, <menu item name>
     \endtable
 
-    \section1 Top 10 Editor Shortcuts
+    \section1 Top 10 editor shortcuts
 
     \table
         \header
@@ -163,7 +163,7 @@
             \li Ctrl+Space
     \endtable
 
-    \section1 Top 5 Debugger Shortcuts
+    \section1 Top 5 debugger shortcuts
 
     \table
         \header
@@ -192,7 +192,7 @@
             \li Cmd+Shift+T
     \endtable
 
-    \section1 Top 5 Git Shortcuts
+    \section1 Top 5 Git shortcuts
 
     \table
         \header
@@ -221,9 +221,9 @@
             \li Ctrl+G, Ctrl+K
     \endtable
 
-    \section1 General Keyboard Shortcuts
+    \section1 General keyboard shortcuts
 
-    \section2 Document Navigation Shortcuts
+    \section2 Document navigation shortcuts
 
     \table
         \header
@@ -274,7 +274,7 @@
             \li Cmd+Q
     \endtable
 
-    \section2 File Management Shortcuts
+    \section2 File management shortcuts
 
     \table
         \header
@@ -323,7 +323,7 @@
             \li Cmd+Shift+W
     \endtable
 
-    \section2 Find-and-Replace Shortcuts
+    \section2 Find-and-replace shortcuts
 
     \table
         \header
@@ -352,7 +352,7 @@
             \li Cmd+F3
         \row
             \li Find previous occurrence of selected text
-            \li Cmd+Shift+F3
+            \li Ctrl+Shift+F3
             \li \e {None}
         \row
             \li Replace next
@@ -364,7 +364,7 @@
             \li Cmd+Shift+F
     \endtable
 
-    \section2 Text Editing Shortcuts
+    \section2 Text editing shortcuts
 
     \table
         \header
@@ -405,9 +405,9 @@
             \li Cmd+Shift+Z
     \endtable
 
-    \section1 UI Navigation Shortcuts
+    \section1 UI navigation shortcuts
 
-    \section2 Mode Shortcuts
+    \section2 Mode shortcuts
 
     \table
         \header
@@ -456,7 +456,7 @@
             \li Esc
     \endtable
 
-    \section2 Output View Shortcuts
+    \section2 Output view shortcuts
 
     \table
         \header
@@ -499,7 +499,7 @@
             \li Shift+F6
     \endtable
 
-    \section2 Sidebar View Shortcuts
+    \section2 Sidebar view shortcuts
 
     \table
         \header
@@ -536,7 +536,7 @@
             \li Cmd+Shift+0
     \endtable
 
-    \section1 Editor Shortcuts
+    \section1 Editor shortcuts
 
     \table
         \header
@@ -578,7 +578,7 @@
             \li Ctrl+Shift+D
     \endtable
 
-    \section2 Bookmark Shortcuts
+    \section2 Bookmark shortcuts
 
     \table
         \header
@@ -599,7 +599,7 @@
             \li Ctrl+,
     \endtable
 
-    \section2 Code Block Shortcuts
+    \section2 Code block shortcuts
 
     \table
         \header
@@ -647,7 +647,7 @@
             \li Cmd+Opt+Shift+U
     \endtable
 
-    \section2 Code Line Shortcuts
+    \section2 Code line shortcuts
 
     \table
         \header
@@ -692,7 +692,7 @@
             \li Cmd+Shift+Up
     \endtable
 
-    \section2 Code Navigation Shortcuts
+    \section2 Code navigation shortcuts
 
     \table
         \header
@@ -721,7 +721,7 @@
             \li Shift+F2
     \endtable
 
-    \section2 C++ Editing Shortcuts
+    \section2 C++ editing shortcuts
 
     \table
         \header
@@ -763,7 +763,7 @@
             \li Ctrl+Shift+S
     \endtable
 
-    \section2 FakeVim Shortcuts
+    \section2 FakeVim shortcuts
 
     \table
         \header
@@ -780,7 +780,7 @@
             \li Ctrl+Shift+Y, n
     \endtable
 
-    \section2 Font Size Shortcuts
+    \section2 Font size shortcuts
 
     \table
         \header
@@ -801,7 +801,7 @@
             \li Ctrl+0
     \endtable
 
-    \section2 Snippet Shortcuts
+    \section2 Snippet shortcuts
 
     \table
         \header
@@ -818,7 +818,7 @@
             \li Ctrl+C, Ctrl+P
     \endtable
 
-    \section2 Split View Shortcuts
+    \section2 Split view shortcuts
 
     \table
         \header
@@ -843,7 +843,7 @@
             \li Ctrl+E, 0
     \endtable
 
-    \section2 Text Editing Macro Shortcuts
+    \section2 Text editing macro shortcuts
 
     \table
         \header
@@ -864,7 +864,7 @@
             \li Ctrl+R
     \endtable
 
-    \section1 Build-and-Run Shortcuts
+    \section1 Build-and-run shortcuts
 
     \table
         \header
@@ -901,7 +901,7 @@
             \li Cmd+E, Cmd+R
     \endtable
 
-    \section1 Debugger Shortcuts
+    \section1 Debugger shortcuts
 
     \table
         \header
@@ -946,7 +946,7 @@
             \li Shift+F8
     \endtable
 
-    \section1 Help Mode Shortcuts
+    \section1 Help mode shortcuts
 
     \table
         \header
@@ -979,7 +979,7 @@
             \li Ctrl+/
     \endtable
 
-    \section1 Image Viewer Shortcuts
+    \section1 Image viewer shortcuts
 
     \table
         \header
@@ -1012,7 +1012,7 @@
             \li Ctrl+0
     \endtable
 
-    \section1 Project Shortcuts
+    \section1 Project shortcuts
 
     \table
         \header
@@ -1029,7 +1029,7 @@
             \li \e {None}
     \endtable
 
-    \section1 Qt Quick Shortcuts
+    \section1 Qt Quick shortcuts
 
     \table
         \header
@@ -1046,7 +1046,154 @@
             \li Cmd+Shift+C
     \endtable
 
-    \section1 \QD Shortcuts
+    \section1 \QMLD shortcuts
+
+    \table
+    \header
+        \li Action
+        \li Windows and Linux
+        \li \macos
+    \row
+        \li Add component to stacked container
+        \li Ctrl+Shift+A
+        \li Cmd+Shift+A
+    \row
+        \li Add tab bar
+        \li Ctrl+Shift+T
+        \li Cmd+Shift+T
+    \row
+        \li Decrease index of stacked container
+        \li Ctrl+Shift+Left
+        \li Cmd+Shift+Left
+    \row
+        \li Edit list model
+        \li Alt+E
+        \li Opt+E
+    \row
+        \li Fill to parent
+        \li Shift+F
+        \li Shift+F
+    \row
+        \li Flow positioner
+        \li Ctrl+M
+        \li Cmd+M
+    \row
+        \li Increase index of stacked container
+        \li Ctrl+Shift+Right
+        \li Cmd+Shift+Right
+    \row
+        \li Jump to \uicontrol Code
+        \li F4
+        \li F4
+    \row
+        \li Lay out in a column
+        \li Ctrl+L
+        \li Cmd+L
+    \row
+        \li Lay out in a grid
+        \li Shift+G
+        \li Shift+G
+    \row
+        \li Lay out in a row
+        \li Ctrl+U
+        \li Cmd+U
+    \row
+        \li Edit component
+        \li F2
+        \li F2
+    \row
+        \li Remove positioner
+        \li Ctrl+Shift+P
+        \li Cmd+Shift+P
+    \row
+        \li Reset anchors for selected component
+        \li Ctrl+Shift+R
+        \li Cmd+Shift+R
+    \row
+        \li Reset position and use implicit position
+        \li Ctrl+D
+        \li Cmd+D
+    \row
+        \li Reset size and use implicit size
+        \li Shift+S
+        \li Shift+S
+    \row
+        \li Show all nodes
+        \li Alt+B
+        \li Opt+B
+    \row
+        \li Show selected nodes only
+        \li Shift+B
+        \li Shift+B
+    \row
+        \li Show \uicontrol {Live Preview}
+        \li Alt+P
+        \li Opt+P
+    \row
+        \li Toggle visibility
+        \li Ctrl+G
+        \li Cmd+G
+    \endtable
+
+    \section2 Timeline shortcuts
+
+    \table
+    \header
+        \li Action
+        \li Windows and Linux
+        \li \macos
+    \row
+        \li Auto key
+        \li K
+        \li K
+    \row
+        \li End frame
+        \li End
+        \li End
+    \row
+        \li Loop playback
+        \li Ctrl+Shift+Space
+        \li Cmd+Shift+Space
+    \row
+        \li Next frame
+        \li .
+        \li .
+    \row
+        \li Play
+        \li Space
+        \li Space
+    \row
+        \li Previous frame
+        \li ,
+        \li ,
+    \row
+        \li Start Frame
+        \li Home
+        \li Home
+    \row
+        \li Timeline settings
+        \li S
+        \li S
+    \endtable
+
+    \section2 Transitions shortcuts
+
+    \table
+    \header
+        \li Action
+        \li Windows and Linux
+        \li \macos
+    \row
+        \li Easing curve editor
+        \li C
+        \li C
+    \row
+        \li Transition settings
+        \li S
+        \li S
+    \endtable
+
+    \section1 \QD shortcuts
 
     \table
         \header
@@ -1079,7 +1226,7 @@
             \li F4
     \endtable
 
-    \section1 Version Control Shortcuts
+    \section1 Version control shortcuts
 
     \table
         \header
@@ -1190,7 +1337,7 @@
             \li \e {None}
     \endtable
 
-    \section2 VCS Shortcuts on \macos
+    \section2 VCS shortcuts on \macos
 
     \table
         \header
@@ -1301,7 +1448,7 @@
             \li \e {None}
     \endtable
 
-    \section1 Emacs Shortcuts
+    \section1 Emacs shortcuts
 
     You can specify shortcuts for executing actions in a way that is familiar to
     \l{https://www.gnu.org/software/emacs/manual/html_node/emacs/index.html}

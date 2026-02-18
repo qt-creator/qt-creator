@@ -1164,8 +1164,9 @@ function(add_qtc_test name)
   endif()
 
   if (_arg_NEEDS_GUI)
-    set(EXTRA_ARGUMENTS "-platform" "minimal")
+    list(APPEND EXTRA_ARGUMENTS "-platform" "minimal")
   endif()
+  list(APPEND EXTRA_ARGUMENTS "-silent")
 
   if (NOT _arg_GTEST AND NOT _arg_MANUALTEST)
     add_test(NAME ${name} COMMAND ${name} ${EXTRA_ARGUMENTS})

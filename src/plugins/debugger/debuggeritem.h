@@ -27,6 +27,8 @@ class DebuggerItemModel;
 // DebuggerItem
 // -----------------------------------------------------------------------
 
+bool nativeDapDebuggersEnabled();
+
 class DEBUGGER_EXPORT DebuggerItem
 {
 public:

@@ -576,11 +576,11 @@ void CppEditorPlugin::registerVariables()
         [] { return globalCppFileSettings().licenseTemplate(); });
     expander->registerFileVariables("Cpp:LicenseTemplatePath",
         Tr::tr("The configured path to the license template"),
-        [] { return globalCppFileSettings().licenseTemplatePath; });
+        [] { return globalCppFileSettings().licenseTemplatePath(); });
     expander->registerVariable(
         "Cpp:PragmaOnce",
         Tr::tr("Insert \"#pragma once\" instead of \"#ifndef\" include guards into header file"),
-        [] { return globalCppFileSettings().headerPragmaOnce ? QString("true") : QString(); });
+        [] { return globalCppFileSettings().headerPragmaOnce() ? QString("true") : QString(); });
 }
 
 void CppEditorPlugin::registerTests()

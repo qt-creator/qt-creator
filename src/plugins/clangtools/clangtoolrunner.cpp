@@ -68,6 +68,39 @@ static FilePath createOutputFilePath(const FilePath &dirPath, const FilePath &fi
     return {};
 }
 
+static constexpr int s_yamlMessageLimit = 512;
+
+static QString truncatedStdErr(const Process &process)
+{
+    QString stdErr = process.cleanedStdErr();
+    if (stdErr.isEmpty())
+        return {};
+
+    // Truncate YAML issues, as the stdErr may have millions of characters.
+    if (stdErr.startsWith("YAML:") && stdErr.size() > s_yamlMessageLimit) {
+        stdErr.truncate(s_yamlMessageLimit);
+        stdErr += QString("... [%1]").arg(Tr::tr("output truncated"));
+    }
+    return stdErr;
+}
+
+static QString processDetails(const Process &process, const QString &stdErr)
+{
+    QString fullOutput = process.cleanedStdOut();
+    if (fullOutput.isEmpty()) {
+        fullOutput = stdErr;
+    } else if (!stdErr.isEmpty()) {
+        if (!fullOutput.endsWith('\n'))
+            fullOutput += '\n';
+        fullOutput += stdErr;
+    }
+    return Tr::tr("Command line: %1\nProcess Error: %2\nOutput:\n%3")
+        .arg(process.commandLine().toUserOutput())
+        .arg(process.error())
+        .arg(fullOutput);
+}
+
+
 GroupItem clangToolTask(const AnalyzeUnits &units,
                         const AnalyzeInputData &input,
                         const AnalyzeSetupHandler &setupHandler,
@@ -131,18 +164,15 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
         if (!outputHandler)
             return;
         const AnalyzeUnit &unit = *iterator;
+        const QString stdErr = truncatedStdErr(process);
         if (result == DoneWith::Success) {
-            const QString stdErr = process.cleanedStdErr();
             if (stdErr.isEmpty())
                 return;
             outputHandler({true, unit.file, {}, {}, input.tool,
                            Tr::tr("%1 produced stderr output:").arg(storage->name), stdErr});
             return;
         }
-        const QString details = Tr::tr("Command line: %1\nProcess Error: %2\nOutput:\n%3")
-                                    .arg(process.commandLine().toUserOutput())
-                                    .arg(process.error())
-                                    .arg(process.allOutput());
+        const QString details = processDetails(process, stdErr);
         const ClangToolStorage &data = *storage;
         QString message;
         if (process.result() == ProcessResult::StartFailed)

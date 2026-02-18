@@ -407,6 +407,13 @@ void DebuggerRunParameters::populateQmlFileFinder(const RunControl *runControl)
     QtSupport::QtVersion::populateQmlFileFinder(&m_qmlFileFinder, runControl->buildConfiguration());
 }
 
+FilePath DebuggerRunParameters::mapToProjectPath(const QString &debuggerOutput) const
+{
+    const FilePath fullBuild = m_buildDirectory.resolvePath(debuggerOutput);
+    const FilePath local = fullBuild.localSource().value_or(fullBuild);
+    return m_projectSourceDirectory.withNewMappedPath(local);
+}
+
 namespace Internal {
 
 static bool debuggerActionsEnabledHelper(DebuggerState state)

@@ -392,7 +392,7 @@ void TextDocument::setFontSettings(const FontSettings &fontSettings)
     if (emitDocumentSizeChanged) {
         auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
         QTC_ASSERT(documentLayout, return);
-        documentLayout->blockSizeChanged(document()->firstBlock());
+        emit documentLayout->blockSizeChanged(document()->firstBlock());
         documentLayout->emitDocumentSizeChanged();
     }
 }
@@ -960,7 +960,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
         = d->m_indenter->indentationForBlocks(blocks, currentTabSettings);
 
     const bool cleanTrailingWhitespace = d->m_storageSettings.removeTrailingWhitespace(filePath().fileName());
-    for (QTextBlock block : std::as_const(blocks)) {
+    for (const QTextBlock &block : std::as_const(blocks)) {
         QString blockText = block.text();
 
         if (cleanTrailingWhitespace)
