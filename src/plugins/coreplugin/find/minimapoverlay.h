@@ -26,6 +26,7 @@ class MinimapOverlay : public QWidget
 {
 public:
     explicit MinimapOverlay(Utils::PlainTextEdit *editor);
+    ~MinimapOverlay();
 
     void paintMinimap(QPainter *painter) const;
     void scheduleUpdate();

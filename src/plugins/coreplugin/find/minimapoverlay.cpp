@@ -49,6 +49,12 @@ MinimapOverlay::MinimapOverlay(PlainTextEdit *editor)
     scheduleUpdate();
 }
 
+MinimapOverlay::~MinimapOverlay()
+{
+    if (m_editor)
+        m_editor->setEditorTextMargin("Core.MinimapWidth", Qt::RightEdge, 0);
+}
+
 void MinimapOverlay::paintMinimap(QPainter *painter) const
 {
     if (m_minimap.isNull() || !m_vScroll)
@@ -399,6 +405,7 @@ bool MinimapOverlay::eventFilter(QObject *object, QEvent *event)
         doResize();
         doMove();
         show();
+        scheduleUpdate();
         break;
     case QEvent::Hide:
         hide();
