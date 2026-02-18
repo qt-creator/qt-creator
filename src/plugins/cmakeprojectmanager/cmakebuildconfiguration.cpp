@@ -223,6 +223,10 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configTextFilterModel(new CategorySortFilterModel(this))
 {
     m_configureDetailsWidget = new DetailsWidget;
+    connect(m_configureDetailsWidget, &DetailsWidget::expanded, this, [](bool expanded) {
+        settings(nullptr).configureDetailsExpanded.setValue(expanded);
+        settings(nullptr).writeSettings();
+    });
 
     updateConfigureDetailsWidgetsSummary();
 
@@ -830,7 +834,9 @@ void CMakeBuildSettingsWidget::updateConfigureDetailsWidgetsSummary(
     params.setCommandLine(cmd);
 
     m_configureDetailsWidget->setSummaryText(params.summary(Tr::tr("Configure")));
-    m_configureDetailsWidget->setState(DetailsWidget::Expanded);
+    m_configureDetailsWidget->setState(
+        settings(nullptr).configureDetailsExpanded() ? DetailsWidget::Expanded
+                                                     : DetailsWidget::Collapsed);
 }
 
 void CMakeBuildSettingsWidget::setError(const QString &message)
