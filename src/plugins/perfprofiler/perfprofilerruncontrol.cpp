@@ -34,10 +34,11 @@ namespace PerfProfiler::Internal {
 
 static Group perfParserRecipe(RunControl *runControl)
 {
-    const Storage<PerfDataReader> storage;
+    const Storage<std::unique_ptr<PerfDataReader>> storage;
 
     const auto onSetup = [storage, runControl](QBarrier &barrier) {
-        PerfDataReader *reader = storage.activeStorage();
+        storage->reset(new PerfDataReader);
+        PerfDataReader *reader = storage->get();
         auto tool = PerfProfilerTool::instance();
 
         reader->setTraceManager(&traceManager());
@@ -55,8 +56,14 @@ static Group perfParserRecipe(RunControl *runControl)
         });
         QObject::connect(reader, &PerfDataReader::finished, tool, &PerfProfilerTool::onReaderFinished);
         QObject::connect(reader, &PerfDataReader::processStarted, runControl, &RunControl::reportStarted);
-        QObject::connect(reader, &PerfDataReader::processFinished, &barrier, &QBarrier::advance);
-        QObject::connect(reader, &PerfDataReader::processFailed, &barrier, [barrier = &barrier] {
+        QObject::connect(reader, &PerfDataReader::processFinished, &barrier,
+                         [barrier = &barrier, storagePtr = storage.activeStorage()] {
+            storagePtr->release()->deleteLater();
+            barrier->advance();
+        });
+        QObject::connect(reader, &PerfDataReader::processFailed, &barrier,
+                         [barrier = &barrier, storagePtr = storage.activeStorage()] {
+            storagePtr->release()->deleteLater();
             barrier->stopWithResult(DoneResult::Error);
         });
 
