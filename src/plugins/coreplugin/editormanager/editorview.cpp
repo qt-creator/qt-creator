@@ -881,7 +881,7 @@ void EditorView::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
     };
     auto openEntry = [&](const DropSupport::FileSpec &spec) {
         if (first) {
-            first = !EditorManagerPrivate::openEditorAt(this, specToLink(spec));
+            first = !EditorManagerPrivate::openEditorAt(this, specToLink(spec)) || m_isShowingTabs;
         } else if (spec.column != -1 || spec.line != -1) {
             EditorManagerPrivate::openEditorAt(this,
                                                specToLink(spec),
