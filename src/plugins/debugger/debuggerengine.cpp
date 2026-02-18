@@ -257,11 +257,6 @@ Result<> DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *run
                 if (m_qmlServer.port() <= 0)
                     return ResultError(Tr::tr("Not enough free ports for QML debugging."));
             }
-            // Makes sure that all bindings go through the JavaScript engine, so that
-            // breakpoints are actually hit!
-            const QString optimizerKey = "QML_DISABLE_OPTIMIZER";
-            if (!m_inferior.environment.hasKey(optimizerKey))
-                m_inferior.environment.set(optimizerKey, "1");
         }
     }
 
