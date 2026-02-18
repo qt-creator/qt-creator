@@ -171,7 +171,7 @@
     You can use the shell link to run the tools in the third-party toolchains.
 
     \sa {Manage kits}{How to: Manage kits}, {Managing kits},
-    {Developing for Bare Metal Devices}, {Supported Platforms}
+    {Developing for Bare Metal Devices}, {Supported platforms}
 */
 
 /*!
@@ -267,7 +267,7 @@
     \endlist
 
     \sa {Manage kits}{How to: Manage kits}, {Managing kits},
-    {Supported Platforms}
+    {Supported platforms}
 */
 
 /*!

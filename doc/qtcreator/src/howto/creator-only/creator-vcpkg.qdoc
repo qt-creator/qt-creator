@@ -10,7 +10,7 @@
     \title Set up vcpkg package manager
 
     The experimental vcpkg plugin integrates the \l {vcpkg} C/C++ package
-    manager. It is available on all the \l{Supported Platforms}
+    manager. It is available on all the \l{Supported platforms}
     {supported development platforms}.
 
     Create and edit \c vcpkg.json files to specify packages to build as part of
@@ -48,7 +48,7 @@
     \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
 
     \sa {Create vcpkg manifest files}, {Edit vcpkg manifest files},
-    {Enable and disable plugins}, {Supported Platforms}, {vcpkg}
+    {Enable and disable plugins}, {Supported platforms}, {vcpkg}
 */
 
 /*!

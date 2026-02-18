@@ -83,5 +83,5 @@
     into the resource file before running the application.
 
     \sa {Run projects}{How to: Run projects}, {Configure projects for running},
-    {Customize the build process}, {Supported Platforms}
+    {Customize the build process}, {Supported platforms}
 */
