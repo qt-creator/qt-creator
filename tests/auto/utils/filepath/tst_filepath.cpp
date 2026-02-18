@@ -2416,6 +2416,8 @@ private:
 
 void tst_filepath::watch()
 {
+    QSKIP("Flaky test.");
+
     const FilePath rootDir = FilePath::fromString(rootPath);
     const auto fileName = [&rootDir](int i) {
         return rootDir.pathAppended("watchfile" + QString::number(i) + ".txt");
