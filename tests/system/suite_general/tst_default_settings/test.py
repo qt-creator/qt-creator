@@ -16,7 +16,8 @@ def main():
         return
     invokeMenuItem("Edit", "Preferences...")
     qmakeFound = __checkKits__()
-    clickButton(waitForObject(":Options.Cancel_QPushButton"))
+    applyButton = findObject(":Options.Apply_QPushButton")
+    test.verify(not applyButton.enabled, "Settings have not been modified.")
     invokeMenuItem("File", "Exit")
     __checkCreatedSettings__(emptySettings, qmakeFound)
 
