@@ -4,10 +4,11 @@
 #include "documentmodel.h"
 #include "documentmodel_p.h"
 
-#include "ieditor.h"
 #include "../coreplugintr.h"
 #include "../documentmanager.h"
 #include "../idocument.h"
+#include "../vcsmanager.h"
+#include "ieditor.h"
 
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
@@ -64,6 +65,47 @@ std::pair<int, int> positionEntry(const QList<DocumentModel::Entry *> &list,
     return {to_remove, to_insert};
 }
 } // namespace
+
+DocumentModelPrivate::DocumentModelPrivate()
+{
+    connect(
+        VcsManager::instance(),
+        &VcsManager::updateFileState,
+        this,
+        &DocumentModelPrivate::handleUpdateFileState);
+    connect(
+        VcsManager::instance(),
+        &VcsManager::clearFileState,
+        this,
+        &DocumentModelPrivate::handleClearFileState);
+}
+
+void DocumentModelPrivate::handleUpdateFileState(const FilePath &repository, const QStringList &files)
+{
+    for (const QString &fileName : files) {
+        const FilePath fullPath = repository.pathAppended(fileName);
+        const std::optional<int> entryIndex = DocumentModel::indexOfFilePath(fullPath);
+        if (!entryIndex)
+            continue;
+
+        const QModelIndex idx = index(*entryIndex + 1 /*<no document>*/, 0);
+        if (QTC_GUARD(idx.isValid()))
+            emit dataChanged(idx, idx, {Qt::ForegroundRole});
+    }
+}
+
+void DocumentModelPrivate::handleClearFileState(const FilePath &repository)
+{
+    const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
+    for (int entryIndex = 0; entryIndex < entries.size(); ++entryIndex) {
+        const DocumentModel::Entry *entry = entries.at(entryIndex);
+
+        if (entry->filePath().startsWith(repository.path())) {
+            const QModelIndex idx = index(entryIndex + 1 /*<no document>*/, 0);
+            emit dataChanged(idx, idx, {Qt::ForegroundRole});
+        }
+    }
+}
 
 DocumentModelPrivate::~DocumentModelPrivate()
 {

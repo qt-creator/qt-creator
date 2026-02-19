@@ -1220,13 +1220,11 @@ void AxivionPluginPrivate::onCurrentEditorChanged(IEditor *editor)
 {
     QAction *action = ActionManager::command("Axivion.SingleFile")->action();
     const IDocument *document = editor ? editor->document() : nullptr;
-    if (!m_currentProjectInfo || !document || document->filePath().isEmpty()) {
+    if (!document || document->filePath().isEmpty()) {
         action->setEnabled(false);
         return;
     }
-    const FilePath filePath = settings().mappedFilePath(document->filePath(),
-                                                        m_currentProjectInfo->name);
-    const QString suffix = filePath.suffix();
+    const QString suffix = document->filePath().suffix();
     // for now just hard-code common, also need to check for a running local analysis / build?
     static const QRegularExpression cSuffixes("^c(c|pp|xx)?$",
                                               QRegularExpression::CaseInsensitiveOption);
@@ -1409,7 +1407,8 @@ void updateEnvironmentForLocalBuild(Environment *env)
                || (dd->m_serverAccess == ServerAccess::NoAuthorization && !dd->m_apiToken), return);
 
     QJsonObject json;
-    if (dd->m_apiToken)
+    const bool nonAnonAuth = bool(dd->m_apiToken);
+    if (nonAnonAuth)
         json.insert("apiToken", QString::fromUtf8(*dd->m_apiToken));
     else
         json.insert("password", QString("pw"));
@@ -1431,20 +1430,26 @@ void updateEnvironmentForLocalBuild(Environment *env)
     for (int i = 0, end = bytes.size(); i < end; ++i)
         xored.append(bytes.at(i) ^ key.at(i));
 
-    // write key to file
-    TemporaryFile keyFile("axivion-XXXXXX");
-    keyFile.setAutoRemove(false);
-    if (!keyFile.open())
-        return;
-    if (!keyFile.write(key))
-        return;
-    keyFile.close();
+    if (nonAnonAuth) { // only write to disk if we need to authenticate
+        // write key to file
+        TemporaryFile keyFile("axivion-XXXXXX");
+        keyFile.setAutoRemove(false);
+        if (!keyFile.open())
+            return;
+        if (!keyFile.write(key))
+            return;
+        keyFile.close();
+        env->set("AXIVION_PASSFILE", keyFile.filePath().path());
+    }
+
     // set environment variables
-    env->set("AXIVION_PASSFILE", keyFile.filePath().path());
     env->set("AXIVION_PASSWORD", QString::fromUtf8(xored.toBase64()));
+
     env->set("AXIVION_DASHBOARD_URL", dd->m_dashboardInfo->source.toString());
     if (dd->m_dashboardInfo->userName)
         env->set("AXIVION_USERNAME", *dd->m_dashboardInfo->userName);
+    else if (!nonAnonAuth)
+        env->set("AXIVION_USERNAME", settings().serverForId(activeDashboardId()).username);
     env->set("AXIVION_LOCAL_BUILD", "1");
     env->set("AXIVION_USER_AGENT", QString::fromUtf8(axivionUserAgent()));
     env->set("AXIVION_PROJECT_NAME", dd->m_currentProjectInfo->name);

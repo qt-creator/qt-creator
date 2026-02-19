@@ -407,6 +407,8 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
         if (serialNumberLabel)
             serialNumberLabel->setText(printableSerialNumber);
     });
+
+    installMarkSettingsDirtyTriggerRecursively(this);
 }
 
 QString AndroidDeviceWidget::dialogTitle()

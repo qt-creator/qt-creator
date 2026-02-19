@@ -179,9 +179,22 @@ bool pipIsUsable(const FilePath &python, const std::function<void(const bool)> &
     return DataFromProcess<bool>::getData(params).value_or(false);
 }
 
-void pipIsUsableAsync(
-    const Utils::FilePath &python, const std::function<void(const bool)> &callback)
+void pipIsUsableAsync(const FilePath &python, const std::function<void(const bool)> &callback)
 {
+    if (PythonSettings::isRunningVirtualEnvironmentSetup(python)) {
+        QObject *context = new QObject(shutdownGuard());
+        QObject::connect(
+            PythonSettings::instance(),
+            &PythonSettings::virtualEnvironmentCreated,
+            context,
+            [python, callback, context](const FilePath &createdVenv) {
+                if (python == createdVenv) {
+                    pipIsUsableAsync(python, callback);
+                    context->deleteLater();
+                }
+            });
+        return;
+    }
     DataFromProcess<bool>::Parameters
         params({python, {"-m", "pip", "-h"}}, [](const QString &, const QString &) {
             return true;

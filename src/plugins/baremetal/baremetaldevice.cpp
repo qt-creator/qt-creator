@@ -48,6 +48,8 @@ public:
 
         connect(m_debugServerProviderChooser, &DebugServerProviderChooser::providerChanged,
                 this, &BareMetalDeviceWidget::debugServerProviderChanged);
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
 private:

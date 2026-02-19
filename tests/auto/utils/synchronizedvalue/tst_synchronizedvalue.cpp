@@ -22,6 +22,11 @@ struct TestData
     int i{20};
 };
 
+void setIntTo1(int &i)
+{
+    i = 1;
+}
+
 class tst_synchronizedvalue : public QObject
 {
     Q_OBJECT
@@ -33,7 +38,7 @@ private slots:
     {
         SynchronizedValue<TestData> data;
 
-        data.read([](const auto &d) {
+        data.read([](const TestData &d) {
             QCOMPARE(d.str, QString());
             QCOMPARE(d.i, 20);
         });
@@ -42,19 +47,19 @@ private slots:
     void ctor()
     {
         SynchronizedValue<TestData> data(200);
-        QCOMPARE(data.get<int>([](const auto &d) { return d.i; }), 200);
+        QCOMPARE(data.get([](const auto &d) { return d.i; }), 200);
     }
 
     void initializerCtor()
     {
         SynchronizedValue<QList<int>> data({1, 2, 3});
-        QCOMPARE(data.get<QList<int>>([](const auto &d) { return d; }), QList<int>({1, 2, 3}));
+        QCOMPARE(data.get([](const auto &d) { return d; }), QList<int>({1, 2, 3}));
     }
 
     void get()
     {
         SynchronizedValue<TestData> data(200);
-        QCOMPARE(data.get<int>([](const auto &d) { return d.i; }), 200);
+        QCOMPARE(data.get([](const auto &d) { return d.i; }), 200);
     }
 
     void constLock()
@@ -74,7 +79,7 @@ private slots:
     {
         SynchronizedValue<TestData> data(123);
         data.writeLocked()->i = 200;
-        QCOMPARE(data.get<int>([](const auto &d) { return d.i; }), 200);
+        QCOMPARE(data.get([](const auto &d) { return d.i; }), 200);
 
         {
             auto wlk = data.writeLocked();
@@ -104,13 +109,13 @@ private slots:
 
         data = data2;
 
-        QCOMPARE(data.get<int>([](const auto &d) { return d.i; }), 300);
-        QCOMPARE(data2.get<int>([](const auto &d) { return d.i; }), 300);
+        QCOMPARE(data.get([](const auto &d) { return d.i; }), 300);
+        QCOMPARE(data2.get([](const auto &d) { return d.i; }), 300);
 
         TestData dataNoLock(1337);
         data = dataNoLock;
 
-        QCOMPARE(data.get<int>([](const auto &d) { return d.i; }), 1337);
+        QCOMPARE(data.get([](const auto &d) { return d.i; }), 1337);
     }
 
     void compareEq()
@@ -160,13 +165,13 @@ private slots:
         SynchronizedValue<TestData> data(123);
         SynchronizedValue<TestData> data2(data);
 
-        QCOMPARE(data.get<int>([](const auto &d) { return d.i; }), 123);
-        QCOMPARE(data2.get<int>([](const auto &d) { return d.i; }), 123);
+        QCOMPARE(data.get([](const auto &d) { return d.i; }), 123);
+        QCOMPARE(data2.get([](const auto &d) { return d.i; }), 123);
 
         TestData dataNoLock(1337);
         SynchronizedValue<TestData> data3(dataNoLock);
 
-        QCOMPARE(data3.get<int>([](const auto &d) { return d.i; }), 1337);
+        QCOMPARE(data3.get([](const auto &d) { return d.i; }), 1337);
     }
 
     void multilock()
@@ -209,6 +214,19 @@ private slots:
 
         QVERIFY(lk1.ownsLock());
         QVERIFY(lk2.ownsLock());
+    }
+
+    void funcPtr()
+    {
+        SynchronizedValue<int> sv1;
+        sv1.write(&setIntTo1);
+
+        struct GetInt
+        {
+            int operator()(const int &i) const { return i; }
+        };
+
+        QCOMPARE(sv1.get(GetInt()), 1);
     }
 };
 

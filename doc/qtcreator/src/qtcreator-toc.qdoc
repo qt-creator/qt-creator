@@ -130,7 +130,7 @@
                     \li \l{Licenses and acknowledgments}
                     \li \l{Platforms}
                         \generatelist creator-reference-platforms
-                    \li \l{Qt Quick UI Design}
+                    \li \l{Qt Quick UI design}
                         \generatelist creator-reference-ui-design-qtquick
                     \li \l{Run settings}
                         \generatelist creator-reference-run-configurations

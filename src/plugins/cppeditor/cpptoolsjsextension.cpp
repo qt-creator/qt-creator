@@ -251,15 +251,18 @@ QString CppToolsJsExtension::includeStatement(
         return false;
     };
     for (const Project * const p : ProjectManager::projects()) {
-        const Node *theNode = p->rootProjectNode()->findNode(nodeMatchesFileName);
-        if (theNode) {
-            const bool sameDir = pathOfIncludingFile == theNode->filePath().toFileInfo().path();
-            return QString("#include ")
-                    .append(sameDir ? '"' : '<')
-                    .append(theNode->filePath().fileName())
-                    .append(sameDir ? '"' : '>')
-                    .append('\n');
-        }
+        if (!p->rootProjectNode())
+            continue;
+        const Node * const theNode = p->rootProjectNode()->findNode(nodeMatchesFileName);
+        if (!theNode)
+            continue;
+
+        const bool sameDir = pathOfIncludingFile == theNode->filePath().toFileInfo().path();
+        return QString("#include ")
+            .append(sameDir ? '"' : '<')
+            .append(theNode->filePath().fileName())
+            .append(sameDir ? '"' : '>')
+            .append('\n');
     }
     return {};
 }

@@ -240,7 +240,7 @@ FilePath ModelManagerInterface::qmlformatForBinPath(const FilePath &binPath, con
 
 void ModelManagerInterface::activateScan()
 {
-    const bool shouldScan = m_syncedData.update<bool>([](SyncedData &sd) {
+    const bool shouldScan = m_syncedData.update([](SyncedData &sd) {
         if (!sd.m_shouldScanImports) {
             sd.m_shouldScanImports = true;
             return true;
@@ -387,7 +387,7 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const FilePaths &sourceF
     if (sourceFiles.count() > 1)
          addTaskInternal(result, Tr::tr("Parsing QML Files"), Constants::TASK_INDEX);
 
-    bool scan = m_syncedData.update<bool>([&sourceFiles](SyncedData &sd) {
+    bool scan = m_syncedData.update([&sourceFiles](SyncedData &sd) {
         if (sourceFiles.count() > 1 && !sd.m_shouldScanImports) {
             if (!sd.m_shouldScanImports) {
                 sd.m_shouldScanImports = true;
@@ -697,13 +697,12 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(
 QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::allProjectInfosForPath(
     const FilePath &path) const
 {
-    QList<ProjectBase *> projects
-        = m_syncedData.get<QList<ProjectBase *>>([&path](const SyncedData &sd) {
-              auto projects = sd.m_fileToProject.values(path);
-              if (projects.isEmpty())
-                  projects = sd.m_fileToProject.values(path.canonicalPath());
-              return projects;
-          });
+    QList<ProjectBase *> projects = m_syncedData.get([&path](const SyncedData &sd) {
+        auto projects = sd.m_fileToProject.values(path);
+        if (projects.isEmpty())
+            projects = sd.m_fileToProject.values(path.canonicalPath());
+        return projects;
+    });
 
     QList<ProjectInfo> infos;
     for (ProjectBase *project : std::as_const(projects)) {
@@ -1256,8 +1255,7 @@ FilePaths ModelManagerInterface::importPathsNames(const SyncedData &lockedData) 
 
 FilePaths ModelManagerInterface::importPathsNames() const
 {
-    return m_syncedData.get<FilePaths>(
-        [this](const SyncedData &sd) { return importPathsNames(sd); });
+    return importPathsNames(*m_syncedData.readLocked());
 }
 
 QmlLanguageBundles ModelManagerInterface::activeBundles() const

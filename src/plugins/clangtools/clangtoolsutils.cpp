@@ -337,6 +337,8 @@ QString clangTidyDocUrl(const QString &check)
     if (version.first.majorVersion() < 15) {
         url.append(check);
     } else {
+        if (check.startsWith("clang-analyzer-"))
+            return CppEditor::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;
         const int hyphenIndex = check.indexOf('-');
         QTC_ASSERT(hyphenIndex != -1, return {});
         url.append(check.left(hyphenIndex)).append('/').append(check.mid(hyphenIndex + 1));

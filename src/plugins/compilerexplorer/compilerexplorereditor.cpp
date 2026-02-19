@@ -572,7 +572,6 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     , m_compilerSettings(compilerSettings)
 {
     using namespace Layouting;
-    Store map;
 
     m_delayTimer = new QTimer(this);
     m_delayTimer->setSingleShot(true);

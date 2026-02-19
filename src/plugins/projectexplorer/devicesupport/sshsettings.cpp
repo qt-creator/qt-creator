@@ -158,33 +158,6 @@ int SshSettings::connectionSharingTimeoutInMinutes() const
     return m_connectionSharingTimeoutInMinutesAspect();
 }
 
-// SshSettingsWidget
-
-class SshSettingsWidget : public IOptionsPageWidget
-{
-public:
-    SshSettingsWidget()
-    {
-        QWriteLocker locker(&sshSettings().m_lock);
-        sshSettings().layouter()().attachTo(this);
-
-        installMarkSettingsDirtyTriggerRecursively(this);
-    }
-
-    void apply()
-    {
-        QWriteLocker lock(&sshSettings().m_lock);
-        sshSettings().apply();
-        sshSettings().writeSettings();
-    }
-
-    void cancel()
-    {
-        QWriteLocker lock(&sshSettings().m_lock);
-        sshSettings().cancel();
-    }
-};
-
 // SshSettingsPage
 
 class SshSettingsPage final : public Core::IOptionsPage
@@ -195,7 +168,7 @@ public:
         setId(Constants::SSH_SETTINGS_PAGE_ID);
         setDisplayName(Tr::tr("SSH"));
         setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
-        setWidgetCreator([] { return new SshSettingsWidget; });
+        setSettingsProvider([] { return &sshSettings(); });
     }
 };
 

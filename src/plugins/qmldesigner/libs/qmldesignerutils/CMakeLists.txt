@@ -7,10 +7,7 @@ add_qtc_library(QmlDesignerUtils STATIC
   SOURCES
     asset.cpp asset.h
     designeralgorithm.h
-    filedownloader.cpp filedownloader.h
     memory.h
-    multifiledownloader.cpp multifiledownloader.h
-    fileextractor.cpp fileextractor.h
     hdrimage.cpp hdrimage.h
     ktximage.cpp ktximage.h
     imageutils.cpp imageutils.h

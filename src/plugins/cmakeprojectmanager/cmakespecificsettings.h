@@ -39,6 +39,7 @@ public:
     Utils::BoolAspect useJunctionsForSourceAndBuildDirectories{this};
     Utils::BoolAspect maintenanceToolDependencyProvider{this};
     Utils::BoolAspect cleanOldOutput{this};
+    Utils::BoolAspect configureDetailsExpanded{this};
 
     bool useGlobalSettings{true};
 };

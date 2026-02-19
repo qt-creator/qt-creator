@@ -292,17 +292,20 @@ def addCurrentCreatorDocumentation():
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Documentation")
     clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
     selectFromFileDialog(docPath)
+    alreadyRegistered = False
     try:
         windowStr = ("{type='QMessageBox' unnamed='1' visible='1' "
                       "text~='Unable to register documentation.*'}")
         waitForObject(windowStr, 3000)
         test.passes("Qt Creator's documentation found already registered.")
+        alreadyRegistered = True
         clickButton(waitForObject("{type='QPushButton' text='OK' unnamed='1' visible='1' "
                                   "window=%s}" % windowStr))
     except:
         test.fail("Added Qt Creator's documentation explicitly.")
-    clickButton(waitForObject(":Options.Apply_QPushButton"))
-    progressBarWait(10000)  # Wait for "Update Documentation"
+    if not alreadyRegistered:
+        clickButton(waitForObject(":Options.Apply_QPushButton"))
+        progressBarWait(10000)  # Wait for "Update Documentation"
 
 
 def verifyOutput(string, substring, outputFrom, outputIn):

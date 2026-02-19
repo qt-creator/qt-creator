@@ -87,6 +87,9 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
 
     ninjaPath.setSettingsKey("NinjaPath");
 
+    configureDetailsExpanded.setSettingsKey("ConfigureDetailsExpanded");
+    configureDetailsExpanded.setDefaultValue(true);
+
     packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");
     packageManagerAutoSetup.setDefaultValue(true);
     packageManagerAutoSetup.setLabelText(::CMakeProjectManager::Tr::tr("Package manager auto setup"));

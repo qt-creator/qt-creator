@@ -283,14 +283,13 @@ QList<QmlModelState> getAllStates(TimelineView* view)
 
 QString getStateName(TimelineView* view, bool& enableInBaseState)
 {
-    QString currentStateName;
     if (QmlModelState state = view->currentStateNode(); state.isValid()) {
         if (!state.isBaseState()) {
             enableInBaseState = false;
             return state.name();
         }
     }
-    return QString();
+    return {};
 }
 
 void enableInCurrentState(

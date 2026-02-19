@@ -174,12 +174,12 @@ private:
         const QJsonObject jsonObj = QJsonDocument::fromJson(json, &error).object();
         if (error.error != QJsonParseError::NoError)
             qCDebug(qtWelcomeOverviewLog) << "QJsonParseError:" << error.errorString();
-        const QJsonArray overviewItems = jsonObj.value("items").toArray();
+        const QJsonArray overviewItems = jsonObj.value("contentitems").toArray();
 
         QList<ListItem *> items;
         for (const auto overviewItem : overviewItems) {
             const QJsonObject overviewItemObj = overviewItem.toObject();
-            const QString itemTypeString = overviewItemObj.value("type").toString();
+            const QString itemTypeString = overviewItemObj.value("itemtype").toString();
             const OverviewItem::ItemType type = OverviewItem::itemType(itemTypeString);
             if (!types.contains(type))
                 continue;
@@ -901,7 +901,6 @@ void LearningTest::testFlagsMatching_data()
 
     const QString targetDesktop = QLatin1String(TARGET_PREFIX) + TARGET_DESKTOP;
     const QString targetiOS = QLatin1String(TARGET_PREFIX) + TARGET_IOS;
-    const QString targetAndroid = QLatin1String(TARGET_PREFIX) + TARGET_ANDROID;
     const QString expBasic = QLatin1String(EXPERIENCE_PREFIX) + EXPERIENCE_BASIC;
     const QString expAdvanced = QLatin1String(EXPERIENCE_PREFIX) + EXPERIENCE_ADVANCED;
 

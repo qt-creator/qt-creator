@@ -35,8 +35,6 @@ endif()
 
 add_subdirectory(libs)
 
-find_package(Qt6 QUIET COMPONENTS NetworkAuth WebSockets)
-
 add_qtc_library(QmlDesignerSettings STATIC
   DEPENDS Utils
   PUBLIC_INCLUDES settings
@@ -732,13 +730,6 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
-  CONDITION TARGET Qt::WebSockets
-  DEFINES QT_WEBSOCKET_ENABLED
-  DEPENDS
-    Qt::WebSockets
-)
-
-extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/devicesharing
   DEPENDS
     QtCreator::QrCodeGenerator
@@ -756,17 +747,6 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     runmanager.cpp
     runmanager.h
-)
-
-extend_qtc_plugin(QmlDesigner
-  CONDITION TARGET Qt::NetworkAuth
-  SOURCES_PREFIX components/designviewer
-  DEPENDS
-    qtkeychain Qt::NetworkAuth
-  PUBLIC_DEFINES DVCONNECTOR_ENABLED
-  SOURCES
-    dvconnector.cpp dvconnector.h
-    dvauthenticator.cpp dvauthenticator.h
 )
 
 add_qtc_plugin(componentsplugin

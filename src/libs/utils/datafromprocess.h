@@ -123,7 +123,7 @@ inline std::optional<Data> DataFromProcess<Data>::getOrProvideData(const Paramet
                                      params.commandLine.arguments());
     const QDateTime exeTimestamp = params.commandLine.executable().lastModified();
 
-    const auto cachedValue = m_cache.template get<std::optional<Data>>(
+    const auto cachedValue = m_cache.get(
         [&key, &exeTimestamp](const QHash<Key, Value> &cache) -> std::optional<Data> {
             const auto it = cache.constFind(key);
             if (it != cache.constEnd() && it.value().second == exeTimestamp)
@@ -131,8 +131,11 @@ inline std::optional<Data> DataFromProcess<Data>::getOrProvideData(const Paramet
             return std::nullopt;
         });
 
-    if (cachedValue)
+    if (cachedValue) {
+        if (params.callback)
+            params.callback(cachedValue);
         return cachedValue;
+    }
 
     const auto outputRetriever = new Process();
     outputRetriever->setCommand(params.commandLine);
@@ -218,7 +221,7 @@ inline std::optional<Data> DataFromProcess<Data>::handleProcessFinished(
     }
 
     if (params.cachedValueChangedCallback) {
-        const bool valueChanged = m_cache.template get<bool>(
+        const bool valueChanged = m_cache.get(
             [&cacheKey, &exeTimestamp, &data](const auto &cache) {
                 const auto it = cache.constFind(cacheKey);
                 if (it != cache.constEnd() && it.value().second == exeTimestamp) {

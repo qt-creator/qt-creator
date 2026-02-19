@@ -31,7 +31,6 @@ private:
     Utils::BoolAspect m_useConnectionSharingAspect{this};
     Utils::IntegerAspect m_connectionSharingTimeoutInMinutesAspect{this};
 
-    friend class SshSettingsWidget;
     mutable QReadWriteLock m_lock;
 };
 

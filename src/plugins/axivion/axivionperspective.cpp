@@ -1377,8 +1377,7 @@ void IssuesWidget::openFilterHelp()
 void IssuesWidget::checkForLocalBuildAndUpdate()
 {
     checkForLocalBuildResults(m_currentProject, [this] {
-        m_localBuild->setEnabled(!hasRunningLocalBuild(m_currentProject)
-                                 && !hasRunningSingleFileAnalysis(m_currentProject));
+        m_localBuild->setEnabled(!hasRunningLocalBuild(m_currentProject));
         m_localDashBoard->setEnabled(true);
     });
 }
@@ -1610,8 +1609,8 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     QFont boldFont = opt.font;
     boldFont.setBold(true);
     painter->setFont(boldFont);
-    const QString labelText = data.fileName.isEmpty()
-            ? data.projectName : QString("SFA: %1 (%2)").arg(data.fileName, data.projectName);
+    const QString labelText = data.fileName.isEmpty() ? data.projectName
+                                                      : QString("SFA: %1").arg(data.fileName);
     painter->drawText(ItemMargin + 1, opt.rect.top() + ItemMargin + fm.ascent(), labelText);
 
     QColor progressBrush = creatorColor(Theme::ProgressBarColorFinished);
@@ -1684,8 +1683,7 @@ public:
     void handleAnchorClicked(const QUrl &url);
     void updateNamedFilters();
     void updateLocalBuildStateFor(const QString &projectName,const QString &state, int percent);
-    void updateSfaStateFor(const QString &projectName, const QString &fileName,
-                           const QString &state, int percent);
+    void updateSfaStateFor(const FilePath &fileName, const QString &state, int percent);
 
     void leaveOrEnterDashboardMode(bool byLocalBuildButton);
     bool currentIssueHasValidPathMapping() const;
@@ -1863,10 +1861,11 @@ bool AxivionPerspective::handleProgressContextMenu(const ItemViewEvent &e)
     const QModelIndex first = selectedIndices.isEmpty() ? QModelIndex() : selectedIndices.first();
 
     const QString project = first.isValid() ? first.data(ProjectNameRole).toString() : QString{};
-    const QString file = first.isValid() ? first.data(FileRole).toString() : QString{};
+    const FilePath file = first.isValid() ? FilePath::fromString(first.data(FileRole).toString())
+                                          : FilePath{};
     const LocalBuildInfo localBuildInfo = project.isEmpty()
             ? LocalBuildInfo{} : (file.isEmpty() ? localBuildInfoFor(project)
-                                                 : localBuildInfoFor(project, file));
+                                                 : localBuildInfoFor(file));
     const bool selectedFinished = localBuildInfo.state == LocalBuildState::Finished;
     QMenu *menu = new QMenu;
     QAction *action = nullptr;
@@ -1878,7 +1877,7 @@ bool AxivionPerspective::handleProgressContextMenu(const ItemViewEvent &e)
         } else {
             action = new QAction(Tr::tr("Cancel Single File Analysis"), menu);
             QObject::connect(action, &QAction::triggered,
-                             menu, [file, project] { cancelSingleFileAnalysis(file, project); });
+                             menu, [file] { cancelSingleFileAnalysis(file); });
         }
         menu->addAction(action);
         menu->addSeparator();
@@ -1961,12 +1960,11 @@ void AxivionPerspective::updateLocalBuildStateFor(const QString &projectName, co
     m_progressWidget->addOrUpdateProgressItem(projectName, {projectName, {}, state, percent});
 }
 
-void AxivionPerspective::updateSfaStateFor(const QString &projectName, const QString &fileName,
-                                           const QString &state, int percent)
+void AxivionPerspective::updateSfaStateFor(const FilePath &filePath, const QString &state,
+                                           int percent)
 {
-    m_issuesWidget->updateLocalBuildState(projectName, percent);
-    m_progressWidget->addOrUpdateProgressItem(projectName,
-                                              {projectName, fileName, state, percent});
+    m_progressWidget->addOrUpdateProgressItem(QString{},
+                                              {QString{}, filePath.fileName(), state, percent});
 }
 
 void AxivionPerspective::leaveOrEnterDashboardMode(bool byLocalBuildButton)
@@ -2003,8 +2001,7 @@ void AxivionPerspective::onSingleFileAnalysisTriggered()
 {
     IDocument *document = EditorManager::instance()->currentDocument();
     QTC_ASSERT(document, return);
-    QTC_ASSERT(projectInfo(), return);
-    startSingleFileAnalysis(document->filePath(), projectInfo()->name);
+    startSingleFileAnalysis(document->filePath());
 }
 
 static AxivionPerspective *axivionPerspective()
@@ -2084,11 +2081,10 @@ void updateLocalBuildStateFor(const QString &projectName, const QString &state, 
     axivionPerspective()->updateLocalBuildStateFor(projectName, state, percent);
 }
 
-void updateSfaStateFor(const QString &projectName, const QString &fileName,
-                       const QString &state, int percent)
+void updateSfaStateFor(const FilePath &filePath, const QString &state, int percent)
 {
     QTC_ASSERT(axivionPerspective(), return);
-    axivionPerspective()->updateSfaStateFor(projectName, fileName, state, percent);
+    axivionPerspective()->updateSfaStateFor(filePath, state, percent);
 }
 
 void leaveOrEnterDashboardMode(bool byLocalBuildButton)

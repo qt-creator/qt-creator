@@ -13,10 +13,14 @@
     logic that lets your components apply actions or react to mock data from
     backend systems to simulate complex experiences.}
 
+    \section1 Connecting components
+
     Create connections between the UI components to enable them to communicate
     with each other. For example, how should the appearance of a button change
     on a mouse click and which action should the UI perform in response to the
     \e signal that is emitted upon the mouse click.
+
+    \section1 Using property aliases and states
 
     You can create connections between UI components by binding their
     properties together. This way, when the value of a property changes in a
@@ -45,10 +49,14 @@
     component types. This reduces the loading and compilation time as well as
     the package size of the final application.
 
+    \section1 Customizing UI controls
+
     The preset \l{Insert UI controls}{UI controls} have default properties and
     states that you can modify. If you need additional properties, you can turn
     instances of the controls into custom components and specify new properties
     for them.
+
+    \section1 Writing expressions
 
     To have your UI perform certain operations, you might need to write
     JavaScript expressions for conditions or convert numbers to strings.
@@ -56,6 +64,8 @@
     AND, NOT, and OR operators, as well as map numbers and numerical
     ranges. In addition, you can synchronize the property values of two
     components bi-directionally.
+
+    \section1 Typical use cases
 
     The following table summarizes some typical use cases with links to more
     information.

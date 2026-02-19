@@ -443,8 +443,7 @@ QString pluginArPipeOut(const Utils::FilePath &bauhausSuite, int sessionId)
     return it->m_runningSessions.value(sessionId);
 }
 
-void fetchIssueInfoFromPluginAr(const Utils::FilePath &bauhausSuite, const QString &relativeIssue,
-                                const QString &projectName)
+void fetchIssueInfoFromPluginAr(const Utils::FilePath &bauhausSuite, const QString &relativeIssue)
 {
     auto it = s_arServers.constFind(bauhausSuite);
     if (it == s_arServers.constEnd() || it->m_serverUrl.isEmpty())
@@ -460,8 +459,8 @@ void fetchIssueInfoFromPluginAr(const Utils::FilePath &bauhausSuite, const QStri
         setupQuery(query, url, auth, {});
         query.setOperation(QNetworkAccessManager::GetOperation);
     };
-    auto onSuccess = [projectName](const QByteArray &reply) {
-        updateIssueDetails(QString::fromUtf8(fixIssueDetailsHtml(reply)), projectName);
+    auto onSuccess = [](const QByteArray &reply) {
+        updateIssueDetails(QString::fromUtf8(fixIssueDetailsHtml(reply)), {});
         return DoneResult::Success;
     };
 

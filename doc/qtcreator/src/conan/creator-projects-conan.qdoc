@@ -13,7 +13,7 @@
 
     \l {https://conan.io}{Conan} is a C/C++ package manager that speeds up the
     integration of C or C++ libraries into your own project. It's available on
-    all the \l{Supported Platforms}{supported development platforms}.
+    all the \l{Supported platforms}{supported development platforms}.
 
     Conan can be integrated into most build systems that are integrated into
     \QC:

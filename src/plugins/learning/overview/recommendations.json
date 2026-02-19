@@ -1,5 +1,7 @@
 {
-    "items": [
+    "$schema": "./recommendations.schema.json",
+    "$id": "recommendations.schema.json",
+    "contentitems": [
         {
             "description": "Testing that your installation is successful by opening an existing example application project.",
             "flags": [
@@ -7,7 +9,7 @@
             "id": "qthelp://org.qt-project.qtcreator/doc/creator-build-example-application.html",
             "name": "Build and run",
             "thumbnail": ":/qtsupport/images/icons/tutorialicon.png",
-            "type": "tutorial"
+            "itemtype": "tutorial"
         },
         {
             "description": "In this tutorial, you will build your first app with Qt using Qt Quick.\nThis tutorial is for anyone wanting to start their journey with Qt and learn how to build applications with Qt and Qt Quick.",
@@ -19,7 +21,7 @@
             "name": "Creating a Simple Qt Quick Application",
             "thumbnail": "coursecreatingqtquickapp.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1109611/large/ad97006d-2302-4810-875e-f1ba99d942b5-Creating-Qt-Quick-App.jpg",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "description": "In this course, you will launch the Qt Creator IDE for the first time, go through its basic views, and create a new project that you can use to try out some of the basic functionalities.",
@@ -31,7 +33,7 @@
             "name": "Getting Started with Qt Creator",
             "thumbnail": "coursegettingstartedqtcreator.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1473377/large/f1c4af33-dff5-418d-a7cf-43246fe9155e-Getting-Started-Qt-Creator.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -40,7 +42,7 @@
             "name": "Car Configurator",
             "thumbnail": "examplecarconfigurator.webp",
             "thumbnailurl": "https://code.qt.io/cgit/qt/qtdoc.git/plain/examples/demos/car-configurator/doc/images/car_configurator_overview.png",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "Developing Qt Quick applications using Qt Quick and Qt Quick Controls.",
@@ -49,7 +51,7 @@
             "id": "qthelp://org.qt-project.qtdoc/qtdoc/qtdoc-tutorials-alarms-example.html",
             "name": "Getting Started Programming with Qt Quick",
             "thumbnail": ":/qtsupport/images/icons/tutorialicon.png",
-            "type": "tutorial"
+            "itemtype": "tutorial"
         },
         {
             "description": "This tutorial is a beginner's guide to using the Qt for Android toolchain, including the Qt Creator IDE, to get you started developing apps.",
@@ -61,7 +63,7 @@
             "name": "Getting Started with Qt for Android",
             "thumbnail": "coursegettingstartedandroid.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1125669/large/461cb4b1-7c33-4e85-9abf-09d556a1087c-Thumbnails-Platform-Development-Android.jpg",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "description": "Getting Started with Qt for iOS course covers various themes that prepare you for creating iOS apps with Qt Quick and QML.",
@@ -73,7 +75,7 @@
             "name": "Getting Started with Qt for iOS",
             "thumbnail": "coursegettingstartedios.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1126805/large/bf10809c-57ce-4009-9ca8-b09b57937d7b-Thumbnails-Platform-Development-iOS.jpg",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -82,7 +84,7 @@
             "name": "Dice",
             "thumbnail": "exampledice.webp",
             "thumbnailurl": "https://code.qt.io/cgit/qt/qtdoc.git/plain/examples/demos/dice/doc/images/dice-screenshot.webp",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "Using basic QML types and learning about basic concepts of Qt Quick.",
@@ -92,7 +94,7 @@
             "id": "qthelp://org.qt-project.qtcreator/doc/qtcreator-transitions-example.html",
             "name": "Qt Quick application",
             "thumbnail": ":/qtsupport/images/icons/tutorialicon.png",
-            "type": "tutorial"
+            "itemtype": "tutorial"
         },
         {
             "description": "Using Qt Creator to create a small Qt application, Text Finder.",
@@ -102,7 +104,7 @@
             "id": "qthelp://org.qt-project.qtcreator/doc/creator-writing-program.html",
             "name": "Qt Widgets application",
             "thumbnail": ":/qtsupport/images/icons/tutorialicon.png",
-            "type": "tutorial"
+            "itemtype": "tutorial"
         },
         {
             "description": "Getting Started: Boot to Qt will help you get started with developing for embedded devices with stunning user interfaces using the power of Qt.",
@@ -114,7 +116,7 @@
             "name": "Getting Started: Boot to Qt",
             "thumbnail": "coursegettingstartedboot2qt.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1537506/large/53e303b3-4b7b-4cb5-ae7d-a99b16dd38e4-Course-Intro-Boot-Qt-Updated.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "description": "In this course, you'll get an overview of what Qt for MCUs is, and why use it. You will create your first project with Qt for MCUs: a simple heartbeat monitor.",
@@ -126,7 +128,7 @@
             "name": "Getting Started: Qt for MCUs",
             "thumbnail": "coursegettingstartedqtformcus.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1547729/large/13a52f79-86a8-4aa1-b3da-6adbe1899a7a-Course-Intro-MCUs.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "description": "Are you looking to create engaging and dynamic user interfaces for your applications? Introduction to QML will start you on your journey to building beautiful, responsive interfaces.",
@@ -138,7 +140,7 @@
             "name": "Introduction to QML",
             "thumbnail": "courseintroductionqml.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1313002/large/c38918c4-51a8-4bcb-b30e-12fc3d6f4563-Course-Intro-QML.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "description": "Dive in and begin your journey of learning the foundations of interactive UI creation with Qt Quick. Introduction to Qt Quick is a comprehensive look into application development using QML and JavaScript.",
@@ -150,7 +152,7 @@
             "name": "Introduction to Qt Quick",
             "thumbnail": "courseintroductionqtquick.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1312993/large/4290f571-ab42-4720-9f50-c02f56805acf-Course-Intro-QML-1.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -159,7 +161,7 @@
             "name": "Same Game",
             "thumbnail": "examplesamegame.webp",
             "thumbnailurl": "https://code.qt.io/cgit/qt/qtdoc.git/plain/examples/demos/samegame/doc/images/qtquick-demo-samegame-med-2.png",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "Dive in and learn the power of Qt Quick Controls. Introduction to Qt Quick Controls is a comprehensive look into application development using the Qt Quick Controls module, an extensive library of UI elements for building applications quickly.",
@@ -171,7 +173,7 @@
             "name": "Introduction to Qt Quick Controls",
             "thumbnail": "courseintroductionqtquickcontrols.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1312989/large/8212a3f9-c909-4f41-870b-80e3e455ea4d-Course-Intro-Qt-Quick-Controls.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "description": "Dive into the essential best practices for writing robust, maintainable, high-performance QML code. This course will equip you with actionable insights and practical examples to elevate your projects and gain a comprehensive understanding of how to write clean, error-resistant QML and leverage advanced language features effectively.",
@@ -182,7 +184,7 @@
             "name": "QML Best Practice",
             "thumbnail": "coursebestpracticesqml.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1438492/large/a510f0da-303e-4321-8b5c-350e8a0572af-Course-BestPractice.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -192,7 +194,7 @@
             "name": "Plane Spotter (QML)",
             "thumbnail": "exampleplanespotter.webp",
             "thumbnailurl": "https://doc.qt.io/qt-6/images/planespotter.png",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "flags": [
@@ -201,7 +203,7 @@
             "name": "Lightning Viewer",
             "thumbnail": "examplelightningviewer.webp",
             "thumbnailurl": "https://code.qt.io/cgit/qt/qtdoc.git/plain/examples/demos/lightningviewer/doc/images/lightningviewer.jpg",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "In this course, you will explore the Model View Delegate pattern within QML and the Qt framework. You will gain the skills to handle complex data models and present them effectively within your applications.",
@@ -212,7 +214,7 @@
             "name": "Model View Delegate with QML",
             "thumbnail": "coursemodelviewqml.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1538253/large/d5d02fdc-33c5-40c8-afa9-fde07c504967-Course-MVD-Update.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -221,7 +223,7 @@
             "name": "Qt Quick Demo - RESTful API client",
             "thumbnail": "examplerestfulapi.webp",
             "thumbnailurl": "https://code.qt.io/cgit/qt/qtdoc.git/plain/examples/demos/colorpaletteclient/doc/images/colorpalette_listing.png",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "Debugging Qt Quick applications in the Qt Creator Debug mode.",
@@ -231,7 +233,7 @@
             "id": "qthelp://org.qt-project.qtcreator/doc/creator-qml-debugging-example.html",
             "name": "Qt Quick debugging",
             "thumbnail": ":/qtsupport/images/icons/tutorialicon.png",
-            "type": "tutorial"
+            "itemtype": "tutorial"
         },
         {
             "description": "This course is the first part of the Introduction to Qt Widgets series.\nThis course is for anyone interested in learning about the Qt Widgets. To get the most out of this course, you should understand the basic software development concepts.",
@@ -243,7 +245,7 @@
             "name": "Introduction to Qt Widgets: Part 1",
             "thumbnail": "courseintroductiontoqtwidgets01.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1340496/large/14aa4deb-e296-4a5d-b0bf-7f5627ae92d8-KDAB-Course-Qt-Widget-Part-01.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -253,7 +255,7 @@
             "name": "Document Viewer",
             "thumbnail": "exampledocumentviewer.webp",
             "thumbnailurl": "https://code.qt.io/cgit/qt/qtdoc.git/plain/examples/demos/documentviewer/doc/images/documentviewer_open.png",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "In this course, you will gain a comprehensive understanding of features that Qt contains to localize applications. Qt Quick and Qt C++ applications use the same underlying localization system, so it is possible to have translatable strings in QML and C++ source files in the same application.",
@@ -264,7 +266,7 @@
             "name": "Translations",
             "thumbnail": "coursetranslations.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1459038/large/5d90b7d9-4d12-4eda-83f2-038d44642e33-Course-Translations.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "description": "In this course, you learn how to access C++ functionality from QML: expose C++ to QML. This is done by registering a C++ class as a QML type.\nThis course is for people with basic knowledge of QML and an understanding of object-oriented programming concepts using C++.",
@@ -275,7 +277,7 @@
             "name": "How to Expose C++ to QML",
             "thumbnail": "courseexposecpptoqml.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1472368/large/9f3d001c-af86-4091-97d5-f3e40e7ff5c2-Expose_C__.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -284,7 +286,7 @@
             "name": "Satellite Info",
             "thumbnail": "examplesatelliteinfo.webp",
             "thumbnailurl": "https://doc.qt.io/qt-6/images/skyview_tableview.webp",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "In this tutorial, you will learn what CMake is and how it is used in application development with Qt. If you are a developer interested in building applications using Qt - learn CMakes power tools for building your applications.",
@@ -296,7 +298,7 @@
             "name": "Getting Started with CMake and Qt",
             "thumbnail": "coursegettingstartedcmake.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1590045/large/08d9adad-eea2-45df-9bdc-9040ddf49241-Building-Cmake-Updated.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "description": "In this course, you will learn the basics of signals and slots and how to connect signals to slots. This is key for enabling dynamic behavior and interactivity in Qt applications, allowing, for instance, user input to trigger actions or updates in the interface.",
@@ -308,7 +310,7 @@
             "name": "Introduction to Signals and Slots",
             "thumbnail": "courseintroductionsugnalsslots.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1159710/large/731584ce-2dbe-4b0b-b537-d7cc33da55bc-Course-Signals-Slots.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "description": "In this course, you will gain a comprehensive understanding of the most used QML model types, views and how to interact with them. Models in QML are built using one of the QML model types. There are collections of different model types available, however the most used model types are ListModel, TableModel, and ObjectModel.",
@@ -319,7 +321,7 @@
             "name": "Model and Views in Qt Quick",
             "thumbnail": "coursemodelviewqtquick.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1445368/large/4a4c0f51-836a-42b8-91ec-a535dede24a0-QML-ModelViewQuick.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -328,7 +330,7 @@
             "name": "Media Player",
             "thumbnail": "examplemediaplayer.webp",
             "thumbnailurl": "https://code.qt.io/cgit/qt/qtdoc.git/plain/examples/demos/mediaplayer/doc/images/mediaplayerapp.png",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "Explore multithreading concepts and basic concurrency within the context of building GUI applications with Qt. We will go through some basic concepts of concurrent programming and how these are implemented within Qt. You will explore these multithreading concepts with Qt within an example application provided.",
@@ -340,7 +342,7 @@
             "name": "Multithreading with Qt",
             "thumbnail": "coursemultithreading.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1392277/large/80365fd5-91ec-4344-8c66-db0a0cfc3a86-Qt-Multithreading-Updated.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -350,7 +352,7 @@
             "name": "StocQt",
             "thumbnail": "examplestockqt.webp",
             "thumbnailurl": "https://code.qt.io/cgit/qt/qtdoc.git/plain/examples/demos/stocqt/doc/images/qtquick-demo-stocqt.png",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "In this course, you will explore a range of methods to arrange and size visual items within your applications effectively. You’ll start with basic techniques using anchors and gradually progress to more advanced layout methods, ensuring your user interface works seamlessly across various screen sizes and devices.",
@@ -362,7 +364,7 @@
             "name": "Positioners and Layouts",
             "thumbnail": "coursepositionersandlayouts.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1384888/large/39f2100a-1bf9-4c9a-8462-385cdbb1fb92-Course-Positioners-Layouts.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -372,7 +374,7 @@
             "name": "Qt Quick Examples - Positioners",
             "thumbnail": "examplepositioners.webp",
             "thumbnailurl": "https://doc.qt.io/qt-6/images/qml-positioners-example.png",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "Explore the power of fluid elements and animation in QML, learning how to create smooth, dynamic, and visually engaging user interfaces. This course will cover various QML animation techniques, including property animations, easing curves, behavior animations, path animations, and advanced state transitions.",
@@ -383,7 +385,7 @@
             "name": "QML Fluid Elements and Animation",
             "thumbnail": "courseqmlfluidelements.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1450720/large/dd4774d5-e854-4162-b400-f371ecf7dd99-Course-FluidElements.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "description": "In this course, you will explore integrating C++ with QML to create Qt applications. You will learn how to bridge the gap between the QML front-end and the C++ back-end, enabling you to leverage the strengths of both languages.\n\nThis course was updated in April 2025 to continually improve course content and address feedback from the Qt Community.",
@@ -395,7 +397,7 @@
             "name": "QML Integration Basics",
             "thumbnail": "courseqmlintegrationbasics.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1506849/large/454d7b52-6e6a-4a29-a052-ff45239407e5-Course-QML-Integration-Basic.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "description": "In this course, you will deepen your understanding of integrating C++ with QML by exploring advanced techniques such as singletons, non-instantiable types, and enumerators. By the end of this course, you will be well-equipped to implement more complex and flexible C++/QML interactions, allowing for a seamless blend of C++ backend functionality with QML front-end designs.",
@@ -407,7 +409,7 @@
             "name": "QML Integration Intermediate",
             "thumbnail": "courseqmlintegrationintermediate.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1364900/large/414d8c6a-7d60-4eb2-b37e-0564266e2578-Course-QML-Integration-Intermediate.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -416,7 +418,7 @@
             "name": "Window Embedding",
             "thumbnail": "examplewindowembedding.webp",
             "thumbnailurl": "https://code.qt.io/cgit/qt/qtdoc.git/plain/examples/demos/windowembedding/doc/images/macos.webp",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "flags": [
@@ -426,7 +428,7 @@
             "name": "Qt Quick Examples - Shader Effects",
             "thumbnail": "exampleshadereffects.webp",
             "thumbnailurl": "https://doc.qt.io/qt-6/images/qml-shadereffects-example.png",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "Learn how to migrate applications from the Qt DataVisualization Module to the Qt Graphs Module. Focusing on the practical steps required for migration, we'll guide you through key changes in CMake configurations, code, and asset handling. By the end of this course, you'll have a solid understanding of how to successfully transition your 3D application and leverage the enhanced features of Qt Graphs.",
@@ -438,7 +440,7 @@
             "name": "Qt DataVisualization to Qt Graphs",
             "thumbnail": "courseqtdatavisualizationtoqtgraphs.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1437062/large/5dd17236-0704-429a-a9a6-a591ef85e6ae-Migrating-QtGraphs.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -448,7 +450,7 @@
             "name": "Graph Gallery",
             "thumbnail": "examplesgraphgallery.webp",
             "thumbnailurl": "https://doc.qt.io/qt-6/images/widgetgraphgallery-example.png",
-            "type": "example"
+            "itemtype": "example"
         },
         {
             "description": "In this course, You will learn how to get started with Qt Quick 3D and familiarize yourself with some key concepts for creating 3D content.\n\nThis course is for 3D and Technical Artists with some knowledge of real-time rendering looking to apply their skills within the Qt Framework.",
@@ -460,7 +462,7 @@
             "name": "Qt Quick 3D: Views, Scenes & Nodes",
             "thumbnail": "courseqtquick3dviewsscenesandnodes.webp",
             "thumbnailurl": "https://learnupon.s3.eu-west-1.amazonaws.com/courseimages/1313024/large/8c4ef6f9-4734-4bf0-9d5a-8bacc453ad69-Course-Views-Scenes-Nodes.png",
-            "type": "course"
+            "itemtype": "course"
         },
         {
             "flags": [
@@ -470,7 +472,7 @@
             "name": "Robot Arm",
             "thumbnail": "examplesrobotarm.webp",
             "thumbnailurl": "https://code.qt.io/cgit/qt/qtdoc.git/plain/examples/demos/robotarm/doc/images/robotarm-example.png",
-            "type": "example"
+            "itemtype": "example"
         },
 
         {
@@ -478,21 +480,21 @@
             "name": "Qt 6.10 Released!",
             "thumbnail": "blogpostqt610released.webp",
             "thumbnailurl": "https://www.qt.io/hubfs/QtFramework-6.10-ReleaseBlog-FeaturedImage.webp",
-            "type": "blogpost"
+            "itemtype": "blogpost"
         },
         {
             "id_url": "https://www.qt.io/blog/qt-for-python-release-6.10-is-here",
             "name": "Qt for Python release: 6.10 is here!",
             "thumbnail": "blogpostqtforpython610ishere.webp",
             "thumbnailurl": "https://www.qt.io/hubfs/Qt%20Thumbnails.png",
-            "type": "blogpost"
+            "itemtype": "blogpost"
         },
         {
             "id_url": "https://www.qt.io/blog/openai-users-can-now-enjoy-better-qml-coding-performance",
             "name": "Qt AI Assistant v0.9.6 Released!",
             "thumbnail": "blogpostqtaiassistant096released.webp",
             "thumbnailurl": "https://www.qt.io/hubfs/CodeCompletionRectangularShadowClip-converted.gif",
-            "type": "blogpost"
+            "itemtype": "blogpost"
         }
     ]
 }

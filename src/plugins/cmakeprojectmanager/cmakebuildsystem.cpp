@@ -96,12 +96,12 @@ CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
 
         // Cache mime check result for speed up
         if (!isIgnored) {
-            if (auto it = m_mimeBinaryCache.get<std::optional<bool>>(
+            if (auto it = m_mimeBinaryCache.get(
                     [mimeType](const QHash<QString, bool> &cache) -> std::optional<bool> {
                         auto cache_it = cache.find(mimeType.name());
                         if (cache_it != cache.end())
                             return *cache_it;
-                        return {};
+                        return std::nullopt;
                     })) {
                 isIgnored = *it;
             } else {

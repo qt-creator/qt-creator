@@ -16,6 +16,11 @@ macro(qtc_auto_setup_compiler_standard toolchainFile)
     endforeach()
   endforeach()
 
+  # If the ENV{ANDROID_NDK_HOME} exists pass it via the ANDROID_NDK variable
+  if (DEFINED ENV{ANDROID_NDK_HOME})
+      set(ANDROID_NDK "$ENV{ANDROID_NDK_HOME}")
+  endif()
+
   # Forward important CMake variables to the package manager in the toolchain file
   foreach(fwd_var CMAKE_MSVC_RUNTIME_LIBRARY CMAKE_SYSROOT
                   CMAKE_OSX_SYSROOT CMAKE_OSX_ARCHITECTURES
@@ -90,11 +95,10 @@ macro(qtc_auto_setup_conan)
       file(COPY "${conanfile_txt}" DESTINATION "${CMAKE_BINARY_DIR}/conan-dependencies/")
 
       # conanfile should have a generator specified, when both file and conan_install
-      # specifcy the CMakeDeps generator, conan_install will issue an error
+      # specifcy the CMakeDeps or CMakeConfigDeps generator, conan_install will issue an error
       file(READ "${conanfile_txt}" conanfile_text_content)
-      unset(conan_generator)
-      if (NOT "${conanfile_text_content}" MATCHES ".*CMakeDeps.*")
-        set(conan_generator "-g CMakeDeps")
+      if (NOT "${conanfile_text_content}" MATCHES ".*(CMakeDeps|CMakeConfigDeps).*")
+        message(WARNING "Qt Creator: CMakeDeps or CMakeConfigDeps generator was not defined in the conanfile.")
       endif()
 
       file(WRITE "${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake" "
@@ -130,7 +134,7 @@ macro(qtc_auto_setup_conan)
               -pr \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\"
               --build=${QT_CREATOR_CONAN_BUILD_POLICY}
               -s build_type=\${type}
-              ${conan_generator})
+            )
           endforeach()
 
           get_property(CONAN_INSTALL_SUCCESS GLOBAL PROPERTY CONAN_INSTALL_SUCCESS)

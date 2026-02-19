@@ -274,7 +274,7 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
         process.setCommand(storage->adbCommand({"forward", "--remove", port}));
     };
     const auto onForwardRemoveDone = [storage](const Process &process) {
-        emit storage->appendStdErr(process.cleanedStdErr().trimmed());
+        storage->appendStdErr(process.cleanedStdErr().trimmed());
         return true;
     };
 
@@ -422,18 +422,18 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
                     const QString cleanPidMatch = pidMatch.mid(1, pidMatch.size() - 2).trimmed();
                     const QString output = QString(line).remove(pidMatch);
                     if (isFatal) {
-                        emit storagePtr->appendStdErr(output);
+                        storagePtr->appendStdErr(output);
                     } else if (cleanPidMatch == pidString) {
                         if (onlyError || errorMsgTypes.contains(msgType))
-                            emit storagePtr->appendStdErr(output);
+                            storagePtr->appendStdErr(output);
                         else
-                            emit storagePtr->appendStdOut(output);
+                            storagePtr->appendStdOut(output);
                     }
                 } else {
                     if (onlyError || errorMsgTypes.contains(msgType))
-                        emit storagePtr->appendStdErr(line);
+                        storagePtr->appendStdErr(line);
                     else
-                        emit storagePtr->appendStdOut(line);
+                        storagePtr->appendStdOut(line);
                 }
             }
         };
@@ -478,7 +478,7 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
             {storage->m_beforeStartAdbCommands.at(iterator.iteration()).split(' ', Qt::SkipEmptyParts)}));
     };
     const auto onPreCommandDone = [storage](const Process &process) {
-        emit storage->appendStdErr(process.cleanedStdErr().trimmed());
+        storage->appendStdErr(process.cleanedStdErr().trimmed());
     };
 
     const auto isQmlDebug = [storage] {
@@ -767,9 +767,9 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
     };
     const auto onArtDone = [storage](const Process &process) {
         if (process.result() == ProcessResult::FinishedWithSuccess)
-            emit storage->appendStdOut(Tr::tr("Art: Cleared App Profiles."));
+            storage->appendStdOut(Tr::tr("Art: Cleared App Profiles."));
         else
-            emit storage->appendStdOut(Tr::tr("Art: Clearing App Profiles failed."));
+            storage->appendStdOut(Tr::tr("Art: Clearing App Profiles failed."));
         return DoneResult::Success;
     };
 
@@ -779,9 +779,9 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
     };
     const auto onCompileDone = [storage](const Process &process) {
         if (process.result() == ProcessResult::FinishedWithSuccess)
-            emit storage->appendStdOut(Tr::tr("Art: Compiled App Profiles."));
+            storage->appendStdOut(Tr::tr("Art: Compiled App Profiles."));
         else
-            emit storage->appendStdOut(Tr::tr("Art: Compiling App Profiles failed."));
+            storage->appendStdOut(Tr::tr("Art: Compiling App Profiles failed."));
         return DoneResult::Success;
     };
 

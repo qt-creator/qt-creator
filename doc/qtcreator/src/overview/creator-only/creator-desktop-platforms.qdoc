@@ -7,7 +7,7 @@
 
     \ingroup creator-reference-platforms
 
-    \title Desktop Platforms
+    \title Desktop platforms
 
     \brief Requirements for operating systems that you can install and run \QC
     on.
@@ -73,10 +73,10 @@
     \l{https://techdocs.broadcom.com/us/en/vmware-cis/desktop-hypervisors/workstation-pro/17-0/using-vmware-workstation-pro/configuring-and-managing-virtual-machines/configure-display-settings-for-a-virtual-machine/prepare-the-host-system-to-use-accelerated-3d-graphics.html}
     {Prepare the Host System to Use DirectX 9 Accelerated Graphics}.
 
-    \section1 Compiling from Source
+    \section1 Compiling from source
 
     To build \QC from the source, see the requirements and instructions in the
     readme file that is located in the source repository.
 
-    \sa {Supported Platforms}
+    \sa {Supported platforms}
 */

@@ -66,8 +66,6 @@ public:
 
 private:
     void handleActivated(const QModelIndex &);
-    void handleUpdateFileState(const Utils::FilePath &repository, const QStringList &files);
-    void handleClearFileState(const Utils::FilePath &repository);
     void updateCurrentItem(IEditor*);
     void contextMenuRequested(QPoint pos);
     void activateEditor(const QModelIndex &index);
@@ -105,11 +103,6 @@ OpenEditorsWidget::OpenEditorsWidget()
     connect(this, &OpenDocumentsTreeView::customContextMenuRequested,
             this, &OpenEditorsWidget::contextMenuRequested);
     updateCurrentItem(EditorManager::currentEditor());
-
-    connect(VcsManager::instance(), &VcsManager::updateFileState,
-            this, &OpenEditorsWidget::handleUpdateFileState);
-    connect(VcsManager::instance(), &VcsManager::clearFileState,
-            this, &OpenEditorsWidget::handleClearFileState);
 }
 
 OpenEditorsWidget::~OpenEditorsWidget() = default;
@@ -143,33 +136,6 @@ void OpenEditorsWidget::handleActivated(const QModelIndex &index)
         QWidget *vp = viewport();
         QMouseEvent e(QEvent::MouseMove, vp->mapFromGlobal(cursorPos), cursorPos, Qt::NoButton, {}, {});
         QCoreApplication::sendEvent(vp, &e);
-    }
-}
-
-void OpenEditorsWidget::handleUpdateFileState(const FilePath &repository, const QStringList &files)
-{
-    for (const QString &fileName : files) {
-        const Utils::FilePath fullPath = repository.pathAppended(fileName);
-        const std::optional<int> index = DocumentModel::indexOfFilePath(fullPath);
-        if (!index)
-            continue;
-
-        const QModelIndex idx = m_model->index(*index, 0);
-        if (QTC_GUARD(idx.isValid()))
-            emit dataChanged(idx, idx, {Qt::ForegroundRole});
-    }
-}
-
-void OpenEditorsWidget::handleClearFileState(const FilePath &repository)
-{
-    for (int row = 0; row < m_model->rowCount(); ++row) {
-        const DocumentModel::Entry *entry = DocumentModel::entryAtRow(row);
-        QTC_ASSERT(entry, continue);
-
-        if (entry->filePath().startsWith(repository.path())) {
-            const QModelIndex index = m_model->index(row, 0);
-            emit dataChanged(index, index, {Qt::ForegroundRole});
-        }
     }
 }
 

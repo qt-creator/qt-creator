@@ -1323,7 +1323,7 @@ ProjectInfoList CppModelManager::projectInfos()
 
 ProjectInfo::ConstPtr CppModelManager::projectInfo(Project *project)
 {
-    return d->m_lockedProjectData.get<ProjectInfo::ConstPtr>(
+    return d->m_lockedProjectData.get(
         [project](const CppModelManagerPrivate::SyncedProjectData &ld) {
             return ld.m_projectData.value(project).projectInfo;
         });
@@ -1618,7 +1618,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
 
 ProjectPart::ConstPtr CppModelManager::projectPartForId(const QString &projectPartId)
 {
-    return d->m_lockedProjectData.get<ProjectPart::ConstPtr>(
+    return d->m_lockedProjectData.get(
         [projectPartId](const CppModelManagerPrivate::SyncedProjectData &ld) {
             return ld.m_projectPartIdToProjectProjectPart.value(projectPartId);
         });
@@ -2182,20 +2182,18 @@ BaseEditorDocumentProcessor *CppModelManager::createEditorDocumentProcessor(
 
 FilePaths CppModelManager::projectFiles()
 {
-    return d->m_lockedProjectData.update<FilePaths>(
-        [](CppModelManagerPrivate::SyncedProjectData &sd) {
-            CppModelManagerPrivate::ensureUpdated(sd);
-            return sd.m_projectFiles;
-        });
+    return d->m_lockedProjectData.update([](CppModelManagerPrivate::SyncedProjectData &sd) {
+        CppModelManagerPrivate::ensureUpdated(sd);
+        return sd.m_projectFiles;
+    });
 }
 
 HeaderPaths CppModelManager::headerPaths()
 {
-    return d->m_lockedProjectData.update<HeaderPaths>(
-        [](CppModelManagerPrivate::SyncedProjectData &sd) {
-            CppModelManagerPrivate::ensureUpdated(sd);
-            return sd.m_headerPaths;
-        });
+    return d->m_lockedProjectData.update([](CppModelManagerPrivate::SyncedProjectData &sd) {
+        CppModelManagerPrivate::ensureUpdated(sd);
+        return sd.m_headerPaths;
+    });
 }
 
 void CppModelManager::setHeaderPaths(const HeaderPaths &headerPaths)
@@ -2205,7 +2203,7 @@ void CppModelManager::setHeaderPaths(const HeaderPaths &headerPaths)
 
 Macros CppModelManager::definedMacros()
 {
-    return d->m_lockedProjectData.update<Macros>([](CppModelManagerPrivate::SyncedProjectData &sd) {
+    return d->m_lockedProjectData.update([](CppModelManagerPrivate::SyncedProjectData &sd) {
         CppModelManagerPrivate::ensureUpdated(sd);
         return sd.m_definedMacros;
     });

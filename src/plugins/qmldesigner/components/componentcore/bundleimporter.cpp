@@ -429,7 +429,6 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
 
     FilePath qmldirPath = bundleImportPath.resolvePath(QStringLiteral("qmldir"));
     const Result<QByteArray> qmldirContent = qmldirPath.fileContents();
-    QByteArray newContent;
 
     QString qmlType = qmlFilePath.baseName();
     if (m_pendingImports.contains(type) && m_pendingImports[type].isImport) {

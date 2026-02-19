@@ -23,6 +23,7 @@
 #include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/sysrootkitaspect.h>
@@ -64,7 +65,8 @@ class ToolchainDescriptionEx
 public:
     Utils::FilePath compilerPath;
     Utils::Id language;
-    QString originalTargetTriple;
+    QString originalTargetTriple = {};
+    QString targetArchitecture = {};
 
     operator ProjectExplorer::ToolchainDescription() const
     {
@@ -91,6 +93,8 @@ struct DirectoryData
     QString toolset;
     FilePath sysroot;
     QString osxSysroot;
+    FilePath androidNdk;
+    FilePath androidSdk;
     QtProjectImporter::QtVersionData qt;
     QList<ToolchainDescriptionEx> toolchains;
     QVariant debugger;
@@ -506,9 +510,29 @@ static CMakeConfig configurationFromPresetProbe(
 
         project(preset-probe)
 
-        set(file_path_value_list CMAKE_C_COMPILER CMAKE_CXX_COMPILER QT_HOST_PATH CMAKE_MAKE_PROGRAM)
-        if (NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
-            list(APPEND file_path_value_list CMAKE_SYSROOT)
+        set(file_path_value_list QT_HOST_PATH CMAKE_MAKE_PROGRAM)
+        if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+            # Mapping to compiler prefixes
+            set(__ANDROID_i686-linux-android i686-linux-android)
+            set(__ANDROID_x86_64-linux-android x86_64-linux-android)
+            set(__ANDROID_aarch64-linux-android aarch64-linux-android)
+            set(__ANDROID_arm-linux-androideabi armv7a-linux-androideabi)
+
+            # Save the compiler as "aarch64-linux-android30-clang"  instead of just "clang"
+            set(CMAKE_C_COMPILER
+                "${ANDROID_TOOLCHAIN_ROOT}/bin/${__ANDROID_${CMAKE_C_LIBRARY_ARCHITECTURE}}${ANDROID_PLATFORM_LEVEL}-clang${ANDROID_TOOLCHAIN_SUFFIX}" CACHE FILEPATH "" FORCE)
+            set(CMAKE_CXX_COMPILER
+                "${ANDROID_TOOLCHAIN_ROOT}/bin/${__ANDROID_${CMAKE_CXX_LIBRARY_ARCHITECTURE}}${ANDROID_PLATFORM_LEVEL}-clang++${ANDROID_TOOLCHAIN_SUFFIX}" CACHE FILEPATH "" FORCE)
+
+            if (DEFINED ENV{ANDROID_HOME})
+                set(ANDROID_SDK "$ENV{ANDROID_HOME}")
+            endif()
+            if (DEFINED ENV{ANDROID_SDK_ROOT})
+                set(ANDROID_SDK "$ENV{ANDROID_SDK_ROOT}")
+            endif()
+            list(APPEND file_path_value_list ANDROID_NDK ANDROID_SDK)
+        else()
+            list(APPEND file_path_value_list CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_SYSROOT)
         endif()
         foreach (file_path_value IN LISTS file_path_value_list)
             if (${file_path_value})
@@ -522,7 +546,7 @@ static CMakeConfig configurationFromPresetProbe(
             endif()
         endforeach()
 
-        set(string_value_list CMAKE_SYSTEM_NAME)
+        set(string_value_list CMAKE_SYSTEM_NAME CMAKE_C_LIBRARY_ARCHITECTURE CMAKE_CXX_LIBRARY_ARCHITECTURE)
         if (NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
             list(APPEND string_value_list CMAKE_C_COMPILER_TARGET CMAKE_CXX_COMPILER_TARGET)
         endif()
@@ -572,42 +596,20 @@ static CMakeConfig configurationFromPresetProbe(
     }
 
     if (configurePreset.cacheVariables) {
-        const CMakeConfig cache = configurePreset.cacheVariables ? *configurePreset.cacheVariables
+        CMakeConfig cache = configurePreset.cacheVariables ? *configurePreset.cacheVariables
                                                                  : CMakeConfig();
+        // For the compiler probe we don't need VCPKG_MANIFEST_MODE
+        cache.remove("VCPKG_MANIFEST_MODE");
 
-        const QString cmakeMakeProgram = cache.stringValueOf("CMAKE_MAKE_PROGRAM");
-        const QString toolchainFile = cache.stringValueOf("CMAKE_TOOLCHAIN_FILE");
-        const QString prefixPath = cache.stringValueOf("CMAKE_PREFIX_PATH");
-        const QString findRootPath = cache.stringValueOf("CMAKE_FIND_ROOT_PATH");
-        const QString qtHostPath = cache.stringValueOf("QT_HOST_PATH");
-        const QString sysRoot = cache.stringValueOf("CMAKE_SYSROOT");
-
-        if (!cmakeMakeProgram.isEmpty()) {
-            args.emplace_back(
-                QStringLiteral("-DCMAKE_MAKE_PROGRAM=%1").arg(cmakeMakeProgram));
-        }
-        if (!toolchainFile.isEmpty()) {
-            args.emplace_back(
-                QStringLiteral("-DCMAKE_TOOLCHAIN_FILE=%1").arg(toolchainFile));
-        }
-        if (!prefixPath.isEmpty()) {
-            args.emplace_back(QStringLiteral("-DCMAKE_PREFIX_PATH=%1").arg(prefixPath));
-        }
-        if (!findRootPath.isEmpty()) {
-            args.emplace_back(QStringLiteral("-DCMAKE_FIND_ROOT_PATH=%1").arg(findRootPath));
-        }
-        if (!qtHostPath.isEmpty()) {
-            args.emplace_back(QStringLiteral("-DQT_HOST_PATH=%1").arg(qtHostPath));
-        }
-        if (!sysRoot.isEmpty()) {
-            args.emplace_back(QStringLiteral("-DCMAKE_SYSROOT=%1").arg(sysRoot));
-        }
+        args.append(cache.toArguments());
     }
 
     qCDebug(cmInputLog) << "CMake probing for compilers: " << cmakeExecutable.toUserOutput()
                         << args;
     cmake.setCommand({cmakeExecutable, args});
     cmake.runBlocking(30s);
+
+    qCDebug(cmInputLog).noquote() << cmake.readAllStandardOutput() << cmake.readAllStandardError();
 
     QString errorMessage;
     const CMakeConfig config = CMakeConfig::fromFile(importPath.pathAppended(
@@ -793,17 +795,20 @@ static QList<ToolchainDescriptionEx> extractToolchainsFromCache(const CMakeConfi
         if (language == "CXX") {
             haveCCxxCompiler = true;
             languageId = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
-        }
-        else  if (language == "C") {
+        } else if (language == "C") {
             haveCCxxCompiler = true;
             languageId = ProjectExplorer::Constants::C_LANGUAGE_ID;
-        }
-        else
+        } else {
             languageId = Id::fromName(language);
-        result.append(
-            {FilePath::fromUtf8(i.value),
-             languageId,
-             config.stringValueOf("CMAKE_" + language + "_COMPILER_TARGET")});
+        }
+
+        const FilePath compilerPath = FilePath::fromUtf8(i.value);
+        const QString compilerTarget = config.stringValueOf(
+            "CMAKE_" + language + "_COMPILER_TARGET");
+        const QString targetArhitecture = config.stringValueOf(
+            "CMAKE_" + language + "_LIBRARY_ARCHITECTURE");
+
+        result.append({compilerPath, languageId, compilerTarget, targetArhitecture});
     }
 
     if (!haveCCxxCompiler) {
@@ -823,13 +828,11 @@ static QList<ToolchainDescriptionEx> extractToolchainsFromCache(const CMakeConfi
             if (!linker.isEmpty()) {
                 const FilePath compilerPath = linker.parentDir();
                 result.append(
-                    {compilerPath.pathAppended(cCompilerName),
-                     ProjectExplorer::Constants::C_LANGUAGE_ID,
-                     {}});
+                    {.compilerPath = compilerPath.pathAppended(cCompilerName),
+                     .language = ProjectExplorer::Constants::C_LANGUAGE_ID});
                 result.append(
-                    {compilerPath.pathAppended(cxxCompilerName),
-                     ProjectExplorer::Constants::CXX_LANGUAGE_ID,
-                     {}});
+                    {.compilerPath = compilerPath.pathAppended(cxxCompilerName),
+                     .language = ProjectExplorer::Constants::CXX_LANGUAGE_ID});
             }
         }
     }
@@ -1113,6 +1116,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         data->sysroot = config.filePathValueOf("CMAKE_SYSROOT");
         data->osxSysroot = config.stringValueOf("CMAKE_OSX_SYSROOT");
         data->cmakeSystemName = config.stringValueOf("CMAKE_SYSTEM_NAME");
+        data->androidNdk = config.filePathValueOf("ANDROID_NDK");
+        data->androidSdk = config.filePathValueOf("ANDROID_SDK");
 
         const auto [qmake, cmakePrefixPath] = qtInfoFromCMakeCache(config, env);
         if (!qmake.isEmpty())
@@ -1386,9 +1391,22 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
             if (!cmtcd.originalTargetTriple.isEmpty())
                 toolchain->setExplicitCodeModelTargetTriple(cmtcd.originalTargetTriple);
 
-            // Mark CMake presets toolchains as manual
-            if (!data->cmakePresetDisplayname.isEmpty() && tcd.areTemporary)
+            if (!data->cmakePresetDisplayname.isEmpty() && tcd.areTemporary) {
+                // Handle Android CMake compilers
+                if (data->cmakeSystemName == "Android") {
+                    const QString archTriplet = cmtcd.targetArchitecture;
+                    const Abi androidAbi = Abi::abiFromTargetTriplet(archTriplet);
+                    if (auto gccToolchain = toolchain->asGccToolchain()) {
+                        gccToolchain->setOriginalTargetTriple(archTriplet);
+                        gccToolchain->setTargetAbi(androidAbi);
+                        gccToolchain->setPlatformCodeGenFlags({"-target", archTriplet});
+                        gccToolchain->setPlatformLinkerFlags({"-target", archTriplet});
+                    }
+                }
+
+                // Mark CMake presets toolchains as manual
                 toolchain->setDetectionSource(DetectionSource::Manual);
+            }
 
             ToolchainKitAspect::setToolchain(k, toolchain);
         }
@@ -1400,6 +1418,13 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         }
         if (!data->cmakePreset.isEmpty())
             ensureBuildDirectory(*data, k);
+
+        if (!data->cmakePreset.isEmpty() && data->cmakeSystemName == "Android") {
+            k->setValueSilently(
+                Android::Constants::ANDROID_KIT_NDK, data->androidNdk.toFSPathString());
+            k->setValueSilently(
+                Android::Constants::ANDROID_KIT_SDK, data->androidSdk.toFSPathString());
+        }
 
         if (data->debugger.isValid())
             DebuggerKitAspect::setDebugger(k, data->debugger);

@@ -58,18 +58,10 @@ DeviceManager::~DeviceManager() = default;
 
 void DeviceManager::initUdpDiscovery()
 {
-    QSharedPointer<QUdpSocket> udpSocket = QSharedPointer<QUdpSocket>::create();
-    bool retVal = udpSocket->bind(QHostAddress::AnyIPv4, 53452, QUdpSocket::ShareAddress);
-    if (!retVal) {
-        qCWarning(deviceSharePluginLog) << "UDP:: Failed to bind to UDP port 53452 on AnyIPv4"
-                                        << ". Error:" << udpSocket->errorString();
-        return;
-    }
-
-    connect(udpSocket.data(), &QUdpSocket::readyRead, this, &DeviceManager::incomingDatagram);
-
-    qCDebug(deviceSharePluginLog) << "UDP:: Listening on AnyIPv4 port" << udpSocket->localPort();
-    m_udpSockets.append(udpSocket);
+    // Opening the socket was removed because the functionality is actually not supported
+    // in Qt Creator.
+    // TODO remove the whole related infrastructure like DeviceManager, RunManager, Device,
+    // DeviceInfo, DeviceSettings, and QWebSocket stub
 }
 
 void DeviceManager::incomingDatagram()
@@ -306,7 +298,6 @@ void DeviceManager::initDevice(const DeviceInfo &deviceInfo, const DeviceSetting
                                                                       deviceInfo,
                                                                       deviceSettings},
                                                            &QObject::deleteLater);
-    QString deviceId = device->deviceSettings().deviceId();
     connect(device.data(), &Device::deviceInfoReady, this, &DeviceManager::deviceInfoReceived);
     connect(device.data(), &Device::disconnected, this, [this](const QString &deviceId) {
         qCDebug(deviceSharePluginLog) << "Device" << deviceId << "disconnected";

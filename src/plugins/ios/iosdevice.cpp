@@ -101,6 +101,8 @@ public:
             noMargin
         }.attachTo(this);
         // clang-format on
+
+        installMarkSettingsDirtyTriggerRecursively(this);
     }
 
     void updateDeviceFromUi() final {}

@@ -377,7 +377,7 @@ void TerminalInterface::start()
     if (d->envListFile)
         cmd.addArgs({"-e", d->envListFile->fileName()});
 
-    cmd.addArgs({"--wait", d->waitOnExit ? msgPromptToClose() : ""});
+    cmd.addArgs({"--wait", d->waitOnExit ? msgPromptToClose() : QString()});
 
     cmd.addArgs({"--", m_setup.m_commandLine.executable().nativePath()});
     cmd.addArgs(m_setup.m_commandLine.arguments(), CommandLine::Raw);

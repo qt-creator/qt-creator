@@ -84,10 +84,10 @@ def convert_thumbnail(thumbnail_file_name, url, thumbnail_type):
 def main():
     with open(recommendations_json(), encoding="utf-8") as json_data:
         data = json.load(json_data)
-        for item in data["items"]:
+        for item in data["contentitems"]:
             if "thumbnailurl" in item:
                 convert_thumbnail(item["thumbnail"], item["thumbnailurl"],
-                                  item["type"])
+                                  item["itemtype"])
 
     return 0
 

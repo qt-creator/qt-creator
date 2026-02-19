@@ -2155,6 +2155,10 @@ IDocument *ICore::openFiles(const FilePaths &filePaths,
             workingDirectory.isEmpty() ? FilePath::currentWorkingPath() : workingDirectory;
     for (const FilePath &filePath : filePaths) {
         const FilePath absoluteFilePath = workingDirBase.resolvePath(filePath);
+
+        const EditorView *ev = EditorManagerPrivate::currentEditorView();
+        const bool isShowingTabs = ev && ev->isShowingTabs();
+
         if (IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, filePath)) {
             IDocument *document = documentFactory->open(absoluteFilePath);
             if (!document) {
@@ -2167,7 +2171,7 @@ IDocument *ICore::openFiles(const FilePaths &filePaths,
                     ModeManager::activateMode(Id(Constants::MODE_EDIT));
             }
         } else if (flags & (ICore::SwitchSplitIfAlreadyVisible | ICore::CanContainLineAndColumnNumbers)
-                   || !res) {
+                   || (!res || isShowingTabs)) {
             QFlags<EditorManager::OpenEditorFlag> emFlags;
             if (flags & ICore::SwitchSplitIfAlreadyVisible)
                 emFlags |= EditorManager::SwitchSplitIfAlreadyVisible;

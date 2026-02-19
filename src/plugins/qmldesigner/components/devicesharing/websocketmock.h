@@ -3,9 +3,6 @@
 
 #pragma once
 
-#ifdef QT_WEBSOCKET_ENABLED
-#include <QWebSocket>
-#else
 #include <QAbstractSocket>
 
 // QWebSocket mock.
@@ -41,5 +38,3 @@ signals:
     void disconnected();
     void connected();
 };
-
-#endif // QT_WEBSOCKETS_LIB

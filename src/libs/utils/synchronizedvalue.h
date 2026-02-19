@@ -65,6 +65,13 @@ namespace Utils {
 
     \endcode
 */
+
+template<typename F, typename T>
+concept IsCallableWithConstRef = std::is_invocable_v<F, const T &>;
+
+template<typename F, typename T>
+concept IsCallableWithRef = std::is_invocable_v<F, T &>;
+
 template<typename T>
 class SynchronizedValue
 {
@@ -146,15 +153,16 @@ public:
     }
 
     //! Call func with a const reference to the wrapped object
-    void read(const std::function<void(const T &)> &func) const
+    template<IsCallableWithConstRef<T> F>
+    void read(const F &func) const
     {
         std::shared_lock lk(mutex);
         func(value);
     }
 
     //! Call func with a const reference to the wrapped object and returns the result of func
-    template<typename R>
-    [[nodiscard]] R get(const std::function<R(const T &)> &func) const
+    template<IsCallableWithConstRef<T> F>
+    [[nodiscard]] decltype(auto) get(const F &func) const
     {
         std::shared_lock lk(mutex);
         return func(value);
@@ -167,15 +175,16 @@ public:
     }
 
     //! Call func with a mutable reference to the wrapped object
-    void write(const std::function<void(T &)> &func)
+    template<IsCallableWithRef<T> F>
+    void write(const F &func)
     {
         std::unique_lock lk(mutex);
         func(value);
     }
 
     //! Call func with a mutable reference to the wrapped object and returns the result of func
-    template<typename R>
-    [[nodiscard]] R update(const std::function<R(T &)> &func)
+    template<IsCallableWithRef<T> F>
+    [[nodiscard]] decltype(auto) update(const F &func)
     {
         std::unique_lock lk(mutex);
         return func(value);

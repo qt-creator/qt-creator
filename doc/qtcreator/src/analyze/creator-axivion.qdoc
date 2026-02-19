@@ -215,13 +215,6 @@
     To check whether your changes fix style issues or cause new ones, analyze
     a single file.
 
-    You need:
-    \list
-        \li An active dashboard.
-        \li A valid path mapping for the project.
-        \li A file opened from this dashboard.
-    \endlist
-
     To start a  single file analysis, go to
     \uicontrol Analyze > \uicontrol {Single File Analysis} or use the
     respective item inside the context menu of the file's editor.

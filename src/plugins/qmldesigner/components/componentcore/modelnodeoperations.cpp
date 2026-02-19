@@ -753,7 +753,6 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
                                                ->documentManager()
                                                .currentDesignDocument()
                                                ->fileName();
-    const QString fileName = currentDesignDocument.toUrlishString();
     const QString typeName = currentDesignDocument.baseName();
 
     QStringList signalNames = cleanSignalNames(getSortedSignalNameList(selectionState.selectedModelNodes().constFirst()));

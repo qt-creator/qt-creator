@@ -411,7 +411,6 @@ void BakeLights::handlePendingRebakeTimeout()
     if (!model)
         return;
 
-    const QList<AbstractProperty> props = m_pendingRebakeCheckNode.properties();
     PropertyMetaInfos metaInfos = m_pendingRebakeCheckNode.metaInfo().properties();
     for (const PropertyMetaInfo &mi : metaInfos) {
         if (mi.isValid() && !mi.isPrivate() && mi.isWritable()) {
