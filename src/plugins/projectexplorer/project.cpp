@@ -1301,6 +1301,11 @@ void Project::configureAsExampleProject(Kit * /*kit*/)
 {
 }
 
+DeploymentKnowledge Project::deploymentKnowledge() const
+{
+    return DeploymentKnowledge::Bad;
+}
+
 bool Project::hasMakeInstallEquivalent() const
 {
     return d->m_hasMakeInstallEquivalent;

@@ -62,6 +62,7 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>

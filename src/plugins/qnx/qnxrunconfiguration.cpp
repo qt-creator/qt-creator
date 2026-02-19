@@ -8,6 +8,7 @@
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployablefile.h>
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>

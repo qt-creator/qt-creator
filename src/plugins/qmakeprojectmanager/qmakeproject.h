@@ -8,7 +8,6 @@
 #include "qmakenodes.h"
 #include "qmakeparsernodes.h"
 
-#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/task.h>

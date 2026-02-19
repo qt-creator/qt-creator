@@ -19,7 +19,9 @@ namespace ProjectExplorer {
 
 class BuildConfiguration;
 class BuildStepList;
+class DeploymentData;
 class ExtraCompiler;
+class MakeInstallCommand;
 class Node;
 
 struct TestCaseInfo

@@ -5,7 +5,6 @@
 
 #include "projectexplorer_export.h"
 
-#include "deploymentdata.h"
 #include "kit.h"
 #include "task.h"
 
@@ -28,6 +27,8 @@ class MacroExpander;
 }
 
 namespace ProjectExplorer {
+
+enum class DeploymentKnowledge;
 
 class BuildConfiguration;
 class BuildInfo;
@@ -155,7 +156,7 @@ public:
 
     virtual ProjectImporter *projectImporter() const;
 
-    virtual DeploymentKnowledge deploymentKnowledge() const { return DeploymentKnowledge::Bad; }
+    virtual DeploymentKnowledge deploymentKnowledge() const;
     bool hasMakeInstallEquivalent() const;
 
     void setup(const QList<BuildInfo> &infoList);

@@ -47,6 +47,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/commandline.h>
 #include <utils/filepath.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/macroexpander.h>

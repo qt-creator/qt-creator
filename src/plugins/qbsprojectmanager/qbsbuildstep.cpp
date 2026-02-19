@@ -19,6 +19,7 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
