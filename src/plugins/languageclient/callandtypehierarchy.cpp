@@ -21,6 +21,7 @@
 #include <utils/utilsicons.h>
 
 #include <QLayout>
+#include <QMenu>
 #include <QToolButton>
 
 using namespace Core;
@@ -290,10 +291,50 @@ public:
     }
 };
 
+class TreeView : public Utils::NavigationTreeView
+{
+public:
+    explicit TreeView(const QString &name, QWidget *parent = nullptr)
+        : Utils::NavigationTreeView(parent)
+        , m_name(name)
+    {}
+
+    void contextMenuEvent(QContextMenuEvent *event) override
+    {
+        if (!event)
+            return;
+
+        QMenu contextMenu;
+
+        QAction *action = contextMenu.addAction(Tr::tr("Open in Editor"));
+        connect(action, &QAction::triggered, this, [this] () {
+            emit activated(currentIndex());
+        });
+        action = contextMenu.addAction(Tr::tr("Open %1 Hierarchy").arg(m_name));
+        connect(action, &QAction::triggered, this, [this] () {
+            emit doubleClicked(currentIndex());
+        });
+
+        contextMenu.addSeparator();
+
+        action = contextMenu.addAction(Tr::tr("Expand All"));
+        connect(action, &QAction::triggered, this, &QTreeView::expandAll);
+        action = contextMenu.addAction(Tr::tr("Collapse All"));
+        connect(action, &QAction::triggered, this, &QTreeView::collapseAll);
+
+        contextMenu.exec(event->globalPos());
+
+        event->accept();
+    }
+
+private:
+    const QString m_name;
+};
+
 class HierarchyWidgetHelper
 {
 public:
-    HierarchyWidgetHelper(QWidget *theWidget) : m_view(new NavigationTreeView(theWidget))
+    HierarchyWidgetHelper(const QString &name, QWidget *theWidget) : m_view(new TreeView(name, theWidget))
     {
         m_delegate.setDelimiter(" ");
         m_delegate.setAnnotationRole(AnnotationRole);
@@ -387,7 +428,7 @@ private:
 class CallHierarchy : public QWidget, public HierarchyWidgetHelper
 {
 public:
-    CallHierarchy() : HierarchyWidgetHelper(this)
+    CallHierarchy() : HierarchyWidgetHelper(Tr::tr("Call"), this)
     {
         connect(LanguageClientManager::instance(), &LanguageClientManager::openCallHierarchy,
                 this, [this] { updateHierarchyAtCursorPosition(); });
@@ -430,7 +471,7 @@ private:
 class TypeHierarchy : public TypeHierarchyWidget, public HierarchyWidgetHelper
 {
 public:
-    TypeHierarchy() : HierarchyWidgetHelper(this) {}
+    TypeHierarchy() : HierarchyWidgetHelper(Tr::tr("Type"), this) {}
 
 private:
     void reload() override
