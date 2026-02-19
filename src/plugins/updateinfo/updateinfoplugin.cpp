@@ -171,7 +171,6 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
                     }
                 }
             },
-            st,
             buttons
         }.attachTo(&dialog);
     }
