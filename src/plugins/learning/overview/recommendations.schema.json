@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/schemas/recommendations.schema.json",
+    "title": "Qt Creator Onboarding Recommendations List",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [ "contentitems" ],
+
+    "properties": {
+        "$schema": { "type": "string" },
+        "$id": { "type": "string" },
+        "contentitems": {
+            "type": "array",
+            "description": "Array of recommendation objects.",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/definitions/item"
+            }
+        }
+    },
+
+    "definitions": {
+        "item": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [ "name", "itemtype" ],
+            "anyOf": [
+                { "required": [ "id" ] },
+                { "required": [ "id_url" ] }
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "description": "Longer free-form description. In case of itemtype example not needed, since it is read from the docs."
+                },
+
+                "flags": {
+                    "type": "array",
+                    "description": "Optional list of tags that qualify the item.",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "experience_basic",
+                            "experience_advanced",
+                            "target_android",
+                            "target_ios",
+                            "target_boot2qt",
+                            "target_qtformcus"
+                        ]
+                    },
+                    "uniqueItems": true
+                },
+
+                "id": {
+                    "type": "string",
+                    "description": "Internal identifier numeric id for itemtype course. Relative path to examples-manifest.xml in case of example. qthelp:// url for tutorials."
+                },
+
+                "id_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "External URL that points to the resource."
+                },
+
+                "name": {
+                    "type": "string",
+                    "description": "Human readable title."
+                },
+
+                "thumbnail": {
+                    "type": "string",
+                    "description": "Path or Qt resource name for a small image."
+                },
+
+                "thumbnailurl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Full URL for the thumbnail image. Only needed for the updatethumbnails.py script."
+                },
+
+                "itemtype": {
+                    "type": "string",
+                    "enum": [
+                        "tutorial",
+                        "course",
+                        "example",
+                        "blogpost"
+                    ],
+                    "description": "Kind of content represented by the entry."
+                }
+            }
+        }
+    }
+}
