@@ -8,6 +8,7 @@
 #include "presetsparser.h"
 
 #include <projectexplorer/project.h>
+#include <utils/result.h>
 
 namespace CMakeProjectManager {
 
@@ -58,6 +59,7 @@ private:
     Internal::PresetsData m_presetsData;
     Internal::CMakeSpecificSettings m_settings;
     Utils::FilePath m_buildDirToImport;
+    std::vector<Utils::Result<std::unique_ptr<Utils::FilePathWatcher>>> m_includeFilesWatcher;
 };
 
 #ifdef WITH_TESTS

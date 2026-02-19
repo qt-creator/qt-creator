@@ -14,6 +14,8 @@
 #include "cmakeprojectmanagertr.h"
 #include "presetsmacros.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icontext.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
@@ -31,6 +33,7 @@
 #include <utils/mimeconstants.h>
 #include <utils/textfileformat.h>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 using namespace CMakeProjectManager::Internal;
@@ -439,6 +442,19 @@ void CMakeProject::readPresets()
         }
         m_presetsData.havePresets = true;
         break;
+    }
+
+    m_includeFilesWatcher = FilePath::watch(includeStack);
+    for (Result<std::unique_ptr<FilePathWatcher>> &watcher : m_includeFilesWatcher) {
+        if (watcher) {
+            connect(watcher->get(), &FilePathWatcher::pathChanged, this, [] {
+                Command *reloadCMakePresets = ActionManager::command(
+                    Constants::RELOAD_CMAKE_PRESETS);
+
+                if (reloadCMakePresets)
+                    emit reloadCMakePresets->action()->triggered();
+            });
+        }
     }
 }
 
