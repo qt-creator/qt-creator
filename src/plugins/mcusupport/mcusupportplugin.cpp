@@ -55,7 +55,6 @@ using namespace Qt::Literals::StringLiterals;
 namespace McuSupport::Internal {
 
 const char setupMcuSupportKits[] = "SetupMcuSupportKits";
-const char qdsMcuDocInfoEntry[] = "McuDocInfoEntry";
 
 void printMessage(const QString &message, bool important)
 {
