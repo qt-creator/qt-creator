@@ -34,5 +34,26 @@
 
     \image {qtcreator-preferences-telemetry-usage-statistics.webp} {Usage Statistics tab in Telemetry preferences}
 
+    \section1 Collected data
+
+    \QC collects the following data:
+
+    \list
+        \li Your Qt license.
+        \li The selected \QC theme and UI language, and the system locale.
+        \li The modes that you use.
+        \li Information about what you use to build your projects:
+            \list
+                \li The Qt version.
+                \li The Qt and QML modules.
+                \li The build system (CMake, qmake, and so on).
+                \li The build and run device types.
+                \li The compiler and debugger types and versions.
+            \endlist
+        \li The Qt examples that you opened.
+    \endlist
+
+    The code is available at \l{https://code.qt.io/cgit/qt-creator/plugin-telemetry.git}.
+
     \sa {Installation}
 */
