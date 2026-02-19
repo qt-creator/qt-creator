@@ -709,6 +709,8 @@ private:
 
 class TargetSetupPageWrapper final : public QWidget
 {
+    Q_OBJECT
+
 public:
     explicit TargetSetupPageWrapper(Project *project)
         : m_project(project)
@@ -717,34 +719,40 @@ public:
 
         m_configureButton.setText(Tr::tr("&Configure Project"));
 
-        m_targetSetupPage.setProjectAndPath(m_project, m_project->projectFilePath());
-        m_targetSetupPage.setTasksGenerator([this](const Kit *k) {
-            QTC_ASSERT(m_project.get(), return Tasks());
-            return m_project->projectIssues(k);
-        });
-        m_targetSetupPage.setProjectImporter(m_project->projectImporter());
-        m_targetSetupPage.initializePage();
-        m_targetSetupPage.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-
-        auto setupPageContainer = new QVBoxLayout;
-        setupPageContainer->addWidget(&m_targetSetupPage);
-
         auto hbox = new QHBoxLayout;
         hbox->addStretch();
         hbox->addWidget(&m_configureButton);
 
         auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->addLayout(setupPageContainer);
         layout->addLayout(hbox);
-
-        onCompleteChanged();
-
-        connect(&m_targetSetupPage, &QWizardPage::completeChanged,
-                this, &TargetSetupPageWrapper::onCompleteChanged);
 
         connect(&m_configureButton, &QAbstractButton::clicked,
                 this, &TargetSetupPageWrapper::done);
+    }
+
+    void ensurePage()
+    {
+        if (m_targetSetupPage)
+            return;
+
+        m_targetSetupPage = new TargetSetupPage(this);
+        m_targetSetupPage->setProjectAndPath(m_project, m_project->projectFilePath());
+        m_targetSetupPage->setTasksGenerator([this](const Kit *k) {
+            QTC_ASSERT(m_project.get(), return Tasks());
+            return m_project->projectIssues(k);
+        });
+        m_targetSetupPage->setProjectImporter(m_project->projectImporter());
+        m_targetSetupPage->initializePage();
+        m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
+        connect(m_targetSetupPage, &QWizardPage::completeChanged,
+                this, &TargetSetupPageWrapper::onCompleteChanged);
+
+        auto lt = qobject_cast<QBoxLayout *>(layout());
+        QTC_ASSERT(lt, return);
+        lt->insertWidget(0, m_targetSetupPage);
+        onCompleteChanged();
     }
 
 protected:
@@ -756,7 +764,7 @@ protected:
 
     void keyPressEvent(QKeyEvent *event) final
     {
-        if (m_targetSetupPage.importLineEditHasFocus() || !m_configureButton.isEnabled())
+        if (m_targetSetupPage->importLineEditHasFocus() || !m_configureButton.isEnabled())
             return;
 
         if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
@@ -768,19 +776,19 @@ protected:
 private:
     void done()
     {
-        disconnect(&m_targetSetupPage, &QWizardPage::completeChanged,
-                   this, &TargetSetupPageWrapper::onCompleteChanged);
-        m_targetSetupPage.setupProject(m_project);
+        m_targetSetupPage->setupProject(m_project);
+        delete m_targetSetupPage;
+
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
     }
 
     void onCompleteChanged()
     {
-        m_configureButton.setEnabled(m_targetSetupPage.isComplete());
+        m_configureButton.setEnabled(m_targetSetupPage->isComplete());
     }
 
     QPointer<Project> m_project;
-    TargetSetupPage m_targetSetupPage;
+    QPointer<TargetSetupPage >m_targetSetupPage;
     QPushButton m_configureButton;
     QDialogButtonBox m_buttonBox;
 };
@@ -1117,6 +1125,10 @@ ProjectPanels TargetGroupItem::panelWidgets() const
 {
     if (!m_targetSetupPanel)
         m_targetSetupPanel = new ProjectPanel(new TargetSetupPageWrapper(m_project));
+
+    auto inner = qobject_cast<TargetSetupPageWrapper *>(m_targetSetupPanel->widget());
+    QTC_ASSERT(inner, return {});
+    inner->ensurePage();
 
     return {m_targetSetupPanel.get()};
 }
@@ -1853,3 +1865,5 @@ void ProjectWindow::loadPersistentSettings()
 }
 
 } // namespace ProjectExplorer::Internal
+
+#include "projectwindow.moc"
