@@ -131,8 +131,11 @@ inline std::optional<Data> DataFromProcess<Data>::getOrProvideData(const Paramet
             return std::nullopt;
         });
 
-    if (cachedValue)
+    if (cachedValue) {
+        if (params.callback)
+            params.callback(cachedValue);
         return cachedValue;
+    }
 
     const auto outputRetriever = new Process();
     outputRetriever->setCommand(params.commandLine);
