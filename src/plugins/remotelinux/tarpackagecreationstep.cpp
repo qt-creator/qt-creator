@@ -208,8 +208,9 @@ bool TarPackageCreationStep::isPackagingNeeded() const
         return true;
 
     const DeploymentData &dd = buildSystem()->deploymentData();
-    for (int i = 0; i < dd.fileCount(); ++i) {
-        if (dd.fileAt(i).localFilePath().isNewerThan(packagePath.lastModified()))
+    const auto allFiles = dd.allFiles();
+    for (const DeployableFile &file : allFiles) {
+        if (file.localFilePath().isNewerThan(packagePath.lastModified()))
             return true;
     }
 

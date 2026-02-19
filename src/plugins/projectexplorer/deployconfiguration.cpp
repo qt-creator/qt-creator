@@ -69,10 +69,9 @@ void DeployConfiguration::toMap(Store &map) const
     map.insert(Key(BUILD_STEP_LIST_PREFIX) + '0', variantFromStore(m_stepList.toMap()));
     map.insert(USES_DEPLOYMENT_DATA, usesCustomDeploymentData());
     Store deployData;
-    for (int i = 0; i < m_customDeploymentData.fileCount(); ++i) {
-        const DeployableFile &f = m_customDeploymentData.fileAt(i);
+    const auto allFiles = m_customDeploymentData.allFiles();
+    for (const DeployableFile &f : allFiles)
         deployData.insert(keyFromString(f.localFilePath().toUrlishString()), f.remoteDirectory());
-    }
     map.insert(DEPLOYMENT_DATA, variantFromStore(deployData));
 }
 

@@ -25,7 +25,6 @@ public:
 class PROJECTEXPLORER_EXPORT DeploymentData
 {
 public:
-    void setFileList(const QList<DeployableFile> &files) { m_files = files; }
     QList<DeployableFile> allFiles() const { return m_files; }
 
     void setLocalInstallRoot(const Utils::FilePath &installRoot);
@@ -36,8 +35,6 @@ public:
                  DeployableFile::Type type = DeployableFile::TypeNormal);
     QString addFilesFromDeploymentFile(const Utils::FilePath &deploymentFilePath, const Utils::FilePath &sourceDir);
 
-    int fileCount() const { return m_files.count(); }
-    DeployableFile fileAt(int index) const { return m_files.at(index); }
     DeployableFile deployableForLocalFile(const Utils::FilePath &localFilePath) const;
 
     bool operator==(const DeploymentData &other) const;
