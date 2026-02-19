@@ -647,7 +647,8 @@ void QmlDesignerProjectManager::aboutToRemoveTarget(ProjectExplorer::Target *tar
     NanotraceHR::Tracer tracer{"qml designer project manager about to remove target", category()};
 
     QObject::disconnect(target, nullptr, nullptr, nullptr);
-    QObject::disconnect(getQmlBuildSystem(target), nullptr, nullptr, nullptr);
+    if (QObject *buildSystem = getQmlBuildSystem(target))
+        QObject::disconnect(buildSystem, nullptr, nullptr, nullptr);
 }
 
 void QmlDesignerProjectManager::kitChanged()
