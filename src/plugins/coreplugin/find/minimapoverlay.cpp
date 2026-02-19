@@ -75,7 +75,7 @@ void MinimapOverlay::paintMinimap(QPainter *painter) const
         int srcY = qRound(scrollFraction * (m_minimap.height() - geo.height()));
         const QRect srcRect(0, srcY, geo.width(), geo.height());
 
-        painter->drawImage(geo, m_minimap, srcRect);
+        painter->drawImage(geo.topLeft(), m_minimap.copy(srcRect));
     } else {
         painter->drawImage(geo.topLeft(), m_minimap);
     }
