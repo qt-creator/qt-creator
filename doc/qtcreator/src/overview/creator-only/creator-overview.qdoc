@@ -167,9 +167,8 @@
     target platforms.
 
     For more information, see \l{Building and running projects},
-    \l{Build and run}{How to: Build and run}, \l{Build systems},
-    \l{Build configurations}, \l{Deploy settings}, and
-    \l{Run settings}.
+    \l{Build and run}{How to: Build and run}, \l{Build systems}, and
+    \l{Build configurations}.
 
     For more information about building applications for and on devices
     and running them on devices, see \l{Developing for devices},

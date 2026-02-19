@@ -191,7 +191,7 @@
     To use JavaScript and image files in the application, copy them to the
     project folder.
 
-    \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs},
-   {Manage kits}{How to: Manage kits}, {Creating projects},
-    {Designing Qt Quick UIs}, {Qt Quick UI design},
+    \sa {Creating projects}, {Design Qt Quick UIs}{How to: Design Qt Quick UIs},
+    {Manage kits}{How to: Manage kits}, {Designing Qt Quick UIs},
+    {Qt Quick UI design}, {Specify Qt Quick UI Prototype run settings}
 */

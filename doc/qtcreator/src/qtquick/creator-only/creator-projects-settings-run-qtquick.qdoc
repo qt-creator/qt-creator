@@ -3,13 +3,12 @@
 
 /*!
     \page creator-run-settings-qtquick-ui-prototype.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-run-configurations
+    \ingroup creator-how-to-run
+    \ingroup creator-how-to-design-qtquick
 
-    \title Qt Quick UI Prototype Run Settings
-
-    \brief Settings for running Qt Quick UI Prototype projects.
+    \title Specify Qt Quick UI Prototype run settings
 
     To specify settings for running applications on the \l {Managing kits}{Run device} that
     you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.

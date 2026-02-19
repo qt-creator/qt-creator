@@ -24,11 +24,11 @@
     The available run settings depend on the type of the project and the device:
 
     \list
-        \li \l {Android Run Settings}{Android}
+        \li \l {Specify Android run settings}{Android}
         \li \l {Run on \B2Q devices}{\B2Q}
         \li \l {Run on the desktop}{Desktop}
-        \li \l {Python Run Settings}{Python}
-        \li \l {QNX Run Settings}{QNX}
+        \li \l {Run Python applications}{Python}
+        \li \l {Specify QNX run settings}{QNX}
         \li \l {Specify remote Linux run settings}{Remote Linux}
     \endlist
 
@@ -122,8 +122,7 @@
     \sa {Enable debugging}, {Building and running projects},
     {Set the default build and run directories},
     {Specify a custom executable to run},
-    {Specify Valgrind settings for a project},
-    {Run settings}
+    {Specify Valgrind settings for a project}
 */
 
 /*!

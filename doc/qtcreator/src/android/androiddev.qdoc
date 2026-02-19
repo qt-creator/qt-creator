@@ -45,8 +45,7 @@
             automatically download, install, and configure for you.
     \endlist
 
-    \sa {Android}{How to: Develop for Android}, {Android Deploy Settings},
-    {Android Run Settings}, {Get and Install Qt}
+    \sa {Android}{How to: Develop for Android}, {Get and Install Qt}
 */
 
 /*!
@@ -274,7 +273,7 @@
 
     To start an AVD, select \uicontrol {Start AVD}. Usually, \QC starts an AVD
     when you select it in the \l{Build for many platforms}{kit selector} to
-    \l{Android Deploy Settings}{deploy applications} to it.
+    \l{Deploy applications to Android}{deploy applications} to it.
 
     \section1 Set preferences for starting AVDs
 
@@ -346,8 +345,7 @@
     For more advanced options for creating a new AVD, use the command-line tool
     \l{avdmanager} or the Android Studio's native AVD Manager UI.
 
-    \sa {Android}{How to: Develop for Android}, {Android Deploy Settings},
-    {Developing for Android}
+    \sa {Android}{How to: Develop for Android}, {Developing for Android}
 */
 
 /*!

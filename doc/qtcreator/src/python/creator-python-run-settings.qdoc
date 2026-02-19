@@ -14,23 +14,7 @@
     \c main.py file is automatically executed when you select the
     \uicontrol Run button.
 
-    You can specify another file to execute in the run settings of the project.
-
-    \image {qtcreator-python-run-settings.webp } {Python run settings}
-
-    \sa {Configure projects for running}, {Create Qt for Python applications},
-    {Develop Qt for Python applications}, {Python Run Settings}
-*/
-
-/*!
-    \page creator-run-settings-python.html
-    \previouspage creator-reference.html
-
-    \ingroup creator-reference-run-configurations
-
-    \title Python Run Settings
-
-    \brief Settings for running Qt for Python applications.
+    \section1 Specify Python run settings
 
     To specify settings for running applications on the \l {Managing kits}{Run device} that
     you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.
@@ -59,7 +43,7 @@
         \li Command-line arguments to pass to the executable.
     \endtable
 
-    \section1 Custom Executable Run Configuration
+    \section1 Specify custom executable run configuration
 
     To run some other Python file than \c main.py, create a custom
     executable run configuration:

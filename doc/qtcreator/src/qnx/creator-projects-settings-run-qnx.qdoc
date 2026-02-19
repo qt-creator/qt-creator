@@ -3,11 +3,11 @@
 
 /*!
     \page creator-run-settings-qnx.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-run-configurations
+    \ingroup creator-how-to-qnx
 
-    \title QNX Run Settings
+    \title Specify QNX run settings
 
     \brief Settings for running applications on Linux-based devices.
 

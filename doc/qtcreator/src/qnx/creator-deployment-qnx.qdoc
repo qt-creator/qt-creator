@@ -10,13 +10,11 @@
 
 /*!
     \page creator-deployment-qnx.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-deploy-configurations
+    \ingroup creator-how-to-qnx
 
-    \title QNX Neutrino Deploy Configuration
-
-    \brief Copy application files to QNX Neutrino devices.
+    \title Specify QNX Neutrino deploy settings
 
     Specify settings for deploying applications to QNX Neutrino
     devices in the project configuration file and in \uicontrol Projects
@@ -27,13 +25,13 @@
     The deployment process is described in more detail in
     \l{Deploy applications to remote Linux devices}.
 
-    \section1 Finding Configured Devices
+    \section1 Find configured devices
 
     The \uicontrol {Check for a configured device} deployment step looks for a
     device that is ready for deployment.
 
     \sa {Build and Run}{How to: Build and Run},
     {QNX Neutrino}{How to: Develop for QNX},
-    {Developing for QNX Neutrino devices}, {QNX Run Settings},
+    {Developing for QNX Neutrino devices},
     {Deploy applications to remote Linux devices}, {Specify remote Linux run settings}
 */

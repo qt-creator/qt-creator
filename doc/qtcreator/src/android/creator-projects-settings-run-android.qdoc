@@ -3,13 +3,11 @@
 
 /*!
     \page creator-run-settings-android.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-run-configurations
+    \ingroup creator-how-to-android
 
-    \title Android Run Settings
-
-    \brief Settings for running applications on Android devices.
+    \title Specify Android run settings
 
     To specify settings for running applications on the \l {Managing kits}{Run device} that
     you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.
@@ -18,7 +16,7 @@
     connections from the development host to the device, as instructed in
     \l {Developing for Android}.
 
-    \section1 am Start Options
+    \section1 am start options
 
     \QC applies a default set of Android Activity manager (am) start options when
     starting applications. You can specify additional start options in the
@@ -42,7 +40,7 @@
 
     \image {qtcreator-android-run-settings.webp} {Run Settings for an Android device}
 
-    \section1 Shell Commands
+    \section1 Shell commands
 
     You can specify shell commands to run before the application starts
     and after it quits. For example, enter the following commands into
@@ -65,6 +63,6 @@
     \endcode
 
     \sa {Activate kits for a project}, {Configure projects for running},
-    {Android}{How to: Develop for Android}, {Android Deploy Settings},
+    {Android}{How to: Develop for Android}, {Developing for Android},
     {Managing kits}
 */

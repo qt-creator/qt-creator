@@ -1,54 +1,6 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
-    /*!
-    \page creator-deploying-android.html
-    \previouspage creator-reference.html
-
-    \ingroup creator-reference-deploy-configurations
-
-    \title Android Deploy Settings
-
-    \brief Create packages to deploy to devices or to submit to the Google Play
-    store, or create libraries for Android app modules.
-
-    Android applications are packaged as ZIP files called Application Packages
-    (APK), Android App Bundles (AAB), or Android Archives (AAR). You can
-    install and run APK files on a device. You can upload AAB files to the
-    Google Play Store.
-
-    \l{Qt for Android} has binaries for armv7a, arm64-v8a, x86, and x86-64.
-    To support several different ABIs in your application, build an AAB that
-    has binaries for each of the ABIs. The Google Play Store uses the AAB
-    to generate optimized APK packages for the devices that request downloads
-    and automatically signs them with your publisher key.
-
-    \QC supports the following methods of deployment for Android applications:
-
-    \list
-        \li As a stand-alone, distributable application package (APK).
-        \li As an app bundle (AAB) for distribution in the Google Play store.
-        \li As an AAR, which fundamentally differs from the APK and AAB formats
-            in that it is an Android library. You can use it as a dependency for
-            an Android app module, but you cannot run it alone.
-
-            All Qt versions do not support AABs. Qt 6.3.0 and later support
-            multi-abi builds for applications when you build with CMake. AARs
-            are supported from Qt 6.8.0 onwards. For more information, see
-            \l{Deploying an Application on Android}.
-    \endlist
-
-    To specify settings for application packages, go to \uicontrol Projects >
-    \uicontrol {Build Settings} > \uicontrol {Build Android APK} and select
-    \uicontrol Details.
-
-    For more information about the options that you have for running applications,
-    see \l {Android Run Settings}.
-
-    \sa {Android}{How to: Develop for Android}, {Developing for Android},
-    {Android Run Settings}
-*/
-
 /*!
     \page creator-how-to-deploy-android-apps.html
     \previouspage creator-how-tos.html
@@ -80,8 +32,42 @@
 
     To remove the current deployment method, select \uicontrol Remove.
 
+    \details {About Android deploy settings}
+
+    Android applications are packaged as ZIP files called Application Packages
+    (APK), Android App Bundles (AAB), or Android Archives (AAR). You can
+    install and run APK files on a device. You can upload AAB files to the
+    Google Play Store.
+
+    \l{Qt for Android} has binaries for armv7a, arm64-v8a, x86, and x86-64.
+    To support several different ABIs in your application, build an AAB that
+    has binaries for each of the ABIs. The Google Play Store uses the AAB
+    to generate optimized APK packages for the devices that request downloads
+    and automatically signs them with your publisher key.
+
+    \QC supports the following methods of deployment for Android applications:
+
+    \list
+        \li As a stand-alone, distributable application package (APK).
+        \li As an app bundle (AAB) for distribution in the Google Play store.
+        \li As an AAR, which fundamentally differs from the APK and AAB formats
+            in that it is an Android library. You can use it as a dependency for
+            an Android app module, but you cannot run it alone.
+
+            All Qt versions do not support AABs. Qt 6.3.0 and later support
+            multi-abi builds for applications when you build with CMake. AARs
+            are supported from Qt 6.8.0 onwards. For more information, see
+            \l{Deploying an Application on Android}.
+    \endlist
+
+    To specify settings for application packages, go to \uicontrol Projects >
+    \uicontrol {Build Settings} > \uicontrol {Build Android APK} and select
+    \uicontrol Details.
+
     For more information about specifying additional start options for
-    applications, see \l{Android Run Settings}.
+    applications, see \l{Specify Android run settings}.
+
+    \enddetails
 
     \section1 Select a device for deployment
 
@@ -102,8 +88,7 @@
     go to \uicontrol Projects > \uicontrol {Deploy Settings} and select
     \uicontrol {Install an APK File}.
 
-    \sa {Android}{How to: Develop for Android}, {Developing for Android},
-    {Android Deploy Settings}, {Android Run Settings}
+    \sa {Android}{How to: Develop for Android}, {Developing for Android}
 */
 
 /*!
@@ -164,8 +149,7 @@
 
     \image {qt-creator-android-build-aar.webp} {Selecting the AAR target}
 
-    \sa {Android}{How to: Develop for Android}, {Developing for Android},
-    {Android Deploy Settings}
+    \sa {Android}{How to: Develop for Android}, {Developing for Android}
 */
 
 /*!
@@ -260,8 +244,7 @@
 
     \endlist
 
-    \sa {Android}{How to: Develop for Android}, {Developing for Android},
-    {Android Deploy Settings}
+    \sa {Android}{How to: Develop for Android}, {Developing for Android}
 */
 
 /*!
@@ -299,8 +282,7 @@
     You can also manually add the paths to the required \c libssl.so and
     \c libcrypto.so libraries to the \uicontrol {Additional Libraries} field.
 
-    \sa {Android}{How to: Develop for Android}, {Developing for Android},
-    {Android Deploy Settings}
+    \sa {Android}{How to: Develop for Android}, {Developing for Android}
 */
 
 /*!
@@ -505,6 +487,6 @@
     \endomit
 
     \sa {Android}{How to: Develop for Android}, {Developing for Android},
-    {Android Deploy Settings}, {Qt for Android Manifest File Configuration}
+    {Qt for Android Manifest File Configuration}
 */
 
