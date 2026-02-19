@@ -432,7 +432,7 @@ class CMakeToolItemConfigWidget : public QWidget
 {
 public:
     explicit CMakeToolItemConfigWidget(CMakeToolItemModel *model);
-    void load(const CMakeToolTreeItem *item);
+    void load(const CMakeToolTreeItem *item, bool updateCMakePath);
     void setDeviceRoot(const FilePath &devRoot);
     void store() const;
 
@@ -477,7 +477,7 @@ void CMakeToolItemConfigWidget::onBinaryPathEditingFinished()
 {
     updateQchFilePath();
     store();
-    load(m_model->cmakeToolItem(m_id));
+    load(m_model->cmakeToolItem(m_id), false);
 }
 
 void CMakeToolItemConfigWidget::updateQchFilePath()
@@ -488,7 +488,7 @@ void CMakeToolItemConfigWidget::updateQchFilePath()
     }
 }
 
-void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
+void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item, bool updateCMakePath)
 {
     m_loadingItem = true; // avoid intermediate signal handling
     m_id = Id();
@@ -502,7 +502,8 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
     m_data.displayName.setValue(item->m_name);
 
     m_data.binary.setReadOnly(item->m_detectionSource.isAutoDetected());
-    m_data.binary.setValue(item->m_executable);
+    if (updateCMakePath)
+        m_data.binary.setValue(item->m_executable);
 
     m_data.qchFile.setReadOnly(item->m_detectionSource.isAutoDetected());
     m_data.qchFile.setBaseDirectory(item->m_executable.parentDir());
@@ -751,7 +752,7 @@ void CMakeToolConfigWidget::redetect()
 void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurrent)
 {
     m_currentItem = m_model.cmakeToolItem(mapToSource(newCurrent));
-    m_itemConfigWidget.load(m_currentItem);
+    m_itemConfigWidget.load(m_currentItem, true);
     if (const IDeviceConstPtr dev = currentDevice())
         m_itemConfigWidget.setDeviceRoot(dev->rootPath());
     m_container.setVisible(m_currentItem);
