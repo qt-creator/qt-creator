@@ -474,7 +474,7 @@ void EffectComposerWidget::handleImportScanTimer()
 
 void EffectComposerWidget::updateCodeEditorIndex()
 {
-    if (m_editor->isOpened()) {
+    if (m_editor && m_editor->isOpened()) {
         if (auto editorData = m_editor->currentEditorData())
             m_effectComposerModel->updateCodeEditorIndex(editorData);
         else
