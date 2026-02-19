@@ -5,10 +5,11 @@
 
 #include "mcpclient.h"
 
-#include <QJsonDocument>
 #include <QJsonObject>
 #include <QMap>
 #include <QObject>
+
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace QmlDesigner {
 
