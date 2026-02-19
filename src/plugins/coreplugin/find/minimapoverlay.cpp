@@ -46,6 +46,8 @@ MinimapOverlay::MinimapOverlay(PlainTextEdit *editor)
     m_updateTimer.setInterval(30);
     connect(&m_updateTimer, &QTimer::timeout, this, &MinimapOverlay::updateImage);
 
+    setAutoFillBackground(true);
+
     scheduleUpdate();
 }
 
@@ -410,18 +412,13 @@ bool MinimapOverlay::eventFilter(QObject *object, QEvent *event)
     case QEvent::Hide:
         hide();
         break;
-    case QEvent::MouseMove:
-    case QEvent::Wheel:
-    case QEvent::MouseButtonPress:
-    case QEvent::MouseButtonRelease:
+    case QEvent::Paint:
+        // Minimap is outside the editor's viewport and needs a repaint when the editor is painted
+        update();
         break;
     default:
         break;
     }
-
-    // Minimap is outside the editor's viewport and needs a repaint when the editor is painted
-    if (event->type() == QEvent::Paint)
-        QMetaObject::invokeMethod(this, QOverload<>::of(&QWidget::update), Qt::QueuedConnection);
 
     return QWidget::eventFilter(object, event);
 }
