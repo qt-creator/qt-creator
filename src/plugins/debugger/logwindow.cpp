@@ -291,7 +291,7 @@ private:
 
     void focusInEvent(QFocusEvent *ev) override
     {
-        emit statusMessageRequested(Tr::tr("Type Ctrl-<Return> to execute a line."), -1);
+        emit statusMessageRequested(Tr::tr("Press Ctrl+Return to execute a line."), -1);
         QPlainTextEdit::focusInEvent(ev);
     }
 
