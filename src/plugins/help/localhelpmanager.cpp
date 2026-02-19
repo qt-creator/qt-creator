@@ -4,7 +4,6 @@
 #include "localhelpmanager.h"
 
 #include "bookmarkmanager.h"
-#include "helpconstants.h"
 #include "helpmanager.h"
 #include "helptr.h"
 #include "helpviewer.h"
@@ -57,13 +56,6 @@ static BookmarkManager *m_bookmarkManager = nullptr;
 
 QList<Core::HelpManager::OnlineHelpHandler> m_onlineHelpHandlerList;
 
-const char kFontFamilyKey[] = "Help/FallbackFontFamily";
-const char kFontStyleNameKey[] = "Help/FallbackFontStyleName";
-const char kFontSizeKey[] = "Help/FallbackFontSize";
-
-const int kDefaultFallbackFontSize = 14;
-const int kDefaultContextHelpOption = Core::HelpManager::SideBySideIfPossible;
-
 HelpSettings &helpSettings()
 {
     static HelpSettings theHelpSettings;
@@ -77,13 +69,6 @@ static QString defaultFallbackFontFamily()
     if (Utils::HostOsInfo::isAnyUnixHost())
         return QString("Sans Serif");
     return QString("Arial");
-}
-
-static QString defaultFallbackFontStyleName(const QString &fontFamily)
-{
-    const QStringList styles = QFontDatabase::styles(fontFamily);
-    QTC_ASSERT(!styles.isEmpty(), return QString("Regular"));
-    return styles.first();
 }
 
 QVariant ViewerBackendAspect::fromSettingsValue(const QVariant &savedValue) const
@@ -166,6 +151,13 @@ HelpSettings::HelpSettings()
     contextHelpOption.addOption(Tr::tr("Always Show in External Window"));
     contextHelpOption.setLabelText(Tr::tr("On context help:"));
 
+    fallbackFont.fontFamily.setSettingsKey("Help/FallbackFontFamily");
+    fallbackFont.fontFamily.setDefaultValue(defaultFallbackFontFamily());
+    fallbackFont.fontFamily.setLabelText(Tr::tr("Family:"));
+    fallbackFont.fontPointSize.setSettingsKey("Help/FallbackFontSize");
+    fallbackFont.fontPointSize.setDefaultValue(14);
+    fallbackFont.fontPointSize.setLabelText(Tr::tr("Size:"));
+
     readSettings();
 }
 
@@ -193,32 +185,6 @@ LocalHelpManager::~LocalHelpManager()
 LocalHelpManager *LocalHelpManager::instance()
 {
     return m_instance;
-}
-
-QFont LocalHelpManager::fallbackFont()
-{
-    Utils::QtcSettings *settings = Core::ICore::settings();
-    const QString family = settings->value(kFontFamilyKey, defaultFallbackFontFamily()).toString();
-    const int size = settings->value(kFontSizeKey, kDefaultFallbackFontSize).toInt();
-    QFont font(family, size);
-    const QString styleName = settings->value(kFontStyleNameKey,
-                                              defaultFallbackFontStyleName(font.family())).toString();
-    font.setStyleName(styleName);
-    return font;
-}
-
-void LocalHelpManager::setFallbackFont(const QFont &font)
-{
-    Core::ICore::settings()->setValueWithDefault(kFontFamilyKey,
-                                                 font.family(),
-                                                 defaultFallbackFontFamily());
-    Core::ICore::settings()->setValueWithDefault(kFontStyleNameKey,
-                                                 font.styleName(),
-                                                 defaultFallbackFontStyleName(font.family()));
-    Core::ICore::settings()->setValueWithDefault(kFontSizeKey,
-                                                 font.pointSize(),
-                                                 kDefaultFallbackFontSize);
-    emit m_instance->fallbackFontChanged(font);
 }
 
 static std::optional<HelpViewerFactory> backendForId(const QByteArray &id)

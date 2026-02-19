@@ -61,6 +61,7 @@ public:
     ViewerBackendAspect viewerBackend{this};
     Utils::TypedSelectionAspect<StartOption> startOption{this};
     Utils::TypedSelectionAspect<Core::HelpManager::HelpViewerLocation> contextHelpOption{this};
+    Utils::FontAspect fallbackFont{this};
 };
 
 HelpSettings &helpSettings();
@@ -80,9 +81,6 @@ public:
     ~LocalHelpManager() override;
 
     static LocalHelpManager *instance();
-
-    static QFont fallbackFont();
-    static void setFallbackFont(const QFont &font);
 
     static HelpViewerFactory defaultViewerBackend();
     static QVector<HelpViewerFactory> viewerBackends();

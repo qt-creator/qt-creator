@@ -16,6 +16,7 @@
 
 #include <QAbstractSpinBox>
 #include <QComboBox>
+#include <QFontComboBox>
 #include <QUndoCommand>
 
 QT_BEGIN_NAMESPACE
@@ -555,6 +556,7 @@ public:
     ~FontFamilyAspect() override;
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
+    void setFontFilters(QFontComboBox::FontFilters fontFilters);
 
 private:
     void volatileValueToGui() override;
@@ -1284,6 +1286,26 @@ private:
     bool m_comboBoxEditable{true};
 
     Utils::UndoableValue<QString> m_undoable;
+};
+
+class QTCREATOR_UTILS_EXPORT FontAspect : public AspectContainer
+{
+    Q_OBJECT
+
+public:
+    FontAspect(Utils::AspectContainer *container = nullptr);
+
+    QFont operator()() const;
+    QFont value() const;
+    QFont volatileValue() const;
+
+    void setValue(const QFont &font);
+    void setVolatileValue(const QFont &font);
+
+    void addToLayoutImpl(Layouting::Layout &parent) override;
+
+    FontFamilyAspect fontFamily{this};
+    Utils::IntegerAspect fontPointSize{this};
 };
 
 } // namespace Utils

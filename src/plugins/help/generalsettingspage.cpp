@@ -52,7 +52,7 @@ private:
 
     bool isDirty() const final
     {
-        return helpSettings().isDirty() || m_font != LocalHelpManager::fallbackFont();
+        return helpSettings().isDirty();
     }
 
     void setCurrentPage();
@@ -61,15 +61,6 @@ private:
     void importBookmarks();
     void exportBookmarks();
 
-    void updateFontSizeSelector();
-    void updateFontFamilySelector();
-    void updateFont();
-    int closestPointSizeIndex(int desiredPointSize) const;
-
-    QFont m_font;
-
-    QFontComboBox *familyComboBox;
-    QComboBox *sizeComboBox;
     QPushButton *currentPageButton;
     QPushButton *blankPageButton;
     QPushButton *defaultPageButton;
@@ -80,17 +71,12 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
 {
     using namespace Layouting;
 
-    // font group box
-    familyComboBox = new QFontComboBox;
-    sizeComboBox = new QComboBox;
-
     HelpSettings &s = helpSettings();
 
     auto fontGroupBox = new QGroupBox(Tr::tr("Font"));
     // clang-format off
     Column {
-        Row { Tr::tr("Family:"), familyComboBox,
-              Tr::tr("Size:"), sizeComboBox, st },
+        Row { s.fallbackFont, st },
         Row { Tr::tr("Note: The above setting takes effect only if the "
                      "HTML file does not use a style sheet.") },
         Row { Tr::tr("Zoom:"), s.fontZoom, s.antiAlias, st }
@@ -149,20 +135,6 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
         st
     }.attachTo(this);
 
-    m_font = LocalHelpManager::fallbackFont();
-
-    updateFontSizeSelector();
-    updateFontFamilySelector();
-
-    connect(familyComboBox, &QFontComboBox::currentFontChanged, this, [this] {
-        updateFont();
-        updateFontSizeSelector();
-        updateFont(); // changes that might have happened when updating the selectors
-    });
-
-    connect(sizeComboBox, &QComboBox::currentIndexChanged,
-            this, &GeneralSettingsPageWidget::updateFont);
-
     connect(currentPageButton, &QPushButton::clicked,
             this, &GeneralSettingsPageWidget::setCurrentPage);
     connect(blankPageButton, &QPushButton::clicked,
@@ -177,16 +149,10 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     errorLabel->setVisible(false);
 
     connect(&helpSettings(), &AspectContainer::volatileValueChanged, &checkSettingsDirty);
-    connect(familyComboBox, &QComboBox::currentIndexChanged, &helpSettings(), checkSettingsDirty);
-    connect(familyComboBox, &QComboBox::currentTextChanged, &helpSettings(), checkSettingsDirty);
-    installCheckSettingsDirtyTrigger(sizeComboBox);
 }
 
 void GeneralSettingsPageWidget::apply()
 {
-    if (m_font != LocalHelpManager::fallbackFont())
-        LocalHelpManager::setFallbackFont(m_font);
-
     helpSettings().apply();
 
     if (helpSettings().homePage().isEmpty())
@@ -256,71 +222,6 @@ void GeneralSettingsPageWidget::exportBookmarks()
         errorLabel->setVisible(true);
         errorLabel->setText(res.error());
     }
-}
-
-void GeneralSettingsPageWidget::updateFontSizeSelector()
-{
-    const QString &family = m_font.family();
-    const QString &fontStyle = QFontDatabase::styleString(m_font);
-
-    QList<int> pointSizes = QFontDatabase::pointSizes(family, fontStyle);
-    if (pointSizes.empty())
-        pointSizes = QFontDatabase::standardSizes();
-
-    QSignalBlocker blocker(sizeComboBox);
-    sizeComboBox->clear();
-    sizeComboBox->setCurrentIndex(-1);
-    sizeComboBox->setEnabled(!pointSizes.empty());
-
-    //  try to maintain selection or select closest.
-    if (!pointSizes.empty()) {
-        QString n;
-        for (int pointSize : std::as_const(pointSizes))
-            sizeComboBox->addItem(n.setNum(pointSize), QVariant(pointSize));
-        const int closestIndex = closestPointSizeIndex(m_font.pointSize());
-        if (closestIndex != -1)
-            sizeComboBox->setCurrentIndex(closestIndex);
-    }
-}
-
-void GeneralSettingsPageWidget::updateFontFamilySelector()
-{
-    familyComboBox->setCurrentFont(m_font);
-}
-
-void GeneralSettingsPageWidget::updateFont()
-{
-    const QString &family = familyComboBox->currentFont().family();
-    m_font.setFamily(family);
-
-    int fontSize = 14;
-    int currentIndex = sizeComboBox->currentIndex();
-    if (currentIndex != -1)
-        fontSize = sizeComboBox->itemData(currentIndex).toInt();
-    m_font.setPointSize(fontSize);
-}
-
-int GeneralSettingsPageWidget::closestPointSizeIndex(int desiredPointSize) const
-{
-    //  try to maintain selection or select closest.
-    int closestIndex = -1;
-    int closestAbsError = 0xFFFF;
-
-    const int pointSizeCount = sizeComboBox->count();
-    for (int i = 0; i < pointSizeCount; i++) {
-        const int itemPointSize = sizeComboBox->itemData(i).toInt();
-        const int absError = qAbs(desiredPointSize - itemPointSize);
-        if (absError < closestAbsError) {
-            closestIndex  = i;
-            closestAbsError = absError;
-            if (closestAbsError == 0)
-                break;
-        } else {    // past optimum
-            if (absError > closestAbsError)
-                break;
-        }
-    }
-    return closestIndex;
 }
 
 // GeneralSettingPage

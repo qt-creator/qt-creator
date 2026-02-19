@@ -327,7 +327,7 @@ HelpViewer *createHelpViewer()
     HelpViewer *viewer = factory.create();
 
     // initialize font
-    viewer->setViewerFont(LocalHelpManager::fallbackFont());
+    viewer->setViewerFont(helpSettings().fallbackFont());
     QObject::connect(LocalHelpManager::instance(), &LocalHelpManager::fallbackFontChanged,
                      viewer, &HelpViewer::setViewerFont);
 

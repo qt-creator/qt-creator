@@ -838,6 +838,7 @@ class FontFamilyAspectPrivate
 {
 public:
     UndoableValue<QString> m_undoable;
+    QFontComboBox::FontFilters m_fontFilters = QFontComboBox::AllFonts;
 };
 
 class SelectionAspectPrivate
@@ -1997,7 +1998,7 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
         parent.addItem(l);
 
     auto fontComboBox = createSubWidget<QFontComboBox>();
-    fontComboBox->setFontFilters(QFontComboBox::MonospacedFonts);
+    fontComboBox->setFontFilters(d->m_fontFilters);
     // Note: The extra QFontInfo hoop below is needed to get an actually
     // resolved for on the system,  otherwise asking "Monospace" can result
     // in "Dejavu Sans Mono" being selected.
@@ -2014,6 +2015,11 @@ void FontFamilyAspect::addToLayoutImpl(Layouting::Layout &parent)
     connect(&d->m_undoable.m_signal, &UndoSignaller::changed, fontComboBox, [fontComboBox, this] {
         fontComboBox->setCurrentFont(d->m_undoable.get());
     });
+}
+
+void FontFamilyAspect::setFontFilters(QFontComboBox::FontFilters fontFilters)
+{
+    d->m_fontFilters = fontFilters;
 }
 
 void FontFamilyAspect::volatileValueToGui()
@@ -4116,5 +4122,116 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 
     return addLabeledItem(parent, comboBox);
 }
+
+
+//
+// FontAspect
+//
+
+FontAspect::FontAspect(AspectContainer *container)
+    : AspectContainer(container)
+{}
+
+QFont FontAspect::operator()() const
+{
+    return value();
+}
+
+QFont FontAspect::value() const
+{
+    QFont font;
+    font.setFamily(fontFamily.value());
+    font.setPointSize(fontPointSize.value());
+    return font;
+}
+
+QFont FontAspect::volatileValue() const
+{
+    QFont font;
+    font.setFamily(fontFamily.volatileValue());
+    font.setPointSize(fontPointSize.volatileValue());
+    return font;
+}
+
+void FontAspect::setValue(const QFont &font)
+{
+    fontFamily.setValue(font.family());
+    fontPointSize.setValue(font.pointSize());
+}
+
+void FontAspect::setVolatileValue(const QFont &font)
+{
+    fontFamily.setVolatileValue(font.family());
+    fontPointSize.setVolatileValue(font.pointSize());
+}
+
+void FontAspect::addToLayoutImpl(Layouting::Layout &parent)
+{
+    parent.addItem(fontFamily);
+
+    QComboBox *sizeComboBox = createSubWidget<QComboBox>();
+    parent.addItem(fontPointSize.labelText());
+    parent.addItem(sizeComboBox);
+
+    auto updateFontSizeSelector = [this, sizeComboBox] {
+
+        const QString family = fontFamily.volatileValue();
+        const QString fontStyle = QFontDatabase::styleString(volatileValue());
+
+        QList<int> pointSizes = QFontDatabase::pointSizes(family, fontStyle);
+        if (pointSizes.empty())
+            pointSizes = QFontDatabase::standardSizes();
+
+        QSignalBlocker blocker(sizeComboBox);
+        sizeComboBox->clear();
+        sizeComboBox->setCurrentIndex(-1);
+        sizeComboBox->setEnabled(!pointSizes.empty());
+
+        //  try to maintain selection or select closest.
+        if (pointSizes.empty())
+            return;
+
+        QString n;
+        for (int pointSize : std::as_const(pointSizes))
+            sizeComboBox->addItem(n.setNum(pointSize), QVariant(pointSize));
+
+        int desiredPointSize = fontPointSize.volatileValue();
+
+        //  try to maintain selection or select closest.
+        int closestIndex = -1;
+        int closestAbsError = 0xFFFF;
+
+        const int pointSizeCount = sizeComboBox->count();
+        for (int i = 0; i < pointSizeCount; i++) {
+            const int itemPointSize = sizeComboBox->itemData(i).toInt();
+            const int absError = qAbs(desiredPointSize - itemPointSize);
+            if (absError < closestAbsError) {
+                closestIndex  = i;
+                closestAbsError = absError;
+                if (closestAbsError == 0)
+                    break;
+            } else {    // past optimum
+                if (absError > closestAbsError)
+                    break;
+            }
+        }
+
+        if (closestIndex != -1)
+            sizeComboBox->setCurrentIndex(closestIndex);
+    };
+
+    updateFontSizeSelector();
+
+    connect(sizeComboBox, &QComboBox::currentIndexChanged, this, [this, sizeComboBox] {
+        int fontSize = 14;
+        int currentIndex = sizeComboBox->currentIndex();
+        if (currentIndex != -1)
+            fontSize = sizeComboBox->itemData(currentIndex).toInt();
+        fontPointSize.setVolatileValue(fontSize);
+    });
+
+    fontFamily.addOnVolatileValueChanged(sizeComboBox, updateFontSizeSelector);
+}
+
 
 } // namespace Utils
