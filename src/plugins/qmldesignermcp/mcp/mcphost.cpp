@@ -3,6 +3,8 @@
 
 #include "mcphost.h"
 
+#include <QTimer>
+
 namespace QmlDesigner {
 
 McpHost::McpHost(QObject *parent)
