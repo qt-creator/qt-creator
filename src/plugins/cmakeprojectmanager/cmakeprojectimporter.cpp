@@ -65,8 +65,8 @@ class ToolchainDescriptionEx
 public:
     Utils::FilePath compilerPath;
     Utils::Id language;
-    QString originalTargetTriple;
-    QString targetArhitecture;
+    QString originalTargetTriple = {};
+    QString targetArchitecture = {};
 
     operator ProjectExplorer::ToolchainDescription() const
     {
@@ -1394,7 +1394,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
             if (!data->cmakePresetDisplayname.isEmpty() && tcd.areTemporary) {
                 // Handle Android CMake compilers
                 if (data->cmakeSystemName == "Android") {
-                    const QString archTriplet = cmtcd.targetArhitecture;
+                    const QString archTriplet = cmtcd.targetArchitecture;
                     const Abi androidAbi = Abi::abiFromTargetTriplet(archTriplet);
                     if (auto gccToolchain = toolchain->asGccToolchain()) {
                         gccToolchain->setOriginalTargetTriple(archTriplet);
