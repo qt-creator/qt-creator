@@ -72,7 +72,7 @@ private:
     QToolButton *m_openSettingsButton{nullptr};
     QToolButton *m_escSettingButton{nullptr};
     QToolButton *m_lockKeyboardButton{nullptr};
-    QComboBox *m_variablesComboBox{nullptr};
+    QToolButton *m_variablesButton{nullptr};
 
     QAction *m_newTerminalAction{nullptr};
     QAction *m_closeTerminalAction{nullptr};

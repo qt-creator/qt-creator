@@ -99,17 +99,37 @@ TerminalPane::TerminalPane(QObject *parent)
     m_lockKeyboardButton = new QToolButton();
     m_lockKeyboardButton->setDefaultAction(m_toggleKeyboardLockAction);
 
-    m_variablesComboBox = new QComboBox();
-    m_variablesComboBox->setToolTip(Tr::tr("Insert Macro Variable"));
-    m_variablesComboBox->setModel(macroModel(m_variablesComboBox));
+    m_variablesButton = new QToolButton();
+    m_variablesButton->setText("%{...}");
+    m_variablesButton->setPopupMode(QToolButton::InstantPopup);
+    QMenu *variableMenu = new QMenu();
+    variableMenu->setToolTipsVisible(true);
 
-    connect(m_variablesComboBox, &QComboBox::activated, this, [this] {
-        if (auto t = currentTerminal()) {
-            QString txt = m_variablesComboBox->currentData(MacroModelRoles::ValueRole).toString();
-            if (txt.contains(' '))
-                txt.prepend('"').append('"');
-            t->paste(txt);
-            t->setFocus();
+    m_variablesButton->setMenu(variableMenu);
+
+    connect(variableMenu, &QMenu::aboutToShow, variableMenu, [this, variableMenu] {
+        variableMenu->clear();
+        const auto model = macroModel(variableMenu);
+        for (int i = 0; i < model->rowCount(); ++i) {
+            const QModelIndex index = model->index(i, 0);
+            if (index.data(Qt::AccessibleDescriptionRole).toString() == "separator") {
+                variableMenu->addSeparator();
+                continue;
+            }
+            QString display = index.data(Qt::DisplayRole).toString();
+            QAction *action = variableMenu->addAction(display);
+            action->setData(index.data(MacroModelRoles::ValueRole));
+            action->setToolTip(index.data(Qt::ToolTipRole).toString());
+            action->setEnabled(index.flags() & Qt::ItemIsEnabled);
+            connect(action, &QAction::triggered, action, [this, action] {
+                if (auto t = currentTerminal()) {
+                    QString txt = action->data().toString();
+                    if (txt.contains(' '))
+                        txt.prepend('"').append('"');
+                    t->paste(txt);
+                    t->setFocus();
+                }
+            });
         }
     });
 }
@@ -360,7 +380,7 @@ QList<QWidget *> TerminalPane::toolBarWidgets() const
     widgets.prepend(m_closeTerminalButton);
 
     return widgets << m_openSettingsButton << m_lockKeyboardButton << m_escSettingButton
-                   << m_variablesComboBox;
+                   << m_variablesButton;
 }
 
 void TerminalPane::clearContents()
