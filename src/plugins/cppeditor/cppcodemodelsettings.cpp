@@ -38,29 +38,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-
 namespace CppEditor {
-namespace {
-class CppCodeModelProjectSettings
-{
-public:
-    CppCodeModelProjectSettings(ProjectExplorer::Project *project);
-
-    const CppCodeModelSettings &settings() const;
-    void setSettings(const CppCodeModelSettings &settings);
-    void forceCustomSettingsSettings(const CppCodeModelSettings &settings);
-    bool useGlobalSettings() const { return m_useGlobalSettings; }
-    void setUseGlobalSettings(bool useGlobal);
-
-private:
-    void loadSettings();
-    void saveSettings();
-
-    ProjectExplorer::Project * const m_project;
-    CppCodeModelSettings m_customSettings;
-    bool m_useGlobalSettings = true;
-};
-} // namespace
 
 static Key pchUsageKey() { return Constants::CPPEDITOR_MODEL_MANAGER_PCH_USAGE; }
 static Key interpretAmbiguousHeadersAsCHeadersKey()
@@ -136,11 +114,6 @@ CppCodeModelSettings &CppCodeModelSettings::globalInstance()
     return theCppCodeModelSettings;
 }
 
-CppCodeModelSettings CppCodeModelSettings::settingsForProject(const ProjectExplorer::Project *project)
-{
-    return {CppCodeModelProjectSettings(const_cast<ProjectExplorer::Project *>(project)).settings()};
-}
-
 CppCodeModelSettings CppCodeModelSettings::settingsForProject(const Utils::FilePath &projectFile)
 {
     return settingsForProject(ProjectManager::projectWithProjectFilePath(projectFile));
@@ -149,19 +122,6 @@ CppCodeModelSettings CppCodeModelSettings::settingsForProject(const Utils::FileP
 CppCodeModelSettings CppCodeModelSettings::settingsForFile(const Utils::FilePath &file)
 {
     return settingsForProject(ProjectManager::projectForFile(file));
-}
-
-bool CppCodeModelSettings::hasCustomSettings(const ProjectExplorer::Project *project)
-{
-    return !CppCodeModelProjectSettings(const_cast<ProjectExplorer::Project *>(project))
-                .useGlobalSettings();
-}
-
-void CppCodeModelSettings::setSettingsForProject(
-    ProjectExplorer::Project *project, const CppCodeModelSettings &settings)
-{
-    CppCodeModelProjectSettings pSettings(project);
-    pSettings.forceCustomSettingsSettings(settings);
 }
 
 void CppCodeModelSettings::setGlobal(const CppCodeModelSettings &settings)
@@ -215,62 +175,15 @@ void CppCodeModelSettings::setInteractiveFollowSymbol(bool interactive)
     globalInstance().interactiveFollowSymbol = interactive;
 }
 
-CppCodeModelProjectSettings::CppCodeModelProjectSettings(ProjectExplorer::Project *project)
-    : m_project(project)
-{
-    loadSettings();
-}
-
-const CppCodeModelSettings &CppCodeModelProjectSettings::settings() const
-{
-    return m_useGlobalSettings ? CppCodeModelSettings::global() : m_customSettings;
-}
-
-void CppCodeModelProjectSettings::setSettings(const CppCodeModelSettings &settings)
-{
-    m_customSettings = settings;
-    saveSettings();
-    CppModelManager::handleSettingsChange(m_project);
-}
-
-void CppCodeModelProjectSettings::forceCustomSettingsSettings(const CppCodeModelSettings &settings)
-{
-    m_useGlobalSettings = false;
-    setSettings(settings);
-}
-
-void CppCodeModelProjectSettings::setUseGlobalSettings(bool useGlobal)
-{
-    m_useGlobalSettings = useGlobal;
-    saveSettings();
-    CppModelManager::handleSettingsChange(m_project);
-}
-
-void CppCodeModelProjectSettings::loadSettings()
-{
-    if (!m_project)
-        return;
-    const Store data = storeFromVariant(m_project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
-    m_useGlobalSettings = data.value(useGlobalSettingsKey(), true).toBool();
-    m_customSettings.fromMap(data);
-}
-
-void CppCodeModelProjectSettings::saveSettings()
-{
-    if (!m_project)
-        return;
-    Store data = m_customSettings.toMap();
-    data.insert(useGlobalSettingsKey(), m_useGlobalSettings);
-    m_project->setNamedSettings(Constants::CPPEDITOR_SETTINGSGROUP, variantFromStore(data));
-}
-
 namespace Internal {
 
 class CppCodeModelSettingsWidget final : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 public:
-    CppCodeModelSettingsWidget(const CppCodeModelSettings &settings);
+    CppCodeModelSettingsWidget() = default;
+
+    void setup(const CppCodeModelSettings &settings);
     CppCodeModelSettings settings() const;
 
 signals:
@@ -289,7 +202,7 @@ private:
     QPlainTextEdit *m_ignorePatternTextEdit;
 };
 
-CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSettings &settings)
+void CppCodeModelSettingsWidget::setup(const CppCodeModelSettings &settings)
 {
     m_interpretAmbiguousHeadersAsCHeaders
         = new QCheckBox(Tr::tr("Interpret ambiguous headers as C headers"));
@@ -401,8 +314,11 @@ public:
         setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
         setDisplayName(Tr::tr("Code Model"));
         setCategory(Constants::CPP_SETTINGS_CATEGORY);
-        setWidgetCreator(
-            [] { return new CppCodeModelSettingsWidget(CppCodeModelSettings::global()); });
+        setWidgetCreator([] {
+            auto w = new CppCodeModelSettingsWidget;
+            w->setup(CppCodeModelSettings::global());
+            return w;
+        });
     }
 };
 
@@ -415,31 +331,91 @@ class CppCodeModelProjectSettingsWidget : public ProjectSettingsWidget
 {
 public:
     explicit CppCodeModelProjectSettingsWidget(Project *project)
-        : m_settings(project), m_widget(m_settings.settings())
+        : m_project(project)
     {
+        if (project) {
+            const Store data = storeFromVariant(m_project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
+            m_useGlobalSettings = data.value(useGlobalSettingsKey(), true).toBool();
+            m_customSettings.fromMap(data);
+        }
+
+        m_widget.setup(m_useGlobalSettings ? CppCodeModelSettings::global() : m_customSettings);
+
         setGlobalSettingsId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(&m_widget);
 
-        setUseGlobalSettings(m_settings.useGlobalSettings());
+        setUseGlobalSettings(m_useGlobalSettings);
         m_widget.setEnabled(!useGlobalSettings());
         connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
                 [this](bool checked) {
                     m_widget.setEnabled(!checked);
-                    m_settings.setUseGlobalSettings(checked);
+                    m_useGlobalSettings = checked;
                     if (!checked)
-                        m_settings.setSettings(m_widget.settings());
+                        m_customSettings = m_widget.settings();
+                    saveSettings();
                 });
 
-        connect(&m_widget, &CppCodeModelSettingsWidget::settingsDataChanged,
-                this, [this] { m_settings.setSettings(m_widget.settings()); });
+        connect(&m_widget, &CppCodeModelSettingsWidget::settingsDataChanged, this, [this] {
+            m_customSettings = m_widget.settings();
+            saveSettings();
+        });
+    }
+
+    void saveSettings()
+    {
+        if (m_project) {
+            Store data = m_customSettings.toMap();
+            data.insert(useGlobalSettingsKey(), m_useGlobalSettings);
+            m_project->setNamedSettings(Constants::CPPEDITOR_SETTINGSGROUP, variantFromStore(data));
+        }
+        CppModelManager::handleSettingsChange(m_project);
     }
 
 private:
-    CppCodeModelProjectSettings m_settings;
+    Project * const m_project;
+    CppCodeModelSettings m_customSettings;
+    bool m_useGlobalSettings = true;
     CppCodeModelSettingsWidget m_widget;
 };
+
+} // namespace Internal
+
+bool CppCodeModelSettings::hasCustomSettings(const Project *project)
+{
+    if (!project)
+        return false;
+    CppCodeModelSettings m_customSettings;
+    const Store data = storeFromVariant(project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
+    return !data.value(useGlobalSettingsKey(), true).toBool();
+}
+
+void CppCodeModelSettings::setSettingsForProject(Project *project, const CppCodeModelSettings &settings)
+{
+    if (project) {
+        Store data = settings.toMap();
+        data.insert(useGlobalSettingsKey(), false);
+        project->setNamedSettings(Constants::CPPEDITOR_SETTINGSGROUP, variantFromStore(data));
+    }
+    CppModelManager::handleSettingsChange(project);
+}
+
+CppCodeModelSettings CppCodeModelSettings::settingsForProject(const Project *project)
+{
+    if (!project)
+        return CppCodeModelSettings::global();
+
+    const Store data = storeFromVariant(project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
+    if (data.value(useGlobalSettingsKey(), true).toBool())
+        return CppCodeModelSettings::global();
+
+    CppCodeModelSettings customSettings;
+    customSettings.fromMap(data);
+    return customSettings;
+}
+
+namespace Internal {
 
 class CppCodeModelProjectSettingsPanelFactory final : public ProjectPanelFactory
 {
@@ -453,6 +429,7 @@ public:
         });
     }
 };
+
 void setupCppCodeModelProjectSettingsPanel()
 {
     static CppCodeModelProjectSettingsPanelFactory factory;
