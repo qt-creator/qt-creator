@@ -176,7 +176,7 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
 
     errorLabel->setVisible(false);
 
-    connect(&helpSettings(), &AspectContainer::volatileValueChanged, &checkSettingsDirty);
+    connect(&helpSettings(), &AspectContainer::volatileValueChanged, this, &checkSettingsDirty);
     connect(familyComboBox, &QComboBox::currentIndexChanged, &helpSettings(), checkSettingsDirty);
     connect(familyComboBox, &QComboBox::currentTextChanged, &helpSettings(), checkSettingsDirty);
     installCheckSettingsDirtyTrigger(sizeComboBox);
