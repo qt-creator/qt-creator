@@ -21,7 +21,7 @@ ProjectInfo::ConstPtr ProjectInfo::create(const ProjectExplorer::ProjectUpdateIn
 }
 
 ProjectInfo::ConstPtr ProjectInfo::cloneWithNewSettings(const ConstPtr &pi,
-                                                        const CppCodeModelSettings &settings)
+                                                        const CppCodeModelSettingsData &settings)
 {
     return ConstPtr(new ProjectInfo(pi, settings));
 }
@@ -95,6 +95,13 @@ static ProjectExplorer::HeaderPaths getHeaderPaths(
     return ProjectExplorer::HeaderPaths(uniqueHeaderPaths.cbegin(), uniqueHeaderPaths.cend());
 }
 
+static CppCodeModelSettingsData fromStore(const Store &s)
+{
+    CppCodeModelSettingsData d;
+    d.fromMap(s);
+    return d;
+}
+
 ProjectInfo::ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
                          const QList<ProjectPart::ConstPtr> &projectParts)
     : m_projectParts(projectParts),
@@ -104,11 +111,11 @@ ProjectInfo::ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
       m_headerPaths(getHeaderPaths(projectParts)),
       m_sourceFiles(getSourceFiles(projectParts)),
       m_defines(getDefines(projectParts)),
-      m_settings(updateInfo.cppSettings)
+      m_settings(fromStore(updateInfo.cppSettings))
 {
 }
 
-ProjectInfo::ProjectInfo(const ConstPtr &pi, const CppCodeModelSettings &settings)
+ProjectInfo::ProjectInfo(const ConstPtr &pi, const CppCodeModelSettingsData &settings)
     : m_projectParts(pi->projectParts()),
     m_projectName(pi->projectName()),
     m_projectFilePath(pi->projectFilePath()),

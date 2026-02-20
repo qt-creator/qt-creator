@@ -73,7 +73,7 @@ public:
     virtual QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) = 0;
 
     const Utils::FilePath &filePath() const { return m_filePath; }
-    const CppCodeModelSettings &settings() const { return m_settings; }
+    const CppCodeModelSettingsData &settings() const { return m_settings; }
 
 signals:
     // Signal interface to implement
@@ -104,7 +104,7 @@ private:
 private:
     Utils::FilePath m_filePath;
     QTextDocument *m_textDocument;
-    CppCodeModelSettings m_settings;
+    CppCodeModelSettingsData m_settings;
 };
 
 } // namespace CppEditor

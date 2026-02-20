@@ -29,7 +29,7 @@ public:
     static ConstPtr create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
                            const QList<ProjectPart::ConstPtr> &projectParts);
     static ConstPtr cloneWithNewSettings(const ProjectInfo::ConstPtr &pi,
-                                         const CppCodeModelSettings &settings);
+                                         const CppCodeModelSettingsData &settings);
 
     const QList<ProjectPart::ConstPtr> &projectParts() const { return m_projectParts; }
     const QSet<Utils::FilePath> &sourceFiles() const { return m_sourceFiles; }
@@ -38,7 +38,7 @@ public:
     ProjectExplorer::Project *project() const;
     Utils::FilePath projectRoot() const { return m_projectFilePath.parentDir(); }
     Utils::FilePath buildRoot() const { return m_buildRoot; }
-    const CppCodeModelSettings &settings() const { return m_settings; }
+    const CppCodeModelSettingsData &settings() const { return m_settings; }
 
     // Comparisons
     bool operator ==(const ProjectInfo &other) const;
@@ -50,7 +50,7 @@ public:
 private:
     ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
                 const QList<ProjectPart::ConstPtr> &projectParts);
-    ProjectInfo(const ProjectInfo::ConstPtr &pi, const CppCodeModelSettings &settings);
+    ProjectInfo(const ProjectInfo::ConstPtr &pi, const CppCodeModelSettingsData &settings);
 
     const QList<ProjectPart::ConstPtr> m_projectParts;
     const QString m_projectName;
@@ -59,7 +59,7 @@ private:
     const ProjectExplorer::HeaderPaths m_headerPaths;
     const QSet<Utils::FilePath> m_sourceFiles;
     const ProjectExplorer::Macros m_defines;
-    const CppCodeModelSettings m_settings;
+    const CppCodeModelSettingsData m_settings;
 };
 
 using ProjectInfoList = QList<ProjectInfo::ConstPtr>;

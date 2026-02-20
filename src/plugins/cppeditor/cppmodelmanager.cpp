@@ -1244,7 +1244,7 @@ CppLocatorData *CppModelManager::locatorData()
 }
 
 static QSet<FilePath> filteredFilesRemoved(const QSet<FilePath> &files,
-                                           const CppCodeModelSettings &settings)
+                                           const CppCodeModelSettingsData &settings)
 {
     if (!settings.enableIndexing)
         return {};
@@ -1293,7 +1293,7 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
     std::unordered_map<Project *, QSet<FilePath>> sourcesPerProject;
     for (const FilePath &fp : sourceFiles)
         sourcesPerProject[ProjectManager::projectForFile(fp)] << fp;
-    std::vector<std::pair<QSet<FilePath>, CppCodeModelSettings>> sourcesAndSettings;
+    std::vector<std::pair<QSet<FilePath>, CppCodeModelSettingsData>> sourcesAndSettings;
     for (const auto &it : sourcesPerProject) {
         sourcesAndSettings
             .emplace_back(it.second, CppCodeModelSettings::settingsForProject(it.first));
@@ -2023,7 +2023,7 @@ void CppModelManager::handleSettingsChange(Project *project)
     else
         info << projectInfos();
     for (const ProjectInfo::ConstPtr &pi : std::as_const(info)) {
-        const CppCodeModelSettings newSettings = CppCodeModelSettings::settingsForProject(
+        const CppCodeModelSettingsData newSettings = CppCodeModelSettings::settingsForProject(
             pi->projectFilePath());
         if (pi->settings() != newSettings)
             updateProjectInfo(ProjectInfo::cloneWithNewSettings(pi, newSettings));

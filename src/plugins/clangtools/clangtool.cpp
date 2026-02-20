@@ -313,7 +313,7 @@ private:
     QMap<FilePath, RefactoringFileInfo> m_refactoringFileInfos;
 };
 
-static FileInfos sortedFileInfos(const CppCodeModelSettings &settings,
+static FileInfos sortedFileInfos(const CppCodeModelSettingsData &settings,
                                  const QList<ProjectPart::ConstPtr> &projectParts)
 {
     FileInfos fileInfos;

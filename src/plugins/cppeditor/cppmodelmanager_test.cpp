@@ -1316,7 +1316,7 @@ void ModelManagerTest::testSettingsChanges()
     refreshCount = 0;
     refreshedFiles.clear();
     QVERIFY(!CppCodeModelSettings::hasCustomSettings(p1));
-    CppCodeModelSettings p1Settings = CppCodeModelSettings::settingsForProject(p1);
+    CppCodeModelSettingsData p1Settings = CppCodeModelSettings::settingsForProject(p1);
     CppCodeModelSettings::setSettingsForProject(p1, p1Settings);
     QVERIFY(CppCodeModelSettings::hasCustomSettings(p1));
     QCOMPARE(refreshCount, 0);
@@ -1324,7 +1324,7 @@ void ModelManagerTest::testSettingsChanges()
 
     // Change global settings. Only the second project should get re-indexed, as the first one
     // has its own settings, which are still the same.
-    CppCodeModelSettings globalSettings = CppCodeModelSettings::settingsForProject(nullptr);
+    CppCodeModelSettingsData globalSettings = CppCodeModelSettings::settingsForProject(nullptr);
     globalSettings.indexerFileSizeLimitInMb = 1;
     CppCodeModelSettings::setGlobal(globalSettings);
     if (refreshCount == 0)
@@ -1418,7 +1418,7 @@ void ModelManagerTest::testOptionalIndexing()
     private:
         void reset(bool enable)
         {
-            CppCodeModelSettings settings = CppCodeModelSettings::global();
+            CppCodeModelSettingsData settings = CppCodeModelSettings::global().data();
             settings.enableIndexing = enable;
             CppCodeModelSettings::setGlobal(settings);
         }
@@ -1457,7 +1457,7 @@ void ModelManagerTest::testOptionalIndexing()
         if (!enable)
             return;
         refreshGuard.expect(1);
-        CppCodeModelSettings settings = CppCodeModelSettings::settingsForProject(p);
+        CppCodeModelSettingsData settings = CppCodeModelSettings::settingsForProject(p);
         settings.enableIndexing = *enable;
         CppCodeModelSettings::setSettingsForProject(p, settings);
         if (*enable != enableGlobally)

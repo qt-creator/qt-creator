@@ -42,7 +42,7 @@ void BaseEditorDocumentProcessor::run(bool projectsUpdated)
         m_settings = CppCodeModelSettings::settingsForFile(m_filePath);
 
     const Language languagePreference
-        = m_settings.interpretAmbigiousHeadersAsC ? Language::C : Language::Cxx;
+        = m_settings.interpretAmbiguousHeadersAsC ? Language::C : Language::Cxx;
 
     runImpl({CppModelManager::workingCopy(),
              ProjectExplorer::ProjectManager::startupProject(),
