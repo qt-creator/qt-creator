@@ -414,8 +414,8 @@ void setupCppCodeModelSettingsPage()
 class CppCodeModelProjectSettingsWidget : public ProjectSettingsWidget
 {
 public:
-    CppCodeModelProjectSettingsWidget(const CppCodeModelProjectSettings &settings)
-        : m_settings(settings), m_widget(settings.settings())
+    explicit CppCodeModelProjectSettingsWidget(Project *project)
+        : m_settings(project), m_widget(m_settings.settings())
     {
         setGlobalSettingsId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
         const auto layout = new QVBoxLayout(this);
