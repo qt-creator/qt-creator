@@ -67,7 +67,7 @@ signals:
     void contextMenuRequested(QMenu *menu,
                               int diffFileIndex,
                               int chunkIndex,
-                              const ChunkSelection &selection);
+                              const DiffEditor::ChunkSelection &selection);
     void gotDisplaySettings();
     void gotFocus();
 
