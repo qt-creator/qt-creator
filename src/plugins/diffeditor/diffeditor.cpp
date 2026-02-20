@@ -541,7 +541,10 @@ void DiffEditor::setDocument(std::shared_ptr<DiffEditorDocument> doc)
     connect(m_document.get(), &DiffEditorDocument::reloadFinished,
             this, &DiffEditor::reloadHasFinished);
 
-    connect(m_reloadAction, &QAction::triggered, this, [this] { m_document->reload(); });
+    connect(m_reloadAction, &QAction::triggered, this, [this] {
+        m_foldAllAction->setChecked(false);
+        m_document->reload();
+    });
     connect(m_document.get(), &DiffEditorDocument::temporaryStateChanged,
             this, &DiffEditor::documentStateChanged);
 
