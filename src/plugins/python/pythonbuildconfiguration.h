@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "pythonbuildsystem.h"
-
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <projectexplorer/abstractprocessstep.h>
@@ -15,18 +13,17 @@ namespace ProjectExplorer { class Interpreter; }
 namespace Python::Internal {
 
 class PipPackageInfo;
-class PySideUicExtraCompiler;
 
 class PySideBuildStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 public:
     PySideBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-    ~PySideBuildStep();
 
     void checkForPySide(const Utils::FilePath &python);
 
-    QList<PySideUicExtraCompiler *> extraCompilers() const;
+    Utils::FilePath pySideUicPath() const;
+    Utils::FilePaths uiFiles() const;
 
     static Utils::Id id();
 
@@ -43,7 +40,6 @@ private:
 
     Utils::FilePathAspect m_pysideProject{this};
     Utils::FilePathAspect m_pysideUic{this};
-    QList<PySideUicExtraCompiler *> m_extraCompilers;
 };
 
 class PythonBuildConfiguration : public ProjectExplorer::BuildConfiguration

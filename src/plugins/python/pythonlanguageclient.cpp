@@ -175,6 +175,12 @@ PyLSClient *clientForPython(const FilePath &python)
     client->setSupportedLanguage(filter);
     client->start();
     pythonClients()[python] = client;
+    for (Project *project : ProjectManager::projects()) {
+        if (auto *bc = qobject_cast<PythonBuildConfiguration *>(project->activeBuildConfiguration())) {
+            if (bc->python() == python)
+                client->updateExtraCompilers(project);
+        }
+    }
     return client;
 }
 
@@ -196,6 +202,8 @@ PyLSClient::PyLSClient(PyLSInterface *interface)
 PyLSClient::~PyLSClient()
 {
     pythonClients().remove(pythonClients().key(this));
+    for (const QPointer<PySideUicExtraCompiler> &compiler : std::as_const(m_extraCompilers))
+        deleteExtraCompiler(compiler);
 }
 
 void PyLSClient::updateConfiguration()
@@ -212,15 +220,7 @@ void PyLSClient::openDocument(TextDocument *document)
     using namespace LanguageServerProtocol;
     if (reachable()) {
         const FilePath documentPath = document->filePath();
-        if (PythonProject *project = pythonProjectForFile(documentPath)) {
-            if (BuildConfiguration *buildConfig = project->activeBuildConfiguration()) {
-                if (BuildStepList *buildSteps = buildConfig->buildSteps()) {
-                    BuildStep *buildStep = buildSteps->firstStepWithId(PySideBuildStep::id());
-                    if (auto *pythonBuildStep = qobject_cast<PySideBuildStep *>(buildStep))
-                        updateExtraCompilers(pythonBuildStep->extraCompilers());
-                }
-            }
-        } else if (isSupportedDocument(document)) {
+        if (isSupportedDocument(document) && !pythonProjectForFile(documentPath)) {
             const FilePath workspacePath = documentPath.parentDir();
             if (!m_extraWorkspaceDirs.contains(workspacePath)) {
                 WorkspaceFoldersChangeEvent event;
@@ -239,47 +239,64 @@ void PyLSClient::openDocument(TextDocument *document)
 
 void PyLSClient::buildConfigurationClosed(BuildConfiguration *bc)
 {
-    if (auto *step = bc->buildSteps()->firstOfType<PySideBuildStep>()) {
-        for (ExtraCompiler *compiler : step->extraCompilers()) {
-            if (m_extraCompilers.removeAll(compiler))
-                closeExtraCompiler(compiler, compiler->targets().first());
+    if (auto pythonBuildConfig = qobject_cast<PythonBuildConfiguration *>(bc)) {
+        const FilePath python = pythonBuildConfig->python();
+        if (!python.isEmpty() && clientForPython(python) == this) {
+            const QList<QPointer<PySideUicExtraCompiler>> compilers = Utils::takeAll(
+                m_extraCompilers,
+                [project = bc->project()](const QPointer<PySideUicExtraCompiler> &compiler) {
+                    return compiler && compiler->project() == project;
+                });
+            for (PySideUicExtraCompiler *compiler : compilers)
+                deleteExtraCompiler(compiler);
         }
     }
     Client::buildConfigurationClosed(bc);
 }
 
-void PyLSClient::updateExtraCompilers(const QList<PySideUicExtraCompiler *> &extraCompilers)
+void PyLSClient::updateExtraCompilers(const Project *project)
 {
-    auto oldCompilers = m_extraCompilers;
-    m_extraCompilers.clear();
-    for (PySideUicExtraCompiler *extraCompiler : extraCompilers) {
-        QTC_ASSERT(extraCompiler->targets().size() == 1 , continue);
-        int index = oldCompilers.indexOf(extraCompiler);
-        if (index < 0) {
-            m_extraCompilers << extraCompiler;
-            connect(
-                extraCompiler,
-                &ExtraCompiler::contentsChanged,
-                this,
-                [this, extraCompiler](const FilePath &file) {
-                    updateExtraCompilerContents(extraCompiler, file);
+    QList<QPointer<PySideUicExtraCompiler>> oldCompilers = Utils::takeAll(
+        m_extraCompilers, [project](const QPointer<PySideUicExtraCompiler> &compiler) {
+            return compiler && compiler->project() == project;
+        });
+    if (auto pythonBuildConfig = qobject_cast<PythonBuildConfiguration *>(
+            project->activeBuildConfiguration())) {
+        if (auto step = pythonBuildConfig->buildSteps()->firstOfType<PySideBuildStep>()) {
+            const FilePath pySideUic = step->pySideUicPath();
+            const FilePaths uiFiles = step->uiFiles();
+
+            for (const FilePath &uiFile : uiFiles) {
+                const FilePath generated = uiFile.parentDir().pathAppended(
+                    "/ui_" + uiFile.baseName() + ".py");
+
+                const int index = Utils::indexOf(oldCompilers, [&](PySideUicExtraCompiler *c) {
+                    return c->pySideUicPath() == pySideUic && c->source() == uiFile;
                 });
-            connect(
-                extraCompiler,
-                &QObject::destroyed,
-                this,
-                [this, extraCompiler, file = extraCompiler->targets().constFirst()] {
-                    QTC_CHECK(m_extraCompilers.removeAll(extraCompiler) == 0);
-                    closeExtraCompiler(extraCompiler, file);
-                });
-            if (extraCompiler->isDirty())
-                extraCompiler->compileFile();
-        } else {
-            m_extraCompilers << oldCompilers.takeAt(index);
+
+                PySideUicExtraCompiler *compiler;
+                if (index < 0) {
+                    compiler = new PySideUicExtraCompiler(
+                        pySideUic, step->project(), uiFile, {generated}, this);
+                    connect(
+                        compiler,
+                        &ExtraCompiler::contentsChanged,
+                        this,
+                        [this, compiler](const FilePath &file) {
+                            updateExtraCompilerContents(compiler, file);
+                        });
+                    if (compiler->isDirty())
+                        compiler->compileFile();
+                } else {
+                    compiler = oldCompilers.takeAt(index);
+                }
+                m_extraCompilers.append(compiler);
+            }
         }
     }
-    for (ExtraCompiler *compiler : std::as_const(oldCompilers))
-        closeExtraCompiler(compiler, compiler->targets().first());
+
+    for (PySideUicExtraCompiler *compiler : std::as_const(oldCompilers))
+        deleteExtraCompiler(compiler);
 }
 
 void PyLSClient::updateExtraCompilerContents(ExtraCompiler *compiler, const FilePath &file)
@@ -289,10 +306,14 @@ void PyLSClient::updateExtraCompilerContents(ExtraCompiler *compiler, const File
     target.writeFileContents(compiler->content(file));
 }
 
-void PyLSClient::closeExtraCompiler(ExtraCompiler *compiler, const FilePath &file)
+void PyLSClient::deleteExtraCompiler(ExtraCompiler *compiler)
 {
-    m_extraCompilerOutputDir.pathAppended(file.fileName()).removeFile();
+    if (!compiler)
+        return;
+    if (const FilePaths targets = compiler->targets(); !targets.isEmpty())
+        m_extraCompilerOutputDir.pathAppended(targets.first().fileName()).removeFile();
     compiler->disconnect(this);
+    delete compiler;
 }
 
 PyLSClient *PyLSClient::clientForPython(const FilePath &python)

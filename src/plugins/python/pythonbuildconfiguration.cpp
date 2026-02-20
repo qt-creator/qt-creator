@@ -5,7 +5,7 @@
 
 #include "pipsupport.h"
 #include "pyside.h"
-#include "pysideuicextracompiler.h"
+#include "pythonbuildsystem.h"
 #include "pythonconstants.h"
 #include "pythoneditor.h"
 #include "pythonkitaspect.h"
@@ -72,10 +72,6 @@ PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
     connect(&m_pysideUic, &BaseAspect::changed, this, &PySideBuildStep::updateExtraCompilers);
 }
 
-PySideBuildStep::~PySideBuildStep()
-{
-    qDeleteAll(m_extraCompilers);
-}
 
 void PySideBuildStep::checkForPySide(const FilePath &python)
 {
@@ -163,8 +159,8 @@ void PySideBuildStep::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
         return;
     }
 
-    m_pysideProject.setValue(tools.pySideProjectPath.toUserOutput());
-    m_pysideUic.setValue(tools.pySideUicPath.toUserOutput());
+    m_pysideProject.setValue(tools.pySideProjectPath);
+    m_pysideUic.setValue(tools.pySideUicPath);
 }
 
 QtTaskTree::GroupItem PySideBuildStep::runRecipe()
@@ -180,47 +176,32 @@ QtTaskTree::GroupItem PySideBuildStep::runRecipe()
     return Group { onGroupSetup(onSetup), defaultProcessTask() };
 }
 
-void PySideBuildStep::updateExtraCompilers()
+FilePath PySideBuildStep::pySideUicPath() const
 {
-    QList<PySideUicExtraCompiler *> oldCompilers = m_extraCompilers;
-    m_extraCompilers.clear();
-
-    if (m_pysideUic().isExecutableFile()) {
-        auto uiMatcher = [](const Node *node) {
-            if (const FileNode *fileNode = node->asFileNode())
-                return fileNode->fileType() == FileType::Form;
-            return false;
-        };
-        const FilePaths uiFiles = project()->files(uiMatcher);
-        for (const FilePath &uiFile : uiFiles) {
-            FilePath generated = uiFile.parentDir();
-            generated = generated.pathAppended("/ui_" + uiFile.baseName() + ".py");
-            int index = Utils::indexOf(oldCompilers, [&](PySideUicExtraCompiler *oldCompiler) {
-                return oldCompiler->pySideUicPath() == m_pysideUic()
-                       && oldCompiler->project() == project() && oldCompiler->source() == uiFile
-                       && oldCompiler->targets() == FilePaths{generated};
-            });
-            if (index < 0) {
-                m_extraCompilers << new PySideUicExtraCompiler(m_pysideUic(),
-                                                               project(),
-                                                               uiFile,
-                                                               {generated},
-                                                               this);
-            } else {
-                m_extraCompilers << oldCompilers.takeAt(index);
-            }
-        }
-    }
-    for (LanguageClient::Client *client : LanguageClient::LanguageClientManager::clients()) {
-        if (auto pylsClient = qobject_cast<PyLSClient *>(client))
-            pylsClient->updateExtraCompilers(m_extraCompilers);
-    }
-    qDeleteAll(oldCompilers);
+    return m_pysideUic();
 }
 
-QList<PySideUicExtraCompiler *> PySideBuildStep::extraCompilers() const
+FilePaths PySideBuildStep::uiFiles() const
 {
-    return m_extraCompilers;
+    if (!m_pysideUic().isExecutableFile())
+        return {};
+    const auto uiMatcher = [](const Node *node) {
+        if (const FileNode *fileNode = node->asFileNode())
+            return fileNode->fileType() == FileType::Form;
+        return false;
+    };
+    return project()->files(uiMatcher);
+}
+
+void PySideBuildStep::updateExtraCompilers()
+{
+    QTC_ASSERT(buildConfiguration(), return);
+    if (!buildConfiguration()->isActive())
+        return;
+    if (auto pythonBuildConfig = qobject_cast<PythonBuildConfiguration *>(buildConfiguration())) {
+        if (auto pylsClient = PyLSClient::clientForPython(pythonBuildConfig->python()))
+            pylsClient->updateExtraCompilers(project());
+    }
 }
 
 Id PySideBuildStep::id()

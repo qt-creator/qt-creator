@@ -3,8 +3,10 @@
 
 #include "pythonproject.h"
 
+#include "pythonbuildconfiguration.h"
 #include "pythonbuildsystem.h"
 #include "pythonconstants.h"
+#include "pythonlanguageclient.h"
 
 #include <coreplugin/icontext.h>
 
@@ -24,6 +26,14 @@ PythonProject::PythonProject(const FilePath &fileName)
     setProjectLanguages(Context(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
     setBuildSystemCreator<PythonBuildSystem>();
+    connect(this, &Project::activeBuildConfigurationChanged, this, [this]() {
+        for (auto bc : allBuildConfigurations()) {
+            if (auto pythonBc = qobject_cast<PythonBuildConfiguration *>(bc)) {
+                if (auto client = PyLSClient::clientForPython(pythonBc->python()))
+                    client->updateExtraCompilers(this);
+            }
+        }
+    });
 }
 
 PythonProjectNode::PythonProjectNode(const FilePath &path)
