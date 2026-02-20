@@ -79,7 +79,7 @@ WebAssemblySettings::WebAssemblySettings()
         m_statusSdkActivated = new InfoLabel(Tr::tr("An SDK is activated."));
         m_statusSdkInvalid = new InfoLabel(Tr::tr("The activated SDK is not usable by %1.")
                                                .arg(QGuiApplication::applicationDisplayName()),
-                                           InfoLabel::NotOk);
+                                           InfoLabel::Error);
 
         m_emSdkVersionDisplay = new InfoLabel;
         m_emSdkVersionDisplay->setElideMode(Qt::ElideNone);
