@@ -351,6 +351,8 @@ void FileApiReader::setupCMakeFileApi()
     FileApiParser::setupCMakeFileApi(m_parameters.buildDirectory);
 
     const FilePath replyIndexfile = FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory);
+    if (replyIndexfile.isEmpty())
+        return;
     Result<std::unique_ptr<FilePathWatcher>> res = replyIndexfile.watch();
     QTC_ASSERT_RESULT(res, return);
 
@@ -388,7 +390,13 @@ void FileApiReader::startCMakeState(const QStringList &configurationArguments)
 
     qCDebug(cmakeFileApiMode) << ">>>>>> Running cmake with arguments:" << configurationArguments;
     // Reset watcher:
-    disconnect(m_watcher.get(), &FilePathWatcher::pathChanged, this, &FileApiReader::handleReplyIndexFileChange);
+    if (m_watcher) {
+        disconnect(
+            m_watcher.get(),
+            &FilePathWatcher::pathChanged,
+            this,
+            &FileApiReader::handleReplyIndexFileChange);
+    }
     m_watcher.reset();
 
     makeBackupConfiguration(true);
