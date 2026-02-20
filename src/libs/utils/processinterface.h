@@ -126,6 +126,12 @@ enum class ProcessSignalType {
     Done
 };
 
+// *** NOTICE ***
+// The ProcessInterface might be moved between threads with moveToThread()
+// when blocking calls to the Process are performed, like waitForFinished().
+// Ensure that the ProcessInterface subclass respects it!
+// Take special note if possible internal QObjects are moved together within
+// QObject's parent-child hierarchy.
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
 {
     Q_OBJECT
@@ -188,7 +194,7 @@ public:
     void sendControlSignal(ControlSignal controlSignal) final;
 
 private:
-    std::unique_ptr<Internal::WrappedProcessInterfacePrivate> d;
+    Internal::WrappedProcessInterfacePrivate *d;
 };
 
 } // namespace Utils

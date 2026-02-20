@@ -43,10 +43,12 @@ int ProcessInterface::controlSignalToInt(ControlSignal controlSignal)
 }
 
 namespace Internal {
-class WrappedProcessInterfacePrivate
+class WrappedProcessInterfacePrivate : public QObject
 {
 public:
-    Process m_process;
+    using QObject::QObject;
+
+    Process m_process{this};
     bool m_hasReceivedFirstOutput = false;
     qint64 m_remotePID = 0;
     QString m_unexpectedStartupOutput;
@@ -60,8 +62,8 @@ public:
 } // namespace Internal
 
 WrappedProcessInterface::WrappedProcessInterface(
-        const WrapFunction &wrapFunction, const ControlSignalFunction &controlSignalFunction)
-    : d(std::make_unique<Internal::WrappedProcessInterfacePrivate>())
+    const WrapFunction &wrapFunction, const ControlSignalFunction &controlSignalFunction)
+    : d(new Internal::WrappedProcessInterfacePrivate(this))
 {
     d->m_wrapFunction = wrapFunction;
     d->m_controlSignalFunction = controlSignalFunction;

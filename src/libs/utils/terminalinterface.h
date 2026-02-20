@@ -57,7 +57,7 @@ private:
     qint64 write(const QByteArray &data) override;
     void sendControlSignal(ControlSignal controlSignal) override;
 
-    TerminalInterfacePrivate *d{nullptr};
+    TerminalInterfacePrivate *d;
 };
 
 } // namespace Utils
