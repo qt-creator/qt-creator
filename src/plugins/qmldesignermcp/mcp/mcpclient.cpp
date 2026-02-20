@@ -3,7 +3,6 @@
 #include "mcpclient.h"
 
 #include <coreplugin/icore.h>
-#include <utils/hostosinfo.h>
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -65,12 +64,6 @@ bool McpClient::startProcess(
     m_process->setProcessEnvironment(env);
     if (!workingDir.isEmpty())
         m_process->setWorkingDirectory(workingDir);
-
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        // Ensure no extra console window if embedding in a GUI product.
-        m_process->setCreateProcessArgumentsModifier(
-            [](QProcess::CreateProcessArguments *args) { Q_UNUSED(args); });
-    }
 
     connect(m_process, &QProcess::readyReadStandardOutput, this, &McpClient::onStdoutReady);
     connect(m_process, &QProcess::readyReadStandardError, this, &McpClient::onStderrReady);
