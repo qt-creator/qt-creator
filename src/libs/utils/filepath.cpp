@@ -2744,7 +2744,7 @@ FilePath FilePath::canonicalPath() const
 #ifdef Q_OS_WIN
     const HANDLE fileHandle = CreateFile(
                 toUserOutput().toStdWString().c_str(),
-                GENERIC_READ,
+                FILE_READ_ATTRIBUTES,
                 FILE_SHARE_READ,
                 nullptr,
                 OPEN_EXISTING,
