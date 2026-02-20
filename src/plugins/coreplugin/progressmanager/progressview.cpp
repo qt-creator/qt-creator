@@ -48,6 +48,9 @@ ProgressView::ProgressView(QWidget *parent)
         iconRect.moveTopRight(that->rect().topRight());
         icon.paint(&p, iconRect);
     });
+    pinButton->setResizeFunction([](QWidget *that, const QSize &size) {
+        that->setGeometry({QPoint(size.width() - PIN_SIZE, 0), QSize(PIN_SIZE, PIN_SIZE)});
+    });
     pinButton->setVisible(false);
     pinButton->installEventFilter(this);
     m_pinButton = pinButton;
