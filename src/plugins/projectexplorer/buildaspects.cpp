@@ -72,9 +72,8 @@ BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
         return pathChooser()->defaultValidationFunction()(text);
     });
 
-    setOpenTerminalHandler([this, bc] {
-        Core::FileUtils::openTerminal(expandedValue(), bc->environment());
-    });
+    setOpenTerminalHandler(
+        [bc] { Core::FileUtils::openTerminal(bc->buildDirectory(), bc->environment()); });
 
     ProjectExplorerSettings::registerCallback(
         this, &ProjectExplorerSettings::warnAgainstNonAsciiBuildDir, [this] { validateInput(); });
