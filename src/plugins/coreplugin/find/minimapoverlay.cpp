@@ -36,11 +36,9 @@ MinimapOverlay::MinimapOverlay(PlainTextEdit *editor)
     editor->installEventFilter(this);
 
     connect(m_doc, &QTextDocument::contentsChange, this, &MinimapOverlay::onDocumentChanged);
-    connect(
-        m_doc->documentLayout(),
-        &QAbstractTextDocumentLayout::update,
-        this,
-        &MinimapOverlay::onDocumentChanged);
+
+    // Minimap is outside the editor's viewport and needs a repaint when the editor is painted
+    connect(editor, &PlainTextEdit::updateRequest, this, [this] { update();});
 
     m_updateTimer.setSingleShot(true);
     m_updateTimer.setInterval(30);
@@ -377,8 +375,6 @@ void MinimapOverlay::wheelEvent(QWheelEvent *event)
 
     QApplication::sendEvent(m_vScroll, &forwarded);
     event->accept();
-
-    QMetaObject::invokeMethod(this, QOverload<>::of(&QWidget::update), Qt::QueuedConnection);
 }
 
 void MinimapOverlay::paintEvent(QPaintEvent *paintEvent)
@@ -411,10 +407,6 @@ bool MinimapOverlay::eventFilter(QObject *object, QEvent *event)
         break;
     case QEvent::Hide:
         hide();
-        break;
-    case QEvent::Paint:
-        // Minimap is outside the editor's viewport and needs a repaint when the editor is painted
-        update();
         break;
     default:
         break;
