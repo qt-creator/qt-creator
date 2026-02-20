@@ -36,9 +36,14 @@ MinimapOverlay::MinimapOverlay(PlainTextEdit *editor)
     editor->installEventFilter(this);
 
     connect(m_doc, &QTextDocument::contentsChange, this, &MinimapOverlay::onDocumentChanged);
+    connect(
+        m_doc->documentLayout(),
+        &QAbstractTextDocumentLayout::update,
+        this,
+        &MinimapOverlay::onDocumentChanged);
 
     // Minimap is outside the editor's viewport and needs a repaint when the editor is painted
-    connect(editor, &PlainTextEdit::updateRequest, this, [this] { update();});
+    connect(editor, &PlainTextEdit::updateRequest, this, [this] { update(); }, Qt::QueuedConnection);
 
     m_updateTimer.setSingleShot(true);
     m_updateTimer.setInterval(30);
@@ -257,6 +262,7 @@ void MinimapOverlay::updateImage()
     }
 
     m_minimap = img;
+    update();
 }
 
 
