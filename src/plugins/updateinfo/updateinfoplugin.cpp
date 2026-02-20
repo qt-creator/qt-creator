@@ -113,6 +113,7 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
     QWidget *notFoundPage = nullptr;
     QWidget *alreadyInstalledPage = nullptr;
     QWidget *packagesPage = nullptr;
+    QWidget *lockedPage = nullptr;
     auto packageList = new QLabel;
     QWidget *installPage = nullptr;
     auto installLabel = new QLabel(Tr::tr("Installing..."));
@@ -168,6 +169,17 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
                         installLabel,
                         installProgress,
                         installDetails
+                    }
+                },
+                Widget {
+                    bindTo(&lockedPage),
+                    Column {
+                        Label {
+                            wordWrap(true),
+                            textInteractionFlags(Qt::TextBrowserInteraction),
+                            text(Tr::tr("The Maintenance Tool is already running and has locked its cache. "
+                                        "Please close the Maintenance Tool and try again."))
+                        }
                     }
                 }
             },
@@ -255,29 +267,48 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
             startInstallation();
         });
     };
+
+    const auto showLockedPage = [stackWidget, lockedPage, cancelButton] {
+        stackWidget->setCurrentWidget(lockedPage);
+        cancelButton->setText(Tr::tr("Close"));
+    };
+
     const auto onSearchSetup = [filterRegex](Process &process) {
         qCDebug(updateLog) << "Update service looking for packages matching" << filterRegex;
-        process.setCommand(
-            {m_d->m_maintenanceTool,
-             {"se", filterRegex, "--type=package", "-g", "*=false,ifw.package.*=true"}});
+        process.setCommand({m_d->m_maintenanceTool, {"se", filterRegex, "--type=package"}});
+        process.setProcessChannelMode(QProcess::MergedChannels);
     };
     const auto onSearchDone = [&packages,
                                showNotFoundPage,
                                showAlreadyInstalledPage,
-                               showPackagesPage](const Process &process) {
+                               showPackagesPage,
+                               showLockedPage](const Process &process) {
         const QString cleanedStdOut = process.cleanedStdOut();
         qCDebug(updateLog) << "MaintenanceTool output:";
         qCDebug(updateLog) << cleanedStdOut;
-        const QList<Package> allAvailablePackages = availablePackages(cleanedStdOut);
-        packages = Utils::filtered(allAvailablePackages, [](const Package &p) {
-            return p.installedVersion.isNull();
-        });
-        if (allAvailablePackages.isEmpty())
+        const QString xmlHeader = QLatin1String("<?xml version=\"1.0\"?>");
+        const int xmlStartIndex = cleanedStdOut.indexOf(xmlHeader);
+        if (xmlStartIndex != -1) {
+            const QString xmlOnly = cleanedStdOut.mid(xmlStartIndex);
+            const QList<Package> allAvailablePackages = availablePackages(xmlOnly);
+            packages = Utils::filtered(allAvailablePackages, [](const Package &p) {
+                return p.installedVersion.isNull();
+            });
+
+            if (allAvailablePackages.isEmpty())
+                showNotFoundPage();
+            else if (packages.isEmpty())
+                showAlreadyInstalledPage();
+            else
+                showPackagesPage();
+        }
+        else if (cleanedStdOut.contains(QLatin1String("Cannot obtain the lock"))) {
+            qCDebug(updateLog) << "Cache lock detected via output string.";
+            showLockedPage();
+        }
+        else {
             showNotFoundPage();
-        else if (packages.isEmpty())
-            showAlreadyInstalledPage();
-        else
-            showPackagesPage();
+        }
     };
 
     runner.start({ProcessTask(onSearchSetup, onSearchDone)});
