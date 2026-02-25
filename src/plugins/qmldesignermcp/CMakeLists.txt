@@ -5,6 +5,7 @@ add_qtc_plugin(QmlDesignerMcp
   DEPENDS
     Qt6::Qml
     AstCheck
+    DEFINES SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
   SOURCES
     aiassistantconstants.h
     aiassistantview.cpp aiassistantview.h

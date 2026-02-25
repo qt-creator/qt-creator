@@ -24,6 +24,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/filepath.h>
+#include <utils/environment.h>
 
 #include <QApplication>
 #include <QQmlContext>
@@ -39,7 +40,7 @@ bool showAgenticDebug = false;
 QString propertyEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
-    if (::Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
@@ -429,9 +430,9 @@ void AiAssistantWidget::connectRequestManager()
 
 void AiAssistantWidget::reloadQmlSource()
 {
-    const QString itemLibraryQmlPath = qmlSourcesPath() + "/AiAssistantView.qml";
-    QTC_ASSERT(QFileInfo::exists(itemLibraryQmlPath), return);
-    m_quickWidget->setSource(QUrl::fromLocalFile(itemLibraryQmlPath));
+    const QString aiAssistantQmlPath = qmlSourcesPath() + "/AiAssistantView.qml";
+    QTC_ASSERT(QFileInfo::exists(aiAssistantQmlPath), return);
+    m_quickWidget->setSource(QUrl::fromLocalFile(aiAssistantQmlPath));
 }
 
 void AiAssistantWidget::setIsGenerating(bool val)
