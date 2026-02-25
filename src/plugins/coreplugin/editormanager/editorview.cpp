@@ -33,6 +33,7 @@
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLibraryInfo>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
@@ -114,16 +115,61 @@ protected:
         }
     }
 
-    void wheelEvent(QWheelEvent *event) override
+    void wheelEvent(QWheelEvent *e) override
     {
-        // The QTabBar wheel event implementation only results in a currentChanged event
+        if (QLibraryInfo::version() >= QVersionNumber(6, 10, 3)) {
+            // HACK claim that the input device supports PixelScroll to make it scroll
+            // the bar instead of switching tab even for mouse wheels.
+            // See QTCREATORBUG-34131
+            // We only do this for Qt 6.10.3 or later, because the pixel scrolling is pretty broken
+            // in earlier versions.
+            // See QTBUG-143075
+            const QPointingDevice *rd = qobject_cast<const QPointingDevice *>(e->device());
+            if (rd && !rd->capabilities().testFlag(QInputDevice::Capability::PixelScroll)) {
+                // create a copied device with forced pixel scroll capability
+                QPointingDevice pseudoDevice(
+                    rd->name(),
+                    rd->systemId(),
+                    rd->type(),
+                    rd->pointerType(),
+                    rd->capabilities() | QInputDevice::Capability::PixelScroll,
+                    rd->maximumPoints(),
+                    rd->buttonCount(),
+                    rd->seatName());
+                // create event with new device and make sure it is considered horizontal
+                // and use angle delta as the pixel data for devices that actually set pixel data to
+                // null, to be sure
+                const bool isWheelVertical = qAbs(e->angleDelta().y()) > qAbs(e->angleDelta().x());
+                const QPoint adaptedAngleDelta = isWheelVertical ? e->angleDelta().transposed()
+                                                                 : e->angleDelta();
+                const QPoint adaptedPixelDelta = e->pixelDelta().isNull() ? adaptedAngleDelta
+                                                 : isWheelVertical ? e->pixelDelta().transposed()
+                                                                   : e->pixelDelta();
+                QWheelEvent event(
+                    e->position(),
+                    e->globalPosition(),
+                    adaptedPixelDelta,
+                    adaptedAngleDelta,
+                    e->buttons(),
+                    e->modifiers(),
+                    e->phase(),
+                    e->inverted(),
+                    e->source(),
+                    &pseudoDevice);
+                DocumentTabBar::wheelEvent(&event);
+                return;
+            }
+        }
+
+        // If QTabBar wheel event results in selection of a different tab,
+        // its implementation only results in a currentChanged event
         // which makes it impossible to identify it as a "user triggered" change.
         // That makes it ugly for tab bars that are 'manually managed' and want to
         // only react on user changes, like the editor tab bar.
         // Work around the issue by emitting tabBarClicked if the wheel event results in
         // a change.
         const int oldIndex = currentIndex();
-        DocumentTabBar::wheelEvent(event);
+        DocumentTabBar::wheelEvent(e);
         if (currentIndex() != oldIndex)
             emit tabBarClicked(currentIndex());
     }
