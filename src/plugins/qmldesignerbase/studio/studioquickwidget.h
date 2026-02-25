@@ -215,4 +215,5 @@ signals:
 
 private:
     QQuickWidget *m_quickWidget = nullptr;
+    QQmlEngine *m_engine = nullptr;
 };

@@ -4,6 +4,7 @@
 #include "studioquickwidget.h"
 
 #include <coreplugin/icore.h>
+#include <utils/environment.h>
 
 #include <QQuickItem>
 #include <QVBoxLayout>
@@ -15,10 +16,15 @@ QQmlEngine *s_engine = nullptr;
 StudioQuickWidget::StudioQuickWidget(QWidget *parent)
     : QWidget{parent}
 {
-    if (!s_engine)
-        s_engine = new QQmlEngine;
+    if (Utils::qtcEnvironmentVariableIsSet("QML_HOT_RELOAD")) {
+        m_engine = new QQmlEngine;
+        m_quickWidget = new QQuickWidget(m_engine, this);
+    } else {
+        if (!s_engine)
+            s_engine = new QQmlEngine;
+        m_quickWidget = new QQuickWidget(s_engine, this);
+    }
 
-    m_quickWidget = new QQuickWidget(s_engine, this);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     setLayout(layout);

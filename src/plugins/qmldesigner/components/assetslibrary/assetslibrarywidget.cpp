@@ -635,7 +635,17 @@ void AssetsLibraryWidget::reloadQmlSource()
 {
     const QString assetsQmlPath = qmlSourcesPath() + "/Assets.qml";
     QTC_ASSERT(QFileInfo::exists(assetsQmlPath), return);
-    m_assetsWidget->setSource(QUrl::fromLocalFile(assetsQmlPath));
+
+    QUrl url = QUrl::fromLocalFile(assetsQmlPath);
+
+    if (Utils::qtcEnvironmentVariableIsSet("QML_HOT_RELOAD")) {
+        m_assetsWidget->setSource(QUrl()); // unload
+        m_assetsWidget->engine()->clearComponentCache();
+        url = QUrl(url.toString(QUrl::RemoveQuery)
+                   + "?v=" + QString::number(QDateTime::currentMSecsSinceEpoch()));
+    }
+
+    m_assetsWidget->setSource(url); // reload
 }
 
 void AssetsLibraryWidget::updateSearch()
