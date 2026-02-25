@@ -4,6 +4,7 @@
 #pragma once
 
 #include "languageclient_global.h"
+#include "mimetypesaspect.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -12,7 +13,6 @@
 #include <QAbstractItemModel>
 #include <QCoreApplication>
 #include <QJsonObject>
-#include <QLabel>
 #include <QPointer>
 #include <QUuid>
 #include <QWidget>
@@ -69,6 +69,7 @@ public:
     };
 
     Utils::StringAspect name{this};
+    MimeTypesAspect mimeTypes{this};
 
     QString m_id = QUuid::createUuid().toString();
     Utils::Id m_settingsTypeId;
@@ -172,9 +173,6 @@ public:
     QString initializationOptions() const;
 
 private:
-    void showAddMimeTypeDialog();
-
-    QLabel *m_mimeTypes = nullptr;
     QLineEdit *m_filePattern = nullptr;
     QComboBox *m_startupBehavior = nullptr;
     Utils::FancyLineEdit *m_initializationOptions = nullptr;

@@ -32,6 +32,7 @@ add_qtc_plugin(LanguageClient
     languageclienttr.h
     locatorfilter.cpp locatorfilter.h
     lspinspector.cpp lspinspector.h
+    mimetypesaspect.cpp mimetypesaspect.h
     progressmanager.cpp progressmanager.h
     semantichighlightsupport.cpp semantichighlightsupport.h
     snippet.cpp snippet.h

@@ -37,8 +37,6 @@
 #include <QComboBox>
 #include <QCompleter>
 #include <QCoreApplication>
-#include <QDialog>
-#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
@@ -46,12 +44,10 @@
 #include <QHeaderView>
 #include <QJsonDocument>
 #include <QLabel>
-#include <QListView>
 #include <QMenu>
 #include <QMimeData>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
-#include <QStringListModel>
 #include <QToolButton>
 #include <QTreeView>
 #include <QTreeWidget>
@@ -60,7 +56,6 @@ constexpr char typeIdKey[] = "typeId";
 constexpr char idKey[] = "id";
 constexpr char enabledKey[] = "enabled";
 constexpr char startupBehaviorKey[] = "startupBehavior";
-constexpr char mimeTypeKey[] = "mimeType";
 constexpr char filePatternKey[] = "filePattern";
 constexpr char settingsGroupKey[] = "LanguageClient";
 constexpr char clientsKey[] = "clients";
@@ -564,6 +559,8 @@ BaseSettings::BaseSettings()
 
     activatable.setDefaultValue(true);
 
+    mimeTypes.setSettingsKey("mimeType");
+
     initializationOptions.setSettingsKey("initializationOptions");
 
     configuration.setSettingsKey("configuration");
@@ -590,8 +587,9 @@ bool BaseSettings::applyFromSettingsWidget(QWidget *widget)
     AspectContainer::apply();
 
     if (auto settingsWidget = qobject_cast<BaseSettingsWidget *>(widget)) {
-        if (m_languageFilter != settingsWidget->filter()) {
-            m_languageFilter = settingsWidget->filter();
+        const QStringList filePattern = settingsWidget->filter().filePattern;
+        if (m_languageFilter.filePattern != filePattern) {
+            m_languageFilter.filePattern = filePattern;
             changed = true;
         }
         if (m_startBehavior != settingsWidget->startupBehavior()) {
@@ -681,7 +679,6 @@ void BaseSettings::toMap(Store &map) const
     map.insert(idKey, m_id);
     map.insert(enabledKey, m_enabled);
     map.insert(startupBehaviorKey, m_startBehavior);
-    map.insert(mimeTypeKey, m_languageFilter.mimeTypes);
     map.insert(filePatternKey, m_languageFilter.filePattern);
 }
 
@@ -692,7 +689,7 @@ void BaseSettings::fromMap(const Store &map)
     m_enabled = map[enabledKey].toBool();
     m_startBehavior = BaseSettings::StartBehavior(
         map.value(startupBehaviorKey, BaseSettings::RequiresFile).toInt());
-    m_languageFilter.mimeTypes = map[mimeTypeKey].toStringList();
+    m_languageFilter.mimeTypes = mimeTypes();
     m_languageFilter.filePattern = map[filePatternKey].toStringList();
     m_languageFilter.filePattern.removeAll(QString()); // remove empty entries
     m_settingsTypeId = Id::fromSetting(map[typeIdKey]);
@@ -911,7 +908,6 @@ static QString startupBehaviorString(BaseSettings::StartBehavior behavior)
 BaseSettingsWidget::BaseSettingsWidget(
     const BaseSettings *settings, QWidget *parent, Layouting::LayoutModifier additionalItems)
     : QWidget(parent)
-    , m_mimeTypes(new QLabel(settings->m_languageFilter.mimeTypes.join(filterSeparator), this))
     , m_filePattern(
           new QLineEdit(settings->m_languageFilter.filePattern.join(filterSeparator), this))
     , m_startupBehavior(new QComboBox)
@@ -921,10 +917,6 @@ BaseSettingsWidget::BaseSettingsWidget(
 
     auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_initializationOptions);
-
-    auto addMimeTypeButton = new QPushButton(Tr::tr("Set MIME Types..."), this);
-    connect(
-        addMimeTypeButton, &QPushButton::pressed, this, &BaseSettingsWidget::showAddMimeTypeDialog);
 
     m_filePattern->setPlaceholderText(Tr::tr("File pattern"));
     m_filePattern->setToolTip(
@@ -958,7 +950,7 @@ BaseSettingsWidget::BaseSettingsWidget(
     // clang-format off
     auto form = Form {
         settings->name, br,
-        Tr::tr("Language:"), Row { m_mimeTypes, st, addMimeTypeButton }, br,
+        settings->mimeTypes, br,
         Tr::tr("File pattern:"), m_filePattern, br,
         Tr::tr("Startup behavior:"), m_startupBehavior, br,
         Tr::tr("Initialization options:"), m_initializationOptions, br
@@ -974,8 +966,7 @@ BaseSettingsWidget::BaseSettingsWidget(
 
 LanguageFilter BaseSettingsWidget::filter() const
 {
-    return {m_mimeTypes->text().split(filterSeparator, Qt::SkipEmptyParts),
-                m_filePattern->text().split(filterSeparator, Qt::SkipEmptyParts)};
+    return {{}, m_filePattern->text().split(filterSeparator, Qt::SkipEmptyParts)};
 }
 
 BaseSettings::StartBehavior BaseSettingsWidget::startupBehavior() const
@@ -988,99 +979,6 @@ QString BaseSettingsWidget::initializationOptions() const
     return m_initializationOptions->text();
 }
 
-class MimeTypeModel : public QStringListModel
-{
-public:
-    using QStringListModel::QStringListModel;
-    QVariant data(const QModelIndex &index, int role) const final
-    {
-        if (index.isValid() && role == Qt::CheckStateRole)
-            return m_selectedMimeTypes.contains(index.data().toString()) ? Qt::Checked : Qt::Unchecked;
-        return QStringListModel::data(index, role);
-    }
-    bool setData(const QModelIndex &index, const QVariant &value, int role) final
-    {
-        if (index.isValid() && role == Qt::CheckStateRole) {
-            QString mimeType = index.data().toString();
-            if (value.toInt() == Qt::Checked) {
-                if (!m_selectedMimeTypes.contains(mimeType))
-                    m_selectedMimeTypes.append(index.data().toString());
-            } else {
-                m_selectedMimeTypes.removeAll(index.data().toString());
-            }
-            return true;
-        }
-        return QStringListModel::setData(index, value, role);
-    }
-
-    Qt::ItemFlags flags(const QModelIndex &index) const final
-    {
-        if (!index.isValid())
-            return Qt::NoItemFlags;
-        return (QStringListModel::flags(index)
-                & ~(Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled))
-                | Qt::ItemIsUserCheckable;
-    }
-    QStringList m_selectedMimeTypes;
-};
-
-class MimeTypeDialog : public QDialog
-{
-public:
-    explicit MimeTypeDialog(const QStringList &selectedMimeTypes, QWidget *parent = nullptr)
-        : QDialog(parent)
-    {
-        setWindowTitle(Tr::tr("Select MIME Types"));
-        auto mainLayout = new QVBoxLayout;
-        auto filter = new FancyLineEdit(this);
-        filter->setFiltering(true);
-        mainLayout->addWidget(filter);
-        auto listView = new QListView(this);
-        mainLayout->addWidget(listView);
-        auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-        mainLayout->addWidget(buttons);
-        setLayout(mainLayout);
-
-        filter->setPlaceholderText(Tr::tr("Filter"));
-        connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-        connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-        auto proxy = new QSortFilterProxyModel(this);
-        m_mimeTypeModel
-            = new MimeTypeModel(Utils::transform(Utils::allMimeTypes(), &MimeType::name), this);
-        m_mimeTypeModel->m_selectedMimeTypes = selectedMimeTypes;
-        proxy->setSourceModel(m_mimeTypeModel);
-        proxy->sort(0);
-        connect(filter, &QLineEdit::textChanged, proxy, &QSortFilterProxyModel::setFilterWildcard);
-        listView->setModel(proxy);
-
-        setModal(true);
-    }
-
-    MimeTypeDialog(const MimeTypeDialog &other) = delete;
-    MimeTypeDialog(MimeTypeDialog &&other) = delete;
-
-    MimeTypeDialog operator=(const MimeTypeDialog &other) = delete;
-    MimeTypeDialog operator=(MimeTypeDialog &&other) = delete;
-
-
-    QStringList mimeTypes() const
-    {
-        return m_mimeTypeModel->m_selectedMimeTypes;
-    }
-private:
-    MimeTypeModel *m_mimeTypeModel = nullptr;
-};
-
-void BaseSettingsWidget::showAddMimeTypeDialog()
-{
-    MimeTypeDialog dialog(m_mimeTypes->text().split(filterSeparator, Qt::SkipEmptyParts),
-                          Core::ICore::dialogParent());
-    if (dialog.exec() == QDialog::Rejected)
-        return;
-    if (m_mimeTypes->text() != dialog.mimeTypes().join(filterSeparator))
-        markSettingsDirty();
-    m_mimeTypes->setText(dialog.mimeTypes().join(filterSeparator));
-}
 
 StdIOSettingsWidget::StdIOSettingsWidget(const StdIOSettings *settings, QWidget *parent)
     : BaseSettingsWidget(settings, parent)

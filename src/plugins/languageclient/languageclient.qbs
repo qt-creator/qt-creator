@@ -60,6 +60,8 @@ QtcPlugin {
         "locatorfilter.h",
         "lspinspector.cpp",
         "lspinspector.h",
+        "mimetypesaspect.cpp",
+        "mimetypesaspect.h",
         "progressmanager.cpp",
         "progressmanager.h",
         "semantichighlightsupport.cpp",
