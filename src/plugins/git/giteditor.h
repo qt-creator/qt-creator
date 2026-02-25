@@ -50,6 +50,9 @@ private:
     QString revisionSubject(const QTextBlock &inBlock) const override;
     bool supportChangeLinks() const override;
     Utils::FilePath fileNameForLine(int line) const override;
+    void jumpToDiffTarget(const Utils::FilePath &filePath,
+                          int lineNumber,
+                          const QTextBlock &contextBlock) override;
     Utils::FilePath sourceWorkingDirectory() const;
 
     const QRegularExpression m_changeNumberPattern;

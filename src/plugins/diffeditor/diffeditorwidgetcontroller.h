@@ -43,6 +43,8 @@ public:
     void addCodePasterAction(QMenu *menu, int fileIndex, int chunkIndex);
     void addPatchAction(QMenu *menu, int fileIndex, int chunkIndex, Core::PatchAction patchAction);
     void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex, const ChunkSelection &selection);
+    void resolveCurrentLine(const QString &relativeFilePath, int originalLine,
+                            const std::function<void(int)> &callback);
     void updateCannotDecodeInfo();
     void setBusyShowing(bool busy);
     void setCurrentDiffFileIndex(int index) { m_currentDiffFileIndex = index; }

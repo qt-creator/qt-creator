@@ -129,6 +129,15 @@ void DiffEditorController::addExtraActions(QMenu *menu, int fileIndex, int chunk
     Q_UNUSED(selection)
 }
 
+void DiffEditorController::resolveCurrentLine(const QString &relativeFilePath,
+                                              int originalLine,
+                                              const std::function<void (int)> &callback)
+{
+    Q_UNUSED(relativeFilePath);
+
+    callback(originalLine);
+}
+
 void DiffEditorController::setStartupFile(const QString &startupFile)
 {
     m_document->setStartupFile(startupFile);

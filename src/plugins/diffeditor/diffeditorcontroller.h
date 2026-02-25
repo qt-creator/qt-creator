@@ -70,6 +70,9 @@ private:
     friend class Internal::DiffEditorWidgetController;
     virtual void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex,
                                  const ChunkSelection &selection);
+    virtual void resolveCurrentLine(const QString &relativeFilePath,
+                                    int originalLine,
+                                    const std::function<void(int)> &callback);
 
     Internal::DiffEditorDocument *const m_document;
     QString m_displayName;

@@ -11,6 +11,7 @@
 #include "gittr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <texteditor/textdocument.h>
 
@@ -353,6 +354,36 @@ QString GitEditorWidget::authorValue() const
 bool GitEditorWidget::caseSensitive() const
 {
     return m_logFilterWidget && m_logFilterWidget->caseAction->isChecked();
+}
+
+void GitEditorWidget::jumpToDiffTarget(const FilePath &filePath,
+                                       int lineNumber,
+                                       const QTextBlock &contextBlock)
+{
+    const QString revision = revisionForLine(contextBlock.blockNumber());
+
+    const FilePath contextPath = !workingDirectory().isEmpty()
+            ? workingDirectory()
+            : sourceWorkingDirectory();
+    const FilePath topLevel = VcsManager::findTopLevelForDirectory(contextPath);
+    if (topLevel.isEmpty() || revision.isEmpty()) {
+        VcsBaseEditorWidget::jumpToDiffTarget(filePath, lineNumber, contextBlock);
+        return;
+    }
+
+    const FilePath relativePath = filePath.relativeChildPath(topLevel);
+    if (relativePath.isEmpty()) {
+        VcsBaseEditorWidget::jumpToDiffTarget(filePath, lineNumber, contextBlock);
+        return;
+    }
+
+    gitClient().resolveLine(topLevel,
+                            relativePath.toUrlishString(),
+                            lineNumber,
+                            revision,
+                            [this, filePath, lineNumber, contextBlock](int resolvedLine) {
+        VcsBaseEditorWidget::jumpToDiffTarget(filePath, resolvedLine > 0 ? resolvedLine : lineNumber, contextBlock);
+    });
 }
 
 } // Git::Internal

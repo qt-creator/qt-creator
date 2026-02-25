@@ -19,6 +19,8 @@
 #include <QTimer>
 #include <QWidget>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QMenu;
 
@@ -378,6 +380,12 @@ public:
     Core::IEditor *openShowEditor(const Utils::FilePath &workingDirectory, const QString &ref,
                                   const Utils::FilePath &path, ShowEditor showSetting = ShowEditor::Always,
                                   int line = 1);
+
+    void resolveLine(const Utils::FilePath &workingDirectory,
+                     const QString &relativeFilePath,
+                     int originalLine,
+                     const QString &hash,
+                     const std::function<void(int)> &callback);
 
     Author parseAuthor(const QString &authorInfo);
     Author getAuthor(const Utils::FilePath &workingDirectory);

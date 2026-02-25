@@ -11,6 +11,8 @@
 
 #include <QSet>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QTextCursor;
 
@@ -250,6 +252,12 @@ protected:
     virtual bool isValidRevision(const QString &revision) const;
     // Implement to return subject for a change line in log
     virtual QString revisionSubject(const QTextBlock &inBlock) const;
+
+    QString revisionForLine(int line) const;
+
+    virtual void jumpToDiffTarget(const Utils::FilePath &filePath,
+                                  int lineNumber,
+                                  const QTextBlock &contextBlock);
 
 private:
     void slotActivateAnnotation();

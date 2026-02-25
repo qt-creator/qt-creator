@@ -996,7 +996,9 @@ void SideBySideDiffEditorWidget::jumpToOriginalFileRequested(DiffSide side, int 
     const QString otherFileName = fileData.fileInfo[otherSide].fileName;
     if (side == RightSide || fileName != otherFileName) {
         // different file (e.g. in Tools | Diff...)
-        m_controller.jumpToOriginalFile(fileName, lineNumber, columnNumber);
+        m_controller.resolveCurrentLine(fileName, lineNumber, [this, fileName, columnNumber](int line) {
+            m_controller.jumpToOriginalFile(fileName, line, columnNumber);
+        });
         return;
     }
 
@@ -1016,7 +1018,10 @@ void SideBySideDiffEditorWidget::jumpToOriginalFileRequested(DiffSide side, int 
                 otherLineNumber++;
             if (thisLineNumber == lineNumber) {
                 int colNr = rowData.equal ? columnNumber : 0;
-                m_controller.jumpToOriginalFile(fileName, otherLineNumber, colNr);
+                m_controller.resolveCurrentLine(fileName, otherLineNumber,
+                                                [this, fileName, colNr](int line) {
+                    m_controller.jumpToOriginalFile(fileName, line, colNr);
+                });
                 return;
             }
         }

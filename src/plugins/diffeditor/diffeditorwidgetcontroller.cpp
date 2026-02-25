@@ -286,6 +286,18 @@ void DiffEditorWidgetController::addExtraActions(QMenu *menu, int fileIndex, int
         controller->addExtraActions(menu, fileIndex, chunkIndex, selection);
 }
 
+void DiffEditorWidgetController::resolveCurrentLine(const QString &relativeFilePath,
+                                                    int originalLine,
+                                                    const std::function<void(int)> &callback)
+{
+    if (DiffEditorController *controller = m_document->controller()) {
+        controller->resolveCurrentLine(relativeFilePath, originalLine, callback);
+        return;
+    }
+
+    callback(originalLine);
+}
+
 void DiffEditorWidgetController::updateCannotDecodeInfo()
 {
     if (!m_document)

@@ -936,6 +936,27 @@ static int sectionOfLine(int line, const QList<int> &sections)
     return int(std::distance(sections.cbegin(), it)) - 1;
 }
 
+QString VcsBaseEditorWidget::revisionForLine(int line) const
+{
+    const int section = sectionOfLine(line, d->m_entrySections);
+    if (section >= 0 && section < d->m_entrySections.size()) {
+        const int sectionLine = d->m_entrySections.at(section);
+        const QTextBlock sectionBlock = document()->findBlockByLineNumber(sectionLine);
+        if (sectionBlock.isValid()) {
+            const QRegularExpressionMatch match = d->m_logEntryPattern.match(sectionBlock.text());
+            if (match.hasMatch())
+                return match.captured(1);
+        }
+    }
+
+    for (QTextBlock block = document()->findBlockByLineNumber(line); block.isValid(); block = block.previous()) {
+        const QRegularExpressionMatch match = d->m_logEntryPattern.match(block.text());
+        if (match.hasMatch())
+            return match.captured(1);
+    }
+    return {};
+}
+
 void VcsBaseEditorWidget::slotCursorPositionChanged()
 {
     // Adapt entries combo to new position
@@ -1186,9 +1207,17 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     if (!exists)
         return;
 
-    IEditor *ed = EditorManager::openEditor(FilePath::fromString(fileName));
+    jumpToDiffTarget(FilePath::fromString(fileName), chunkStart + lineCount, block);
+}
+
+void VcsBaseEditorWidget::jumpToDiffTarget(const FilePath &filePath,
+                                           int lineNumber,
+                                           const QTextBlock &contextBlock)
+{
+    Q_UNUSED(contextBlock)
+    IEditor *ed = EditorManager::openEditor(filePath);
     if (auto editor = qobject_cast<BaseTextEditor *>(ed))
-        editor->gotoLine(chunkStart + lineCount);
+        editor->gotoLine(lineNumber);
 }
 
 // cut out chunk and determine file name.

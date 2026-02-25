@@ -396,10 +396,21 @@ class ShowController : public GitBaseDiffEditorController
 {
 public:
     ShowController(IDocument *document, const QString &id);
+
+private:
+    void resolveCurrentLine(const QString &filePath,
+                            int originalLineNumber,
+                            const std::function<void(int)> &callback) override
+    {
+        gitClient().resolveLine(workingDirectory(), filePath, originalLineNumber, m_id, callback);
+    }
+
+    QString m_id;
 };
 
 ShowController::ShowController(IDocument *document, const QString &id)
-    : GitBaseDiffEditorController(document)
+    : GitBaseDiffEditorController(document),
+      m_id(id)
 {
     setDisplayName("Git Show");
     setAnsiEnabled(true);
@@ -4113,6 +4124,38 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
     // FIXME: Check should that be relative
     VcsBase::setSource(editor->document(), path);
     return editor;
+}
+
+void GitClient::resolveLine(const FilePath &workingDirectory,
+                            const QString &relativeFilePath,
+                            int originalLine,
+                            const QString &hash,
+                            const std::function<void(int)> &callback)
+{
+    if (!callback)
+        return;
+    if (hash.isEmpty()) {
+        callback(originalLine);
+        return;
+    }
+
+    const QString linePattern = QString("-L%1,%1").arg(originalLine);
+
+    const auto command = [callback, originalLine](const CommandResult &result) {
+        const QString firstLine = result.cleanedStdOut().section('\n', 0, 0);
+        const QStringList items = firstLine.split(' '); // <hash> <new line> <original line> <lines>
+        if (items.size() != 4) {
+            callback(originalLine);
+            return;
+        }
+        bool ok = false;
+        const int newLine = items.at(1).toInt(&ok);
+        callback(newLine && ok ? newLine : originalLine);
+    };
+
+    const QStringList args =
+        {"blame", "--porcelain", "--reverse", linePattern, hash, "--", relativeFilePath};
+    enqueueCommand({workingDirectory, {args}, RunFlags::NoOutput, {}, {}, command});
 }
 
 ColorNames GitClient::colorNames()
