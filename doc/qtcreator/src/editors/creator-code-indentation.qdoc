@@ -96,6 +96,6 @@
     Then, use the \l{ClangFormat Style Options}{ClangFormat} \c ColumnLimit
     option to set the margin, for example.
 
-    \sa {C++ Code Style}, {Specify Qt Quick code style}, {Behavior},
+    \sa {C++ code style}, {Specify Qt Quick code style}, {Behavior},
     {Keyboard shortcuts}
 */

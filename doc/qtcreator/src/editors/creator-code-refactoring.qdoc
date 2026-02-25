@@ -61,8 +61,6 @@
     The instances of the symbol are highlighted in code, and you can edit
     the symbol. All instances of the local symbol are changed as you type.
 
-    \sa {Find symbols}, {Specify settings for quick fixes}, {Quick Fixes},
-    {C++ Quick Fixes}
-
-    \sa {Apply quick fixes}, {QML Quick Fixes}
+    \sa {Apply quick fixes}, {Find symbols}, {Specify settings for quick fixes},
+    {QML quick fixes}, {Quick Fixes}, {C++ quick fixes}
 */

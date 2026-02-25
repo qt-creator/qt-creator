@@ -127,7 +127,7 @@
 
     \image {qtcreator-preferences-texteditor-completion.webp} {Completion tab in Text Editor preferences}
 
-    \section1 Code Completion Behavior
+    \section1 Code completion behavior
 
     By default, code completion does not consider case. To apply full or
     first-letter case-sensitivity, select \uicontrol Full or
@@ -155,7 +155,7 @@
     inserts an escape character at the cursor position and moves the rest of
     the string to the next line.
 
-    \section1 Automatically Inserting Matching Characters
+    \section1 Automatically inserting matching characters
 
     When you have selected code and enter brackets or quotes, the matching
     closing character is added automatically at the end of the selection.
@@ -198,7 +198,7 @@
     \image {qml-snippet-editor.png} {Built-in QML code snippets in the Snippets tab in Text Editor preferences}
     \caption Built-in QML code snippets.
 
-    \section1 Editing Snippets
+    \section1 Editing snippets
 
     Select a snippet in the list to edit it in the snippet editor.
 
@@ -265,7 +265,7 @@
     To discard the changes you made to a built-in snippet, select
     \uicontrol {Revert Built-in}.
 
-    \section1 Removing Snippets
+    \section1 Removing snippets
 
     The list of suggestions might show several similar built-in snippets for
     different use cases. To make it shorter when you write code, remove the
@@ -276,7 +276,7 @@
     \uicontrol Remove. To restore the removed snippets, select
     \uicontrol {Restore Removed Built-ins}.
 
-    \section1 Resetting Snippets
+    \section1 Resetting snippets
 
     To remove all added snippets and to restore all removed snippets, select
     \uicontrol {Reset All}.

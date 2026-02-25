@@ -164,7 +164,7 @@
         \li \inlineimage {numbers/06.png} {6}
         \li Select commands to automatically indent the current selection and to
             change the indentation settings.
-        \li \l{Specifying Tab Settings}
+        \li \l{Specifying tab preferences}
 
     \endtable
 
@@ -732,7 +732,7 @@
     \uicontrol {C++} > \uicontrol {Reparse Externally Changed Files} to update
     the code model.
 
-    \sa {Edit code}{How to: Edit code}, {Editing code}, {Clang Code Model},
+    \sa {Edit code}{How to: Edit code}, {Editing code}, {Clang code model},
     {Code Model}
 */
 
@@ -763,6 +763,6 @@
     resolved or that are resolved to the wrong file,
     go to \uicontrol {Project Parts} > \uicontrol {Header Paths}.
 
-    \sa {Edit code}{How to: Edit code}, {Editing code}, {Clang Code Model},
+    \sa {Edit code}{How to: Edit code}, {Editing code}, {Clang code model},
     {Code Model}
 */

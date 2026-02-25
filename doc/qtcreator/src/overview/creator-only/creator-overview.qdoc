@@ -143,7 +143,7 @@
     colors, highlighting, and indentation.
 
     If you are used to the Vim editor, run the main editor in the
-    \l {FakeVim Modes and Commands}{FakeVim mode}.
+    \l {FakeVim modes and commands}{FakeVim mode}.
 
     For more information, see \l{Edit code}{How to: Edit code},
     \l{Configuring editors}, and \l{Editors}.

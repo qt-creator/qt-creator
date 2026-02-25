@@ -12,7 +12,7 @@
     \brief Set preferences for indentation, typing, and file encoding in the
     text editor.
 
-    To specify indentation settings for text files that do not have C++ or
+    To specify indentation preferences for text files that do not have C++ or
     QML code (such as Python code files), select \preferences >
     \uicontrol {Text Editor} > \uicontrol Behavior.
 
@@ -21,9 +21,9 @@
     You can specify how to interpret the \key Tab and \key Backspace key
     presses and how to align continuation lines.
 
-    \section1 Specifying Tab Settings
+    \section1 Specifying tab preferences
 
-    You can specify tab settings at the following levels:
+    You can specify tab preferences at the following levels:
 
     \list
         \li For all C++ files
@@ -34,10 +34,10 @@
         \li For other text files in a project
     \endlist
 
-    \section2 Specifying Tabs and Indentation
+    \section2 Specifying tabs and indentation
 
     You can specify tab policy and tab size in the
-    \uicontrol {Tabs and Indentation} group. In the \uicontrol {Tab policy}
+    \uicontrol {Tabs and Indentation} group. In the \uicontrol {Default Tab policy}
     field, select whether to use only spaces or only tabs for indentation,
     or to use a mixture of them.
 
@@ -52,41 +52,65 @@
     select \uicontrol {With Spaces}. To follow the \uicontrol {Tab policy},
     select \uicontrol {With Regular Indent}.
 
-    \section1 Setting Typing Preferences
+    \section1 Setting typing preferences
 
     When you type text or code, it is indented automatically according to the
     selected text editor or code style preferences. To set typing preferences,
     select \preferences > \uicontrol {Text Editor} >
     \uicontrol Behavior > \uicontrol Typing.
 
-    To disable automatic indentation, clear
-    \uicontrol {Enable automatic indentation}.
+    The following table describes the typing preferences you can set.
 
-    You can specify how the indentation is decreased when you select
-    \uicontrol Backspace in the \uicontrol {Backspace indentation} field. To go
-    back one space at a time, select \uicontrol None. To decrease indentation
-    in leading white space by one level, select
-    \uicontrol {Follows Previous Indents}. To move back one tab length if the
-    character to the left of the cursor is a space, select
-    \uicontrol Unindents.
-
-    You can specify whether the \key Tab key automatically indents text when you
-    select it. To automatically indent text, select \uicontrol Always in the
-    \uicontrol {Tab key performs auto-indent} field. To only indent text when
-    the cursor is located within leading white space, select \uicontrol {In
-    Leading White Space}.
-
-    Your highlight definition file can have definitions for both multi and
-    single line comments. To apply the single line comment definition when
-    commenting out a selection, select \uicontrol {Prefer single line comments}.
-    In \uicontrol {Preferred comment position}, select \uicontrol Automatic to
-    let the highlight definition for the file determine the position of single
-    line comments. If no highlight definition is available, the comments are
-    placed after leading whitespace. Select \uicontrol {After Whitespace} to
-    always place them there. Select \uicontrol {At Line Start} to place single
-    line comments at the end of the line.
+    \table
+    \header
+        \li Preference
+        \li Description
+    \row
+        \li \uicontrol {Enable automatic indentation}
+        \li Automatically indent new lines according to the text editor or code
+            style preferences.
+    \row
+        \li \uicontrol {Backspace indentation}
+        \li Specify how the indentation is decreased when you select
+            \uicontrol Backspace:
+            \list
+                \li To go back one space at a time, select \uicontrol None.
+                \li To decrease indentation in leading white space by one
+                    level, select \uicontrol {Follows Previous Indents}.
+                \li To move back one tab length if the character to the left
+                    of the cursor is a space, select \uicontrol Unindents.
+            \endlist
+    \row
+        \li \uicontrol {Tab key performs auto-indent}
+        \li Specify when the \key Tab key automatically indents text:
+            \list
+                \li To always indent text, select \uicontrol Always.
+                \li To only indent text when the cursor is located within leading
+                    white space, select \uicontrol {In Leading White Space}.
+                \li To never indent text, select \uicontrol Never.
+            \endlist
+    \row
+        \li \uicontrol {Prefer single line comments}
+        \li When your highlight definition file has definitions for both multi
+            and single line comments, select this option to apply the single
+            line comment definition when commenting out a selection.
+    \row
+        \li \uicontrol {Preferred comment position}
+        \li Specify the position of single line comments when you comment out a
+            selection:
+            \list
+                \li To let the highlight definition for the file determine the
+                    position of single line comments, select \uicontrol Automatic.
+                    If no highlight definition is available, the comments are
+                    placed after leading whitespace.
+                \li To always place single line comments after leading whitespace,
+                    select \uicontrol {After Whitespace}.
+                \li To place single line comments at the end of the line, select
+                    \uicontrol {At Line Start}.
+            \endlist
+    \endtable
 
     \sa {Configure editors}{How to: Configure editors}, {Find preferences},
     {Indent text or code}, {Specify Qt Quick code style}, {Configuring editors},
-    {C++ Code Style}, {Nim}
+    {C++ code style}, {Nim}
 */

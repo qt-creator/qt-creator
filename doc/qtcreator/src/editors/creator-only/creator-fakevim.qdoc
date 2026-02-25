@@ -24,7 +24,7 @@
     To quit the FakeVim mode, go to \uicontrol Edit > \uicontrol Advanced and
     clear \uicontrol {Use FakeVim}, or select \key {Alt+Y,Alt+Y}.
 
-    \sa {FakeVim Modes and Commands}, {FakeVim}, {Change editor colors}
+    \sa {FakeVim modes and commands}, {FakeVim}, {Change editor colors}
 */
 
 /*!
@@ -33,7 +33,7 @@
 
     \ingroup creator-reference-editors
 
-    \title FakeVim Modes and Commands
+    \title FakeVim modes and commands
 
     \brief Supported Vim modes and emulated commands.
 
@@ -56,7 +56,7 @@
     For more information about using Vim, see \l{http://www.vim.org/docs.php}
     {Documentation} on the Vim web site.
 
-    \section1 Normal and Visual Modes
+    \section1 Normal and visual modes
 
     \list
         \li Basic movement, such as \c h/j/k/l, \c <C-U>, \c <C-D>, \c <C-F>,
@@ -88,7 +88,7 @@
         \li Wrap line movement, such as \c gj, \c gk, \c g0, \c g^, \c g$
     \endlist
 
-    \section1 Command-Line Mode
+    \section1 Command-line mode
 
     \list
         \li \c :map, \c :unmap, \c :inoremap, and so on
@@ -112,7 +112,7 @@
             Currently supported letters: \c fo-j
     \endlist
 
-    \section1 Insert Mode
+    \section1 Insert mode
 
     \list
         \li \c <C-O> executes a single command and returns to insert mode
@@ -216,7 +216,7 @@
         \li
     \endtable
 
-    \section1 Vimrc Example
+    \section1 Vimrc example
 
     \code
     " highlight matched
@@ -278,7 +278,7 @@
     To set prerences for Vim-style editing, go to \preferences >
     \uicontrol FakeVim.
 
-    \section1 Setting Vim Behavior
+    \section1 Setting Vim behavior
 
     To set Vim behavior, go to \preferences > \uicontrol FakeVim >
     \uicontrol General.
@@ -297,7 +297,7 @@
 
     Then change the preselected settings.
 
-    \section1 Emulating Plugins
+    \section1 Emulating plugins
 
     Select popular vim plugins to emulate in \uicontrol {Plugin Emulation}.
 
@@ -331,7 +331,7 @@
         \li Adds mappings for deleting, adding, and changing surroundings.
     \endtable
 
-    \section1 Mapping FakeVim Commands
+    \section1 Mapping FakeVim commands
 
     To map commands entered on the \uicontrol FakeVim command line to
     \QC functions:
@@ -354,7 +354,7 @@
     To reset the trigger expressions for all functions, select
     \uicontrol {Reset All}.
 
-    \section1 Mapping User Commands
+    \section1 Mapping user commands
 
     To map \e {user commands} to keyboard shortcuts, go to \preferences >
     \uicontrol FakeVim > \uicontrol {User Command Mapping}. The user command
@@ -363,5 +363,5 @@
 
     \image {qtcreator-fakevim-options-user-command-mapping.png} {User Command Mapping tab FakeVim preferences}
 
-    \sa {Edit like in Vim}, {FakeVim Modes and Commands}
+    \sa {Edit like in Vim}, {FakeVim modes and commands}
 */

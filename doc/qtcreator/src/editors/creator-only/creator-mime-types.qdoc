@@ -129,6 +129,6 @@
     changes, you permanently lose all your own patterns and magic headers.
     They are removed the next time you start \QC.
 
-    \sa {Clang Code Model}, {Managing language servers}
+    \sa {Clang code model}, {Managing language servers}
 
 */
