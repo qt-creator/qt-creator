@@ -761,19 +761,15 @@ WelcomeMode::WelcomeMode()
     const QString welcomePagePath = Core::ICore::resourcePath("qmldesigner/welcomepage").toUrlishString();
 
     m_dataModelDownloader = new DataModelDownloader(this);
-    if (!m_dataModelDownloader->exists()) { //Fallback if data cannot be downloaded
-        // TODO: Check result?
-        Utils::FilePath::fromUserInput(welcomePagePath + "/dataImports")
-            .copyRecursively(m_dataModelDownloader->targetFolder());
 
-        m_dataModelDownloader->setForceDownload(true);
-    }
-    Utils::FilePath readme = Utils::FilePath::fromUserInput(m_dataModelDownloader->targetFolder().toUrlishString()
-                                                            + "/readme.txt");
+    Utils::FilePath::fromUserInput(welcomePagePath + "/dataImports")
+        .copyRecursively(m_dataModelDownloader->targetFolder());
 
+    Utils::FilePath readme = Utils::FilePath::fromUserInput(
+        m_dataModelDownloader->targetFolder().toUrlishString() + "/readme.txt");
 
-    const Utils::Icon FLAT({{":/studiowelcome/images/mode_welcome_mask.png",
-                      Utils::Theme::IconsBaseColor}});
+    const Utils::Icon FLAT(
+        {{":/studiowelcome/images/mode_welcome_mask.png", Utils::Theme::IconsBaseColor}});
     setIcon(Icon::sideBarIcon(FLAT, FLAT));
 
     setPriority(Core::Constants::P_MODE_WELCOME);
