@@ -1075,8 +1075,12 @@ QString ContainerNode::displayName() const
 
     const FilePath fp = m_project->projectFilePath();
     const FilePath dir = fp.isDir() ? fp.absoluteFilePath() : fp.absolutePath();
-    if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir)) {
-        QString vcsTopic = vc->vcsTopic(dir);
+    FilePath topLevel;
+    if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(
+            dir, &topLevel)) {
+        vc->monitorTopic(topLevel, m_project);
+        vc->requestTopic(topLevel);
+        QString vcsTopic = vc->vcsTopic(topLevel).topic;
         if (!vcsTopic.isEmpty())
             name += " [" + vcsTopic + ']';
     }

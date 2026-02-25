@@ -335,7 +335,7 @@ void VcsPlugin::initialize()
             FilePath topLevel;
             if (Project *project = ProjectTree::currentProject())
                 vc = VcsManager::findVersionControlForDirectory(project->projectDirectory(), &topLevel);
-            return vc ? vc->vcsTopic(topLevel) : QString();
+            return vc ? vc->vcsTopicForExpansion(topLevel) : QString();
         });
 
     expander->registerVariable(Constants::VAR_VCS_TOPLEVELPATH,

@@ -243,6 +243,8 @@ void VcsManager::extensionsInitialized()
         });
         connect(vc, &IVersionControl::repositoryChanged,
                 m_instance, &VcsManager::emitRepositoryChanged);
+        connect(vc, &IVersionControl::topicChanged, m_instance,
+                [](const FilePath &repository) { emit m_instance->topicChanged(repository); });
         connect(vc, &IVersionControl::configurationChanged, m_instance, [vc] {
             m_instance->handleConfigurationChanges(vc);
         });
@@ -810,8 +812,11 @@ void VcsManager::handleConfigurationChanges(IVersionControl *vc)
 
 #ifdef WITH_TESTS
 
+#include <QApplication>
 #include <QFile>
+#include <QSaveFile>
 #include <QScopeGuard>
+#include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
 
@@ -850,6 +855,7 @@ public:
         m_id(id), m_displayName(name)
     { }
     ~TestVersionControl() final;
+    using IVersionControl::refreshTopic;
 
     bool isVcsFileOrDirectory(const FilePath &filePath) const final
     { Q_UNUSED(filePath) return false; }
@@ -949,6 +955,10 @@ class VcsManagerTest final : public QObject
 private slots:
     void testVcsManager_data();
     void testVcsManager();
+    void testAsyncTopicCache();
+    void testAsyncTopicWatcher();
+    void testAsyncTopicActivation();
+    void testAsyncTopicLifetime();
     void testTopicCacheSurvivesReentrantRefresher();
     void testTopicCacheKeepsNewerTopicFromReentrantRefresher();
 };
@@ -1060,6 +1070,149 @@ void VcsManagerTest::testVcsManager()
     Core::d->m_versionControlList = orig;
 }
 
+void VcsManagerTest::testAsyncTopicCache()
+{
+    const QList<IVersionControl *> orig = Core::d->m_versionControlList;
+    const auto restore = qScopeGuard([orig] { Core::d->m_versionControlList = orig; });
+    TestVersionControl vcs(ID_VCS_A, "A");
+    const FilePath repository = FilePath::fromString("/async-topic-test");
+    QList<quint64> requests;
+    vcs.setAsyncTopicRefresher([&](const FilePath &repo, quint64 generation, IVersionControl::TopicRefresh) {
+        QCOMPARE(repo, repository);
+        requests.append(generation);
+    });
+    QSignalSpy changed(&vcs, &IVersionControl::topicChanged);
+    QVERIFY(vcs.vcsTopic(repository).topic.isEmpty());
+    QVERIFY(requests.isEmpty());
+    vcs.requestTopic(repository);
+    vcs.requestTopic(repository);
+    QVERIFY(requests.isEmpty()); // Work must not start inside model data().
+    QTRY_COMPARE(requests.size(), 1);
+    QVERIFY(vcs.vcsTopic(repository).resolving);
+    vcs.invalidateTopic(repository);
+    vcs.refreshTopic(repository, requests.at(0), QString("obsolete"));
+    QVERIFY(vcs.vcsTopic(repository).topic.isEmpty());
+    QCOMPARE(changed.size(), 0);
+    QTRY_COMPARE(requests.size(), 2);
+    vcs.refreshTopic(repository, requests.at(1), QString("main"));
+    QCOMPARE(vcs.vcsTopic(repository).topic, "main");
+    QVERIFY(vcs.vcsTopic(repository).upToDate);
+    QCOMPARE(changed.size(), 1);
+    vcs.invalidateTopic(repository);
+    vcs.requestTopic(repository);
+    QTRY_COMPARE(requests.size(), 3);
+    vcs.refreshTopic(repository, requests.at(2), ResultError("failed"));
+    QVERIFY(vcs.vcsTopic(repository).error);
+    QVERIFY(!vcs.vcsTopic(repository).resolving);
+    QCOMPARE(vcs.vcsTopic(repository).topic, "main");
+    vcs.invalidateTopic(repository);
+    vcs.requestTopic(repository);
+    QTRY_COMPARE(requests.size(), 4);
+    // A late or duplicated completion must not terminate the current request.
+    vcs.refreshTopic(repository, requests.at(2), QString("obsolete"));
+    QVERIFY(vcs.vcsTopic(repository).resolving);
+    vcs.refreshTopic(repository, requests.at(3), QString("main"));
+    QCOMPARE(changed.size(), 1);
+    QVERIFY(!vcs.vcsTopic(repository).error);
+    QVERIFY(vcs.vcsTopic(repository).upToDate);
+}
+
+void VcsManagerTest::testAsyncTopicWatcher()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const FilePath repository = FilePath::fromString(tempDir.path());
+    QTemporaryDir otherDir;
+    QVERIFY(otherDir.isValid());
+    const FilePath other = FilePath::fromString(otherDir.path());
+    const FilePath head = repository / "HEAD";
+    const auto replaceHead = [](const FilePath &head, const QByteArray &contents) {
+        QSaveFile file(head.toFSPathString());
+        if (!file.open(QIODevice::WriteOnly) || file.write(contents) != contents.size()
+            || !file.commit()) {
+            qWarning() << head << file.errorString();
+            return false;
+        }
+        return true;
+    };
+    QVERIFY(replaceHead(head, "first"));
+    QVERIFY(replaceHead(other / "HEAD", "other"));
+    const QList<IVersionControl *> orig = Core::d->m_versionControlList;
+    const auto restore = qScopeGuard([orig] { Core::d->m_versionControlList = orig; });
+    TestVersionControl vcs(ID_VCS_A, "A");
+    int requests = 0;
+    int otherRequests = 0;
+    vcs.setAsyncTopicRefresher([&](const FilePath &repo, quint64 generation, IVersionControl::TopicRefresh) {
+        ++(repo == repository ? requests : otherRequests);
+        const FilePath path = repo / "HEAD";
+        QFile file(path.toFSPathString());
+        if (!file.open(QIODevice::ReadOnly)) {
+            vcs.refreshTopic(repo, generation, ResultError(file.errorString()));
+            return;
+        }
+        vcs.refreshTopic(repo, generation, QString::fromUtf8(file.readAll()), {repo, path});
+    });
+    vcs.requestTopic(repository);
+    vcs.requestTopic(other);
+    QTRY_COMPARE(vcs.vcsTopic(repository).topic, "first");
+    QTRY_COMPARE(otherRequests, 2); // Initial lookup and recheck after installing the watches.
+    QTRY_COMPARE(requests, 2);
+    QVERIFY(replaceHead(head, "second"));
+    QTRY_COMPARE(vcs.vcsTopic(repository).topic, "second");
+    const int previousRequests = requests;
+    // A second atomic replacement checks that the watch was restored.
+    QVERIFY(replaceHead(head, "third"));
+    QTRY_COMPARE(vcs.vcsTopic(repository).topic, "third");
+    QVERIFY(requests > previousRequests);
+    // The second replacement restores the dropped watch without refreshing the other repo.
+    QTRY_VERIFY(vcs.vcsTopic(repository).upToDate);
+    QCOMPARE(otherRequests, 2);
+}
+
+void VcsManagerTest::testAsyncTopicActivation()
+{
+    const QList<IVersionControl *> orig = Core::d->m_versionControlList;
+    const auto restore = qScopeGuard([orig] { Core::d->m_versionControlList = orig; });
+    TestVersionControl vcs(ID_VCS_A, "A");
+    const FilePath repository = FilePath::fromString("/async-topic-test");
+    int requests = 0;
+    quint64 firstGeneration = 0;
+    vcs.setAsyncTopicRefresher([&](const FilePath &repo, quint64 generation, IVersionControl::TopicRefresh refresh) {
+        QCOMPARE(refresh, IVersionControl::TopicRefresh::ResolveDirectories);
+        if (++requests == 1) {
+            firstGeneration = generation;
+            return;
+        }
+        vcs.refreshTopic(repo, generation, QString::number(requests));
+    });
+    vcs.requestTopic(repository);
+    QTRY_COMPARE(requests, 1);
+    // Reconciliation must not repeatedly obsolete a request that is still queued or running.
+    qApp->applicationStateChanged(Qt::ApplicationActive);
+    vcs.refreshTopic(repository, firstGeneration, QString("1"));
+    QCOMPARE(vcs.vcsTopic(repository).topic, "1");
+    // Model returning from another application without a repository notification.
+    qApp->applicationStateChanged(Qt::ApplicationActive);
+    QTRY_COMPARE(vcs.vcsTopic(repository).topic, "2");
+}
+
+void VcsManagerTest::testAsyncTopicLifetime()
+{
+    const QList<IVersionControl *> orig = Core::d->m_versionControlList;
+    const auto restore = qScopeGuard([orig] { Core::d->m_versionControlList = orig; });
+    bool started = false;
+    {
+        TestVersionControl vcs(ID_VCS_A, "A");
+        vcs.setAsyncTopicRefresher([&](const FilePath &, quint64, IVersionControl::TopicRefresh) { started = true; });
+        vcs.requestTopic(FilePath::fromString("/async-topic-test"));
+    }
+    QObject marker;
+    bool processed = false;
+    QMetaObject::invokeMethod(&marker, [&] { processed = true; }, Qt::QueuedConnection);
+    QTRY_VERIFY(processed);
+    QVERIFY(!started);
+}
+
 void VcsManagerTest::testTopicCacheSurvivesReentrantRefresher()
 {
     QTemporaryDir tempDir;
@@ -1094,20 +1247,20 @@ void VcsManagerTest::testTopicCacheSurvivesReentrantRefresher()
             // outer call may still hold into it.
             for (const FilePath &other : std::as_const(others))
                 vcs.vcsTopic(other);
-            reentrantTopic = vcs.vcsTopic(repo);
+            reentrantTopic = vcs.vcsTopic(repo).topic;
             reentered = true;
         }
         return QString("topic-%1").arg(repo.fileName());
     });
 
-    QCOMPARE(vcs.vcsTopic(repository), "topic-main");
+    QCOMPARE(vcs.vcsTopic(repository).topic, "topic-main");
     QVERIFY(reentered);
     // The entry is stamped before the refresher runs, so asking for the same topic from
     // inside it does not recurse: it sees the stamp, and the topic that is not there yet.
     QCOMPARE(mainRefreshes, 1);
     QCOMPARE(reentrantTopic, QString());
 
-    QCOMPARE(vcs.vcsTopic(repository), "topic-main");
+    QCOMPARE(vcs.vcsTopic(repository).topic, "topic-main");
     QCOMPARE(mainRefreshes, 1);
 }
 
@@ -1134,19 +1287,19 @@ void VcsManagerTest::testTopicCacheKeepsNewerTopicFromReentrantRefresher()
         const int refresh = ++refreshCount;
         if (refresh == 1) {
             touched = setModificationTime(trackedFile, trackedFile.lastModified().addSecs(60));
-            reentrantTopic = vcs.vcsTopic(repo);
+            reentrantTopic = vcs.vcsTopic(repo).topic;
         }
         return QString("topic-%1").arg(refresh);
     });
 
-    QCOMPARE(vcs.vcsTopic(repository), "topic-1");
+    QCOMPARE(vcs.vcsTopic(repository).topic, "topic-1");
     QVERIFY(touched);
     QCOMPARE(reentrantTopic, "topic-2");
     QCOMPARE(refreshCount, 2);
     // The outer call started from the older stamp, so its answer must not replace the
     // one the re-entrant call stored: that would pair a stale topic with a fresh stamp,
     // which never expires.
-    QCOMPARE(vcs.vcsTopic(repository), "topic-2");
+    QCOMPARE(vcs.vcsTopic(repository).topic, "topic-2");
     QCOMPARE(refreshCount, 2);
 }
 

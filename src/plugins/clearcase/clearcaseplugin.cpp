@@ -143,7 +143,7 @@ public:
 
     QString vcsOpenText() const final;
     QString vcsMakeWritableText() const final;
-    QString vcsTopic(const FilePath &directory) final;
+    VcsTopic vcsTopic(const FilePath &directory) final;
 
     ///
     ClearCaseSubmitEditor *openClearCaseSubmitEditor(const FilePath &filePath, bool isUcm);
@@ -2414,9 +2414,12 @@ QString ClearCasePluginPrivate::vcsMakeWritableText() const
     return Tr::tr("&Hijack");
 }
 
-QString ClearCasePluginPrivate::vcsTopic(const FilePath &directory)
+IVersionControl::VcsTopic ClearCasePluginPrivate::vcsTopic(const FilePath &directory)
 {
-    return ccGetView(directory).name;
+    VcsTopic result;
+    result.topic = ccGetView(directory).name;
+    result.upToDate = true;
+    return result;
 }
 
 bool ClearCasePluginPrivate::vcsCreateRepository(const FilePath &)

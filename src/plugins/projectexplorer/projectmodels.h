@@ -92,6 +92,7 @@ private:
     static const QLoggingCategory &logger();
 
     void updateSubtree(FolderNode *node);
+    void updateVcsTopic(const Utils::FilePath &repository);
     void rebuildModel();
     void addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen);
     bool trimEmptyDirectories(WrapperNode *parent);

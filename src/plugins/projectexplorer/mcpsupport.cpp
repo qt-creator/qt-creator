@@ -79,17 +79,20 @@ static QList<Project *> projectsForName(const QString &name)
     return Utils::filtered(ProjectManager::projects(), Utils::equal(&Project::displayName, name));
 }
 
-// Returns the version control branch/topic for the given project directory, or an empty
-// string when the project is not under a recognised version control system.
-static QString currentBranchForProject(const Project *p)
+// Returns the cached version control topic and its resolution state for the project.
+static Core::IVersionControl::VcsTopic currentTopicForProject(const Project *p)
 {
     if (!p)
         return {};
     const FilePath dir = p->projectDirectory();
     if (dir.isEmpty())
         return {};
-    if (Core::IVersionControl *vcs = Core::VcsManager::findVersionControlForDirectory(dir, nullptr))
-        return vcs->vcsTopic(dir);
+    FilePath topLevel;
+    if (Core::IVersionControl *vcs = Core::VcsManager::findVersionControlForDirectory(
+            dir, &topLevel)) {
+        vcs->requestTopic(topLevel);
+        return vcs->vcsTopic(topLevel);
+    }
     return {};
 }
 
@@ -106,17 +109,21 @@ static QString projectTypeFromMimeType(const QString &mimeType)
     return mimeType; // fall back to raw mime type for unknown project kinds
 }
 
-// Returns a {name, path, branch, type} JSON object for a single project.  Used by
+// Returns identity, type and cached VCS information for a single project. Used by
 // project_list (which also injects is_active) and by resolveProjects (which
 // populates the candidates array for ambiguous-name errors).
 static QJsonObject projectInfoObject(const Project *p)
 {
     if (!p)
         return {};
+    const auto topic = currentTopicForProject(p);
     return {
         {"name", p->displayName()},
         {"path", p->projectFilePath().toUserOutput()},
-        {"branch", currentBranchForProject(p)},
+        {"branch", topic.topic},
+        {"branch_up_to_date", topic.upToDate},
+        {"branch_resolving", topic.resolving},
+        {"branch_error", topic.error},
         {"type", projectTypeFromMimeType(p->mimeType())},
     };
 }
@@ -2947,8 +2954,8 @@ void registerMcpTools()
             .title("List all available projects")
             .description(
                 "Lists all loaded projects. Each entry includes the project name, its file "
-                "path, the active version control branch, and whether it is the current startup "
-                "project (is_active). Use path or branch to disambiguate when multiple "
+                "path, the cached version control branch and its freshness, and whether it is the "
+                "current startup project (is_active). Use path or branch to disambiguate when multiple "
                 "projects share the same display name (common in multi-worktree setups).")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
@@ -2965,6 +2972,15 @@ void registerMcpTools()
                                       {"name", QJsonObject{{"type", "string"}}},
                                       {"path", QJsonObject{{"type", "string"}}},
                                       {"branch", QJsonObject{{"type", "string"}}},
+                                      {"branch_up_to_date", QJsonObject{
+                                          {"type", "boolean"},
+                                          {"description", "Whether the cached topic is current."}}},
+                                      {"branch_resolving", QJsonObject{
+                                          {"type", "boolean"},
+                                          {"description", "Whether a topic refresh is pending."}}},
+                                      {"branch_error", QJsonObject{
+                                          {"type", "boolean"},
+                                          {"description", "Whether the last topic refresh failed."}}},
                                       {"type", QJsonObject{{"type", "string"}}},
                                       {"is_active", QJsonObject{{"type", "boolean"}}},
                                   }}}}})

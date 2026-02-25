@@ -35,6 +35,7 @@
 #include <utils/ansiescapecodehandler.h>
 #include <utils/algorithm.h>
 #include <utils/textfileformat.h>
+#include <utils/async.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
 #include <utils/differ.h>
@@ -2909,66 +2910,306 @@ QString GitClient::synchronousCurrentLocalBranch(const FilePath &workingDirector
     return {};
 }
 
-bool GitClient::synchronousHeadRefs(const FilePath &workingDirectory, QStringList *output,
-                                    QString *errorMessage) const
+
+static GitClient::CommandInProgress commandInProgressForGitDir(const FilePath &gitDir)
 {
-    const QStringList arguments = {"show-ref", "--head", "--abbrev=10", "--dereference"};
-    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, RunFlag::NoOutput);
-    if (result.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(arguments, workingDirectory, result.cleanedStdErr(), errorMessage);
-        return false;
-    }
-
-    const QString stdOut = result.cleanedStdOut();
-    const QString headHash = stdOut.left(10);
-    QString rest = stdOut.mid(15);
-
-    const QStringList headHashLines = Utils::filtered(
-                rest.split('\n'), [&headHash](const QString &s) { return s.startsWith(headHash); });
-    *output = Utils::transform(headHashLines, [](const QString &s) { return s.mid(11); }); // hash + space
-
-    return true;
+    if (gitDir.pathAppended("MERGE_HEAD").exists())
+        return GitClient::Merge;
+    if (gitDir.pathAppended("rebase-apply").exists())
+        return GitClient::Rebase;
+    if (gitDir.pathAppended("rebase-merge").exists())
+        return GitClient::RebaseMerge;
+    if (gitDir.pathAppended("REVERT_HEAD").exists())
+        return GitClient::Revert;
+    if (gitDir.pathAppended("CHERRY_PICK_HEAD").exists())
+        return GitClient::CherryPick;
+    return GitClient::NoCommand;
 }
 
-// Retrieve topic (branch, tag or HEAD hash)
-QString GitClient::synchronousTopic(const FilePath &workingDirectory) const
+static QString descriptionForCommandInProgress(GitClient::CommandInProgress command)
 {
-    // First try to find branch
-    const QString branch = synchronousCurrentLocalBranch(workingDirectory);
-    if (!branch.isEmpty())
-        return branch;
+    switch (command) {
+    case GitClient::NoCommand:
+        break;
+    case GitClient::Rebase:
+    case GitClient::RebaseMerge:
+        return Tr::tr("REBASING");
+    case GitClient::Revert:
+        return Tr::tr("REVERTING");
+    case GitClient::CherryPick:
+        return Tr::tr("CHERRY-PICKING");
+    case GitClient::Merge:
+        return Tr::tr("MERGING");
+    }
+    return {};
+}
 
-    // Detached HEAD, try a tag or remote branch
-    QStringList references;
-    if (!synchronousHeadRefs(workingDirectory, &references))
-        return {};
+struct TopicSnapshot
+{
+    FilePaths watchedPaths;
+    QString fingerprint;
+    QString rebaseBranch;
+    QString operation;
+    GitClient::CommandInProgress command = GitClient::NoCommand;
+};
 
-    const QString tagStart("refs/tags/");
-    const QString remoteStart("refs/remotes/");
-    const QString dereference("^{}");
-    QString remoteBranch;
-
-    for (const QString &ref : std::as_const(references)) {
-        int derefInd = ref.indexOf(dereference);
-        if (ref.startsWith(tagStart))
-            return ref.mid(tagStart.size(), (derefInd == -1) ? -1 : derefInd - tagStart.size());
-        if (ref.startsWith(remoteStart)) {
-            remoteBranch = ref.mid(remoteStart.size(),
-                                   (derefInd == -1) ? -1 : derefInd - remoteStart.size());
+static TopicSnapshot topicSnapshot(const FilePath &repository, const FilePath &gitDir,
+                                   const FilePath &commonDir)
+{
+    TopicSnapshot result;
+    FilePaths paths{repository / ".git", gitDir, commonDir,
+                    gitDir / "HEAD", gitDir / "commondir", commonDir / "packed-refs",
+                    commonDir / "refs", commonDir / "refs/tags", commonDir / "refs/remotes",
+                    commonDir / "reftable", gitDir / "rebase-merge",
+                    gitDir / "rebase-apply", gitDir / "rebase-merge/head-name",
+                    gitDir / "rebase-apply/head-name", gitDir / "MERGE_HEAD",
+                    gitDir / "REVERT_HEAD", gitDir / "CHERRY_PICK_HEAD"};
+    for (const FilePath &pointer : {repository / ".git", gitDir / "commondir"}) {
+        if (pointer.isFile()) {
+            if (const Result<QByteArray> data = pointer.fileContents(); data)
+                result.fingerprint += QString::fromUtf8(*data);
         }
     }
-    if (!remoteBranch.isEmpty())
-        return remoteBranch;
-
-    // No tag or remote branch - try git describe
-    const CommandResult result = vcsSynchronousExec(workingDirectory, QStringList{"describe"},
-                                                    RunFlag::NoOutput);
-    if (result.result() == ProcessResult::FinishedWithSuccess) {
-        const QString stdOut = result.cleanedStdOut().trimmed();
-        if (!stdOut.isEmpty())
-            return stdOut;
+    const Result<QByteArray> head = (gitDir / "HEAD").fileContents();
+    if (head) {
+        result.fingerprint += QString::fromUtf8(*head);
+        if (head->startsWith("ref: ")) {
+            FilePath ref = commonDir / QString::fromUtf8(head->mid(5).trimmed());
+            paths.append(ref);
+            if (const Result<QByteArray> value = ref.fileContents(); value)
+                result.fingerprint += QString::fromUtf8(*value);
+            // A branch may be stored in nested directories or only in packed-refs.
+            while (ref != commonDir && ref.isChildOf(commonDir)) {
+                ref = ref.parentDir();
+                paths.append(ref);
+            }
+        }
     }
-    return Tr::tr("Detached HEAD");
+    for (const FilePath &path : std::as_const(paths)) {
+        if (!path.exists())
+            continue;
+        result.fingerprint += path.toUrlishString();
+        // Metadata-directory notifications also include unrelated index/lock writes.
+        if (path != gitDir && path != commonDir && path != repository / ".git")
+            result.fingerprint += path.lastModified().toString(Qt::ISODateWithMs)
+                                  + QString::number(path.fileSize());
+        if (path.isLocal() && !result.watchedPaths.contains(path))
+            result.watchedPaths.append(path);
+    }
+    for (const char *name : {"rebase-merge/head-name", "rebase-apply/head-name"}) {
+        if (const Result<QByteArray> data = (gitDir / QString::fromLatin1(name)).fileContents(); data) {
+            result.rebaseBranch = QString::fromUtf8(data->trimmed());
+            result.fingerprint += result.rebaseBranch;
+            break;
+        }
+    }
+    result.command = commandInProgressForGitDir(gitDir);
+    result.operation = descriptionForCommandInProgress(result.command);
+    return result;
+}
+
+static QString topicFromHeadRefs(const QString &output)
+{
+    const QStringList lines = output.split('\n');
+    QString head;
+    for (const QString &line : lines) {
+        if (line.endsWith(" HEAD")) {
+            head = line.left(line.indexOf(' '));
+            break;
+        }
+    }
+    if (head.isEmpty())
+        return {};
+    QString remote;
+    for (const QString &line : lines) {
+        const int separator = line.indexOf(' ');
+        if (separator < 0 || line.left(separator) != head)
+            continue;
+        QString ref = line.mid(separator + 1);
+        if (ref.endsWith("^{}"))
+            ref.chop(3);
+        if (ref.startsWith("refs/tags/")) {
+            return ref.mid(10);
+        }
+        if (ref.startsWith("refs/remotes/"))
+            remote = ref.mid(13);
+    }
+    return remote;
+}
+
+QString GitClient::synchronousTopicForExpansion(const FilePath &repository) const
+{
+    QString topic = synchronousCurrentLocalBranch(repository);
+    if (topic.isEmpty()) {
+        const CommandResult refs = vcsSynchronousExec(
+            repository, {"show-ref", "--head", "--dereference"}, RunFlag::NoOutput);
+        if (refs.result() == ProcessResult::FinishedWithSuccess)
+            topic = topicFromHeadRefs(refs.cleanedStdOut());
+        if (topic.isEmpty()) {
+            const CommandResult describe
+                = vcsSynchronousExec(repository, QStringList{"describe"}, RunFlag::NoOutput);
+            if (describe.result() == ProcessResult::FinishedWithSuccess)
+                topic = describe.cleanedStdOut().trimmed();
+            if (topic.isEmpty())
+                topic = Tr::tr("Detached HEAD");
+        }
+    }
+    const QString operation = descriptionForCommandInProgress(checkCommandInProgress(repository));
+    if (!operation.isEmpty())
+        topic += " (" + operation + ')';
+    return topic;
+}
+
+void GitClient::asynchronousTopic(
+    const FilePath &workingDirectory,
+    const std::function<void(const TopicResult &)> &callback,
+    IVersionControl::TopicRefresh refresh)
+{
+    struct TopicInfo {
+        FilePath gitDir;
+        FilePath commonDir;
+        TopicSnapshot before;
+        TopicSnapshot after;
+        QString topic;
+        QString error;
+        CachedTopic cached;
+        QString previousFingerprint;
+        QString previousTopic;
+        bool reused = false;
+    };
+    const Storage<TopicInfo> storage;
+    const auto setup = [this, workingDirectory](Process &process, const QStringList &arguments) {
+        process.setEncoding(TextEncoding::Utf8);
+        setupCommand(process, workingDirectory, arguments);
+    };
+    const auto onDirectoriesSetup = [this, workingDirectory, setup, storage, refresh](Process &process) {
+        const CachedTopic cached = m_topicCache.value(workingDirectory);
+        storage->previousFingerprint = cached.fingerprint;
+        storage->previousTopic = cached.topic;
+        if (refresh == IVersionControl::TopicRefresh::ReuseDirectories
+            && !cached.expires.hasExpired()) {
+            storage->cached = cached;
+            storage->gitDir = cached.gitDir;
+            storage->commonDir = cached.commonDir;
+            return SetupResult::StopWithSuccess;
+        }
+        setup(process, {"rev-parse", "--git-dir", "--git-common-dir"});
+        return SetupResult::Continue;
+    };
+    const auto onDirectoriesUncachedSetup = [setup](Process &process) {
+        setup(process, {"rev-parse", "--git-dir", "--git-common-dir"});
+    };
+    const auto onDirectoriesDone = [workingDirectory, storage](const Process &process) {
+        const QStringList directories = process.cleanedStdOut().trimmed().split('\n');
+        if (process.result() != ProcessResult::FinishedWithSuccess || directories.size() != 2) {
+            storage->error = process.cleanedStdErr();
+            return DoneResult::Error;
+        }
+        storage->gitDir = workingDirectory.resolvePath(directories.at(0));
+        storage->commonDir = workingDirectory.resolvePath(directories.at(1));
+        return DoneResult::Success;
+    };
+    const auto onSnapshotSetup = [workingDirectory, storage](Async<TopicSnapshot> &task) {
+        task.setFutureSynchronizer(Utils::futureSynchronizer());
+        task.setConcurrentCallData(topicSnapshot, workingDirectory, storage->gitDir,
+                                   storage->commonDir);
+    };
+    const auto onBeforeDone = [storage](const Async<TopicSnapshot> &task) {
+        storage->before = task.result();
+    };
+    const auto onAfterDone = [storage](const Async<TopicSnapshot> &task) {
+        storage->after = task.result();
+    };
+    const auto onBranchSetup = [setup](Process &process) {
+        setup(process, {"symbolic-ref", "--quiet", "HEAD"});
+    };
+    const auto onBranchDone = [storage](const Process &process) {
+        QString branch = process.result() == ProcessResult::FinishedWithSuccess
+                             ? process.cleanedStdOut().trimmed() : storage->before.rebaseBranch;
+        if (branch.isEmpty())
+            return DoneResult::Error;
+        if (branch.startsWith("refs/heads/"))
+            branch.remove(0, 11);
+        storage->topic = branch;
+        return DoneResult::Success;
+    };
+    const auto onRefsSetup = [setup](Process &process) {
+        setup(process, {"show-ref", "--head", "--dereference"});
+    };
+    const auto onRefsDone = [storage](const Process &process) {
+        if (process.result() != ProcessResult::FinishedWithSuccess)
+            return DoneResult::Error;
+        storage->topic = topicFromHeadRefs(process.cleanedStdOut());
+        return storage->topic.isEmpty() ? DoneResult::Error : DoneResult::Success;
+    };
+    const auto onDescribeSetup = [setup](Process &process) {
+        setup(process, {"describe"});
+    };
+    const auto onDescribeDone = [storage](const Process &process) {
+        storage->topic = process.result() == ProcessResult::FinishedWithSuccess
+                             ? process.cleanedStdOut().trimmed() : QString();
+        if (storage->topic.isEmpty())
+            storage->topic = Tr::tr("Detached HEAD");
+        return DoneResult::Success;
+    };
+    const auto onResolveSetup = [storage] {
+        if (!storage->cached.expires.hasExpired()
+            && storage->cached.fingerprint == storage->before.fingerprint) {
+            storage->topic = storage->cached.topic;
+            storage->reused = true;
+            return SetupResult::StopWithSuccess;
+        }
+        return SetupResult::Continue;
+    };
+    const auto onDone = [this, workingDirectory, storage, callback](DoneWith result) {
+        const bool changed = storage->before.fingerprint != storage->after.fingerprint;
+        if (result == DoneWith::Success) {
+            if (!changed && !storage->reused) {
+                // Expiry limits reuse, but the last delivered topic is still the baseline
+                // for change detection. Evict only when admitting a new repository.
+                if (m_topicCache.size() >= 128 && !m_topicCache.contains(workingDirectory)) {
+                    const auto oldest = std::min_element(m_topicCache.begin(), m_topicCache.end(),
+                        [](const CachedTopic &left, const CachedTopic &right) {
+                            return left.expires < right.expires;
+                        });
+                    m_topicCache.erase(oldest);
+                }
+                m_topicCache[workingDirectory] = {storage->gitDir, storage->commonDir,
+                    storage->after.fingerprint, storage->topic,
+                    QDeadlineTimer(std::chrono::seconds(30))};
+            }
+            QString topic = storage->topic;
+            if (!storage->after.operation.isEmpty())
+                topic += " (" + storage->after.operation + ')';
+            const bool metadataChanged = storage->previousFingerprint != storage->after.fingerprint
+                                         || storage->previousTopic != storage->topic;
+            callback({topic, storage->after.watchedPaths, storage->after.command,
+                      changed, metadataChanged});
+        } else {
+            callback({ResultError(storage->error), storage->before.watchedPaths});
+        }
+    };
+    const Group resolve {
+        ProcessTask(onDirectoriesSetup, onDirectoriesDone),
+        AsyncTask<TopicSnapshot>(onSnapshotSetup, onBeforeDone, CallDoneFlag::OnSuccess),
+        If (QSyncTask([storage] {
+            return !storage->cached.fingerprint.isEmpty()
+                   && storage->cached.fingerprint != storage->before.fingerprint;
+        })) >> Then {
+            ProcessTask(onDirectoriesUncachedSetup, onDirectoriesDone),
+            AsyncTask<TopicSnapshot>(onSnapshotSetup, onBeforeDone, CallDoneFlag::OnSuccess)
+        },
+        Group {
+            onGroupSetup(onResolveSetup),
+            stopOnSuccess,
+            ProcessTask(onBranchSetup, onBranchDone),
+            ProcessTask(onRefsSetup, onRefsDone),
+            ProcessTask(onDescribeSetup, onDescribeDone)
+        },
+        AsyncTask<TopicSnapshot>(onSnapshotSetup, onAfterDone, CallDoneFlag::OnSuccess)
+    };
+    m_topicTaskRunner.enqueue({storage, onGroupDone(onDone),
+                              resolve.withTimeout(std::chrono::seconds(10))});
 }
 
 bool GitClient::synchronousRevParseCmd(const FilePath &workingDirectory, const QString &ref,
@@ -3559,38 +3800,9 @@ ExecutableItem GitClient::statusTask(const FilePath &workingDirectory, StatusMod
     return commandTask({workingDirectory, arguments, RunFlag::NoOutput, {}, {}, commandHandler});
 }
 
-QString GitClient::commandInProgressDescription(const FilePath &workingDirectory) const
-{
-    switch (checkCommandInProgress(workingDirectory)) {
-    case NoCommand:
-        break;
-    case Rebase:
-    case RebaseMerge:
-        return Tr::tr("REBASING");
-    case Revert:
-        return Tr::tr("REVERTING");
-    case CherryPick:
-        return Tr::tr("CHERRY-PICKING");
-    case Merge:
-        return Tr::tr("MERGING");
-    }
-    return {};
-}
-
 GitClient::CommandInProgress GitClient::checkCommandInProgress(const FilePath &workingDirectory) const
 {
-    const FilePath gitDir = findGitDirForRepository(workingDirectory);
-    if (gitDir.pathAppended("MERGE_HEAD").exists())
-        return Merge;
-    if (gitDir.pathAppended("rebase-apply").exists())
-        return Rebase;
-    if (gitDir.pathAppended("rebase-merge").exists())
-        return RebaseMerge;
-    if (gitDir.pathAppended("REVERT_HEAD").exists())
-        return Revert;
-    if (gitDir.pathAppended("CHERRY_PICK_HEAD").exists())
-        return CherryPick;
-    return NoCommand;
+    return commandInProgressForGitDir(findGitDirForRepository(workingDirectory));
 }
 
 void GitClient::continueCommandIfNeeded(const FilePath &workingDirectory, bool allowContinue)

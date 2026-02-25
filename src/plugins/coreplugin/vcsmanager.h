@@ -99,6 +99,7 @@ public:
 
 signals:
     void repositoryChanged(const Utils::FilePath &repository);
+    void topicChanged(const Utils::FilePath &repository);
     void configurationChanged(const Core::IVersionControl *vcs);
 
     void updateFileState(const Utils::FilePath &repository, const QStringList &files);

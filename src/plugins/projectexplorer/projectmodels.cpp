@@ -466,6 +466,8 @@ FlatModel::FlatModel(QObject *parent)
             this, &FlatModel::updateVCStatusFor);
     connect(VcsManager::instance(), &VcsManager::clearFileState,
             this, &FlatModel::clearVCStatusFor);
+    connect(VcsManager::instance(), &VcsManager::topicChanged,
+            this, &FlatModel::updateVcsTopic);
 }
 
 static bool compareProjectNames(const WrapperNode *lhs, const WrapperNode *rhs)
@@ -600,6 +602,18 @@ void FlatModel::updateSubtree(FolderNode *node)
         node = parent;
     if (ContainerNode *container = node->asContainerNode())
         addOrRebuildProjectModel(container->project());
+}
+
+void FlatModel::updateVcsTopic(const FilePath &repository)
+{
+    for (Project *project : ProjectManager::projects()) {
+        FilePath topLevel;
+        VcsManager::findVersionControlForDirectory(project->projectDirectory(), &topLevel);
+        if (topLevel == repository) {
+            const QModelIndex index = indexForNode(project->containerNode());
+            emit dataChanged(index, index, {Qt::DisplayRole, Qt::ToolTipRole});
+        }
+    }
 }
 
 void FlatModel::rebuildModel()

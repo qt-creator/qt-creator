@@ -17,6 +17,9 @@
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsfilestatus.h>
 
+#include <QtTaskTree/QSequentialTaskTreeRunner>
+
+#include <QDeadlineTimer>
 #include <QQueue>
 #include <QStringList>
 #include <QTimer>
@@ -335,9 +338,18 @@ public:
 
     QString synchronousCurrentLocalBranch(const Utils::FilePath &workingDirectory) const;
 
-    bool synchronousHeadRefs(const Utils::FilePath &workingDirectory, QStringList *output,
-                             QString *errorMessage = nullptr) const;
-    QString synchronousTopic(const Utils::FilePath &workingDirectory) const;
+    struct TopicResult {
+        Utils::Result<QString> topic;
+        Utils::FilePaths watchedPaths;
+        CommandInProgress command = NoCommand;
+        bool changedDuringResolution = false;
+        bool metadataChanged = false;
+    };
+    void asynchronousTopic(const Utils::FilePath &workingDirectory,
+                           const std::function<void(const TopicResult &)> &callback,
+                           Core::IVersionControl::TopicRefresh refresh
+                               = Core::IVersionControl::TopicRefresh::ReuseDirectories);
+    QString synchronousTopicForExpansion(const Utils::FilePath &repository) const;
     bool synchronousRevParseCmd(const Utils::FilePath &workingDirectory, const QString &ref,
                                 QString *output, QString *errorMessage = nullptr) const;
     QtTaskTree::GroupItem topRevision(const Utils::FilePath &workingDirectory,
@@ -397,7 +409,6 @@ public:
                                        const QtTaskTree::Storage<StatusResultData> &resultStorage) const;
 
     CommandInProgress checkCommandInProgress(const Utils::FilePath &workingDirectory) const;
-    QString commandInProgressDescription(const Utils::FilePath &workingDirectory) const;
 
     void continueCommandIfNeeded(const Utils::FilePath &workingDirectory, bool allowContinue = true);
 
@@ -517,6 +528,18 @@ private:
     QString m_diffCommit;
     Utils::FilePaths m_updatedSubmodules;
     bool m_disableSequenceEditor = false;
+    struct CachedTopic {
+        Utils::FilePath gitDir;
+        Utils::FilePath commonDir;
+        QString fingerprint;
+        QString topic;
+        QDeadlineTimer expires{0};
+    };
+#ifdef WITH_TESTS
+    friend class GitTest;
+#endif
+    QHash<Utils::FilePath, CachedTopic> m_topicCache;
+    QtTaskTree::QSequentialTaskTreeRunner m_topicTaskRunner;
 };
 
 GITSHARED_EXPORT GitClient &gitClient();

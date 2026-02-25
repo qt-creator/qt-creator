@@ -438,6 +438,7 @@ private:
     void fileCheckStateChanged(ChangedFileItem *item);
     void repositoryStatusChanged(const FilePath &repository);
     void repositoryChanged(const FilePath &repository);
+    void topicChanged(const FilePath &repository);
     void requestRefresh(bool onlyDirty);
     void requestAutomaticRefresh(const FilePath &changedFile = {});
     void activate(const QModelIndex &index);
@@ -530,6 +531,8 @@ ChangesView::ChangesView()
             this, &ChangesView::rebuildProjectTree);
     connect(VcsManager::instance(), &VcsManager::repositoryChanged,
             this, &ChangesView::repositoryChanged);
+    connect(VcsManager::instance(), &VcsManager::topicChanged,
+            this, &ChangesView::topicChanged);
     connect(EditorManager::instance(), &EditorManager::saved,
             this, [this](IDocument *document, IDocument::SaveOption option) {
         if (option != IDocument::SaveOption::AutoSave)
@@ -672,8 +675,10 @@ void ChangesView::rebuildProjectTree()
     }
 
     for (const RepositoryEntry &old : std::as_const(m_repositories)) {
-        if (!repositories.contains(old))
+        if (!repositories.contains(old)) {
+            old.vc->unmonitorTopic(old.repository, this);
             m_dirtyRepositories.remove(old.repository);
+        }
     }
     for (const RepositoryEntry &repo : std::as_const(repositories)) {
         if (!m_repositories.contains(repo))
@@ -811,7 +816,9 @@ void ChangesView::updateRepositoryItem(RepositoryItem *item)
     if (item->childCount() == keep && !item->isSubRepository())
         item->appendChild(new StaticTreeItem(Tr::tr("No changes")));
 
-    item->setTopic(vc->vcsTopic(repository));
+    vc->monitorTopic(repository, this);
+    vc->requestTopic(repository);
+    item->setTopic(vc->vcsTopic(repository).topic);
     item->update();
     restoreExpandedState(item);
     const QString key = itemKey(item);
@@ -942,18 +949,30 @@ void ChangesView::repositoryChanged(const FilePath &repository)
     }
     if (isVisible()) {
         for (const RepositoryEntry &entry : std::as_const(m_repositories)) {
-            if (entry.repository == repository)
+            if (entry.repository == repository) {
                 entry.vc->requestRepositoryStatus(repository);
+                entry.vc->requestTopic(repository);
+            }
         }
         forEachRepositoryItem([&repository](RepositoryItem *item) {
             if (item->repository() == repository) {
-                item->setTopic(item->versionControl()->vcsTopic(repository));
+                item->setTopic(item->versionControl()->vcsTopic(repository).topic);
                 item->update();
             }
         });
     } else {
         m_dirtyRepositories.insert(repository);
     }
+}
+
+void ChangesView::topicChanged(const FilePath &repository)
+{
+    forEachRepositoryItem([&repository](RepositoryItem *item) {
+        if (item->repository() == repository) {
+            item->setTopic(item->versionControl()->vcsTopic(repository).topic);
+            item->update();
+        }
+    });
 }
 
 void ChangesView::requestRefresh(bool onlyDirty)

@@ -600,8 +600,8 @@ void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusI
     const QString msg = Tr::tr("Commit changes for \"%1\".").arg(m_submitRepository.toUserOutput());
     commitEditor->document()->setPreferredDisplayName(msg);
 
-    const QString branch = vcsTopic(m_submitRepository);
-    commitEditor->setFields(m_submitRepository, branch,
+    const VcsTopic branch = vcsTopic(m_submitRepository);
+    commitEditor->setFields(m_submitRepository, branch.topic,
                             settings().userName(),
                             settings().userEmail(), status);
 }

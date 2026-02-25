@@ -191,6 +191,9 @@ StateListener::StateListener(QObject *parent) : QObject(parent)
             this, &StateListener::slotStateChanged);
     connect(VcsManager::instance(), &VcsManager::repositoryChanged,
             this, &StateListener::slotStateChanged);
+    connect(VcsManager::instance(), &VcsManager::topicChanged, this, [] {
+        EditorManager::updateWindowTitles();
+    });
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &StateListener::slotStateChanged);
@@ -221,7 +224,9 @@ QString StateListener::windowTitleVcsTopic(const FilePath &filePath)
     FilePath topLevelPath;
     IVersionControl *vc = VcsManager::findVersionControlForDirectory(
                 searchPath, &topLevelPath);
-    return (vc && !topLevelPath.isEmpty()) ? vc->vcsTopic(topLevelPath) : QString();
+    if (vc && !topLevelPath.isEmpty())
+        vc->requestTopic(topLevelPath);
+    return (vc && !topLevelPath.isEmpty()) ? vc->vcsTopic(topLevelPath).topic : QString();
 }
 
 static inline QString displayNameOfEditor(const FilePath &fileName)

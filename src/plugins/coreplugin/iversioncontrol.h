@@ -6,8 +6,9 @@
 #include "core_global.h"
 #include "vcsfilestate.h"
 
-#include <utils/id.h>
 #include <utils/filepath.h>
+#include <utils/id.h>
+#include <utils/result.h>
 
 #include <QFlags>
 #include <QObject>
@@ -152,10 +153,32 @@ public:
      */
     virtual bool vcsCreateRepository(const Utils::FilePath &directory) = 0;
 
+    struct VcsTopic {
+        QString topic;
+        bool upToDate = false;
+        bool error = false;
+        bool resolving = false;
+    };
+
     /*!
      * Returns the topic (e.g. name of the current branch).
+     *
+     * For version controls using an asynchronous topic refresher, this returns the most recently
+     * cached value and never starts external work. Use requestTopic() to start a refresh.
      */
-    virtual QString vcsTopic(const Utils::FilePath &topLevel);
+    virtual VcsTopic vcsTopic(const Utils::FilePath &topLevel);
+
+    //! Resolves a topic for one-shot consumers that cannot wait for topicChanged().
+    QString vcsTopicForExpansion(const Utils::FilePath &topLevel);
+
+    enum class TopicRefresh { ReuseDirectories, ResolveDirectories };
+
+    //! Starts resolving the topic if it is not already current or being resolved.
+    void requestTopic(const Utils::FilePath &repository);
+    //! Marks the cached topic as stale. If it is being resolved, refreshes it again on completion.
+    void invalidateTopic(const Utils::FilePath &repository, TopicRefresh refresh = TopicRefresh::ResolveDirectories);
+    void monitorTopic(const Utils::FilePath &repository, QObject *owner);
+    void unmonitorTopic(const Utils::FilePath &repository, QObject *owner);
 
     /*!
      * Display annotation for \a file and scroll to \a line.
@@ -269,12 +292,24 @@ public:
     using TopicRefresher = std::function<QString(const Utils::FilePath &)>;
     void setTopicRefresher(const TopicRefresher &topicRefresher);
 
+    using AsyncTopicRefresher = std::function<void(const Utils::FilePath &, quint64, TopicRefresh)>;
+    //! Installs a non-blocking topic refresher. It must call refreshTopic() on completion.
+    void setAsyncTopicRefresher(const AsyncTopicRefresher &topicRefresher);
+
 signals:
     void repositoryChanged(const Utils::FilePath &repository);
+    void topicChanged(const Utils::FilePath &repository);
     void filesChanged(const Utils::FilePaths &files);
     void configurationChanged();
 
+protected:
+    bool refreshTopic(const Utils::FilePath &repository, quint64 generation,
+                      const Utils::Result<QString> &topic,
+                      const Utils::FilePaths &watchedPaths = {});
+
 private:
+    void reconcileTopics();
+    void updateTopicWatches();
     Internal::IVersionControlPrivate *d;
 };
 

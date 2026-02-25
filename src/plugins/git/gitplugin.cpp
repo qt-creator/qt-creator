@@ -242,7 +242,6 @@ public:
                                const Utils::FilePath &relativePath,
                                VcsFileState vcsFileState) final;
     void vcsDescribe(const FilePath &source, const QString &id) final { gitClient().show(source, id); }
-    QString vcsTopic(const FilePath &directory) final;
 
     // Changes view
     bool supportsChangesView() const final { return true; }
@@ -388,6 +387,7 @@ public:
     void push();
     void startMergeTool();
     void updateContinueAndAbortCommands();
+    void applyCommandInProgress(GitClient::CommandInProgress command);
     void delayedPushToGerrit();
 
     Command *createCommand(QAction *action, ActionContainer *ac, Id id,
@@ -696,17 +696,30 @@ GitPluginPrivate::GitPluginPrivate()
             return gitClient().readConfigValue(currentState().topLevel(), value);
         },
         true);
-    setTopicFileTracker([](const FilePath &repository) {
-        const FilePath gitDir = gitClient().findGitDirForRepository(repository);
-        return gitDir.isEmpty() ? FilePath() : gitDir / "HEAD";
+    setTopicRefresher([](const FilePath &repository) {
+        return gitClient().synchronousTopicForExpansion(repository);
     });
-    setTopicRefresher([this](const FilePath &repository) {
-        // vcsTopic() is queried from ContainerNode::displayName() while the project tree
-        // paints, so the slots must not run right here: they may repaint, and a nested
-        // repaint of the same window flushes a backing store that has no buffer.
-        QMetaObject::invokeMethod(this, [repository] { emitRepositoryChanged(repository); },
-                                  Qt::QueuedConnection);
-        return gitClient().synchronousTopic(repository);
+    setAsyncTopicRefresher([this](const FilePath &repository, quint64 generation, TopicRefresh refresh) {
+        const QPointer<GitPluginPrivate> guard(this);
+        const auto onDone = [guard, repository, generation](const GitClient::TopicResult &result) {
+            if (!guard)
+                return;
+            if (result.changedDuringResolution)
+                guard->invalidateTopic(repository);
+            const bool accepted = guard->refreshTopic(repository, generation, result.topic,
+                                                       result.watchedPaths);
+            if (!guard || !result.topic || !accepted)
+                return;
+            if (guard->currentState().topLevel() == repository)
+                guard->applyCommandInProgress(result.command);
+            if (!result.metadataChanged)
+                return;
+            QMetaObject::invokeMethod(guard.data(), [guard, repository] {
+                if (guard)
+                    guard->updateBranches(repository);
+            }, Qt::QueuedConnection);
+        };
+        gitClient().asynchronousTopic(repository, onDone, refresh);
     });
 
     m_fileActions.reserve(10);
@@ -1195,6 +1208,14 @@ GitPluginPrivate::GitPluginPrivate()
             this, &GitPluginPrivate::updateContinueAndAbortCommands);
     connect(VcsManager::instance(), &VcsManager::repositoryChanged,
             this, &GitPluginPrivate::updateBranches, Qt::QueuedConnection);
+    connect(VcsManager::instance(), &VcsManager::repositoryChanged,
+            this, [this](const FilePath &repository) {
+        FilePath topLevel;
+        if (VcsManager::findVersionControlForDirectory(repository, &topLevel) != this)
+            return;
+        invalidateTopic(topLevel);
+        requestTopic(topLevel);
+    });
 
     /* "Gerrit" */
     m_gerritPlugin.addToMenu(remoteRepositoryMenu);
@@ -2008,27 +2029,32 @@ void GitPluginPrivate::updateActions(VersionControlBase::ActionState as)
     m_gerritPlugin.updateActions(state);
 }
 
+void GitPluginPrivate::applyCommandInProgress(GitClient::CommandInProgress gitCommandInProgress)
+{
+    m_mergeToolAction->setVisible(gitCommandInProgress != GitClient::NoCommand);
+    m_openMergeEditorAction->setVisible(gitCommandInProgress != GitClient::NoCommand);
+    m_abortMergeAction->setVisible(gitCommandInProgress == GitClient::Merge);
+    m_abortCherryPickAction->setVisible(gitCommandInProgress == GitClient::CherryPick);
+    m_abortRevertAction->setVisible(gitCommandInProgress == GitClient::Revert);
+    m_abortRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
+                                    || gitCommandInProgress == GitClient::RebaseMerge);
+    m_skipRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
+                                    || gitCommandInProgress == GitClient::RebaseMerge);
+    m_continueCherryPickAction->setVisible(gitCommandInProgress == GitClient::CherryPick);
+    m_continueRevertAction->setVisible(gitCommandInProgress == GitClient::Revert);
+    m_continueRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
+                                       || gitCommandInProgress == GitClient::RebaseMerge);
+    m_fixupCommitAction->setEnabled(gitCommandInProgress == GitClient::NoCommand);
+    m_interactiveRebaseAction->setEnabled(gitCommandInProgress == GitClient::NoCommand);
+}
+
 void GitPluginPrivate::updateContinueAndAbortCommands()
 {
     if (currentState().hasTopLevel()) {
         GitClient::CommandInProgress gitCommandInProgress =
                 gitClient().checkCommandInProgress(currentState().topLevel());
 
-        m_mergeToolAction->setVisible(gitCommandInProgress != GitClient::NoCommand);
-        m_openMergeEditorAction->setVisible(gitCommandInProgress != GitClient::NoCommand);
-        m_abortMergeAction->setVisible(gitCommandInProgress == GitClient::Merge);
-        m_abortCherryPickAction->setVisible(gitCommandInProgress == GitClient::CherryPick);
-        m_abortRevertAction->setVisible(gitCommandInProgress == GitClient::Revert);
-        m_abortRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
-                                        || gitCommandInProgress == GitClient::RebaseMerge);
-        m_skipRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
-                                        || gitCommandInProgress == GitClient::RebaseMerge);
-        m_continueCherryPickAction->setVisible(gitCommandInProgress == GitClient::CherryPick);
-        m_continueRevertAction->setVisible(gitCommandInProgress == GitClient::Revert);
-        m_continueRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
-                                           || gitCommandInProgress == GitClient::RebaseMerge);
-        m_fixupCommitAction->setEnabled(gitCommandInProgress == GitClient::NoCommand);
-        m_interactiveRebaseAction->setEnabled(gitCommandInProgress == GitClient::NoCommand);
+        applyCommandInProgress(gitCommandInProgress);
     } else {
         m_mergeToolAction->setVisible(false);
         m_openMergeEditorAction->setVisible(false);
@@ -2409,15 +2435,6 @@ bool GitPluginPrivate::vcsFileAction(const FilePath &topLevel, const FilePath &f
     return false;
 }
 
-QString GitPluginPrivate::vcsTopic(const FilePath &directory)
-{
-    QString topic = IVersionControl::vcsTopic(directory);
-    const QString commandInProgress = gitClient().commandInProgressDescription(directory);
-    if (!commandInProgress.isEmpty())
-        topic += " (" + commandInProgress + ')';
-    return topic;
-}
-
 ExecutableItem GitPluginPrivate::cloneTask(const CloneTaskData &data) const
 {
     const CommandLine command{gitClient().vcsBinary(data.baseDirectory),
@@ -2537,6 +2554,8 @@ class GitTest final : public QObject
     Q_OBJECT
 
 private slots:
+    void testAsyncTopic_data();
+    void testAsyncTopic();
     void testStatusParsing_data();
     void testStatusParsing();
     void testColorfulStatus();
@@ -2598,6 +2617,146 @@ private slots:
     void testShowDiffAlgorithms();
     void testRebaseAction();
 };
+
+void GitTest::testAsyncTopic_data()
+{
+    QTest::addColumn<QString>("mode");
+    QTest::addColumn<QString>("expected");
+    QTest::newRow("unborn") << "unborn" << "main";
+    QTest::newRow("branch") << "branch" << "main";
+    QTest::newRow("unicode") << "unicode" << QString::fromUtf8("topic-\303\244");
+    QTest::newRow("detached") << "detached" << "Detached HEAD";
+    QTest::newRow("tag") << "tag" << "test-tag";
+    QTest::newRow("annotated-tag") << "annotated-tag" << "test-tag";
+    QTest::newRow("remote") << "remote" << "origin/main";
+    QTest::newRow("merge") << "merge" << "main (MERGING)";
+    QTest::newRow("revert") << "revert" << "main (REVERTING)";
+    QTest::newRow("cherry-pick") << "cherry-pick" << "main (CHERRY-PICKING)";
+    QTest::newRow("rebase") << "rebase" << "main (REBASING)";
+    QTest::newRow("worktree") << "worktree" << "linked";
+    QTest::newRow("invalid") << "invalid" << "";
+}
+
+void GitTest::testAsyncTopic()
+{
+    QFETCH(QString, mode);
+    QFETCH(QString, expected);
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    FilePath repository = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [&repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    if (mode != "invalid") {
+        QVERIFY(runGit({"init", "-b", "main", "."}));
+        QVERIFY(runGit({"config", "user.name", "Test"}));
+        QVERIFY(runGit({"config", "user.email", "test@example.com"}));
+        QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
+        QVERIFY(runGit({"config", "tag.gpgsign", "false"}));
+        if (mode != "unborn")
+            QVERIFY(runGit({"-c", "core.hooksPath=", "commit", "--allow-empty", "-m", "initial"}));
+        if (mode == "detached" || mode.contains("tag") || mode == "remote" || mode == "rebase")
+            QVERIFY(runGit({"checkout", "--detach"}));
+        if (mode == "unicode")
+            QVERIFY(runGit({"checkout", "-b", expected}));
+        if (mode == "tag")
+            QVERIFY(runGit({"tag", "test-tag"}));
+        if (mode == "annotated-tag")
+            QVERIFY(runGit({"tag", "-a", "test-tag", "-m", "annotated"}));
+        if (mode == "remote")
+            QVERIFY(runGit({"update-ref", "refs/remotes/origin/main", "HEAD"}));
+        if (mode == "merge")
+            QVERIFY((repository / ".git/MERGE_HEAD").writeFileContents("marker"));
+        if (mode == "revert")
+            QVERIFY((repository / ".git/REVERT_HEAD").writeFileContents("marker"));
+        if (mode == "cherry-pick")
+            QVERIFY((repository / ".git/CHERRY_PICK_HEAD").writeFileContents("marker"));
+        if (mode == "rebase") {
+            QVERIFY((repository / ".git/rebase-merge").ensureWritableDir());
+            QVERIFY((repository / ".git/rebase-merge/head-name").writeFileContents("refs/heads/main"));
+        }
+        if (mode == "worktree") {
+            const FilePath linked = repository / "linked";
+            QVERIFY(runGit({"worktree", "add", "-b", "linked", linked.toUrlishString()}));
+            repository = linked;
+        }
+    }
+    struct State {
+        bool done = false;
+        bool success = false;
+        bool changed = false;
+        bool metadataChanged = false;
+        QString topic;
+        FilePaths paths;
+        GitClient::CommandInProgress command = GitClient::NoCommand;
+    };
+    const auto state = std::make_shared<State>();
+    const auto onDone = [state](const GitClient::TopicResult &result) {
+        state->success = bool(result.topic);
+        if (result.topic)
+            state->topic = *result.topic;
+        state->paths = result.watchedPaths;
+        state->changed = result.changedDuringResolution;
+        state->metadataChanged = result.metadataChanged;
+        state->command = result.command;
+        state->done = true;
+    };
+    gitClient().asynchronousTopic(repository, onDone);
+    QVERIFY(!state->done);
+    QTRY_VERIFY(state->done);
+    QCOMPARE(state->success, mode != "invalid");
+    QCOMPARE(state->metadataChanged, mode != "invalid");
+    QCOMPARE(state->topic, expected);
+    QVERIFY(!state->changed);
+    const auto expectedCommand = mode == "merge" ? GitClient::Merge
+        : mode == "rebase" ? GitClient::RebaseMerge
+        : mode == "revert" ? GitClient::Revert
+        : mode == "cherry-pick" ? GitClient::CherryPick : GitClient::NoCommand;
+    QCOMPARE(state->command, expectedCommand);
+    if (mode == "worktree") {
+        QVERIFY(state->paths.contains(repository / ".git"));
+        QVERIFY(state->paths.contains(repository.parentDir() / ".git"));
+    }
+    if (mode != "invalid") {
+        state->done = false;
+        gitClient().asynchronousTopic(repository, onDone);
+        QTRY_VERIFY(state->done);
+        QVERIFY(state->success);
+        QCOMPARE(state->topic, expected);
+        QVERIFY(!state->changed);
+        QVERIFY(!state->metadataChanged);
+    }
+    if (mode == "branch") {
+        GitClient &client = gitClient();
+        client.m_topicCache[repository].expires = QDeadlineTimer(0);
+        QTemporaryDir otherDir;
+        QVERIFY(otherDir.isValid());
+        const FilePath other = FilePath::fromString(otherDir.path());
+        QVERIFY(client.vcsSynchronousExec(other, {"init", "-b", "main", "."}).result()
+                == ProcessResult::FinishedWithSuccess);
+        state->done = false;
+        client.asynchronousTopic(other, onDone);
+        QTRY_VERIFY(state->done);
+        QVERIFY(state->success);
+        state->done = false;
+        client.asynchronousTopic(repository, onDone);
+        QTRY_VERIFY(state->done);
+        QVERIFY(state->success);
+        QVERIFY(!state->metadataChanged);
+
+        IVersionControl *vcs = VcsManager::versionControl(Id(VcsBase::Constants::VCS_ID_GIT));
+        QVERIFY(vcs);
+        QCOMPARE(vcs->vcsTopicForExpansion(repository), QString("main"));
+        QVERIFY(runGit({"checkout", "-b", "second"}));
+        QCOMPARE(vcs->vcsTopicForExpansion(repository), QString("second"));
+        state->done = false;
+        gitClient().asynchronousTopic(repository, onDone);
+        QTRY_VERIFY(state->done);
+        QCOMPARE(state->topic, "second");
+        QVERIFY(state->metadataChanged);
+    }
+}
 
 void GitTest::testStatusParsing_data()
 {
