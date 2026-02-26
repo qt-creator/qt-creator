@@ -66,7 +66,7 @@ Group androidKicker(const QStoredBarrier &barrier, RunControl *runControl)
                 serialNumberStorage,
                 startAvdRecipe(info.avdName, serialNumberStorage)
             }.withCancel([glueStorage] {
-                return std::make_pair(glueStorage.activeStorage(), &RunnerInterface::canceled);
+                return makeObjectSignal(glueStorage.activeStorage(), &RunnerInterface::canceled);
             });
         }
     } else {

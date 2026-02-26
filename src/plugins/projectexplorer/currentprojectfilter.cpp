@@ -10,6 +10,7 @@
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
+using namespace QtTaskTree;
 using namespace Utils;
 
 CurrentProjectFilter::CurrentProjectFilter()

@@ -56,9 +56,10 @@
 
 using namespace Core;
 using namespace ExtensionSystem;
+using namespace QtTaskTree;
 using namespace Utils;
-using namespace StyleHelper;
-using namespace SpacingTokens;
+using namespace Utils::StyleHelper;
+using namespace Utils::StyleHelper::SpacingTokens;
 using namespace WelcomePageHelpers;
 
 namespace ExtensionManager::Internal {

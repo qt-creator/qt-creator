@@ -48,6 +48,6 @@ private:
     class FileStreamerPrivate *d = nullptr;
 };
 
-using FileStreamerTask = QCustomTask<FileStreamer>;
+using FileStreamerTask = QtTaskTree::QCustomTask<FileStreamer>;
 
 } // namespace Utils

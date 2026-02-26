@@ -77,8 +77,8 @@ class ProgressPromise : public QPromise<void>
 public:
     struct Progress
     {
-        int value;
-        int max;
+        qsizetype value;
+        qsizetype max;
         Progress operator+(const Progress &other) const
         {
             return {value + other.value, max + other.max};

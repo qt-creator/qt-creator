@@ -133,7 +133,7 @@ void SelectableFilesFromDirModel::startParsing(const FilePath &baseDir)
         endResetModel();
         emit parsingFinished();
     };
-    m_taskTreeRunner.start({AsyncTask<ResultType>(onSetup, onDone, CallDone::OnSuccess)});
+    m_taskTreeRunner.start({AsyncTask<ResultType>(onSetup, onDone, CallDoneFlag::OnSuccess)});
 }
 
 void SelectableFilesFromDirModel::cancel()

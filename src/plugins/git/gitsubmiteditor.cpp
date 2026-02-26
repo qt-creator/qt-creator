@@ -254,7 +254,7 @@ void GitSubmitEditor::updateFileModel()
         progress->setId(TASK_UPDATE_COMMIT);
     };
     m_taskTreeRunner.start(
-        {AsyncTask<ResultType>(onSetup, onDone, CallDone::OnSuccess)},
+        {AsyncTask<ResultType>(onSetup, onDone, CallDoneFlag::OnSuccess)},
         onTreeSetup);
 }
 

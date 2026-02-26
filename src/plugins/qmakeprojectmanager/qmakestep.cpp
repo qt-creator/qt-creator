@@ -302,7 +302,7 @@ QtTaskTree::GroupItem QMakeStep::runRecipe()
         onGroupSetup(onSetup),
         ProcessTask(onQMakeSetup, onProcessDone),
         m_runMakeQmake ? ProcessTask(onMakeQMakeSetup, onProcessDone) : nullItem,
-        onGroupDone(onDone, CallDone::OnSuccess)
+        onGroupDone(onDone, CallDoneFlag::OnSuccess)
     };
 }
 

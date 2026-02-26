@@ -110,7 +110,7 @@ Group pipInstallerTask(const PipInstallerData &data)
 
     using namespace std::literals::chrono_literals;
     return {
-        ProcessTask(onSetup, onDone, CallDone::OnError)
+        ProcessTask(onSetup, onDone, CallDoneFlag::OnError)
             .withTimeout(5min, onTimeout)
     };
 }

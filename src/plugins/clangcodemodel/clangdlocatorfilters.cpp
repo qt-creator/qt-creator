@@ -186,7 +186,7 @@ static ExecutableItem currentDocumentMatcher()
 
     const Group root {
         resultStorage,
-        CurrentDocumentSymbolsRequestTask({}, onQueryDone, CallDone::OnSuccess),
+        CurrentDocumentSymbolsRequestTask({}, onQueryDone, CallDoneFlag::OnSuccess),
         AsyncTask<void>(onFilterSetup)
     };
     return root;

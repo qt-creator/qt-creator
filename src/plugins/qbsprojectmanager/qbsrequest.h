@@ -44,6 +44,6 @@ private:
     QbsRequestObject *m_requestObject = nullptr;
 };
 
-using QbsRequestTask = QCustomTask<QbsRequest>;
+using QbsRequestTask = QtTaskTree::QCustomTask<QbsRequest>;
 
 } // namespace QbsProjectManager::Internal

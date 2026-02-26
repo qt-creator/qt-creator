@@ -93,7 +93,7 @@ public:
 private:
     void updateUserModeDevices();
     IosDeviceManager(QObject *parent = nullptr);
-    QMappedTaskTreeRunner<QString> m_updatesRunner; // deviceid->task
+    QtTaskTree::QMappedTaskTreeRunner<QString> m_updatesRunner; // deviceid->task
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
     QPointer<QMessageBox> m_devModeDialog;

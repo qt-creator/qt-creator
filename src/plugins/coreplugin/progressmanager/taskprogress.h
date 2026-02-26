@@ -12,7 +12,7 @@
 #include <chrono>
 
 QT_BEGIN_NAMESPACE
-class QTaskTree;
+namespace QtTaskTree { class QTaskTree; }
 QT_END_NAMESPACE
 
 namespace Core {
@@ -24,7 +24,7 @@ class CORE_EXPORT TaskProgress : public QObject
     Q_OBJECT
 
 public:
-    TaskProgress(QTaskTree *taskTree); // Makes TaskProgress a child of task tree
+    TaskProgress(QtTaskTree::QTaskTree *taskTree); // Makes TaskProgress a child of task tree
     ~TaskProgress() override;
 
     void setId(Utils::Id id);

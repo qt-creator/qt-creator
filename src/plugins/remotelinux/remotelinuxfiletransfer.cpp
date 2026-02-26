@@ -26,6 +26,7 @@
 #include <utils/temporaryfile.h>
 
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace RemoteLinux::Internal {
@@ -374,8 +375,6 @@ public:
 private:
     void start() final
     {
-        using namespace QtTaskTree;
-
         const QSet<FilePath> allParentDirs
             = Utils::transform<QSet>(m_setup.m_files, [](const FileToTransfer &f) {
                   return f.m_target.parentDir();

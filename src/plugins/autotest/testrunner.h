@@ -67,7 +67,7 @@ private:
     bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
     void onBuildSystemUpdated();
 
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 
     QList<ITestConfiguration *> m_selectedTests;
     TestRunMode m_runMode = TestRunMode::None;

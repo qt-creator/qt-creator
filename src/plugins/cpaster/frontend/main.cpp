@@ -47,7 +47,7 @@ public:
             QCoreApplication::exit(EXIT_FAILURE);
             return;
         }
-        QTaskTree::runBlocking({m_protocol->pasteRecipe({content}, [](const QString &link) {
+        QtTaskTree::QTaskTree::runBlocking({m_protocol->pasteRecipe({content}, [](const QString &link) {
             std::cout << qPrintable(link) << std::endl;
         })});
         QCoreApplication::quit();

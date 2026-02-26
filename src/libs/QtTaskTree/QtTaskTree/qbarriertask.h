@@ -1,9 +1,11 @@
 // Copyright (C) 2025 Jarek Kobus
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
 
-#ifndef QBARRIERTASK_H
-#define QBARRIERTASK_H
+
+#ifndef QTASKTREE_QBARRIERTASK_H
+#define QTASKTREE_QBARRIERTASK_H
 
 #include <QtTaskTree/qttasktreeglobal.h>
 
@@ -13,6 +15,12 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace QtTaskTree { class WhenPrivate; }
+
+QT_DECLARE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::WhenPrivate)
+
+namespace QtTaskTree {
+
 class QBarrierPrivate;
 
 class Q_TASKTREE_EXPORT QBarrier : public QObject
@@ -21,67 +29,48 @@ class Q_TASKTREE_EXPORT QBarrier : public QObject
     Q_DECLARE_PRIVATE(QBarrier)
 
 public:
-    QBarrier(QObject *parent = nullptr);
+    QBarrier() : QBarrier(nullptr) {}
+    explicit QBarrier(QObject *parent);
     ~QBarrier() override;
 
-    void setLimit(int value);
-    int limit() const;
+    void setLimit(qsizetype value);
+    qsizetype limit() const;
 
     void start();
     void advance();
-    void stopWithResult(QtTaskTree::DoneResult result);
+    void stopWithResult(DoneResult result);
 
     bool isRunning() const;
-    int current() const;
-    std::optional<QtTaskTree::DoneResult> result() const;
+    qsizetype current() const;
+    std::optional<DoneResult> result() const;
 
 Q_SIGNALS:
     void done(QtTaskTree::DoneResult success, QPrivateSignal);
+
+protected:
+    bool event(QEvent *event) override;
 };
 
 using QBarrierTask = QCustomTask<QBarrier>;
 
-template <int Limit = 1>
-class QStartedBarrier : public QBarrier
+class Q_TASKTREE_EXPORT QStartedBarrier : public QBarrier
 {
+    Q_OBJECT
+
 public:
-    static_assert(Limit > 0, "StartedBarrier's limit should be 1 or more.");
-    QStartedBarrier(QObject *parent = nullptr)
-        : QBarrier(parent)
-    {
-        setLimit(Limit);
-        start();
-    }
+    QStartedBarrier() : QStartedBarrier(nullptr) {}
+    explicit QStartedBarrier(QObject *parent);
+    explicit QStartedBarrier(qsizetype limit, QObject *parent = nullptr);
+
+    ~QStartedBarrier() override;
+
+protected:
+    bool event(QEvent *event) override;
 };
 
-template <int Limit = 1>
-using QStoredMultiBarrier = QtTaskTree::Storage<QStartedBarrier<Limit>>;
-using QStoredBarrier = QStoredMultiBarrier<1>;
+using QStoredBarrier = Storage<QStartedBarrier>;
 
-namespace QtTaskTree {
-
-template <int Limit>
-ExecutableItem barrierAwaiterTask(const QStoredMultiBarrier<Limit> &storedBarrier)
-{
-    return QBarrierTask([storedBarrier](QBarrier &barrier) {
-        QBarrier *activeBarrier = storedBarrier.activeStorage();
-        if (!activeBarrier) {
-            qWarning("The barrier referenced from WaitForBarrier element "
-                     "is not reachable in the running tree. "
-                     "It is possible that no barrier was added to the tree, "
-                     "or the barrier is not reachable from where it is referenced. "
-                     "The WaitForBarrier task finishes with an error. ");
-            return SetupResult::StopWithError;
-        }
-        const std::optional<DoneResult> result = activeBarrier->result();
-        if (result.has_value()) {
-            return *result == DoneResult::Success ? SetupResult::StopWithSuccess
-                                                  : SetupResult::StopWithError;
-        }
-        QObject::connect(activeBarrier, &QBarrier::done, &barrier, &QBarrier::stopWithResult);
-        return SetupResult::Continue;
-    });
-}
+Q_TASKTREE_EXPORT ExecutableItem barrierAwaiterTask(const QStoredBarrier &storedBarrier);
 
 template <typename Signal>
 ExecutableItem signalAwaiterTask(const typename QtPrivate::FunctionPointer<Signal>::Object *sender,
@@ -94,8 +83,6 @@ ExecutableItem signalAwaiterTask(const typename QtPrivate::FunctionPointer<Signa
 
 using BarrierKickerGetter = std::function<ExecutableItem(const QStoredBarrier &)>;
 
-class WhenPrivate;
-
 class When final
 {
 public:
@@ -107,13 +94,8 @@ public:
                   WorkflowPolicy policy = WorkflowPolicy::StopOnError)
         : When(kickerForSignal(customTask, signal), policy)
     {}
-    Q_TASKTREE_EXPORT ~When();
-    Q_TASKTREE_EXPORT When(const When &other);
-    Q_TASKTREE_EXPORT When(When &&other) noexcept;
-    Q_TASKTREE_EXPORT When &operator=(const When &other);
-    QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_MOVE_AND_SWAP(When)
 
-    void swap(When &other) noexcept { d.swap(other.d); }
+    QT_TASKTREE_DECLARE_SMFS(When, Q_TASKTREE_EXPORT)
 
 private:
     Q_TASKTREE_EXPORT friend Group operator>>(const When &whenItem, const Do &doItem);
@@ -146,4 +128,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif // QBARRIERTASK_H
+#endif // QTASKTREE_QBARRIERTASK_H

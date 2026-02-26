@@ -366,7 +366,7 @@ private:
     // Async stuff
     QtSupport::ProFileReader *m_readerExact = nullptr;
     QtSupport::ProFileReader *m_readerCumulative = nullptr;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace QmakeProjectManager

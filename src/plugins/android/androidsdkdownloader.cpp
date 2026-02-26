@@ -185,8 +185,8 @@ GroupItem downloadSdkRecipe()
         AndroidConfig::setTemporarySdkToolsPath(
             storage->sdkFileName->parentDir().pathAppended(Constants::cmdlineToolsName));
     };
-    const auto onCancelSetup = [storage] { return std::make_pair(storage->progressDialog.get(),
-                                                                 &QProgressDialog::canceled); };
+    const auto onCancelSetup = [storage] { return makeObjectSignal(storage->progressDialog.get(),
+                                                                   &QProgressDialog::canceled); };
 
     return Group {
         storage,
@@ -194,7 +194,7 @@ GroupItem downloadSdkRecipe()
             onGroupSetup(onSetup),
             QNetworkReplyWrapperTask(onQuerySetup, onQueryDone),
             AsyncTask<void>(onValidationSetup, onValidationDone),
-            UnarchiverTask(onUnarchiveSetup, onUnarchiverDone, CallDone::OnSuccess | CallDone::OnError)
+            UnarchiverTask(onUnarchiveSetup, onUnarchiverDone, CallDoneFlag::OnSuccess | CallDoneFlag::OnError)
         }.withCancel(onCancelSetup)
     };
 }

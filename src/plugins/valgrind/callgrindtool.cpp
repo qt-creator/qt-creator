@@ -944,7 +944,7 @@ ExecutableItem CallgrindTool::parseRecipe()
     return Group {
         storage,
         FileStreamerTask(onTransferSetup),
-        AsyncTask<ParseDataPtr>(onParserSetup, onParserDone, CallDone::OnSuccess),
+        AsyncTask<ParseDataPtr>(onParserSetup, onParserDone, CallDoneFlag::OnSuccess),
     };
 }
 

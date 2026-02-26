@@ -76,7 +76,7 @@ private:
 
     Internal::DiffEditorDocument *const m_document;
     QString m_displayName;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     QtTaskTree::Group m_reloadRecipe;
 };
 

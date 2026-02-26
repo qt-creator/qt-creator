@@ -15,6 +15,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace CppEditor::Internal {

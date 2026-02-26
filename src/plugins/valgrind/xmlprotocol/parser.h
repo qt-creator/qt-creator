@@ -56,7 +56,7 @@ private:
 class ParserTaskAdapter final
 {
 public:
-    void operator()(Parser *task, QTaskInterface *iface)
+    void operator()(Parser *task, QtTaskTree::QTaskInterface *iface)
     {
         QObject::connect(task, &Parser::done, iface, [iface](const Utils::Result<> &result) {
             iface->reportDone(QtTaskTree::toDoneResult(result == Utils::ResultOk));
@@ -65,6 +65,6 @@ public:
     }
 };
 
-using ParserTask = QCustomTask<Parser, ParserTaskAdapter>;
+using ParserTask = QtTaskTree::QCustomTask<Parser, ParserTaskAdapter>;
 
 } // Valgrind::XmlProtocol

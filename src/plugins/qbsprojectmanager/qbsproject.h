@@ -148,7 +148,7 @@ private:
     QJsonObject m_projectData; // TODO: Perhaps store this in the root project node instead?
 
     QbsProjectParser *m_qbsProjectParser = nullptr;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     Utils::Environment m_lastParseEnv;
     std::unique_ptr<QbsRequest> m_parseRequest;
 

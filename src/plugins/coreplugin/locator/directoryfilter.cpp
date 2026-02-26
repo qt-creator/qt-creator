@@ -96,7 +96,7 @@ DirectoryFilter::DirectoryFilter(Id id)
     };
     const Group root {
         onGroupSetup(groupSetup),
-        AsyncTask<FilePaths>(onSetup, onDone, CallDone::OnSuccess)
+        AsyncTask<FilePaths>(onSetup, onDone, CallDoneFlag::OnSuccess)
     };
     setRefreshRecipe(root);
 }

@@ -75,7 +75,7 @@ private:
     QList<ILocatorFilter *> m_customFilters;
     QMap<Utils::Id, QAction *> m_filterActionMap;
     QTimer m_refreshTimer;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     QList<ILocatorFilter *> m_refreshingFilters;
 };
 

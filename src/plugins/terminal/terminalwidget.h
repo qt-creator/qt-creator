@@ -113,7 +113,7 @@ private:
 
     Internal::ShortcutMap m_shortcutMap;
 
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Terminal

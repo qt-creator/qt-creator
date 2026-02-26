@@ -144,7 +144,7 @@ private:
     QQueue<TestResult> m_buffered;
     std::optional<TestResult> m_lastCurrentMessage = std::nullopt;
     QTimer m_bufferTimer;
-    QSingleTaskTreeRunner m_pendingRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_pendingRunner;
 };
 
 } // namespace Internal

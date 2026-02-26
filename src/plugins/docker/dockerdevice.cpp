@@ -81,9 +81,10 @@
 #endif
 
 using namespace Core;
-using namespace ProjectExplorer;
-using namespace Utils;
 using namespace Docker::Internal;
+using namespace ProjectExplorer;
+using namespace QtTaskTree;
+using namespace Utils;
 
 Q_LOGGING_CATEGORY(dockerDeviceLog, "qtc.docker.device", QtWarningMsg);
 

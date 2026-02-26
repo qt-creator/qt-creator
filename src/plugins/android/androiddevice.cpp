@@ -700,7 +700,7 @@ void AndroidDevice::startAvd()
     const Group recipe {
         serialNumberStorage,
         startAvdRecipe(avdName(), serialNumberStorage),
-        onGroupDone(onDone, CallDone::OnSuccess)
+        onGroupDone(onDone, CallDoneFlag::OnSuccess)
     };
 
     d->m_taskTreeRunner.start(recipe);
@@ -1275,7 +1275,7 @@ Group createAvdRecipe(const Storage<std::optional<QString>> &errorStorage,
 
     return {
         storage,
-        ProcessTask(onSetup, onDone, CallDone::OnError)
+        ProcessTask(onSetup, onDone, CallDoneFlag::OnError)
     };
 }
 

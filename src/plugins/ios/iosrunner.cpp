@@ -449,7 +449,7 @@ static Group deviceCtlPollingTask(RunControl *runControl, const Storage<AppInfo>
         Group {
             Forever {
                 timeoutTask(500ms, DoneResult::Success),
-                ProcessTask(onPollSetup, onPollDone, CallDone::OnSuccess | CallDone::OnError)
+                ProcessTask(onPollSetup, onPollDone, CallDoneFlag::OnSuccess | CallDoneFlag::OnError)
             }.withCancel(runControl->canceler(), {
                 ProcessTask(onStopSetup, onStopDone)
             }),

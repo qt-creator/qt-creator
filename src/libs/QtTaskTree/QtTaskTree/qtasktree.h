@@ -1,9 +1,11 @@
 // Copyright (C) 2025 Jarek Kobus
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
 
-#ifndef QTASKTREE_H
-#define QTASKTREE_H
+
+#ifndef QTASKTREE_QTASKTREE_H
+#define QTASKTREE_QTASKTREE_H
 
 #include <QtTaskTree/qttasktreeglobal.h>
 
@@ -12,6 +14,8 @@
 #include <QtCore/QSharedData>
 
 #include <memory>
+#include <QtCore/qxptype_traits.h>
+
 
 QT_BEGIN_NAMESPACE
 
@@ -20,24 +24,47 @@ template <class T>
 class QFuture;
 #endif
 
-class QTaskInterface;
-class QTaskTree;
-
 namespace QtTaskTree {
 
 class Do;
 class DoPrivate;
 class For;
 class ForPrivate;
-class ForeverPrivate;
 class Group;
 class GroupItem;
 class GroupItemPrivate;
 using GroupItems = QList<GroupItem>;
-class IteratorData;
+class IteratorPrivate;
+class QTaskInterface;
+class QTaskTree;
 class QTaskTreePrivate;
-class StorageData;
+class StorageBasePrivate;
 class When;
+
+}
+
+#define QT_TASKTREE_DECLARE_SMFS(Class, ExportMacro) \
+    ExportMacro ~Class(); \
+    ExportMacro Class(const Class &other); \
+    ExportMacro Class &operator=(const Class &other); \
+    Class(Class &&other) = default; \
+    QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_MOVE_AND_SWAP(Class) \
+    void swap(Class &other) noexcept { d.swap(other.d); } \
+    /* end */
+
+#define QT_TASKTREE_DEFINE_SMF(Class) \
+    Class::~Class() = default; \
+    Class::Class(const Class &other) = default; \
+    Class &Class::operator=(const Class &other) = default; \
+    /* end */
+
+QT_DECLARE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::DoPrivate)
+QT_DECLARE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::ForPrivate)
+QT_DECLARE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::GroupItemPrivate)
+QT_DECLARE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::IteratorPrivate)
+QT_DECLARE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::StorageBasePrivate)
+
+namespace QtTaskTree {
 
 Q_NAMESPACE_EXPORT(Q_TASKTREE_EXPORT)
 
@@ -49,7 +76,7 @@ enum class WorkflowPolicy
     ContinueOnSuccess,
     StopOnSuccessOrError,
     FinishAllAndSuccess,
-    FinishAllAndError
+    FinishAllAndError,
 };
 Q_ENUM_NS(WorkflowPolicy)
 
@@ -57,14 +84,14 @@ enum class SetupResult
 {
     Continue,
     StopWithSuccess,
-    StopWithError
+    StopWithError,
 };
 Q_ENUM_NS(SetupResult)
 
 enum class DoneResult
 {
     Success,
-    Error
+    Error,
 };
 Q_ENUM_NS(DoneResult)
 
@@ -76,25 +103,25 @@ enum class DoneWith
 };
 Q_ENUM_NS(DoneWith)
 
-enum class CallDone
+enum class CallDoneFlag
 {
     Never = 0,
     OnSuccess = 1 << 0,
     OnError   = 1 << 1,
     OnCancel  = 1 << 2,
-    Always = OnSuccess | OnError | OnCancel
+    Always = OnSuccess | OnError | OnCancel,
 };
-Q_ENUM_NS(CallDone)
-Q_DECLARE_FLAGS(CallDoneFlags, CallDone)
-Q_DECLARE_OPERATORS_FOR_FLAGS(CallDoneFlags)
+Q_DECLARE_FLAGS(CallDone, CallDoneFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(CallDone)
+Q_FLAG_NS(CallDone)
 
 Q_TASKTREE_EXPORT DoneResult toDoneResult(bool success);
-Q_TASKTREE_EXPORT bool shouldCallDone(CallDoneFlags callDone, DoneWith result);
+Q_TASKTREE_EXPORT bool shouldCallDone(CallDone callDone, DoneWith result);
 
 // Checks if Function may be invoked with Args and if Function's return type is Result.
 template <typename Result, typename Function, typename ...Args,
           typename DecayedFunction = std::decay_t<Function>>
-static constexpr bool isInvocable()
+constexpr bool isInvocable()
 {
     // Note, that std::is_invocable_r_v doesn't check Result type properly.
     if constexpr (std::is_invocable_r_v<Result, DecayedFunction, Args...>)
@@ -102,26 +129,30 @@ static constexpr bool isInvocable()
     return false;
 }
 
-// TODO: pimpl me?
-class Q_TASKTREE_EXPORT Iterator
+class Iterator
 {
 public:
-    using Condition = std::function<bool(int)>; // Takes iteration, called prior to each iteration.
-    using ValueGetter = std::function<const void *(int)>; // Takes iteration, returns ptr to ref.
+    using Condition = std::function<bool(qsizetype)>; // Takes iteration, called prior to each iteration.
+    using ValueGetter = std::function<const void *(qsizetype)>; // Takes iteration, returns ptr to ref.
 
-    int iteration() const;
+    QT_TASKTREE_DECLARE_SMFS(Iterator, Q_TASKTREE_EXPORT)
 
-protected:
-    Iterator(); // LoopForever
-    Iterator(int count, const ValueGetter &valueGetter = {}); // LoopRepeat, LoopList
-    Iterator(const Condition &condition); // LoopUntil
-
-    const void *valuePtr() const;
+    Q_TASKTREE_EXPORT qsizetype iteration() const;
 
 private:
+    Q_TASKTREE_EXPORT Iterator(); // LoopForever
+    Q_TASKTREE_EXPORT Iterator(qsizetype count, const ValueGetter &valueGetter = {}); // LoopRepeat, LoopList
+    Q_TASKTREE_EXPORT Iterator(const Condition &condition); // LoopUntil
+
+    Q_TASKTREE_EXPORT const void *valuePtr() const;
+
     friend class ExecutionContextActivator;
     friend class QTaskTreePrivate;
-    std::shared_ptr<IteratorData> m_iteratorData;
+    friend class ForeverIterator;
+    friend class RepeatIterator;
+    friend class UntilIterator;
+    template <typename T> friend class ListIterator;
+    QExplicitlySharedDataPointer<IteratorPrivate> d;
 };
 
 class ForeverIterator final : public Iterator
@@ -133,52 +164,55 @@ public:
 class RepeatIterator final : public Iterator
 {
 public:
-    Q_TASKTREE_EXPORT RepeatIterator(int count);
+    Q_TASKTREE_EXPORT explicit RepeatIterator(qsizetype count);
 };
 
 class UntilIterator final : public Iterator
 {
 public:
-    Q_TASKTREE_EXPORT UntilIterator(const Condition &condition);
+    Q_TASKTREE_EXPORT explicit UntilIterator(const Condition &condition);
 };
 
 template <typename T>
 class ListIterator final : public Iterator
 {
 public:
-    ListIterator(const QList<T> &list) : Iterator(list.size(), [list](int i) { return &list.at(i); }) {}
+    explicit ListIterator(const QList<T> &list)
+        : Iterator(list.size(), [list](qsizetype i) { return std::addressof(list.at(i)); }) {}
     const T *operator->() const { return static_cast<const T *>(valuePtr()); }
     const T &operator*() const { return *static_cast<const T *>(valuePtr()); }
 };
 
-class Q_TASKTREE_EXPORT StorageBase
+class StorageBase
 {
+public:
+    QT_TASKTREE_DECLARE_SMFS(StorageBase, Q_TASKTREE_EXPORT)
+
 private:
     using StorageConstructor = std::function<void *(void)>;
     using StorageDestructor = std::function<void(void *)>;
     using StorageHandler = std::function<void(void *)>;
 
-    StorageBase(const StorageConstructor &ctor, const StorageDestructor &dtor);
+    Q_TASKTREE_EXPORT StorageBase(const StorageConstructor &ctor, const StorageDestructor &dtor);
 
-    void *activeStorageVoid() const;
+    Q_TASKTREE_EXPORT void *activeStorageVoid() const;
 
     // TODO: de-inline?
     friend bool operator==(const StorageBase &first, const StorageBase &second)
-    { return first.m_storageData == second.m_storageData; }
-
+    { return first.d == second.d; }
     friend bool operator!=(const StorageBase &first, const StorageBase &second)
-    { return first.m_storageData != second.m_storageData; }
+    { return first.d != second.d; }
 
-    friend size_t qHash(const StorageBase &storage, size_t seed = 0)
-    { return size_t(storage.m_storageData.get()) ^ seed; }
+    friend size_t qHash(const StorageBase &storage, size_t seed = 0) noexcept
+    { return size_t(storage.d.get()) ^ seed; }
 
-    std::shared_ptr<StorageData> m_storageData;
+    QExplicitlySharedDataPointer<StorageBasePrivate> d;
 
     template <typename StorageStruct> friend class Storage;
     friend class ExecutionContextActivator;
-    friend class StorageData;
+    friend class StorageBasePrivate;
     friend class RuntimeContainer;
-    friend class QT_PREPEND_NAMESPACE(QTaskTree);
+    friend class QTaskTree;
     friend class QTaskTreePrivate;
 };
 
@@ -187,17 +221,11 @@ class Storage final : public StorageBase
 {
 public:
     Storage() : StorageBase(Storage::ctor(), Storage::dtor()) {}
-#if __cplusplus >= 201803L // C++20: Allow pack expansion in lambda init-capture.
-    template <typename ...Args>
-    Storage(const Args &...args)
-        : StorageBase([...args = args] { return new StorageStruct{args...}; }, Storage::dtor()) {}
-#else // C++17
-    template <typename ...Args>
-    Storage(const Args &...args)
-        : StorageBase([argsTuple = std::tuple(args...)] {
-            return std::apply([](const Args &...arguments) { return new StorageStruct{arguments...}; }, argsTuple);
-        }, Storage::dtor()) {}
-#endif
+    template <typename FirstArg, typename ...Args,
+             std::enable_if_t<!std::is_same_v<q20::remove_cvref_t<FirstArg>, Storage<StorageStruct>>, bool> = true>
+    explicit Storage(const FirstArg &firstArg, const Args &...args)
+        : StorageBase([=] { return new StorageStruct{firstArg, args...}; }, Storage::dtor()) {}
+
     StorageStruct &operator*() const noexcept { return *activeStorage(); }
     StorageStruct *operator->() const noexcept { return activeStorage(); }
     StorageStruct *activeStorage() const {
@@ -211,7 +239,7 @@ private:
     }
 };
 
-class Q_TASKTREE_EXPORT GroupItem
+class GroupItem
 {
 public:
     // Called when group entered, after group's storages are created
@@ -223,19 +251,13 @@ public:
     GroupItem(const Storage<StorageStruct> &storage) : GroupItem(static_cast<StorageBase>(storage)) {}
 
     // TODO: Add tests.
-    GroupItem(const GroupItems &children);
-    GroupItem(std::initializer_list<GroupItem> children);
-    ~GroupItem();
+    Q_TASKTREE_EXPORT GroupItem(const GroupItems &children);
+    Q_TASKTREE_EXPORT GroupItem(std::initializer_list<GroupItem> children);
 
-    GroupItem(const GroupItem &other);
-    GroupItem(GroupItem &&other) noexcept;
-    GroupItem &operator=(const GroupItem &other);
-    QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_MOVE_AND_SWAP(GroupItem)
-
-    void swap(GroupItem &other) noexcept { d.swap(other.d); }
+    QT_TASKTREE_DECLARE_SMFS(GroupItem, Q_TASKTREE_EXPORT)
 
 protected:
-    GroupItem(const Iterator &loop);
+    Q_TASKTREE_EXPORT GroupItem(const Iterator &loop);
 
     using TaskAdapterPtr = void *;
     // Internal, provided by QCustomTask
@@ -255,13 +277,13 @@ protected:
         TaskAdapterStarter m_taskAdapterStarter;
         TaskAdapterSetupHandler m_taskAdapterSetupHandler = {};
         TaskAdapterDoneHandler m_taskAdapterDoneHandler = {};
-        CallDoneFlags m_callDoneFlags = CallDone::Always;
+        CallDone m_callDoneFlags = CallDoneFlag::Always;
     };
 
     struct GroupHandler { // TODO: Make it a pimpled value type?
         GroupSetupHandler m_setupHandler;
         GroupDoneHandler m_doneHandler = {};
-        CallDoneFlags m_callDoneFlags = CallDone::Always;
+        CallDone m_callDoneFlags = CallDoneFlag::Always;
     };
 
     struct GroupData { // TODO: Make it a pimpled value type?
@@ -276,21 +298,21 @@ protected:
         Group,
         GroupData,
         Storage,
-        TaskHandler
+        TaskHandler,
     };
 
-    GroupItem();
-    GroupItem(Type type);
-    GroupItem(const GroupData &data);
-    GroupItem(const TaskHandler &handler);
-    void addChildren(const GroupItems &children);
+    Q_TASKTREE_EXPORT GroupItem();
+    Q_TASKTREE_EXPORT GroupItem(Type type);
+    Q_TASKTREE_EXPORT GroupItem(const GroupData &data);
+    Q_TASKTREE_EXPORT GroupItem(const TaskHandler &handler);
+    Q_TASKTREE_EXPORT void addChildren(const GroupItems &children);
 
-    static GroupItem groupHandler(const GroupHandler &handler);
+    Q_TASKTREE_EXPORT static GroupItem groupHandler(const GroupHandler &handler);
 
-    TaskHandler taskHandler() const;
+    Q_TASKTREE_EXPORT TaskHandler taskHandler() const;
 
 private:
-    GroupItem(const StorageBase &storage);
+    Q_TASKTREE_EXPORT GroupItem(const StorageBase &storage);
 
     Q_TASKTREE_EXPORT friend Group operator>>(const For &forItem, const Do &doItem);
     friend class ContainerNode;
@@ -302,21 +324,35 @@ private:
     QExplicitlySharedDataPointer<GroupItemPrivate> d;
 };
 
-class Q_TASKTREE_EXPORT ExecutableItem : public GroupItem
+template <typename Signal>
+struct ObjectSignal
+{
+    typename QtPrivate::FunctionPointer<Signal>::Object *object;
+    Signal signal;
+};
+
+template <typename Signal>
+ObjectSignal<std::decay_t<Signal>> makeObjectSignal(
+    typename QtPrivate::FunctionPointer<Signal>::Object *object, Signal &&signal)
+{
+    return ObjectSignal<std::decay_t<Signal>>{object, std::forward<Signal>(signal)};
+}
+
+class ExecutableItem : public GroupItem
 {
 public:
-    Group withTimeout(std::chrono::milliseconds timeout,
-                      const std::function<void()> &handler = {}) const;
-    Group withLog(const QString &logName) const;
-    template <typename SenderSignalPairGetter>
-    Group withCancel(SenderSignalPairGetter &&getter,
+    Q_TASKTREE_EXPORT Group withTimeout(std::chrono::milliseconds timeout,
+                                        const std::function<void()> &handler = {}) const;
+    Q_TASKTREE_EXPORT Group withLog(const QString &logName) const;
+    template <typename ObjectSignalGetter>
+    Group withCancel(ObjectSignalGetter &&getter,
                      std::initializer_list<GroupItem> postCancelRecipe = {}) const;
-    template <typename SenderSignalPairGetter>
-    Group withAccept(SenderSignalPairGetter &&getter) const;
+    template <typename ObjectSignalGetter>
+    Group withAccept(ObjectSignalGetter &&getter) const;
 
 protected:
-    ExecutableItem();
-    ExecutableItem(const TaskHandler &handler);
+    Q_TASKTREE_EXPORT ExecutableItem();
+    Q_TASKTREE_EXPORT ExecutableItem(const TaskHandler &handler);
 
 private:
     Q_TASKTREE_EXPORT friend Group operator!(const ExecutableItem &item);
@@ -329,19 +365,18 @@ private:
 
     using ConnectWrapper = std::function<void(QObject *, const std::function<void()> &)>;
 
-    Group withCancelImpl(const ConnectWrapper &connectWrapper,
-                         const GroupItems &postCancelRecipe) const;
-    Group withAcceptImpl(const ConnectWrapper &connectWrapper) const;
+    Q_TASKTREE_EXPORT Group withCancelImpl(const ConnectWrapper &connectWrapper,
+                                           const GroupItems &postCancelRecipe) const;
+    Q_TASKTREE_EXPORT Group withAcceptImpl(const ConnectWrapper &connectWrapper) const;
 
-    template <typename SenderSignalPairGetter>
-    static ConnectWrapper connectWrapper(SenderSignalPairGetter &&getter)
+    template <typename ObjectSignalGetter>
+    static ConnectWrapper connectWrapper(ObjectSignalGetter &&getter)
     {
-        return [getter = std::forward<SenderSignalPairGetter>(getter)](
+        return [getter = std::forward<ObjectSignalGetter>(getter)](
                    QObject *guard, const std::function<void()> &trigger) {
-            const auto senderSignalPair = getter();
-            QObject::connect(senderSignalPair.first, senderSignalPair.second, guard, [trigger] {
-                trigger();
-            }, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
+            const auto objectSignal = getter();
+            QObject::connect(objectSignal.object, objectSignal.signal, guard, trigger,
+                             static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
         };
     }
 
@@ -360,7 +395,7 @@ public:
         return groupHandler({wrapGroupSetup(std::forward<Handler>(handler))});
     }
     template <typename Handler>
-    static GroupItem onGroupDone(Handler &&handler, CallDoneFlags callDone = CallDone::Always) {
+    static GroupItem onGroupDone(Handler &&handler, CallDone callDone = CallDoneFlag::Always) {
         return groupHandler({{}, wrapGroupDone(std::forward<Handler>(handler)), callDone});
     }
 
@@ -368,13 +403,13 @@ private:
     template <typename Handler>
     static GroupSetupHandler wrapGroupSetup(Handler &&handler)
     {
-        // R, V stands for: Setup[R]esult, [V]oid
-        static constexpr bool isR = isInvocable<SetupResult, Handler>();
-        static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isR || isV,
-            "Group setup handler needs to take no arguments and has to return void or SetupResult. "
-            "The passed handler doesn't fulfill these requirements.");
         return [handler = std::forward<Handler>(handler)] {
+            // R, V stands for: Setup[R]esult, [V]oid
+            constexpr bool isR = isInvocable<SetupResult, Handler>();
+            constexpr bool isV = isInvocable<void, Handler>();
+            static_assert(isR || isV,
+                          "Group setup handler needs to take no arguments and has to return void or SetupResult. "
+                          "The passed handler doesn't fulfill these requirements.");
             if constexpr (isR)
                 return std::invoke(handler);
             std::invoke(handler);
@@ -384,20 +419,20 @@ private:
     template <typename Handler>
     static GroupDoneHandler wrapGroupDone(Handler &&handler)
     {
-        static constexpr bool isDoneResultType = std::is_same_v<std::decay_t<Handler>, DoneResult>;
-        // R, B, V, D stands for: Done[R]esult, [B]ool, [V]oid, [D]oneWith
-        static constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
-        static constexpr bool isR = isInvocable<DoneResult, Handler>();
-        static constexpr bool isBD = isInvocable<bool, Handler, DoneWith>();
-        static constexpr bool isB = isInvocable<bool, Handler>();
-        static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
-        static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isDoneResultType || isRD || isR || isBD || isB || isVD || isV,
-            "Group done handler should be a function taking (DoneWith) or (void) as an argument "
-            "and returning void, bool or DoneResult. "
-            "Alternatively, 'handler' may be an instance of DoneResult. "
-            "The passed handler doesn't fulfill these requirements.");
         return [handler = std::forward<Handler>(handler)](DoneWith result) {
+            constexpr bool isDoneResultType = std::is_same_v<std::decay_t<Handler>, DoneResult>;
+            // R, B, V, D stands for: Done[R]esult, [B]ool, [V]oid, [D]oneWith
+            constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
+            constexpr bool isR = isInvocable<DoneResult, Handler>();
+            constexpr bool isBD = isInvocable<bool, Handler, DoneWith>();
+            constexpr bool isB = isInvocable<bool, Handler>();
+            constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
+            constexpr bool isV = isInvocable<void, Handler>();
+            static_assert(isDoneResultType || isRD || isR || isBD || isB || isVD || isV,
+                          "Group done handler should be a function taking (DoneWith) or (void) as an argument "
+                          "and returning void, bool or DoneResult. "
+                          "Alternatively, 'handler' may be an instance of DoneResult. "
+                          "The passed handler doesn't fulfill these requirements.");
             if constexpr (isDoneResultType)
                 return handler;
             if constexpr (isRD)
@@ -417,28 +452,28 @@ private:
     }
 };
 
-template <typename SenderSignalPairGetter>
-Group ExecutableItem::withCancel(SenderSignalPairGetter &&getter,
+template <typename ObjectSignalGetter>
+Group ExecutableItem::withCancel(ObjectSignalGetter &&getter,
                                  std::initializer_list<GroupItem> postCancelRecipe) const
 {
-    return withCancelImpl(connectWrapper(std::forward<SenderSignalPairGetter>(getter)),
+    return withCancelImpl(connectWrapper(std::forward<ObjectSignalGetter>(getter)),
                           postCancelRecipe);
 }
 
-template <typename SenderSignalPairGetter>
-Group ExecutableItem::withAccept(SenderSignalPairGetter &&getter) const
+template <typename ObjectSignalGetter>
+Group ExecutableItem::withAccept(ObjectSignalGetter &&getter) const
 {
-    return withAcceptImpl(connectWrapper(std::forward<SenderSignalPairGetter>(getter)));
+    return withAcceptImpl(connectWrapper(std::forward<ObjectSignalGetter>(getter)));
 }
 
 template <typename Handler>
-static GroupItem onGroupSetup(Handler &&handler)
+GroupItem onGroupSetup(Handler &&handler)
 {
     return Group::onGroupSetup(std::forward<Handler>(handler));
 }
 
 template <typename Handler>
-static GroupItem onGroupDone(Handler &&handler, CallDoneFlags callDone = CallDone::Always)
+GroupItem onGroupDone(Handler &&handler, CallDone callDone = CallDoneFlag::Always)
 {
     return Group::onGroupDone(std::forward<Handler>(handler), callDone);
 }
@@ -480,12 +515,7 @@ class For final
 public:
     Q_TASKTREE_EXPORT explicit For(const Iterator &loop);
 
-    Q_TASKTREE_EXPORT ~For();
-    Q_TASKTREE_EXPORT For(const For &other);
-    Q_TASKTREE_EXPORT For(For &&other) noexcept;
-    Q_TASKTREE_EXPORT For &operator=(const For &other);
-    QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_MOVE_AND_SWAP(For)
-    void swap(For &other) noexcept { d.swap(other.d); }
+    QT_TASKTREE_DECLARE_SMFS(For, Q_TASKTREE_EXPORT)
 
 private:
     Q_TASKTREE_EXPORT friend Group operator>>(const For &forItem, const Do &doItem);
@@ -501,12 +531,7 @@ public:
     Q_TASKTREE_EXPORT explicit Do(const GroupItems &children);
     Q_TASKTREE_EXPORT explicit Do(std::initializer_list<GroupItem> children);
 
-    Q_TASKTREE_EXPORT ~Do();
-    Q_TASKTREE_EXPORT Do(const Do &other);
-    Q_TASKTREE_EXPORT Do(Do &&other) noexcept;
-    Q_TASKTREE_EXPORT Do &operator=(const Do &other);
-    QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_MOVE_AND_SWAP(Do)
-    void swap(Do &other) noexcept { d.swap(other.d); }
+    QT_TASKTREE_DECLARE_SMFS(Do, Q_TASKTREE_EXPORT)
 
 private:
     Q_TASKTREE_EXPORT friend Group operator>>(const For &forItem, const Do &doItem);
@@ -516,9 +541,6 @@ private:
 
     QExplicitlySharedDataPointer<DoPrivate> d;
 };
-
-Q_TASKTREE_EXPORT Group operator>>(const For &forItem, const Do &doItem);
-Q_TASKTREE_EXPORT Group operator>>(const When &whenItem, const Do &doItem);
 
 class Forever final : public ExecutableItem
 {
@@ -530,24 +552,22 @@ public:
 Q_TASKTREE_EXPORT ExecutableItem timeoutTask(const std::chrono::milliseconds &timeout,
                                              DoneResult result = DoneResult::Error);
 
-} // namespace QtTaskTree
-
-class QSyncTask final : public QtTaskTree::ExecutableItem
+class QSyncTask final : public ExecutableItem
 {
 public:
-    template <typename Handler>
-    QSyncTask(Handler &&handler) {
-        addChildren({ QtTaskTree::onGroupDone(wrapHandler(std::forward<Handler>(handler))) });
+    template <typename Handler,
+              std::enable_if_t<!std::is_same_v<q20::remove_cvref_t<Handler>, QSyncTask>, bool> = true>
+    explicit QSyncTask(Handler &&handler) {
+        addChildren({ onGroupDone(wrapHandler(std::forward<Handler>(handler))) });
     }
 
 private:
     template <typename Handler>
     static auto wrapHandler(Handler &&handler) {
-        using QtTaskTree::isInvocable;
         // R, B, V stands for: Done[R]esult, [B]ool, [V]oid
-        static constexpr bool isR = isInvocable<QtTaskTree::DoneResult, Handler>();
-        static constexpr bool isB = isInvocable<bool, Handler>();
-        static constexpr bool isV = isInvocable<void, Handler>();
+        constexpr bool isR = isInvocable<DoneResult, Handler>();
+        constexpr bool isB = isInvocable<bool, Handler>();
+        constexpr bool isV = isInvocable<void, Handler>();
         static_assert(isR || isB || isV,
             "QSyncTask handler needs to take no arguments and has to return void, bool or DoneResult. "
             "The passed handler doesn't fulfill these requirements.");
@@ -560,11 +580,15 @@ class Q_TASKTREE_EXPORT QTaskInterface final : public QObject
     Q_OBJECT
 
 public:
-    QTaskInterface(QObject *parent = nullptr);
-    void reportDone(QtTaskTree::DoneResult result);
+    QTaskInterface() : QTaskInterface(nullptr) {}
+    explicit QTaskInterface(QObject *parent);
+    void reportDone(DoneResult result);
 
 Q_SIGNALS:
     void done(QtTaskTree::DoneResult result, QPrivateSignal);
+
+protected:
+    bool event(QEvent *event) override;
 };
 
 // A convenient default helper, when:
@@ -575,17 +599,15 @@ template <typename Task>
 class QDefaultTaskAdapter
 {
 public:
-    void operator()(Task *task, QTaskInterface *iface) {
-//        if constexpr (is_done_compatible_v<WithDoneResult>) {
-//            QObject::connect(task, &Task::done, iface, &QTaskInterface::reportDone,
-//                             Qt::SingleShotConnection);
-//        } else if constexpr (is_done_compatible_v<WithBool>) {
-//            QObject::connect(task, &Task::done, iface, [iface](bool result) {
-//                iface->reportDone(QtTaskTree::toDoneResult(result));
-//            }, Qt::SingleShotConnection);
-//        }
-        QObject::connect(task, &Task::done, iface, &QTaskInterface::reportDone,
-                         Qt::SingleShotConnection);
+    void operator()(Task *task, QTaskInterface *iface) const {
+        if constexpr (is_done_compatible_v<WithDoneResult>) {
+            QObject::connect(task, &Task::done, iface, &QTaskInterface::reportDone,
+                             Qt::SingleShotConnection);
+        } else if constexpr (is_done_compatible_v<WithBool>) {
+            QObject::connect(task, &Task::done, iface, [iface](bool result) {
+                iface->reportDone(toDoneResult(result));
+            }, Qt::SingleShotConnection);
+        }
         task->start();
     }
 
@@ -593,31 +615,27 @@ private:
     static_assert(std::is_base_of_v<QObject, Task>,
                   "QDefaultTaskAdapter<Task>: The Task type needs to be derived from QObject.");
 
-    template <typename, typename = void>
-    struct has_start : std::false_type {};
     template <typename T>
-    struct has_start<T, std::void_t<decltype(std::declval<T>().start())>> : std::true_type {};
-    template <typename T>
-    static inline constexpr bool has_start_v = has_start<T>::value;
-    static_assert(has_start_v<Task>,
+    using HasStartTest = decltype(
+        std::declval<T>().start()
+    );
+    static_assert(qxp::is_detected_v<HasStartTest, Task>,
                   "QDefaultTaskAdapter<Task>: The Task type needs to specify public start() method.");
 
 #define DoneError "QDefaultTaskAdapter<Task>: The Task type needs to specify " \
-                  "public done(QtTaskTree::DoneResult) or done(bool) signal."
+                  "public done(DoneResult) or done(bool) signal."
 
-    template <typename, typename = void>
-    struct has_done : std::false_type {};
     template <typename T>
-    struct has_done<T, std::void_t<decltype(&T::done)>> : std::true_type {};
-    template <typename T>
-    static inline constexpr bool has_done_v = has_done<T>::value;
-    static_assert(has_done_v<Task>, DoneError);
+    using HasDoneTest = decltype(
+        &T::done
+    );
+    static_assert(qxp::is_detected_v<HasDoneTest, Task>, DoneError);
 
-//    using WithDoneResult = std::function<void(QtTaskTree::DoneResult)>;
-//    using WithBool = std::function<void(bool)>;
-//    template <typename Arg, typename T = decltype(&Task::done)>
-//    static inline constexpr bool is_done_compatible_v = QtPrivate::AreFunctionsCompatible<T, Arg>::value;
-//    static_assert(is_done_compatible_v<WithDoneResult> || is_done_compatible_v<WithBool>, DoneError);
+    using WithDoneResult = std::function<void(DoneResult)>;
+    using WithBool = std::function<void(bool)>;
+    template <typename Arg, typename T = decltype(&Task::done)>
+    static inline constexpr bool is_done_compatible_v = QtPrivate::AreFunctionsCompatible<T, Arg>::value;
+    static_assert(is_done_compatible_v<WithDoneResult> || is_done_compatible_v<WithBool>, DoneError);
 
 #undef DoneError
 };
@@ -625,16 +643,18 @@ private:
 // TODO: Allow Task = void?
 template <typename Task, typename Adapter = QDefaultTaskAdapter<Task>,
           typename Deleter = std::default_delete<Task>>
-class QCustomTask final : public QtTaskTree::ExecutableItem
+class QCustomTask final : public ExecutableItem
 {
 public:
-    using TaskSetupHandler = std::function<QtTaskTree::SetupResult(Task &)>;
-    using TaskDoneHandler = std::function<QtTaskTree::DoneResult(const Task &, QtTaskTree::DoneWith)>;
+    using TaskSetupHandler = std::function<SetupResult(Task &)>;
+    using TaskDoneHandler = std::function<DoneResult(const Task &, DoneWith)>;
 
-    template <typename SetupHandler = TaskSetupHandler, typename DoneHandler = TaskDoneHandler>
-    QCustomTask(SetupHandler &&setup = TaskSetupHandler(), DoneHandler &&done = TaskDoneHandler(),
-                QtTaskTree::CallDoneFlags callDone = QtTaskTree::CallDone::Always)
-        : ExecutableItem({&taskAdapterConstructor, &taskAdapterDestructor, &taskAdapterStarter,
+    template <typename SetupHandler = TaskSetupHandler, typename DoneHandler = TaskDoneHandler,
+              std::enable_if_t<!std::is_same_v<q20::remove_cvref_t<SetupHandler>, QCustomTask<Task, Adapter, Deleter>>, bool> = true>
+    explicit QCustomTask(SetupHandler &&setup = TaskSetupHandler(),
+                         DoneHandler &&done = TaskDoneHandler(),
+                         CallDone callDone = CallDoneFlag::Always)
+        : ExecutableItem(TaskHandler{&taskAdapterConstructor, &taskAdapterDestructor, &taskAdapterStarter,
                           wrapSetup(std::forward<SetupHandler>(setup)),
                           wrapDone(std::forward<DoneHandler>(done)), callDone})
     {}
@@ -651,7 +671,7 @@ private:
                   "implement public \"void operator()(Task *task, QTaskInterface *iface);\" "
                   "method.");
 
-    friend class QtTaskTree::When;
+    friend class When;
 
     struct TaskAdapter {
         TaskAdapter() : task(new Task()) {}
@@ -672,56 +692,54 @@ private:
 
     template <typename Handler>
     static TaskAdapterSetupHandler wrapSetup(Handler &&handler) {
-        using QtTaskTree::isInvocable;
         if constexpr (std::is_same_v<std::decay_t<Handler>, TaskSetupHandler>) {
             if (!handler)
                 return {}; // User passed {} for the setup handler.
         }
-        // R, V stands for: Setup[R]esult, [V]oid
-        static constexpr bool isR = isInvocable<QtTaskTree::SetupResult, Handler, Task &>();
-        static constexpr bool isV = isInvocable<void, Handler, Task &>();
-        static_assert(isR || isV,
-            "Task setup handler needs to take (Task &) as an argument and has to return void or "
-            "SetupResult. The passed handler doesn't fulfill these requirements.");
         return [handler = std::forward<Handler>(handler)](TaskAdapterPtr voidAdapter) {
+            // R, V stands for: Setup[R]esult, [V]oid
+            constexpr bool isR = isInvocable<SetupResult, Handler, Task &>();
+            constexpr bool isV = isInvocable<void, Handler, Task &>();
+            static_assert(isR || isV,
+                          "Task setup handler needs to take (Task &) as an argument and has to return void or "
+                          "SetupResult. The passed handler doesn't fulfill these requirements.");
             Task *task = static_cast<TaskAdapter *>(voidAdapter)->task.get();
             if constexpr (isR)
                 return std::invoke(handler, *task);
             std::invoke(handler, *task);
-            return QtTaskTree::SetupResult::Continue;
+            return SetupResult::Continue;
         };
     }
 
     template <typename Handler>
     static TaskAdapterDoneHandler wrapDone(Handler &&handler) {
-        using QtTaskTree::isInvocable;
         if constexpr (std::is_same_v<std::decay_t<Handler>, TaskDoneHandler>) {
             if (!handler)
                 return {}; // User passed {} for the done handler.
         }
-        static constexpr bool isDoneResultType = std::is_same_v<std::decay_t<Handler>, QtTaskTree::DoneResult>;
-        // R, B, V, T, D stands for: Done[R]esult, [B]ool, [V]oid, [T]ask, [D]oneWith
-        static constexpr bool isRTD = isInvocable<QtTaskTree::DoneResult, Handler, const Task &, QtTaskTree::DoneWith>();
-        static constexpr bool isRT = isInvocable<QtTaskTree::DoneResult, Handler, const Task &>();
-        static constexpr bool isRD = isInvocable<QtTaskTree::DoneResult, Handler, QtTaskTree::DoneWith>();
-        static constexpr bool isR = isInvocable<QtTaskTree::DoneResult, Handler>();
-        static constexpr bool isBTD = isInvocable<bool, Handler, const Task &, QtTaskTree::DoneWith>();
-        static constexpr bool isBT = isInvocable<bool, Handler, const Task &>();
-        static constexpr bool isBD = isInvocable<bool, Handler, QtTaskTree::DoneWith>();
-        static constexpr bool isB = isInvocable<bool, Handler>();
-        static constexpr bool isVTD = isInvocable<void, Handler, const Task &, QtTaskTree::DoneWith>();
-        static constexpr bool isVT = isInvocable<void, Handler, const Task &>();
-        static constexpr bool isVD = isInvocable<void, Handler, QtTaskTree::DoneWith>();
-        static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isDoneResultType || isRTD || isRT || isRD || isR
-                                       || isBTD || isBT || isBD || isB
-                                       || isVTD || isVT || isVD || isV,
-            "Task done handler should be a function taking (const Task &, DoneWith), "
-            "(const Task &), (DoneWith) or (void) as arguments and returning void, bool or "
-            "DoneResult. Alternatively, 'handler' may be an instance of DoneResult. "
-            "The passed handler doesn't fulfill these requirements.");
         return [handler = std::forward<Handler>(handler)](TaskAdapterPtr voidAdapter,
-                                                          QtTaskTree::DoneWith result) {
+                                                          DoneWith result) {
+            constexpr bool isDoneResultType = std::is_same_v<std::decay_t<Handler>, DoneResult>;
+            // R, B, V, T, D stands for: Done[R]esult, [B]ool, [V]oid, [T]ask, [D]oneWith
+            constexpr bool isRTD = isInvocable<DoneResult, Handler, const Task &, DoneWith>();
+            constexpr bool isRT = isInvocable<DoneResult, Handler, const Task &>();
+            constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
+            constexpr bool isR = isInvocable<DoneResult, Handler>();
+            constexpr bool isBTD = isInvocable<bool, Handler, const Task &, DoneWith>();
+            constexpr bool isBT = isInvocable<bool, Handler, const Task &>();
+            constexpr bool isBD = isInvocable<bool, Handler, DoneWith>();
+            constexpr bool isB = isInvocable<bool, Handler>();
+            constexpr bool isVTD = isInvocable<void, Handler, const Task &, DoneWith>();
+            constexpr bool isVT = isInvocable<void, Handler, const Task &>();
+            constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
+            constexpr bool isV = isInvocable<void, Handler>();
+            static_assert(isDoneResultType || isRTD || isRT || isRD || isR
+                              || isBTD || isBT || isBD || isB
+                              || isVTD || isVT || isVD || isV,
+                          "Task done handler should be a function taking (const Task &, DoneWith), "
+                          "(const Task &), (DoneWith) or (void) as arguments and returning void, bool or "
+                          "DoneResult. Alternatively, 'handler' may be an instance of DoneResult. "
+                          "The passed handler doesn't fulfill these requirements.");
             if constexpr (isDoneResultType)
                 return handler;
             [[maybe_unused]] Task *task = static_cast<TaskAdapter *>(voidAdapter)->task.get();
@@ -734,13 +752,13 @@ private:
             if constexpr (isR)
                 return std::invoke(handler);
             if constexpr (isBTD)
-                return QtTaskTree::toDoneResult(std::invoke(handler, *task, result));
+                return toDoneResult(std::invoke(handler, *task, result));
             if constexpr (isBT)
-                return QtTaskTree::toDoneResult(std::invoke(handler, *task));
+                return toDoneResult(std::invoke(handler, *task));
             if constexpr (isBD)
-                return QtTaskTree::toDoneResult(std::invoke(handler, result));
+                return toDoneResult(std::invoke(handler, result));
             if constexpr (isB)
-                return QtTaskTree::toDoneResult(std::invoke(handler));
+                return toDoneResult(std::invoke(handler));
             if constexpr (isVTD)
                 std::invoke(handler, *task, result);
             else if constexpr (isVT)
@@ -749,7 +767,7 @@ private:
                 std::invoke(handler, result);
             else if constexpr (isV)
                 std::invoke(handler);
-            return QtTaskTree::toDoneResult(result == QtTaskTree::DoneWith::Success);
+            return toDoneResult(result == DoneWith::Success);
         };
     }
 };
@@ -757,14 +775,15 @@ private:
 class Q_TASKTREE_EXPORT QTaskTree : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QtTaskTree::QTaskTree)
+    Q_DECLARE_PRIVATE(QTaskTree)
 
 public:
-    QTaskTree(QObject *parent = nullptr);
-    QTaskTree(const QtTaskTree::Group &recipe, QObject *parent = nullptr);
+    QTaskTree() : QTaskTree(nullptr) {}
+    explicit QTaskTree(QObject *parent);
+    explicit QTaskTree(const Group &recipe, QObject *parent = nullptr);
     ~QTaskTree() override;
 
-    void setRecipe(const QtTaskTree::Group &recipe);
+    void setRecipe(const Group &recipe);
 
     void start();
     void cancel();
@@ -773,20 +792,20 @@ public:
     // Helper methods. They execute a local event loop with ExcludeUserInputEvents.
     // The passed future is used for listening to the cancel event.
     // Don't use it in main thread. To be used in non-main threads or in auto tests.
-    QtTaskTree::DoneWith runBlocking();
-    static QtTaskTree::DoneWith runBlocking(const QtTaskTree::Group &recipe);
+    DoneWith runBlocking();
+    static DoneWith runBlocking(const Group &recipe);
 #if QT_CONFIG(future)
-    QtTaskTree::DoneWith runBlocking(const QFuture<void> &future);
-    static QtTaskTree::DoneWith runBlocking(const QtTaskTree::Group &recipe, const QFuture<void> &future);
+    DoneWith runBlocking(const QFuture<void> &future);
+    static DoneWith runBlocking(const Group &recipe, const QFuture<void> &future);
 #endif
 
-    int asyncCount() const;
-    int taskCount() const;
-    int progressMaximum() const { return taskCount(); }
-    int progressValue() const; // all finished / skipped / stopped tasks, groups itself excluded
+    qsizetype asyncCount() const;
+    qsizetype taskCount() const;
+    qsizetype progressMaximum() const { return taskCount(); }
+    qsizetype progressValue() const; // all finished / skipped / stopped tasks, groups itself excluded
 
     template <typename StorageStruct, typename Handler>
-    void onStorageSetup(const QtTaskTree::Storage<StorageStruct> &storage, Handler &&handler) {
+    void onStorageSetup(const Storage<StorageStruct> &storage, Handler &&handler) {
         static_assert(std::is_invocable_v<std::decay_t<Handler>, StorageStruct &>,
                       "Storage setup handler needs to take (Storage &) as an argument. "
                       "The passed handler doesn't fulfill this requirement.");
@@ -794,7 +813,7 @@ public:
                             wrapHandler<StorageStruct>(std::forward<Handler>(handler)), {});
     }
     template <typename StorageStruct, typename Handler>
-    void onStorageDone(const QtTaskTree::Storage<StorageStruct> &storage, Handler &&handler) {
+    void onStorageDone(const Storage<StorageStruct> &storage, Handler &&handler) {
         static_assert(std::is_invocable_v<std::decay_t<Handler>, const StorageStruct &>,
                       "Storage done handler needs to take (const Storage &) as an argument. "
                       "The passed handler doesn't fulfill this requirement.");
@@ -805,15 +824,18 @@ public:
 Q_SIGNALS:
     void started();
     void done(QtTaskTree::DoneWith result);
-    void asyncCountChanged(int count);
-    void progressValueChanged(int value); // updated whenever task finished / skipped / stopped
+    void asyncCountChanged(qsizetype count);
+    void progressValueChanged(qsizetype value); // updated whenever task finished / skipped / stopped
+
+protected:
+    bool event(QEvent *event) override;
 
 private:
-    void setupStorageHandler(const QtTaskTree::StorageBase &storage,
-                             const QtTaskTree::StorageBase::StorageHandler &setupHandler,
-                             const QtTaskTree::StorageBase::StorageHandler &doneHandler);
+    void setupStorageHandler(const StorageBase &storage,
+                             const StorageBase::StorageHandler &setupHandler,
+                             const StorageBase::StorageHandler &doneHandler);
     template <typename StorageStruct, typename Handler>
-    QtTaskTree::StorageBase::StorageHandler wrapHandler(Handler &&handler) {
+    StorageBase::StorageHandler wrapHandler(Handler &&handler) {
         return [handler](void *voidStruct) {
             auto *storageStruct = static_cast<StorageStruct *>(voidStruct);
             std::invoke(handler, *storageStruct);
@@ -821,25 +843,29 @@ private:
     }
 };
 
-class QTaskTreeTaskAdapter final
+class QTaskTreeTaskAdapter
 {
 public:
-    Q_TASKTREE_EXPORT void operator()(QTaskTree *task, QTaskInterface *iface);
+    Q_TASKTREE_EXPORT void operator()(QTaskTree *task, QTaskInterface *iface) const;
 };
 
 class QTimeoutTaskAdapter final
 {
 public:
+    QTimeoutTaskAdapter() = default;
     Q_TASKTREE_EXPORT ~QTimeoutTaskAdapter();
     Q_TASKTREE_EXPORT void operator()(std::chrono::milliseconds *task, QTaskInterface *iface);
 
 private:
-    std::optional<size_t> m_timerId;
+    Q_DISABLE_COPY_MOVE(QTimeoutTaskAdapter)
+    std::optional<size_t> m_timerId = std::nullopt;
 };
 
 using QTaskTreeTask = QCustomTask<QTaskTree, QTaskTreeTaskAdapter>;
 using QTimeoutTask = QCustomTask<std::chrono::milliseconds, QTimeoutTaskAdapter>;
 
+} // namespace QtTaskTree
+
 QT_END_NAMESPACE
 
-#endif // QTASKTREE_H
+#endif // QTASKTREE_QTASKTREE_H

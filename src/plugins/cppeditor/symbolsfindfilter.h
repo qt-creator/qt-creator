@@ -63,7 +63,7 @@ private:
     QPointer<Core::SearchResult> m_currentSearch;
     SymbolTypes m_symbolsToSearch;
     SearchScope m_scope;
-    QParallelTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QParallelTaskTreeRunner m_taskTreeRunner;
 };
 
 class SymbolsFindFilterConfigWidget : public QWidget

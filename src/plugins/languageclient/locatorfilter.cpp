@@ -73,7 +73,7 @@ static ExecutableItem locatorMatcher(Client *client, int maxResultCount,
 
     const Group root {
         resultStorage,
-        ClientWorkspaceSymbolRequestTask(onQuerySetup, onQueryDone, CallDone::OnSuccess),
+        ClientWorkspaceSymbolRequestTask(onQuerySetup, onQueryDone, CallDoneFlag::OnSuccess),
         AsyncTask<void>(onFilterSetup)
     };
     return root;
@@ -126,7 +126,7 @@ static ExecutableItem currentDocumentMatcher()
 
     const Group root {
         resultStorage,
-        CurrentDocumentSymbolsRequestTask({}, onQueryDone, CallDone::OnSuccess),
+        CurrentDocumentSymbolsRequestTask({}, onQueryDone, CallDoneFlag::OnSuccess),
         AsyncTask<void>(onFilterSetup)
     };
     return root;

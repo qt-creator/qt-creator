@@ -50,16 +50,16 @@ private:
 class FileTransferTaskAdapter final
 {
 public:
-    PROJECTEXPLORER_EXPORT void operator()(FileTransfer *task, QTaskInterface *iface);
+    PROJECTEXPLORER_EXPORT void operator()(FileTransfer *task, QtTaskTree::QTaskInterface *iface);
 };
 
 class FileTransferTestTaskAdapter final
 {
 public:
-    PROJECTEXPLORER_EXPORT void operator()(FileTransfer *task, QTaskInterface *iface);
+    PROJECTEXPLORER_EXPORT void operator()(FileTransfer *task, QtTaskTree::QTaskInterface *iface);
 };
 
-using FileTransferTask = QCustomTask<FileTransfer, FileTransferTaskAdapter>;
-using FileTransferTestTask = QCustomTask<FileTransfer, FileTransferTestTaskAdapter>;
+using FileTransferTask = QtTaskTree::QCustomTask<FileTransfer, FileTransferTaskAdapter>;
+using FileTransferTestTask = QtTaskTree::QCustomTask<FileTransfer, FileTransferTestTaskAdapter>;
 
 } // namespace ProjectExplorer

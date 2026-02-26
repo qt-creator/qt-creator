@@ -147,7 +147,7 @@ static void setupCSharpLanguageServer(IDocument *document)
 
             using namespace std::literals::chrono_literals;
             const Group recipe {
-                ProcessTask(onInstallSetup, onInstallDone, CallDone::Always)
+                ProcessTask(onInstallSetup, onInstallDone, CallDoneFlag::Always)
                 .withTimeout(5min, onInstallTimeout)
             };
             GlobalTaskTree::start(recipe);

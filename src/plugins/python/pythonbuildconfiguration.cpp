@@ -126,7 +126,7 @@ void PySideBuildStep::checkForPySide(const FilePath &pythonPath, const QString &
         result.parseField(fieldName, data);
         handlePySidePackageInfo(result, pythonPath, pySidePackageName);
     };
-    m_taskTreeRunner.start({ProcessTask(onSetup, onDone, CallDone::OnSuccess)});
+    m_taskTreeRunner.start({ProcessTask(onSetup, onDone, CallDoneFlag::OnSuccess)});
 }
 
 void PySideBuildStep::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,

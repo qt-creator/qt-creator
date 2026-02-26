@@ -1,6 +1,8 @@
 // Copyright (C) 2025 Jarek Kobus
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
+
 
 #include <QtTaskTree/qtcpsocketwrappertask.h>
 
@@ -12,7 +14,7 @@
 
 QT_BEGIN_NAMESPACE
 
-using namespace QtTaskTree;
+namespace QtTaskTree {
 
 class QTcpSocketWrapperPrivate : public QObjectPrivate
 {
@@ -25,9 +27,9 @@ public:
 };
 
 /*!
-    \class QTcpSocketWrapper
+    \class QtTaskTree::QTcpSocketWrapper
     \inheaderfile qtcpsocketwrappertask.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief A wrapper around QTcpSocket.
     \reentrant
 
@@ -142,6 +144,12 @@ void QTcpSocketWrapper::start()
     d->m_socket->connectToHost(d->m_address, d->m_port);
 }
 
+/*! \reimp */
+bool QTcpSocketWrapper::event(QEvent *event)
+{
+    return QObject::event(event);
+}
+
 /*!
     \fn void QTcpSocketWrapper::started()
 
@@ -161,11 +169,13 @@ void QTcpSocketWrapper::start()
 */
 
 /*!
-    \typedef QTcpSocketWrapperTask
-    \relates QCustomTask
+    \typedef QtTaskTree::QTcpSocketWrapperTask
+    \relates QtTaskTree::QCustomTask
 
     Type alias for the QCustomTask<QTcpSocketWrapper>,
     to be used inside recipes.
 */
+
+} // namespace QtTaskTree
 
 QT_END_NAMESPACE

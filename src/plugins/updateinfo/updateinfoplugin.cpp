@@ -378,7 +378,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
     };
 
     const Group recipe{
-        ProcessTask(onUpdateSetup, onUpdateDone(m_d->m_updateOutput), CallDone::Always),
+        ProcessTask(onUpdateSetup, onUpdateDone(m_d->m_updateOutput), CallDoneFlag::Always),
         m_d->m_settings.checkForQtVersions
             ? ProcessTask(
                   [doSetup](Process &process) {
@@ -387,7 +387,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
                           {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"});
                   },
                   onUpdateDone(m_d->m_packagesOutput),
-                  CallDone::Always)
+                  CallDoneFlag::Always)
             : nullItem};
     m_d->m_taskTreeRunner.start(recipe, onTreeSetup, onTreeDone);
 }

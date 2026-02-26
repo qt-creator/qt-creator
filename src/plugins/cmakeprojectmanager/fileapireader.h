@@ -97,7 +97,7 @@ private:
     // Notification on changes outside of creator:
     std::unique_ptr<Utils::FilePathWatcher> m_watcher;
     QDateTime m_lastReplyTimestamp;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // CMakeProjectManager::Internal

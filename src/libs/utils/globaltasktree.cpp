@@ -8,6 +8,8 @@
 
 #include <QThread>
 
+using namespace QtTaskTree;
+
 namespace Utils {
 
 static QParallelTaskTreeRunner *getRunner()

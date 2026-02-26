@@ -239,7 +239,7 @@ static ExecutableItem forceStopRecipe(const Storage<RunnerStorage> &storage)
         const QString pid = process.cleanedStdOut().trimmed();
         return pid == QString::number(storage->m_processPID);
     };
-    const auto pidOfTask = ProcessTask(onPidOfSetup, onPidOfDone, CallDone::OnSuccess);
+    const auto pidOfTask = ProcessTask(onPidOfSetup, onPidOfDone, CallDoneFlag::OnSuccess);
 
     const auto onRunAsSetup = [storage](Process &process) {
         process.setCommand(storage->adbCommand({"shell", "run-as", storage->m_packageName, "kill", "-9",
@@ -453,7 +453,7 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
         settledJdbBarrier,
         Group {
             bufferStorage,
-            ProcessTask(onTimeSetup, onTimeDone, CallDone::OnSuccess) || successItem,
+            ProcessTask(onTimeSetup, onTimeDone, CallDoneFlag::OnSuccess) || successItem,
             ProcessTask(onLogcatSetup)
         },
         jdbRecipe(storage, startJdbBarrier, settledJdbBarrier)
@@ -526,13 +526,13 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
         cmdStorage,
         onGroupSetup(onArgsSetup),
         For (iterator) >> Do {
-            ProcessTask(onPreCommandSetup, onPreCommandDone, CallDone::OnError)
+            ProcessTask(onPreCommandSetup, onPreCommandDone, CallDoneFlag::OnError)
         },
         If (isQmlDebug) >> Then {
             QTaskTreeTask(onTaskTreeSetup),
             QSyncTask(onQmlDebugSync)
         },
-        ProcessTask(onActivitySetup, onActivityDone, CallDone::OnError)
+        ProcessTask(onActivitySetup, onActivityDone, CallDoneFlag::OnError)
     };
 }
 
@@ -630,17 +630,17 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
         QSyncTask(onTempDebugServerPath),
         If (!ProcessTask(onServerUploadSetup)) >> Then {
             QSyncTask([] { qCDebug(androidRunWorkerLog) << "Debug server upload to temp directory failed"; }),
-            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) && errorItem
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDoneFlag::OnError) && errorItem
         },
         If (!ProcessTask(onServerCopySetup)) >> Then {
             QSyncTask([] { qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed"; }),
-            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) && errorItem
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDoneFlag::OnError) && errorItem
         },
         If (!ProcessTask(onServerChmodSetup)) >> Then {
             QSyncTask([] { qCDebug(androidRunWorkerLog) << "Debug server chmod failed"; }),
-            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) && errorItem
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDoneFlag::OnError) && errorItem
         },
-        ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) || successItem,
+        ProcessTask(onCleanupSetup, onCleanupDone, CallDoneFlag::OnError) || successItem,
         QSyncTask(onDebugSetupFinished)
     };
 }
@@ -794,10 +794,10 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
     return Group {
         Forever {
             stopOnSuccess,
-            ProcessTask(onPidSetup, onPidDone, CallDone::OnSuccess),
+            ProcessTask(onPidSetup, onPidDone, CallDoneFlag::OnSuccess),
             timeoutTask(200ms)
         }.withTimeout(45s),
-        ProcessTask(onUserSetup, onUserDone, CallDone::OnSuccess),
+        ProcessTask(onUserSetup, onUserDone, CallDoneFlag::OnSuccess),
         ProcessTask(onArtSetup, onArtDone),
         ProcessTask(onCompileSetup, onCompileDone),
         Group {
@@ -849,7 +849,7 @@ ExecutableItem runnerRecipe(const Storage<RunnerInterface> &glueStorage)
                 }
             }
         }.withCancel([glueStorage] {
-            return std::make_pair(glueStorage.activeStorage(), &RunnerInterface::canceled);
+            return makeObjectSignal(glueStorage.activeStorage(), &RunnerInterface::canceled);
         }),
         forceStopRecipe(storage),
         postDoneRecipe(storage)

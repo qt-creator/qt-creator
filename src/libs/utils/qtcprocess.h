@@ -226,9 +226,9 @@ public:
 class ProcessTaskAdapter final
 {
 public:
-    QTCREATOR_UTILS_EXPORT void operator()(Process *task, QTaskInterface *iface);
+    QTCREATOR_UTILS_EXPORT void operator()(Process *task, QtTaskTree::QTaskInterface *iface);
 };
 
-using ProcessTask = QCustomTask<Process, ProcessTaskAdapter>;
+using ProcessTask = QtTaskTree::QCustomTask<Process, ProcessTaskAdapter>;
 
 } // namespace Utils

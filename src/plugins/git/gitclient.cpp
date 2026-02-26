@@ -294,7 +294,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
 
     const Group root {
         diffInputStorage,
-        ProcessTask(onDiffSetup, onDiffDone, CallDone::Always),
+        ProcessTask(onDiffSetup, onDiffDone),
         postProcessTask(diffInputStorage)
     };
     setReloadRecipe(root);
@@ -383,9 +383,9 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         Group {
             parallel,
             continueOnSuccess,
-            ProcessTask(onStagedSetup, onStagedDone, CallDone::OnSuccess),
-            ProcessTask(onUnstagedSetup, onUnstagedDone, CallDone::OnSuccess),
-            onGroupDone(onDone, CallDone::OnSuccess)
+            ProcessTask(onStagedSetup, onStagedDone, CallDoneFlag::OnSuccess),
+            ProcessTask(onUnstagedSetup, onUnstagedDone, CallDoneFlag::OnSuccess),
+            onGroupDone(onDone, CallDoneFlag::OnSuccess)
         },
         postProcessTask(diffInputStorage)
     };
@@ -597,8 +597,8 @@ ShowController::ShowController(IDocument *document, const QString &id)
         const Group recipe = For (iterator) >> Do {
             parallel,
             continueOnSuccess,
-            ProcessTask(onFollowSetup, onFollowDone, CallDone::OnSuccess),
-            onGroupDone(onDone, CallDone::OnError)
+            ProcessTask(onFollowSetup, onFollowDone, CallDoneFlag::OnSuccess),
+            onGroupDone(onDone, CallDoneFlag::OnError)
         };
         taskTree.setRecipe(recipe);
     };
@@ -622,8 +622,8 @@ ShowController::ShowController(IDocument *document, const QString &id)
         Group {
             Group {
                 parallel,
-                ProcessTask(onDescriptionSetup, onDescriptionDone, CallDone::OnSuccess),
-                ProcessTask(onParentRevsSetup, onParentRevsDone, CallDone::OnSuccess),
+                ProcessTask(onDescriptionSetup, onDescriptionDone, CallDoneFlag::OnSuccess),
+                ProcessTask(onParentRevsSetup, onParentRevsDone, CallDoneFlag::OnSuccess),
             },
             Group {
                 parallel,
@@ -636,7 +636,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         },
         Group {
             diffInputStorage,
-            ProcessTask(onDiffSetup, onDiffDone, CallDone::OnSuccess),
+            ProcessTask(onDiffSetup, onDiffDone, CallDoneFlag::OnSuccess),
             postProcessTask(diffInputStorage)
         }
     };
@@ -1617,7 +1617,7 @@ void GitClient::reset(const FilePath &workingDirectory, const QString &argument,
         If (isHard) >> Then {
             statusResultStorage,
             statusTask(workingDirectory, StatusMode(NoUntracked | NoSubmodules), statusResultStorage),
-            onGroupDone(onStatusDone, CallDone::OnSuccess)
+            onGroupDone(onStatusDone, CallDoneFlag::OnSuccess)
         },
         commandTask({workingDirectory, arguments, flags})
     };
@@ -2007,7 +2007,7 @@ GroupItem GitClient::topRevision(const FilePath &workingDirectory,
         callback(output.first(), dateTime);
     };
 
-    return ProcessTask(onProcessSetup, onProcessDone, CallDone::OnSuccess);
+    return ProcessTask(onProcessSetup, onProcessDone, CallDoneFlag::OnSuccess);
 }
 
 bool GitClient::isRemoteCommit(const FilePath &workingDirectory, const QString &commit)

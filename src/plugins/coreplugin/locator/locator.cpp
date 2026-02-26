@@ -420,11 +420,11 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
         const Group group {
             finishAllAndSuccess,
             *task,
-            onGroupDone([this, filter] { m_refreshingFilters.removeOne(filter); }, CallDone::OnSuccess)
+            onGroupDone([this, filter] { m_refreshingFilters.removeOne(filter); }, CallDoneFlag::OnSuccess)
         };
         tasks.append(group);
     }
-    m_taskTreeRunner.start(tasks, onTreeSetup, onTreeDone, CallDone::OnSuccess);
+    m_taskTreeRunner.start(tasks, onTreeSetup, onTreeDone, CallDoneFlag::OnSuccess);
 }
 
 void Locator::showFilter(ILocatorFilter *filter, LocatorWidget *widget)

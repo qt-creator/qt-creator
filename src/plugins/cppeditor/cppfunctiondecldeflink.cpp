@@ -235,7 +235,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
             emit foundLink(link);
     };
     m_taskTreeRunner.start({
-        AsyncTask<ResultType>(onSetup, onDone, CallDone::OnSuccess)
+        AsyncTask<ResultType>(onSetup, onDone, CallDoneFlag::OnSuccess)
     });
 }
 

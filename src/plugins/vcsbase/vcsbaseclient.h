@@ -101,7 +101,7 @@ private:
     void saveSettings();
 
     VcsBaseSettings *m_baseSettings = nullptr; // Aspect based.
-    QSequentialTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSequentialTaskTreeRunner m_taskTreeRunner;
 };
 
 class VCSBASE_EXPORT VcsBaseClient : public VcsBaseClientImpl

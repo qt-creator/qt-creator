@@ -217,7 +217,7 @@ static Group installRecipe(
                 return SetupResult::Continue;
             }),
             QNetworkReplyWrapperTask(onDownloadSetup, onDownloadDone),
-            UnarchiverTask(onUnarchiveSetup, onUnarchiverDone, CallDone::OnSuccess | CallDone::OnError),
+            UnarchiverTask(onUnarchiveSetup, onUnarchiverDone, CallDoneFlag::OnSuccess | CallDoneFlag::OnError),
             onGroupDone([storage] { storage->remove(); }),
         },
         onGroupDone([emitResult](DoneWith result) {

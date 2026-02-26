@@ -23,6 +23,8 @@
 #include <QVariantAnimation>
 #include <QWidget>
 
+using namespace QtTaskTree;
+
 namespace Utils {
 
 using namespace StyleHelper;
@@ -726,8 +728,6 @@ public:
                 QPixmapCache::insert(pixmapCacheKey, px);
             }
         } else {
-            using namespace QtTaskTree;
-
             const auto onSetup = [url](QNetworkReplyWrapper &task) {
                 task.setNetworkAccessManager(Utils::NetworkAccessManager::instance());
                 task.setRequest(QNetworkRequest(url));

@@ -148,7 +148,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
         finishAllAndSuccess,
         storage,
         onGroupSetup(onSetup),
-        AsyncTask<FileData>(onDiffSetup, onDiffDone, CallDone::OnSuccess),
+        AsyncTask<FileData>(onDiffSetup, onDiffDone, CallDoneFlag::OnSuccess),
         onGroupDone(onDone)
     };
     setReloadRecipe(recipe);

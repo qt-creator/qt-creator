@@ -35,6 +35,8 @@
 #include <QTextTable>
 #include <QTimer>
 
+using namespace QtTaskTree;
+
 namespace Utils {
 
 using namespace StyleHelper;
@@ -453,8 +455,6 @@ public:
             }
 
             m_needsToRestartLoading = false;
-
-            using namespace QtTaskTree;
 
             const bool isBaseHttp = m_basePath.scheme() == QStringLiteral("http")
                                     || m_basePath.scheme() == QStringLiteral("https");

@@ -97,7 +97,7 @@ QtTaskTree::GroupItem ConfigureStep::runRecipe()
 
     return Group {
         onGroupSetup(onSetup),
-        onGroupDone([this] { m_runConfigure = false; }, CallDone::OnSuccess),
+        onGroupDone([this] { m_runConfigure = false; }, CallDoneFlag::OnSuccess),
         defaultProcessTask()
     };
 }

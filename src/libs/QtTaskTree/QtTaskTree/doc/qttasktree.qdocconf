@@ -26,11 +26,15 @@ qhp.QtTaskTree.subprojects.examples.selectors          = example
 qhp.QtTaskTree.subprojects.examples.sortPages          = true
 
 
-depends += qtcore \
-           qtdoc \
-           qmake \
+depends += qmake \
            qtcmake \
-           qtconcurrent
+           qtconcurrent \
+           qtcore \
+           qtdoc \
+           qtgui \
+           qtnetwork \
+           qtscxml \
+           qtstatemachine
 
 headerdirs  += ..
 

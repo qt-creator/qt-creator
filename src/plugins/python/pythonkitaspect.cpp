@@ -22,6 +22,7 @@
 #include <QSortFilterProxyModel>
 
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Python {
@@ -174,7 +175,7 @@ public:
                                    });
     }
 
-    std::optional<QtTaskTree::ExecutableItem> autoDetect(
+    std::optional<ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const DetectionSource &detectionSource,
@@ -183,10 +184,10 @@ public:
         return PythonSettings::autoDetect(kit, searchPaths, detectionSource, logCallback);
     }
 
-    std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
+    std::optional<ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override
     {
-        return QSyncTask([detectionSource, logCallback]() {
+        return QSyncTask([detectionSource, logCallback] {
             PythonSettings::removeDetectedPython(detectionSource, logCallback);
         });
     }

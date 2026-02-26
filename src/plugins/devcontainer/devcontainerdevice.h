@@ -69,7 +69,7 @@ private:
     std::optional<Utils::Environment> m_systemEnvironment;
     std::optional<QtTaskTree::ExecutableItem> m_downRecipe;
     std::optional<QtTaskTree::ExecutableItem> m_forceDownRecipe;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 
     std::unique_ptr<Utils::FilePathWatcher> m_devContainerJsonWatcher;
     std::unique_ptr<Utils::FilePathWatcher> m_dockerFileWatcher;

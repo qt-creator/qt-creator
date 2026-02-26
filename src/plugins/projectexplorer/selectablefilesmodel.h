@@ -159,7 +159,7 @@ signals:
     void parsingProgress(const QString &progress);
 
 private:
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 class PROJECTEXPLORER_EXPORT SelectableFilesWidget : public QWidget

@@ -366,7 +366,7 @@ private: ////////// General Interface //////////
 
     Utils::Process m_gdbProc;
     OutputCollector m_outputCollector;
-    QSingleTaskTreeRunner m_signalOperationRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_signalOperationRunner;
 };
 
 } // Debugger::Internal

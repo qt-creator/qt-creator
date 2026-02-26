@@ -39,7 +39,7 @@ private:
     QtTaskTree::GroupItem runRecipe() final;
     void updateExtraCompilers();
 
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 
     Utils::FilePathAspect m_pysideProject{this};
     Utils::FilePathAspect m_pysideUic{this};

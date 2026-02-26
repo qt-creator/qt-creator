@@ -56,7 +56,7 @@ private:
     QString m_amenHash;
     Utils::FilePath m_workingDirectory;
     bool m_firstUpdate = true;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // Git::Internal

@@ -102,7 +102,7 @@ LocatorMatcherTasks HelpIndexFilter::matchers()
         }
     };
 
-    return {AsyncTask<QStringList>(onSetup, onDone, CallDone::OnSuccess)};
+    return {AsyncTask<QStringList>(onSetup, onDone, CallDoneFlag::OnSuccess)};
 }
 
 void HelpIndexFilter::invalidateCache()

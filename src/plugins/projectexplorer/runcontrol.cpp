@@ -1078,7 +1078,7 @@ ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
 
 Canceler RunControl::canceler()
 {
-    return [this] { return std::make_pair(this, &RunControl::canceled); };
+    return [this] { return makeObjectSignal(this, &RunControl::canceled); };
 }
 
 void RunControl::handleProcessCancellation(Process *process)

@@ -621,7 +621,7 @@ static ExecutableItem startAvdAsyncRecipe(const QString &avdName)
         is32Storage,
         onGroupSetup(onSetup),
         ProcessTask(onGetConfSetup, onGetConfDone),
-        AsyncTask<void>(onAvdSetup, onAvdDone, CallDone::OnError)
+        AsyncTask<void>(onAvdSetup, onAvdDone, CallDoneFlag::OnError)
     };
 }
 
@@ -737,7 +737,7 @@ static ExecutableItem waitForAvdRecipe(const QString &avdName, const Storage<QSt
             Group {
                 outputStorage,
                 AndroidConfig::devicesCommandOutputRecipe(outputStorage),
-                onGroupDone(onIsConnectedDone, CallDone::OnSuccess)
+                onGroupDone(onIsConnectedDone, CallDoneFlag::OnSuccess)
             },
             onGroupDone(onWaitForBootedDone)
         }.withTimeout(120s)

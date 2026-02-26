@@ -1,6 +1,8 @@
 // Copyright (C) 2025 Jarek Kobus
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
+
 
 #include <QtTaskTree/qtasktree.h>
 
@@ -32,27 +34,31 @@ using namespace Qt::StringLiterals;
 
 /*!
     \namespace QtTaskTree
-    \inmodule TaskTree
-    \brief The QtTaskTree namespace encloses helper classes and global
+    \inmodule QtTaskTree
+    \brief The QtTaskTree namespace encloses all classes and global
            functions of the TaskTree module.
-
-    \sa {Qt TaskTree}
 */
 
 /*!
-    \module TaskTree
+    \module QtTaskTree
+    \preliminary
+    \since 6.11
     \ingroup modules
     \title Qt TaskTree C++ Classes
     \brief Contains a general purpose TaskTree library.
+    \qtcmakepackage TaskTree
+    \qtvariable tasktree
 
     Use the TaskTree library to construct recipes, describing what
     asynchronous  tasks are to be executed, and use these recipes
     within QTaskTree to execute them.
 
     The recipes are declarative descriptions on what task types
-    are to be created and executed, e.g.: QProcess, QNetworkReplyWrapper,
-    or QThreadFunction<ReturnType>, or whether they should run in sequence
-    or in parallel. Inside recipes you may define different continuation
+    are to be created and executed, e.g.: \l QProcess,
+    \l {QtTaskTree::} {QNetworkReplyWrapper},
+    or \l {QtTaskTree::} {QThreadFunction}<\c {ReturnType}>,
+    or whether they should run in sequence or in parallel.
+    Inside recipes you may define different continuation
     paths depending on whether the previous task finished with success
     or an error. It's also possible to nest tasks in
     \l {QtTaskTree::} {Group} elements, and each
@@ -70,11 +76,11 @@ using namespace Qt::StringLiterals;
 
     Examples of asynchronous Tasks:
     \list
-        \li QTimer::singleShot()
-        \li QProcess
-        \li QNetworkAccessManager + QNetworkReply = QNetworkReplyWrapper
-        \li QtConcurrent::run() + QFutureWatcher<Result>
-            = QThreadFunction<Result>
+        \li \l{QTimer::singleShot()}
+        \li \l QProcess
+        \li \l QNetworkAccessManager + \l QNetworkReply = \l{QtTaskTree::}{QNetworkReplyWrapper}
+        \li \l{QtConcurrent::run()} + \l{QFutureWatcher}<Result>
+            = \l{QtTaskTree::}{QThreadFunction}<Result>
     \endlist
 
     \section1 Recipe & Task Tree
@@ -123,9 +129,11 @@ using namespace Qt::StringLiterals;
     inside a recipe. Instead, we need a declarative way to tell the task tree
     to create and start these tasks for us at later point in time. For example,
     if we want the task tree to create and start QProcess, we describe it
-    by placing QProcessTask element inside a recipe. The QProcessTask is an
-    alias to the QCustomTask<QProcess>. Each task Type should provide
-    its corresponding QCustomTask<Type> so that it may be used inside recipes.
+    by placing \l {QtTaskTree::} {QProcessTask} element inside a recipe.
+    The \l {QtTaskTree::} {QProcessTask} is an alias to the
+    \l {QtTaskTree::} {QCustomTask}<QProcess>. Each task Type should provide
+    its corresponding \l {QtTaskTree::} {QCustomTask}<\c {Type}>
+    so that it may be used inside recipes.
 
     The following table shows some build-in custom tasks ready to be placed
     inside recipes:
@@ -136,35 +144,38 @@ using namespace Qt::StringLiterals;
         \li Task Class (created by the running task tree)
         \li Brief Description
     \row
-        \li QProcessTask
-        \li QProcess
+        \li \l {QtTaskTree::} {QProcessTask}
+        \li \l QProcess
         \li Starts process.
     \row
-        \li QThreadFunctionTask<ReturnType>
-        \li QThreadFunction<ReturnType>
+        \li \l {QtTaskTree::} {QThreadFunctionTask}<\c {ReturnType}>
+        \li \l {QtTaskTree::} {QThreadFunction}<\c {ReturnType}>
         \li Starts asynchronous task, runs in separate thread.
     \row
-        \li QTaskTreeTask
-        \li QTaskTree
+        \li \l {QtTaskTree::} {QTaskTreeTask}
+        \li \l {QtTaskTree::} {QTaskTree}
         \li Starts nested task tree.
     \row
-        \li QNetworkReplyWrapperTask
-        \li QNetworkReplyWrapper
+        \li \l {QtTaskTree::} {QNetworkReplyWrapperTask}
+        \li \l {QtTaskTree::} {QNetworkReplyWrapper}
         \li Starts network download.
     \row
-        \li QTcpSocketWrapperTask
-        \li QTcpSocketWrapper
+        \li \l {QtTaskTree::} {QTcpSocketWrapperTask}
+        \li \l {QtTaskTree::} {QTcpSocketWrapper}
         \li Starts a TCP connection.
     \endtable
 
-    See QTaskInterface and \l {Task Adapters} for more information on
-    how to adapt particular task to be used inside recipes.
+    See \l {QtTaskTree::} {QTaskInterface} and \l {Task Adapters} for more
+    information on how to adapt particular task to be used inside recipes.
 
     \section1 Example Recipe
 
-    The QTaskTree has a top level Group element, a.k.a recipe, which may
-    contain any number of tasks of various types, such as QProcessTask,
-    QNetworkReplyWrapperTask, or QThreadFunctionTask<ReturnType>:
+    The \l {QtTaskTree::} {QTaskTree} has a top level
+    \l {QtTaskTree::} {Group} element, a.k.a recipe, which may
+    contain any number of tasks of various types, such as
+    \l {QtTaskTree::} {QProcessTask},
+    \l {QtTaskTree::} {QNetworkReplyWrapperTask}, or
+    \l {QtTaskTree::} {QThreadFunctionTask}<\c {ReturnType}>:
 
     \code
         const Group recipe {
@@ -178,21 +189,27 @@ using namespace Qt::StringLiterals;
         taskTree->start();
     \endcode
 
-    The recipe above consist of a top level element of the Group type that
-    contains tasks of the QProcessTask, QNetworkReplyWrapperTask,
-    and QThreadFunctionTask<int> type. After taskTree->start() is called,
-    the tasks are created and run in a chain, starting with QProcess.
-    When the QProcess finishes successfully, the QNetworkReplyWrapper
-    task is started. Finally, when the network task finishes successfully,
-    the QThreadFunction<int> task is started.
+    The recipe above consist of a top level element of the
+    \l {QtTaskTree::} {Group} type that contains tasks of the
+    \l {QtTaskTree::} {QProcessTask},
+    \l {QtTaskTree::} {QNetworkReplyWrapperTask},
+    and \l {QtTaskTree::} {QThreadFunctionTask}<\c {int}> type.
+    After \c taskTree->start() is called,
+    the tasks are created and run in a chain, starting with \l QProcess.
+    When the \l QProcess finishes successfully,
+    the \l {QtTaskTree::} {QNetworkReplyWrapper} task is started.
+    Finally, when the network task finishes successfully,
+    the \l {QtTaskTree::} {QThreadFunction}<\c {int}> task is started.
 
     When the last running task finishes with success, the task tree is
-    considered to have run successfully and the QTaskTree::done() signal
+    considered to have run successfully and the
+    \l {QtTaskTree::QTaskTree::done} {QTaskTree::done()} signal
     is emitted with \l {QtTaskTree::} {DoneWith::Success}.
     When a task finishes with an error, the execution of the task tree
     is stopped and the remaining tasks are skipped. The task tree finishes
-    with an error and sends the QTaskTree::done() signal with
-    \l {QtTaskTree::} {DoneWith::Error}.
+    with an error and sends the
+    \l {QtTaskTree::QTaskTree::done} {QTaskTree::done()}
+    signal with \l {QtTaskTree::} {DoneWith::Error}.
 
     \section1 Groups
 
@@ -213,22 +230,26 @@ using namespace Qt::StringLiterals;
     \endcode
 
     The example above differs from the first example in that the top level
-    element has a subgroup that contains the QProcessTask and
-    QThreadFunctionTask<int>. The subgroup is a sibling element of the
-    QNetworkReplyWrapperTask in the root. The subgroup contains an
-    additional \e parallel element that instructs its Group to execute
-    its tasks in parallel.
+    element has a subgroup that contains the \l {QtTaskTree::} {QProcessTask}
+    and \l {QtTaskTree::} {QThreadFunctionTask}<\c {int}>. The subgroup is
+    a sibling element of the \l {QtTaskTree::} {QNetworkReplyWrapperTask}
+    in the root. The subgroup contains an additional
+    \l {QtTaskTree::} {parallel} element that instructs its
+    \l {QtTaskTree::} {Group} to execute its tasks in parallel.
 
-    So, when the QTaskTree starts the recipe above, the QProcess and
-    QThreadFunction<int> start immediately and run in parallel.
-    Since the root group doesn't contain a \e parallel element,
+    So, when the \l {QtTaskTree::} {QTaskTree} starts the recipe above,
+    the \l QProcess and \l {QtTaskTree::} {QThreadFunction}<\c {int}>
+    start immediately and run in parallel. Since the root group doesn't
+    contain a \l {QtTaskTree::} {parallel} element,
     its direct child tasks are run in sequence. Thus, the
-    QNetworkReplyWrapper starts when the whole subgroup finishes. The group is
+    \l {QtTaskTree::} {QNetworkReplyWrapper} starts when the whole
+    subgroup finishes. The group is
     considered as finished when all its tasks have finished.
     The order in which the tasks finish is not relevant.
 
     So, depending on which task lasts longer
-    (QProcess or QThreadFunction<int>), the following scenarios can take place:
+    (\l QProcess or \l {QtTaskTree::} {QThreadFunction}<\c {int}>),
+    the following scenarios can take place:
 
     \table
     \header
@@ -283,13 +304,15 @@ using namespace Qt::StringLiterals;
     The presented scenarios assume that all tasks run successfully. If a task
     fails during execution, the task tree finishes with an error.
     In particular, when QProcess finishes with an error while
-    QThreadFunction<int> is still being executed, the QThreadFunction<int>
+    \l {QtTaskTree::} {QThreadFunction}<\c {int}> is still being executed,
+    the \l {QtTaskTree::} {QThreadFunction}<\c {int}>
     is automatically canceled, the subgroup finishes with an error,
-    the QNetworkReplyWrapper is skipped, and the tree finishes with an error.
+    the \l {QtTaskTree::} {QNetworkReplyWrapper} is skipped,
+    and the tree finishes with an error.
 
     \section1 Task Handlers
 
-    Use Task handlers to set up a task for execution and to enable reading
+    Use \c Task handlers to set up a task for execution and to enable reading
     the output data from the task when it finishes with success or an error.
 
     \section2 Task's Start Handler
@@ -309,7 +332,7 @@ using namespace Qt::StringLiterals;
         };
     \endcode
 
-    You can modify the passed QProcess in the setup handler, so that the task
+    You can modify the passed \l QProcess in the setup handler, so that the task
     tree can start the process according to your configuration.
     You should not call \c {process.start();} in the setup handler,
     as the task tree calls it when needed. The setup handler is optional.
@@ -329,7 +352,7 @@ using namespace Qt::StringLiterals;
         \li The task will be started normally. This is the default behavior
             when the setup handler doesn't return
             \l {QtTaskTree::} {SetupResult}
-            (that is, its return type is void).
+            (that is, its return type is \c void).
     \row
         \li \l {QtTaskTree::SetupResult::} {StopWithSuccess}
         \li The task won't be started and it will report success to its parent.
@@ -367,7 +390,7 @@ using namespace Qt::StringLiterals;
         };
     \endcode
 
-    The done handler may collect output data from QProcess, and store it
+    The done handler may collect output data from \l QProcess, and store it
     for further processing or perform additional actions.
 
     \note If the task setup handler returns
@@ -397,10 +420,10 @@ using namespace Qt::StringLiterals;
     \endcode
 
     The group setup handler is optional. To define a group setup handler,
-    add an \l {QtTaskTree::} {onGroupSetup()} element to a group.
-    The argument of \l {QtTaskTree::} {onGroupSetup()} is a user
+    add an \l {QtTaskTree::onGroupSetup} {onGroupSetup()} element to a group.
+    The argument of \l {QtTaskTree::onGroupSetup} {onGroupSetup()} is a user
     handler. If you add more than one
-    \l {QtTaskTree::} {onGroupSetup()} element to a group,
+    \l {QtTaskTree::onGroupSetup} {onGroupSetup()} element to a group,
     an assert is triggered at runtime that includes an error message.
 
     Like the task's start handler, the group start handler may return
@@ -488,7 +511,7 @@ using namespace Qt::StringLiterals;
     the successful or failed execution of its tasks.
     The final value reported by the group depends on its \l {Workflow Policy}.
     The handler can apply other necessary actions.
-    The done handler is defined inside the \l {QtTaskTree::} {onGroupDone()}
+    The done handler is defined inside the \l {QtTaskTree::onGroupDone} {onGroupDone()}
     element of a group. It may take the optional
     \l {QtTaskTree::} {DoneWith} argument, indicating
     the successful or failed execution:
@@ -507,7 +530,7 @@ using namespace Qt::StringLiterals;
     \endcode
 
     The group done handler is optional. If you add more than one
-    \l {QtTaskTree::} {onGroupDone()} to a group,
+    \l {QtTaskTree::onGroupDone} {onGroupDone()} to a group,
     an assert is triggered at runtime that includes an error message.
 
     \note Even if the group setup handler returns
@@ -519,8 +542,8 @@ using namespace Qt::StringLiterals;
     \section1 Other Group Elements
 
     A group can contain other elements that describe the processing flow,
-    such as the execution mode or workflow policy. It can also contain
-    storage elements that are responsible for collecting and sharing
+    such as the \l {execution mode} or \l {workflow policy}. It can also
+    contain storage elements that are responsible for collecting and sharing
     custom common data gathered during group execution.
 
     \section2 Execution Mode
@@ -590,8 +613,8 @@ using namespace Qt::StringLiterals;
             const Group root {
                 // [7] runtime: task tree creates an instance of CopyStorage when root is entered
                 storage,
-                QThreadFunctionTask<QByteArray>(onLoaderSetup, onLoaderDone, CallDone::OnSuccess),
-                QThreadFunctionTask<void>(onSaverSetup, onSaverDone, CallDone::OnSuccess)
+                QThreadFunctionTask<QByteArray>(onLoaderSetup, onLoaderDone, CallDoneFlag::OnSuccess),
+                QThreadFunctionTask<void>(onSaverSetup, onSaverDone, CallDoneFlag::OnSuccess)
             };
             return root;
         }
@@ -608,7 +631,7 @@ using namespace Qt::StringLiterals;
         tasktree.start();
     \endcode
 
-    In the example above, the inter-task data consists of a QByteArray content
+    In the example above, the inter-task data consists of a \l QByteArray content
     variable [2] enclosed in a \c CopyStorage custom struct [1]. If the loader
     finishes successfully, it stores the data in a \c CopyStorage::content
     variable [5]. The saver then uses the variable to configure the
@@ -642,9 +665,9 @@ using namespace Qt::StringLiterals;
     only from within the handler body. To access the currently active
     \c CopyStorage from within
     \l {QtTaskTree::} {Storage}<\c {CopyStorage}>, use the
-    \l {QtTaskTree::} {Storage::operator->()},
-    \l {QtTaskTree::} {Storage::operator*()}, or
-    \l {QtTaskTree::} {Storage::activeStorage()}
+    \l {QtTaskTree::Storage::operator->} {Storage::operator->()},
+    \l {QtTaskTree::Storage::operator*} {Storage::operator*()}, or
+    \l {QtTaskTree::Storage::activeStorage} {Storage::activeStorage()}
        method.
 
     The following list summarizes how to employ a Storage object into the task
@@ -662,25 +685,28 @@ using namespace Qt::StringLiterals;
 
     \section1 QTaskTree class
 
-    QTaskTree executes the tree structure of asynchronous tasks according
-    to the recipe described by the \l {QtTaskTree::} {Group}
+    \l {QtTaskTree::} {QTaskTree} executes the tree structure of asynchronous
+     tasks according to the recipe described by the \l {QtTaskTree::} {Group}
     root element.
 
-    As QTaskTree is also an asynchronous task, it can be a part of another
-    QTaskTree. To place a nested QTaskTree inside another QTaskTree,
-    insert the QTaskTreeTask element into another
-    \l {QtTaskTree::} {Group} element.
+    As \l {QtTaskTree::} {QTaskTree} is also an asynchronous task,
+    it can be a part of another \l {QtTaskTree::} {QTaskTree}.
+    To place a nested \l {QtTaskTree::} {QTaskTree} inside another
+    \l {QtTaskTree::} {QTaskTree}, insert the \l {QtTaskTree::} {QTaskTreeTask}
+    element into another \l {QtTaskTree::} {Group} element.
 
-    QTaskTree reports progress of completed tasks when running.
-    The progress value is increased when a task finishes or is skipped
-    or canceled. When QTaskTree is finished and the QTaskTree::done()
+    \l {QtTaskTree::} {QTaskTree} reports progress of completed tasks when
+    running. The progress value is increased when a task finishes or is
+    skipped or canceled. When \l {QtTaskTree::} {QTaskTree} is finished
+    and the \l {QtTaskTree::QTaskTree::done} {QTaskTree::done()}
     signal is emitted, the current value of the progress equals the
     maximum progress value. Maximum progress equals the total number
-    of asynchronous tasks in a tree. A nested QTaskTree is counted
+    of asynchronous tasks in a tree. A nested
+    \l {QtTaskTree::} {QTaskTree} is counted
     as a single task, and its child tasks are not counted in the
     top level tree. Groups themselves are not counted as tasks,
-    but their tasks are counted. \l QSyncTask tasks are not asynchronous,
-    so they are not counted as tasks.
+    but their tasks are counted. \l {QtTaskTree::} {QSyncTask} tasks
+    are not asynchronous, so they are not counted as tasks.
 
     To set additional initial data for the running tree, modify the storage
     instances in a tree when it creates them by installing a storage setup
@@ -700,7 +726,7 @@ using namespace Qt::StringLiterals;
     When the running task tree creates a \c CopyStorage instance,
     and before any handler inside a tree is called, the task tree calls
     the \c initStorage handler, to enable setting up initial data
-    of the storage, unique to this particular run of taskTree.
+    of the storage, unique to this particular run of \c taskTree.
 
     Similarly, to collect some additional result data from the running tree,
     read it from storage instances in the tree when they are about to be
@@ -719,13 +745,14 @@ using namespace Qt::StringLiterals;
 
     When the running task tree is about to destroy a \c CopyStorage instance,
     the task tree calls the collectStorage handler, to enable reading
-    the final data from the storage, unique to this particular run of taskTree.
+    the final data from the storage, unique to this particular run of \c taskTree.
 
     \section1 Task Adapters
 
     Allowing new Task types to be a part of recipes is quite easy.
-    It's enough to define a new task alias to the QCustomTask template,
-    passing your Task type as a first template argument, like:
+    It's enough to define a new task alias to the
+    \l {QtTaskTree::} {QCustomTask} template,
+    passing your \c Task type as a first template argument, like:
 
     \code
         class Worker : public QObject
@@ -752,8 +779,8 @@ using namespace Qt::StringLiterals;
     If your task doesn't meet these conditions, you may still adapt your
     task to work with the TaskTree framework, by providing a second
     template argument with the custom adapter.
-    Let's say, we want to adapt QTimer to work with TaskTree.
-    The Adapter could look like:
+    Let's say, we want to adapt \l QTimer to work with TaskTree.
+    The \c Adapter could look like:
 
     \code
         class TimerAdapter
@@ -771,7 +798,7 @@ using namespace Qt::StringLiterals;
         using TimerTask = QCustomTask<QTimer, TimerAdapter>;
     \endcode
 
-    Now you may start using the TimerTask in your recipes, like:
+    Now you may start using the \c TimerTask in your recipes, like:
 
     \code
         const auto onSetup = [](QTimer &task) {
@@ -794,7 +821,54 @@ using namespace Qt::StringLiterals;
     (that is, safe non-blocking destructor of a running task).
     To achieve a non-blocking destruction of a task that has
     a blocking destructor, consider using the optional \c Deleter
-    template parameter of the QCustomTask (the third template argument).
+    template parameter of the \l {QtTaskTree::} {QCustomTask}
+    (the third template argument).
+
+    \section1 Task Tree Runners
+
+    The task tree runner manages the lifetime of the underlying
+    \l {QtTaskTree::} {QTaskTree} used to execute the given recipe.
+
+    The following table summarizes the differences between various
+    task tree runners:
+
+    \table
+    \header
+        \li Class name
+        \li Description
+    \row
+        \li \l {QtTaskTree::} {QSingleTaskTreeRunner}
+        \li Manages single task tree execution.
+            The \l {QtTaskTree::QSingleTaskTreeRunner::start}
+            {QSingleTaskTreeRunner::start()} method
+            unconditionally starts the passed recipe, resetting any task tree
+            that might be running. Only one task tree can be executing at a time.
+    \row
+        \li \l {QtTaskTree::} {QSequentialTaskTreeRunner}
+        \li Manages sequential task tree executions.
+            The \l {QtTaskTree::QSequentialTaskTreeRunner::enqueue}
+            {QSequentialTaskTreeRunner::enqueue()} method
+            starts the passed recipe if the task tree runner is idle.
+            Otherwise, the recipe is enqueued. When the current
+            task finishes, the runner executes the dequeued recipe
+            sequentially. Only one task tree can be executing at a time.
+    \row
+        \li \l {QtTaskTree::} {QParallelTaskTreeRunner}
+        \li Manages parallel task tree executions.
+            The \l {QtTaskTree::QParallelTaskTreeRunner::start}
+            {QParallelTaskTreeRunner::start()} method
+            unconditionally starts the passed recipe and keeps any possibly
+            running task trees in parallel.
+    \row
+        \li \l {QtTaskTree::} {QMappedTaskTreeRunner}
+        \li Manages mapped task tree executions.
+            The \l {QtTaskTree::QMappedTaskTreeRunner::start}
+            {QMappedTaskTreeRunner::start()} method
+            unconditionally starts the specified recipe for a given key.
+            If you already have a different task tree with the same key running,
+            it will be reset. Task trees with different keys are unaffected
+            and continue their execution.
+    \endtable
 */
 
 namespace QtTaskTree {
@@ -808,7 +882,7 @@ namespace QtTaskTree {
 /*!
     \class QtTaskTree::GroupItem
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief GroupItem represents the basic element that may be a part of any
            \l {QtTaskTree::} {Group}.
     \reentrant
@@ -845,10 +919,10 @@ namespace QtTaskTree {
     \row
         \li Other group control items
         \li The \l {QtTaskTree::} {ExecutionMode} or items returned by
-            \l {QtTaskTree::} {workflowPolicy()}
+            \l {QtTaskTree::workflowPolicy} {workflowPolicy()}
             influence the group's behavior. The items returned by
-            \l {QtTaskTree::} {onGroupSetup()} or
-            \l {QtTaskTree::} {onGroupDone()} define custom
+            \l {QtTaskTree::onGroupSetup} {onGroupSetup()} or
+            \l {QtTaskTree::onGroupDone} {onGroupDone()} define custom
             handlers called when the group starts or ends execution.
     \endtable
 */
@@ -856,7 +930,7 @@ namespace QtTaskTree {
 /*!
     \class QtTaskTree::Group
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief Group represents the basic element for composing declarative
            recipes describing how to execute and handle a nested tree
            of asynchronous tasks.
@@ -864,11 +938,12 @@ namespace QtTaskTree {
 
     Group is a container for other group items. It encloses child tasks
     into one unit, which is seen by the group's parent as a single,
-    asynchronous task. Since Group is of the GroupItem type,
+    asynchronous task. Since Group is of the \l GroupItem type,
     it may also be a child of Group.
 
     Insert child tasks into the group by using aliased custom task names,
-    such as, QThreadFunctionTask<ResultType> or QNetworkReplyWrapperTask:
+    such as, \l {QThreadFunctionTask}<\c {ResultType}>
+    or \l QNetworkReplyWrapperTask:
 
     \code
         const Group group {
@@ -934,7 +1009,7 @@ namespace QtTaskTree {
             // the *storage or storage-> operators.
             sequential,
             storage,
-            QNetworkReplyWrapperTask(onFirstSetup, onFirstDone, CallDone::OnSuccess),
+            QNetworkReplyWrapperTask(onFirstSetup, onFirstDone, CallDoneFlag::OnSuccess),
             QThreadFunctionTask<QImage>(onSecondSetup)
         };
     \endcode
@@ -1270,7 +1345,7 @@ namespace QtTaskTree {
     When the DoneResult is returned by the group's done handler,
     the group's workflow policy is ignored.
 
-    This enum is also used inside the QTaskInterface::done() signal and
+    This enum is also used inside the TaskInterface::done() signal and
     it indicates whether the task finished with success or an error.
 
     \value Success
@@ -1303,7 +1378,7 @@ namespace QtTaskTree {
 */
 
 /*!
-    \enum QtTaskTree::CallDone
+    \enum QtTaskTree::CallDoneFlag
 
     This enum is an optional argument for the \l onGroupDone()
     element or custom task's constructor. It instructs the task tree
@@ -1386,12 +1461,12 @@ namespace QtTaskTree {
 /*!
     \class QtTaskTree::Storage
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief A class template for custom data exchange in the running task tree.
     \reentrant
 
     The Storage class template is responsible for dynamically creating
-    and destructing objects of the custom \c StorageStruct type.
+    and destructing objects of the custom \a StorageStruct type.
     The creation and destruction are managed by the running task tree.
     If a Storage object is placed inside a \l {QtTaskTree::} {Group}
     element, the running task tree creates the \c StorageStruct object
@@ -1403,8 +1478,8 @@ namespace QtTaskTree {
     was placed, also within the nested groups. When a copy of the Storage
     object is passed to the handler via the lambda capture, the handler
     may access the instance activated by the running task tree via the
-    \l {QtTaskTree::} {Storage::operator->()},
-    \l {QtTaskTree::} {Storage::operator*()}, or activeStorage() method.
+    \l {QtTaskTree::Storage::operator->} {Storage::operator->()},
+    \l {QtTaskTree::Storage::operator*} {Storage::operator*()}, or activeStorage() method.
     If two handlers capture the same Storage object,
     one of them may store a custom data there, and the other may
     read it afterwards. When the group is finished, the previously created
@@ -1505,10 +1580,10 @@ namespace QtTaskTree {
 */
 
 /*!
-    \fn template <typename StorageStruct> template <typename ...Args> Storage<StorageStruct>::Storage<StorageStruct>(const Args &...args)
+    \fn template <typename StorageStruct> template <typename FirstArg, typename ...Args, std::enable_if_t<!std::is_same_v<q20::remove_cvref_t<FirstArg>, Storage<StorageStruct>>, bool> = true> Storage<StorageStruct>::Storage<StorageStruct>(const FirstArg &firstArg, const Args &...args)
 
     Creates a storage for the given \c StorageStruct type. The passed
-    \a args are stored when creating a storage, and are used later by
+    \a firstArg and \a args are stored when creating a storage, and are used later by
     the running QTaskTree to construct the \c StorageStruct
     with the stored \a args.
 
@@ -1576,8 +1651,8 @@ namespace QtTaskTree {
     The dynamically created instance of \c StorageStruct is accessible
     from inside any handler body of the parent \l {QtTaskTree::} {Group}
     element, including nested groups and its tasks, via the
-    \l {QtTaskTree::} {Storage::operator->()},
-    \l {QtTaskTree::} {Storage::operator*()},
+    \l {QtTaskTree::Storage::operator->} {Storage::operator->()},
+    \l {QtTaskTree::Storage::operator*} {Storage::operator*()},
     or Storage::activeStorage() method.
 
     \sa {QtTaskTree::} {Storage}
@@ -1604,7 +1679,7 @@ namespace QtTaskTree {
 */
 
 /*!
-    \fn template <typename Handler> GroupItem onGroupDone(Handler &&handler, CallDoneFlags callDone = CallDone::Always)
+    \fn template <typename Handler> GroupItem onGroupDone(Handler &&handler, CallDone callDone = CallDoneFlag::Always)
 
     Constructs a group's element holding the group done handler.
     By default, the \a handler is invoked whenever the group finishes.
@@ -1659,7 +1734,7 @@ private:
 /*!
     \class QtTaskTree::ExecutionMode
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief The group element describing execution mode.
     \reentrant
 
@@ -1686,7 +1761,7 @@ ExecutionMode::ExecutionMode(int limit)
 /*!
     \class QtTaskTree::ParallelLimit
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief The parallel execution mode with a custom limit.
     \reentrant
 
@@ -1774,15 +1849,10 @@ public:
     Iterator m_iterator;
 };
 
-For::~For() = default;
-For::For(const For &other) = default;
-For::For(For &&other) noexcept = default;
-For &For::operator=(const For &other) = default;
-
 /*!
     \class QtTaskTree::For
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief A for loop element.
     \reentrant
 
@@ -1800,7 +1870,7 @@ For &For::operator=(const For &other) = default;
 
 /*!
     Constructs the For loop element, holding an \a iterator. Use the
-    \l {QtTaskTree::operator>>(const QtTaskTree::For &forItem, const QtTaskTree::Do &doItem)}
+    \l {operator>>(const QtTaskTree::For &forItem, const QtTaskTree::Do &doItem)}
     {stream insertion operator} with \l Do element to place the whole construct
     in a task tree recipe.
 */
@@ -1818,15 +1888,10 @@ public:
     GroupItem m_children;
 };
 
-Do::~Do() = default;
-Do::Do(const Do &other) = default;
-Do::Do(Do &&other) noexcept = default;
-Do &Do::operator=(const Do &other) = default;
-
 /*!
     \class QtTaskTree::Do
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief A body element used with For and When constructs.
     \reentrant
 
@@ -1932,6 +1997,8 @@ GroupItem Do::children() const
 }
 
 /*!
+    \fn Group For::operator>>(const For &forItem, const Do &doItem)
+
     Combines \a forItem with \a doItem body and returns a \l Group
     ready to be used in task tree recipes.
 */
@@ -1943,7 +2010,7 @@ Group operator>>(const For &forItem, const Do &doItem)
 /*!
     \class QtTaskTree::Forever
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief Infinite loop of subtasks.
     \reentrant
 
@@ -2058,7 +2125,7 @@ class IteratorThreadData
 
 public:
     IteratorThreadData() = default;
-    void pushIteration(int index)
+    void pushIteration(qsizetype index)
     {
         m_activeIteratorStack.push_back(index);
     }
@@ -2067,7 +2134,7 @@ public:
         QT_TASKTREE_ASSERT(m_activeIteratorStack.size(), return);
         m_activeIteratorStack.pop_back();
     }
-    int iteration() const
+    qsizetype iteration() const
     {
         QT_TASKTREE_ASSERT(m_activeIteratorStack.size(), qWarning(
             "The referenced iterator is not reachable in the running tree. "
@@ -2078,15 +2145,24 @@ public:
     }
 
 private:
-    QList<int> m_activeIteratorStack;
+    QList<qsizetype> m_activeIteratorStack;
 };
 
-class IteratorData
+class IteratorPrivate : public QSharedData
 {
 public:
+    IteratorPrivate() = default;
+    explicit IteratorPrivate(qsizetype count, const Iterator::ValueGetter &valueGetter)
+        : m_loopCount(count)
+        , m_valueGetter(valueGetter)
+    {}
+    explicit IteratorPrivate(const Iterator::Condition &condition)
+        : m_condition(condition)
+    {}
+
     IteratorThreadData &threadData() { return m_threadData.data(); }
 
-    const std::optional<int> m_loopCount = {};
+    const std::optional<qsizetype> m_loopCount = std::nullopt;
     const Iterator::ValueGetter m_valueGetter = {};
     const Iterator::Condition m_condition = {};
     LocalThreadStorage<IteratorThreadData> m_threadData = {};
@@ -2095,7 +2171,7 @@ public:
 /*!
     \class QtTaskTree::Iterator
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief Base class to be used as an iterator inside For element.
     \reentrant
 
@@ -2103,15 +2179,15 @@ public:
 */
 
 Iterator::Iterator()
-    : m_iteratorData(new IteratorData)
+    : d(new IteratorPrivate)
 {}
 
-Iterator::Iterator(int count, const ValueGetter &valueGetter)
-    : m_iteratorData(new IteratorData{count, valueGetter})
+Iterator::Iterator(qsizetype count, const ValueGetter &valueGetter)
+    : d(new IteratorPrivate{count, valueGetter})
 {}
 
 Iterator::Iterator(const Condition &condition)
-    : m_iteratorData(new IteratorData{{}, {}, condition})
+    : d(new IteratorPrivate{condition})
 {}
 
 /*!
@@ -2178,20 +2254,20 @@ Iterator::Iterator(const Condition &condition)
     for the corresponding setup handler, so the order of iteration indices
     in subsequent done handlers may not be ascending.
 */
-int Iterator::iteration() const
+qsizetype Iterator::iteration() const
 {
-    return m_iteratorData->threadData().iteration();
+    return d->threadData().iteration();
 }
 
 const void *Iterator::valuePtr() const
 {
-    return m_iteratorData->m_valueGetter(iteration());
+    return d->m_valueGetter(iteration());
 }
 
 /*!
     \class QtTaskTree::ForeverIterator
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief Infinite iterator to be used inside For element.
     \reentrant
 
@@ -2248,7 +2324,7 @@ ForeverIterator::ForeverIterator() : Iterator() {}
 /*!
     \class QtTaskTree::RepeatIterator
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief The repetitive iterator to be used inside For element.
     \reentrant
 
@@ -2317,12 +2393,12 @@ ForeverIterator::ForeverIterator() : Iterator() {}
         You have lost. Try again.
     \endcode
 */
-RepeatIterator::RepeatIterator(int count) : Iterator(count) {}
+RepeatIterator::RepeatIterator(qsizetype count) : Iterator(count) {}
 
 /*!
     \class QtTaskTree::UntilIterator
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief The conditional iterator to be used inside For element.
     \reentrant
 
@@ -2379,9 +2455,12 @@ UntilIterator::UntilIterator(const Condition &condition) : Iterator(condition) {
 /*!
     \class QtTaskTree::ListIterator
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief The list iterator to be used inside For element.
     \reentrant
+
+    The template parameter \a T specifies the element type of the list
+    being iterated.
 
     \sa Iterator, ForeverIterator, RepeatIterator, UntilIterator
 */
@@ -2453,9 +2532,14 @@ private:
     QList<QPair<StoragePtr, QTaskTree *>> m_activeStorageStack;
 };
 
-class StorageData
+class StorageBasePrivate : public QSharedData
 {
 public:
+    StorageBasePrivate(const StorageBase::StorageConstructor &ctor,
+                       const StorageBase::StorageDestructor &dtor)
+        : m_constructor(ctor)
+        , m_destructor(dtor)
+    {}
     StorageThreadData &threadData() { return m_threadData.data(); }
 
     const StorageBase::StorageConstructor m_constructor = {};
@@ -2464,12 +2548,12 @@ public:
 };
 
 StorageBase::StorageBase(const StorageConstructor &ctor, const StorageDestructor &dtor)
-    : m_storageData(new StorageData{ctor, dtor})
+    : d(new StorageBasePrivate{ctor, dtor})
 {}
 
 StoragePtr StorageBase::activeStorageVoid() const
 {
-    return m_storageData->threadData().activeStorage();
+    return d->threadData().activeStorage();
 }
 
 class GroupItemPrivate : public QSharedData
@@ -2530,11 +2614,6 @@ GroupItem::GroupItem(std::initializer_list<GroupItem> children)
 {
     addChildren(children);
 }
-
-GroupItem::~GroupItem() = default;
-GroupItem::GroupItem(const GroupItem &other) = default;
-GroupItem::GroupItem(GroupItem &&other) noexcept = default;
-GroupItem &GroupItem::operator=(const GroupItem &other) = default;
 
 GroupItem::GroupItem(const Iterator &loop)
     : GroupItem(GroupData{{}, {}, {}, loop})
@@ -2646,9 +2725,36 @@ GroupItem::TaskHandler GroupItem::taskHandler() const
 }
 
 /*!
+    \struct QtTaskTree::ObjectSignal
+    \inheaderfile qtasktree.h
+    \inmodule QtTaskTree
+    \brief Structure describing QObject subclass and its signal.
+    \reentrant
+
+    Used as a return value from the \c ObjectSignalGetter function
+    passed to the \l ExecutableItem::withCancel() or
+    \l ExecutableItem::withAccept(). Use \l makeObjectSignal() to create
+    the ObjectSignal inside the definition of the \c ObjectSignalGetter.
+
+    \sa makeObjectSignal(), ExecutableItem::withCancel(), ExecutableItem::withAccept()
+*/
+
+/*!
+    \fn template <typename Signal> ObjectSignal<std::decay_t<Signal>> makeObjectSignal(typename QtPrivate::FunctionPointer<Signal>::Object *object, Signal &&signal)
+
+    A conventient function to create \l ObjectSignal inside the
+    \c ObjectSignalGetter function passed to the
+    \l ExecutableItem::withCancel() or \l ExecutableItem::withAccept().
+    Pass an \a object and its \a signal to create an instance of
+    ObjectSignal struct.
+
+    \sa ObjectSignal, ExecutableItem::withCancel(), ExecutableItem::withAccept()
+*/
+
+/*!
     \class QtTaskTree::ExecutableItem
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief Base class for executable task items.
     \reentrant
 
@@ -2681,7 +2787,7 @@ Group ExecutableItem::withTimeout(milliseconds timeout,
         stopOnSuccessOrError,
         Group {
             finishAllAndError,
-            handler ? QTimeoutTask(onSetup, [handler] { handler(); }, CallDone::OnSuccess)
+            handler ? QTimeoutTask(onSetup, [handler] { handler(); }, CallDoneFlag::OnSuccess)
                     : QTimeoutTask(onSetup)
         },
         *this
@@ -2866,13 +2972,14 @@ Group operator||(const ExecutableItem &item, DoneResult result)
 }
 
 /*!
-    \fn template <typename SenderSignalPairGetter> Group ExecutableItem::withCancel(SenderSignalPairGetter &&getter, std::initializer_list<GroupItem> postCancelRecipe = {}) const
+    \fn template <typename ObjectSignalGetter> Group ExecutableItem::withCancel(ObjectSignalGetter &&getter, std::initializer_list<GroupItem> postCancelRecipe = {}) const
 
     Makes a copy of \c this ExecutableItem cancelable.
     The passed \a getter is a function returning a
-    \c std::pair<QObject *, PointerToMemberFunction> that describes
-    the emitter and its cancellation signal. When the cancellation signal
-    is emitted, \c this ExecutableItem is canceled, an optionally provided
+    \l ObjectSignal that describes the emitter and its cancellation signal.
+    Use \l makeObjectSignal() inside the \a getter to create an
+    \l ObjectSignal object. When the cancellation signal is emitted,
+    \c this ExecutableItem is canceled, an optionally provided
     \a postCancelRecipe is executed, and returned Group finishes with an error.
 
     When \c this ExecutableItem finishes before the cancellation signal
@@ -2917,12 +3024,13 @@ Group ExecutableItem::withCancelImpl(
 }
 
 /*!
-    \fn template <typename SenderSignalPairGetter> Group ExecutableItem::withAccept(SenderSignalPairGetter &&getter) const
+    \fn template <typename ObjectSignalGetter> Group ExecutableItem::withAccept(ObjectSignalGetter &&getter) const
 
     Returns a copy of \c this ExecutableItem coupled with a signal awaiter.
     The passed \a getter is a function returning a
-    \c std::pair<QObject *, PointerToMemberFunction>
-    that describes the emitter and its awaiting signal.
+    \l ObjectSignal that describes the emitter and its awaiting signal.
+    Use \l makeObjectSignal() inside the \a getter to create an
+    \l ObjectSignal object.
 
     When \c this ExecutableItem finishes with an error, the returned
     \l {QtTaskTree::} {Group} finishes immediately with an error,
@@ -3025,9 +3133,9 @@ public:
     }
     ~ExecutionContextActivator() {
         for (int i = m_activeStorages.size() - 1; i >= 0; --i) // iterate in reverse order
-            m_activeStorages[i].m_storageData->threadData().popStorage();
+            m_activeStorages[i].d->threadData().popStorage();
         for (int i = m_activeIterators.size() - 1; i >= 0; --i) // iterate in reverse order
-            m_activeIterators[i].m_iteratorData->threadData().popIteration();
+            m_activeIterators[i].d->threadData().popIteration();
         QT_TASKTREE_ASSERT(s_activeTaskTrees.size(), return);
         s_activeTaskTrees.pop_back();
     }
@@ -3054,10 +3162,10 @@ public:
     const GroupItem::GroupHandler m_groupHandler;
     const int m_parallelLimit = 1;
     const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
-    const std::optional<Iterator> m_iterator;
+    const std::optional<Iterator> m_iterator = std::nullopt;
     const QList<StorageBase> m_storageList;
     std::vector<TaskNode> m_children;
-    const int m_taskCount = 0;
+    const qsizetype m_taskCount = 0;
 };
 
 class TaskNode
@@ -3072,7 +3180,7 @@ public:
     {}
 
     bool isTask() const { return bool(m_taskHandler.m_taskAdapterConstructor); }
-    int taskCount() const { return isTask() ? 1 : m_container.m_taskCount; }
+    qsizetype taskCount() const { return isTask() ? 1 : m_container.m_taskCount; }
 
     const GroupItem::TaskHandler m_taskHandler;
     ContainerNode m_container;
@@ -3152,16 +3260,16 @@ public:
 
     static int effectiveIteratorCount(const std::optional<Iterator> &iterator)
     {
-        return iterator && iterator->m_iteratorData->m_loopCount ? *iterator->m_iteratorData->m_loopCount : 1;
+        return iterator && iterator->d->m_loopCount ? *iterator->d->m_loopCount : 1;
     }
 
     QTaskTree *q = nullptr;
     Guard m_guard;
-    int m_progressValue = 0;
-    int m_asyncCount = 0;
+    qsizetype m_progressValue = 0;
+    qsizetype m_asyncCount = 0;
     QSet<StorageBase> m_storages;
     QHash<StorageBase, StorageHandler> m_storageHandlers;
-    std::optional<TaskNode> m_root;
+    std::optional<TaskNode> m_root = std::nullopt;
     std::shared_ptr<RuntimeTask> m_runtimeRoot; // Keep me last in order to destruct first
 };
 
@@ -3219,7 +3327,7 @@ public:
             StoragePtr storagePtr = m_storages.value(i);
             if (m_callStorageDoneHandlersOnDestruction)
                 m_containerNode.m_taskTreePrivate->callDoneHandler(storage, storagePtr);
-            storage.m_storageData->m_destructor(storagePtr);
+            storage.d->m_destructor(storagePtr);
         }
     }
 
@@ -3275,7 +3383,7 @@ public:
 
     const TaskNode &m_taskNode; // Not owning.
     RuntimeIteration *m_parentIteration = nullptr; // Not owning.
-    std::optional<RuntimeContainer> m_container = {}; // Owning.
+    std::optional<RuntimeContainer> m_container = std::nullopt; // Owning.
     std::unique_ptr<TaskInterfaceAdapter> m_taskInterfaceAdapter = {}; // Owning.
     SetupResult m_setupResult = SetupResult::Continue;
 };
@@ -3307,7 +3415,7 @@ void ExecutionContextActivator::activateContext(RuntimeIteration *iteration)
 {
     std::optional<Iterator> loop = iteration->iterator();
     if (loop) {
-        loop->m_iteratorData->threadData().pushIteration(iteration->m_iterationIndex);
+        loop->d->threadData().pushIteration(iteration->m_iterationIndex);
         m_activeIterators.append(*loop);
     }
     activateContext(iteration->m_container);
@@ -3321,7 +3429,7 @@ void ExecutionContextActivator::activateContext(RuntimeContainer *container)
         if (m_activeStorages.contains(storage))
             continue; // Storage shadowing: The storage is already active, skipping it...
         m_activeStorages.append(storage);
-        storage.m_storageData->threadData().pushStorage(container->m_storages.value(i));
+        storage.d->threadData().pushStorage(container->m_storages.value(i));
     }
     // Go to the parent after activating this storages so that storage shadowing works
     // in the direction from child to parent root.
@@ -3438,7 +3546,7 @@ QList<StoragePtr> RuntimeContainer::createStorages(const ContainerNode &containe
 {
     QList<StoragePtr> storages;
     for (const StorageBase &storage : container.m_storageList) {
-        StoragePtr storagePtr = storage.m_storageData->m_constructor();
+        StoragePtr storagePtr = storage.d->m_constructor();
         storages.append(storagePtr);
         container.m_taskTreePrivate->callSetupHandler(storage, storagePtr);
     }
@@ -3592,17 +3700,17 @@ void QTaskTreePrivate::stopContainer(RuntimeContainer *container)
     }
 }
 
-static CallDone toCallDone(DoneWith result)
+static CallDoneFlag toCallDone(DoneWith result)
 {
     switch (result) {
-    case DoneWith::Success: return CallDone::OnSuccess;
-    case DoneWith::Error: return CallDone::OnError;
-    case DoneWith::Cancel: return CallDone::OnCancel;
+    case DoneWith::Success: return CallDoneFlag::OnSuccess;
+    case DoneWith::Error: return CallDoneFlag::OnError;
+    case DoneWith::Cancel: return CallDoneFlag::OnCancel;
     }
-    return CallDone::Never;
+    return CallDoneFlag::Never;
 }
 
-bool shouldCallDone(CallDoneFlags callDone, DoneWith result)
+bool shouldCallDone(CallDone callDone, DoneWith result)
 {
     return callDone & toCallDone(result);
 }
@@ -3620,7 +3728,7 @@ bool QTaskTreePrivate::invokeDoneHandler(RuntimeContainer *container, DoneWith d
 bool QTaskTreePrivate::invokeIteratorHandler(RuntimeContainer *container)
 {
     if (container->m_shouldIterate) {
-        const IteratorData *loopData = container->m_containerNode.m_iterator->m_iteratorData.get();
+        const IteratorPrivate *loopData = container->m_containerNode.m_iterator->d.get();
         if (loopData->m_loopCount) {
             container->m_shouldIterate = container->m_iterationCount < loopData->m_loopCount;
         } else if (loopData->m_condition) {
@@ -3707,14 +3815,16 @@ bool QTaskTreePrivate::invokeTaskDoneHandler(RuntimeTask *node, DoneWith doneWit
     return result == DoneResult::Success;
 }
 
-} // namespace QtTaskTree
-
-using namespace QtTaskTree;
+QT_TASKTREE_DEFINE_SMF(Do)
+QT_TASKTREE_DEFINE_SMF(For)
+QT_TASKTREE_DEFINE_SMF(GroupItem)
+QT_TASKTREE_DEFINE_SMF(Iterator)
+QT_TASKTREE_DEFINE_SMF(StorageBase)
 
 /*!
-    \class QSyncTask
+    \class QtTaskTree::QSyncTask
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief Synchronously executes a custom handler between other tasks.
     \reentrant
 
@@ -3727,7 +3837,7 @@ using namespace QtTaskTree;
 */
 
 /*!
-    \fn template <typename Handler> QSyncTask::QSyncTask(Handler &&handler)
+    \fn template <typename Handler, std::enable_if_t<!std::is_same_v<q20::remove_cvref_t<Handler>, QSyncTask>, bool> = true> QSyncTask::QSyncTask(Handler &&handler)
 
     Constructs an element that executes a passed \a handler synchronously.
     The \c Handler is of the \c std::function<DoneResult()> type.
@@ -3748,11 +3858,14 @@ using namespace QtTaskTree;
 */
 
 /*!
-    \class QDefaultTaskAdapter
+    \class QtTaskTree::QDefaultTaskAdapter
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief A class template providing default task adapter used in QCustomTask.
     \reentrant
+
+    QDefaultTaskAdapter\<Task\> is a template class where \a Task specifies
+    the task type to adapt.
 
     The QDefaultTaskAdapter adapting Task may be used when the following
     conditions are met:
@@ -3770,9 +3883,9 @@ using namespace QtTaskTree;
 */
 
 /*!
-    \class QCustomTask
+    \class QtTaskTree::QCustomTask
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief A class template used for declaring custom task items and
            defining their setup and done handlers.
     \reentrant
@@ -3780,7 +3893,7 @@ using namespace QtTaskTree;
     Describes custom task items within task tree recipes.
 
     Custom task names are aliased with unique names using the
-    QCustomTask template with a given Task, Adapter and Deleter.
+    QCustomTask template with a given \a Task, \a Adapter and \a Deleter.
     For example, QThreadFunctionTask<T> is an alias to the QCustomTask
     that is defined to work with QThreadFunction<T> as an associated task class.
     The following table contains custom tasks provided by the TaskTree library
@@ -3861,7 +3974,7 @@ using namespace QtTaskTree;
 */
 
 /*!
-    \typealias QCustomTask::TaskSetupHandler
+    \typealias QtTaskTree::QCustomTask::TaskSetupHandler
 
     Type alias for \c std::function<SetupResult(Task &)>.
 
@@ -3906,7 +4019,7 @@ using namespace QtTaskTree;
 */
 
 /*!
-    \typealias QCustomTask::TaskDoneHandler
+    \typealias QtTaskTree::QCustomTask::TaskDoneHandler
 
     Type alias for
     \c std::function<QtTaskTree::DoneResult(const Task &, QtTaskTree::DoneWith)>
@@ -3947,7 +4060,7 @@ using namespace QtTaskTree;
 */
 
 /*!
-    \fn template <typename Task, typename Adapter = QDefaultTaskAdapter<Task>, typename Deleter = std::default_delete<Task>> template <typename SetupHandler = QCustomTask::TaskSetupHandler, typename DoneHandler = QCustomTask::TaskDoneHandler> QCustomTask<Task, Adapter, Deleter>::QCustomTask<Task, Adapter, Deleter>(SetupHandler &&setup = QCustomTask::TaskSetupHandler(), DoneHandler &&done = QCustomTask::TaskDoneHandler(), QtTaskTree::CallDoneFlags callDone = QtTaskTree::CallDone::Always)
+    \fn template <typename Task, typename Adapter = QDefaultTaskAdapter<Task>, typename Deleter = std::default_delete<Task>> template <typename SetupHandler = QCustomTask::TaskSetupHandler, typename DoneHandler = QCustomTask::TaskDoneHandler, std::enable_if_t<!std::is_same_v<q20::remove_cvref_t<SetupHandler>, QCustomTask<Task, Adapter, Deleter>>, bool> = true> QCustomTask<Task, Adapter, Deleter>::QCustomTask<Task, Adapter, Deleter>(SetupHandler &&setup = QCustomTask::TaskSetupHandler(), DoneHandler &&done = QCustomTask::TaskDoneHandler(), QtTaskTree::CallDone callDone = QtTaskTree::CallDoneFlag::Always)
 
     Constructs a QCustomTask instance and attaches the \a setup and \a done
     handlers to the task. When the running task tree is about to start the task,
@@ -3996,9 +4109,9 @@ using namespace QtTaskTree;
 */
 
 /*!
-    \class QTaskInterface
+    \class QtTaskTree::QTaskInterface
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief QTaskInterface is a helper class used when adapting custom
            task's interface.
     \reentrant
@@ -4034,7 +4147,7 @@ QTaskInterface::QTaskInterface(QObject *parent) : QObject(parent) {}
     public:
         void operator()(Worker *task, QTaskInterface *iface) {
             connect(task, &Worker::finished, iface, [iface](bool success) {
-                iface->reportDone(QtTaskTree::toDoneResult(success));
+                iface->reportDone(toDoneResult(success));
             });
             task->execute();
         }
@@ -4051,10 +4164,16 @@ void QTaskInterface::reportDone(DoneResult result)
     Q_EMIT done(result, QPrivateSignal());
 }
 
+/*! \reimp */
+bool QTaskInterface::event(QEvent *event)
+{
+    return QObject::event(event);
+}
+
 /*!
-    \class QTaskTree
+    \class QtTaskTree::QTaskTree
     \inheaderfile qtasktree.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief The QTaskTree class runs the tree of asynchronous tasks
            defined in a declarative way.
     \reentrant
@@ -4368,13 +4487,13 @@ DoneWith QTaskTree::runBlocking(const Group &recipe, const QFuture<void> &future
 
     \sa asyncCountChanged()
 */
-int QTaskTree::asyncCount() const
+qsizetype QTaskTree::asyncCount() const
 {
     return d_func()->m_asyncCount;
 }
 
 /*!
-    \fn void QTaskTree::asyncCountChanged(int count)
+    \fn void QTaskTree::asyncCountChanged(qsizetype count)
 
     This signal is emitted when the running task tree is about to
     return control to the caller's event loop. When the task tree is started,
@@ -4396,14 +4515,14 @@ int QTaskTree::asyncCount() const
 
     \sa setRecipe(), progressMaximum()
 */
-int QTaskTree::taskCount() const
+qsizetype QTaskTree::taskCount() const
 {
     Q_D(const QTaskTree);
     return d->m_root ? d->m_root->taskCount() : 0;
 }
 
 /*!
-    \fn void QTaskTree::progressValueChanged(int value)
+    \fn void QTaskTree::progressValueChanged(qsizetype value)
 
     This signal is emitted when the running task tree finished, canceled,
     or skipped some tasks. The \a value gives the current total number of
@@ -4438,9 +4557,15 @@ int QTaskTree::taskCount() const
 
     \sa progressMaximum(), progressValueChanged()
 */
-int QTaskTree::progressValue() const
+qsizetype QTaskTree::progressValue() const
 {
     return d_func()->m_progressValue;
+}
+
+/*! \reimp */
+bool QTaskTree::event(QEvent *event)
+{
+    return QObject::event(event);
 }
 
 /*!
@@ -4508,7 +4633,7 @@ int QTaskTree::progressValue() const
 
         const Group root {
             storage,
-            QThreadFunctionTask(onLoaderSetup, onLoaderDone, CallDone::OnSuccess)
+            QThreadFunctionTask(onLoaderSetup, onLoaderDone, CallDoneFlag::OnSuccess)
         };
 
         QTaskTree taskTree(root);
@@ -4556,7 +4681,7 @@ void QTaskTree::setupStorageHandler(const StorageBase &storage,
     }
 }
 
-void QTaskTreeTaskAdapter::operator()(QTaskTree *task, QTaskInterface *iface)
+void QTaskTreeTaskAdapter::operator()(QTaskTree *task, QTaskInterface *iface) const
 {
     QObject::connect(task, &QTaskTree::done, iface, [iface](DoneWith result) {
         iface->reportDone(toDoneResult(result));
@@ -4647,15 +4772,15 @@ void QTimeoutTaskAdapter::operator()(milliseconds *task, QTaskInterface *iface)
 }
 
 /*!
-    \typedef QTaskTreeTask
-    \relates QCustomTask
+    \typedef QtTaskTree::QTaskTreeTask
+    \relates QtTaskTree::QCustomTask
 
     Type alias for the QCustomTask<QTaskTree>, to be used inside recipes.
 */
 
 /*!
-    \typedef QTimeoutTask
-    \relates QCustomTask
+    \typedef QtTaskTree::QTimeoutTask
+    \relates QtTaskTree::QCustomTask
 
     Type alias for the QCustomTask<\c std::chrono::milliseconds>,
     to be used inside recipes. The \c std::chrono::milliseconds
@@ -4677,7 +4802,15 @@ void QTimeoutTaskAdapter::operator()(milliseconds *task, QTaskInterface *iface)
         };
     \endcode
 
-    \sa {QtTaskTree::timeoutTask()} {timeoutTask()}
+    \sa {QtTaskTree::timeoutTask} {timeoutTask()}
 */
+
+} // namespace QtTaskTree
+
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::DoPrivate)
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::ForPrivate)
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::GroupItemPrivate)
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::IteratorPrivate)
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::StorageBasePrivate)
 
 QT_END_NAMESPACE

@@ -53,7 +53,7 @@ enum class Handler {
     BarrierAdvance,
     Timeout,
     Storage,
-    Iteration
+    Iteration,
 };
 Q_ENUM_NS(Handler);
 
@@ -65,14 +65,14 @@ enum class ThreadResult
     FailOnProgressCheck,
     FailOnLogCheck,
     FailOnDoneStatusCheck,
-    Canceled
+    Canceled,
 };
 Q_ENUM_NS(ThreadResult);
 
 enum class Execution
 {
     Sync,
-    Async
+    Async,
 };
 
 } // namespace PrintableEnums
@@ -141,7 +141,7 @@ private Q_SLOTS:
     void restartTaskTreeRunnerFromDoneHandler();
     void validConditionalConstructs();
     void exactHandlers();
-//    void boolDoneAdapter();
+    void boolDoneAdapter();
     void cleanupTestCase();
 };
 
@@ -203,12 +203,12 @@ void tst_TaskTree::validConstructs()
         parallel,
         TestTask(),
         TestTask(setupHandler),
-        TestTask(setupHandler, finishHandler, CallDone::OnSuccess),
+        TestTask(setupHandler, finishHandler, CallDoneFlag::OnSuccess),
         TestTask(setupHandler, doneHandler),
         // need to explicitly pass empty handler for done
-        TestTask(setupHandler, errorHandler, CallDone::OnError),
-        TestTask({}, finishHandler, CallDone::OnSuccess),
-        TestTask({}, errorHandler, CallDone::OnError)
+        TestTask(setupHandler, errorHandler, CallDoneFlag::OnError),
+        TestTask({}, finishHandler, CallDoneFlag::OnSuccess),
+        TestTask({}, errorHandler, CallDoneFlag::OnError)
     };
 
     const Group group5 {
@@ -405,29 +405,6 @@ static int doneCount(const Log &log)
     return count;
 }
 
-class DoneEmitter : public QObject
-{
-    Q_OBJECT
-
-public:
-    DoneEmitter(QAbstractTaskTreeRunner *runner, int expectedDoneCount)
-        : m_expectedDoneCount(expectedDoneCount)
-    {
-        connect(runner, &QAbstractTaskTreeRunner::done, this, [this] {
-            ++m_doneCount;
-            if (m_doneCount == m_expectedDoneCount)
-                Q_EMIT done();
-        });
-    }
-
-Q_SIGNALS:
-    void done();
-
-private:
-    const int m_expectedDoneCount = 0;
-    int m_doneCount = 0;
-};
-
 static Log s_globalLog = {};
 
 void tst_TaskTree::taskTreeRunner_data()
@@ -469,7 +446,7 @@ void tst_TaskTree::taskTreeRunner_data()
         });
     };
 
-    const auto groupDone = [](int taskId, CallDoneFlags calldone = CallDone::Always) {
+    const auto groupDone = [](int taskId, CallDone calldone = CallDoneFlag::Always) {
         return onGroupDone([taskId](DoneWith result) {
             s_globalLog.append({taskId, resultToGroupHandler(result)});
         }, calldone);
@@ -564,64 +541,67 @@ void tst_TaskTree::taskTreeRunner()
 {
     QFETCH(RunnerData, runnerData);
 
+    int doneCounter = 0;
+    const auto onDone = [&doneCounter] { ++doneCounter; };
+
     {
         s_globalLog = {};
+        doneCounter = 0;
         const Log expectedLog = runnerData.singleLog;
         QSingleTaskTreeRunner taskTreeRunner;
-        DoneEmitter emitter(&taskTreeRunner, doneCount(expectedLog));
-        QSignalSpy doneSpy(&emitter, &DoneEmitter::done);
         for (const QPair<QString, Group> &recipe : runnerData.recipes)
-            taskTreeRunner.start(recipe.second);
+            taskTreeRunner.start(recipe.second, {}, onDone);
 
-        QVERIFY(doneSpy.wait(1000));
+        QTRY_VERIFY_WITH_TIMEOUT(!taskTreeRunner.isRunning(), 1s);
 
         QVERIFY(!taskTreeRunner.isRunning());
         QCOMPARE(s_globalLog, expectedLog);
+        QCOMPARE(doneCounter, doneCount(expectedLog));
     }
 
     {
         s_globalLog = {};
+        doneCounter = 0;
         const Log expectedLog = runnerData.sequentialLog;
         QSequentialTaskTreeRunner taskTreeRunner;
-        DoneEmitter emitter(&taskTreeRunner, doneCount(expectedLog));
-        QSignalSpy doneSpy(&emitter, &DoneEmitter::done);
         for (const QPair<QString, Group> &recipe : runnerData.recipes)
-            taskTreeRunner.enqueue(recipe.second);
+            taskTreeRunner.enqueue(recipe.second, {}, onDone);
 
-        QVERIFY(doneSpy.wait(1000));
+        QTRY_VERIFY_WITH_TIMEOUT(!taskTreeRunner.isRunning(), 1s);
 
         QVERIFY(!taskTreeRunner.isRunning());
         QCOMPARE(s_globalLog, expectedLog);
+        QCOMPARE(doneCounter, doneCount(expectedLog));
     }
 
     {
         s_globalLog = {};
+        doneCounter = 0;
         const Log expectedLog = runnerData.parallelLog;
         QParallelTaskTreeRunner taskTreeRunner;
-        DoneEmitter emitter(&taskTreeRunner, doneCount(expectedLog));
-        QSignalSpy doneSpy(&emitter, &DoneEmitter::done);
         for (const QPair<QString, Group> &recipe : runnerData.recipes)
-            taskTreeRunner.start(recipe.second);
+            taskTreeRunner.start(recipe.second, {}, onDone);
 
-        QVERIFY(doneSpy.wait(1000));
+        QTRY_VERIFY_WITH_TIMEOUT(!taskTreeRunner.isRunning(), 1s);
 
         QVERIFY(!taskTreeRunner.isRunning());
         QCOMPARE(s_globalLog, expectedLog);
+        QCOMPARE(doneCounter, doneCount(expectedLog));
     }
 
     {
         s_globalLog = {};
+        doneCounter = 0;
         const Log expectedLog = runnerData.mappedLog;
         QMappedTaskTreeRunner<QString> taskTreeRunner;
-        DoneEmitter emitter(&taskTreeRunner, doneCount(expectedLog));
-        QSignalSpy doneSpy(&emitter, &DoneEmitter::done);
         for (const QPair<QString, Group> &recipe : runnerData.recipes)
-            taskTreeRunner.start(recipe.first, recipe.second);
+            taskTreeRunner.start(recipe.first, recipe.second, {}, onDone);
 
-        QVERIFY(doneSpy.wait(1000));
+        QTRY_VERIFY_WITH_TIMEOUT(!taskTreeRunner.isRunning(), 1s);
 
         QVERIFY(!taskTreeRunner.isRunning());
         QCOMPARE(s_globalLog, expectedLog);
+        QCOMPARE(doneCounter, doneCount(expectedLog));
     }
 
     s_globalLog = {};
@@ -642,7 +622,7 @@ public:
 
 Q_SIGNALS:
     void tick();
-    void done(DoneResult result);
+    void done(QtTaskTree::DoneResult result);
 
 private:
     milliseconds m_interval;
@@ -650,9 +630,8 @@ private:
 
 using TickAndDoneTask = QCustomTask<TickAndDone>;
 
-template <typename StoredBarrierType>
-ExecutableItem createBarrierAdvance(const Storage<CustomStorage> &storage,
-                                    const StoredBarrierType &barrier, int taskId)
+static ExecutableItem createBarrierAdvance(const Storage<CustomStorage> &storage,
+                                           const QStoredBarrier &barrier, int taskId)
 {
     return TickAndDoneTask([storage, barrier, taskId](TickAndDone &tickAndDone) {
         tickAndDone.setInterval(1ms);
@@ -703,8 +682,8 @@ static TestData storageShadowingData()
     const auto groupDoneWithStorage = [storage, helperStorage, shadowedStorage](int taskId) {
         return onGroupDone([storage, helperStorage, shadowedStorage, taskId](DoneWith result) {
             storage->m_log.append({taskId, resultToGroupHandler(result)});
-            auto it = helperStorage->find(taskId);
-            if (it == helperStorage->end()) {
+            auto it = helperStorage->constFind(taskId);
+            if (it == helperStorage->constEnd()) {
                 qWarning() << "The helperStorage is missing the shadowedStorage.";
                 return;
             } else if (*it != shadowedStorage.activeStorage()) {
@@ -882,7 +861,7 @@ void tst_TaskTree::testTree_data()
             storage->m_log.append({taskId, Handler::GroupSetup});
         });
     };
-    const auto groupDone = [storage](int taskId, CallDoneFlags callDone = CallDone::Always) {
+    const auto groupDone = [storage](int taskId, CallDone callDone = CallDoneFlag::Always) {
         return onGroupDone([storage, taskId](DoneWith result) {
             storage->m_log.append({taskId, resultToGroupHandler(result)});
         }, callDone);
@@ -1341,9 +1320,6 @@ void tst_TaskTree::testTree_data()
                 0
             };
         };
-
-        const Log doneLog = {{0, Handler::GroupSuccess}};
-        const Log errorLog = {{0, Handler::GroupError}};
 
         QTest::newRow("EmptyStopOnError")
             << testData(WorkflowPolicy::StopOnError, DoneWith::Success);
@@ -2756,7 +2732,7 @@ void tst_TaskTree::testTree_data()
     }
 
     {
-        QStoredMultiBarrier<2> barrier;
+        const QStoredBarrier barrier{2};
 
         // Test that multi barrier advance, triggered from inside the tasks described by
         // createBarrierAdvance, placed BEFORE the group containing the waitFor() element
@@ -3450,9 +3426,9 @@ void tst_TaskTree::testTree_data()
     }
 
     {
-        // These tests ensure the task handlers are invoked according to the CallDoneFlags
+        // These tests ensure the task handlers are invoked according to the CallDone
 
-        const auto createRoot = [storage, groupDone](DoneWith doneWith, CallDoneFlags callDone) {
+        const auto createRoot = [storage, groupDone](DoneWith doneWith, CallDone callDone) {
             return Group {
                 storage,
                 parallel,
@@ -3470,78 +3446,78 @@ void tst_TaskTree::testTree_data()
         const Log logCanceled {{1, Handler::GroupCanceled}};
 
         QTest::newRow("SuccessCallDoneNever")
-            << TestData{storage, createRoot(DoneWith::Success, CallDone::Never),
+            << TestData{storage, createRoot(DoneWith::Success, CallDoneFlag::Never),
                         logNoDone, 1, DoneWith::Success, 1};
         QTest::newRow("SuccessCallDoneOnSuccess")
-            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnSuccess),
+            << TestData{storage, createRoot(DoneWith::Success, CallDoneFlag::OnSuccess),
                         logSuccess, 1, DoneWith::Success, 1};
         QTest::newRow("SuccessCallDoneOnError")
-            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnError),
+            << TestData{storage, createRoot(DoneWith::Success, CallDoneFlag::OnError),
                         logNoDone, 1, DoneWith::Success, 1};
         QTest::newRow("SuccessCallDoneOnCancel")
-            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnCancel),
+            << TestData{storage, createRoot(DoneWith::Success, CallDoneFlag::OnCancel),
                         logNoDone, 1, DoneWith::Success, 1};
         QTest::newRow("SuccessCallDoneOnSuccessOrError")
-            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnSuccess | CallDone::OnError),
+            << TestData{storage, createRoot(DoneWith::Success, CallDoneFlag::OnSuccess | CallDoneFlag::OnError),
                         logSuccess, 1, DoneWith::Success, 1};
         QTest::newRow("SuccessCallDoneOnSuccessOrCancel")
-            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnSuccess | CallDone::OnCancel),
+            << TestData{storage, createRoot(DoneWith::Success, CallDoneFlag::OnSuccess | CallDoneFlag::OnCancel),
                         logSuccess, 1, DoneWith::Success, 1};
         QTest::newRow("SuccessCallDoneOnErrorOrCancel")
-            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnError | CallDone::OnCancel),
+            << TestData{storage, createRoot(DoneWith::Success, CallDoneFlag::OnError | CallDoneFlag::OnCancel),
                         logNoDone, 1, DoneWith::Success, 1};
         QTest::newRow("SuccessCallDoneAlways")
-            << TestData{storage, createRoot(DoneWith::Success, CallDone::Always),
+            << TestData{storage, createRoot(DoneWith::Success, CallDoneFlag::Always),
                         logSuccess, 1, DoneWith::Success, 1};
 
         QTest::newRow("ErrorCallDoneNever")
-            << TestData{storage, createRoot(DoneWith::Error, CallDone::Never),
+            << TestData{storage, createRoot(DoneWith::Error, CallDoneFlag::Never),
                         logNoDone, 1, DoneWith::Error, 1};
         QTest::newRow("ErrorCallDoneOnSuccess")
-            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnSuccess),
+            << TestData{storage, createRoot(DoneWith::Error, CallDoneFlag::OnSuccess),
                         logNoDone, 1, DoneWith::Error, 1};
         QTest::newRow("ErrorCallDoneOnError")
-            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnError),
+            << TestData{storage, createRoot(DoneWith::Error, CallDoneFlag::OnError),
                         logError, 1, DoneWith::Error, 1};
         QTest::newRow("ErrorCallDoneOnCancel")
-            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnCancel),
+            << TestData{storage, createRoot(DoneWith::Error, CallDoneFlag::OnCancel),
                         logNoDone, 1, DoneWith::Error, 1};
         QTest::newRow("ErrorCallDoneOnSuccessOrError")
-            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnSuccess | CallDone::OnError),
+            << TestData{storage, createRoot(DoneWith::Error, CallDoneFlag::OnSuccess | CallDoneFlag::OnError),
                         logError, 1, DoneWith::Error, 1};
         QTest::newRow("ErrorCallDoneOnSuccessOrCancel")
-            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnSuccess | CallDone::OnCancel),
+            << TestData{storage, createRoot(DoneWith::Error, CallDoneFlag::OnSuccess | CallDoneFlag::OnCancel),
                         logNoDone, 1, DoneWith::Error, 1};
         QTest::newRow("ErrorCallDoneOnErrorOrCancel")
-            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnError | CallDone::OnCancel),
+            << TestData{storage, createRoot(DoneWith::Error, CallDoneFlag::OnError | CallDoneFlag::OnCancel),
                         logError, 1, DoneWith::Error, 1};
         QTest::newRow("ErrorCallDoneAlways")
-            << TestData{storage, createRoot(DoneWith::Error, CallDone::Always),
+            << TestData{storage, createRoot(DoneWith::Error, CallDoneFlag::Always),
                         logError, 1, DoneWith::Error, 1};
 
         QTest::newRow("CancelCallDoneNever")
-            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::Never),
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDoneFlag::Never),
                         logNoDone, 1, DoneWith::Error, 0};
         QTest::newRow("CancelCallDoneOnSuccess")
-            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnSuccess),
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDoneFlag::OnSuccess),
                         logNoDone, 1, DoneWith::Error, 0};
         QTest::newRow("CancelCallDoneOnError")
-            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnError),
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDoneFlag::OnError),
                         logNoDone, 1, DoneWith::Error, 0};
         QTest::newRow("CancelCallDoneOnCancel")
-            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnCancel),
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDoneFlag::OnCancel),
                         logCanceled, 1, DoneWith::Error, 0};
         QTest::newRow("CancelCallDoneOnSuccessOrError")
-            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnSuccess | CallDone::OnError),
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDoneFlag::OnSuccess | CallDoneFlag::OnError),
                         logNoDone, 1, DoneWith::Error, 0};
         QTest::newRow("CancelCallDoneOnSuccessOrCancel")
-            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnSuccess | CallDone::OnCancel),
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDoneFlag::OnSuccess | CallDoneFlag::OnCancel),
                         logCanceled, 1, DoneWith::Error, 0};
         QTest::newRow("CancelCallDoneOnErrorOrCancel")
-            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnError | CallDone::OnCancel),
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDoneFlag::OnError | CallDoneFlag::OnCancel),
                         logCanceled, 1, DoneWith::Error, 0};
         QTest::newRow("CancelCallDoneAlways")
-            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::Always),
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDoneFlag::Always),
                         logCanceled, 1, DoneWith::Error, 0};
     }
 
@@ -4197,7 +4173,7 @@ void tst_TaskTree::testTree_data()
         };
 
         const auto onTickSetup = [tickStorage] {
-            return std::make_pair(tickStorage->get(), &QTimer::timeout);
+            return makeObjectSignal(tickStorage->get(), &QTimer::timeout);
         };
 
         const Group cancelTriggeredRecipe {
@@ -4530,12 +4506,12 @@ static std::atomic_bool s_syncDone = false;
 
 static void autoSyncOn(QPromise<void> &promise)
 {
-    QThread::msleep(1);
+    QThread::sleep(1ms);
     s_jobStarted = true; // Let know the threadJob has started.
     while (s_treeFinished == false)
-        QThread::msleep(1); // Ensures the tree has finished.
+        QThread::sleep(1ms); // Ensures the tree has finished.
     Q_ASSERT(promise.isCanceled()); // Tree has already canceled the promise.
-    QThread::msleep(1); // Spin for a while so that QThreadFunctionBase::syncAll() awaits for us.
+    QThread::sleep(1ms); // Spin for a while so that QThreadFunctionBase::syncAll() awaits for us.
     s_syncDone = true;
 }
 
@@ -4544,7 +4520,7 @@ static void autoSyncOff(QPromise<void> &promise)
     Q_ASSERT(!promise.isCanceled()); // Tree is still running.
     s_jobStarted = true; // Let know the threadJob has started.
     while (!promise.isCanceled())
-        QThread::msleep(1); // Spin for a while so that ~QThreadFunction awaits for us.
+        QThread::sleep(1ms); // Spin for a while so that ~QThreadFunction awaits for us.
     s_syncDone = true;
 }
 
@@ -4705,7 +4681,7 @@ void tst_TaskTree::storageInitialization()
     QFETCH(Storage<int>, storage);
     QFETCH(int, initValue);
 
-    std::optional<int> storageValue;
+    std::optional<int> storageValue = std::nullopt;
 
     const auto onSetup = [storage, &storageValue] { storageValue = *storage; };
 
@@ -4973,20 +4949,19 @@ void tst_TaskTree::exactHandlers()
         return DoneResult::Success;
     };
 
-    const QAbstractTaskTreeRunner::TreeSetupHandler onTreeSetup = [&treeSetupCalled](QTaskTree &) {
+    const TreeSetupHandler onTreeSetup = [&treeSetupCalled](QTaskTree &) {
         treeSetupCalled = true;
     };
 
-    const QAbstractTaskTreeRunner::TreeDoneHandler onTreeDone
+    const TreeDoneHandler onTreeDone
             = [&treeDoneCalled](const QTaskTree &, DoneWith) {
         treeDoneCalled = true;
     };
 
     QSingleTaskTreeRunner taskTreeRunner;
-    QSignalSpy doneSpy(&taskTreeRunner, &QAbstractTaskTreeRunner::done);
     taskTreeRunner.start({TestTask(onTaskSetup, onTaskDone)}, onTreeSetup, onTreeDone);
 
-    QVERIFY(doneSpy.wait(1000));
+    QTRY_VERIFY_WITH_TIMEOUT(!taskTreeRunner.isRunning(), 1s);
 
     QVERIFY(taskSetupCalled);
     QVERIFY(taskDoneCalled);
@@ -4994,31 +4969,31 @@ void tst_TaskTree::exactHandlers()
     QVERIFY(treeDoneCalled);
 }
 
-//class BoolDone : public QObject
-//{
-//    Q_OBJECT
-//
-//public:
-//    void start() { Q_EMIT done(true); }
-//
-//Q_SIGNALS:
-//    void done(bool);
-//};
-//
-//using BoolDoneTask = QCustomTask<BoolDone>;
-//
-//void tst_TaskTree::boolDoneAdapter()
-//{
-//    std::optional<bool> result = {};
-//    const auto onDone = [&result](DoneWith doneWith) {
-//        result = doneWith == DoneWith::Success ? true : false;
-//    };
-//    QSingleTaskTreeRunner taskTreeRunner;
-//    taskTreeRunner.start({BoolDoneTask()}, {}, onDone);
-//    QVERIFY(!taskTreeRunner.isRunning());
-//    QVERIFY(result);
-//    QVERIFY(*result);
-//}
+class BoolDone : public QObject
+{
+    Q_OBJECT
+
+public:
+    void start() { Q_EMIT done(true); }
+
+Q_SIGNALS:
+    void done(bool);
+};
+
+using BoolDoneTask = QCustomTask<BoolDone>;
+
+void tst_TaskTree::boolDoneAdapter()
+{
+    std::optional<bool> result = std::nullopt;
+    const auto onDone = [&result](DoneWith doneWith) {
+        result = doneWith == DoneWith::Success ? true : false;
+    };
+    QSingleTaskTreeRunner taskTreeRunner;
+    taskTreeRunner.start({BoolDoneTask()}, {}, onDone);
+    QVERIFY(!taskTreeRunner.isRunning());
+    QVERIFY(result);
+    QVERIFY(*result);
+}
 
 void tst_TaskTree::cleanupTestCase()
 {

@@ -26,7 +26,7 @@ void tst_QProcessTask::qProcessTask()
         taskTree.start();
         QTRY_VERIFY(taskTree.isRunning());
     }
-    QProcessDeleter::syncAll();
+    QProcessTaskDeleter::syncAll();
 }
 
 QTEST_GUILESS_MAIN(tst_QProcessTask)

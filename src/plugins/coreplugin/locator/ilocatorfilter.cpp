@@ -1411,7 +1411,7 @@ ExecutableItem LocatorFileCache::matcher() const
         that->update(async.result());
     };
 
-    return AsyncTask<LocatorFileCachePrivate>(onSetup, onDone, CallDone::OnSuccess);
+    return AsyncTask<LocatorFileCachePrivate>(onSetup, onDone, CallDoneFlag::OnSuccess);
 }
 
 } // Core

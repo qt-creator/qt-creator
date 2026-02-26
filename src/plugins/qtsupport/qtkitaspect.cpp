@@ -35,6 +35,7 @@
 #include <QJsonValue>
 
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace QtSupport {
@@ -138,19 +139,19 @@ private:
                            const QList<int> &changedIds);
     void onKitsLoaded() override;
 
-    std::optional<QtTaskTree::ExecutableItem> autoDetect(
+    std::optional<ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const DetectionSource &detectionSource,
         const LogCallback &logCallback) const override;
 
-    std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
+    std::optional<ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
     void listAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
-    Utils::Result<QtTaskTree::ExecutableItem> createAspectFromJson(
+    Utils::Result<ExecutableItem> createAspectFromJson(
         const DetectionSource &detectionSource,
         const FilePath &rootPath,
         Kit *kit,
@@ -454,7 +455,7 @@ void QtKitAspectFactory::onKitsLoaded()
             this, &QtKitAspectFactory::qtVersionsChanged);
 }
 
-std::optional<QtTaskTree::ExecutableItem> QtKitAspectFactory::autoDetect(
+std::optional<ExecutableItem> QtKitAspectFactory::autoDetect(
     Kit *kit,
     const FilePaths &searchPaths,
     const DetectionSource &detectionSource,
@@ -510,7 +511,7 @@ std::optional<QtTaskTree::ExecutableItem> QtKitAspectFactory::autoDetect(
     return AsyncTask<QtVersion *>(searchQtse, qtDetectionDone);
 }
 
-std::optional<QtTaskTree::ExecutableItem> QtKitAspectFactory::removeAutoDetected(
+std::optional<ExecutableItem> QtKitAspectFactory::removeAutoDetected(
     const QString &detectionSource, const LogCallback &logCallback) const
 {
     return QSyncTask([detectionSource, logCallback]() {
@@ -534,7 +535,7 @@ void QtKitAspectFactory::listAutoDetected(
     }
 }
 
-Utils::Result<QtTaskTree::ExecutableItem> QtKitAspectFactory::createAspectFromJson(
+Utils::Result<ExecutableItem> QtKitAspectFactory::createAspectFromJson(
     const DetectionSource &detectionSource,
     const FilePath &rootPath,
     Kit *kit,

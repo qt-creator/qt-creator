@@ -45,6 +45,7 @@
 #include <QUrl>
 
 using namespace Core;
+using namespace QtTaskTree;
 using namespace TextEditor;
 using namespace Utils;
 

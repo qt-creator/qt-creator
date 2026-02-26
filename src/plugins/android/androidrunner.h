@@ -10,7 +10,7 @@
 
 namespace Android::Internal {
 
-QtTaskTree::Group androidKicker(const QStoredBarrier &barrier,
+QtTaskTree::Group androidKicker(const QtTaskTree::QStoredBarrier &barrier,
                                 ProjectExplorer::RunControl *runControl);
 QtTaskTree::Group androidRecipe(ProjectExplorer::RunControl *runControl);
 void setupAndroidRunWorker();

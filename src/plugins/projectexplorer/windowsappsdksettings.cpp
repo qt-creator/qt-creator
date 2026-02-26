@@ -376,8 +376,8 @@ GroupItem WindowsSettingsWidget::downloadNugetRecipe()
         storage->fileName = fileName;
         m_nugetPathChooser->setFilePath(fileName);
     };
-    const auto onCancelSetup = [storage] { return std::make_pair(storage->progressDialog.get(),
-                                                                 &QProgressDialog::canceled); };
+    const auto onCancelSetup = [storage] { return makeObjectSignal(storage->progressDialog.get(),
+                                                                   &QProgressDialog::canceled); };
 
     return Group {
         storage,

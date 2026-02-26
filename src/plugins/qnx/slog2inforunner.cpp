@@ -83,10 +83,10 @@ Group slog2InfoRecipe(RunControl *runControl)
 
     return Group {
         storage,
-        ProcessTask(onTestSetup, onTestDone, CallDone::OnError),
-        ProcessTask(onLaunchTimeSetup, onLaunchTimeDone, CallDone::OnSuccess),
-        ProcessTask(onLogSetup, onLogError, CallDone::OnError),
-        onGroupDone(onCanceled, CallDone::OnCancel)
+        ProcessTask(onTestSetup, onTestDone, CallDoneFlag::OnError),
+        ProcessTask(onLaunchTimeSetup, onLaunchTimeDone, CallDoneFlag::OnSuccess),
+        ProcessTask(onLogSetup, onLogError, CallDoneFlag::OnError),
+        onGroupDone(onCanceled, CallDoneFlag::OnCancel)
     }.withCancel(runControl->canceler());
 }
 

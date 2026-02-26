@@ -34,7 +34,7 @@ signals:
 private:
     QTextCursor m_scannedSelection;
     QTextCursor m_nameSelection;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 class FunctionDeclDefLink

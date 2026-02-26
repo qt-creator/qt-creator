@@ -12,12 +12,12 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT GlobalTaskTree final
 {
 public:
-    template <typename SetupHandler = QAbstractTaskTreeRunner::TreeSetupHandler,
-              typename DoneHandler = QAbstractTaskTreeRunner::TreeDoneHandler>
+    template <typename SetupHandler = QtTaskTree::TreeSetupHandler,
+              typename DoneHandler = QtTaskTree::TreeDoneHandler>
     static void start(const QtTaskTree::Group &recipe,
                       SetupHandler &&setupHandler = {},
                       DoneHandler &&doneHandler = {},
-                      QtTaskTree::CallDoneFlags callDone = QtTaskTree::CallDone::Always)
+                      QtTaskTree::CallDone callDone = QtTaskTree::CallDoneFlag::Always)
     {
         if (auto runner = taskTreeRunner())
             runner->start(recipe, setupHandler, doneHandler, callDone);
@@ -25,7 +25,7 @@ public:
 
 private:
     GlobalTaskTree() = delete;
-    static QParallelTaskTreeRunner *taskTreeRunner();
+    static QtTaskTree::QParallelTaskTreeRunner *taskTreeRunner();
 };
 
 } // namespace Utils

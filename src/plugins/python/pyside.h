@@ -49,8 +49,8 @@ private:
     static QString usedPySide(const QString &text, const QString &mimeType);
 
     QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
-    QMappedTaskTreeRunner<TextEditor::TextDocument *> m_taskTreeRunner;
-    QSingleTaskTreeRunner m_pipInstallerRunner;
+    QtTaskTree::QMappedTaskTreeRunner<TextEditor::TextDocument *> m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_pipInstallerRunner;
 };
 
 } // Python::Internal

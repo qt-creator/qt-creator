@@ -1,6 +1,8 @@
 // Copyright (C) 2025 Jarek Kobus
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
+
 
 #include <QtTaskTree/qnetworkreplywrappertask.h>
 
@@ -13,7 +15,7 @@
 
 QT_BEGIN_NAMESPACE
 
-using namespace QtTaskTree;
+namespace QtTaskTree {
 
 class QNetworkReplyWrapperPrivate : public QObjectPrivate
 {
@@ -27,9 +29,9 @@ public:
 };
 
 /*!
-    \class QNetworkReplyWrapper
+    \class QtTaskTree::QNetworkReplyWrapper
     \inheaderfile qnetworkwrappertask.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief A wrapper around QNetworkReply and QNetworkAccessManager.
     \reentrant
 
@@ -179,6 +181,12 @@ void QNetworkReplyWrapper::start()
         Q_EMIT started();
 }
 
+/*! \reimp */
+bool QNetworkReplyWrapper::event(QEvent *event)
+{
+    return QObject::event(event);
+}
+
 /*!
     \fn void QNetworkReplyWrapper::started()
 
@@ -217,11 +225,13 @@ void QNetworkReplyWrapper::start()
 */
 
 /*!
-    \typedef QNetworkReplyWrapperTask
-    \relates QCustomTask
+    \typedef QtTaskTree::QNetworkReplyWrapperTask
+    \relates QtTaskTree::QCustomTask
 
     Type alias for the QCustomTask<QNetworkReplyWrapper>,
     to be used inside recipes.
 */
+
+} // namespace QtTaskTree
 
 QT_END_NAMESPACE

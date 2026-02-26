@@ -410,7 +410,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
         ParallelLimit(limit),
         storage,
         onGroupSetup([storage, filteredFiles] { *storage = filteredFiles.cbegin(); }),
-        AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDone::OnSuccess)
+        AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDoneFlag::OnSuccess)
     };
     const auto onTaskTreeSetup = [this](QTaskTree &taskTree) {
         if (m_withTaskProgress) {

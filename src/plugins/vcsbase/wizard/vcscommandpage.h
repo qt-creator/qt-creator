@@ -61,7 +61,7 @@ private:
     QString m_name;
     QString m_runMessage;
     QStringList m_arguments;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace VcsBase::Internal

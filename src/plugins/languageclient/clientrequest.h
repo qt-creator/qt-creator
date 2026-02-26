@@ -71,10 +71,10 @@ class ClientWorkspaceSymbolRequestTaskAdapter final
 {
 public:
     LANGUAGECLIENT_EXPORT void operator()(ClientWorkspaceSymbolRequest *task,
-                                          QTaskInterface *iface);
+                                          QtTaskTree::QTaskInterface *iface);
 };
 
 using ClientWorkspaceSymbolRequestTask
-    = QCustomTask<ClientWorkspaceSymbolRequest, ClientWorkspaceSymbolRequestTaskAdapter>;
+    = QtTaskTree::QCustomTask<ClientWorkspaceSymbolRequest, ClientWorkspaceSymbolRequestTaskAdapter>;
 
 } // namespace LanguageClient

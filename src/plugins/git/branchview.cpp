@@ -287,7 +287,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                 mergeAction->setText(Tr::tr("Merge \"%1\" into \"%2\" (No &Fast-Forward)")
                                          .arg(indexName, currentName));
             }));
-            connect(mergeAction, &QObject::destroyed, &taskTreeRunner, &QSingleTaskTreeRunner::reset);
+            connect(mergeAction, &QObject::destroyed, this, [&taskTreeRunner] { taskTreeRunner.reset(); });
 
             contextMenu.addAction(Tr::tr("&Rebase \"%1\" on \"%2\"")
                                   .arg(currentName, indexName),
@@ -565,12 +565,12 @@ Group BranchView::fastForwardMergeRecipe(const std::function<void()> &callback)
     const Group root {
         storage,
         parallel,
-        ProcessTask(onMergeBaseSetup, onMergeBaseDone, CallDone::OnSuccess),
+        ProcessTask(onMergeBaseSetup, onMergeBaseDone, CallDoneFlag::OnSuccess),
         topRevisionProc,
         onGroupDone([storage, callback] {
             if (storage->mergeBase == storage->topRevision)
                 callback();
-        }, CallDone::OnSuccess)
+        }, CallDoneFlag::OnSuccess)
     };
     return root;
 }

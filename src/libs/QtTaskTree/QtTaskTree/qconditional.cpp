@@ -1,6 +1,8 @@
 // Copyright (C) 2025 Jarek Kobus
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
+
 
 #include <QtTaskTree/qconditional.h>
 
@@ -11,7 +13,7 @@ namespace QtTaskTree {
 /*!
     \class QtTaskTree::If
     \inheaderfile qconditional.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief An "if" element used in conditional expressions.
     \reentrant
 
@@ -51,11 +53,6 @@ public:
     IfPrivate(const ExecutableItem &condition) : m_condition(condition) {}
     ExecutableItem m_condition;
 };
-
-If::~If() = default;
-If::If(const If &other) = default;
-If::If(If &&other) noexcept = default;
-If &If::operator=(const If &other) = default;
 
 /*!
     \fn template <typename Handler, std::enable_if_t<!std::is_base_of_v<ExecutableItem, std::decay_t<Handler>>, bool> = true> If::If(Handler &&handler)
@@ -109,7 +106,7 @@ ExecutableItem If::condition() const { return d->m_condition; }
 /*!
     \class QtTaskTree::ElseIf
     \inheaderfile qconditional.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief An "else if" element used in conditional expressions.
     \reentrant
 
@@ -125,11 +122,6 @@ public:
     ElseIfPrivate(const ExecutableItem &condition) : m_condition(condition) {}
     ExecutableItem m_condition;
 };
-
-ElseIf::~ElseIf() = default;
-ElseIf::ElseIf(const ElseIf &other) = default;
-ElseIf::ElseIf(ElseIf &&other) noexcept = default;
-ElseIf &ElseIf::operator=(const ElseIf &other) = default;
 
 /*!
     \fn template <typename Handler, std::enable_if_t<!std::is_base_of_v<ExecutableItem, std::decay_t<Handler>>, bool> = true> ElseIf::ElseIf(Handler &&handler)
@@ -161,7 +153,7 @@ ExecutableItem ElseIf::condition() const { return d->m_condition; }
 /*!
     \class QtTaskTree::Else
     \inheaderfile qconditional.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief An "else" element used in conditional expressions.
     \reentrant
 
@@ -177,11 +169,6 @@ public:
     ElsePrivate(const Group &body) : m_body(body) {}
     Group m_body;
 };
-
-Else::~Else() = default;
-Else::Else(const Else &other) = default;
-Else::Else(Else &&other) noexcept = default;
-Else &Else::operator=(const Else &other) = default;
 
 /*!
     Creates an else branch body element of the conditional expressions
@@ -206,7 +193,7 @@ Group Else::body() const { return d->m_body; }
 /*!
     \class QtTaskTree::Then
     \inheaderfile qconditional.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief A "then" element used in conditional expressions.
     \reentrant
 
@@ -223,11 +210,6 @@ public:
     ThenPrivate(const Group &body) : m_body(body) {}
     Group m_body;
 };
-
-Then::~Then() = default;
-Then::Then(const Then &other) = default;
-Then::Then(Then &&other) noexcept = default;
-Then &Then::operator=(const Then &other) = default;
 
 /*!
     Creates a branch body element with \a children items, to be used in
@@ -251,7 +233,7 @@ Group Then::body() const { return d->m_body; }
 class ConditionData final
 {
 public:
-    std::optional<ExecutableItem> m_condition;
+    std::optional<ExecutableItem> m_condition = std::nullopt;
     Group m_body;
 };
 
@@ -289,11 +271,6 @@ public:
     QList<ConditionData> m_conditions;
 };
 
-ThenItem::~ThenItem() = default;
-ThenItem::ThenItem(const ThenItem &other) = default;
-ThenItem::ThenItem(ThenItem &&other) noexcept = default;
-ThenItem &ThenItem::operator=(const ThenItem &other) = default;
-
 ThenItem::operator ExecutableItem() const
 {
     return conditionsRecipe(d->m_conditions);
@@ -317,11 +294,6 @@ public:
     QList<ConditionData> m_conditions;
 };
 
-ElseItem::~ElseItem() = default;
-ElseItem::ElseItem(const ElseItem &other) = default;
-ElseItem::ElseItem(ElseItem &&other) noexcept = default;
-ElseItem &ElseItem::operator=(const ElseItem &other) = default;
-
 ElseItem::operator ExecutableItem() const
 {
     return conditionsRecipe(d->m_conditions);
@@ -343,11 +315,6 @@ public:
     QList<ConditionData> m_conditions;
     ExecutableItem m_nextCondition;
 };
-
-ElseIfItem::~ElseIfItem() = default;
-ElseIfItem::ElseIfItem(const ElseIfItem &other) = default;
-ElseIfItem::ElseIfItem(ElseIfItem &&other) noexcept = default;
-ElseIfItem &ElseIfItem::operator=(const ElseIfItem &other) = default;
 
 ElseIfItem::ElseIfItem(const ThenItem &thenItem, const ElseIf &elseIfItem)
     : d(new ElseIfItemPrivate{thenItem.conditions(), elseIfItem.condition()}) { }
@@ -376,6 +343,22 @@ ElseItem operator>>(const ThenItem &thenItem, const Else &elseItem)
     return {thenItem, elseItem};
 }
 
+QT_TASKTREE_DEFINE_SMF(Else)
+QT_TASKTREE_DEFINE_SMF(ElseIf)
+QT_TASKTREE_DEFINE_SMF(ElseIfItem)
+QT_TASKTREE_DEFINE_SMF(ElseItem)
+QT_TASKTREE_DEFINE_SMF(If)
+QT_TASKTREE_DEFINE_SMF(Then)
+QT_TASKTREE_DEFINE_SMF(ThenItem)
+
 } // namespace QtTaskTree
+
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::ElsePrivate)
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::ElseIfPrivate)
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::ElseIfItemPrivate)
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::ElseItemPrivate)
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::IfPrivate)
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::ThenPrivate)
+QT_DEFINE_QESDP_SPECIALIZATION_DTOR(QtTaskTree::ThenItemPrivate)
 
 QT_END_NAMESPACE

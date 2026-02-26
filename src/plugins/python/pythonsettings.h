@@ -85,7 +85,7 @@ private:
     QString m_defaultInterpreterId;
     bool m_pylsEnabled = true;
     QString m_pylsConfiguration;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 
     static void saveSettings();
 };

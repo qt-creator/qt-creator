@@ -69,7 +69,7 @@ public:
         if (m_task)
             m_task->disconnectFromServer();
     }
-    void operator()(QmlPreviewConnectionManager *task, QTaskInterface *iface)
+    void operator()(QmlPreviewConnectionManager *task, QtTaskTree::QTaskInterface *iface)
     {
         m_task = task;
         QObject::connect(task, &QmlPreviewConnectionManager::connectionClosed, iface, [iface] {
@@ -86,6 +86,6 @@ private:
 };
 
 using QmlPreviewConnectionManagerTask
-    = QCustomTask<QmlPreviewConnectionManager, QmlPreviewConnectionManagerTaskAdapter>;
+    = QtTaskTree::QCustomTask<QmlPreviewConnectionManager, QmlPreviewConnectionManagerTaskAdapter>;
 
 } // namespace QmlPreview

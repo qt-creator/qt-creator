@@ -114,7 +114,7 @@ void TerminalWidget::setupPty()
         };
         const auto onTreeDone = [this] { restart(m_openParameters); };
         m_taskTreeRunner.start({AsyncTask<ResultType>(onSetup, onDone)}, {},
-                               onTreeDone, CallDone::OnSuccess);
+                               onTreeDone, CallDoneFlag::OnSuccess);
         return;
     }
 

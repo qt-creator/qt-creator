@@ -110,7 +110,7 @@ private:
     QTimer * const m_clientRestartTimer;
     QHash<Utils::FilePath, QString> m_potentialShadowDocuments;
     Utils::FutureSynchronizer m_generatorSynchronizer; // Sync after task tree.
-    QParallelTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QParallelTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Internal

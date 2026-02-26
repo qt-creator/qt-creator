@@ -577,7 +577,7 @@ private:
                 updateModelIndexesForUrl(url);
             }
         };
-        imageDownloader.start({QNetworkReplyWrapperTask(onSetup, onDone, CallDone::OnSuccess)});
+        imageDownloader.start({QNetworkReplyWrapperTask(onSetup, onDone, CallDoneFlag::OnSuccess)});
     }
 
     void updateModelIndexesForUrl(const QString &url)

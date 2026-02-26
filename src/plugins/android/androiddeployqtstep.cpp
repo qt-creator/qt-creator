@@ -449,13 +449,13 @@ Group AndroidDeployQtStep::deployRecipe()
     return Group {
         storage,
         Group {
-            ProcessTask(onUninstallSetup, onUninstallDone, CallDone::OnError).withTimeout(2min),
+            ProcessTask(onUninstallSetup, onUninstallDone, CallDoneFlag::OnError).withTimeout(2min),
             ProcessTask(onInstallSetup, onInstallDone),
             onGroupDone(DoneResult::Success)
         },
         If ([storage] { return *storage != NoError; }) >> Then {
             onGroupSetup(onAskForUninstallSetup),
-            ProcessTask(onUninstallSetup, onUninstallDone, CallDone::OnError).withTimeout(2min),
+            ProcessTask(onUninstallSetup, onUninstallDone, CallDoneFlag::OnError).withTimeout(2min),
             ProcessTask(onInstallSetup, onInstallDone),
             onGroupDone(DoneResult::Success)
         }

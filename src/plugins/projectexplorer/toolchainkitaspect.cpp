@@ -504,7 +504,7 @@ std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
 std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::removeAutoDetected(
     const QString &detectionSource, const LogCallback &logCallback) const
 {
-    return QSyncTask([=] {
+    return QtTaskTree::QSyncTask([=] {
         const auto toolchains
             = filtered(ToolchainManager::toolchains(), [detectionSource](Toolchain *tc) {
                   return tc->detectionSource().id == detectionSource;

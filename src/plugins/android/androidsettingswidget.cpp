@@ -47,6 +47,7 @@
 #include <QUrl>
 #include <QVBoxLayout>
 
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Android::Internal {
@@ -295,7 +296,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     Column {
         infoLabel,
         Space(StyleHelper::SpacingTokens::GapVM),
-        Group {
+        Layouting::Group {
             title(Tr::tr("Android Settings")),
             Grid {
                 Tr::tr("JDK location:"),
@@ -327,7 +328,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                 Span(4, m_createKitCheckBox)
             }
         },
-        Group {
+        Layouting::Group {
             title(Tr::tr("Android OpenSSL Settings (Optional)")),
             Grid {
                 Tr::tr("OpenSSL binaries location:"),
@@ -726,9 +727,8 @@ void AndroidSettingsWidget::downloadSdk()
                                  message, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
         return;
     }
-    m_sdkDownloader.start({Android::Internal::downloadSdkRecipe()}, {},
-                          [this](QtTaskTree::DoneWith result) {
-        if (result != QtTaskTree::DoneWith::Success)
+    m_sdkDownloader.start({Android::Internal::downloadSdkRecipe()}, {}, [this](DoneWith result) {
+        if (result != DoneWith::Success)
             return;
         // Make sure the sdk path is created before installing packages
         const FilePath sdkPath = AndroidConfig::sdkLocation();

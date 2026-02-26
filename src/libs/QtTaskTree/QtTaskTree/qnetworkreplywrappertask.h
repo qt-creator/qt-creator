@@ -1,9 +1,11 @@
 // Copyright (C) 2025 Jarek Kobus
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
 
-#ifndef QNETWORKREPLYWRAPPERTASK_H
-#define QNETWORKREPLYWRAPPERTASK_H
+
+#ifndef QTASKTREE_QNETWORKREPLYWRAPPERTASK_H
+#define QTASKTREE_QNETWORKREPLYWRAPPERTASK_H
 
 #include <QtTaskTree/qttasktreeglobal.h>
 
@@ -15,6 +17,9 @@ QT_BEGIN_NAMESPACE
 
 class QNetworkAccessManager;
 class QNetworkRequest;
+
+namespace QtTaskTree {
+
 class QNetworkReplyWrapperPrivate;
 
 class Q_TASKTREE_EXPORT QNetworkReplyWrapper : public QObject
@@ -23,7 +28,8 @@ class Q_TASKTREE_EXPORT QNetworkReplyWrapper : public QObject
     Q_DECLARE_PRIVATE(QNetworkReplyWrapper)
 
 public:
-    QNetworkReplyWrapper(QObject *parent = nullptr);
+    QNetworkReplyWrapper() : QNetworkReplyWrapper(nullptr) {}
+    explicit QNetworkReplyWrapper(QObject *parent);
     ~QNetworkReplyWrapper() override;
     void setRequest(const QNetworkRequest &request);
     void setOperation(QNetworkAccessManager::Operation operation);
@@ -40,10 +46,15 @@ Q_SIGNALS:
     void sslErrors(const QList<QSslError> &errors);
 #endif
     void done(QtTaskTree::DoneResult result);
+
+protected:
+    bool event(QEvent *event) override;
 };
 
 using QNetworkReplyWrapperTask = QCustomTask<QNetworkReplyWrapper>;
 
+} // namespace QtTaskTree
+
 QT_END_NAMESPACE
 
-#endif // QNETWORKREPLYWRAPPERTASK_H
+#endif // QTASKTREE_QNETWORKREPLYWRAPPERTASK_H

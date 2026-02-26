@@ -42,7 +42,7 @@ private:
     Utils::PathChooser *m_pathChooser = nullptr;
     Utils::FancyLineEdit *m_directoryLE = nullptr;
     Utils::InfoLabel *m_infoLabel = nullptr;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace GitLab

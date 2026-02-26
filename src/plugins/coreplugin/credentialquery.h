@@ -36,12 +36,12 @@ class CredentialQueryTaskAdapter final
 {
 public:
     CORE_EXPORT ~CredentialQueryTaskAdapter();
-    CORE_EXPORT void operator()(CredentialQuery *task, QTaskInterface *iface);
+    CORE_EXPORT void operator()(CredentialQuery *task, QtTaskTree::QTaskInterface *iface);
 
 private:
     std::unique_ptr<QObject> m_guard;
 };
 
-using CredentialQueryTask = QCustomTask<CredentialQuery, CredentialQueryTaskAdapter>;
+using CredentialQueryTask = QtTaskTree::QCustomTask<CredentialQuery, CredentialQueryTaskAdapter>;
 
 } // Core

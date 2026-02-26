@@ -39,6 +39,6 @@ private:
     QList<QMetaObject::Connection> m_connections;
 };
 
-using CurrentDocumentSymbolsRequestTask = QCustomTask<CurrentDocumentSymbolsRequest>;
+using CurrentDocumentSymbolsRequestTask = QtTaskTree::QCustomTask<CurrentDocumentSymbolsRequest>;
 
 } // namespace LanguageClient

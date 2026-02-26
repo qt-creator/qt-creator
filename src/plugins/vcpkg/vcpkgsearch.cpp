@@ -30,6 +30,7 @@
 #include <QTextBrowser>
 
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Vcpkg::Internal::Search {
@@ -121,7 +122,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexist
                 Tr::tr("Packages:"),
                 m_packagesList,
             },
-            Group {
+            Layouting::Group {
                 title(Tr::tr("Package Details")),
                 Form {
                     Tr::tr("Name:"), m_vcpkgName, br,

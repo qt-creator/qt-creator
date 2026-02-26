@@ -323,7 +323,7 @@ void AvdDialog::createAvd()
     const Storage<Progress> progressStorage;
 
     const auto onCancelSetup = [progressStorage] {
-        return std::make_pair(progressStorage->progressDialog.get(), &QProgressDialog::canceled);
+        return makeObjectSignal(progressStorage->progressDialog.get(), &QProgressDialog::canceled);
     };
 
     const Storage<std::optional<QString>> errorStorage;
@@ -340,14 +340,14 @@ void AvdDialog::createAvd()
         errorStorage,
         createAvdRecipe(errorStorage, avdInfo, m_overwriteCheckBox->isChecked())
             .withCancel(onCancelSetup),
-        onGroupDone(onDone, CallDone::OnError)
+        onGroupDone(onDone, CallDoneFlag::OnError)
     };
 
     m_taskTreeRunner.start(recipe, {}, [this, avdInfo] {
         m_createdAvdInfo = avdInfo;
         updateAvdList();
         accept();
-    }, CallDone::OnSuccess);
+    }, CallDoneFlag::OnSuccess);
 }
 
 void AvdDialog::updateDeviceDefinitionComboBox()

@@ -96,7 +96,7 @@ void AutotoolsBuildSystem::triggerParsing()
 
     const Group recipe {
         storage,
-        AsyncTask<MakefileParserOutputData>(onSetup, onDone, CallDone::OnSuccess)
+        AsyncTask<MakefileParserOutputData>(onSetup, onDone, CallDoneFlag::OnSuccess)
     };
     m_parserRunner.start(recipe);
 }

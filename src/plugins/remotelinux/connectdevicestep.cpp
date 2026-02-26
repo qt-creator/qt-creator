@@ -16,6 +16,7 @@
 #include <utils/async.h>
 
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace RemoteLinux::Internal {
@@ -37,7 +38,7 @@ public:
     }
 
 private:
-    QtTaskTree::GroupItem deployRecipe() final;
+    GroupItem deployRecipe() final;
 };
 
 struct DeviceAndResult
@@ -55,18 +56,15 @@ public:
         auto device = task->device;
         device->tryToConnect({[task, iface](const Result<void> &r) {
             task->result = r;
-            iface->reportDone(
-                r.has_value() ? QtTaskTree::DoneResult::Success : QtTaskTree::DoneResult::Error);
+            iface->reportDone(toDoneResult(r.has_value()));
         }});
     }
 };
 
 using ConnectDeviceTask = QCustomTask<DeviceAndResult, ConnectDeviceTaskAdapter>;
 
-QtTaskTree::GroupItem ConnectDeviceStep::deployRecipe()
+GroupItem ConnectDeviceStep::deployRecipe()
 {
-    using namespace QtTaskTree;
-
     const auto setup = [this](DeviceAndResult &task) {
         auto device = std::dynamic_pointer_cast<const LinuxDevice>(deviceConfiguration());
         if (!device->isDisconnected())

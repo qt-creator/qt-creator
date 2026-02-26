@@ -1066,7 +1066,7 @@ QtTaskTree::GroupItem AndroidBuildApkStep::runRecipe()
 
     const Group root {
         onGroupSetup(onSetup),
-        onGroupDone(onDone, CallDone::OnSuccess),
+        onGroupDone(onDone, CallDoneFlag::OnSuccess),
         defaultProcessTask()
     };
     return root;

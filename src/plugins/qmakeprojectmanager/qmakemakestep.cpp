@@ -230,7 +230,7 @@ QtTaskTree::GroupItem QmakeMakeStep::runRecipe()
         ignoreReturnValue() ? finishAllAndSuccess : stopOnError,
         onGroupSetup(onSetup),
         defaultProcessTask(),
-        onGroupDone(onError, CallDone::OnError)
+        onGroupDone(onError, CallDoneFlag::OnError)
     };
 }
 

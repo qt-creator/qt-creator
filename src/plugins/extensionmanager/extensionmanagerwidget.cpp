@@ -59,9 +59,10 @@
 #include <QScrollArea>
 
 using namespace Core;
-using namespace Utils;
-using namespace StyleHelper;
 using namespace ExtensionSystem;
+using namespace QtTaskTree;
+using namespace Utils;
+using namespace Utils::StyleHelper;
 
 namespace ExtensionManager::Internal {
 
@@ -841,8 +842,6 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
 
 void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update, const QString &sha)
 {
-    using namespace QtTaskTree;
-
     struct StorageStruct
     {
         StorageStruct() {

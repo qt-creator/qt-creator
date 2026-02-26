@@ -95,7 +95,7 @@ QtTaskTree::GroupItem AutogenStep::runRecipe()
 
     return Group {
         onGroupSetup(onSetup),
-        onGroupDone([this] { m_runAutogen = false; }, CallDone::OnSuccess),
+        onGroupDone([this] { m_runAutogen = false; }, CallDoneFlag::OnSuccess),
         defaultProcessTask()
     };
 }

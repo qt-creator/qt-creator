@@ -561,10 +561,10 @@ void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dia
                                                const GroupItem &continuationRecipe)
 {
     const auto onCancelSetup = [dialogStorage] {
-        return std::make_pair(dialogStorage->m_dialog.get(), &QDialog::rejected);
+        return makeObjectSignal(dialogStorage->m_dialog.get(), &QDialog::rejected);
     };
     const auto onAcceptSetup = [dialogStorage] {
-        return std::make_pair(dialogStorage->m_dialog.get(), &QDialog::accepted);
+        return makeObjectSignal(dialogStorage->m_dialog.get(), &QDialog::accepted);
     };
     const auto onError = [dialogStorage] { dialogStorage->m_dialog->setDone(); };
     const Group recipe {

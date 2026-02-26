@@ -183,7 +183,7 @@ template <typename ResultType>
 class AsyncTaskAdapter final
 {
 public:
-    void operator()(Async<ResultType> *task, QTaskInterface *iface) {
+    void operator()(Async<ResultType> *task, QtTaskTree::QTaskInterface *iface) {
         QObject::connect(task, &AsyncBase::done, iface, [iface, task] {
             iface->reportDone(QtTaskTree::toDoneResult(!task->isCanceled()));
         }, Qt::SingleShotConnection);
@@ -192,6 +192,6 @@ public:
 };
 
 template <typename T>
-using AsyncTask = QCustomTask<Async<T>, AsyncTaskAdapter<T>>;
+using AsyncTask = QtTaskTree::QCustomTask<Async<T>, AsyncTaskAdapter<T>>;
 
 } // namespace Utils

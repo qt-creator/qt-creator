@@ -1,6 +1,8 @@
 // Copyright (C) 2025 Jarek Kobus
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
+
 
 #include <QtTaskTree/qprocesstask.h>
 
@@ -15,17 +17,6 @@
 QT_BEGIN_NAMESPACE
 
 #if QT_CONFIG(process)
-
-static bool isMainThread()
-{
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    return QThread::isMainThread();
-#else
-    return QThread::currentThread() == qApp->thread();
-#endif
-}
-
-using namespace QtTaskTree;
 
 namespace QtTaskTree {
 
@@ -229,7 +220,7 @@ ProcessReaper::ProcessReaper()
 
 ProcessReaper::~ProcessReaper()
 {
-    Q_ASSERT_X(isMainThread(), "ProcessReaper",
+    Q_ASSERT_X(QThread::isMainThread(), "ProcessReaper",
                "Destructing process reaper from non-main thread.");
 
     instance()->m_private->waitForFinished();
@@ -265,31 +256,29 @@ void ProcessReaper::reap(QProcess *process, int timeoutMs)
     priv->scheduleReap(reaperSetup);
 }
 
-} // namespace QtTaskTree
-
 /*!
-    \class QProcessDeleter
+    \class QtTaskTree::QProcessTaskDeleter
     \inheaderfile qprocesstask.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief A custom deleter for QProcess, used by QProcessTask.
     \reentrant
 
-    QProcessDeleter is used to enable fast destruction of running
+    QProcessTaskDeleter is used to enable fast destruction of running
     QProcess instances via QProcessTask in QTaskTree. Instead of deleting
     the running QProcess, which may block the caller's thread execution
-    for a long time, the QProcessDeleter moves the running QProcess into
+    for a long time, the QProcessTaskDeleter moves the running QProcess into
     a separate thread and tries to finish it in a most gentle way.
     This consist of calling QProcess::terminate() with \c {500 ms} timeout,
     and if the process is still running after this timeout passed,
     the additional call to QProcess::kill() is performed.
 
-    Finally, on application quit, QProcessDeleter::syncAll() should be called
+    Finally, on application quit, QProcessTaskDeleter::syncAll() should be called
     in order to synchronize all processes being still potentially finalized
-    in separate thread. The call to QProcessDeleter::syncAll() is blocking
+    in separate thread. The call to QProcessTaskDeleter::syncAll() is blocking
     in case some processes are still being finalized.
 
     This strategy seems sensible, since when deleting the running QProcess via
-    QProcessDeleter we don't block immediately, but postpone the possible
+    QProcessTaskDeleter we don't block immediately, but postpone the possible
     (but not certain) block until the end of an application.
 
     It is used by QProcessTask.
@@ -298,13 +287,13 @@ void ProcessReaper::reap(QProcess *process, int timeoutMs)
 /*!
     This method should be called on application quit to synchronize the
     finalization of all still possibly running QProcess instances that were
-    deleted before using QProcessDeleter. The call should be executed from
+    deleted before using QProcessTaskDeleter. The call should be executed from
     the main thread.
 */
-void QProcessDeleter::syncAll()
+void QProcessTaskDeleter::syncAll()
 {
-    if (!isMainThread()) {
-        qWarning("The QProcessDeleter::syncAll() should be called from the main thread. "
+    if (!QThread::isMainThread()) {
+        qWarning("The QProcessTaskDeleter::syncAll() should be called from the main thread. "
                  "The current call is ignored.");
         return;
     }
@@ -321,34 +310,36 @@ void QProcessDeleter::syncAll()
     with \c {500 ms} timeout, and if the process is still running after
     this timeout passed, the additional call to QProcess::kill() is performed.
 */
-void QProcessDeleter::operator()(QProcess *process)
+void QProcessTaskDeleter::operator()(QProcess *process) const
 {
     ProcessReaper::reap(process);
 }
 
-void QProcessTaskAdapter::operator()(QProcess *task, QTaskInterface *iface)
+void QProcessTaskAdapter::operator()(QProcess *task, QTaskInterface *iface) const
 {
     QObject::connect(task, &QProcess::finished, iface, [iface, task] {
         const bool success = task->exitStatus() == QProcess::NormalExit
                              && task->error() == QProcess::UnknownError
                              && task->exitCode() == 0;
-        iface->reportDone(QtTaskTree::toDoneResult(success));
+        iface->reportDone(toDoneResult(success));
     });
     QObject::connect(task, &QProcess::errorOccurred, iface, [iface](QProcess::ProcessError error) {
         if (error != QProcess::FailedToStart)
             return;
-        iface->reportDone(QtTaskTree::DoneResult::Error);
+        iface->reportDone(DoneResult::Error);
     });
     task->start();
 }
 
 /*!
-    \typedef QProcessTask
-    \relates QCustomTask
+    \typedef QtTaskTree::QProcessTask
+    \relates QtTaskTree::QCustomTask
 
-    Type alias for the QCustomTask<QProcess>, using QProcessDeleter,
+    Type alias for the QCustomTask<QProcess>, using QProcessTaskDeleter,
     to be used inside recipes.
 */
+
+} // namespace QtTaskTree
 
 #endif // QT_CONFIG(process)
 

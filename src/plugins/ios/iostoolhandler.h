@@ -92,9 +92,9 @@ private:
 class IosToolTaskAdapter final
 {
 public:
-    void operator()(IosToolRunner *task, QTaskInterface *iface);
+    void operator()(IosToolRunner *task, QtTaskTree::QTaskInterface *iface);
 };
 
-using IosToolTask = QCustomTask<IosToolRunner, IosToolTaskAdapter>;
+using IosToolTask = QtTaskTree::QCustomTask<IosToolRunner, IosToolTaskAdapter>;
 
 } // namespace Ios

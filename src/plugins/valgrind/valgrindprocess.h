@@ -62,6 +62,6 @@ private:
     std::unique_ptr<ValgrindProcessPrivate> d;
 };
 
-using ValgrindProcessTask = QCustomTask<ValgrindProcess>;
+using ValgrindProcessTask = QtTaskTree::QCustomTask<ValgrindProcess>;
 
 } // namespace Valgrind::Internal

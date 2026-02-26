@@ -49,7 +49,7 @@ private:
                                      QCoreApplication::translate("QtC::CtfVisualizer",
                                                                  "Chrome Trace Format Visualizer")};
 
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     QScopedPointer<QAction> m_loadJson;
 
     CtfVisualizerTraceView *m_traceView = nullptr;

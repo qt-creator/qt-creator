@@ -43,6 +43,7 @@
 #include <iostream>
 #include <memory>
 
+using namespace QtTaskTree;
 using namespace Utils::Internal;
 
 using namespace std::chrono;
@@ -2088,7 +2089,7 @@ void ProcessPrivate::storeEventLoopDebugInfo(const QVariant &value)
 void ProcessTaskAdapter::operator()(Process *task, QTaskInterface *iface)
 {
     QObject::connect(task, &Process::done, iface, [iface, task] {
-        iface->reportDone(QtTaskTree::toDoneResult(task->result() == ProcessResult::FinishedWithSuccess));
+        iface->reportDone(toDoneResult(task->result() == ProcessResult::FinishedWithSuccess));
     }, Qt::SingleShotConnection);
     task->start();
 }

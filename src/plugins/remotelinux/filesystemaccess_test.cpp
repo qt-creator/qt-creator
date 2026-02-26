@@ -484,7 +484,7 @@ void FileSystemAccessTest::testFileStreamer()
         const auto onDone = [&](const FileStreamer &streamer) {
             localData = streamer.readData();
         };
-        return FileStreamerTask(onSetup, onDone, CallDone::OnSuccess);
+        return FileStreamerTask(onSetup, onDone, CallDoneFlag::OnSuccess);
     };
     const auto remoteReader = [&] {
         const auto onSetup = [&](FileStreamer &streamer) {
@@ -494,7 +494,7 @@ void FileSystemAccessTest::testFileStreamer()
         const auto onDone = [&](const FileStreamer &streamer) {
             remoteData = streamer.readData();
         };
-        return FileStreamerTask(onSetup, onDone, CallDone::OnSuccess);
+        return FileStreamerTask(onSetup, onDone, CallDoneFlag::OnSuccess);
     };
     const auto transfer = [](const FilePath &source, const FilePath &dest,
                              std::optional<QByteArray> *result) {
@@ -511,7 +511,7 @@ void FileSystemAccessTest::testFileStreamer()
         };
         return Group {
             FileStreamerTask(onTransferSetup),
-            FileStreamerTask(onReaderSetup, onReaderDone, CallDone::OnSuccess)
+            FileStreamerTask(onReaderSetup, onReaderDone, CallDoneFlag::OnSuccess)
         };
     };
 

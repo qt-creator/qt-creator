@@ -201,7 +201,7 @@ void PySideInstaller::installPySide(const FilePath &python, const QString &pySid
         emit pySideInstalled(python, pySide);
     };
 
-    m_pipInstallerRunner.start(pipInstallerTask(data), {}, onDone, CallDone::OnSuccess);
+    m_pipInstallerRunner.start(pipInstallerTask(data), {}, onDone, CallDoneFlag::OnSuccess);
 }
 
 void PySideInstaller::handlePySideMissing(const FilePath &python,

@@ -54,7 +54,7 @@ private:
     QByteArray m_projectFileHash;
 
     ProjectExplorer::BuildSystem::ParseGuard m_guard;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace CompilationDatabaseProjectManager::Internal

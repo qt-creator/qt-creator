@@ -203,7 +203,7 @@ GroupItem GenericDirectUploadStep::uploadTask(const Storage<UploadStorage> &stor
         addErrorMessage(transfer.resultData().m_errorString);
     };
 
-    return FileTransferTask(onSetup, onError, CallDone::OnError);
+    return FileTransferTask(onSetup, onError, CallDoneFlag::OnError);
 }
 
 GroupItem GenericDirectUploadStep::deployRecipe()
@@ -261,7 +261,7 @@ GroupItem GenericDirectUploadStep::deployRecipe()
         statTree(storage, preFilesToStat, preStatEndHandler),
         uploadTask(storage),
         statTree(storage, postFilesToStat, postStatEndHandler),
-        onGroupDone(doneHandler, CallDone::OnSuccess)
+        onGroupDone(doneHandler, CallDoneFlag::OnSuccess)
     };
     return root;
 }

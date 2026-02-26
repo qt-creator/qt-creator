@@ -1,22 +1,14 @@
 // Copyright (C) 2025 Jarek Kobus
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
+
 
 #include <QtTaskTree/qthreadfunctiontask.h>
 
 #include <QtCore/private/qobject_p.h>
-#include <QThread>
 
 QT_BEGIN_NAMESPACE
-
-static bool isMainThread()
-{
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    return QThread::isMainThread();
-#else
-    return QThread::currentThread() == qApp->thread();
-#endif
-}
 
 namespace QtTaskTree {
 
@@ -64,38 +56,37 @@ private:
     QList<QFuture<void>> m_futures;
 };
 
-} // namespace QtTaskTree
+Q_APPLICATION_STATIC(FutureSynchronizer, s_futureSynchronizer);
 
-Q_APPLICATION_STATIC(QtTaskTree::FutureSynchronizer, s_futureSynchronizer);
-
-class QThreadFunctionBasePrivate : public QObjectPrivate
+class QThreadFunctionBasePrivate
 {
 public:
-    bool isUsingSynchronizer() const { return m_isAutoSync && isMainThread(); }
+    bool isUsingSynchronizer() const { return m_isAutoSync && QThread::isMainThread(); }
 
     QThreadPool *m_threadPool = nullptr;
     bool m_isAutoSync = true;
     bool m_isSyncSkipped = false;
-    std::optional<QFuture<void>> m_future;
+    std::optional<QFuture<void>> m_future = std::nullopt;
 };
 
 /*!
-    \class QThreadFunctionBase
+    \class QtTaskTree::QThreadFunctionBase
     \inheaderfile qthreadfunctiontask.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief A base class for QThreadFunction class template.
     \reentrant
 */
 
 /*!
-    \class QThreadFunction
+    \class QtTaskTree::QThreadFunction
     \inheaderfile qthreadfunctiontask.h
-    \inmodule TaskTree
+    \inmodule QtTaskTree
     \brief A class template controlling the execution of a function in a
            separate thread via QtConcurrent::run().
     \reentrant
 
-    A QThreadFunction is a convenient class template that combines a stored
+    A QThreadFunction is a convenient class template, where \a ResultType
+    specifies the return type of the stored function, that combines a stored
     function to be called later via QtConcurrent::run() with an internal
     QFutureWatcher monitoring the function execution. Use QThreadFunctionTask
     to execute the QThreadFunction inside the QTaskTree recipe.
@@ -131,10 +122,9 @@ public:
 
     Use setAutoDelayedSync() to switch the automatic delayed synchronization.
 
-    The function execution can be controlled via started(), done(),
-    resultReadyAt(), progressRangeChanged(), progressValueChanged(),
-    or progressTextChanged() signals. The output data can be collected
-    via result(), resultAt(), or results() getters.
+    To control the function execution, connect to the signals of the
+    associated futureWatcher(). To collect the output data, use \l result(),
+    \l resultAt(), or \l results() getters.
 */
 
 /*!
@@ -142,8 +132,8 @@ public:
 
     Constructs a QThreadFunction with a given \a parent.
 */
-QThreadFunctionBase::QThreadFunctionBase(QObject *parent)
-    : QObject(*new QThreadFunctionBasePrivate, parent)
+QThreadFunctionBase::QThreadFunctionBase()
+    : d_ptr(new QThreadFunctionBasePrivate)
 {}
 
 /*!
@@ -278,74 +268,6 @@ void QThreadFunctionBase::setSyncSkipped(bool on) { d_func()->m_isSyncSkipped = 
 bool QThreadFunctionBase::isSyncSkipped() const { return d_func()->m_isSyncSkipped; }
 
 /*!
-    \fn template <typename ResultType> void QThreadFunction<ResultType>::started()
-
-    This signal is emitted just after the execution of the stored function
-    has started.
-
-    \sa done()
-*/
-
-/*!
-    \fn template <typename ResultType> void QThreadFunction<ResultType>::done(QtTaskTree::DoneResult result)
-
-    This signal is emitted just after the execution of the stored function
-    has finished. The passed \a result indicates whether the function
-    finished with success or an error.
-
-    \sa start(), isDone()
-*/
-
-/*!
-    \fn template <typename ResultType> void QThreadFunction<ResultType>::resultReadyAt(int index)
-
-    This signal is emitted whenever the function running in a separate thread
-    reported any partial result at \a index via QPromise::addResult().
-    To get the result, call resultAt(index);
-
-    \sa resultAt(), QFutureWatcher::resultReadyAt()
-*/
-
-/*!
-    \fn template <typename ResultType> void QThreadFunction<ResultType>::resultsReadyAt(int beginIndex, int endIndex)
-
-    This signal is emitted whenever the function running in a separate thread
-    reported any ready results indexed from \a beginIndex to \a endIndex.
-    To get the result, call resultAt(index);
-
-    \sa resultAt(), QFutureWatcher::resultsReadyAt()
-*/
-
-/*!
-    \fn template <typename ResultType> void QThreadFunction<ResultType>::progressRangeChanged(int minimum, int maximum)
-
-    This signal is emitted whenever the progress range of the
-    concurrent call has changed to \a minimum and \a maximum.
-
-    \sa QPromise::setProgressRange(), QFutureWatcher::progressRangeChanged()
-*/
-
-/*!
-    \fn template <typename ResultType> void QThreadFunction<ResultType>::progressValueChanged(int value)
-
-    This signal is emitted when the progress value of the
-    function executed in a separate thread has changed
-    to \a value.
-
-    \sa QPromise::setProgressValue(), QFutureWatcher::progressValueChanged()
-*/
-
-/*!
-    \fn template <typename ResultType> void QThreadFunction<ResultType>::progressTextChanged(const QString &text)
-
-    This signal is emitted when the textual progress of the
-    function executed in a separate thread has changed
-    to \a text.
-
-    \sa QPromise::setProgressValueAndText(), QFutureWatcher::progressTextChanged()
-*/
-
-/*!
     \fn template <typename ResultType> template <typename Function, typename ...Args> void QThreadFunction<ResultType>::setThreadFunctionData(Function &&function, Args &&...args)
 
     Sets the \a function to be executed with passed \a args in a separate
@@ -358,8 +280,6 @@ bool QThreadFunctionBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
     \fn template <typename ResultType> bool QThreadFunction<ResultType>::isDone() const
 
     Returns whether the function execution is finished.
-
-    \sa start(), done()
 */
 
 /*!
@@ -368,6 +288,25 @@ bool QThreadFunctionBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
     Returns whether the result is ready.
 
     \sa result()
+*/
+
+/*!
+    \fn template <typename ResultType> QFutureWatcher<ResultType> *QThreadFunction<ResultType>::futureWatcher()
+
+    Returns the pointer to the \c {QFutureWatcher<ResultType>} associated
+    with the function executed in a separate thread. The lifetime of the
+    returned watcher is bound to the QThreadFunction instance.
+
+    Use this function if you need more control over the future execution,
+    for example, to connect to the progress signals of the returned watcher.
+*/
+
+/*!
+    \fn template <typename ResultType> const QFutureWatcher<ResultType> *QThreadFunction<ResultType>::futureWatcher() const
+    \overload
+
+    Returns the \c const pointer to the \c {QFutureWatcher<ResultType>} associated
+    with the function executed in a separate thread.
 */
 
 /*!
@@ -424,16 +363,6 @@ bool QThreadFunctionBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 
 /*!
-    \fn template <typename ResultType> void QThreadFunction<ResultType>::start()
-
-    Starts the asynchronous invocation of stored function in a separate
-    thread. Connect to done() signal to collect the result reported
-    by the function.
-
-    \sa setThreadFunctionData(), done()
-*/
-
-/*!
     This method should be called on application quit to synchronize
     the finalization of all still possibly running functions that were
     started via QThreadFunction.
@@ -443,7 +372,7 @@ bool QThreadFunctionBase::isSyncSkipped() const { return d_func()->m_isSyncSkipp
 */
 void QThreadFunctionBase::syncAll()
 {
-    if (!isMainThread()) {
+    if (!QThread::isMainThread()) {
         qWarning("The QThreadFunctionBase::syncAll() should be called from the main thread. "
                  "The current call is ignored.");
         return;
@@ -460,11 +389,14 @@ void QThreadFunctionBase::storeFuture(const QFuture<void> &future)
 }
 
 /*!
-    \typedef QThreadFunctionTask
-    \relates QCustomTask
+    \typedef QtTaskTree::QThreadFunctionTask
+    \relates QtTaskTree::QCustomTask
 
-    Type alias for the QCustomTask<QThreadFunction<ResultType>>,
+    Type alias for QCustomTask<QThreadFunction<ResultType>>,
+    where \a ResultType specifies the return type of the thread function,
     to be used inside recipes.
 */
+
+} // namespace QtTaskTree
 
 QT_END_NAMESPACE

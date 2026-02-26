@@ -417,7 +417,7 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
         };
         Group deserialize = For (iterator) >> Do {
             ParallelLimit(4),
-            AsyncTask<Result<Dto::FileViewDto>>(onSetup, onDone, CallDone::OnSuccess)
+            AsyncTask<Result<Dto::FileViewDto>>(onSetup, onDone, CallDoneFlag::OnSuccess)
         };
 
         s_deserializerRunner->start(deserialize);

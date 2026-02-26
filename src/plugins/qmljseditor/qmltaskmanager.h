@@ -53,7 +53,7 @@ private:
     QHash<Utils::FilePath, ProjectExplorer::Tasks> m_docsWithTasks;
     QTimer m_updateDelay;
     bool m_updatingSemantic = false;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // QmlJSEditor::Internal

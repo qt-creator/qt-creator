@@ -93,7 +93,7 @@ private:
     std::optional<AxivionVersionInfo> m_versionInfo = std::nullopt;
     Utils::StringAspect m_defaultServerId{this};
     QList<AxivionServer> m_allServers;
-    QSingleTaskTreeRunner m_taskTreeRunner;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
 AxivionSettings &settings();

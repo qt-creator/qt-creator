@@ -77,7 +77,7 @@ private:
     Utils::Id m_id;
 };
 
-using Canceler = std::function<std::pair<RunControl *, void (RunControl::*)()>()>;
+using Canceler = std::function<QtTaskTree::ObjectSignal<void (RunControl::*)()>()>;
 
 class ProcessSetupConfig
 {

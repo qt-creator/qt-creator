@@ -585,7 +585,7 @@ static void setupNpmServer(
 
             using namespace std::literals::chrono_literals;
             const Group recipe {
-                ProcessTask(onInstallSetup, onInstallDone, CallDone::OnError)
+                ProcessTask(onInstallSetup, onInstallDone, CallDoneFlag::OnError)
                     .withTimeout(5min, onInstallTimeout),
                 ProcessTask(onListSetup, onListDone)
             };

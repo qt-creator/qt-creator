@@ -41,6 +41,6 @@ private:
     FilePath m_destination;
 };
 
-using UnarchiverTask = QCustomTask<Unarchiver>;
+using UnarchiverTask = QtTaskTree::QCustomTask<Unarchiver>;
 
 } // namespace Utils

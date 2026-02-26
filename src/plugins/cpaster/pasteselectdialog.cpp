@@ -24,6 +24,8 @@
 #include <QListWidget>
 #include <QPushButton>
 
+using namespace QtTaskTree;
+
 namespace CodePaster {
 
 class PasteSelectDialog : public QDialog
@@ -146,7 +148,7 @@ void PasteSelectDialog::list()
             m_listWidget->addItem(Tr::tr("Error while retrieving items."));
         };
         m_taskTreeRunner.start({protocol->listRecipe(listHandler)}, {},
-                               errorHandler, QtTaskTree::CallDone::OnError);
+                               errorHandler, CallDoneFlag::OnError);
     }
 }
 

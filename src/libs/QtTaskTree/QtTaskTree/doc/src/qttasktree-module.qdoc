@@ -9,6 +9,9 @@
     Qt TaskTree provides a declarative way to compose and execute asynchronous
     task workflows with proper error handling and execution policies.
 
+    \note Qt TaskTree in \QtVer is in \e{Technology Preview}, excluding its
+    API from \l[QtDoc]{Compatibility promises}{Qt's compatibility promises}.
+
     \section1 Getting started
 
     Qt TaskTree allows you to create complex task hierarchies with different
@@ -25,29 +28,53 @@
     \li \b {Iterators} - Support for loops and repetitive task execution.
     \endlist
 
+    \section1 Using the Module
+
+    \include {module-use.qdocinc} {using the c++ api}
+
+    \section2 Building with CMake
+
+    \include {module-use.qdocinc} {building with cmake} {TaskTree}
+
+    \section2 Building with qmake
+
+    \include {module-use.qdocinc} {building_with_qmake} {tasktree}
+
     \section1 Task adapters
 
     The module includes several built-in task adapters for common operations:
     \list
-    \li QProcessTask - Execute external processes.
-    \li QThreadFunctionTask - Run functions in separate threads.
-    \li QNetworkReplyWrapperTask - Network operations.
-    \li QTcpSocketWrapperTask - TCP socket operations.
-    \li QBarrierTask - Synchronization primitives.
-    \li QTimeoutTask - Timer-based delays.
+    \li \l{QtTaskTree::}{QProcessTask} - Executes external processes.
+    \li \l{QtTaskTree::}{QThreadFunctionTask} - Runs functions in separate threads.
+    \li \l{QtTaskTree::}{QNetworkReplyWrapperTask} - Handles network operations.
+    \li \l{QtTaskTree::}{QTcpSocketWrapperTask} - Handles TCP socket operations.
+    \li \l{QtTaskTree::}{QBarrierTask} - Provides synchronization primitives.
+    \li \l{QtTaskTree::}{QTimeoutTask} - Provides timer-based delays.
     \endlist
 
     \section1 Workflow Policies
 
     Groups support different workflow policies for handling task results:
     \list
-    \li StopOnError - Stop execution on first error (default).
-    \li ContinueOnError - Continue execution despite errors.
-    \li StopOnSuccess - Stop on first successful task.
-    \li ContinueOnSuccess - Continue despite successful tasks.
-    \li StopOnSuccessOrError - Stop on first completed task.
-    \li FinishAllAndSuccess - Run all tasks, report success.
-    \li FinishAllAndError - Run all tasks, report error.
+    \li \l{QtTaskTree::}{StopOnError} - Stops execution on first error (default).
+    \li \l{QtTaskTree::}{ContinueOnError} - Continues execution despite errors.
+    \li \l{QtTaskTree::}{StopOnSuccess} - Stops on first successful task.
+    \li \l{QtTaskTree::}{ContinueOnSuccess} - Continues despite successful tasks.
+    \li \l{QtTaskTree::}{StopOnSuccessOrError} - Stops on first completed task.
+    \li \l{QtTaskTree::}{FinishAllAndSuccess} - Runs all tasks, reports success.
+    \li \l{QtTaskTree::}{FinishAllAndError} - Runs all tasks, reports error.
+    \endlist
+
+    \section1 Examples
+
+    \list
+        \li \l{Qt TaskTree Examples}
+    \endlist
+
+    \section1 Reference
+
+    \list
+        \li \l{Qt TaskTree C++ Classes}
     \endlist
 
     \section1 Licenses
@@ -63,7 +90,7 @@
     \group tasktree_examples
     \title Qt TaskTree Examples
 
-    \brief Examples for the Qt TaskTree.
+    \ingroup all-examples
 
-    For some code examples, see one of the Qt TaskTree examples:
+    \brief Examples demonstrating the Qt TaskTree module.
 */

@@ -668,7 +668,7 @@ Group ClangTool::runRecipe(const RunSettingsData &runSettings,
             m_runControl->postMessage(message, ErrorMessageFormat);
             setState(State::PreparationFailed);
         };
-        topTasks.append(ProjectBuilderTask(onSetup, onError, CallDone::OnError));
+        topTasks.append(ProjectBuilderTask(onSetup, onError, CallDoneFlag::OnError));
     }
 
     const ProjectInfo::ConstPtr projectInfoBeforeBuild
@@ -799,7 +799,7 @@ Group ClangTool::runRecipe(const RunSettingsData &runSettings,
 
     topTasks.append(Group {
         storage,
-        QTaskTreeTask(onTreeSetup, onTreeDone, CallDone::OnSuccess)
+        QTaskTreeTask(onTreeSetup, onTreeDone, CallDoneFlag::OnSuccess)
     });
     return {topTasks};
 }
