@@ -200,6 +200,7 @@ const char QML_PREVIEW_RUN_FACTORY[] = "LocalQmlPreviewSupportFactory";
 const char QMAKE_RUNCONFIG_ID[] = "Qt4ProjectManager.Qt4RunConfiguration:";
 const char QBS_RUNCONFIG_ID[]   = "Qbs.RunConfiguration:";
 const char CMAKE_RUNCONFIG_ID[] = "CMakeProjectManager.CMakeRunConfiguration.";
+const char GN_RUNCONFIG_ID[] = "GNProjectManager.GNRunConfiguration.";
 const char CUSTOM_EXECUTABLE_RUNCONFIG_ID[] = "ProjectExplorer.CustomExecutableRunConfiguration";
 
 const char STDPROCESS_EXECUTION_TYPE_ID[] = "StdProcessExecutionType";

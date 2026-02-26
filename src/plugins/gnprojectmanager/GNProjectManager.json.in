@@ -1,0 +1,47 @@
+{
+    "Id" : "gnprojectmanager",
+    "DisplayName" : "GN",
+    "Name" : "GNProjectManager",
+    "Version" : "${IDE_VERSION}",
+    "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
+    "Vendor" : "The Qt Company Ltd",
+    "Experimental" : false,
+    "DisabledByDefault" : true,
+    "SoftLoadable" : true,
+    "Copyright" : "(C) The Qt Company Ltd",
+    "License" : [ "Commercial Usage",
+                  "",
+                  "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
+                  "",
+                  "GNU General Public License Usage",
+                  "",
+                  "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
+    ],
+    "Category" : "Build Systems",
+    "Description" : "Build projects using GN (Generate Ninja).",
+    "LongDescription" : [
+        "Build projects using GN (Generate Ninja) build system.",
+        "GN generates Ninja build files for building projects.",
+        "You also need:",
+            "- GN (gn)",
+            "- Ninja"
+    ],
+    "Url" : "https://gn.googlesource.com/gn/",
+    "core" : {
+         "ProjectFileMimeTypes" : [ "text/x-gn" ]
+    },
+    ${IDE_PLUGIN_DEPENDENCIES},
+
+    "Mimetypes" : [
+        "<?xml version='1.0' encoding='UTF-8'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='text/x-gn'>",
+        "        <sub-class-of type='text/plain'/>",
+        "        <comment>GN build description</comment>",
+        "        <glob pattern='BUILD.gn'/>",
+        "        <glob pattern='.gn'/>",
+        "    </mime-type>",
+        "</mime-info>"
+    ]
+}

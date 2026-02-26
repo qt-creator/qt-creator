@@ -14,6 +14,7 @@
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qbsprojectmanager/qbsprojectmanagerconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+#include <gnprojectmanager/gnpluginconstants.h>
 
 using namespace Utils;
 using namespace ProjectExplorer::Constants;
@@ -160,6 +161,9 @@ void setupDesktopRunConfigurations()
         (Constants::QBS_RUNCONFIG_ID, QbsProjectManager::Constants::PROJECT_ID);
     static DesktopRunConfigurationFactory theCmakeRunConfigFactory
         (Constants::CMAKE_RUNCONFIG_ID, CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
+    static DesktopRunConfigurationFactory theGnRunConfigFactory(Constants::GN_RUNCONFIG_ID,
+                                                                GNProjectManager::Constants::
+                                                                    GN_PROJECT_ID);
 }
 
 void setupDesktopRunWorker()
@@ -167,7 +171,8 @@ void setupDesktopRunWorker()
     static ProcessRunnerFactory theDesktopRunWorkerFactory({
         Constants::CMAKE_RUNCONFIG_ID,
         Constants::QBS_RUNCONFIG_ID,
-        Constants::QMAKE_RUNCONFIG_ID
+        Constants::QMAKE_RUNCONFIG_ID,
+        Constants::GN_RUNCONFIG_ID
     });
 }
 

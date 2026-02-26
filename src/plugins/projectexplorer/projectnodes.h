@@ -265,6 +265,11 @@ public:
                        const FolderNodeFactory &factory
                        = [](const Utils::FilePath &fn) { return std::make_unique<FolderNode>(fn); });
 
+    void addNestedNode(std::unique_ptr<FolderNode> &&folderNode,
+                       const Utils::FilePath &overrideBaseDir = {},
+                       const FolderNodeFactory &factory
+                       = [](const Utils::FilePath &fn) {return std::make_unique<FolderNode>(fn); });
+
     // takes ownership of newNode.
     // Will delete newNode if oldNode is not a child of this node.
     bool replaceSubtree(Node *oldNode, std::unique_ptr<Node> &&newNode);

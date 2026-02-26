@@ -652,6 +652,17 @@ void FolderNode::addNestedNode(std::unique_ptr<FileNode> &&fileNode,
     folder->addNode(std::move(fileNode));
 }
 
+void FolderNode::addNestedNode(std::unique_ptr<FolderNode> &&folderNode,
+                               const Utils::FilePath &overrideBaseDir,
+                               const FolderNodeFactory &factory)
+{
+    FolderNode *folder = recursiveFindOrCreateFolderNode(this,
+                                                         folderNode->filePath(),
+                                                         overrideBaseDir,
+                                                         factory);
+    folder->addNode(std::move(folderNode));
+}
+
 void FolderNode::addNestedNodes(std::vector<std::unique_ptr<FileNode> > &&files,
                                 const Utils::FilePath &overrideBaseDir,
                                 const FolderNode::FolderNodeFactory &factory)
