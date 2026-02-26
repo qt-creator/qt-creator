@@ -1046,11 +1046,7 @@ public:
 
     // Animation and highlighting of auto completed text
     QPointer<TextEditorAnimator> m_autocompleteAnimator;
-    bool m_animateAutoComplete = true;
-    bool m_highlightAutoComplete = true;
-    bool m_skipAutoCompletedText = true;
     bool m_skipFormatOnPaste = false;
-    bool m_removeAutoCompletedText = true;
     bool m_keepAutoCompletionHighlight = false;
     QTextCursor m_autoCompleteHighlightPos;
     void updateAutoCompleteHighlight();
@@ -3107,6 +3103,8 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
 
         e->accept();
+        const bool animateOrHighlight = completionSettings().animateAutoComplete()
+                                     || completionSettings().highlightAutoComplete();
         cursor.beginEditBlock();
         for (QTextCursor &cursor : cursor) {
             const TabSettings ts = d->m_document->tabSettings();
@@ -3138,7 +3136,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                         d->m_document->autoIndent(ensureVisible, QChar::Null, cursorPosition);
                     else if (!previousIndentationString.isEmpty())
                         ensureVisible.insertText(previousIndentationString);
-                    if (d->m_animateAutoComplete || d->m_highlightAutoComplete) {
+                    if (animateOrHighlight) {
                         QTextCursor tc = ensureVisible;
                         tc.movePosition(QTextCursor::EndOfBlock);
                         tc.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
@@ -3212,7 +3210,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             return;
         }
         QTextCursor cursor = textCursor();
-        if (d->m_skipAutoCompletedText && e->key() == Qt::Key_Tab) {
+        if (e->key() == Qt::Key_Tab && completionSettings().skipAutoCompletedText()) {
             bool skippedAutoCompletedText = false;
             while (!d->m_autoCompleteHighlightPos.isNull()
                    && d->m_autoCompleteHighlightPos.selectionStart() == cursor.position()) {
@@ -3367,7 +3365,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         QString autoText;
         if (!inOverwriteMode) {
             int skippedChars = 0;
-            if (d->m_skipAutoCompletedText && !d->m_autoCompleteHighlightPos.isNull()) {
+            if (completionSettings().skipAutoCompletedText() && !d->m_autoCompleteHighlightPos.isNull()) {
                 const QString autoCompletedText = d->m_autoCompleteHighlightPos.selectedText();
                 while (skippedChars < autoCompletedText.size() && skippedChars < eventText.size()) {
                     if (autoCompletedText.at(skippedChars) != eventText.at(skippedChars))
@@ -7150,7 +7148,7 @@ void TextEditorWidgetPrivate::updateHighlights()
         }
     }
 
-    if (m_highlightAutoComplete && !m_autoCompleteHighlightPos.isNull()) {
+    if (completionSettings().highlightAutoComplete() && !m_autoCompleteHighlightPos.isNull()) {
         QMetaObject::invokeMethod(this, [this] {
             const QTextCursor &cursor = q->textCursor();
             auto popAutoCompletion = [&]() {
@@ -8040,6 +8038,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
         }
     }
 
+    const bool removeAutoCompletedText = completionSettings().autoRemove();
     for (QTextCursor &c : cursor) {
         const int pos = c.position();
         if (!pos)
@@ -8053,7 +8052,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
         }
 
         if (typingSettings.m_autoIndent && !m_autoCompleteHighlightPos.isNull()
-            && (m_autoCompleteHighlightPos == c) && m_removeAutoCompletedText
+            && m_autoCompleteHighlightPos == c && removeAutoCompletedText
             && m_autoCompleter->autoBackspace(c)) {
             continue;
         }
@@ -8794,16 +8793,19 @@ void TextEditorWidgetPrivate::_q_highlightBlocks()
 
 void TextEditorWidgetPrivate::autocompleterHighlight(const QTextCursor &cursor)
 {
-    if ((!m_animateAutoComplete && !m_highlightAutoComplete)
+    const bool animateAutoComplete = completionSettings().animateAutoComplete();
+    const bool highlightAutoComplete = completionSettings().highlightAutoComplete();
+
+    if ((!animateAutoComplete && !highlightAutoComplete)
             || q->isReadOnly() || !cursor.hasSelection()) {
         m_autoCompleteHighlightPos = QTextCursor();
-    } else if (m_highlightAutoComplete) {
+    } else if (highlightAutoComplete) {
         if (m_autoCompleteHighlightPos.isNull())
             m_autoCompleteHighlightPos = cursor;
         else
             m_autoCompleteHighlightPos.setPosition(cursor.position(), QTextCursor::KeepAnchor);
     }
-    if (m_animateAutoComplete) {
+    if (animateAutoComplete) {
         const QTextCharFormat matchFormat = m_document->fontSettings().toTextCharFormat(
             C_AUTOCOMPLETE);
         cancelCurrentAnimations();// one animation is enough
@@ -9488,10 +9490,6 @@ void TextEditorWidget::updateCompletionSettings()
     d->m_autoCompleter->setAutoInsertQuotesEnabled(s.autoInsertQuotes());
     d->m_autoCompleter->setSurroundWithQuotesEnabled(s.surroundingAutoQuotes());
     d->m_autoCompleter->setOverwriteClosingCharsEnabled(s.overwriteClosingChars());
-    d->m_animateAutoComplete = s.animateAutoComplete();
-    d->m_highlightAutoComplete = s.highlightAutoComplete();
-    d->m_skipAutoCompletedText = s.skipAutoCompletedText();
-    d->m_removeAutoCompletedText = s.autoRemove();
 }
 
 void TextEditorWidget::setExtraEncodingSettings(const ExtraEncodingSettingsData &extraEncodingSettings)
