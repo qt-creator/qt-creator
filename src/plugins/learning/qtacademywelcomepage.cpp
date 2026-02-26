@@ -421,7 +421,9 @@ public:
         m_model.setPixmapFunction([this](const QString &url) -> QPixmap {
             queueImageForDownload(url);
             const FilePath cachedImageFile = cachedThumbnailFileName(url);
-            return QPixmap(cachedImageFile.toUrlishString());
+            QPixmap pixmap(cachedImageFile.toUrlishString());
+            pixmap.setDevicePixelRatio(qApp->devicePixelRatio());
+            return pixmap;
         });
 
         m_filteredModel = new ListModelFilter(&m_model, this);
@@ -612,8 +614,10 @@ private:
 
     static FilePath cachedThumbnailFileName(const QString &url)
     {
+        const QSize size = WelcomePageHelpers::WelcomeThumbnailSize * qApp->devicePixelRatio();
+        const QString key = QString("%1x%2px-").arg(size.width()).arg(size.height()) + url;
         const QString baseName =
-            QLatin1String(QCryptographicHash::hash(url.toUtf8(),
+            QLatin1String(QCryptographicHash::hash(key.toUtf8(),
                                                    QCryptographicHash::Sha1).toHex());
         const FilePath path = ICore::cacheResourcePath() /
                               (baseName + "." + QLatin1String(THUMBNAIL_CACHE_IMAGE_FORMAT));
