@@ -138,7 +138,7 @@ QJsonArray ToolRegistry::getToolsForClaude(bool prefixWithServer) const
         if (!info.enabled)
             continue;
 
-        QString toolName = prefixWithServer ? QString("%1_%2").arg(info.serverName, info.tool.name)
+        QString toolName = prefixWithServer ? QString("%1__%2").arg(info.serverName, info.tool.name)
                                             : info.tool.name;
 
         QJsonObject tool{
@@ -164,7 +164,7 @@ QJsonArray ToolRegistry::getToolsForOpenAI(bool prefixWithServer) const
             continue;
 
         QString toolName = prefixWithServer
-            ? QString("%1_%2").arg(info.serverName, info.tool.name)
+            ? QString("%1__%2").arg(info.serverName, info.tool.name)
             : info.tool.name;
 
         QJsonObject tool{
@@ -208,7 +208,7 @@ void ToolRegistry::removeServer(const QString &serverName)
 
 QString ToolRegistry::makeToolKey(const QString &serverName, const QString &toolName) const
 {
-    return QString("%1_%2").arg(serverName, toolName);
+    return QString("%1__%2").arg(serverName, toolName);
 }
 
 } // namespace QmlDesigner

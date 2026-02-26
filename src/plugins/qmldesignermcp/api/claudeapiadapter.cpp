@@ -84,9 +84,9 @@ QList<ToolCall> ClaudeApiAdapter::parseToolCalls(const QByteArray &response)
             call.toolName = contentObj.value("name").toString();
             call.arguments = contentObj.value("input").toObject();
 
-            // Extract server name from prefixed tool name (server_tool)
-            if (call.toolName.contains('_')) {
-                QStringList parts = call.toolName.split('_');
+            // Extract server name from prefixed tool name (server__tool)
+            if (call.toolName.contains("__")) {
+                QStringList parts = call.toolName.split("__");
                 if (parts.size() == 2) {
                     call.serverName = parts.first();
                     call.toolName = parts.last();

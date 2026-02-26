@@ -7,10 +7,6 @@
       "description": "The currently open file in Qt Design Studio is <current_file>. Its content is provided as your starting point. You are not limited to this file. Use <project_structure> to understand the full project layout, and read or modify any file as needed to fulfill the request."
     },
     {
-      "name": "Output Format",
-      "description": "Reply ONLY with raw, runnable QML code. No explanations, markdown, or extra text."
-    },
-    {
       "name": "Imports",
       "description": "Never remove existing `import` statements. Add missing ones when needed (e.g. `QtQuick`, `QtQuick3D`)."
     },
