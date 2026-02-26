@@ -1453,6 +1453,38 @@ Q_REQUIRED_RESULT decltype(auto) take(C &container, R (S::*function)() const)
 }
 
 //////////////////
+// takeAll:
+/////////////////
+
+template<class C, typename P>
+Q_REQUIRED_RESULT C takeAll(C &container, P predicate)
+{
+    const auto end = std::end(container);
+
+    const auto it = std::stable_partition(std::begin(container), end, std::not_fn(predicate));
+    if (it == end)
+        return {};
+
+    C result(std::make_move_iterator(it), std::make_move_iterator(end));
+    container.erase(it, end);
+    return result;
+}
+
+// pointer to member
+template <typename C, typename R, typename S>
+Q_REQUIRED_RESULT decltype(auto) takeAll(C &container, R S::*member)
+{
+    return takeAll(container, std::mem_fn(member));
+}
+
+// pointer to member function
+template <typename C, typename R, typename S>
+Q_REQUIRED_RESULT decltype(auto) takeAll(C &container, R (S::*function)() const)
+{
+    return takeAll(container, std::mem_fn(function));
+}
+
+//////////////////
 // setUnionMerge: Works like std::set_union but provides a merge function for items that match
 //                !(a > b) && !(b > a) which normally means that there is an "equal" match.
 //                It uses iterators to support move_iterators.

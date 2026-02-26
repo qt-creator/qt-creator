@@ -28,6 +28,7 @@ private slots:
     void findOrDefault();
     void toReferences();
     void take();
+    void takeAll();
     void sorted();
 };
 
@@ -569,6 +570,80 @@ void tst_Algorithm::take()
         std::optional<Struct> r1 = Utils::take(v, &Struct::member);
         QVERIFY(static_cast<bool>(r1));
         QCOMPARE(r1.value().member, 1);
+    }
+}
+
+void tst_Algorithm::takeAll()
+{
+    // lambda predicate
+    {
+        QList<Struct> v{1, 2, 3, 4, 5, 6, 7, 8};
+        const QList<Struct> taken = Utils::takeAll(v, [](const Struct &s) { return s.member > 5; });
+        QCOMPARE(taken, QList<Struct>({6, 7, 8}));
+        QCOMPARE(v, QList<Struct>({1, 2, 3, 4, 5}));
+    }
+    // no matches - returns empty, container unchanged
+    {
+        QList<Struct> v{1, 2, 3};
+        const QList<Struct> taken = Utils::takeAll(v, [](const Struct &s) { return s.member > 10; });
+        QVERIFY(taken.isEmpty());
+        QCOMPARE(v, QList<Struct>({1, 2, 3}));
+    }
+    // all match - returns all, container becomes empty
+    {
+        QList<Struct> v{2, 4, 6};
+        const QList<Struct> taken = Utils::takeAll(v, [](const Struct &s) { return s.isEven(); });
+        QCOMPARE(taken, QList<Struct>({2, 4, 6}));
+        QVERIFY(v.isEmpty());
+    }
+    // empty container
+    {
+        QList<Struct> v;
+        const QList<Struct> taken = Utils::takeAll(v, [](const Struct &) { return true; });
+        QVERIFY(taken.isEmpty());
+        QVERIFY(v.isEmpty());
+    }
+    // pointer to member function
+    {
+        QList<Struct> v{1, 2, 3, 4, 5, 6};
+        const QList<Struct> taken = Utils::takeAll(v, &Struct::isOdd);
+        QCOMPARE(taken, QList<Struct>({1, 3, 5}));
+        QCOMPARE(v, QList<Struct>({2, 4, 6}));
+    }
+    // pointer to member
+    {
+        QList<Struct> v{0, 0, 1, 0, 2, 0, 3};
+        const QList<Struct> taken = Utils::takeAll(v, &Struct::member);
+        QCOMPARE(taken, QList<Struct>({1, 2, 3}));
+        QCOMPARE(v, QList<Struct>({0, 0, 0, 0}));
+    }
+    // std::vector
+    {
+        std::vector<Struct> v{1, 2, 3, 4, 5, 6};
+        const std::vector<Struct> taken = Utils::takeAll(v, &Struct::isEven);
+        QCOMPARE(taken, std::vector<Struct>({2, 4, 6}));
+        QCOMPARE(v, std::vector<Struct>({1, 3, 5}));
+    }
+    // move-only types (unique_ptr)
+    {
+        std::vector<std::unique_ptr<Struct>> v;
+        v.push_back(std::make_unique<Struct>(1));
+        v.push_back(std::make_unique<Struct>(2));
+        v.push_back(std::make_unique<Struct>(3));
+        v.push_back(std::make_unique<Struct>(4));
+        v.push_back(std::make_unique<Struct>(5));
+        v.push_back(std::make_unique<Struct>(6));
+        const auto taken = Utils::takeAll(v, [](const std::unique_ptr<Struct> &s) {
+            return s->isEven();
+        });
+        QCOMPARE(taken.size(), static_cast<size_t>(3));
+        QCOMPARE(taken[0]->member, 2);
+        QCOMPARE(taken[1]->member, 4);
+        QCOMPARE(taken[2]->member, 6);
+        QCOMPARE(v.size(), static_cast<size_t>(3));
+        QCOMPARE(v[0]->member, 1);
+        QCOMPARE(v[1]->member, 3);
+        QCOMPARE(v[2]->member, 5);
     }
 }
 
