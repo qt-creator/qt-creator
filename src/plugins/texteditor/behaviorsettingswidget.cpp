@@ -328,7 +328,7 @@ void BehaviorSettingsWidget::setCodeStyle(ICodeStylePreferences *preferences)
     d->tabPreferencesWidget->setPreferences(preferences);
 }
 
-void BehaviorSettingsWidget::setAssignedTypingSettings(const TypingSettings &typingSettings)
+void BehaviorSettingsWidget::setAssignedTypingSettings(const TypingSettingsData &typingSettings)
 {
     d->autoIndent->setChecked(typingSettings.m_autoIndent);
     d->smartBackspaceBehavior->setCurrentIndex(typingSettings.m_smartBackspaceBehavior);
@@ -338,16 +338,16 @@ void BehaviorSettingsWidget::setAssignedTypingSettings(const TypingSettings &typ
     d->commentPosition->setCurrentIndex(typingSettings.m_commentPosition);
 }
 
-void BehaviorSettingsWidget::assignedTypingSettings(TypingSettings *typingSettings) const
+void BehaviorSettingsWidget::assignedTypingSettings(TypingSettingsData *typingSettings) const
 {
     typingSettings->m_autoIndent = d->autoIndent->isChecked();
     typingSettings->m_smartBackspaceBehavior =
-        (TypingSettings::SmartBackspaceBehavior)(d->smartBackspaceBehavior->currentIndex());
+        (TypingSettingsData::SmartBackspaceBehavior)(d->smartBackspaceBehavior->currentIndex());
     typingSettings->m_tabKeyBehavior =
-        (TypingSettings::TabKeyBehavior)(d->tabKeyBehavior->currentIndex());
+        (TypingSettingsData::TabKeyBehavior)(d->tabKeyBehavior->currentIndex());
 
     typingSettings->m_preferSingleLineComments = d->preferSingleLineComments->isChecked();
-    typingSettings->m_commentPosition = TypingSettings::CommentPosition(
+    typingSettings->m_commentPosition = TypingSettingsData::CommentPosition(
         d->commentPosition->currentIndex());
 }
 
@@ -440,7 +440,7 @@ TabSettingsWidget *BehaviorSettingsWidget::tabSettingsWidget() const
 
 void BehaviorSettingsWidget::slotTypingSettingsChanged()
 {
-    TypingSettings settings;
+    TypingSettingsData settings;
     assignedTypingSettings(&settings);
     emit typingSettingsChanged(settings);
 }

@@ -97,7 +97,7 @@ public:
             }
         });
 
-        d->m_behaviorWidget->setAssignedTypingSettings(globalTypingSettings());
+        d->m_behaviorWidget->setAssignedTypingSettings(globalTypingSettings().data());
         d->m_behaviorWidget->setAssignedStorageSettings(globalStorageSettings().data());
         d->m_behaviorWidget->setAssignedBehaviorSettings(globalBehaviorSettings().data());
         d->m_behaviorWidget->setAssignedExtraEncodingSettings(globalExtraEncodingSettings().data());
@@ -133,7 +133,7 @@ void BehaviorSettingsWidgetImpl::apply()
     if (!d->m_behaviorWidget) // page was never shown
         return;
 
-    TypingSettings newTypingSettings;
+    TypingSettingsData newTypingSettings;
     StorageSettingsData newStorageSettings;
     BehaviorSettingsData newBehaviorSettings;
     ExtraEncodingSettingsData newExtraEncodingSettings;

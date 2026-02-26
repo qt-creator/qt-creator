@@ -38,7 +38,7 @@ class TabSettings;
 class TextDocumentPrivate;
 class TextMark;
 class TextSuggestion;
-class TypingSettings;
+class TypingSettingsData;
 
 using TextMarks = QList<TextMark *>;
 
@@ -61,11 +61,11 @@ public:
     virtual QChar characterAt(int pos) const;
     QString blockText(int blockNumber) const;
 
-    void setTypingSettings(const TypingSettings &typingSettings);
+    void setTypingSettings(const TypingSettingsData &typingSettings);
     void setStorageSettings(const StorageSettingsData &storageSettings);
     void setExtraEncodingSettings(const ExtraEncodingSettingsData &extraEncodingSettings);
 
-    const TypingSettings &typingSettings() const;
+    const TypingSettingsData &typingSettings() const;
     const StorageSettingsData &storageSettings() const;
     virtual TabSettings tabSettings() const;
     const ExtraEncodingSettingsData &extraEncodingSettings() const;

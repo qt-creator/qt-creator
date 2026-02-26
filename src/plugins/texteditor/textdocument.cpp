@@ -74,7 +74,7 @@ public:
 public:
     FilePath m_defaultPath;
     QString m_suggestedFileName;
-    TypingSettings m_typingSettings;
+    TypingSettingsData m_typingSettings;
     StorageSettingsData m_storageSettings;
     ICodeStylePreferences *m_codeStylePreferences = nullptr;
     TabSettings m_tabSettings;
@@ -347,7 +347,7 @@ QString TextDocument::blockText(int blockNumber) const
     return document()->findBlockByNumber(blockNumber).text();
 }
 
-void TextDocument::setTypingSettings(const TypingSettings &typingSettings)
+void TextDocument::setTypingSettings(const TypingSettingsData &typingSettings)
 {
     d->m_typingSettings = typingSettings;
 }
@@ -357,7 +357,7 @@ void TextDocument::setStorageSettings(const StorageSettingsData &storageSettings
     d->m_storageSettings = storageSettings;
 }
 
-const TypingSettings &TextDocument::typingSettings() const
+const TypingSettingsData &TextDocument::typingSettings() const
 {
     return d->m_typingSettings;
 }

@@ -193,14 +193,13 @@ FakeVimSettings::FakeVimSettings()
                     text(Tr::tr("Copy Text Editor Settings")),
                     onClicked(this, [this] {
                         TabSettings ts = TextEditorSettings::codeStyle()->tabSettings();
-                        TypingSettings tps = globalTypingSettings();
                         expandTab.setVolatileValue(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
                         tabStop.setVolatileValue(ts.m_tabSize);
                         shiftWidth.setVolatileValue(ts.m_indentSize);
-                        smartTab.setVolatileValue(tps.m_smartBackspaceBehavior
-                                                  == TypingSettings::BackspaceFollowsPreviousIndents);
+                        smartTab.setVolatileValue(globalTypingSettings().smartBackspaceBehavior()
+                                                  == TypingSettingsData::BackspaceFollowsPreviousIndents);
                         autoIndent.setVolatileValue(true);
-                        smartIndent.setVolatileValue(tps.m_autoIndent);
+                        smartIndent.setVolatileValue(globalTypingSettings().autoIndent());
                         incSearch.setVolatileValue(true);
                     }),
                 },

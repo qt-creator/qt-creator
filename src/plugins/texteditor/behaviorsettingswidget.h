@@ -13,7 +13,7 @@ namespace TextEditor {
 
 class ICodeStylePreferences;
 class TabSettingsWidget;
-class TypingSettings;
+class TypingSettingsData;
 class StorageSettingsData;
 class BehaviorSettingsData;
 class ExtraEncodingSettingsData;
@@ -35,8 +35,8 @@ public:
 
     void setCodeStyle(ICodeStylePreferences *preferences);
 
-    void setAssignedTypingSettings(const TypingSettings &typingSettings);
-    void assignedTypingSettings(TypingSettings *typingSettings) const;
+    void setAssignedTypingSettings(const TypingSettingsData &typingSettings);
+    void assignedTypingSettings(TypingSettingsData *typingSettings) const;
 
     void setAssignedStorageSettings(const StorageSettingsData &storageSettings);
     void assignedStorageSettings(StorageSettingsData *storageSettings) const;
@@ -53,7 +53,7 @@ public:
     TabSettingsWidget *tabSettingsWidget() const;
 
 signals:
-    void typingSettingsChanged(const TextEditor::TypingSettings &settings);
+    void typingSettingsChanged(const TextEditor::TypingSettingsData &settings);
     void storageSettingsChanged(const TextEditor::StorageSettingsData &settings);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettingsData &settings);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettingsData &settings);

@@ -9,6 +9,7 @@
 #include <texteditor/extraencodingsettings.h>
 #include <texteditor/marginsettings.h>
 #include <texteditor/storagesettings.h>
+#include <texteditor/typingsettings.h>
 
 #include <memory>
 
@@ -18,7 +19,7 @@ class TextEditorWidget;
 class TextDocument;
 class TabSettings;
 class ICodeStylePreferences;
-class TypingSettings;
+class TypingSettingsData;
 } // namespace TextEditor
 
 namespace Core { class IEditor; }
@@ -48,11 +49,11 @@ public:
     // The default codec is returned in the case the project doesn't override it.
     Utils::TextEncoding textEncoding() const;
 
-    const TextEditor::TypingSettings &typingSettings() const;
     TextEditor::StorageSettings storageSettings;
     TextEditor::BehaviorSettings behaviorSettings;
     TextEditor::ExtraEncodingSettings extraEncodingSettings;
     TextEditor::MarginSettings marginSettings;
+    TextEditor::TypingSettings typingSettings;
 
     TextEditor::ICodeStylePreferences *codeStyle() const;
     TextEditor::ICodeStylePreferences *codeStyle(Utils::Id languageId) const;
@@ -64,7 +65,7 @@ public:
     Utils::Store toMap() const;
     void fromMap(const Utils::Store &map);
 
-    void setTypingSettings(const TextEditor::TypingSettings &settings);
+    void setTypingSettings(const TextEditor::TypingSettingsData &settings);
     void setStorageSettings(const TextEditor::StorageSettingsData &settings);
     void setBehaviorSettings(const TextEditor::BehaviorSettingsData &settings);
     void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettingsData &settings);
@@ -74,7 +75,7 @@ public:
     void slotAboutToRemoveProject(ProjectExplorer::Project *project);
 
 signals:
-    void typingSettingsChanged(const TextEditor::TypingSettings &);
+    void typingSettingsChanged(const TextEditor::TypingSettingsData &);
     void storageSettingsChanged(const TextEditor::StorageSettingsData &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettingsData &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettingsData &);

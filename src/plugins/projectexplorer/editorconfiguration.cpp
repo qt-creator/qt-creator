@@ -40,12 +40,10 @@ const Key kCodeStyleCount("EditorConfiguration.CodeStyle.Count");
 struct EditorConfigurationPrivate
 {
     EditorConfigurationPrivate() :
-        m_typingSettings(globalTypingSettings()),
         m_textEncoding(Core::EditorManager::defaultTextEncoding())
     { }
 
     ICodeStylePreferences *m_defaultCodeStyle = nullptr;
-    TypingSettings m_typingSettings;
     bool m_useGlobal = true;
     TextEncoding m_textEncoding;
 
@@ -104,7 +102,7 @@ bool EditorConfiguration::useGlobalSettings() const
 void EditorConfiguration::cloneGlobalSettings()
 {
     d->m_defaultCodeStyle->setTabSettings(TextEditorSettings::codeStyle()->tabSettings());
-    setTypingSettings(globalTypingSettings());
+    setTypingSettings(globalTypingSettings().data());
     setStorageSettings(globalStorageSettings().data());
     setBehaviorSettings(globalBehaviorSettings().data());
     setExtraEncodingSettings(globalExtraEncodingSettings().data());
@@ -115,11 +113,6 @@ void EditorConfiguration::cloneGlobalSettings()
 TextEncoding EditorConfiguration::textEncoding() const
 {
     return d->m_textEncoding;
-}
-
-const TypingSettings &EditorConfiguration::typingSettings() const
-{
-    return d->m_typingSettings;
 }
 
 ICodeStylePreferences *EditorConfiguration::codeStyle() const
@@ -167,11 +160,11 @@ Store EditorConfiguration::toMap() const
 
     Store inner;
     d->m_defaultCodeStyle->tabSettings().toMap(inner);
+    typingSettings.toMap(inner);
     storageSettings.toMap(inner);
     behaviorSettings.toMap(inner);
     extraEncodingSettings.toMap(inner);
     toMapWithPrefix(&map, inner);
-    toMapWithPrefix(&map, d->m_typingSettings.toMap());
     marginSettings.toMap(map);
 
     return map;
@@ -204,7 +197,7 @@ void EditorConfiguration::fromMap(const Store &map)
             submap.insert(it.key().toByteArray().mid(kPrefix.view().size()), it.value());
     }
     d->m_defaultCodeStyle->fromMap(submap);
-    d->m_typingSettings.fromMap(submap);
+    typingSettings.fromMap(submap);
     storageSettings.fromMap(submap);
     behaviorSettings.fromMap(submap);
     extraEncodingSettings.fromMap(submap);
@@ -281,14 +274,14 @@ void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
 {
     if (d->m_useGlobal) {
         widget->setMarginSettings(TextEditor::marginSettings().data());
-        widget->setTypingSettings(globalTypingSettings());
+        widget->setTypingSettings(globalTypingSettings().data());
         widget->setStorageSettings(globalStorageSettings().data());
         widget->setBehaviorSettings(globalBehaviorSettings().data());
         widget->setExtraEncodingSettings(globalExtraEncodingSettings().data());
         switchSettings_helper(TextEditorSettings::instance(), this, widget);
     } else {
         widget->setMarginSettings(marginSettings.data());
-        widget->setTypingSettings(typingSettings());
+        widget->setTypingSettings(typingSettings.data());
         widget->setStorageSettings(storageSettings.data());
         widget->setBehaviorSettings(behaviorSettings.data());
         widget->setExtraEncodingSettings(extraEncodingSettings.data());
@@ -296,10 +289,10 @@ void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
     }
 }
 
-void EditorConfiguration::setTypingSettings(const TypingSettings &settings)
+void EditorConfiguration::setTypingSettings(const TextEditor::TypingSettingsData &settings)
 {
-    d->m_typingSettings = settings;
-    emit typingSettingsChanged(d->m_typingSettings);
+    typingSettings.setData(settings);
+    emit typingSettingsChanged(typingSettings.data());
 }
 
 void EditorConfiguration::setStorageSettings(const StorageSettingsData &settings)

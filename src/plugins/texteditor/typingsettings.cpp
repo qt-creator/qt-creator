@@ -10,17 +10,11 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
-static const char autoIndentKey[] = "AutoIndent";
-static const char tabKeyBehaviorKey[] = "TabKeyBehavior";
-static const char smartBackspaceBehaviorKey[] = "SmartBackspaceBehavior";
-static const char preferSingleLineCommentsKey[] = "PreferSingleLineComments";
-static const char preferAfterWhitespaceCommentsKey[] = "PreferAfterWhitespaceComments";
-
 using namespace Utils;
 
 namespace TextEditor {
 
-TypingSettings::TypingSettings():
+TypingSettingsData::TypingSettingsData():
     m_autoIndent(true),
     m_tabKeyBehavior(TabNeverIndents),
     m_smartBackspaceBehavior(BackspaceUnindents),
@@ -28,32 +22,50 @@ TypingSettings::TypingSettings():
 {
 }
 
-Store TypingSettings::toMap() const
+TypingSettings::TypingSettings()
 {
-    return {
-        {autoIndentKey, m_autoIndent},
-        {tabKeyBehaviorKey, m_tabKeyBehavior},
-        {smartBackspaceBehaviorKey, m_smartBackspaceBehavior},
-        {preferSingleLineCommentsKey, m_preferSingleLineComments},
-        {preferAfterWhitespaceCommentsKey, m_commentPosition}
-    };
+    setAutoApply(false);
+    setSettingsGroup("textTypingSettings");
+
+    autoIndent.setSettingsKey("AutoIndent");
+    autoIndent.setDefaultValue(true);
+
+    tabKeyBehavior.setSettingsKey("TabKeyBehavior");
+    tabKeyBehavior.setDefaultValue(TypingSettingsData::TabNeverIndents);
+
+    smartBackspaceBehavior.setDefaultValue(TypingSettingsData::BackspaceUnindents);
+    smartBackspaceBehavior.setSettingsKey("SmartBackspaceBehavior");
+
+    preferSingleLineComments.setSettingsKey("PreferSingleLineComments");
+    preferSingleLineComments.setDefaultValue(false);
+
+    commentPosition.setSettingsKey("PreferAfterWhitespaceComments");
 }
 
-void TypingSettings::fromMap(const Store &map)
+void TypingSettings::setData(const TypingSettingsData &data)
 {
-    m_autoIndent = map.value(autoIndentKey, m_autoIndent).toBool();
-    m_tabKeyBehavior = (TabKeyBehavior) map.value(tabKeyBehaviorKey, m_tabKeyBehavior).toInt();
-    m_smartBackspaceBehavior = (SmartBackspaceBehavior)map.value(
-                smartBackspaceBehaviorKey, m_smartBackspaceBehavior).toInt();
-    m_preferSingleLineComments =
-        map.value(preferSingleLineCommentsKey, m_preferSingleLineComments).toBool();
-    m_commentPosition = CommentPosition(
-        std::clamp(map.value(preferAfterWhitespaceCommentsKey, m_commentPosition).toInt(),
-                   int(Automatic),
-                   int(AfterWhitespace)));
+    autoIndent.setValue(data.m_autoIndent);
+    tabKeyBehavior.setValue(data.m_tabKeyBehavior);
+    smartBackspaceBehavior.setValue(data.m_smartBackspaceBehavior);
+    preferSingleLineComments.setValue(data.m_preferSingleLineComments);
+    commentPosition.setValue(data.m_commentPosition);
 }
 
-bool TypingSettings::equals(const TypingSettings &ts) const
+TypingSettingsData TypingSettings::data() const
+{
+    TypingSettingsData d;
+    d.m_autoIndent = autoIndent();
+    d.m_tabKeyBehavior = tabKeyBehavior();
+    d.m_smartBackspaceBehavior = smartBackspaceBehavior();
+    d.m_preferSingleLineComments = preferSingleLineComments();
+    d.m_commentPosition = TypingSettingsData::CommentPosition(
+        std::clamp(int(commentPosition()),
+                   int(TypingSettingsData::Automatic),
+                   int(TypingSettingsData::AfterWhitespace)));
+    return d;
+}
+
+bool TypingSettingsData::equals(const TypingSettingsData &ts) const
 {
     return m_autoIndent == ts.m_autoIndent
            && m_tabKeyBehavior == ts.m_tabKeyBehavior
@@ -62,7 +74,7 @@ bool TypingSettings::equals(const TypingSettings &ts) const
            && m_commentPosition == ts.m_commentPosition;
 }
 
-bool TypingSettings::tabShouldIndent(const QTextDocument *document,
+bool TypingSettingsData::tabShouldIndent(const QTextDocument *document,
                                      const QTextCursor &cursor,
                                      int *suggestedPosition) const
 {
@@ -92,22 +104,20 @@ TypingSettings &globalTypingSettings()
     return theGlobalTypingSettings;
 }
 
-const char typingGroup[] = "textTypingSettings";
-
-void updateGlobalTypingSettings(const TypingSettings &newTypingSettings)
+void updateGlobalTypingSettings(const TypingSettingsData &newTypingSettings)
 {
-    if (newTypingSettings.equals(globalTypingSettings()))
+    if (newTypingSettings.equals(globalTypingSettings().data()))
         return;
 
-    globalTypingSettings() = newTypingSettings;
-    storeToSettings(typingGroup, Core::ICore::settings(), globalTypingSettings().toMap());
+    globalTypingSettings().setData(newTypingSettings);
+    globalTypingSettings().writeSettings();
 
     emit TextEditorSettings::instance()->typingSettingsChanged(newTypingSettings);
 }
 
 void setupTypingSettings()
 {
-    globalTypingSettings().fromMap(storeFromSettings(typingGroup, Core::ICore::settings()));
+    globalTypingSettings().readSettings();
 }
 
 } // namespace TextEditor

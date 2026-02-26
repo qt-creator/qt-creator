@@ -21,7 +21,7 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class FontSettings;
-class TypingSettings;
+class TypingSettingsData;
 class StorageSettingsData;
 class BehaviorSettingsData;
 class MarginSettingsData;
@@ -79,7 +79,7 @@ public:
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);
-    void typingSettingsChanged(const TextEditor::TypingSettings &);
+    void typingSettingsChanged(const TextEditor::TypingSettingsData &);
     void storageSettingsChanged(const TextEditor::StorageSettingsData &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettingsData &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettingsData &);

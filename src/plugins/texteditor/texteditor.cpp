@@ -1678,7 +1678,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     else
         m_document->setTabSettings(tabSettings); // also set through code style ???
 
-    q->setTypingSettings(globalTypingSettings());
+    q->setTypingSettings(globalTypingSettings().data());
     q->setStorageSettings(globalStorageSettings().data());
     q->setBehaviorSettings(globalBehaviorSettings().data());
     q->setMarginSettings(marginSettings().data());
@@ -3108,7 +3108,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         cursor.beginEditBlock();
         for (QTextCursor &cursor : cursor) {
             const TabSettings ts = d->m_document->tabSettings();
-            const TypingSettings &tps = d->m_document->typingSettings();
+            const TypingSettingsData &tps = d->m_document->typingSettings();
 
             int extraBlocks = d->m_autoCompleter->paragraphSeparatorAboutToBeInserted(cursor);
 
@@ -4079,15 +4079,15 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
 
 void TextEditorWidgetPrivate::setupFromDefinition(const KSyntaxHighlighting::Definition &definition)
 {
-    const TypingSettings::CommentPosition commentPosition
+    const TypingSettingsData::CommentPosition commentPosition
         = m_document->typingSettings().m_commentPosition;
-    m_commentDefinition.isAfterWhitespace = commentPosition != TypingSettings::StartOfLine;
+    m_commentDefinition.isAfterWhitespace = commentPosition != TypingSettingsData::StartOfLine;
     if (!definition.isValid())
         return;
     m_commentDefinition.singleLine = definition.singleLineCommentMarker();
     m_commentDefinition.multiLineStart = definition.multiLineCommentMarker().first;
     m_commentDefinition.multiLineEnd = definition.multiLineCommentMarker().second;
-    if (commentPosition == TypingSettings::Automatic) {
+    if (commentPosition == TypingSettingsData::Automatic) {
         m_commentDefinition.isAfterWhitespace
             = definition.singleLineCommentPosition()
               == KSyntaxHighlighting::CommentPosition::AfterWhitespace;
@@ -8021,17 +8021,17 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
     cursor.beginEditBlock();
 
     const TabSettings tabSettings = m_document->tabSettings();
-    const TypingSettings &typingSettings = m_document->typingSettings();
+    const TypingSettingsData &typingSettings = m_document->typingSettings();
 
     auto behavior = typingSettings.m_smartBackspaceBehavior;
     if (cursor.hasMultipleCursors()) {
-        if (behavior == TypingSettings::BackspaceFollowsPreviousIndents) {
-            behavior = TypingSettings::BackspaceNeverIndents;
-        } else if (behavior == TypingSettings::BackspaceUnindents) {
+        if (behavior == TypingSettingsData::BackspaceFollowsPreviousIndents) {
+            behavior = TypingSettingsData::BackspaceNeverIndents;
+        } else if (behavior == TypingSettingsData::BackspaceUnindents) {
             for (QTextCursor &c : cursor) {
                 if (c.positionInBlock() == 0
                     || c.positionInBlock() > TabSettings::firstNonSpace(c.block().text())) {
-                    behavior = TypingSettings::BackspaceNeverIndents;
+                    behavior = TypingSettingsData::BackspaceNeverIndents;
                     break;
                 }
             }
@@ -8058,13 +8058,13 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
         }
 
         bool handled = false;
-        if (behavior == TypingSettings::BackspaceNeverIndents) {
+        if (behavior == TypingSettingsData::BackspaceNeverIndents) {
             if (cursorWithinSnippet)
                 c.beginEditBlock();
             c.deletePreviousChar();
             handled = true;
         } else if (behavior
-                   == TypingSettings::BackspaceFollowsPreviousIndents) {
+                   == TypingSettingsData::BackspaceFollowsPreviousIndents) {
             QTextBlock currentBlock = c.block();
             int positionInBlock = pos - currentBlock.position();
             const QString blockText = currentBlock.text();
@@ -8098,7 +8098,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
                     }
                 }
             }
-        } else if (behavior == TypingSettings::BackspaceUnindents) {
+        } else if (behavior == TypingSettingsData::BackspaceUnindents) {
             if (c.positionInBlock() == 0
                 || c.positionInBlock() > TabSettings::firstNonSpace(c.block().text())) {
                 if (cursorWithinSnippet)
@@ -9471,7 +9471,7 @@ void TextEditorWidget::setBehaviorSettings(const BehaviorSettingsData &bs)
     d->m_behaviorSettings = bs;
 }
 
-void TextEditorWidget::setTypingSettings(const TypingSettings &typingSettings)
+void TextEditorWidget::setTypingSettings(const TypingSettingsData &typingSettings)
 {
     d->m_document->setTypingSettings(typingSettings);
     d->setupFromDefinition(d->currentDefinition());
@@ -9812,7 +9812,7 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
         d->m_snippetOverlay.accept();
 
     const bool selectInsertedText = source->property(dropProperty).toBool();
-    const TypingSettings &tps = d->m_document->typingSettings();
+    const TypingSettingsData &tps = d->m_document->typingSettings();
     MultiTextCursor cursor = multiTextCursor();
     if (!tps.m_autoIndent) {
         cursor.insertText(text, selectInsertedText);
@@ -10935,7 +10935,7 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
 
     textEditorWidget->d->m_commentDefinition = m_commentDefinition;
     textEditorWidget->d->m_commentDefinition.isAfterWhitespace
-        = document->typingSettings().m_commentPosition != TypingSettings::StartOfLine;
+        = document->typingSettings().m_commentPosition != TypingSettingsData::StartOfLine;
 
     QObject::connect(textEditorWidget,
                      &TextEditorWidget::activateEditor,
