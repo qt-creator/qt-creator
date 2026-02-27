@@ -186,7 +186,7 @@ void ClangdTest::initTestCase()
     const QString clangdFromEnv = Utils::qtcEnvironmentVariable("QTC_CLANGD");
     if (!clangdFromEnv.isEmpty())
         CppEditor::ClangdSettings::setClangdFilePath(FilePath::fromString(clangdFromEnv));
-    const auto clangd = CppEditor::ClangdSettings::instance().clangdFilePath(nullptr);
+    const auto clangd = CppEditor::ClangdSettings::instance().data().clangdFilePath(nullptr);
     if (clangd.isEmpty() || !clangd.exists())
         QSKIP("clangd binary not found");
     CppEditor::ClangdSettings::setUseClangd(true);

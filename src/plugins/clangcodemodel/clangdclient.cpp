@@ -177,15 +177,14 @@ static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils:
 {
     using CppEditor::ClangdSettings;
     QString indexingOption = "--background-index";
-    const ClangdSettings settings(CppEditor::clangdProjectSettings(bc));
-    const ClangdSettings::IndexingPriority indexingPriority = settings.indexingPriority();
-    const bool indexingEnabled = indexingPriority != ClangdSettings::IndexingPriority::Off;
+    const ClangdSettings::Data settings = CppEditor::clangdProjectSettings(bc);
+    const bool indexingEnabled = settings.indexingPriority != ClangdSettings::IndexingPriority::Off;
     if (!indexingEnabled)
         indexingOption += "=0";
     CppEditor::ClangdProjectSettings(bc ? bc->project() : nullptr).unblockIndexing();
     const QString headerInsertionOption = QString("--header-insertion=")
-            + (settings.autoIncludeHeaders() ? "iwyu" : "never");
-    const QString limitResults = QString("--limit-results=%1").arg(settings.completionResults());
+            + (settings.autoIncludeHeaders ? "iwyu" : "never");
+    const QString limitResults = QString("--limit-results=%1").arg(settings.completionResults);
     const Utils::FilePath clangdExePath = settings.clangdFilePath(bc ? bc->kit() : nullptr);
     Utils::CommandLine cmd{clangdExePath,
                            {indexingOption,
@@ -193,11 +192,11 @@ static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils:
                             limitResults,
                             "--limit-references=0",
                             "--clang-tidy=0"}};
-    if (settings.workerThreadLimit() != 0)
-        cmd.addArg("-j=" + QString::number(settings.workerThreadLimit()));
+    if (settings.workerThreadLimit != 0)
+        cmd.addArg("-j=" + QString::number(settings.workerThreadLimit));
     if (indexingEnabled) {
         cmd.addArg("--background-index-priority="
-                   + ClangdSettings::priorityToString(indexingPriority));
+                   + ClangdSettings::priorityToString(settings.indexingPriority));
     }
     cmd.addArg("--rename-file-limit=0");
     if (!jsonDbDir.isEmpty())
@@ -205,9 +204,9 @@ static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils:
     if (clangdLogServer().isDebugEnabled())
         cmd.addArgs({"--log=verbose", "--pretty", "--hidden-features=1"});
     cmd.addArg("--use-dirty-headers");
-    if (settings.completionRankingModel() != ClangdSettings::CompletionRankingModel::Default) {
+    if (settings.completionRankingModel != ClangdSettings::CompletionRankingModel::Default) {
         cmd.addArg("--ranking-model=" + ClangdSettings::rankingModelToCmdLineString(
-                       settings.completionRankingModel()));
+                       settings.completionRankingModel));
     }
     const auto interface = new StdIOClientInterface;
     interface->setCommandLine(cmd);
@@ -403,8 +402,7 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
     });
     if (!bc) {
         QJsonObject initOptions;
-        const Utils::FilePath includeDir
-                = CppEditor::ClangdSettings(d->settings).clangdIncludePath(nullptr);
+        const FilePath includeDir = d->settings.clangdIncludePath(nullptr);
         CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                     *CppEditor::CppModelManager::fallbackProjectPart(),
                     warningsConfigForProject(nullptr), includeDir, {});
@@ -922,8 +920,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     cachedConfig.value() = fullConfig;
 
     QJsonObject cdbChanges;
-    const Utils::FilePath includeDir = CppEditor::ClangdSettings(d->settings)
-                                           .clangdIncludePath(d->kit());
+    const FilePath includeDir = d->settings.clangdIncludePath(d->kit());
     CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                 *projectPart, warningsConfigForProject(project()), includeDir,
                 ProjectExplorer::Macro::toMacros(config.editorDefines()));

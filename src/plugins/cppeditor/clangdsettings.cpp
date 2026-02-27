@@ -168,9 +168,9 @@ ClangdSettings::ClangdSettings()
             });
 }
 
-bool ClangdSettings::useClangd(const Kit *kit) const
+bool ClangdSettings::Data::useGoodClangd(const Kit *kit) const
 {
-    return m_data.useClangd && clangdVersion(clangdFilePath(kit)) >= minimumClangdVersion();
+    return useClangd && clangdVersion(clangdFilePath(kit)) >= minimumClangdVersion();
 }
 
 void ClangdSettings::setUseClangd(bool use) { instance().m_data.useClangd = use; }
@@ -218,7 +218,7 @@ ClangDiagnosticConfigsModel ClangdSettings::diagnosticConfigsModel()
     return model;
 }
 
-FilePath ClangdSettings::clangdFilePath(const Kit *kit) const
+FilePath ClangdSettings::Data::clangdFilePath(const Kit *kit) const
 {
     if (kit && BuildDeviceTypeKitAspect::deviceTypeId(kit)
                    != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
@@ -229,8 +229,8 @@ FilePath ClangdSettings::clangdFilePath(const Kit *kit) const
         }
     }
 
-    if (!m_data.executableFilePath.isEmpty())
-        return m_data.executableFilePath;
+    if (!executableFilePath.isEmpty())
+        return executableFilePath;
     return fallbackClangdFilePath();
 }
 
@@ -244,9 +244,9 @@ FilePath ClangdSettings::sessionIndexPath(const MacroExpander &expander) const
     return FilePath::fromUserInput(expander.expand(m_data.sessionIndexPathTemplate));
 }
 
-bool ClangdSettings::sizeIsOkay(const FilePath &fp) const
+bool ClangdSettings::Data::sizeIsOkay(const FilePath &fp) const
 {
-    return !sizeThresholdEnabled() || sizeThresholdInKb() * 1024 >= fp.fileSize();
+    return !sizeThresholdEnabled || sizeThresholdInKb * 1024 >= fp.fileSize();
 }
 
 ClangDiagnosticConfigs ClangdSettings::customDiagnosticConfigs() const
@@ -261,9 +261,11 @@ Id ClangdSettings::diagnosticConfigId() const
     return m_data.diagnosticConfigId;
 }
 
-ClangDiagnosticConfig ClangdSettings::diagnosticConfig() const
+ClangDiagnosticConfig ClangdSettings::Data::diagnosticConfig() const
 {
-    return diagnosticConfigsModel().configWithId(diagnosticConfigId());
+    if (!diagnosticConfigsModel().hasConfigWithId(diagnosticConfigId))
+        return diagnosticConfigsModel().configWithId(initialClangDiagnosticConfigId());
+    return diagnosticConfigsModel().configWithId(diagnosticConfigId);
 }
 
 ClangdSettings::Granularity ClangdSettings::granularity() const
@@ -328,9 +330,9 @@ static FilePath getClangHeadersPath(const FilePath &clangdFilePath)
     return {};
 }
 
-FilePath ClangdSettings::clangdIncludePath(const Kit *kit) const
+FilePath ClangdSettings::Data::clangdIncludePath(const Kit *kit) const
 {
-    QTC_ASSERT(useClangd(kit), return {});
+    QTC_ASSERT(useGoodClangd(kit), return {});
     FilePath clangdPath = clangdFilePath(kit);
     QTC_ASSERT(!clangdPath.isEmpty() && clangdPath.exists(), return {});
     static QHash<FilePath, FilePath> headersPathCache;
@@ -649,16 +651,16 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "The maximum number of completion results returned by clangd.");
 
     m_useClangdCheckBox.setText(Tr::tr("Use clangd"));
-    m_useClangdCheckBox.setChecked(settings.useClangd(nullptr));
+    m_useClangdCheckBox.setChecked(settings.data().useGoodClangd(nullptr));
     m_clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_clangdChooser.setFilePath(settings.clangdFilePath(nullptr));
+    m_clangdChooser.setFilePath(settings.data().clangdFilePath(nullptr));
     m_clangdChooser.setAllowPathFromDevice(true);
     m_clangdChooser.setEnabled(m_useClangdCheckBox.isChecked());
     m_clangdChooser.setCommandVersionArguments({"--version"});
     using Priority = ClangdSettings::IndexingPriority;
     for (Priority prio : {Priority::Off, Priority::Background, Priority::Low, Priority::Normal}) {
         m_indexingComboBox.addItem(ClangdSettings::priorityToDisplayString(prio), int(prio));
-        if (prio == settings.indexingPriority())
+        if (prio == settings.data().indexingPriority)
             m_indexingComboBox.setCurrentIndex(m_indexingComboBox.count() - 1);
     }
     m_indexingComboBox.setToolTip(indexingToolTip);

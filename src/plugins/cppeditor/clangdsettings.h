@@ -66,6 +66,13 @@ public:
         }
         friend bool operator!=(const Data &s1, const Data &s2) { return !(s1 == s2); }
 
+        Utils::FilePath clangdFilePath(const ProjectExplorer::Kit *kit) const;
+        bool useGoodClangd(const ProjectExplorer::Kit *kit) const;
+        bool useExternalCompilationDb() const { return false; }
+        Utils::FilePath clangdIncludePath(const ProjectExplorer::Kit *kit) const;
+        bool sizeIsOkay(const Utils::FilePath &fp) const;
+        ClangDiagnosticConfig diagnosticConfig() const;
+
         Utils::FilePath executableFilePath;
         QStringList sessionsWithOneClangd;
         ClangDiagnosticConfigs customDiagnosticConfigs;
@@ -93,7 +100,6 @@ public:
     ClangdSettings(const Data &data) : m_data(data) {}
 
     static ClangdSettings &instance();
-    bool useClangd(const ProjectExplorer::Kit *kit) const;
     static void setUseClangd(bool use);
     static void setUseClangdAndSave(bool use);
 
@@ -104,11 +110,8 @@ public:
     static void setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
     static ClangDiagnosticConfigsModel diagnosticConfigsModel();
 
-    Utils::FilePath clangdFilePath(const ProjectExplorer::Kit *kit) const;
-    IndexingPriority indexingPriority() const { return m_data.indexingPriority; }
     Utils::FilePath projectIndexPath(const Utils::MacroExpander &expander) const;
     Utils::FilePath sessionIndexPath(const Utils::MacroExpander &expander) const;
-    bool useExternalCompilationDb() const { return false; }
     HeaderSourceSwitchMode headerSourceSwitchMode() const { return m_data.headerSourceSwitchMode; }
     CompletionRankingModel completionRankingModel() const { return m_data.completionRankingModel; }
     bool autoIncludeHeaders() const { return m_data.autoIncludeHeaders; }
@@ -118,10 +121,8 @@ public:
     qint64 sizeThresholdInKb() const { return m_data.sizeThresholdInKb; }
     bool sizeThresholdEnabled() const { return m_data.sizeThresholdEnabled; }
     int completionResults() const { return m_data.completionResults; }
-    bool sizeIsOkay(const Utils::FilePath &fp) const;
     ClangDiagnosticConfigs customDiagnosticConfigs() const;
     Utils::Id diagnosticConfigId() const;
-    ClangDiagnosticConfig diagnosticConfig() const;
 
     enum class Granularity { Project, Session };
     Granularity granularity() const;
@@ -129,7 +130,6 @@ public:
     void setData(const Data &data, bool saveAndEmitSignal = true);
     Data data() const { return m_data; }
 
-    Utils::FilePath clangdIncludePath(const ProjectExplorer::Kit *kit) const;
     static Utils::FilePath clangdUserConfigFilePath();
 
 #ifdef WITH_TESTS

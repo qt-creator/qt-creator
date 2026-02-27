@@ -214,7 +214,7 @@ ProjectExplorer::Kit *F2TestCase::m_testKit = nullptr;
 F2TestCase::F2TestCase(CppEditorAction action,
                        const QList<TestDocumentPtr> &testFiles,
                        OverrideItemList expectedVirtualFunctionProposal)
-    : m_prevUseClangd(ClangdSettings::instance().useClangd(nullptr))
+    : m_prevUseClangd(ClangdSettings::instance().data().useGoodClangd(nullptr))
 {
     QVERIFY(succeededSoFar());
 
@@ -498,7 +498,7 @@ void FollowSymbolTest::initTestCase()
     if (clangdFromEnv.isEmpty())
         return;
     ClangdSettings::setClangdFilePath(Utils::FilePath::fromUserInput(clangdFromEnv));
-    const auto clangd = ClangdSettings::instance().clangdFilePath(nullptr);
+    const auto clangd = ClangdSettings::instance().data().clangdFilePath(nullptr);
     if (clangd.isEmpty() || !clangd.exists())
         return;
 
