@@ -22,6 +22,8 @@ Rectangle {
         radius: StudioTheme.Values.smallRadius
     }
 
+    signal modelChanged(string modelName)
+
     color: root.style.background.idle
     border.color: StudioTheme.Values.themeControlOutlineHover
     border.width: root.style.borderWidth
@@ -71,9 +73,24 @@ Rectangle {
             }
         }
 
-        Row {
-            Layout.alignment: Qt.AlignRight
+        RowLayout {
+            Layout.fillWidth: true
             Layout.margins: StudioTheme.Values.marginTopBottom
+
+            Item { Layout.fillWidth: true } // left spacer
+
+            StudioControls.ComboBox {
+                id: modelComboBox
+
+                width: 190
+
+                model: AiAssistantBackend.rootView.modelsModel
+                textRole: "modelId"
+                actionIndicatorVisible: false
+                enabled: modelComboBox.count > 0
+
+                onCurrentTextChanged: root.modelChanged(currentText)
+            }
 
             AiIconButton {
                 id: attachImageButton

@@ -23,20 +23,6 @@ Item {
             onTriggered: (prompt) => promptTextBox.text = prompt
         }
 
-        AiModelsComboBox {
-            Layout.fillWidth: true
-
-            onCurrentTextChanged: {
-                var supportsImageInput = /llama-4-(maverick|scout)/.test(currentText)
-                                         || currentText.startsWith("gemini")
-                                         || currentText.startsWith("gpt-")
-
-                promptTextBox.enableAttachImage = supportsImageInput
-                if (!supportsImageInput)
-                    root.rootView.attachedImageSource = ""
-            }
-        }
-
         ChatView {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -68,6 +54,16 @@ Item {
             Layout.preferredHeight: 80
             Layout.minimumHeight: 50
             Layout.maximumHeight: 200
+
+            onModelChanged: (modelName) => {
+                var supportsImageInput = /llama-4-(maverick|scout)/.test(modelName)
+                                         || modelName.startsWith("gemini")
+                                         || modelName.startsWith("gpt-")
+
+                promptTextBox.enableAttachImage = supportsImageInput
+                if (!supportsImageInput)
+                    root.rootView.attachedImageSource = ""
+            }
         }
 
         // Bottom bar
