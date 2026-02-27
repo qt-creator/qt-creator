@@ -181,7 +181,7 @@ static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils:
     const bool indexingEnabled = settings.indexingPriority != ClangdSettings::IndexingPriority::Off;
     if (!indexingEnabled)
         indexingOption += "=0";
-    CppEditor::ClangdProjectSettings(bc ? bc->project() : nullptr).unblockIndexing();
+    CppEditor::clangdUnblockIndexingForProject(bc ? bc->project() : nullptr);
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders ? "iwyu" : "never");
     const QString limitResults = QString("--limit-results=%1").arg(settings.completionResults);
@@ -461,8 +461,7 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
     progressManager()->setCancelHandlerForToken(indexingToken(), [this, bc = QPointer(bc)] {
         if (!bc)
             return;
-        CppEditor::ClangdProjectSettings projectSettings(bc ? bc->project() : nullptr);
-        projectSettings.blockIndexing();
+        CppEditor::clangdBlockIndexingForProject(bc ? bc->project() : nullptr);
         progressManager()->endProgressReport(indexingToken());
     });
     setCurrentBuildConfiguration(bc);

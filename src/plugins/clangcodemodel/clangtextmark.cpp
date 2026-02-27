@@ -97,10 +97,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
     ClangdSettings::setCustomDiagnosticConfigs(configsModel.customConfigs());
 
     // Set project settings
-    ClangdProjectSettings projectSettings(project);
-    if (projectSettings.useGlobalSettings())
-        projectSettings.setUseGlobalSettings(false);
-    projectSettings.setDiagnosticConfigId(config.id());
+    clangdSetDiagnosticConfigId(project, config.id());
 
     // Notify the user about changed project specific settings
     const QString text
