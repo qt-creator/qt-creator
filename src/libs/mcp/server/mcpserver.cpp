@@ -283,12 +283,12 @@ public:
         const Responder &responder,
         const QString &sessionId)
     {
-        if (request._params._protocolVersion != "2025-11-25") {
+        if (request.params().protocolVersion() != "2025-11-25") {
             auto errorResponse = Schema::JSONRPCErrorResponse().id(id).error(
                 Schema::Error()
                     .code(InvalidRequest)
                     .message(QString("Unsupported protocol version: %1")
-                                 .arg(request._params._protocolVersion)));
+                                 .arg(request.params().protocolVersion())));
 
             responder.write(QJsonDocument(Schema::toJson(errorResponse)));
             return;
@@ -314,7 +314,7 @@ public:
             caps = caps.completions(QJsonObject());
 
         auto initResult = Schema::InitializeResult()
-                              .protocolVersion(request._params._protocolVersion)
+                              .protocolVersion(request.params().protocolVersion())
                               .serverInfo(serverInfo)
                               .capabilities(caps);
 
@@ -345,7 +345,7 @@ public:
                             Schema::Error()
                                 .code(InvalidParams)
                                 .message(QString("Task with ID \"%1\" not found")
-                                             .arg(request._params._taskId)))
+                                             .arg(request.params().taskId())))
                         .id(id))));
             return;
         }
@@ -384,7 +384,7 @@ public:
                             Schema::Error()
                                 .code(InvalidParams)
                                 .message(QString("Task with ID \"%1\" not found")
-                                             .arg(request._params._taskId)))
+                                             .arg(request.params().taskId())))
                         .id(id))));
             return;
         }
@@ -397,7 +397,7 @@ public:
                             Schema::Error()
                                 .code(InvalidParams)
                                 .message(QString("Task with ID \"%1\" cannot be cancelled")
-                                             .arg(request._params._taskId)))
+                                             .arg(request.params().taskId())))
                         .id(id))));
             return;
         }
@@ -423,16 +423,16 @@ public:
         Schema::ListTasksResult result;
         // Cursor
         auto it = m_tasks.begin();
-        if (request._params && request._params->_cursor)
-            it = m_tasks.find(*request._params->_cursor);
+        if (request.params() && request.params()->cursor())
+            it = m_tasks.find(*request.params()->cursor());
 
         // Pagination
         int count = 0;
         for (; it != m_tasks.end() && count < s_maxPageSize; ++it, ++count) {
-            result._tasks.append(it->second.task);
+            result.addTask(it->second.task);
         }
         if (it != m_tasks.end())
-            result._nextCursor = it->first;
+            result.nextCursor(it->first);
 
         responder.write(QJsonDocument(makeResponse(id, result)));
     }
@@ -508,14 +508,14 @@ public:
         const Server::ToolCallback &cb)
     {
         if (request.params().task().has_value()) {
-            qCWarning(mcpServerLog) << "Received call for tool" << request._params._name
+            qCWarning(mcpServerLog) << "Received call for tool" << request.params().name()
                                     << "with task parameters, but tool does not support tasks";
             responder.write(QJsonDocument(toJson(
                 Schema::JSONRPCErrorResponse()
                     .error(
                         Schema::Error()
                             .code(InvalidParams)
-                            .message("Tool does not support tasks: " + request._params._name))
+                            .message("Tool does not support tasks: " + request.params().name()))
                     .id(id))));
             return;
         }
@@ -783,17 +783,17 @@ public:
         const Responder &responder,
         const QString sessionId)
     {
-        auto toolIt = m_tools.find(request._params._name);
+        auto toolIt = m_tools.find(request.params().name());
 
         if (toolIt == m_tools.end()) {
-            qCWarning(mcpServerLog) << "Received call for unknown tool:" << request._params._name;
+            qCWarning(mcpServerLog) << "Received call for unknown tool:" << request.params().name();
 
             responder.write(QJsonDocument(toJson(
                 Schema::JSONRPCErrorResponse()
                     .error(
                         Schema::Error()
                             .code(MethodNotFound)
-                            .message("Invalid Tool:" + request._params._name))
+                            .message("Invalid Tool:" + request.params().name()))
                     .id(id))));
 
             return;
@@ -817,16 +817,16 @@ public:
         Schema::RequestId id, const Schema::ListToolsRequest &request, const Responder &responder)
     {
         auto it = m_tools.begin();
-        if (request._params && request._params->_cursor)
-            it = m_tools.find(*request._params->_cursor);
+        if (request.params() && request.params()->cursor())
+            it = m_tools.find(*request.params()->cursor());
 
         Schema::ListToolsResult result;
         int count = 0;
         for (; it != m_tools.end() && count < s_maxPageSize; ++it, ++count) {
-            result._tools.append(it.value().tool);
+            result.addTool(it.value().tool);
         }
         if (it != m_tools.end())
-            result._nextCursor = it.key();
+            result.nextCursor(it.key());
 
         responder.write(QJsonDocument(makeResponse(id, result)));
     }
@@ -835,16 +835,16 @@ public:
         Schema::RequestId id, const Schema::ListPromptsRequest &request, const Responder &responder)
     {
         auto it = m_prompts.begin();
-        if (request._params && request._params->_cursor)
-            it = m_prompts.find(*request._params->_cursor);
+        if (request.params() && request.params()->cursor())
+            it = m_prompts.find(*request.params()->cursor());
 
         Schema::ListPromptsResult result;
         int count = 0;
         for (; it != m_prompts.end() && count < s_maxPageSize; ++it, ++count) {
-            result._prompts.append(it->prompt);
+            result.addPrompt(it->prompt);
         }
         if (it != m_prompts.end())
-            result._nextCursor = it.key();
+            result.nextCursor(it.key());
 
         responder.write(QJsonDocument(makeResponse(id, result)));
     }
@@ -855,16 +855,16 @@ public:
         const Responder &responder)
     {
         auto it = m_resources.begin();
-        if (request._params && request._params->_cursor)
-            it = m_resources.find(*request._params->_cursor);
+        if (request.params() && request.params()->cursor())
+            it = m_resources.find(*request.params()->cursor());
 
         Schema::ListResourcesResult result;
         int count = 0;
         for (; it != m_resources.end() && count < s_maxPageSize; ++it, ++count) {
-            result._resources.append(it.value().resource);
+            result.addResource(it.value().resource);
         }
         if (it != m_resources.end())
-            result._nextCursor = it.key();
+            result.nextCursor(it.key());
 
         responder.write(QJsonDocument(makeResponse(id, result)));
     }
@@ -872,10 +872,10 @@ public:
     void onReadResource(
         Schema::RequestId id, const Schema::ReadResourceRequest &request, const Responder &responder)
     {
-        auto it = m_resources.find(request._params._uri);
+        auto it = m_resources.find(request.params().uri());
         if (it == m_resources.end()) {
             if (m_resourceFallbackCallback) {
-                Result<Schema::ReadResourceResult> r = m_resourceFallbackCallback(request._params);
+                Result<Schema::ReadResourceResult> r = m_resourceFallbackCallback(request.params());
 
                 if (r) {
                     responder.write(QJsonDocument(makeResponse(id, *r)));
@@ -890,12 +890,12 @@ public:
                             Schema::Error()
                                 .code(InvalidParams)
                                 .message(
-                                    QString("Resource \"%1\" not found").arg(request._params._uri)))
+                                    QString("Resource \"%1\" not found").arg(request.params().uri())))
                         .id(id))));
             return;
         }
 
-        Result<Schema::ReadResourceResult> r = it->callback(request._params);
+        Result<Schema::ReadResourceResult> r = it->callback(request.params());
         if (!r) {
             responder.write(QJsonDocument(
                 Schema::toJson(
@@ -914,16 +914,16 @@ public:
         const Responder &responder)
     {
         auto it = m_resourceTemplates.begin();
-        if (request._params && request._params->_cursor)
-            it = m_resourceTemplates.find(*request._params->_cursor);
+        if (request.params() && request.params()->cursor())
+            it = m_resourceTemplates.find(*request.params()->cursor());
 
         Schema::ListResourceTemplatesResult result;
         int count = 0;
         for (; it != m_resourceTemplates.end() && count < s_maxPageSize; ++it, ++count) {
-            result._resourceTemplates.append(it.value());
+            result.addResourceTemplate(it.value());
         }
         if (it != m_resourceTemplates.end())
-            result._nextCursor = it.key();
+            result.nextCursor(it.key());
 
         responder.write(QJsonDocument(makeResponse(id, result)));
     }
@@ -931,7 +931,7 @@ public:
     void onGetPrompt(
         Schema::RequestId id, const Schema::GetPromptRequest &request, const Responder &responder)
     {
-        auto it = m_prompts.find(request._params._name);
+        auto it = m_prompts.find(request.params().name());
         if (it == m_prompts.end()) {
             responder.write(QJsonDocument(
                 Schema::toJson(
@@ -940,18 +940,16 @@ public:
                             Schema::Error()
                                 .code(InvalidParams)
                                 .message(
-                                    QString("Prompt \"%1\" not found").arg(request._params._name)))
+                                    QString("Prompt \"%1\" not found").arg(request.params().name())))
                         .id(id))));
             return;
         }
 
         QList<Schema::PromptMessage> messages = it->callback(
-            request._params._arguments.value_or(QMap<QString, QString>{}));
+            request.params().arguments().value_or(QMap<QString, QString>{}));
 
-        Schema::GetPromptResult result{
-            ._description = it->prompt._description,
-            ._messages = messages,
-        };
+        auto result
+            = Schema::GetPromptResult().description(it->prompt.description()).messages(messages);
         responder.write(QJsonDocument(makeResponse(id, result)));
     }
 
@@ -1351,13 +1349,13 @@ QList<QTcpServer *> Server::boundTcpServers() const
 
 void Server::addTool(const Schema::Tool &tool, const ToolInterfaceCallback &callback)
 {
-    d->m_tools.insert(tool._name, ServerPrivate::ToolAndCallback{tool, callback});
+    d->m_tools.insert(tool.name(), ServerPrivate::ToolAndCallback{tool, callback});
     sendNotification(Schema::ToolListChangedNotification{});
 }
 
 void Server::addTool(const Schema::Tool &tool, const ToolCallback &callback)
 {
-    d->m_tools.insert(tool._name, ServerPrivate::ToolAndCallback{tool, callback});
+    d->m_tools.insert(tool.name(), ServerPrivate::ToolAndCallback{tool, callback});
     sendNotification(Schema::ToolListChangedNotification{});
 }
 
@@ -1413,7 +1411,7 @@ void Server::removeTool(const QString &toolName)
 
 void Server::addPrompt(const Schema::Prompt &prompt, const PromptCallback &callback)
 {
-    d->m_prompts.insert(prompt._name, {prompt, callback});
+    d->m_prompts.insert(prompt.name(), {prompt, callback});
     sendNotification(Schema::PromptListChangedNotification{});
 }
 
@@ -1425,7 +1423,7 @@ void Server::removePrompt(const QString &promptName)
 
 void Server::addResource(const Schema::Resource &resource, const ResourceCallback &callback)
 {
-    d->m_resources.insert(resource._uri, {resource, callback});
+    d->m_resources.insert(resource.uri(), {resource, callback});
     sendNotification(Schema::ResourceListChangedNotification{});
 }
 
@@ -1437,7 +1435,7 @@ void Server::removeResource(const QString &uri)
 
 void Server::addResourceTemplate(const Schema::ResourceTemplate &resourceTemplate)
 {
-    d->m_resourceTemplates.insert(resourceTemplate._name, resourceTemplate);
+    d->m_resourceTemplates.insert(resourceTemplate.name(), resourceTemplate);
     sendNotification(Schema::ResourceListChangedNotification{});
 }
 
