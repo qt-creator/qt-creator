@@ -1,4 +1,4 @@
-StaticLibrary {
+PlainStaticLibrary {
     name: "qtcZLib"
     builtByDefault: false
     Depends { name: "cpp" }

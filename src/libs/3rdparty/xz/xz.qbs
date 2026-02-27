@@ -1,4 +1,4 @@
-StaticLibrary {
+PlainStaticLibrary {
     name: "qtcXz"
     builtByDefault: false
 
