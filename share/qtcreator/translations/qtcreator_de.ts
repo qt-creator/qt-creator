@@ -2339,7 +2339,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Determines whether the button gets focus if pressed.</source>
-        <translation>Bestimmt, ob die Schaltfäche bei Betätigung den Fokus bekommt.</translation>
+        <translation>Bestimmt, ob die Schaltfläche bei Betätigung den Fokus bekommt.</translation>
     </message>
     <message>
         <source>Icon source</source>
@@ -16477,7 +16477,7 @@ Das Kit unterstützt &quot;%2&quot;, aber das Gerät verwendet &quot;%3&quot;.</
     <message>
         <source>The API level set for the APK is less than the minimum required by the kit.
 The minimum API level required by the kit is %1.</source>
-        <translation>Der für das APK gewählte APK-Level ist nieriger als das vom Kit benötigte Minimum.
+        <translation>Der für das APK gewählte API-Level ist niedriger als das vom Kit benötigte Minimum.
 Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
@@ -16591,7 +16591,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Android target &quot;%1&quot; died.</source>
-        <translation>Android-Ziel &quot;%1&quot; wurde unerwartet beended.</translation>
+        <translation>Android-Ziel &quot;%1&quot; wurde unerwartet beendet.</translation>
     </message>
     <message>
         <source>Failed to find application directory.</source>
@@ -16977,7 +16977,7 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
     </message>
     <message>
         <source>It is highly recommended if you are planning to extend the Java side of your Qt application.</source>
-        <translation>Dies ist sehr zu empfehlen, wenn Sie planen, ihre Qt-Anwendung mit Java-Code zu erweitern.</translation>
+        <translation>Dies ist sehr zu empfehlen, wenn Sie planen, Ihre Qt-Anwendung mit Java-Code zu erweitern.</translation>
     </message>
     <message>
         <source>Select the Android package source directory.
@@ -24341,7 +24341,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Failed to compile: &quot;%1&quot;.</source>
-        <translation>Compilierung fehlgeschlagen: &quot;%1&quot;.</translation>
+        <translation>Kompilierung fehlgeschlagen: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>File not readable.</source>
@@ -37617,7 +37617,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     <message>
         <source>Type Control-Shift-Y, Control-Shift-Y to quit FakeVim mode.</source>
         <translatorcomment>These are the names of the actual keys on my german Apple keyboard https://support.apple.com/de-de/HT201236</translatorcomment>
-        <translation>Verwenden sie Control-Umschalt-Y, Control-Umschalt-Y, um den FakeVim-Modus zu verlassen.</translation>
+        <translation>Verwenden Sie Control-Umschalt-Y, Control-Umschalt-Y, um den FakeVim-Modus zu verlassen.</translation>
     </message>
     <message>
         <source>Type Alt-Y, Alt-Y to quit FakeVim mode.</source>
@@ -50185,7 +50185,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Creates a project with a structure that is compatible both with Qt Design Studio and with Qt Creator. It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
-        <translation>Erstellt ein Projekt mit einer Struktur, die sowohl mit Qt Design Studio als auch Qt Creator kompatibel ist. Es enthalt ein .ui.qml-Formular, dass Sie in Qt Design Studio visuell bearbeiten können.</translation>
+        <translation>Erstellt ein Projekt mit einer Struktur, die sowohl mit Qt Design Studio als auch Qt Creator kompatibel ist. Es enthält ein .ui.qml-Formular, das Sie in Qt Design Studio visuell bearbeiten können.</translation>
     </message>
     <message>
         <source>Binary</source>
