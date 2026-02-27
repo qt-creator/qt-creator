@@ -1214,7 +1214,7 @@ void McpCommands::registerCommands(Mcp::Server &server)
             using namespace std::chrono_literals;
 
             toolInterface.startTask(
-                1000,
+                1s,
                 [](Schema::Task task) -> Schema::Task {
                     auto progress = BuildManager::currentProgress();
                     if (!progress) {

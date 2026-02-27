@@ -77,7 +77,7 @@ Utils::Result<T> as(const auto &variant)
 static Utils::Result<> sampleTool(
     const Mcp::Schema::CallToolRequestParams &, const Mcp::ToolInterface &toolInterface)
 {
-    toolInterface.clientRequests.sample(
+    toolInterface.sample(
         Mcp::Schema::CreateMessageRequestParams()
             .addMessage(
                 Mcp::Schema::SamplingMessage()
@@ -108,7 +108,7 @@ static Utils::Result<> sampleTool(
 static Utils::Result<> elicitTool(
     const Mcp::Schema::CallToolRequestParams &, const Mcp::ToolInterface &toolInterface)
 {
-    toolInterface.clientRequests.elicit(
+    toolInterface.elicit(
         Mcp::Schema::ElicitRequestFormParams()
             .message("Please provide info")
             .requestedSchema(
@@ -191,7 +191,7 @@ static Utils::Result<> asyncEchoTool(
                         .addStructuredContent("echoedMessage", msg));
             } else if (!progressToken.isNull()) {
                 qDebug() << "Sending progress notification with token:" << progressToken;
-                toolInterface.clientRequests.notify(
+                toolInterface.notify(
                     Mcp::Schema::ProgressNotification().params(
                         Mcp::Schema::ProgressNotificationParams()
                             .progress(count)
@@ -254,7 +254,7 @@ static Result<> toolTask(
     // Cancel
     auto cancel = [taskData]() { taskData->cancelled = true; };
 
-    toolInterface.startTask(1000, update, result, cancel, 20s);
+    toolInterface.startTask(1s, update, result, cancel, 20s);
 
     return ResultOk;
 }
