@@ -37,7 +37,7 @@
     To load the Qt AI Assistant extension from the web:
 
     \list 1
-        \li Go to \uicontrol Extensions mode.
+        \li Go to the \uicontrol Extensions mode.
             \image {qtcreator-extension-mode.webp} {AI Assistant in Extensions mode}
         \li Select \uicontrol {Use external repository}.
         \li Select \uicontrol {AI Assistant}.
