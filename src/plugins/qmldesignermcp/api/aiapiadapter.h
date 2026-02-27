@@ -83,6 +83,15 @@ public:
     virtual QJsonObject buildToolResultsTurn(const QList<ToolResult> &results) = 0;
 
     /**
+     * @brief Extract plain text from a raw LLM response body.
+     *
+     * Extract text blocks in the response, ignoring tool_use and
+     * other non-text content types. Used to surface the model's reasoning
+     * text that may accompany tool calls.
+     */
+    virtual QString extractText(const QByteArray &response) const = 0;
+
+    /**
      * @brief Check if this adapter can handle the given provider's url
      */
     virtual bool accepts(const QUrl &url) const = 0;

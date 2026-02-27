@@ -115,8 +115,13 @@ signals:
 
     // Progress
     void iterationStarted(int iteration, int maxIterations);
-    void toolCallStarted(const QString &serverName, const QString &toolName);
+    void toolCallStarted(const QString &serverName, const QString &toolName, const QJsonObject &arguments);
     void toolCallFinished(const QString &serverName, const QString &toolName, bool success);
+
+    // Emitted when the LLM produces a text block alongside tool calls
+    // e.g. "I'll read the file first to understand its current state."
+    // Not emitted for the final response (responseReady covers that case).
+    void toolCallTextReady(const QString &text);
 
     // Logging/debugging
     void logMessage(const QString &message);

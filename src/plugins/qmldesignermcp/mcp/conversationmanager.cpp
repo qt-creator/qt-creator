@@ -1,9 +1,10 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "agenticrequestmanager.h" // For ToolResult
-#include "aiapiutils.h"
 #include "conversationmanager.h"
+
+#include "agenticrequestmanager.h" // For ToolResult
+#include "aiassistantutils.h"
 
 #include <QFileInfo>
 #include <QJsonDocument>
@@ -26,7 +27,7 @@ QJsonObject toJsonImage(const QUrl &imageUrl)
             QJsonObject{
                 {"type", "base64"},
                 {"media_type", QString("image/%1").arg(imageFormat)},
-                {"data", AiApiUtils::toBase64Image(image, imageFormat)},
+                {"data", AiAssistantUtils::toBase64Image(image, imageFormat)},
                 },
             },
         };

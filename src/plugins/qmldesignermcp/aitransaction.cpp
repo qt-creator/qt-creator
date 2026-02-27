@@ -17,14 +17,6 @@ AiTransaction::AiTransaction() = default;
 
 AiTransaction::AiTransaction(const AiResponse &response)
 {
-    QStringList selectedIds = response.selectedIds();
-    if (!selectedIds.isEmpty()) {
-        m_before.selectedItems = AiAssistantUtils::currentSelectedIds();
-        m_after.selectedItems = selectedIds;
-        m_affectsIds = m_before.selectedItems != m_after.selectedItems;
-        m_isValid = true;
-    }
-
     const QString newQml = AiAssistantUtils::reformatQml(response.qml());
     if (!newQml.isEmpty()) {
         const QString currentQml = AiAssistantUtils::currentQmlText();
@@ -43,11 +35,6 @@ void AiTransaction::commit()
     if (!isValid() || applied())
         return;
 
-    if (m_affectsIds) {
-        AiAssistantUtils::selectIds(m_after.selectedItems);
-        m_applied = true;
-    }
-
     if (m_affectsQml) {
         AiAssistantUtils::setQml(m_after.qml);
         m_applied = true;
@@ -58,9 +45,6 @@ void AiTransaction::rollback()
 {
     if (!isValid() || !applied())
         return;
-
-    if (m_affectsIds)
-        AiAssistantUtils::selectIds(m_before.selectedItems);
 
     if (m_affectsQml)
         AiAssistantUtils::setQml(m_before.qml);

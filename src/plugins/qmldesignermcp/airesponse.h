@@ -23,13 +23,13 @@ public:
     AiResponse(Error error);
 
     QString qml() const;
+    QString text() const;
     Error error() const;
     QString errorString() const;
-    QStringList selectedIds() const;
 
     void setError(Error error);
     void setQml(const QString &qml);
-    void setSelectedIds(const QStringList &ids);
+    void setText(const QString &text);
 
     [[nodiscard]] static AiResponse requestError(const QString &error);
     [[nodiscard]] static AiResponse structureError(const QString &error);
@@ -37,7 +37,7 @@ public:
 private:
     Error m_error = Error::NoError;
     QString m_qml;
-    QStringList m_selectedIds;
+    QString m_text;
     QString m_errorString;
 };
 

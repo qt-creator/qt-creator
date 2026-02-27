@@ -29,6 +29,7 @@
 #include <QApplication>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QShortcut>
 #include <QVBoxLayout>
 
 namespace QmlDesigner {
@@ -76,6 +77,7 @@ bool AiAssistantWidget::eventFilter(QObject *obj, QEvent *event)
 AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     : m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
     , m_modelsModel(Utils::makeUniqueObjectPtr<AiModelsModel>())
+    , m_chatHistory(Utils::makeUniqueObjectPtr<ChatHistoryModel>())
     , m_mcpHost(Utils::makeUniqueObjectPtr<McpHost>())
     , m_toolRegistry(Utils::makeUniqueObjectPtr<ToolRegistry>())
     , m_conversation(std::make_unique<ConversationManager>())
@@ -91,8 +93,6 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     setMinimumWidth(240);
     setMinimumHeight(200);
 
-    connectRequestManager();
-
     auto vLayout = new QVBoxLayout(this);
     vLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -102,6 +102,9 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->quickWidget()->installEventFilter(this);
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
+
+    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_F1), this);
+    connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &AiAssistantWidget::reloadQmlSource);
 
     auto map = m_quickWidget->registerPropertyMap("AiAssistantBackend");
     map->setProperties({
@@ -113,6 +116,11 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     setFocusProxy(m_quickWidget->quickWidget());
     QmlDesignerPlugin::trackWidgetFocus(this, Constants::EVENT_AIASSISTANT);
 
+    // for MessageType enum usage in QML
+    qmlRegisterUncreatableType<ChatMessage>("AiAssistant", 1, 0, "ChatMessage",
+                                            "ChatMessage is not creatable from QML");
+
+    connectRequestManager();
     reloadQmlSource();
     updateModelConfig();
 }
@@ -123,6 +131,7 @@ void AiAssistantWidget::clear()
 {
     setAttachedImageSource("");
     m_lastTransaction = AiTransaction();
+    m_conversation->clear();
     emit removeFeedbackPopup();
 }
 
@@ -208,13 +217,13 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
         {"image_assets", getImageAssetsPaths().join('\n')},
     });
 
-    m_inputHistory.append(prompt);
-    m_historyIndex = m_inputHistory.size();
+    m_chatHistory->addUserMessage(prompt);
 
     const AiModelInfo modelInfo = m_modelsModel->selectedInfo();
     if (!modelInfo.isValid()) {
-        qWarning() << __FUNCTION__ << "No model configuration";
-        return; // TODO: Notify error
+        m_chatHistory->addSystemMessage(tr("Error: No model configured"));
+        emit notifyAIResponseError("No model configured");
+        return;
     }
 
     RequestData reqData {
@@ -222,35 +231,13 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
         .userPrompt = prompt,
         .currentQml = AiAssistantUtils::currentQmlText(),
         .currentFilePath = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName()
-                               .relativePathFromDir(DocumentManager::currentResourcePath())
-                               .toFSPathString(), // Current file's path relative to resouces dir
+                               .relativePathFromDir(currentDesignDocument()->projectFolder())
+                               .toFSPathString(), // Current file's path relative to project dir
         .projectStructure = m_projectStructure,
         .attachedImageUrl = fullImageUrl(attachedImageSource()),
     };
 
     m_requestManager->request(reqData, modelInfo);
-}
-
-QString AiAssistantWidget::getPreviousCommand()
-{
-    if (m_historyIndex > 0)
-        --m_historyIndex;
-
-    if (m_inputHistory.size() > m_historyIndex)
-        return m_inputHistory.at(m_historyIndex);
-
-    return {};
-}
-
-QString AiAssistantWidget::getNextCommand()
-{
-    if (int newIdx = m_historyIndex + 1; newIdx < m_inputHistory.size())
-        m_historyIndex = newIdx;
-
-    if (m_inputHistory.size() > m_historyIndex)
-        return m_inputHistory.at(m_historyIndex);
-
-    return {};
 }
 
 QUrl AiAssistantWidget::fullImageUrl(const QString &path) const
@@ -261,10 +248,9 @@ QUrl AiAssistantWidget::fullImageUrl(const QString &path) const
 
 void AiAssistantWidget::retryLastPrompt()
 {
-    QTC_ASSERT(!m_inputHistory.isEmpty(), return);
+    QTC_ASSERT(!m_chatHistory->isEmpty(), return);
 
-    QString lastPrompt = m_inputHistory.last();
-    handleMessage(lastPrompt);
+    handleMessage(m_chatHistory->lastUserPrompt());
 }
 
 void AiAssistantWidget::applyLastGeneratedQml()
@@ -279,8 +265,10 @@ void AiAssistantWidget::undoLastChange()
 
 void AiAssistantWidget::sendThumbFeedback(bool up)
 {
+    QTC_ASSERT(!m_chatHistory->isEmpty(), return);
+
     QmlDesignerPlugin::instance()->sendStatisticsFeedback(m_view->widgetInfo().feedbackDisplayName,
-                                                          m_inputHistory.last(),
+                                                          m_chatHistory->lastUserPrompt(),
                                                           up ? 1 : -1);
 }
 
@@ -385,6 +373,7 @@ void AiAssistantWidget::connectRequestManager()
     // Error handling
     connect(reqManager, &AgenticRequestManager::errorOccurred,
             this, [this](const QString &error) {
+                m_chatHistory->addSystemMessage(tr("Error: %1").arg(error));
                 emit notifyAIResponseError(error);
             });
 
@@ -396,16 +385,19 @@ void AiAssistantWidget::connectRequestManager()
 
     // Progress signals
     connect(reqManager, &AgenticRequestManager::iterationStarted,
-            this, [](int iteration, int max) {
-                if (showAgenticDebug)
-                    qDebug() << "[Agentic] Iteration" << iteration << "of" << max;
+            this, [this](int iteration, int max) {
+                m_chatHistory->addIterationMessage(iteration, max);
             });
 
-    // Track which tool is being called so we know whether to re-fetch structure on success
+    // Show the model's reasoning text when it accompanies tool calls
+    connect(reqManager, &AgenticRequestManager::toolCallTextReady,
+            this, [this](const QString &text) {
+                m_chatHistory->addAssistantMessage(text);
+            });
+
     connect(reqManager, &AgenticRequestManager::toolCallStarted,
-            this, [this](const QString &server, const QString &tool) {
-                if (showAgenticDebug)
-                    qDebug() << "[Agentic] Calling tool:" << tool << "on" << server;
+            this, [this](const QString &server, const QString &tool, const QJsonObject &args) {
+                m_chatHistory->addToolCallStarted(server, tool, args);
 
                 static const QSet<QString> structureMutatingTools = {
                     "create_qml",
@@ -416,9 +408,8 @@ void AiAssistantWidget::connectRequestManager()
             });
 
     connect(reqManager, &AgenticRequestManager::toolCallFinished,
-            this, [](const QString &server, const QString &tool, bool success) {
-                if (showAgenticDebug)
-                    qDebug() << "[Agentic] Tool" << tool << (success ? "succeeded" : "failed");
+            this, [this](const QString &server, const QString &tool, bool success) {
+                m_chatHistory->completeToolCall(server, tool, success);
             });
 
     connect(reqManager, &AgenticRequestManager::logMessage,
@@ -432,7 +423,15 @@ void AiAssistantWidget::reloadQmlSource()
 {
     const QString aiAssistantQmlPath = qmlSourcesPath() + "/AiAssistantView.qml";
     QTC_ASSERT(QFileInfo::exists(aiAssistantQmlPath), return);
-    m_quickWidget->setSource(QUrl::fromLocalFile(aiAssistantQmlPath));
+
+    QUrl url = QUrl::fromLocalFile(aiAssistantQmlPath);
+
+    if (Utils::qtcEnvironmentVariableIsSet("QML_HOT_RELOAD")) {
+        m_quickWidget->setSource(QUrl());  // unload
+        m_quickWidget->engine()->clearComponentCache();
+    }
+
+    m_quickWidget->setSource(url); // reload
 }
 
 void AiAssistantWidget::setIsGenerating(bool val)
@@ -470,19 +469,46 @@ QAbstractItemModel *AiAssistantWidget::modelsModel() const
     return m_modelsModel.get();
 }
 
+QAbstractListModel *AiAssistantWidget::chatHistory() const
+{
+    return m_chatHistory.get();
+}
+
+void AiAssistantWidget::clearChat()
+{
+    m_chatHistory->clear();
+    m_conversation->clear();
+}
+
 void AiAssistantWidget::handleAiResponse(const AiResponse &response)
 {
     using namespace Qt::StringLiterals;
     using Utils::FilePath;
 
     if (response.error() != AiResponse::Error::NoError) {
+        m_chatHistory->addSystemMessage(tr("Error: %1").arg(response.errorString()));
         emit notifyAIResponseError(response.errorString());
         return;
     }
 
+    // Show the AI's response in the chat.
+    // response.text() is the narrative explanation the model gave; fall back to a
+    // short summary only when the model returned pure code with no surrounding text.
+    const QString responseText = [&]() -> QString {
+        const QString text = response.text().trimmed();
+        if (!text.isEmpty())
+            return text;
+        if (!response.qml().isEmpty())
+            return tr("Generated QML code (%1 lines).").arg(response.qml().split('\n').size());
+        return tr("Done.");
+    }();
+
+    m_chatHistory->addAssistantMessage(responseText);
+
     m_lastTransaction = AiTransaction(response);
 
     if (m_lastTransaction.producesQmlError()) {
+        m_chatHistory->addSystemMessage(tr("Warning: Generated QML has syntax errors"));
         emit notifyAIResponseInvalidQml();
     } else {
         m_lastTransaction.commit();

@@ -26,7 +26,6 @@ private:
     struct Context
     {
         QString qml;
-        QStringList selectedItems;
     };
 
 private: // variables
@@ -35,7 +34,6 @@ private: // variables
     bool m_applied = false;
     bool m_isValid = false;
     bool m_producesQmlError = false;
-    bool m_affectsIds = false;
     bool m_affectsQml = false;
 };
 

@@ -5,7 +5,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
 import AiAssistantBackend
 
@@ -38,13 +37,13 @@ Item {
             }
         }
 
-        PromptTextBox {
-            id: promptTextBox
-
-            rootView: root.rootView
-
-            Layout.fillHeight: true
+        ChatView {
             Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.minimumHeight: 100
+            Layout.preferredHeight: 400
+
+            chatModel: root.rootView.chatHistory
         }
 
         AssetImage {
@@ -60,7 +59,21 @@ Item {
             }
         }
 
+        PromptTextBox {
+            id: promptTextBox
+
+            rootView: root.rootView
+
+            Layout.fillWidth: true
+            Layout.preferredHeight: 80
+            Layout.minimumHeight: 50
+            Layout.maximumHeight: 200
+        }
+
+        // Bottom bar
         RowLayout {
+            Layout.fillWidth: true
+
             ResponseStatePopup {
                 id: responseStatePopup
 
@@ -70,6 +83,17 @@ Item {
             Item { // Spacer
                 Layout.fillWidth: true
                 visible: !responseStatePopup.visible
+            }
+
+            AiIconButton {
+                id: clearButton
+
+                buttonIcon: StudioTheme.Constants.close_small
+
+                tooltip: qsTr("Clear conversation")
+                enabled: root.rootView.termsAccepted && !root.rootView.isGenerating
+
+                onClicked: root.rootView.clearChat()
             }
 
             AiIconButton {

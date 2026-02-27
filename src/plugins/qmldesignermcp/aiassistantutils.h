@@ -8,13 +8,15 @@
 namespace QmlDesigner::AiAssistantUtils {
 
 QString currentQmlText();
-QStringList currentSelectedIds();
 
 QString reformatQml(const QString &content);
 
 void setQml(const QString &qml);
-void selectIds(const QStringList &ids);
 
 bool isValidQmlCode(const QString &qmlCode);
+
+QString toBase64Image(const QImage &image, const QByteArray &format);
+
+QString markdownToHtml(const QString &markdown);
 
 } // namespace QmlDesigner::AiAssistantUtils

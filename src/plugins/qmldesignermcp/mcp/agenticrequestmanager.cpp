@@ -145,10 +145,10 @@ void AgenticRequestManager::sendLlmRequest()
         history);
 
     // TODO: remove. Needed for now for debugging
-    qDebug().noquote() << "\x1b[42m \x1b[1m" << __FUNCTION__
-             << ", m_lastRequestContent=" << QJsonDocument::fromJson(m_lastRequestContent)
-                                                 .toJson(QJsonDocument::Indented)
-             << "\x1b[m";
+    // qDebug().noquote() << "\x1b[42m \x1b[1m" << __FUNCTION__
+    //          << ", m_lastRequestContent=" << QJsonDocument::fromJson(m_lastRequestContent)
+    //                                              .toJson(QJsonDocument::Indented)
+    //          << "\x1b[m";
 
     emit logMessage(QString("Sending LLM request (%1 tools, %2 history turns, %3 bytes)")
                    .arg(tools.size())
@@ -208,10 +208,10 @@ void AgenticRequestManager::onNetworkReplyFinished()
 void AgenticRequestManager::handleLlmResponse(const QByteArray &responseData)
 {
     // TODO: remove. Needed for now for debugging
-    qDebug().noquote() << "\x1b[42m \x1b[1m" << __FUNCTION__
-             << ", responseData=" << QJsonDocument::fromJson(responseData)
-                                         .toJson(QJsonDocument::Indented)
-             << "\x1b[m";
+    // qDebug().noquote() << "\x1b[42m \x1b[1m" << __FUNCTION__
+    //          << ", responseData=" << QJsonDocument::fromJson(responseData)
+    //                                      .toJson(QJsonDocument::Indented)
+    //          << "\x1b[m";
 
     m_lastLlmResponse = responseData;
 
@@ -238,6 +238,10 @@ void AgenticRequestManager::handleLlmResponse(const QByteArray &responseData)
     }
 
     emit logMessage(QString("LLM requested %1 tool call(s)").arg(toolCalls.size()));
+
+    const QString thinkingText = adapter->extractText(responseData).trimmed();
+    if (!thinkingText.isEmpty())
+        emit toolCallTextReady(thinkingText);
 
     // Add assistant message to history
     QJsonObject assistantTurn = adapter->buildAssistantTurn(responseData);
@@ -274,7 +278,7 @@ void AgenticRequestManager::executeToolCalls(const QList<ToolCall> &calls)
             }
         }
 
-        emit toolCallStarted(serverName, call.toolName);
+        emit toolCallStarted(serverName, call.toolName, call.arguments);
         emit logMessage(QString("Calling tool '%1.%2'").arg(serverName, call.toolName));
 
         // Execute the tool call

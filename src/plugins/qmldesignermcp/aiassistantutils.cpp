@@ -13,7 +13,8 @@
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
-#include <ranges>
+#include <QBuffer>
+#include <QTextDocument>
 
 namespace QmlDesigner::AiAssistantUtils {
 
@@ -48,19 +49,6 @@ QString currentQmlText()
     return pureQml;
 }
 
-QStringList currentSelectedIds()
-{
-    auto view = rewriterView();
-    QTC_ASSERT(view, return {});
-
-    const ModelNodes selectedNodes = view->selectedModelNodes();
-    auto currentSelectedIdxsView
-        = selectedNodes
-          | std::views::filter([](const ModelNode &node) { return !node.id().isEmpty(); })
-          | std::views::transform([](const ModelNode &node) { return node.id(); });
-    return QStringList(currentSelectedIdxsView.begin(), currentSelectedIdxsView.end());
-}
-
 QString reformatQml(const QString &content)
 {
     auto document = QmlJS::Document::create({}, QmlJS::Dialect::QmlQtQuick2);
@@ -79,25 +67,6 @@ void setQml(const QString &qml)
 
     auto textModifier = view->textModifier();
     textModifier->replace(0, textModifier->text().size(), qml);
-}
-
-void selectIds(const QStringList &ids)
-{
-    if (ids.isEmpty())
-        return;
-
-    auto view = rewriterView();
-    QTC_ASSERT(view, return);
-
-    Model *model = view->model();
-    ModelNodes selectedNodes;
-    selectedNodes.reserve(ids.size());
-
-    for (const QString &id : ids)
-        selectedNodes.append(view->modelNodeForId(id));
-
-    if (!selectedNodes.isEmpty())
-        model->setSelectedModelNodes(selectedNodes);
 }
 
 bool isValidQmlCode(const QString &qmlCode)
@@ -119,6 +88,45 @@ bool isValidQmlCode(const QString &qmlCode)
     });
 
     return success;
+}
+
+QString toBase64Image(const QImage &image, const QByteArray &format)
+{
+    QByteArray byteArray;
+    QBuffer buffer(&byteArray);
+    image.save(&buffer, format);
+    return QString::fromLatin1(byteArray.toBase64());
+}
+
+QString markdownToHtml(const QString &markdown)
+{
+    if (markdown.isEmpty())
+        return {};
+
+    QTextDocument doc;
+    doc.setMarkdown(markdown, QTextDocument::MarkdownDialectCommonMark);
+
+    QString html = doc.toHtml();
+
+    // Strip everything up to and including the opening <body...> tag.
+    const int bodyStart = html.indexOf("<body");
+    if (bodyStart != -1) {
+        const int bodyTagEnd = html.indexOf('>', bodyStart);
+        if (bodyTagEnd != -1)
+            html = html.mid(bodyTagEnd + 1);
+    }
+
+    // Strip the closing </body></html>.
+    const int bodyClose = html.lastIndexOf("</body>");
+    if (bodyClose != -1)
+        html = html.left(bodyClose);
+
+    // QTextDocument wraps everything in a <p style="margin-top:0px; …"> with hard-coded
+    // pixel sizes and font families.  Remove inline styles so the QML theme fonts apply.
+    static QRegularExpression inlineStyle(R"( style="[^"]*")");
+    html.remove(inlineStyle);
+
+    return html.trimmed();
 }
 
 } // namespace QmlDesigner::AiAssistantUtils

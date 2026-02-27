@@ -1,0 +1,70 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+
+#pragma once
+
+#include <QElapsedTimer>
+#include <QDateTime>
+#include <QJsonObject>
+#include <QObject>
+#include <QString>
+#include <QVariantMap>
+
+namespace QmlDesigner {
+
+/**
+ * @brief A single message in the chat conversation
+ *
+ * Exposed to QML for displaying chat history
+ */
+class ChatMessage : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(MessageType type READ type CONSTANT)
+    Q_PROPERTY(QString content READ content CONSTANT)
+    Q_PROPERTY(QString toolName READ toolName CONSTANT)
+    Q_PROPERTY(QString serverName READ serverName CONSTANT)
+    Q_PROPERTY(bool success READ success CONSTANT)
+    Q_PROPERTY(QDateTime timestamp READ timestamp CONSTANT)
+
+public:
+    enum MessageType {
+        UserMessage,
+        AssistantMessage,
+        ToolCallStarted,
+        ToolCallCompleted,
+        ToolCallFailed,
+        SystemMessage,
+        IterationMessage
+    };
+    Q_ENUM(MessageType)
+
+    ChatMessage(MessageType type, const QString &content, QObject *parent = nullptr);
+
+    MessageType type() const;
+    QString content() const;
+    QString toolName() const;
+    QString serverName() const;
+    bool success() const;
+    QDateTime timestamp() const;
+    QJsonObject toolArgs() const;
+
+    void setToolInfo(const QString &serverName, const QString &toolName);
+    void setToolArgs(const QJsonObject &args);
+
+    // Called when a tool call finishes updates tool state in place to mark it done or error.
+    void complete(bool success);
+
+private:
+    MessageType m_type;
+    QString m_content;
+    QString m_toolName;
+    QString m_serverName;
+    bool m_success = true;
+    QDateTime m_timestamp;
+    QJsonObject m_toolArgs;
+    QElapsedTimer m_timer;
+};
+
+} // namespace QmlDesigner

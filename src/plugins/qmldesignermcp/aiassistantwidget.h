@@ -4,6 +4,7 @@
 #pragma once
 
 #include "aitransaction.h"
+#include "chathistorymodel.h"
 #include "manifest.h"
 
 #include <utils/uniqueobjectptr.h>
@@ -36,6 +37,7 @@ class AiAssistantWidget : public QFrame
     Q_PROPERTY(QString attachedImageSource READ attachedImageSource WRITE setAttachedImageSource
                    NOTIFY attachedImageSourceChanged FINAL)
     Q_PROPERTY(QAbstractItemModel *modelsModel READ modelsModel CONSTANT)
+    Q_PROPERTY(QAbstractListModel *chatHistory READ chatHistory CONSTANT)
 
 public:
     AiAssistantWidget(AiAssistantView *view);
@@ -45,6 +47,7 @@ public:
     void setAttachedImageSource(const QString &source);
 
     QAbstractItemModel *modelsModel() const;
+    QAbstractListModel *chatHistory() const;
 
     void clear();
     void initManifest();
@@ -56,8 +59,6 @@ public:
 
     Q_INVOKABLE QStringList getImageAssetsPaths() const;
     Q_INVOKABLE void handleMessage(const QString &prompt);
-    Q_INVOKABLE QString getPreviousCommand();
-    Q_INVOKABLE QString getNextCommand();
     Q_INVOKABLE QUrl fullImageUrl(const QString &path) const;
     Q_INVOKABLE void retryLastPrompt();
     Q_INVOKABLE void applyLastGeneratedQml();
@@ -65,6 +66,7 @@ public:
     Q_INVOKABLE void sendThumbFeedback(bool up);
     Q_INVOKABLE void openModelSettings();
     Q_INVOKABLE void openTermsDialog();
+    Q_INVOKABLE void clearChat();
 
 signals:
     void termsAcceptedChanged();
@@ -92,22 +94,23 @@ private: // functions
     void fetchProjectStructure();
 
 private: // variables
+    QShortcut *m_qmlSourceUpdateShortcut = nullptr;
+
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
     Utils::UniqueObjectPtr<AiModelsModel> m_modelsModel;
 
+    Utils::UniqueObjectPtr<ChatHistoryModel> m_chatHistory;
     Utils::UniqueObjectPtr<McpHost> m_mcpHost;
     Utils::UniqueObjectPtr<ToolRegistry> m_toolRegistry;
     std::unique_ptr<ConversationManager> m_conversation;
     Utils::UniqueObjectPtr<AgenticRequestManager> m_requestManager;
 
     QPointer<AiAssistantView> m_view;
-    QStringList m_inputHistory;
-    AiTransaction m_lastTransaction;
+    AiTransaction m_lastTransaction; // TODO: update to work with MCP
     QString m_attachedImageSource;
     QString m_projectPath;
     QString m_projectStructure;
     Manifest m_manifest;
-    int m_historyIndex = -1;
     bool m_pendingStructureRefresh = false;
     bool m_termsAccepted = false;
     bool m_isGenerating = false;

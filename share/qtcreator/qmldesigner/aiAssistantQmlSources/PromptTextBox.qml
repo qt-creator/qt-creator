@@ -62,26 +62,10 @@ Rectangle {
                 placeholderTextColor: root.style.text.placeholder
 
                 Keys.onPressed: function(event) {
-                    switch (event.key) {
-                    case Qt.Key_Return:
-                    case Qt.Key_Enter: {
-                        if (!(event.modifiers & Qt.ShiftModifier)) {
-                            root.send()
-                            event.accepted = true
-                        }
-                    } break
-                    // TODO: Up/Down keys navigate between lines in the multiline text field.
-                    // This should be replaced with a new history navigation method.
-                    // case Qt.Key_Up: {
-                    //     textEdit.text = root.rootView.getPreviousCommand()
-                    //     event.accepted = true
-                    // } break
-                    // case Qt.Key_Down: {
-                    //     textEdit.text = root.rootView.getNextCommand()
-                    //     event.accepted = true
-                    // } break
-                    default:
-                        event.accepted = false
+                    if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
+                            && !(event.modifiers & Qt.ShiftModifier)) {
+                        root.send()
+                        event.accepted = true
                     }
                 }
             }

@@ -16,6 +16,8 @@ add_qtc_plugin(QmlDesignerMcp
     aimodelsmodel.cpp aimodelsmodel.h
     airesponse.cpp airesponse.h
     aitransaction.cpp aitransaction.h
+    chathistorymodel.cpp chathistorymodel.h
+    chatmessage.cpp chatmessage.h
     manifest.cpp manifest.h
     qmldesignermcpplugin.cpp qmldesignermcpplugin.h
 )
@@ -35,7 +37,6 @@ extend_qtc_plugin(QmlDesignerMcp
   PUBLIC_INCLUDES api
   SOURCES_PREFIX api
   SOURCES
-    aiapiutils.cpp aiapiutils.h
     aiapiadapter.h
     claudeapiadapter.cpp claudeapiadapter.h
 )

@@ -35,6 +35,7 @@ public:
     bool isResponseComplete(const QByteArray &response) const override;
     AiResponse interpretResponse(const QByteArray &response) override;
     QJsonObject buildAssistantTurn(const QByteArray &response) override;
+    QString extractText(const QByteArray &response) const override;
     QJsonObject buildToolResultsTurn(const QList<ToolResult> &results) override;
     bool accepts(const QUrl &url) const override;
 

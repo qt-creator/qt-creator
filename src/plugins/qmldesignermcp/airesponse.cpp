@@ -6,6 +6,7 @@
 #include <qmldesignertr.h>
 
 #include <QDebug>
+#include <QRegularExpression>
 
 namespace QmlDesigner {
 
@@ -38,11 +39,6 @@ QString AiResponse::errorString() const
     return Tr::tr("Error number %1").arg(errorNo);
 }
 
-QStringList AiResponse::selectedIds() const
-{
-    return m_selectedIds;
-}
-
 AiResponse::Error AiResponse::error() const
 {
     return m_error;
@@ -58,9 +54,9 @@ void AiResponse::setQml(const QString &qml)
     m_qml = qml;
 }
 
-void AiResponse::setSelectedIds(const QStringList &ids)
+void AiResponse::setText(const QString &text)
 {
-    m_selectedIds = ids;
+    m_text = text;
 }
 
 AiResponse AiResponse::requestError(const QString &error)
@@ -82,6 +78,11 @@ AiResponse AiResponse::structureError(const QString &error)
 QString AiResponse::qml() const
 {
     return m_qml;
+}
+
+QString AiResponse::text() const
+{
+    return m_text;
 }
 
 } // namespace QmlDesigner
