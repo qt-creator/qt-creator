@@ -641,8 +641,6 @@ void AssetsLibraryWidget::reloadQmlSource()
     if (Utils::qtcEnvironmentVariableIsSet("QML_HOT_RELOAD")) {
         m_assetsWidget->setSource(QUrl()); // unload
         m_assetsWidget->engine()->clearComponentCache();
-        url = QUrl(url.toString(QUrl::RemoveQuery)
-                   + "?v=" + QString::number(QDateTime::currentMSecsSinceEpoch()));
     }
 
     m_assetsWidget->setSource(url); // reload
