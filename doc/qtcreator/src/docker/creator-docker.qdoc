@@ -19,9 +19,6 @@
     container operates like a virtual machine but uses less system resources at
     the cost of being less flexible.
 
-    While Linux, \macos, and Windows hosts are supported in principle, Linux is
-    the recommended platform.
-
     To build, run, and debug applications on Docker devices, install and
     configure \c docker-cli on the development host. \QC automatically detects
     \l{Managing kits}{build and run kit} items, such as \l{Add debuggers}
