@@ -177,12 +177,12 @@ static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils:
 {
     using CppEditor::ClangdSettings;
     QString indexingOption = "--background-index";
-    const ClangdSettings settings(CppEditor::ClangdProjectSettings(bc).settings());
+    const ClangdSettings settings(CppEditor::clangdProjectSettings(bc));
     const ClangdSettings::IndexingPriority indexingPriority = settings.indexingPriority();
     const bool indexingEnabled = indexingPriority != ClangdSettings::IndexingPriority::Off;
     if (!indexingEnabled)
         indexingOption += "=0";
-    CppEditor::ClangdProjectSettings(bc).unblockIndexing();
+    CppEditor::ClangdProjectSettings(bc ? bc->project() : nullptr).unblockIndexing();
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
     const QString limitResults = QString("--limit-results=%1").arg(settings.completionResults());
@@ -310,7 +310,7 @@ class ClangdClient::Private
 {
 public:
     Private(ClangdClient *q, BuildConfiguration *bc)
-        : q(q), buildConfig(bc), settings(CppEditor::ClangdProjectSettings(bc).settings())
+        : q(q), buildConfig(bc), settings(CppEditor::clangdProjectSettings(bc))
     {}
 
     void findUsages(TextDocument *document, const QTextCursor &cursor,
@@ -463,7 +463,7 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
     progressManager()->setCancelHandlerForToken(indexingToken(), [this, bc = QPointer(bc)] {
         if (!bc)
             return;
-        CppEditor::ClangdProjectSettings projectSettings(bc);
+        CppEditor::ClangdProjectSettings projectSettings(bc ? bc->project() : nullptr);
         projectSettings.blockIndexing();
         progressManager()->endProgressReport(indexingToken());
     });

@@ -395,10 +395,6 @@ ClangdProjectSettings::ClangdProjectSettings(Project *project) : m_project(proje
     loadSettings();
 }
 
-ClangdProjectSettings::ClangdProjectSettings(BuildConfiguration *bc)
-    : ClangdProjectSettings(bc ? bc->project() : nullptr)
-{}
-
 ClangdSettings::Data ClangdProjectSettings::settings() const
 {
     const ClangdSettings::Data globalData = ClangdSettings::instance().data();
@@ -546,7 +542,19 @@ int ClangdSettings::Data::defaultCompletionResults()
     return ok ? userValue : 100;
 }
 
+ClangdSettings::Data clangdProjectSettings(Project *project)
+{
+    ClangdProjectSettings projectSettings(project);
+    return projectSettings.settings();
+}
+
+ClangdSettings::Data clangdProjectSettings(BuildConfiguration *bc)
+{
+    return clangdProjectSettings(bc ? bc->project() : nullptr);
+}
+
 namespace Internal {
+
 class ClangdSettingsWidget final : public QWidget
 {
     Q_OBJECT

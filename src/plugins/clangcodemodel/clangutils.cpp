@@ -158,7 +158,7 @@ QString DiagnosticTextInfo::clazyCheckName(const QString &option)
 
 ClangDiagnosticConfig warningsConfigForProject(Project *project)
 {
-    return ClangdSettings(ClangdProjectSettings(project).settings()).diagnosticConfig();
+    return ClangdSettings(clangdProjectSettings(project)).diagnosticConfig();
 }
 
 const QStringList globalClangOptions()

@@ -124,7 +124,7 @@ static const QList<BuildConfiguration *> buildConfigurationsForClient(const Clie
     QList<BuildConfiguration *> bcs;
     if (sessionModeEnabled()) {
         for (Project * const project : ProjectManager::projects()) {
-            if (ClangdProjectSettings(project).settings().useClangd) {
+            if (clangdProjectSettings(project).useClangd) {
                 for (Target *target : project->targets())
                     bcs << target->buildConfigurations();
             }
@@ -396,7 +396,7 @@ void ClangModelManagerSupport::findUsages(const CursorInEditor &cursor) const
 void ClangModelManagerSupport::switchHeaderSource(const FilePath &filePath, bool inNextSplit)
 {
     if (ClangdClient * const client = clientForFile(filePath)) {
-        switch (ClangdProjectSettings(client->project()).settings().headerSourceSwitchMode) {
+        switch (clangdProjectSettings(client->project()).headerSourceSwitchMode) {
         case ClangdSettings::HeaderSourceSwitchMode::BuiltinOnly:
             CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
             return;
@@ -512,8 +512,7 @@ static FilePath getJsonDbDir(Project *project)
     if (!project)
         return ClangdSettings::instance().sessionIndexPath(*globalMacroExpander());
     if (const BuildConfiguration *const bc = project->activeBuildConfiguration()) {
-        return ClangdSettings(ClangdProjectSettings(project).settings())
-            .projectIndexPath(*bc->macroExpander());
+        return ClangdSettings(clangdProjectSettings(project)).projectIndexPath(*bc->macroExpander());
     }
     return {};
 }
@@ -523,7 +522,7 @@ static bool isProjectDataUpToDate(Project *project, ProjectInfoList projectInfo,
 {
     if (project && !ProjectManager::hasProject(project))
         return false;
-    const ClangdSettings settings(ClangdProjectSettings(project).settings());
+    const ClangdSettings settings(clangdProjectSettings(project));
     if (!settings.useClangd(project ? project->activeKit() : nullptr))
         return false;
     if (!sessionModeEnabled() && !project)
@@ -552,7 +551,7 @@ static bool isProjectDataUpToDate(Project *project, ProjectInfoList projectInfo,
 
 void ClangModelManagerSupport::updateLanguageClient(Project *project)
 {
-    const ClangdSettings settings(ClangdProjectSettings(project).settings());
+    const ClangdSettings settings(clangdProjectSettings(project));
     if (!settings.useClangd(project ? project->activeKit() : nullptr))
         return;
     ProjectInfoList projectInfo;
@@ -637,7 +636,7 @@ void ClangModelManagerSupport::doUpdateLanguageClient(
             return;
 
         // Acquaint the client with all open C++ documents for this project or session.
-        const ClangdSettings settings(ClangdProjectSettings(project).settings());
+        const ClangdSettings settings(clangdProjectSettings(project));
         bool hasDocuments = false;
         for (TextEditor::TextDocument * const doc : allCppDocuments()) {
             Client * const currentClient = LanguageClientManager::clientForDocument(doc);
@@ -941,7 +940,7 @@ void ClangModelManagerSupport::onEditorOpened(IEditor *editor)
         connectToWidgetsMarkContextMenuRequested(editor->widget());
 
         Project * project = ProjectManager::projectForFile(document->filePath());
-        const ClangdSettings settings(ClangdProjectSettings(project).settings());
+        const ClangdSettings settings(clangdProjectSettings(project));
         if (!settings.useClangd(project ? project->activeKit() : nullptr))
             return;
         if (!settings.sizeIsOkay(textDocument->filePath()))
@@ -1030,7 +1029,7 @@ void ClangModelManagerSupport::onClangdSettingsChanged()
     const bool sessionMode = sessionModeEnabled();
 
     for (Project * const project : ProjectManager::projects()) {
-        const ClangdSettings settings(ClangdProjectSettings(project).settings());
+        const ClangdSettings settings(clangdProjectSettings(project));
         const Kit * const kit = project ? project->activeKit() : nullptr;
         ClangdClient * const client = clientWithBuildConfiguration(project->activeBuildConfiguration());
         if (sessionMode) {
