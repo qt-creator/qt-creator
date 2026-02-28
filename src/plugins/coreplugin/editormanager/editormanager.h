@@ -145,7 +145,13 @@ public:
     static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void addContextMenuActions(
         QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor = nullptr);
-    static void addContextMenuActions(QMenu *contextMenu, const Utils::FilePath &filePath);
+    enum ContextMenuFlag {
+        DefaultContextMenu = 0,
+        HideVersionControl = 1
+    };
+    Q_DECLARE_FLAGS(ContextMenuFlags, ContextMenuFlag);
+    static void addContextMenuActions(QMenu *contextMenu, const Utils::FilePath &filePath,
+                                      ContextMenuFlags flags = DefaultContextMenu);
     static void populateOpenWithMenu(QMenu *menu, const Utils::FilePath &filePath);
 
     static void runWithTemporaryEditor(const Utils::FilePath &filePath,

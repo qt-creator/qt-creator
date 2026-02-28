@@ -223,7 +223,8 @@ private:
         IEditor *editor,
         EditorView *view = nullptr);
     static void addNativeDirAndOpenWithActions(
-        QMenu *contextMenu, const Utils::FilePath &filePath, EditorView *view = nullptr);
+        QMenu *contextMenu, const Utils::FilePath &filePath, EditorView *view = nullptr,
+            EditorManager::ContextMenuFlags flags = EditorManager::HideVersionControl);
     static void populateOpenWithMenu(
         QMenu *menu, const Utils::FilePath &filePath, EditorView *view = nullptr);
 

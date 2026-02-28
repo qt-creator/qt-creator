@@ -3222,7 +3222,8 @@ QAction *EditorManager::createDiffAgainstCurrentFileAction(
 }
 
 void EditorManagerPrivate::addNativeDirAndOpenWithActions(
-    QMenu *contextMenu, const FilePath &filePath, EditorView *view)
+    QMenu *contextMenu, const FilePath &filePath, EditorView *view,
+    EditorManager::ContextMenuFlags flags)
 {
     QTC_ASSERT(contextMenu, return);
     bool enabled = !filePath.isEmpty();
@@ -3253,13 +3254,15 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
     }));
 
     // Version Control
-    FilePath topLevel;
-    if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
-        QMenu *subMenu = contextMenu->addMenu(vc->displayName());
-        const FilePath relativePath = filePath.relativeChildPath(topLevel);
-        const VcsFileState vcsFileState = VcsManager::fileState(filePath);
-        vc->fillDefaultFileActionMenu(subMenu, vc, topLevel, relativePath);
-        vc->vcsFillFileActionMenu(subMenu, topLevel, relativePath, vcsFileState);
+    if (!flags.testFlag(EditorManager::HideVersionControl)) {
+        FilePath topLevel;
+        if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
+            QMenu *subMenu = contextMenu->addMenu(vc->displayName());
+            const FilePath relativePath = filePath.relativeChildPath(topLevel);
+            const VcsFileState vcsFileState = VcsManager::fileState(filePath);
+            vc->fillDefaultFileActionMenu(subMenu, vc, topLevel, relativePath);
+            vc->vcsFillFileActionMenu(subMenu, topLevel, relativePath, vcsFileState);
+        }
     }
 
     // Properties
@@ -3280,11 +3283,13 @@ void EditorManager::addContextMenuActions(
     EditorManagerPrivate::addContextMenuActions(contextMenu, entry, editor);
 }
 
-void EditorManager::addContextMenuActions(QMenu *contextMenu, const Utils::FilePath &filePath)
+void EditorManager::addContextMenuActions(QMenu *contextMenu,
+                                          const Utils::FilePath &filePath,
+                                          ContextMenuFlags flags)
 {
     EditorManagerPrivate::addCopyFilePathActions(contextMenu, filePath);
     contextMenu->addSeparator();
-    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePath);
+    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePath, nullptr, flags);
 }
 
 void EditorManagerPrivate::addContextMenuActions(
