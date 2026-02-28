@@ -23,6 +23,7 @@
 #include <utils/utilsicons.h>
 
 #include <QApplication>
+#include <QCryptographicHash>
 #include <QDesktopServices>
 #include <QGridLayout>
 #include <QImageWriter>
