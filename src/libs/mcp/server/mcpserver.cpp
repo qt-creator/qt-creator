@@ -215,12 +215,6 @@ public:
             return;
         }
 
-        if (!validateSession(sessionId)) {
-            qCWarning(mcpServerLog) << "Received request without (valid) session ID, rejecting";
-            responder.writeStatus(QHttpServerResponder::StatusCode::BadRequest);
-            return;
-        }
-
         if (std::holds_alternative<Schema::CallToolRequest>(request)) {
             onToolCall(id, std::get<Schema::CallToolRequest>(request), responder, sessionId);
             return;
@@ -788,9 +782,17 @@ public:
         return;
     }
 
-    bool validateSession(QString sessionId) const
+    bool validateSession(QString sessionId)
     {
-        return !sessionId.isNull() && m_sessions.contains(sessionId);
+        if (sessionId.isEmpty())
+            return false;
+
+        auto it = m_sessions.find(sessionId);
+        if (it == m_sessions.end()) {
+            return false;
+        }
+        it->lastSeen = QDateTime::currentDateTime();
+        return true;
     }
 
     struct ToolAndCallback
@@ -895,6 +897,7 @@ public:
     {
         Schema::ClientCapabilities capabilities;
         Schema::Implementation info;
+        QDateTime lastSeen = QDateTime::currentDateTime();
     };
 
     QMap<QString, Client> m_sessions;
@@ -960,13 +963,13 @@ Server::Server(Schema::Implementation serverInfo, bool enableSSETestRoute)
                             QString::fromUtf8(req.headers().value("mcp-session-id")))) {
                         qCWarning(mcpServerLog) << "Received SSE connection with invalid session "
                                                    "ID, closing connection";
-                        responder.write(QHttpServerResponse::StatusCode::BadRequest);
+                        responder.write(QHttpServerResponse::StatusCode::NotFound);
                         return;
                     }
                 } else {
                     qCWarning(mcpServerLog)
                         << "Received SSE connection without session ID, closing connection";
-                    responder.write(d->corsHeaders({}), QHttpServerResponse::StatusCode::BadRequest);
+                    responder.write(d->corsHeaders({}), QHttpServerResponse::StatusCode::NotFound);
                     return;
                 }
 
@@ -1051,13 +1054,13 @@ Server::Server(Schema::Implementation serverInfo, bool enableSSETestRoute)
             if (req.headers().contains("mcp-session-id")) {
                 bool validSessionId = !sessionId.isNull();
                 if (!validSessionId || !d->validateSession(sessionId)) {
-                    qCWarning(mcpServerLog) << "Received request with invalid session ID:"
-                                            << req.headers().value("mcp-session-id");
+                    qCInfo(mcpServerLog) << "Received request with invalid session ID:"
+                                         << req.headers().value("mcp-session-id");
 
                     responder.write(
                         "Invalid session ID",
                         errorHeaders,
-                        QHttpServerResponse::StatusCode::BadRequest);
+                        QHttpServerResponse::StatusCode::NotFound);
                     return;
                 }
             }
@@ -1149,9 +1152,6 @@ Result<std::function<void(QByteArray)>> Server::bindIO(std::function<void(QByteA
         return ResultError("Output handler cannot be null");
     d->m_ioOutputHandler = std::move(outputHandler);
 
-    QString sessionId = QUuid::createUuid().toString();
-    qCDebug(mcpServerLog) << "Assigning session ID" << sessionId << "to IO client";
-
     Responder r;
     r.write = [this](QJsonDocument json) {
         if (d->m_ioOutputHandler)
@@ -1174,8 +1174,8 @@ Result<std::function<void(QByteArray)>> Server::bindIO(std::function<void(QByteA
             d->m_ioOutputHandler(data);
     };
 
-    return [this, sessionId, r = std::move(r)](QByteArray data) mutable {
-        d->onData(data, r, sessionId);
+    return [this, r = std::move(r)](QByteArray data) mutable {
+        d->onData(data, r, {});
     };
 }
 
