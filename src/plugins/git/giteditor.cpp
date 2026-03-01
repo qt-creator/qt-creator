@@ -118,6 +118,18 @@ QString GitEditorWidget::changeUnderCursor(const QTextCursor &c) const
     return {};
 }
 
+int GitEditorWidget::originalLineUnderCursor(const QTextCursor &c) const
+{
+    const QTextBlock block = c.block();
+    const int currentLine = block.blockNumber() + 1;
+
+    if (currentLine < 1 || currentLine >= m_originalLines.size())
+        return currentLine;
+
+    const int originalLine = m_originalLines.at(currentLine);
+    return originalLine;
+};
+
 VcsBase::BaseAnnotationHighlighterCreator GitEditorWidget::annotationHighlighterCreator() const
 {
     return VcsBase::getAnnotationHighlighterCreator<GitAnnotationHighlighter>();
@@ -126,13 +138,13 @@ VcsBase::BaseAnnotationHighlighterCreator GitEditorWidget::annotationHighlighter
 /**
  * Optionally remove path, author or date specification from annotation, which is tabular:
  * \code
- * 8ca887aa filepath (author YYYY-MM-DD HH:MM:SS <offset> <line>) <content>
+ * 8ca887aa filepath <orig line> (author YYYY-MM-DD HH:MM:SS <offset> <line>) <content>
  * \endcode
  */
-static QString sanitizeBlameOutput(const QString &b)
+static QString sanitizeBlameOutput(const QString &b, QVector<int> *lines)
 {
     static const char pattern[] =
-        R"(^(\S+)\s(.+?)\s\((.*)\s+(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\s[+-]\d{4}).*?\)(.*)$)";
+        R"(^(\S+)\s(.+?)(\s+\d+)\s\((.*)\s+(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\s[+-]\d{4}).*?\)(.*)$)";
     static const QRegularExpression re(pattern, QRegularExpression::MultilineOption);
 
     if (b.isEmpty())
@@ -142,6 +154,9 @@ static QString sanitizeBlameOutput(const QString &b)
     const bool omitAuthor = settings().omitAnnotationAuthor();
     const bool omitDate = settings().omitAnnotationDate();
 
+    lines->clear();
+    lines->append(0); // Editor lines are starting with one, so skip line with index zero
+
     QString result;
     QRegularExpressionMatchIterator i = re.globalMatch(b);
     while (i.hasNext()) {
@@ -149,10 +164,12 @@ static QString sanitizeBlameOutput(const QString &b)
         const QRegularExpressionMatch match = i.next();
         const QString hash   = match.captured(1) + sep;
         const QString path   = omitPath   ? QString() : match.captured(2);
-        const QString author = omitAuthor ? QString() : match.captured(3) + sep;
-        const QString date   = omitDate   ? QString() : match.captured(4);
-        const QString code   = match.captured(5);
+        const QString line   = match.captured(3);
+        const QString author = omitAuthor ? QString() : match.captured(4) + sep;
+        const QString date   = omitDate   ? QString() : match.captured(5);
+        const QString code   = match.captured(6);
         result.append(hash + path + "  (" + author + date + ")  " + code + "\n");
+        lines->append(line.trimmed().toInt());
     }
     return result;
 }
@@ -168,7 +185,7 @@ void GitEditorWidget::setPlainText(const QString &text)
         return;
     }
     case AnnotateOutput:
-        modText = sanitizeBlameOutput(text);
+        modText = sanitizeBlameOutput(text, &m_originalLines);
         break;
     default:
         break;
@@ -272,10 +289,10 @@ bool GitEditorWidget::isValidRevision(const QString &revision) const
     return gitClient().isValidRevision(revision);
 }
 
-void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
+void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change, int line)
 {
     if (contentType() != OtherContent)
-        GitClient::addChangeActions(menu, source(), change);
+        GitClient::addChangeActions(menu, source(), change, line);
 }
 
 QString GitEditorWidget::revisionSubject(const QTextBlock &inBlock) const

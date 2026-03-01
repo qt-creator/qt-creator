@@ -42,11 +42,12 @@ private:
     void addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk) override;
     void aboutToOpen(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath) override;
     QString changeUnderCursor(const QTextCursor &) const override;
+    int originalLineUnderCursor(const QTextCursor &) const override;
     VcsBase::BaseAnnotationHighlighterCreator annotationHighlighterCreator() const override;
     QString decorateVersion(const QString &revision) const override;
     QStringList annotationPreviousVersions(const QString &revision) const override;
     bool isValidRevision(const QString &revision) const override;
-    void addChangeActions(QMenu *menu, const QString &change) override;
+    void addChangeActions(QMenu *menu, const QString &change, int line = 0) override;
     QString revisionSubject(const QTextBlock &inBlock) const override;
     bool supportChangeLinks() const override;
     Utils::FilePath fileNameForLine(int line) const override;
@@ -57,6 +58,7 @@ private:
 
     const QRegularExpression m_changeNumberPattern;
     GitLogFilterWidget *m_logFilterWidget = nullptr;
+    QVector<int> m_originalLines;
 };
 
 } // Git::Internal

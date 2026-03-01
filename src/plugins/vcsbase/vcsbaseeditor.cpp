@@ -241,6 +241,7 @@ private:
     QAction *createCopyRevisionAction(const QString &change) const;
 
     QString m_currentChange;
+    int m_changeLine = 0;
 };
 
 ChangeTextCursorHandler::ChangeTextCursorHandler(VcsBaseEditorWidget *editorWidget)
@@ -252,6 +253,7 @@ bool ChangeTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
 {
     AbstractTextCursorHandler::findContentsUnderCursor(cursor);
     m_currentChange = editorWidget()->changeUnderCursor(cursor);
+    m_changeLine = editorWidget()->originalLineUnderCursor(cursor);
     return !m_currentChange.isEmpty();
 }
 
@@ -299,7 +301,7 @@ void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType typ
             menu->addAction(createAnnotateAction(m_currentChange, false));
         break;
     }
-    widget->addChangeActions(menu, m_currentChange);
+    widget->addChangeActions(menu, m_currentChange, m_changeLine);
 }
 
 QString ChangeTextCursorHandler::currentContents() const
@@ -1565,8 +1567,9 @@ QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inB
     return fileName.isEmpty() ? QString() : findDiffFile(fileName);
 }
 
-void VcsBaseEditorWidget::addChangeActions(QMenu *, const QString &)
+void VcsBaseEditorWidget::addChangeActions(QMenu *, const QString &, int line)
 {
+    Q_UNUSED(line);
 }
 
 QSet<QString> VcsBaseEditorWidget::annotationChanges() const

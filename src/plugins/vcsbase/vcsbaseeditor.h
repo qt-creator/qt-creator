@@ -230,13 +230,15 @@ protected:
 
     virtual void addDiffActions(QMenu *menu, const DiffChunk &chunk);
 
-    virtual void addChangeActions(QMenu *menu, const QString &change);
+    virtual void addChangeActions(QMenu *menu, const QString &change, int line = 0);
 
     // Implement to return a set of change identifiers in
     // annotation mode
     QSet<QString> annotationChanges() const;
     // Implement to identify a change number at the cursor position
     virtual QString changeUnderCursor(const QTextCursor &) const = 0;
+    // Implement to identify the original line of a change at the cursor position
+    virtual int originalLineUnderCursor(const QTextCursor &) const { return 0; };
     // Factory functions for highlighters
     virtual BaseAnnotationHighlighterCreator annotationHighlighterCreator() const = 0;
     // Returns a local file name from the diff file specification

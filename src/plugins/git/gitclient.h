@@ -370,7 +370,8 @@ public:
     static QString suggestedLocalBranchName(
             const Utils::FilePath &workingDirectory, const QStringList &existingLocalNames,
             const QString &target, BranchTargetType targetType);
-    static void addChangeActions(QMenu *menu, const Utils::FilePath &source, const QString &change);
+    static void addChangeActions(QMenu *menu, const Utils::FilePath &source, const QString &change,
+                                 int line = 0);
     static Utils::FilePath fileWorkingDirectory(const Utils::FilePath &file);
     enum class ShowEditor { OnlyIfDifferent, Always };
     Core::IEditor *openShowEditor(const Utils::FilePath &workingDirectory, const QString &ref,

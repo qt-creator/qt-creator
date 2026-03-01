@@ -1486,7 +1486,7 @@ void GitClient::annotate(const Utils::FilePath &workingDir, const QString &file,
     }
 
     editor->setWorkingDirectory(workingDir);
-    QStringList arguments = {"blame", "--root", "--show-name"};
+    QStringList arguments = {"blame", "--root", "--show-name", "--show-number"};
     arguments << argWidget->arguments();
     if (!revision.isEmpty())
         arguments << revision;
@@ -3956,7 +3956,7 @@ QString GitClient::suggestedLocalBranchName(
     return suggestedName;
 }
 
-void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QString &change)
+void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QString &change, int line)
 {
     QTC_ASSERT(!change.isEmpty(), return);
     const FilePath &workingDir = fileWorkingDirectory(source);
@@ -4017,8 +4017,8 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
         const FilePath filePath = source;
         if (!filePath.isDir()) {
             menu->addAction(Tr::tr("Sh&ow file \"%1\" on revision %2").arg(filePath.fileName(), change),
-                            [workingDir, change, source] {
-                gitClient().openShowEditor(workingDir, change, source);
+                            [workingDir, change, source, line] {
+                gitClient().openShowEditor(workingDir, change, source, {}, line);
             });
         }
         menu->addAction(Tr::tr("Add &Tag for %1...").arg(change), [workingDir, change] {
