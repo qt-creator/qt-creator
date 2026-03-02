@@ -197,7 +197,10 @@ public:
     using UpdateTaskCallback = std::function<Schema::Task(Schema::Task)>;
     using TaskResultCallback = std::function<Utils::Result<Schema::CallToolResult>()>;
     using CancelTaskCallback = std::function<void()>;
-    using TaskProgressNotify = std::function<void(Schema::Task)>;
+    using TaskProgressNotify = std::function<void(
+        Schema::TaskStatus status,
+        const std::optional<QString> &statusMessage,
+        const std::optional<int> &ttl)>;
     using SampleResultCallback
         = std::function<void(const Utils::Result<Schema::CreateMessageResult> &)>;
     using ElicitResultCallback = std::function<void(const Utils::Result<Schema::ElicitResult> &)>;
@@ -290,6 +293,49 @@ public:
     }
 
     /*!
+        \overload
+
+        Starts a long-running task without a time-to-live and without a polling interval.
+        The client will not poll for updates, and it is the responsibility of the server to push
+        updates to the client using the returned \c TaskProgressNotify functor.
+
+        \sa startTask(IsDuration, const UpdateTaskCallback &, const TaskResultCallback &,
+                     const std::optional<CancelTaskCallback> &, IsDuration)
+    */
+    Utils::Result<TaskProgressNotify> startTask(
+        const UpdateTaskCallback &onUpdateTask,
+        const TaskResultCallback &onResultCallback,
+        const std::optional<CancelTaskCallback> &onCancelTaskCallback) const
+    {
+        return startTask(
+            std::nullopt, onUpdateTask, onResultCallback, onCancelTaskCallback, std::nullopt);
+    }
+
+    /*!
+        \overload
+
+        Starts a long-running task with a time-to-live and without a polling interval.
+        The client will not poll for updates, and it is the responsibility of the server to push
+        updates to the client using the returned \c TaskProgressNotify functor.
+
+        \sa startTask(IsDuration, const UpdateTaskCallback &, const TaskResultCallback &,
+                     const std::optional<CancelTaskCallback> &, IsDuration)
+    */
+    Utils::Result<TaskProgressNotify> startTask(
+        const UpdateTaskCallback &onUpdateTask,
+        const TaskResultCallback &onResultCallback,
+        const std::optional<CancelTaskCallback> &onCancelTaskCallback,
+        IsDuration auto ttl) const
+    {
+        return startTask(
+            std::nullopt,
+            onUpdateTask,
+            onResultCallback,
+            onCancelTaskCallback,
+            std::chrono::duration_cast<std::chrono::milliseconds>(ttl).count());
+    }
+
+    /*!
         \brief Sends an elicitation request to the client.
 
         Asks the client to elicit additional information from the user according
@@ -336,7 +382,7 @@ protected:
         const Responder &responder);
 
     Utils::Result<TaskProgressNotify> startTask(
-        int pollingIntervalMs,
+        std::optional<int> pollingIntervalMs,
         const UpdateTaskCallback &onUpdateTask,
         const TaskResultCallback &onResultCallback,
         const std::optional<CancelTaskCallback> &onCancelTaskCallback,

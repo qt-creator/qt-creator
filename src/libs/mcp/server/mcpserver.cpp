@@ -1686,7 +1686,7 @@ void ToolInterface::finish(const Utils::Result<Schema::CallToolResult> &result) 
 }
 
 Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
-    int pollingIntervalMs,
+    std::optional<int> pollingIntervalMs,
     const UpdateTaskCallback &onUpdateTask,
     const TaskResultCallback &onResultCallback,
     const std::optional<CancelTaskCallback> &onCancelTaskCallback,
@@ -1727,7 +1727,10 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
         d->_responder.write(QJsonDocument(json));
 
         auto notifyTaskUpdate =
-            [weak = d->_server, taskId, sessionId = d->_sessionId](const Schema::Task &update) {
+            [weak = d->_server, taskId, sessionId = d->_sessionId](
+                const Schema::TaskStatus &status,
+                const std::optional<QString> &statusMessage,
+                const std::optional<int> &ttl) {
                 if (auto d = weak.lock()) {
                     auto it = d->m_tasks.find(taskId);
                     if (it == d->m_tasks.end()) {
@@ -1735,7 +1738,9 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
                             << "Attempted to update non-existent task with ID" << taskId;
                         return;
                     }
-                    it->second.update(update, weak);
+                    auto task = it->second.task;
+                    it->second
+                        .update(task.status(status).statusMessage(statusMessage).ttl(ttl), weak);
 
                     auto params = Schema::TaskStatusNotificationParams()
                                       .taskId(taskId)

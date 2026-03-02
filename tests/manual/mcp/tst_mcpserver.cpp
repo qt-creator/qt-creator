@@ -296,6 +296,8 @@ static Result<> toolTask(
         return ResultError("Invalid arguments for task echo tool: missing 'message' string");
     }
 
+    const bool usePolling = params.arguments()->value("usePolling", false).toBool();
+
     QString taskId = QUuid::createUuid().toString();
     QString message = (*params.arguments())["message"].toString();
 
@@ -336,7 +338,24 @@ static Result<> toolTask(
     // Cancel
     auto cancel = [taskData]() { taskData->cancelled = true; };
 
-    toolInterface.startTask(1s, update, result, cancel, 20s);
+    if (usePolling) {
+        toolInterface.startTask(1s, update, result, cancel, 20s);
+    } else {
+        QTimer *timer = new QTimer();
+        if (auto notify = toolInterface.startTask(update, result, cancel, 20s)) {
+            timer->setSingleShot(false);
+            timer->setInterval(1000);
+            timer->start();
+            QObject::connect(timer, &QTimer::timeout, [timer, notifier = *notify, update]() {
+                const auto newTask = update(
+                    Mcp::Schema::Task().status(Mcp::Schema::TaskStatus::working));
+                if (newTask.status() != Mcp::Schema::TaskStatus::working) {
+                    timer->deleteLater();
+                }
+                notifier(newTask.status(), *newTask.statusMessage(), newTask.ttl());
+            });
+        }
+    }
 
     return ResultOk;
 }
@@ -443,6 +462,13 @@ int main(int argc, char *argv[])
                     Mcp::Schema::ToolExecution::TaskSupport::required))
             .inputSchema(
                 Mcp::Schema::Tool::InputSchema()
+                    .addProperty(
+                        "usePolling",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Whether the client should poll for task updates or the server should "
+                             "push updates"}})
                     .addProperty("message", QJsonObject{{"type", "string"}})
                     .required(QStringList{"message"}))
             .outputSchema(
