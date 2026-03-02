@@ -1099,7 +1099,7 @@ public:
     bool enableCors = false;
 };
 
-Server::Server(Schema::Implementation serverInfo, bool enableSSETestRoute)
+Server::Server(Schema::Implementation serverInfo)
     : d(std::make_shared<ServerPrivate>(serverInfo))
 {
     d->m_server.setMissingHandler(
@@ -1174,34 +1174,6 @@ Server::Server(Schema::Implementation serverInfo, bool enableSSETestRoute)
 
             responder.write(QHttpServerResponse::StatusCode::NotFound);
         });
-
-    if (enableSSETestRoute) {
-        d->m_server.route("/ssetest", QHttpServerRequest::Method::Get, []() {
-            auto html = R"(
-                <html>
-                    <body>
-                        <h1>SSE Test</h1>
-                        <div id="events"></div>
-                        <script>
-                            const eventSource = new EventSource("/");
-                            eventSource.onmessage = function(event) {
-                                const newElement = document.createElement("div");
-                                newElement.textContent = "Received event: " + event.data;
-                                document.getElementById("events").appendChild(newElement);
-                            };
-                            eventSource.onerror = function() {
-                                const newElement = document.createElement("div");
-                                newElement.textContent = "Error occurred, connection closed.";
-                                document.getElementById("events").appendChild(newElement);
-                                eventSource.close();
-                            };
-                        </script>
-                    </body>
-                </html>
-            )";
-            return QHttpServerResponse(html, QHttpServerResponse::StatusCode::Ok);
-        });
-    }
 
     d->m_server.route(
         "/",

@@ -55,9 +55,8 @@ class MCPSERVER_EXPORT Server
 public:
     /*! \brief Constructs a new MCP server instance.
         \param serverInfo The implementation metadata to advertise to clients.
-        \param enableSSETest If true, enables special endpoints for SSE testing (for development only).
     */
-    Server(Schema::Implementation serverInfo, bool enableSSETest = false);
+    Server(Schema::Implementation serverInfo);
 
     /*! \brief Destroys the server and releases all resources. */
     ~Server();

@@ -413,8 +413,7 @@ int main(int argc, char *argv[])
             .name("test-mcp-server")
             .title("Test Mcp Server")
             .version("0.1")
-            .websiteUrl("https://www.qt.io"),
-        true);
+            .websiteUrl("https://www.qt.io"));
 
     server.setCorsEnabled(true);
 
