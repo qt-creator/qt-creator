@@ -406,7 +406,7 @@ QVariant LanguageClientSettingsModel::data(const QModelIndex &index, int role) c
     if (role == Qt::DisplayRole)
         return setting->name();
     else if (role == Qt::CheckStateRole)
-        return setting->m_enabled ? Qt::Checked : Qt::Unchecked;
+        return setting->enabled() ? Qt::Checked : Qt::Unchecked;
     else if (role == idRole)
         return setting->id();
     return QVariant();
@@ -441,8 +441,8 @@ bool LanguageClientSettingsModel::setData(const QModelIndex &index, const QVaria
     if (!setting || role != Qt::CheckStateRole)
         return false;
 
-    if (setting->m_enabled != value.toBool()) {
-        setting->m_enabled = !setting->m_enabled;
+    if (setting->enabled() != value.toBool()) {
+        setting->enabled.setValue(value.toBool());
         emit dataChanged(index, index, { Qt::CheckStateRole });
     }
     return true;
@@ -523,9 +523,9 @@ void LanguageClientSettingsModel::enableSetting(const QString &id, bool enable)
     BaseSettings *setting = LanguageClientSettings::settingById(m_settings, id);
     if (!setting)
         return;
-    if (setting->m_enabled == enable)
+    if (setting->enabled() == enable)
         return;
-    setting->m_enabled = enable;
+    setting->enabled.setValue(enable);
     const QModelIndex &index = indexForSetting(setting);
     if (index.isValid())
         emit dataChanged(index, index, {Qt::CheckStateRole});
@@ -605,6 +605,10 @@ BaseSettings::BaseSettings()
             "request."));
 
     configuration.setSettingsKey("configuration");
+
+    enabled.setSettingsKey(enabledKey);
+    enabled.setDefaultValue(true);
+    enabled.setLabelText(Tr::tr("Enabled:"));
 }
 
 QJsonObject BaseSettings::initializationOptionsAsJson() const
@@ -671,7 +675,7 @@ bool BaseSettings::isEnabledOnProject(Project *project) const
         if (settings.disabledSettings().contains(id()))
             return false;
     }
-    return m_enabled;
+    return enabled();
 }
 
 const LanguageFilter BaseSettings::languageFilter() const
@@ -704,18 +708,6 @@ Client *BaseSettings::createClient(BuildConfiguration *bc) const
 Client *BaseSettings::createClient(BaseClientInterface *interface) const
 {
     return new Client(interface);
-}
-
-void BaseSettings::toMap(Store &map) const
-{
-    AspectContainer::toMap(map);
-    map.insert(enabledKey, m_enabled);
-}
-
-void BaseSettings::fromMap(const Store &map)
-{
-    AspectContainer::fromMap(map);
-    m_enabled = map[enabledKey].toBool();
 }
 
 static LanguageClientSettingsPage &settingsPage()

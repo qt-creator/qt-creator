@@ -74,8 +74,8 @@ public:
     Utils::StringAspect id{this};
     Utils::IdAspect settingsTypeId{this};
     Utils::TypedSelectionAspect<StartBehavior> startBehavior{this};
+    Utils::BoolAspect enabled{this};
 
-    bool m_enabled = true;
     Utils::StringAspect initializationOptions{this};
     Utils::StringAspect configuration{this};
     Utils::BoolAspect showInSettings{this};
@@ -95,9 +95,6 @@ public:
     Client *createClient(ProjectExplorer::BuildConfiguration *bc) const;
     bool isEnabledOnProject(ProjectExplorer::Project *project) const;
     const LanguageFilter languageFilter() const;
-
-    virtual void toMap(Utils::Store &map) const;
-    virtual void fromMap(const Utils::Store &map);
 
 protected:
     virtual BaseClientInterface *createInterface(ProjectExplorer::BuildConfiguration *) const = 0;

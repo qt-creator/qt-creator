@@ -335,7 +335,7 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
         return;
     if (setting->startBehavior() == BaseSettings::AlwaysOn
         || setting->startBehavior() == BaseSettings::RequiresFile) {
-        if (!setting->m_enabled)
+        if (!setting->enabled())
             return;
         auto ensureClient = [setting, client = static_cast<Client *>(nullptr)]() mutable {
             if (!client)
@@ -379,7 +379,7 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
                             continue;
                         const bool settingIsEnabled
                             = ProjectSettings(project).enabledSettings().contains(setting->id())
-                              || (setting->m_enabled
+                              || (setting->enabled()
                                   && !ProjectSettings(project).disabledSettings().contains(setting->id()));
                         if (!settingIsEnabled)
                             continue;
@@ -617,7 +617,7 @@ static QList<BaseSettings *> sortedSettingsForDocument(Core::IDocument *document
 {
     const QList<BaseSettings *> prefilteredSettings
         = Utils::filtered(LanguageClientManager::currentSettings(), [](BaseSettings *setting) {
-              return setting->isValid() && setting->m_enabled;
+              return setting->isValid() && setting->enabled();
           });
 
     const Utils::MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
@@ -732,7 +732,7 @@ void LanguageClientManager::updateProject(BuildConfiguration *bc)
 {
     for (BaseSettings *setting : std::as_const(m_currentSettings)) {
         if (setting->isValid()
-            && setting->m_enabled
+            && setting->enabled()
             && setting->startBehavior() == BaseSettings::RequiresProject) {
             if (Utils::findOrDefault(clientsForSetting(setting),
                                      [bc](const QPointer<Client> &client) {
