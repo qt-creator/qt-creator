@@ -4531,5 +4531,17 @@ void FontAspect::addToLayoutImpl(Layouting::Layout &parent)
     fontFamily.addOnVolatileValueChanged(sizeComboBox, updateFontSizeSelector);
 }
 
+void IdAspect::fromMap(const Store &map)
+{
+    if (skipSave())
+        return;
+    setValue(Id::fromSetting(map.value(settingsKey(), defaultValue().toSetting())), BeQuiet);
+}
+
+void IdAspect::toMap(Store &map) const
+{
+    saveToMap(map, value().toSetting(), defaultValue().toSetting(), settingsKey());
+}
+
 
 } // namespace Utils

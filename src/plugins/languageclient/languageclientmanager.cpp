@@ -217,7 +217,7 @@ Client *LanguageClientManager::startClient(const BaseSettings *setting,
     QTC_ASSERT(client, return nullptr);
     qCDebug(Log) << "start client: " << client->name() << client;
     client->start();
-    managerInstance->m_clientsForSetting[setting->m_id].append(client);
+    managerInstance->m_clientsForSetting[setting->id()].append(client);
     return client;
 }
 
@@ -315,8 +315,8 @@ void LanguageClientManager::applySettings()
 
 void LanguageClientManager::applySettings(const QString &settingsId)
 {
-    if (BaseSettings *settings = Utils::findOrDefault(
-            LanguageClientSettings::pageSettings(), Utils::equal(&BaseSettings::m_id, settingsId))) {
+    if (BaseSettings *settings
+        = LanguageClientSettings::settingById(LanguageClientSettings::pageSettings(), settingsId)) {
         applySettings(settings);
     }
 }
@@ -378,9 +378,9 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
                         if (!setting->isValidOnBuildConfiguration(bc))
                             continue;
                         const bool settingIsEnabled
-                            = ProjectSettings(project).enabledSettings().contains(setting->m_id)
+                            = ProjectSettings(project).enabledSettings().contains(setting->id())
                               || (setting->m_enabled
-                                  && !ProjectSettings(project).disabledSettings().contains(setting->m_id));
+                                  && !ProjectSettings(project).disabledSettings().contains(setting->id()));
                         if (!settingIsEnabled)
                             continue;
                         if (!project->isKnownFile(filePath))
@@ -442,7 +442,7 @@ QList<Client *> LanguageClientManager::clientsForSettingId(const QString &settin
 QList<Client *> LanguageClientManager::clientsForSetting(const BaseSettings *setting)
 {
     QTC_ASSERT(setting, return {});
-    return clientsForSettingId(setting->m_id);
+    return clientsForSettingId(setting->id());
 }
 
 const BaseSettings *LanguageClientManager::settingForClient(Client *client)
@@ -455,7 +455,7 @@ const BaseSettings *LanguageClientManager::settingForClient(Client *client)
             if (settingClient == client) {
                 return Utils::findOrDefault(managerInstance->m_currentSettings,
                                             [id](BaseSettings *setting) {
-                                                return setting->m_id == id;
+                                                return setting->id() == id;
                                             });
             }
         }

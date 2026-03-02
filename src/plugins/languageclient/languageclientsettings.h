@@ -71,9 +71,9 @@ public:
     Utils::StringAspect name{this};
     MimeTypesAspect mimeTypes{this};
     Utils::StringAspect filePattern{this};
+    Utils::StringAspect id{this};
+    Utils::IdAspect settingsTypeId{this};
 
-    QString m_id = QUuid::createUuid().toString();
-    Utils::Id m_settingsTypeId;
     bool m_enabled = true;
     StartBehavior m_startBehavior = RequiresFile;
     Utils::StringAspect initializationOptions{this};
@@ -143,6 +143,7 @@ public:
     static QList<BaseSettings *> fromSettings(Utils::QtcSettings *settings);
     static QList<BaseSettings *> pageSettings();
     static QList<BaseSettings *> changedSettings();
+    static BaseSettings *settingById(QList<BaseSettings *> settings, const QString &id);
 
     static QList<Utils::Store> storesBySettingsType(Utils::Id settingsTypeId);
 

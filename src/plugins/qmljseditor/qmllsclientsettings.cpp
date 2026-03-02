@@ -63,7 +63,7 @@ QmllsClientSettings *qmllsSettings()
 {
     BaseSettings *qmllsSettings
         = Utils::findOrDefault(LanguageClientManager::currentSettings(), [](BaseSettings *setting) {
-              return setting->m_settingsTypeId == Constants::QMLLS_CLIENT_SETTINGS_ID;
+              return setting->settingsTypeId() == Constants::QMLLS_CLIENT_SETTINGS_ID;
           });
     return static_cast<QmllsClientSettings *>(qmllsSettings);
 }
@@ -119,7 +119,7 @@ QmllsClientSettings::QmllsClientSettings()
 
     mimeTypes.setValue(supportedMimeTypes());
 
-    m_settingsTypeId = Constants::QMLLS_CLIENT_SETTINGS_ID;
+    settingsTypeId.setValue(Constants::QMLLS_CLIENT_SETTINGS_ID);
     m_startBehavior = RequiresProject;
     m_enabled = false; // disabled by default
     initializationOptions.setValue("{\"qtCreatorHighlighting\": true}");
@@ -496,7 +496,7 @@ void registerQmllsSettings()
 void setupQmllsClient()
 {
     if (!Utils::anyOf(LanguageClientManager::currentSettings(), [](const BaseSettings *settings) {
-            return settings->m_settingsTypeId == Constants::QMLLS_CLIENT_SETTINGS_ID;
+            return settings->settingsTypeId() == Constants::QMLLS_CLIENT_SETTINGS_ID;
         })) {
         QmllsClientSettings *clientSettings = new QmllsClientSettings();
         portFromOldSettings(clientSettings);

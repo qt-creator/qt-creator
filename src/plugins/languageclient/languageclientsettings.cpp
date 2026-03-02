@@ -53,7 +53,6 @@
 #include <QTreeWidget>
 
 constexpr char typeIdKey[] = "typeId";
-constexpr char idKey[] = "id";
 constexpr char enabledKey[] = "enabled";
 constexpr char startupBehaviorKey[] = "startupBehavior";
 constexpr char settingsGroupKey[] = "LanguageClient";
@@ -304,7 +303,7 @@ BaseSettings *generateSettings(const Id &clientTypeId)
 {
     if (auto generator = clientTypes().value(clientTypeId).generator) {
         auto settings = generator();
-        settings->m_settingsTypeId = clientTypeId;
+        settings->settingsTypeId.setValue(clientTypeId);
         return settings;
     }
     return nullptr;
@@ -355,7 +354,7 @@ LanguageClientSettingsPage::LanguageClientSettingsPage()
     setWidgetCreator([this] { return new LanguageClientSettingsPageWidget(m_model, m_changedSettings); });
     QObject::connect(&m_model, &LanguageClientSettingsModel::dataChanged, [this](const QModelIndex &index) {
         if (BaseSettings *setting = m_model.settingForIndex(index))
-            m_changedSettings << setting->m_id;
+            m_changedSettings << setting->id();
     });
 }
 
@@ -377,7 +376,7 @@ QList<BaseSettings *> LanguageClientSettingsPage::changedSettings() const
     QList<BaseSettings *> result;
     const QList<BaseSettings *> &all = settings();
     for (BaseSettings *setting : all) {
-        if (m_changedSettings.contains(setting->m_id))
+        if (m_changedSettings.contains(setting->id()))
             result << setting;
     }
     return result;
@@ -386,7 +385,7 @@ QList<BaseSettings *> LanguageClientSettingsPage::changedSettings() const
 void LanguageClientSettingsPage::addSettings(BaseSettings *settings)
 {
     m_model.insertSettings(settings);
-    m_changedSettings << settings->m_id;
+    m_changedSettings << settings->id();
 }
 
 void LanguageClientSettingsPage::enableSettings(const QString &id, bool enable)
@@ -409,7 +408,7 @@ QVariant LanguageClientSettingsModel::data(const QModelIndex &index, int role) c
     else if (role == Qt::CheckStateRole)
         return setting->m_enabled ? Qt::Checked : Qt::Unchecked;
     else if (role == idRole)
-        return setting->m_id;
+        return setting->id();
     return QVariant();
 }
 
@@ -485,7 +484,7 @@ bool LanguageClientSettingsModel::dropMimeData(
 
     const QString id = QString::fromUtf8(data->data(mimeType));
     auto setting = findOrDefault(m_settings, [id](const BaseSettings *setting) {
-        return setting->m_id == id;
+        return setting->id() == id;
     });
     if (!setting)
         return false;
@@ -521,7 +520,7 @@ QModelIndex LanguageClientSettingsModel::insertSettings(BaseSettings *settings)
 
 void LanguageClientSettingsModel::enableSetting(const QString &id, bool enable)
 {
-    BaseSettings *setting = Utils::findOrDefault(m_settings, Utils::equal(&BaseSettings::m_id, id));
+    BaseSettings *setting = LanguageClientSettings::settingById(m_settings, id);
     if (!setting)
         return;
     if (setting->m_enabled == enable)
@@ -560,6 +559,11 @@ BaseSettings::BaseSettings()
     filePattern.setPlaceHolderText(Tr::tr("File pattern"));
     filePattern.setToolTip(
         Tr::tr("List of file patterns.\nExample: *.cpp%1*.h").arg(filterSeparator));
+
+    id.setSettingsKey("id");
+    id.setDefaultValue(QUuid::createUuid().toString());
+
+    settingsTypeId.setSettingsKey(typeIdKey);
 
     showInSettings.setDefaultValue(true);
 
@@ -638,9 +642,9 @@ bool BaseSettings::isEnabledOnProject(Project *project) const
 {
     if (project) {
         LanguageClient::ProjectSettings settings(project);
-        if (settings.enabledSettings().contains(m_id))
+        if (settings.enabledSettings().contains(id()))
             return true;
-        if (settings.disabledSettings().contains(m_id))
+        if (settings.disabledSettings().contains(id()))
             return false;
     }
     return m_enabled;
@@ -681,8 +685,6 @@ Client *BaseSettings::createClient(BaseClientInterface *interface) const
 void BaseSettings::toMap(Store &map) const
 {
     AspectContainer::toMap(map);
-    map.insert(typeIdKey, m_settingsTypeId.toSetting());
-    map.insert(idKey, m_id);
     map.insert(enabledKey, m_enabled);
     map.insert(startupBehaviorKey, m_startBehavior);
 }
@@ -690,11 +692,9 @@ void BaseSettings::toMap(Store &map) const
 void BaseSettings::fromMap(const Store &map)
 {
     AspectContainer::fromMap(map);
-    m_id = map.value(idKey, QUuid::createUuid().toString()).toString();
     m_enabled = map[enabledKey].toBool();
     m_startBehavior = BaseSettings::StartBehavior(
         map.value(startupBehaviorKey, BaseSettings::RequiresFile).toInt());
-    m_settingsTypeId = Id::fromSetting(map[typeIdKey]);
 }
 
 static LanguageClientSettingsPage &settingsPage()
@@ -768,6 +768,13 @@ QList<BaseSettings *> LanguageClientSettings::changedSettings()
     return settingsPage().changedSettings();
 }
 
+BaseSettings *LanguageClientSettings::settingById(QList<BaseSettings *> settings, const QString &id)
+{
+    return Utils::findOrDefault(settings, [id](const BaseSettings *setting) {
+        return setting->id() == id;
+    });
+}
+
 void LanguageClientSettings::registerClientType(const ClientType &type)
 {
     QTC_ASSERT(!clientTypes().contains(type.id), return);
@@ -795,8 +802,9 @@ void LanguageClientSettings::toSettings(QtcSettings *settings,
             return variantFromStore(store);
         });
     };
-    auto isStdioSetting = Utils::equal(
-        &BaseSettings::m_settingsTypeId, Id(Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID));
+    auto isStdioSetting = [](const BaseSettings *settings) {
+        return settings->settingsTypeId() == Id(Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID);
+    };
     auto [stdioSettings, typedSettings] = Utils::partition(languageClientSettings, isStdioSetting);
     settings->setValue(clientsKey, transform(stdioSettings));
 
@@ -805,9 +813,8 @@ void LanguageClientSettings::toSettings(QtcSettings *settings,
     for (const QVariant &var : settings->value(typedClientsKey).toList()) {
         const Store map = storeFromVariant(var);
         const Id typeId = Id::fromSetting(map.value(typeIdKey));
-        const QString id = map.value(idKey).toString();
-        if (typeId.isValid() && !clientTypes().contains(typeId)
-            && !Utils::anyOf(typedSettings, Utils::equal(&BaseSettings::m_id, id)))
+        const QString id = map.value("id").toString();
+        if (typeId.isValid() && !clientTypes().contains(typeId) && settingById(typedSettings, id))
             typedSettingsVariant << var;
     }
 
@@ -1186,9 +1193,9 @@ public:
             comboBox->addItem(Tr::tr("Use Global Settings"));
             comboBox->addItem(Tr::tr("Enabled"));
             comboBox->addItem(Tr::tr("Disabled"));
-            if (m_settings.enabledSettings().contains(settings->m_id))
+            if (m_settings.enabledSettings().contains(settings->id()))
                 comboBox->setCurrentIndex(1);
-            else if (m_settings.disabledSettings().contains(settings->m_id))
+            else if (m_settings.disabledSettings().contains(settings->id()))
                 comboBox->setCurrentIndex(2);
             else
                 comboBox->setCurrentIndex(0);
@@ -1196,7 +1203,7 @@ public:
                 comboBox,
                 &QComboBox::currentIndexChanged,
                 this,
-                [id = settings->m_id, this](int index) {
+                [id = settings->id(), this](int index) {
                     if (index == 0)
                         m_settings.clearOverride(id);
                     else if (index == 1)

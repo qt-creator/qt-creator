@@ -316,12 +316,9 @@ public:
         if (m_aspects) {
             connect(m_aspects, &AspectContainer::applied, this, [this] {
                 updateOptions();
-                auto settings = Utils::findOr(
-                    LanguageClientManager::currentSettings(), nullptr, [this](BaseSettings *s) {
-                        return s->m_id == m_clientSettingsId;
-                    });
 
-                if (settings) {
+                if (auto settings = LanguageClientSettings::settingById(
+                        LanguageClientManager::currentSettings(), m_clientSettingsId)) {
                     LanguageClientManager::applySettings(settings);
                     LanguageClientManager::writeSettings();
                 } else {
@@ -645,7 +642,7 @@ LuaClientSettings::LuaClientSettings(const std::weak_ptr<LuaClientWrapper> &wrap
 {
     if (auto w = m_wrapper.lock()) {
         name.setValue(w->m_name);
-        m_settingsTypeId = w->m_settingsTypeId;
+        settingsTypeId.setValue(w->m_settingsTypeId);
         mimeTypes.setValue(w->m_languageFilter.mimeTypes);
         filePattern.setValue(w->m_languageFilter.filePattern.join(';'));
         initializationOptions.setValue(w->m_initializationOptions);
@@ -707,7 +704,7 @@ QWidget *LuaClientSettings::createSettingsWidget(QWidget *parent) const
 
 Client *LuaClientSettings::createClient(BaseClientInterface *interface) const
 {
-    Client *client = new LuaClient(interface, m_settingsTypeId);
+    Client *client = new LuaClient(interface, settingsTypeId());
     return client;
 }
 
@@ -763,11 +760,11 @@ static void registerLuaApi()
 
                 // ... then register the settings.
                 LanguageClientManager::registerClientSettings(clientSettings);
-                luaClientWrapper->m_clientSettingsId = clientSettings->m_id;
+                luaClientWrapper->m_clientSettingsId = clientSettings->id();
 
                 // and the client type.
                 ClientType type;
-                type.id = clientSettings->m_settingsTypeId;
+                type.id = clientSettings->settingsTypeId();
                 type.name = luaClientWrapper->m_name;
                 type.userAddable = false;
                 LanguageClientSettings::registerClientType(type);

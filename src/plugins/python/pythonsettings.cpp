@@ -611,12 +611,12 @@ void PythonSettings::disableOutdatedPylsNow()
     const QList<BaseSettings *>
             settings = LanguageClientSettings::pageSettings();
     for (const BaseSettings *setting : settings) {
-        if (setting->m_settingsTypeId != LanguageClient::Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID)
+        if (setting->settingsTypeId() != LanguageClient::Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID)
             continue;
         auto stdioSetting = static_cast<const StdIOSettings *>(setting);
         if (stdioSetting->arguments().startsWith("-m pyls")
                 && stdioSetting->languageFilter().isSupported("foo.py", Constants::C_PY_MIMETYPE)) {
-            LanguageClientManager::enableClientSettings(stdioSetting->m_id, false);
+            LanguageClientManager::enableClientSettings(stdioSetting->id(), false);
         }
     }
 }

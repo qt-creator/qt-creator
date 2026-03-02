@@ -985,6 +985,17 @@ public:
     void addToLayoutImpl(Layouting::Layout &parent) override;
 };
 
+class QTCREATOR_UTILS_EXPORT IdAspect : public TypedAspect<Id>
+{
+    Q_OBJECT
+
+public:
+    using TypedAspect::TypedAspect;
+
+    void fromMap(const Store &map) override;
+    void toMap(Store &map) const override;
+};
+
 class QTCREATOR_UTILS_EXPORT TextDisplay : public BaseAspect
 {
     Q_OBJECT

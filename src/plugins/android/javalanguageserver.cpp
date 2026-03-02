@@ -65,7 +65,7 @@ public:
 
 JLSSettings::JLSSettings()
 {
-    m_settingsTypeId = Constants::JLS_SETTINGS_ID;
+    settingsTypeId.setValue(Constants::JLS_SETTINGS_ID);
     name.setValue("Java Language Server");
 
     executable.setLabelText(Tr::tr("Java:"));
