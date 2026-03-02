@@ -187,7 +187,7 @@ bool CommandMappings::filter(const QString &filterString, QTreeWidgetItem *item)
     return !visible;
 }
 
-void CommandMappings::setModified(QTreeWidgetItem *item , bool modified)
+void CommandMappings::setModified(QTreeWidgetItem *item, bool modified)
 {
     QFont f = item->font(0);
     f.setItalic(modified);

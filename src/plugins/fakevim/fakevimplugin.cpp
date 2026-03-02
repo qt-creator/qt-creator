@@ -479,8 +479,9 @@ class FakeVimExCommandsPageWidget final : public IOptionsPageWidget
 public:
     FakeVimExCommandsPageWidget();
     void apply() final;
+    bool isDirty() const final;
 
-    ExCommandMap exCommandMapFromWidget();
+    ExCommandMap exCommandMapFromWidget() const;
 
     void commandChanged();
     void resetToDefault();
@@ -492,12 +493,12 @@ public:
     QGroupBox m_commandBox;
     FancyLineEdit m_commandEdit;
     InfoLabel m_infoLabel{Tr::tr("Invalid regular expression."), InfoLabel::Error};
+
+    ExCommandMap m_originalMap; // for dirty handling
 };
 
 FakeVimExCommandsPageWidget::FakeVimExCommandsPageWidget()
 {
-    installMarkSettingsDirtyTriggerRecursively(this);
-
     m_mappings.setPageTitle(Tr::tr("Ex Command Mapping"));
     m_mappings.setTargetHeader(Tr::tr("Ex Trigger Expression"));
     m_mappings.setImportExportEnabled(false);
@@ -585,9 +586,12 @@ FakeVimExCommandsPageWidget::FakeVimExCommandsPageWidget()
     });
 
     connect(m_mappings.commandList()->model(), &QAbstractItemModel::dataChanged, checkSettingsDirty);
+
+    m_originalMap = exCommandMapFromWidget();
+    installCheckSettingsDirtyTrigger(m_mappings.commandList()->model());
 }
 
-ExCommandMap FakeVimExCommandsPageWidget::exCommandMapFromWidget()
+ExCommandMap FakeVimExCommandsPageWidget::exCommandMapFromWidget() const
 {
     ExCommandMap map;
     int n = m_mappings.commandList()->topLevelItemCount();
@@ -679,9 +683,7 @@ void FakeVimExCommandsPageWidget::apply()
         QtcSettings *settings = ICore::settings();
         settings->beginWriteArray(exCommandMapGroup);
         int count = 0;
-        using Iterator = ExCommandMap::const_iterator;
-        const Iterator end = newMapping.constEnd();
-        for (Iterator it = newMapping.constBegin(); it != end; ++it) {
+        for (auto it = newMapping.constBegin(), end = newMapping.constEnd(); it != end; ++it) {
             const QString id = it.key();
             const QRegularExpression re = it.value();
 
@@ -697,7 +699,15 @@ void FakeVimExCommandsPageWidget::apply()
         globalCommandMapping.clear();
         globalCommandMapping.insert(defaultMap);
         globalCommandMapping.insert(newMapping);
+
+        m_originalMap = newMapping;
     }
+}
+
+bool FakeVimExCommandsPageWidget::isDirty() const
+{
+    const ExCommandMap newMapping = exCommandMapFromWidget();
+    return newMapping != m_originalMap;
 }
 
 class FakeVimExCommandsPage : public IOptionsPage
