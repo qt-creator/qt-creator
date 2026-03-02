@@ -13,7 +13,6 @@
 #include "stringutils.h"
 #include "terminalhooks.h"
 #include "textcodec.h"
-#include "threadutils.h"
 #include "utilstr.h"
 
 #include <iptyprocess.h>
@@ -58,7 +57,7 @@ const char QTC_PROCESS_STARTTIME[] = "__STARTTIME__";
 static bool isGuiEnabled()
 {
     static bool isGuiApp = qobject_cast<QGuiApplication *>(qApp);
-    return isGuiApp && isMainThread();
+    return isGuiApp && QThread::isMainThread();
 }
 
 static bool isMeasuring()
@@ -82,7 +81,7 @@ public:
         timer.start();
         const QScopeGuard cleanup([this, &timer] {
             const qint64 currentNsecs = timer.nsecsElapsed();
-            const bool mainThread = isMainThread();
+            const bool mainThread = QThread::isMainThread();
             const int hitThisAll = m_hitThisAll.fetch_add(1) + 1;
             const int hitAllAll = m_hitAllAll.fetch_add(1) + 1;
             const int hitThisMain = mainThread
@@ -1850,7 +1849,7 @@ void Process::runBlocking(seconds timeout)
     // Attach a dynamic property with info about blocking type
     d->storeEventLoopDebugInfo(true);
 
-    if (blockingThresholdMs > 0 && isMainThread())
+    if (blockingThresholdMs > 0 && QThread::isMainThread())
         startTime = QDateTime::currentDateTime();
     start();
 
@@ -1866,7 +1865,7 @@ void Process::runBlocking(seconds timeout)
 
     if (blockingThresholdMs > 0) {
         const int timeDiff = startTime.msecsTo(QDateTime::currentDateTime());
-        if (timeDiff > blockingThresholdMs && isMainThread()) {
+        if (timeDiff > blockingThresholdMs && QThread::isMainThread()) {
             qWarning() << "Blocking process " << d->m_setup.m_commandLine << "took" << timeDiff
                        << "ms, longer than threshold" << blockingThresholdMs;
         }
@@ -2049,7 +2048,7 @@ void ProcessPrivate::setupDebugLog()
         qCDebug(processLog).nospace().noquote()
             << "Process " << currentNumber << " starting ("
             << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
-            << (isMainThread() ? ", main thread" : "")
+            << (QThread::isMainThread() ? ", main thread" : "")
             << "): " << m_setup.m_commandLine.toUserOutput();
         setProperty(QTC_PROCESS_NUMBER, currentNumber);
     });

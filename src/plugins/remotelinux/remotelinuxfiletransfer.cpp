@@ -24,7 +24,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
-#include <utils/threadutils.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

@@ -7,6 +7,7 @@
 
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QThread>
 
 namespace Utils {
 
@@ -25,7 +26,7 @@ static QString replaceSlashes(const QString &str)
 
 void DataFromProcessSettingsCache::writeToSettings()
 {
-    QTC_ASSERT(Utils::isMainThread(), return);
+    QTC_ASSERT(QThread::isMainThread(), return);
     SettingsDatabase::beginGroup(settingsGroup);
     const auto cache = m_newValuesCache.readLocked();
     for (auto it = cache->begin(); it != cache->end(); ++it)
@@ -46,7 +47,7 @@ std::optional<DataFromProcessSettingsCache::ProcessOutput> DataFromProcessSettin
         return ProcessOutput::fromVariant(cache.value(fixedKey));
     });
     if (!result) {
-        QTC_ASSERT(Utils::isMainThread(), return result);
+        QTC_ASSERT(QThread::isMainThread(), return result);
         SettingsDatabase::beginGroup(settingsGroup);
         const auto settingsValue = SettingsDatabase::value(fixedKey);
         SettingsDatabase::endGroup();

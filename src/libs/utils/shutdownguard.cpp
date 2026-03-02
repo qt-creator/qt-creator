@@ -3,8 +3,9 @@
 
 #include <shutdownguard.h>
 
-#include <threadutils.h>
 #include <qtcassert.h>
+
+#include <QThread>
 
 namespace Utils {
 
@@ -21,7 +22,7 @@ public:
     {
         QTC_CHECK(!m_alreadyGone);
         if (!m_shutdownGuard) {
-            QTC_CHECK(Utils::isMainThread());
+            QTC_CHECK(QThread::isMainThread());
             m_shutdownGuard = new QObject;
         }
         return m_shutdownGuard;

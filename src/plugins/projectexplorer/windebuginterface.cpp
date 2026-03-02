@@ -6,8 +6,10 @@
 #ifdef Q_OS_WIN
 
 #include <utils/qtcassert.h>
-#include <utils/threadutils.h>
+
 #include <QCoreApplication>
+#include <QThread>
+
 #include <qt_windows.h>
 
 #include <algorithm>
@@ -147,7 +149,7 @@ void WinDebugInterface::emitReadySignal()
 void WinDebugInterface::dispatchDebugOutput()
 {
     // Called in the thread this object was created in, not in the WinDebugInterfaceThread.
-    QTC_ASSERT(Utils::isMainThread(), return);
+    QTC_ASSERT(QThread::isMainThread(), return);
 
     static size_t maxMessagesToSend = 100;
     std::map<qint64, QStringList> output;

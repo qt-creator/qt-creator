@@ -4,9 +4,10 @@
 #include "futuresynchronizer.h"
 
 #include "qtcassert.h"
-#include "threadutils.h"
 
 #include <qapplicationstatic.h>
+
+#include <QThread>
 
 /*!
   \class Utils::FutureSynchronizer
@@ -78,7 +79,7 @@ Q_APPLICATION_STATIC(FutureSynchronizer, s_futureSynchronizer);
 */
 FutureSynchronizer *futureSynchronizer()
 {
-    QTC_ASSERT(isMainThread(), return nullptr);
+    QTC_ASSERT(QThread::isMainThread(), return nullptr);
     return s_futureSynchronizer;
 }
 

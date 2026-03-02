@@ -9,7 +9,6 @@
 #include "filepath.h"
 #include "qtcprocess.h"
 #include "synchronizedvalue.h"
-#include "threadutils.h"
 #include "shutdownguard.h"
 #include "utils_global.h"
 
@@ -17,10 +16,10 @@
 #include <QHash>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QThread>
 
 #include <chrono>
 #include <functional>
-#include <memory>
 #include <optional>
 #include <utility>
 
@@ -143,7 +142,7 @@ inline std::optional<Data> DataFromProcess<Data>::getOrProvideData(const Paramet
     if (params.disableUnixTerminal)
         outputRetriever->setDisableUnixTerminal();
 
-    if (Utils::isMainThread()) {
+    if (QThread::isMainThread()) {
         outputRetriever->setParent(Utils::shutdownGuard());
         if (params.persistValue && !params.callback) {
             const QChar separator = params.commandLine.executable().pathListSeparator();

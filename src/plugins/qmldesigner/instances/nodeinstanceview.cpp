@@ -82,10 +82,10 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
-#include <utils/threadutils.h>
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <QByteArray>
 #include <QDirIterator>
 #include <QFileSystemWatcher>
 #include <QImageReader>
@@ -95,7 +95,6 @@
 #include <QPicture>
 #include <QTimerEvent>
 #include <QUrl>
-#include <QByteArray>
 
 enum {
     debug = false

@@ -4,7 +4,6 @@
 #include "filestreamermanager.h"
 
 #include "filestreamer.h"
-#include "threadutils.h"
 #include "utilstr.h"
 
 #include <QMutex>
@@ -69,7 +68,7 @@ static void deleteStreamer(FileStreamHandle handle)
 static void deleteAllStreamers()
 {
     QMutexLocker locker(&s_mutex);
-    QTC_ASSERT(Utils::isMainThread(), return);
+    QTC_ASSERT(QThread::isMainThread(), return);
     while (s_fileStreamers.size()) {
         auto it = s_fileStreamers.begin();
         if (QThread::currentThread() == it->second->thread()) {

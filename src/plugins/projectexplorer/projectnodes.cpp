@@ -19,12 +19,12 @@
 #include <utils/mimeutils.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/threadutils.h>
 #include <utils/utilsicons.h>
 
 #include <QDir>
 #include <QFileInfo>
 #include <QIcon>
+#include <QThread>
 
 #include <memory>
 
@@ -482,7 +482,7 @@ QString FolderNode::displayName() const
  */
 QIcon FolderNode::icon() const
 {
-    QTC_CHECK(isMainThread());
+    QTC_CHECK(QThread::isMainThread());
 
     // Instantiating the Icon provider is expensive.
     if (auto strPtr = std::get_if<QString>(&m_icon)) {
@@ -1090,7 +1090,7 @@ DirectoryIcon::DirectoryIcon(const QString &overlay)
 */
 QIcon DirectoryIcon::icon() const
 {
-    QTC_CHECK(isMainThread());
+    QTC_CHECK(QThread::isMainThread());
     const auto it = m_cache.find(m_overlay);
     if (it != m_cache.end())
         return it.value();

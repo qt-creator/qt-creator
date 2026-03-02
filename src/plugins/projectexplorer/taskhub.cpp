@@ -6,9 +6,9 @@
 #include <coreplugin/ioutputpane.h>
 
 #include <utils/qtcassert.h>
-#include <utils/threadutils.h>
 
 #include <QGuiApplication>
+#include <QThread>
 
 using namespace Utils;
 
@@ -39,7 +39,7 @@ void TaskHub::addTask(Task::TaskType type, const QString &description, Utils::Id
 
 void TaskHub::addTask(Task task)
 {
-    if (!isMainThread()) {
+    if (!QThread::isMainThread()) {
         QMetaObject::invokeMethod(qApp, [task = std::move(task)] {
             TaskHub::addTask(task);
         });

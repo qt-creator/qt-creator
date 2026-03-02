@@ -28,7 +28,6 @@
 #include <utils/store.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
-#include <utils/threadutils.h>
 
 #include <nanotrace/nanotrace.h>
 
@@ -40,6 +39,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QThread>
 #include <QTimer>
 
 using namespace ExtensionSystem;
@@ -121,7 +121,7 @@ SessionManager *sessionManager()
 
 SessionManager::SessionManager()
 {
-    QTC_ASSERT(isMainThread(), return);
+    QTC_ASSERT(QThread::isMainThread(), return);
     d = new SessionManagerPrivate;
 
     connect(PluginManager::instance(), &PluginManager::initializationDone, this, [] {

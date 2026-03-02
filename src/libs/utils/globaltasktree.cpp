@@ -5,7 +5,8 @@
 
 #include "qtcassert.h"
 #include "shutdownguard.h"
-#include "threadutils.h"
+
+#include <QThread>
 
 namespace Utils {
 
@@ -17,7 +18,7 @@ static QParallelTaskTreeRunner *getRunner()
 
 QParallelTaskTreeRunner *GlobalTaskTree::taskTreeRunner()
 {
-    QTC_ASSERT(Utils::isMainThread(), return nullptr);
+    QTC_ASSERT(QThread::isMainThread(), return nullptr);
     return getRunner();
 }
 

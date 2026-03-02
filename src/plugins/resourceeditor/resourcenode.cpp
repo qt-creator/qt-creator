@@ -14,11 +14,11 @@
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
-#include <utils/threadutils.h>
 
 #include <QCoreApplication>
 #include <QDir>
 #include <QDebug>
+#include <QThread>
 
 #include <limits>
 
@@ -249,7 +249,7 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FilePath &filePath,
 
 void ResourceTopLevelNode::setupWatcherIfNeeded()
 {
-    if (m_document || !isMainThread())
+    if (m_document || !QThread::isMainThread())
         return;
 
     m_document = new ResourceFileWatcher(this);

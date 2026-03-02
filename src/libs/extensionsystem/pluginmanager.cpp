@@ -22,7 +22,6 @@
 #include <utils/qtcsettings.h>
 #include <utils/shutdownguard.h>
 #include <utils/stringutils.h>
-#include <utils/threadutils.h>
 
 #include <QCoreApplication>
 #include <QCryptographicHash>

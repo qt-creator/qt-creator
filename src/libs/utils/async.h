@@ -7,12 +7,12 @@
 
 #include "futuresynchronizer.h"
 #include "qtcassert.h"
-#include "threadutils.h"
 
 #include <QtTaskTree/QTaskTree>
 
 #include <QFutureWatcher>
 #include <QtConcurrentRun>
+#include <QThread>
 
 namespace Utils {
 
@@ -102,7 +102,7 @@ class Async : public AsyncBase
 {
 public:
     Async()
-        : m_synchronizer(isMainThread() ? futureSynchronizer() : nullptr)
+        : m_synchronizer(QThread::isMainThread() ? futureSynchronizer() : nullptr)
     {
         connect(&m_watcher, &QFutureWatcherBase::finished, this, &AsyncBase::done);
         connect(&m_watcher, &QFutureWatcherBase::resultReadyAt, this, &AsyncBase::resultReadyAt);

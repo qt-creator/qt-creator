@@ -14,7 +14,6 @@
 #include <utils/globalfilechangeblocker.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
-#include <utils/threadutils.h>
 
 using namespace Core;
 using namespace QtTaskTree;

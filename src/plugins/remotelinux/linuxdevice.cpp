@@ -46,7 +46,6 @@
 #include <utils/stringutils.h>
 #include <utils/synchronizedvalue.h>
 #include <utils/temporaryfile.h>
-#include <utils/threadutils.h>
 #include <utils/utilsicons.h>
 
 #include <QLabel>
@@ -1375,8 +1374,8 @@ static RunResult runUnameCommand(const FilePath &rootPath)
 void LinuxDevicePrivate::setupFileAccess(
     const SshParameters &sshParameters, const Continuation<> &cont)
 {
-    QTC_ASSERT(
-        isMainThread(), cont(ResultError(ResultAssert, "setupFileAccess called from wrong thread")));
+    QTC_ASSERT(QThread::isMainThread(),
+               cont(ResultError(ResultAssert, "setupFileAccess called from wrong thread")));
 
     announceConnectionAttempt();
 
@@ -1452,7 +1451,7 @@ void LinuxDevicePrivate::announceConnectionAttempt()
     const QString message = Tr::tr("Establishing initial connection to device \"%1\". "
                                    "This might take a moment.").arg(q->displayName());
     DEBUG(message);
-    QTC_ASSERT(isMainThread(), return);
+    QTC_ASSERT(QThread::isMainThread(), return);
     InfoBarEntry info(announceId(), message);
     info.setTitle(Tr::tr("Establishing a Connection"));
     info.setInfoType(InfoLabel::Warning);
@@ -1483,7 +1482,7 @@ void LinuxDevicePrivate::unannounceConnectionAttempt()
             break;
     };
     DEBUG(message);
-    QTC_ASSERT(isMainThread(), return);
+    QTC_ASSERT(QThread::isMainThread(), return);
 
     InfoBarEntry info(announceId(), message);
     info.setTitle(Tr::tr("Connection Attempt Finished"));
@@ -1678,7 +1677,7 @@ void LinuxDevice::postLoad()
             + "\n" + Tr::tr("Switching auto-connection off.");
         DEBUG(message);
         autoConnectOnStartup.setValue(false);
-        QTC_ASSERT(isMainThread(), return);
+        QTC_ASSERT(QThread::isMainThread(), return);
         InfoBarEntry info(d->announceId(), message);
         info.setTitle(Tr::tr("Establishing a Connection"));
         info.setInfoType(InfoLabel::Warning);

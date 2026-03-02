@@ -5,7 +5,6 @@
 
 #include "processhelper.h"
 #include "qtcassert.h"
-#include "threadutils.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -256,7 +255,7 @@ ProcessReaperImpl::ProcessReaperImpl()
 
 ProcessReaperImpl::~ProcessReaperImpl()
 {
-    QTC_ASSERT(Utils::isMainThread(),
+    QTC_ASSERT(QThread::isMainThread(),
                qWarning() << "Destructing process reaper from non-main thread.");
 
     instance()->m_private->waitForFinished();
