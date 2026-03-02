@@ -14,6 +14,8 @@
 #include <utils/qtcassert.h>
 
 #include <QBuffer>
+#include <QImage>
+#include <QRegularExpression>
 #include <QTextDocument>
 
 namespace QmlDesigner::AiAssistantUtils {

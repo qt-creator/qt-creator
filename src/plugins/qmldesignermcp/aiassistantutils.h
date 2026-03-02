@@ -3,7 +3,10 @@
 
 #pragma once
 
-#include <QStringList>
+#include <QString>
+
+QT_FORWARD_DECLARE_CLASS(QByteArray)
+QT_FORWARD_DECLARE_CLASS(QImage)
 
 namespace QmlDesigner::AiAssistantUtils {
 
