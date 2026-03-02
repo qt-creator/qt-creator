@@ -110,6 +110,23 @@ private:
     FolderNavigationWidgetFactory *m_folderNavigationWidgetFactory = nullptr;
 };
 
+class ShowWidgetWithoutParentFilter : public QObject
+{
+public:
+    using QObject::QObject;
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() == QEvent::Show) {
+            if (QWidget *widget = qobject_cast<QWidget *>(watched)) {
+                QTC_ASSERT(
+                    widget->parentWidget() || widget->windowFlags().testFlag(Qt::ToolTip),
+                    dumpBacktrace(30));
+            }
+        }
+        return QObject::eventFilter(watched, event);
+    }
+};
+
 CorePlugin::CorePlugin()
 {
     QObject::connect(qApp, SIGNAL(fileOpenRequest(QString)), this, SLOT(fileOpenRequest(QString)));
@@ -126,15 +143,18 @@ CorePlugin::CorePlugin()
     (void) systemSettings();
 
     qRegisterMetaType<Id>();
-    qRegisterMetaType<Utils::Text::Position>();
-    qRegisterMetaType<Utils::CommandLine>();
-    qRegisterMetaType<Utils::FilePath>();
-    qRegisterMetaType<Utils::Environment>();
-    qRegisterMetaType<Utils::Store>();
-    qRegisterMetaType<Utils::Key>();
-    qRegisterMetaType<Utils::KeyList>();
-    qRegisterMetaType<Utils::OldStore>();
+    qRegisterMetaType<Text::Position>();
+    qRegisterMetaType<CommandLine>();
+    qRegisterMetaType<FilePath>();
+    qRegisterMetaType<Environment>();
+    qRegisterMetaType<Store>();
+    qRegisterMetaType<Key>();
+    qRegisterMetaType<KeyList>();
+    qRegisterMetaType<OldStore>();
     m_instance = this;
+
+    if (Environment::systemEnvironment().hasKey("QTC_DEBUG_SHOW_WIDGET_WITHOUT_PARENT"))
+        qApp->installEventFilter(new ShowWidgetWithoutParentFilter(this));
 }
 
 CorePlugin::~CorePlugin()
