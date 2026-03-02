@@ -56,7 +56,6 @@ constexpr char typeIdKey[] = "typeId";
 constexpr char idKey[] = "id";
 constexpr char enabledKey[] = "enabled";
 constexpr char startupBehaviorKey[] = "startupBehavior";
-constexpr char filePatternKey[] = "filePattern";
 constexpr char settingsGroupKey[] = "LanguageClient";
 constexpr char clientsKey[] = "clients";
 constexpr char typedClientsKey[] = "typedClients";
@@ -555,6 +554,13 @@ BaseSettings::BaseSettings()
     name.setLabelText(Tr::tr("Name:"));
     name.setDisplayStyle(StringAspect::LineEditDisplay);
 
+    filePattern.setSettingsKey("filePattern");
+    filePattern.setLabelText(Tr::tr("File pattern:"));
+    filePattern.setDisplayStyle(StringAspect::LineEditDisplay);
+    filePattern.setPlaceHolderText(Tr::tr("File pattern"));
+    filePattern.setToolTip(
+        Tr::tr("List of file patterns.\nExample: *.cpp%1*.h").arg(filterSeparator));
+
     showInSettings.setDefaultValue(true);
 
     activatable.setDefaultValue(true);
@@ -587,11 +593,6 @@ bool BaseSettings::applyFromSettingsWidget(QWidget *widget)
     AspectContainer::apply();
 
     if (auto settingsWidget = qobject_cast<BaseSettingsWidget *>(widget)) {
-        const QStringList filePattern = settingsWidget->filter().filePattern;
-        if (m_languageFilter.filePattern != filePattern) {
-            m_languageFilter.filePattern = filePattern;
-            changed = true;
-        }
         if (m_startBehavior != settingsWidget->startupBehavior()) {
             m_startBehavior = settingsWidget->startupBehavior();
             changed = true;
@@ -645,6 +646,11 @@ bool BaseSettings::isEnabledOnProject(Project *project) const
     return m_enabled;
 }
 
+const LanguageFilter BaseSettings::languageFilter() const
+{
+    return LanguageFilter{mimeTypes(), filePattern().split(filterSeparator)};
+}
+
 Client *BaseSettings::createClient(BuildConfiguration *bc) const
 {
     if (!isValidOnBuildConfiguration(bc))
@@ -659,7 +665,7 @@ Client *BaseSettings::createClient(BuildConfiguration *bc) const
     if (client->name().isEmpty())
         client->setName(name());
 
-    client->setSupportedLanguage(m_languageFilter);
+    client->setSupportedLanguage(languageFilter());
     client->setInitializationOptions(initializationOptionsAsJson());
     client->setActivatable(activatable());
     client->setCurrentBuildConfiguration(bc);
@@ -679,7 +685,6 @@ void BaseSettings::toMap(Store &map) const
     map.insert(idKey, m_id);
     map.insert(enabledKey, m_enabled);
     map.insert(startupBehaviorKey, m_startBehavior);
-    map.insert(filePatternKey, m_languageFilter.filePattern);
 }
 
 void BaseSettings::fromMap(const Store &map)
@@ -689,9 +694,6 @@ void BaseSettings::fromMap(const Store &map)
     m_enabled = map[enabledKey].toBool();
     m_startBehavior = BaseSettings::StartBehavior(
         map.value(startupBehaviorKey, BaseSettings::RequiresFile).toInt());
-    m_languageFilter.mimeTypes = mimeTypes();
-    m_languageFilter.filePattern = map[filePatternKey].toStringList();
-    m_languageFilter.filePattern.removeAll(QString()); // remove empty entries
     m_settingsTypeId = Id::fromSetting(map[typeIdKey]);
 }
 
@@ -908,8 +910,6 @@ static QString startupBehaviorString(BaseSettings::StartBehavior behavior)
 BaseSettingsWidget::BaseSettingsWidget(
     const BaseSettings *settings, QWidget *parent, Layouting::LayoutModifier additionalItems)
     : QWidget(parent)
-    , m_filePattern(
-          new QLineEdit(settings->m_languageFilter.filePattern.join(filterSeparator), this))
     , m_startupBehavior(new QComboBox)
     , m_initializationOptions(new FancyLineEdit(this))
 {
@@ -917,10 +917,6 @@ BaseSettingsWidget::BaseSettingsWidget(
 
     auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_initializationOptions);
-
-    m_filePattern->setPlaceholderText(Tr::tr("File pattern"));
-    m_filePattern->setToolTip(
-        Tr::tr("List of file patterns.\nExample: *.cpp%1*.h").arg(filterSeparator));
 
     for (int behavior = 0; behavior < BaseSettings::LastSentinel ; ++behavior)
         m_startupBehavior->addItem(startupBehaviorString(BaseSettings::StartBehavior(behavior)));
@@ -951,10 +947,9 @@ BaseSettingsWidget::BaseSettingsWidget(
     auto form = Form {
         settings->name, br,
         settings->mimeTypes, br,
-        Tr::tr("File pattern:"), m_filePattern, br,
+        settings->filePattern, br,
         Tr::tr("Startup behavior:"), m_startupBehavior, br,
         Tr::tr("Initialization options:"), m_initializationOptions, br
-
     };
 
     if (additionalItems)
@@ -962,11 +957,6 @@ BaseSettingsWidget::BaseSettingsWidget(
 
     form.attachTo(this);
     // clang-format on
-}
-
-LanguageFilter BaseSettingsWidget::filter() const
-{
-    return {{}, m_filePattern->text().split(filterSeparator, Qt::SkipEmptyParts)};
 }
 
 BaseSettings::StartBehavior BaseSettingsWidget::startupBehavior() const

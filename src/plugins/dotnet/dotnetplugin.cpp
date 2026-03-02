@@ -65,7 +65,7 @@ static void setupCSharpLanguageServer(IDocument *document)
     // check if it is already configured
     const QList<BaseSettings *> settings = LanguageClientManager::currentSettings();
     for (BaseSettings *setting : settings) {
-        if (setting->isValid() && setting->m_languageFilter.isSupported(document))
+        if (setting->isValid() && setting->languageFilter().isSupported(document))
             return;
     }
 
@@ -95,7 +95,7 @@ static void setupCSharpLanguageServer(IDocument *document)
 
             settings->executable.setValue(executable);
             settings->name.setValue(Tr::tr("C# Language Server"));
-            settings->m_languageFilter.mimeTypes = csharpMimeTypes();
+            settings->mimeTypes.setValue(csharpMimeTypes());
             settings->m_startBehavior = BaseSettings::RequiresProject;
             LanguageClientSettings::addSettings(settings);
             LanguageClientManager::applySettings();

@@ -346,7 +346,7 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
             ensureClient();
 
         for (TextEditor::TextDocument *previousDocument : std::as_const(documents)) {
-            if (setting->m_languageFilter.isSupported(previousDocument)) {
+            if (setting->languageFilter().isSupported(previousDocument)) {
                 auto client = ensureClient();
                 QTC_ASSERT(client, return);
                 openDocumentWithClient(previousDocument, client);
@@ -357,7 +357,7 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
             if (documents.contains(document))
                 continue; // already handled above
             if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
-                if (setting->m_languageFilter.isSupported(document)) {
+                if (setting->languageFilter().isSupported(document)) {
                     auto client = ensureClient();
                     QTC_ASSERT(client, return);
                     client->openDocument(textDocument);
@@ -368,7 +368,7 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
         const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
         for (Core::IDocument *document : openedDocuments) {
             auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-            if (!textDocument || !setting->m_languageFilter.isSupported(textDocument))
+            if (!textDocument || !setting->languageFilter().isSupported(textDocument))
                 continue;
             const Utils::FilePath filePath = textDocument->filePath();
             for (Project *project : ProjectManager::projects()) {
@@ -625,18 +625,18 @@ static QList<BaseSettings *> sortedSettingsForDocument(Core::IDocument *document
         QList<BaseSettings *> result;
         // prefer exact mime type matches
         result << Utils::filtered(prefilteredSettings, [mimeType](BaseSettings *setting) {
-            return setting->m_languageFilter.mimeTypes.contains(mimeType.name());
+            return setting->languageFilter().mimeTypes.contains(mimeType.name());
         });
 
         // add filePath matches next
         result << Utils::filtered(prefilteredSettings, [document](BaseSettings *setting) {
-            return setting->m_languageFilter.isSupported(document->filePath(), {});
+            return setting->languageFilter().isSupported(document->filePath(), {});
         });
 
         // add parent mime type matches last
         Utils::visitMimeParents(mimeType, [&](const Utils::MimeType &mt) -> bool {
             result << Utils::filtered(prefilteredSettings, [mt](BaseSettings *setting) {
-                return setting->m_languageFilter.mimeTypes.contains(mt.name());
+                return setting->languageFilter().mimeTypes.contains(mt.name());
             });
             return true; // continue
         });
@@ -644,7 +644,7 @@ static QList<BaseSettings *> sortedSettingsForDocument(Core::IDocument *document
     }
 
     return Utils::filtered(prefilteredSettings, [document](BaseSettings *setting) {
-        return setting->m_languageFilter.isSupported(document);
+        return setting->languageFilter().isSupported(document);
     });
 }
 
@@ -742,7 +742,7 @@ void LanguageClientManager::updateProject(BuildConfiguration *bc)
                 Client *newClient = nullptr;
                 const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
                 for (Core::IDocument *doc : openedDocuments) {
-                    if (setting->m_languageFilter.isSupported(doc)
+                    if (setting->languageFilter().isSupported(doc)
                             && bc->project()->isKnownFile(doc->filePath())) {
                         if (auto textDoc = qobject_cast<TextEditor::TextDocument *>(doc)) {
                             if (!newClient)

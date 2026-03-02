@@ -64,7 +64,7 @@ static void setupSwiftLanguageServer(IDocument *document)
     // check if it is already configured
     const QList<BaseSettings *> settings = LanguageClientManager::currentSettings();
     for (BaseSettings *setting : settings) {
-        if (setting->isValid() && setting->m_languageFilter.isSupported(document))
+        if (setting->isValid() && setting->languageFilter().isSupported(document))
             return;
     }
 
@@ -84,7 +84,7 @@ static void setupSwiftLanguageServer(IDocument *document)
 
         settings->executable.setValue(sourcekitLsp);
         settings->name.setValue(Tr::tr("Swift Language Server"));
-        settings->m_languageFilter.mimeTypes = swiftMimeTypes();
+        settings->mimeTypes.setValue(swiftMimeTypes());
         settings->m_startBehavior = BaseSettings::RequiresProject;
         LanguageClientSettings::addSettings(settings);
         LanguageClientManager::applySettings();

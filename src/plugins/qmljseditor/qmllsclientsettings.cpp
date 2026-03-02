@@ -117,7 +117,7 @@ QmllsClientSettings::QmllsClientSettings()
 {
     name.setValue(Constants::QMLLS_NAME);
 
-    m_languageFilter.mimeTypes = supportedMimeTypes();
+    mimeTypes.setValue(supportedMimeTypes());
 
     m_settingsTypeId = Constants::QMLLS_CLIENT_SETTINGS_ID;
     m_startBehavior = RequiresProject;
@@ -419,7 +419,7 @@ void QmllsClientSettings::toMap(Store &map) const
 void QmllsClientSettings::fromMap(const Store &map)
 {
     BaseSettings::fromMap(map);
-    m_languageFilter.mimeTypes = supportedMimeTypes();
+    mimeTypes.setValue(supportedMimeTypes());
 
     // port from previous settings
     if (map.contains(useLatestQmllsKey))

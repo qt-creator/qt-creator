@@ -615,7 +615,7 @@ void PythonSettings::disableOutdatedPylsNow()
             continue;
         auto stdioSetting = static_cast<const StdIOSettings *>(setting);
         if (stdioSetting->arguments().startsWith("-m pyls")
-                && stdioSetting->m_languageFilter.isSupported("foo.py", Constants::C_PY_MIMETYPE)) {
+                && stdioSetting->languageFilter().isSupported("foo.py", Constants::C_PY_MIMETYPE)) {
             LanguageClientManager::enableClientSettings(stdioSetting->m_id, false);
         }
     }

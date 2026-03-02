@@ -646,7 +646,8 @@ LuaClientSettings::LuaClientSettings(const std::weak_ptr<LuaClientWrapper> &wrap
     if (auto w = m_wrapper.lock()) {
         name.setValue(w->m_name);
         m_settingsTypeId = w->m_settingsTypeId;
-        m_languageFilter = w->m_languageFilter;
+        mimeTypes.setValue(w->m_languageFilter.mimeTypes);
+        filePattern.setValue(w->m_languageFilter.filePattern.join(';'));
         initializationOptions.setValue(w->m_initializationOptions);
         m_startBehavior = w->m_startBehavior;
         showInSettings.setValue(w->m_showInSettings);
@@ -666,7 +667,7 @@ bool LuaClientSettings::applyFromSettingsWidget(QWidget *widget)
         w->m_name = name();
         if (!w->m_initOptionsCallback)
             w->m_initializationOptions = initializationOptions();
-        w->m_languageFilter = m_languageFilter;
+        w->m_languageFilter = languageFilter();
         w->m_startBehavior = m_startBehavior;
         w->applySettings();
     }
@@ -688,7 +689,7 @@ void LuaClientSettings::fromMap(const Store &map)
         w->m_name = name();
         if (!w->m_initOptionsCallback)
             w->m_initializationOptions = initializationOptions();
-        w->m_languageFilter = m_languageFilter;
+        w->m_languageFilter = languageFilter();
         w->m_startBehavior = m_startBehavior;
         w->fromMap(map);
     }

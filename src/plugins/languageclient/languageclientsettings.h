@@ -70,12 +70,12 @@ public:
 
     Utils::StringAspect name{this};
     MimeTypesAspect mimeTypes{this};
+    Utils::StringAspect filePattern{this};
 
     QString m_id = QUuid::createUuid().toString();
     Utils::Id m_settingsTypeId;
     bool m_enabled = true;
     StartBehavior m_startBehavior = RequiresFile;
-    LanguageFilter m_languageFilter;
     Utils::StringAspect initializationOptions{this};
     Utils::StringAspect configuration{this};
     Utils::BoolAspect showInSettings{this};
@@ -94,6 +94,7 @@ public:
     Client *createClient() const;
     Client *createClient(ProjectExplorer::BuildConfiguration *bc) const;
     bool isEnabledOnProject(ProjectExplorer::Project *project) const;
+    const LanguageFilter languageFilter() const;
 
     virtual void toMap(Utils::Store &map) const;
     virtual void fromMap(const Utils::Store &map);
@@ -101,6 +102,9 @@ public:
 protected:
     virtual BaseClientInterface *createInterface(ProjectExplorer::BuildConfiguration *) const = 0;
     virtual Client *createClient(BaseClientInterface *interface) const;
+
+private:
+    static constexpr char filterSeparator = ';';
 };
 
 class LANGUAGECLIENT_EXPORT StdIOSettings : public BaseSettings
@@ -166,18 +170,14 @@ public:
 
     ~BaseSettingsWidget() override = default;
 
-    LanguageFilter filter() const;
     BaseSettings::StartBehavior startupBehavior() const;
     bool alwaysOn() const;
     bool requiresProject() const;
     QString initializationOptions() const;
 
 private:
-    QLineEdit *m_filePattern = nullptr;
     QComboBox *m_startupBehavior = nullptr;
     Utils::FancyLineEdit *m_initializationOptions = nullptr;
-
-    static constexpr char filterSeparator = ';';
 };
 
 class LANGUAGECLIENT_EXPORT StdIOSettingsWidget : public BaseSettingsWidget

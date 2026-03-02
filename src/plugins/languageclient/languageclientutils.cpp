@@ -484,7 +484,7 @@ static void setupNpmServer(
     // check if it is already configured
     const QList<BaseSettings *> settings = LanguageClientManager::currentSettings();
     for (BaseSettings *setting : settings) {
-        if (setting->isValid() && setting->m_languageFilter.isSupported(document))
+        if (setting->isValid() && setting->languageFilter().isSupported(document))
             return;
     }
 
@@ -524,7 +524,7 @@ static void setupNpmServer(
             settings->executable.setValue(executable);
             settings->arguments.setValue(languageServerArgs);
             settings->name.setValue(Tr::tr("%1 Language Server").arg(language));
-            settings->m_languageFilter.mimeTypes = serverMimeTypes;
+            settings->mimeTypes.setValue(serverMimeTypes);
             LanguageClientSettings::addSettings(settings);
             LanguageClientManager::applySettings();
         };

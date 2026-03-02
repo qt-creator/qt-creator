@@ -77,7 +77,7 @@ JLSSettings::JLSSettings()
     languageServer.setPromptDialogFilter("org.eclipse.equinox.launcher_*.jar");
 
     m_startBehavior = RequiresProject;
-    m_languageFilter.mimeTypes = QStringList(Utils::Constants::JAVA_MIMETYPE);
+    mimeTypes.setValue({Utils::Constants::JAVA_MIMETYPE});
     const FilePath &javaPath = Environment::systemEnvironment().searchInPath("java");
     if (javaPath.exists())
         executable.setValue(javaPath);
