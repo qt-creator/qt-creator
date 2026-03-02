@@ -3,6 +3,8 @@
 
 #include "basetextfind.h"
 
+#include "searchresulthighlighter.h"
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/filesearch.h>
@@ -29,9 +31,11 @@ QRegularExpression BaseTextFindBase::regularExpression(const QString &txt, FindF
 struct BaseTextFindPrivate
 {
     BaseTextFindPrivate();
+    ~BaseTextFindPrivate();
 
     Utils::MultiTextCursor m_scope;
     std::function<Utils::MultiTextCursor()> m_cursorProvider;
+    QPointer<SearchResultHighlighter> m_highlighter; // in principle owned by text document
     int m_incrementalStartPos;
     bool m_incrementalWrappedState;
 };
@@ -40,6 +44,11 @@ BaseTextFindPrivate::BaseTextFindPrivate()
     : m_incrementalStartPos(-1)
     , m_incrementalWrappedState(false)
 {
+}
+
+BaseTextFindPrivate::~BaseTextFindPrivate()
+{
+    delete m_highlighter;
 }
 
 /*!
@@ -390,6 +399,24 @@ bool BaseTextFindBase::inScope(int candidateStart, int candidateEnd) const
     return Utils::anyOf(d->m_scope, [&](const QTextCursor &scope) {
         return candidateStart >= scope.selectionStart() && candidateEnd <= scope.selectionEnd();
     });
+}
+
+void BaseTextFindBase::setResultHighlightingEnabled(bool enable)
+{
+    if (!enable && d->m_highlighter) {
+        delete d->m_highlighter;
+        d->m_highlighter = nullptr;
+    } else if (enable && !d->m_highlighter && document()) {
+        d->m_highlighter = new SearchResultHighlighter(document());
+        connect(
+            this,
+            &BaseTextFindBase::highlightAllRequested,
+            d->m_highlighter,
+            [this](const QString &txt, Utils::FindFlags findFlags) {
+                d->m_highlighter->setSearchExpression(
+                    BaseTextFindBase::regularExpression(txt, findFlags));
+            });
+    }
 }
 
 /*!

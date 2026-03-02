@@ -8,7 +8,6 @@
 #include "coreplugintr.h"
 #include "editormanager/editormanager.h"
 #include "find/basetextfind.h"
-#include "find/searchresulthighlighter.h"
 #include "icore.h"
 #include "messagemanager.h"
 
@@ -60,7 +59,6 @@ class OutputWindowPrivate
 public:
     explicit OutputWindowPrivate(QTextDocument *document)
         : cursor(document)
-        , highlighter(new SearchResultHighlighter(document))
     {
     }
 
@@ -105,7 +103,6 @@ public:
     QTimer scrollTimer;
     QElapsedTimer lastMessage;
     QHash<unsigned int, QPair<int, int>> taskPositions;
-    SearchResultHighlighter *highlighter = nullptr; // owned by QTextDocument
 };
 
 } // namespace Internal
@@ -204,11 +201,6 @@ OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *par
     setPalette(p);
 
     auto find = new BaseTextFind(this);
-    connect(
-        find,
-        &BaseTextFindBase::highlightAllRequested,
-        this,
-        &OutputWindow::highlightSearchResultsSlot);
     Aggregation::aggregate({this, find});
 }
 
@@ -685,11 +677,6 @@ qsizetype OutputWindow::totalQueuedSize() const
 qsizetype OutputWindow::totalQueuedLines() const
 {
     return d->totalQueuedValue([](const QString &s) { return s.count('\n'); });
-}
-
-void OutputWindow::highlightSearchResultsSlot(const QString &txt, Utils::FindFlags findFlags)
-{
-    d->highlighter->setSearchExpression(BaseTextFindBase::regularExpression(txt, findFlags));
 }
 
 void OutputWindow::setMaxCharCount(qsizetype count)

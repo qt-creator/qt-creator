@@ -1142,6 +1142,7 @@ public:
         : BaseTextFind(editor)
         , m_editor(editor)
     {
+        setResultHighlightingEnabled(false);
         setMultiTextCursorProvider([editor]() { return editor->multiTextCursor(); });
     }
 

@@ -120,7 +120,6 @@ private:
     void updateAutoScroll();
     qsizetype totalQueuedSize() const;
     qsizetype totalQueuedLines() const;
-    void highlightSearchResultsSlot(const QString &txt, Utils::FindFlags findFlags);
 
     Internal::OutputWindowPrivate *d = nullptr;
 };

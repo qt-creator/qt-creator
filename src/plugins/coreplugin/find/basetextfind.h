@@ -53,6 +53,8 @@ public:
 
     static QRegularExpression regularExpression(const QString &txt, Utils::FindFlags flags);
 
+    void setResultHighlightingEnabled(bool enable);
+
 signals:
     void highlightAllRequested(const QString &txt, Utils::FindFlags findFlags);
     void findScopeChanged(const Utils::MultiTextCursor &cursor);
@@ -82,7 +84,9 @@ class BaseTextFind : public BaseTextFindBase
 public:
     explicit BaseTextFind(T *editor)
         : m_editor(editor)
-    {}
+    {
+        setResultHighlightingEnabled(true);
+    }
 
 protected:
     QTextCursor textCursor() const override { return m_editor->textCursor(); }
