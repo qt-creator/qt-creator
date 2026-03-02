@@ -1313,6 +1313,28 @@ void ToolInterface::elicit(
         return;
     }
 
+    const bool hasElicitSupport = d->_clientCapabilities.elicitation().has_value();
+    const bool hasFormSupportObject = hasElicitSupport
+                                      && d->_clientCapabilities.elicitation()->form().has_value();
+    const bool hasUrlSupportObject = hasElicitSupport
+                                     && d->_clientCapabilities.elicitation()->url().has_value();
+    const bool hasFormOrUrlSupport = hasFormSupportObject || hasUrlSupportObject;
+    const bool hasFormSupport
+        = hasFormSupportObject
+          || !hasFormOrUrlSupport; // Fallback if no support is declared, but the elicitation capability is present
+
+    if (std::holds_alternative<Schema::ElicitRequestFormParams>(params) && !hasFormSupport) {
+        qCWarning(mcpServerLog) << "Caller attempted to elicit with form parameters, "
+                                   "but client does not support elicitation forms";
+        cb(Utils::ResultError("Client does not support elicitation forms"));
+        return;
+    } else if (std::holds_alternative<Schema::ElicitRequestURLParams>(params) && !hasUrlSupportObject) {
+        qCWarning(mcpServerLog) << "Caller attempted to elicit with URL parameters, "
+                                   "but client does not support elicitation URLs";
+        cb(Utils::ResultError("Client does not support elicitation URLs"));
+        return;
+    }
+
     if (auto serverPrivate = d->_server.lock()) {
         serverPrivate->sendServerRequest(
             Schema::ElicitRequest().params(params),

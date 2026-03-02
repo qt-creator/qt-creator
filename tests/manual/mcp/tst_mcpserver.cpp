@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QDeadlineTimer>
 #include <QDebug>
+#include <QHttpServer>
 #include <QJsonArray>
 #include <QSocketNotifier>
 #include <QTcpServer>
@@ -100,6 +101,41 @@ static Utils::Result<> sampleTool(
                 Mcp::Schema::CallToolResult()
                     .isError(false)
                     .addStructuredContent("sampleResponse", QString("Thanks")));
+        });
+
+    return ResultOk;
+}
+
+static QString elicitUrl;
+static QMap<QString, std::function<void(QString)>> elicitUrlRequests;
+
+static Utils::Result<> elicitUrlTool(
+    const Mcp::Schema::CallToolRequestParams &, const Mcp::ToolInterface &toolInterface)
+{
+    if (elicitUrl.isEmpty())
+        return ResultError("Elicit test server failed to start.");
+
+    const QString elicitId = QUuid::createUuid().toString();
+    elicitUrlRequests.insert(elicitId, [toolInterface](const QString &name) {
+        qDebug() << "Received elicitation response with name:" << name;
+        toolInterface.finish(
+            Mcp::Schema::CallToolResult()
+                .isError(false)
+                .addStructuredContent("elicitResponse", name));
+    });
+
+    toolInterface.elicit(
+        Mcp::Schema::ElicitRequestURLParams()
+            .message("Just a test. Nothing to do there for you.")
+            .url(elicitUrl.arg(elicitId))
+            .elicitationId(elicitId),
+        [toolInterface, elicitId](const Utils::Result<Mcp::Schema::ElicitResult> &result) {
+            if (!result || result->action() != Mcp::Schema::ElicitResult::Action::accept) {
+                qDebug() << "Elicit URL request failed:" << result.error();
+                elicitUrlRequests.remove(elicitId);
+                toolInterface.finish(Mcp::Schema::CallToolResult().isError(true));
+                return;
+            }
         });
 
     return ResultOk;
@@ -263,6 +299,49 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
+    QHttpServer httpServer;
+    QTcpServer elicitTcpServer;
+    if (elicitTcpServer.listen()) {
+        elicitUrl = "http://localhost:" + QString::number(elicitTcpServer.serverPort())
+                    + "/elicit-test?id=%1";
+        qInfo() << "Elicit test server is listening on port" << elicitTcpServer.serverPort();
+    }
+    httpServer.bind(&elicitTcpServer);
+
+    httpServer.route("/elicit-test", [](const QHttpServerRequest &request) {
+        if (!request.query().hasQueryItem("id")) {
+            return QString(R"(<html><body><h1>Invalid request</h1></body></html>)");
+        }
+
+        const QString elicitId = request.query().queryItemValue("id");
+        if (!elicitUrlRequests.contains(elicitId)) {
+            return QString(R"(<html><body><h1>Invalid elicit ID</h1></body></html>)");
+        }
+
+        if (request.query().hasQueryItem("name")) {
+            QString name = request.query().queryItemValue("name");
+            qDebug() << "Received elicitation response with name:" << name;
+            elicitUrlRequests[elicitId](name);
+            return QString(
+                R"(<html><body><h1>Thanks for your response!</h1>You can close this window.</body></html>)");
+        }
+
+        // A simple form to enter a value and submit it back to the server, simulating an elicitation response from the client.
+        return QString(R"(<html>
+    <body>
+        <h1>Elicit Test Form</h1>
+        <form id="elicitForm">
+            <label for="name">Enter your name:</label><br>
+            <input type="text" id="name" name="name"><br><br>
+            <input type="hidden" name="id" value="%1">
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>
+        )")
+            .arg(elicitId);
+    });
+
     Mcp::Server server(
         Mcp::Schema::Implementation()
             .description("A simple Mcp server for testing purposes")
@@ -349,6 +428,14 @@ int main(int argc, char *argv[])
             .title("Elicit Test Tool"),
         elicitTool);
 
+    server.addTool(
+        Mcp::Schema::Tool()
+            .name("elicit_url_test")
+            .description(
+                "A tool that elicits additional information from the client via a URL before "
+                "executing.")
+            .title("Elicit URL Test Tool"),
+        elicitUrlTool);
     server.addTool(
         Mcp::Schema::Tool()
             .name("sample_test")
