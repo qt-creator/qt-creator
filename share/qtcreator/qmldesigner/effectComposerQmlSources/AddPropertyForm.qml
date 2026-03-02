@@ -578,7 +578,7 @@ Item {
                     model: root.displayTypes
                     actionIndicatorVisible: false
 
-                    onCurrentIndexChanged: root.typeIndex = currentIndex
+                    onCurrentIndexChanged: selectedIndex = currentIndex
                 }
             }
 

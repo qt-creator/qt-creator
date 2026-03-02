@@ -12,17 +12,15 @@ namespace QmlDesigner {
 struct AiModelInfo;
 
 /**
- * @brief Claude API adapter for Anthropic's Messages API
+ * @brief OpenAI Responses API adapter
  *
- * Implements Claude-specific request/response formatting including:
- * - tool_use blocks for tool calling
- * - tool_result blocks for tool responses
- * - Claude's specific JSON structure
+ * Implements OpenAI-specific request/response formatting for the
+ * Responses API (POST /v1/responses)
  */
-class ClaudeApiAdapter : public AiApiAdapter
+class OpenAiResponseApiAdapter : public AiApiAdapter
 {
 public:
-    explicit ClaudeApiAdapter();
+    explicit OpenAiResponseApiAdapter();
 
     // AiApiAdapter interface
     void setRequestHeader(QNetworkRequest *request, const AiModelInfo &modelInfo) override;
@@ -43,10 +41,16 @@ public:
     QJsonArray formatHistory(const QList<ConversationTurn> &turns) const override;
     QString extractText(const QByteArray &response) const override;
     bool accepts(const QUrl &url) const override;
+    void clear() override;
 
 private:
-    QJsonArray extractContentArray(const QByteArray &response) const;
-    QString extractTextFromContent(const QJsonArray &content) const;
+    /// Returns the top-level "output" array from a parsed response.
+    QJsonArray extractOutputArray(const QByteArray &response) const;
+
+    /// Concatenates all text content from output message items.
+    QString extractTextFromOutput(const QJsonArray &output) const;
+
+    QString m_previousResponseId;
 };
 
 } // namespace QmlDesigner

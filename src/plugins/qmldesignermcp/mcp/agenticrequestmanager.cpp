@@ -8,6 +8,7 @@
 #include "claudeapiadapter.h"
 #include "conversationmanager.h"
 #include "mcphost.h"
+#include "openaiapiresponseadapter.h"
 #include "toolregistry.h"
 
 #include <QNetworkAccessManager>
@@ -30,7 +31,7 @@ AgenticRequestManager::AgenticRequestManager(
 {
     // Create API adapters for different providers
     m_adapters << new ClaudeApiAdapter();
-    // TODO: m_adapters << new OpenAiApiAdapter();
+    m_adapters << new OpenAiResponseApiAdapter();
 
     // Connect to MCP host signals for tool execution results
     connect(m_mcpHost, &McpHost::toolCallSucceeded, this, &AgenticRequestManager::onToolCallSucceeded);
@@ -54,11 +55,6 @@ void AgenticRequestManager::request(const RequestData &data, const AiModelInfo &
         cancel();
     }
 
-    if (!modelInfo.isValid()) {
-        finishWithError("Invalid model configuration");
-        return;
-    }
-
     m_currentRequestData = data;
     m_currentModelInfo = modelInfo;
     m_currentIteration = 0;
@@ -68,11 +64,17 @@ void AgenticRequestManager::request(const RequestData &data, const AiModelInfo &
     // Clear conversation history for new request
     m_conversation->clear();
 
+    AiApiAdapter *adapter = adapterForProvider(modelInfo.url);
+    if (!adapter) {
+        finishWithError("Invalid model configuration: no adapter found");
+        return;
+    }
+
     // Add initial user message
     m_conversation->addUserMessage(
-        QString("Current QML:\n```qml\n%1\n```\n\nRequest: %2")
-            .arg(data.currentQml, data.userPrompt),
-        data.attachedImageUrl);
+        adapter->buildUserMessage(QString("Current QML:\n```qml\n%1\n```\n\nRequest: %2")
+                                      .arg(data.currentQml, data.userPrompt),
+                                  data.attachedImageUrl));
 
     m_requestTimer.start();
     emit started();
@@ -129,10 +131,11 @@ void AgenticRequestManager::sendLlmRequest()
         return;
     }
 
+    // TODO: use the adapters
     QJsonArray tools = m_currentModelInfo.provider == "Claude" ? m_toolRegistry->getToolsForClaude(false)
                                                                : m_toolRegistry->getToolsForOpenAI(false);
 
-    QJsonArray history = m_conversation->getHistory();
+    const QJsonArray history = adapter->formatHistory(m_conversation->turns());
 
     // Create request
     QNetworkRequest networkRequest(m_currentModelInfo.url);
@@ -145,10 +148,16 @@ void AgenticRequestManager::sendLlmRequest()
         history);
 
     // TODO: remove. Needed for now for debugging
-    // qDebug().noquote() << "\x1b[42m \x1b[1m" << __FUNCTION__
-    //          << ", m_lastRequestContent=" << QJsonDocument::fromJson(m_lastRequestContent)
-    //                                              .toJson(QJsonDocument::Indented)
-    //          << "\x1b[m";
+    QJsonDocument doc = QJsonDocument::fromJson(m_lastRequestContent);
+    QJsonObject obj = doc.object();
+    obj.remove("tools");
+    obj.remove("instructions");
+    doc.setObject(obj);
+    qDebug().noquote()
+        << "\x1b[42m \x1b[1m" << __FUNCTION__
+        << ", m_lastRequestContent="
+        << doc.toJson(QJsonDocument::Indented)
+        << "\x1b[m";
 
     emit logMessage(QString("Sending LLM request (%1 tools, %2 history turns, %3 bytes)")
                    .arg(tools.size())
@@ -208,10 +217,14 @@ void AgenticRequestManager::onNetworkReplyFinished()
 void AgenticRequestManager::handleLlmResponse(const QByteArray &responseData)
 {
     // TODO: remove. Needed for now for debugging
-    // qDebug().noquote() << "\x1b[42m \x1b[1m" << __FUNCTION__
-    //          << ", responseData=" << QJsonDocument::fromJson(responseData)
-    //                                      .toJson(QJsonDocument::Indented)
-    //          << "\x1b[m";
+    QJsonDocument doc = QJsonDocument::fromJson(responseData);
+    QJsonObject obj = doc.object();
+    obj.remove("tools");
+    obj.remove("instructions");
+    doc.setObject(obj);
+    qDebug().noquote() << "\x1b[42m \x1b[1m" << __FUNCTION__
+             << ", responseData=" << doc.toJson(QJsonDocument::Indented)
+             << "\x1b[m";
 
     m_lastLlmResponse = responseData;
 
@@ -244,8 +257,9 @@ void AgenticRequestManager::handleLlmResponse(const QByteArray &responseData)
         emit toolCallTextReady(thinkingText);
 
     // Add assistant message to history
-    QJsonObject assistantTurn = adapter->buildAssistantTurn(responseData);
-    m_conversation->addAssistantMessage(assistantTurn.value("content").toArray());
+    const QJsonArray assistantItems = adapter->buildAssistantTurn(responseData);
+    if (!assistantItems.isEmpty())
+        m_conversation->addAssistantMessage(assistantItems.first().toObject().value("content").toArray());
 
     // Execute tool calls
     executeToolCalls(toolCalls);
@@ -406,13 +420,21 @@ void AgenticRequestManager::onAllToolCallsCompleted()
 {
     emit logMessage("All tool calls completed, continuing conversation");
 
+    AiApiAdapter *adapter = adapterForProvider(m_currentModelInfo.url);
+    if (!adapter) {
+        finishWithError("No adapter available when storing tool results");
+        return;
+    }
+
     // Collect tool results
     QList<ToolResult> results;
     for (const auto &pending : std::as_const(m_pendingToolCalls))
         results.append(pending.result);
 
     // Add tool results to conversation history
-    m_conversation->addToolResults(results);
+    const QJsonArray toolItems = adapter->buildToolResultsTurn(results);
+    if (!toolItems.isEmpty())
+        m_conversation->addToolResultsMessage(toolItems);
 
     // Continue to next iteration
     executeNextIteration();
@@ -470,6 +492,12 @@ AiApiAdapter *AgenticRequestManager::adapterForProvider(const QUrl &url) const
     }
 
     return nullptr;
+}
+
+void AgenticRequestManager::clearAdapters()
+{
+    for (AiApiAdapter *adapter : std::as_const(m_adapters))
+        adapter->clear();
 }
 
 } // namespace QmlDesigner

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <conversationturn.h>
+
 #include <QJsonArray>
 #include <QDateTime>
 #include <QList>
@@ -15,45 +17,43 @@ struct ToolResult;
 /**
  * @brief Manages conversation history for agentic loops
  *
- * - Turn tracking (user/assistant messages)
- * - History pruning to respect context windows
- * - Token estimation
+ * Stores turns as opaque role/content pairs. All API-specific formatting
+ * (tool_result vs function_call_output, etc.) is the responsibility of the
+ * adapter layer.
  */
 class ConversationManager
 {
 public:
-    struct Turn {
-        QString role;           // "user" or "assistant"
-        QJsonArray content;     // Message content
-        QDateTime timestamp;
-    };
-
     ConversationManager();
 
     /**
-     * @brief Add user message to history
+     * @brief Add a user message to history
      */
-    void addUserMessage(const QString &text, const QUrl &attachedImageUrl = {});
+    void addUserMessage(const QJsonArray &content);
 
     /**
-     * @brief Add assistant message to history
+     * @brief Add an assistant message to history
+     *
+     * content array taken verbatim from the response
      */
     void addAssistantMessage(const QJsonArray &content);
 
     /**
-     * @brief Add tool results as a user message
+     * @brief Add a pre-formatted user turn carrying tool results.
+     *
+     * The caller (AgenticRequestManager) is responsible for building the
+     * content array in the correct format for the active provider via
+     * AiApiAdapter::buildToolResultsTurn().
      */
-    void addToolResults(const QList<ToolResult> &results);
+    void addToolResultsMessage(const QJsonArray &content);
 
     /**
-     * @brief Get conversation history formatted for API
-     *
-     * Automatically prunes old turns if exceeding max turns.
+     * @brief Get conversation history
      *
      * @param maxTurns Maximum number of turns to include (0 = all)
-     * @return JSON array of messages
+     * @return messages
      */
-    QJsonArray getHistory(int maxTurns = 0) const;
+    QList<ConversationTurn> turns(int maxTurns = 0) const;
 
     /**
      * @brief Clear all conversation history
@@ -77,9 +77,9 @@ public:
 
 private:
     void pruneIfNeeded();
-    int estimateTurnTokens(const Turn &turn) const;
+    int estimateTurnTokens(const ConversationTurn &turn) const;
 
-    QList<Turn> m_turns;
+    QList<ConversationTurn> m_turns;
     int m_maxTurns = 20; // Keep last 20 turns by default
 };
 

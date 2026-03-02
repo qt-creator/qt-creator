@@ -3,121 +3,48 @@
 
 #include "conversationmanager.h"
 
-#include "agenticrequestmanager.h" // For ToolResult
-#include "aiassistantutils.h"
-
-#include <QFileInfo>
-#include <QImage>
 #include <QJsonDocument>
 #include <QJsonObject>
 
 namespace QmlDesigner {
 
-namespace {
-QJsonObject toJsonImage(const QUrl &imageUrl)
-{
-    const QString filePath = imageUrl.toLocalFile();
-    QImage image(imageUrl.toLocalFile());
-
-    QFileInfo fileInfo(filePath);
-    const QByteArray imageFormat = fileInfo.suffix().toLatin1();
-
-    return {
-        {"type", "image"},
-        {
-            "source",
-            QJsonObject{
-                {"type", "base64"},
-                {"media_type", QString("image/%1").arg(imageFormat)},
-                {"data", AiAssistantUtils::toBase64Image(image, imageFormat)},
-                },
-            },
-        };
-}
-} // namespace
-
 ConversationManager::ConversationManager() = default;
 
-void ConversationManager::addUserMessage(const QString &text, const QUrl &attachedImagePath)
+void ConversationManager::addUserMessage(const QJsonArray &content)
 {
-    QJsonArray content;
-
-    content.append(QJsonObject{
-        {"type", "text"},
-        {"text", text}
-    });
-
-    if (!attachedImagePath.isEmpty())
-        content.append(toJsonImage(attachedImagePath));
-
-    Turn turn{
+    m_turns.append(ConversationTurn{
         .role = "user",
         .content = content,
-        .timestamp = QDateTime::currentDateTime()
-    };
-
-    m_turns.append(turn);
+        .timestamp = QDateTime::currentDateTime(),
+    });
     pruneIfNeeded();
 }
 
 void ConversationManager::addAssistantMessage(const QJsonArray &content)
 {
-    Turn turn{
+    m_turns.append(ConversationTurn{
         .role = "assistant",
         .content = content,
-        .timestamp = QDateTime::currentDateTime()
-    };
-
-    m_turns.append(turn);
+        .timestamp = QDateTime::currentDateTime(),
+    });
     pruneIfNeeded();
 }
 
-void ConversationManager::addToolResults(const QList<ToolResult> &results)
+void ConversationManager::addToolResultsMessage(const QJsonArray &content)
 {
-    QJsonArray content;
-
-    for (const ToolResult &result : results) {
-        QJsonObject toolResult{
-            {"type", "tool_result"},
-            {"tool_use_id", result.toolCallId}
-        };
-
-        if (result.success) {
-            toolResult["content"] = result.content;
-        } else {
-            toolResult["is_error"] = true;
-            toolResult["content"] = result.error;
-        }
-
-        content.append(toolResult);
-    }
-
-    Turn turn{
+    m_turns.append(ConversationTurn{
+        .type = ConversationTurn::ToolResults,
         .role = "user",
         .content = content,
-        .timestamp = QDateTime::currentDateTime()
-    };
-
-    m_turns.append(turn);
+        .timestamp = QDateTime::currentDateTime(),
+    });
     pruneIfNeeded();
 }
 
-QJsonArray ConversationManager::getHistory(int maxTurns) const
+QList<ConversationTurn> ConversationManager::turns(int maxTurns) const
 {
-    QJsonArray history;
-
-    int turnCount = maxTurns > 0 ? qMin(maxTurns, m_turns.size()) : m_turns.size();
-    int startIndex = m_turns.size() - turnCount;
-
-    for (int i = startIndex; i < m_turns.size(); ++i) {
-        const Turn &turn = m_turns[i];
-        history.append(QJsonObject{
-            {"role", turn.role},
-            {"content", turn.content}
-        });
-    }
-
-    return history;
+    const int count = maxTurns > 0 ? qMin(maxTurns, m_turns.size()) : m_turns.size();
+    return m_turns.sliced(m_turns.size() - count);
 }
 
 void ConversationManager::clear()
@@ -128,7 +55,7 @@ void ConversationManager::clear()
 int ConversationManager::estimateTokenCount() const
 {
     int total = 0;
-    for (const Turn &turn : std::as_const(m_turns))
+    for (const ConversationTurn &turn : std::as_const(m_turns))
         total += estimateTurnTokens(turn);
 
     return total;
@@ -143,7 +70,7 @@ void ConversationManager::pruneIfNeeded()
     }
 }
 
-int ConversationManager::estimateTurnTokens(const Turn &turn) const
+int ConversationManager::estimateTurnTokens(const ConversationTurn &turn) const
 {
     // Rough estimation: ~4 characters per token
     QString jsonStr = QString::fromUtf8(

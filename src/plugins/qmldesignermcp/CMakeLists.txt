@@ -39,6 +39,7 @@ extend_qtc_plugin(QmlDesignerMcp
   SOURCES
     aiapiadapter.h
     claudeapiadapter.cpp claudeapiadapter.h
+    openaiapiresponseadapter.cpp openaiapiresponseadapter.h
 )
 
 extend_qtc_plugin(QmlDesignerMcp
@@ -51,6 +52,7 @@ extend_qtc_plugin(QmlDesignerMcp
     agenticrequestmanager.cpp agenticrequestmanager.h
     conversationmanager.cpp conversationmanager.h
     toolregistry.cpp toolregistry.h
+    conversationturn.h
 )
 
 qtc_copy_to_builddir(copy_mcpserver_py_file_to_builddir

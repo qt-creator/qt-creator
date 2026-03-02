@@ -3,10 +3,13 @@
 
 #pragma once
 
+#include <conversationturn.h>
+
 #include <QByteArray>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QList>
+#include <QUrl>
 
 QT_FORWARD_DECLARE_CLASS(QNetworkRequest)
 
@@ -50,6 +53,11 @@ public:
         const QJsonArray &conversationHistory) = 0;
 
     /**
+     * @brief id for this adapter
+     */
+    virtual QString id() const = 0;
+
+    /**
      * @brief Parse LLM response to extract tool calls
      *
      * @return List of tool calls, or empty if none requested
@@ -69,18 +77,38 @@ public:
     virtual AiResponse interpretResponse(const QByteArray &response) = 0;
 
     /**
+     * @brief Format conversation history for the provider
+     *
+     * Converts the internal list of ConversationTurn objects into the
+     * provider-specific JSON format expected by the API. This typically
+     * expands each turn into one or more message entries (user, assistant,
+     * tool results, etc.) depending on how the provider structures
+     * conversations.
+     *
+     * @param turns Conversation history stored by the client
+     * @return JSON array representing the formatted message history
+     */
+    virtual QJsonArray formatHistory(const QList<ConversationTurn> &turns) const = 0;
+    /**
+     * @brief Build conversation turn from user message
+     *
+     * @return JSON object representing user's message
+     */
+    virtual QJsonArray buildUserMessage(const QString &text, const QUrl &imageUrl = {}) = 0;
+
+    /**
      * @brief Build conversation turn from assistant response
      *
      * @return JSON object representing assistant's message
      */
-    virtual QJsonObject buildAssistantTurn(const QByteArray &response) = 0;
+    virtual QJsonArray buildAssistantTurn(const QByteArray &response) = 0;
 
     /**
      * @brief Build conversation turn from tool results
      *
      * @return JSON object representing tool results as user message
      */
-    virtual QJsonObject buildToolResultsTurn(const QList<ToolResult> &results) = 0;
+    virtual QJsonArray buildToolResultsTurn(const QList<ToolResult> &results) = 0;
 
     /**
      * @brief Extract plain text from a raw LLM response body.
@@ -95,6 +123,12 @@ public:
      * @brief Check if this adapter can handle the given provider's url
      */
     virtual bool accepts(const QUrl &url) const = 0;
+
+    /**
+     * @brief Clear any current state stored in the adapter
+     */
+    virtual void clear() {};
+
 };
 
 } // namespace QmlDesigner

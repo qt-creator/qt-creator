@@ -169,11 +169,9 @@ QJsonArray ToolRegistry::getToolsForOpenAI(bool prefixWithServer) const
 
         QJsonObject tool{
             {"type", "function"},
-            {"function", QJsonObject{
-                {"name", toolName},
-                {"description", info.tool.description},
-                {"parameters", info.tool.inputSchema}
-            }}
+            {"name", toolName},
+            {"description", info.tool.description},
+            {"parameters", info.tool.inputSchema},
         };
 
         tools.append(tool);

@@ -35,8 +35,8 @@ struct RequestData {
     QUrl attachedImageUrl;
 
     // Configuration
-    int maxIterations = 10;
-    int maxTokens = 4096;
+    int maxIterations = 50;
+    int maxTokens = 32768;
 };
 
 /**
@@ -103,6 +103,11 @@ public:
      * @brief Check if a request is currently running
      */
     bool isRunning() const { return m_isRunning; }
+
+    /**
+     * @brief Clear apdaters states
+     */
+    void clearAdapters();
 
 signals:
     // Lifecycle

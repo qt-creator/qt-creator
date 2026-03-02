@@ -4,9 +4,12 @@
 #include "claudeapiadapter.h"
 
 #include "agenticrequestmanager.h"
+#include "aiassistantutils.h"
 #include "aiproviderconfig.h"
 #include "airesponse.h"
 
+#include <QFileInfo>
+#include <QImage>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -55,6 +58,11 @@ QByteArray ClaudeApiAdapter::createRequest(
         request["tools"] = tools;
 
     return QJsonDocument(request).toJson();
+}
+
+QString ClaudeApiAdapter::id() const
+{
+    return "claude";
 }
 
 QList<ToolCall> ClaudeApiAdapter::parseToolCalls(const QByteArray &response)
@@ -167,40 +175,61 @@ AiResponse ClaudeApiAdapter::interpretResponse(const QByteArray &response)
     return aiResponse;
 }
 
-QJsonObject ClaudeApiAdapter::buildAssistantTurn(const QByteArray &response)
+QJsonArray ClaudeApiAdapter::buildUserMessage(const QString &text, const QUrl &imageUrl)
 {
-    QJsonArray content = extractContentArray(response);
+    QJsonArray content;
+    content.append(QJsonObject{{"type", "text"}, {"text", text}});
 
-    return QJsonObject{
-        {"role", "assistant"},
-        {"content", content}
-    };
+    if (!imageUrl.isEmpty()) {
+        const QString filePath = imageUrl.toLocalFile();
+        const QByteArray fmt = QFileInfo(filePath).suffix().toLatin1();
+        content.append(QJsonObject{
+            {"type", "image"},
+            {"source", QJsonObject{
+                {"type", "base64"},
+                {"media_type", QString("image/%1").arg(QString::fromLatin1(fmt))},
+                {"data", AiAssistantUtils::toBase64Image(QImage(filePath), fmt)},
+            }},
+        });
+    }
+
+    return content;
 }
 
-QJsonObject ClaudeApiAdapter::buildToolResultsTurn(const QList<ToolResult> &results)
+QJsonArray ClaudeApiAdapter::buildAssistantTurn(const QByteArray &response)
+{
+    return QJsonArray{QJsonObject{
+        {"role", "assistant"},
+        {"content", extractContentArray(response)},
+    }};
+}
+
+QJsonArray ClaudeApiAdapter::buildToolResultsTurn(const QList<ToolResult> &results)
 {
     QJsonArray content;
 
     for (const ToolResult &result : results) {
         QJsonObject toolResult{
             {"type", "tool_result"},
-            {"tool_use_id", result.toolCallId}
+            {"tool_use_id", result.toolCallId},
+            {"content", result.success ? result.content : result.error}
         };
 
-        if (result.success) {
-            toolResult["content"] = result.content;
-        } else {
+        if (!result.success)
             toolResult["is_error"] = true;
-            toolResult["content"] = result.error;
-        }
 
         content.append(toolResult);
     }
 
-    return QJsonObject{
-        {"role", "user"},
-        {"content", content}
-    };
+    return content;
+}
+
+QJsonArray ClaudeApiAdapter::formatHistory(const QList<ConversationTurn> &turns) const
+{
+    QJsonArray history;
+    for (const ConversationTurn &turn : turns)
+        history.append(QJsonObject{{"role", turn.role}, {"content", turn.content}});
+    return history;
 }
 
 QString ClaudeApiAdapter::extractText(const QByteArray &response) const

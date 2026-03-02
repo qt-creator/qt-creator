@@ -10,7 +10,7 @@ namespace QmlDesigner {
 const QStringList AiProviderData::defaultProvidersNames()
 {
     // TODO: suppor OpenAI and Gemini
-    static const QStringList names {"Claude"/*, "OpenAI", "Gemini"*/};
+    static const QStringList names {"Claude", "OpenAI", /*"Gemini"*/};
     return names;
 }
 
@@ -28,24 +28,16 @@ AiProviderData AiProviderData::defaultProviderData(const QString &providerName)
         //         "gemini-2.0-flash-lite",
         //     }
         // }},
-        // TODO: support OpenAI
-        // {"OpenAI", AiProviderData{
-        //     .url = QUrl{"https://api.openai.com/v1/chat/completions"},
-        //     .models = {
-        //         "gpt-5",
-        //         "gpt-5-mini",
-        //         "gpt-5-nano",
-        //         // "gpt-5-pro", Code execution is not supported https://platform.openai.com/docs/models/gpt-5-pro/?utm_source=chatgpt.com
-        //         "gpt-5-codex",
-        //         "gpt-5.1-codex",
-        //         "gpt-5.1-codex-mini",
-        //         "gpt-4.1",
-        //         "gpt-4.1-mini",
-        //         "gpt-4.1-nano",
-        //         "gpt-4o",
-        //         "gpt-4o-mini",
-        //     }
-        // }},
+        {"OpenAI", AiProviderData{
+            .url = QUrl{"https://api.openai.com/v1/chat/completions"},
+            .models = {
+                "gpt-5.2",
+                "gpt-5.2-pro",
+                "gpt-5.2-codex",
+                "gpt-5-mini",
+                "gpt-5-nano",
+            }
+        }},
         {"Claude", AiProviderData{
             .url = QUrl{"https://api.anthropic.com/v1/messages"},
             .models = {

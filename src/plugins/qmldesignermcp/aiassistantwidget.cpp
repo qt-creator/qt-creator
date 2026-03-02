@@ -478,6 +478,7 @@ void AiAssistantWidget::clearChat()
 {
     m_chatHistory->clear();
     m_conversation->clear();
+    m_requestManager->clearAdapters();
 }
 
 void AiAssistantWidget::handleAiResponse(const AiResponse &response)

@@ -89,7 +89,15 @@ Rectangle {
                 actionIndicatorVisible: false
                 enabled: modelComboBox.count > 0
 
-                onCurrentTextChanged: root.modelChanged(currentText)
+                Binding on currentIndex {
+                    value: modelComboBox.model.selectedIndex
+                    delayed: true
+                }
+
+                onCurrentIndexChanged: {
+                    modelComboBox.model.selectedIndex = modelComboBox.currentIndex
+                    root.modelChanged(currentText)
+                }
             }
 
             AiIconButton {
