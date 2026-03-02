@@ -76,12 +76,13 @@ static Key clangdDocumentThresholdKey() { return "ClangdDocumentThreshold"; }
 static Key clangdSizeThresholdEnabledKey() { return "ClangdSizeThresholdEnabled"; }
 static Key clangdSizeThresholdKey() { return "ClangdSizeThreshold"; }
 static Key useGlobalSettingsKey() { return "useGlobalSettings"; }
-static Key clangdblockIndexingSettingsKey() { return "blockIndexing"; }
 static Key sessionsWithOneClangdKey() { return "SessionsWithOneClangd"; }
 static Key diagnosticConfigIdKey() { return "diagnosticConfigId"; }
 static Key checkedHardwareKey() { return "checkedHardware"; }
 static Key completionResultsKey() { return "completionResults"; }
 static Key updateDependentSourcesKey() { return "updateDependentSources"; }
+
+const char blockProjectIndexingProperty[] = "ClangBlockProjectIndexing";
 
 QString ClangdSettings::priorityToString(const IndexingPriority &priority)
 {
@@ -407,8 +408,6 @@ public:
     bool useGlobalSettings() const { return m_useGlobalSettings; }
     void setUseGlobalSettings(bool useGlobal);
     void setDiagnosticConfigId(Utils::Id configId);
-    void blockIndexing();
-    void unblockIndexing();
 
 private:
     void loadSettings();
@@ -417,7 +416,6 @@ private:
     ProjectExplorer::Project * const m_project;
     ClangdSettings::Data m_customSettings;
     bool m_useGlobalSettings = true;
-    bool m_blockIndexing = false;
 };
 
 ClangdSettings::Data ClangdProjectSettings::settings() const
@@ -432,7 +430,7 @@ ClangdSettings::Data ClangdProjectSettings::settings() const
         // This list exists only once.
         data.customDiagnosticConfigs = ClangdSettings::instance().data().customDiagnosticConfigs;
     }
-    if (m_blockIndexing)
+    if (m_project && m_project->property(blockProjectIndexingProperty).toBool())
         data.indexingPriority = ClangdSettings::IndexingPriority::Off;
     return data;
 }
@@ -459,31 +457,12 @@ void ClangdProjectSettings::setDiagnosticConfigId(Utils::Id configId)
     emit ClangdSettings::instance().changed();
 }
 
-void ClangdProjectSettings::blockIndexing()
-{
-    if (m_blockIndexing)
-        return;
-    m_blockIndexing = true;
-    saveSettings();
-    emit ClangdSettings::instance().changed();
-}
-
-void ClangdProjectSettings::unblockIndexing()
-{
-    if (!m_blockIndexing)
-        return;
-    m_blockIndexing = false;
-    saveSettings();
-    // Do not emit changed here since that would restart clients with blocked indexing
-}
-
 void ClangdProjectSettings::loadSettings()
 {
     if (!m_project)
         return;
     const Store data = storeFromVariant(m_project->namedSettings(clangdSettingsKey()));
     m_useGlobalSettings = data.value(useGlobalSettingsKey(), true).toBool();
-    m_blockIndexing = data.value(clangdblockIndexingSettingsKey(), false).toBool();
     if (!m_useGlobalSettings)
         m_customSettings.fromMap(data);
 }
@@ -496,7 +475,6 @@ void ClangdProjectSettings::saveSettings()
     if (!m_useGlobalSettings)
         data = m_customSettings.toMap();
     data.insert(useGlobalSettingsKey(), m_useGlobalSettings);
-    data.insert(clangdblockIndexingSettingsKey(), m_blockIndexing);
     m_project->setNamedSettings(clangdSettingsKey(), variantFromStore(data));
 }
 
@@ -580,14 +558,16 @@ ClangdSettings::Data clangdProjectSettings(BuildConfiguration *bc)
 
 void clangdBlockIndexingForProject(Project *project)
 {
-    ClangdProjectSettings projectSettings(project);
-    projectSettings.blockIndexing();
+    QTC_ASSERT(project, return);
+    project->setProperty(blockProjectIndexingProperty, true);
+
+    emit ClangdSettings::instance().changed();
 }
 
 void clangdUnblockIndexingForProject(Project *project)
 {
-    ClangdProjectSettings projectSettings(project);
-    projectSettings.unblockIndexing();
+    QTC_ASSERT(project, return);
+    project->setProperty(blockProjectIndexingProperty, false);
 }
 
 void clangdSetDiagnosticConfigId(Project *project, Id id)
