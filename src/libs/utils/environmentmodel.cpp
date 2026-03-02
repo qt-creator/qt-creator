@@ -26,25 +26,39 @@ class EnvironmentModelPrivate
 public:
     void updateResultNameValueDictionary()
     {
-        m_resultNameValueDictionary = m_baseNameValueDictionary;
-        m_resultNameValueDictionary.modify(m_items);
+        m_baseNameValueDictionaryWithChangesFromFile = m_baseNameValueDictionary;
+        m_baseNameValueDictionaryWithChangesFromFile.modify(m_changes.itemsFromFile());
+        m_resultNameValueDictionary = m_baseNameValueDictionaryWithChangesFromFile;
+        m_resultNameValueDictionary.modify(m_changes.itemsFromUser());
         // Add removed variables again and mark them as "<UNSET>" so
         // that the user can actually see those removals:
-        for (const EnvironmentItem &item : std::as_const(m_items)) {
+        const EnvironmentItems itemsFromUser = m_changes.itemsFromUser();
+        for (const EnvironmentItem &item : itemsFromUser) {
             if (item.operation == EnvironmentItem::Unset)
                 m_resultNameValueDictionary.set(item.name, Tr::tr("<UNSET>"));
         }
     }
 
-    int findInChanges(const QString &name) const
+    int findInExplicitChanges(const QString &name) const
     {
-        const Qt::CaseSensitivity cs = m_baseNameValueDictionary.nameCaseSensitivity();
+        return findInChanges(name, m_changes.itemsFromUser());
+    }
+
+    int findInChangesFromFile(const QString &name) const
+    {
+        return findInChanges(name, m_changes.itemsFromFile());
+    }
+
+    int findInChanges(const QString &name, const EnvironmentItems &items) const
+    {
+        const Qt::CaseSensitivity cs
+            = m_baseNameValueDictionaryWithChangesFromFile.nameCaseSensitivity();
 
         const auto compare = [&name, &cs](const EnvironmentItem &item) {
             return item.name.compare(name, cs) == 0;
         };
 
-        return Utils::indexOf(m_items, compare);
+        return Utils::indexOf(items, compare);
     }
 
     // Compares each key in dictionary against `key` and checks the result with `compare`.
@@ -78,8 +92,14 @@ public:
     }
 
     NameValueDictionary m_baseNameValueDictionary;
+
+    // Note: This environment serves as the base env of widget actions like "reset",
+    // as we cannot generally edit the file (it might be a shell script) and we
+    // also do not want to complicate the UI with two-tier actions.
+    NameValueDictionary m_baseNameValueDictionaryWithChangesFromFile;
+
     NameValueDictionary m_resultNameValueDictionary;
-    EnvironmentItems m_items;
+    EnvironmentChanges m_changes;
 };
 
 } // namespace Internal
@@ -108,6 +128,11 @@ void EnvironmentModel::setBaseEnvironment(const Environment &env)
     endResetModel();
 }
 
+EnvironmentItems EnvironmentModel::effectiveDiff() const
+{
+    return baseEnvironment().diff(Environment(d->m_resultNameValueDictionary), true);
+}
+
 int EnvironmentModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
@@ -123,9 +148,14 @@ int EnvironmentModel::columnCount(const QModelIndex &parent) const
     return 2;
 }
 
-bool EnvironmentModel::changes(const QString &name) const
+bool EnvironmentModel::hasExplicitChanges(const QString &name) const
 {
-    return d->findInChanges(name) >= 0;
+    return d->findInExplicitChanges(name) >= 0;
+}
+
+bool EnvironmentModel::hasChangesFromFile(const QString &key) const
+{
+    return d->findInChangesFromFile(key) >= 0;
 }
 
 Environment EnvironmentModel::baseEnvironment() const
@@ -149,9 +179,11 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
         if (index.column() == 1) {
             // Do not return "<UNSET>" when editing a previously unset variable:
             if (role == Qt::EditRole) {
-                int pos = d->findInChanges(indexToVariable(index));
-                if (pos != -1 && d->m_items.at(pos).operation == EnvironmentItem::Unset)
+                int pos = d->findInExplicitChanges(indexToVariable(index));
+                if (pos != -1
+                    && d->m_changes.itemsFromUser().at(pos).operation == EnvironmentItem::Unset) {
                     return QString();
+                }
             }
             QString value = it.value();
             if (role == Qt::ToolTipRole && value.size() > 80) {
@@ -176,7 +208,9 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
     }
     case Qt::ForegroundRole: {
         const QPalette p = QGuiApplication::palette();
-        return p.color(changes(it.key()) ? QPalette::Link : QPalette::Text);
+        return p.color(
+            hasExplicitChanges(it.key()) || hasChangesFromFile(it.key()) ? QPalette::Link
+                                                                         : QPalette::Text);
     }
     }
     return QVariant();
@@ -217,7 +251,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
 
     const QString oldName = data(this->index(index.row(), 0, QModelIndex())).toString();
     const QString oldValue = data(this->index(index.row(), 1, QModelIndex()), Qt::EditRole).toString();
-    int changesPos = d->findInChanges(oldName);
+    int changesPos = d->findInExplicitChanges(oldName);
 
     if (index.column() == 0) {
         //fail if a variable with the same name already exists
@@ -241,22 +275,22 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         // We are changing an existing value:
         const QString stringValue = value.toString();
         if (changesPos != -1) {
-            const auto oldIt = d->m_baseNameValueDictionary.find(oldName);
+            const auto oldIt = d->m_baseNameValueDictionaryWithChangesFromFile.find(oldName);
             const auto newIt = d->m_resultNameValueDictionary.find(oldName);
             // We have already changed this value
-            if (oldIt != d->m_baseNameValueDictionary.end() && stringValue == oldIt.value()
-                && oldIt.enabled() == newIt.enabled()) {
+            if (oldIt != d->m_baseNameValueDictionaryWithChangesFromFile.end()
+                && stringValue == oldIt.value() && oldIt.enabled() == newIt.enabled()) {
                 // ... and now went back to the base value
-                d->m_items.removeAt(changesPos);
+                d->m_changes.removeUserItemAt(changesPos);
             } else {
                 // ... and changed it again
-                d->m_items[changesPos].value = stringValue;
-                if (d->m_items[changesPos].operation == EnvironmentItem::Unset)
-                    d->m_items[changesPos].operation = EnvironmentItem::SetEnabled;
+                d->m_changes.setUserItemValueAt(changesPos, stringValue);
+                if (d->m_changes.itemsFromUser().at(changesPos).operation == EnvironmentItem::Unset)
+                    d->m_changes.setUserItemOpAt(changesPos, EnvironmentItem::SetEnabled);
             }
         } else {
             // Add a new change item:
-            d->m_items.append(EnvironmentItem(oldName, stringValue));
+            d->m_changes.appendUserItem(EnvironmentItem(oldName, stringValue));
         }
         d->updateResultNameValueDictionary();
         emit dataChanged(index, index);
@@ -279,15 +313,15 @@ QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
         return index(pos, 0, QModelIndex());
 
     int insertPos = d->findInResultInsertPosition(item.name);
-    int changePos = d->findInChanges(item.name);
-    if (d->m_baseNameValueDictionary.hasKey(item.name)) {
+    int changePos = d->findInExplicitChanges(item.name);
+    if (d->m_baseNameValueDictionaryWithChangesFromFile.hasKey(item.name)) {
         // We previously unset this!
         Q_ASSERT(changePos >= 0);
         // Do not insert a line here as we listed the variable as <UNSET> before!
-        Q_ASSERT(d->m_items.at(changePos).name == item.name);
-        Q_ASSERT(d->m_items.at(changePos).operation == EnvironmentItem::Unset);
-        Q_ASSERT(d->m_items.at(changePos).value.isEmpty());
-        d->m_items[changePos] = item;
+        Q_ASSERT(d->m_changes.itemsFromUser().at(changePos).name == item.name);
+        Q_ASSERT(d->m_changes.itemsFromUser().at(changePos).operation == EnvironmentItem::Unset);
+        Q_ASSERT(d->m_changes.itemsFromUser().at(changePos).value.isEmpty());
+        d->m_changes.setUserItemAt(changePos, item);
         emit dataChanged(index(insertPos, 0, QModelIndex()), index(insertPos, 1, QModelIndex()));
     } else {
         // We add something that is not in the base dictionary
@@ -295,7 +329,7 @@ QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
         QTC_ASSERT(insertPos >= 0, insertPos = d->m_resultNameValueDictionary.size());
         beginInsertRows(QModelIndex(), insertPos, insertPos);
         Q_ASSERT(changePos < 0);
-        d->m_items.append(item);
+        d->m_changes.appendUserItem(item);
         d->updateResultNameValueDictionary();
         endInsertRows();
     }
@@ -305,7 +339,7 @@ QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
 
 void EnvironmentModel::resetVariable(const QString &name)
 {
-    int rowInChanges = d->findInChanges(name);
+    int rowInChanges = d->findInExplicitChanges(name);
     if (rowInChanges < 0)
         return;
 
@@ -313,15 +347,15 @@ void EnvironmentModel::resetVariable(const QString &name)
     if (rowInResult < 0)
         return;
 
-    if (d->m_baseNameValueDictionary.hasKey(name)) {
-        d->m_items.removeAt(rowInChanges);
+    if (d->m_baseNameValueDictionaryWithChangesFromFile.hasKey(name)) {
+        d->m_changes.removeUserItemAt(rowInChanges);
         d->updateResultNameValueDictionary();
         emit dataChanged(index(rowInResult, 0, QModelIndex()), index(rowInResult, 1, QModelIndex()));
         emit userChangesChanged();
     } else {
         // Remove the line completely!
         beginRemoveRows(QModelIndex(), rowInResult, rowInResult);
-        d->m_items.removeAt(rowInChanges);
+        d->m_changes.removeUserItemAt(rowInChanges);
         d->updateResultNameValueDictionary();
         endRemoveRows();
         emit userChangesChanged();
@@ -337,16 +371,16 @@ void EnvironmentModel::unsetVariable(const QString &name)
         return;
 
     // look in d->m_items for the variable
-    int pos = d->findInChanges(name);
+    int pos = d->findInExplicitChanges(name);
     if (pos != -1) {
-        d->m_items[pos].operation = EnvironmentItem::Unset;
-        d->m_items[pos].value.clear();
+        d->m_changes.setUserItemOpAt(pos, EnvironmentItem::Unset);
+        d->m_changes.setUserItemValueAt(pos, {});
         d->updateResultNameValueDictionary();
         emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
         emit userChangesChanged();
         return;
     }
-    d->m_items.append(EnvironmentItem(name, QString(), EnvironmentItem::Unset));
+    d->m_changes.appendUserItem(EnvironmentItem(name, QString(), EnvironmentItem::Unset));
     d->updateResultNameValueDictionary();
     emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
     emit userChangesChanged();
@@ -358,16 +392,17 @@ void EnvironmentModel::toggleVariable(const QModelIndex &idx)
     const auto newIt = d->m_resultNameValueDictionary.find(name);
     QTC_ASSERT(newIt != d->m_resultNameValueDictionary.end(), return);
     const auto op = newIt.enabled() ? EnvironmentItem::SetDisabled : EnvironmentItem::SetEnabled;
-    const int changesPos = d->findInChanges(name);
+    const int changesPos = d->findInExplicitChanges(name);
     if (changesPos != -1) {
-        const auto oldIt = d->m_baseNameValueDictionary.find(name);
-        if (oldIt == d->m_baseNameValueDictionary.end() || oldIt.value() != newIt.value()) {
-            d->m_items[changesPos].operation = op;
+        const auto oldIt = d->m_baseNameValueDictionaryWithChangesFromFile.find(name);
+        if (oldIt == d->m_baseNameValueDictionaryWithChangesFromFile.end()
+            || oldIt.value() != newIt.value()) {
+            d->m_changes.setUserItemOpAt(changesPos, op);
         } else {
-            d->m_items.removeAt(changesPos);
+            d->m_changes.removeUserItemAt(changesPos);
         }
     } else {
-        d->m_items.append({name, newIt.value(), op});
+        d->m_changes.appendUserItem({name, newIt.value(), op});
     }
     d->updateResultNameValueDictionary();
     emit dataChanged(index(idx.row(), 0), index(idx.row(), 1));
@@ -376,8 +411,9 @@ void EnvironmentModel::toggleVariable(const QModelIndex &idx)
 
 bool EnvironmentModel::isUnset(const QString &name)
 {
-    const int pos = d->findInChanges(name);
-    return pos == -1 ? false : d->m_items.at(pos).operation == EnvironmentItem::Unset;
+    const int pos = d->findInExplicitChanges(name);
+    return pos == -1 ? false
+                     : d->m_changes.itemsFromUser().at(pos).operation == EnvironmentItem::Unset;
 }
 
 bool EnvironmentModel::isEnabled(const QString &name) const
@@ -387,26 +423,27 @@ bool EnvironmentModel::isEnabled(const QString &name) const
 
 bool EnvironmentModel::canReset(const QString &name)
 {
-    return d->m_baseNameValueDictionary.hasKey(name);
+    return d->m_baseNameValueDictionaryWithChangesFromFile.hasKey(name);
 }
 
-EnvironmentItems EnvironmentModel::userChanges() const
+EnvironmentChanges EnvironmentModel::changes() const
 {
-    return d->m_items;
+    return d->m_changes;
 }
 
-void EnvironmentModel::setUserChanges(const EnvironmentItems &items)
+void EnvironmentModel::setUserChanges(const EnvironmentChanges &changes)
 {
-    EnvironmentItems filtered = Utils::filtered(items, [](const EnvironmentItem &i) {
+    EnvironmentChanges filtered = changes;
+    filtered.setItemsFromUser(Utils::filtered(changes.itemsFromUser(), [](const EnvironmentItem &i) {
         return i.operation == EnvironmentItem::Comment
                 || (i.name != "export " && !i.name.contains('='));
-    });
+    }));
     // We assume nobody is reordering the items here.
-    if (filtered == d->m_items)
+    if (filtered == d->m_changes)
         return;
     beginResetModel();
-    d->m_items = filtered;
-    for (EnvironmentItem &item : d->m_items) {
+    d->m_changes = filtered;
+    d->m_changes.transformUserItems([this](EnvironmentItem &item) {
         QString &name = item.name;
         name = name.trimmed();
         if (name.startsWith("export "))
@@ -418,8 +455,7 @@ void EnvironmentModel::setUserChanges(const EnvironmentItems &items)
             if (it != d->m_baseNameValueDictionary.end())
                 name = it.key();
         }
-    }
-
+    });
     d->updateResultNameValueDictionary();
     endResetModel();
     emit userChangesChanged();

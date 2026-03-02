@@ -148,8 +148,8 @@ public:
     QVariant namedSettings(const Utils::Key &name) const;
     void setNamedSettings(const Utils::Key &name, const QVariant &value);
 
-    void setAdditionalEnvironment(const Utils::EnvironmentItems &envItems);
-    Utils::EnvironmentItems additionalEnvironment() const;
+    void setAdditionalEnvironment(const Utils::EnvironmentChanges &envItems);
+    Utils::EnvironmentChanges additionalEnvironment() const;
 
     virtual bool needsConfiguration() const;
     bool supportsBuilding() const;

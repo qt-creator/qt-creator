@@ -38,8 +38,8 @@ public:
 
     Utils::BoolAspect askBeforeExit{this};
 
-    Utils::EnvironmentItems environmentChanges() const;
-    void setEnvironmentChanges(const Utils::EnvironmentItems &changes);
+    Utils::EnvironmentChanges environmentChanges() const;
+    void setEnvironmentChanges(const Utils::EnvironmentChanges &changes);
 
     Utils::NameValueDictionary envVarSeparators() const { return m_envVarSeparators; }
     void setEnvVarSeparators(const Utils::NameValueDictionary &separators);
@@ -47,7 +47,7 @@ public:
 private:
     static Utils::NameValueDictionary defaultEnvVarSeparators();
 
-    Utils::EnvironmentItems m_environmentChanges;
+    Utils::EnvironmentChanges m_environmentChanges;
     Utils::NameValueDictionary m_envVarSeparators = defaultEnvVarSeparators();
     const Utils::Environment m_startupSystemEnvironment;
 };

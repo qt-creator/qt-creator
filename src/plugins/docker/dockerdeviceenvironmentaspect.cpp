@@ -31,7 +31,7 @@ const char DEVICE_ENVIRONMENT_KEY[] = "RemoteEnvironment";
 const char CHANGES_KEY[] = "UserChanges";
 
 DockerDeviceEnvironmentAspect::DockerDeviceEnvironmentAspect(Utils::AspectContainer *parent)
-    : Utils::TypedAspect<QStringList>(parent)
+    : EnvironmentChangesAspect(parent)
 {}
 
 void DockerDeviceEnvironmentAspect::addToLayoutImpl(Layouting::Layout &parent)
@@ -53,7 +53,7 @@ void DockerDeviceEnvironmentAspect::addToLayoutImpl(Layouting::Layout &parent)
 
     auto envWidget = new EnvironmentWidget(nullptr, EnvironmentWidget::Type::TypeRemote, fetchBtn);
     envWidget->setOpenTerminalFunc(nullptr);
-    envWidget->setUserChanges(EnvironmentItem::fromStringList(undoable.get()));
+    envWidget->setChanges(undoable.get());
     envWidget->setupDirtyHooks();
 
     connect(
@@ -65,14 +65,14 @@ void DockerDeviceEnvironmentAspect::addToLayoutImpl(Layouting::Layout &parent)
         });
 
     connect(&undoable.m_signal, &UndoSignaller::changed, envWidget, [this, envWidget] {
-        if (EnvironmentItem::toStringList(envWidget->userChanges()) != undoable.get()) {
-            envWidget->setUserChanges(EnvironmentItem::fromStringList(undoable.get()));
+        if (envWidget->changes() != undoable.get()) {
+            envWidget->setChanges(undoable.get());
             handleGuiChanged();
         }
     });
 
     connect(envWidget, &EnvironmentWidget::userChangesChanged, this, [this, envWidget] {
-        undoable.set(undoStack(), EnvironmentItem::toStringList(envWidget->userChanges()));
+        undoable.set(undoStack(), envWidget->changes());
         handleGuiChanged();
     });
 
@@ -86,12 +86,12 @@ void DockerDeviceEnvironmentAspect::addToLayoutImpl(Layouting::Layout &parent)
 Utils::Environment DockerDeviceEnvironmentAspect::operator()() const
 {
     Environment result = m_remoteEnvironment.value_or(Environment());
-    result.modify(EnvironmentItem::fromStringList(value()));
+    value().modifyEnvironment(result, macroExpander());
     return result;
 }
 bool DockerDeviceEnvironmentAspect::guiToVolatileValue()
 {
-    const QStringList newValue = undoable.get();
+    const EnvironmentChanges newValue = undoable.get();
     if (newValue != m_volatileValue) {
         m_volatileValue = newValue;
         return true;
@@ -119,14 +119,15 @@ void DockerDeviceEnvironmentAspect::fromMap(const Utils::Store &map)
     }
 
     if (subMap.contains(CHANGES_KEY)) {
-        const QStringList changes = subMap.value(CHANGES_KEY).toStringList();
+        const auto changes = EnvironmentChanges::createFromVariant(
+            subMap.value(CHANGES_KEY));
         setValue(changes, BeQuiet);
     }
 }
 void DockerDeviceEnvironmentAspect::toMap(Utils::Store &map) const
 {
     Store subMap;
-    saveToMap(subMap, value(), defaultValue(), CHANGES_KEY);
+    saveToMap(subMap, value().toVariant(), defaultValue().toVariant(), CHANGES_KEY);
     if (m_remoteEnvironment.has_value()) {
         subMap.insert(DEVICE_ENVIRONMENT_KEY, m_remoteEnvironment->toStringList());
     }

@@ -15,6 +15,8 @@
 
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
 
+namespace Utils { class FilePath; }
+
 namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
@@ -30,8 +32,9 @@ public:
     void setBaseEnvironmentText(const QString &text);
     void setBaseEnvironment(const Utils::Environment &env);
 
-    Utils::EnvironmentItems userChanges() const;
-    void setUserChanges(const Utils::EnvironmentItems &list);
+    Utils::EnvironmentChanges changes() const;
+    void setChanges(const Utils::EnvironmentChanges &changes);
+    void setBrowseHint(const Utils::FilePath &browseHint);
 
     using OpenTerminalFunc = std::function<void(const Utils::Environment &env)>;
     void setOpenTerminalFunc(const OpenTerminalFunc &func);

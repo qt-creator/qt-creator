@@ -4,6 +4,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 
+#include <QTemporaryFile>
 #include <QTest>
 
 using namespace Utils;
@@ -35,6 +36,8 @@ private slots:
 
     void environmentUnsetUnknownWindows();
     void environmentUnsetUnknownUnix();
+
+    void environmentFromTextFile();
 
     void expansion_data();
     void expansion();
@@ -237,6 +240,17 @@ void tst_Environment::environmentUnsetUnknownUnix()
     env.unset("baz");
 
     QCOMPARE(env.toStringList(), QStringList({"Foo=bar", "Hi=HO"}));
+}
+
+void tst_Environment::environmentFromTextFile()
+{
+    QTemporaryFile f;
+    QVERIFY(f.open());
+    f.write("FOO=BAR\r\n\n\nANSWER=42");
+    f.close();
+    EnvironmentChanges changes;
+    changes.setFile(FilePath::fromString(f.fileName()));
+    QCOMPARE(EnvironmentItem::toStringList(changes.itemsFromFile()), (QStringList{"ANSWER=42", "FOO=BAR"}));
 }
 
 void tst_Environment::expansion_data()

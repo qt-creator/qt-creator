@@ -442,7 +442,7 @@ private:
     void editEnvironmentChanges();
     void updateEnvironmentLabel();
 
-    EnvironmentItems m_environment;
+    EnvironmentChanges m_environment;
     ExternalToolModel m_model;
 
     QTreeView *m_toolTree;
@@ -950,7 +950,7 @@ void ExternalToolConfig::editEnvironmentChanges()
     const QString placeholderText = HostOsInfo::isWindowsHost()
             ? Tr::tr("PATH=C:\\dev\\bin;${PATH}")
             : Tr::tr("PATH=/opt/bin:${PATH}");
-    const std::optional<EnvironmentItems> newItems =
+    const std::optional<EnvironmentChanges> newItems =
             runEnvironmentItemsDialog(m_environmentLabel, m_environment, placeholderText);
     if (newItems) {
         m_environment = *newItems;
@@ -961,7 +961,7 @@ void ExternalToolConfig::editEnvironmentChanges()
 
 void ExternalToolConfig::updateEnvironmentLabel()
 {
-    QString shortSummary = EnvironmentItem::toShortSummary(m_environment);
+    QString shortSummary = m_environment.toShortSummary(globalMacroExpander(), true);
     QFontMetrics fm(m_environmentLabel->font());
     shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, m_environmentLabel->width());
     m_environmentLabel->setText(shortSummary);

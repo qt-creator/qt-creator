@@ -291,7 +291,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
         env.setupEnglishOutput();
         if (!env.expandedValueForKey("NINJA_STATUS").startsWith(ninjaProgressString))
             env.set("NINJA_STATUS", ninjaProgressString + "%o/sec] ");
-        env.modify(m_userEnvironmentChanges);
+        m_userEnvironmentChanges.modifyEnvironment(env, macroExpander());
 
         env.setFallback("CLICOLOR_FORCE", "1");
 
@@ -313,7 +313,7 @@ void CMakeBuildStep::toMap(Utils::Store &map) const
     CMakeAbstractProcessStep::toMap(map);
     map.insert(BUILD_TARGETS_KEY, m_buildTargets);
     map.insert(CLEAR_SYSTEM_ENVIRONMENT_KEY, m_clearSystemEnvironment);
-    map.insert(USER_ENVIRONMENT_CHANGES_KEY, EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert(USER_ENVIRONMENT_CHANGES_KEY, m_userEnvironmentChanges.toVariant());
     map.insert(BUILD_PRESET_KEY, m_buildPreset);
 }
 
@@ -322,8 +322,8 @@ void CMakeBuildStep::fromMap(const Utils::Store &map)
     setBuildTargets(map.value(BUILD_TARGETS_KEY).toStringList());
 
     m_clearSystemEnvironment = map.value(CLEAR_SYSTEM_ENVIRONMENT_KEY).toBool();
-    m_userEnvironmentChanges = EnvironmentItem::fromStringList(
-        map.value(USER_ENVIRONMENT_CHANGES_KEY).toStringList());
+    m_userEnvironmentChanges = EnvironmentChanges::createFromVariant(
+        map.value(USER_ENVIRONMENT_CHANGES_KEY));
 
     updateAndEmitEnvironmentChanged();
 
@@ -712,10 +712,12 @@ QWidget *CMakeBuildStep::createConfigWidget()
         auto envWidget = new EnvironmentWidget(nullptr, EnvironmentWidget::TypeLocal, clearBox);
         envWidget->setBaseEnvironment(baseEnvironment());
         envWidget->setBaseEnvironmentText(baseEnvironmentText());
-        envWidget->setUserChanges(userEnvironmentChanges());
+        envWidget->setChanges(userEnvironmentChanges());
+        if (const IDeviceConstPtr &dev = BuildDeviceKitAspect::device(kit()))
+            envWidget->setBrowseHint(dev->rootPath());
 
         connect(envWidget, &EnvironmentWidget::userChangesChanged, this, [this, envWidget] {
-            setUserEnvironmentChanges(envWidget->userChanges());
+            setUserEnvironmentChanges(envWidget->changes());
         });
 
         connect(clearBox, &QAbstractButton::toggled, this, [this, envWidget](bool checked) {
@@ -832,7 +834,7 @@ Environment CMakeBuildStep::environment() const
     return m_environment;
 }
 
-void CMakeBuildStep::setUserEnvironmentChanges(const Utils::EnvironmentItems &diff)
+void CMakeBuildStep::setUserEnvironmentChanges(const EnvironmentChanges &diff)
 {
     if (m_userEnvironmentChanges == diff)
         return;
@@ -840,7 +842,7 @@ void CMakeBuildStep::setUserEnvironmentChanges(const Utils::EnvironmentItems &di
     updateAndEmitEnvironmentChanged();
 }
 
-EnvironmentItems CMakeBuildStep::userEnvironmentChanges() const
+EnvironmentChanges CMakeBuildStep::userEnvironmentChanges() const
 {
     return m_userEnvironmentChanges;
 }
@@ -861,7 +863,7 @@ void CMakeBuildStep::setUseClearEnvironment(bool b)
 void CMakeBuildStep::updateAndEmitEnvironmentChanged()
 {
     Environment env = baseEnvironment();
-    env.modify(userEnvironmentChanges());
+    userEnvironmentChanges().modifyEnvironment(env, macroExpander());
     if (env == m_environment)
         return;
     m_environment = env;
@@ -878,7 +880,7 @@ Environment CMakeBuildStep::baseEnvironment() const
     if (buildConfiguration())
         buildConfiguration()->addToEnvironment(result);
     kit()->addToBuildEnvironment(result);
-    result.modify(project()->additionalEnvironment());
+    project()->additionalEnvironment().modifyEnvironment(result, macroExpander());
     return result;
 }
 

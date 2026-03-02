@@ -10,6 +10,8 @@
 #include "namevaluedictionary.h"
 #include "utiltypes.h"
 
+#include <QDateTime>
+
 #include <functional>
 #include <optional>
 
@@ -18,6 +20,7 @@ class QProcessEnvironment;
 QT_END_NAMESPACE
 
 namespace Utils {
+class MacroExpander;
 
 class QTCREATOR_UTILS_EXPORT Environment final
 {
@@ -158,12 +161,64 @@ public:
     static std::optional<EnvironmentProvider> provider(const QByteArray &id);
 };
 
+class QTCREATOR_UTILS_EXPORT EnvironmentChanges
+{
+public:
+    EnvironmentChanges() = default;
+    EnvironmentChanges(const EnvironmentItems &items, const FilePath &file);
+
+    void setItemsFromUser(const EnvironmentItems &items) { m_itemsFromUser = items; }
+
+    EnvironmentItems itemsFromUser() const { return m_itemsFromUser; }
+    EnvironmentItems itemsFromFile() const;
+
+    void removeUserItemAt(int pos) { m_itemsFromUser.removeAt(pos); }
+    void removeUserItem(const EnvironmentItem &item) { m_itemsFromUser.removeAll(item); }
+    void setUserItemAt(int pos, const EnvironmentItem &item) { m_itemsFromUser[pos] = item; }
+    void setUserItemValueAt(int pos, const QString &value) { m_itemsFromUser[pos].value = value; }
+    void setUserItemOpAt(int pos, EnvironmentItem::Operation op);
+    void appendUserItem(const EnvironmentItem &item) { m_itemsFromUser << item; }
+    void transformUserItems(const std::function<void(EnvironmentItem &)> &modifier);
+
+    void setFile(const FilePath &file);
+    FilePath file() const { return m_file; }
+
+    QVariant toVariant() const;
+    void fromVariant(const QVariant &v);
+    static EnvironmentChanges createFromVariant(const QVariant &v);
+
+    void modifyEnvironment(Environment &baseEnv, MacroExpander *expander) const;
+
+    QString toShortSummary(MacroExpander *expander, bool multiLine) const;
+
+    bool hasItems() const { return !m_itemsFromUser.isEmpty() || !itemsFromFile().isEmpty(); }
+    bool hasData() const { return !m_itemsFromUser.isEmpty() || !file().isEmpty(); }
+    void clear();
+
+    friend bool operator==(const EnvironmentChanges &e1, const EnvironmentChanges &e2)
+    {
+        return e1.m_itemsFromUser == e2.m_itemsFromUser && e1.m_file == e2.m_file;
+    }
+    friend bool operator!=(const EnvironmentChanges &e1, const EnvironmentChanges &e2)
+    {
+        return !(e1 == e2);
+    }
+
+private:
+    EnvironmentItems m_itemsFromUser;
+    FilePath m_file;
+    mutable std::optional<std::pair<QDateTime, EnvironmentItems>> m_itemsFromFile;
+};
+
 QTCREATOR_UTILS_EXPORT QString qtcEnvironmentVariable(const QString &key);
 QTCREATOR_UTILS_EXPORT QString qtcEnvironmentVariable(const QString &key,
                                                       const QString &defaultValue);
 QTCREATOR_UTILS_EXPORT bool qtcEnvironmentVariableIsSet(const QString &key);
 QTCREATOR_UTILS_EXPORT bool qtcEnvironmentVariableIsEmpty(const QString &key);
 QTCREATOR_UTILS_EXPORT int qtcEnvironmentVariableIntValue(const QString &key, bool *ok = nullptr);
+
+QTCREATOR_UTILS_EXPORT Result<Environment> getUnixEnvironment(
+    const FilePath &envCommand, OsType osType, const FilePath &scriptToSource);
 
 } // namespace Utils
 

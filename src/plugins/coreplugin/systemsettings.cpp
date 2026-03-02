@@ -12,7 +12,6 @@
 #include "vcsmanager.h"
 
 #include <utils/algorithm.h>
-#include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/crashreporting.h>
 #include <utils/elidinglabel.h>
@@ -22,6 +21,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/terminalcommand.h>
 #include <utils/treemodel.h>
@@ -52,8 +52,8 @@ SystemSettings &systemSettings()
 SystemSettings::SystemSettings()
     : m_startupSystemEnvironment(Environment::systemEnvironment())
 {
-    const EnvironmentItems changes = EnvironmentItem::fromStringList(
-        ICore::settings()->value(kEnvironmentChanges).toStringList());
+    const auto changes = EnvironmentChanges::createFromVariant(
+        ICore::settings()->value(kEnvironmentChanges));
     setEnvironmentChanges(changes);
     m_envVarSeparators = NameValueDictionary(
         ICore::settings()
@@ -413,7 +413,7 @@ public:
         updateEnvironmentChangesLabel();
         updateEnvVarSeparatorsLabel();
         connect(environmentButton, &QPushButton::clicked, this, [this, environmentButton] {
-            std::optional<EnvironmentItems> changes
+            std::optional<EnvironmentChanges> changes
                 = runEnvironmentItemsDialog(environmentButton, m_environmentChanges);
             if (!changes)
                 return;
@@ -461,7 +461,7 @@ private:
     Utils::ElidingLabel *m_environmentChangesLabel;
     QLabel * const m_envVarSeparatorsLabel;
     QPointer<QMessageBox> m_dialog;
-    EnvironmentItems m_environmentChanges;
+    EnvironmentChanges m_environmentChanges;
     NameValueDictionary m_envVarSeparators;
 };
 
@@ -526,7 +526,8 @@ void SystemSettingsWidget::updatePath()
 
 void SystemSettingsWidget::updateEnvironmentChangesLabel()
 {
-    m_environmentChangesLabel->setText(EnvironmentItem::toShortSummary(m_environmentChanges));
+    m_environmentChangesLabel->setText(
+        m_environmentChanges.toShortSummary(globalMacroExpander(), true));
 }
 
 void SystemSettingsWidget::updateEnvVarSeparatorsLabel()
@@ -562,21 +563,20 @@ void SystemSettingsWidget::showHelpForFileBrowser()
         showHelpDialog(Tr::tr("Variables"), UnixUtils::fileBrowserHelpText());
 }
 
-EnvironmentItems SystemSettings::environmentChanges() const
+EnvironmentChanges SystemSettings::environmentChanges() const
 {
     return m_environmentChanges;
 }
 
-void SystemSettings::setEnvironmentChanges(const EnvironmentItems &changes)
+void SystemSettings::setEnvironmentChanges(const EnvironmentChanges &changes)
 {
     if (m_environmentChanges == changes)
         return;
     m_environmentChanges = changes;
     Environment systemEnv = m_startupSystemEnvironment;
-    systemEnv.modify(changes);
+    changes.modifyEnvironment(systemEnv, globalMacroExpander());
     Environment::setSystemEnvironment(systemEnv);
-    ICore::settings()->setValueWithDefault(kEnvironmentChanges,
-                                           EnvironmentItem::toStringList(changes));
+    ICore::settings()->setValueWithDefault(kEnvironmentChanges, changes.toVariant());
     if (ICore::instance())
         emit ICore::instance()->systemEnvironmentChanged();
 }

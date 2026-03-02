@@ -50,6 +50,11 @@
 #include <signal.h>
 #endif // else Q_OS_WIN
 
+#ifdef WITH_TESTS
+#include <QTemporaryFile>
+#include <QTest>
+#endif
+
 using namespace ProjectExplorer::Constants;
 using namespace QtTaskTree;
 using namespace Utils;
@@ -398,6 +403,16 @@ QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
     return url;
 }
 
+Result<Environment> DesktopDevice::sourcedEnvironment(const FilePath &script) const
+{
+    if (HostOsInfo::isAnyUnixHost())
+        return getUnixEnvironment(script);
+
+    // TODO: Windows
+
+    return IDevice::sourcedEnvironment(script);
+}
+
 Result<> DesktopDevice::handlesFile(const FilePath &filePath) const
 {
     if (!filePath.isLocal())
@@ -433,4 +448,49 @@ void DesktopDevice::initDeviceToolAspects()
     GlobalTaskTree::start(autoDetectDeviceToolsRecipe());
 }
 
+#ifdef WITH_TESTS
+namespace Internal {
+class DesktopDeviceTest : public QObject
+{
+    Q_OBJECT
+private slots:
+    void testScriptSourcing()
+    {
+        if (!HostOsInfo::isAnyUnixHost())
+            QSKIP("Only applies on Unix hosts");
+
+        QTemporaryFile f(QDir::tempPath() + "/XXXXXXenv.sh");
+        QVERIFY(f.open());
+        f.write(R"(
+PREFIX=base
+export VAL1=${PREFIX}_foo
+export VAL2=${PREFIX}_bar
+export LD_LIBRARY_PATH=/opt/lib
+)");
+        f.close();
+        EnvironmentChanges changes;
+        changes.setFile(FilePath::fromString(f.fileName()));
+        Environment baseEnv;
+        baseEnv.set("LD_LIBRARY_PATH", "/usr/local/lib");
+        changes.modifyEnvironment(baseEnv, nullptr);
+        QCOMPARE(
+            baseEnv.toStringList(),
+            (QStringList{
+                "LD_LIBRARY_PATH=/opt/lib:/usr/local/lib",
+                "VAL1=base_foo",
+                "VAL2=base_bar"}));
+    }
+};
+
+QObject *createDesktopDeviceTest()
+{
+    return new DesktopDeviceTest;
+}
+} // namespace Internal
+#endif // WITH_TESTS
+
 } // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+#include <desktopdevice.moc>
+#endif

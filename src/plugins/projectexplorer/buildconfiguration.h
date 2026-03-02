@@ -53,8 +53,8 @@ public:
     Utils::Environment baseEnvironment() const;
     QString baseEnvironmentText() const;
     Utils::Environment environment() const;
-    void setUserEnvironmentChanges(const Utils::EnvironmentItems &diff);
-    Utils::EnvironmentItems userEnvironmentChanges() const;
+    void setUserEnvironmentChanges(const Utils::EnvironmentChanges &diff);
+    Utils::EnvironmentChanges userEnvironmentChanges() const;
     bool useSystemEnvironment() const;
     void setUseSystemEnvironment(bool b);
 

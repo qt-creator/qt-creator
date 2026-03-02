@@ -25,6 +25,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/synchronizedvalue.h>
 #include <utils/url.h>
 #include <utils/fsengine/fsengine.h>
@@ -331,6 +332,13 @@ void IDevice::deregisterToolDetectionTask(quint64 token)
         if (--d->toolDetectionTaskCount == 0)
             KitManager::createKitsForBuildDevice(shared_from_this());
     }
+}
+
+Result<Environment> IDevice::getUnixEnvironment(const FilePath &scriptToSource) const
+{
+    if (deviceState() == IDevice::DeviceDisconnected)
+        return {};
+    return Utils::getUnixEnvironment(filePath("env"), osType(), scriptToSource);
 }
 
 void IDevice::requestToolDetection(const FilePaths &searchPaths)
@@ -710,6 +718,12 @@ Result<Environment> IDevice::systemEnvironmentWithError() const
     DeviceFileAccessPtr access = fileAccess();
     QTC_ASSERT(access, return Environment::systemEnvironment());
     return access->deviceEnvironment();
+}
+
+Utils::Result<Environment> IDevice::sourcedEnvironment(const Utils::FilePath &script) const
+{
+    Q_UNUSED(script)
+    return ResultError(Tr::tr("Sourcing a script is not supported on this platform."));
 }
 
 QString IDevice::displayType() const

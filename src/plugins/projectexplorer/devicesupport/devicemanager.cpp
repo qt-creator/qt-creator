@@ -356,6 +356,7 @@ IDevice::ConstPtr DeviceManager::deviceForPath(const FilePath &path)
         if (dev->handlesFile(path))
             return dev;
     }
+
     return {};
 }
 
@@ -424,6 +425,15 @@ DeviceManager::DeviceManager()
                 Tr::tr("No device found for path \"%1\".").arg(filePath.toUserOutput()));
         }
         return device->systemEnvironmentWithError();
+    };
+
+    deviceHooks.sourcedEnvironment = [](const FilePath &filePath) -> Result<Environment> {
+        auto device = DeviceManager::deviceForPath(filePath);
+        if (!device) {
+            return make_unexpected(
+                Tr::tr("No device found for path \"%1\".").arg(filePath.toUserOutput()));
+        }
+        return device->sourcedEnvironment(filePath);
     };
 
     deviceHooks.deviceDisplayName = [](const FilePath &filePath) {

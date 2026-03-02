@@ -164,7 +164,7 @@ Environment ExternalTool::baseEnvironment() const
     return Environment::systemEnvironment();
 }
 
-EnvironmentItems ExternalTool::environmentUserChanges() const
+EnvironmentChanges ExternalTool::environmentUserChanges() const
 {
     return m_environment;
 }
@@ -264,9 +264,9 @@ void ExternalTool::setBaseEnvironmentProviderId(Id id)
     m_baseEnvironmentProviderId = id;
 }
 
-void ExternalTool::setEnvironmentUserChanges(const EnvironmentItems &items)
+void ExternalTool::setEnvironmentUserChanges(const EnvironmentChanges &env)
 {
-    m_environment = items;
+    m_environment = env;
 }
 
 static QStringList splitLocale(const QString &locale)
@@ -408,14 +408,27 @@ Result<ExternalTool *> ExternalTool::createFromXml(const QByteArray &xml, const 
                     }
                     tool->m_baseEnvironmentProviderId = Id::fromString(reader.readElementText());
                 } else if (reader.name() == QLatin1String(kEnvironment)) {
-                    if (!tool->m_environment.isEmpty()) {
+                    if (tool->m_environment.hasData()) {
                         reader.raiseError("only one <environment> element allowed");
                         break;
                     }
-                    QStringList lines = reader.readElementText().split(QLatin1Char(';'));
-                    for (auto iter = lines.begin(); iter != lines.end(); ++iter)
+                    const QString rawString = reader.readElementText();
+                    const QStringList elems = rawString.split("__qtc_sep__");
+                    QString itemsString;
+                    if (!elems.isEmpty())
+                        itemsString = elems.first();
+                    else
+                        itemsString = rawString;
+                    QStringList items = itemsString.split(QLatin1Char(';'));
+                    for (auto iter = items.begin(); iter != items.end(); ++iter)
                         *iter = QString::fromUtf8(QByteArray::fromPercentEncoding(iter->toUtf8()));
-                    tool->m_environment = EnvironmentItem::fromStringList(lines);
+                    tool->m_environment.setItemsFromUser(EnvironmentItem::fromStringList(items));
+                    if (elems.size() == 2) {
+                        tool->m_environment.setFile(
+                            FilePath::fromString(
+                                QString::fromUtf8(
+                                    QByteArray::fromPercentEncoding(elems.last().toUtf8()))));
+                    }
                 } else {
                     reader.raiseError(QString::fromLatin1("Unknown element <%1> as subelement of <%2>").arg(
                                           reader.qualifiedName().toString(), QString(kExecutable)));
@@ -492,11 +505,14 @@ Result<> ExternalTool::save() const
             out.writeTextElement(kWorkingDirectory, m_workingDirectory.toUrlishString());
         if (m_baseEnvironmentProviderId.isValid())
             out.writeTextElement(kBaseEnvironmentId, m_baseEnvironmentProviderId.toString());
-        if (!m_environment.isEmpty()) {
-            QStringList envLines = EnvironmentItem::toStringList(m_environment);
+        if (m_environment.hasData()) {
+            QStringList envLines = EnvironmentItem::toStringList(m_environment.itemsFromUser());
             for (auto iter = envLines.begin(); iter != envLines.end(); ++iter)
                 *iter = QString::fromUtf8(iter->toUtf8().toPercentEncoding());
-            out.writeTextElement(kEnvironment, envLines.join(QLatin1Char(';')));
+            const QString envString = envLines.join(QLatin1Char(';'));
+            const QString fileString = QString::fromUtf8(
+                m_environment.file().toFSPathString().toUtf8().toPercentEncoding());
+            out.writeTextElement(kEnvironment, envString + "__qtc_sep__" + fileString);
         }
         out.writeEndElement();
 
@@ -562,11 +578,7 @@ bool ExternalToolRunner::resolve()
     m_resolvedEnvironment = m_tool->baseEnvironment();
 
     MacroExpander *expander = globalMacroExpander();
-    EnvironmentItems expandedEnvironment = Utils::transform(
-        m_tool->environmentUserChanges(), [expander](const EnvironmentItem &item) {
-            return EnvironmentItem(item.name, expander->expand(item.value), item.operation);
-        });
-    m_resolvedEnvironment.modify(expandedEnvironment);
+    m_tool->environmentUserChanges().modifyEnvironment(m_resolvedEnvironment, expander);
 
     {
         // executable

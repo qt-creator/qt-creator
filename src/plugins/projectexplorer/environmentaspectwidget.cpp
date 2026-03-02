@@ -3,6 +3,7 @@
 
 #include "environmentaspectwidget.h"
 
+#include "devicesupport/idevice.h"
 #include "environmentwidget.h"
 #include "projectexplorertr.h"
 
@@ -26,10 +27,6 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
     : m_aspect(aspect)
 {
     QTC_CHECK(m_aspect);
-
-    connect(m_aspect, &EnvironmentAspect::userChangesUpdateRequested, this, [this] {
-        m_environmentWidget->forceUpdateCheck();
-    });
 
     setContentsMargins(0, 0, 0, 0);
     auto topLayout = new QVBoxLayout(this);
@@ -75,8 +72,17 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
     m_environmentWidget = new EnvironmentWidget(this, widgetType, extraWidgets.emerge());
     m_environmentWidget->setBaseEnvironment(m_aspect->modifiedBaseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(m_aspect->currentDisplayName());
-    m_environmentWidget->setUserChanges(m_aspect->userEnvironmentChanges());
+    m_environmentWidget->setChanges(m_aspect->userEnvironmentChanges());
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    connect(m_aspect, &EnvironmentAspect::userChangesUpdateRequested, this, [this] {
+        m_environmentWidget->forceUpdateCheck();
+    });
+    const auto setBrowseHint = [this] {
+        const auto device = m_aspect->device();
+        m_environmentWidget->setBrowseHint(device ? device->rootPath() : Utils::FilePath());
+    };
+    connect(m_aspect, &EnvironmentAspect::devicePotentiallyChanged, this, setBrowseHint);
+    setBrowseHint();
     topLayout->addWidget(m_environmentWidget);
 
     connect(m_environmentWidget, &EnvironmentWidget::userChangesChanged,
@@ -120,14 +126,14 @@ void EnvironmentAspectWidget::changeBaseEnvironment()
 void EnvironmentAspectWidget::userChangesEdited()
 {
     const Utils::GuardLocker locker(m_ignoreChanges);
-    m_aspect->setUserEnvironmentChanges(m_environmentWidget->userChanges());
+    m_aspect->setUserEnvironmentChanges(m_environmentWidget->changes());
 }
 
-void EnvironmentAspectWidget::changeUserChanges(Utils::EnvironmentItems changes)
+void EnvironmentAspectWidget::changeUserChanges(Utils::EnvironmentChanges changes)
 {
     if (m_ignoreChanges.isLocked())
         return;
-    m_environmentWidget->setUserChanges(changes);
+    m_environmentWidget->setChanges(changes);
 }
 
 void EnvironmentAspectWidget::environmentChanged()

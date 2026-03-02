@@ -17,6 +17,7 @@
 #include <utils/headerviewstretcher.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
+#include <utils/macroexpander.h>
 #include <utils/namevaluevalidator.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -238,7 +239,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     buttonLayout->addWidget(d->m_toggleButton);
     connect(d->m_toggleButton, &QPushButton::clicked, this, [this] {
         d->m_model->toggleVariable(d->m_environmentView->currentIndex());
-        d->m_editor.setEnvironmentItems(d->m_model->userChanges());
+        d->m_editor.setEnvironmentChanges(d->m_model->changes());
         updateButtons();
     });
 
@@ -287,7 +288,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     connect(d->m_terminalButton, &QAbstractButton::clicked,
             this, [this] {
         Utils::Environment env = d->m_model->baseEnvironment();
-        env.modify(d->m_model->userChanges());
+        d->m_model->changes().modifyEnvironment(env, globalMacroExpander()); // FIXME: Give this class the right expander for the context.
         if (d->m_openTerminalFunc)
             d->m_openTerminalFunc(env);
         else
@@ -333,16 +334,21 @@ void EnvironmentWidget::setBaseEnvironmentText(const QString &text)
     updateSummaryText();
 }
 
-Utils::EnvironmentItems EnvironmentWidget::userChanges() const
+Utils::EnvironmentChanges EnvironmentWidget::changes() const
 {
     forceUpdateCheck();
-    return d->m_model->userChanges();
+    return d->m_model->changes();
 }
 
-void EnvironmentWidget::setUserChanges(const Utils::EnvironmentItems &list)
+void EnvironmentWidget::setChanges(const Utils::EnvironmentChanges &changes)
 {
-    d->m_model->setUserChanges(list);
-    d->m_editor.setEnvironmentItems(list);
+    d->m_model->setUserChanges(changes);
+    d->m_editor.setEnvironmentChanges(changes);
+}
+
+void EnvironmentWidget::setBrowseHint(const Utils::FilePath &browseHint)
+{
+    d->m_editor.setBrowseHint(browseHint);
 }
 
 void EnvironmentWidget::setOpenTerminalFunc(const EnvironmentWidget::OpenTerminalFunc &func)
@@ -369,8 +375,8 @@ void EnvironmentWidget::updateSummaryText()
         return;
     }
 
-    Utils::EnvironmentItems list
-            = Utils::filtered(d->m_model->userChanges(), [](const EnvironmentItem &it) {
+    EnvironmentItems list = d->m_model->effectiveDiff();
+    list = Utils::filtered(list, [](const EnvironmentItem &it) {
         return it.operation != Utils::EnvironmentItem::Comment;
     });
     Utils::EnvironmentItem::sort(&list);
@@ -447,7 +453,7 @@ void EnvironmentWidget::Private::handleEditRequest(NameValueItemsWidget::Selecti
         PathListDialog dlg(varName, m_model->data(current).toString(), q);
         if (dlg.exec() == QDialog::Accepted) {
             m_model->setData(current, dlg.paths());
-            m_editor.setEnvironmentItems(m_model->userChanges());
+            m_editor.setEnvironmentChanges(m_model->changes());
         }
         return;
     }
@@ -458,9 +464,9 @@ void EnvironmentWidget::Private::handleEditRequest(NameValueItemsWidget::Selecti
     // The variable does not appear on an LHS in the text edit. This means it is not
     // set or unset in any of the user changes. Therefore, we have to create a new
     // change item for the user to edit.
-    EnvironmentItems items = m_model->userChanges();
-    items.append({varName, "NEWVALUE"});
-    q->setUserChanges(items);
+    EnvironmentChanges changes = m_model->changes();
+    changes.appendUserItem({varName, "NEWVALUE"});
+    q->setChanges(changes);
     const bool editable = m_editor.editVariable(varName, NameValueItemsWidget::Selection::Value);
     QTC_CHECK(editable);
 }
@@ -468,7 +474,7 @@ void EnvironmentWidget::Private::handleEditRequest(NameValueItemsWidget::Selecti
 void EnvironmentWidget::addEnvironmentButtonClicked()
 {
     QModelIndex index = d->m_model->addVariable();
-    d->m_editor.setEnvironmentItems(d->m_model->userChanges());
+    d->m_editor.setEnvironmentChanges(d->m_model->changes());
     d->m_environmentView->setCurrentIndex(index);
     d->handleEditRequest(NameValueItemsWidget::Selection::Name);
 }
@@ -477,7 +483,7 @@ void EnvironmentWidget::removeEnvironmentButtonClicked()
 {
     const QString &name = d->m_model->indexToVariable(d->m_environmentView->currentIndex());
     d->m_model->resetVariable(name);
-    d->m_editor.setEnvironmentItems(d->m_model->userChanges());
+    d->m_editor.setEnvironmentChanges(d->m_model->changes());
 }
 
 // unset in Merged Environment Mode means, unset if it comes from the base environment
@@ -489,7 +495,7 @@ void EnvironmentWidget::unsetEnvironmentButtonClicked()
         d->m_model->resetVariable(name);
     else
         d->m_model->unsetVariable(name);
-    d->m_editor.setEnvironmentItems(d->m_model->userChanges());
+    d->m_editor.setEnvironmentChanges(d->m_model->changes());
 }
 
 void EnvironmentWidget::amendPathList(Utils::EnvironmentItem::Operation op)
@@ -498,9 +504,9 @@ void EnvironmentWidget::amendPathList(Utils::EnvironmentItem::Operation op)
     const FilePath dir = FileUtils::getExistingDirectory(Tr::tr("Choose Directory"));
     if (dir.isEmpty())
         return;
-    Utils::EnvironmentItems changes = d->m_model->userChanges();
-    changes.append({varName, dir.toUserOutput(), op});
-    setUserChanges(changes);
+    EnvironmentChanges changes = d->m_model->changes();
+    changes.appendUserItem({varName, dir.toUserOutput(), op});
+    setChanges(changes);
 }
 
 void EnvironmentWidget::appendPathButtonClicked()
@@ -518,7 +524,7 @@ void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &curren
     if (current.isValid()) {
         d->m_editButton->setEnabled(true);
         const QString &name = d->m_model->indexToVariable(current);
-        bool modified = d->m_model->canReset(name) && d->m_model->changes(name);
+        bool modified = d->m_model->canReset(name) && d->m_model->hasExplicitChanges(name);
         bool unset = d->m_model->isUnset(name);
         d->m_resetButton->setEnabled(modified || unset);
         d->m_unsetButton->setEnabled(!unset);

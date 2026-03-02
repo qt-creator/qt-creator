@@ -1276,15 +1276,15 @@ void Project::setNamedSettings(const Key &name, const QVariant &value)
         d->m_pluginSettings.insert(name, value);
 }
 
-void Project::setAdditionalEnvironment(const EnvironmentItems &envItems)
+void Project::setAdditionalEnvironment(const EnvironmentChanges &envItems)
 {
-    setNamedSettings(PROJECT_ENV_KEY, EnvironmentItem::toStringList(envItems));
+    setNamedSettings(PROJECT_ENV_KEY, envItems.toVariant());
     emit environmentChanged();
 }
 
-EnvironmentItems Project::additionalEnvironment() const
+EnvironmentChanges Project::additionalEnvironment() const
 {
-    return EnvironmentItem::fromStringList(namedSettings(PROJECT_ENV_KEY).toStringList());
+    return EnvironmentChanges::createFromVariant(namedSettings(PROJECT_ENV_KEY));
 }
 
 bool Project::needsConfiguration() const

@@ -18,8 +18,6 @@ public:
 
     void setRemoteEnvironment(const Utils::Environment &env);
 
-    QString userEnvironmentChangesAsString() const;
-
 private:
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;

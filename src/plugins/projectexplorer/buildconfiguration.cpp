@@ -81,7 +81,9 @@ public:
         auto envWidget = new EnvironmentWidget(this, EnvironmentWidget::TypeLocal, clearBox);
         envWidget->setBaseEnvironment(bc->baseEnvironment());
         envWidget->setBaseEnvironmentText(bc->baseEnvironmentText());
-        envWidget->setUserChanges(bc->userEnvironmentChanges());
+        envWidget->setChanges(bc->userEnvironmentChanges());
+        if (const IDeviceConstPtr &dev = BuildDeviceKitAspect::device(bc->kit()))
+            envWidget->setBrowseHint(dev->rootPath());
 
         const EnvironmentWidget::OpenTerminalFunc openTerminalFunc
                 = [bc](const Utils::Environment &env) {
@@ -90,7 +92,7 @@ public:
         envWidget->setOpenTerminalFunc(openTerminalFunc);
 
         connect(envWidget, &EnvironmentWidget::userChangesChanged, this, [bc, envWidget] {
-            bc->setUserEnvironmentChanges(envWidget->userChanges());
+            bc->setUserEnvironmentChanges(envWidget->changes());
         });
 
         connect(clearBox, &QAbstractButton::toggled, this, [bc, envWidget](bool checked) {
@@ -156,7 +158,7 @@ public:
     {}
 
     bool m_clearSystemEnvironment = false;
-    EnvironmentItems m_userEnvironmentChanges;
+    EnvironmentChanges m_userEnvironmentChanges;
     BuildStepList m_buildSteps;
     BuildStepList m_cleanSteps;
     BuildDirectoryAspect m_buildDirectoryAspect;
@@ -984,8 +986,7 @@ void BuildConfiguration::toMap(Store &map) const
     ProjectConfiguration::toMap(map);
 
     map.insert(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY, d->m_clearSystemEnvironment);
-    map.insert(Constants::USER_ENVIRONMENT_CHANGES_KEY,
-               EnvironmentItem::toStringList(d->m_userEnvironmentChanges));
+    map.insert(Constants::USER_ENVIRONMENT_CHANGES_KEY, d->m_userEnvironmentChanges.toVariant());
 
     map.insert(BUILD_STEP_LIST_COUNT, 2);
     map.insert(numberedKey(BUILD_STEP_LIST_PREFIX, 0), variantFromStore(d->m_buildSteps.toMap()));
@@ -1003,8 +1004,8 @@ void BuildConfiguration::toMap(Store &map) const
 void BuildConfiguration::fromMap(const Store &map)
 {
     d->m_clearSystemEnvironment = map.value(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY).toBool();
-    d->m_userEnvironmentChanges = EnvironmentItem::fromStringList(
-        map.value(Constants::USER_ENVIRONMENT_CHANGES_KEY).toStringList());
+    d->m_userEnvironmentChanges = EnvironmentChanges::createFromVariant(
+        map.value(Constants::USER_ENVIRONMENT_CHANGES_KEY));
 
     updateCacheAndEmitEnvironmentChanged();
 
@@ -1042,7 +1043,7 @@ void BuildConfiguration::fromMap(const Store &map)
 void BuildConfiguration::updateCacheAndEmitEnvironmentChanged()
 {
     Environment env = baseEnvironment();
-    env.modify(userEnvironmentChanges());
+    userEnvironmentChanges().modifyEnvironment(env, macroExpander());
     if (env == d->m_cachedEnvironment)
         return;
     d->m_cachedEnvironment = env;
@@ -1091,7 +1092,7 @@ Environment BuildConfiguration::baseEnvironment() const
     }
     addToEnvironment(result);
     kit()->addToBuildEnvironment(result);
-    result.modify(project()->additionalEnvironment());
+    project()->additionalEnvironment().modifyEnvironment(result, macroExpander());
     return result;
 }
 
@@ -1139,12 +1140,12 @@ bool BuildConfiguration::useSystemEnvironment() const
     return !d->m_clearSystemEnvironment;
 }
 
-EnvironmentItems BuildConfiguration::userEnvironmentChanges() const
+EnvironmentChanges BuildConfiguration::userEnvironmentChanges() const
 {
     return d->m_userEnvironmentChanges;
 }
 
-void BuildConfiguration::setUserEnvironmentChanges(const EnvironmentItems &diff)
+void BuildConfiguration::setUserEnvironmentChanges(const EnvironmentChanges &diff)
 {
     if (d->m_userEnvironmentChanges == diff)
         return;
@@ -1287,7 +1288,8 @@ FilePath BuildConfiguration::rawBuildDirectoryFromTemplate(
     auto environment = Environment::systemEnvironment();
     if (const Project * const project = ProjectManager::projectWithProjectFilePath(projectFilePath)) {
         // This adds the environment variables from the <project>.shared file
-        environment.modify(project->additionalEnvironment());
+        project->additionalEnvironment()
+            .modifyEnvironment(environment, kit ? kit->macroExpander() : nullptr);
     }
 
     // Retrieve the template from setting or evironment.

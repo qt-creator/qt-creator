@@ -5,7 +5,12 @@
 
 #include "algorithm.h"
 #include "filepath.h"
+#include "macroexpander.h"
 #include "qtcassert.h"
+#include "qtcprocess.h"
+#include "store.h"
+#include "stringutils.h"
+#include "utilstr.h"
 
 #include <QDir>
 #include <QProcessEnvironment>
@@ -653,6 +658,209 @@ bool qtcEnvironmentVariableIsEmpty(const QString &key)
 int qtcEnvironmentVariableIntValue(const QString &key, bool *ok)
 {
     return Environment::systemEnvironment().value(key).toInt(ok);
+}
+
+void EnvironmentChanges::setFile(const FilePath &file)
+{
+    if (m_file == file)
+        return;
+    m_file = file;
+    m_itemsFromFile.reset();
+}
+
+EnvironmentChanges::EnvironmentChanges(const EnvironmentItems &items, const FilePath &file)
+    : m_itemsFromUser(items), m_file(file)
+{
+}
+
+EnvironmentItems EnvironmentChanges::itemsFromFile() const
+{
+    if (m_file.isEmpty())
+        return {};
+
+    if (m_itemsFromFile) {
+        if (m_itemsFromFile->first == m_file.lastModified())
+            return m_itemsFromFile->second;
+    }
+
+    EnvironmentItems theItems;
+
+    if (m_file.endsWith(".sh")) { // TODO: .bat
+        const Result<Environment> sourcedEnv = m_file.sourcedDeviceEnvironment();
+        if (!sourcedEnv) {
+            qWarning() << sourcedEnv.error();
+            return {};
+        }
+        theItems
+            = Utils::filtered(Environment().diff(*sourcedEnv, true), [](const EnvironmentItem &ei) {
+                  return ei.name != "PWD" && ei.name != "SHLVL" && ei.name != "_";
+              });
+
+        // Change "set" to "prepend" for known list variables, as that information is not preserved
+        // by the script.
+        // A conceptually cleaner way of achieving this would be to pass in a base environment
+        // with these variables set to dummy values. Then we could form a diff and even
+        // differentiate between append and prepend.
+        theItems = Utils::transform(theItems, [](EnvironmentItem ei) {
+            // TODO: Re-use logic in EnvironmentModel::currentEntryIsPathList()
+            if (ei.operation == EnvironmentItem::SetEnabled
+                && (ei.name == "PATH" || ei.name == "LD_LIBRARY_PATH")) {
+                ei.operation = EnvironmentItem::Prepend;
+            }
+            return ei;
+        });
+    } else {
+        const auto contents = m_file.fileContents();
+        if (!contents) {
+            qWarning() << contents.error();
+            return {};
+        }
+        theItems = Environment().diff(Environment(
+            QString::fromUtf8(normalizeNewlines(*contents)).split('\n', Qt::SkipEmptyParts)));
+    }
+
+    m_itemsFromFile.emplace(m_file.lastModified(), theItems);
+    return m_itemsFromFile->second;
+}
+
+void EnvironmentChanges::setUserItemOpAt(int pos, EnvironmentItem::Operation op)
+{
+    m_itemsFromUser[pos].operation = op;
+}
+
+void EnvironmentChanges::transformUserItems(const std::function<void (EnvironmentItem &)> &modifier)
+{
+    for (EnvironmentItem &item : m_itemsFromUser)
+        modifier(item);
+}
+
+static Key userItemsKey() { return "UserItems"; }
+static Key fileKey() { return "File"; }
+static Key timeStampKey() { return "TimeStamp"; }
+static Key fileItemsKey() { return "FileItems"; }
+
+QVariant EnvironmentChanges::toVariant() const
+{
+    if (m_itemsFromUser.isEmpty() && m_file.isEmpty())
+        return {};
+    Store store{
+        std::make_pair(userItemsKey(), EnvironmentItem::toStringList(m_itemsFromUser)),
+        std::make_pair(fileKey(), m_file.toSettings())};
+
+    // Not strictly necessary, but saves file I/O.
+    if (m_itemsFromFile && m_itemsFromFile->first == m_file.lastModified()) {
+        store.insert(timeStampKey(), m_itemsFromFile->first);
+        store.insert(fileItemsKey(), EnvironmentItem::toStringList(m_itemsFromFile->second));
+    }
+    return variantFromStore(store);
+}
+
+void EnvironmentChanges::fromVariant(const QVariant &v)
+{
+    if (v.typeId() == QMetaType::QVariantList || v.typeId() == QMetaType::QStringList
+        || v.typeId() == QMetaType::QString) { // backward compat
+        m_itemsFromUser = EnvironmentItem::fromStringList(v.toStringList());
+    } else {
+        const Store store = storeFromVariant(v);
+        m_itemsFromUser = EnvironmentItem::fromStringList(store.value(userItemsKey()).toStringList());
+        setFile(FilePath::fromSettings(store.value(fileKey())));
+        if (!m_file.isEmpty()) {
+            const QVariant timeStampVariant = store.value(timeStampKey());
+            if (timeStampVariant.isValid()) {
+                QDateTime timeStamp = timeStampVariant.toDateTime();
+                if (timeStamp == m_file.lastModified()) {
+                    m_itemsFromFile.emplace(
+                        timeStamp,
+                        EnvironmentItem::fromStringList(store.value(fileItemsKey()).toStringList()));
+                }
+            }
+        }
+    }
+}
+
+EnvironmentChanges EnvironmentChanges::createFromVariant(const QVariant &v)
+{
+    EnvironmentChanges env;
+    env.fromVariant(v);
+    return env;
+}
+
+void EnvironmentChanges::modifyEnvironment(Environment &baseEnv, MacroExpander *expander) const
+{
+    if (!expander) {
+        baseEnv.modify(itemsFromFile());
+        baseEnv.modify(m_itemsFromUser);
+        return;
+    }
+    const auto transformer = [&](const EnvironmentItems &list) {
+        return EnvironmentItem::fromStringList(
+            transform(EnvironmentItem::toStringList(list), [&](const QString &v) {
+                return expander->expand(v);
+            }));
+    };
+    const EnvironmentItems fileItems = EnvironmentItems::fromList(transformer(itemsFromFile()));
+    const EnvironmentItems userItems = EnvironmentItems::fromList(transformer(m_itemsFromUser));
+    baseEnv.modify(fileItems);
+    baseEnv.modify(userItems);
+}
+
+QString EnvironmentChanges::toShortSummary(MacroExpander *expander, bool multiLine) const
+{
+    if (m_itemsFromUser.isEmpty() && itemsFromFile().isEmpty())
+        return Tr::tr("No changes to apply.");
+    Environment env;
+    modifyEnvironment(env, expander);
+    return env.toStringList().join(QLatin1String(multiLine ? "\n" : "; "));
+}
+
+void EnvironmentChanges::clear()
+{
+    m_itemsFromUser.clear();
+    setFile({});
+}
+
+Result<Environment> getUnixEnvironment(
+    const FilePath &envCommand, OsType osType, const FilePath &scriptToSource)
+{
+    char separator = '\0';
+    Process getEnvProc;
+    if (!scriptToSource.isEmpty()) {
+        getEnvProc.setCommand(
+            {envCommand,
+             {"-i",
+              "sh",
+              "-c",
+              QString::fromLatin1("source %1 >/dev/null && env -0").arg(scriptToSource.path())}});
+    } else {
+        getEnvProc.setCommand({envCommand, {"-0"}});
+    }
+    using namespace std::chrono;
+    getEnvProc.runBlocking(5s);
+
+    if (getEnvProc.result() != ProcessResult::FinishedWithSuccess) {
+        qDebug() << "Failed to get environment variables from device:"
+                 << getEnvProc.verboseExitMessage()
+                 << "Trying again without -0 option";
+        separator = '\n';
+        if (!scriptToSource.isEmpty()) {
+            getEnvProc.setCommand(
+                {envCommand,
+                 {"-i",
+                  "sh",
+                  "-c",
+                  QString::fromLatin1("source %1 >/dev/null && env").arg(scriptToSource.path())}});
+        } else {
+            getEnvProc.setCommand({envCommand, {}});
+        }
+        getEnvProc.runBlocking(5s);
+    }
+    if (getEnvProc.result() != ProcessResult::FinishedWithSuccess) {
+        return ResultError(
+            Tr::tr("Failed to get environment variables from device: %1")
+                .arg(getEnvProc.verboseExitMessage()));
+    }
+
+    return Environment(getEnvProc.cleanedStdOut().split(separator, Qt::SkipEmptyParts), osType);
 }
 
 } // namespace Utils

@@ -5,6 +5,7 @@
 
 #include "projectexplorer_export.h"
 
+#include "devicesupport/idevicefwd.h"
 #include "runconfiguration.h"
 
 #include <utils/aspects.h>
@@ -33,8 +34,8 @@ public:
     int baseEnvironmentBase() const;
     void setBaseEnvironmentBase(int base);
 
-    Utils::EnvironmentItems userEnvironmentChanges() const;
-    void setUserEnvironmentChanges(const Utils::EnvironmentItems &diff);
+    Utils::EnvironmentChanges userEnvironmentChanges() const;
+    void setUserEnvironmentChanges(const Utils::EnvironmentChanges &diff);
 
     int addSupportedBaseEnvironment(const QString &displayName,
                                     const std::function<Utils::Environment()> &getter);
@@ -52,8 +53,7 @@ public:
 
     bool isLocal() const { return m_isLocal; }
 
-    Kit *kit() const { return m_kit; }
-    DeviceSelector deviceSelector() const { return m_selector; }
+    IDeviceConstPtr device() const;
 
     bool isPrintOnRunAllowed() const { return m_allowPrintOnRun; }
     bool isPrintOnRunEnabled() const { return m_printOnRun; }
@@ -68,9 +68,10 @@ public:
 
 signals:
     void baseEnvironmentChanged();
-    void userEnvironmentChangesChanged(const Utils::EnvironmentItems &diff);
+    void userEnvironmentChangesChanged(const Utils::EnvironmentChanges &diff);
     void environmentChanged();
     void userChangesUpdateRequested() const;
+    void devicePotentiallyChanged();
 
 protected:
     void fromMap(const Utils::Store &map) override;
@@ -93,7 +94,7 @@ private:
         QString displayName;
     };
 
-    Utils::EnvironmentItems m_userChanges;
+    Utils::EnvironmentChanges m_userChanges;
     QList<EnvironmentModifier> m_modifiers;
     QList<BaseEnvironment> m_baseEnvironments;
     int m_base = -1;

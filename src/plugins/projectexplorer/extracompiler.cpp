@@ -274,9 +274,11 @@ Environment ExtraCompiler::buildEnvironment() const
     if (BuildConfiguration *bc = project()->activeBuildConfiguration())
         return bc->environment();
 
-    const EnvironmentItems changes = EnvironmentKitAspect::buildEnvChanges(project()->activeKit());
     Environment env = Environment::systemEnvironment();
-    env.modify(changes);
+    if (project()->activeKit()) {
+        EnvironmentKitAspect::buildEnvChanges(project()->activeKit())
+            .modifyEnvironment(env, project()->activeKit()->macroExpander());
+    }
     return env;
 }
 

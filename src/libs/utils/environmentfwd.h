@@ -8,6 +8,7 @@
 namespace Utils {
 
 class Environment;
+class EnvironmentChanges;
 class EnvironmentItem;
 using EnvironmentItems = QList<EnvironmentItem>;
 

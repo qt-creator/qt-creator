@@ -4,6 +4,8 @@
 #include "environmentaspect.h"
 
 #include "buildconfiguration.h"
+#include "devicesupport/devicekitaspects.h"
+#include "devicesupport/devicemanager.h"
 #include "environmentaspectwidget.h"
 #include "environmentkitaspect.h"
 #include "kit.h"
@@ -30,9 +32,11 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
     addDataExtractor(this, &EnvironmentAspect::environment, &Data::environment);
     if (const auto runConfig = qobject_cast<RunConfiguration *>(container)) {
         addModifier([runConfig](Environment &env) {
-            env.modify(EnvironmentItem::fromStringList(
-                           ProjectExplorerSettings::get(runConfig).appEnvChanges()));
-            env.modify(EnvironmentKitAspect::runEnvChanges(runConfig->kit()));
+            ProjectExplorerSettings::get(runConfig)
+                .appEnvChanges()
+                .modifyEnvironment(env, runConfig->macroExpander());
+            EnvironmentKitAspect::runEnvChanges(runConfig->kit())
+                .modifyEnvironment(env, runConfig->macroExpander());
         });
         globalProjectExplorerSettings().appEnvChanges.addOnChanged(this, [this] {
             emit environmentChanged();
@@ -51,10 +55,12 @@ void EnvironmentAspect::setDeviceSelector(Kit *kit, DeviceSelector selector)
 
     handleKitUpdate();
     connect(KitManager::instance(), &KitManager::kitUpdated, this, [this](Kit *k) {
-        if (k == this->kit()) {
+        if (k == m_kit) {
             handleKitUpdate();
+            emit devicePotentiallyChanged();
         }
     });
+    emit devicePotentiallyChanged();
 }
 
 int EnvironmentAspect::baseEnvironmentBase() const
@@ -71,7 +77,7 @@ void EnvironmentAspect::setBaseEnvironmentBase(int base)
     }
 }
 
-void EnvironmentAspect::setUserEnvironmentChanges(const EnvironmentItems &diff)
+void EnvironmentAspect::setUserEnvironmentChanges(const EnvironmentChanges &diff)
 {
     if (m_userChanges != diff) {
         m_userChanges = diff;
@@ -83,7 +89,7 @@ void EnvironmentAspect::setUserEnvironmentChanges(const EnvironmentItems &diff)
 Environment EnvironmentAspect::environment() const
 {
     Environment env = modifiedBaseEnvironment();
-    env.modify(userEnvironmentChanges());
+    userEnvironmentChanges().modifyEnvironment(env, macroExpander());
     return env;
 }
 
@@ -113,6 +119,19 @@ const QStringList EnvironmentAspect::displayNames() const
 void EnvironmentAspect::addModifier(const EnvironmentAspect::EnvironmentModifier &modifier)
 {
     m_modifiers.append(modifier);
+}
+
+IDeviceConstPtr EnvironmentAspect::device() const
+{
+    switch (m_selector) {
+    case BuildDevice:
+        return BuildDeviceKitAspect::device(m_kit);
+    case RunDevice:
+        return RunDeviceKitAspect::device(m_kit);
+    case HostDevice:
+        DeviceManager::defaultDesktopDevice();
+    }
+    return {};
 }
 
 int EnvironmentAspect::addSupportedBaseEnvironment(const QString &displayName,
@@ -159,14 +178,14 @@ void EnvironmentAspect::setSupportForBuildEnvironment(BuildConfiguration *bc)
 void EnvironmentAspect::fromMap(const Store &map)
 {
     m_base = map.value(BASE_KEY, -1).toInt();
-    m_userChanges = EnvironmentItem::fromStringList(map.value(CHANGES_KEY).toStringList());
+    m_userChanges = EnvironmentChanges::createFromVariant(map.value(CHANGES_KEY));
     m_printOnRun = map.value(PRINT_ON_RUN_KEY).toBool();
 }
 
 void EnvironmentAspect::toMap(Store &data) const
 {
     data.insert(BASE_KEY, m_base);
-    data.insert(CHANGES_KEY, EnvironmentItem::toStringList(m_userChanges));
+    data.insert(CHANGES_KEY, m_userChanges.toVariant());
     data.insert(PRINT_ON_RUN_KEY, m_printOnRun);
 }
 
@@ -181,7 +200,7 @@ Environment EnvironmentAspect::BaseEnvironment::unmodifiedBaseEnvironment() cons
     return getter ? getter() : Environment();
 }
 
-EnvironmentItems EnvironmentAspect::userEnvironmentChanges() const
+EnvironmentChanges EnvironmentAspect::userEnvironmentChanges() const
 {
     emit userChangesUpdateRequested();
     return m_userChanges;

@@ -15,6 +15,7 @@
 #include "deployablefile.h"
 #include "deployconfiguration.h"
 #include "desktoprunconfiguration.h"
+#include "devicesupport/desktopdevice.h"
 #include "environmentwidget.h"
 #include "extraabi.h"
 #include "gcctoolchain.h"
@@ -392,10 +393,10 @@ public:
         const auto envWidget = new EnvironmentWidget(this, EnvironmentWidget::TypeLocal);
         envWidget->setOpenTerminalFunc({});
         envWidget->expand();
-        envWidget->setUserChanges(project->additionalEnvironment());
+        envWidget->setChanges(project->additionalEnvironment());
 
         connect(envWidget, &EnvironmentWidget::userChangesChanged, this, [project, envWidget] {
-            project->setAdditionalEnvironment(envWidget->userChanges());
+            project->setAdditionalEnvironment(envWidget->changes());
         });
 
         const auto vbox = new QVBoxLayout(this);
@@ -890,6 +891,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createClangParserTest);
     addTestCreator(createClangClParserTest);
     addTestCreator(createCustomParserTest);
+    addTestCreator(createDesktopDeviceTest);
     addTestCreator(createDeviceManagerTest);
     addTestCreator(createGccParserTest);
     addTestCreator(createGccToolchainTest);

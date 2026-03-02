@@ -281,6 +281,7 @@ public:
 
     Utils::Environment systemEnvironment() const;
     virtual Utils::Result<Utils::Environment> systemEnvironmentWithError() const;
+    virtual Utils::Result<Utils::Environment> sourcedEnvironment(const Utils::FilePath &script) const;
 
     virtual void aboutToBeRemoved() const {}
 
@@ -330,6 +331,9 @@ protected:
     void setFileAccessFactory(std::function<Utils::DeviceFileAccessPtr()> fileAccessFactory);
 
     virtual void initDeviceToolAspects();
+
+    Utils::Result<Utils::Environment> getUnixEnvironment(
+        const Utils::FilePath &scriptToSource = {}) const;
 
 private:
     IDevice(const IDevice &) = delete;

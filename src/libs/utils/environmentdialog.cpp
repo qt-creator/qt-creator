@@ -7,19 +7,21 @@
 
 namespace Utils {
 
-std::optional<EnvironmentItems> runEnvironmentItemsDialog(
+std::optional<EnvironmentChanges> runEnvironmentItemsDialog(
     QWidget *parent,
-    const EnvironmentItems &initial,
+    const EnvironmentChanges &initial,
     const QString &placeholderText,
     NameValuesDialog::Polisher polisher,
-    const QString &dialogTitle)
+    const QString &dialogTitle,
+    const FilePath &browseHint)
 {
     return NameValuesDialog::getNameValueItems(
         parent,
         initial,
         placeholderText,
         polisher,
-        dialogTitle.isEmpty() ? Tr::tr("Edit Environment") : dialogTitle);
+        dialogTitle.isEmpty() ? Tr::tr("Edit Environment") : dialogTitle,
+        browseHint);
 }
 
 } // namespace Utils

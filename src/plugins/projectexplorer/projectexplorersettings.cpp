@@ -15,8 +15,9 @@
 #include <coreplugin/icore.h>
 
 #include <utils/environmentdialog.h>
-#include <utils/layoutbuilder.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 
 #include <QButtonGroup>
@@ -178,9 +179,8 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
 
     appEnvChanges.setSettingsKey("AppEnvChanges");
     appEnvChanges.addOnVolatileValueChanged(this, [this] {
-        const EnvironmentItems changes =
-                EnvironmentItem::fromStringList(appEnvChanges.volatileValue());
-        appEnvChangeDisplay.setValue(EnvironmentItem::toShortSummary(changes));
+        appEnvChangeDisplay.setValue(
+            appEnvChanges.volatileValue().toShortSummary(globalMacroExpander(), true));
     });
 
     const QString appEnvToolTip = Tr::tr("Environment changes to apply to run configurations, "
@@ -201,12 +201,11 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
             Layouting::toolTip(appEnvToolTip),
             sizePolicy(QSizePolicy{QSizePolicy::Fixed, QSizePolicy::Preferred}),
             onClicked(this, [this] {
-                const std::optional<EnvironmentItems> changes =
-                        runEnvironmentItemsDialog(dialogParent(),
-                             EnvironmentItem::fromStringList(appEnvChanges.volatileValue()));
+                const std::optional<EnvironmentChanges> changes =
+                        runEnvironmentItemsDialog(dialogParent(), appEnvChanges.volatileValue());
                 if (!changes)
                     return;
-                appEnvChanges.setVolatileValue(EnvironmentItem::toStringList(*changes));
+                appEnvChanges.setVolatileValue(*changes);
             })
         };
 

@@ -38,17 +38,17 @@ public:
         addWidget(fetchButton);
 
         connect(fetchButton, &QPushButton::clicked, this, [aspect] {
-            if (IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->kit())) {
+            if (IDevice::ConstPtr device = aspect->device()) {
                 DeviceFileAccessPtr access = device->fileAccess();
                 QTC_ASSERT(access, return);
-                Result<Environment> res = access->deviceEnvironment();
+                Result<Environment> res = access->deviceEnvironment(); // TODO: Why not retrieve it directly from device?
                 QTC_ASSERT_RESULT(res, return);
                 aspect->setRemoteEnvironment(*res);
             }
         });
 
         envWidget()->setOpenTerminalFunc([aspect](const Environment &env) {
-            IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->kit());
+            IDevice::ConstPtr device = aspect->device();
             if (!device) {
                 QMessageBox::critical(Core::ICore::dialogParent(),
                                       Tr::tr("Cannot Open Terminal"),
@@ -62,11 +62,13 @@ public:
     }
 };
 
-static bool displayAlreadySet(const Utils::EnvironmentItems &changes)
+static bool displayAlreadySet(const Utils::EnvironmentChanges &changes)
 {
-    return Utils::contains(changes, [](const Utils::EnvironmentItem &item) {
+    const auto matcher = [](const Utils::EnvironmentItem &item) {
         return item.name == DISPLAY_KEY;
-    });
+    };
+    return Utils::contains(changes.itemsFromUser(), matcher)
+           || Utils::contains(changes.itemsFromFile(), matcher);
 }
 
 RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(AspectContainer *container)
@@ -86,16 +88,6 @@ void RemoteLinuxEnvironmentAspect::setRemoteEnvironment(const Utils::Environment
     }
 }
 
-QString RemoteLinuxEnvironmentAspect::userEnvironmentChangesAsString() const
-{
-    QString env;
-    QString placeHolder = QLatin1String("%1=%2 ");
-    const Utils::EnvironmentItems items = userEnvironmentChanges();
-    for (const Utils::EnvironmentItem &item : items)
-        env.append(placeHolder.arg(item.name, item.value));
-    return env.mid(0, env.size() - 1);
-}
-
 void RemoteLinuxEnvironmentAspect::fromMap(const Store &map)
 {
     ProjectExplorer::EnvironmentAspect::fromMap(map);
@@ -108,7 +100,7 @@ void RemoteLinuxEnvironmentAspect::fromMap(const Store &map)
         // have version 1 and will not get DISPLAY set.
         auto changes = userEnvironmentChanges();
         if (!displayAlreadySet(changes)) {
-            changes.append(Utils::EnvironmentItem(QLatin1String(DISPLAY_KEY), QLatin1String(":0.0")));
+            changes.appendUserItem(Utils::EnvironmentItem(DISPLAY_KEY, ":0.0"));
             setUserEnvironmentChanges(changes);
         }
     }
@@ -122,18 +114,7 @@ void RemoteLinuxEnvironmentAspect::toMap(Store &map) const
 
 void RemoteLinuxEnvironmentAspect::handleKitUpdate()
 {
-    IDevice::ConstPtr device;
-    switch (deviceSelector()) {
-    case BuildDevice:
-        device = BuildDeviceKitAspect::device(kit());
-        break;
-    case RunDevice:
-        device = RunDeviceKitAspect::device(kit());
-        break;
-    case HostDevice:
-        QTC_CHECK(false);
-        break;
-    }
+    const IDevice::ConstPtr device = this->device();
     setRemoteEnvironment(Environment(device ? device->osType() : OsTypeLinux));
 }
 

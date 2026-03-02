@@ -1750,7 +1750,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
         CMakeProject *cmakeProject = static_cast<CMakeProject *>(project());
         configureEnv.setUserEnvironmentChanges(
-            getEnvironmentItemsFromCMakeConfigurePreset(cmakeProject, k));
+                    {getEnvironmentItemsFromCMakeConfigurePreset(cmakeProject, k), {}});
 
         QStringList initialCMakeArguments = cmd.splitArguments();
         addCMakeConfigurePresetToInitialArguments(initialCMakeArguments,
@@ -2131,7 +2131,7 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps()
         CMakeBuildStep *cbs = qobject_cast<CMakeBuildStep *>(buildStepList[i]);
         cbs->setBuildPreset(buildPresets[i].name);
         cbs->setUserEnvironmentChanges(
-            getEnvironmentItemsFromCMakeBuildPreset(project, kit(), buildPresets[i].name));
+                    {getEnvironmentItemsFromCMakeBuildPreset(project, kit(), buildPresets[i].name), {}});
 
         if (buildPresets[i].targets) {
             QString targets = buildPresets[i].targets->join(" ");
@@ -2553,7 +2553,7 @@ ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(BuildConfiguration *bc)
         // This will add ninja to path
         bc->addToEnvironment(env);
         bc->kit()->addToBuildEnvironment(env);
-        env.modify(bc->project()->additionalEnvironment());
+        bc->project()->additionalEnvironment().modifyEnvironment(env, bc->macroExpander());
     });
 }
 

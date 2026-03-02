@@ -3,12 +3,14 @@
 
 #include "namevaluesdialog.h"
 
-#include "algorithm.h"
 #include "guiutils.h"
 #include "hostosinfo.h"
+#include "pathchooser.h"
 #include "utilstr.h"
 
+#include <QCheckBox>
 #include <QDialogButtonBox>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -57,7 +59,13 @@ private:
 
 NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     : QWidget(parent)
+    , m_scriptCheckBox(new QCheckBox(this))
+    , m_scriptChooser(new PathChooser(this))
 {
+    const QString fileHelpText = Tr::tr(
+        "The file can be a simple text file containing key/value pairs, or a script\n"
+        "to be evaluated by the system shell.");
+
     const QString helpText = Tr::tr(
         "Enter one environment variable per line.\n"
         "To set or change a variable, use VARIABLE=VALUE.\n"
@@ -66,11 +74,22 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
         "To prepend to a variable, use VARIABLE=+VALUE.\n"
         "Existing variables can be referenced in a VALUE with ${OTHER}.\n"
         "To clear a variable, put its name on a line with nothing else on it.\n"
-        "Lines starting with \"##\" will be treated as comments.");
+        "Lines starting with \"##\" will be treated as comments.\n").append(fileHelpText);
 
+    m_scriptCheckBox->setText(Tr::tr("Get variables from text file or shell script"));
+    m_scriptCheckBox->setToolTip(fileHelpText);
+    connect(m_scriptCheckBox, &QCheckBox::toggled, m_scriptChooser, &PathChooser::setEnabled);
+
+    m_scriptChooser->setExpectedKind(PathChooser::File);
+    m_scriptChooser->setEnabled(false);
+
+    const auto scriptLayout = new QHBoxLayout;
+    scriptLayout->addWidget(m_scriptCheckBox);
+    scriptLayout->addWidget(m_scriptChooser);
     m_editor = new Internal::TextEditHelper(this);
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
+    layout->addLayout(scriptLayout);
     layout->addWidget(m_editor);
     layout->addWidget(new QLabel(helpText, this));
 
@@ -78,6 +97,8 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     timer->setSingleShot(true);
     timer->setInterval(1000);
     connect(m_editor, &QPlainTextEdit::textChanged, timer, qOverload<>(&QTimer::start));
+    connect(m_scriptChooser, &PathChooser::rawPathChanged, this, [this] { forceUpdateCheck(); });
+    connect(m_scriptCheckBox, &QCheckBox::toggled, this, [this] { forceUpdateCheck(); });
     connect(timer, &QTimer::timeout, this, &NameValueItemsWidget::forceUpdateCheck);
     connect(m_editor, &Internal::TextEditHelper::lostFocus, this, [this, timer] {
         timer->stop();
@@ -85,22 +106,33 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     });
 }
 
-void NameValueItemsWidget::setEnvironmentItems(const EnvironmentItems &items)
+void NameValueItemsWidget::setEnvironmentChanges(const EnvironmentChanges &envFromUser)
 {
-    m_originalItems = items;
-    m_editor->document()->setPlainText(EnvironmentItem::toStringList(items)
-                                           .join(QLatin1Char('\n')));
+    m_originalEnvChanges = envFromUser;
+    m_scriptChooser->setFilePath(envFromUser.file());
+    m_scriptCheckBox->setChecked(!envFromUser.file().isEmpty());
+    m_editor->document()->setPlainText(
+        EnvironmentItem::toStringList(envFromUser.itemsFromUser()).join(QLatin1Char('\n')));
 }
 
-EnvironmentItems NameValueItemsWidget::environmentItems() const
+EnvironmentChanges NameValueItemsWidget::envChanges() const
 {
     const QStringList list = m_editor->document()->toPlainText().split(QLatin1String("\n"));
-    return Internal::cleanUp(EnvironmentItem::fromStringList(list));
+    EnvironmentChanges changes;
+    changes.setItemsFromUser(Internal::cleanUp(EnvironmentItem::fromStringList(list)));
+    if (m_scriptCheckBox->isChecked())
+        changes.setFile(m_scriptChooser->filePath());
+    return changes;
 }
 
 void NameValueItemsWidget::setPlaceholderText(const QString &text)
 {
     m_editor->setPlaceholderText(text);
+}
+
+void NameValueItemsWidget::setBrowseHint(const FilePath &hint)
+{
+    m_scriptChooser->setInitialBrowsePathBackup(hint);
 }
 
 bool NameValueItemsWidget::editVariable(const QString &name, Selection selection)
@@ -159,10 +191,10 @@ bool NameValueItemsWidget::editVariable(const QString &name, Selection selection
 
 void NameValueItemsWidget::forceUpdateCheck()
 {
-    const EnvironmentItems newItems = environmentItems();
-    if (newItems != m_originalItems) {
-        m_originalItems = newItems;
-        emit userChangedItems(newItems);
+    const EnvironmentChanges newChanges = envChanges();
+    if (newChanges != m_originalEnvChanges) {
+        m_originalEnvChanges = newChanges;
+        emit userChangedItems(newChanges);
     }
 }
 
@@ -186,14 +218,14 @@ NameValuesDialog::NameValuesDialog(const QString &windowTitle, QWidget *parent)
     setWindowTitle(windowTitle);
 }
 
-void NameValuesDialog::setNameValueItems(const EnvironmentItems &items)
+void NameValuesDialog::setEnvChanges(const EnvironmentChanges &items)
 {
-    m_editor->setEnvironmentItems(items);
+    m_editor->setEnvironmentChanges(items);
 }
 
-EnvironmentItems NameValuesDialog::nameValueItems() const
+EnvironmentChanges NameValuesDialog::envChanges() const
 {
-    return m_editor->environmentItems();
+    return m_editor->envChanges();
 }
 
 void NameValuesDialog::setPlaceholderText(const QString &text)
@@ -201,21 +233,23 @@ void NameValuesDialog::setPlaceholderText(const QString &text)
     m_editor->setPlaceholderText(text);
 }
 
-std::optional<EnvironmentItems> NameValuesDialog::getNameValueItems(QWidget *parent,
-                                                                    const EnvironmentItems &initial,
-                                                                    const QString &placeholderText,
-                                                                    Polisher polisher,
-                                                                    const QString &windowTitle)
+std::optional<EnvironmentChanges> NameValuesDialog::getNameValueItems(
+    QWidget *parent,
+    const EnvironmentChanges &initial,
+    const QString &placeholderText,
+    Polisher polisher,
+    const QString &windowTitle,
+    const FilePath &browseHint)
 {
     NameValuesDialog dialog(windowTitle, parent);
     if (polisher)
         polisher(&dialog);
-    dialog.setNameValueItems(initial);
+    dialog.setEnvChanges(initial);
     dialog.setPlaceholderText(placeholderText);
+    dialog.setBrowseHint(browseHint);
     bool result = dialog.exec() == QDialog::Accepted;
     if (result)
-        return dialog.nameValueItems();
-
+        return dialog.envChanges();
     return {};
 }
 

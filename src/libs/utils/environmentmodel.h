@@ -34,6 +34,7 @@ public:
 
     Environment baseEnvironment() const;
     void setBaseEnvironment(const Environment &env);
+    EnvironmentItems effectiveDiff() const;
 
     QModelIndex addVariable();
     QModelIndex addVariable(const EnvironmentItem &item);
@@ -45,9 +46,10 @@ public:
     bool canReset(const QString &name);
     QString indexToVariable(const QModelIndex &index) const;
     QModelIndex variableToIndex(const QString &name) const;
-    bool changes(const QString &key) const;
-    EnvironmentItems userChanges() const;
-    void setUserChanges(const EnvironmentItems &items);
+    bool hasExplicitChanges(const QString &key) const;
+    bool hasChangesFromFile(const QString &key) const;
+    EnvironmentChanges changes() const;
+    void setUserChanges(const EnvironmentChanges &changes);
     bool currentEntryIsPathList(const QModelIndex &current) const;
 
 signals:

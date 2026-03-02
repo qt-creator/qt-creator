@@ -641,31 +641,13 @@ Environment LinuxDevicePrivate::getEnvironment()
     if (m_environmentCache.has_value())
         return m_environmentCache.value();
 
-    if (q->deviceState() == IDevice::DeviceDisconnected)
-        return {};
-
-    char separator = '\0';
-    Process getEnvProc;
-    getEnvProc.setCommand({q->filePath("env"), {"-0"}});
-    using namespace std::chrono;
-    getEnvProc.runBlocking(5s);
-
-    if (getEnvProc.result() != ProcessResult::FinishedWithSuccess) {
-        qCWarning(linuxDeviceLog) << "Failed to get environment variables from device:"
-                                  << getEnvProc.verboseExitMessage()
-                                  << "Trying again without -0 option";
-        separator = '\n';
-        getEnvProc.setCommand({q->filePath("env"), {}});
-        getEnvProc.runBlocking(5s);
-    }
-    if (getEnvProc.result() != ProcessResult::FinishedWithSuccess) {
-        qCWarning(linuxDeviceLog) << "Failed to get environment variables from device:"
-                                  << getEnvProc.verboseExitMessage();
+    const auto env = q->getUnixEnvironment();
+    if (!env) {
+        qCWarning(linuxDeviceLog) << env.error();
         return {};
     }
 
-    const QString remoteOutput = getEnvProc.cleanedStdOut();
-    m_environmentCache = Environment(remoteOutput.split(separator, Qt::SkipEmptyParts), q->osType());
+    m_environmentCache = *env;
     return m_environmentCache.value();
 }
 
@@ -1327,6 +1309,11 @@ QString LinuxDevice::userAtHost() const
 QString LinuxDevice::userAtHostAndPort() const
 {
     return sshParameters().userAtHostAndPort();
+}
+
+Result<Environment> LinuxDevice::sourcedEnvironment(const FilePath &script) const
+{
+    return getUnixEnvironment(script);
 }
 
 FilePath LinuxDevice::rootPath() const

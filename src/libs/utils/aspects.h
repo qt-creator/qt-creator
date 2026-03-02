@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "environment.h"
 #include "filepath.h"
 #include "guiutils.h"
 #include "id.h"
@@ -1167,7 +1168,7 @@ signals:
 };
 
 template<class T>
-class QTCREATOR_UTILS_EXPORT UndoableValue
+class UndoableValue
 {
 public:
     class UndoCmd : public QUndoCommand
@@ -1338,6 +1339,27 @@ public:
 
     FontFamilyAspect fontFamily{this};
     Utils::IntegerAspect fontPointSize{this};
+};
+
+class QTCREATOR_UTILS_EXPORT EnvironmentChangesAspect
+    : public TypedAspect<EnvironmentChanges>
+{
+    using TypedAspect::TypedAspect;
+
+private:
+    QVariant variantValue() const override { return m_value.toVariant(); }
+    QVariant volatileVariantValue() const override { return m_volatileValue.toVariant(); }
+    QVariant defaultVariantValue() const override { return m_default.toVariant(); }
+
+    void setVariantValue(const QVariant &value, Announcement howToAnnounce = DoEmit) override
+    {
+        setValue(EnvironmentChanges::createFromVariant(value), howToAnnounce);
+    }
+
+    void setDefaultVariantValue(const QVariant &value) override
+    {
+        setDefaultValue(EnvironmentChanges::createFromVariant(value));
+    }
 };
 
 } // namespace Utils

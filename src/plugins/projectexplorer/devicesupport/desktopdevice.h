@@ -13,7 +13,13 @@ namespace ProjectExplorer {
 class ProjectExplorerPlugin;
 class DesktopDevicePrivate;
 
-namespace Internal { class DesktopDeviceFactory; }
+namespace Internal {
+class DesktopDeviceFactory;
+
+#ifdef WITH_TESTS
+QObject *createDesktopDeviceTest();
+#endif
+}
 
 class PROJECTEXPLORER_EXPORT DesktopDevice : public IDevice
 {
@@ -31,6 +37,8 @@ public:
 
     Utils::Result<> handlesFile(const Utils::FilePath &filePath) const override;
     Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;
+    Utils::Result<Utils::Environment> sourcedEnvironment(
+        const Utils::FilePath &script) const override;
 
     Utils::FilePath rootPath() const override;
     Utils::FilePath filePath(const QString &pathOnDevice) const override;

@@ -59,8 +59,7 @@ public:
     Utils::TypedSelectionAspect<KitFilter> kitFilter{this};
     Utils::TypedSelectionAspect<StopBeforeBuild> stopBeforeBuild{this};
     Utils::TypedSelectionAspect<TerminalMode> terminalMode{this};
-    // FIXME: Use EnvironmentItems once theire interaction with QVariant/<<() works.
-    Utils::TypedAspect<QStringList> appEnvChanges{this};
+    Utils::EnvironmentChangesAspect appEnvChanges{this};
     Utils::StringAspect appEnvChangeDisplay{this};
 
     // Add a UUid which is used to identify the development environment.

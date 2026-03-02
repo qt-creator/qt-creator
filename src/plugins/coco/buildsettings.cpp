@@ -254,7 +254,7 @@ Utils::Environment CocoQMakeSettings::buildEnvironment() const
         return Utils::Environment();
 
     Utils::Environment env = buildConfig()->environment();
-    env.modify(buildConfig()->userEnvironmentChanges());
+    buildConfig()->userEnvironmentChanges().modifyEnvironment(env, buildConfig()->macroExpander());
     return env;
 }
 
@@ -273,7 +273,7 @@ void CocoQMakeSettings::setQMakeFeatures() const
     }
 
     Utils::EnvironmentItems diff = buildConfig()->baseEnvironment().diff(env);
-    buildConfig()->setUserEnvironmentChanges(diff);
+    buildConfig()->setUserEnvironmentChanges({diff, {}});
 }
 
 bool CocoQMakeSettings::environmentSet() const

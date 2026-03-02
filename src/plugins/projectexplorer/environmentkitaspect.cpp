@@ -3,19 +3,18 @@
 
 #include "environmentkitaspect.h"
 
+#include "devicesupport/devicekitaspects.h"
+#include "devicesupport/idevice.h"
 #include "projectexplorertr.h"
 #include "kit.h"
 #include "kitaspect.h"
 #include "kitmanager.h"
 #include "toolchain.h"
 
-#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
-#include <utils/guard.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
-#include <utils/listmodel.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -35,9 +34,10 @@ static EnvironmentItem forceMSVCEnglishItem()
     return item;
 }
 
-static bool enforcesMSVCEnglish(const EnvironmentItems &changes)
+static bool enforcesMSVCEnglish(const EnvironmentChanges &changes)
 {
-    return changes.contains(forceMSVCEnglishItem());
+    return changes.itemsFromUser().contains(forceMSVCEnglishItem())
+        || changes.itemsFromFile().contains(forceMSVCEnglishItem());
 }
 
 static Id buildEnvId() { return "PE.Profile.Environment"; }
@@ -96,8 +96,8 @@ private:
 
     void refresh() override
     {
-        m_buildEnvButton->setToolTip(EnvironmentItem::toShortSummary(m_buildEnvChanges, true));
-        m_runEnvButton->setToolTip(EnvironmentItem::toShortSummary(m_runEnvChanges, true));
+        m_buildEnvButton->setToolTip(m_buildEnvChanges.toShortSummary(kit()->macroExpander(), true));
+        m_runEnvButton->setToolTip(m_runEnvChanges.toShortSummary(kit()->macroExpander(), true));
 
         // TODO: Set an icon on the button representing whether there are changes or not.
     }
@@ -131,13 +131,16 @@ private:
 
     void editBuildEnvironmentChanges()
     {
-        std::optional<EnvironmentItems> changes =
-            runEnvironmentItemsDialog(
-                m_mainWidget,
-                m_buildEnvChanges,
-                QString(),
-                polisher(),
-                Tr::tr("Edit Build Environment"));
+        FilePath browseHint;
+        if (const IDeviceConstPtr &device = BuildDeviceKitAspect::device(kit()))
+            browseHint = device->rootPath();
+        std::optional<EnvironmentChanges> changes = runEnvironmentItemsDialog(
+            m_mainWidget,
+            m_buildEnvChanges,
+            QString(),
+            polisher(),
+            Tr::tr("Edit Build Environment"),
+            browseHint);
         if (!changes)
             return;
 
@@ -145,7 +148,7 @@ private:
             // re-add what envWithoutMSVCEnglishEnforcement removed
             // or update vslang checkbox if user added it manually
             if (m_vslangCheckbox->isChecked() && !enforcesMSVCEnglish(*changes))
-                changes->append(forceMSVCEnglishItem());
+                changes->appendUserItem(forceMSVCEnglishItem());
             else if (enforcesMSVCEnglish(*changes))
                 m_vslangCheckbox->setChecked(true);
         }
@@ -159,13 +162,16 @@ private:
 
     void editRunEnvironmentChanges()
     {
-        const std::optional<EnvironmentItems> changes =
-                runEnvironmentItemsDialog(
-                m_mainWidget,
-                m_runEnvChanges,
-                QString(),
-                polisher(),
-                Tr::tr("Edit Run Environment"));
+        FilePath browseHint;
+        if (const IDeviceConstPtr &device = RunDeviceKitAspect::device(kit()))
+            browseHint = device->rootPath();
+        const std::optional<EnvironmentChanges> changes = runEnvironmentItemsDialog(
+            m_mainWidget,
+            m_runEnvChanges,
+            QString(),
+            polisher(),
+            Tr::tr("Edit Run Environment"),
+            browseHint);
         if (!changes)
             return;
 
@@ -193,9 +199,9 @@ private:
         connect(m_vslangCheckbox, &QCheckBox::clicked, this, [this](bool checked) {
             const bool hasVsLangEntry = enforcesMSVCEnglish(m_buildEnvChanges);
             if (checked && !hasVsLangEntry)
-                m_buildEnvChanges.append(forceMSVCEnglishItem());
+                m_buildEnvChanges.appendUserItem(forceMSVCEnglishItem());
             else if (!checked && hasVsLangEntry)
-                m_buildEnvChanges.removeAll(forceMSVCEnglishItem());
+                m_buildEnvChanges.removeUserItem(forceMSVCEnglishItem());
         });
     }
 
@@ -205,8 +211,8 @@ private:
     QCheckBox *m_vslangCheckbox = nullptr;
 
     // Used as "volatile value" of the aspect.
-    EnvironmentItems m_runEnvChanges;
-    EnvironmentItems m_buildEnvChanges;
+    EnvironmentChanges m_runEnvChanges;
+    EnvironmentChanges m_buildEnvChanges;
 };
 
 class EnvironmentKitAspectFactory : public KitAspectFactory
@@ -214,9 +220,7 @@ class EnvironmentKitAspectFactory : public KitAspectFactory
 public:
     EnvironmentKitAspectFactory();
 
-    Tasks validate(const Kit *k) const override;
-    void fix(Kit *k) override;
-
+    Tasks validate(const Kit *) const override { return {}; }
     void addToBuildEnvironment(const Kit *k, Environment &env) const override;
     void addToRunEnvironment(const Kit *, Environment &) const override;
 
@@ -233,48 +237,14 @@ EnvironmentKitAspectFactory::EnvironmentKitAspectFactory()
     setPriority(29000);
 }
 
-Tasks EnvironmentKitAspectFactory::validate(const Kit *k) const
-{
-    Tasks result;
-    QTC_ASSERT(k, return result);
-
-    const QVariant variant = k->value(buildEnvId());
-    if (!variant.isNull() && !variant.canConvert(QMetaType(QMetaType::QVariantList)))
-        result << BuildSystemTask(Task::Error, Tr::tr("The environment setting value is invalid."));
-
-    return result;
-}
-
-void EnvironmentKitAspectFactory::fix(Kit *k)
-{
-    QTC_ASSERT(k, return);
-
-    if (const QVariant variant = k->value(buildEnvId());
-        !variant.isNull() && !variant.canConvert(QMetaType(QMetaType::QVariantList))) {
-        qWarning("Kit \"%s\" has a wrong build environment value set.", qPrintable(k->displayName()));
-        EnvironmentKitAspect::setBuildEnvChanges(k, EnvironmentItems());
-    }
-    if (const QVariant variant = k->value(runEnvId());
-        !variant.isNull() && !variant.canConvert(QMetaType(QMetaType::QVariantList))) {
-        qWarning("Kit \"%s\" has a wrong run environment value set.", qPrintable(k->displayName()));
-        EnvironmentKitAspect::setRunEnvChanges(k, EnvironmentItems());
-    }
-}
-
 void EnvironmentKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
-    const QStringList values
-        = transform(EnvironmentItem::toStringList(EnvironmentKitAspect::buildEnvChanges(k)),
-                    [k](const QString &v) { return k->macroExpander()->expand(v); });
-    env.modify(EnvironmentItem::fromStringList(values));
+    EnvironmentKitAspect::buildEnvChanges(k).modifyEnvironment(env, k->macroExpander());
 }
 
 void EnvironmentKitAspectFactory::addToRunEnvironment(const Kit *k, Environment &env) const
 {
-    const QStringList values
-        = transform(EnvironmentItem::toStringList(EnvironmentKitAspect::runEnvChanges(k)),
-                    [k](const QString &v) { return k->macroExpander()->expand(v); });
-    env.modify(EnvironmentItem::fromStringList(values));
+    EnvironmentKitAspect::runEnvChanges(k).modifyEnvironment(env, k->macroExpander());
 }
 
 KitAspect *EnvironmentKitAspectFactory::createKitAspect(Kit *k) const
@@ -286,9 +256,13 @@ KitAspect *EnvironmentKitAspectFactory::createKitAspect(Kit *k) const
 KitAspectFactory::ItemList EnvironmentKitAspectFactory::toUserOutput(const Kit *k) const
 {
     ItemList list;
-    const auto addIfNotEmpty = [&](const QString &displayName, const EnvironmentItems &changes) {
-        if (!changes.isEmpty())
-            list.emplaceBack(displayName, EnvironmentItem::toStringList(changes).join("<br>"));
+    const auto addIfNotEmpty = [&](const QString &displayName,
+                                   const EnvironmentChanges &changes) {
+        if (changes.hasItems()) {
+            Environment env;
+            changes.modifyEnvironment(env, k->macroExpander());
+            list.emplaceBack(displayName, env.toStringList().join("<br>"));
+        }
     };
     addIfNotEmpty(Tr::tr("Build Environment"), EnvironmentKitAspect::buildEnvChanges(k));
     addIfNotEmpty(Tr::tr("Run Environment"), EnvironmentKitAspect::runEnvChanges(k));
@@ -304,30 +278,30 @@ Id EnvironmentKitAspect::id()
     return buildEnvId();
 }
 
-EnvironmentItems EnvironmentKitAspect::buildEnvChanges(const Kit *k)
-{
-     if (k)
-         return EnvironmentItem::fromStringList(k->value(buildEnvId()).toStringList());
-     return {};
-}
-
-void EnvironmentKitAspect::setBuildEnvChanges(Kit *k, const EnvironmentItems &changes)
+EnvironmentChanges EnvironmentKitAspect::buildEnvChanges(const Kit *k)
 {
     if (k)
-        k->setValue(buildEnvId(), EnvironmentItem::toStringList(changes));
-}
-
-EnvironmentItems EnvironmentKitAspect::runEnvChanges(const Kit *k)
-{
-    if (k)
-        return EnvironmentItem::fromStringList(k->value(runEnvId()).toStringList());
+        return EnvironmentChanges::createFromVariant(k->value(buildEnvId()));
     return {};
 }
 
-void EnvironmentKitAspect::setRunEnvChanges(Kit *k, const Utils::EnvironmentItems &changes)
+void EnvironmentKitAspect::setBuildEnvChanges(Kit *k, const EnvironmentChanges &changes)
 {
     if (k)
-        k->setValue(runEnvId(), EnvironmentItem::toStringList(changes));
+        k->setValue(buildEnvId(), changes.toVariant());
+}
+
+EnvironmentChanges EnvironmentKitAspect::runEnvChanges(const Kit *k)
+{
+    if (k)
+        return EnvironmentChanges::createFromVariant(k->value(runEnvId()));
+    return {};
+}
+
+void EnvironmentKitAspect::setRunEnvChanges(Kit *k, const EnvironmentChanges &changes)
+{
+    if (k)
+        k->setValue(runEnvId(), changes.toVariant());
 }
 
 } // namespace ProjectExplorer

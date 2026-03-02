@@ -2292,6 +2292,14 @@ Result<Environment> FilePath::deviceEnvironmentWithError() const
     return Environment::systemEnvironment();
 }
 
+Result<Environment> FilePath::sourcedDeviceEnvironment() const
+{
+    if (isLocal() && HostOsInfo::isAnyUnixHost())
+        return getUnixEnvironment(FilePath::fromString("env"), osType(), *this);
+    QTC_ASSERT(deviceFileHooks().sourcedEnvironment, return {});
+    return deviceFileHooks().sourcedEnvironment(*this);
+}
+
 FilePaths FilePath::devicePathEnvironmentVariable() const
 {
     FilePaths result = deviceEnvironment().path();

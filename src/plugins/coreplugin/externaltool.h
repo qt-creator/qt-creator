@@ -46,7 +46,7 @@ public:
     Utils::FilePath workingDirectory() const;
     Utils::Id baseEnvironmentProviderId() const;
     Utils::Environment baseEnvironment() const;
-    Utils::EnvironmentItems environmentUserChanges() const;
+    Utils::EnvironmentChanges environmentUserChanges() const;
 
     void setFilePath(const Utils::FilePath &filePath);
     void setPreset(std::shared_ptr<ExternalTool> preset);
@@ -77,7 +77,7 @@ public:
     void setInput(const QString &input);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setBaseEnvironmentProviderId(Utils::Id id);
-    void setEnvironmentUserChanges(const Utils::EnvironmentItems &items);
+    void setEnvironmentUserChanges(const Utils::EnvironmentChanges &items);
 
 private:
     QString m_id;
@@ -90,7 +90,7 @@ private:
     QString m_input;
     Utils::FilePath m_workingDirectory;
     Utils::Id m_baseEnvironmentProviderId;
-    Utils::EnvironmentItems m_environment;
+    Utils::EnvironmentChanges m_environment;
     OutputHandling m_outputHandling = ShowInPane;
     OutputHandling m_errorHandling = ShowInPane;
     bool m_modifiesCurrentDocument = false;

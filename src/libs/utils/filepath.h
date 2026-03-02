@@ -196,6 +196,7 @@ public:
     [[nodiscard]] QString relativeNativePathFromDir(const FilePath &anchorDir) const;
     [[nodiscard]] Environment deviceEnvironment() const;
     [[nodiscard]] Result<Environment> deviceEnvironmentWithError() const;
+    [[nodiscard]] Result<Environment> sourcedDeviceEnvironment() const;
     [[nodiscard]] FilePaths devicePathEnvironmentVariable() const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     [[nodiscard]] FilePath withNewMappedPath(const FilePath &newPath) const;
@@ -360,6 +361,7 @@ public:
     std::function<QString(const FilePath &)> deviceDisplayName;
     std::function<Result<>(const FilePath &, const FilePath &)> ensureReachable;
     std::function<Result<Environment>(const FilePath &)> environment;
+    std::function<Result<Environment>(const FilePath &)> sourcedEnvironment;
     std::function<bool(const FilePath &left, const FilePath &right)> isSameDevice;
     std::function<Result<FilePath>(const FilePath &)> localSource;
     std::function<void(const FilePath &, const Environment &)> openTerminal;

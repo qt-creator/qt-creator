@@ -505,7 +505,7 @@ FilePath CMakeToolManager::mappedFilePath(Project *project, const FilePath &path
 
     auto environment = Environment::systemEnvironment();
     if (project)
-        environment.modify(project->additionalEnvironment());
+        project->additionalEnvironment().modifyEnvironment(environment, globalMacroExpander());
     const bool enableJunctions
         = QVariant(environment.value_or(
                        "QTC_CMAKE_USE_JUNCTIONS",
@@ -613,7 +613,7 @@ CMakeToolManagerPrivate::CMakeToolManagerPrivate()
         auto project = ProjectManager::startupProject();
         auto environment = Environment::systemEnvironment();
         if (project)
-            environment.modify(project->additionalEnvironment());
+            project->additionalEnvironment().modifyEnvironment(environment, globalMacroExpander());
 
         if (environment.hasKey("QTC_CMAKE_JUNCTIONS_DIR"))
             m_junctionsDir = FilePath::fromUserInput(environment.value("QTC_CMAKE_JUNCTIONS_DIR"));

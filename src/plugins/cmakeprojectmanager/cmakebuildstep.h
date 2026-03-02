@@ -58,8 +58,8 @@ public:
     void setBuildPreset(const QString &preset);
 
     Utils::Environment environment() const;
-    void setUserEnvironmentChanges(const Utils::EnvironmentItems &diff);
-    Utils::EnvironmentItems userEnvironmentChanges() const;
+    void setUserEnvironmentChanges(const Utils::EnvironmentChanges &diff);
+    Utils::EnvironmentChanges userEnvironmentChanges() const;
     bool useClearEnvironment() const;
     void setUseClearEnvironment(bool b);
     void updateAndEmitEnvironmentChanged();
@@ -114,7 +114,7 @@ private:
     Utils::TreeModel<Utils::TreeItem, CMakeTargetItem> m_buildTargetModel;
 
     Utils::Environment m_environment;
-    Utils::EnvironmentItems  m_userEnvironmentChanges;
+    Utils::EnvironmentChanges m_userEnvironmentChanges;
     bool m_clearSystemEnvironment = false;
     QString m_buildPreset;
     std::optional<QString> m_configuration;

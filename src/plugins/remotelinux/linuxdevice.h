@@ -66,6 +66,8 @@ public:
     Utils::ProcessInterface *createProcessInterface() const override;
     ProjectExplorer::FileTransferInterface *createFileTransferInterface(
             const ProjectExplorer::FileTransferSetupData &setup) const override;
+    Utils::Result<Utils::Environment> sourcedEnvironment(
+        const Utils::FilePath &script) const override;
 
     void checkOsType() override;
 

@@ -500,7 +500,7 @@ public:
             for (auto &envItem : envItems)
                 envItem.value = macroExpander()->expand(envItem.value);
 
-            setUserEnvironmentChanges(envItems);
+            setUserEnvironmentChanges({envItems, {}});
             originalExtraInfo->remove("env");
         }
     }

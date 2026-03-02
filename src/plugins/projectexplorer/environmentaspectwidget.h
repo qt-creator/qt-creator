@@ -41,7 +41,7 @@ private:
     void baseEnvironmentSelected(int idx);
     void changeBaseEnvironment();
     void userChangesEdited();
-    void changeUserChanges(Utils::EnvironmentItems changes);
+    void changeUserChanges(Utils::EnvironmentChanges changes);
     void environmentChanged();
 
     EnvironmentAspect *m_aspect;

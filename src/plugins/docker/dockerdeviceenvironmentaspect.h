@@ -9,7 +9,7 @@
 
 namespace Docker {
 
-class DOCKER_EXPORT DockerDeviceEnvironmentAspect : public Utils::TypedAspect<QStringList>
+class DOCKER_EXPORT DockerDeviceEnvironmentAspect : public Utils::EnvironmentChangesAspect
 {
     Q_OBJECT
 public:
@@ -34,7 +34,7 @@ signals:
 
 protected:
     std::optional<Utils::Environment> m_remoteEnvironment;
-    Utils::UndoableValue<QStringList> undoable;
+    Utils::UndoableValue<Utils::EnvironmentChanges> undoable;
 };
 
 } // namespace Docker

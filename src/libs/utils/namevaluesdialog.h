@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include "namevalueitem.h"
+#include "environment.h"
+#include "filepath.h"
 #include "utils_global.h"
 
 #include <QDialog>
@@ -11,7 +12,10 @@
 #include <functional>
 #include <optional>
 
+QT_FORWARD_DECLARE_CLASS(QCheckBox)
+
 namespace Utils {
+class PathChooser;
 
 namespace Internal { class TextEditHelper; }
 
@@ -21,10 +25,11 @@ class QTCREATOR_UTILS_EXPORT NameValueItemsWidget : public QWidget
 public:
     explicit NameValueItemsWidget(QWidget *parent = nullptr);
 
-    void setEnvironmentItems(const EnvironmentItems &items);
-    EnvironmentItems environmentItems() const;
+    void setEnvironmentChanges(const EnvironmentChanges &userEnv);
+    EnvironmentChanges envChanges() const;
 
     void setPlaceholderText(const QString &text);
+    void setBrowseHint(const FilePath &hint);
 
     enum class Selection { Name, Value };
     bool editVariable(const QString &name, Selection selection);
@@ -33,27 +38,34 @@ public:
     void setupDirtyHooks();
 
 signals:
-    void userChangedItems(const EnvironmentItems &items);
+    void userChangedItems(const EnvironmentChanges &envChanges);
 
 private:
     Internal::TextEditHelper *m_editor;
-    EnvironmentItems m_originalItems;
+    QCheckBox * const m_scriptCheckBox;
+    PathChooser * const m_scriptChooser;
+    EnvironmentChanges m_originalEnvChanges;
 };
 
 class QTCREATOR_UTILS_EXPORT NameValuesDialog : public QDialog
 {
 public:
-    void setNameValueItems(const EnvironmentItems &items);
-    EnvironmentItems nameValueItems() const;
+    void setEnvChanges(const EnvironmentChanges &envFromUser);
+    EnvironmentChanges envChanges() const;
 
     void setPlaceholderText(const QString &text);
 
+    void setBrowseHint(const FilePath &hint) { m_editor->setBrowseHint(hint); }
+
     using Polisher = std::function<void(QWidget *)>;
-    static std::optional<EnvironmentItems> getNameValueItems(QWidget *parent = nullptr,
-                                                             const EnvironmentItems &initial = {},
-                                                             const QString &placeholderText = {},
-                                                             Polisher polish = {},
-                                                             const QString &windowTitle = {});
+    static std::optional<EnvironmentChanges> getNameValueItems(
+        QWidget *parent = nullptr,
+        const EnvironmentChanges &initial = {},
+        const QString &placeholderText = {},
+        Polisher polish = {},
+        const QString &windowTitle = {},
+        const FilePath &browseHint = {});
+
 protected:
     explicit NameValuesDialog(const QString &windowTitle,
                               QWidget *parent = {});
