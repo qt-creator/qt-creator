@@ -119,13 +119,9 @@ void ProcessHelper::setUnixTerminalDisabled()
 {
     m_unixTerminalDisabled = true;
 #if defined(Q_OS_UNIX)
-#  if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
-    enableChildProcessModifier();
-#  else
     UnixProcessParameters params = unixProcessParameters();
     params.flags |= UnixProcessFlag::CreateNewSession;
     setUnixProcessParameters(params);
-#  endif
 #endif
 }
 
@@ -155,12 +151,6 @@ void ProcessHelper::enableChildProcessModifier()
             if (::nice(5) == -1 && errno != 0)
                 perror("Failed to set nice value");
         }
-
-#  if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
-        // Disable terminal by becoming a session leader.
-        if (m_unixTerminalDisabled)
-            setsid();
-#  endif
     });
 #endif
 }

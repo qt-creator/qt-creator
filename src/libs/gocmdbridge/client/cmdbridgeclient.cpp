@@ -552,12 +552,7 @@ Result<QFuture<Client::FindData>> Client::find(
 
                 cache.append(data);
                 if (cache.size() > 1000) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 6, 0)
-                    for (const auto &entry : cache)
-                        promise.addResult(entry);
-#else
                     promise.addResults(cache);
-#endif
                     cache.clear();
                 }
                 return JobResult::Continue;

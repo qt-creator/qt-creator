@@ -409,13 +409,11 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
     });
     currentViewOverlay->setPaintFunction([](QWidget *w, QPainter &p, QPaintEvent *) {
         QColor viewHighlight = w->palette().color(QPalette::Highlight);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
         // Themes that use the application accent color on the mode bar do it on the view, too.
         const QColor modeHighlight = creatorColor(Theme::FancyToolButtonHighlightColor);
         const QColor paletteAccent = w->palette().color(QPalette::Accent);
         if (modeHighlight == paletteAccent)
             viewHighlight = paletteAccent;
-#endif // >= Qt 6.6.0
         p.fillRect(w->rect(), viewHighlight);
     });
     currentViewOverlay->setVisible(false);

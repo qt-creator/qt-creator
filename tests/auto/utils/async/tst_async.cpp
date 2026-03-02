@@ -392,7 +392,6 @@ public:
 
 void tst_Async::onResultReady()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
     { // lambda
         QObject context;
         QFuture<QString> f = Utils::asyncRun([](QPromise<QString> &fi) {
@@ -426,7 +425,6 @@ void tst_Async::onResultReady()
         QCOMPARE(count, 2);
         QCOMPARE(obj.value, QString("there"));
     }
-#endif
 }
 
 void tst_Async::futureSynchonizer()

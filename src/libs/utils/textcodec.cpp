@@ -124,7 +124,6 @@ const QList<TextEncoding> &TextEncoding::availableEncodings()
 {
     static const QList<TextEncoding> theAvailableEncoding = [] {
         QList<TextEncoding> encodings;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
         std::set<QString> encodingNames;
         const QStringList codecs = QStringConverter::availableCodecs();
         for (const QString &name : codecs) {
@@ -139,12 +138,6 @@ const QList<TextEncoding> &TextEncoding::availableEncodings()
             TextEncoding encoding(name.toUtf8());
             encodings.append(encoding);
         }
-#else
-        // Before Qt 6.7, QStringConverter::availableCodecs did not exist,
-        // even if Qt was built with ICU. Offer at least the well-known ones.
-        for (int enc = 0; enc < QStringConverter::Encoding::LastEncoding; ++enc)
-            encodings.append(TextEncoding(QStringConverter::Encoding(enc)));
-#endif
         return encodings;
     }();
     return theAvailableEncoding;

@@ -167,15 +167,7 @@ void ComponentNameDialog::setProperties(const QStringList &properties)
     for (int i = 0; i < m_listWidget->count(); ++i) {
         QListWidgetItem *item = m_listWidget->item(i);
         item->setFlags(Qt::ItemIsUserCheckable | Qt:: ItemIsEnabled);
-#if QT_VERSION > QT_VERSION_CHECK(6, 7, 0)
         if (isCheckedByDefault(item->text()))
-#else
-        const QString text = item->text();
-        const QStringView view = text;
-
-        if (isCheckedByDefault(
-                std::u16string_view{view.utf16(), static_cast<std::size_t>(view.size())}))
-#endif
             m_listWidget->item(i)->setCheckState(Qt::Checked);
         else
             m_listWidget->item(i)->setCheckState(Qt::Unchecked);

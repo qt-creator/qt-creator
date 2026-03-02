@@ -93,12 +93,10 @@ static void parseArguments(const QStringList &arguments)
     for (auto it = arguments.cbegin(); it != arguments.cend(); ++it) {
         if (*it == "-designer-qt-pluginpath")
             doWithNext(it, [](const QString &path) { setQtPluginPath(path); });
-#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
         // -designer-pluginpath is only supported when building with Qt >= 6.7.0, which added the
         // required API
         else if (*it == "-designer-pluginpath")
             doWithNext(it, [](const QString &path) { addPluginPath(path); });
-#endif
     }
 }
 

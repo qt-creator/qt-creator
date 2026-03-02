@@ -476,12 +476,6 @@ private:
             // Show some kind of GUI with collected messages before exiting.
             // For Windows, Qt already uses a dialog.
             if (HostOsInfo::isLinuxHost()) {
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0) && QT_VERSION < QT_VERSION_CHECK(6, 6, 1))
-                // Information about potentially missing libxcb-cursor0 is printed by Qt since Qt 6.5.3 and Qt 6.6.1
-                // Add it manually for other versions >= 6.5.0
-                instance->messages.prepend("From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to "
-                                           "load the Qt xcb platform plugin.");
-#endif
                 if (QFile::exists("/usr/bin/xmessage"))
                     QProcess::startDetached("/usr/bin/xmessage", {instance->messages.join("\n")});
             } else if (HostOsInfo::isMacHost()) {
