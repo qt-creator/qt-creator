@@ -354,7 +354,7 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-using ExCommandMap = QMap<QString, QRegularExpression>;
+using ExCommandMap = QMap<QString, QString>;
 using UserCommandMap = QMap<int, QString>;
 
 class FakeVimPlugin final : public ExtensionSystem::IPlugin
@@ -545,10 +545,10 @@ FakeVimExCommandsPageWidget::FakeVimExCommandsPageWidget()
 
         QString regex;
         if (dd->m_exCommandMap.contains(name))
-            regex = dd->m_exCommandMap[name].pattern();
+            regex = dd->m_exCommandMap[name];
         item->setText(2, regex);
 
-        if (regex != dd->m_defaultExCommandMap[name].pattern())
+        if (regex != dd->m_defaultExCommandMap[name])
             m_mappings.setModified(item, true);
     }
 
@@ -602,13 +602,13 @@ ExCommandMap FakeVimExCommandsPageWidget::exCommandMapFromWidget() const
             QTreeWidgetItem *item = section->child(j);
             const QString name = item->data(0, CommandRole).toString();
             const QString regex = item->data(2, Qt::DisplayRole).toString();
-            const QString pattern = dd->m_defaultExCommandMap.value(name).pattern();
+            const QString pattern = dd->m_defaultExCommandMap.value(name);
             if ((regex.isEmpty() && pattern.isEmpty())
                 || (!regex.isEmpty() && pattern == regex))
                 continue;
             const QRegularExpression expression(regex);
             if (expression.isValid())
-                map[name] = expression;
+                map[name] = expression.pattern();
         }
     }
     return map;
@@ -637,7 +637,7 @@ void FakeVimExCommandsPageWidget::commandChanged()
     if (current->data(0, Qt::UserRole).isValid())
         current->setText(2, regex);
 
-    m_mappings.setModified(current, regex != dd->m_defaultExCommandMap[name].pattern());
+    m_mappings.setModified(current, regex != dd->m_defaultExCommandMap[name]);
 }
 
 void FakeVimExCommandsPageWidget::resetToDefault()
@@ -648,7 +648,7 @@ void FakeVimExCommandsPageWidget::resetToDefault()
     const QString name = current->data(0, CommandRole).toString();
     QString regex;
     if (dd->m_defaultExCommandMap.contains(name))
-        regex = dd->m_defaultExCommandMap[name].pattern();
+        regex = dd->m_defaultExCommandMap[name];
     m_commandEdit.setText(regex);
 }
 
@@ -663,7 +663,7 @@ void FakeVimExCommandsPageWidget::defaultAction()
             const QString name = item->data(0, CommandRole).toString();
             QString regex;
             if (dd->m_defaultExCommandMap.contains(name))
-                regex = dd->m_defaultExCommandMap[name].pattern();
+                regex = dd->m_defaultExCommandMap[name];
             m_mappings.setModified(item, false);
             item->setText(2, regex);
             if (item == m_mappings.commandList()->currentItem())
@@ -685,13 +685,13 @@ void FakeVimExCommandsPageWidget::apply()
         int count = 0;
         for (auto it = newMapping.constBegin(), end = newMapping.constEnd(); it != end; ++it) {
             const QString id = it.key();
-            const QRegularExpression re = it.value();
+            const QString re = it.value();
 
             if ((defaultMap.contains(id) && defaultMap[id] != re)
-                || (!defaultMap.contains(id) && !re.pattern().isEmpty())) {
+                || (!defaultMap.contains(id) && !re.isEmpty())) {
                 settings->setArrayIndex(count);
                 settings->setValue(idKey, id);
-                settings->setValue(reKey, re.pattern());
+                settings->setValue(reKey, re);
                 ++count;
             }
         }
@@ -1095,18 +1095,12 @@ FakeVimPlugin::FakeVimPlugin()
     addTestCreator([] { return createFakeVimTester(&setupTest); });
 #endif
 
-    m_defaultExCommandMap[CppEditor::Constants::SWITCH_HEADER_SOURCE] =
-        QRegularExpression("^A$");
-    m_defaultExCommandMap["Coreplugin.OutputPane.previtem"] =
-        QRegularExpression("^(cN(ext)?|cp(revious)?)!?( (.*))?$");
-    m_defaultExCommandMap["Coreplugin.OutputPane.nextitem"] =
-        QRegularExpression("^cn(ext)?!?( (.*))?$");
-    m_defaultExCommandMap[TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR] =
-        QRegularExpression("^tag?$");
-    m_defaultExCommandMap[Core::Constants::GO_BACK] =
-        QRegularExpression("^pop?$");
-    m_defaultExCommandMap["QtCreator.Locate"] =
-        QRegularExpression("^e$");
+    m_defaultExCommandMap[CppEditor::Constants::SWITCH_HEADER_SOURCE] = "^A$";
+    m_defaultExCommandMap["Coreplugin.OutputPane.previtem"] = "^(cN(ext)?|cp(revious)?)!?( (.*))?$";
+    m_defaultExCommandMap["Coreplugin.OutputPane.nextitem"] = "^cn(ext)?!?( (.*))?$";
+    m_defaultExCommandMap[TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR] = "^tag?$";
+    m_defaultExCommandMap[Core::Constants::GO_BACK] = "^pop?$";
+    m_defaultExCommandMap["QtCreator.Locate"] = "^e$";
 
     for (int i = 1; i < 10; ++i) {
         QString cmd = QString::fromLatin1(":echo User command %1 executed.<CR>");
@@ -1244,11 +1238,11 @@ void FakeVimPlugin::readSettings()
     int size = settings->beginReadArray(exCommandMapGroup);
     for (int i = 0; i < size; ++i) {
         settings->setArrayIndex(i);
-        const QString id = settings->value(idKey).toString();
         const QString re = settings->value(reKey).toString();
-        const QRegularExpression regEx(re);
-        if (regEx.isValid())
-            m_exCommandMap[id] = regEx;
+        if (QRegularExpression(re).isValid()) {
+            const QString id = settings->value(idKey).toString();
+            m_exCommandMap[id] = re;
+        }
     }
     settings->endArray();
 
@@ -2052,8 +2046,8 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
         const auto end = m_exCommandMap.constEnd();
         for (auto it = m_exCommandMap.constBegin(); it != end; ++it) {
             const QString &id = it.key();
-            QRegularExpression re = it.value();
-            if (!re.pattern().isEmpty() && re.match(cmd.cmd).hasMatch()) {
+            const QString re = it.value();
+            if (!re.isEmpty() && QRegularExpression(re).match(cmd.cmd).hasMatch()) {
                 triggerAction(Id::fromString(id));
                 return;
             }
