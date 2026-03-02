@@ -170,11 +170,6 @@ public:
         Layouting::LayoutModifier additionalItems = {});
 
     ~BaseSettingsWidget() override = default;
-
-    QString initializationOptions() const;
-
-private:
-    Utils::FancyLineEdit *m_initializationOptions = nullptr;
 };
 
 class LANGUAGECLIENT_EXPORT StdIOSettingsWidget : public BaseSettingsWidget

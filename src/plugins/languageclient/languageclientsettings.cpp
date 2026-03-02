@@ -580,6 +580,29 @@ BaseSettings::BaseSettings()
     mimeTypes.setSettingsKey("mimeType");
 
     initializationOptions.setSettingsKey("initializationOptions");
+    initializationOptions.setLabelText(Tr::tr("Initialization options:"));
+    initializationOptions.setDisplayStyle(StringAspect::LineEditDisplay);
+    initializationOptions.setValidationFunction([](const QString &text) -> Result<> {
+        const QString value = globalMacroExpander()->expand(text);
+
+        if (value.isEmpty())
+            return ResultOk;
+
+        QJsonParseError parseInfo;
+        const QJsonDocument json = QJsonDocument::fromJson(value.toUtf8(), &parseInfo);
+
+        if (json.isNull()) {
+            return ResultError(Tr::tr("Failed to parse JSON at %1: %2")
+                                   .arg(parseInfo.offset)
+                                   .arg(parseInfo.errorString()));
+        }
+        return ResultOk;
+    });
+    initializationOptions.setPlaceHolderText(
+        Tr::tr(
+            "Language server-specific JSON to pass via "
+            "\"initializationOptions\" field of \"initialize\" "
+            "request."));
 
     configuration.setSettingsKey("configuration");
 }
@@ -599,17 +622,10 @@ QJsonValue BaseSettings::configurationAsJson() const
     return {};
 }
 
-bool BaseSettings::applyFromSettingsWidget(QWidget *widget)
+bool BaseSettings::applyFromSettingsWidget(QWidget *)
 {
     bool changed = isDirty();
     AspectContainer::apply();
-
-    if (auto settingsWidget = qobject_cast<BaseSettingsWidget *>(widget)) {
-        if (initializationOptions.isDirty()) {
-            initializationOptions.apply();
-            changed = true;
-        }
-    }
     return changed;
 }
 
@@ -907,33 +923,8 @@ public:
 BaseSettingsWidget::BaseSettingsWidget(
     const BaseSettings *settings, QWidget *parent, Layouting::LayoutModifier additionalItems)
     : QWidget(parent)
-    , m_initializationOptions(new FancyLineEdit(this))
 {
     using namespace Layouting;
-
-    auto chooser = new VariableChooser(this);
-    chooser->addSupportedWidget(m_initializationOptions);
-
-    m_initializationOptions->setValidationFunction([](const QString &text) -> Result<> {
-            const QString value = globalMacroExpander()->expand(text);
-
-            if (value.isEmpty())
-                return ResultOk;
-
-            QJsonParseError parseInfo;
-            const QJsonDocument json = QJsonDocument::fromJson(value.toUtf8(), &parseInfo);
-
-            if (json.isNull()) {
-                return ResultError(Tr::tr("Failed to parse JSON at %1: %2")
-                                        .arg(parseInfo.offset)
-                                        .arg(parseInfo.errorString()));
-            }
-            return ResultOk;
-        });
-    m_initializationOptions->setText(settings->initializationOptions());
-    m_initializationOptions->setPlaceholderText(Tr::tr("Language server-specific JSON to pass via "
-                                                   "\"initializationOptions\" field of \"initialize\" "
-                                                   "request."));
 
     // clang-format off
     auto form = Form {
@@ -941,7 +932,7 @@ BaseSettingsWidget::BaseSettingsWidget(
         settings->mimeTypes, br,
         settings->filePattern, br,
         settings->startBehavior, br,
-        Tr::tr("Initialization options:"), m_initializationOptions, br
+        settings->initializationOptions, br
     };
 
     if (additionalItems)
@@ -949,11 +940,6 @@ BaseSettingsWidget::BaseSettingsWidget(
 
     form.attachTo(this);
     // clang-format on
-}
-
-QString BaseSettingsWidget::initializationOptions() const
-{
-    return m_initializationOptions->text();
 }
 
 
