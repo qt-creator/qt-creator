@@ -49,25 +49,14 @@
 #include <utils/threadutils.h>
 #include <utils/utilsicons.h>
 
-#include <QApplication>
-#include <QCheckBox>
-#include <QComboBox>
-#include <QDateTime>
 #include <QLabel>
-#include <QLineEdit>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QMutex>
 #include <QPointer>
 #include <QPushButton>
-#include <QRadioButton>
 #include <QReadWriteLock>
-#include <QRegularExpression>
-#include <QSpacerItem>
-#include <QSpinBox>
-#include <QStackedWidget>
 #include <QTemporaryDir>
-#include <QTextBrowser>
 #include <QThread>
 #include <QTimer>
 
@@ -530,15 +519,15 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
              }});
     });
 
+    SshParametersAspectContainer &ssh = device->sshParametersAspectContainer();
     // clang-format off
     Form {
         Tr::tr("Machine type:"), machineType, st, br,
-        device->sshParametersAspectContainer().host, device->sshParametersAspectContainer().port,
-            device->sshParametersAspectContainer().hostKeyCheckingMode, st, br,
-        device->freePortsAspect, portWarningLabel, device->sshParametersAspectContainer().timeout, st, br,
-        device->sshParametersAspectContainer().userName, st, br,
-        device->sshParametersAspectContainer().useKeyFile, st, br,
-        device->sshParametersAspectContainer().privateKeyFile, createKeyButton, br,
+        ssh.host, ssh.port, ssh.hostKeyCheckingMode, st, br,
+        ssh.timeout, st, br,
+        ssh.userName, st, br,
+        ssh.useKeyFile, st, br,
+        ssh.privateKeyFile, createKeyButton, br,
         linuxDevice->autoConnectOnStartup, br,
         linuxDevice->sourceProfile, br,
         device->sshForwardDebugServerPort, br,
