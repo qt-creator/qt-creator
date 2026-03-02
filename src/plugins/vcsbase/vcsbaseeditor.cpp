@@ -58,6 +58,8 @@
 #include <QTimer>
 #include <QUrl>
 
+#include <algorithm>
+
 /*!
     \enum VcsBase::EditorContentType
 
@@ -930,15 +932,8 @@ void VcsBaseEditorWidget::slotJumpToEntry(int index)
 // Locate a line number in the list of diff sections.
 static int sectionOfLine(int line, const QList<int> &sections)
 {
-    const int sectionCount = sections.size();
-    if (!sectionCount)
-        return -1;
-    // The section at s indicates where the section begins.
-    for (int s = 0; s < sectionCount; s++) {
-        if (line < sections.at(s))
-            return s - 1;
-    }
-    return sectionCount - 1;
+    const auto it = std::upper_bound(sections.cbegin(), sections.cend(), line);
+    return int(std::distance(sections.cbegin(), it)) - 1;
 }
 
 void VcsBaseEditorWidget::slotCursorPositionChanged()
