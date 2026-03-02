@@ -875,7 +875,7 @@ void AndroidDevice::updateDeviceFileAccess()
     if (state == IDevice::DeviceReadyToUse) {
         if (!d->m_fallbackFileAccess && !d->m_fileAccess) {
             d->m_fileAccess = std::make_shared<CmdBridge::FileAccess>();
-            Result<> initResult
+            CmdBridge::FileAccess::DeployResult initResult
                 = d->m_fileAccess->deployAndInit(Core::ICore::libexecPath(), rootPath(), {});
             if (initResult) {
                 setFileAccess(d->m_fileAccess);

@@ -601,8 +601,11 @@ public:
         q->setOsType(osType);
     }
 
+    using CmdBridgeDeployResult
+        = Utils::expected<DeviceFileAccessPtr, CmdBridge::FileAccess::DeployError>;
+
     void setupFileAccess(const SshParameters &sshParameters, const Continuation<> &cont);
-    void setupFileAccessPhase2(const Result<DeviceFileAccessPtr> &res, const Continuation<> &cont);
+    void setupFileAccessPhase2(const CmdBridgeDeployResult &res, const Continuation<> &cont);
     void setupFileAccessFinalize(const Result<> &result, const Continuation<> &cont);
 
     bool checkDisconnectedWithWarning();
@@ -1400,31 +1403,29 @@ void LinuxDevicePrivate::setupFileAccess(
     q->setIsTesting(true);
 
     // update OsType and try using the cmdbridge first
-    QFuture<Result<DeviceFileAccessPtr>> future = Utils::asyncRun(
-        [this, rootPath = q->rootPath()]() -> Result<DeviceFileAccessPtr> {
+    QFuture<CmdBridgeDeployResult> future = Utils::asyncRun(
+        [this, rootPath = q->rootPath()]() -> CmdBridgeDeployResult {
             setOsTypeFromUnameResult(runUnameCommand(rootPath));
             auto fileAccess = std::make_unique<CmdBridge::FileAccess>([&] {
                 QMetaObject::invokeMethod(
                     this->q, [this] { announceConnectionLoss(); }, Qt::QueuedConnection);
             });
-            Result<> deployAndInitResult
+            Utils::expected<void, CmdBridge::FileAccess::DeployError> deployAndInitResult
                 = fileAccess->deployAndInit(Core::ICore::libexecPath(), rootPath, getEnvironment());
             if (deployAndInitResult)
                 return DeviceFileAccessPtr(std::move(fileAccess));
-            return ResultError(deployAndInitResult.error());
-            return ResultError("");
+            return Utils::make_unexpected(deployAndInitResult.error());
         });
-    future.then(q, [this, cont](const Result<DeviceFileAccessPtr> &res) {
+    future.then(q, [this, cont](const CmdBridgeDeployResult &res) {
         setupFileAccessPhase2(res, cont);
     });
     Utils::futureSynchronizer()->addFuture(future);
 }
 
 void LinuxDevicePrivate::setupFileAccessPhase2(
-    const Result<DeviceFileAccessPtr> &initResult, const Continuation<> &cont)
+    const CmdBridgeDeployResult &initResult, const Continuation<> &cont)
 {
     q->setIsTesting(false);
-
     if (initResult) {
         DEBUG("Bridge ok to use");
         q->setFileAccess(initResult.value());
@@ -1432,9 +1433,17 @@ void LinuxDevicePrivate::setupFileAccessPhase2(
         setupFileAccessFinalize(ResultOk, cont);
         return;
     }
-    DEBUG(
-        "Failed to start CmdBridge:" << initResult.error() << ", falling back to slow file access");
+    if (initResult.error().code == CmdBridge::FileAccess::DeployError::EchoTestFailed) {
+        DEBUG("Failed to connect to the device and run \"echo\".");
+        q->setFileAccess(nullptr);
+        q->setDeviceState(IDevice::DeviceDisconnected);
+        setupFileAccessFinalize(ResultError(initResult.error().message), cont);
+        return;
+    }
 
+    DEBUG(
+        "Failed to start CmdBridge:" << initResult.error().message
+                                     << ", falling back to slow file access");
     q->setFileAccess(std::make_shared<LinuxDeviceAccess>(this));
     q->setDeviceState(IDevice::DeviceConnected);
     setupFileAccessFinalize(ResultOk, cont);

@@ -357,10 +357,13 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
                 instanceConfig.workspaceFolder,
                 FilePath::fromUserInput(options->workspaceFolderMountPoint));
 
-            Result<> initResult = [&] {
+            Result<> initResult = [&]() -> Result<> {
                 if (options->copyCmdBridge) {
-                    return fileAccess->deployAndInit(
+                    const CmdBridge::FileAccess::DeployResult res = fileAccess->deployAndInit(
                         Core::ICore::libexecPath(), rootPath(), runningInstance->remoteEnvironment);
+                    if (!res)
+                        return ResultError(res.error().message);
+                    return ResultOk;
                 } else {
                     const auto bridgeInContainerPath
                         = rootPath().withNewPath(options->libExecMountPoint)

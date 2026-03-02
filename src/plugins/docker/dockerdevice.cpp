@@ -203,8 +203,9 @@ public:
             fileAccess.unlock();
 
             // ... and then deploy the CmdBridge.
-            initResult
+            CmdBridge::FileAccess::DeployResult res
                 = fAccess->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), q->environment());
+            initResult = res ? ResultOk : ResultError(res.error().message);
 
             // Dont forget to re-lock.
             fileAccess.lock();

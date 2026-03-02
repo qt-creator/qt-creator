@@ -18,6 +18,9 @@
 
 using namespace Utils;
 
+#define QVERIFY_DEPLOY_RESULT(result) \
+    QVERIFY2(result, result ? #result : static_cast<const char *>(result.error().message.toUtf8()))
+
 class TestDFA : public UnixDeviceFileAccess
 {
     friend class tst_CmdBridge;
@@ -67,15 +70,15 @@ private slots:
     void testDeviceEnvironment()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
         if (!res)
-            qDebug() << "Failed to deploy and init:" << res.error();
+            qDebug() << "Failed to deploy and init:" << res.error().message;
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         Result<Environment> env = fileAccess.deviceEnvironment();
         QVERIFY_RESULT(env);
@@ -87,12 +90,12 @@ private slots:
     void testSetPermissions()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         Result<FilePath> tempFile = fileAccess.createTempFile(FilePath::fromUserInput(QDir::tempPath())
                                                   / "test.XXXXXX");
@@ -114,12 +117,12 @@ private slots:
     void testTempFile()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         Result<FilePath> tempFile = fileAccess.createTempFile(FilePath::fromUserInput(QDir::tempPath())
                                                   / "test.XXXXXX");
@@ -145,12 +148,12 @@ private slots:
     void testTempDir()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         Result<FilePath> tempDir = fileAccess.createTempDir(
             FilePath::fromUserInput(QDir::tempPath()) / "test.XXXXXX");
@@ -168,12 +171,12 @@ private slots:
     void testTempFileWithoutPlaceholder()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         const FilePath pattern = FilePath::fromUserInput(QDir::tempPath()) / "test.txt";
 
@@ -195,12 +198,12 @@ private slots:
     void testIsWritableDirectory()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         const FilePath testDir = FilePath::fromUserInput(QDir::tempPath() + "/testIsWritableDir");
         QVERIFY_RESULT(fileAccess.isWritableDirectory(testDir));
@@ -210,12 +213,12 @@ private slots:
     void testEnsureWritableDir()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         const FilePath testFile = FilePath::fromUserInput(
             QDir::tempPath() + "/testEnsureWritableDir");
@@ -230,12 +233,12 @@ private slots:
     void testFileContents()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         const FilePath testFile = FilePath::fromUserInput(QDir::tempPath() + "/test.txt");
 
@@ -349,12 +352,12 @@ The end.
     void testSymLink()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         // FIXME: /tmp is not everywhere a symlink. Create a test link ourselves?
         Result<FilePath> tmptarget = fileAccess.symLinkTarget(FilePath::fromUserInput("/tmp"));
@@ -366,12 +369,12 @@ The end.
     void testFileId()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         Result<QByteArray> fileId = fileAccess.fileId(FilePath::fromUserInput(QDir::rootPath()));
         QVERIFY_RESULT(fileId);
@@ -382,12 +385,12 @@ The end.
     void testFreeSpace()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         Result<quint64> freeSpace = fileAccess.bytesAvailable(FilePath::fromUserInput(QDir::rootPath()));
         QVERIFY_RESULT(freeSpace);
@@ -398,12 +401,12 @@ The end.
     void testFind()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
         fileAccess.iterateDirectory(
             FilePath::fromUserInput(QDir::homePath()),
             [](const FilePath &path, const FilePathInfo &) {
@@ -448,12 +451,12 @@ The end.
     void testBridge()
     {
         CmdBridge::FileAccess fileAccess;
-        Result<> res = fileAccess.deployAndInit(
+        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY_RESULT(res);
+        QVERIFY_DEPLOY_RESULT(res);
 
         QElapsedTimer timer;
         timer.start();

@@ -28,7 +28,13 @@ public:
     FileAccess(const std::function<void()> &errorExitHandler = {});
     ~FileAccess() override;
 
-    Utils::Result<> deployAndInit(
+    struct DeployError
+    {
+        QString message;
+        enum Code { Disabled, EchoTestFailed, Other } code;
+    };
+    using DeployResult = Utils::expected<void, DeployError>;
+    DeployResult deployAndInit(
         const Utils::FilePath &libExecPath,
         const Utils::FilePath &remoteRootPath,
         const Utils::Environment &environment);

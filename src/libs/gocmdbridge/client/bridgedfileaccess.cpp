@@ -76,23 +76,38 @@ Result<> FileAccess::init(
     return ResultOk;
 }
 
-Result<> FileAccess::deployAndInit(
-    const FilePath &libExecPath,
-    const FilePath &remoteRootPath,
-    const Environment &environment)
+FileAccess::DeployResult FileAccess::deployAndInit(
+    const FilePath &libExecPath, const FilePath &remoteRootPath, const Environment &environment)
 {
-    if (qtcEnvironmentVariableIsSet("QTC_DISABLE_CMDBRIDGE"))
-        return ResultError("Disabled for testing!");
-    if (remoteRootPath.isEmpty())
-        return logError(Tr::tr("The remote root path is empty."));
+    const auto logError = [](const QString &msg, DeployError::Code code) {
+        qCWarning(faLog) << msg;
+        return Utils::make_unexpected(DeployError{msg, code});
+    };
+    const auto toDeployError = [](const Result<> &result) -> DeployResult {
+        if (!result)
+            return Utils::make_unexpected(DeployError{result.error(), DeployError::Other});
+        return DeployResult();
+    };
 
+    if (remoteRootPath.isEmpty())
+        return logError(Tr::tr("The remote root path is empty."), DeployError::Other);
     if (!remoteRootPath.isAbsolutePath())
-        return logError(Tr::tr("The remote root path is not absolute."));
+        return logError(Tr::tr("The remote root path is not absolute."), DeployError::Other);
+
+    const auto echo = run({remoteRootPath.withNewPath("echo"), {}});
+    if (!echo)
+        return logError(echo.error(), DeployError::EchoTestFailed);
+
+    if (qtcEnvironmentVariableIsSet("QTC_DISABLE_CMDBRIDGE"))
+        return logError("Disabled for testing!", DeployError::Disabled);
 
     const auto whichDD = run({remoteRootPath.withNewPath("which"), {"dd"}});
 
-    if (!whichDD) // TODO: Support Windows?
-        return logError(Tr::tr("Could not find \"dd\" on the remote host: %1").arg(whichDD.error()));
+    if (!whichDD) { // TODO: Support Windows?
+        return logError(
+            Tr::tr("Could not find \"dd\" on the remote host: %1").arg(whichDD.error()),
+            DeployError::Other);
+    }
 
     QElapsedTimer timer;
     timer.start();
@@ -106,12 +121,13 @@ Result<> FileAccess::deployAndInit(
     if (!unameOs) {
         return logError(
             Tr::tr("Could not determine the operating system on the remote host: %1")
-                .arg(unameOs.error()));
+                .arg(unameOs.error()),
+            DeployError::Other);
     }
 
     const Result<OsType> osType = osTypeFromString(*unameOs);
     if (!osType)
-        return logError(osType.error());
+        return logError(osType.error(), DeployError::Other);
 
     qCDebug(faLog) << deco() << "Remote host OS:" << *unameOs;
 
@@ -119,12 +135,13 @@ Result<> FileAccess::deployAndInit(
     if (!unameArch) {
         return logError(
             Tr::tr("Could not determine the architecture of the remote host: %1")
-                .arg(unameArch.error()));
+                .arg(unameArch.error()),
+            DeployError::Other);
     }
 
     const Result<OsArch> osArch = osArchFromString(*unameArch);
     if (!osArch)
-        return logError(osArch.error());
+        return logError(osArch.error(), DeployError::Other);
 
     qCDebug(faLog) << deco() << "Remote host architecture:" << *unameArch;
 
@@ -133,19 +150,21 @@ Result<> FileAccess::deployAndInit(
     if (!cmdBridgePath) {
         return logError(
             Tr::tr("Could not find a compatible cmdbridge for the remote host: %1")
-                .arg(cmdBridgePath.error()));
+                .arg(cmdBridgePath.error()),
+            DeployError::Other);
     }
 
     qCDebug(faLog) << deco() << "Using cmdbridge at:" << *cmdBridgePath;
 
     if (remoteRootPath.isLocal())
-        return init(*cmdBridgePath, environment, false);
+        return toDeployError(init(*cmdBridgePath, environment, false));
 
     const auto cmdBridgeFileData = cmdBridgePath->fileContents();
 
     if (!cmdBridgeFileData) {
         return logError(
-            Tr::tr("Could not read the cmdbridge file: %1").arg(cmdBridgeFileData.error()));
+            Tr::tr("Could not read the cmdbridge file: %1").arg(cmdBridgeFileData.error()),
+            DeployError::Other);
     }
 
     const QString xdgRuntimeDir = environment.value("XDG_RUNTIME_DIR");
@@ -156,7 +175,9 @@ Result<> FileAccess::deployAndInit(
     const auto tmpFile = run({remoteRootPath.withNewPath("mktemp"), tmpFileArgs});
 
     if (!tmpFile) {
-        return logError(Tr::tr("Could not create a temporary file: %1").arg(tmpFile.error()));
+        return logError(
+            Tr::tr("Could not create a temporary file: %1").arg(tmpFile.error()),
+            DeployError::Other);
     }
 
     qCDebug(faLog) << deco() << "Using temporary file:" << *tmpFile;
@@ -170,10 +191,11 @@ Result<> FileAccess::deployAndInit(
     if (!makeExecutable) {
         return logError(
             Tr::tr("Could not make the temporary file \"%1\" executable: %2")
-                .arg(*tmpFile, makeExecutable.error()));
+                .arg(*tmpFile, makeExecutable.error()),
+            DeployError::Other);
     }
 
-    return init(remoteRootPath.withNewPath(*tmpFile), environment, true);
+    return toDeployError(init(remoteRootPath.withNewPath(*tmpFile), environment, true));
 }
 
 Result<bool> FileAccess::isExecutableFile(const FilePath &filePath) const
