@@ -990,7 +990,7 @@ Group dashboardInfoRecipe(DashboardMode dashboardMode, const DashboardInfoHandle
 
 Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
 {
-    const auto onSetup = [dashboardMode, projectName] {
+    const auto onSetup = [dashboardMode] {
         clearAllMarks(LineMarkerType::Dashboard);
         if (dashboardMode == DashboardMode::Global)
             dd->m_currentProjectInfo = {};
@@ -1018,7 +1018,20 @@ Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
             return SetupResult::StopWithSuccess;
         }
 
-        const auto handler = [dashboardMode](const Dto::ProjectInfoDto &data) {
+        const QString targetProjectName = (dashboardMode == DashboardMode::Global)
+                ? (projectName.isEmpty() ? dd->m_dashboardInfo->projects.first() : projectName)
+                : projectName;
+
+        const auto handler = [dashboardMode, targetProjectName](const Dto::ProjectInfoDto &data) {
+            if (QTC_UNEXPECTED(data.name != targetProjectName)) {
+                MessageManager::writeDisrupting(
+                            QString("Axivion: %1").arg(Tr::tr("Dashboard returned project \"%1\" "
+                                                              "instead of \"%2\".")
+                                                       .arg(data.name, targetProjectName)));
+                updateDashboard();
+                return;
+            }
+
             if (dashboardMode == DashboardMode::Global) {
                 dd->m_currentProjectInfo = data;
                 if (!dd->m_currentProjectInfo->versions.empty())
@@ -1032,23 +1045,18 @@ Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
             dd->handleOpenedDocs();
         };
 
-        if (dashboardMode == DashboardMode::Global) {
-            const QString targetProjectName = projectName.isEmpty()
-                    ? dd->m_dashboardInfo->projects.first() : projectName;
-            auto it = dd->m_dashboardInfo->projectUrls.constFind(targetProjectName);
-            if (it == dd->m_dashboardInfo->projectUrls.constEnd())
-                it = dd->m_dashboardInfo->projectUrls.constBegin();
-            taskTree.setRecipe(fetchDataRecipe<Dto::ProjectInfoDto>(dashboardMode,
-                                                                    resolveDashboardInfoUrl(dashboardMode, *it),
-                                                                    handler));
-        } else {
-            auto it = dd->m_localDashboardInfo->projectUrls.constFind(projectName);
-            if (it == dd->m_localDashboardInfo->projectUrls.constEnd())
-                it = dd->m_localDashboardInfo->projectUrls.constBegin();
-            taskTree.setRecipe(fetchDataRecipe<Dto::ProjectInfoDto>(dashboardMode,
-                                                                    resolveDashboardInfoUrl(dashboardMode, *it),
-                                                                    handler));
+        const QHash<QString, QUrl> &projectUrls = dashboardInfo(dashboardMode)->projectUrls;
+        const auto it = projectUrls.constFind(targetProjectName);
+        if (it == projectUrls.constEnd()) {
+            MessageManager::writeDisrupting(
+                        QString("Axivion: %1").arg(Tr::tr("Project \"%1\" not found on the dashboard.")
+                                                   .arg(targetProjectName)));
+            updateDashboard();
+            return SetupResult::StopWithError;
         }
+        taskTree.setRecipe(fetchDataRecipe<Dto::ProjectInfoDto>(dashboardMode,
+                                                                resolveDashboardInfoUrl(dashboardMode, *it),
+                                                                handler));
         return SetupResult::Continue;
     };
 

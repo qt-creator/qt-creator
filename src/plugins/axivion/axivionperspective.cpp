@@ -598,11 +598,15 @@ void IssuesWidget::updateUi(const QString &kind)
                                                               : localProjectInfo();
     updateBasicProjectInfo(projectInfo);
 
-    if (!projectInfo)
+    if (!projectInfo) {
+        m_issuesView->hideProgressIndicator();
         return;
+    }
     const Dto::ProjectInfoDto &info = *projectInfo;
-    if (info.versions.empty()) // add some warning/information?
+    if (info.versions.empty()) { // add some warning/information?
+        m_issuesView->hideProgressIndicator();
         return;
+    }
 
     setFiltersEnabled(true);
     // avoid refetching existing data
