@@ -106,6 +106,52 @@ static Utils::Result<> sampleTool(
     return ResultOk;
 }
 
+static Utils::Result<> elicitTaskTool(
+    const Mcp::Schema::CallToolRequestParams &, const Mcp::ToolInterface &toolInterface)
+{
+    toolInterface.elicit(
+        Mcp::Schema::ElicitRequestFormParams()
+            .message("Please provide info")
+            .task(Mcp::Schema::TaskMetadata())
+            .requestedSchema(
+                Mcp::Schema::ElicitRequestFormParams::RequestedSchema().addProperty(
+                    "name",
+                    Mcp::Schema::StringSchema().title("String").description(
+                        "Your full, legal name"))),
+        [toolInterface](const Utils::Result<Mcp::Schema::ElicitResult> &result) {
+            if (!result) {
+                qDebug() << "Elicit request failed:" << result.error();
+                return;
+            }
+            qDebug() << "Received elicit result from client";
+
+            if (result->action() != Mcp::Schema::ElicitResult::Action::accept) {
+                toolInterface.finish(
+                    Mcp::Schema::CallToolResult()
+                        .isError(true)
+                        .addStructuredContent("elicitResponse", "Client rejected the request"));
+                return;
+            }
+
+            auto nameResult = as<QString>((*result->content())["name"]);
+            if (!nameResult) {
+                toolInterface.finish(
+                    Mcp::Schema::CallToolResult()
+                        .isError(true)
+                        .addStructuredContent("elicitResponse", "Invalid response from client"));
+                return;
+            }
+
+            qDebug() << "Received name from elicit result:" << *nameResult;
+
+            toolInterface.finish(
+                Mcp::Schema::CallToolResult().isError(false).addStructuredContent(
+                    "elicitResponse", QString("Received your response: %1").arg(*nameResult)));
+        });
+
+    return ResultOk;
+}
+
 static QString elicitUrl;
 static QMap<QString, std::function<void(QString)>> elicitUrlRequests;
 
@@ -436,6 +482,16 @@ int main(int argc, char *argv[])
                 "executing.")
             .title("Elicit URL Test Tool"),
         elicitUrlTool);
+
+    server.addTool(
+        Mcp::Schema::Tool()
+            .name("elicit_task_test")
+            .description(
+                "A tool that elicits additional information from the client before executing. "
+                "Requested as a task.")
+            .title("Elicit Task Test Tool"),
+        elicitTaskTool);
+
     server.addTool(
         Mcp::Schema::Tool()
             .name("sample_test")

@@ -723,6 +723,29 @@ public:
         responder.write(QJsonDocument(makeResponse(id, result)));
     }
 
+    void onTaskStatusNotification(
+        const Schema::TaskStatusNotification &notification, QString sessionId)
+    {
+        SessionIdAndTaskId key{sessionId, notification.params().taskId()};
+        auto it = m_clientTasks.find(key);
+        if (it == m_clientTasks.end()) {
+            qCWarning(mcpServerLog)
+                << "Received status notification for unknown task ID"
+                << notification.params().taskId() << "and session ID" << sessionId;
+            return;
+        }
+        if (!*it)
+            return;
+
+        auto task = (*it)->task;
+        task.status(notification.params().status());
+        task.statusMessage(notification.params().statusMessage());
+        task.lastUpdatedAt(notification.params().lastUpdatedAt());
+        task.pollInterval(notification.params().pollInterval());
+
+        (*it)->onTaskUpdate(task);
+    }
+
     void onData(const QByteArray &data, const Responder &responder, QString sessionId)
     {
         QJsonParseError parseError;
@@ -745,6 +768,13 @@ public:
         if (clientNotification) {
             qCDebug(mcpServerLog) << "Received JSONRPCNotification:"
                                   << Schema::dispatchValue(clientNotification.value());
+
+            if (std::holds_alternative<Schema::TaskStatusNotification>(*clientNotification)) {
+                const auto &notification = std::get<Schema::TaskStatusNotification>(
+                    *clientNotification);
+                onTaskStatusNotification(notification, sessionId);
+            }
+
             responder.writeStatus(QHttpServerResponse::StatusCode::Accepted);
             return;
         }
@@ -793,6 +823,168 @@ public:
         }
         it->lastSeen = QDateTime::currentDateTime();
         return true;
+    }
+
+    struct SessionIdAndTaskId
+    {
+        QString sessionId;
+        QString taskId;
+        bool operator<(const SessionIdAndTaskId &other) const
+        {
+            return std::tie(sessionId, taskId) < std::tie(other.sessionId, other.taskId);
+        }
+    };
+
+    struct RunningClientTask : public QObject
+    {
+        using Callback = std::function<void(const Utils::Result<Schema::GetTaskPayloadResult> &)>;
+        std::weak_ptr<ServerPrivate> weak;
+        QString sessionId;
+        Schema::Task task;
+        QTimer pollTimer;
+        Callback callback;
+
+        RunningClientTask(
+            ServerPrivate *server, const QString &sId, const Schema::Task &t, const Callback &cb)
+            : weak(server->shared_from_this())
+            , sessionId(sId)
+            , task(t)
+            , callback(cb)
+        {
+            pollTimer.setSingleShot(false);
+            QObject::connect(&pollTimer, &QTimer::timeout, this, &RunningClientTask::poll);
+
+            if (task.pollInterval()) {
+                pollTimer.setInterval(std::chrono::milliseconds(*task.pollInterval()));
+                pollTimer.start();
+            }
+        }
+
+        void poll()
+        {
+            if (auto d = weak.lock()) {
+                d->sendServerRequest(
+                    Schema::GetTaskRequest().params(
+                        Schema::GetTaskRequest::Params().taskId(task.taskId())),
+                    sessionId,
+                    [this](const Utils::Result<Schema::JSONRPCResponse> &result) {
+                        if (!result) {
+                            finish(ResultError(
+                                QString("Failed to get task status: %1").arg(result.error())));
+                        } else {
+                            if (std::holds_alternative<Schema::JSONRPCErrorResponse>(*result)) {
+                                const auto &errorResponse = std::get<Schema::JSONRPCErrorResponse>(
+                                    *result);
+                                finish(ResultError(QString("Failed to get task status: %1")
+                                                       .arg(errorResponse.error().message())));
+                            } else if (std::holds_alternative<Schema::JSONRPCResultResponse>(
+                                           *result)) {
+                                const auto &resultResponse
+                                    = std::get<Schema::JSONRPCResultResponse>(*result);
+                                auto taskResult = Schema::fromJson<Schema::GetTaskResult>(
+                                    resultResponse.result().additionalProperties());
+                                if (!taskResult) {
+                                    finish(ResultError(
+                                        QString("Failed to parse task status result: %1")
+                                            .arg(taskResult.error())));
+                                    return;
+                                }
+
+                                onTaskUpdate(
+                                    Schema::Task()
+                                        .taskId(taskResult->taskId())
+                                        .status(taskResult->status())
+                                        .statusMessage(taskResult->statusMessage())
+                                        .createdAt(taskResult->createdAt())
+                                        .lastUpdatedAt(taskResult->lastUpdatedAt())
+                                        .pollInterval(taskResult->pollInterval())
+                                        .ttl(taskResult->ttl()));
+                            }
+                        }
+                    });
+            }
+        }
+
+        void finish(const Utils::Result<Schema::GetTaskPayloadResult> &payloadResult)
+        {
+            pollTimer.stop();
+
+            callback(payloadResult);
+
+            if (auto d = weak.lock()) {
+                d->removeClientTask(sessionId, task.taskId());
+            }
+        }
+
+        void onTaskUpdate(const Schema::Task &newTask)
+        {
+            if (newTask.pollInterval() != task.pollInterval()) {
+                if (newTask.pollInterval()) {
+                    pollTimer.setInterval(std::chrono::milliseconds(*newTask.pollInterval()));
+                    pollTimer.start();
+                } else {
+                    pollTimer.stop();
+                }
+            }
+
+            task = newTask;
+
+            if (newTask.status() == Schema::TaskStatus::completed) {
+                pollTimer.stop();
+
+                if (auto d = weak.lock()) {
+                    d->sendServerRequest(
+                        Schema::GetTaskPayloadRequest().params(
+                            Schema::GetTaskPayloadRequest::Params().taskId(task.taskId())),
+                        sessionId,
+                        [this](const Utils::Result<Schema::JSONRPCResponse> &result) {
+                            if (!result) {
+                                finish(ResultError(
+                                    QString("Failed to get task payload: %1").arg(result.error())));
+                            } else {
+                                if (std::holds_alternative<Schema::JSONRPCErrorResponse>(*result)) {
+                                    const auto &errorResponse
+                                        = std::get<Schema::JSONRPCErrorResponse>(*result);
+                                    finish(ResultError(QString("Failed to get task payload: %1")
+                                                           .arg(errorResponse.error().message())));
+                                } else if (std::holds_alternative<Schema::JSONRPCResultResponse>(
+                                               *result)) {
+                                    const auto &resultResponse
+                                        = std::get<Schema::JSONRPCResultResponse>(*result);
+                                    auto payloadResult
+                                        = Schema::fromJson<Schema::GetTaskPayloadResult>(
+                                            resultResponse.result().additionalProperties());
+
+                                    finish(payloadResult);
+                                }
+                            }
+                        });
+                }
+            }
+        }
+    };
+
+    QMap<SessionIdAndTaskId, RunningClientTask *> m_clientTasks;
+
+    void addClientTask(
+        const QString &sessionId,
+        const Schema::Task &task,
+        const RunningClientTask::Callback &callback)
+    {
+        std::weak_ptr<ServerPrivate> weak = shared_from_this();
+
+        m_clientTasks.insert(
+            SessionIdAndTaskId{sessionId, task.taskId()},
+            new RunningClientTask(this, sessionId, task, callback));
+    }
+
+    void removeClientTask(const QString &sessionId, const QString &taskId)
+    {
+        auto it = m_clientTasks.find(SessionIdAndTaskId{sessionId, taskId});
+        if (it != m_clientTasks.end()) {
+            it.value()->deleteLater();
+            m_clientTasks.erase(it);
+        }
     }
 
     struct ToolAndCallback
@@ -1299,13 +1491,6 @@ void ToolInterface::elicit(
     const bool wantsTask
         = std::visit([](const auto &p) -> bool { return p.task().has_value(); }, params);
 
-    if (wantsTask) {
-        qCWarning(mcpServerLog) << "Caller attempted to elicit with task parameters, "
-                                   "which is not yet supported";
-        cb(Utils::ResultError("Elicit does not support tasks"));
-        return;
-    }
-
     if (!d->_clientCapabilities.elicitation()) {
         qCWarning(mcpServerLog) << "Caller attempted to elicit, but client does not "
                                    "support elicitation";
@@ -1335,11 +1520,21 @@ void ToolInterface::elicit(
         return;
     }
 
+    if (wantsTask
+        && (!d->_clientCapabilities.tasks() || !d->_clientCapabilities.tasks()->requests()
+            || !d->_clientCapabilities.tasks()->requests()->elicitation()
+            || !d->_clientCapabilities.tasks()->requests()->elicitation()->create())) {
+        qCWarning(mcpServerLog) << "Caller attempted to elicit with task parameters, "
+                                   "but client does not support task elicitation";
+        cb(Utils::ResultError("Client does not support task elicitation"));
+        return;
+    }
+
     if (auto serverPrivate = d->_server.lock()) {
         serverPrivate->sendServerRequest(
             Schema::ElicitRequest().params(params),
             d->_sessionId,
-            [cb](const Schema::JSONRPCResponse &response) {
+            [d = this->d, cb, wantsTask](const Schema::JSONRPCResponse &response) {
                 Utils::Result<Schema::ElicitResult> r;
 
                 if (std::holds_alternative<Schema::JSONRPCResultResponse>(response)) {
@@ -1348,18 +1543,42 @@ void ToolInterface::elicit(
                     auto elicitResult = Schema::fromJson<Schema::ElicitResult>(
                         jsonRpcResult.result().additionalProperties());
 
-                    if (!elicitResult) {
-                        qCWarning(mcpServerLog)
-                            << "Failed to parse elicit result from client:" << elicitResult.error();
-                        cb(Utils::ResultError(
-                            "Failed to parse elicit result from client: " + elicitResult.error()));
+                    if (elicitResult) {
+                        cb(Utils::Result<Schema::ElicitResult>(elicitResult));
                         return;
                     }
 
-                    qCDebug(mcpServerLog) << "Received elicit result from client:"
-                                          << Schema::toJson(jsonRpcResult.result());
+                    if (wantsTask) {
+                        auto elicitTaskResult = Schema::fromJson<Schema::CreateTaskResult>(
+                            jsonRpcResult.result().additionalProperties());
 
-                    cb(Utils::Result<Schema::ElicitResult>(elicitResult));
+                        if (!elicitTaskResult) {
+                            qCWarning(mcpServerLog)
+                                << "Failed to parse elicit task result from client:"
+                                << elicitTaskResult.error();
+                            cb(Utils::ResultError(
+                                "Failed to parse elicit task result from client: "
+                                + elicitTaskResult.error()));
+                            return;
+                        }
+
+                        if (auto serverPrivate = d->_server.lock()) {
+                            serverPrivate->addClientTask(
+                                d->_sessionId,
+                                elicitTaskResult->task(),
+                                [cb](const Utils::Result<Schema::GetTaskPayloadResult> &taskResult) {
+                                    cb(Schema::fromJson<Schema::ElicitResult>(
+                                        Schema::toJson(*taskResult)));
+                                });
+                        }
+
+                        return;
+                    }
+
+                    qCWarning(mcpServerLog)
+                        << "Failed to parse elicit result from client:" << elicitResult.error();
+                    cb(Utils::ResultError(
+                        "Failed to parse elicit result from client: " + elicitResult.error()));
                     return;
                 }
 
