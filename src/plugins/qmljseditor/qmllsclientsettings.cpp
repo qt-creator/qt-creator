@@ -120,7 +120,7 @@ QmllsClientSettings::QmllsClientSettings()
     mimeTypes.setValue(supportedMimeTypes());
 
     settingsTypeId.setValue(Constants::QMLLS_CLIENT_SETTINGS_ID);
-    m_startBehavior = RequiresProject;
+    startBehavior.setValue(RequiresProject);
     m_enabled = false; // disabled by default
     initializationOptions.setValue("{\"qtCreatorHighlighting\": true}");
 }

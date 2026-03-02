@@ -96,7 +96,7 @@ static void setupCSharpLanguageServer(IDocument *document)
             settings->executable.setValue(executable);
             settings->name.setValue(Tr::tr("C# Language Server"));
             settings->mimeTypes.setValue(csharpMimeTypes());
-            settings->m_startBehavior = BaseSettings::RequiresProject;
+            settings->startBehavior.setValue(BaseSettings::RequiresProject);
             LanguageClientSettings::addSettings(settings);
             LanguageClientManager::applySettings();
         };

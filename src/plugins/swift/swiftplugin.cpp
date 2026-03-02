@@ -85,7 +85,7 @@ static void setupSwiftLanguageServer(IDocument *document)
         settings->executable.setValue(sourcekitLsp);
         settings->name.setValue(Tr::tr("Swift Language Server"));
         settings->mimeTypes.setValue(swiftMimeTypes());
-        settings->m_startBehavior = BaseSettings::RequiresProject;
+        settings->startBehavior.setValue(BaseSettings::RequiresProject);
         LanguageClientSettings::addSettings(settings);
         LanguageClientManager::applySettings();
     });

@@ -333,8 +333,8 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
         managerInstance->m_clientForDocument.remove(document);
     if (!setting->isValid())
         return;
-    if (setting->m_startBehavior == BaseSettings::AlwaysOn
-        || setting->m_startBehavior == BaseSettings::RequiresFile) {
+    if (setting->startBehavior() == BaseSettings::AlwaysOn
+        || setting->startBehavior() == BaseSettings::RequiresFile) {
         if (!setting->m_enabled)
             return;
         auto ensureClient = [setting, client = static_cast<Client *>(nullptr)]() mutable {
@@ -342,7 +342,7 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
                 client = startClient(setting);
             return client;
         };
-        if (setting->m_startBehavior == BaseSettings::AlwaysOn)
+        if (setting->startBehavior() == BaseSettings::AlwaysOn)
             ensureClient();
 
         for (TextEditor::TextDocument *previousDocument : std::as_const(documents)) {
@@ -364,7 +364,7 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
                 }
             }
         }
-    } else if (setting->m_startBehavior == BaseSettings::RequiresProject) {
+    } else if (setting->startBehavior() == BaseSettings::RequiresProject) {
         const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
         for (Core::IDocument *document : openedDocuments) {
             auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
@@ -692,7 +692,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
     QList<Client *> allClients;
     for (BaseSettings *setting : settings) {
         const QList<Client *> clients = clientsForSetting(setting);
-        switch (setting->m_startBehavior) {
+        switch (setting->startBehavior()) {
         case BaseSettings::RequiresProject: {
             documentOpenedForProject(textDocument, setting, clients);
             break;
@@ -733,7 +733,7 @@ void LanguageClientManager::updateProject(BuildConfiguration *bc)
     for (BaseSettings *setting : std::as_const(m_currentSettings)) {
         if (setting->isValid()
             && setting->m_enabled
-            && setting->m_startBehavior == BaseSettings::RequiresProject) {
+            && setting->startBehavior() == BaseSettings::RequiresProject) {
             if (Utils::findOrDefault(clientsForSetting(setting),
                                      [bc](const QPointer<Client> &client) {
                                      return client->buildConfiguration() == bc;

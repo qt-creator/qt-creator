@@ -73,9 +73,9 @@ public:
     Utils::StringAspect filePattern{this};
     Utils::StringAspect id{this};
     Utils::IdAspect settingsTypeId{this};
+    Utils::TypedSelectionAspect<StartBehavior> startBehavior{this};
 
     bool m_enabled = true;
-    StartBehavior m_startBehavior = RequiresFile;
     Utils::StringAspect initializationOptions{this};
     Utils::StringAspect configuration{this};
     Utils::BoolAspect showInSettings{this};
@@ -171,13 +171,9 @@ public:
 
     ~BaseSettingsWidget() override = default;
 
-    BaseSettings::StartBehavior startupBehavior() const;
-    bool alwaysOn() const;
-    bool requiresProject() const;
     QString initializationOptions() const;
 
 private:
-    QComboBox *m_startupBehavior = nullptr;
     Utils::FancyLineEdit *m_initializationOptions = nullptr;
 };
 

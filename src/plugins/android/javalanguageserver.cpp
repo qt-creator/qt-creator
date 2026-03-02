@@ -76,7 +76,7 @@ JLSSettings::JLSSettings()
     languageServer.setPlaceHolderText(Tr::tr("Path to equinox launcher jar"));
     languageServer.setPromptDialogFilter("org.eclipse.equinox.launcher_*.jar");
 
-    m_startBehavior = RequiresProject;
+    startBehavior.setValue(RequiresProject);
     mimeTypes.setValue({Utils::Constants::JAVA_MIMETYPE});
     const FilePath &javaPath = Environment::systemEnvironment().searchInPath("java");
     if (javaPath.exists())
