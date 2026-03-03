@@ -199,7 +199,7 @@ public:
     bool vcsDelete(const FilePath &workingDir, const QString &fileName);
     bool vcsMove(const FilePath &workingDir, const QString &from, const QString &to);
 
-    QString monitorFile(const FilePath &repository) const;
+    FilePath monitorFile(const FilePath &repository) const;
     QString synchronousTopic(const FilePath &repository) const;
     CommandResult runSvn(const FilePath &workingDir, const CommandLine &command,
                          RunFlags flags = RunFlags::None, const TextEncoding &encoding = {},
@@ -317,7 +317,7 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     dd = this;
 
     setTopicFileTracker([this](const FilePath &repository) {
-        return FilePath::fromString(monitorFile(repository));
+        return monitorFile(repository);
     });
     setTopicRefresher([this](const FilePath &repository) {
         return synchronousTopic(repository);
@@ -1003,16 +1003,18 @@ IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const
     return editor;
 }
 
-QString SubversionPluginPrivate::monitorFile(const FilePath &repository) const
+FilePath SubversionPluginPrivate::monitorFile(const FilePath &repository) const
 {
     QTC_ASSERT(!repository.isEmpty(), return {});
-    QDir repoDir(repository.toUrlishString());
-    for (const QString &svnDir : std::as_const(m_svnDirectories)) {
-        if (repoDir.exists(svnDir)) {
-            QFileInfo fi(repoDir.absoluteFilePath(svnDir + "/wc.db"));
-            if (fi.exists() && fi.isFile())
-                return fi.absoluteFilePath();
-        }
+
+    for (const QString &svnDir : m_svnDirectories) {
+        const FilePath dir = repository.pathAppended(svnDir);
+        if (!dir.exists())
+            continue;
+
+        const FilePath file = dir.pathAppended("wc.db");
+        if (file.exists() && file.isFile())
+            return file.absoluteFilePath();
     }
     return {};
 }
