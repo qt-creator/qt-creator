@@ -97,23 +97,6 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace QmlJSEditor {
-
-enum QmllsFunctionality {
-    DefaultFunctionality,
-    ExperimentalFunctionality,
-};
-
-static LanguageClient::Client *getQmllsClient(
-    ProjectExplorer::Project *project, const FilePath &fileName, QmllsFunctionality functionality)
-{
-    if (functionality == ExperimentalFunctionality
-        && qmllsSettings()->useQmllsWithBuiltinCodemodelOnProject(project, fileName))
-        return nullptr;
-
-    auto client = LanguageClient::LanguageClientManager::clientForFilePath(fileName);
-    return client;
-}
-
 //
 // QmlJSEditorWidget
 //
@@ -771,9 +754,8 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
                                    bool resolveTarget,
                                    bool /*inNextSplit*/)
 {
-    if (auto client = getQmllsClient(ProjectExplorer::ProjectManager::startupProject(),
-                                     textDocument()->filePath(),
-                                     DefaultFunctionality)) {
+    if (auto client = LanguageClient::LanguageClientManager::clientForFilePath(
+            textDocument()->filePath())) {
         client->findLinkAt(textDocument(),
                            cursor,
                            processLinkCallback,
@@ -935,8 +917,7 @@ void QmlJSEditorWidget::findUsages()
 {
     const Utils::FilePath fileName = textDocument()->filePath();
 
-    if (auto client = getQmllsClient(ProjectExplorer::ProjectManager::startupProject(),
-                                     fileName, DefaultFunctionality)) {
+    if (auto client = LanguageClient::LanguageClientManager::clientForFilePath(fileName)) {
         client->symbolSupport().findUsages(textDocument(), textCursor());
     } else {
         const int offset = textCursor().position();
@@ -948,8 +929,7 @@ void QmlJSEditorWidget::renameSymbolUnderCursor()
 {
     const Utils::FilePath fileName = textDocument()->filePath();
 
-    if (auto client = getQmllsClient(ProjectExplorer::ProjectManager::startupProject(),
-                                     fileName, DefaultFunctionality)) {
+    if (auto client = LanguageClient::LanguageClientManager::clientForFilePath(fileName)) {
         QTextCursor tc = textCursor();
         tc.select(QTextCursor::WordUnderCursor);
         client->symbolSupport().renameSymbol(textDocument(), textCursor(), tc.selectedText());

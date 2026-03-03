@@ -716,8 +716,8 @@ static GroupItem downloadGithubQmlls()
 QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     const QmllsClientSettings *settings, QWidget *parent)
     : QWidget(parent)
-    , m_disableBuiltinCodemodel(new QCheckBox(
-          Tr::tr("Use advanced features (renaming, find usages, and so on) (experimental)"), this))
+    , m_disableBuiltinCodemodel(
+          new QCheckBox(Tr::tr("Use advanced features (Document Outline)"), this))
     , m_generateQmllsIniFiles(
           new QCheckBox(Tr::tr("Create .qmlls.ini files for new projects targeting Qt < 6.10"), this))
     , m_enableCMakeBuilds(new QCheckBox(Tr::tr("Enable qmlls's CMake integration"), this))
