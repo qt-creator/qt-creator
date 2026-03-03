@@ -39,7 +39,10 @@ def performTest(workingDir, projectName, availableConfigs):
     def __elapsedTime__(elapsedTimeLabelText):
         return float(re.search("Elapsed:\s+(-?\d+\.\d+) s", elapsedTimeLabelText).group(1))
 
+    runButton = findObject(':*Qt Creator.Run_Core::Internal::FancyToolButton')
     for kit, config in availableConfigs:
+        if not runButton.enabled: # ensure we have an 'Active Project' (and the clean action)
+            waitForProjectParsing()
         # switching from MSVC to MinGW build will fail on the clean step of 'Rebuild All Projects'
         # because of differences between MSVC's and MinGW's Makefile (so clean before changing kit)
         selectFromLocator("t clean", "Clean Active Project")
