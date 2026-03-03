@@ -7,6 +7,7 @@ add_qtc_library(McpServerLib
     mcpserver.h
     mcpserver_global.h
     minihttpserver.h
+    ../schemas/schema_2025_11_25.cpp
     ../schemas/schema_2025_11_25.h
 )
 
@@ -17,7 +18,7 @@ extend_qtc_library(McpServerLib
 )
 
 if (MSVC)
-    # Prevent fatal error C1128
+    # Prevent fatal error C1128 on large generated schema
     target_compile_options(McpServerLib PRIVATE /bigobj)
 endif()
 if (MINGW)

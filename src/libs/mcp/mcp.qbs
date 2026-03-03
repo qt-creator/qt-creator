@@ -18,6 +18,7 @@ QtcLibrary {
             "mcpserver.h",
             "mcpserver_global.h",
             "minihttpserver.h",
+            "../schemas/schema_2025_11_25.cpp",
             "../schemas/schema_2025_11_25.h",
         ]
     }
