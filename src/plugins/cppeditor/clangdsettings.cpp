@@ -615,7 +615,6 @@ private:
 ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsData,
                                            bool isForProject)
 {
-    const ClangdSettings settings(settingsData);
     const QString indexingToolTip = Tr::tr(
         "<p>If background indexing is enabled, global symbol searches will yield more accurate "
         "results, at the cost of additional CPU load when the project is first opened. The "
@@ -673,26 +672,26 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "The maximum number of completion results returned by clangd.");
 
     m_useClangdCheckBox.setText(Tr::tr("Use clangd"));
-    m_useClangdCheckBox.setChecked(settings.data().useGoodClangd(nullptr));
+    m_useClangdCheckBox.setChecked(settingsData.useGoodClangd(nullptr));
     m_clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_clangdChooser.setFilePath(settings.data().clangdFilePath(nullptr));
+    m_clangdChooser.setFilePath(settingsData.clangdFilePath(nullptr));
     m_clangdChooser.setAllowPathFromDevice(true);
     m_clangdChooser.setEnabled(m_useClangdCheckBox.isChecked());
     m_clangdChooser.setCommandVersionArguments({"--version"});
     using Priority = ClangdSettings::IndexingPriority;
     for (Priority prio : {Priority::Off, Priority::Background, Priority::Low, Priority::Normal}) {
         m_indexingComboBox.addItem(ClangdSettings::priorityToDisplayString(prio), int(prio));
-        if (prio == settings.data().indexingPriority)
+        if (prio == settingsData.indexingPriority)
             m_indexingComboBox.setCurrentIndex(m_indexingComboBox.count() - 1);
     }
     m_indexingComboBox.setToolTip(indexingToolTip);
-    m_projectIndexPathTemplateLineEdit.setText(settings.data().projectIndexPathTemplate);
-    m_sessionIndexPathTemplateLineEdit.setText(settings.data().sessionIndexPathTemplate);
+    m_projectIndexPathTemplateLineEdit.setText(settingsData.projectIndexPathTemplate);
+    m_sessionIndexPathTemplateLineEdit.setText(settingsData.sessionIndexPathTemplate);
     using SwitchMode = ClangdSettings::HeaderSourceSwitchMode;
     for (SwitchMode mode : {SwitchMode::BuiltinOnly, SwitchMode::ClangdOnly, SwitchMode::Both}) {
         m_headerSourceSwitchComboBox.addItem(
             ClangdSettings::headerSourceSwitchModeToDisplayString(mode), int(mode));
-        if (mode == settings.headerSourceSwitchMode())
+        if (mode == settingsData.headerSourceSwitchMode)
             m_headerSourceSwitchComboBox.setCurrentIndex(
                 m_headerSourceSwitchComboBox.count() - 1);
     }
@@ -701,41 +700,41 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
                                RankingModel::Heuristics}) {
         m_completionRankingModelComboBox.addItem(
             ClangdSettings::rankingModelToDisplayString(model), int(model));
-        if (model == settings.completionRankingModel())
+        if (model == settingsData.completionRankingModel)
             m_completionRankingModelComboBox.setCurrentIndex(
                 m_completionRankingModelComboBox.count() - 1);
     }
     m_completionRankingModelComboBox.setToolTip(completionRankingModelToolTip);
 
     m_autoIncludeHeadersCheckBox.setText(Tr::tr("Insert header files on completion"));
-    m_autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
+    m_autoIncludeHeadersCheckBox.setChecked(settingsData.autoIncludeHeaders);
     m_autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
     m_updateDependentSourcesCheckBox.setText(Tr::tr("Update dependent sources"));
-    m_updateDependentSourcesCheckBox.setChecked(settings.updateDependentSources());
+    m_updateDependentSourcesCheckBox.setChecked(settingsData.updateDependentSources);
     m_updateDependentSourcesCheckBox.setToolTip(updateDependentSourcesToolTip);
-    m_threadLimitSpinBox.setValue(settings.workerThreadLimit());
+    m_threadLimitSpinBox.setValue(settingsData.workerThreadLimit);
     m_threadLimitSpinBox.setSpecialValueText(Tr::tr("Automatic"));
     m_threadLimitSpinBox.setToolTip(workerThreadsToolTip);
     m_documentUpdateThreshold.setMinimum(50);
     m_documentUpdateThreshold.setMaximum(10000);
-    m_documentUpdateThreshold.setValue(settings.documentUpdateThreshold());
+    m_documentUpdateThreshold.setValue(settingsData.documentUpdateThreshold);
     m_documentUpdateThreshold.setSingleStep(100);
     m_documentUpdateThreshold.setSuffix(" ms");
     m_documentUpdateThreshold.setToolTip(documentUpdateToolTip);
     m_sizeThresholdCheckBox.setText(Tr::tr("Ignore files greater than"));
-    m_sizeThresholdCheckBox.setChecked(settings.sizeThresholdEnabled());
+    m_sizeThresholdCheckBox.setChecked(settingsData.sizeThresholdEnabled);
     m_sizeThresholdCheckBox.setToolTip(sizeThresholdToolTip);
     m_sizeThresholdSpinBox.setMinimum(1);
     m_sizeThresholdSpinBox.setMaximum(std::numeric_limits<int>::max());
     m_sizeThresholdSpinBox.setSuffix(" KB");
-    m_sizeThresholdSpinBox.setValue(settings.sizeThresholdInKb());
+    m_sizeThresholdSpinBox.setValue(settingsData.sizeThresholdInKb);
     m_sizeThresholdSpinBox.setToolTip(sizeThresholdToolTip);
 
     const auto completionResultsLabel = new QLabel(Tr::tr("Completion results:"));
     completionResultsLabel->setToolTip(completionResultToolTip);
     m_completionResults.setMinimum(0);
     m_completionResults.setMaximum(std::numeric_limits<int>::max());
-    m_completionResults.setValue(settings.completionResults());
+    m_completionResults.setValue(settingsData.completionResults);
     m_completionResults.setToolTip(completionResultToolTip);
     m_completionResults.setSpecialValueText(Tr::tr("No limit"));
 
@@ -824,7 +823,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     m_configSelectionWidget = new ClangDiagnosticConfigsSelectionWidget(formLayout);
     m_configSelectionWidget->refresh(
         ClangdSettings::diagnosticConfigsModel(),
-        settings.data().diagnosticConfigIdOrDefault(),
+        settingsData.diagnosticConfigIdOrDefault(),
         [](const ClangDiagnosticConfigs &configs, const Utils::Id &configToSelect) {
             return new CppEditor::ClangDiagnosticConfigsWidget(configs, configToSelect);
         });

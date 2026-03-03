@@ -113,15 +113,6 @@ public:
 
     Utils::FilePath projectIndexPath(const Utils::MacroExpander &expander) const;
     Utils::FilePath sessionIndexPath(const Utils::MacroExpander &expander) const;
-    HeaderSourceSwitchMode headerSourceSwitchMode() const { return m_data.headerSourceSwitchMode; }
-    CompletionRankingModel completionRankingModel() const { return m_data.completionRankingModel; }
-    bool autoIncludeHeaders() const { return m_data.autoIncludeHeaders; }
-    bool updateDependentSources() const { return m_data.updateDependentSources; }
-    int workerThreadLimit() const { return m_data.workerThreadLimit; }
-    int documentUpdateThreshold() const { return m_data.documentUpdateThreshold; }
-    qint64 sizeThresholdInKb() const { return m_data.sizeThresholdInKb; }
-    bool sizeThresholdEnabled() const { return m_data.sizeThresholdEnabled; }
-    int completionResults() const { return m_data.completionResults; }
     ClangDiagnosticConfigs customDiagnosticConfigs() const;
 
     enum class Granularity { Project, Session };
