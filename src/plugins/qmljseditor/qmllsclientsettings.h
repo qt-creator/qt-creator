@@ -34,7 +34,7 @@ public:
 
     ExecutableSelection m_executableSelection = FromQtKit;
     bool m_ignoreMinimumQmllsVersion = false;
-    bool m_useQmllsSemanticHighlighting = false;
+    bool m_useQmllsSemanticHighlighting = true;
     bool m_disableBuiltinCodemodel = false;
     bool m_generateQmllsIniFiles = false;
     bool m_enableCMakeBuilds = true;

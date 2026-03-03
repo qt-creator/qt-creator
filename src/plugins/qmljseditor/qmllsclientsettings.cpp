@@ -725,8 +725,7 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
           Tr::tr("Allow versions below Qt %1")
               .arg(QmllsClientSettings::mininumQmllsVersion.toString()),
           this))
-    , m_useQmllsSemanticHighlighting(
-          new QCheckBox(Tr::tr("Enable semantic highlighting (experimental)"), this))
+    , m_useQmllsSemanticHighlighting(new QCheckBox(Tr::tr("Enable semantic highlighting"), this))
     , m_useDefaultQmlls(new QRadioButton(Tr::tr("Use qmlls from project Qt kit"), this))
     , m_useLatestQmlls(new QRadioButton(
           Tr::tr("Use qmlls from latest Qt kit (located at %1)")
