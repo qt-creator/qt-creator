@@ -65,11 +65,6 @@ public:
     Utils::Store toMap() const;
     void fromMap(const Utils::Store &map);
 
-    void setTypingSettings(const TextEditor::TypingSettingsData &settings);
-    void setStorageSettings(const TextEditor::StorageSettingsData &settings);
-    void setBehaviorSettings(const TextEditor::BehaviorSettingsData &settings);
-    void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettingsData &settings);
-
     void setTextEncoding(const Utils::TextEncoding &textEncoding);
 
     void slotAboutToRemoveProject(ProjectExplorer::Project *project);

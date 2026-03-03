@@ -3,6 +3,7 @@
 
 #include "guiutils.h"
 
+#include "aspects.h"
 #include "hostosinfo.h"
 #include "pathchooser.h"
 #include "plaintextedit/plaintextedit.h"
@@ -168,6 +169,10 @@ static void installDirtyTriggerHelper(QObject *object, bool check)
     if (auto ob = qobject_cast<QAbstractItemModel *>(object)) {
         QObject::connect(ob, &QAbstractItemModel::rowsInserted, action);
         QObject::connect(ob, &QAbstractItemModel::rowsRemoved, action);
+        return;
+    }
+    if (auto ob = qobject_cast<BaseAspect *>(object)) {
+        QObject::connect(ob, &BaseAspect::volatileValueChanged, action);
         return;
     }
 

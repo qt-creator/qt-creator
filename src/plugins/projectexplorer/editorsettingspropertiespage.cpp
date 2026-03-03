@@ -25,6 +25,8 @@
 #include <QPushButton>
 #include <QSpinBox>
 
+using namespace Utils;
+
 namespace ProjectExplorer::Internal {
 
 class EditorSettingsWidget : public ProjectSettingsWidget
@@ -54,11 +56,15 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
     m_displaySettings = new QGroupBox(Tr::tr("Display Settings"));
     m_displaySettings->setEnabled(false);
 
-    m_behaviorSettings = new TextEditor::BehaviorSettingsWidget(this);
+    EditorConfiguration *config = m_project->editorConfiguration();
+    m_behaviorSettings = new TextEditor::BehaviorSettingsWidget(&config->typingSettings,
+                                                                &config->storageSettings,
+                                                                &config->behaviorSettings,
+                                                                &config->extraEncodingSettings,
+                                                                this);
 
     using namespace Layouting;
 
-    EditorConfiguration *config = m_project->editorConfiguration();
     TextEditor::MarginSettings &m = config->marginSettings;
 
     Row {
@@ -88,25 +94,14 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
     connect(m_restoreButton, &QAbstractButton::clicked,
             this, &EditorSettingsWidget::restoreDefaultValues);
 
-    connect(m_behaviorSettings, &TextEditor::BehaviorSettingsWidget::typingSettingsChanged,
-            config, &EditorConfiguration::setTypingSettings);
-    connect(m_behaviorSettings, &TextEditor::BehaviorSettingsWidget::storageSettingsChanged,
-            config, &EditorConfiguration::setStorageSettings);
-    connect(m_behaviorSettings, &TextEditor::BehaviorSettingsWidget::behaviorSettingsChanged,
-            config, &EditorConfiguration::setBehaviorSettings);
-    connect(m_behaviorSettings, &TextEditor::BehaviorSettingsWidget::extraEncodingSettingsChanged,
-            config, &EditorConfiguration::setExtraEncodingSettings);
-    connect(m_behaviorSettings, &TextEditor::BehaviorSettingsWidget::textEncodingChanged,
-            config, &EditorConfiguration::setTextEncoding);
+    connect(&config->extraEncodingSettings.defaultEncoding, &BaseAspect::changed, config, [config] {
+            config->setTextEncoding(config->extraEncodingSettings.defaultEncoding());
+    });
 }
 
 void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 {
     m_behaviorSettings->setCodeStyle(config->codeStyle());
-    m_behaviorSettings->setAssignedEncoding(config->textEncoding());
-    m_behaviorSettings->setAssignedTypingSettings(config->typingSettings.data());
-    m_behaviorSettings->setAssignedStorageSettings(config->storageSettings.data());
-    m_behaviorSettings->setAssignedExtraEncodingSettings(config->extraEncodingSettings.data());
 }
 
 void EditorSettingsWidget::globalSettingsActivated(bool useGlobal)

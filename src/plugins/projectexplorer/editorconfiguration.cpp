@@ -102,12 +102,17 @@ bool EditorConfiguration::useGlobalSettings() const
 void EditorConfiguration::cloneGlobalSettings()
 {
     d->m_defaultCodeStyle->setTabSettings(TextEditorSettings::codeStyle()->tabSettings());
-    setTypingSettings(globalTypingSettings().data());
-    setStorageSettings(globalStorageSettings().data());
-    setBehaviorSettings(globalBehaviorSettings().data());
-    setExtraEncodingSettings(globalExtraEncodingSettings().data());
+    typingSettings.setData(globalTypingSettings().data());
+    storageSettings.setData(globalStorageSettings().data());
+    behaviorSettings.setData(globalBehaviorSettings().data());
+    extraEncodingSettings.setData(globalExtraEncodingSettings().data());
     marginSettings.setData(TextEditor::marginSettings().data());
     d->m_textEncoding = Core::EditorManager::defaultTextEncoding();
+
+    emit typingSettingsChanged(typingSettings.data());
+    emit storageSettingsChanged(storageSettings.data());
+    emit behaviorSettingsChanged(behaviorSettings.data());
+    emit extraEncodingSettingsChanged(extraEncodingSettings.data());
 }
 
 TextEncoding EditorConfiguration::textEncoding() const
@@ -287,30 +292,6 @@ void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
         widget->setExtraEncodingSettings(extraEncodingSettings.data());
         switchSettings_helper(this, TextEditorSettings::instance(), widget);
     }
-}
-
-void EditorConfiguration::setTypingSettings(const TextEditor::TypingSettingsData &settings)
-{
-    typingSettings.setData(settings);
-    emit typingSettingsChanged(typingSettings.data());
-}
-
-void EditorConfiguration::setStorageSettings(const StorageSettingsData &settings)
-{
-    storageSettings.setData(settings);
-    emit storageSettingsChanged(storageSettings.data());
-}
-
-void EditorConfiguration::setBehaviorSettings(const BehaviorSettingsData &settings)
-{
-    behaviorSettings.setData(settings);
-    emit behaviorSettingsChanged(behaviorSettings.data());
-}
-
-void EditorConfiguration::setExtraEncodingSettings(const ExtraEncodingSettingsData &settings)
-{
-    extraEncodingSettings.setData(settings);
-    emit extraEncodingSettingsChanged(extraEncodingSettings.data());
 }
 
 void EditorConfiguration::setTextEncoding(const TextEncoding &textEncoding)

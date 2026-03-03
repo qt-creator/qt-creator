@@ -7,6 +7,7 @@
 #include "texteditortr.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/qtcsettings.h>
 
 using namespace Utils;
 
@@ -19,12 +20,18 @@ BehaviorSettings::BehaviorSettings(const Key &keyPrefix)
     mouseHiding.setSettingsKey(keyPrefix + "MouseHiding");
     mouseHiding.setDefaultValue(true);
     mouseHiding.setVisible(!HostOsInfo::isMacHost());
+    mouseHiding.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    mouseHiding.setLabelText(Tr::tr("Hide mouse cursor while typing"));
 
     mouseNavigation.setSettingsKey(keyPrefix + "MouseNavigation");
     mouseNavigation.setDefaultValue(true);
+    mouseNavigation.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    mouseNavigation.setLabelText(Tr::tr("Enable &mouse navigation"));
 
     scrollWheelZooming.setSettingsKey(keyPrefix + "ScrollWheelZooming");
     scrollWheelZooming.setDefaultValue(true);
+    scrollWheelZooming.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    scrollWheelZooming.setLabelText(Tr::tr("Enable scroll &wheel zooming"));
 
     constrainHoverTooltips.setSettingsKey(keyPrefix + "ConstrainTooltips");
     constrainHoverTooltips.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
@@ -40,26 +47,24 @@ BehaviorSettings::BehaviorSettings(const Key &keyPrefix)
         Tr::tr("Displays context-sensitive help or type information on Shift+Mouseover."),
         QVariant(true)
     });
+    constrainHoverTooltips.setLabelText(Tr::tr("Show help tooltips using the mouse:"));
 
     camelCaseNavigation.setSettingsKey(keyPrefix + "CamelCaseNavigation");
     camelCaseNavigation.setDefaultValue(true);
+    camelCaseNavigation.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    camelCaseNavigation.setLabelText(Tr::tr("Enable built-in camel case &navigation"));
 
     keyboardTooltips.setSettingsKey(keyPrefix + "KeyboardTooltips");
     keyboardTooltips.setDefaultValue(false);
+    keyboardTooltips.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    keyboardTooltips.setLabelText(Tr::tr("Show help tooltips using keyboard shortcut (Alt)"));
+    keyboardTooltips.setToolTip(Tr::tr("Pressing Alt displays context-sensitive help or type information as tooltips."));
 
     smartSelectionChanging.setSettingsKey(keyPrefix + "SmartSelectionChanging");
     smartSelectionChanging.setDefaultValue(true);
-
-    mouseHiding.setLabelText(Tr::tr("Hide mouse cursor while typing"));
-    mouseNavigation.setLabelText(Tr::tr("Enable &mouse navigation"));
-    scrollWheelZooming.setLabelText(Tr::tr("Enable scroll &wheel zooming"));
-    camelCaseNavigation.setLabelText(Tr::tr("Enable built-in camel case &navigation"));
-
+    smartSelectionChanging.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     smartSelectionChanging.setLabelText(Tr::tr("Enable smart selection changing"));
     smartSelectionChanging.setToolTip(Tr::tr("Using Select Block Up / Down actions will now provide smarter selections."));
-
-    keyboardTooltips.setLabelText(Tr::tr("Show help tooltips using keyboard shortcut (Alt)"));
-    keyboardTooltips.setToolTip(Tr::tr("Pressing Alt displays context-sensitive help or type information as tooltips."));
 }
 
 void BehaviorSettings::setData(const BehaviorSettingsData &data)

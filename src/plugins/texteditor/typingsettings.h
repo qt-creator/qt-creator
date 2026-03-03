@@ -44,8 +44,6 @@ public:
     Utils::Store toMap() const;
     void fromMap(const Utils::Store &map);
 
-    bool equals(const TypingSettingsData &ts) const;
-
     bool m_autoIndent;
     TabKeyBehavior m_tabKeyBehavior;
     SmartBackspaceBehavior m_smartBackspaceBehavior;
@@ -59,6 +57,8 @@ class TEXTEDITOR_EXPORT TypingSettings : public Utils::AspectContainer
 public:
     TypingSettings();
 
+    void apply() final;
+
     Utils::BoolAspect autoIndent{this};
     Utils::TypedSelectionAspect<TypingSettingsData::TabKeyBehavior> tabKeyBehavior{this};
     Utils::BoolAspect preferSingleLineComments{this};
@@ -70,7 +70,6 @@ public:
 };
 
 void setupTypingSettings();
-void updateGlobalTypingSettings(const TypingSettingsData &newTypingSettings);
 
 TEXTEDITOR_EXPORT TypingSettings &globalTypingSettings();
 

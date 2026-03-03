@@ -14,7 +14,7 @@ namespace TextEditor {
  * Settings that describe how the text editor behaves. This does not include
  * the TabSettings and StorageSettings.
  */
-class TEXTEDITOR_EXPORT BehaviorSettingsData
+class TEXTEDITOR_EXPORT BehaviorSettingsData final
 {
 public:
     BehaviorSettingsData() = default;
@@ -30,7 +30,7 @@ public:
     bool m_smartSelectionChanging = true;
 };
 
-class TEXTEDITOR_EXPORT BehaviorSettings : public Utils::AspectContainer
+class TEXTEDITOR_EXPORT BehaviorSettings final : public Utils::AspectContainer
 {
 public:
     explicit BehaviorSettings(const Utils::Key &keyPrefix = {});

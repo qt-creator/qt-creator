@@ -7,16 +7,15 @@
 
 #include <utils/store.h>
 #include <utils/aspects.h>
+#include <utils/textcodec.h>
 
 namespace TextEditor {
+
+class CodecChooser;
 
 class TEXTEDITOR_EXPORT ExtraEncodingSettingsData
 {
 public:
-    bool equals(const ExtraEncodingSettingsData &s) const;
-
-    static QStringList lineTerminationModeNames();
-
     enum Utf8BomSetting {
         AlwaysAdd = 0,
         OnlyKeep = 1,
@@ -31,20 +30,36 @@ public:
     LineEndingSetting m_lineEndingSetting = Unix;
 };
 
+class TEXTEDITOR_EXPORT EncodingSelectionAspect : public Utils::TypedAspect<QByteArray>
+{
+public:
+    explicit EncodingSelectionAspect(Utils::AspectContainer *container);
+
+    Utils::TextEncoding operator()() const;
+    void setValue(const Utils::TextEncoding &value);
+
+private:
+    void addToLayoutImpl(Layouting::Layout &parent);
+
+    CodecChooser *m_codecChooser = nullptr;
+};
+
 class TEXTEDITOR_EXPORT ExtraEncodingSettings : public Utils::AspectContainer
 {
 public:
     ExtraEncodingSettings();
 
+    void apply() final;
+
     void setData(const ExtraEncodingSettingsData &data);
     ExtraEncodingSettingsData data() const;
 
-    Utils::TypedSelectionAspect<ExtraEncodingSettingsData::Utf8BomSetting> utf8BomSetting;
-    Utils::TypedSelectionAspect<ExtraEncodingSettingsData::LineEndingSetting> lineEndingSetting;
+    EncodingSelectionAspect defaultEncoding{this};
+    Utils::TypedSelectionAspect<ExtraEncodingSettingsData::Utf8BomSetting> utf8BomSetting{this};
+    Utils::TypedSelectionAspect<ExtraEncodingSettingsData::LineEndingSetting> lineEndingSetting{this};
 };
 
 void setupExtraEncodingSettings();
-void updateGlobalExtraEncodingSettings(const ExtraEncodingSettingsData &newExtraEncodingSettings);
 
 TEXTEDITOR_EXPORT ExtraEncodingSettings &globalExtraEncodingSettings();
 

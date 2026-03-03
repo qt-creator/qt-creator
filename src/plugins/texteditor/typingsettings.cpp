@@ -4,6 +4,7 @@
 #include "typingsettings.h"
 
 #include "texteditorsettings.h"
+#include "texteditortr.h"
 
 #include <coreplugin/icore.h>
 
@@ -29,17 +30,83 @@ TypingSettings::TypingSettings()
 
     autoIndent.setSettingsKey("AutoIndent");
     autoIndent.setDefaultValue(true);
+    autoIndent.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    autoIndent.setLabelText(Tr::tr("Enable automatic &indentation"));
 
     tabKeyBehavior.setSettingsKey("TabKeyBehavior");
+    tabKeyBehavior.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    tabKeyBehavior.addOption(Tr::tr("Never"));
+    tabKeyBehavior.addOption(Tr::tr("Always"));
+    tabKeyBehavior.addOption(Tr::tr("In Leading White Space"));
     tabKeyBehavior.setDefaultValue(TypingSettingsData::TabNeverIndents);
+    tabKeyBehavior.setLabelText(Tr::tr("Tab key performs auto-indent:"));
 
-    smartBackspaceBehavior.setDefaultValue(TypingSettingsData::BackspaceUnindents);
     smartBackspaceBehavior.setSettingsKey("SmartBackspaceBehavior");
+    smartBackspaceBehavior.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    smartBackspaceBehavior.addOption(Tr::tr("None", "Backspace indentation: None"));
+    smartBackspaceBehavior.addOption(Tr::tr("Follows Previous Indents"));
+    smartBackspaceBehavior.addOption(Tr::tr("Unindents"));
+    smartBackspaceBehavior.setDefaultValue(TypingSettingsData::BackspaceUnindents);
+    smartBackspaceBehavior.setLabelText(Tr::tr("Backspace indentation:"));
+    smartBackspaceBehavior.setToolTip(Tr::tr("<html><head/><body>\n"
+        "Specifies how backspace interacts with indentation.\n"
+        "\n"
+        "<ul>\n"
+        "<li>None: No interaction at all. Regular plain backspace behavior.\n"
+        "</li>\n"
+        "\n"
+        "<li>Follows Previous Indents: In leading white space it will take the cursor back to the nearest indentation level used in previous lines.\n"
+        "</li>\n"
+        "\n"
+        "<li>Unindents: If the character behind the cursor is a space it behaves as a backtab.\n"
+        "</li>\n"
+        "</ul></body></html>\n"
+        ));
 
     preferSingleLineComments.setSettingsKey("PreferSingleLineComments");
     preferSingleLineComments.setDefaultValue(false);
+    preferSingleLineComments.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    preferSingleLineComments.setLabelText(Tr::tr("Prefer single line comments"));
+
+    const QString automaticText = Tr::tr("Automatic");
+    const QString lineStartText = Tr::tr("At Line Start");
+    const QString afterWhitespaceText = Tr::tr("After Whitespace");
+
+    const QString generalCommentPosition = Tr::tr(
+        "Specifies where single line comments should be positioned.");
+    const QString automaticCommentPosition
+        = Tr::tr(
+              "%1: The highlight definition for the file determines the position. If no highlight "
+              "definition is available, the comment is placed after leading whitespaces.")
+              .arg(automaticText);
+    const QString lineStartCommentPosition
+        = Tr::tr("%1: The comment is placed at the start of the line.").arg(lineStartText);
+    const QString afterWhitespaceCommentPosition
+        = Tr::tr("%1: The comment is placed after leading whitespaces.").arg(afterWhitespaceText);
 
     commentPosition.setSettingsKey("PreferAfterWhitespaceComments");
+    commentPosition.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    commentPosition.addOption(automaticText);
+    commentPosition.addOption(lineStartText);
+    commentPosition.addOption(afterWhitespaceText);
+    commentPosition.setLabelText(Tr::tr("Preferred comment position:"));
+    commentPosition.setToolTip(QString("<html><head/><body>\n"
+                                                   "%1\n"
+                                                   "\n"
+                                                   "<ul>\n"
+                                                   "<li>%2\n"
+                                                   "</li>\n"
+                                                   "\n"
+                                                   "<li>%3\n"
+                                                   "</li>\n"
+                                                   "\n"
+                                                   "<li>%4\n"
+                                                   "</li>\n"
+                                                   "</ul></body></html>\n")
+                                               .arg(generalCommentPosition)
+                                               .arg(automaticCommentPosition)
+                                               .arg(lineStartCommentPosition)
+                                               .arg(afterWhitespaceCommentPosition));
 }
 
 void TypingSettings::setData(const TypingSettingsData &data)
@@ -49,6 +116,12 @@ void TypingSettings::setData(const TypingSettingsData &data)
     smartBackspaceBehavior.setValue(data.m_smartBackspaceBehavior);
     preferSingleLineComments.setValue(data.m_preferSingleLineComments);
     commentPosition.setValue(data.m_commentPosition);
+}
+
+void TypingSettings::apply()
+{
+    AspectContainer::apply();
+    emit TextEditorSettings::instance()->typingSettingsChanged(data());
 }
 
 TypingSettingsData TypingSettings::data() const
@@ -63,15 +136,6 @@ TypingSettingsData TypingSettings::data() const
                    int(TypingSettingsData::Automatic),
                    int(TypingSettingsData::AfterWhitespace)));
     return d;
-}
-
-bool TypingSettingsData::equals(const TypingSettingsData &ts) const
-{
-    return m_autoIndent == ts.m_autoIndent
-           && m_tabKeyBehavior == ts.m_tabKeyBehavior
-           && m_smartBackspaceBehavior == ts.m_smartBackspaceBehavior
-           && m_preferSingleLineComments == ts.m_preferSingleLineComments
-           && m_commentPosition == ts.m_commentPosition;
 }
 
 bool TypingSettingsData::tabShouldIndent(const QTextDocument *document,
@@ -102,17 +166,6 @@ TypingSettings &globalTypingSettings()
 {
     static TypingSettings theGlobalTypingSettings;
     return theGlobalTypingSettings;
-}
-
-void updateGlobalTypingSettings(const TypingSettingsData &newTypingSettings)
-{
-    if (newTypingSettings.equals(globalTypingSettings().data()))
-        return;
-
-    globalTypingSettings().setData(newTypingSettings);
-    globalTypingSettings().writeSettings();
-
-    emit TextEditorSettings::instance()->typingSettingsChanged(newTypingSettings);
 }
 
 void setupTypingSettings()

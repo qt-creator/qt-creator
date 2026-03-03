@@ -13,10 +13,10 @@ namespace TextEditor {
 
 class ICodeStylePreferences;
 class TabSettingsWidget;
-class TypingSettingsData;
-class StorageSettingsData;
-class BehaviorSettingsData;
-class ExtraEncodingSettingsData;
+class TypingSettings;
+class StorageSettings;
+class BehaviorSettings;
+class ExtraEncodingSettings;
 
 struct BehaviorSettingsWidgetPrivate;
 
@@ -25,47 +25,24 @@ class TEXTEDITOR_EXPORT BehaviorSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit BehaviorSettingsWidget(QWidget *parent = nullptr);
+    BehaviorSettingsWidget(TypingSettings *typingSettings,
+                           StorageSettings *storageSettings,
+                           BehaviorSettings *behaviorSettings,
+                           ExtraEncodingSettings *encodingSettings,
+                           QWidget *parent);
+
     ~BehaviorSettingsWidget() override;
+
+    bool isDirty() const;
+    void apply();
 
     void setActive(bool active);
 
-    void setAssignedEncoding(const Utils::TextEncoding &encoding);
-    Utils::TextEncoding currentEncoding() const;
-
     void setCodeStyle(ICodeStylePreferences *preferences);
-
-    void setAssignedTypingSettings(const TypingSettingsData &typingSettings);
-    void assignedTypingSettings(TypingSettingsData *typingSettings) const;
-
-    void setAssignedStorageSettings(const StorageSettingsData &storageSettings);
-    void assignedStorageSettings(StorageSettingsData *storageSettings) const;
-
-    void setAssignedBehaviorSettings(const BehaviorSettingsData &behaviorSettings);
-    void assignedBehaviorSettings(BehaviorSettingsData *behaviorSettings) const;
-
-    void setAssignedExtraEncodingSettings(const ExtraEncodingSettingsData &encodingSettings);
-    void assignedExtraEncodingSettings(ExtraEncodingSettingsData *encodingSettings) const;
-
-    void setAssignedLineEnding(int lineEnding);
-    int assignedLineEnding() const;
 
     TabSettingsWidget *tabSettingsWidget() const;
 
-signals:
-    void typingSettingsChanged(const TextEditor::TypingSettingsData &settings);
-    void storageSettingsChanged(const TextEditor::StorageSettingsData &settings);
-    void behaviorSettingsChanged(const TextEditor::BehaviorSettingsData &settings);
-    void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettingsData &settings);
-    void textEncodingChanged(const Utils::TextEncoding &encoding);
-
 private:
-    void slotTypingSettingsChanged();
-    void slotStorageSettingsChanged();
-    void slotBehaviorSettingsChanged();
-    void slotExtraEncodingChanged();
-    void updateConstrainTooltipsBoxTooltip() const;
-
     BehaviorSettingsWidgetPrivate *d;
 };
 

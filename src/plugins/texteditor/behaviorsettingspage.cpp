@@ -67,7 +67,11 @@ class BehaviorSettingsWidgetImpl : public Core::IOptionsPageWidget
 public:
     BehaviorSettingsWidgetImpl(BehaviorSettingsPagePrivate *d) : d(d)
     {
-        d->m_behaviorWidget = new BehaviorSettingsWidget(this);
+        d->m_behaviorWidget = new BehaviorSettingsWidget(&globalTypingSettings(),
+                                                         &globalStorageSettings(),
+                                                         &globalBehaviorSettings(),
+                                                         &globalExtraEncodingSettings(),
+                                                         this);
 
         auto verticalSpacer = new QSpacerItem(20, 13, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -97,16 +101,14 @@ public:
             }
         });
 
-        d->m_behaviorWidget->setAssignedTypingSettings(globalTypingSettings().data());
-        d->m_behaviorWidget->setAssignedStorageSettings(globalStorageSettings().data());
-        d->m_behaviorWidget->setAssignedBehaviorSettings(globalBehaviorSettings().data());
-        d->m_behaviorWidget->setAssignedExtraEncodingSettings(globalExtraEncodingSettings().data());
-        d->m_behaviorWidget->setAssignedEncoding(Core::EditorManager::defaultTextEncoding());
-        d->m_behaviorWidget->setAssignedLineEnding(Core::EditorManager::defaultLineEnding());
-
-        installMarkSettingsDirtyTriggerRecursively(this);
+        installMarkSettingsDirtyTriggerRecursively(d->m_pageCodeStyle);
+        installCheckSettingsDirtyTrigger(&globalTypingSettings());
+        installCheckSettingsDirtyTrigger(&globalStorageSettings());
+        installCheckSettingsDirtyTrigger(&globalBehaviorSettings());
+        installCheckSettingsDirtyTrigger(&globalExtraEncodingSettings());
     }
 
+    bool isDirty() const;
     void apply() final;
 
     BehaviorSettingsPagePrivate *d;
@@ -128,20 +130,26 @@ BehaviorSettingsPage::~BehaviorSettingsPage()
     delete d;
 }
 
+bool BehaviorSettingsWidgetImpl::isDirty() const
+{
+    if (d->m_behaviorWidget->isDirty())
+        return true;
+
+    if (d->m_codeStyle->tabSettings() != d->m_pageCodeStyle->tabSettings())
+        return true;
+
+    if (d->m_codeStyle->currentDelegate() != d->m_pageCodeStyle->currentDelegate())
+        return true;
+
+    return false;
+}
+
 void BehaviorSettingsWidgetImpl::apply()
 {
     if (!d->m_behaviorWidget) // page was never shown
         return;
 
-    TypingSettingsData newTypingSettings;
-    StorageSettingsData newStorageSettings;
-    BehaviorSettingsData newBehaviorSettings;
-    ExtraEncodingSettingsData newExtraEncodingSettings;
-
-    d->m_behaviorWidget->assignedTypingSettings(&newTypingSettings);
-    d->m_behaviorWidget->assignedStorageSettings(&newStorageSettings);
-    d->m_behaviorWidget->assignedBehaviorSettings(&newBehaviorSettings);
-    d->m_behaviorWidget->assignedExtraEncodingSettings(&newExtraEncodingSettings);
+    d->m_behaviorWidget->apply();
 
     if (d->m_codeStyle->tabSettings() != d->m_pageCodeStyle->tabSettings()) {
         d->m_codeStyle->setTabSettings(d->m_pageCodeStyle->tabSettings());
@@ -152,17 +160,6 @@ void BehaviorSettingsWidgetImpl::apply()
         d->m_codeStyle->setCurrentDelegate(d->m_pageCodeStyle->currentDelegate());
         d->m_codeStyle->toSettings(d->m_settingsPrefix);
     }
-
-    updateGlobalTypingSettings(newTypingSettings);
-    updateGlobalStorageSettings(newStorageSettings);
-    updateGlobalBehaviorSettings(newBehaviorSettings);
-    updateGlobalExtraEncodingSettings(newExtraEncodingSettings);
-
-    QtcSettings *s = Core::ICore::settings();
-    if (const TextEncoding encoding = d->m_behaviorWidget->currentEncoding(); encoding.isValid())
-        s->setValue(Core::Constants::SETTINGS_DEFAULTTEXTENCODING, encoding.name());
-    s->setValue(Core::Constants::SETTINGS_DEFAULT_LINE_TERMINATOR,
-                d->m_behaviorWidget->assignedLineEnding());
 }
 
 ICodeStylePreferences *BehaviorSettingsPage::codeStyle() const

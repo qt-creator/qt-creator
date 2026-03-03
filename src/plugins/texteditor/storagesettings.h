@@ -10,15 +10,13 @@
 
 namespace TextEditor {
 
-class TEXTEDITOR_EXPORT StorageSettingsData
+class TEXTEDITOR_EXPORT StorageSettingsData final
 {
 public:
     StorageSettingsData();
 
     // calculated based on boolean setting plus file type blacklist examination
     bool removeTrailingWhitespace(const QString &filePattern) const;
-
-    bool equals(const StorageSettingsData &ts) const;
 
     QString m_ignoreFileTypes;
     bool m_cleanWhitespace;
@@ -39,6 +37,8 @@ public:
     StorageSettingsData data() const;
     void setData(const StorageSettingsData &data);
 
+    void apply() final;
+
     Utils::StringAspect ignoreFileTypes{this};
     Utils::BoolAspect cleanWhitespace{this};
     Utils::BoolAspect inEntireDocument{this};
@@ -48,7 +48,6 @@ public:
 };
 
 void setupStorageSettings();
-void updateGlobalStorageSettings(const StorageSettingsData &newStorageSettings);
 
 TEXTEDITOR_EXPORT StorageSettings &globalStorageSettings();
 
