@@ -40,6 +40,7 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <QApplication>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
