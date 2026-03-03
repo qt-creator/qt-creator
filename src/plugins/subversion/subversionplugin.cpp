@@ -606,7 +606,7 @@ SubversionSubmitEditor *SubversionPluginPrivate::openSubversionSubmitEditor(cons
 {
     IEditor *editor = EditorManager::openEditor(FilePath::fromString(fileName),
                                                 Constants::SUBVERSION_COMMIT_EDITOR_ID);
-    auto submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
+    auto submitEditor = qobject_cast<SubversionSubmitEditor *>(editor);
     QTC_ASSERT(submitEditor, return nullptr);
     setSubmitEditor(submitEditor);
     connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
@@ -641,7 +641,6 @@ void SubversionPluginPrivate::updateActions(VersionControlBase::ActionState as)
     m_updateRepositoryAction->setEnabled(repoEnabled);
 
     const QString fileName = currentState().currentFileName();
-
     m_addAction->setParameter(fileName);
     m_deleteAction->setParameter(fileName);
     m_revertAction->setParameter(fileName);
@@ -854,7 +853,7 @@ void SubversionPluginPrivate::filelog(const FilePath &workingDir,
                                       const QString &file,
                                       bool enableAnnotationContextMenu)
 {
-    subversionClient().log(workingDir, QStringList(file), QStringList(), enableAnnotationContextMenu,
+    subversionClient().log(workingDir, {file}, {}, enableAnnotationContextMenu,
                   [](CommandLine &command) { command << SubversionClient::AddAuthOptions(); });
 }
 
@@ -987,10 +986,10 @@ IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const
                                                      const TextEncoding &encoding)
 {
     qCDebug(Log) << "SubversionPlugin::showOutputInEditor" << title << id.toString()
-                 <<  "Size= " << output.size() <<  " Type=" << id << encoding.name();
+                 << "Size =" << output.size() << " Type =" << id << encoding.name();
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
-    auto e = qobject_cast<SubversionEditorWidget*>(editor->widget());
+    auto e = qobject_cast<SubversionEditorWidget *>(editor->widget());
     if (!e)
         return nullptr;
     connect(e, &VcsBaseEditorWidget::annotateRevisionRequested,

@@ -114,18 +114,15 @@ CommandLine &operator<<(Utils::CommandLine &command, SubversionClient::AddAuthOp
 
 QString SubversionClient::synchronousTopic(const FilePath &repository) const
 {
-    // TODO: Looks unused
-    QStringList args;
-
     QString svnVersionBinary = vcsBinary(repository).toUrlishString();
-    int pos = svnVersionBinary.lastIndexOf('/');
+    const int pos = svnVersionBinary.lastIndexOf('/');
     if (pos < 0)
         svnVersionBinary.clear();
     else
         svnVersionBinary = svnVersionBinary.left(pos + 1);
     svnVersionBinary.append(HostOsInfo::withExecutableSuffix("svnversion"));
     const CommandResult result = vcsSynchronousExec(repository,
-                                 {FilePath::fromString(svnVersionBinary), args});
+                                 {FilePath::fromString(svnVersionBinary), QStringList()});
     if (result.result() == ProcessResult::FinishedWithSuccess)
         return result.cleanedStdOut().trimmed();
     return {};
@@ -180,7 +177,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
     };
 
     const auto onDiffSetup = [this](Process &process) {
-        QStringList args = QStringList{"diff"} << "--internal-diff";
+        QStringList args = {"diff", "--internal-diff"};
         if (ignoreWhitespace())
             args << "-x" << "-uw";
         if (m_changeNumber)
