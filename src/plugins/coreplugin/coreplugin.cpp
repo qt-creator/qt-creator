@@ -21,6 +21,7 @@
 #include "locator/locator.h"
 #include "locator/locator_test.h"
 #include "loggingviewer.h"
+#include "mcpmanager.h"
 #include "modemanager.h"
 #include "session.h"
 #include "systemsettings.h"
@@ -144,7 +145,6 @@ CorePlugin::~CorePlugin()
     delete m_locator;
     delete m_folderNavigationWidgetFactory;
     delete m_editMode;
-
     DesignMode::destroyModeIfRequired();
 
     delete m_core;
@@ -347,6 +347,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     IOptionsPage::registerCategory(
         Constants::HELP_CATEGORY, Tr::tr("Help"), ":/core/images/settingscategory_help.png");
 
+    setupMcpManager();
     setupCustomLanguageModels();
 
     IWizardFactory::initialize();

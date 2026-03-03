@@ -9,6 +9,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/mcpmanager.h>
 #include <coreplugin/messagemanager.h>
 
 #include <debugger/debuggerconstants.h>
@@ -126,13 +127,15 @@ public:
     McpServerSettingsPage(McpServerPluginSettings *settings)
     {
         setId(Constants::SETTINGS_PAGE_ID);
-        setDisplayName("Mcp Server");
+        setDisplayName("Qt Creator Mcp Server");
         setCategory(Core::Constants::SETTINGS_CATEGORY_AI);
         setSettingsProvider([settings] { return settings; });
     }
 };
 
 void setupResources(QObject *guard, Mcp::Server &server, QParallelTaskTreeRunner *runner);
+
+static const char QT_MCPSERVER_MANAGER_ID[] = "QTCREATOR.BUILTIN.MCP.SERVER";
 
 class McpServerPlugin final : public ExtensionSystem::IPlugin
 {
@@ -168,6 +171,8 @@ public:
 
         m_server.setCorsEnabled(settings.enableCors());
 
+        McpManager::instance().removeMcpServer(QT_MCPSERVER_MANAGER_ID);
+
         if (!settings.enabled()) {
             qCInfo(mcpPlugin) << "Mcp server is disabled in settings, not starting.";
             return;
@@ -189,6 +194,19 @@ public:
                 Tr::tr("The Mcp server is listening on \"%1:%2\".")
                     .arg(tcpServer->serverAddress().toString())
                     .arg(tcpServer->serverPort()));
+
+            const auto url = QUrl(QString("http://%1:%2")
+                                      .arg(tcpServer->serverAddress().toString())
+                                      .arg(tcpServer->serverPort()));
+
+            const auto serverInfo = McpManager::ServerInfo{
+                QT_MCPSERVER_MANAGER_ID,
+                "Qt Creator builtin",
+                McpManager::ConnectionType::Streamable_Http,
+                url,
+                {}};
+
+            QTC_CHECK(McpManager::instance().registerMcpServer(serverInfo));
         }
     }
 
