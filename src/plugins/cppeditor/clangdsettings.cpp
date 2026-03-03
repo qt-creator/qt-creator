@@ -405,7 +405,6 @@ public:
     void setSettings(const ClangdSettings::Data &data);
     bool useGlobalSettings() const { return m_useGlobalSettings; }
     void setUseGlobalSettings(bool useGlobal);
-    void setDiagnosticConfigId(Utils::Id configId);
 
 private:
     void loadSettings();
@@ -444,13 +443,6 @@ void ClangdProjectSettings::setSettings(const ClangdSettings::Data &data)
 void ClangdProjectSettings::setUseGlobalSettings(bool useGlobal)
 {
     m_useGlobalSettings = useGlobal;
-    saveSettings();
-    emit ClangdSettings::instance().changed();
-}
-
-void ClangdProjectSettings::setDiagnosticConfigId(Utils::Id configId)
-{
-    m_customSettings.diagnosticConfigId = configId;
     saveSettings();
     emit ClangdSettings::instance().changed();
 }
@@ -570,11 +562,22 @@ void clangdUnblockIndexingForProject(Project *project)
 
 void clangdSetDiagnosticConfigId(Project *project, Id id)
 {
-    ClangdProjectSettings projectSettings(project);
+    QTC_ASSERT(project, return);
+    ClangdSettings::Data customSettings;
 
-    if (projectSettings.useGlobalSettings())
-        projectSettings.setUseGlobalSettings(false);
-    projectSettings.setDiagnosticConfigId(id);
+    const Store data = storeFromVariant(project->namedSettings(clangdSettingsKey()));
+    bool useGlobalSettings = data.value(useGlobalSettingsKey(), true).toBool();
+    if (!useGlobalSettings)
+        customSettings.fromMap(data);
+
+    customSettings.diagnosticConfigId = id;
+
+    Store data2;
+    data2 = customSettings.toMap();
+    data2.insert(useGlobalSettingsKey(), false);
+    project->setNamedSettings(clangdSettingsKey(), variantFromStore(data2));
+
+    emit ClangdSettings::instance().changed();
 }
 
 namespace Internal {
