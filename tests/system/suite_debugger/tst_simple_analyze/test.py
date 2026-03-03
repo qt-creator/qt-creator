@@ -80,7 +80,12 @@ def performTest(workingDir, projectName, availableConfigs):
              colMean, colMedian, colLongest, colShortest) = range(2, 11)
             model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
                                   "Internal::QmlProfilerStatisticsMainView").model()
-            compareEventsTab(model, "events_qt6.9.2.tsv")
+            targetStr = Targets.getStringForTarget(kit)
+            versionStr = re.match("Desktop ([56]\.\d+\.\d+).*", targetStr)
+            tsv = "events_qt6.9.2"
+            if versionStr and versionStr.group(1) < "6.8":
+                tsv = "events_qt6.7.3"
+            compareEventsTab(model, tsv)
             test.compare(dumpItems(model, column=colPercent)[0], '100 %')
             # cannot run following test on colShortest (unstable)
             for i in [colMean, colMedian, colLongest]:
