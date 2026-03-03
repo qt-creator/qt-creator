@@ -9,6 +9,7 @@
 #include "fancylineedit.h"
 #include "guard.h"
 #include "guiutils.h"
+#include "itemviews.h"
 #include "layoutbuilder.h"
 #include "macroexpander.h"
 #include "passworddialog.h"
@@ -19,6 +20,7 @@
 #include "qtcsettings.h"
 #include "qtcwidgets.h"
 #include "stylehelper.h"
+#include "treemodel.h"
 #include "utilsicons.h"
 #include "utilstr.h"
 #include "variablechooser.h"
@@ -30,6 +32,7 @@
 #include <QDebug>
 #include <QFontComboBox>
 #include <QGroupBox>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLayout>
 #include <QLineEdit>
@@ -3736,14 +3739,307 @@ private:
     std::shared_ptr<BaseAspect> m_item;
 };
 
+class AspectListModelItem : public TypedTreeItem<AspectListModelItem>
+{
+    std::shared_ptr<BaseAspect> m_aspect;
+    QObject guard;
+    std::function<QString(const std::shared_ptr<BaseAspect> &)> m_displayFunction;
+
+public:
+    AspectListModelItem() = default;
+    AspectListModelItem(
+        const std::shared_ptr<BaseAspect> &aspect,
+        std::function<QString(const std::shared_ptr<BaseAspect> &)> displayFunction)
+        : m_aspect(aspect)
+        , m_displayFunction(displayFunction)
+    {
+        auto upd = [this] { update(); };
+        QObject::connect(aspect.get(), &BaseAspect::volatileValueChanged, &guard, upd);
+        QObject::connect(aspect.get(), &BaseAspect::changed, &guard, upd);
+    }
+
+    QVariant data(int column, int role) const final
+    {
+        if (column != 0)
+            return {};
+        if (role == Qt::DisplayRole) {
+            QTC_ASSERT(
+                m_displayFunction, return "No display function provided for AspectListModel::Item");
+            return m_displayFunction(m_aspect);
+        }
+        if (role == Qt::FontRole) {
+            QFont f;
+            f.setBold(m_aspect->isDirty());
+            return f;
+        }
+        return {};
+    }
+
+    bool hasAspect(const std::shared_ptr<BaseAspect> &aspect) const { return aspect == m_aspect; }
+
+    std::shared_ptr<BaseAspect> aspect() const { return m_aspect; }
+};
+
+class AspectListModel : public TreeModel<AspectListModelItem, AspectListModelItem>
+{
+public:
+    AspectListModel(
+        std::function<QString(const std::shared_ptr<BaseAspect> &)> displayFunction)
+        : TreeModel<AspectListModelItem, AspectListModelItem>()
+        , m_displayFunction(displayFunction)
+    {
+    }
+
+    void sync(AspectList &aspect)
+    {
+        QList<std::shared_ptr<BaseAspect>> itemsInAspect = aspect.volatileItems();
+
+        auto itAspect = itemsInAspect.begin();
+        auto modelIdx = 0;
+
+        while (itAspect != itemsInAspect.end() && modelIdx < rootItem()->childCount()) {
+            auto inModelAspect = rootItem()->childAt(modelIdx)->aspect();
+            if (*itAspect == inModelAspect) {
+                ++itAspect;
+                ++modelIdx;
+            } else {
+                // The item in the model is not in the aspect, remove it.
+                if (itemsInAspect.indexOf(inModelAspect) == -1) {
+                    // Remove item from model.
+                    auto item = this->findItemAtLevel<1>(
+                        [&inModelAspect](auto item) { return item->hasAspect(inModelAspect); });
+                    QTC_ASSERT(item, continue);
+                    delete takeItem(item);
+                } else {
+                    // The item in the aspect is not in the model, add it.
+                    rootItem()->insertChild(
+                        modelIdx, new AspectListModelItem(*itAspect, m_displayFunction));
+                    ++modelIdx;
+                    ++itAspect;
+                }
+            }
+        }
+
+        // Remove remaining items in model.
+        if (modelIdx < rootItem()->childCount()) {
+            for (; modelIdx < rootItem()->childCount(); ++modelIdx)
+                delete takeItem(rootItem()->childAt(modelIdx));
+        }
+
+        // Add remaining items in aspect to model.
+        if (itAspect != itemsInAspect.end()) {
+            for (; itAspect != itemsInAspect.end(); ++itAspect)
+                appendChild(*itAspect);
+        }
+    }
+
+    void appendChild(const std::shared_ptr<BaseAspect> &aspect)
+    {
+        rootItem()->appendChild(new AspectListModelItem(aspect, m_displayFunction));
+    }
+
+private:
+    std::function<QString(const std::shared_ptr<BaseAspect> &)> m_displayFunction;
+};
+
 class Internal::AspectListPrivate
 {
 public:
     QList<std::shared_ptr<BaseAspect>> items;
     QList<std::shared_ptr<BaseAspect>> volatileItems;
+
+    void connectVolatile(const std::shared_ptr<BaseAspect> &aspect, AspectList *list)
+    {
+        QObject::connect(
+            aspect.get(),
+            &BaseAspect::volatileValueChanged,
+            list,
+            &AspectList::volatileValueChanged);
+    }
+    void disconnectVolatile(const std::shared_ptr<BaseAspect> &aspect, AspectList *list)
+    {
+        QObject::disconnect(
+            aspect.get(),
+            &BaseAspect::volatileValueChanged,
+            list,
+            &AspectList::volatileValueChanged);
+    }
+
     AspectList::CreateItem createItem;
     AspectList::ItemCallback itemAdded;
     AspectList::ItemCallback itemRemoved;
+
+    std::function<QString(const std::shared_ptr<BaseAspect> &)> displayFunction;
+    AspectList::DisplayStyle displayStyle = AspectList::DisplayStyle::InlineList;
+
+    AspectListModel model;
+
+    AspectListPrivate()
+        : model([this](const std::shared_ptr<BaseAspect> &aspect) {
+            if (displayFunction)
+                return displayFunction(aspect);
+            return QString();
+        })
+    {}
+
+    void addToLayoutImplInlineList(Layouting::Layout &parent, AspectList *aspect)
+    {
+        using namespace Layouting;
+        using namespace Utils::QtcWidgets;
+
+        auto fill = [this, aspect] {
+            const auto createRow = [aspect](const std::shared_ptr<BaseAspect> &item) {
+                // clang-format off
+                return Row {
+                    *item,
+                    IconButton {
+                        ::icon(Utils::Icons::EDIT_CLEAR),
+                        sizePolicy(QSizePolicy{QSizePolicy::Fixed, QSizePolicy::Fixed}),
+                        onClicked(aspect, [aspect, item] {
+                            aspect->removeItem(item);
+                        })
+                    },
+                    spacing(5),
+                    noMargin,
+                };
+                // clang-format on
+            };
+
+            // clang-format off
+            return Column {
+                Utils::transform(aspect->volatileItems(), createRow),
+                Row {
+                    noMargin,
+                    st,
+                    IconButton {
+                        ::icon(Utils::Icons::PLUS),
+                        onClicked(aspect, [this, aspect](){
+                            aspect->addItem(createItem());
+                        })
+                    }
+                }
+            };
+            // clang-format on
+        };
+
+        // clang-format off
+        parent.addItem(
+            Group {
+                replaceLayoutOn(aspect, &AspectList::volatileValueChanged, fill)
+            }
+        );
+        // clang-format on
+    }
+
+    void addToLayoutImplListView(Layouting::Layout &parent, AspectList *aspect)
+    {
+        using namespace Layouting;
+        using namespace Utils::QtcWidgets;
+
+        QPushButton *removeButton = nullptr;
+        QWidget *configWidget = nullptr;
+        auto listView = aspect->createSubWidget<TreeView>();
+        listView->header()->hide();
+
+        listView->setModel(&model);
+
+        auto add = [aspect, listView, this] {
+            auto newItem = aspect->createAndAddItem();
+            // Find new index
+            auto item = model.findItemAtLevel<1>(
+                [newItem](AspectListModelItem *item) { return item->hasAspect(newItem); });
+            QModelIndex newIdx = model.indexForItem(item);
+            listView->setCurrentIndex(newIdx);
+        };
+
+        auto removeCurrent = [listView, this, aspect] {
+            QModelIndex currentIndex = listView->currentIndex();
+            QTC_ASSERT(currentIndex.isValid(), return);
+            const auto item = model.itemForIndex(currentIndex);
+            auto nextIdx = currentIndex.siblingAtRow(currentIndex.row() + 1);
+            if (!nextIdx.isValid())
+                nextIdx = currentIndex.siblingAtRow(currentIndex.row() - 1);
+            std::shared_ptr<BaseAspect> nextAspect;
+            if (nextIdx.isValid())
+                nextAspect = model.itemForIndex(nextIdx)->aspect();
+            QTC_ASSERT(item, return);
+            aspect->removeItem(item->aspect());
+            if (nextAspect) {
+                nextIdx = model.indexForItem(
+                    model.findItemAtLevel<1>([nextAspect](AspectListModelItem *item) {
+                        return item->hasAspect(nextAspect);
+                    }));
+                listView->setCurrentIndex(nextIdx);
+            }
+        };
+        QLayout *layout = nullptr;
+
+        // clang-format off
+        parent.addItem(
+            Column {
+                bindTo(&layout),
+                Row {
+                    listView,
+                    Column {
+                        PushButton {
+                            text(Tr::tr("Add")),
+                            onClicked(aspect, add),
+                        },
+                        PushButton {
+                            bindTo(&removeButton),
+                            text(Tr::tr("Remove")),
+                            onClicked(aspect, removeCurrent),
+                        },
+                        st,
+                    }
+                }
+            }
+        );
+        // clang-format on
+
+        const auto onCurrentChanged =
+            [listView, layout, configWidget, this](const QModelIndex &current) mutable {
+                QWidget *newConfigWidget = nullptr;
+                if (current.isValid()) {
+                    newConfigWidget = new QWidget();
+
+                    const auto item = model.itemForIndex(current);
+                    QTC_ASSERT(item, return);
+
+                    if (auto container = dynamic_cast<AspectContainer *>(item->aspect().get()))
+                        container->layouter()().attachTo(newConfigWidget);
+                    else
+                        Column{item->aspect().get()}.attachTo(newConfigWidget);
+                }
+
+                if (newConfigWidget) {
+                    if (!configWidget) {
+                        layout->addWidget(newConfigWidget);
+                    } else {
+                        delete layout->replaceWidget(configWidget, newConfigWidget);
+                        delete configWidget;
+                    }
+                } else {
+                    delete configWidget;
+                }
+                configWidget = newConfigWidget;
+                listView->scrollTo(current, QListView::ScrollHint::EnsureVisible);
+            };
+
+        QObject::connect(
+            listView->selectionModel(),
+            &QItemSelectionModel::currentChanged,
+            aspect,
+            onCurrentChanged);
+    }
+
+    void addToLayoutImpl(Layouting::Layout &parent, AspectList *aspect)
+    {
+        if (displayStyle == AspectList::DisplayStyle::InlineList)
+            addToLayoutImplInlineList(parent, aspect);
+        else if (displayStyle == AspectList::DisplayStyle::ListViewWithDetails)
+            addToLayoutImplListView(parent, aspect);
+    }
 };
 
 AspectList::AspectList(Utils::AspectContainer *container)
@@ -3758,6 +4054,7 @@ void AspectList::fromMap(const Utils::Store &map)
     QTC_ASSERT(!settingsKey().isEmpty(), return);
 
     setVariantValue(map[settingsKey()], BeQuiet);
+    d->model.sync(*this);
 }
 
 QVariantList AspectList::toList(bool v) const
@@ -3798,8 +4095,10 @@ std::shared_ptr<BaseAspect> AspectList::actualAddItem(const std::shared_ptr<Base
     item->setUndoStack(undoStack());
 
     d->volatileItems.append(item);
+    d->connectVolatile(item, this);
     if (d->itemAdded)
         d->itemAdded(item);
+    d->model.sync(*this);
     emit volatileValueChanged();
     if (isAutoApply())
         d->items = d->volatileItems;
@@ -3832,9 +4131,11 @@ std::shared_ptr<BaseAspect> AspectList::addItem(const std::shared_ptr<BaseAspect
 
 void AspectList::actualRemoveItem(const std::shared_ptr<BaseAspect> &item)
 {
+    d->disconnectVolatile(item, this);
     d->volatileItems.removeOne(item);
     if (d->itemRemoved)
         d->itemRemoved(item);
+    d->model.sync(*this);
     emit volatileValueChanged();
     if (isAutoApply())
         d->items = d->volatileItems;
@@ -3872,8 +4173,16 @@ void AspectList::apply()
 
 void AspectList::cancel()
 {
+    for (const auto &item : d->volatileItems)
+        d->disconnectVolatile(item, this);
+
     d->volatileItems = d->items;
+
+    for (const auto &item : d->volatileItems)
+        d->connectVolatile(item, this);
+
     forEachItem<BaseAspect>([](const std::shared_ptr<BaseAspect> &aspect) { aspect->cancel(); });
+    d->model.sync(*this);
     emit volatileValueChanged();
 }
 
@@ -3918,6 +4227,9 @@ bool AspectList::isDirty() const
 void AspectList::setVariantValue(const QVariant &value, Announcement howToAnnounce)
 {
     const QVariantList list = value.toList();
+    for (const std::shared_ptr<BaseAspect> &item : d->volatileItems)
+        d->disconnectVolatile(item, this);
+
     d->volatileItems.clear();
     for (const QVariant &entry : list) {
         auto item = d->createItem();
@@ -3925,10 +4237,14 @@ void AspectList::setVariantValue(const QVariant &value, Announcement howToAnnoun
         item->setUndoStack(undoStack());
         item->fromMap(Utils::storeFromVariant(entry));
         d->volatileItems.append(item);
+        d->connectVolatile(item, this);
     }
+
     d->items = d->volatileItems;
     if (howToAnnounce == DoEmit)
         emit changed();
+
+    d->model.sync(*this);
 }
 
 class ColoredRow : public QWidget
@@ -3952,53 +4268,20 @@ private:
     int m_index;
 };
 
+void AspectList::setDisplayStyle(DisplayStyle displayStyle)
+{
+    d->displayStyle = displayStyle;
+}
+
+void AspectList::setListViewDisplayFunction(
+    const std::function<QString(const std::shared_ptr<BaseAspect> &)> &displayFunction)
+{
+    d->displayFunction = displayFunction;
+}
+
 void AspectList::addToLayoutImpl(Layouting::Layout &parent)
 {
-    using namespace Layouting;
-    using namespace Utils::QtcWidgets;
-
-    auto fill = [this] {
-        const auto createRow = [this](const std::shared_ptr<BaseAspect> &item) {
-            // clang-format off
-            return Row {
-                *item,
-                IconButton {
-                    ::icon(Utils::Icons::EDIT_CLEAR),
-                    sizePolicy(QSizePolicy{QSizePolicy::Fixed, QSizePolicy::Fixed}),
-                    onClicked(this, [this, item] {
-                        removeItem(item);
-                    })
-                },
-                spacing(5),
-                noMargin,
-            };
-            // clang-format on
-        };
-
-        // clang-format off
-        return Column {
-            Utils::transform(volatileItems(), createRow),
-            Row {
-                noMargin,
-                st,
-                IconButton {
-                    ::icon(Utils::Icons::PLUS),
-                    onClicked(this, [this](){
-                        addItem(d->createItem());
-                    })
-                }
-            }
-        };
-        // clang-format on
-    };
-
-    // clang-format off
-    parent.addItem(
-        Group {
-            replaceLayoutOn(this, &AspectList::volatileValueChanged, fill)
-        }
-    );
-    // clang-format on
+    d->addToLayoutImpl(parent, this);
 }
 
 StringSelectionAspect::StringSelectionAspect(AspectContainer *container)

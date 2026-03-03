@@ -1179,6 +1179,7 @@ private:
 
 class QTCREATOR_UTILS_EXPORT AspectList : public Utils::BaseAspect
 {
+    friend class Internal::AspectListPrivate;
 public:
     using CreateItem = std::function<std::shared_ptr<BaseAspect>()>;
     using ItemCallback = std::function<void(std::shared_ptr<BaseAspect>)>;
@@ -1249,6 +1250,12 @@ public:
     QVariant variantValue() const override { return toList(false); }
     void setVariantValue(const QVariant &value, Announcement howToAnnounce = DoEmit) override;
     QVariant volatileVariantValue() const override { return {}; } // ??
+
+    enum class DisplayStyle { InlineList, ListViewWithDetails };
+    void setDisplayStyle(DisplayStyle displayStyle);
+
+    void setListViewDisplayFunction(
+        const std::function<QString(const std::shared_ptr<BaseAspect> &)> &displayFunction);
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
