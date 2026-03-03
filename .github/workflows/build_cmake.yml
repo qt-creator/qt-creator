@@ -138,13 +138,34 @@ jobs:
     - name: Install Python SBOM dependencies
       shell: cmake -P {0}
       run: |
+        find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+        set(python_pip "${Python3_EXECUTABLE}" "-m" "pip")
+
         execute_process(
-          COMMAND pip install "spdx-tools==0.8.5 ; python_version >= '3.10'"
+          COMMAND ${python_pip} install --user --break-system-packages
+              "spdx-tools==0.8.5 ; python_version >= '3.10'"
           RESULT_VARIABLE result
         )
         if (NOT result EQUAL 0)
-          message(FATAL_ERROR "Failed to install Python SBOM dependencies")
+          message(FATAL_ERROR "Failed to install Python SPDX SBOM dependency 'spdx-tools'")
         endif()
+        execute_process(
+          COMMAND ${python_pip} show spdx-tools
+        )
+
+        execute_process(
+          COMMAND ${python_pip} install --user --break-system-packages
+              "cyclonedx-python-lib[json-validation]==11.7.0 ; python_version >= '3.9'"
+          RESULT_VARIABLE result
+        )
+        if (NOT result EQUAL 0)
+          message(FATAL_ERROR
+          "Failed to install Python CycloneDX SBOM dependency 'cyclonedx-python-lib'")
+        endif()
+        execute_process(
+          COMMAND ${python_pip} show cyclonedx-python-lib
+        )
 
     - name: Install system libs
       shell: cmake -P {0}
