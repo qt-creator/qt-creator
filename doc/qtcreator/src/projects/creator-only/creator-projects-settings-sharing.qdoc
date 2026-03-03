@@ -22,7 +22,7 @@
     \c {qtcreator.qbs.shared}). It has the same XML structure as a \c {.user}
     file, but only has the settings to share.
 
-    To share CMake project settings, use \l{CMake Presets} or a
+    To share CMake project settings, use \l{CMake presets} or a
     \c {CMakeLists.txt.shared} file.
 
     \section1 Create a shared settings file
@@ -108,5 +108,5 @@
     For more information about the settings, see
     \l {Override CMake settings for a project}.
 
-    \sa {Building and running projects}, {CMake Presets}
+    \sa {Building and running projects}, {CMake presets}
 */

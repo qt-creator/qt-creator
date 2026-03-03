@@ -23,7 +23,7 @@
 
     \list 1
         \li Set up QML debugging for the project. For more information, see
-            \l{Setting Up QML Debugging}.
+            \l{Setting up QML debugging}.
         \li In the \uicontrol Projects mode, select a \l{Managing kits}
             {kit} with Qt version 4.7.4 or later.
             \note To profile applications on \l{glossary-device}{devices}, you
@@ -118,7 +118,7 @@
     You can profile a Qt Quick application that you do not run from \QC.
     However, you must enable QML debugging and profiling for the application
     in the project build settings. For more information, see
-    \l{Setting Up QML Debugging}.
+    \l{Setting up QML debugging}.
 
     To attach to a waiting application:
 
@@ -180,7 +180,7 @@
     view the collected data in the \l{Chrome Trace Format Visualizer}
     {Chrome Trace Format Viewer}.
 
-    \section1 Analyzing Collected Data
+    \section1 Analyzing collected data
 
     The \uicontrol Timeline view displays graphical representations of QML and
     JavaScript execution and a condensed view of all recorded events.
@@ -205,7 +205,7 @@
 
     Select the time ruler to add vertical orientation lines (5) to the timeline.
 
-    \section2 Selecting Event Ranges
+    \section2 Selecting event ranges
 
     Select an event range (7) to view the frame rate of events and to
     compare it with the frame rate of similar events. Select
@@ -228,7 +228,7 @@
 
     To remove an event range, close the \uicontrol Selection dialog.
 
-    \section2 Understanding the Data
+    \section2 Understanding the data
 
     Generally, events in the timeline view indicate how long QML or JavaScript
     execution took. Move the mouse over them to see details. For most events,
@@ -314,7 +314,7 @@
             This event type is available since Qt 6.3.
     \endtable
 
-    \section2 Analyzing Scene Graph Events
+    \section2 Analyzing scene graph events
 
     To understand the scene graph category, read more about how
     Qt Quick scene graph works in \l {Qt Quick Scene Graph} and
@@ -479,7 +479,7 @@
         \li Deleting a texture from the GPU that became unnecessary.
     \endtable
 
-    \section2 Analyzing Qt Quick 3D Events
+    \section2 Analyzing Qt Quick 3D events
 
     The following is the list of events for Qt Quick 3D. Each rendered frame
     consists of synchronize, prepare, and render phases, which are done in that order.
@@ -558,7 +558,7 @@
             for frame buffers.
     \endtable
 
-    \section1 Viewing Statistics
+    \section1 Viewing statistics
 
     The \uicontrol Statistics view displays the number of times each binding, create,
     compile, JavaScript, or signal event is triggered and the average time it
@@ -588,7 +588,7 @@
     To copy the contents of one view or row to the clipboard, select
     \uicontrol {Copy Table} or \uicontrol {Copy Row} in the context menu.
 
-    \section2 Visualizing Statistics as Flame Graphs
+    \section2 Visualizing statistics as flame graphs
 
     The \uicontrol {Flame Graph} view shows a more concise statistical overview
     of QML and JavaScript execution. In the \uicontrol {Total Time} view, the

@@ -48,7 +48,7 @@
             {Qt Quick or Qt Widgets}. Second, you have to choose the
             programming language to implement the application logic:
             C++ or Python.
-        \li \l{Version Control Systems}
+        \li \l{Version control systems}
 
             The recommended way to set up a project is to use a
             version control system. Store and edit only project
@@ -167,8 +167,7 @@
     target platforms.
 
     For more information, see \l{Building and running projects},
-    \l{Build and run}{How to: Build and run}, \l{Build systems}, and
-    \l{Build configurations}.
+    \l{Build and run}{How to: Build and run}, and \l{Build systems}.
 
     For more information about building applications for and on devices
     and running them on devices, see \l{Developing for devices},

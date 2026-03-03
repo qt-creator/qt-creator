@@ -56,7 +56,7 @@
         \li \uicontrol {Ask before reloading CMake presets}
         \li Asks before acting when you go to \uicontrol Build and select
             \uicontrol {Reload CMake Presets}.
-        \li \l{CMake Presets}
+        \li \l{CMake presets}
     \row
         \li \uicontrol {Show subfolders inside source group folders}
         \li Hides subfolder names and arranges the files according to their
@@ -75,8 +75,8 @@
         \li \l{Use junction points on Windows}
     \endtable
 
-    You can set these preferences as \l{Configure Presets}{CMake presets} or in
-    a \l{Share project settings}{\c CMakeLists.txt.shared} file.
+    You can set these preferences as \l{Configure presets}{CMake configure presets}
+    or in a \l{Share project settings}{\c CMakeLists.txt.shared} file.
 
     \sa {Build with CMake}{How to: Build with CMake}, {CMake},
     {Building and running projects}

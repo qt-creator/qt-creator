@@ -112,7 +112,7 @@
     You can also create your own project and class wizards.
 
     \sa {Adding files}, {Set C++ file naming preferences}, {Use project wizards},
-    {Custom Wizards}
+    {Custom wizards}
 */
 
 /*!
@@ -132,7 +132,7 @@
     \image {qtcreator-projects-settings-cpp-file-naming.webp} {C++ File Naming settings for a project}
 
     In the \uicontrol {License template} field, enter
-    \l{Using Variables in Wizards}{predefined wizard variables} to specify the
+    \l{Using variables in wizards}{predefined wizard variables} to specify the
     path and filename of the license to use in the source and header files.
 
     To globally change the preferences, select \preferences > \uicontrol {C++} >

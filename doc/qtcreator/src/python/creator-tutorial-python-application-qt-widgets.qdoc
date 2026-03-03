@@ -158,7 +158,7 @@
         ...
     \endcode
 
-    \section1 Execute the Qt Code
+    \section1 Execute the Qt code
 
     Finally, the wizard calls the \c app.exec() method to enter the Qt
     main loop and start executing the Qt code:
@@ -174,5 +174,5 @@
     to run the application.
 
     \sa {Tutorial: Qt Quick and Python}, {Tutorial: Qt Widgets UI and Python},
-    {Develop Qt for Python Applications}
+    {Develop Qt for Python applications}
 */

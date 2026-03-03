@@ -12,11 +12,11 @@
     \summary {Answers to some frequently asked questions about \QC.}
 
     You might also find answers to your questions in the
-    \l{Known Issues} and \l{How To} sections, or the Troubleshooting
+    \l{Known issues} and \l{How to} sections, or the Troubleshooting
     sections for a special area, such as
     \l{Troubleshooting debugger}{Debugging}.
 
-    \section1 General Questions
+    \section1 General questions
 
     \b {\QC comes with \MinGW, should I use this version with Qt?}
 
@@ -51,7 +51,7 @@
 
     \include widgets/creator-faq-qtdesigner.qdocinc qt designer faq
 
-    \section1 QML and Qt Quick Questions
+    \section1 QML and Qt Quick questions
 
     \b {Why is there a red line below my QML import, even though I have the module?}
 
@@ -75,7 +75,7 @@
     \endcode
 
     For more information about how to set the import path for CMake projects,
-    see \l {Importing QML Modules}.
+    see \l {Importing QML modules}.
 
     \b {What should I do when \QC complains about missing OpenGL support?}
 
@@ -127,7 +127,7 @@
 
     \endlist
 
-    \section1 Help Questions
+    \section1 Help questions
 
     \b {The Qt API Reference Documentation is missing and context help does
     not find topics. What can I do?}
@@ -139,7 +139,7 @@
     \uicontrol Documentation. For more information, see
     \l{Add external documentation}.
 
-    \section1 Debugger Questions
+    \section1 Debugger questions
 
     For information on troubleshooting debugger, see
     \l{Troubleshooting debugger}.
@@ -171,7 +171,7 @@
     stop debugging.
     \endomit
 
-    \section1 Compiler Questions
+    \section1 Compiler questions
 
     \b {How can I make use of my multi-core CPU with \QC?}
 
@@ -190,7 +190,7 @@
     many parallel processes as your CPU has cores. You can override this
     behavior by using the \c{-j} parameter as described above.
 
-    \section1 Qt Installation Questions
+    \section1 Qt installation questions
 
     \b {I cannot use QSslSocket with the Qt I installed from binary packages.
         What should I do?}
@@ -212,7 +212,7 @@
     sudo apt-get install libgl-dev libglu-dev
     \endcode
 
-    \section1 Platform Related Questions
+    \section1 Platform related questions
 
     \b {Where is application output shown in \QC?}
 
@@ -258,7 +258,7 @@
     \l{https://technet.microsoft.com/en-us/sysinternals/bb896647}
     {DebugView for Windows} to display output from GUI applications.
 
-    \section1 Questions about New Features
+    \section1 Questions about new features
 
     \b {Will a requested feature be implemented?}
 

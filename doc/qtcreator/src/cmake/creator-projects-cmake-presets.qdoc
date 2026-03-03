@@ -7,7 +7,7 @@
 
     \ingroup creator-reference-build-systems
 
-    \title CMake Presets
+    \title CMake presets
 
     \brief Examples of supported CMake presets.
 
@@ -37,7 +37,7 @@
     select \uicontrol {Reload CMake Presets}, and then select the presets file
     to load.
 
-    \section1 Configure Presets
+    \section1 Configure presets
 
     The following configure presets instruct CMake to use the default generator
     on the platform and specify the build directory for all build types.
@@ -75,9 +75,9 @@
     \endcode
 
     For more information about the CMake project settings in the \c vendor
-    section, see \l {CMake Qt Vendor Presets}.
+    section, see \l {CMake Qt vendor presets}.
 
-    \section1 MinGW Example
+    \section1 MinGW example
 
     The following example configures a Qt project with:
 
@@ -127,9 +127,9 @@
     \c CMAKE_CXX_COMPILER in the \c cacheVariables section.
 
     For possible values of some of the \c debugger preferences, see
-    \l {CMake Qt Vendor Presets}.
+    \l {CMake Qt vendor presets}.
 
-    \section1 Ninja Generator Example
+    \section1 Ninja generator example
 
     The following configure and build presets set Ninja Multi-Config as the
     generator, add \c Debug and \c Release build steps, and specify the path
@@ -175,7 +175,7 @@
     \preferences > \uicontrol CMake >
     \uicontrol Tools.
 
-    \section1 MSVC Example
+    \section1 MSVC example
 
     When using MSVC compilers with NMAKE Makefiles, Ninja, or Ninja
     Multi-Config generators, you can use the \c external strategy for
@@ -216,7 +216,7 @@
     }
     \endcode
 
-    \section1 Cross-Compilation Example
+    \section1 Cross-compilation example
 
     The following example configures a Qt project for cross-compilation on \macos
     for Windows and running with the \c wine emulator on \macos:
@@ -260,7 +260,7 @@
     }
     \endcode
 
-    \section1 Using Conditions
+    \section1 Using conditions
 
     The following configure presets are used if they match \c condition. That is,
     if the \c hostSystemName equals \c Linux, the \c linux presets are used and
@@ -300,7 +300,7 @@
     }
     \endcode
 
-    \section1 Test Presets
+    \section1 Test presets
 
     The following test presets instruct CMake to stop test execution and
     print output from the test program upon failure, as well as display an
@@ -320,7 +320,7 @@
     }
     \endcode
 
-    \sa {Building projects with CMake}, {CMake}, {CMake Qt Vendor Presets},
+    \sa {Building projects with CMake}, {CMake}, {CMake Qt vendor presets},
     {SDK Tool}
 */
 
@@ -330,7 +330,7 @@
 
     \ingroup creator-reference-build-systems
 
-    \title CMake Qt Vendor Presets
+    \title CMake Qt vendor presets
 
     \brief Summary of CMake Qt vendor presets.
 
@@ -356,7 +356,7 @@
         \li \c {AskBeforePresetsReload}
         \li Asks before acting when you go to \uicontrol Build and select
             \uicontrol {Reload CMake Presets}.
-        \li \l{CMake Presets}
+        \li \l{CMake presets}
     \row
         \li \c {AskReConfigureInitialParams}
         \li Asks before acting when you select
@@ -455,5 +455,5 @@
     }
     \endcode
 
-    \sa {Building projects with CMake}, {CMake}, {CMake Presets}, {SDK Tool}
+    \sa {Building projects with CMake}, {CMake}, {CMake presets}, {SDK Tool}
 */

@@ -7,7 +7,7 @@
 
     \ingroup creator-reference-build-systems
 
-    \title Conan Package Manager
+    \title Conan package manager
 
     \summary {The experimental Conan plugin integrates the Conan package manager.}
 
@@ -44,7 +44,7 @@
     Then, you must edit the build settings of the project to specify the
     location of the file and the contents of the Conan install command.
 
-    \section1 Automatic Package Manager Setup
+    \section1 Automatic package manager setup
 
     To automatically set up the Conan package manager for use with CMake,
     go to \uicontrol Projects > \uicontrol {Project Settings} > \uicontrol CMake,
@@ -54,6 +54,6 @@
     \c PackageManagerAutoSetup to \c false in \l{Configure Presets}
     {CMake presets} or a \l{Share project settings}{\c CMakeLists.txt.shared} file.
 
-    \sa {Conan Build Configuration}, {Enable and disable plugins},
-    {Override CMake settings for a project}, {Using CMake with Package Managers}
+    \sa {Conan build configuration}, {Enable and disable plugins},
+    {Override CMake settings for a project}, {Using CMake with package managers}
 */

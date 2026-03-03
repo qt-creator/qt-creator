@@ -95,7 +95,7 @@
 
     \sa {Enable and disable plugins}, {Link projects with GitLab},
     {Set up version control systems}, {Use common VCS functions},
-    {Use project wizards}, {Version Control Systems}, {Using Git}
+    {Use project wizards}, {Version control systems}, {Using Git}
 */
 
 /*!
@@ -134,6 +134,6 @@
     \uicontrol {Unlink from GitLab}.
 
     \sa {Enable and disable plugins}, {Set up version control systems},
-    {Use common VCS functions}, {Building and running projects}, {Version Control Systems},
+    {Use common VCS functions}, {Building and running projects}, {Version control systems},
     {Using Git}, {GitLab}
 */

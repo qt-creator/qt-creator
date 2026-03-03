@@ -25,7 +25,7 @@
 
     \note Enable the Meson plugin to use it.
 
-    \section1 Adding Meson Tools
+    \section1 Adding Meson tools
 
     \QC does not have strong requirements on Meson build's version, any version
     above 0.49.0 should be compatible.
@@ -55,13 +55,13 @@
 
     For more information, see \l {Managing kits}.
 
-    \section1 Editing Meson Build Descriptions
+    \section1 Editing Meson build descriptions
 
     To open a \c meson.build file for editing, double-click it from project tree.
     Only plain text editor is available now.
 
 
-   \section1 Code Completion and External Libraries
+   \section1 Code completion and external libraries
 
     Through external libraries, \QC can support code completion and syntax
     highlighting as if they were part of the current project or the Qt library.
@@ -72,7 +72,7 @@
 
     Syntax completion and highlighting work once your project configures successfully.
 
-    \section1 Current Meson Support Limitations
+    \section1 Current Meson support limitations
 
     The following features are not supported yet:
 
@@ -85,5 +85,5 @@
     \endlist
 
     \sa {Enable and disable plugins}, {Open projects},
-    {Meson Build Configuration}, {Specifying Run Settings}
+    {Meson build configuration}, {Specifying run settings}
 */

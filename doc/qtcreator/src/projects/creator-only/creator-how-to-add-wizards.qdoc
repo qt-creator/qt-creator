@@ -38,12 +38,12 @@
             restarting \QC.
 
         \li Open the wizard configuration file, \c {wizard.json} for editing, as
-            described in \l {Custom Wizards}.
+            described in \l {Custom wizards}.
 
         \li Change the \c id to something unique. Wizards are sorted by the ID in
             alphabetic order within a \c category. You can use a leading letter
             to specify the position of the wizard. For example, \c B.MyClass.
     \endlist
 
-    \sa {Run \QC from the command line}, {Custom Wizards}
+    \sa {Run \QC from the command line}, {Custom wizards}
 */

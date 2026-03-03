@@ -47,7 +47,7 @@
     \note If \QC cannot find the new QML module, build the project
     and then go to \uicontrol {Tools} > \uicontrol {QML/JS} >
     \uicontrol {Reset Code Model} to reset the code model.
-    \section1 Developing with Qt 6.1 or Earlier
+    \section1 Developing with Qt 6.1 or earlier
 
     Since Qt 6.2, CMake generates the \c qmltypes and \c qmldir files
     automatically.
@@ -100,5 +100,5 @@
     environment variable to check whether the plugin is currently being run
     by an application or edited in the \uicontrol Design mode.
 
-    \sa {Resetting the Code Model}
+    \sa {Resetting the code model}
 */

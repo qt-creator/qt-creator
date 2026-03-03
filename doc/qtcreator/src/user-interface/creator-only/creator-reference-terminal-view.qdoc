@@ -74,6 +74,6 @@
     On Linux and \macos, you can set the terminal to open by selecting
     \preferences > \uicontrol Environment > \uicontrol System.
 
-    \sa {Use \QC variables}, {View output}, {Command-Line Options},
+    \sa {Use \QC variables}, {View output}, {Command-line options},
     {Keyboard shortcuts}
 */

@@ -13,7 +13,7 @@
 
     \ingroup creator-reference
 
-    \title Known Issues
+    \title Known issues
 
     \summary {Known issues in \QC version \qtcversion.}
 
@@ -27,7 +27,7 @@
     For a list of fixed issues and added features, go to \uicontrol Help >
     \uicontrol {Change Log}.
 
-    \section1 General Issues
+    \section1 General issues
 
     \list
 
@@ -67,7 +67,7 @@
 
     \endlist
 
-    \section1 Editing Issues
+    \section1 Editing issues
 
     \list
 
@@ -92,7 +92,7 @@
             tab to something else than \key {<Control><Shift>u}.
     \endlist
 
-    \section1 Projects Issues
+    \section1 Projects issues
 
     \list
 
@@ -111,7 +111,7 @@
 
     \endlist
 
-    \section1 Debugging Issues
+    \section1 Debugging issues
 
     \list
 

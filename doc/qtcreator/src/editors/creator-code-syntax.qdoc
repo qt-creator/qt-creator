@@ -82,7 +82,7 @@
 
     \ingroup creator-reference-analyzer
 
-    \title JavaScript and QML Checks
+    \title JavaScript and QML checks
 
     \summary {Run static checks on the QML and JavaScript code in your project to
     find common problems.}
@@ -98,7 +98,7 @@
     error codes and messages differ from those in
     \l{JavaScript and QML Error Codes}.
 
-    \section1 Enabling and Disabling Messages
+    \section1 Enabling and disabling messages
 
     To enable and disable QML and JavaScript messages of the static analyzer:
 
@@ -113,7 +113,7 @@
             files.
     \endlist
 
-    \section1 JavaScript and QML Error Codes
+    \section1 JavaScript and QML error codes
 
     Many of the error messages are similar to the ones in Douglas Crockford's
     \l{http://www.jslint.com}{JSLint} tool. For more information about JSLint
@@ -733,7 +733,7 @@
 
     \endtable
 
-    \section1 Resetting the Code Model
+    \section1 Resetting the code model
 
     If you see the following error messages after you add a new QML module,
     try building the project and then resetting the code model:

@@ -49,7 +49,7 @@
     \section1 Checking out and checking in
 
     In addition to the standard version control system functions described in
-    \l {Use common VCS Functions}, you can access additional functions in
+    \l {Use common VCS functions}, you can access additional functions in
     \uicontrol Tools > \uicontrol ClearCase.
 
     \table
@@ -115,5 +115,5 @@
     \endtable
 
     \sa {Enable and disable plugins}, {Set up version control systems},
-    {Use common VCS functions}, {Version Control Systems}
+    {Use common VCS functions}, {Version control systems}
 */

@@ -25,7 +25,7 @@
     To open the list of suggestions at any time, select \key {Ctrl+Space}.
     If only one option is available, \QC inserts it automatically.
 
-    \section1 Summary of Available Types
+    \section1 Summary of available types
 
     The following table lists available types for code completion and icon used
     for each.

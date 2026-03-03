@@ -73,7 +73,7 @@
     \l{Develop for Devices}{connect} to them from the computer.
 
     \sa {Create projects}{How to: Create projects}, {Add files}{How to: Add files},
-    {Custom Wizards}
+    {Custom wizards}
 */
 
 /*!
@@ -142,7 +142,7 @@
                 Boost Test, or Catch2.
         \row
             \li Imported project
-            \li Import projects from a supported \l{Version Control Systems}
+            \li Import projects from a supported \l{Version control systems}
                 {version control system}, such as Bazaar, CVS, Git, Mercurial, or
                 Subversion.
 
@@ -214,7 +214,7 @@
     \l{Navigate with locator}{locator} and
     \l{Search in projects or file systems}{project-wide search}.
 
-    \section1 CMake Projects
+    \section1 CMake projects
 
     When using CMake, you can specify additional files for a project by either
     adding them as sources or installing them.
@@ -235,7 +235,7 @@
     Alternatively, to install the files, use the \l {CMake: install command}
     {install} command with the \c FILES or \c DIRECTORY property.
 
-    \section1 qmake Projects
+    \section1 qmake projects
 
     Use the following variables in the \c .pro file:
 
