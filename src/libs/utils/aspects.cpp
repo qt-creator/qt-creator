@@ -2425,7 +2425,7 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         comboBox->setObjectName(objectName());
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
             comboBox->addItem(d->m_options.at(i).displayName);
-        comboBox->setCurrentIndex(value());
+        comboBox->setCurrentIndex(volatileValue());
         addLabeledItem(parent, comboBox);
         connect(&d->m_undoable.m_signal, &UndoSignaller::changed, comboBox, [comboBox, this] {
             comboBox->setCurrentIndex(d->m_undoable.get());
