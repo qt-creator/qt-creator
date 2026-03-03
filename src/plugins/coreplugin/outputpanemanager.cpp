@@ -1051,6 +1051,7 @@ void OutputPaneManager::showPage(int idx, int flags)
         ph = OutputPanePlaceHolder::getCurrent();
     }
 
+    // FIXME: Remove this and revert 8aadc39d488c and 87c273ab3f3d.
     bool onlyFlash = !ph
             || (g_outputPanes.at(currentIndex()).pane->hasFocus()
                 && !(flags & IOutputPane::WithFocus)
@@ -1068,7 +1069,6 @@ void OutputPaneManager::showPage(int idx, int flags)
         if (flags & IOutputPane::WithFocus) {
             if (out->canFocus())
                 out->setFocus();
-            ICore::raiseWindow(m_outputWidgetPane);
         }
 
         if (flags & IOutputPane::EnsureSizeHint)
