@@ -187,7 +187,7 @@ public:
     void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
         subversionClient().showDiffEditor(topLevel, {relativePath.path()});
     }
-    void vcsDescribe(const FilePath &source, const QString &changeNr) final;
+    void vcsDescribe(const FilePath &source, const QString &changeNumber) final;
 
     ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
@@ -931,25 +931,26 @@ void SubversionPluginPrivate::projectDirectoryStatus()
     svnStatus(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
-void SubversionPluginPrivate::vcsDescribe(const FilePath &source, const QString &changeNr)
+void SubversionPluginPrivate::vcsDescribe(const FilePath &source, const QString &changeNumber)
 {
     // To describe a complete change, find the top level and then do
-    //svn diff -r 472958:472959 <top level>
-    const QFileInfo fi = source.toFileInfo();
+    // svn diff -r 472958:472959 <top level>
+    const FilePath directory = source.isDir() ? source : source.absolutePath();
     FilePath topLevel;
-    const bool manages = managesDirectory(fi.isDir() ? source : FilePath::fromString(fi.absolutePath()), &topLevel);
+    const bool manages = managesDirectory(directory, &topLevel);
     if (!manages || topLevel.isEmpty())
         return;
-    qCDebug(Log) << Q_FUNC_INFO << source << topLevel << changeNr;
-    // Number must be >= 1
-    bool ok;
 
-    const int number = changeNr.toInt(&ok);
+    qCDebug(Log) << Q_FUNC_INFO << source << topLevel << changeNumber;
+
+    // Number must be >= 1
+    bool ok = false;
+    const int number = changeNumber.toInt(&ok);
     if (!ok || number < 1)
         return;
 
-    const QString title = QString::fromLatin1("svn describe %1#%2").arg(fi.fileName(), changeNr);
-
+    const QString fileName = source.fileName();
+    const QString title = QString::fromLatin1("svn describe %1#%2").arg(fileName, changeNumber);
     subversionClient().describe(topLevel, number, title);
 }
 
