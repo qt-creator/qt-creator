@@ -599,9 +599,10 @@ static void saveLastTraceFile(const FilePath &filePath)
     }
 }
 
-static QString traceFileFilters(const QString &tFile, const QString &zFile)
+QString QmlProfilerTool::fileDialogTraceFilesFilter()
 {
-    QString qmlTraceFiles = Tr::tr("QML traces (*%1 *%2)").arg(zFile, tFile);
+    QString qmlTraceFiles = Tr::tr("QML traces (*%1 *%2)")
+                                .arg(QtdFileExtension).arg(QztFileExtension);
     return qmlTraceFiles.append(";;").append(Core::DocumentManager::allFilesFilterString());
 }
 
@@ -613,7 +614,7 @@ void QmlProfilerTool::showSaveDialog()
     FilePath filePath = FileUtils::getSaveFilePath(
                 Tr::tr("Save QML Trace"),
                 globalSettings().lastTraceFile(),
-                traceFileFilters(tFile, zFile));
+                fileDialogTraceFilesFilter());
     if (!filePath.isEmpty()) {
         if (!filePath.endsWith(zFile) && !filePath.endsWith(tFile))
             filePath = filePath.stringAppended(zFile);
@@ -632,13 +633,10 @@ void QmlProfilerTool::showLoadDialog()
 
     d->m_viewContainer->perspective()->select();
 
-    QLatin1String tFile(QtdFileExtension);
-    QLatin1String zFile(QztFileExtension);
-
     FilePath filePath = FileUtils::getOpenFilePath(
                 Tr::tr("Load QML Trace"),
                 globalSettings().lastTraceFile(),
-                traceFileFilters(tFile, zFile));
+                fileDialogTraceFilesFilter());
 
     if (!filePath.isEmpty()) {
         saveLastTraceFile(filePath);

@@ -54,6 +54,7 @@ public:
 
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
 
+    static QString fileDialogTraceFilesFilter();
     void showSaveDialog();
     void showLoadDialog();
 
