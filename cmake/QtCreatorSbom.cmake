@@ -68,6 +68,19 @@ function(qtc_setup_sbom)
       "support for spaces in python interpreter paths.")
   endif()
 
+  # Disable CycloneDX generation for unsupported Qt versions. Older Qt versions simply didn't have
+  # it implemented yet.
+  if(QT_SBOM_GENERATE_CYDX_V1_6
+      AND NOT QTC_NO_AUTO_DISABLE_SBOM_GENERATE_CYDX_V1_6
+      AND NOT Qt6_VERSION VERSION_GREATER_EQUAL "6.10.2")
+    set(help_string "Generate SBOM documents in CycloneDX v1.6 JSON format.")
+    set(QT_SBOM_GENERATE_CYDX_V1_6 "OFF" CACHE BOOL "${help_string}" FORCE)
+
+    message(STATUS
+      "Disabled CycloneDX v1.6 JSON SBOM generation for Qt versions older than 6.10.2, due to "
+      "lack of implementation.")
+  endif()
+
   # Call Qt's internal setup function.
   _qt_internal_setup_sbom(
     GENERATE_SBOM_DEFAULT "${generate_by_default}"
@@ -76,6 +89,7 @@ function(qtc_setup_sbom)
   add_feature_info("Build SBOMs" "${QT_GENERATE_SBOM}" "")
   add_feature_info("Build SPDX v2.3 tag:value format SBOMs" "${QT_GENERATE_SBOM}" "")
   add_feature_info("Build SPDX v2.3 JSON format SBOMs" "${QT_SBOM_GENERATE_SPDX_V2_JSON}" "")
+  add_feature_info("Build CycloneDX v1.6 JSON SBOMs" "${QT_SBOM_GENERATE_CYDX_V1_6}" "")
 endfunction()
 
 function(qtc_force_disable_sbom)

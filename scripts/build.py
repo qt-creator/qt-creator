@@ -172,6 +172,8 @@ def build_qtcreator(args, paths):
                   '-DQT_GENERATE_SBOM=' + cmake_option(not args.no_sbom),
                   '-DQT_SBOM_GENERATE_SPDX_V2_JSON=' + cmake_option(not args.no_sbom),
                   '-DQT_SBOM_REQUIRE_GENERATE_SPDX_V2_JSON=' + cmake_option(not args.no_sbom),
+                  '-DQT_SBOM_GENERATE_CYDX_V1_6=' + cmake_option(not args.no_sbom),
+                  '-DQT_SBOM_REQUIRE_GENERATE_CYDX_V1_6=' + cmake_option(not args.no_sbom),
                   '-DBUILD_QBS=' + cmake_option(build_qbs),
                   '-DBUILD_DEVELOPER_DOCS=' + cmake_option(not args.no_docs),
                   '-DBUILD_LIBRARY_SDKTOOLLIB=' + cmake_option(args.with_sdk_tool),

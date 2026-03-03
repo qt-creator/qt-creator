@@ -85,6 +85,8 @@ def build(args, paths):
                   '-DQT_GENERATE_SBOM=' + cmake_option(not args.no_sbom),
                   '-DQT_SBOM_GENERATE_SPDX_V2_JSON=' + cmake_option(not args.no_sbom),
                   '-DQT_SBOM_REQUIRE_GENERATE_SPDX_V2_JSON=' + cmake_option(not args.no_sbom),
+                  '-DQT_SBOM_GENERATE_CYDX_V1_6=' + cmake_option(not args.no_sbom),
+                  '-DQT_SBOM_REQUIRE_GENERATE_CYDX_V1_6=' + cmake_option(not args.no_sbom),
                   '-G', 'Ninja']
 
     if args.module_paths:
