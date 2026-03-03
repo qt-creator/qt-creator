@@ -1069,7 +1069,7 @@ SshParameters IDevice::sshParameters() const
 
 void IDevice::setDefaultSshParameters(const SshParameters &sshParameters)
 {
-    QTC_ASSERT(QThread::currentThread() == qApp->thread(), return);
+    QTC_ASSERT(QThread::isMainThread(), return);
 
     sshParametersAspectContainer().host.setDefaultValue(sshParameters.host());
     sshParametersAspectContainer().port.setDefaultValue(sshParameters.port());

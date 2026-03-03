@@ -30,7 +30,7 @@ DockerApi *s_instance{nullptr};
 
 DockerApi::DockerApi()
 {
-    Q_ASSERT(QThread::currentThread() == QCoreApplication::instance()->thread());
+    Q_ASSERT(QThread::isMainThread());
     *m_dockerClientBinary.writeLocked() = settings().dockerBinaryPath.effectiveBinary();
 
     connect(&settings().dockerBinaryPath, &FilePathAspect::changed, this, [this]() {
