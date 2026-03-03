@@ -255,18 +255,16 @@ ClangDiagnosticConfigs ClangdSettings::customDiagnosticConfigs() const
     return m_data.customDiagnosticConfigs;
 }
 
-Id ClangdSettings::diagnosticConfigId() const
+Id ClangdSettings::Data::diagnosticConfigIdOrDefault() const
 {
-    if (!diagnosticConfigsModel().hasConfigWithId(m_data.diagnosticConfigId))
-        return initialClangDiagnosticConfigId();
-    return m_data.diagnosticConfigId;
+    if (diagnosticConfigsModel().hasConfigWithId(diagnosticConfigId))
+        return diagnosticConfigId;
+    return initialClangDiagnosticConfigId();
 }
 
 ClangDiagnosticConfig ClangdSettings::Data::diagnosticConfig() const
 {
-    if (!diagnosticConfigsModel().hasConfigWithId(diagnosticConfigId))
-        return diagnosticConfigsModel().configWithId(initialClangDiagnosticConfigId());
-    return diagnosticConfigsModel().configWithId(diagnosticConfigId);
+    return diagnosticConfigsModel().configWithId(diagnosticConfigIdOrDefault());
 }
 
 ClangdSettings::Granularity ClangdSettings::granularity() const
@@ -826,7 +824,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     m_configSelectionWidget = new ClangDiagnosticConfigsSelectionWidget(formLayout);
     m_configSelectionWidget->refresh(
         ClangdSettings::diagnosticConfigsModel(),
-        settings.diagnosticConfigId(),
+        settings.data().diagnosticConfigIdOrDefault(),
         [](const ClangDiagnosticConfigs &configs, const Utils::Id &configToSelect) {
             return new CppEditor::ClangDiagnosticConfigsWidget(configs, configToSelect);
         });

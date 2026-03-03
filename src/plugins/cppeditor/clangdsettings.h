@@ -72,6 +72,7 @@ public:
         Utils::FilePath clangdIncludePath(const ProjectExplorer::Kit *kit) const;
         bool sizeIsOkay(const Utils::FilePath &fp) const;
         ClangDiagnosticConfig diagnosticConfig() const;
+        Utils::Id diagnosticConfigIdOrDefault() const;
 
         Utils::FilePath executableFilePath;
         QStringList sessionsWithOneClangd;
@@ -122,7 +123,6 @@ public:
     bool sizeThresholdEnabled() const { return m_data.sizeThresholdEnabled; }
     int completionResults() const { return m_data.completionResults; }
     ClangDiagnosticConfigs customDiagnosticConfigs() const;
-    Utils::Id diagnosticConfigId() const;
 
     enum class Granularity { Project, Session };
     Granularity granularity() const;
