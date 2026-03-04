@@ -2161,6 +2161,18 @@ bool GitPluginPrivate::vcsFileAction(const FilePath &topLevel, const FilePath &f
         EditorManager::openEditor(fullPath);
         return false;
 
+    case FileDiff:
+        vcsDiff(topLevel, filePath);
+        break;
+
+    case FileLog:
+        vcsLog(topLevel, filePath);
+        break;
+
+    case FileAnnotate:
+        vcsAnnotate(fullPath, 1);
+        break;
+
     case FileAdd:
         gitClient().synchronousAdd(topLevel, {filePath.toUrlishString()}, {"--intent-to-add"});
         return true;

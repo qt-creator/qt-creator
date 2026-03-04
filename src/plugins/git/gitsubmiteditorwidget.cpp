@@ -305,6 +305,10 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
     addAction(Tr::tr("Copy \"%1\""), IVersionControl::FileCopyClipboard);
     EditorManager::addContextMenuActions(menu, fullFilePath, EditorManager::HideVersionControl);
     menu->addSeparator();
+    addAction(Tr::tr("Diff \"%1\""), IVersionControl::FileDiff);
+    addAction(Tr::tr("Log \"%1\""), IVersionControl::FileLog);
+    addAction(Tr::tr("Blame \"%1\""), IVersionControl::FileAnnotate);
+    menu->addSeparator();
     if (state & RenamedFile) {
         addAction(Tr::tr("Revert Renaming \"%1\""), IVersionControl::FileRevertRenaming);
     }
