@@ -56,6 +56,8 @@ public:
         addMutableAction(m_mainWidget);
         if (HostOsInfo::isWindowsHost())
             initMSVCOutputSwitch();
+
+        valueToVolatileValue();
         refresh();
 
         m_buildEnvButton->setText(Tr::tr("Edit Build Environment..."));
@@ -115,13 +117,16 @@ private:
 
     bool volatileValueToValue() final
     {
-        bool res1 = m_buildEnvChanges == EnvironmentKitAspect::buildEnvChanges(kit());
-        if (res1)
+        bool changed = false;
+        if (m_buildEnvChanges != EnvironmentKitAspect::buildEnvChanges(kit())) {
             EnvironmentKitAspect::setBuildEnvChanges(kit(), m_buildEnvChanges);
-        bool res2 = m_runEnvChanges == EnvironmentKitAspect::runEnvChanges(kit());
-        if (res2)
+            changed = true;
+        }
+        if (m_runEnvChanges != EnvironmentKitAspect::runEnvChanges(kit())) {
             EnvironmentKitAspect::setRunEnvChanges(kit(), m_runEnvChanges);
-        return res1 || res2;
+            changed = true;
+        }
+        return changed;
     }
 
     void editBuildEnvironmentChanges()
