@@ -16,6 +16,7 @@ QtcLibrary {
                 winLibs.push("dbghelp");
             return winLibs;
         }
+        cpp.defines: qbs.toolchain.contains("msvc") ? ["HAVE_DBGHELP"] : []
     }
     Properties {
         condition: qbs.targetOS.contains("unix")
