@@ -27,7 +27,11 @@ class ProjectCommentsSettings
 public:
     // Passing a null ptr is allowed and yields the global settings, so you can use
     // this class transparently for both cases.
-    ProjectCommentsSettings(Project *project);
+    ProjectCommentsSettings(Project *project)
+        : m_project(project)
+    {
+        loadSettings();
+    }
 
     TextEditor::CommentsSettings::Data settings() const;
     void setSettings(const TextEditor::CommentsSettings::Data &settings);
@@ -43,11 +47,6 @@ private:
     bool m_useGlobalSettings = true;
 };
 
-ProjectCommentsSettings::ProjectCommentsSettings(Project *project)
-    : m_project(project)
-{
-    loadSettings();
-}
 
 CommentsSettings::Data ProjectCommentsSettings::settings() const
 {
@@ -152,7 +151,21 @@ public:
         });
 
         TextEditor::TextEditorSettings::setCommentsSettingsRetriever([](const FilePath &filePath) {
-            return ProjectCommentsSettings(ProjectManager::projectForFile(filePath)).settings();
+            Project * const project = ProjectManager::projectForFile(filePath);
+            if (!project)
+                return CommentsSettings::data();
+
+            const QVariant entry = project->namedSettings(CommentsSettings::mainSettingsKey());
+            if (!entry.isValid())
+                return CommentsSettings::data();
+
+            const Store data = storeFromVariant(entry);
+            if (data.value(kUseGlobalKey, true).toBool())
+                return CommentsSettings::data();
+
+            TextEditor::CommentsSettings::Data customSettings;
+            customSettings.fromMap(data);
+            return customSettings;
         });
     }
 };
