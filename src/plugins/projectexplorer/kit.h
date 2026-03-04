@@ -141,7 +141,7 @@ public:
     QString newKitName(const QList<Kit *> &allKits) const;
     static QString newKitName(const QString &name, const QList<Kit *> &allKits);
 
-    Utils::Store toMap() const;
+    void toMap(Utils::Store &data) const;
 
 private:
     static void copyKitCommon(Kit *target, const Kit *source);

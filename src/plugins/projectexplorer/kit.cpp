@@ -526,11 +526,10 @@ bool Kit::isEqual(const Kit *other) const
     return isDataEqual(other) && isMetaDataEqual(other);
 }
 
-Store Kit::toMap() const
+void Kit::toMap(Store &data) const
 {
     using IdVariantConstIt = QHash<Id, QVariant>::ConstIterator;
 
-    Store data;
     d->m_unexpandedDisplayName.toMap(data, DISPLAYNAME_KEY);
     data.insert(ID_KEY, QString::fromLatin1(d->m_id.name()));
     data.insert(AUTODETECTED_KEY, d->m_detectionSource.isAutoDetected());
@@ -566,8 +565,6 @@ Store Kit::toMap() const
     for (IdVariantConstIt it = d->m_data.constBegin(); it != cend; ++it)
         extra.insert(keyFromString(QString::fromLatin1(it.key().name().constData())), it.value());
     data.insert(DATA_KEY, variantFromStore(extra));
-
-    return data;
 }
 
 void Kit::addToBuildEnvironment(Environment &env) const

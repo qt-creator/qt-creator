@@ -337,7 +337,8 @@ void KitManager::saveKits()
         if (k->detectionSource().isTemporary())
             continue;
 
-        Store tmp = k->toMap();
+        Store tmp;
+        k->toMap(tmp);
         if (tmp.isEmpty())
             continue;
         data.insert(numberedKey(KIT_DATA_KEY, count), variantFromStore(tmp));
