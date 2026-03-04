@@ -3767,7 +3767,8 @@ public:
         }
         if (role == Qt::FontRole) {
             QFont f;
-            f.setBold(m_aspect->isDirty());
+            f.setBold(m_aspect->isDirty() || added);
+            f.setStrikeOut(deleted);
             return f;
         }
         return {};
@@ -3776,6 +3777,21 @@ public:
     bool hasAspect(const std::shared_ptr<BaseAspect> &aspect) const { return aspect == m_aspect; }
 
     std::shared_ptr<BaseAspect> aspect() const { return m_aspect; }
+
+    void setStatus(bool isAdded, bool isDeleted)
+    {
+        if (added == isAdded && deleted == isDeleted)
+            return;
+
+        aspect()->setEnabled(!isDeleted);
+
+        added = isAdded;
+        deleted = isDeleted;
+        update();
+    }
+
+    bool added = false;
+    bool deleted = false;
 };
 
 class AspectListModel : public TreeModel<AspectListModelItem, AspectListModelItem>
@@ -3789,28 +3805,49 @@ public:
 
     void sync(AspectList &aspect)
     {
-        QList<std::shared_ptr<BaseAspect>> itemsInAspect = aspect.volatileItems();
+        QList<std::shared_ptr<BaseAspect>> volatileItems = aspect.volatileItems();
+        QList<std::shared_ptr<BaseAspect>> items = aspect.items();
+        QSet<std::shared_ptr<BaseAspect>> itemSet
+            = QSet<std::shared_ptr<BaseAspect>>(items.begin(), items.end());
+        QSet<std::shared_ptr<BaseAspect>> volatileItemSet
+            = QSet<std::shared_ptr<BaseAspect>>(volatileItems.begin(), volatileItems.end());
 
-        auto itAspect = itemsInAspect.begin();
+        auto newItems = volatileItemSet - itemSet;
+        auto removedItems = itemSet - volatileItemSet;
+
+        auto itAspect = volatileItems.begin();
         auto modelIdx = 0;
 
-        while (itAspect != itemsInAspect.end() && modelIdx < rootItem()->childCount()) {
-            auto inModelAspect = rootItem()->childAt(modelIdx)->aspect();
+        while (itAspect != volatileItems.end() && modelIdx < rootItem()->childCount()) {
+            AspectListModelItem *modelItem = rootItem()->childAt(modelIdx);
+            auto inModelAspect = modelItem->aspect();
+
+            const bool inVolatile = volatileItemSet.contains(inModelAspect);
+            const bool isGone = !inVolatile && !itemSet.contains(inModelAspect);
+
             if (*itAspect == inModelAspect) {
+                // The item is both in the model and in the volatile part of the aspect, just update its state.
+                modelItem->setStatus(
+                    newItems.contains(inModelAspect), removedItems.contains(inModelAspect));
                 ++itAspect;
                 ++modelIdx;
             } else {
-                // The item in the model is not in the aspect, remove it.
-                if (itemsInAspect.indexOf(inModelAspect) == -1) {
-                    // Remove item from model.
-                    auto item = this->findItemAtLevel<1>(
-                        [&inModelAspect](auto item) { return item->hasAspect(inModelAspect); });
-                    QTC_ASSERT(item, continue);
-                    delete takeItem(item);
+                if (!inVolatile) {
+                    // The item in the model is not in the volatile part of the aspect
+                    if (isGone) {
+                        // The item is also not in the applied part of the aspect, remove it from model.
+                        delete takeItem(modelItem);
+                        modelItem = nullptr;
+                    } else {
+                        // The item is in the applied part of the aspect, but not in the volatile part, mark it as deleted.
+                        modelItem->setStatus(false, true);
+                        ++modelIdx;
+                    }
                 } else {
                     // The item in the aspect is not in the model, add it.
-                    rootItem()->insertChild(
-                        modelIdx, new AspectListModelItem(*itAspect, m_displayFunction));
+                    modelItem = new AspectListModelItem(*itAspect, m_displayFunction);
+                    modelItem->setStatus(newItems.contains(*itAspect), !inVolatile);
+                    rootItem()->insertChild(modelIdx, modelItem);
                     ++modelIdx;
                     ++itAspect;
                 }
@@ -3819,20 +3856,26 @@ public:
 
         // Remove remaining items in model.
         if (modelIdx < rootItem()->childCount()) {
-            for (; modelIdx < rootItem()->childCount(); ++modelIdx)
-                delete takeItem(rootItem()->childAt(modelIdx));
+            for (; modelIdx < rootItem()->childCount();) {
+                auto item = rootItem()->childAt(modelIdx);
+                const bool isGone = !itemSet.contains(item->aspect());
+                if (isGone)
+                    delete takeItem(item);
+                else {
+                    item->setStatus(false, true);
+                    modelIdx++;
+                }
+            }
         }
 
         // Add remaining items in aspect to model.
-        if (itAspect != itemsInAspect.end()) {
-            for (; itAspect != itemsInAspect.end(); ++itAspect)
-                appendChild(*itAspect);
+        if (itAspect != volatileItems.end()) {
+            for (; itAspect != volatileItems.end(); ++itAspect) {
+                auto item = new AspectListModelItem(*itAspect, m_displayFunction);
+                item->setStatus(newItems.contains(*itAspect), false);
+                rootItem()->appendChild(item);
+            }
         }
-    }
-
-    void appendChild(const std::shared_ptr<BaseAspect> &aspect)
-    {
-        rootItem()->appendChild(new AspectListModelItem(aspect, m_displayFunction));
     }
 
 private:
@@ -3930,8 +3973,8 @@ public:
         QWidget *configWidget = nullptr;
         auto listView = aspect->createSubWidget<TreeView>();
         listView->header()->hide();
-
         listView->setModel(&model);
+        listView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
         auto add = [aspect, listView, this] {
             auto newItem = aspect->createAndAddItem();
@@ -3946,21 +3989,8 @@ public:
             QModelIndex currentIndex = listView->currentIndex();
             QTC_ASSERT(currentIndex.isValid(), return);
             const auto item = model.itemForIndex(currentIndex);
-            auto nextIdx = currentIndex.siblingAtRow(currentIndex.row() + 1);
-            if (!nextIdx.isValid())
-                nextIdx = currentIndex.siblingAtRow(currentIndex.row() - 1);
-            std::shared_ptr<BaseAspect> nextAspect;
-            if (nextIdx.isValid())
-                nextAspect = model.itemForIndex(nextIdx)->aspect();
             QTC_ASSERT(item, return);
             aspect->removeItem(item->aspect());
-            if (nextAspect) {
-                nextIdx = model.indexForItem(
-                    model.findItemAtLevel<1>([nextAspect](AspectListModelItem *item) {
-                        return item->hasAspect(nextAspect);
-                    }));
-                listView->setCurrentIndex(nextIdx);
-            }
         };
         QLayout *layout = nullptr;
 
@@ -3992,8 +4022,7 @@ public:
                 QWidget *newConfigWidget = nullptr;
                 if (current.isValid()) {
                     newConfigWidget = new QWidget();
-
-                    const auto item = model.itemForIndex(current);
+                    const AspectListModelItem *item = model.itemForIndex(current);
                     QTC_ASSERT(item, return);
 
                     if (auto container = dynamic_cast<AspectContainer *>(item->aspect().get()))
@@ -4161,6 +4190,7 @@ void AspectList::apply()
 {
     d->items = d->volatileItems;
     forEachItem<BaseAspect>([](const std::shared_ptr<BaseAspect> &aspect) { aspect->apply(); });
+    d->model.sync(*this);
     emit changed();
 }
 
