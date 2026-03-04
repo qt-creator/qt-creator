@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+﻿// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectcommentssettings.h"
@@ -9,6 +9,7 @@
 #include "projectpanelfactory.h"
 #include "projectsettingswidget.h"
 
+#include <texteditor/commentssettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -20,6 +21,27 @@ using namespace Utils;
 namespace ProjectExplorer::Internal {
 
 const char kUseGlobalKey[] = "UseGlobalKey";
+
+class ProjectCommentsSettings
+{
+public:
+    // Passing a null ptr is allowed and yields the global settings, so you can use
+    // this class transparently for both cases.
+    ProjectCommentsSettings(Project *project);
+
+    TextEditor::CommentsSettings::Data settings() const;
+    void setSettings(const TextEditor::CommentsSettings::Data &settings);
+    bool useGlobalSettings() const { return m_useGlobalSettings; }
+    void setUseGlobalSettings(bool useGlobal);
+
+private:
+    void loadSettings();
+    void saveSettings();
+
+    ProjectExplorer::Project * const m_project;
+    TextEditor::CommentsSettings::Data m_customSettings;
+    bool m_useGlobalSettings = true;
+};
 
 ProjectCommentsSettings::ProjectCommentsSettings(Project *project)
     : m_project(project)
