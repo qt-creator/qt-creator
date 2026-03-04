@@ -44,7 +44,7 @@
     \section1 Change the font
 
     If the help HTML file does not use a style sheet, you can change the font
-    family, style, and size in \preferences > \uicontrol Help >
+    family and size in \preferences > \uicontrol Help >
     \uicontrol General.
 
     \image {qtcreator-preferences-help-general.webp} {General tab in Help preferences}
@@ -65,8 +65,7 @@
     The help viewer backend determines the style sheet that is used to show
     the help files. The default help viewer backend that is based on litehtml
     is recommended for viewing Qt documentation. You can choose another help
-    viewer backend in the \uicontrol {Viewer backend}. To take the new
-    backend to use, reload the help page.
+    viewer backend in the \uicontrol {Viewer backend}.
 
     \section1 View function tooltips
 
