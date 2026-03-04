@@ -3072,8 +3072,11 @@ QString ProjectExplorerPluginPrivate::projectFilterString()
         MimeType mime = Utils::mimeTypeForName(mimeType);
         if (!mime.isValid())
             continue;
-        allGlobPatterns.append(mime.globPatterns());
-        filterStrings.append(mime.filterString());
+        // empty pattern and filterString can happen for e.g. inode/directory mime type
+        if (!mime.globPatterns().isEmpty())
+            allGlobPatterns.append(mime.globPatterns());
+        if (!mime.filterString().isEmpty())
+            filterStrings.append(mime.filterString());
     }
 
     QString allProjectsFilter = Tr::tr("All Projects");
