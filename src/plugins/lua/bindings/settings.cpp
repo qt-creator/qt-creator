@@ -608,17 +608,19 @@ void setupSettingsModule()
                                     return *res;
                                 });
                         } else if (key == "onItemAdded") {
-                            aspect->setItemAddedCallback([func = value.as<sol::main_function>()](
-                                                             std::shared_ptr<BaseAspect> item) {
-                                auto res = void_safe_call(func, item);
-                                QTC_CHECK_RESULT(res);
-                            });
+                            aspect->itemAddedCallback =
+                                [func = value.as<sol::main_function>()](
+                                    const std::shared_ptr<BaseAspect> &item) {
+                                    auto res = void_safe_call(func, item);
+                                    QTC_CHECK_RESULT(res);
+                                };
                         } else if (key == "onItemRemoved") {
-                            aspect->setItemRemovedCallback([func = value.as<sol::main_function>()](
-                                                               std::shared_ptr<BaseAspect> item) {
-                                auto res = void_safe_call(func, item);
-                                QTC_CHECK_RESULT(res);
-                            });
+                            aspect->itemAddedCallback =
+                                [func = value.as<sol::main_function>()](
+                                    const std::shared_ptr<BaseAspect> &item) {
+                                    auto res = void_safe_call(func, item);
+                                    QTC_CHECK_RESULT(res);
+                                };
                         } else {
                             baseAspectCreate(aspect, key, value);
                         }

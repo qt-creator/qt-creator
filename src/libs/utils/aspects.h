@@ -8,6 +8,7 @@
 #include "id.h"
 #include "infolabel.h"
 #include "pathchooser.h"
+#include "singleargcallback.h"
 #include "store.h"
 
 #include <functional>
@@ -1193,7 +1194,6 @@ class QTCREATOR_UTILS_EXPORT AspectList : public Utils::BaseAspect
     friend class Internal::AspectListPrivate;
 public:
     using CreateItem = std::function<std::shared_ptr<BaseAspect>()>;
-    using ItemCallback = std::function<void(std::shared_ptr<BaseAspect>)>;
 
     AspectList(Utils::AspectContainer *container = nullptr);
     ~AspectList() override;
@@ -1236,25 +1236,6 @@ public:
             callback(std::static_pointer_cast<T>(item), idx++);
     }
 
-    void setItemAddedCallback(const ItemCallback &callback);
-    void setItemRemovedCallback(const ItemCallback &callback);
-
-    template<class T>
-    void setItemAddedCallback(const std::function<void(const std::shared_ptr<T>)> &callback)
-    {
-        setItemAddedCallback([callback](const std::shared_ptr<BaseAspect> &item) {
-            callback(std::static_pointer_cast<T>(item));
-        });
-    }
-
-    template<class T>
-    void setItemRemovedCallback(const std::function<void(const std::shared_ptr<T>)> &callback)
-    {
-        setItemRemovedCallback([callback](const std::shared_ptr<BaseAspect> &item) {
-            callback(std::static_pointer_cast<T>(item));
-        });
-    }
-
     qsizetype size() const;
     bool isDirty() const override;
 
@@ -1265,8 +1246,10 @@ public:
     enum class DisplayStyle { InlineList, ListViewWithDetails };
     void setDisplayStyle(DisplayStyle displayStyle);
 
-    void setListViewDisplayFunction(
-        const std::function<QString(const std::shared_ptr<BaseAspect> &)> &displayFunction);
+    SingleArgCallback<QString, BaseAspect *> listViewDisplayCallback;
+
+    SingleArgCallback<void, std::shared_ptr<BaseAspect>> itemAddedCallback;
+    SingleArgCallback<void, std::shared_ptr<BaseAspect>> itemRemovedCallback;
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
 

@@ -158,6 +158,11 @@ public:
     StringListAspect httpHeaders{this};
 };
 
+static QString displayFunc(McpServerAspect *aspect)
+{
+    return aspect->name.volatileValue();
+}
+
 class McpManagerSettings : public Utils::AspectContainer
 {
 public:
@@ -170,9 +175,8 @@ public:
             auto newItem = std::make_shared<McpServerAspect>();
             return newItem;
         });
-        mcpServers.setListViewDisplayFunction([](auto aspect) {
-            return std::static_pointer_cast<McpServerAspect>(aspect)->name.volatileValue();
-        });
+
+        mcpServers.listViewDisplayCallback = displayFunc;
 
         setLayouter([this]() {
             using namespace Layouting;

@@ -3743,13 +3743,13 @@ class AspectListModelItem : public TypedTreeItem<AspectListModelItem>
 {
     std::shared_ptr<BaseAspect> m_aspect;
     QObject guard;
-    std::function<QString(const std::shared_ptr<BaseAspect> &)> m_displayFunction;
+    std::function<QString(BaseAspect *)> m_displayFunction;
 
 public:
     AspectListModelItem() = default;
     AspectListModelItem(
         const std::shared_ptr<BaseAspect> &aspect,
-        std::function<QString(const std::shared_ptr<BaseAspect> &)> displayFunction)
+        const std::function<QString(BaseAspect *)> &displayFunction)
         : m_aspect(aspect)
         , m_displayFunction(displayFunction)
     {
@@ -3763,9 +3763,7 @@ public:
         if (column != 0)
             return {};
         if (role == Qt::DisplayRole) {
-            QTC_ASSERT(
-                m_displayFunction, return "No display function provided for AspectListModel::Item");
-            return m_displayFunction(m_aspect);
+            return m_displayFunction(m_aspect.get());
         }
         if (role == Qt::FontRole) {
             QFont f;
@@ -3783,8 +3781,7 @@ public:
 class AspectListModel : public TreeModel<AspectListModelItem, AspectListModelItem>
 {
 public:
-    AspectListModel(
-        std::function<QString(const std::shared_ptr<BaseAspect> &)> displayFunction)
+    AspectListModel(const std::function<QString(BaseAspect *)> &displayFunction)
         : TreeModel<AspectListModelItem, AspectListModelItem>()
         , m_displayFunction(displayFunction)
     {
@@ -3839,7 +3836,7 @@ public:
     }
 
 private:
-    std::function<QString(const std::shared_ptr<BaseAspect> &)> m_displayFunction;
+    std::function<QString(BaseAspect *)> m_displayFunction;
 };
 
 class Internal::AspectListPrivate
@@ -3866,20 +3863,13 @@ public:
     }
 
     AspectList::CreateItem createItem;
-    AspectList::ItemCallback itemAdded;
-    AspectList::ItemCallback itemRemoved;
 
-    std::function<QString(const std::shared_ptr<BaseAspect> &)> displayFunction;
     AspectList::DisplayStyle displayStyle = AspectList::DisplayStyle::InlineList;
 
     AspectListModel model;
 
-    AspectListPrivate()
-        : model([this](const std::shared_ptr<BaseAspect> &aspect) {
-            if (displayFunction)
-                return displayFunction(aspect);
-            return QString();
-        })
+    AspectListPrivate(std::function<QString(BaseAspect *)> displayFunction)
+        : model(displayFunction)
     {}
 
     void addToLayoutImplInlineList(Layouting::Layout &parent, AspectList *aspect)
@@ -4044,7 +4034,10 @@ public:
 
 AspectList::AspectList(Utils::AspectContainer *container)
     : Utils::BaseAspect(container)
-    , d(std::make_unique<Internal::AspectListPrivate>())
+    , d(std::make_unique<Internal::AspectListPrivate>([this](BaseAspect *aspect) -> QString {
+        QTC_ASSERT(listViewDisplayCallback, return QString("No listViewDisplayCallback set"));
+        return listViewDisplayCallback(aspect);
+    }))
 {}
 
 AspectList::~AspectList() = default;
@@ -4096,8 +4089,8 @@ std::shared_ptr<BaseAspect> AspectList::actualAddItem(const std::shared_ptr<Base
 
     d->volatileItems.append(item);
     d->connectVolatile(item, this);
-    if (d->itemAdded)
-        d->itemAdded(item);
+    if (itemAddedCallback)
+        itemAddedCallback(item);
     d->model.sync(*this);
     emit volatileValueChanged();
     if (isAutoApply())
@@ -4133,8 +4126,8 @@ void AspectList::actualRemoveItem(const std::shared_ptr<BaseAspect> &item)
 {
     d->disconnectVolatile(item, this);
     d->volatileItems.removeOne(item);
-    if (d->itemRemoved)
-        d->itemRemoved(item);
+    if (itemRemovedCallback)
+        itemRemovedCallback(item);
     d->model.sync(*this);
     emit volatileValueChanged();
     if (isAutoApply())
@@ -4196,15 +4189,6 @@ void AspectList::setAutoApply(bool on)
 void AspectList::setCreateItemFunction(CreateItem createItem)
 {
     d->createItem = createItem;
-}
-
-void AspectList::setItemAddedCallback(const ItemCallback &callback)
-{
-    d->itemAdded = callback;
-}
-void AspectList::setItemRemovedCallback(const ItemCallback &callback)
-{
-    d->itemRemoved = callback;
 }
 
 qsizetype AspectList::size() const
@@ -4271,12 +4255,6 @@ private:
 void AspectList::setDisplayStyle(DisplayStyle displayStyle)
 {
     d->displayStyle = displayStyle;
-}
-
-void AspectList::setListViewDisplayFunction(
-    const std::function<QString(const std::shared_ptr<BaseAspect> &)> &displayFunction)
-{
-    d->displayFunction = displayFunction;
 }
 
 void AspectList::addToLayoutImpl(Layouting::Layout &parent)

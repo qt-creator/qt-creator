@@ -143,17 +143,17 @@ LanguageModelsListModel::LanguageModelsListModel(AspectList &models) : m_models(
     sync();
     connect(&m_models, &BaseAspect::volatileValueChanged,
             this, &LanguageModelsListModel::sync);
-    m_models.setItemAddedCallback([this](const std::shared_ptr<BaseAspect> &aspect) {
+    m_models.itemAddedCallback = [this](const std::shared_ptr<BaseAspect> &aspect) {
         appendChild(aspect);
-    });
-    m_models.setItemRemovedCallback([this](const std::shared_ptr<BaseAspect> &aspect) {
+    };
+    m_models.itemRemovedCallback = [this](const std::shared_ptr<BaseAspect> &aspect) {
         for (int i = 0; i < rootItem()->childCount(); ++i) {
             if (static_cast<LanguageModelItem *>(rootItem()->childAt(i))->hasModel(aspect)) {
                 rootItem()->removeChildAt(i);
                 break;
             }
         }
-    });
+    };
 }
 
 void LanguageModelsListModel::sync()

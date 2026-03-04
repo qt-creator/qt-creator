@@ -809,11 +809,11 @@ EditorWidget::EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document
 
     document->setWindowStateCallback([this] { return storeFromMap(windowStateCallback()); });
 
-    document->settings()->m_sources.setItemAddedCallback<SourceSettings>(
-        [this](const std::shared_ptr<SourceSettings> &source) { addSourceEditor(source); });
+    document->settings()->m_sources.itemAddedCallback =
+        [this](const std::shared_ptr<SourceSettings> &source) { addSourceEditor(source); };
 
-    document->settings()->m_sources.setItemRemovedCallback<SourceSettings>(
-        [this](const std::shared_ptr<SourceSettings> &source) { removeSourceEditor(source); });
+    document->settings()->m_sources.itemRemovedCallback =
+        [this](const std::shared_ptr<SourceSettings> &source) { removeSourceEditor(source); };
 
     connect(document.get(),
             &JsonSettingsDocument::settingsChanged,
@@ -906,7 +906,7 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
                     &SourceEditorWidget::markSourceLocation);
         });
 
-    sourceSettings->compilers.setItemAddedCallback<CompilerSettings>(
+    sourceSettings->compilers.itemAddedCallback =
         [this, sourceEditor, sourceSettings](
             const std::shared_ptr<CompilerSettings> &compilerSettings) {
             auto compilerWidget = addCompiler(sourceSettings->shared_from_this(),
@@ -917,9 +917,9 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
                     &CompilerWidget::hoveredLineChanged,
                     sourceEditor,
                     &SourceEditorWidget::markSourceLocation);
-        });
+        };
 
-    sourceSettings->compilers.setItemRemovedCallback<CompilerSettings>(
+    sourceSettings->compilers.itemRemovedCallback =
         [this, sourceSettings](const std::shared_ptr<CompilerSettings> &compilerSettings) {
             auto it = std::find_if(m_compilerWidgets.begin(),
                                    m_compilerWidgets.end(),
@@ -933,7 +933,7 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
                 m_sourceWidgets.first()->widget()->setFocus(Qt::OtherFocusReason);
             delete *it;
             m_compilerWidgets.erase(it);
-        });
+        };
 
     m_sourceWidgets.append(dockWidget);
 
