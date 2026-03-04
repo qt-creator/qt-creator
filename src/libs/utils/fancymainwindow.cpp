@@ -355,6 +355,10 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
         return;
     }
 
+    QPalette p = palette();
+    p.setColor(QPalette::Window, creatorColor(Theme::Token_Stroke_Subtle));
+    setPalette(p);
+
     connect(toggleViewAction(), &QAction::triggered, this, [this] {
         if (isVisible())
             raise();
