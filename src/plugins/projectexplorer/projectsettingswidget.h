@@ -17,7 +17,7 @@ class PROJECTEXPLORER_EXPORT ProjectSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ProjectSettingsWidget(QWidget *parent = nullptr);
+    ProjectSettingsWidget() = default;
 
     void setUseGlobalSettings(bool useGlobalSettings);
     bool useGlobalSettings() const;

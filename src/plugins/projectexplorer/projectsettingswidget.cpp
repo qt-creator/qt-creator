@@ -14,10 +14,6 @@ namespace ProjectExplorer {
 
 const int CONTENTS_MARGIN = 5;
 
-ProjectSettingsWidget::ProjectSettingsWidget(QWidget *parent)
-    : QWidget(parent)
-{}
-
 void ProjectSettingsWidget::setUseGlobalSettings(bool useGlobalSettings)
 {
     if (m_useGlobalSettings == useGlobalSettings)
