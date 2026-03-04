@@ -489,15 +489,8 @@ ShowController::ShowController(IDocument *document, const QString &id)
         // Should result in one line of blank-delimited revisions, specifying current first
         // unless it is top.
         QStringList parents;
-        if (!splitCommitParents(outputText, nullptr, &parents)) {
-            const Utils::FilePath workingDirectory = process.workingDirectory();
-            const QString text = msgParentRevisionFailed(workingDirectory, id, msgInvalidRevision());
-            VcsOutputWindow::appendError(workingDirectory, text);
-            return DoneResult::Error;
-        }
-        ReloadStorage *data = storage.activeStorage();
-        data->parents = parents;
-        return DoneResult::Success;
+        if (splitCommitParents(outputText, nullptr, &parents))
+            storage->parents = parents;
     };
 
     const auto descriptionDetailsSetup = [storage] {
