@@ -11,145 +11,100 @@
 #include "texteditortr.h"
 #include "typingsettings.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 
-#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
-#include <QGroupBox>
-
 namespace TextEditor {
-
-struct BehaviorSettingsWidgetPrivate
-{
-    SimpleCodeStylePreferencesWidget *tabPreferencesWidget;
-    QGroupBox *groupBoxStorageSettings;
-    QGroupBox *groupBoxTyping;
-    QGroupBox *groupBoxEncodings;
-    QGroupBox *groupBoxMouse;
-
-    TypingSettings *typingSettings;
-    StorageSettings *storageSettings;
-    BehaviorSettings *behaviorSettings;
-    ExtraEncodingSettings *encodingSettings;
-};
 
 BehaviorSettingsWidget::BehaviorSettingsWidget(TypingSettings *typingSettings,
                                                StorageSettings *storageSettings,
                                                BehaviorSettings *behaviorSettings,
                                                ExtraEncodingSettings *encodingSettings,
                                                QWidget *parent)
-    : QWidget(parent)
-    , d(new BehaviorSettingsWidgetPrivate)
+    : QWidget(parent),
+      typingSettings(typingSettings),
+      storageSettings(storageSettings),
+      behaviorSettings(behaviorSettings),
+      encodingSettings(encodingSettings)
 {
-    d->typingSettings = typingSettings;
-    d->storageSettings = storageSettings;
-    d->behaviorSettings = behaviorSettings;
-    d->encodingSettings = encodingSettings;
-
-    d->tabPreferencesWidget = new SimpleCodeStylePreferencesWidget(this);
-
-    d->groupBoxTyping = new QGroupBox(Tr::tr("Typing"));
-
-    d->groupBoxStorageSettings = new QGroupBox(Tr::tr("Cleanups Upon Saving"));
-    d->groupBoxStorageSettings->setToolTip(Tr::tr("Cleanup actions which are automatically performed "
-                                              "right before the file is saved to disk."));
-    d->groupBoxEncodings = new QGroupBox(Tr::tr("File Encodings"));
-
-    d->groupBoxMouse = new QGroupBox(Tr::tr("Mouse and Keyboard"));
+    tabPreferencesWidget = new SimpleCodeStylePreferencesWidget(this);
 
     using namespace Layouting;
 
-    Row {
-        Form {
-            d->typingSettings->autoIndent, br,
-            d->typingSettings->smartBackspaceBehavior, br,
-            d->typingSettings->tabKeyBehavior, br,
-            d->typingSettings->preferSingleLineComments, br,
-            d->typingSettings->commentPosition, br
-        }, st
-    }.attachTo(d->groupBoxTyping);
+    Group typing {
+        title(Tr::tr("Typing")),
+        Row {
+            Form {
+                typingSettings->autoIndent, br,
+                typingSettings->smartBackspaceBehavior, br,
+                typingSettings->tabKeyBehavior, br,
+                typingSettings->preferSingleLineComments, br,
+                typingSettings->commentPosition, br
+            }, st
+        }
+    };
+
+    Group storage {
+        title(Tr::tr("Cleanups Upon Saving")),
+        Layouting::toolTip(Tr::tr("Cleanup actions which are automatically performed "
+                                  "right before the file is saved to disk.")),
+        Column {
+            storageSettings->cleanWhitespace,
+                Row { Space(30), storageSettings->inEntireDocument },
+                Row { Space(30), storageSettings->cleanIndentation },
+                Row { Space(30), storageSettings->skipTrailingWhitespace,
+                                 storageSettings->ignoreFileTypes },
+            storageSettings->addFinalNewLine,
+        }
+    };
+
+    Group encoding {
+        title(Tr::tr("File Encodings")),
+        Row {
+            Form {
+                encodingSettings->defaultEncoding, br,
+                encodingSettings->utf8BomSetting, br,
+                encodingSettings->lineEndingSetting, br,
+            }, st
+        }
+    };
+
+    Group mouse {
+        title(Tr::tr("Mouse and Keyboard")),
+        Row {
+            Form {
+                behaviorSettings->mouseHiding, br,
+                behaviorSettings->mouseNavigation, br,
+                behaviorSettings->scrollWheelZooming, br,
+                behaviorSettings->camelCaseNavigation, br,
+                behaviorSettings->smartSelectionChanging, br,
+                behaviorSettings->keyboardTooltips, br,
+                behaviorSettings->constrainHoverTooltips, br
+            }, st
+        }
+    };
 
     Column {
-        d->storageSettings->cleanWhitespace,
-            Row { Space(30), d->storageSettings->inEntireDocument },
-            Row { Space(30), d->storageSettings->cleanIndentation },
-            Row { Space(30), d->storageSettings->skipTrailingWhitespace,
-                             d->storageSettings->ignoreFileTypes },
-        d->storageSettings->addFinalNewLine,
-    }.attachTo(d->groupBoxStorageSettings);
-
-    Row {
-        Form {
-            d->encodingSettings->defaultEncoding, br,
-            d->encodingSettings->utf8BomSetting, br,
-            d->encodingSettings->lineEndingSetting, br,
-        }, st
-    }.attachTo(d->groupBoxEncodings);
-
-    Row {
-        Form {
-            d->behaviorSettings->mouseHiding, br,
-            d->behaviorSettings->mouseNavigation, br,
-            d->behaviorSettings->scrollWheelZooming, br,
-            d->behaviorSettings->camelCaseNavigation, br,
-            d->behaviorSettings->smartSelectionChanging, br,
-            d->behaviorSettings->keyboardTooltips, br,
-            d->behaviorSettings->constrainHoverTooltips, br
-        }, st
-    }.attachTo(d->groupBoxMouse);
-
-    Column {
-        d->tabPreferencesWidget,
-        d->groupBoxTyping,
-        d->groupBoxStorageSettings,
-        d->groupBoxEncodings,
-        d->groupBoxMouse,
+        tabPreferencesWidget,
+        typing,
+        storage,
+        encoding,
+        mouse,
         st,
         noMargin,
     }.attachTo(this);
 }
 
-BehaviorSettingsWidget::~BehaviorSettingsWidget()
-{
-    delete d;
-}
-
-bool BehaviorSettingsWidget::isDirty() const
-{
-    return d->typingSettings->isDirty()
-        || d->behaviorSettings->isDirty()
-        || d->storageSettings->isDirty()
-        || d->encodingSettings->isDirty();
-}
-
-void BehaviorSettingsWidget::apply()
-{
-    d->typingSettings->apply();
-    d->behaviorSettings->apply();
-    d->storageSettings->apply();
-    d->encodingSettings->apply();
-}
-
-void BehaviorSettingsWidget::setActive(bool active)
-{
-    d->tabPreferencesWidget->setEnabled(active);
-    d->groupBoxTyping->setEnabled(active);
-    d->groupBoxEncodings->setEnabled(active);
-    d->groupBoxMouse->setEnabled(active);
-    d->groupBoxStorageSettings->setEnabled(active);
-}
-
 void BehaviorSettingsWidget::setCodeStyle(ICodeStylePreferences *preferences)
 {
-    d->tabPreferencesWidget->setPreferences(preferences);
+    tabPreferencesWidget->setPreferences(preferences);
 }
 
 TabSettingsWidget *BehaviorSettingsWidget::tabSettingsWidget() const
 {
-    return d->tabPreferencesWidget->tabSettingsWidget();
+    return tabPreferencesWidget->tabSettingsWidget();
 }
 
 } // TextEditor

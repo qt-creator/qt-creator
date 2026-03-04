@@ -107,7 +107,7 @@ void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 void EditorSettingsWidget::globalSettingsActivated(bool useGlobal)
 {
     m_displaySettings->setEnabled(!useGlobal);
-    m_behaviorSettings->setActive(!useGlobal);
+    m_behaviorSettings->setEnabled(!useGlobal);
     m_restoreButton->setEnabled(!useGlobal);
     EditorConfiguration *config = m_project->editorConfiguration();
     config->setUseGlobalSettings(useGlobal);

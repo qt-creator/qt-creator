@@ -7,23 +7,18 @@
 
 #include <QWidget>
 
-#include <utils/textcodec.h>
-
 namespace TextEditor {
 
 class ICodeStylePreferences;
+class SimpleCodeStylePreferencesWidget;
 class TabSettingsWidget;
 class TypingSettings;
 class StorageSettings;
 class BehaviorSettings;
 class ExtraEncodingSettings;
 
-struct BehaviorSettingsWidgetPrivate;
-
 class TEXTEDITOR_EXPORT BehaviorSettingsWidget : public QWidget
 {
-    Q_OBJECT
-
 public:
     BehaviorSettingsWidget(TypingSettings *typingSettings,
                            StorageSettings *storageSettings,
@@ -31,19 +26,17 @@ public:
                            ExtraEncodingSettings *encodingSettings,
                            QWidget *parent);
 
-    ~BehaviorSettingsWidget() override;
-
-    bool isDirty() const;
-    void apply();
-
-    void setActive(bool active);
-
     void setCodeStyle(ICodeStylePreferences *preferences);
 
     TabSettingsWidget *tabSettingsWidget() const;
 
 private:
-    BehaviorSettingsWidgetPrivate *d;
+    SimpleCodeStylePreferencesWidget *tabPreferencesWidget;
+
+    TypingSettings *typingSettings;
+    StorageSettings *storageSettings;
+    BehaviorSettings *behaviorSettings;
+    ExtraEncodingSettings *encodingSettings;
 };
 
 } // TextEditor

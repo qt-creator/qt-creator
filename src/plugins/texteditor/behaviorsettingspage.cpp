@@ -132,12 +132,17 @@ BehaviorSettingsPage::~BehaviorSettingsPage()
 
 bool BehaviorSettingsWidgetImpl::isDirty() const
 {
-    if (d->m_behaviorWidget->isDirty())
+    if (globalTypingSettings().isDirty())
+        return true;
+    if (globalStorageSettings().isDirty())
+        return true;
+    if (globalBehaviorSettings().isDirty())
+        return true;
+    if (globalExtraEncodingSettings().isDirty())
         return true;
 
     if (d->m_codeStyle->tabSettings() != d->m_pageCodeStyle->tabSettings())
         return true;
-
     if (d->m_codeStyle->currentDelegate() != d->m_pageCodeStyle->currentDelegate())
         return true;
 
@@ -149,7 +154,10 @@ void BehaviorSettingsWidgetImpl::apply()
     if (!d->m_behaviorWidget) // page was never shown
         return;
 
-    d->m_behaviorWidget->apply();
+    globalTypingSettings().apply();
+    globalBehaviorSettings().apply();
+    globalStorageSettings().apply();
+    globalExtraEncodingSettings().apply();
 
     if (d->m_codeStyle->tabSettings() != d->m_pageCodeStyle->tabSettings()) {
         d->m_codeStyle->setTabSettings(d->m_pageCodeStyle->tabSettings());
