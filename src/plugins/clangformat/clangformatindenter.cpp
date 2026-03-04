@@ -134,14 +134,18 @@ void ClangFormatForwardingIndenter::setFileName(const Utils::FilePath &fileName)
     m_fileName = fileName;
     m_clangFormatIndenter->setFileName(fileName);
     m_cppIndenter->setFileName(fileName);
+    m_fileSize.reset();
 }
 
 TextEditor::Indenter *ClangFormatForwardingIndenter::currentIndenter() const
 {
     ClangFormatSettings::Mode mode = getCurrentIndentationOrFormattingSettings(m_fileName);
 
-    if (mode == ClangFormatSettings::Disable
-        || m_fileName.fileSize() >= ClangFormatSettings::instance().fileSizeThreshold() * 1024)
+    if (mode == ClangFormatSettings::Disable)
+        return m_cppIndenter.get();
+    if (!m_fileSize)
+        m_fileSize = m_fileName.fileSize();
+    if (*m_fileSize >= ClangFormatSettings::instance().fileSizeThreshold() * 1024)
         return m_cppIndenter.get();
 
     return m_clangFormatIndenter.get();
