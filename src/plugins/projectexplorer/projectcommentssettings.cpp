@@ -83,15 +83,7 @@ void ProjectCommentsSettings::loadSettings()
 
     const Store data = storeFromVariant(entry);
     m_useGlobalSettings = data.value(kUseGlobalKey, true).toBool();
-    m_customSettings.enableDoxygen = data.value(CommentsSettings::enableDoxygenSettingsKey(),
-                                                m_customSettings.enableDoxygen).toBool();
-    m_customSettings.generateBrief = data.value(CommentsSettings::generateBriefSettingsKey(),
-                                                m_customSettings.generateBrief).toBool();
-    m_customSettings.leadingAsterisks = data.value(CommentsSettings::leadingAsterisksSettingsKey(),
-                                                   m_customSettings.leadingAsterisks).toBool();
-    m_customSettings.commandPrefix = static_cast<CommentsSettings::CommandPrefix>(
-        data.value(CommentsSettings::commandPrefixKey(),
-                   int(m_customSettings.commandPrefix)).toInt());
+    m_customSettings.fromMap(data);
 }
 
 void ProjectCommentsSettings::saveSettings()
@@ -107,10 +99,7 @@ void ProjectCommentsSettings::saveSettings()
 
     Store data;
     data.insert(kUseGlobalKey, m_useGlobalSettings);
-    data.insert(CommentsSettings::enableDoxygenSettingsKey(), m_customSettings.enableDoxygen);
-    data.insert(CommentsSettings::generateBriefSettingsKey(), m_customSettings.generateBrief);
-    data.insert(CommentsSettings::leadingAsterisksSettingsKey(), m_customSettings.leadingAsterisks);
-    data.insert(CommentsSettings::commandPrefixKey(), int(m_customSettings.commandPrefix));
+    m_customSettings.toMap(data);
     m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), variantFromStore(data));
 }
 

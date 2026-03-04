@@ -13,8 +13,13 @@ class TEXTEDITOR_EXPORT CommentsSettings
 {
 public:
     enum class CommandPrefix { Auto, At, Backslash };
-    class Data {
+
+    class Data
+    {
     public:
+        void fromMap(const Utils::Store &data);
+        void toMap(Utils::Store &data) const;
+
         CommandPrefix commandPrefix = CommandPrefix::Auto;
         bool enableDoxygen = true;
         bool generateBrief = true;
@@ -25,10 +30,6 @@ public:
     static void setData(const Data &data);
 
     static Utils::Key mainSettingsKey();
-    static Utils::Key enableDoxygenSettingsKey();
-    static Utils::Key generateBriefSettingsKey();
-    static Utils::Key leadingAsterisksSettingsKey();
-    static Utils::Key commandPrefixKey();
 
 private:
     CommentsSettings();

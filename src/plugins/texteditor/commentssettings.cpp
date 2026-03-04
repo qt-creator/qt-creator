@@ -26,6 +26,8 @@ const char kAddLeadingAsterisks[] = "AddLeadingAsterisks";
 const char kCommandPrefix[] = "CommandPrefix";
 }
 
+Key CommentsSettings::mainSettingsKey() { return kDocumentationCommentsGroup; }
+
 void CommentsSettings::setData(const Data &data)
 {
     if (data == instance().m_data)
@@ -34,11 +36,22 @@ void CommentsSettings::setData(const Data &data)
     instance().save();
 }
 
-Key CommentsSettings::mainSettingsKey() { return kDocumentationCommentsGroup; }
-Key CommentsSettings::enableDoxygenSettingsKey() { return kEnableDoxygenBlocks; }
-Key CommentsSettings::generateBriefSettingsKey() { return kGenerateBrief; }
-Key CommentsSettings::leadingAsterisksSettingsKey() { return kAddLeadingAsterisks; }
-Key CommentsSettings::commandPrefixKey() { return kCommandPrefix; }
+void CommentsSettings::Data::fromMap(const Store &data)
+{
+    enableDoxygen = data.value(kEnableDoxygenBlocks, enableDoxygen).toBool();
+    generateBrief = data.value(kGenerateBrief, generateBrief).toBool();
+    leadingAsterisks = data.value(kAddLeadingAsterisks, leadingAsterisks).toBool();
+    commandPrefix = static_cast<CommentsSettings::CommandPrefix>(
+            data.value(kCommandPrefix, int(commandPrefix)).toInt());
+}
+
+void CommentsSettings::Data::toMap(Store &data) const
+{
+    data.insert(kEnableDoxygenBlocks, enableDoxygen);
+    data.insert(kGenerateBrief, generateBrief);
+    data.insert(kAddLeadingAsterisks, leadingAsterisks);
+    data.insert(kCommandPrefix, int(commandPrefix));
+}
 
 CommentsSettings::CommentsSettings()
 {
