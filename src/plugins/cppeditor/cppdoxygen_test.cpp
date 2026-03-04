@@ -4,7 +4,6 @@
 #include "cppdoxygen_test.h"
 
 #include "cppeditorwidget.h"
-#include "cpptoolssettings.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -12,7 +11,6 @@
 
 #include <QCoreApplication>
 #include <QDebug>
-#include <QDir>
 #include <QKeyEvent>
 #include <QTest>
 
@@ -25,21 +23,20 @@ using namespace TextEditor;
 
 using namespace Utils;
 
-namespace CppEditor {
-namespace Internal {
-namespace Tests {
+namespace CppEditor::Internal::Tests {
 
 class SettingsInjector
 {
 public:
-    SettingsInjector(const CommentsSettings::Data &tempSettings)
+    explicit SettingsInjector(const CommentsSettings::Data &tempSettings)
+        : m_oldSettings(CommentsSettings::instance().data())
     {
-        CommentsSettings::setData(tempSettings);
+        CommentsSettings::instance().setData(tempSettings);
     }
-    ~SettingsInjector() { CommentsSettings::setData(m_oldSettings); }
+    ~SettingsInjector() { CommentsSettings::instance().setData(m_oldSettings); }
 
 private:
-    const CommentsSettings::Data m_oldSettings = CommentsSettings::data();
+    const CommentsSettings::Data m_oldSettings;
 };
 
 void DoxygenTest::initTestCase()
@@ -407,7 +404,7 @@ void DoxygenTest::testBasic()
     QFETCH(QByteArray, expected);
     QFETCH(int, commandPrefix);
 
-    CommentsSettings::Data settings = CommentsSettings::data();
+    CommentsSettings::Data settings = CommentsSettings::instance().data();
     settings.commandPrefix = static_cast<CommentsSettings::CommandPrefix>(commandPrefix);
     const SettingsInjector injector(settings);
 
@@ -522,6 +519,4 @@ void DoxygenTest::runTest(const QByteArray &original,
     QCOMPARE(contentsAfterUndo, testDocument.m_source);
 }
 
-} // namespace Tests
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal::Tests

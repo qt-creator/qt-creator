@@ -9,7 +9,7 @@
 
 namespace TextEditor {
 
-class TEXTEDITOR_EXPORT CommentsSettings
+class TEXTEDITOR_EXPORT CommentsSettings : public Utils::AspectContainer
 {
 public:
     enum class CommandPrefix { Auto, At, Backslash };
@@ -26,19 +26,21 @@ public:
         bool leadingAsterisks = true;
     };
 
-    static Data data() { return instance().m_data; }
-    static void setData(const Data &data);
+    Data data() const;
+    void setData(const Data &data);
+
+    static CommentsSettings &instance();
 
     static Utils::Key mainSettingsKey();
 
-private:
     CommentsSettings();
-    static CommentsSettings &instance();
-    void save() const;
-    void load();
 
-    Data m_data;
+    Utils::TypedSelectionAspect<CommandPrefix> commandPrefix{this};
+    Utils::BoolAspect enableDoxygen{this};
+    Utils::BoolAspect generateBrief{this};
+    Utils::BoolAspect leadingAsterisks{this};
 };
+
 inline bool operator==(const CommentsSettings::Data &a, const CommentsSettings::Data &b)
 {
     return a.enableDoxygen == b.enableDoxygen
@@ -50,28 +52,6 @@ inline bool operator!=(const CommentsSettings::Data &a, const CommentsSettings::
 {
     return !(a == b);
 }
-
-
-class TEXTEDITOR_EXPORT CommentsSettingsWidget final : public Core::IOptionsPageWidget
-{
-    Q_OBJECT
-public:
-    CommentsSettingsWidget(const CommentsSettings::Data &settings);
-    ~CommentsSettingsWidget();
-
-    CommentsSettings::Data settingsData() const;
-
-signals:
-    void settingsChanged();
-
-private:
-    void apply() override;
-
-    void initFromSettings(const CommentsSettings::Data &settings);
-
-    class Private;
-    Private * const d;
-};
 
 namespace Internal {
 

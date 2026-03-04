@@ -13,6 +13,8 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/layoutbuilder.h>
+
 #include <QVBoxLayout>
 
 using namespace TextEditor;
@@ -22,121 +24,74 @@ namespace ProjectExplorer::Internal {
 
 const char kUseGlobalKey[] = "UseGlobalKey";
 
-class ProjectCommentsSettings
-{
-public:
-    // Passing a null ptr is allowed and yields the global settings, so you can use
-    // this class transparently for both cases.
-    ProjectCommentsSettings(Project *project)
-        : m_project(project)
-    {
-        loadSettings();
-    }
-
-    TextEditor::CommentsSettings::Data settings() const;
-    void setSettings(const TextEditor::CommentsSettings::Data &settings);
-    bool useGlobalSettings() const { return m_useGlobalSettings; }
-    void setUseGlobalSettings(bool useGlobal);
-
-private:
-    void loadSettings();
-    void saveSettings();
-
-    ProjectExplorer::Project * const m_project;
-    TextEditor::CommentsSettings::Data m_customSettings;
-    bool m_useGlobalSettings = true;
-};
-
-
-CommentsSettings::Data ProjectCommentsSettings::settings() const
-{
-    return m_useGlobalSettings ? CommentsSettings::data() : m_customSettings;
-}
-
-void ProjectCommentsSettings::setSettings(const CommentsSettings::Data &settings)
-{
-    if (settings == m_customSettings)
-        return;
-    m_customSettings = settings;
-    saveSettings();
-    emit TextEditorSettings::instance()->commentsSettingsChanged();
-}
-
-void ProjectCommentsSettings::setUseGlobalSettings(bool useGlobal)
-{
-    if (useGlobal == m_useGlobalSettings)
-        return;
-    m_useGlobalSettings = useGlobal;
-    saveSettings();
-    emit TextEditorSettings::instance()->commentsSettingsChanged();
-}
-
-void ProjectCommentsSettings::loadSettings()
-{
-    if (!m_project)
-        return;
-
-    const QVariant entry = m_project->namedSettings(CommentsSettings::mainSettingsKey());
-    if (!entry.isValid())
-        return;
-
-    const Store data = storeFromVariant(entry);
-    m_useGlobalSettings = data.value(kUseGlobalKey, true).toBool();
-    m_customSettings.fromMap(data);
-}
-
-void ProjectCommentsSettings::saveSettings()
-{
-    if (!m_project)
-        return;
-
-    // Optimization: Don't save anything if the user never switched away from the default.
-    if (m_useGlobalSettings && !m_project->namedSettings
-                                (CommentsSettings::mainSettingsKey()).isValid()) {
-        return;
-    }
-
-    Store data;
-    data.insert(kUseGlobalKey, m_useGlobalSettings);
-    m_customSettings.toMap(data);
-    m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), variantFromStore(data));
-}
-
 class ProjectCommentsSettingsWidget final : public ProjectSettingsWidget
 {
 public:
     ProjectCommentsSettingsWidget(Project *project)
-        : m_settings(project)
+        : m_project(project)
     {
         setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS);
 
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(&m_widget);
+        auto *inner = new QWidget;
+        layout->addWidget(inner);
 
-        const auto updateGlobalSettingsCheckBox = [this] {
-            setUseGlobalSettingsCheckBoxEnabled(true);
-            setUseGlobalSettings(m_settings.useGlobalSettings());
-            m_widget.setEnabled(!useGlobalSettings());
-        };
-        updateGlobalSettingsCheckBox();
-        connect(TextEditorSettings::instance(), &TextEditorSettings::commentsSettingsChanged,
-                this, updateGlobalSettingsCheckBox);
+        bool useGlobal = true;
+        if (project) {
+            const QVariant entry = project->namedSettings(CommentsSettings::mainSettingsKey());
+            if (entry.isValid()) {
+                const Store store = storeFromVariant(entry);
+                useGlobal = store.value(kUseGlobalKey, true).toBool();
+                if (!useGlobal)
+                    m_displayedSettings.fromMap(store);
+            }
+        }
+        if (useGlobal)
+            m_displayedSettings.copyFrom(CommentsSettings::instance());
+        m_displayedSettings.setAutoApply(true);
+        m_displayedSettings.layouter()().attachTo(inner);
+
+        setUseGlobalSettings(useGlobal);
+        inner->setEnabled(!useGlobal);
+
         connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
-                [this](bool checked) {
-                    m_widget.setEnabled(!checked);
-                    m_settings.setUseGlobalSettings(checked);
-                    if (!checked)
-                        m_settings.setSettings(m_widget.settingsData());
+                [this, inner](bool useGlobal) {
+                    inner->setEnabled(!useGlobal);
+                    if (useGlobal)
+                        m_displayedSettings.copyFrom(CommentsSettings::instance());
+                    saveSettings(useGlobal);
                 });
-        connect(&m_widget, &CommentsSettingsWidget::settingsChanged, this, [this] {
-            m_settings.setSettings(m_widget.settingsData());
+
+        connect(TextEditorSettings::instance(), &TextEditorSettings::commentsSettingsChanged,
+                this, [this] {
+                    if (useGlobalSettings())
+                        m_displayedSettings.copyFrom(CommentsSettings::instance());
+                });
+
+        connect(&m_displayedSettings, &AspectContainer::changed, this, [this] {
+            if (!useGlobalSettings())
+                saveSettings(false);
         });
     }
 
 private:
-    ProjectCommentsSettings m_settings;
-    CommentsSettingsWidget m_widget{m_settings.settings()};
+    void saveSettings(bool useGlobal)
+    {
+        if (!m_project)
+            return;
+        if (useGlobal && !m_project->namedSettings(CommentsSettings::mainSettingsKey()).isValid())
+            return;
+        Store data;
+        data.insert(kUseGlobalKey, useGlobal);
+        if (!useGlobal)
+            m_displayedSettings.toMap(data);
+        m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), variantFromStore(data));
+        emit TextEditorSettings::instance()->commentsSettingsChanged();
+    }
+
+    Project * const m_project;
+    CommentsSettings m_displayedSettings;
 };
 
 class CommentsSettingsProjectPanelFactory final : public ProjectPanelFactory
@@ -153,15 +108,15 @@ public:
         TextEditor::TextEditorSettings::setCommentsSettingsRetriever([](const FilePath &filePath) {
             Project * const project = ProjectManager::projectForFile(filePath);
             if (!project)
-                return CommentsSettings::data();
+                return CommentsSettings::instance().data();
 
             const QVariant entry = project->namedSettings(CommentsSettings::mainSettingsKey());
             if (!entry.isValid())
-                return CommentsSettings::data();
+                return CommentsSettings::instance().data();
 
             const Store data = storeFromVariant(entry);
             if (data.value(kUseGlobalKey, true).toBool())
-                return CommentsSettings::data();
+                return CommentsSettings::instance().data();
 
             TextEditor::CommentsSettings::Data customSettings;
             customSettings.fromMap(data);

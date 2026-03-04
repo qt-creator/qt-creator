@@ -472,7 +472,7 @@ void TextEditorSettings::setCommentsSettingsRetriever(
 
 CommentsSettings::Data TextEditorSettings::commentsSettings(const Utils::FilePath &filePath)
 {
-    QTC_ASSERT(d->m_retrieveCommentsSettings, return CommentsSettings::data());
+    QTC_ASSERT(d->m_retrieveCommentsSettings, return CommentsSettings::instance().data());
     return d->m_retrieveCommentsSettings(filePath);
 }
 
