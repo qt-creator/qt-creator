@@ -782,7 +782,10 @@ void EditorManagerPrivate::init()
         [](const FilePath &from, const FilePath &to) {
             EditorManagerPrivate::handleFileRenamed(from, to);
         });
-    setShowingTabs(generalSettings().useTabsInEditorViews.value());
+
+    generalSettings().useTabsInEditorViews.addOnChanged(this, [] {
+        setShowingTabs(generalSettings().useTabsInEditorViews());
+    });
 }
 
 void EditorManagerPrivate::extensionsInitialized()

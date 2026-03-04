@@ -5,7 +5,6 @@
 #include "coreconstants.h"
 #include "coreplugintr.h"
 #include "dialogs/ioptionspage.h"
-#include "editormanager/editormanager_p.h"
 #include "icore.h"
 #include "themechooser.h"
 
@@ -81,9 +80,6 @@ GeneralSettings::GeneralSettings()
     useTabsInEditorViews.setSettingsKey("General/UseTabsInEditorViews");
     useTabsInEditorViews.setDefaultValue(false);
     useTabsInEditorViews.setLabelText(Tr::tr("Use tabbed editors"));
-    useTabsInEditorViews.addOnChanged(EditorManagerPrivate::instance(), [this] {
-        EditorManagerPrivate::setShowingTabs(useTabsInEditorViews.value());
-    });
 
     showOkAndCancelInSettingsMode.setSettingsKey("General/ShowOkAndCancelInSettingsMode");
     showOkAndCancelInSettingsMode.setDefaultValue(false);
