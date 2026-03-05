@@ -1267,8 +1267,11 @@ void SubversionPluginPrivate::updateNextModificationInfo()
             };
 
             const FileState modification = svnStates.value(line.at(0), FileState::Unknown);
-            if (modification != FileState::Unknown)
-                modifiedFiles.insert(line.mid(7).trimmed(), modification);
+            if (modification != FileState::Unknown) {
+                QString relativePath = line.mid(7).trimmed();
+                relativePath.replace('\\', '/');
+                modifiedFiles.insert(relativePath, modification);
+            }
         }
 
         VcsManager::updateModifiedFiles(path, modifiedFiles);
