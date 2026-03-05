@@ -82,9 +82,9 @@ def performTest(workingDir, projectName, availableConfigs):
                                   "Internal::QmlProfilerStatisticsMainView").model()
             targetStr = Targets.getStringForTarget(kit)
             versionStr = re.match("Desktop ([56]\.\d+\.\d+).*", targetStr)
-            tsv = "events_qt6.9.2"
+            tsv = "events_qt6.9.2.tsv"
             if versionStr and versionStr.group(1) < "6.8":
-                tsv = "events_qt6.7.3"
+                tsv = "events_qt6.7.3.tsv"
             compareEventsTab(model, tsv)
             test.compare(dumpItems(model, column=colPercent)[0], '100 %')
             # cannot run following test on colShortest (unstable)
