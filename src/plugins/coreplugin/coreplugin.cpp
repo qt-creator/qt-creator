@@ -51,6 +51,7 @@
 #include <utils/settingsdatabase.h>
 #include <utils/store.h>
 #include <utils/stringutils.h>
+#include <utils/terminalcommand.h>
 #include <utils/textutils.h>
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
@@ -469,6 +470,18 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
         "Asciify:", "éΩ", Tr::tr("Convert string to pure ASCII."), [expander](const QString &s) {
             return asciify(expander->expand(s));
         });
+
+    if (HostOsInfo::isAnyUnixHost()) { // on Windows we do not have this setting
+        expander->registerFileVariables(
+            "Settings:Tools:Terminal",
+            Tr::tr("The terminal configured in Environment > Sytem."),
+            []{ return TerminalCommand::terminalEmulator().command; });
+        expander->registerVariable(
+            "Settings:Tools:Terminal:RunInTerminalArgs",
+            Tr::tr("The arguments passed to the terminal command to run in terminal "
+                   "configured in Environment > System."),
+            []{ return TerminalCommand::terminalEmulator().executeArgs; });
+    }
 
     registerStandardLocation(expander, QStandardPaths::DocumentsLocation);
     registerStandardLocation(expander, QStandardPaths::GenericDataLocation);

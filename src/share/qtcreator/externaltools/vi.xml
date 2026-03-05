@@ -9,8 +9,8 @@
     <displayname>Edit with vi</displayname>
     <category>Text</category>
     <executable>
-        <path>xterm</path>
-        <arguments>-geom %{CurrentDocument:ColumnCount}x%{CurrentDocument:RowCount}+%{CurrentDocument:XPos}+%{CurrentDocument:YPos} -e vi "%{CurrentDocument:FilePath}" +%{CurrentDocument:Row}</arguments>
+        <path>%{Settings:Tools:Terminal:FilePath}</path>
+        <arguments>%{Settings:Tools:Terminal:RunInTerminalArgs} vi "%{CurrentDocument:FilePath}" +%{CurrentDocument:Row}</arguments>
         <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
     </executable>
 </externaltool>
