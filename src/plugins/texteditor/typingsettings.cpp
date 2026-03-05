@@ -6,22 +6,12 @@
 #include "texteditorsettings.h"
 #include "texteditortr.h"
 
-#include <coreplugin/icore.h>
-
 #include <QTextCursor>
 #include <QTextDocument>
 
 using namespace Utils;
 
 namespace TextEditor {
-
-TypingSettingsData::TypingSettingsData():
-    m_autoIndent(true),
-    m_tabKeyBehavior(TabNeverIndents),
-    m_smartBackspaceBehavior(BackspaceUnindents),
-    m_preferSingleLineComments(false)
-{
-}
 
 TypingSettings::TypingSettings()
 {

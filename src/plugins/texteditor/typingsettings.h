@@ -37,18 +37,13 @@ public:
         AfterWhitespace = 2,
     };
 
-    TypingSettingsData();
-
     bool tabShouldIndent(const QTextDocument *document, const QTextCursor &cursor, int *suggestedPosition) const;
 
-    Utils::Store toMap() const;
-    void fromMap(const Utils::Store &map);
+    bool m_autoIndent = true;
+    TabKeyBehavior m_tabKeyBehavior = TabNeverIndents;
+    SmartBackspaceBehavior m_smartBackspaceBehavior = BackspaceUnindents;
 
-    bool m_autoIndent;
-    TabKeyBehavior m_tabKeyBehavior;
-    SmartBackspaceBehavior m_smartBackspaceBehavior;
-
-    bool m_preferSingleLineComments;
+    bool m_preferSingleLineComments = false;
     CommentPosition m_commentPosition = Automatic;
 };
 

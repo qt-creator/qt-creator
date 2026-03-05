@@ -13,17 +13,17 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT StorageSettingsData final
 {
 public:
-    StorageSettingsData();
+    StorageSettingsData() = default;
 
     // calculated based on boolean setting plus file type blacklist examination
     bool removeTrailingWhitespace(const QString &filePattern) const;
 
-    QString m_ignoreFileTypes;
-    bool m_cleanWhitespace;
-    bool m_inEntireDocument;
-    bool m_addFinalNewLine;
-    bool m_cleanIndentation;
-    bool m_skipTrailingWhitespace;
+    QString m_ignoreFileTypes{"*.md, *.MD, Makefile"};
+    bool m_cleanWhitespace{true};
+    bool m_inEntireDocument{false};
+    bool m_addFinalNewLine{false};
+    bool m_cleanIndentation{true};
+    bool m_skipTrailingWhitespace{true};
 };
 
 class TEXTEDITOR_EXPORT StorageSettings : public Utils::AspectContainer

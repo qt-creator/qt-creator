@@ -16,17 +16,6 @@ using namespace Utils;
 
 namespace TextEditor {
 
-const char defaultTrailingWhitespaceBlacklist[] = "*.md, *.MD, Makefile";
-
-StorageSettingsData::StorageSettingsData()
-    : m_ignoreFileTypes(defaultTrailingWhitespaceBlacklist),
-      m_cleanWhitespace(true),
-      m_inEntireDocument(false),
-      m_addFinalNewLine(false),
-      m_cleanIndentation(true),
-      m_skipTrailingWhitespace(true)
-{
-}
 
 void StorageSettings::setData(const StorageSettingsData &data)
 {

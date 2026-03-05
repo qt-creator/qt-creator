@@ -6,8 +6,6 @@
 #include "texteditorsettings.h"
 #include "texteditortr.h"
 
-#include <utils/qtcsettings.h>
-
 using namespace Utils;
 
 namespace TextEditor {

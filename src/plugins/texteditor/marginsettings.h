@@ -15,9 +15,6 @@ class TEXTEDITOR_EXPORT MarginSettingsData
 public:
     MarginSettingsData() = default;
 
-    friend bool operator==(const MarginSettingsData &one, const MarginSettingsData &two) = default;
-    friend bool operator!=(const MarginSettingsData &one, const MarginSettingsData &two) = default;
-
     bool m_showMargin = false;
     bool m_tintMarginArea = true;
     bool m_useIndenter = false;

@@ -19,8 +19,6 @@ class TEXTEDITOR_EXPORT BehaviorSettingsData final
 public:
     BehaviorSettingsData() = default;
 
-    bool equals(const BehaviorSettingsData &bs) const;
-
     bool m_mouseHiding = true;
     bool m_mouseNavigation = true;
     bool m_scrollWheelZooming = true;
@@ -48,7 +46,6 @@ public:
 };
 
 void setupBehaviorSettings();
-void updateGlobalBehaviorSettings(const BehaviorSettingsData &newBehaviorSettings);
 
 TEXTEDITOR_EXPORT BehaviorSettings &globalBehaviorSettings();
 

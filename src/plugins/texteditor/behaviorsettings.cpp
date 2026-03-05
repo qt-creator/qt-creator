@@ -91,33 +91,10 @@ BehaviorSettingsData BehaviorSettings::data() const
     return d;
 }
 
-bool BehaviorSettingsData::equals(const BehaviorSettingsData &ds) const
-{
-    return m_mouseHiding == ds.m_mouseHiding
-        && m_mouseNavigation == ds.m_mouseNavigation
-        && m_scrollWheelZooming == ds.m_scrollWheelZooming
-        && m_constrainHoverTooltips == ds.m_constrainHoverTooltips
-        && m_camelCaseNavigation == ds.m_camelCaseNavigation
-        && m_keyboardTooltips == ds.m_keyboardTooltips
-        && m_smartSelectionChanging == ds.m_smartSelectionChanging
-        ;
-}
-
 BehaviorSettings &globalBehaviorSettings()
 {
     static BehaviorSettings theGlobalBehaviorSettings;
     return theGlobalBehaviorSettings;
-}
-
-void updateGlobalBehaviorSettings(const BehaviorSettingsData &newBehaviorSettings)
-{
-    if (newBehaviorSettings.equals(globalBehaviorSettings().data()))
-        return;
-
-    globalBehaviorSettings().setData(newBehaviorSettings);
-    globalBehaviorSettings().writeSettings();
-
-    emit TextEditorSettings::instance()->behaviorSettingsChanged(newBehaviorSettings);
 }
 
 void setupBehaviorSettings()
