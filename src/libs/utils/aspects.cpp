@@ -3041,22 +3041,26 @@ void StringListAspect::addToLayoutImpl(Layout &parent)
 
     populate();
 
-    parent.addItem(
-        // clang-format off
-        Column {
-            createLabel(),
-            Row {
-                editor,
-                If (d->allowAdding || d->allowRemoving) >> Then {
-                    Column {
-                        If (d->allowAdding) >> Then {add},
-                        If (d->allowRemoving) >> Then {remove},
-                        st,
-                    }
-                },
-            }
-        } // clang-format on
-    );
+    // clang-format off
+    QWidget *mainWdgt = Widget {
+        Row {
+            noMargin,
+            editor,
+            If (d->allowAdding || d->allowRemoving) >> Then {
+                Column {
+                    If (d->allowAdding) >> Then {add},
+                    If (d->allowRemoving) >> Then {remove},
+                    st,
+                }
+            },
+        }
+    }.emerge();
+    // clang-format on
+
+    registerSubWidget(mainWdgt);
+
+    parent.addItem(createLabel());
+    parent.addItem(mainWdgt);
 }
 
 void StringListAspect::appendValue(const QString &s, bool allowDuplicates)
