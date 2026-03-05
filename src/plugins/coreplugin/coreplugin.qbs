@@ -115,6 +115,8 @@ QtcPlugin {
             "loggingviewer.h",
             "manhattanstyle.cpp",
             "manhattanstyle.h",
+            "mcpmanager.cpp",
+            "mcpmanager.h",
             "messagebox.cpp",
             "messagebox.h",
             "messagemanager.cpp",
