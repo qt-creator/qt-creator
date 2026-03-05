@@ -13,56 +13,55 @@
     your setups as \e workspaces. You can also use one of the predefined workspaces.
 
     To change the current workspace, go to \uicontrol View >
-    \uicontrol Workspaces or select a workspace from the dropdown
-    menu in the top toolbar.
+    \uicontrol Workspaces.
 
     \section1 Move views in a workspace
 
-    To move a view to a different location in the workspace:
-
-    \list 1
-        \li Toggle \imagelockon
-        to \imagelockoff
-        at the top toolbar.
-        \li Drag the view from the title bar to its new position. You can either dock
-        the view in a dock area or detach the view from a dock area.
-    \endlist
-
-    \note You can also move view groups.
+    To move a view to a different location in the workspace, drag it from the
+    title bar to its new position. You can either dock the view in a dock area
+    or detach the view from a dock area.
 
     \image {qtcreator-workspace-attaching-views.webp} {Moving a view to a dock area.}
 
-    To close a group of views, right-click the group top bar and select \uicontrol {Close Group}.
+    \note You can also move view groups.
+
+    To close a group of views, right-click the group top bar and select
+    \uicontrol {Close Group}. To close all other groups, select
+    \uicontrol {Close Other Groups}.
+
+    To detach a group of views, right-click the group top bar and select
+    \uicontrol {Detach Group}.
 
     To open closed views, select \uicontrol View > \uicontrol Views.
 
-    \note To lock all views, toggle \imagelockoff to \imagelockon at the top toolbar.
+    \note To lock all views, go to \uicontrol View > \uicontrol Workspaces and
+    select \uicontrol {Lock Workspaces}.
 
     \section1 Manage workspaces
 
     To manage your workspaces, open \uicontrol {Workspace Manager} from \uicontrol View >
     \uicontrol Workspaces > \uicontrol Manage.
 
-    \image {qtcreator-workspace-manager.png} {The Workspace Manager dialog.}
+    \image {qtcreator-workspace-manager.webp} {The Workspace Manager dialog.}
 
-    In \uicontrol {Workspace Manager}, you can, for example, create, rename, clone, delete, reset,
-    import, and export workspaces.
+    In \uicontrol {Workspace Manager}, you can create, rename, clone, delete, reset,
+    import, and export workspaces, as well as move them up and down in the list.
 
     \section2 Restore a workspace on startup
 
-    The changes you make to a workspace are saved when you close \QDS.
+    The changes you make to a workspace are saved when you close \QC.
     In \uicontrol {Workspace Manager}, select \uicontrol {Restore last workspace on startup}
-    to restore the current workspace the next time you start \QDS.
+    to restore the current workspace the next time you start \QC.
 
     \section2 Create a custom workspace
 
     To save a workspace as a custom workspace after making changes in the workspace:
 
     \list 1
-        \li Go to \uicontrol View > \uicontrol Workspaces \uicontrol Manage to open
+        \li Go to \uicontrol View > \uicontrol Workspaces > \uicontrol Manage to open
         \uicontrol {Workspace Manager}.
         \li Select \uicontrol New.
-            \image {qtcreator-workspace-new.png} {The New Workspace Name dialog.}
+            \image {qtcreator-workspace-new.webp} {The New Workspace Name dialog.}
         \li Enter a name for the workspace.
         \li Select \uicontrol Create to create a new empty workspace or
             \uicontrol {Create and Open} to create a workspace and
