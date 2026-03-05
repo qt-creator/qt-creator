@@ -27,7 +27,7 @@
     \section1 Zoom in Transitions
 
     Use the slider on the toolbar to set the zooming level in
-    \uicontrol {Transitions}. Select the \imagezoomsmall and \imagezoombig
+    \uicontrol {Transitions}. Select the \imagezoomout and \imagezoomin
     buttons to zoom out of or into the view.
 
     \section1 Animate transitions between states
@@ -35,8 +35,7 @@
     To animate transitions:
 
     \list 1
-        \li Select \uicontrol View > \uicontrol Views >
-            \uicontrol {Transition Editor}.
+        \li Select \uicontrol View > \uicontrol Views > \uicontrol {Transitions}.
             \image {qmldesigner-transition-editor-startup.webp} {An empty Transitions view.}
         \li Select \imageplus (\uicontrol {Add Transition}) to add a transition.
             This works only if you added at least one state and modified at
@@ -53,7 +52,7 @@
     \section1 Specify transition settings
 
     To modify transition settings, select \imagesettings
-    (\uicontrol {Transition Settings (S)}) in \uicontrol {Transition Editor}.
+    (\uicontrol {Transition Settings (S)}) in \uicontrol {Transitions}.
 
     \image {qtquick-transition-editor-settings.webp} {Transitions settings.}
 

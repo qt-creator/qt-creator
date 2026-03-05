@@ -103,10 +103,9 @@
     You can add support for more buttons in the \uicontrol {Code} view,
     \uicontrol Edit mode, or \uicontrol {Binding Editor} by combining the
     values with the OR operator (|). For more information about the available
-    values, see the developer documentation for \l {MouseArea::acceptedButtons}
-    {acceptedButtons}.
+    values, see \l {MouseArea::acceptedButtons}.
 
-    \image {qtquick-properties-mouse-area-accepted-buttons.png} {Adding accepted buttons in Binding Editor.}
+    \image {qtquick-properties-mouse-area-accepted-buttons.webp} {Adding accepted buttons in Binding Editor.}
 
     \section2 Set cursor shape
 

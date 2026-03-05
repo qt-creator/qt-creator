@@ -63,7 +63,7 @@
         \li In \uicontrol {Binding Editor}, select a component and a property from
         lists of available components and their properties.
 
-        \image {qmldesigner-binding-editor.png} {Binding Editor.}
+        \image {qmldesigner-binding-editor.webp} {Binding Editor.}
     \endlist
 
     When a binding is set, the \uicontrol Actions menu icon changes to
