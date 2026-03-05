@@ -1,4 +1,5 @@
 add_qtc_plugin(mcpserver
+  PLUGIN_CLASS McpServerPlugin
   PLUGIN_DEPENDS
     QtCreator::Core
     QtCreator::ProjectExplorer
