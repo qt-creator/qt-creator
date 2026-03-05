@@ -110,7 +110,7 @@ private:
 QdbDevice::QdbDevice()
 {
     setDisplayType(Tr::tr("Boot to Qt Device"));
-    setType(Constants::QdbLinuxOsType);
+    setType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
     setExtraData(ProjectExplorer::Constants::SUPPORTS_RSYNC, true);
     setExtraData(ProjectExplorer::Constants::SUPPORTS_SFTP, true);
@@ -216,7 +216,7 @@ public:
 
         device->setDisplayName(settingsPage.deviceName());
         device->setupId(ProjectExplorer::IDevice::ManuallyAdded, Utils::Id());
-        device->setType(Constants::QdbLinuxOsType);
+        device->setType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
         device->setMachineType(ProjectExplorer::IDevice::Hardware);
 
         device->setupDefaultNetworkSettings(settingsPage.deviceAddress());
@@ -235,7 +235,7 @@ class QdbLinuxDeviceFactory final : public IDeviceFactory
 {
 public:
     QdbLinuxDeviceFactory()
-        : IDeviceFactory(Constants::QdbLinuxOsType)
+        : IDeviceFactory(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE)
     {
         setDisplayName(Tr::tr("Boot to Qt Device"));
         setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");

@@ -6,6 +6,7 @@
 #include "qdbconstants.h"
 #include "qdbtr.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/baseqtversion.h>
 
 namespace Qdb::Internal {
@@ -19,7 +20,7 @@ public:
     }
     QSet<Utils::Id> targetDeviceTypes() const final
     {
-        return {Utils::Id(Constants::QdbLinuxOsType)};
+        return {Utils::Id(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE)};
     }
 };
 

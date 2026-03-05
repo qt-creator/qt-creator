@@ -95,7 +95,7 @@ public:
     {
         cloneStepCreator(existingStepId);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-        setSupportedDeviceType(Constants::QdbLinuxOsType);
+        setSupportedDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
     }
 };
 
@@ -105,7 +105,7 @@ public:
     QdbDeployConfigurationFactory()
     {
         setConfigBaseId(Constants::QdbDeployConfigurationId);
-        addSupportedTargetDeviceType(Constants::QdbLinuxOsType);
+        addSupportedTargetDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
         setDefaultDisplayName(Tr::tr("Deploy to Boot to Qt target"));
         setUseDeploymentDataView();
 

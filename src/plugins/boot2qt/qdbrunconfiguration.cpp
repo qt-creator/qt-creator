@@ -12,6 +12,7 @@
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
@@ -99,7 +100,7 @@ private:
 QdbRunConfigurationFactory::QdbRunConfigurationFactory()
 {
     registerRunConfiguration<QdbRunConfiguration>(Constants::QdbRunConfigurationId);
-    addSupportedTargetDeviceType(Constants::QdbLinuxOsType);
+    addSupportedTargetDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
 }
 
 } // Qdb::Internal
