@@ -162,6 +162,8 @@ QtcLibrary {
         "globalfilechangeblocker.h",
         "globaltasktree.cpp",
         "globaltasktree.h",
+        "groupedmodel.cpp",
+        "groupedmodel.h",
         "guard.cpp",
         "guard.h",
         "guardedcallback.h",

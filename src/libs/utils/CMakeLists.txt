@@ -79,6 +79,7 @@ add_qtc_library(Utils
     genericconstants.h
     globalfilechangeblocker.cpp globalfilechangeblocker.h
     globaltasktree.cpp globaltasktree.h
+    groupedmodel.cpp groupedmodel.h
     guard.cpp guard.h
     guardedcallback.h
     guiutils.cpp guiutils.h
