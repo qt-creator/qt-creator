@@ -48,7 +48,6 @@ BaseTextFindPrivate::BaseTextFindPrivate()
 
 BaseTextFindPrivate::~BaseTextFindPrivate()
 {
-    delete m_highlighter;
 }
 
 /*!
