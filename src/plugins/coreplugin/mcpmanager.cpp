@@ -93,35 +93,29 @@ public:
         setLayouter([this]() -> Layouting::Layout {
             using namespace Layouting;
 
-            // clang-format off
-            const auto createForm = [this]() -> Layouting::Layout {
+            const auto updateVisible = [this]() {
                 const QString type = connectionType.volatileValue();
                 const bool isStdio = conTypeEnum().keyToValue(type.toUtf8()) == McpManager::Stdio;
 
-                if (isStdio) {
-                    return Form {
-                        noMargin,
-                        name, br,
-                        connectionType, br,
-                        launchCommand, br,
-                        launchArguments, br,
-                    };
-                } else {
-                    return Form {
-                        noMargin,
-                        name, br,
-                        connectionType, br,
-                        url, br,
-                        httpHeaders, br,
-                    };
-                }
+                launchCommand.setVisible(isStdio);
+                launchArguments.setVisible(isStdio);
+                url.setVisible(!isStdio);
+                httpHeaders.setVisible(!isStdio);
             };
+            updateVisible();
 
-            return Column {
+            connect(
+                &connectionType, &StringSelectionAspect::volatileValueChanged, this, updateVisible);
+
+            // clang-format off
+            return Form {
                 noMargin,
-                Widget {
-                    replaceLayoutOn(&connectionType, &SelectionAspect::volatileValueChanged, createForm)
-                }
+                name, br,
+                connectionType, br,
+                launchCommand, br,
+                launchArguments, br,
+                url, br,
+                httpHeaders, br,
             };
             // clang-format on
         });
