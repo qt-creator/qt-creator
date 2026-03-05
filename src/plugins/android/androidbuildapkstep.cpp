@@ -233,19 +233,18 @@ const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
 const char BuildToolsVersionKey[] = "BuildToolsVersion";
 
+enum PasswordContext
+{
+    KeystorePassword = 1,
+    CertificatePassword
+};
+
 class PasswordInputDialog : public QDialog
 {
 public:
-    enum Context{
-      KeystorePassword = 1,
-      CertificatePassword
-    };
-
-    PasswordInputDialog(Context context, std::function<bool (const QString &)> callback,
+    PasswordInputDialog(PasswordContext context, std::function<bool (const QString &)> callback,
                         const QString &extraContextStr);
-
-    static QString getPassword(Context context, std::function<bool (const QString &)> callback,
-                               const QString &extraContextStr, bool *ok = nullptr);
+    QString password() const { return inputEdit->text(); }
 
 private:
     std::function<bool (const QString &)> verifyCallback = [](const QString &) { return true; };
@@ -256,6 +255,15 @@ private:
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                                        this);
 };
+
+static Result<QString> getPassword(PasswordContext context,
+                                   std::function<bool (const QString &)> callback,
+                                   const QString &extraContextStr = {})
+{
+    PasswordInputDialog dlg(context, callback, extraContextStr);
+    const bool isAccepted = dlg.exec() == QDialog::Accepted;
+    return isAccepted ? dlg.password() : ResultError(Tr::tr("Invalid password."));
+}
 
 static bool checkKeystorePassword(const FilePath &keystorePath, const QString &keystorePasswd)
 {
@@ -846,12 +854,12 @@ bool AndroidBuildApkStep::verifyKeystorePassword()
     if (checkKeystorePassword(m_keystorePath, m_keystorePasswd))
         return true;
 
-    bool success = false;
     auto verifyCallback = std::bind(&checkKeystorePassword,
                                     m_keystorePath, std::placeholders::_1);
-    m_keystorePasswd = PasswordInputDialog::getPassword(PasswordInputDialog::KeystorePassword,
-                                                        verifyCallback, "", &success);
-    return success;
+    const Result<QString> result = getPassword(KeystorePassword, verifyCallback);
+    if (result)
+        m_keystorePasswd = *result;
+    return result.has_value();
 }
 
 bool AndroidBuildApkStep::verifyCertificatePassword()
@@ -867,15 +875,15 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
         return true;
     }
 
-    bool success = false;
     auto verifyCallback = std::bind(&checkCertificatePassword,
                                     m_keystorePath, m_keystorePasswd,
                                     m_certificateAlias, std::placeholders::_1);
 
-    m_certificatePasswd = PasswordInputDialog::getPassword(PasswordInputDialog::CertificatePassword,
-                                                           verifyCallback, m_certificateAlias,
-                                                           &success);
-    return success;
+    const Result<QString> result = getPassword(CertificatePassword, verifyCallback,
+                                               m_certificateAlias);
+    if (result)
+        m_certificatePasswd = *result;
+    return result.has_value();
 }
 
 
@@ -1233,7 +1241,7 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
     return model;
 }
 
-PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
+PasswordInputDialog::PasswordInputDialog(PasswordContext context,
                                          std::function<bool (const QString &)> callback,
                                          const QString &extraContextStr) :
     QDialog(Core::ICore::dialogParent(), Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint),
@@ -1277,16 +1285,6 @@ PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
     contextStr += extraContextStr.isEmpty() ? QStringLiteral(":") :
                                               QStringLiteral(" (%1):").arg(extraContextStr);
     inputContextlabel->setText(contextStr);
-}
-
-QString PasswordInputDialog::getPassword(Context context, std::function<bool (const QString &)> callback,
-                                         const QString &extraContextStr, bool *ok)
-{
-    PasswordInputDialog dlg(context, callback, extraContextStr);
-    bool isAccepted = dlg.exec() == QDialog::Accepted;
-    if (ok)
-        *ok = isAccepted;
-    return isAccepted ? dlg.inputEdit->text() : QString();
 }
 
 // AndroidBuildApkStepFactory
