@@ -662,16 +662,19 @@ FilePath VcsManager::findRepositoryForFiles(
     qCDebug(findRepoLog) << ">" << dirS << checkFiles;
     QTC_ASSERT(!dirS.isEmpty(), return {});
 
-    FilePath parent;
-    for (FilePath dir = dirS; !dir.isEmpty() && !dir.isRootPath(); dir = dir.parentDir()) {
+    FilePath found;
+    dirS.searchHereAndInParents([&](const FilePath &dir) {
         for (const QString &checkFile : checkFiles) {
             if (dir.pathAppended(checkFile).isFile()) {
                 qCDebug(findRepoLog) << "<" << dir.toUserOutput();
-                return dir;
+                found = dir;
+                return IterationPolicy::Stop;
             }
         }
-    }
-    return {};
+        return IterationPolicy::Continue;
+    });
+
+    return found;
 }
 
 void VcsManager::handleConfigurationChanges(IVersionControl *vc)
