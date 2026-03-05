@@ -111,6 +111,7 @@ void TypingSettings::setData(const TypingSettingsData &data)
 void TypingSettings::apply()
 {
     AspectContainer::apply();
+    AspectContainer::writeSettings();
     emit TextEditorSettings::instance()->typingSettingsChanged(data());
 }
 

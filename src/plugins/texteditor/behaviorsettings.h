@@ -36,6 +36,8 @@ public:
     BehaviorSettingsData data() const;
     void setData(const BehaviorSettingsData &data);
 
+    void apply() final;
+
     Utils::BoolAspect mouseHiding{this};
     Utils::BoolAspect mouseNavigation{this};
     Utils::BoolAspect scrollWheelZooming{this};

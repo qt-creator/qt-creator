@@ -78,6 +78,12 @@ void BehaviorSettings::setData(const BehaviorSettingsData &data)
     smartSelectionChanging.setValue(data.m_smartSelectionChanging);
 }
 
+void BehaviorSettings::apply()
+{
+    AspectContainer::apply();
+    AspectContainer::writeSettings();
+}
+
 BehaviorSettingsData BehaviorSettings::data() const
 {
     BehaviorSettingsData d;

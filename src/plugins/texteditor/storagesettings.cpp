@@ -30,6 +30,7 @@ void StorageSettings::setData(const StorageSettingsData &data)
 void StorageSettings::apply()
 {
     AspectContainer::apply();
+    AspectContainer::writeSettings();
     emit TextEditorSettings::instance()->storageSettingsChanged(data());
 }
 
