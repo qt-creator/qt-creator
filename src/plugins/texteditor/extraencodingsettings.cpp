@@ -55,7 +55,7 @@ ExtraEncodingSettings::ExtraEncodingSettings()
     defaultEncoding.setLabelText(Tr::tr("Default encoding:"));
     defaultEncoding.setDefaultValue(Core::EditorManager::defaultTextEncoding().name());
 
-    utf8BomSetting.setSettingsKey("textEditorManager/Utf8BomBehavior");
+    utf8BomSetting.setSettingsKey("Utf8BomBehavior");
     utf8BomSetting.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     utf8BomSetting.addOption(Tr::tr("Add If Encoding Is UTF-8"));
     utf8BomSetting.addOption(Tr::tr("Keep If Already Present"));
@@ -72,7 +72,7 @@ ExtraEncodingSettings::ExtraEncodingSettings()
         "<p>Note that UTF-8 BOMs are uncommon and treated incorrectly by some editors, so it usually makes little sense to add any.</p>\n"
         "<p>This setting does <b>not</b> influence the use of UTF-16 and UTF-32 BOMs.</p></body></html>"));
 
-    lineEndingSetting.setSettingsKey("textEditorManager/LineEndingBehavior");
+    lineEndingSetting.setSettingsKey("LineEndingBehavior");
     lineEndingSetting.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     lineEndingSetting.addOption(Tr::tr("Unix (LF)"));
     lineEndingSetting.addOption(Tr::tr("Windows (CRLF)"));
@@ -97,6 +97,7 @@ void ExtraEncodingSettings::setData(const ExtraEncodingSettingsData &data)
 void ExtraEncodingSettings::apply()
 {
     AspectContainer::apply();
+    AspectContainer::writeSettings();
 
     QtcSettings &s =  userSettings();
 
