@@ -369,6 +369,25 @@ public:
         return m_value != m_volatileValue;
     }
 
+    QVariant toSettingsValue(const QVariant &valueToSave) const override {
+        if constexpr (std::is_same_v<ValueType, QStringList>) {
+            // QSettings stores empty QStringList as "@Invalid", which makes it impossible to
+            // distinguish between an empty and an unset value. To work around this, we store
+            // empty lists as "false" and convert them back when loading.
+            if (valueToSave.value<QStringList>().isEmpty())
+                return QVariant(false);
+        }
+        return valueToSave;
+    }
+
+    QVariant fromSettingsValue(const QVariant &savedValue) const override {
+        if constexpr (std::is_same_v<ValueType, QStringList>) {
+            if (savedValue.typeId() == QMetaType::Bool && !savedValue.toBool())
+                return QVariant(QStringList());
+        }
+        return savedValue;
+    }
+
 protected:
     bool valueToVolatileValue() override
     {
