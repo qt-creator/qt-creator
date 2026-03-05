@@ -101,7 +101,7 @@ void SourceSettings::refresh()
     cachedLanguages().clear();
     languageId.refill();
 
-    compilers.forEachItem<CompilerSettings>(&CompilerSettings::refresh);
+    compilers.forEachItem(&CompilerSettings::refresh);
 }
 
 QString SourceSettings::languageExtension() const
@@ -325,7 +325,7 @@ CompilerExplorerSettings::CompilerExplorerSettings()
     });
 
     connect(&compilerExplorerUrl, &Utils::StringAspect::volatileValueChanged, this, [this] {
-        m_sources.forEachItem<SourceSettings>(&SourceSettings::refresh);
+        m_sources.forEachItem(&SourceSettings::refresh);
     });
 
     for (const auto &aspect : this->aspects()) {

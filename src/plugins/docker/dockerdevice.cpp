@@ -1058,7 +1058,7 @@ QStringList PortMappings::createArguments() const
 {
     QStringList cmds;
 
-    forEachItem<PortMapping>([&cmds](const std::shared_ptr<PortMapping> &portMapping) {
+    forEachItem([&cmds](const std::shared_ptr<PortMapping> &portMapping) {
         if (portMapping->ip().isEmpty()) {
             cmds
                 += {"-p",
@@ -1084,7 +1084,7 @@ QSet<int> PortMappings::usedContainerPorts() const
 {
     QSet<int> usedPorts;
 
-    forEachItem<PortMapping>([&usedPorts](const std::shared_ptr<PortMapping> &portMapping) {
+    forEachItem([&usedPorts](const std::shared_ptr<PortMapping> &portMapping) {
         usedPorts.insert(portMapping->containerPort());
     });
 

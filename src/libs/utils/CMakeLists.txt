@@ -34,6 +34,7 @@ add_qtc_library(Utils
     commandline.cpp commandline.h
     completinglineedit.cpp completinglineedit.h
     completingtextedit.cpp completingtextedit.h
+    covariantcallback.h
     cpplanguage_details.h
     crashreporting.cpp crashreporting.h
     crumblepath.cpp crumblepath.h
@@ -163,7 +164,6 @@ add_qtc_library(Utils
     settingsaccessor.cpp settingsaccessor.h
     settingsdatabase.cpp settingsdatabase.h
     shutdownguard.cpp shutdownguard.h
-    singleargcallback.h
     sizedarray.h
     smallstring.h
     smallstringfwd.h

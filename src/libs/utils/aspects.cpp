@@ -4205,7 +4205,7 @@ void AspectList::clear()
 void AspectList::apply()
 {
     d->items = d->volatileItems;
-    forEachItem<BaseAspect>([](const std::shared_ptr<BaseAspect> &aspect) { aspect->apply(); });
+    forEachItem([](BaseAspect *aspect) { aspect->apply(); });
     d->model.sync(*this);
     emit changed();
 }
@@ -4220,7 +4220,7 @@ void AspectList::cancel()
     for (const auto &item : d->volatileItems)
         d->connectVolatile(item, this);
 
-    forEachItem<BaseAspect>([](const std::shared_ptr<BaseAspect> &aspect) { aspect->cancel(); });
+    forEachItem([](BaseAspect *aspect) { aspect->cancel(); });
     d->model.sync(*this);
     emit volatileValueChanged();
 }
@@ -4228,8 +4228,7 @@ void AspectList::cancel()
 void AspectList::setAutoApply(bool on)
 {
     BaseAspect::setAutoApply(on);
-    forEachItem<BaseAspect>(
-                [on](const std::shared_ptr<BaseAspect> &aspect) { aspect->setAutoApply(on); });
+    forEachItem([on](BaseAspect *aspect) { aspect->setAutoApply(on); });
 }
 
 void AspectList::setCreateItemFunction(CreateItem createItem)

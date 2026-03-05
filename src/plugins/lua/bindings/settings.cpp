@@ -630,14 +630,14 @@ void setupSettingsModule()
             &AspectList::createAndAddItem,
             "foreach",
             [](AspectList *a, const sol::function &clbk) {
-                a->forEachItem<BaseAspect>([clbk](std::shared_ptr<BaseAspect> item) {
+                a->forEachItem([clbk](std::shared_ptr<BaseAspect> item) {
                     auto res = void_safe_call(clbk, item);
                     QTC_CHECK_RESULT(res);
                 });
             },
             "enumerate",
             [](AspectList *a, const sol::function &clbk) {
-                a->forEachItem<BaseAspect>([clbk](std::shared_ptr<BaseAspect> item, int idx) {
+                a->forEachItem([clbk](std::shared_ptr<BaseAspect> item, int idx) {
                     auto res = void_safe_call(clbk, item, idx);
                     QTC_CHECK_RESULT(res);
                 });

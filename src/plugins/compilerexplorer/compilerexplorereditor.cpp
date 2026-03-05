@@ -895,7 +895,7 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
     dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
     addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
-    sourceSettings->compilers.forEachItem<CompilerSettings>(
+    sourceSettings->compilers.forEachItem(
         [this,
          sourceEditor,
          sourceSettings](const std::shared_ptr<CompilerSettings> &compilerSettings, int idx) {
@@ -966,8 +966,10 @@ void EditorWidget::recreateEditors()
     m_sourceWidgets.clear();
     m_compilerWidgets.clear();
 
-    m_document->settings()->m_sources.forEachItem<SourceSettings>(
-        [this](const auto &sourceSettings) { addSourceEditor(sourceSettings); });
+    m_document->settings()->m_sources.forEachItem(
+        [this](const std::shared_ptr<SourceSettings> &sourceSettings) {
+            addSourceEditor(sourceSettings);
+        });
 
     const Store windowState = m_document->settings()->windowState.value();
 

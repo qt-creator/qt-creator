@@ -265,11 +265,10 @@ QList<McpManager::ServerInfo> McpManager::mcpServers()
 {
     QList<McpManager::ServerInfo> servers = builtInMcpServers();
 
-    McpManagerSettings::instance().mcpServers.forEachItem<McpServerAspect>(
-        [&](const std::shared_ptr<McpServerAspect> &server) {
-            McpManager::ServerInfo info = server->toServerInfo();
-            servers.push_back(info);
-        });
+    McpManagerSettings::instance().mcpServers.forEachItem([&](McpServerAspect *server) {
+        McpManager::ServerInfo info = server->toServerInfo();
+        servers.push_back(info);
+    });
 
     return servers;
 }

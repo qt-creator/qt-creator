@@ -4,12 +4,12 @@
 #pragma once
 
 #include "environment.h"
+#include "covariantcallback.h"
 #include "filepath.h"
 #include "guiutils.h"
 #include "id.h"
 #include "infolabel.h"
 #include "pathchooser.h"
-#include "singleargcallback.h"
 #include "store.h"
 
 #include <functional>
@@ -1252,19 +1252,17 @@ public:
 
     void setCreateItemFunction(CreateItem createItem);
 
-    template<class T>
-    void forEachItem(std::function<void(const std::shared_ptr<T> &)> callback) const
+    void forEachItem(const CovariantCallback<void(std::shared_ptr<BaseAspect>)> &callback) const
     {
         for (const auto &item : volatileItems())
-            callback(std::static_pointer_cast<T>(item));
+            callback(item);
     }
 
-    template<class T>
-    void forEachItem(std::function<void(const std::shared_ptr<T> &, int)> callback) const
+    void forEachItem(const CovariantCallback<void(std::shared_ptr<BaseAspect>, int)> &callback) const
     {
         int idx = 0;
         for (const auto &item : volatileItems())
-            callback(std::static_pointer_cast<T>(item), idx++);
+            callback(item, idx++);
     }
 
     qsizetype size() const;
@@ -1277,10 +1275,10 @@ public:
     enum class DisplayStyle { InlineList, ListViewWithDetails };
     void setDisplayStyle(DisplayStyle displayStyle);
 
-    SingleArgCallback<QString, BaseAspect *> listViewDisplayCallback;
+    CovariantCallback<QString(BaseAspect *)> listViewDisplayCallback;
 
-    SingleArgCallback<void, std::shared_ptr<BaseAspect>> itemAddedCallback;
-    SingleArgCallback<void, std::shared_ptr<BaseAspect>> itemRemovedCallback;
+    CovariantCallback<void(std::shared_ptr<BaseAspect>)> itemAddedCallback;
+    CovariantCallback<void(std::shared_ptr<BaseAspect>)> itemRemovedCallback;
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
