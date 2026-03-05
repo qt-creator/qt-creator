@@ -66,7 +66,7 @@ public:
     // Add a UUid which is used to identify the development environment.
     // This is used to warn the user when he is trying to open a .user file that was created
     // somewhere else (which might lead to unexpected results).
-    Utils::TypedAspect<QByteArray> environmentId{this};
+    Utils::ByteArrayAspect environmentId{this};
 
 private:
     static Project *projectForContext(QObject *context);

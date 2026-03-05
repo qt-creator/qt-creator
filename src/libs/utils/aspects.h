@@ -757,6 +757,15 @@ protected:
     std::unique_ptr<Internal::StringAspectPrivate> d;
 };
 
+class QTCREATOR_UTILS_EXPORT ByteArrayAspect : public TypedAspect<QByteArray>
+{
+    Q_OBJECT
+
+public:
+    ByteArrayAspect(AspectContainer *container = nullptr);
+    ~ByteArrayAspect() override;
+};
+
 class QTCREATOR_UTILS_EXPORT FilePathAspect : public TypedAspect<QString>
 {
     Q_OBJECT

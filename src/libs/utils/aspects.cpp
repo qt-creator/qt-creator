@@ -4551,5 +4551,10 @@ void IdAspect::toMap(Store &map) const
     saveToMap(map, value().toSetting(), defaultValue().toSetting(), settingsKey());
 }
 
+ByteArrayAspect::ByteArrayAspect(AspectContainer *container)
+    : TypedAspect<QByteArray>(container)
+{}
+
+ByteArrayAspect::~ByteArrayAspect() = default;
 
 } // namespace Utils

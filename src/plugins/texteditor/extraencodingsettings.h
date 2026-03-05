@@ -30,7 +30,7 @@ public:
     LineEndingSetting m_lineEndingSetting = Unix;
 };
 
-class TEXTEDITOR_EXPORT EncodingSelectionAspect : public Utils::TypedAspect<QByteArray>
+class TEXTEDITOR_EXPORT EncodingSelectionAspect : public Utils::ByteArrayAspect
 {
 public:
     explicit EncodingSelectionAspect(Utils::AspectContainer *container);

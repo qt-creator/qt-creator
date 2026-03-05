@@ -19,7 +19,7 @@ using namespace Utils;
 namespace TextEditor {
 
 EncodingSelectionAspect::EncodingSelectionAspect(AspectContainer *container)
-    : TypedAspect<QByteArray>(container)
+    : ByteArrayAspect(container)
 {}
 
 void EncodingSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
@@ -36,14 +36,14 @@ void EncodingSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 
 void EncodingSelectionAspect::setValue(const TextEncoding &encoding)
 {
-    TypedAspect<QByteArray>::setValue(encoding.name());
+    ByteArrayAspect::setValue(encoding.name());
     if (m_codecChooser)
         m_codecChooser->setAssignedEncoding(encoding);
 }
 
 TextEncoding EncodingSelectionAspect::operator()() const
 {
-    return TextEncoding(TypedAspect<QByteArray>::value());
+    return TextEncoding(ByteArrayAspect::value());
 }
 
 ExtraEncodingSettings::ExtraEncodingSettings()

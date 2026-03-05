@@ -13,7 +13,7 @@ public:
     QmlTraceViewerSettings();
 
     Utils::FilePathAspect lastTraceFile{this};
-    Utils::TypedAspect<QByteArray> windowGeometry{this};
+    Utils::ByteArrayAspect windowGeometry{this};
 
     // Not persisted:
     Utils::BoolAspect exitOnError{this};
