@@ -14,7 +14,7 @@ class TEXTEDITOR_EXPORT CommentsSettings
 public:
     enum class CommandPrefix { Auto, At, Backslash };
 
-    class Data
+    class TEXTEDITOR_EXPORT Data
     {
     public:
         void fromMap(const Utils::Store &data);
