@@ -28,8 +28,10 @@ function(qt_maintenance_tool_get_addons addon_list)
   set(${addon_list}
     qt3d
     qt5compat
+    qtcanvaspainter
     qtcharts
     qtconnectivity
+    qtcoap
     qtdatavis3d
     qtgraphs
     qtgrpc
@@ -44,6 +46,7 @@ function(qt_maintenance_tool_get_addons addon_list)
     qtquick3dphysics
     qtquickeffectmaker
     qtquicktimeline
+    qtopenapi
     qtremoteobjects
     qtscxml
     qtsensors
@@ -51,6 +54,7 @@ function(qt_maintenance_tool_get_addons addon_list)
     qtserialport
     qtshadertools
     qtspeech
+    qttasktree
     qtvirtualkeyboard
     qtwebchannel
     qtwebsockets
