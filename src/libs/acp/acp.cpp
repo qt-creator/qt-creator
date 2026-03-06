@@ -222,7 +222,7 @@ Utils::Result<AvailableCommandsUpdate> fromJson<AvailableCommandsUpdate>(const Q
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("availableCommands") && obj["availableCommands"].isArray()) {
-        QJsonArray arr = obj["availableCommands"].toArray();
+        const QJsonArray arr = obj["availableCommands"].toArray();
         for (const QJsonValue &v : arr) {
             result._availableCommands.append(co_await fromJson<AvailableCommand>(v));
         }
@@ -316,7 +316,7 @@ Utils::Result<SessionConfigSelectGroup> fromJson<SessionConfigSelectGroup>(const
     result._group = obj.value("group").toString();
     result._name = obj.value("name").toString();
     if (obj.contains("options") && obj["options"].isArray()) {
-        QJsonArray arr = obj["options"].toArray();
+        const QJsonArray arr = obj["options"].toArray();
         for (const QJsonValue &v : arr) {
             result._options.append(co_await fromJson<SessionConfigSelectOption>(v));
         }
@@ -458,7 +458,7 @@ Utils::Result<ConfigOptionUpdate> fromJson<ConfigOptionUpdate>(const QJsonValue 
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("configOptions") && obj["configOptions"].isArray()) {
-        QJsonArray arr = obj["configOptions"].toArray();
+        const QJsonArray arr = obj["configOptions"].toArray();
         for (const QJsonValue &v : arr) {
             result._configOptions.append(co_await fromJson<SessionConfigOption>(v));
         }
@@ -992,7 +992,7 @@ Utils::Result<Plan> fromJson<Plan>(const QJsonValue &val) {
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("entries") && obj["entries"].isArray()) {
-        QJsonArray arr = obj["entries"].toArray();
+        const QJsonArray arr = obj["entries"].toArray();
         for (const QJsonValue &v : arr) {
             result._entries.append(co_await fromJson<PlanEntry>(v));
         }
@@ -1224,7 +1224,7 @@ Utils::Result<ToolCall> fromJson<ToolCall>(const QJsonValue &val) {
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("content") && obj["content"].isArray()) {
-        QJsonArray arr = obj["content"].toArray();
+        const QJsonArray arr = obj["content"].toArray();
         QList<ToolCallContent> list_content;
         for (const QJsonValue &v : arr) {
             list_content.append(co_await fromJson<ToolCallContent>(v));
@@ -1234,7 +1234,7 @@ Utils::Result<ToolCall> fromJson<ToolCall>(const QJsonValue &val) {
     if (obj.contains("kind"))
         result._kind = obj.value("kind").toString();
     if (obj.contains("locations") && obj["locations"].isArray()) {
-        QJsonArray arr = obj["locations"].toArray();
+        const QJsonArray arr = obj["locations"].toArray();
         QList<ToolCallLocation> list_locations;
         for (const QJsonValue &v : arr) {
             list_locations.append(co_await fromJson<ToolCallLocation>(v));
@@ -1482,7 +1482,7 @@ Utils::Result<CreateTerminalRequest> fromJson<CreateTerminalRequest>(const QJson
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("args") && obj["args"].isArray()) {
-        QJsonArray arr = obj["args"].toArray();
+        const QJsonArray arr = obj["args"].toArray();
         QStringList list_args;
         for (const QJsonValue &v : arr) {
             list_args.append(v.toString());
@@ -1495,7 +1495,7 @@ Utils::Result<CreateTerminalRequest> fromJson<CreateTerminalRequest>(const QJson
             result._cwd = obj.value("cwd").toString();
         }
     if (obj.contains("env") && obj["env"].isArray()) {
-        QJsonArray arr = obj["env"].toArray();
+        const QJsonArray arr = obj["env"].toArray();
         QList<EnvVariable> list_env;
         for (const QJsonValue &v : arr) {
             list_env.append(co_await fromJson<EnvVariable>(v));
@@ -1730,7 +1730,7 @@ Utils::Result<RequestPermissionRequest> fromJson<RequestPermissionRequest>(const
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("options") && obj["options"].isArray()) {
-        QJsonArray arr = obj["options"].toArray();
+        const QJsonArray arr = obj["options"].toArray();
         for (const QJsonValue &v : arr) {
             result._options.append(co_await fromJson<PermissionOption>(v));
         }
@@ -2011,7 +2011,7 @@ Utils::Result<InitializeResponse> fromJson<InitializeResponse>(const QJsonValue 
     if (obj.contains("agentInfo"))
         result._agentInfo = obj.value("agentInfo").toString();
     if (obj.contains("authMethods") && obj["authMethods"].isArray()) {
-        QJsonArray arr = obj["authMethods"].toArray();
+        const QJsonArray arr = obj["authMethods"].toArray();
         QList<AuthMethod> list_authMethods;
         for (const QJsonValue &v : arr) {
             list_authMethods.append(co_await fromJson<AuthMethod>(v));
@@ -2089,7 +2089,7 @@ Utils::Result<SessionModeState> fromJson<SessionModeState>(const QJsonValue &val
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("availableModes") && obj["availableModes"].isArray()) {
-        QJsonArray arr = obj["availableModes"].toArray();
+        const QJsonArray arr = obj["availableModes"].toArray();
         for (const QJsonValue &v : arr) {
             result._availableModes.append(co_await fromJson<SessionMode>(v));
         }
@@ -2233,7 +2233,7 @@ Utils::Result<SetSessionConfigOptionResponse> fromJson<SetSessionConfigOptionRes
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("configOptions") && obj["configOptions"].isArray()) {
-        QJsonArray arr = obj["configOptions"].toArray();
+        const QJsonArray arr = obj["configOptions"].toArray();
         for (const QJsonValue &v : arr) {
             result._configOptions.append(co_await fromJson<SessionConfigOption>(v));
         }
@@ -2485,7 +2485,7 @@ Utils::Result<McpServerHttp> fromJson<McpServerHttp>(const QJsonValue &val) {
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("headers") && obj["headers"].isArray()) {
-        QJsonArray arr = obj["headers"].toArray();
+        const QJsonArray arr = obj["headers"].toArray();
         for (const QJsonValue &v : arr) {
             result._headers.append(co_await fromJson<HttpHeader>(v));
         }
@@ -2525,7 +2525,7 @@ Utils::Result<McpServerSse> fromJson<McpServerSse>(const QJsonValue &val) {
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("headers") && obj["headers"].isArray()) {
-        QJsonArray arr = obj["headers"].toArray();
+        const QJsonArray arr = obj["headers"].toArray();
         for (const QJsonValue &v : arr) {
             result._headers.append(co_await fromJson<HttpHeader>(v));
         }
@@ -2567,14 +2567,14 @@ Utils::Result<McpServerStdio> fromJson<McpServerStdio>(const QJsonValue &val) {
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("args") && obj["args"].isArray()) {
-        QJsonArray arr = obj["args"].toArray();
+        const QJsonArray arr = obj["args"].toArray();
         for (const QJsonValue &v : arr) {
             result._args.append(v.toString());
         }
     }
     result._command = obj.value("command").toString();
     if (obj.contains("env") && obj["env"].isArray()) {
-        QJsonArray arr = obj["env"].toArray();
+        const QJsonArray arr = obj["env"].toArray();
         for (const QJsonValue &v : arr) {
             result._env.append(co_await fromJson<EnvVariable>(v));
         }
@@ -2654,7 +2654,7 @@ Utils::Result<LoadSessionRequest> fromJson<LoadSessionRequest>(const QJsonValue 
         }
     result._cwd = obj.value("cwd").toString();
     if (obj.contains("mcpServers") && obj["mcpServers"].isArray()) {
-        QJsonArray arr = obj["mcpServers"].toArray();
+        const QJsonArray arr = obj["mcpServers"].toArray();
         for (const QJsonValue &v : arr) {
             result._mcpServers.append(co_await fromJson<McpServer>(v));
         }
@@ -2692,7 +2692,7 @@ Utils::Result<NewSessionRequest> fromJson<NewSessionRequest>(const QJsonValue &v
         }
     result._cwd = obj.value("cwd").toString();
     if (obj.contains("mcpServers") && obj["mcpServers"].isArray()) {
-        QJsonArray arr = obj["mcpServers"].toArray();
+        const QJsonArray arr = obj["mcpServers"].toArray();
         for (const QJsonValue &v : arr) {
             result._mcpServers.append(co_await fromJson<McpServer>(v));
         }
@@ -2725,7 +2725,7 @@ Utils::Result<PromptRequest> fromJson<PromptRequest>(const QJsonValue &val) {
             result.__meta = obj.value("_meta").toObject();
         }
     if (obj.contains("prompt") && obj["prompt"].isArray()) {
-        QJsonArray arr = obj["prompt"].toArray();
+        const QJsonArray arr = obj["prompt"].toArray();
         for (const QJsonValue &v : arr) {
             result._prompt.append(co_await fromJson<ContentBlock>(v));
         }

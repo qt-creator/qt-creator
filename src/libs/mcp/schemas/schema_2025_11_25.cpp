@@ -30,7 +30,7 @@ Utils::Result<Annotations> fromJson<Annotations>(const QJsonValue &val) {
     const QJsonObject obj = val.toObject();
     Annotations result;
     if (obj.contains("audience") && obj["audience"].isArray()) {
-        QJsonArray arr = obj["audience"].toArray();
+        const QJsonArray arr = obj["audience"].toArray();
         QList<Role> list_audience;
         for (const QJsonValue &v : arr) {
             list_audience.append(co_await fromJson<Role>(v));
@@ -504,7 +504,7 @@ Utils::Result<Icon> fromJson<Icon>(const QJsonValue &val) {
     if (obj.contains("mimeType"))
         result._mimeType = obj.value("mimeType").toString();
     if (obj.contains("sizes") && obj["sizes"].isArray()) {
-        QJsonArray arr = obj["sizes"].toArray();
+        const QJsonArray arr = obj["sizes"].toArray();
         QStringList list_sizes;
         for (const QJsonValue &v : arr) {
             list_sizes.append(v.toString());
@@ -555,7 +555,7 @@ Utils::Result<ResourceLink> fromJson<ResourceLink>(const QJsonValue &val) {
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("icons") && obj["icons"].isArray()) {
-        QJsonArray arr = obj["icons"].toArray();
+        const QJsonArray arr = obj["icons"].toArray();
         QList<Icon> list_icons;
         for (const QJsonValue &v : arr) {
             list_icons.append(co_await fromJson<Icon>(v));
@@ -707,7 +707,7 @@ Utils::Result<CallToolResult> fromJson<CallToolResult>(const QJsonValue &val) {
         result.__meta = map__meta;
     }
     if (obj.contains("content") && obj["content"].isArray()) {
-        QJsonArray arr = obj["content"].toArray();
+        const QJsonArray arr = obj["content"].toArray();
         for (const QJsonValue &v : arr) {
             result._content.append(co_await fromJson<ContentBlock>(v));
         }
@@ -2009,7 +2009,7 @@ Utils::Result<Implementation> fromJson<Implementation>(const QJsonValue &val) {
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("icons") && obj["icons"].isArray()) {
-        QJsonArray arr = obj["icons"].toArray();
+        const QJsonArray arr = obj["icons"].toArray();
         QList<Icon> list_icons;
         for (const QJsonValue &v : arr) {
             list_icons.append(co_await fromJson<Icon>(v));
@@ -2844,7 +2844,7 @@ Utils::Result<ToolResultContent> fromJson<ToolResultContent>(const QJsonValue &v
         result.__meta = map__meta;
     }
     if (obj.contains("content") && obj["content"].isArray()) {
-        QJsonArray arr = obj["content"].toArray();
+        const QJsonArray arr = obj["content"].toArray();
         for (const QJsonValue &v : arr) {
             result._content.append(co_await fromJson<ContentBlock>(v));
         }
@@ -3320,7 +3320,7 @@ Utils::Result<ListRootsResult> fromJson<ListRootsResult>(const QJsonValue &val) 
         result.__meta = map__meta;
     }
     if (obj.contains("roots") && obj["roots"].isArray()) {
-        QJsonArray arr = obj["roots"].toArray();
+        const QJsonArray arr = obj["roots"].toArray();
         for (const QJsonValue &v : arr) {
             result._roots.append(co_await fromJson<Root>(v));
         }
@@ -3360,7 +3360,7 @@ Utils::Result<ListTasksResult> fromJson<ListTasksResult>(const QJsonValue &val) 
     if (obj.contains("nextCursor"))
         result._nextCursor = obj.value("nextCursor").toString();
     if (obj.contains("tasks") && obj["tasks"].isArray()) {
-        QJsonArray arr = obj["tasks"].toArray();
+        const QJsonArray arr = obj["tasks"].toArray();
         for (const QJsonValue &v : arr) {
             result._tasks.append(co_await fromJson<Task>(v));
         }
@@ -3444,7 +3444,7 @@ Utils::Result<CompleteResult::Completion> fromJson<CompleteResult::Completion>(c
     if (obj.contains("total"))
         result._total = obj.value("total").toInt();
     if (obj.contains("values") && obj["values"].isArray()) {
-        QJsonArray arr = obj["values"].toArray();
+        const QJsonArray arr = obj["values"].toArray();
         for (const QJsonValue &v : arr) {
             result._values.append(v.toString());
         }
@@ -3522,7 +3522,7 @@ Utils::Result<ModelPreferences> fromJson<ModelPreferences>(const QJsonValue &val
     if (obj.contains("costPriority"))
         result._costPriority = obj.value("costPriority").toDouble();
     if (obj.contains("hints") && obj["hints"].isArray()) {
-        QJsonArray arr = obj["hints"].toArray();
+        const QJsonArray arr = obj["hints"].toArray();
         QList<ModelHint> list_hints;
         for (const QJsonValue &v : arr) {
             list_hints.append(co_await fromJson<ModelHint>(v));
@@ -3682,7 +3682,7 @@ Utils::Result<Tool::InputSchema> fromJson<Tool::InputSchema>(const QJsonValue &v
         result._properties = map_properties;
     }
     if (obj.contains("required") && obj["required"].isArray()) {
-        QJsonArray arr = obj["required"].toArray();
+        const QJsonArray arr = obj["required"].toArray();
         QStringList list_required;
         for (const QJsonValue &v : arr) {
             list_required.append(v.toString());
@@ -3730,7 +3730,7 @@ Utils::Result<Tool::OutputSchema> fromJson<Tool::OutputSchema>(const QJsonValue 
         result._properties = map_properties;
     }
     if (obj.contains("required") && obj["required"].isArray()) {
-        QJsonArray arr = obj["required"].toArray();
+        const QJsonArray arr = obj["required"].toArray();
         QStringList list_required;
         for (const QJsonValue &v : arr) {
             list_required.append(v.toString());
@@ -3784,7 +3784,7 @@ Utils::Result<Tool> fromJson<Tool>(const QJsonValue &val) {
     if (obj.contains("execution") && obj["execution"].isObject())
         result._execution = co_await fromJson<ToolExecution>(obj["execution"]);
     if (obj.contains("icons") && obj["icons"].isArray()) {
-        QJsonArray arr = obj["icons"].toArray();
+        const QJsonArray arr = obj["icons"].toArray();
         QList<Icon> list_icons;
         for (const QJsonValue &v : arr) {
             list_icons.append(co_await fromJson<Icon>(v));
@@ -3926,7 +3926,7 @@ Utils::Result<CreateMessageRequestParams> fromJson<CreateMessageRequestParams>(c
         result._includeContext = co_await fromJson<CreateMessageRequestParams::IncludeContext>(obj["includeContext"]);
     result._maxTokens = obj.value("maxTokens").toInt();
     if (obj.contains("messages") && obj["messages"].isArray()) {
-        QJsonArray arr = obj["messages"].toArray();
+        const QJsonArray arr = obj["messages"].toArray();
         for (const QJsonValue &v : arr) {
             result._messages.append(co_await fromJson<SamplingMessage>(v));
         }
@@ -3941,7 +3941,7 @@ Utils::Result<CreateMessageRequestParams> fromJson<CreateMessageRequestParams>(c
     if (obj.contains("modelPreferences") && obj["modelPreferences"].isObject())
         result._modelPreferences = co_await fromJson<ModelPreferences>(obj["modelPreferences"]);
     if (obj.contains("stopSequences") && obj["stopSequences"].isArray()) {
-        QJsonArray arr = obj["stopSequences"].toArray();
+        const QJsonArray arr = obj["stopSequences"].toArray();
         QStringList list_stopSequences;
         for (const QJsonValue &v : arr) {
             list_stopSequences.append(v.toString());
@@ -3957,7 +3957,7 @@ Utils::Result<CreateMessageRequestParams> fromJson<CreateMessageRequestParams>(c
     if (obj.contains("toolChoice") && obj["toolChoice"].isObject())
         result._toolChoice = co_await fromJson<ToolChoice>(obj["toolChoice"]);
     if (obj.contains("tools") && obj["tools"].isArray()) {
-        QJsonArray arr = obj["tools"].toArray();
+        const QJsonArray arr = obj["tools"].toArray();
         QList<Tool> list_tools;
         for (const QJsonValue &v : arr) {
             list_tools.append(co_await fromJson<Tool>(v));
@@ -4091,13 +4091,13 @@ Utils::Result<LegacyTitledEnumSchema> fromJson<LegacyTitledEnumSchema>(const QJs
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("enum") && obj["enum"].isArray()) {
-        QJsonArray arr = obj["enum"].toArray();
+        const QJsonArray arr = obj["enum"].toArray();
         for (const QJsonValue &v : arr) {
             result._enum.append(v.toString());
         }
     }
     if (obj.contains("enumNames") && obj["enumNames"].isArray()) {
-        QJsonArray arr = obj["enumNames"].toArray();
+        const QJsonArray arr = obj["enumNames"].toArray();
         QStringList list_enumNames;
         for (const QJsonValue &v : arr) {
             list_enumNames.append(v.toString());
@@ -4286,7 +4286,7 @@ Utils::Result<TitledMultiSelectEnumSchema::Items> fromJson<TitledMultiSelectEnum
         co_return Utils::ResultError("Missing required field: anyOf");
     TitledMultiSelectEnumSchema::Items result;
     if (obj.contains("anyOf") && obj["anyOf"].isArray()) {
-        QJsonArray arr = obj["anyOf"].toArray();
+        const QJsonArray arr = obj["anyOf"].toArray();
         for (const QJsonValue &v : arr) {
             result._anyOf.append(co_await fromJson<TitledMultiSelectEnumSchema::Items::AnyOfItem>(v));
         }
@@ -4313,7 +4313,7 @@ Utils::Result<TitledMultiSelectEnumSchema> fromJson<TitledMultiSelectEnumSchema>
         co_return Utils::ResultError("Missing required field: type");
     TitledMultiSelectEnumSchema result;
     if (obj.contains("default") && obj["default"].isArray()) {
-        QJsonArray arr = obj["default"].toArray();
+        const QJsonArray arr = obj["default"].toArray();
         QStringList list_default_;
         for (const QJsonValue &v : arr) {
             list_default_.append(v.toString());
@@ -4394,7 +4394,7 @@ Utils::Result<TitledSingleSelectEnumSchema> fromJson<TitledSingleSelectEnumSchem
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("oneOf") && obj["oneOf"].isArray()) {
-        QJsonArray arr = obj["oneOf"].toArray();
+        const QJsonArray arr = obj["oneOf"].toArray();
         for (const QJsonValue &v : arr) {
             result._oneOf.append(co_await fromJson<TitledSingleSelectEnumSchema::OneOfItem>(v));
         }
@@ -4431,7 +4431,7 @@ Utils::Result<UntitledMultiSelectEnumSchema::Items> fromJson<UntitledMultiSelect
         return Utils::ResultError("Missing required field: type");
     UntitledMultiSelectEnumSchema::Items result;
     if (obj.contains("enum") && obj["enum"].isArray()) {
-        QJsonArray arr = obj["enum"].toArray();
+        const QJsonArray arr = obj["enum"].toArray();
         for (const QJsonValue &v : arr) {
             result._enum.append(v.toString());
         }
@@ -4460,7 +4460,7 @@ Utils::Result<UntitledMultiSelectEnumSchema> fromJson<UntitledMultiSelectEnumSch
         co_return Utils::ResultError("Missing required field: type");
     UntitledMultiSelectEnumSchema result;
     if (obj.contains("default") && obj["default"].isArray()) {
-        QJsonArray arr = obj["default"].toArray();
+        const QJsonArray arr = obj["default"].toArray();
         QStringList list_default_;
         for (const QJsonValue &v : arr) {
             list_default_.append(v.toString());
@@ -4518,7 +4518,7 @@ Utils::Result<UntitledSingleSelectEnumSchema> fromJson<UntitledSingleSelectEnumS
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("enum") && obj["enum"].isArray()) {
-        QJsonArray arr = obj["enum"].toArray();
+        const QJsonArray arr = obj["enum"].toArray();
         for (const QJsonValue &v : arr) {
             result._enum.append(v.toString());
         }
@@ -4636,7 +4636,7 @@ Utils::Result<ElicitRequestFormParams::RequestedSchema> fromJson<ElicitRequestFo
         result._properties = map_properties;
     }
     if (obj.contains("required") && obj["required"].isArray()) {
-        QJsonArray arr = obj["required"].toArray();
+        const QJsonArray arr = obj["required"].toArray();
         QStringList list_required;
         for (const QJsonValue &v : arr) {
             list_required.append(v.toString());
@@ -4990,7 +4990,7 @@ Utils::Result<GetPromptResult> fromJson<GetPromptResult>(const QJsonValue &val) 
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("messages") && obj["messages"].isArray()) {
-        QJsonArray arr = obj["messages"].toArray();
+        const QJsonArray arr = obj["messages"].toArray();
         for (const QJsonValue &v : arr) {
             result._messages.append(co_await fromJson<PromptMessage>(v));
         }
@@ -5021,7 +5021,7 @@ Utils::Result<Icons> fromJson<Icons>(const QJsonValue &val) {
     const QJsonObject obj = val.toObject();
     Icons result;
     if (obj.contains("icons") && obj["icons"].isArray()) {
-        QJsonArray arr = obj["icons"].toArray();
+        const QJsonArray arr = obj["icons"].toArray();
         QList<Icon> list_icons;
         for (const QJsonValue &v : arr) {
             list_icons.append(co_await fromJson<Icon>(v));
@@ -5548,7 +5548,7 @@ Utils::Result<Prompt> fromJson<Prompt>(const QJsonValue &val) {
         result.__meta = map__meta;
     }
     if (obj.contains("arguments") && obj["arguments"].isArray()) {
-        QJsonArray arr = obj["arguments"].toArray();
+        const QJsonArray arr = obj["arguments"].toArray();
         QList<PromptArgument> list_arguments;
         for (const QJsonValue &v : arr) {
             list_arguments.append(co_await fromJson<PromptArgument>(v));
@@ -5558,7 +5558,7 @@ Utils::Result<Prompt> fromJson<Prompt>(const QJsonValue &val) {
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("icons") && obj["icons"].isArray()) {
-        QJsonArray arr = obj["icons"].toArray();
+        const QJsonArray arr = obj["icons"].toArray();
         QList<Icon> list_icons;
         for (const QJsonValue &v : arr) {
             list_icons.append(co_await fromJson<Icon>(v));
@@ -5614,7 +5614,7 @@ Utils::Result<ListPromptsResult> fromJson<ListPromptsResult>(const QJsonValue &v
     if (obj.contains("nextCursor"))
         result._nextCursor = obj.value("nextCursor").toString();
     if (obj.contains("prompts") && obj["prompts"].isArray()) {
-        QJsonArray arr = obj["prompts"].toArray();
+        const QJsonArray arr = obj["prompts"].toArray();
         for (const QJsonValue &v : arr) {
             result._prompts.append(co_await fromJson<Prompt>(v));
         }
@@ -5660,7 +5660,7 @@ Utils::Result<ResourceTemplate> fromJson<ResourceTemplate>(const QJsonValue &val
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("icons") && obj["icons"].isArray()) {
-        QJsonArray arr = obj["icons"].toArray();
+        const QJsonArray arr = obj["icons"].toArray();
         QList<Icon> list_icons;
         for (const QJsonValue &v : arr) {
             list_icons.append(co_await fromJson<Icon>(v));
@@ -5721,7 +5721,7 @@ Utils::Result<ListResourceTemplatesResult> fromJson<ListResourceTemplatesResult>
     if (obj.contains("nextCursor"))
         result._nextCursor = obj.value("nextCursor").toString();
     if (obj.contains("resourceTemplates") && obj["resourceTemplates"].isArray()) {
-        QJsonArray arr = obj["resourceTemplates"].toArray();
+        const QJsonArray arr = obj["resourceTemplates"].toArray();
         for (const QJsonValue &v : arr) {
             result._resourceTemplates.append(co_await fromJson<ResourceTemplate>(v));
         }
@@ -5767,7 +5767,7 @@ Utils::Result<Resource> fromJson<Resource>(const QJsonValue &val) {
     if (obj.contains("description"))
         result._description = obj.value("description").toString();
     if (obj.contains("icons") && obj["icons"].isArray()) {
-        QJsonArray arr = obj["icons"].toArray();
+        const QJsonArray arr = obj["icons"].toArray();
         QList<Icon> list_icons;
         for (const QJsonValue &v : arr) {
             list_icons.append(co_await fromJson<Icon>(v));
@@ -5832,7 +5832,7 @@ Utils::Result<ListResourcesResult> fromJson<ListResourcesResult>(const QJsonValu
     if (obj.contains("nextCursor"))
         result._nextCursor = obj.value("nextCursor").toString();
     if (obj.contains("resources") && obj["resources"].isArray()) {
-        QJsonArray arr = obj["resources"].toArray();
+        const QJsonArray arr = obj["resources"].toArray();
         for (const QJsonValue &v : arr) {
             result._resources.append(co_await fromJson<Resource>(v));
         }
@@ -5908,7 +5908,7 @@ Utils::Result<ListToolsResult> fromJson<ListToolsResult>(const QJsonValue &val) 
     if (obj.contains("nextCursor"))
         result._nextCursor = obj.value("nextCursor").toString();
     if (obj.contains("tools") && obj["tools"].isArray()) {
-        QJsonArray arr = obj["tools"].toArray();
+        const QJsonArray arr = obj["tools"].toArray();
         for (const QJsonValue &v : arr) {
             result._tools.append(co_await fromJson<Tool>(v));
         }
@@ -6170,7 +6170,7 @@ Utils::Result<ReadResourceResult> fromJson<ReadResourceResult>(const QJsonValue 
         result.__meta = map__meta;
     }
     if (obj.contains("contents") && obj["contents"].isArray()) {
-        QJsonArray arr = obj["contents"].toArray();
+        const QJsonArray arr = obj["contents"].toArray();
         for (const QJsonValue &v : arr) {
             result._contents.append(co_await fromJson<EmbeddedResourceResource>(v));
         }

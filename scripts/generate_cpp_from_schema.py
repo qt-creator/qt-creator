@@ -1450,7 +1450,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             is_enum = is_enum_type(item_type, types)
             is_union = is_union_type_name(item_type, types)
             fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isArray()) {{")
-            fj_lines.append(f"        QJsonArray arr = obj[\"{prop}\"].toArray();")
+            fj_lines.append(f"        const QJsonArray arr = obj[\"{prop}\"].toArray();")
             if is_optional:
                 fj_lines.append(f"        {list_type(item_type_fj)} list_{prop_name};")
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
@@ -1466,7 +1466,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             t = array_item_struct_names[prop]
             t_fj = f"{name}::{t}"  # inline sub-structs are always nested
             fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isArray()) {{")
-            fj_lines.append(f"        QJsonArray arr = obj[\"{prop}\"].toArray();")
+            fj_lines.append(f"        const QJsonArray arr = obj[\"{prop}\"].toArray();")
             if is_optional:
                 fj_lines.append(f"        {list_type(t_fj)} list_{prop_name};")
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
@@ -1485,7 +1485,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
         elif prop in array_item_union_names:
             t = array_item_union_names[prop]
             fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isArray()) {{")
-            fj_lines.append(f"        QJsonArray arr = obj[\"{prop}\"].toArray();")
+            fj_lines.append(f"        const QJsonArray arr = obj[\"{prop}\"].toArray();")
             if is_optional:
                 fj_lines.append(f"        {list_type(t)} list_{prop_name};")
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
@@ -1501,7 +1501,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             item_type = cpp_type(spec["items"].get("type", "string"))
             _item_expr = _json_extract_expr(item_type, "v")
             fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isArray()) {{")
-            fj_lines.append(f"        QJsonArray arr = obj[\"{prop}\"].toArray();")
+            fj_lines.append(f"        const QJsonArray arr = obj[\"{prop}\"].toArray();")
             if is_optional:
                 fj_lines.append(f"        {list_type(item_type)} list_{prop_name};")
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
