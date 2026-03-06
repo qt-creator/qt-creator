@@ -109,7 +109,7 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
       list(APPEND additional_addons qtactiveqt)
     endif()
     if (UNIX AND NOT APPLE)
-      list(APPEND additional_addons qtwayland)
+      list(APPEND additional_addons qtwaylandcompositor)
     endif()
 
     qt_maintenance_tool_get_component_platform(${qt_build_flavor} component_platform)
