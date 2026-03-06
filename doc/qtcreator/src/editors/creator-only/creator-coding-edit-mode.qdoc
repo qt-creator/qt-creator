@@ -83,15 +83,15 @@
     \uicontrol {Pin}. Select \inlineimage {icons/pin.png} {Unpin} to unpin
     the tab.
 
-    \section2 Using Minimap
+    \section2 Using minimap
 
-    To navigate code visually, you can use Minimap, which shows an overview of
+    To navigate code visually, you can use a minimap, which shows an overview of
     the file content alongside the editor.
 
     \image {qtcreator-minimap-in-editor.webp} {Minimap in the Edit mode}
 
-    To show the Minimap in the editor, go to \preferences > \uicontrol {Text Editor}
-    > \uicontrol Display, and then select \uicontrol {Enable Minimap}.
+    To show the minimap in the editor, go to \preferences > \uicontrol {Text Editor}
+    > \uicontrol Display, and then select \uicontrol {Enable minimap}.
 
     \section1 Editor toolbar
 
