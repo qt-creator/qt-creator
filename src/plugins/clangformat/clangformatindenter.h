@@ -67,6 +67,7 @@ private:
 
     std::unique_ptr<TextEditor::Indenter> m_clangFormatIndenter;
     std::unique_ptr<TextEditor::Indenter> m_cppIndenter;
+    mutable std::optional<qint64> m_fileSize;
 };
 
 } // namespace ClangFormat

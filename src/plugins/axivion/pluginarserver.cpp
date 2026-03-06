@@ -12,6 +12,7 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
@@ -51,6 +52,7 @@ public:
 static QHash<FilePath, ArServerData> s_arServers;
 static GuardedObject<QMappedTaskTreeRunner<FilePath>> s_arServerRunner;
 static GuardedObject<QParallelTaskTreeRunner> s_networkRunner;
+static GuardedObject<QParallelTaskTreeRunner> s_deserializerRunner;
 
 class ShutdownNotifier : public QObject
 {
@@ -258,6 +260,7 @@ void cleanShutdownPluginArServer(const FilePath &bauhausSuite)
 
 void shutdownAllPluginArServers()
 {
+    s_deserializerRunner->reset();
     s_arServers.clear();
     s_arServerRunner->reset();
 }
@@ -356,6 +359,20 @@ void requestArSessionStart(const FilePath &bauhausSuite, const OnSessionStarted 
     sendQuery(it->m_arSessionStartRel, bauhausSuite, {}, onSuccess, onError);
 }
 
+static void deserializeFileView(QPromise<Result<Dto::FileViewDto>> &promise,
+                                const QByteArray &json)
+{
+    if (promise.isCanceled())
+        return;
+    Result<Dto::FileViewDto> result = Dto::FileViewDto::deserializeExpected(json);
+    if (!result) {
+        qCDebug(log) << "error deserializing fileview dto" << result.error();
+        return;
+    }
+    qCDebug(log) << "deserialize succeeded" << result->fileName << result->lineMarkers.size();
+    promise.addResult(result);
+}
+
 void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, bool abort)
 {
     const auto it = s_arServers.constFind(bauhausSuite);
@@ -382,19 +399,28 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
             return DoneResult::Error;
         }
         qCDebug(log) << reply;
-        // for now just quick and dirty
         const QJsonArray filesInfo = json.object().value("filesInfo").toArray();
-        QTC_ASSERT(filesInfo.size() == 1, return DoneResult::Error);
-        const QJsonObject fileView = filesInfo.first().toObject();
-        Result<Dto::FileViewDto> result
-                = Dto::FileViewDto::deserializeExpected(QJsonDocument{fileView}.toJson());
-        if (!result) {
-            qCDebug(log) << "error deserializing filewview dto" << result.error();
-            return DoneResult::Error;
-        }
-        qCDebug(log) << "deserialize succeeded" << result->fileName << result->lineMarkers.size();
-        // handle line markers for this file
-        handleIssuesForFile(*result, FilePath::fromUserInput(result->fileName), bauhausSuite);
+        QByteArrayList jsonList;
+        for (const QJsonValue &v : filesInfo)
+            jsonList.append(QJsonDocument{v.toObject()}.toJson());
+        const ListIterator iterator(jsonList);
+
+        const auto onSetup = [iterator](Async<Result<Dto::FileViewDto>> &async) {
+            async.setConcurrentCallData(deserializeFileView, *iterator);
+        };
+        const auto onDone = [bauhausSuite](const Async<Result<Dto::FileViewDto>> &async) {
+            const QList<Result<Dto::FileViewDto>> &results = async.results();
+            for (const Result<Dto::FileViewDto> &result : results) {
+                handleIssuesForFile(*result, FilePath::fromUserInput(result->fileName),
+                                    bauhausSuite);
+            }
+        };
+        Group deserialize = For (iterator) >> Do {
+            ParallelLimit(4),
+            AsyncTask<Result<Dto::FileViewDto>>(onSetup, onDone, CallDone::OnSuccess)
+        };
+
+        s_deserializerRunner->start(deserialize);
         return DoneResult::Success;
     };
     const auto onError = [bauhausSuite, sessionId](const QByteArray &reply) {

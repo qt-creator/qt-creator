@@ -60,6 +60,6 @@
     go to \uicontrol Help > \uicontrol {Report Bug} to report
     the bug and attach the code that triggers the crash to the bug report.
 
-    \sa {Indent text or code}, {Edit MIME types}, {C++ Code Style},
+    \sa {Indent text or code}, {Edit MIME types}, {C++ code style},
     {Specify Qt Quick code style}, {Nim}
 */

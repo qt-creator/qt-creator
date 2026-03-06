@@ -6,7 +6,7 @@
 
     \ingroup creator-reference-build-systems
 
-    \title IncrediBuild Build Configuration
+    \title IncrediBuild build configuration
 
     \brief Build and clean steps for Incredibuild.
 
@@ -42,7 +42,7 @@
     The distribution control settings to specify depend on whether you are using
     Linux or Windows.
 
-    \section2 Distribution Control Settings on Linux
+    \section2 Distribution control settings on Linux
 
     \image {qtcreator-incredibuild-build-steps-linux.png} {IncrediBuild build steps for Linux}
 
@@ -55,7 +55,7 @@
         \li \uicontrol {Alternate tasks preference}
     \endlist
 
-    \section2 Distribution Control Settings on Windows
+    \section2 Distribution control settings on Windows
 
     \image {qtcreator-incredibuild-build-steps-windows.png} {IncrediBuild build steps for Windows}
 

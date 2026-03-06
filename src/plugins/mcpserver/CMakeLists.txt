@@ -1,5 +1,6 @@
 add_qtc_plugin(mcpserver
   CONDITION TARGET McpServerLib
+  PLUGIN_CLASS McpServerPlugin
   PLUGIN_DEPENDS
     Core
     ProjectExplorer

@@ -33,7 +33,7 @@
     sdktool --help
     \endcode
 
-    \section1 Value Types
+    \section1 Value types
 
     The operations add settings in the form \c {<KEY> <TYPE>:<VALUE>} to the
     configuration that they create. The supported \c TYPE values are:
@@ -46,7 +46,7 @@
         \li \l QVariantList
     \endlist
 
-    \section1 SDK Path
+    \section1 SDK path
 
     \QOI and the \QC stand-alone installer both install \c sdktool. The
     \c sdktool from an installer defaults to the location from where the \QC
@@ -143,7 +143,7 @@
             \li Remove a compiler.
     \endtable
 
-    \section1 Adding a System Architecture (ABI)
+    \section1 Adding a system architecture (ABI)
 
     \section2 addAbiFlavor
 
@@ -151,7 +151,7 @@
     sdktool addAbiFlavor --flavor <NAME> --oses <OS>(,<OS>)*
     \endcode
 
-    \section2 addAbiFlavor Options
+    \section2 addAbiFlavor options
 
     The following table summarizes the available options.
 
@@ -170,7 +170,7 @@
             \li \inlineimage {ok.png} {Yes}
     \endtable
 
-    \section2 ABI Flavor Example
+    \section2 ABI flavor example
 
     To add Yocto Poky on Linux, enter:
 
@@ -180,7 +180,7 @@
     --oses linux
     \endcode
 
-    \section1 Adding CMake Tools
+    \section1 Adding CMake tools
 
     \section2 addCMake
 
@@ -188,7 +188,7 @@
     sdktool addCMake --id <ID> --name <NAME> --path <PATH> [<KEY> <TYPE:VALUE>]
     \endcode
 
-    \section2 addCMake Options
+    \section2 addCMake options
 
     The following table summarizes the available options.
 
@@ -222,7 +222,7 @@
 
     For more information, see \l{Add CMake tools}.
 
-    \section2 CMake Configuration Example
+    \section2 CMake configuration example
 
     To add a CMake tool on Windows, enter:
 
@@ -233,7 +233,7 @@
     --path "C:\Program Files\CMake-3.30\bin\cmake.exe"
     \endcode
 
-    \section1 Adding Compilers
+    \section1 Adding compilers
 
     \section2 addTC
 
@@ -241,7 +241,7 @@
     sdktool addTC --id <ID> --language <ID> --name <NAME> --path <PATH> --abi <ABI STRING> [OPTIONS]
     \endcode
 
-    \section2 addTC Options
+    \section2 addTC options
 
     The following table summarizes the available options.
 
@@ -307,7 +307,7 @@
 
     For more information, see \l{Add compilers}.
 
-    \section2 Compiler Example
+    \section2 Compiler example
 
     To add a GCC compiler on Linux, enter:
 
@@ -323,7 +323,7 @@
         ADDITIONAL_STRING_PARAMETER "QString:some string" \
     \endcode
 
-    \section1 Adding Debuggers
+    \section1 Adding debuggers
 
     \section2 addDebugger
 
@@ -331,7 +331,7 @@
     sdktool addDebugger --id <ID> --name <NAME> [OPTIONS]
     \endcode
 
-    \section2 addDebugger Options
+    \section2 addDebugger options
 
     The following table summarizes the available options.
 
@@ -379,7 +379,7 @@
 
     For more information, see \l{Add debuggers}.
 
-    \section2 Debugger Example
+    \section2 Debugger example
 
     To add a GDB debugger on Linux, enter:
 
@@ -392,7 +392,7 @@
         --abis arm-linux-generic-elf-32 \
     \endcode
 
-    \section1 Adding Devices
+    \section1 Adding devices
 
     \section2 addDev
 
@@ -400,7 +400,7 @@
     sdktool addDev --id <ID> --name <NAME> --type <INT> [OPTIONS]
     \endcode
 
-    \section2 addDev Options
+    \section2 addDev options
 
     The following table summarizes the available options. The options to use
     depend on the device type.
@@ -524,7 +524,7 @@
 
     For more information, see \l{Develop for devices}{How to: Develop for devices}.
 
-    \section2 Linux Device Example
+    \section2 Linux device example
 
     To add a remote Linux device (hardware device) on Linux and use SSH keys to
     authenticate to the device, enter:
@@ -545,7 +545,7 @@
         --uname "root"
     \endcode
 
-    \section1 Adding Qt Versions
+    \section1 Adding Qt versions
 
     \section2 addQt
 
@@ -553,7 +553,7 @@
     sdktool addQt --id <ID> --name <NAME> --qmake <PATH> --type <TYPE> [OPTIONS]
     \endcode
 
-    \section2 addQt Options
+    \section2 addQt options
 
     The following table summarizes the available options.
 
@@ -601,7 +601,7 @@
 
     For more information, see \l{Add Qt versions}.
 
-    \section2 Qt Version Example
+    \section2 Qt version example
 
     To add a self-built Qt 6.8 version on Linux, enter:
 
@@ -613,7 +613,7 @@
         --type Qt4ProjectManager.QtVersion.Desktop \
     \endcode
 
-    \section1 Adding Kits
+    \section1 Adding kits
 
     \section2 addKit
 
@@ -621,7 +621,7 @@
     sdktool addKit --id <ID> --name <NAME> --devicetype <TYPE> [OPTIONS]
     \endcode
 
-    \section2 addKit Options
+    \section2 addKit options
 
     The following table summarizes the available options.
 
@@ -729,7 +729,7 @@
 
     For more information, see \l{Add kits}.
 
-    \section2 Kit Example
+    \section2 Kit example
 
     To add a kit that uses the GCC compiler and the self-built Qt to build
     applications on Linux, enter:
@@ -747,13 +747,13 @@
         --mkspec "devices/linux-mipsel-broadcom-97425-g++" \
     \endcode
 
-    \section1 Adding, Getting, and Finding Keys
+    \section1 Adding, getting, and finding keys
 
     Enter the path to a file relative to the top-level settings directory and
     without \c .xml extension, followed by one or more \c {<KEY> <TYPE>:<VALUE>}
     key-value pairs.
 
-    \section1 Removing Configured Items
+    \section1 Removing configured items
 
     To remove a CMake tool, compiler, debugger, device, Qt version, or kit,
     enter:

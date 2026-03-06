@@ -14,7 +14,7 @@
     To set global preferences for C++ quick fixes, go to \preferences >
     \uicontrol C++ > \uicontrol {Quick Fixes}.
 
-    \section1 Function Locations
+    \section1 Function locations
 
     In the \uicontrol {Generated Function Locations} group, set
     whether quick fixes should generate getter and setter functions
@@ -23,7 +23,7 @@
 
     \image {qtcreator-preferences-quick-fixes-function-locations.webp} {Generated Function Locations in the Quick Fixes tab in C++ preferences}
 
-    \section1 Function Names and Attributes
+    \section1 Function names and attributes
 
     In the \uicontrol {Getter Setter Generation Properties} group,
     specify additional settings for getter and setter names, attributes, and
@@ -33,7 +33,7 @@
 
     \image {qtcreator-refactoring-options-generation.png} {Getter and setter generation in the Quick Fixes tab in C++ preferences}
 
-    \section1 Namespace Handling
+    \section1 Namespace handling
 
     In the \uicontrol {Missing Namespace Handling} group, select whether to
     generate missing namespaces, add \c {using namespace} where necessary, or
@@ -41,7 +41,7 @@
 
     \image {qtcreator-refactoring-options-namespaces.png} {Namespace handling in the Quick Fixes tab in C++ preferences}
 
-    \section1 Custom Parameter Types
+    \section1 Custom parameter types
 
     In the \uicontrol {Custom Getter Setter Templates} group, specify how the
     code of a getter or setter function for a certain data type should look
@@ -71,7 +71,7 @@
     \uicontrol {Return non-value types by const reference}.
 
     \sa {Apply quick fixes}, {Find symbols}, {Rename symbols},
-    {Specify settings for quick fixes}, {C++ Quick Fixes}, {QML Quick Fixes}
+    {Specify settings for quick fixes}, {C++ quick fixes}, {QML quick fixes}
 */
 
 /*!
@@ -80,11 +80,11 @@
 
     \ingroup creator-reference-editors
 
-    \title C++ Quick Fixes
+    \title C++ quick fixes
 
     \brief Summary of quick fixes for C++ code.
 
-    If you use the \l{Clang Code Model}{Clang code model} to parse the C++ files,
+    If you use the \l{Clang code model} to parse the C++ files,
     you get \l{http://clang.llvm.org/diagnostics.html}{Clang fix-it hints} in the
     \uicontrol Edit mode. Use the standard ways of activating quick fixes, or
     select the fixes that are applicable on a line in the context menu in the
@@ -106,7 +106,7 @@
     The following tables summarize the quick fixes available for C++ code,
     according to the cursor position.
 
-    \section1 Block of Code Selected
+    \section1 Block of code selected
 
     \table
         \header
@@ -249,7 +249,7 @@
             method declarations in the corresponding \c .h file.
     \endtable
 
-    \section1 Class Member
+    \section1 Class member
 
     The following quick fixes are available when the cursor is on a member
     variable in a class definition.
@@ -285,7 +285,7 @@
             \li Creates a setter member function for a member variable.
     \endtable
 
-    \section1 Control Statement
+    \section1 Control statement
 
     \table
         \header
@@ -400,7 +400,7 @@
     \endcode
     \endtable
 
-    \section1 Function Declaration or Definition
+    \section1 Function declaration or definition
 
     \table
         \header
@@ -596,7 +596,7 @@
                 \c AN_EXAMPLE_SYMBOL as \c AnExampleSymbol
     \endtable
 
-    \section1 Numeric Literal
+    \section1 Numeric literal
 
     \table
         \header
@@ -727,7 +727,7 @@
                 or \c {||}
     \endtable
 
-    \section1 String Literal
+    \section1 String literal
 
     \table
         \header
@@ -1005,7 +1005,8 @@
     \endtable
 
     \sa {Apply quick fixes}, {Find symbols}, {Rename symbols},
-    {Specify settings for quick fixes}, {QML Quick Fixes}, {Quick Fixes}
+    {Specify settings for quick fixes}, {QML quick fixes},
+    {Quick Fixes}
 */
 
 /*!
@@ -1030,5 +1031,6 @@
     then select \uicontrol {Delete Custom Settings File}.
 
     \sa {Apply quick fixes}, {Find symbols}, {Rename symbols},
-    {C++ Quick Fixes}, {QML Quick Fixes}, {Quick Fixes}, {Building and running projects}
+    {C++ quick fixes}, {QML quick fixes}, {Quick Fixes},
+    {Building and running projects}
 */

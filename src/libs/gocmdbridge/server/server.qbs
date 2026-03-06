@@ -1,5 +1,7 @@
-Application {
+Product {
     name: "CmdBridgeServer"
+    targetName: "cmdbridge"
+    type: "application"
     consoleApplication: true
     condition: go.present
 
@@ -27,7 +29,9 @@ Application {
         ]
     }
 
-    targetName: "cmdbridge"
-    installDir:  qtc.ide_libexec_path
-    install: true
+    Group {
+        fileTagsFilter: "application"
+        qbs.install: true
+        qbs.installDir: qtc.ide_libexec_path
+    }
 }

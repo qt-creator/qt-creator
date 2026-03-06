@@ -113,7 +113,7 @@
     \brief Set preferences for Valgrind Memcheck.
 
     Set \l{Valgrind's Tool Suite}{Valgrind} preferences either globally for all
-    projects or separately for each project in the \l{Specifying Run Settings}
+    projects or separately for each project in the \l{Specifying run settings}
     {run settings} of the project.
 
     To set global preferences for Valgrind, select \preferences >
@@ -125,14 +125,14 @@
     In \uicontrol {Extra Memcheck arguments}, specify additional arguments
     for launching the executable.
 
-    \section1 Setting Stack Trace Length
+    \section1 Setting stack trace length
 
     Stack traces can get quite large and confusing, and therefore, reading them
     from the bottom up can help. If the stack trace is not big enough or it is
     too big, select \preferences > \uicontrol Analyzer and define the length of
     the stack trace in the \uicontrol {Backtrace frame count} field.
 
-    \section1 Tracking Origins of Uninitialized Memory
+    \section1 Tracking origins of uninitialized memory
 
     Memcheck also reports uses of uninitialised values, most commonly with the
     message \uicontrol {Conditional jump or move depends on uninitialised value(s).}
@@ -140,14 +140,14 @@
     uninitialized memory. Clear \uicontrol {Track origins of uninitialized memory}
     to make Memcheck run faster.
 
-    \section1 Viewing a Summary
+    \section1 Viewing a summary
 
     Memcheck searches for memory leaks when the client application finishes. To
     view the amount of leaks that occurred, select \uicontrol {Summary Only} in the
     \uicontrol {Check for leaks on finish} field. To also view details of each leak,
     select \uicontrol Full.
 
-    \section1 Showing Reachable and Indirectly Lost Blocks
+    \section1 Showing reachable and indirectly lost blocks
 
     \e Reachable blocks are blocks that are pointed at by a pointer or chain
     of pointers and that might have been freed before the application exited.
@@ -159,7 +159,7 @@
     To have them reported, select \uicontrol {Show reachable and indirectly lost
     blocks}.
 
-    \section1 Suppressing Errors
+    \section1 Suppressing errors
 
     Memcheck detects numerous problems in the system libraries, such as the C
     library, which come pre-installed with your OS. As you cannot easily fix
@@ -320,7 +320,7 @@
     \brief Set preferences for Valgrind Callgrind.
 
     Set \l{Valgrind's Tool Suite}{Valgrind} preferences either globally for all
-    projects or separately for each project in the \l{Specifying Run Settings}
+    projects or separately for each project in the \l{Specifying run settings}
     {run settings} of the project.
 
     To set global preferences for Valgrind, select \preferences >
@@ -348,7 +348,7 @@
     global bus events of the event type \c Ge that are executed,
     select \uicontrol {Collect global bus events}.
 
-    \section1 Enabling Full Cache Simulation
+    \section1 Enabling full cache simulation
 
     By default, only instruction read accesses (Ir) are counted. To fully
     simulate the cache, select \uicontrol {Enable cache simulation}.
@@ -364,7 +364,7 @@
 
     \endlist
 
-    \section1 Enabling Branch Prediction Simulation
+    \section1 Enabling branch prediction simulation
 
     To enable the following additional event counters, select
     \uicontrol {Enable branch prediction simulation}:

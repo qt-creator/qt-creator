@@ -656,7 +656,7 @@
 
     \c {C:\qtcreator\bin>qtcreator.exe C:\Examples\alarms}
 
-    \sa {Command-Line Options}
+    \sa {Command-line options}
 */
 
 /*!
@@ -681,7 +681,7 @@
 
     \image {qtcreator-locator-customize.webp} {Locator tab in Environment preferences}
 
-    \sa {Creating Locator Filters}, {Edit code}{How to: Edit code}, {Editing code}
+    \sa {Create locator filters}, {Edit code}{How to: Edit code}, {Editing code}
 */
 
 /*!
@@ -784,7 +784,7 @@
             \li  Returns the tangent of x (x is in radians)
         \endtable
 
-    \sa {Navigate with locator}, {Locator}
+    \sa {Navigate with locator}, {Configure the locator}
 */
 
 /*!

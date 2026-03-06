@@ -13,7 +13,7 @@
 
     \ingroup creator-reference
 
-    \title Custom Wizards
+    \title Custom wizards
 
     \brief Wizard types and JSON wizard format.
 
@@ -47,7 +47,7 @@
 
     \image {qtcreator-custom-wizard.webp} {New File wizard}
 
-    \section1 Wizard Types
+    \section1 Wizard types
 
     In a project wizard, you can specify the files needed in a project.
     You can add wizard pages to allow developers to specify settings for the
@@ -55,7 +55,7 @@
 
     A file wizard is similar, but does not have any project file.
 
-    \section1 Locating Wizards
+    \section1 Locating wizards
 
     \QC searches the following locations for wizards:
 
@@ -77,11 +77,11 @@
             \endlist
     \endlist
 
-    \section1 Tips for Wizard Development
+    \section1 Tips for wizard development
 
     Assign keyboard shortcuts to some helper actions and turn on verbose output.
 
-    \section2 Mapping Actions to Keyboard Shortcuts
+    \section2 Mapping actions to keyboard shortcuts
 
     \QC has some actions that can improve the wizard development process. They
     don't have keyboard shortcuts by default, so you cannot trigger them. To
@@ -112,7 +112,7 @@
                 a wizard definition to become visible.
     \endtable
 
-    \section2 Verbose Output
+    \section2 Verbose output
 
     For wizard development, we recommend that you start \QC with the
     \c {-customwizard-verbose} argument to receive confirmation that \QC
@@ -145,7 +145,7 @@
     /global/genericfilewizard.png" not found.
     \endcode
 
-    See \l{Command-Line Options} for more information about command-line
+    See \l{Command-line options} for more information about command-line
     arguments.
 
     \include creator-projects-custom-wizards-json.qdocinc json wizards

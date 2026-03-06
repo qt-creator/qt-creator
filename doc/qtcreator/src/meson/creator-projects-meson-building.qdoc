@@ -6,7 +6,7 @@
 
     \ingroup creator-reference-build-systems
 
-    \title Meson Build Configuration
+    \title Meson build configuration
 
     \brief Settings for building applications with Meson.
 

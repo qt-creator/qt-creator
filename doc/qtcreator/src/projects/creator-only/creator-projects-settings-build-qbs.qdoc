@@ -7,7 +7,7 @@
 
     \ingroup creator-reference-build-systems
 
-    \title Qbs Build Configuration
+    \title Qbs build configuration
 
     \brief Settings for building applications with Qbs.
 
@@ -125,5 +125,5 @@
     that is constructed based on the selected options.
 
     \sa {Set Qbs profile directory}, {qbs-build-system}{Qbs},
-    {Setting Up QML Debugging}
+    {Setting up QML debugging}
 */

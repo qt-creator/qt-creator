@@ -198,6 +198,7 @@ void McuSupportPlugin::initialize()
     connect(
         QmlJS::ModelManagerInterface::instance(),
         &QmlJS::ModelManagerInterface::documentUpdated,
+        this,
         [lasttime = QTime::currentTime()](QmlJS::Document::Ptr doc) mutable {
             // Prevent inifinite recall loop
             auto currenttime = QTime::currentTime();

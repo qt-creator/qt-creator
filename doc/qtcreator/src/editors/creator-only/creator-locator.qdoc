@@ -127,20 +127,18 @@
 
     To create a directory, select \uicontrol {Create Directory}.
 
-    \sa {Search}{How to: Search}, {Manage sessions}, {Perform calculations},
-    {Locator}
+    \sa {Search}{How to: Search}, {Manage sessions}, {Perform calculations}
 
 */
 
 /*!
     \page creator-preferences-locator.html
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
 
-    \ingroup creator-reference-editors
+    \ingroup creator-how-to-search
+    \ingroup creator-how-to-use
 
-    \title Locator
-
-    \brief Add and change locator filters.
+    \title Configure the locator
 
     To set locator preferences, go to \preferences > \uicontrol Environment >
     \uicontrol Locator, or select
@@ -149,7 +147,7 @@
 
     \image {qtcreator-locator-customize.webp} {Locator tab in Environment preferences}
 
-    \section1 Changing Locator Filters
+    \section1 Change locator filters
 
     You can change the preset locator filters to match your use case. For
     example, change the filter prefix and restrict the search to
@@ -172,7 +170,7 @@
 
     \endlist
 
-    \section1 Adding Web Search Engines
+    \section1 Add web search engines
 
     By default, the \uicontrol {Web Search (r)} locator filter includes the URLs
     and search commands for Bing, Google, Yahoo! Search, cplusplus.com, and
@@ -205,7 +203,7 @@
     To add a new separate web search locator filter instead of updating the
     default filter, select \uicontrol Add > \uicontrol {URL Template}.
 
-    \section1 Creating Locator Filters
+    \section1 Create locator filters
 
     To quickly access files not directly mentioned in your project,
     create your own directory filters. That way you can locate files in a
@@ -245,7 +243,7 @@
 
     \endlist
 
-    \section1 Configuring Locator Cache
+    \section1 Configure locator cache
 
     The locator searches the files matching your file pattern in the directories
     you have selected and caches that information. \QC updates the cache for all
@@ -266,7 +264,7 @@
 
     \endlist
 
-    \section1 Hiding Long Paths
+    \section1 Hide long paths
 
     To hide the common part of absolute paths in the locator:
 

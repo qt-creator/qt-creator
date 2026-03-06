@@ -83,7 +83,7 @@
     in \uicontrol Navigator or the \uicontrol {2D} view, and select
     \uicontrol {Create Component} in the context menu.
 
-    \image {qtcreator-move-component-into-separate-file.png} {The Move Component into Separate File dialog.}
+    \image {qtcreator-move-component-into-separate-file.webp} {The Move Component into Separate File dialog.}
 
     Give the new component a name, and select whether properties are set for
     the new component or for the original one.

@@ -41,8 +41,8 @@
     \endlist
 
     \sa {Select the build system}, {Open projects},
-    {Set Qbs profile directory}, {Qbs Build Configuration},
-    {Specifying Run Settings}
+    {Set Qbs profile directory}, {Qbs build configuration},
+    {Specifying run settings}
 */
 
 /*!
@@ -81,5 +81,5 @@
     \endlist
 
     \sa {Open projects}, {qbs-build-system}{Qbs},
-    {Qbs Build Configuration}, {Specifying Run Settings}
+    {Qbs build configuration}, {Specifying run settings}
 */

@@ -80,8 +80,8 @@
 
     \image {qtcreator-refactoring-constructor.png} {Constructor dialog}
 
-    \sa {Find symbols}, {Specify settings for quick fixes}, {Quick Fixes},
-    {C++ Quick Fixes}
+    \sa {Find symbols}, {Specify settings for quick fixes},
+    {Quick Fixes}, {C++ quick fixes}
 
     \section1 Move classes to separate files
 
@@ -94,7 +94,7 @@
 
     To omit the implementation file, select \uicontrol {Header file only}.
 
-    \sa {Rename symbols}, {QML Quick Fixes}
+    \sa {Rename symbols}, {QML quick fixes}
 */
 
 /*!
@@ -103,7 +103,7 @@
 
     \ingroup creator-reference-editors
 
-    \title QML Quick Fixes
+    \title QML quick fixes
 
     \brief Summary of quick fixes for QML code.
 
@@ -131,7 +131,7 @@
                 name and select whether properties are set for the new component
                 or for the original one.
 
-                \image {qtcreator-move-component-into-separate-file.png} {Move Component into Separate File dialog}
+                \image {qtcreator-move-component-into-separate-file.webp} {Move Component into Separate File dialog}
 
             \li QML type name.
                 This action is also available in the \uicontrol {2D} view.
@@ -169,6 +169,6 @@
     \endtable
 
     \sa {Apply quick fixes}, {Exclude files from to-do lists}, {Find symbols},
-    {Rename symbols}, {Specify settings for quick fixes}, {Quick Fixes},
-    {C++ Quick Fixes}
+    {Rename symbols}, {Specify settings for quick fixes},
+    {Quick Fixes}, {C++ quick fixes}
 */

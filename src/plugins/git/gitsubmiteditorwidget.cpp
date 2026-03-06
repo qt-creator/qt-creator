@@ -286,7 +286,8 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
         [this,
          menu,
          filePath](const QString &title, IVersionControl::FileAction action, const QString &revertPrompt = {}) {
-            QAction *act = menu->addAction(title.arg(filePath.toUserOutput()));
+            const QString text = title.contains("%1") ? title.arg(filePath.toUserOutput()) : title;
+            QAction *act = menu->addAction(text);
             connect(act, &QAction::triggered, this, [=, this] {
                 if (!revertPrompt.isEmpty()) {
                     const int result = QMessageBox::question(

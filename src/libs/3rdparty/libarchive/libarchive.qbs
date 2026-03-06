@@ -1,5 +1,5 @@
 Project {
-    StaticLibrary {
+    PlainStaticLibrary {
         name: "bundledLibArchive"
         builtByDefault: false
 

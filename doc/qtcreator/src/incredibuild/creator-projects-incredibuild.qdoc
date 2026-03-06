@@ -23,5 +23,5 @@
     To use IncrediBuild, install IncrediBuild Agent on the development
     host. Then specify IncrediBuild build steps for your project.
 
-    \sa {IncrediBuild Build Configuration}
+    \sa {IncrediBuild build configuration}
 */

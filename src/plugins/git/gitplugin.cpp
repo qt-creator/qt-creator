@@ -2017,7 +2017,8 @@ void GitPluginPrivate::vcsFillFileActionMenu(QMenu *menu,
     auto addAction = [&menu, topLevel, relativePath, this]
         (const QString &title, IVersionControl::FileAction action, const QString &prompt = {}) {
             const QString fileName = relativePath.fileName();
-            QAction *act = menu->addAction(title.arg(fileName));
+            const QString text = title.contains("%1") ? title.arg(fileName) : title;
+            QAction *act = menu->addAction(text);
             connect(act, &QAction::triggered, this, [=, this] {
                 if (!prompt.isEmpty()) {
                     const int result = QMessageBox::question(Core::ICore::dialogParent(),

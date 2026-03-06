@@ -22,7 +22,7 @@
     \note Enable the CVS plugin to use it.
 
     In addition to the standard version control system functions described in
-    \l {Use common VCS Functions}, you can select \uicontrol Tools >
+    \l {Use common VCS functions}, you can select \uicontrol Tools >
     \uicontrol CVS > \uicontrol Edit to set a file as writable, notify
     watchers that the file is being edited, and watch for actions performed
      on the file by other users.
@@ -63,5 +63,5 @@
     \endtable
 
     \sa {Enable and disable plugins}, {Set up version control systems},
-    {Use common VCS functions}, {Version Control Systems}
+    {Use common VCS functions}, {Version control systems}
 */

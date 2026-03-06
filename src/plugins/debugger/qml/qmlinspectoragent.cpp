@@ -385,13 +385,14 @@ void QmlInspectorAgent::updateObjectTree(const ContextReference &context, int en
         return;
 
     for (const ObjectReference &obj : context.objects())
-        verifyAndInsertObjectInTree(obj, engineId);
+        verifyAndInsertObjectInTree(obj, engineId, true);
 
     for (const ContextReference &child : context.contexts())
         updateObjectTree(child, engineId);
 }
 
-void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &object, int engineId)
+void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &object, int engineId,
+                                                     bool calledFromUpdateObjectTree)
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << object << ')';
 
@@ -458,7 +459,12 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
             return; // recursive
         }
         insertObjectInTree(object, parentId);
-        if (objectDebugId == engineId)
+        // After inserting the engine node, populate its children from the root context.
+        // Guard against the case where we are already inside updateObjectTree for this
+        // engine: that function calls us for each object in the context, so if one of
+        // those objects is the engine itself, calling updateObjectTree here would restart
+        // the same traversal and recurse infinitely.
+        if (objectDebugId == engineId && !calledFromUpdateObjectTree)
             updateObjectTree(m_rootContexts[engineId], engineId);
     } else {
         m_objectStack.push(QPair<ObjectReference, int>(object, engineId));

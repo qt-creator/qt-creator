@@ -115,8 +115,8 @@
                         \generatelist creator-reference-analyzer
                     \li \l{Build systems}
                         \generatelist creator-reference-build-systems
-                    \li \l{Command-Line Options}
-                    \li \l{Custom Wizards}
+                    \li \l{Command-line options}
+                    \li \l{Custom wizards}
                     \li \l{Debuggers}
                         \generatelist creator-reference-debugger
                     \li \l{Editors}
@@ -124,7 +124,7 @@
                     \li \l{FAQ}
                     \li \l{Glossary}
                     \li \l{Keyboard shortcuts}
-                    \li \l{Known Issues}
+                    \li \l{Known issues}
                     \li \l{Licenses and acknowledgments}
                     \li \l{Platforms}
                         \generatelist creator-reference-platforms
@@ -132,7 +132,7 @@
                         \generatelist creator-reference-ui-design-qtquick
                     \li \l{SDK Tool}
                     \li \l{Technical support}
-                    \li \l{Version Control Systems}
+                    \li \l{Version control systems}
                         \generatelist creator-reference-vcs
                 \endlist
     \endlist

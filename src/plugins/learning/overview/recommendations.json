@@ -476,24 +476,24 @@
         },
 
         {
-            "id_url": "https://www.qt.io/blog/qt-6.10-released",
-            "name": "Qt 6.10 Released!",
-            "thumbnail": "blogpostqt610released.webp",
+            "id_url": "https://www.qt.io/blog/qt-6.11-beta-1-released",
+            "name": "Qt 6.11 Beta 1 Released",
+            "thumbnail": "blogpostqt611released.webp",
             "thumbnailurl": "https://www.qt.io/hubfs/QtFramework-6.10-ReleaseBlog-FeaturedImage.webp",
             "itemtype": "blogpost"
         },
         {
-            "id_url": "https://www.qt.io/blog/qt-for-python-release-6.10-is-here",
-            "name": "Qt for Python release: 6.10 is here!",
-            "thumbnail": "blogpostqtforpython610ishere.webp",
-            "thumbnailurl": "https://www.qt.io/hubfs/Qt%20Thumbnails.png",
+            "id_url": "https://www.qt.io/blog/2d-rendering-introducing-qt-canvas-painter",
+            "name": "2D Rendering - Introducing Qt Canvas Painter",
+            "thumbnail": "blogpostintroducingqtcanvaspainter.webp",
+            "thumbnailurl": "https://www.qt.io/hs-fs/hubfs/canvas_rendering_adjustable_text_antialiasing.webp",
             "itemtype": "blogpost"
         },
         {
-            "id_url": "https://www.qt.io/blog/openai-users-can-now-enjoy-better-qml-coding-performance",
-            "name": "Qt AI Assistant v0.9.6 Released!",
-            "thumbnail": "blogpostqtaiassistant096released.webp",
-            "thumbnailurl": "https://www.qt.io/hubfs/CodeCompletionRectangularShadowClip-converted.gif",
+            "id_url": "https://www.qt.io/blog/qtwidgets-to-qtquick-application-journey-part1",
+            "name": "Qt Widgets to Qt Quick, An Application Journey",
+            "thumbnail": "blogpostqtwidgetstoqtquick.webp",
+            "thumbnailurl": "https://www.qt.io/hs-fs/hubfs/EniokaBlogs-qt-app-anatomy-qtwidgets.webp",
             "itemtype": "blogpost"
         }
     ]

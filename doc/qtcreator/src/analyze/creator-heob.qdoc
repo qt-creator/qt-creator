@@ -82,7 +82,7 @@
 
     The following sections describe the available options in more detail.
 
-    \section1 Recording Results
+    \section1 Recording results
 
     The results of the checks are displayed in the \uicontrol Memcheck view and
     recorded in a file. Specify the file name in \uicontrol {XML output file}.
@@ -98,7 +98,7 @@
     If you use variables, \QC cannot open the file automatically, but you can
     open it from the project directory.
 
-    \section1 Handling Exceptions
+    \section1 Handling exceptions
 
     In \uicontrol {Handle exceptions}, select \uicontrol Off to use the
     standard exception handler and have the debugger automatically attached if
@@ -116,7 +116,7 @@
     crash is displayed. Therefore, this option is mostly useful when using Heob
     on the console or running it for child processes, as well.
 
-    \section1 Raising Exceptions on Errors
+    \section1 Raising exceptions on errors
 
     Select the \uicontrol {Raise breakpoint exception on error} check
     box to display errors when the application runs.
@@ -130,7 +130,7 @@
     This is mostly useful when used with the \uicontrol {Run with debugger}
     option, which runs Heob under the debugger.
 
-    \section1 Protecting Pages
+    \section1 Protecting pages
 
     In \uicontrol {Page protection}, select \uicontrol Off to use
     standard memory allocation functions and enable only memory leak detection.
@@ -146,7 +146,7 @@
     useful for \e use-after-free and \e double-free detection. However, the
     available memory address space can run out fast for 32-bit programs.
 
-    \section1 Handling Leak Data
+    \section1 Handling leak data
 
     In \uicontrol {Leak details}, determine how to handle the
     collected leak data when the process exits. Selecting \uicontrol None means

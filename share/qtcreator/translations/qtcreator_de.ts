@@ -2339,7 +2339,7 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Determines whether the button gets focus if pressed.</source>
-        <translation>Bestimmt, ob die Schaltfäche bei Betätigung den Fokus bekommt.</translation>
+        <translation>Bestimmt, ob die Schaltfläche bei Betätigung den Fokus bekommt.</translation>
     </message>
     <message>
         <source>Icon source</source>
@@ -15361,31 +15361,31 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Move Up</source>
-        <translation type="unfinished">Nach oben</translation>
+        <translation>Nach oben</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation type="unfinished">Nach unten</translation>
+        <translation>Nach unten</translation>
     </message>
     <message>
         <source>Workspace Manager</source>
-        <translation type="unfinished">Workspace-Manager</translation>
+        <translation>Workspace-Manager</translation>
     </message>
     <message>
         <source>Restore last workspace on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzten Workspace beim Start wiederherstellen</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-workspaces.html&quot;&gt;What is a Workspace?&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-workspaces.html&quot;&gt;Was ist ein Workspace?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Close Tab</source>
-        <translation type="unfinished">Reiter schließen</translation>
+        <translation>Reiter schließen</translation>
     </message>
     <message>
         <source>Pin</source>
-        <translation type="unfinished">Anheften</translation>
+        <translation>Anheften</translation>
     </message>
     <message>
         <source>Detach</source>
@@ -15393,27 +15393,27 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Pin To...</source>
-        <translation type="unfinished"></translation>
+        <translation>Anheften an...</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Oben</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Links</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechts</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Unten</translation>
     </message>
     <message>
         <source>Unpin (Dock)</source>
-        <translation type="unfinished"></translation>
+        <translation>Loslösen (Dock)</translation>
     </message>
     <message>
         <source>Close</source>
@@ -15425,11 +15425,11 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace</translation>
     </message>
     <message>
         <source>File Name</source>
-        <translation type="unfinished">Dateiname</translation>
+        <translation>Dateiname</translation>
     </message>
     <message>
         <source>Last Modified</source>
@@ -15437,7 +15437,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>New Workspace Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Workspace-Name</translation>
     </message>
     <message>
         <source>&amp;Create</source>
@@ -15449,7 +15449,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Cannot Create Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace kann nicht erstellt werden</translation>
     </message>
     <message>
         <source>&amp;Clone</source>
@@ -15461,15 +15461,15 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>%1 Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Kopie</translation>
     </message>
     <message>
         <source>Cannot Clone Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace kann nicht geklont werden</translation>
     </message>
     <message>
         <source>Rename Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace umbenennen</translation>
     </message>
     <message>
         <source>Rename and &amp;Open</source>
@@ -15477,139 +15477,139 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Cannot Rename Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace kann nicht umbenannt werden</translation>
     </message>
     <message>
         <source>Cannot Switch Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace kann nicht gewechselt werden</translation>
     </message>
     <message>
         <source>Cannot Export Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace kann nicht exportiert werden</translation>
     </message>
     <message>
         <source>Delete Workspace</source>
-        <translation type="unfinished">Arbeitsbereich löschen</translation>
+        <translation>Workspace löschen</translation>
     </message>
     <message>
         <source>Delete Workspaces</source>
-        <translation type="unfinished">Arbeitsbereiche löschen</translation>
+        <translation>Workspaces löschen</translation>
     </message>
     <message>
         <source>Delete workspace &quot;%1&quot;?</source>
-        <translation type="unfinished">Arbeitsbereich &quot;%1&quot; löschen?</translation>
+        <translation>Workspace &quot;%1&quot; löschen?</translation>
     </message>
     <message>
         <source>Delete these workspaces?</source>
-        <translation type="unfinished">Diese Arbeitsbereiche löschen?</translation>
+        <translation>Diese Workspaces löschen?</translation>
     </message>
     <message>
         <source>List All Tabs</source>
-        <translation type="unfinished">Alle Reiter auflisten</translation>
+        <translation>Alle Reiter auflisten</translation>
     </message>
     <message>
         <source>Detach Group</source>
-        <translation type="unfinished">Gruppe ablösen</translation>
+        <translation>Gruppe ablösen</translation>
     </message>
     <message>
         <source>Close Active Tab</source>
-        <translation type="unfinished">Aktiven Reiter schließen</translation>
+        <translation>Aktiven Reiter schließen</translation>
     </message>
     <message>
         <source>Close Group</source>
-        <translation type="unfinished">Gruppe schließen</translation>
+        <translation>Gruppe schließen</translation>
     </message>
     <message>
         <source>Pin Group</source>
-        <translation type="unfinished"></translation>
+        <translation>Gruppe anheften</translation>
     </message>
     <message>
         <source>Pin Group To...</source>
-        <translation type="unfinished"></translation>
+        <translation>Gruppe anheften an...</translation>
     </message>
     <message>
         <source>Minimize</source>
-        <translation type="unfinished">Minimieren</translation>
+        <translation>Minimieren</translation>
     </message>
     <message>
         <source>Close Other Groups</source>
-        <translation type="unfinished"></translation>
+        <translation>Andere Gruppen schließen</translation>
     </message>
     <message>
         <source>Pin Active Tab (Press Ctrl to Pin Group)</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiven Tab anheften (Strg drücken, um Gruppe anzuheften)</translation>
     </message>
     <message>
         <source>Enter the name of the workspace:</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Namen des Workspace ein:</translation>
     </message>
     <message>
         <source>Import Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace importieren</translation>
     </message>
     <message>
         <source>Cannot Import Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace kann nicht importiert werden</translation>
     </message>
     <message>
         <source>Export Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace exportieren</translation>
     </message>
     <message>
         <source>Workspace &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>Cannot restore &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht wiederhergestellt werden.</translation>
     </message>
     <message>
         <source>Cannot reload &quot;%1&quot;. It is not in the list of workspaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht neu geladen werden. Er ist nicht in der Liste der Workspaces.</translation>
     </message>
     <message>
         <source>Could not clone &quot;%1&quot; due to: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Klonen von &quot;%1&quot; fehlgeschlagen aufgrund: %2</translation>
     </message>
     <message>
         <source>Workspace &quot;%1&quot; is not a preset.</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace &quot;%1&quot; ist kein Preset.</translation>
     </message>
     <message>
         <source>Cannot remove &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht entfernt werden.</translation>
     </message>
     <message>
         <source>Cannot save workspace while in mode change state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace kann nicht gespeichert werden, während der Modus gewechselt wird.</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">Datei &quot;%1&quot; existiert nicht.</translation>
+        <translation>Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>Could not copy &quot;%1&quot; to &quot;%2&quot; due to: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren von &quot;%1&quot; nach &quot;%2&quot; fehlgeschlagen aufgrund: %3</translation>
     </message>
     <message>
         <source>Could not remove &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht entfernt werden.</translation>
     </message>
     <message>
         <source>The directory &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">Das Verzeichnis &quot;%1&quot; existiert nicht.</translation>
+        <translation>Das Verzeichnis &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>The workspace &quot;%1&quot; does not exist </source>
-        <translation type="unfinished"></translation>
+        <translation>Der Workspace &quot;%1&quot; existiert nicht </translation>
     </message>
     <message>
         <source>Cannot write to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann nicht in &quot;%1&quot; schreiben.</translation>
     </message>
     <message>
         <source>Cannot write to &quot;%1&quot; due to: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann nicht in &quot;%1&quot; schreiben aufgrund: %2</translation>
     </message>
 </context>
 <context>
@@ -16477,7 +16477,7 @@ Das Kit unterstützt &quot;%2&quot;, aber das Gerät verwendet &quot;%3&quot;.</
     <message>
         <source>The API level set for the APK is less than the minimum required by the kit.
 The minimum API level required by the kit is %1.</source>
-        <translation>Der für das APK gewählte APK-Level ist nieriger als das vom Kit benötigte Minimum.
+        <translation>Der für das APK gewählte API-Level ist niedriger als das vom Kit benötigte Minimum.
 Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
@@ -16591,7 +16591,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Android target &quot;%1&quot; died.</source>
-        <translation>Android-Ziel &quot;%1&quot; wurde unerwartet beended.</translation>
+        <translation>Android-Ziel &quot;%1&quot; wurde unerwartet beendet.</translation>
     </message>
     <message>
         <source>Failed to find application directory.</source>
@@ -16977,7 +16977,7 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
     </message>
     <message>
         <source>It is highly recommended if you are planning to extend the Java side of your Qt application.</source>
-        <translation>Dies ist sehr zu empfehlen, wenn Sie planen, ihre Qt-Anwendung mit Java-Code zu erweitern.</translation>
+        <translation>Dies ist sehr zu empfehlen, wenn Sie planen, Ihre Qt-Anwendung mit Java-Code zu erweitern.</translation>
     </message>
     <message>
         <source>Select the Android package source directory.
@@ -24341,7 +24341,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Failed to compile: &quot;%1&quot;.</source>
-        <translation>Compilierung fehlgeschlagen: &quot;%1&quot;.</translation>
+        <translation>Kompilierung fehlgeschlagen: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>File not readable.</source>
@@ -37617,7 +37617,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     <message>
         <source>Type Control-Shift-Y, Control-Shift-Y to quit FakeVim mode.</source>
         <translatorcomment>These are the names of the actual keys on my german Apple keyboard https://support.apple.com/de-de/HT201236</translatorcomment>
-        <translation>Verwenden sie Control-Umschalt-Y, Control-Umschalt-Y, um den FakeVim-Modus zu verlassen.</translation>
+        <translation>Verwenden Sie Control-Umschalt-Y, Control-Umschalt-Y, um den FakeVim-Modus zu verlassen.</translation>
     </message>
     <message>
         <source>Type Alt-Y, Alt-Y to quit FakeVim mode.</source>
@@ -50185,7 +50185,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Creates a project with a structure that is compatible both with Qt Design Studio and with Qt Creator. It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
-        <translation>Erstellt ein Projekt mit einer Struktur, die sowohl mit Qt Design Studio als auch Qt Creator kompatibel ist. Es enthalt ein .ui.qml-Formular, dass Sie in Qt Design Studio visuell bearbeiten können.</translation>
+        <translation>Erstellt ein Projekt mit einer Struktur, die sowohl mit Qt Design Studio als auch Qt Creator kompatibel ist. Es enthält ein .ui.qml-Formular, das Sie in Qt Design Studio visuell bearbeiten können.</translation>
     </message>
     <message>
         <source>Binary</source>

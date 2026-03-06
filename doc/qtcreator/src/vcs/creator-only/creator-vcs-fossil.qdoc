@@ -48,7 +48,7 @@
     \section1 Additional Fossil functions
 
     In addition to the standard version control system functions described in
-    \l {Version Control Systems}, the \uicontrol Fossil submenu has
+    \l {Use common VCS functions}, the \uicontrol Fossil submenu has
     the following items.
 
     \table
@@ -111,5 +111,5 @@
     \endtable
 
     \sa {Enable and disable plugins}, {Set up version control systems},
-    {Use common VCS functions}, {Version Control Systems}
+    {Use common VCS functions}, {Version control systems}
 */

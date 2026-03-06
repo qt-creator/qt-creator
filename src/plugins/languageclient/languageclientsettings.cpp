@@ -620,6 +620,10 @@ BaseSettings *BaseSettings::copy() const
     Store store;
     toMap(store);
     other->fromMap(store);
+    // some members are not stored in the map, copy them manually, reeavluate whether those settings
+    // need to be an aspect at all after full aspectification of the lsp settings
+    other->showInSettings.setValue(showInSettings());
+    other->activatable.setValue(activatable());
     return other;
 }
 

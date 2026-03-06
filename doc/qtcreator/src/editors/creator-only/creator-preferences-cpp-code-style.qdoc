@@ -7,7 +7,7 @@
 
     \ingroup creator-reference-editors
 
-    \title C++ Code Style
+    \title C++ code style
 
     \brief Set global code style for C++ files.
 
@@ -15,39 +15,52 @@
     library to automatically format and indent C++ code. It enforces a coding
     style for a project or the whole organization.
 
-    To specify global indentation settings for the C++ editor:
+    To specify global indentation settings for the C++ editor, go to
+    \preferences > \uicontrol {C++} > \uicontrol {Code Style}.
 
-    \list 1
-        \li Go to \preferences > \uicontrol {C++} > \uicontrol {Code Style}.
-            \image {qtcreator-code-style-clang-format-global.webp} {Code Style tab in C++ preferences}
-        \li In \uicontrol {Formatting mode}, select:
-            \list
-                \li \uicontrol {Indenting Only} to only indent code.
-                \li \uicontrol {Full Formatting} to use the \key {Ctrl+I}
-                    keyboard shortcut to format code instead of indenting.
-                \li \uicontrol {Use Built-In Indenter} to turn off
-                    \l{ClangFormat: Documentation}{ClangFormat}.
-            \endlist
-        \li Select \uicontrol {Ignore files greater than} to make parsing faster
-            by ignoring big files. Specify the maximum size of files to parse.
-        \li To apply the formatting while you type, select
-            \uicontrol {Format while typing}.
-        \li To apply the formatting to the edited code when you save the file,
-            select \uicontrol {Format edited code on file save}.
+    The following table describes the available preferences.
 
-            To temporarily disable this setting while saving a file, go to
-            \uicontrol File and select \uicontrol {Save Without Formatting}.
-        \li To change the ClangFormat style globally for all projects,
-            select \uicontrol {Use custom settings}.
-        \li In \uicontrol {Custom settings}, select the settings to change, and
-            then select \uicontrol Copy.
-        \li Give a name to the settings, and select \uicontrol OK.
-        \li In \uicontrol ClangFormat, edit the \l {ClangFormat Style Options}.
-            The live preview shows how the preferences change the indentation.
-            If you enter invalid values, you see warning messages.
-    \endlist
+    \table
+        \header
+            \li Preference
+            \li Description
+        \row
+            \li \uicontrol {Formatting mode}
+            \li Select:
+                \list
+                    \li \uicontrol {Indenting Only} to only indent code.
+                    \li \uicontrol {Full Formatting} to use the \key {Ctrl+I}
+                        keyboard shortcut to format code instead of indenting.
+                    \li \uicontrol {Use Built-In Indenter} to turn off
+                        \l{ClangFormat: Documentation}{ClangFormat}.
+                \endlist
+        \row
+            \li \uicontrol {Ignore files greater than}
+            \li Make parsing faster by ignoring big files. Specify the maximum
+                size of files to parse.
+        \row
+            \li \uicontrol {Format while typing}
+            \li Apply the formatting while you type.
+        \row
+            \li \uicontrol {Format edited code on file save}
+            \li Apply the formatting to the edited code when you save the file.
+                To temporarily disable this setting while saving a file, go to
+                \uicontrol File and select \uicontrol {Save Without Formatting}.
+        \row
+            \li \uicontrol {Use custom settings}
+            \li Change the ClangFormat style globally for all projects.
+        \row
+            \li \uicontrol {Custom settings}
+            \li Select the settings to change, then select \uicontrol Copy.
+                Give a name to the settings, and select \uicontrol OK.
+        \row
+            \li \uicontrol ClangFormat
+            \li Edit the \l {ClangFormat Style Options}. The live preview shows
+                how the preferences change the indentation. If you enter invalid
+                values, you see warning messages.
+    \endtable
 
-    \section1 Using Built-In Indenter
+    \section1 Using built-in indenter
 
     \image {qtcreator-code-style-built-in-indenter.webp} {Code Style preferences for built-in indenter}
 
@@ -67,7 +80,7 @@
             keywords.
     \endlist
 
-    \section2 Specifying Settings for Content
+    \section2 Specifying settings for content
 
     You can indent public, protected, and private statements and declarations
     related to them within classes.
@@ -77,21 +90,21 @@
 
     \image {qtcreator-code-style-content.png} {Content tab in the Code Style tab in C++ preferences}
 
-    \section2 Specifying Settings for Braces
+    \section2 Specifying settings for braces
 
     You can indent class, namespace, enum and function declarations and code
     blocks.
 
     \image {qtcreator-code-style-braces.png} {Braces tab in the Code Style tab in C++ preferences}
 
-    \section2 Specifying Settings for Switch Statements
+    \section2 Specifying settings for switch statements
 
     You can indent case or default statements, or statements or blocks related
     to them within switch statements.
 
     \image {qtcreator-code-style-switch.png} {"switch" tab in the Code Style tab in C++ preferences}
 
-    \section2 Specifying Alignment
+    \section2 Specifying alignment
 
     To align continuation lines to tokens after assignments, such as \c = or
     \c +=, select \uicontrol {Align after assignments}. You can
@@ -104,7 +117,7 @@
 
     \image {qtcreator-code-style-alignment.png} {Alignment tab in the Code Style tab in C++ preferences}
 
-    \section2 Binding Pointers and References
+    \section2 Binding pointers and references
 
     To bind pointers (\c *) and references (\c &) in types and declarations to
     identifiers, type names, or left or right \c const or \c volatile keywords,
@@ -115,7 +128,7 @@
 
     \image {qtcreator-pointers-references.png} {Pointers and References tab in the Code Style tab in C++ preferences}
 
-    \section1 Creating ClangFormat Files from Command Line
+    \section1 Creating ClangFormat files from command line
 
     You can create \c {.clang-format} files that have the configuration
     options of a certain predefined style from the command line. For example,

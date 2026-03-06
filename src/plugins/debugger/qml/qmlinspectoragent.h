@@ -50,7 +50,8 @@ private:
 
     void queryEngineContext();
     void updateObjectTree(const QmlDebug::ContextReference &contexts, int engineId = -1);
-    void verifyAndInsertObjectInTree(const QmlDebug::ObjectReference &object, int engineId = -1);
+    void verifyAndInsertObjectInTree(const QmlDebug::ObjectReference &object, int engineId = -1,
+                                     bool calledFromUpdateObjectTree = false);
     void insertObjectInTree(const QmlDebug::ObjectReference &result, int parentId);
 
     void buildDebugIdHashRecursive(const QmlDebug::ObjectReference &ref);

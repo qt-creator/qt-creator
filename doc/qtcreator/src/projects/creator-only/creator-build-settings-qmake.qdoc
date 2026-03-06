@@ -52,7 +52,7 @@
 
 //! [qmake-qbs-common-settings]
 
-    \section1 Separating Debug Info
+    \section1 Separating debug info
 
     If debug info is being generated, you can have it placed into separate
     files, rather than embedded into the binary, by selecting
@@ -123,5 +123,5 @@
     \sa {Build with qmake}{How to: Build with qmake},
     {Activate kits for a project}, {Configure projects for building},
     {Configure projects for running}, {Open projects},
-    {Set the default build and run directories}, {Setting Up QML Debugging}
+    {Set the default build and run directories}, {Setting up QML debugging}
 */

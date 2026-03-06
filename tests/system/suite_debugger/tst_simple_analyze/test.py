@@ -39,7 +39,10 @@ def performTest(workingDir, projectName, availableConfigs):
     def __elapsedTime__(elapsedTimeLabelText):
         return float(re.search("Elapsed:\s+(-?\d+\.\d+) s", elapsedTimeLabelText).group(1))
 
+    runButton = findObject(':*Qt Creator.Run_Core::Internal::FancyToolButton')
     for kit, config in availableConfigs:
+        if not runButton.enabled: # ensure we have an 'Active Project' (and the clean action)
+            waitForProjectParsing()
         # switching from MSVC to MinGW build will fail on the clean step of 'Rebuild All Projects'
         # because of differences between MSVC's and MinGW's Makefile (so clean before changing kit)
         selectFromLocator("t clean", "Clean Active Project")
@@ -77,7 +80,12 @@ def performTest(workingDir, projectName, availableConfigs):
              colMean, colMedian, colLongest, colShortest) = range(2, 11)
             model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
                                   "Internal::QmlProfilerStatisticsMainView").model()
-            compareEventsTab(model, "events_qt6.9.2.tsv")
+            targetStr = Targets.getStringForTarget(kit)
+            versionStr = re.match("Desktop ([56]\.\d+\.\d+).*", targetStr)
+            tsv = "events_qt6.9.2.tsv"
+            if versionStr and versionStr.group(1) < "6.8":
+                tsv = "events_qt6.7.3.tsv"
+            compareEventsTab(model, tsv)
             test.compare(dumpItems(model, column=colPercent)[0], '100 %')
             # cannot run following test on colShortest (unstable)
             for i in [colMean, colMedian, colLongest]:

@@ -27,7 +27,7 @@
     You can use CMake from \QC to build applications for the desktop, as well
     as mobile and embedded devices. Or, build single files to test your changes.
 
-    \section1 Supported CMake Versions
+    \section1 Supported CMake versions
 
     \QC requires CMake's \l{https://cmake.org/cmake/help/latest/manual/cmake-file-api.7.html}
     {file-based API}, and therefore you'll need CMake version 3.14, or later.

@@ -83,15 +83,15 @@
     \uicontrol {Pin}. Select \inlineimage {icons/pin.png} {Unpin} to unpin
     the tab.
 
-    \section2 Using Minimap
+    \section2 Using minimap
 
-    To navigate code visually, you can use Minimap, which shows an overview of
+    To navigate code visually, you can use a minimap, which shows an overview of
     the file content alongside the editor.
 
     \image {qtcreator-minimap-in-editor.webp} {Minimap in the Edit mode}
 
-    To show the Minimap in the editor, go to \preferences > \uicontrol {Text Editor}
-    > \uicontrol Display, and then select \uicontrol {Enable Minimap}.
+    To show the minimap in the editor, go to \preferences > \uicontrol {Text Editor}
+    > \uicontrol Display, and then select \uicontrol {Enable minimap}.
 
     \section1 Editor toolbar
 
@@ -164,7 +164,7 @@
         \li \inlineimage {numbers/06.png} {6}
         \li Select commands to automatically indent the current selection and to
             change the indentation settings.
-        \li \l{Specifying Tab Settings}
+        \li \l{Specifying tab preferences}
 
     \endtable
 
@@ -732,7 +732,7 @@
     \uicontrol {C++} > \uicontrol {Reparse Externally Changed Files} to update
     the code model.
 
-    \sa {Edit code}{How to: Edit code}, {Editing code}, {Clang Code Model},
+    \sa {Edit code}{How to: Edit code}, {Editing code}, {Clang code model},
     {Code Model}
 */
 
@@ -763,6 +763,6 @@
     resolved or that are resolved to the wrong file,
     go to \uicontrol {Project Parts} > \uicontrol {Header Paths}.
 
-    \sa {Edit code}{How to: Edit code}, {Editing code}, {Clang Code Model},
+    \sa {Edit code}{How to: Edit code}, {Editing code}, {Clang code model},
     {Code Model}
 */

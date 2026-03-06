@@ -7,7 +7,7 @@
 
     \ingroup creator-reference-build-systems
 
-    \title Conan Build Configuration
+    \title Conan build configuration
 
     \brief Settings for building applications with the Conan package manager.
 
@@ -29,5 +29,5 @@
     Select \uicontrol {Build missing} to build packages from source if binary
     packages are not found.
 
-    \sa {Activate kits for a project}, {Conan Package Manager}
+    \sa {Activate kits for a project}, {Conan package manager}
 */

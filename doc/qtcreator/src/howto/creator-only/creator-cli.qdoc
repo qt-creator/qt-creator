@@ -13,7 +13,7 @@
 
     \ingroup creator-reference
 
-    \title Command-Line Options
+    \title Command-line options
 
     \brief Options for starting \QC from the command line.
 
@@ -186,7 +186,7 @@
             \li \c -customwizard-verbose
             \li ProjectExplorer plugin: display additional information when
                 loading custom wizards. For more information about custom
-                wizards, see \l{Custom Wizards}
+                wizards, see \l{Custom wizards}
 
         \row
             \li \c -ensure-kit-for-binary \e {<path to binary>}
@@ -207,7 +207,7 @@
 
     \endtable
 
-    \section1 Using Custom Styles
+    \section1 Using custom styles
 
     \QC is a \l{QApplication}{Qt application}, and therefore, it accepts the
     command-line options that all Qt applications accept. For example, you can

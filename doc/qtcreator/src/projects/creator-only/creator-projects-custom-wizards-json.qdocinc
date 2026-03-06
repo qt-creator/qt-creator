@@ -3,7 +3,7 @@
 
 /*!
 //! [json wizards]
-    \section1 Integrating Wizards into Builds
+    \section1 Integrating wizards into builds
 
     If you are a \QC developer or build your own \QC version for delivery to
     others, you can integrate the wizard into \QC. To deliver the wizard as
@@ -24,7 +24,7 @@
     the \uicontrol {Factory.Reset} function each time the names or locations of
     the files change.
 
-    \section1 Using Variables in Wizards
+    \section1 Using variables in wizards
 
     You can use variables (\c {%\{<variableName>\}}) in strings in the JSON configuration
     file and in template source files.
@@ -43,7 +43,7 @@
     an empty string as well as the string \c {"false"} is treated as
     \c false and anything else as \c true.
 
-    \section1 Localizing Wizards
+    \section1 Localizing wizards
 
     If a setting name starts with the \c tr prefix, the value is visible to
     users and should be translated. If the new wizard is included in the \QC
@@ -61,7 +61,7 @@
     "trDisplayName": { "C": "Project Location", "en": "Project Location", "de": "Projektverzeichnis" }
     \endcode
 
-    \section1 Creating Wizards
+    \section1 Creating wizards
 
     \QC has wizards for adding classes, files, and projects. You can
     use them as basis for adding your own wizards. We use the C++ wizard
@@ -359,7 +359,7 @@
 
     \endlist
 
-    \section1 Values Available to the Wizard
+    \section1 Values available to the wizard
 
     In addition to properties taken from the \c {wizard.json} file itself (see
     \l{Creating Wizards}), \QC makes some information available to all JSON
@@ -389,12 +389,12 @@
             for the project of the selected node.
     \endlist
 
-    \section1 Available Pages
+    \section1 Available pages
 
     You can add predefined pages to wizards by specifying them in the \c pages
     section of a \c wizard.json file.
 
-    \section2 Field Page
+    \section2 Field page
 
     A Field page has the \c typeId value \c Field and has widgets. For more
     information about widget definitions, see \l{Available Widgets}.
@@ -423,7 +423,7 @@
     ],
     \endcode
 
-    \section2 File Page
+    \section2 File page
 
     A File page has the \c typeId value \c File. You can leave out the \c data
     key or assign an empty object to it.
@@ -440,7 +440,7 @@
     set the initial path and filename. The page sets \c TargetPath to the full
     path of the file to be created.
 
-    \section2 Form Page
+    \section2 Form page
 
     A Form page has the \c typeId value \c Form. You can leave out the \c data
     key or assign an empty object to it.
@@ -602,7 +602,7 @@
     The \c data section of this page takes an object with the \c vcsId key.
     This setting defines the version control system that will be configured.
 
-    \section1 Available Widgets
+    \section1 Available widgets
 
     You can add the following widgets on a Field page:
 
@@ -660,14 +660,14 @@
 
         \li \c span is set to hide the label and to span the form. By
             default, it is set to \c false. For more information, see
-            \l{Using Variables in Wizards}.
+            \l{Using variables in wizards}.
 
         \li \c data specifies additional settings for the particular widget type, as described
             in the following sections.
 
     \endlist
 
-    \section2 Check Box
+    \section2 Check box
 
     \code
     {
@@ -773,7 +773,7 @@
 
     \endlist
 
-    \section2 Line Edit
+    \section2 Line edit
 
     \code
     {
@@ -843,7 +843,7 @@
 
     \endlist
 
-    \section2 Path Chooser
+    \section2 Path chooser
 
     \code
     {
@@ -888,7 +888,7 @@
     The \c factor setting specifies the factor (an integer) to multiply the
     layout spacing for this spacer.
 
-    \section2 Text Edit
+    \section2 Text edit
 
     \code
     {
@@ -918,11 +918,11 @@
 
     \endlist
 
-    \section1 Available Generators
+    \section1 Available generators
 
     \QC supports two different generators for JSON wizards.
 
-    \section2 File Generator
+    \section2 File generator
 
     A \c File generator expects a list of objects in its \c data section. Each
     object defines one file to be processed and copied into the
@@ -955,11 +955,11 @@
 
         \li \c condition generates the file if the condition
             returns \c true. This setting defaults to \c true. For more
-            information, see \l{Using Variables in Wizards}.
+            information, see \l{Using variables in wizards}.
 
     \endlist
 
-    \section2 Scanner Generator
+    \section2 Scanner generator
 
     A \c Scanner generator scans the \c {%\{TargetPath\}} and produces a list
     of all files found there.

@@ -249,6 +249,9 @@ void KitManagerConfigWidget::apply()
     // TODO: Rework the mechanism so this won't be necessary.
     const bool wasDefaultKit = m_isDefaultKit;
 
+    for (KitAspect *kitAspect : m_kitAspects)
+        kitAspect->apply();
+
     const auto copyIntoKit = [this](Kit *k) { k->copyFrom(m_modifiedKit.get()); };
     if (m_kit) {
         copyIntoKit(m_kit);
@@ -261,6 +264,7 @@ void KitManagerConfigWidget::apply()
     m_isDefaultKit = wasDefaultKit;
     if (m_isDefaultKit)
         KitManager::setDefaultKit(m_kit);
+
     emit dirty();
 }
 
@@ -278,14 +282,30 @@ void KitManagerConfigWidget::discard()
     m_nameEdit->setText(m_modifiedKit->unexpandedDisplayName());
     m_cachedDisplayName.clear();
     m_fileSystemFriendlyNameLineEdit->setText(m_modifiedKit->customFileSystemFriendlyName());
+
+    for (KitAspect *kitAspect : m_kitAspects)
+        kitAspect->cancel();
+
     emit dirty();
 }
 
 bool KitManagerConfigWidget::isDirty() const
 {
-    return !m_kit
-            || !m_kit->isEqual(m_modifiedKit.get())
-            || m_isDefaultKit != (KitManager::defaultKit() == m_kit);
+    if (!m_kit)
+        return true;
+
+    if (!m_kit->isEqual(m_modifiedKit.get()))
+        return true;
+
+    if (m_isDefaultKit != (KitManager::defaultKit() == m_kit))
+        return true;
+
+    for (KitAspect *kitAspect : m_kitAspects) {
+        if (kitAspect->isDirty())
+            return true;
+    }
+
+    return false;
 }
 
 QString KitManagerConfigWidget::validityMessage() const

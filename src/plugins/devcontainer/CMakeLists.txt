@@ -1,6 +1,7 @@
 add_qtc_plugin(DevContainerPlugin
   PLUGIN_DEPENDS Core ProjectExplorer TextEditor
   PLUGIN_TEST_DEPENDS CMakeProjectManager
+  PLUGIN_CLASS DevContainerPlugin
   DEPENDS DevContainer CmdBridgeClient
   LONG_DESCRIPTION_MD README.md
   SOURCES

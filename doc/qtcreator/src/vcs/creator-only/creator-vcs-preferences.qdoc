@@ -87,5 +87,5 @@
     To show file status, go to \preferences > \uicontrol {Version Control}
     > \uicontrol General, and then select \uicontrol {Show VCS file status}.
 
-    \sa {Use Git}{How to: Use Git}, {Version Control Systems}
+    \sa {Use Git}{How to: Use Git}, {Version control systems}
 */

@@ -63,9 +63,7 @@ extend_qtc_plugin(Designer
 )
 
 if (QTC_STATIC_BUILD AND TARGET Designer)
-  # version-less target Qt::Designer is an interface library that links to QtX::Designer
-  get_target_property(_designer Qt::Designer INTERFACE_LINK_LIBRARIES)
-  get_target_property(_designerType ${_designer} TYPE)
+  get_target_property(_designerType Qt::Designer TYPE)
   if (${_designerType} STREQUAL "STATIC_LIBRARY")
     extend_qtc_target(Designer PUBLIC_DEFINES QT_DESIGNER_STATIC)
   endif()

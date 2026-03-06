@@ -33,7 +33,7 @@
                 Learn about the \QC features and UI, as well as how you can make
                 \QC behave more like your favorite code editor or IDE.
 
-                \l{Getting Started}
+                \l{Getting started}
             \li \b {TUTORIALS}
 
                 Follow the tutorials to create basic Qt applications for the
@@ -47,7 +47,7 @@
 
     Use the \QC cross-platform, complete integrated development environment
     (IDE) to create applications for \l{Desktop platforms}{desktop},
-    \l {Embedded Platforms}{embedded}, and \l{Mobile Platforms}{mobile device}
+    \l {Embedded platforms}{embedded}, and \l{Mobile platforms}{mobile device}
     platforms, such as \l Android and \l iOS. Also, you can build applications
     in web format and run them in web browsers with
     \l{Building applications for the web}{Qt for WebAssembly}.

@@ -22,7 +22,7 @@
     \note Enable the Mercurial plugin to use it.
 
     In addition to the standard version control system functions described in
-    \l {Use common VCS Functions}, you can select the following functions in the
+    \l {Use common VCS functions}, you can select the following functions in the
     \uicontrol Tools > \uicontrol Mercurial submenu.
 
     \table
@@ -79,5 +79,5 @@
     \endtable
 
     \sa {Enable and disable plugins}, {Set up version control systems},
-    {Use common VCS functions}, {Version Control Systems}
+    {Use common VCS functions}, {Version control systems}
 */
