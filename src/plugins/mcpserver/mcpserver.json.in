@@ -1,6 +1,6 @@
 {
     "Id" : "mcpserver",
-    "DisplayName" : "Qt Creator MCP Server",
+    "DisplayName" : "MCP Server",
     "Name" : "MCP Server",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
