@@ -10,23 +10,21 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/async.h>
+#include <utils/globaltasktree.h>
 #include <utils/layoutbuilder.h>
 
 #include <QApplication>
 #include <QCheckBox>
-#include <QDateTime>
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QGroupBox>
-#include <QHeaderView>
 #include <QIcon>
 #include <QMessageBox>
 #include <QStandardItemModel>
 #include <QStyle>
-#include <QTimer>
 #include <QTreeView>
 
 using namespace Utils;
@@ -38,10 +36,10 @@ enum { nameColumn, columnCount };
 enum { fileNameRole = Qt::UserRole, isDirectoryRole = Qt::UserRole + 1 };
 
 // Helper for recursively removing files.
-static void removeFileRecursion(QPromise<void> &promise, const QFileInfo &f,
+static void removeFileRecursion(const QFuture<void> &future, const QFileInfo &f,
                                 QString *errorMessage)
 {
-    if (promise.isCanceled())
+    if (future.isCanceled())
         return;
     // The version control system might list files/directory in arbitrary
     // order, causing files to be removed from parent directories.
@@ -51,7 +49,7 @@ static void removeFileRecursion(QPromise<void> &promise, const QFileInfo &f,
         const QDir dir(f.absoluteFilePath());
         const QList<QFileInfo> infos = dir.entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden);
         for (const QFileInfo &fi : infos)
-            removeFileRecursion(promise, fi, errorMessage);
+            removeFileRecursion(future, fi, errorMessage);
         QDir parent = f.absoluteDir();
         if (!parent.rmdir(f.fileName()))
             errorMessage->append(Tr::tr("The directory %1 could not be deleted.")
@@ -67,16 +65,15 @@ static void removeFileRecursion(QPromise<void> &promise, const QFileInfo &f,
 }
 
 // Cleaning files in the background
-static void runCleanFiles(QPromise<void> &promise, const FilePath &repository,
-                          const QStringList &files,
-                          const std::function<void(const FilePath &, const QString &)> &errorHandler)
+static void runCleanFiles(QPromise<QString> &promise, const FilePath &repository,
+                          const QStringList &files)
 {
     QString errorMessage;
     promise.setProgressRange(0, files.size());
     promise.setProgressValue(0);
     int fileIndex = 0;
     for (const QString &name : files) {
-        removeFileRecursion(promise, QFileInfo(name), &errorMessage);
+        removeFileRecursion(QFuture<void>(promise.future()), QFileInfo(name), &errorMessage);
         if (promise.isCanceled())
             break;
         promise.setProgressValue(++fileIndex);
@@ -87,15 +84,8 @@ static void runCleanFiles(QPromise<void> &promise, const FilePath &repository,
                                 .arg(repository.toUserOutput());
         errorMessage.insert(0, QLatin1Char('\n'));
         errorMessage.insert(0, msg);
-        errorHandler(repository, errorMessage);
+        promise.addResult(errorMessage);
     }
-}
-
-static void handleError(const Utils::FilePath &repository, const QString &errorMessage)
-{
-    QTimer::singleShot(0, VcsOutputWindow::instance(), [repository, errorMessage] {
-        VcsOutputWindow::instance()->appendSilently(repository, errorMessage);
-    });
 }
 
 // ---------------- CleanDialogPrivate ----------------
@@ -258,12 +248,19 @@ bool CleanDialog::promptToDelete()
                               QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes) != QMessageBox::Yes)
         return false;
 
-    // Remove in background
-    QFuture<void> task = Utils::asyncRun(Internal::runCleanFiles, d->m_workingDirectory,
-                                         selectedFiles, Internal::handleError);
+    const auto onSetup = [repo = d->m_workingDirectory, selectedFiles](Async<QString> &task) {
+        task.setConcurrentCallData(Internal::runCleanFiles, repo, selectedFiles);
+        QObject::connect(&task, &AsyncBase::started, &task, [repo, taskPtr = &task] {
+            const QString taskName = Tr::tr("Cleaning \"%1\"").arg(repo.toUserOutput());
+            Core::ProgressManager::addTask(taskPtr->future(), taskName, "VcsBase.cleanRepository");
+        });
+    };
+    const auto onDone = [repo = d->m_workingDirectory](const Async<QString> &task) {
+        if (task.isResultAvailable())
+            VcsOutputWindow::instance()->appendSilently(repo, task.result());
+    };
 
-    const QString taskName = Tr::tr("Cleaning \"%1\"").arg(d->m_workingDirectory.toUserOutput());
-    Core::ProgressManager::addTask(task, taskName, "VcsBase.cleanRepository");
+    GlobalTaskTree::start({AsyncTask<QString>(onSetup, onDone)});
     return true;
 }
 
