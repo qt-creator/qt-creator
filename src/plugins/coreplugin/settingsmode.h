@@ -19,6 +19,8 @@ public:
 
     void open(Utils::Id initialPage);
 
+    bool aboutToShutdown();
+
 private:
     SettingsModeWidget *m_settingsModeWidget = nullptr;
 };
