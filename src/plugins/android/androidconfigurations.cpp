@@ -1321,27 +1321,27 @@ static QString getMultiOrSingleAbiString(const QStringList &abis)
     return containsAllAbis(abis) ? "Multi-Abi" : abis.join(",");
 }
 
-static const Debugger::DebuggerItem *existingDebugger(const FilePath &command,
-                                                      Debugger::DebuggerEngineType type)
+static Debugger::DebuggerItem existingDebugger(const FilePath &command,
+                                               Debugger::DebuggerEngineType type)
 {
     // check if the debugger is already registered, but ignoring the display name
-    const Debugger::DebuggerItem *existing = Debugger::DebuggerItemManager::findByCommand(command);
+    const Debugger::DebuggerItem existing = Debugger::DebuggerItemManager::findByCommand(command);
 
     // Return existing debugger with same command
-    if (existing && existing->engineType() == type && existing->detectionSource().isAutoDetected())
+    if (existing && existing.engineType() == type && existing.detectionSource().isAutoDetected())
         return existing;
-    return nullptr;
+    return {};
 }
 
 static QVariant findOrRegisterDebugger(Toolchain *tc, bool customDebugger = false)
 {
     const FilePath ndk = static_cast<AndroidToolchain *>(tc)->ndkLocation();
     const FilePath lldbCommand = lldbPathFromNdk(ndk);
-    const Debugger::DebuggerItem *existingLldb = existingDebugger(lldbCommand,
-                                                                  Debugger::LldbEngineType);
+    const Debugger::DebuggerItem existingLldb = existingDebugger(lldbCommand,
+                                                                 Debugger::LldbEngineType);
     // Return existing debugger with same command - prefer lldb (limit to sdk/ndk min version?)
     if (existingLldb)
-        return existingLldb->id();
+        return existingLldb.id();
 
     if (lldbCommand.isEmpty())
         return {};

@@ -10,12 +10,9 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
 
-#include <QtTaskTree/QTaskTree>
-
 #include <utils/filepath.h>
-#include <utils/treemodel.h>
 
-#include <QList>
+#include <QtTaskTree/QTaskTree>
 
 namespace Debugger {
 
@@ -28,28 +25,13 @@ DEBUGGER_EXPORT const QList<DebuggerItem> debuggers();
 DEBUGGER_EXPORT QVariant registerDebugger(const DebuggerItem &item);
 DEBUGGER_EXPORT void deregisterDebugger(const QVariant &id);
 
-DEBUGGER_EXPORT const DebuggerItem *findByCommand(const Utils::FilePath &command);
-DEBUGGER_EXPORT const DebuggerItem *findById(const QVariant &id);
-DEBUGGER_EXPORT const DebuggerItem *findByEngineType(DebuggerEngineType engineType);
+DEBUGGER_EXPORT DebuggerItem findByCommand(const Utils::FilePath &command);
+DEBUGGER_EXPORT DebuggerItem findById(const QVariant &id);
+DEBUGGER_EXPORT DebuggerItem findByEngineType(DebuggerEngineType engineType);
 
 } // DebuggerItemManager
 
 namespace Internal {
-class DebuggerTreeItem : public Utils::TreeItem
-{
-public:
-    DebuggerTreeItem(const DebuggerItem &item, bool changed)
-        : m_item(item), m_orig(item), m_added(changed), m_changed(changed)
-    {}
-
-    QVariant data(int column, int role) const override;
-
-    DebuggerItem m_item; // Displayed, possibly unapplied data.
-    DebuggerItem m_orig; // Stored original data.
-    bool m_added;
-    bool m_changed;
-    bool m_removed = false;
-};
 
 QtTaskTree::ExecutableItem autoDetectDebuggerRecipe(
     ProjectExplorer::Kit *kit,

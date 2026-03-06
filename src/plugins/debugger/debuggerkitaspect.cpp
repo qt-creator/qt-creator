@@ -25,6 +25,8 @@
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
+#include <QAbstractListModel>
+
 #include <algorithm>
 
 using namespace ProjectExplorer;
@@ -70,27 +72,32 @@ static const QList<DebuggerItem> debuggersForKit(const Kit *k)
     return debuggers;
 }
 
-class DebuggerItemListModel : public TreeModel<TreeItem, DebuggerTreeItem>
+class DebuggerListModel final : public QAbstractListModel
 {
 public:
-    DebuggerItemListModel(const Kit &kit, QObject *parent)
-        : TreeModel(parent)
-        , m_kit(kit)
-    {}
-
-    void reset()
+    void reset(const Kit *k)
     {
-        clear();
-
-        for (const DebuggerItem &item : debuggersForKit(&m_kit))
-            rootItem()->appendChild(new DebuggerTreeItem(item, false));
+        beginResetModel();
+        m_items = debuggersForKit(k);
         DebuggerItem noneItem;
         noneItem.setUnexpandedDisplayName(Tr::tr("None", "No debugger"));
-        rootItem()->appendChild(new DebuggerTreeItem(noneItem, false));
+        m_items.append(noneItem);
+        endResetModel();
     }
 
-private:
-    const Kit &m_kit;
+    int rowCount(const QModelIndex &parent = {}) const final
+    {
+        return parent.isValid() ? 0 : m_items.size();
+    }
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final
+    {
+        if (!index.isValid() || index.row() >= m_items.size())
+            return {};
+        return m_items.at(index.row()).data(0, role);
+    }
+
+    QList<DebuggerItem> m_items;
 };
 
 class DebuggerKitAspectImpl final : public KitAspect
@@ -101,16 +108,17 @@ public:
     {
         setManagingPage(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
 
-        const auto model = new DebuggerItemListModel(*workingCopy, this);
         auto getter = [](const Kit &k) {
-            if (const DebuggerItem * const item = DebuggerKitAspect::debugger(&k))
-                return item->id();
+            if (const DebuggerItem item = DebuggerKitAspect::debugger(&k))
+                return item.id();
             return QVariant();
         };
         auto setter = [](Kit &k, const QVariant &id) { k.setValue(DebuggerKitAspect::id(), id); };
-        auto resetModel = [model] { model->reset(); };
-        addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+        auto resetModel = [this, workingCopy] { model.reset(workingCopy); };
+        addListAspectSpec({&model, std::move(getter), std::move(setter), std::move(resetModel)});
     }
+
+    DebuggerListModel model;
 };
 } // namespace Internal
 
@@ -121,11 +129,11 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
 {
     QTC_ASSERT(k, return NoDebugger);
 
-    const DebuggerItem *item = DebuggerKitAspect::debugger(k);
+    const DebuggerItem item = DebuggerKitAspect::debugger(k);
     if (!item)
         return NoDebugger;
 
-    const FilePath debugger = item->command();
+    const FilePath debugger = item.command();
     if (debugger.isEmpty())
         return NoDebugger;
 
@@ -137,18 +145,18 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
         result |= DebuggerNotExecutable;
 
     const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
-    if (item->matchTarget(tcAbi) == DebuggerItem::DoesNotMatch) {
+    if (item.matchTarget(tcAbi) == DebuggerItem::DoesNotMatch) {
         // currently restricting the check to desktop devices, may be extended to all device types
         const IDevice::ConstPtr device = RunDeviceKitAspect::device(k);
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
             result |= DebuggerDoesNotMatch;
     }
 
-    if (item->engineType() == NoEngineType)
+    if (item.engineType() == NoEngineType)
         return NoDebugger;
 
     // We need an absolute path to be able to locate Python on Windows.
-    if (item->engineType() == GdbEngineType) {
+    if (item.engineType() == GdbEngineType) {
         if (tcAbi.os() == Abi::WindowsOS && !debugger.isAbsolutePath())
             result |= DebuggerNeedsAbsolutePath;
     }
@@ -156,9 +164,9 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
     return result;
 }
 
-const DebuggerItem *DebuggerKitAspect::debugger(const Kit *kit)
+DebuggerItem DebuggerKitAspect::debugger(const Kit *kit)
 {
-    QTC_ASSERT(kit, return nullptr);
+    QTC_ASSERT(kit, return {});
     const QVariant id = kit->value(DebuggerKitAspect::id());
     return DebuggerItemManager::findById(id);
 }
@@ -166,14 +174,14 @@ const DebuggerItem *DebuggerKitAspect::debugger(const Kit *kit)
 ProcessRunData DebuggerKitAspect::runnable(const Kit *kit)
 {
     ProcessRunData runnable;
-    if (const DebuggerItem *item = debugger(kit)) {
-        FilePath cmd = item->command();
+    if (const DebuggerItem item = debugger(kit)) {
+        FilePath cmd = item.command();
         if (cmd.isRelativePath()) {
             if (const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit))
                 cmd = buildDevice->searchExecutableInPath(cmd.path());
         }
         runnable.command.setExecutable(cmd);
-        runnable.workingDirectory = item->workingDirectory();
+        runnable.workingDirectory = item.workingDirectory();
         runnable.environment = cmd.deviceEnvironment();
         runnable.environment.set("LC_NUMERIC", "C");
     }
@@ -189,8 +197,8 @@ Tasks DebuggerKitAspect::validateDebugger(const Kit *k)
         return result;
 
     QString path;
-    if (const DebuggerItem *item = debugger(k))
-        path = item->command().toUserOutput();
+    if (const DebuggerItem item = debugger(k))
+        path = item.command().toUserOutput();
 
     if (errors & NoDebugger)
         result << BuildSystemTask(Task::Warning, Tr::tr("No debugger set up."));
@@ -219,26 +227,26 @@ Tasks DebuggerKitAspect::validateDebugger(const Kit *k)
 
 DebuggerEngineType DebuggerKitAspect::engineType(const Kit *k)
 {
-    const DebuggerItem *item = debugger(k);
+    const DebuggerItem item = debugger(k);
     QTC_ASSERT(item, return NoEngineType);
-    return item->engineType();
+    return item.engineType();
 }
 
 QString DebuggerKitAspect::displayString(const Kit *k)
 {
-    const DebuggerItem *item = debugger(k);
+    const DebuggerItem item = debugger(k);
     if (!item)
         return Tr::tr("No Debugger");
-    QString binary = item->command().toUserOutput();
-    QString name = Tr::tr("%1 Engine").arg(item->engineTypeName());
+    QString binary = item.command().toUserOutput();
+    QString name = Tr::tr("%1 Engine").arg(item.engineTypeName());
     return binary.isEmpty() ? Tr::tr("%1 <None>").arg(name) : Tr::tr("%1 using \"%2\"").arg(name, binary);
 }
 
 QString DebuggerKitAspect::version(const Kit *k)
 {
-    const DebuggerItem *item = debugger(k);
+    const DebuggerItem item = debugger(k);
     QTC_ASSERT(item, return {});
-    return item->version();
+    return item.version();
 }
 
 void DebuggerKitAspect::setDebugger(Kit *k, const QVariant &id)
@@ -411,28 +419,28 @@ public:
         QTC_ASSERT(kit, return);
         expander->registerVariable("Debugger:Name", Tr::tr("Name of Debugger"),
                                    [kit]() -> QString {
-                                       const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
-                                       return item ? item->displayName() : Tr::tr("Unknown debugger");
+                                       const DebuggerItem item = DebuggerKitAspect::debugger(kit);
+                                       return item ? item.displayName() : Tr::tr("Unknown debugger");
                                    });
 
         expander->registerVariable("Debugger:Type", Tr::tr("Type of Debugger Backend"),
                                    [kit]() -> QString {
-                                       const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
-                                       return item ? item->engineTypeName() : Tr::tr("Unknown debugger type");
+                                       const DebuggerItem item = DebuggerKitAspect::debugger(kit);
+                                       return item ? item.engineTypeName() : Tr::tr("Unknown debugger type");
                                    });
 
         expander->registerVariable("Debugger:Version", Tr::tr("Debugger"),
                                    [kit]() -> QString {
-                                       const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
-                                       return item && !item->version().isEmpty()
-                                                  ? item->version() : Tr::tr("Unknown debugger version");
+                                       const DebuggerItem item = DebuggerKitAspect::debugger(kit);
+                                       return item && !item.version().isEmpty()
+                                                  ? item.version() : Tr::tr("Unknown debugger version");
                                    });
 
         expander->registerVariable("Debugger:Abi", Tr::tr("Debugger"),
                                    [kit]() -> QString {
-                                       const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
-                                       return item && !item->abis().isEmpty()
-                                                  ? item->abiNames().join(' ')
+                                       const DebuggerItem item = DebuggerKitAspect::debugger(kit);
+                                       return item && !item.abis().isEmpty()
+                                                  ? item.abiNames().join(' ')
                                                   : Tr::tr("Unknown debugger ABI");
                                    });
     }

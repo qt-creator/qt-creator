@@ -185,8 +185,7 @@ static void setupKit(Kit *kit, Id pDeviceType, const ToolchainPair& toolchains,
     // only replace debugger with the default one if we find an unusable one here
     // (since the user could have changed it)
     if ((!DebuggerKitAspect::debugger(kit)
-            || !DebuggerKitAspect::debugger(kit)->isValid()
-            || DebuggerKitAspect::debugger(kit)->engineType() != LldbEngineType)
+            || DebuggerKitAspect::debugger(kit).engineType() != LldbEngineType)
             && debuggerId.isValid())
         DebuggerKitAspect::setDebugger(kit, debuggerId);
 
@@ -240,8 +239,8 @@ void IosConfigurations::updateAutomaticKitList()
         return v->isValid() && v->type() == Constants::IOSQT;
     }));
 
-    const DebuggerItem *possibleDebugger = DebuggerItemManager::findByEngineType(LldbEngineType);
-    const QVariant debuggerId = (possibleDebugger ? possibleDebugger->id() : QVariant());
+    const DebuggerItem possibleDebugger = DebuggerItemManager::findByEngineType(LldbEngineType);
+    const QVariant debuggerId = (possibleDebugger ? possibleDebugger.id() : QVariant());
 
     QSet<Kit *> existingKits = existingAutoDetectedIosKits();
     qCDebug(kitSetupLog) << "Existing auto-detected iOS kits:";

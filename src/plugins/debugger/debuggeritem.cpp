@@ -9,6 +9,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/kitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
@@ -17,6 +18,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 #include <utils/winutils.h>
 
@@ -658,6 +660,34 @@ void DebuggerItem::setDetectionSource(const ProjectExplorer::DetectionSource &so
 bool DebuggerItem::isAutoDetected() const
 {
     return m_detectionSource.isAutoDetected();
+}
+
+QVariant DebuggerItem::data(int column, int role) const
+{
+    switch (role) {
+    case Utils::FilePathRole:
+        return command().toVariant();
+    case Qt::DisplayRole:
+        switch (column) {
+        case 0: return displayName();
+        case 1: return command().toUserOutput();
+        case 2: return engineTypeName();
+        }
+        break;
+    case Qt::DecorationRole:
+        if (column == 0)
+            return decoration();
+        break;
+    case Qt::ToolTipRole:
+        return validityMessage();
+    case ProjectExplorer::KitAspect::IdRole:
+        return id();
+    case ProjectExplorer::KitAspect::QualityRole:
+        return int(problem());
+    case ProjectExplorer::KitAspect::IsNoneRole:
+        return !isValid();
+    }
+    return QVariant();
 }
 
 } // namespace Debugger

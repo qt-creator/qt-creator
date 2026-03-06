@@ -17,11 +17,7 @@
 
 namespace Debugger {
 
-namespace Internal {
-class DebuggerConfigWidget;
-class DebuggerItemConfigWidget;
-class DebuggerItemModel;
-} // namespace Internal
+namespace Internal { class DebuggerItemConfigWidget; }
 
 // -----------------------------------------------------------------------
 // DebuggerItem
@@ -50,6 +46,7 @@ public:
     void createId();
     bool canClone() const { return true; }
     bool isValid() const;
+    explicit operator bool() const { return isValid(); }
     QString engineTypeName() const;
 
     Utils::Store toMap() const;
@@ -89,6 +86,8 @@ public:
     QIcon decoration() const;
     QString validityMessage() const;
 
+    QVariant data(int column, int role) const;
+
     bool operator==(const DebuggerItem &other) const;
     bool operator!=(const DebuggerItem &other) const { return !operator==(other); }
 
@@ -121,9 +120,7 @@ private:
     ProjectExplorer::DetectionSource m_detectionSource;
     QDateTime m_lastModified;
 
-    friend class Internal::DebuggerConfigWidget;
     friend class Internal::DebuggerItemConfigWidget;
-    friend class Internal::DebuggerItemModel;
 };
 
 } // namespace Debugger

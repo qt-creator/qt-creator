@@ -230,8 +230,10 @@ int AttachCoreDialog::exec()
 
 void AttachCoreDialog::accepted()
 {
-    const DebuggerItem *debuggerItem = Debugger::DebuggerKitAspect::debugger(kit());
-    const FilePath debuggerCommand = debuggerItem->command();
+    const DebuggerItem debuggerItem = Debugger::DebuggerKitAspect::debugger(kit());
+    if (!debuggerItem)
+        return;
+    const FilePath debuggerCommand = debuggerItem.command();
 
     const auto copyFile = [debuggerCommand](const FilePath &srcPath) -> Result<FilePath> {
         if (!srcPath.isSameDevice(debuggerCommand)) {

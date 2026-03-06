@@ -604,9 +604,8 @@ QVariant McuToolchainPackage::debuggerId() const
     }
 
     const FilePath command = (path() / sub).withExecutableSuffix();
-    if (const DebuggerItem *debugger = DebuggerItemManager::findByCommand(command)) {
-        return debugger->id();
-    }
+    if (const DebuggerItem debugger = DebuggerItemManager::findByCommand(command))
+        return debugger.id();
 
     DebuggerItem newDebugger;
     newDebugger.setCommand(command);

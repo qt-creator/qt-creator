@@ -260,10 +260,10 @@ void UnstartedAppWatcherDialog::stopAndCheckExecutable()
 
 void UnstartedAppWatcherDialog::kitChanged()
 {
-    const DebuggerItem *debugger = DebuggerKitAspect::debugger(m_kitChooser->currentKit());
+    const DebuggerItem debugger = DebuggerKitAspect::debugger(m_kitChooser->currentKit());
     if (!debugger)
         return;
-    if (debugger->engineType() == Debugger::CdbEngineType) {
+    if (debugger.engineType() == Debugger::CdbEngineType) {
         m_continueOnAttachCheckBox->setEnabled(false);
         m_continueOnAttachCheckBox->setChecked(true);
     } else {

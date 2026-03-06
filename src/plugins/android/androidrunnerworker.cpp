@@ -88,11 +88,11 @@ static QString lldbServerArch(const QString &androidAbi)
 static FilePath debugServer(const BuildConfiguration *bc)
 {
     // Search suitable lldb-server binary.
-    const DebuggerItem *debugger = DebuggerKitAspect::debugger(bc->kit());
-    if (!debugger || debugger->command().isEmpty())
+    const DebuggerItem debugger = DebuggerKitAspect::debugger(bc->kit());
+    if (!debugger || debugger.command().isEmpty())
         return {};
     // .../ndk/<ndk-version>/toolchains/llvm/prebuilt/<host-arch>/bin/lldb
-    const FilePath prebuilt = debugger->command().parentDir().parentDir();
+    const FilePath prebuilt = debugger.command().parentDir().parentDir();
     const QString abiNeedle = lldbServerArch(apkDevicePreferredAbi(bc));
 
     // The new, built-in LLDB.
