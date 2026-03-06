@@ -358,7 +358,7 @@ void AgenticRequestManager::onToolCallSucceeded(
 void AgenticRequestManager::onToolCallFailed(
     const QString &serverName,
     const QString &message,
-    const QJsonObject &errorObj,
+    const QJsonObject &,
     qint64 requestId)
 {
     // Find the pending tool call with this request ID

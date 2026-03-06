@@ -16,7 +16,7 @@ AiModelsModel::AiModelsModel(QObject *parent)
 
 AiModelsModel::~AiModelsModel() {}
 
-int AiModelsModel::rowCount(const QModelIndex &parent) const
+int AiModelsModel::rowCount(const QModelIndex &) const
 {
     return m_data.size();
 }

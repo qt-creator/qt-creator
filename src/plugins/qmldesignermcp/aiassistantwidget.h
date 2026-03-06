@@ -15,6 +15,8 @@
 
 #include <memory>
 
+class QShortcut;
+
 class StudioQuickWidget;
 
 namespace QmlDesigner {
