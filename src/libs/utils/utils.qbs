@@ -304,6 +304,7 @@ QtcLibrary {
         "settingsaccessor.h",
         "settingsdatabase.cpp",
         "settingsdatabase.h",
+        "singleargcallback.h",
         "sizedarray.h",
         "smallstring.h",
         "smallstringiterator.h",

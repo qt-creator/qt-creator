@@ -162,6 +162,7 @@ add_qtc_library(Utils
     settingsaccessor.cpp settingsaccessor.h
     settingsdatabase.cpp settingsdatabase.h
     shutdownguard.cpp shutdownguard.h
+    singleargcallback.h
     sizedarray.h
     smallstring.h
     smallstringfwd.h
