@@ -132,7 +132,8 @@
             \uicontrol Components > \uicontrol {Default Components} >
             \uicontrol Basic to the root component in \uicontrol Navigator.
         \li Drag a \uicontrol Text component to the root component.
-        \li Drag a \uicontrol {Mouse Area} to the root component.
+        \li In \uicontrol {Navigator}, select the root component, and then select
+            \uicontrol {Add Mouse Area} in the context menu to add a mouse area.
         \li Select a border image to edit the values of its properties:
             \list 1
                 \li In the \uicontrol Id field, enter an ID for the border

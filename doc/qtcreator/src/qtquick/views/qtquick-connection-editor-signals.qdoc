@@ -39,7 +39,23 @@
     For more information about signals and signal handlers, see
     \l{Signal and Handler Event System}.
 
+    \section1 Create a connection
+
+    You can use the context menu to connect the selected component to a signal
+    that you connect to an action:
+
+    \list 1
+        \li Select the component you want to connect in the \uicontrol Navigator
+            or \uicontrol 2D view.
+        \li In the context menu, select \uicontrol Connections >
+            \uicontrol {Add New Connection}, and then select an available
+            signal, action, and action property.
+    \endlist
+
     \section1 Add connections
+
+    You can also add connections in the \uicontrol Connections tab in the
+    \uicontrol Connections view.
 
     To connect components to signals that are available to them:
 
