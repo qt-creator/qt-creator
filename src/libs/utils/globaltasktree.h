@@ -20,7 +20,8 @@ public:
                       QtTaskTree::CallDoneFlags callDone = QtTaskTree::CallDone::Always)
     {
         if (auto runner = taskTreeRunner())
-            runner->start(recipe, setupHandler, doneHandler, callDone);
+            runner->start(recipe, std::forward<SetupHandler>(setupHandler),
+                          std::forward<DoneHandler>(doneHandler), callDone);
     }
 
 private:
