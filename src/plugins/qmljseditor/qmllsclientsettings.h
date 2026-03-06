@@ -4,8 +4,10 @@
 #pragma once
 
 #include <languageclient/languageclientsettings.h>
-#include <QVersionNumber>
 
+#include <utils/aspects.h>
+
+#include <QVersionNumber>
 #include <QWidget>
 
 namespace QmlJSEditor {
@@ -20,9 +22,7 @@ public:
     BaseSettings *create() const override { return new QmllsClientSettings; }
 
     QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
-    bool applyFromSettingsWidget(QWidget *widget) override;
 
-    void toMap(Utils::Store &map) const override;
     void fromMap(const Utils::Store &map) override;
 
     bool isValidOnBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const override;
@@ -32,13 +32,13 @@ public:
     bool useQmllsWithBuiltinCodemodelOnProject(ProjectExplorer::Project *project,
                                                const Utils::FilePath &file) const;
 
-    ExecutableSelection m_executableSelection = FromQtKit;
-    bool m_ignoreMinimumQmllsVersion = false;
-    bool m_useQmllsSemanticHighlighting = true;
-    bool m_disableBuiltinCodemodel = false;
-    bool m_generateQmllsIniFiles = false;
-    bool m_enableCMakeBuilds = true;
-    Utils::FilePath m_executable = {};
+    Utils::TypedSelectionAspect<ExecutableSelection> executableSelection{this};
+    Utils::BoolAspect ignoreMinimumQmllsVersion{this};
+    Utils::BoolAspect useQmllsSemanticHighlighting{this};
+    Utils::BoolAspect disableBuiltinCodemodel{this};
+    Utils::BoolAspect generateQmllsIniFiles{this};
+    Utils::BoolAspect enableCMakeBuilds{this};
+    Utils::FilePathAspect executable{this};
 
 protected:
     LanguageClient::BaseClientInterface *createInterface(

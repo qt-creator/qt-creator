@@ -725,7 +725,7 @@ void QmlJSEditorDocumentPrivate::setSourcesWithCapabilities(
         setSemanticWarningSource(QmllsStatus::Source::Qmlls);
     else
         setSemanticWarningSource(QmllsStatus::Source::EmbeddedCodeModel);
-    if (cap.semanticTokensProvider() && qmllsSettings()->m_useQmllsSemanticHighlighting)
+    if (cap.semanticTokensProvider() && qmllsSettings()->useQmllsSemanticHighlighting())
         setSemanticHighlightSource(QmllsStatus::Source::Qmlls);
     else
         setSemanticHighlightSource(QmllsStatus::Source::EmbeddedCodeModel);

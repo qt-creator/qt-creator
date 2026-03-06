@@ -57,7 +57,7 @@ QMap<QString, int> QmllsClient::semanticTokenTypesMap()
 void QmllsClient::updateQmllsSemanticHighlightingCapability()
 {
     const QString methodName = QStringLiteral("textDocument/semanticTokens");
-    if (!qmllsSettings()->m_useQmllsSemanticHighlighting) {
+    if (!qmllsSettings()->useQmllsSemanticHighlighting()) {
         LanguageServerProtocol::Unregistration unregister;
         unregister.setMethod(methodName);
         unregister.setId({});

@@ -634,6 +634,8 @@ public:
     int optionCount() const;
     int indexForDisplay(const QString &displayName) const;
     QString displayForIndex(int index) const;
+    std::optional<Option> optionForIndex(int index) const;
+    void setOptionForIndex(int index, const Option &option);
     int indexForItemValue(const QVariant &value) const;
     QVariant itemValueForIndex(int index) const;
 

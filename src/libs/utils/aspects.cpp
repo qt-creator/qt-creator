@@ -2536,6 +2536,18 @@ QString SelectionAspect::displayForIndex(int index) const
     return d->m_options.at(index).displayName;
 }
 
+std::optional<SelectionAspect::Option> SelectionAspect::optionForIndex(int index) const
+{
+    QTC_ASSERT(index >= 0 && index < d->m_options.size(), return {});
+    return d->m_options.at(index);
+}
+
+void SelectionAspect::setOptionForIndex(int index, const Option &option)
+{
+    QTC_ASSERT(index >= 0 && index < d->m_options.size(), return);
+    d->m_options[index] = option;
+}
+
 int SelectionAspect::indexForItemValue(const QVariant &value) const
 {
     for (int i = 0, n = d->m_options.size(); i < n; ++i) {
