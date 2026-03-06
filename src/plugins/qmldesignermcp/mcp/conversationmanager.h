@@ -4,7 +4,6 @@
 #pragma once
 
 #include <QJsonArray>
-#include <QJsonObject>
 #include <QDateTime>
 #include <QList>
 #include <QUrl>

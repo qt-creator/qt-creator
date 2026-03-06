@@ -7,7 +7,9 @@
 #include "aiassistantutils.h"
 
 #include <QFileInfo>
+#include <QImage>
 #include <QJsonDocument>
+#include <QJsonObject>
 
 namespace QmlDesigner {
 
