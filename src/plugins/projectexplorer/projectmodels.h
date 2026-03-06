@@ -27,13 +27,13 @@ bool compareNodes(const Node *n1, const Node *n2);
 class WrapperNode : public Utils::TypedTreeItem<WrapperNode>
 {
 public:
-    explicit WrapperNode(Node *node);
+    explicit WrapperNode(Node *node) : m_node(node) {}
 
     void appendClone(const WrapperNode &node);
     void compress();
 
     Node * node() const { return m_node; }
-    QString displayName() const { return m_displayName; }
+    QString displayName() const;
 
 private:
     QVariant data(int column, int role) const override;

@@ -165,12 +165,6 @@ static void mergeDuplicates(WrapperNode *parent)
     }
 }
 
-WrapperNode::WrapperNode(Node *node) : m_node(node)
-{
-    if (m_node)
-        m_displayName = m_node->displayName();
-}
-
 void WrapperNode::appendClone(const WrapperNode &node)
 {
     WrapperNode *clone = new WrapperNode(node.m_node);
@@ -221,6 +215,15 @@ void WrapperNode::compress()
     m_node = subFolder;
     removeChildAt(0);
     qCDebug(projectModelLog) << "now have" << childCount() << "children";
+}
+
+QString WrapperNode::displayName() const
+{
+    if (!m_displayName.isEmpty())
+        return m_displayName;
+    if (m_node)
+        return m_node->displayName();
+    return {};
 }
 
 QVariant WrapperNode::data(int column, int role) const
