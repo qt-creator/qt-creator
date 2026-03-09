@@ -85,11 +85,27 @@ function(qtc_setup_sbom)
   _qt_internal_setup_sbom(
     GENERATE_SBOM_DEFAULT "${generate_by_default}"
   )
+endfunction()
 
+# Adds SBOM feature info.
+function(qtc_add_sbom_feature_info)
   add_feature_info("Build SBOMs" "${QT_GENERATE_SBOM}" "")
   add_feature_info("Build SPDX v2.3 tag:value format SBOMs" "${QT_GENERATE_SBOM}" "")
   add_feature_info("Build SPDX v2.3 JSON format SBOMs" "${QT_SBOM_GENERATE_SPDX_V2_JSON}" "")
   add_feature_info("Build CycloneDX v1.6 JSON SBOMs" "${QT_SBOM_GENERATE_CYDX_V1_6}" "")
+
+  # Only show the if generation is enabled.
+  if(QT_GENERATE_SBOM)
+    if(QT_INTERNAL_SBOM_PYTHON_EXECUTABLE)
+      set(value "${QT_INTERNAL_SBOM_PYTHON_EXECUTABLE}")
+      if(QT_INTERNAL_SBOM_PYTHON_VERSION)
+        string(APPEND value " (version ${QT_INTERNAL_SBOM_PYTHON_VERSION})")
+      endif()
+    else()
+      set(value "Not found")
+    endif()
+    add_feature_info("SBOM Python interpreter" "${QT_GENERATE_SBOM}" "${value}")
+  endif()
 endfunction()
 
 function(qtc_force_disable_sbom)
