@@ -432,7 +432,7 @@ bool EnvironmentModel::currentEntryIsPathList(const QModelIndex &current) const
 
     // Look at the name first and check it against some well-known path variables. Extend as needed.
     const QString varName = indexToVariable(current);
-    if (varName.compare("PATH", Utils::HostOsInfo::fileNameCaseSensitivity()) == 0)
+    if (varName.compare("PATH", Utils::OsSpecificAspects::envVarCaseSensitivity(HostOsInfo::hostOs())) == 0)
         return true;
     if (Utils::HostOsInfo::isMacHost()
         && (varName == "DYLD_LIBRARY_PATH" || varName == "DYLD_FRAMEWORK_PATH")) {

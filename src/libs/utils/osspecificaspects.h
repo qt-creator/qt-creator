@@ -32,7 +32,7 @@ constexpr Qt::CaseSensitivity fileNameCaseSensitivity(OsType osType)
 
 constexpr Qt::CaseSensitivity envVarCaseSensitivity(OsType osType)
 {
-    return fileNameCaseSensitivity(osType);
+    return osType == OsTypeWindows ? Qt::CaseInsensitive : Qt::CaseSensitive;
 }
 
 constexpr QChar pathListSeparator(OsType osType)
