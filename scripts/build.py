@@ -14,8 +14,10 @@ import sys
 
 import common
 
+
 def existing_path(path):
     return path if os.path.exists(path) else None
+
 
 def get_arguments():
     parser = argparse.ArgumentParser(description='Build Qt Creator for packaging')
@@ -54,7 +56,7 @@ def get_arguments():
                         help='Skip cdbextension and the python dependency packaging step (Windows)',
                         action='store_true', default=(not common.is_windows_platform()))
     parser.add_argument('--no-qbs', help='Skip building Qbs as part of Qt Creator',
-                        action='store_true', default=False);
+                        action='store_true', default=False)
     parser.add_argument('--no-docs', help='Skip documentation generation',
                         action='store_true', default=False)
     parser.add_argument('--no-sbom', help='Skip SBOM generation', action='store_true', default=False)
@@ -90,7 +92,7 @@ def get_arguments():
                         'without a specific number of threads. This is directly passed to the "-mmt" option of 7z.',
                         default='2')
     parser.add_argument('--add-sanitize-flags', help="Sets flags for sanitizer compilation flags used in Debug builds",
-                        action='append', dest='sanitize_flags', default=[] )
+                        action='append', dest='sanitize_flags', default=[])
 
     args = parser.parse_args()
     args.with_debug_info = args.build_type == 'RelWithDebInfo'
@@ -115,6 +117,7 @@ def get_arguments():
                 args.with_cpack = False
 
     return args
+
 
 def common_cmake_arguments(args):
     separate_debug_info_option = 'ON' if args.with_debug_info else 'OFF'
@@ -160,8 +163,7 @@ def build_qtcreator(args, paths):
         return
     if not os.path.exists(paths.build):
         os.makedirs(paths.build)
-    build_qbs = (True if not args.no_qbs and os.path.exists(os.path.join(paths.src, 'src', 'shared', 'qbs', 'CMakeLists.txt'))
-                 else False)
+    build_qbs = bool(not args.no_qbs and os.path.exists(os.path.join(paths.src, 'src', 'shared', 'qbs', 'CMakeLists.txt')))
     prefix_paths = [os.path.abspath(fp) for fp in args.prefix_paths] + [paths.qt]
     if paths.llvm:
         prefix_paths += [paths.llvm]
@@ -221,7 +223,7 @@ def build_qtcreator(args, paths):
     if args.with_debug_info:
         common.check_print_call(['cmake', '--install', '.', '--prefix', paths.debug_install,
                                  '--component', 'DebugInfo'],
-                                 paths.build)
+                                paths.build)
     if not args.no_docs:
         common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
                                  '--component', 'qch_docs'],
@@ -229,6 +231,7 @@ def build_qtcreator(args, paths):
         common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
                                  '--component', 'html_docs'],
                                 paths.build)
+
 
 def build_wininterrupt(args, paths):
     if not common.is_windows_platform():
@@ -248,6 +251,7 @@ def build_wininterrupt(args, paths):
     common.check_print_call(['cmake', '--install', '.', '--prefix', paths.wininterrupt_install,
                              '--component', 'wininterrupt'],
                             paths.wininterrupt_build)
+
 
 def build_qtcreatorcdbext(args, paths):
     if args.no_cdb:
@@ -271,7 +275,8 @@ def build_qtcreatorcdbext(args, paths):
                              '--component', 'qtcreatorcdbext'],
                             paths.qtcreatorcdbext_build)
 
-def zipPatternForApp(paths):
+
+def zip_pattern_for_app(paths):
     # workaround for QTBUG-95845
     if not common.is_mac_platform():
         return '*'
@@ -288,19 +293,19 @@ def package_qtcreator(args, paths):
         if not args.no_cdb:
             common.check_print_call(command + [paths.qtcreatorcdbext_install])
 
-    zip = common.sevenzip_command(args.zip_threads)
+    zip_command = common.sevenzip_command(args.zip_threads)
     if not args.no_zip:
         if not args.no_qtcreator:
-            common.check_print_call(zip
+            common.check_print_call(zip_command
                                     + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '.7z'),
-                                       zipPatternForApp(paths)],
+                                       zip_pattern_for_app(paths)],
                                     paths.install)
-            common.check_print_call(zip
+            common.check_print_call(zip_command
                                     + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '_dev.7z'),
                                        '*'],
                                     paths.dev_install)
             if args.with_debug_info:
-                common.check_print_call(zip
+                common.check_print_call(zip_command
                                         + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-debug.7z'),
                                            '*'],
                                         paths.debug_install)
@@ -311,17 +316,17 @@ def package_qtcreator(args, paths):
                     cmdbridge_dir = os.path.join(paths.install, 'bin')
                 else:
                     cmdbridge_dir = os.path.join(paths.install, 'Qt Creator.app', 'Contents', 'Resources', 'libexec')
-                common.check_print_call(zip
+                common.check_print_call(zip_command
                                         + [os.path.join(paths.result, 'cmdbridge' + args.zip_infix + '.7z'),
                                            'cmdbridge-*'],
                                         cmdbridge_dir)
         if common.is_windows_platform():
-            common.check_print_call(zip
+            common.check_print_call(zip_command
                                     + [os.path.join(paths.result, 'wininterrupt' + args.zip_infix + '.7z'),
                                        '*'],
                                     paths.wininterrupt_install)
             if not args.no_cdb:
-                common.check_print_call(zip
+                common.check_print_call(zip_command
                                         + [os.path.join(paths.result, 'qtcreatorcdbext' + args.zip_infix + '.7z'),
                                            '*'],
                                         paths.qtcreatorcdbext_install)
@@ -337,7 +342,7 @@ def package_qtcreator(args, paths):
                 app = apps[0]
                 common.codesign(os.path.join(signed_install_path, app))
                 if not args.no_zip:
-                    common.check_print_call(zip
+                    common.check_print_call(zip_command
                                             + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-signed.7z'),
                                                app],
                                             signed_install_path)
@@ -376,6 +381,7 @@ def get_paths(args):
                  elfutils=os.path.abspath(args.elfutils_path) if args.elfutils_path else None,
                  llvm=os.path.abspath(args.llvm_path) if args.llvm_path else None)
 
+
 def main():
     args = get_arguments()
     paths = get_paths(args)
@@ -384,6 +390,7 @@ def main():
     build_wininterrupt(args, paths)
     build_qtcreatorcdbext(args, paths)
     package_qtcreator(args, paths)
+
 
 if __name__ == '__main__':
     main()
