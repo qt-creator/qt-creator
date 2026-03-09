@@ -240,7 +240,7 @@ jobs:
         foreach(qt_mirror $ENV{QT_MIRRORS})
           foreach(retry RANGE 10)
             cmake_language(EVAL CODE "
-              message(\"Downloading ${qt_base_url}/Updates.xml}\")
+              message(\"Downloading ${qt_base_url}/Updates.xml\")
               file(DOWNLOAD \"${qt_base_url}/Updates.xml\" ./Updates.xml)
             ")
             file(SIZE ./Updates.xml fileSize)
