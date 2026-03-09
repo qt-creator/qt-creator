@@ -71,9 +71,9 @@ bool GerritRemoteChooser::setCurrentRemote(const QString &remoteName)
     return false;
 }
 
-bool GerritRemoteChooser::updateRemotes(bool forceReload)
+void GerritRemoteChooser::updateRemotes(bool forceReload)
 {
-    QTC_ASSERT(!m_repository.isEmpty(), return false);
+    QTC_ASSERT(!m_repository.isEmpty(), return);
     m_updatingRemotes = true;
     m_remoteComboBox->clear();
     m_remotes.clear();
@@ -91,7 +91,6 @@ bool GerritRemoteChooser::updateRemotes(bool forceReload)
     m_remoteComboBox->setEnabled(m_remoteComboBox->count() > 1);
     m_updatingRemotes = false;
     handleRemoteChanged();
-    return true;
 }
 
 void GerritRemoteChooser::addRemote(const GerritServer &server, const QString &name)

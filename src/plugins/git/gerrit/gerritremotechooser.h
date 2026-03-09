@@ -27,7 +27,7 @@ public:
     void setAllowDups(bool value);
     bool setCurrentRemote(const QString &remoteName);
 
-    bool updateRemotes(bool forceReload);
+    void updateRemotes(bool forceReload);
     GerritServer currentServer() const;
     QString currentRemoteName() const;
     bool isEmpty() const;
