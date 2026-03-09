@@ -3,9 +3,8 @@
 
 /*!
     \page creator-language-servers.html
-    \previouspage creator-reference.html
-
-    \ingroup creator-reference-editors
+    \previouspage creator-editor-fakevim.html
+    \nextpage creator-how-to-add-java-language-servers.html
 
     \title Managing language servers
 
