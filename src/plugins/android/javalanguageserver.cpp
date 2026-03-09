@@ -40,7 +40,7 @@ public:
     JLSSettings();
 
     bool applyFromSettingsWidget(QWidget *widget) final;
-    QWidget *createSettingsWidget(QWidget *parent) const final;
+    QWidget *createSettingsWidget(QWidget *parent) final;
     bool isValid() const final;
     Client *createClient(BaseClientInterface *interface) const final;
     BaseClientInterface *createInterface(BuildConfiguration *) const final;
@@ -116,7 +116,7 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
     return changed;
 }
 
-QWidget *JLSSettings::createSettingsWidget(QWidget *parent) const
+QWidget *JLSSettings::createSettingsWidget(QWidget *parent)
 {
     return new JLSSettingsWidget(this, parent);
 }

@@ -21,7 +21,7 @@ public:
     QmllsClientSettings();
     BaseSettings *create() const override { return new QmllsClientSettings; }
 
-    QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
+    QWidget *createSettingsWidget(QWidget *parent = nullptr) override;
 
     void fromMap(const Utils::Store &map) override;
 

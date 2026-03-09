@@ -633,7 +633,7 @@ bool BaseSettings::applyFromSettingsWidget(QWidget *)
     return changed;
 }
 
-QWidget *BaseSettings::createSettingsWidget(QWidget *parent) const
+QWidget *BaseSettings::createSettingsWidget(QWidget *parent)
 {
     return new BaseSettingsWidget(this, parent);
 }
@@ -868,7 +868,7 @@ StdIOSettings::StdIOSettings()
 
 StdIOSettings::~StdIOSettings() = default;
 
-QWidget *StdIOSettings::createSettingsWidget(QWidget *parent) const
+QWidget *StdIOSettings::createSettingsWidget(QWidget *parent)
 {
     return new StdIOSettingsWidget(this, parent);
 }

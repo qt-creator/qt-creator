@@ -655,8 +655,7 @@ static GroupItem downloadGithubQmlls()
 class QmllsClientSettingsWidget : public QWidget
 {
 public:
-    explicit QmllsClientSettingsWidget(
-        const QmllsClientSettings *settings, QWidget *parent = nullptr)
+    explicit QmllsClientSettingsWidget(QmllsClientSettings *settings, QWidget *parent = nullptr)
         : QWidget(parent)
     {
         using namespace Layouting;
@@ -694,7 +693,7 @@ public:
                 });
             });
 
-        auto updateExecutableEnabled = [settings = const_cast<QmllsClientSettings *>(settings)]() {
+        auto updateExecutableEnabled = [settings]() {
             const bool enabled = settings->executableSelection.volatileValue() == QmllsClientSettings::FromUser;
             settings->executable.setEnabled(enabled);
         };
@@ -709,7 +708,7 @@ private:
     QSingleTaskTreeRunner m_qmllsDownloader;
 };
 
-QWidget *QmllsClientSettings::createSettingsWidget(QWidget *parent) const
+QWidget *QmllsClientSettings::createSettingsWidget(QWidget *parent)
 {
     return new QmllsClientSettingsWidget(this, parent);
 }

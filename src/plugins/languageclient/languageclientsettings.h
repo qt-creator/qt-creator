@@ -86,7 +86,7 @@ public:
     QJsonValue configurationAsJson() const;
 
     virtual bool applyFromSettingsWidget(QWidget *widget);
-    virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
+    virtual QWidget *createSettingsWidget(QWidget *parent = nullptr);
     virtual BaseSettings *copy() const;
     virtual BaseSettings *create() const = 0;
     virtual bool isValid() const;
@@ -110,7 +110,7 @@ public:
     StdIOSettings();
     ~StdIOSettings() override;
 
-    QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
+    QWidget *createSettingsWidget(QWidget *parent = nullptr) override;
     BaseSettings *create() const override { return new StdIOSettings; }
     bool isValid() const override;
 

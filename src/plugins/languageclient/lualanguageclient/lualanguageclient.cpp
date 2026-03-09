@@ -191,7 +191,7 @@ public:
     void toMap(Utils::Store &map) const override;
     void fromMap(const Utils::Store &map) override;
 
-    QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
+    QWidget *createSettingsWidget(QWidget *parent = nullptr) override;
 
     BaseSettings *create() const override { return new LuaClientSettings; }
     BaseSettings *copy() const override;
@@ -692,7 +692,7 @@ void LuaClientSettings::fromMap(const Store &map)
     }
 }
 
-QWidget *LuaClientSettings::createSettingsWidget(QWidget *parent) const
+QWidget *LuaClientSettings::createSettingsWidget(QWidget *parent)
 {
     using namespace Layouting;
 
