@@ -105,7 +105,7 @@
     \image {qtquick-designer-preferences.webp} {Qt Quick Designer preferences.}
 
     The following image shows the snapping lines (1) when
-    \uicontrol {Parent component padding} is set to 10 pixels.
+    \uicontrol {Parent component padding} is set to 8 pixels.
 
     \image {qmldesigner-snap-margins.webp} {Snapping lines on canvas.}
 
@@ -134,7 +134,7 @@
     values are not changed permanently in the UI file. You can permanently
     change the property values in the \uicontrol Properties view (4).
 
-    \image {qmldesigner-preview-size.webp} {Component width and height.}
+    \image {qmldesigner-preview-size.webp} {Overriding component width and height.}
 
     To set the initial size of the root component, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}

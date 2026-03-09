@@ -17,15 +17,7 @@
     An annotation consist of an annotation name and one or several comments.
     The comments have a title, author, and comment text.
 
-    To add or edit global annotations, right-click in the \uicontrol 2D or
-    \uicontrol Navigator view and select \uicontrol {Edit Annotations}.
-
-    Global annotations have an additional status property, which enables you
-    to indicate whether you are still working on the design, you have submitted
-    it to review, or it can be considered done. To set the status, select
-    \uicontrol {Add Status}.
-
-    \image qtquick-annotations.png "Annotation Editor"
+    \image {qmldesigner-annotations.webp} {Annotations in the 2D view.}
 
     Annotations are saved in the end of QML files when you save the file. They
     do not affect the QML performance in any way.
@@ -35,33 +27,47 @@
     To add annotations to components:
 
     \list 1
-        \li Select the component to annotate in \uicontrol Navigator or in
-            the \uicontrol {2D} view.
+        \li Select the component to annotate in the \uicontrol Navigator or
+            \uicontrol {2D} view.
         \li In \uicontrol Properties, select \uicontrol {Add Annotation} to
             open \uicontrol {Annotation Editor}.
-            \image qtquick-annotation-editor.png "Annotation Editor"
-        \li The \uicontrol {Selected Item} field displays the ID of the
+            \image {qmldesigner-annotation-editor.webp} {Annotation Editor}
+            \uicontrol {Selected component} shows the ID of the component.
+        \li In \uicontrol Name, enter a free-form text that describes the
             component.
-        \li In the \uicontrol Name field, enter a free-form text that
-            describes the component.
-        \li In the \uicontrol Title field, enter the text to display in
-            the tab for this comment.
-        \li In the \uicontrol Author field, enter the author's name.
-        \li In the \uicontrol Text field, enter the comment text.
+        \li In \uicontrol Title, enter the text to display in the tab for this
+            comment.
+        \li In \uicontrol Author, enter the author's name.
+        \li In \uicontrol Text, enter the comment text.
         \li Select \uicontrol OK.
     \endlist
 
-    To add more comments about the component, select the \imageplus
-    (\uicontrol {Add Comment}) button.
+    To add more comments about the component, select \imageplus
+    (\uicontrol {Add Comment}).
 
-    To remove the active comment, select the \imageminus
-    (\uicontrol {Remove Comment}) button. To remove the annotation, right-click
+    To remove the active comment, select \imageminus
+    (\uicontrol {Remove Comment}). To remove the annotation, right-click
     the annotation icon, and then select \uicontrol {Remove Annotation}.
 
     To view the annotations in table format, select \uicontrol {Table view}.
 
     To edit annotations, select \uicontrol {Edit Annotation} in the context
     menu of the component.
+
+    \section1 Add global annotations
+
+    To add or edit global annotations:
+
+    \list
+        \li Select \imageannotation on the top toolbar.
+        \li Go to \uicontrol Edit and select \uicontrol {Edit Global Annotations}.
+    \endlist
+
+    Global annotations have an additional status property for indicating whether
+    you are still working on the design, you have submitted it to review, or it
+    can be considered done.
+
+    To set the status, select \uicontrol {Add Status}.
 
     \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
     {Designing Qt Quick UIs}

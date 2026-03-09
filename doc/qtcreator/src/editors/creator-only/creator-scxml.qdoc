@@ -9,14 +9,10 @@
 
 /*!
     \page creator-scxml.html
-    \previouspage creator-reference.html
+    \previouspage creator-reference-search-results-view.html
     \nextpage creator-how-to-create-state-charts.html
 
-    \ingroup creator-reference-editors
-
     \title Editing SCXML state charts
-
-    \brief Edit state chart (.scxml) files.
 
     State charts are a graphical way of modeling how a system reacts to
     stimuli. They define the \e states that the system can

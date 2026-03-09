@@ -215,8 +215,9 @@
     \list
         \li Drag the playhead (1) to a frame.
         \li Click on the ruler (2) to move to a frame.
-        \li Select the \uicontrol {To Start (Home)}, \uicontrol {Previous (,)},
-            \uicontrol {Next (.)}, or \uicontrol {To End (End)} buttons (3), or
+        \li Select the \uicontrol {Start Frame (Home)},
+            \uicontrol {Previous Frame (,)}, \uicontrol {NextFrame (.)}, or
+            \uicontrol {End Frame (End)} buttons (3), or
             use the keyboard shortcuts to move to the first, previous, next, or
             last frame on the timeline.
         \li Enter the number of a frame in the current keyframe field (4) to

@@ -18,6 +18,7 @@
 
 #include <QApplication>
 #include <QCheckBox>
+#include <QDesktopServices>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QMessageBox>
@@ -234,6 +235,9 @@ void setupFetchModule()
                     list->setTextFormat(Qt::TextFormat::MarkdownText);
                     list->setText(markdown);
                     list->setMargin(StyleHelper::SpacingTokens::PaddingVXxs);
+                    QObject::connect(list, &QLabel::linkActivated, list, [](const QString &url) {
+                        QDesktopServices::openUrl(url);
+                    });
                     return list;
                 });
                 entry.addCustomButton(

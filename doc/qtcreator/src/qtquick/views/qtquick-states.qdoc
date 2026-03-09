@@ -122,7 +122,7 @@
             select \uicontrol Default.
     \endlist
 
-    \image qmldesigner-screen-design.png "Designing views"
+    \image {qmldesigner-base-state.webp} {Using states to show and hide components.}
 
     \section1 Group states
 

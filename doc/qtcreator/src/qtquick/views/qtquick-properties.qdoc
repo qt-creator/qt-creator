@@ -180,7 +180,7 @@
     field of the \uicontrol {Fill color} or \uicontrol {Border color} property,
     for example.
 
-    \image {qtquick-designer-color-picker.png} {Color Picker view.}
+    \image {qmldesigner-color-picker.webp} {Color Picker view.}
 
     To choose a new color:
 
@@ -267,7 +267,7 @@
     To show the gradient bar, select a gradient type in the dropdown menu (5) of
     the color picker.
 
-    \image {qtquick-designer-color-picker.png} {Color Picker view.}
+    \image {qmldesigner-color-picker.webp} {Color Picker view.}
 
     A gradient is defined by two or more colors which are blended
     seamlessly. The colors are specified as a set of gradient stops,
