@@ -48,7 +48,7 @@ public:
             if (it != m_descriptions.constEnd())
                 return *it;
             const QString desc = QString::fromUtf8(gitClient().synchronousShow(
-                                 m_workingDirectory, revision, RunFlags::NoOutput));
+                                 m_workingDirectory, revision, RunFlag::NoOutput));
             m_descriptions[revision] = desc;
             return desc;
         }
@@ -215,7 +215,7 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
         arguments << "--no-merges";
     arguments << "--";
 
-    const Result<QString> res = gitClient().synchronousLog(repository, arguments, RunFlags::NoOutput);
+    const Result<QString> res = gitClient().synchronousLog(repository, arguments, RunFlag::NoOutput);
     if (!res) {
         VcsOutputWindow::appendError(repository, res.error());
         return false;

@@ -57,7 +57,7 @@ static ProcessTask vcsProcessTaskHelper(
     RunMode runMode = RunMode::Asynchronous)
 {
     const auto onDone = [data, resultStorage](const Process &process, DoneWith doneWith) {
-        if (data.flags & RunFlags::ExpectRepoChanges)
+        if (data.flags & RunFlag::ExpectRepoChanges)
             GlobalFileChangeBlocker::instance()->forceBlocked(false);
         ProcessResult result;
         if (doneWith == DoneWith::Cancel) {
@@ -73,12 +73,12 @@ static ProcessTask vcsProcessTaskHelper(
         const QString message = Process::exitMessage(process.commandLine(), result,
                                                      process.exitCode(), process.processDuration());
         if (result == ProcessResult::FinishedWithSuccess) {
-            if (data.flags & RunFlags::ShowSuccessMessage)
+            if (data.flags & RunFlag::ShowSuccessMessage)
                 VcsOutputWindow::appendMessage(workingDirectory, message);
-        } else if (!(data.flags & RunFlags::SuppressFailMessage)) {
+        } else if (!(data.flags & RunFlag::SuppressFailMessage)) {
             VcsOutputWindow::appendError(workingDirectory, message);
         }
-        if (data.flags & RunFlags::ExpectRepoChanges)
+        if (data.flags & RunFlag::ExpectRepoChanges)
             VcsManager::emitRepositoryChanged(workingDirectory);
         if (resultStorage)
             **resultStorage = CommandResult(process, result);
@@ -88,7 +88,7 @@ static ProcessTask vcsProcessTaskHelper(
     const auto onSetup = [data, onDone, timeout, runMode](Process &process) {
         Environment environment = data.runData.environment;
         VcsBase::setProcessEnvironment(&environment);
-        if (data.flags & RunFlags::ForceCLocale) {
+        if (data.flags & RunFlag::ForceCLocale) {
             environment.set("LANG", "C");
             environment.set("LANGUAGE", "C");
         }
@@ -98,45 +98,45 @@ static ProcessTask vcsProcessTaskHelper(
         process.setDisableUnixTerminal();
         process.setUseCtrlCStub(true);
 
-        if (data.flags & RunFlags::ExpectRepoChanges)
+        if (data.flags & RunFlag::ExpectRepoChanges)
             GlobalFileChangeBlocker::instance()->forceBlocked(true);
 
-        if (!(data.flags & RunFlags::SuppressCommandLogging))
+        if (!(data.flags & RunFlag::SuppressCommandLogging))
             VcsOutputWindow::appendCommand(data.runData.workingDirectory, data.runData.command);
 
-        if (data.flags & RunFlags::MergeOutputChannels)
+        if (data.flags & RunFlag::MergeOutputChannels)
             process.setProcessChannelMode(QProcess::MergedChannels);
 
         if (data.encoding.isValid())
             process.setEncoding(data.encoding);
 
-        const bool installStdError = !(data.flags & RunFlags::MergeOutputChannels)
-            && (data.stdErrHandler || data.progressParser || !(data.flags & RunFlags::SuppressStdErr));
+        const bool installStdError = !(data.flags & RunFlag::MergeOutputChannels)
+            && (data.stdErrHandler || data.progressParser || !(data.flags & RunFlag::SuppressStdErr));
 
         if (installStdError) {
             process.setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
             QObject::connect(&process, &Process::textOnStandardError, &process,
                              [flags = data.flags, workingDir = process.workingDirectory(),
                               handler = data.stdErrHandler](const QString &text) {
-                if (!(flags & RunFlags::SuppressStdErr))
+                if (!(flags & RunFlag::SuppressStdErr))
                     VcsOutputWindow::appendError(workingDir, text);
                 if (handler)
                     handler(text);
             });
         }
-        if (data.progressParser || data.stdOutHandler || data.flags & RunFlags::ShowStdOut) {
+        if (data.progressParser || data.stdOutHandler || data.flags & RunFlag::ShowStdOut) {
             process.setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
             QObject::connect(&process, &Process::textOnStandardOutput, &process,
                              [flags = data.flags, workingDir = process.workingDirectory(),
                               handler = data.stdOutHandler](const QString &text) {
-                if (flags & RunFlags::ShowStdOut)
+                if (flags & RunFlag::ShowStdOut)
                     VcsOutputWindow::appendText(workingDir, text);
                 if (handler)
                     handler(text);
             });
         }
 
-        if (!(data.flags & RunFlags::SuppressCommandLogging)) {
+        if (!(data.flags & RunFlag::SuppressCommandLogging)) {
             ProcessProgress *progress = new ProcessProgress(&process);
             if (data.progressParser)
                 progress->setProgressParser(data.progressParser);

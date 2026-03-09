@@ -299,7 +299,7 @@ void VcsBaseClient::pull(const FilePath &workingDir, const QString &srcLocation,
     args << vcsCommandString(PullCommand) << extraOptions;
     if (!srcLocation.isEmpty())
         args << srcLocation;
-    const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
+    const RunFlags flags = RunFlag::ShowStdOut | RunFlag::ShowSuccessMessage;
     enqueueCommand({workingDir, args, flags, {}, {}, handler});
 }
 
@@ -310,7 +310,7 @@ void VcsBaseClient::push(const FilePath &workingDir, const QString &dstLocation,
     args << vcsCommandString(PushCommand) << extraOptions;
     if (!dstLocation.isEmpty())
         args << dstLocation;
-    const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
+    const RunFlags flags = RunFlag::ShowStdOut | RunFlag::ShowSuccessMessage;
     enqueueCommand({workingDir, args, flags});
 }
 
@@ -453,7 +453,7 @@ void VcsBaseClient::status(const FilePath &workingDir,
 {
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions << file;
-    enqueueCommand({workingDir, args, RunFlags::ShowStdOut});
+    enqueueCommand({workingDir, args, RunFlag::ShowStdOut});
 }
 
 void VcsBaseClient::emitParsedStatus(const FilePath &repository, const QStringList &extraOptions)
@@ -551,7 +551,7 @@ void VcsBaseClient::commit(const FilePath &repositoryRoot,
     QStringList args(vcsCommandString(CommitCommand));
     args << extraOptions << files;
     enqueueCommand({.workingDirectory = repositoryRoot, .arguments = args,
-                    .flags = RunFlags::ShowStdOut,
+                    .flags = RunFlag::ShowStdOut,
                     .commandHandler = [commitMessageFile](const CommandResult &) {
                         if (!commitMessageFile.isEmpty())
                             QFile(commitMessageFile).remove();

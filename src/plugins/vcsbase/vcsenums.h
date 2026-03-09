@@ -5,9 +5,13 @@
 
 #include "vcsbase_global.h"
 
+#include <QMetaObject>
+
 namespace VcsBase {
 
-enum class RunFlags {
+Q_NAMESPACE_EXPORT(VCSBASE_EXPORT)
+
+enum class RunFlag {
     None                   = 0,         // Empty.
     // Process related
     MergeOutputChannels    = (1 << 0), // See QProcess::ProcessChannelMode::MergedChannels.
@@ -21,27 +25,8 @@ enum class RunFlags {
     ExpectRepoChanges      = (1 << 7), // Expect changes in repository by the command.
     NoOutput               = SuppressStdErr | SuppressFailMessage | SuppressCommandLogging
 };
-
-inline void operator|=(RunFlags &p, RunFlags r)
-{
-    p = RunFlags(int(p) | int(r));
-}
-
-inline RunFlags operator|(RunFlags p, RunFlags r)
-{
-    return RunFlags(int(p) | int(r));
-}
-
-inline void operator&=(RunFlags &p, RunFlags r)
-{
-    p = RunFlags(int(p) & int(r));
-}
-
-// Note, that it returns bool, not RunFlags.
-// It's only meant for testing whether a specific bit is set.
-inline bool operator&(RunFlags p, RunFlags r)
-{
-    return bool(int(p) & int(r));
-}
+Q_DECLARE_FLAGS(RunFlags, RunFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(RunFlags)
+Q_FLAG_NS(RunFlags)
 
 } // namespace VcsBase

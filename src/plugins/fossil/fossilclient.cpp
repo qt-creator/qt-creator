@@ -33,8 +33,6 @@ using namespace VcsBase;
 
 namespace Fossil::Internal {
 
-const RunFlags s_pullFlags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
-
 // Parameter widget controlling whitespace diff mode, associated with a parameter
 class FossilDiffConfig : public VcsBaseEditorConfig
 {
@@ -327,7 +325,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirec
         args << id;
 
     const CommandResult result = vcsSynchronousExec(workingDirectory, args,
-                                                    RunFlags::SuppressCommandLogging);
+                                                    RunFlag::SuppressCommandLogging);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return {};
 

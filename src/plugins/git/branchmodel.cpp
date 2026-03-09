@@ -864,7 +864,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     } else {
         const Result<QString> res = gitClient().synchronousLog(d->workingDirectory,
                                                                {"-n1", "--format=%H %ct"},
-                                                               RunFlags::SuppressCommandLogging);
+                                                               RunFlag::SuppressCommandLogging);
         if (res) {
             const QStringList values = res.value().split(' ');
             startHash = values[0];
@@ -1210,7 +1210,7 @@ QString BranchModel::toolTip(const QString &hash) const
     qCDebug(modelLog) << "toolTip() called: hash=" << hash;
     // Show the hash description excluding diff as toolTip
     const Result<QString> res = gitClient().synchronousLog(d->workingDirectory, {"-n1", hash},
-                                                           RunFlags::SuppressCommandLogging);
+                                                           RunFlag::SuppressCommandLogging);
     const QString result = res ? res.value() : res.error();
     qCDebug(modelLog) << "toolTip: result=" << result;
     return result;

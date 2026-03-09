@@ -37,7 +37,7 @@ class VCSBASE_EXPORT VcsCommandData
 public:
     Utils::FilePath workingDirectory;
     QStringList arguments;
-    RunFlags flags = RunFlags::None;
+    RunFlags flags = RunFlag::None;
     Core::ProgressParser progressParser = {};
     Utils::TextEncoding encoding = {};
     CommandHandler commandHandler = {};
@@ -75,11 +75,11 @@ public:
 
     // Fully synchronous VCS execution (QProcess-based)
     CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
-                                     const QStringList &args, RunFlags flags = RunFlags::None,
+                                     const QStringList &args, RunFlags flags = RunFlag::None,
                                      int timeoutS = -1, const Utils::TextEncoding &encoding = {}) const;
     CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
                                      const Utils::CommandLine &cmdLine,
-                                     RunFlags flags = RunFlags::None,
+                                     RunFlags flags = RunFlag::None,
                                      int timeoutS = -1, const Utils::TextEncoding &encoding = {}) const;
 
     void executeInEditor(const Utils::FilePath &workingDirectory,

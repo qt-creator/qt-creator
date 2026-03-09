@@ -196,7 +196,7 @@ public:
     void addFile(const Utils::FilePath &workingDirectory, const QString &fileName);
     Utils::Result<QString> synchronousLog(const Utils::FilePath &workingDirectory,
                                           const QStringList &arguments,
-                                          VcsBase::RunFlags flags = VcsBase::RunFlags::None);
+                                          VcsBase::RunFlags flags = VcsBase::RunFlag::None);
     bool synchronousAdd(const Utils::FilePath &workingDirectory, const QStringList &files,
                         const QStringList &extraOptions = {});
     bool synchronousDelete(const Utils::FilePath &workingDirectory,
@@ -260,7 +260,7 @@ public:
                                            QString *errorMessage = nullptr) const;
     SubmoduleDataMap submoduleList(const Utils::FilePath &workingDirectory) const;
     QByteArray synchronousShow(const Utils::FilePath &workingDirectory, const QString &id,
-                               VcsBase::RunFlags flags = VcsBase::RunFlags::None) const;
+                               VcsBase::RunFlags flags = VcsBase::RunFlag::None) const;
 
     bool synchronousRevListCmd(const Utils::FilePath &workingDirectory, const QStringList &extraArguments,
                                QString *output, QString *errorMessage = nullptr) const;

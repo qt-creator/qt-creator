@@ -60,7 +60,7 @@ class VCSBASE_EXPORT VcsProcessData
 {
 public:
     Utils::ProcessRunData runData;
-    RunFlags flags = RunFlags::None;
+    RunFlags flags = RunFlag::None;
     ExitCodeInterpreter interpreter = {};
     Core::ProgressParser progressParser = {};
     Utils::TextEncoding encoding = {};

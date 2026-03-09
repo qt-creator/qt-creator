@@ -453,7 +453,7 @@ void InstantBlame::perform()
         const FilePath topLevel = currentState().topLevel();
 
         qCDebug(log) << "Running git" << lineDiffOptions.join(' ');
-        gitClient().enqueueCommand({topLevel, lineDiffOptions, RunFlags::NoOutput, {},
+        gitClient().enqueueCommand({topLevel, lineDiffOptions, RunFlag::NoOutput, {},
                                     m_encoding, lineDiffHandler});
     };
     QStringList options = {"blame", "-p"};
@@ -463,7 +463,7 @@ void InstantBlame::perform()
         options.append("-M");
     options.append({"-L", lineString, "--", filePath.path()});
     qCDebug(log) << "Running git" << options.join(' ');
-    gitClient().enqueueCommand({workingDirectory, options, RunFlags::NoOutput, {}, m_encoding,
+    gitClient().enqueueCommand({workingDirectory, options, RunFlag::NoOutput, {}, m_encoding,
                                 commandHandler});
 }
 

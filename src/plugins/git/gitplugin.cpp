@@ -2237,7 +2237,7 @@ ExecutableItem GitPluginPrivate::cloneTask(const CloneTaskData &data) const
                               {"clone", "--progress", data.extraArgs, data.url, data.localName}};
     return vcsProcessTask({.runData = {command, data.baseDirectory,
                             gitClient().processEnvironment(data.baseDirectory)},
-                           .flags = RunFlags::SuppressStdErr,
+                           .flags = RunFlag::SuppressStdErr,
                            .stdOutHandler = data.stdOutHandler,
                            .stdErrHandler = data.stdErrHandler});
 }
