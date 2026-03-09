@@ -129,11 +129,12 @@ static QStringList baseDirWithAllDirectories(const QDir &baseDir, const QStringL
     return result;
 }
 
-static int commonFilePathLength(const QString &s1, const QString &s2)
+static int commonFilePathLength(
+    const QString &s1, const QString &s2, Qt::CaseSensitivity caseSensitivity)
 {
     int length = qMin(s1.size(), s2.size());
     for (int i = 0; i < length; ++i)
-        if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseSensitive) {
+        if (caseSensitivity == Qt::CaseSensitive) {
             if (s1[i] != s2[i])
                 return i;
         } else {
@@ -155,7 +156,8 @@ static FilePath correspondingHeaderOrSourceInProject(const FilePath &filePath,
     FilePath bestFilePath;
     int compareValue = 0;
     for (const FilePath &projectFile : projectFiles) {
-        int value = commonFilePathLength(filePath.toUrlishString(), projectFile.toUrlishString());
+        int value = commonFilePathLength(
+            filePath.toUrlishString(), projectFile.toUrlishString(), filePath.caseSensitivity());
         if (value > compareValue) {
             compareValue = value;
             bestFilePath = projectFile;

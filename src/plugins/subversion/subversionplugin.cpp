@@ -551,9 +551,13 @@ SubversionPluginPrivate::SubversionPluginPrivate()
 bool SubversionPluginPrivate::isVcsDirectory(const FilePath &fileName) const
 {
     const QString baseName = fileName.fileName();
-    return contains(m_svnDirectories, [baseName](const QString &s) {
-        return !baseName.compare(s, HostOsInfo::fileNameCaseSensitivity());
-    }) && fileName.isDir();
+    const auto caseSensitivity = fileName.caseSensitivity();
+    return contains(
+               m_svnDirectories,
+               [baseName, caseSensitivity](const QString &s) {
+                   return !baseName.compare(s, caseSensitivity);
+               })
+           && fileName.isDir();
 }
 
 bool SubversionPluginPrivate::activateCommit()

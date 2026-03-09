@@ -958,7 +958,7 @@ bool LanguageFilter::isSupported(const FilePath &filePath, const QString &mimeTy
     if (filePattern.isEmpty() && filePath.isEmpty())
         return mimeTypes.isEmpty();
     const QRegularExpression::PatternOptions options
-        = HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive
+        = filePath.caseSensitivity() == Qt::CaseInsensitive
               ? QRegularExpression::CaseInsensitiveOption
               : QRegularExpression::NoPatternOption;
     auto regexps = Utils::transform(filePattern, [&options](const QString &pattern){
