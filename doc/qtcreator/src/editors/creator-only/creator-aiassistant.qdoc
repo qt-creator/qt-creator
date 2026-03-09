@@ -122,12 +122,20 @@
     \list 1
         \li Go to \preferences > \uicontrol {AI Assistant} > \uicontrol General.
             \image {qtcreator-preferences-qtaiassistant-general.webp} {General tab in AI Assistant preferences}
-        \li Select an LLM for each configurable use case.
-        \li Go to \uicontrol Advanced.
+        \li In \uicontrol LLM, select the LLM.
+        \li In \uicontrol {Authentication token}, enter the API authentication
+            key for the LLM.
+    \endlist
+
+    To connect to multiple LLMs and switch between them for different use cases:
+
+    \list 1
+        \li Go to \preferences > \uicontrol {AI Assistant} > \uicontrol Advanced.
             \image {qtcreator-preferences-qtaiassistant-advanced.webp} {Advanced tab in AI Assistant preferences}
-        \li Enter the API authentication token and server URL of each LLM.
-            For more information on where to get the access information, see the
-            third-party LLM provider documentation.
+        \li Select an LLM for each configurable use case.
+        \li In \uicontrol {Model Configuration}, enter the API authentication
+            token and server URL of each LLM. For more information on where to
+            get the access information, see the third-party LLM provider documentation.
     \endlist
 
     \section1 Automatic code-completion

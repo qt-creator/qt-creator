@@ -107,11 +107,11 @@
     component file using the second file in a way similar to using a CSS
     stylesheet.
 
-    To use this experimental feature, right-click a component in the
+    To merge the current file with a template, right-click a component in the
     \uicontrol Navigator or \uicontrol {2D} view and select
-    \uicontrol {Merge File with Template} in the context menu.
+    \uicontrol {Merge with Template} in the context menu.
 
-    \image {qmldesigner-merge-with-template.png} {The Merge with Template dialog.}
+    \image {qmldesigner-merge-with-template.webp} {The Merge with Template dialog.}
 
     In the \uicontrol Template field, select the file to use as a template.
 

@@ -55,7 +55,7 @@
       \li In the \uicontrol Properties view, select \imageactionicon
         next to the property.
       \li Select \uicontrol {Set Binding}.
-        \image {qmldesigner-binding-editor.png} {Binding Editor.}
+        \image {qmldesigner-binding-editor.webp} {Binding Editor.}
         \caption The Binding Editor dialog.
     \endlist
 

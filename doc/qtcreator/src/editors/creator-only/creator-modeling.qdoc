@@ -9,10 +9,8 @@
 
 /*!
     \page creator-modeling.html
-    \previouspage creator-reference.html
-    \nextpage
-
-    \ingroup creator-reference-editors
+    \previouspage creator-how-to-create-state-charts.html
+    \nextpage creator-how-to-create-models.html
 
     \title Editing UML-style models
 

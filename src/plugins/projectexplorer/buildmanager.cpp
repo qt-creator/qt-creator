@@ -729,7 +729,7 @@ bool BuildManager::tasksAvailable()
 void BuildManager::startBuildQueue()
 {
     if (compileOutputSettings().popUp())
-        d->m_outputWindow->popup(IOutputPane::NoModeSwitch | IOutputPane::WithFocus);
+        d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
 
     const auto onAwaiterSetup = [](QSet<BuildSystem *> &buildSystems) {
         // Delay if any of the involved build systems are currently parsing.

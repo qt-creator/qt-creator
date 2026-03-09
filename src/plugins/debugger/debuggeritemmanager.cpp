@@ -1298,6 +1298,7 @@ void DebuggerSettingsPageWidget::cloneDebugger()
     newItem.setEngineType(item->engineType());
     auto addedItem = itemModel().addDebuggerItem(newItem, true);
     m_debuggerView->setCurrentIndex(mapFromSource(itemModel().indexForItem(addedItem)));
+    markSettingsDirty();
 }
 
 void DebuggerSettingsPageWidget::addDebugger()

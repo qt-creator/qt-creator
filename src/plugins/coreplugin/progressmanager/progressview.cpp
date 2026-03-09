@@ -143,17 +143,30 @@ void ProgressView::mousePressEvent(QMouseEvent *ev)
     QWidget::mousePressEvent(ev);
 }
 
-static QPoint boundedInParent(QWidget *widget, const QPoint &pos, QWidget *parent)
+static QPoint boundedInParent(
+    QWidget *widget, const QPoint &pos, QWidget *parent, const QRect &referenceRect)
 {
+    // pos and bounded are the lower-right point
     QPoint bounded = pos;
     bounded.setX(std::max(widget->rect().width(), std::min(bounded.x(), parent->width())));
     bounded.setY(std::max(widget->rect().height(), std::min(bounded.y(), parent->height())));
+    const QRect
+        newRect(bounded - QPoint(widget->size().width(), widget->size().height()), widget->size());
+    if (newRect.intersects(referenceRect))
+        bounded.setY(referenceRect.top());
     return bounded;
+}
+
+static QRect referenceRectInParent(QWidget *reference, QWidget *parent)
+{
+    if (!reference || !parent)
+        return {};
+    return QRect(reference->mapTo(parent, reference->rect().topLeft()), reference->rect().size());
 }
 
 void ProgressView::mouseMoveEvent(QMouseEvent *ev)
 {
-    if (m_clickPosition) {
+    if (m_clickPosition && parentWidget()) {
         const QPointF current = ev->globalPosition();
         if (m_isDragging
             || (current - *m_clickPosition).manhattanLength() > QApplication::startDragDistance()) {
@@ -161,7 +174,11 @@ void ProgressView::mouseMoveEvent(QMouseEvent *ev)
             const QPointF newGlobal = current - m_clickPositionInWidget;
             const QPoint bottomRightInParent = parentWidget()->mapFromGlobal(newGlobal).toPoint()
                                                + rect().bottomRight();
-            m_anchorBottomRight = boundedInParent(this, bottomRightInParent, parentWidget())
+            m_anchorBottomRight = boundedInParent(
+                                      this,
+                                      bottomRightInParent,
+                                      parentWidget(),
+                                      referenceRectInParent(m_referenceWidget, parentWidget()))
                                   - topRightReferenceInParent();
             if (m_anchorBottomRight.manhattanLength() <= QApplication::startDragDistance())
                 m_anchorBottomRight = {};
@@ -187,8 +204,13 @@ void ProgressView::reposition()
 
     m_pinButton->setVisible(m_anchorBottomRight != QPoint() && m_hovered);
 
-    move(boundedInParent(this, topRightReferenceInParent() + m_anchorBottomRight, parentWidget())
-         - rect().bottomRight());
+    move(
+        boundedInParent(
+            this,
+            topRightReferenceInParent() + m_anchorBottomRight,
+            parentWidget(),
+            referenceRectInParent(m_referenceWidget, parentWidget()))
+        - rect().bottomRight());
 }
 
 QPoint ProgressView::topRightReferenceInParent() const

@@ -19,7 +19,7 @@ A basic [MCP server](https://modelcontextprotocol.io/docs/getting-started/intro)
 for Qt Creator that lets AI assistants control opening files and projects,
 as well as building, running, and debugging, and a few other actions.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-mcp-server.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-how-to-mcp-server.html))
 
 ### Ant
 
@@ -28,7 +28,7 @@ Lightweight support for projects using the
 Open `build.xml` files as workspace projects that use `ant build` for
 building.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-project-opening.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-project-opening.html))
 
 ### Cargo
 
@@ -37,7 +37,7 @@ Lightweight support for projects using
 Rust package manager. Open `Cargo.toml` files as workspace projects that
 use `cargo build` for building, and `cargo run` for running.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-project-opening.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-project-opening.html))
 
 ### Dotnet
 
@@ -47,7 +47,7 @@ Open `.csproj` files as workspace projects that use `dotnet build` for building
 and `dotnet run` for running. It offers to set up the `csharp-ls` language
 server, if found.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-project-opening.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-project-opening.html))
 
 ### Gradle
 
@@ -57,7 +57,7 @@ Open `.gradle` or `.gradle.kts` files
 as workspace projects that offer to run `gradlew` or `gradle` for building, and
 `gradlew run` or `gradle run` for running.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-project-opening.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-project-opening.html))
 
 ### Swift
 
@@ -67,7 +67,7 @@ Open `Package.swift` files as workspace projects that use `swift build` for buil
 and `swift run` for running. It offers to set up the `sourcekit-lsp` Swift
 language server, if found.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-project-opening.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-project-opening.html))
 
 General
 -------
@@ -76,9 +76,9 @@ Added
 
 * The root folders of connected devices to the `File System` view
   ([QTCREATORBUG-33577](https://bugreports.qt.io/browse/QTCREATORBUG-33577))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-file-system-view.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-file-system-view.html))
 * The option to `Ignore generated files` in `Advanced Find` and Locator
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-reference-search-results-view.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-reference-search-results-view.html))
 * Support for
   [freedesktop.org compatible file managers](https://freedesktop.org/wiki/Specifications/file-manager-interface/)
   in `Show in File Manager`
@@ -86,22 +86,23 @@ Added
 * The option to explicitly remove categories in `External Tools`:
   `Environment > External Tools > Remove`
   ([QTCREATORBUG-33316](https://bugreports.qt.io/browse/QTCREATORBUG-33316))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-editor-external.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-editor-external.html))
 * The Qt Creator variable `HostOs:BatchFileSuffix`
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-use-qtc-variables.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-use-qtc-variables.html))
 * The option to define custom separators for list-style environment variables:
   `Environment > System > Variable separators`
   ([QTCREATORBUG-33790](https://bugreports.qt.io/browse/QTCREATORBUG-33790))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-edit-environment-settings.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-edit-environment-settings.html))
 * Auto-correction of the pattern separators in `Advanced Find` and
   `Preferences > Environment > MIME Types`
 * The option to `Copy Expanded Value` to the context menu of path choosers
+* The option to rearrange mode icons with drag & drop
 
 Changed
 
 * Moved `Preferences` from a dialog to a mode
   ([QTCREATORBUG-33787](https://bugreports.qt.io/browse/QTCREATORBUG-33787))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-switch-between-modes.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-switch-between-modes.html))
 
 Fixed
 
@@ -116,9 +117,9 @@ Added
 * The option to show a minimap in text editors:
   `Text Editor > Display > Enable minimap`
   ([QTCREATORBUG-29177](https://bugreports.qt.io/browse/QTCREATORBUG-29177))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-coding-navigating.html#using-minimap))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-coding-navigating.html#using-minimap))
 * Tabbed editors:
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-coding-navigating.html#using-tabbed-editors))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-coding-navigating.html#using-tabbed-editors))
   * `Close All Tabs` and `Close Other Tabs` to the context menu
   * A pinned indicator that also acts as an unpin button to tabs for
     pinned documents
@@ -137,11 +138,11 @@ Added
 * A quick fix for adding a class or struct definition from a forward
   declaration
   ([QTCREATORBUG-19929](https://bugreports.qt.io/browse/QTCREATORBUG-19929))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-reference-cpp-quick-fixes.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-reference-cpp-quick-fixes.html))
 * An image preview when hovering over references to image resources
   ([QTCREATORBUG-29727](https://bugreports.qt.io/browse/QTCREATORBUG-29727),
    [QTCREATORBUG-29819](https://bugreports.qt.io/browse/QTCREATORBUG-29819))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-preview-images.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-preview-images.html))
 
 Fixed
 
@@ -172,15 +173,15 @@ Added
 * The option to `Set QT_QML_GENERATE_QMLLS_INI to ON in CMake` to the
   `Qt Quick Application` wizard
   ([QTCREATORBUG-33673](https://bugreports.qt.io/browse/QTCREATORBUG-33673))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/quick-projects.html))
+  ([Documentation](https://doc.qt.io/qtcreator/quick-projects.html))
 * An image preview when hovering over references to image resources
   ([QTCREATORBUG-29727](https://bugreports.qt.io/browse/QTCREATORBUG-29727),
    [QTCREATORBUG-29819](https://bugreports.qt.io/browse/QTCREATORBUG-29819))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-preview-images.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-preview-images.html))
 * The option to rename all usages of a QML component when renaming the file
   ([QTCREATORBUG-33195](https://bugreports.qt.io/browse/QTCREATORBUG-33195))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-rename-symbols.html))
-* qmlls ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-use-qml-language-server.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-rename-symbols.html))
+* qmlls ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-use-qml-language-server.html))
     * The option to `Enable qmlls's CMake integration`
     * The option to `Deploy INI File to Current Project`
 
@@ -189,7 +190,7 @@ Changed
 * Improved the performance of scanning for QML files
 * Improved the `qmlformat` settings
   ([QTCREATORBUG-33305](https://bugreports.qt.io/browse/QTCREATORBUG-33305))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-preferences-qtquick-code-style.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-preferences-qtquick-code-style.html))
 
 Fixed
 
@@ -208,7 +209,7 @@ Added
 
 * The option to `Fold All` and `Unfold All`
   ([QTCREATORBUG-33783](https://bugreports.qt.io/browse/QTCREATORBUG-33783))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-git-diff.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-git-diff.html))
 * `Copy Cleaned Text` to remove leading dashes and plus signs
   ([QTCREATORBUG-23694](https://bugreports.qt.io/browse/QTCREATORBUG-23694))
 
@@ -246,10 +247,10 @@ Added
 * Support for Qt Creator variables in the build directory setting
   ([QTCREATORBUG-24121](https://bugreports.qt.io/browse/QTCREATORBUG-24121))
 * `Bulk Remove` to run configuration settings
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-run-settings.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-run-settings.html))
 * The option to export and import custom output parsers:
   `Preferences > Build & Run > Custom Output Parsers`
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-custom-output-parsers.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-custom-output-parsers.html))
 * The automatic import of project specific custom parsers and code styles from
   the project source directory
   (`.qtcreator/customparsers.json` and `.qtcreator/codestyles/`)
@@ -262,7 +263,7 @@ Added
       respective settings page
     * Auto-detection of the tools with individual settings pages when
       auto-detection is triggered in the device settings
-      ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-configure-tools-on-devices.html))
+      ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-configure-tools-on-devices.html))
       ([QTCREATORBUG-33677](https://bugreports.qt.io/browse/QTCREATORBUG-33677))
 
 Changed
@@ -273,7 +274,7 @@ Changed
 * Changed the option to run applications as root to run them as a different user:
   `Projects > Run Settings > Run as user`
   ([QTCREATORBUG-33655](https://bugreports.qt.io/browse/QTCREATORBUG-33655))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-run-settings-desktop-devices.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-run-settings-desktop-devices.html))
 
 Fixed
 
@@ -287,10 +288,10 @@ Added
 * The option to clear old output when you run CMake:
   `Preferences > CMake > General > Clear old CMake output on a new run`
   ([QTCREATORBUG-33838](https://bugreports.qt.io/browse/QTCREATORBUG-33838))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-build-settings-cmake.html#viewing-cmake-output))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-build-settings-cmake.html#viewing-cmake-output))
 * Support for `graphviz` and `trace` configure preset options
   ([QTCREATORBUG-33943](https://bugreports.qt.io/browse/QTCREATORBUG-33943))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-build-settings-cmake-presets.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-build-settings-cmake-presets.html))
 
 Changed
 
@@ -302,7 +303,7 @@ Changed
     * Removed the automatic execution of the Qt Online Installer
     * Qt Creator shows missing components in the `Issues` view
       with an option to install them
-    ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-edit-cmake-config-files.html#install-missing-qt-packages))
+    ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-edit-cmake-config-files.html#install-missing-qt-packages))
 * Improved the performance of parsing projects
 * Improved the `QML debugging and profiling` setting for build configurations
   by not relying on `CMAKE_CXX_FLAGS_INIT`
@@ -371,7 +372,7 @@ Added
 * The option to resize the category column in
   `Analyze > QML Profiler > Timeline`
   ([QTCREATORBUG-33045](https://bugreports.qt.io/browse/QTCREATORBUG-33045))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-profile-qml.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-profile-qml.html))
 
 ### Coco
 
@@ -396,12 +397,12 @@ Added
 * Support for protocol versions 5 and 6
   ([QTCREATORBUG-33759](https://bugreports.qt.io/browse/QTCREATORBUG-33759))
 * The option to show `Size and Alignment Errors` and `Other` issues
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-memcheck.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-memcheck.html))
 
 Terminal
 --------
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-reference-terminal-view.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-reference-terminal-view.html))
 
 Added
 
@@ -420,7 +421,7 @@ Added
   `File System` views
   ([QTCREATORBUG-32540](https://bugreports.qt.io/browse/QTCREATORBUG-32540),
    [QTCREATORBUG-33687](https://bugreports.qt.io/browse/QTCREATORBUG-33687))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-use-common-vcs-functions.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-use-common-vcs-functions.html))
 * File state
   * The version control state colors to items in the `Projects` and
     `File System` views
@@ -431,15 +432,15 @@ Added
 * An explicit `Refresh` button to the submit editor
 * The option to set the file status update interval for Git:
   `Preferences > Version Control > Show VCS file status`
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-git-stage-changes.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-git-stage-changes.html))
 
 ### Git
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-vcs-git.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-vcs-git.html))
 
 Added
 
-* Submit Editor ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-git-commit.html))
+* Submit Editor ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-git-commit.html))
     * `Stage`, `Mark Untracked`, and `Remove` to added files
     * `Revert Renaming` to renamed files
 * Options for using `--rebase-merges` and `--update-refs` for
@@ -447,7 +448,7 @@ Added
   ([QTCREATORBUG-33786](https://bugreports.qt.io/browse/QTCREATORBUG-33786))
 * `Omit Path` and `Omit Author` to the blame viewer
   ([QTCREATORBUG-33636](https://bugreports.qt.io/browse/QTCREATORBUG-33636))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-git-blame.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-git-blame.html))
 * Support for cherry-picking a list of commits from the `Branches` view
 * `Edit Commit Message` to the context menu on changes
 
@@ -481,6 +482,8 @@ Fixed
 
 * The detection of `clang-cl` from Visual Studio installations
   ([QTCREATORBUG-33600](https://bugreports.qt.io/browse/QTCREATORBUG-33600))
+* That application output was not always visible when debugging
+  ([QTCREATORBUG-33741](https://bugreports.qt.io/browse/QTCREATORBUG-33741))
 
 ### Linux
 
@@ -511,7 +514,7 @@ Changed
 
 * Removed the graphical `AndroidManifest.xml` editor
   ([QTCREATORBUG-33267](https://bugreports.qt.io/browse/QTCREATORBUG-33267))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-android-manifest.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-android-manifest.html))
 
 Fixed
 
@@ -532,25 +535,34 @@ Added
 * Fast file access support for 32-bit ARM Linux devices
 * The option to create kits for auto-detected device build tools:
   `Preferences > Devices > Create kits`
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-how-to-configure-tools-on-devices.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-configure-tools-on-devices.html))
 
 Changed
 
 * Changed the option to run applications as root to run them as a different user:
   `Projects > Run Settings > Run as user`
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/creator-run-settings-remote-linux.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-run-settings-remote-linux.html))
 
 ### Development Container
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-19.0/devcontainer.html))
+([Documentation](https://doc.qt.io/qtcreator/devcontainer.html))
 
 Added
 
 * The configuration files to the project tree
 
+### MCU
+
+([Documentation](https://doc.qt.io/qtcreator/creator-how-tos.html#mcus))
+
+Fixed
+
+* A crash after updating the QML code model
+
 Credits for these changes go to:
 --------------------------------
 Alessandro Portale  
+Alexandre Laurent  
 Ali Kianian  
 Andre Hartmann  
 André Pönitz  
@@ -563,6 +575,7 @@ Cristian Adam
 David M. Cotter  
 David Schulz  
 Eike Ziller  
+Frank Osterfeld  
 Friedemann Kleint  
 Henning Gruendl  
 Jaroslaw Kobus  

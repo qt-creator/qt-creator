@@ -32,8 +32,7 @@
             \image {add-updated-local-custom-property.webp} {Connections View Properties tab.}
             For more information, see \l{Add custom properties}.
         \li To enable users to interact with the component instances, connect
-            the instances to signals on the \uicontrol Connections tab in the
-            \uicontrol {Connections} view. For example, you can specify what
+            the instances to signals. For example, you can specify what
             happens when a component instance is clicked. For more information,
             see \l{Connect components to signals}.
             \image {qmldesigner-connections.webp} {Connections View Connections tab.}

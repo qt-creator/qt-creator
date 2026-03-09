@@ -38,12 +38,15 @@
     callbacks (also called signal handlers), which accept mouse events within
     a defined area.
 
-    One quick way to define a mouse area is to \l{Set anchors and margins}{anchor}
-    the mouse area to its parent's area. If the parent is a \l {Rectangle} (or
-    any component that is derived from an \l {basic-item}{Item}), the mouse area
-    will fill the area defined by the parent's dimensions. Alternatively, you
-    can define an area smaller or larger than the parent. Several controls, such
-    as \l {Button}{buttons}, contain a mouse area.
+    One quick way to define a mouse area is to select a component and then
+    select \uicontrol {Add Mouse Area} in the context menu. This
+    \l{Set anchors and margins}{anchors} the mouse area to its parent's area.
+    If the parent is a \l {Rectangle} (or any component that is derived from an
+    \l {basic-item}{Item}), the mouse area fills the area defined by the parent's
+    dimensions.
+
+    You can also define an area smaller or larger than the parent. Several
+    controls, such as \l {Button}{buttons}, contain a mouse area.
 
     \section2 Predefined signals
 
@@ -71,20 +74,30 @@
 
     To create a mouse area:
 
-    \list 1
-        \li Go to \uicontrol Components > \uicontrol {Default Components} >
-            \uicontrol Basic.
-        \li Drag a \uicontrol {Mouse Area} component to another component in the
-            \uicontrol Navigator or \uicontrol 2D view.
-        \li In the \uicontrol {Mouse Area} section, select \uicontrol Area to enable
-            mouse handling for the proxied component.
-            \image {qtquick-properties-mouse-area.png} {Mouse Area properties.}
-        \li By default, \uicontrol {Mouse Area} components only report mouse
-            clicks and not changes to the position of the mouse cursor. Select
-            \uicontrol Hover to ensure that the appropriate handlers are used and
-            the values of other properties are updated as necessary even when no
-            mouse buttons are pressed.
+    \list
+        \li Select a component in the \uicontrol Navigator or \uicontrol 2D view,
+            and then select \uicontrol {Add Mouse Area} in the context menu.
+        \li Drag the \uicontrol {Mouse Area} component from \uicontrol Components:
+            \list 1
+                \li Go to \uicontrol Components > \uicontrol {Default Components} >
+                    \uicontrol Basic.
+                \li Drag a \uicontrol {Mouse Area} component to another component in the
+                    \uicontrol Navigator or \uicontrol 2D view.
+            \endlist
     \endlist
+
+    In \uicontrol Properties, in the \uicontrol {Mouse Area} section,
+    \uicontrol Area enables mouse handling for the proxied component.
+
+    \image {qtquick-properties-mouse-area.png} {Mouse Area properties.}
+
+    \section2 Set hovering
+
+    By default, \uicontrol {Mouse Area} components only report mouse
+    clicks and not changes to the position of the mouse cursor. Select
+    \uicontrol Hover to ensure that the appropriate handlers are used and
+    the values of other properties are updated as necessary even when no
+    mouse buttons are pressed.
 
     \section2 Make mouse areas transparent to mouse events
 
@@ -103,10 +116,9 @@
     You can add support for more buttons in the \uicontrol {Code} view,
     \uicontrol Edit mode, or \uicontrol {Binding Editor} by combining the
     values with the OR operator (|). For more information about the available
-    values, see the developer documentation for \l {MouseArea::acceptedButtons}
-    {acceptedButtons}.
+    values, see \l {MouseArea::acceptedButtons}.
 
-    \image {qtquick-properties-mouse-area-accepted-buttons.png} {Adding accepted buttons in Binding Editor.}
+    \image {qtquick-properties-mouse-area-accepted-buttons.webp} {Adding accepted buttons in Binding Editor.}
 
     \section2 Set cursor shape
 
