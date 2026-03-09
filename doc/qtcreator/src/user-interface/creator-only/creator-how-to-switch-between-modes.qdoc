@@ -20,6 +20,8 @@
         \li Use the \l{keyboard-shortcuts}{corresponding keyboard shortcut}.
     \endlist
 
+    Drag mode icons on the mode selector to change their places.
+
     \table
     \header
         \li {2,1} Mode
