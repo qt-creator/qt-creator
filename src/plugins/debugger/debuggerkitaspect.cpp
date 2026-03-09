@@ -59,6 +59,8 @@ static const QList<DebuggerItem> debuggersForKit(const Kit *k)
     if (const IDeviceConstPtr device = RunDeviceKitAspect::device(k)) {
         const FilePath rootPath = device->rootPath();
         debuggers << Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {
+            if (debuggers.contains(item))
+                return false;
             if (item.isGeneric())
                 return device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
             return item.command().isSameDevice(rootPath);
