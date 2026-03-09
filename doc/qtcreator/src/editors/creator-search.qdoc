@@ -51,12 +51,10 @@
             All occurrences of the text are highlighted in the editor as you
             type.
 
-        \li To go to the next occurrence, select
-            \inlineimage {icons/next.png} {Find Next} (\uicontrol {Find Next})
-            or \key F3.
+        \li To go to the next occurrence, select \imagenext
+            (\uicontrol {Find Next}) or \key F3.
 
-        \li To go to the previous occurrence, select
-            \inlineimage {icons/prev.png} {Find Previous}
+        \li To go to the previous occurrence, select \imageprev
             (\uicontrol {Find Previous}) or \key {Shift+F3}.
 
         \li To select all found occurrences in a file, select

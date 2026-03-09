@@ -36,7 +36,7 @@
 
             \image {qtcreator-kit-selector.webp} {Kit selector}
 
-        \li Select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run).
+        \li Select \imagerunsmall (\uicontrol Run).
 
     \endlist
 
@@ -73,7 +73,7 @@
 
     \image {qtcreator-application-output.webp} {Application Output view}
 
-    Select \inlineimage {icons/run_small.png} {Run}
+    Select \imagerunsmall (\uicontrol Run)
     to re-run applications without building them first.
 
     This is useful when developing Qt Quick applications because the QML files

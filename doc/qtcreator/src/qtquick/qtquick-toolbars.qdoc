@@ -78,9 +78,8 @@
 
     \section1 Pin toolbars
 
-    Drag the toolbar to pin it to another location. Select
-    \inlineimage {icons/pin.png} {Pin} to unpin the toolbar and move
-    it to its default location.
+    Drag the toolbar to pin it to another location. Select \imagepin
+    (\uicontrol Unpin) to unpin the toolbar and move it to its default location.
 
     To pin toolbars by default, select \uicontrol {Pin Qt Quick Toolbar}.
 

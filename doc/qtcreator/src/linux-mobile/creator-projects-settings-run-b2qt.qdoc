@@ -20,7 +20,7 @@
                 \QC automatically adds the device to \preferences >
                 \uicontrol Devices and to suitable \B2Q kits in
                 \preferences > \uicontrol Kits.
-            \li Select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run).
+            \li Select \imagerunsmall (\uicontrol Run).
         \endlist
 
     \QC uses the compiler from the kit (toolchain) to build the application.

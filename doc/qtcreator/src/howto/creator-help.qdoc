@@ -342,8 +342,7 @@
 
             \image {qtcreator-help-filter-attributes.png} {Filters tab in Help preferences}
 
-        \li Select \inlineimage {icons/plus.png} {Add Filter}
-            (\uicontrol {Add Filter}) to add a new filter in
+        \li Select \imageplus (\uicontrol {Add Filter}) to add a new filter in
             the \uicontrol {Add Filter} dialog.
 
         \li In \uicontrol {Filter name}, enter a name for the filter,
@@ -372,8 +371,8 @@
 
     \section1 Remove filters
 
-    To remove the selected filter, select \inlineimage {icons/minus.png}
-    {Remove Filter} (\uicontrol {Remove Filter}).
+    To remove the selected filter, select \imageminus
+    (\uicontrol {Remove Filter}).
 
     \sa {Read documentation}{How to: Read documentation}
 */

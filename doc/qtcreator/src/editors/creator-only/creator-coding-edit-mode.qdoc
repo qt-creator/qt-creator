@@ -80,8 +80,7 @@
     (\key {Ctrl+Alt+Left}).
 
     To pin a tab to the front of the tab bar, right-click the tab and select
-    \uicontrol {Pin}. Select \inlineimage {icons/pin.png} {Unpin} to unpin
-    the tab.
+    \uicontrol {Pin}. Select \imagepin (\uicontrol Unpin) to unpin the tab.
 
     \section2 Using minimap
 
@@ -110,8 +109,8 @@
         \li Purpose
         \li Read More
     \row
-        \li \inlineimage {icons/prev.png} {Go Back}
-            \inlineimage {icons/next.png} {Go Forward}
+        \li \imageprev (\uicontrol {Go Back}) or
+            \imagenext (\uicontrol {Go Forward})
         \li Browse backward or forward through your location history.
         \li
     \row
@@ -287,8 +286,7 @@
     \section1 Browse location history
 
     To browse backward or forward through your location history, select
-    \inlineimage {icons/prev.png} {Go Back} (\uicontrol {Go Back}) or
-    \inlineimage {icons/next.png} {Go Forward} (\uicontrol {Go Forward})
+    \imageprev (\uicontrol {Go Back}) or \imagenext (\uicontrol {Go Forward})
     on the editor toolbar.
 
     To return to the last location where you made a change, go to

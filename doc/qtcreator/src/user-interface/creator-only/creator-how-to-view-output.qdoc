@@ -33,9 +33,8 @@
     \inlineimage {icons/arrowup.png} {Maximize}
     (\uicontrol Maximize) or \key {Alt+Shift+9}.
 
-    To increase or decrease the output text size, select
-    \inlineimage {icons/plus.png} {Zoom In} (\uicontrol {Zoom In}) or \key Ctrl++
-    or \inlineimage {icons/minus.png} {Zoom Out} (\uicontrol {Zoom Out})
+    To increase or decrease the output text size, select \imageplus
+    (\uicontrol {Zoom In}) or \key Ctrl++ \imageminus (\uicontrol {Zoom Out})
     or \key Ctrl+-. You cannot zoom in some output views.
 
     \section1 Change text encoding

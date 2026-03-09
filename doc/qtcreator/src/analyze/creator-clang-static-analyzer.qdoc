@@ -86,7 +86,7 @@
     \inlineimage {icons/refactormarker.png} {Light bulb icon}
     icon, hover the mouse pointer over the line.
 
-    Select the \inlineimage {icons/settings.png} {Settings}
+    Select the \imagesettings (\uicontrol {Preferences})
     button to customize diagnostics for the current project.
 
     \section2 Filter dianostics

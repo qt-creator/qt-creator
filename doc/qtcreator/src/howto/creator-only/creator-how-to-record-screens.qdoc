@@ -17,7 +17,7 @@
     \list 1
         \li Select \uicontrol Tools > \uicontrol {Record Screen}.
            \image {qtcreator-record-screen.webp} {Record Screen dialog}
-        \li Select \inlineimage {icons/settings.png} {Options}
+        \li Select \imagesettings (\uicontrol {Options})
             to select the screen to record from and to set the recorded
             screen area.
         \li Select \inlineimage {icons/recordfill.png} {Record}
@@ -66,7 +66,7 @@
     \inlineimage {icons/filesave.png} {Save}.
 
     To copy a cropped version of the current frame to the clipboard, select
-    \inlineimage {icons/camera.png} {Copy}.
+    \imagecamera (\uicontrol {Copy}).
 
     To trim a recording:
 

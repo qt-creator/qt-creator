@@ -241,8 +241,8 @@
     \list
         \li Select \preferences > \uicontrol {Build & Run} >
             \uicontrol {Application Output}.
-        \li Select \inlineimage {icons/settings.png} {Configure}
-            (\uicontrol {Configure}) in \uicontrol {Application Output}.
+        \li Select \imagesettings (\uicontrol {Configure}) in
+            \uicontrol {Application Output}.
     \endlist
 
     \image {qtcreator-preferences-application-output.webp} {Application Output tab in Build & Run preferences}
@@ -290,8 +290,7 @@
         \li Open the preferences:
             \list
                 \li In the \uicontrol {Compile Output} view,
-                    select \inlineimage {icons/settings.png} {Configure}
-                    (\uicontrol {Configure}).
+                    select \imagesettings (\uicontrol {Configure}).
                 \li Select \preferences > \uicontrol {Build & Run} >
                     \uicontrol {Compile Output}.
             \endlist
