@@ -169,14 +169,6 @@ public:
     ~BaseSettingsWidget() override = default;
 };
 
-class LANGUAGECLIENT_EXPORT StdIOSettingsWidget : public BaseSettingsWidget
-{
-    Q_OBJECT
-public:
-    explicit StdIOSettingsWidget(const StdIOSettings* settings, QWidget *parent = nullptr);
-    ~StdIOSettingsWidget() override = default;
-};
-
 class ProjectSettings
 {
 public:

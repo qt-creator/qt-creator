@@ -870,7 +870,10 @@ StdIOSettings::~StdIOSettings() = default;
 
 QWidget *StdIOSettings::createSettingsWidget(QWidget *parent)
 {
-    return new StdIOSettingsWidget(this, parent);
+    return new BaseSettingsWidget(this, parent, [this](Layouting::Layout *layout) {
+        layout->addRow({&executable});
+        layout->addRow({&arguments});
+    });
 }
 
 bool StdIOSettings::isValid() const
@@ -934,16 +937,6 @@ BaseSettingsWidget::BaseSettingsWidget(
     // clang-format on
 }
 
-
-StdIOSettingsWidget::StdIOSettingsWidget(const StdIOSettings *settings, QWidget *parent)
-    : BaseSettingsWidget(settings, parent)
-{
-    Layouting::Layout l(layout());
-    settings->executable.addToLayout(l);
-    l.flush();
-    settings->arguments.addToLayout(l);
-    l.flush();
-}
 
 bool LanguageFilter::isSupported(const FilePath &filePath, const QString &mimeTypeName) const
 {
