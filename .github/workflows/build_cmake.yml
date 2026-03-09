@@ -291,12 +291,14 @@ jobs:
             set(archive "${module}.7z")
             get_sub_url(sub_url ${module})
             set(url "${qt_base_url}/${sub_url}")
+            # Transform to cmake path, to avoid backslash warnings on Windows
+            file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${archive}" archive_path)
             foreach(retry RANGE 10)
               cmake_language(EVAL CODE "
                 message(\"Downloading ${module} from ${url}\")
-                file(DOWNLOAD \"${url}\" \"$ENV{GITHUB_WORKSPACE}/${archive}\" SHOW_PROGRESS)
+                file(DOWNLOAD \"${url}\" \"${archive_path}\" SHOW_PROGRESS)
               ")
-              file(SIZE "$ENV{GITHUB_WORKSPACE}/${archive}" fileSize)
+              file(SIZE "${archive_path}" fileSize)
               if (fileSize GREATER 0)
                 break()
               endif()
