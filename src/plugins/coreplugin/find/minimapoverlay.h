@@ -8,6 +8,8 @@
 #include <QTimer>
 #include <QWidget>
 
+#include <optional>
+
 QT_BEGIN_NAMESPACE
 class QMouseEvent;
 class QTextDocument;
@@ -69,8 +71,7 @@ private:
     int m_scrollbarDefaultWidth;
 
     bool m_dragging = false;
-    int m_dragOffset = 0;
-    int m_dragStartValue = 0;
+    std::optional<int> m_dragOffset;
 
     QImage m_minimap;
     QTimer m_updateTimer;

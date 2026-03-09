@@ -323,8 +323,6 @@ void MinimapOverlay::mousePressEvent(QMouseEvent *event)
     const QRect &thumb = tg.rect;
 
     if (thumb.contains(clickPos)) {
-        m_dragging = true;
-        m_dragStartValue = m_vScroll->value();
         m_dragOffset = clickPos.y() - thumb.top();
     }
 
@@ -333,10 +331,11 @@ void MinimapOverlay::mousePressEvent(QMouseEvent *event)
 
 void MinimapOverlay::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!m_vScroll || !m_dragging)
+    if (!m_vScroll || !m_dragOffset)
         return;
 
-    const int scrollPosition = minimapPixelPosToRangeValue(event->pos().y() - m_dragOffset);
+    m_dragging = true;
+    const int scrollPosition = minimapPixelPosToRangeValue(event->pos().y() - *m_dragOffset);
     m_vScroll->setValue(qBound(m_vScroll->minimum(), scrollPosition, m_vScroll->maximum()));
 
     event->accept();
@@ -348,6 +347,7 @@ void MinimapOverlay::mouseReleaseEvent(QMouseEvent *event)
         return;
 
     const bool wasDragging = m_dragging;
+    m_dragOffset.reset();
     m_dragging = false;
 
     if (!wasDragging) {
@@ -355,8 +355,8 @@ void MinimapOverlay::mouseReleaseEvent(QMouseEvent *event)
         const QRect &thumb = tg.rect;
         if (event->modifiers() == Qt::AltModifier) {
             // paging
-            const int delta = (event->pos().y() < thumb.top()) ? -m_vScroll->pageStep()
-                                                               : m_vScroll->pageStep();
+            const int delta = (event->pos().y() < thumb.center().y()) ? -m_vScroll->pageStep()
+                                                                      : m_vScroll->pageStep();
             const int scrollPosition = m_vScroll->value() + delta;
             m_vScroll->setValue(qBound(m_vScroll->minimum(), scrollPosition, m_vScroll->maximum()));
         } else {
