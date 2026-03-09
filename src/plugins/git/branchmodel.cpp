@@ -284,6 +284,7 @@ public:
     bool hasTags() const { return rootNode->children.count() > Tags; }
     void parseOutputLine(const QString &line, bool force = false);
     void flushOldEntries();
+    ExecutableItem updateUpstreamStatusTask(BranchNode *node);
     void updateAllUpstreamStatus(BranchNode *node);
 
     BranchModel *q = nullptr;
@@ -295,6 +296,7 @@ public:
     QDateTime currentDateTime;
     QStringList obsoleteLocalBranches;
     QSingleTaskTreeRunner taskTreeRunner;
+    QParallelTaskTreeRunner parallelTaskTreeRunner;
     bool oldBranchesIncluded = false;
 
     struct OldEntry
@@ -928,7 +930,7 @@ void BranchModel::setRemoteTracking(const QModelIndex &trackingIndex)
     qCDebug(modelLog) << "setRemoteTracking: currentName=" << currentName << "shortTracking=" << shortTracking << "tracking=" << tracking;
     gitClient().synchronousSetTrackingBranch(d->workingDirectory, currentName, tracking);
     d->currentBranch->tracking = shortTracking;
-    updateUpstreamStatus(d->currentBranch);
+    d->parallelTaskTreeRunner.start({d->updateUpstreamStatusTask(d->currentBranch)});
     emit dataChanged(current, current);
     qCDebug(modelLog) << "setRemoteTracking: tracking branch set and dataChanged emitted";
 }
@@ -969,7 +971,7 @@ void BranchModel::refreshCurrentBranch()
     BranchNode *node = indexToNode(currentIndex);
     QTC_ASSERT(node, return);
 
-    updateUpstreamStatus(node);
+    d->parallelTaskTreeRunner.start({d->updateUpstreamStatusTask(node)});
     qCDebug(modelLog) << "refreshCurrentBranch: upstream status updated for" << node->name;
 }
 
@@ -1145,47 +1147,48 @@ void BranchModel::removeNode(const QModelIndex &idx)
     qCDebug(modelLog) << "removeNode: done";
 }
 
-void BranchModel::updateUpstreamStatus(BranchNode *node)
+ExecutableItem BranchModel::Private::updateUpstreamStatusTask(BranchNode *node)
 {
     if (!node || !node->isLocal())
-        return;
-    qCDebug(modelLog) << "updateUpstreamStatus() called: node=" << node->name;
+        return successItem;
 
-    Process *process = new Process(node);
-    process->setEnvironment(gitClient().processEnvironment(d->workingDirectory));
-    QStringList parameters = {"rev-list", "--no-color", "--count"};
+    QStringList arguments = {"rev-list", "--no-color", "--count"};
     if (node->tracking.isEmpty())
-        parameters += {node->fullRef(), "--not", "--remotes"};
+        arguments += {node->fullRef(), "--not", "--remotes"};
     else
-        parameters += {"--left-right", node->fullRef() + "..." + node->tracking};
-    process->setCommand({gitClient().vcsBinary(d->workingDirectory), parameters});
-    process->setWorkingDirectory(d->workingDirectory);
-    qCDebug(modelLog) << "updateUpstreamStatus: starting process with parameters" << parameters;
-    connect(process, &Process::done, this, [this, process, node] {
-        qCDebug(modelLog) << "updateUpstreamStatus: process done for node" << node->name
-                          << "result=" << int(process->result());
-        process->deleteLater();
-        if (process->result() != ProcessResult::FinishedWithSuccess)
+        arguments += {"--left-right", node->fullRef() + "..." + node->tracking};
+
+    const auto commandHandler = [this, nodePtr = QPointer<BranchNode>(node)](const CommandResult &result) {
+        if (!nodePtr)
             return;
-        const QString text = process->cleanedStdOut();
+
+        qCDebug(modelLog) << "updateUpstreamStatus: process done for node" << nodePtr->name
+                          << "result=" << int(result.result());
+        if (result.result() != ProcessResult::FinishedWithSuccess)
+            return;
+        const QString text = result.cleanedStdOut();
         if (text.isEmpty())
             return;
         const QStringList split = text.trimmed().split('\t');
-        if (node->tracking.isEmpty()) {
-            node->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), 0));
+        if (nodePtr->tracking.isEmpty()) {
+            nodePtr->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), 0));
         } else {
             QTC_ASSERT(split.size() == 2, return);
 
-            node->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), split.at(1).toInt()));
+            nodePtr->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), split.at(1).toInt()));
         }
-        const QModelIndex idx = nodeToIndex(node, ColumnBranch);
+        const QModelIndex idx = q->nodeToIndex(nodePtr.get(), ColumnBranch);
         if (idx.isValid()) {
-            emit dataChanged(idx, idx, {Qt::DisplayRole});
-            qCDebug(modelLog) << "updateUpstreamStatus: dataChanged emitted for node" << node->name;
+            emit q->dataChanged(idx, idx, {Qt::DisplayRole});
+            qCDebug(modelLog) << "updateUpstreamStatus: dataChanged emitted for node" << nodePtr->name;
         }
+    };
+
+    return gitClient().commandTask({
+        .workingDirectory = workingDirectory,
+        .arguments = arguments,
+        .commandHandler = commandHandler
     });
-    process->start();
-    qCDebug(modelLog) << "updateUpstreamStatus: process started";
 }
 
 void BranchModel::Private::updateAllUpstreamStatus(BranchNode *node)
@@ -1198,7 +1201,7 @@ void BranchModel::Private::updateAllUpstreamStatus(BranchNode *node)
 
     if (node->isLeaf()) {
         qCDebug(modelLog) << "Private::updateAllUpstreamStatus: updating leaf node" << node->name;
-        q->updateUpstreamStatus(node);
+        parallelTaskTreeRunner.start({updateUpstreamStatusTask(node)});
         return;
     }
     for (BranchNode *child : std::as_const(node->children))
